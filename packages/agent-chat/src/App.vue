@@ -13,6 +13,7 @@ const {
   mode = 'full',
   getAccessToken,
   getAgentKey,
+  getActiveDocumentJson,
 } = defineProps<{
   registryDocuments: RegistryDocument[]
   registryUrl: string
@@ -21,11 +22,13 @@ const {
   mode?: ChatMode
   getAccessToken?: () => string
   getAgentKey?: () => string
+  getActiveDocumentJson?: () => string
 }>()
 
 provide(
   STATE_SYMBOL,
   createState({
+    getActiveDocumentJson,
     initialRegistryDocuments: registryDocuments,
     registryUrl,
     baseUrl,

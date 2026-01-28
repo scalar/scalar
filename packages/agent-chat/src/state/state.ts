@@ -86,6 +86,7 @@ type State = {
   api: Api
   uploadedTmpDocumentUrl: Ref<string | undefined>
   curatedDocuments: Ref<ApiMetadata[]>
+  getActiveDocumentJson?: () => string
 }
 
 function createChat({
@@ -122,6 +123,7 @@ export function createState({
   mode,
   getAccessToken,
   getAgentKey,
+  getActiveDocumentJson,
 }: {
   initialRegistryDocuments: { namespace: string; slug: string }[]
   registryUrl: string
@@ -130,6 +132,7 @@ export function createState({
   mode: ChatMode
   getAccessToken?: () => string
   getAgentKey?: () => string
+  getActiveDocumentJson?: () => string
 }): State {
   const prompt = ref<State['prompt']['value']>('')
   const registryDocuments = ref<ApiMetadata[]>([])
@@ -238,6 +241,7 @@ export function createState({
     api,
     uploadedTmpDocumentUrl,
     curatedDocuments,
+    getActiveDocumentJson,
   }
 }
 

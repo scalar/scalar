@@ -30,8 +30,8 @@ function handleUpgrade() {
     </strong>
     <div class="paymentContainer">
       <button
-        type="button"
         class="actionButton approveButton"
+        type="button"
         @click="handleUpgrade">
         Upgrade
       </button>

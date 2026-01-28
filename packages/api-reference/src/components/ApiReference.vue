@@ -851,7 +851,9 @@ watch(showAgent, () => {
         class="agent-scalar">
         <div
           class="agent-scalar-container custom-scroll custom-scroll-self-contain-overflow">
-          <AgentChat :agentConfig="configList[activeSlug]?.agent" />
+          <AgentChat
+            :agentConfig="configList[activeSlug]?.agent"
+            :workspaceStore />
         </div>
       </div>
       <!-- Mobile Header and Sidebar when in modern layout -->
@@ -888,8 +890,8 @@ watch(showAgent, () => {
             <template #header>
               <!-- Wrap in a div when slot is filled -->
               <DocumentSelector
-                class="-mb-1 p-3 pb-0"
                 v-if="documentOptionList.length > 1"
+                class="-mb-1 p-3 pb-0"
                 :modelValue="activeSlug"
                 :options="documentOptionList"
                 @update:modelValue="changeSelectedDocument" />

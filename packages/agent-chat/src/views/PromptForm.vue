@@ -85,13 +85,8 @@ const uploadTmpDoc = useUploadTmpDocument()
 function acceptTerms() {
   state.terms.accept()
 
-  if (
-    state.mode === 'preview' &&
-    state.workspaceStore.workspace.activeDocument
-  ) {
-    uploadTmpDoc.uploadTempDocument(
-      state.workspaceStore.exportActiveDocument('json')!,
-    )
+  if (state.mode === 'preview' && state.getActiveDocumentJson) {
+    uploadTmpDoc.uploadTempDocument(state.getActiveDocumentJson())
   }
 }
 

@@ -9,6 +9,26 @@ export type UploadTmpDocumentState =
   | { type: 'processing' }
   | { type: 'done' }
 
+const TMP_DOC_LS_KEY = 'scalar-tmp-doc'
+
+function saveTmpDocumentInLocalStorage({ namespace, slug }: { namespace: string; slug: string }) {
+  localStorage.setItem(TMP_DOC_LS_KEY, JSON.stringify({ namespace, slug }))
+}
+
+export function getTmpDocFromLocalStorage() {
+  const tmpDoc = localStorage.getItem(TMP_DOC_LS_KEY)
+  if (!tmpDoc) {
+    return
+  }
+
+  return z
+    .object({
+      namespace: z.string(),
+      slug: z.string(),
+    })
+    .parse(JSON.parse(tmpDoc))
+}
+
 export function useUploadTmpDocument() {
   const state = useState()
   const uploadState = ref<UploadTmpDocumentState>()
@@ -62,6 +82,17 @@ export function useUploadTmpDocument() {
           method: 'GET',
         },
       )
+
+      saveTmpDocumentInLocalStorage({
+        namespace: data.namespace,
+        slug: data.slug,
+      })
+
+      await state.addDocument({
+        namespace: data.namespace,
+        slug: data.slug,
+        removable: false,
+      })
 
       if (!embeddingStatusResponse.ok) {
         uploadState.value = {
