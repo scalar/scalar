@@ -1,21 +1,16 @@
 import { useDebounceFn } from '@vueuse/core'
 import { computed, ref } from 'vue'
 
-import { api } from '@/api'
 import type { ApiMetadata } from '@/entities/registry/document'
 import { useState } from '@/state/state'
 
 export function useSearch() {
-  const { baseUrl, getAccessToken, getAgentKey } = useState()
+  const { api } = useState()
 
   const queryRef = ref('')
 
   const search = useDebounceFn(async (q) => {
-    const searchResponse = await api({
-      baseUrl,
-      getAccessToken,
-      getAgentKey,
-    }).search(q)
+    const searchResponse = await api.search(q)
 
     if (!searchResponse.success) {
       return

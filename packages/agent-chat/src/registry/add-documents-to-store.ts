@@ -5,7 +5,7 @@ import type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { Ref } from 'vue'
 
-import { api } from '@/api'
+import type { Api } from '@/api'
 import type { ApiMetadata } from '@/entities/registry/document'
 import { restoreAuthSecretsFromStorage } from '@/helpers'
 import { createDocumentName } from '@/registry/create-document-name'
@@ -16,26 +16,18 @@ export async function loadDocument({
   workspaceStore,
   registryDocuments,
   registryUrl,
-  baseUrl,
   config,
-  getAccessToken,
-  getAgentKey,
+  api,
 }: {
   namespace: string
   slug: string
-  baseUrl: string
-  registryDocuments: Ref<ApiMetadata[]>
   workspaceStore: WorkspaceStore
-  config: Partial<ApiReferenceConfiguration>
+  registryDocuments: Ref<ApiMetadata[]>
   registryUrl: string
-  getAccessToken?: () => string
-  getAgentKey?: () => string
+  config: Partial<ApiReferenceConfiguration>
+  api: Api
 }) {
-  const getDocumentResult = await api({
-    baseUrl,
-    getAccessToken,
-    getAgentKey,
-  }).getDocument({
+  const getDocumentResult = await api.getDocument({
     namespace,
     slug,
   })

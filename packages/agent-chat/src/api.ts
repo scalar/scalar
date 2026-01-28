@@ -26,7 +26,7 @@ export function createAuthorizationHeaders({
 }
 
 /** Minimal set of API requests needed for agent chat */
-export function api({
+export function createApi({
   baseUrl,
   getAccessToken,
   getAgentKey,
@@ -123,8 +123,17 @@ export function api({
       responseSchema: registryApiMetadata,
     })
 
+  const getKeyDocuments = async () =>
+    request({
+      path: '/vector/registry/documents',
+      responseSchema: z.object({ documents: registryApiMetadata.array() }),
+    })
+
   return {
     search,
     getDocument,
+    getKeyDocuments,
   }
 }
+
+export type Api = ReturnType<typeof createApi>

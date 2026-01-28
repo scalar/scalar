@@ -12,7 +12,7 @@ import {
 } from 'ai'
 import { type ComputedRef, type InjectionKey, type Ref, computed, inject, ref, watch } from 'vue'
 
-import { createAuthorizationHeaders } from '@/api'
+import { type Api, createApi, createAuthorizationHeaders } from '@/api'
 import type { ApiMetadata } from '@/entities/registry/document'
 import type {
   ASK_FOR_AUTHENTICATION_TOOL_NAME,
@@ -83,6 +83,7 @@ type State = {
   removeDocument: (document: { namespace: string; slug: string }) => void
   getAccessToken?: () => string
   getAgentKey?: () => string
+  api: Api
   uploadedTmpDocumentUrl: Ref<string | undefined>
 }
 
@@ -153,6 +154,12 @@ export function createState({
     getAgentKey,
   })
 
+  const api = createApi({
+    baseUrl,
+    getAccessToken,
+    getAgentKey,
+  })
+
   const loading = computed(
     () =>
       chat.status === 'submitted' ||
@@ -180,12 +187,11 @@ export function createState({
     await loadDocument({
       namespace,
       slug,
-      baseUrl,
       workspaceStore,
       registryUrl,
       registryDocuments,
       config: config.value,
-      getAccessToken,
+      api,
     })
   }
 
@@ -218,6 +224,7 @@ export function createState({
     removeDocument,
     getAccessToken,
     getAgentKey,
+    api,
     uploadedTmpDocumentUrl,
   }
 }
