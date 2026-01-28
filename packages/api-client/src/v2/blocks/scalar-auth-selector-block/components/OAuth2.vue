@@ -30,6 +30,19 @@ import { authorizeOauth2 } from '@/v2/blocks/scalar-auth-selector-block/helpers/
 
 import RequestAuthDataTableInput from './RequestAuthDataTableInput.vue'
 
+export type OAuth2Props = {
+  environment: XScalarEnvironment
+  flows: OAuthFlowsObject
+  type: keyof OAuthFlowsObject
+  selectedScopes: string[]
+  server: ServerObject | null
+  proxyUrl: string
+  authStore: AuthStore
+  eventBus: WorkspaceEventBus
+  name: string
+  documentSlug: string
+}
+
 const {
   environment,
   flows,
@@ -41,18 +54,7 @@ const {
   name,
   authStore,
   documentSlug,
-} = defineProps<{
-  environment: XScalarEnvironment
-  flows: OAuthFlowsObject
-  type: keyof OAuthFlowsObject
-  selectedScopes: string[]
-  server: ServerObject | null
-  proxyUrl: string
-  authStore: AuthStore
-  eventBus: WorkspaceEventBus
-  name: string
-  documentSlug: string
-}>()
+} = defineProps<OAuth2Props>()
 
 const emits = defineEmits<{
   (

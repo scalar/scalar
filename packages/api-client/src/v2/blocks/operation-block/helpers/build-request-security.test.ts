@@ -1,3 +1,4 @@
+import type { AuthStore } from '@scalar/workspace-store/entities/auth/index'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import type {
   OAuthFlowAuthorizationCode,
@@ -14,24 +15,58 @@ import { beforeEach, describe, expect, it } from 'vitest'
 
 import { buildRequestSecurity, getSecuritySchemes } from './build-request-security'
 
+// Helper to create a mock auth store with custom secret returns
+const createMockAuthStore = (secretsMap: Record<string, any>): AuthStore => ({
+  getAuthSecrets: (_docName: string, schemeName: string) => secretsMap[schemeName] || undefined,
+  setAuthSecrets: () => {
+    /* no-op */
+  },
+  clearDocumentAuth: () => {
+    /* no-op */
+  },
+  load: () => {
+    /* no-op */
+  },
+  export: () => ({}),
+})
+
+const mockAuthStore = createMockAuthStore({
+  apiKeyAuth: {
+    type: 'apiKey',
+    'x-scalar-secret-token': 'test-key',
+  },
+  basicAuth: {
+    type: 'http',
+    'x-scalar-secret-username': 'scalar',
+    'x-scalar-secret-password': 'user',
+    'x-scalar-secret-token': '',
+  },
+  oauth2Auth: {
+    type: 'oauth2',
+    implicit: {
+      'x-scalar-secret-token': 'test-token',
+      'x-scalar-secret-client-id': '',
+      'x-scalar-secret-redirect-uri': '',
+    },
+  },
+})
+
 describe('buildRequestSecurity', () => {
   let apiKey: ApiKeyObject
   let basic: HttpObject
   let oauth2: OAuth2Object
+  const documentName = 'test-doc'
 
   beforeEach(() => {
     apiKey = coerceValue(SecuritySchemeObjectSchema, {
       type: 'apiKey',
       name: 'x-api-key',
       in: 'header',
-      'x-scalar-secret-token': 'test-key',
     }) as ApiKeyObject
 
     basic = coerceValue(SecuritySchemeObjectSchema, {
       type: 'http',
       scheme: 'basic',
-      'x-scalar-secret-username': 'scalar',
-      'x-scalar-secret-password': 'user',
     }) as HttpObject
 
     oauth2 = coerceValue(SecuritySchemeObjectSchema, {
@@ -40,7 +75,7 @@ describe('buildRequestSecurity', () => {
   })
 
   it('returns empty objects when no security schemes are provided', () => {
-    const result = buildRequestSecurity([])
+    const result = buildRequestSecurity([], mockAuthStore, documentName)
 
     expect(result.headers).toEqual({})
     expect(result.cookies).toEqual([])
@@ -49,19 +84,19 @@ describe('buildRequestSecurity', () => {
 
   describe('apiKey security', () => {
     it('handles apiKey in header', () => {
-      const result = buildRequestSecurity([apiKey])
+      const result = buildRequestSecurity([{ scheme: apiKey, name: 'apiKeyAuth' }], mockAuthStore, documentName)
       expect(result.headers['x-api-key']).toBe('test-key')
     })
 
     it('handles apiKey in query', () => {
       apiKey.in = 'query'
-      const result = buildRequestSecurity([apiKey])
+      const result = buildRequestSecurity([{ scheme: apiKey, name: 'apiKeyAuth' }], mockAuthStore, documentName)
       expect(result.urlParams.get('x-api-key')).toBe('test-key')
     })
 
     it('handles apiKey in cookie', () => {
       apiKey.in = 'cookie'
-      const result = buildRequestSecurity([apiKey])
+      const result = buildRequestSecurity([{ scheme: apiKey, name: 'apiKeyAuth' }], mockAuthStore, documentName)
 
       expect(result.cookies[0]).toEqual({
         name: 'x-api-key',
@@ -74,22 +109,28 @@ describe('buildRequestSecurity', () => {
   describe('http security', () => {
     it('handles basic auth', () => {
       basic.scheme = 'basic'
-      const result = buildRequestSecurity([basic])
+      const result = buildRequestSecurity([{ scheme: basic, name: 'basicAuth' }], mockAuthStore, documentName)
       expect(result.headers['Authorization']).toBe(`Basic ${encode('scalar:user')}`)
     })
 
     it('handles basic auth with empty credentials', () => {
-      basic['x-scalar-secret-username'] = ''
-      basic['x-scalar-secret-password'] = ''
-      const result = buildRequestSecurity([basic])
+      const result = buildRequestSecurity([{ scheme: basic, name: 'basicAuth' }], createMockAuthStore({}), documentName)
       expect(result.headers['Authorization']).toBe('Basic username:password')
     })
 
     it('handles basic auth with Unicode characters', () => {
-      basic['x-scalar-secret-username'] = 'żółć'
-      basic['x-scalar-secret-password'] = 'тест'
-
-      const result = buildRequestSecurity([basic])
+      const result = buildRequestSecurity(
+        [{ scheme: basic, name: 'basicAuth' }],
+        createMockAuthStore({
+          basicAuth: {
+            type: 'http',
+            'x-scalar-secret-username': 'żółć',
+            'x-scalar-secret-password': 'тест',
+            'x-scalar-secret-token': '',
+          },
+        }),
+        documentName,
+      )
 
       // The credentials are properly encoded as base64
       const expectedBase64 = 'xbzDs8WCxIc60YLQtdGB0YI='
@@ -98,8 +139,16 @@ describe('buildRequestSecurity', () => {
 
     it('handles bearer auth', () => {
       basic.scheme = 'bearer'
-      basic['x-scalar-secret-token'] = 'test-token'
-      const result = buildRequestSecurity([basic])
+      const result = buildRequestSecurity(
+        [{ scheme: basic, name: 'bearerAuth' }],
+        createMockAuthStore({
+          bearerAuth: {
+            type: 'http',
+            'x-scalar-secret-token': 'test-token',
+          },
+        }),
+        documentName,
+      )
       expect(result.headers['Authorization']).toBe('Bearer test-token')
     })
   })
@@ -108,55 +157,109 @@ describe('buildRequestSecurity', () => {
     it('handles oauth2 with token', () => {
       oauth2.flows = {
         implicit: {
-          'x-scalar-secret-token': 'test-token',
+          authorizationUrl: 'https://example.com/oauth/authorize',
+          scopes: {},
         } as OAuthFlowImplicit,
       }
-      const result = buildRequestSecurity([oauth2])
+      const result = buildRequestSecurity(
+        [{ scheme: oauth2, name: 'oauth2Auth' }],
+        createMockAuthStore({
+          oauth2Auth: {
+            type: 'oauth2',
+            implicit: { 'x-scalar-secret-token': 'test-token' },
+          },
+        }),
+        documentName,
+      )
       expect(result.headers['Authorization']).toBe('Bearer test-token')
     })
 
     it('handles oauth2 without token', () => {
-      const result = buildRequestSecurity([oauth2])
+      const result = buildRequestSecurity(
+        [{ scheme: oauth2, name: 'oauth2Auth' }],
+        createMockAuthStore({}),
+        documentName,
+      )
       expect(result.headers['Authorization']).toBe('Bearer ')
     })
 
     it('handles oauth2 with multiple flows with the first token being used', () => {
       oauth2.flows = {
         implicit: {
-          'x-scalar-secret-token': 'test-token-implicit',
+          authorizationUrl: 'https://example.com/oauth/authorize',
+          scopes: {},
         } as OAuthFlowImplicit,
         authorizationCode: {
-          'x-scalar-secret-token': 'test-token-code',
+          authorizationUrl: 'https://example.com/oauth/authorize',
+          tokenUrl: 'https://example.com/oauth/token',
+          scopes: {},
         } as OAuthFlowAuthorizationCode,
       }
 
-      const result = buildRequestSecurity([oauth2])
-      expect(result.headers['Authorization']).toBe('Bearer test-token-implicit')
+      const result = buildRequestSecurity(
+        [{ scheme: oauth2, name: 'oauth2Auth' }],
+        createMockAuthStore({
+          oauth2Auth: {
+            type: 'oauth2',
+            authorizationCode: {
+              'x-scalar-secret-token': 'test-token-code',
+            },
+            implicit: {
+              'x-scalar-secret-token': 'test-token-implicit',
+            },
+          },
+        }),
+        documentName,
+      )
+      expect(result.headers['Authorization']).toBe('Bearer test-token-code')
     })
   })
 
   it('handles empty token placeholder', () => {
-    apiKey['x-scalar-secret-token'] = ''
-    const result = buildRequestSecurity([apiKey], {}, 'NO_VALUE')
+    const result = buildRequestSecurity(
+      [{ scheme: apiKey, name: 'apiKeyAuth' }],
+      createMockAuthStore({}),
+      documentName,
+      {},
+      'NO_VALUE',
+    )
     expect(result.headers['x-api-key']).toBe('NO_VALUE')
   })
 
   describe('environment variable replacement', () => {
     it('replaces environment variables in apiKey token', () => {
-      apiKey['x-scalar-secret-token'] = '{{API_KEY}}'
       const env = { API_KEY: 'my-secret-key-123' }
 
-      const result = buildRequestSecurity([apiKey], env)
+      const result = buildRequestSecurity(
+        [{ scheme: apiKey, name: 'apiKeyAuth' }],
+        createMockAuthStore({
+          apiKeyAuth: {
+            type: 'apiKey',
+            'x-scalar-secret-token': '{{API_KEY}}',
+          },
+        }),
+        documentName,
+        env,
+      )
 
       expect(result.headers['x-api-key']).toBe('my-secret-key-123')
     })
 
     it('replaces environment variables in basic auth credentials', () => {
-      basic['x-scalar-secret-username'] = '{{USERNAME}}'
-      basic['x-scalar-secret-password'] = '{{PASSWORD}}'
       const env = { USERNAME: 'admin', PASSWORD: 'super-secret' }
 
-      const result = buildRequestSecurity([basic], env)
+      const result = buildRequestSecurity(
+        [{ scheme: basic, name: 'basicAuth' }],
+        createMockAuthStore({
+          basicAuth: {
+            type: 'http',
+            'x-scalar-secret-username': '{{USERNAME}}',
+            'x-scalar-secret-password': '{{PASSWORD}}',
+          },
+        }),
+        documentName,
+        env,
+      )
 
       expect(result.headers['Authorization']).toBe(`Basic ${encode('admin:super-secret')}`)
     })
@@ -169,10 +272,27 @@ describe('buildRequestSecurity', () => {
         type: 'apiKey',
         name: 'x-client-id',
         in: 'header',
-        'x-scalar-secret-token': 'client-123',
       }) as ApiKeyObject
 
-      const result = buildRequestSecurity([apiKey, apiKey2])
+      const multiSchemeAuthStore = createMockAuthStore({
+        apiKeyAuth: {
+          type: 'apiKey',
+          'x-scalar-secret-token': 'test-key',
+        },
+        apiKeyAuth2: {
+          type: 'apiKey',
+          'x-scalar-secret-token': 'client-123',
+        },
+      })
+
+      const result = buildRequestSecurity(
+        [
+          { scheme: apiKey, name: 'apiKeyAuth' },
+          { scheme: apiKey2, name: 'apiKeyAuth2' },
+        ],
+        multiSchemeAuthStore,
+        documentName,
+      )
 
       // Both headers should be present
       expect(result.headers['x-api-key']).toBe('test-key')
@@ -180,7 +300,24 @@ describe('buildRequestSecurity', () => {
     })
 
     it('handles apiKey and basic auth together', () => {
-      const result = buildRequestSecurity([apiKey, basic])
+      const result = buildRequestSecurity(
+        [
+          { scheme: apiKey, name: 'apiKeyAuth' },
+          { scheme: basic, name: 'basicAuth' },
+        ],
+        createMockAuthStore({
+          apiKeyAuth: {
+            type: 'apiKey',
+            'x-scalar-secret-token': 'test-key',
+          },
+          basicAuth: {
+            type: 'http',
+            'x-scalar-secret-username': 'scalar',
+            'x-scalar-secret-password': 'user',
+          },
+        }),
+        documentName,
+      )
 
       // Both apiKey header and Authorization header should be present
       expect(result.headers['x-api-key']).toBe('test-key')
@@ -193,7 +330,6 @@ describe('buildRequestSecurity', () => {
         type: 'apiKey',
         name: 'x-api-key',
         in: 'header',
-        'x-scalar-secret-token': 'header-key',
       }) as ApiKeyObject
 
       // API key in query
@@ -201,7 +337,6 @@ describe('buildRequestSecurity', () => {
         type: 'apiKey',
         name: 'api_key',
         in: 'query',
-        'x-scalar-secret-token': 'query-key',
       }) as ApiKeyObject
 
       // API key in cookie
@@ -209,10 +344,32 @@ describe('buildRequestSecurity', () => {
         type: 'apiKey',
         name: 'session',
         in: 'cookie',
-        'x-scalar-secret-token': 'cookie-value',
       }) as ApiKeyObject
 
-      const result = buildRequestSecurity([headerKey, queryKey, cookieKey])
+      const locationAuthStore = createMockAuthStore({
+        headerKey: {
+          type: 'apiKey',
+          'x-scalar-secret-token': 'header-key',
+        },
+        queryKey: {
+          type: 'apiKey',
+          'x-scalar-secret-token': 'query-key',
+        },
+        cookieKey: {
+          type: 'apiKey',
+          'x-scalar-secret-token': 'cookie-value',
+        },
+      })
+
+      const result = buildRequestSecurity(
+        [
+          { scheme: headerKey, name: 'headerKey' },
+          { scheme: queryKey, name: 'queryKey' },
+          { scheme: cookieKey, name: 'cookieKey' },
+        ],
+        locationAuthStore,
+        documentName,
+      )
 
       // All three locations should have their respective values
       expect(result.headers['x-api-key']).toBe('header-key')
@@ -233,7 +390,6 @@ describe('getSecuritySchemes', () => {
         type: 'apiKey',
         name: 'x-api-key',
         in: 'header',
-        'x-scalar-secret-token': 'test-key',
       }) as ApiKeyObject,
     }
 
@@ -247,14 +403,11 @@ describe('getSecuritySchemes', () => {
       type: 'apiKey',
       name: 'x-api-key',
       in: 'header',
-      'x-scalar-secret-token': 'test-key',
     }) as ApiKeyObject
 
     const basic = coerceValue(SecuritySchemeObjectSchema, {
       type: 'http',
       scheme: 'basic',
-      'x-scalar-secret-username': 'user',
-      'x-scalar-secret-password': 'pass',
     }) as HttpObject
 
     const securitySchemes = {
@@ -267,7 +420,7 @@ describe('getSecuritySchemes', () => {
     const result = getSecuritySchemes(securitySchemes, selectedSecurity)
 
     expect(result).toHaveLength(2)
-    expect(result[0]).toEqual(apiKey)
-    expect(result[1]).toEqual(basic)
+    expect(result[0]).toEqual({ scheme: apiKey, name: 'apiKeyScheme' })
+    expect(result[1]).toEqual({ scheme: basic, name: 'basicScheme' })
   })
 })

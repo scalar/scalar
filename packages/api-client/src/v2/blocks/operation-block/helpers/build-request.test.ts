@@ -1,8 +1,4 @@
-/**
- * @vitest-environment node
- * TODO: we need to remove this when we upgrade to vitest
- */
-
+import type { AuthStore } from '@scalar/workspace-store/entities/auth/index'
 import { describe, expect, it, vi } from 'vitest'
 
 import * as electron from '@/libs/electron'
@@ -21,6 +17,26 @@ describe('buildRequest', () => {
     url: 'https://api.example.com',
   }
 
+  // Mock AuthStore implementation
+  const mockAuthStore: AuthStore = {
+    getAuthSecrets: () => {
+      /* no-op - returns undefined to use inline secrets */
+      return undefined
+    },
+    setAuthSecrets: () => {
+      /* no-op */
+    },
+    clearDocumentAuth: () => {
+      /* no-op */
+    },
+    load: () => {
+      /* no-op */
+    },
+    export: () => ({}),
+  }
+
+  const mockDocumentSlug = 'test-doc'
+
   it('builds a basic GET request', () => {
     const [error, result] = buildRequest({
       environment: mockEnvironment,
@@ -32,6 +48,8 @@ describe('buildRequest', () => {
       proxyUrl: '',
       selectedSecuritySchemes: [],
       server: mockServer,
+      authStore: mockAuthStore,
+      documentSlug: mockDocumentSlug,
     })
 
     expect(error).toBe(null)
@@ -53,6 +71,8 @@ describe('buildRequest', () => {
       proxyUrl: '',
       selectedSecuritySchemes: [],
       server: null,
+      authStore: mockAuthStore,
+      documentSlug: mockDocumentSlug,
     })
 
     expect(error).toBe(null)
@@ -70,6 +90,8 @@ describe('buildRequest', () => {
       proxyUrl: '',
       selectedSecuritySchemes: [],
       server: null,
+      authStore: mockAuthStore,
+      documentSlug: mockDocumentSlug,
     })
 
     expect(error).toBeDefined()
@@ -97,6 +119,8 @@ describe('buildRequest', () => {
       server: {
         url: '{{baseUrl}}',
       },
+      authStore: mockAuthStore,
+      documentSlug: mockDocumentSlug,
     })
 
     expect(error).toBe(null)
@@ -122,6 +146,8 @@ describe('buildRequest', () => {
           },
         },
       },
+      authStore: mockAuthStore,
+      documentSlug: mockDocumentSlug,
     })
 
     expect(error).toBe(null)
@@ -155,6 +181,8 @@ describe('buildRequest', () => {
       proxyUrl: '',
       selectedSecuritySchemes: [],
       server: mockServer,
+      authStore: mockAuthStore,
+      documentSlug: mockDocumentSlug,
     })
 
     expect(error).toBe(null)
@@ -185,6 +213,8 @@ describe('buildRequest', () => {
       proxyUrl: '',
       selectedSecuritySchemes: [],
       server: mockServer,
+      authStore: mockAuthStore,
+      documentSlug: mockDocumentSlug,
     })
 
     expect(error).toBe(null)
@@ -215,6 +245,8 @@ describe('buildRequest', () => {
       proxyUrl: '',
       selectedSecuritySchemes: [],
       server: mockServer,
+      authStore: mockAuthStore,
+      documentSlug: mockDocumentSlug,
     })
 
     expect(error).toBe(null)
@@ -245,6 +277,8 @@ describe('buildRequest', () => {
       proxyUrl: '',
       selectedSecuritySchemes: [],
       server: mockServer,
+      authStore: mockAuthStore,
+      documentSlug: mockDocumentSlug,
     })
 
     expect(error).toBe(null)
@@ -275,6 +309,8 @@ describe('buildRequest', () => {
       proxyUrl: '',
       selectedSecuritySchemes: [],
       server: mockServer,
+      authStore: mockAuthStore,
+      documentSlug: mockDocumentSlug,
     })
 
     expect(error).toBe(null)
@@ -305,6 +341,8 @@ describe('buildRequest', () => {
       proxyUrl: '',
       selectedSecuritySchemes: [],
       server: mockServer,
+      authStore: mockAuthStore,
+      documentSlug: mockDocumentSlug,
     })
 
     expect(error).toBe(null)
@@ -335,6 +373,8 @@ describe('buildRequest', () => {
       proxyUrl: '',
       selectedSecuritySchemes: [],
       server: mockServer,
+      authStore: mockAuthStore,
+      documentSlug: mockDocumentSlug,
     })
 
     expect(error).toBe(null)
@@ -374,6 +414,8 @@ describe('buildRequest', () => {
       proxyUrl: '',
       selectedSecuritySchemes: [],
       server: mockServer,
+      authStore: mockAuthStore,
+      documentSlug: mockDocumentSlug,
     })
 
     expect(error).toBe(null)
@@ -414,6 +456,8 @@ describe('buildRequest', () => {
       proxyUrl: '',
       selectedSecuritySchemes: [],
       server: mockServer,
+      authStore: mockAuthStore,
+      documentSlug: mockDocumentSlug,
     })
 
     expect(error).toBe(null)
@@ -445,6 +489,8 @@ describe('buildRequest', () => {
       proxyUrl: '',
       selectedSecuritySchemes: [],
       server: mockServer,
+      authStore: mockAuthStore,
+      documentSlug: mockDocumentSlug,
     })
 
     expect(error).toBe(null)
@@ -487,6 +533,8 @@ describe('buildRequest', () => {
       proxyUrl: '',
       selectedSecuritySchemes: [],
       server: mockServer,
+      authStore: mockAuthStore,
+      documentSlug: mockDocumentSlug,
     })
 
     expect(error).toBe(null)
@@ -520,6 +568,8 @@ describe('buildRequest', () => {
       server: {
         url: 'https://api.example.com/api?orange=apple',
       },
+      authStore: mockAuthStore,
+      documentSlug: mockDocumentSlug,
     })
 
     expect(error).toBe(null)
@@ -551,6 +601,8 @@ describe('buildRequest', () => {
       proxyUrl: '',
       selectedSecuritySchemes: [],
       server: mockServer,
+      authStore: mockAuthStore,
+      documentSlug: mockDocumentSlug,
     })
 
     expect(error).toBe(null)
@@ -582,6 +634,8 @@ describe('buildRequest', () => {
       proxyUrl: '',
       selectedSecuritySchemes: [],
       server: mockServer,
+      authStore: mockAuthStore,
+      documentSlug: mockDocumentSlug,
     })
 
     expect(error).toBe(null)
@@ -599,6 +653,8 @@ describe('buildRequest', () => {
       proxyUrl: '',
       selectedSecuritySchemes: [],
       server: mockServer,
+      authStore: mockAuthStore,
+      documentSlug: mockDocumentSlug,
     })
 
     expect(error).toBe(null)
@@ -616,6 +672,8 @@ describe('buildRequest', () => {
       proxyUrl: '',
       selectedSecuritySchemes: [],
       server: mockServer,
+      authStore: mockAuthStore,
+      documentSlug: mockDocumentSlug,
     })
 
     expect(error).toBe(null)
@@ -647,6 +705,8 @@ describe('buildRequest', () => {
       proxyUrl: '',
       selectedSecuritySchemes: [],
       server: mockServer,
+      authStore: mockAuthStore,
+      documentSlug: mockDocumentSlug,
     })
 
     expect(error).toBe(null)
@@ -680,6 +740,8 @@ describe('buildRequest', () => {
       proxyUrl: '',
       selectedSecuritySchemes: [],
       server: mockServer,
+      authStore: mockAuthStore,
+      documentSlug: mockDocumentSlug,
     })
 
     expect(error).toBe(null)
@@ -713,6 +775,8 @@ describe('buildRequest', () => {
       proxyUrl: '',
       selectedSecuritySchemes: [],
       server: mockServer,
+      authStore: mockAuthStore,
+      documentSlug: mockDocumentSlug,
     })
 
     expect(error).toBe(null)
@@ -741,6 +805,8 @@ describe('buildRequest', () => {
       proxyUrl: '',
       selectedSecuritySchemes: [],
       server: mockServer,
+      authStore: mockAuthStore,
+      documentSlug: mockDocumentSlug,
     })
 
     expect(error).toBe(null)
@@ -773,6 +839,8 @@ describe('buildRequest', () => {
       proxyUrl: '',
       selectedSecuritySchemes: [],
       server: mockServer,
+      authStore: mockAuthStore,
+      documentSlug: mockDocumentSlug,
     })
 
     expect(error).toBe(null)
@@ -801,6 +869,8 @@ describe('buildRequest', () => {
       proxyUrl: '',
       selectedSecuritySchemes: [],
       server: mockServer,
+      authStore: mockAuthStore,
+      documentSlug: mockDocumentSlug,
     })
 
     expect(error).toBe(null)
@@ -837,6 +907,8 @@ describe('buildRequest', () => {
       proxyUrl: '',
       selectedSecuritySchemes: [],
       server: mockServer,
+      authStore: mockAuthStore,
+      documentSlug: mockDocumentSlug,
     })
 
     expect(error).toBe(null)
@@ -871,6 +943,8 @@ describe('buildRequest', () => {
       proxyUrl: 'http://localhost:5051',
       selectedSecuritySchemes: [],
       server: mockServer,
+      authStore: mockAuthStore,
+      documentSlug: mockDocumentSlug,
     })
 
     expect(error).toBe(null)
@@ -889,13 +963,28 @@ describe('buildRequest', () => {
         proxyUrl: '',
         selectedSecuritySchemes: [
           {
-            type: 'apiKey',
-            name: 'X-API-KEY',
-            in: 'header',
-            'x-scalar-secret-token': 'test-key',
+            scheme: {
+              type: 'apiKey',
+              name: 'X-API-KEY',
+              in: 'header',
+            },
+            name: 'apiKeyAuth',
           },
         ],
         server: mockServer,
+        authStore: {
+          ...mockAuthStore,
+          getAuthSecrets: (_docName: string, schemeName: string) => {
+            if (schemeName === 'apiKeyAuth') {
+              return {
+                type: 'apiKey',
+                'x-scalar-secret-token': 'test-key',
+              }
+            }
+            return undefined
+          },
+        },
+        documentSlug: mockDocumentSlug,
       })
 
       expect(error).toBe(null)
@@ -913,13 +1002,28 @@ describe('buildRequest', () => {
         proxyUrl: '',
         selectedSecuritySchemes: [
           {
-            type: 'apiKey',
-            name: 'api_key',
-            in: 'query',
-            'x-scalar-secret-token': 'test-key',
+            scheme: {
+              type: 'apiKey',
+              name: 'api_key',
+              in: 'query',
+            },
+            name: 'apiKeyAuth',
           },
         ],
         server: mockServer,
+        authStore: {
+          ...mockAuthStore,
+          getAuthSecrets: (_docName: string, schemeName: string) => {
+            if (schemeName === 'apiKeyAuth') {
+              return {
+                type: 'apiKey',
+                'x-scalar-secret-token': 'test-key',
+              }
+            }
+            return undefined
+          },
+        },
+        documentSlug: mockDocumentSlug,
       })
 
       expect(error).toBe(null)
@@ -937,13 +1041,28 @@ describe('buildRequest', () => {
         proxyUrl: '',
         selectedSecuritySchemes: [
           {
-            type: 'apiKey',
-            name: 'auth-cookie',
-            in: 'cookie',
-            'x-scalar-secret-token': 'super-secret-token',
+            scheme: {
+              type: 'apiKey',
+              name: 'auth-cookie',
+              in: 'cookie',
+            },
+            name: 'apiKeyAuth',
           },
         ],
         server: mockServer,
+        authStore: {
+          ...mockAuthStore,
+          getAuthSecrets: (_docName: string, schemeName: string) => {
+            if (schemeName === 'apiKeyAuth') {
+              return {
+                type: 'apiKey',
+                'x-scalar-secret-token': 'super-secret-token',
+              }
+            }
+            return undefined
+          },
+        },
+        documentSlug: mockDocumentSlug,
       })
 
       expect(error).toBe(null)
@@ -962,14 +1081,29 @@ describe('buildRequest', () => {
         proxyUrl: '',
         selectedSecuritySchemes: [
           {
-            type: 'http',
-            scheme: 'basic',
-            'x-scalar-secret-token': '',
-            'x-scalar-secret-username': 'user',
-            'x-scalar-secret-password': 'pass',
+            scheme: {
+              type: 'http',
+              scheme: 'basic',
+            },
+            name: 'basicAuth',
           },
         ],
         server: mockServer,
+        authStore: {
+          ...mockAuthStore,
+          getAuthSecrets: (_docName: string, schemeName: string) => {
+            if (schemeName === 'basicAuth') {
+              return {
+                type: 'http',
+                'x-scalar-secret-username': 'user',
+                'x-scalar-secret-password': 'pass',
+                'x-scalar-secret-token': '',
+              }
+            }
+            return undefined
+          },
+        },
+        documentSlug: mockDocumentSlug,
       })
 
       expect(error).toBe(null)
@@ -988,14 +1122,29 @@ describe('buildRequest', () => {
         proxyUrl: '',
         selectedSecuritySchemes: [
           {
-            type: 'http',
-            scheme: 'bearer',
-            'x-scalar-secret-token': 'xxxx',
-            'x-scalar-secret-username': '',
-            'x-scalar-secret-password': '',
+            scheme: {
+              type: 'http',
+              scheme: 'bearer',
+            },
+            name: 'bearerAuth',
           },
         ],
         server: mockServer,
+        authStore: {
+          ...mockAuthStore,
+          getAuthSecrets: (_docName: string, schemeName: string) => {
+            if (schemeName === 'bearerAuth') {
+              return {
+                type: 'http',
+                'x-scalar-secret-token': 'xxxx',
+                'x-scalar-secret-username': '',
+                'x-scalar-secret-password': '',
+              }
+            }
+            return undefined
+          },
+        },
+        documentSlug: mockDocumentSlug,
       })
 
       expect(error).toBe(null)
@@ -1013,20 +1162,43 @@ describe('buildRequest', () => {
         proxyUrl: '',
         selectedSecuritySchemes: [
           {
-            type: 'http',
-            scheme: 'bearer',
-            'x-scalar-secret-token': 'yyyy',
-            'x-scalar-secret-username': '',
-            'x-scalar-secret-password': '',
+            scheme: {
+              type: 'http',
+              scheme: 'bearer',
+            },
+            name: 'bearerAuth',
           },
           {
-            type: 'apiKey',
-            name: 'api_key',
-            in: 'query',
-            'x-scalar-secret-token': 'xxxx',
+            scheme: {
+              type: 'apiKey',
+              name: 'api_key',
+              in: 'query',
+            },
+            name: 'apiKeyAuth',
           },
         ],
         server: mockServer,
+        authStore: {
+          ...mockAuthStore,
+          getAuthSecrets: (_docName: string, schemeName: string) => {
+            if (schemeName === 'bearerAuth') {
+              return {
+                type: 'http',
+                'x-scalar-secret-token': 'yyyy',
+                'x-scalar-secret-username': '',
+                'x-scalar-secret-password': '',
+              }
+            }
+            if (schemeName === 'apiKeyAuth') {
+              return {
+                type: 'apiKey',
+                'x-scalar-secret-token': 'xxxx',
+              }
+            }
+            return undefined
+          },
+        },
+        documentSlug: mockDocumentSlug,
       })
 
       expect(error).toBe(null)
@@ -1045,20 +1217,37 @@ describe('buildRequest', () => {
         proxyUrl: '',
         selectedSecuritySchemes: [
           {
-            type: 'oauth2',
-            flows: {
-              implicit: {
-                authorizationUrl: 'https://example.com/auth',
-                refreshUrl: '',
-                scopes: {},
-                'x-scalar-secret-token': 'oauth-token',
-                'x-scalar-secret-client-id': 'client-id',
-                'x-scalar-secret-redirect-uri': 'https://example.com/callback',
+            scheme: {
+              type: 'oauth2',
+              flows: {
+                implicit: {
+                  authorizationUrl: 'https://example.com/auth',
+                  refreshUrl: '',
+                  scopes: {},
+                },
               },
             },
+            name: 'oauth2Auth',
           },
         ],
         server: mockServer,
+        authStore: {
+          ...mockAuthStore,
+          getAuthSecrets: (_docName: string, schemeName: string) => {
+            if (schemeName === 'oauth2Auth') {
+              return {
+                type: 'oauth2',
+                implicit: {
+                  'x-scalar-secret-token': 'oauth-token',
+                  'x-scalar-secret-client-id': 'client-id',
+                  'x-scalar-secret-redirect-uri': 'https://example.com/callback',
+                },
+              }
+            }
+            return undefined
+          },
+        },
+        documentSlug: mockDocumentSlug,
       })
 
       expect(error).toBe(null)
@@ -1076,13 +1265,28 @@ describe('buildRequest', () => {
         proxyUrl: '',
         selectedSecuritySchemes: [
           {
-            type: 'apiKey',
-            name: 'x-api-key',
-            in: 'header',
-            'x-scalar-secret-token': 'test-key',
+            scheme: {
+              type: 'apiKey',
+              name: 'x-api-key',
+              in: 'header',
+            },
+            name: 'apiKeyAuth',
           },
         ],
         server: mockServer,
+        authStore: {
+          ...mockAuthStore,
+          getAuthSecrets: (_docName: string, schemeName: string) => {
+            if (schemeName === 'apiKeyAuth') {
+              return {
+                type: 'apiKey',
+                'x-scalar-secret-token': 'test-key',
+              }
+            }
+            return undefined
+          },
+        },
+        documentSlug: mockDocumentSlug,
       })
 
       expect(error).toBe(null)
@@ -1115,6 +1319,8 @@ describe('buildRequest', () => {
         proxyUrl: '',
         selectedSecuritySchemes: [],
         server: mockServer,
+        authStore: mockAuthStore,
+        documentSlug: mockDocumentSlug,
       })
 
       expect(error).toBe(null)
@@ -1146,6 +1352,8 @@ describe('buildRequest', () => {
         proxyUrl: '',
         selectedSecuritySchemes: [],
         server: mockServer,
+        authStore: mockAuthStore,
+        documentSlug: mockDocumentSlug,
       })
 
       expect(error).toBe(null)
@@ -1177,6 +1385,8 @@ describe('buildRequest', () => {
         proxyUrl: '',
         selectedSecuritySchemes: [],
         server: mockServer,
+        authStore: mockAuthStore,
+        documentSlug: mockDocumentSlug,
       })
 
       expect(error).toBe(null)
@@ -1208,6 +1418,8 @@ describe('buildRequest', () => {
         proxyUrl: '',
         selectedSecuritySchemes: [],
         server: mockServer,
+        authStore: mockAuthStore,
+        documentSlug: mockDocumentSlug,
       })
 
       expect(error).toBe(null)
@@ -1239,6 +1451,8 @@ describe('buildRequest', () => {
         proxyUrl: '',
         selectedSecuritySchemes: [],
         server: mockServer,
+        authStore: mockAuthStore,
+        documentSlug: mockDocumentSlug,
       })
 
       expect(error).toBe(null)
@@ -1270,6 +1484,8 @@ describe('buildRequest', () => {
         proxyUrl: '',
         selectedSecuritySchemes: [],
         server: mockServer,
+        authStore: mockAuthStore,
+        documentSlug: mockDocumentSlug,
       })
 
       expect(error).toBe(null)
@@ -1301,6 +1517,8 @@ describe('buildRequest', () => {
         proxyUrl: '',
         selectedSecuritySchemes: [],
         server: mockServer,
+        authStore: mockAuthStore,
+        documentSlug: mockDocumentSlug,
       })
 
       expect(error).toBe(null)
@@ -1332,6 +1550,8 @@ describe('buildRequest', () => {
         proxyUrl: '',
         selectedSecuritySchemes: [],
         server: mockServer,
+        authStore: mockAuthStore,
+        documentSlug: mockDocumentSlug,
       })
 
       expect(error).toBe(null)
@@ -1363,6 +1583,8 @@ describe('buildRequest', () => {
         proxyUrl: '',
         selectedSecuritySchemes: [],
         server: mockServer,
+        authStore: mockAuthStore,
+        documentSlug: mockDocumentSlug,
       })
 
       expect(error).toBe(null)
@@ -1402,6 +1624,8 @@ describe('buildRequest', () => {
         proxyUrl: '',
         selectedSecuritySchemes: [],
         server: mockServer,
+        authStore: mockAuthStore,
+        documentSlug: mockDocumentSlug,
       })
 
       expect(error).toBe(null)
@@ -1446,6 +1670,8 @@ describe('buildRequest', () => {
         proxyUrl: '',
         selectedSecuritySchemes: [],
         server: mockServer,
+        authStore: mockAuthStore,
+        documentSlug: mockDocumentSlug,
       })
 
       expect(error).toBe(null)
@@ -1477,6 +1703,8 @@ describe('buildRequest', () => {
         proxyUrl: '',
         selectedSecuritySchemes: [],
         server: mockServer,
+        authStore: mockAuthStore,
+        documentSlug: mockDocumentSlug,
       })
 
       expect(error).toBe(null)
@@ -1507,6 +1735,8 @@ describe('buildRequest', () => {
         proxyUrl: '',
         selectedSecuritySchemes: [],
         server: mockServer,
+        authStore: mockAuthStore,
+        documentSlug: mockDocumentSlug,
       })
 
       expect(error).toBe(null)
@@ -1526,6 +1756,8 @@ describe('buildRequest', () => {
         proxyUrl: 'http://localhost:5051',
         selectedSecuritySchemes: [],
         server: mockServer,
+        authStore: mockAuthStore,
+        documentSlug: mockDocumentSlug,
       })
 
       expect(error).toBe(null)
@@ -1545,6 +1777,8 @@ describe('buildRequest', () => {
         server: {
           url: 'http://127.0.0.1:5052',
         },
+        authStore: mockAuthStore,
+        documentSlug: mockDocumentSlug,
       })
 
       expect(error).toBe(null)
@@ -1566,6 +1800,8 @@ describe('buildRequest', () => {
         proxyUrl: '',
         selectedSecuritySchemes: [],
         server: mockServer,
+        authStore: mockAuthStore,
+        documentSlug: mockDocumentSlug,
       })
 
       expect(error).toBe(null)
@@ -1585,6 +1821,8 @@ describe('buildRequest', () => {
         server: {
           url: '/api',
         },
+        authStore: mockAuthStore,
+        documentSlug: mockDocumentSlug,
       })
 
       // Relative URLs require a base URL in Node environment
@@ -1606,6 +1844,8 @@ describe('buildRequest', () => {
         proxyUrl: '',
         selectedSecuritySchemes: [],
         server: mockServer,
+        authStore: mockAuthStore,
+        documentSlug: mockDocumentSlug,
       })
 
       expect(error).toBe(null)
@@ -1636,6 +1876,8 @@ describe('buildRequest', () => {
         proxyUrl: '',
         selectedSecuritySchemes: [],
         server: mockServer,
+        authStore: mockAuthStore,
+        documentSlug: mockDocumentSlug,
       })
 
       expect(error).toBe(null)
@@ -1675,6 +1917,8 @@ describe('buildRequest', () => {
         proxyUrl: '',
         selectedSecuritySchemes: [],
         server: mockServer,
+        authStore: mockAuthStore,
+        documentSlug: mockDocumentSlug,
       })
 
       expect(error).toBe(null)
@@ -1714,6 +1958,8 @@ describe('buildRequest', () => {
         proxyUrl: '',
         selectedSecuritySchemes: [],
         server: mockServer,
+        authStore: mockAuthStore,
+        documentSlug: mockDocumentSlug,
       })
 
       expect(error).toBe(null)
@@ -1753,6 +1999,8 @@ describe('buildRequest', () => {
         proxyUrl: '',
         selectedSecuritySchemes: [],
         server: mockServer,
+        authStore: mockAuthStore,
+        documentSlug: mockDocumentSlug,
       })
 
       expect(error).toBe(null)
@@ -1780,14 +2028,29 @@ describe('buildRequest', () => {
         proxyUrl: '',
         selectedSecuritySchemes: [
           {
-            type: 'http',
-            scheme: 'bearer',
-            'x-scalar-secret-token': '{{token}}',
-            'x-scalar-secret-username': '',
-            'x-scalar-secret-password': '',
+            scheme: {
+              type: 'http',
+              scheme: 'bearer',
+            },
+            name: 'bearerAuth',
           },
         ],
         server: mockServer,
+        authStore: {
+          ...mockAuthStore,
+          getAuthSecrets: (_docName: string, schemeName: string) => {
+            if (schemeName === 'bearerAuth') {
+              return {
+                type: 'http',
+                'x-scalar-secret-token': 'secret-token',
+                'x-scalar-secret-username': '',
+                'x-scalar-secret-password': '',
+              }
+            }
+            return undefined
+          },
+        },
+        documentSlug: mockDocumentSlug,
       })
 
       expect(error).toBe(null)
@@ -1818,6 +2081,8 @@ describe('buildRequest', () => {
         server: {
           url: '{{baseUrl}}',
         },
+        authStore: mockAuthStore,
+        documentSlug: mockDocumentSlug,
       })
 
       expect(error).toBe(null)
@@ -1854,6 +2119,8 @@ describe('buildRequest', () => {
         proxyUrl: '',
         selectedSecuritySchemes: [],
         server: mockServer,
+        authStore: mockAuthStore,
+        documentSlug: mockDocumentSlug,
       })
 
       expect(error).toBe(null)
@@ -1884,6 +2151,8 @@ describe('buildRequest', () => {
         proxyUrl: '',
         selectedSecuritySchemes: [],
         server: mockServer,
+        authStore: mockAuthStore,
+        documentSlug: mockDocumentSlug,
       })
 
       expect(error).toBe(null)

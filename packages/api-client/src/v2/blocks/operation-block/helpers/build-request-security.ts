@@ -1,7 +1,6 @@
 import { objectKeys } from '@scalar/helpers/object/object-keys'
 import { replaceEnvVariables } from '@scalar/helpers/regex/replace-variables'
 import type { AuthStore } from '@scalar/workspace-store/entities/auth/index'
-import type { SecretsAuth } from '@scalar/workspace-store/entities/auth/schema'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import {
   type XScalarCookie,
@@ -14,6 +13,8 @@ import type {
   SecuritySchemeObject,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { encode } from 'js-base64'
+
+import { getFlowsSecretToken, getSecrets } from '@/v2/blocks/scalar-auth-selector-block/helpers/get-secrets'
 
 /**
  * Get the selected security schemes from security requirements.
@@ -52,37 +53,10 @@ export const buildRequestSecurity = (
   const cookies: XScalarCookie[] = []
   const urlParams = new URLSearchParams()
 
-  const getSecret = <Type extends SecretsAuth[string]['type']>(
-    name: string,
-    type: Type,
-  ): (SecretsAuth[string] & { type: Type }) | undefined => {
-    const secret = authStore.getAuthSecrets(documentName, name)
-    if (secret?.type !== type) {
-      return undefined
-    }
-
-    return secret as SecretsAuth[string] & { type: Type }
-  }
-
-  const getFlowSecretToken = (schemaName: string) => {
-    const secrets = authStore.getAuthSecrets(documentName, schemaName)
-
-    if (secrets?.type !== 'oauth2') {
-      return
-    }
-
-    return (
-      secrets.authorizationCode?.['x-scalar-secret-token'] ??
-      secrets.implicit?.['x-scalar-secret-token'] ??
-      secrets.clientCredentials?.['x-scalar-secret-token'] ??
-      secrets.password?.['x-scalar-secret-token']
-    )
-  }
-
   selectedSecuritySchemes.forEach(({ scheme, name: schemeName }) => {
     // Api key
     if (scheme.type === 'apiKey') {
-      const secret = getSecret(schemeName, 'apiKey')
+      const secret = getSecrets({ schemeName, type: 'apiKey', authStore, documentSlug: documentName })
 
       const name = replaceEnvVariables(scheme.name, env)
       const value = replaceEnvVariables(secret?.['x-scalar-secret-token'] ?? '', env) || emptyTokenPlaceholder
@@ -106,7 +80,7 @@ export const buildRequestSecurity = (
 
     // HTTP
     if (scheme.type === 'http') {
-      const secret = getSecret(schemeName, 'http')
+      const secret = getSecrets({ schemeName, type: 'http', authStore, documentSlug: documentName })
       if (scheme.scheme === 'basic') {
         const username = replaceEnvVariables(secret?.['x-scalar-secret-username'] ?? '', env)
         const password = replaceEnvVariables(secret?.['x-scalar-secret-password'] ?? '', env)
@@ -121,7 +95,10 @@ export const buildRequestSecurity = (
 
     // OAuth2
     if (scheme.type === 'oauth2') {
-      const token = replaceEnvVariables(getFlowSecretToken(schemeName) ?? '', env)
+      const token = replaceEnvVariables(
+        getFlowsSecretToken({ schemeName, authStore, documentSlug: documentName })[0] ?? '',
+        env,
+      )
 
       headers['Authorization'] = `Bearer ${token || emptyTokenPlaceholder}`
     }

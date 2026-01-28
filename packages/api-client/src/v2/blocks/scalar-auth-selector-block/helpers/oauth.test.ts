@@ -11,7 +11,6 @@ const baseFlow = {
     read: 'Read access',
     write: 'Write access',
   },
-  'x-scalar-secret-client-id': 'xxxxx',
 }
 const selectedScopes = ['read', 'write']
 
@@ -19,8 +18,52 @@ const scope = Object.keys(baseFlow.scopes)
 const authorizationUrl = 'https://auth.example.com/authorize'
 const tokenUrl = 'https://auth.example.com/token'
 const redirectUri = 'https://callback.example.com'
+const clientId = 'xxxxx'
 const clientSecret = 'yyyyy'
-const secretAuth = encode(`${baseFlow['x-scalar-secret-client-id']}:${clientSecret}`)
+const secretAuth = encode(`${clientId}:${clientSecret}`)
+
+// Secrets for different OAuth flow types
+const authorizationCodeSecrets = {
+  'x-scalar-secret-client-id': clientId,
+  'x-scalar-secret-client-secret': clientSecret,
+  'x-scalar-secret-redirect-uri': redirectUri,
+  'x-scalar-secret-token': '',
+}
+
+const authorizationCodeSecretsWithBody = {
+  ...authorizationCodeSecrets,
+  'x-scalar-credentials-location': 'body' as const,
+}
+
+const implicitSecrets = {
+  'x-scalar-secret-client-id': clientId,
+  'x-scalar-secret-redirect-uri': redirectUri,
+  'x-scalar-secret-token': '',
+}
+
+const clientCredentialsSecrets = {
+  'x-scalar-secret-client-id': clientId,
+  'x-scalar-secret-client-secret': clientSecret,
+  'x-scalar-secret-token': '',
+}
+
+const clientCredentialsSecretsWithBody = {
+  ...clientCredentialsSecrets,
+  'x-scalar-credentials-location': 'body' as const,
+}
+
+const passwordSecrets = {
+  'x-scalar-secret-client-id': clientId,
+  'x-scalar-secret-client-secret': clientSecret,
+  'x-scalar-secret-username': 'test-username',
+  'x-scalar-secret-password': 'test-password',
+  'x-scalar-secret-token': '',
+}
+
+const passwordSecretsWithBody = {
+  ...passwordSecrets,
+  'x-scalar-credentials-location': 'body' as const,
+}
 
 const windowTarget = 'openAuth2Window'
 const windowFeatures = 'left=100,top=100,width=800,height=600'
@@ -61,14 +104,21 @@ describe('oauth', () => {
     const scheme = {
       authorizationCode: {
         ...baseFlow,
-        'x-usePkce': 'no',
+        'x-usePkce': 'no' as const,
         authorizationUrl,
         tokenUrl,
       },
     } satisfies OAuthFlowsObject
 
     it('should handle successful authorization code flow', async () => {
-      const promise = authorizeOauth2(scheme, 'authorizationCode', selectedScopes, mockServer, '')
+      const promise = authorizeOauth2(
+        scheme,
+        'authorizationCode',
+        selectedScopes,
+        mockServer,
+        '',
+        authorizationCodeSecrets,
+      )
       const accessToken = 'access_token_123'
 
       // Test the window.open call
@@ -76,8 +126,8 @@ describe('oauth', () => {
         new URL(
           `${scheme.authorizationCode.authorizationUrl}?${new URLSearchParams({
             response_type: 'code',
-            redirect_uri: scheme.authorizationCode['x-scalar-secret-redirect-uri'],
-            client_id: scheme.authorizationCode['x-scalar-secret-client-id'],
+            redirect_uri: authorizationCodeSecrets['x-scalar-secret-redirect-uri'],
+            client_id: authorizationCodeSecrets['x-scalar-secret-client-id'],
             state: state,
             scope: scope.join(' '),
           }).toString()}`,
@@ -87,7 +137,7 @@ describe('oauth', () => {
       )
 
       // Mock redirect back from login
-      mockWindow.location.href = `${scheme.authorizationCode['x-scalar-secret-redirect-uri']}?code=auth_code_123&state=${state}`
+      mockWindow.location.href = `${authorizationCodeSecrets['x-scalar-secret-redirect-uri']}?code=auth_code_123&state=${state}`
 
       // Mock the token exchange
       global.fetch = vi.fn().mockResolvedValueOnce({
@@ -106,7 +156,7 @@ describe('oauth', () => {
       expect(global.fetch).toHaveBeenCalledWith(tokenUrl, {
         method: 'POST',
         body: new URLSearchParams({
-          redirect_uri: scheme.authorizationCode['x-scalar-secret-redirect-uri'],
+          redirect_uri: authorizationCodeSecrets['x-scalar-secret-redirect-uri'],
           code: 'auth_code_123',
           grant_type: 'authorization_code',
         }),
@@ -122,7 +172,7 @@ describe('oauth', () => {
       const flows = {
         authorizationCode: {
           ...scheme.authorizationCode,
-          'x-usePkce': 'SHA-256',
+          'x-usePkce': 'SHA-256' as const,
           'x-scalar-security-query': {
             prompt: 'login',
             audience: 'scalar',
@@ -147,7 +197,14 @@ describe('oauth', () => {
       // Mock crypto.subtle.digest
       vi.spyOn(crypto.subtle, 'digest').mockResolvedValue(new Uint8Array([1, 2, 3, 4, 5, 6, 8, 9, 10]).buffer)
 
-      const promise = authorizeOauth2(flows, 'authorizationCode', selectedScopes, mockServer, '')
+      const promise = authorizeOauth2(
+        flows,
+        'authorizationCode',
+        selectedScopes,
+        mockServer,
+        '',
+        authorizationCodeSecrets,
+      )
       await flushPromises()
 
       // Test the window.open call
@@ -157,10 +214,10 @@ describe('oauth', () => {
             response_type: 'code',
             code_challenge: codeChallenge,
             code_challenge_method: 'S256',
-            redirect_uri: flows.authorizationCode['x-scalar-secret-redirect-uri'],
+            redirect_uri: authorizationCodeSecrets['x-scalar-secret-redirect-uri'],
             prompt: 'login',
             audience: 'scalar',
-            client_id: flows.authorizationCode['x-scalar-secret-client-id'],
+            client_id: authorizationCodeSecrets['x-scalar-secret-client-id'],
             state: state,
             scope: scope.join(' '),
           }).toString()}`,
@@ -190,7 +247,7 @@ describe('oauth', () => {
           'Authorization': `Basic ${secretAuth}`,
         },
         body: new URLSearchParams({
-          redirect_uri: flows.authorizationCode['x-scalar-secret-redirect-uri'],
+          redirect_uri: authorizationCodeSecrets['x-scalar-secret-redirect-uri'],
           code,
           grant_type: 'authorization_code',
           code_verifier: 'AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8',
@@ -209,12 +266,19 @@ describe('oauth', () => {
         },
       } satisfies OAuthFlowsObject
 
-      const promise = authorizeOauth2(flows, 'authorizationCode', selectedScopes, mockServer, '')
+      const promise = authorizeOauth2(
+        flows,
+        'authorizationCode',
+        selectedScopes,
+        mockServer,
+        '',
+        authorizationCodeSecrets,
+      )
       const accessToken = 'access_token_123'
       const code = 'auth_code_123'
 
       // Mock redirect back from login
-      mockWindow.location.href = `${flows.authorizationCode['x-scalar-secret-redirect-uri']}?code=${code}&state=${state}`
+      mockWindow.location.href = `${authorizationCodeSecrets['x-scalar-secret-redirect-uri']}?code=${code}&state=${state}`
 
       // Mock the token exchange
       global.fetch = vi.fn().mockResolvedValueOnce({
@@ -233,7 +297,7 @@ describe('oauth', () => {
       expect(global.fetch).toHaveBeenCalledWith(tokenUrl, {
         method: 'POST',
         body: new URLSearchParams({
-          redirect_uri: flows.authorizationCode['x-scalar-secret-redirect-uri'],
+          redirect_uri: authorizationCodeSecrets['x-scalar-secret-redirect-uri'],
           code,
           grant_type: 'authorization_code',
           audience: 'https://api.example.com',
@@ -248,7 +312,14 @@ describe('oauth', () => {
 
     // Test user closing the window
     it('should handle window closure before authorization', async () => {
-      const promise = authorizeOauth2(scheme, 'authorizationCode', selectedScopes, mockServer, '')
+      const promise = authorizeOauth2(
+        scheme,
+        'authorizationCode',
+        selectedScopes,
+        mockServer,
+        '',
+        authorizationCodeSecrets,
+      )
 
       mockWindow.closed = true
       vi.advanceTimersByTime(200)
@@ -261,22 +332,20 @@ describe('oauth', () => {
 
     // Test relative redirect URIs
     it('should handle relative redirect URIs', () => {
-      const flows = {
-        'authorizationCode': {
-          ...scheme.authorizationCode,
-          'x-scalar-secret-redirect-uri': '/callback',
-        },
-      } satisfies OAuthFlowsObject
+      const relativeSecrets = {
+        ...authorizationCodeSecrets,
+        'x-scalar-secret-redirect-uri': '/callback',
+      }
 
-      void authorizeOauth2(flows, 'authorizationCode', selectedScopes, mockServer, '')
+      void authorizeOauth2(scheme, 'authorizationCode', selectedScopes, mockServer, '', relativeSecrets)
 
       // Test the window.open call for full redirect
       expect(window.open).toHaveBeenCalledWith(
         new URL(
-          `${flows.authorizationCode.authorizationUrl}?${new URLSearchParams({
+          `${scheme.authorizationCode.authorizationUrl}?${new URLSearchParams({
             response_type: 'code',
             redirect_uri: `${mockServer.url}/callback`,
-            client_id: flows.authorizationCode['x-scalar-secret-client-id'],
+            client_id: relativeSecrets['x-scalar-secret-client-id'],
             state: state,
             scope: scope.join(' '),
           }).toString()}`,
@@ -306,7 +375,7 @@ describe('oauth', () => {
         writable: true,
       })
 
-      const promise = authorizeOauth2(flows, 'authorizationCode', selectedScopes, null, '')
+      const promise = authorizeOauth2(flows, 'authorizationCode', selectedScopes, null, '', authorizationCodeSecrets)
       const accessToken = 'access_token_123'
 
       // Test the window.open call uses window.location as base
@@ -314,8 +383,8 @@ describe('oauth', () => {
         new URL(
           `https://example.com/oauth/authorize?${new URLSearchParams({
             response_type: 'code',
-            redirect_uri: flows.authorizationCode['x-scalar-secret-redirect-uri'],
-            client_id: flows.authorizationCode['x-scalar-secret-client-id'],
+            redirect_uri: authorizationCodeSecrets['x-scalar-secret-redirect-uri'],
+            client_id: authorizationCodeSecrets['x-scalar-secret-client-id'],
             state: state,
             scope: scope.join(' '),
           }).toString()}`,
@@ -325,7 +394,7 @@ describe('oauth', () => {
       )
 
       // Mock redirect back from login
-      mockWindow.location.href = `${flows.authorizationCode['x-scalar-secret-redirect-uri']}?code=auth_code_123&state=${state}`
+      mockWindow.location.href = `${authorizationCodeSecrets['x-scalar-secret-redirect-uri']}?code=auth_code_123&state=${state}`
 
       // Mock the token exchange
       global.fetch = vi.fn().mockResolvedValueOnce({
@@ -344,7 +413,7 @@ describe('oauth', () => {
       expect(global.fetch).toHaveBeenCalledWith('https://example.com/oauth/token', {
         method: 'POST',
         body: new URLSearchParams({
-          redirect_uri: flows.authorizationCode['x-scalar-secret-redirect-uri'],
+          redirect_uri: authorizationCodeSecrets['x-scalar-secret-redirect-uri'],
           code: 'auth_code_123',
           grant_type: 'authorization_code',
         }),
@@ -363,10 +432,17 @@ describe('oauth', () => {
 
     // State mismatch
     it('blow up on state mismatch', async () => {
-      const promise = authorizeOauth2(scheme, 'authorizationCode', selectedScopes, mockServer, '')
+      const promise = authorizeOauth2(
+        scheme,
+        'authorizationCode',
+        selectedScopes,
+        mockServer,
+        '',
+        authorizationCodeSecrets,
+      )
 
       // Mock redirect with bad state
-      mockWindow.location.href = `${scheme.authorizationCode['x-scalar-secret-redirect-uri']}?code=auth_code_123&state=bad_state`
+      mockWindow.location.href = `${authorizationCodeSecrets['x-scalar-secret-redirect-uri']}?code=auth_code_123&state=bad_state`
       vi.advanceTimersByTime(200)
 
       const [error, result] = await promise
@@ -382,6 +458,7 @@ describe('oauth', () => {
         selectedScopes,
         mockServer,
         'https://proxy.example.com',
+        authorizationCodeSecrets,
       )
 
       const accessToken = 'access_token_123'
@@ -391,8 +468,8 @@ describe('oauth', () => {
         new URL(
           `${scheme.authorizationCode.authorizationUrl}?${new URLSearchParams({
             response_type: 'code',
-            redirect_uri: scheme.authorizationCode['x-scalar-secret-redirect-uri'],
-            client_id: scheme.authorizationCode['x-scalar-secret-client-id'],
+            redirect_uri: authorizationCodeSecrets['x-scalar-secret-redirect-uri'],
+            client_id: authorizationCodeSecrets['x-scalar-secret-client-id'],
             state: state,
             scope: scope.join(' '),
           }).toString()}`,
@@ -402,7 +479,7 @@ describe('oauth', () => {
       )
 
       // Mock redirect back from login
-      mockWindow.location.href = `${scheme.authorizationCode['x-scalar-secret-redirect-uri']}?code=auth_code_123&state=${state}`
+      mockWindow.location.href = `${authorizationCodeSecrets['x-scalar-secret-redirect-uri']}?code=auth_code_123&state=${state}`
 
       // Mock the token exchange
       global.fetch = vi.fn().mockResolvedValueOnce({
@@ -423,7 +500,7 @@ describe('oauth', () => {
         {
           method: 'POST',
           body: new URLSearchParams({
-            redirect_uri: scheme.authorizationCode['x-scalar-secret-redirect-uri'],
+            redirect_uri: authorizationCodeSecrets['x-scalar-secret-redirect-uri'],
             code: 'auth_code_123',
             grant_type: 'authorization_code',
           }),
@@ -439,15 +516,22 @@ describe('oauth', () => {
       const flows = {
         authorizationCode: {
           ...scheme.authorizationCode,
-          'x-scalar-credentials-location': 'body',
+          'x-scalar-credentials-location': 'body' as const,
         },
       } satisfies OAuthFlowsObject
 
-      const promise = authorizeOauth2(flows, 'authorizationCode', selectedScopes, mockServer, '')
+      const promise = authorizeOauth2(
+        flows,
+        'authorizationCode',
+        selectedScopes,
+        mockServer,
+        '',
+        authorizationCodeSecretsWithBody,
+      )
       const accessToken = 'access_token_123'
 
       // Mock redirect back from login
-      mockWindow.location.href = `${flows.authorizationCode['x-scalar-secret-redirect-uri']}?code=auth_code_123&state=${state}`
+      mockWindow.location.href = `${authorizationCodeSecretsWithBody['x-scalar-secret-redirect-uri']}?code=auth_code_123&state=${state}`
 
       // Mock the token exchange
       global.fetch = vi.fn().mockResolvedValueOnce({
@@ -476,9 +560,9 @@ describe('oauth', () => {
       const body = callArgs![1]?.body as URLSearchParams
       // Order matches implementation: client_id/client_secret, redirect_uri, code, grant_type
       const expectedParams = new URLSearchParams()
-      expectedParams.set('client_id', flows.authorizationCode['x-scalar-secret-client-id'])
-      expectedParams.set('client_secret', flows.authorizationCode['x-scalar-secret-client-secret'])
-      expectedParams.set('redirect_uri', flows.authorizationCode['x-scalar-secret-redirect-uri'])
+      expectedParams.set('client_id', authorizationCodeSecretsWithBody['x-scalar-secret-client-id'])
+      expectedParams.set('client_secret', authorizationCodeSecretsWithBody['x-scalar-secret-client-secret'])
+      expectedParams.set('redirect_uri', authorizationCodeSecretsWithBody['x-scalar-secret-redirect-uri'])
       expectedParams.set('code', 'auth_code_123')
       expectedParams.set('grant_type', 'authorization_code')
       expect(body.toString()).toBe(expectedParams.toString())
@@ -488,8 +572,8 @@ describe('oauth', () => {
       const flows = {
         authorizationCode: {
           ...scheme.authorizationCode,
-          'x-usePkce': 'SHA-256',
-          'x-scalar-credentials-location': 'body',
+          'x-usePkce': 'SHA-256' as const,
+          'x-scalar-credentials-location': 'body' as const,
         },
       } satisfies OAuthFlowsObject
 
@@ -509,7 +593,14 @@ describe('oauth', () => {
       // Mock crypto.subtle.digest
       vi.spyOn(crypto.subtle, 'digest').mockResolvedValue(new Uint8Array([1, 2, 3, 4, 5, 6, 8, 9, 10]).buffer)
 
-      const promise = authorizeOauth2(flows, 'authorizationCode', selectedScopes, mockServer, '')
+      const promise = authorizeOauth2(
+        flows,
+        'authorizationCode',
+        selectedScopes,
+        mockServer,
+        '',
+        authorizationCodeSecretsWithBody,
+      )
       await flushPromises()
 
       mockWindow.location.href = `https://callback.example.com?code=${code}&state=${state}`
@@ -540,9 +631,9 @@ describe('oauth', () => {
       const body = callArgs![1]?.body as URLSearchParams
       // Order matches implementation: client_id/client_secret, redirect_uri, code, grant_type, code_verifier
       const expectedParams = new URLSearchParams()
-      expectedParams.set('client_id', flows.authorizationCode['x-scalar-secret-client-id'])
-      expectedParams.set('client_secret', flows.authorizationCode['x-scalar-secret-client-secret'])
-      expectedParams.set('redirect_uri', flows.authorizationCode['x-scalar-secret-redirect-uri'])
+      expectedParams.set('client_id', authorizationCodeSecretsWithBody['x-scalar-secret-client-id'])
+      expectedParams.set('client_secret', authorizationCodeSecretsWithBody['x-scalar-secret-client-secret'])
+      expectedParams.set('redirect_uri', authorizationCodeSecretsWithBody['x-scalar-secret-redirect-uri'])
       expectedParams.set('code', code)
       expectedParams.set('grant_type', 'authorization_code')
       expectedParams.set('code_verifier', 'AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8')
@@ -553,7 +644,7 @@ describe('oauth', () => {
       const flows = {
         authorizationCode: {
           ...scheme.authorizationCode,
-          'x-scalar-credentials-location': 'body',
+          'x-scalar-credentials-location': 'body' as const,
           'x-scalar-security-body': {
             audience: 'https://api.example.com',
             custom_param: 'custom_value',
@@ -561,12 +652,19 @@ describe('oauth', () => {
         },
       } satisfies OAuthFlowsObject
 
-      const promise = authorizeOauth2(flows, 'authorizationCode', selectedScopes, mockServer, '')
+      const promise = authorizeOauth2(
+        flows,
+        'authorizationCode',
+        selectedScopes,
+        mockServer,
+        '',
+        authorizationCodeSecretsWithBody,
+      )
       const accessToken = 'access_token_123'
       const code = 'auth_code_123'
 
       // Mock redirect back from login
-      mockWindow.location.href = `${flows.authorizationCode['x-scalar-secret-redirect-uri']}?code=${code}&state=${state}`
+      mockWindow.location.href = `${authorizationCodeSecretsWithBody['x-scalar-secret-redirect-uri']}?code=${code}&state=${state}`
 
       // Mock the token exchange
       global.fetch = vi.fn().mockResolvedValueOnce({
@@ -595,9 +693,9 @@ describe('oauth', () => {
       const body = callArgs![1]?.body as URLSearchParams
       // Order matches implementation: client_id/client_secret, redirect_uri, code, grant_type, then x-scalar-security-body params
       const expectedParams = new URLSearchParams()
-      expectedParams.set('client_id', flows.authorizationCode['x-scalar-secret-client-id'])
-      expectedParams.set('client_secret', flows.authorizationCode['x-scalar-secret-client-secret'])
-      expectedParams.set('redirect_uri', flows.authorizationCode['x-scalar-secret-redirect-uri'])
+      expectedParams.set('client_id', authorizationCodeSecretsWithBody['x-scalar-secret-client-id'])
+      expectedParams.set('client_secret', authorizationCodeSecretsWithBody['x-scalar-secret-client-secret'])
+      expectedParams.set('redirect_uri', authorizationCodeSecretsWithBody['x-scalar-secret-redirect-uri'])
       expectedParams.set('code', code)
       expectedParams.set('grant_type', 'authorization_code')
       expectedParams.set('audience', 'https://api.example.com')
@@ -611,8 +709,6 @@ describe('oauth', () => {
       clientCredentials: {
         ...baseFlow,
         tokenUrl,
-        'x-scalar-secret-client-secret': clientSecret,
-        'x-scalar-secret-token': '',
       },
     } satisfies OAuthFlowsObject
 
@@ -621,7 +717,14 @@ describe('oauth', () => {
         json: () => Promise.resolve({ access_token: 'access_token_123' }),
       })
 
-      const [error, result] = await authorizeOauth2(scheme, 'clientCredentials', selectedScopes, mockServer, '')
+      const [error, result] = await authorizeOauth2(
+        scheme,
+        'clientCredentials',
+        selectedScopes,
+        mockServer,
+        '',
+        clientCredentialsSecrets,
+      )
       expect(error).toBe(null)
       expect(result).toBe('access_token_123')
 
@@ -640,7 +743,14 @@ describe('oauth', () => {
 
     it('should handle token request failure', async () => {
       global.fetch = vi.fn().mockRejectedValueOnce(new Error('Network error'))
-      const [error, result] = await authorizeOauth2(scheme, 'clientCredentials', selectedScopes, mockServer, '')
+      const [error, result] = await authorizeOauth2(
+        scheme,
+        'clientCredentials',
+        selectedScopes,
+        mockServer,
+        '',
+        clientCredentialsSecrets,
+      )
       expect(result).toBe(null)
       expect(error).toBeInstanceOf(Error)
       expect(error!.message).toBe('Failed to get an access token. Please check your credentials.')
@@ -658,7 +768,14 @@ describe('oauth', () => {
         json: () => Promise.resolve({ custom_access_token: 'custom_token_123' }),
       })
 
-      const [error, result] = await authorizeOauth2(flows, 'clientCredentials', selectedScopes, mockServer, '')
+      const [error, result] = await authorizeOauth2(
+        flows,
+        'clientCredentials',
+        selectedScopes,
+        mockServer,
+        '',
+        clientCredentialsSecrets,
+      )
       expect(error).toBe(null)
       expect(result).toBe('custom_token_123')
     })
@@ -678,7 +795,14 @@ describe('oauth', () => {
         json: () => Promise.resolve({ access_token: 'access_token_123' }),
       })
 
-      const [error, result] = await authorizeOauth2(flows, 'clientCredentials', selectedScopes, mockServer, '')
+      const [error, result] = await authorizeOauth2(
+        flows,
+        'clientCredentials',
+        selectedScopes,
+        mockServer,
+        '',
+        clientCredentialsSecrets,
+      )
       expect(error).toBe(null)
       expect(result).toBe('access_token_123')
 
@@ -701,7 +825,7 @@ describe('oauth', () => {
       const flows = {
         clientCredentials: {
           ...scheme.clientCredentials,
-          'x-scalar-credentials-location': 'body',
+          'x-scalar-credentials-location': 'body' as const,
         },
       } satisfies OAuthFlowsObject
 
@@ -709,7 +833,14 @@ describe('oauth', () => {
         json: () => Promise.resolve({ access_token: 'access_token_123' }),
       })
 
-      const [error, result] = await authorizeOauth2(flows, 'clientCredentials', selectedScopes, mockServer, '')
+      const [error, result] = await authorizeOauth2(
+        flows,
+        'clientCredentials',
+        selectedScopes,
+        mockServer,
+        '',
+        clientCredentialsSecretsWithBody,
+      )
       expect(error).toBe(null)
       expect(result).toBe('access_token_123')
 
@@ -727,8 +858,8 @@ describe('oauth', () => {
       expect(body.toString()).toBe(
         new URLSearchParams({
           scope: scope.join(' '),
-          client_id: flows.clientCredentials['x-scalar-secret-client-id'],
-          client_secret: flows.clientCredentials['x-scalar-secret-client-secret'],
+          client_id: clientCredentialsSecretsWithBody['x-scalar-secret-client-id'],
+          client_secret: clientCredentialsSecretsWithBody['x-scalar-secret-client-secret'],
           grant_type: 'client_credentials',
         }).toString(),
       )
@@ -738,7 +869,7 @@ describe('oauth', () => {
       const flows = {
         clientCredentials: {
           ...scheme.clientCredentials,
-          'x-scalar-credentials-location': 'body',
+          'x-scalar-credentials-location': 'body' as const,
           'x-scalar-security-body': {
             audience: 'https://api.example.com',
             custom_param: 'custom_value',
@@ -750,7 +881,14 @@ describe('oauth', () => {
         json: () => Promise.resolve({ access_token: 'access_token_123' }),
       })
 
-      const [error, result] = await authorizeOauth2(flows, 'clientCredentials', selectedScopes, mockServer, '')
+      const [error, result] = await authorizeOauth2(
+        flows,
+        'clientCredentials',
+        selectedScopes,
+        mockServer,
+        '',
+        clientCredentialsSecretsWithBody,
+      )
       expect(error).toBe(null)
       expect(result).toBe('access_token_123')
 
@@ -768,8 +906,8 @@ describe('oauth', () => {
       expect(body.toString()).toBe(
         new URLSearchParams({
           scope: scope.join(' '),
-          client_id: flows.clientCredentials['x-scalar-secret-client-id'],
-          client_secret: flows.clientCredentials['x-scalar-secret-client-secret'],
+          client_id: clientCredentialsSecretsWithBody['x-scalar-secret-client-id'],
+          client_secret: clientCredentialsSecretsWithBody['x-scalar-secret-client-secret'],
           grant_type: 'client_credentials',
           audience: 'https://api.example.com',
           custom_param: 'custom_value',
@@ -789,7 +927,14 @@ describe('oauth', () => {
         json: () => Promise.resolve({ access_token: 'access_token_123' }),
       })
 
-      const [error, result] = await authorizeOauth2(flows, 'clientCredentials', selectedScopes, mockServer, '')
+      const [error, result] = await authorizeOauth2(
+        flows,
+        'clientCredentials',
+        selectedScopes,
+        mockServer,
+        '',
+        clientCredentialsSecrets,
+      )
       expect(error).toBe(null)
       expect(result).toBe('access_token_123')
 
@@ -813,19 +958,17 @@ describe('oauth', () => {
       implicit: {
         ...baseFlow,
         authorizationUrl,
-        'x-scalar-secret-redirect-uri': redirectUri,
-        'x-scalar-secret-token': '',
       },
     } satisfies OAuthFlowsObject
 
     it('should handle successful implicit flow', async () => {
-      const promise = authorizeOauth2(scheme, 'implicit', selectedScopes, mockServer, '')
+      const promise = authorizeOauth2(scheme, 'implicit', selectedScopes, mockServer, '', implicitSecrets)
       expect(window.open).toHaveBeenCalledWith(
         new URL(
           `${scheme.implicit.authorizationUrl}?${new URLSearchParams({
             response_type: 'token',
             redirect_uri: redirectUri,
-            client_id: scheme.implicit['x-scalar-secret-client-id'],
+            client_id: implicitSecrets['x-scalar-secret-client-id'],
             state: state,
             scope: scope.join(' '),
           })}`,
@@ -835,7 +978,7 @@ describe('oauth', () => {
       )
 
       // Redirect
-      mockWindow.location.href = `${scheme.implicit['x-scalar-secret-redirect-uri']}#access_token=implicit_token_123&state=${state}`
+      mockWindow.location.href = `${implicitSecrets['x-scalar-secret-redirect-uri']}#access_token=implicit_token_123&state=${state}`
 
       // Run setInterval
       vi.advanceTimersByTime(200)
@@ -855,10 +998,10 @@ describe('oauth', () => {
         },
       } satisfies OAuthFlowsObject
 
-      const promise = authorizeOauth2(flows, 'implicit', selectedScopes, mockServer, '')
+      const promise = authorizeOauth2(flows, 'implicit', selectedScopes, mockServer, '', implicitSecrets)
 
       // Redirect with custom token name
-      mockWindow.location.href = `${flows.implicit['x-scalar-secret-redirect-uri']}#custom_access_token=custom_implicit_token_123&state=${state}`
+      mockWindow.location.href = `${implicitSecrets['x-scalar-secret-redirect-uri']}#custom_access_token=custom_implicit_token_123&state=${state}`
 
       // Run setInterval
       vi.advanceTimersByTime(200)
@@ -878,7 +1021,7 @@ describe('oauth', () => {
         },
       } satisfies OAuthFlowsObject
 
-      const promise = authorizeOauth2(flows, 'implicit', selectedScopes, mockServer, '')
+      const promise = authorizeOauth2(flows, 'implicit', selectedScopes, mockServer, '', implicitSecrets)
 
       // Test the window.open call uses absolute URL
       expect(window.open).toHaveBeenCalledWith(
@@ -886,7 +1029,7 @@ describe('oauth', () => {
           `${mockServer.url}/oauth/authorize?${new URLSearchParams({
             response_type: 'token',
             redirect_uri: redirectUri,
-            client_id: flows.implicit['x-scalar-secret-client-id'],
+            client_id: implicitSecrets['x-scalar-secret-client-id'],
             state: state,
             scope: scope.join(' '),
           })}`,
@@ -896,7 +1039,7 @@ describe('oauth', () => {
       )
 
       // Redirect
-      mockWindow.location.href = `${flows.implicit['x-scalar-secret-redirect-uri']}#access_token=implicit_token_123&state=${state}`
+      mockWindow.location.href = `${implicitSecrets['x-scalar-secret-redirect-uri']}#access_token=implicit_token_123&state=${state}`
 
       // Run setInterval
       vi.advanceTimersByTime(200)
@@ -914,10 +1057,6 @@ describe('oauth', () => {
       password: {
         ...baseFlow,
         tokenUrl,
-        'x-scalar-secret-username': 'test-username',
-        'x-scalar-secret-password': 'test-password',
-        'x-scalar-secret-client-secret': clientSecret,
-        'x-scalar-secret-token': '',
       },
     } satisfies OAuthFlowsObject
 
@@ -934,7 +1073,7 @@ describe('oauth', () => {
           }),
       })
 
-      const [error, result] = await authorizeOauth2(scheme, 'password', selectedScopes, mockServer, '')
+      const [error, result] = await authorizeOauth2(scheme, 'password', selectedScopes, mockServer, '', passwordSecrets)
       expect(error).toBe(null)
       expect(result).toBe('access_token_123')
 
@@ -944,8 +1083,8 @@ describe('oauth', () => {
         body: new URLSearchParams({
           scope: scope.join(' '),
           grant_type: 'password',
-          username: scheme.password['x-scalar-secret-username'],
-          password: scheme.password['x-scalar-secret-password'],
+          username: passwordSecrets['x-scalar-secret-username'],
+          password: passwordSecrets['x-scalar-secret-password'],
         }),
         headers: {
           'Authorization': `Basic ${secretAuth}`,
@@ -969,7 +1108,7 @@ describe('oauth', () => {
         json: () => Promise.resolve({ access_token: 'access_token_123' }),
       })
 
-      const [error, result] = await authorizeOauth2(flows, 'password', selectedScopes, mockServer, '')
+      const [error, result] = await authorizeOauth2(flows, 'password', selectedScopes, mockServer, '', passwordSecrets)
       expect(error).toBe(null)
       expect(result).toBe('access_token_123')
 
@@ -978,8 +1117,8 @@ describe('oauth', () => {
         body: new URLSearchParams({
           scope: scope.join(' '),
           grant_type: 'password',
-          username: flows.password['x-scalar-secret-username'],
-          password: flows.password['x-scalar-secret-password'],
+          username: passwordSecrets['x-scalar-secret-username'],
+          password: passwordSecrets['x-scalar-secret-password'],
           audience: 'https://api.example.com',
           custom_param: 'custom_value',
         }),
@@ -994,7 +1133,7 @@ describe('oauth', () => {
       const flows = {
         password: {
           ...scheme.password,
-          'x-scalar-credentials-location': 'body',
+          'x-scalar-credentials-location': 'body' as const,
         },
       } satisfies OAuthFlowsObject
 
@@ -1009,7 +1148,14 @@ describe('oauth', () => {
           }),
       })
 
-      const [error, result] = await authorizeOauth2(flows, 'password', selectedScopes, mockServer, '')
+      const [error, result] = await authorizeOauth2(
+        flows,
+        'password',
+        selectedScopes,
+        mockServer,
+        '',
+        passwordSecretsWithBody,
+      )
       expect(error).toBe(null)
       expect(result).toBe('access_token_123')
 
@@ -1027,11 +1173,11 @@ describe('oauth', () => {
       expect(body.toString()).toBe(
         new URLSearchParams({
           scope: scope.join(' '),
-          client_id: flows.password['x-scalar-secret-client-id'],
-          client_secret: flows.password['x-scalar-secret-client-secret'],
+          client_id: passwordSecretsWithBody['x-scalar-secret-client-id'],
+          client_secret: passwordSecretsWithBody['x-scalar-secret-client-secret'],
           grant_type: 'password',
-          username: flows.password['x-scalar-secret-username'],
-          password: flows.password['x-scalar-secret-password'],
+          username: passwordSecretsWithBody['x-scalar-secret-username'],
+          password: passwordSecretsWithBody['x-scalar-secret-password'],
         }).toString(),
       )
     })
@@ -1040,7 +1186,7 @@ describe('oauth', () => {
       const flows = {
         password: {
           ...scheme.password,
-          'x-scalar-credentials-location': 'body',
+          'x-scalar-credentials-location': 'body' as const,
           'x-scalar-security-body': {
             audience: 'https://api.example.com',
             custom_param: 'custom_value',
@@ -1059,7 +1205,14 @@ describe('oauth', () => {
           }),
       })
 
-      const [error, result] = await authorizeOauth2(flows, 'password', selectedScopes, mockServer, '')
+      const [error, result] = await authorizeOauth2(
+        flows,
+        'password',
+        selectedScopes,
+        mockServer,
+        '',
+        passwordSecretsWithBody,
+      )
       expect(error).toBe(null)
       expect(result).toBe('access_token_123')
 
@@ -1077,11 +1230,11 @@ describe('oauth', () => {
       expect(body.toString()).toBe(
         new URLSearchParams({
           scope: scope.join(' '),
-          client_id: flows.password['x-scalar-secret-client-id'],
-          client_secret: flows.password['x-scalar-secret-client-secret'],
+          client_id: passwordSecretsWithBody['x-scalar-secret-client-id'],
+          client_secret: passwordSecretsWithBody['x-scalar-secret-client-secret'],
           grant_type: 'password',
-          username: flows.password['x-scalar-secret-username'],
-          password: flows.password['x-scalar-secret-password'],
+          username: passwordSecretsWithBody['x-scalar-secret-username'],
+          password: passwordSecretsWithBody['x-scalar-secret-password'],
           audience: 'https://api.example.com',
           custom_param: 'custom_value',
         }).toString(),
@@ -1107,7 +1260,7 @@ describe('oauth', () => {
           }),
       })
 
-      const [error, result] = await authorizeOauth2(flows, 'password', selectedScopes, mockServer, '')
+      const [error, result] = await authorizeOauth2(flows, 'password', selectedScopes, mockServer, '', passwordSecrets)
       expect(error).toBe(null)
       expect(result).toBe('access_token_123')
 
@@ -1117,8 +1270,8 @@ describe('oauth', () => {
         body: new URLSearchParams({
           scope: scope.join(' '),
           grant_type: 'password',
-          username: flows.password['x-scalar-secret-username'],
-          password: flows.password['x-scalar-secret-password'],
+          username: passwordSecrets['x-scalar-secret-username'],
+          password: passwordSecrets['x-scalar-secret-password'],
         }),
         headers: {
           'Authorization': `Basic ${secretAuth}`,

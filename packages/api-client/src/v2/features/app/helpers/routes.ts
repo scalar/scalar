@@ -2,10 +2,10 @@ import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
+import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import type { WorkspaceDocument } from '@scalar/workspace-store/schemas/workspace'
 import type { RouteRecordRaw } from 'vue-router'
 
-import type { MergedSecuritySchemes } from '@/v2/blocks/scalar-auth-selector-block/helpers/merge-auth-config'
 import Authentication from '@/v2/features/collection/components/Authentication.vue'
 import Cookies from '@/v2/features/collection/components/Cookies.vue'
 import Environment from '@/v2/features/collection/components/Environment.vue'
@@ -29,7 +29,7 @@ export type RouteProps = {
   method?: HttpMethod
   exampleName?: string
   environment: XScalarEnvironment
-  securitySchemes: MergedSecuritySchemes
+  securitySchemes: NonNullable<OpenApiDocument['components']>['securitySchemes']
   workspaceStore: WorkspaceStore
   activeWorkspace: { id: string; label: string }
   plugins: ClientPlugin[]

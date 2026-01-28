@@ -1,4 +1,3 @@
 export { default as AuthSelector } from './components/AuthSelector.vue'
-export { convertSecuritySchemeSecrets } from './helpers/convert-security-scheme-secrets'
 export { isAuthOptional } from './helpers/is-auth-optional'
-export { type MergedSecuritySchemes, mergeAuthConfig } from './helpers/merge-auth-config'
+export { mergeAuthConfig } from './helpers/merge-auth-config'

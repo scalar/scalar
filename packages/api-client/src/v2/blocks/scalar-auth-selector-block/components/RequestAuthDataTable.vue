@@ -17,18 +17,7 @@ import { DataTable } from '@/v2/components/data-table'
 
 import RequestAuthTab from './RequestAuthTab.vue'
 
-const {
-  environment,
-  isStatic,
-  selectedSchemeOptions,
-  activeAuthIndex,
-  securitySchemes = {},
-  server,
-  eventBus,
-  meta,
-  authStore,
-  documentSlug,
-} = defineProps<{
+export type RequestAuthDataTableProps = {
   /** The current environment configuration */
   environment: XScalarEnvironment
   /** Controls border display for static (non-collapsible) layouts */
@@ -51,7 +40,20 @@ const {
   documentSlug: string
   /** Event bus for authentication updates */
   eventBus: WorkspaceEventBus
-}>()
+}
+
+const {
+  environment,
+  isStatic,
+  selectedSchemeOptions,
+  activeAuthIndex,
+  securitySchemes = {},
+  server,
+  eventBus,
+  meta,
+  authStore,
+  documentSlug,
+} = defineProps<RequestAuthDataTableProps>()
 
 /** Currently selected authentication scheme based on the active tab index */
 const activeScheme = computed<SecuritySchemeOption | undefined>(

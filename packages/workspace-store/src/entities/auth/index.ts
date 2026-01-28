@@ -1,6 +1,11 @@
 import { reactive } from 'vue'
 
-import { type DocumentAuth, DocumentAuthSchema, type SecretsAuth } from '@/entities/auth/schema'
+import {
+  type DocumentAuth,
+  DocumentAuthSchema,
+  type SecretsAuthUnion,
+  SecretsAuthUnionSchema,
+} from '@/entities/auth/schema'
 import { createDetectChangesProxy } from '@/helpers/detect-changes-proxy'
 import { safeAssign } from '@/helpers/general'
 import { unpackProxyObject } from '@/helpers/unpack-proxy'
@@ -16,7 +21,7 @@ export type AuthStore = {
    * @param schemeName - Name of the security scheme.
    * @returns The authentication secrets, or undefined if not found.
    */
-  getAuthSecrets: (documentName: string, schemeName: string) => SecretsAuth[string] | undefined
+  getAuthSecrets: (documentName: string, schemeName: string) => SecretsAuthUnion | undefined
 
   /**
    * Sets the authentication secrets for a given document and security scheme.
@@ -24,7 +29,7 @@ export type AuthStore = {
    * @param schemeName - Name of the security scheme.
    * @param auth - The secret/auth object to set.
    */
-  setAuthSecrets: (documentName: string, schemeName: string, auth: SecretsAuth[string]) => void
+  setAuthSecrets: (documentName: string, schemeName: string, auth: SecretsAuthUnion) => void
 
   /**
    * Removes the authentication data for a given document.
@@ -82,7 +87,7 @@ export const createAuthStore = ({ hooks }: CreateAuthStoreOptions = {}): AuthSto
 
   const setAuthSecrets: AuthStore['setAuthSecrets'] = (documentName, schemeName, data) => {
     auth[documentName] ||= { secrets: {}, selected: { document: { selectedIndex: 0, selectedSchemes: [] }, path: {} } }
-    auth[documentName].secrets[schemeName] = data
+    auth[documentName].secrets[schemeName] = coerceValue(SecretsAuthUnionSchema, data)
   }
 
   const clearDocumentAuth: AuthStore['clearDocumentAuth'] = (documentName) => {

@@ -1,3 +1,4 @@
+import { createAuthStore } from '@scalar/workspace-store/entities/auth/index'
 import { type WorkspaceEventBus, createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
@@ -79,6 +80,8 @@ describe('AuthSelector', () => {
         meta: {
           type: 'document',
         },
+        authStore: createAuthStore(),
+        documentSlug: 'test-document',
         ...custom,
       },
     })

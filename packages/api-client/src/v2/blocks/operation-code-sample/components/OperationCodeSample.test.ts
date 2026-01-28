@@ -1,5 +1,6 @@
 import type { HttpMethod as HttpMethodType } from '@scalar/helpers/http/http-methods'
 import type { AvailableClient } from '@scalar/types/snippetz'
+import type { AuthStore } from '@scalar/workspace-store/entities/auth/index'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import type {
   OperationObject,
@@ -33,6 +34,25 @@ vi.mock('@scalar/use-toasts', () => ({
 }))
 
 describe('RequestExample', () => {
+  const mockAuthStore: AuthStore = {
+    getAuthSecrets: () => {
+      /* no-op - returns undefined to use inline secrets */
+      return undefined
+    },
+    setAuthSecrets: () => {
+      /* no-op */
+    },
+    clearDocumentAuth: () => {
+      /* no-op */
+    },
+    load: () => {
+      /* no-op */
+    },
+    export: () => ({}),
+  }
+
+  const mockDocumentSlug = 'test-doc'
+
   const mockOperation: OperationObject = {
     summary: 'Test operation',
     requestBody: {
@@ -61,19 +81,21 @@ describe('RequestExample', () => {
     },
   }
 
-  const mockSecuritySchemes: SecuritySchemeObject[] = [
+  const mockSecuritySchemes: { scheme: SecuritySchemeObject; name: string }[] = [
     {
-      type: 'apiKey',
-      name: 'X-API-Key',
-      in: 'header',
-      'x-scalar-secret-token': 'secret-api-key',
+      scheme: {
+        type: 'apiKey',
+        name: 'X-API-Key',
+        in: 'header',
+      },
+      name: 'apiKeyAuth',
     },
     {
-      type: 'http',
-      scheme: 'basic',
-      'x-scalar-secret-username': 'testuser',
-      'x-scalar-secret-password': 'testpass',
-      'x-scalar-secret-token': 'testtoken',
+      scheme: {
+        type: 'http',
+        scheme: 'basic',
+      },
+      name: 'basicAuth',
     },
   ]
 
@@ -144,6 +166,8 @@ describe('RequestExample', () => {
     selectedServer: mockServer,
     clientOptions: mockClientOptions,
     eventBus: mockEventBus,
+    authStore: mockAuthStore,
+    documentSlug: mockDocumentSlug,
   }
 
   describe('Component Rendering', () => {
@@ -475,6 +499,26 @@ describe('RequestExample', () => {
         props: {
           ...defaultProps,
           securitySchemes: mockSecuritySchemes,
+          authStore: {
+            ...mockAuthStore,
+            getAuthSecrets: (_, schemeName) => {
+              if (schemeName === 'apiKeyAuth') {
+                return {
+                  type: 'apiKey',
+                  'x-scalar-secret-token': 'secret-api-key',
+                }
+              }
+              if (schemeName === 'basicAuth') {
+                return {
+                  type: 'http',
+                  'x-scalar-secret-token': 'bearer-token-456',
+                  'x-scalar-secret-username': 'testuser',
+                  'x-scalar-secret-password': 'testpass',
+                }
+              }
+              return undefined
+            },
+          },
         },
       })
 
@@ -497,22 +541,21 @@ describe('RequestExample', () => {
     })
 
     it('handles oauth2 security schemes', () => {
-      const oauth2Schemes: SecuritySchemeObject[] = [
+      const oauth2Schemes: { scheme: SecuritySchemeObject; name: string }[] = [
         {
-          type: 'oauth2',
-          flows: {
-            authorizationCode: {
-              authorizationUrl: 'https://example.com/auth',
-              tokenUrl: 'https://example.com/token',
-              refreshUrl: '',
-              scopes: {},
-              'x-scalar-secret-token': 'oauth-token',
-              'x-scalar-secret-client-id': '',
-              'x-scalar-secret-client-secret': '',
-              'x-scalar-secret-redirect-uri': '',
-              'x-usePkce': 'no',
+          scheme: {
+            type: 'oauth2',
+            flows: {
+              authorizationCode: {
+                authorizationUrl: 'https://example.com/auth',
+                tokenUrl: 'https://example.com/token',
+                refreshUrl: '',
+                scopes: {},
+                'x-usePkce': 'no' as const,
+              },
             },
           },
+          name: 'oauth2Auth',
         },
       ]
 
@@ -520,6 +563,23 @@ describe('RequestExample', () => {
         props: {
           ...defaultProps,
           securitySchemes: oauth2Schemes,
+          authStore: {
+            ...mockAuthStore,
+            getAuthSecrets: (_, schemeName) => {
+              if (schemeName === 'oauth2Auth') {
+                return {
+                  type: 'oauth2',
+                  authorizationCode: {
+                    'x-scalar-secret-token': 'oauth-token',
+                    'x-scalar-secret-client-id': 'oauth-client-id',
+                    'x-scalar-secret-client-secret': 'oauth-client-secret',
+                    'x-scalar-secret-redirect-uri': 'https://example.com/redirect',
+                  },
+                }
+              }
+              return undefined
+            },
+          },
         },
       })
 
@@ -1041,20 +1101,42 @@ describe('RequestExample', () => {
           },
           securitySchemes: [
             {
-              type: 'apiKey',
-              name: 'X-API-Key',
-              in: 'header',
-              'x-scalar-secret-token': 'secret-api-key-123',
+              scheme: {
+                type: 'apiKey',
+                name: 'X-API-Key',
+                in: 'header',
+              },
+              name: 'apiKeyAuth',
             },
             {
-              type: 'http',
-              scheme: 'bearer',
-              'x-scalar-secret-token': 'bearer-token-456',
-              'x-scalar-secret-username': '',
-              'x-scalar-secret-password': '',
+              scheme: {
+                type: 'http',
+                scheme: 'bearer',
+              },
+              name: 'bearerAuth',
             },
           ],
           selectedExample: 'secureExample',
+          authStore: {
+            ...mockAuthStore,
+            getAuthSecrets: (_, schemeName) => {
+              if (schemeName === 'apiKeyAuth') {
+                return {
+                  type: 'apiKey',
+                  'x-scalar-secret-token': 'secret-api-key-123',
+                }
+              }
+              if (schemeName === 'bearerAuth') {
+                return {
+                  type: 'http',
+                  'x-scalar-secret-token': 'bearer-token-456',
+                  'x-scalar-secret-username': '',
+                  'x-scalar-secret-password': '',
+                }
+              }
+              return undefined
+            },
+          },
         },
       })
 

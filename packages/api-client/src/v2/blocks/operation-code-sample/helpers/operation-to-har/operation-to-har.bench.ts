@@ -22,24 +22,36 @@ const server: ServerObject = {
 }
 
 // Shared security schemes to exercise headers/query/cookies and http auth
-const complexSecuritySchemes: readonly SecuritySchemeObject[] = [
+const complexSecuritySchemes: readonly { scheme: SecuritySchemeObject; name: string }[] = [
   {
-    type: 'http',
-    scheme: 'bearer',
+    name: 'bearerAuth',
+    scheme: {
+      type: 'http',
+      scheme: 'bearer',
+    },
   },
   {
-    type: 'apiKey',
-    in: 'query',
-    name: 'api_key',
+    name: 'apiKeyQuery',
+    scheme: {
+      type: 'apiKey',
+      in: 'query',
+      name: 'api_key',
+    },
   },
   {
-    type: 'apiKey',
-    in: 'header',
-    name: 'X-Client-Id',
+    name: 'apiKeyHeader',
+    scheme: {
+      type: 'apiKey',
+      in: 'header',
+      name: 'X-Client-Id',
+    },
   },
   {
-    type: 'http',
-    scheme: 'basic',
+    name: 'basicAuth',
+    scheme: {
+      type: 'http',
+      scheme: 'basic',
+    },
   },
 ] as const
 
@@ -180,6 +192,28 @@ describe('bench:operationToHar with large complex payloads', () => {
     responses: {},
   } satisfies OperationObject
 
+  // Mock AuthStore for benchmarking
+  const mockAuthStore = {
+    getAuthSecrets: () => undefined,
+    setAuthSecrets: () => {
+      // No-op for benchmarking
+    },
+    clearDocumentAuth: () => {
+      // No-op for benchmarking
+    },
+    load: () => {
+      // No-op for benchmarking
+    },
+    export: () => ({}),
+    getSelectedScheme: () => undefined,
+    setSelectedScheme: () => {
+      // No-op for benchmarking
+    },
+    clearSelectedScheme: () => {
+      // No-op for benchmarking
+    },
+  }
+
   bench('large JSON + multipart/form-data bodies with many params and security', () => {
     const method: HttpMethod = 'post'
     // JSON body
@@ -190,6 +224,8 @@ describe('bench:operationToHar with large complex payloads', () => {
       server,
       securitySchemes: [...complexSecuritySchemes],
       contentType: 'application/json',
+      authStore: mockAuthStore,
+      documentSlug: 'benchmark-doc',
     })
 
     // multipart/form-data body
@@ -200,6 +236,8 @@ describe('bench:operationToHar with large complex payloads', () => {
       server,
       securitySchemes: [...complexSecuritySchemes],
       contentType: 'multipart/form-data',
+      authStore: mockAuthStore,
+      documentSlug: 'benchmark-doc',
     })
   })
 })

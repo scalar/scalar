@@ -11,11 +11,12 @@ import type { AuthStore } from '@scalar/workspace-store/entities/auth/index'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type { TraversedEntry as TraversedEntryType } from '@scalar/workspace-store/schemas/navigation'
+import type { ComponentsObject } from '@scalar/workspace-store/schemas/v3.1/strict/components'
 import type {
   Workspace,
   WorkspaceDocument,
 } from '@scalar/workspace-store/schemas/workspace'
-import { computed } from 'vue'
+import { computed, ref, toValue, watch } from 'vue'
 
 import { ClientSelector } from '@/blocks/scalar-client-selector-block'
 import { InfoBlock } from '@/blocks/scalar-info-block'
@@ -29,35 +30,36 @@ import { SectionFlare } from '@/components/SectionFlare'
 import { getXKeysFromObject } from '@/features/specification-extension'
 import { firstLazyLoadComplete } from '@/helpers/lazy-bus'
 
-const { document, items, environment, eventBus, options } = defineProps<{
-  infoSectionId: string
-  /** The subset of the configuration object required for the content component */
-  options: Pick<
-    ApiReferenceConfigurationRaw,
-    | 'authentication'
-    | 'baseServerURL'
-    | 'documentDownloadType'
-    | 'expandAllResponses'
-    | 'hiddenClients'
-    | 'hideTestRequestButton'
-    | 'layout'
-    | 'orderRequiredPropertiesFirst'
-    | 'orderSchemaPropertiesBy'
-    | 'persistAuth'
-    | 'proxyUrl'
-    | 'servers'
-    | 'showOperationId'
-  >
-  document: WorkspaceDocument | undefined
-  xScalarDefaultClient: Workspace['x-scalar-default-client']
-  items: TraversedEntryType[]
-  expandedItems: Record<string, boolean>
-  eventBus: WorkspaceEventBus
-  environment: XScalarEnvironment
-  /** Heading id generator for Markdown headings */
-  headingSlugGenerator: (heading: Heading) => string
-  authStore: AuthStore
-}>()
+const { document, items, environment, eventBus, options, authStore } =
+  defineProps<{
+    infoSectionId: string
+    /** The subset of the configuration object required for the content component */
+    options: Pick<
+      ApiReferenceConfigurationRaw,
+      | 'authentication'
+      | 'baseServerURL'
+      | 'documentDownloadType'
+      | 'expandAllResponses'
+      | 'hiddenClients'
+      | 'hideTestRequestButton'
+      | 'layout'
+      | 'orderRequiredPropertiesFirst'
+      | 'orderSchemaPropertiesBy'
+      | 'persistAuth'
+      | 'proxyUrl'
+      | 'servers'
+      | 'showOperationId'
+    >
+    document: WorkspaceDocument | undefined
+    xScalarDefaultClient: Workspace['x-scalar-default-client']
+    items: TraversedEntryType[]
+    expandedItems: Record<string, boolean>
+    eventBus: WorkspaceEventBus
+    environment: XScalarEnvironment
+    /** Heading id generator for Markdown headings */
+    headingSlugGenerator: (heading: Heading) => string
+    authStore: AuthStore
+  }>()
 
 /** Generate all client options so that it can be shared between the top client picker and the operations */
 const clientOptions = computed(() =>
@@ -83,12 +85,24 @@ const selectedServer = computed(() =>
   getSelectedServer(document ?? null, servers.value),
 )
 
+const securitySchemes = ref<NonNullable<ComponentsObject['securitySchemes']>>(
+  {},
+)
+
 /** Merge authentication config with the document security schemes */
-const securitySchemes = computed(() =>
-  mergeAuthConfig(
-    document?.components?.securitySchemes,
-    options.authentication?.securitySchemes,
-  ),
+watch(
+  () => toValue(options)?.authentication?.securitySchemes,
+  (value) => {
+    securitySchemes.value = mergeAuthConfig({
+      documentSlug: document?.['x-scalar-navigation']?.name ?? '',
+      authStore,
+      documentSecuritySchemes: document?.components?.securitySchemes ?? {},
+      configSecuritySchemes: value,
+    })
+  },
+  {
+    immediate: true,
+  },
 )
 </script>
 <template>

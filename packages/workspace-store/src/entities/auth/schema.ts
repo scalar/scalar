@@ -66,10 +66,10 @@ const OAuthSchema = compose(
 
 export type SecretsOAuth = Static<typeof OAuthSchema>
 
-export const SecretsAuthSchema = Type.Record(
-  Type.String(),
-  Type.Union([SecretsApiKeySchema, SecretsHttpSchema, OAuthSchema]),
-)
+export const SecretsAuthUnionSchema = Type.Union([SecretsApiKeySchema, SecretsHttpSchema, OAuthSchema])
+export type SecretsAuthUnion = Static<typeof SecretsAuthUnionSchema>
+
+export const SecretsAuthSchema = Type.Record(Type.String(), SecretsAuthUnionSchema)
 export type SecretsAuth = Static<typeof SecretsAuthSchema>
 
 const SelectedSecuritySchema = Type.Object({

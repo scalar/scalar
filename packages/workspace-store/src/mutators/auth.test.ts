@@ -42,13 +42,13 @@ describe('updateSelectedSecuritySchemes', () => {
     const document = createDocument({
       components: {
         securitySchemes: {
-          ApiKeyAuth: { type: 'apiKey', in: 'header', name: 'X-API-Key', 'x-scalar-secret-token': '' },
+          ApiKeyAuth: { type: 'apiKey', in: 'header', name: 'X-API-Key' },
         },
       },
     })
 
     const createItems: { name: string; scheme: SecuritySchemeObject }[] = [
-      { name: 'ApiKeyAuth', scheme: { type: 'apiKey', in: 'query', name: 'api_key', 'x-scalar-secret-token': '' } },
+      { name: 'ApiKeyAuth', scheme: { type: 'apiKey', in: 'query', name: 'api_key' } },
     ]
 
     await updateSelectedSecuritySchemes(document, {
@@ -122,9 +122,6 @@ describe('updateSelectedSecuritySchemes', () => {
           scheme: {
             type: 'http',
             scheme: 'bearer',
-            'x-scalar-secret-password': '',
-            'x-scalar-secret-token': '',
-            'x-scalar-secret-username': '',
           },
         },
       ],
@@ -135,9 +132,6 @@ describe('updateSelectedSecuritySchemes', () => {
     expect(document.components?.securitySchemes?.['BearerAuth']).toEqual({
       type: 'http',
       scheme: 'bearer',
-      'x-scalar-secret-password': '',
-      'x-scalar-secret-token': '',
-      'x-scalar-secret-username': '',
     })
 
     // Operation-level selection should be created and set
@@ -150,42 +144,11 @@ describe('updateSelectedSecuritySchemes', () => {
 })
 
 describe('updateSecurityScheme', () => {
-  it('updates http scheme secrets (username, password, token)', () => {
+  it('updates apiKey scheme name', () => {
     const document = createDocument({
       components: {
         securitySchemes: {
-          HttpAuth: {
-            type: 'http',
-            scheme: 'basic',
-            'x-scalar-secret-username': '',
-            'x-scalar-secret-password': '',
-            'x-scalar-secret-token': '',
-          },
-        },
-      },
-    })
-
-    updateSecurityScheme(document, {
-      name: 'HttpAuth',
-      payload: {
-        type: 'http',
-        'x-scalar-secret-username': 'u',
-        'x-scalar-secret-password': 'p',
-        'x-scalar-secret-token': 't',
-      },
-    })
-
-    const scheme = document.components!.securitySchemes!.HttpAuth as Record<string, unknown>
-    expect(scheme['x-scalar-secret-username']).toBe('u')
-    expect(scheme['x-scalar-secret-password']).toBe('p')
-    expect(scheme['x-scalar-secret-token']).toBe('t')
-  })
-
-  it('updates apiKey scheme name and secret token', () => {
-    const document = createDocument({
-      components: {
-        securitySchemes: {
-          ApiKey: { type: 'apiKey', in: 'header', name: 'X-API-Key', 'x-scalar-secret-token': '' },
+          ApiKey: { type: 'apiKey', in: 'header', name: 'X-API-Key' },
         },
       },
     })
@@ -195,16 +158,14 @@ describe('updateSecurityScheme', () => {
       payload: {
         type: 'apiKey',
         name: 'X-NEW-KEY',
-        'x-scalar-secret-token': 'secret',
       },
     })
 
     const scheme = document.components!.securitySchemes!.ApiKey as Record<string, unknown>
     expect(scheme['name']).toBe('X-NEW-KEY')
-    expect(scheme['x-scalar-secret-token']).toBe('secret')
   })
 
-  it('updates oauth2 authorizationCode flow fields and secrets', () => {
+  it('updates oauth2 authorizationCode flow fields', () => {
     const document = createDocument({
       components: {
         securitySchemes: {
@@ -215,10 +176,6 @@ describe('updateSecurityScheme', () => {
                 authorizationUrl: '',
                 tokenUrl: '',
                 scopes: {},
-                'x-scalar-secret-token': '',
-                'x-scalar-secret-redirect-uri': '',
-                'x-scalar-secret-client-id': '',
-                'x-scalar-secret-client-secret': '',
                 'x-usePkce': 'no',
                 refreshUrl: '',
               },
@@ -236,10 +193,6 @@ describe('updateSecurityScheme', () => {
           authorizationCode: {
             authorizationUrl: 'https://auth',
             tokenUrl: 'https://token',
-            'x-scalar-secret-token': 'tok',
-            'x-scalar-secret-redirect-uri': 'https://cb',
-            'x-scalar-secret-client-id': 'cid',
-            'x-scalar-secret-client-secret': 'csecret',
             'x-usePkce': 'SHA-256',
             scopes: {},
           },
@@ -252,10 +205,6 @@ describe('updateSecurityScheme', () => {
     assert(flow)
     expect(flow.authorizationUrl).toBe('https://auth')
     expect(flow.tokenUrl).toBe('https://token')
-    expect(flow['x-scalar-secret-token']).toBe('tok')
-    expect(flow['x-scalar-secret-redirect-uri']).toBe('https://cb')
-    expect(flow['x-scalar-secret-client-id']).toBe('cid')
-    expect(flow['x-scalar-secret-client-secret']).toBe('csecret')
     expect(flow['x-usePkce']).toBe('SHA-256')
   })
 
@@ -435,17 +384,11 @@ describe('deleteSecurityScheme', () => {
           A: {
             type: 'http',
             scheme: 'bearer',
-            'x-scalar-secret-username': '',
-            'x-scalar-secret-password': '',
-            'x-scalar-secret-token': '',
           },
-          B: { type: 'apiKey', in: 'header', name: 'X-API-Key', 'x-scalar-secret-token': '' },
+          B: { type: 'apiKey', in: 'header', name: 'X-API-Key' },
           C: {
             type: 'http',
             scheme: 'basic',
-            'x-scalar-secret-username': '',
-            'x-scalar-secret-password': '',
-            'x-scalar-secret-token': '',
           },
         },
       },

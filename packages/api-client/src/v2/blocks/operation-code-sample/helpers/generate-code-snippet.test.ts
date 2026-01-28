@@ -1,10 +1,28 @@
 import type { AvailableClient } from '@scalar/snippetz'
+import type { AuthStore } from '@scalar/workspace-store/entities/auth/index'
 import type { XCodeSample } from '@scalar/workspace-store/schemas/extensions/operation'
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { consoleErrorSpy } from '@test/vitest.setup'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { generateCodeSnippet } from './generate-code-snippet'
+
+// Helper to create a mock auth store with custom secret returns
+const createMockAuthStore = (secretsMap: Record<string, any>): AuthStore => ({
+  getAuthSecrets: (_docName: string, schemeName: string) => secretsMap[schemeName] || undefined,
+  setAuthSecrets: () => {
+    /* no-op */
+  },
+  clearDocumentAuth: () => {
+    /* no-op */
+  },
+  load: () => {
+    /* no-op */
+  },
+  export: () => ({}),
+})
+
+const mockAuthStore = createMockAuthStore({})
 
 describe('generateCodeSnippet', () => {
   const mockOperation: OperationObject = {
@@ -26,6 +44,8 @@ describe('generateCodeSnippet', () => {
     contentType: undefined,
     example: undefined,
     securitySchemes: [],
+    authStore: mockAuthStore,
+    documentSlug: 'test-document',
   }
 
   beforeEach(() => {

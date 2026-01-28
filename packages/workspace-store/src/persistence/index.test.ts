@@ -40,6 +40,7 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
           overrides: {},
           meta: {},
           history: {},
+          auth: {},
         },
       })
 
@@ -52,6 +53,7 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
           overrides: {},
           meta: {},
           history: {},
+          auth: {},
         },
       })
 
@@ -75,6 +77,7 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
           overrides: {},
           meta: {},
           history: {},
+          auth: {},
         },
       })
 
@@ -87,6 +90,7 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
           overrides: {},
           meta: {},
           history: {},
+          auth: {},
         },
       })
 
@@ -99,6 +103,7 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
           overrides: {},
           meta: {},
           history: {},
+          auth: {},
         },
       })
 
@@ -120,6 +125,7 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
           overrides: {},
           meta: {},
           history: {},
+          auth: {},
         },
       })
 
@@ -132,6 +138,7 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
           overrides: {},
           meta: {},
           history: {},
+          auth: {},
         },
       })
 
@@ -144,6 +151,7 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
           overrides: {},
           meta: {},
           history: {},
+          auth: {},
         },
       })
 
@@ -170,6 +178,7 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
           overrides: {},
           meta: {},
           history: {},
+          auth: {},
         },
       })
 
@@ -183,6 +192,7 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
           overrides: {},
           meta: {},
           history: {},
+          auth: {},
         },
       })
 
@@ -207,6 +217,7 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
             overrides: {},
             meta: {},
             history: {},
+            auth: {},
           },
         })
       }
@@ -248,6 +259,7 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
             'x-scalar-color-mode': 'dark',
           },
           history: {},
+          auth: {},
         },
       })
 
@@ -272,6 +284,7 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
           overrides: {},
           meta: {},
           history: {},
+          auth: {},
         },
       })
 
@@ -284,6 +297,7 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
           overrides: {},
           meta: {},
           history: {},
+          auth: {},
         },
       })
 
@@ -310,6 +324,7 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
             overrides: {},
             meta: {},
             history: {},
+            auth: {},
           },
         })
       }
@@ -341,6 +356,7 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
           overrides: {},
           meta: {},
           history: {},
+          auth: {},
         },
       })
 
@@ -358,6 +374,7 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
           overrides: {},
           meta: {},
           history: {},
+          auth: {},
         },
       })
       expect(await persistence.workspace.has('workspace-2')).toBe(true)
@@ -400,6 +417,7 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
             overrides: {},
             meta: {},
             history: {},
+            auth: {},
           },
         })
 
@@ -427,6 +445,7 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
             overrides: {},
             meta: {},
             history: {},
+            auth: {},
           },
         })
 
@@ -461,6 +480,7 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
             overrides: {},
             meta: {},
             history: {},
+            auth: {},
           },
         })
 
@@ -489,6 +509,7 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
             overrides: {},
             meta: {},
             history: {},
+            auth: {},
           },
         })
 
@@ -530,6 +551,7 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
             overrides: {},
             meta: {},
             history: {},
+            auth: {},
           },
         })
 
@@ -560,6 +582,7 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
             overrides: {},
             meta: {},
             history: {},
+            auth: {},
           },
         })
 
@@ -590,6 +613,7 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
             overrides: {},
             meta: {},
             history: {},
+            auth: {},
           },
         })
 
@@ -619,6 +643,7 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
             overrides: {},
             meta: {},
             history: {},
+            auth: {},
           },
         })
 

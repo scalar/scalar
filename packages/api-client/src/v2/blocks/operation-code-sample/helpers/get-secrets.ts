@@ -1,7 +1,11 @@
 import type { AuthStore } from '@scalar/workspace-store/entities/auth/index'
-import type { SecretsAuth } from '@scalar/workspace-store/entities/auth/schema'
 import type { SecuritySchemeObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { encode } from 'js-base64'
+
+import {
+  getFlowsSecretToken,
+  getSecrets as getSecretsHelper,
+} from '@/v2/blocks/scalar-auth-selector-block/helpers/get-secrets'
 
 /** Extract secrets from security schemes */
 export const getSecrets = (
@@ -9,36 +13,14 @@ export const getSecrets = (
   authStore: AuthStore,
   documentSlug: string,
 ): string[] => {
-  const getSecret = <Type extends SecretsAuth[string]['type']>(
-    name: string,
-    type: Type,
-  ): (SecretsAuth[string] & { type: Type }) | undefined => {
-    const secret = authStore.getAuthSecrets(documentSlug, name)
-    if (secret?.type !== type) {
-      return undefined
-    }
-
-    return secret as SecretsAuth[string] & { type: Type }
-  }
-
-  const getFlowSecretToken = (name: string) => {
-    const secret = getSecret(name, 'oauth2')
-    return [
-      secret?.authorizationCode?.['x-scalar-secret-token'] ??
-        secret?.implicit?.['x-scalar-secret-token'] ??
-        secret?.clientCredentials?.['x-scalar-secret-token'] ??
-        secret?.password?.['x-scalar-secret-token'],
-    ].filter((token) => token !== undefined)
-  }
-
   return securitySchemes
     .flatMap(({ scheme, name: schemeName }) => {
       if (scheme.type === 'apiKey') {
-        const secret = getSecret(schemeName, 'apiKey')
+        const secret = getSecretsHelper({ schemeName, type: 'apiKey', authStore, documentSlug })
         return secret?.['x-scalar-secret-token'] ?? ''
       }
-      if (scheme?.type === 'http') {
-        const secret = getSecret(schemeName, 'http')
+      if (scheme.type === 'http') {
+        const secret = getSecretsHelper({ schemeName, type: 'http', authStore, documentSlug })
         return [
           secret?.['x-scalar-secret-token'] ?? '',
           secret?.['x-scalar-secret-username'] ?? '',
@@ -47,7 +29,7 @@ export const getSecrets = (
         ]
       }
       if (scheme.type === 'oauth2') {
-        return getFlowSecretToken(schemeName)
+        return getFlowsSecretToken({ schemeName, authStore, documentSlug })
       }
 
       return []

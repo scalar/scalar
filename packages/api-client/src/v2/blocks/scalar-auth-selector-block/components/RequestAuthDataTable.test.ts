@@ -1,18 +1,33 @@
-import { type AuthMeta, type WorkspaceEventBus, createWorkspaceEventBus } from '@scalar/workspace-store/events'
+import type { AuthStore } from '@scalar/workspace-store/entities/auth/index'
+import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
+import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
+import type { ComponentsObject } from '@scalar/workspace-store/schemas/v3.1/strict/components'
 import { mount } from '@vue/test-utils'
 import { assert, describe, expect, it, vi } from 'vitest'
 import { nextTick } from 'vue'
 
-import RequestAuthDataTable from './RequestAuthDataTable.vue'
+import RequestAuthDataTable, { type RequestAuthDataTableProps } from './RequestAuthDataTable.vue'
+
+// Helper to create a mock auth store with custom secret returns
+const createMockAuthStore = (secretsMap: Record<string, any>): AuthStore => ({
+  getAuthSecrets: (_docName: string, schemeName: string) => secretsMap[schemeName] || undefined,
+  setAuthSecrets: () => {
+    /* no-op */
+  },
+  clearDocumentAuth: () => {
+    /* no-op */
+  },
+  load: () => {
+    /* no-op */
+  },
+  export: () => ({}),
+})
 
 describe('RequestAuthDataTable', () => {
   const baseEnvironment = {
-    uid: 'env-1' as any,
-    name: 'Default',
     color: '#FFFFFF',
-    value: '',
-    isDefault: true,
-  }
+    variables: [],
+  } satisfies XScalarEnvironment
 
   const baseServer = {
     url: 'https://api.example.com',
@@ -29,21 +44,9 @@ describe('RequestAuthDataTable', () => {
       in: 'header',
       name: 'X-API-Key',
     },
-  }
+  } as ComponentsObject['securitySchemes']
 
-  const mountWithProps = (
-    custom: Partial<{
-      selectedSchemeOptions: any[]
-      securitySchemes: any
-      isStatic: boolean
-      environment: any
-      server: any
-      activeAuthIndex: number
-      eventBus: WorkspaceEventBus
-      meta: AuthMeta
-      proxyUrl: string
-    }> = {},
-  ) => {
+  const mountWithProps = (custom: Partial<RequestAuthDataTableProps> = {}) => {
     const selectedSchemeOptions = custom.selectedSchemeOptions ?? [
       {
         id: 'bearer-auth',
@@ -72,6 +75,8 @@ describe('RequestAuthDataTable', () => {
         activeAuthIndex,
         eventBus,
         meta,
+        authStore: createMockAuthStore({}),
+        documentSlug: 'test-document',
       },
     })
   }
@@ -306,7 +311,7 @@ describe('RequestAuthDataTable', () => {
   describe('edge cases', () => {
     it('handles single scheme without tabs', () => {
       const wrapper = mountWithProps({
-        selectedSchemeOptions: [{ label: 'Bearer Auth', value: { BearerAuth: [] } }],
+        selectedSchemeOptions: [{ id: 'bearer-auth', label: 'Bearer Auth', value: { BearerAuth: [] } }],
       })
 
       // Should not show tab navigation for single scheme

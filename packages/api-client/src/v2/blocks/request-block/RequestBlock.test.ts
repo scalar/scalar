@@ -1,3 +1,4 @@
+import type { AuthStore } from '@scalar/workspace-store/entities/auth/index'
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
@@ -7,6 +8,23 @@ import RequestBody from '@/v2/blocks/request-block/components/RequestBody.vue'
 import { AuthSelector } from '@/v2/blocks/scalar-auth-selector-block'
 
 import RequestBlock from './RequestBlock.vue'
+
+// Helper to create a mock auth store with custom secret returns
+const createMockAuthStore = (secretsMap: Record<string, any>): AuthStore => ({
+  getAuthSecrets: (_docName: string, schemeName: string) => secretsMap[schemeName] || undefined,
+  setAuthSecrets: () => {
+    /* no-op */
+  },
+  clearDocumentAuth: () => {
+    /* no-op */
+  },
+  load: () => {
+    /* no-op */
+  },
+  export: () => ({}),
+})
+
+const mockAuthStore = createMockAuthStore({})
 
 const defaultProps = {
   method: 'get' as const,
@@ -33,6 +51,8 @@ const defaultProps = {
   clientOptions: [],
   selectedClient: 'shell/curl' as const,
   globalCookies: [],
+  authStore: mockAuthStore,
+  documentSlug: 'test-document',
 }
 
 describe('RequestBlock', () => {
@@ -100,11 +120,17 @@ describe('RequestBlock', () => {
         securitySchemes: {
           a: {
             type: 'apiKey',
-            'x-scalar-secret-token': '',
             name: 'X-API-Key',
             in: 'header',
           },
         },
+        authStore: createMockAuthStore({
+          a: {
+            type: 'apiKey',
+            'x-scalar-secret-token': 'test-key',
+          },
+        }),
+        documentSlug: 'test-document',
       },
       global: {
         stubs: {

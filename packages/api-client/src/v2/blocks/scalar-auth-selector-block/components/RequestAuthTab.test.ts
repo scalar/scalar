@@ -1,35 +1,43 @@
+import type { AuthStore } from '@scalar/workspace-store/entities/auth/index'
+import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
+import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import { mount } from '@vue/test-utils'
 import { assert, describe, expect, it } from 'vitest'
 import { nextTick } from 'vue'
 
 import OAuth2 from '@/v2/blocks/scalar-auth-selector-block/components/OAuth2.vue'
 import RequestAuthDataTableInput from '@/v2/blocks/scalar-auth-selector-block/components/RequestAuthDataTableInput.vue'
-import RequestAuthTab from '@/v2/blocks/scalar-auth-selector-block/components/RequestAuthTab.vue'
+import RequestAuthTab, {
+  type RequestAuthTabProps,
+} from '@/v2/blocks/scalar-auth-selector-block/components/RequestAuthTab.vue'
+
+// Helper to create a mock auth store with custom secret returns
+const createMockAuthStore = (secretsMap: Record<string, any>): AuthStore => ({
+  getAuthSecrets: (_docName: string, schemeName: string) => secretsMap[schemeName] || undefined,
+  setAuthSecrets: () => {
+    /* no-op */
+  },
+  clearDocumentAuth: () => {
+    /* no-op */
+  },
+  load: () => {
+    /* no-op */
+  },
+  export: () => ({}),
+})
 
 describe('RequestAuthTab', () => {
   const baseEnvironment = {
-    uid: 'env-1' as any,
-    name: 'Default',
     color: '#FFFFFF',
-    value: '',
-    isDefault: true,
-  }
+    variables: [],
+  } satisfies XScalarEnvironment
 
   const baseServer = {
     url: 'https://api.example.com',
     description: 'Test server',
   }
 
-  const mountWithProps = (
-    custom: Partial<{
-      selectedSecuritySchemas: any
-      securitySchemes: any
-      isStatic: boolean
-      environment: any
-      server: any
-      proxyUrl: string
-    }> = {},
-  ) => {
+  const mountWithProps = (custom: Partial<RequestAuthTabProps> = {}) => {
     const selectedSecuritySchemas = custom.selectedSecuritySchemas ?? {
       'BearerAuth': [],
     }
@@ -52,6 +60,9 @@ describe('RequestAuthTab', () => {
         selectedSecuritySchemas,
         securitySchemes,
         server: custom.server ?? baseServer,
+        eventBus: custom.eventBus ?? createWorkspaceEventBus(),
+        authStore: custom.authStore ?? createMockAuthStore({}),
+        documentSlug: custom.documentSlug ?? 'test-document',
       },
     })
   }
@@ -64,7 +75,6 @@ describe('RequestAuthTab', () => {
             type: 'http',
             scheme: 'bearer',
             description: 'Bearer token authentication',
-            'x-scalar-secret-token': '',
           },
         },
       })
@@ -75,38 +85,21 @@ describe('RequestAuthTab', () => {
       expect(input.text()).toContain('Bearer Token')
     })
 
-    it('emits update:securityScheme when Bearer token is updated', async () => {
-      const wrapper = mountWithProps({
-        securitySchemes: {
-          'BearerAuth': {
-            type: 'http',
-            scheme: 'bearer',
-            'x-scalar-secret-token': '',
-          },
-        },
-      })
-
-      const input = wrapper.findComponent(RequestAuthDataTableInput)
-      input.vm.$emit('update:modelValue', 'new-token-123')
-      await nextTick()
-
-      const emitted = wrapper.emitted('update:securityScheme')
-      expect(emitted).toBeTruthy()
-      expect(emitted![0]![0]).toEqual({
-        type: 'http',
-        'x-scalar-secret-token': 'new-token-123',
-      })
-    })
-
     it('displays existing Bearer token value', () => {
       const wrapper = mountWithProps({
         securitySchemes: {
           'BearerAuth': {
             type: 'http',
             scheme: 'bearer',
-            'x-scalar-secret-token': 'existing-token-456',
           },
         },
+        authStore: createMockAuthStore({
+          'BearerAuth': {
+            type: 'http',
+            scheme: 'bearer',
+            'x-scalar-secret-token': 'existing-token-456',
+          },
+        }),
       })
 
       const input = wrapper.findComponent(RequestAuthDataTableInput)
@@ -122,8 +115,6 @@ describe('RequestAuthTab', () => {
             type: 'http',
             scheme: 'basic',
             description: 'Basic authentication',
-            'x-scalar-secret-username': '',
-            'x-scalar-secret-password': '',
           },
         },
         selectedSecuritySchemas: {
@@ -144,64 +135,6 @@ describe('RequestAuthTab', () => {
       expect(inputs[1].props('type')).toBe('password')
       expect(inputs[1].text()).toContain('Password')
     })
-
-    it('emits update:securityScheme when username is updated', async () => {
-      const wrapper = mountWithProps({
-        securitySchemes: {
-          'BasicAuth': {
-            type: 'http',
-            scheme: 'basic',
-            'x-scalar-secret-username': '',
-            'x-scalar-secret-password': '',
-          },
-        },
-        selectedSecuritySchemas: {
-          'BasicAuth': [],
-        },
-      })
-
-      const inputs = wrapper.findAllComponents(RequestAuthDataTableInput)
-      assert(inputs[0])
-      inputs[0].vm.$emit('update:modelValue', 'testuser')
-      await nextTick()
-
-      const emitted = wrapper.emitted('update:securityScheme')
-      assert(emitted)
-      assert(emitted[0])
-      expect(emitted[0][0]).toEqual({
-        type: 'http',
-        'x-scalar-secret-username': 'testuser',
-      })
-    })
-
-    it('emits update:securityScheme when password is updated', async () => {
-      const wrapper = mountWithProps({
-        securitySchemes: {
-          'BasicAuth': {
-            type: 'http',
-            scheme: 'basic',
-            'x-scalar-secret-username': '',
-            'x-scalar-secret-password': '',
-          },
-        },
-        selectedSecuritySchemas: {
-          'BasicAuth': [],
-        },
-      })
-
-      const inputs = wrapper.findAllComponents(RequestAuthDataTableInput)
-      assert(inputs[1])
-      inputs[1].vm.$emit('update:modelValue', 'testpass')
-      await nextTick()
-
-      const emitted = wrapper.emitted('update:securityScheme')
-      assert(emitted)
-      assert(emitted[0])
-      expect(emitted[0][0]).toEqual({
-        type: 'http',
-        'x-scalar-secret-password': 'testpass',
-      })
-    })
   })
 
   describe('API Key Authentication', () => {
@@ -213,7 +146,6 @@ describe('RequestAuthTab', () => {
             in: 'header',
             name: 'X-API-Key',
             description: 'API Key authentication',
-            'x-scalar-secret-token': '',
           },
         },
         selectedSecuritySchemas: {
@@ -233,64 +165,6 @@ describe('RequestAuthTab', () => {
       expect(inputs[1].props('type')).toBe('password')
       expect(inputs[1].text()).toContain('Value')
     })
-
-    it('emits update:securityScheme when API key name is updated', async () => {
-      const wrapper = mountWithProps({
-        securitySchemes: {
-          'ApiKeyAuth': {
-            type: 'apiKey',
-            in: 'header',
-            name: 'X-API-Key',
-            'x-scalar-secret-token': '',
-          },
-        },
-        selectedSecuritySchemas: {
-          'ApiKeyAuth': [],
-        },
-      })
-
-      const inputs = wrapper.findAllComponents(RequestAuthDataTableInput)
-      assert(inputs[0])
-      inputs[0].vm.$emit('update:modelValue', 'X-Custom-Key')
-      await nextTick()
-
-      const emitted = wrapper.emitted('update:securityScheme')
-      assert(emitted)
-      assert(emitted[0])
-      expect(emitted[0][0]).toEqual({
-        type: 'apiKey',
-        name: 'X-Custom-Key',
-      })
-    })
-
-    it('emits update:securityScheme when API key value is updated', async () => {
-      const wrapper = mountWithProps({
-        securitySchemes: {
-          'ApiKeyAuth': {
-            type: 'apiKey',
-            in: 'header',
-            name: 'X-API-Key',
-            'x-scalar-secret-token': '',
-          },
-        },
-        selectedSecuritySchemas: {
-          'ApiKeyAuth': [],
-        },
-      })
-
-      const inputs = wrapper.findAllComponents(RequestAuthDataTableInput)
-      assert(inputs[1])
-      inputs[1].vm.$emit('update:modelValue', 'secret-key-value')
-      await nextTick()
-
-      const emitted = wrapper.emitted('update:securityScheme')
-      assert(emitted)
-      assert(emitted[0])
-      expect(emitted[0][0]).toEqual({
-        type: 'apiKey',
-        'x-scalar-secret-token': 'secret-key-value',
-      })
-    })
   })
 
   describe('OAuth2 Authentication', () => {
@@ -304,6 +178,8 @@ describe('RequestAuthTab', () => {
                 authorizationUrl: 'https://example.com/auth',
                 tokenUrl: 'https://example.com/token',
                 scopes: { read: 'Read', write: 'Write' },
+                refreshUrl: 'https://example.com/token',
+                'x-usePkce': 'no',
               },
             },
             description: 'OAuth2 authentication',
@@ -329,6 +205,8 @@ describe('RequestAuthTab', () => {
                 authorizationUrl: 'https://example.com/auth',
                 tokenUrl: 'https://example.com/token',
                 scopes: { read: 'Read', write: 'Write' },
+                refreshUrl: 'https://example.com/token',
+                'x-usePkce': 'no',
               },
             },
           },
@@ -343,43 +221,6 @@ describe('RequestAuthTab', () => {
       expect(oauth2Component.props('proxyUrl')).toBe('https://proxy.example.com')
     })
 
-    it('emits update:securityScheme when OAuth2 component emits update:securityScheme', async () => {
-      const wrapper = mountWithProps({
-        securitySchemes: {
-          'OAuth2': {
-            type: 'oauth2',
-            flows: {
-              authorizationCode: {
-                authorizationUrl: 'https://example.com/auth',
-                tokenUrl: 'https://example.com/token',
-                scopes: { read: 'Read', write: 'Write' },
-              },
-            },
-          },
-        },
-        selectedSecuritySchemas: {
-          'OAuth2': [],
-        },
-      })
-
-      const oauth2Component = wrapper.findComponent(OAuth2)
-      oauth2Component.vm.$emit('update:securityScheme', {
-        type: 'oauth2',
-        authorizationCode: { 'x-scalar-secret-token': 'oauth-token' },
-      })
-      await nextTick()
-
-      const emitted = wrapper.emitted('update:securityScheme')
-      assert(emitted)
-      assert(emitted[0])
-      // RequestAuthTab emits with (payload, name)
-      expect(emitted[0][0]).toEqual({
-        type: 'oauth2',
-        authorizationCode: { 'x-scalar-secret-token': 'oauth-token' },
-      })
-      expect(emitted[0][1]).toBe('OAuth2')
-    })
-
     it('emits update:selectedScopes when OAuth2 component emits update:selectedScopes', async () => {
       const wrapper = mountWithProps({
         securitySchemes: {
@@ -390,6 +231,8 @@ describe('RequestAuthTab', () => {
                 authorizationUrl: 'https://example.com/auth',
                 tokenUrl: 'https://example.com/token',
                 scopes: { read: 'Read', write: 'Write' },
+                refreshUrl: 'https://example.com/token',
+                'x-usePkce': 'no',
               },
             },
           },
@@ -479,6 +322,8 @@ describe('RequestAuthTab', () => {
                 authorizationUrl: 'https://example.com/auth',
                 tokenUrl: 'https://example.com/token',
                 scopes: { read: 'Read', write: 'Write' },
+                refreshUrl: 'https://example.com/token',
+                'x-usePkce': 'no',
               },
             },
             description: 'OAuth2 authentication',

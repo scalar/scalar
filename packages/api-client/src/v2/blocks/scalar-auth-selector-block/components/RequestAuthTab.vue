@@ -26,15 +26,7 @@ type SecurityItem = {
   scopes: string[]
 }
 
-const {
-  environment,
-  isStatic,
-  proxyUrl,
-  selectedSecuritySchemas,
-  securitySchemes,
-  server,
-  eventBus,
-} = defineProps<{
+export type RequestAuthTabProps = {
   documentSlug: string
   /** The current environment configuration */
   environment: XScalarEnvironment
@@ -52,7 +44,17 @@ const {
   eventBus: WorkspaceEventBus
   /** Auth store */
   authStore: AuthStore
-}>()
+}
+
+const {
+  environment,
+  isStatic,
+  proxyUrl,
+  selectedSecuritySchemas,
+  securitySchemes,
+  server,
+  eventBus,
+} = defineProps<RequestAuthTabProps>()
 
 const emits = defineEmits<{
   (

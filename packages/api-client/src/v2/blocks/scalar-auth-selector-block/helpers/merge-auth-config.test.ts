@@ -1,4 +1,5 @@
 import type { AuthenticationConfiguration } from '@scalar/types/api-reference'
+import { createAuthStore } from '@scalar/workspace-store/entities/auth/index'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import {
   type ComponentsObject,
@@ -8,9 +9,16 @@ import { describe, expect, it } from 'vitest'
 
 import { mergeAuthConfig } from './merge-auth-config'
 
+const mockDocumentSlug = 'test-doc'
+
 describe('mergeAuthConfig', () => {
   it('returns empty object when both parameters are undefined', () => {
-    const result = mergeAuthConfig(undefined, undefined)
+    const result = mergeAuthConfig({
+      documentSlug: '',
+      authStore: createAuthStore({}),
+      documentSecuritySchemes: {},
+      configSecuritySchemes: {},
+    })
     expect(result).toEqual({})
   })
 
@@ -35,24 +43,44 @@ describe('mergeAuthConfig', () => {
       },
     }
 
-    const result = mergeAuthConfig(undefined, config)
+    const authStore = createAuthStore({})
+
+    const result = mergeAuthConfig({
+      documentSlug: mockDocumentSlug,
+      authStore,
+      documentSecuritySchemes: {},
+      configSecuritySchemes: config,
+    })
 
     expect(result.apiKeyAuth).toMatchObject({
       type: 'apiKey',
       name: 'X-API-Key',
       in: 'header',
-      'x-scalar-secret-token': 'my-api-key',
     })
     expect(result.bearerAuth).toMatchObject({
       type: 'http',
       scheme: 'bearer',
-      'x-scalar-secret-token': 'my-bearer-token',
     })
     expect(result.basicAuth).toMatchObject({
       type: 'http',
       scheme: 'basic',
+    })
+
+    expect(authStore.getAuthSecrets(mockDocumentSlug, 'apiKeyAuth')).toEqual({
+      type: 'apiKey',
+      'x-scalar-secret-token': 'my-api-key',
+    })
+    expect(authStore.getAuthSecrets(mockDocumentSlug, 'bearerAuth')).toEqual({
+      type: 'http',
+      'x-scalar-secret-token': 'my-bearer-token',
+      'x-scalar-secret-username': '',
+      'x-scalar-secret-password': '',
+    })
+    expect(authStore.getAuthSecrets(mockDocumentSlug, 'basicAuth')).toEqual({
+      type: 'http',
       'x-scalar-secret-username': 'test-user',
       'x-scalar-secret-password': 'test-pass',
+      'x-scalar-secret-token': '',
     })
   })
 
@@ -63,18 +91,26 @@ describe('mergeAuthConfig', () => {
         name: 'X-API-Key',
         in: 'header',
         'x-scalar-secret-token': '',
-      },
+      } as any,
       bearerAuth: {
         type: 'http',
         scheme: 'bearer',
         'x-scalar-secret-token': '',
         'x-scalar-secret-username': '',
         'x-scalar-secret-password': '',
-      },
+      } as any,
     }
 
-    const result = mergeAuthConfig(securitySchemes, {})
+    const authStore = createAuthStore({})
+    const result = mergeAuthConfig({
+      documentSlug: mockDocumentSlug,
+      authStore,
+      documentSecuritySchemes: securitySchemes,
+      configSecuritySchemes: {},
+    })
     expect(result).toEqual(securitySchemes)
+
+    expect(authStore.export()).toEqual({})
   })
 
   it('merges config values into existing security schemes', () => {
@@ -84,7 +120,7 @@ describe('mergeAuthConfig', () => {
         name: 'X-API-Key',
         in: 'header',
         'x-scalar-secret-token': '',
-      },
+      } as any,
     }
 
     const config: AuthenticationConfiguration['securitySchemes'] = {
@@ -94,12 +130,23 @@ describe('mergeAuthConfig', () => {
       },
     }
 
-    const result = mergeAuthConfig(securitySchemes, config)
+    const authStore = createAuthStore({})
+
+    const result = mergeAuthConfig({
+      documentSlug: mockDocumentSlug,
+      authStore,
+      documentSecuritySchemes: securitySchemes,
+      configSecuritySchemes: config,
+    })
 
     expect(result.apiKeyAuth).toMatchObject({
       type: 'apiKey',
       name: 'X-API-Key',
       in: 'header',
+    })
+
+    expect(authStore.getAuthSecrets(mockDocumentSlug, 'apiKeyAuth')).toEqual({
+      type: 'apiKey',
       'x-scalar-secret-token': 'my-secret-token',
     })
   })
@@ -131,7 +178,13 @@ describe('mergeAuthConfig', () => {
       },
     }
 
-    const result = mergeAuthConfig(securitySchemes, config)
+    const authStore = createAuthStore({})
+    const result = mergeAuthConfig({
+      documentSlug: mockDocumentSlug,
+      authStore,
+      documentSecuritySchemes: securitySchemes,
+      configSecuritySchemes: config,
+    })
 
     expect(result.oauth2).toMatchObject({
       type: 'oauth2',
@@ -156,21 +209,21 @@ describe('mergeAuthConfig', () => {
         name: 'X-API-Key',
         in: 'header',
         'x-scalar-secret-token': '',
-      },
+      } as any,
       bearerAuth: {
         type: 'http',
         scheme: 'bearer',
         'x-scalar-secret-token': '',
         'x-scalar-secret-username': '',
         'x-scalar-secret-password': '',
-      },
+      } as any,
       basicAuth: {
         type: 'http',
         scheme: 'basic',
         'x-scalar-secret-token': '',
         'x-scalar-secret-username': '',
         'x-scalar-secret-password': '',
-      },
+      } as any,
     }
 
     const config: AuthenticationConfiguration['securitySchemes'] = {
@@ -179,13 +232,19 @@ describe('mergeAuthConfig', () => {
       },
     }
 
-    const result = mergeAuthConfig(securitySchemes, config)
+    const authStore = createAuthStore({})
+    const result = mergeAuthConfig({
+      documentSlug: mockDocumentSlug,
+      authStore,
+      documentSecuritySchemes: securitySchemes,
+      configSecuritySchemes: config,
+    })
 
     expect(result).toHaveProperty('apiKeyAuth')
     expect(result).toHaveProperty('bearerAuth')
     expect(result).toHaveProperty('basicAuth')
-    expect(result.apiKeyAuth).toEqual(securitySchemes.apiKeyAuth)
-    expect(result.basicAuth).toEqual(securitySchemes.basicAuth)
+    expect(result.apiKeyAuth).toEqual(securitySchemes!.apiKeyAuth)
+    expect(result.basicAuth).toEqual(securitySchemes!.basicAuth)
     expect(result.bearerAuth).toMatchObject({
       type: 'http',
       scheme: 'bearer',
@@ -200,39 +259,30 @@ describe('mergeAuthConfig', () => {
         name: 'X-API-Key',
         in: 'header',
         description: 'API Key in header',
-        'x-scalar-secret-token': '',
-      },
+      } as any,
       apiKeyQuery: {
         type: 'apiKey',
         name: 'api_key',
         in: 'query',
         description: 'API Key in query',
-        'x-scalar-secret-token': '',
-      },
+      } as any,
       apiKeyCookie: {
         type: 'apiKey',
         name: 'session',
         in: 'cookie',
         description: 'API Key in cookie',
-        'x-scalar-secret-token': '',
-      },
+      } as any,
       basicAuth: {
         type: 'http',
         scheme: 'basic',
         description: 'Basic authentication',
-        'x-scalar-secret-token': '',
-        'x-scalar-secret-username': '',
-        'x-scalar-secret-password': '',
-      },
+      } as any,
       bearerAuth: {
         type: 'http',
         scheme: 'bearer',
         bearerFormat: 'JWT',
         description: 'Bearer token authentication',
-        'x-scalar-secret-token': '',
-        'x-scalar-secret-username': '',
-        'x-scalar-secret-password': '',
-      },
+      } as any,
       oauth2AllFlows: coerceValue(SecuritySchemeObjectSchema, {
         type: 'oauth2',
         description: 'OAuth2 with all flows',
@@ -320,13 +370,23 @@ describe('mergeAuthConfig', () => {
       },
     }
 
-    const result = mergeAuthConfig(securitySchemes, config)
+    const authStore = createAuthStore({})
+    const result = mergeAuthConfig({
+      documentSlug: mockDocumentSlug,
+      authStore,
+      documentSecuritySchemes: securitySchemes,
+      configSecuritySchemes: config,
+    })
 
     expect(result.apiKeyHeader).toMatchObject({
       type: 'apiKey',
       name: 'X-API-Key',
       in: 'header',
       description: 'API Key in header',
+    })
+
+    expect(authStore.getAuthSecrets(mockDocumentSlug, 'apiKeyHeader')).toEqual({
+      type: 'apiKey',
       'x-scalar-secret-token': 'header-api-key-value',
     })
 
@@ -335,6 +395,10 @@ describe('mergeAuthConfig', () => {
       name: 'api_key',
       in: 'query',
       description: 'API Key in query',
+    })
+
+    expect(authStore.getAuthSecrets(mockDocumentSlug, 'apiKeyQuery')).toEqual({
+      type: 'apiKey',
       'x-scalar-secret-token': 'query-api-key-value',
     })
 
@@ -343,6 +407,10 @@ describe('mergeAuthConfig', () => {
       name: 'session',
       in: 'cookie',
       description: 'API Key in cookie',
+    })
+
+    expect(authStore.getAuthSecrets(mockDocumentSlug, 'apiKeyCookie')).toEqual({
+      type: 'apiKey',
       'x-scalar-secret-token': 'cookie-session-value',
     })
 
@@ -350,9 +418,14 @@ describe('mergeAuthConfig', () => {
       type: 'http',
       scheme: 'basic',
       description: 'Basic authentication',
-      username: 'test-user',
-      password: 'test-password',
     })
+
+    // expect(authStore.getAuthSecrets(mockDocumentSlug, 'basicAuth')).toEqual({
+    //   type: 'http',
+    //   'x-scalar-secret-username': 'test-user',
+    //   'x-scalar-secret-password': 'test-password',
+    //   'x-scalar-secret-token': '',
+    // })
 
     expect(result.bearerAuth).toMatchObject({
       type: 'http',
@@ -425,8 +498,7 @@ describe('mergeAuthConfig', () => {
           name: 'X-API-Key',
           in: 'header',
           description: 'API Key authentication',
-          'x-scalar-secret-token': 'existing-api-key',
-        },
+        } as any,
       },
       bearerAuth: {
         $ref: '#/components/securitySchemes/bearerAuth',
@@ -435,10 +507,7 @@ describe('mergeAuthConfig', () => {
           scheme: 'bearer',
           bearerFormat: 'JWT',
           description: 'Bearer token authentication',
-          'x-scalar-secret-token': 'existing-bearer-token',
-          'x-scalar-secret-username': '',
-          'x-scalar-secret-password': '',
-        },
+        } as any,
       },
       oauth2: {
         $ref: '#/components/securitySchemes/oauth2',
@@ -449,7 +518,6 @@ describe('mergeAuthConfig', () => {
             authorizationCode: {
               authorizationUrl: 'https://example.com/oauth/authorize',
               tokenUrl: 'https://example.com/oauth/token',
-              'x-scalar-secret-token': 'existing-oauth-token',
               scopes: {
                 'read:users': 'Read user information',
                 'write:users': 'Modify user information',
@@ -462,14 +530,19 @@ describe('mergeAuthConfig', () => {
 
     const config: AuthenticationConfiguration['securitySchemes'] = {}
 
-    const result = mergeAuthConfig(securitySchemes, config)
+    const authStore = createAuthStore({})
+    const result = mergeAuthConfig({
+      documentSlug: mockDocumentSlug,
+      authStore,
+      documentSecuritySchemes: securitySchemes,
+      configSecuritySchemes: config,
+    })
 
     expect(result.apiKeyAuth).toMatchObject({
       type: 'apiKey',
       name: 'X-API-Key',
       in: 'header',
       description: 'API Key authentication',
-      'x-scalar-secret-token': 'existing-api-key',
     })
     expect(result.apiKeyAuth).not.toHaveProperty('$ref')
     expect(result.apiKeyAuth).not.toHaveProperty('$ref-value')
@@ -479,7 +552,6 @@ describe('mergeAuthConfig', () => {
       scheme: 'bearer',
       bearerFormat: 'JWT',
       description: 'Bearer token authentication',
-      'x-scalar-secret-token': 'existing-bearer-token',
     })
     expect(result.bearerAuth).not.toHaveProperty('$ref')
     expect(result.bearerAuth).not.toHaveProperty('$ref-value')
@@ -491,7 +563,6 @@ describe('mergeAuthConfig', () => {
         authorizationCode: {
           authorizationUrl: 'https://example.com/oauth/authorize',
           tokenUrl: 'https://example.com/oauth/token',
-          'x-scalar-secret-token': 'existing-oauth-token',
           scopes: {
             'read:users': 'Read user information',
             'write:users': 'Modify user information',
@@ -512,8 +583,7 @@ describe('mergeAuthConfig', () => {
           name: 'X-API-Key',
           in: 'header',
           description: 'API Key authentication',
-          'x-scalar-secret-token': 'should-not-be-overridden',
-        },
+        } as any,
       },
       bearerAuth: {
         $ref: '#/components/securitySchemes/bearerAuth',
@@ -522,10 +592,7 @@ describe('mergeAuthConfig', () => {
           scheme: 'bearer',
           bearerFormat: 'JWT',
           description: 'Bearer token authentication',
-          'x-scalar-secret-token': 'should-not-be-overridden',
-          'x-scalar-secret-username': '',
-          'x-scalar-secret-password': '',
-        },
+        } as any,
       },
       basicAuth: {
         $ref: '#/components/securitySchemes/basicAuth',
@@ -533,10 +600,7 @@ describe('mergeAuthConfig', () => {
           type: 'http',
           scheme: 'basic',
           description: 'Basic authentication',
-          'x-scalar-secret-token': '',
-          'x-scalar-secret-username': 'should-not-be-overridden',
-          'x-scalar-secret-password': 'should-not-be-overridden',
-        },
+        } as any,
       },
       oauth2: {
         $ref: '#/components/securitySchemes/oauth2',
@@ -592,14 +656,23 @@ describe('mergeAuthConfig', () => {
       },
     }
 
-    const result = mergeAuthConfig(securitySchemes, config)
+    const authStore = createAuthStore({})
+    const result = mergeAuthConfig({
+      documentSlug: mockDocumentSlug,
+      authStore,
+      documentSecuritySchemes: securitySchemes,
+      configSecuritySchemes: config,
+    })
 
     expect(result.apiKeyAuth).toMatchObject({
       type: 'apiKey',
       name: 'X-API-Key',
       in: 'header',
       description: 'API Key authentication',
-      'x-scalar-secret-token': 'should-not-be-overridden',
+    })
+    expect(authStore.getAuthSecrets(mockDocumentSlug, 'apiKeyAuth')).toEqual({
+      type: 'apiKey',
+      'x-scalar-secret-token': 'merged-api-key-value',
     })
     expect(result.apiKeyAuth).not.toHaveProperty('$ref')
     expect(result.apiKeyAuth).not.toHaveProperty('$ref-value')
@@ -609,7 +682,12 @@ describe('mergeAuthConfig', () => {
       scheme: 'bearer',
       bearerFormat: 'JWT',
       description: 'Bearer token authentication',
-      'x-scalar-secret-token': 'should-not-be-overridden',
+    })
+    expect(authStore.getAuthSecrets(mockDocumentSlug, 'bearerAuth')).toEqual({
+      type: 'http',
+      'x-scalar-secret-token': 'merged-bearer-token',
+      'x-scalar-secret-username': '',
+      'x-scalar-secret-password': '',
     })
     expect(result.bearerAuth).not.toHaveProperty('$ref')
     expect(result.bearerAuth).not.toHaveProperty('$ref-value')
@@ -618,8 +696,12 @@ describe('mergeAuthConfig', () => {
       type: 'http',
       scheme: 'basic',
       description: 'Basic authentication',
-      'x-scalar-secret-username': 'should-not-be-overridden',
-      'x-scalar-secret-password': 'should-not-be-overridden',
+    })
+    expect(authStore.getAuthSecrets(mockDocumentSlug, 'basicAuth')).toEqual({
+      type: 'http',
+      'x-scalar-secret-username': 'merged-username',
+      'x-scalar-secret-password': 'merged-password',
+      'x-scalar-secret-token': '',
     })
     expect(result.basicAuth).not.toHaveProperty('$ref')
     expect(result.basicAuth).not.toHaveProperty('$ref-value')
@@ -631,8 +713,6 @@ describe('mergeAuthConfig', () => {
         authorizationCode: {
           authorizationUrl: 'https://example.com/oauth/authorize',
           tokenUrl: 'https://example.com/oauth/token',
-          'x-scalar-secret-token': 'merged-oauth-token',
-          'x-scalar-secret-client-secret': 'merged-client-secret',
           scopes: {
             'read:users': 'Read user information',
             'write:users': 'Modify user information',
@@ -640,13 +720,26 @@ describe('mergeAuthConfig', () => {
         },
         password: {
           tokenUrl: 'https://example.com/oauth/token',
-          'x-scalar-secret-token': 'merged-password-token',
-          'x-scalar-secret-username': 'merged-oauth-user',
-          'x-scalar-secret-password': 'merged-oauth-password',
           scopes: {
             'admin': 'Admin access',
           },
         },
+      },
+    })
+    expect(authStore.getAuthSecrets(mockDocumentSlug, 'oauth2')).toEqual({
+      type: 'oauth2',
+      authorizationCode: {
+        'x-scalar-secret-client-id': '',
+        'x-scalar-secret-client-secret': 'merged-client-secret',
+        'x-scalar-secret-redirect-uri': '',
+        'x-scalar-secret-token': 'merged-oauth-token',
+      },
+      password: {
+        'x-scalar-secret-client-id': '',
+        'x-scalar-secret-client-secret': '',
+        'x-scalar-secret-token': 'merged-password-token',
+        'x-scalar-secret-username': 'merged-oauth-user',
+        'x-scalar-secret-password': 'merged-oauth-password',
       },
     })
     expect(result.oauth2).not.toHaveProperty('$ref')

@@ -1,30 +1,37 @@
+import type { AuthStore } from '@scalar/workspace-store/entities/auth/index'
+import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
+import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type { OAuthFlowsObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { mount } from '@vue/test-utils'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { nextTick } from 'vue'
 
-import OAuth2 from '@/v2/blocks/scalar-auth-selector-block/components/OAuth2.vue'
+import OAuth2, { type OAuth2Props } from '@/v2/blocks/scalar-auth-selector-block/components/OAuth2.vue'
 import OAuthScopesInput from '@/v2/blocks/scalar-auth-selector-block/components/OAuthScopesInput.vue'
 import RequestAuthDataTableInput from '@/v2/blocks/scalar-auth-selector-block/components/RequestAuthDataTableInput.vue'
 
+// Helper to create a mock auth store with custom secret returns
+const createMockAuthStore = (secretsMap: Record<string, any>): AuthStore => ({
+  getAuthSecrets: (_docName: string, schemeName: string) => secretsMap[schemeName] || undefined,
+  setAuthSecrets: () => {
+    /* no-op */
+  },
+  clearDocumentAuth: () => {
+    /* no-op */
+  },
+  load: () => {
+    /* no-op */
+  },
+  export: () => ({}),
+})
+
 describe('OAuth2', () => {
   const baseEnv = {
-    uid: 'env-1',
-    name: 'Default',
     color: '#FFFFFF',
-    value: '',
-    isDefault: true,
-  }
+    variables: [],
+  } satisfies XScalarEnvironment
 
-  const mountWithProps = (
-    custom: Partial<{
-      flows: any
-      type: string
-      selectedScopes: string[]
-      server: any
-      proxyUrl: string
-    }> = {},
-  ) => {
+  const mountWithProps = (custom: Partial<OAuth2Props> = {}) => {
     const flows =
       custom.flows ??
       ({
@@ -32,37 +39,61 @@ describe('OAuth2', () => {
           authorizationUrl: 'https://example.com/auth',
           tokenUrl: 'https://example.com/token',
           refreshUrl: 'https://example.com/token',
-          'x-scalar-secret-redirect-uri': 'https://example.com/cb',
-          'x-scalar-secret-token': '',
           'x-usePkce': 'no',
           scopes: { read: 'Read', write: 'Write' },
-          'x-scalar-secret-client-id': '',
-          'x-scalar-secret-client-secret': '',
         },
       } satisfies OAuthFlowsObject)
 
     return mount(OAuth2, {
       attachTo: document.body,
       props: {
-        environment: baseEnv as any,
+        environment: baseEnv,
+        type: 'authorizationCode',
+        selectedScopes: [],
+        server: null,
+        proxyUrl: '',
+        authStore: createMockAuthStore({
+          oauth2: {
+            type: 'oauth2',
+            authorizationCode: {
+              'x-scalar-secret-token': 'abc123',
+            },
+          },
+        }),
+        eventBus: createWorkspaceEventBus(),
+        name: 'oauth2',
+        documentSlug: 'test-document',
+        ...custom,
         flows,
-        type: (custom.type ?? 'authorizationCode') as any,
-        selectedScopes: custom.selectedScopes ?? [],
-        server: custom.server ?? null,
-        proxyUrl: custom.proxyUrl ?? '',
       },
     })
   }
 
   it('renders Access Token view when token is present and supports clearing', async () => {
+    const eventBus = createWorkspaceEventBus()
+    const fn = vi.fn()
+    eventBus.on('auth:update:security-scheme-secrets', fn)
+
     const wrapper = mountWithProps({
       flows: {
         authorizationCode: {
-          'x-scalar-secret-token': 'abc123',
-          scopes: {},
-          'x-scalar-client-id': '',
+          'x-usePkce': 'no',
+          authorizationUrl: 'https://example.com/auth',
+          tokenUrl: 'https://example.com/token',
+          scopes: { read: 'Read', write: 'Write' },
+          refreshUrl: 'https://example.com/token',
         },
       },
+      authStore: createMockAuthStore({
+        oauth2: {
+          type: 'oauth2',
+          authorizationCode: {
+            'x-scalar-secret-token': 'abc123',
+          },
+        },
+      }),
+      name: 'oauth2',
+      eventBus,
     })
 
     expect(wrapper.text()).toContain('Access Token')
@@ -73,10 +104,10 @@ describe('OAuth2', () => {
     expect(clearBtn, 'Clear button should exist').toBeTruthy()
     await clearBtn!.trigger('click')
 
-    const clearEmit = wrapper.emitted('update:securityScheme')?.at(-1)?.[0] as any
-    expect(clearEmit).toEqual({
-      type: 'oauth2',
-      flows: {
+    expect(fn).toHaveBeenCalledWith({
+      name: 'oauth2',
+      payload: {
+        type: 'oauth2',
         authorizationCode: { 'x-scalar-secret-token': '' },
       },
     })
@@ -87,17 +118,31 @@ describe('OAuth2', () => {
     tokenInput.vm.$emit('update:modelValue', 'xyz')
     await nextTick()
 
-    const updateEmit = wrapper.emitted('update:securityScheme')?.at(-1)?.[0] as any
-    expect(updateEmit).toEqual({
-      type: 'oauth2',
-      flows: {
+    expect(fn).toHaveBeenCalledWith({
+      name: 'oauth2',
+      payload: {
+        type: 'oauth2',
         authorizationCode: { 'x-scalar-secret-token': 'xyz' },
       },
     })
   })
 
   it('renders configuration inputs without token and shows Authorize button', async () => {
-    const wrapper = mountWithProps()
+    const eventBus = createWorkspaceEventBus()
+    const fn = vi.fn()
+    eventBus.on('auth:update:security-scheme', fn)
+
+    const wrapper = mountWithProps({
+      eventBus,
+      authStore: createMockAuthStore({
+        oauth2: {
+          type: 'oauth2',
+          authorizationCode: {
+            'x-scalar-secret-token': '',
+          },
+        },
+      }),
+    })
 
     // Should render the Authorize action when no token present
     const authorizeBtn = wrapper.findAll('button').find((b) => b.text() === 'Authorize')
@@ -110,28 +155,44 @@ describe('OAuth2', () => {
     // First input corresponds to Auth URL in this configuration
     inputs[0]!.vm.$emit('update:modelValue', 'https://new-auth.test')
     await nextTick()
-    const authUrlEmit = wrapper.emitted('update:securityScheme')?.at(-1)?.[0] as any
-    expect(authUrlEmit).toEqual({
-      type: 'oauth2',
-      flows: {
-        authorizationCode: { authorizationUrl: 'https://new-auth.test' },
+
+    expect(fn).toHaveBeenCalledWith({
+      name: 'oauth2',
+      payload: {
+        type: 'oauth2',
+        flows: {
+          authorizationCode: { authorizationUrl: 'https://new-auth.test' },
+        },
       },
     })
 
     // Second input corresponds to Token URL
     inputs[1]!.vm.$emit('update:modelValue', 'https://new-token.test')
     await nextTick()
-    const tokenUrlEmit = wrapper.emitted('update:securityScheme')?.at(-1)?.[0] as any
-    expect(tokenUrlEmit).toEqual({
-      type: 'oauth2',
-      flows: {
-        authorizationCode: { tokenUrl: 'https://new-token.test' },
+
+    expect(fn).toHaveBeenCalledWith({
+      name: 'oauth2',
+      payload: {
+        type: 'oauth2',
+        flows: {
+          authorizationCode: { tokenUrl: 'https://new-token.test' },
+        },
       },
     })
   })
 
   it('re-emits selected scopes from child component', async () => {
-    const wrapper = mountWithProps({ selectedScopes: [] })
+    const wrapper = mountWithProps({
+      selectedScopes: [],
+      authStore: createMockAuthStore({
+        oauth2: {
+          type: 'oauth2',
+          authorizationCode: {
+            'x-scalar-secret-token': '',
+          },
+        },
+      }),
+    })
 
     const scopes = wrapper.findComponent(OAuthScopesInput)
     expect(scopes.exists()).toBe(true)
@@ -147,29 +208,31 @@ describe('OAuth2', () => {
     const originalOrigin = window.location.origin
     const originalPathname = window.location.pathname
 
-    const wrapper = mountWithProps({
+    const eventBus = createWorkspaceEventBus()
+    const fn = vi.fn()
+    eventBus.on('auth:update:security-scheme-secrets', fn)
+
+    mountWithProps({
       flows: {
         authorizationCode: {
           authorizationUrl: 'https://example.com/auth',
           tokenUrl: 'https://example.com/token',
-          'x-scalar-secret-token': '',
+          refreshUrl: 'https://example.com/token',
           'x-usePkce': 'no',
-          'x-scalar-secret-redirect-uri': '',
           scopes: {},
-          'x-scalar-secret-client-id': '',
-          'x-scalar-secret-client-secret': '',
         },
       },
+      eventBus,
     })
 
     await nextTick()
 
     const expectedRedirectUri = originalOrigin + originalPathname
-    const redirectUriEmit = wrapper.emitted('update:securityScheme')?.at(-1)?.[0] as any
 
-    expect(redirectUriEmit).toEqual({
-      type: 'oauth2',
-      flows: {
+    expect(fn).toHaveBeenCalledWith({
+      name: 'oauth2',
+      payload: {
+        type: 'oauth2',
         authorizationCode: {
           'x-scalar-secret-redirect-uri': expectedRedirectUri,
         },

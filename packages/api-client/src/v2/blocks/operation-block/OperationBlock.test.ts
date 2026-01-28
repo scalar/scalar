@@ -1,4 +1,5 @@
 import { AVAILABLE_CLIENTS } from '@scalar/types/snippetz'
+import type { AuthStore } from '@scalar/workspace-store/entities/auth/index'
 import type { AuthMeta, WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/operation'
@@ -116,6 +117,23 @@ const createMockOriginalResponse = (): Response =>
     headers: {},
   })
 
+// Helper to create a mock auth store with custom secret returns
+const createMockAuthStore = (secretsMap: Record<string, any>): AuthStore => ({
+  getAuthSecrets: (_docName: string, schemeName: string) => secretsMap[schemeName] || undefined,
+  setAuthSecrets: () => {
+    /* no-op */
+  },
+  clearDocumentAuth: () => {
+    /* no-op */
+  },
+  load: () => {
+    /* no-op */
+  },
+  export: () => ({}),
+})
+
+const mockAuthStore = createMockAuthStore({})
+
 /**
  * Creates default props for mounting the OperationBlock component.
  * These props represent the minimum required to render the component.
@@ -143,6 +161,8 @@ const createDefaultProps = () => ({
   setOperationSecurity: false,
   plugins: [],
   environment: createMockEnvironment(),
+  authStore: mockAuthStore,
+  documentSlug: 'test-document',
 })
 
 describe('OperationBlock', () => {
@@ -405,6 +425,8 @@ describe('OperationBlock', () => {
       selectedSecuritySchemes: [],
       server: wrapper.props().server,
       proxyUrl: 'https://proxy.example.com',
+      authStore: mockAuthStore,
+      documentSlug: 'test-document',
     })
   })
 

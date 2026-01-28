@@ -1,4 +1,5 @@
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
+import type { AuthStore } from '@scalar/workspace-store/entities/auth/index'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import type {
   OperationObject,
@@ -9,6 +10,23 @@ import { SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.1/strict/
 import { describe, expect, it } from 'vitest'
 
 import { operationToHar } from './operation-to-har'
+
+// Helper to create a mock auth store with custom secret returns
+const createMockAuthStore = (secretsMap: Record<string, any>): AuthStore => ({
+  getAuthSecrets: (_docName: string, schemeName: string) => secretsMap[schemeName] || undefined,
+  setAuthSecrets: () => {
+    /* no-op */
+  },
+  clearDocumentAuth: () => {
+    /* no-op */
+  },
+  load: () => {
+    /* no-op */
+  },
+  export: () => ({}),
+})
+
+const mockAuthStore = createMockAuthStore({})
 
 describe('operationToHar', () => {
   describe('basic functionality', () => {
@@ -25,6 +43,8 @@ describe('operationToHar', () => {
         operation,
         method: 'get',
         path: '/api/users',
+        authStore: mockAuthStore,
+        documentSlug: 'test-document',
       })
 
       expect(result).toMatchObject({
@@ -48,6 +68,8 @@ describe('operationToHar', () => {
           operation,
           method,
           path: '/api/users',
+          authStore: mockAuthStore,
+          documentSlug: 'test-document',
         })
 
         expect(result.method).toBe(method)
@@ -74,6 +96,8 @@ describe('operationToHar', () => {
         method: 'get',
         path: '/api/users',
         server,
+        authStore: mockAuthStore,
+        documentSlug: 'test-document',
       })
 
       expect(result.url).toBe('https://api.example.com/api/users')
@@ -102,6 +126,8 @@ describe('operationToHar', () => {
         method: 'get',
         path: '/api/users',
         server,
+        authStore: mockAuthStore,
+        documentSlug: 'test-document',
       })
 
       expect(result.url).toBe('https://api.example.com/api/users')
@@ -137,6 +163,8 @@ describe('operationToHar', () => {
         method: 'get',
         path: '/api/users',
         server,
+        authStore: mockAuthStore,
+        documentSlug: 'test-document',
       })
 
       expect(result.url).toBe('https://api.us-west.example.com/v2/api/users')
@@ -165,6 +193,8 @@ describe('operationToHar', () => {
         method: 'get',
         path: '/users',
         server,
+        authStore: mockAuthStore,
+        documentSlug: 'test-document',
       })
 
       expect(result.url).toBe('https://api.example.com/v2/users')
@@ -228,6 +258,8 @@ describe('operationToHar', () => {
         path: '/users/{userId}',
         server,
         example: 'stuff',
+        authStore: mockAuthStore,
+        documentSlug: 'test-document',
       })
 
       expect(result.url).toBe('https://api.example.com/users/123')
@@ -273,6 +305,8 @@ describe('operationToHar', () => {
         path: '/users',
         server,
         example: 'filter',
+        authStore: mockAuthStore,
+        documentSlug: 'test-document',
       })
 
       expect(result.url).toBe('https://api.example.com/users')
@@ -318,6 +352,8 @@ describe('operationToHar', () => {
         method: 'post',
         path: '/api/users',
         example: 'test',
+        authStore: mockAuthStore,
+        documentSlug: 'test-document',
       })
 
       expect(result.postData).toBeDefined()
@@ -352,6 +388,8 @@ describe('operationToHar', () => {
         operation,
         method: 'post',
         path: '/api/users',
+        authStore: mockAuthStore,
+        documentSlug: 'test-document',
       })
 
       expect(result.postData).toBeDefined()
@@ -375,20 +413,31 @@ describe('operationToHar', () => {
         },
       }
 
-      const securitySchemes: SecuritySchemeObject[] = [
+      const securitySchemes: { scheme: SecuritySchemeObject; name: string }[] = [
         {
-          type: 'apiKey',
-          name: 'X-API-Key',
-          in: 'header',
-          'x-scalar-secret-token': 'test-key',
+          scheme: {
+            type: 'apiKey',
+            name: 'X-API-Key',
+            in: 'header',
+          },
+          name: 'apiKeyAuth',
         },
       ]
+
+      const mockAuthStore = createMockAuthStore({
+        apiKeyAuth: {
+          type: 'apiKey',
+          'x-scalar-secret-token': 'test-key',
+        },
+      })
 
       const result = operationToHar({
         operation,
         method: 'get',
         path: '/api/users',
         securitySchemes,
+        authStore: mockAuthStore,
+        documentSlug: 'test-document',
       })
 
       expect(result.headers).toContainEqual({
@@ -444,6 +493,8 @@ describe('operationToHar', () => {
         method: 'post',
         path: '/api/data',
         example: 'test',
+        authStore: mockAuthStore,
+        documentSlug: 'test-document',
       })
 
       expect(result.postData).toBeDefined()
@@ -493,6 +544,8 @@ describe('operationToHar', () => {
         operation,
         method: 'post',
         path: '/api/users',
+        authStore: mockAuthStore,
+        documentSlug: 'test-document',
       })
 
       expect(result.postData?.mimeType).toBe('application/json')
@@ -532,6 +585,8 @@ describe('operationToHar', () => {
         method: 'post',
         path: '/api/users',
         contentType: 'application/xml',
+        authStore: mockAuthStore,
+        documentSlug: 'test-document',
       })
 
       expect(result.postData?.mimeType).toBe('application/xml')
@@ -563,6 +618,8 @@ describe('operationToHar', () => {
         operation,
         method: 'post',
         path: '/api/users',
+        authStore: mockAuthStore,
+        documentSlug: 'test-document',
       })
 
       expect(result.postData?.mimeType).toBe('application/x-www-form-urlencoded')
@@ -604,6 +661,8 @@ describe('operationToHar', () => {
         operation,
         method: 'post',
         path: '/api/upload',
+        authStore: mockAuthStore,
+        documentSlug: 'test-document',
       })
 
       expect(result.postData?.mimeType).toBe('multipart/form-data')
@@ -641,6 +700,8 @@ describe('operationToHar', () => {
         operation,
         method: 'post',
         path: '/api/text',
+        authStore: mockAuthStore,
+        documentSlug: 'test-document',
       })
 
       expect(result.postData?.mimeType).toBe('text/plain')
@@ -678,6 +739,8 @@ describe('operationToHar', () => {
         operation,
         method: 'post',
         path: '/api/users',
+        authStore: mockAuthStore,
+        documentSlug: 'test-document',
       })
 
       expect(result.postData?.mimeType).toBe('application/xml')
@@ -721,6 +784,8 @@ describe('operationToHar', () => {
         operation,
         method: 'post',
         path: '/api/resources',
+        authStore: mockAuthStore,
+        documentSlug: 'test-document',
       })
 
       expect(result.postData?.mimeType).toBe('application/vnd.api+json')
@@ -740,6 +805,8 @@ describe('operationToHar', () => {
         operation,
         method: 'get',
         path: '/api/users',
+        authStore: mockAuthStore,
+        documentSlug: 'test-document',
       })
 
       expect(result.postData).toBeUndefined()
@@ -761,6 +828,8 @@ describe('operationToHar', () => {
         operation,
         method: 'post',
         path: '/api/users',
+        authStore: mockAuthStore,
+        documentSlug: 'test-document',
       })
 
       expect(result.postData).toBeUndefined()
@@ -792,6 +861,8 @@ describe('operationToHar', () => {
         method: 'post',
         path: '/api/users',
         contentType: 'application/xml',
+        authStore: mockAuthStore,
+        documentSlug: 'test-document',
       })
 
       expect(result.postData?.mimeType).toBe('application/xml')
@@ -824,6 +895,8 @@ describe('operationToHar', () => {
         operation,
         method: 'post',
         path: '/api/users',
+        authStore: mockAuthStore,
+        documentSlug: 'test-document',
       })
 
       expect(result.postData?.mimeType).toBe('application/json')
@@ -858,6 +931,8 @@ describe('operationToHar', () => {
         operation,
         method: 'post',
         path: '/api/users',
+        authStore: mockAuthStore,
+        documentSlug: 'test-document',
       })
 
       expect(result.postData?.mimeType).toBe('application/xml')
@@ -901,6 +976,8 @@ describe('operationToHar', () => {
         operation,
         method: 'post',
         path: '/api/users',
+        authStore: mockAuthStore,
+        documentSlug: 'test-document',
       })
 
       const contentTypeHeaders = result.headers.filter((header) => header.name === 'Content-Type')
@@ -921,6 +998,8 @@ describe('operationToHar', () => {
         operation,
         method: 'get',
         path: '/api/users',
+        authStore: mockAuthStore,
+        documentSlug: 'test-document',
       })
 
       expect(result.postData).toBeUndefined()
@@ -952,6 +1031,8 @@ describe('operationToHar', () => {
         operation,
         method: 'post',
         path: '/api/upload',
+        authStore: mockAuthStore,
+        documentSlug: 'test-document',
       })
 
       expect(result.postData?.mimeType).toBe('multipart/form-data')
@@ -983,6 +1064,8 @@ describe('operationToHar', () => {
         operation,
         method: 'post',
         path: '/api/text',
+        authStore: mockAuthStore,
+        documentSlug: 'test-document',
       })
 
       expect(result.postData?.mimeType).toBe('text/plain')
