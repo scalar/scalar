@@ -1,6 +1,6 @@
 # Markdown Support
 
-We support all standard markdown features:
+We support all standard Markdown features (actually, we're using GitHub-flavored Markdown).
 
 ## Headings
 
@@ -16,15 +16,21 @@ We support all standard markdown features:
 ## Text Formatting
 
 **Bold text**
+
 *Italic text*
+
 ~~Strikethrough text~~
+
 `Inline code`
 
 
 ```markdown
 **Bold text**
+
 *Italic text*
+
 ~~Strikethrough text~~
+
 `Inline code`
 ```
 
@@ -57,8 +63,9 @@ We support all standard markdown features:
 ## Links and Images
 
 ```markdown
-[Link text](https://example.com)
-![Alt text](https://example.com/image.png)
+[Absolute URLs](https://example.com)
+[Relative link](../another-markdown-file.md)
+![Image](https://example.com/image.png)
 ```
 
 ## Code Blocks
@@ -71,27 +78,33 @@ function example() {
 ```
 ````
 
+```javascript
+function example() {
+  return "Hello, World!";
+}
+```
+
 ## Blockquotes
 
 > This is a blockquote
-> 
+>
 > It can span multiple lines
 
 ```markdown
 > This is a blockquote
-> 
+>
 > It can span multiple lines
 ```
 
 ## Tables
 | Header 1 | Header 2 | Header 3 |
-|----------|----------|----------|
+| -------- | -------- | -------- |
 | Cell 1   | Cell 2   | Cell 3   |
 | Cell 4   | Cell 5   | Cell 6   |
 
 ```markdown
 | Header 1 | Header 2 | Header 3 |
-|----------|----------|----------|
+| -------- | -------- | -------- |
 | Cell 1   | Cell 2   | Cell 3   |
 | Cell 4   | Cell 5   | Cell 6   |
 ```
@@ -104,12 +117,39 @@ function example() {
 - [ ] Another pending task
 ```
 
-## GitHub Flavored Markdown (GFM)
+## Hints
 
-Guide Elements includes full support for GitHub Flavored Markdown:
+We support GitHub-style alerts for highlighting important information:
 
-- **Strikethrough**: `~~text~~`
-- **Task Lists**: `- [x]` and `- [ ]`
-- **Tables**: Full table support with alignment
-- **Autolinks**: URLs are automatically converted to links
-- **Disallowed Raw HTML**: Security-focused HTML filtering
+> [!NOTE]
+> Useful information that users should know, even when skimming content.
+
+> [!TIP]
+> Helpful advice for doing things better or more easily.
+
+> [!IMPORTANT]
+> Key information users need to know to achieve their goal.
+
+> [!WARNING]
+> Urgent info that needs immediate user attention to avoid problems.
+
+> [!CAUTION]
+> Advises about risks or negative outcomes of certain actions.
+
+```markdown
+> [!NOTE]
+> Useful information that users should know, even when skimming content.
+
+> [!TIP]
+> Helpful advice for doing things better or more easily.
+
+> [!IMPORTANT]
+> Key information users need to know to achieve their goal.
+
+> [!WARNING]
+> Urgent info that needs immediate user attention to avoid problems.
+
+> [!CAUTION]
+> Advises about risks or negative outcomes of certain actions.
+```
+

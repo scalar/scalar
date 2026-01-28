@@ -38,7 +38,7 @@ You can reference assets in your markdown files using either absolute paths from
 
 **Absolute URLs** (root-relative):
 
-```md
+```markdown
 ![Screenshot](/screenshots/example.png)
 
 ![API Client](/api-client-static.svg)
@@ -48,7 +48,7 @@ You can reference assets in your markdown files using either absolute paths from
 
 **Relative paths**:
 
-```md
+```markdown
 ![Screenshot](../assets/screenshots/example.png)
 
 ![API Client](../../assets/api-client-static.svg)
@@ -141,7 +141,7 @@ Here's a complete example showing how to configure assets and use them throughou
 
 In your Markdown files, you can then reference these assets:
 
-```md
+```markdown
 # Introduction
 
 ![Hero Image](/hero_1500x500.jpeg)

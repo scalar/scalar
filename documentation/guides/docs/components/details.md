@@ -39,7 +39,7 @@ to start in a collapsed state.
 Here is some additional content.
 </scalar-detail>
 
-```md
+```markdown
 <scalar-detail title="More Info">
 
 Here is some additional content.
@@ -54,7 +54,7 @@ Here is some additional content.
 Here is some additional content.
 :::
 
-```md
+```markdown
 :::scalar-detail{title="More Info"}
 Here is some additional content.
 :::
@@ -73,7 +73,7 @@ Here is some additional content.
 The section is open by default.
 </scalar-detail>
 
-```md
+```markdown
 <scalar-detail title="Default Open" open>
 
 The section is open by default.
@@ -88,7 +88,7 @@ The section is open by default.
 The section is open by default.
 :::
 
-```md
+```markdown
 :::scalar-detail{title="Default Open" open='true'}
 The section is open by default.
 :::
@@ -107,7 +107,7 @@ The section is open by default.
 Using a custom icon.
 </scalar-detail>
 
-```md
+```markdown
 <scalar-detail title="Custom Icon" icon="airplane">
 
 Using a custom icon.
@@ -122,7 +122,7 @@ Using a custom icon.
 Using a custom icon.
 :::
 
-```md
+```markdown
 :::scalar-detail{title="Custom Icon" icon="airplane"}
 Using a custom icon.
 :::
@@ -141,7 +141,7 @@ Using a custom icon.
 These do not collapse when clicked.
 </scalar-detail>
 
-```md
+```markdown
 <scalar-detail title="Non-Interactive">
 
 These do not collapse when clicked.
@@ -156,7 +156,7 @@ These do not collapse when clicked.
 These do not collapse when clicked.
 :::
 
-```md
+```markdown
 :::scalar-detail{title="Non-Interactive" interactivity="none" }
 These do not collapse when clicked.
 :::
@@ -181,7 +181,7 @@ Inner details content.
 
 </scalar-detail>
 
-```md
+```markdown
 <scalar-detail title="Nested, Outer" >
 
 Outer details content.
@@ -204,7 +204,7 @@ Inner details content.
 :::
 ::::
 
-```md
+```markdown
 ::::scalar-detail{title="Nested, Outer" }
 With directives, the parent must have at least 1 more `:` than the elements it wraps.
 

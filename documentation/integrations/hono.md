@@ -14,7 +14,7 @@ npm install @scalar/hono-api-reference
 
 Set up [Zod OpenAPI Hono](https://github.com/honojs/middleware/tree/main/packages/zod-openapi) or [Hono OpenAPI](https://github.com/rhinobase/hono-openapi) and pass the configured URL to the `Scalar` middleware:
 
-```ts
+```typescript
 import { Hono } from 'hono'
 import { Scalar } from '@scalar/hono-api-reference'
 
@@ -40,7 +40,7 @@ The Hono middleware takes our universal configuration object, [read more about c
 
 The middleware comes with a custom theme for Hono. You can use one of [the other predefined themes](https://github.com/scalar/scalar/blob/main/packages/themes/src/index.ts#L15) (`alternate`, `default`, `moon`, `purple`, `solarized`) or overwrite it with `none`. All themes come with a light and dark color scheme.
 
-```ts
+```typescript
 import { Scalar } from '@scalar/hono-api-reference'
 
 // Switch the theme (or pass other options)
@@ -54,7 +54,7 @@ app.get('/scalar', Scalar({
 
 There's one additional option to set the page title:
 
-```ts
+```typescript
 import { Scalar } from '@scalar/hono-api-reference'
 
 // Set a page title
@@ -72,7 +72,7 @@ You can also pin the CDN to a specific version by specifying it in the CDN strin
 
 You can find all available CDN versions [here](https://www.jsdelivr.com/package/npm/@scalar/api-reference?tab=files)
 
-```ts
+```typescript
 import { Scalar } from '@scalar/hono-api-reference'
 
 app.get('/scalar', Scalar({ url: '/doc', pageTitle: 'Awesome API' }))
@@ -93,7 +93,7 @@ npm install @scalar/openapi-to-markdown
 
 And add an additional route for it:
 
-```ts
+```typescript
 import { Hono } from 'hono'
 import { createMarkdownFromOpenApi } from '@scalar/openapi-to-markdown'
 
@@ -117,7 +117,7 @@ export default app
 
 Or, if you are using Zod OpenAPI Hono:
 
-```ts
+```typescript
 // Get the OpenAPI document
 const content = app.getOpenAPI31Document({
   openapi: '3.1.0',

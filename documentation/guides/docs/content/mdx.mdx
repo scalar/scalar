@@ -31,7 +31,7 @@ Reference MDX files the same way as Markdown files:
 
 Add metadata at the top of your MDX files:
 
-```md
+```markdown
 ---
 title: "Page Title"
 description: "Page description for SEO"
@@ -46,7 +46,7 @@ This is the content of the page.
 
 Import and use other MDX files as components:
 
-```md
+```markdown
 // Import MDX from other files
 import Intro from './intro.mdx'
 
@@ -59,7 +59,7 @@ This is **Markdown**.
 
 And this how the other
 
-```md
+```markdown
 # Introduction
 
 This MDX file serves as an imported component in another MDX document.
@@ -71,7 +71,7 @@ You can include any Markdown or JSX content here to be reused elsewhere.
 
 Use JSX directly in your content:
 
-```md
+```markdown
 <div style={{ padding: "16px", border: "3px dashed #ccc", borderRadius: "8px", margin: "16px 0" }}>
   Custom styled content
 </div>
@@ -83,7 +83,7 @@ Use JSX directly in your content:
 
 Interactive elements work too:
 
-```md
+```markdown
 <button onClick={() => alert("Hello!")}>
   Click me
 </button>
@@ -100,7 +100,7 @@ Embed JavaScript expressions using curly braces:
 ::::scalar-tabs
 :::scalar-tab{ title="Code" }
 
-```md
+```markdown
 The current year is {new Date().getFullYear()}.
 ```
 :::
@@ -110,29 +110,3 @@ The current year is {new Date().getFullYear()}.
 
 :::
 ::::
-
-## Testing Tabs (Directive)
-
-::::scalar-tabs
-:::scalar-tab{ title="JavaScript" }
-
-This is the JavaScript tab.
-
-:::
-:::scalar-tab{ title="TypeScript" }
-
-This is the TypeScript tab.
-
-:::
-::::
-
-## Testing Tabs (Custom Elements)
-
-<scalar-tabs nested>
-  <scalar-tab title="JavaScript">
-    This is the JavaScript tab.
-  </scalar-tab>
-  <scalar-tab title="TypeScript">
-    This is the TypeScript tab.
-  </scalar-tab>
-</scalar-tabs>

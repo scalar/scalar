@@ -482,6 +482,18 @@
         {
           "from": "/migration/zuplo",
           "to": "/guides/migration/zuplo"
+        },
+        {
+          "from": "/products/docs/github-actions",
+          "to": "/products/docs/deployment/github-actions"
+        },
+        {
+          "from": "/products/docs/access",
+          "to": "/products/docs/configuration/private-docs"
+        },
+        {
+          "from": "/products/docs/github-sync",
+          "to": "/products/docs/configuration/scalar.config.json"
         }
       ]
     }
@@ -538,21 +550,6 @@
                     "type": "page",
                     "title": "Getting Started"
                   },
-                  "github-sync": {
-                    "filepath": "documentation/guides/docs/github-sync.md",
-                    "type": "page",
-                    "title": "GitHub Sync"
-                  },
-                  "github-actions": {
-                    "filepath": "documentation/guides/docs/github-actions.md",
-                    "type": "page",
-                    "title": "GitHub Actions"
-                  },
-                  "access": {
-                    "title": "Access Groups",
-                    "filepath": "documentation/guides/access.md",
-                    "type": "page"
-                  },
                   "configuration": {
                     "title": "Configuration",
                     "type": "group",
@@ -564,10 +561,15 @@
                         "type": "page",
                         "filepath": "documentation/guides/docs/configuration/scalar.config.json.md"
                       },
-                      "site": {
-                        "title": "Site",
+                      "site-config": {
+                        "title": "Site Config",
                         "type": "page",
-                        "filepath": "documentation/guides/docs/configuration/site.md"
+                        "filepath": "documentation/guides/docs/configuration/site-config.md"
+                      },
+                      "domains": {
+                        "title": "Domains",
+                        "type": "page",
+                        "filepath": "documentation/guides/docs/configuration/domains.md"
                       },
                       "navigation": {
                         "title": "Navigation",
@@ -579,20 +581,76 @@
                         "type": "page",
                         "title": "Redirects"
                       },
-                      "assets": {
-                        "title": "Assets",
+                      "themes": {
+                        "title": "Themes",
                         "type": "page",
-                        "filepath": "documentation/guides/docs/configuration/assets.md"
+                        "filepath": "documentation/guides/docs/configuration/themes.md"
                       },
-                      "mdx": {
-                        "title": "MDX",
-                        "type": "page",
-                        "filepath": "documentation/guides/docs/configuration/mdx.mdx"
+                      "private-docs": {
+                        "title": "Private Docs",
+                        "filepath": "documentation/guides/docs/configuration/private-docs.md",
+                        "type": "page"
                       },
                       "migration": {
                         "title": "Migrate from 1.0",
                         "type": "page",
                         "filepath": "documentation/guides/docs/configuration/migration.md"
+                      }
+                    }
+                  },
+                  "deployment": {
+                    "title": "Deployment",
+                    "type": "group",
+                    "mode": "flat",
+                    "icon": "phosphor/regular/cloud-upload",
+                    "children": {
+                      "automatic-deployment": {
+                        "title": "Automatic Deployment",
+                        "type": "page",
+                        "filepath": "documentation/guides/docs/deployment/automatic-deployment.md"
+                      },
+                      "cli": {
+                        "title": "CLI",
+                        "type": "page",
+                        "filepath": "documentation/guides/docs/deployment/cli.md"
+                      },
+                      "github-actions": {
+                        "filepath": "documentation/guides/docs/deployment/github-actions.md",
+                        "type": "page",
+                        "title": "GitHub Actions"
+                      },
+                      "preview-deployments": {
+                        "title": "Preview Deployments",
+                        "type": "page",
+                        "filepath": "documentation/guides/docs/deployment/preview-deployments.md"
+                      },
+                      "build-failures": {
+                        "title": "Build Failures",
+                        "type": "page",
+                        "filepath": "documentation/guides/docs/deployment/build-failures.md"
+                      }
+                    }
+                  },
+                  "content": {
+                    "title": "Content",
+                    "type": "group",
+                    "mode": "flat",
+                    "icon": "phosphor/regular/text-t",
+                    "children": {
+                      "assets": {
+                        "title": "Assets",
+                        "type": "page",
+                        "filepath": "documentation/guides/docs/content/assets.md"
+                      },
+                      "html-css-js": {
+                        "title": "HTML/CSS/JS",
+                        "type": "page",
+                        "filepath": "documentation/guides/docs/content/html-css-js.md"
+                      },
+                      "mdx": {
+                        "title": "MDX",
+                        "type": "page",
+                        "filepath": "documentation/guides/docs/content/mdx.mdx"
                       }
                     }
                   },

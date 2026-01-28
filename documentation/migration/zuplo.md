@@ -188,8 +188,6 @@ If you're using GitHub Sync, create a `scalar.config.json` file in your reposito
 
 The `"publishOnMerge": true` setting tells Scalar to automatically publish your documentation when a branch is merged into your main branch.
 
-Learn more about [GitHub Sync here](../guides/docs/github-sync.md).
-
 ### Step 5: Migrate Custom Styling
 
 If you've customized your Zuplo developer portal with CSS, you can just pass this as `customCss` in the configuration or migrate those styles to Scalar using CSS variables. Scalar provides extensive theming options:
@@ -269,7 +267,7 @@ If you're using a custom domain with Zuplo (e.g., `developers.example.com`), you
 2. Update your DNS CNAME record to point to `dns.scalar.com`
 3. Wait a few minutes for DNS propagation
 
-**Learn more about [custom domains](../guides/docs/github-sync.md#github-sync__advanced-configuration__use-a-custom-domain).**
+Learn more about [custom domains](../guides/docs/configuration/domains.md).
 
 ### Step 8: (Optional) Set Up Redirects
 
