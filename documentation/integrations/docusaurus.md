@@ -14,7 +14,7 @@ npm install @scalar/docusaurus
 
 Simply add to the plugins section of your Docusaurus config. If you are using Typescript you can import the type options type as well.
 
-```ts
+```typescript
 import type { ScalarOptions } from '@scalar/docusaurus'
 
 plugins: [
@@ -40,7 +40,7 @@ You can either display each API reference in its own page, or display multiple A
 
 #### Create a page for each API reference
 
-```ts
+```typescript
 import type { ScalarOptions } from '@scalar/docusaurus'
 
 plugins: [
@@ -77,7 +77,7 @@ plugins: [
 
 #### Create a page that contains multiple API references
 
-```ts
+```typescript
 import type { ScalarOptions } from '@scalar/docusaurus'
 plugins: [
   [
@@ -180,7 +180,7 @@ pnpm add @scalar/docusaurus
 
 There's just one more step required: Adding the plugin to your Docusaurus configuration.
 
-```ts
+```typescript
 // docusaurus.config.js
 
 // …
@@ -209,7 +209,7 @@ That's it, you made it! This should render our Scalar Galaxy example on <http://
 
 Hey, big TypeScript fans here. If you're one, too, here's the Docusaurus configuration in TypeScript:
 
-```ts
+```typescript
 // docusaurus.config.ts
 import type { Config } from '@docusaurus/types'
 import type { ScalarOptions } from '@scalar/docusaurus'

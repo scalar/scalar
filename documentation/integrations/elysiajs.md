@@ -2,7 +2,7 @@
 
 The `@elysiajs/openapi` plugin uses our API Reference by default:
 
-```ts
+```typescript
 import { Elysia } from 'elysia'
 import { openapi } from '@elysiajs/openapi'
 

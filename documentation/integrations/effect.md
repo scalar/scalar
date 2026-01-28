@@ -4,7 +4,7 @@ Effect is natively integrated with Scalar, making it easy to use together out of
 
 ## Usage
 
-```ts
+```typescript
 // https://github.com/Effect-TS/effect/tree/main/packages/platform#registering-a-httpapi
 import {
   HttpApi,

@@ -54,7 +54,7 @@ The HTML sample above showed how to integrate Scalar using automatic mounting an
 
 ### Automatic Mounting
 
-```ts
+```typescript
 Scalar.createApiReference('#app', {
   url: 'https://registry.scalar.com/@scalar/apis/galaxy?format=json',
 })
@@ -62,7 +62,7 @@ Scalar.createApiReference('#app', {
 
 ### Manual Mounting
 
-```ts
+```typescript
 const app = Scalar.createApiReference({
   url: 'https://registry.scalar.com/@scalar/apis/galaxy?format=json',
 })
@@ -73,7 +73,7 @@ app.mount('#app')
 
 By the way, you don't have to pass a string. You can pass a HTML element:
 
-```ts
+```typescript
 const element = getElementById('app')
 
 app.mount(element)
@@ -81,7 +81,7 @@ app.mount(element)
 
 ### Update the Configuration
 
-```ts
+```typescript
 const app = Scalar.createApiReference('#app', {
   url: 'https://registry.scalar.com/@scalar/apis/galaxy?format=json',
 })
@@ -94,7 +94,7 @@ app.updateConfiguration({
 
 ### Unmount
 
-```ts
+```typescript
 const app = Scalar.createApiReference('#app', {
   url: 'https://registry.scalar.com/@scalar/apis/galaxy?format=json',
 })
@@ -111,7 +111,7 @@ Omit the `Scalar.` prefix then, that's only necessary when importing the JS from
 
 Here is an example:
 
-```ts
+```typescript
 import { createApiReference } from '@scalar/api-reference'
 
 createApiReference('#app', {
