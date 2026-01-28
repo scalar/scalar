@@ -2132,7 +2132,7 @@ importers:
         specifier: ^7.2.0
         version: 7.2.0
       rehype-parse:
-        specifier: ^9.0.0
+        specifier: ^9.0.1
         version: 9.0.1
       rehype-remark:
         specifier: ^10.0.1
@@ -2141,13 +2141,13 @@ importers:
         specifier: ^6.0.0
         version: 6.0.0
       remark-gfm:
-        specifier: ^4.0.0
+        specifier: ^4.0.1
         version: 4.0.1
       remark-stringify:
         specifier: ^11.0.0
         version: 11.0.0
       unified:
-        specifier: ^11.0.4
+        specifier: ^11.0.5
         version: 11.0.5
       vue:
         specifier: catalog:*
