@@ -22,7 +22,9 @@ function selectDocument(name: string) {
 </script>
 
 <template>
-  <ScalarModal :state="modalState">
+  <ScalarModal
+    class="settingsModal"
+    :state="modalState">
     <div class="settingsHeading">
       <h1>Settings</h1>
       <ScalarColorModeToggle class="colorToggle ml-auto" />
@@ -74,8 +76,14 @@ function selectDocument(name: string) {
 </template>
 
 <style>
-.scalar-modal-layout {
-  z-index: 1000 !important;
+/* Prevent auth method dropdown from going behind the modal */
+.settingsModal .scalar-modal-layout {
+  z-index: 10 !important;
+}
+
+.settingsModal .scalar-modal-body {
+  overflow-y: scroll;
+  overflow-x: hidden;
 }
 </style>
 

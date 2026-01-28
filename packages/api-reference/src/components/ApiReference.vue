@@ -835,8 +835,8 @@ watch(showAgent, () => {
       <!-- Agent Scalar -->
       <div
         v-show="showAgent"
-        :class="showAgent ? 'scalar-app-exit-animation' : ''"
         class="scalar-app-exit"
+        :class="showAgent ? 'scalar-app-exit-animation' : ''"
         @click="showAgent = false">
         <button
           class="app-exit-button zoomed:static zoomed:p-1 fixed top-2 right-2 rounded-full p-2"
