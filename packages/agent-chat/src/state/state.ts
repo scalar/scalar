@@ -12,6 +12,7 @@ import {
 } from 'ai'
 import { type ComputedRef, type InjectionKey, type Ref, computed, inject, ref, watch } from 'vue'
 
+import { createAuthorizationHeaders } from '@/api'
 import type { ApiMetadata } from '@/entities/registry/document'
 import type {
   ASK_FOR_AUTHENTICATION_TOOL_NAME,
@@ -81,6 +82,7 @@ type State = {
   addDocument: (document: { namespace: string; slug: string }) => Promise<void>
   removeDocument: (document: { namespace: string; slug: string }) => void
   getAccessToken?: () => string
+  getAgentKey?: () => string
   uploadedTmpDocumentUrl: Ref<string | undefined>
 }
 
@@ -101,19 +103,7 @@ function createChat({
     sendAutomaticallyWhen: lastAssistantMessageIsCompleteWithApprovalResponses,
     transport: new DefaultChatTransport({
       api: makeScalarProxyUrl(`${baseUrl}/vector/openapi/chat`),
-      headers: () => {
-        const token = getAccessToken?.()
-        const agentKey = getAgentKey?.()
-
-        return {
-          ...(token && {
-            Authorization: `Bearer ${token}`,
-          }),
-          ...(agentKey && {
-            'x-scalar-agent-key': agentKey,
-          }),
-        }
-      },
+      headers: () => createAuthorizationHeaders({ getAccessToken, getAgentKey }),
       body: () => ({
         registryDocuments: registryDocuments.value,
         documentSettings: createDocumentSettings(workspaceStore),
@@ -227,6 +217,7 @@ export function createState({
     addDocument,
     removeDocument,
     getAccessToken,
+    getAgentKey,
     uploadedTmpDocumentUrl,
   }
 }

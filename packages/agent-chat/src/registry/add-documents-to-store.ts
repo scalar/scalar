@@ -19,6 +19,7 @@ export async function loadDocument({
   baseUrl,
   config,
   getAccessToken,
+  getAgentKey,
 }: {
   namespace: string
   slug: string
@@ -28,10 +29,12 @@ export async function loadDocument({
   config: Partial<ApiReferenceConfiguration>
   registryUrl: string
   getAccessToken?: () => string
+  getAgentKey?: () => string
 }) {
   const getDocumentResult = await api({
     baseUrl,
     getAccessToken,
+    getAgentKey,
   }).getDocument({
     namespace,
     slug,

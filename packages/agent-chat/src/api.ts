@@ -5,8 +5,36 @@ import { createError } from '@/entities/error/helpers'
 import { registryApiMetadata } from '@/entities/registry/document'
 import { makeScalarProxyUrl } from '@/helpers'
 
+export function createAuthorizationHeaders({
+  getAccessToken,
+  getAgentKey,
+}: {
+  getAccessToken?: () => string
+  getAgentKey?: () => string
+}) {
+  const token = getAccessToken?.()
+  const agentKey = getAgentKey?.()
+
+  return {
+    ...(token && {
+      Authorization: `Bearer ${token}`,
+    }),
+    ...(agentKey && {
+      'x-scalar-agent-key': agentKey,
+    }),
+  }
+}
+
 /** Minimal set of API requests needed for agent chat */
-export function api({ baseUrl, getAccessToken }: { baseUrl: string; getAccessToken?: () => string }) {
+export function api({
+  baseUrl,
+  getAccessToken,
+  getAgentKey,
+}: {
+  baseUrl: string
+  getAccessToken?: () => string
+  getAgentKey?: () => string
+}) {
   const request = n.safeFn(
     async <T extends z.ZodType>({
       path,
@@ -21,8 +49,6 @@ export function api({ baseUrl, getAccessToken }: { baseUrl: string; getAccessTok
       body?: object
       responseSchema: T
     }) => {
-      const accessToken = getAccessToken?.()
-
       const url = `${baseUrl}${path}${query ? `?${new URLSearchParams(query)}` : ''}`
 
       const fetchResult = await n.fromUnsafe(
@@ -31,7 +57,7 @@ export function api({ baseUrl, getAccessToken }: { baseUrl: string; getAccessTok
             method,
             ...(body && { body: JSON.stringify(body) }),
             headers: {
-              ...(accessToken && { Authorization: `Bearer ${accessToken}` }),
+              ...createAuthorizationHeaders({ getAccessToken, getAgentKey }),
             },
           }),
         (originalError) => createError('FAILED_TO_FETCH', originalError),

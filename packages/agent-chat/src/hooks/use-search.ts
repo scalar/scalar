@@ -6,7 +6,7 @@ import type { ApiMetadata } from '@/entities/registry/document'
 import { useState } from '@/state/state'
 
 export function useSearch() {
-  const { baseUrl, getAccessToken } = useState()
+  const { baseUrl, getAccessToken, getAgentKey } = useState()
 
   const queryRef = ref('')
 
@@ -14,6 +14,7 @@ export function useSearch() {
     const searchResponse = await api({
       baseUrl,
       getAccessToken,
+      getAgentKey,
     }).search(q)
 
     if (!searchResponse.success) {
