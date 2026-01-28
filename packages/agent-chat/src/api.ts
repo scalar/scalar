@@ -3,6 +3,7 @@ import z from 'zod'
 
 import { createError } from '@/entities/error/helpers'
 import { registryApiMetadata } from '@/entities/registry/document'
+import { makeScalarProxyUrl } from '@/helpers'
 
 /** Minimal set of API requests needed for agent chat */
 export function api({ baseUrl, getAccessToken }: { baseUrl: string; getAccessToken: () => string }) {
@@ -22,9 +23,11 @@ export function api({ baseUrl, getAccessToken }: { baseUrl: string; getAccessTok
     }) => {
       const accessToken = getAccessToken()
 
+      const url = `${baseUrl}${path}${query ? `?${new URLSearchParams(query)}` : ''}`
+
       const fetchResult = await n.fromUnsafe(
         async () =>
-          fetch(`${baseUrl}${path}${query ? `?${new URLSearchParams(query)}` : ''}`, {
+          fetch(makeScalarProxyUrl(url), {
             method,
             ...(body && { body: JSON.stringify(body) }),
             headers: {

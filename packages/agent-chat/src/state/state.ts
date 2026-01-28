@@ -31,7 +31,7 @@ import type {
   GET_OPENAPI_SPECS_SUMMARY_TOOL_NAME,
   GetOpenAPISpecsSummaryToolOutput,
 } from '@/entities/tools/get-openapi-spec-summary'
-import { createDocumentSettings } from '@/helpers'
+import { createDocumentSettings, makeScalarProxyUrl } from '@/helpers'
 import { useTermsAndConditions } from '@/hooks/use-term-and-conditions'
 import { loadDocument } from '@/registry/add-documents-to-store'
 import { createDocumentName } from '@/registry/create-document-name'
@@ -78,7 +78,7 @@ type State = {
   registryDocuments: Ref<ApiMetadata[]>
   mode: ChatMode
   terms: { accepted: Ref<boolean>; accept: () => void }
-  addDocument: (document: { namespace: string; slug: string }) => void
+  addDocument: (document: { namespace: string; slug: string }) => Promise<void>
   removeDocument: (document: { namespace: string; slug: string }) => void
   getAccessToken: () => string
   uploadedTmpDocumentUrl: Ref<string | undefined>
@@ -98,7 +98,7 @@ function createChat({
   return new Chat<UIMessage<unknown, UIDataTypes, Tools>>({
     sendAutomaticallyWhen: lastAssistantMessageIsCompleteWithApprovalResponses,
     transport: new DefaultChatTransport({
-      api: `${baseUrl}/vector/openapi/chat`,
+      api: makeScalarProxyUrl(`${baseUrl}/vector/openapi/chat`),
       headers: () => {
         const token = getAccessToken()
 
@@ -163,18 +163,22 @@ export function createState({
   watch(
     () => chat.status,
     () => {
-      if (chat.status === 'streaming') prompt.value = ''
+      if (chat.status === 'streaming') {
+        prompt.value = ''
+      }
     },
   )
 
   const settingsModal = useModal()
 
-  function addDocument({ namespace, slug }: { namespace: string; slug: string }) {
+  async function addDocument({ namespace, slug }: { namespace: string; slug: string }) {
     const matchingDoc = registryDocuments.value.find((doc) => doc.namespace === namespace && doc.slug === slug)
 
-    if (matchingDoc) return
+    if (matchingDoc) {
+      return
+    }
 
-    loadDocument({
+    await loadDocument({
       namespace,
       slug,
       baseUrl,
@@ -220,7 +224,10 @@ export function createState({
 
 export function useState() {
   const state = inject(STATE_SYMBOL)
-  if (!state) throw new Error('No state provided.')
+
+  if (!state) {
+    throw new Error('No state provided.')
+  }
 
   return state
 }
