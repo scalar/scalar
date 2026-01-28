@@ -52,7 +52,7 @@
     "@electron-toolkit/tsconfig": "^2.0.0",
     "@playwright/test": "catalog:*",
     "@rushstack/eslint-patch": "^1.15.0",
-    "@todesktop/cli": "^1.18.3",
+    "@todesktop/cli": "^1.19.1",
     "@types/node": "catalog:*",
     "@vitejs/plugin-vue": "catalog:*",
     "electron": "40.0.0",
