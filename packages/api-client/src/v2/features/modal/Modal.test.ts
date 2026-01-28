@@ -506,7 +506,7 @@ describe('Modal', () => {
   })
 
   it('drops document changes when modal is closed', async () => {
-    const { props, modalState, store, document } = await createModalProps()
+    const { props, modalState, document } = await createModalProps()
 
     // Open the modal
     modalState.open = true
