@@ -54,7 +54,7 @@ function handleUpgrade() {
           </div>
           <div class="paymentInfoItem">
             <span>Additional Messages</span>
-            <span>+ $0.15 Message</span>
+            <span>+ $0.02 Message</span>
           </div>
         </div>
       </div>
