@@ -1,5 +1,14 @@
 # @scalar/use-codemirror
 
+## 0.13.27
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/components@0.17.0**
+  - [#7959](https://github.com/scalar/scalar/pull/7959): feat(agent): add agent scalar to localhost
+
 ## 0.13.26
 
 ### Patch Changes

@@ -1,5 +1,14 @@
 # @scalar/snippetz
 
+## 0.6.9
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/types@0.6.0**
+  - [#7959](https://github.com/scalar/scalar/pull/7959): feat(agent): add agent scalar to localhost
+
 ## 0.6.8
 
 ### Patch Changes

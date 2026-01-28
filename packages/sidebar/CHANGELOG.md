@@ -1,5 +1,19 @@
 # @scalar/sidebar
 
+## 0.7.23
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/components@0.17.0**
+  - [#7959](https://github.com/scalar/scalar/pull/7959): feat(agent): add agent scalar to localhost
+
+- **@scalar/themes@0.14.0**
+  - [#7959](https://github.com/scalar/scalar/pull/7959): feat(agent): add agent scalar to localhost
+
+- **@scalar/workspace-store@0.27.2**
+
 ## 0.7.22
 
 ### Patch Changes

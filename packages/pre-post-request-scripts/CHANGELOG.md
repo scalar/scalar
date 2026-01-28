@@ -1,5 +1,16 @@
 # @scalar/scripts
 
+## 0.0.77
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/components@0.17.0**
+  - [#7959](https://github.com/scalar/scalar/pull/7959): feat(agent): add agent scalar to localhost
+
+- **@scalar/oas-utils@0.6.30**
+
 ## 0.0.76
 
 ### Patch Changes

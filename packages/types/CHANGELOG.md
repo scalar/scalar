@@ -1,5 +1,11 @@
 # @scalar/types
 
+## 0.6.0
+
+### Minor Changes
+
+- [#7959](https://github.com/scalar/scalar/pull/7959): feat(agent): add agent scalar to localhost
+
 ## 0.5.10
 
 ### Patch Changes
