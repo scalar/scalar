@@ -1,5 +1,18 @@
 # @scalar/aspnetcore
 
+## 2.12.21
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.44.0**
+  - [#7959](https://github.com/scalar/scalar/pull/7959): feat(agent): add agent scalar to localhost
+  - [#7932](https://github.com/scalar/scalar/pull/7932): feat: use getExample in the references responses
+  - [#7931](https://github.com/scalar/scalar/pull/7931): fix(api-reference): account for custom header and sidebar
+
+- **@scalar/dotnet-shared@0.1.1**
+
 ## 2.12.20
 
 ### Patch Changes

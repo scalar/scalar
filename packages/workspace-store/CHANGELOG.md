@@ -1,5 +1,23 @@
 # @scalar/workspace-store
 
+## 0.27.2
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/themes@0.14.0**
+  - [#7959](https://github.com/scalar/scalar/pull/7959): feat(agent): add agent scalar to localhost
+
+- **@scalar/types@0.6.0**
+  - [#7959](https://github.com/scalar/scalar/pull/7959): feat(agent): add agent scalar to localhost
+
+- **@scalar/code-highlight@0.2.2**
+
+- **@scalar/openapi-upgrader@0.1.8**
+
+- **@scalar/snippetz@0.6.9**
+
 ## 0.27.1
 
 ### Patch Changes

@@ -1,5 +1,19 @@
 # @scalar/api-client-react
 
+## 1.3.81
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-client@2.22.0**
+  - [#7959](https://github.com/scalar/scalar/pull/7959): feat(agent): add agent scalar to localhost
+  - [#7929](https://github.com/scalar/scalar/pull/7929): fix: revert changes to the document when closing the modal
+  - [#7932](https://github.com/scalar/scalar/pull/7932): feat: use getExample in the references responses
+
+- **@scalar/types@0.6.0**
+  - [#7959](https://github.com/scalar/scalar/pull/7959): feat(agent): add agent scalar to localhost
+
 ## 1.3.80
 
 ### Patch Changes

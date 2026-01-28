@@ -1,5 +1,47 @@
 # @scalar/api-reference
 
+## 1.44.0
+
+### Minor Changes
+
+- [#7959](https://github.com/scalar/scalar/pull/7959): feat(agent): add agent scalar to localhost
+
+### Patch Changes
+
+- [#7932](https://github.com/scalar/scalar/pull/7932): feat: use getExample in the references responses
+- [#7931](https://github.com/scalar/scalar/pull/7931): fix(api-reference): account for custom header and sidebar
+
+#### Updated Dependencies
+
+- **@scalar/agent-chat@0.4.0**
+  - [#7959](https://github.com/scalar/scalar/pull/7959): feat(agent): add agent scalar to localhost
+
+- **@scalar/api-client@2.22.0**
+  - [#7959](https://github.com/scalar/scalar/pull/7959): feat(agent): add agent scalar to localhost
+  - [#7929](https://github.com/scalar/scalar/pull/7929): fix: revert changes to the document when closing the modal
+  - [#7932](https://github.com/scalar/scalar/pull/7932): feat: use getExample in the references responses
+
+- **@scalar/components@0.17.0**
+  - [#7959](https://github.com/scalar/scalar/pull/7959): feat(agent): add agent scalar to localhost
+
+- **@scalar/themes@0.14.0**
+  - [#7959](https://github.com/scalar/scalar/pull/7959): feat(agent): add agent scalar to localhost
+
+- **@scalar/types@0.6.0**
+  - [#7959](https://github.com/scalar/scalar/pull/7959): feat(agent): add agent scalar to localhost
+
+- **@scalar/sidebar@0.7.23**
+
+- **@scalar/code-highlight@0.2.2**
+
+- **@scalar/oas-utils@0.6.30**
+
+- **@scalar/workspace-store@0.27.2**
+
+- **@scalar/openapi-parser@0.24.5**
+
+- **@scalar/snippetz@0.6.9**
+
 ## 1.43.17
 
 ### Patch Changes

@@ -1,5 +1,19 @@
 # @scalar/oas-utils
 
+## 0.6.30
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/themes@0.14.0**
+  - [#7959](https://github.com/scalar/scalar/pull/7959): feat(agent): add agent scalar to localhost
+
+- **@scalar/types@0.6.0**
+  - [#7959](https://github.com/scalar/scalar/pull/7959): feat(agent): add agent scalar to localhost
+
+- **@scalar/workspace-store@0.27.2**
+
 ## 0.6.29
 
 ### Patch Changes

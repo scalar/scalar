@@ -1,5 +1,39 @@
 # @scalar/api-client
 
+## 2.22.0
+
+### Minor Changes
+
+- [#7959](https://github.com/scalar/scalar/pull/7959): feat(agent): add agent scalar to localhost
+
+### Patch Changes
+
+- [#7929](https://github.com/scalar/scalar/pull/7929): fix: revert changes to the document when closing the modal
+- [#7932](https://github.com/scalar/scalar/pull/7932): feat: use getExample in the references responses
+
+#### Updated Dependencies
+
+- **@scalar/components@0.17.0**
+  - [#7959](https://github.com/scalar/scalar/pull/7959): feat(agent): add agent scalar to localhost
+
+- **@scalar/themes@0.14.0**
+  - [#7959](https://github.com/scalar/scalar/pull/7959): feat(agent): add agent scalar to localhost
+
+- **@scalar/types@0.6.0**
+  - [#7959](https://github.com/scalar/scalar/pull/7959): feat(agent): add agent scalar to localhost
+
+- **@scalar/sidebar@0.7.23**
+
+- **@scalar/use-codemirror@0.13.27**
+
+- **@scalar/oas-utils@0.6.30**
+
+- **@scalar/workspace-store@0.27.2**
+
+- **@scalar/openapi-parser@0.24.5**
+
+- **@scalar/snippetz@0.6.9**
+
 ## 2.21.1
 
 ### Patch Changes
