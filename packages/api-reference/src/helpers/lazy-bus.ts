@@ -77,7 +77,10 @@ const runLazyBus = () => {
       isRunning.value = true
 
       for (const id of [...pendingQueue, ...priorityQueue]) {
-        readyQueue.add(id)
+        // Only add to readyQueue if not already there to avoid re-rendering
+        if (!readyQueue.has(id)) {
+          readyQueue.add(id)
+        }
         pendingQueue.delete(id)
         priorityQueue.delete(id)
       }
@@ -122,16 +125,18 @@ watchDebounced(
  * We only make elements pending if they are not already in the priority or ready queue
  */
 const addToPendingQueue = (id: string | undefined) => {
-  if (!!id && !priorityQueue.has(id)) {
+  if (!!id && !readyQueue.has(id) && !priorityQueue.has(id)) {
     pendingQueue.add(id)
   }
 }
 
 /**
- * We only add elements to the priority queue if they are not already in the ready queue
+ * Add elements to the priority queue for immediate rendering.
+ * We allow adding items already in readyQueue so that callbacks are still triggered,
+ * but processQueue will skip actual re-rendering for items already ready.
  */
 const addToPriorityQueue = (id: string | undefined) => {
-  if (id) {
+  if (id && !priorityQueue.has(id)) {
     priorityQueue.add(id)
   }
 }
