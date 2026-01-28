@@ -5,6 +5,7 @@ import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { REGEX } from '@scalar/helpers/regex/regex-helpers'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { AuthStore } from '@scalar/workspace-store/entities/auth/index'
+import type { SelectedSecurity } from '@scalar/workspace-store/entities/auth/schema'
 import type {
   ApiReferenceEvents,
   AuthMeta,
@@ -75,7 +76,7 @@ const {
   documentSlug,
   authStore,
 } = defineProps<{
-  selectedSecurity: OpenApiDocument['x-scalar-selected-security']
+  selectedSecurity: SelectedSecurity
   authMeta: AuthMeta
   clientOptions: ClientOptionGroup[]
   environment: XScalarEnvironment

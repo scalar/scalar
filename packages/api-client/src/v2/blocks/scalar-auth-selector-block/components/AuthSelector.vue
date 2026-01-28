@@ -10,6 +10,7 @@ import {
 } from '@scalar/components'
 import { ScalarIconCaretDown, ScalarIconTrash } from '@scalar/icons'
 import type { AuthStore } from '@scalar/workspace-store/entities/auth/index'
+import type { SelectedSecurity } from '@scalar/workspace-store/entities/auth/schema'
 import type {
   AuthMeta,
   WorkspaceEventBus,
@@ -57,7 +58,7 @@ const {
   proxyUrl: string
   securityRequirements: OpenApiDocument['security']
   securitySchemes: NonNullable<OpenApiDocument['components']>['securitySchemes']
-  selectedSecurity: OpenApiDocument['x-scalar-selected-security']
+  selectedSecurity: SelectedSecurity | undefined
   server: ServerObject | null
   title: string
   documentSlug: string

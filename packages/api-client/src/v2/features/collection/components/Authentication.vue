@@ -59,7 +59,12 @@ const server = computed(
         :proxyUrl="workspaceStore.workspace['x-scalar-active-proxy'] ?? ''"
         :securityRequirements="document?.security ?? []"
         :securitySchemes
-        :selectedSecurity="document?.['x-scalar-selected-security']"
+        :selectedSecurity="
+          workspaceStore.auth.getAuthSelectedSchemas({
+            type: 'document',
+            documentName: documentSlug,
+          })
+        "
         :server
         title="Authentication" />
     </div>

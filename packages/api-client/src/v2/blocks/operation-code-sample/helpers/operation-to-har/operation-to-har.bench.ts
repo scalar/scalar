@@ -1,4 +1,5 @@
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
+import { createAuthStore } from '@scalar/workspace-store/entities/auth/index'
 import type {
   OperationObject,
   SecuritySchemeObject,
@@ -193,26 +194,7 @@ describe('bench:operationToHar with large complex payloads', () => {
   } satisfies OperationObject
 
   // Mock AuthStore for benchmarking
-  const mockAuthStore = {
-    getAuthSecrets: () => undefined,
-    setAuthSecrets: () => {
-      // No-op for benchmarking
-    },
-    clearDocumentAuth: () => {
-      // No-op for benchmarking
-    },
-    load: () => {
-      // No-op for benchmarking
-    },
-    export: () => ({}),
-    getSelectedScheme: () => undefined,
-    setSelectedScheme: () => {
-      // No-op for benchmarking
-    },
-    clearSelectedScheme: () => {
-      // No-op for benchmarking
-    },
-  }
+  const mockAuthStore = createAuthStore()
 
   bench('large JSON + multipart/form-data bodies with many params and security', () => {
     const method: HttpMethod = 'post'

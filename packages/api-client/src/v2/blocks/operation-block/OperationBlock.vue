@@ -66,7 +66,6 @@ const {
   authMeta,
   environment,
   documentSecurity,
-  documentSelectedSecurity,
   eventBus,
   exampleKey,
   globalCookies = [],
@@ -89,8 +88,6 @@ const {
   eventBus: WorkspaceEventBus
   /** Document defined security */
   documentSecurity: OpenApiDocument['security']
-  /** Document selected security */
-  documentSelectedSecurity: OpenApiDocument['x-scalar-selected-security']
   /** Application version */
   appVersion: string
   /** Workspace/document cookies */
@@ -157,8 +154,16 @@ const securityRequirements = computed(() =>
 /** The selected security for the operation or document */
 const selectedSecurity = computed(() =>
   getSelectedSecurity(
-    documentSelectedSecurity,
-    operation['x-scalar-selected-security'],
+    authStore.getAuthSelectedSchemas({
+      type: 'document',
+      documentName: documentSlug,
+    }),
+    authStore.getAuthSelectedSchemas({
+      type: 'operation',
+      documentName: documentSlug,
+      path,
+      method,
+    }),
     securityRequirements.value,
     setOperationSecurity,
   ),

@@ -77,6 +77,8 @@ const SelectedSecuritySchema = Type.Object({
   selectedSchemes: Type.Array(SecurityRequirementObjectSchema),
 })
 
+export type SelectedSecurity = Static<typeof SelectedSecuritySchema>
+
 const AuthSchema = Type.Object({
   secrets: SecretsAuthSchema,
   selected: Type.Object({

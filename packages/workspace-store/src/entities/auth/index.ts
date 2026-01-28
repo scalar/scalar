@@ -5,6 +5,7 @@ import {
   DocumentAuthSchema,
   type SecretsAuthUnion,
   SecretsAuthUnionSchema,
+  type SelectedSecurity,
 } from '@/entities/auth/schema'
 import { createDetectChangesProxy } from '@/helpers/detect-changes-proxy'
 import { safeAssign } from '@/helpers/general'
@@ -23,6 +24,28 @@ export type AuthStore = {
    */
   getAuthSecrets: (documentName: string, schemeName: string) => SecretsAuthUnion | undefined
 
+  /**
+   * Retrieves the selected schemas for a given document or path.
+   * @param payload - The payload to get the selected schemas for.
+   * @returns The selected schemas, or undefined if not found.
+   */
+  getAuthSelectedSchemas: (
+    payload:
+      | { type: 'document'; documentName: string }
+      | { type: 'operation'; documentName: string; path: string; method: string },
+  ) => SelectedSecurity | undefined
+
+  /**
+   * Sets the selected schemas for a given document or path.
+   * @param payload - The payload to set the selected schemas for.
+   * @param selectedSchemes - The selected schemas to set.
+   */
+  setAuthSelectedSchemas: (
+    payload:
+      | { type: 'document'; documentName: string }
+      | { type: 'operation'; documentName: string; path: string; method: string },
+    selectedSchemes: SelectedSecurity,
+  ) => void
   /**
    * Sets the authentication secrets for a given document and security scheme.
    * @param documentName - Name/id of the OpenAPI document.
@@ -90,6 +113,31 @@ export const createAuthStore = ({ hooks }: CreateAuthStoreOptions = {}): AuthSto
     auth[documentName].secrets[schemeName] = coerceValue(SecretsAuthUnionSchema, data)
   }
 
+  const getAuthSelectedSchemas: AuthStore['getAuthSelectedSchemas'] = (payload) => {
+    if (payload.type === 'document') {
+      return auth[payload.documentName]?.selected?.document
+    }
+    return auth[payload.documentName]?.selected?.path?.[payload.path]?.[payload.method]
+  }
+
+  const setAuthSelectedSchemas: AuthStore['setAuthSelectedSchemas'] = (payload, selectedSchemes) => {
+    auth[payload.documentName] ||= {
+      secrets: {},
+      selected: { document: { selectedIndex: 0, selectedSchemes: [] }, path: {} },
+    }
+
+    // TypeScript needs a non-null assertion here since we just ensured it exists
+    const documentAuth = auth[payload.documentName]!
+
+    if (payload.type === 'document') {
+      documentAuth.selected.document = selectedSchemes
+    } else {
+      documentAuth.selected.path[payload.path] ||= {}
+      const pathAuth = documentAuth.selected.path[payload.path]!
+      pathAuth[payload.method] = selectedSchemes
+    }
+  }
+
   const clearDocumentAuth: AuthStore['clearDocumentAuth'] = (documentName) => {
     delete auth[documentName]
   }
@@ -105,6 +153,8 @@ export const createAuthStore = ({ hooks }: CreateAuthStoreOptions = {}): AuthSto
   return {
     getAuthSecrets,
     setAuthSecrets,
+    getAuthSelectedSchemas,
+    setAuthSelectedSchemas,
     clearDocumentAuth,
     load,
     export: exportAuth,
