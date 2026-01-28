@@ -49,6 +49,8 @@ import {
 
 import '@scalar/agent-chat/style.css'
 
+import { useScrollLock } from '@vueuse/core'
+
 import ClassicHeader from '@/components/ClassicHeader.vue'
 import Content from '@/components/Content/Content.vue'
 import MobileHeader from '@/components/MobileHeader.vue'
@@ -800,6 +802,12 @@ const colorMode = computed(() => {
 })
 
 const AgentChat = defineAsyncComponent(async () => import('./AgentChat.vue'))
+
+const bodyScrollLocked = useScrollLock(document.body)
+
+watch(showAgent, () => {
+  bodyScrollLocked.value = showAgent.value
+})
 </script>
 
 <template>
