@@ -121,7 +121,7 @@ const shouldCollapse = computed<boolean>(() =>
           class="flex-1" />
 
         <div
-          class="absolute top-[calc(12px+0.5lh)] right-0 z-0 flex -translate-y-1/2 items-center"
+          class="absolute top-[calc(14px+0.5lh)] right-0 z-0 flex -translate-y-1/2 items-center"
           :class="{
             'opacity-0 group-focus-within/parameter-item:opacity-100 group-hover/parameter-item:opacity-100':
               !open,
@@ -233,7 +233,7 @@ const shouldCollapse = computed<boolean>(() =>
 }
 
 .parameter-item-description {
-  margin-top: 4px;
+  margin-top: 6px;
   font-size: var(--scalar-small);
   color: var(--scalar-color-2);
   line-height: 1.4;
@@ -254,9 +254,10 @@ const shouldCollapse = computed<boolean>(() =>
 .parameter-item-trigger {
   display: flex;
   align-items: baseline;
+  line-height: var(--scalar-line-height-5);
   gap: 6px;
   flex-wrap: wrap;
-  padding: 12px 0;
+  padding: 14px 0;
   outline: none;
 }
 
