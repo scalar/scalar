@@ -10,6 +10,7 @@ import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/o
 import { computed } from 'vue'
 
 import type { ClientLayout } from '@/hooks'
+import ValueEmitter from '@/v2/components/layout/ValueEmitter.vue'
 
 import ServerDropdownItem from './ServerDropdownItem.vue'
 
@@ -35,6 +36,8 @@ const emits = defineEmits<{
     payload: ApiReferenceEvents['server:update:variables'],
   ): void
   (e: 'update:servers'): void
+  /** Update the open state of the server dropdown */
+  (e: 'update:open', value: boolean): void
 }>()
 
 const requestServerOptions = computed(() =>
@@ -72,6 +75,7 @@ const serverUrlWithoutTrailingSlash = computed(() => {
         <ScalarIconPlus class="size-3" />
       </template>
     </ScalarButton>
+
     <template #popover="{ close }">
       <div
         class="custom-scroll flex max-h-[inherit] flex-col gap-1 p-1"
@@ -104,9 +108,15 @@ const serverUrlWithoutTrailingSlash = computed(() => {
         </template>
       </div>
     </template>
-    <template #backdrop>
+    <template #backdrop="{ open }">
+      <!-- Emit the slot value back out the parent -->
+      <ValueEmitter
+        :value="open"
+        @change="(value) => emits('update:open', value)"
+        @unmount="emits('update:open', false)" />
+
       <ScalarFloatingBackdrop
-        class="fixed -top-0.5 rounded-none rounded-b-lg border-t-0 border-none" />
+        class="fixed inset-x-px rounded-none rounded-b-lg" />
     </template>
   </ScalarPopover>
 </template>

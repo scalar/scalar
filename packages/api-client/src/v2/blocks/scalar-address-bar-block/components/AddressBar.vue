@@ -181,6 +181,9 @@ const copyUrl = async () => {
   )
 }
 
+/** Whether either dropdown is open */
+const isDropdownOpen = ref(false)
+
 defineExpose({
   methodConflict,
   pathConflict,
@@ -195,9 +198,13 @@ defineExpose({
       class="address-bar-bg-states text-xxs group relative order-last flex w-full max-w-[calc(100dvw-24px)] flex-1 flex-row items-stretch rounded-lg p-0.75 lg:order-none lg:max-w-[580px] lg:min-w-[580px] xl:max-w-[720px] xl:min-w-[720px]"
       :class="{
         'outline-c-danger outline': hasConflict,
+        'rounded-b-none': isDropdownOpen,
       }">
       <div
-        class="pointer-events-none absolute top-0 left-0 block h-full w-full overflow-hidden rounded-lg border">
+        class="pointer-events-none absolute top-0 left-0 block h-full w-full overflow-hidden rounded-lg border"
+        :class="{
+          'rounded-b-none': isDropdownOpen,
+        }">
         <div
           class="absolute top-0 left-0 h-full w-full"
           :style />
@@ -220,6 +227,7 @@ defineExpose({
           :server="server"
           :servers="servers"
           :target="id"
+          @update:open="(value) => (isDropdownOpen = value)"
           @update:selectedServer="
             (payload) => eventBus.emit('server:update:selected', payload)
           "
@@ -273,9 +281,8 @@ defineExpose({
       <AddressBarHistory
         :history="history"
         :target="id"
-        @select:history:item="
-          (payload) => emit('select:history:item', payload)
-        " />
+        @select:history:item="(payload) => emit('select:history:item', payload)"
+        @update:open="(value) => (isDropdownOpen = value)" />
       <!-- Error message -->
       <div
         v-if="hasConflict"
