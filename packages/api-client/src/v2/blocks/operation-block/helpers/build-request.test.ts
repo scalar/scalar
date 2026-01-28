@@ -1,4 +1,4 @@
-import type { AuthStore } from '@scalar/workspace-store/entities/auth/index'
+import { createAuthStore } from '@scalar/workspace-store/entities/auth/index'
 import { describe, expect, it, vi } from 'vitest'
 
 import * as electron from '@/libs/electron'
@@ -18,22 +18,7 @@ describe('buildRequest', () => {
   }
 
   // Mock AuthStore implementation
-  const mockAuthStore: AuthStore = {
-    getAuthSecrets: () => {
-      /* no-op - returns undefined to use inline secrets */
-      return undefined
-    },
-    setAuthSecrets: () => {
-      /* no-op */
-    },
-    clearDocumentAuth: () => {
-      /* no-op */
-    },
-    load: () => {
-      /* no-op */
-    },
-    export: () => ({}),
-  }
+  const mockAuthStore = createAuthStore()
 
   const mockDocumentSlug = 'test-doc'
 

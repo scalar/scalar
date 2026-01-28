@@ -1,4 +1,4 @@
-import type { AuthStore } from '@scalar/workspace-store/entities/auth/index'
+import { type AuthStore, createAuthStore } from '@scalar/workspace-store/entities/auth/index'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import type {
   OAuthFlowAuthorizationCode,
@@ -17,17 +17,8 @@ import { buildRequestSecurity, getSecuritySchemes } from './build-request-securi
 
 // Helper to create a mock auth store with custom secret returns
 const createMockAuthStore = (secretsMap: Record<string, any>): AuthStore => ({
+  ...createAuthStore(),
   getAuthSecrets: (_docName: string, schemeName: string) => secretsMap[schemeName] || undefined,
-  setAuthSecrets: () => {
-    /* no-op */
-  },
-  clearDocumentAuth: () => {
-    /* no-op */
-  },
-  load: () => {
-    /* no-op */
-  },
-  export: () => ({}),
 })
 
 const mockAuthStore = createMockAuthStore({

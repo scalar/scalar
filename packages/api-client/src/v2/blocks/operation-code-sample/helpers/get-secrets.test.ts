@@ -1,4 +1,4 @@
-import type { AuthStore } from '@scalar/workspace-store/entities/auth/index'
+import { createAuthStore } from '@scalar/workspace-store/entities/auth/index'
 import type { SecuritySchemeObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { decode } from 'js-base64'
 import { describe, expect, it } from 'vitest'
@@ -9,18 +9,9 @@ describe('getSecrets', () => {
   const mockDocumentSlug = 'test-doc'
 
   // Helper to create a mock auth store with custom secret returns
-  const createMockAuthStore = (secretsMap: Record<string, any>): AuthStore => ({
-    getAuthSecrets: (_docName, schemeName) => secretsMap[schemeName] || undefined,
-    setAuthSecrets: () => {
-      /* no-op */
-    },
-    clearDocumentAuth: () => {
-      /* no-op */
-    },
-    load: () => {
-      /* no-op */
-    },
-    export: () => ({}),
+  const createMockAuthStore = (secretsMap: Record<string, any>) => ({
+    ...createAuthStore(),
+    getAuthSecrets: (_docName: string, schemeName: string) => secretsMap[schemeName] || undefined,
   })
 
   describe('apiKey security schemes', () => {

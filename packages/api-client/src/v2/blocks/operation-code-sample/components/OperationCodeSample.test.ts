@@ -1,6 +1,6 @@
 import type { HttpMethod as HttpMethodType } from '@scalar/helpers/http/http-methods'
 import type { AvailableClient } from '@scalar/types/snippetz'
-import type { AuthStore } from '@scalar/workspace-store/entities/auth/index'
+import { createAuthStore } from '@scalar/workspace-store/entities/auth/index'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import type {
   OperationObject,
@@ -34,22 +34,7 @@ vi.mock('@scalar/use-toasts', () => ({
 }))
 
 describe('RequestExample', () => {
-  const mockAuthStore: AuthStore = {
-    getAuthSecrets: () => {
-      /* no-op - returns undefined to use inline secrets */
-      return undefined
-    },
-    setAuthSecrets: () => {
-      /* no-op */
-    },
-    clearDocumentAuth: () => {
-      /* no-op */
-    },
-    load: () => {
-      /* no-op */
-    },
-    export: () => ({}),
-  }
+  const mockAuthStore = createAuthStore()
 
   const mockDocumentSlug = 'test-doc'
 

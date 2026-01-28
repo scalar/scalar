@@ -1,4 +1,4 @@
-import type { AuthStore } from '@scalar/workspace-store/entities/auth/index'
+import { createAuthStore } from '@scalar/workspace-store/entities/auth/index'
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type { ComponentsObject } from '@scalar/workspace-store/schemas/v3.1/strict/components'
@@ -9,18 +9,9 @@ import { nextTick } from 'vue'
 import RequestAuthDataTable, { type RequestAuthDataTableProps } from './RequestAuthDataTable.vue'
 
 // Helper to create a mock auth store with custom secret returns
-const createMockAuthStore = (secretsMap: Record<string, any>): AuthStore => ({
+const createMockAuthStore = (secretsMap: Record<string, any>) => ({
+  ...createAuthStore(),
   getAuthSecrets: (_docName: string, schemeName: string) => secretsMap[schemeName] || undefined,
-  setAuthSecrets: () => {
-    /* no-op */
-  },
-  clearDocumentAuth: () => {
-    /* no-op */
-  },
-  load: () => {
-    /* no-op */
-  },
-  export: () => ({}),
 })
 
 describe('RequestAuthDataTable', () => {

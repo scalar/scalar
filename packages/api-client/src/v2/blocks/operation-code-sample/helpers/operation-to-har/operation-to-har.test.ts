@@ -1,5 +1,5 @@
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
-import type { AuthStore } from '@scalar/workspace-store/entities/auth/index'
+import { createAuthStore } from '@scalar/workspace-store/entities/auth/index'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import type {
   OperationObject,
@@ -12,18 +12,9 @@ import { describe, expect, it } from 'vitest'
 import { operationToHar } from './operation-to-har'
 
 // Helper to create a mock auth store with custom secret returns
-const createMockAuthStore = (secretsMap: Record<string, any>): AuthStore => ({
+const createMockAuthStore = (secretsMap: Record<string, any>) => ({
+  ...createAuthStore(),
   getAuthSecrets: (_docName: string, schemeName: string) => secretsMap[schemeName] || undefined,
-  setAuthSecrets: () => {
-    /* no-op */
-  },
-  clearDocumentAuth: () => {
-    /* no-op */
-  },
-  load: () => {
-    /* no-op */
-  },
-  export: () => ({}),
 })
 
 const mockAuthStore = createMockAuthStore({})

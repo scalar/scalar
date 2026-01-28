@@ -43,6 +43,7 @@ describe('Operation', () => {
     'x-scalar-original-document-hash': '123',
     'x-scalar-navigation': defaultNavigation,
   }
+  const workspaceStore = createWorkspaceStore()
 
   const defaultProps: RouteProps = {
     document: defaultDocument as any,
@@ -56,7 +57,7 @@ describe('Operation', () => {
       variables: [],
       description: 'Test Environment',
     },
-    workspaceStore: createWorkspaceStore(),
+    workspaceStore,
     documentSlug: 'test-document',
     securitySchemes: {},
     activeWorkspace: {
@@ -98,10 +99,6 @@ describe('Operation', () => {
     const document = {
       ...defaultDocument,
       security: [{ bearerAuth: [] }],
-      'x-scalar-selected-security': {
-        selectedIndex: 0,
-        selectedSchemes: [{ bearerAuth: [] }],
-      },
       'x-scalar-set-operation-security': true,
       paths: {
         '/pets': {
@@ -123,44 +120,14 @@ describe('Operation', () => {
     const oc = wrapper.getComponent({ name: 'OperationBlock' })
     const props = oc.props() as any
     expect(props.documentSecurity).toEqual([{ bearerAuth: [] }])
-    expect(props.documentSelectedSecurity).toEqual({
-      selectedIndex: 0,
-      selectedSchemes: [{ bearerAuth: [] }],
-    })
     expect(props.setOperationSecurity).toBe(true)
     expect(props.authMeta).toEqual({ type: 'operation', path: '/pets', method: 'get' })
-  })
-
-  it('uses document security when operation security is not defined', () => {
-    const document = {
-      ...defaultDocument,
-      security: [{ bearerAuth: [] }],
-      'x-scalar-selected-security': {
-        selectedIndex: 0,
-        selectedSchemes: [{ bearerAuth: [] }],
-      },
-    }
-
-    const wrapper = render({ document })
-
-    const oc = wrapper.getComponent({ name: 'OperationBlock' })
-    const props = oc.props()
-    expect(props.documentSecurity).toEqual([{ bearerAuth: [] }])
-    expect(props.documentSelectedSecurity).toEqual({
-      selectedIndex: 0,
-      selectedSchemes: [{ bearerAuth: [] }],
-    })
-    expect(props.authMeta).toEqual({ type: 'document' })
   })
 
   it('merges document security when operation security is an empty object entry', () => {
     const document = {
       ...defaultDocument,
       security: [{ bearerAuth: [] }],
-      'x-scalar-selected-security': {
-        selectedIndex: 0,
-        selectedSchemes: [{ bearerAuth: [] }],
-      },
       paths: {
         '/pets': {
           get: {
@@ -177,10 +144,6 @@ describe('Operation', () => {
     const oc = wrapper.getComponent({ name: 'OperationBlock' })
     const props = oc.props() as any
     expect(props.documentSecurity).toEqual([{ bearerAuth: [] }])
-    expect(props.documentSelectedSecurity).toEqual({
-      selectedIndex: 0,
-      selectedSchemes: [{ bearerAuth: [] }],
-    })
     expect(props.authMeta).toEqual({ type: 'document' })
   })
 })

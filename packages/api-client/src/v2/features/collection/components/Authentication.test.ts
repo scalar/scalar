@@ -10,10 +10,6 @@ describe('Authentication', () => {
   const baseDocument = {
     'x-scalar-set-operation-security': true,
     'x-scalar-selected-server': 'https://api.example.com',
-    'x-scalar-selected-security': {
-      selectedIndex: 0,
-      selectedSchemes: [{ BearerAuth: [] }],
-    },
     servers: [
       {
         url: 'https://api.example.com',
@@ -57,6 +53,14 @@ describe('Authentication', () => {
     const document = custom.document ?? baseDocument
     const environment = custom.environment ?? baseEnvironment
     const eventBus = createWorkspaceEventBus()
+    const workspaceStore = createWorkspaceStore()
+
+    const documentSlug = 'test-document'
+
+    workspaceStore.auth.setAuthSelectedSchemas(
+      { type: 'document', documentName: documentSlug },
+      { selectedIndex: 0, selectedSchemes: [{ BearerAuth: [] }] },
+    )
 
     return {
       wrapper: mount(Authentication, {
@@ -66,9 +70,9 @@ describe('Authentication', () => {
           eventBus,
           layout: 'web',
           securitySchemes: document.components?.securitySchemes ?? {},
-          workspaceStore: createWorkspaceStore(),
+          workspaceStore,
           collectionType: 'document',
-          documentSlug: 'test-document',
+          documentSlug,
           activeWorkspace: {
             id: 'test-workspace',
             label: 'Test Workspace',
@@ -103,7 +107,7 @@ describe('Authentication', () => {
     expect(props.meta).toEqual({ type: 'document' })
     expect(props.securityRequirements).toEqual([{ BearerAuth: [] }])
     expect(props.securitySchemes).toEqual(baseDocument.components.securitySchemes)
-    expect(props.selectedSecurity).toEqual(baseDocument['x-scalar-selected-security'])
+    expect(props.selectedSecurity).toEqual({ selectedIndex: 0, selectedSchemes: [{ BearerAuth: [] }] })
     expect(props.title).toBe('Authentication')
   })
 
