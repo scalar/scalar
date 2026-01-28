@@ -1386,76 +1386,136 @@
                       "items": {
                         "type": "object",
                         "properties": {
-                          "pool": {
-                            "type": "string",
-                            "example": "747c1d2a-c668-4682-b9f9-296708a3dd90"
-                          },
                           "chain": {
                             "type": "string",
                             "example": "Ethereum"
                           },
                           "project": {
                             "type": "string",
-                            "example": "Aave"
+                            "example": "lido"
                           },
                           "symbol": {
                             "type": "string",
-                            "example": "USDC"
+                            "example": "STETH"
                           },
                           "tvlUsd": {
                             "type": "number",
-                            "example": 1500000000
-                          },
-                          "apy": {
-                            "type": "number",
-                            "example": 5.2
+                            "example": 32493036117
                           },
                           "apyBase": {
                             "type": "number",
-                            "example": 3.1
+                            "example": 2.84
                           },
                           "apyReward": {
+                            "type": ["number", "null"],
+                            "example": null
+                          },
+                          "apy": {
                             "type": "number",
-                            "example": 2.1
+                            "example": 2.84
                           },
                           "rewardTokens": {
-                            "type": "array",
+                            "type": ["array", "null"],
                             "items": {
                               "type": "string"
                             },
-                            "example": ["COMP", "AAVE"]
+                            "example": null
                           },
-                          "underlyingTokens": {
-                            "type": "array",
-                            "items": {
-                              "type": "string"
-                            },
-                            "example": ["USDC"]
-                          },
-                          "poolMeta": {
+                          "pool": {
                             "type": "string",
-                            "example": "Lending pool"
+                            "example": "747c1d2a-c668-4682-b9f9-296708a3dd90"
                           },
-                          "url": {
+                          "apyPct1D": {
+                            "type": "number",
+                            "example": -0.04
+                          },
+                          "apyPct7D": {
+                            "type": "number",
+                            "example": -0.056
+                          },
+                          "apyPct30D": {
+                            "type": ["number", "null"],
+                            "example": null
+                          },
+                          "stablecoin": {
+                            "type": "boolean",
+                            "example": false
+                          },
+                          "ilRisk": {
                             "type": "string",
-                            "example": "https://app.aave.com/reserve-overview/USDC"
+                            "example": "no"
+                          },
+                          "exposure": {
+                            "type": "string",
+                            "example": "single"
                           },
                           "predictions": {
                             "type": "object",
                             "properties": {
                               "predictedClass": {
                                 "type": "string",
-                                "example": "Stable"
+                                "example": "Stable/Up"
                               },
                               "predictedProbability": {
                                 "type": "number",
-                                "example": 0.95
+                                "example": 74
                               },
                               "binnedConfidence": {
                                 "type": "number",
-                                "example": 1
+                                "example": 2
                               }
                             }
+                          },
+                          "poolMeta": {
+                            "type": ["string", "null"],
+                            "example": null
+                          },
+                          "mu": {
+                            "type": "number",
+                            "example": 3.7747
+                          },
+                          "sigma": {
+                            "type": "number",
+                            "example": 0.05236
+                          },
+                          "count": {
+                            "type": "number",
+                            "example": 1141
+                          },
+                          "outlier": {
+                            "type": "boolean",
+                            "example": false
+                          },
+                          "underlyingTokens": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            },
+                            "example": ["0x0000000000000000000000000000000000000000"]
+                          },
+                          "il7d": {
+                            "type": ["number", "null"],
+                            "example": null
+                          },
+                          "apyBase7d": {
+                            "type": ["number", "null"],
+                            "example": null
+                          },
+                          "apyMean30d": {
+                            "type": "number",
+                            "example": 2.73539
+                          },
+                          "volumeUsd1d": {
+                            "type": ["number", "null"],
+                            "example": null
+                          },
+                          "volumeUsd7d": {
+                            "type": ["number", "null"],
+                            "example": null
+                          },
+                          "apyBaseInception": {
+                            "type": ["number", "null"],
+                            "example": null
                           }
                         }
                       }
