@@ -80,7 +80,7 @@ type State = {
   terms: { accepted: Ref<boolean>; accept: () => void }
   addDocument: (document: { namespace: string; slug: string }) => Promise<void>
   removeDocument: (document: { namespace: string; slug: string }) => void
-  getAccessToken: () => string
+  getAccessToken?: () => string
   uploadedTmpDocumentUrl: Ref<string | undefined>
 }
 
@@ -89,22 +89,28 @@ function createChat({
   workspaceStore,
   baseUrl,
   getAccessToken,
+  getAgentKey,
 }: {
   registryDocuments: Ref<ApiMetadata[]>
   workspaceStore: WorkspaceStore
   baseUrl: string
-  getAccessToken: () => string
+  getAccessToken?: () => string
+  getAgentKey?: () => string
 }) {
   return new Chat<UIMessage<unknown, UIDataTypes, Tools>>({
     sendAutomaticallyWhen: lastAssistantMessageIsCompleteWithApprovalResponses,
     transport: new DefaultChatTransport({
       api: makeScalarProxyUrl(`${baseUrl}/vector/openapi/chat`),
       headers: () => {
-        const token = getAccessToken()
+        const token = getAccessToken?.()
+        const agentKey = getAgentKey?.()
 
         return {
           ...(token && {
             Authorization: `Bearer ${token}`,
+          }),
+          ...(agentKey && {
+            'x-scalar-agent-key': agentKey,
           }),
         }
       },
@@ -123,13 +129,15 @@ export function createState({
   baseUrl,
   mode,
   getAccessToken,
+  getAgentKey,
 }: {
   initialRegistryDocuments: { namespace: string; slug: string }[]
   registryUrl: string
   dashboardUrl: string
   baseUrl: string
   mode: ChatMode
-  getAccessToken: () => string
+  getAccessToken?: () => string
+  getAgentKey?: () => string
 }): State {
   const prompt = ref<State['prompt']['value']>('')
   const registryDocuments = ref<ApiMetadata[]>([])
@@ -152,6 +160,7 @@ export function createState({
     workspaceStore,
     baseUrl,
     getAccessToken,
+    getAgentKey,
   })
 
   const loading = computed(

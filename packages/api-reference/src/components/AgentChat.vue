@@ -13,7 +13,7 @@ const { agentConfig } = defineProps<{
   <Chat
     :baseUrl="API_BASE_URL"
     :dashboardUrl="DASHBOARD_URL"
-    :getAccessToken="() => ''"
+    :getAgentKey="agentConfig?.key ? () => agentConfig?.key : undefined"
     :mode="agentConfig?.key ? 'full' : 'preview'"
     :registryDocuments="[]"
     :registryUrl="REGISTRY_URL" />

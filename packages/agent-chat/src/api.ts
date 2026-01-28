@@ -6,7 +6,7 @@ import { registryApiMetadata } from '@/entities/registry/document'
 import { makeScalarProxyUrl } from '@/helpers'
 
 /** Minimal set of API requests needed for agent chat */
-export function api({ baseUrl, getAccessToken }: { baseUrl: string; getAccessToken: () => string }) {
+export function api({ baseUrl, getAccessToken }: { baseUrl: string; getAccessToken?: () => string }) {
   const request = n.safeFn(
     async <T extends z.ZodType>({
       path,
@@ -21,7 +21,7 @@ export function api({ baseUrl, getAccessToken }: { baseUrl: string; getAccessTok
       body?: object
       responseSchema: T
     }) => {
-      const accessToken = getAccessToken()
+      const accessToken = getAccessToken?.()
 
       const url = `${baseUrl}${path}${query ? `?${new URLSearchParams(query)}` : ''}`
 

@@ -27,7 +27,7 @@ export async function loadDocument({
   workspaceStore: WorkspaceStore
   config: Partial<ApiReferenceConfiguration>
   registryUrl: string
-  getAccessToken: () => string
+  getAccessToken?: () => string
 }) {
   const getDocumentResult = await api({
     baseUrl,

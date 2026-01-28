@@ -12,13 +12,15 @@ const {
   baseUrl,
   mode = 'full',
   getAccessToken,
+  getAgentKey,
 } = defineProps<{
   registryDocuments: RegistryDocument[]
   registryUrl: string
   dashboardUrl: string
   baseUrl: string
   mode?: ChatMode
-  getAccessToken: () => string
+  getAccessToken?: () => string
+  getAgentKey?: () => string
 }>()
 
 provide(
@@ -29,6 +31,7 @@ provide(
     baseUrl,
     mode,
     getAccessToken,
+    getAgentKey,
     dashboardUrl,
   }),
 )
