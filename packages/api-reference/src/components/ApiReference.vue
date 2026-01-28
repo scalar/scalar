@@ -49,6 +49,7 @@ import {
 
 import '@scalar/agent-chat/style.css'
 
+import { isLocalUrl } from '@scalar/helpers/url/is-local-url'
 import { useScrollLock } from '@vueuse/core'
 
 import ClassicHeader from '@/components/ClassicHeader.vue'
@@ -629,6 +630,14 @@ const documentUrl = computed(() => {
 // Setup the ApiClient on mount
 const showAgent = ref(false)
 
+const agentEnabled = computed(() => {
+  if (isLocalUrl(window.location.href)) {
+    return true
+  }
+
+  return Boolean(configList.value[activeSlug.value]?.agent)
+})
+
 // --------------------------------------------------------------------------- */
 // Api Client Modal
 
@@ -834,7 +843,8 @@ watch(showAgent, () => {
       ]">
       <!-- Agent Scalar -->
       <div
-        v-show="showAgent"
+        v-if="agentEnabled"
+        v-show="showAgent && agentEnabled"
         class="scalar-app-exit"
         :class="showAgent ? 'scalar-app-exit-animation' : ''"
         @click="showAgent = false">
@@ -847,7 +857,8 @@ watch(showAgent, () => {
         </button>
       </div>
       <div
-        v-show="showAgent"
+        v-if="agentEnabled"
+        v-show="showAgent && agentEnabled"
         class="agent-scalar">
         <div
           class="agent-scalar-container custom-scroll custom-scroll-self-contain-overflow">
