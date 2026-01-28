@@ -37,6 +37,6 @@
     "@vitejs/plugin-vue": "catalog:*",
     "vite": "catalog:*",
     "vitest": "catalog:*",
-    "wrangler": "^3.114.17"
+    "wrangler": "^4.59.3"
   }
 }
