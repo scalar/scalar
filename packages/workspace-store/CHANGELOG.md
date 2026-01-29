@@ -1,5 +1,44 @@
 # @scalar/workspace-store
 
+## 0.27.2
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/themes@0.14.0**
+  - [#7959](https://github.com/scalar/scalar/pull/7959): feat(agent): add agent scalar to localhost
+
+- **@scalar/types@0.6.0**
+  - [#7959](https://github.com/scalar/scalar/pull/7959): feat(agent): add agent scalar to localhost
+
+- **@scalar/code-highlight@0.2.2**
+
+- **@scalar/openapi-upgrader@0.1.8**
+
+- **@scalar/snippetz@0.6.9**
+
+## 0.27.1
+
+### Patch Changes
+
+- [#7926](https://github.com/scalar/scalar/pull/7926): Make V2 command palette extensible and improve types
+
+## 0.27.0
+
+### Minor Changes
+
+- [#7905](https://github.com/scalar/scalar/pull/7905): feat: support loading files on the store
+
+### Patch Changes
+
+- [#7906](https://github.com/scalar/scalar/pull/7906): feat: remove parsing from codeinput and move to getExample
+
+#### Updated Dependencies
+
+- **@scalar/json-magic@0.9.4**
+  - [#7922](https://github.com/scalar/scalar/pull/7922): fix: resolve $ref entries inside arrays (e.g. oneOf, allOf) in prefixInternalRefRecursive
+
 ## 0.26.2
 
 ### Patch Changes

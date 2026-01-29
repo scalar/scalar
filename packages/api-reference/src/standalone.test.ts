@@ -20,7 +20,7 @@ describe.sequential('standalone', { retry: 3, timeout: 10000 }, () => {
     await import('./standalone')
 
     await vi.waitFor(() => {
-      const reference = document.querySelector('.scalar-api-reference')
+      const reference = document.querySelector('.scalar-api-reference .references-rendered')
       const header = reference?.querySelector('h1')
       expect(header?.innerHTML).toBe('Example')
     })
@@ -36,7 +36,7 @@ describe.sequential('standalone', { retry: 3, timeout: 10000 }, () => {
     document.dispatchEvent(new Event('scalar:reload-references'))
 
     await vi.waitFor(() => {
-      const reference = document.querySelector('.scalar-api-reference')
+      const reference = document.querySelector('.scalar-api-reference .references-rendered')
       const header = reference?.querySelector('h1')
       expect(header?.innerHTML).toBe('Example')
     })
@@ -59,7 +59,7 @@ describe.sequential('standalone', { retry: 3, timeout: 10000 }, () => {
     document.dispatchEvent(event)
 
     await vi.waitFor(() => {
-      const header = document.querySelector('[data-v-app] h1')
+      const header = document.querySelector('[data-v-app] .references-rendered h1')
       expect(header?.innerHTML).toBe('Scalar Galaxy')
     })
   })

@@ -27,10 +27,6 @@ import { getTabDetails } from '@/v2/helpers/get-tab-details'
 import { slugify } from '@/v2/helpers/slugify'
 import { workspaceStorage } from '@/v2/helpers/storage'
 
-import {
-  type UseCommandPaletteStateReturn,
-  useCommandPaletteState,
-} from '../command-palette/hooks/use-command-palette-state'
 import { initializeAppEventHandlers } from './app-events'
 import type { ScalarClientAppRouteParams } from './helpers/routes'
 
@@ -428,6 +424,12 @@ const handleSelectItem = (id: string) => {
     return
   }
 
+  // If we are already in the nav item, just toggle expansion
+  if (sidebarState.isSelected(id)) {
+    sidebarState.setExpanded(id, !sidebarState.isExpanded(id))
+    return
+  }
+
   // Navigate to the document overview page
   if (entry.type === 'document') {
     sidebarState.setSelected(id)
@@ -441,12 +443,6 @@ const handleSelectItem = (id: string) => {
   // Navigate to the example page
   // TODO: temporary until we have the operation overview page
   if (entry.type === 'operation') {
-    // If we are already in the operation, just toggle expansion
-    if (sidebarState.isSelected(id)) {
-      sidebarState.setExpanded(id, !sidebarState.isExpanded(id))
-      return
-    }
-
     const firstExample = entry.children?.find((child) => child.type === 'example')
 
     if (firstExample) {
@@ -704,11 +700,6 @@ const syncSidebar = (to: RouteLocationNormalizedGeneric) => {
 }
 
 // ---------------------------------------------------------------------------
-// Command Palette
-/** Command palette state and actions */
-const commandPaletteState = useCommandPaletteState()
-
-// ---------------------------------------------------------------------------
 // Events handling
 
 initializeAppEventHandlers({
@@ -718,7 +709,6 @@ initializeAppEventHandlers({
   navigateToCurrentTab,
   rebuildSidebar,
   onAfterExampleCreation: refreshSidebarAfterExampleCreation,
-  onOpenCommandPalette: commandPaletteState.open,
   onSelectSidebarItem: handleSelectItem,
   onCopyTabUrl: (index) => copyTabUrl(index),
   onToggleSidebar: () => (isSidebarOpen.value = !isSidebarOpen.value),
@@ -746,7 +736,6 @@ export type AppState = {
     setId: typeof setWorkspaceId
     isOpen: ComputedRef<boolean>
   }
-  commandPalette: UseCommandPaletteStateReturn
   eventBus: WorkspaceEventBus
   router: ShallowRef<Router | null>
   currentRoute: Ref<RouteLocationNormalizedGeneric | null>
@@ -789,7 +778,6 @@ export function useAppState(_router: Router): AppState {
       setId: setWorkspaceId,
       isOpen: computed(() => Boolean(workspaceSlug.value && !documentSlug.value)),
     },
-    commandPalette: commandPaletteState,
     eventBus,
     router,
     currentRoute,

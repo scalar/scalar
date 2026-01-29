@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import { getExample } from '@scalar/api-client/v2/blocks/operation-block'
 import {
   ExamplePicker,
   getResolvedRefDeep,
@@ -18,7 +19,6 @@ import {
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type {
-  ExampleObject,
   MediaTypeObject,
   ResponsesObject,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
@@ -114,32 +114,20 @@ const selectedExampleKey = ref<string>(
   Object.keys(currentResponseContent.value?.examples ?? {})[0] ?? '',
 )
 
-/**
- * Gets the first example response if there are multiple example responses
- * or the only example if there is only one example response.
- */
-const getFirstResponseExample = (): ExampleObject | undefined => {
-  const response = toValue(currentResponseContent)
-
-  if (!response) {
+/** Get the current example to display */
+const currentExample = computed(() => {
+  if (!currentResponseContent.value) {
     return undefined
   }
 
-  if (Array.isArray(response.examples)) {
-    return response.examples[0]
+  // When multiple examples exist and one is selected, we access it directly
+  if (hasMultipleExamples.value && selectedExampleKey.value) {
+    return currentResponseContent.value.examples?.[selectedExampleKey.value]
   }
 
-  const firstExampleKey = Object.keys(response.examples ?? {})[0] ?? ''
-  const firstExample = response.examples?.[firstExampleKey]
-
-  return firstExample
-}
-
-const currentExample = computed(() =>
-  hasMultipleExamples.value && selectedExampleKey.value
-    ? currentResponseContent.value?.examples?.[selectedExampleKey.value]
-    : getFirstResponseExample(),
-)
+  // Otherwise, we use getExample with an undefined exampleKey to handle fallbacks
+  return getExample(currentResponseContent.value, undefined, undefined)
+})
 
 const changeTab = (index: number) => {
   selectedResponseIndex.value = index

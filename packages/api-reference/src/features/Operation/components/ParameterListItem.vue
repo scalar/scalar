@@ -119,15 +119,18 @@ const shouldCollapse = computed<boolean>(() =>
         <div
           v-else
           class="flex-1" />
+
         <div
+          class="absolute top-[calc(14px+0.5lh)] right-0 z-0 flex -translate-y-1/2 items-center"
           :class="{
-            'w-0 overflow-hidden group-focus-within/parameter-item:w-auto group-hover/parameter-item:w-auto':
+            'opacity-0 group-focus-within/parameter-item:opacity-100 group-hover/parameter-item:opacity-100':
               !open,
           }">
+          <div
+            class="from-b-1 absolute inset-y-0 -left-6 -z-1 w-8 bg-linear-to-l from-40% to-transparent" />
           <ContentTypeSelect
             v-if="shouldCollapse && content"
             v-model="selectedContentType"
-            class=""
             :content="content" />
         </div>
       </DisclosureButton>
@@ -173,6 +176,7 @@ const shouldCollapse = computed<boolean>(() =>
 .parameter-item {
   display: flex;
   flex-direction: column;
+  position: relative;
   border-top: var(--scalar-border-width) solid var(--scalar-border-color);
 }
 
@@ -229,7 +233,7 @@ const shouldCollapse = computed<boolean>(() =>
 }
 
 .parameter-item-description {
-  margin-top: 4px;
+  margin-top: 6px;
   font-size: var(--scalar-small);
   color: var(--scalar-color-2);
   line-height: 1.4;
@@ -250,22 +254,15 @@ const shouldCollapse = computed<boolean>(() =>
 .parameter-item-trigger {
   display: flex;
   align-items: baseline;
+  line-height: var(--scalar-line-height-5);
   gap: 6px;
   flex-wrap: wrap;
-  padding: 12px 0;
+  padding: 14px 0;
   outline: none;
 }
 
 .parameter-item-trigger-open {
   padding-bottom: 0;
-}
-
-.parameter-item-trigger:after {
-  content: '';
-  position: absolute;
-  height: 10px;
-  width: 100%;
-  bottom: 0;
 }
 
 .parameter-item-icon {

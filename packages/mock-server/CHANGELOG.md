@@ -1,5 +1,38 @@
 # @scalar/mock-server
 
+## 0.8.25
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/oas-utils@0.6.30**
+
+- **@scalar/openapi-parser@0.24.5**
+
+- **@scalar/openapi-upgrader@0.1.8**
+
+## 0.8.24
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/oas-utils@0.6.29**
+
+## 0.8.23
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/json-magic@0.9.4**
+  - [#7922](https://github.com/scalar/scalar/pull/7922): fix: resolve $ref entries inside arrays (e.g. oneOf, allOf) in prefixInternalRefRecursive
+
+- **@scalar/oas-utils@0.6.28**
+
+- **@scalar/openapi-parser@0.24.5**
+
 ## 0.8.22
 
 ### Patch Changes

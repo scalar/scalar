@@ -1,8 +1,10 @@
 import type { ServerResponse } from 'node:http'
+
+import { getHtmlDocument } from '@scalar/core/libs/html-rendering'
 import type { Request, Response } from 'express'
 import type { FastifyRequest } from 'fastify'
+
 import type { ApiReferenceOptions, NestJSReferenceConfiguration } from './types'
-import { getHtmlDocument } from '@scalar/core/libs/html-rendering'
 
 /**
  * The custom theme CSS for the API Reference.

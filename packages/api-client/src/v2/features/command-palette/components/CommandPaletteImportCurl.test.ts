@@ -36,7 +36,7 @@ describe('CommandPaletteImportCurl', () => {
       props: {
         workspaceStore,
         eventBus,
-        curl: 'curl https://example.com/users',
+        inputValue: 'curl https://example.com/users',
       },
     })
 
@@ -51,7 +51,7 @@ describe('CommandPaletteImportCurl', () => {
       props: {
         workspaceStore,
         eventBus,
-        curl: 'curl https://example.com/users',
+        inputValue: 'curl https://example.com/users',
       },
     })
 
@@ -67,7 +67,7 @@ describe('CommandPaletteImportCurl', () => {
       props: {
         workspaceStore,
         eventBus,
-        curl: 'curl https://example.com/users',
+        inputValue: 'curl https://example.com/users',
       },
     })
 
@@ -83,7 +83,7 @@ describe('CommandPaletteImportCurl', () => {
       props: {
         workspaceStore,
         eventBus,
-        curl: 'curl https://example.com/users',
+        inputValue: 'curl https://example.com/users',
       },
     })
 
@@ -99,7 +99,7 @@ describe('CommandPaletteImportCurl', () => {
       props: {
         workspaceStore,
         eventBus,
-        curl: 'curl https://example.com/users',
+        inputValue: 'curl https://example.com/users',
       },
     })
 
@@ -126,7 +126,7 @@ describe('CommandPaletteImportCurl', () => {
       props: {
         workspaceStore,
         eventBus,
-        curl: 'curl https://example.com/users',
+        inputValue: 'curl https://example.com/users',
       },
     })
 
@@ -146,7 +146,7 @@ describe('CommandPaletteImportCurl', () => {
       props: {
         workspaceStore,
         eventBus,
-        curl: 'curl https://example.com/users',
+        inputValue: 'curl https://example.com/users',
       },
     })
 
@@ -165,7 +165,7 @@ describe('CommandPaletteImportCurl', () => {
       props: {
         workspaceStore,
         eventBus,
-        curl: 'curl https://example.com/users',
+        inputValue: 'curl https://example.com/users',
       },
     })
 
@@ -182,7 +182,7 @@ describe('CommandPaletteImportCurl', () => {
       props: {
         workspaceStore,
         eventBus,
-        curl: 'curl https://example.com/users',
+        inputValue: 'curl https://example.com/users',
       },
     })
 
@@ -198,7 +198,7 @@ describe('CommandPaletteImportCurl', () => {
       props: {
         workspaceStore,
         eventBus,
-        curl: 'curl https://example.com/users',
+        inputValue: 'curl https://example.com/users',
       },
     })
 
@@ -214,7 +214,7 @@ describe('CommandPaletteImportCurl', () => {
       props: {
         workspaceStore,
         eventBus,
-        curl: 'curl https://example.com/users',
+        inputValue: 'curl https://example.com/users',
       },
     })
 
@@ -234,7 +234,7 @@ describe('CommandPaletteImportCurl', () => {
       props: {
         workspaceStore,
         eventBus,
-        curl: 'curl https://example.com/users',
+        inputValue: 'curl https://example.com/users',
       },
     })
 
@@ -250,7 +250,7 @@ describe('CommandPaletteImportCurl', () => {
       props: {
         workspaceStore,
         eventBus,
-        curl: 'curl https://example.com/users',
+        inputValue: 'curl https://example.com/users',
       },
     })
 
@@ -280,7 +280,7 @@ describe('CommandPaletteImportCurl', () => {
       props: {
         workspaceStore,
         eventBus,
-        curl: 'curl https://example.com/users',
+        inputValue: 'curl https://example.com/users',
       },
     })
 
@@ -308,7 +308,7 @@ describe('CommandPaletteImportCurl', () => {
       props: {
         workspaceStore,
         eventBus,
-        curl: 'curl https://example.com/users',
+        inputValue: 'curl https://example.com/users',
       },
     })
 
@@ -335,7 +335,7 @@ describe('CommandPaletteImportCurl', () => {
       props: {
         workspaceStore,
         eventBus,
-        curl: 'curl https://example.com/users',
+        inputValue: 'curl https://example.com/users',
       },
     })
 
@@ -366,7 +366,7 @@ describe('CommandPaletteImportCurl', () => {
       props: {
         workspaceStore,
         eventBus,
-        curl: 'curl https://example.com/users',
+        inputValue: 'curl https://example.com/users',
       },
     })
 
@@ -406,7 +406,7 @@ describe('CommandPaletteImportCurl', () => {
       props: {
         workspaceStore,
         eventBus,
-        curl: 'curl https://example.com/users',
+        inputValue: 'curl https://example.com/users',
       },
     })
 
@@ -440,7 +440,7 @@ describe('CommandPaletteImportCurl', () => {
       props: {
         workspaceStore,
         eventBus,
-        curl: 'curl https://example.com/users',
+        inputValue: 'curl https://example.com/users',
       },
     })
 
@@ -464,7 +464,7 @@ describe('CommandPaletteImportCurl', () => {
       props: {
         workspaceStore,
         eventBus,
-        curl: 'curl https://example.com/users',
+        inputValue: 'curl https://example.com/users',
       },
     })
 
@@ -495,7 +495,7 @@ describe('CommandPaletteImportCurl', () => {
       props: {
         workspaceStore,
         eventBus,
-        curl: 'curl https://example.com/users',
+        inputValue: 'curl https://example.com/users',
       },
     })
 
@@ -529,7 +529,7 @@ describe('CommandPaletteImportCurl', () => {
       props: {
         workspaceStore,
         eventBus,
-        curl: 'curl https://example.com/users',
+        inputValue: 'curl https://example.com/users',
       },
     })
 
@@ -571,7 +571,7 @@ describe('CommandPaletteImportCurl', () => {
       props: {
         workspaceStore,
         eventBus,
-        curl: 'curl -X POST https://api.example.com/api/test',
+        inputValue: 'curl -X POST https://api.example.com/api/test',
       },
     })
 
@@ -613,7 +613,7 @@ describe('CommandPaletteImportCurl', () => {
       props: {
         workspaceStore,
         eventBus,
-        curl: 'curl https://example.com/users',
+        inputValue: 'curl https://example.com/users',
       },
     })
 
@@ -641,7 +641,7 @@ describe('CommandPaletteImportCurl', () => {
       props: {
         workspaceStore,
         eventBus,
-        curl: 'curl https://example.com/users',
+        inputValue: 'curl https://example.com/users',
       },
     })
 
@@ -665,7 +665,7 @@ describe('CommandPaletteImportCurl', () => {
       props: {
         workspaceStore,
         eventBus,
-        curl: 'curl https://example.com/users',
+        inputValue: 'curl https://example.com/users',
       },
     })
 
@@ -693,7 +693,7 @@ describe('CommandPaletteImportCurl', () => {
       props: {
         workspaceStore,
         eventBus,
-        curl: 'curl https://example.com/users',
+        inputValue: 'curl https://example.com/users',
       },
     })
 
@@ -724,7 +724,7 @@ describe('CommandPaletteImportCurl', () => {
       props: {
         workspaceStore,
         eventBus,
-        curl: 'curl https://example.com/users',
+        inputValue: 'curl https://example.com/users',
       },
     })
 
@@ -766,7 +766,7 @@ describe('CommandPaletteImportCurl', () => {
       props: {
         workspaceStore,
         eventBus,
-        curl: 'curl https://example.com/users',
+        inputValue: 'curl https://example.com/users',
       },
     })
 
@@ -801,7 +801,7 @@ describe('CommandPaletteImportCurl', () => {
       props: {
         workspaceStore,
         eventBus,
-        curl: 'curl https://example.com/users',
+        inputValue: 'curl https://example.com/users',
       },
     })
 
@@ -843,7 +843,7 @@ describe('CommandPaletteImportCurl', () => {
       props: {
         workspaceStore,
         eventBus,
-        curl: 'curl https://example.com/users',
+        inputValue: 'curl https://example.com/users',
       },
     })
 

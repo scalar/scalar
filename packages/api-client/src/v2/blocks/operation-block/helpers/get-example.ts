@@ -1,11 +1,36 @@
-import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type {
   ExampleObject,
+  MediaTypeObject,
   ParameterObject,
   RequestBodyObject,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
 import { getResolvedRefDeep } from '@/v2/blocks/operation-code-sample/helpers/get-resolved-ref-deep'
+
+/** Helper to get example from examples object with fallback to example field */
+const getExampleFromExamples = (
+  examples: MediaTypeObject['examples'],
+  exampleField: MediaTypeObject['example'],
+  exampleKey: string | undefined,
+): ExampleObject | undefined => {
+  if (!examples && !exampleField) {
+    return undefined
+  }
+
+  // Grab the example key
+  const key = exampleKey || Object.keys(examples ?? {})[0] || ''
+  const example = getResolvedRefDeep(examples?.[key])
+  if (example !== undefined) {
+    return example
+  }
+
+  // Fallback to example field if no exampleKey is provided
+  if (!exampleKey && exampleField !== undefined) {
+    return { value: getResolvedRefDeep(exampleField) }
+  }
+
+  return undefined
+}
 
 /**
  * Resolve an example value for a parameter or requestBody from either `examples` or `content.*.examples`.
@@ -15,66 +40,50 @@ import { getResolvedRefDeep } from '@/v2/blocks/operation-code-sample/helpers/ge
  * Used both for send-request and generating code snippets.
  */
 export const getExample = (
-  param: ParameterObject | RequestBodyObject,
+  param: ParameterObject | RequestBodyObject | MediaTypeObject,
   exampleKey: string | undefined,
   contentType: string | undefined,
 ): ExampleObject | undefined => {
   // Content based parameters
   if ('content' in param) {
     const content = param.content?.[contentType ?? Object.keys(param.content)[0] ?? '']
-    const examples = content?.examples ?? {}
-    const key = exampleKey || Object.keys(examples)[0] || ''
-    const example = getResolvedRefDeep(examples[key])
-
-    if (typeof example !== 'undefined') {
-      return example
+    const result = getExampleFromExamples(content?.examples, content?.example, exampleKey)
+    if (result !== undefined) {
+      return result
     }
-
-    // Fallback example field if no exampleKey is provided
-    if (!exampleKey && content?.example) {
-      return { value: getResolvedRefDeep(content.example) }
-    }
-
-    return undefined
   }
 
   // Schema based parameters
   if ('examples' in param || 'example' in param) {
-    const examples = getResolvedRef(param.examples) ?? {}
-    const key = exampleKey || Object.keys(examples)[0] || ''
-    const example = getResolvedRefDeep(examples?.[key])
-
-    if (typeof example !== 'undefined') {
-      return example
-    }
-
-    // Fallback example field if no exampleKey is provided
-    if (!exampleKey && param.example) {
-      return { value: getResolvedRefDeep(param.example) }
+    const result = getExampleFromExamples(param.examples, param.example, exampleKey)
+    if (result !== undefined) {
+      return result
     }
   }
 
-  // Derrive value from the schema
+  // Derive value from the schema
   const resolvedParam = getResolvedRefDeep(param)
   if ('schema' in resolvedParam && resolvedParam.schema) {
+    const schema = resolvedParam.schema
+
     // Default value
-    if ('default' in resolvedParam.schema && typeof resolvedParam.schema.default !== 'undefined') {
-      return { value: resolvedParam.schema.default }
+    if ('default' in schema && schema.default !== undefined) {
+      return { value: schema.default }
     }
 
     // Enum value
-    if ('enum' in resolvedParam.schema && typeof resolvedParam.schema.enum?.[0] !== 'undefined') {
-      return { value: resolvedParam.schema.enum[0] }
+    if ('enum' in schema && schema.enum?.[0] !== undefined) {
+      return { value: schema.enum[0] }
     }
 
     // Examples value
-    if ('examples' in resolvedParam.schema && typeof resolvedParam.schema.examples?.[0] !== 'undefined') {
-      return { value: resolvedParam.schema.examples[0] }
+    if ('examples' in schema && schema.examples?.[0] !== undefined) {
+      return { value: schema.examples[0] }
     }
 
     // Example value
-    if ('example' in resolvedParam.schema && typeof resolvedParam.schema.example !== 'undefined') {
-      return { value: resolvedParam.schema.example }
+    if ('example' in schema && schema.example !== undefined) {
+      return { value: schema.example }
     }
   }
 

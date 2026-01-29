@@ -1,5 +1,53 @@
 # @scalar/nuxt
 
+## 0.5.57
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-client@2.22.0**
+  - [#7959](https://github.com/scalar/scalar/pull/7959): feat(agent): add agent scalar to localhost
+  - [#7929](https://github.com/scalar/scalar/pull/7929): fix: revert changes to the document when closing the modal
+  - [#7932](https://github.com/scalar/scalar/pull/7932): feat: use getExample in the references responses
+
+- **@scalar/api-reference@1.44.0**
+  - [#7959](https://github.com/scalar/scalar/pull/7959): feat(agent): add agent scalar to localhost
+  - [#7932](https://github.com/scalar/scalar/pull/7932): feat: use getExample in the references responses
+  - [#7931](https://github.com/scalar/scalar/pull/7931): fix(api-reference): account for custom header and sidebar
+
+- **@scalar/types@0.6.0**
+  - [#7959](https://github.com/scalar/scalar/pull/7959): feat(agent): add agent scalar to localhost
+
+## 0.5.56
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-client@2.21.1**
+  - [#7925](https://github.com/scalar/scalar/pull/7925): fix: allow collapsing documents
+  - [#7926](https://github.com/scalar/scalar/pull/7926): Make V2 command palette extensible and improve types
+
+- **@scalar/api-reference@1.43.17**
+
+## 0.5.55
+
+### Patch Changes
+
+- [#7898](https://github.com/scalar/scalar/pull/7898): fix: removed unused dependencies
+  - `@scalar/api-client`
+  - `@scalar/workspace-store`
+
+#### Updated Dependencies
+
+- **@scalar/api-client@2.21.0**
+  - [#7906](https://github.com/scalar/scalar/pull/7906): feat: remove parsing from codeinput and move to getExample
+  - [#7897](https://github.com/scalar/scalar/pull/7897): feat: cancel request and stop streaming responses
+
+- **@scalar/api-reference@1.43.16**
+  - [#7901](https://github.com/scalar/scalar/pull/7901): fix(api-reference): don't flex schema enum label
+
 ## 0.5.54
 
 ### Patch Changes

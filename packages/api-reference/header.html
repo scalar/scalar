@@ -1,0 +1,53 @@
+<!doctype html>
+<html>
+  <!-- Custom Header Example for testing and development -->
+  <head>
+    <title>Scalar API Reference</title>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1" />
+    <style>
+      /* Custom Header CSS */
+      :root {
+        --scalar-custom-header-height: 50px;
+      }
+      .custom-header {
+        height: var(--scalar-custom-header-height);
+        background-color: var(--scalar-background-2);
+        border-bottom: var(--scalar-border-width) solid
+          var(--scalar-border-color);
+        color: var(--scalar-color-2);
+        font-size: var(--scalar-font-size-3);
+        padding: 0 18px;
+        position: sticky;
+        display: flex;
+        align-items: center;
+        top: 0;
+        z-index: 100;
+      }
+    </style>
+  </head>
+  <body>
+    <header class="custom-header scalar-app">Custom Header</header>
+
+    <div id="app"></div>
+
+    <!-- Our Script -->
+    <script
+      src="/src/standalone.ts"
+      type="module"></script>
+
+    <!-- Initialize the Scalar API Reference -->
+    <script type="module">
+      import { sources } from '/test/utils/sources.ts'
+
+      Scalar.createApiReference('#app', {
+        sources,
+        persistAuth: true,
+        // Avoid CORS issues
+        proxyUrl: 'https://proxy.scalar.com',
+      })
+    </script>
+  </body>
+</html>

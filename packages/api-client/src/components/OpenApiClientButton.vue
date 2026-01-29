@@ -82,7 +82,7 @@ const href = computed((): string | undefined => {
     <ScalarIcon
       icon="ExternalLink"
       size="xs"
-      thickness="2.5" />
+      thickness="2" />
     Open API Client
   </a>
 </template>
@@ -99,8 +99,7 @@ const href = computed((): string | undefined => {
   align-items: center;
   justify-content: center;
   white-space: nowrap;
-  font-size: var(--scalar-mini);
-  font-weight: var(--scalar-semibold);
+  font-size: var(--scalar-small);
   line-height: 1.385;
   text-decoration: none;
   border-radius: var(--scalar-radius);

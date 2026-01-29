@@ -1,5 +1,19 @@
 # @scalar/nextjs-api-reference
 
+## 0.9.16
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/core@0.3.35**
+
+## 0.9.15
+
+### Patch Changes
+
+- [#7908](https://github.com/scalar/scalar/pull/7908): fix: use named instead of star exports
+
 ## 0.9.14
 
 ### Patch Changes

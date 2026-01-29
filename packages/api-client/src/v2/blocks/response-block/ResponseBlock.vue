@@ -8,7 +8,6 @@ import { computed, ref, useId } from 'vue'
 import SectionFilter from '@/components/SectionFilter.vue'
 import ViewLayoutSection from '@/components/ViewLayout/ViewLayoutSection.vue'
 import type { ClientLayout } from '@/hooks'
-import type { createStoreEvents } from '@/store/events'
 import Headers from '@/v2/blocks/response-block/components/Headers.vue'
 import ResponseBody from '@/v2/blocks/response-block/components/ResponseBody.vue'
 import ResponseBodyStreaming from '@/v2/blocks/response-block/components/ResponseBodyStreaming.vue'
@@ -34,13 +33,8 @@ const { layout, totalPerformedRequests, response, request } = defineProps<{
   appVersion: string
   /** Registered app plugins */
   plugins: ClientPlugin[]
-  /** Event bus */
-  events: ReturnType<typeof createStoreEvents>
+  /** Workspace event bus */
   eventBus: WorkspaceEventBus
-}>()
-
-const emits = defineEmits<{
-  (e: 'sendRequest'): void
 }>()
 
 // Headers
@@ -145,7 +139,7 @@ defineExpose({
           <ResponseMetaInformation
             v-if="response"
             class="animate-response-children"
-            :events="events"
+            :eventBus="eventBus"
             :response="response" />
         </div>
         <SectionFilter
@@ -164,7 +158,6 @@ defineExpose({
       <template v-if="!response">
         <ResponseEmpty
           :appVersion="appVersion"
-          :events="events"
           :layout="layout"
           :totalPerformedRequests="totalPerformedRequests"
           @addRequest="
@@ -174,7 +167,7 @@ defineExpose({
             })
           "
           @openCommandPalette="eventBus.emit('ui:open:command-palette')"
-          @sendRequest="emits('sendRequest')" />
+          @sendRequest="eventBus.emit('operation:send:request:hotkey')" />
       </template>
       <template v-else>
         <!-- Cookies section -->
@@ -243,7 +236,7 @@ defineExpose({
             title="Body" />
         </template>
       </template>
-      <ResponseLoadingOverlay :events="events" />
+      <ResponseLoadingOverlay :eventBus="eventBus" />
     </div>
   </ViewLayoutSection>
 </template>

@@ -145,6 +145,8 @@ type WorkspaceProps = {
   fetch?: WorkspaceDocumentInput['fetch']
   /** A list of all registered plugins for the current workspace */
   plugins?: WorkspacePlugin[]
+  /** A file loader plugin for resolving local file references (for non browser environments) */
+  fileLoader?: LoaderPlugin
 }
 
 /**
@@ -811,23 +813,28 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       { showInternal: true },
     )
 
+    // If the document navigation is not already present, bundle the entire document to resolve all references.
+    // This typically applies when the document is not preprocessed by the server and needs local reference resolution.
+    // We need to bundle document first before we validate, so we can also validate the external references
     if (strictDocument[extensions.document.navigation] === undefined) {
-      // If the document navigation is not already present, bundle the entire document to resolve all references.
-      // This typically applies when the document is not preprocessed by the server and needs local reference resolution.
-      // We need to bundle document first before we validate, so we can also validate the external references
+      const loaders = [
+        fetchUrls({
+          fetch: extraDocumentConfigurations[name]?.fetch ?? workspaceProps?.fetch,
+        }),
+      ]
+
+      // If a file loader plugin is provided, use it to resolve local file references
+      // This is useful for non browser environments
+      if (workspaceProps?.fileLoader) {
+        loaders.push(workspaceProps.fileLoader)
+      }
+
       await measureAsync(
         'bundle',
         async () =>
           await bundle(getRaw(strictDocument), {
             treeShake: false,
-            plugins: [
-              fetchUrls({
-                fetch: extraDocumentConfigurations[name]?.fetch ?? workspaceProps?.fetch,
-              }),
-              externalValueResolver(),
-              refsEverywhere(),
-              normalizeAuthSchemes(),
-            ],
+            plugins: [...loaders, externalValueResolver(), refsEverywhere(), normalizeAuthSchemes()],
             urlMap: true,
             origin: input.documentSource, // use the document origin (if provided) as the base URL for resolution
           }),

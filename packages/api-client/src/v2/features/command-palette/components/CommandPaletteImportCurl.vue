@@ -39,13 +39,13 @@ import CommandActionForm from '@/v2/features/command-palette/components/CommandA
 import CommandActionInput from '@/v2/features/command-palette/components/CommandActionInput.vue'
 import { getOperationFromCurl } from '@/v2/features/command-palette/helpers/get-operation-from-curl'
 
-const { workspaceStore, curl, eventBus } = defineProps<{
+const { workspaceStore, inputValue, eventBus } = defineProps<{
   /** The workspace store for accessing documents and operations */
   workspaceStore: WorkspaceStore
   /** Event bus for emitting operation creation events */
   eventBus: WorkspaceEventBus
   /** The cURL command string to parse and import */
-  curl: string
+  inputValue: string
 }>()
 
 const emit = defineEmits<{
@@ -63,7 +63,7 @@ const exampleKey = ref('')
 const exampleKeyTrimmed = computed<string>(() => exampleKey.value.trim())
 
 /** Parse the cURL command to extract path, method, and operation details */
-const { path, method, operation } = getOperationFromCurl(curl)
+const { path, method, operation } = getOperationFromCurl(inputValue)
 
 /** List of all available documents (collections) in the workspace */
 const documents = computed(() =>
@@ -110,7 +110,7 @@ const handleImportClick = (): void => {
   }
 
   /** Re-parse with the example key to include it in the operation */
-  const result = getOperationFromCurl(curl, exampleKeyTrimmed.value)
+  const result = getOperationFromCurl(inputValue, exampleKeyTrimmed.value)
 
   eventBus.emit('operation:create:operation', {
     documentName: documentName.id,

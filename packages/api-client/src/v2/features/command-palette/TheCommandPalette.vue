@@ -25,30 +25,31 @@ export default {}
 
 <script setup lang="ts">
 import { Dialog, DialogPanel, DialogTitle } from '@headlessui/vue'
-import { ScalarIcon } from '@scalar/components'
+import { ScalarIconCaretLeft, ScalarIconMagnifyingGlass } from '@scalar/icons'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
-import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
-import { computed, nextTick, ref, watch, type Component } from 'vue'
+import type {
+  CommandPaletteAction,
+  CommandPalettePayload,
+  WorkspaceEventBus,
+} from '@scalar/workspace-store/events'
+import {
+  computed,
+  nextTick,
+  onBeforeMount,
+  onBeforeUnmount,
+  ref,
+  watch,
+} from 'vue'
 import { useRouter } from 'vue-router'
 
-import CommandPaletteDocument from '@/v2/features/command-palette/components/CommandPaletteDocument.vue'
-import CommandPaletteExample from '@/v2/features/command-palette/components/CommandPaletteExample.vue'
-import CommandPaletteImport from '@/v2/features/command-palette/components/CommandPaletteImport.vue'
-import CommandPaletteImportCurl from '@/v2/features/command-palette/components/CommandPaletteImportCurl.vue'
-import CommandPaletteRequest from '@/v2/features/command-palette/components/CommandPaletteRequest.vue'
-import CommandPaletteTag from '@/v2/features/command-palette/components/CommandPaletteTag.vue'
 import type {
-  Command,
-  FolderCommandIds,
-  OpenCommand,
-  UiCommandIds,
-  UseCommandPaletteStateReturn,
-} from '@/v2/features/command-palette/hooks/use-command-palette-state'
-import type { AssertAllValid } from '@/v2/features/command-palette/types'
+  CommandPaletteEntry,
+  CommandPaletteState,
+} from './hooks/use-command-palette-state'
 
 const { paletteState, workspaceStore, eventBus } = defineProps<{
   /** The command palette state management hook */
-  paletteState: UseCommandPaletteStateReturn
+  paletteState: CommandPaletteState
   /** The workspace store for accessing documents and operations */
   workspaceStore: WorkspaceStore
   /** Event bus for emitting workspace events */
@@ -57,23 +58,6 @@ const { paletteState, workspaceStore, eventBus } = defineProps<{
 
 /** Starting index when no search result is selected */
 const NO_SELECTION_INDEX = -1
-
-/** Map of command IDs to their corresponding Vue components */
-const COMMAND_COMPONENTS = {
-  'import-from-openapi-swagger-postman-curl': CommandPaletteImport,
-  'create-document': CommandPaletteDocument,
-  'create-request': CommandPaletteRequest,
-  'add-tag': CommandPaletteTag,
-  'add-example': CommandPaletteExample,
-  'import-curl-command': CommandPaletteImportCurl,
-} as const satisfies Record<UiCommandIds, Component>
-
-/**
- * Type-level assertion: ensures all command components have correct props.
- * If any component is missing required props, this will cause a type error.
- */
-const _assertCommandProps: AssertAllValid<typeof COMMAND_COMPONENTS> = 'valid'
-void _assertCommandProps
 
 const router = useRouter()
 
@@ -84,12 +68,12 @@ const commandInputRef = ref<HTMLInputElement | null>(null)
  * Flattens the filtered commands into a single array for keyboard navigation.
  * Makes it easier to track the selected index across all groups.
  */
-const flattenedCommands = computed<Command[]>(() =>
+const flattenedCommands = computed<CommandPaletteEntry[]>(() =>
   paletteState.filteredCommands.value.flatMap((group) => group.commands),
 )
 
 /** The currently selected command based on keyboard navigation */
-const selectedCommand = computed<Command | undefined>(
+const selectedCommand = computed<CommandPaletteEntry | undefined>(
   () => flattenedCommands.value[selectedSearchResult.value],
 )
 
@@ -113,7 +97,7 @@ const handleInput = (value: string): void => {
   paletteState.setFilterQuery(value)
 
   if (value.trim().toLowerCase().startsWith('curl')) {
-    paletteState.open('import-curl-command', { curl: value })
+    paletteState.open('import-curl-command', { inputValue: value })
   }
 }
 
@@ -154,19 +138,16 @@ const handleSelect = (event: KeyboardEvent): void => {
  * Handle command selection (via click or enter key).
  * Routes to navigation commands or opens folder commands.
  */
-const handleCommandClick = (command: Command): void => {
+const handleCommandClick = (command: CommandPaletteEntry): void => {
   /** Navigate to route commands and close palette */
-  if (command.type === 'route') {
+  if ('to' in command) {
     router.push(command.to)
     closeHandler()
     return
   }
 
-  /** Open folder commands to show sub-commands */
-  if (command.type === 'folder') {
-    // We are sure that the ids are of type FolderCommandIds because of the type assertion
-    paletteState.open(command.id as FolderCommandIds, undefined)
-  }
+  // We are sure that the ids are of type FolderCommandIds because of the type assertion
+  paletteState.open(command.id as keyof CommandPalettePayload, {})
 }
 
 /**
@@ -182,15 +163,6 @@ const handleBackEvent = (): void => {
 const handleCloseEvent = (): void => {
   paletteState.close()
 }
-
-/**
- * Handle opening a command with props from another command component.
- * Used for command-to-command transitions (e.g., cURL detection).
- */
-const handleOpenCommand = (...args: Parameters<OpenCommand>) => {
-  paletteState.open(...args)
-}
-
 /**
  * Close the command palette and reset state.
  * Resets search results and closes the dialog.
@@ -199,6 +171,23 @@ const closeHandler = (): void => {
   paletteState.close()
   selectedSearchResult.value = NO_SELECTION_INDEX
 }
+
+const paletteProps = computed(() => ({
+  workspaceStore,
+  eventBus,
+  ...paletteState.activeCommandProps.value,
+}))
+
+const onOpen = (payload: CommandPaletteAction | undefined) => {
+  if (payload) {
+    paletteState.open(payload.action, payload.payload)
+  } else {
+    paletteState.open()
+  }
+}
+
+onBeforeMount(() => eventBus.on('ui:open:command-palette', onOpen))
+onBeforeUnmount(() => eventBus.off('ui:open:command-palette', onOpen))
 </script>
 <template>
   <Dialog
@@ -218,9 +207,8 @@ const closeHandler = (): void => {
         <div
           class="bg-b-2 focus-within:bg-b-1 sticky top-0 flex items-center rounded-md border border-transparent pl-2 shadow-[0_-8px_0_8px_var(--scalar-background-1),0_0_8px_8px_var(--scalar-background-1)] focus-within:border-(--scalar-background-3)">
           <label for="commandmenu">
-            <ScalarIcon
+            <ScalarIconMagnifyingGlass
               class="text-c-2 mr-2.5"
-              icon="Search"
               size="md"
               thickness="1.5" />
           </label>
@@ -242,7 +230,7 @@ const closeHandler = (): void => {
         <!-- Command groups and items -->
         <template
           v-for="group in paletteState.filteredCommands.value"
-          :key="group.label">
+          :key="group.label || '100'">
           <!-- Group label -->
           <div
             v-show="group.commands.length > 0"
@@ -251,7 +239,6 @@ const closeHandler = (): void => {
           </div>
 
           <!-- Command items in the group -->
-
           <button
             v-for="command in group.commands"
             :id="command.id"
@@ -262,10 +249,10 @@ const closeHandler = (): void => {
             }"
             type="button"
             @click="handleCommandClick(command)">
-            <ScalarIcon
+            <component
+              :is="command.icon"
               v-if="'icon' in command"
               class="text-c-2 mr-2.5"
-              :icon="command.icon"
               size="md"
               thickness="1.5" />
             {{ command.name }}
@@ -274,7 +261,10 @@ const closeHandler = (): void => {
 
         <!-- Empty state when no commands match search -->
         <div
-          v-if="!paletteState.filteredCommands.value.length"
+          v-if="
+            !paletteState.filteredCommands.value.flatMap((p) => p.commands)
+              .length
+          "
           class="text-c-3 p-2 pt-3 text-center text-sm">
           No commands found
         </div>
@@ -289,24 +279,16 @@ const closeHandler = (): void => {
           class="hover:bg-b-3 text-c-3 active:text-c-1 absolute z-1 mt-[0.5px] rounded p-1.5"
           type="button"
           @click="handleBackEvent">
-          <ScalarIcon
-            icon="ChevronLeft"
-            size="md"
-            thickness="1.5" />
+          <ScalarIconCaretLeft size="md" />
         </button>
 
         <!-- Dynamic command component -->
         <component
-          :is="COMMAND_COMPONENTS[paletteState.activeCommand.value]"
+          :is="paletteState.activeCommand.value.component"
           v-if="paletteState.activeCommand.value"
-          v-bind="{
-            workspaceStore,
-            eventBus,
-            ...paletteState.activeCommandProps.value,
-          }"
+          v-bind="paletteProps"
           @back="handleBackEvent"
-          @close="handleCloseEvent"
-          @openCommand="handleOpenCommand" />
+          @close="handleCloseEvent" />
       </div>
     </DialogPanel>
   </Dialog>

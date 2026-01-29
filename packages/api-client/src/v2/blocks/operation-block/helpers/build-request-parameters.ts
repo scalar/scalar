@@ -8,6 +8,7 @@ import {
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import type { ParameterObject, ReferenceType } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
+import { deSerializeParameter } from '@/v2/blocks/operation-block/helpers/de-serialize-parameter'
 import { isParamDisabled } from '@/v2/blocks/request-block/helpers/is-param-disabled'
 
 import { getExample } from './get-example'
@@ -72,7 +73,10 @@ export const buildRequestParameters = (
     }
 
     /** Replace environment variables in the key and value */
-    const replacedValue = typeof example.value === 'string' ? replaceEnvVariables(example.value, env) : example.value
+    const replacedEnvValue = typeof example.value === 'string' ? replaceEnvVariables(example.value, env) : example.value
+
+    /** De-serialize the example value if it is a string and matches the schema type */
+    const deSerializedValue = deSerializeParameter(replacedEnvValue, param)
     const paramName = replaceEnvVariables(param.name, env)
 
     // Handle by parameter location
@@ -81,12 +85,12 @@ export const buildRequestParameters = (
         // Filter out Content-Type header when it is multipart/form-data
         // The browser will automatically set this header with the proper boundary
         const lowerParamName = paramName.toLowerCase()
-        if (lowerParamName === 'content-type' && replacedValue === 'multipart/form-data') {
+        if (lowerParamName === 'content-type' && deSerializedValue === 'multipart/form-data') {
           break
         }
 
         /** Headers only support simple style according to OpenAPI 3.1.1 */
-        const serialized = serializeSimpleStyle(replacedValue, getExplode(param, false))
+        const serialized = serializeSimpleStyle(deSerializedValue, getExplode(param, false))
 
         // Remove undefined/null headers
         if (!isDefined(serialized)) {
@@ -107,18 +111,18 @@ export const buildRequestParameters = (
 
       case 'path': {
         // Path parameters use simple style by default
-        const serialized = serializeSimpleStyle(replacedValue, getExplode(param, false))
+        const serialized = serializeSimpleStyle(deSerializedValue, getExplode(param, false))
         result.pathVariables[paramName] = encodeURIComponent(String(serialized))
         break
       }
 
       case 'query': {
-        processQueryParameter(param, paramName, replacedValue, result.urlParams)
+        processQueryParameter(param, paramName, deSerializedValue, result.urlParams)
         break
       }
 
       case 'cookie': {
-        processCookieParameter(paramName, replacedValue, getExplode(param, true), result.cookies)
+        processCookieParameter(paramName, deSerializedValue, getExplode(param, true), result.cookies)
         break
       }
     }

@@ -1568,6 +1568,46 @@ describe('create-workspace-store', () => {
     expect(store.workspace.activeDocument?.['x-scalar-is-dirty']).toBe(false)
   })
 
+  it('does uses the file loader plugin to resolve local file references', async () => {
+    const fn = vi.fn()
+    const store = createWorkspaceStore({
+      fileLoader: {
+        type: 'loader',
+        validate: () => true,
+        exec: (path) => {
+          fn(path)
+          return Promise.resolve({
+            ok: true,
+            data: {
+              content: 'This is a local file',
+            },
+            raw: 'This is a local file',
+          })
+        },
+      },
+    })
+
+    await store.addDocument({
+      name: 'default',
+      document: {
+        info: {
+          title: 'My API',
+          version: '1.0.0',
+        },
+        openapi: '3.1.1',
+        paths: {
+          '/users': {
+            get: {
+              $ref: './local-file.yaml',
+            },
+          },
+        },
+      },
+    })
+
+    expect(fn).toHaveBeenCalledWith('local-file.yaml')
+  })
+
   describe('download original document', () => {
     it('gets the original document from the store json', async () => {
       const store = createWorkspaceStore()

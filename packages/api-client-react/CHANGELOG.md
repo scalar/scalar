@@ -1,5 +1,39 @@
 # @scalar/api-client-react
 
+## 1.3.81
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-client@2.22.0**
+  - [#7959](https://github.com/scalar/scalar/pull/7959): feat(agent): add agent scalar to localhost
+  - [#7929](https://github.com/scalar/scalar/pull/7929): fix: revert changes to the document when closing the modal
+  - [#7932](https://github.com/scalar/scalar/pull/7932): feat: use getExample in the references responses
+
+- **@scalar/types@0.6.0**
+  - [#7959](https://github.com/scalar/scalar/pull/7959): feat(agent): add agent scalar to localhost
+
+## 1.3.80
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-client@2.21.1**
+  - [#7925](https://github.com/scalar/scalar/pull/7925): fix: allow collapsing documents
+  - [#7926](https://github.com/scalar/scalar/pull/7926): Make V2 command palette extensible and improve types
+
+## 1.3.79
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-client@2.21.0**
+  - [#7906](https://github.com/scalar/scalar/pull/7906): feat: remove parsing from codeinput and move to getExample
+  - [#7897](https://github.com/scalar/scalar/pull/7897): feat: cancel request and stop streaming responses
+
 ## 1.3.78
 
 ### Patch Changes

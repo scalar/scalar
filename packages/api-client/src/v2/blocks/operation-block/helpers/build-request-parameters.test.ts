@@ -640,6 +640,85 @@ describe('buildRequestParameters', () => {
       // With explicit explode: false, array values should be comma-separated
       expect(result.urlParams.get('tags')).toBe('javascript,typescript,vue')
     })
+
+    it('handles query parameter with array value from named example', () => {
+      const params: ParameterObject[] = [
+        {
+          name: 'domains',
+          in: 'query',
+          required: true,
+          schema: {
+            type: 'array',
+            items: {
+              type: 'string',
+            },
+            title: 'Domains',
+          },
+          examples: {
+            list: {
+              summary: 'A list of domains',
+              value: ['example.com', 'example.org'],
+            },
+          },
+        },
+      ]
+
+      const result = buildRequestParameters(params, {}, 'list')
+
+      // Form style query parameters default to explode: true
+      // Array values should be serialized as multiple parameters
+      expect(result.urlParams.getAll('domains')).toEqual(['example.com', 'example.org'])
+    })
+
+    it('handles query parameter with stringified array value from named example', () => {
+      const params: ParameterObject[] = [
+        {
+          name: 'domains',
+          in: 'query',
+          required: true,
+          schema: {
+            type: 'array',
+            items: {
+              type: 'string',
+            },
+            title: 'Domains',
+          },
+          examples: {
+            list: {
+              summary: 'A list of domains',
+              value: JSON.stringify(['example.com', 'example.org']),
+            },
+          },
+        },
+      ]
+
+      const result = buildRequestParameters(params, {}, 'list')
+
+      // Form style query parameters default to explode: true
+      // Array values should be serialized as multiple parameters
+      expect(result.urlParams.getAll('domains')).toEqual(['example.com', 'example.org'])
+    })
+
+    it('handles query parameter with stringified object value from named example and no schema', () => {
+      const params: ParameterObject[] = [
+        {
+          name: 'user',
+          in: 'query',
+          required: true,
+          examples: {
+            list: {
+              value: JSON.stringify({ name: 'John', age: 30 }),
+            },
+          },
+        },
+      ]
+
+      const result = buildRequestParameters(params, {}, 'list')
+
+      // Form style query parameters default to explode: true
+      // Array values should be serialized as multiple parameters
+      expect(result.urlParams.get('user')).toEqual('{"name":"John","age":30}')
+    })
   })
 
   describe('cookie parameters', () => {

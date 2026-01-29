@@ -239,4 +239,55 @@ describe('buildRequestBody', () => {
     const result = buildRequestBody(requestBody, {}, 'default')
     expect(result).toBe('<name>xml</name>')
   })
+
+  it('handles primitive number JSON values correctly', () => {
+    const requestBody = {
+      content: {
+        'application/json': {
+          examples: {
+            default: {
+              value: '42',
+            },
+          },
+        },
+      },
+    }
+    const result = buildRequestBody(requestBody, {}, 'default')
+    expect(result).toBe('42')
+    expect(typeof result).toBe('string')
+  })
+
+  it('handles primitive boolean JSON values correctly', () => {
+    const requestBody = {
+      content: {
+        'application/json': {
+          examples: {
+            default: {
+              value: 'true',
+            },
+          },
+        },
+      },
+    }
+    const result = buildRequestBody(requestBody, {}, 'default')
+    expect(result).toBe('true')
+    expect(typeof result).toBe('string')
+  })
+
+  it('handles primitive null JSON values correctly', () => {
+    const requestBody = {
+      content: {
+        'application/json': {
+          examples: {
+            default: {
+              value: 'null',
+            },
+          },
+        },
+      },
+    }
+    const result = buildRequestBody(requestBody, {}, 'default')
+    expect(result).toBe('null')
+    expect(typeof result).toBe('string')
+  })
 })

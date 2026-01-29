@@ -18,7 +18,7 @@
     "openapi",
     "swagger"
   ],
-  "version": "0.1.41",
+  "version": "0.1.42",
   "engines": {
     "node": ">=20"
   },
@@ -67,6 +67,7 @@
     "@scalar/core": "workspace:*"
   },
   "devDependencies": {
+    "@sveltejs/kit": "^2.25.0",
     "@sveltejs/package": "^2.0.0",
     "publint": "^0.3.2",
     "svelte": "^5.0.0",

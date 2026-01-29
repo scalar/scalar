@@ -84,14 +84,20 @@ describe('ResponseBlock', () => {
     })
 
     it('emits sendRequest when ResponseEmpty emits it', () => {
+      const eventBus = createWorkspaceEventBus()
+      const fn = vi.fn()
+      eventBus.on('operation:send:request:hotkey', fn)
       const wrapper = mount(ResponseBlock, {
-        props: defaultProps,
+        props: {
+          ...defaultProps,
+          eventBus,
+        },
       })
 
       const emptyComponent = wrapper.findComponent(ResponseEmpty)
       emptyComponent.vm.$emit('sendRequest')
 
-      expect(wrapper.emitted('sendRequest')).toBeTruthy()
+      expect(fn).toHaveBeenCalledTimes(1)
     })
 
     it('emits openCommandPalette when ResponseEmpty emits it', () => {

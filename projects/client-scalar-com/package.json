@@ -32,11 +32,11 @@
     "vue": "catalog:*"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^4.20240620.0",
+    "@cloudflare/workers-types": "^4.20260120.0",
     "@scalar/api-client": "workspace:*",
     "@vitejs/plugin-vue": "catalog:*",
     "vite": "catalog:*",
     "vitest": "catalog:*",
-    "wrangler": "^3.114.17"
+    "wrangler": "^4.59.3"
   }
 }

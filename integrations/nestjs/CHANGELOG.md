@@ -1,5 +1,15 @@
 # @scalar/nestjs-api-reference
 
+## 1.0.21
+
+### Patch Changes
+
+- [#7938](https://github.com/scalar/scalar/pull/7938): fix: use named instead of star exports
+
+#### Updated Dependencies
+
+- **@scalar/core@0.3.35**
+
 ## 1.0.20
 
 ### Patch Changes

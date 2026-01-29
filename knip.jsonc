@@ -8,11 +8,7 @@
     "integrations/dotnet/**",
     "integrations/express/**",
     "integrations/fastapi/**",
-    "integrations/hono/**",
-    "integrations/nestjs/**",
-    "integrations/nextjs/**",
-    "integrations/nuxt/**",
-    "integrations/sveltekit/**"
+    "integrations/hono/**"
   ],
   "ignoreFiles": [
     // test types files are marked as unused
@@ -83,7 +79,6 @@
         "src/v2/components/sidebar/index.ts",
         "src/v2/features/app/index.ts",
         "src/v2/features/app/components/index.ts",
-        "src/v2/features/command-palette/components/index.ts",
         "src/v2/features/environments/index.ts",
         "src/v2/features/global-cookies/index.ts",
         "src/v2/features/modal/index.ts",
@@ -112,6 +107,10 @@
     },
     "packages/api-client-react": {
       "entry": ["playground/main.tsx"]
+    },
+    "packages/agent-chat": {
+      "ignore": ["playground/**", "src/entities/**"],
+      "ignoreDependencies": ["@scalar/themes", "hono"]
     },
     "packages/api-reference": {
       "entry": [
@@ -325,6 +324,8 @@
       ],
       "ignoreBinaries": ["mvn"]
     },
+    "integrations/nestjs": {},
+    "integrations/nextjs": {},
     "integrations/nuxt": {
       "entry": [
         "src/module.ts",
@@ -337,6 +338,13 @@
       ],
       "ignoreDependencies": [
         "@scalar/api-client" // referenced in /src/runtime/components/nuxt-theme.css
+      ]
+    },
+    "integrations/sveltekit": {
+      "ignoreDependencies": [
+        // Automatically added to devDependencies by `pnpm script packages format`
+        // because it's a peer dependency but not used directly.
+        "@sveltejs/kit"
       ]
     }
   }

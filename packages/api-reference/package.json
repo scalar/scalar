@@ -20,7 +20,7 @@
     "vue",
     "vue3"
   ],
-  "version": "1.43.15",
+  "version": "1.44.0",
   "engines": {
     "node": ">=20"
   },
@@ -101,6 +101,7 @@
   },
   "dependencies": {
     "@headlessui/vue": "catalog:*",
+    "@scalar/agent-chat": "workspace:*",
     "@scalar/api-client": "workspace:*",
     "@scalar/code-highlight": "workspace:*",
     "@scalar/components": "workspace:*",

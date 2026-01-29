@@ -48,7 +48,7 @@
   --scalar-sidebar-indent-border-hover: var(--scalar-sidebar-border-color);
   --scalar-sidebar-indent-border-active: var(--scalar-sidebar-border-color);
 
-  --scalar-sidebar-search-background: transparent;
+  --scalar-sidebar-search-background: color-mix(in srgb, var(--scalar-background-2), var(--scalar-background-1));
   --scalar-sidebar-search-color: var(--scalar-color-3);
   --scalar-sidebar-search-border-color: var(--scalar-border-color);
 }

@@ -1,5 +1,33 @@
 # @scalarapi/docker-api-reference
 
+## 0.4.39
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.44.0**
+  - [#7959](https://github.com/scalar/scalar/pull/7959): feat(agent): add agent scalar to localhost
+  - [#7932](https://github.com/scalar/scalar/pull/7932): feat: use getExample in the references responses
+  - [#7931](https://github.com/scalar/scalar/pull/7931): fix(api-reference): account for custom header and sidebar
+
+## 0.4.38
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.43.17**
+
+## 0.4.37
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.43.16**
+  - [#7901](https://github.com/scalar/scalar/pull/7901): fix(api-reference): don't flex schema enum label
+
 ## 0.4.36
 
 ### Patch Changes

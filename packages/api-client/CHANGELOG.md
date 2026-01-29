@@ -1,5 +1,88 @@
 # @scalar/api-client
 
+## 2.22.0
+
+### Minor Changes
+
+- [#7959](https://github.com/scalar/scalar/pull/7959): feat(agent): add agent scalar to localhost
+
+### Patch Changes
+
+- [#7929](https://github.com/scalar/scalar/pull/7929): fix: revert changes to the document when closing the modal
+- [#7932](https://github.com/scalar/scalar/pull/7932): feat: use getExample in the references responses
+
+#### Updated Dependencies
+
+- **@scalar/components@0.17.0**
+  - [#7959](https://github.com/scalar/scalar/pull/7959): feat(agent): add agent scalar to localhost
+
+- **@scalar/themes@0.14.0**
+  - [#7959](https://github.com/scalar/scalar/pull/7959): feat(agent): add agent scalar to localhost
+
+- **@scalar/types@0.6.0**
+  - [#7959](https://github.com/scalar/scalar/pull/7959): feat(agent): add agent scalar to localhost
+
+- **@scalar/sidebar@0.7.23**
+
+- **@scalar/use-codemirror@0.13.27**
+
+- **@scalar/oas-utils@0.6.30**
+
+- **@scalar/workspace-store@0.27.2**
+
+- **@scalar/openapi-parser@0.24.5**
+
+- **@scalar/snippetz@0.6.9**
+
+## 2.21.1
+
+### Patch Changes
+
+- [#7925](https://github.com/scalar/scalar/pull/7925): fix: allow collapsing documents
+- [#7926](https://github.com/scalar/scalar/pull/7926): Make V2 command palette extensible and improve types
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.27.1**
+  - [#7926](https://github.com/scalar/scalar/pull/7926): Make V2 command palette extensible and improve types
+
+- **@scalar/oas-utils@0.6.29**
+
+- **@scalar/sidebar@0.7.22**
+
+- **@scalar/components@0.16.32**
+
+- **@scalar/use-codemirror@0.13.26**
+
+## 2.21.0
+
+### Minor Changes
+
+- [#7897](https://github.com/scalar/scalar/pull/7897): feat: cancel request and stop streaming responses
+
+### Patch Changes
+
+- [#7906](https://github.com/scalar/scalar/pull/7906): feat: remove parsing from codeinput and move to getExample
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.27.0**
+  - [#7906](https://github.com/scalar/scalar/pull/7906): feat: remove parsing from codeinput and move to getExample
+  - [#7905](https://github.com/scalar/scalar/pull/7905): feat: support loading files on the store
+
+- **@scalar/json-magic@0.9.4**
+  - [#7922](https://github.com/scalar/scalar/pull/7922): fix: resolve $ref entries inside arrays (e.g. oneOf, allOf) in prefixInternalRefRecursive
+
+- **@scalar/oas-utils@0.6.28**
+
+- **@scalar/sidebar@0.7.21**
+
+- **@scalar/openapi-parser@0.24.5**
+
+- **@scalar/components@0.16.31**
+
+- **@scalar/use-codemirror@0.13.25**
+
 ## 2.20.2
 
 ### Patch Changes

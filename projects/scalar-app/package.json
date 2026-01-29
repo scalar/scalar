@@ -10,7 +10,7 @@
     "url": "git+https://github.com/scalar/scalar.git",
     "directory": "projects/scalar-app"
   },
-  "version": "0.1.271",
+  "version": "0.1.274",
   "private": true,
   "engines": {
     "node": ">=20"
@@ -52,11 +52,11 @@
     "@electron-toolkit/tsconfig": "^2.0.0",
     "@playwright/test": "catalog:*",
     "@rushstack/eslint-patch": "^1.15.0",
-    "@todesktop/cli": "^1.18.3",
+    "@todesktop/cli": "^1.19.1",
     "@types/node": "catalog:*",
     "@vitejs/plugin-vue": "catalog:*",
-    "electron": "38.7.2",
-    "electron-vite": "4.0.1",
+    "electron": "40.0.0",
+    "electron-vite": "5.0.0",
     "vite": "catalog:*",
     "vue": "catalog:*"
   }

@@ -36,7 +36,7 @@ const showDeveloperTools = computed<boolean>(() => {
   <header
     v-if="showDeveloperTools"
     aria-label="Developer Tools"
-    class="api-reference-toolbar h-header bg-b-1 sticky top-0 z-10 flex justify-center border-b px-15">
+    class="api-reference-toolbar bg-b-1 z-10 flex h-10 justify-center border-b px-15">
     <div
       class="-mx-2 flex max-w-(--refs-content-max-width) flex-1 items-center">
       <div class="flex flex-1 items-center">

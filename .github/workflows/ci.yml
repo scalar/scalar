@@ -80,7 +80,7 @@ jobs:
 
       - name: Check whether integration files were modified
         id: changed-integration-files
-        uses: step-security/changed-files@95b56dadb92a30ca9036f16423fd3c088a71ee94 # v46
+        uses: step-security/changed-files@60967b822d3001fa82242f8d6b4ed46bc3600a68 # v47
         with:
           files_yaml: |
             dotnet_integration:
@@ -98,7 +98,7 @@ jobs:
 
       - name: Check whether packages files were modified
         id: changed-packages-files
-        uses: step-security/changed-files@95b56dadb92a30ca9036f16423fd3c088a71ee94 # v46
+        uses: step-security/changed-files@60967b822d3001fa82242f8d6b4ed46bc3600a68 # v47
         with:
           files_yaml: |
             icons_changed:
@@ -109,7 +109,7 @@ jobs:
 
       - name: Check whether integration package.json files were modified
         id: changed-package-files
-        uses: step-security/changed-files@95b56dadb92a30ca9036f16423fd3c088a71ee94 # v46
+        uses: step-security/changed-files@60967b822d3001fa82242f8d6b4ed46bc3600a68 # v47
         with:
           files_yaml: |
             aspnetcore_package:
@@ -620,7 +620,7 @@ jobs:
       - if: startsWith(github.event.head_commit.message, 'RELEASING:')
         name: Check whether there's a new version of the app
         id: changed-files
-        uses: step-security/changed-files@95b56dadb92a30ca9036f16423fd3c088a71ee94 # v46
+        uses: step-security/changed-files@60967b822d3001fa82242f8d6b4ed46bc3600a68 # v47
         with:
           files_yaml: |
             api_client_app:
@@ -645,7 +645,7 @@ jobs:
       - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
       - name: Check which files were touched
         id: changed-files
-        uses: step-security/changed-files@95b56dadb92a30ca9036f16423fd3c088a71ee94 # v46
+        uses: step-security/changed-files@60967b822d3001fa82242f8d6b4ed46bc3600a68 # v47
         with:
           files_yaml: |
             api_client:
@@ -683,7 +683,7 @@ jobs:
       - if: github.ref == 'refs/heads/main' && startsWith(github.event.head_commit.message, 'RELEASING:')
         name: Check for new @scalar/api-client version
         id: client-version
-        uses: step-security/changed-files@95b56dadb92a30ca9036f16423fd3c088a71ee94 # v46
+        uses: step-security/changed-files@60967b822d3001fa82242f8d6b4ed46bc3600a68 # v47
         with:
           files_yaml: |
             api_client:
@@ -718,7 +718,7 @@ jobs:
           packages: '@scalar/galaxy...'
       - name: Check whether there's a new version of @scalar/galaxy
         id: changed-files
-        uses: step-security/changed-files@95b56dadb92a30ca9036f16423fd3c088a71ee94 # v46
+        uses: step-security/changed-files@60967b822d3001fa82242f8d6b4ed46bc3600a68 # v47
         with:
           files_yaml: |
             galaxy:

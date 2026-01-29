@@ -1,5 +1,38 @@
 # @scalar/components
 
+## 0.17.0
+
+### Minor Changes
+
+- [#7959](https://github.com/scalar/scalar/pull/7959): feat(agent): add agent scalar to localhost
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/themes@0.14.0**
+  - [#7959](https://github.com/scalar/scalar/pull/7959): feat(agent): add agent scalar to localhost
+
+- **@scalar/code-highlight@0.2.2**
+
+- **@scalar/oas-utils@0.6.30**
+
+## 0.16.32
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/oas-utils@0.6.29**
+
+## 0.16.31
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/oas-utils@0.6.28**
+
 ## 0.16.30
 
 ### Patch Changes
