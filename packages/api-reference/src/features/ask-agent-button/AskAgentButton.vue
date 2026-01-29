@@ -94,6 +94,13 @@ import { ScalarIconArrowUp, ScalarIconSparkle } from '@scalar/icons'
   margin-left: auto;
   display: none;
 }
+.ask-agent-scalar-send:hover {
+  background: color-mix(
+    in srgb,
+    var(--scalar-color-blue),
+    transparent 10%
+  ) !important;
+}
 .agent-button-container:has(.ask-agent-scalar-input:not(:placeholder-shown))
   .ask-agent-scalar-send {
   display: flex;
