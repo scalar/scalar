@@ -61,7 +61,7 @@ export type ScalarClientAppRouteParams =
 /** Routes for the API client app and web, the same as modal + workspace routes */
 export const ROUTES = [
   {
-    path: '/:namespace/:workspaceSlug',
+    path: '/@:namespace/:workspaceSlug',
     children: [
       {
         path: ':documentSlug',
@@ -156,6 +156,6 @@ export const ROUTES = [
   },
   {
     path: '/:pathMatch(.*)*',
-    redirect: () => workspaceStorage.getLastPath() ?? '/local/local/drafts/overview',
+    redirect: () => workspaceStorage.getLastPath() ?? '/@local/local/drafts/overview',
   },
 ] satisfies RouteRecordRaw[]

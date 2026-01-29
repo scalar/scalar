@@ -16,7 +16,7 @@ type WorkspaceStoreShape = {
 }
 
 /** Generates a workspace ID from namespace and slug. */
-const getWorkspaceId = (namespace: string, slug: string) => `${namespace}-${slug}`
+const getWorkspaceId = (namespace: string, slug: string) => `${namespace}/${slug}`
 
 /**
  * Creates the persistence layer for the workspace store using IndexedDB.
@@ -38,11 +38,11 @@ export const createWorkspaceStorePersistence = async () => {
           /** Visual name for a given workspace */
           name: Type.String(),
           /** When logged in all new workspaces (remote and local) are scoped to a team  */
-          teamUid: Type.String({ default: 'LOCAL' }),
+          teamUid: Type.String({ default: 'local' }),
           /** Namespace associated with a remote workspace */
-          namespace: Type.String({ default: 'LOCAL' }),
+          namespace: Type.String({ default: 'local' }),
           /** Slug associated with a remote workspace */
-          slug: Type.String({ default: 'LOCAL' }),
+          slug: Type.String({ default: 'local' }),
         }),
         keyPath: ['namespace', 'slug'],
         indexes: {
@@ -201,16 +201,16 @@ export const createWorkspaceStorePersistence = async () => {
        * All chunks (meta, documents, configs, etc.) are upsert in their respective tables.
        * If a workspace with the same ID already exists, it will be replaced.
        */
-      setItem: async ({ namespace = 'LOCAL', slug }: WorkspaceKey, value: WorkspaceStoreShape) => {
+      setItem: async ({ namespace = 'local', slug }: WorkspaceKey, value: WorkspaceStoreShape) => {
         const workspace = await workspaceTable.addItem(
           { namespace, slug },
           {
             name: value.name,
-            teamUid: value.teamUid ?? 'LOCAL',
+            teamUid: value.teamUid ?? 'local',
           },
         )
 
-        const id = `${namespace}-${slug}`
+        const id = getWorkspaceId(namespace, slug)
 
         // Save all meta info for workspace.
         await metaTable.addItem({ workspaceId: id }, { data: value.workspace.meta })
