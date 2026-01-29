@@ -424,16 +424,17 @@ const handleSelectItem = (id: string) => {
     return
   }
 
-  // If we are already in the nav item, just toggle expansion
-  if (sidebarState.isSelected(id)) {
-    sidebarState.setExpanded(id, !sidebarState.isExpanded(id))
-    return
-  }
-
   // Navigate to the document overview page
   if (entry.type === 'document') {
+    // If we are already in the document, just toggle expansion
+    if (sidebarState.selectedItem.value === id) {
+      sidebarState.setExpanded(id, !sidebarState.isExpanded(id))
+      return
+    }
+
+    // Otherwise, select it
     sidebarState.setSelected(id)
-    sidebarState.setExpanded(id, !sidebarState.isExpanded(id))
+    sidebarState.setExpanded(id, true)
     return router.value?.push({
       name: 'document.overview',
       params: { documentSlug: entry.name },
@@ -443,6 +444,13 @@ const handleSelectItem = (id: string) => {
   // Navigate to the example page
   // TODO: temporary until we have the operation overview page
   if (entry.type === 'operation') {
+    // If we are already in the operation, just togle the expansion
+    if (sidebarState.isSelected(id)) {
+      sidebarState.setExpanded(id, !sidebarState.isExpanded(id))
+      return
+    }
+
+    // Otherwise, select the first example
     const firstExample = entry.children?.find((child) => child.type === 'example')
 
     if (firstExample) {
@@ -466,7 +474,6 @@ const handleSelectItem = (id: string) => {
   // Navigate to the example page
   if (entry.type === 'example') {
     sidebarState.setSelected(id)
-    sidebarState.setExpanded(id, true)
     const operation = getParentEntry('operation', entry)
     return router.value?.push({
       name: 'example',
