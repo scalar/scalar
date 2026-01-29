@@ -666,10 +666,10 @@ const copyTabUrl = async (index: number): Promise<void> => {
 
 /** When the route changes we need to update the active entities in the store */
 const handleRouteChange = (to: RouteLocationNormalizedGeneric): void | Promise<void> => {
-  const namespace = getRouteParam('namespace', to)
   const slug = getRouteParam('workspaceSlug', to)
   const document = getRouteParam('documentSlug', to)
 
+  namespace.value = getRouteParam('namespace', to)
   workspaceSlug.value = slug
   documentSlug.value = document
   method.value = getRouteParam('method', to)
@@ -677,7 +677,7 @@ const handleRouteChange = (to: RouteLocationNormalizedGeneric): void | Promise<v
   exampleName.value = getRouteParam('exampleName', to)
 
   // Must have an active workspace to syncs
-  if (!namespace || !slug) {
+  if (!namespace.value || !slug) {
     return
   }
 
@@ -686,8 +686,8 @@ const handleRouteChange = (to: RouteLocationNormalizedGeneric): void | Promise<v
     workspaceStorage.setCurrentPath(to.path)
   }
 
-  if (getWorkspaceId(namespace, slug) !== activeWorkspace.value?.id) {
-    return changeWorkspace(namespace, slug)
+  if (getWorkspaceId(namespace.value, slug) !== activeWorkspace.value?.id) {
+    return changeWorkspace(namespace.value, slug)
   }
 
   // Update the active document if the document slug has changes
