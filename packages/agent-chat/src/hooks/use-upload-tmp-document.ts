@@ -48,7 +48,7 @@ export function useUploadTmpDocument() {
     try {
       uploadState.value = { type: 'uploading' }
 
-      const response = await fetch(createUrl(`/core/share/upload/apis${isAgent ? '?isAgent=true' : ''}`), {
+      const response = await fetch(createUrl(`/core/share/upload/apis${isAgent ? '?source=agent' : ''}`), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ document }),
