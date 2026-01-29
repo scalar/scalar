@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { generateClientOptions } from '@scalar/api-client/v2/blocks/operation-code-sample'
-import { mergeAuthConfig } from '@scalar/api-client/v2/blocks/scalar-auth-selector-block'
+import {
+  extractSecuritySchemeSecrets,
+  mergeAuthConfig,
+} from '@scalar/api-client/v2/blocks/scalar-auth-selector-block'
 import { mapHiddenClientsConfig } from '@scalar/api-client/v2/features/modal'
 import { getSelectedServer } from '@scalar/api-client/v2/features/operation'
 import { getServers } from '@scalar/api-client/v2/helpers'
@@ -11,12 +14,11 @@ import type { AuthStore } from '@scalar/workspace-store/entities/auth/index'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type { TraversedEntry as TraversedEntryType } from '@scalar/workspace-store/schemas/navigation'
-import type { ComponentsObject } from '@scalar/workspace-store/schemas/v3.1/strict/components'
 import type {
   Workspace,
   WorkspaceDocument,
 } from '@scalar/workspace-store/schemas/workspace'
-import { computed, ref, toValue, watch } from 'vue'
+import { computed, toValue, watch } from 'vue'
 
 import { ClientSelector } from '@/blocks/scalar-client-selector-block'
 import { InfoBlock } from '@/blocks/scalar-info-block'
@@ -95,10 +97,21 @@ const selectedServer = computed(() =>
   getSelectedServer(document ?? null, servers.value),
 )
 
+watch(
+  () => toValue(options)?.authentication?.securitySchemes,
+  () => {
+    extractSecuritySchemeSecrets({
+      documentSlug,
+      authStore,
+      configSecuritySchemes: toValue(options)?.authentication?.securitySchemes,
+      documentSecuritySchemes: document?.components?.securitySchemes ?? {},
+    })
+  },
+  { immediate: true },
+)
+
 const securitySchemes = computed(() =>
   mergeAuthConfig({
-    documentSlug,
-    authStore,
     documentSecuritySchemes: document?.components?.securitySchemes ?? {},
     configSecuritySchemes: toValue(options)?.authentication?.securitySchemes,
   }),

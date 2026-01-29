@@ -109,7 +109,7 @@ export const createAuthStore = ({ hooks }: CreateAuthStoreOptions = {}): AuthSto
   }
 
   const setAuthSecrets: AuthStore['setAuthSecrets'] = (documentName, schemeName, data) => {
-    auth[documentName] ||= { secrets: {}, selected: { document: { selectedIndex: 0, selectedSchemes: [] }, path: {} } }
+    auth[documentName] ||= { secrets: {}, selected: { document: undefined, path: undefined } }
     auth[documentName].secrets[schemeName] = coerceValue(SecretsAuthUnionSchema, data)
   }
 
@@ -123,7 +123,7 @@ export const createAuthStore = ({ hooks }: CreateAuthStoreOptions = {}): AuthSto
   const setAuthSelectedSchemas: AuthStore['setAuthSelectedSchemas'] = (payload, selectedSchemes) => {
     auth[payload.documentName] ||= {
       secrets: {},
-      selected: { document: { selectedIndex: 0, selectedSchemes: [] }, path: {} },
+      selected: { document: undefined, path: undefined },
     }
 
     // TypeScript needs a non-null assertion here since we just ensured it exists
@@ -132,6 +132,7 @@ export const createAuthStore = ({ hooks }: CreateAuthStoreOptions = {}): AuthSto
     if (payload.type === 'document') {
       documentAuth.selected.document = selectedSchemes
     } else {
+      documentAuth.selected.path ||= {}
       documentAuth.selected.path[payload.path] ||= {}
       const pathAuth = documentAuth.selected.path[payload.path]!
       pathAuth[payload.method] = selectedSchemes

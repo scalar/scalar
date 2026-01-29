@@ -82,8 +82,8 @@ export type SelectedSecurity = Static<typeof SelectedSecuritySchema>
 export const AuthSchema = Type.Object({
   secrets: SecretsAuthSchema,
   selected: Type.Object({
-    document: SelectedSecuritySchema,
-    path: Type.Record(Type.String(), Type.Record(Type.String(), SelectedSecuritySchema)),
+    document: Type.Optional(SelectedSecuritySchema),
+    path: Type.Optional(Type.Record(Type.String(), Type.Record(Type.String(), SelectedSecuritySchema))),
   }),
 })
 

@@ -68,6 +68,7 @@ import {
   type MaybeRefOrGetter,
 } from 'vue'
 
+import { extractSecuritySchemeSecrets } from '@/v2/blocks/scalar-auth-selector-block/helpers/extract-security-scheme-secrets'
 import { mergeAuthConfig } from '@/v2/blocks/scalar-auth-selector-block/helpers/merge-auth-config'
 import { Sidebar, SidebarToggle } from '@/v2/components/sidebar'
 import { type UseModalSidebarReturn } from '@/v2/features/modal/hooks/use-modal-sidebar'
@@ -177,10 +178,23 @@ const environment = computed(() =>
   getActiveEnvironment(workspaceStore, document.value),
 )
 
+/** Extract the security scheme secrets from the config */
+watch(
+  () => toValue(options)?.authentication?.securitySchemes,
+  () => {
+    extractSecuritySchemeSecrets({
+      documentSlug: document.value?.['x-scalar-navigation']?.name ?? '',
+      authStore: workspaceStore.auth,
+      configSecuritySchemes: toValue(options)?.authentication?.securitySchemes,
+      documentSecuritySchemes:
+        document.value?.components?.securitySchemes ?? {},
+    })
+  },
+  { immediate: true },
+)
+
 const securitySchemes = computed(() =>
   mergeAuthConfig({
-    documentSlug: document.value?.['x-scalar-navigation']?.name ?? '',
-    authStore: workspaceStore.auth,
     documentSecuritySchemes: document.value?.components?.securitySchemes ?? {},
     configSecuritySchemes: toValue(options)?.authentication?.securitySchemes,
   }),
