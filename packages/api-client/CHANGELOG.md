@@ -1,5 +1,11 @@
 # @scalar/api-client
 
+## 2.22.1
+
+### Patch Changes
+
+- [#7965](https://github.com/scalar/scalar/pull/7965): Adds exports for creating external actions
+
 ## 2.22.0
 
 ### Minor Changes

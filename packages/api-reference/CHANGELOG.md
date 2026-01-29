@@ -1,5 +1,23 @@
 # @scalar/api-reference
 
+## 1.44.1
+
+### Patch Changes
+
+- [#7961](https://github.com/scalar/scalar/pull/7961): fix(agent): make agent ui responsive
+- [#7967](https://github.com/scalar/scalar/pull/7967): fix(agent): remove ui jump on uploading document
+
+#### Updated Dependencies
+
+- **@scalar/agent-chat@0.4.1**
+  - [#7960](https://github.com/scalar/scalar/pull/7960): fix: update agent pricing per message
+  - [#7966](https://github.com/scalar/scalar/pull/7966): feat(agent): add remaining message information
+  - [#7961](https://github.com/scalar/scalar/pull/7961): fix(agent): make agent ui responsive
+  - [#7967](https://github.com/scalar/scalar/pull/7967): fix(agent): remove ui jump on uploading document
+
+- **@scalar/api-client@2.22.1**
+  - [#7965](https://github.com/scalar/scalar/pull/7965): Adds exports for creating external actions
+
 ## 1.44.0
 
 ### Minor Changes
