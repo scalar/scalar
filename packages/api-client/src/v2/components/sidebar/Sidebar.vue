@@ -9,10 +9,10 @@ import {
 } from '@scalar/sidebar'
 import type { WorkspaceDocument } from '@scalar/workspace-store/schemas'
 import type { TraversedEntry } from '@scalar/workspace-store/schemas/navigation'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 
 import { Resize } from '@/v2/components/resize'
-import { SearchInput } from '@/v2/features/search'
+import { SearchInput, SearchResults } from '@/v2/features/search'
 import { useSearchIndex } from '@/v2/features/search/hooks/use-search-index'
 import type { ClientLayout } from '@/v2/types/layout'
 
@@ -80,6 +80,9 @@ const isDraft = (item: TraversedEntry) => {
 
 /** We handle search results out here so we can show them in the sidebar */
 const { query, results } = useSearchIndex(() => documents)
+
+/** We show either the search results or the sidebar items */
+const items = computed(() => results.value ?? sidebarState.items.value)
 </script>
 <template>
   <Resize
@@ -93,7 +96,7 @@ const { query, results } = useSearchIndex(() => documents)
         :isDroppable="isDroppable"
         :isExpanded="sidebarState.isExpanded"
         :isSelected="sidebarState.isSelected"
-        :items="sidebarState.items.value"
+        :items
         layout="client"
         @reorder="
           (draggingItem, hoveredItem) =>
@@ -130,6 +133,13 @@ const { query, results } = useSearchIndex(() => documents)
               v-if="isSearchVisible || layout === 'web'"
               v-model="query" />
           </div>
+        </template>
+
+        <!-- Search Results -->
+        <template
+          v-if="results"
+          #search-results>
+          <SearchResults :results="results" />
         </template>
 
         <template #decorator="decoratorProps">

@@ -1,5 +1,8 @@
+import type { Item } from '@scalar/sidebar'
 import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { type MaybeRefOrGetter, computed, ref, toValue } from 'vue'
+
+import { getFuseItems } from '@/v2/features/search/helpers/get-fuse-items'
 
 import { createFuseInstance } from '../helpers/create-fuse-instance'
 import { createSearchIndex } from '../helpers/create-search-index'
@@ -7,7 +10,7 @@ import { createSearchIndex } from '../helpers/create-search-index'
 const MAX_SEARCH_RESULTS = 25
 
 /**
- * Creates the search index from an OpenAPI document.
+ * Creates the search index from multiple OpenAPI documents
  */
 export function useSearchIndex(documents: MaybeRefOrGetter<OpenApiDocument[]>) {
   /** When the document changes we replace the search index */
@@ -19,11 +22,13 @@ export function useSearchIndex(documents: MaybeRefOrGetter<OpenApiDocument[]>) {
 
   const query = ref<string>('')
 
-  const results = computed(() => {
+  const results = computed<Item[] | null>(() => {
     if (query.value.length !== 0) {
-      return fuse.value.search(query.value, {
+      const fuseResults = fuse.value.search(query.value, {
         limit: MAX_SEARCH_RESULTS,
       })
+
+      return getFuseItems(fuseResults)
     }
 
     return null

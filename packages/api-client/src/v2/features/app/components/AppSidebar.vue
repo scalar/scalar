@@ -261,7 +261,6 @@ const handleAddEmptyFolder = (item: TraversedEntry) => {
       v-model:sidebarWidth="sidebarWidth"
       :activeWorkspace="activeWorkspace"
       :documents="Object.values(store.workspace.documents)"
-      :eventBus="eventBus"
       :isDroppable="isDroppable"
       :layout="layout"
       :sidebarState="sidebarState"

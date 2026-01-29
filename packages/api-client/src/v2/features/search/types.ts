@@ -1,4 +1,4 @@
-import type { TraversedEntry } from '@scalar/workspace-store/schemas/navigation'
+import type { TraversedEntry, WithParent } from '@scalar/workspace-store/schemas/navigation'
 export type EntryType = 'operation' | 'heading' | 'tag'
 
 type BaseFuse = {
@@ -6,6 +6,8 @@ type BaseFuse = {
   type: EntryType
   documentName: string
   entry: TraversedEntry
+  /** Immediate parent entry (which itself may have a parent) */
+  parent?: WithParent<TraversedEntry>
   title: string
   description: string
 }
