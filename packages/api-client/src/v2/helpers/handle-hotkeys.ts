@@ -12,7 +12,7 @@ type HotKeyConfig = Record<string | number, { event: keyof ApiReferenceEvents; m
 const DEFAULT_HOTKEYS: HotKeyConfig = {
   Enter: { event: 'operation:send:request:hotkey', modifiers: ['default'] },
   b: { event: 'ui:toggle:sidebar', modifiers: ['default'] },
-  p: { event: 'ui:open:command-palette', modifiers: ['shiftKey'] },
+  k: { event: 'ui:open:command-palette', modifiers: ['default'] },
   l: { event: 'ui:focus:address-bar', modifiers: ['default'] },
 }
 
