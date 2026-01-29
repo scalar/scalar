@@ -1,10 +1,8 @@
 import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import type { FuseResult } from 'fuse.js'
 import { type MaybeRefOrGetter, computed, ref, toValue } from 'vue'
 
 import { createFuseInstance } from '../helpers/create-fuse-instance'
 import { createSearchIndex } from '../helpers/create-search-index'
-import type { FuseData } from '../types'
 
 const MAX_SEARCH_RESULTS = 25
 
@@ -28,17 +26,7 @@ export function useSearchIndex(documents: MaybeRefOrGetter<OpenApiDocument[]>) {
       })
     }
 
-    // @ts-expect-error - _docs is a private property
-    const allEntries: FuseData[] = fuse.value._docs
-
-    // Show a few entries as a placeholder
-    return allEntries.slice(0, MAX_SEARCH_RESULTS).map(
-      (item: FuseData, index: number) =>
-        ({
-          item,
-          refIndex: index,
-        }) satisfies FuseResult<FuseData>,
-    )
+    return null
   })
 
   return {

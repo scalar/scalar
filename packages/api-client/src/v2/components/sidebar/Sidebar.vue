@@ -7,18 +7,18 @@ import {
   type HoveredItem,
   type SidebarState,
 } from '@scalar/sidebar'
-import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { WorkspaceDocument } from '@scalar/workspace-store/schemas'
 import type { TraversedEntry } from '@scalar/workspace-store/schemas/navigation'
 import { ref } from 'vue'
 
 import { Resize } from '@/v2/components/resize'
-import { SearchButton } from '@/v2/features/search'
+import { SearchInput } from '@/v2/features/search'
+import { useSearchIndex } from '@/v2/features/search/hooks/use-search-index'
 import type { ClientLayout } from '@/v2/types/layout'
 
 import SidebarMenu from './SidebarMenu.vue'
 
-const { sidebarState, layout } = defineProps<{
+const { documents, sidebarState, layout } = defineProps<{
   /** All documents to display sidebar items for */
   sidebarState: SidebarState<TraversedEntry>
   /** Layout for the client */
@@ -27,8 +27,6 @@ const { sidebarState, layout } = defineProps<{
   activeWorkspace: { id: string }
   /** The list of all available workspaces */
   workspaces: ScalarListboxOption[]
-  /** The workspace event bus for handling workspace-level events */
-  eventBus: WorkspaceEventBus
   /** The documents belonging to the workspace */
   documents: WorkspaceDocument[]
   /**
@@ -79,6 +77,9 @@ const sidebarWidth = defineModel<number>('sidebarWidth', {
 const isDraft = (item: TraversedEntry) => {
   return item.type === 'example' && item.title === 'draft'
 }
+
+/** We handle search results out here so we can show them in the sidebar */
+const { query, results } = useSearchIndex(() => documents)
 </script>
 <template>
   <Resize
@@ -125,10 +126,9 @@ const isDraft = (item: TraversedEntry) => {
                 @click="isSearchVisible = !isSearchVisible" />
             </div>
 
-            <SearchButton
+            <SearchInput
               v-if="isSearchVisible || layout === 'web'"
-              :documents="documents"
-              :eventBus="eventBus" />
+              v-model="query" />
           </div>
         </template>
 
