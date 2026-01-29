@@ -24,13 +24,16 @@ const props = withDefaults(
 </script>
 
 <template>
-  <ContextMenuRoot>
+  <ContextMenuRoot
+    class="bg-red"
+    container="#headlessui-portal-root"
+    style="background-color: red">
     <ContextMenuTrigger
       :class="triggerClass"
       :disabled="props.disabled">
       <slot name="trigger" />
     </ContextMenuTrigger>
-    <ContextMenuPortal>
+    <ContextMenuPortal class="bg-blue">
       <ContextMenuContent
         :align="props.align"
         :side="props.side"

@@ -181,8 +181,13 @@ const copyUrl = async () => {
   )
 }
 
+const isServerDropdownOpen = ref(false)
+const isHistoryDropdownOpen = ref(false)
+
 /** Whether either dropdown is open */
-const isDropdownOpen = ref(false)
+const isDropdownOpen = computed(
+  () => isServerDropdownOpen.value || isHistoryDropdownOpen.value,
+)
 
 defineExpose({
   methodConflict,
@@ -227,7 +232,7 @@ defineExpose({
           :server="server"
           :servers="servers"
           :target="id"
-          @update:open="(value) => (isDropdownOpen = value)"
+          @update:open="(value) => (isServerDropdownOpen = value)"
           @update:selectedServer="
             (payload) => eventBus.emit('server:update:selected', payload)
           "
@@ -282,7 +287,7 @@ defineExpose({
         :history="history"
         :target="id"
         @select:history:item="(payload) => emit('select:history:item', payload)"
-        @update:open="(value) => (isDropdownOpen = value)" />
+        @update:open="(value) => (isHistoryDropdownOpen = value)" />
       <!-- Error message -->
       <div
         v-if="hasConflict"

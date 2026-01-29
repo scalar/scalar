@@ -8,3 +8,8 @@
 @utility max-h-radix-popper {
   max-height: calc(var(--radix-popper-available-height) - 8px);
 }
+
+/* For the radix context menu, this can be adjusted as long as its >= 1 */
+[data-radix-popper-content-wrapper] {
+  z-index: 1 !important;
+}
