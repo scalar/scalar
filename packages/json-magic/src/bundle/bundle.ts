@@ -768,7 +768,7 @@ export async function bundle(input: UnknownObject | string, config: Config) {
       return
     }
 
-    if (!isObject(root)) {
+    if (!isObject(root) && !Array.isArray(root)) {
       return
     }
 
