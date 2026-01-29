@@ -1,5 +1,14 @@
 # @scalar/object-utils
 
+## 1.2.23
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/helpers@0.2.9**
+  - [#7894](https://github.com/scalar/scalar/pull/7894): fix: the import and export of redirect to proxy
+
 ## 1.2.22
 
 ### Patch Changes

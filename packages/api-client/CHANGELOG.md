@@ -1,5 +1,289 @@
 # @scalar/api-client
 
+## 2.22.1
+
+### Patch Changes
+
+- [#7965](https://github.com/scalar/scalar/pull/7965): Adds exports for creating external actions
+
+## 2.22.0
+
+### Minor Changes
+
+- [#7959](https://github.com/scalar/scalar/pull/7959): feat(agent): add agent scalar to localhost
+
+### Patch Changes
+
+- [#7929](https://github.com/scalar/scalar/pull/7929): fix: revert changes to the document when closing the modal
+- [#7932](https://github.com/scalar/scalar/pull/7932): feat: use getExample in the references responses
+
+#### Updated Dependencies
+
+- **@scalar/components@0.17.0**
+  - [#7959](https://github.com/scalar/scalar/pull/7959): feat(agent): add agent scalar to localhost
+
+- **@scalar/themes@0.14.0**
+  - [#7959](https://github.com/scalar/scalar/pull/7959): feat(agent): add agent scalar to localhost
+
+- **@scalar/types@0.6.0**
+  - [#7959](https://github.com/scalar/scalar/pull/7959): feat(agent): add agent scalar to localhost
+
+- **@scalar/sidebar@0.7.23**
+
+- **@scalar/use-codemirror@0.13.27**
+
+- **@scalar/oas-utils@0.6.30**
+
+- **@scalar/workspace-store@0.27.2**
+
+- **@scalar/openapi-parser@0.24.5**
+
+- **@scalar/snippetz@0.6.9**
+
+## 2.21.1
+
+### Patch Changes
+
+- [#7925](https://github.com/scalar/scalar/pull/7925): fix: allow collapsing documents
+- [#7926](https://github.com/scalar/scalar/pull/7926): Make V2 command palette extensible and improve types
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.27.1**
+  - [#7926](https://github.com/scalar/scalar/pull/7926): Make V2 command palette extensible and improve types
+
+- **@scalar/oas-utils@0.6.29**
+
+- **@scalar/sidebar@0.7.22**
+
+- **@scalar/components@0.16.32**
+
+- **@scalar/use-codemirror@0.13.26**
+
+## 2.21.0
+
+### Minor Changes
+
+- [#7897](https://github.com/scalar/scalar/pull/7897): feat: cancel request and stop streaming responses
+
+### Patch Changes
+
+- [#7906](https://github.com/scalar/scalar/pull/7906): feat: remove parsing from codeinput and move to getExample
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.27.0**
+  - [#7906](https://github.com/scalar/scalar/pull/7906): feat: remove parsing from codeinput and move to getExample
+  - [#7905](https://github.com/scalar/scalar/pull/7905): feat: support loading files on the store
+
+- **@scalar/json-magic@0.9.4**
+  - [#7922](https://github.com/scalar/scalar/pull/7922): fix: resolve $ref entries inside arrays (e.g. oneOf, allOf) in prefixInternalRefRecursive
+
+- **@scalar/oas-utils@0.6.28**
+
+- **@scalar/sidebar@0.7.21**
+
+- **@scalar/openapi-parser@0.24.5**
+
+- **@scalar/components@0.16.31**
+
+- **@scalar/use-codemirror@0.13.25**
+
+## 2.20.2
+
+### Patch Changes
+
+- [#7894](https://github.com/scalar/scalar/pull/7894): fix: the import and export of redirect to proxy
+
+#### Updated Dependencies
+
+- **@scalar/oas-utils@0.6.27**
+  - [#7894](https://github.com/scalar/scalar/pull/7894): fix: the import and export of redirect to proxy
+
+- **@scalar/helpers@0.2.9**
+  - [#7894](https://github.com/scalar/scalar/pull/7894): fix: the import and export of redirect to proxy
+
+- **@scalar/workspace-store@0.26.2**
+  - [#7894](https://github.com/scalar/scalar/pull/7894): fix: the import and export of redirect to proxy
+
+- **@scalar/components@0.16.30**
+
+- **@scalar/import@0.4.46**
+
+- **@scalar/json-magic@0.9.3**
+
+- **@scalar/object-utils@1.2.23**
+
+- **@scalar/postman-to-openapi@0.4.1**
+
+- **@scalar/sidebar@0.7.20**
+
+- **@scalar/types@0.5.10**
+
+- **@scalar/use-codemirror@0.13.24**
+
+- **@scalar/openapi-parser@0.24.4**
+
+- **@scalar/snippetz@0.6.8**
+
+## 2.20.1
+
+### Patch Changes
+
+- [#7888](https://github.com/scalar/scalar/pull/7888): fix: more robust parameter upsert and deletion
+- [#7889](https://github.com/scalar/scalar/pull/7889): fix: only attach the body to methods that allow
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.26.1**
+  - [#7888](https://github.com/scalar/scalar/pull/7888): fix: more robust parameter upsert and deletion
+
+- **@scalar/oas-utils@0.6.26**
+
+- **@scalar/sidebar@0.7.19**
+
+- **@scalar/components@0.16.29**
+
+- **@scalar/use-codemirror@0.13.23**
+
+## 2.20.0
+
+### Minor Changes
+
+- [#7866](https://github.com/scalar/scalar/pull/7866): feat: save, revert and history support
+
+### Patch Changes
+
+- [#7886](https://github.com/scalar/scalar/pull/7886): fix: cancel request when navigating away from operation page
+- [#7884](https://github.com/scalar/scalar/pull/7884): fix: sync state when rebuilding sidebar
+
+#### Updated Dependencies
+
+- **@scalar/sidebar@0.7.18**
+  - [#7866](https://github.com/scalar/scalar/pull/7866): feat: support custom icon per entry
+
+- **@scalar/workspace-store@0.26.0**
+  - [#7866](https://github.com/scalar/scalar/pull/7866): feat: history per operation support
+  - [#7886](https://github.com/scalar/scalar/pull/7886): fix: unpack proxy when we pop history items
+
+- **@scalar/snippetz@0.6.7**
+  - [#7866](https://github.com/scalar/scalar/pull/7866): chore: expose har types
+
+- **@scalar/types@0.5.9**
+  - [#7866](https://github.com/scalar/scalar/pull/7866): chore: expose har types
+
+- **@scalar/oas-utils@0.6.25**
+
+- **@scalar/openapi-parser@0.24.3**
+
+- **@scalar/components@0.16.28**
+
+- **@scalar/use-codemirror@0.13.22**
+
+## 2.19.3
+
+### Patch Changes
+
+- [#7850](https://github.com/scalar/scalar/pull/7850): fix: remove unused workspace config
+- [#7865](https://github.com/scalar/scalar/pull/7865): fix: added contentType serialization support for params
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.25.3**
+  - [#7850](https://github.com/scalar/scalar/pull/7850): fix: remove unused workspace config
+  - [#7868](https://github.com/scalar/scalar/pull/7868): fix: updating path with a variable in it
+
+- **@scalar/oas-utils@0.6.24**
+
+- **@scalar/sidebar@0.7.17**
+
+- **@scalar/components@0.16.27**
+
+- **@scalar/use-codemirror@0.13.21**
+
+## 2.19.2
+
+### Patch Changes
+
+- [#7848](https://github.com/scalar/scalar/pull/7848): fix: allow multiple security requirements with different scopes
+- [#7852](https://github.com/scalar/scalar/pull/7852): fix: enable form rows by default
+
+#### Updated Dependencies
+
+- **@scalar/snippetz@0.6.6**
+  - [#7859](https://github.com/scalar/scalar/pull/7859): fix the use of httpx.AsyncClient async context manager
+
+- **@scalar/components@0.16.26**
+  - [#7846](https://github.com/scalar/scalar/pull/7846): Fix dev dep issue
+
+- **@scalar/workspace-store@0.25.2**
+
+- **@scalar/openapi-parser@0.24.3**
+
+- **@scalar/sidebar@0.7.16**
+
+- **@scalar/use-codemirror@0.13.20**
+
+- **@scalar/oas-utils@0.6.23**
+
+## 2.19.1
+
+### Patch Changes
+
+- [#7828](https://github.com/scalar/scalar/pull/7828): fix: switch to upsert params due to race condition
+- [#7814](https://github.com/scalar/scalar/pull/7814): fix: additional properties generate invalid example
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.25.1**
+  - [#7828](https://github.com/scalar/scalar/pull/7828): fix: switch to upsert params due to race condition
+
+- **@scalar/oas-utils@0.6.22**
+  - [#7814](https://github.com/scalar/scalar/pull/7814): fix: additional properties generate invalid example
+
+- **@scalar/sidebar@0.7.15**
+
+- **@scalar/components@0.16.25**
+
+- **@scalar/use-codemirror@0.13.19**
+
+## 2.19.0
+
+### Minor Changes
+
+- [#7753](https://github.com/scalar/scalar/pull/7753): feat: default headers and global cookies
+
+### Patch Changes
+
+- [#7821](https://github.com/scalar/scalar/pull/7821): Fix slot name for menu items
+- [#7786](https://github.com/scalar/scalar/pull/7786): chore: refactor mutators in workspace store
+- [#7806](https://github.com/scalar/scalar/pull/7806): fix: replace star with named exports
+- [#7762](https://github.com/scalar/scalar/pull/7762): fix: only enable required parameters by default
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.25.0**
+  - [#7786](https://github.com/scalar/scalar/pull/7786): chore: refactor mutators in workspace store
+  - [#7753](https://github.com/scalar/scalar/pull/7753): feat: default headers and global cookies
+  - [#7763](https://github.com/scalar/scalar/pull/7763): fix: normalize securitySchemes 'scheme'
+
+- **@scalar/components@0.16.24**
+  - [#7802](https://github.com/scalar/scalar/pull/7802): fix: Vue warning because of deprecated icon syntax
+
+- **@scalar/json-magic@0.9.2**
+  - [#7763](https://github.com/scalar/scalar/pull/7763): fix: correctly execute onAfterNodeProcess for ref nodes
+
+- **@scalar/postman-to-openapi@0.4.0**
+  - [#7571](https://github.com/scalar/scalar/pull/7571): feat: major refactor, improves everything, keeps all the data now
+
+- **@scalar/oas-utils@0.6.21**
+
+- **@scalar/sidebar@0.7.14**
+
+- **@scalar/use-codemirror@0.13.18**
+
+- **@scalar/openapi-parser@0.24.2**
+
 ## 2.18.4
 
 ### Patch Changes

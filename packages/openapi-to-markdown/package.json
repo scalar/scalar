@@ -16,7 +16,7 @@
     "llm",
     "swagger"
   ],
-  "version": "0.3.23",
+  "version": "0.3.33",
   "engines": {
     "node": ">=20"
   },
@@ -62,12 +62,12 @@
     "@scalar/openapi-upgrader": "workspace:*",
     "@scalar/types": "workspace:*",
     "html-minifier-terser": "^7.2.0",
-    "rehype-parse": "^9.0.0",
+    "rehype-parse": "^9.0.1",
     "rehype-remark": "^10.0.1",
     "rehype-sanitize": "^6.0.0",
-    "remark-gfm": "^4.0.0",
+    "remark-gfm": "^4.0.1",
     "remark-stringify": "^11.0.0",
-    "unified": "^11.0.4",
+    "unified": "^11.0.5",
     "vue": "catalog:*"
   },
   "devDependencies": {

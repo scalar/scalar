@@ -13,7 +13,7 @@
   "keywords": [
     "typescript object transforms"
   ],
-  "version": "1.2.22",
+  "version": "1.2.23",
   "engines": {
     "node": ">=20"
   },
@@ -71,7 +71,7 @@
     "@scalar/helpers": "workspace:*",
     "flatted": "catalog:*",
     "just-clone": "^6.2.0",
-    "ts-deepmerge": "^7.0.1"
+    "ts-deepmerge": "^7.0.3"
   },
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",

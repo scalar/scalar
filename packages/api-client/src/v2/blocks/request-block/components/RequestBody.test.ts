@@ -285,7 +285,7 @@ describe('RequestBody', () => {
 
     // Test add row
     const addRowPayload = { name: 'field3', value: 'value3' }
-    await requestTable.vm.$emit('addRow', addRowPayload)
+    await requestTable.vm.$emit('upsertRow', 0, addRowPayload)
     await nextTick()
 
     // Check that update:formValue event was emitted

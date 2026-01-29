@@ -1,5 +1,20 @@
 # @scalar/postman-to-openapi
 
+## 0.4.1
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/helpers@0.2.9**
+  - [#7894](https://github.com/scalar/scalar/pull/7894): fix: the import and export of redirect to proxy
+
+## 0.4.0
+
+### Minor Changes
+
+- [#7571](https://github.com/scalar/scalar/pull/7571): feat: major refactor, improves everything, keeps all the data now
+
 ## 0.3.60
 
 ### Patch Changes

@@ -74,7 +74,6 @@ watch(
     v-if="Object.keys(securitySchemes).length"
     :environment
     :eventBus
-    isReadOnly
     isStatic
     layout="reference"
     :meta="{ type: 'document' }"

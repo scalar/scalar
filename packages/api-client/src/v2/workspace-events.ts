@@ -213,11 +213,8 @@ export function initializeWorkspaceEventHandlers({
   eventBus.on('operation:delete:example', (payload) =>
     withHook('operation:delete:example', mutators.value.active().operation.deleteOperationExample, hooks)(payload),
   )
-  eventBus.on('operation:add:parameter', (payload) =>
-    withHook('operation:add:parameter', mutators.value.active().operation.addOperationParameter, hooks)(payload),
-  )
-  eventBus.on('operation:update:parameter', (payload) =>
-    withHook('operation:update:parameter', mutators.value.active().operation.updateOperationParameter, hooks)(payload),
+  eventBus.on('operation:upsert:parameter', (payload) =>
+    withHook('operation:upsert:parameter', mutators.value.active().operation.upsertOperationParameter, hooks)(payload),
   )
   eventBus.on('operation:update:extra-parameters', (payload) =>
     withHook(
@@ -261,6 +258,9 @@ export function initializeWorkspaceEventHandlers({
       hooks,
     )(payload),
   )
+  eventBus.on('operation:reload:history', (payload) =>
+    withHook('operation:reload:history', mutators.value.active().operation.reloadOperationHistory, hooks)(payload),
+  )
 
   //------------------------------------------------------------------------------------
   // Tag Related Event Handlers
@@ -298,5 +298,12 @@ export function initializeWorkspaceEventHandlers({
   )
   eventBus.on('tabs:update:tabs', (payload) =>
     withHook('tabs:update:tabs', mutators.value.workspace().tabs.updateTabs, hooks)(payload),
+  )
+
+  //------------------------------------------------------------------------------------
+  // Hooks Related Event Handlers
+  //------------------------------------------------------------------------------------
+  eventBus.on('hooks:on:request:complete', (payload) =>
+    withHook('hooks:on:request:complete', mutators.value.active().operation.addResponseToHistory, hooks)(payload),
   )
 }

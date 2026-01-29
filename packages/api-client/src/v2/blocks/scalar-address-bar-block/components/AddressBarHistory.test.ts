@@ -75,7 +75,7 @@ describe('AddressBarHistory', () => {
     await items[1].trigger('click')
 
     // Expect event emitted with correct index
-    const emitted = wrapper.emitted('selectHistoryItem')
+    const emitted = wrapper.emitted('select:history:item')
     expect(emitted).toBeTruthy()
     assert(emitted)
     assert(emitted[0])

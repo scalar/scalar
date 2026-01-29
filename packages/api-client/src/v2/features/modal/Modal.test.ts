@@ -459,7 +459,7 @@ describe('Modal', () => {
      * When hideClientButton is true, it should be passed as true to Operation.
      * This allows hiding the client button in the modal.
      */
-    const operationWithHidden = wrapperWithHidden.findComponent({ name: 'Operation' })
+    const operationWithHidden = wrapperWithHidden.findComponent({ name: 'OperationBlock' })
     expect(operationWithHidden.exists()).toBe(true)
     expect(operationWithHidden.props('hideClientButton')).toBe(true)
 
@@ -478,7 +478,7 @@ describe('Modal', () => {
     /**
      * When hideClientButton is false, it should be passed as false to Operation.
      */
-    const operationWithShown = wrapperWithShown.findComponent({ name: 'Operation' })
+    const operationWithShown = wrapperWithShown.findComponent({ name: 'OperationBlock' })
     expect(operationWithShown.exists()).toBe(true)
     expect(operationWithShown.props('hideClientButton')).toBe(false)
 
@@ -498,10 +498,93 @@ describe('Modal', () => {
      * When hideClientButton is undefined, it should default to false.
      * This ensures the button is shown by default.
      */
-    const operationWithDefault = wrapperWithDefault.findComponent({ name: 'Operation' })
+    const operationWithDefault = wrapperWithDefault.findComponent({ name: 'OperationBlock' })
     expect(operationWithDefault.exists()).toBe(true)
     expect(operationWithDefault.props('hideClientButton')).toBe(false)
 
     wrapperWithDefault.unmount()
+  })
+
+  it('drops document changes when modal is closed', async () => {
+    const { props, modalState, document } = await createModalProps()
+
+    // Open the modal
+    modalState.open = true
+    const wrapper = mount(Modal, { props, attachTo: '#scalar-modal-test' })
+    await waitForUpdates()
+
+    /**
+     * Make changes to the document while the modal is open.
+     * We modify the document title to simulate user edits.
+     */
+    const originalTitle = document.value?.info.title
+    expect(originalTitle).toBe('Test API')
+
+    if (document.value) {
+      document.value.info.title = 'Modified Title'
+      document.value.info.description = 'This is a modified description'
+    }
+
+    await waitForUpdates()
+
+    /**
+     * Verify the changes were applied to the document.
+     */
+    expect(document.value?.info.title).toBe('Modified Title')
+    expect(document.value?.info.description).toBe('This is a modified description')
+
+    /**
+     * Close the modal by setting modalState.open to false.
+     * This should trigger the cleanUp function which calls revertDocumentChanges.
+     */
+    modalState.open = false
+    await waitForUpdates()
+
+    /**
+     * After closing the modal, the document changes should be reverted.
+     * The title should be back to the original value.
+     */
+    expect(document.value?.info.title).toBe(originalTitle)
+    expect(document.value?.info.description).toBeUndefined()
+
+    wrapper.unmount()
+  })
+
+  it('drops document changes when component is unmounted', async () => {
+    const { props, modalState, document } = await createModalProps()
+
+    // Open the modal
+    modalState.open = true
+    const wrapper = mount(Modal, { props, attachTo: '#scalar-modal-test' })
+    await waitForUpdates()
+
+    /**
+     * Make changes to the document.
+     */
+    if (document.value) {
+      document.value.info.title = 'Unmount Test Title'
+      document.value.servers = [{ url: 'https://modified.example.com' }]
+    }
+
+    await waitForUpdates()
+
+    /**
+     * Verify the changes were applied.
+     */
+    expect(document.value?.info.title).toBe('Unmount Test Title')
+    expect(document.value?.servers).toEqual([{ url: 'https://modified.example.com' }])
+
+    /**
+     * Unmount the component directly without closing the modal.
+     * The onBeforeUnmount hook should call cleanUp and revert changes.
+     */
+    wrapper.unmount()
+    await waitForUpdates()
+
+    /**
+     * Document changes should be reverted after unmounting.
+     */
+    expect(document.value?.info.title).toBe('Test API')
+    expect(document.value?.servers).toBeUndefined()
   })
 })

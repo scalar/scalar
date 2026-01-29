@@ -7,6 +7,8 @@ import { ROUTES } from '@/v2/features/app/helpers/routes'
 import type { ClientPlugin } from '@/v2/helpers/plugins'
 import type { ClientLayout } from '@/v2/types/layout'
 
+import { useCommandPaletteState } from '../../command-palette/hooks/use-command-palette-state'
+
 type CreateApiClientOptions = {
   /**
    * The layout of the client, limited to web or desktop in app
@@ -41,9 +43,15 @@ export const createApiClientApp = (el: HTMLElement | null, { layout = 'desktop',
   // Add the router
   const router = createAppRouter(layout)
   const state = useAppState(router)
+  const commandPaletteState = useCommandPaletteState()
 
   // Pass in our initial props at the top level
-  const app = createApp(App, { layout, plugins, getAppState: () => state })
+  const app = createApp(App, {
+    layout,
+    plugins,
+    getAppState: () => state,
+    getCommandPaletteState: () => commandPaletteState,
+  })
   app.use(router)
 
   // Mount the vue app

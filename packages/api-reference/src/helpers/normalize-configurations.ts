@@ -19,6 +19,7 @@ export type NormalizedConfiguration = {
   slug: string
   config: ApiReferenceConfigurationRaw
   default: boolean
+  agent: ApiReferenceConfigurationWithSource['agent']
   source: { url: string; content?: never } | { content: Record<string, unknown>; url?: never }
 }
 
@@ -77,6 +78,7 @@ export const normalizeConfigurations = (
         title: c.title,
         slug: c.slug,
         default: !!c?.default,
+        agent: c.agent,
         source: content ? { content: normalizeContent(content) ?? {} } : { url },
       }
     })

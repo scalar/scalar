@@ -10,7 +10,7 @@
     "url": "git+https://github.com/scalar/scalar.git",
     "directory": "integrations/hono"
   },
-  "version": "0.9.34",
+  "version": "0.9.38",
   "engines": {
     "node": ">=20"
   },
@@ -61,7 +61,7 @@
   },
   "devDependencies": {
     "@hono/node-server": "catalog:*",
-    "@hono/zod-openapi": "^1.1.3",
+    "@hono/zod-openapi": "^1.2.0",
     "@scalar/build-tooling": "workspace:*",
     "@scalar/openapi-to-markdown": "workspace:*",
     "hono": "catalog:*",
@@ -69,6 +69,6 @@
     "vitest": "catalog:*"
   },
   "peerDependencies": {
-    "hono": "^4.10.3"
+    "hono": "^4.11.4"
   }
 }

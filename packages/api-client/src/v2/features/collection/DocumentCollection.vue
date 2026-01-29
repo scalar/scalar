@@ -13,7 +13,8 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { ScalarButton } from '@scalar/components'
+import { ScalarButton, ScalarFormError } from '@scalar/components'
+import { ScalarIconArrowLeft, ScalarIconFloppyDisk } from '@scalar/icons'
 import { LibraryIcon } from '@scalar/icons/library'
 import { computed } from 'vue'
 import { RouterView } from 'vue-router'
@@ -33,6 +34,14 @@ const title = computed(() => props.document?.info?.title || 'Untitled Document')
 const icon = computed(
   () => props.document?.['x-scalar-icon'] || 'interface-content-folder',
 )
+
+const undoChanges = () => {
+  props.workspaceStore.revertDocumentChanges(props.documentSlug)
+}
+
+const saveChanges = () => {
+  props.workspaceStore.saveDocument(props.documentSlug)
+}
 </script>
 
 <template>
@@ -44,6 +53,31 @@ const icon = computed(
       <div
         :aria-label="`title: ${title}`"
         class="mx-auto flex h-fit w-full flex-col gap-2 pt-6 pb-3 md:mx-auto md:max-w-[720px]">
+        <ScalarFormError
+          v-if="document['x-scalar-is-dirty']"
+          variant="warning">
+          <div>
+            You have unsaved changes. Save your work to keep your changes, or
+            undo to revert them.
+          </div>
+          <div class="flex-1"></div>
+          <div class="flex">
+            <ScalarButton
+              size="sm"
+              variant="ghost"
+              @click="undoChanges">
+              <ScalarIconArrowLeft />
+              <span>Undo</span>
+            </ScalarButton>
+            <ScalarButton
+              size="sm"
+              variant="ghost"
+              @click="saveChanges">
+              <ScalarIconFloppyDisk />
+              <span>Save</span>
+            </ScalarButton>
+          </div>
+        </ScalarFormError>
         <div class="flex flex-row items-center gap-2">
           <IconSelector
             :modelValue="icon"

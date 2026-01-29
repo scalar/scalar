@@ -3,7 +3,17 @@ import type { OperationObject, ParameterObject } from '@scalar/workspace-store/s
 import { getExampleFromSchema } from '@v2/blocks/operation-code-sample/helpers/get-example-from-schema'
 import type { Request as HarRequest } from 'har-format'
 
+import { deSerializeParameter } from '@/v2/blocks/operation-block/helpers/de-serialize-parameter'
 import { getExample } from '@/v2/blocks/operation-block/helpers/get-example'
+import {
+  serializeContentValue,
+  serializeDeepObjectStyle,
+  serializeFormStyle,
+  serializeFormStyleForCookies,
+  serializePipeDelimitedStyle,
+  serializeSimpleStyle,
+  serializeSpaceDelimitedStyle,
+} from '@/v2/blocks/operation-block/helpers/serialize-parameter'
 import { isParamDisabled } from '@/v2/blocks/request-block/helpers/is-param-disabled'
 
 type ProcessedParameters = {
@@ -70,7 +80,7 @@ const getParameterValue = (
 
   // If the example value is set, return it.
   if (exampleValue?.value !== undefined) {
-    return exampleValue.value
+    return deSerializeParameter(exampleValue.value, param)
   }
 
   // Fall back to schema example if available
@@ -92,13 +102,11 @@ export const processParameters = ({
   harRequest,
   parameters,
   example,
-  contentType,
 }: {
   harRequest: HarRequest
   parameters: OperationObject['parameters']
   /** The name of the example to use */
   example?: string | undefined
-  contentType?: string | undefined
 }): ProcessedParameters => {
   // Create copies of the arrays to avoid modifying the input
   const newHeaders = [...harRequest.headers]
@@ -113,7 +121,7 @@ export const processParameters = ({
       continue
     }
 
-    const paramValue = getParameterValue(param, example, contentType)
+    const paramValue = getParameterValue(param, example, undefined)
     if (paramValue === undefined) {
       continue
     }
@@ -125,79 +133,50 @@ export const processParameters = ({
         newUrl = processPathParameters(newUrl, param, paramValue, style, explode)
         break
       }
+
       case 'query': {
+        // Content type parameters should be serialized according to the parameter's own content type
+        if ('content' in param && param.content) {
+          // We grab the first for now but eventually we should support selecting the content type per parameter
+          const paramContentType = Object.keys(param.content)[0] ?? 'application/json'
+          const serializedValue = serializeContentValue(paramValue, paramContentType)
+          newQueryString.push({ name: param.name, value: serializedValue })
+          break
+        }
+
         // Handle query parameters
         switch (style) {
           case 'form': {
-            if (explode) {
-              // Form explode array: color=blue&color=black&color=brown
-              if (Array.isArray(paramValue)) {
-                for (const value of paramValue as unknown[]) {
-                  newQueryString.push({ name: param.name, value: String(value) })
-                }
+            const serialized = serializeFormStyle(paramValue, explode)
+
+            // If serialized is an array of key-value pairs (exploded object or array)
+            if (Array.isArray(serialized)) {
+              for (const entry of serialized) {
+                const key = entry.key || param.name
+                newQueryString.push({ name: key, value: String(entry.value) })
               }
-              // Form explode object: R=100&G=200&B=150
-              else if (typeof paramValue === 'object' && paramValue !== null) {
-                for (const [key, value] of Object.entries(paramValue as Record<string, unknown>)) {
-                  newQueryString.push({ name: key, value: String(value) })
-                }
-              }
-              // Form explode primitive: color=blue
-              else {
-                newQueryString.push({ name: param.name, value: String(paramValue) })
-              }
-            } else {
-              // Form no explode array: color=blue,black,brown
-              if (Array.isArray(paramValue)) {
-                newQueryString.push({ name: param.name, value: (paramValue as unknown[]).join(',') })
-              }
-              // Form no explode object: color=R,100,G,200,B,150
-              else if (typeof paramValue === 'object' && paramValue !== null) {
-                const values = Object.entries(paramValue as Record<string, unknown>)
-                  .map(([k, v]) => `${k},${v}`)
-                  .join(',')
-                newQueryString.push({ name: param.name, value: values })
-              }
-              // Form no explode primitive: color=blue
-              else {
-                newQueryString.push({ name: param.name, value: String(paramValue) })
-              }
+            }
+            // Otherwise, convert to string
+            else {
+              newQueryString.push({ name: param.name, value: String(serialized) })
             }
             break
           }
           case 'spaceDelimited': {
-            // SpaceDelimited array: color=blue black brown
-            if (Array.isArray(paramValue)) {
-              newQueryString.push({ name: param.name, value: (paramValue as unknown[]).join(' ') })
-            }
-            // SpaceDelimited object: color=R 100 G 200 B 150
-            else if (typeof paramValue === 'object' && paramValue !== null) {
-              const values = Object.entries(paramValue as Record<string, unknown>)
-                .map(([k, v]) => `${k} ${v}`)
-                .join(' ')
-              newQueryString.push({ name: param.name, value: values })
-            }
+            const serialized = serializeSpaceDelimitedStyle(paramValue)
+            newQueryString.push({ name: param.name, value: serialized })
             break
           }
           case 'pipeDelimited': {
-            // PipeDelimited array: color=blue|black|brown
-            if (Array.isArray(paramValue)) {
-              newQueryString.push({ name: param.name, value: (paramValue as unknown[]).join('|') })
-            }
-            // PipeDelimited object: color=R|100|G|200|B|150
-            else if (typeof paramValue === 'object' && paramValue !== null) {
-              const values = Object.entries(paramValue as Record<string, unknown>)
-                .flat()
-                .join('|')
-              newQueryString.push({ name: param.name, value: values })
-            }
+            const serialized = serializePipeDelimitedStyle(paramValue)
+            newQueryString.push({ name: param.name, value: serialized })
             break
           }
           case 'deepObject': {
-            // DeepObject: color[R]=100&color[G]=200&color[B]=150
-            if (explode && typeof paramValue === 'object' && paramValue !== null) {
-              for (const [key, value] of Object.entries(paramValue as Record<string, unknown>)) {
-                newQueryString.push({ name: `${param.name}[${key}]`, value: String(value) })
+            if (explode) {
+              const entries = serializeDeepObjectStyle(param.name, paramValue)
+              for (const entry of entries) {
+                newQueryString.push({ name: entry.key, value: entry.value })
               }
             }
             break
@@ -209,100 +188,35 @@ export const processParameters = ({
         }
         break
       }
-      case 'header':
-        // Headers only support 'simple' style according to OpenAPI 3.1.1
-        if (explode) {
-          // Simple explode array: multiple header values
-          if (Array.isArray(paramValue)) {
-            for (const value of paramValue as unknown[]) {
-              newHeaders.push({ name: param.name, value: String(value) })
-            }
-          }
-          // Simple explode object: key=value pairs
-          else if (typeof paramValue === 'object' && paramValue !== null) {
-            const values = Object.entries(paramValue as Record<string, unknown>)
-              .map(([k, v]) => `${k}=${v}`)
-              .join(',')
-            newHeaders.push({ name: param.name, value: values })
-          }
-          // Simple explode primitive: single value
-          else {
-            newHeaders.push({ name: param.name, value: String(paramValue) })
+
+      // Headers only support 'simple' style according to OpenAPI 3.1.1
+      // For arrays, simple style always produces comma-separated values regardless of explode
+      // The explode parameter only affects object serialization
+      case 'header': {
+        const serialized = serializeSimpleStyle(paramValue, explode)
+        newHeaders.push({ name: param.name, value: String(serialized) })
+        break
+      }
+
+      // Cookies only support 'form' style according to OpenAPI 3.1.1
+      case 'cookie': {
+        const serialized = serializeFormStyleForCookies(paramValue, explode)
+
+        // If serialized is an array of key-value pairs (exploded object or array)
+        if (Array.isArray(serialized)) {
+          for (const entry of serialized) {
+            const key = entry.key || param.name
+            const value = entry.value === null ? 'null' : String(entry.value)
+            harRequest.cookies.push({ name: key, value })
           }
         }
-        // Simple no explode: all values joined with commas
+        // Otherwise, convert to string
         else {
-          // Handle array values without explode
-          if (Array.isArray(paramValue)) {
-            newHeaders.push({ name: param.name, value: (paramValue as unknown[]).join(',') })
-          }
-          // Handle object values without explode
-          else if (typeof paramValue === 'object' && paramValue !== null) {
-            const values = Object.entries(paramValue as Record<string, unknown>)
-              .map(([k, v]) => `${k},${v}`)
-              .join(',')
-            newHeaders.push({ name: param.name, value: values })
-          }
-          // Handle primitive values without explode
-          else {
-            newHeaders.push({ name: param.name, value: String(paramValue) })
-          }
+          const value = serialized === null ? 'null' : String(serialized)
+          harRequest.cookies.push({ name: param.name, value })
         }
         break
-      case 'cookie':
-        // Cookies only support 'form' style according to OpenAPI 3.1.1
-        if (explode) {
-          // Handle array values with explode
-          if (Array.isArray(paramValue)) {
-            for (const value of paramValue) {
-              harRequest.cookies.push({ name: param.name, value: value === null ? 'null' : String(value) })
-            }
-          }
-          // Handle object values with explode
-          else if (typeof paramValue === 'object' && paramValue !== null) {
-            for (const [key, value] of Object.entries(paramValue)) {
-              harRequest.cookies.push({ name: key, value: value === null ? 'null' : String(value) })
-            }
-          }
-          // Handle primitive values with explode
-          else {
-            harRequest.cookies.push({ name: param.name, value: paramValue === null ? 'null' : String(paramValue) })
-          }
-        } else {
-          // Handle array values without explode
-          if (Array.isArray(paramValue)) {
-            const serializedValues = paramValue.map((v) => (v === null ? 'null' : String(v))).join(',')
-            harRequest.cookies.push({ name: param.name, value: serializedValues })
-          }
-          // Handle object values without explode
-          else if (typeof paramValue === 'object' && paramValue !== null) {
-            // Handle nested objects by recursively flattening them
-            const flattenObject = (obj: Record<string, unknown>): string[] => {
-              const result: string[] = []
-
-              for (const [key, value] of Object.entries(obj)) {
-                // Recursively flatten nested objects
-                if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
-                  result.push(key, ...flattenObject(value as Record<string, unknown>))
-                }
-                // Handle primitive values
-                else {
-                  result.push(key, value === null ? 'null' : String(value))
-                }
-              }
-
-              return result
-            }
-
-            const values = flattenObject(paramValue as Record<string, unknown>).join(',')
-            harRequest.cookies.push({ name: param.name, value: values })
-          }
-          // Handle primitive values without explode
-          else {
-            harRequest.cookies.push({ name: param.name, value: paramValue === null ? 'null' : String(paramValue) })
-          }
-        }
-        break
+      }
     }
   }
 
@@ -408,40 +322,8 @@ const processPathParameters = (
     }
 
     case 'simple': {
-      if (explode) {
-        // Simple explode array: blue,black,brown
-        if (Array.isArray(paramValue)) {
-          return url.replace(`{${param.name}}`, (paramValue as unknown[]).join(','))
-        }
-
-        // Simple explode object: R=100,G=200,B=150
-        if (typeof paramValue === 'object' && paramValue !== null) {
-          const values = Object.entries(paramValue as Record<string, unknown>)
-            .map(([k, v]) => `${k}=${v}`)
-            .join(',')
-
-          return url.replace(`{${param.name}}`, values)
-        }
-
-        // Simple explode primitive: blue
-        return url.replace(`{${param.name}}`, String(paramValue))
-      }
-      // Simple no explode array: blue,black,brown
-      if (Array.isArray(paramValue)) {
-        return url.replace(`{${param.name}}`, (paramValue as unknown[]).join(','))
-      }
-
-      // Simple no explode object: R,100,G,200,B,150
-      if (typeof paramValue === 'object' && paramValue !== null) {
-        const values = Object.entries(paramValue as Record<string, unknown>)
-          .map(([k, v]) => `${k},${v}`)
-          .join(',')
-
-        return url.replace(`{${param.name}}`, values)
-      }
-
-      // Simple no explode primitive: blue
-      return url.replace(`{${param.name}}`, String(paramValue))
+      const serialized = serializeSimpleStyle(paramValue, explode)
+      return url.replace(`{${param.name}}`, String(serialized))
     }
 
     // Default to simple style

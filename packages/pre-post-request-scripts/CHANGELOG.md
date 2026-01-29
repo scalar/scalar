@@ -1,5 +1,110 @@
 # @scalar/scripts
 
+## 0.0.77
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/components@0.17.0**
+  - [#7959](https://github.com/scalar/scalar/pull/7959): feat(agent): add agent scalar to localhost
+
+- **@scalar/oas-utils@0.6.30**
+
+## 0.0.76
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/oas-utils@0.6.29**
+
+- **@scalar/components@0.16.32**
+
+## 0.0.75
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/oas-utils@0.6.28**
+
+- **@scalar/components@0.16.31**
+
+## 0.0.74
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/oas-utils@0.6.27**
+  - [#7894](https://github.com/scalar/scalar/pull/7894): fix: the import and export of redirect to proxy
+
+- **@scalar/components@0.16.30**
+
+## 0.0.73
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/oas-utils@0.6.26**
+
+- **@scalar/components@0.16.29**
+
+## 0.0.72
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/oas-utils@0.6.25**
+
+- **@scalar/components@0.16.28**
+
+## 0.0.71
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/oas-utils@0.6.24**
+
+- **@scalar/components@0.16.27**
+
+## 0.0.70
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/components@0.16.26**
+  - [#7846](https://github.com/scalar/scalar/pull/7846): Fix dev dep issue
+
+- **@scalar/oas-utils@0.6.23**
+
+## 0.0.69
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/oas-utils@0.6.22**
+  - [#7814](https://github.com/scalar/scalar/pull/7814): fix: additional properties generate invalid example
+
+- **@scalar/components@0.16.25**
+
+## 0.0.68
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/components@0.16.24**
+  - [#7802](https://github.com/scalar/scalar/pull/7802): fix: Vue warning because of deprecated icon syntax
+
+- **@scalar/oas-utils@0.6.21**
+
 ## 0.0.67
 
 ### Patch Changes

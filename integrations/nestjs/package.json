@@ -10,7 +10,7 @@
     "url": "git+https://github.com/scalar/scalar.git",
     "directory": "integrations/nestjs"
   },
-  "version": "1.0.17",
+  "version": "1.0.21",
   "engines": {
     "node": ">=20"
   },
@@ -18,8 +18,8 @@
     "build": "tsup ./src/index.ts --format esm,cjs --dts",
     "build:express": "cd playground/nestjs-api-reference-express && pnpm build",
     "build:fastify": "cd playground/nestjs-api-reference-fastify && pnpm build",
-    "dev:express": "cd playground/nestjs-api-reference-express && pnpm dev",
-    "dev:fastify": "cd playground/nestjs-api-reference-fastify && pnpm dev",
+    "dev:express": "cd playground/nestjs-api-reference-express && pnpm run dev",
+    "dev:fastify": "cd playground/nestjs-api-reference-fastify && pnpm run dev",
     "docker:build-express": "docker build --build-arg BASE_IMAGE=scalar-base -t nestjs-api-reference-express -f playground/nestjs-api-reference-express/Dockerfile .",
     "docker:build-fastify": "docker build --build-arg BASE_IMAGE=scalar-base -t nestjs-api-reference-fastify -f playground/nestjs-api-reference-fastify/Dockerfile .",
     "docker:run-express": "docker run -p 5056:5056 nestjs-api-reference-express",
@@ -67,19 +67,17 @@
     "@scalar/core": "workspace:*"
   },
   "devDependencies": {
-    "@nestjs/common": "^11.1.6",
-    "@nestjs/core": "^11.1.6",
-    "@nestjs/platform-express": "^10.3.8",
-    "@nestjs/platform-fastify": "^11.1.11",
-    "@nestjs/testing": "^11.1.6",
-    "@scalar/api-reference": "workspace:*",
+    "@nestjs/common": "catalog:*",
+    "@nestjs/core": "catalog:*",
+    "@nestjs/platform-express": "catalog:*",
+    "@nestjs/platform-fastify": "catalog:*",
+    "@nestjs/testing": "catalog:*",
     "@types/express": "catalog:*",
-    "@types/supertest": "^2.0.12",
+    "@types/supertest": "catalog:*",
     "express": "catalog:*",
     "fastify": "^5.4.0",
-    "supertest": "^7.1.4",
+    "supertest": "catalog:*",
     "tsup": "^8.3.5",
-    "vite": "catalog:*",
     "vitest": "catalog:*"
   }
 }

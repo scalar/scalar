@@ -19,7 +19,7 @@
     "post-response scripts",
     "api client"
   ],
-  "version": "0.0.67",
+  "version": "0.0.77",
   "private": true,
   "engines": {
     "node": ">=18"
@@ -79,7 +79,7 @@
     "CHANGELOG.md"
   ],
   "dependencies": {
-    "@codemirror/lang-javascript": "^6.2.3",
+    "@codemirror/lang-javascript": "^6.2.4",
     "@headlessui/vue": "catalog:*",
     "@scalar/components": "workspace:*",
     "@scalar/oas-utils": "workspace:*",

@@ -6,6 +6,8 @@ import { nextTick } from 'vue'
 import { createMemoryHistory, createRouter } from 'vue-router'
 import 'fake-indexeddb/auto'
 
+import { useCommandPaletteState } from '@/v2/features/command-palette/hooks/use-command-palette-state'
+
 import App from './App.vue'
 import { useAppState } from './app-state'
 import { ROUTES } from './helpers/routes'
@@ -71,10 +73,13 @@ describe('App', () => {
 
     await router.isReady()
 
+    const commandPaletteState = useCommandPaletteState()
+
     const wrapper = mount(App, {
       props: {
         layout,
         getAppState: () => appState,
+        getCommandPaletteState: () => commandPaletteState,
       },
       global: {
         plugins: [router],

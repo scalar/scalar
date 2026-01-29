@@ -1,12 +1,17 @@
 <script setup lang="ts">
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
-import { ScalarButton, ScalarIcon, useModal } from '@scalar/components'
+import {
+  ScalarButton,
+  ScalarIcon,
+  ScalarSearchInput,
+  useModal,
+} from '@scalar/components'
 import type { ApiReferenceEvents } from '@scalar/workspace-store/events'
 import type {
   OAuthFlow,
   OAuthFlowsObject,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 
 import {
   DataTableCell,
@@ -32,6 +37,8 @@ const emits = defineEmits<{
   ): void
 }>()
 
+const searchQuery = ref('')
+
 /** List of all available scopes */
 const scopes = computed(() =>
   Object.entries(flow?.scopes ?? {}).map(([key, val]) => ({
@@ -40,6 +47,24 @@ const scopes = computed(() =>
     description: val,
   })),
 )
+
+const filteredScopes = computed(() => {
+  if (!searchQuery.value) {
+    return scopes.value
+  }
+
+  const regex = new RegExp(
+    searchQuery.value
+      .split('')
+      .map((c) => c.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
+      .join('.*'),
+    'i',
+  )
+
+  return scopes.value.filter(({ label, description }) =>
+    regex.test(`${label} ${description}`),
+  )
+})
 
 const allScopesSelected = computed(
   () => selectedScopes.length === Object.keys(flow?.scopes ?? {}).length,
@@ -123,30 +148,34 @@ const addNewScopeModal = useModal()
               size="md" />
           </div>
         </DisclosureButton>
-
         <!-- Scopes List -->
         <DisclosurePanel as="template">
-          <table
-            class="grid auto-rows-auto"
-            :style="{ gridTemplateColumns: '1fr auto' }">
-            <DataTableRow
-              v-for="{ id, label, description } in scopes"
-              :key="id"
-              class="text-c-2"
-              @click="setScope(id, !selectedScopes.includes(id))">
-              <DataTableCell
-                class="hover:text-c-1 box-border !max-h-[initial] w-full cursor-pointer px-3 py-1.5">
-                <span class="font-code text-xs">{{ label }}</span>
-                <span v-if="description">
-                  &nbsp; &ndash;
-                  {{ description }}
-                </span>
-              </DataTableCell>
-              <DataTableCheckbox
-                :modelValue="selectedScopes.includes(id)"
-                @update:modelValue="setScope(id, $event)" />
-            </DataTableRow>
-          </table>
+          <div>
+            <ScalarSearchInput
+              v-model="searchQuery"
+              class="flex items-center text-xs" />
+            <table
+              class="grid max-h-40 auto-rows-auto overflow-x-hidden overflow-y-scroll"
+              :style="{ gridTemplateColumns: '1fr auto' }">
+              <DataTableRow
+                v-for="{ id, label, description } in filteredScopes"
+                :key="id"
+                class="text-c-2"
+                @click="setScope(id, !selectedScopes.includes(id))">
+                <DataTableCell
+                  class="no-scrollbar hover:text-c-1 box-border flex !max-h-[initial] w-full cursor-pointer items-center gap-1 overflow-x-scroll px-3 py-1.5 text-nowrap">
+                  <span class="font-code text-xs">{{ label }}</span>
+                  <span>&ndash;</span>
+                  <span v-if="description">
+                    {{ description }}
+                  </span>
+                </DataTableCell>
+                <DataTableCheckbox
+                  :modelValue="selectedScopes.includes(id)"
+                  @update:modelValue="setScope(id, $event)" />
+              </DataTableRow>
+            </table>
+          </div>
         </DisclosurePanel>
       </Disclosure>
     </div>
@@ -164,3 +193,14 @@ const addNewScopeModal = useModal()
       " />
   </DataTableCell>
 </template>
+
+<style>
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+</style>

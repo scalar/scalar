@@ -417,6 +417,6 @@ const isDiscriminatorProperty = computed(() =>
 }
 
 .property-name-additional-properties::before {
-  content: 'unknown';
+  content: 'unknown property name';
 }
 </style>

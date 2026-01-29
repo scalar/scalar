@@ -1,5 +1,55 @@
 # @scalar/nextjs-openapi
 
+## 0.2.42
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/types@0.6.0**
+  - [#7959](https://github.com/scalar/scalar/pull/7959): feat(agent): add agent scalar to localhost
+
+- **@scalar/nextjs-api-reference@0.9.16**
+
+## 0.2.41
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/nextjs-api-reference@0.9.15**
+  - [#7908](https://github.com/scalar/scalar/pull/7908): fix: use named instead of star exports
+
+## 0.2.40
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/nextjs-api-reference@0.9.14**
+
+- **@scalar/types@0.5.10**
+
+## 0.2.39
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/types@0.5.9**
+  - [#7866](https://github.com/scalar/scalar/pull/7866): chore: expose har types
+
+- **@scalar/nextjs-api-reference@0.9.13**
+
+## 0.2.38
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/nextjs-api-reference@0.9.12**
+  - [#7810](https://github.com/scalar/scalar/pull/7810): docs: update documentation domain
+
 ## 0.2.37
 
 ### Patch Changes

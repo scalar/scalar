@@ -1,5 +1,11 @@
 # @scalar/themes
 
+## 0.14.0
+
+### Minor Changes
+
+- [#7959](https://github.com/scalar/scalar/pull/7959): feat(agent): add agent scalar to localhost
+
 ## 0.13.26
 
 ### Patch Changes

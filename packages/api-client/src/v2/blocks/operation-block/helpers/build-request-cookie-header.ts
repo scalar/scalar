@@ -50,7 +50,7 @@ export const buildRequestCookieHeader = ({
   /** Environment variables flattened into a key-value object */
   env: Record<string, string>
   /** Cookie header that previously exists from the spec OR from the user */
-  originalCookieHeader: string | undefined
+  originalCookieHeader: string | undefined | null
   /** The url of the request used to filter global cookies by domain */
   url: string
   /**
@@ -73,7 +73,7 @@ export const buildRequestCookieHeader = ({
     })
 
   /** Generate the cookie header */
-  const cookieHeader = getCookieHeader([...filteredGlobalCookies, ...paramCookies], originalCookieHeader)
+  const cookieHeader = getCookieHeader([...filteredGlobalCookies, ...paramCookies], originalCookieHeader ?? undefined)
 
   if (cookieHeader) {
     // Add a custom header for the proxy (that's then forwarded as `Cookie`)

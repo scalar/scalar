@@ -1,3 +1,4 @@
+import { ScalarButton } from '@scalar/components'
 import { flushPromises, mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { nextTick } from 'vue'
@@ -531,6 +532,535 @@ describe('ResponseBodyStreaming', () => {
       await nextTick()
 
       expect(wrapper.text()).toContain('你好世界')
+    })
+  })
+
+  describe('cancel button interaction', () => {
+    it('shows cancel button while streaming', async () => {
+      mockReader = {
+        read: vi.fn().mockReturnValue(
+          new Promise(() => {
+            // Never resolves to keep loading state
+          }),
+        ),
+        cancel: vi.fn(),
+        releaseLock: vi.fn(),
+        closed: Promise.resolve(undefined),
+      }
+
+      const wrapper = mount(ResponseBodyStreaming, {
+        props: { reader: mockReader },
+      })
+
+      await nextTick()
+
+      const cancelButton = wrapper.findComponent(ScalarButton)
+      expect(cancelButton.exists()).toBe(true)
+      expect(cancelButton.text()).toContain('Cancel')
+    })
+
+    it('hides cancel button when stream completes', async () => {
+      mockReader = createMockReader(['Complete'])
+      const wrapper = mount(ResponseBodyStreaming, {
+        props: { reader: mockReader },
+      })
+
+      await flushPromises()
+      await nextTick()
+
+      const cancelButton = wrapper.findComponent(ScalarButton)
+      expect(cancelButton.exists()).toBe(false)
+    })
+
+    it('stops streaming when cancel button is clicked', async () => {
+      mockReader = {
+        read: vi.fn().mockReturnValue(
+          new Promise(() => {
+            // Never resolves to keep loading state
+          }),
+        ),
+        cancel: vi.fn().mockResolvedValue(undefined),
+        releaseLock: vi.fn(),
+        closed: Promise.resolve(undefined),
+      }
+
+      const wrapper = mount(ResponseBodyStreaming, {
+        props: { reader: mockReader },
+      })
+
+      await nextTick()
+      expect(wrapper.text()).toContain('Listening…')
+
+      const cancelButton = wrapper.findComponent(ScalarButton)
+      await cancelButton.trigger('click')
+      await flushPromises()
+      await nextTick()
+
+      expect(mockReader.cancel).toHaveBeenCalled()
+      expect(wrapper.text()).not.toContain('Listening…')
+    })
+
+    it('cancels reader immediately when button clicked', async () => {
+      mockReader = {
+        read: vi.fn(
+          () =>
+            new Promise<ReadableStreamReadResult<Uint8Array>>(() => {
+              // Never resolves - simulates ongoing read
+            }),
+        ),
+        cancel: vi.fn().mockResolvedValue(undefined),
+        releaseLock: vi.fn(),
+        closed: Promise.resolve(undefined),
+      }
+
+      const wrapper = mount(ResponseBodyStreaming, {
+        props: { reader: mockReader },
+      })
+
+      await nextTick()
+
+      const cancelButton = wrapper.findComponent(ScalarButton)
+      await cancelButton.trigger('click')
+      await flushPromises()
+
+      expect(mockReader.cancel).toHaveBeenCalledTimes(1)
+    })
+  })
+
+  describe('UI rendering', () => {
+    it('renders Body title', async () => {
+      mockReader = createMockReader(['test'])
+      const wrapper = mount(ResponseBodyStreaming, {
+        props: { reader: mockReader },
+      })
+
+      await nextTick()
+
+      expect(wrapper.text()).toContain('Body')
+    })
+
+    it('renders CollapsibleSection component', async () => {
+      mockReader = createMockReader(['test'])
+      const wrapper = mount(ResponseBodyStreaming, {
+        props: { reader: mockReader },
+      })
+
+      await nextTick()
+
+      const collapsibleSection = wrapper.findComponent({ name: 'CollapsibleSection' })
+      expect(collapsibleSection.exists()).toBe(true)
+    })
+
+    it('displays error and content simultaneously if error occurs mid-stream', async () => {
+      const encoder = new TextEncoder()
+      let callCount = 0
+
+      mockReader = {
+        read: vi.fn(() => {
+          callCount++
+          if (callCount === 1) {
+            return Promise.resolve({
+              done: false as const,
+              value: encoder.encode('Before error'),
+            })
+          }
+          return Promise.reject(new Error('Mid-stream error'))
+        }),
+        cancel: vi.fn(),
+        releaseLock: vi.fn(),
+        closed: Promise.resolve(undefined),
+      }
+
+      const wrapper = mount(ResponseBodyStreaming, {
+        props: { reader: mockReader },
+      })
+
+      await flushPromises()
+      await nextTick()
+
+      expect(wrapper.text()).toContain('Before error')
+      expect(wrapper.text()).toContain('Mid-stream error')
+    })
+  })
+
+  describe('error recovery', () => {
+    it('clears previous error when new reader starts streaming', async () => {
+      mockReader = {
+        read: vi.fn(() => Promise.reject(new Error('First error'))),
+        cancel: vi.fn(),
+        releaseLock: vi.fn(),
+        closed: Promise.resolve(undefined),
+      }
+
+      const wrapper = mount(ResponseBodyStreaming, {
+        props: { reader: mockReader },
+      })
+
+      await flushPromises()
+      await nextTick()
+
+      expect(wrapper.text()).toContain('First error')
+
+      // Create a new successful reader
+      const newReader = createMockReader(['Success'])
+
+      await wrapper.setProps({ reader: newReader })
+      await flushPromises()
+      await nextTick()
+
+      expect(wrapper.text()).toContain('Success')
+      expect(wrapper.text()).not.toContain('First error')
+    })
+  })
+
+  describe('stream completion', () => {
+    it('handles stream that completes immediately', async () => {
+      mockReader = {
+        read: vi.fn(() => Promise.resolve({ done: true as const, value: undefined })),
+        cancel: vi.fn(),
+        releaseLock: vi.fn(),
+        closed: Promise.resolve(undefined),
+      }
+
+      const wrapper = mount(ResponseBodyStreaming, {
+        props: { reader: mockReader },
+      })
+
+      await flushPromises()
+      await nextTick()
+
+      expect(wrapper.text()).not.toContain('Listening…')
+      expect(mockReader.read).toHaveBeenCalled()
+    })
+
+    it('handles empty stream', async () => {
+      mockReader = createMockReader([])
+      const wrapper = mount(ResponseBodyStreaming, {
+        props: { reader: mockReader },
+      })
+
+      await flushPromises()
+      await nextTick()
+
+      expect(wrapper.text()).not.toContain('Listening…')
+      expect(wrapper.text()).toContain('Body')
+    })
+
+    it('calls decoder.decode() with no arguments in finally block', async () => {
+      const encoder = new TextEncoder()
+      mockReader = {
+        read: vi
+          .fn()
+          .mockResolvedValueOnce({ done: false as const, value: encoder.encode('test') })
+          .mockResolvedValueOnce({ done: true as const, value: undefined }),
+        cancel: vi.fn(),
+        releaseLock: vi.fn(),
+        closed: Promise.resolve(undefined),
+      }
+
+      const wrapper = mount(ResponseBodyStreaming, {
+        props: { reader: mockReader },
+      })
+
+      await flushPromises()
+      await nextTick()
+
+      expect(wrapper.text()).toContain('test')
+    })
+  })
+
+  describe('prop changes', () => {
+    it('restarts streaming when reader prop changes', async () => {
+      const firstReader = createMockReader(['First content'])
+      const wrapper = mount(ResponseBodyStreaming, {
+        props: { reader: firstReader },
+      })
+
+      await flushPromises()
+      await nextTick()
+
+      expect(wrapper.text()).toContain('First content')
+
+      const secondReader = createMockReader(['Second content'])
+      await wrapper.setProps({ reader: secondReader })
+      await flushPromises()
+      await nextTick()
+
+      expect(wrapper.text()).toContain('Second content')
+    })
+
+    it('rewrites content when reader changes', async () => {
+      const firstReader = createMockReader(['First'])
+      const wrapper = mount(ResponseBodyStreaming, {
+        props: { reader: firstReader },
+      })
+
+      await flushPromises()
+      await nextTick()
+
+      expect(wrapper.text()).toContain('First')
+
+      const secondReader = createMockReader(['Second'])
+      await wrapper.setProps({ reader: secondReader })
+      await flushPromises()
+      await nextTick()
+
+      expect(wrapper.text()).not.toContain('First')
+      expect(wrapper.text()).toContain('Second')
+    })
+
+    it('prevents race condition when old reader completes after new reader starts', async () => {
+      const encoder = new TextEncoder()
+
+      // Create a slow reader that will complete after being replaced
+      let firstReaderCallCount = 0
+      const firstReader = {
+        read: vi.fn(() => {
+          firstReaderCallCount++
+          if (firstReaderCallCount === 1) {
+            return Promise.resolve({
+              done: false as const,
+              value: encoder.encode('Old chunk 1'),
+            })
+          }
+          // Return done after a delay to simulate slow completion
+          return new Promise<ReadableStreamReadResult<Uint8Array>>((resolve) => {
+            setTimeout(() => resolve({ done: true as const, value: undefined }), 50)
+          })
+        }),
+        cancel: vi.fn(),
+        releaseLock: vi.fn(),
+        closed: Promise.resolve(undefined),
+      }
+
+      const wrapper = mount(ResponseBodyStreaming, {
+        props: { reader: firstReader },
+      })
+
+      await flushPromises()
+      await nextTick()
+
+      expect(wrapper.text()).toContain('Old chunk 1')
+
+      // Create a new reader with multiple chunks while the old reader is still "active"
+      const secondReader = createMockReader(['New chunk 1', 'New chunk 2', 'New chunk 3'])
+      await wrapper.setProps({ reader: secondReader })
+      await flushPromises()
+      await nextTick()
+
+      // Verify the old reader was cancelled
+      expect(firstReader.cancel).toHaveBeenCalled()
+
+      // Verify all chunks from the new reader are displayed
+      expect(wrapper.text()).toContain('New chunk 1')
+      expect(wrapper.text()).toContain('New chunk 2')
+      expect(wrapper.text()).toContain('New chunk 3')
+
+      // Verify old reader content is gone
+      expect(wrapper.text()).not.toContain('Old chunk 1')
+    })
+  })
+
+  describe('concurrent operations', () => {
+    it('handles unmount during active read operation', async () => {
+      mockReader = {
+        read: vi.fn(
+          () =>
+            new Promise<ReadableStreamReadResult<Uint8Array>>(() => {
+              // Never resolves - simulates ongoing read
+            }),
+        ),
+        cancel: vi.fn(),
+        releaseLock: vi.fn(),
+        closed: Promise.resolve(undefined),
+      }
+
+      const wrapper = mount(ResponseBodyStreaming, {
+        props: { reader: mockReader },
+      })
+
+      await nextTick()
+      expect(mockReader.read).toHaveBeenCalled()
+
+      wrapper.unmount()
+
+      expect(mockReader.cancel).toHaveBeenCalled()
+    })
+
+    it('handles error during cancel operation', async () => {
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {
+        // Mock implementation to suppress console output
+      })
+
+      mockReader = {
+        read: vi.fn(
+          () =>
+            new Promise<ReadableStreamReadResult<Uint8Array>>(() => {
+              // Never resolves
+            }),
+        ),
+        cancel: vi.fn().mockRejectedValue(new Error('Cancel failed')),
+        releaseLock: vi.fn(),
+        closed: Promise.resolve(undefined),
+      }
+
+      const wrapper = mount(ResponseBodyStreaming, {
+        props: { reader: mockReader },
+      })
+
+      await nextTick()
+
+      const cancelButton = wrapper.findComponent(ScalarButton)
+      await cancelButton.trigger('click')
+      await flushPromises()
+
+      expect(mockReader.cancel).toHaveBeenCalled()
+
+      consoleErrorSpy.mockRestore()
+    })
+  })
+
+  describe('accessibility', () => {
+    it('uses semantic HTML structure', async () => {
+      mockReader = createMockReader(['test'])
+      const wrapper = mount(ResponseBodyStreaming, {
+        props: { reader: mockReader },
+      })
+
+      await flushPromises()
+
+      // Check for the scrollable content container
+      const contentContainer = wrapper.find('.overflow-auto')
+      expect(contentContainer.exists()).toBe(true)
+    })
+
+    it('error message is sticky positioned for visibility', async () => {
+      mockReader = createMockReader(['test'], true)
+      const wrapper = mount(ResponseBodyStreaming, {
+        props: { reader: mockReader },
+      })
+
+      await flushPromises()
+      await nextTick()
+
+      const errorDiv = wrapper.find('.sticky')
+      expect(errorDiv.exists()).toBe(true)
+    })
+  })
+
+  describe('decoder buffer handling', () => {
+    it('does not corrupt new stream with buffered bytes from cancelled stream', async () => {
+      const encoder = new TextEncoder()
+
+      // Create a multi-byte UTF-8 character (emoji uses 4 bytes)
+      const emoji = '🔥'
+      const emojiBytes = encoder.encode(emoji)
+
+      // Split the emoji bytes - send only first 3 bytes, leaving decoder with incomplete character
+      const incompleteBytes = emojiBytes.slice(0, 3)
+
+      let firstReaderCallCount = 0
+      const firstReader = {
+        read: vi.fn(() => {
+          firstReaderCallCount++
+          if (firstReaderCallCount === 1) {
+            // Send incomplete multi-byte sequence
+            return Promise.resolve({
+              done: false as const,
+              value: incompleteBytes,
+            })
+          }
+          // Keep the stream alive (never complete)
+          return new Promise<ReadableStreamReadResult<Uint8Array>>(() => {
+            // Never resolves
+          })
+        }),
+        cancel: vi.fn().mockResolvedValue(undefined),
+        releaseLock: vi.fn(),
+        closed: Promise.resolve(undefined),
+      }
+
+      const wrapper = mount(ResponseBodyStreaming, {
+        props: { reader: firstReader },
+      })
+
+      await flushPromises()
+      await nextTick()
+
+      // At this point, the decoder has 3 bytes buffered (incomplete emoji)
+      // Now cancel and start a new stream
+      const secondReader = createMockReader(['Hello World'])
+      await wrapper.setProps({ reader: secondReader })
+      await flushPromises()
+      await nextTick()
+
+      // Verify the old reader was cancelled
+      expect(firstReader.cancel).toHaveBeenCalled()
+
+      // The new stream should start clean with "Hello World"
+      // If the decoder buffer was not flushed/reset, we would see corruption
+      const text = wrapper.text()
+      expect(text).toContain('Hello World')
+
+      // Verify there's no corruption from the incomplete emoji bytes
+      // The replacement character � (U+FFFD) would appear if decoder wasn't reset
+      // biome-ignore lint/suspicious/noControlCharactersInRegex: we want to test for the replacement character
+      expect(text).not.toMatch(/[^\x00-\x7F\u0080-\uFFFF\u{10000}-\u{10FFFF}]/u)
+    })
+
+    it('properly resets decoder when switching between streams', async () => {
+      const encoder = new TextEncoder()
+
+      // First stream with partial UTF-8 sequence
+      const chineseChar = '你' // 3-byte UTF-8 character
+      const bytes = encoder.encode(chineseChar)
+      const partialBytes = bytes.slice(0, 2) // Send only 2 of 3 bytes
+
+      const firstReader = {
+        read: vi
+          .fn()
+          .mockResolvedValueOnce({
+            done: false as const,
+            value: partialBytes,
+          })
+          .mockReturnValue(
+            new Promise<ReadableStreamReadResult<Uint8Array>>(() => {
+              // Never resolves
+            }),
+          ),
+        cancel: vi.fn().mockResolvedValue(undefined),
+        releaseLock: vi.fn(),
+        closed: Promise.resolve(undefined),
+      }
+
+      const wrapper = mount(ResponseBodyStreaming, {
+        props: { reader: firstReader },
+      })
+
+      await flushPromises()
+      await nextTick()
+
+      // Switch to second stream
+      const secondReader = createMockReader(['ABC'])
+      await wrapper.setProps({ reader: secondReader })
+      await flushPromises()
+      await nextTick()
+
+      // The output should be clean "ABC" without any corruption
+      const text = wrapper.text()
+      expect(text).toContain('ABC')
+      expect(text).not.toContain('�') // No replacement character from corruption
+
+      // Switch to third stream to ensure it continues working correctly
+      const thirdReader = createMockReader(['123'])
+      await wrapper.setProps({ reader: thirdReader })
+      await flushPromises()
+      await nextTick()
+
+      const finalText = wrapper.text()
+      expect(finalText).toContain('123')
+      expect(finalText).not.toContain('ABC') // Old content should be replaced
+      expect(finalText).not.toContain('�') // No replacement character from corruption
     })
   })
 })

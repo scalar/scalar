@@ -16,7 +16,7 @@
     "scalar",
     "references"
   ],
-  "version": "0.5.8",
+  "version": "0.6.0",
   "engines": {
     "node": ">=20"
   },
@@ -74,7 +74,7 @@
   },
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
-    "@types/har-format": "^1.2.15",
+    "@types/har-format": "^1.2.16",
     "vite": "catalog:*"
   }
 }

@@ -363,7 +363,7 @@ describe('SchemaProperty', () => {
       const wrapper = mount(SchemaProperty, {
         props: {
           variant: 'additionalProperties',
-          name: 'propertyName*',
+          name: 'additionalProperty',
           // @ts-expect-error
           schema: {
             type: 'anything',
@@ -375,7 +375,7 @@ describe('SchemaProperty', () => {
       // Check that the additional property name is rendered with the special styling
       const additionalName = wrapper.find('.property-name-additional-properties')
       expect(additionalName.exists()).toBe(true)
-      expect(additionalName.text()).toBe('propertyName*')
+      expect(additionalName.text()).toBe('additionalProperty')
     })
 
     it('displays regular property names without variant styling', () => {

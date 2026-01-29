@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import { getExample } from '@scalar/api-client/v2/blocks/operation-block'
 import {
   ExamplePicker,
   getResolvedRefDeep,
@@ -18,17 +19,17 @@ import {
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type {
-  ExampleObject,
   MediaTypeObject,
   ResponsesObject,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import { computed, ref, toValue, useId } from 'vue'
+import { computed, ref, toValue, useId, watch } from 'vue'
 
 import ScreenReader from '@/components/ScreenReader.vue'
 
 import ExampleResponse from './ExampleResponse.vue'
 import ExampleResponseTab from './ExampleResponseTab.vue'
 import ExampleResponseTabList from './ExampleResponseTabList.vue'
+import { hasResponseContent } from './has-response-content'
 
 /**
  * TODO: copyToClipboard isn't using the right content if there are multiple examples
@@ -46,13 +47,38 @@ const orderedStatusCodes = computed<string[]>(() =>
   Object.keys(responses ?? {}).sort(),
 )
 
+// Filter to only status codes that have response content
+const statusCodesWithContent = computed<string[]>(() =>
+  orderedStatusCodes.value.filter((statusCode) =>
+    hasResponseContent(getResolvedRef(responses?.[statusCode])),
+  ),
+)
+
 // Keep track of the current selected tab
 const selectedResponseIndex = ref<number>(0)
+
+/**
+ * Clamp the selected index when the filtered list shrinks.
+ * Without this, the index can become out of bounds and cause a mismatch
+ * between the visible tabs and the displayed content.
+ *
+ * We also reset `selectedExampleKey` to match the behavior of `changeTab`,
+ * since the new response may not have the same example keys.
+ */
+watch(statusCodesWithContent, (codes) => {
+  if (codes.length === 0) {
+    selectedResponseIndex.value = 0
+    selectedExampleKey.value = ''
+  } else if (selectedResponseIndex.value >= codes.length) {
+    selectedResponseIndex.value = codes.length - 1
+    selectedExampleKey.value = ''
+  }
+})
 
 // Return the whole response object
 const currentResponse = computed(() => {
   const currentStatusCode =
-    toValue(orderedStatusCodes)[toValue(selectedResponseIndex)] ?? ''
+    toValue(statusCodesWithContent)[toValue(selectedResponseIndex)] ?? ''
 
   return getResolvedRef(responses?.[currentStatusCode])
 })
@@ -88,32 +114,20 @@ const selectedExampleKey = ref<string>(
   Object.keys(currentResponseContent.value?.examples ?? {})[0] ?? '',
 )
 
-/**
- * Gets the first example response if there are multiple example responses
- * or the only example if there is only one example response.
- */
-const getFirstResponseExample = (): ExampleObject | undefined => {
-  const response = toValue(currentResponseContent)
-
-  if (!response) {
+/** Get the current example to display */
+const currentExample = computed(() => {
+  if (!currentResponseContent.value) {
     return undefined
   }
 
-  if (Array.isArray(response.examples)) {
-    return response.examples[0]
+  // When multiple examples exist and one is selected, we access it directly
+  if (hasMultipleExamples.value && selectedExampleKey.value) {
+    return currentResponseContent.value.examples?.[selectedExampleKey.value]
   }
 
-  const firstExampleKey = Object.keys(response.examples ?? {})[0] ?? ''
-  const firstExample = response.examples?.[firstExampleKey]
-
-  return firstExample
-}
-
-const currentExample = computed(() =>
-  hasMultipleExamples.value && selectedExampleKey.value
-    ? currentResponseContent.value?.examples?.[selectedExampleKey.value]
-    : getFirstResponseExample(),
-)
+  // Otherwise, we use getExample with an undefined exampleKey to handle fallbacks
+  return getExample(currentResponseContent.value, undefined, undefined)
+})
 
 const changeTab = (index: number) => {
   selectedResponseIndex.value = index
@@ -124,13 +138,13 @@ const showSchema = ref(false)
 </script>
 <template>
   <ScalarCard
-    v-if="orderedStatusCodes.length"
+    v-if="statusCodesWithContent.length"
     aria-label="Example Responses"
     class="response-card"
     role="region">
     <ExampleResponseTabList @change="changeTab">
       <ExampleResponseTab
-        v-for="statusCode in orderedStatusCodes"
+        v-for="statusCode in statusCodesWithContent"
         :key="statusCode"
         :aria-controls="id">
         <ScreenReader>Status:</ScreenReader>

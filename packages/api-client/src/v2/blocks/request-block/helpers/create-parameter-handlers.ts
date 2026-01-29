@@ -22,59 +22,53 @@ export const createParameterHandlers = (
   const offset = defaultParameters + globalParameters
 
   return {
-    add: (payload: { name?: string; value?: string; index?: number }) =>
+    delete: (payload: { index: number }) => {
+      const originalParameter = context[payload.index]?.originalParameter
+      if (!originalParameter) {
+        return
+      }
       eventBus.emit(
-        'operation:add:parameter',
+        'operation:delete:parameter',
         {
-          type,
-          payload: {
-            name: payload.name ?? '',
-            value: payload.value ?? '',
-            isDisabled: false,
-          },
+          originalParameter,
           meta,
         },
         {
-          debounceKey: `add:parameter-${type}-${payload.index}`,
+          skipUnpackProxy: true,
         },
-      ),
-    delete: (payload: { index: number }) =>
-      eventBus.emit('operation:delete:parameter', {
-        type,
-        index: payload.index - offset,
-        meta,
-      }),
+      )
+    },
     deleteAll: () =>
       eventBus.emit('operation:delete-all:parameters', {
         type,
         meta,
       }),
-    update: (payload: { index: number; payload: { name: string; value: string; isDisabled: boolean } }) => {
-      const row = context[payload.index]
+    upsert: (index: number, payload: { name: string; value: string; isDisabled: boolean }) => {
+      const row = context[index]
 
-      if (payload.index < defaultParameters + globalParameters) {
-        const extraParameterType = payload.index < defaultParameters ? 'default' : 'global'
+      if (index < defaultParameters + globalParameters) {
+        const extraParameterType = index < defaultParameters ? 'default' : 'global'
 
         return eventBus.emit('operation:update:extra-parameters', {
           type: extraParameterType,
           in: type,
           meta: { ...meta, name: row?.name?.toLowerCase?.() ?? 'NON_VALID' },
-          payload: { isDisabled: payload.payload.isDisabled ?? false },
+          payload: { isDisabled: payload.isDisabled ?? false },
         })
       }
 
-      if (payload.index >= offset) {
-        const fields = Object.keys(payload.payload).join('-')
+      if (index >= offset) {
         return eventBus.emit(
-          'operation:update:parameter',
+          'operation:upsert:parameter',
           {
             type,
-            index: payload.index - offset,
-            payload: payload.payload,
+            payload: payload,
+            originalParameter: row?.originalParameter ?? null,
             meta,
           },
           {
-            debounceKey: `update:parameter-${type}-${payload.index - offset}-${fields}`,
+            skipUnpackProxy: true,
+            debounceKey: `update:parameter-${type}-${index - offset}`,
           },
         )
       }

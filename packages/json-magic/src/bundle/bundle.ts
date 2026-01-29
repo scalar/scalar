@@ -251,6 +251,11 @@ export function prefixInternalRef(input: string, prefix: string[]) {
  * ```
  */
 export function prefixInternalRefRecursive(input: unknown, prefix: string[]) {
+  if (Array.isArray(input)) {
+    input.forEach((el) => prefixInternalRefRecursive(el, prefix))
+    return
+  }
+
   if (!isObject(input)) {
     return
   }

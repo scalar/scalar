@@ -116,7 +116,6 @@ export const operationToHar = ({
       harRequest,
       parameters: operation.parameters,
       example,
-      contentType,
     })
 
     // Correctly filter the global cookies by the processed url

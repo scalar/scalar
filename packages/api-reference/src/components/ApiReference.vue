@@ -12,7 +12,8 @@ import {
   ScalarColorModeToggleIcon,
   ScalarSidebarFooter,
 } from '@scalar/components'
-import { redirectToProxy } from '@scalar/oas-utils/helpers'
+import { redirectToProxy } from '@scalar/helpers/url/redirect-to-proxy'
+import { ScalarIconSparkle, ScalarIconX } from '@scalar/icons'
 import { createSidebarState, ScalarSidebar } from '@scalar/sidebar'
 import { getThemeStyles, hasObtrusiveScrollbars } from '@scalar/themes'
 import {
@@ -25,10 +26,7 @@ import { useBreakpoints } from '@scalar/use-hooks/useBreakpoints'
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
 import { useColorMode } from '@scalar/use-hooks/useColorMode'
 import { ScalarToasts } from '@scalar/use-toasts'
-import {
-  createWorkspaceStore,
-  type UrlDoc,
-} from '@scalar/workspace-store/client'
+import { createWorkspaceStore } from '@scalar/workspace-store/client'
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import type {
   TraversedEntry,
@@ -37,6 +35,7 @@ import type {
 import diff from 'microdiff'
 import {
   computed,
+  defineAsyncComponent,
   onBeforeMount,
   onBeforeUnmount,
   onMounted,
@@ -47,6 +46,11 @@ import {
   useTemplateRef,
   watch,
 } from 'vue'
+
+import '@scalar/agent-chat/style.css'
+
+import { isLocalUrl } from '@scalar/helpers/url/is-local-url'
+import { useScrollLock } from '@vueuse/core'
 
 import ClassicHeader from '@/components/ClassicHeader.vue'
 import Content from '@/components/Content/Content.vue'
@@ -68,7 +72,6 @@ import {
 } from '@/helpers/load-from-perssistance'
 import { mapConfigPlugins } from '@/helpers/map-config-plugins'
 import { mapConfigToWorkspaceStore } from '@/helpers/map-config-to-workspace-store'
-import { mapConfiguration } from '@/helpers/map-configuration'
 import {
   normalizeConfigurations,
   type NormalizedConfiguration,
@@ -478,22 +481,18 @@ const changeSelectedDocument = async (
 
   // If the document is not in the store, we asynchronously load it
   if (isFirstLoad) {
-    const proxy: UrlDoc['fetch'] = (input, init) =>
-      fetch(redirectToProxy(config.proxyUrl, input.toString()), init)
-
     await workspaceStore.addDocument(
       normalized.source.url
         ? {
             name: slug,
             url: normalized.source.url,
-            config: mapConfiguration(config),
-            fetch: config.fetch ?? proxy,
+            fetch: config.fetch,
           }
         : {
             name: slug,
             document: normalized.source.content ?? {},
-            config: mapConfiguration(config),
           },
+      config,
     )
   }
 
@@ -545,18 +544,14 @@ watch(
       }
       /** If the URL has changed we fetch and rebase */
       if (updated.source.url && updated.source.url !== previous?.source.url) {
-        const proxy: UrlDoc['fetch'] = (input, init) =>
-          fetch(
-            redirectToProxy(updated.config.proxyUrl, input.toString()),
-            init,
-          )
-
-        await workspaceStore.addDocument({
-          name: updated.slug,
-          url: updated.source.url,
-          config: mapConfiguration(updated.config),
-          fetch: updated.config.fetch ?? proxy,
-        })
+        await workspaceStore.addDocument(
+          {
+            name: updated.slug,
+            url: updated.source.url,
+            fetch: updated.config.fetch,
+          },
+          updated.config,
+        )
 
         return
       }
@@ -578,11 +573,13 @@ watch(
             : {},
         ).length
       ) {
-        await workspaceStore.addDocument({
-          name: updated.slug,
-          document: updated.source.content,
-          config: mapConfiguration(updated.config),
-        })
+        await workspaceStore.addDocument(
+          {
+            name: updated.slug,
+            document: updated.source.content,
+          },
+          updated.config,
+        )
       }
     }
 
@@ -625,6 +622,20 @@ onBeforeMount(async () => {
 
 const documentUrl = computed(() => {
   return configList.value[activeSlug.value]?.source?.url
+})
+
+// --------------------------------------------------------------------------- */
+// Agent Scalar
+
+// Setup the ApiClient on mount
+const showAgent = ref(false)
+
+const agentEnabled = computed(() => {
+  if (isLocalUrl(window.location.href)) {
+    return true
+  }
+
+  return Boolean(configList.value[activeSlug.value]?.agent)
 })
 
 // --------------------------------------------------------------------------- */
@@ -798,6 +809,14 @@ const colorMode = computed(() => {
 
   return mode
 })
+
+const AgentChat = defineAsyncComponent(async () => import('./AgentChat.vue'))
+
+const bodyScrollLocked = useScrollLock(document.body)
+
+watch(showAgent, () => {
+  bodyScrollLocked.value = showAgent.value
+})
 </script>
 
 <template>
@@ -822,6 +841,32 @@ const colorMode = computed(() => {
         },
         $attrs.class,
       ]">
+      <!-- Agent Scalar -->
+      <div
+        v-if="agentEnabled"
+        v-show="showAgent && agentEnabled"
+        class="scalar-app-exit"
+        :class="showAgent ? 'scalar-app-exit-animation' : ''"
+        @click="showAgent = false">
+        <button
+          class="app-exit-button zoomed:static zoomed:p-1 fixed top-2 right-2 rounded-full p-2"
+          type="button"
+          @click="eventBus.emit('ui:close:client-modal')">
+          <ScalarIconX weight="bold" />
+          <span class="sr-only">Close Client</span>
+        </button>
+      </div>
+      <div
+        v-if="agentEnabled"
+        v-show="showAgent && agentEnabled"
+        class="agent-scalar">
+        <div
+          class="agent-scalar-container custom-scroll custom-scroll-self-contain-overflow">
+          <AgentChat
+            :agentConfig="configList[activeSlug]?.agent"
+            :workspaceStore />
+        </div>
+      </div>
       <!-- Mobile Header and Sidebar when in modern layout -->
 
       <MobileHeader
@@ -857,6 +902,7 @@ const colorMode = computed(() => {
               <!-- Wrap in a div when slot is filled -->
               <DocumentSelector
                 v-if="documentOptionList.length > 1"
+                class="p-3 pb-0"
                 :modelValue="activeSlug"
                 :options="documentOptionList"
                 @update:modelValue="changeSelectedDocument" />
@@ -864,12 +910,20 @@ const colorMode = computed(() => {
               <!-- Search -->
               <div
                 v-if="!mergedConfig.hideSearch"
-                class="flex flex-col p-3 pt-1.5">
+                class="flex gap-1.5 p-3 pt-1.5">
                 <SearchButton
                   :document="workspaceStore.workspace.activeDocument"
                   :eventBus="eventBus"
                   :hideModels="mergedConfig.hideModels"
                   :searchHotKey="mergedConfig.searchHotKey" />
+                <button
+                  v-if="agentEnabled"
+                  class="bg-sidebar-b-search text-sidebar-c-2 hover:text-sidebar-c-1 flex items-center gap-1.5 rounded border px-2 text-base whitespace-nowrap"
+                  type="button"
+                  @click="showAgent = !showAgent">
+                  <ScalarIconSparkle />
+                  Ask AI
+                </button>
               </div>
               <!-- Sidebar Start -->
               <slot
@@ -919,9 +973,6 @@ const colorMode = computed(() => {
             mergedConfig.generateHeadingSlug ??
             ((heading) => `${activeSlug}/description/${heading.slug}`)
           "
-          :httpClients="
-            workspaceStore.config['x-scalar-reference-config']?.httpClients
-          "
           :infoSectionId="infoSectionId ?? 'description/introduction'"
           :items="sidebarItems"
           :options="mergedConfig"
@@ -941,7 +992,7 @@ const colorMode = computed(() => {
             <div ref="documentStartRef" />
 
             <ClassicHeader v-if="mergedConfig.layout === 'classic'">
-              <div class="w-64 *:!p-0 empty:hidden">
+              <div class="w-64 empty:hidden">
                 <DocumentSelector
                   v-if="documentOptionList.length > 1"
                   :modelValue="activeSlug"
@@ -1021,7 +1072,6 @@ const colorMode = computed(() => {
 /* Configurable Layout Variables */
 @layer scalar-config {
   .scalar-api-reference {
-    --refs-sidebar-width: var(--scalar-sidebar-width, 0px);
     /* The header height */
     --refs-header-height: calc(
       var(--scalar-custom-header-height, 0px) + var(--scalar-header-height, 0px)
@@ -1034,6 +1084,13 @@ const colorMode = computed(() => {
     --refs-viewport-height: calc(
       var(--full-height, 100dvh) - var(--refs-viewport-offset, 0px)
     );
+    /* The width of the sidebar */
+    --refs-sidebar-width: var(--scalar-sidebar-width, 0px);
+    /* The height of the sidebar */
+    --refs-sidebar-height: calc(
+      var(--full-height, 100dvh) - var(--refs-header-height, 0px)
+    );
+    /* The maximum width of the content column */
     --refs-content-max-width: var(--scalar-content-max-width, 1540px);
   }
 
@@ -1043,11 +1100,9 @@ const colorMode = computed(() => {
     min-height: 100dvh;
     --refs-sidebar-width: 0;
   }
-
-  /* When the toolbar is present, we need to offset the content */
-  .scalar-api-reference:has(.api-reference-toolbar) {
-    --refs-content-offset: 48px;
-  }
+}
+.t-doc__sidebar {
+  z-index: 10;
 }
 
 /* ----------------------------------------------------- */
@@ -1113,6 +1168,11 @@ const colorMode = computed(() => {
 @media (max-width: 1000px) {
   /* Stack view on mobile */
   .references-layout {
+    /* Adjust the sidebar height to the viewport height minus the header height */
+    --refs-sidebar-height: calc(
+      var(--full-height, 100dvh) - var(--scalar-custom-header-height, 0px)
+    );
+
     grid-template-columns: 100%;
     grid-template-rows: var(--scalar-header-height, 0px) 0px auto auto;
 
@@ -1141,7 +1201,7 @@ const colorMode = computed(() => {
 * when the new elements are available
 */
 @media (max-width: 1000px) {
-  .scalar-api-references-standalone-mobile {
+  .scalar-api-references-standalone-mobile:not(.references-classic) {
     --scalar-header-height: 50px;
   }
 }
@@ -1150,5 +1210,106 @@ const colorMode = computed(() => {
 .darklight-reference {
   width: 100%;
   margin-top: auto;
+}
+.ask-agent-scalar {
+  background: linear-gradient(
+    var(--scalar-background-1),
+    var(--scalar-background-2)
+  );
+}
+.dark-mode .ask-agent-scalar {
+  background: linear-gradient(
+    var(--scalar-background-2),
+    var(--scalar-background-1)
+  );
+}
+.agent-scalar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: calc(100% - 50px);
+  height: 100dvh;
+  background: var(--scalar-background-1);
+  border-right: var(--scalar-border-width) solid var(--scalar-border-color);
+  transform: translate3d(
+    calc(-100% + var(--scalar-sidebar-width, 288px)),
+    0,
+    0
+  );
+  z-index: 2;
+  animation: 0.35s forwards scalaragentslidein;
+  box-shadow: var(--scalar-shadow-2);
+}
+.agent-scalar-container {
+  width: calc(100% - var(--scalar-sidebar-width, 288px));
+  height: 100%;
+  margin-left: auto;
+  overflow: auto;
+  padding: 0 24px;
+}
+.scalar-app-exit {
+  cursor: pointer;
+  z-index: 2;
+  width: 100vw;
+  height: 100vh;
+  transition: all 0.3s ease-in-out;
+  position: fixed;
+  top: 0;
+  left: 0;
+}
+@media (max-width: 1000px) {
+  .agent-scalar-container {
+    width: 100%;
+  }
+  .agent-scalar {
+    width: 100%;
+    height: calc(100dvh - 50px);
+    bottom: 0;
+    top: initial;
+    border-radius: var(--scalar-radius-lg) var(--scalar-radius-lg) 0 0;
+    z-index: 12;
+  }
+  .scalar-app-exit {
+    z-index: 11;
+  }
+}
+.scalar-app-exit-animation:before {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: #00000038;
+  animation: 0.5s forwards scalardrawerexitfadein;
+  animation-timing-function: cubic-bezier(0.77, 0, 0.175, 1);
+}
+.dark-mode .scalar .scalar-app-exit-animation:before {
+  background: #00000073;
+}
+@keyframes scalaragentslidein {
+  from {
+    transform: translate3d(
+      calc(-100% + var(--scalar-sidebar-width, 288px)),
+      0,
+      0
+    );
+  }
+  to {
+    transform: translate3d(0, 0, 0);
+  }
+}
+@keyframes scalardrawerexitfadein {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+.app-exit-button {
+  color: white;
+  background: rgba(0, 0, 0, 0.1);
+}
+.app-exit-button:hover {
+  background: rgba(255, 255, 255, 0.1);
 }
 </style>

@@ -272,7 +272,7 @@ const handleAddEmptyFolder = (item: TraversedEntry) => {
       "
       @select:workspace="(id) => emit('select:workspace', id)"
       @selectItem="(id) => emit('selectItem', id)">
-      <template #sidebar-menu-actions>
+      <template #sidebarMenuActions>
         <slot name="sidebarMenuActions" />
       </template>
       <!-- Workspace Identifier -->
@@ -300,6 +300,19 @@ const handleAddEmptyFolder = (item: TraversedEntry) => {
           @keydown.enter.stop="(e: KeyboardEvent) => openMenu(e, item)"
           @keydown.space.stop="(e: KeyboardEvent) => openMenu(e, item)"
           @keydown.up.stop="(e: KeyboardEvent) => openMenu(e, item)" />
+      </template>
+
+      <!-- Dirty document icon slot -->
+      <template #icon="{ item }">
+        <template
+          v-if="
+            item.type === 'document' &&
+            store.workspace.documents[item.name]?.['x-scalar-is-dirty'] === true
+          ">
+          <div class="flex items-center">
+            <div class="h-2 w-2 rounded-full bg-white"></div>
+          </div>
+        </template>
       </template>
 
       <!-- Empty folder slot -->

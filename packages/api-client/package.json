@@ -18,7 +18,7 @@
     "rest",
     "testing"
   ],
-  "version": "2.18.4",
+  "version": "2.22.1",
   "engines": {
     "node": ">=20"
   },
@@ -240,11 +240,6 @@
       "types": "./dist/v2/features/app/components/index.d.ts",
       "default": "./dist/v2/features/app/components/index.js"
     },
-    "./v2/features/command-palette/components": {
-      "import": "./dist/v2/features/command-palette/components/index.js",
-      "types": "./dist/v2/features/command-palette/components/index.d.ts",
-      "default": "./dist/v2/features/command-palette/components/index.js"
-    },
     "./v2/features/environments": {
       "import": "./dist/v2/features/environments/index.js",
       "types": "./dist/v2/features/environments/index.d.ts",
@@ -356,13 +351,13 @@
     "js-base64": "catalog:*",
     "microdiff": "catalog:*",
     "nanoid": "catalog:*",
-    "pretty-bytes": "^6.1.1",
-    "pretty-ms": "^8.0.0",
+    "pretty-bytes": "catalog:*",
+    "pretty-ms": "^9.3.0",
     "shell-quote": "^1.8.1",
     "type-fest": "catalog:*",
     "vue": "catalog:*",
     "vue-router": "catalog:*",
-    "whatwg-mimetype": "^4.0.0",
+    "whatwg-mimetype": "catalog:*",
     "yaml": "catalog:*",
     "zod": "catalog:*"
   },
@@ -371,7 +366,7 @@
     "@scalar/galaxy": "workspace:*",
     "@tailwindcss/vite": "catalog:*",
     "@types/shell-quote": "^1.7.5",
-    "@types/whatwg-mimetype": "^3.0.2",
+    "@types/whatwg-mimetype": "catalog:*",
     "@vitejs/plugin-vue": "catalog:*",
     "@vue/test-utils": "catalog:*",
     "fake-indexeddb": "catalog:*",

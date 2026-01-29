@@ -22,10 +22,10 @@ defineSlots<{
 const { mediaQueries } = useBreakpoints()
 
 const variants = cva({
-  base: 'items-center bg-b-1 sticky top-0 z-1000',
+  base: 'items-center bg-b-1 sticky top-(--scalar-custom-header-height) z-10',
   variants: {
     open: {
-      true: 'max-h-dvh h-dvh custom-scrollbar flex flex-col',
+      true: 'h-(--refs-sidebar-height) custom-scrollbar flex flex-col',
     },
     lg: {
       true: 'hidden [grid-area:header]',
@@ -37,14 +37,17 @@ const variants = cva({
   <!-- In desktop layout, just render the default slot for the sidebar -->
   <slot
     v-if="mediaQueries.lg.value"
-    v-bind="{ sidebarClasses: 'sticky top-0 h-dvh [grid-area:navigation]' }"
+    v-bind="{
+      sidebarClasses:
+        'sticky top-(--refs-header-height) h-(--refs-sidebar-height) [grid-area:navigation]',
+    }"
     name="sidebar" />
   <div
     v-else
     class="t-doc__header"
     :class="variants({ open: isSidebarOpen, lg: mediaQueries.lg.value })">
     <header
-      class="flex h-[var(--scalar-header-height)] w-full items-center border-b bg-inherit px-2">
+      class="flex h-(--scalar-header-height) w-full items-center border-b bg-inherit px-2">
       <ScalarIconButton
         v-if="showSidebar"
         :icon="isSidebarOpen ? ScalarIconX : ScalarIconList"

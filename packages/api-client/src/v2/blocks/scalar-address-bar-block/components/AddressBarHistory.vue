@@ -14,7 +14,6 @@ import { formatMs } from '@/libs/formatters'
 import { getStatusCodeColor } from './httpStatusCodeColors'
 
 export type History = {
-  id: string
   method: HttpMethodType
   path: string
   duration: number
@@ -30,7 +29,7 @@ const { target } = defineProps<{
 
 const emits = defineEmits<{
   /** Select a request history item by index */
-  (e: 'selectHistoryItem', payload: { index: number }): void
+  (e: 'select:history:item', payload: { index: number }): void
 }>()
 </script>
 <template>
@@ -62,11 +61,11 @@ const emits = defineEmits<{
           :style="{ width }">
           <MenuItem
             v-for="(entry, index) in history"
-            :key="entry.id"
+            :key="index"
             as="button"
             class="font-code ui-active:*:bg-b-2 text-c-2 contents text-sm font-medium *:flex *:h-8 *:cursor-pointer *:items-center *:rounded-none *:px-1.5 *:first:rounded-l *:last:rounded-r"
             :value="index"
-            @click="emits('selectHistoryItem', { index })">
+            @click="emits('select:history:item', { index })">
             <HttpMethod
               class="text-[11px]"
               :method="entry.method" />

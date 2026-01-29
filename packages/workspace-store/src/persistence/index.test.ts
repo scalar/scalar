@@ -39,7 +39,6 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
           intermediateDocuments: {},
           overrides: {},
           meta: {},
-          documentConfigs: {},
         },
       })
 
@@ -51,7 +50,6 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
           intermediateDocuments: {},
           overrides: {},
           meta: {},
-          documentConfigs: {},
         },
       })
 
@@ -74,7 +72,6 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
           intermediateDocuments: {},
           overrides: {},
           meta: {},
-          documentConfigs: {},
         },
       })
 
@@ -86,7 +83,6 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
           intermediateDocuments: {},
           overrides: {},
           meta: {},
-          documentConfigs: {},
         },
       })
 
@@ -98,7 +94,6 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
           intermediateDocuments: {},
           overrides: {},
           meta: {},
-          documentConfigs: {},
         },
       })
 
@@ -119,7 +114,6 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
           intermediateDocuments: {},
           overrides: {},
           meta: {},
-          documentConfigs: {},
         },
       })
 
@@ -131,7 +125,6 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
           intermediateDocuments: {},
           overrides: {},
           meta: {},
-          documentConfigs: {},
         },
       })
 
@@ -143,7 +136,6 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
           intermediateDocuments: {},
           overrides: {},
           meta: {},
-          documentConfigs: {},
         },
       })
 
@@ -169,7 +161,6 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
           intermediateDocuments: {},
           overrides: {},
           meta: {},
-          documentConfigs: {},
         },
       })
 
@@ -183,7 +174,6 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
           overrides: {},
 
           meta: {},
-          documentConfigs: {},
         },
       })
 
@@ -211,7 +201,6 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
             overrides: {},
 
             meta: {},
-            documentConfigs: {},
           },
         })
       }
@@ -252,9 +241,6 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
             'x-scalar-active-document': 'doc-1',
             'x-scalar-color-mode': 'dark',
           },
-          documentConfigs: {
-            'doc-1': {},
-          },
         },
       })
 
@@ -282,7 +268,6 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
           overrides: {},
 
           meta: {},
-          documentConfigs: {},
         },
       })
 
@@ -295,7 +280,6 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
           overrides: {},
 
           meta: {},
-          documentConfigs: {},
         },
       })
 
@@ -322,7 +306,6 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
             overrides: {},
 
             meta: {},
-            documentConfigs: {},
           },
         })
       }
@@ -353,7 +336,6 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
           intermediateDocuments: {},
           overrides: {},
           meta: {},
-          documentConfigs: {},
         },
       })
 
@@ -370,7 +352,6 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
           intermediateDocuments: {},
           overrides: {},
           meta: {},
-          documentConfigs: {},
         },
       })
       expect(await persistence.workspace.has('workspace-2')).toBe(true)
@@ -392,7 +373,6 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
       await persistence.originalDocuments.setItem(orphanId, 'doc-1', { openapi: '3.1.0' })
       await persistence.intermediateDocuments.setItem(orphanId, 'doc-1', { interim: true })
       await persistence.overrides.setItem(orphanId, 'doc-1', { x: 1 })
-      await persistence.documentConfigs.setItem(orphanId, 'doc-1', {})
 
       const exists = await persistence.workspace.has(orphanId)
       expect(exists).toBe(false)
@@ -414,7 +394,6 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
             overrides: {},
 
             meta: {},
-            documentConfigs: {},
           },
         })
 
@@ -442,7 +421,6 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
             overrides: {},
 
             meta: {},
-            documentConfigs: {},
           },
         })
 
@@ -477,7 +455,6 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
             overrides: {},
 
             meta: {},
-            documentConfigs: {},
           },
         })
 
@@ -506,7 +483,6 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
             overrides: {},
 
             meta: {},
-            documentConfigs: {},
           },
         })
 
@@ -548,7 +524,6 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
             overrides: {},
 
             meta: {},
-            documentConfigs: {},
           },
         })
 
@@ -579,7 +554,6 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
             overrides: {},
 
             meta: {},
-            documentConfigs: {},
           },
         })
 
@@ -610,7 +584,6 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
             overrides: {},
 
             meta: {},
-            documentConfigs: {},
           },
         })
 
@@ -623,43 +596,6 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
 
         const workspace = await persistence.workspace.getItem(workspaceId)
         expect(workspace?.workspace.overrides[documentName]).toEqual(overrides)
-      })
-    })
-
-    describe('documentConfigs.setItem', () => {
-      it('sets document configuration', async () => {
-        const workspaceId = 'workspace-1'
-        const documentName = 'api-doc'
-
-        await persistence.workspace.setItem(workspaceId, {
-          name: 'Test',
-          workspace: {
-            documents: {},
-            originalDocuments: {},
-            intermediateDocuments: {},
-            overrides: {},
-
-            meta: {},
-            documentConfigs: {},
-          },
-        })
-
-        await persistence.documentConfigs.setItem(workspaceId, documentName, {
-          'x-scalar-reference-config': {
-            features: {
-              showModels: true,
-            },
-          },
-        })
-
-        const workspace = await persistence.workspace.getItem(workspaceId)
-        expect(workspace?.workspace.documentConfigs[documentName]).toEqual({
-          'x-scalar-reference-config': {
-            features: {
-              showModels: true,
-            },
-          },
-        })
       })
     })
   })

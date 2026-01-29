@@ -4,7 +4,7 @@ import type { HttpMethod } from '@scalar/helpers/http/http-methods'
  * Available actions that can be triggered from the command palette.
  * Each action may have an associated payload type.
  */
-type CommandPalettePayload = {
+export type CommandPalettePayload = {
   /** Trigger the import flow for OpenAPI, Swagger, Postman, or cURL */
   'import-from-openapi-swagger-postman-curl': undefined
   /** Create a new document in the workspace */
@@ -31,7 +31,7 @@ type CommandPalettePayload = {
   /** Import a request from a cURL command string */
   'import-curl-command': {
     /** The cURL command string to parse and import */
-    curl: string
+    inputValue: string
   }
 }
 
@@ -218,5 +218,17 @@ export type UIEvents = {
   'ui:route:page': {
     /** The name of the route to route to */
     name: string
+  }
+  /**
+   * Route to an example page
+   * We cannot have any routing in any components used by the modal so we use this event to route to an example page
+   *
+   * This will only route to the example for the current operation.
+   */
+  'ui:route:example': {
+    /** The example name to route to */
+    exampleName: string
+    /** The callback to call when navigation is complete */
+    callback: (status: 'success' | 'error') => void
   }
 }

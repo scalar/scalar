@@ -15,10 +15,10 @@ const { copyToClipboard } = useClipboard()
     placement="bottom-start">
     <template #button>
       <button
-        class="text-c-2 hover:text-c-1 hover:bg-b-2 flex items-center gap-1 rounded px-2 py-2.25 text-base leading-none"
+        class="text-c-2 hover:text-c-1 hover:bg-b-2 ml-auto flex items-center gap-1 rounded px-2 py-2.25 text-base leading-none"
         type="button">
-        Developer Tools
         <ScalarIconInfo />
+        Developer Tools
       </button>
     </template>
     <div class="-m-2 flex flex-col gap-2 leading-relaxed">

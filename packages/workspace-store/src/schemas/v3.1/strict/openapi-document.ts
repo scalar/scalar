@@ -7,6 +7,7 @@ import {
   xScalarEnvironmentsSchema,
 } from '@/schemas/extensions/document/x-scalar-environments'
 import { type XScalarIcon, XScalarIconSchema } from '@/schemas/extensions/document/x-scalar-icon'
+import { type XScalarIsDirty, XScalarIsDirtySchema } from '@/schemas/extensions/document/x-scalar-is-dirty'
 import {
   type XScalarSetOperationSecurity,
   XScalarSetOperationSecuritySchema,
@@ -93,6 +94,7 @@ const OpenApiExtensionsSchema = compose(
   Type.Object({
     'x-scalar-original-document-hash': Type.String(),
   }),
+  XScalarIsDirtySchema,
 )
 
 export type OpenAPIExtensions = Partial<{
@@ -111,7 +113,8 @@ export type OpenAPIExtensions = Partial<{
   XScalarSetOperationSecurity &
   XScalarIcon &
   XScalarOrder &
-  XScalarCookies
+  XScalarCookies &
+  XScalarIsDirty
 
 const OpenApiDocumentSchemaDefinition = compose(
   Type.Object({
@@ -281,7 +284,7 @@ export type { MediaTypeObject } from './media-type'
 export type { OAuthFlow } from './oauth-flow'
 export type { OAuthFlowsObject } from './oauthflows'
 export type { OperationObject } from './operation'
-export type { ParameterObject } from './parameter'
+export type { ParameterObject, ParameterWithContentObject, ParameterWithSchemaObject } from './parameter'
 export type { PathItemObject } from './path-item'
 export type { ReferenceType } from './reference'
 export type { RequestBodyObject } from './request-body'

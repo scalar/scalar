@@ -18,7 +18,7 @@
     "openapi",
     "swagger"
   ],
-  "version": "0.9.11",
+  "version": "0.9.16",
   "engines": {
     "node": ">=20"
   },
@@ -63,7 +63,7 @@
     "@scalar/core": "workspace:*"
   },
   "devDependencies": {
-    "@scalar/api-reference": "workspace:*",
+    "@scalar/build-tooling": "workspace:*",
     "@types/node": "catalog:*",
     "@types/react": "catalog:*",
     "@types/react-dom": "catalog:*",

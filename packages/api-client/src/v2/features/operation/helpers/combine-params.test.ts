@@ -1,3 +1,4 @@
+import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { ParameterObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { describe, expect, it } from 'vitest'
 
@@ -29,7 +30,7 @@ describe('combineParams', () => {
 
     const result = combineParams(pathParams, operationParams)
     expect(result).toHaveLength(1)
-    expect(result[0]).toEqual(operationParams[0])
+    expect(result?.[0]).toEqual(operationParams[0])
   })
 
   it('handles parameters with same name but different locations', () => {
@@ -42,33 +43,7 @@ describe('combineParams', () => {
     expect(result).toEqual([...pathParams, ...operationParams])
   })
 
-  it('filters out unresolved references', () => {
-    const pathParams: any[] = [
-      { name: 'id', in: 'path', required: true },
-      {
-        $ref: '#/components/parameters/UnresolvedParam',
-        '$ref-value': { name: 'username', in: 'query', required: false },
-      },
-    ]
-
-    const operationParams: any[] = [
-      { name: 'limit', in: 'query', required: false },
-      {
-        $ref: '#/components/parameters/AnotherUnresolved',
-        '$ref-value': { name: 'username', in: 'query', required: false },
-      },
-    ]
-
-    const result = combineParams(pathParams, operationParams)
-    expect(result).toHaveLength(3)
-    expect(result).toEqual([
-      { name: 'id', in: 'path', required: true },
-      { name: 'username', in: 'query', required: false },
-      { name: 'limit', in: 'query', required: false },
-    ])
-  })
-
-  it('handles edge case with null values in arrays', () => {
+  it('handles edge case with null values in the path parameters', () => {
     const pathParams: any[] = [
       { name: 'id', in: 'path', required: true },
       null, // This should be filtered out
@@ -76,14 +51,15 @@ describe('combineParams', () => {
 
     const operationParams: any[] = [
       { name: 'limit', in: 'query', required: false },
-      undefined, // This should be filtered out
+      undefined, // This stays as we only filter out path parameters
     ]
 
     const result = combineParams(pathParams, operationParams)
-    expect(result).toHaveLength(2)
+    expect(result).toHaveLength(3)
     expect(result).toEqual([
       { name: 'id', in: 'path', required: true },
       { name: 'limit', in: 'query', required: false },
+      undefined,
     ])
   })
 
@@ -99,7 +75,7 @@ describe('combineParams', () => {
     const result = combineParams(pathParams, operationParams)
     expect(result).toHaveLength(3)
     expect(result).toEqual(pathParams)
-    expect(result.every((param) => param.in === 'path')).toBe(true)
-    expect(result.every((param) => param.required === true)).toBe(true)
+    expect(result?.every((param) => getResolvedRef(param)?.in === 'path')).toBe(true)
+    expect(result?.every((param) => getResolvedRef(param)?.required === true)).toBe(true)
   })
 })

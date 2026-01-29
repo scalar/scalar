@@ -271,52 +271,6 @@ describe('Operation', () => {
     expect(operation.parameters[0].name).toBe('webhookId')
   })
 
-  it('filters out unresolved references from parameters', () => {
-    const documentWithRefs = coerceValue(OpenAPIDocumentSchema, {
-      openapi: '3.1.0',
-      info: {
-        title: 'Test API',
-        version: '1.0.0',
-      },
-      paths: {
-        '/users/{userId}': {
-          parameters: [
-            {
-              $ref: '#/components/parameters/UserId',
-            },
-            {
-              in: 'path',
-              name: 'userId',
-              schema: {
-                type: 'string',
-              },
-              required: true,
-              deprecated: false,
-            },
-          ],
-          get: {
-            summary: 'Get user by ID',
-          },
-        },
-      },
-    })
-
-    const wrapper = mountOperationWithConfig({
-      path: '/users/{userId}',
-      method: 'get',
-      pathValue: documentWithRefs.paths?.['/users/{userId}'],
-      server: null,
-    })
-
-    const modernLayout = wrapper.findComponent({ name: 'ModernLayout' })
-    const operation = modernLayout.props('operation')
-
-    // Should only have the resolved parameter, not the $ref
-    expect(operation.parameters).toHaveLength(1)
-    expect(operation.parameters[0].name).toBe('userId')
-    expect(operation.parameters[0].$ref).toBeUndefined()
-  })
-
   it('overrides path parameters with operation parameters of the same name', () => {
     const documentWithOverridingParams = coerceValue(OpenAPIDocumentSchema, {
       openapi: '3.1.0',

@@ -39,6 +39,8 @@ const { hideClientButton = false } = defineProps<{
 const emit = defineEmits<{
   (e: 'execute'): void
   (e: 'update:servers'): void
+  /** Select a request history item by index */
+  (e: 'select:history:item', payload: { index: number }): void
 }>()
 </script>
 
@@ -64,6 +66,7 @@ const emit = defineEmits<{
       :server
       :servers
       @execute="emit('execute')"
+      @select:history:item="(payload) => emit('select:history:item', payload)"
       @update:servers="emit('update:servers')" />
 
     <div

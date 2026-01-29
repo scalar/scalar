@@ -1,5 +1,71 @@
 # @scalar/fastify-api-reference
 
+## 1.44.1
+
+## 1.44.0
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/core@0.3.35**
+
+- **@scalar/openapi-parser@0.24.5**
+
+## 1.43.17
+
+## 1.43.16
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/openapi-parser@0.24.5**
+
+## 1.43.15
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/openapi-parser@0.24.4**
+
+- **@scalar/core@0.3.34**
+
+## 1.43.14
+
+## 1.43.13
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/core@0.3.33**
+
+- **@scalar/openapi-parser@0.24.3**
+
+## 1.43.12
+
+## 1.43.11
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/openapi-parser@0.24.3**
+
+## 1.43.10
+
+## 1.43.9
+
+### Patch Changes
+
+- [#7810](https://github.com/scalar/scalar/pull/7810): docs: update documentation domain
+
+#### Updated Dependencies
+
+- **@scalar/openapi-parser@0.24.2**
+
 ## 1.43.8
 
 ## 1.43.7

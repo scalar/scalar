@@ -20,7 +20,7 @@
     "testing",
     "vue"
   ],
-  "version": "0.5.47",
+  "version": "0.5.58",
   "engines": {
     "node": ">=20"
   },
@@ -66,19 +66,13 @@
     "@scalar/api-reference": "workspace:*",
     "@scalar/types": "workspace:*",
     "@scalar/use-hooks": "workspace:*",
-    "@scalar/workspace-store": "workspace:*",
     "vue": "catalog:*"
   },
   "devDependencies": {
-    "@nuxt/devtools": "^2.6.4",
-    "@nuxt/eslint-config": "^0.7.3",
     "@nuxt/module-builder": "^1.0.1",
-    "@nuxt/schema": "^4.0.0",
-    "@nuxt/test-utils": "^3.19.2",
     "@types/node": "catalog:*",
     "cross-env": "^7.0.3",
     "nuxt": "^4.1.0",
-    "vite": "catalog:*",
     "vitest": "catalog:*"
   }
 }

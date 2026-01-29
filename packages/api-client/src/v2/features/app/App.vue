@@ -19,12 +19,13 @@ import CreateWorkspaceModal from '@/v2/features/app/components/CreateWorkspaceMo
 import SplashScreen from '@/v2/features/app/components/SplashScreen.vue'
 import type { RouteProps } from '@/v2/features/app/helpers/routes'
 import { useDocumentWatcher } from '@/v2/features/app/hooks/use-document-watcher'
-import TheCommandPalette from '@/v2/features/command-palette/components/TheCommandPalette.vue'
+import TheCommandPalette from '@/v2/features/command-palette/TheCommandPalette.vue'
 import type { ClientPlugin } from '@/v2/helpers/plugins'
 import { useColorMode } from '@/v2/hooks/use-color-mode'
 import { useGlobalHotKeys } from '@/v2/hooks/use-global-hot-keys'
 import type { ClientLayout } from '@/v2/types/layout'
 
+import type { CommandPaletteState } from '../command-palette/hooks/use-command-palette-state'
 import { type AppState } from './app-state'
 import AppSidebar from './components/AppSidebar.vue'
 import DesktopTabs from './components/DesktopTabs.vue'
@@ -34,10 +35,12 @@ const {
   layout,
   plugins = [],
   getAppState,
+  getCommandPaletteState,
 } = defineProps<{
   layout: Exclude<ClientLayout, 'modal'>
   plugins?: ClientPlugin[]
   getAppState: () => AppState
+  getCommandPaletteState: () => CommandPaletteState
 }>()
 
 defineSlots<{
@@ -48,7 +51,12 @@ defineSlots<{
   'sidebar-menu-actions': []
 }>()
 
+defineExpose({
+  openCreateWorkspace: () => createWorkspaceModalState.show(),
+})
+
 const app = getAppState()
+const paletteState = getCommandPaletteState()
 
 /** Expose workspace store to window for debugging purposes. */
 if (typeof window !== 'undefined') {
@@ -161,7 +169,7 @@ const routerViewProps = computed<RouteProps>(() => ({
           @select:workspace="app.workspace.setId"
           @selectItem="app.sidebar.handleSelectItem"
           @update:sidebarWidth="app.sidebar.handleSidebarWidthUpdate">
-          <template #sidebar-menu-actions>
+          <template #sidebarMenuActions>
             <slot name="sidebar-menu-actions" />
           </template>
         </AppSidebar>
@@ -174,7 +182,7 @@ const routerViewProps = computed<RouteProps>(() => ({
         <!-- Popup command palette to add resources from anywhere -->
         <TheCommandPalette
           :eventBus="app.eventBus"
-          :paletteState="app.commandPalette"
+          :paletteState="paletteState"
           :workspaceStore="app.store.value!" />
 
         <!-- <ImportCollectionListener></ImportCollectionListener> -->

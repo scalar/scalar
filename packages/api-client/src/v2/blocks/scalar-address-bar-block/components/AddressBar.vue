@@ -63,11 +63,15 @@ const {
 const emit = defineEmits<{
   /** Execute the current operation example */
   (e: 'execute'): void
+  /** Update the server list */
   (e: 'update:servers'): void
+  /** Select a request history item by index */
+  (e: 'select:history:item', payload: { index: number }): void
 }>()
 
 const id = useId()
-const { percentage, startLoading, stopLoading } = useLoadingAnimation()
+const { percentage, startLoading, stopLoading, isLoading } =
+  useLoadingAnimation()
 
 /** Calculate the style for the address bar */
 const style = computed(() => ({
@@ -247,7 +251,7 @@ defineExpose({
               eventBus.emit('ui:open:command-palette', {
                 action: 'import-curl-command',
                 payload: {
-                  curl: payload,
+                  inputValue: payload,
                 },
               })
           "
@@ -268,7 +272,10 @@ defineExpose({
 
       <AddressBarHistory
         :history="history"
-        :target="id" />
+        :target="id"
+        @select:history:item="
+          (payload) => emit('select:history:item', payload)
+        " />
       <!-- Error message -->
       <div
         v-if="hasConflict"
@@ -288,7 +295,7 @@ defineExpose({
       <ScalarButton
         ref="sendButtonRef"
         class="z-context-plus relative h-auto shrink-0 overflow-hidden py-1 pr-2.5 pl-2 font-bold"
-        :disabled="percentage < 100"
+        :disabled="isLoading"
         @click="emit('execute')">
         <span
           aria-hidden="true"

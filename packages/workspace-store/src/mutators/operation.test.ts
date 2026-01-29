@@ -1,23 +1,24 @@
-import { assert, describe, expect, it } from 'vitest'
+import { assert, describe, expect, it, vi } from 'vitest'
 
 import { createWorkspaceStore } from '@/client'
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
 import type { WorkspaceDocument } from '@/schemas'
 
 import {
-  addOperationParameter,
+  addResponseToHistory,
   createOperation,
   deleteAllOperationParameters,
   deleteOperation,
   deleteOperationExample,
   deleteOperationParameter,
+  reloadOperationHistory,
   updateOperationExtraParameters,
-  updateOperationParameter,
   updateOperationPathMethod,
   updateOperationRequestBodyContentType,
   updateOperationRequestBodyExample,
   updateOperationRequestBodyFormValue,
   updateOperationSummary,
+  upsertOperationParameter,
 } from './operation'
 
 const createDocument = (initial?: Partial<WorkspaceDocument>): WorkspaceDocument => {
@@ -403,6 +404,48 @@ describe('updateOperationPathMethod (path only)', () => {
 
     expect(document.paths).toStrictEqual({
       '/events/{id}': {
+        get: {
+          summary: 'Get users',
+          parameters: [
+            { name: 'id', in: 'path', examples: { test: { value: '1212' } } },
+            { name: 'name', in: 'query' },
+          ],
+        },
+      },
+    })
+  })
+
+  it('handles partial path params', async () => {
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: 'test',
+      document: createDocument({
+        paths: {
+          '/users/{id}': {
+            get: {
+              summary: 'Get users',
+              parameters: [
+                { name: 'id', in: 'path', examples: { test: { value: '1212' } } },
+                { name: 'name', in: 'query' },
+              ],
+            },
+          },
+        },
+      }),
+    })
+    store.buildSidebar('test')
+    const document = store.workspace.documents.test!
+
+    updateOperationPathMethod(document, store, {
+      meta: { method: 'get', path: '/users/{id}' },
+      payload: { method: 'get', path: '/events/{id}/started{avar' },
+      callback: () => {
+        return
+      },
+    })
+
+    expect(document.paths).toStrictEqual({
+      '/events/{id}/started{avar': {
         get: {
           summary: 'Get users',
           parameters: [
@@ -870,8 +913,8 @@ describe('createOperation', () => {
   })
 })
 
-describe('addOperationParameter', () => {
-  it('adds a query parameter with example and enabled state', () => {
+describe('upsertOperationParameter', () => {
+  it('adds a query parameter with example and enabled state when it does not exist', () => {
     const document = createDocument({
       paths: {
         '/search': {
@@ -882,8 +925,9 @@ describe('addOperationParameter', () => {
       },
     })
 
-    addOperationParameter(document, {
+    upsertOperationParameter(document, {
       type: 'query',
+      originalParameter: null,
       meta: { method: 'get', path: '/search', exampleKey: 'default' },
       payload: { name: 'q', value: 'john', isDisabled: false },
     })
@@ -908,10 +952,11 @@ describe('addOperationParameter', () => {
       },
     })
 
-    addOperationParameter(document, {
+    upsertOperationParameter(document, {
       type: 'path',
+      originalParameter: null,
       meta: { method: 'get', path: '/users/{id}', exampleKey: 'default' },
-      payload: { name: 'id', value: '123', isDisabled: true },
+      payload: { name: 'id', value: '123', isDisabled: false },
     })
 
     const op = getResolvedRef(document.paths?.['/users/{id}']?.get)
@@ -922,28 +967,211 @@ describe('addOperationParameter', () => {
     expect(only).toMatchObject({ name: 'id', in: 'path', required: true })
     assert(only && 'examples' in only && only.examples)
     expect(getResolvedRef(only.examples?.default)?.value).toBe('123')
-    expect(getResolvedRef(only.examples?.default)?.['x-disabled']).toBe(true)
+    // Note: When adding a new parameter, x-disabled is always set to false initially
+    expect(getResolvedRef(only.examples?.default)?.['x-disabled']).toBe(false)
+  })
+
+  it('updates an existing query parameter by passing originalParameter', () => {
+    const document = createDocument({
+      paths: {
+        '/search': {
+          get: {
+            parameters: [
+              { name: 'X-Trace', in: 'header' },
+              { name: 'q', in: 'query', examples: { default: { value: 'one' } } },
+              { name: 'p', in: 'query', examples: { default: { value: 'two' } } },
+            ],
+          },
+        },
+      },
+    })
+
+    const op = getResolvedRef(document.paths?.['/search']?.get)
+    assert(op)
+    const secondQueryParam = getResolvedRef(op.parameters?.[2])
+    assert(secondQueryParam)
+
+    // Update the second query parameter
+    upsertOperationParameter(document, {
+      type: 'query',
+      originalParameter: secondQueryParam,
+      meta: { method: 'get', path: '/search', exampleKey: 'default' },
+      payload: { name: 'page', value: '2', isDisabled: false },
+    })
+
+    const params = (op.parameters ?? []).map((p) => getResolvedRef(p))
+    // Header unchanged
+    expect(params[0]).toMatchObject({ name: 'X-Trace', in: 'header' })
+    // First query unchanged
+    const firstQuery = params[1]
+    assert(firstQuery && 'examples' in firstQuery && firstQuery.examples)
+    expect(firstQuery).toMatchObject({ name: 'q', in: 'query' })
+    expect(getResolvedRef(firstQuery.examples.default)?.value).toBe('one')
+    // Second query updated
+    const secondQuery = params[2]
+    assert(secondQuery && 'examples' in secondQuery && secondQuery.examples)
+    expect(secondQuery).toMatchObject({ name: 'page', in: 'query' })
+    expect(getResolvedRef(secondQuery.examples.default)?.value).toBe('2')
+    expect(getResolvedRef(secondQuery.examples.default)?.['x-disabled']).toBe(false)
+  })
+
+  it('updates value and disabled state when parameter exists', () => {
+    const document = createDocument({
+      paths: {
+        '/search': {
+          get: {
+            parameters: [{ name: 'q', in: 'query', examples: { default: { value: 'one' } } }],
+          },
+        },
+      },
+    })
+
+    const op = getResolvedRef(document.paths?.['/search']?.get)
+    assert(op)
+    const param = getResolvedRef(op.parameters?.[0])
+    assert(param)
+
+    upsertOperationParameter(document, {
+      type: 'query',
+      originalParameter: param,
+      meta: { method: 'get', path: '/search', exampleKey: 'default' },
+      payload: { name: 'q', value: 'ONE', isDisabled: false },
+    })
+
+    assert(param && 'examples' in param && param.examples)
+    expect(getResolvedRef(param.examples.default)?.value).toBe('ONE')
+    expect(getResolvedRef(param.examples.default)?.['x-disabled']).toBe(false)
+  })
+
+  it('updates name and creates new example for different exampleKey', () => {
+    const document = createDocument({
+      paths: {
+        '/search': {
+          get: {
+            parameters: [{ name: 'q', in: 'query', examples: { default: { value: 'one' } } }],
+          },
+        },
+      },
+    })
+
+    const op = getResolvedRef(document.paths?.['/search']?.get)
+    assert(op)
+    const param = getResolvedRef(op.parameters?.[0])
+    assert(param)
+
+    upsertOperationParameter(document, {
+      type: 'query',
+      originalParameter: param,
+      meta: { method: 'get', path: '/search', exampleKey: 'other' },
+      payload: { name: 'query', value: 'new value', isDisabled: false },
+    })
+
+    // Name should update
+    expect(param?.name).toBe('query')
+    // Both examples should exist
+    assert(param && 'examples' in param && param.examples)
+    expect(getResolvedRef(param.examples.other)?.value).toBe('new value')
+    expect(getResolvedRef(param.examples.default)?.value).toBe('one')
+  })
+
+  it('only updates the specific parameter passed as originalParameter', () => {
+    const document = createDocument({
+      paths: {
+        '/search': {
+          get: {
+            parameters: [
+              { name: 'X-Trace', in: 'header', examples: { default: { value: 'abc' } } },
+              { name: 'q', in: 'query', examples: { default: { value: 'one' } } },
+            ],
+          },
+        },
+      },
+    })
+
+    const op = getResolvedRef(document.paths?.['/search']?.get)
+    assert(op)
+    const queryParam = getResolvedRef(op.parameters?.[1])
+    assert(queryParam)
+
+    // Update only the query parameter
+    upsertOperationParameter(document, {
+      type: 'query',
+      originalParameter: queryParam,
+      meta: { method: 'get', path: '/search', exampleKey: 'default' },
+      payload: { name: 'query', value: '1', isDisabled: false },
+    })
+
+    const params = (op.parameters ?? []).map((p) => getResolvedRef(p))
+    expect(params[0]).toMatchObject({ name: 'X-Trace', in: 'header' })
+    const updatedQueryParam = params[1]
+    assert(updatedQueryParam && 'examples' in updatedQueryParam)
+    expect(updatedQueryParam?.name).toBe('query')
+    expect(getResolvedRef(updatedQueryParam?.examples?.default as any)?.value).toBe('1')
+  })
+
+  it('adds multiple parameters of different types', () => {
+    const document = createDocument({
+      paths: {
+        '/users': {
+          get: {},
+        },
+      },
+    })
+
+    upsertOperationParameter(document, {
+      type: 'header',
+      originalParameter: null,
+      meta: { method: 'get', path: '/users', exampleKey: 'default' },
+      payload: { name: 'Authorization', value: 'Bearer token', isDisabled: false },
+    })
+
+    upsertOperationParameter(document, {
+      type: 'query',
+      originalParameter: null,
+      meta: { method: 'get', path: '/users', exampleKey: 'default' },
+      payload: { name: 'limit', value: '10', isDisabled: false },
+    })
+
+    upsertOperationParameter(document, {
+      type: 'query',
+      originalParameter: null,
+      meta: { method: 'get', path: '/users', exampleKey: 'default' },
+      payload: { name: 'offset', value: '0', isDisabled: false },
+    })
+
+    const op = getResolvedRef(document.paths?.['/users']?.get)
+    assert(op)
+    const params = (op.parameters ?? []).map((p) => getResolvedRef(p))
+    expect(params.length).toBe(3)
+    expect(params[0]).toMatchObject({ name: 'Authorization', in: 'header' })
+    expect(params[1]).toMatchObject({ name: 'limit', in: 'query' })
+    expect(params[2]).toMatchObject({ name: 'offset', in: 'query' })
+    assert(params[2] && 'examples' in params[2] && params[2].examples)
+    // Note: When adding a new parameter, x-disabled is always set to false initially
+    expect(getResolvedRef(params[2].examples.default)?.['x-disabled']).toBe(false)
   })
 
   it('no-ops when document is null', () => {
     expect(() =>
-      addOperationParameter(null, {
+      upsertOperationParameter(null, {
         type: 'query',
+        originalParameter: null,
         meta: { method: 'get', path: '/search', exampleKey: 'default' },
         payload: { name: 'q', value: 'x', isDisabled: false },
       }),
     ).not.toThrow()
   })
 
-  it('no-ops when operation does not exist', () => {
+  it('no-ops when operation does not exist and no originalParameter is provided', () => {
     const document = createDocument({
       paths: {
         '/missing': {},
       },
     })
 
-    addOperationParameter(document, {
+    upsertOperationParameter(document, {
       type: 'query',
+      originalParameter: null,
       meta: { method: 'get', path: '/missing', exampleKey: 'default' },
       payload: { name: 'q', value: 'x', isDisabled: false },
     })
@@ -952,224 +1180,33 @@ describe('addOperationParameter', () => {
   })
 })
 
-describe('updateOperationParameter', () => {
-  it('updates the N-th query parameter by type index: name, value, enabled', () => {
+describe('deleteOperationParameter', () => {
+  it('deletes a specific parameter using originalParameter', () => {
     const document = createDocument({
       paths: {
         '/search': {
           get: {
-            parameters: [{ name: 'X-Trace', in: 'header' }],
+            parameters: [
+              { name: 'X-Trace', in: 'header', examples: { default: { value: 'a' } } },
+              { name: 'q', in: 'query', examples: { default: { value: 'one' } } },
+              { name: 'page', in: 'query', examples: { default: { value: '2' } } },
+            ],
           },
         },
       },
     })
 
-    // Add two query params so we can target index 1 for type 'query'
-    addOperationParameter(document, {
-      type: 'query',
-      meta: { method: 'get', path: '/search', exampleKey: 'default' },
-      payload: { name: 'q', value: 'one', isDisabled: false },
-    })
-
-    addOperationParameter(document, {
-      type: 'query',
-      meta: { method: 'get', path: '/search', exampleKey: 'default' },
-      payload: { name: 'p', value: 'two', isDisabled: false },
-    })
-
-    updateOperationParameter(document, {
-      type: 'query',
-      index: 1,
-      meta: { method: 'get', path: '/search', exampleKey: 'default' },
-      payload: { name: 'page', value: '2', isDisabled: false },
-    })
-
     const op = getResolvedRef(document.paths?.['/search']?.get)
     assert(op)
-    const params = (op.parameters ?? []).map((p) => getResolvedRef(p))
-    // Header unchanged
-    expect(params[0]).toMatchObject({ name: 'X-Trace', in: 'header' })
-    // First query unchanged
-    const firstQuery = params[1]
-    assert(firstQuery && 'examples' in firstQuery && firstQuery.examples)
-    expect(firstQuery).toMatchObject({ name: 'q', in: 'query', required: false })
-    expect(getResolvedRef(firstQuery.examples.default)?.value).toBe('one')
-    expect(getResolvedRef(firstQuery.examples.default)?.['x-disabled']).toBe(false)
-    // Second query updated
-    const secondQuery = params[2]
-    assert(secondQuery && 'examples' in secondQuery && secondQuery.examples)
-    expect(secondQuery).toMatchObject({ name: 'page', in: 'query', required: false })
-    expect(getResolvedRef(secondQuery.examples.default)?.value).toBe('2')
-    expect(getResolvedRef(secondQuery.examples.default)?.['x-disabled']).toBe(false)
-  })
+    const pageParam = getResolvedRef(op.parameters?.[2])
+    assert(pageParam)
 
-  it('preserves previous enabled state when isEnabled is undefined', () => {
-    const document = createDocument({
-      paths: {
-        '/search': {
-          get: {},
-        },
-      },
-    })
-
-    addOperationParameter(document, {
-      type: 'query',
-      meta: { method: 'get', path: '/search', exampleKey: 'default' },
-      payload: { name: 'q', value: 'one', isDisabled: false },
-    })
-
-    updateOperationParameter(document, {
-      type: 'query',
-      index: 0,
-      meta: { method: 'get', path: '/search', exampleKey: 'default' },
-      payload: { name: 'q', value: 'ONE', isDisabled: false },
-    })
-
-    const op = getResolvedRef(document.paths?.['/search']?.get)
-    assert(op)
-    const param = getResolvedRef((op.parameters ?? [])[0])
-    assert(param && 'examples' in param && param.examples)
-    expect(getResolvedRef(param.examples.default)?.value).toBe('ONE')
-    // was enabled -> x-disabled false remains
-    expect(getResolvedRef(param.examples.default)?.['x-disabled']).toBe(false)
-  })
-
-  it('updates name and example even if exampleKey is missing', () => {
-    const document = createDocument({
-      paths: {
-        '/search': {
-          get: {},
-        },
-      },
-    })
-
-    addOperationParameter(document, {
-      type: 'query',
-      meta: { method: 'get', path: '/search', exampleKey: 'default' },
-      payload: { name: 'q', value: 'one', isDisabled: false },
-    })
-
-    updateOperationParameter(document, {
-      type: 'query',
-      index: 0,
-      meta: { method: 'get', path: '/search', exampleKey: 'other' },
-      payload: { name: 'query', value: 'new value', isDisabled: false },
-    })
-
-    const op = getResolvedRef(document.paths?.['/search']?.get)
-    assert(op)
-    const param = getResolvedRef((op.parameters ?? [])[0])
-    // Name should update
-    expect(param?.name).toBe('query')
-    // But no new example for 'other' should be created; default remains unchanged
-    assert(param && 'examples' in param && param.examples)
-    expect(getResolvedRef(param.examples.other)?.value).toBe('new value')
-    expect(getResolvedRef(param.examples.default)?.value).toBe('one')
-  })
-
-  it('only updates parameters of the specified type', () => {
-    const document = createDocument({
-      paths: {
-        '/search': {
-          get: {},
-        },
-      },
-    })
-
-    addOperationParameter(document, {
-      type: 'header',
-      meta: { method: 'get', path: '/search', exampleKey: 'default' },
-      payload: { name: 'X-Trace', value: 'abc', isDisabled: false },
-    })
-    addOperationParameter(document, {
-      type: 'query',
-      meta: { method: 'get', path: '/search', exampleKey: 'default' },
-      payload: { name: 'q', value: 'one', isDisabled: false },
-    })
-
-    // index 0 for type 'query' refers to the second element in the raw array
-    updateOperationParameter(document, {
-      type: 'query',
-      index: 0,
-      meta: { method: 'get', path: '/search', exampleKey: 'default' },
-      payload: { name: 'query', value: '1', isDisabled: false },
-    })
-
-    const op = getResolvedRef(document.paths?.['/search']?.get)
-    assert(op)
-    const params = (op.parameters ?? []).map((p) => getResolvedRef(p))
-    expect(params[0]).toMatchObject({ name: 'X-Trace', in: 'header' })
-    const queryParam = params[1]
-    assert(queryParam && 'examples' in queryParam)
-    expect(queryParam?.name).toBe('query')
-    expect(getResolvedRef(queryParam?.examples?.default as any)?.value).toBe('1')
-  })
-
-  it('no-ops when document is null', () => {
-    expect(() =>
-      updateOperationParameter(null, {
-        type: 'query',
-        index: 0,
-        meta: { method: 'get', path: '/search', exampleKey: 'default' },
-        payload: { name: 'q', value: '1', isDisabled: false },
-      }),
-    ).not.toThrow()
-  })
-
-  it('no-ops when operation or parameter does not exist', () => {
-    const document = createDocument({
-      paths: {
-        '/search': {},
-      },
-    })
-
-    updateOperationParameter(document, {
-      type: 'query',
-      index: 0,
-      meta: { method: 'get', path: '/search', exampleKey: 'default' },
-      payload: { name: 'q', value: '1', isDisabled: false },
-    })
-
-    expect(document.paths?.['/search']).toEqual({})
-  })
-})
-
-describe('deleteOperationParameter', () => {
-  it('deletes the N-th parameter within the filtered type view', () => {
-    const document = createDocument({
-      paths: {
-        '/search': {
-          get: {},
-        },
-      },
-    })
-
-    // Add a header and two query params (order matters)
-    addOperationParameter(document, {
-      type: 'header',
-      meta: { method: 'get', path: '/search', exampleKey: 'default' },
-      payload: { name: 'X-Trace', value: 'a', isDisabled: false },
-    })
-    addOperationParameter(document, {
-      type: 'query',
-      meta: { method: 'get', path: '/search', exampleKey: 'default' },
-      payload: { name: 'q', value: 'one', isDisabled: false },
-    })
-    addOperationParameter(document, {
-      type: 'query',
-      meta: { method: 'get', path: '/search', exampleKey: 'default' },
-      payload: { name: 'page', value: '2', isDisabled: false },
-    })
-
-    // Delete the second query (index 1 within filtered query params)
+    // Delete the page parameter
     deleteOperationParameter(document, {
-      type: 'query',
-      index: 1,
+      originalParameter: pageParam,
       meta: { method: 'get', path: '/search', exampleKey: 'default' },
     })
 
-    const op = getResolvedRef(document.paths?.['/search']?.get)
-    assert(op)
     const params = (op.parameters ?? []).map((p) => getResolvedRef(p))
     expect(params.length).toBe(2)
     expect(params[0]).toMatchObject({ name: 'X-Trace', in: 'header' })
@@ -1177,25 +1214,25 @@ describe('deleteOperationParameter', () => {
   })
 
   it('no-ops when document is null', () => {
+    const testParam = { name: 'test', in: 'query' as const }
     expect(() =>
       deleteOperationParameter(null, {
-        type: 'query',
-        index: 0,
+        originalParameter: testParam,
         meta: { method: 'get', path: '/search', exampleKey: 'default' },
       }),
     ).not.toThrow()
   })
 
-  it('no-ops when operation or parameter does not exist', () => {
+  it('no-ops when operation does not exist', () => {
     const document = createDocument({
       paths: {
         '/search': {},
       },
     })
 
+    const testParam = { name: 'test', in: 'query' as const }
     deleteOperationParameter(document, {
-      type: 'query',
-      index: 5,
+      originalParameter: testParam,
       meta: { method: 'get', path: '/search', exampleKey: 'default' },
     })
 
@@ -1208,31 +1245,26 @@ describe('deleteAllOperationParameters', () => {
     const document = createDocument({
       paths: {
         '/users/{id}': {
-          get: {},
+          get: {
+            parameters: [
+              {
+                name: 'X-Trace',
+                in: 'header',
+                required: false,
+                examples: { default: { value: 'a', 'x-disabled': false } },
+              },
+              { name: 'q', in: 'query', required: false, examples: { default: { value: 'one', 'x-disabled': false } } },
+              {
+                name: 'page',
+                in: 'query',
+                required: false,
+                examples: { default: { value: '2', 'x-disabled': false } },
+              },
+              { name: 'id', in: 'path', required: true, examples: { default: { value: '123', 'x-disabled': false } } },
+            ],
+          },
         },
       },
-    })
-
-    // Add a mix of parameter types
-    addOperationParameter(document, {
-      type: 'header',
-      meta: { method: 'get', path: '/users/{id}', exampleKey: 'default' },
-      payload: { name: 'X-Trace', value: 'a', isDisabled: false },
-    })
-    addOperationParameter(document, {
-      type: 'query',
-      meta: { method: 'get', path: '/users/{id}', exampleKey: 'default' },
-      payload: { name: 'q', value: 'one', isDisabled: false },
-    })
-    addOperationParameter(document, {
-      type: 'query',
-      meta: { method: 'get', path: '/users/{id}', exampleKey: 'default' },
-      payload: { name: 'page', value: '2', isDisabled: false },
-    })
-    addOperationParameter(document, {
-      type: 'path',
-      meta: { method: 'get', path: '/users/{id}', exampleKey: 'default' },
-      payload: { name: 'id', value: '123', isDisabled: false },
     })
 
     deleteAllOperationParameters(document, {
@@ -2508,5 +2540,664 @@ describe('updateOperationRequestBodyFormValue', () => {
     })
 
     expect(document.paths?.['/upload']).toEqual({})
+  })
+})
+
+describe('addResponseToHistory', () => {
+  it('adds a response to the operation history', async () => {
+    const document = createDocument({
+      paths: {
+        '/users/{id}': {
+          get: {
+            summary: 'Get user',
+            parameters: [{ name: 'id', in: 'path', examples: { default: { value: '123' } } }],
+          },
+        },
+      },
+    })
+
+    const mockRequest = {
+      url: 'https://api.example.com/users/123',
+      method: 'GET',
+      headers: new Headers({ 'Content-Type': 'application/json' }),
+    } as Request
+
+    const mockResponse = {
+      status: 200,
+      statusText: 'OK',
+      headers: new Headers({ 'Content-Type': 'application/json' }),
+      ok: true,
+      json: async () => ({ id: '123', name: 'John' }),
+    } as Response
+
+    await addResponseToHistory(document, {
+      payload: {
+        request: mockRequest,
+        response: mockResponse,
+        duration: 150,
+        timestamp: Date.now(),
+      },
+      meta: {
+        path: '/users/{id}',
+        method: 'get',
+        exampleKey: 'default',
+      },
+    })
+
+    const operation = getResolvedRef(document.paths?.['/users/{id}']?.get)
+    assert(operation)
+    expect(operation['x-scalar-history']).toBeDefined()
+    expect(operation['x-scalar-history']?.length).toBe(1)
+
+    const historyEntry = operation['x-scalar-history']?.[0]
+    expect(historyEntry?.time).toBe(150)
+    expect(historyEntry?.meta.example).toBe('default')
+    expect(historyEntry?.requestMetadata.variables).toEqual({ id: '123' })
+  })
+
+  it('enforces history limit of 5 entries', async () => {
+    const document = createDocument({
+      paths: {
+        '/items': {
+          get: {
+            summary: 'Get items',
+          },
+        },
+      },
+    })
+
+    const createMockPayload = (index: number) => ({
+      payload: {
+        request: {
+          url: `https://api.example.com/items?page=${index}`,
+          method: 'GET',
+          headers: new Headers(),
+        } as Request,
+        response: {
+          status: 200,
+          statusText: 'OK',
+          headers: new Headers(),
+          ok: true,
+        } as Response,
+        duration: 100 + index,
+        timestamp: Date.now(),
+      },
+      meta: {
+        path: '/items',
+        method: 'get' as const,
+        exampleKey: 'default',
+      },
+    })
+
+    // Add 6 history entries
+    for (let i = 0; i < 6; i++) {
+      await addResponseToHistory(document, createMockPayload(i))
+    }
+
+    const operation = getResolvedRef(document.paths?.['/items']?.get)
+    assert(operation)
+    expect(operation['x-scalar-history']?.length).toBe(5)
+
+    // Verify the oldest entry (index 0) was removed and entries 1-5 remain
+    expect(operation['x-scalar-history']?.[0]?.time).toBe(101) // Second entry became first
+    expect(operation['x-scalar-history']?.[4]?.time).toBe(105) // Last entry
+  })
+
+  it('initializes history array when it does not exist', async () => {
+    const document = createDocument({
+      paths: {
+        '/products': {
+          post: {
+            summary: 'Create product',
+          },
+        },
+      },
+    })
+
+    const operation = getResolvedRef(document.paths?.['/products']?.post)
+    assert(operation)
+    expect(operation['x-scalar-history']).toBeUndefined()
+
+    await addResponseToHistory(document, {
+      payload: {
+        request: {
+          url: 'https://api.example.com/products',
+          method: 'POST',
+          headers: new Headers(),
+        } as Request,
+        response: {
+          status: 201,
+          statusText: 'Created',
+          headers: new Headers(),
+          ok: true,
+        } as Response,
+        duration: 200,
+        timestamp: Date.now(),
+      },
+      meta: {
+        path: '/products',
+        method: 'post',
+        exampleKey: 'default',
+      },
+    })
+
+    expect(operation['x-scalar-history']).toBeDefined()
+    expect(operation['x-scalar-history']?.length).toBe(1)
+  })
+
+  it('handles multiple path variables', async () => {
+    const document = createDocument({
+      paths: {
+        '/users/{userId}/posts/{postId}': {
+          get: {
+            summary: 'Get user post',
+            parameters: [
+              { name: 'userId', in: 'path', examples: { default: { value: '456' } } },
+              { name: 'postId', in: 'path', examples: { default: { value: '789' } } },
+            ],
+          },
+        },
+      },
+    })
+
+    await addResponseToHistory(document, {
+      payload: {
+        request: {
+          url: 'https://api.example.com/users/456/posts/789',
+          method: 'GET',
+          headers: new Headers(),
+        } as Request,
+        response: {
+          status: 200,
+          statusText: 'OK',
+          headers: new Headers(),
+          ok: true,
+        } as Response,
+        duration: 120,
+        timestamp: Date.now(),
+      },
+      meta: {
+        path: '/users/{userId}/posts/{postId}',
+        method: 'get',
+        exampleKey: 'default',
+      },
+    })
+
+    const operation = getResolvedRef(document.paths?.['/users/{userId}/posts/{postId}']?.get)
+    const historyEntry = operation?.['x-scalar-history']?.[0]
+    expect(historyEntry?.requestMetadata.variables).toEqual({
+      userId: '456',
+      postId: '789',
+    })
+  })
+
+  it('stores the correct example key in history metadata', async () => {
+    const document = createDocument({
+      paths: {
+        '/settings': {
+          put: {
+            summary: 'Update settings',
+          },
+        },
+      },
+    })
+
+    await addResponseToHistory(document, {
+      payload: {
+        request: {
+          url: 'https://api.example.com/settings',
+          method: 'PUT',
+          headers: new Headers(),
+        } as Request,
+        response: {
+          status: 200,
+          statusText: 'OK',
+          headers: new Headers(),
+          ok: true,
+        } as Response,
+        duration: 180,
+        timestamp: Date.now(),
+      },
+      meta: {
+        path: '/settings',
+        method: 'put',
+        exampleKey: 'custom-example',
+      },
+    })
+
+    const operation = getResolvedRef(document.paths?.['/settings']?.put)
+    const historyEntry = operation?.['x-scalar-history']?.[0]
+    expect(historyEntry?.meta.example).toBe('custom-example')
+  })
+
+  it('no-ops when document is null', async () => {
+    await expect(
+      addResponseToHistory(null, {
+        payload: {
+          request: {} as Request,
+          response: {} as Response,
+          duration: 100,
+          timestamp: Date.now(),
+        },
+        meta: {
+          path: '/test',
+          method: 'get' as const,
+          exampleKey: 'default',
+        },
+      }),
+    ).resolves.not.toThrow()
+  })
+
+  it('no-ops when payload is null', async () => {
+    const document = createDocument({
+      paths: {
+        '/test': {
+          get: {},
+        },
+      },
+    })
+
+    await expect(
+      addResponseToHistory(document, {
+        payload: null as any,
+        meta: {
+          path: '/test',
+          method: 'get' as const,
+          exampleKey: 'default',
+        },
+      }),
+    ).resolves.not.toThrow()
+
+    const operation = getResolvedRef(document.paths?.['/test']?.get)
+    expect(operation?.['x-scalar-history']).toBeUndefined()
+  })
+
+  it('no-ops when operation does not exist', async () => {
+    const document = createDocument({
+      paths: {
+        '/test': {},
+      },
+    })
+
+    await expect(
+      addResponseToHistory(document, {
+        payload: {
+          request: {} as Request,
+          response: {} as Response,
+          duration: 100,
+          timestamp: Date.now(),
+        },
+        meta: {
+          path: '/test',
+          method: 'get' as const,
+          exampleKey: 'default',
+        },
+      }),
+    ).resolves.not.toThrow()
+  })
+})
+
+describe('reloadOperationHistory', () => {
+  it('reloads a history item into the operation', () => {
+    const document = createDocument({
+      paths: {
+        '/users': {
+          get: {
+            summary: 'Get users',
+            'x-scalar-history': [
+              {
+                time: 150,
+                timestamp: Date.now(),
+                request: {
+                  url: 'https://api.example.com/users?limit=10',
+                  method: 'GET',
+                  httpVersion: 'HTTP/1.1',
+                  headers: [{ name: 'Content-Type', value: 'application/json' }],
+                  cookies: [],
+                  queryString: [{ name: 'limit', value: '10' }],
+                  headersSize: -1,
+                  bodySize: -1,
+                },
+                response: {
+                  status: 200,
+                  statusText: 'OK',
+                  httpVersion: 'HTTP/1.1',
+                  headers: [],
+                  cookies: [],
+                  content: {
+                    size: 100,
+                    mimeType: 'application/json',
+                    text: '{"users":[]}',
+                  },
+                  redirectURL: '',
+                  headersSize: -1,
+                  bodySize: 100,
+                },
+                meta: {
+                  example: 'default',
+                },
+                requestMetadata: {
+                  variables: {},
+                },
+              },
+            ],
+          },
+        },
+      },
+    })
+
+    let callbackResult: string | undefined
+
+    reloadOperationHistory(document, {
+      meta: { path: '/users', method: 'get' },
+      index: 0,
+      callback: (status) => {
+        callbackResult = status
+      },
+    })
+
+    expect(callbackResult).toBe('success')
+  })
+
+  it('reloads the correct history item by index', () => {
+    const document = createDocument({
+      paths: {
+        '/products': {
+          get: {
+            summary: 'Get products',
+            'x-scalar-history': [
+              {
+                time: 100,
+                timestamp: Date.now(),
+                request: {
+                  url: 'https://api.example.com/products?page=1',
+                  method: 'GET',
+                  httpVersion: 'HTTP/1.1',
+                  headers: [],
+                  cookies: [],
+                  queryString: [{ name: 'page', value: '1' }],
+                  headersSize: -1,
+                  bodySize: -1,
+                },
+                response: {
+                  status: 200,
+                  statusText: 'OK',
+                  httpVersion: 'HTTP/1.1',
+                  headers: [],
+                  cookies: [],
+                  content: { size: 0, mimeType: 'application/json' },
+                  redirectURL: '',
+                  headersSize: -1,
+                  bodySize: 0,
+                },
+                meta: { example: 'default' },
+                requestMetadata: { variables: {} },
+              },
+              {
+                time: 200,
+                timestamp: Date.now(),
+                request: {
+                  url: 'https://api.example.com/products?page=2',
+                  method: 'GET',
+                  httpVersion: 'HTTP/1.1',
+                  headers: [],
+                  cookies: [],
+                  queryString: [{ name: 'page', value: '2' }],
+                  headersSize: -1,
+                  bodySize: -1,
+                },
+                response: {
+                  status: 200,
+                  statusText: 'OK',
+                  httpVersion: 'HTTP/1.1',
+                  headers: [],
+                  cookies: [],
+                  content: { size: 0, mimeType: 'application/json' },
+                  redirectURL: '',
+                  headersSize: -1,
+                  bodySize: 0,
+                },
+                meta: { example: 'default' },
+                requestMetadata: { variables: {} },
+              },
+            ],
+          },
+        },
+      },
+    })
+
+    let callbackResult: string | undefined
+
+    reloadOperationHistory(document, {
+      meta: { path: '/products', method: 'get' },
+      index: 1,
+      callback: (status) => {
+        callbackResult = status
+      },
+    })
+
+    expect(callbackResult).toBe('success')
+  })
+
+  it('handles history with path variables', () => {
+    const document = createDocument({
+      paths: {
+        '/orders/{orderId}': {
+          get: {
+            summary: 'Get order',
+            parameters: [{ name: 'orderId', in: 'path' }],
+            'x-scalar-history': [
+              {
+                time: 150,
+                timestamp: Date.now(),
+                request: {
+                  url: 'https://api.example.com/orders/12345',
+                  method: 'GET',
+                  httpVersion: 'HTTP/1.1',
+                  headers: [],
+                  cookies: [],
+                  queryString: [],
+                  headersSize: -1,
+                  bodySize: -1,
+                },
+                response: {
+                  status: 200,
+                  statusText: 'OK',
+                  httpVersion: 'HTTP/1.1',
+                  headers: [],
+                  cookies: [],
+                  content: { size: 0, mimeType: 'application/json' },
+                  redirectURL: '',
+                  headersSize: -1,
+                  bodySize: 0,
+                },
+                meta: { example: 'default' },
+                requestMetadata: {
+                  variables: { orderId: '12345' },
+                },
+              },
+            ],
+          },
+        },
+      },
+    })
+
+    let callbackResult: string | undefined
+
+    reloadOperationHistory(document, {
+      meta: { path: '/orders/{orderId}', method: 'get' },
+      index: 0,
+      callback: (status) => {
+        callbackResult = status
+      },
+    })
+
+    expect(callbackResult).toBe('success')
+
+    // Verify that path parameters were reloaded
+    const operation = getResolvedRef(document.paths?.['/orders/{orderId}']?.get)
+    const param = getResolvedRef(operation?.parameters?.[0])
+    assert(param && 'examples' in param)
+    expect(getResolvedRef(param.examples?.draft)?.value).toBe('12345')
+  })
+
+  it('logs error when document is null', () => {
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {
+      return
+    })
+
+    reloadOperationHistory(null, {
+      meta: { path: '/test', method: 'get' },
+      index: 0,
+      callback: () => {
+        return
+      },
+    })
+
+    expect(consoleErrorSpy).toHaveBeenCalledWith('Document not found', '/test', 'get')
+    consoleErrorSpy.mockRestore()
+  })
+
+  it('logs error when operation does not exist', () => {
+    const document = createDocument({
+      paths: {
+        '/test': {},
+      },
+    })
+
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {
+      return
+    })
+
+    reloadOperationHistory(document, {
+      meta: { path: '/test', method: 'get' },
+      index: 0,
+      callback: () => {
+        return
+      },
+    })
+
+    expect(consoleErrorSpy).toHaveBeenCalledWith('Operation not found', '/test', 'get')
+    consoleErrorSpy.mockRestore()
+  })
+
+  it('logs error when history item does not exist', () => {
+    const document = createDocument({
+      paths: {
+        '/test': {
+          get: {
+            summary: 'Test',
+            'x-scalar-history': [],
+          },
+        },
+      },
+    })
+
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {
+      return
+    })
+
+    reloadOperationHistory(document, {
+      meta: { path: '/test', method: 'get' },
+      index: 5,
+      callback: () => {
+        return
+      },
+    })
+
+    expect(consoleErrorSpy).toHaveBeenCalledWith('History item not found', 5)
+    consoleErrorSpy.mockRestore()
+  })
+
+  it('handles operation with no history', () => {
+    const document = createDocument({
+      paths: {
+        '/test': {
+          get: {
+            summary: 'Test',
+          },
+        },
+      },
+    })
+
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {
+      return
+    })
+
+    reloadOperationHistory(document, {
+      meta: { path: '/test', method: 'get' },
+      index: 0,
+      callback: () => {
+        return
+      },
+    })
+
+    expect(consoleErrorSpy).toHaveBeenCalledWith('History item not found', 0)
+    consoleErrorSpy.mockRestore()
+  })
+
+  it('does not call callback when document is missing', () => {
+    const callbackSpy = vi.fn()
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {
+      return
+    })
+
+    reloadOperationHistory(null, {
+      meta: { path: '/test', method: 'get' },
+      index: 0,
+      callback: callbackSpy,
+    })
+
+    expect(callbackSpy).not.toHaveBeenCalled()
+    consoleErrorSpy.mockRestore()
+  })
+
+  it('does not call callback when operation is missing', () => {
+    const document = createDocument({
+      paths: {
+        '/test': {},
+      },
+    })
+
+    const callbackSpy = vi.fn()
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {
+      return
+    })
+
+    reloadOperationHistory(document, {
+      meta: { path: '/test', method: 'get' },
+      index: 0,
+      callback: callbackSpy,
+    })
+
+    expect(callbackSpy).not.toHaveBeenCalled()
+    consoleErrorSpy.mockRestore()
+  })
+
+  it('does not call callback when history item is missing', () => {
+    const document = createDocument({
+      paths: {
+        '/test': {
+          get: {
+            summary: 'Test',
+            'x-scalar-history': [],
+          },
+        },
+      },
+    })
+
+    const callbackSpy = vi.fn()
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {
+      return
+    })
+
+    reloadOperationHistory(document, {
+      meta: { path: '/test', method: 'get' },
+      index: 0,
+      callback: callbackSpy,
+    })
+
+    expect(callbackSpy).not.toHaveBeenCalled()
+    consoleErrorSpy.mockRestore()
   })
 })

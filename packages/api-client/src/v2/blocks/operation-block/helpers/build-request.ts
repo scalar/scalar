@@ -1,5 +1,6 @@
+import { canMethodHaveBody } from '@scalar/helpers/http/can-method-have-body'
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
-import { redirectToProxy, shouldUseProxy } from '@scalar/oas-utils/helpers'
+import { redirectToProxy, shouldUseProxy } from '@scalar/helpers/url/redirect-to-proxy'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type { XScalarCookie } from '@scalar/workspace-store/schemas/extensions/general/x-scalar-cookies'
@@ -64,13 +65,12 @@ export const buildRequest = ({
   isUsingProxy: boolean
 }> => {
   try {
-    /** Flatten the environment variables array into a key-value object */
-    const env = getEnvironmentVariables(environment)
     const requestBody = getResolvedRef(operation.requestBody)
 
+    /** Flatten the environment variables array into a key-value object */
+    const env = getEnvironmentVariables(environment)
     /** Build out the request parameters */
     const params = buildRequestParameters(operation.parameters ?? [], env, exampleKey)
-    const body = buildRequestBody(requestBody, env, exampleKey)
     const security = buildRequestSecurity(selectedSecuritySchemes, env)
 
     // Combine the headers, cookies and url params
@@ -83,8 +83,16 @@ export const buildRequest = ({
         },
         {} as Record<string, string>,
       )
-    const headers = { ...defaultHeaders, ...params.headers, ...security.headers }
+    const headers = new Headers({ ...defaultHeaders, ...params.headers, ...security.headers })
     const urlParams = new URLSearchParams([...params.urlParams, ...security.urlParams])
+
+    // If the method can have a body, build the request body, otherwise set it to null
+    const body = canMethodHaveBody(method) ? buildRequestBody(requestBody, env, exampleKey) : null
+
+    if (body && (body instanceof FormData || body instanceof URLSearchParams)) {
+      // Delete the Content-Type header so the browser will set it automatically based on the request body
+      headers.delete('Content-Type')
+    }
 
     /** Combine the server url, path and url params into a single url */
     const url = getResolvedUrl({ environment, server, path, pathVariables: params.pathVariables, urlParams })
@@ -99,9 +107,9 @@ export const buildRequest = ({
 
     // If we are running in Electron, we need to add a custom header
     // that's then forwarded as a `User-Agent` header.
-    const userAgentHeader = headers['User-Agent'] || headers['user-agent']
+    const userAgentHeader = headers.get('User-Agent')
     if (isElectron() && userAgentHeader) {
-      headers['X-Scalar-User-Agent'] = userAgentHeader
+      headers.set('X-Scalar-User-Agent', userAgentHeader)
     }
 
     /** Build out the cookies header */
@@ -109,14 +117,14 @@ export const buildRequest = ({
       paramCookies: [...params.cookies, ...security.cookies],
       globalCookies,
       env,
-      originalCookieHeader: headers['Cookie'] || headers['cookie'],
+      originalCookieHeader: headers.get('Cookie'),
       url,
       useCustomCookieHeader: isElectron() || isUsingProxy,
       disabledGlobalCookies: operation['x-scalar-disable-parameters']?.['global-cookies']?.[exampleKey] ?? {},
     })
 
     if (cookiesHeader) {
-      headers[cookiesHeader.name] = cookiesHeader.value
+      headers.set(cookiesHeader.name, cookiesHeader.value)
     }
 
     /** Controller to allow aborting the request */

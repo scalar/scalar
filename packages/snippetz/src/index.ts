@@ -5,6 +5,7 @@ export {
   type ClientId,
   type FormDataParam,
   type HarRequest,
+  type HarResponse,
   type Plugin,
   type PluginConfiguration,
   type Target,

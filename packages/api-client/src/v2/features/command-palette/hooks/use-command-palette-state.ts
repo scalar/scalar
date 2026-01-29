@@ -1,173 +1,36 @@
-import type { Icon as IconType } from '@scalar/components'
 import { useModal } from '@scalar/components'
-import { type ComputedRef, type Ref, computed, ref } from 'vue'
+import {
+  ScalarIconArrowSquareIn,
+  ScalarIconArrowUpRight,
+  ScalarIconBracketsCurly,
+  ScalarIconCookie,
+  ScalarIconFolder,
+  ScalarIconPackage,
+  ScalarIconPuzzlePiece,
+  ScalarIconSlidersHorizontal,
+} from '@scalar/icons'
+import type { ScalarIconComponent } from '@scalar/icons/types'
+import type { CommandPalettePayload } from '@scalar/workspace-store/events'
+import Fuse from 'fuse.js'
+import { type Component, type ComputedRef, type Ref, type ShallowRef, computed, ref, shallowRef } from 'vue'
 import type { RouteLocationRaw } from 'vue-router'
 
-/**
- * Internal helper for type inference in command props.
- * Used to extract prop types from command definitions.
- */
-const getProps = <T extends Record<string, unknown>>() => null as unknown as T
-
-/** Base properties shared by all command types (internal) */
-type CommandBase = {
-  /** Unique identifier for the command */
-  id: string
-  /** Display name shown in the command palette */
-  name: string
-}
-
-type FolderCommand = CommandBase & {
-  type: 'folder'
-  icon: IconType
-  /** Props for the command */
-  props?: Record<string, unknown>
-}
-
-type HiddenFolderCommand = CommandBase & {
-  type: 'hidden-folder'
-  /** Props for the command */
-  props?: Record<string, unknown>
-}
-
-type RouteCommand = CommandBase & {
-  type: 'route'
-  to: RouteLocationRaw
-  icon: IconType
-}
+import CommandPaletteDocument from '../components/CommandPaletteDocument.vue'
+import CommandPaletteExample from '../components/CommandPaletteExample.vue'
+import CommandPaletteImport from '../components/CommandPaletteImport.vue'
+import CommandPaletteImportCurl from '../components/CommandPaletteImportCurl.vue'
+import CommandPaletteRequest from '../components/CommandPaletteRequest.vue'
+import CommandPaletteTag from '../components/CommandPaletteTag.vue'
 
 /**
- * Represents a single command in the command palette.
- * Commands can be folders (open sub-actions), routes (navigate), or hidden folders.
- */
-export type Command = FolderCommand | RouteCommand | HiddenFolderCommand
-
-/**
- * A group of related commands with a label.
- * Used to organize commands into categories in the palette.
- */
-type CommandGroup = {
-  /** Label for the command group (empty string for unlabeled groups) */
-  label: string
-  /** List of commands in this group */
-  commands: Command[]
-}
-
-/**
- * Available commands in the command palette.
- * Organized into groups for better UX and discoverability.
- */
-const commands = [
-  {
-    label: '',
-    commands: [
-      {
-        type: 'folder',
-        id: 'import-from-openapi-swagger-postman-curl',
-        name: 'Import from OpenAPI/Swagger/Postman/cURL',
-        icon: 'Import',
-      },
-      {
-        type: 'folder',
-        id: 'create-document',
-        name: 'Create Document',
-        icon: 'Collection',
-      },
-      {
-        type: 'folder',
-        id: 'add-tag',
-        name: 'Add Tag',
-        icon: 'Folder',
-        props: getProps<{
-          /** Document id to add the tag to */
-          documentId?: string
-        }>(),
-      },
-      {
-        type: 'folder',
-        id: 'create-request',
-        name: 'Create Request',
-        icon: 'ExternalLink',
-        props: getProps<{
-          /** The id of the document to create the request in */
-          documentId?: string
-          /** Tag id to add the request to (optional) */
-          tagId?: string
-        }>(),
-      },
-      {
-        type: 'folder',
-        id: 'add-example',
-        name: 'Add Example',
-        icon: 'Example',
-        props: getProps<{
-          /** Document id to add the example to */
-          documentId?: string
-          /** Operation id to add the example to */
-          operationId?: string
-        }>(),
-      },
-      /** Hidden commands accessible programmatically but not shown in UI */
-      {
-        type: 'hidden-folder',
-        id: 'import-curl-command',
-        name: 'Import cURL Command',
-        props: getProps<{ curl: string }>(),
-      },
-    ],
-  },
-  {
-    label: 'Pages',
-    commands: [
-      {
-        type: 'route',
-        id: 'environment',
-        name: 'Environment',
-        icon: 'Brackets',
-        to: {
-          name: 'workspace.environment',
-        },
-      },
-      {
-        type: 'route',
-        id: 'cookies',
-        name: 'Cookies',
-        icon: 'Cookie',
-        to: {
-          name: 'workspace.cookies',
-        },
-      },
-      {
-        type: 'route',
-        id: 'settings',
-        name: 'Settings',
-        icon: 'Settings',
-        to: {
-          name: 'workspace.settings',
-        },
-      },
-    ],
-  },
-] as const satisfies CommandGroup[]
-
-type FlatCommand = (typeof commands)[number]['commands'][number]
-
-export type FolderCommandIds = Extract<FlatCommand, { type: 'folder' }>['id']
-type HiddenFolderCommandIds = Extract<FlatCommand, { type: 'hidden-folder' }>['id']
-
-/** Command IDs that map to UI components (folder and hidden-folder types) */
-export type UiCommandIds = FolderCommandIds | HiddenFolderCommandIds
-
-/**
- * Maps each command ID to its respective props type.
- * If a command has no props defined, it maps to undefined.
+ * Command IDs that map to UI components (folder and hidden-folder types)
  *
- * This is used by the type system to validate that command components
- * accept the correct props for their respective command IDs.
+ * For base app commands they are defined by their action payload
  */
-export type CommandPropsMap = {
-  [K in UiCommandIds]: Extract<FlatCommand, { id: K }> extends { props: infer P } ? P : undefined
-}
+type UiCommandIds = keyof CommandPalettePayload
+
+/** Map the the prop definitons to the prop value */
+type CommandPaletteActionProps<K extends UiCommandIds> = CommandPalettePayload[K]
 
 /**
  * Type for the open function in the command palette.
@@ -176,34 +39,57 @@ export type CommandPropsMap = {
  * - open(commandId) - Opens a command that does not require props
  * - open(commandId, props) - Opens a command with required props
  */
-export type OpenCommand = {
+type OpenCommand = {
   (): void
-  <T extends UiCommandIds>(commandId: T, props: CommandPropsMap[T]): void
+  <T extends UiCommandIds>(commandId: T, props: CommandPaletteActionProps<T>): void
 }
 
-export type OpenCommandEvent = <T extends UiCommandIds>(
-  event: 'open-command',
-  commandId: T,
-  ...args: CommandPropsMap[T] extends undefined
-    ? [] // no props argument
-    : [props: CommandPropsMap[T]] // required props
-) => void
+/** Route enntry for the palette list */
+export type CommandPaletteRoute = {
+  id: string
+  type: 'route'
+  icon: ScalarIconComponent
+  name: string
+  to: RouteLocationRaw
+}
+
+/** Command entry for the palette list */
+type BaseCommandPaletteAction = {
+  id: keyof CommandPalettePayload
+  name: string
+  icon?: ScalarIconComponent
+  component: Component
+  hidden?: boolean
+}
+
+export type CommandPaletteAction = Omit<BaseCommandPaletteAction, 'id'> & {
+  id: string
+}
+
+export type CommandPaletteEntry = CommandPaletteAction | CommandPaletteRoute
+
+// ---------------------------------------------------------------------------
 
 /**
  * Return type for the useCommandPaletteState composable.
  * Provides reactive state and methods to control the command palette.
  */
-export type UseCommandPaletteStateReturn = {
+export type CommandPaletteState = {
   /** Whether the command palette is currently open */
   isOpen: Ref<boolean>
   /** The currently active command, or null if showing the main list */
-  activeCommand: Ref<UiCommandIds | null>
+  activeCommand: ShallowRef<CommandPaletteAction | null>
   /** Properties passed to the active command component */
   activeCommandProps: Ref<Record<string, unknown> | null>
   /** Current filter/search query for filtering commands */
   filterQuery: Ref<string>
-  /** Filtered commands based on the current search query */
-  filteredCommands: ComputedRef<readonly CommandGroup[]>
+  /** Grouped actions and routes to be rendered */
+  filteredCommands: ComputedRef<
+    {
+      label?: string
+      commands: (CommandPaletteAction | CommandPaletteRoute)[]
+    }[]
+  >
   /**
    * Opens the command palette, optionally with a specific command active.
    * When opening a command, props are required only if the command defines them.
@@ -246,15 +132,28 @@ export type UseCommandPaletteStateReturn = {
  * // Close and reset
  * palette.close()
  */
-export const useCommandPaletteState = (): UseCommandPaletteStateReturn => {
+export const useCommandPaletteState = (
+  actions: CommandPaletteAction[] = baseClientActions,
+  routes: CommandPaletteRoute[] = baseRoutes,
+): CommandPaletteState => {
   const modalState = useModal()
 
   const filterQuery = ref('')
-  const activeCommand = ref<UiCommandIds | null>(null)
+  const activeCommand = shallowRef<CommandPaletteAction | null>(null)
   const activeCommandProps = ref<Record<string, unknown> | null>(null)
 
   /** Whether the command palette is currently open */
   const isOpen = computed<boolean>(() => modalState.open)
+
+  const fuseActions = new Fuse(actions, {
+    keys: ['name'],
+    threshold: 0.1,
+  })
+
+  const fuseRoutes = new Fuse(routes, {
+    keys: ['name'],
+    threshold: 0.1,
+  })
 
   /**
    * Filtered commands based on the current search query.
@@ -262,29 +161,17 @@ export const useCommandPaletteState = (): UseCommandPaletteStateReturn => {
    * When a query exists, filters commands by name (case-insensitive) and excludes hidden-folder.
    * Empty groups are excluded from the results.
    */
-  const filteredCommands = computed<CommandGroup[]>(() => {
+  const filteredActions = computed<CommandPaletteAction[]>(() => {
     const query = filterQuery.value.toLowerCase().trim()
 
     /** Filter commands by name when query exists, always exclude hidden folders */
-    return commands
-      .map((group) => ({
-        label: group.label,
-        commands: group.commands.filter((command) => {
-          // Always exclude hidden folders
-          if (command.type === 'hidden-folder') {
-            return false
-          }
+    return (query ? fuseActions.search(query).map((a) => a.item) : actions).filter((a) => !a.hidden)
+  })
 
-          // If there is a query, filter by name
-          if (query) {
-            return command.name.toLowerCase().includes(query)
-          }
+  const filteredRoutes = computed<CommandPaletteRoute[]>(() => {
+    const query = filterQuery.value.toLowerCase().trim()
 
-          // No query means show all visible commands
-          return true
-        }),
-      }))
-      .filter((group) => group.commands.length > 0)
+    return query ? fuseRoutes.search(query).map((a) => a.item) : routes
   })
 
   /**
@@ -294,7 +181,7 @@ export const useCommandPaletteState = (): UseCommandPaletteStateReturn => {
    */
   const open: OpenCommand = (commandId?: UiCommandIds, ...args: unknown[]): void => {
     if (commandId) {
-      activeCommand.value = commandId
+      activeCommand.value = actions.find((a) => a.id === commandId) ?? null
       activeCommandProps.value = (args[0] as Record<string, unknown>) ?? null
     }
     modalState.show()
@@ -323,10 +210,99 @@ export const useCommandPaletteState = (): UseCommandPaletteStateReturn => {
     activeCommand,
     activeCommandProps,
     filterQuery,
-    filteredCommands,
+    filteredCommands: computed(() => [
+      {
+        label: '',
+        commands: filteredActions.value,
+      },
+      {
+        label: 'Pages',
+        commands: filteredRoutes.value,
+      },
+    ]),
     open,
     close,
     setFilterQuery,
     reset,
   }
 }
+
+// ---------------------------------------------------------------------------
+// Base commands
+
+/**
+ * The base naviation routes used in the command palette.
+ * This object can be extended and passed to the useCommandPaletteState hook to add custom routes
+ */
+export const baseRoutes: CommandPaletteRoute[] = [
+  {
+    type: 'route',
+    id: 'environment',
+    name: 'Environment',
+    icon: ScalarIconBracketsCurly,
+    to: {
+      name: 'workspace.environment',
+    },
+  },
+  {
+    type: 'route',
+    id: 'cookies',
+    name: 'Cookies',
+    icon: ScalarIconCookie,
+    to: {
+      name: 'workspace.cookies',
+    },
+  },
+  {
+    type: 'route',
+    id: 'settings',
+    name: 'Settings',
+    icon: ScalarIconSlidersHorizontal,
+    to: {
+      name: 'workspace.settings',
+    },
+  },
+]
+
+/**
+ * The internal client command palette actions
+ * This object can be extended and passed to the useCommandPaletteState hook to add custom actions
+ */
+export const baseClientActions = [
+  {
+    id: 'import-from-openapi-swagger-postman-curl',
+    name: 'Import from OpenAPI/Swagger/Postman/cURL',
+    component: CommandPaletteImport,
+    icon: ScalarIconArrowSquareIn,
+  },
+  {
+    id: 'create-document',
+    name: 'Create Document',
+    component: CommandPaletteDocument,
+    icon: ScalarIconPackage,
+  },
+  {
+    id: 'add-tag',
+    name: 'Add Tag',
+    component: CommandPaletteTag,
+    icon: ScalarIconFolder,
+  },
+  {
+    id: 'create-request',
+    name: 'Create Request',
+    component: CommandPaletteRequest,
+    icon: ScalarIconArrowUpRight,
+  },
+  {
+    id: 'add-example',
+    name: 'Add Example',
+    component: CommandPaletteExample,
+    icon: ScalarIconPuzzlePiece,
+  },
+  {
+    id: 'import-curl-command',
+    name: 'Import cURL Command',
+    hidden: true,
+    component: CommandPaletteImportCurl,
+  },
+] as const satisfies BaseCommandPaletteAction[]

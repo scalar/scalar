@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common'
-import { Test } from '@nestjs/testing'
 import { FastifyAdapter } from '@nestjs/platform-fastify'
+import { Test } from '@nestjs/testing'
 
 @Module({})
 class AppTestModule {}
