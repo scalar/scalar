@@ -1154,7 +1154,7 @@ watch(showAgent, () => {
 @layer scalar-config {
   .references-sidebar {
     /* Set a default width if references are enabled */
-    --refs-sidebar-width: var(--scalar-sidebar-width, 280px);
+    --refs-sidebar-width: var(--scalar-sidebar-width, 288px);
   }
 }
 
