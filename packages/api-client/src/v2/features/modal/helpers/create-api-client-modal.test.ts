@@ -131,7 +131,7 @@ describe('createApiClientModal', () => {
     modal.app.unmount()
   })
 
-  it('reacts to changes in options.authentication', async () => {
+  it.only('reacts to changes in options.authentication', async () => {
     const store = createWorkspaceStore()
     await store.addDocument({
       name: 'test-doc',

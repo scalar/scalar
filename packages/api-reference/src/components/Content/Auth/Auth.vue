@@ -17,29 +17,44 @@ import { computed, watch } from 'vue'
 
 import { getDefaultSecurity } from '@/components/Content/Auth/helpers/get-default-security'
 
-const { document, environment, eventBus, options, securitySchemes, authStore } =
-  defineProps<{
-    options: Pick<
-      ApiReferenceConfigurationRaw,
-      'authentication' | 'persistAuth' | 'proxyUrl'
-    >
-    document: WorkspaceDocument | undefined
-    eventBus: WorkspaceEventBus
-    securitySchemes: MergedSecuritySchemes
-    selectedServer: ServerObject | null
-    environment: XScalarEnvironment
-    authStore: AuthStore
-  }>()
+const {
+  document,
+  environment,
+  eventBus,
+  options,
+  securitySchemes,
+  authStore,
+  documentSlug,
+} = defineProps<{
+  options: Pick<
+    ApiReferenceConfigurationRaw,
+    'authentication' | 'persistAuth' | 'proxyUrl'
+  >
+  document: WorkspaceDocument | undefined
+  eventBus: WorkspaceEventBus
+  securitySchemes: MergedSecuritySchemes
+  selectedServer: ServerObject | null
+  environment: XScalarEnvironment
+  authStore: AuthStore
+  documentSlug: string
+}>()
 
 /** Compute what the security requirements should be for the document */
 const securityRequirements = computed(() =>
   getSecurityRequirements(document?.security),
 )
 
+const documentSelectedSecurity = computed(() =>
+  authStore.getAuthSelectedSchemas({
+    type: 'document',
+    documentName: documentSlug,
+  }),
+)
+
 /** The selected security keys for the document */
 const selectedSecurity = computed(() =>
   getSelectedSecurity(
-    document?.['x-scalar-selected-security'],
+    documentSelectedSecurity.value,
     undefined,
     securityRequirements.value,
   ),
@@ -47,9 +62,9 @@ const selectedSecurity = computed(() =>
 
 // We set the initial security on the document to the default if it doesn't exist
 watch(
-  () => document?.['x-scalar-selected-security'],
-  (documentSelectedSecurity) => {
-    if (typeof documentSelectedSecurity !== 'undefined') {
+  documentSelectedSecurity,
+  (newDocumentSelectedSecurity) => {
+    if (typeof newDocumentSelectedSecurity !== 'undefined') {
       return
     }
 

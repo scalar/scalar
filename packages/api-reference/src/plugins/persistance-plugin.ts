@@ -72,29 +72,8 @@ export const persistencePlugin = ({
         }
 
         // Persist auth and [server](TODO)
-        if (event.type === 'documents') {
-          // If the user has configured not to persist auth, we skip
-          if (!getPersistAuth()) {
-            return
-          }
-
-          const { path, value: document } = event
-          const { securitySchemes = {} } = document.components ?? {}
-
-          // If something on the auth has changed, we set the security schemas
-          if (path[0] === 'components' && path[1] === 'securitySchemes') {
-            execute('x-scalar-security-schemes', () => authPersistence.setSchemas(getPrefix(), securitySchemes))
-          }
-
-          const selectedSecurity = document['x-scalar-selected-security']
-
-          if (path[0] === 'x-scalar-selected-security' && selectedSecurity) {
-            execute('x-scalar-selected-security-schemes', () =>
-              authPersistence.setSelectedSchemes(getPrefix(), {
-                'x-scalar-selected-security': selectedSecurity,
-              }),
-            )
-          }
+        if (getPersistAuth() && event.type === 'auth') {
+          execute('auth', () => authPersistence.setAuth(getPrefix(), event.value))
         }
 
         // No action for other event types

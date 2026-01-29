@@ -95,24 +95,13 @@ const selectedServer = computed(() =>
   getSelectedServer(document ?? null, servers.value),
 )
 
-const securitySchemes = ref<NonNullable<ComponentsObject['securitySchemes']>>(
-  {},
-)
-
-/** Merge authentication config with the document security schemes */
-watch(
-  () => toValue(options)?.authentication?.securitySchemes,
-  (value) => {
-    securitySchemes.value = mergeAuthConfig({
-      documentSlug,
-      authStore,
-      documentSecuritySchemes: document?.components?.securitySchemes ?? {},
-      configSecuritySchemes: value,
-    })
-  },
-  {
-    immediate: true,
-  },
+const securitySchemes = computed(() =>
+  mergeAuthConfig({
+    documentSlug,
+    authStore,
+    documentSecuritySchemes: document?.components?.securitySchemes ?? {},
+    configSecuritySchemes: toValue(options)?.authentication?.securitySchemes,
+  }),
 )
 </script>
 <template>
@@ -155,6 +144,7 @@ watch(
               <Auth
                 :authStore
                 :document
+                :documentSlug
                 :environment
                 :eventBus
                 :options
@@ -193,6 +183,7 @@ watch(
       :authStore
       :clientOptions
       :document
+      :documentSlug
       :entries="items"
       :eventBus
       :expandedItems

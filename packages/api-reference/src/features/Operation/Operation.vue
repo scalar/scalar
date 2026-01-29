@@ -39,6 +39,8 @@ export type OperationProps = {
   eventBus: WorkspaceEventBus
   /** The auth store */
   authStore: AuthStore
+  /** The document slug */
+  documentSlug: string
 }
 </script>
 
@@ -77,6 +79,8 @@ const {
   method,
   clientOptions,
   authStore,
+  documentSlug,
+  path,
 } = defineProps<OperationProps>()
 
 /**
@@ -112,7 +116,15 @@ const selectedServer = computed<ServerObject | null>(() =>
 
 /** We must ensure the selected security schemes are required on this operation */
 const selectedSecuritySchemes = computed(() =>
-  filterSelectedSecurity(document, operation.value, securitySchemes),
+  filterSelectedSecurity({
+    securityRequirements: document?.security ?? operation.value?.security ?? [],
+    path,
+    method,
+    documentSlug,
+    authStore,
+    securitySchemes,
+    shouldSetOperationSecurity: document?.['x-scalar-set-operation-security'],
+  }),
 )
 </script>
 

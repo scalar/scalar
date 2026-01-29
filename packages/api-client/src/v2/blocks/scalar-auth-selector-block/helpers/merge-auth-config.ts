@@ -10,6 +10,10 @@ import { extractSecuritySchemeSecrets } from './extract-security-scheme-secrets'
 /** Document security merged with the config security schemes */
 export type MergedSecuritySchemes = NonNullable<ComponentsObject['securitySchemes']>
 
+const deepClone = <T>(value: T): T => {
+  return JSON.parse(JSON.stringify(value)) as T
+}
+
 /** Merge the authentication config with the document security schemes */
 export const mergeAuthConfig = ({
   documentSlug,
@@ -23,7 +27,7 @@ export const mergeAuthConfig = ({
   configSecuritySchemes: AuthenticationConfiguration['securitySchemes']
 }): MergedSecuritySchemes => {
   /** We need to resolve any refs here before we merge */
-  const resolvedDocumentSecuritySchemes = getResolvedRefDeep(documentSecuritySchemes)
+  const resolvedDocumentSecuritySchemes = deepClone(getResolvedRefDeep(documentSecuritySchemes))
 
   extractSecuritySchemeSecrets({
     documentSlug,

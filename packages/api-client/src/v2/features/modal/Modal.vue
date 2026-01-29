@@ -54,7 +54,6 @@ import { ScalarToasts } from '@scalar/use-toasts'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { type WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { WorkspaceDocument } from '@scalar/workspace-store/schemas'
-import type { ComponentsObject } from '@scalar/workspace-store/schemas/v3.1/strict/components'
 import { useFocusTrap } from '@vueuse/integrations/useFocusTrap'
 import {
   computed,
@@ -178,25 +177,13 @@ const environment = computed(() =>
   getActiveEnvironment(workspaceStore, document.value),
 )
 
-const securitySchemes = ref<NonNullable<ComponentsObject['securitySchemes']>>(
-  {},
-)
-
-/** Merge authentication config with the document security schemes */
-watch(
-  () => toValue(options)?.authentication?.securitySchemes,
-  (value) => {
-    securitySchemes.value = mergeAuthConfig({
-      documentSlug: document.value?.['x-scalar-navigation']?.name ?? '',
-      authStore: workspaceStore.auth,
-      documentSecuritySchemes:
-        document.value?.components?.securitySchemes ?? {},
-      configSecuritySchemes: value,
-    })
-  },
-  {
-    immediate: true,
-  },
+const securitySchemes = computed(() =>
+  mergeAuthConfig({
+    documentSlug: document.value?.['x-scalar-navigation']?.name ?? '',
+    authStore: workspaceStore.auth,
+    documentSecuritySchemes: document.value?.components?.securitySchemes ?? {},
+    configSecuritySchemes: toValue(options)?.authentication?.securitySchemes,
+  }),
 )
 
 defineExpose({

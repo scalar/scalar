@@ -61,6 +61,8 @@ const {
   eventBus: WorkspaceEventBus
   /** The auth store */
   authStore: AuthStore
+  /** The document slug */
+  documentSlug: string
 }>()
 
 /**
@@ -112,6 +114,7 @@ function getPathValue(entry: TraversedOperation | TraversedWebhook) {
         :authStore
         :clientOptions
         :document
+        :documentSlug
         :eventBus
         :isCollapsed="!expandedItems[entry.id]"
         :isWebhook="isWebhook(entry)"
@@ -138,6 +141,7 @@ function getPathValue(entry: TraversedOperation | TraversedWebhook) {
           :authStore
           :clientOptions
           :document
+          :documentSlug
           :entries="entry.children"
           :eventBus
           :expandedItems
@@ -156,6 +160,7 @@ function getPathValue(entry: TraversedOperation | TraversedWebhook) {
       :authStore
       :clientOptions
       :document
+      :documentSlug
       :entries="entry.children || []"
       :eventBus
       :expandedItems
@@ -177,6 +182,7 @@ function getPathValue(entry: TraversedOperation | TraversedWebhook) {
         :authStore
         :clientOptions
         :document
+        :documentSlug
         :entries="entry.children || []"
         :eventBus
         :expandedItems="expandedItems"

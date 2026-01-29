@@ -79,7 +79,7 @@ const SelectedSecuritySchema = Type.Object({
 
 export type SelectedSecurity = Static<typeof SelectedSecuritySchema>
 
-const AuthSchema = Type.Object({
+export const AuthSchema = Type.Object({
   secrets: SecretsAuthSchema,
   selected: Type.Object({
     document: SelectedSecuritySchema,

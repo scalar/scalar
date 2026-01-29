@@ -60,7 +60,7 @@ import {
   intersectionEnabled,
 } from '@/helpers/lazy-bus'
 import {
-  loadAuthSchemesFromStorage,
+  loadAuthFromStorage,
   loadClientFromStorage,
 } from '@/helpers/load-from-perssistance'
 import { mapConfigPlugins } from '@/helpers/map-config-plugins'
@@ -494,7 +494,8 @@ const changeSelectedDocument = async (
 
   // If the document has persistence enabled we load the auth schemes from storage
   if (config.persistAuth) {
-    loadAuthSchemesFromStorage(workspaceStore)
+    console.log('loading auth from storage', slug)
+    loadAuthFromStorage(workspaceStore, slug)
   }
 
   // ensure that `onLoaded` hook doesn't block execution but is executed after `onDocumentSelect`

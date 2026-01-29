@@ -1,9 +1,10 @@
 import { getSecuritySchemes } from '@scalar/api-client/v2/blocks/operation-block'
 import type { MergedSecuritySchemes } from '@scalar/api-client/v2/blocks/scalar-auth-selector-block'
 import { getSelectedSecurity } from '@scalar/api-client/v2/features/operation'
+import type { HttpMethod } from '@scalar/helpers/http/http-methods'
+import type { AuthStore } from '@scalar/workspace-store/entities/auth/index'
 import type {
   OpenApiDocument,
-  OperationObject,
   SecurityRequirementObject,
   SecuritySchemeObject,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
@@ -16,17 +17,27 @@ const getKey = (requirement: SecurityRequirementObject) => Object.keys(requireme
  *
  * If there is no overlap, we return the first requirement
  */
-export const filterSelectedSecurity = (
-  document: OpenApiDocument,
-  operation: OperationObject | null,
-  securitySchemes: MergedSecuritySchemes = {},
-): { scheme: SecuritySchemeObject; name: string }[] => {
-  const securityRequirements = operation?.security ?? document.security ?? []
-
+export const filterSelectedSecurity = ({
+  securityRequirements = [],
+  path,
+  method,
+  documentSlug,
+  authStore,
+  securitySchemes = {},
+  shouldSetOperationSecurity = false,
+}: {
+  securityRequirements: NonNullable<OpenApiDocument['security']>
+  path: string
+  method: HttpMethod
+  documentSlug: string
+  authStore: AuthStore
+  securitySchemes: MergedSecuritySchemes
+  shouldSetOperationSecurity?: boolean
+}): { scheme: SecuritySchemeObject; name: string }[] => {
   /** The selected security keys for the document */
   const selectedSecurity = getSelectedSecurity(
-    document?.['x-scalar-selected-security'],
-    operation?.['x-scalar-selected-security'],
+    authStore.getAuthSelectedSchemas({ type: 'operation', documentName: documentSlug, path, method }),
+    authStore.getAuthSelectedSchemas({ type: 'document', documentName: documentSlug }),
   )
 
   /** Build a set for O(1) lookup */
@@ -49,7 +60,7 @@ export const filterSelectedSecurity = (
    * If we are selected security on the document,
    * we should show the first requirement of the operation to show auth is required
    */
-  if (operation?.security?.length && !document?.['x-scalar-set-operation-security']) {
+  if (shouldSetOperationSecurity) {
     return getSecuritySchemes(securitySchemes, securityRequirements.slice(0, 1))
   }
 
