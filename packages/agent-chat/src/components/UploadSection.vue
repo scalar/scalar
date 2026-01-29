@@ -18,9 +18,11 @@ const loadingState = useLoadingState()
       error: uploadState.type === 'error',
       done: uploadState.type === 'done',
     }">
-    <strong
-      v-if="uploadState.type === 'uploading'"
-      class="uploadText flex items-center gap-1.5">
+    <div
+      class="flex items-center gap-1.5"
+      v-if="
+        uploadState.type === 'uploading' || uploadState.type === 'processing'
+      ">
       <ScalarLoading
         class="text-blue"
         :loader="{
@@ -28,20 +30,17 @@ const loadingState = useLoadingState()
           isLoading: true,
         }"
         size="lg" />
-      Uploading document...
-    </strong>
-    <strong
-      v-if="uploadState.type === 'processing'"
-      class="uploadText flex items-center gap-1.5">
-      <ScalarLoading
-        class="text-blue"
-        :loader="{
-          ...loadingState,
-          isLoading: true,
-        }"
-        size="lg" />
-      Processing document...
-    </strong>
+      <strong
+        v-if="uploadState.type === 'processing'"
+        class="uploadText">
+        Processing document...
+      </strong>
+      <strong
+        v-else
+        class="uploadText">
+        Uploading document...
+      </strong>
+    </div>
     <strong
       v-if="uploadState.type === 'done'"
       class="uploadText flex items-center gap-1.5">
@@ -51,7 +50,7 @@ const loadingState = useLoadingState()
     <strong
       v-if="uploadState.type === 'error'"
       class="uploadText flex items-center gap-1.5">
-      <ScalarIconXCircle class="icon" />
+      <ScalarIconXCircle class="icon text-red" />
       {{ uploadState.error }}
     </strong>
   </div>
