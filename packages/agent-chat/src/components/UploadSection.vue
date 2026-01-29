@@ -22,6 +22,7 @@ const loadingState = useLoadingState()
       v-if="uploadState.type === 'uploading'"
       class="uploadText flex items-center gap-1.5">
       <ScalarLoading
+        class="text-blue"
         :loader="{
           ...loadingState,
           isLoading: true,
@@ -33,6 +34,7 @@ const loadingState = useLoadingState()
       v-if="uploadState.type === 'processing'"
       class="uploadText flex items-center gap-1.5">
       <ScalarLoading
+        class="text-blue"
         :loader="{
           ...loadingState,
           isLoading: true,
@@ -43,7 +45,7 @@ const loadingState = useLoadingState()
     <strong
       v-if="uploadState.type === 'done'"
       class="uploadText flex items-center gap-1.5">
-      <ScalarIconCheck class="icon" />
+      <ScalarIconCheck class="icon text-green" />
       Document processed
     </strong>
     <strong
@@ -71,6 +73,9 @@ const loadingState = useLoadingState()
   display: flex;
   align-items: center;
   justify-content: space-between;
+  position: absolute;
+  top: 0;
+  transform: translate3d(0, calc(-100% + 16px), 0);
 }
 
 .uploadSection.error {
