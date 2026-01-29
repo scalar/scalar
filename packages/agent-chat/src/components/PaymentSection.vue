@@ -54,7 +54,7 @@ function handleUpgrade() {
           </div>
           <div class="paymentInfoItem">
             <span>Additional Messages</span>
-            <span>+ $0.15 Message</span>
+            <span>+ $0.02 Message</span>
           </div>
         </div>
       </div>
@@ -78,6 +78,9 @@ function handleUpgrade() {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  position: absolute;
+  top: 0;
+  transform: translate3d(0, calc(-100% + 16px), 0);
 }
 
 .approvalText {

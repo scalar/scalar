@@ -902,7 +902,7 @@ watch(showAgent, () => {
               <!-- Wrap in a div when slot is filled -->
               <DocumentSelector
                 v-if="documentOptionList.length > 1"
-                class="-mb-1 p-3 pb-0"
+                class="p-3 pb-0"
                 :modelValue="activeSlug"
                 :options="documentOptionList"
                 @update:modelValue="changeSelectedDocument" />
@@ -1245,6 +1245,7 @@ watch(showAgent, () => {
   height: 100%;
   margin-left: auto;
   overflow: auto;
+  padding: 0 24px;
 }
 .scalar-app-exit {
   cursor: pointer;
@@ -1255,6 +1256,22 @@ watch(showAgent, () => {
   position: fixed;
   top: 0;
   left: 0;
+}
+@media (max-width: 1000px) {
+  .agent-scalar-container {
+    width: 100%;
+  }
+  .agent-scalar {
+    width: 100%;
+    height: calc(100dvh - 50px);
+    bottom: 0;
+    top: initial;
+    border-radius: var(--scalar-radius-lg) var(--scalar-radius-lg) 0 0;
+    z-index: 12;
+  }
+  .scalar-app-exit {
+    z-index: 11;
+  }
 }
 .scalar-app-exit-animation:before {
   content: '';

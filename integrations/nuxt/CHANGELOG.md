@@ -1,5 +1,18 @@
 # @scalar/nuxt
 
+## 0.5.58
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-client@2.22.1**
+  - [#7965](https://github.com/scalar/scalar/pull/7965): Adds exports for creating external actions
+
+- **@scalar/api-reference@1.44.1**
+  - [#7961](https://github.com/scalar/scalar/pull/7961): fix(agent): make agent ui responsive
+  - [#7967](https://github.com/scalar/scalar/pull/7967): fix(agent): remove ui jump on uploading document
+
 ## 0.5.57
 
 ### Patch Changes

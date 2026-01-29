@@ -1,5 +1,14 @@
 # @scalar/api-client-react
 
+## 1.3.82
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-client@2.22.1**
+  - [#7965](https://github.com/scalar/scalar/pull/7965): Adds exports for creating external actions
+
 ## 1.3.81
 
 ### Patch Changes

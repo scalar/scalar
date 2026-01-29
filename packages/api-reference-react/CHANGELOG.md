@@ -1,5 +1,15 @@
 # @scalar/api-reference-react
 
+## 0.8.38
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.44.1**
+  - [#7961](https://github.com/scalar/scalar/pull/7961): fix(agent): make agent ui responsive
+  - [#7967](https://github.com/scalar/scalar/pull/7967): fix(agent): remove ui jump on uploading document
+
 ## 0.8.37
 
 ### Patch Changes
