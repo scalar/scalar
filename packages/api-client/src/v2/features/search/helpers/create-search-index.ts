@@ -47,6 +47,7 @@ function addEntryToIndex(
   const entryWithParent: WithParent<TraversedEntry> = parent
     ? { ...entry, parent }
     : (entry as WithParent<TraversedEntry>)
+
   // Operation
   if (entry.type === 'operation') {
     const operation = getResolvedRef(document?.paths?.[entry.path]?.[entry.method]) ?? {}

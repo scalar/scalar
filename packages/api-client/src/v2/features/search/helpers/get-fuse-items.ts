@@ -1,8 +1,11 @@
-import { API_CLIENT_TYPES_SET, type Item } from '@scalar/sidebar'
+import type { Item } from '@scalar/sidebar'
 import type { TraversedEntry, WithParent } from '@scalar/workspace-store/schemas/navigation'
 import type { FuseResult } from 'fuse.js'
 
 import type { FuseData } from '@/v2/features/search/types'
+
+/** The types of items we want to show in the API client */
+const API_CLIENT_TYPES_SET = new Set(['document', 'operation', 'example', 'tag'])
 
 /**
  * Recursively builds the parent chain for an entry.
