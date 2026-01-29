@@ -44,11 +44,11 @@ export function useUploadTmpDocument() {
     return new URL(`https://proxy.scalar.com/?${params}`)
   }
 
-  async function uploadTempDocument(document: string) {
+  async function uploadTempDocument(document: string, isAgent = false) {
     try {
       uploadState.value = { type: 'uploading' }
 
-      const response = await fetch(createUrl('/core/share/upload/apis'), {
+      const response = await fetch(createUrl(`/core/share/upload/apis${isAgent ? '?isAgent=true' : ''}`), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ document }),
