@@ -1,3 +1,4 @@
+import { isRelativePath } from '@scalar/helpers/url/is-relative-path'
 import { makeUrlAbsolute } from '@scalar/helpers/url/make-url-absolute'
 import { shouldUseProxy } from '@scalar/helpers/url/redirect-to-proxy'
 import type { Oauth2Flow, Server } from '@scalar/oas-utils/entities/spec'
@@ -12,6 +13,20 @@ type PKCEState = {
   codeVerifier: string
   codeChallenge: string
   codeChallengeMethod: string
+}
+
+const getActiveServerBase = (activeServer?: Server) => {
+  const serverUrl = activeServer?.url
+
+  if (!serverUrl) {
+    return {}
+  }
+
+  if (isRelativePath(serverUrl)) {
+    return typeof window === 'undefined' ? {} : { basePath: serverUrl }
+  }
+
+  return { baseUrl: serverUrl }
 }
 
 /**
@@ -86,9 +101,7 @@ export const authorizeOauth2 = async (
 
     // Generate a random state string with the length of 8 characters
     const state = (Math.random() + 1).toString(36).substring(2, 10)
-    const authorizationUrl = makeUrlAbsolute(flow.authorizationUrl, {
-      baseUrl: activeServer?.url,
-    })
+    const authorizationUrl = makeUrlAbsolute(flow.authorizationUrl, getActiveServerBase(activeServer))
     const url = new URL(authorizationUrl)
 
     /** Special PKCE state */
@@ -323,7 +336,7 @@ export const authorizeServers = async (
     }
 
     // Check if we should use the proxy
-    const tokenUrl = makeUrlAbsolute(flow.tokenUrl, { baseUrl: activeServer?.url })
+    const tokenUrl = makeUrlAbsolute(flow.tokenUrl, getActiveServerBase(activeServer))
     const url = shouldUseProxy(proxyUrl, tokenUrl)
       ? `${proxyUrl}?${new URLSearchParams([['scalar_url', tokenUrl]]).toString()}`
       : tokenUrl
