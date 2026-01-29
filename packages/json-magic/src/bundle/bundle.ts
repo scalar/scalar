@@ -13,7 +13,7 @@ import { isYaml } from '../helpers/is-yaml'
 import { getHash, uniqueValueGeneratorFactory } from './value-generator'
 
 /** Type guard to check if a value is an object with a $ref property */
-const hasRef = (value: unknown): value is Record<'$ref', string> =>
+const hasRef = (value: unknown): value is UnknownObject & Record<'$ref', string> =>
   isObject(value) && '$ref' in value && typeof value['$ref'] === 'string'
 
 /**
