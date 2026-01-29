@@ -53,6 +53,7 @@ const { mode } = useState()
   width: 100%;
   height: 100%;
   max-width: 720px;
+  position: relative;
 }
 
 .heading {

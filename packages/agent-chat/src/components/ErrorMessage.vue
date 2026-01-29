@@ -35,5 +35,8 @@ const HIDDEN_ERROR_CODES: string[] = [AgentErrorCodes.LIMIT_REACHED]
   );
   font-weight: var(--scalar-semibold);
   font-size: var(--scalar-font-size-3);
+  position: absolute;
+  top: 0;
+  transform: translate3d(0, calc(-100% + 16px), 0);
 }
 </style>

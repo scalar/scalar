@@ -121,22 +121,22 @@ const chatError = useChatError()
 </script>
 
 <template>
-  <UploadSection
-    v-if="uploadTmpDoc.uploadState.value"
-    :uploadState="uploadTmpDoc.uploadState.value" />
-  <ErrorMessageMessage
-    v-if="chatError"
-    :error="chatError" />
-  <ApprovalSection
-    v-if="approvalRequestedParts.length"
-    @approve="respondToToolCalls(true)"
-    @reject="respondToToolCalls(false)" />
-  <PaymentSection
-    v-if="chatError?.code === AgentErrorCodes.LIMIT_REACHED"
-    @approve="respondToToolCalls(true)"
-    @reject="respondToToolCalls(false)" />
-  <FreeMessagesInfoSection v-if="showFreeMessagesInfo" />
   <div class="actionContainer">
+    <UploadSection
+      v-if="uploadTmpDoc.uploadState.value"
+      :uploadState="uploadTmpDoc.uploadState.value" />
+    <ErrorMessageMessage
+      v-if="chatError"
+      :error="chatError" />
+    <ApprovalSection
+      v-if="approvalRequestedParts.length"
+      @approve="respondToToolCalls(true)"
+      @reject="respondToToolCalls(false)" />
+    <PaymentSection
+      v-if="chatError?.code === AgentErrorCodes.LIMIT_REACHED"
+      @approve="respondToToolCalls(true)"
+      @reject="respondToToolCalls(false)" />
+    <FreeMessagesInfoSection v-if="showFreeMessagesInfo" />
     <form
       class="promptForm"
       @submit.prevent="handleSubmit">
@@ -273,8 +273,9 @@ const chatError = useChatError()
   border: var(--scalar-border-width) solid var(--scalar-border-color);
   border-radius: 16px;
   width: 100%;
+  position: relative;
   /* visually hides overflowing text below */
-  box-shadow: 0 50px 0 2px var(--scalar-background-1);
+  box-shadow: 0 24px 0 2px var(--scalar-background-1);
 }
 .promptForm {
   width: 100%;
