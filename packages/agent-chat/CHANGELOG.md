@@ -1,5 +1,11 @@
 # @scalar/agent-chat
 
+## 0.4.3
+
+### Patch Changes
+
+- [#7974](https://github.com/scalar/scalar/pull/7974): fix(agent): change agent share to source
+
 ## 0.4.2
 
 ### Patch Changes
