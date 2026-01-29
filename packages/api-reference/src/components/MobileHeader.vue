@@ -39,7 +39,7 @@ const variants = cva({
     v-if="mediaQueries.lg.value"
     v-bind="{
       sidebarClasses:
-        'sticky top-(--refs-header-height) h-(--refs-sidebar-height) [grid-area:navigation]',
+        'sticky top-(--refs-header-height) h-(--refs-sidebar-height) w-(--refs-sidebar-width) [grid-area:navigation]',
     }"
     name="sidebar" />
   <div
