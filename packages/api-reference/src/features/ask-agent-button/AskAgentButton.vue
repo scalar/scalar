@@ -40,12 +40,15 @@ import { ScalarIconArrowUp, ScalarIconSparkle } from '@scalar/icons'
 }
 .ask-agent-scalar-input:focus {
   cursor: text;
+  width: 100% !important;
+  max-width: calc(100% - 50px);
 }
 .ask-agent-scalar-input:not(:placeholder-shown) {
   width: 100% !important;
   height: 100%;
   field-sizing: border-box;
   cursor: text;
+  max-width: calc(100% - 50px);
 }
 .ask-agent-scalar-input::placeholder {
   color: var(--scalar-color-1);
