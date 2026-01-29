@@ -11,6 +11,7 @@ import { computed, useTemplateRef, watch } from 'vue'
 
 import ApprovalSection from '@/components/ApprovalSection.vue'
 import ErrorMessageMessage from '@/components/ErrorMessage.vue'
+import FreeMessagesInfoSection from '@/components/FreeMessagesInfoSection.vue'
 import PaymentSection from '@/components/PaymentSection.vue'
 import SearchPopover from '@/components/SearchPopover.vue'
 import UploadSection from '@/components/UploadSection.vue'
@@ -35,6 +36,14 @@ const state = useState()
 const inputHasContent = computed(() => state.prompt.value.trim().length > 0)
 const promptTooLarge = computed(
   () => state.prompt.value.trim().length > MAX_PROMPT_SIZE,
+)
+
+/** Show free messages info only after at least one message has been sent and when no API key is set. */
+const showFreeMessagesInfo = computed(
+  () =>
+    state.chat.messages.length > 1 &&
+    !state.getAgentKey?.() &&
+    chatError?.value?.code !== AgentErrorCodes.LIMIT_REACHED,
 )
 
 watch(state.prompt, () => {
@@ -126,6 +135,7 @@ const chatError = useChatError()
     v-if="chatError?.code === AgentErrorCodes.LIMIT_REACHED"
     @approve="respondToToolCalls(true)"
     @reject="respondToToolCalls(false)" />
+  <FreeMessagesInfoSection v-if="showFreeMessagesInfo" />
   <div class="actionContainer">
     <form
       class="promptForm"
