@@ -138,7 +138,7 @@ const loadWorkspace = async (
   namespace: string,
   slug: string,
 ): Promise<{ success: true; workspace: Workspace } | { success: false }> => {
-  const workspace = await persistence.getItem(namespace, slug)
+  const workspace = await persistence.getItem({ namespace, slug })
 
   if (!workspace) {
     return {
@@ -249,7 +249,7 @@ const createWorkspace = async ({
   // Generate a unique slug/id for the workspace, based on the name.
   const newWorkspaceSlug = await generateUniqueValue({
     defaultValue: key?.slug ?? name, // Use the provided id if it exists, otherwise use the name
-    validation: async (value) => !(await persistence.has(key?.namespace ?? 'LOCAL', value)),
+    validation: async (value) => !(await persistence.has({ namespace: key?.namespace ?? 'LOCAL', slug: value })),
     maxRetries: 100,
     transformation: slugify,
   })

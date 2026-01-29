@@ -15,6 +15,9 @@ type WorkspaceStoreShape = {
   workspace: InMemoryWorkspace
 }
 
+/** Generates a workspace ID from namespace and slug. */
+const getWorkspaceId = (namespace: string, slug: string) => `${namespace}-${slug}`
+
 /**
  * Creates the persistence layer for the workspace store using IndexedDB.
  * This sets up all the required tables for storing workspace chunk information,
@@ -136,10 +139,10 @@ export const createWorkspaceStorePersistence = async () => {
        * Returns undefined if the workspace does not exist.
        * Gathers all workspace 'chunk' tables and assembles a full workspace shape.
        */
-      getItem: async (
-        namespace: string,
-        slug: string,
-      ): Promise<(WorkspaceStoreShape & Required<WorkspaceKey>) | undefined> => {
+      getItem: async ({
+        namespace,
+        slug,
+      }: Required<WorkspaceKey>): Promise<(WorkspaceStoreShape & Required<WorkspaceKey>) | undefined> => {
         const workspace = await workspaceTable.getItem({ namespace, slug })
 
         if (!workspace) {
@@ -147,7 +150,7 @@ export const createWorkspaceStorePersistence = async () => {
         }
 
         // Create a composite key for the workspace chunks.
-        const id = `${namespace}-${slug}`
+        const id = getWorkspaceId(namespace, slug)
 
         // Retrieve all chunk records for this workspace.
         const workspaceDocuments = await documentsTable.getRange([id])
@@ -246,8 +249,10 @@ export const createWorkspaceStorePersistence = async () => {
       /**
        * Deletes an entire workspace and all associated chunk records from all tables by ID.
        */
-      deleteItem: async (id: string): Promise<void> => {
-        await workspaceTable.deleteItem({ id })
+      deleteItem: async ({ namespace, slug }: Required<WorkspaceKey>): Promise<void> => {
+        const id = getWorkspaceId(namespace, slug)
+
+        await workspaceTable.deleteItem({ namespace, slug })
 
         // Remove all workspace-related records from all chunk tables.
         await Promise.all([
@@ -274,7 +279,7 @@ export const createWorkspaceStorePersistence = async () => {
       /**
        * Checks if a workspace with the given ID exists in the store.
        */
-      has: async (namespace: string, slug: string): Promise<boolean> => {
+      has: async ({ namespace, slug }: Required<WorkspaceKey>): Promise<boolean> => {
         return (await workspaceTable.getItem({ namespace, slug })) !== undefined
       },
     },
