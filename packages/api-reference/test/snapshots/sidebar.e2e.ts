@@ -70,3 +70,15 @@ test('Mobile Sidebar', async ({ page }) => {
 
   await expect(page).toHaveScreenshot('mobile-sidebar-open.png')
 })
+
+/**
+ * Take a snapshot of an extra wide sidebar
+ */
+test('Custom Sidebar Width', async ({ page }) => {
+  const example = await serveExample({
+    ...sources[0],
+    customCss: ':root { --scalar-sidebar-width: 500px; }',
+  })
+  await page.goto(example)
+  await expect(page).toHaveScreenshot('custom-width.png')
+})
