@@ -8,7 +8,6 @@ export {
   type SidebarState,
   createSidebarState,
 } from './helpers/create-sidebar-state'
-export { API_CLIENT_TYPES_SET } from './helpers/filter-items'
 export { generateReverseIndex } from './helpers/generate-reverse-index'
 export { getChildEntry } from './helpers/get-child-entry'
 export {
