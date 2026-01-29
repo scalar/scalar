@@ -1,7 +1,7 @@
 import type { Item, Layout } from '@/types'
 
 /** The type of items we want to  */
-export const API_CLIENT_TYPES_SET = new Set(['document', 'operation', 'example', 'tag'])
+const API_CLIENT_TYPES_SET = new Set(['document', 'operation', 'example', 'tag'])
 
 export const filterItems = (layout: Layout, items: Item[]) => {
   if (layout === 'reference') {

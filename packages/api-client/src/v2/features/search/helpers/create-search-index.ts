@@ -1,5 +1,5 @@
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
-import type { TraversedEntry, WithParent } from '@scalar/workspace-store/schemas/navigation'
+import type { TraversedEntry } from '@scalar/workspace-store/schemas/navigation'
 import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
 import type { FuseData } from '@/v2/features/search/types'
@@ -12,19 +12,14 @@ export function createSearchIndex(documents: OpenApiDocument[]): FuseData[] {
 
   /**
    * Recursively processes entries and their children to build the search index.
-   * Each entry maintains a reference to its immediate parent.
    */
-  function processEntries(
-    entriesToProcess: TraversedEntry[],
-    document?: OpenApiDocument,
-    parent?: WithParent<TraversedEntry>,
-  ): void {
+  function processEntries(entriesToProcess: TraversedEntry[], document?: OpenApiDocument): void {
     entriesToProcess.forEach((entry) => {
-      const entryWithParent = addEntryToIndex(entry, index, document, parent)
+      addEntryToIndex(entry, index, document)
 
       // Recursively process children if they exist
       if ('children' in entry && entry.children) {
-        processEntries(entry.children, document, entryWithParent)
+        processEntries(entry.children, document)
       }
     })
   }
@@ -36,18 +31,8 @@ export function createSearchIndex(documents: OpenApiDocument[]): FuseData[] {
 
 /**
  * Adds a single entry to the search index, handling all entry types recursively.
- * Returns the entry with parent reference for use in recursive calls.
  */
-function addEntryToIndex(
-  entry: TraversedEntry,
-  index: FuseData[],
-  document?: OpenApiDocument,
-  parent?: WithParent<TraversedEntry>,
-): WithParent<TraversedEntry> {
-  const entryWithParent: WithParent<TraversedEntry> = parent
-    ? { ...entry, parent }
-    : (entry as WithParent<TraversedEntry>)
-
+function addEntryToIndex(entry: TraversedEntry, index: FuseData[], document?: OpenApiDocument): void {
   // Operation
   if (entry.type === 'operation') {
     const operation = getResolvedRef(document?.paths?.[entry.path]?.[entry.method]) ?? {}
@@ -61,11 +46,10 @@ function addEntryToIndex(
       path: entry.path,
       operationId: operation.operationId,
       entry,
-      parent,
       documentName: document?.info.title ?? '',
     })
 
-    return entryWithParent
+    return
   }
 
   if (entry.type === 'tag' && entry.isGroup === false) {
@@ -75,11 +59,10 @@ function addEntryToIndex(
       description: entry.description || '',
       type: 'tag',
       entry,
-      parent,
       documentName: document?.info.title ?? '',
     })
 
-    return entryWithParent
+    return
   }
 
   // Tag group
@@ -90,11 +73,10 @@ function addEntryToIndex(
       description: 'Tag Group',
       type: 'tag',
       entry,
-      parent,
       documentName: document?.info.title ?? '',
     })
 
-    return entryWithParent
+    return
   }
 
   // Headings from info.description
@@ -105,12 +87,9 @@ function addEntryToIndex(
       title: entry.title ?? '',
       description: 'Heading',
       entry,
-      parent,
       documentName: document?.info.title ?? '',
     })
 
-    return entryWithParent
+    return
   }
-
-  return entryWithParent
 }

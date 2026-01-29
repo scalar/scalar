@@ -1,5 +1,9 @@
 <script setup lang="ts">
-import { ScalarIconButton, type ScalarListboxOption } from '@scalar/components'
+import {
+  ScalarIconButton,
+  ScalarSidebarSearchInput,
+  type ScalarListboxOption,
+} from '@scalar/components'
 import { ScalarIconFileDashed, ScalarIconMagnifyingGlass } from '@scalar/icons'
 import {
   ScalarSidebar,
@@ -12,8 +16,7 @@ import type { TraversedEntry } from '@scalar/workspace-store/schemas/navigation'
 import { computed, ref } from 'vue'
 
 import { Resize } from '@/v2/components/resize'
-import { SearchInput } from '@/v2/features/search'
-import { useSearchIndex } from '@/v2/features/search/hooks/use-search-index'
+import { useSearchIndex } from '@/v2/features/search'
 import type { ClientLayout } from '@/v2/types/layout'
 
 import SidebarMenu from './SidebarMenu.vue'
@@ -83,6 +86,13 @@ const { query, results } = useSearchIndex(() => documents)
 
 /** We show either the search results or the sidebar items */
 const items = computed(() => results.value ?? sidebarState.items.value)
+
+/** Select an item and clear the search query */
+const handleSelectItem = (id: string) => {
+  emit('selectItem', id)
+  query.value = ''
+  isSearchVisible.value = false
+}
 </script>
 <template>
   <Resize
@@ -102,7 +112,7 @@ const items = computed(() => results.value ?? sidebarState.items.value)
           (draggingItem, hoveredItem) =>
             emit('reorder', draggingItem, hoveredItem)
         "
-        @selectItem="(id) => emit('selectItem', id)">
+        @selectItem="handleSelectItem">
         <template #header>
           <div class="bg-sidebar-b-1 z-1 flex flex-col gap-1.5 px-3 pb-1.5">
             <div class="flex items-center justify-between">
@@ -129,9 +139,10 @@ const items = computed(() => results.value ?? sidebarState.items.value)
                 @click="isSearchVisible = !isSearchVisible" />
             </div>
 
-            <SearchInput
+            <ScalarSidebarSearchInput
               v-if="isSearchVisible || layout === 'web'"
-              v-model="query" />
+              v-model="query"
+              :autofocus="layout !== 'web'" />
           </div>
         </template>
 
