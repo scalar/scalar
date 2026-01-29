@@ -12,6 +12,10 @@ import { isJsonObject } from '../helpers/is-json-object'
 import { isYaml } from '../helpers/is-yaml'
 import { getHash, uniqueValueGeneratorFactory } from './value-generator'
 
+/** Type guard to check if a value is an object with a $ref property */
+const hasRef = (value: unknown): value is Record<'$ref', string> =>
+  isObject(value) && '$ref' in value && typeof value['$ref'] === 'string'
+
 /**
  * Checks if a string is a remote URL (starts with http:// or https://)
  * @param value - The URL string to check
@@ -764,7 +768,7 @@ export async function bundle(input: UnknownObject | string, config: Config) {
       return
     }
 
-    if (!isObject(root) && !Array.isArray(root)) {
+    if (!isObject(root)) {
       return
     }
 
@@ -788,10 +792,8 @@ export async function bundle(input: UnknownObject | string, config: Config) {
 
     const id = getId(root)
 
-    if (typeof root === 'object' && '$ref' in root && typeof root['$ref'] === 'string') {
-      /** Type assertion: since we switched isObject helpers and we know root has $ref at this point */
-      const rootWithRef = root as UnknownObject & Record<'$ref', string>
-      const ref = rootWithRef['$ref']
+    if (hasRef(root)) {
+      const ref = root['$ref']
       const isChunk = '$global' in root && typeof root['$global'] === 'boolean' && root['$global']
 
       // Try to convert the reference to a local reference if possible
@@ -837,7 +839,7 @@ export async function bundle(input: UnknownObject | string, config: Config) {
         cache.set(resolvedPath, resolveContents(resolvedPath, loaderPlugins))
       }
 
-      await executeHooks('onResolveStart', rootWithRef)
+      await executeHooks('onResolveStart', root)
 
       // Resolve the remote document
       const result = await cache.get(resolvedPath)
@@ -903,15 +905,15 @@ export async function bundle(input: UnknownObject | string, config: Config) {
         // Update the $ref to point to the embedded document in x-ext
         // This is necessary because we need to maintain the correct path context
         // for the embedded document while preserving its internal structure
-        rootWithRef.$ref = prefixInternalRef(`#${path}`, [config.externalDocumentsKey, compressedPath])
+        root.$ref = prefixInternalRef(`#${path}`, [config.externalDocumentsKey, compressedPath])
 
-        await executeHooks('onResolveSuccess', rootWithRef)
+        await executeHooks('onResolveSuccess', root)
 
         await executeHooks('onAfterNodeProcess', root as UnknownObject, context)
         return
       }
 
-      await executeHooks('onResolveError', rootWithRef)
+      await executeHooks('onResolveError', root)
 
       await executeHooks('onAfterNodeProcess', root as UnknownObject, context)
       return console.warn(
