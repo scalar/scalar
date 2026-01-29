@@ -2155,6 +2155,9 @@ importers:
 
   packages/openapi-parser:
     dependencies:
+      '@scalar/helpers':
+        specifier: workspace:*
+        version: link:../helpers
       '@scalar/json-magic':
         specifier: workspace:*
         version: link:../json-magic
