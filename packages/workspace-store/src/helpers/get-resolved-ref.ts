@@ -1,7 +1,20 @@
+import { isObject } from '@scalar/helpers/object/is-object'
+
 export type RefNode<Node> = Partial<Node> & { $ref: string; '$ref-value': Node }
 export type NodeInput<Node> = Node | RefNode<Node>
 
-const defaultTransform = <Node>(node: RefNode<Node>) => {
+/** Default transform function that overwrites the $ref properties with the $ref-value properties */
+const defaultTransform = <Node>(node: RefNode<Node>): Node => {
+  // For objects we should merge the $ref-value properties with the node properties
+  if (isObject(node['$ref-value'])) {
+    const { $ref: _, '$ref-value': refValue, ...rest } = node
+    return {
+      ...rest,
+      ...refValue,
+    } as Node
+  }
+
+  // Otherwise we just return the ref-value
   return node['$ref-value']
 }
 
