@@ -8,7 +8,7 @@ import { extendTailwindMerge } from 'tailwind-merge'
  * this is because it does not load in the tailwind config at runtime (perf reasons)
  * we must specify any custom classes if they are getting overwritten
  *
- * https://github.com/dcastil/tailwind-merge/blob/v2.0.0/docs/configuration.md#class-groups
+ * https://github.com/dcastil/tailwind-merge/blob/v3.4.0/docs/configuration.md#class-groups
  */
 const tw = extendTailwindMerge({
   extend: {
