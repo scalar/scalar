@@ -22,7 +22,7 @@ defineSlots<{
 const { mediaQueries } = useBreakpoints()
 
 const variants = cva({
-  base: 'items-center bg-b-1 sticky top-(--scalar-custom-header-height) z-10',
+  base: 'items-center bg-b-1 sticky top-(--scalar-custom-header-height,0) z-10',
   variants: {
     open: {
       true: 'h-(--refs-sidebar-height) custom-scrollbar flex flex-col',
