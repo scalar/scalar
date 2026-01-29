@@ -1,5 +1,14 @@
 # @scalar/api-reference
 
+## 1.44.3
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/agent-chat@0.4.3**
+  - [#7974](https://github.com/scalar/scalar/pull/7974): fix(agent): change agent share to source
+
 ## 1.44.2
 
 ### Patch Changes
