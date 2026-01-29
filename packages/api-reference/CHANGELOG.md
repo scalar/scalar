@@ -1,5 +1,14 @@
 # @scalar/api-reference
 
+## 1.44.2
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/agent-chat@0.4.2**
+  - [#7962](https://github.com/scalar/scalar/pull/7962): fix(agent): add flag for agent share flow
+
 ## 1.44.1
 
 ### Patch Changes
