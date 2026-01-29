@@ -2610,8 +2610,8 @@ importers:
         specifier: 1.0.0-beta.2
         version: 1.0.0-beta.2(typescript@5.9.3)
       tailwind-merge:
-        specifier: ^2.5.5
-        version: 2.5.5
+        specifier: 3.4.0
+        version: 3.4.0
       vue:
         specifier: catalog:*
         version: 3.5.26(typescript@5.9.3)
@@ -16827,8 +16827,8 @@ packages:
     resolution: {integrity: sha512-yEFYrVhod+hdNyx7g5Bnkkb0G6si8HJurOoOEgC8B/O0uXLHlaey/65KRv6cuWBNhBgHKAROVpc7QyYqE5gFng==}
     engines: {node: '>=20'}
 
-  tailwind-merge@2.5.5:
-    resolution: {integrity: sha512-0LXunzzAZzo0tEPxV3I297ffKZPlKDrjj7NXphC8V5ak9yHC5zRmxnOe2m/Rd/7ivsOMJe3JZ2JVocoDdQTRBA==}
+  tailwind-merge@3.4.0:
+    resolution: {integrity: sha512-uSaO4gnW+b3Y2aWoWfFpX62vn2sR3skfhbjsEnaBI81WD1wBLlHZe5sWf0AqjksNdYTbGBEd0UasQMT3SNV15g==}
 
   tailwindcss@4.1.18:
     resolution: {integrity: sha512-4+Z+0yiYyEtUVCScyfHCxOYP06L5Ne+JiHhY2IjR2KWMIWhJOYZKLSGZaP5HkZ8+bY0cxfzwDE5uOmzFXyIwxw==}
@@ -35903,7 +35903,7 @@ snapshots:
 
   tagged-tag@1.0.0: {}
 
-  tailwind-merge@2.5.5: {}
+  tailwind-merge@3.4.0: {}
 
   tailwindcss@4.1.18: {}
 
