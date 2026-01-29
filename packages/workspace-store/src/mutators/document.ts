@@ -50,6 +50,12 @@ export const updateDocumentInfo = (
   }
   // Merge the given payload into the document's info object
   mergeObjects(document.info, payload)
+
+  // Update the document title if it is present and the navigation object is present
+  // We do this because we don't want to rebuild the entire navigation object if only the title is changed
+  if (payload.title && document['x-scalar-navigation']) {
+    document['x-scalar-navigation'].title = payload.title
+  }
 }
 
 /**

@@ -274,13 +274,28 @@ describe('updateDocumentInfo', () => {
     // Should not throw
   })
 
-  it('updates document title', () => {
-    const document = createDocument()
+  it('updates document title and navigation title', () => {
+    const document = createDocument({
+      info: {
+        title: 'Test',
+        version: '1.0.0',
+      },
+      'x-scalar-navigation': {
+        type: 'document',
+        id: 'test-doc',
+        name: 'test-doc',
+        title: 'Test',
+        children: [],
+      },
+    })
+
+    expect(document['x-scalar-navigation']?.title).toBe('Test')
 
     updateDocumentInfo(document, { title: 'Updated Title' })
 
     expect(document.info.title).toBe('Updated Title')
     expect(document.info.version).toBe('1.0.0')
+    expect(document['x-scalar-navigation']?.title).toBe('Updated Title')
   })
 
   it('updates multiple info properties at once', () => {
