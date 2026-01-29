@@ -71,7 +71,7 @@ catalogs:
     jsdom: 27.4.0
     microdiff: ^1.5.0
     nanoid: ^5.1.6
-    next: ^15.5.10
+    next: ^16.0.10
     neverpanic: 0.0.5
     picomatch: ^4.0.2
     postcss: ^8.4.38
