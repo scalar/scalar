@@ -12,7 +12,7 @@ import type { TraversedEntry } from '@scalar/workspace-store/schemas/navigation'
 import { computed, ref } from 'vue'
 
 import { Resize } from '@/v2/components/resize'
-import { SearchInput, SearchResults } from '@/v2/features/search'
+import { SearchInput } from '@/v2/features/search'
 import { useSearchIndex } from '@/v2/features/search/hooks/use-search-index'
 import type { ClientLayout } from '@/v2/types/layout'
 
@@ -133,13 +133,6 @@ const items = computed(() => results.value ?? sidebarState.items.value)
               v-if="isSearchVisible || layout === 'web'"
               v-model="query" />
           </div>
-        </template>
-
-        <!-- Search Results -->
-        <template
-          v-if="results"
-          #search-results>
-          <SearchResults :results="results" />
         </template>
 
         <template #decorator="decoratorProps">

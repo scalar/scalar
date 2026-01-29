@@ -5,241 +5,271 @@ import type { FuseData } from '@/v2/features/search/types'
 
 import { getFuseItems } from './get-fuse-items'
 
-describe('getFuseItems', () => {
-  it('returns entries with their parent chain', () => {
-    // Create a document entry (root)
-    const documentEntry: TraversedEntry = {
-      id: 'doc-1',
-      type: 'document',
-      title: 'API Documentation',
-      children: [],
-    }
+describe('get-fuse-items', () => {
+  describe('getFuseItems', () => {
+    it('returns an empty array when no results are provided', () => {
+      const result = getFuseItems([])
+      expect(result).toEqual([])
+    })
 
-    // Create a tag entry (parent)
-    const tagEntry: WithParent<TraversedEntry> = {
-      id: 'tag-1',
-      type: 'tag',
-      title: 'Pets',
-      description: 'Pet operations',
-      isGroup: false,
-      children: [],
-      parent: documentEntry,
-    }
+    it('builds a single parent-child hierarchy for one result', () => {
+      const document: TraversedEntry = {
+        id: 'doc-1',
+        type: 'document',
+        title: 'API Documentation',
+      }
 
-    // Create an operation entry (child)
-    const operationEntry: TraversedEntry = {
-      id: 'op-1',
-      type: 'operation',
-      title: 'Get Pet',
-      method: 'get',
-      path: '/pets/{id}',
-      ref: '#/paths/~1pets~1{id}/get',
-    }
+      const tag: WithParent<TraversedEntry> = {
+        id: 'tag-1',
+        type: 'tag',
+        title: 'Authentication',
+        parent: document,
+      }
 
-    // Create FuseData with parent chain
-    const fuseData: FuseData = {
-      id: 'op-1',
-      type: 'operation',
-      title: 'Get Pet',
-      description: 'Retrieve a pet by ID',
-      method: 'get',
-      path: '/pets/{id}',
-      entry: operationEntry,
-      parent: tagEntry,
-      documentName: 'API Documentation',
-    }
+      const operation: TraversedEntry = {
+        id: 'op-1',
+        type: 'operation',
+        title: 'Login',
+        path: '/auth/login',
+        method: 'post',
+      }
 
-    // Mock Fuse result
-    const fuseResults = [
-      {
-        item: fuseData,
-        refIndex: 0,
-      },
-    ]
+      const fuseResult: FuseData = {
+        id: 'op-1',
+        type: 'operation',
+        title: 'Login',
+        description: 'Login endpoint',
+        documentName: 'API Documentation',
+        entry: operation,
+        parent: tag,
+        method: 'post',
+        path: '/auth/login',
+      }
 
-    const items = getFuseItems(fuseResults)
+      const results = getFuseItems([{ item: fuseResult, refIndex: 0, score: 0.5, matches: [] }])
 
-    // Should include document, parent tag, and the operation
-    expect(items).toHaveLength(3)
-    expect(items[0]?.id).toBe('doc-1')
-    expect(items[0]?.type).toBe('document')
-    expect(items[1]?.id).toBe('tag-1')
-    expect(items[1]?.type).toBe('tag')
-    expect(items[2]?.id).toBe('op-1')
-    expect(items[2]?.type).toBe('operation')
-  })
+      expect(results).toHaveLength(1)
+      expect(results[0].id).toBe('doc-1')
+      expect(results[0].children).toHaveLength(1)
+      expect(results[0].children?.[0].id).toBe('tag-1')
+      expect(results[0].children?.[0].children).toHaveLength(1)
+      expect(results[0].children?.[0].children?.[0].id).toBe('op-1')
+    })
 
-  it('deduplicates parents when multiple children match', () => {
-    const documentEntry: TraversedEntry = {
-      id: 'doc-1',
-      type: 'document',
-      title: 'API Documentation',
-      children: [],
-    }
+    it('groups multiple results under the same parent', () => {
+      const document: TraversedEntry = {
+        id: 'doc-1',
+        type: 'document',
+        title: 'API Documentation',
+      }
 
-    const tagEntry: WithParent<TraversedEntry> = {
-      id: 'tag-1',
-      type: 'tag',
-      title: 'Pets',
-      description: 'Pet operations',
-      isGroup: false,
-      children: [],
-      parent: documentEntry,
-    }
+      const tag: WithParent<TraversedEntry> = {
+        id: 'tag-1',
+        type: 'tag',
+        title: 'Authentication',
+        parent: document,
+      }
 
-    const operation1: TraversedEntry = {
-      id: 'op-1',
-      type: 'operation',
-      title: 'Get Pet',
-      method: 'get',
-      path: '/pets/{id}',
-      ref: '#/paths/~1pets~1{id}/get',
-    }
+      const operation1: TraversedEntry = {
+        id: 'op-1',
+        type: 'operation',
+        title: 'Login',
+        path: '/auth/login',
+        method: 'post',
+      }
 
-    const operation2: TraversedEntry = {
-      id: 'op-2',
-      type: 'operation',
-      title: 'List Pets',
-      method: 'get',
-      path: '/pets',
-      ref: '#/paths/~1pets/get',
-    }
+      const operation2: TraversedEntry = {
+        id: 'op-2',
+        type: 'operation',
+        title: 'Logout',
+        path: '/auth/logout',
+        method: 'post',
+      }
 
-    const fuseResults = [
-      {
-        item: {
-          id: 'op-1',
-          type: 'operation' as const,
-          title: 'Get Pet',
-          description: '',
-          method: 'get',
-          path: '/pets/{id}',
-          entry: operation1,
-          parent: tagEntry,
-          documentName: 'API Documentation',
-        },
-        refIndex: 0,
-      },
-      {
-        item: {
-          id: 'op-2',
-          type: 'operation' as const,
-          title: 'List Pets',
-          description: '',
-          method: 'get',
-          path: '/pets',
-          entry: operation2,
-          parent: tagEntry,
-          documentName: 'API Documentation',
-        },
-        refIndex: 1,
-      },
-    ]
+      const fuseResult1: FuseData = {
+        id: 'op-1',
+        type: 'operation',
+        title: 'Login',
+        description: 'Login endpoint',
+        documentName: 'API Documentation',
+        entry: operation1,
+        parent: tag,
+        method: 'post',
+        path: '/auth/login',
+      }
 
-    const items = getFuseItems(fuseResults)
+      const fuseResult2: FuseData = {
+        id: 'op-2',
+        type: 'operation',
+        title: 'Logout',
+        description: 'Logout endpoint',
+        documentName: 'API Documentation',
+        entry: operation2,
+        parent: tag,
+        method: 'post',
+        path: '/auth/logout',
+      }
 
-    // Should include document, parent tag once, plus both operations
-    expect(items).toHaveLength(4)
-    expect(items[0]?.id).toBe('doc-1')
-    expect(items[1]?.id).toBe('tag-1')
-    expect(items[2]?.id).toBe('op-1')
-    expect(items[3]?.id).toBe('op-2')
-  })
+      const results = getFuseItems([
+        { item: fuseResult1, refIndex: 0, score: 0.5, matches: [] },
+        { item: fuseResult2, refIndex: 1, score: 0.6, matches: [] },
+      ])
 
-  it('filters out non-API-client types', () => {
-    const textEntry: TraversedEntry = {
-      id: 'text-1',
-      type: 'text',
-      title: 'Introduction',
-      value: 'Welcome to the API',
-      depth: 1,
-    }
+      // Should have one document at root
+      expect(results).toHaveLength(1)
+      expect(results[0].id).toBe('doc-1')
 
-    const fuseResults = [
-      {
-        item: {
-          id: 'text-1',
-          type: 'heading' as const,
-          title: 'Introduction',
-          description: '',
-          entry: textEntry,
-          documentName: 'API Documentation',
-        },
-        refIndex: 0,
-      },
-    ]
+      // Document should have one tag child
+      expect(results[0].children).toHaveLength(1)
+      expect(results[0].children?.[0].id).toBe('tag-1')
 
-    const items = getFuseItems(fuseResults)
+      // Tag should have both operations as children
+      expect(results[0].children?.[0].children).toHaveLength(2)
+      expect(results[0].children?.[0].children?.[0].id).toBe('op-1')
+      expect(results[0].children?.[0].children?.[1].id).toBe('op-2')
+    })
 
-    // Text/heading entries should be filtered out
-    expect(items).toHaveLength(0)
-  })
+    it('handles multiple documents with separate hierarchies', () => {
+      const document1: TraversedEntry = {
+        id: 'doc-1',
+        type: 'document',
+        title: 'API v1',
+      }
 
-  it('builds complete parent chain for deeply nested entries', () => {
-    const documentEntry: TraversedEntry = {
-      id: 'doc-1',
-      type: 'document',
-      title: 'API Documentation',
-      children: [],
-    }
+      const document2: TraversedEntry = {
+        id: 'doc-2',
+        type: 'document',
+        title: 'API v2',
+      }
 
-    const tagGroupEntry: WithParent<TraversedEntry> = {
-      id: 'tag-group-1',
-      type: 'tag',
-      title: 'Animals',
-      description: 'Animal operations',
-      isGroup: true,
-      children: [],
-      parent: documentEntry,
-    }
+      const tag1: WithParent<TraversedEntry> = {
+        id: 'tag-1',
+        type: 'tag',
+        title: 'Users',
+        parent: document1,
+      }
 
-    const tagEntry: WithParent<TraversedEntry> = {
-      id: 'tag-1',
-      type: 'tag',
-      title: 'Pets',
-      description: 'Pet operations',
-      isGroup: false,
-      children: [],
-      parent: tagGroupEntry,
-    }
+      const tag2: WithParent<TraversedEntry> = {
+        id: 'tag-2',
+        type: 'tag',
+        title: 'Users',
+        parent: document2,
+      }
 
-    const operationEntry: TraversedEntry = {
-      id: 'op-1',
-      type: 'operation',
-      title: 'Get Pet',
-      method: 'get',
-      path: '/pets/{id}',
-      ref: '#/paths/~1pets~1{id}/get',
-    }
+      const operation1: TraversedEntry = {
+        id: 'op-1',
+        type: 'operation',
+        title: 'Get User',
+        path: '/users/:id',
+        method: 'get',
+      }
 
-    const fuseResults = [
-      {
-        item: {
-          id: 'op-1',
-          type: 'operation' as const,
-          title: 'Get Pet',
-          description: '',
-          method: 'get',
-          path: '/pets/{id}',
-          entry: operationEntry,
-          parent: tagEntry,
-          documentName: 'API Documentation',
-        },
-        refIndex: 0,
-      },
-    ]
+      const operation2: TraversedEntry = {
+        id: 'op-2',
+        type: 'operation',
+        title: 'Get User',
+        path: '/users/:id',
+        method: 'get',
+      }
 
-    const items = getFuseItems(fuseResults)
+      const fuseResult1: FuseData = {
+        id: 'op-1',
+        type: 'operation',
+        title: 'Get User',
+        description: '',
+        documentName: 'API v1',
+        entry: operation1,
+        parent: tag1,
+        method: 'get',
+        path: '/users/:id',
+      }
 
-    // Should include document, tag group, tag, and operation
-    expect(items).toHaveLength(4)
-    expect(items[0]?.id).toBe('doc-1')
-    expect(items[0]?.type).toBe('document')
-    expect(items[1]?.id).toBe('tag-group-1')
-    expect(items[1]?.type).toBe('tag')
-    expect(items[2]?.id).toBe('tag-1')
-    expect(items[2]?.type).toBe('tag')
-    expect(items[3]?.id).toBe('op-1')
-    expect(items[3]?.type).toBe('operation')
+      const fuseResult2: FuseData = {
+        id: 'op-2',
+        type: 'operation',
+        title: 'Get User',
+        description: '',
+        documentName: 'API v2',
+        entry: operation2,
+        parent: tag2,
+        method: 'get',
+        path: '/users/:id',
+      }
+
+      const results = getFuseItems([
+        { item: fuseResult1, refIndex: 0, score: 0.5, matches: [] },
+        { item: fuseResult2, refIndex: 1, score: 0.6, matches: [] },
+      ])
+
+      // Should have two documents at root
+      expect(results).toHaveLength(2)
+      expect(results[0].id).toBe('doc-1')
+      expect(results[1].id).toBe('doc-2')
+
+      // Each document should have its own tag
+      expect(results[0].children).toHaveLength(1)
+      expect(results[0].children?.[0].id).toBe('tag-1')
+      expect(results[1].children).toHaveLength(1)
+      expect(results[1].children?.[0].id).toBe('tag-2')
+
+      // Each tag should have its own operation
+      expect(results[0].children?.[0].children).toHaveLength(1)
+      expect(results[0].children?.[0].children?.[0].id).toBe('op-1')
+      expect(results[1].children?.[0].children).toHaveLength(1)
+      expect(results[1].children?.[0].children?.[0].id).toBe('op-2')
+    })
+
+    it('filters out non-API client types', () => {
+      const document: TraversedEntry = {
+        id: 'doc-1',
+        type: 'document',
+        title: 'API Documentation',
+      }
+
+      const heading: TraversedEntry = {
+        id: 'heading-1',
+        type: 'text',
+        title: 'Introduction',
+      }
+
+      const fuseResult: FuseData = {
+        id: 'heading-1',
+        type: 'heading',
+        title: 'Introduction',
+        description: 'Heading',
+        documentName: 'API Documentation',
+        entry: heading,
+        parent: document,
+      }
+
+      const results = getFuseItems([{ item: fuseResult, refIndex: 0, score: 0.5, matches: [] }])
+
+      // Headings (type: 'text') should be filtered out
+      expect(results).toHaveLength(0)
+    })
+
+    it('handles results with no parent', () => {
+      const document: TraversedEntry = {
+        id: 'doc-1',
+        type: 'document',
+        title: 'API Documentation',
+      }
+
+      const fuseResult: FuseData = {
+        id: 'doc-1',
+        type: 'tag',
+        title: 'API Documentation',
+        description: '',
+        documentName: 'API Documentation',
+        entry: document,
+        parent: undefined,
+      }
+
+      const results = getFuseItems([{ item: fuseResult, refIndex: 0, score: 0.5, matches: [] }])
+
+      expect(results).toHaveLength(1)
+      expect(results[0].id).toBe('doc-1')
+      expect(results[0].children).toEqual([])
+    })
   })
 })
