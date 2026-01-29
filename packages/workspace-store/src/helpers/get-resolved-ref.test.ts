@@ -84,6 +84,23 @@ describe('get-resolved-ref', () => {
       expect(result).toEqual({ id: 1, name: 'John' })
     })
 
+    it('should merge sibling properties with $ref-value properties', () => {
+      const refNode = {
+        $ref: '#/components/schemas/User',
+        '$ref-value': { id: 1, name: 'John' },
+        description: 'A user object',
+        example: { id: 1, name: 'Jane' },
+      }
+      const result = getResolvedRef(refNode)
+
+      expect(result).toEqual({
+        id: 1,
+        name: 'John',
+        description: 'A user object',
+        example: { id: 1, name: 'Jane' },
+      })
+    })
+
     it('should work with custom transform function', () => {
       const refNode = { $ref: '#/components/schemas/User', '$ref-value': { id: 1, name: 'John' } }
       const customTransform = (node: any) => ({ ...node['$ref-value'], transformed: true })
