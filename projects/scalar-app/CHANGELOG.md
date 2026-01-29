@@ -1,5 +1,14 @@
 # scalar-app
 
+## 0.1.275
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-client@2.22.1**
+  - [#7965](https://github.com/scalar/scalar/pull/7965): Adds exports for creating external actions
+
 ## 0.1.274
 
 ### Patch Changes
