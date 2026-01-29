@@ -4,11 +4,14 @@ import { createIndexDbConnection } from '@/persistence/indexdb'
 import type { InMemoryWorkspace } from '@/schemas/inmemory-workspace'
 import type { WorkspaceMeta } from '@/schemas/workspace'
 
-type WorkspaceStoreShape = {
-  name: string
-  teamUid?: string
+type WorkspaceKey = {
   namespace?: string
-  slug?: string
+  slug: string
+}
+
+type WorkspaceStoreShape = {
+  teamUid?: string
+  name: string
   workspace: InMemoryWorkspace
 }
 
@@ -29,8 +32,6 @@ export const createWorkspaceStorePersistence = async () => {
     tables: {
       workspace: {
         schema: Type.Object({
-          /** UID for workspaces stored in the DB */
-          id: Type.String(),
           /** Visual name for a given workspace */
           name: Type.String(),
           /** When logged in all new workspaces (remote and local) are scoped to a team  */
@@ -40,7 +41,7 @@ export const createWorkspaceStorePersistence = async () => {
           /** Slug associated with a remote workspace */
           slug: Type.String({ default: 'LOCAL' }),
         }),
-        keyPath: ['id'],
+        keyPath: ['namespace', 'slug'],
         indexes: {
           teamUid: ['teamUid'],
         },
@@ -135,12 +136,18 @@ export const createWorkspaceStorePersistence = async () => {
        * Returns undefined if the workspace does not exist.
        * Gathers all workspace 'chunk' tables and assembles a full workspace shape.
        */
-      getItem: async (id: string): Promise<(WorkspaceStoreShape & { id: string }) | undefined> => {
-        const workspace = await workspaceTable.getItem({ id })
+      getItem: async (
+        namespace: string,
+        slug: string,
+      ): Promise<(WorkspaceStoreShape & Required<WorkspaceKey>) | undefined> => {
+        const workspace = await workspaceTable.getItem({ namespace, slug })
 
         if (!workspace) {
           return undefined
         }
+
+        // Create a composite key for the workspace chunks.
+        const id = `${namespace}-${slug}`
 
         // Retrieve all chunk records for this workspace.
         const workspaceDocuments = await documentsTable.getRange([id])
@@ -151,8 +158,10 @@ export const createWorkspaceStorePersistence = async () => {
 
         // Compose the workspace structure from table records.
         return {
-          id,
           name: workspace.name,
+          teamUid: workspace.teamUid,
+          namespace: workspace.namespace,
+          slug: workspace.slug,
           workspace: {
             documents: Object.fromEntries(workspaceDocuments.map((item) => [item.documentName, item.data])),
             originalDocuments: Object.fromEntries(
@@ -189,17 +198,16 @@ export const createWorkspaceStorePersistence = async () => {
        * All chunks (meta, documents, configs, etc.) are upsert in their respective tables.
        * If a workspace with the same ID already exists, it will be replaced.
        */
-      setItem: async (id: string, value: WorkspaceStoreShape): Promise<void> => {
-        const LOCAL = 'LOCAL'
-        await workspaceTable.addItem(
-          { id },
+      setItem: async ({ namespace = 'LOCAL', slug }: WorkspaceKey, value: WorkspaceStoreShape) => {
+        const workspace = await workspaceTable.addItem(
+          { namespace, slug },
           {
             name: value.name,
-            teamUid: value.teamUid ?? LOCAL,
-            namespace: value.namespace ?? LOCAL,
-            slug: value.slug ?? LOCAL,
+            teamUid: value.teamUid ?? 'LOCAL',
           },
         )
+
+        const id = `${namespace}-${slug}`
 
         // Save all meta info for workspace.
         await metaTable.addItem({ workspaceId: id }, { data: value.workspace.meta })
@@ -231,6 +239,8 @@ export const createWorkspaceStorePersistence = async () => {
             return overridesTable.addItem({ workspaceId: id, documentName: name }, { data })
           }),
         )
+
+        return workspace
       },
 
       /**
@@ -264,8 +274,8 @@ export const createWorkspaceStorePersistence = async () => {
       /**
        * Checks if a workspace with the given ID exists in the store.
        */
-      has: async (id: string): Promise<boolean> => {
-        return (await workspaceTable.getItem({ id })) !== undefined
+      has: async (namespace: string, slug: string): Promise<boolean> => {
+        return (await workspaceTable.getItem({ namespace, slug })) !== undefined
       },
     },
     clear: async () => {

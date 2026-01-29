@@ -21,6 +21,7 @@ describe('Tabs', () => {
       await router.push({
         name: initialRoute,
         params: {
+          namespace: 'local',
           workspaceSlug: 'test-workspace',
           ...(type === 'document' && { documentSlug: 'test-document' }),
         },

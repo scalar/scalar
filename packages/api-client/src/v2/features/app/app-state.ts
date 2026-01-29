@@ -37,6 +37,7 @@ const eventBus = createWorkspaceEventBus({
   debug: import.meta.env.DEV,
 })
 
+const namespace = ref<string | undefined>(undefined)
 const workspaceSlug = ref<string | undefined>(undefined)
 const documentSlug = ref<string | undefined>(undefined)
 const method = ref<HttpMethod | undefined>(undefined)
@@ -87,8 +88,10 @@ function getRouteParam(
 // ---------------------------------------------------------------------------
 // Workspace persistence state management
 
+type WorkspaceOption = ScalarListboxOption & { teamUid: string; namespace: string; slug: string }
+
 const activeWorkspace = shallowRef<{ id: string; label: string } | null>(null)
-const workspaces = ref<ScalarListboxOption[]>([])
+const workspaces = ref<WorkspaceOption[]>([])
 const store = shallowRef<WorkspaceStore | null>(null)
 
 const activeDocument = computed(() => {
@@ -104,15 +107,26 @@ const environment = computed<XScalarEnvironment>(() => getActiveEnvironment(stor
 
 const { workspace: persistence } = await createWorkspaceStorePersistence()
 
+/** Generates a workspace ID from namespace and slug. */
+const getWorkspaceId = (namespace: string, slug: string) => `${namespace}-${slug}`
+
 /** Update the workspace list when the component is mounted */
-workspaces.value = await persistence.getAll().then((w) => w.map(({ id, name }) => ({ id, label: name })))
+workspaces.value = await persistence.getAll().then((w) =>
+  w.map(({ teamUid, namespace, slug, name }) => ({
+    id: getWorkspaceId(namespace, slug),
+    teamUid,
+    namespace,
+    slug,
+    label: name,
+  })),
+)
 
 /**
  * Creates a client-side workspace store with persistence enabled for the given workspace id.
  */
-const createClientStore = async ({ workspaceId }: { workspaceId: string }): Promise<WorkspaceStore> => {
+const createClientStore = async ({ namespace, slug }: { namespace: string; slug: string }): Promise<WorkspaceStore> => {
   return createWorkspaceStore({
-    plugins: [await persistencePlugin({ workspaceId, debounceDelay: DEFAULT_DEBOUNCE_DELAY })],
+    plugins: [await persistencePlugin({ workspaceId: `${namespace}-${slug}`, debounceDelay: DEFAULT_DEBOUNCE_DELAY })],
   })
 }
 
@@ -120,8 +134,11 @@ const createClientStore = async ({ workspaceId }: { workspaceId: string }): Prom
  * Attempts to load and activate a workspace by id.
  * Returns true when the workspace was found and activated.
  */
-const loadWorkspace = async (id: string): Promise<{ success: true; workspace: Workspace } | { success: false }> => {
-  const workspace = await persistence.getItem(id)
+const loadWorkspace = async (
+  namespace: string,
+  slug: string,
+): Promise<{ success: true; workspace: Workspace } | { success: false }> => {
+  const workspace = await persistence.getItem(namespace, slug)
 
   if (!workspace) {
     return {
@@ -129,9 +146,9 @@ const loadWorkspace = async (id: string): Promise<{ success: true; workspace: Wo
     }
   }
 
-  const client = await createClientStore({ workspaceId: id })
+  const client = await createClientStore({ namespace, slug })
   client.loadWorkspace(workspace.workspace)
-  activeWorkspace.value = { id, label: workspace.name }
+  activeWorkspace.value = { id: getWorkspaceId(workspace.namespace, workspace.slug), label: workspace.name }
   store.value = client
 
   return {
@@ -144,7 +161,17 @@ const loadWorkspace = async (id: string): Promise<{ success: true; workspace: Wo
  * Creates and persists the default workspace with a blank draft document.
  * Used when no workspaces exist yet.
  */
-const createAndPersistWorkspace = async ({ id, name }: { id: string; name: string }): Promise<void> => {
+const createAndPersistWorkspace = async ({
+  name,
+  teamUid,
+  namespace,
+  slug,
+}: {
+  name: string
+  teamUid?: string
+  namespace?: string
+  slug: string
+}) => {
   const draftStore = createWorkspaceStore()
   await draftStore.addDocument({
     name: 'drafts',
@@ -164,37 +191,44 @@ const createAndPersistWorkspace = async ({ id, name }: { id: string; name: strin
     },
   })
 
-  await persistence.setItem(id, {
-    name: name,
-    workspace: draftStore.exportWorkspace(),
-  })
+  // Persist the workspace
+  const workspace = await persistence.setItem(
+    { namespace, slug },
+    {
+      name: name,
+      teamUid,
+      workspace: draftStore.exportWorkspace(),
+    },
+  )
 
   // Update the workspace list
-  workspaces.value.push({ id, label: name })
+  workspaces.value.push({
+    id: getWorkspaceId(workspace.namespace, workspace.slug),
+    teamUid: workspace.teamUid,
+    namespace: workspace.namespace,
+    slug: workspace.slug,
+    label: workspace.name,
+  })
+  return workspace
 }
 
 /**
- * Updates the route to reflect the currently selected workspace.
- * Navigates to the workspace's main environment view, with an option to control
- * whether the previous route path should be loaded via a query parameter.
+ * Navigates to the overview page of the specified workspace.
+ * Updates the route based on the given namespace and slug.
  *
- * @param id - The workspace slug (unique identifier) to navigate to.
- * @param loadFromSession - If true, includes "loadFromSession=true" in the query to indicate state/session should be restored.
+ * @param namespace - The workspace namespace.
+ * @param slug - The unique workspace slug (identifier).
  */
-const setWorkspaceId = async (id?: string): Promise<void> => {
-  if (!id) {
-    return
-  }
-
+const navigateToWorkspace = async (namespace?: string, slug?: string): Promise<void> => {
   await router.value?.push({
     name: 'workspace.environment',
-    params: { workspaceSlug: id },
+    params: { namespace, workspaceSlug: slug },
   })
 }
 
 /**
  * Creates a new workspace with the provided name.
- * - Generates a unique ID for the workspace (sluggified from the name and guaranteed unique).
+ * - Generates a unique slug for the workspace (sluggified from the name and guaranteed unique).
  * - Adds a default blank document ("drafts") to the workspace.
  * - Persists the workspace and navigates to it.
  *
@@ -203,36 +237,41 @@ const setWorkspaceId = async (id?: string): Promise<void> => {
  *   // -> Navigates to /workspace/my-awesome-api (if available)
  */
 const createWorkspace = async ({
-  id,
+  key,
   name,
 }: {
-  id?: string
+  key?: { teamUid?: string; namespace?: string; slug: string }
   name: string
-}): Promise<{ id: string; name: string } | undefined> => {
+}) => {
   // Clear up the current store, in order to show the loading state
   store.value = null
 
   // Generate a unique slug/id for the workspace, based on the name.
-  const newWorkspaceId = await generateUniqueValue({
-    defaultValue: id ?? name, // Use the provided id if it exists, otherwise use the name
-    validation: async (value) => !(await persistence.has(value)),
+  const newWorkspaceSlug = await generateUniqueValue({
+    defaultValue: key?.slug ?? name, // Use the provided id if it exists, otherwise use the name
+    validation: async (value) => !(await persistence.has(key?.namespace ?? 'LOCAL', value)),
     maxRetries: 100,
     transformation: slugify,
   })
 
   // Failed to generate a unique workspace id, so we can't create the workspace.
-  if (!newWorkspaceId) {
+  if (!newWorkspaceSlug) {
     return undefined
   }
 
-  const newWorkspaceDetails = { id: newWorkspaceId, name }
+  const newWorkspaceDetails = {
+    teamUid: key?.teamUid,
+    namespace: key?.namespace,
+    slug: newWorkspaceSlug,
+    name,
+  }
 
   // Create a new client store with the workspace ID and add a default document.
-  await createAndPersistWorkspace(newWorkspaceDetails)
+  const createdWorkspace = await createAndPersistWorkspace(newWorkspaceDetails)
 
   // Navigate to the newly created workspace.
-  await setWorkspaceId(newWorkspaceId)
-  return newWorkspaceDetails
+  await navigateToWorkspace(createdWorkspace.namespace, createdWorkspace.slug)
+  return createdWorkspace
 }
 
 /**
@@ -243,13 +282,13 @@ const createWorkspace = async ({
  *    - If found, navigates to the active tab path (if available).
  *    - If not found, creates the default workspace and navigates to it.
  */
-const changeWorkspace = async (slug: string) => {
+const changeWorkspace = async (namespace: string, slug: string) => {
   // Clear the current store and set loading to true before loading new workspace.
   store.value = null
   isSyncingWorkspace.value = true
 
   // Try to load the workspace
-  const result = await loadWorkspace(slug)
+  const result = await loadWorkspace(namespace, slug)
 
   if (result.success) {
     // Navigate to the correct tab if the workspace has a tab already
@@ -283,7 +322,7 @@ const changeWorkspace = async (slug: string) => {
   // If loading failed (workspace does not exist), create the default workspace and navigate to it.
   const createResult = await createWorkspace({
     name: 'Default Workspace',
-    id: 'default',
+    key: { slug: 'default' },
   })
 
   isSyncingWorkspace.value = false
@@ -627,17 +666,18 @@ const copyTabUrl = async (index: number): Promise<void> => {
 
 /** When the route changes we need to update the active entities in the store */
 const handleRouteChange = (to: RouteLocationNormalizedGeneric): void | Promise<void> => {
-  const workspace = getRouteParam('workspaceSlug', to)
+  const namespace = getRouteParam('namespace', to)
+  const slug = getRouteParam('workspaceSlug', to)
   const document = getRouteParam('documentSlug', to)
 
-  workspaceSlug.value = workspace
+  workspaceSlug.value = slug
   documentSlug.value = document
   method.value = getRouteParam('method', to)
   path.value = getRouteParam('pathEncoded', to)
   exampleName.value = getRouteParam('exampleName', to)
 
   // Must have an active workspace to syncs
-  if (!workspace) {
+  if (!namespace || !slug) {
     return
   }
 
@@ -646,8 +686,8 @@ const handleRouteChange = (to: RouteLocationNormalizedGeneric): void | Promise<v
     workspaceStorage.setCurrentPath(to.path)
   }
 
-  if (workspace !== activeWorkspace.value?.id) {
-    return changeWorkspace(workspace)
+  if (getWorkspaceId(namespace, slug) !== activeWorkspace.value?.id) {
+    return changeWorkspace(namespace, slug)
   }
 
   // Update the active document if the document slug has changes
@@ -731,9 +771,9 @@ export type AppState = {
   }
   workspace: {
     create: typeof createWorkspace
-    workspaceList: Ref<ScalarListboxOption[]>
+    workspaceList: Ref<WorkspaceOption[]>
     activeWorkspace: ShallowRef<ScalarListboxOption | null>
-    setId: typeof setWorkspaceId
+    navigateToWorkspace: typeof navigateToWorkspace
     isOpen: ComputedRef<boolean>
   }
   eventBus: WorkspaceEventBus
@@ -741,6 +781,7 @@ export type AppState = {
   currentRoute: Ref<RouteLocationNormalizedGeneric | null>
   loading: Ref<boolean>
   activeEntities: {
+    namespace: Ref<string | undefined>
     workspaceSlug: Ref<string | undefined>
     documentSlug: Ref<string | undefined>
     path: Ref<string | undefined>
@@ -775,7 +816,7 @@ export function useAppState(_router: Router): AppState {
       create: createWorkspace,
       workspaceList: workspaces,
       activeWorkspace: activeWorkspace,
-      setId: setWorkspaceId,
+      navigateToWorkspace,
       isOpen: computed(() => Boolean(workspaceSlug.value && !documentSlug.value)),
     },
     eventBus,
@@ -783,6 +824,7 @@ export function useAppState(_router: Router): AppState {
     currentRoute,
     loading: isSyncingWorkspace,
     activeEntities: {
+      namespace,
       workspaceSlug,
       documentSlug,
       path,
