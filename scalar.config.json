@@ -1038,6 +1038,11 @@
                     "type": "page",
                     "filepath": "documentation/guides/agent/getting-started.md"
                   },
+                  "pricing": {
+                    "title": "Pricing",
+                    "type": "page",
+                    "filepath": "documentation/guides/agent/pricing.md"
+                  },
                   "key": {
                     "title": "Key",
                     "type": "page",
