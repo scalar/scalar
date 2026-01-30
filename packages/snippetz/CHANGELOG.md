@@ -1,5 +1,15 @@
 # @scalar/snippetz
 
+## 0.6.10
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/types@0.6.1**
+  - [#8000](https://github.com/scalar/scalar/pull/8000): fix(agent): change enabled flag to disabled
+  - [#7995](https://github.com/scalar/scalar/pull/7995): feat: enable/disable agent scalar
+
 ## 0.6.9
 
 ### Patch Changes

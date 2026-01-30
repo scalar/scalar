@@ -1,5 +1,17 @@
 # @scalar/types
 
+## 0.6.1
+
+### Patch Changes
+
+- [#8000](https://github.com/scalar/scalar/pull/8000): fix(agent): change enabled flag to disabled
+- [#7995](https://github.com/scalar/scalar/pull/7995): feat: enable/disable agent scalar
+
+#### Updated Dependencies
+
+- **@scalar/helpers@0.2.10**
+  - [#7963](https://github.com/scalar/scalar/pull/7963): feat: unify is-object helpers
+
 ## 0.6.0
 
 ### Minor Changes

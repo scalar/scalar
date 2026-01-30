@@ -1,5 +1,14 @@
 # @scalar/postman-to-openapi
 
+## 0.4.2
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/helpers@0.2.10**
+  - [#7963](https://github.com/scalar/scalar/pull/7963): feat: unify is-object helpers
+
 ## 0.4.1
 
 ### Patch Changes

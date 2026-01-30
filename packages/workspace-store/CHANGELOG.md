@@ -1,5 +1,34 @@
 # @scalar/workspace-store
 
+## 0.28.0
+
+### Minor Changes
+
+- [#7970](https://github.com/scalar/scalar/pull/7970): feat: update sidebar when docuemnt title changes
+
+### Patch Changes
+
+- [#7988](https://github.com/scalar/scalar/pull/7988): feat: restore old client search
+- [#7963](https://github.com/scalar/scalar/pull/7963): feat: unify is-object helpers
+
+#### Updated Dependencies
+
+- **@scalar/types@0.6.1**
+  - [#8000](https://github.com/scalar/scalar/pull/8000): fix(agent): change enabled flag to disabled
+  - [#7995](https://github.com/scalar/scalar/pull/7995): feat: enable/disable agent scalar
+
+- **@scalar/json-magic@0.9.5**
+  - [#7963](https://github.com/scalar/scalar/pull/7963): feat: unify is-object helpers
+
+- **@scalar/helpers@0.2.10**
+  - [#7963](https://github.com/scalar/scalar/pull/7963): feat: unify is-object helpers
+
+- **@scalar/openapi-upgrader@0.1.8**
+
+- **@scalar/snippetz@0.6.10**
+
+- **@scalar/object-utils@1.2.24**
+
 ## 0.27.2
 
 ### Patch Changes

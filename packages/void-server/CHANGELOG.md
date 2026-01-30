@@ -1,5 +1,14 @@
 # @scalar/void-server
 
+## 2.3.3
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/helpers@0.2.10**
+  - [#7963](https://github.com/scalar/scalar/pull/7963): feat: unify is-object helpers
+
 ## 2.3.2
 
 ### Patch Changes

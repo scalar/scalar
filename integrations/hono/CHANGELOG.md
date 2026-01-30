@@ -1,5 +1,16 @@
 # @scalar/hono-api-reference
 
+## 0.9.39
+
+### Patch Changes
+
+- [#7968](https://github.com/scalar/scalar/pull/7968): fix: export `apiReference` directly from index, removing the `Scalar` alias
+- [#7968](https://github.com/scalar/scalar/pull/7968): fix: remove `export` from internal `customTheme`
+
+#### Updated Dependencies
+
+- **@scalar/core@0.3.36**
+
 ## 0.9.38
 
 ### Patch Changes

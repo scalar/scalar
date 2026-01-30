@@ -1,5 +1,16 @@
 # @scalar/fastify-api-reference
 
+## 1.44.4
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/openapi-parser@0.24.6**
+  - [#7963](https://github.com/scalar/scalar/pull/7963): feat: unify is-object helpers
+
+- **@scalar/core@0.3.36**
+
 ## 1.44.3
 
 ## 1.44.2

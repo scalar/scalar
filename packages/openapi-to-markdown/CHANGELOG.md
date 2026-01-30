@@ -1,5 +1,27 @@
 # @scalar/openapi-to-markdown
 
+## 0.3.34
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/types@0.6.1**
+  - [#8000](https://github.com/scalar/scalar/pull/8000): fix(agent): change enabled flag to disabled
+  - [#7995](https://github.com/scalar/scalar/pull/7995): feat: enable/disable agent scalar
+
+- **@scalar/openapi-parser@0.24.6**
+  - [#7963](https://github.com/scalar/scalar/pull/7963): feat: unify is-object helpers
+
+- **@scalar/helpers@0.2.10**
+  - [#7963](https://github.com/scalar/scalar/pull/7963): feat: unify is-object helpers
+
+- **@scalar/oas-utils@0.6.31**
+
+- **@scalar/openapi-upgrader@0.1.8**
+
+- **@scalar/components@0.17.1**
+
 ## 0.3.33
 
 ### Patch Changes
