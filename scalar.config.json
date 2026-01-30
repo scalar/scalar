@@ -1027,6 +1027,22 @@
                   }
                 }
               },
+              "/agent": {
+                "title": "Agent Scalar",
+                "type": "group",
+                "mode": "nested",
+                "icon": "phosphor/regular/robot",
+                "children": {
+                  "getting-started": {
+                    "filepath": "documentation/guides/agent/getting-started.md",
+                    "type": "page"
+                  },
+                  "key": {
+                    "filepath": "documentation/guides/agent/key.md",
+                    "type": "page"
+                  }
+                }
+              },
               "/api-client": {
                 "title": "Scalar API Client",
                 "type": "group",
