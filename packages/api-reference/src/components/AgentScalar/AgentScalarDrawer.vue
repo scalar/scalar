@@ -8,13 +8,15 @@ import type { ApiReferenceConfigurationWithSource } from '@scalar/types/api-refe
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 
+import { useAgentContext } from '@/hooks/use-agent'
+
 defineProps<{
   agentScalarConfiguration: ApiReferenceConfigurationWithSource['agent']
   workspaceStore: WorkspaceStore
   eventBus: WorkspaceEventBus
 }>()
 
-const showAgentScalarDrawer = defineModel<boolean>({ default: false })
+const agentContext = useAgentContext()
 
 const AgentScalarChatInterface = defineAsyncComponent(
   async () => import('./AgentScalarChatInterface.vue'),
@@ -23,25 +25,25 @@ const AgentScalarChatInterface = defineAsyncComponent(
 
 <template>
   <div
-    v-show="showAgentScalarDrawer"
+    v-show="agentContext?.showAgent.value"
     class="scalar-app-exit"
-    :class="showAgentScalarDrawer ? 'scalar-app-exit-animation' : ''"
-    @click="showAgentScalarDrawer = false">
+    :class="agentContext?.showAgent.value ? 'scalar-app-exit-animation' : ''"
+    @click="agentContext?.closeAgent()">
     <button
       class="app-exit-button zoomed:static zoomed:p-1 fixed top-2 right-2 rounded-full p-2"
-      type="button"
-      @click="eventBus.emit('ui:close:client-modal')">
+      type="button">
       <ScalarIconX weight="bold" />
       <span class="sr-only">Close Client</span>
     </button>
   </div>
   <div
-    v-show="showAgentScalarDrawer"
+    v-show="agentContext?.showAgent.value"
     class="agent-scalar">
     <div
       class="agent-scalar-container custom-scroll custom-scroll-self-contain-overflow">
       <AgentScalarChatInterface
         :agentScalarConfiguration
+        :prefilledMessage="agentContext?.prefilledMessage"
         :workspaceStore />
     </div>
   </div>

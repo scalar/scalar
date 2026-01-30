@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { provide } from 'vue'
+import { provide, type Ref } from 'vue'
 
 import Chat from '@/Chat.vue'
 import { createState, STATE_SYMBOL, type RegistryDocument } from '@/state/state'
@@ -14,6 +14,7 @@ const {
   getAccessToken,
   getAgentKey,
   getActiveDocumentJson,
+  prefilledMessage,
 } = defineProps<{
   registryDocuments: RegistryDocument[]
   registryUrl: string
@@ -23,6 +24,7 @@ const {
   getAccessToken?: () => string
   getAgentKey?: () => string
   getActiveDocumentJson?: () => string
+  prefilledMessage?: Ref<string>
 }>()
 
 provide(
@@ -30,6 +32,7 @@ provide(
   createState({
     getActiveDocumentJson,
     initialRegistryDocuments: registryDocuments,
+    prefilledMessageRef: prefilledMessage,
     registryUrl,
     baseUrl,
     mode,
