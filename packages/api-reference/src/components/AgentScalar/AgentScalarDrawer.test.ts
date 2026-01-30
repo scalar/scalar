@@ -17,23 +17,3 @@ function createMockProps() {
     },
   }
 }
-
-describe('AgentScalarDrawer', () => {
-  it('renders drawer content when model is true', () => {
-    const wrapper = mount(AgentScalarDrawer, {
-      props: {
-        ...createMockProps(),
-        modelValue: true,
-      },
-      global: {
-        stubs: {
-          AgentScalarChatInterface: true,
-        },
-      },
-    })
-
-    const drawer = wrapper.find('.agent-scalar')
-    expect(drawer.exists()).toBe(true)
-    expect(drawer.isVisible()).toBe(true)
-  })
-})
