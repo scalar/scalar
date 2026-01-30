@@ -659,7 +659,7 @@ const handleRouteChange = (to: RouteLocationNormalizedGeneric): void | Promise<v
 
   // Update the active document if the document slug has changes
   if (document && document !== store.value?.workspace[extensions.workspace.activeDocument]) {
-    return store?.value?.update('x-scalar-active-document', document)
+    store?.value?.update('x-scalar-active-document', document)
   }
 
   syncTabs(to)
