@@ -16,7 +16,7 @@ import { waitForCondition } from '@/v2/features/import-listener/helpers/wait-for
 import DropEventListener from './components/DropEventListener.vue'
 import ImportModal from './components/ImportModal.vue'
 
-const { workspaceStore, workspaces } = defineProps<{
+const { workspaceStore, workspaces, darkMode } = defineProps<{
   /**
    * The workspace store instance.
    * This is null during initialization until the store is ready.
@@ -32,6 +32,11 @@ const { workspaceStore, workspaces } = defineProps<{
    * Used to render options for workspace switching and selection.
    */
   workspaces: ScalarListboxOption[]
+  /**
+   * The dark mode setting.
+   * This is used to determine the color mode of the import modal.
+   */
+  darkMode: boolean
 }>()
 
 const emit = defineEmits<{
@@ -44,10 +49,14 @@ const emit = defineEmits<{
 }>()
 
 /**
- * The import source (URL, file content, etc.)
- * This gets populated when the user pastes or drops content to import.
+ * Holds information about the import event,
+ * such as the source (URL, file content, etc.) and an optional company logo.
+ * This is set when the user provides input via url query parameter or drop.
  */
-const source = ref<string | null>(null)
+const data = ref<{
+  source: string
+  companyLogo: string | null
+} | null>(null)
 
 const modalState = useModal()
 const { toast } = useToasts()
@@ -96,7 +105,10 @@ const directImport = async (newSource: string): Promise<void> => {
  * Handles input from paste events or drop events.
  * If conditions allow, directly imports the document. Otherwise, shows the import modal.
  */
-const handleInput = async (newSource: string): Promise<void> => {
+const handleInput = async (
+  newSource: string,
+  newCompanyLogo?: string | null,
+): Promise<void> => {
   // Wait for the workspace store to be ready
   await waitForCondition(() => workspaceStore !== null)
 
@@ -118,7 +130,10 @@ const handleInput = async (newSource: string): Promise<void> => {
     return
   }
 
-  source.value = newSource
+  data.value = {
+    source: newSource,
+    companyLogo: newCompanyLogo ?? null,
+  }
   modalState.show()
 }
 
@@ -152,8 +167,12 @@ const handleImportDocument = async (
 onMounted(() => {
   const urlQueryParameter = getUrlQueryParameter('url')
 
+  const logo = darkMode
+    ? getUrlQueryParameter('dark_logo')
+    : getUrlQueryParameter('light_logo')
+
   if (urlQueryParameter) {
-    void handleInput(urlQueryParameter)
+    void handleInput(urlQueryParameter, logo ? decodeURIComponent(logo) : null)
   }
 })
 </script>
@@ -162,16 +181,17 @@ onMounted(() => {
   <!-- Import modal for workspace and document selection -->
   <ImportModal
     :activeWorkspace="activeWorkspace"
+    :companyLogo="data?.companyLogo || null"
     :isLoading="workspaceStore === null"
     :modalState="modalState"
-    :source="source"
+    :source="data?.source || null"
     :workspaces="workspaces"
     @create:workspace="(payload) => emit('create:workspace', payload)"
     @import:document="handleImportDocument"
     @select:workspace="(id) => emit('select:workspace', id)" />
 
   <!-- Listens for drag and drop events -->
-  <DropEventListener @input="(source) => handleInput(source)" />
+  <DropEventListener @input="handleInput" />
 
   <!-- Default slot for wrapped content -->
   <slot />

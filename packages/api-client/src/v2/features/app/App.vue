@@ -66,7 +66,7 @@ if (typeof window !== 'undefined') {
 }
 
 /** Initialize color mode to ensure it is set on mount. */
-useColorMode({ workspaceStore: app.store })
+const { isDarkMode } = useColorMode({ workspaceStore: app.store })
 
 /** Register global hotkeys for the app, passing the workspace event bus and layout state */
 useGlobalHotKeys(app.eventBus, layout)
@@ -133,6 +133,7 @@ const routerViewProps = computed<RouteProps>(() => ({
     <!-- Import listener -->
     <ImportListener
       :activeWorkspace="app.workspace.activeWorkspace.value"
+      :darkMode="isDarkMode"
       :workspaceStore="app.store.value"
       :workspaces="app.workspace.workspaceList.value"
       @create:workspace="(payload) => app.workspace.create(payload)"
