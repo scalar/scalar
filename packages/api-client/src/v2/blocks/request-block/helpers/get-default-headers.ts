@@ -78,9 +78,7 @@ export const getDefaultHeaders = ({
   )
 
   const disabledHeaders = operation['x-scalar-disable-parameters']?.['default-headers']?.[exampleKey] ?? {}
-
   const headers: DefaultHeader[] = []
-
   const requestBody = getResolvedRef(operation.requestBody)
 
   // Add Content-Type header only for methods that support a request body
@@ -90,7 +88,10 @@ export const getDefaultHeaders = ({
       Object.keys(requestBody?.content ?? {})[0] ??
       DEFAULT_CONTENT_TYPE
 
-    headers.push(createDefaultHeader('Content-Type', contentType, existingHeaders))
+    // We never want to add a content type of 'none'
+    if (contentType !== 'none') {
+      headers.push(createDefaultHeader('Content-Type', contentType, existingHeaders))
+    }
   }
 
   // Always add Accept header to indicate we accept all response types
