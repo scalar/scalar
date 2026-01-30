@@ -200,19 +200,20 @@ defineExpose({
 
 <template>
   <div
-    v-show="modalState.open"
-    class="scalar scalar-app">
+    class="scalar scalar-app"
+    :class="{
+      'is-modal-open': modalState.open,
+    }">
     <div class="scalar-container">
-      <div
-        :id="id"
-        ref="client"
-        aria-label="API Client"
-        aria-modal="true"
-        class="scalar-app-layout scalar-client flex"
-        role="dialog"
-        tabindex="-1">
-        <ScalarTeleportRoot>
-          <!-- Toasts -->
+      <ScalarTeleportRoot>
+        <div
+          :id="id"
+          ref="client"
+          aria-label="API Client"
+          aria-modal="true"
+          class="scalar-app-layout scalar-client flex"
+          role="dialog"
+          tabindex="-1">
           <ScalarToasts />
 
           <!-- If we have a document, path and method, render the operation -->
@@ -221,12 +222,12 @@ defineExpose({
             class="relative flex flex-1">
             <SidebarToggle
               v-model="isSidebarOpen"
-              class="absolute top-2 left-3 z-[10001]" />
+              class="absolute top-2 left-3 z-[10002]" />
             <Sidebar
               v-show="isSidebarOpen"
               v-model:sidebarWidth="sidebarWidth"
               :activeWorkspace="activeWorkspace"
-              class="z-[10000] h-full max-md:absolute! max-md:w-full!"
+              class="z-[10001] h-full max-md:absolute! max-md:w-full!"
               :documents="[document.value]"
               :eventBus
               :isDroppable="() => false"
@@ -257,16 +258,42 @@ defineExpose({
             class="flex h-full w-full items-center justify-center">
             <span class="text-c-3">No document selected</span>
           </div>
-        </ScalarTeleportRoot>
-      </div>
+        </div>
+      </ScalarTeleportRoot>
+
       <div
         class="scalar-app-exit"
-        @click="modalState.hide()"></div>
+        @click="modalState.hide()" />
     </div>
   </div>
 </template>
-<style scoped>
+
+<style>
 @reference "@/style.css";
+
+.scalar.scalar-app {
+  opacity: 0;
+  transition: opacity 0.25s ease-in-out;
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  visibility: hidden;
+  z-index: 10000;
+}
+
+.scalar.scalar-app.is-modal-open {
+  opacity: 1;
+  pointer-events: auto;
+  visibility: visible;
+}
+
+.scalar-container {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 
 .scalar .scalar-app-layout {
   background: var(--scalar-background-1);
@@ -274,84 +301,19 @@ defineExpose({
   max-width: 1390px;
   width: 100%;
   margin: auto;
-  opacity: 0;
-  animation: scalarapiclientfadein 0.35s forwards;
   position: relative;
   overflow: hidden;
   border-radius: 8px;
   border: var(--scalar-border-width) solid var(--scalar-border-color);
+  z-index: 10002;
 }
-/**
- * Allow the modal to fill more space on
- * very short (or very zoomed in) screens
- */
-@variant zoomed {
-  .scalar .scalar-app-layout {
-    height: 100%;
-    max-height: 90svh;
-  }
-}
-@keyframes scalarapiclientfadein {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
+
 .scalar .scalar-app-exit {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background: #00000038;
-  transition: all 0.3s ease-in-out;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.25);
   cursor: pointer;
-  animation: scalardrawerexitfadein 0.35s forwards;
-  z-index: -1;
-}
-.dark-mode .scalar .scalar-app-exit {
-  background: rgba(0, 0, 0, 0.45);
-}
-.scalar .scalar-app-exit:before {
-  font-family: sans-serif;
-  position: absolute;
-  top: 0;
-  right: 0;
-  font-size: 30px;
-  font-weight: 100;
-  line-height: 50px;
-  right: 12px;
-  text-align: center;
-  color: white;
-  opacity: 0.6;
-}
-.scalar .scalar-app-exit:hover:before {
-  opacity: 1;
-}
-@keyframes scalardrawerexitfadein {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-.scalar-container {
-  overflow: hidden;
-  visibility: visible;
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  @apply z-overlay;
+  z-index: 10001;
 }
 
 .scalar .url-form-input {
@@ -360,43 +322,5 @@ defineExpose({
 
 .scalar .scalar-container {
   line-height: normal;
-}
-.scalar .scalar-app-header span {
-  color: var(--scalar-color-3);
-}
-.scalar .scalar-app-header a {
-  color: var(--scalar-color-1);
-}
-.scalar .scalar-app-header a:hover {
-  text-decoration: underline;
-}
-.scalar-activate {
-  width: fit-content;
-  margin: 0px 0.75rem 0.75rem auto;
-  line-height: 24px;
-  font-size: 0.75rem;
-  cursor: pointer;
-  font-size: 0.875rem;
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-.scalar-activate-button {
-  display: flex;
-  gap: 6px;
-  align-items: center;
-  color: var(--scalar-color-blue);
-  appearance: none;
-  outline: none;
-  border: none;
-  background: transparent;
-}
-.scalar-activate-button {
-  padding: 0 0.5rem;
-}
-.scalar-activate:hover .scalar-activate-button {
-  background: var(--scalar-background-3);
-  border-radius: 3px;
 }
 </style>
