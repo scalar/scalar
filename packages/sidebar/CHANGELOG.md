@@ -1,5 +1,26 @@
 # @scalar/sidebar
 
+## 0.7.24
+
+### Patch Changes
+
+- [#7988](https://github.com/scalar/scalar/pull/7988): feat: restore old client search
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.28.0**
+  - [#7970](https://github.com/scalar/scalar/pull/7970): feat: update sidebar when docuemnt title changes
+  - [#7988](https://github.com/scalar/scalar/pull/7988): feat: restore old client search
+  - [#7963](https://github.com/scalar/scalar/pull/7963): feat: unify is-object helpers
+
+- **@scalar/use-hooks@0.3.7**
+  - [#7977](https://github.com/scalar/scalar/pull/7977): chore(use-hooks): update tailwind merge to v3.4.0
+
+- **@scalar/helpers@0.2.10**
+  - [#7963](https://github.com/scalar/scalar/pull/7963): feat: unify is-object helpers
+
+- **@scalar/components@0.17.1**
+
 ## 0.7.23
 
 ### Patch Changes

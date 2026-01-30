@@ -1,5 +1,17 @@
 # @scalar/nextjs-openapi
 
+## 0.2.43
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/types@0.6.1**
+  - [#8000](https://github.com/scalar/scalar/pull/8000): fix(agent): change enabled flag to disabled
+  - [#7995](https://github.com/scalar/scalar/pull/7995): feat: enable/disable agent scalar
+
+- **@scalar/nextjs-api-reference@0.9.17**
+
 ## 0.2.42
 
 ### Patch Changes

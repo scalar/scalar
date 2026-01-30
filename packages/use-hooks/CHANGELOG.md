@@ -1,5 +1,11 @@
 # @scalar/use-hooks
 
+## 0.3.7
+
+### Patch Changes
+
+- [#7977](https://github.com/scalar/scalar/pull/7977): chore(use-hooks): update tailwind merge to v3.4.0
+
 ## 0.3.6
 
 ### Patch Changes
