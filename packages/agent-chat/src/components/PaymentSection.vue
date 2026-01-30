@@ -50,7 +50,7 @@ function handleUpgrade() {
         <div class="paymentInfoSection">
           <div class="paymentInfoItem">
             <span>Messages</span>
-            <span>1000</span>
+            <span>1,000</span>
           </div>
           <div class="paymentInfoItem">
             <span>Additional Messages</span>

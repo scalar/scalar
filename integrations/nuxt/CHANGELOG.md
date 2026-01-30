@@ -1,5 +1,61 @@
 # @scalar/nuxt
 
+## 0.5.61
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.44.4**
+  - [#8000](https://github.com/scalar/scalar/pull/8000): fix(agent): change enabled flag to disabled
+  - [#7979](https://github.com/scalar/scalar/pull/7979): fix: prevent re-rendering of already-ready items in lazy-bus queue
+
+    Restores the readyQueue guard in addToPendingQueue to prevent items that are
+    already rendered from being re-added to the pending queue. This fixes a
+    performance regression introduced in #7497 where large API specs would
+    experience severe slowdowns due to items being reprocessed on every scroll
+    or interaction.
+
+    The fix maintains the callback functionality from #7497 by still allowing
+    items to be added to the priority queue (for callback triggering), but
+    processQueue now skips adding items that are already in readyQueue.
+
+  - [#8002](https://github.com/scalar/scalar/pull/8002): feat(agent): add inline agent chat
+  - [#7985](https://github.com/scalar/scalar/pull/7985): fix(api-reference): set fallback for mobile header sticky offset
+  - [#7784](https://github.com/scalar/scalar/pull/7784): fix: resolve oauth2 relative URLs against relative server URLs
+  - [#7995](https://github.com/scalar/scalar/pull/7995): feat: enable/disable agent scalar
+  - [#7977](https://github.com/scalar/scalar/pull/7977): fix(api-reference): apply sidebar width variable
+
+- **@scalar/types@0.6.1**
+  - [#8000](https://github.com/scalar/scalar/pull/8000): fix(agent): change enabled flag to disabled
+  - [#7995](https://github.com/scalar/scalar/pull/7995): feat: enable/disable agent scalar
+
+- **@scalar/api-client@2.22.2**
+  - [#7998](https://github.com/scalar/scalar/pull/7998): Made the inputs to useCommandPalette state reactive
+  - [#7988](https://github.com/scalar/scalar/pull/7988): feat: restore old client search
+  - [#8002](https://github.com/scalar/scalar/pull/8002): feat(agent): add inline agent chat
+  - [#7784](https://github.com/scalar/scalar/pull/7784): fix: resolve oauth2 relative URLs against relative server URLs
+  - [#7971](https://github.com/scalar/scalar/pull/7971): fix: improve sidebar click behavior
+
+- **@scalar/use-hooks@0.3.7**
+  - [#7977](https://github.com/scalar/scalar/pull/7977): chore(use-hooks): update tailwind merge to v3.4.0
+
+## 0.5.60
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.44.3**
+
+## 0.5.59
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.44.2**
+
 ## 0.5.58
 
 ### Patch Changes

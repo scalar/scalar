@@ -1,5 +1,14 @@
 # @scalar/object-utils
 
+## 1.2.24
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/helpers@0.2.10**
+  - [#7963](https://github.com/scalar/scalar/pull/7963): feat: unify is-object helpers
+
 ## 1.2.23
 
 ### Patch Changes

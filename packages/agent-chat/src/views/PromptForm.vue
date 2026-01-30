@@ -95,19 +95,30 @@ function acceptTerms() {
   state.terms.accept()
 
   if (state.mode === 'preview' && state.getActiveDocumentJson) {
-    uploadTmpDoc.uploadTempDocument(state.getActiveDocumentJson())
+    uploadTmpDoc.uploadTempDocument(state.getActiveDocumentJson(), true)
   }
 }
 
-const submitDisabled = computed(
-  () =>
-    !inputHasContent.value ||
-    promptTooLarge.value ||
-    !!approvalRequestedParts.value.length ||
-    !!pendingClientToolParts.value.length ||
-    !state.terms.accepted.value ||
-    !!uploadTmpDoc.uploadState.value,
-)
+const submitDisabled = computed(() => {
+  const tooLarge = promptTooLarge.value
+  const missingInput = !inputHasContent.value
+  const awaitingApproval = approvalRequestedParts.value.length > 0
+  const pendingToolParts = pendingClientToolParts.value.length > 0
+
+  const isPreview = state.mode === 'preview'
+
+  const termsNotAccepted = isPreview && !state.terms.accepted.value
+  const uploadingTmpDoc = isPreview && !!uploadTmpDoc.uploadState.value
+
+  return (
+    tooLarge ||
+    missingInput ||
+    awaitingApproval ||
+    pendingToolParts ||
+    termsNotAccepted ||
+    uploadingTmpDoc
+  )
+})
 
 function handleSubmit() {
   if (submitDisabled.value) {

@@ -7,8 +7,7 @@
     "integrations/docusaurus/**",
     "integrations/dotnet/**",
     "integrations/express/**",
-    "integrations/fastapi/**",
-    "integrations/hono/**"
+    "integrations/fastapi/**"
   ],
   "ignoreFiles": [
     // test types files are marked as unused

@@ -1,6 +1,7 @@
+import { isObject } from '@scalar/helpers/object/is-object'
+
 import { OpenApiVersions } from '@/configuration'
 import type { DetailsResult } from '@/types/index'
-import { isObject } from './is-object'
 
 /**
  * Get versions of the OpenAPI document.

@@ -66,7 +66,7 @@ function createHeadingEntry(id: string, title: string): TraversedEntry {
 
 describe('useSearchIndex', () => {
   describe('empty query behavior', () => {
-    it('returns first 25 entries when query is empty', () => {
+    it('returns null when query is empty', () => {
       const entries: TraversedEntry[] = Array.from({ length: 30 }, (_, i) =>
         createOperationEntry(`op-${i}`, `Operation ${i}`, 'get', `/endpoint-${i}`),
       )
@@ -75,30 +75,17 @@ describe('useSearchIndex', () => {
       const { query, results } = useSearchIndex([document])
 
       expect(query.value).toBe('')
-      expect(results.value).toHaveLength(25)
-      expect(results.value[0]?.item.id).toBe('op-0')
-      expect(results.value[24]?.item.id).toBe('op-24')
+      expect(results.value).toBeNull()
     })
 
-    it('returns all entries when there are fewer than 25', () => {
-      const entries: TraversedEntry[] = Array.from({ length: 10 }, (_, i) =>
-        createOperationEntry(`op-${i}`, `Operation ${i}`, 'get', `/endpoint-${i}`),
-      )
-
-      const document = createDocument('Test API', entries)
-      const { results } = useSearchIndex([document])
-
-      expect(results.value).toHaveLength(10)
-    })
-
-    it('returns empty array when there are no documents', () => {
+    it('returns null when there are no documents and query is empty', () => {
       const { query, results } = useSearchIndex([])
 
       expect(query.value).toBe('')
-      expect(results.value).toHaveLength(0)
+      expect(results.value).toBeNull()
     })
 
-    it('returns empty array when documents have no navigation entries', () => {
+    it('returns null when documents have no navigation entries and query is empty', () => {
       const document: OpenApiDocument = {
         openapi: '3.0.0',
         info: { title: 'Test API', version: '1.0.0' },
@@ -108,7 +95,7 @@ describe('useSearchIndex', () => {
       const { query, results } = useSearchIndex([document])
 
       expect(query.value).toBe('')
-      expect(results.value).toHaveLength(0)
+      expect(results.value).toBeNull()
     })
   })
 
@@ -147,33 +134,13 @@ describe('useSearchIndex', () => {
       const { query, results } = useSearchIndex([document])
 
       query.value = 'pet'
-      expect(results.value.length).toBeGreaterThan(0)
-      expect(results.value.map((it) => it.item.entry)).toEqual([
-        {
-          'id': 'op-1',
-          'method': 'get',
-          'path': '/pets',
-          'ref': '#/paths/~1~1pets/get',
-          'title': 'List Pets',
-          'type': 'operation',
-        },
-        {
-          'id': 'op-2',
-          'method': 'get',
-          'path': '/pets/{id}',
-          'ref': '#/paths/~1~1pets~1{id}/get',
-          'title': 'Get Pet',
-          'type': 'operation',
-        },
-        {
-          'id': 'op-3',
-          'method': 'post',
-          'path': '/users',
-          'ref': '#/paths/~1~1users/post',
-          'title': 'Create User',
-          'type': 'operation',
-        },
-      ])
+      expect(results.value).not.toBeNull()
+      expect(results.value?.length).toBeGreaterThan(0)
+      // Check that the pet-related operations are in the results
+      const petOperations = results.value?.filter((r) => r.title.toLowerCase().includes('pet'))
+      expect(petOperations?.length).toBeGreaterThanOrEqual(2)
+      expect(petOperations?.some((r) => r.id === 'op-1')).toBe(true)
+      expect(petOperations?.some((r) => r.id === 'op-2')).toBe(true)
     })
 
     it('returns empty results when query matches nothing', () => {
@@ -194,6 +161,7 @@ describe('useSearchIndex', () => {
       const { query, results } = useSearchIndex([document])
 
       query.value = 'nonexistentxyz123'
+      expect(results.value).not.toBeNull()
       expect(results.value).toHaveLength(0)
     })
 
@@ -206,29 +174,8 @@ describe('useSearchIndex', () => {
       const { query, results } = useSearchIndex([document])
 
       query.value = 'pet'
-      expect(results.value.length).toBeLessThanOrEqual(25)
-    })
-
-    it('searches by title', () => {
-      const entries: TraversedEntry[] = [
-        createOperationEntry('op-1', 'List Pets', 'get', '/pets'),
-        createOperationEntry('op-2', 'Create User', 'post', '/users'),
-      ]
-
-      const document = createDocument('Test API', entries, {
-        '/pets': {
-          get: {
-            operationId: 'listPets',
-            responses: {},
-          },
-        },
-      })
-
-      const { query, results } = useSearchIndex([document])
-
-      query.value = 'list'
-      expect(results.value.length).toBeGreaterThan(0)
-      expect(results.value[0]?.item.title).toContain('List')
+      expect(results.value).not.toBeNull()
+      expect(results.value?.length).toBeLessThanOrEqual(25)
     })
 
     it('searches by description', () => {
@@ -247,7 +194,8 @@ describe('useSearchIndex', () => {
       const { query, results } = useSearchIndex([document])
 
       query.value = 'retrieve'
-      expect(results.value.length).toBeGreaterThan(0)
+      expect(results.value).not.toBeNull()
+      expect(results.value?.length).toBeGreaterThan(0)
     })
 
     it('searches by operationId', () => {
@@ -265,8 +213,9 @@ describe('useSearchIndex', () => {
       const { query, results } = useSearchIndex([document])
 
       query.value = 'listAllPets'
-      expect(results.value.length).toBeGreaterThan(0)
-      expect(results.value[0]?.item.type).toBe('operation')
+      expect(results.value).not.toBeNull()
+      expect(results.value?.length).toBeGreaterThan(0)
+      expect(results.value?.[0]?.type).toBe('operation')
     })
 
     it('searches by path', () => {
@@ -287,7 +236,8 @@ describe('useSearchIndex', () => {
       const { query, results } = useSearchIndex([document])
 
       query.value = '/pets/{id}'
-      expect(results.value.length).toBeGreaterThan(0)
+      expect(results.value).not.toBeNull()
+      expect(results.value?.length).toBeGreaterThan(0)
     })
 
     it('searches by method', () => {
@@ -319,71 +269,43 @@ describe('useSearchIndex', () => {
       const { query, results } = useSearchIndex([document])
 
       query.value = 'post'
-      expect(results.value.length).toBeGreaterThan(0)
-      expect(results.value.every((r) => r.item.type === 'operation' && r.item.method === 'post')).toBe(true)
+      expect(results.value).not.toBeNull()
+      expect(results.value?.length).toBeGreaterThan(0)
+      expect(results.value?.every((r) => r.type === 'operation' && r.method === 'post')).toBe(true)
     })
 
     it('searches by document name', () => {
-      const document1 = createDocument('Pet Store API', [createOperationEntry('op-1', 'List Pets', 'get', '/pets')])
+      const document1 = createDocument('Pet Store API', [createOperationEntry('op-1', 'List Pets', 'get', '/pets')], {
+        '/pets': {
+          get: {
+            operationId: 'listPets',
+            responses: {},
+          },
+        },
+      })
 
-      const document2 = createDocument('User Management API', [
-        createOperationEntry('op-2', 'List Users', 'get', '/users'),
-      ])
+      const document2 = createDocument(
+        'User Management API',
+        [createOperationEntry('op-2', 'List Users', 'get', '/users')],
+        {
+          '/users': {
+            get: {
+              operationId: 'listUsers',
+              responses: {},
+            },
+          },
+        },
+      )
 
       const { query, results } = useSearchIndex([document1, document2])
 
       query.value = 'pet store'
-      expect(results.value.length).toBeGreaterThan(0)
-      expect(results.value.some((r) => r.item.documentName === 'Pet Store API')).toBe(true)
+      expect(results.value).not.toBeNull()
+      expect(results.value?.length).toBeGreaterThan(0)
     })
   })
 
   describe('search quality', () => {
-    it('finds exact matches', () => {
-      const entries: TraversedEntry[] = [
-        createOperationEntry('op-1', 'List Pets', 'get', '/pets'),
-        createOperationEntry('op-2', 'Get Pet', 'get', '/pets/{id}'),
-      ]
-
-      const document = createDocument('Test API', entries, {
-        '/pets': {
-          get: {
-            operationId: 'listPets',
-            responses: {},
-          },
-        },
-      })
-
-      const { query, results } = useSearchIndex([document])
-
-      query.value = 'List Pets'
-      expect(results.value.length).toBeGreaterThan(0)
-      expect(results.value[0]?.item.title).toBe('List Pets')
-    })
-
-    it('finds partial matches', () => {
-      const entries: TraversedEntry[] = [
-        createOperationEntry('op-1', 'List Pets', 'get', '/pets'),
-        createOperationEntry('op-2', 'Get Pet', 'get', '/pets/{id}'),
-        createOperationEntry('op-3', 'Create User', 'post', '/users'),
-      ]
-
-      const document = createDocument('Test API', entries, {
-        '/pets': {
-          get: {
-            operationId: 'listPets',
-            responses: {},
-          },
-        },
-      })
-
-      const { query, results } = useSearchIndex([document])
-
-      query.value = 'pet'
-      expect(results.value.length).toBeGreaterThanOrEqual(2)
-      expect(results.value.every((r) => r.item.title.toLowerCase().includes('pet'))).toBe(true)
-    })
-
     it('finds case-insensitive matches', () => {
       const entries: TraversedEntry[] = [createOperationEntry('op-1', 'List Pets', 'get', '/pets')]
 
@@ -399,7 +321,8 @@ describe('useSearchIndex', () => {
       const { query, results } = useSearchIndex([document])
 
       query.value = 'PETS'
-      expect(results.value.length).toBeGreaterThan(0)
+      expect(results.value).not.toBeNull()
+      expect(results.value?.length).toBeGreaterThan(0)
     })
 
     it('handles fuzzy matching for typos', () => {
@@ -417,7 +340,8 @@ describe('useSearchIndex', () => {
       const { query, results } = useSearchIndex([document])
 
       query.value = 'pets' // Common typo
-      expect(results.value.length).toBeGreaterThan(0)
+      expect(results.value).not.toBeNull()
+      expect(results.value?.length).toBeGreaterThan(0)
     })
 
     it('prioritizes title matches over description matches', () => {
@@ -446,9 +370,10 @@ describe('useSearchIndex', () => {
       const { query, results } = useSearchIndex([document])
 
       query.value = 'pets'
-      expect(results.value.length).toBeGreaterThan(0)
+      expect(results.value).not.toBeNull()
+      expect(results.value?.length).toBeGreaterThan(0)
       // Title match should be ranked higher
-      const titleMatch = results.value.find((r) => r.item.title === 'List Pets')
+      const titleMatch = results.value?.find((r) => r.title === 'List Pets')
       expect(titleMatch).toBeDefined()
     })
   })
@@ -470,7 +395,9 @@ describe('useSearchIndex', () => {
 
       const { query, results } = useSearchIndex(documents)
 
-      expect(results.value.length).toBeGreaterThan(0)
+      query.value = 'pet'
+      expect(results.value).not.toBeNull()
+      expect(results.value?.length).toBeGreaterThan(0)
 
       const newEntries: TraversedEntry[] = [createOperationEntry('op-2', 'Create User', 'post', '/users')]
 
@@ -488,8 +415,9 @@ describe('useSearchIndex', () => {
       await nextTick()
 
       query.value = 'user'
-      expect(results.value.length).toBeGreaterThan(0)
-      expect(results.value[0]?.item.title).toContain('User')
+      expect(results.value).not.toBeNull()
+      expect(results.value?.length).toBeGreaterThan(0)
+      expect(results.value?.[0]?.title).toContain('User')
     })
 
     it('handles documents as getter function', () => {
@@ -506,64 +434,47 @@ describe('useSearchIndex', () => {
 
       const { query, results } = useSearchIndex(() => [document])
 
-      expect(results.value.length).toBeGreaterThan(0)
-
       query.value = 'pet'
-      expect(results.value.length).toBeGreaterThan(0)
+      expect(results.value).not.toBeNull()
+      expect(results.value?.length).toBeGreaterThan(0)
     })
   })
 
   describe('different entry types', () => {
-    it('searches operations', () => {
-      const entries: TraversedEntry[] = [createOperationEntry('op-1', 'List Pets', 'get', '/pets')]
-
-      const document = createDocument('Test API', entries, {
-        '/pets': {
-          get: {
-            operationId: 'listPets',
-            responses: {},
-          },
-        },
-      })
-
-      const { query, results } = useSearchIndex([document])
-
-      query.value = 'list'
-      expect(results.value.length).toBeGreaterThan(0)
-      expect(results.value[0]?.item.type).toBe('operation')
-    })
-
-    it('searches tags', () => {
+    it('only returns operations, not tags', () => {
       const entries: TraversedEntry[] = [createTagEntry('tag-pets', 'Pets')]
 
       const document = createDocument('Test API', entries)
       const { query, results } = useSearchIndex([document])
 
       query.value = 'pets'
-      expect(results.value.length).toBeGreaterThan(0)
-      expect(results.value[0]?.item.type).toBe('tag')
+      // Tags are not returned in the new implementation (only operations)
+      expect(results.value).not.toBeNull()
+      expect(results.value).toHaveLength(0)
     })
 
-    it('searches tag groups', () => {
+    it('only returns operations, not tag groups', () => {
       const entries: TraversedEntry[] = [createTagEntry('tag-group-animals', 'Animals', true)]
 
       const document = createDocument('Test API', entries)
       const { query, results } = useSearchIndex([document])
 
       query.value = 'animals'
-      expect(results.value.length).toBeGreaterThan(0)
-      expect(results.value[0]?.item.type).toBe('tag')
+      // Tag groups are not returned in the new implementation (only operations)
+      expect(results.value).not.toBeNull()
+      expect(results.value).toHaveLength(0)
     })
 
-    it('searches headings', () => {
+    it('only returns operations, not headings', () => {
       const entries: TraversedEntry[] = [createHeadingEntry('heading-1', 'Introduction')]
 
       const document = createDocument('Test API', entries)
       const { query, results } = useSearchIndex([document])
 
       query.value = 'introduction'
-      expect(results.value.length).toBeGreaterThan(0)
-      expect(results.value[0]?.item.type).toBe('heading')
+      // Headings are not returned in the new implementation (only operations)
+      expect(results.value).not.toBeNull()
+      expect(results.value).toHaveLength(0)
     })
   })
 
@@ -581,21 +492,29 @@ describe('useSearchIndex', () => {
             responses: {},
           },
         },
+        '/users': {
+          post: {
+            operationId: 'createUser',
+            responses: {},
+          },
+        },
       })
 
       const { query, results } = useSearchIndex([document])
 
       query.value = 'pet'
-      const petResults = results.value.length
+      expect(results.value).not.toBeNull()
+      const petResults = results.value?.length ?? 0
 
       query.value = 'user'
-      const userResults = results.value.length
+      expect(results.value).not.toBeNull()
+      const userResults = results.value?.length ?? 0
 
       expect(petResults).toBeGreaterThan(0)
       expect(userResults).toBeGreaterThan(0)
     })
 
-    it('clears results when query is cleared', () => {
+    it('returns null when query is cleared', () => {
       const entries: TraversedEntry[] = [createOperationEntry('op-1', 'List Pets', 'get', '/pets')]
 
       const document = createDocument('Test API', entries, {
@@ -610,11 +529,12 @@ describe('useSearchIndex', () => {
       const { query, results } = useSearchIndex([document])
 
       query.value = 'pet'
-      expect(results.value.length).toBeGreaterThan(0)
+      expect(results.value).not.toBeNull()
+      expect(results.value?.length).toBeGreaterThan(0)
 
       query.value = ''
-      // Should return placeholder results (first 25 entries)
-      expect(results.value.length).toBeGreaterThanOrEqual(0)
+      // Should return null when query is empty
+      expect(results.value).toBeNull()
     })
   })
 })

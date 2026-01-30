@@ -1,4 +1,4 @@
-import { isObject } from '@/helpers/general'
+import { isObject } from '@scalar/helpers/object/is-object'
 
 const isOverridesProxy = Symbol('isOverridesProxy')
 export const getOverridesTarget = Symbol('getOverridesTarget')

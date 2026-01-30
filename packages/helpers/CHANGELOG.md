@@ -1,5 +1,11 @@
 # @scalar/helpers
 
+## 0.2.10
+
+### Patch Changes
+
+- [#7963](https://github.com/scalar/scalar/pull/7963): feat: unify is-object helpers
+
 ## 0.2.9
 
 ### Patch Changes

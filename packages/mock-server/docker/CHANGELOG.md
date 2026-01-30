@@ -1,5 +1,17 @@
 # @scalar/mock-server-docker
 
+## 0.1.22
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/hono-api-reference@0.9.39**
+  - [#7968](https://github.com/scalar/scalar/pull/7968): fix: export `apiReference` directly from index, removing the `Scalar` alias
+  - [#7968](https://github.com/scalar/scalar/pull/7968): fix: remove `export` from internal `customTheme`
+
+- **@scalar/mock-server@0.8.26**
+
 ## 0.1.21
 
 ### Patch Changes

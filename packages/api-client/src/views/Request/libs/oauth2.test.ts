@@ -767,6 +767,59 @@ describe('oauth2', () => {
         },
       })
     })
+
+    it('should resolve relative token URLs against relative server URLs', async () => {
+      const _flow = {
+        ...flow,
+        tokenUrl: 'auth/token',
+      } as const
+      const relativeServer = serverSchema.parse({
+        uid: 'relative-server',
+        url: '/partners',
+      })
+
+      const originalLocation = window.location
+      Object.defineProperty(window, 'location', {
+        value: {
+          origin: 'https://example.com',
+          pathname: '/docs',
+          href: 'https://example.com/docs',
+        },
+        writable: true,
+      })
+
+      global.fetch = vi.fn().mockResolvedValueOnce({
+        json: () =>
+          Promise.resolve({
+            access_token: 'access_token_123',
+          }),
+      })
+
+      const [error, result] = await authorizeOauth2(_flow, relativeServer)
+      expect(error).toBe(null)
+      expect(result).toBe('access_token_123')
+
+      expect(global.fetch).toHaveBeenCalledWith('https://example.com/partners/auth/token', {
+        method: 'POST',
+        body: new URLSearchParams({
+          client_id: _flow['x-scalar-client-id'],
+          scope: scope.join(' '),
+          client_secret: _flow.clientSecret,
+          grant_type: 'password',
+          username: _flow.username,
+          password: _flow.password,
+        }),
+        headers: {
+          'Authorization': `Basic ${secretAuth}`,
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+      })
+
+      Object.defineProperty(window, 'location', {
+        value: originalLocation,
+        writable: true,
+      })
+    })
   })
 
   // Device code is coming in openapi spec 3.2.0

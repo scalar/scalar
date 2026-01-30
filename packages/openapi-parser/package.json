@@ -17,7 +17,7 @@
     "parser",
     "typescript"
   ],
-  "version": "0.24.5",
+  "version": "0.24.6",
   "engines": {
     "node": ">=20"
   },
@@ -57,6 +57,7 @@
   ],
   "sideEffects": false,
   "dependencies": {
+    "@scalar/helpers": "workspace:*",
     "@scalar/json-magic": "workspace:*",
     "@scalar/openapi-types": "workspace:*",
     "@scalar/openapi-upgrader": "workspace:*",

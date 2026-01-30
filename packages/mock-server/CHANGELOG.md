@@ -1,5 +1,24 @@
 # @scalar/mock-server
 
+## 0.8.26
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/openapi-parser@0.24.6**
+  - [#7963](https://github.com/scalar/scalar/pull/7963): feat: unify is-object helpers
+
+- **@scalar/json-magic@0.9.5**
+  - [#7963](https://github.com/scalar/scalar/pull/7963): feat: unify is-object helpers
+
+- **@scalar/helpers@0.2.10**
+  - [#7963](https://github.com/scalar/scalar/pull/7963): feat: unify is-object helpers
+
+- **@scalar/oas-utils@0.6.31**
+
+- **@scalar/openapi-upgrader@0.1.8**
+
 ## 0.8.25
 
 ### Patch Changes

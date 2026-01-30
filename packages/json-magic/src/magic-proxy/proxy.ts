@@ -1,7 +1,8 @@
+import { isObject } from '@scalar/helpers/object/is-object'
+
 import { convertToLocalRef } from '@/helpers/convert-to-local-ref'
 import { getId, getSchemas } from '@/helpers/get-schemas'
 import { getValueByPath } from '@/helpers/get-value-by-path'
-import { isObject } from '@/helpers/is-object'
 import { createPathFromSegments, parseJsonPointer } from '@/helpers/json-path-utils'
 import type { UnknownObject } from '@/types'
 

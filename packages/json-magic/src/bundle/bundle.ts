@@ -1,4 +1,5 @@
 import { path } from '@scalar/helpers/node/path'
+import { isObject } from '@scalar/helpers/object/is-object'
 
 import { convertToLocalRef } from '@/helpers/convert-to-local-ref'
 import { getId, getSchemas } from '@/helpers/get-schemas'
@@ -8,9 +9,12 @@ import type { UnknownObject } from '@/types'
 import { escapeJsonPointer } from '../helpers/escape-json-pointer'
 import { getSegmentsFromPath } from '../helpers/get-segments-from-path'
 import { isJsonObject } from '../helpers/is-json-object'
-import { isObject } from '../helpers/is-object'
 import { isYaml } from '../helpers/is-yaml'
 import { getHash, uniqueValueGeneratorFactory } from './value-generator'
+
+/** Type guard to check if a value is an object with a $ref property */
+const hasRef = (value: unknown): value is UnknownObject & Record<'$ref', string> =>
+  isObject(value) && '$ref' in value && typeof value['$ref'] === 'string'
 
 /**
  * Checks if a string is a remote URL (starts with http:// or https://)
@@ -788,7 +792,7 @@ export async function bundle(input: UnknownObject | string, config: Config) {
 
     const id = getId(root)
 
-    if (typeof root === 'object' && '$ref' in root && typeof root['$ref'] === 'string') {
+    if (hasRef(root)) {
       const ref = root['$ref']
       const isChunk = '$global' in root && typeof root['$global'] === 'boolean' && root['$global']
 

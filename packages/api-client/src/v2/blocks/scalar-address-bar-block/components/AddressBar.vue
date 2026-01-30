@@ -244,17 +244,8 @@ defineExpose({
           importCurl
           :layout="layout"
           :modelValue="path"
-          :placeholder="server ? '' : 'Enter a URL or cURL command'"
+          :placeholder="server ? '' : 'Enter a URL'"
           server
-          @curl="
-            (payload) =>
-              eventBus.emit('ui:open:command-palette', {
-                action: 'import-curl-command',
-                payload: {
-                  inputValue: payload,
-                },
-              })
-          "
           @submit="emit('execute')"
           @update:modelValue="handlePathChange" />
         <div class="fade-right" />

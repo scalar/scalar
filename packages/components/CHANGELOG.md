@@ -1,5 +1,19 @@
 # @scalar/components
 
+## 0.17.1
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/use-hooks@0.3.7**
+  - [#7977](https://github.com/scalar/scalar/pull/7977): chore(use-hooks): update tailwind merge to v3.4.0
+
+- **@scalar/helpers@0.2.10**
+  - [#7963](https://github.com/scalar/scalar/pull/7963): feat: unify is-object helpers
+
+- **@scalar/oas-utils@0.6.31**
+
 ## 0.17.0
 
 ### Minor Changes

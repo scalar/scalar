@@ -13,7 +13,7 @@ const DEFAULT_CONFIGURATION: Partial<ApiReferenceConfiguration> = {
 /**
  * The custom theme for Hono
  */
-export const customTheme = `
+const customTheme = `
 .dark-mode {
   color-scheme: dark;
   --scalar-color-1: rgba(255, 255, 245, .86);
@@ -92,8 +92,3 @@ export const Scalar = <E extends Env>(configOrResolver: Configuration<E>): Middl
     return c.html(getHtmlDocument(configuration, customTheme))
   }
 }
-
-/**
- * @deprecated Use `Scalar` instead.
- */
-export const apiReference = Scalar
