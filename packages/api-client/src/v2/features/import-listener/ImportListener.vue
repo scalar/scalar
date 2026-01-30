@@ -8,10 +8,10 @@ import {
 import type { InMemoryWorkspace } from '@scalar/workspace-store/schemas/inmemory-workspace'
 import { onMounted, ref } from 'vue'
 
-import { getUrlQueryParameter } from '@/v2/features/import/helpers/get-url-query-parameter'
-import { importDocumentToWorkspace } from '@/v2/features/import/helpers/import-document-to-workspace'
-import { loadDocumentFromSource } from '@/v2/features/import/helpers/load-document-from-source'
-import { waitForCondition } from '@/v2/features/import/helpers/wait-for-condition'
+import { getUrlQueryParameter } from '@/v2/features/import-listener/helpers/get-url-query-parameter'
+import { importDocumentToWorkspace } from '@/v2/features/import-listener/helpers/import-document-to-workspace'
+import { loadDocumentFromSource } from '@/v2/features/import-listener/helpers/load-document-from-source'
+import { waitForCondition } from '@/v2/features/import-listener/helpers/wait-for-condition'
 
 import DropEventListener from './components/DropEventListener.vue'
 import ImportModal from './components/ImportModal.vue'

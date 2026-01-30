@@ -250,10 +250,10 @@
       "types": "./dist/v2/features/global-cookies/index.d.ts",
       "default": "./dist/v2/features/global-cookies/index.js"
     },
-    "./v2/features/import": {
-      "import": "./dist/v2/features/import/index.js",
-      "types": "./dist/v2/features/import/index.d.ts",
-      "default": "./dist/v2/features/import/index.js"
+    "./v2/features/import-listener": {
+      "import": "./dist/v2/features/import-listener/index.js",
+      "types": "./dist/v2/features/import-listener/index.d.ts",
+      "default": "./dist/v2/features/import-listener/index.js"
     },
     "./v2/features/modal": {
       "import": "./dist/v2/features/modal/index.js",

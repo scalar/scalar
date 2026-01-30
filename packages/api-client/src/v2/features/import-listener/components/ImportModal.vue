@@ -11,8 +11,8 @@ import type { InMemoryWorkspace } from '@scalar/workspace-store/schemas/inmemory
 import { computed, onUnmounted, ref, watch } from 'vue'
 
 import WatchModeToggle from '@/components/CommandPalette/WatchModeToggle.vue'
-import WorkspaceSelector from '@/v2/features/import/components/WorkspaceSelector.vue'
-import { loadDocumentFromSource } from '@/v2/features/import/helpers/load-document-from-source'
+import WorkspaceSelector from '@/v2/features/import-listener/components/WorkspaceSelector.vue'
+import { loadDocumentFromSource } from '@/v2/features/import-listener/helpers/load-document-from-source'
 import { isUrl } from '@/v2/helpers/is-url'
 
 const {

@@ -1,7 +1,7 @@
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { InMemoryWorkspace } from '@scalar/workspace-store/schemas/inmemory-workspace'
 
-import { generateUniqueSlug } from '@/v2/features/import/helpers/generate-unique-slug'
+import { generateUniqueSlug } from '@/v2/features/import-listener/helpers/generate-unique-slug'
 
 /**
  * Imports a single document from a workspace state into the current workspace.
