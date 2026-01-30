@@ -124,6 +124,7 @@ export function createState({
   getAccessToken,
   getAgentKey,
   getActiveDocumentJson,
+  prefilledMessageRef,
 }: {
   initialRegistryDocuments: { namespace: string; slug: string }[]
   registryUrl: string
@@ -133,8 +134,9 @@ export function createState({
   getAccessToken?: () => string
   getAgentKey?: () => string
   getActiveDocumentJson?: () => string
+  prefilledMessageRef?: Ref<string>
 }): State {
-  const prompt = ref<State['prompt']['value']>('')
+  const prompt = ref<State['prompt']['value']>(prefilledMessageRef?.value ?? '')
   const registryDocuments = ref<ApiMetadata[]>([])
   const curatedDocuments = ref<ApiMetadata[]>([])
   const proxyUrl = ref<State['proxyUrl']['value']>('https://proxy.scalar.com')
@@ -179,6 +181,17 @@ export function createState({
       }
     },
   )
+
+  if (prefilledMessageRef) {
+    watch(prefilledMessageRef, async (val) => {
+      if (val) {
+        prompt.value = val
+        if (terms.accepted.value) {
+          await chat.sendMessage({ text: prompt.value })
+        }
+      }
+    })
+  }
 
   const settingsModal = useModal()
 
