@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { provide } from 'vue'
+import { provide, type Ref } from 'vue'
 
 import Chat from '@/Chat.vue'
 import { createState, STATE_SYMBOL, type RegistryDocument } from '@/state/state'
@@ -14,6 +14,7 @@ const {
   getAccessToken,
   getAgentKey,
   getActiveDocumentJson,
+  prefilledMessage,
 } = defineProps<{
   registryDocuments: RegistryDocument[]
   registryUrl: string
@@ -23,13 +24,17 @@ const {
   getAccessToken?: () => string
   getAgentKey?: () => string
   getActiveDocumentJson?: () => string
+  /** Optional ref for reactive prefill (from openAgent(message)); when it changes, prompt updates */
+  prefilledMessage?: Ref<string>
 }>()
 
 provide(
   STATE_SYMBOL,
   createState({
     getActiveDocumentJson,
+    initialPrompt: prefilledMessage?.value ?? '',
     initialRegistryDocuments: registryDocuments,
+    prefilledMessageRef: prefilledMessage,
     registryUrl,
     baseUrl,
     mode,

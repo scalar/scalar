@@ -49,7 +49,6 @@ import {
 
 import '@scalar/agent-chat/style.css'
 
-import { isLocalUrl } from '@scalar/helpers/url/is-local-url'
 import { useScrollLock } from '@vueuse/core'
 
 import ClassicHeader from '@/components/ClassicHeader.vue'
@@ -76,6 +75,7 @@ import {
   normalizeConfigurations,
   type NormalizedConfiguration,
 } from '@/helpers/normalize-configurations'
+import { AGENT_CONTEXT_SYMBOL, useAgent } from '@/hooks/use-agent'
 import { useIntersection } from '@/hooks/use-intersection'
 import { createPluginManager, PLUGIN_MANAGER_SYMBOL } from '@/plugins'
 import { persistencePlugin } from '@/plugins/persistance-plugin'
@@ -627,16 +627,9 @@ const documentUrl = computed(() => {
 // --------------------------------------------------------------------------- */
 // Agent Scalar
 
-// Setup the ApiClient on mount
-const showAgent = ref(false)
-
-const agentEnabled = computed(() => {
-  if (isLocalUrl(window.location.href)) {
-    return true
-  }
-
-  return Boolean(configList.value[activeSlug.value]?.agent)
-})
+const agent = useAgent({ configList, activeSlug })
+const { showAgent, agentEnabled, toggleAgent } = agent
+provide(AGENT_CONTEXT_SYMBOL, agent)
 
 // --------------------------------------------------------------------------- */
 // Api Client Modal
@@ -847,7 +840,7 @@ watch(showAgent, () => {
         v-show="showAgent && agentEnabled"
         class="scalar-app-exit"
         :class="showAgent ? 'scalar-app-exit-animation' : ''"
-        @click="showAgent = false">
+        @click="agent.closeAgent">
         <button
           class="app-exit-button zoomed:static zoomed:p-1 fixed top-2 right-2 rounded-full p-2"
           type="button"
@@ -864,6 +857,7 @@ watch(showAgent, () => {
           class="agent-scalar-container custom-scroll custom-scroll-self-contain-overflow">
           <AgentChat
             :agentConfig="configList[activeSlug]?.agent"
+            :prefilledMessage="agent.prefilledMessage"
             :workspaceStore />
         </div>
       </div>
@@ -920,7 +914,7 @@ watch(showAgent, () => {
                   v-if="agentEnabled"
                   class="bg-sidebar-b-search text-sidebar-c-2 hover:text-sidebar-c-1 flex items-center gap-1.5 rounded border px-2 text-base whitespace-nowrap"
                   type="button"
-                  @click="showAgent = !showAgent">
+                  @click="toggleAgent">
                   <ScalarIconSparkle />
                   Ask AI
                 </button>

@@ -1,18 +1,34 @@
 <script setup lang="ts">
 import { ScalarIconArrowUp, ScalarIconSparkle } from '@scalar/icons'
+import { ref } from 'vue'
+
+import { useAgentContext } from '@/hooks/use-agent'
+
+const agentContext = useAgentContext()
+
+const message = ref('')
+
+function handleSubmit() {
+  agentContext?.openAgent(message.value)
+  message.value = ''
+}
 </script>
 <template>
-  <!-- Render the Test Request Button -->
-  <div class="agent-button-container flex">
+  <div
+    v-if="agentContext?.agentEnabled"
+    class="agent-button-container flex">
     <ScalarIconSparkle
       class="size-3 shrink-0"
       weight="fill" />
     <input
+      v-model="message"
       class="ask-agent-scalar-input"
-      placeholder="Ask AI Agent" />
+      placeholder="Ask AI Agent"
+      @keydown.enter.stop="handleSubmit()" />
     <button
+      class="ask-agent-scalar-send"
       type="button"
-      class="ask-agent-scalar-send">
+      @click="handleSubmit()">
       <ScalarIconArrowUp
         class="size-3"
         weight="bold" />
