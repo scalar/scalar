@@ -31,9 +31,3 @@ Scalar.createApiReference('#app', {
 For production, use GitHub Actions to automatically sync your OpenAPI document with the Scalar Registry. This ensures your Agent always has the latest API information.
 
 See [GitHub Sync](../docs/github-sync.md) for setup instructions.
-
-## Key Security
-
-- Keys are scoped to specific documents
-- Do not expose keys in client-side code for private APIs
-- For public documentation, keys can be safely included in the configuration

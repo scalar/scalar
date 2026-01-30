@@ -62,21 +62,21 @@ The `agent` configuration accepts:
 
 ### Per-Source Configuration
 
-When using multiple sources, configure agent per source:
+When using multiple sources, configure Agent Scalar per source:
 
 ```js
 Scalar.createApiReference('#app', {
   sources: [
     {
-      url: '/api/v1/openapi.json',
+      url: 'https://registry.scalar.com/@your-namespace/apis/first-api/latest?format=json',
       agent: {
-        key: 'key-for-v1',
+        key: 'key-for-first-api',
       },
     },
     {
-      url: '/api/v2/openapi.json',
+      url: 'https://registry.scalar.com/@your-namespace/apis/second-api/latest?format=json',
       agent: {
-        key: 'key-for-v2',
+        key: 'key-for-second-api',
       },
     },
   ],

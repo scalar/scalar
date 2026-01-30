@@ -1034,12 +1034,14 @@
                 "icon": "phosphor/regular/robot",
                 "children": {
                   "getting-started": {
-                    "filepath": "documentation/guides/agent/getting-started.md",
-                    "type": "page"
+                    "title": "Getting Started",
+                    "type": "page",
+                    "filepath": "documentation/guides/agent/getting-started.md"
                   },
                   "key": {
-                    "filepath": "documentation/guides/agent/key.md",
-                    "type": "page"
+                    "title": "Key",
+                    "type": "page",
+                    "filepath": "documentation/guides/agent/key.md"
                   }
                 }
               },
