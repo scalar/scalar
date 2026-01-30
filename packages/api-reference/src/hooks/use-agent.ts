@@ -77,6 +77,6 @@ export function useAgent(options: UseAgentOptions): UseAgentReturn {
  * Returns a computed ref; use v-if="agentContext?.agentEnabled" so the button only renders when context exists and agent is enabled.
  */
 export function useAgentContext(): ComputedRef<UseAgentReturn | undefined> {
-  const injected = inject(AGENT_CONTEXT_SYMBOL)
+  const injected = inject(AGENT_CONTEXT_SYMBOL, undefined)
   return computed((): UseAgentReturn | undefined => injected ?? agentStateRef.value ?? undefined)
 }
