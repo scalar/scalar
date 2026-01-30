@@ -58,7 +58,7 @@ The `agent` configuration accepts:
 | Property  | Type      | Default     | Description                    |
 | --------- | --------- | ----------- | ------------------------------ |
 | `key`     | `string`  | `undefined` | Your Agent Scalar API key      |
-| `enabled` | `boolean` | `true`      | Enable or disable Agent Scalar |
+| `disabled`| `boolean` | `false`     | Enable or disable Agent Scalar |
 
 ### Per-Source Configuration
 
