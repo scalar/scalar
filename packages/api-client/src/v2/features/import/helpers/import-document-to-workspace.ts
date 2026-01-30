@@ -43,7 +43,7 @@ export const importDocumentToWorkspace = async ({
    * Generate a unique slug to avoid naming conflicts with existing documents.
    * The slug is based on the document title but modified if necessary to ensure uniqueness.
    */
-  const slug = await generateUniqueSlug(importingDocument.info.title, currentDocuments)
+  const slug = await generateUniqueSlug(importingDocument.info.title || 'default', currentDocuments)
   if (!slug) {
     return { ok: false, error: 'Failed to generate a unique slug for the importing document' }
   }
