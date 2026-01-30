@@ -3,100 +3,137 @@ import {
   ScalarButton,
   ScalarIcon,
   ScalarModal,
-  // useModal,
   type ModalState,
+  type ScalarListboxOption,
 } from '@scalar/components'
-import { normalize } from '@scalar/openapi-parser'
-import type { UnknownObject } from '@scalar/types/utils'
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
 import type { InMemoryWorkspace } from '@scalar/workspace-store/schemas/inmemory-workspace'
-import { onUnmounted, ref, watch } from 'vue'
+import { computed, onUnmounted, ref, watch } from 'vue'
 
 import WatchModeToggle from '@/components/CommandPalette/WatchModeToggle.vue'
 import PrefetchError from '@/components/ImportCollection/PrefetchError.vue'
+import WorkspaceSelector from '@/v2/features/import/components/WorkspaceSelector.vue'
+import { loadDocumentFromSource } from '@/v2/features/import/helpers/load-document-from-source'
 import { isUrl } from '@/v2/helpers/is-url'
 
-const { source, modalState } = defineProps<{
+const {
+  source,
+  modalState,
+  isLoading = false,
+} = defineProps<{
+  /** The source URL or content to import from (URL, file path, or raw content) */
   source: string | null
+  /** Controls the visibility and state of the modal */
   modalState: ModalState
+  /** Optional company logo URL to display in the import UI */
   companyLogo?: string | null
+  /** Whether the workspace data is currently being loaded */
+  isLoading?: boolean
+  /**
+   * The currently active workspace.
+   * This represents the workspace that the user is currently working in.
+   */
+  activeWorkspace: { id: string; label: string } | null
+  /**
+   * The list of all available workspaces.
+   * Used to render options for workspace switching and selection.
+   */
+  workspaces: ScalarListboxOption[]
 }>()
 
 const emits = defineEmits<{
+  /** Emitted when the user wants to import a document */
   (e: 'import:document', workspaceState: InMemoryWorkspace, name: string): void
+  /** Emitted when the user selects a workspace */
+  (e: 'select:workspace', id?: string): void
+  /** Emitted when the user wants to create a new workspace */
+  (e: 'create:workspace', payload: { name: string }): void
 }>()
+
+/** The name used for imported documents */
+const DRAFT_DOCUMENT_NAME = 'draft'
 
 const state = ref<'loading' | 'success' | 'error' | 'idle'>('idle')
 const watchMode = ref(false)
+const workspaceStore = createWorkspaceStore()
 
-const worksapceStore = createWorkspaceStore()
+/** The title of the active document or a fallback */
+const documentTitle = computed(
+  () =>
+    workspaceStore.workspace.activeDocument?.info.title || 'Untitled Document',
+)
 
-const DRAFT_DOCUMENT_NAME = 'draft'
+/** Whether the document has a valid OpenAPI version */
+const hasValidDocument = computed(
+  () => !!workspaceStore.workspace.activeDocument?.info.version,
+)
 
-const loadDocument = async () => {
-  if (!source) {
-    return false
-  }
+/** Whether the source is a URL that supports watch mode */
+const supportsWatchMode = computed(() => source && isUrl(source))
 
-  // For url imports, we add the document to the workspace store
-  if (isUrl(source)) {
-    return await worksapceStore.addDocument({
-      name: DRAFT_DOCUMENT_NAME,
-      url: source,
-    })
-  }
+/** Whether to show the loading state */
+const isLoadingDocument = computed(() => state.value === 'loading')
 
-  // For file imports, we need to normalize the content first
-  // We can assert here cuz we know the content is a string
-  const normalizedContent = normalize(source) as UnknownObject
+/**
+ * Manages body classes for modal state.
+ * These classes are used to apply layout animations when the modal opens/closes.
+ */
+const updateBodyClasses = (isModalOpen: boolean): void => {
+  const { classList } = document.body
 
-  return await worksapceStore.addDocument({
-    name: DRAFT_DOCUMENT_NAME,
-    document: normalizedContent,
-  })
-}
+  classList.remove('has-no-import-url', 'has-import-url')
 
-// Function to add/remove class from body
-const toggleBodyClass = (add: boolean) => {
-  document.body.classList.remove('has-no-import-url')
-
-  if (add && modalState.open) {
-    document.body.classList.add('has-import-url')
+  if (isModalOpen) {
+    classList.add('has-import-url')
   } else {
-    document.body.classList.remove('has-import-url')
+    classList.add('has-no-import-url')
   }
 }
 
-/** Toggles the 'has-import-url' class on the body element */
-const onModalClose = () => {
-  document.body.classList.remove('has-import-url')
-  document.body.classList.add('has-no-import-url')
-}
-
-const handleModalStateChange = async (isOpen: boolean) => {
-  if (isOpen) {
-    state.value = 'loading'
-
-    const success = await loadDocument()
-
-    if (!success) {
-      state.value = 'error'
-      return
-    }
-
-    state.value = 'success'
-    return toggleBodyClass(true)
+/**
+ * Handles modal state changes.
+ * Loads the document when opening, and manages body classes.
+ */
+const handleModalStateChange = async (isOpen: boolean): Promise<void> => {
+  if (!isOpen) {
+    state.value = 'idle'
+    updateBodyClasses(false)
   }
 
-  state.value = 'idle'
-  return onModalClose()
+  state.value = 'loading'
+
+  const success = await loadDocumentFromSource(
+    workspaceStore,
+    source,
+    DRAFT_DOCUMENT_NAME,
+    watchMode.value,
+  )
+
+  if (!success) {
+    state.value = 'error'
+    return
+  }
+
+  state.value = 'success'
+  updateBodyClasses(true)
+  return
 }
 
-// Watch for changes in the modal state
+/**
+ * Handles the import action.
+ * Emits the document to the parent component.
+ */
+const handleImport = (): void => {
+  emits(
+    'import:document',
+    workspaceStore.exportWorkspace(),
+    DRAFT_DOCUMENT_NAME,
+  )
+}
+
 watch(() => modalState.open, handleModalStateChange)
 
-// Cleanup
-onUnmounted(onModalClose)
+onUnmounted(() => updateBodyClasses(false))
 </script>
 
 <template>
@@ -115,36 +152,29 @@ onUnmounted(onModalClose)
         <div class="section-flare-item" />
         <div class="section-flare-item" />
       </div>
-      <!-- Wait until the URL is fetched -->
       <div
         class="m-auto flex w-full max-w-[380px] flex-col items-center rounded-xl border px-8 py-8 transition-opacity"
-        :class="{ 'opacity-0': state === 'loading' }">
-        <!-- Prefetch error -->
-        <!-- Or: Document doesn't even have an OpenAPI/Swagger version, something is probably wrong -->
+        :class="{ 'opacity-0': isLoadingDocument }">
+        <!-- Error State -->
         <template v-if="state === 'error'">
-          <!-- Heading -->
           <div class="text-md mb-2 line-clamp-1 text-center font-bold">
             No OpenAPI document found
           </div>
           <PrefetchError :url="source" />
         </template>
-        <!-- Success -->
+
+        <!-- Success State -->
         <template v-else>
-          <!-- Company Logo -->
           <img
             v-if="companyLogo"
-            alt="Logo"
+            alt="Company Logo"
             class="mb-2 w-full object-contain"
             :src="companyLogo" />
 
-          <!-- Title -->
           <div
             v-if="!companyLogo"
             class="text-md mb-2 line-clamp-1 text-center font-bold">
-            {{
-              worksapceStore.workspace.activeDocument?.info.title ||
-              'Untitled Document'
-            }}
+            {{ documentTitle }}
           </div>
 
           <div class="text-c-1 text-center text-sm font-medium text-balance">
@@ -152,34 +182,33 @@ onUnmounted(onModalClose)
             signup required.
           </div>
 
-          <!-- Actions -->
-          <template
-            v-if="worksapceStore.workspace.activeDocument?.info.version">
+          <template v-if="hasValidDocument">
             <div class="z-10 inline-flex w-full flex-col items-center gap-2">
-              <!-- Button -->
               <ScalarButton
                 class="mt-3 h-fit w-full rounded-lg px-6 py-2.5 font-bold"
+                :disabled="isLoading"
                 size="md"
                 type="button"
-                @click="
-                  emits(
-                    'import:document',
-                    worksapceStore.exportWorkspace(),
-                    DRAFT_DOCUMENT_NAME,
-                  )
-                ">
+                @click="handleImport">
                 Import Collection
               </ScalarButton>
             </div>
-            <!-- Select the workspace -->
+
             <div class="flex justify-center">
               <div
                 class="text-c-3 inline-flex items-center px-4 py-1 text-xs font-medium">
-                Import to: {Placeholder (workspace selector)}
+                Import to:
+                <WorkspaceSelector
+                  :activeWorkspace="activeWorkspace"
+                  :workspaces="workspaces"
+                  @create:workspace="
+                    (payload) => emits('create:workspace', payload)
+                  "
+                  @select:workspace="(id) => emits('select:workspace', id)" />
               </div>
             </div>
-            <!-- Watch Mode -->
-            <template v-if="source && isUrl(source)">
+
+            <template v-if="supportsWatchMode">
               <div class="mt-5 overflow-hidden border-t pt-4 text-sm">
                 <div class="flex items-center justify-center">
                   <WatchModeToggle
