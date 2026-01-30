@@ -244,7 +244,7 @@ defineExpose({
           importCurl
           :layout="layout"
           :modelValue="path"
-          :placeholder="server ? '' : 'Enter a URL or cURL command'"
+          :placeholder="server ? '' : 'Enter a URL'"
           server
           @submit="emit('execute')"
           @update:modelValue="handlePathChange" />
