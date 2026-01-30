@@ -32,7 +32,6 @@ provide(
   STATE_SYMBOL,
   createState({
     getActiveDocumentJson,
-    initialPrompt: prefilledMessage?.value ?? '',
     initialRegistryDocuments: registryDocuments,
     prefilledMessageRef: prefilledMessage,
     registryUrl,

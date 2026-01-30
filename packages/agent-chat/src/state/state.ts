@@ -124,7 +124,6 @@ export function createState({
   getAccessToken,
   getAgentKey,
   getActiveDocumentJson,
-  initialPrompt = '',
   prefilledMessageRef,
 }: {
   initialRegistryDocuments: { namespace: string; slug: string }[]
@@ -135,12 +134,10 @@ export function createState({
   getAccessToken?: () => string
   getAgentKey?: () => string
   getActiveDocumentJson?: () => string
-  /** Optional initial prompt (e.g. from openAgent(message)) */
-  initialPrompt?: string
-  /** Optional ref to sync into prompt when it changes (reactive prefill from openAgent(message)) */
+  /** Optional ref for reactive prefill (from openAgent(message)); initial value + watch for updates */
   prefilledMessageRef?: Ref<string>
 }): State {
-  const prompt = ref<State['prompt']['value']>(prefilledMessageRef?.value ?? initialPrompt ?? '')
+  const prompt = ref<State['prompt']['value']>(prefilledMessageRef?.value ?? '')
   const registryDocuments = ref<ApiMetadata[]>([])
   const curatedDocuments = ref<ApiMetadata[]>([])
   const proxyUrl = ref<State['proxyUrl']['value']>('https://proxy.scalar.com')

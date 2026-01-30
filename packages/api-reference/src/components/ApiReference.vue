@@ -49,6 +49,7 @@ import {
 
 import '@scalar/agent-chat/style.css'
 
+import { isLocalUrl } from '@scalar/helpers/url/is-local-url'
 import { useScrollLock } from '@vueuse/core'
 
 import ClassicHeader from '@/components/ClassicHeader.vue'
@@ -627,9 +628,16 @@ const documentUrl = computed(() => {
 // --------------------------------------------------------------------------- */
 // Agent Scalar
 
-const agent = useAgent({ configList, activeSlug })
-const { showAgent, agentEnabled, toggleAgent } = agent
+const agent = useAgent({
+  agentEnabled: computed(() => {
+    if (isLocalUrl(window.location.href)) {
+      return true
+    }
+    return Boolean(configList.value[activeSlug.value]?.agent)
+  }),
+})
 provide(AGENT_CONTEXT_SYMBOL, agent)
+const { showAgent, agentEnabled, toggleAgent } = agent
 
 // --------------------------------------------------------------------------- */
 // Api Client Modal

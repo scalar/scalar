@@ -9,13 +9,13 @@ const agentContext = useAgentContext()
 const message = ref('')
 
 function handleSubmit() {
-  agentContext?.openAgent(message.value)
+  agentContext.value?.openAgent(message.value)
   message.value = ''
 }
 </script>
 <template>
   <div
-    v-if="agentContext?.agentEnabled"
+    v-if="agentContext?.agentEnabled.value"
     class="agent-button-container flex">
     <ScalarIconSparkle
       class="size-3 shrink-0"

@@ -2,15 +2,9 @@ import { isLocalUrl } from '@scalar/helpers/url/is-local-url'
 import type { ComputedRef, Ref } from 'vue'
 import { type InjectionKey, computed, inject, ref } from 'vue'
 
-/**
- * Config list shape needed to determine if the agent is enabled for the active document.
- * Compatible with NormalizedConfigurations from normalize-configurations.
- */
-export type AgentConfigList = Record<string, { agent?: unknown }>
-
 export type UseAgentOptions = {
-  configList: Ref<AgentConfigList> | ComputedRef<AgentConfigList>
-  activeSlug: Ref<string>
+  /** Optional. When provided, controls whether the agent UI is enabled (e.g. from doc config). Defaults to isLocalUrl. */
+  agentEnabled?: ComputedRef<boolean>
 }
 
 export type UseAgentReturn = {
@@ -23,25 +17,28 @@ export type UseAgentReturn = {
   toggleAgent: () => void
 }
 
+export const AGENT_CONTEXT_SYMBOL = Symbol() as InjectionKey<UseAgentReturn>
+
+/**
+ * Module-level ref so useAgentContext() can resolve context even when inject fails
+ * (e.g. async component boundary or mount order). Set when ApiReference calls useAgent().
+ */
+const agentStateRef: Ref<UseAgentReturn | null> = ref(null)
+
 /**
  * Hook for agent visibility and enabled state.
- * Use in the API Reference root to control the agent panel and allow child components to open it.
+ * Call from the API Reference root (e.g. ApiReference.vue) with options to create the state, then provide it so descendants can inject it.
  *
  * Returns:
  * - showAgent: whether the agent panel is visible
- * - agentEnabled: whether the agent is enabled (local URL or config.agent for active document)
+ * - agentEnabled: whether the agent is enabled
  * - openAgent, closeAgent, toggleAgent: imperative controls
  */
 export function useAgent(options: UseAgentOptions): UseAgentReturn {
   const showAgent = ref(false)
   const prefilledMessage = ref('')
 
-  const agentEnabled = computed(() => {
-    if (isLocalUrl(window.location.href)) {
-      return true
-    }
-    return Boolean(options.configList.value[options.activeSlug.value]?.agent)
-  })
+  const agentEnabled = options.agentEnabled ?? computed(() => isLocalUrl(window.location.href))
 
   const openAgent = (message?: string) => {
     prefilledMessage.value = message ?? ''
@@ -60,7 +57,7 @@ export function useAgent(options: UseAgentOptions): UseAgentReturn {
     }
   }
 
-  return {
+  const state: UseAgentReturn = {
     showAgent,
     agentEnabled,
     prefilledMessage,
@@ -68,16 +65,18 @@ export function useAgent(options: UseAgentOptions): UseAgentReturn {
     closeAgent,
     toggleAgent,
   }
+  agentStateRef.value = state
+  return state
 }
-
-export const AGENT_CONTEXT_SYMBOL = Symbol() as InjectionKey<UseAgentReturn>
 
 /**
  * Inject the agent context provided by ApiReference.
- * Use in child components (e.g. AskAgentButton) to open the agent or check if it is enabled.
+ * Falls back to module-level state when inject is undefined (e.g. async boundary or mount order).
+ * Use in descendant components (e.g. AskAgentButton) to open the agent or check if it is enabled.
  *
- * Returns undefined when used outside an ApiReference that provides the agent context.
+ * Returns a computed ref; use v-if="agentContext?.agentEnabled" so the button only renders when context exists and agent is enabled.
  */
-export function useAgentContext(): UseAgentReturn | undefined {
-  return inject(AGENT_CONTEXT_SYMBOL)
+export function useAgentContext(): ComputedRef<UseAgentReturn | undefined> {
+  const injected = inject(AGENT_CONTEXT_SYMBOL)
+  return computed((): UseAgentReturn | undefined => injected ?? agentStateRef.value ?? undefined)
 }
