@@ -1,7 +1,8 @@
 import { useModal } from '@scalar/components'
 import { describe, expect, it, vi } from 'vitest'
-import { nextTick } from 'vue'
+import { nextTick, ref } from 'vue'
 
+import type { CommandPaletteAction, CommandPaletteRoute } from './use-command-palette-state'
 import { useCommandPaletteState } from './use-command-palette-state'
 
 vi.mock('@scalar/components', () => ({
@@ -314,5 +315,223 @@ describe('useCommandPaletteState', () => {
     const secondProps = { inputValue: 'curl https://second.com' }
     state.open('import-curl-command', secondProps)
     expect(state.activeCommandProps.value).toEqual(secondProps)
+  })
+
+  it('reacts to changes in reactive actions array', async () => {
+    const mockModalState = createMockModalState()
+    vi.mocked(useModal).mockReturnValue(mockModalState)
+
+    const reactiveActions = ref<CommandPaletteAction[]>([
+      {
+        id: 'test-action-1',
+        name: 'Test Action 1',
+        component: {} as any,
+      },
+    ])
+
+    const state = useCommandPaletteState(reactiveActions)
+
+    await nextTick()
+
+    /** Initially should have 1 action */
+    expect(state.filteredCommands.value[0]?.commands).toHaveLength(1)
+    expect(state.filteredCommands.value[0]?.commands[0]?.name).toBe('Test Action 1')
+
+    /** Add a new action */
+    reactiveActions.value.push({
+      id: 'test-action-2',
+      name: 'Test Action 2',
+      component: {} as any,
+    })
+
+    await nextTick()
+
+    /** Should now have 2 actions */
+    expect(state.filteredCommands.value[0]?.commands).toHaveLength(2)
+    expect(state.filteredCommands.value[0]?.commands[1]?.name).toBe('Test Action 2')
+  })
+
+  it('reacts to changes in reactive routes array', async () => {
+    const mockModalState = createMockModalState()
+    vi.mocked(useModal).mockReturnValue(mockModalState)
+
+    const reactiveRoutes = ref<CommandPaletteRoute[]>([
+      {
+        type: 'route',
+        id: 'test-route-1',
+        name: 'Test Route 1',
+        icon: {} as any,
+        to: { name: 'test' },
+      },
+    ])
+
+    const state = useCommandPaletteState([], reactiveRoutes)
+
+    await nextTick()
+
+    /** Initially should have 1 route in Pages group */
+    expect(state.filteredCommands.value[1]?.commands).toHaveLength(1)
+    expect(state.filteredCommands.value[1]?.commands[0]?.name).toBe('Test Route 1')
+
+    /** Add a new route */
+    reactiveRoutes.value.push({
+      type: 'route',
+      id: 'test-route-2',
+      name: 'Test Route 2',
+      icon: {} as any,
+      to: { name: 'test2' },
+    })
+
+    await nextTick()
+
+    /** Should now have 2 routes */
+    expect(state.filteredCommands.value[1]?.commands).toHaveLength(2)
+    expect(state.filteredCommands.value[1]?.commands[1]?.name).toBe('Test Route 2')
+  })
+
+  it('reacts to filtering changes on reactive actions', async () => {
+    const mockModalState = createMockModalState()
+    vi.mocked(useModal).mockReturnValue(mockModalState)
+
+    const reactiveActions = ref<CommandPaletteAction[]>([
+      {
+        id: 'import-action',
+        name: 'Import Data',
+        component: {} as any,
+      },
+      {
+        id: 'export-action',
+        name: 'Export Data',
+        component: {} as any,
+      },
+    ])
+
+    const state = useCommandPaletteState(reactiveActions)
+
+    /** Filter for import */
+    state.setFilterQuery('import')
+    await nextTick()
+
+    expect(state.filteredCommands.value[0]?.commands).toHaveLength(1)
+    expect(state.filteredCommands.value[0]?.commands[0]?.name).toBe('Import Data')
+
+    /** Add a new action that matches the filter */
+    reactiveActions.value.push({
+      id: 'import-settings',
+      name: 'Import Settings',
+      component: {} as any,
+    })
+
+    await nextTick()
+
+    /** Should now show both matching actions */
+    expect(state.filteredCommands.value[0]?.commands).toHaveLength(2)
+    expect(state.filteredCommands.value[0]?.commands[0]?.name).toBe('Import Data')
+    expect(state.filteredCommands.value[0]?.commands[1]?.name).toBe('Import Settings')
+  })
+
+  it('reacts when removing items from reactive actions', async () => {
+    const mockModalState = createMockModalState()
+    vi.mocked(useModal).mockReturnValue(mockModalState)
+
+    const reactiveActions = ref<CommandPaletteAction[]>([
+      {
+        id: 'action-1',
+        name: 'Action 1',
+        component: {} as any,
+      },
+      {
+        id: 'action-2',
+        name: 'Action 2',
+        component: {} as any,
+      },
+      {
+        id: 'action-3',
+        name: 'Action 3',
+        component: {} as any,
+      },
+    ])
+
+    const state = useCommandPaletteState(reactiveActions)
+
+    await nextTick()
+
+    expect(state.filteredCommands.value[0]?.commands).toHaveLength(3)
+
+    /** Remove an action */
+    reactiveActions.value = reactiveActions.value.filter((a) => a.id !== 'action-2')
+
+    await nextTick()
+
+    expect(state.filteredCommands.value[0]?.commands).toHaveLength(2)
+    expect(state.filteredCommands.value[0]?.commands.some((a) => a.id === 'action-2')).toBe(false)
+  })
+
+  it('handles reactive actions with hidden property changes', async () => {
+    const mockModalState = createMockModalState()
+    vi.mocked(useModal).mockReturnValue(mockModalState)
+
+    const reactiveActions = ref<CommandPaletteAction[]>([
+      {
+        id: 'visible-action',
+        name: 'Visible Action',
+        component: {} as any,
+        hidden: false,
+      },
+      {
+        id: 'hidden-action',
+        name: 'Hidden Action',
+        component: {} as any,
+        hidden: true,
+      },
+    ])
+
+    const state = useCommandPaletteState(reactiveActions)
+
+    await nextTick()
+
+    /** Hidden actions are filtered out */
+    expect(state.filteredCommands.value[0]?.commands).toHaveLength(1)
+    expect(state.filteredCommands.value[0]?.commands[0]?.id).toBe('visible-action')
+
+    /** Change hidden action to visible */
+    reactiveActions.value = reactiveActions.value.map((a) => (a.id === 'hidden-action' ? { ...a, hidden: false } : a))
+
+    await nextTick()
+
+    /** Both actions should now be visible */
+    expect(state.filteredCommands.value[0]?.commands).toHaveLength(2)
+  })
+
+  it('can open commands from reactively added actions', async () => {
+    const mockModalState = createMockModalState()
+    vi.mocked(useModal).mockReturnValue(mockModalState)
+
+    const reactiveActions = ref<CommandPaletteAction[]>([
+      {
+        id: 'initial-action',
+        name: 'Initial Action',
+        component: {} as any,
+      },
+    ])
+
+    const state = useCommandPaletteState(reactiveActions)
+
+    await nextTick()
+
+    /** Add a new action */
+    reactiveActions.value.push({
+      id: 'new-action',
+      name: 'New Action',
+      component: {} as any,
+    })
+
+    await nextTick()
+
+    /** Should be able to open the newly added action */
+    state.open('new-action' as any, undefined)
+
+    expect(state.activeCommand.value?.id).toBe('new-action')
+    expect(mockModalState.show).toHaveBeenCalled()
   })
 })
