@@ -73,12 +73,12 @@ export const createSidebarState = <T extends { id: string }>(
   options?: SidebarStateOptions,
 ) => {
   // Reverse index for quick lookup of items and their parents
-  const index = computed(() => {
-    return generateReverseIndex({
+  const index = computed(() =>
+    generateReverseIndex({
       items: toValue(items),
       nestedKey: options?.key ?? 'children',
-    })
-  })
+    }),
+  )
   // Reactive record of selected item ids
   const selectedItems = ref<Record<string, boolean>>({})
   // Reactive record of expanded item ids
