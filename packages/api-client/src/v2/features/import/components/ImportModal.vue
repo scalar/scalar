@@ -78,15 +78,11 @@ const isLoadingDocument = computed(() => state.value === 'loading')
  * Manages body classes for modal state.
  * These classes are used to apply layout animations when the modal opens/closes.
  */
-const updateBodyClasses = (isModalOpen: boolean): void => {
-  const { classList } = document.body
-
-  classList.remove('has-no-import-url', 'has-import-url')
-
-  if (isModalOpen) {
-    classList.add('has-import-url')
+const updateBodyClasses = (add: boolean): void => {
+  if (add && modalState.open) {
+    document.body.classList.add('has-import-url')
   } else {
-    classList.add('has-no-import-url')
+    document.body.classList.remove('has-import-url')
   }
 }
 
@@ -100,6 +96,10 @@ const handleModalStateChange = async (isOpen: boolean): Promise<void> => {
     updateBodyClasses(false)
   }
 
+  // Add the class to the body
+  updateBodyClasses(true)
+
+  // Set the state to loading
   state.value = 'loading'
 
   const success = await loadDocumentFromSource(
@@ -109,13 +109,14 @@ const handleModalStateChange = async (isOpen: boolean): Promise<void> => {
     watchMode.value,
   )
 
+  // If the document failed to load, set the state to error
   if (!success) {
     state.value = 'error'
     return
   }
 
+  // Set the state to success
   state.value = 'success'
-  updateBodyClasses(true)
   return
 }
 
@@ -257,17 +258,12 @@ onUnmounted(() => updateBodyClasses(false))
 @reference "@/style.css";
 
 @variant md {
-  .has-no-import-url,
   .has-import-url {
     max-width: 100dvw;
     overflow-x: hidden;
     contain: paint;
   }
-  .has-no-import-url .scalar-client > main {
-    opacity: 1;
-    background: var(--scalar-background-1);
-    animation: transform-restore-layout ease-in-out 0.3s forwards;
-  }
+
   .has-import-url .scalar-client > main {
     opacity: 0;
     transform: scale(0.85) translate3d(calc(50dvw + 80px), 0, 0);
@@ -280,7 +276,6 @@ onUnmounted(() => updateBodyClasses(false))
   .has-import-url .scalar-client nav {
     display: none;
   }
-  .has-no-import-url .scalar-app,
   .has-import-url .scalar-app {
     background: var(--scalar-background-1) !important;
   }

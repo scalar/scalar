@@ -1,14 +1,17 @@
 <script lang="ts" setup>
 import { useModal, type ScalarListboxOption } from '@scalar/components'
 import { useToasts } from '@scalar/use-toasts'
-import type { WorkspaceStore } from '@scalar/workspace-store/client'
+import {
+  createWorkspaceStore,
+  type WorkspaceStore,
+} from '@scalar/workspace-store/client'
 import type { InMemoryWorkspace } from '@scalar/workspace-store/schemas/inmemory-workspace'
 import { onMounted, ref } from 'vue'
 
-import { generateUniqueSlug } from '@/v2/features/import/helpers/generate-unique-slug'
 import { getUrlQueryParameter } from '@/v2/features/import/helpers/get-url-query-parameter'
 import { importDocumentToWorkspace } from '@/v2/features/import/helpers/import-document-to-workspace'
 import { loadDocumentFromSource } from '@/v2/features/import/helpers/load-document-from-source'
+import { waitForCondition } from '@/v2/features/import/helpers/wait-for-condition'
 
 import DropEventListener from './components/DropEventListener.vue'
 import ImportModal from './components/ImportModal.vue'
@@ -63,25 +66,30 @@ const handleImportError = (errorMessage: string): void => {
  * Directly imports a document into the workspace without showing the modal.
  * This is used when there is only one workspace and it is empty.
  */
-const directImport = async (
-  newSource: string,
-  workspaceDocuments: Set<string>,
-): Promise<void> => {
+const directImport = async (newSource: string): Promise<void> => {
+  toast('Importing document to the workspace...', 'info')
+
   if (!workspaceStore) {
     handleImportError('Workspace store is not available')
     return
   }
 
-  const slug = await generateUniqueSlug(newSource, workspaceDocuments)
+  // First load the document into a draft store
+  // This is to get the title of the document so we can generate a unique slug for store
+  const draftStore = createWorkspaceStore()
+  const success = await loadDocumentFromSource(
+    draftStore,
+    newSource,
+    'drafts',
+    false,
+  )
 
-  if (!slug) {
-    handleImportError(
-      'Failed to generate a unique slug for the imported document',
-    )
+  if (!success) {
+    handleImportError('Failed to import document')
     return
   }
 
-  await loadDocumentFromSource(workspaceStore, newSource, slug, false)
+  await handleImportDocument(draftStore.exportWorkspace(), 'drafts')
 }
 
 /**
@@ -89,22 +97,24 @@ const directImport = async (
  * If conditions allow, directly imports the document. Otherwise, shows the import modal.
  */
 const handleInput = async (newSource: string): Promise<void> => {
+  // Wait for the workspace store to be ready
+  await waitForCondition(() => workspaceStore !== null)
+
   const workspaceDocuments = new Set(
     Object.keys(workspaceStore?.workspace.documents ?? {}),
   )
   const isWorkspaceEmpty = () => {
     const documents = workspaceDocuments
     const hasNoDocs = documents.size === 0
-    const hasOnlyDraft = documents.size === 1 && documents.has('draft')
+    const hasOnlyDraft = documents.size === 1 && documents.has('drafts')
 
     return hasNoDocs || hasOnlyDraft
   }
 
-  const shouldDirectImport =
-    workspaces.length === 1 && workspaceStore !== null && isWorkspaceEmpty()
+  const shouldDirectImport = workspaces.length === 1 && isWorkspaceEmpty()
 
   if (shouldDirectImport) {
-    await directImport(newSource, workspaceDocuments)
+    await directImport(newSource)
     return
   }
 
