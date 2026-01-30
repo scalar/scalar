@@ -2,12 +2,12 @@ import { isLocalUrl } from '@scalar/helpers/url/is-local-url'
 import type { ComputedRef, Ref } from 'vue'
 import { type InjectionKey, computed, inject, ref } from 'vue'
 
-export type UseAgentOptions = {
+type UseAgentOptions = {
   /** Optional. When provided, controls whether the agent UI is enabled (e.g. from doc config). Defaults to isLocalUrl. */
   agentEnabled?: ComputedRef<boolean>
 }
 
-export type UseAgentReturn = {
+type UseAgentReturn = {
   showAgent: Ref<boolean>
   agentEnabled: ComputedRef<boolean>
   /** Ref used to pass a prefill message into the agent when opening. Cleared on close. */
