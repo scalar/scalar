@@ -7,6 +7,7 @@ import {
   useModal,
   type ScalarListboxOption,
 } from '@scalar/components'
+import { isMacOS } from '@scalar/helpers/general/is-mac-os'
 import {
   ScalarIconDotsThree,
   ScalarIconGlobe,
@@ -374,7 +375,20 @@ const handleAddEmptyFolder = (item: TraversedEntry) => {
               size="sm"
               variant="outlined"
               @click="eventBus.emit('ui:open:command-palette')">
-              Add Item
+              Add Item &nbsp;
+
+              <span
+                class="text-sidebar-c-2 rounded border px-1.25 py-1 text-xs leading-none font-medium uppercase">
+                <template v-if="isMacOS()">
+                  <span class="sr-only">Command</span>
+                  <span aria-hidden="true">⌘</span>
+                </template>
+                <template v-else>
+                  <span class="sr-only">CTRL</span>
+                  <span aria-hidden="true">⌃</span>
+                </template>
+                K
+              </span>
             </ScalarButton>
           </div>
         </div>
