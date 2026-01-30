@@ -1140,7 +1140,7 @@ jobs:
           path: ${{ env.NUGET_PACKAGES }}
 
       - name: Setup .NET
-        uses: fast-actions/setup-dotnet@db3799efeb074451b86d1f8d2ccb86070b2863db # v1
+        uses: fast-actions/setup-dotnet@e93bbf6e68255c6a085279c473bec0f02bda8cfb # v1
         with:
           sdk-version: 10.x.x
           aspnetcore-version: |
@@ -1201,7 +1201,7 @@ jobs:
           path: ${{ env.NUGET_PACKAGES }}
 
       - name: Setup .NET
-        uses: fast-actions/setup-dotnet@db3799efeb074451b86d1f8d2ccb86070b2863db # v1
+        uses: fast-actions/setup-dotnet@e93bbf6e68255c6a085279c473bec0f02bda8cfb # v1
         with:
           sdk-version: 10.x.x
 
@@ -1301,7 +1301,7 @@ jobs:
           path: ${{ env.NUGET_PACKAGES }}
 
       - name: Setup .NET
-        uses: fast-actions/setup-dotnet@db3799efeb074451b86d1f8d2ccb86070b2863db # v1
+        uses: fast-actions/setup-dotnet@e93bbf6e68255c6a085279c473bec0f02bda8cfb # v1
         with:
           sdk-version: 10.x.x
 
