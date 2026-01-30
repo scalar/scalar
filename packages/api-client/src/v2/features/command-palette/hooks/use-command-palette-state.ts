@@ -12,7 +12,17 @@ import {
 import type { ScalarIconComponent } from '@scalar/icons/types'
 import type { CommandPalettePayload } from '@scalar/workspace-store/events'
 import Fuse from 'fuse.js'
-import { type Component, type ComputedRef, type Ref, type ShallowRef, computed, ref, shallowRef } from 'vue'
+import {
+  type Component,
+  type ComputedRef,
+  type MaybeRefOrGetter,
+  type Ref,
+  type ShallowRef,
+  computed,
+  ref,
+  shallowRef,
+  toValue,
+} from 'vue'
 import type { RouteLocationRaw } from 'vue-router'
 
 import CommandPaletteDocument from '../components/CommandPaletteDocument.vue'
@@ -133,8 +143,8 @@ export type CommandPaletteState = {
  * palette.close()
  */
 export const useCommandPaletteState = (
-  actions: CommandPaletteAction[] = baseClientActions,
-  routes: CommandPaletteRoute[] = baseRoutes,
+  actions: MaybeRefOrGetter<CommandPaletteAction[]> = baseClientActions,
+  routes: MaybeRefOrGetter<CommandPaletteRoute[]> = baseRoutes,
 ): CommandPaletteState => {
   const modalState = useModal()
 
@@ -145,15 +155,21 @@ export const useCommandPaletteState = (
   /** Whether the command palette is currently open */
   const isOpen = computed<boolean>(() => modalState.open)
 
-  const fuseActions = new Fuse(actions, {
-    keys: ['name'],
-    threshold: 0.1,
-  })
+  const fuseActions = computed(
+    () =>
+      new Fuse(toValue(actions), {
+        keys: ['name'],
+        threshold: 0.1,
+      }),
+  )
 
-  const fuseRoutes = new Fuse(routes, {
-    keys: ['name'],
-    threshold: 0.1,
-  })
+  const fuseRoutes = computed(
+    () =>
+      new Fuse(toValue(routes), {
+        keys: ['name'],
+        threshold: 0.1,
+      }),
+  )
 
   /**
    * Filtered commands based on the current search query.
@@ -164,14 +180,17 @@ export const useCommandPaletteState = (
   const filteredActions = computed<CommandPaletteAction[]>(() => {
     const query = filterQuery.value.toLowerCase().trim()
 
-    /** Filter commands by name when query exists, always exclude hidden folders */
-    return (query ? fuseActions.search(query).map((a) => a.item) : actions).filter((a) => !a.hidden)
+    // Filter commands by name when query exists
+    const base = query ? fuseActions.value.search(query).map((a) => a.item) : toValue(actions)
+
+    // Always exclude hidden folders
+    return base.filter((a) => !a.hidden)
   })
 
   const filteredRoutes = computed<CommandPaletteRoute[]>(() => {
     const query = filterQuery.value.toLowerCase().trim()
 
-    return query ? fuseRoutes.search(query).map((a) => a.item) : routes
+    return query ? fuseRoutes.value.search(query).map((a) => a.item) : toValue(routes)
   })
 
   /**
@@ -181,7 +200,7 @@ export const useCommandPaletteState = (
    */
   const open: OpenCommand = (commandId?: UiCommandIds, ...args: unknown[]): void => {
     if (commandId) {
-      activeCommand.value = actions.find((a) => a.id === commandId) ?? null
+      activeCommand.value = toValue(actions).find((a) => a.id === commandId) ?? null
       activeCommandProps.value = (args[0] as Record<string, unknown>) ?? null
     }
     modalState.show()
