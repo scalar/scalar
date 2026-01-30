@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { ScalarIconSparkle } from '@scalar/icons'
 
-const showAgenScalar = defineModel<boolean>({ default: false })
+const showAgentScalar = defineModel<boolean>({ default: false })
 
-const handleClick = () => (showAgenScalar.value = !showAgenScalar.value)
+const handleClick = () => (showAgentScalar.value = !showAgentScalar.value)
 </script>
 
 <template>

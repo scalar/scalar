@@ -46,7 +46,7 @@ To disable Agent Scalar entirely (including on localhost):
 ```js
 Scalar.createApiReference('#app', {
   agent: {
-    enabled: false,
+    disabled: true,
   },
 })
 ```
@@ -90,7 +90,7 @@ Disable globally across all sources:
 ```js
 Scalar.createApiReference('#app', {
   agent: {
-    enabled: false,
+    disabled: true,
   },
   sources: [
     { url: '/api/v1/openapi.json' },
