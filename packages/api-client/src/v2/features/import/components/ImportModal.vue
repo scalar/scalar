@@ -11,7 +11,6 @@ import type { InMemoryWorkspace } from '@scalar/workspace-store/schemas/inmemory
 import { computed, onUnmounted, ref, watch } from 'vue'
 
 import WatchModeToggle from '@/components/CommandPalette/WatchModeToggle.vue'
-import PrefetchError from '@/components/ImportCollection/PrefetchError.vue'
 import WorkspaceSelector from '@/v2/features/import/components/WorkspaceSelector.vue'
 import { loadDocumentFromSource } from '@/v2/features/import/helpers/load-document-from-source'
 import { isUrl } from '@/v2/helpers/is-url'
@@ -161,7 +160,23 @@ onUnmounted(() => updateBodyClasses(false))
           <div class="text-md mb-2 line-clamp-1 text-center font-bold">
             No OpenAPI document found
           </div>
-          <PrefetchError :url="source" />
+          <div
+            v-if="source && isUrl(source)"
+            class="w-full text-center text-sm font-medium break-words">
+            We couldn't find an OpenAPI document at the provided URL. Please
+            download and import the
+            <a
+              :href="source"
+              rel="noopener nofollow"
+              target="_blank"
+              v-text="'OpenAPI document manually'" />
+          </div>
+          <div
+            v-else
+            class="w-full text-center text-sm font-medium break-words">
+            We can't import this document because it's not a valid OpenAPI
+            document.
+          </div>
         </template>
 
         <!-- Success State -->
