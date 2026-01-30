@@ -50,6 +50,7 @@ import {
   AgentScalarDrawer,
   AgentScalarTooltip,
 } from '@/components/AgentScalar'
+import { AGENT_CONTEXT_SYMBOL, useAgent } from '@/hooks/use-agent'
 
 import '@scalar/agent-chat/style.css'
 
@@ -631,8 +632,6 @@ const documentUrl = computed(() => {
 // --------------------------------------------------------------------------- */
 // Agent Scalar
 
-const showAgentScalarDrawer = ref(false)
-
 /**
  * Determines if Agent Scalar should be enabled based on the configuration and the current URL
  *
@@ -640,19 +639,22 @@ const showAgentScalarDrawer = ref(false)
  * - If the current URL is a local URL, it should be enabled
  * - If the agent key is set, it should be enabled
  */
-const agentScalarEnabled = computed(() => {
-  const currentConfiguration = configList.value[activeSlug.value]
+const agent = useAgent({
+  agentEnabled: computed(() => {
+    const currentConfiguration = configList.value[activeSlug.value]
 
-  if (currentConfiguration?.agent?.disabled) {
-    return false
-  }
+    if (currentConfiguration?.agent?.disabled) {
+      return false
+    }
 
-  if (typeof window !== 'undefined' && isLocalUrl(window.location.href)) {
-    return true
-  }
+    if (typeof window !== 'undefined' && isLocalUrl(window.location.href)) {
+      return true
+    }
 
-  return Boolean(configList.value[activeSlug.value]?.agent?.key)
+    return Boolean(configList.value[activeSlug.value]?.agent?.key)
+  }),
 })
+provide(AGENT_CONTEXT_SYMBOL, agent)
 
 // --------------------------------------------------------------------------- */
 // Api Client Modal
@@ -828,10 +830,7 @@ const colorMode = computed(() => {
 
 const bodyScrollLocked = useScrollLock(document.body)
 
-watch(
-  showAgentScalarDrawer,
-  () => (bodyScrollLocked.value = showAgentScalarDrawer.value),
-)
+watch(agent.showAgent, () => (bodyScrollLocked.value = agent.showAgent.value))
 </script>
 
 <template>
@@ -858,8 +857,7 @@ watch(
       ]">
       <!-- Agent Scalar -->
       <AgentScalarDrawer
-        v-if="agentScalarEnabled"
-        v-model="showAgentScalarDrawer"
+        v-if="agent.agentEnabled"
         :agentScalarConfiguration="configList[activeSlug]?.agent"
         :eventBus
         :workspaceStore />
@@ -915,9 +913,9 @@ watch(
                   :searchHotKey="mergedConfig.searchHotKey" />
 
                 <AgentScalarTooltip
-                  v-if="agentScalarEnabled"
+                  v-if="agent.agentEnabled"
                   :agentScalarConfiguration="configList[activeSlug]?.agent">
-                  <AgentScalarButton v-model="showAgentScalarDrawer" />
+                  <AgentScalarButton />
                 </AgentScalarTooltip>
               </div>
               <!-- Sidebar Start -->
