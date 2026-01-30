@@ -135,7 +135,9 @@ describe('Modal', () => {
      * The modal should be visible when modalState.open is true.
      * This is critical for the modal to function as expected.
      */
-    const modalContainer = wrapper.find('.scalar-app-layout')
+    const scalarApp = wrapper.find('.scalar')
+    expect(scalarApp.classes()).toContain('is-modal-open')
+    const modalContainer = scalarApp.find('.scalar-app-layout')
     expect(modalContainer.exists()).toBe(true)
     expect(modalContainer.attributes('role')).toBe('dialog')
     expect(modalContainer.attributes('aria-modal')).toBe('true')
@@ -152,10 +154,10 @@ describe('Modal', () => {
 
     /**
      * The modal should be hidden when modalState.open is false.
-     * Uses v-show so the element exists but is not visible.
+     * Uses 'is-modal-open' to control element visibility.
      */
     const scalarApp = wrapper.find('.scalar')
-    expect(scalarApp.attributes('style')).toContain('display: none')
+    expect(scalarApp.classes()).not.toContain('is-modal-open')
 
     wrapper.unmount()
   })
