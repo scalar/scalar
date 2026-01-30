@@ -5,8 +5,8 @@ import type { WorkspaceStore } from '@scalar/workspace-store/client'
 
 import { API_BASE_URL, DASHBOARD_URL, REGISTRY_URL } from '@/consts/urls'
 
-const { agentConfig, workspaceStore } = defineProps<{
-  agentConfig: ApiReferenceConfigurationWithSource['agent']
+const { agentScalarConfiguration, workspaceStore } = defineProps<{
+  agentScalarConfiguration: ApiReferenceConfigurationWithSource['agent']
   workspaceStore: WorkspaceStore
 }>()
 </script>
@@ -16,8 +16,12 @@ const { agentConfig, workspaceStore } = defineProps<{
     :baseUrl="API_BASE_URL"
     :dashboardUrl="DASHBOARD_URL"
     :getActiveDocumentJson="() => workspaceStore.exportActiveDocument('json')!"
-    :getAgentKey="agentConfig?.key ? () => agentConfig?.key : undefined"
-    :mode="agentConfig?.key ? 'full' : 'preview'"
+    :getAgentKey="
+      agentScalarConfiguration?.key
+        ? () => agentScalarConfiguration?.key
+        : undefined
+    "
+    :mode="agentScalarConfiguration?.key ? 'full' : 'preview'"
     :registryDocuments="[]"
     :registryUrl="REGISTRY_URL" />
 </template>
