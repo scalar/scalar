@@ -6,7 +6,10 @@ import AgentScalarDrawer from './AgentScalarDrawer.vue'
 /** Creates mock props required by the component. */
 function createMockProps() {
   return {
-    agentScalarConfiguration: { key: 'test-key' },
+    agentScalarConfiguration: {
+      enabled: true,
+      key: 'test-key',
+    },
     workspaceStore: {} as any,
     eventBus: {
       emit: vi.fn(),
@@ -40,7 +43,6 @@ describe('AgentScalarDrawer', () => {
       props: {
         ...createMockProps(),
         modelValue: true,
-        'onUpdate:modelValue': (value: boolean) => wrapper.setProps({ modelValue: value }),
       },
       global: {
         stubs: {
