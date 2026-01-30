@@ -1,5 +1,6 @@
 import { mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
+import { nextTick } from 'vue'
 
 import AgentScalarDrawer from './AgentScalarDrawer.vue'
 
@@ -39,21 +40,31 @@ describe('AgentScalarDrawer', () => {
   })
 
   it('closes drawer when backdrop is clicked', async () => {
+    const onUpdateModelValue = vi.fn()
+
     const wrapper = mount(AgentScalarDrawer, {
       props: {
         ...createMockProps(),
         modelValue: true,
+        'onUpdate:modelValue': onUpdateModelValue,
       },
       global: {
         stubs: {
           AgentScalarChatInterface: true,
         },
       },
+      attachTo: document.body,
     })
 
     expect(wrapper.props('modelValue')).toBe(true)
 
-    await wrapper.find('.scalar-app-exit').trigger('click')
-    expect(wrapper.props('modelValue')).toBe(false)
+    const backdrop = wrapper.find('.scalar-app-exit')
+    expect(backdrop.isVisible()).toBe(true)
+
+    await backdrop.trigger('click')
+    await nextTick()
+    expect(onUpdateModelValue).toHaveBeenCalledWith(false)
+
+    wrapper.unmount()
   })
 })
