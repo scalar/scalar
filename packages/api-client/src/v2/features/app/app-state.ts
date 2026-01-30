@@ -108,7 +108,7 @@ const environment = computed<XScalarEnvironment>(() => getActiveEnvironment(stor
 const { workspace: persistence } = await createWorkspaceStorePersistence()
 
 /** Generates a workspace ID from namespace and slug. */
-const getWorkspaceId = (namespace: string, slug: string) => `${namespace}-${slug}`
+const getWorkspaceId = (namespace: string, slug: string) => `${namespace}/${slug}`
 
 /** Update the workspace list when the component is mounted */
 workspaces.value = await persistence.getAll().then((w) =>
@@ -249,7 +249,7 @@ const createWorkspace = async ({
   // Generate a unique slug/id for the workspace, based on the name.
   const newWorkspaceSlug = await generateUniqueValue({
     defaultValue: key?.slug ?? name, // Use the provided id if it exists, otherwise use the name
-    validation: async (value) => !(await persistence.has({ namespace: key?.namespace ?? 'LOCAL', slug: value })),
+    validation: async (value) => !(await persistence.has({ namespace: key?.namespace ?? 'local', slug: value })),
     maxRetries: 100,
     transformation: slugify,
   })
