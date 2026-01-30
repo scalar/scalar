@@ -8,7 +8,6 @@ import AgentScalarDrawer from './AgentScalarDrawer.vue'
 function createMockProps() {
   return {
     agentScalarConfiguration: {
-      enabled: true,
       key: 'test-key',
     },
     workspaceStore: {} as any,

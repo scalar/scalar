@@ -242,7 +242,7 @@ To disable Agent Scalar:
 Scalar.createApiReference('#app', {
   // Disable Agent Scalar entirely
   agent: {
-    enabled: false,
+    disabled: true,
   },
 })
 ```

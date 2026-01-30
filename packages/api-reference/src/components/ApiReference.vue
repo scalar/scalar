@@ -643,7 +643,7 @@ const showAgentScalarDrawer = ref(false)
 const agentScalarEnabled = computed(() => {
   const currentConfiguration = configList.value[activeSlug.value]
 
-  if (currentConfiguration?.agent?.enabled === false) {
+  if (currentConfiguration?.agent?.disabled) {
     return false
   }
 
