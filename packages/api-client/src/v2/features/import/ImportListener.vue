@@ -4,7 +4,7 @@ import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { generateUniqueValue } from '@scalar/workspace-store/helpers/generate-unique-value'
 import type { WorkspaceDocument } from '@scalar/workspace-store/schemas'
 import type { InMemoryWorkspace } from '@scalar/workspace-store/schemas/inmemory-workspace'
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 
 import { slugify } from '@/v2/helpers/slugify'
 
@@ -102,6 +102,19 @@ const handleImportDocument = async (
   // Close the modal
   modalState.hide()
 }
+
+const checkUrlQueryParameters = () => {
+  const queryParameters = new URLSearchParams(window.location.search)
+
+  const urlQueryParameter = queryParameters.get('url')
+
+  if (urlQueryParameter) {
+    handleInput(urlQueryParameter)
+  }
+}
+
+// Check URL query parameters for 'url' and 'integration' values
+onMounted(checkUrlQueryParameters)
 </script>
 
 <template>
