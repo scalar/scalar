@@ -13,7 +13,6 @@ import {
   ScalarSidebarFooter,
 } from '@scalar/components'
 import { redirectToProxy } from '@scalar/helpers/url/redirect-to-proxy'
-import { ScalarIconSparkle, ScalarIconX } from '@scalar/icons'
 import { createSidebarState, ScalarSidebar } from '@scalar/sidebar'
 import { getThemeStyles, hasObtrusiveScrollbars } from '@scalar/themes'
 import {
@@ -35,7 +34,6 @@ import type {
 import diff from 'microdiff'
 import {
   computed,
-  defineAsyncComponent,
   onBeforeMount,
   onBeforeUnmount,
   onMounted,
@@ -46,6 +44,12 @@ import {
   useTemplateRef,
   watch,
 } from 'vue'
+
+import {
+  AgentScalarButton,
+  AgentScalarDrawer,
+  AgentScalarTooltip,
+} from '@/components/AgentScalar'
 
 import '@scalar/agent-chat/style.css'
 
@@ -627,15 +631,27 @@ const documentUrl = computed(() => {
 // --------------------------------------------------------------------------- */
 // Agent Scalar
 
-// Setup the ApiClient on mount
-const showAgent = ref(false)
+const showAgentScalarDrawer = ref(false)
 
-const agentEnabled = computed(() => {
-  if (isLocalUrl(window.location.href)) {
+/**
+ * Determines if Agent Scalar should be enabled based on the configuration and the current URL
+ *
+ * - If the agent is disabled in the configuration, it should not be enabled
+ * - If the current URL is a local URL, it should be enabled
+ * - If the agent key is set, it should be enabled
+ */
+const agentScalarEnabled = computed(() => {
+  const currentConfiguration = configList.value[activeSlug.value]
+
+  if (currentConfiguration?.agent?.enabled === false) {
+    return false
+  }
+
+  if (typeof window !== 'undefined' && isLocalUrl(window.location.href)) {
     return true
   }
 
-  return Boolean(configList.value[activeSlug.value]?.agent)
+  return Boolean(configList.value[activeSlug.value]?.agent?.key)
 })
 
 // --------------------------------------------------------------------------- */
@@ -810,13 +826,12 @@ const colorMode = computed(() => {
   return mode
 })
 
-const AgentChat = defineAsyncComponent(async () => import('./AgentChat.vue'))
-
 const bodyScrollLocked = useScrollLock(document.body)
 
-watch(showAgent, () => {
-  bodyScrollLocked.value = showAgent.value
-})
+watch(
+  showAgentScalarDrawer,
+  () => (bodyScrollLocked.value = showAgentScalarDrawer.value),
+)
 </script>
 
 <template>
@@ -842,31 +857,13 @@ watch(showAgent, () => {
         $attrs.class,
       ]">
       <!-- Agent Scalar -->
-      <div
-        v-if="agentEnabled"
-        v-show="showAgent && agentEnabled"
-        class="scalar-app-exit"
-        :class="showAgent ? 'scalar-app-exit-animation' : ''"
-        @click="showAgent = false">
-        <button
-          class="app-exit-button zoomed:static zoomed:p-1 fixed top-2 right-2 rounded-full p-2"
-          type="button"
-          @click="eventBus.emit('ui:close:client-modal')">
-          <ScalarIconX weight="bold" />
-          <span class="sr-only">Close Client</span>
-        </button>
-      </div>
-      <div
-        v-if="agentEnabled"
-        v-show="showAgent && agentEnabled"
-        class="agent-scalar">
-        <div
-          class="agent-scalar-container custom-scroll custom-scroll-self-contain-overflow">
-          <AgentChat
-            :agentConfig="configList[activeSlug]?.agent"
-            :workspaceStore />
-        </div>
-      </div>
+      <AgentScalarDrawer
+        v-if="agentScalarEnabled"
+        v-model="showAgentScalarDrawer"
+        :agentScalarConfiguration="configList[activeSlug]?.agent"
+        :eventBus
+        :workspaceStore />
+
       <!-- Mobile Header and Sidebar when in modern layout -->
 
       <MobileHeader
@@ -916,14 +913,12 @@ watch(showAgent, () => {
                   :eventBus="eventBus"
                   :hideModels="mergedConfig.hideModels"
                   :searchHotKey="mergedConfig.searchHotKey" />
-                <button
-                  v-if="agentEnabled"
-                  class="bg-sidebar-b-search text-sidebar-c-2 hover:text-sidebar-c-1 flex items-center gap-1.5 rounded border px-2 text-base whitespace-nowrap"
-                  type="button"
-                  @click="showAgent = !showAgent">
-                  <ScalarIconSparkle />
-                  Ask AI
-                </button>
+
+                <AgentScalarTooltip
+                  v-if="agentScalarEnabled"
+                  :agentScalarConfiguration="configList[activeSlug]?.agent">
+                  <AgentScalarButton v-model="showAgentScalarDrawer" />
+                </AgentScalarTooltip>
               </div>
               <!-- Sidebar Start -->
               <slot
@@ -1210,106 +1205,5 @@ watch(showAgent, () => {
 .darklight-reference {
   width: 100%;
   margin-top: auto;
-}
-.ask-agent-scalar {
-  background: linear-gradient(
-    var(--scalar-background-1),
-    var(--scalar-background-2)
-  );
-}
-.dark-mode .ask-agent-scalar {
-  background: linear-gradient(
-    var(--scalar-background-2),
-    var(--scalar-background-1)
-  );
-}
-.agent-scalar {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: calc(100% - 50px);
-  height: 100dvh;
-  background: var(--scalar-background-1);
-  border-right: var(--scalar-border-width) solid var(--scalar-border-color);
-  transform: translate3d(
-    calc(-100% + var(--scalar-sidebar-width, 288px)),
-    0,
-    0
-  );
-  z-index: 2;
-  animation: 0.35s forwards scalaragentslidein;
-  box-shadow: var(--scalar-shadow-2);
-}
-.agent-scalar-container {
-  width: calc(100% - var(--scalar-sidebar-width, 288px));
-  height: 100%;
-  margin-left: auto;
-  overflow: auto;
-  padding: 0 24px;
-}
-.scalar-app-exit {
-  cursor: pointer;
-  z-index: 2;
-  width: 100vw;
-  height: 100vh;
-  transition: all 0.3s ease-in-out;
-  position: fixed;
-  top: 0;
-  left: 0;
-}
-@media (max-width: 1000px) {
-  .agent-scalar-container {
-    width: 100%;
-  }
-  .agent-scalar {
-    width: 100%;
-    height: calc(100dvh - 50px);
-    bottom: 0;
-    top: initial;
-    border-radius: var(--scalar-radius-lg) var(--scalar-radius-lg) 0 0;
-    z-index: 12;
-  }
-  .scalar-app-exit {
-    z-index: 11;
-  }
-}
-.scalar-app-exit-animation:before {
-  content: '';
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  background: #00000038;
-  animation: 0.5s forwards scalardrawerexitfadein;
-  animation-timing-function: cubic-bezier(0.77, 0, 0.175, 1);
-}
-.dark-mode .scalar .scalar-app-exit-animation:before {
-  background: #00000073;
-}
-@keyframes scalaragentslidein {
-  from {
-    transform: translate3d(
-      calc(-100% + var(--scalar-sidebar-width, 288px)),
-      0,
-      0
-    );
-  }
-  to {
-    transform: translate3d(0, 0, 0);
-  }
-}
-@keyframes scalardrawerexitfadein {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-.app-exit-button {
-  color: white;
-  background: rgba(0, 0, 0, 0.1);
-}
-.app-exit-button:hover {
-  background: rgba(255, 255, 255, 0.1);
 }
 </style>

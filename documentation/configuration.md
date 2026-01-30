@@ -212,6 +212,41 @@ It is completely up to you whether you want to pass JSON or YAML. None of the di
 * YAML is easier to read for humans
 * YAML documents tend to be a little bit smaller
 
+## Agent Scalar
+
+Agent Scalar adds an AI chat interface to your API reference. Users can ask questions about your API and get contextual answers based on your OpenAPI document.
+
+- Enabled by default on `http://localhost` for testing (10 free messages)
+- Won’t appear in production unless a key is provided
+- Requires an [Agent Scalar key](guides/agent/key.md) for production deployments
+- Your OpenAPI document is uploaded on first message
+
+Related: [How to get an Agent Scalar key](guides/agent/key.md)
+
+```js
+Scalar.createApiReference('#app', {
+  sources: [
+    {
+      url: 'https://registry.scalar.com/@your-namespace/apis/your-api/latest?format=json',
+      agent: {
+        key: 'put-your-agent-scalar-key-here',
+      },
+    },
+  ],
+})
+```
+
+To disable Agent Scalar:
+
+```js
+Scalar.createApiReference('#app', {
+  // Disable Agent Scalar entirely
+  agent: {
+    enabled: false,
+  },
+})
+```
+
 ## Configuration Options
 
 ### Properties
