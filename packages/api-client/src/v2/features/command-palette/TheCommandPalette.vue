@@ -30,6 +30,7 @@ import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type {
   CommandPaletteAction,
   CommandPalettePayload,
+  KeyboardEventPayload,
   WorkspaceEventBus,
 } from '@scalar/workspace-store/events'
 import {
@@ -178,8 +179,15 @@ const paletteProps = computed(() => ({
   ...paletteState.activeCommandProps.value,
 }))
 
-const onOpen = (payload: CommandPaletteAction | undefined) => {
-  if (payload) {
+const onOpen = (
+  payload: CommandPaletteAction | KeyboardEventPayload | undefined,
+) => {
+  // We want to disable the default behaviour
+  if (payload?.event) {
+    payload.event.preventDefault()
+  }
+
+  if (payload && 'action' in payload) {
     paletteState.open(payload.action, payload.payload)
   } else {
     paletteState.open()

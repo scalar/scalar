@@ -57,7 +57,7 @@ export type CommandPaletteAction<K extends keyof CommandPalettePayload = keyof C
  * Used when we need to track the original keyboard event for things like
  * preventing default behavior or stopping propagation.
  */
-type KeyboardEventPayload = {
+export type KeyboardEventPayload = {
   /** The keyboard event that triggered this action */
   event: KeyboardEvent
 }
@@ -164,7 +164,7 @@ export type UIEvents = {
    * Can optionally pre-fill with a specific action to execute.
    * If undefined is passed, opens the palette without a pre-selected action.
    */
-  'ui:open:command-palette': CommandPaletteAction | undefined
+  'ui:open:command-palette': CommandPaletteAction | KeyboardEventPayload | undefined
 
   // ────────────────────────────────────────────────────────────
   // Navigation Item Events
