@@ -633,13 +633,19 @@ const documentUrl = computed(() => {
 
 const showAgentScalarDrawer = ref(false)
 
+/**
+ * Determines if Agent Scalar should be enabled based on the configuration and the current URL
+ *
+ * - If the agent is disabled in the configuration, it should not be enabled
+ * - If the current URL is a local URL, it should be enabled
+ * - If the agent key is set, it should be enabled
+ */
 const agentScalarEnabled = computed(() => {
-  // const currentConfiguration = configList.value[activeSlug.value]
-  // console.log('currentConfiguration', activeSlug.value)
+  const currentConfiguration = configList.value[activeSlug.value]
 
-  // if (currentConfiguration?.agent?.enabled === false) {
-  //   return false
-  // }
+  if (currentConfiguration?.agent?.enabled === false) {
+    return false
+  }
 
   if (typeof window !== 'undefined' && isLocalUrl(window.location.href)) {
     return true
