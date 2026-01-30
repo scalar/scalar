@@ -18,7 +18,7 @@ const { agentScalarConfiguration, workspaceStore } = defineProps<{
     :getActiveDocumentJson="() => workspaceStore.exportActiveDocument('json')!"
     :getAgentKey="
       agentScalarConfiguration?.key
-        ? () => agentScalarConfiguration?.key
+        ? () => agentScalarConfiguration?.key ?? ''
         : undefined
     "
     :mode="agentScalarConfiguration?.key ? 'full' : 'preview'"
