@@ -17,7 +17,8 @@ import { ROUTES } from './helpers/routes'
  * Tests focus on core functionality like theme generation, environment merging, and layout rendering
  */
 describe('App', () => {
-  const WORKSPACE_ID = 'default'
+  const WORKSPACE_NAMESPACE = 'local'
+  const WORKSPACE_SLUG = 'default'
   const DOCUMENT_ID = 'doc1'
 
   const setupWorkspace = async () => {
@@ -50,10 +51,13 @@ describe('App', () => {
     })
 
     const persistence = await createWorkspaceStorePersistence()
-    await persistence.workspace.setItem(WORKSPACE_ID, {
-      name: 'Default',
-      workspace: store.exportWorkspace(),
-    })
+    await persistence.workspace.setItem(
+      { namespace: WORKSPACE_NAMESPACE, slug: WORKSPACE_SLUG },
+      {
+        name: 'Default',
+        workspace: store.exportWorkspace(),
+      },
+    )
   }
 
   const setupApp = async (layout: 'web' | 'desktop' = 'web') => {
@@ -68,7 +72,7 @@ describe('App', () => {
 
     await router.push({
       name: 'document.overview',
-      params: { workspaceSlug: WORKSPACE_ID, documentSlug: DOCUMENT_ID },
+      params: { namespace: WORKSPACE_NAMESPACE, workspaceSlug: WORKSPACE_SLUG, documentSlug: DOCUMENT_ID },
     })
 
     await router.isReady()

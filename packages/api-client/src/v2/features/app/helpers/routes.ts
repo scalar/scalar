@@ -1,5 +1,5 @@
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
-import { mergeSearchParams } from '@scalar/oas-utils/helpers'
+import { mergeSearchParams } from '@scalar/helpers/url/merge-urls'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
@@ -51,15 +51,21 @@ export type CollectionProps = RouteProps &
       }
   )
 
-export type ScalarClientAppRouteParams = 'workspaceSlug' | 'documentSlug' | 'pathEncoded' | 'method' | 'exampleName'
+export type ScalarClientAppRouteParams =
+  | 'namespace'
+  | 'workspaceSlug'
+  | 'documentSlug'
+  | 'pathEncoded'
+  | 'method'
+  | 'exampleName'
 
 /** Routes for the API client app and web, the same as modal + workspace routes */
 export const ROUTES = [
   {
-    path: '/workspace/:workspaceSlug',
+    path: '/@:namespace/:workspaceSlug',
     children: [
       {
-        path: 'document/:documentSlug',
+        path: ':documentSlug',
         children: [
           // Example page
           {
@@ -152,7 +158,7 @@ export const ROUTES = [
   {
     path: '/:pathMatch(.*)*',
     redirect: () => {
-      const lastPath = workspaceStorage.getLastPath() ?? '/workspace/default/document/drafts/overview'
+      const lastPath = workspaceStorage.getLastPath() ?? '/@local/local/drafts/overview'
       const url = new URL(lastPath, 'http://example.com')
 
       const queryParameters = new URLSearchParams(window.location.search)
