@@ -92,7 +92,7 @@ const updateBodyClasses = (add: boolean): void => {
 const handleModalStateChange = async (isOpen: boolean): Promise<void> => {
   if (!isOpen) {
     state.value = 'idle'
-    updateBodyClasses(false)
+    return updateBodyClasses(false)
   }
 
   // Add the class to the body

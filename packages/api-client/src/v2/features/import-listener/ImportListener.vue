@@ -172,7 +172,7 @@ onMounted(() => {
     : getUrlQueryParameter('light_logo')
 
   if (urlQueryParameter) {
-    void handleInput(urlQueryParameter, logo ? decodeURIComponent(logo) : null)
+    void handleInput(urlQueryParameter, logo)
   }
 })
 </script>

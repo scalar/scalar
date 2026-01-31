@@ -38,8 +38,21 @@ export const loadDocumentFromSource = async (
     })
   }
 
+  const getNormalizedContent = (source: string) => {
+    try {
+      return normalize(source) as UnknownObject
+    } catch (error) {
+      console.error(error)
+      return null
+    }
+  }
+
   // For raw string sources (file content or pasted YAML/JSON), normalize before adding
-  const normalizedContent = normalize(source) as UnknownObject
+  const normalizedContent = getNormalizedContent(source)
+
+  if (normalizedContent === null) {
+    return false
+  }
 
   return await workspaceStore.addDocument({
     name,
