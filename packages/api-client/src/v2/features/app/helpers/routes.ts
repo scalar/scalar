@@ -158,7 +158,12 @@ export const ROUTES = [
   {
     path: '/:pathMatch(.*)*',
     redirect: () => {
-      const lastPath = workspaceStorage.getLastPath() ?? '/@local/local/drafts/overview'
+      const DEFAULT_PATH = '/@local/local/drafts/overview'
+      const lastPath = workspaceStorage.getLastPath() ?? DEFAULT_PATH
+
+      // Set the default path to the last path so we don't go to an inifite loop if the last path is invalid
+      workspaceStorage.setCurrentPath(DEFAULT_PATH)
+
       const url = new URL(lastPath, 'http://example.com')
 
       const queryParameters = new URLSearchParams(window.location.search)
