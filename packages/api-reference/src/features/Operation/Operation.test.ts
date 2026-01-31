@@ -74,6 +74,7 @@ const mountOperationWithConfig = (
     isWebhook: false,
     selectedClient: 'c/fetch',
     eventBus,
+    documentSlug: 'test-document',
   }
 
   return mount(Operation, {

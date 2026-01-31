@@ -32,6 +32,19 @@ const extractSecretFields = (input: Record<string, unknown>): Record<string, str
   }, {})
 }
 
+/**
+ * Extracts security scheme secrets from both config and document-level security schemes,
+ * and writes the mapped secret values into the authStore for each security scheme defined.
+ *
+ * This ensures that secret values (such as client secrets, tokens, usernames, passwords, etc.)
+ * are initialized in the AuthStore and uniquely mapped to x-scalar-secret extension keys,
+ * so that the UI and API client can securely handle secrets for each security scheme.
+ *
+ * - For "apiKey" schemes: sets an empty 'x-scalar-secret-token' and populates from config and any existing secrets.
+ * - For "http" schemes: sets empty values for password/username/token, then merges config and stored values.
+ * - For "oauth2" schemes: supports all flows (implicit, password, clientCredentials, authorizationCode),
+ *     merges config-provided and stored values, and initializes all relevant x-scalar-secret extension fields per flow.
+ */
 export const extractSecuritySchemeSecrets = ({
   documentSlug,
   authStore,
@@ -44,9 +57,10 @@ export const extractSecuritySchemeSecrets = ({
   documentSecuritySchemes?: Record<string, any>
 }) => {
   objectEntries(configSecuritySchemes ?? {}).forEach(([nameKey, scheme]) => {
-    /** Get the type from the document security scheme if not present in config */
+    // Prefer config scheme type, fallback to document security schemes if config omits it
     const schemeType = scheme.type ?? documentSecuritySchemes[nameKey]?.type
 
+    // Handle API Key security schemes
     if (schemeType === 'apiKey') {
       const secrets = getSecrets({ schemeName: nameKey, type: 'apiKey', authStore, documentSlug })
 
@@ -60,6 +74,7 @@ export const extractSecuritySchemeSecrets = ({
       authStore.setAuthSecrets(documentSlug, nameKey, newSecrets)
     }
 
+    // Handle HTTP Auth security schemes (e.g., Basic, Bearer)
     if (schemeType === 'http') {
       const secrets = getSecrets({ schemeName: nameKey, type: 'http', authStore, documentSlug })
 
@@ -75,11 +90,13 @@ export const extractSecuritySchemeSecrets = ({
       authStore.setAuthSecrets(documentSlug, nameKey, newSecrets)
     }
 
+    // Handle OAuth2 security schemes and all supported flows
     if (schemeType === 'oauth2') {
       const secrets = getSecrets({ schemeName: nameKey, type: 'oauth2', authStore, documentSlug })
 
       const flows = (scheme as any).flows ?? {}
 
+      // Merge values for each possible OAuth2 flow
       const implicit = flows.implicit
         ? {
             ...(secrets?.implicit ?? {}),
@@ -105,6 +122,7 @@ export const extractSecuritySchemeSecrets = ({
           }
         : undefined
 
+      // Initialize all required x-scalar-secret fields for each flow
       const newSecrets: SecretsOAuth = {
         type: 'oauth2',
         implicit: implicit

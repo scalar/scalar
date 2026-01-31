@@ -124,6 +124,7 @@ const makeMockProps = (entries: TraversedEntry[]): ComponentProps<typeof Travers
   document: mockDocument,
   clientOptions: [],
   authStore: createAuthStore({}),
+  documentSlug: 'test-document',
 })
 
 const createMockOperation = (overrides: Partial<TraversedOperation> = {}): TraversedOperation => ({

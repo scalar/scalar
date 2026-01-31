@@ -1313,7 +1313,14 @@ describe('oauth', () => {
           }),
       })
 
-      const [error, result] = await authorizeOauth2(flows, 'password', selectedScopes, relativeServer, '')
+      const [error, result] = await authorizeOauth2(
+        flows,
+        'password',
+        selectedScopes,
+        relativeServer,
+        '',
+        passwordSecrets,
+      )
       expect(error).toBe(null)
       expect(result).toBe('access_token_123')
 
@@ -1322,8 +1329,8 @@ describe('oauth', () => {
         body: new URLSearchParams({
           scope: scope.join(' '),
           grant_type: 'password',
-          username: flows.password['x-scalar-secret-username'],
-          password: flows.password['x-scalar-secret-password'],
+          username: passwordSecrets['x-scalar-secret-username'],
+          password: passwordSecrets['x-scalar-secret-password'],
         }),
         headers: {
           'Authorization': `Basic ${secretAuth}`,
