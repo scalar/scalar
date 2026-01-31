@@ -131,7 +131,13 @@ const handleImport = (): void => {
   )
 }
 
+/** Handle modal state changes */
 watch(() => modalState.open, handleModalStateChange)
+
+/** Update the watch mode of the active document */
+watch(watchMode, (newVal) => {
+  workspaceStore.updateDocument('active', 'x-scalar-watch-mode', newVal)
+})
 
 onUnmounted(() => updateBodyClasses(false))
 </script>
