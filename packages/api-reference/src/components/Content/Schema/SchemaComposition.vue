@@ -4,12 +4,10 @@ import { isDefined } from '@scalar/helpers/array/is-defined'
 import { ScalarIconCaretDown } from '@scalar/icons'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
-import type {
-  DiscriminatorObject,
-  SchemaObject,
-} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { DiscriminatorObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed, ref } from 'vue'
 
+import type { SchemaWithOriginalRef } from '@/components/Content/Schema/helpers/optimize-value-for-display'
 import type { SchemaOptions } from '@/components/Content/Schema/types'
 
 import { getSchemaType } from './helpers/get-schema-type'
@@ -26,7 +24,7 @@ const props = withDefaults(
     /** Optional name for the schema */
     name?: string
     /** The schema value containing the composition */
-    schema: SchemaObject
+    schema: SchemaWithOriginalRef
     /** Nesting level for proper indentation */
     level: number
     /** Whether to use compact layout */

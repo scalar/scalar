@@ -16,7 +16,7 @@ export const getModelNameFromSchema = (schemaOrRef: SchemaObject | ReferenceType
 
   if ('$ref' in schemaOrRef) {
     // Grab the name of the schema from the ref path
-    const refName = getRefName(schemaOrRef)
+    const refName = getRefName(schemaOrRef.$ref)
     if (refName) {
       return refName
     }

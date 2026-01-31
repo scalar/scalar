@@ -1,5 +1,4 @@
 import { REGEX } from '@scalar/helpers/regex/regex-helpers'
-import type { ReferenceType, SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
 /**
  * Gets the "name" of the schema from the ref path
@@ -8,13 +7,7 @@ import type { ReferenceType, SchemaObject } from '@scalar/workspace-store/schema
  *
  * @example SchemaName from #/components/schemas/SchemaName
  */
-export const getRefName = (schema: ReferenceType<SchemaObject>) => {
-  if (!('$ref' in schema)) {
-    return null
-  }
-
-  const ref = schema.$ref
-
+export const getRefName = (ref: string) => {
   if (!ref) {
     return null
   }

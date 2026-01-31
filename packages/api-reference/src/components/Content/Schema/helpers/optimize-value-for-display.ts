@@ -3,12 +3,15 @@ import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/o
 
 import { compositions } from './schema-composition'
 
+/** We need to keep the original ref after we resolve for display purposes */
+export type SchemaWithOriginalRef = SchemaObject & { originalRef?: string }
+
 /**
  * Optimize the value by removing nulls from compositions and merging root properties.
  *
  * TODO: figure out what this does
  */
-export function optimizeValueForDisplay(value: SchemaObject | undefined): SchemaObject | undefined {
+export function optimizeValueForDisplay(value: SchemaObject | undefined): SchemaWithOriginalRef | undefined {
   if (!value || typeof value !== 'object') {
     return value
   }
@@ -32,17 +35,21 @@ export function optimizeValueForDisplay(value: SchemaObject | undefined): Schema
 
   // Check for null schemas and filter them out in one pass
   const { filteredSchemas, hasNullSchema } = schemas.reduce(
-    (acc: { filteredSchemas: SchemaObject[]; hasNullSchema: boolean }, _schema) => {
+    (acc, _schema) => {
       const schema = getResolvedRef(_schema)
 
       if ('type' in schema && schema.type === 'null') {
         acc.hasNullSchema = true
+      }
+      // We keep the original ref here
+      else if ('$ref' in _schema && _schema.$ref) {
+        acc.filteredSchemas.push({ ...schema, originalRef: _schema.$ref })
       } else {
         acc.filteredSchemas.push(schema)
       }
       return acc
     },
-    { filteredSchemas: [] as SchemaObject[], hasNullSchema: false },
+    { filteredSchemas: [] as SchemaWithOriginalRef[], hasNullSchema: false },
   )
 
   // Determine if nullable should be set
@@ -60,10 +67,10 @@ export function optimizeValueForDisplay(value: SchemaObject | undefined): Schema
   // Check if root properties should be merged into schemas
   const shouldMergeRootProperties =
     (composition === 'oneOf' || composition === 'anyOf') &&
-    (hasRootProperties || filteredSchemas.some((schema: SchemaObject) => schema.allOf))
+    (hasRootProperties || filteredSchemas.some((schema) => schema.allOf))
 
   if (shouldMergeRootProperties) {
-    const mergedSchemas = filteredSchemas.map((_schema: SchemaObject) => {
+    const mergedSchemas = filteredSchemas.map((_schema) => {
       const schema = getResolvedRef(_schema)
 
       // Flatten single-item allOf and merge with root properties
@@ -75,7 +82,7 @@ export function optimizeValueForDisplay(value: SchemaObject | undefined): Schema
     })
 
     // @ts-expect-error - We avoid using coerceValue here as it may be dangerous, so we type cast
-    const result = { [composition]: mergedSchemas } as SchemaObject
+    const result = { [composition]: mergedSchemas } as SchemaWithOriginalRef
     if (shouldBeNullable) {
       // @ts-expect-error We use nullable
       result.nullable = true
@@ -85,7 +92,7 @@ export function optimizeValueForDisplay(value: SchemaObject | undefined): Schema
 
   // Return with filtered schemas if any nulls were removed
   if (filteredSchemas.length !== schemas.length) {
-    const result: SchemaObject = { ...value, [composition]: filteredSchemas }
+    const result: SchemaWithOriginalRef = { ...value, [composition]: filteredSchemas }
     if (shouldBeNullable) {
       // @ts-expect-error We use nullable
       result.nullable = true

@@ -247,7 +247,7 @@ const isDiscriminatorProperty = computed(() =>
       :name="name"
       :noncollapsible="noncollapsible"
       :options="options"
-      :schema="getResolvedRef(props.schema)!" />
+      :schema="compositionData.value" />
     <SpecificationExtension :value="optimizedValue" />
   </component>
 </template>
