@@ -9,6 +9,7 @@ import {
   type ScalarButton as ScalarButtonType,
 } from '@scalar/components'
 import { ScalarIconCaretDown, ScalarIconTrash } from '@scalar/icons'
+import type { SelectedSecurity } from '@scalar/workspace-store/entities/auth/schema'
 import type {
   AuthMeta,
   WorkspaceEventBus,
@@ -56,7 +57,7 @@ const {
   proxyUrl: string
   securityRequirements: OpenApiDocument['security']
   securitySchemes: MergedSecuritySchemes
-  selectedSecurity: OpenApiDocument['x-scalar-selected-security']
+  selectedSecurity: SelectedSecurity
   server: ServerObject | null
   title: string
 }>()

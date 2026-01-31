@@ -25,6 +25,8 @@ import {
 } from '@scalar/types/snippetz'
 import { useToasts } from '@scalar/use-toasts'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
+import type { SelectedSecurity } from '@scalar/workspace-store/entities/auth/schema'
+import type { HistoryEntry } from '@scalar/workspace-store/entities/history/schema'
 import type {
   AuthMeta,
   WorkspaceEventBus,
@@ -70,8 +72,10 @@ const {
   globalCookies = [],
   hideClientButton,
   httpClients = AVAILABLE_CLIENTS,
+  history,
   method,
   operation,
+  operationSelectedSecurity,
   setOperationSecurity,
   path,
   plugins = [],
@@ -85,7 +89,9 @@ const {
   /** Document defined security */
   documentSecurity: OpenApiDocument['security']
   /** Document selected security */
-  documentSelectedSecurity: OpenApiDocument['x-scalar-selected-security']
+  documentSelectedSecurity: SelectedSecurity | undefined
+  /** Document slug */
+  documentSlug: string
   /** Application version */
   appVersion: string
   /** Workspace/document cookies */
@@ -96,6 +102,8 @@ const {
   method: HttpMethodType
   /** HTTP clients */
   httpClients: AvailableClients
+  /** The history for the operation */
+  history: HistoryEntry[]
   /** Client layout */
   layout: ClientLayout
   /** Currently selected server */
@@ -114,6 +122,8 @@ const {
   source?: 'gitbook' | 'api-reference'
   /** Operation object */
   operation: OperationObject
+  /** Operation selected security */
+  operationSelectedSecurity: SelectedSecurity | undefined
   /** Whether to set security at the operation level */
   setOperationSecurity: boolean
   /** Currently selected example key for the current operation */
@@ -147,7 +157,7 @@ const securityRequirements = computed(() =>
 const selectedSecurity = computed(() =>
   getSelectedSecurity(
     documentSelectedSecurity,
-    operation['x-scalar-selected-security'],
+    operationSelectedSecurity,
     securityRequirements.value,
     setOperationSecurity,
   ),
@@ -251,7 +261,7 @@ onBeforeUnmount(() => {
 })
 
 const operationHistory = computed<History[]>(() =>
-  (operation['x-scalar-history'] ?? [])
+  history
     .map((entry) => ({
       method: entry.request.method as HttpMethodType,
       path: entry.request.url,
@@ -262,9 +272,8 @@ const operationHistory = computed<History[]>(() =>
 )
 
 const handleSelectHistoryItem = ({ index }: { index: number }) => {
-  const transformedIndex =
-    (operation['x-scalar-history']?.length ?? 0) - index - 1
-  const historyItem = operation['x-scalar-history']?.[transformedIndex]
+  const transformedIndex = (history.length ?? 0) - index - 1
+  const historyItem = history[transformedIndex]
   if (!historyItem) {
     return
   }
@@ -272,11 +281,7 @@ const handleSelectHistoryItem = ({ index }: { index: number }) => {
   const navigate = () =>
     eventBus.emit('ui:route:example', {
       exampleName: 'draft',
-      callback: async (status) => {
-        if (status === 'error') {
-          return
-        }
-
+      callback: async () => {
         // Reconstruct the response
         const fetchResponse = harToFetchResponse({
           harResponse: historyItem.response,
@@ -353,6 +358,7 @@ onBeforeUnmount(() => {
         <RequestBlock
           :authMeta
           :clientOptions
+          :documentSlug
           :environment
           :eventBus
           :exampleKey
