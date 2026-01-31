@@ -9,12 +9,7 @@ import {
   type XScalarDisableParameters,
   XScalarDisableParametersSchema,
 } from '@/schemas/extensions/operation/x-scalar-disable-parameters'
-import { type XScalarHistory, XScalarHistorySchema } from '@/schemas/extensions/operation/x-scalar-history'
 import { type XScalarStability, XScalarStabilitySchema } from '@/schemas/extensions/operation/x-scalar-stability'
-import {
-  type XScalarSelectedSecurity,
-  XScalarSelectedSecuritySchemaDefinition,
-} from '@/schemas/extensions/security/x-scalar-selected-security'
 
 import type { CallbackObject } from './callback'
 import type { ExternalDocumentationObject } from './external-documentation'
@@ -61,14 +56,12 @@ export const OperationObjectSchemaDefinition = compose(
     /** A map of possible out-of band callbacks related to the parent operation. The key is a unique identifier for the Callback Object. Each value in the map is a Callback Object that describes a request that may be initiated by the API provider and the expected responses. */
     callbacks: Type.Optional(Type.Record(Type.String(), Type.Union([CallbackObjectRef, reference(CallbackObjectRef)]))),
   }),
-  XScalarSelectedSecuritySchemaDefinition,
   XBadgesSchema,
   XInternalSchema,
   XScalarIgnoreSchema,
   XCodeSamplesSchema,
   XScalarStabilitySchema,
   XScalarDisableParametersSchema,
-  XScalarHistorySchema,
 )
 
 export type OperationObject = {
@@ -101,6 +94,4 @@ export type OperationObject = {
   XScalarIgnore &
   XCodeSamples &
   XScalarStability &
-  XScalarSelectedSecurity &
-  XScalarDisableParameters &
-  XScalarHistory
+  XScalarDisableParameters

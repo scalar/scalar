@@ -51,7 +51,7 @@ import { RequestBlock } from '@/v2/blocks/request-block'
 import type { ExtendedScalarCookie } from '@/v2/blocks/request-block/RequestBlock.vue'
 import { ResponseBlock } from '@/v2/blocks/response-block'
 import { type History } from '@/v2/blocks/scalar-address-bar-block'
-import type { MergedSecuritySchemes } from '@/v2/blocks/scalar-auth-selector-block/helpers/merge-auth-config'
+import type { MergedSecuritySchemes } from '@/v2/blocks/scalar-auth-selector-block/helpers/merge-security'
 import {
   getSecurityRequirements,
   getSelectedSecurity,

@@ -15,10 +15,6 @@ import {
 import { type XScalarCookies, xScalarCookiesSchema } from '@/schemas/extensions/general/x-scalar-cookies'
 import { type XScalarOrder, XScalarOrderSchema } from '@/schemas/extensions/general/x-scalar-order'
 import {
-  type XScalarSelectedSecurity,
-  XScalarSelectedSecuritySchemaDefinition,
-} from '@/schemas/extensions/security/x-scalar-selected-security'
-import {
   type XScalarSelectedServer,
   XScalarSelectedServerSchema,
 } from '@/schemas/extensions/server/x-scalar-selected-server'
@@ -85,7 +81,6 @@ const OpenApiExtensionsSchema = compose(
   ),
   XTagGroupsSchema,
   xScalarEnvironmentsSchema,
-  XScalarSelectedSecuritySchemaDefinition,
   XScalarSelectedServerSchema,
   XScalarSetOperationSecuritySchema,
   XScalarIconSchema,
@@ -108,7 +103,6 @@ export type OpenAPIExtensions = Partial<{
   'x-scalar-original-document-hash': string
 } & XTagGroups &
   XScalarEnvironments &
-  XScalarSelectedSecurity &
   XScalarSelectedServer &
   XScalarSetOperationSecurity &
   XScalarIcon &
@@ -211,8 +205,6 @@ const module = Type.Module({
   [REF_DEFINITIONS.TraversedEntryObject]: TraversedEntrySchemaDefinition,
   [REF_DEFINITIONS.TraversedDocumentObject]: TraversedDocumentSchemaDefinition,
 
-  // Extensions
-  [REF_DEFINITIONS.XScalarSelectedSecurity]: XScalarSelectedSecuritySchemaDefinition,
   // Enforces that all references are included in the module
 } satisfies Record<keyof typeof REF_DEFINITIONS, TSchema> & Record<'OpenApiDocument', TSchema>)
 
@@ -260,9 +252,6 @@ export const TraversedOperationSchema = module.Import('TraversedOperationObject'
 export const TraversedSchemaSchema = module.Import('TraversedSchemaObject')
 export const TraversedWebhookSchema = module.Import('TraversedWebhookObject')
 
-// ----- Extensions ----
-export const XScalarSelectedSecuritySchema = module.Import('XScalarSelectedSecurity')
-
 //  ----- Type re-exports ----
 export type { ExternalDocumentationObject }
 export type { InfoObject }
@@ -291,6 +280,12 @@ export type { RequestBodyObject } from './request-body'
 export type { ResponseObject } from './response'
 export type { ResponsesObject } from './responses'
 export type { SchemaObject } from './schema'
-export type { ApiKeyObject, HttpObject, SecuritySchemeObject } from './security-scheme'
+export type {
+  ApiKeyObject,
+  HttpObject,
+  OAuth2Object,
+  OpenIdConnectObject,
+  SecuritySchemeObject,
+} from './security-scheme'
 export type { ServerVariableObject } from './server-variable'
 export type { XMLObject } from './xml'
