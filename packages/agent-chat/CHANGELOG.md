@@ -1,5 +1,14 @@
 # @scalar/agent-chat
 
+## 0.4.7
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-client@2.23.0**
+  - [#8005](https://github.com/scalar/scalar/pull/8005): feat: import modal for client v2
+
 ## 0.4.6
 
 ### Patch Changes
