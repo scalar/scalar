@@ -1,5 +1,14 @@
 # @scalar/oas-utils
 
+## 0.6.32
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.28.1**
+  - [#7823](https://github.com/scalar/scalar/pull/7823): chore: update workspace schema index to support teamUid queries and local
+
 ## 0.6.31
 
 ### Patch Changes

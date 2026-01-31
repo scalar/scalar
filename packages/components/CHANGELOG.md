@@ -1,5 +1,15 @@
 # @scalar/components
 
+## 0.17.2
+
+### Patch Changes
+
+- [#7934](https://github.com/scalar/scalar/pull/7934): fix: z-index issues in addressBar
+
+#### Updated Dependencies
+
+- **@scalar/oas-utils@0.6.32**
+
 ## 0.17.1
 
 ### Patch Changes

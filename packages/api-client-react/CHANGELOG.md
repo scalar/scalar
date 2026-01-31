@@ -1,5 +1,15 @@
 # @scalar/api-client-react
 
+## 1.3.84
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-client@2.22.3**
+  - [#8004](https://github.com/scalar/scalar/pull/8004): fix: do not add a content type of none
+  - [#7934](https://github.com/scalar/scalar/pull/7934): fix: z-index issues in addressBar
+
 ## 1.3.83
 
 ### Patch Changes

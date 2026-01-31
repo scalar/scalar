@@ -1,5 +1,16 @@
 # @scalar/openapi-to-markdown
 
+## 0.3.35
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/components@0.17.2**
+  - [#7934](https://github.com/scalar/scalar/pull/7934): fix: z-index issues in addressBar
+
+- **@scalar/oas-utils@0.6.32**
+
 ## 0.3.34
 
 ### Patch Changes
