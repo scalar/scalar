@@ -98,7 +98,8 @@ export const sourceConfigurationSchema = z.object({
    **/
   agent: z
     .object({
-      key: z.string(),
+      key: z.string().optional(),
+      disabled: z.boolean().optional(),
     })
     .optional(),
 })

@@ -1,5 +1,105 @@
 # @scalar/api-reference
 
+## 1.44.4
+
+### Patch Changes
+
+- [#8000](https://github.com/scalar/scalar/pull/8000): fix(agent): change enabled flag to disabled
+- [#7979](https://github.com/scalar/scalar/pull/7979): fix: prevent re-rendering of already-ready items in lazy-bus queue
+
+  Restores the readyQueue guard in addToPendingQueue to prevent items that are
+  already rendered from being re-added to the pending queue. This fixes a
+  performance regression introduced in #7497 where large API specs would
+  experience severe slowdowns due to items being reprocessed on every scroll
+  or interaction.
+
+  The fix maintains the callback functionality from #7497 by still allowing
+  items to be added to the priority queue (for callback triggering), but
+  processQueue now skips adding items that are already in readyQueue.
+
+- [#8002](https://github.com/scalar/scalar/pull/8002): feat(agent): add inline agent chat
+- [#7985](https://github.com/scalar/scalar/pull/7985): fix(api-reference): set fallback for mobile header sticky offset
+- [#7784](https://github.com/scalar/scalar/pull/7784): fix: resolve oauth2 relative URLs against relative server URLs
+- [#7995](https://github.com/scalar/scalar/pull/7995): feat: enable/disable agent scalar
+- [#7977](https://github.com/scalar/scalar/pull/7977): fix(api-reference): apply sidebar width variable
+
+#### Updated Dependencies
+
+- **@scalar/types@0.6.1**
+  - [#8000](https://github.com/scalar/scalar/pull/8000): fix(agent): change enabled flag to disabled
+  - [#7995](https://github.com/scalar/scalar/pull/7995): feat: enable/disable agent scalar
+
+- **@scalar/agent-chat@0.4.5**
+  - [#7976](https://github.com/scalar/scalar/pull/7976): Clean-up chat form logic
+  - [#8002](https://github.com/scalar/scalar/pull/8002): feat(agent): add inline agent chat
+  - [#7995](https://github.com/scalar/scalar/pull/7995): feat: enable/disable agent scalar
+
+- **@scalar/api-client@2.22.2**
+  - [#7998](https://github.com/scalar/scalar/pull/7998): Made the inputs to useCommandPalette state reactive
+  - [#7988](https://github.com/scalar/scalar/pull/7988): feat: restore old client search
+  - [#8002](https://github.com/scalar/scalar/pull/8002): feat(agent): add inline agent chat
+  - [#7784](https://github.com/scalar/scalar/pull/7784): fix: resolve oauth2 relative URLs against relative server URLs
+  - [#7971](https://github.com/scalar/scalar/pull/7971): fix: improve sidebar click behavior
+
+- **@scalar/workspace-store@0.28.0**
+  - [#7970](https://github.com/scalar/scalar/pull/7970): feat: update sidebar when docuemnt title changes
+  - [#7988](https://github.com/scalar/scalar/pull/7988): feat: restore old client search
+  - [#7963](https://github.com/scalar/scalar/pull/7963): feat: unify is-object helpers
+
+- **@scalar/sidebar@0.7.24**
+  - [#7988](https://github.com/scalar/scalar/pull/7988): feat: restore old client search
+
+- **@scalar/use-hooks@0.3.7**
+  - [#7977](https://github.com/scalar/scalar/pull/7977): chore(use-hooks): update tailwind merge to v3.4.0
+
+- **@scalar/openapi-parser@0.24.6**
+  - [#7963](https://github.com/scalar/scalar/pull/7963): feat: unify is-object helpers
+
+- **@scalar/helpers@0.2.10**
+  - [#7963](https://github.com/scalar/scalar/pull/7963): feat: unify is-object helpers
+
+- **@scalar/oas-utils@0.6.31**
+
+- **@scalar/snippetz@0.6.10**
+
+- **@scalar/components@0.17.1**
+
+## 1.44.3
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/agent-chat@0.4.3**
+  - [#7974](https://github.com/scalar/scalar/pull/7974): fix(agent): change agent share to source
+
+## 1.44.2
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/agent-chat@0.4.2**
+  - [#7962](https://github.com/scalar/scalar/pull/7962): fix(agent): add flag for agent share flow
+
+## 1.44.1
+
+### Patch Changes
+
+- [#7961](https://github.com/scalar/scalar/pull/7961): fix(agent): make agent ui responsive
+- [#7967](https://github.com/scalar/scalar/pull/7967): fix(agent): remove ui jump on uploading document
+
+#### Updated Dependencies
+
+- **@scalar/agent-chat@0.4.1**
+  - [#7960](https://github.com/scalar/scalar/pull/7960): fix: update agent pricing per message
+  - [#7966](https://github.com/scalar/scalar/pull/7966): feat(agent): add remaining message information
+  - [#7961](https://github.com/scalar/scalar/pull/7961): fix(agent): make agent ui responsive
+  - [#7967](https://github.com/scalar/scalar/pull/7967): fix(agent): remove ui jump on uploading document
+
+- **@scalar/api-client@2.22.1**
+  - [#7965](https://github.com/scalar/scalar/pull/7965): Adds exports for creating external actions
+
 ## 1.44.0
 
 ### Minor Changes

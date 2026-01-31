@@ -1,5 +1,15 @@
 # @scalar/scripts
 
+## 0.0.78
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/oas-utils@0.6.31**
+
+- **@scalar/components@0.17.1**
+
 ## 0.0.77
 
 ### Patch Changes

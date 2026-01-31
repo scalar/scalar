@@ -5,10 +5,19 @@ import { createIndexDbConnection } from '@/persistence/indexdb'
 import type { InMemoryWorkspace } from '@/schemas/inmemory-workspace'
 import type { WorkspaceMeta } from '@/schemas/workspace'
 
+type WorkspaceKey = {
+  namespace?: string
+  slug: string
+}
+
 type WorkspaceStoreShape = {
+  teamUid?: string
   name: string
   workspace: InMemoryWorkspace
 }
+
+/** Generates a workspace ID from namespace and slug. */
+const getWorkspaceId = (namespace: string, slug: string) => `${namespace}/${slug}`
 
 /**
  * Creates the persistence layer for the workspace store using IndexedDB.
@@ -27,46 +36,47 @@ export const createWorkspaceStorePersistence = async () => {
     tables: {
       workspace: {
         schema: Type.Object({
-          /** UID for workspaces stored in the DB */
-          id: Type.String(),
           /** Visual name for a given workspace */
           name: Type.String(),
           /** When logged in all new workspaces (remote and local) are scoped to a team  */
-          teamUid: Type.String({ default: 'LOCAL' }),
+          teamUid: Type.String({ default: 'local' }),
           /** Namespace associated with a remote workspace */
-          namespace: Type.String({ default: 'LOCAL' }),
+          namespace: Type.String({ default: 'local' }),
           /** Slug associated with a remote workspace */
-          slug: Type.String({ default: 'LOCAL' }),
+          slug: Type.String({ default: 'local' }),
         }),
-        index: ['id'],
+        keyPath: ['namespace', 'slug'],
+        indexes: {
+          teamUid: ['teamUid'],
+        },
       },
       meta: {
         schema: Type.Object({ workspaceId: Type.String(), data: Type.Any() }),
-        index: ['workspaceId'],
+        keyPath: ['workspaceId'],
       },
       documents: {
         schema: Type.Object({ workspaceId: Type.String(), documentName: Type.String(), data: Type.Any() }),
-        index: ['workspaceId', 'documentName'],
+        keyPath: ['workspaceId', 'documentName'],
       },
       originalDocuments: {
         schema: Type.Object({ workspaceId: Type.String(), documentName: Type.String(), data: Type.Any() }),
-        index: ['workspaceId', 'documentName'],
+        keyPath: ['workspaceId', 'documentName'],
       },
       intermediateDocuments: {
         schema: Type.Object({ workspaceId: Type.String(), documentName: Type.String(), data: Type.Any() }),
-        index: ['workspaceId', 'documentName'],
+        keyPath: ['workspaceId', 'documentName'],
       },
       overrides: {
         schema: Type.Object({ workspaceId: Type.String(), documentName: Type.String(), data: Type.Any() }),
-        index: ['workspaceId', 'documentName'],
+        keyPath: ['workspaceId', 'documentName'],
       },
       history: {
         schema: Type.Object({ workspaceId: Type.String(), documentName: Type.String(), data: Type.Any() }),
-        index: ['workspaceId', 'documentName'],
+        keyPath: ['workspaceId', 'documentName'],
       },
       auth: {
         schema: Type.Object({ workspaceId: Type.String(), documentName: Type.String(), data: Type.Any() }),
-        index: ['workspaceId', 'documentName'],
+        keyPath: ['workspaceId', 'documentName'],
       },
     },
   })
@@ -156,12 +166,18 @@ export const createWorkspaceStorePersistence = async () => {
        * Returns undefined if the workspace does not exist.
        * Gathers all workspace 'chunk' tables and assembles a full workspace shape.
        */
-      getItem: async (id: string): Promise<(WorkspaceStoreShape & { id: string }) | undefined> => {
-        const workspace = await workspaceTable.getItem({ id })
+      getItem: async ({
+        namespace,
+        slug,
+      }: Required<WorkspaceKey>): Promise<(WorkspaceStoreShape & Required<WorkspaceKey>) | undefined> => {
+        const workspace = await workspaceTable.getItem({ namespace, slug })
 
         if (!workspace) {
           return undefined
         }
+
+        // Create a composite key for the workspace chunks.
+        const id = getWorkspaceId(namespace, slug)
 
         // Retrieve all chunk records for this workspace.
         const workspaceDocuments = await documentsTable.getRange([id])
@@ -174,8 +190,10 @@ export const createWorkspaceStorePersistence = async () => {
 
         // Compose the workspace structure from table records.
         return {
-          id,
           name: workspace.name,
+          teamUid: workspace.teamUid,
+          namespace: workspace.namespace,
+          slug: workspace.slug,
           workspace: {
             documents: Object.fromEntries(workspaceDocuments.map((item) => [item.documentName, item.data])),
             originalDocuments: Object.fromEntries(
@@ -203,12 +221,27 @@ export const createWorkspaceStorePersistence = async () => {
       },
 
       /**
+       * Retrieves all workspaces for a given team UID.
+       */
+      getAllByTeamUid: async (teamUid: string) => {
+        return await workspaceTable.getRange([teamUid], 'teamUid')
+      },
+
+      /**
        * Saves a workspace to the database.
        * All chunks (meta, documents, configs, etc.) are upsert in their respective tables.
        * If a workspace with the same ID already exists, it will be replaced.
        */
-      setItem: async (id: string, value: WorkspaceStoreShape): Promise<void> => {
-        await workspaceTable.addItem({ id }, { name: value.name })
+      setItem: async ({ namespace = 'local', slug }: WorkspaceKey, value: WorkspaceStoreShape) => {
+        const workspace = await workspaceTable.addItem(
+          { namespace, slug },
+          {
+            name: value.name,
+            teamUid: value.teamUid ?? 'local',
+          },
+        )
+
+        const id = getWorkspaceId(namespace, slug)
 
         // Save all meta info for workspace.
         await metaTable.addItem({ workspaceId: id }, { data: value.workspace.meta })
@@ -247,13 +280,24 @@ export const createWorkspaceStorePersistence = async () => {
             return historyTable.addItem({ workspaceId: id, documentName: name }, { data })
           }),
         )
+
+        // Persist all auth.
+        await Promise.all(
+          Object.entries(value.workspace.auth ?? {}).map(([name, data]) => {
+            return authTable.addItem({ workspaceId: id, documentName: name }, { data })
+          }),
+        )
+
+        return workspace
       },
 
       /**
        * Deletes an entire workspace and all associated chunk records from all tables by ID.
        */
-      deleteItem: async (id: string): Promise<void> => {
-        await workspaceTable.deleteItem({ id })
+      deleteItem: async ({ namespace, slug }: Required<WorkspaceKey>): Promise<void> => {
+        const id = getWorkspaceId(namespace, slug)
+
+        await workspaceTable.deleteItem({ namespace, slug })
 
         // Remove all workspace-related records from all chunk tables.
         await Promise.all([
@@ -266,6 +310,7 @@ export const createWorkspaceStorePersistence = async () => {
           intermediateDocumentTable.deleteRange([id]),
           overridesTable.deleteRange([id]),
           historyTable.deleteRange([id]),
+          authTable.deleteRange([id]),
         ])
       },
 
@@ -283,8 +328,8 @@ export const createWorkspaceStorePersistence = async () => {
       /**
        * Checks if a workspace with the given ID exists in the store.
        */
-      has: async (id: string): Promise<boolean> => {
-        return (await workspaceTable.getItem({ id })) !== undefined
+      has: async ({ namespace, slug }: Required<WorkspaceKey>): Promise<boolean> => {
+        return (await workspaceTable.getItem({ namespace, slug })) !== undefined
       },
     },
     clear: async () => {

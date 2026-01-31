@@ -35,12 +35,6 @@ const securitySchemes = computed(
 <template>
   <div class="docSettings">
     <div>
-      <ServerSelector
-        :eventBus
-        :selectedServer
-        :servers="document.servers ?? []" />
-    </div>
-    <div>
       <Auth
         :authStore="workspaceStore.auth"
         :document
@@ -50,6 +44,12 @@ const securitySchemes = computed(
         :options="config"
         :securitySchemes
         :selectedServer />
+    </div>
+    <div>
+      <ServerSelector
+        :eventBus
+        :selectedServer
+        :servers="document.servers ?? []" />
     </div>
   </div>
 </template>

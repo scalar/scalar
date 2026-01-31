@@ -50,15 +50,21 @@ export type CollectionProps = RouteProps &
       }
   )
 
-export type ScalarClientAppRouteParams = 'workspaceSlug' | 'documentSlug' | 'pathEncoded' | 'method' | 'exampleName'
+export type ScalarClientAppRouteParams =
+  | 'namespace'
+  | 'workspaceSlug'
+  | 'documentSlug'
+  | 'pathEncoded'
+  | 'method'
+  | 'exampleName'
 
 /** Routes for the API client app and web, the same as modal + workspace routes */
 export const ROUTES = [
   {
-    path: '/workspace/:workspaceSlug',
+    path: '/@:namespace/:workspaceSlug',
     children: [
       {
-        path: 'document/:documentSlug',
+        path: ':documentSlug',
         children: [
           // Example page
           {
@@ -150,6 +156,6 @@ export const ROUTES = [
   },
   {
     path: '/:pathMatch(.*)*',
-    redirect: () => workspaceStorage.getLastPath() ?? '/workspace/default/document/drafts/overview',
+    redirect: () => workspaceStorage.getLastPath() ?? '/@local/local/drafts/overview',
   },
 ] satisfies RouteRecordRaw[]

@@ -10,7 +10,7 @@
     "url": "git+https://github.com/scalar/scalar.git",
     "directory": "packages/use-hooks"
   },
-  "version": "0.3.6",
+  "version": "0.3.7",
   "engines": {
     "node": ">=20"
   },
@@ -53,7 +53,7 @@
     "@scalar/use-toasts": "workspace:*",
     "@vueuse/core": "catalog:*",
     "cva": "1.0.0-beta.2",
-    "tailwind-merge": "^2.5.5",
+    "tailwind-merge": "3.4.0",
     "vue": "catalog:*",
     "zod": "catalog:*"
   },

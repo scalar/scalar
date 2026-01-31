@@ -5,6 +5,7 @@ export type {
   CollectionType,
   CommandPaletteAction,
   CommandPalettePayload,
+  KeyboardEventPayload,
   OperationExampleMeta,
   OperationMeta,
 } from './definitions'

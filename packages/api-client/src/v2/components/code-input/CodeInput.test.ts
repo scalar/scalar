@@ -248,59 +248,6 @@ describe('CodeInput', () => {
     expect(wrapper.emitted('submit')).toBeFalsy()
   })
 
-  /** Curl import functionality */
-  it('emits curl event when input starts with curl', () => {
-    const wrapper = mount(CodeInput, {
-      props: {
-        modelValue: 'initial',
-        importCurl: true,
-        layout: 'web',
-        environment: undefined,
-      },
-    })
-
-    const componentInstance = wrapper.vm as any
-    componentInstance.handleChange('curl https://api.example.com')
-
-    expect(wrapper.emitted('curl')).toBeTruthy()
-    expect(wrapper.emitted('curl')?.[0]).toEqual(['curl https://api.example.com'])
-    expect(wrapper.emitted('update:modelValue')).toBeFalsy()
-  })
-
-  it('does not emit curl when importCurl is false', () => {
-    const wrapper = mount(CodeInput, {
-      props: {
-        modelValue: 'initial',
-        importCurl: false,
-        layout: 'web',
-        environment: undefined,
-      },
-    })
-
-    const componentInstance = wrapper.vm as any
-    componentInstance.handleChange('curl https://api.example.com')
-
-    expect(wrapper.emitted('curl')).toBeFalsy()
-    expect(wrapper.emitted('update:modelValue')).toBeTruthy()
-  })
-
-  it('does not emit curl when input does not start with curl', () => {
-    const wrapper = mount(CodeInput, {
-      props: {
-        modelValue: 'initial',
-        importCurl: true,
-        layout: 'web',
-        environment: undefined,
-      },
-    })
-
-    const componentInstance = wrapper.vm as any
-    componentInstance.handleChange('not a curl command')
-
-    expect(wrapper.emitted('curl')).toBeFalsy()
-    expect(wrapper.emitted('update:modelValue')).toBeTruthy()
-  })
-
   /** Custom field handlers */
   it('calls handleFieldChange when provided instead of emitting', () => {
     const handleFieldChange = vi.fn()

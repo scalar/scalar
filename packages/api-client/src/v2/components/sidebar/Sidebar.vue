@@ -1,5 +1,9 @@
 <script setup lang="ts">
-import { ScalarIconButton, type ScalarListboxOption } from '@scalar/components'
+import {
+  ScalarIconButton,
+  ScalarSidebarSearchInput,
+  type ScalarListboxOption,
+} from '@scalar/components'
 import { ScalarIconFileDashed, ScalarIconMagnifyingGlass } from '@scalar/icons'
 import {
   ScalarSidebar,
@@ -7,18 +11,17 @@ import {
   type HoveredItem,
   type SidebarState,
 } from '@scalar/sidebar'
-import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { WorkspaceDocument } from '@scalar/workspace-store/schemas'
 import type { TraversedEntry } from '@scalar/workspace-store/schemas/navigation'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 
 import { Resize } from '@/v2/components/resize'
-import { SearchButton } from '@/v2/features/search'
+import { useSearchIndex } from '@/v2/features/search'
 import type { ClientLayout } from '@/v2/types/layout'
 
 import SidebarMenu from './SidebarMenu.vue'
 
-const { sidebarState, layout } = defineProps<{
+const { documents, sidebarState, layout } = defineProps<{
   /** All documents to display sidebar items for */
   sidebarState: SidebarState<TraversedEntry>
   /** Layout for the client */
@@ -27,8 +30,6 @@ const { sidebarState, layout } = defineProps<{
   activeWorkspace: { id: string }
   /** The list of all available workspaces */
   workspaces: ScalarListboxOption[]
-  /** The workspace event bus for handling workspace-level events */
-  eventBus: WorkspaceEventBus
   /** The documents belonging to the workspace */
   documents: WorkspaceDocument[]
   /**
@@ -79,6 +80,19 @@ const sidebarWidth = defineModel<number>('sidebarWidth', {
 const isDraft = (item: TraversedEntry) => {
   return item.type === 'example' && item.title === 'draft'
 }
+
+/** We handle search results out here so we can show them in the sidebar */
+const { query, results } = useSearchIndex(() => documents)
+
+/** We show either the search results or the sidebar items */
+const items = computed(() => results.value ?? sidebarState.items.value)
+
+/** Select an item and clear the search query */
+const handleSelectItem = (id: string) => {
+  emit('selectItem', id)
+  query.value = ''
+  isSearchVisible.value = false
+}
 </script>
 <template>
   <Resize
@@ -92,13 +106,13 @@ const isDraft = (item: TraversedEntry) => {
         :isDroppable="isDroppable"
         :isExpanded="sidebarState.isExpanded"
         :isSelected="sidebarState.isSelected"
-        :items="sidebarState.items.value"
+        :items
         layout="client"
         @reorder="
           (draggingItem, hoveredItem) =>
             emit('reorder', draggingItem, hoveredItem)
         "
-        @selectItem="(id) => emit('selectItem', id)">
+        @selectItem="handleSelectItem">
         <template #header>
           <div class="bg-sidebar-b-1 z-1 flex flex-col gap-1.5 px-3 pb-1.5">
             <div class="flex items-center justify-between">
@@ -125,10 +139,10 @@ const isDraft = (item: TraversedEntry) => {
                 @click="isSearchVisible = !isSearchVisible" />
             </div>
 
-            <SearchButton
+            <ScalarSidebarSearchInput
               v-if="isSearchVisible || layout === 'web'"
-              :documents="documents"
-              :eventBus="eventBus" />
+              v-model="query"
+              :autofocus="layout !== 'web'" />
           </div>
         </template>
 

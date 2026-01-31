@@ -1,5 +1,61 @@
 # @scalar/api-client
 
+## 2.22.2
+
+### Patch Changes
+
+- [#7998](https://github.com/scalar/scalar/pull/7998): Made the inputs to useCommandPalette state reactive
+- [#7988](https://github.com/scalar/scalar/pull/7988): feat: restore old client search
+- [#8002](https://github.com/scalar/scalar/pull/8002): feat(agent): add inline agent chat
+- [#7784](https://github.com/scalar/scalar/pull/7784): fix: resolve oauth2 relative URLs against relative server URLs
+- [#7971](https://github.com/scalar/scalar/pull/7971): fix: improve sidebar click behavior
+
+#### Updated Dependencies
+
+- **@scalar/types@0.6.1**
+  - [#8000](https://github.com/scalar/scalar/pull/8000): fix(agent): change enabled flag to disabled
+  - [#7995](https://github.com/scalar/scalar/pull/7995): feat: enable/disable agent scalar
+
+- **@scalar/workspace-store@0.28.0**
+  - [#7970](https://github.com/scalar/scalar/pull/7970): feat: update sidebar when docuemnt title changes
+  - [#7988](https://github.com/scalar/scalar/pull/7988): feat: restore old client search
+  - [#7963](https://github.com/scalar/scalar/pull/7963): feat: unify is-object helpers
+
+- **@scalar/sidebar@0.7.24**
+  - [#7988](https://github.com/scalar/scalar/pull/7988): feat: restore old client search
+
+- **@scalar/use-hooks@0.3.7**
+  - [#7977](https://github.com/scalar/scalar/pull/7977): chore(use-hooks): update tailwind merge to v3.4.0
+
+- **@scalar/openapi-parser@0.24.6**
+  - [#7963](https://github.com/scalar/scalar/pull/7963): feat: unify is-object helpers
+
+- **@scalar/json-magic@0.9.5**
+  - [#7963](https://github.com/scalar/scalar/pull/7963): feat: unify is-object helpers
+
+- **@scalar/helpers@0.2.10**
+  - [#7963](https://github.com/scalar/scalar/pull/7963): feat: unify is-object helpers
+
+- **@scalar/oas-utils@0.6.31**
+
+- **@scalar/snippetz@0.6.10**
+
+- **@scalar/components@0.17.1**
+
+- **@scalar/import@0.4.47**
+
+- **@scalar/object-utils@1.2.24**
+
+- **@scalar/postman-to-openapi@0.4.2**
+
+- **@scalar/use-codemirror@0.13.28**
+
+## 2.22.1
+
+### Patch Changes
+
+- [#7965](https://github.com/scalar/scalar/pull/7965): Adds exports for creating external actions
+
 ## 2.22.0
 
 ### Minor Changes

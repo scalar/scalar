@@ -28,6 +28,7 @@ import {
   SectionHeader,
   SectionHeaderTag,
 } from '@/components/Section'
+import AskAgentButton from '@/features/ask-agent-button/AskAgentButton.vue'
 import { ExampleResponses } from '@/features/example-responses'
 import { ExternalDocs } from '@/features/external-docs'
 import Callbacks from '@/features/Operation/components/callbacks/Callbacks.vue'
@@ -198,6 +199,7 @@ const operationExtensions = computed(() => getXKeysFromObject(operation))
                 <template
                   v-if="!isWebhook"
                   #footer>
+                  <AskAgentButton />
                   <TestRequestButton
                     v-if="!options.hideTestRequestButton"
                     :id

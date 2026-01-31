@@ -121,22 +121,6 @@ describe('AddressBar', () => {
     )
   })
 
-  it('emits importCurl when CodeInput emits curl', async () => {
-    const { wrapper, eventBus } = mountWithProps()
-    const emitSpy = vi.spyOn(eventBus, 'emit')
-
-    const codeInput = wrapper.findComponent({ name: 'CodeInput' })
-    await codeInput.vm.$emit('curl', 'curl https://example.com')
-    await nextTick()
-
-    expect(emitSpy).toHaveBeenCalledWith('ui:open:command-palette', {
-      action: 'import-curl-command',
-      payload: {
-        inputValue: 'curl https://example.com',
-      },
-    })
-  })
-
   it('emits execute on CodeInput submit and Send button click', async () => {
     const { wrapper } = mountWithProps()
 

@@ -48,6 +48,9 @@ const emit = defineEmits<{
   display: flex;
   align-items: center;
   justify-content: space-between;
+  position: absolute;
+  top: 0;
+  transform: translate3d(0, calc(-100% + 16px), 0);
 }
 
 .approvalText {

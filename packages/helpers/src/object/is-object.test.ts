@@ -30,37 +30,37 @@ describe('isObject', () => {
     expect(isObject(obj)).toBe(true)
   })
 
-  it('returns true for Date objects', () => {
-    expect(isObject(new Date())).toBe(true)
+  it('returns false for Date objects', () => {
+    expect(isObject(new Date())).toBe(false)
   })
 
-  it('returns true for RegExp objects', () => {
-    expect(isObject(/test/)).toBe(true)
-    expect(isObject(new RegExp('test'))).toBe(true)
+  it('returns false for RegExp objects', () => {
+    expect(isObject(/test/)).toBe(false)
+    expect(isObject(new RegExp('test'))).toBe(false)
   })
 
-  it('returns true for Error objects', () => {
-    expect(isObject(new Error('test'))).toBe(true)
+  it('returns false for Error objects', () => {
+    expect(isObject(new Error('test'))).toBe(false)
   })
 
-  it('returns true for Map objects', () => {
-    expect(isObject(new Map())).toBe(true)
+  it('returns false for Map objects', () => {
+    expect(isObject(new Map())).toBe(false)
   })
 
-  it('returns true for Set objects', () => {
-    expect(isObject(new Set())).toBe(true)
+  it('returns false for Set objects', () => {
+    expect(isObject(new Set())).toBe(false)
   })
 
-  it('returns true for WeakMap objects', () => {
-    expect(isObject(new WeakMap())).toBe(true)
+  it('returns false for WeakMap objects', () => {
+    expect(isObject(new WeakMap())).toBe(false)
   })
 
-  it('returns true for WeakSet objects', () => {
-    expect(isObject(new WeakSet())).toBe(true)
+  it('returns false for WeakSet objects', () => {
+    expect(isObject(new WeakSet())).toBe(false)
   })
 
-  it('returns true for Promise objects', () => {
-    expect(isObject(Promise.resolve())).toBe(true)
+  it('returns false for Promise objects', () => {
+    expect(isObject(Promise.resolve())).toBe(false)
   })
 
   it('returns false for arrays', () => {
@@ -148,12 +148,12 @@ describe('isObject', () => {
     expect(isObject(obj)).toBe(true)
   })
 
-  it('handles objects with prototype chain', () => {
+  it('returns false for class instances', () => {
     class CustomClass {
       prop = 'value'
     }
     const instance = new CustomClass()
-    expect(isObject(instance)).toBe(true)
+    expect(isObject(instance)).toBe(false)
   })
 
   it('handles frozen objects', () => {

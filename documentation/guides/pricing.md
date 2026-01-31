@@ -494,6 +494,41 @@
             </div>
           </div>
         </div>
+        <div class="st_wrap_table" data-table_id="4">
+          <header class="pricing-table-group-heading">Agent Scalar</header>
+          <div class="pricing-table-group">
+            <div class="pricing-table-row">
+              <div class="pricing-table-column">Chat on localhost</div>
+              <div class="pricing-table-column"><scalar-icon src="phosphor/bold/check"></scalar-icon></div>
+              <div class="pricing-table-column"><scalar-icon src="phosphor/bold/check"></scalar-icon></div>
+              <div class="pricing-table-column"><scalar-icon src="phosphor/bold/check"></scalar-icon></div>
+            </div>
+            <div class="pricing-table-row">
+              <div class="pricing-table-column">10 free messages (localhost)</div>
+              <div class="pricing-table-column"><scalar-icon src="phosphor/bold/check"></scalar-icon></div>
+              <div class="pricing-table-column"><scalar-icon src="phosphor/bold/check"></scalar-icon></div>
+              <div class="pricing-table-column"><scalar-icon src="phosphor/bold/check"></scalar-icon></div>
+            </div>
+            <div class="pricing-table-row">
+              <div class="pricing-table-column">Production deployment</div>
+              <div class="pricing-table-column"></div>
+              <div class="pricing-table-column"><scalar-icon src="phosphor/bold/check"></scalar-icon></div>
+              <div class="pricing-table-column"><scalar-icon src="phosphor/bold/check"></scalar-icon></div>
+            </div>
+            <div class="pricing-table-row">
+              <div class="pricing-table-column">Messages included</div>
+              <div class="pricing-table-column"></div>
+              <div class="pricing-table-column">1,000</div>
+              <div class="pricing-table-column">1,000</div>
+            </div>
+            <div class="pricing-table-row">
+              <div class="pricing-table-column">Additional messages</div>
+              <div class="pricing-table-column"></div>
+              <div class="pricing-table-column">$0.02/msg</div>
+              <div class="pricing-table-column">$0.02/msg</div>
+            </div>
+          </div>
+        </div>
       </main>
     </div>
 <div class="cta flex flex-col gap-3 small-test">
@@ -668,6 +703,9 @@ h4.t-editor__heading {
 }
 [data-table_id="3"]{
   --pricing-table-bg: var(--scalar-color-green);
+}
+[data-table_id="4"]{
+  --pricing-table-bg: var(--scalar-color-red);
 }
 .st_wrap_table svg {
     fill: var(--pricing-table-bg)

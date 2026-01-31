@@ -50,7 +50,7 @@ function handleUpgrade() {
         <div class="paymentInfoSection">
           <div class="paymentInfoItem">
             <span>Messages</span>
-            <span>1000</span>
+            <span>1,000</span>
           </div>
           <div class="paymentInfoItem">
             <span>Additional Messages</span>
@@ -78,6 +78,9 @@ function handleUpgrade() {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  position: absolute;
+  top: 0;
+  transform: translate3d(0, calc(-100% + 16px), 0);
 }
 
 .approvalText {

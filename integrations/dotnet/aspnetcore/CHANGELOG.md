@@ -1,5 +1,59 @@
 # @scalar/aspnetcore
 
+## 2.12.25
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.44.4**
+  - [#8000](https://github.com/scalar/scalar/pull/8000): fix(agent): change enabled flag to disabled
+  - [#7979](https://github.com/scalar/scalar/pull/7979): fix: prevent re-rendering of already-ready items in lazy-bus queue
+
+    Restores the readyQueue guard in addToPendingQueue to prevent items that are
+    already rendered from being re-added to the pending queue. This fixes a
+    performance regression introduced in #7497 where large API specs would
+    experience severe slowdowns due to items being reprocessed on every scroll
+    or interaction.
+
+    The fix maintains the callback functionality from #7497 by still allowing
+    items to be added to the priority queue (for callback triggering), but
+    processQueue now skips adding items that are already in readyQueue.
+
+  - [#8002](https://github.com/scalar/scalar/pull/8002): feat(agent): add inline agent chat
+  - [#7985](https://github.com/scalar/scalar/pull/7985): fix(api-reference): set fallback for mobile header sticky offset
+  - [#7784](https://github.com/scalar/scalar/pull/7784): fix: resolve oauth2 relative URLs against relative server URLs
+  - [#7995](https://github.com/scalar/scalar/pull/7995): feat: enable/disable agent scalar
+  - [#7977](https://github.com/scalar/scalar/pull/7977): fix(api-reference): apply sidebar width variable
+
+- **@scalar/dotnet-shared@0.1.1**
+
+## 2.12.24
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.44.3**
+
+## 2.12.23
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.44.2**
+
+## 2.12.22
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.44.1**
+  - [#7961](https://github.com/scalar/scalar/pull/7961): fix(agent): make agent ui responsive
+  - [#7967](https://github.com/scalar/scalar/pull/7967): fix(agent): remove ui jump on uploading document
+
 ## 2.12.21
 
 ### Patch Changes

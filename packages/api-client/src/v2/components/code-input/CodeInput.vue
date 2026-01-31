@@ -100,8 +100,6 @@ type Props = {
   emitOnBlur?: boolean
   /** Enable environment variable pills */
   withVariables?: boolean
-  /** Detect and emit curl commands */
-  importCurl?: boolean
   /** Emit change event even if the value is the same */
   alwaysEmitChange?: boolean
   /** Custom change handler, prevents default emit */
@@ -137,7 +135,6 @@ const {
   emitOnBlur = true,
   alwaysEmitChange = false,
   withVariables = true,
-  importCurl = false,
   handleFieldChange,
   handleFieldSubmit,
 } = defineProps<Props>()
@@ -146,7 +143,6 @@ const emit = defineEmits<{
   'update:modelValue': [value: string]
   'submit': [value: string]
   'blur': [value: string]
-  'curl': [value: string]
   'redirectToEnvironment': []
 }>()
 
@@ -193,27 +189,9 @@ const defaultType = computed((): string | undefined => {
 
 /**
  * Handles value changes during typing.
- * Detects curl commands and manages update flow.
  */
 const handleChange = (value: string): void => {
   if (!alwaysEmitChange && value === serializeValue(modelValue)) {
-    return
-  }
-
-  // Detect curl command import
-  if (importCurl && value.trim().toLowerCase().startsWith('curl')) {
-    emit('curl', value)
-
-    // Revert to previous value
-    if (codeMirror.value) {
-      codeMirror.value.dispatch({
-        changes: {
-          from: 0,
-          to: codeMirror.value.state.doc.length,
-          insert: serializeValue(modelValue),
-        },
-      })
-    }
     return
   }
 

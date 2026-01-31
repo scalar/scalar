@@ -1279,5 +1279,62 @@ describe('oauth', () => {
         },
       })
     })
+
+    it('should resolve relative token URLs against relative server URLs', async () => {
+      const flows = {
+        password: {
+          ...scheme.password,
+          tokenUrl: 'auth/token',
+        },
+      } satisfies OAuthFlowsObject
+      const relativeServer = {
+        ...mockServer,
+        url: '/partners',
+      } satisfies ServerObject
+
+      const originalLocation = window.location
+      Object.defineProperty(window, 'location', {
+        value: {
+          origin: 'https://example.com',
+          pathname: '/docs',
+          href: 'https://example.com/docs',
+        },
+        writable: true,
+      })
+
+      global.fetch = vi.fn().mockResolvedValueOnce({
+        json: () =>
+          Promise.resolve({
+            access_token: 'access_token_123',
+            token_type: 'Bearer',
+            expires_in: 3600,
+            refresh_token: 'refresh_token_123',
+            scope: scope.join(' '),
+          }),
+      })
+
+      const [error, result] = await authorizeOauth2(flows, 'password', selectedScopes, relativeServer, '')
+      expect(error).toBe(null)
+      expect(result).toBe('access_token_123')
+
+      expect(global.fetch).toHaveBeenCalledWith('https://example.com/partners/auth/token', {
+        method: 'POST',
+        body: new URLSearchParams({
+          scope: scope.join(' '),
+          grant_type: 'password',
+          username: flows.password['x-scalar-secret-username'],
+          password: flows.password['x-scalar-secret-password'],
+        }),
+        headers: {
+          'Authorization': `Basic ${secretAuth}`,
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+      })
+
+      Object.defineProperty(window, 'location', {
+        value: originalLocation,
+        writable: true,
+      })
+    })
   })
 })

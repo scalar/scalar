@@ -1,5 +1,31 @@
 # scalar-app
 
+## 0.1.276
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-client@2.22.2**
+  - [#7998](https://github.com/scalar/scalar/pull/7998): Made the inputs to useCommandPalette state reactive
+  - [#7988](https://github.com/scalar/scalar/pull/7988): feat: restore old client search
+  - [#8002](https://github.com/scalar/scalar/pull/8002): feat(agent): add inline agent chat
+  - [#7784](https://github.com/scalar/scalar/pull/7784): fix: resolve oauth2 relative URLs against relative server URLs
+  - [#7971](https://github.com/scalar/scalar/pull/7971): fix: improve sidebar click behavior
+
+- **@scalar/components@0.17.1**
+
+- **@scalar/import@0.4.47**
+
+## 0.1.275
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-client@2.22.1**
+  - [#7965](https://github.com/scalar/scalar/pull/7965): Adds exports for creating external actions
+
 ## 0.1.274
 
 ### Patch Changes

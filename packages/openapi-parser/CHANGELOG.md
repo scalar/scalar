@@ -1,5 +1,21 @@
 # @scalar/openapi-parser
 
+## 0.24.6
+
+### Patch Changes
+
+- [#7963](https://github.com/scalar/scalar/pull/7963): feat: unify is-object helpers
+
+#### Updated Dependencies
+
+- **@scalar/json-magic@0.9.5**
+  - [#7963](https://github.com/scalar/scalar/pull/7963): feat: unify is-object helpers
+
+- **@scalar/helpers@0.2.10**
+  - [#7963](https://github.com/scalar/scalar/pull/7963): feat: unify is-object helpers
+
+- **@scalar/openapi-upgrader@0.1.8**
+
 ## 0.24.5
 
 ### Patch Changes

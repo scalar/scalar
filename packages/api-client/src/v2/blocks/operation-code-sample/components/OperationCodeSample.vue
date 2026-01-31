@@ -431,6 +431,7 @@ const id = useId()
   justify-content: flex-end;
   padding: 6px;
   flex-shrink: 0;
+  position: relative;
 }
 .request-card-footer-addon {
   display: flex;

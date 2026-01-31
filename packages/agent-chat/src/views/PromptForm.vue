@@ -11,6 +11,7 @@ import { computed, useTemplateRef, watch } from 'vue'
 
 import ApprovalSection from '@/components/ApprovalSection.vue'
 import ErrorMessageMessage from '@/components/ErrorMessage.vue'
+import FreeMessagesInfoSection from '@/components/FreeMessagesInfoSection.vue'
 import PaymentSection from '@/components/PaymentSection.vue'
 import SearchPopover from '@/components/SearchPopover.vue'
 import UploadSection from '@/components/UploadSection.vue'
@@ -35,6 +36,14 @@ const state = useState()
 const inputHasContent = computed(() => state.prompt.value.trim().length > 0)
 const promptTooLarge = computed(
   () => state.prompt.value.trim().length > MAX_PROMPT_SIZE,
+)
+
+/** Show free messages info only after at least one message has been sent and when no API key is set. */
+const showFreeMessagesInfo = computed(
+  () =>
+    state.chat.messages.length > 1 &&
+    !state.getAgentKey?.() &&
+    chatError?.value?.code !== AgentErrorCodes.LIMIT_REACHED,
 )
 
 watch(state.prompt, () => {
@@ -86,19 +95,30 @@ function acceptTerms() {
   state.terms.accept()
 
   if (state.mode === 'preview' && state.getActiveDocumentJson) {
-    uploadTmpDoc.uploadTempDocument(state.getActiveDocumentJson())
+    uploadTmpDoc.uploadTempDocument(state.getActiveDocumentJson(), true)
   }
 }
 
-const submitDisabled = computed(
-  () =>
-    !inputHasContent.value ||
-    promptTooLarge.value ||
-    !!approvalRequestedParts.value.length ||
-    !!pendingClientToolParts.value.length ||
-    !state.terms.accepted.value ||
-    !!uploadTmpDoc.uploadState.value,
-)
+const submitDisabled = computed(() => {
+  const tooLarge = promptTooLarge.value
+  const missingInput = !inputHasContent.value
+  const awaitingApproval = approvalRequestedParts.value.length > 0
+  const pendingToolParts = pendingClientToolParts.value.length > 0
+
+  const isPreview = state.mode === 'preview'
+
+  const termsNotAccepted = isPreview && !state.terms.accepted.value
+  const uploadingTmpDoc = isPreview && !!uploadTmpDoc.uploadState.value
+
+  return (
+    tooLarge ||
+    missingInput ||
+    awaitingApproval ||
+    pendingToolParts ||
+    termsNotAccepted ||
+    uploadingTmpDoc
+  )
+})
 
 function handleSubmit() {
   if (submitDisabled.value) {
@@ -112,21 +132,22 @@ const chatError = useChatError()
 </script>
 
 <template>
-  <UploadSection
-    v-if="uploadTmpDoc.uploadState.value"
-    :uploadState="uploadTmpDoc.uploadState.value" />
-  <ErrorMessageMessage
-    v-if="chatError"
-    :error="chatError" />
-  <ApprovalSection
-    v-if="approvalRequestedParts.length"
-    @approve="respondToToolCalls(true)"
-    @reject="respondToToolCalls(false)" />
-  <PaymentSection
-    v-if="chatError?.code === AgentErrorCodes.LIMIT_REACHED"
-    @approve="respondToToolCalls(true)"
-    @reject="respondToToolCalls(false)" />
   <div class="actionContainer">
+    <UploadSection
+      v-if="uploadTmpDoc.uploadState.value"
+      :uploadState="uploadTmpDoc.uploadState.value" />
+    <ErrorMessageMessage
+      v-if="chatError"
+      :error="chatError" />
+    <ApprovalSection
+      v-if="approvalRequestedParts.length"
+      @approve="respondToToolCalls(true)"
+      @reject="respondToToolCalls(false)" />
+    <PaymentSection
+      v-if="chatError?.code === AgentErrorCodes.LIMIT_REACHED"
+      @approve="respondToToolCalls(true)"
+      @reject="respondToToolCalls(false)" />
+    <FreeMessagesInfoSection v-if="showFreeMessagesInfo" />
     <form
       class="promptForm"
       @submit.prevent="handleSubmit">
@@ -263,8 +284,9 @@ const chatError = useChatError()
   border: var(--scalar-border-width) solid var(--scalar-border-color);
   border-radius: 16px;
   width: 100%;
+  position: relative;
   /* visually hides overflowing text below */
-  box-shadow: 0 50px 0 2px var(--scalar-background-1);
+  box-shadow: 0 24px 0 2px var(--scalar-background-1);
 }
 .promptForm {
   width: 100%;
