@@ -21,7 +21,9 @@ import { computed, watch } from 'vue'
 import { DataTableRow } from '@/components/DataTable'
 import OAuthScopesInput from '@/v2/blocks/scalar-auth-selector-block/components/OAuthScopesInput.vue'
 import { authorizeOauth2 } from '@/v2/blocks/scalar-auth-selector-block/helpers/oauth'
+import type { OpenIDConnectDiscovery as OpenIDConnectDiscoveryDocument } from '@/v2/blocks/scalar-auth-selector-block/helpers/openid-connect'
 
+import OpenIDConnectDiscoveryInput from './OpenIDConnectDiscovery.vue'
 import RequestAuthDataTableInput from './RequestAuthDataTableInput.vue'
 
 const {
@@ -134,6 +136,42 @@ const handleSecretLocationUpdate = (value: string): void =>
   handleOauth2Update({
     'x-scalar-credentials-location': value === 'body' ? 'body' : 'header',
   })
+
+/**
+ * Handles the OpenID Connect discovery document and pre-fills OAuth2 fields.
+ * Maps the discovered endpoints to the appropriate OAuth2 flow fields.
+ */
+const handleOpenIDConnectDiscovered = (
+  discovery: OpenIDConnectDiscoveryDocument,
+): void => {
+  // Use a flexible type since different flow types have different properties
+  const updates: Record<string, string | Record<string, string>> = {}
+
+  // Map authorization endpoint
+  if (discovery.authorization_endpoint && 'authorizationUrl' in flow.value) {
+    updates.authorizationUrl = discovery.authorization_endpoint
+  }
+
+  // Map token endpoint
+  if (discovery.token_endpoint && 'tokenUrl' in flow.value) {
+    updates.tokenUrl = discovery.token_endpoint
+  }
+
+  // Map scopes if available
+  if (discovery.scopes_supported && discovery.scopes_supported.length > 0) {
+    // Convert array of scopes to a Record<string, string> with empty descriptions
+    const scopesRecord: Record<string, string> = {}
+    for (const scope of discovery.scopes_supported) {
+      scopesRecord[scope] = ''
+    }
+    updates.scopes = scopesRecord
+  }
+
+  // Apply all updates at once
+  if (Object.keys(updates).length > 0) {
+    handleOauth2Update(updates as Partial<OAuthFlow>)
+  }
+}
 </script>
 
 <template>
@@ -169,6 +207,11 @@ const handleSecretLocationUpdate = (value: string): void =>
 
   <!-- Authorization Form: Shows when user needs to authorize -->
   <template v-else>
+    <!-- OpenID Connect Discovery -->
+    <OpenIDConnectDiscoveryInput
+      :environment
+      @discovered="handleOpenIDConnectDiscovered" />
+
     <DataTableRow>
       <RequestAuthDataTableInput
         v-if="'authorizationUrl' in flow"
