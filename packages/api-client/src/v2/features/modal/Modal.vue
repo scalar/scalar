@@ -204,7 +204,7 @@ defineExpose({
     class="scalar scalar-app">
     <div class="scalar-container">
       <!-- 
-      adding v-show also here to ensure element is rendered correctly 
+      adding v-show also here to ensure proper rendering in Safari.
       @see https://github.com/scalar/scalar/issues/7983
       -->
       <div
