@@ -10,6 +10,7 @@ import { httpStatusCodes } from '@scalar/oas-utils/helpers'
 
 import { HttpMethod } from '@/components/HttpMethod'
 import { formatMs } from '@/libs/formatters'
+import ValueEmitter from '@/v2/components/layout/ValueEmitter.vue'
 
 import { getStatusCodeColor } from './httpStatusCodeColors'
 
@@ -30,12 +31,20 @@ const { target } = defineProps<{
 const emits = defineEmits<{
   /** Select a request history item by index */
   (e: 'select:history:item', payload: { index: number }): void
+  /** Update the open state of the history popover */
+  (e: 'update:open', value: boolean): void
 }>()
 </script>
 <template>
   <Menu
     v-slot="{ open }"
     as="div">
+    <!-- Emit the slot value back out the parent -->
+    <ValueEmitter
+      :value="open"
+      @change="(value) => emits('update:open', value)"
+      @unmount="emits('update:open', false)" />
+
     <ScalarFloating
       :offset="0"
       resize
@@ -43,7 +52,7 @@ const emits = defineEmits<{
       <!-- History -->
       <MenuButton
         v-if="history.length"
-        class="address-bar-history-button z-context-plus text-c-3 focus:text-c-1 relative mr-1 rounded-lg p-1.5">
+        class="address-bar-history-button text-c-3 focus:text-c-1 relative mr-1 rounded-lg p-1.5">
         <ScalarIcon
           icon="History"
           size="sm"
@@ -56,7 +65,7 @@ const emits = defineEmits<{
         #floating="{ width }">
         <!-- History Item -->
         <MenuItems
-          class="custom-scroll grid max-h-[inherit] grid-cols-[44px_1fr_repeat(3,auto)] items-center border-t p-0.75"
+          class="custom-scroll grid max-h-[inherit] grid-cols-[44px_1fr_repeat(3,auto)] items-center p-0.75"
           static
           :style="{ width }">
           <MenuItem
@@ -83,8 +92,7 @@ const emits = defineEmits<{
             </div>
           </MenuItem>
         </MenuItems>
-        <ScalarFloatingBackdrop
-          class="-top-(--scalar-address-bar-height) rounded-lg" />
+        <ScalarFloatingBackdrop class="inset-x-px rounded-none rounded-b-lg" />
       </template>
     </ScalarFloating>
   </Menu>

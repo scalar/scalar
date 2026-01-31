@@ -10,6 +10,7 @@ import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/o
 import { computed } from 'vue'
 
 import type { ClientLayout } from '@/hooks'
+import ValueEmitter from '@/v2/components/layout/ValueEmitter.vue'
 
 import ServerDropdownItem from './ServerDropdownItem.vue'
 
@@ -35,6 +36,8 @@ const emits = defineEmits<{
     payload: ApiReferenceEvents['server:update:variables'],
   ): void
   (e: 'update:servers'): void
+  /** Update the open state of the server dropdown */
+  (e: 'update:open', value: boolean): void
 }>()
 
 const requestServerOptions = computed(() =>
@@ -56,12 +59,12 @@ const serverUrlWithoutTrailingSlash = computed(() => {
     class="max-h-[inherit] p-0 text-base"
     focus
     :offset="0"
-    placement="bottom-start"
+    placement="bottom"
     resize
     :target="target"
     :teleport="`#${target}`">
     <ScalarButton
-      class="z-context-plus hover:bg-b-2 font-code text-c-2 ml-0.75 h-auto gap-0.75 rounded border px-1.5 text-base whitespace-nowrap"
+      class="hover:bg-b-2 font-code text-c-2 ml-0.75 h-auto gap-0.75 rounded border px-1.5 text-base whitespace-nowrap"
       variant="ghost">
       <template v-if="server">
         <span class="sr-only">Server:</span>
@@ -72,9 +75,10 @@ const serverUrlWithoutTrailingSlash = computed(() => {
         <ScalarIconPlus class="size-3" />
       </template>
     </ScalarButton>
+
     <template #popover="{ close }">
       <div
-        class="custom-scroll flex max-h-[inherit] flex-col gap-1 border-t p-1"
+        class="custom-scroll flex max-h-[inherit] flex-col gap-1 p-1"
         @click="close">
         <!-- Request -->
         <ServerDropdownItem
@@ -104,9 +108,14 @@ const serverUrlWithoutTrailingSlash = computed(() => {
         </template>
       </div>
     </template>
-    <template #backdrop>
-      <ScalarFloatingBackdrop
-        class="-top-(--scalar-address-bar-height) rounded-lg" />
+    <template #backdrop="{ open }">
+      <!-- Emit the slot value back out the parent -->
+      <ValueEmitter
+        :value="open"
+        @change="(value) => emits('update:open', value)"
+        @unmount="emits('update:open', false)" />
+
+      <ScalarFloatingBackdrop class="inset-x-px rounded-none rounded-b-lg" />
     </template>
   </ScalarPopover>
 </template>

@@ -10,16 +10,21 @@ export default {
 </script>
 
 <script setup lang="ts" generic="T">
-import { watch } from 'vue'
+import { onBeforeUnmount, watch } from 'vue'
 
 const { value } = defineProps<{ value: T }>()
-const emit = defineEmits<{ (e: 'change', value: T): void }>()
+const emit = defineEmits<{
+  (e: 'change', value: T): void
+  (e: 'unmount'): void
+}>()
 
 watch(
   () => value,
   (newValue) => emit('change', newValue),
   { immediate: true },
 )
+
+onBeforeUnmount(() => emit('unmount'))
 </script>
 
 <!-- eslint-disable-next-line vue/valid-template-root -->

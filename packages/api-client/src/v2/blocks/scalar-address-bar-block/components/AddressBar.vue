@@ -181,6 +181,14 @@ const copyUrl = async () => {
   )
 }
 
+const isServerDropdownOpen = ref(false)
+const isHistoryDropdownOpen = ref(false)
+
+/** Whether either dropdown is open */
+const isDropdownOpen = computed(
+  () => isServerDropdownOpen.value || isHistoryDropdownOpen.value,
+)
+
 defineExpose({
   methodConflict,
   pathConflict,
@@ -189,20 +197,24 @@ defineExpose({
 <template>
   <div
     :id="id"
-    class="scalar-address-bar order-last flex h-(--scalar-address-bar-height) w-full [--scalar-address-bar-height:32px] lg:order-none lg:w-auto">
+    class="scalar-address-bar order-last flex h-(--scalar-address-bar-height) w-full [--scalar-address-bar-height:32px] lg:order-0 lg:w-auto">
     <!-- Address Bar -->
     <div
       class="address-bar-bg-states text-xxs group relative order-last flex w-full max-w-[calc(100dvw-24px)] flex-1 flex-row items-stretch rounded-lg p-0.75 lg:order-none lg:max-w-[580px] lg:min-w-[580px] xl:max-w-[720px] xl:min-w-[720px]"
       :class="{
         'outline-c-danger outline': hasConflict,
+        'rounded-b-none': isDropdownOpen,
       }">
       <div
-        class="pointer-events-none absolute top-0 left-0 block h-full w-full overflow-hidden rounded-lg border">
+        class="pointer-events-none absolute top-0 left-0 block h-full w-full overflow-hidden rounded-lg border"
+        :class="{
+          'rounded-b-none': isDropdownOpen,
+        }">
         <div
-          class="absolute top-0 left-0 z-[1002] h-full w-full"
+          class="absolute top-0 left-0 h-full w-full"
           :style />
       </div>
-      <div class="z-context-plus flex gap-1">
+      <div class="flex gap-1">
         <HttpMethod
           :isEditable="layout !== 'modal'"
           isSquare
@@ -212,7 +224,7 @@ defineExpose({
       </div>
 
       <div
-        class="scroll-timeline-x scroll-timeline-x-hidden z-context-plus relative flex w-full bg-blend-normal">
+        class="scroll-timeline-x scroll-timeline-x-hidden relative flex w-full bg-blend-normal">
         <!-- Servers -->
         <ServerDropdown
           v-if="servers.length"
@@ -220,6 +232,7 @@ defineExpose({
           :server="server"
           :servers="servers"
           :target="id"
+          @update:open="(value) => (isServerDropdownOpen = value)"
           @update:selectedServer="
             (payload) => eventBus.emit('server:update:selected', payload)
           "
@@ -264,13 +277,12 @@ defineExpose({
       <AddressBarHistory
         :history="history"
         :target="id"
-        @select:history:item="
-          (payload) => emit('select:history:item', payload)
-        " />
+        @select:history:item="(payload) => emit('select:history:item', payload)"
+        @update:open="(value) => (isHistoryDropdownOpen = value)" />
       <!-- Error message -->
       <div
         v-if="hasConflict"
-        class="z-context absolute inset-x-0 top-[calc(100%+4px)] flex flex-col items-center rounded px-6">
+        class="absolute inset-x-0 top-[calc(100%+4px)] flex flex-col items-center rounded px-6">
         <div
           class="text-c-danger bg-b-danger border-c-danger flex items-center gap-1 rounded border p-1">
           <ScalarIconWarningCircle size="sm" />
@@ -285,7 +297,7 @@ defineExpose({
       </div>
       <ScalarButton
         ref="sendButtonRef"
-        class="z-context-plus relative h-auto shrink-0 overflow-hidden py-1 pr-2.5 pl-2 font-bold"
+        class="relative h-auto shrink-0 overflow-hidden py-1 pr-2.5 pl-2 font-bold"
         :disabled="isLoading"
         @click="emit('execute')">
         <span
