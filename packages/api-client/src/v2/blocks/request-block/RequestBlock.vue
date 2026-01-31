@@ -37,7 +37,10 @@ import { getDefaultHeaders } from '@/v2/blocks/request-block/helpers/get-default
 import { getParameterSchema } from '@/v2/blocks/request-block/helpers/get-parameter-schema'
 import { groupBy } from '@/v2/blocks/request-block/helpers/group-by'
 import { isParamDisabled } from '@/v2/blocks/request-block/helpers/is-param-disabled'
-import { AuthSelector } from '@/v2/blocks/scalar-auth-selector-block'
+import {
+  AuthSelector,
+  type MergedSecuritySchemes,
+} from '@/v2/blocks/scalar-auth-selector-block'
 import type { ClientPlugin } from '@/v2/helpers/plugins'
 
 type Filter =
@@ -85,7 +88,7 @@ const {
   plugins: ClientPlugin[]
   proxyUrl: string
   securityRequirements: OpenApiDocument['security']
-  securitySchemes: NonNullable<OpenApiDocument['components']>['securitySchemes']
+  securitySchemes: MergedSecuritySchemes
   selectedClient: WorkspaceStore['workspace']['x-scalar-default-client']
   selectedSecuritySchemes: SecuritySchemeObject[]
   server: ServerObject | null

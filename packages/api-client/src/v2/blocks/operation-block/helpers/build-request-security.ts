@@ -7,21 +7,20 @@ import {
   xScalarCookieSchema,
 } from '@scalar/workspace-store/schemas/extensions/general/x-scalar-cookies'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
-import type {
-  OpenApiDocument,
-  SecurityRequirementObject,
-  SecuritySchemeObject,
-} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { SecurityRequirementObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { encode } from 'js-base64'
+
+import type { MergedSecuritySchemes } from '@/v2/blocks/scalar-auth-selector-block/helpers/merge-security'
+import type { SecuritySchemeObjectSecret } from '@/v2/blocks/scalar-auth-selector-block/helpers/secret-types'
 
 /**
  * Get the selected security schemes from security requirements.
  * Takes security requirement objects and resolves them to actual security scheme objects.
  */
 export const getSecuritySchemes = (
-  securitySchemes: NonNullable<OpenApiDocument['components']>['securitySchemes'],
+  securitySchemes: MergedSecuritySchemes,
   selectedSecurity: SecurityRequirementObject[],
-): SecuritySchemeObject[] =>
+): SecuritySchemeObjectSecret[] =>
   selectedSecurity.flatMap((scheme) =>
     objectKeys(scheme).flatMap((key) => {
       const scheme = getResolvedRef(securitySchemes?.[key])
@@ -39,7 +38,7 @@ export const getSecuritySchemes = (
  */
 export const buildRequestSecurity = (
   /** Currently selected security for the current operation */
-  selectedSecuritySchemes: SecuritySchemeObject[],
+  selectedSecuritySchemes: SecuritySchemeObjectSecret[],
   /** Environment variables flattened into a key-value object */
   env: Record<string, string> = {},
   /** Include this parameter to set the placeholder for empty tokens */
