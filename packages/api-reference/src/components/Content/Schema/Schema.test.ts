@@ -642,4 +642,49 @@ describe('Schema', () => {
       expect(text).toContain('value')
     })
   })
+
+  describe('oneOf composition with date formats', () => {
+    it('renders properties with oneOf composition containing date and date-time formats', () => {
+      const wrapper = mount(Schema, {
+        props: {
+          eventBus: null,
+          schema: coerceValue(SchemaObjectSchema, {
+            type: 'object',
+            properties: {
+              closed_on: {
+                oneOf: [
+                  {
+                    type: 'string',
+                    format: 'date',
+                  },
+                  {
+                    type: 'string',
+                    format: 'date-time',
+                  },
+                ],
+                description: 'The date the object was closed in YYYY-MM-DD or ISO 8601 format.',
+              },
+              status: {
+                type: 'string',
+                description: 'The current status of the object.',
+              },
+            },
+          }),
+          options: {},
+        },
+      })
+
+      const text = wrapper.text()
+
+      // Check that both properties are rendered
+      expect(text).toContain('closed_on')
+      expect(text).toContain('status')
+
+      // Check that the status description is shown
+      expect(text).toContain('The current status of the object.')
+
+      // Check that the oneOf schema is inheiriting the description correctly
+      expect(text).toContain('The date the object was closed in YYYY-MM-DD or ISO 8601 format.')
+    })
+  })
 })
