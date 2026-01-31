@@ -495,11 +495,10 @@ const labelRequestNameId = useId()
       </ScalarErrorBoundary>
 
       <!-- Spacer -->
-      <div class="flex flex-grow" />
-
+      <div class="flex grow" />
       <!-- Code Snippet -->
       <RequestCodeSnippet
-        v-show="selectedFilter === 'All'"
+        v-show="selectedFilter === 'All' && clientOptions.length > 0"
         :clientOptions
         :eventBus
         :globalCookies="globalCookies"
