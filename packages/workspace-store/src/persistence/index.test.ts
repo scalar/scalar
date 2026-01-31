@@ -41,6 +41,8 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
             intermediateDocuments: {},
             overrides: {},
             meta: {},
+            history: {},
+            auth: {},
           },
         },
       )
@@ -56,6 +58,8 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
             intermediateDocuments: {},
             overrides: {},
             meta: {},
+            history: {},
+            auth: {},
           },
         },
       )
@@ -81,6 +85,8 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
             intermediateDocuments: {},
             overrides: {},
             meta: {},
+            history: {},
+            auth: {},
           },
         },
       )
@@ -96,6 +102,8 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
             intermediateDocuments: {},
             overrides: {},
             meta: {},
+            history: {},
+            auth: {},
           },
         },
       )
@@ -110,6 +118,8 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
             intermediateDocuments: {},
             overrides: {},
             meta: {},
+            history: {},
+            auth: {},
           },
         },
       )
@@ -137,6 +147,8 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
             intermediateDocuments: {},
             overrides: {},
             meta: {},
+            history: {},
+            auth: {},
           },
         },
       )
@@ -151,6 +163,8 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
             intermediateDocuments: {},
             overrides: {},
             meta: {},
+            history: {},
+            auth: {},
           },
         },
       )
@@ -173,6 +187,8 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
             intermediateDocuments: {},
             overrides: {},
             meta: {},
+            history: {},
+            auth: {},
           },
         },
       )
@@ -194,6 +210,8 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
             intermediateDocuments: {},
             overrides: {},
             meta: {},
+            history: {},
+            auth: {},
           },
         },
       )
@@ -209,6 +227,8 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
             intermediateDocuments: {},
             overrides: {},
             meta: {},
+            history: {},
+            auth: {},
           },
         },
       )
@@ -224,6 +244,8 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
             intermediateDocuments: {},
             overrides: {},
             meta: {},
+            history: {},
+            auth: {},
           },
         },
       )
@@ -248,6 +270,8 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
             intermediateDocuments: {},
             overrides: {},
             meta: {},
+            history: {},
+            auth: {},
           },
         },
       )
@@ -266,6 +290,8 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
             intermediateDocuments: {},
             overrides: {},
             meta: {},
+            history: {},
+            auth: {},
           },
         },
       )
@@ -294,6 +320,8 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
                 intermediateDocuments: {},
                 overrides: {},
                 meta: {},
+                history: {},
+                auth: {},
               },
             },
           )
@@ -332,6 +360,8 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
             intermediateDocuments: {},
             overrides: {},
             meta: {},
+            history: {},
+            auth: {},
           },
         },
       )
@@ -743,17 +773,22 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
     })
 
     it('returns false after the workspace is deleted', async () => {
-      await persistence.workspace.setItem('workspace-2', {
-        name: 'To Delete',
-        workspace: {
-          documents: {},
-          originalDocuments: {},
-          intermediateDocuments: {},
-          overrides: {},
-          meta: {},
+      await persistence.workspace.setItem(
+        { namespace: 'local', slug: 'workspace-2' },
+        {
+          name: 'To Delete',
+          workspace: {
+            documents: {},
+            originalDocuments: {},
+            intermediateDocuments: {},
+            overrides: {},
+            meta: {},
+            history: {},
+            auth: {},
+          },
         },
-      })
-      expect(await persistence.workspace.has('workspace-2')).toBe(true)
+      )
+      expect(await persistence.workspace.has({ namespace: 'local', slug: 'workspace-2' })).toBe(true)
 
       await persistence.workspace.deleteItem({ namespace: 'local', slug: 'workspace-2' })
       expect(await persistence.workspace.has({ namespace: 'local', slug: 'workspace-2' })).toBe(false)
@@ -786,17 +821,21 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
         const workspaceId = `${namespace}/${slug}`
 
         // Verify by getting the full workspace
-        await persistence.workspace.setItem(workspaceId, {
-          name: 'Test Workspace',
-          workspace: {
-            documents: {},
-            originalDocuments: {},
-            intermediateDocuments: {},
-            overrides: {},
-
-            meta: {},
+        await persistence.workspace.setItem(
+          { namespace, slug },
+          {
+            name: 'Test Workspace',
+            workspace: {
+              documents: {},
+              originalDocuments: {},
+              intermediateDocuments: {},
+              overrides: {},
+              meta: {},
+              history: {},
+              auth: {},
+            },
           },
-        })
+        )
 
         await persistence.meta.setItem(workspaceId, {
           'x-scalar-color-mode': 'dark',
@@ -815,17 +854,21 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
         const slug = 'workspace-1'
         const workspaceId = `${namespace}/${slug}`
 
-        await persistence.workspace.setItem(workspaceId, {
-          name: 'Test',
-          workspace: {
-            documents: {},
-            originalDocuments: {},
-            intermediateDocuments: {},
-            overrides: {},
-
-            meta: {},
+        await persistence.workspace.setItem(
+          { namespace, slug },
+          {
+            name: 'Test',
+            workspace: {
+              documents: {},
+              originalDocuments: {},
+              intermediateDocuments: {},
+              overrides: {},
+              meta: {},
+              history: {},
+              auth: {},
+            },
           },
-        })
+        )
 
         await persistence.meta.setItem(workspaceId, {
           'x-scalar-color-mode': 'dark',
@@ -851,17 +894,21 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
         const workspaceId = `${namespace}/${slug}`
         const documentName = 'api-doc'
 
-        await persistence.workspace.setItem(workspaceId, {
-          name: 'Test Workspace',
-          workspace: {
-            documents: {},
-            originalDocuments: {},
-            intermediateDocuments: {},
-            overrides: {},
-
-            meta: {},
+        await persistence.workspace.setItem(
+          { namespace, slug },
+          {
+            name: 'Test Workspace',
+            workspace: {
+              documents: {},
+              originalDocuments: {},
+              intermediateDocuments: {},
+              overrides: {},
+              meta: {},
+              history: {},
+              auth: {},
+            },
           },
-        })
+        )
 
         const document = {
           openapi: '3.1.0',
@@ -881,17 +928,21 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
         const slug = 'workspace-1'
         const workspaceId = `${namespace}/${slug}`
 
-        await persistence.workspace.setItem(workspaceId, {
-          name: 'Multi-Doc Workspace',
-          workspace: {
-            documents: {},
-            originalDocuments: {},
-            intermediateDocuments: {},
-            overrides: {},
-
-            meta: {},
+        await persistence.workspace.setItem(
+          { namespace, slug },
+          {
+            name: 'Multi-Doc Workspace',
+            workspace: {
+              documents: {},
+              originalDocuments: {},
+              intermediateDocuments: {},
+              overrides: {},
+              meta: {},
+              history: {},
+              auth: {},
+            },
           },
-        })
+        )
 
         const doc1 = {
           openapi: '3.1.0',
@@ -924,17 +975,21 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
         const workspaceId = `${namespace}/${slug}`
         const documentName = 'api-doc'
 
-        await persistence.workspace.setItem(workspaceId, {
-          name: 'Test',
-          workspace: {
-            documents: {},
-            originalDocuments: {},
-            intermediateDocuments: {},
-            overrides: {},
-
-            meta: {},
+        await persistence.workspace.setItem(
+          { namespace, slug },
+          {
+            name: 'Test',
+            workspace: {
+              documents: {},
+              originalDocuments: {},
+              intermediateDocuments: {},
+              overrides: {},
+              meta: {},
+              history: {},
+              auth: {},
+            },
           },
-        })
+        )
 
         const originalDoc = {
           openapi: '3.1.0',
