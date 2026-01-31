@@ -53,6 +53,7 @@ function handleSubmit() {
   outline: none;
   outline-offset: 2px;
   field-sizing: content;
+  max-width: 88px;
 }
 .ask-agent-scalar-input:focus {
   cursor: text;
