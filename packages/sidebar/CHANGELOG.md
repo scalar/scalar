@@ -1,5 +1,17 @@
 # @scalar/sidebar
 
+## 0.7.25
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/components@0.17.2**
+  - [#7934](https://github.com/scalar/scalar/pull/7934): fix: z-index issues in addressBar
+
+- **@scalar/workspace-store@0.28.1**
+  - [#7823](https://github.com/scalar/scalar/pull/7823): chore: update workspace schema index to support teamUid queries and local
+
 ## 0.7.24
 
 ### Patch Changes

@@ -1,5 +1,14 @@
 # @scalar/use-codemirror
 
+## 0.13.29
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/components@0.17.2**
+  - [#7934](https://github.com/scalar/scalar/pull/7934): fix: z-index issues in addressBar
+
 ## 0.13.28
 
 ### Patch Changes

@@ -1,5 +1,15 @@
 # @scalarapi/docker-api-reference
 
+## 0.4.44
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.44.5**
+  - [#8007](https://github.com/scalar/scalar/pull/8007): fix: use correct composition data for oneOf property
+  - [#8006](https://github.com/scalar/scalar/pull/8006): fix(agent): safari fieldsizing fallback
+
 ## 0.4.43
 
 ### Patch Changes

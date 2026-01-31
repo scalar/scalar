@@ -1,5 +1,30 @@
 # @scalar/api-reference
 
+## 1.44.5
+
+### Patch Changes
+
+- [#8007](https://github.com/scalar/scalar/pull/8007): fix: use correct composition data for oneOf property
+- [#8006](https://github.com/scalar/scalar/pull/8006): fix(agent): safari fieldsizing fallback
+
+#### Updated Dependencies
+
+- **@scalar/api-client@2.22.3**
+  - [#8004](https://github.com/scalar/scalar/pull/8004): fix: do not add a content type of none
+  - [#7934](https://github.com/scalar/scalar/pull/7934): fix: z-index issues in addressBar
+
+- **@scalar/components@0.17.2**
+  - [#7934](https://github.com/scalar/scalar/pull/7934): fix: z-index issues in addressBar
+
+- **@scalar/workspace-store@0.28.1**
+  - [#7823](https://github.com/scalar/scalar/pull/7823): chore: update workspace schema index to support teamUid queries and local
+
+- **@scalar/agent-chat@0.4.6**
+
+- **@scalar/sidebar@0.7.25**
+
+- **@scalar/oas-utils@0.6.32**
+
 ## 1.44.4
 
 ### Patch Changes

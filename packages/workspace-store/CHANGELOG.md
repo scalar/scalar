@@ -1,5 +1,11 @@
 # @scalar/workspace-store
 
+## 0.28.1
+
+### Patch Changes
+
+- [#7823](https://github.com/scalar/scalar/pull/7823): chore: update workspace schema index to support teamUid queries and local
+
 ## 0.28.0
 
 ### Minor Changes

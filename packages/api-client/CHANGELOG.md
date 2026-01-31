@@ -1,5 +1,26 @@
 # @scalar/api-client
 
+## 2.22.3
+
+### Patch Changes
+
+- [#8004](https://github.com/scalar/scalar/pull/8004): fix: do not add a content type of none
+- [#7934](https://github.com/scalar/scalar/pull/7934): fix: z-index issues in addressBar
+
+#### Updated Dependencies
+
+- **@scalar/components@0.17.2**
+  - [#7934](https://github.com/scalar/scalar/pull/7934): fix: z-index issues in addressBar
+
+- **@scalar/workspace-store@0.28.1**
+  - [#7823](https://github.com/scalar/scalar/pull/7823): chore: update workspace schema index to support teamUid queries and local
+
+- **@scalar/sidebar@0.7.25**
+
+- **@scalar/use-codemirror@0.13.29**
+
+- **@scalar/oas-utils@0.6.32**
+
 ## 2.22.2
 
 ### Patch Changes

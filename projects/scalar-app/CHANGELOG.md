@@ -1,5 +1,18 @@
 # scalar-app
 
+## 0.1.277
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-client@2.22.3**
+  - [#8004](https://github.com/scalar/scalar/pull/8004): fix: do not add a content type of none
+  - [#7934](https://github.com/scalar/scalar/pull/7934): fix: z-index issues in addressBar
+
+- **@scalar/components@0.17.2**
+  - [#7934](https://github.com/scalar/scalar/pull/7934): fix: z-index issues in addressBar
+
 ## 0.1.276
 
 ### Patch Changes
