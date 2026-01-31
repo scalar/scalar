@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
-import { ScalarIcon, ScalarMarkdown } from '@scalar/components'
+import { ScalarMarkdown } from '@scalar/components'
+import { ScalarIconPlus } from '@scalar/icons'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type {
   DiscriminatorObject,
@@ -139,9 +140,8 @@ const handleClick = (e: MouseEvent) => noncollapsible && e.stopPropagation()
             as="button"
             class="schema-card-title schema-card-title--compact"
             @click.capture="handleClick">
-            <ScalarIcon
+            <ScalarIconPlus
               class="schema-card-title-icon"
-              icon="Add"
               size="sm" />
             Show additional properties
             <ScreenReader v-if="name">for {{ name }}</ScreenReader>
@@ -159,10 +159,9 @@ const handleClick = (e: MouseEvent) => noncollapsible && e.stopPropagation()
           }"
           @click.capture="handleClick">
           <template v-if="compact">
-            <ScalarIcon
+            <ScalarIconPlus
               class="schema-card-title-icon"
               :class="{ 'schema-card-title-icon--open': open }"
-              icon="Add"
               size="sm" />
             <template v-if="open">
               Hide {{ schema?.title ?? 'Child Attributes' }}
@@ -173,10 +172,9 @@ const handleClick = (e: MouseEvent) => noncollapsible && e.stopPropagation()
             <ScreenReader v-if="name">for {{ name }}</ScreenReader>
           </template>
           <template v-else>
-            <ScalarIcon
+            <ScalarIconPlus
               class="schema-card-title-icon"
               :class="{ 'schema-card-title-icon--open': open }"
-              icon="Add"
               size="sm" />
             <SchemaHeading
               :name="schema?.title ?? name"

@@ -8,10 +8,19 @@ import {
   ScalarIcon,
   type Icon,
 } from '@scalar/components'
+import { ScalarIconLink, ScalarIconPlus } from '@scalar/icons'
 import { LibraryIcon } from '@scalar/icons/library'
 import type { Collection } from '@scalar/oas-utils/entities/spec'
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
-import { computed, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
+import {
+  computed,
+  onBeforeUnmount,
+  onMounted,
+  reactive,
+  ref,
+  watch,
+  type Component,
+} from 'vue'
 import { useRouter } from 'vue-router'
 
 import { ROUTES } from '@/constants'
@@ -34,7 +43,7 @@ const topNavItems = reactive([
   {
     label: '',
     path: '',
-    icon: 'Add' as Icon | Collection['x-scalar-icon'],
+    icon: 'Add' as Component | Icon | Collection['x-scalar-icon'],
     isCollection: false,
   },
 ])
@@ -223,9 +232,18 @@ onBeforeUnmount(() => events.hotKeys.off(handleHotKey))
                 v-if="isCollection"
                 class="size-3.5 min-w-3.5 stroke-2"
                 :src="activeCollection?.['x-scalar-icon'] || 'Collection'" />
-              <ScalarIcon
+              <component
+                :is="
+                  typeof topNavItems[0]?.icon === 'string'
+                    ? ScalarIcon
+                    : topNavItems[0]?.icon
+                "
                 v-else-if="topNavItems[0]?.icon"
-                :icon="topNavItems[0]?.icon as Icon"
+                v-bind="
+                  typeof topNavItems[0]?.icon === 'string'
+                    ? { icon: topNavItems[0]?.icon as Icon }
+                    : {}
+                "
                 size="xs"
                 thickness="2.5" />
               <span>{{ topNavItems[0]?.label }}</span>
@@ -237,8 +255,7 @@ onBeforeUnmount(() => events.hotKeys.off(handleHotKey))
                     <ScalarDropdownButton
                       class="flex items-center gap-1.5"
                       @click="addNavItem">
-                      <ScalarIcon
-                        icon="AddTab"
+                      <ScalarIconPlus
                         size="sm"
                         thickness="1.5" />
                       New Tab
@@ -249,8 +266,7 @@ onBeforeUnmount(() => events.hotKeys.off(handleHotKey))
                     <ScalarDropdownButton
                       class="flex items-center gap-1.5"
                       @click="copyUrl(activeNavItemIdxValue)">
-                      <ScalarIcon
-                        icon="Link"
+                      <ScalarIconLink
                         size="sm"
                         thickness="1.5" />
                       Copy URL
@@ -285,8 +301,7 @@ onBeforeUnmount(() => events.hotKeys.off(handleHotKey))
         class="text-c-3 hover:bg-b-3 app-no-drag-region rounded p-1.5"
         type="button"
         @click="addNavItem">
-        <ScalarIcon
-          icon="Add"
+        <ScalarIconPlus
           size="sm"
           thickness="2.5" />
       </button>

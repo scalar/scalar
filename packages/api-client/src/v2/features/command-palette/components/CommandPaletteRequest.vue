@@ -27,13 +27,13 @@ import {
   ScalarButton,
   ScalarDropdown,
   ScalarDropdownItem,
-  ScalarIcon,
   ScalarListbox,
 } from '@scalar/components'
 import {
   HTTP_METHODS,
   type HttpMethod,
 } from '@scalar/helpers/http/http-methods'
+import { ScalarIconCaretDown } from '@scalar/icons'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { computed, ref, watch } from 'vue'
@@ -276,9 +276,8 @@ const handleBack = (event: KeyboardEvent): void => {
                 selectedDocument ? selectedDocument.label : 'Select Document'
               }}
             </span>
-            <ScalarIcon
+            <ScalarIconCaretDown
               class="text-c-3"
-              icon="ChevronDown"
               size="md" />
           </ScalarButton>
         </ScalarListbox>
@@ -294,9 +293,8 @@ const handleBack = (event: KeyboardEvent): void => {
               <HttpMethodBadge
                 v-if="selectedMethod"
                 :method="selectedMethod.method" />
-              <ScalarIcon
+              <ScalarIconCaretDown
                 class="text-c-3"
-                icon="ChevronDown"
                 size="md" />
             </div>
           </ScalarButton>
@@ -326,9 +324,8 @@ const handleBack = (event: KeyboardEvent): void => {
             <span :class="selectedTag ? 'text-c-1 truncate' : 'text-c-3'">
               {{ selectedTag ? selectedTag.label : 'Select Tag (Optional)' }}
             </span>
-            <ScalarIcon
+            <ScalarIconCaretDown
               class="text-c-3"
-              icon="ChevronDown"
               size="md" />
           </ScalarButton>
 

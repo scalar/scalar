@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import {
   ScalarButton,
-  ScalarIcon,
   ScalarListbox,
   type ScalarComboboxOption,
 } from '@scalar/components'
+import { ScalarIconCaretDown } from '@scalar/icons'
 import type {
   RequestMethod,
   RequestPayload,
@@ -174,9 +174,8 @@ const wrapper = useTemplateRef('wrapper-ref')
                   : 'Select Collection'
               }}
             </span>
-            <ScalarIcon
+            <ScalarIconCaretDown
               class="text-c-3"
-              icon="ChevronDown"
               size="md" />
           </ScalarButton>
         </ScalarListbox>

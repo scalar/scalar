@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ScalarIcon } from '@scalar/components'
+import { ScalarIconCheck } from '@scalar/icons'
 import { computed, nextTick, ref } from 'vue'
 
 const { activeColor } = defineProps<{
@@ -114,10 +114,9 @@ const handleCustomColorInput = (): void => {
       class="flex h-4 w-4 cursor-pointer items-center justify-center rounded-full"
       :style="{ backgroundColor: activeColor }"
       @click="toggleSelector">
-      <ScalarIcon
+      <ScalarIconCheck
         v-if="activeColor"
         class="text-c-btn p-0.5"
-        icon="Checkmark"
         size="xs" />
     </div>
 
@@ -132,10 +131,9 @@ const handleCustomColorInput = (): void => {
         class="flex h-4 w-4 cursor-pointer items-center justify-center rounded-full"
         :style="{ backgroundColor: option }"
         @click="selectColor(option)">
-        <ScalarIcon
+        <ScalarIconCheck
           v-if="isActiveColor(option)"
           class="text-c-btn p-0.5"
-          icon="Checkmark"
           size="xs" />
       </div>
 
@@ -148,10 +146,9 @@ const handleCustomColorInput = (): void => {
         :style="customButtonStyle"
         type="button"
         @click="toggleCustomInput">
-        <ScalarIcon
+        <ScalarIconCheck
           v-if="isCustomColor"
           class="text-c-btn"
-          icon="Checkmark"
           size="xs" />
       </button>
     </div>
@@ -175,9 +172,7 @@ const handleCustomColorInput = (): void => {
         class="text-c-3 hover:bg-b-2 rounded-lg p-1.5"
         type="button"
         @click="toggleCustomInput">
-        <ScalarIcon
-          icon="Checkmark"
-          size="xs" />
+        <ScalarIconCheck size="xs" />
       </button>
     </div>
   </div>

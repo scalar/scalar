@@ -82,6 +82,7 @@
     "@codemirror/lang-javascript": "^6.2.4",
     "@headlessui/vue": "catalog:*",
     "@scalar/components": "workspace:*",
+    "@scalar/icons": "workspace:*",
     "@scalar/oas-utils": "workspace:*",
     "vue": "catalog:*"
   },

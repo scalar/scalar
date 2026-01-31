@@ -1,5 +1,5 @@
 <script setup lang="ts" generic="T extends string">
-import { ScalarIcon } from '@scalar/components'
+import { ScalarIconFunnel } from '@scalar/icons'
 import { nextTick, ref } from 'vue'
 
 import SectionFilterButton from '@/components/SectionFilterButton.vue'
@@ -58,8 +58,7 @@ const navigateSection = (direction: 'next' | 'prev') => {
       <div
         class="filter-button context-bar-group-hover:text-c-1 absolute -right-[30px] flex items-center">
         <span class="context-bar-group-hover:hidden mr-1.5">{{ model }}</span>
-        <ScalarIcon
-          icon="FilterList"
+        <ScalarIconFunnel
           size="md"
           thickness="2" />
       </div>

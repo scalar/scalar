@@ -1,5 +1,10 @@
 <script setup lang="ts">
-import { ScalarIcon, ScalarModal, useModal } from '@scalar/components'
+import { ScalarModal, useModal } from '@scalar/components'
+import {
+  ScalarIconClipboard,
+  ScalarIconPencil,
+  ScalarIconX,
+} from '@scalar/icons'
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
 import { ref } from 'vue'
 
@@ -54,27 +59,21 @@ function handleDelete(id: string) {
       class="text-c-3 hover:bg-b-3 hover:text-c-1 rounded p-[5px]"
       type="button"
       @click="copyToClipboard(variable.name)">
-      <ScalarIcon
-        class="h-3 w-3"
-        icon="Clipboard" />
+      <ScalarIconClipboard class="h-3 w-3" />
     </button>
     <button
       v-if="isRenameable"
       class="text-c-3 hover:bg-b-3 hover:text-c-1 rounded p-[5px]"
       type="button"
       @click="emit('rename', variable.uid)">
-      <ScalarIcon
-        class="h-3 w-3"
-        icon="Edit" />
+      <ScalarIconPencil class="h-3 w-3" />
     </button>
     <button
       v-if="!variable.isDefault && isDeletable"
       class="text-c-3 hover:bg-b-3 hover:text-c-1 rounded p-1"
       type="button"
       @click.prevent="startActionFlow(ModalAction.Delete)">
-      <ScalarIcon
-        class="h-3.5 w-3.5"
-        icon="Close" />
+      <ScalarIconX class="h-3.5 w-3.5" />
     </button>
   </div>
   <ScalarModal

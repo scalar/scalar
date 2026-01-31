@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ScalarIcon } from '@scalar/components'
+import { ScalarIconMarkdownLogo } from '@scalar/icons'
 import type { Cookie } from '@scalar/oas-utils/entities/cookie'
 import type { Path, PathValue } from '@scalar/object-utils/nested'
 import { useId } from 'vue'
@@ -41,18 +41,18 @@ const id = useId()
     <div class="flex flex-1 flex-col gap-1.5">
       <DataTable
         v-if="Object.keys(data).length > 0 && activeWorkspace"
-        :columns="['']"
-        class="rounded-b-lg">
+        class="rounded-b-lg"
+        :columns="['']">
         <DataTableRow
           v-for="(option, index) in options"
           :key="index"
           :class="{ 'border-t': index === 0 }">
           <DataTableInput
-            class="pr-9"
-            lineWrapping
             :id="id"
+            class="pr-9"
             :envVariables="activeEnvVariables"
             :environment="activeEnvironment"
+            lineWrapping
             :modelValue="data[option.key] ?? ''"
             :placeholder="option.placeholder"
             :workspace="activeWorkspace"
@@ -67,9 +67,7 @@ const id = useId()
               #icon>
               <div
                 class="centered-y bg-b-2 flex-center absolute right-1 z-1 rounded px-1 py-0.5">
-                <ScalarIcon
-                  icon="Markdown"
-                  size="lg" />
+                <ScalarIconMarkdownLogo size="lg" />
               </div>
             </template>
           </DataTableInput>

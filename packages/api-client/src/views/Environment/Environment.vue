@@ -5,6 +5,7 @@ import {
   ScalarModal,
   useModal,
 } from '@scalar/components'
+import { ScalarIconPlus } from '@scalar/icons'
 import { LibraryIcon } from '@scalar/icons/library'
 import type { Collection } from '@scalar/oas-utils/entities/spec'
 import { useToasts } from '@scalar/use-toasts'
@@ -482,9 +483,9 @@ watch(
                   :collectionId="collection.uid"
                   :isCopyable="false"
                   :isDeletable="true"
-                  :isRenameable="true"
                   :isDraggable="true"
                   :isDroppable="isDroppable"
+                  :isRenameable="true"
                   :to="{
                     name: 'environment.collection',
                     params: {
@@ -505,8 +506,8 @@ watch(
                   "
                   @colorModal="handleOpenColorModal(environmentName)"
                   @delete="removeCollectionEnvironment(environmentName)"
-                  @rename="openRenameModal(environmentName, collection.uid)"
-                  @onDragEnd="handleDragEnd" />
+                  @onDragEnd="handleDragEnd"
+                  @rename="openRenameModal(environmentName, collection.uid)" />
                 <ScalarButton
                   v-if="
                     Object.keys(collection['x-scalar-environments'] || {})
@@ -515,9 +516,7 @@ watch(
                   class="text-c-1 hover:bg-b-2 flex h-8 w-full justify-start gap-1.5 py-0 pl-6 text-xs"
                   variant="ghost"
                   @click="openEnvironmentModal(collection.uid)">
-                  <ScalarIcon
-                    icon="Add"
-                    size="sm" />
+                  <ScalarIconPlus size="sm" />
                   <span>Add Environment</span>
                 </ScalarButton>
               </div>

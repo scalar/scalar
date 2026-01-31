@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ScalarIcon } from '@scalar/components'
+import { ScalarIconGear } from '@scalar/icons'
 import { useRouter } from 'vue-router'
 
 import { ROUTES } from '@/constants'
@@ -67,7 +68,7 @@ const { activeWorkspace } = useActiveEntities()
       <li class="flex items-center">
         <SideNavRouterLink
           :active="currentRoute.name === 'settings'"
-          icon="Settings"
+          :icon="ScalarIconGear"
           :to="{
             name: `settings.default`,
             params: {

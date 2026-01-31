@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ScalarIcon } from '@scalar/components'
+import { ScalarIconMarkdownLogo } from '@scalar/icons'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import { useId } from 'vue'
 
@@ -58,9 +58,7 @@ const id = useId()
               #icon>
               <div
                 class="centered-y bg-b-2 flex-center absolute right-1 z-1 rounded px-1 py-0.5">
-                <ScalarIcon
-                  icon="Markdown"
-                  size="lg" />
+                <ScalarIconMarkdownLogo size="lg" />
               </div>
             </template>
           </DataTableInput>

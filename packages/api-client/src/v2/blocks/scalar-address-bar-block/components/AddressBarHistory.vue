@@ -3,9 +3,10 @@ import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/vue'
 import {
   ScalarFloating,
   ScalarFloatingBackdrop,
-  ScalarIcon,
+  ScalarIconButton,
 } from '@scalar/components'
 import type { HttpMethod as HttpMethodType } from '@scalar/helpers/http/http-methods'
+import { ScalarIconClockCounterClockwise } from '@scalar/icons'
 import { httpStatusCodes } from '@scalar/oas-utils/helpers'
 
 import { HttpMethod } from '@/components/HttpMethod'
@@ -43,12 +44,13 @@ const emits = defineEmits<{
       <!-- History -->
       <MenuButton
         v-if="history.length"
-        class="address-bar-history-button z-context-plus text-c-3 focus:text-c-1 relative mr-1 rounded-lg p-1.5">
-        <ScalarIcon
-          icon="History"
+        as="template"
+        class="address-bar-history-button">
+        <ScalarIconButton
+          class="hover:bg-b-3 z-context-plus text-c-3 focus:text-c-1 relative mr-1 size-6.5 self-center p-1.25"
+          :icon="ScalarIconClockCounterClockwise"
           size="sm"
-          thickness="2.25" />
-        <span class="sr-only">Request History</span>
+          label="Request History" />
       </MenuButton>
       <!-- History shadow and placement-->
       <template
@@ -89,11 +91,3 @@ const emits = defineEmits<{
     </ScalarFloating>
   </Menu>
 </template>
-<style scoped>
-.address-bar-history-button:hover {
-  background: var(--scalar-background-3);
-}
-.address-bar-history-button:focus-within {
-  background: var(--scalar-background-2);
-}
-</style>

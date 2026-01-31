@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { ScalarButton, ScalarIcon, ScalarListbox } from '@scalar/components'
+import { ScalarButton, ScalarListbox } from '@scalar/components'
+import { ScalarIconCaretDown } from '@scalar/icons'
 import { useToasts } from '@scalar/use-toasts'
 import { computed, ref } from 'vue'
 
@@ -71,9 +72,8 @@ const handleSubmit = () => {
           <span :class="selectedCollection ? 'text-c-1' : 'text-c-3'">{{
             selectedCollection ? selectedCollection.label : 'Select Collection'
           }}</span>
-          <ScalarIcon
+          <ScalarIconCaretDown
             class="text-c-3"
-            icon="ChevronDown"
             size="md" />
         </ScalarButton>
       </ScalarListbox>

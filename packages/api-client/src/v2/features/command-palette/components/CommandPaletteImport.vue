@@ -26,10 +26,10 @@ export default {
 import {
   ScalarButton,
   ScalarCodeBlock,
-  ScalarIcon,
   ScalarTooltip,
   useLoadingState,
 } from '@scalar/components'
+import { ScalarIconUpload } from '@scalar/icons'
 import { normalize } from '@scalar/openapi-parser'
 import type { UnknownObject } from '@scalar/types/utils'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
@@ -342,9 +342,8 @@ const handleBack = (event: KeyboardEvent): void => {
           variant="outlined"
           @click="openSpecFileDialog">
           JSON, or YAML File
-          <ScalarIcon
+          <ScalarIconUpload
             class="text-c-3"
-            icon="Upload"
             size="md" />
         </ScalarButton>
 

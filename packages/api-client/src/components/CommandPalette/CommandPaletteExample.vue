@@ -3,8 +3,8 @@ import {
   ScalarButton,
   ScalarDropdown,
   ScalarDropdownItem,
-  ScalarIcon,
 } from '@scalar/components'
+import { ScalarIconCaretDown } from '@scalar/icons'
 import type { Request } from '@scalar/oas-utils/entities/spec'
 import { isDefined } from '@scalar/oas-utils/helpers'
 import { useToasts } from '@scalar/use-toasts'
@@ -104,9 +104,8 @@ const visibleRequests = computed<Request[]>(() =>
           {{ selectedRequest.summary }}
           <div class="flex items-center gap-2">
             <HttpMethod :method="selectedRequest.method" />
-            <ScalarIcon
+            <ScalarIconCaretDown
               class="text-c-3"
-              icon="ChevronDown"
               size="md" />
           </div>
         </ScalarButton>
