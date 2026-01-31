@@ -1,4 +1,5 @@
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
+import type { AuthStore } from '@scalar/workspace-store/entities/auth/index'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { XScalarCookie } from '@scalar/workspace-store/schemas/extensions/general/x-scalar-cookies'
 import type {
@@ -39,7 +40,7 @@ export type OperationToHarProps = {
   /** OpenAPI Server object */
   server?: ServerObject | null
   /** OpenAPI SecurityScheme objects which are applicable to the operation */
-  securitySchemes?: SecuritySchemeObject[]
+  securitySchemes?: { scheme: SecuritySchemeObject; name: string }[]
   /** Workspace + document cookies */
   globalCookies?: XScalarCookie[]
   /**
@@ -48,6 +49,14 @@ export type OperationToHarProps = {
    * @default true
    */
   includeDefaultHeaders?: boolean
+  /**
+   * Auth store
+   */
+  authStore: AuthStore
+  /**
+   * Document slug
+   */
+  documentSlug: string
 }
 
 /**
@@ -81,6 +90,8 @@ export const operationToHar = ({
   server = null,
   example,
   securitySchemes,
+  authStore,
+  documentSlug,
   globalCookies,
 }: OperationToHarProps): HarRequest => {
   const defaultHeaders = includeDefaultHeaders
@@ -162,7 +173,7 @@ export const operationToHar = ({
 
   // Handle security schemes
   if (securitySchemes) {
-    const { headers, queryString, cookies } = processSecuritySchemes(securitySchemes)
+    const { headers, queryString, cookies } = processSecuritySchemes(securitySchemes, authStore, documentSlug)
     harRequest.headers.push(...headers)
     harRequest.queryString.push(...queryString)
     harRequest.cookies.push(...cookies)

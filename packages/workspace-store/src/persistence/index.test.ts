@@ -41,6 +41,8 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
             intermediateDocuments: {},
             overrides: {},
             meta: {},
+            history: {},
+            auth: {},
           },
         },
       )
@@ -56,6 +58,8 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
             intermediateDocuments: {},
             overrides: {},
             meta: {},
+            history: {},
+            auth: {},
           },
         },
       )
@@ -81,6 +85,8 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
             intermediateDocuments: {},
             overrides: {},
             meta: {},
+            history: {},
+            auth: {},
           },
         },
       )
@@ -96,6 +102,8 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
             intermediateDocuments: {},
             overrides: {},
             meta: {},
+            history: {},
+            auth: {},
           },
         },
       )
@@ -110,6 +118,8 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
             intermediateDocuments: {},
             overrides: {},
             meta: {},
+            history: {},
+            auth: {},
           },
         },
       )
@@ -137,6 +147,8 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
             intermediateDocuments: {},
             overrides: {},
             meta: {},
+            history: {},
+            auth: {},
           },
         },
       )
@@ -151,6 +163,8 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
             intermediateDocuments: {},
             overrides: {},
             meta: {},
+            history: {},
+            auth: {},
           },
         },
       )
@@ -173,6 +187,8 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
             intermediateDocuments: {},
             overrides: {},
             meta: {},
+            history: {},
+            auth: {},
           },
         },
       )
@@ -194,6 +210,8 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
             intermediateDocuments: {},
             overrides: {},
             meta: {},
+            history: {},
+            auth: {},
           },
         },
       )
@@ -209,6 +227,8 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
             intermediateDocuments: {},
             overrides: {},
             meta: {},
+            history: {},
+            auth: {},
           },
         },
       )
@@ -224,6 +244,8 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
             intermediateDocuments: {},
             overrides: {},
             meta: {},
+            history: {},
+            auth: {},
           },
         },
       )
@@ -248,6 +270,8 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
             intermediateDocuments: {},
             overrides: {},
             meta: {},
+            history: {},
+            auth: {},
           },
         },
       )
@@ -266,6 +290,8 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
             intermediateDocuments: {},
             overrides: {},
             meta: {},
+            history: {},
+            auth: {},
           },
         },
       )
@@ -294,6 +320,8 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
                 intermediateDocuments: {},
                 overrides: {},
                 meta: {},
+                history: {},
+                auth: {},
               },
             },
           )
@@ -332,6 +360,8 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
             intermediateDocuments: {},
             overrides: {},
             meta: {},
+            history: {},
+            auth: {},
           },
         },
       )
@@ -367,6 +397,8 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
             intermediateDocuments: {},
             overrides: {},
             meta: {},
+            history: {},
+            auth: {},
           },
         },
       )
@@ -381,6 +413,8 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
             intermediateDocuments: {},
             overrides: {},
             meta: {},
+            history: {},
+            auth: {},
           },
         },
       )
@@ -406,6 +440,8 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
             intermediateDocuments: {},
             overrides: {},
             meta: {},
+            history: {},
+            auth: {},
           },
         },
       )
@@ -420,6 +456,8 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
             intermediateDocuments: {},
             overrides: {},
             meta: {},
+            history: {},
+            auth: {},
           },
         },
       )
@@ -434,6 +472,8 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
             intermediateDocuments: {},
             overrides: {},
             meta: {},
+            history: {},
+            auth: {},
           },
         },
       )
@@ -457,6 +497,8 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
             intermediateDocuments: {},
             overrides: {},
             meta: {},
+            history: {},
+            auth: {},
           },
         },
       )
@@ -471,6 +513,8 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
             intermediateDocuments: {},
             overrides: {},
             meta: {},
+            history: {},
+            auth: {},
           },
         },
       )
@@ -485,6 +529,8 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
             intermediateDocuments: {},
             overrides: {},
             meta: {},
+            history: {},
+            auth: {},
           },
         },
       )
@@ -513,6 +559,8 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
             intermediateDocuments: {},
             overrides: {},
             meta: {},
+            history: {},
+            auth: {},
           },
         },
       )
@@ -527,8 +575,9 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
             originalDocuments: {},
             intermediateDocuments: {},
             overrides: {},
-
             meta: {},
+            history: {},
+            auth: {},
           },
         },
       )
@@ -556,8 +605,9 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
               originalDocuments: {},
               intermediateDocuments: {},
               overrides: {},
-
               meta: {},
+              history: {},
+              auth: {},
             },
           },
         )
@@ -601,6 +651,8 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
               'x-scalar-active-document': 'doc-1',
               'x-scalar-color-mode': 'dark',
             },
+            history: {},
+            auth: {},
           },
         },
       )
@@ -628,8 +680,9 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
             originalDocuments: {},
             intermediateDocuments: {},
             overrides: {},
-
             meta: {},
+            history: {},
+            auth: {},
           },
         },
       )
@@ -643,8 +696,9 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
             originalDocuments: {},
             intermediateDocuments: {},
             overrides: {},
-
             meta: {},
+            history: {},
+            auth: {},
           },
         },
       )
@@ -672,8 +726,9 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
               originalDocuments: {},
               intermediateDocuments: {},
               overrides: {},
-
               meta: {},
+              history: {},
+              auth: {},
             },
           },
         )
@@ -707,6 +762,8 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
             intermediateDocuments: {},
             overrides: {},
             meta: {},
+            history: {},
+            auth: {},
           },
         },
       )
@@ -726,6 +783,8 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
             intermediateDocuments: {},
             overrides: {},
             meta: {},
+            history: {},
+            auth: {},
           },
         },
       )
@@ -771,8 +830,9 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
               originalDocuments: {},
               intermediateDocuments: {},
               overrides: {},
-
               meta: {},
+              history: {},
+              auth: {},
             },
           },
         )
@@ -803,8 +863,9 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
               originalDocuments: {},
               intermediateDocuments: {},
               overrides: {},
-
               meta: {},
+              history: {},
+              auth: {},
             },
           },
         )
@@ -842,8 +903,9 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
               originalDocuments: {},
               intermediateDocuments: {},
               overrides: {},
-
               meta: {},
+              history: {},
+              auth: {},
             },
           },
         )
@@ -875,8 +937,9 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
               originalDocuments: {},
               intermediateDocuments: {},
               overrides: {},
-
               meta: {},
+              history: {},
+              auth: {},
             },
           },
         )
@@ -921,8 +984,9 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
               originalDocuments: {},
               intermediateDocuments: {},
               overrides: {},
-
               meta: {},
+              history: {},
+              auth: {},
             },
           },
         )
@@ -956,8 +1020,9 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
               originalDocuments: {},
               intermediateDocuments: {},
               overrides: {},
-
               meta: {},
+              history: {},
+              auth: {},
             },
           },
         )
@@ -991,8 +1056,9 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
               originalDocuments: {},
               intermediateDocuments: {},
               overrides: {},
-
               meta: {},
+              history: {},
+              auth: {},
             },
           },
         )
@@ -1006,6 +1072,75 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
 
         const workspace = await persistence.workspace.getItem({ namespace, slug })
         expect(workspace?.workspace.overrides[documentName]).toEqual(overrides)
+      })
+    })
+
+    describe('history.setItem', () => {
+      it('sets document history', async () => {
+        const namespace = 'local'
+        const slug = 'workspace-1'
+        const workspaceId = `${namespace}/${slug}`
+        const documentName = 'api-doc'
+
+        await persistence.workspace.setItem(
+          { namespace, slug },
+          {
+            name: 'Test',
+            workspace: {
+              documents: {},
+              originalDocuments: {},
+              intermediateDocuments: {},
+              overrides: {},
+              meta: {},
+              history: {},
+              auth: {},
+            },
+          },
+        )
+
+        const history = {
+          '/users': {
+            get: [
+              {
+                time: 1000,
+                meta: { example: 'default' },
+                timestamp: Date.now(),
+                request: {
+                  url: 'https://api.example.com/users',
+                  method: 'GET',
+                  headers: [],
+                  httpVersion: 'HTTP/1.1',
+                  cookies: [],
+                  headersSize: -1,
+                  queryString: [],
+                  bodySize: -1,
+                },
+                response: {
+                  status: 200,
+                  statusText: 'OK',
+                  httpVersion: 'HTTP/1.1',
+                  cookies: [],
+                  headers: [],
+                  content: {
+                    size: 0,
+                    mimeType: 'application/json',
+                  },
+                  redirectURL: '',
+                  headersSize: -1,
+                  bodySize: 0,
+                },
+                requestMetadata: {
+                  variables: {},
+                },
+              },
+            ],
+          },
+        }
+
+        await persistence.history.setItem(workspaceId, documentName, history)
+
+        const workspace = await persistence.workspace.getItem({ namespace, slug })
+        expect(workspace?.workspace.history[documentName]).toEqual(history)
       })
     })
   })

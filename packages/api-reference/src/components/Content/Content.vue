@@ -1,12 +1,16 @@
 <script setup lang="ts">
 import { generateClientOptions } from '@scalar/api-client/v2/blocks/operation-code-sample'
-import { mergeAuthConfig } from '@scalar/api-client/v2/blocks/scalar-auth-selector-block'
+import {
+  extractSecuritySchemeSecrets,
+  mergeAuthConfig,
+} from '@scalar/api-client/v2/blocks/scalar-auth-selector-block'
 import { mapHiddenClientsConfig } from '@scalar/api-client/v2/features/modal'
 import { getSelectedServer } from '@scalar/api-client/v2/features/operation'
 import { getServers } from '@scalar/api-client/v2/helpers'
 import { ScalarErrorBoundary } from '@scalar/components'
 import type { ApiReferenceConfigurationRaw } from '@scalar/types/api-reference'
 import type { Heading } from '@scalar/types/legacy'
+import type { AuthStore } from '@scalar/workspace-store/entities/auth/index'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type { TraversedEntry as TraversedEntryType } from '@scalar/workspace-store/schemas/navigation'
@@ -14,7 +18,7 @@ import type {
   Workspace,
   WorkspaceDocument,
 } from '@scalar/workspace-store/schemas/workspace'
-import { computed } from 'vue'
+import { computed, toValue, watch } from 'vue'
 
 import { ClientSelector } from '@/blocks/scalar-client-selector-block'
 import { InfoBlock } from '@/blocks/scalar-info-block'
@@ -28,7 +32,15 @@ import { SectionFlare } from '@/components/SectionFlare'
 import { getXKeysFromObject } from '@/features/specification-extension'
 import { firstLazyLoadComplete } from '@/helpers/lazy-bus'
 
-const { document, items, environment, eventBus, options } = defineProps<{
+const {
+  document,
+  items,
+  environment,
+  eventBus,
+  options,
+  authStore,
+  documentSlug,
+} = defineProps<{
   infoSectionId: string
   /** The subset of the configuration object required for the content component */
   options: Pick<
@@ -55,6 +67,10 @@ const { document, items, environment, eventBus, options } = defineProps<{
   environment: XScalarEnvironment
   /** Heading id generator for Markdown headings */
   headingSlugGenerator: (heading: Heading) => string
+  /** The slug of the document */
+  documentSlug: string
+  /** The auth store */
+  authStore: AuthStore
 }>()
 
 /** Generate all client options so that it can be shared between the top client picker and the operations */
@@ -81,12 +97,24 @@ const selectedServer = computed(() =>
   getSelectedServer(document ?? null, servers.value),
 )
 
-/** Merge authentication config with the document security schemes */
+watch(
+  () => toValue(options)?.authentication?.securitySchemes,
+  () => {
+    extractSecuritySchemeSecrets({
+      documentSlug,
+      authStore,
+      configSecuritySchemes: toValue(options)?.authentication?.securitySchemes,
+      documentSecuritySchemes: document?.components?.securitySchemes ?? {},
+    })
+  },
+  { immediate: true },
+)
+
 const securitySchemes = computed(() =>
-  mergeAuthConfig(
-    document?.components?.securitySchemes,
-    options.authentication?.securitySchemes,
-  ),
+  mergeAuthConfig({
+    documentSecuritySchemes: document?.components?.securitySchemes ?? {},
+    configSecuritySchemes: toValue(options)?.authentication?.securitySchemes,
+  }),
 )
 </script>
 <template>
@@ -127,7 +155,9 @@ const securitySchemes = computed(() =>
               v-if="document"
               class="scalar-reference-intro-auth scalar-client introduction-card-item leading-normal">
               <Auth
+                :authStore
                 :document
+                :documentSlug
                 :environment
                 :eventBus
                 :options
@@ -163,8 +193,10 @@ const securitySchemes = computed(() =>
     <!-- Use recursive component for cleaner rendering -->
     <TraversedEntry
       v-if="items.length && document"
+      :authStore
       :clientOptions
       :document
+      :documentSlug
       :entries="items"
       :eventBus
       :expandedItems

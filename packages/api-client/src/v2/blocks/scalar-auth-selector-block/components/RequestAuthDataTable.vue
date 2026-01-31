@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { AuthStore } from '@scalar/workspace-store/entities/auth/index'
 import type {
   ApiReferenceEvents,
   AuthMeta,
@@ -16,16 +17,7 @@ import { DataTable } from '@/v2/components/data-table'
 
 import RequestAuthTab from './RequestAuthTab.vue'
 
-const {
-  environment,
-  isStatic,
-  selectedSchemeOptions,
-  activeAuthIndex,
-  securitySchemes = {},
-  server,
-  eventBus,
-  meta,
-} = defineProps<{
+export type RequestAuthDataTableProps = {
   /** The current environment configuration */
   environment: XScalarEnvironment
   /** Controls border display for static (non-collapsible) layouts */
@@ -40,11 +32,28 @@ const {
   securitySchemes: ComponentsObject['securitySchemes']
   /** Current server configuration */
   server: ServerObject | null
-  /** Event bus for authentication updates */
-  eventBus: WorkspaceEventBus
   /** Metadata for authentication context */
   meta: AuthMeta
-}>()
+  /** Auth store */
+  authStore: AuthStore
+  /** Document slug */
+  documentSlug: string
+  /** Event bus for authentication updates */
+  eventBus: WorkspaceEventBus
+}
+
+const {
+  environment,
+  isStatic,
+  selectedSchemeOptions,
+  activeAuthIndex,
+  securitySchemes = {},
+  server,
+  eventBus,
+  meta,
+  authStore,
+  documentSlug,
+} = defineProps<RequestAuthDataTableProps>()
 
 /** Currently selected authentication scheme based on the active tab index */
 const activeScheme = computed<SecuritySchemeOption | undefined>(
@@ -129,7 +138,10 @@ defineExpose({
       :columns="['']"
       presentational>
       <RequestAuthTab
+        :authStore
+        :documentSlug
         :environment
+        :eventBus
         :isStatic
         :proxyUrl
         :securitySchemes

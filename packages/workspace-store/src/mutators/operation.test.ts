@@ -2545,16 +2545,23 @@ describe('updateOperationRequestBodyFormValue', () => {
 
 describe('addResponseToHistory', () => {
   it('adds a response to the operation history', async () => {
-    const document = createDocument({
-      paths: {
-        '/users/{id}': {
-          get: {
-            summary: 'Get user',
-            parameters: [{ name: 'id', in: 'path', examples: { default: { value: '123' } } }],
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: 'test-doc',
+      document: createDocument({
+        paths: {
+          '/users/{id}': {
+            get: {
+              summary: 'Get user',
+              parameters: [{ name: 'id', in: 'path', examples: { default: { value: '123' } } }],
+            },
           },
         },
-      },
+      }),
     })
+
+    const document = store.workspace.documents['test-doc']!
+    assert(document)
 
     const mockRequest = {
       url: 'https://api.example.com/users/123',
@@ -2570,7 +2577,7 @@ describe('addResponseToHistory', () => {
       json: async () => ({ id: '123', name: 'John' }),
     } as Response
 
-    await addResponseToHistory(document, {
+    await addResponseToHistory(store, document, {
       payload: {
         request: mockRequest,
         response: mockResponse,
@@ -2584,27 +2591,33 @@ describe('addResponseToHistory', () => {
       },
     })
 
-    const operation = getResolvedRef(document.paths?.['/users/{id}']?.get)
-    assert(operation)
-    expect(operation['x-scalar-history']).toBeDefined()
-    expect(operation['x-scalar-history']?.length).toBe(1)
+    const history = store.history.getHistory('test-doc', '/users/{id}', 'get')
+    expect(history).toBeDefined()
+    expect(history?.length).toBe(1)
 
-    const historyEntry = operation['x-scalar-history']?.[0]
+    const historyEntry = history?.[0]
     expect(historyEntry?.time).toBe(150)
     expect(historyEntry?.meta.example).toBe('default')
     expect(historyEntry?.requestMetadata.variables).toEqual({ id: '123' })
   })
 
   it('enforces history limit of 5 entries', async () => {
-    const document = createDocument({
-      paths: {
-        '/items': {
-          get: {
-            summary: 'Get items',
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: 'test-doc',
+      document: createDocument({
+        paths: {
+          '/items': {
+            get: {
+              summary: 'Get items',
+            },
           },
         },
-      },
+      }),
     })
+
+    const document = store.workspace.documents['test-doc']!
+    assert(document)
 
     const createMockPayload = (index: number) => ({
       payload: {
@@ -2631,34 +2644,39 @@ describe('addResponseToHistory', () => {
 
     // Add 6 history entries
     for (let i = 0; i < 6; i++) {
-      await addResponseToHistory(document, createMockPayload(i))
+      await addResponseToHistory(store, document, createMockPayload(i))
     }
 
-    const operation = getResolvedRef(document.paths?.['/items']?.get)
-    assert(operation)
-    expect(operation['x-scalar-history']?.length).toBe(5)
+    const history = store.history.getHistory('test-doc', '/items', 'get')
+    expect(history?.length).toBe(5)
 
     // Verify the oldest entry (index 0) was removed and entries 1-5 remain
-    expect(operation['x-scalar-history']?.[0]?.time).toBe(101) // Second entry became first
-    expect(operation['x-scalar-history']?.[4]?.time).toBe(105) // Last entry
+    expect(history?.[0]?.time).toBe(101) // Second entry became first
+    expect(history?.[4]?.time).toBe(105) // Last entry
   })
 
   it('initializes history array when it does not exist', async () => {
-    const document = createDocument({
-      paths: {
-        '/products': {
-          post: {
-            summary: 'Create product',
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: 'test-doc',
+      document: createDocument({
+        paths: {
+          '/products': {
+            post: {
+              summary: 'Create product',
+            },
           },
         },
-      },
+      }),
     })
 
-    const operation = getResolvedRef(document.paths?.['/products']?.post)
-    assert(operation)
-    expect(operation['x-scalar-history']).toBeUndefined()
+    const document = store.workspace.documents['test-doc']!
+    assert(document)
 
-    await addResponseToHistory(document, {
+    const history = store.history.getHistory('test-doc', '/products', 'post')
+    expect(history).toBeUndefined()
+
+    await addResponseToHistory(store, document, {
       payload: {
         request: {
           url: 'https://api.example.com/products',
@@ -2681,26 +2699,34 @@ describe('addResponseToHistory', () => {
       },
     })
 
-    expect(operation['x-scalar-history']).toBeDefined()
-    expect(operation['x-scalar-history']?.length).toBe(1)
+    const updatedHistory = store.history.getHistory('test-doc', '/products', 'post')
+    expect(updatedHistory).toBeDefined()
+    expect(updatedHistory?.length).toBe(1)
   })
 
   it('handles multiple path variables', async () => {
-    const document = createDocument({
-      paths: {
-        '/users/{userId}/posts/{postId}': {
-          get: {
-            summary: 'Get user post',
-            parameters: [
-              { name: 'userId', in: 'path', examples: { default: { value: '456' } } },
-              { name: 'postId', in: 'path', examples: { default: { value: '789' } } },
-            ],
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: 'test-doc',
+      document: createDocument({
+        paths: {
+          '/users/{userId}/posts/{postId}': {
+            get: {
+              summary: 'Get user post',
+              parameters: [
+                { name: 'userId', in: 'path', examples: { default: { value: '456' } } },
+                { name: 'postId', in: 'path', examples: { default: { value: '789' } } },
+              ],
+            },
           },
         },
-      },
+      }),
     })
 
-    await addResponseToHistory(document, {
+    const document = store.workspace.documents['test-doc']!
+    assert(document)
+
+    await addResponseToHistory(store, document, {
       payload: {
         request: {
           url: 'https://api.example.com/users/456/posts/789',
@@ -2723,8 +2749,8 @@ describe('addResponseToHistory', () => {
       },
     })
 
-    const operation = getResolvedRef(document.paths?.['/users/{userId}/posts/{postId}']?.get)
-    const historyEntry = operation?.['x-scalar-history']?.[0]
+    const history = store.history.getHistory('test-doc', '/users/{userId}/posts/{postId}', 'get')
+    const historyEntry = history?.[0]
     expect(historyEntry?.requestMetadata.variables).toEqual({
       userId: '456',
       postId: '789',
@@ -2732,17 +2758,24 @@ describe('addResponseToHistory', () => {
   })
 
   it('stores the correct example key in history metadata', async () => {
-    const document = createDocument({
-      paths: {
-        '/settings': {
-          put: {
-            summary: 'Update settings',
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: 'test-doc',
+      document: createDocument({
+        paths: {
+          '/settings': {
+            put: {
+              summary: 'Update settings',
+            },
           },
         },
-      },
+      }),
     })
 
-    await addResponseToHistory(document, {
+    const document = store.workspace.documents['test-doc']!
+    assert(document)
+
+    await addResponseToHistory(store, document, {
       payload: {
         request: {
           url: 'https://api.example.com/settings',
@@ -2765,14 +2798,14 @@ describe('addResponseToHistory', () => {
       },
     })
 
-    const operation = getResolvedRef(document.paths?.['/settings']?.put)
-    const historyEntry = operation?.['x-scalar-history']?.[0]
+    const history = store.history.getHistory('test-doc', '/settings', 'put')
+    const historyEntry = history?.[0]
     expect(historyEntry?.meta.example).toBe('custom-example')
   })
 
-  it('no-ops when document is null', async () => {
+  it('no-ops when store is null', async () => {
     await expect(
-      addResponseToHistory(null, {
+      addResponseToHistory(null, null, {
         payload: {
           request: {} as Request,
           response: {} as Response,
@@ -2789,16 +2822,23 @@ describe('addResponseToHistory', () => {
   })
 
   it('no-ops when payload is null', async () => {
-    const document = createDocument({
-      paths: {
-        '/test': {
-          get: {},
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: 'test-doc',
+      document: createDocument({
+        paths: {
+          '/test': {
+            get: {},
+          },
         },
-      },
+      }),
     })
 
+    const document = store.workspace.documents['test-doc']!
+    assert(document)
+
     await expect(
-      addResponseToHistory(document, {
+      addResponseToHistory(store, document, {
         payload: null as any,
         meta: {
           path: '/test',
@@ -2808,19 +2848,26 @@ describe('addResponseToHistory', () => {
       }),
     ).resolves.not.toThrow()
 
-    const operation = getResolvedRef(document.paths?.['/test']?.get)
-    expect(operation?.['x-scalar-history']).toBeUndefined()
+    const history = store.history.getHistory('test-doc', '/test', 'get')
+    expect(history).toBeUndefined()
   })
 
   it('no-ops when operation does not exist', async () => {
-    const document = createDocument({
-      paths: {
-        '/test': {},
-      },
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: 'test-doc',
+      document: createDocument({
+        paths: {
+          '/test': {},
+        },
+      }),
     })
 
+    const document = store.workspace.documents['test-doc']!
+    assert(document)
+
     await expect(
-      addResponseToHistory(document, {
+      addResponseToHistory(store, document, {
         payload: {
           request: {} as Request,
           response: {} as Response,
@@ -2838,57 +2885,64 @@ describe('addResponseToHistory', () => {
 })
 
 describe('reloadOperationHistory', () => {
-  it('reloads a history item into the operation', () => {
-    const document = createDocument({
-      paths: {
-        '/users': {
-          get: {
-            summary: 'Get users',
-            'x-scalar-history': [
-              {
-                time: 150,
-                timestamp: Date.now(),
-                request: {
-                  url: 'https://api.example.com/users?limit=10',
-                  method: 'GET',
-                  httpVersion: 'HTTP/1.1',
-                  headers: [{ name: 'Content-Type', value: 'application/json' }],
-                  cookies: [],
-                  queryString: [{ name: 'limit', value: '10' }],
-                  headersSize: -1,
-                  bodySize: -1,
-                },
-                response: {
-                  status: 200,
-                  statusText: 'OK',
-                  httpVersion: 'HTTP/1.1',
-                  headers: [],
-                  cookies: [],
-                  content: {
-                    size: 100,
-                    mimeType: 'application/json',
-                    text: '{"users":[]}',
-                  },
-                  redirectURL: '',
-                  headersSize: -1,
-                  bodySize: 100,
-                },
-                meta: {
-                  example: 'default',
-                },
-                requestMetadata: {
-                  variables: {},
-                },
-              },
-            ],
+  it('reloads a history item into the operation', async () => {
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: 'test-doc',
+      document: createDocument({
+        paths: {
+          '/users': {
+            get: {
+              summary: 'Get users',
+            },
           },
         },
+      }),
+    })
+
+    const document = store.workspace.documents['test-doc']!
+    assert(document)
+
+    // Add a history entry
+    store.history.addHistory('test-doc', '/users', 'get', {
+      time: 150,
+      timestamp: Date.now(),
+      request: {
+        url: 'https://api.example.com/users?limit=10',
+        method: 'GET',
+        httpVersion: 'HTTP/1.1',
+        headers: [{ name: 'Content-Type', value: 'application/json' }],
+        cookies: [],
+        queryString: [{ name: 'limit', value: '10' }],
+        headersSize: -1,
+        bodySize: -1,
+      },
+      response: {
+        status: 200,
+        statusText: 'OK',
+        httpVersion: 'HTTP/1.1',
+        headers: [],
+        cookies: [],
+        content: {
+          size: 100,
+          mimeType: 'application/json',
+          text: '{"users":[]}',
+        },
+        redirectURL: '',
+        headersSize: -1,
+        bodySize: 100,
+      },
+      meta: {
+        example: 'default',
+      },
+      requestMetadata: {
+        variables: {},
       },
     })
 
     let callbackResult: string | undefined
 
-    reloadOperationHistory(document, {
+    reloadOperationHistory(store, document, {
       meta: { path: '/users', method: 'get' },
       index: 0,
       callback: (status) => {
@@ -2899,76 +2953,84 @@ describe('reloadOperationHistory', () => {
     expect(callbackResult).toBe('success')
   })
 
-  it('reloads the correct history item by index', () => {
-    const document = createDocument({
-      paths: {
-        '/products': {
-          get: {
-            summary: 'Get products',
-            'x-scalar-history': [
-              {
-                time: 100,
-                timestamp: Date.now(),
-                request: {
-                  url: 'https://api.example.com/products?page=1',
-                  method: 'GET',
-                  httpVersion: 'HTTP/1.1',
-                  headers: [],
-                  cookies: [],
-                  queryString: [{ name: 'page', value: '1' }],
-                  headersSize: -1,
-                  bodySize: -1,
-                },
-                response: {
-                  status: 200,
-                  statusText: 'OK',
-                  httpVersion: 'HTTP/1.1',
-                  headers: [],
-                  cookies: [],
-                  content: { size: 0, mimeType: 'application/json' },
-                  redirectURL: '',
-                  headersSize: -1,
-                  bodySize: 0,
-                },
-                meta: { example: 'default' },
-                requestMetadata: { variables: {} },
-              },
-              {
-                time: 200,
-                timestamp: Date.now(),
-                request: {
-                  url: 'https://api.example.com/products?page=2',
-                  method: 'GET',
-                  httpVersion: 'HTTP/1.1',
-                  headers: [],
-                  cookies: [],
-                  queryString: [{ name: 'page', value: '2' }],
-                  headersSize: -1,
-                  bodySize: -1,
-                },
-                response: {
-                  status: 200,
-                  statusText: 'OK',
-                  httpVersion: 'HTTP/1.1',
-                  headers: [],
-                  cookies: [],
-                  content: { size: 0, mimeType: 'application/json' },
-                  redirectURL: '',
-                  headersSize: -1,
-                  bodySize: 0,
-                },
-                meta: { example: 'default' },
-                requestMetadata: { variables: {} },
-              },
-            ],
+  it('reloads the correct history item by index', async () => {
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: 'test-doc',
+      document: createDocument({
+        paths: {
+          '/products': {
+            get: {
+              summary: 'Get products',
+            },
           },
         },
+      }),
+    })
+
+    const document = store.workspace.documents['test-doc']!
+    assert(document)
+
+    // Add multiple history entries
+    store.history.addHistory('test-doc', '/products', 'get', {
+      time: 100,
+      timestamp: Date.now(),
+      request: {
+        url: 'https://api.example.com/products?page=1',
+        method: 'GET',
+        httpVersion: 'HTTP/1.1',
+        headers: [],
+        cookies: [],
+        queryString: [{ name: 'page', value: '1' }],
+        headersSize: -1,
+        bodySize: -1,
       },
+      response: {
+        status: 200,
+        statusText: 'OK',
+        httpVersion: 'HTTP/1.1',
+        headers: [],
+        cookies: [],
+        content: { size: 0, mimeType: 'application/json' },
+        redirectURL: '',
+        headersSize: -1,
+        bodySize: 0,
+      },
+      meta: { example: 'default' },
+      requestMetadata: { variables: {} },
+    })
+
+    store.history.addHistory('test-doc', '/products', 'get', {
+      time: 200,
+      timestamp: Date.now(),
+      request: {
+        url: 'https://api.example.com/products?page=2',
+        method: 'GET',
+        httpVersion: 'HTTP/1.1',
+        headers: [],
+        cookies: [],
+        queryString: [{ name: 'page', value: '2' }],
+        headersSize: -1,
+        bodySize: -1,
+      },
+      response: {
+        status: 200,
+        statusText: 'OK',
+        httpVersion: 'HTTP/1.1',
+        headers: [],
+        cookies: [],
+        content: { size: 0, mimeType: 'application/json' },
+        redirectURL: '',
+        headersSize: -1,
+        bodySize: 0,
+      },
+      meta: { example: 'default' },
+      requestMetadata: { variables: {} },
     })
 
     let callbackResult: string | undefined
 
-    reloadOperationHistory(document, {
+    reloadOperationHistory(store, document, {
       meta: { path: '/products', method: 'get' },
       index: 1,
       callback: (status) => {
@@ -2979,52 +3041,59 @@ describe('reloadOperationHistory', () => {
     expect(callbackResult).toBe('success')
   })
 
-  it('handles history with path variables', () => {
-    const document = createDocument({
-      paths: {
-        '/orders/{orderId}': {
-          get: {
-            summary: 'Get order',
-            parameters: [{ name: 'orderId', in: 'path' }],
-            'x-scalar-history': [
-              {
-                time: 150,
-                timestamp: Date.now(),
-                request: {
-                  url: 'https://api.example.com/orders/12345',
-                  method: 'GET',
-                  httpVersion: 'HTTP/1.1',
-                  headers: [],
-                  cookies: [],
-                  queryString: [],
-                  headersSize: -1,
-                  bodySize: -1,
-                },
-                response: {
-                  status: 200,
-                  statusText: 'OK',
-                  httpVersion: 'HTTP/1.1',
-                  headers: [],
-                  cookies: [],
-                  content: { size: 0, mimeType: 'application/json' },
-                  redirectURL: '',
-                  headersSize: -1,
-                  bodySize: 0,
-                },
-                meta: { example: 'default' },
-                requestMetadata: {
-                  variables: { orderId: '12345' },
-                },
-              },
-            ],
+  it('handles history with path variables', async () => {
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: 'test-doc',
+      document: createDocument({
+        paths: {
+          '/orders/{orderId}': {
+            get: {
+              summary: 'Get order',
+              parameters: [{ name: 'orderId', in: 'path' }],
+            },
           },
         },
+      }),
+    })
+
+    const document = store.workspace.documents['test-doc']!
+    assert(document)
+
+    // Add history with path variables
+    store.history.addHistory('test-doc', '/orders/{orderId}', 'get', {
+      time: 150,
+      timestamp: Date.now(),
+      request: {
+        url: 'https://api.example.com/orders/12345',
+        method: 'GET',
+        httpVersion: 'HTTP/1.1',
+        headers: [],
+        cookies: [],
+        queryString: [],
+        headersSize: -1,
+        bodySize: -1,
+      },
+      response: {
+        status: 200,
+        statusText: 'OK',
+        httpVersion: 'HTTP/1.1',
+        headers: [],
+        cookies: [],
+        content: { size: 0, mimeType: 'application/json' },
+        redirectURL: '',
+        headersSize: -1,
+        bodySize: 0,
+      },
+      meta: { example: 'default' },
+      requestMetadata: {
+        variables: { orderId: '12345' },
       },
     })
 
     let callbackResult: string | undefined
 
-    reloadOperationHistory(document, {
+    reloadOperationHistory(store, document, {
       meta: { path: '/orders/{orderId}', method: 'get' },
       index: 0,
       callback: (status) => {
@@ -3046,7 +3115,7 @@ describe('reloadOperationHistory', () => {
       return
     })
 
-    reloadOperationHistory(null, {
+    reloadOperationHistory(null, null, {
       meta: { path: '/test', method: 'get' },
       index: 0,
       callback: () => {
@@ -3058,18 +3127,25 @@ describe('reloadOperationHistory', () => {
     consoleErrorSpy.mockRestore()
   })
 
-  it('logs error when operation does not exist', () => {
-    const document = createDocument({
-      paths: {
-        '/test': {},
-      },
+  it('logs error when operation does not exist', async () => {
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: 'test-doc',
+      document: createDocument({
+        paths: {
+          '/test': {},
+        },
+      }),
     })
+
+    const document = store.workspace.documents['test-doc']!
+    assert(document)
 
     const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {
       return
     })
 
-    reloadOperationHistory(document, {
+    reloadOperationHistory(store, document, {
       meta: { path: '/test', method: 'get' },
       index: 0,
       callback: () => {
@@ -3081,23 +3157,29 @@ describe('reloadOperationHistory', () => {
     consoleErrorSpy.mockRestore()
   })
 
-  it('logs error when history item does not exist', () => {
-    const document = createDocument({
-      paths: {
-        '/test': {
-          get: {
-            summary: 'Test',
-            'x-scalar-history': [],
+  it('logs error when history item does not exist', async () => {
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: 'test-doc',
+      document: createDocument({
+        paths: {
+          '/test': {
+            get: {
+              summary: 'Test',
+            },
           },
         },
-      },
+      }),
     })
+
+    const document = store.workspace.documents['test-doc']!
+    assert(document)
 
     const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {
       return
     })
 
-    reloadOperationHistory(document, {
+    reloadOperationHistory(store, document, {
       meta: { path: '/test', method: 'get' },
       index: 5,
       callback: () => {
@@ -3109,22 +3191,29 @@ describe('reloadOperationHistory', () => {
     consoleErrorSpy.mockRestore()
   })
 
-  it('handles operation with no history', () => {
-    const document = createDocument({
-      paths: {
-        '/test': {
-          get: {
-            summary: 'Test',
+  it('handles operation with no history', async () => {
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: 'test-doc',
+      document: createDocument({
+        paths: {
+          '/test': {
+            get: {
+              summary: 'Test',
+            },
           },
         },
-      },
+      }),
     })
+
+    const document = store.workspace.documents['test-doc']!
+    assert(document)
 
     const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {
       return
     })
 
-    reloadOperationHistory(document, {
+    reloadOperationHistory(store, document, {
       meta: { path: '/test', method: 'get' },
       index: 0,
       callback: () => {
@@ -3142,7 +3231,7 @@ describe('reloadOperationHistory', () => {
       return
     })
 
-    reloadOperationHistory(null, {
+    reloadOperationHistory(null, null, {
       meta: { path: '/test', method: 'get' },
       index: 0,
       callback: callbackSpy,
@@ -3152,19 +3241,26 @@ describe('reloadOperationHistory', () => {
     consoleErrorSpy.mockRestore()
   })
 
-  it('does not call callback when operation is missing', () => {
-    const document = createDocument({
-      paths: {
-        '/test': {},
-      },
+  it('does not call callback when operation is missing', async () => {
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: 'test-doc',
+      document: createDocument({
+        paths: {
+          '/test': {},
+        },
+      }),
     })
+
+    const document = store.workspace.documents['test-doc']!
+    assert(document)
 
     const callbackSpy = vi.fn()
     const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {
       return
     })
 
-    reloadOperationHistory(document, {
+    reloadOperationHistory(store, document, {
       meta: { path: '/test', method: 'get' },
       index: 0,
       callback: callbackSpy,
@@ -3174,24 +3270,30 @@ describe('reloadOperationHistory', () => {
     consoleErrorSpy.mockRestore()
   })
 
-  it('does not call callback when history item is missing', () => {
-    const document = createDocument({
-      paths: {
-        '/test': {
-          get: {
-            summary: 'Test',
-            'x-scalar-history': [],
+  it('does not call callback when history item is missing', async () => {
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: 'test-doc',
+      document: createDocument({
+        paths: {
+          '/test': {
+            get: {
+              summary: 'Test',
+            },
           },
         },
-      },
+      }),
     })
+
+    const document = store.workspace.documents['test-doc']!
+    assert(document)
 
     const callbackSpy = vi.fn()
     const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {
       return
     })
 
-    reloadOperationHistory(document, {
+    reloadOperationHistory(store, document, {
       meta: { path: '/test', method: 'get' },
       index: 0,
       callback: callbackSpy,

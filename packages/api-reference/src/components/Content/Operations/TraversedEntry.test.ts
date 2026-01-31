@@ -1,6 +1,7 @@
 import { serverSchema } from '@scalar/oas-utils/entities/spec'
 import { apiReferenceConfigurationSchema } from '@scalar/types/api-reference'
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
+import { createAuthStore } from '@scalar/workspace-store/entities/auth/index'
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import type {
   TraversedEntry,
@@ -122,6 +123,8 @@ const makeMockProps = (entries: TraversedEntry[]): ComponentProps<typeof Travers
   options: mockConfig,
   document: mockDocument,
   clientOptions: [],
+  authStore: createAuthStore({}),
+  documentSlug: 'test-document',
 })
 
 const createMockOperation = (overrides: Partial<TraversedOperation> = {}): TraversedOperation => ({

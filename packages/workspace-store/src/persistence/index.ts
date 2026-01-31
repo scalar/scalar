@@ -1,5 +1,6 @@
 import { Type } from '@scalar/typebox'
 
+import type { PathMethodHistory } from '@/entities/history/schema'
 import { createIndexDbConnection } from '@/persistence/indexdb'
 import type { InMemoryWorkspace } from '@/schemas/inmemory-workspace'
 import type { WorkspaceMeta } from '@/schemas/workspace'
@@ -69,6 +70,14 @@ export const createWorkspaceStorePersistence = async () => {
         schema: Type.Object({ workspaceId: Type.String(), documentName: Type.String(), data: Type.Any() }),
         keyPath: ['workspaceId', 'documentName'],
       },
+      history: {
+        schema: Type.Object({ workspaceId: Type.String(), documentName: Type.String(), data: Type.Any() }),
+        keyPath: ['workspaceId', 'documentName'],
+      },
+      auth: {
+        schema: Type.Object({ workspaceId: Type.String(), documentName: Type.String(), data: Type.Any() }),
+        keyPath: ['workspaceId', 'documentName'],
+      },
     },
   })
 
@@ -79,6 +88,8 @@ export const createWorkspaceStorePersistence = async () => {
   const originalDocumentTable = connection.get('originalDocuments')
   const intermediateDocumentTable = connection.get('intermediateDocuments')
   const overridesTable = connection.get('overrides')
+  const historyTable = connection.get('history')
+  const authTable = connection.get('auth')
 
   // The returned persistence API with logical sections for each table and mapping.
   return {
@@ -133,6 +144,22 @@ export const createWorkspaceStorePersistence = async () => {
         await overridesTable.addItem({ workspaceId, documentName }, { data })
       },
     },
+    history: {
+      /**
+       * Set history for a document.
+       */
+      setItem: async (workspaceId: string, documentName: string, data: PathMethodHistory) => {
+        await historyTable.addItem({ workspaceId, documentName }, { data })
+      },
+    },
+    auth: {
+      /**
+       * Set auth for a document.
+       */
+      setItem: async (workspaceId: string, documentName: string, data: InMemoryWorkspace['auth'][string]) => {
+        await authTable.addItem({ workspaceId, documentName }, { data })
+      },
+    },
     workspace: {
       /**
        * Retrieves a workspace by its ID.
@@ -158,6 +185,8 @@ export const createWorkspaceStorePersistence = async () => {
         const workspaceIntermediateDocuments = await intermediateDocumentTable.getRange([id])
         const workspaceOverrides = await overridesTable.getRange([id])
         const workspaceMeta = await metaTable.getItem({ workspaceId: id })
+        const workspaceHistory = await historyTable.getRange([id])
+        const workspaceAuth = await authTable.getRange([id])
 
         // Compose the workspace structure from table records.
         return {
@@ -175,6 +204,8 @@ export const createWorkspaceStorePersistence = async () => {
             ),
             overrides: Object.fromEntries(workspaceOverrides.map((item) => [item.documentName, item.data])),
             meta: workspaceMeta?.data,
+            history: Object.fromEntries(workspaceHistory.map((item) => [item.documentName, item.data])),
+            auth: Object.fromEntries(workspaceAuth.map((item) => [item.documentName, item.data])),
           },
         }
       },
@@ -243,6 +274,20 @@ export const createWorkspaceStorePersistence = async () => {
           }),
         )
 
+        // Persist all history.
+        await Promise.all(
+          Object.entries(value.workspace.history ?? {}).map(([name, data]) => {
+            return historyTable.addItem({ workspaceId: id, documentName: name }, { data })
+          }),
+        )
+
+        // Persist all auth.
+        await Promise.all(
+          Object.entries(value.workspace.auth ?? {}).map(([name, data]) => {
+            return authTable.addItem({ workspaceId: id, documentName: name }, { data })
+          }),
+        )
+
         return workspace
       },
 
@@ -264,6 +309,8 @@ export const createWorkspaceStorePersistence = async () => {
           originalDocumentTable.deleteRange([id]),
           intermediateDocumentTable.deleteRange([id]),
           overridesTable.deleteRange([id]),
+          historyTable.deleteRange([id]),
+          authTable.deleteRange([id]),
         ])
       },
 
@@ -273,6 +320,8 @@ export const createWorkspaceStorePersistence = async () => {
           intermediateDocumentTable.deleteItem({ workspaceId, documentName }),
           originalDocumentTable.deleteItem({ workspaceId, documentName }),
           overridesTable.deleteItem({ workspaceId, documentName }),
+          historyTable.deleteItem({ workspaceId, documentName }),
+          authTable.deleteItem({ workspaceId, documentName }),
         ])
       },
 

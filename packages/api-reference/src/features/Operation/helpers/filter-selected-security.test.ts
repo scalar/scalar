@@ -1,3 +1,4 @@
+import type { SelectedSecurity } from '@scalar/workspace-store/entities/auth/schema'
 import type {
   OpenApiDocument,
   OperationObject,
@@ -6,6 +7,10 @@ import type {
 import { describe, expect, it } from 'vitest'
 
 import { filterSelectedSecurity } from './filter-selected-security'
+
+const selectedSecurityMock = (overrides?: Partial<SelectedSecurity>) => {
+  return { selectedIndex: 0, selectedSchemes: [], ...overrides }
+}
 
 describe('filterSelectedSecurity', () => {
   /**
@@ -24,7 +29,7 @@ describe('filterSelectedSecurity', () => {
       responses: {},
     }
 
-    const result = filterSelectedSecurity(document, operation, {})
+    const result = filterSelectedSecurity(document, operation, selectedSecurityMock(), selectedSecurityMock(), {})
 
     expect(result).toEqual([])
   })
@@ -38,7 +43,6 @@ describe('filterSelectedSecurity', () => {
       type: 'apiKey',
       name: 'X-API-Key',
       in: 'header',
-      'x-scalar-secret-token': '',
     }
 
     const document: OpenApiDocument = {
@@ -58,9 +62,15 @@ describe('filterSelectedSecurity', () => {
       security: [{ apiKey: [] }],
     }
 
-    const result = filterSelectedSecurity(document, operation, document.components?.securitySchemes ?? {})
+    const result = filterSelectedSecurity(
+      document,
+      operation,
+      selectedSecurityMock(),
+      selectedSecurityMock(),
+      document.components?.securitySchemes ?? {},
+    )
 
-    expect(result).toEqual([apiKeyScheme])
+    expect(result).toEqual([{ scheme: apiKeyScheme, name: 'apiKey' }])
   })
 
   /**
@@ -72,7 +82,6 @@ describe('filterSelectedSecurity', () => {
       type: 'apiKey',
       name: 'X-API-Key',
       in: 'header',
-      'x-scalar-secret-token': '',
     }
 
     const document: OpenApiDocument = {
@@ -85,10 +94,6 @@ describe('filterSelectedSecurity', () => {
           apiKey: apiKeyScheme,
         },
       },
-      'x-scalar-selected-security': {
-        selectedIndex: 0,
-        selectedSchemes: [{ apiKey: [] }],
-      },
     }
 
     const operation: OperationObject = {
@@ -96,9 +101,17 @@ describe('filterSelectedSecurity', () => {
       security: [{ apiKey: [] }],
     }
 
-    const result = filterSelectedSecurity(document, operation, document.components?.securitySchemes ?? {})
+    const result = filterSelectedSecurity(
+      document,
+      operation,
+      selectedSecurityMock({
+        selectedSchemes: [{ apiKey: [] }],
+      }),
+      selectedSecurityMock(),
+      document.components?.securitySchemes ?? {},
+    )
 
-    expect(result).toEqual([apiKeyScheme])
+    expect(result).toEqual([{ scheme: apiKeyScheme, name: 'apiKey' }])
   })
 
   /**
@@ -110,16 +123,12 @@ describe('filterSelectedSecurity', () => {
       type: 'apiKey',
       name: 'X-API-Key',
       in: 'header',
-      'x-scalar-secret-token': '',
     }
 
     const bearerScheme: SecuritySchemeObject = {
       type: 'http',
       scheme: 'bearer',
       bearerFormat: 'JWT',
-      'x-scalar-secret-username': '',
-      'x-scalar-secret-password': '',
-      'x-scalar-secret-token': '',
     }
 
     const document: OpenApiDocument = {
@@ -133,11 +142,6 @@ describe('filterSelectedSecurity', () => {
           bearer: bearerScheme,
         },
       },
-      'x-scalar-selected-security': {
-        // Bearer is selected at index 1
-        selectedIndex: 1,
-        selectedSchemes: [{ apiKey: [] }, { bearer: [] }],
-      },
     }
 
     const operation: OperationObject = {
@@ -146,10 +150,19 @@ describe('filterSelectedSecurity', () => {
       security: [{ apiKey: [] }, { bearer: [] }],
     }
 
-    const result = filterSelectedSecurity(document, operation, document.components?.securitySchemes ?? {})
+    const result = filterSelectedSecurity(
+      document,
+      operation,
+      {
+        selectedIndex: 1,
+        selectedSchemes: [{ apiKey: [] }, { bearer: [] }],
+      },
+      selectedSecurityMock(),
+      document.components?.securitySchemes ?? {},
+    )
 
     // Should return bearer because it is at selectedIndex
-    expect(result).toEqual([bearerScheme])
+    expect(result).toEqual([{ scheme: bearerScheme, name: 'bearer' }])
   })
 
   /**
@@ -162,7 +175,6 @@ describe('filterSelectedSecurity', () => {
       type: 'apiKey',
       name: 'X-API-Key',
       in: 'header',
-      'x-scalar-secret-token': '',
     }
 
     const oauth2Scheme: SecuritySchemeObject = {
@@ -175,9 +187,6 @@ describe('filterSelectedSecurity', () => {
             'read:data': 'Read data',
             'write:data': 'Write data',
           },
-          'x-scalar-secret-client-id': '',
-          'x-scalar-secret-token': '',
-          'x-scalar-secret-redirect-uri': '',
         },
       },
     }
@@ -193,11 +202,6 @@ describe('filterSelectedSecurity', () => {
           oauth2: oauth2Scheme,
         },
       },
-      'x-scalar-selected-security': {
-        selectedIndex: 0,
-        // Selected security requires BOTH apiKey AND oauth2 (keys in different order)
-        selectedSchemes: [{ oauth2: ['read:data'], apiKey: [] }],
-      },
     }
 
     const operation: OperationObject = {
@@ -206,12 +210,20 @@ describe('filterSelectedSecurity', () => {
       security: [{ apiKey: [], oauth2: ['read:data'] }],
     }
 
-    const result = filterSelectedSecurity(document, operation, document.components?.securitySchemes ?? {})
+    const result = filterSelectedSecurity(
+      document,
+      operation,
+      selectedSecurityMock({
+        selectedSchemes: [{ oauth2: ['read:data'], apiKey: [] }],
+      }),
+      selectedSecurityMock(),
+      document.components?.securitySchemes ?? {},
+    )
 
     // Should match despite different key order and return both schemes
     expect(result).toHaveLength(2)
-    expect(result).toContainEqual(apiKeyScheme)
-    expect(result).toContainEqual(oauth2Scheme)
+    expect(result).toContainEqual({ scheme: apiKeyScheme, name: 'apiKey' })
+    expect(result).toContainEqual({ scheme: oauth2Scheme, name: 'oauth2' })
   })
 
   /**
@@ -223,7 +235,6 @@ describe('filterSelectedSecurity', () => {
       type: 'apiKey',
       name: 'X-API-Key',
       in: 'header',
-      'x-scalar-secret-token': '',
     }
 
     const document: OpenApiDocument = {
@@ -238,10 +249,6 @@ describe('filterSelectedSecurity', () => {
       },
       // Document-level security
       security: [{ apiKey: [] }],
-      'x-scalar-selected-security': {
-        selectedIndex: 0,
-        selectedSchemes: [{ apiKey: [] }],
-      },
     }
 
     const operation: OperationObject = {
@@ -249,9 +256,17 @@ describe('filterSelectedSecurity', () => {
       // No operation-level security, should fall back to document
     }
 
-    const result = filterSelectedSecurity(document, operation, document.components?.securitySchemes ?? {})
+    const result = filterSelectedSecurity(
+      document,
+      operation,
+      selectedSecurityMock({
+        selectedSchemes: [{ apiKey: [] }],
+      }),
+      selectedSecurityMock(),
+      document.components?.securitySchemes ?? {},
+    )
 
-    expect(result).toEqual([apiKeyScheme])
+    expect(result).toEqual([{ scheme: apiKeyScheme, name: 'apiKey' }])
   })
 
   /**
@@ -270,15 +285,10 @@ describe('filterSelectedSecurity', () => {
             type: 'apiKey',
             name: 'X-API-Key',
             in: 'header',
-            'x-scalar-secret-token': '',
           },
         },
       },
       security: [{ apiKey: [] }],
-      'x-scalar-selected-security': {
-        selectedIndex: -1,
-        selectedSchemes: [],
-      },
     }
 
     const operation: OperationObject = {
@@ -286,7 +296,13 @@ describe('filterSelectedSecurity', () => {
       security: [],
     }
 
-    const result = filterSelectedSecurity(document, operation, document.components?.securitySchemes ?? {})
+    const result = filterSelectedSecurity(
+      document,
+      operation,
+      selectedSecurityMock(),
+      selectedSecurityMock(),
+      document.components?.securitySchemes ?? {},
+    )
     expect(result).toEqual([])
   })
 
@@ -299,7 +315,6 @@ describe('filterSelectedSecurity', () => {
       type: 'apiKey',
       name: 'X-API-Key',
       in: 'header',
-      'x-scalar-secret-token': '',
     }
 
     const document: OpenApiDocument = {
@@ -313,14 +328,16 @@ describe('filterSelectedSecurity', () => {
         },
       },
       security: [{ apiKey: [] }],
-      'x-scalar-selected-security': {
-        selectedIndex: 0,
-        selectedSchemes: [{ apiKey: [] }],
-      },
     }
 
-    const result = filterSelectedSecurity(document, null, document.components?.securitySchemes ?? {})
+    const result = filterSelectedSecurity(
+      document,
+      null,
+      selectedSecurityMock({ selectedSchemes: [{ apiKey: [] }] }),
+      selectedSecurityMock(),
+      document.components?.securitySchemes ?? {},
+    )
 
-    expect(result).toEqual([apiKeyScheme])
+    expect(result).toEqual([{ scheme: apiKeyScheme, name: 'apiKey' }])
   })
 })

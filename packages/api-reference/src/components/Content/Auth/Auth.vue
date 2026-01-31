@@ -8,6 +8,7 @@ import {
   getSelectedSecurity,
 } from '@scalar/api-client/v2/features/operation'
 import type { ApiReferenceConfigurationRaw } from '@scalar/types/api-reference'
+import type { AuthStore } from '@scalar/workspace-store/entities/auth/index'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
@@ -16,28 +17,44 @@ import { computed, watch } from 'vue'
 
 import { getDefaultSecurity } from '@/components/Content/Auth/helpers/get-default-security'
 
-const { document, environment, eventBus, options, securitySchemes } =
-  defineProps<{
-    options: Pick<
-      ApiReferenceConfigurationRaw,
-      'authentication' | 'persistAuth' | 'proxyUrl'
-    >
-    document: WorkspaceDocument | undefined
-    eventBus: WorkspaceEventBus
-    securitySchemes: MergedSecuritySchemes
-    selectedServer: ServerObject | null
-    environment: XScalarEnvironment
-  }>()
+const {
+  document,
+  environment,
+  eventBus,
+  options,
+  securitySchemes,
+  authStore,
+  documentSlug,
+} = defineProps<{
+  options: Pick<
+    ApiReferenceConfigurationRaw,
+    'authentication' | 'persistAuth' | 'proxyUrl'
+  >
+  document: WorkspaceDocument | undefined
+  eventBus: WorkspaceEventBus
+  securitySchemes: MergedSecuritySchemes
+  selectedServer: ServerObject | null
+  environment: XScalarEnvironment
+  authStore: AuthStore
+  documentSlug: string
+}>()
 
 /** Compute what the security requirements should be for the document */
 const securityRequirements = computed(() =>
   getSecurityRequirements(document?.security),
 )
 
+const documentSelectedSecurity = computed(() =>
+  authStore.getAuthSelectedSchemas({
+    type: 'document',
+    documentName: documentSlug,
+  }),
+)
+
 /** The selected security keys for the document */
 const selectedSecurity = computed(() =>
   getSelectedSecurity(
-    document?.['x-scalar-selected-security'],
+    documentSelectedSecurity.value,
     undefined,
     securityRequirements.value,
   ),
@@ -45,9 +62,9 @@ const selectedSecurity = computed(() =>
 
 // We set the initial security on the document to the default if it doesn't exist
 watch(
-  () => document?.['x-scalar-selected-security'],
-  (documentSelectedSecurity) => {
-    if (typeof documentSelectedSecurity !== 'undefined') {
+  documentSelectedSecurity,
+  (newDocumentSelectedSecurity) => {
+    if (typeof newDocumentSelectedSecurity !== 'undefined') {
       return
     }
 
@@ -72,6 +89,8 @@ watch(
 <template>
   <AuthSelector
     v-if="Object.keys(securitySchemes).length"
+    :authStore="authStore"
+    :documentSlug="document?.['x-scalar-navigation']?.name ?? ''"
     :environment
     :eventBus
     isStatic

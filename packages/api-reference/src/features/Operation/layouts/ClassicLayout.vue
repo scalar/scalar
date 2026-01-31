@@ -16,6 +16,7 @@ import {
   isOperationDeprecated,
 } from '@scalar/oas-utils/helpers'
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
+import type { AuthStore } from '@scalar/workspace-store/entities/auth/index'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type {
   OperationObject,
@@ -52,6 +53,8 @@ const {
   selectedServer,
   selectedSecuritySchemes,
   selectedClient,
+  authStore,
+  documentSlug,
 } = defineProps<
   Omit<
     OperationProps,
@@ -62,7 +65,11 @@ const {
     /** The selected server for the operation */
     selectedServer: ServerObject | null
     /** The selected security schemes for the operation */
-    selectedSecuritySchemes: SecuritySchemeObject[]
+    selectedSecuritySchemes: { scheme: SecuritySchemeObject; name: string }[]
+    /** The auth store */
+    authStore: AuthStore
+    /** The document slug */
+    documentSlug: string
   }
 >()
 
@@ -212,8 +219,10 @@ const { copyToClipboard } = useClipboard()
         <!-- Request Example -->
         <ScalarErrorBoundary>
           <OperationCodeSample
+            :authStore="authStore"
             class="operation-example-card"
             :clientOptions
+            :documentSlug
             :eventBus
             fallback
             :isWebhook

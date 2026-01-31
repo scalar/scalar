@@ -1,4 +1,5 @@
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
+import { createAuthStore } from '@scalar/workspace-store/entities/auth/index'
 import type {
   OperationObject,
   SecuritySchemeObject,
@@ -22,32 +23,36 @@ const server: ServerObject = {
 }
 
 // Shared security schemes to exercise headers/query/cookies and http auth
-const complexSecuritySchemes: readonly SecuritySchemeObject[] = [
+const complexSecuritySchemes: readonly { scheme: SecuritySchemeObject; name: string }[] = [
   {
-    type: 'http',
-    scheme: 'bearer',
-    'x-scalar-secret-token': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.large.token.payload',
-    'x-scalar-secret-username': '',
-    'x-scalar-secret-password': '',
+    name: 'bearerAuth',
+    scheme: {
+      type: 'http',
+      scheme: 'bearer',
+    },
   },
   {
-    type: 'apiKey',
-    in: 'query',
-    name: 'api_key',
-    'x-scalar-secret-token': 'QUERY_API_KEY_VALUE',
+    name: 'apiKeyQuery',
+    scheme: {
+      type: 'apiKey',
+      in: 'query',
+      name: 'api_key',
+    },
   },
   {
-    type: 'apiKey',
-    in: 'header',
-    name: 'X-Client-Id',
-    'x-scalar-secret-token': 'CLIENT-1234567890',
+    name: 'apiKeyHeader',
+    scheme: {
+      type: 'apiKey',
+      in: 'header',
+      name: 'X-Client-Id',
+    },
   },
   {
-    type: 'http',
-    scheme: 'basic',
-    'x-scalar-secret-username': 'benchuser',
-    'x-scalar-secret-password': 'verylongpasswordvalue',
-    'x-scalar-secret-token': '',
+    name: 'basicAuth',
+    scheme: {
+      type: 'http',
+      scheme: 'basic',
+    },
   },
 ] as const
 
@@ -188,6 +193,9 @@ describe('bench:operationToHar with large complex payloads', () => {
     responses: {},
   } satisfies OperationObject
 
+  // Mock AuthStore for benchmarking
+  const mockAuthStore = createAuthStore()
+
   bench('large JSON + multipart/form-data bodies with many params and security', () => {
     const method: HttpMethod = 'post'
     // JSON body
@@ -198,6 +206,8 @@ describe('bench:operationToHar with large complex payloads', () => {
       server,
       securitySchemes: [...complexSecuritySchemes],
       contentType: 'application/json',
+      authStore: mockAuthStore,
+      documentSlug: 'benchmark-doc',
     })
 
     // multipart/form-data body
@@ -208,6 +218,8 @@ describe('bench:operationToHar with large complex payloads', () => {
       server,
       securitySchemes: [...complexSecuritySchemes],
       contentType: 'multipart/form-data',
+      authStore: mockAuthStore,
+      documentSlug: 'benchmark-doc',
     })
   })
 })

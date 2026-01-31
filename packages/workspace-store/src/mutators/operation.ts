@@ -395,7 +395,7 @@ export const updateOperationPathMethod = (
   }
 
   // We need to reset the history for the operation when the path or method changes
-  delete operation['x-scalar-history']
+  store.history.clearOperationHistory(document['x-scalar-navigation']?.name ?? '', meta.path, meta.method)
 
   callback('success')
 }
@@ -813,13 +813,13 @@ export const updateOperationRequestBodyFormValue = (
   example.value = unpackProxyObject(payload, { depth: 3 })
 }
 
-const HISTORY_LIMIT = 5
-
 export const addResponseToHistory = async (
+  store: WorkspaceStore | null,
   document: WorkspaceDocument | null,
   { payload, meta }: HooksEvents['hooks:on:request:complete'],
 ) => {
-  if (!document || !payload) {
+  const documentName = document?.['x-scalar-navigation']?.name
+  if (!document || !documentName || !payload) {
     return
   }
 
@@ -845,17 +845,7 @@ export const addResponseToHistory = async (
   const requestHar = await fetchRequestToHar({ request: payload.request })
   const responseHar = await fetchResponseToHar({ response: payload.response })
 
-  operation['x-scalar-history'] ||= []
-  // If the history is full, remove the oldest entry
-  if (operation['x-scalar-history'].length >= HISTORY_LIMIT) {
-    // We need to unpack the history array to avoid proxy object issues
-    operation['x-scalar-history'] = unpackProxyObject(
-      operation['x-scalar-history'].filter((_, i) => i !== 0),
-      { depth: 1 },
-    )
-  }
-  // Add the new entry to the history
-  operation['x-scalar-history'].push({
+  store?.history.addHistory(documentName, meta.path, meta.method, {
     response: responseHar,
     request: requestHar,
     meta: {
@@ -870,6 +860,7 @@ export const addResponseToHistory = async (
 }
 
 export const reloadOperationHistory = (
+  store: WorkspaceStore | null,
   document: WorkspaceDocument | null,
   { meta, index, callback }: OperationEvents['operation:reload:history'],
 ) => {
@@ -884,7 +875,9 @@ export const reloadOperationHistory = (
     return
   }
 
-  const historyItem = operation['x-scalar-history']?.[index]
+  const historyItem = store?.history.getHistory(document['x-scalar-navigation']?.name ?? '', meta.path, meta.method)?.[
+    index
+  ]
   if (!historyItem) {
     console.error('History item not found', index)
     return
@@ -930,8 +923,8 @@ export const operationMutatorsFactory = ({
     updateOperationRequestBodyFormValue: (payload: OperationEvents['operation:update:requestBody:formValue']) =>
       updateOperationRequestBodyFormValue(document, payload),
     addResponseToHistory: (payload: HooksEvents['hooks:on:request:complete']) =>
-      addResponseToHistory(document, payload),
+      addResponseToHistory(store, document, payload),
     reloadOperationHistory: (payload: OperationEvents['operation:reload:history']) =>
-      reloadOperationHistory(document, payload),
+      reloadOperationHistory(store, document, payload),
   }
 }

@@ -111,6 +111,7 @@ async function authorizeClicked() {
       <div class="authContentInner">
         <Auth
           v-if="documentName && document && environment && selectedServer"
+          :authStore="workspaceStore.auth"
           :document
           :environment
           :eventBus

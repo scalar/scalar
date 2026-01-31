@@ -24,13 +24,9 @@ export const REFERENCE_LS_KEYS = {
    */
   SELECTED_CLIENT: 'scalar-reference-selected-client-v2',
   /**
-   * Store the auth schemes as a string in localStorage
+   * Store the auth as a string in localStorage
    */
-  AUTH_SCHEMES: 'scalar-reference-auth-schemes',
-  /**
-   * Store the selected auth schemes as a string in localStorage
-   */
-  SELECTED_AUTH_SCHEMES: 'scalar-reference-selected-auth-schemes',
+  AUTH: 'scalar-reference-auth',
 } as const
 
 /**

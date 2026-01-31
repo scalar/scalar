@@ -25,6 +25,8 @@ import {
 } from '@scalar/types/snippetz'
 import { useToasts } from '@scalar/use-toasts'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
+import type { AuthStore } from '@scalar/workspace-store/entities/auth/index'
+import type { HistoryEntry } from '@scalar/workspace-store/entities/history/schema'
 import type {
   AuthMeta,
   WorkspaceEventBus,
@@ -51,7 +53,6 @@ import { RequestBlock } from '@/v2/blocks/request-block'
 import type { ExtendedScalarCookie } from '@/v2/blocks/request-block/RequestBlock.vue'
 import { ResponseBlock } from '@/v2/blocks/response-block'
 import { type History } from '@/v2/blocks/scalar-address-bar-block'
-import type { MergedSecuritySchemes } from '@/v2/blocks/scalar-auth-selector-block/helpers/merge-auth-config'
 import {
   getSecurityRequirements,
   getSelectedSecurity,
@@ -64,7 +65,6 @@ const {
   authMeta,
   environment,
   documentSecurity,
-  documentSelectedSecurity,
   eventBus,
   exampleKey,
   globalCookies = [],
@@ -79,13 +79,14 @@ const {
   securitySchemes,
   selectedClient,
   server,
+  history = [],
+  authStore,
+  documentSlug,
 } = defineProps<{
   /** Event bus */
   eventBus: WorkspaceEventBus
   /** Document defined security */
   documentSecurity: OpenApiDocument['security']
-  /** Document selected security */
-  documentSelectedSecurity: OpenApiDocument['x-scalar-selected-security']
   /** Application version */
   appVersion: string
   /** Workspace/document cookies */
@@ -121,13 +122,19 @@ const {
   /** Meta information for the auth update */
   authMeta: AuthMeta
   /** Document defined security schemes */
-  securitySchemes: MergedSecuritySchemes
+  securitySchemes: NonNullable<OpenApiDocument['components']>['securitySchemes']
   /** Client plugins */
   plugins: ClientPlugin[]
   /** For environment variables in the inputs */
   environment: XScalarEnvironment
   /** The proxy URL for sending requests */
   proxyUrl: string
+  /** The history for the operation */
+  history?: HistoryEntry[]
+  /** The auth store */
+  authStore: AuthStore
+  /** The document slug */
+  documentSlug: string
 }>()
 
 const emit = defineEmits<{
@@ -146,8 +153,16 @@ const securityRequirements = computed(() =>
 /** The selected security for the operation or document */
 const selectedSecurity = computed(() =>
   getSelectedSecurity(
-    documentSelectedSecurity,
-    operation['x-scalar-selected-security'],
+    authStore.getAuthSelectedSchemas({
+      type: 'document',
+      documentName: documentSlug,
+    }),
+    authStore.getAuthSelectedSchemas({
+      type: 'operation',
+      documentName: documentSlug,
+      path,
+      method,
+    }),
     securityRequirements.value,
     setOperationSecurity,
   ),
@@ -180,6 +195,8 @@ const handleExecute = async () => {
     selectedSecuritySchemes: selectedSecuritySchemes.value,
     server,
     proxyUrl,
+    authStore,
+    documentSlug,
   })
 
   // Toast the error
@@ -251,7 +268,7 @@ onBeforeUnmount(() => {
 })
 
 const operationHistory = computed<History[]>(() =>
-  (operation['x-scalar-history'] ?? [])
+  history
     .map((entry) => ({
       method: entry.request.method as HttpMethodType,
       path: entry.request.url,
@@ -262,9 +279,8 @@ const operationHistory = computed<History[]>(() =>
 )
 
 const handleSelectHistoryItem = ({ index }: { index: number }) => {
-  const transformedIndex =
-    (operation['x-scalar-history']?.length ?? 0) - index - 1
-  const historyItem = operation['x-scalar-history']?.[transformedIndex]
+  const transformedIndex = (history.length ?? 0) - index - 1
+  const historyItem = history[transformedIndex]
   if (!historyItem) {
     return
   }
@@ -272,11 +288,7 @@ const handleSelectHistoryItem = ({ index }: { index: number }) => {
   const navigate = () =>
     eventBus.emit('ui:route:example', {
       exampleName: 'draft',
-      callback: async (status) => {
-        if (status === 'error') {
-          return
-        }
-
+      callback: async () => {
         // Reconstruct the response
         const fetchResponse = harToFetchResponse({
           harResponse: historyItem.response,
@@ -352,7 +364,9 @@ onBeforeUnmount(() => {
         <!-- Request Section -->
         <RequestBlock
           :authMeta
+          :authStore
           :clientOptions
+          :documentSlug
           :environment
           :eventBus
           :exampleKey

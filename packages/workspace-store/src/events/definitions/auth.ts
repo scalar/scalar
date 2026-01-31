@@ -1,6 +1,7 @@
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import type { PartialDeep } from 'type-fest'
 
+import type { SecretsAuth } from '@/entities/auth/schema'
 import type {
   OAuthFlowsObject,
   SecurityRequirementObject,
@@ -84,6 +85,18 @@ export type AuthEvents = {
   'auth:update:security-scheme': {
     /** The data to update the security scheme with */
     payload: SecuritySchemeUpdatePayload
+    /** The name of the security scheme to update */
+    name: string
+  }
+
+  /**
+   * Update a security scheme in the OpenAPI document's components object.
+   * Use this event to update secret information or configuration for UI-auth flows,
+   * such as username, password, tokens for HTTP/ApiKey/OAuth2 schemes.
+   */
+  'auth:update:security-scheme-secrets': {
+    /** The data to update the security scheme with */
+    payload: PartialDeep<SecretsAuth[string]> & { type: SecretsAuth[string]['type'] }
     /** The name of the security scheme to update */
     name: string
   }

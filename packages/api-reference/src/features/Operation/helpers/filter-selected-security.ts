@@ -1,6 +1,7 @@
 import { getSecuritySchemes } from '@scalar/api-client/v2/blocks/operation-block'
 import type { MergedSecuritySchemes } from '@scalar/api-client/v2/blocks/scalar-auth-selector-block'
 import { getSelectedSecurity } from '@scalar/api-client/v2/features/operation'
+import type { SelectedSecurity } from '@scalar/workspace-store/entities/auth/schema'
 import type {
   OpenApiDocument,
   OperationObject,
@@ -19,15 +20,14 @@ const getKey = (requirement: SecurityRequirementObject) => Object.keys(requireme
 export const filterSelectedSecurity = (
   document: OpenApiDocument,
   operation: OperationObject | null,
+  selectedSecurityDocument?: SelectedSecurity,
+  selectedSecurityOperation?: SelectedSecurity,
   securitySchemes: MergedSecuritySchemes = {},
-): SecuritySchemeObject[] => {
+): { scheme: SecuritySchemeObject; name: string }[] => {
   const securityRequirements = operation?.security ?? document.security ?? []
 
   /** The selected security keys for the document */
-  const selectedSecurity = getSelectedSecurity(
-    document?.['x-scalar-selected-security'],
-    operation?.['x-scalar-selected-security'],
-  )
+  const selectedSecurity = getSelectedSecurity(selectedSecurityDocument, selectedSecurityOperation)
 
   /** Build a set for O(1) lookup */
   const requirementSet = new Set(securityRequirements.map((r) => getKey(r)))

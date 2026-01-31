@@ -1,5 +1,6 @@
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import type { AvailableClient, ClientId, TargetId } from '@scalar/snippetz'
+import type { AuthStore } from '@scalar/workspace-store/entities/auth/index'
 import type { XScalarCookie } from '@scalar/workspace-store/schemas/extensions/general/x-scalar-cookies'
 import type { XCodeSample } from '@scalar/workspace-store/schemas/extensions/operation'
 import type {
@@ -29,13 +30,17 @@ type GenerateCodeSnippetProps = {
   /** The API endpoint path (e.g., '/users/{id}'). */
   path: string
   /** Array of security schemes to apply to the request (e.g., API keys, OAuth). */
-  securitySchemes: SecuritySchemeObject[]
+  securitySchemes: { scheme: SecuritySchemeObject; name: string }[]
   /** The server object defining the base URL for the API request. */
   server: ServerObject | null
   /** Workspace + document cookies */
   globalCookies?: XScalarCookie[]
   /** Whether to include default headers (e.g., Accept, Content-Type) automatically. */
   includeDefaultHeaders?: boolean
+  /** Auth store */
+  authStore: AuthStore
+  /** Document slug */
+  documentSlug: string
 }
 
 /** Generate the code snippet for the selected example OR operation */
@@ -51,6 +56,8 @@ export const generateCodeSnippet = ({
   server,
   securitySchemes,
   globalCookies,
+  authStore,
+  documentSlug,
 }: GenerateCodeSnippetProps): string => {
   try {
     if (!clientId) {
@@ -75,6 +82,8 @@ export const generateCodeSnippet = ({
       example,
       globalCookies,
       includeDefaultHeaders,
+      authStore,
+      documentSlug,
     })
 
     const [targetKey, clientKey] = clientId.split('/') as [TargetId, ClientId<TargetId>]

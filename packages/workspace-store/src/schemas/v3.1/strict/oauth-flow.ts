@@ -13,18 +13,6 @@ import {
   type XScalarSecurityQuery,
   XScalarSecurityQuerySchema,
 } from '@/schemas/extensions/security/x-scalar-security-query'
-import {
-  type XScalarSecretClientId,
-  XScalarSecretClientIdSchema,
-  type XScalarSecretClientSecret,
-  XScalarSecretClientSecretSchema,
-  type XScalarSecretHTTP,
-  XScalarSecretHTTPSchema,
-  type XScalarSecretRedirectUri,
-  XScalarSecretRedirectUriSchema,
-  type XScalarSecretToken,
-  XScalarSecretTokenSchema,
-} from '@/schemas/extensions/security/x-scalar-security-secrets'
 import { type XTokenName, XTokenNameSchema } from '@/schemas/extensions/security/x-tokenName'
 import { type XusePkce, XusePkceSchema } from '@/schemas/extensions/security/x-use-pkce'
 
@@ -36,8 +24,6 @@ const OAuthFlowCommonSchema = compose(
     /** REQUIRED. The available scopes for the OAuth2 security scheme. A map between the scope name and a short description for it. The map MAY be empty. */
     scopes: Type.Record(Type.String(), Type.String()),
   }),
-  XScalarSecretClientIdSchema,
-  XScalarSecretTokenSchema,
   XScalarSecurityQuerySchema,
   XScalarSecurityBodySchema,
   XTokenNameSchema,
@@ -49,9 +35,7 @@ type OAuthFlowCommon = {
   refreshUrl: string
   /** REQUIRED. The available scopes for the OAuth2 security scheme. A map between the scope name and a short description for it. The map MAY be empty. */
   scopes: Record<string, string>
-} & XScalarSecretClientId &
-  XScalarSecretToken &
-  XScalarSecurityQuery &
+} & XScalarSecurityQuery &
   XScalarSecurityBody &
   XTokenName
 
@@ -62,14 +46,13 @@ export const OAuthFlowImplicitSchema = compose(
     /** REQUIRED. The authorization URL to be used for this flow. This MUST be in the form of a URL. The OAuth2 standard requires the use of TLS. */
     authorizationUrl: Type.String(),
   }),
-  XScalarSecretRedirectUriSchema,
 )
 
 /** Configuration for the OAuth Implicit flow */
 export type OAuthFlowImplicit = OAuthFlowCommon & {
   /** REQUIRED. The authorization URL to be used for this flow. This MUST be in the form of a URL. The OAuth2 standard requires the use of TLS. */
   authorizationUrl: string
-} & XScalarSecretRedirectUri
+}
 
 /** Configuration for the OAuth Resource Owner Password flow */
 export const OAuthFlowPasswordSchema = compose(
@@ -78,8 +61,6 @@ export const OAuthFlowPasswordSchema = compose(
     /** REQUIRED. The token URL to be used for this flow. This MUST be in the form of a URL. The OAuth2 standard requires the use of TLS. */
     tokenUrl: Type.String(),
   }),
-  XScalarSecretHTTPSchema,
-  XScalarSecretClientSecretSchema,
   XScalarCredentialsLocationSchema,
 )
 
@@ -87,9 +68,7 @@ export const OAuthFlowPasswordSchema = compose(
 export type OAuthFlowPassword = OAuthFlowCommon & {
   /** REQUIRED. The token URL to be used for this flow. This MUST be in the form of a URL. The OAuth2 standard requires the use of TLS. */
   tokenUrl: string
-} & XScalarSecretHTTP &
-  XScalarSecretClientSecret &
-  XScalarCredentialsLocation
+} & XScalarCredentialsLocation
 
 /** Configuration for the OAuth Client Credentials flow. Previously called application in OpenAPI 2.0. */
 export const OAuthFlowClientCredentialsSchema = compose(
@@ -98,7 +77,6 @@ export const OAuthFlowClientCredentialsSchema = compose(
     /** REQUIRED. The token URL to be used for this flow. This MUST be in the form of a URL. The OAuth2 standard requires the use of TLS. */
     tokenUrl: Type.String(),
   }),
-  XScalarSecretClientSecretSchema,
   XScalarCredentialsLocationSchema,
 )
 
@@ -106,8 +84,7 @@ export const OAuthFlowClientCredentialsSchema = compose(
 export type OAuthFlowClientCredentials = OAuthFlowCommon & {
   /** REQUIRED. The token URL to be used for this flow. This MUST be in the form of a URL. The OAuth2 standard requires the use of TLS. */
   tokenUrl: string
-} & XScalarSecretClientSecret &
-  XScalarCredentialsLocation
+} & XScalarCredentialsLocation
 
 /** Configuration for the OAuth Authorization Code flow. Previously called accessCode in OpenAPI 2.0. */
 export const OAuthFlowAuthorizationCodeSchema = compose(
@@ -118,8 +95,6 @@ export const OAuthFlowAuthorizationCodeSchema = compose(
     /** REQUIRED. The token URL to be used for this flow. This MUST be in the form of a URL. The OAuth2 standard requires the use of TLS. */
     tokenUrl: Type.String(),
   }),
-  XScalarSecretClientSecretSchema,
-  XScalarSecretRedirectUriSchema,
   XusePkceSchema,
   XScalarCredentialsLocationSchema,
 )
@@ -130,9 +105,7 @@ export type OAuthFlowAuthorizationCode = OAuthFlowCommon & {
   authorizationUrl: string
   /** REQUIRED. The token URL to be used for this flow. This MUST be in the form of a URL. The OAuth2 standard requires the use of TLS. */
   tokenUrl: string
-} & XScalarSecretClientSecret &
-  XScalarSecretRedirectUri &
-  XusePkce &
+} & XusePkce &
   XScalarCredentialsLocation
 
 export type OAuthFlow = OAuthFlowImplicit | OAuthFlowPassword | OAuthFlowClientCredentials | OAuthFlowAuthorizationCode

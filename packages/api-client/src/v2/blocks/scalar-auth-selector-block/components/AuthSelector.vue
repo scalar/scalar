@@ -9,6 +9,8 @@ import {
   type ScalarButton as ScalarButtonType,
 } from '@scalar/components'
 import { ScalarIconCaretDown, ScalarIconTrash } from '@scalar/icons'
+import type { AuthStore } from '@scalar/workspace-store/entities/auth/index'
+import type { SelectedSecurity } from '@scalar/workspace-store/entities/auth/schema'
 import type {
   AuthMeta,
   WorkspaceEventBus,
@@ -46,18 +48,22 @@ const {
   selectedSecurity,
   server,
   title,
+  documentSlug,
+  authStore,
 } = defineProps<{
   environment: XScalarEnvironment
-  eventBus: WorkspaceEventBus
   /** Creates a static disclosure that cannot be collapsed */
   isStatic?: boolean
   meta: AuthMeta
   proxyUrl: string
   securityRequirements: OpenApiDocument['security']
   securitySchemes: NonNullable<OpenApiDocument['components']>['securitySchemes']
-  selectedSecurity: OpenApiDocument['x-scalar-selected-security']
+  selectedSecurity: SelectedSecurity | undefined
   server: ServerObject | null
   title: string
+  documentSlug: string
+  authStore: AuthStore
+  eventBus: WorkspaceEventBus
 }>()
 
 const titleId = useId()
@@ -282,6 +288,8 @@ defineExpose({
     <!-- Auth Table -->
     <RequestAuthDataTable
       :activeAuthIndex="selectedSecurity?.selectedIndex ?? 0"
+      :authStore
+      :documentSlug
       :environment
       :eventBus
       :isStatic

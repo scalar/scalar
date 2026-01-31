@@ -26,7 +26,7 @@ export function generateClientMutators(store: WorkspaceStore | null) {
    */
   const documentMutators = (document: WorkspaceDocument | null) => {
     return {
-      auth: authMutatorsFactory({ document }),
+      auth: authMutatorsFactory({ store, document }),
       cookie: cookieMutatorsFactory({ collection: document }),
       document: documentMutatorsFactory({ document, store }),
       operation: operationMutatorsFactory({ document, store }),

@@ -1,6 +1,7 @@
 import { canMethodHaveBody } from '@scalar/helpers/http/can-method-have-body'
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { redirectToProxy, shouldUseProxy } from '@scalar/helpers/url/redirect-to-proxy'
+import type { AuthStore } from '@scalar/workspace-store/entities/auth/index'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type { XScalarCookie } from '@scalar/workspace-store/schemas/extensions/general/x-scalar-cookies'
@@ -40,6 +41,8 @@ export const buildRequest = ({
   proxyUrl,
   server,
   selectedSecuritySchemes,
+  authStore,
+  documentSlug,
 }: {
   /** For environment variables in the inputs */
   environment: XScalarEnvironment
@@ -58,7 +61,9 @@ export const buildRequest = ({
   /** The server object */
   server: ServerObject | null
   /** The selected security schemes for the current operation */
-  selectedSecuritySchemes: SecuritySchemeObject[]
+  selectedSecuritySchemes: { scheme: SecuritySchemeObject; name: string }[]
+  authStore: AuthStore
+  documentSlug: string
 }): ErrorResponse<{
   controller: AbortController
   request: Request
@@ -71,7 +76,7 @@ export const buildRequest = ({
     const env = getEnvironmentVariables(environment)
     /** Build out the request parameters */
     const params = buildRequestParameters(operation.parameters ?? [], env, exampleKey)
-    const security = buildRequestSecurity(selectedSecuritySchemes, env)
+    const security = buildRequestSecurity(selectedSecuritySchemes, authStore, documentSlug, env)
 
     // Combine the headers, cookies and url params
     const defaultHeaders = getDefaultHeaders({ method, operation, exampleKey, hideDisabledHeaders: true })
