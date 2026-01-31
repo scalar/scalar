@@ -200,20 +200,24 @@ defineExpose({
 
 <template>
   <div
-    class="scalar scalar-app"
-    :class="{
-      'is-modal-open': modalState.open,
-    }">
+    v-show="modalState.open"
+    class="scalar scalar-app">
     <div class="scalar-container">
-      <ScalarTeleportRoot>
-        <div
-          :id="id"
-          ref="client"
-          aria-label="API Client"
-          aria-modal="true"
-          class="scalar-app-layout scalar-client flex"
-          role="dialog"
-          tabindex="-1">
+      <!-- 
+      adding v-show also here to ensure element is rendered correctly 
+      @see https://github.com/scalar/scalar/issues/7983
+      -->
+      <div
+        v-show="modalState.open"
+        :id="id"
+        ref="client"
+        aria-label="API Client"
+        aria-modal="true"
+        class="scalar-app-layout scalar-client flex"
+        role="dialog"
+        tabindex="-1">
+        <ScalarTeleportRoot>
+          <!-- Toasts -->
           <ScalarToasts />
 
           <!-- If we have a document, path and method, render the operation -->
@@ -222,12 +226,12 @@ defineExpose({
             class="relative flex flex-1">
             <SidebarToggle
               v-model="isSidebarOpen"
-              class="absolute top-2 left-3 z-[10002]" />
+              class="absolute top-2 left-3 z-[10001]" />
             <Sidebar
               v-show="isSidebarOpen"
               v-model:sidebarWidth="sidebarWidth"
               :activeWorkspace="activeWorkspace"
-              class="z-[10001] h-full max-md:absolute! max-md:w-full!"
+              class="z-[10000] h-full max-md:absolute! max-md:w-full!"
               :documents="[document.value]"
               :eventBus
               :isDroppable="() => false"
@@ -258,42 +262,16 @@ defineExpose({
             class="flex h-full w-full items-center justify-center">
             <span class="text-c-3">No document selected</span>
           </div>
-        </div>
-      </ScalarTeleportRoot>
-
+        </ScalarTeleportRoot>
+      </div>
       <div
         class="scalar-app-exit"
-        @click="modalState.hide()" />
+        @click="modalState.hide()"></div>
     </div>
   </div>
 </template>
-
-<style>
+<style scoped>
 @reference "@/style.css";
-
-.scalar.scalar-app {
-  opacity: 0;
-  transition: opacity 0.25s ease-in-out;
-  pointer-events: none;
-  position: fixed;
-  inset: 0;
-  visibility: hidden;
-  z-index: 10000;
-}
-
-.scalar.scalar-app.is-modal-open {
-  opacity: 1;
-  pointer-events: auto;
-  visibility: visible;
-}
-
-.scalar-container {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
 
 .scalar .scalar-app-layout {
   background: var(--scalar-background-1);
@@ -301,26 +279,88 @@ defineExpose({
   max-width: 1390px;
   width: 100%;
   margin: auto;
+  opacity: 0;
+  animation: scalarapiclientfadein 0.35s forwards;
   position: relative;
   overflow: hidden;
   border-radius: 8px;
   border: var(--scalar-border-width) solid var(--scalar-border-color);
-  z-index: 10002;
 }
-
+/**
+ * Allow the modal to fill more space on
+ * very short (or very zoomed in) screens
+ */
+@variant zoomed {
+  .scalar .scalar-app-layout {
+    height: 100%;
+    max-height: 90svh;
+  }
+}
+@keyframes scalarapiclientfadein {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
 .scalar .scalar-app-exit {
   position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.25);
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: #00000038;
+  transition: all 0.3s ease-in-out;
   cursor: pointer;
-  z-index: 10001;
+  animation: scalardrawerexitfadein 0.35s forwards;
+  z-index: -1;
+}
+.dark-mode .scalar .scalar-app-exit {
+  background: rgba(0, 0, 0, 0.45);
+}
+@keyframes scalardrawerexitfadein {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+.scalar .scalar-app-exit:before {
+  font-family: sans-serif;
+  position: absolute;
+  top: 0;
+  right: 12px;
+  font-size: 30px;
+  font-weight: 100;
+  line-height: 50px;
+  text-align: center;
+  color: white;
+  opacity: 0.6;
+}
+.scalar .scalar-app-exit:hover:before {
+  opacity: 1;
+}
+.scalar-container {
+  overflow: hidden;
+  visibility: visible;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  @apply z-overlay;
+}
+.scalar .scalar-container {
+  line-height: normal;
 }
 
 .scalar .url-form-input {
   min-height: auto !important;
-}
-
-.scalar .scalar-container {
-  line-height: normal;
 }
 </style>
