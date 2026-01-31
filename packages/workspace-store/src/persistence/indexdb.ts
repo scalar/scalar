@@ -2,7 +2,8 @@ import type { Static, TObject, TRecord } from '@scalar/typebox'
 
 type TableEntry<S extends TObject, K extends readonly (keyof Static<S>)[]> = {
   schema: S
-  index: K
+  keyPath: K
+  indexes?: Record<string, readonly (keyof Static<S>)[]>
 }
 
 /**
@@ -77,8 +78,13 @@ export const createIndexDbConnection = async <T extends Record<string, TableEntr
       // Initialize all the tables
       Object.entries(tables).forEach(([name, options]) => {
         if (!database.objectStoreNames.contains(name)) {
-          database.createObjectStore(name, {
-            keyPath: options.index.length === 1 ? (options.index[0] as string) : (options.index as string[]),
+          const objectStore = database.createObjectStore(name, {
+            keyPath: options.keyPath.length === 1 ? (options.keyPath[0] as string) : (options.keyPath as string[]),
+          })
+
+          // Create any indexes for the object store
+          Object.entries(options.indexes ?? {}).forEach(([indexName, indexPath]) => {
+            objectStore.createIndex(indexName, indexPath as string[])
           })
         }
       })
@@ -99,7 +105,7 @@ export const createIndexDbConnection = async <T extends Record<string, TableEntr
 
   return {
     get: <Name extends keyof T>(name: Name) => {
-      return createTableWrapper<T[Name]['schema'], T[Name]['index'][number]>(name as string, db.result)
+      return createTableWrapper<T[Name]['schema'], T[Name]['keyPath'][number]>(name as string, db.result)
     },
     closeDatabase: () => {
       db.result.close()
@@ -193,8 +199,10 @@ function createTableWrapper<T extends TRecord | TObject, const K extends keyof S
    *   getRange(['foo']) // All with a === 'foo'
    *   getRange(['foo', 'bar']) // All with a === 'foo' and b === 'bar'
    */
-  function getRange(partialKey: IDBValidKey[]): Promise<Static<T>[]> {
+  function getRange(partialKey: IDBValidKey[], indexName?: string): Promise<Static<T>[]> {
     const store = getStore('readonly')
+    const objectStoreOrIndex = indexName ? store.index(indexName as string) : store
+
     const results: Static<T>[] = []
 
     // Construct upper bound to match all keys starting with partialKey
@@ -203,7 +211,7 @@ function createTableWrapper<T extends TRecord | TObject, const K extends keyof S
     const range = IDBKeyRange.bound(partialKey, upperBound, false, true)
 
     return new Promise((resolve, reject) => {
-      const request = store.openCursor(range)
+      const request = objectStoreOrIndex.openCursor(range)
       request.onerror = () => reject(request.error)
       request.onsuccess = (event) => {
         const cursor = (event.target as IDBRequest<IDBCursorWithValue>).result

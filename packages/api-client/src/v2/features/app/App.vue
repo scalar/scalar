@@ -93,14 +93,19 @@ const themeStyleTag = computed(() => {
   return `<style>${getThemeStyles(themeId)}</style>`
 })
 
-/** Handler for workspace navigation. */
-const handleWorkspaceClick = () =>
-  app.router.value?.push({
-    name: 'workspace.environment',
-    params: {
-      workspaceSlug: app.activeEntities.workspaceSlug.value,
-    },
-  })
+/** Sets the active workspace by ID: finds the workspace in the list and updates app state & navigation. */
+const setActiveWorkspace = (id?: string) => {
+  if (!id) {
+    return
+  }
+  const workspace = app.workspace.workspaceList.value?.find(
+    (workspace) => workspace.id === id,
+  )
+  if (!workspace) {
+    return
+  }
+  app.workspace.navigateToWorkspace(workspace.namespace, workspace.slug)
+}
 
 const createWorkspaceModalState = useModal()
 
@@ -148,7 +153,7 @@ const routerViewProps = computed<RouteProps>(() => ({
         :activeWorkspace="app.workspace.activeWorkspace.value!"
         :workspaces="app.workspace.workspaceList.value!"
         @create:workspace="createWorkspaceModalState.show()"
-        @select:workspace="app.workspace.setId" />
+        @select:workspace="setActiveWorkspace" />
 
       <!-- min-h-0 is required here for scrolling, do not remove it -->
       <main class="flex min-h-0 flex-1">
@@ -164,9 +169,9 @@ const routerViewProps = computed<RouteProps>(() => ({
           :sidebarWidth="app.sidebar.width.value"
           :store="app.store.value!"
           :workspaces="app.workspace.workspaceList.value"
-          @click:workspace="handleWorkspaceClick"
+          @click:workspace="app.workspace.navigateToWorkspace"
           @create:workspace="createWorkspaceModalState.show()"
-          @select:workspace="app.workspace.setId"
+          @select:workspace="setActiveWorkspace"
           @selectItem="app.sidebar.handleSelectItem"
           @update:sidebarWidth="app.sidebar.handleSidebarWidthUpdate">
           <template #sidebarMenuActions>
