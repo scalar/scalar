@@ -110,7 +110,9 @@ const handleInput = async (
   newCompanyLogo?: string | null,
 ): Promise<void> => {
   // Wait for the workspace store to be ready
-  await waitForCondition(() => workspaceStore !== null)
+  const isWorkspaceStoreReady = await waitForCondition(
+    () => workspaceStore !== null,
+  )
 
   const workspaceDocuments = new Set(
     Object.keys(workspaceStore?.workspace.documents ?? {}),
@@ -125,7 +127,9 @@ const handleInput = async (
 
   const shouldDirectImport = workspaces.length === 1 && isWorkspaceEmpty()
 
-  if (shouldDirectImport) {
+  // Only direct import if the workspace store is ready and the workspace is empty
+  // Otherwise, show the modal
+  if (shouldDirectImport && isWorkspaceStoreReady) {
     await directImport(newSource)
     return
   }

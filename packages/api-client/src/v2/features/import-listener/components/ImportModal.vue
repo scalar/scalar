@@ -92,6 +92,8 @@ const updateBodyClasses = (add: boolean): void => {
 const handleModalStateChange = async (isOpen: boolean): Promise<void> => {
   if (!isOpen) {
     state.value = 'idle'
+    // Reset the watch mode to false when the modal is closed
+    watchMode.value = false
     return updateBodyClasses(false)
   }
 
