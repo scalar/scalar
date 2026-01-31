@@ -1,6 +1,12 @@
 import { objectEntries } from '@scalar/helpers/object/object-entries'
 import type { AuthStore } from '@scalar/workspace-store/entities/auth/index'
 import type { SecretsAuth } from '@scalar/workspace-store/entities/auth/schema'
+import type {
+  OAuthFlowAuthorizationCode,
+  OAuthFlowClientCredentials,
+  OAuthFlowImplicit,
+  OAuthFlowPassword,
+} from '@scalar/workspace-store/schemas/v3.1/strict/oauth-flow'
 import type { SecuritySchemeObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
 import type {
@@ -114,36 +120,50 @@ export const extractSecuritySchemeSecrets = (
 
         // Implicit flow
         if (key === 'implicit') {
-          return {
-            ...flow,
+          acc.implicit = {
+            ...(flow as OAuthFlowImplicit),
             'x-scalar-secret-client-id': '',
             'x-scalar-secret-redirect-uri': '',
             'x-scalar-secret-token': '',
-            ...secrets?.implicit,
             ...extractSecretFields(flow),
+            ...secrets?.implicit,
           } satisfies OAuthFlowImplicitSecret
         }
 
         // Password flow
         if (key === 'password') {
-          return {
-            ...flow,
+          acc[key] = {
+            ...(flow as OAuthFlowPassword),
+            'x-scalar-secret-client-id': '',
+            'x-scalar-secret-client-secret': '',
+            'x-scalar-secret-username': '',
+            'x-scalar-secret-password': '',
+            'x-scalar-secret-token': '',
+            ...extractSecretFields(flow),
             ...secrets?.password,
           } satisfies OAuthFlowPasswordSecret
         }
 
         // Client credentials flow
         if (key === 'clientCredentials') {
-          return {
-            ...flow,
+          acc[key] = {
+            ...(flow as OAuthFlowClientCredentials),
+            'x-scalar-secret-client-id': '',
+            'x-scalar-secret-client-secret': '',
+            'x-scalar-secret-token': '',
+            ...extractSecretFields(flow),
             ...secrets?.clientCredentials,
           } satisfies OAuthFlowClientCredentialsSecret
         }
 
         // Authorization code flow
         if (key === 'authorizationCode') {
-          return {
-            ...flow,
+          acc[key] = {
+            ...(flow as OAuthFlowAuthorizationCode),
+            'x-scalar-secret-client-id': '',
+            'x-scalar-secret-client-secret': '',
+            'x-scalar-secret-redirect-uri': '',
+            'x-scalar-secret-token': '',
             ...secrets?.authorizationCode,
           } satisfies OAuthFlowAuthorizationCodeSecret
         }
