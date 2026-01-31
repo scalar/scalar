@@ -1,5 +1,16 @@
 # @scalar/nuxt
 
+## 0.5.64
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-client@2.23.0**
+  - [#8005](https://github.com/scalar/scalar/pull/8005): feat: import modal for client v2
+
+- **@scalar/api-reference@1.44.7**
+
 ## 0.5.63
 
 ### Patch Changes
