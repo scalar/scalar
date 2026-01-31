@@ -25,13 +25,13 @@ jobs:
       - name: Use Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 24
 
       - name: Log in to Scalar
         run: npx @scalar/cli auth login --token ${{ secrets.SCALAR_API_KEY }}
 
       - name: Publish Project
-        run: npx @scalar/cli project publish --slug your-project-slug
+        run: npx @scalar/cli project publish --slug my-docs
 ```
 
 ## Environment-Based Deployment

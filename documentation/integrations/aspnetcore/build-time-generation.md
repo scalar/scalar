@@ -106,7 +106,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 24
 
       - name: Validate OpenAPI Document
         run: |

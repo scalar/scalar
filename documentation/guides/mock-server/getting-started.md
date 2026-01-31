@@ -40,7 +40,7 @@ npm install @scalar/mock-server
 
 ## Usage
 
-```ts
+```typescript
 import { serve } from '@hono/node-server'
 import { createMockServer } from '@scalar/mock-server'
 
@@ -96,7 +96,7 @@ serve(
 
 You can define security schemes in your OpenAPI document and the mock server will validate the authentication:
 
-```ts
+```typescript
 import { serve } from '@hono/node-server'
 import { createMockServer } from '@scalar/mock-server'
 

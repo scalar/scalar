@@ -4,7 +4,7 @@ We're in the process of adding [AsyncAPI](https://www.asyncapi.com/) support.
 
 You can already load AsyncAPI documents. The rendering is very limited, though:
 
-```js
+```javascript
 Scalar.createApiReference('#app', {
   url: '/asyncapi.json'
 })

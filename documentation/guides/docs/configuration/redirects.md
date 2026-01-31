@@ -4,17 +4,21 @@ Redirects allow you to automatically redirect users from one URL to another in y
 
 ## Configuration
 
-Redirects are configured in your `scalar.config.json` file under the `routing.redirects` section:
+Redirects are configured in your `scalar.config.json` file under the `siteConfig.routing.redirects` section:
 
 ```json
 {
-  "routing": {
-    "redirects": [
-      {
-        "from": "/old-path",
-        "to": "/new-path"
-      }
-    ]
+  "$schema": "https://cdn.scalar.com/schema/scalar-config-next.json",
+  "scalar": "2.0.0",
+  "siteConfig": {
+    "routing": {
+      "redirects": [
+        {
+          "from": "/old-path",
+          "to": "/new-path"
+        }
+      ]
+    }
   }
 }
 ```

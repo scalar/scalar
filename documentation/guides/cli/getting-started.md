@@ -102,7 +102,7 @@ jobs:
       - name: Use Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 24
       - name: Validate OpenAPI File
         # Replace `./my-openapi-file.yaml` with the correct path and filename for your project.
         # Or: run `npx @scalar/cli init` and add the config file to your repository.

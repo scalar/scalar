@@ -63,8 +63,6 @@ Click the **Link Repository** link next to the repository of interest, and a pag
 
 All of this can be changed later so pick whatever and click publish, it'll be private by default so no worries about anyone seeing anything that's not ready.
 
-**Learn more about [GitHub Sync here](../guides/docs/github-sync.md).**
-
 ### Web Projects: Exporting Stoplight Web Projects
 
 Exfiltrating your OpenAPI and Markdown from Stoplight is as simple as exporting a ZIP file of your OpenAPI and other documents.
@@ -235,7 +233,7 @@ Be aware rules with custom functions wont work, so just comment those out.
 
 Once you're happy with your new API documentation, it's time to bring the API client developers along too. Those of you with a custom domain pointing to Stoplight (something like `developers.acme.com`) can update the CNAME to point to Scalar.
 
-First off, [add the custom domain](../guides/docs/github-sync.md#github-sync__advanced-configuration__use-a-custom-domain) to your Scalar config.
+First off, [add the custom domain](../guides/docs/configuration/domains.md) to your Scalar config.
 
 ```json
 // scalar.config.json
@@ -271,7 +269,7 @@ If you were using a custom domain with Stoplight hosted documentation then the p
 }
 ```
 
-Learn more about [redirects](../guides/docs/redirects.md).
+Learn more about [redirects](../guides/docs/configuration/redirects.md).
 
 ## Summary
 

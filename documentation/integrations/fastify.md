@@ -12,7 +12,7 @@ npm install @scalar/fastify-api-reference
 
 And then register it with Fastify:
 
-```ts
+```typescript
 await fastify.register(import('@scalar/fastify-api-reference'), {
   routePrefix: '/reference',
 })
@@ -22,7 +22,7 @@ await fastify.register(import('@scalar/fastify-api-reference'), {
 
 If you have a OpenAPI/Swagger document already, you can pass an URL to the plugin:
 
-```ts
+```typescript
 // Render an API reference for a given OpenAPI/Swagger spec URL
 fastify.register(import('@scalar/fastify-api-reference'), {
   routePrefix: '/reference',
@@ -35,7 +35,7 @@ fastify.register(import('@scalar/fastify-api-reference'), {
 
 With [@fastify/swagger], we're picking it up automatically, so this would be enough:
 
-```ts
+```typescript
 await fastify.register(import('@scalar/fastify-api-reference'), {
   routePrefix: '/reference',
 })
@@ -47,7 +47,7 @@ The fastify plugin takes our universal configuration object, [read more about co
 
 By default, we're using a custom Fastify theme and it's beautiful. But you can choose [one of our other themes](../themes.md), too:
 
-```ts
+```typescript
 await fastify.register(import('@scalar/fastify-api-reference'), {
   routePrefix: '/reference',
   configuration: {
@@ -60,7 +60,7 @@ await fastify.register(import('@scalar/fastify-api-reference'), {
 
 The plugin is compatible with the Fastify logger. You can configure the log level for the routes registered by the plugin:
 
-```ts
+```typescript
 fastify.register(import('@scalar/fastify-api-reference'), {
   routePrefix: '/reference',
   logLevel: 'silent',
@@ -82,7 +82,7 @@ npm install fastify
 
 Then, to use it, we need to create a JavaScript file (`index.js`):
 
-```js
+```javascript
 // index.js
 import Fastify from 'fastify'
 
@@ -148,7 +148,7 @@ npm install @fastify/swagger
 
 Okay, you've got this. To actually set up the package, there's a some boilerplate code required. **Replace the content** of our previous `index.js` with the following:
 
-```js
+```javascript
 import FastifySwagger from '@fastify/swagger'
 import Fastify from 'fastify'
 
@@ -274,7 +274,7 @@ npm install @scalar/fastify-api-reference
 
 Put the following snippet into your `index.js` right before the `await fastify.ready`
 
-```js
+```javascript
 // …
 // Render the API reference
 import ScalarApiReference from '@scalar/fastify-api-reference'
@@ -311,7 +311,7 @@ For Additional hooks you can learn more about [route's options](https://fastify.
 
 You can customize a ton! Just pass a `configuration` object to the plugin:
 
-```js
+```javascript
 import ScalarApiReference from '@scalar/fastify-api-reference'
 
 await fastify.register(ScalarApiReference, {
@@ -334,7 +334,7 @@ Auto-generated OpenAPI files are great, but some OpenAPI purists argue it's wort
 If you don't use `@fastify/swagger` to generate and serve an OpenAPI specification, you need to serve it manually. [To serve static files, try @fastify/static](https://github.com/fastify/fastify-static).
 :::
 
-```js
+```javascript
 import ScalarApiReference from '@scalar/fastify-api-reference'
 
 await fastify.register(ScalarApiReference, {

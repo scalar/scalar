@@ -9,6 +9,7 @@ dist/
 __pycache__/
 .output
 .nuxt
+.scalar/
 # Testing data
 test-*.json
 /test-results/

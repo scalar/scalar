@@ -4,7 +4,7 @@ Build custom plugins to extend the functionality of your API reference.
 
 ## Using a Plugin
 
-```ts
+```typescript
 import { MyCustomPlugin } from './my-custom-plugin.ts'
 
 const configuration = {
@@ -33,7 +33,7 @@ paths: {}
 
 #### Render with Vue
 
-```ts
+```typescript
 import type { ApiReferencePlugin } from '@scalar/types/api-reference'
 import CustomVueComponent from './components/CustomVueComponent.vue'
 
@@ -59,7 +59,7 @@ export const XCustomExtensionPlugin = (): ApiReferencePlugin => {
 npm install @scalar/react-renderer react react-dom
 ```
 
-```ts
+```typescript
 import { ReactRenderer } from '@scalar/react-renderer'
 import type { ApiReferencePlugin } from '@scalar/types/api-reference'
 import { CustomReactComponent } from './components/CustomReactComponent'
@@ -93,7 +93,7 @@ Plugins can inject components at specific locations in the API Reference using v
 
 #### Example
 
-```ts
+```typescript
 import type { ApiReferencePlugin } from '@scalar/types/api-reference'
 import CustomComponent from './components/CustomComponent.vue'
 
@@ -122,7 +122,7 @@ View components receive:
 
 #### Using React Components
 
-```ts
+```typescript
 import { ReactRenderer } from '@scalar/react-renderer'
 import { CustomComponent } from './components/CustomComponent'
 

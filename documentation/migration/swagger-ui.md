@@ -150,7 +150,7 @@ You can use one of our [many integrations](../guides/api-references/getting-star
 
 If you prefer the traditional Swagger UI layout, Scalar offers a classic layout option, that is not too different:
 
-```js
+```javascript
 Scalar.createApiReference('#app', {
   url: '/openapi.json',
   layout: 'classic',
@@ -173,7 +173,7 @@ Scalar includes built-in themes:
 - `deepSpace`
 - `laserwave`
 
-```js
+```javascript
 Scalar.createApiReference('#app', {
   url: '/openapi.json',
   theme: 'moon',
