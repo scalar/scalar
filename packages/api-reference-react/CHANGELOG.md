@@ -1,5 +1,14 @@
 # @scalar/api-reference-react
 
+## 0.8.43
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.44.6**
+  - [#8010](https://github.com/scalar/scalar/pull/8010): fix: use proper computed property
+
 ## 0.8.42
 
 ### Patch Changes

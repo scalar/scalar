@@ -1,5 +1,14 @@
 # @scalar/nuxt
 
+## 0.5.63
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.44.6**
+  - [#8010](https://github.com/scalar/scalar/pull/8010): fix: use proper computed property
+
 ## 0.5.62
 
 ### Patch Changes

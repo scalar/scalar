@@ -1,5 +1,14 @@
 # @scalar/aspire
 
+## 0.8.36
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.44.6**
+  - [#8010](https://github.com/scalar/scalar/pull/8010): fix: use proper computed property
+
 ## 0.8.35
 
 ### Patch Changes
