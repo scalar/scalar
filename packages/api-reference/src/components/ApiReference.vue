@@ -857,7 +857,7 @@ watch(agent.showAgent, () => (bodyScrollLocked.value = agent.showAgent.value))
       ]">
       <!-- Agent Scalar -->
       <AgentScalarDrawer
-        v-if="agent.agentEnabled"
+        v-if="agent.agentEnabled.value"
         :agentScalarConfiguration="configList[activeSlug]?.agent"
         :eventBus
         :workspaceStore />
@@ -913,7 +913,7 @@ watch(agent.showAgent, () => (bodyScrollLocked.value = agent.showAgent.value))
                   :searchHotKey="mergedConfig.searchHotKey" />
 
                 <AgentScalarTooltip
-                  v-if="agent.agentEnabled"
+                  v-if="agent.agentEnabled.value"
                   :agentScalarConfiguration="configList[activeSlug]?.agent">
                   <AgentScalarButton />
                 </AgentScalarTooltip>
