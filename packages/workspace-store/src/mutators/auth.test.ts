@@ -1,5 +1,6 @@
 import { assert, describe, expect, it } from 'vitest'
 
+import { createWorkspaceStore } from '@/client'
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
 import {
   deleteSecurityScheme,
@@ -23,19 +24,25 @@ function createDocument(initial?: Partial<WorkspaceDocument>): WorkspaceDocument
 
 describe('updateSelectedSecuritySchemes', () => {
   it('initializes document x-scalar-selected-security and sets selected index to 0 when schemes exist', async () => {
-    const document = createDocument()
+    const documentName = 'test'
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: documentName,
+      document: createDocument(),
+    })
 
     const selected: SecurityRequirementObject[] = [{ bearerAuth: [] }]
 
-    await updateSelectedSecuritySchemes(document, {
+    await updateSelectedSecuritySchemes(store, store.workspace.activeDocument!, {
       selectedRequirements: selected,
       newSchemes: [],
       meta: { type: 'document' },
     })
 
-    expect(document['x-scalar-selected-security']).toBeDefined()
-    expect(document['x-scalar-selected-security']!.selectedSchemes).toEqual(selected)
-    expect(document['x-scalar-selected-security']!.selectedIndex).toBe(0)
+    expect(store.auth.getAuthSelectedSchemas({ type: 'document', documentName })).toEqual({
+      selectedIndex: 0,
+      selectedSchemes: selected,
+    })
   })
 
   it('appends newly created schemes with unique names and updates selection', async () => {
@@ -46,75 +53,101 @@ describe('updateSelectedSecuritySchemes', () => {
         },
       },
     })
+    const documentName = 'test'
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: documentName,
+      document,
+    })
 
     const createItems: { name: string; scheme: SecuritySchemeObject }[] = [
       { name: 'ApiKeyAuth', scheme: { type: 'apiKey', in: 'query', name: 'api_key' } },
     ]
 
-    await updateSelectedSecuritySchemes(document, {
+    await updateSelectedSecuritySchemes(store, store.workspace.activeDocument!, {
       selectedRequirements: [],
       newSchemes: createItems,
       meta: { type: 'document' },
     })
 
+    const securitySchemes = store.workspace.activeDocument?.components?.securitySchemes
+    assert(securitySchemes)
+
     // A unique name should be generated because ApiKeyAuth already exists
-    const names = Object.keys(document.components!.securitySchemes!)
+    const names = Object.keys(securitySchemes)
     expect(names).toContain('ApiKeyAuth')
     expect(names).toContain('ApiKeyAuth 1')
 
     // Selection should include the newly created scheme with empty scopes
-    const schemes = document['x-scalar-selected-security']!.selectedSchemes
-    expect(schemes).toHaveLength(1)
-    assert(schemes[0])
-    expect(Object.keys(schemes[0])).toEqual(['ApiKeyAuth 1'])
-    expect(Object.values(schemes[0])[0]).toEqual([])
+    const result = store.auth.getAuthSelectedSchemas({ type: 'document', documentName })
+    assert(result)
+    expect(result.selectedSchemes).toEqual([{ 'ApiKeyAuth 1': [] }])
 
     // Index is initialized to 0 when adding first item
-    expect(document['x-scalar-selected-security']!.selectedIndex).toBe(0)
+    expect(result.selectedIndex).toBe(0)
   })
 
   it('preserves a valid selected index', async () => {
-    const document = createDocument({
-      'x-scalar-selected-security': {
-        selectedIndex: 1,
-        selectedSchemes: [{ s1: [] }, { s2: [] }],
-      },
+    const documentName = 'test'
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: documentName,
+      document: createDocument(),
     })
 
-    await updateSelectedSecuritySchemes(document, {
+    store.auth.setAuthSelectedSchemas(
+      { type: 'document', documentName },
+      { selectedIndex: 1, selectedSchemes: [{ s1: [] }, { s2: [] }] },
+    )
+
+    await updateSelectedSecuritySchemes(store, store.workspace.activeDocument!, {
       selectedRequirements: [{ s1: [] }, { s2: [] }],
       newSchemes: [],
       meta: { type: 'document' },
     })
 
-    expect(document['x-scalar-selected-security']!.selectedIndex).toBe(1)
-    expect(document['x-scalar-selected-security']!.selectedSchemes).toEqual([{ s1: [] }, { s2: [] }])
+    const result = store.auth.getAuthSelectedSchemas({ type: 'document', documentName })
+    assert(result)
+    expect(result.selectedIndex).toBe(1)
+    expect(result.selectedSchemes).toEqual([{ s1: [] }, { s2: [] }])
   })
 
   it('corrects an out-of-bounds selected index to the last available scheme', async () => {
-    const document = createDocument({
-      'x-scalar-selected-security': {
-        selectedIndex: 5,
-        selectedSchemes: [{ only: [] }],
-      },
+    const documentName = 'test'
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: documentName,
+      document: createDocument(),
     })
+
+    store.auth.setAuthSelectedSchemas(
+      { type: 'document', documentName },
+      { selectedIndex: 5, selectedSchemes: [{ only: [] }] },
+    )
 
     const nextSelected: SecurityRequirementObject[] = [{ a: [] }, { b: [] }]
 
-    await updateSelectedSecuritySchemes(document, {
+    await updateSelectedSecuritySchemes(store, store.workspace.activeDocument!, {
       selectedRequirements: nextSelected,
       newSchemes: [],
       meta: { type: 'document' },
     })
 
-    expect(document['x-scalar-selected-security']!.selectedSchemes).toEqual(nextSelected)
-    expect(document['x-scalar-selected-security']!.selectedIndex).toBe(nextSelected.length - 1)
+    const result = store.auth.getAuthSelectedSchemas({ type: 'document', documentName })
+    assert(result)
+    expect(result.selectedSchemes).toEqual(nextSelected)
+    expect(result.selectedIndex).toBe(nextSelected.length - 1)
   })
 
   it('updates operation-level selection and updates components for created schemes', async () => {
-    const document = createDocument({ paths: { '/pets': { get: {} as unknown as Record<string, unknown> } } })
+    const documentName = 'test'
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: documentName,
+      document: createDocument({ paths: { '/pets': { get: {} } } }),
+    })
 
-    await updateSelectedSecuritySchemes(document, {
+    await updateSelectedSecuritySchemes(store, store.workspace.activeDocument!, {
       selectedRequirements: [{ bearerAuth: [] }],
       newSchemes: [
         {
@@ -129,17 +162,16 @@ describe('updateSelectedSecuritySchemes', () => {
     })
 
     // Components should include the newly created scheme
-    expect(document.components?.securitySchemes?.['BearerAuth']).toEqual({
+    expect(store.workspace.activeDocument?.components?.securitySchemes?.['BearerAuth']).toEqual({
       type: 'http',
       scheme: 'bearer',
     })
 
     // Operation-level selection should be created and set
-    const operation = (document.paths!['/pets'] as Record<string, any>).get
-    const ext = operation['x-scalar-selected-security']
-    expect(ext).toBeDefined()
-    expect(ext.selectedSchemes).toEqual([{ bearerAuth: [] }, { BearerAuth: [] }])
-    expect(ext.selectedIndex).toBe(0)
+    const result = store.auth.getAuthSelectedSchemas({ type: 'operation', documentName, path: '/pets', method: 'get' })
+    assert(result)
+    expect(result.selectedSchemes).toEqual([{ bearerAuth: [] }, { BearerAuth: [] }])
+    expect(result.selectedIndex).toBe(0)
   })
 })
 
@@ -222,162 +254,225 @@ describe('updateSecurityScheme', () => {
 })
 
 describe('updateSelectedAuthTab', () => {
-  it('initializes document extension when missing and sets selected index', () => {
-    const document = createDocument()
+  it('initializes document extension when missing and sets selected index', async () => {
+    const documentName = 'test'
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: documentName,
+      document: createDocument(),
+    })
 
-    updateSelectedAuthTab(document, {
+    updateSelectedAuthTab(store, store.workspace.activeDocument!, {
       index: 3,
       meta: { type: 'document' },
     })
 
-    const ext = document['x-scalar-selected-security']
-    expect(ext).toBeDefined()
-    expect(ext!.selectedIndex).toBe(3)
-    expect(ext!.selectedSchemes).toEqual([])
+    const result = store.auth.getAuthSelectedSchemas({ type: 'document', documentName })
+    assert(result)
+    expect(result.selectedIndex).toBe(3)
+    expect(result.selectedSchemes).toEqual([])
   })
 
-  it('updates only the selected index and preserves existing schemes', () => {
-    const document = createDocument({
-      'x-scalar-selected-security': {
-        selectedIndex: 0,
-        selectedSchemes: [{ s1: [] }],
-      },
+  it('updates only the selected index and preserves existing schemes', async () => {
+    const documentName = 'test'
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: documentName,
+      document: createDocument(),
     })
+    store.auth.setAuthSelectedSchemas(
+      { type: 'document', documentName },
+      { selectedIndex: 0, selectedSchemes: [{ s1: [] }] },
+    )
 
-    updateSelectedAuthTab(document, {
+    updateSelectedAuthTab(store, store.workspace.activeDocument!, {
       index: 5,
       meta: { type: 'document' },
     })
 
-    const ext = document['x-scalar-selected-security']!
-    expect(ext.selectedIndex).toBe(5)
-    expect(ext.selectedSchemes).toEqual([{ s1: [] }])
+    const result = store.auth.getAuthSelectedSchemas({ type: 'document', documentName })
+    assert(result)
+    expect(result.selectedIndex).toBe(5)
+    expect(result.selectedSchemes).toEqual([{ s1: [] }])
   })
 
-  it('sets selected index for an operation target', () => {
-    const document = createDocument({ paths: { '/pets': { get: {} as unknown as Record<string, unknown> } } })
+  it('sets selected index for an operation target', async () => {
+    const documentName = 'test'
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: documentName,
+      document: createDocument({ paths: { '/pets': { get: {} } } }),
+    })
 
-    updateSelectedAuthTab(document, {
+    updateSelectedAuthTab(store, store.workspace.activeDocument!, {
       index: 2,
       meta: { type: 'operation', path: '/pets', method: 'get' },
     })
 
-    const operation = (document.paths!['/pets'] as Record<string, any>).get
-    const ext = operation['x-scalar-selected-security']
-    expect(ext).toBeDefined()
-    expect(ext.selectedIndex).toBe(2)
-    expect(ext.selectedSchemes).toEqual([])
+    const result = store.auth.getAuthSelectedSchemas({ type: 'operation', documentName, path: '/pets', method: 'get' })
+    assert(result)
+    expect(result.selectedIndex).toBe(2)
+    expect(result.selectedSchemes).toEqual([])
   })
 
   it('is a no-op when document is null', () => {
-    updateSelectedAuthTab(null, { index: 1, meta: { type: 'document' } })
+    updateSelectedAuthTab(createWorkspaceStore(), null, { index: 1, meta: { type: 'document' } })
   })
 
-  it('is a no-op when operation target cannot be resolved', () => {
-    const document = createDocument({ paths: {} })
+  it('is a no-op when operation target cannot be resolved', async () => {
+    const documentName = 'test'
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: documentName,
+      document: createDocument({ paths: {} }),
+    })
 
-    updateSelectedAuthTab(document, {
+    updateSelectedAuthTab(store, store.workspace.activeDocument!, {
       index: 1,
       meta: { type: 'operation', path: '/missing', method: 'get' },
     })
 
     // Root extension should remain undefined since only operation should be targeted
-    expect(document['x-scalar-selected-security']).toBeUndefined()
+    const result = store.auth.getAuthSelectedSchemas({
+      type: 'operation',
+      documentName,
+      path: '/missing',
+      method: 'get',
+    })
+    expect(result).toBeUndefined()
   })
 })
 
 describe('updateSelectedScopes', () => {
-  it('updates scopes for the matching scheme at document level', () => {
-    const document = createDocument({
-      'x-scalar-selected-security': {
-        selectedIndex: 0,
-        selectedSchemes: [{ OAuth: [] }],
-      },
+  it('updates scopes for the matching scheme at document level', async () => {
+    const documentName = 'test'
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: documentName,
+      document: createDocument({}),
     })
+    store.auth.setAuthSelectedSchemas(
+      { type: 'document', documentName },
+      { selectedIndex: 0, selectedSchemes: [{ OAuth: [] }] },
+    )
 
-    updateSelectedScopes(document, {
+    updateSelectedScopes(store, store.workspace.activeDocument!, {
       id: ['OAuth'],
       name: 'OAuth',
       scopes: ['read', 'write'],
       meta: { type: 'document' },
     })
 
-    const schemes = document['x-scalar-selected-security']!.selectedSchemes
-    expect(schemes[0]?.OAuth).toEqual(['read', 'write'])
+    const schemes = store.auth.getAuthSelectedSchemas({ type: 'document', documentName })
+    assert(schemes)
+    expect(schemes.selectedSchemes[0]).toEqual({ OAuth: ['read', 'write'] })
   })
 
-  it('updates scopes for matching scheme at operation level', () => {
-    const document = createDocument({
-      'x-scalar-selected-security': {
-        selectedIndex: 0,
-        selectedSchemes: [{ DocScheme: [] }],
-      },
-      paths: {
-        '/pets': {
-          get: { 'x-scalar-selected-security': { selectedIndex: 0, selectedSchemes: [{ OpOAuth: ['old'] }] } } as any,
+  it('updates scopes for matching scheme at operation level', async () => {
+    const documentName = 'test'
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: documentName,
+      document: createDocument({
+        paths: {
+          '/pets': {
+            get: {},
+          },
         },
-      },
+      }),
     })
 
-    updateSelectedScopes(document, {
+    store.auth.setAuthSelectedSchemas(
+      { type: 'document', documentName },
+      { selectedIndex: 0, selectedSchemes: [{ DocScheme: [] }] },
+    )
+
+    store.auth.setAuthSelectedSchemas(
+      { type: 'operation', documentName, path: '/pets', method: 'get' },
+      { selectedIndex: 0, selectedSchemes: [{ OpOAuth: ['old'] }] },
+    )
+
+    updateSelectedScopes(store, store.workspace.activeDocument!, {
       id: ['OpOAuth'],
       name: 'OpOAuth',
       scopes: ['new'],
       meta: { type: 'operation', path: '/pets', method: 'get' },
     })
 
-    const op = (document.paths!['/pets'] as any).get
-    expect(op['x-scalar-selected-security'].selectedSchemes[0].OpOAuth).toEqual(['new'])
-    assert(document['x-scalar-selected-security'])
-    // Document level should remain unchanged
-    const docSchemes = document['x-scalar-selected-security'].selectedSchemes
-    assert(docSchemes[0])
-    expect(docSchemes[0].DocScheme).toEqual([])
+    const result = store.auth.getAuthSelectedSchemas({ type: 'operation', documentName, path: '/pets', method: 'get' })
+    assert(result)
+    expect(result.selectedSchemes[0]).toEqual({ OpOAuth: ['new'] })
+    const docSchemes = store.auth.getAuthSelectedSchemas({ type: 'document', documentName })
+    assert(docSchemes)
+    expect(docSchemes.selectedSchemes[0]).toEqual({ DocScheme: [] })
   })
 
-  it('matches by id array of keys (multi-scheme requirement) and updates only the named entry', () => {
-    const document = createDocument({
-      'x-scalar-selected-security': {
-        selectedIndex: 0,
-        selectedSchemes: [{ a: [], b: [] }, { a: [] }, { b: [] }],
-      },
+  it('matches by id array of keys (multi-scheme requirement) and updates only the named entry', async () => {
+    const documentName = 'test'
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: documentName,
+      document: createDocument(),
     })
+    store.auth.setAuthSelectedSchemas(
+      { type: 'document', documentName },
+      { selectedIndex: 0, selectedSchemes: [{ a: [], b: [] }, { a: [] }, { b: [] }] },
+    )
 
-    updateSelectedScopes(document, {
+    updateSelectedScopes(store, store.workspace.activeDocument!, {
       id: ['a', 'b'],
       name: 'a',
       scopes: ['one'],
       meta: { type: 'document' },
     })
 
-    const scheme = document['x-scalar-selected-security']!.selectedSchemes[0]
+    const scheme = store.auth.getAuthSelectedSchemas({ type: 'document', documentName })
     assert(scheme)
-    expect(scheme.a).toEqual(['one'])
-    expect(scheme.b).toEqual([])
+    expect(scheme.selectedSchemes[0]).toEqual({ a: ['one'], b: [] })
   })
 
   it('is a no-op when document is null', () => {
-    updateSelectedScopes(null, { id: ['x'], name: 'x', scopes: [], meta: { type: 'document' } })
+    updateSelectedScopes(createWorkspaceStore(), null, { id: ['x'], name: 'x', scopes: [], meta: { type: 'document' } })
   })
 
-  it('is a no-op when selected schemes are missing or scheme id not found', () => {
+  it('is a no-op when selected schemes are missing or scheme id not found', async () => {
     const document = createDocument()
 
+    const documentName = 'test'
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: documentName,
+      document: createDocument(),
+    })
+
     // No selected extension yet
-    updateSelectedScopes(document, { id: ['missing'], name: 'missing', scopes: ['s'], meta: { type: 'document' } })
-    expect(document['x-scalar-selected-security']).toBeUndefined()
+    updateSelectedScopes(store, document, {
+      id: ['missing'],
+      name: 'missing',
+      scopes: ['s'],
+      meta: { type: 'document' },
+    })
+    expect(store.auth.getAuthSelectedSchemas({ type: 'document', documentName })).toBeUndefined()
 
     // With extension but id does not match
-    document['x-scalar-selected-security'] = { selectedIndex: 0, selectedSchemes: [{ z: [] }] }
-    updateSelectedScopes(document, { id: ['notZ'], name: 'notZ', scopes: ['s'], meta: { type: 'document' } })
-    const zSchemes = document['x-scalar-selected-security']!.selectedSchemes
-    assert(zSchemes[0])
-    expect(zSchemes[0].z).toEqual([])
+    store.auth.setAuthSelectedSchemas(
+      { type: 'document', documentName },
+      { selectedIndex: 0, selectedSchemes: [{ z: [] }] },
+    )
+    updateSelectedScopes(store, store.workspace.activeDocument!, {
+      id: ['notZ'],
+      name: 'notZ',
+      scopes: ['s'],
+      meta: { type: 'document' },
+    })
+    const zSchemes = store.auth.getAuthSelectedSchemas({ type: 'document', documentName })
+    assert(zSchemes)
+    expect(zSchemes.selectedSchemes).toEqual([{ z: [] }])
   })
 })
 
 describe('deleteSecurityScheme', () => {
-  it('removes schemes from components, document selections, document security, and operations', () => {
+  it('removes schemes from components, document selections, document security, and operations', async () => {
     const document = createDocument({
       components: {
         securitySchemes: {
@@ -392,55 +487,78 @@ describe('deleteSecurityScheme', () => {
           },
         },
       },
-      'x-scalar-selected-security': {
-        selectedIndex: 0,
-        selectedSchemes: [{ A: [] }, { B: [] }, { C: [] }],
-      },
       security: [{ A: [] }, { D: [] }],
       paths: {
         '/p': {
           get: {
             security: [{ A: [] }, { E: [] }],
-            'x-scalar-selected-security': { selectedIndex: 0, selectedSchemes: [{ B: [] }, { F: [] }] },
-          } as any,
+          },
         },
       },
     })
+    const documentName = 'test'
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: documentName,
+      document,
+    })
+    store.auth.setAuthSelectedSchemas(
+      { type: 'document', documentName },
+      {
+        selectedIndex: 0,
+        selectedSchemes: [{ A: [] }, { B: [] }, { C: [] }],
+      },
+    )
+    store.auth.setAuthSelectedSchemas(
+      { type: 'operation', documentName, path: '/p', method: 'get' },
+      { selectedIndex: 0, selectedSchemes: [{ B: [] }, { F: [] }] },
+    )
 
-    deleteSecurityScheme(document, { names: ['A', 'B', 'X'] })
+    deleteSecurityScheme(store, store.workspace.activeDocument!, { names: ['A', 'B', 'X'] })
 
+    const components = store.workspace.activeDocument?.components
     // Components
-    assert(document.components)
-    assert(document.components.securitySchemes)
-    expect(document.components.securitySchemes.A).toBeUndefined()
-    expect(document.components.securitySchemes.B).toBeUndefined()
-    expect(document.components.securitySchemes.C).toBeDefined()
+    assert(components?.securitySchemes)
+    expect(components.securitySchemes?.A).toBeUndefined()
+    expect(components.securitySchemes?.B).toBeUndefined()
+    expect(components.securitySchemes?.C).toBeDefined()
 
     // Document extension selections
-    assert(document['x-scalar-selected-security'])
-    const docSchemes = document['x-scalar-selected-security'].selectedSchemes
-    expect(docSchemes).toEqual([{ C: [] }])
+    const docSchemes = store.auth.getAuthSelectedSchemas({ type: 'document', documentName })
+    assert(docSchemes)
+    expect(docSchemes.selectedSchemes).toEqual([{ C: [] }])
 
     // Document security array
-    expect(document.security).toEqual([{ D: [] }])
+    expect(store.workspace.activeDocument?.security).toEqual([{ D: [] }])
 
     // Operation level filtering
-    const op = (document.paths!['/p'] as any).get
+    const op = getResolvedRef(store.workspace.activeDocument?.paths!['/p']?.get)
+    assert(op)
     expect(op.security).toEqual([{ E: [] }])
-    expect(op['x-scalar-selected-security'].selectedSchemes).toEqual([{ F: [] }])
+    const opSchemes = store.auth.getAuthSelectedSchemas({ type: 'operation', documentName, path: '/p', method: 'get' })
+    assert(opSchemes)
+    expect(opSchemes.selectedSchemes).toEqual([{ F: [] }])
   })
 
-  it('is a no-op when document is null or components are missing', () => {
+  it('is a no-op when document is null or components are missing', async () => {
     // null doc
-    deleteSecurityScheme(null, { names: ['A'] })
+    deleteSecurityScheme(createWorkspaceStore(), null, { names: ['A'] })
 
     // missing components -> selected security should not be touched due to early return
-    const document = createDocument({
-      'x-scalar-selected-security': { selectedIndex: 0, selectedSchemes: [{ A: [] }, { B: [] }] },
+    const documentName = 'test'
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: documentName,
+      document: createDocument(),
     })
-    deleteSecurityScheme(document, { names: ['A'] })
+    store.auth.setAuthSelectedSchemas(
+      { type: 'document', documentName },
+      { selectedIndex: 0, selectedSchemes: [{ A: [] }, { B: [] }] },
+    )
+    deleteSecurityScheme(store, store.workspace.activeDocument!, { names: ['A'] })
 
-    assert(document['x-scalar-selected-security'])
-    expect(document['x-scalar-selected-security'].selectedSchemes).toEqual([{ A: [] }, { B: [] }])
+    const docSchemes = store.auth.getAuthSelectedSchemas({ type: 'document', documentName })
+    assert(docSchemes)
+    expect(docSchemes.selectedSchemes).toEqual([{ A: [] }, { B: [] }])
   })
 })

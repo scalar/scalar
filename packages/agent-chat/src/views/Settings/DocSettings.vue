@@ -42,6 +42,7 @@ const securitySchemes = computed(
     </div>
     <div>
       <Auth
+        :authStore="workspaceStore.auth"
         :document
         :environment
         :eventBus

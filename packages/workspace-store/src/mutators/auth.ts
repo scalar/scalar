@@ -207,6 +207,11 @@ export const updateSelectedAuthTab = (
     return
   }
 
+  // Ensure the path/method exists in the document
+  if (meta.type === 'operation' && document?.paths?.[meta.path]?.[meta.method] === undefined) {
+    return
+  }
+
   // Determine the target object for setting the auth tab index:
   // - Document/root level
   // - Operation/endpoint level (if meta specifies operation)
