@@ -9,9 +9,15 @@ import { useAgentKeyDocuments } from '@/hooks/use-agent-key-documents'
 import { useChatScroll } from '@/hooks/use-chat-scroll'
 import { useCuratedDocuments } from '@/hooks/use-curated-documents'
 import { getTmpDocFromLocalStorage } from '@/hooks/use-upload-tmp-document'
-import { useState } from '@/state/state'
+import { clearState, setState, type State } from '@/state/state'
 import Layout from '@/views/Layout.vue'
 import Settings from '@/views/Settings/Settings.vue'
+
+const { store } = defineProps<{
+  store: State
+}>()
+
+setState(store)
 
 const {
   chat,
@@ -22,7 +28,7 @@ const {
   config,
   mode,
   addDocument,
-} = useState()
+} = store
 
 const clientModalRef = useTemplateRef<HTMLElement>('clientModal')
 const apiClient = ref<ApiClientModal | null>(null)
@@ -52,6 +58,7 @@ onMounted(async () => {
 
 onBeforeUnmount(() => {
   apiClient.value?.app.unmount()
+  clearState()
 })
 
 useChatScroll()

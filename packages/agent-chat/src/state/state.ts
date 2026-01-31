@@ -10,7 +10,7 @@ import {
   type UIMessage,
   lastAssistantMessageIsCompleteWithApprovalResponses,
 } from 'ai'
-import { type ComputedRef, type InjectionKey, type Ref, computed, inject, ref, watch } from 'vue'
+import { type ComputedRef, type Ref, computed, ref, watch } from 'vue'
 
 import { type Api, createApi, createAuthorizationHeaders } from '@/api'
 import type { ApiMetadata } from '@/entities/registry/document'
@@ -62,9 +62,23 @@ export type Tools = {
   }
 }
 
-export const STATE_SYMBOL: InjectionKey<State> = Symbol('STATE_SYMBOL')
+let currentState: State | null = null
 
-type State = {
+/**
+ * Sets the global store instance. Called by Chat.vue when it mounts with the store prop.
+ */
+export function setState(state: State): void {
+  currentState = state
+}
+
+/**
+ * Clears the global store instance. Called by Chat.vue on unmount.
+ */
+export function clearState(): void {
+  currentState = null
+}
+
+export type State = {
   prompt: Ref<string>
   chat: Chat<UIMessage<unknown, UIDataTypes, Tools>>
   workspaceStore: WorkspaceStore
@@ -258,12 +272,10 @@ export function createState({
   }
 }
 
-export function useState() {
-  const state = inject(STATE_SYMBOL)
-
-  if (!state) {
-    throw new Error('No state provided.')
+export function useState(): State {
+  if (!currentState) {
+    throw new Error('No state set. Ensure Chat is mounted with a store prop.')
   }
 
-  return state
+  return currentState
 }

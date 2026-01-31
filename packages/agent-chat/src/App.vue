@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { provide, type Ref } from 'vue'
+import type { Ref } from 'vue'
 
 import Chat from '@/Chat.vue'
-import { createState, STATE_SYMBOL, type RegistryDocument } from '@/state/state'
+import { createState, type RegistryDocument } from '@/state/state'
 import { type ChatMode } from '@/types'
 
 const {
@@ -27,24 +27,21 @@ const {
   prefilledMessage?: Ref<string>
 }>()
 
-provide(
-  STATE_SYMBOL,
-  createState({
-    getActiveDocumentJson,
-    initialRegistryDocuments: registryDocuments,
-    prefilledMessageRef: prefilledMessage,
-    registryUrl,
-    baseUrl,
-    mode,
-    getAccessToken,
-    getAgentKey,
-    dashboardUrl,
-  }),
-)
+const store = createState({
+  getActiveDocumentJson,
+  initialRegistryDocuments: registryDocuments,
+  prefilledMessageRef: prefilledMessage,
+  registryUrl,
+  baseUrl,
+  mode,
+  getAccessToken,
+  getAgentKey,
+  dashboardUrl,
+})
 </script>
 
 <template>
-  <Chat />
+  <Chat :store="store" />
 </template>
 
 <style scoped></style>
