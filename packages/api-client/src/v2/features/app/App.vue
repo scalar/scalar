@@ -20,6 +20,7 @@ import SplashScreen from '@/v2/features/app/components/SplashScreen.vue'
 import type { RouteProps } from '@/v2/features/app/helpers/routes'
 import { useDocumentWatcher } from '@/v2/features/app/hooks/use-document-watcher'
 import TheCommandPalette from '@/v2/features/command-palette/TheCommandPalette.vue'
+import { ImportListener } from '@/v2/features/import-listener'
 import type { ClientPlugin } from '@/v2/helpers/plugins'
 import { useColorMode } from '@/v2/hooks/use-color-mode'
 import { useGlobalHotKeys } from '@/v2/hooks/use-global-hot-keys'
@@ -65,7 +66,7 @@ if (typeof window !== 'undefined') {
 }
 
 /** Initialize color mode to ensure it is set on mount. */
-useColorMode({ workspaceStore: app.store })
+const { isDarkMode } = useColorMode({ workspaceStore: app.store })
 
 /** Register global hotkeys for the app, passing the workspace event bus and layout state */
 useGlobalHotKeys(app.eventBus, layout)
@@ -124,60 +125,84 @@ const routerViewProps = computed<RouteProps>(() => ({
   plugins,
   securitySchemes: app.document.value?.components?.securitySchemes ?? {},
 }))
-
-//
 </script>
 
 <template>
-  <template
-    v-if="
-      app.store.value !== null &&
-      app.workspace.activeWorkspace.value !== null &&
-      !app.loading.value
-    ">
+  <ScalarTeleportRoot>
+    <!-- Theme style tag -->
     <div v-html="themeStyleTag" />
-    <ScalarTeleportRoot>
-      <!-- Toasts -->
-      <ScalarToasts />
 
-      <!-- Desktop App Tabs -->
-      <DesktopTabs
-        v-if="layout === 'desktop'"
-        :activeTabIndex="app.tabs.activeTabIndex.value"
-        :eventBus="app.eventBus"
-        :tabs="app.tabs.state.value" />
+    <!-- Toasts -->
+    <ScalarToasts />
 
-      <!-- Web App Top Nav -->
-      <WebTopNav
-        v-else
-        :activeWorkspace="app.workspace.activeWorkspace.value!"
-        :workspaces="app.workspace.workspaceList.value!"
-        @create:workspace="createWorkspaceModalState.show()"
-        @select:workspace="setActiveWorkspace" />
-
-      <!-- min-h-0 is required here for scrolling, do not remove it -->
-      <main class="flex min-h-0 flex-1">
-        <!-- App sidebar -->
-
-        <AppSidebar
-          v-model:isSidebarOpen="app.sidebar.isOpen.value"
-          :activeWorkspace="app.workspace.activeWorkspace.value"
+    <!-- Import listener -->
+    <ImportListener
+      :activeWorkspace="app.workspace.activeWorkspace.value"
+      :darkMode="isDarkMode"
+      :workspaceStore="app.store.value"
+      :workspaces="app.workspace.workspaceList.value"
+      @create:workspace="(payload) => app.workspace.create(payload)"
+      @navigateTo:document="
+        (slug) =>
+          app.router.value?.push({
+            name: 'document.overview',
+            params: {
+              documentSlug: slug,
+            },
+          })
+      "
+      @select:workspace="setActiveWorkspace">
+      <!-- Main content -->
+      <main
+        v-if="
+          app.store.value !== null &&
+          app.workspace.activeWorkspace.value !== null &&
+          !app.loading.value
+        "
+        class="flex flex-1 flex-col">
+        <!-- Desktop App Tabs -->
+        <DesktopTabs
+          v-if="layout === 'desktop'"
+          :activeTabIndex="app.tabs.activeTabIndex.value"
           :eventBus="app.eventBus"
-          :isWorkspaceOpen="app.workspace.isOpen.value"
-          :layout
-          :sidebarState="app.sidebar.state"
-          :sidebarWidth="app.sidebar.width.value"
-          :store="app.store.value!"
-          :workspaces="app.workspace.workspaceList.value"
-          @click:workspace="app.workspace.navigateToWorkspace"
+          :tabs="app.tabs.state.value" />
+
+        <!-- Web App Top Nav -->
+        <WebTopNav
+          v-else
+          :activeWorkspace="app.workspace.activeWorkspace.value!"
+          :workspaces="app.workspace.workspaceList.value!"
           @create:workspace="createWorkspaceModalState.show()"
-          @select:workspace="setActiveWorkspace"
-          @selectItem="app.sidebar.handleSelectItem"
-          @update:sidebarWidth="app.sidebar.handleSidebarWidthUpdate">
-          <template #sidebarMenuActions>
-            <slot name="sidebar-menu-actions" />
-          </template>
-        </AppSidebar>
+          @select:workspace="setActiveWorkspace" />
+
+        <!-- min-h-0 is required here for scrolling, do not remove it -->
+        <div class="flex min-h-0 flex-1">
+          <!-- App sidebar -->
+          <AppSidebar
+            v-model:isSidebarOpen="app.sidebar.isOpen.value"
+            :activeWorkspace="app.workspace.activeWorkspace.value"
+            :eventBus="app.eventBus"
+            :isWorkspaceOpen="app.workspace.isOpen.value"
+            :layout
+            :sidebarState="app.sidebar.state"
+            :sidebarWidth="app.sidebar.width.value"
+            :store="app.store.value!"
+            :workspaces="app.workspace.workspaceList.value"
+            @click:workspace="app.workspace.navigateToWorkspace"
+            @create:workspace="createWorkspaceModalState.show()"
+            @select:workspace="setActiveWorkspace"
+            @selectItem="app.sidebar.handleSelectItem"
+            @update:sidebarWidth="app.sidebar.handleSidebarWidthUpdate">
+            <template #sidebarMenuActions>
+              <slot name="sidebar-menu-actions" />
+            </template>
+          </AppSidebar>
+
+          <!-- Router view -->
+          <div class="bg-b-1 flex-1">
+            <RouterView v-bind="routerViewProps" />
+          </div>
+        </div>
 
         <!-- Create workspace modal -->
         <CreateWorkspaceModal
@@ -189,18 +214,13 @@ const routerViewProps = computed<RouteProps>(() => ({
           :eventBus="app.eventBus"
           :paletteState="paletteState"
           :workspaceStore="app.store.value!" />
-
-        <!-- <ImportCollectionListener></ImportCollectionListener> -->
-
-        <div class="bg-b-1 flex-1">
-          <RouterView v-bind="routerViewProps" />
-        </div>
       </main>
-    </ScalarTeleportRoot>
-  </template>
-  <template v-else>
-    <SplashScreen />
-  </template>
+      <!-- Splash screen -->
+      <main v-else>
+        <SplashScreen />
+      </main>
+    </ImportListener>
+  </ScalarTeleportRoot>
 </template>
 
 <style>

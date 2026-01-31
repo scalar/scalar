@@ -297,7 +297,11 @@ const changeWorkspace = async (namespace: string, slug: string) => {
     const tab = tabs?.[index]
 
     if (tab) {
-      await router.value?.replace(tab.path)
+      // Preserve query parameters when navigating to the active tab
+      await router.value?.replace({
+        path: tab.path,
+        query: currentRoute.value?.query ?? {},
+      })
     }
 
     // Heal the active tab index if it is out of bounds
@@ -699,7 +703,7 @@ const handleRouteChange = (to: RouteLocationNormalizedGeneric): void | Promise<v
 
   // Update the active document if the document slug has changes
   if (document && document !== store.value?.workspace[extensions.workspace.activeDocument]) {
-    return store?.value?.update('x-scalar-active-document', document)
+    store?.value?.update('x-scalar-active-document', document)
   }
 
   syncTabs(to)

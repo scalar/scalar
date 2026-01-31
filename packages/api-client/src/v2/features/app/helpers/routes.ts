@@ -1,4 +1,5 @@
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
+import { mergeSearchParams } from '@scalar/helpers/url/merge-urls'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
@@ -156,6 +157,22 @@ export const ROUTES = [
   },
   {
     path: '/:pathMatch(.*)*',
-    redirect: () => workspaceStorage.getLastPath() ?? '/@local/local/drafts/overview',
+    redirect: () => {
+      const DEFAULT_PATH = '/@local/local/drafts/overview'
+      const lastPath = workspaceStorage.getLastPath() ?? DEFAULT_PATH
+
+      // Set the default path to the last path so we don't go to an inifite loop if the last path is invalid
+      workspaceStorage.setCurrentPath(DEFAULT_PATH)
+
+      const url = new URL(lastPath, 'http://example.com')
+
+      const queryParameters = new URLSearchParams(window.location.search)
+
+      //Merge the query parameters with the last path
+      const mergedSearchParams = mergeSearchParams(url.searchParams, queryParameters)
+
+      // Preserve all query paramters
+      return `${url.pathname}?${mergedSearchParams.toString()}`
+    },
   },
 ] satisfies RouteRecordRaw[]
