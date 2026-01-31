@@ -116,15 +116,21 @@ const selectedServer = computed<ServerObject | null>(() =>
 
 /** We must ensure the selected security schemes are required on this operation */
 const selectedSecuritySchemes = computed(() =>
-  filterSelectedSecurity({
-    securityRequirements: document?.security ?? operation.value?.security ?? [],
-    path,
-    method,
-    documentSlug,
-    authStore,
+  filterSelectedSecurity(
+    document,
+    operation.value,
+    authStore.getAuthSelectedSchemas({
+      type: 'document',
+      documentName: documentSlug,
+    }),
+    authStore.getAuthSelectedSchemas({
+      type: 'operation',
+      documentName: documentSlug,
+      path,
+      method,
+    }),
     securitySchemes,
-    shouldSetOperationSecurity: document?.['x-scalar-set-operation-security'],
-  }),
+  ),
 )
 </script>
 
