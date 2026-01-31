@@ -256,6 +256,18 @@ export const apiReferenceConfigurationSchema = baseConfigurationSchema.extend({
     })
     .optional(),
   /**
+   * Customize document page title
+   * @param item - The sidebar item object
+   * @returns A string ID used to generate the URL hash
+   * @default undefined
+   */
+  setPageTitle: z
+    .function({
+      input: [z.object({ title: z.string() })],
+      output: z.string(),
+    })
+    .optional(),
+  /**
    * To handle redirects, pass a function that will receive:
    * - The current path with hash if pathRouting is enabled
    * - The current hash if hashRouting (default)
