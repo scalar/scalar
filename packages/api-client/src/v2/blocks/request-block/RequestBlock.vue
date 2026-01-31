@@ -4,6 +4,7 @@ import { canMethodHaveBody } from '@scalar/helpers/http/can-method-have-body'
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { REGEX } from '@scalar/helpers/regex/regex-helpers'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
+import type { SelectedSecurity } from '@scalar/workspace-store/entities/auth/schema'
 import type {
   ApiReferenceEvents,
   AuthMeta,
@@ -59,9 +60,11 @@ export type ExtendedScalarCookie = XScalarCookie & {
 const {
   authMeta = { type: 'document' },
   clientOptions,
+  documentSlug,
   environment,
   eventBus,
   exampleKey,
+  globalCookies,
   layout,
   method,
   operation,
@@ -73,14 +76,14 @@ const {
   selectedClient,
   selectedSecuritySchemes,
   server,
-  globalCookies,
 } = defineProps<{
-  selectedSecurity: OpenApiDocument['x-scalar-selected-security']
   authMeta: AuthMeta
   clientOptions: ClientOptionGroup[]
+  documentSlug: string
   environment: XScalarEnvironment
   eventBus: WorkspaceEventBus
   exampleKey: string
+  globalCookies: ExtendedScalarCookie[]
   layout: ClientLayout
   method: HttpMethod
   operation: OperationObject
@@ -90,9 +93,9 @@ const {
   securityRequirements: OpenApiDocument['security']
   securitySchemes: MergedSecuritySchemes
   selectedClient: WorkspaceStore['workspace']['x-scalar-default-client']
+  selectedSecurity: SelectedSecurity
   selectedSecuritySchemes: SecuritySchemeObject[]
   server: ServerObject | null
-  globalCookies: ExtendedScalarCookie[]
 }>()
 
 /** Operation metadata used across event emissions */
@@ -417,6 +420,7 @@ const labelRequestNameId = useId()
       <AuthSelector
         v-show="isSectionVisible('Auth') && !isAuthHidden"
         :id="filterIds.Auth"
+        :documentSlug
         :environment
         :eventBus
         :meta="authMeta"
