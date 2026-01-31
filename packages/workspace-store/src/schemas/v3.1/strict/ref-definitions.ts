@@ -44,9 +44,6 @@ export const REF_DEFINITIONS = {
   TraversedTagObject: 'TraversedTagObject',
   TraversedEntryObject: 'TraversedEntryObject',
   TraversedDocumentObject: 'TraversedDocumentObject',
-
-  // Extensions
-  XScalarSelectedSecurity: 'XScalarSelectedSecurity',
 } as const
 
 // Type alias for schema definitions

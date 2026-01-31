@@ -36,7 +36,6 @@ describe('security-scheme', () => {
           name: 'X-API-Key',
           in: 'header',
           description: 'API key for authentication',
-          'x-scalar-secret-token': '',
         })
       })
 
@@ -53,7 +52,6 @@ describe('security-scheme', () => {
           type: 'apiKey',
           name: 'api_key',
           in: 'query',
-          'x-scalar-secret-token': '',
         })
       })
 
@@ -72,7 +70,6 @@ describe('security-scheme', () => {
           name: 'session_id',
           in: 'cookie',
           description: 'Session cookie for authentication',
-          'x-scalar-secret-token': '',
         })
       })
     })
@@ -93,9 +90,6 @@ describe('security-scheme', () => {
           scheme: 'bearer',
           bearerFormat: 'JWT',
           description: 'Bearer token authentication',
-          'x-scalar-secret-token': '',
-          'x-scalar-secret-username': '',
-          'x-scalar-secret-password': '',
         })
       })
 
@@ -110,9 +104,6 @@ describe('security-scheme', () => {
         expect(result).toEqual({
           type: 'http',
           scheme: 'basic',
-          'x-scalar-secret-token': '',
-          'x-scalar-secret-username': '',
-          'x-scalar-secret-password': '',
         })
       })
     })
@@ -146,9 +137,6 @@ describe('security-scheme', () => {
                 read: 'Read access',
                 write: 'Write access',
               },
-              'x-scalar-secret-client-id': '',
-              'x-scalar-secret-redirect-uri': '',
-              'x-scalar-secret-token': '',
             },
           },
         })
@@ -188,10 +176,6 @@ describe('security-scheme', () => {
                 admin: 'Admin access',
                 user: 'User access',
               },
-              'x-scalar-secret-client-id': '',
-              'x-scalar-secret-client-secret': '',
-              'x-scalar-secret-redirect-uri': '',
-              'x-scalar-secret-token': '',
               'x-usePkce': 'no',
             },
             password: {
@@ -200,11 +184,6 @@ describe('security-scheme', () => {
               scopes: {
                 read: 'Read access',
               },
-              'x-scalar-secret-client-id': '',
-              'x-scalar-secret-client-secret': '',
-              'x-scalar-secret-password': '',
-              'x-scalar-secret-token': '',
-              'x-scalar-secret-username': '',
             },
           },
         })

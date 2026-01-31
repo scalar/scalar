@@ -6,7 +6,7 @@ import {
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { describe, expect, it } from 'vitest'
 
-import { mergeAuthConfig } from './merge-auth-config'
+import { mergeAuthConfig } from './merge-security'
 
 describe('mergeAuthConfig', () => {
   it('returns empty object when both parameters are undefined', () => {
