@@ -3,6 +3,7 @@ import type { ReferenceType, SchemaObject } from '@scalar/workspace-store/schema
 import { isArraySchema } from '@scalar/workspace-store/schemas/v3.1/strict/type-guards'
 
 import { getRefName } from '@/components/Content/Schema/helpers/get-ref-name'
+import type { SchemaWithOriginalRef } from '@/components/Content/Schema/helpers/optimize-value-for-display'
 
 /**
  * Formats an array type string with proper wrapping for union types.
@@ -47,7 +48,7 @@ const processArrayType = (value: Extract<SchemaObject, { type: 'array' }>, isUni
  * 6. $ref names
  * 7. raw type
  */
-export const getSchemaType = (valueOrRef: SchemaObject | ReferenceType<SchemaObject>): string => {
+export const getSchemaType = (valueOrRef: SchemaWithOriginalRef | ReferenceType<SchemaObject>): string => {
   // Early return for falsy values
   if (!valueOrRef) {
     return ''
@@ -95,9 +96,17 @@ export const getSchemaType = (valueOrRef: SchemaObject | ReferenceType<SchemaObj
     return `${value.type} • ${value.contentEncoding}`
   }
 
+  // Handle original ref
+  if ('originalRef' in valueOrRef && valueOrRef.originalRef) {
+    const refName = getRefName(valueOrRef.originalRef)
+    if (refName) {
+      return refName
+    }
+  }
+
+  // Handle referenced schemas
   if ('$ref' in valueOrRef) {
-    // Handle referenced schemas
-    const refName = getRefName(valueOrRef)
+    const refName = getRefName(valueOrRef.$ref)
     if (refName) {
       return refName
     }

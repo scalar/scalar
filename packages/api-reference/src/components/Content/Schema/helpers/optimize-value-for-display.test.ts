@@ -16,12 +16,13 @@ describe('optimizeValueForDisplay', () => {
   })
 
   it('should return the original value if discriminator schemas is not an array', () => {
-    const input: SchemaObject = { __scalar_: '', oneOf: 'not an array' } as any
+    const input = { __scalar_: '', oneOf: 'not an array' }
+    // @ts-expect-error a test
     expect(optimizeValueForDisplay(input)).toEqual(input)
   })
 
   it('should ignore the not discriminator type', () => {
-    const input: SchemaObject = { __scalar_: '', not: { type: 'string' } }
+    const input = { __scalar_: '', not: { type: 'string' } } as SchemaObject
     expect(optimizeValueForDisplay(input)).toEqual(input)
   })
 
@@ -40,8 +41,8 @@ describe('optimizeValueForDisplay', () => {
   it('should remove null types from schemas', () => {
     const input = {
       anyOf: [{ type: 'string' }, { type: 'null' }, { type: 'number' }],
-    }
-    expect(optimizeValueForDisplay(input as any)).toEqual({
+    } as SchemaObject
+    expect(optimizeValueForDisplay(input)).toEqual({
       anyOf: [{ type: 'string' }, { type: 'number' }],
       nullable: true,
     })
@@ -52,7 +53,7 @@ describe('optimizeValueForDisplay', () => {
       __scalar_: '',
       oneOf: [{ type: 'string', format: 'date-time' }, { type: 'null' }],
     }
-    expect(optimizeValueForDisplay(input as any)).toEqual({
+    expect(optimizeValueForDisplay(input)).toEqual({
       __scalar_: '',
       type: 'string',
       format: 'date-time',
@@ -63,8 +64,8 @@ describe('optimizeValueForDisplay', () => {
   it('should handle multiple remaining schemas', () => {
     const input = {
       anyOf: [{ type: 'string' }, { type: 'number' }, { type: 'null' }],
-    }
-    expect(optimizeValueForDisplay(input as any)).toEqual({
+    } as SchemaObject
+    expect(optimizeValueForDisplay(input)).toEqual({
       anyOf: [{ type: 'string' }, { type: 'number' }],
       nullable: true,
     })
@@ -191,15 +192,16 @@ describe('optimizeValueForDisplay', () => {
       },
       oneOf: [
         {
-          allOf: [{ required: ['id'] }],
+          type: 'object',
+          allOf: [{ type: 'object', required: ['id'] }],
         },
         {
           allOf: [{ required: ['name'] }],
         },
       ],
-    }
+    } as SchemaObject
 
-    const result = optimizeValueForDisplay(input as any)
+    const result = optimizeValueForDisplay(input)
 
     expect(result).toEqual({
       oneOf: [
@@ -231,13 +233,14 @@ describe('optimizeValueForDisplay', () => {
       },
       oneOf: [
         {
+          type: 'object',
           title: 'MultipleAllOf',
-          allOf: [{ required: ['id'] }, { properties: { name: { type: 'string' } } }],
+          allOf: [{ required: ['id'] }, { type: 'object', properties: { name: { type: 'string' } } }],
         },
       ],
-    }
+    } as SchemaObject
 
-    const result = optimizeValueForDisplay(input as any)
+    const result = optimizeValueForDisplay(input)
 
     // Since there's only one schema in oneOf, it gets merged with root properties
     // but the allOf with multiple items should be preserved
@@ -247,7 +250,7 @@ describe('optimizeValueForDisplay', () => {
         id: { type: 'string' },
       },
       title: 'MultipleAllOf',
-      allOf: [{ required: ['id'] }, { properties: { name: { type: 'string' } } }],
+      allOf: [{ required: ['id'] }, { type: 'object', properties: { name: { type: 'string' } } }],
     })
   })
 
@@ -262,9 +265,9 @@ describe('optimizeValueForDisplay', () => {
           type: 'string',
         },
       ],
-    }
+    } as SchemaObject
 
-    const result = optimizeValueForDisplay(input as any)
+    const result = optimizeValueForDisplay(input)
 
     expect(result).toEqual({
       anyOf: [
@@ -335,6 +338,181 @@ describe('optimizeValueForDisplay', () => {
           ],
         },
       ],
+    })
+  })
+
+  describe('originalRef handling', () => {
+    it('preserves originalRef when schema contains a $ref', () => {
+      const input: SchemaObject = {
+        __scalar_: '',
+        oneOf: [
+          {
+            $ref: '#/components/schemas/User',
+            '$ref-value': { type: 'object', properties: { id: { type: 'string' } } },
+          },
+          { type: 'string' },
+        ],
+      }
+
+      const result = optimizeValueForDisplay(input)
+
+      expect(result?.oneOf?.[0]).toHaveProperty('originalRef', '#/components/schemas/User')
+    })
+
+    it('does not add originalRef when schema has no $ref', () => {
+      const input: SchemaObject = {
+        __scalar_: '',
+        oneOf: [{ type: 'object', properties: { name: { type: 'string' } } }, { type: 'string' }],
+      }
+
+      const result = optimizeValueForDisplay(input)
+
+      expect(result?.oneOf?.[0]).not.toHaveProperty('originalRef')
+    })
+
+    it('preserves originalRef with anyOf composition', () => {
+      const input: SchemaObject = {
+        __scalar_: '',
+        anyOf: [
+          {
+            $ref: '#/components/schemas/Pet',
+            '$ref-value': { type: 'object', properties: { name: { type: 'string' } } },
+          },
+          {
+            $ref: '#/components/schemas/Owner',
+            '$ref-value': { type: 'object', properties: { email: { type: 'string' } } },
+          },
+        ],
+      }
+
+      const result = optimizeValueForDisplay(input)
+
+      expect(result?.anyOf?.[0]).toHaveProperty('originalRef', '#/components/schemas/Pet')
+      expect(result?.anyOf?.[1]).toHaveProperty('originalRef', '#/components/schemas/Owner')
+    })
+
+    it('preserves originalRef with allOf composition when filtering null types', () => {
+      const input: SchemaObject = {
+        __scalar_: '',
+        allOf: [
+          {
+            $ref: '#/components/schemas/Base',
+            '$ref-value': { type: 'object', properties: { id: { type: 'string' } } },
+          } as any,
+          { type: 'null' },
+          { type: 'object', properties: { extra: { type: 'string' } } },
+        ],
+      }
+
+      const result = optimizeValueForDisplay(input)
+
+      // When null is filtered, originalRef is preserved in the filtered schemas
+      expect(result?.allOf?.[0]).toHaveProperty('originalRef', '#/components/schemas/Base')
+      expect(result?.allOf?.[1]).not.toHaveProperty('originalRef')
+    })
+
+    it('preserves originalRef when filtering null types', () => {
+      const input: SchemaObject = {
+        __scalar_: '',
+        oneOf: [
+          {
+            $ref: '#/components/schemas/User',
+            '$ref-value': { type: 'object', properties: { name: { type: 'string' } } },
+          },
+          { type: 'null' },
+        ],
+      }
+
+      const result = optimizeValueForDisplay(input)
+
+      // After filtering null, only one schema remains and gets merged
+      expect(result).toHaveProperty('originalRef', '#/components/schemas/User')
+      expect(result).toHaveProperty('nullable', true)
+    })
+
+    it('preserves originalRef when merging root properties into oneOf schemas', () => {
+      const input: SchemaObject = {
+        type: 'object',
+        properties: {
+          id: { type: 'string' },
+        },
+        oneOf: [
+          {
+            $ref: '#/components/schemas/Admin',
+            '$ref-value': { type: 'object', properties: { role: { type: 'string' } } },
+          },
+          {
+            $ref: '#/components/schemas/User',
+            '$ref-value': { type: 'object', properties: { name: { type: 'string' } } },
+          },
+        ],
+      }
+
+      const result = optimizeValueForDisplay(input)
+
+      expect(result?.oneOf?.[0]).toHaveProperty('originalRef', '#/components/schemas/Admin')
+      expect(result?.oneOf?.[1]).toHaveProperty('originalRef', '#/components/schemas/User')
+    })
+
+    it('handles mixed refs and inline schemas', () => {
+      const input: SchemaObject = {
+        __scalar_: '',
+        oneOf: [
+          {
+            $ref: '#/components/schemas/User',
+            '$ref-value': { type: 'object', properties: { name: { type: 'string' } } },
+          },
+          { type: 'object', properties: { name: { type: 'string' } } },
+          {
+            $ref: '#/components/schemas/Admin',
+            '$ref-value': { type: 'object', properties: { role: { type: 'string' } } },
+          },
+        ],
+      }
+
+      const result = optimizeValueForDisplay(input)
+
+      expect(result?.oneOf?.[0]).toHaveProperty('originalRef', '#/components/schemas/User')
+      expect(result?.oneOf?.[1]).not.toHaveProperty('originalRef')
+      expect(result?.oneOf?.[2]).toHaveProperty('originalRef', '#/components/schemas/Admin')
+    })
+
+    it('preserves originalRef with external refs', () => {
+      const input: SchemaObject = {
+        __scalar_: '',
+        anyOf: [
+          {
+            $ref: 'https://example.com/schemas/user.json',
+            '$ref-value': { type: 'object', properties: { id: { type: 'string' } } },
+          },
+          {
+            $ref: './local-schema.json#/definitions/Pet',
+            '$ref-value': { type: 'object', properties: { name: { type: 'string' } } },
+          },
+        ],
+      }
+
+      const result = optimizeValueForDisplay(input)
+
+      expect(result?.anyOf?.[0]).toHaveProperty('originalRef', 'https://example.com/schemas/user.json')
+      expect(result?.anyOf?.[1]).toHaveProperty('originalRef', './local-schema.json#/definitions/Pet')
+    })
+
+    it('does not add originalRef when $ref is empty string', () => {
+      const input: SchemaObject = {
+        __scalar_: '',
+        oneOf: [
+          {
+            $ref: '',
+            '$ref-value': { type: 'object' },
+          },
+          { type: 'string' },
+        ],
+      }
+
+      const result = optimizeValueForDisplay(input)
+
+      expect(result?.oneOf?.[0]).not.toHaveProperty('originalRef')
     })
   })
 })
