@@ -1,5 +1,11 @@
 # @scalar/api-reference
 
+## 1.44.6
+
+### Patch Changes
+
+- [#8010](https://github.com/scalar/scalar/pull/8010): fix: use proper computed property
+
 ## 1.44.5
 
 ### Patch Changes

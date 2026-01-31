@@ -1,5 +1,14 @@
 # @scalar/aspnetcore
 
+## 2.12.27
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.44.6**
+  - [#8010](https://github.com/scalar/scalar/pull/8010): fix: use proper computed property
+
 ## 2.12.26
 
 ### Patch Changes
