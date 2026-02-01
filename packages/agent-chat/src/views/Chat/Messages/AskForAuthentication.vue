@@ -68,10 +68,6 @@ const selectedServer = computed(() => {
   return getSelectedServer(document.value, servers)
 })
 
-const securitySchemes = computed(
-  () => document?.value?.components?.securitySchemes ?? {},
-)
-
 const isAuthenticationExpanded = computed(
   () => documentName.value && environment.value && selectedServer.value,
 )
@@ -111,12 +107,12 @@ async function authorizeClicked() {
       <div class="authContentInner">
         <Auth
           v-if="documentName && document && environment && selectedServer"
+          :authStore="workspaceStore.auth"
           :document
           :environment
           :eventBus
           :name="documentName"
           :options="config"
-          :securitySchemes
           :selectedServer />
       </div>
     </div>
