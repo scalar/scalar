@@ -90,8 +90,6 @@ const {
   documentSecurity: OpenApiDocument['security']
   /** Document selected security */
   documentSelectedSecurity: SelectedSecurity | undefined
-  /** Document slug */
-  documentSlug: string
   /** Application version */
   appVersion: string
   /** Workspace/document cookies */
@@ -358,7 +356,6 @@ onBeforeUnmount(() => {
         <RequestBlock
           :authMeta
           :clientOptions
-          :documentSlug
           :environment
           :eventBus
           :exampleKey

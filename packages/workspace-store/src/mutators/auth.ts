@@ -161,7 +161,6 @@ export const updateSecuritySchemeSecrets = (
   { payload, name }: AuthEvents['auth:update:security-scheme-secrets'],
 ) => {
   const documentName = document?.['x-scalar-navigation']?.name
-
   if (!documentName) {
     return
   }
