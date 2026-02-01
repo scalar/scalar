@@ -1,5 +1,14 @@
 # @scalar/api-reference
 
+## 1.44.9
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/agent-chat@0.4.8**
+  - [#8020](https://github.com/scalar/scalar/pull/8020): chore(agent): tweak info message copy
+
 ## 1.44.8
 
 ### Patch Changes

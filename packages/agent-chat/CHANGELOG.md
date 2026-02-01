@@ -1,5 +1,11 @@
 # @scalar/agent-chat
 
+## 0.4.8
+
+### Patch Changes
+
+- [#8020](https://github.com/scalar/scalar/pull/8020): chore(agent): tweak info message copy
+
 ## 0.4.7
 
 ### Patch Changes
