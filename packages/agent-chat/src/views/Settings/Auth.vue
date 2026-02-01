@@ -1,13 +1,14 @@
 <script setup lang="ts">
 import {
   AuthSelector,
-  type MergedSecuritySchemes,
+  mergeSecurity,
 } from '@scalar/api-client/v2/blocks/scalar-auth-selector-block'
 import {
   getSecurityRequirements,
   getSelectedSecurity,
 } from '@scalar/api-client/v2/features/operation'
 import type { ApiReferenceConfigurationRaw } from '@scalar/types/api-reference'
+import type { AuthStore } from '@scalar/workspace-store/entities/auth/index'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
@@ -15,19 +16,18 @@ import type { WorkspaceDocument } from '@scalar/workspace-store/schemas/workspac
 import { useFocusWithin } from '@vueuse/core'
 import { computed, shallowRef, watch } from 'vue'
 
-import { authStorage, restoreAuthSecretsFromStorage } from '@/helpers'
 import { useState } from '@/state/state'
 
-const { document, name, environment, eventBus, options, securitySchemes } =
+const { document, name, environment, eventBus, options, authStore } =
   defineProps<{
     options: Pick<
       ApiReferenceConfigurationRaw,
       'authentication' | 'persistAuth' | 'proxyUrl'
     >
     name: string
+    authStore: AuthStore
     document: WorkspaceDocument | undefined
     eventBus: WorkspaceEventBus
-    securitySchemes: MergedSecuritySchemes
     selectedServer: ServerObject | null
     environment: XScalarEnvironment
   }>()
@@ -42,35 +42,33 @@ const securityRequirements = computed(() =>
 /** The selected security keys for the document */
 const selectedSecurity = computed(() =>
   getSelectedSecurity(
-    document?.['x-scalar-selected-security'],
+    authStore.getAuthSelectedSchemas({
+      type: 'document',
+      documentName: name,
+    }),
     undefined,
     securityRequirements.value,
   ),
 )
 
-watch(
-  [() => selectedSecurity, () => securitySchemes],
-  () => {
-    const authPersistence = authStorage()
-
-    authPersistence.setSchemas(name, securitySchemes)
-
-    if (selectedSecurity.value) {
-      authPersistence.setSelectedSchemes(name, {
-        'x-scalar-selected-security': selectedSecurity.value,
-      })
-    }
-
-    restoreAuthSecretsFromStorage({ documentName: name, workspaceStore })
-  },
-  { deep: true },
-)
-
 const focusRef = shallowRef()
 const { focused } = useFocusWithin(focusRef)
 
+/** Merge the security schemes with the authentication config and the auth store */
+const securitySchemes = computed(() =>
+  mergeSecurity(
+    document?.components?.securitySchemes ?? {},
+    // TODO: Get the authentication config here
+    {},
+    authStore,
+    name,
+  ),
+)
+
 watch(focused, (isFocused) => {
-  if (!isFocused) return
+  if (!isFocused) {
+    return
+  }
 
   workspaceStore.update('x-scalar-active-document', name)
 })
@@ -81,6 +79,8 @@ watch(focused, (isFocused) => {
     tabindex="0">
     <AuthSelector
       v-if="Object.keys(securitySchemes).length"
+      :authStore
+      :documentSlug="name"
       :environment
       :eventBus
       isReadOnly
