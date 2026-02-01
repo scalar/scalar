@@ -1,5 +1,14 @@
 # @scalar/aspnetcore
 
+## 2.12.28
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.44.7**
+  - [#8017](https://github.com/scalar/scalar/pull/8017): fix: remove agent tooltip
+
 ## 2.12.27
 
 ### Patch Changes

@@ -1,5 +1,14 @@
 # @scalar/aspire
 
+## 0.8.37
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.44.7**
+  - [#8017](https://github.com/scalar/scalar/pull/8017): fix: remove agent tooltip
+
 ## 0.8.36
 
 ### Patch Changes
