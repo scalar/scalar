@@ -45,11 +45,7 @@ import {
   watch,
 } from 'vue'
 
-import {
-  AgentScalarButton,
-  AgentScalarDrawer,
-  AgentScalarTooltip,
-} from '@/components/AgentScalar'
+import { AgentScalarButton, AgentScalarDrawer } from '@/components/AgentScalar'
 import { AGENT_CONTEXT_SYMBOL, useAgent } from '@/hooks/use-agent'
 
 import '@scalar/agent-chat/style.css'
@@ -912,11 +908,7 @@ watch(agent.showAgent, () => (bodyScrollLocked.value = agent.showAgent.value))
                   :hideModels="mergedConfig.hideModels"
                   :searchHotKey="mergedConfig.searchHotKey" />
 
-                <AgentScalarTooltip
-                  v-if="agent.agentEnabled.value"
-                  :agentScalarConfiguration="configList[activeSlug]?.agent">
-                  <AgentScalarButton />
-                </AgentScalarTooltip>
+                <AgentScalarButton v-if="agent.agentEnabled.value" />
               </div>
               <!-- Sidebar Start -->
               <slot
