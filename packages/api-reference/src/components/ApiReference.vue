@@ -45,11 +45,7 @@ import {
   watch,
 } from 'vue'
 
-import {
-  AgentScalarButton,
-  AgentScalarDrawer,
-  AgentScalarTooltip,
-} from '@/components/AgentScalar'
+import { AgentScalarButton, AgentScalarDrawer } from '@/components/AgentScalar'
 import { AGENT_CONTEXT_SYMBOL, useAgent } from '@/hooks/use-agent'
 
 import '@scalar/agent-chat/style.css'
