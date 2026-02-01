@@ -57,7 +57,7 @@ const {
   proxyUrl: string
   securityRequirements: OpenApiDocument['security']
   securitySchemes: MergedSecuritySchemes
-  selectedSecurity: SelectedSecurity
+  selectedSecurity: SelectedSecurity | undefined
   server: ServerObject | null
   title: string
 }>()

@@ -17,7 +17,6 @@ import type { XScalarCookie } from '@scalar/workspace-store/schemas/extensions/g
 import type {
   OpenApiDocument,
   OperationObject,
-  SecuritySchemeObject,
   ServerObject,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed, ref, useId, watch } from 'vue'
@@ -42,6 +41,7 @@ import {
   AuthSelector,
   type MergedSecuritySchemes,
 } from '@/v2/blocks/scalar-auth-selector-block'
+import type { SecuritySchemeObjectSecret } from '@/v2/blocks/scalar-auth-selector-block/helpers/secret-types'
 import type { ClientPlugin } from '@/v2/helpers/plugins'
 
 type Filter =
@@ -94,7 +94,7 @@ const {
   securitySchemes: MergedSecuritySchemes
   selectedClient: WorkspaceStore['workspace']['x-scalar-default-client']
   selectedSecurity: SelectedSecurity
-  selectedSecuritySchemes: SecuritySchemeObject[]
+  selectedSecuritySchemes: SecuritySchemeObjectSecret[]
   server: ServerObject | null
 }>()
 

@@ -72,7 +72,7 @@ const {
   globalCookies = [],
   hideClientButton,
   httpClients = AVAILABLE_CLIENTS,
-  history,
+  history = [],
   method,
   operation,
   operationSelectedSecurity,
@@ -103,7 +103,7 @@ const {
   /** HTTP clients */
   httpClients: AvailableClients
   /** The history for the operation */
-  history: HistoryEntry[]
+  history?: HistoryEntry[]
   /** Client layout */
   layout: ClientLayout
   /** Currently selected server */

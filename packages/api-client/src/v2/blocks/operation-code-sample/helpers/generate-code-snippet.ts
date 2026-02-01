@@ -2,13 +2,10 @@ import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import type { AvailableClient, ClientId, TargetId } from '@scalar/snippetz'
 import type { XScalarCookie } from '@scalar/workspace-store/schemas/extensions/general/x-scalar-cookies'
 import type { XCodeSample } from '@scalar/workspace-store/schemas/extensions/operation'
-import type {
-  OperationObject,
-  SecuritySchemeObject,
-  ServerObject,
-} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { OperationObject, ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
 import { operationToHar } from '@/v2/blocks/operation-code-sample/helpers/operation-to-har/operation-to-har'
+import type { SecuritySchemeObjectSecret } from '@/v2/blocks/scalar-auth-selector-block/helpers/secret-types'
 import { getSnippet } from '@/views/Components/CodeSnippet/helpers/get-snippet'
 
 import { type CustomCodeSampleId, generateCustomId } from './generate-client-options'
@@ -29,7 +26,7 @@ type GenerateCodeSnippetProps = {
   /** The API endpoint path (e.g., '/users/{id}'). */
   path: string
   /** Array of security schemes to apply to the request (e.g., API keys, OAuth). */
-  securitySchemes: SecuritySchemeObject[]
+  securitySchemes: SecuritySchemeObjectSecret[]
   /** The server object defining the base URL for the API request. */
   server: ServerObject | null
   /** Workspace + document cookies */

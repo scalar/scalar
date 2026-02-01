@@ -15,6 +15,7 @@ import { extensions } from '@scalar/workspace-store/schemas/extensions'
 import { computed } from 'vue'
 import { RouterView } from 'vue-router'
 
+import { mergeSecurity } from '@/v2/blocks/scalar-auth-selector-block'
 import CreateWorkspaceModal from '@/v2/features/app/components/CreateWorkspaceModal.vue'
 import SplashScreen from '@/v2/features/app/components/SplashScreen.vue'
 import type { RouteProps } from '@/v2/features/app/helpers/routes'
@@ -110,22 +111,32 @@ const setActiveWorkspace = (id?: string) => {
 const createWorkspaceModalState = useModal()
 
 /** Props to pass to the RouterView component. */
-const routerViewProps = computed<RouteProps>(() => ({
-  documentSlug: app.activeEntities.documentSlug.value ?? '',
-  document: app.store.value?.workspace.activeDocument ?? null,
-  environment: app.environment.value,
-  eventBus: app.eventBus,
-  exampleName: app.activeEntities.exampleName.value,
-  layout,
-  method: app.activeEntities.method.value,
-  path: app.activeEntities.path.value,
-  workspaceStore: app.store.value!,
-  activeWorkspace: app.workspace.activeWorkspace.value!,
-  plugins,
-  securitySchemes: app.document.value?.components?.securitySchemes ?? {},
-}))
+const routerViewProps = computed<RouteProps>(() => {
+  /** Ensure we have the auth store */
+  const securitySchemes = app.store.value?.auth
+    ? mergeSecurity(
+        app.document.value?.components?.securitySchemes ?? {},
+        {},
+        app.store.value.auth,
+        app.activeEntities.documentSlug.value ?? '',
+      )
+    : {}
 
-//
+  return {
+    documentSlug: app.activeEntities.documentSlug.value ?? '',
+    document: app.store.value?.workspace.activeDocument ?? null,
+    environment: app.environment.value,
+    eventBus: app.eventBus,
+    exampleName: app.activeEntities.exampleName.value,
+    layout,
+    method: app.activeEntities.method.value,
+    path: app.activeEntities.path.value,
+    workspaceStore: app.store.value!,
+    activeWorkspace: app.workspace.activeWorkspace.value!,
+    plugins,
+    securitySchemes,
+  }
+})
 </script>
 
 <template>
