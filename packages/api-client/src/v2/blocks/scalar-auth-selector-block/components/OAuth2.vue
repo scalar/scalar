@@ -6,21 +6,19 @@ import type { ApiReferenceEvents } from '@scalar/workspace-store/events'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type { XScalarCredentialsLocation } from '@scalar/workspace-store/schemas/extensions/security/x-scalar-credentials-location'
 import type { XusePkce } from '@scalar/workspace-store/schemas/extensions/security/x-use-pkce'
-import type {
-  OAuthFlowAuthorizationCode,
-  OAuthFlowClientCredentials,
-  OAuthFlowPassword,
-} from '@scalar/workspace-store/schemas/v3.1/strict/oauth-flow'
-import type {
-  OAuthFlow,
-  OAuthFlowsObject,
-  ServerObject,
-} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed, watch } from 'vue'
 
 import { DataTableRow } from '@/components/DataTable'
 import OAuthScopesInput from '@/v2/blocks/scalar-auth-selector-block/components/OAuthScopesInput.vue'
 import { authorizeOauth2 } from '@/v2/blocks/scalar-auth-selector-block/helpers/oauth'
+import type {
+  Oauth2FlowsSecret,
+  OAuthFlowAuthorizationCodeSecret,
+  OAuthFlowClientCredentialsSecret,
+  OAuthFlowPasswordSecret,
+  OAuthFlowsObjectSecret,
+} from '@/v2/blocks/scalar-auth-selector-block/helpers/secret-types'
 
 import RequestAuthDataTableInput from './RequestAuthDataTableInput.vue'
 
@@ -33,8 +31,8 @@ const {
   proxyUrl,
 } = defineProps<{
   environment: XScalarEnvironment
-  flows: OAuthFlowsObject
-  type: keyof OAuthFlowsObject
+  flows: OAuthFlowsObjectSecret
+  type: keyof OAuthFlowsObjectSecret
   selectedScopes: string[]
   server: ServerObject | null
   proxyUrl: string
@@ -60,9 +58,9 @@ const { toast } = useToasts()
 /** The current OAuth flow based on the selected type */
 const flow = computed(() => flows[type]!)
 type NonImplicitFlow =
-  | OAuthFlowPassword
-  | OAuthFlowClientCredentials
-  | OAuthFlowAuthorizationCode
+  | OAuthFlowPasswordSecret
+  | OAuthFlowClientCredentialsSecret
+  | OAuthFlowAuthorizationCodeSecret
 
 /** We filter selected scopes to only include scopes that are in this flow*/
 const selectedScopes = computed(() =>
@@ -71,7 +69,7 @@ const selectedScopes = computed(() =>
 
 /** Updates the flow  */
 const handleOauth2Update = (
-  payload: Partial<OAuthFlow & XScalarCredentialsLocation>,
+  payload: Partial<Oauth2FlowsSecret & XScalarCredentialsLocation>,
 ): void =>
   emits('update:securityScheme', {
     type: 'oauth2',
@@ -83,7 +81,9 @@ const handleOauth2Update = (
 /** Default the redirect-uri to the current origin if we have access to window */
 watch(
   () =>
-    (flow.value as OAuthFlowAuthorizationCode)['x-scalar-secret-redirect-uri'],
+    (flow.value as OAuthFlowAuthorizationCodeSecret)[
+      'x-scalar-secret-redirect-uri'
+    ],
   (newRedirectUri) => {
     if (
       newRedirectUri ||

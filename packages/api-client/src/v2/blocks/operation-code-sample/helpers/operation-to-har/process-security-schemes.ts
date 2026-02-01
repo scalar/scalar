@@ -1,6 +1,7 @@
-import type { SecuritySchemeObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import type { Request as HarRequest } from 'har-format'
 import { encode } from 'js-base64'
+
+import type { SecuritySchemeObjectSecret } from '@/v2/blocks/scalar-auth-selector-block/helpers/secret-types'
 
 type ProcessedSecuritySchemesReturn = {
   headers: HarRequest['headers']
@@ -13,7 +14,9 @@ type ProcessedSecuritySchemesReturn = {
  *
  * TODO: we probably want to be able to disable YOUR_SECRET_TOKEN placeholder text + or allow it to be customzied
  */
-export const processSecuritySchemes = (securitySchemes: SecuritySchemeObject[]): ProcessedSecuritySchemesReturn => {
+export const processSecuritySchemes = (
+  securitySchemes: SecuritySchemeObjectSecret[],
+): ProcessedSecuritySchemesReturn => {
   const result: ProcessedSecuritySchemesReturn = {
     headers: [],
     queryString: [],

@@ -5,22 +5,24 @@ import type { ApiReferenceEvents } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type {
-  ApiKeyObject,
-  ComponentsObject,
-  HttpObject,
   SecurityRequirementObject,
-  SecuritySchemeObject,
   ServerObject,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { capitalize, computed, ref } from 'vue'
 
+import type { MergedSecuritySchemes } from '@/v2/blocks/scalar-auth-selector-block'
 import OAuth2 from '@/v2/blocks/scalar-auth-selector-block/components/OAuth2.vue'
+import type {
+  ApiKeyObjectSecret,
+  HttpObjectSecret,
+  SecuritySchemeObjectSecret,
+} from '@/v2/blocks/scalar-auth-selector-block/helpers/secret-types'
 import { DataTableCell, DataTableRow } from '@/v2/components/data-table'
 
 import RequestAuthDataTableInput from './RequestAuthDataTableInput.vue'
 
 type SecurityItem = {
-  scheme: SecuritySchemeObject | undefined
+  scheme: SecuritySchemeObjectSecret | undefined
   name: string
   scopes: string[]
 }
@@ -38,7 +40,7 @@ const {
   isStatic: boolean
   proxyUrl: string
   selectedSecuritySchemas: SecurityRequirementObject
-  securitySchemes: NonNullable<ComponentsObject['securitySchemes']>
+  securitySchemes: MergedSecuritySchemes
   server: ServerObject | null
 }>()
 
@@ -76,7 +78,10 @@ const hasMultipleSchemes = computed<boolean>(() => security.value.length > 1)
  * Generates a human-readable label for the security scheme.
  * Includes the scheme name, type-specific details, and optional description.
  */
-const generateLabel = (name: string, scheme: SecuritySchemeObject): string => {
+const generateLabel = (
+  name: string,
+  scheme: SecuritySchemeObjectSecret,
+): string => {
   const capitalizedName = capitalize(name)
   const description = scheme.description ? `: ${scheme.description}` : ''
 
@@ -109,9 +114,9 @@ const isFlowActive = (flowKey: string, index: number): boolean =>
 const getStaticBorderClass = (): string | false => isStatic && 'border-t'
 
 /** Handles updates to HTTP authentication schemes (Bearer and Basic) */
-const handleHttpUpdate = <T extends keyof Omit<HttpObject, 'type'>>(
+const handleHttpUpdate = <T extends keyof Omit<HttpObjectSecret, 'type'>>(
   field: T,
-  value: PathValue<Omit<HttpObject, 'type'>, T>,
+  value: PathValue<Omit<HttpObjectSecret, 'type'>, T>,
   name: string,
 ): void =>
   emits(
@@ -124,9 +129,9 @@ const handleHttpUpdate = <T extends keyof Omit<HttpObject, 'type'>>(
   )
 
 /** Handles updates to API Key authentication schemes */
-const handleApiKeyUpdate = <T extends keyof Omit<ApiKeyObject, 'type'>>(
+const handleApiKeyUpdate = <T extends keyof Omit<ApiKeyObjectSecret, 'type'>>(
   field: T,
-  value: PathValue<Omit<ApiKeyObject, 'type'>, T>,
+  value: PathValue<Omit<ApiKeyObjectSecret, 'type'>, T>,
   name: string,
 ): void =>
   emits(

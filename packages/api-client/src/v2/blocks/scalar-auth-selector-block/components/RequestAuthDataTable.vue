@@ -5,12 +5,10 @@ import type {
   WorkspaceEventBus,
 } from '@scalar/workspace-store/events'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
-import type {
-  ComponentsObject,
-  ServerObject,
-} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed } from 'vue'
 
+import type { MergedSecuritySchemes } from '@/v2/blocks/scalar-auth-selector-block'
 import type { SecuritySchemeOption } from '@/v2/blocks/scalar-auth-selector-block/helpers/security-scheme'
 import { DataTable } from '@/v2/components/data-table'
 
@@ -37,7 +35,7 @@ const {
   /** Proxy URL */
   proxyUrl: string
   /** OpenAPI security scheme definitions */
-  securitySchemes: ComponentsObject['securitySchemes']
+  securitySchemes: MergedSecuritySchemes
   /** Current server configuration */
   server: ServerObject | null
   /** Event bus for authentication updates */

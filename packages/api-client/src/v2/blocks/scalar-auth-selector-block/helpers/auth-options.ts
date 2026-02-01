@@ -10,7 +10,6 @@ export const authOptions: Record<string, AuthOption> = {
       type: 'apiKey',
       in: 'cookie',
       name: 'apiKeyCookie',
-      'x-scalar-secret-token': '',
     },
   },
   apiKeyHeader: {
@@ -19,7 +18,6 @@ export const authOptions: Record<string, AuthOption> = {
       type: 'apiKey',
       in: 'header',
       name: 'apiKeyHeader',
-      'x-scalar-secret-token': '',
     },
   },
   apiKeyQuery: {
@@ -28,7 +26,6 @@ export const authOptions: Record<string, AuthOption> = {
       type: 'apiKey',
       in: 'query',
       name: 'apiKeyQuery',
-      'x-scalar-secret-token': '',
     },
   },
   httpBasic: {
@@ -36,9 +33,6 @@ export const authOptions: Record<string, AuthOption> = {
     payload: {
       type: 'http',
       scheme: 'basic',
-      'x-scalar-secret-token': '',
-      'x-scalar-secret-username': '',
-      'x-scalar-secret-password': '',
     },
   },
   httpBearer: {
@@ -46,9 +40,6 @@ export const authOptions: Record<string, AuthOption> = {
     payload: {
       type: 'http',
       scheme: 'bearer',
-      'x-scalar-secret-token': '',
-      'x-scalar-secret-username': '',
-      'x-scalar-secret-password': '',
     },
   },
   oauth2Implicit: {
@@ -59,9 +50,6 @@ export const authOptions: Record<string, AuthOption> = {
         implicit: {
           authorizationUrl: '',
           refreshUrl: '',
-          'x-scalar-secret-client-id': '',
-          'x-scalar-secret-redirect-uri': '',
-          'x-scalar-secret-token': '',
           scopes: {},
         },
       },
@@ -75,11 +63,6 @@ export const authOptions: Record<string, AuthOption> = {
         password: {
           tokenUrl: '',
           refreshUrl: '',
-          'x-scalar-secret-client-id': '',
-          'x-scalar-secret-username': '',
-          'x-scalar-secret-password': '',
-          'x-scalar-secret-token': '',
-          'x-scalar-secret-client-secret': '',
           scopes: {},
         },
       },
@@ -93,9 +76,6 @@ export const authOptions: Record<string, AuthOption> = {
         clientCredentials: {
           tokenUrl: '',
           refreshUrl: '',
-          'x-scalar-secret-client-id': '',
-          'x-scalar-secret-token': '',
-          'x-scalar-secret-client-secret': '',
           scopes: {},
         },
       },
@@ -110,10 +90,6 @@ export const authOptions: Record<string, AuthOption> = {
           authorizationUrl: '',
           tokenUrl: '',
           refreshUrl: '',
-          'x-scalar-secret-client-id': '',
-          'x-scalar-secret-client-secret': '',
-          'x-scalar-secret-token': '',
-          'x-scalar-secret-redirect-uri': '',
           'x-usePkce': 'no',
           scopes: {},
         },
