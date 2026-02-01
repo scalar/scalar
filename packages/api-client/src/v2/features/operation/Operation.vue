@@ -155,7 +155,6 @@ const APP_VERSION = PACKAGE_VERSION
           documentName: documentSlug,
         })
       "
-      :documentSlug
       :documentUrl="document?.['x-scalar-original-source-url']"
       :environment
       :eventBus

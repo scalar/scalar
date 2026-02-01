@@ -60,7 +60,6 @@ export type ExtendedScalarCookie = XScalarCookie & {
 const {
   authMeta = { type: 'document' },
   clientOptions,
-  documentSlug,
   environment,
   eventBus,
   exampleKey,
@@ -79,7 +78,6 @@ const {
 } = defineProps<{
   authMeta: AuthMeta
   clientOptions: ClientOptionGroup[]
-  documentSlug: string
   environment: XScalarEnvironment
   eventBus: WorkspaceEventBus
   exampleKey: string
@@ -420,7 +418,6 @@ const labelRequestNameId = useId()
       <AuthSelector
         v-show="isSectionVisible('Auth') && !isAuthHidden"
         :id="filterIds.Auth"
-        :documentSlug
         :environment
         :eventBus
         :meta="authMeta"

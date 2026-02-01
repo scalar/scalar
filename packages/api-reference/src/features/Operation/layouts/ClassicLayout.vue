@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { OperationCodeSample } from '@scalar/api-client/v2/blocks/operation-code-sample'
+import type { SecuritySchemeObjectSecret } from '@scalar/api-client/v2/blocks/scalar-auth-selector-block'
 import {
   ScalarErrorBoundary,
   ScalarIconButton,
@@ -19,7 +20,6 @@ import { useClipboard } from '@scalar/use-hooks/useClipboard'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type {
   OperationObject,
-  SecuritySchemeObject,
   ServerObject,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed } from 'vue'
@@ -55,14 +55,14 @@ const {
 } = defineProps<
   Omit<
     OperationProps,
-    'document' | 'pathValue' | 'server' | 'securitySchemes'
+    'document' | 'pathValue' | 'server' | 'securitySchemes' | 'authStore'
   > & {
     /** Operation object with path params */
     operation: OperationObject
     /** The selected server for the operation */
     selectedServer: ServerObject | null
     /** The selected security schemes for the operation */
-    selectedSecuritySchemes: SecuritySchemeObject[]
+    selectedSecuritySchemes: SecuritySchemeObjectSecret[]
   }
 >()
 
