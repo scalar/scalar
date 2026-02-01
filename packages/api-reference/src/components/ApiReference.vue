@@ -912,11 +912,7 @@ watch(agent.showAgent, () => (bodyScrollLocked.value = agent.showAgent.value))
                   :hideModels="mergedConfig.hideModels"
                   :searchHotKey="mergedConfig.searchHotKey" />
 
-                <AgentScalarTooltip
-                  v-if="agent.agentEnabled.value"
-                  :agentScalarConfiguration="configList[activeSlug]?.agent">
-                  <AgentScalarButton />
-                </AgentScalarTooltip>
+                <AgentScalarButton v-if="agent.agentEnabled.value" />
               </div>
               <!-- Sidebar Start -->
               <slot
