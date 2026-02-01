@@ -1,5 +1,14 @@
 # @scalar/api-reference-react
 
+## 0.8.44
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.44.7**
+  - [#8017](https://github.com/scalar/scalar/pull/8017): fix: remove agent tooltip
+
 ## 0.8.43
 
 ### Patch Changes

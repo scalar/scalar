@@ -1,5 +1,14 @@
 # @scalarapi/docker-api-reference
 
+## 0.4.46
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.44.7**
+  - [#8017](https://github.com/scalar/scalar/pull/8017): fix: remove agent tooltip
+
 ## 0.4.45
 
 ### Patch Changes

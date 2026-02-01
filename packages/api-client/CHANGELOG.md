@@ -1,5 +1,11 @@
 # @scalar/api-client
 
+## 2.23.0
+
+### Minor Changes
+
+- [#8005](https://github.com/scalar/scalar/pull/8005): feat: import modal for client v2
+
 ## 2.22.3
 
 ### Patch Changes
