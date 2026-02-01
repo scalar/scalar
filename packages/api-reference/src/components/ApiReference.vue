@@ -753,6 +753,10 @@ const handleSelectItem = (id: string, caller?: 'sidebar') => {
       mergedConfig.value.onSidebarClick?.(url.toString())
     }
   }
+
+  if (agent.showAgent.value) {
+    agent.closeAgent()
+  }
 }
 eventBus.on('select:nav-item', ({ id }) => handleSelectItem(id))
 eventBus.on('scroll-to:nav-item', ({ id }) => handleSelectItem(id))
