@@ -1,5 +1,11 @@
 # @scalar/api-reference
 
+## 1.44.8
+
+### Patch Changes
+
+- [#8018](https://github.com/scalar/scalar/pull/8018): fix(agent): clickout close events
+
 ## 1.44.7
 
 ### Patch Changes

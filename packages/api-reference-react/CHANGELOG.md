@@ -1,5 +1,14 @@
 # @scalar/api-reference-react
 
+## 0.8.45
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.44.8**
+  - [#8018](https://github.com/scalar/scalar/pull/8018): fix(agent): clickout close events
+
 ## 0.8.44
 
 ### Patch Changes
