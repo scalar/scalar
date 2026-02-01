@@ -7,7 +7,9 @@ import { useState } from '@/state/state'
 const isDismissed = ref(false)
 const { dashboardUrl, mode, uploadedTmpDocumentUrl } = useState()
 
-function handleUpgrade() {
+function handleLearnMore() {
+  const path = 'https://scalar.com/products/agent/getting-started'
+  window.open(path, '_blank')
   if (mode === 'full') {
     window.location.replace(dashboardUrl)
   }
@@ -34,15 +36,14 @@ function dismiss() {
       <ScalarIconInfo
         class="text-blue size-4"
         weight="bold" />
-      You get 10 free messages, you can upgrade at anytime to get more for your
-      API.
+      Get an API Key to enable Agent Scalar for your docs.
     </strong>
     <div class="actionsContainer">
       <button
         class="actionButton upgradeButton"
         type="button"
-        @click="handleUpgrade">
-        Upgrade
+        @click="handleLearnMore">
+        Learn More
       </button>
       <button
         aria-label="Close"
