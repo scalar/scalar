@@ -1044,7 +1044,7 @@
                     "filepath": "documentation/guides/agent/pricing.md"
                   },
                   "key": {
-                    "title": "Key",
+                    "title": "API Key",
                     "type": "page",
                     "filepath": "documentation/guides/agent/key.md"
                   }

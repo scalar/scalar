@@ -5,7 +5,7 @@ Agent Scalar adds an AI chat interface to your API reference. Users can ask ques
 ## How It Works
 
 1. User opens the chat interface in your API reference
-2. On first message, your OpenAPI document is uploaded to Scalar
+2. Your OpenAPI document is AI ready by Scalar
 3. The AI uses your document to answer questions about endpoints, parameters, authentication, and more
 
 ## Local Development
