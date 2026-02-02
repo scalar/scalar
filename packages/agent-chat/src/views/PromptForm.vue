@@ -9,11 +9,11 @@ import {
 } from '@scalar/icons'
 import { computed, useTemplateRef, watch } from 'vue'
 
+import ActionsDropdown from '@/components/ActionsDropdown.vue'
 import ApprovalSection from '@/components/ApprovalSection.vue'
 import ErrorMessageMessage from '@/components/ErrorMessage.vue'
 import FreeMessagesInfoSection from '@/components/FreeMessagesInfoSection.vue'
 import PaymentSection from '@/components/PaymentSection.vue'
-import SearchPopover from '@/components/SearchPopover.vue'
 import UploadSection from '@/components/UploadSection.vue'
 import { AgentErrorCodes } from '@/entities/error/constants'
 import { MAX_PROMPT_SIZE } from '@/entities/prompt/constants'
@@ -25,6 +25,7 @@ import { useState } from '@/state/state'
 
 const emit = defineEmits<{
   (e: 'submit'): void
+  (e: 'uploadApi'): void
 }>()
 
 defineExpose({ focusPrompt })
@@ -134,8 +135,10 @@ const chatError = useChatError()
 <template>
   <div class="actionContainer">
     <UploadSection
-      v-if="uploadTmpDoc.uploadState.value"
-      :uploadState="uploadTmpDoc.uploadState.value" />
+      v-if="
+        uploadTmpDoc.uploadState.value || state.pendingDocuments.value.length
+      "
+      :uploadState="uploadTmpDoc.uploadState.value ?? { type: 'processing' }" />
     <ErrorMessageMessage
       v-if="chatError"
       :error="chatError" />
@@ -167,7 +170,7 @@ const chatError = useChatError()
         @keydown="handlePromptKeydown" />
       <div class="inputActionsContainer">
         <div class="inputActionsLeft">
-          <SearchPopover>
+          <ActionsDropdown @uploadApi="$emit('uploadApi')">
             <button
               class="addAPIButton"
               type="button">
@@ -175,7 +178,7 @@ const chatError = useChatError()
                 class="size-4"
                 weight="bold" />
             </button>
-          </SearchPopover>
+          </ActionsDropdown>
           <div
             v-for="document in state.registryDocuments.value"
             :key="document.id"

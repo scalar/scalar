@@ -5,6 +5,7 @@ import PromptForm from '@/views/PromptForm.vue'
 
 const emit = defineEmits<{
   (e: 'submit'): void
+  (e: 'uploadApi'): void
 }>()
 
 const { mode } = useState()
@@ -16,7 +17,8 @@ const { mode } = useState()
     <h1 class="heading">How can I help you today?</h1>
     <PromptForm
       ref="promptFormField"
-      @submit="emit('submit')" />
+      @submit="emit('submit')"
+      @uploadApi="emit('uploadApi')" />
     <p class="disclaimerText">
       <template v-if="mode === 'preview'">
         By messaging Agent Scalar your OpenAPI Document will be Temporarily

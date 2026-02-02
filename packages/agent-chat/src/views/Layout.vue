@@ -5,6 +5,7 @@ import Start from '@/views/Start.vue'
 
 const emit = defineEmits<{
   (e: 'submit'): void
+  (e: 'uploadApi'): void
 }>()
 
 const { chat } = useState()
@@ -17,10 +18,12 @@ const { chat } = useState()
         chat.messages.length &&
         (chat.messages.length > 1 || chat.status !== 'submitted')
       "
-      @submit="emit('submit')" />
+      @submit="emit('submit')"
+      @uploadApi="emit('uploadApi')" />
     <Start
       v-else
-      @submit="emit('submit')" />
+      @submit="emit('submit')"
+      @uploadApi="emit('uploadApi')" />
   </div>
 </template>
 

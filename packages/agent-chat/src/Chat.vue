@@ -13,6 +13,10 @@ import { useState } from '@/state/state'
 import Layout from '@/views/Layout.vue'
 import Settings from '@/views/Settings/Settings.vue'
 
+defineEmits<{
+  (e: 'uploadApi'): void
+}>()
+
 const {
   chat,
   prompt,
@@ -65,6 +69,8 @@ async function handleSubmit() {
 
 <template>
   <div ref="clientModal" />
-  <Layout @submit="handleSubmit" />
+  <Layout
+    @submit="handleSubmit"
+    @uploadApi="$emit('uploadApi')" />
   <Settings :modalState="settingsModal" />
 </template>

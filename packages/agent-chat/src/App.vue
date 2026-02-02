@@ -27,24 +27,35 @@ const {
   prefilledMessage?: Ref<string>
 }>()
 
-provide(
-  STATE_SYMBOL,
-  createState({
-    getActiveDocumentJson,
-    initialRegistryDocuments: registryDocuments,
-    prefilledMessageRef: prefilledMessage,
-    registryUrl,
-    baseUrl,
-    mode,
-    getAccessToken,
-    getAgentKey,
-    dashboardUrl,
-  }),
-)
+defineEmits<{
+  (e: 'uploadApi'): void
+}>()
+
+const state = createState({
+  getActiveDocumentJson,
+  initialRegistryDocuments: registryDocuments,
+  prefilledMessageRef: prefilledMessage,
+  registryUrl,
+  baseUrl,
+  mode,
+  getAccessToken,
+  getAgentKey,
+  dashboardUrl,
+})
+
+provide(STATE_SYMBOL, state)
+
+export type ChatExposed = {
+  addDocumentAsync: typeof state.addDocumentAsync
+}
+
+defineExpose<ChatExposed>({
+  addDocumentAsync: state.addDocumentAsync,
+})
 </script>
 
 <template>
-  <Chat />
+  <Chat @uploadApi="$emit('uploadApi')" />
 </template>
 
 <style scoped></style>
