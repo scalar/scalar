@@ -1,5 +1,5 @@
 import { REFERENCE_LS_KEYS, safeLocalStorage } from '@scalar/helpers/object/local-storage'
-import { type Auth, AuthSchema } from '@scalar/workspace-store/entities/auth/schema'
+import { type Auth, AuthSchema } from '@scalar/workspace-store/entities/auth'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 
 // Local storage helper instance, safely wrapped.

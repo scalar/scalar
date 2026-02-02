@@ -4,7 +4,7 @@ import type {
   SecuritySchemeObjectSecret,
 } from '@scalar/api-client/v2/blocks/scalar-auth-selector-block'
 import { getSelectedSecurity } from '@scalar/api-client/v2/features/operation'
-import type { SelectedSecurity } from '@scalar/workspace-store/entities/auth/schema'
+import type { SelectedSecurity } from '@scalar/workspace-store/entities/auth'
 import type {
   OpenApiDocument,
   OperationObject,
