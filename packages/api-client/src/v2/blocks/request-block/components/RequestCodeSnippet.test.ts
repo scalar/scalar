@@ -1,159 +1,106 @@
+import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import { mount } from '@vue/test-utils'
+import { shallowMount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
-import { nextTick } from 'vue'
 
 import type { ClientOptionGroup } from '@/v2/blocks/operation-code-sample'
+import type { OperationCodeSampleProps } from '@/v2/blocks/operation-code-sample/components/OperationCodeSample.vue'
 
 import RequestCodeSnippet from './RequestCodeSnippet.vue'
 
-const mockEventBus = {
-  emit: vi.fn(),
-  on: vi.fn(),
-  off: vi.fn(),
-}
+/** Minimal event bus mock - only the emit method is used by the component */
+const createEventBus = () =>
+  ({
+    emit: vi.fn(),
+    on: vi.fn(),
+    off: vi.fn(),
+  }) as unknown as WorkspaceEventBus
 
-const defaultProps = {
-  clientOptions: [],
-  eventBus: mockEventBus,
+type Props = OperationCodeSampleProps & { eventBus: WorkspaceEventBus }
+
+/** Creates props with sensible defaults, allowing overrides */
+const createProps = (overrides: Partial<Props> = {}): Props => ({
+  clientOptions: [] as ClientOptionGroup[],
+  eventBus: createEventBus(),
   operation: { operationId: 'test' } as OperationObject,
-  method: 'get' as const,
+  method: 'get',
   path: '/test',
   securitySchemes: [],
   globalCookies: [],
-  integration: 'client' as const,
-}
-
-const defaultStubs = {
-  CollapsibleSection: {
-    template: '<div data-testid="collapsible-section"><slot name="title" /><slot name="actions" /><slot /></div>',
-    props: ['defaultOpen'],
-  },
-  ScalarCombobox: {
-    template: '<div><slot /></div>',
-    props: ['modelValue', 'options', 'placement'],
-    emits: ['update:modelValue'],
-  },
-  ScalarButton: {
-    template: '<button><slot /></button>',
-    props: ['variant', 'class'],
-  },
-  ScalarIconCaretDown: {
-    template: '<span></span>',
-    props: ['class', 'weight'],
-  },
-  ScalarCodeBlock: {
-    template: '<div data-testid="code-block"></div>',
-    props: ['content', 'hideCredentials', 'lang', 'lineNumbers', 'class'],
-  },
-  ScalarErrorBoundary: {
-    template: '<div><slot /></div>',
-  },
-  DataTable: {
-    template: '<div><slot /></div>',
-    props: ['columns', 'presentational'],
-  },
-  DataTableRow: {
-    template: '<div><slot /></div>',
-  },
-}
+  integration: 'client',
+  ...overrides,
+})
 
 describe('RequestCodeSnippet', () => {
-  it('renders code snippet when client options are available', async () => {
-    const clientOptions: ClientOptionGroup[] = [
-      {
-        label: 'Shell',
-        options: [
+  describe('visibility', () => {
+    it('is visible when client options are available', () => {
+      const clientOptions: ClientOptionGroup[] = [
+        {
+          label: 'Shell',
+          options: [
+            {
+              id: 'shell/curl',
+              lang: 'curl',
+              title: 'Shell cURL',
+              label: 'cURL',
+              targetKey: 'shell',
+              targetTitle: 'Shell',
+              clientKey: 'curl',
+            },
+          ],
+        },
+      ]
+
+      const wrapper = shallowMount(RequestCodeSnippet, {
+        props: createProps({ clientOptions }),
+      })
+
+      expect(wrapper.find('collapsible-section-stub').isVisible()).toBe(true)
+    })
+
+    it('is visible when operation has x-codeSamples', () => {
+      const operation = {
+        operationId: 'test',
+        'x-codeSamples': [
           {
-            id: 'shell/curl',
-            lang: 'curl',
-            title: 'Shell cURL',
-            label: 'cURL',
-            targetKey: 'shell',
-            targetTitle: 'Shell',
-            clientKey: 'curl',
+            lang: 'python',
+            label: 'Custom Python',
+            source: 'print("hello")',
           },
         ],
-      },
-    ]
+      } as OperationObject
 
-    const wrapper = mount(RequestCodeSnippet, {
-      props: {
-        ...defaultProps,
-        clientOptions,
-      },
-      global: {
-        stubs: defaultStubs,
-      },
+      const wrapper = shallowMount(RequestCodeSnippet, {
+        props: createProps({ operation }),
+      })
+
+      expect(wrapper.find('collapsible-section-stub').isVisible()).toBe(true)
     })
 
-    await nextTick()
+    it('is visible when operation has x-custom-examples', () => {
+      const operation = {
+        operationId: 'test',
+        'x-custom-examples': [
+          {
+            lang: 'javascript',
+            source: 'fetch("/api")',
+          },
+        ],
+      } as OperationObject
 
-    // The CollapsibleSection should be visible when clients are available
-    const collapsibleSection = wrapper.find('[data-testid="collapsible-section"]')
-    expect(collapsibleSection.exists()).toBe(true)
-    // Check that the component is rendered and visible (v-show="true")
-    expect(wrapper.html()).toContain('Code Snippet')
-    // Verify the element is visible (not hidden by v-show)
-    expect(collapsibleSection.isVisible()).toBe(true)
-  })
+      const wrapper = shallowMount(RequestCodeSnippet, {
+        props: createProps({ operation }),
+      })
 
-  it('renders code snippet with x-codeSamples when hiddenClients is true', async () => {
-    const operation: OperationObject = {
-      operationId: 'test',
-      'x-codeSamples': [
-        {
-          lang: 'python',
-          label: 'Custom Python Example',
-          source: 'import requests\nresponse = requests.get("https://api.example.com/test")',
-        },
-      ],
-    } as OperationObject
-
-    const wrapper = mount(RequestCodeSnippet, {
-      props: {
-        ...defaultProps,
-        clientOptions: [], // Empty array simulates hiddenClients: true
-        operation,
-      },
-      global: {
-        stubs: defaultStubs,
-      },
+      expect(wrapper.find('collapsible-section-stub').isVisible()).toBe(true)
     })
 
-    await nextTick()
+    it('is hidden when no clients and no custom samples exist', () => {
+      const wrapper = shallowMount(RequestCodeSnippet, {
+        props: createProps(),
+      })
 
-    // The CollapsibleSection should be visible because custom code samples exist
-    const collapsibleSection = wrapper.find('[data-testid="collapsible-section"]')
-    expect(collapsibleSection.exists()).toBe(true)
-    // Verify the element is visible (not hidden by v-show)
-    expect(collapsibleSection.isVisible()).toBe(true)
-    expect(wrapper.html()).toContain('Code Snippet')
-  })
-
-  it('does not render when hiddenClients is true and no custom samples', async () => {
-    const operation: OperationObject = {
-      operationId: 'test',
-    } as OperationObject
-
-    const wrapper = mount(RequestCodeSnippet, {
-      props: {
-        ...defaultProps,
-        clientOptions: [], // Empty array simulates hiddenClients: true
-        operation,
-      },
-      global: {
-        stubs: defaultStubs,
-      },
+      expect(wrapper.find('collapsible-section-stub').isVisible()).toBe(false)
     })
-
-    await nextTick()
-
-    // With v-show="false", the element exists in DOM but is hidden
-    // The CollapsibleSection element exists but is not visible
-    const collapsibleSection = wrapper.find('[data-testid="collapsible-section"]')
-    expect(collapsibleSection.exists()).toBe(true)
-    // Verify the element is hidden (v-show="false" sets display: none)
-    expect(collapsibleSection.isVisible()).toBe(false)
   })
 })
