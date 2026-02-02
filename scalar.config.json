@@ -494,6 +494,10 @@
         {
           "from": "/products/docs/github-sync",
           "to": "/products/docs/configuration/scalar.config.json"
+        },
+        {
+          "from": "/products/docs/redirects",
+          "to": "/products/docs/configuration/redirects"
         }
       ]
     }
