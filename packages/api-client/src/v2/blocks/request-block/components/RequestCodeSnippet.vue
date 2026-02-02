@@ -93,10 +93,16 @@ const generatedCode = computed<string>(() =>
     includeDefaultHeaders: integration === 'client',
   }),
 )
+
+/** Check if there are any clients available (built-in or custom code samples) */
+const hasClients = computed(() =>
+  clients.value.some((group) => group.options.length > 0),
+)
 </script>
 
 <template>
   <CollapsibleSection
+    v-show="hasClients"
     class="group/preview w-full border-t"
     :defaultOpen="false">
     <template #title>Code Snippet</template>

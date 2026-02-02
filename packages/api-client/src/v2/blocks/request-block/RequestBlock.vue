@@ -498,7 +498,7 @@ const labelRequestNameId = useId()
       <div class="flex grow" />
       <!-- Code Snippet -->
       <RequestCodeSnippet
-        v-show="selectedFilter === 'All' && clientOptions.length > 0"
+        v-show="selectedFilter === 'All'"
         :clientOptions
         :eventBus
         :globalCookies="globalCookies"
