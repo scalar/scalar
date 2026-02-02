@@ -87,7 +87,7 @@ export const buildRequestSecurity = (
 
     // OAuth2
     if (scheme.type === 'oauth2') {
-      const flows = Object.values(scheme.flows)
+      const flows = Object.values(scheme?.flows ?? {})
       const token = replaceEnvVariables(
         flows.filter(isDefined).find((f) => f['x-scalar-secret-token'])?.['x-scalar-secret-token'] ?? '',
         env,
