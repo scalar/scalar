@@ -1,13 +1,14 @@
 import { isRelativePath } from '@scalar/helpers/url/is-relative-path'
 import { makeUrlAbsolute } from '@scalar/helpers/url/make-url-absolute'
 import { shouldUseProxy } from '@scalar/helpers/url/redirect-to-proxy'
-import type { OAuthFlowsObject, ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { encode, fromUint8Array } from 'js-base64'
 
 import type { ErrorResponse } from '@/libs/errors'
+import type { OAuthFlowsObjectSecret } from '@/v2/blocks/scalar-auth-selector-block/helpers/secret-types'
 
 /** Oauth2 security schemes which are not implicit */
-type NonImplicitFlows = Omit<OAuthFlowsObject, 'implicit'>
+type NonImplicitFlows = Omit<OAuthFlowsObjectSecret, 'implicit'>
 
 type PKCEState = {
   codeVerifier: string
@@ -72,8 +73,8 @@ const generateCodeChallenge = async (verifier: string, encoding: 'SHA-256' | 'pl
  * @returns the accessToken
  */
 export const authorizeOauth2 = async (
-  flows: OAuthFlowsObject,
-  type: keyof OAuthFlowsObject,
+  flows: OAuthFlowsObjectSecret,
+  type: keyof OAuthFlowsObjectSecret,
   selectedScopes: string[],
   /** We use the active server to set a base for relative redirect uris */
   activeServer: ServerObject | null,

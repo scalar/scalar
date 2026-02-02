@@ -62,7 +62,7 @@ export type OperationCodeSampleProps = {
   /**
    * The security schemes which are applicable to this operation
    */
-  securitySchemes: SecuritySchemeObject[]
+  securitySchemes: SecuritySchemeObjectSecret[]
   /**
    * HTTP method of the operation
    */
@@ -125,7 +125,6 @@ import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref
 import type { XScalarCookie } from '@scalar/workspace-store/schemas/extensions/general/x-scalar-cookies'
 import type {
   OperationObject,
-  SecuritySchemeObject,
   ServerObject,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { operationToHar } from '@v2/blocks/operation-code-sample/helpers/operation-to-har/operation-to-har'
@@ -141,6 +140,7 @@ import type {
   ClientOptionGroup,
   CustomClientOption,
 } from '@/v2/blocks/operation-code-sample/types'
+import type { SecuritySchemeObjectSecret } from '@/v2/blocks/scalar-auth-selector-block/helpers/secret-types'
 
 import { generateCodeSnippet } from '../helpers/generate-code-snippet'
 import ExamplePicker from './ExamplePicker.vue'

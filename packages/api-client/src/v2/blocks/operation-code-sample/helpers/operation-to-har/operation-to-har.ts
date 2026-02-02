@@ -1,15 +1,12 @@
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { XScalarCookie } from '@scalar/workspace-store/schemas/extensions/general/x-scalar-cookies'
-import type {
-  OperationObject,
-  SecuritySchemeObject,
-  ServerObject,
-} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { OperationObject, ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import type { Request as HarRequest } from 'har-format'
 
 import { filterGlobalCookie } from '@/v2/blocks/operation-block/helpers/filter-global-cookies'
 import { getDefaultHeaders } from '@/v2/blocks/request-block/helpers/get-default-headers'
+import type { SecuritySchemeObjectSecret } from '@/v2/blocks/scalar-auth-selector-block/helpers/secret-types'
 
 import { processBody } from './process-body'
 import { processParameters } from './process-parameters'
@@ -39,7 +36,7 @@ export type OperationToHarProps = {
   /** OpenAPI Server object */
   server?: ServerObject | null
   /** OpenAPI SecurityScheme objects which are applicable to the operation */
-  securitySchemes?: SecuritySchemeObject[]
+  securitySchemes?: SecuritySchemeObjectSecret[]
   /** Workspace + document cookies */
   globalCookies?: XScalarCookie[]
   /**

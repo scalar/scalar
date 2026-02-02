@@ -1,42 +1,39 @@
-import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
-import type {
-  OAuthFlowAuthorizationCode,
-  OAuthFlowImplicit,
-} from '@scalar/workspace-store/schemas/v3.1/strict/oauth-flow'
-import {
-  type ApiKeyObject,
-  type HttpObject,
-  SecuritySchemeObjectSchema,
-} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import type { OAuth2Object } from '@scalar/workspace-store/schemas/v3.1/strict/security-scheme'
 import { encode } from 'js-base64'
 import { beforeEach, describe, expect, it } from 'vitest'
+
+import type {
+  ApiKeyObjectSecret,
+  HttpObjectSecret,
+  OAuth2ObjectSecret,
+  OAuthFlowAuthorizationCodeSecret,
+  OAuthFlowImplicitSecret,
+} from '@/v2/blocks/scalar-auth-selector-block/helpers/secret-types'
 
 import { buildRequestSecurity, getSecuritySchemes } from './build-request-security'
 
 describe('buildRequestSecurity', () => {
-  let apiKey: ApiKeyObject
-  let basic: HttpObject
-  let oauth2: OAuth2Object
+  let apiKey: ApiKeyObjectSecret
+  let basic: HttpObjectSecret
+  let oauth2: OAuth2ObjectSecret
 
   beforeEach(() => {
-    apiKey = coerceValue(SecuritySchemeObjectSchema, {
+    apiKey = {
       type: 'apiKey',
       name: 'x-api-key',
       in: 'header',
       'x-scalar-secret-token': 'test-key',
-    }) as ApiKeyObject
+    } as ApiKeyObjectSecret
 
-    basic = coerceValue(SecuritySchemeObjectSchema, {
+    basic = {
       type: 'http',
       scheme: 'basic',
       'x-scalar-secret-username': 'scalar',
       'x-scalar-secret-password': 'user',
-    }) as HttpObject
+    } as HttpObjectSecret
 
-    oauth2 = coerceValue(SecuritySchemeObjectSchema, {
+    oauth2 = {
       type: 'oauth2',
-    }) as OAuth2Object
+    } as OAuth2ObjectSecret
   })
 
   it('returns empty objects when no security schemes are provided', () => {
@@ -109,7 +106,7 @@ describe('buildRequestSecurity', () => {
       oauth2.flows = {
         implicit: {
           'x-scalar-secret-token': 'test-token',
-        } as OAuthFlowImplicit,
+        } as OAuthFlowImplicitSecret,
       }
       const result = buildRequestSecurity([oauth2])
       expect(result.headers['Authorization']).toBe('Bearer test-token')
@@ -124,10 +121,10 @@ describe('buildRequestSecurity', () => {
       oauth2.flows = {
         implicit: {
           'x-scalar-secret-token': 'test-token-implicit',
-        } as OAuthFlowImplicit,
+        } as OAuthFlowImplicitSecret,
         authorizationCode: {
           'x-scalar-secret-token': 'test-token-code',
-        } as OAuthFlowAuthorizationCode,
+        } as OAuthFlowAuthorizationCodeSecret,
       }
 
       const result = buildRequestSecurity([oauth2])
@@ -165,12 +162,12 @@ describe('buildRequestSecurity', () => {
   describe('complex security with multiple schemes', () => {
     it('handles multiple security schemes applied simultaneously', () => {
       // Create a second API key for a different header
-      const apiKey2 = coerceValue(SecuritySchemeObjectSchema, {
+      const apiKey2 = {
         type: 'apiKey',
         name: 'x-client-id',
         in: 'header',
         'x-scalar-secret-token': 'client-123',
-      }) as ApiKeyObject
+      } as ApiKeyObjectSecret
 
       const result = buildRequestSecurity([apiKey, apiKey2])
 
@@ -189,28 +186,28 @@ describe('buildRequestSecurity', () => {
 
     it('handles multiple schemes across different locations', () => {
       // API key in header
-      const headerKey = coerceValue(SecuritySchemeObjectSchema, {
+      const headerKey = {
         type: 'apiKey',
         name: 'x-api-key',
         in: 'header',
         'x-scalar-secret-token': 'header-key',
-      }) as ApiKeyObject
+      } as ApiKeyObjectSecret
 
       // API key in query
-      const queryKey = coerceValue(SecuritySchemeObjectSchema, {
+      const queryKey = {
         type: 'apiKey',
         name: 'api_key',
         in: 'query',
         'x-scalar-secret-token': 'query-key',
-      }) as ApiKeyObject
+      } as ApiKeyObjectSecret
 
       // API key in cookie
-      const cookieKey = coerceValue(SecuritySchemeObjectSchema, {
+      const cookieKey = {
         type: 'apiKey',
         name: 'session',
         in: 'cookie',
         'x-scalar-secret-token': 'cookie-value',
-      }) as ApiKeyObject
+      } as ApiKeyObjectSecret
 
       const result = buildRequestSecurity([headerKey, queryKey, cookieKey])
 
@@ -229,12 +226,12 @@ describe('buildRequestSecurity', () => {
 describe('getSecuritySchemes', () => {
   it('returns an empty array when no security is selected', () => {
     const securitySchemes = {
-      apiKey: coerceValue(SecuritySchemeObjectSchema, {
+      apiKey: {
         type: 'apiKey',
         name: 'x-api-key',
         in: 'header',
         'x-scalar-secret-token': 'test-key',
-      }) as ApiKeyObject,
+      } as ApiKeyObjectSecret,
     }
 
     const result = getSecuritySchemes(securitySchemes, [])
@@ -243,19 +240,19 @@ describe('getSecuritySchemes', () => {
   })
 
   it('returns the correct security schemes when multiple schemes are selected', () => {
-    const apiKey = coerceValue(SecuritySchemeObjectSchema, {
+    const apiKey = {
       type: 'apiKey',
       name: 'x-api-key',
       in: 'header',
       'x-scalar-secret-token': 'test-key',
-    }) as ApiKeyObject
+    } as ApiKeyObjectSecret
 
-    const basic = coerceValue(SecuritySchemeObjectSchema, {
+    const basic = {
       type: 'http',
       scheme: 'basic',
       'x-scalar-secret-username': 'user',
       'x-scalar-secret-password': 'pass',
-    }) as HttpObject
+    } as HttpObjectSecret
 
     const securitySchemes = {
       apiKeyScheme: apiKey,

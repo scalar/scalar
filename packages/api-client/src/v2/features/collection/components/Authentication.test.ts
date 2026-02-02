@@ -1,5 +1,6 @@
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
+import type { WorkspaceDocument } from '@scalar/workspace-store/schemas'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
 import { nextTick } from 'vue'
@@ -10,10 +11,12 @@ describe('Authentication', () => {
   const baseDocument = {
     'x-scalar-set-operation-security': true,
     'x-scalar-selected-server': 'https://api.example.com',
-    'x-scalar-selected-security': {
-      selectedIndex: 0,
-      selectedSchemes: [{ BearerAuth: [] }],
+    openapi: '3.1.0',
+    info: {
+      title: 'Test API',
+      version: '1.0.0',
     },
+    'x-scalar-original-document-hash': '123',
     servers: [
       {
         url: 'https://api.example.com',
@@ -38,7 +41,7 @@ describe('Authentication', () => {
         },
       },
     },
-  }
+  } satisfies WorkspaceDocument
 
   const baseEnvironment = {
     uid: 'env-1',
@@ -57,6 +60,19 @@ describe('Authentication', () => {
     const document = custom.document ?? baseDocument
     const environment = custom.environment ?? baseEnvironment
     const eventBus = createWorkspaceEventBus()
+    const workspaceStore = createWorkspaceStore()
+
+    /**
+     * Set up the workspace store with the selected security from the document.
+     * This mimics how the store would be populated in the actual application.
+     */
+    workspaceStore.auth.setAuthSelectedSchemas(
+      { type: 'document', documentName: 'test-document' },
+      {
+        selectedIndex: 0,
+        selectedSchemes: [{ BearerAuth: [] }],
+      },
+    )
 
     return {
       wrapper: mount(Authentication, {
@@ -66,7 +82,7 @@ describe('Authentication', () => {
           eventBus,
           layout: 'web',
           securitySchemes: document.components?.securitySchemes ?? {},
-          workspaceStore: createWorkspaceStore(),
+          workspaceStore,
           collectionType: 'document',
           documentSlug: 'test-document',
           activeWorkspace: {
@@ -103,7 +119,10 @@ describe('Authentication', () => {
     expect(props.meta).toEqual({ type: 'document' })
     expect(props.securityRequirements).toEqual([{ BearerAuth: [] }])
     expect(props.securitySchemes).toEqual(baseDocument.components.securitySchemes)
-    expect(props.selectedSecurity).toEqual(baseDocument['x-scalar-selected-security'])
+    expect(props.selectedSecurity).toEqual({
+      selectedIndex: 0,
+      selectedSchemes: [{ BearerAuth: [] }],
+    })
     expect(props.title).toBe('Authentication')
   })
 

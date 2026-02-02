@@ -31,9 +31,14 @@ export type OperationProps = {
   clientOptions: ClientOptionGroup[]
   /** Whether the Classic layout operation is collapsed */
   isCollapsed: boolean
+  /** Whether the operation is a webhook */
   isWebhook: boolean
+  /** The currently selected client for the document */
   selectedClient: WorkspaceStore['workspace']['x-scalar-default-client']
+  /** The event bus */
   eventBus: WorkspaceEventBus
+  /** The auth store */
+  authStore: AuthStore
 }
 </script>
 
@@ -44,6 +49,7 @@ import { combineParams } from '@scalar/api-client/v2/features/operation'
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import type { ApiReferenceConfigurationRaw } from '@scalar/types/api-reference'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
+import type { AuthStore } from '@scalar/workspace-store/entities/auth'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type {
@@ -60,16 +66,18 @@ import ClassicLayout from './layouts/ClassicLayout.vue'
 import ModernLayout from './layouts/ModernLayout.vue'
 
 const {
-  server,
-  pathValue,
-  options,
-  isWebhook,
-  isCollapsed,
-  eventBus,
-  securitySchemes,
-  document,
-  method,
+  authStore,
   clientOptions,
+  document,
+  eventBus,
+  isCollapsed,
+  isWebhook,
+  method,
+  options,
+  path,
+  pathValue,
+  securitySchemes,
+  server,
 } = defineProps<OperationProps>()
 
 /**
@@ -105,7 +113,21 @@ const selectedServer = computed<ServerObject | null>(() =>
 
 /** We must ensure the selected security schemes are required on this operation */
 const selectedSecuritySchemes = computed(() =>
-  filterSelectedSecurity(document, operation.value, securitySchemes),
+  filterSelectedSecurity(
+    document,
+    operation.value,
+    authStore.getAuthSelectedSchemas({
+      type: 'document',
+      documentName: document?.['x-scalar-navigation']?.name ?? '',
+    }),
+    authStore.getAuthSelectedSchemas({
+      type: 'operation',
+      documentName: document?.['x-scalar-navigation']?.name ?? '',
+      path,
+      method,
+    }),
+    securitySchemes,
+  ),
 )
 </script>
 

@@ -5,12 +5,10 @@ import type {
   WorkspaceEventBus,
 } from '@scalar/workspace-store/events'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
-import type {
-  ComponentsObject,
-  ServerObject,
-} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed } from 'vue'
 
+import type { MergedSecuritySchemes } from '@/v2/blocks/scalar-auth-selector-block'
 import type { SecuritySchemeOption } from '@/v2/blocks/scalar-auth-selector-block/helpers/security-scheme'
 import { DataTable } from '@/v2/components/data-table'
 
@@ -37,7 +35,7 @@ const {
   /** Proxy URL */
   proxyUrl: string
   /** OpenAPI security scheme definitions */
-  securitySchemes: ComponentsObject['securitySchemes']
+  securitySchemes: MergedSecuritySchemes
   /** Current server configuration */
   server: ServerObject | null
   /** Event bus for authentication updates */
@@ -62,16 +60,6 @@ const handleTabChange = (index: number) =>
   eventBus.emit('auth:update:active-index', {
     index,
     meta,
-  })
-
-/** Handles updates to the security scheme configuration */
-const handleSecuritySchemeUpdate = (
-  payload: ApiReferenceEvents['auth:update:security-scheme']['payload'],
-  name: string,
-) =>
-  eventBus.emit('auth:update:security-scheme', {
-    payload,
-    name,
   })
 
 /** Handles updates to OAuth scope selection */
@@ -130,12 +118,12 @@ defineExpose({
       presentational>
       <RequestAuthTab
         :environment
+        :eventBus
         :isStatic
         :proxyUrl
         :securitySchemes
         :selectedSecuritySchemas="activeScheme.value"
         :server
-        @update:securityScheme="handleSecuritySchemeUpdate"
         @update:selectedScopes="handleScopesUpdate" />
     </DataTable>
 

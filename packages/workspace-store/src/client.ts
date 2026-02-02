@@ -13,6 +13,8 @@ import type { PartialDeep } from 'type-fest'
 import { reactive, toRaw } from 'vue'
 import YAML from 'yaml'
 
+import { type AuthStore, createAuthStore } from '@/entities/auth'
+import { type HistoryStore, createHistoryStore } from '@/entities/history'
 import { applySelectiveUpdates } from '@/helpers/apply-selective-updates'
 import { deepClone } from '@/helpers/deep-clone'
 import { createDetectChangesProxy } from '@/helpers/detect-changes-proxy'
@@ -155,6 +157,14 @@ type WorkspaceProps = {
  * @see https://github.com/microsoft/TypeScript/issues/43817#issuecomment-827746462
  */
 export type WorkspaceStore = {
+  /**
+   * The history store for the workspace
+   */
+  readonly history: HistoryStore
+  /**
+   * The auth store for the workspace
+   */
+  readonly auth: AuthStore
   /**
    * Returns the reactive workspace object with an additional activeDocument getter
    */
@@ -428,7 +438,11 @@ export type WorkspaceStore = {
    * }
    */
   rebaseDocument: (input: WorkspaceDocumentInput) => Promise<
-    | { ok: false; type: 'CORRUPTED_STATE' | 'FETCH_FAILED' | 'NO_CHANGES_DETECTED'; message: string }
+    | {
+        ok: false
+        type: 'CORRUPTED_STATE' | 'FETCH_FAILED' | 'NO_CHANGES_DETECTED'
+        message: string
+      }
     | {
         ok: true
         conflicts: ReturnType<typeof merge>['conflicts']
@@ -661,6 +675,39 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       },
     },
   )
+
+  /**
+   * This store is used to track the history of requests and responses for documents and operations.
+   */
+  const history = createHistoryStore({
+    hooks: {
+      onHistoryChange: (documentName) => {
+        fireWorkspaceChange({
+          type: 'history',
+          documentName,
+          value: history.export()[documentName] ?? {},
+        } satisfies WorkspaceStateChangeEvent)
+      },
+    },
+  })
+
+  /**
+   * The auth store for the workspace
+   */
+  const auth = createAuthStore({
+    hooks: {
+      onAuthChange: (documentName) => {
+        fireWorkspaceChange({
+          type: 'auth',
+          documentName,
+          value: auth.export()[documentName] ?? {
+            secrets: {},
+            selected: { document: { selectedIndex: 0, selectedSchemes: [] }, path: {} },
+          },
+        } satisfies WorkspaceStateChangeEvent)
+      },
+    },
+  })
 
   /**
    * Returns the name of the currently active document in the workspace.
@@ -930,6 +977,12 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     get workspace() {
       return workspace
     },
+    get history() {
+      return history
+    },
+    get auth() {
+      return auth
+    },
     update(key, value) {
       preventPollution(key)
       Object.assign(workspace, { [key]: value })
@@ -1012,6 +1065,8 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       delete intermediateDocuments[documentName]
       delete overrides[documentName]
       delete extraDocumentConfigurations[documentName]
+      history.clearDocumentHistory(documentName)
+      auth.clearDocumentAuth(documentName)
 
       // Get remaining documents before deletion to properly set the active document
       const remainingDocuments = Object.keys(workspace.documents)
@@ -1068,6 +1123,8 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         originalDocuments: unpackProxyObject(originalDocuments),
         intermediateDocuments: unpackProxyObject(intermediateDocuments),
         overrides: unpackProxyObject(overrides),
+        history: history.export(),
+        auth: auth.export(),
       } satisfies InMemoryWorkspace
     },
     loadWorkspace(input: InMemoryWorkspace) {
@@ -1087,6 +1144,8 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       safeAssign(intermediateDocuments, input.intermediateDocuments)
       safeAssign(overrides, input.overrides)
       safeAssign(workspace, input.meta)
+      history.load(input.history)
+      auth.load(input.auth)
     },
     importWorkspaceFromSpecification: (specification: WorkspaceSpecification) => {
       const { documents, overrides, info: _info, workspace: _workspaceVersion, ...meta } = specification

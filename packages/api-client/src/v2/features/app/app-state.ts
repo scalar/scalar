@@ -126,7 +126,9 @@ workspaces.value = await persistence.getAll().then((w) =>
  */
 const createClientStore = async ({ namespace, slug }: { namespace: string; slug: string }): Promise<WorkspaceStore> => {
   return createWorkspaceStore({
-    plugins: [await persistencePlugin({ workspaceId: `${namespace}-${slug}`, debounceDelay: DEFAULT_DEBOUNCE_DELAY })],
+    plugins: [
+      await persistencePlugin({ workspaceId: getWorkspaceId(namespace, slug), debounceDelay: DEFAULT_DEBOUNCE_DELAY }),
+    ],
   })
 }
 
