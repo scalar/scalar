@@ -11,7 +11,7 @@ on:
   workflow_dispatch: null
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref_name }}-base-ci
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 env:
   # Exclude these packages from turbo as they are handled by dedicated jobs
   TURBO_FLAGS: '--concurrency=100% --filter "!./integrations/{java,rust,dotnet,docker,fastapi,django-ninja}/**" --filter "!./projects/proxy-scalar-com/**"'
