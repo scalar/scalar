@@ -8,7 +8,7 @@ import {
   getSelectedSecurity,
 } from '@scalar/api-client/v2/features/operation'
 import type { ApiReferenceConfigurationRaw } from '@scalar/types/api-reference'
-import type { AuthStore } from '@scalar/workspace-store/entities/auth/index'
+import type { AuthStore } from '@scalar/workspace-store/entities/auth'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
