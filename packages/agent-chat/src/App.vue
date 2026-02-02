@@ -14,6 +14,7 @@ const {
   getAccessToken,
   getAgentKey,
   getActiveDocumentJson,
+  isLoggedIn,
   prefilledMessage,
 } = defineProps<{
   registryDocuments: RegistryDocument[]
@@ -24,6 +25,7 @@ const {
   getAccessToken?: () => string
   getAgentKey?: () => string
   getActiveDocumentJson?: () => string
+  isLoggedIn?: Ref<boolean>
   prefilledMessage?: Ref<string>
 }>()
 
@@ -40,6 +42,7 @@ const state = createState({
   mode,
   getAccessToken,
   getAgentKey,
+  isLoggedIn,
   dashboardUrl,
 })
 

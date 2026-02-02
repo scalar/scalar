@@ -13,7 +13,7 @@ defineEmits<{
   (e: 'uploadApi'): void
 }>()
 
-const { mode } = useState()
+const state = useState()
 const catalogModal = useModal()
 </script>
 
@@ -23,7 +23,7 @@ const catalogModal = useModal()
 
     <template #items>
       <ScalarDropdownItem
-        v-if="mode !== 'preview'"
+        v-if="state.isLoggedIn?.value"
         class="dropdown-item"
         @click="$emit('uploadApi')">
         <ScalarIconUpload />

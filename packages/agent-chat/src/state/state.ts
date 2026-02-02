@@ -76,6 +76,7 @@ type State = {
   registryUrl: string
   dashboardUrl: string
   baseUrl: string
+  isLoggedIn?: Ref<boolean>
   registryDocuments: Ref<ApiMetadata[]>
   pendingDocuments: Ref<{ namespace: string; slug: string }[]>
   mode: ChatMode
@@ -123,6 +124,7 @@ export function createState({
   dashboardUrl,
   baseUrl,
   mode,
+  isLoggedIn,
   getAccessToken,
   getAgentKey,
   getActiveDocumentJson,
@@ -133,6 +135,7 @@ export function createState({
   dashboardUrl: string
   baseUrl: string
   mode: ChatMode
+  isLoggedIn?: Ref<boolean>
   getAccessToken?: () => string
   getAgentKey?: () => string
   getActiveDocumentJson?: () => string
@@ -253,8 +256,6 @@ export function createState({
       },
     )
 
-    console.log(await embeddingStatusResponse.json())
-
     pendingDocuments.value = pendingDocuments.value.filter((d) => d.namespace !== namespace || d.slug !== slug)
 
     if (!embeddingStatusResponse.ok) {
@@ -299,6 +300,7 @@ export function createState({
     proxyUrl,
     mode,
     terms,
+    isLoggedIn,
     addDocument,
     addDocumentAsync,
     removeDocument,
