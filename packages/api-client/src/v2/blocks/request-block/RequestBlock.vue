@@ -4,7 +4,7 @@ import { canMethodHaveBody } from '@scalar/helpers/http/can-method-have-body'
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { REGEX } from '@scalar/helpers/regex/regex-helpers'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
-import type { SelectedSecurity } from '@scalar/workspace-store/entities/auth/schema'
+import type { SelectedSecurity } from '@scalar/workspace-store/entities/auth'
 import type {
   ApiReferenceEvents,
   AuthMeta,

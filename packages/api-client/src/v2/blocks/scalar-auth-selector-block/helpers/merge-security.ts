@@ -1,6 +1,6 @@
 import { objectEntries } from '@scalar/helpers/object/object-entries'
 import type { AuthenticationConfiguration } from '@scalar/types/api-reference'
-import type { AuthStore } from '@scalar/workspace-store/entities/auth/index'
+import type { AuthStore } from '@scalar/workspace-store/entities/auth'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { mergeObjects } from '@scalar/workspace-store/helpers/merge-object'
 import { unpackProxyObject } from '@scalar/workspace-store/helpers/unpack-proxy'

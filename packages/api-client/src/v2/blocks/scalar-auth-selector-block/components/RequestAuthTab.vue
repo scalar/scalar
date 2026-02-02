@@ -3,7 +3,7 @@ import { ScalarMarkdownSummary } from '@scalar/components'
 import type {
   SecretsApiKey,
   SecretsHttp,
-} from '@scalar/workspace-store/entities/auth/schema'
+} from '@scalar/workspace-store/entities/auth'
 import type {
   ApiReferenceEvents,
   WorkspaceEventBus,

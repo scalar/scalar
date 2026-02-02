@@ -1,6 +1,5 @@
 import { objectEntries } from '@scalar/helpers/object/object-entries'
-import type { AuthStore } from '@scalar/workspace-store/entities/auth/index'
-import type { SecretsAuth } from '@scalar/workspace-store/entities/auth/schema'
+import type { AuthStore, SecretsAuth } from '@scalar/workspace-store/entities/auth'
 import type {
   OAuthFlowAuthorizationCode,
   OAuthFlowClientCredentials,

@@ -12,6 +12,21 @@ import { safeAssign } from '@/helpers/general'
 import { unpackProxyObject } from '@/helpers/unpack-proxy'
 import { coerceValue } from '@/schemas/typebox-coerce'
 
+export type {
+  Auth,
+  SecretsApiKey,
+  SecretsAuth,
+  SecretsAuthUnion,
+  SecretsHttp,
+  SecretsOAuth,
+  SecretsOAuthFlows,
+  SelectedSecurity,
+} from './schema'
+export {
+  AuthSchema,
+  SecretsAuthSchema,
+} from './schema'
+
 /**
  * Interface for the AuthStore used to manage authentication secrets and selection state.
  */

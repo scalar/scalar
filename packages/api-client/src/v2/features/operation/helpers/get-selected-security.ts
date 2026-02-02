@@ -1,4 +1,4 @@
-import type { SelectedSecurity } from '@scalar/workspace-store/entities/auth/schema'
+import type { SelectedSecurity } from '@scalar/workspace-store/entities/auth'
 import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
 import { isAuthOptional } from '@/v2/blocks/scalar-auth-selector-block/helpers/is-auth-optional'

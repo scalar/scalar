@@ -284,6 +284,7 @@
       "entry": [
         "./src/client.ts",
         "./src/events/index.ts",
+        "./src/entities/auth/index.ts",
         "./src/helpers/*.ts",
         "./src/mutators/index.ts",
         "./src/navigation/index.ts",

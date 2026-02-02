@@ -25,7 +25,7 @@ import {
 } from '@scalar/types/snippetz'
 import { useToasts } from '@scalar/use-toasts'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
-import type { SelectedSecurity } from '@scalar/workspace-store/entities/auth/schema'
+import type { SelectedSecurity } from '@scalar/workspace-store/entities/auth'
 import type { HistoryEntry } from '@scalar/workspace-store/entities/history/schema'
 import type {
   AuthMeta,

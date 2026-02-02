@@ -2,7 +2,7 @@
 import { ScalarButton, useLoadingState } from '@scalar/components'
 import { pkceOptions } from '@scalar/oas-utils/entities/spec'
 import { useToasts } from '@scalar/use-toasts'
-import type { SecretsOAuthFlows } from '@scalar/workspace-store/entities/auth/schema'
+import type { SecretsOAuthFlows } from '@scalar/workspace-store/entities/auth'
 import type {
   ApiReferenceEvents,
   WorkspaceEventBus,

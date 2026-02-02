@@ -19,7 +19,7 @@ const entries = [
   './src/plugins/client/index.ts',
   './src/workspace-plugin.ts',
   './src/entities/history/*.ts',
-  './src/entities/auth/*.ts',
+  './src/entities/auth/index.ts',
 ]
 
 await build({
