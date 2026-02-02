@@ -62,16 +62,6 @@ const handleTabChange = (index: number) =>
     meta,
   })
 
-/** Handles updates to the security scheme configuration */
-const handleSecuritySchemeUpdate = (
-  payload: ApiReferenceEvents['auth:update:security-scheme']['payload'],
-  name: string,
-) =>
-  eventBus.emit('auth:update:security-scheme', {
-    payload,
-    name,
-  })
-
 /** Handles updates to OAuth scope selection */
 const handleScopesUpdate = (
   params: Omit<ApiReferenceEvents['auth:update:selected-scopes'], 'meta'>,
@@ -128,12 +118,12 @@ defineExpose({
       presentational>
       <RequestAuthTab
         :environment
+        :eventBus
         :isStatic
         :proxyUrl
         :securitySchemes
         :selectedSecuritySchemas="activeScheme.value"
         :server
-        @update:securityScheme="handleSecuritySchemeUpdate"
         @update:selectedScopes="handleScopesUpdate" />
     </DataTable>
 

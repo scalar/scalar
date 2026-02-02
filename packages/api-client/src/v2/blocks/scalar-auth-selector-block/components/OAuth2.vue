@@ -2,18 +2,24 @@
 import { ScalarButton, useLoadingState } from '@scalar/components'
 import { pkceOptions } from '@scalar/oas-utils/entities/spec'
 import { useToasts } from '@scalar/use-toasts'
-import type { ApiReferenceEvents } from '@scalar/workspace-store/events'
+import type { SecretsOAuthFlows } from '@scalar/workspace-store/entities/auth/schema'
+import type {
+  ApiReferenceEvents,
+  WorkspaceEventBus,
+} from '@scalar/workspace-store/events'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type { XScalarCredentialsLocation } from '@scalar/workspace-store/schemas/extensions/security/x-scalar-credentials-location'
 import type { XusePkce } from '@scalar/workspace-store/schemas/extensions/security/x-use-pkce'
-import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type {
+  OAuthFlow,
+  ServerObject,
+} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed, watch } from 'vue'
 
 import { DataTableRow } from '@/components/DataTable'
 import OAuthScopesInput from '@/v2/blocks/scalar-auth-selector-block/components/OAuthScopesInput.vue'
 import { authorizeOauth2 } from '@/v2/blocks/scalar-auth-selector-block/helpers/oauth'
 import type {
-  Oauth2FlowsSecret,
   OAuthFlowAuthorizationCodeSecret,
   OAuthFlowClientCredentialsSecret,
   OAuthFlowPasswordSecret,
@@ -29,13 +35,26 @@ const {
   selectedScopes: selectedScopesProp,
   server,
   proxyUrl,
+  eventBus,
+  name,
 } = defineProps<{
+  /** Current environment configuration */
   environment: XScalarEnvironment
+  /** OAuth flows */
   flows: OAuthFlowsObjectSecret
+  /** Current environment configuration */
+  /** Type of the OAuth flow */
   type: keyof OAuthFlowsObjectSecret
+  /** Selected scopes */
   selectedScopes: string[]
+  /** Current server configuration */
   server: ServerObject | null
+  /** Proxy URL */
   proxyUrl: string
+  /** Name of the security scheme */
+  name: string
+  /** Event bus for authentication updates */
+  eventBus: WorkspaceEventBus
 }>()
 
 const emits = defineEmits<{
@@ -67,15 +86,29 @@ const selectedScopes = computed(() =>
   selectedScopesProp.filter((scope) => scope in (flow.value.scopes ?? {})),
 )
 
-/** Updates the flow  */
 const handleOauth2Update = (
-  payload: Partial<Oauth2FlowsSecret & XScalarCredentialsLocation>,
+  payload: Partial<OAuthFlow & XScalarCredentialsLocation>,
 ): void =>
-  emits('update:securityScheme', {
-    type: 'oauth2',
-    flows: {
+  eventBus.emit('auth:update:security-scheme', {
+    payload: {
+      type: 'oauth2',
+      flows: {
+        [type]: payload,
+      },
+    },
+    name,
+  })
+
+/** Updates the flow  */
+const handleOauth2SecretsUpdate = (
+  payload: Omit<Partial<SecretsOAuthFlows[keyof SecretsOAuthFlows]>, 'type'>,
+): void =>
+  eventBus.emit('auth:update:security-scheme-secrets', {
+    payload: {
+      type: 'oauth2',
       [type]: payload,
     },
+    name,
   })
 
 /** Default the redirect-uri to the current origin if we have access to window */
@@ -92,7 +125,7 @@ watch(
     ) {
       return
     }
-    handleOauth2Update({
+    handleOauth2SecretsUpdate({
       'x-scalar-secret-redirect-uri':
         window.location.origin + window.location.pathname,
     })
@@ -122,7 +155,7 @@ const handleAuthorize = async (): Promise<void> => {
   await loader.clear()
 
   if (accessToken) {
-    handleOauth2Update({ 'x-scalar-secret-token': accessToken })
+    handleOauth2SecretsUpdate({ 'x-scalar-secret-token': accessToken })
   } else {
     console.error(error)
     toast(error?.message ?? 'Failed to authorize', 'error')
@@ -147,7 +180,7 @@ const handleSecretLocationUpdate = (value: string): void =>
         placeholder="QUxMIFlPVVIgQkFTRSBBUkUgQkVMT05HIFRPIFVT"
         type="password"
         @update:modelValue="
-          (v) => handleOauth2Update({ 'x-scalar-secret-token': v })
+          (v) => handleOauth2SecretsUpdate({ 'x-scalar-secret-token': v })
         ">
         Access Token
       </RequestAuthDataTableInput>
@@ -160,7 +193,9 @@ const handleSecretLocationUpdate = (value: string): void =>
           :loader
           size="sm"
           variant="outlined"
-          @click="() => handleOauth2Update({ 'x-scalar-secret-token': '' })">
+          @click="
+            () => handleOauth2SecretsUpdate({ 'x-scalar-secret-token': '' })
+          ">
           Clear
         </ScalarButton>
       </div>
@@ -196,7 +231,8 @@ const handleSecretLocationUpdate = (value: string): void =>
         :modelValue="flow['x-scalar-secret-redirect-uri']"
         placeholder="https://galaxy.scalar.com/callback"
         @update:modelValue="
-          (v) => handleOauth2Update({ 'x-scalar-secret-redirect-uri': v })
+          (v) =>
+            handleOauth2SecretsUpdate({ 'x-scalar-secret-redirect-uri': v })
         ">
         Redirect URL
       </RequestAuthDataTableInput>
@@ -213,7 +249,7 @@ const handleSecretLocationUpdate = (value: string): void =>
           :modelValue="flow['x-scalar-secret-username']"
           placeholder="janedoe"
           @update:modelValue="
-            (v) => handleOauth2Update({ 'x-scalar-secret-username': v })
+            (v) => handleOauth2SecretsUpdate({ 'x-scalar-secret-username': v })
           ">
           Username
         </RequestAuthDataTableInput>
@@ -226,7 +262,7 @@ const handleSecretLocationUpdate = (value: string): void =>
           placeholder="********"
           type="password"
           @update:modelValue="
-            (v) => handleOauth2Update({ 'x-scalar-secret-password': v })
+            (v) => handleOauth2SecretsUpdate({ 'x-scalar-secret-password': v })
           ">
           Password
         </RequestAuthDataTableInput>
@@ -239,7 +275,7 @@ const handleSecretLocationUpdate = (value: string): void =>
         :modelValue="flow['x-scalar-secret-client-id']"
         placeholder="12345"
         @update:modelValue="
-          (v) => handleOauth2Update({ 'x-scalar-secret-client-id': v })
+          (v) => handleOauth2SecretsUpdate({ 'x-scalar-secret-client-id': v })
         ">
         Client ID
       </RequestAuthDataTableInput>
@@ -252,7 +288,8 @@ const handleSecretLocationUpdate = (value: string): void =>
         placeholder="XYZ123"
         type="password"
         @update:modelValue="
-          (v) => handleOauth2Update({ 'x-scalar-secret-client-secret': v })
+          (v) =>
+            handleOauth2SecretsUpdate({ 'x-scalar-secret-client-secret': v })
         ">
         Client Secret
       </RequestAuthDataTableInput>
