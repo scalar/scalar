@@ -4,7 +4,7 @@ import type {
   XScalarSecretHTTP,
   XScalarSecretRedirectUri,
   XScalarSecretToken,
-} from '@scalar/workspace-store/schemas/extensions/security/x-scalar-security-secrets'
+} from '@scalar/workspace-store/schemas/extensions/security'
 import type {
   OAuthFlowAuthorizationCode,
   OAuthFlowClientCredentials,
