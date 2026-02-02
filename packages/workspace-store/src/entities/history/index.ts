@@ -1,7 +1,6 @@
 import { reactive } from 'vue'
 
 import { type DocumentHistory, DocumentHistorySchema, type HistoryEntry } from '@/entities/history/schema'
-import { createDetectChangesProxy } from '@/helpers/detect-changes-proxy'
 import { safeAssign } from '@/helpers/general'
 import { unpackProxyObject } from '@/helpers/unpack-proxy'
 import { coerceValue } from '@/schemas/typebox-coerce'
@@ -108,25 +107,7 @@ export const createHistoryStore = ({
     onHistoryChange?: (documentName: string) => void
   }
 }): HistoryStore => {
-  const history = reactive<DocumentHistory>(
-    createDetectChangesProxy(
-      {},
-      {
-        hooks: {
-          onAfterChange: (fullPath: string[]) => {
-            if (fullPath.length < 1) {
-              return
-            }
-            const [documentName] = fullPath
-            if (typeof documentName !== 'string') {
-              return
-            }
-            hooks?.onHistoryChange?.(documentName)
-          },
-        },
-      },
-    ),
-  )
+  const history = reactive<DocumentHistory>({})
 
   const getHistory: HistoryStore['getHistory'] = (documentName, path, method) => {
     return history[documentName]?.[path]?.[method]
@@ -149,22 +130,34 @@ export const createHistoryStore = ({
 
     // Add the new entry to the history
     history[documentName][path][method].push(entry)
+
+    // Explicitly trigger the change event once after all modifications
+    hooks?.onHistoryChange?.(documentName)
   }
 
   const clearOperationHistory: HistoryStore['clearOperationHistory'] = (documentName, path, method) => {
     delete history[documentName]?.[path]?.[method]
+    hooks?.onHistoryChange?.(documentName)
   }
 
   const clearPathHistory: HistoryStore['clearPathHistory'] = (documentName, path) => {
     delete history[documentName]?.[path]
+    hooks?.onHistoryChange?.(documentName)
   }
 
   const clearDocumentHistory: HistoryStore['clearDocumentHistory'] = (documentName) => {
     delete history[documentName]
+    hooks?.onHistoryChange?.(documentName)
   }
 
   const load: HistoryStore['load'] = (data) => {
-    safeAssign(history, coerceValue(DocumentHistorySchema, data))
+    const coercedData = coerceValue(DocumentHistorySchema, data)
+    safeAssign(history, coercedData)
+
+    // Trigger change events for all loaded documents
+    Object.keys(coercedData).forEach((documentName) => {
+      hooks?.onHistoryChange?.(documentName)
+    })
   }
 
   const exportHistory: HistoryStore['export'] = () => {

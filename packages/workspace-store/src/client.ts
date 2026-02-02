@@ -682,7 +682,6 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
   const history = createHistoryStore({
     hooks: {
       onHistoryChange: (documentName) => {
-        console.log('onHistoryChange', documentName)
         fireWorkspaceChange({
           type: 'history',
           documentName,
