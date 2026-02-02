@@ -58,8 +58,7 @@ const { focused } = useFocusWithin(focusRef)
 const securitySchemes = computed(() =>
   mergeSecurity(
     document?.components?.securitySchemes ?? {},
-    // TODO: Get the authentication config here
-    {},
+    options.authentication?.securitySchemes,
     authStore,
     name,
   ),

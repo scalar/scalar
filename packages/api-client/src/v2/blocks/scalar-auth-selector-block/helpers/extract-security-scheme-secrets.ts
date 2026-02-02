@@ -108,7 +108,7 @@ export const extractSecuritySchemeSecrets = (
 
     return {
       ...scheme,
-      flows: objectEntries(scheme.flows).reduce((acc, [key, flow]) => {
+      flows: objectEntries(scheme?.flows ?? {}).reduce((acc, [key, flow]) => {
         if (!flow) {
           return acc
         }
