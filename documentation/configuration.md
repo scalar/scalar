@@ -661,7 +661,7 @@ Here's a list of all clients that you can potentially hide:
 <!-- Source: packages/snippetz/src/clients/index.ts -->
 <!-- Generator: packages/snippetz/scripts/generate-markdown-docs.ts -->
 
-```javascript
+```js
 {
   hiddenClients: {
     // C

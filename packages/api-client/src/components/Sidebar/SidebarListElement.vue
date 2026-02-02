@@ -72,11 +72,12 @@ const handleRename = (id: string) => {
   emit('rename', id)
 }
 
-/** The draggable component */
-const draggableRef = ref<{
+/** The draggable component (bound in template via ref="_draggableRef") */
+const _draggableRef = ref<{
   draggingItem: DraggingItem
   hoveredItem: HoveredItem
 } | null>(null)
+void _draggableRef
 
 /** Calculate offsets for drag and drop */
 const getDraggableOffsets = computed(() => ({
@@ -89,7 +90,7 @@ const getDraggableOffsets = computed(() => ({
   <li>
     <Draggable
       :id="variable.uid"
-      ref="draggableRef"
+      ref="_draggableRef"
       :ceiling="getDraggableOffsets.ceiling"
       :floor="getDraggableOffsets.floor"
       :isDraggable="isDraggable"

@@ -51,7 +51,9 @@ const {
 
 const pluginManager = usePluginManager()
 
-const element = ref<HTMLDivElement>()
+/** Root element (bound in template via ref="_element") */
+const _element = ref<HTMLDivElement>()
+void _element
 
 const requestAbortController = ref<AbortController>()
 /** Computed Validation State Update on Example Change */
@@ -217,7 +219,7 @@ const cloneRequestResult = (result: any) => {
 <template>
   <!-- Layout -->
   <div
-    ref="element"
+    ref="_element"
     class="bg-b-1 relative z-0 flex h-full flex-1 flex-col overflow-hidden pt-0"
     :class="{
       '!mr-0 !mb-0 !border-0': layout === 'modal',
