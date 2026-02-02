@@ -1031,7 +1031,7 @@
                 "title": "Agent Scalar",
                 "type": "group",
                 "mode": "nested",
-                "icon": "phosphor/regular/robot",
+                "icon": "phosphor/regular/headset",
                 "children": {
                   "getting-started": {
                     "title": "Getting Started",
