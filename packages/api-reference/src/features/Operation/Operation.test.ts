@@ -1,5 +1,6 @@
 import { enableConsoleError, enableConsoleWarn } from '@scalar/helpers/testing/console-spies'
 import { apiReferenceConfigurationSchema } from '@scalar/types/api-reference'
+import { createWorkspaceStore } from '@scalar/workspace-store/client'
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import { OpenAPIDocumentSchema } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
@@ -12,6 +13,7 @@ import Operation from './Operation.vue'
 type ExtractComponentProps<TComponent> = TComponent extends new () => { $props: infer P } ? P : never
 
 const eventBus = createWorkspaceEventBus()
+const workspaceStore = createWorkspaceStore()
 
 /**
  * Helper function to mount the Operation component with default configuration.
@@ -69,6 +71,7 @@ const mountOperationWithConfig = (
     server: overrides.server !== undefined ? overrides.server : null,
     clientOptions: [],
     isCollapsed: false,
+    authStore: workspaceStore.auth,
     isWebhook: false,
     selectedClient: 'c/fetch',
     eventBus,
