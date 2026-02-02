@@ -495,8 +495,7 @@ const labelRequestNameId = useId()
       </ScalarErrorBoundary>
 
       <!-- Spacer -->
-      <div class="flex flex-grow" />
-
+      <div class="flex grow" />
       <!-- Code Snippet -->
       <RequestCodeSnippet
         v-show="selectedFilter === 'All'"
