@@ -62,6 +62,7 @@
     "@vueuse/core": "catalog:*",
     "ai": "catalog:*",
     "neverpanic": "catalog:*",
+    "truncate-json": "catalog:*",
     "vue": "catalog:*",
     "whatwg-mimetype": "catalog:*",
     "zod": "catalog:*"

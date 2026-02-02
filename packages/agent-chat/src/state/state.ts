@@ -13,15 +13,16 @@ import {
 import { type ComputedRef, type InjectionKey, type Ref, computed, inject, ref, watch } from 'vue'
 
 import { type Api, createApi, createAuthorizationHeaders } from '@/api'
+import { executeRequestTool } from '@/client-tools/execute-request'
 import type { ApiMetadata } from '@/entities/registry/document'
 import type {
   ASK_FOR_AUTHENTICATION_TOOL_NAME,
   AskForAuthenticationInput,
 } from '@/entities/tools/ask-for-authentication'
-import type {
+import {
   EXECUTE_REQUEST_TOOL_NAME,
-  ExecuteRequestToolInput,
-  ExecuteRequestToolOutput,
+  type ExecuteRequestToolInput,
+  type ExecuteRequestToolOutput,
 } from '@/entities/tools/execute-request'
 import type {
   GET_MINI_OPENAPI_SPEC_TOOL_NAME,
@@ -103,7 +104,7 @@ function createChat({
   getAccessToken?: () => string
   getAgentKey?: () => string
 }) {
-  return new Chat<UIMessage<unknown, UIDataTypes, Tools>>({
+  const chat = new Chat<UIMessage<unknown, UIDataTypes, Tools>>({
     sendAutomaticallyWhen: lastAssistantMessageIsCompleteWithApprovalResponses,
     transport: new DefaultChatTransport({
       api: makeScalarProxyUrl(`${baseUrl}/vector/openapi/chat`),
@@ -113,7 +114,24 @@ function createChat({
         documentSettings: createDocumentSettings(workspaceStore),
       }),
     }),
+    async onToolCall({ toolCall }): Promise<any> {
+      if (toolCall.toolName === EXECUTE_REQUEST_TOOL_NAME) {
+        const toolResult = await executeRequestTool({
+          documentSettings: createDocumentSettings(workspaceStore),
+          input: toolCall.input as ExecuteRequestToolInput,
+        })
+
+        // biome-ignore lint/nursery/noFloatingPromises: https://ai-sdk.dev/docs/ai-sdk-ui/chatbot-tool-usage#C5a38ea28-L29
+        chat.addToolOutput({
+          tool: toolCall.toolName,
+          toolCallId: toolCall.toolCallId,
+          output: toolResult,
+        })
+      }
+    },
   })
+
+  return chat
 }
 
 export function createState({
