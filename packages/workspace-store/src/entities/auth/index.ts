@@ -1,3 +1,4 @@
+import { preventPollution } from '@scalar/helpers/object/prevent-pollution'
 import { reactive } from 'vue'
 
 import {
@@ -147,6 +148,10 @@ export const createAuthStore = ({ hooks }: CreateAuthStoreOptions = {}): AuthSto
     if (payload.type === 'document') {
       documentAuth.selected.document = selectedSchemes
     } else {
+      // Prevent assigning dangerous keys to the path items object
+      preventPollution(payload.path)
+      preventPollution(payload.method)
+
       documentAuth.selected.path ||= {}
       documentAuth.selected.path[payload.path] ||= {}
       const pathAuth = documentAuth.selected.path[payload.path]!
