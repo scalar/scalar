@@ -1,4 +1,5 @@
 import type { AuthenticationConfiguration } from '@scalar/types/api-reference'
+import { createWorkspaceStore } from '@scalar/workspace-store/client'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import {
   type ComponentsObject,
@@ -6,11 +7,15 @@ import {
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { describe, expect, it } from 'vitest'
 
-import { mergeAuthConfig } from './merge-security'
+import { mergeSecurity } from './merge-security'
 
-describe('mergeAuthConfig', () => {
+describe('mergeSecurity', () => {
+  const workspaceStore = createWorkspaceStore()
+  const authStore = workspaceStore.auth
+  const documentSlug = 'test-document'
+
   it('returns empty object when both parameters are undefined', () => {
-    const result = mergeAuthConfig(undefined, undefined)
+    const result = mergeSecurity(undefined, undefined, authStore, documentSlug)
     expect(result).toEqual({})
   })
 
@@ -35,7 +40,7 @@ describe('mergeAuthConfig', () => {
       },
     }
 
-    const result = mergeAuthConfig(undefined, config)
+    const result = mergeSecurity(undefined, config, authStore, documentSlug)
 
     expect(result.apiKeyAuth).toMatchObject({
       type: 'apiKey',
@@ -56,25 +61,35 @@ describe('mergeAuthConfig', () => {
     })
   })
 
-  it('returns security schemes unchanged when config is empty', () => {
+  it('returns security schemes with secret fields when config is empty', () => {
     const securitySchemes: ComponentsObject['securitySchemes'] = {
       apiKeyAuth: {
         type: 'apiKey',
         name: 'X-API-Key',
         in: 'header',
-        'x-scalar-secret-token': '',
       },
       bearerAuth: {
         type: 'http',
         scheme: 'bearer',
-        'x-scalar-secret-token': '',
-        'x-scalar-secret-username': '',
-        'x-scalar-secret-password': '',
       },
     }
 
-    const result = mergeAuthConfig(securitySchemes, {})
-    expect(result).toEqual(securitySchemes)
+    const result = mergeSecurity(securitySchemes, {}, authStore, documentSlug)
+
+    expect(result.apiKeyAuth).toMatchObject({
+      type: 'apiKey',
+      name: 'X-API-Key',
+      in: 'header',
+      'x-scalar-secret-token': '',
+    })
+
+    expect(result.bearerAuth).toMatchObject({
+      type: 'http',
+      scheme: 'bearer',
+      'x-scalar-secret-token': '',
+      'x-scalar-secret-username': '',
+      'x-scalar-secret-password': '',
+    })
   })
 
   it('merges config values into existing security schemes', () => {
@@ -83,7 +98,6 @@ describe('mergeAuthConfig', () => {
         type: 'apiKey',
         name: 'X-API-Key',
         in: 'header',
-        'x-scalar-secret-token': '',
       },
     }
 
@@ -94,7 +108,7 @@ describe('mergeAuthConfig', () => {
       },
     }
 
-    const result = mergeAuthConfig(securitySchemes, config)
+    const result = mergeSecurity(securitySchemes, config, authStore, documentSlug)
 
     expect(result.apiKeyAuth).toMatchObject({
       type: 'apiKey',
@@ -131,7 +145,7 @@ describe('mergeAuthConfig', () => {
       },
     }
 
-    const result = mergeAuthConfig(securitySchemes, config)
+    const result = mergeSecurity(securitySchemes, config, authStore, documentSlug)
 
     expect(result.oauth2).toMatchObject({
       type: 'oauth2',
@@ -155,21 +169,14 @@ describe('mergeAuthConfig', () => {
         type: 'apiKey',
         name: 'X-API-Key',
         in: 'header',
-        'x-scalar-secret-token': '',
       },
       bearerAuth: {
         type: 'http',
         scheme: 'bearer',
-        'x-scalar-secret-token': '',
-        'x-scalar-secret-username': '',
-        'x-scalar-secret-password': '',
       },
       basicAuth: {
         type: 'http',
         scheme: 'basic',
-        'x-scalar-secret-token': '',
-        'x-scalar-secret-username': '',
-        'x-scalar-secret-password': '',
       },
     }
 
@@ -179,17 +186,31 @@ describe('mergeAuthConfig', () => {
       },
     }
 
-    const result = mergeAuthConfig(securitySchemes, config)
+    const result = mergeSecurity(securitySchemes, config, authStore, documentSlug)
 
     expect(result).toHaveProperty('apiKeyAuth')
     expect(result).toHaveProperty('bearerAuth')
     expect(result).toHaveProperty('basicAuth')
-    expect(result.apiKeyAuth).toEqual(securitySchemes.apiKeyAuth)
-    expect(result.basicAuth).toEqual(securitySchemes.basicAuth)
+
+    expect(result.apiKeyAuth).toMatchObject({
+      type: 'apiKey',
+      name: 'X-API-Key',
+      in: 'header',
+      'x-scalar-secret-token': '',
+    })
+
+    expect(result.basicAuth).toMatchObject({
+      type: 'http',
+      scheme: 'basic',
+      'x-scalar-secret-token': '',
+      'x-scalar-secret-username': '',
+      'x-scalar-secret-password': '',
+    })
+
     expect(result.bearerAuth).toMatchObject({
       type: 'http',
       scheme: 'bearer',
-      token: 'my-bearer-token',
+      'x-scalar-secret-token': 'my-bearer-token',
     })
   })
 
@@ -200,38 +221,29 @@ describe('mergeAuthConfig', () => {
         name: 'X-API-Key',
         in: 'header',
         description: 'API Key in header',
-        'x-scalar-secret-token': '',
       },
       apiKeyQuery: {
         type: 'apiKey',
         name: 'api_key',
         in: 'query',
         description: 'API Key in query',
-        'x-scalar-secret-token': '',
       },
       apiKeyCookie: {
         type: 'apiKey',
         name: 'session',
         in: 'cookie',
         description: 'API Key in cookie',
-        'x-scalar-secret-token': '',
       },
       basicAuth: {
         type: 'http',
         scheme: 'basic',
         description: 'Basic authentication',
-        'x-scalar-secret-token': '',
-        'x-scalar-secret-username': '',
-        'x-scalar-secret-password': '',
       },
       bearerAuth: {
         type: 'http',
         scheme: 'bearer',
         bearerFormat: 'JWT',
         description: 'Bearer token authentication',
-        'x-scalar-secret-token': '',
-        'x-scalar-secret-username': '',
-        'x-scalar-secret-password': '',
       },
       oauth2AllFlows: coerceValue(SecuritySchemeObjectSchema, {
         type: 'oauth2',
@@ -320,7 +332,7 @@ describe('mergeAuthConfig', () => {
       },
     }
 
-    const result = mergeAuthConfig(securitySchemes, config)
+    const result = mergeSecurity(securitySchemes, config, authStore, documentSlug)
 
     expect(result.apiKeyHeader).toMatchObject({
       type: 'apiKey',
@@ -425,7 +437,6 @@ describe('mergeAuthConfig', () => {
           name: 'X-API-Key',
           in: 'header',
           description: 'API Key authentication',
-          'x-scalar-secret-token': 'existing-api-key',
         },
       },
       bearerAuth: {
@@ -435,9 +446,6 @@ describe('mergeAuthConfig', () => {
           scheme: 'bearer',
           bearerFormat: 'JWT',
           description: 'Bearer token authentication',
-          'x-scalar-secret-token': 'existing-bearer-token',
-          'x-scalar-secret-username': '',
-          'x-scalar-secret-password': '',
         },
       },
       oauth2: {
@@ -462,14 +470,14 @@ describe('mergeAuthConfig', () => {
 
     const config: AuthenticationConfiguration['securitySchemes'] = {}
 
-    const result = mergeAuthConfig(securitySchemes, config)
+    const result = mergeSecurity(securitySchemes, config, authStore, documentSlug)
 
     expect(result.apiKeyAuth).toMatchObject({
       type: 'apiKey',
       name: 'X-API-Key',
       in: 'header',
       description: 'API Key authentication',
-      'x-scalar-secret-token': 'existing-api-key',
+      'x-scalar-secret-token': '',
     })
     expect(result.apiKeyAuth).not.toHaveProperty('$ref')
     expect(result.apiKeyAuth).not.toHaveProperty('$ref-value')
@@ -479,7 +487,7 @@ describe('mergeAuthConfig', () => {
       scheme: 'bearer',
       bearerFormat: 'JWT',
       description: 'Bearer token authentication',
-      'x-scalar-secret-token': 'existing-bearer-token',
+      'x-scalar-secret-token': '',
     })
     expect(result.bearerAuth).not.toHaveProperty('$ref')
     expect(result.bearerAuth).not.toHaveProperty('$ref-value')
@@ -491,7 +499,7 @@ describe('mergeAuthConfig', () => {
         authorizationCode: {
           authorizationUrl: 'https://example.com/oauth/authorize',
           tokenUrl: 'https://example.com/oauth/token',
-          'x-scalar-secret-token': 'existing-oauth-token',
+          'x-scalar-secret-token': '',
           scopes: {
             'read:users': 'Read user information',
             'write:users': 'Modify user information',
@@ -512,7 +520,6 @@ describe('mergeAuthConfig', () => {
           name: 'X-API-Key',
           in: 'header',
           description: 'API Key authentication',
-          'x-scalar-secret-token': 'should-not-be-overridden',
         },
       },
       bearerAuth: {
@@ -522,9 +529,6 @@ describe('mergeAuthConfig', () => {
           scheme: 'bearer',
           bearerFormat: 'JWT',
           description: 'Bearer token authentication',
-          'x-scalar-secret-token': 'should-not-be-overridden',
-          'x-scalar-secret-username': '',
-          'x-scalar-secret-password': '',
         },
       },
       basicAuth: {
@@ -533,9 +537,6 @@ describe('mergeAuthConfig', () => {
           type: 'http',
           scheme: 'basic',
           description: 'Basic authentication',
-          'x-scalar-secret-token': '',
-          'x-scalar-secret-username': 'should-not-be-overridden',
-          'x-scalar-secret-password': 'should-not-be-overridden',
         },
       },
       oauth2: {
@@ -592,14 +593,14 @@ describe('mergeAuthConfig', () => {
       },
     }
 
-    const result = mergeAuthConfig(securitySchemes, config)
+    const result = mergeSecurity(securitySchemes, config, authStore, documentSlug)
 
     expect(result.apiKeyAuth).toMatchObject({
       type: 'apiKey',
       name: 'X-API-Key',
       in: 'header',
       description: 'API Key authentication',
-      'x-scalar-secret-token': 'should-not-be-overridden',
+      'x-scalar-secret-token': 'merged-api-key-value',
     })
     expect(result.apiKeyAuth).not.toHaveProperty('$ref')
     expect(result.apiKeyAuth).not.toHaveProperty('$ref-value')
@@ -609,7 +610,7 @@ describe('mergeAuthConfig', () => {
       scheme: 'bearer',
       bearerFormat: 'JWT',
       description: 'Bearer token authentication',
-      'x-scalar-secret-token': 'should-not-be-overridden',
+      'x-scalar-secret-token': 'merged-bearer-token',
     })
     expect(result.bearerAuth).not.toHaveProperty('$ref')
     expect(result.bearerAuth).not.toHaveProperty('$ref-value')
@@ -618,8 +619,8 @@ describe('mergeAuthConfig', () => {
       type: 'http',
       scheme: 'basic',
       description: 'Basic authentication',
-      'x-scalar-secret-username': 'should-not-be-overridden',
-      'x-scalar-secret-password': 'should-not-be-overridden',
+      'x-scalar-secret-username': 'merged-username',
+      'x-scalar-secret-password': 'merged-password',
     })
     expect(result.basicAuth).not.toHaveProperty('$ref')
     expect(result.basicAuth).not.toHaveProperty('$ref-value')
@@ -631,8 +632,9 @@ describe('mergeAuthConfig', () => {
         authorizationCode: {
           authorizationUrl: 'https://example.com/oauth/authorize',
           tokenUrl: 'https://example.com/oauth/token',
-          'x-scalar-secret-token': 'merged-oauth-token',
-          'x-scalar-secret-client-secret': 'merged-client-secret',
+          token: 'merged-oauth-token',
+          clientSecret: 'merged-client-secret',
+          selectedScopes: ['read:users'],
           scopes: {
             'read:users': 'Read user information',
             'write:users': 'Modify user information',
@@ -640,9 +642,10 @@ describe('mergeAuthConfig', () => {
         },
         password: {
           tokenUrl: 'https://example.com/oauth/token',
-          'x-scalar-secret-token': 'merged-password-token',
-          'x-scalar-secret-username': 'merged-oauth-user',
-          'x-scalar-secret-password': 'merged-oauth-password',
+          token: 'merged-password-token',
+          username: 'merged-oauth-user',
+          password: 'merged-oauth-password',
+          selectedScopes: ['admin'],
           scopes: {
             'admin': 'Admin access',
           },

@@ -66,6 +66,8 @@ export const importDocumentToWorkspace = async ({
     overrides: {
       [slug]: workspaceState.overrides[name] ?? {},
     },
+    history: {},
+    auth: {},
   })
 
   /**

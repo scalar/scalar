@@ -1,6 +1,7 @@
+import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { OAuthFlowsObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { mount } from '@vue/test-utils'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { nextTick } from 'vue'
 
 import OAuth2 from '@/v2/blocks/scalar-auth-selector-block/components/OAuth2.vue'
@@ -15,6 +16,8 @@ describe('OAuth2', () => {
     value: '',
     isDefault: true,
   }
+
+  const eventBus = createWorkspaceEventBus()
 
   const mountWithProps = (
     custom: Partial<{
@@ -32,12 +35,8 @@ describe('OAuth2', () => {
           authorizationUrl: 'https://example.com/auth',
           tokenUrl: 'https://example.com/token',
           refreshUrl: 'https://example.com/token',
-          'x-scalar-secret-redirect-uri': 'https://example.com/cb',
-          'x-scalar-secret-token': '',
           'x-usePkce': 'no',
           scopes: { read: 'Read', write: 'Write' },
-          'x-scalar-secret-client-id': '',
-          'x-scalar-secret-client-secret': '',
         },
       } satisfies OAuthFlowsObject)
 
@@ -50,6 +49,8 @@ describe('OAuth2', () => {
         selectedScopes: custom.selectedScopes ?? [],
         server: custom.server ?? null,
         proxyUrl: custom.proxyUrl ?? '',
+        eventBus,
+        name: 'OAuth2',
       },
     })
   }
@@ -68,17 +69,21 @@ describe('OAuth2', () => {
     expect(wrapper.text()).toContain('Access Token')
     expect(wrapper.text()).not.toContain('Authorize')
 
-    // Clear button emits update:securityScheme with empty token
+    // Clear button emits auth:update:security-scheme-secrets with empty token
+    const emitted = vi.fn()
+    eventBus.on('auth:update:security-scheme-secrets', emitted)
+
     const clearBtn = wrapper.findAll('button').find((b) => b.text() === 'Clear')
     expect(clearBtn, 'Clear button should exist').toBeTruthy()
     await clearBtn!.trigger('click')
 
-    const clearEmit = wrapper.emitted('update:securityScheme')?.at(-1)?.[0] as any
-    expect(clearEmit).toEqual({
-      type: 'oauth2',
-      flows: {
+    expect(emitted).toHaveBeenCalledTimes(1)
+    expect(emitted).toHaveBeenCalledWith({
+      payload: {
+        type: 'oauth2',
         authorizationCode: { 'x-scalar-secret-token': '' },
       },
+      name: 'OAuth2',
     })
 
     // Updating the token input propagates via update:modelValue
@@ -87,12 +92,13 @@ describe('OAuth2', () => {
     tokenInput.vm.$emit('update:modelValue', 'xyz')
     await nextTick()
 
-    const updateEmit = wrapper.emitted('update:securityScheme')?.at(-1)?.[0] as any
-    expect(updateEmit).toEqual({
-      type: 'oauth2',
-      flows: {
+    expect(emitted).toHaveBeenCalledTimes(2)
+    expect(emitted).toHaveBeenLastCalledWith({
+      payload: {
+        type: 'oauth2',
         authorizationCode: { 'x-scalar-secret-token': 'xyz' },
       },
+      name: 'OAuth2',
     })
   })
 
@@ -104,29 +110,40 @@ describe('OAuth2', () => {
     expect(authorizeBtn, 'Authorize button should exist').toBeTruthy()
 
     // Emits for Auth URL
+    const emitted = vi.fn()
+    eventBus.on('auth:update:security-scheme', emitted)
+
     const inputs = wrapper.findAllComponents(RequestAuthDataTableInput)
     expect(inputs.length).toBeGreaterThan(0)
 
     // First input corresponds to Auth URL in this configuration
     inputs[0]!.vm.$emit('update:modelValue', 'https://new-auth.test')
     await nextTick()
-    const authUrlEmit = wrapper.emitted('update:securityScheme')?.at(-1)?.[0] as any
-    expect(authUrlEmit).toEqual({
-      type: 'oauth2',
-      flows: {
-        authorizationCode: { authorizationUrl: 'https://new-auth.test' },
+
+    expect(emitted).toHaveBeenCalledTimes(1)
+    expect(emitted).toHaveBeenCalledWith({
+      payload: {
+        type: 'oauth2',
+        flows: {
+          authorizationCode: { authorizationUrl: 'https://new-auth.test' },
+        },
       },
+      name: 'OAuth2',
     })
 
     // Second input corresponds to Token URL
     inputs[1]!.vm.$emit('update:modelValue', 'https://new-token.test')
     await nextTick()
-    const tokenUrlEmit = wrapper.emitted('update:securityScheme')?.at(-1)?.[0] as any
-    expect(tokenUrlEmit).toEqual({
-      type: 'oauth2',
-      flows: {
-        authorizationCode: { tokenUrl: 'https://new-token.test' },
+
+    expect(emitted).toHaveBeenCalledTimes(2)
+    expect(emitted).toHaveBeenLastCalledWith({
+      payload: {
+        type: 'oauth2',
+        flows: {
+          authorizationCode: { tokenUrl: 'https://new-token.test' },
+        },
       },
+      name: 'OAuth2',
     })
   })
 
@@ -147,7 +164,10 @@ describe('OAuth2', () => {
     const originalOrigin = window.location.origin
     const originalPathname = window.location.pathname
 
-    const wrapper = mountWithProps({
+    const emitted = vi.fn()
+    eventBus.on('auth:update:security-scheme-secrets', emitted)
+
+    mountWithProps({
       flows: {
         authorizationCode: {
           authorizationUrl: 'https://example.com/auth',
@@ -165,15 +185,16 @@ describe('OAuth2', () => {
     await nextTick()
 
     const expectedRedirectUri = originalOrigin + originalPathname
-    const redirectUriEmit = wrapper.emitted('update:securityScheme')?.at(-1)?.[0] as any
 
-    expect(redirectUriEmit).toEqual({
-      type: 'oauth2',
-      flows: {
+    expect(emitted).toHaveBeenCalledTimes(1)
+    expect(emitted).toHaveBeenCalledWith({
+      payload: {
+        type: 'oauth2',
         authorizationCode: {
           'x-scalar-secret-redirect-uri': expectedRedirectUri,
         },
       },
+      name: 'OAuth2',
     })
   })
 })

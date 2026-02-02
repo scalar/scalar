@@ -1,13 +1,13 @@
 import { objectEntries } from '@scalar/helpers/object/object-entries'
 import type { AuthenticationConfiguration } from '@scalar/types/api-reference'
 import type { AuthStore } from '@scalar/workspace-store/entities/auth/index'
+import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { mergeObjects } from '@scalar/workspace-store/helpers/merge-object'
+import { unpackProxyObject } from '@scalar/workspace-store/helpers/unpack-proxy'
 import type {
   ComponentsObject,
   SecuritySchemeObject,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-
-import { getResolvedRefDeep } from '@/v2/blocks/operation-code-sample'
 
 import { extractSecuritySchemeSecrets } from './extract-security-scheme-secrets'
 import type { SecuritySchemeObjectSecret } from './secret-types'
@@ -22,8 +22,15 @@ export const mergeSecurity = (
   authStore: AuthStore,
   documentSlug: string,
 ): MergedSecuritySchemes => {
-  /** We need to resolve any refs here before we merge */
-  const resolvedDocumentSecuritySchemes = structuredClone(getResolvedRefDeep(documentSecuritySchemes))
+  /** Resolve any refs in the document security schemes */
+  const resolvedDocumentSecuritySchemes = objectEntries(documentSecuritySchemes).reduce(
+    (acc, [key, value]) => {
+      // Use structuredClone to ensure we don't mutate the original object when we merge
+      acc[key] = structuredClone(unpackProxyObject(getResolvedRef(value)))
+      return acc
+    },
+    {} as Record<string, SecuritySchemeObject>,
+  )
 
   /** Merge the config security schemes into the document security schemes */
   const mergedSchemes =
@@ -31,7 +38,6 @@ export const mergeSecurity = (
 
   /** Convert the config secrets to the new secret extensions */
   return objectEntries(mergedSchemes).reduce((acc, [name, value]) => {
-    // We resolved it deeply above so we can cast
     acc[name] = extractSecuritySchemeSecrets(value, authStore, name, documentSlug)
     return acc
   }, {} as MergedSecuritySchemes)

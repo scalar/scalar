@@ -59,10 +59,6 @@ const {
 
 const emits = defineEmits<{
   (
-    e: 'update:securityScheme',
-    payload: ApiReferenceEvents['auth:update:security-scheme']['payload'],
-  ): void
-  (
     e: 'update:selectedScopes',
     payload: Pick<
       ApiReferenceEvents['auth:update:selected-scopes'],
