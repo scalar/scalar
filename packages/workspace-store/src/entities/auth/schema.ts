@@ -18,6 +18,8 @@ const SecretsApiKeySchema = compose(
   XScalarSecretTokenSchema,
 )
 
+export type SecretsApiKey = Static<typeof SecretsApiKeySchema>
+
 const SecretsHttpSchema = compose(
   Type.Object({
     type: Type.Literal('http'),
