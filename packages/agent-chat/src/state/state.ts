@@ -4,12 +4,7 @@ import { type ApiReferenceConfigurationRaw, apiReferenceConfigurationSchema } fr
 import { type WorkspaceStore, createWorkspaceStore } from '@scalar/workspace-store/client'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
-import {
-  DefaultChatTransport,
-  type UIDataTypes,
-  type UIMessage,
-  lastAssistantMessageIsCompleteWithApprovalResponses,
-} from 'ai'
+import { DefaultChatTransport, type UIDataTypes, type UIMessage, lastAssistantMessageIsCompleteWithToolCalls } from 'ai'
 import { type ComputedRef, type InjectionKey, type Ref, computed, inject, ref, watch } from 'vue'
 
 import { type Api, createApi, createAuthorizationHeaders } from '@/api'
@@ -105,7 +100,7 @@ function createChat({
   getAgentKey?: () => string
 }) {
   const chat = new Chat<UIMessage<unknown, UIDataTypes, Tools>>({
-    sendAutomaticallyWhen: lastAssistantMessageIsCompleteWithApprovalResponses,
+    sendAutomaticallyWhen: lastAssistantMessageIsCompleteWithToolCalls,
     transport: new DefaultChatTransport({
       api: makeScalarProxyUrl(`${baseUrl}/vector/openapi/chat`),
       headers: () => createAuthorizationHeaders({ getAccessToken, getAgentKey }),
@@ -123,16 +118,12 @@ function createChat({
         toolCall.toolName === EXECUTE_CLIENT_SIDE_REQUEST_TOOL_NAME &&
         toolCall.input.method.toLowerCase() === 'get'
       ) {
-        const result = await executeRequestTool({
+        await executeRequestTool({
           documentSettings: createDocumentSettings(workspaceStore),
           input: toolCall.input,
           toolCallId: toolCall.toolCallId,
           chat,
         })
-
-        console.log(result)
-
-        await chat.sendMessage()
       }
     },
   })
