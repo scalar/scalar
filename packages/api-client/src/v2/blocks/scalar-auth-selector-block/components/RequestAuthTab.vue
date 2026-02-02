@@ -226,7 +226,7 @@ const getFlowTabClasses = (flowKey: string, index: number): string => {
             required
             @update:modelValue="
               (v) =>
-                handleHttpSecretsUpdate({ 'x-scalar-secret-token': v }, name)
+                handleHttpSecretsUpdate({ 'x-scalar-secret-username': v }, name)
             ">
             Username
           </RequestAuthDataTableInput>
