@@ -3,7 +3,7 @@ import type { ToolUIPart } from 'ai'
 import { reactive, toRef } from 'vue'
 
 import { ASK_FOR_AUTHENTICATION_TOOL_NAME } from '@/entities/tools/ask-for-authentication'
-import { EXECUTE_REQUEST_TOOL_NAME } from '@/entities/tools/execute-request'
+import { EXECUTE_CLIENT_SIDE_REQUEST_TOOL_NAME } from '@/entities/tools/execute-request'
 import { GET_MINI_OPENAPI_SPEC_TOOL_NAME } from '@/entities/tools/get-mini-openapi-spec'
 import { GET_OPENAPI_SPECS_SUMMARY_TOOL_NAME } from '@/entities/tools/get-openapi-spec-summary'
 import { useState, type Tools } from '@/state/state'
@@ -42,11 +42,11 @@ const state = useState()
             v-if="part.type === 'text'"
             :messagePart="toRef(part)" />
           <ExecuteRequestTool
-            v-if="part.type.endsWith(EXECUTE_REQUEST_TOOL_NAME)"
+            v-if="part.type.endsWith(EXECUTE_CLIENT_SIDE_REQUEST_TOOL_NAME)"
             :messagePart="
               toRef(
                 part as ToolUIPart<
-                  Pick<Tools, typeof EXECUTE_REQUEST_TOOL_NAME>
+                  Pick<Tools, typeof EXECUTE_CLIENT_SIDE_REQUEST_TOOL_NAME>
                 >,
               )
             " />

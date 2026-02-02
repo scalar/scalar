@@ -17,10 +17,10 @@ export {
 } from './tools/ask-for-authentication'
 export { TOOL_NAMESPACE_SLUG_DELIMITER } from './tools/constants'
 export {
-  EXECUTE_REQUEST_TOOL_NAME,
-  type ExecuteRequestToolInput,
-  type ExecuteRequestToolOutput,
-  executeRequestToolInputSchema,
+  EXECUTE_CLIENT_SIDE_REQUEST_TOOL_NAME,
+  type ExecuteClientSideRequestToolInput,
+  type ExecuteClientSideRequestToolOutput,
+  executeClientSideRequestToolInputSchema,
 } from './tools/execute-request'
 export {
   GET_MINI_OPENAPI_SPEC_TOOL_NAME,

@@ -20,9 +20,9 @@ import type {
   AskForAuthenticationInput,
 } from '@/entities/tools/ask-for-authentication'
 import {
-  EXECUTE_REQUEST_TOOL_NAME,
-  type ExecuteRequestToolInput,
-  type ExecuteRequestToolOutput,
+  EXECUTE_CLIENT_SIDE_REQUEST_TOOL_NAME,
+  type ExecuteClientSideRequestToolInput,
+  type ExecuteClientSideRequestToolOutput,
 } from '@/entities/tools/execute-request'
 import type {
   GET_MINI_OPENAPI_SPEC_TOOL_NAME,
@@ -50,9 +50,9 @@ export type Tools = {
     input: GetMiniOpenAPIDocToolInput
     output: GetMiniOpenAPIDocToolOutput
   }
-  [EXECUTE_REQUEST_TOOL_NAME]: {
-    input: ExecuteRequestToolInput
-    output: ExecuteRequestToolOutput
+  [EXECUTE_CLIENT_SIDE_REQUEST_TOOL_NAME]: {
+    input: ExecuteClientSideRequestToolInput
+    output: ExecuteClientSideRequestToolOutput
   }
   [GET_OPENAPI_SPECS_SUMMARY_TOOL_NAME]: {
     input: object
@@ -115,18 +115,24 @@ function createChat({
       }),
     }),
     async onToolCall({ toolCall }): Promise<any> {
-      if (toolCall.toolName === EXECUTE_REQUEST_TOOL_NAME) {
-        const toolResult = await executeRequestTool({
+      if (toolCall.dynamic) {
+        return
+      }
+
+      if (
+        toolCall.toolName === EXECUTE_CLIENT_SIDE_REQUEST_TOOL_NAME &&
+        toolCall.input.method.toLowerCase() === 'get'
+      ) {
+        const result = await executeRequestTool({
           documentSettings: createDocumentSettings(workspaceStore),
-          input: toolCall.input as ExecuteRequestToolInput,
+          input: toolCall.input,
+          toolCallId: toolCall.toolCallId,
+          chat,
         })
 
-        // biome-ignore lint/nursery/noFloatingPromises: https://ai-sdk.dev/docs/ai-sdk-ui/chatbot-tool-usage#C5a38ea28-L29
-        chat.addToolOutput({
-          tool: toolCall.toolName,
-          toolCallId: toolCall.toolCallId,
-          output: toolResult,
-        })
+        console.log(result)
+
+        await chat.sendMessage()
       }
     },
   })

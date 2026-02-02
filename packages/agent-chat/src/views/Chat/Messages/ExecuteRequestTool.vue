@@ -3,11 +3,14 @@ import { type ToolUIPart } from 'ai'
 import { computed, type Ref } from 'vue'
 
 import RequestPreview from '@/components/RequestPreview.vue'
-import type { EXECUTE_REQUEST_TOOL_NAME } from '@/entities/tools/execute-request'
+import type { EXECUTE_CLIENT_SIDE_REQUEST_TOOL_NAME } from '@/entities/tools/execute-request'
+import { requestPartRequiresApproval } from '@/hooks/use-chat-approvals'
 import { useState, type Tools } from '@/state/state'
 
 const { messagePart } = defineProps<{
-  messagePart: Ref<ToolUIPart<Pick<Tools, typeof EXECUTE_REQUEST_TOOL_NAME>>>
+  messagePart: Ref<
+    ToolUIPart<Pick<Tools, typeof EXECUTE_CLIENT_SIDE_REQUEST_TOOL_NAME>>
+  >
 }>()
 
 const state = useState()
@@ -22,20 +25,17 @@ const requestState = computed(() => {
     return 'sendingRequest'
   }
 
-  if (messagePart.value.state === 'approval-requested') {
+  if (requestPartRequiresApproval(messagePart.value)) {
     return 'requiresApproval'
   }
 
   if (messagePart.value.state === 'output-available') {
-    return messagePart.value.output.isError
-      ? 'requestFailed'
-      : 'requestSucceeded'
+    return messagePart.value.output.success
+      ? 'requestSucceeded'
+      : 'requestFailed'
   }
 
-  if (messagePart.value.state === 'approval-responded') {
-    return 'approved'
-  }
-  if (messagePart.value.state === 'output-denied') {
+  if (messagePart.value.state === 'output-error') {
     return 'rejected'
   }
 
