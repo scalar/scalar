@@ -123,19 +123,27 @@ const handleHttpSecretsUpdate = (
   payload: Omit<Partial<SecretsHttp>, 'type'>,
   name: string,
 ): void =>
-  eventBus.emit('auth:update:security-scheme-secrets', {
-    payload: { type: 'http', ...payload },
-    name,
-  })
+  eventBus.emit(
+    'auth:update:security-scheme-secrets',
+    {
+      payload: { type: 'http', ...payload },
+      name,
+    },
+    { debounceKey: `update:secrets:http-${name}` },
+  )
 
 const handleApiKeySecretsUpdate = (
   payload: Omit<Partial<SecretsApiKey>, 'type'>,
   name: string,
 ): void =>
-  eventBus.emit('auth:update:security-scheme-secrets', {
-    payload: { type: 'apiKey', ...payload },
-    name,
-  })
+  eventBus.emit(
+    'auth:update:security-scheme-secrets',
+    {
+      payload: { type: 'apiKey', ...payload },
+      name,
+    },
+    { debounceKey: `update:secrets:apiKey-${name}` },
+  )
 
 const handleApiKeySecuritySchemeUpdate = (
   payload: Omit<Partial<ApiKeyObject>, 'type'>,

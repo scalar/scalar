@@ -99,13 +99,17 @@ const handleOauth2Update = (
 const handleOauth2SecretsUpdate = (
   payload: Omit<Partial<SecretsOAuthFlows[keyof SecretsOAuthFlows]>, 'type'>,
 ): void =>
-  eventBus.emit('auth:update:security-scheme-secrets', {
-    payload: {
-      type: 'oauth2',
-      [type]: payload,
+  eventBus.emit(
+    'auth:update:security-scheme-secrets',
+    {
+      payload: {
+        type: 'oauth2',
+        [type]: payload,
+      },
+      name,
     },
-    name,
-  })
+    { debounceKey: `update:secrets:oauth2-${name}` },
+  )
 
 /** Default the redirect-uri to the current origin if we have access to window */
 watch(
