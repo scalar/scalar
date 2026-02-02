@@ -224,10 +224,7 @@ export type HistoryEntry = {
  *   }
  * }
  */
-export const PathMethodHistorySchema = Type.Record(
-  Type.String(),
-  Type.Record(Type.String(), Type.Array(HistoryEntrySchema)),
-)
+const PathMethodHistorySchema = Type.Record(Type.String(), Type.Record(Type.String(), Type.Array(HistoryEntrySchema)))
 
 /**
  * Type for the path method history.
@@ -239,7 +236,6 @@ export const PathMethodHistorySchema = Type.Record(
  * }
  */
 export type PathMethodHistory = Record<string, Record<string, HistoryEntry[]>>
-
 export const DocumentHistorySchema = Type.Record(Type.String(), PathMethodHistorySchema)
 
 /**

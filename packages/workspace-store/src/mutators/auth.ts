@@ -155,7 +155,7 @@ export const updateSecurityScheme = (
   return target
 }
 
-export const updateSecuritySchemeSecrets = (
+const updateSecuritySchemeSecrets = (
   store: WorkspaceStore | null,
   document: WorkspaceDocument | null,
   { payload, name }: AuthEvents['auth:update:security-scheme-secrets'],

@@ -18,8 +18,6 @@ const SecretsApiKeySchema = compose(
   XScalarSecretTokenSchema,
 )
 
-export type SecretsApiKey = Static<typeof SecretsApiKeySchema>
-
 const SecretsHttpSchema = compose(
   Type.Object({
     type: Type.Literal('http'),
@@ -69,7 +67,7 @@ export type SecretsOAuth = Static<typeof OAuthSchema>
 export const SecretsAuthUnionSchema = Type.Union([SecretsApiKeySchema, SecretsHttpSchema, OAuthSchema])
 export type SecretsAuthUnion = Static<typeof SecretsAuthUnionSchema>
 
-export const SecretsAuthSchema = Type.Record(Type.String(), SecretsAuthUnionSchema)
+const SecretsAuthSchema = Type.Record(Type.String(), SecretsAuthUnionSchema)
 export type SecretsAuth = Static<typeof SecretsAuthSchema>
 
 const SelectedSecuritySchema = Type.Object({
@@ -79,7 +77,7 @@ const SelectedSecuritySchema = Type.Object({
 
 export type SelectedSecurity = Static<typeof SelectedSecuritySchema>
 
-export const AuthSchema = Type.Object({
+const AuthSchema = Type.Object({
   secrets: SecretsAuthSchema,
   selected: Type.Object({
     document: Type.Optional(SelectedSecuritySchema),

@@ -73,7 +73,7 @@ export type AuthStore = {
   export: () => DocumentAuth
 }
 
-export type CreateAuthStoreOptions = {
+type CreateAuthStoreOptions = {
   hooks?: {
     onAuthChange?: (documentName: string) => void
   }

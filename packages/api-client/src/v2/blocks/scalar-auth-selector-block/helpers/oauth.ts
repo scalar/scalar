@@ -8,7 +8,7 @@ import type { ErrorResponse } from '@/libs/errors'
 import type { OAuthFlowsObjectSecret } from '@/v2/blocks/scalar-auth-selector-block/helpers/secret-types'
 
 /** Oauth2 security schemes which are not implicit */
-export type NonImplicitFlows = Omit<OAuthFlowsObjectSecret, 'implicit'>
+type NonImplicitFlows = Omit<OAuthFlowsObjectSecret, 'implicit'>
 
 type PKCEState = {
   codeVerifier: string

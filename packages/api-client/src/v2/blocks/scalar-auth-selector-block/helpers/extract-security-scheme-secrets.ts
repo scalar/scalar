@@ -22,7 +22,7 @@ import type {
   SecuritySchemeObjectSecret,
 } from './secret-types'
 
-export const getSecrets = <Type extends SecretsAuth[string]['type']>({
+const getSecrets = <Type extends SecretsAuth[string]['type']>({
   schemeName,
   authStore,
   documentSlug,
