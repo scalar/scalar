@@ -119,6 +119,7 @@ const makeMockProps = (entries: TraversedEntry[]): ComponentProps<typeof Travers
   expandedItems: {},
   securitySchemes: {},
   eventBus,
+  authStore: mockStore.auth,
   options: mockConfig,
   document: mockDocument,
   clientOptions: [],

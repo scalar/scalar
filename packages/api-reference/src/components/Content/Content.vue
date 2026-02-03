@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import { generateClientOptions } from '@scalar/api-client/v2/blocks/operation-code-sample'
-import { mergeAuthConfig } from '@scalar/api-client/v2/blocks/scalar-auth-selector-block'
+import { mergeSecurity } from '@scalar/api-client/v2/blocks/scalar-auth-selector-block'
 import { mapHiddenClientsConfig } from '@scalar/api-client/v2/features/modal'
 import { getSelectedServer } from '@scalar/api-client/v2/features/operation'
 import { getServers } from '@scalar/api-client/v2/helpers'
 import { ScalarErrorBoundary } from '@scalar/components'
 import type { ApiReferenceConfigurationRaw } from '@scalar/types/api-reference'
 import type { Heading } from '@scalar/types/legacy'
+import type { AuthStore } from '@scalar/workspace-store/entities/auth'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type { TraversedEntry as TraversedEntryType } from '@scalar/workspace-store/schemas/navigation'
@@ -28,34 +29,36 @@ import { SectionFlare } from '@/components/SectionFlare'
 import { getXKeysFromObject } from '@/features/specification-extension'
 import { firstLazyLoadComplete } from '@/helpers/lazy-bus'
 
-const { document, items, environment, eventBus, options } = defineProps<{
-  infoSectionId: string
-  /** The subset of the configuration object required for the content component */
-  options: Pick<
-    ApiReferenceConfigurationRaw,
-    | 'authentication'
-    | 'baseServerURL'
-    | 'documentDownloadType'
-    | 'expandAllResponses'
-    | 'hiddenClients'
-    | 'hideTestRequestButton'
-    | 'layout'
-    | 'orderRequiredPropertiesFirst'
-    | 'orderSchemaPropertiesBy'
-    | 'persistAuth'
-    | 'proxyUrl'
-    | 'servers'
-    | 'showOperationId'
-  >
-  document: WorkspaceDocument | undefined
-  xScalarDefaultClient: Workspace['x-scalar-default-client']
-  items: TraversedEntryType[]
-  expandedItems: Record<string, boolean>
-  eventBus: WorkspaceEventBus
-  environment: XScalarEnvironment
-  /** Heading id generator for Markdown headings */
-  headingSlugGenerator: (heading: Heading) => string
-}>()
+const { document, items, environment, eventBus, options, authStore } =
+  defineProps<{
+    infoSectionId: string
+    /** The subset of the configuration object required for the content component */
+    options: Pick<
+      ApiReferenceConfigurationRaw,
+      | 'authentication'
+      | 'baseServerURL'
+      | 'documentDownloadType'
+      | 'expandAllResponses'
+      | 'hiddenClients'
+      | 'hideTestRequestButton'
+      | 'layout'
+      | 'orderRequiredPropertiesFirst'
+      | 'orderSchemaPropertiesBy'
+      | 'persistAuth'
+      | 'proxyUrl'
+      | 'servers'
+      | 'showOperationId'
+    >
+    document: WorkspaceDocument | undefined
+    authStore: AuthStore
+    xScalarDefaultClient: Workspace['x-scalar-default-client']
+    items: TraversedEntryType[]
+    expandedItems: Record<string, boolean>
+    eventBus: WorkspaceEventBus
+    environment: XScalarEnvironment
+    /** Heading id generator for Markdown headings */
+    headingSlugGenerator: (heading: Heading) => string
+  }>()
 
 /** Generate all client options so that it can be shared between the top client picker and the operations */
 const clientOptions = computed(() =>
@@ -83,9 +86,11 @@ const selectedServer = computed(() =>
 
 /** Merge authentication config with the document security schemes */
 const securitySchemes = computed(() =>
-  mergeAuthConfig(
+  mergeSecurity(
     document?.components?.securitySchemes,
     options.authentication?.securitySchemes,
+    authStore,
+    document?.['x-scalar-navigation']?.name ?? '',
   ),
 )
 </script>
@@ -127,6 +132,7 @@ const securitySchemes = computed(() =>
               v-if="document"
               class="scalar-reference-intro-auth scalar-client introduction-card-item leading-normal">
               <Auth
+                :authStore
                 :document
                 :environment
                 :eventBus
@@ -163,6 +169,7 @@ const securitySchemes = computed(() =>
     <!-- Use recursive component for cleaner rendering -->
     <TraversedEntry
       v-if="items.length && document"
+      :authStore
       :clientOptions
       :document
       :entries="items"

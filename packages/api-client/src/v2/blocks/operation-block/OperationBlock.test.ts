@@ -138,6 +138,7 @@ const createDefaultProps = () => ({
   exampleKey: 'default',
   authMeta: createMockAuthMeta(),
   securitySchemes: {},
+  operationSelectedSecurity: undefined,
   documentSecurity: undefined,
   documentSelectedSecurity: undefined,
   setOperationSecurity: false,

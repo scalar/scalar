@@ -38,6 +38,16 @@
       "types": "./dist/client.d.ts",
       "default": "./dist/client.js"
     },
+    "./entities/auth": {
+      "import": "./dist/entities/auth/index.js",
+      "types": "./dist/entities/auth/index.d.ts",
+      "default": "./dist/entities/auth/index.js"
+    },
+    "./entities/history/*": {
+      "import": "./dist/entities/history/*.js",
+      "types": "./dist/entities/history/*.d.ts",
+      "default": "./dist/entities/history/*.js"
+    },
     "./events": {
       "import": "./dist/events/index.js",
       "types": "./dist/events/index.d.ts",
@@ -87,6 +97,11 @@
       "import": "./dist/schemas/extensions/operation/index.js",
       "types": "./dist/schemas/extensions/operation/index.d.ts",
       "default": "./dist/schemas/extensions/operation/index.js"
+    },
+    "./schemas/extensions/security": {
+      "import": "./dist/schemas/extensions/security/index.js",
+      "types": "./dist/schemas/extensions/security/index.d.ts",
+      "default": "./dist/schemas/extensions/security/index.js"
     },
     "./schemas/extensions/workspace": {
       "import": "./dist/schemas/extensions/workspace/index.js",

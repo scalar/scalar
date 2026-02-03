@@ -68,7 +68,7 @@ import {
   type MaybeRefOrGetter,
 } from 'vue'
 
-import { mergeAuthConfig } from '@/v2/blocks/scalar-auth-selector-block/helpers/merge-auth-config'
+import { mergeSecurity } from '@/v2/blocks/scalar-auth-selector-block/helpers/merge-security'
 import { Sidebar, SidebarToggle } from '@/v2/components/sidebar'
 import { type UseModalSidebarReturn } from '@/v2/features/modal/hooks/use-modal-sidebar'
 import { initializeModalEvents } from '@/v2/features/modal/modal-events'
@@ -184,9 +184,11 @@ const environment = computed(() =>
 
 /** Merge authentication config with the document security schemes */
 const securitySchemes = computed(() =>
-  mergeAuthConfig(
+  mergeSecurity(
     document.value?.components?.securitySchemes,
     toValue(options)?.authentication?.securitySchemes,
+    workspaceStore.auth,
+    document.value?.['x-scalar-navigation']?.name ?? '',
   ),
 )
 

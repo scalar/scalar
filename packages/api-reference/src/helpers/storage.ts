@@ -1,11 +1,6 @@
 import { REFERENCE_LS_KEYS, safeLocalStorage } from '@scalar/helpers/object/local-storage'
-import type { XScalarSelectedSecurity } from '@scalar/workspace-store/schemas/extensions/security/x-scalar-selected-security'
+import { type Auth, AuthSchema } from '@scalar/workspace-store/entities/auth'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
-import {
-  type SecuritySchemes,
-  SecuritySchemesSchema,
-  XScalarSelectedSecuritySchema,
-} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
 // Local storage helper instance, safely wrapped.
 const storage = safeLocalStorage()
@@ -39,44 +34,24 @@ export const clientStorage = () => {
  * the user's selected schemes.
  */
 export const authStorage = () => {
-  const schemasKey = REFERENCE_LS_KEYS.AUTH_SCHEMES
-  const selectedSchemesKey = REFERENCE_LS_KEYS.SELECTED_AUTH_SCHEMES
-
-  const getAuthId = (type: 'schemas' | 'selectedSchemes', prefix: string) => {
-    const getKey = (type: 'schemas' | 'selectedSchemes') => {
-      return type === 'schemas' ? schemasKey : selectedSchemesKey
-    }
-    return `${prefix}-${getKey(type)}`
+  const getKey = (slug: string) => {
+    return `${REFERENCE_LS_KEYS.AUTH}-${slug}`
   }
 
   return {
     /**
      * Retrieves and coerces the authentication schemes stored in local storage.
      */
-    getSchemas: (slug: string) => {
-      const parsed = JSON.parse(storage.getItem(getAuthId('schemas', slug)) ?? '{}')
-      return coerceValue(SecuritySchemesSchema, parsed)
+    getAuth: (slug: string) => {
+      const parsed = JSON.parse(storage.getItem(getKey(slug)) ?? '{}')
+      return coerceValue(AuthSchema, parsed)
     },
     /**
      * Stores the authentication schemes in local storage.
-     * @param value The SecuritySchemes object to stringify and store.
+     * @param value The Auth object to stringify and store.
      */
-    setSchemas: (slug: string, value: SecuritySchemes) => {
-      storage.setItem(getAuthId('schemas', slug), JSON.stringify(value))
-    },
-    /**
-     * Retrieves and coerces the selected authentication schemes stored in local storage.
-     */
-    getSelectedSchemes: (slug: string) => {
-      const parsed = JSON.parse(storage.getItem(getAuthId('selectedSchemes', slug)) ?? '{}')
-      return coerceValue(XScalarSelectedSecuritySchema, parsed)
-    },
-    /**
-     * Stores the user's selected authentication schemes in local storage.
-     * @param value The XScalarSelectedSecurity object to stringify and store.
-     */
-    setSelectedSchemes: (slug: string, value: XScalarSelectedSecurity) => {
-      storage.setItem(getAuthId('selectedSchemes', slug), JSON.stringify(value))
+    setAuth: (slug: string, value: Auth) => {
+      storage.setItem(getKey(slug), JSON.stringify(value))
     },
   }
 }

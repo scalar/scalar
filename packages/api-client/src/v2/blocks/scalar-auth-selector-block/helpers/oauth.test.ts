@@ -1,7 +1,9 @@
-import type { OAuthFlowsObject, ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { flushPromises } from '@vue/test-utils'
 import { encode } from 'js-base64'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+
+import type { OAuthFlowsObjectSecret } from '@/v2/blocks/scalar-auth-selector-block/helpers/secret-types'
 
 import { authorizeOauth2 } from './oauth'
 
@@ -68,7 +70,7 @@ describe('oauth', () => {
         'x-scalar-secret-token': '',
         'x-scalar-secret-client-secret': clientSecret,
       },
-    } satisfies OAuthFlowsObject
+    } satisfies OAuthFlowsObjectSecret
 
     it('should handle successful authorization code flow', async () => {
       const promise = authorizeOauth2(scheme, 'authorizationCode', selectedScopes, mockServer, '')
@@ -131,7 +133,7 @@ describe('oauth', () => {
             audience: 'scalar',
           },
         },
-      } satisfies OAuthFlowsObject
+      } satisfies OAuthFlowsObjectSecret
 
       const accessToken = 'pkce_access_token_123'
       const codeChallenge = 'AQIDBAUGCAkK'
@@ -210,7 +212,7 @@ describe('oauth', () => {
             custom_param: 'custom_value',
           },
         },
-      } satisfies OAuthFlowsObject
+      } satisfies OAuthFlowsObjectSecret
 
       const promise = authorizeOauth2(flows, 'authorizationCode', selectedScopes, mockServer, '')
       const accessToken = 'access_token_123'
@@ -269,7 +271,7 @@ describe('oauth', () => {
           ...scheme.authorizationCode,
           'x-scalar-secret-redirect-uri': '/callback',
         },
-      } satisfies OAuthFlowsObject
+      } satisfies OAuthFlowsObjectSecret
 
       void authorizeOauth2(flows, 'authorizationCode', selectedScopes, mockServer, '')
 
@@ -296,7 +298,7 @@ describe('oauth', () => {
           authorizationUrl: '/oauth/authorize',
           tokenUrl: '/oauth/token',
         },
-      } satisfies OAuthFlowsObject
+      } satisfies OAuthFlowsObjectSecret
 
       // Mock window.location
       const originalLocation = window.location
@@ -444,7 +446,7 @@ describe('oauth', () => {
           ...scheme.authorizationCode,
           'x-scalar-credentials-location': 'body',
         },
-      } satisfies OAuthFlowsObject
+      } satisfies OAuthFlowsObjectSecret
 
       const promise = authorizeOauth2(flows, 'authorizationCode', selectedScopes, mockServer, '')
       const accessToken = 'access_token_123'
@@ -494,7 +496,7 @@ describe('oauth', () => {
           'x-usePkce': 'SHA-256',
           'x-scalar-credentials-location': 'body',
         },
-      } satisfies OAuthFlowsObject
+      } satisfies OAuthFlowsObjectSecret
 
       const accessToken = 'pkce_access_token_123'
       const code = 'pkce_auth_code_123'
@@ -562,7 +564,7 @@ describe('oauth', () => {
             custom_param: 'custom_value',
           },
         },
-      } satisfies OAuthFlowsObject
+      } satisfies OAuthFlowsObjectSecret
 
       const promise = authorizeOauth2(flows, 'authorizationCode', selectedScopes, mockServer, '')
       const accessToken = 'access_token_123'
@@ -617,7 +619,7 @@ describe('oauth', () => {
         'x-scalar-secret-client-secret': clientSecret,
         'x-scalar-secret-token': '',
       },
-    } satisfies OAuthFlowsObject
+    } satisfies OAuthFlowsObjectSecret
 
     it('should handle successful client credentials flow', async () => {
       global.fetch = vi.fn().mockResolvedValueOnce({
@@ -655,7 +657,7 @@ describe('oauth', () => {
           ...scheme.clientCredentials,
           'x-tokenName': 'custom_access_token',
         },
-      } satisfies OAuthFlowsObject
+      } satisfies OAuthFlowsObjectSecret
 
       global.fetch = vi.fn().mockResolvedValueOnce({
         json: () => Promise.resolve({ custom_access_token: 'custom_token_123' }),
@@ -675,7 +677,7 @@ describe('oauth', () => {
             custom_param: 'custom_value',
           },
         },
-      } satisfies OAuthFlowsObject
+      } satisfies OAuthFlowsObjectSecret
 
       global.fetch = vi.fn().mockResolvedValueOnce({
         json: () => Promise.resolve({ access_token: 'access_token_123' }),
@@ -706,7 +708,7 @@ describe('oauth', () => {
           ...scheme.clientCredentials,
           'x-scalar-credentials-location': 'body',
         },
-      } satisfies OAuthFlowsObject
+      } satisfies OAuthFlowsObjectSecret
 
       global.fetch = vi.fn().mockResolvedValueOnce({
         json: () => Promise.resolve({ access_token: 'access_token_123' }),
@@ -747,7 +749,7 @@ describe('oauth', () => {
             custom_param: 'custom_value',
           },
         },
-      } satisfies OAuthFlowsObject
+      } satisfies OAuthFlowsObjectSecret
 
       global.fetch = vi.fn().mockResolvedValueOnce({
         json: () => Promise.resolve({ access_token: 'access_token_123' }),
@@ -786,7 +788,7 @@ describe('oauth', () => {
           ...scheme.clientCredentials,
           tokenUrl: '/oauth/token',
         },
-      } satisfies OAuthFlowsObject
+      } satisfies OAuthFlowsObjectSecret
 
       global.fetch = vi.fn().mockResolvedValueOnce({
         json: () => Promise.resolve({ access_token: 'access_token_123' }),
@@ -819,7 +821,7 @@ describe('oauth', () => {
         'x-scalar-secret-redirect-uri': redirectUri,
         'x-scalar-secret-token': '',
       },
-    } satisfies OAuthFlowsObject
+    } satisfies OAuthFlowsObjectSecret
 
     it('should handle successful implicit flow', async () => {
       const promise = authorizeOauth2(scheme, 'implicit', selectedScopes, mockServer, '')
@@ -856,7 +858,7 @@ describe('oauth', () => {
           ...scheme.implicit,
           'x-tokenName': 'custom_access_token',
         },
-      } satisfies OAuthFlowsObject
+      } satisfies OAuthFlowsObjectSecret
 
       const promise = authorizeOauth2(flows, 'implicit', selectedScopes, mockServer, '')
 
@@ -879,7 +881,7 @@ describe('oauth', () => {
           ...scheme.implicit,
           authorizationUrl: '/oauth/authorize',
         },
-      } satisfies OAuthFlowsObject
+      } satisfies OAuthFlowsObjectSecret
 
       const promise = authorizeOauth2(flows, 'implicit', selectedScopes, mockServer, '')
 
@@ -922,7 +924,7 @@ describe('oauth', () => {
         'x-scalar-secret-client-secret': clientSecret,
         'x-scalar-secret-token': '',
       },
-    } satisfies OAuthFlowsObject
+    } satisfies OAuthFlowsObjectSecret
 
     it('should handle successful password flow', async () => {
       // Mock fetch
@@ -966,7 +968,7 @@ describe('oauth', () => {
             custom_param: 'custom_value',
           },
         },
-      } satisfies OAuthFlowsObject
+      } satisfies OAuthFlowsObjectSecret
 
       global.fetch = vi.fn().mockResolvedValueOnce({
         json: () => Promise.resolve({ access_token: 'access_token_123' }),
@@ -999,7 +1001,7 @@ describe('oauth', () => {
           ...scheme.password,
           'x-scalar-credentials-location': 'body',
         },
-      } satisfies OAuthFlowsObject
+      } satisfies OAuthFlowsObjectSecret
 
       global.fetch = vi.fn().mockResolvedValueOnce({
         json: () =>
@@ -1049,7 +1051,7 @@ describe('oauth', () => {
             custom_param: 'custom_value',
           },
         },
-      } satisfies OAuthFlowsObject
+      } satisfies OAuthFlowsObjectSecret
 
       global.fetch = vi.fn().mockResolvedValueOnce({
         json: () =>
@@ -1097,7 +1099,7 @@ describe('oauth', () => {
           ...scheme.password,
           tokenUrl: '/oauth/token',
         },
-      } satisfies OAuthFlowsObject
+      } satisfies OAuthFlowsObjectSecret
 
       global.fetch = vi.fn().mockResolvedValueOnce({
         json: () =>
@@ -1136,7 +1138,7 @@ describe('oauth', () => {
           ...scheme.password,
           tokenUrl: 'auth/token',
         },
-      } satisfies OAuthFlowsObject
+      } satisfies OAuthFlowsObjectSecret
       const relativeServer = {
         ...mockServer,
         url: '/partners',

@@ -23,8 +23,7 @@ describe('local-storage', () => {
     it('has all expected keys', () => {
       expect(REFERENCE_LS_KEYS).toEqual({
         SELECTED_CLIENT: 'scalar-reference-selected-client-v2',
-        AUTH_SCHEMES: 'scalar-reference-auth-schemes',
-        SELECTED_AUTH_SCHEMES: 'scalar-reference-selected-auth-schemes',
+        AUTH: 'scalar-reference-auth',
       })
     })
   })

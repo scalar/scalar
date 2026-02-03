@@ -1,16 +1,13 @@
 import type { HttpMethod as HttpMethodType } from '@scalar/helpers/http/http-methods'
 import type { AvailableClient } from '@scalar/types/snippetz'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
-import type {
-  OperationObject,
-  SecuritySchemeObject,
-  ServerObject,
-} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { OperationObject, ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { nextTick } from 'vue'
 
+import type { SecuritySchemeObjectSecret } from '@/v2/blocks/scalar-auth-selector-block'
 import { mockEventBus } from '@/v2/helpers/test-utils'
 
 import type { ClientOptionGroup } from '../types'
@@ -61,7 +58,7 @@ describe('RequestExample', () => {
     },
   }
 
-  const mockSecuritySchemes: SecuritySchemeObject[] = [
+  const mockSecuritySchemes: SecuritySchemeObjectSecret[] = [
     {
       type: 'apiKey',
       name: 'X-API-Key',
@@ -497,7 +494,7 @@ describe('RequestExample', () => {
     })
 
     it('handles oauth2 security schemes', () => {
-      const oauth2Schemes: SecuritySchemeObject[] = [
+      const oauth2Schemes: SecuritySchemeObjectSecret[] = [
         {
           type: 'oauth2',
           flows: {

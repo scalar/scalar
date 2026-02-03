@@ -1,8 +1,10 @@
+import type { WorkspaceStore } from '@/client'
 import type { AuthEvents } from '@/events/definitions/auth'
 import { generateUniqueValue } from '@/helpers/generate-unique-value'
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
 import { isNonOptionalSecurityRequirement } from '@/helpers/is-non-optional-security-requirement'
 import { mergeObjects } from '@/helpers/merge-object'
+import { unpackProxyObject } from '@/helpers/unpack-proxy'
 import type { WorkspaceDocument } from '@/schemas'
 import type { SecurityRequirementObject } from '@/schemas/v3.1/strict/security-requirement'
 import type { OAuth2Object } from '@/schemas/v3.1/strict/security-scheme'
@@ -32,20 +34,22 @@ import type { OAuth2Object } from '@/schemas/v3.1/strict/security-scheme'
  * ```
  */
 export const updateSelectedSecuritySchemes = async (
+  store: WorkspaceStore | null,
   document: WorkspaceDocument | null,
   { selectedRequirements, newSchemes, meta }: AuthEvents['auth:update:selected-security-schemes'],
 ) => {
-  if (!document) {
+  const documentName = document?.['x-scalar-navigation']?.name
+  if (!documentName) {
     return
   }
 
   // Helper to get the target (whole document or a specific operation)
   const getTarget = () => {
     if (meta.type === 'document') {
-      return document
+      return store?.auth.getAuthSelectedSchemas({ type: 'document', documentName })
     }
 
-    return getResolvedRef(document.paths?.[meta.path]?.[meta.method])
+    return store?.auth.getAuthSelectedSchemas({ type: 'operation', documentName, path: meta.path, method: meta.method })
   }
 
   const createdSecurityRequirements = await Promise.all(
@@ -85,33 +89,29 @@ export const updateSelectedSecuritySchemes = async (
 
   const newSelectedSecuritySchemes = [...selectedRequirements, ...createdSchemes]
 
-  // If the target (document/operation) doesn't exist, do nothing
-  if (!target) {
-    return
-  }
-
-  // Ensure the x-scalar-selected-security structure exists on the target
-  if (!target['x-scalar-selected-security']) {
-    target['x-scalar-selected-security'] = {
-      selectedIndex: -1,
-      selectedSchemes: [],
+  const getSelectedIndex = () => {
+    if (!target?.selectedIndex) {
+      return 0
     }
+
+    if (target.selectedIndex >= newSelectedSecuritySchemes.length) {
+      return newSelectedSecuritySchemes.length - 1
+    }
+
+    return target.selectedIndex
   }
 
-  const selectedIndex = target['x-scalar-selected-security'].selectedIndex
-
-  // Update the schemes array
-  target['x-scalar-selected-security'].selectedSchemes = newSelectedSecuritySchemes
-
-  // Adjust selected index if there are schemes and the index is unset/invalid
-  if (newSelectedSecuritySchemes.length > 0 && selectedIndex < 0) {
-    target['x-scalar-selected-security'].selectedIndex = 0
+  // if (payload. === 'document') {
+  if (meta.type === 'document') {
+    return store?.auth.setAuthSelectedSchemas(
+      { type: 'document', documentName },
+      { selectedIndex: getSelectedIndex(), selectedSchemes: newSelectedSecuritySchemes },
+    )
   }
-
-  // If the selected index is now out of bounds, select the last available
-  if (selectedIndex >= newSelectedSecuritySchemes.length) {
-    target['x-scalar-selected-security'].selectedIndex = newSelectedSecuritySchemes.length - 1
-  }
+  return store?.auth.setAuthSelectedSchemas(
+    { type: 'operation', documentName, path: meta.path, method: meta.method },
+    { selectedIndex: getSelectedIndex(), selectedSchemes: newSelectedSecuritySchemes },
+  )
 }
 
 /**
@@ -155,6 +155,21 @@ export const updateSecurityScheme = (
   return target
 }
 
+const updateSecuritySchemeSecrets = (
+  store: WorkspaceStore | null,
+  document: WorkspaceDocument | null,
+  { payload, name }: AuthEvents['auth:update:security-scheme-secrets'],
+) => {
+  const documentName = document?.['x-scalar-navigation']?.name
+  if (!documentName) {
+    return
+  }
+
+  const auth = store?.auth.getAuthSecrets(documentName, name)
+  const result = mergeObjects(unpackProxyObject(auth, { depth: 1 }) ?? {}, payload) as typeof payload
+  store?.auth.setAuthSecrets(documentName, name, result as any)
+}
+
 /**
  * Sets the selected authentication tab (scheme) index for the given OpenAPI document or operation.
  * - When on the document level, updates the 'selectedIndex' on the document's x-scalar-selected-security extension.
@@ -182,10 +197,17 @@ export const updateSecurityScheme = (
  * });
  */
 export const updateSelectedAuthTab = (
+  store: WorkspaceStore | null,
   document: WorkspaceDocument | null,
   { index, meta }: AuthEvents['auth:update:active-index'],
 ) => {
-  if (!document) {
+  const documentName = document?.['x-scalar-navigation']?.name
+  if (!documentName) {
+    return
+  }
+
+  // Ensure the path/method exists in the document
+  if (meta.type === 'operation' && document?.paths?.[meta.path]?.[meta.method] === undefined) {
     return
   }
 
@@ -194,26 +216,28 @@ export const updateSelectedAuthTab = (
   // - Operation/endpoint level (if meta specifies operation)
   const getTarget = () => {
     if (meta.type === 'document') {
-      return document
+      return store?.auth.getAuthSelectedSchemas({ type: 'document', documentName })
     }
-    return getResolvedRef(document.paths?.[meta.path]?.[meta.method])
+    return store?.auth.getAuthSelectedSchemas({ type: 'operation', documentName, path: meta.path, method: meta.method })
   }
 
   const target = getTarget()
+
   if (!target) {
-    return
-  }
-
-  // Ensure the 'x-scalar-selected-security' extension exists
-  if (!target['x-scalar-selected-security']) {
-    target['x-scalar-selected-security'] = {
-      selectedIndex: 0,
-      selectedSchemes: [],
+    if (meta.type === 'document') {
+      return store?.auth.setAuthSelectedSchemas(
+        { type: 'document', documentName },
+        { selectedIndex: index, selectedSchemes: [] },
+      )
     }
+    return store?.auth.setAuthSelectedSchemas(
+      { type: 'operation', documentName, path: meta.path, method: meta.method },
+      { selectedIndex: index, selectedSchemes: [] },
+    )
   }
 
-  // Set the selected auth tab index
-  target['x-scalar-selected-security'].selectedIndex = index
+  // Set the selected index
+  target.selectedIndex = index
 }
 
 /**
@@ -250,19 +274,21 @@ export const updateSelectedAuthTab = (
  * ```
  */
 export const updateSelectedScopes = (
+  store: WorkspaceStore | null,
   document: WorkspaceDocument | null,
   { id, name, scopes, newScopePayload, meta }: AuthEvents['auth:update:selected-scopes'],
 ) => {
-  if (!document) {
+  const documentName = document?.['x-scalar-navigation']?.name
+  if (!documentName) {
     return
   }
 
   // Determine the target object (document or the operation)
   const getTarget = () => {
     if (meta.type === 'document') {
-      return document
+      return store?.auth.getAuthSelectedSchemas({ type: 'document', documentName })
     }
-    return getResolvedRef(document.paths?.[meta.path]?.[meta.method])
+    return store?.auth.getAuthSelectedSchemas({ type: 'operation', documentName, path: meta.path, method: meta.method })
   }
 
   const target = getTarget()
@@ -270,15 +296,9 @@ export const updateSelectedScopes = (
     return
   }
 
-  // Array of security requirement objects under x-scalar-selected-security
-  const selectedSchemes = target['x-scalar-selected-security']?.selectedSchemes
-  if (!selectedSchemes) {
-    return
-  }
-
   // Find the security requirement that matches the given id (scheme key names)
   // For example: if id = ["OAuth"], matches { OAuth: [...] }
-  const scheme = selectedSchemes.find((scheme) => JSON.stringify(Object.keys(scheme)) === JSON.stringify(id))
+  const scheme = target.selectedSchemes.find((scheme) => JSON.stringify(Object.keys(scheme)) === JSON.stringify(id))
 
   // If the scheme is optional, do nothing as it cannot have scopes
   if (!isNonOptionalSecurityRequirement(scheme)) {
@@ -323,10 +343,12 @@ export const updateSelectedScopes = (
  * - Any extended x-scalar-selected-security references to those schemes are also removed.
  */
 export const deleteSecurityScheme = (
+  store: WorkspaceStore | null,
   document: WorkspaceDocument | null,
   { names }: AuthEvents['auth:delete:security-scheme'],
 ) => {
-  if (!document) {
+  const documentName = document?.['x-scalar-navigation']?.name
+  if (!documentName) {
     // Early exit if there is no document to modify
     return
   }
@@ -350,10 +372,13 @@ export const deleteSecurityScheme = (
     return schemes.filter((scheme) => !names.some((name) => Object.keys(scheme).includes(name)))
   }
 
+  const documentSelectedSecurity = store?.auth.getAuthSelectedSchemas({ type: 'document', documentName })
+
   // -- Remove from document-level `x-scalar-selected-security` extension, if present
-  if (document['x-scalar-selected-security']) {
-    const selectedSecurity = document['x-scalar-selected-security']
-    selectedSecurity.selectedSchemes = filterSecuritySchemes(selectedSecurity.selectedSchemes)
+  if (documentSelectedSecurity) {
+    documentSelectedSecurity.selectedSchemes = filterSecuritySchemes(
+      unpackProxyObject(documentSelectedSecurity.selectedSchemes, { depth: 1 }) ?? [],
+    )
   }
 
   // -- Remove from document-level `security` property, if present
@@ -362,8 +387,8 @@ export const deleteSecurityScheme = (
   }
 
   // -- For each path and operation, remove deleted security schemes from operation-level security and custom extension
-  Object.values(document.paths ?? {}).forEach((path) => {
-    Object.values(path).forEach((operation) => {
+  Object.entries(document.paths ?? {}).forEach(([path, pathItemObject]) => {
+    Object.entries(pathItemObject).forEach(([method, operation]) => {
       if (typeof operation !== 'object') {
         // Ignore operations that are not objects (could be undefined)
         return
@@ -377,27 +402,41 @@ export const deleteSecurityScheme = (
         resolvedOperation['security'] = filterSecuritySchemes(resolvedOperation['security'])
       }
 
-      // Remove from operation-level x-scalar-selected-security array
-      if ('x-scalar-selected-security' in resolvedOperation && resolvedOperation['x-scalar-selected-security']) {
-        resolvedOperation['x-scalar-selected-security'].selectedSchemes = filterSecuritySchemes(
-          resolvedOperation['x-scalar-selected-security'].selectedSchemes,
+      // // Remove from operation-level x-scalar-selected-security array
+      const operationSelectedSecurity = store?.auth.getAuthSelectedSchemas({
+        type: 'operation',
+        documentName,
+        path,
+        method,
+      })
+      if (operationSelectedSecurity) {
+        operationSelectedSecurity.selectedSchemes = filterSecuritySchemes(
+          unpackProxyObject(operationSelectedSecurity.selectedSchemes, { depth: 1 }) ?? [],
         )
       }
     })
   })
 }
 
-export const authMutatorsFactory = ({ document }: { document: WorkspaceDocument | null }) => {
+export const authMutatorsFactory = ({
+  document,
+  store,
+}: {
+  document: WorkspaceDocument | null
+  store: WorkspaceStore | null
+}) => {
   return {
     updateSelectedSecuritySchemes: (payload: AuthEvents['auth:update:selected-security-schemes']) =>
-      updateSelectedSecuritySchemes(document, payload),
+      updateSelectedSecuritySchemes(store, document, payload),
     updateSecurityScheme: (payload: AuthEvents['auth:update:security-scheme']) =>
       updateSecurityScheme(document, payload),
+    updateSecuritySchemeSecrets: (payload: AuthEvents['auth:update:security-scheme-secrets']) =>
+      updateSecuritySchemeSecrets(store, document, payload),
     updateSelectedAuthTab: (payload: AuthEvents['auth:update:active-index']) =>
-      updateSelectedAuthTab(document, payload),
+      updateSelectedAuthTab(store, document, payload),
     updateSelectedScopes: (payload: AuthEvents['auth:update:selected-scopes']) =>
-      updateSelectedScopes(document, payload),
+      updateSelectedScopes(store, document, payload),
     deleteSecurityScheme: (payload: AuthEvents['auth:delete:security-scheme']) =>
-      deleteSecurityScheme(document, payload),
+      deleteSecurityScheme(store, document, payload),
   }
 }

@@ -1,12 +1,13 @@
-import type { SecuritySchemeObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { describe, expect, it } from 'vitest'
+
+import type { SecuritySchemeObjectSecret } from '@/v2/blocks/scalar-auth-selector-block'
 
 import { processSecuritySchemes } from './process-security-schemes'
 
 describe('process-security-schemes', () => {
   describe('apiKey security scheme', () => {
     it('processes apiKey in header', () => {
-      const securitySchemes: SecuritySchemeObject[] = [
+      const securitySchemes: SecuritySchemeObjectSecret[] = [
         {
           type: 'apiKey',
           name: 'X-API-Key',
@@ -26,7 +27,7 @@ describe('process-security-schemes', () => {
     })
 
     it('processes apiKey in query', () => {
-      const securitySchemes: SecuritySchemeObject[] = [
+      const securitySchemes: SecuritySchemeObjectSecret[] = [
         {
           type: 'apiKey',
           name: 'api_key',
@@ -46,7 +47,7 @@ describe('process-security-schemes', () => {
     })
 
     it('processes apiKey in cookie', () => {
-      const securitySchemes: SecuritySchemeObject[] = [
+      const securitySchemes: SecuritySchemeObjectSecret[] = [
         {
           type: 'apiKey',
           name: 'session',
@@ -68,7 +69,7 @@ describe('process-security-schemes', () => {
 
   describe('http security scheme', () => {
     it('processes basic auth', () => {
-      const securitySchemes: SecuritySchemeObject[] = [
+      const securitySchemes: SecuritySchemeObjectSecret[] = [
         {
           type: 'http',
           scheme: 'basic',
@@ -89,7 +90,7 @@ describe('process-security-schemes', () => {
     })
 
     it('processes bearer auth', () => {
-      const securitySchemes: SecuritySchemeObject[] = [
+      const securitySchemes: SecuritySchemeObjectSecret[] = [
         {
           type: 'http',
           scheme: 'bearer',
@@ -112,7 +113,7 @@ describe('process-security-schemes', () => {
 
   describe('oauth2 security scheme', () => {
     it('processes oauth2 with client credentials flow', () => {
-      const securitySchemes: SecuritySchemeObject[] = [
+      const securitySchemes: SecuritySchemeObjectSecret[] = [
         {
           type: 'oauth2',
           flows: {
@@ -142,7 +143,7 @@ describe('process-security-schemes', () => {
     })
 
     it('processes oauth2 with password flow', () => {
-      const securitySchemes: SecuritySchemeObject[] = [
+      const securitySchemes: SecuritySchemeObjectSecret[] = [
         {
           type: 'oauth2',
           flows: {
@@ -174,7 +175,7 @@ describe('process-security-schemes', () => {
     })
 
     it('processes oauth2 with implicit flow', () => {
-      const securitySchemes: SecuritySchemeObject[] = [
+      const securitySchemes: SecuritySchemeObjectSecret[] = [
         {
           type: 'oauth2',
           flows: {
@@ -204,7 +205,7 @@ describe('process-security-schemes', () => {
     })
 
     it('processes oauth2 with authorization code flow', () => {
-      const securitySchemes: SecuritySchemeObject[] = [
+      const securitySchemes: SecuritySchemeObjectSecret[] = [
         {
           type: 'oauth2',
           flows: {
@@ -237,7 +238,7 @@ describe('process-security-schemes', () => {
     })
 
     it('processes oauth2 with multiple flows', () => {
-      const securitySchemes: SecuritySchemeObject[] = [
+      const securitySchemes: SecuritySchemeObjectSecret[] = [
         {
           type: 'oauth2',
           flows: {
@@ -281,7 +282,7 @@ describe('process-security-schemes', () => {
 
   describe('multiple security schemes', () => {
     it('processes multiple security schemes', () => {
-      const securitySchemes: SecuritySchemeObject[] = [
+      const securitySchemes: SecuritySchemeObjectSecret[] = [
         {
           type: 'apiKey',
           name: 'X-API-Key',
@@ -314,7 +315,7 @@ describe('process-security-schemes', () => {
 
   describe('empty schemes', () => {
     it('handles empty security schemes array', () => {
-      const securitySchemes: SecuritySchemeObject[] = []
+      const securitySchemes: SecuritySchemeObjectSecret[] = []
 
       const result = processSecuritySchemes(securitySchemes)
 
@@ -324,7 +325,7 @@ describe('process-security-schemes', () => {
     })
 
     it('handles apiKeys without x-scalar-secrets', () => {
-      const securitySchemes: SecuritySchemeObject[] = [
+      const securitySchemes: SecuritySchemeObjectSecret[] = [
         {
           type: 'apiKey',
           name: 'X-API-Key',
@@ -353,7 +354,7 @@ describe('process-security-schemes', () => {
     })
 
     it('handles http auth without x-scalar-secrets', () => {
-      const securitySchemes: SecuritySchemeObject[] = [
+      const securitySchemes: SecuritySchemeObjectSecret[] = [
         {
           type: 'http',
           scheme: 'basic',
@@ -379,7 +380,7 @@ describe('process-security-schemes', () => {
     })
 
     it('handles oauth2 without token', () => {
-      const securitySchemes: SecuritySchemeObject[] = [
+      const securitySchemes: SecuritySchemeObjectSecret[] = [
         {
           type: 'oauth2',
           flows: {

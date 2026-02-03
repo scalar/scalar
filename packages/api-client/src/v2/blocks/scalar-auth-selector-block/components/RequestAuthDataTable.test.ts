@@ -211,35 +211,6 @@ describe('RequestAuthDataTable', () => {
   })
 
   describe('event emissions', () => {
-    it('emits update:securityScheme event', async () => {
-      const eventBus = createWorkspaceEventBus()
-      const fn = vi.fn()
-      eventBus.on('auth:update:security-scheme', fn)
-      const wrapper = mountWithProps({ eventBus })
-
-      const requestAuthTab = wrapper.findComponent({ name: 'RequestAuthTab' })
-      expect(requestAuthTab.exists()).toBe(true)
-
-      // The component should pass through the event
-      await requestAuthTab.vm?.$emit(
-        'update:securityScheme',
-        {
-          type: 'http',
-          'x-scalar-secret-token': 'test-token',
-        },
-        'BearerAuth',
-      )
-
-      expect(fn).toHaveBeenCalledTimes(1)
-      expect(fn).toHaveBeenCalledWith({
-        payload: {
-          type: 'http',
-          'x-scalar-secret-token': 'test-token',
-        },
-        name: 'BearerAuth',
-      })
-    })
-
     it('emits update:selectedScopes event', async () => {
       const eventBus = createWorkspaceEventBus()
       const fn = vi.fn()

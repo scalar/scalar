@@ -1,3 +1,4 @@
+import type { MergedSecuritySchemes } from '@scalar/api-client/v2/blocks/scalar-auth-selector-block'
 import type {
   OpenApiDocument,
   OperationObject,
@@ -24,8 +25,7 @@ describe('filterSelectedSecurity', () => {
       responses: {},
     }
 
-    const result = filterSelectedSecurity(document, operation, {})
-
+    const result = filterSelectedSecurity(document, operation, undefined, undefined, {})
     expect(result).toEqual([])
   })
 
@@ -38,7 +38,6 @@ describe('filterSelectedSecurity', () => {
       type: 'apiKey',
       name: 'X-API-Key',
       in: 'header',
-      'x-scalar-secret-token': '',
     }
 
     const document: OpenApiDocument = {
@@ -58,8 +57,13 @@ describe('filterSelectedSecurity', () => {
       security: [{ apiKey: [] }],
     }
 
-    const result = filterSelectedSecurity(document, operation, document.components?.securitySchemes ?? {})
-
+    const result = filterSelectedSecurity(
+      document,
+      operation,
+      undefined,
+      undefined,
+      (document.components?.securitySchemes ?? {}) as MergedSecuritySchemes,
+    )
     expect(result).toEqual([apiKeyScheme])
   })
 
@@ -72,7 +76,12 @@ describe('filterSelectedSecurity', () => {
       type: 'apiKey',
       name: 'X-API-Key',
       in: 'header',
-      'x-scalar-secret-token': '',
+    }
+
+    const bearerScheme: SecuritySchemeObject = {
+      type: 'http',
+      scheme: 'bearer',
+      bearerFormat: 'JWT',
     }
 
     const document: OpenApiDocument = {
@@ -82,12 +91,9 @@ describe('filterSelectedSecurity', () => {
       'x-scalar-original-document-hash': 'test-hash',
       components: {
         securitySchemes: {
+          bearer: bearerScheme,
           apiKey: apiKeyScheme,
         },
-      },
-      'x-scalar-selected-security': {
-        selectedIndex: 0,
-        selectedSchemes: [{ apiKey: [] }],
       },
     }
 
@@ -96,7 +102,13 @@ describe('filterSelectedSecurity', () => {
       security: [{ apiKey: [] }],
     }
 
-    const result = filterSelectedSecurity(document, operation, document.components?.securitySchemes ?? {})
+    const result = filterSelectedSecurity(
+      document,
+      operation,
+      undefined,
+      undefined,
+      (document.components?.securitySchemes ?? {}) as MergedSecuritySchemes,
+    )
 
     expect(result).toEqual([apiKeyScheme])
   })
@@ -110,16 +122,12 @@ describe('filterSelectedSecurity', () => {
       type: 'apiKey',
       name: 'X-API-Key',
       in: 'header',
-      'x-scalar-secret-token': '',
     }
 
     const bearerScheme: SecuritySchemeObject = {
       type: 'http',
       scheme: 'bearer',
       bearerFormat: 'JWT',
-      'x-scalar-secret-username': '',
-      'x-scalar-secret-password': '',
-      'x-scalar-secret-token': '',
     }
 
     const document: OpenApiDocument = {
@@ -133,11 +141,6 @@ describe('filterSelectedSecurity', () => {
           bearer: bearerScheme,
         },
       },
-      'x-scalar-selected-security': {
-        // Bearer is selected at index 1
-        selectedIndex: 1,
-        selectedSchemes: [{ apiKey: [] }, { bearer: [] }],
-      },
     }
 
     const operation: OperationObject = {
@@ -146,7 +149,13 @@ describe('filterSelectedSecurity', () => {
       security: [{ apiKey: [] }, { bearer: [] }],
     }
 
-    const result = filterSelectedSecurity(document, operation, document.components?.securitySchemes ?? {})
+    const result = filterSelectedSecurity(
+      document,
+      operation,
+      { selectedIndex: 1, selectedSchemes: [{ bearer: [] }] },
+      undefined,
+      (document.components?.securitySchemes ?? {}) as MergedSecuritySchemes,
+    )
 
     // Should return bearer because it is at selectedIndex
     expect(result).toEqual([bearerScheme])
@@ -162,7 +171,6 @@ describe('filterSelectedSecurity', () => {
       type: 'apiKey',
       name: 'X-API-Key',
       in: 'header',
-      'x-scalar-secret-token': '',
     }
 
     const oauth2Scheme: SecuritySchemeObject = {
@@ -175,9 +183,6 @@ describe('filterSelectedSecurity', () => {
             'read:data': 'Read data',
             'write:data': 'Write data',
           },
-          'x-scalar-secret-client-id': '',
-          'x-scalar-secret-token': '',
-          'x-scalar-secret-redirect-uri': '',
         },
       },
     }
@@ -193,20 +198,25 @@ describe('filterSelectedSecurity', () => {
           oauth2: oauth2Scheme,
         },
       },
-      'x-scalar-selected-security': {
-        selectedIndex: 0,
-        // Selected security requires BOTH apiKey AND oauth2 (keys in different order)
-        selectedSchemes: [{ oauth2: ['read:data'], apiKey: [] }],
-      },
     }
 
     const operation: OperationObject = {
       responses: {},
       // Operation requires BOTH apiKey AND oauth2 (keys in different order than selected)
-      security: [{ apiKey: [], oauth2: ['read:data'] }],
+      security: [{ apiKey: [] }, { apiKey: [], oauth2: ['read:data'] }],
     }
 
-    const result = filterSelectedSecurity(document, operation, document.components?.securitySchemes ?? {})
+    const result = filterSelectedSecurity(
+      document,
+      operation,
+      {
+        selectedIndex: 0,
+        // Selected security requires BOTH apiKey AND oauth2 (keys in different order)
+        selectedSchemes: [{ oauth2: ['read:data'], apiKey: [] }],
+      },
+      undefined,
+      (document.components?.securitySchemes ?? {}) as MergedSecuritySchemes,
+    )
 
     // Should match despite different key order and return both schemes
     expect(result).toHaveLength(2)
@@ -223,7 +233,6 @@ describe('filterSelectedSecurity', () => {
       type: 'apiKey',
       name: 'X-API-Key',
       in: 'header',
-      'x-scalar-secret-token': '',
     }
 
     const document: OpenApiDocument = {
@@ -238,10 +247,6 @@ describe('filterSelectedSecurity', () => {
       },
       // Document-level security
       security: [{ apiKey: [] }],
-      'x-scalar-selected-security': {
-        selectedIndex: 0,
-        selectedSchemes: [{ apiKey: [] }],
-      },
     }
 
     const operation: OperationObject = {
@@ -249,7 +254,16 @@ describe('filterSelectedSecurity', () => {
       // No operation-level security, should fall back to document
     }
 
-    const result = filterSelectedSecurity(document, operation, document.components?.securitySchemes ?? {})
+    const result = filterSelectedSecurity(
+      document,
+      operation,
+      {
+        selectedIndex: 0,
+        selectedSchemes: [{ apiKey: [] }],
+      },
+      undefined,
+      (document.components?.securitySchemes ?? {}) as MergedSecuritySchemes,
+    )
 
     expect(result).toEqual([apiKeyScheme])
   })
@@ -270,15 +284,10 @@ describe('filterSelectedSecurity', () => {
             type: 'apiKey',
             name: 'X-API-Key',
             in: 'header',
-            'x-scalar-secret-token': '',
           },
         },
       },
       security: [{ apiKey: [] }],
-      'x-scalar-selected-security': {
-        selectedIndex: -1,
-        selectedSchemes: [],
-      },
     }
 
     const operation: OperationObject = {
@@ -286,7 +295,16 @@ describe('filterSelectedSecurity', () => {
       security: [],
     }
 
-    const result = filterSelectedSecurity(document, operation, document.components?.securitySchemes ?? {})
+    const result = filterSelectedSecurity(
+      document,
+      operation,
+      {
+        selectedIndex: -1,
+        selectedSchemes: [],
+      },
+      undefined,
+      (document.components?.securitySchemes ?? {}) as MergedSecuritySchemes,
+    )
     expect(result).toEqual([])
   })
 
@@ -299,7 +317,6 @@ describe('filterSelectedSecurity', () => {
       type: 'apiKey',
       name: 'X-API-Key',
       in: 'header',
-      'x-scalar-secret-token': '',
     }
 
     const document: OpenApiDocument = {
@@ -313,14 +330,18 @@ describe('filterSelectedSecurity', () => {
         },
       },
       security: [{ apiKey: [] }],
-      'x-scalar-selected-security': {
+    }
+
+    const result = filterSelectedSecurity(
+      document,
+      null,
+      {
         selectedIndex: 0,
         selectedSchemes: [{ apiKey: [] }],
       },
-    }
-
-    const result = filterSelectedSecurity(document, null, document.components?.securitySchemes ?? {})
-
+      undefined,
+      (document.components?.securitySchemes ?? {}) as MergedSecuritySchemes,
+    )
     expect(result).toEqual([apiKeyScheme])
   })
 })

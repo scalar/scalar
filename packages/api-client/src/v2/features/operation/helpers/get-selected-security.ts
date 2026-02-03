@@ -1,4 +1,5 @@
-import type { OpenApiDocument, OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { SelectedSecurity } from '@scalar/workspace-store/entities/auth'
+import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
 import { isAuthOptional } from '@/v2/blocks/scalar-auth-selector-block/helpers/is-auth-optional'
 
@@ -7,11 +8,11 @@ import { isAuthOptional } from '@/v2/blocks/scalar-auth-selector-block/helpers/i
  * Defaults to the first requirement if no selection is made and you pass in requirements
  */
 export const getSelectedSecurity = (
-  documentSelectedSecurity: OpenApiDocument['x-scalar-selected-security'],
-  operationSelectedSecurity: OperationObject['x-scalar-selected-security'],
+  documentSelectedSecurity: SelectedSecurity | undefined,
+  operationSelectedSecurity: SelectedSecurity | undefined,
   securityRequirements: NonNullable<OpenApiDocument['security']> = [],
   setOperationSecurity = false,
-) => {
+): SelectedSecurity => {
   // Operation level security
   if (setOperationSecurity) {
     if (operationSelectedSecurity) {

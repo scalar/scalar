@@ -1,13 +1,14 @@
-import type { SecuritySchemeObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { decode } from 'js-base64'
 import { describe, expect, it } from 'vitest'
+
+import type { SecuritySchemeObjectSecret } from '@/v2/blocks/scalar-auth-selector-block'
 
 import { getSecrets } from './get-secrets'
 
 describe('getSecrets', () => {
   describe('apiKey security schemes', () => {
     it('should extract secret token from apiKey scheme', () => {
-      const securitySchemes: SecuritySchemeObject[] = [
+      const securitySchemes: SecuritySchemeObjectSecret[] = [
         {
           type: 'apiKey',
           name: 'X-API-Key',
@@ -22,7 +23,7 @@ describe('getSecrets', () => {
     })
 
     it('should handle apiKey scheme without secret token', () => {
-      const securitySchemes: SecuritySchemeObject[] = [
+      const securitySchemes: SecuritySchemeObjectSecret[] = [
         {
           type: 'apiKey',
           name: 'X-API-Key',
@@ -36,7 +37,7 @@ describe('getSecrets', () => {
     })
 
     it('should handle multiple apiKey schemes', () => {
-      const securitySchemes: SecuritySchemeObject[] = [
+      const securitySchemes: SecuritySchemeObjectSecret[] = [
         {
           type: 'apiKey',
           name: 'X-API-Key',
@@ -59,7 +60,7 @@ describe('getSecrets', () => {
 
   describe('http security schemes', () => {
     it('should extract all secrets from http scheme with basic auth', () => {
-      const securitySchemes: SecuritySchemeObject[] = [
+      const securitySchemes: SecuritySchemeObjectSecret[] = [
         {
           type: 'http',
           scheme: 'basic',
@@ -80,7 +81,7 @@ describe('getSecrets', () => {
     })
 
     it('should extract all secrets from http scheme with bearer auth', () => {
-      const securitySchemes: SecuritySchemeObject[] = [
+      const securitySchemes: SecuritySchemeObjectSecret[] = [
         {
           type: 'http',
           scheme: 'bearer',
@@ -102,7 +103,7 @@ describe('getSecrets', () => {
     })
 
     it('should handle http scheme with missing secrets', () => {
-      const securitySchemes: SecuritySchemeObject[] = [
+      const securitySchemes: SecuritySchemeObjectSecret[] = [
         {
           type: 'http',
           scheme: 'basic',
@@ -120,7 +121,7 @@ describe('getSecrets', () => {
     })
 
     it('should handle http scheme with partial secrets', () => {
-      const securitySchemes: SecuritySchemeObject[] = [
+      const securitySchemes: SecuritySchemeObjectSecret[] = [
         {
           type: 'http',
           scheme: 'basic',
@@ -141,7 +142,7 @@ describe('getSecrets', () => {
 
   describe('oauth2 security schemes', () => {
     it('should extract secrets from oauth2 scheme with single flow', () => {
-      const securitySchemes: SecuritySchemeObject[] = [
+      const securitySchemes: SecuritySchemeObjectSecret[] = [
         {
           type: 'oauth2',
           flows: {
@@ -166,7 +167,7 @@ describe('getSecrets', () => {
     })
 
     it('should extract secrets from oauth2 scheme with multiple flows', () => {
-      const securitySchemes: SecuritySchemeObject[] = [
+      const securitySchemes: SecuritySchemeObjectSecret[] = [
         {
           type: 'oauth2',
           flows: {
@@ -209,7 +210,7 @@ describe('getSecrets', () => {
     })
 
     it('should handle oauth2 scheme with flows without secret tokens', () => {
-      const securitySchemes: SecuritySchemeObject[] = [
+      const securitySchemes: SecuritySchemeObjectSecret[] = [
         {
           type: 'oauth2',
           flows: {
@@ -233,7 +234,7 @@ describe('getSecrets', () => {
     })
 
     it('should handle oauth2 scheme with empty flows object', () => {
-      const securitySchemes: SecuritySchemeObject[] = [
+      const securitySchemes: SecuritySchemeObjectSecret[] = [
         {
           type: 'oauth2',
           flows: {},
@@ -248,7 +249,7 @@ describe('getSecrets', () => {
 
   describe('mixed security schemes', () => {
     it('should handle combination of different security scheme types', () => {
-      const securitySchemes: SecuritySchemeObject[] = [
+      const securitySchemes: SecuritySchemeObjectSecret[] = [
         {
           type: 'apiKey',
           name: 'X-API-Key',
@@ -295,7 +296,7 @@ describe('getSecrets', () => {
 
   describe('edge cases', () => {
     it('should return empty array for empty input', () => {
-      const securitySchemes: SecuritySchemeObject[] = []
+      const securitySchemes: SecuritySchemeObjectSecret[] = []
 
       const result = getSecrets(securitySchemes)
 
@@ -303,7 +304,7 @@ describe('getSecrets', () => {
     })
 
     it('should handle unknown security scheme type', () => {
-      const securitySchemes: SecuritySchemeObject[] = [
+      const securitySchemes: SecuritySchemeObjectSecret[] = [
         {
           type: 'openIdConnect' as any, // unknown type
           openIdConnectUrl: 'https://example.com/.well-known/openid_configuration',
@@ -316,11 +317,11 @@ describe('getSecrets', () => {
     })
 
     it('should handle security scheme without type', () => {
-      const securitySchemes: SecuritySchemeObject[] = [
+      const securitySchemes: SecuritySchemeObjectSecret[] = [
         {
           // missing type
           name: 'Unknown',
-        } as SecuritySchemeObject,
+        } as SecuritySchemeObjectSecret,
       ]
 
       const result = getSecrets(securitySchemes)
@@ -329,7 +330,7 @@ describe('getSecrets', () => {
     })
 
     it('should handle empty string values in http scheme', () => {
-      const securitySchemes: SecuritySchemeObject[] = [
+      const securitySchemes: SecuritySchemeObjectSecret[] = [
         {
           type: 'http',
           scheme: 'basic',
@@ -349,7 +350,7 @@ describe('getSecrets', () => {
 
   describe('base64 encoding verification', () => {
     it('should correctly encode username:password combination', () => {
-      const securitySchemes: SecuritySchemeObject[] = [
+      const securitySchemes: SecuritySchemeObjectSecret[] = [
         {
           type: 'http',
           scheme: 'basic',
@@ -370,7 +371,7 @@ describe('getSecrets', () => {
     })
 
     it('should handle special characters in username and password', () => {
-      const securitySchemes: SecuritySchemeObject[] = [
+      const securitySchemes: SecuritySchemeObjectSecret[] = [
         {
           type: 'http',
           scheme: 'basic',

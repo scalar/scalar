@@ -149,18 +149,31 @@ const APP_VERSION = PACKAGE_VERSION
       :appVersion="APP_VERSION"
       :authMeta
       :documentSecurity="document?.security ?? []"
-      :documentSelectedSecurity="document?.['x-scalar-selected-security']"
+      :documentSelectedSecurity="
+        workspaceStore.auth.getAuthSelectedSchemas({
+          type: 'document',
+          documentName: documentSlug,
+        })
+      "
       :documentUrl="document?.['x-scalar-original-source-url']"
       :environment
       :eventBus
       :exampleKey="exampleName"
       :globalCookies
       :hideClientButton="toValue(options)?.hideClientButton ?? false"
-      :history="[]"
+      :history="workspaceStore.history.getHistory(documentSlug, path, method)"
       :httpClients
       :layout
       :method
       :operation
+      :operationSelectedSecurity="
+        workspaceStore.auth.getAuthSelectedSchemas({
+          type: 'operation',
+          documentName: documentSlug,
+          path,
+          method,
+        })
+      "
       :path
       :plugins="plugins"
       :proxyUrl="workspaceStore.workspace['x-scalar-active-proxy'] ?? ''"

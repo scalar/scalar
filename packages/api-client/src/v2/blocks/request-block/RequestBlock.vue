@@ -4,6 +4,7 @@ import { canMethodHaveBody } from '@scalar/helpers/http/can-method-have-body'
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { REGEX } from '@scalar/helpers/regex/regex-helpers'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
+import type { SelectedSecurity } from '@scalar/workspace-store/entities/auth'
 import type {
   ApiReferenceEvents,
   AuthMeta,
@@ -16,7 +17,6 @@ import type { XScalarCookie } from '@scalar/workspace-store/schemas/extensions/g
 import type {
   OpenApiDocument,
   OperationObject,
-  SecuritySchemeObject,
   ServerObject,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed, ref, useId, watch } from 'vue'
@@ -37,7 +37,11 @@ import { getDefaultHeaders } from '@/v2/blocks/request-block/helpers/get-default
 import { getParameterSchema } from '@/v2/blocks/request-block/helpers/get-parameter-schema'
 import { groupBy } from '@/v2/blocks/request-block/helpers/group-by'
 import { isParamDisabled } from '@/v2/blocks/request-block/helpers/is-param-disabled'
-import { AuthSelector } from '@/v2/blocks/scalar-auth-selector-block'
+import {
+  AuthSelector,
+  type MergedSecuritySchemes,
+} from '@/v2/blocks/scalar-auth-selector-block'
+import type { SecuritySchemeObjectSecret } from '@/v2/blocks/scalar-auth-selector-block/helpers/secret-types'
 import type { ClientPlugin } from '@/v2/helpers/plugins'
 
 type Filter =
@@ -59,6 +63,7 @@ const {
   environment,
   eventBus,
   exampleKey,
+  globalCookies,
   layout,
   method,
   operation,
@@ -70,14 +75,13 @@ const {
   selectedClient,
   selectedSecuritySchemes,
   server,
-  globalCookies,
 } = defineProps<{
-  selectedSecurity: OpenApiDocument['x-scalar-selected-security']
   authMeta: AuthMeta
   clientOptions: ClientOptionGroup[]
   environment: XScalarEnvironment
   eventBus: WorkspaceEventBus
   exampleKey: string
+  globalCookies: ExtendedScalarCookie[]
   layout: ClientLayout
   method: HttpMethod
   operation: OperationObject
@@ -85,11 +89,11 @@ const {
   plugins: ClientPlugin[]
   proxyUrl: string
   securityRequirements: OpenApiDocument['security']
-  securitySchemes: NonNullable<OpenApiDocument['components']>['securitySchemes']
+  securitySchemes: MergedSecuritySchemes
   selectedClient: WorkspaceStore['workspace']['x-scalar-default-client']
-  selectedSecuritySchemes: SecuritySchemeObject[]
+  selectedSecurity: SelectedSecurity
+  selectedSecuritySchemes: SecuritySchemeObjectSecret[]
   server: ServerObject | null
-  globalCookies: ExtendedScalarCookie[]
 }>()
 
 /** Operation metadata used across event emissions */

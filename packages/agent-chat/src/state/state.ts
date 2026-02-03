@@ -34,6 +34,7 @@ import type {
 } from '@/entities/tools/get-openapi-spec-summary'
 import { createDocumentSettings, makeScalarProxyUrl } from '@/helpers'
 import { useTermsAndConditions } from '@/hooks/use-term-and-conditions'
+import { persistencePlugin } from '@/plugins/persistance'
 import { loadDocument } from '@/registry/add-documents-to-store'
 import { createDocumentName } from '@/registry/create-document-name'
 import type { ChatMode } from '@/types'
@@ -150,7 +151,13 @@ export function createState({
   const terms = useTermsAndConditions()
 
   const eventBus = createWorkspaceEventBus()
-  const workspaceStore = createWorkspaceStore()
+  const workspaceStore = createWorkspaceStore({
+    plugins: [
+      persistencePlugin({
+        persistAuth: true,
+      }),
+    ],
+  })
 
   const config = computed(() =>
     apiReferenceConfigurationSchema.parse({

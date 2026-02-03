@@ -4,7 +4,7 @@ import { redirectToProxy, shouldUseProxy } from '@scalar/helpers/url/redirect-to
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type { XScalarCookie } from '@scalar/workspace-store/schemas/extensions/general/x-scalar-cookies'
-import type { SecuritySchemeObject, ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/operation'
 
 import { isElectron } from '@/libs/electron'
@@ -12,6 +12,7 @@ import { ERRORS, type ErrorResponse, normalizeError } from '@/libs/errors'
 import { getEnvironmentVariables } from '@/v2/blocks/operation-block/helpers/get-environment-variables'
 import { getResolvedUrl } from '@/v2/blocks/operation-block/helpers/get-resolved-url'
 import { getDefaultHeaders } from '@/v2/blocks/request-block/helpers/get-default-headers'
+import type { SecuritySchemeObjectSecret } from '@/v2/blocks/scalar-auth-selector-block/helpers/secret-types'
 
 import { buildRequestBody } from './build-request-body'
 import { buildRequestCookieHeader } from './build-request-cookie-header'
@@ -58,7 +59,7 @@ export const buildRequest = ({
   /** The server object */
   server: ServerObject | null
   /** The selected security schemes for the current operation */
-  selectedSecuritySchemes: SecuritySchemeObject[]
+  selectedSecuritySchemes: SecuritySchemeObjectSecret[]
 }): ErrorResponse<{
   controller: AbortController
   request: Request
