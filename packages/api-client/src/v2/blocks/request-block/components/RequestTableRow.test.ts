@@ -805,6 +805,7 @@ describe('RequestTableRow', () => {
               type: 'array',
               items: {
                 $ref: '#/components/schemas/Category',
+                '$ref-value': { type: 'string' },
               },
             },
           },
@@ -881,6 +882,7 @@ describe('RequestTableRow', () => {
             name: 'mixed',
             value: 'value1',
             schema: {
+              type: 'string',
               enum: ['value1', 2, null, true],
             },
           },

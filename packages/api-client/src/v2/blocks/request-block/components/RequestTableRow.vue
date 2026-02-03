@@ -133,6 +133,7 @@ const enumValue = computed<string[]>(() => {
 
   return []
 })
+
 const minimumValue = computed(() =>
   data.schema && 'minimum' in data.schema ? data.schema.minimum : undefined,
 )
