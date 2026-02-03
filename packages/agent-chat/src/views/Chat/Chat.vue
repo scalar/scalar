@@ -41,9 +41,8 @@ const state = useState()
           :key="`${message.id}-${index}`">
           <Text
             v-if="part.type === 'text'"
-            :messagePart="toRef(part)" />
+            :messagePart="toRef(part)" />asd
           <ExecuteRequestTool
-            v-if="part.type.endsWith(EXECUTE_CLIENT_SIDE_REQUEST_TOOL_NAME)"
             :messagePart="
               toRef(
                 part as ToolUIPart<
@@ -120,9 +119,7 @@ const state = useState()
 div + .userMessage {
   margin-top: 64px;
 }
-.chat
-  > div:has(:deep(.executeRequestTool))
-  + div:has(:deep(.executeRequestTool)) {
+.chat > :deep(div:has(.executeRequestTool)) + div:has(.executeRequestTool) {
   margin-top: -12px;
 }
 .spacer {
