@@ -1,5 +1,26 @@
 # @scalar/workspace-store
 
+## 0.28.2
+
+### Patch Changes
+
+- [#8016](https://github.com/scalar/scalar/pull/8016): feat: move history and auth into their own store
+
+#### Updated Dependencies
+
+- **@scalar/helpers@0.2.11**
+  - [#8016](https://github.com/scalar/scalar/pull/8016): feat: move history and auth into their own store
+
+- **@scalar/json-magic@0.9.6**
+
+- **@scalar/object-utils@1.2.25**
+
+- **@scalar/types@0.6.2**
+
+- **@scalar/openapi-upgrader@0.1.8**
+
+- **@scalar/snippetz@0.6.11**
+
 ## 0.28.1
 
 ### Patch Changes

@@ -699,4 +699,229 @@ describe('RequestTableRow', () => {
 
     expect(wrapper.text()).toContain('Select File')
   })
+
+  describe('enum handling', () => {
+    it('passes enum values from schema to CodeInput', () => {
+      const wrapper = mount(RequestTableRow, {
+        props: {
+          data: {
+            name: 'status',
+            value: 'active',
+            schema: {
+              type: 'string',
+              enum: ['active', 'inactive', 'pending'],
+            },
+          },
+          environment,
+        },
+        global: {
+          stubs: {
+            RouterLink: true,
+          },
+        },
+      })
+
+      const valueInput = wrapper.findAllComponents({ name: 'CodeInput' })[1]
+      expect(valueInput?.props('enum')).toEqual(['active', 'inactive', 'pending'])
+    })
+
+    it('returns empty array when schema has no enum', () => {
+      const wrapper = mount(RequestTableRow, {
+        props: {
+          data: {
+            name: 'name',
+            value: 'test',
+            schema: {
+              type: 'string',
+            },
+          },
+          environment,
+        },
+        global: {
+          stubs: {
+            RouterLink: true,
+          },
+        },
+      })
+
+      const valueInput = wrapper.findAllComponents({ name: 'CodeInput' })[1]
+      expect(valueInput?.props('enum')).toEqual([])
+    })
+
+    it('returns empty array when schema is not provided', () => {
+      const wrapper = mount(RequestTableRow, {
+        props: {
+          data: {
+            name: 'key',
+            value: 'value',
+          },
+          environment,
+        },
+        global: {
+          stubs: {
+            RouterLink: true,
+          },
+        },
+      })
+
+      const valueInput = wrapper.findAllComponents({ name: 'CodeInput' })[1]
+      expect(valueInput?.props('enum')).toEqual([])
+    })
+
+    it('extracts enum from items schema for array types', () => {
+      const wrapper = mount(RequestTableRow, {
+        props: {
+          data: {
+            name: 'tags',
+            value: 'tag1',
+            schema: {
+              type: 'array',
+              items: {
+                type: 'string',
+                enum: ['tag1', 'tag2', 'tag3'],
+              },
+            },
+          },
+          environment,
+        },
+        global: {
+          stubs: {
+            RouterLink: true,
+          },
+        },
+      })
+
+      const valueInput = wrapper.findAllComponents({ name: 'CodeInput' })[1]
+      expect(valueInput?.props('enum')).toEqual(['tag1', 'tag2', 'tag3'])
+    })
+
+    it('extracts enum from referenced items schema', () => {
+      const wrapper = mount(RequestTableRow, {
+        props: {
+          data: {
+            name: 'categories',
+            value: 'electronics',
+            schema: {
+              type: 'array',
+              items: {
+                $ref: '#/components/schemas/Category',
+                '$ref-value': { type: 'string' },
+              },
+            },
+          },
+          environment,
+        },
+        global: {
+          stubs: {
+            RouterLink: true,
+          },
+        },
+      })
+
+      const valueInput = wrapper.findAllComponents({ name: 'CodeInput' })[1]
+      // When items has a $ref, getResolvedRef should be called
+      // We expect an empty array since we do not have a real ref resolver in tests
+      expect(valueInput?.props('enum')).toEqual([])
+    })
+
+    it('returns empty array when items schema has no enum', () => {
+      const wrapper = mount(RequestTableRow, {
+        props: {
+          data: {
+            name: 'items',
+            value: 'item1',
+            schema: {
+              type: 'array',
+              items: {
+                type: 'string',
+              },
+            },
+          },
+          environment,
+        },
+        global: {
+          stubs: {
+            RouterLink: true,
+          },
+        },
+      })
+
+      const valueInput = wrapper.findAllComponents({ name: 'CodeInput' })[1]
+      expect(valueInput?.props('enum')).toEqual([])
+    })
+
+    it('handles numeric enum values', () => {
+      const wrapper = mount(RequestTableRow, {
+        props: {
+          data: {
+            name: 'priority',
+            value: '1',
+            schema: {
+              type: 'number',
+              enum: [1, 2, 3, 4, 5],
+            },
+          },
+          environment,
+        },
+        global: {
+          stubs: {
+            RouterLink: true,
+          },
+        },
+      })
+
+      const valueInput = wrapper.findAllComponents({ name: 'CodeInput' })[1]
+      // Enum values are converted to strings for display in the select dropdown
+      expect(valueInput?.props('enum')).toEqual(['1', '2', '3', '4', '5'])
+    })
+
+    it('handles mixed type enum values', () => {
+      const wrapper = mount(RequestTableRow, {
+        props: {
+          data: {
+            name: 'mixed',
+            value: 'value1',
+            schema: {
+              type: 'string',
+              enum: ['value1', 2, null, true],
+            },
+          },
+          environment,
+        },
+        global: {
+          stubs: {
+            RouterLink: true,
+          },
+        },
+      })
+
+      const valueInput = wrapper.findAllComponents({ name: 'CodeInput' })[1]
+      // Enum values are converted to strings for display in the select dropdown
+      expect(valueInput?.props('enum')).toEqual(['value1', '2', 'null', 'true'])
+    })
+
+    it('handles empty enum array', () => {
+      const wrapper = mount(RequestTableRow, {
+        props: {
+          data: {
+            name: 'empty',
+            value: '',
+            schema: {
+              type: 'string',
+              enum: [],
+            },
+          },
+          environment,
+        },
+        global: {
+          stubs: {
+            RouterLink: true,
+          },
+        },
+      })
+
+      const valueInput = wrapper.findAllComponents({ name: 'CodeInput' })[1]
+      expect(valueInput?.props('enum')).toEqual([])
+    })
+  })
 })

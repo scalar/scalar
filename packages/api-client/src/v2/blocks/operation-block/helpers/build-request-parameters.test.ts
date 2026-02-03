@@ -1184,6 +1184,28 @@ describe('buildRequestParameters', () => {
           expect(result.urlParams.get('user[name][last]')).toBe('Smith')
           expect(result.urlParams.get('user[role]')).toBe('admin')
         })
+
+        it('ensures we do not use the deepObject style with array items (default to form style)', () => {
+          const params = [
+            {
+              name: 'items',
+              in: 'query',
+              required: true,
+              style: 'deepObject',
+              explode: true,
+              schema: {
+                type: 'array',
+                items: {
+                  type: 'number',
+                },
+              },
+              examples: { default: { value: [1, 2, 3] } },
+            },
+          ] satisfies ParameterObject[]
+
+          const result = buildRequestParameters(params)
+          expect(result.urlParams.toString()).toBe('items=1&items=2&items=3')
+        })
       })
 
       describe('edge cases with objects', () => {

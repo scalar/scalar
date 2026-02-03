@@ -1,4 +1,5 @@
 import { isDefined } from '@scalar/helpers/array/is-defined'
+import { isObject } from '@scalar/helpers/object/is-object'
 import { replaceEnvVariables } from '@scalar/helpers/regex/replace-variables'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import {
@@ -131,6 +132,23 @@ export const buildRequestParameters = (
   return result
 }
 
+/** Ensure we only apply the correcet style to the correct types */
+const getStyle = (param: ParameterObject, replacedValue: unknown): string => {
+  if (!('style' in param) || !param.style) {
+    return 'form'
+  }
+
+  // DeepObject can only apply to objects
+  if (param.style === 'deepObject') {
+    if (isObject(replacedValue)) {
+      return 'deepObject'
+    }
+    return 'form'
+  }
+
+  return param.style
+}
+
 /**
  * Helper function to process query parameters.
  * Extracted to reduce complexity in main function.
@@ -145,7 +163,7 @@ const processQueryParameter = (
   const explodeParam = 'explode' in param && param.explode !== undefined ? param.explode : true
 
   /** Style of the parameter, defaults to form */
-  const style = 'style' in param && param.style ? param.style : 'form'
+  const style = getStyle(param, replacedValue)
 
   // Content type parameters should be serialized according to the parameter's own content type
   if ('content' in param && param.content) {

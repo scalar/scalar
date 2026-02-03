@@ -1,5 +1,22 @@
 # @scalar/java-integration
 
+## 0.5.41
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.44.11**
+
+## 0.5.40
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.44.10**
+  - [#8016](https://github.com/scalar/scalar/pull/8016): feat: move history and auth into their own store
+
 ## 0.5.39
 
 ### Patch Changes

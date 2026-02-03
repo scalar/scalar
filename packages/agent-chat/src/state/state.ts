@@ -4,24 +4,20 @@ import { type ApiReferenceConfigurationRaw, apiReferenceConfigurationSchema } fr
 import { type WorkspaceStore, createWorkspaceStore } from '@scalar/workspace-store/client'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
-import {
-  DefaultChatTransport,
-  type UIDataTypes,
-  type UIMessage,
-  lastAssistantMessageIsCompleteWithApprovalResponses,
-} from 'ai'
+import { DefaultChatTransport, type UIDataTypes, type UIMessage, lastAssistantMessageIsCompleteWithToolCalls } from 'ai'
 import { type ComputedRef, type InjectionKey, type Ref, computed, inject, ref, watch } from 'vue'
 
 import { type Api, createApi, createAuthorizationHeaders } from '@/api'
+import { executeRequestTool } from '@/client-tools/execute-request'
 import type { ApiMetadata } from '@/entities/registry/document'
 import type {
   ASK_FOR_AUTHENTICATION_TOOL_NAME,
   AskForAuthenticationInput,
 } from '@/entities/tools/ask-for-authentication'
-import type {
-  EXECUTE_REQUEST_TOOL_NAME,
-  ExecuteRequestToolInput,
-  ExecuteRequestToolOutput,
+import {
+  EXECUTE_CLIENT_SIDE_REQUEST_TOOL_NAME,
+  type ExecuteClientSideRequestToolInput,
+  type ExecuteClientSideRequestToolOutput,
 } from '@/entities/tools/execute-request'
 import type {
   GET_MINI_OPENAPI_SPEC_TOOL_NAME,
@@ -49,9 +45,9 @@ export type Tools = {
     input: GetMiniOpenAPIDocToolInput
     output: GetMiniOpenAPIDocToolOutput
   }
-  [EXECUTE_REQUEST_TOOL_NAME]: {
-    input: ExecuteRequestToolInput
-    output: ExecuteRequestToolOutput
+  [EXECUTE_CLIENT_SIDE_REQUEST_TOOL_NAME]: {
+    input: ExecuteClientSideRequestToolInput
+    output: ExecuteClientSideRequestToolOutput
   }
   [GET_OPENAPI_SPECS_SUMMARY_TOOL_NAME]: {
     input: object
@@ -77,10 +73,13 @@ type State = {
   registryUrl: string
   dashboardUrl: string
   baseUrl: string
+  isLoggedIn?: Ref<boolean>
   registryDocuments: Ref<ApiMetadata[]>
+  pendingDocuments: Ref<{ namespace: string; slug: string }[]>
   mode: ChatMode
   terms: { accepted: Ref<boolean>; accept: () => void }
   addDocument: (document: { namespace: string; slug: string; removable?: boolean }) => Promise<void>
+  addDocumentAsync: (document: { namespace: string; slug: string; removable?: boolean }) => Promise<void>
   removeDocument: (document: { namespace: string; slug: string }) => void
   getAccessToken?: () => string
   getAgentKey?: () => string
@@ -103,8 +102,8 @@ function createChat({
   getAccessToken?: () => string
   getAgentKey?: () => string
 }) {
-  return new Chat<UIMessage<unknown, UIDataTypes, Tools>>({
-    sendAutomaticallyWhen: lastAssistantMessageIsCompleteWithApprovalResponses,
+  const chat = new Chat<UIMessage<unknown, UIDataTypes, Tools>>({
+    sendAutomaticallyWhen: lastAssistantMessageIsCompleteWithToolCalls,
     transport: new DefaultChatTransport({
       api: makeScalarProxyUrl(`${baseUrl}/vector/openapi/chat`),
       headers: () => createAuthorizationHeaders({ getAccessToken, getAgentKey }),
@@ -113,7 +112,26 @@ function createChat({
         documentSettings: createDocumentSettings(workspaceStore),
       }),
     }),
+    async onToolCall({ toolCall }): Promise<any> {
+      if (toolCall.dynamic) {
+        return
+      }
+
+      if (
+        toolCall.toolName === EXECUTE_CLIENT_SIDE_REQUEST_TOOL_NAME &&
+        toolCall.input.method.toLowerCase() === 'get'
+      ) {
+        await executeRequestTool({
+          documentSettings: createDocumentSettings(workspaceStore),
+          input: toolCall.input,
+          toolCallId: toolCall.toolCallId,
+          chat,
+        })
+      }
+    },
   })
+
+  return chat
 }
 
 export function createState({
@@ -122,6 +140,7 @@ export function createState({
   dashboardUrl,
   baseUrl,
   mode,
+  isLoggedIn,
   getAccessToken,
   getAgentKey,
   getActiveDocumentJson,
@@ -132,6 +151,7 @@ export function createState({
   dashboardUrl: string
   baseUrl: string
   mode: ChatMode
+  isLoggedIn?: Ref<boolean>
   getAccessToken?: () => string
   getAgentKey?: () => string
   getActiveDocumentJson?: () => string
@@ -139,6 +159,7 @@ export function createState({
 }): State {
   const prompt = ref<State['prompt']['value']>(prefilledMessageRef?.value ?? '')
   const registryDocuments = ref<ApiMetadata[]>([])
+  const pendingDocuments = ref<{ namespace: string; slug: string }[]>([])
   const curatedDocuments = ref<ApiMetadata[]>([])
   const proxyUrl = ref<State['proxyUrl']['value']>('https://proxy.scalar.com')
   const uploadedTmpDocumentUrl = ref<string>()
@@ -229,6 +250,52 @@ export function createState({
     })
   }
 
+  /**
+   * Waits for document to be available in embeddings
+   * and adds to the list
+   */
+  async function addDocumentAsync({
+    namespace,
+    slug,
+    removable = true,
+  }: {
+    namespace: string
+    slug: string
+    removable?: boolean
+  }) {
+    const matchingDoc = registryDocuments.value.find((doc) => doc.namespace === namespace && doc.slug === slug)
+
+    if (matchingDoc) {
+      return
+    }
+
+    pendingDocuments.value.push({ namespace, slug })
+
+    const embeddingStatusResponse = await fetch(
+      makeScalarProxyUrl(`${baseUrl}/vector/registry/embeddings/${namespace}/${slug}`),
+      {
+        method: 'GET',
+      },
+    )
+
+    pendingDocuments.value = pendingDocuments.value.filter((d) => d.namespace !== namespace || d.slug !== slug)
+
+    if (!embeddingStatusResponse.ok) {
+      return
+    }
+
+    await loadDocument({
+      namespace,
+      slug,
+      workspaceStore,
+      registryUrl,
+      registryDocuments,
+      config: config.value,
+      api,
+      removable,
+    })
+  }
+
   function removeDocument({ namespace, slug }: { namespace: string; slug: string }) {
     registryDocuments.value = registryDocuments.value.filter(
       (doc) => !(doc.namespace === namespace && doc.slug === slug),
@@ -251,10 +318,13 @@ export function createState({
     dashboardUrl,
     baseUrl,
     registryDocuments,
+    pendingDocuments,
     proxyUrl,
     mode,
     terms,
+    isLoggedIn,
     addDocument,
+    addDocumentAsync,
     removeDocument,
     getAccessToken,
     getAgentKey,

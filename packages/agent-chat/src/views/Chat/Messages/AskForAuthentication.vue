@@ -79,7 +79,6 @@ async function authorizeClicked() {
     tool: ASK_FOR_AUTHENTICATION_TOOL_NAME,
     state: 'output-available',
   })
-  await chat.sendMessage()
 }
 </script>
 

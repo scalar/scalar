@@ -9,6 +9,7 @@ import {
 } from '@scalar/icons'
 import { computed, useTemplateRef, watch } from 'vue'
 
+import ActionsDropdown from '@/components/ActionsDropdown.vue'
 import ApprovalSection from '@/components/ApprovalSection.vue'
 import ErrorMessageMessage from '@/components/ErrorMessage.vue'
 import FreeMessagesInfoSection from '@/components/FreeMessagesInfoSection.vue'
@@ -17,7 +18,7 @@ import SearchPopover from '@/components/SearchPopover.vue'
 import UploadSection from '@/components/UploadSection.vue'
 import { AgentErrorCodes } from '@/entities/error/constants'
 import { MAX_PROMPT_SIZE } from '@/entities/prompt/constants'
-import { useChatApprovals } from '@/hooks/use-chat-approvals'
+import { useRequestApprovals } from '@/hooks/use-chat-approvals'
 import { useChatError } from '@/hooks/use-chat-error'
 import { useChatPendingClientToolParts } from '@/hooks/use-chat-pending-client-tool-parts'
 import { useUploadTmpDocument } from '@/hooks/use-upload-tmp-document'
@@ -25,6 +26,7 @@ import { useState } from '@/state/state'
 
 const emit = defineEmits<{
   (e: 'submit'): void
+  (e: 'uploadApi'): void
 }>()
 
 defineExpose({ focusPrompt })
@@ -85,7 +87,8 @@ watch(
   },
 )
 
-const { respondToToolCalls, approvalRequestedParts } = useChatApprovals()
+const { approvalRequiredParts, respondToRequestApprovals } =
+  useRequestApprovals()
 
 const { pendingClientToolParts } = useChatPendingClientToolParts()
 
@@ -102,7 +105,7 @@ function acceptTerms() {
 const submitDisabled = computed(() => {
   const tooLarge = promptTooLarge.value
   const missingInput = !inputHasContent.value
-  const awaitingApproval = approvalRequestedParts.value.length > 0
+  const awaitingApproval = approvalRequiredParts.value.length > 0
   const pendingToolParts = pendingClientToolParts.value.length > 0
 
   const isPreview = state.mode === 'preview'
@@ -134,19 +137,18 @@ const chatError = useChatError()
 <template>
   <div class="actionContainer">
     <UploadSection
-      v-if="uploadTmpDoc.uploadState.value"
-      :uploadState="uploadTmpDoc.uploadState.value" />
+      v-if="
+        uploadTmpDoc.uploadState.value || state.pendingDocuments.value.length
+      "
+      :uploadState="uploadTmpDoc.uploadState.value ?? { type: 'processing' }" />
     <ErrorMessageMessage
       v-if="chatError"
       :error="chatError" />
     <ApprovalSection
-      v-if="approvalRequestedParts.length"
-      @approve="respondToToolCalls(true)"
-      @reject="respondToToolCalls(false)" />
-    <PaymentSection
-      v-if="chatError?.code === AgentErrorCodes.LIMIT_REACHED"
-      @approve="respondToToolCalls(true)"
-      @reject="respondToToolCalls(false)" />
+      v-if="approvalRequiredParts.length"
+      @approve="respondToRequestApprovals(true)"
+      @reject="respondToRequestApprovals(false)" />
+    <PaymentSection v-if="chatError?.code === AgentErrorCodes.LIMIT_REACHED" />
     <FreeMessagesInfoSection v-if="showFreeMessagesInfo" />
     <form
       class="promptForm"
@@ -167,7 +169,7 @@ const chatError = useChatError()
         @keydown="handlePromptKeydown" />
       <div class="inputActionsContainer">
         <div class="inputActionsLeft">
-          <SearchPopover>
+          <SearchPopover v-if="!state.isLoggedIn?.value">
             <button
               class="addAPIButton"
               type="button">
@@ -176,6 +178,17 @@ const chatError = useChatError()
                 weight="bold" />
             </button>
           </SearchPopover>
+          <ActionsDropdown
+            v-else
+            @uploadApi="$emit('uploadApi')">
+            <button
+              class="addAPIButton"
+              type="button">
+              <ScalarIconPlus
+                class="size-4"
+                weight="bold" />
+            </button>
+          </ActionsDropdown>
           <div
             v-for="document in state.registryDocuments.value"
             :key="document.id"

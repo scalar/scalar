@@ -82,6 +82,7 @@ catalogs:
     supertest: '7.2.2'
     tailwindcss: ^4.1.18
     type-fest: ^5.3.1
+    truncate-json: 3.0.1
     vite-node: 5.2.0
     vite-ssg: 28.1.0
     vite-svg-loader: 5.1.0
@@ -93,7 +94,6 @@ catalogs:
     whatwg-mimetype: 4.0.0
     yaml: ^2.8.0
     zod: ^4.3.5
-
 ignoredBuiltDependencies:
   - '@firebase/util'
   - core-js

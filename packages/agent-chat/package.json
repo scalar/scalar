@@ -10,7 +10,7 @@
     "url": "git+https://github.com/scalar/scalar.git",
     "directory": "packages/agent-chat"
   },
-  "version": "0.4.8",
+  "version": "0.5.2",
   "engines": {
     "node": ">=20"
   },
@@ -62,6 +62,7 @@
     "@vueuse/core": "catalog:*",
     "ai": "catalog:*",
     "neverpanic": "catalog:*",
+    "truncate-json": "catalog:*",
     "vue": "catalog:*",
     "whatwg-mimetype": "catalog:*",
     "zod": "catalog:*"

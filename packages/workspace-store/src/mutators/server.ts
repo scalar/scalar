@@ -223,11 +223,6 @@ export const updateSelectedServer = (
     return ''
   }
 
-  // If no servers match then return undefined
-  if (!document.servers?.some((server) => server.url === url)) {
-    return
-  }
-
   /**
    * [un]set it and return the url,
    * we specifically use en empty string to indicate that the user has unset the selected server

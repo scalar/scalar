@@ -1,5 +1,24 @@
 # @scalar/api-reference-react
 
+## 0.8.48
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.44.11**
+
+## 0.8.47
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.44.10**
+  - [#8016](https://github.com/scalar/scalar/pull/8016): feat: move history and auth into their own store
+
+- **@scalar/types@0.6.2**
+
 ## 0.8.46
 
 ### Patch Changes
