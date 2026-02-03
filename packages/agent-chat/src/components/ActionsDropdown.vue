@@ -6,14 +6,12 @@ import {
 } from '@scalar/components'
 import { ScalarIconMagnifyingGlass, ScalarIconUpload } from '@scalar/icons'
 
-import { useState } from '@/state/state'
 import Catalog from '@/views/Catalog/Catalog.vue'
 
 defineEmits<{
   (e: 'uploadApi'): void
 }>()
 
-const state = useState()
 const catalogModal = useModal()
 </script>
 
@@ -22,9 +20,7 @@ const catalogModal = useModal()
     <slot />
 
     <template #items>
-      <ScalarDropdownItem
-        v-if="state.isLoggedIn?.value"
-        @click="$emit('uploadApi')">
+      <ScalarDropdownItem @click="$emit('uploadApi')">
         <div class="dropdown-item">
           <ScalarIconUpload />
           Upload API
