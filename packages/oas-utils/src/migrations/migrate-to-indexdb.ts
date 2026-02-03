@@ -88,7 +88,6 @@ export const transformLegacyDataToWorkspace = (
           // Preserve scalar extensions
           'x-scalar-icon': collection['x-scalar-icon'],
           'x-scalar-environments': collection['x-scalar-environments'],
-          'x-scalar-secrets': collection['x-scalar-secrets'],
           'x-scalar-original-document-hash': '',
         })
       })
@@ -167,13 +166,6 @@ export const transformLegacyDataToWorkspace = (
           originalDocuments: {},
           intermediateDocuments: {},
           overrides: {},
-          documentConfigs: Object.keys(documents).reduce(
-            (acc, docName) => {
-              acc[docName] = {}
-              return acc
-            },
-            {} as Record<string, Config>,
-          ),
         },
       })
     })
@@ -201,7 +193,6 @@ export const transformLegacyDataToWorkspace = (
         externalDocs: collection.externalDocs,
         'x-scalar-icon': collection['x-scalar-icon'],
         'x-scalar-environments': collection['x-scalar-environments'],
-        'x-scalar-secrets': collection['x-scalar-secrets'],
         'x-scalar-original-document-hash': '',
       } as OpenApiDocument
     })
@@ -261,7 +252,7 @@ export const transformLegacyDataToWorkspace = (
         originalDocuments: {},
         intermediateDocuments: {},
         overrides: {},
-        documentConfigs: {},
+        history: {},
       },
     })
   }
@@ -287,9 +278,8 @@ export const transformLegacyDataToWorkspace = (
         originalDocuments: {},
         intermediateDocuments: {},
         overrides: {},
-        documentConfigs: {
-          default: {},
-        },
+        history: {},
+        auth: {},
       },
     })
   }
