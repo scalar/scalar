@@ -1,5 +1,19 @@
 # @scalar/sidebar
 
+## 0.7.26
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.28.2**
+  - [#8016](https://github.com/scalar/scalar/pull/8016): feat: move history and auth into their own store
+
+- **@scalar/helpers@0.2.11**
+  - [#8016](https://github.com/scalar/scalar/pull/8016): feat: move history and auth into their own store
+
+- **@scalar/components@0.17.3**
+
 ## 0.7.25
 
 ### Patch Changes

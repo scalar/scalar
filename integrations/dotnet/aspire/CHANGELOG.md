@@ -1,5 +1,16 @@
 # @scalar/aspire
 
+## 0.8.40
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.44.10**
+  - [#8016](https://github.com/scalar/scalar/pull/8016): feat: move history and auth into their own store
+
+- **@scalar/dotnet-shared@0.1.1**
+
 ## 0.8.39
 
 ### Patch Changes

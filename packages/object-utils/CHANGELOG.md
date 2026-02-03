@@ -1,5 +1,14 @@
 # @scalar/object-utils
 
+## 1.2.25
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/helpers@0.2.11**
+  - [#8016](https://github.com/scalar/scalar/pull/8016): feat: move history and auth into their own store
+
 ## 1.2.24
 
 ### Patch Changes

@@ -1,5 +1,17 @@
 # @scalar/api-client-react
 
+## 1.3.86
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-client@2.23.1**
+  - [#8016](https://github.com/scalar/scalar/pull/8016): feat: move history and auth into their own store
+  - [#7992](https://github.com/scalar/scalar/pull/7992): feat: hide code snippets without clients
+
+- **@scalar/types@0.6.2**
+
 ## 1.3.85
 
 ### Patch Changes

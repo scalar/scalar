@@ -1,5 +1,24 @@
 # @scalar/openapi-to-markdown
 
+## 0.3.36
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/helpers@0.2.11**
+  - [#8016](https://github.com/scalar/scalar/pull/8016): feat: move history and auth into their own store
+
+- **@scalar/oas-utils@0.6.33**
+
+- **@scalar/components@0.17.3**
+
+- **@scalar/openapi-parser@0.24.7**
+
+- **@scalar/types@0.6.2**
+
+- **@scalar/openapi-upgrader@0.1.8**
+
 ## 0.3.35
 
 ### Patch Changes

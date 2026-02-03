@@ -1,5 +1,19 @@
 # scalar-app
 
+## 0.1.279
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-client@2.23.1**
+  - [#8016](https://github.com/scalar/scalar/pull/8016): feat: move history and auth into their own store
+  - [#7992](https://github.com/scalar/scalar/pull/7992): feat: hide code snippets without clients
+
+- **@scalar/components@0.17.3**
+
+- **@scalar/import@0.4.48**
+
 ## 0.1.278
 
 ### Patch Changes
