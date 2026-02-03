@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ScalarButton, ScalarIcon, ScalarIconButton } from '@scalar/components'
 import { ScalarIconGlobe, ScalarIconTrash } from '@scalar/icons'
+import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { unpackProxyObject } from '@scalar/workspace-store/helpers/unpack-proxy'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type {
@@ -110,7 +111,29 @@ const displayValue = computed(
 )
 
 const defaultValue = computed(() => data.schema?.default as string)
-const enumValue = computed(() => data.schema?.enum as string[])
+
+/** See if we can extract enum values from the schema */
+const enumValue = computed<string[]>(() => {
+  if (!data.schema) {
+    return []
+  }
+
+  // Grab the enum from the schema
+  if (data.schema.enum) {
+    return data.schema.enum.map((item) => String(item))
+  }
+
+  // Grab the enum from the items schema
+  if ('items' in data.schema) {
+    const resolved = getResolvedRef(data.schema.items)
+    if (resolved?.enum) {
+      return resolved.enum.map((item) => String(item))
+    }
+  }
+
+  return []
+})
+
 const minimumValue = computed(() =>
   data.schema && 'minimum' in data.schema ? data.schema.minimum : undefined,
 )
@@ -189,7 +212,7 @@ const handleUpdateRow = (
         :disabled="data.isReadonly"
         disableEnter
         disableTabIndent
-        :enum="enumValue ?? []"
+        :enum="enumValue"
         :environment="environment"
         :examples="
           data.schema?.examples?.map((example) => String(example)) ?? []
