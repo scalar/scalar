@@ -1,3 +1,4 @@
+import type { SecuritySchemeObjectSecret } from '@scalar/api-client/v2/blocks/scalar-auth-selector-block'
 import { getSelectedServer } from '@scalar/api-client/v2/features/operation'
 import { getServers } from '@scalar/api-client/v2/helpers'
 import { REFERENCE_LS_KEYS, safeLocalStorage } from '@scalar/helpers/object/local-storage'
@@ -37,7 +38,7 @@ function getSecurityFromDocument(documentName: string, document: WorkspaceDocume
     }
 
     return acc
-  }, [])
+  }, []) as SecuritySchemeObjectSecret[]
 }
 
 /** Generate document settings from workspace store */

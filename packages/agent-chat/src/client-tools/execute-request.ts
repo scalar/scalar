@@ -1,8 +1,8 @@
 import type { Chat } from '@ai-sdk/vue'
 import { buildRequestSecurity, getResolvedUrl } from '@scalar/api-client/v2/blocks/operation-block'
+import type { SecuritySchemeObjectSecret } from '@scalar/api-client/v2/blocks/scalar-auth-selector-block'
 import { redirectToProxy } from '@scalar/helpers/url/redirect-to-proxy'
 import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import type { SecuritySchemeObject } from '@scalar/workspace-store/schemas/v3.1/strict/security-scheme'
 import type { UIDataTypes, UIMessage } from 'ai'
 import { n } from 'neverpanic'
 import truncateJson from 'truncate-json'
@@ -90,7 +90,10 @@ export const executeRequestTool = n.safeFn(
     chat,
     input: { method, path, body, headers, documentIdentifier },
   }: {
-    documentSettings: Record<string, { activeServer: ServerObject | null; securitySchemes: SecuritySchemeObject[] }>
+    documentSettings: Record<
+      string,
+      { activeServer: ServerObject | null; securitySchemes: SecuritySchemeObjectSecret[] }
+    >
     toolCallId: string
     chat: Chat<UIMessage<unknown, UIDataTypes, Tools>>
     input: {
