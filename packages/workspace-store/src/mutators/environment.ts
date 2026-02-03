@@ -1,4 +1,5 @@
 import type { EnvironmentEvents } from '@/events/definitions/environment'
+import { unpackProxyObject } from '@/helpers/unpack-proxy'
 import type { Workspace, WorkspaceDocument } from '@/schemas'
 import {
   type XScalarEnvVar,
@@ -39,7 +40,7 @@ export const upsertEnvironment = (
 
   // Ensure we parse the payload but keep the old variables
   const parsed = coerceValue(xScalarEnvironmentSchema, {
-    ...collection['x-scalar-environments'][oldEnvironmentName ?? environmentName],
+    ...unpackProxyObject(collection['x-scalar-environments'][oldEnvironmentName ?? environmentName], { depth: 1 }),
     ...payload,
   })
   collection['x-scalar-environments'][environmentName] = parsed
