@@ -24,7 +24,7 @@ import {
 } from './ref-definitions'
 import { type ReferenceObject, ReferenceObjectSchema } from './reference'
 
-type ReferenceType<Value> = Value | (ReferenceObject & { '$ref-value': unknown })
+export type SchemaReferenceType<Value> = Value | (ReferenceObject & { '$ref-value': unknown })
 
 const schemaOrReference = Type.Union([
   SchemaObjectRef,
@@ -155,7 +155,7 @@ type CoreProperties = {
   /** Content encoding. */
   contentEncoding?: string
   /** Schema for content validation. */
-  contentSchema?: ReferenceType<SchemaObject>
+  contentSchema?: SchemaReferenceType<SchemaObject>
   /** Whether the schema is deprecated. */
   deprecated?: boolean
   /** Adds support for polymorphism. The discriminator is used to determine which of a set of schemas a payload is expected to satisfy. See Composition and Inheritance for more details. */
@@ -180,13 +180,13 @@ type CoreProperties = {
    */
   examples?: unknown[]
   /** All schemas must be valid. */
-  allOf?: ReferenceType<SchemaObject>[]
+  allOf?: SchemaReferenceType<SchemaObject>[]
   /** Exactly one schema must be valid. */
-  oneOf?: ReferenceType<SchemaObject>[]
+  oneOf?: SchemaReferenceType<SchemaObject>[]
   /** At least one schema must be valid. */
-  anyOf?: ReferenceType<SchemaObject>[]
+  anyOf?: SchemaReferenceType<SchemaObject>[]
   /** Schema must not be valid. */
-  not?: ReferenceType<SchemaObject>
+  not?: SchemaReferenceType<SchemaObject>
 }
 
 /**
@@ -338,9 +338,9 @@ type ArrayObject = CoreProperties & {
   /** Whether array items must be unique. */
   uniqueItems?: boolean
   /** Schema for array items. */
-  items?: ReferenceType<SchemaObject>
+  items?: SchemaReferenceType<SchemaObject>
   /** Schema for tuple validation. */
-  prefixItems?: ReferenceType<SchemaObject>[]
+  prefixItems?: SchemaReferenceType<SchemaObject>[]
 } & Extensions
 
 const ObjectValidationPropertiesWithSchema = Type.Object({
@@ -368,11 +368,11 @@ type ObjectObject = CoreProperties & {
   /** Array of required property names. */
   required?: string[]
   /** Object property definitions. */
-  properties?: Record<string, ReferenceType<SchemaObject>>
+  properties?: Record<string, SchemaReferenceType<SchemaObject>>
   /** Schema for additional properties. */
-  additionalProperties?: boolean | ReferenceType<SchemaObject>
+  additionalProperties?: boolean | SchemaReferenceType<SchemaObject>
   /** Properties matching regex patterns. */
-  patternProperties?: Record<string, ReferenceType<SchemaObject>>
+  patternProperties?: Record<string, SchemaReferenceType<SchemaObject>>
 } & Extensions
 
 /** Builds the recursive schema schema */
@@ -390,4 +390,4 @@ export const SchemaObjectSchemaDefinition = Type.Union([
 ])
 
 export type SchemaObject = _InternalType | OtherTypes | NumericObject | StringObject | ObjectObject | ArrayObject
-export type MaybeRefSchemaObject = ReferenceType<SchemaObject>
+export type MaybeRefSchemaObject = SchemaReferenceType<SchemaObject>

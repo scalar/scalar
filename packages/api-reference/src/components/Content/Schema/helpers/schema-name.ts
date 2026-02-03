@@ -1,5 +1,5 @@
 import { resolve } from '@scalar/workspace-store/resolve'
-import type { ReferenceType, SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { SchemaObject, SchemaReferenceType } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { isArraySchema } from '@scalar/workspace-store/schemas/v3.1/strict/type-guards'
 
 import { getRefName } from './get-ref-name'
@@ -9,7 +9,9 @@ import { getRefName } from './get-ref-name'
  *
  * Handles $ref, title, name, type, and schema dictionary lookup
  */
-export const getModelNameFromSchema = (schemaOrRef: SchemaObject | ReferenceType<SchemaObject>): string | null => {
+export const getModelNameFromSchema = (
+  schemaOrRef: SchemaObject | SchemaReferenceType<SchemaObject>,
+): string | null => {
   if (!schemaOrRef) {
     return null
   }
@@ -69,7 +71,7 @@ export const getModelName = (value: SchemaObject, hideModelNames = false): strin
       return formatTypeWithModel(valueType, itemName)
     }
 
-    // Use the model name
+    // Use the model name from the original reference
     const itemModelName = getModelNameFromSchema(items)
     if (itemModelName && 'type' in items && itemModelName !== items.type) {
       return formatTypeWithModel(valueType, itemModelName)
