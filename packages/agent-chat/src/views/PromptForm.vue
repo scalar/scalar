@@ -171,7 +171,7 @@ const chatError = useChatError()
         @keydown="handlePromptKeydown" />
       <div class="inputActionsContainer">
         <div class="inputActionsLeft">
-          <SearchPopover v-if="state.isLoggedIn?.value">
+          <SearchPopover v-if="!state.isLoggedIn?.value">
             <button
               class="addAPIButton"
               type="button">
