@@ -1,5 +1,16 @@
 # @scalar/nuxt
 
+## 0.5.68
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-client@2.23.2**
+  - [#8027](https://github.com/scalar/scalar/pull/8027): feat(agent): add client side request tool
+
+- **@scalar/api-reference@1.44.11**
+
 ## 0.5.67
 
 ### Patch Changes

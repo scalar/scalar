@@ -1,5 +1,16 @@
 # @scalar/agent-chat
 
+## 0.5.2
+
+### Patch Changes
+
+- [#8027](https://github.com/scalar/scalar/pull/8027): feat(agent): add client side request tool
+
+#### Updated Dependencies
+
+- **@scalar/api-client@2.23.2**
+  - [#8027](https://github.com/scalar/scalar/pull/8027): feat(agent): add client side request tool
+
 ## 0.5.1
 
 ### Patch Changes
