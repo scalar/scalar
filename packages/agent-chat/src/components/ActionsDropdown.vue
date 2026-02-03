@@ -24,7 +24,6 @@ const catalogModal = useModal()
     <template #items>
       <ScalarDropdownItem
         v-if="state.isLoggedIn?.value"
-        class="dropdown-item"
         @click="$emit('uploadApi')">
         <div class="dropdown-item">
           <ScalarIconUpload />
