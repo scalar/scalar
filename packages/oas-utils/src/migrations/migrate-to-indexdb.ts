@@ -7,7 +7,6 @@ import {
   type OpenApiDocument,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import type { WorkspaceMeta } from '@scalar/workspace-store/schemas/workspace'
-import type { Config } from '@scalar/workspace-store/schemas/workspace-specification/config'
 
 import { DATA_VERSION_LS_LEY } from '@/migrations/data-version'
 import { migrator } from '@/migrations/migrator'
