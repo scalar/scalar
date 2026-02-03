@@ -28,7 +28,7 @@ export type SchemaReferenceType<Value> = Value | (ReferenceObject & { '$ref-valu
 
 const schemaOrReference = Type.Union([
   SchemaObjectRef,
-  Type.Intersect([ReferenceObjectSchema, Type.Object({ '$ref-value': Type.Unknown() })]),
+  compose(ReferenceObjectSchema, Type.Object({ '$ref-value': Type.Unknown() })),
 ])
 
 /** We use this type to ensure that we are parsing a schema object as every property can be optional */

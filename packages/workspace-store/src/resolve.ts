@@ -1,6 +1,7 @@
 import { Type } from '@scalar/typebox'
 
 import { type RefNode, getResolvedRef } from '@/helpers/get-resolved-ref'
+import { compose } from '@/schemas/compose'
 import { coerceValue } from '@/schemas/typebox-coerce'
 import { SchemaObjectSchema } from '@/schemas/v3.1/strict/openapi-document'
 import type { MaybeRefSchemaObject, SchemaObject } from '@/schemas/v3.1/strict/schema'
@@ -13,7 +14,7 @@ const mergeSiblingReferences = <Node>(node: RefNode<Node>) => {
   }
 }
 
-type ResolvedSchema<T> = T extends undefined ? undefined : SchemaObject & { $ref: string }
+type ResolvedSchema<T> = T extends undefined ? undefined : SchemaObject & { $ref?: string }
 
 export const resolve = {
   schema: <T extends MaybeRefSchemaObject | undefined>(schema: T): ResolvedSchema<T> => {
@@ -23,7 +24,7 @@ export const resolve = {
 
     const resoled = getResolvedRef(schema, mergeSiblingReferences)
     return coerceValue(
-      Type.Intersect([SchemaObjectSchema, Type.Object({ $ref: Type.String() })]),
+      compose(SchemaObjectSchema, Type.Object({ $ref: Type.Optional(Type.String()) })),
       resoled,
     ) as ResolvedSchema<T>
   },

@@ -768,6 +768,7 @@ describe('mergeAllOfSchemas', () => {
     const result = mergeAllOfSchemas(schema as any)
 
     expect(result).toStrictEqual({
+      $ref: '#/components/schemas/BaseEntity',
       type: 'object',
       properties: {
         id: { type: 'string' },
