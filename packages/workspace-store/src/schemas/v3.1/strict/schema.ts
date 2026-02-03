@@ -22,9 +22,14 @@ import {
   SchemaObjectRef,
   XMLObjectRef,
 } from './ref-definitions'
-import { type ReferenceType, reference } from './reference'
+import { type ReferenceObject, ReferenceObjectSchema } from './reference'
 
-const schemaOrReference = Type.Union([SchemaObjectRef, reference(SchemaObjectRef)])
+type ReferenceType<Value> = Value | (ReferenceObject & { '$ref-value': unknown })
+
+const schemaOrReference = Type.Union([
+  SchemaObjectRef,
+  Type.Intersect([ReferenceObjectSchema, Type.Object({ '$ref-value': Type.Unknown() })]),
+])
 
 /** We use this type to ensure that we are parsing a schema object as every property can be optional */
 type _InternalType = CoreProperties & {
@@ -385,3 +390,4 @@ export const SchemaObjectSchemaDefinition = Type.Union([
 ])
 
 export type SchemaObject = _InternalType | OtherTypes | NumericObject | StringObject | ObjectObject | ArrayObject
+export type MaybeRefSchemaObject = ReferenceType<SchemaObject>

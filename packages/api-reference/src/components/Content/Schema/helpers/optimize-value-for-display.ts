@@ -1,4 +1,4 @@
-import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import { resolve } from '@scalar/workspace-store/resolve'
 import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
 import { compositions } from './schema-composition'
@@ -36,7 +36,7 @@ export function optimizeValueForDisplay(value: SchemaObject | undefined): Schema
   // Check for null schemas and filter them out in one pass
   const { filteredSchemas, hasNullSchema } = schemas.reduce(
     (acc, _schema) => {
-      const schema = getResolvedRef(_schema)
+      const schema = resolve.schema(_schema)
 
       if ('type' in schema && schema.type === 'null') {
         acc.hasNullSchema = true
@@ -71,12 +71,12 @@ export function optimizeValueForDisplay(value: SchemaObject | undefined): Schema
 
   if (shouldMergeRootProperties) {
     const mergedSchemas = filteredSchemas.map((_schema) => {
-      const schema = getResolvedRef(_schema)
+      const schema = resolve.schema(_schema)
 
       // Flatten single-item allOf and merge with root properties
       if (schema.allOf?.length === 1) {
         const { allOf, ...otherProps } = schema
-        return { ...rootProperties, ...otherProps, ...getResolvedRef(allOf[0]) }
+        return { ...rootProperties, ...otherProps, ...resolve.schema(allOf[0]) }
       }
       return { ...rootProperties, ...schema }
     })

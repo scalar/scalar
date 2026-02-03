@@ -1,5 +1,5 @@
 import { isDefined } from '@scalar/helpers/array/is-defined'
-import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import { resolve } from '@scalar/workspace-store/resolve'
 import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { isArraySchema } from '@scalar/workspace-store/schemas/v3.1/strict/type-guards'
 
@@ -28,7 +28,7 @@ export const getCompositionsToRender = (value: SchemaObject | undefined): Compos
       if (shouldRenderArrayItemComposition(value, composition) && isArraySchema(value) && value.items) {
         return {
           composition,
-          value: getResolvedRef(value.items),
+          value: resolve.schema(value.items),
         }
       }
 
@@ -41,7 +41,7 @@ export const getCompositionsToRender = (value: SchemaObject | undefined): Compos
         if (!hasArrayItemComposition) {
           return {
             composition,
-            value: getResolvedRef(value),
+            value: resolve.schema(value),
           }
         }
       }

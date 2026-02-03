@@ -1,7 +1,7 @@
 import { isDefined } from '@scalar/helpers/array/is-defined'
 import { getRaw } from '@scalar/json-magic/magic-proxy'
-import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { unpackOverridesProxy } from '@scalar/workspace-store/helpers/overrides-proxy'
+import { resolve } from '@scalar/workspace-store/resolve'
 import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
 /** Maximum recursion depth to prevent infinite loops in circular references */
@@ -220,7 +220,7 @@ const handleObjectSchema = (
 
     for (let i = 0; i < limit; i++) {
       const propertyName = propertyNames[i]!
-      const propertySchema = getResolvedRef(schema.properties[propertyName])
+      const propertySchema = resolve.schema(schema.properties[propertyName])
       if (!propertySchema) {
         continue
       }
@@ -245,7 +245,7 @@ const handleObjectSchema = (
 
   if ('patternProperties' in schema && schema.patternProperties) {
     for (const pattern of Object.keys(schema.patternProperties)) {
-      const propertySchema = getResolvedRef(schema.patternProperties[pattern])
+      const propertySchema = resolve.schema(schema.patternProperties[pattern])
       if (!propertySchema) {
         continue
       }
@@ -259,7 +259,10 @@ const handleObjectSchema = (
   }
 
   if ('additionalProperties' in schema && schema.additionalProperties) {
-    const additional = getResolvedRef(schema.additionalProperties)
+    const additional =
+      typeof schema.additionalProperties === 'boolean'
+        ? schema.additionalProperties
+        : resolve.schema(schema.additionalProperties)
     const isAnyType =
       schema.additionalProperties === true ||
       (typeof schema.additionalProperties === 'object' && Object.keys(schema.additionalProperties).length === 0)
@@ -286,7 +289,7 @@ const handleObjectSchema = (
   if (schema.oneOf?.[0]) {
     Object.assign(
       response,
-      getExampleFromSchema(getResolvedRef(schema.oneOf[0]), options, {
+      getExampleFromSchema(resolve.schema(schema.oneOf[0]), options, {
         level: level + 1,
         seen,
       }),
@@ -296,7 +299,7 @@ const handleObjectSchema = (
   else if (schema.anyOf?.[0]) {
     Object.assign(
       response,
-      getExampleFromSchema(getResolvedRef(schema.anyOf[0]), options, {
+      getExampleFromSchema(resolve.schema(schema.anyOf[0]), options, {
         level: level + 1,
         seen,
       }),
@@ -306,7 +309,7 @@ const handleObjectSchema = (
   else if (Array.isArray(schema.allOf) && schema.allOf.length > 0) {
     let merged: unknown = response
     for (const item of schema.allOf) {
-      const ex = getExampleFromSchema(getResolvedRef(item), options, {
+      const ex = getExampleFromSchema(resolve.schema(item), options, {
         level: level + 1,
         parentSchema: schema,
         seen,
@@ -335,7 +338,7 @@ const handleArraySchema = (
   seen: WeakSet<object>,
   cacheKey: string,
 ) => {
-  const items = 'items' in schema ? getResolvedRef(schema.items) : undefined
+  const items = 'items' in schema ? resolve.schema(schema.items) : undefined
   const itemsXmlTagName = items && typeof items === 'object' && 'xml' in items ? items.xml?.name : undefined
   const wrapItems = !!(options?.xml && 'xml' in schema && schema.xml?.wrapped && itemsXmlTagName)
 
@@ -346,7 +349,7 @@ const handleArraySchema = (
   if (items && typeof items === 'object') {
     if (Array.isArray(items.allOf) && items.allOf.length > 0) {
       const allOf = items.allOf.filter(isDefined)
-      const first = getResolvedRef(allOf[0])
+      const first = resolve.schema(allOf[0])
 
       if (first && typeof first === 'object' && 'type' in first && first.type === 'object') {
         const combined: SchemaObject = { type: 'object', allOf }
@@ -359,8 +362,8 @@ const handleArraySchema = (
       }
 
       const examples = allOf
-        .map((s: any) =>
-          getExampleFromSchema(getResolvedRef(s), options, {
+        .map((s) =>
+          getExampleFromSchema(resolve.schema(s), options, {
             level: level + 1,
             parentSchema: schema,
             seen,
@@ -376,8 +379,8 @@ const handleArraySchema = (
 
     const union = items.anyOf || items.oneOf
     if (union && union.length > 0) {
-      const first = union[0] as SchemaObject
-      const ex = getExampleFromSchema(getResolvedRef(first), options, {
+      const first = union[0]!
+      const ex = getExampleFromSchema(resolve.schema(first), options, {
         level: level + 1,
         parentSchema: schema,
         seen,
@@ -505,7 +508,7 @@ export const getExampleFromSchema = (
   }> = {},
 ): unknown => {
   // Resolve any $ref references to get the actual schema
-  const _schema = getResolvedRef(schema)
+  const _schema = resolve.schema(schema)
   if (!isDefined(_schema)) {
     return undefined
   }
@@ -604,7 +607,7 @@ export const getExampleFromSchema = (
   if (Array.isArray(discriminate) && discriminate.length > 0) {
     // Find the first non-null type without allocating intermediate arrays
     for (const item of discriminate) {
-      const resolved = getResolvedRef(item)
+      const resolved = resolve.schema(item)
       if (resolved && (!('type' in resolved) || resolved.type !== 'null')) {
         seen.delete(targetValue)
         return cache(

@@ -1,4 +1,4 @@
-import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import { resolve } from '@scalar/workspace-store/resolve'
 import type { ReferenceType, SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { isArraySchema } from '@scalar/workspace-store/schemas/v3.1/strict/type-guards'
 
@@ -25,7 +25,7 @@ const processArrayType = (value: Extract<SchemaObject, { type: 'array' }>, isUni
     return isUnionType ? 'array' : value.title || value.xml?.name || 'array'
   }
 
-  const itemType = getSchemaType(value.items)
+  const itemType = getSchemaType(resolve.schema(value.items))
   const baseType = formatArrayType(itemType)
 
   if (isUnionType) {
@@ -54,7 +54,7 @@ export const getSchemaType = (valueOrRef: SchemaWithOriginalRef | ReferenceType<
     return ''
   }
 
-  const value = getResolvedRef(valueOrRef)
+  const value = resolve.schema(valueOrRef)
 
   // Handle const values first (highest priority)
   if (value.const !== undefined) {

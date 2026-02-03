@@ -1,4 +1,4 @@
-import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import { resolve } from '@scalar/workspace-store/resolve'
 import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { describe, expect, it } from 'vitest'
 
@@ -142,8 +142,8 @@ describe('optimizeValueForDisplay', () => {
 
     const result = optimizeValueForDisplay(input)
 
-    expect(getResolvedRef(result?.oneOf?.[0])?.title).toBe('Planet')
-    expect(getResolvedRef(result?.oneOf?.[1])?.title).toBe('Satellite')
+    expect(resolve.schema(result?.oneOf?.[0])?.title).toBe('Planet')
+    expect(resolve.schema(result?.oneOf?.[1])?.title).toBe('Satellite')
   })
 
   it('should preserve root properties when processing oneOf schemas', () => {

@@ -8,6 +8,7 @@ import {
   externalValueResolver,
   loadingStatus,
   normalizeAuthSchemes,
+  normalizeRefs,
   refsEverywhere,
   restoreOriginalRefs,
 } from '@/plugins/bundler'
@@ -618,6 +619,542 @@ describe('plugins', () => {
       })
 
       await server.close()
+    })
+  })
+
+  describe('normalizeRefs', () => {
+    it('removes extra properties from a $ref node', async () => {
+      const input = {
+        paths: {
+          '/users': {
+            get: {
+              responses: {
+                200: {
+                  $ref: '#/components/responses/UserResponse',
+                  extraProperty: 'should be removed',
+                  anotherExtraProperty: 'also removed',
+                },
+              },
+            },
+          },
+        },
+      }
+
+      await bundle(input, {
+        treeShake: false,
+        plugins: [normalizeRefs()],
+      })
+
+      expect(input.paths['/users'].get.responses['200']).toEqual({
+        $ref: '#/components/responses/UserResponse',
+        summary: undefined,
+        description: undefined,
+        '$status': undefined,
+      })
+    })
+
+    it('preserves summary property on a $ref node', async () => {
+      const input = {
+        paths: {
+          '/users': {
+            get: {
+              responses: {
+                200: {
+                  $ref: '#/components/responses/UserResponse',
+                  summary: 'User response summary',
+                  extraProperty: 'should be removed',
+                },
+              },
+            },
+          },
+        },
+      }
+
+      await bundle(input, {
+        treeShake: false,
+        plugins: [normalizeRefs()],
+      })
+
+      expect(input.paths['/users'].get.responses['200']).toEqual({
+        $ref: '#/components/responses/UserResponse',
+        summary: 'User response summary',
+        description: undefined,
+        '$status': undefined,
+      })
+    })
+
+    it('preserves description property on a $ref node', async () => {
+      const input = {
+        paths: {
+          '/users': {
+            get: {
+              responses: {
+                200: {
+                  $ref: '#/components/responses/UserResponse',
+                  description: 'A detailed description',
+                  extraProperty: 'should be removed',
+                },
+              },
+            },
+          },
+        },
+      }
+
+      await bundle(input, {
+        treeShake: false,
+        plugins: [normalizeRefs()],
+      })
+
+      expect(input.paths['/users'].get.responses['200']).toEqual({
+        $ref: '#/components/responses/UserResponse',
+        summary: undefined,
+        description: 'A detailed description',
+        '$status': undefined,
+      })
+    })
+
+    it('preserves $status property on a $ref node', async () => {
+      const input = {
+        paths: {
+          '/users': {
+            get: {
+              responses: {
+                200: {
+                  $ref: '#/components/responses/UserResponse',
+                  '$status': 'loading',
+                  extraProperty: 'should be removed',
+                },
+              },
+            },
+          },
+        },
+      }
+
+      await bundle(input, {
+        treeShake: false,
+        plugins: [normalizeRefs()],
+      })
+
+      expect(input.paths['/users'].get.responses['200']).toEqual({
+        $ref: '#/components/responses/UserResponse',
+        summary: undefined,
+        description: undefined,
+        '$status': 'loading',
+      })
+    })
+
+    it('preserves all allowed properties on a $ref node', async () => {
+      const input = {
+        paths: {
+          '/users': {
+            get: {
+              responses: {
+                200: {
+                  $ref: '#/components/responses/UserResponse',
+                  summary: 'User response',
+                  description: 'Detailed description',
+                  '$status': 'error',
+                  extraProperty: 'should be removed',
+                  anotherExtra: 123,
+                },
+              },
+            },
+          },
+        },
+      }
+
+      await bundle(input, {
+        treeShake: false,
+        plugins: [normalizeRefs()],
+      })
+
+      expect(input.paths['/users'].get.responses['200']).toEqual({
+        $ref: '#/components/responses/UserResponse',
+        summary: 'User response',
+        description: 'Detailed description',
+        '$status': 'error',
+      })
+    })
+
+    it('does not normalize $ref under components/schemas path', async () => {
+      const input = {
+        components: {
+          schemas: {
+            User: {
+              $ref: '#/components/schemas/BaseUser',
+              extraProperty: 'should NOT be removed',
+              anotherExtra: 'also NOT removed',
+            },
+          },
+        },
+      }
+
+      await bundle(input, {
+        treeShake: false,
+        plugins: [normalizeRefs()],
+      })
+
+      expect(input.components.schemas.User).toEqual({
+        $ref: '#/components/schemas/BaseUser',
+        extraProperty: 'should NOT be removed',
+        anotherExtra: 'also NOT removed',
+      })
+    })
+
+    it('normalizes $ref in request body', async () => {
+      const input = {
+        paths: {
+          '/users': {
+            post: {
+              requestBody: {
+                content: {
+                  'application/json': {
+                    schema: {
+                      $ref: '#/components/schemas/User',
+                      extraProperty: 'should be removed',
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      }
+
+      await bundle(input, {
+        treeShake: false,
+        plugins: [normalizeRefs()],
+      })
+
+      expect(input.paths['/users'].post.requestBody.content['application/json'].schema).toEqual({
+        $ref: '#/components/schemas/User',
+        summary: undefined,
+        description: undefined,
+        '$status': undefined,
+      })
+    })
+
+    it('normalizes $ref in parameters', async () => {
+      const input = {
+        paths: {
+          '/users/{id}': {
+            get: {
+              parameters: [
+                {
+                  $ref: '#/components/parameters/IdParameter',
+                  extraProperty: 'should be removed',
+                },
+              ],
+            },
+          },
+        },
+      }
+
+      await bundle(input, {
+        treeShake: false,
+        plugins: [normalizeRefs()],
+      })
+
+      expect(input.paths['/users/{id}'].get.parameters[0]).toEqual({
+        $ref: '#/components/parameters/IdParameter',
+        summary: undefined,
+        description: undefined,
+        '$status': undefined,
+      })
+    })
+
+    it('normalizes multiple $ref nodes in the same document', async () => {
+      const input = {
+        paths: {
+          '/users': {
+            get: {
+              responses: {
+                200: {
+                  $ref: '#/components/responses/UserResponse',
+                  extra1: 'removed',
+                },
+                404: {
+                  $ref: '#/components/responses/NotFound',
+                  extra2: 'also removed',
+                },
+              },
+            },
+          },
+        },
+      }
+
+      await bundle(input, {
+        treeShake: false,
+        plugins: [normalizeRefs()],
+      })
+
+      expect(input.paths['/users'].get.responses['200']).toEqual({
+        $ref: '#/components/responses/UserResponse',
+        summary: undefined,
+        description: undefined,
+        '$status': undefined,
+      })
+      expect(input.paths['/users'].get.responses['404']).toEqual({
+        $ref: '#/components/responses/NotFound',
+        summary: undefined,
+        description: undefined,
+        '$status': undefined,
+      })
+    })
+
+    it('handles $ref with only allowed properties', async () => {
+      const input = {
+        paths: {
+          '/users': {
+            get: {
+              responses: {
+                200: {
+                  $ref: '#/components/responses/UserResponse',
+                  summary: 'User response',
+                },
+              },
+            },
+          },
+        },
+      }
+
+      await bundle(input, {
+        treeShake: false,
+        plugins: [normalizeRefs()],
+      })
+
+      expect(input.paths['/users'].get.responses['200']).toEqual({
+        $ref: '#/components/responses/UserResponse',
+        summary: 'User response',
+        description: undefined,
+        '$status': undefined,
+      })
+    })
+
+    it('does not modify nodes without $ref', async () => {
+      const input = {
+        paths: {
+          '/users': {
+            get: {
+              responses: {
+                200: {
+                  description: 'Success',
+                  content: {
+                    'application/json': {
+                      schema: {
+                        type: 'object',
+                        extraProperty: 'not removed',
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      }
+
+      await bundle(input, {
+        treeShake: false,
+        plugins: [normalizeRefs()],
+      })
+
+      expect(input.paths['/users'].get.responses['200'].content['application/json'].schema).toEqual({
+        type: 'object',
+        extraProperty: 'not removed',
+      })
+    })
+
+    it('normalizes $ref in headers', async () => {
+      const input = {
+        paths: {
+          '/users': {
+            get: {
+              responses: {
+                200: {
+                  headers: {
+                    'X-Rate-Limit': {
+                      $ref: '#/components/headers/RateLimit',
+                      extraProperty: 'should be removed',
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      }
+
+      await bundle(input, {
+        treeShake: false,
+        plugins: [normalizeRefs()],
+      })
+
+      expect(input.paths['/users'].get.responses['200'].headers['X-Rate-Limit']).toEqual({
+        $ref: '#/components/headers/RateLimit',
+        summary: undefined,
+        description: undefined,
+        '$status': undefined,
+      })
+    })
+
+    it('normalizes $ref in security schemes usage', async () => {
+      const input = {
+        paths: {
+          '/users': {
+            get: {
+              security: [
+                {
+                  bearerAuth: {
+                    $ref: '#/components/securitySchemes/bearerAuth',
+                    extraProperty: 'should be removed',
+                  },
+                },
+              ],
+            },
+          },
+        },
+      }
+
+      await bundle(input, {
+        treeShake: false,
+        plugins: [normalizeRefs()],
+      })
+
+      expect(input.paths['/users'].get.security[0]?.bearerAuth).toEqual({
+        $ref: '#/components/securitySchemes/bearerAuth',
+        summary: undefined,
+        description: undefined,
+        '$status': undefined,
+      })
+    })
+
+    it('handles deeply nested $ref normalization', async () => {
+      const input = {
+        paths: {
+          '/users': {
+            post: {
+              requestBody: {
+                content: {
+                  'application/json': {
+                    schema: {
+                      allOf: [
+                        {
+                          $ref: '#/components/schemas/BaseUser',
+                          extraProperty: 'should be removed',
+                        },
+                      ],
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      }
+
+      await bundle(input, {
+        treeShake: false,
+        plugins: [normalizeRefs()],
+      })
+
+      expect(input.paths['/users'].post.requestBody.content['application/json'].schema.allOf[0]).toEqual({
+        $ref: '#/components/schemas/BaseUser',
+        summary: undefined,
+        description: undefined,
+        '$status': undefined,
+      })
+    })
+
+    it('does not normalize $ref when path starts with components/schemas', async () => {
+      const input = {
+        components: {
+          schemas: {
+            UserProfile: {
+              properties: {
+                user: {
+                  $ref: '#/components/schemas/User',
+                  extraProperty: 'should NOT be removed',
+                },
+              },
+            },
+          },
+        },
+      }
+
+      await bundle(input, {
+        treeShake: false,
+        plugins: [normalizeRefs()],
+      })
+
+      // The $ref should NOT be normalized because the path starts with components/schemas
+      expect(input.components.schemas.UserProfile.properties.user).toEqual({
+        $ref: '#/components/schemas/User',
+        extraProperty: 'should NOT be removed',
+      })
+    })
+
+    it('handles $ref with empty string values for allowed properties', async () => {
+      const input = {
+        paths: {
+          '/users': {
+            get: {
+              responses: {
+                200: {
+                  $ref: '#/components/responses/UserResponse',
+                  summary: '',
+                  description: '',
+                  extraProperty: 'removed',
+                },
+              },
+            },
+          },
+        },
+      }
+
+      await bundle(input, {
+        treeShake: false,
+        plugins: [normalizeRefs()],
+      })
+
+      expect(input.paths['/users'].get.responses['200']).toEqual({
+        $ref: '#/components/responses/UserResponse',
+        summary: '',
+        description: '',
+        '$status': undefined,
+      })
+    })
+
+    it('handles $ref when node has numeric and boolean extra properties', async () => {
+      const input = {
+        paths: {
+          '/users': {
+            get: {
+              responses: {
+                200: {
+                  $ref: '#/components/responses/UserResponse',
+                  numericProperty: 42,
+                  booleanProperty: true,
+                  objectProperty: { nested: 'value' },
+                  arrayProperty: [1, 2, 3],
+                },
+              },
+            },
+          },
+        },
+      }
+
+      await bundle(input, {
+        treeShake: false,
+        plugins: [normalizeRefs()],
+      })
+
+      expect(input.paths['/users'].get.responses['200']).toEqual({
+        $ref: '#/components/responses/UserResponse',
+        summary: undefined,
+        description: undefined,
+        '$status': undefined,
+      })
     })
   })
 })

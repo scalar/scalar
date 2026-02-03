@@ -1,4 +1,4 @@
-import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import { resolve } from '@scalar/workspace-store/resolve'
 import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { isArraySchema } from '@scalar/workspace-store/schemas/v3.1/strict/type-guards'
 
@@ -20,7 +20,7 @@ export const getEnumValues = (value: SchemaObject | undefined): unknown[] => {
 
   // Check for enum in array items (resolving $ref if present)
   if (isArraySchema(value) && typeof value.items === 'object') {
-    const resolvedItems = getResolvedRef(value.items)
+    const resolvedItems = resolve.schema(value.items)
     if (resolvedItems && 'enum' in resolvedItems && resolvedItems.enum) {
       return resolvedItems.enum
     }

@@ -3,7 +3,7 @@ import { ScalarListbox, type ScalarListboxOption } from '@scalar/components'
 import { isDefined } from '@scalar/helpers/array/is-defined'
 import { ScalarIconCaretDown } from '@scalar/icons'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
-import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import { resolve } from '@scalar/workspace-store/resolve'
 import type { DiscriminatorObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed, ref } from 'vue'
 
@@ -48,7 +48,7 @@ const props = withDefaults(
 const composition = computed(() =>
   [props.schema[props.composition]]
     .flat()
-    .map((schema) => ({ value: getResolvedRef(schema), original: schema }))
+    .map((schema) => ({ value: resolve.schema(schema), original: schema }))
     .filter((it) => isDefined(it.value)),
 )
 
@@ -59,7 +59,7 @@ const composition = computed(() =>
 const listboxOptions = computed((): ScalarListboxOption[] =>
   composition.value.map((schema, index: number) => ({
     id: String(index),
-    label: getSchemaType(schema.original!) || 'Schema',
+    label: getSchemaType(resolve.schema(schema.original!)) || 'Schema',
   })),
 )
 

@@ -1,4 +1,4 @@
-import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import { resolve } from '@scalar/workspace-store/resolve'
 import type { ReferenceType, SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { isArraySchema } from '@scalar/workspace-store/schemas/v3.1/strict/type-guards'
 
@@ -22,7 +22,7 @@ export const getModelNameFromSchema = (schemaOrRef: SchemaObject | ReferenceType
     }
   }
 
-  const schema = getResolvedRef(schemaOrRef)
+  const schema = resolve.schema(schemaOrRef)
 
   // Direct title/name properties - use direct property access for better performance
   if (schema.title) {
@@ -61,7 +61,7 @@ export const getModelName = (value: SchemaObject, hideModelNames = false): strin
 
   // Handle array types with item references only if no full schema match was found
   if (isArraySchema(value) && value.items) {
-    const items = getResolvedRef(value.items)
+    const items = resolve.schema(value.items)
 
     // Handle title/name
     const itemName = items.title
@@ -70,7 +70,7 @@ export const getModelName = (value: SchemaObject, hideModelNames = false): strin
     }
 
     // Use the model name
-    const itemModelName = getModelNameFromSchema(value.items)
+    const itemModelName = getModelNameFromSchema(resolve.schema(value.items))
     if (itemModelName && 'type' in items && itemModelName !== items.type) {
       return formatTypeWithModel(valueType, itemModelName)
     }

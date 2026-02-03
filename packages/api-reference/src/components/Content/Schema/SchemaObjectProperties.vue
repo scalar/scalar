@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
-import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import { resolve } from '@scalar/workspace-store/resolve'
 import type {
   DiscriminatorObject,
   SchemaObject,
@@ -44,7 +44,10 @@ const getAdditionalPropertiesName = (
     { type: 'object' }
   >['additionalProperties'],
 ) => {
-  const additionalProperties = getResolvedRef(_additionalProperties)
+  const additionalProperties =
+    typeof _additionalProperties === 'boolean'
+      ? _additionalProperties
+      : resolve.schema(_additionalProperties)
 
   if (
     typeof additionalProperties === 'object' &&
@@ -102,7 +105,7 @@ const getAdditionalPropertiesValue = (
       :name="property"
       :options="options"
       :required="schema.required?.includes(property)"
-      :schema="getResolvedRef(schema.properties[property])" />
+      :schema="resolve.schema(schema.properties[property])" />
   </template>
 
   <!-- patternProperties -->
@@ -119,7 +122,7 @@ const getAdditionalPropertiesValue = (
       :level
       :name="key"
       :options="options"
-      :schema="getResolvedRef(property)" />
+      :schema="resolve.schema(property)" />
   </template>
 
   <!-- additionalProperties -->

@@ -223,3 +223,30 @@ export const normalizeAuthSchemes = (): LifecyclePlugin => {
     },
   }
 }
+
+/**
+ * Lifecycle plugin to normalize $ref nodes:
+ * Ensures that for any non-schema object containing a $ref, only $ref,
+ * summary, description, and $status properties are preserved.
+ * This keeps $ref references clean and predictable for downstream consumers.
+ */
+export const normalizeRefs = (): LifecyclePlugin => {
+  return {
+    type: 'lifecycle',
+    onBeforeNodeProcess: (node, context) => {
+      const { path } = context
+
+      // If the node is a $ref and we are not on the schema object, we need to normalize the $ref
+      if (typeof node['$ref'] === 'string' && path[0] !== 'components' && path[1] !== 'schemas') {
+        // Remove any other properties from the node and only keep the '$ref', 'summary', 'description' and '$status'
+        const keepProperties = new Set(['$ref', 'summary', 'description', '$status'])
+
+        Object.keys(node).forEach((key) => {
+          if (!keepProperties.has(key)) {
+            delete node[key]
+          }
+        })
+      }
+    },
+  }
+}

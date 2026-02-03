@@ -83,6 +83,11 @@
       "types": "./dist/plugins/client/index.d.ts",
       "default": "./dist/plugins/client/index.js"
     },
+    "./resolve": {
+      "import": "./dist/resolve.js",
+      "types": "./dist/resolve.d.ts",
+      "default": "./dist/resolve.js"
+    },
     "./schemas": {
       "import": "./dist/schemas.js",
       "types": "./dist/schemas.d.ts",
