@@ -637,74 +637,74 @@ jobs:
           TODESKTOP_EMAIL: ${{ secrets.TODESKTOP_EMAIL }}
           TODESKTOP_ACCESS_TOKEN: ${{ secrets.TODESKTOP_ACCESS_TOKEN }}
 
-  deploy-api-client:
-    # Only run this job for PRs from the same repository
-    if: github.ref == 'refs/heads/main' || github.event.pull_request.head.repo.full_name == github.repository
-    needs: [build]
-    runs-on: blacksmith-2vcpu-ubuntu-2204
-    timeout-minutes: 10
-    steps:
-      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
-      - name: Check which files were touched
-        id: changed-files
-        uses: step-security/changed-files@60967b822d3001fa82242f8d6b4ed46bc3600a68 # v47
-        with:
-          files_yaml: |
-            api_client:
-              - projects/client-scalar-com/**
-              - packages/api-client/**
-      - if: steps.changed-files.outputs.api_client_any_changed == 'true'
-        name: Build
-        uses: ./.github/actions/build
-        with:
-          packages: 'client-scalar-com...'
-      - if: steps.changed-files.outputs.api_client_any_changed == 'true'
-        name: Deploy to client.staging.scalar.com (staging)
-        id: deploy-client-staging
-        uses: cloudflare/wrangler-action@da0e0dfe58b7a431659754fdf3f186c529afbe65 # v3
-        with:
-          command: pages deploy dist --project-name=client-staging
-          workingDirectory: projects/client-scalar-com
-          # 1) Log in to the Cloudflare dashboard.
-          # 2) Select Workers & Pages.
-          # 3) See the Account ID in the right sidebar.
-          # Read more: https://developers.cloudflare.com/fundamentals/setup/find-account-and-zone-ids/
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          # 1) Go to https://dash.cloudflare.com/profile/api-tokens
-          # 2) Create a token with the following permissions:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-      - if: github.ref != 'refs/heads/main' && steps.deploy-client-staging.outputs.deployment-url
-        name: Add Cloudflare Preview URL to the PR
-        uses: thollander/actions-comment-pull-request@24bffb9b452ba05a4f3f77933840a6a841d1b32b # v3
-        with:
-          message: |
-            **Cloudflare Preview for the API Client**
+  # deploy-api-client:
+  #   # Only run this job for PRs from the same repository
+  #   if: github.ref == 'refs/heads/main' || github.event.pull_request.head.repo.full_name == github.repository
+  #   needs: [build]
+  #   runs-on: blacksmith-2vcpu-ubuntu-2204
+  #   timeout-minutes: 10
+  #   steps:
+  #     - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
+  #     - name: Check which files were touched
+  #       id: changed-files
+  #       uses: step-security/changed-files@60967b822d3001fa82242f8d6b4ed46bc3600a68 # v47
+  #       with:
+  #         files_yaml: |
+  #           api_client:
+  #             - projects/client-scalar-com/**
+  #             - packages/api-client/**
+  #     - if: steps.changed-files.outputs.api_client_any_changed == 'true'
+  #       name: Build
+  #       uses: ./.github/actions/build
+  #       with:
+  #         packages: 'client-scalar-com...'
+  #     - if: steps.changed-files.outputs.api_client_any_changed == 'true'
+  #       name: Deploy to client.staging.scalar.com (staging)
+  #       id: deploy-client-staging
+  #       uses: cloudflare/wrangler-action@da0e0dfe58b7a431659754fdf3f186c529afbe65 # v3
+  #       with:
+  #         command: pages deploy dist --project-name=client-staging
+  #         workingDirectory: projects/client-scalar-com
+  #         # 1) Log in to the Cloudflare dashboard.
+  #         # 2) Select Workers & Pages.
+  #         # 3) See the Account ID in the right sidebar.
+  #         # Read more: https://developers.cloudflare.com/fundamentals/setup/find-account-and-zone-ids/
+  #         accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+  #         # 1) Go to https://dash.cloudflare.com/profile/api-tokens
+  #         # 2) Create a token with the following permissions:
+  #         apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+  #     - if: github.ref != 'refs/heads/main' && steps.deploy-client-staging.outputs.deployment-url
+  #       name: Add Cloudflare Preview URL to the PR
+  #       uses: thollander/actions-comment-pull-request@24bffb9b452ba05a4f3f77933840a6a841d1b32b # v3
+  #       with:
+  #         message: |
+  #           **Cloudflare Preview for the API Client**
 
-            ${{ steps.deploy-client-staging.outputs.deployment-url }}
-          comment-tag: 'cloudflare-preview'
-      - if: github.ref == 'refs/heads/main' && startsWith(github.event.head_commit.message, 'RELEASING:')
-        name: Check for new @scalar/api-client version
-        id: client-version
-        uses: step-security/changed-files@60967b822d3001fa82242f8d6b4ed46bc3600a68 # v47
-        with:
-          files_yaml: |
-            api_client:
-              - packages/api-client/**
-      - if: steps.client-version.outputs.api_client_any_changed == 'true'
-        name: Deploy to client.scalar.com (production)
-        id: deploy-client-production
-        uses: cloudflare/wrangler-action@da0e0dfe58b7a431659754fdf3f186c529afbe65 # v3
-        with:
-          command: pages deploy dist --project-name=client
-          workingDirectory: projects/client-scalar-com
-          # 1) Log in to the Cloudflare dashboard.
-          # 2) Select Workers & Pages.
-          # 3) See the Account ID in the right sidebar.
-          # Read more: https://developers.cloudflare.com/fundamentals/setup/find-account-and-zone-ids/
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          # 1) Go to https://dash.cloudflare.com/profile/api-tokens
-          # 2) Create a token with the following permissions:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+  #           ${{ steps.deploy-client-staging.outputs.deployment-url }}
+  #         comment-tag: 'cloudflare-preview'
+  #     - if: github.ref == 'refs/heads/main' && startsWith(github.event.head_commit.message, 'RELEASING:')
+  #       name: Check for new @scalar/api-client version
+  #       id: client-version
+  #       uses: step-security/changed-files@60967b822d3001fa82242f8d6b4ed46bc3600a68 # v47
+  #       with:
+  #         files_yaml: |
+  #           api_client:
+  #             - packages/api-client/**
+  #     - if: steps.client-version.outputs.api_client_any_changed == 'true'
+  #       name: Deploy to client.scalar.com (production)
+  #       id: deploy-client-production
+  #       uses: cloudflare/wrangler-action@da0e0dfe58b7a431659754fdf3f186c529afbe65 # v3
+  #       with:
+  #         command: pages deploy dist --project-name=client
+  #         workingDirectory: projects/client-scalar-com
+  #         # 1) Log in to the Cloudflare dashboard.
+  #         # 2) Select Workers & Pages.
+  #         # 3) See the Account ID in the right sidebar.
+  #         # Read more: https://developers.cloudflare.com/fundamentals/setup/find-account-and-zone-ids/
+  #         accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+  #         # 1) Go to https://dash.cloudflare.com/profile/api-tokens
+  #         # 2) Create a token with the following permissions:
+  #         apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
 
   push-to-scalar-registry:
     if: github.ref == 'refs/heads/main' && startsWith(github.event.head_commit.message, 'RELEASING:')
