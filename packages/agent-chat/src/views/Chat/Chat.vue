@@ -16,6 +16,7 @@ import PromptForm from '@/views/PromptForm.vue'
 
 const emit = defineEmits<{
   (e: 'submit'): void
+  (e: 'uploadApi'): void
 }>()
 
 const state = useState()
@@ -86,7 +87,9 @@ const state = useState()
     <div class="spacer"></div>
   </div>
   <div class="formContainer">
-    <PromptForm @submit="emit('submit')" />
+    <PromptForm
+      @submit="emit('submit')"
+      @uploadApi="emit('uploadApi')" />
   </div>
 </template>
 

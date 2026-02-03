@@ -9,6 +9,7 @@ import {
 } from '@scalar/icons'
 import { computed, useTemplateRef, watch } from 'vue'
 
+import ActionsDropdown from '@/components/ActionsDropdown.vue'
 import ApprovalSection from '@/components/ApprovalSection.vue'
 import ErrorMessageMessage from '@/components/ErrorMessage.vue'
 import FreeMessagesInfoSection from '@/components/FreeMessagesInfoSection.vue'
@@ -25,6 +26,7 @@ import { useState } from '@/state/state'
 
 const emit = defineEmits<{
   (e: 'submit'): void
+  (e: 'uploadApi'): void
 }>()
 
 defineExpose({ focusPrompt })
@@ -135,8 +137,10 @@ const chatError = useChatError()
 <template>
   <div class="actionContainer">
     <UploadSection
-      v-if="uploadTmpDoc.uploadState.value"
-      :uploadState="uploadTmpDoc.uploadState.value" />
+      v-if="
+        uploadTmpDoc.uploadState.value || state.pendingDocuments.value.length
+      "
+      :uploadState="uploadTmpDoc.uploadState.value ?? { type: 'processing' }" />
     <ErrorMessageMessage
       v-if="chatError"
       :error="chatError" />
@@ -165,7 +169,7 @@ const chatError = useChatError()
         @keydown="handlePromptKeydown" />
       <div class="inputActionsContainer">
         <div class="inputActionsLeft">
-          <SearchPopover>
+          <SearchPopover v-if="!state.isLoggedIn?.value">
             <button
               class="addAPIButton"
               type="button">
@@ -174,6 +178,17 @@ const chatError = useChatError()
                 weight="bold" />
             </button>
           </SearchPopover>
+          <ActionsDropdown
+            v-else
+            @uploadApi="$emit('uploadApi')">
+            <button
+              class="addAPIButton"
+              type="button">
+              <ScalarIconPlus
+                class="size-4"
+                weight="bold" />
+            </button>
+          </ActionsDropdown>
           <div
             v-for="document in state.registryDocuments.value"
             :key="document.id"
