@@ -1,5 +1,14 @@
 # @scalar/api-client-react
 
+## 1.3.87
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-client@2.23.2**
+  - [#8027](https://github.com/scalar/scalar/pull/8027): feat(agent): add client side request tool
+
 ## 1.3.86
 
 ### Patch Changes

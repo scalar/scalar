@@ -1,5 +1,11 @@
 # @scalar/api-client
 
+## 2.23.2
+
+### Patch Changes
+
+- [#8027](https://github.com/scalar/scalar/pull/8027): feat(agent): add client side request tool
+
 ## 2.23.1
 
 ### Patch Changes
