@@ -14,6 +14,7 @@ import ApprovalSection from '@/components/ApprovalSection.vue'
 import ErrorMessageMessage from '@/components/ErrorMessage.vue'
 import FreeMessagesInfoSection from '@/components/FreeMessagesInfoSection.vue'
 import PaymentSection from '@/components/PaymentSection.vue'
+import SearchPopover from '@/components/SearchPopover.vue'
 import UploadSection from '@/components/UploadSection.vue'
 import { AgentErrorCodes } from '@/entities/error/constants'
 import { MAX_PROMPT_SIZE } from '@/entities/prompt/constants'
@@ -170,7 +171,18 @@ const chatError = useChatError()
         @keydown="handlePromptKeydown" />
       <div class="inputActionsContainer">
         <div class="inputActionsLeft">
-          <ActionsDropdown @uploadApi="$emit('uploadApi')">
+          <SearchPopover v-if="state.mode === 'preview'">
+            <button
+              class="addAPIButton"
+              type="button">
+              <ScalarIconPlus
+                class="size-4"
+                weight="bold" />
+            </button>
+          </SearchPopover>
+          <ActionsDropdown
+            v-else
+            @uploadApi="$emit('uploadApi')">
             <button
               class="addAPIButton"
               type="button">

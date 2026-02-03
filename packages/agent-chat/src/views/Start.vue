@@ -61,7 +61,7 @@ const { mode } = useState()
 .heading {
   font-size: 1.5rem;
   font-weight: var(--scalar-font-bold);
-  margin-bottom: 30px;
+  margin-bottom: 50px;
 }
 
 .suggestionsContainer {

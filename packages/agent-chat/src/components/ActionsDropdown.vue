@@ -26,15 +26,17 @@ const catalogModal = useModal()
         v-if="state.isLoggedIn?.value"
         class="dropdown-item"
         @click="$emit('uploadApi')">
-        <ScalarIconUpload />
-        Upload API
+        <div class="dropdown-item">
+          <ScalarIconUpload />
+          Upload API
+        </div>
       </ScalarDropdownItem>
 
-      <ScalarDropdownItem
-        class="dropdown-item"
-        @click="catalogModal.show()">
-        <ScalarIconMagnifyingGlass />
-        Search Catalog
+      <ScalarDropdownItem @click="catalogModal.show()">
+        <div class="dropdown-item">
+          <ScalarIconMagnifyingGlass />
+          Search Catalog
+        </div>
       </ScalarDropdownItem>
     </template>
   </ScalarDropdown>
