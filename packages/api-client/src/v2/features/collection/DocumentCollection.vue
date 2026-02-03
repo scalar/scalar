@@ -13,8 +13,12 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { ScalarButton, ScalarFormError } from '@scalar/components'
-import { ScalarIconArrowLeft, ScalarIconFloppyDisk } from '@scalar/icons'
+import { ScalarButton } from '@scalar/components'
+import {
+  ScalarIconArrowLeft,
+  ScalarIconFloppyDisk,
+  ScalarIconWarning,
+} from '@scalar/icons'
 import { LibraryIcon } from '@scalar/icons/library'
 import { computed } from 'vue'
 import { RouterView } from 'vue-router'
@@ -53,31 +57,32 @@ const saveChanges = () => {
       <div
         :aria-label="`title: ${title}`"
         class="mx-auto flex h-fit w-full flex-col gap-2 pt-6 pb-3 md:mx-auto md:max-w-[720px]">
-        <ScalarFormError
+        <div
           v-if="document['x-scalar-is-dirty']"
-          variant="warning">
-          <div>
-            You have unsaved changes. Save your work to keep your changes, or
-            undo to revert them.
+          class="bg-b-alert mb-5 flex flex-col gap-3 rounded-lg border p-4">
+          <div class="flex items-center gap-3">
+            <ScalarIconWarning class="text-c-alert size-5 shrink-0" />
+            <div class="flex-1 text-sm">
+              You have unsaved changes. Save your work to keep your changes, or
+              undo to revert them.
+            </div>
           </div>
-          <div class="flex-1"></div>
-          <div class="flex">
+          <div class="flex justify-end gap-2">
             <ScalarButton
-              size="sm"
-              variant="ghost"
+              size="xs"
+              variant="outlined"
               @click="undoChanges">
               <ScalarIconArrowLeft />
               <span>Undo</span>
             </ScalarButton>
             <ScalarButton
-              size="sm"
-              variant="ghost"
+              size="xs"
               @click="saveChanges">
               <ScalarIconFloppyDisk />
               <span>Save</span>
             </ScalarButton>
           </div>
-        </ScalarFormError>
+        </div>
         <div class="flex flex-row items-center gap-2">
           <IconSelector
             :modelValue="icon"
