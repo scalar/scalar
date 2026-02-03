@@ -1,5 +1,18 @@
 # @scalar/openapi-parser
 
+## 0.24.7
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/helpers@0.2.11**
+  - [#8016](https://github.com/scalar/scalar/pull/8016): feat: move history and auth into their own store
+
+- **@scalar/json-magic@0.9.6**
+
+- **@scalar/openapi-upgrader@0.1.8**
+
 ## 0.24.6
 
 ### Patch Changes

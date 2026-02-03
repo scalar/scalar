@@ -1,5 +1,39 @@
 # @scalar/api-reference
 
+## 1.44.10
+
+### Patch Changes
+
+- [#8016](https://github.com/scalar/scalar/pull/8016): feat: move history and auth into their own store
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.28.2**
+  - [#8016](https://github.com/scalar/scalar/pull/8016): feat: move history and auth into their own store
+
+- **@scalar/agent-chat@0.5.1**
+  - [#8016](https://github.com/scalar/scalar/pull/8016): feat: move history and auth into their own store
+  - [#8028](https://github.com/scalar/scalar/pull/8028): feat(agent-chat): registry upload flow
+
+- **@scalar/api-client@2.23.1**
+  - [#8016](https://github.com/scalar/scalar/pull/8016): feat: move history and auth into their own store
+  - [#7992](https://github.com/scalar/scalar/pull/7992): feat: hide code snippets without clients
+
+- **@scalar/helpers@0.2.11**
+  - [#8016](https://github.com/scalar/scalar/pull/8016): feat: move history and auth into their own store
+
+- **@scalar/oas-utils@0.6.33**
+
+- **@scalar/sidebar@0.7.26**
+
+- **@scalar/components@0.17.3**
+
+- **@scalar/openapi-parser@0.24.7**
+
+- **@scalar/types@0.6.2**
+
+- **@scalar/snippetz@0.6.11**
+
 ## 1.44.9
 
 ### Patch Changes

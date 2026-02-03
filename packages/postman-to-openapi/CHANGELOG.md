@@ -1,5 +1,14 @@
 # @scalar/postman-to-openapi
 
+## 0.4.3
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/helpers@0.2.11**
+  - [#8016](https://github.com/scalar/scalar/pull/8016): feat: move history and auth into their own store
+
 ## 0.4.2
 
 ### Patch Changes

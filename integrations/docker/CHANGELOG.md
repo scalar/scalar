@@ -1,5 +1,14 @@
 # @scalarapi/docker-api-reference
 
+## 0.4.49
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.44.10**
+  - [#8016](https://github.com/scalar/scalar/pull/8016): feat: move history and auth into their own store
+
 ## 0.4.48
 
 ### Patch Changes

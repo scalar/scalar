@@ -1,5 +1,22 @@
 # @scalar/mock-server
 
+## 0.8.28
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/helpers@0.2.11**
+  - [#8016](https://github.com/scalar/scalar/pull/8016): feat: move history and auth into their own store
+
+- **@scalar/oas-utils@0.6.33**
+
+- **@scalar/json-magic@0.9.6**
+
+- **@scalar/openapi-parser@0.24.7**
+
+- **@scalar/openapi-upgrader@0.1.8**
+
 ## 0.8.27
 
 ### Patch Changes

@@ -1,5 +1,23 @@
 # @scalar/oas-utils
 
+## 0.6.33
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.28.2**
+  - [#8016](https://github.com/scalar/scalar/pull/8016): feat: move history and auth into their own store
+
+- **@scalar/helpers@0.2.11**
+  - [#8016](https://github.com/scalar/scalar/pull/8016): feat: move history and auth into their own store
+
+- **@scalar/json-magic@0.9.6**
+
+- **@scalar/object-utils@1.2.25**
+
+- **@scalar/types@0.6.2**
+
 ## 0.6.32
 
 ### Patch Changes
