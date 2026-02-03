@@ -624,15 +624,15 @@ describe('updateSelectedServer', () => {
     expect(document['x-scalar-selected-server']).toBe('https://api.example.com')
   })
 
-  it('returns undefined when server at index does not exist', () => {
+  it('allows setting a server URL that does not exist in the servers array as it may be from the config', () => {
     const document = createDocument({
       servers: [{ url: 'https://api.example.com' }],
     })
 
-    const result = updateSelectedServer(document, { url: 'abc' })
+    const result = updateSelectedServer(document, { url: 'https://custom.example.com' })
 
-    expect(result).toBeUndefined()
-    expect(document['x-scalar-selected-server']).toBeUndefined()
+    expect(result).toBe('https://custom.example.com')
+    expect(document['x-scalar-selected-server']).toBe('https://custom.example.com')
   })
 
   it('handles selecting a server with variables', () => {
