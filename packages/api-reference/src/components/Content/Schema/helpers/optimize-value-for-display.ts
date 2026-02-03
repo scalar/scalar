@@ -3,15 +3,12 @@ import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/o
 
 import { compositions } from './schema-composition'
 
-/** We need to keep the original ref after we resolve for display purposes */
-export type SchemaWithOriginalRef = SchemaObject & { originalRef?: string }
-
 /**
  * Optimize the value by removing nulls from compositions and merging root properties.
  *
  * TODO: figure out what this does
  */
-export function optimizeValueForDisplay(value: SchemaObject | undefined): SchemaWithOriginalRef | undefined {
+export function optimizeValueForDisplay(value: SchemaObject | undefined): SchemaObject | undefined {
   if (!value || typeof value !== 'object') {
     return value
   }
@@ -40,16 +37,12 @@ export function optimizeValueForDisplay(value: SchemaObject | undefined): Schema
 
       if ('type' in schema && schema.type === 'null') {
         acc.hasNullSchema = true
-      }
-      // We keep the original ref here
-      else if ('$ref' in _schema && _schema.$ref) {
-        acc.filteredSchemas.push({ ...schema, originalRef: _schema.$ref })
       } else {
         acc.filteredSchemas.push(schema)
       }
       return acc
     },
-    { filteredSchemas: [] as SchemaWithOriginalRef[], hasNullSchema: false },
+    { filteredSchemas: [] as SchemaObject[], hasNullSchema: false },
   )
 
   // Determine if nullable should be set
@@ -82,7 +75,7 @@ export function optimizeValueForDisplay(value: SchemaObject | undefined): Schema
     })
 
     // @ts-expect-error - We avoid using coerceValue here as it may be dangerous, so we type cast
-    const result = { [composition]: mergedSchemas } as SchemaWithOriginalRef
+    const result = { [composition]: mergedSchemas } as SchemaObject
     if (shouldBeNullable) {
       // @ts-expect-error We use nullable
       result.nullable = true
@@ -92,7 +85,7 @@ export function optimizeValueForDisplay(value: SchemaObject | undefined): Schema
 
   // Return with filtered schemas if any nulls were removed
   if (filteredSchemas.length !== schemas.length) {
-    const result: SchemaWithOriginalRef = { ...value, [composition]: filteredSchemas }
+    const result: SchemaObject = { ...value, [composition]: filteredSchemas }
     if (shouldBeNullable) {
       // @ts-expect-error We use nullable
       result.nullable = true
