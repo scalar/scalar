@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { isDefined } from '@scalar/helpers/array/is-defined'
-import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import { resolve } from '@scalar/workspace-store/resolve'
 import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import {
   isArraySchema,
@@ -58,7 +58,7 @@ const constValue = computed(() => {
 
   // Check items for const values (for arrays)
   if (isArraySchema(schema) && schema.items) {
-    const items = getResolvedRef(schema.items)
+    const items = resolve.schema(schema.items)
 
     if (isDefined(items.const)) {
       return items.const
@@ -344,7 +344,7 @@ const flattenedDefaultValue = computed(() => {
         props.value?.example ||
         (props.value &&
           isArraySchema(props.value) &&
-          getResolvedRef(props.value?.items)?.example)
+          resolve.schema(props.value?.items)?.example)
       "
       :examples="props.value?.examples" />
   </div>

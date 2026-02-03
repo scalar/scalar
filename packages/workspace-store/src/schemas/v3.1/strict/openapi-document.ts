@@ -279,7 +279,7 @@ export type { ReferenceType } from './reference'
 export type { RequestBodyObject } from './request-body'
 export type { ResponseObject } from './response'
 export type { ResponsesObject } from './responses'
-export type { SchemaObject } from './schema'
+export type { SchemaObject, SchemaReferenceType } from './schema'
 export type {
   ApiKeyObject,
   HttpObject,

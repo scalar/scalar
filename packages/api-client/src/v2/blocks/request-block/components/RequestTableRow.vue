@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { ScalarButton, ScalarIcon, ScalarIconButton } from '@scalar/components'
 import { ScalarIconGlobe, ScalarIconTrash } from '@scalar/icons'
-import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { unpackProxyObject } from '@scalar/workspace-store/helpers/unpack-proxy'
+import { resolve } from '@scalar/workspace-store/resolve'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type {
   ParameterObject,
@@ -125,7 +125,7 @@ const enumValue = computed<string[]>(() => {
 
   // Grab the enum from the items schema
   if ('items' in data.schema) {
-    const resolved = getResolvedRef(data.schema.items)
+    const resolved = resolve.schema(data.schema.items)
     if (resolved?.enum) {
       return resolved.enum.map((item) => String(item))
     }

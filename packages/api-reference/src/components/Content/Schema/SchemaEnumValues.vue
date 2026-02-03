@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ScalarButton } from '@scalar/components'
 import { ScalarIconPlus } from '@scalar/icons'
-import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import { resolve } from '@scalar/workspace-store/resolve'
 import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { isArraySchema } from '@scalar/workspace-store/schemas/v3.1/strict/type-guards'
 import { computed, ref } from 'vue'
@@ -27,7 +27,7 @@ const enumValues = computed(() => {
   }
   return (
     value.enum ||
-    (isArraySchema(value) && getResolvedRef(value.items)?.enum) ||
+    (isArraySchema(value) && resolve.schema(value.items)?.enum) ||
     []
   )
 })

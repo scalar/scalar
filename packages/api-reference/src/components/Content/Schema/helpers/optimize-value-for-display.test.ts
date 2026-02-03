@@ -1,4 +1,4 @@
-import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import { resolve } from '@scalar/workspace-store/resolve'
 import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { describe, expect, it } from 'vitest'
 
@@ -142,8 +142,8 @@ describe('optimizeValueForDisplay', () => {
 
     const result = optimizeValueForDisplay(input)
 
-    expect(getResolvedRef(result?.oneOf?.[0])?.title).toBe('Planet')
-    expect(getResolvedRef(result?.oneOf?.[1])?.title).toBe('Satellite')
+    expect(resolve.schema(result?.oneOf?.[0])?.title).toBe('Planet')
+    expect(resolve.schema(result?.oneOf?.[1])?.title).toBe('Satellite')
   })
 
   it('should preserve root properties when processing oneOf schemas', () => {
@@ -338,181 +338,6 @@ describe('optimizeValueForDisplay', () => {
           ],
         },
       ],
-    })
-  })
-
-  describe('originalRef handling', () => {
-    it('preserves originalRef when schema contains a $ref', () => {
-      const input: SchemaObject = {
-        __scalar_: '',
-        oneOf: [
-          {
-            $ref: '#/components/schemas/User',
-            '$ref-value': { type: 'object', properties: { id: { type: 'string' } } },
-          },
-          { type: 'string' },
-        ],
-      }
-
-      const result = optimizeValueForDisplay(input)
-
-      expect(result?.oneOf?.[0]).toHaveProperty('originalRef', '#/components/schemas/User')
-    })
-
-    it('does not add originalRef when schema has no $ref', () => {
-      const input: SchemaObject = {
-        __scalar_: '',
-        oneOf: [{ type: 'object', properties: { name: { type: 'string' } } }, { type: 'string' }],
-      }
-
-      const result = optimizeValueForDisplay(input)
-
-      expect(result?.oneOf?.[0]).not.toHaveProperty('originalRef')
-    })
-
-    it('preserves originalRef with anyOf composition', () => {
-      const input: SchemaObject = {
-        __scalar_: '',
-        anyOf: [
-          {
-            $ref: '#/components/schemas/Pet',
-            '$ref-value': { type: 'object', properties: { name: { type: 'string' } } },
-          },
-          {
-            $ref: '#/components/schemas/Owner',
-            '$ref-value': { type: 'object', properties: { email: { type: 'string' } } },
-          },
-        ],
-      }
-
-      const result = optimizeValueForDisplay(input)
-
-      expect(result?.anyOf?.[0]).toHaveProperty('originalRef', '#/components/schemas/Pet')
-      expect(result?.anyOf?.[1]).toHaveProperty('originalRef', '#/components/schemas/Owner')
-    })
-
-    it('preserves originalRef with allOf composition when filtering null types', () => {
-      const input: SchemaObject = {
-        __scalar_: '',
-        allOf: [
-          {
-            $ref: '#/components/schemas/Base',
-            '$ref-value': { type: 'object', properties: { id: { type: 'string' } } },
-          } as any,
-          { type: 'null' },
-          { type: 'object', properties: { extra: { type: 'string' } } },
-        ],
-      }
-
-      const result = optimizeValueForDisplay(input)
-
-      // When null is filtered, originalRef is preserved in the filtered schemas
-      expect(result?.allOf?.[0]).toHaveProperty('originalRef', '#/components/schemas/Base')
-      expect(result?.allOf?.[1]).not.toHaveProperty('originalRef')
-    })
-
-    it('preserves originalRef when filtering null types', () => {
-      const input: SchemaObject = {
-        __scalar_: '',
-        oneOf: [
-          {
-            $ref: '#/components/schemas/User',
-            '$ref-value': { type: 'object', properties: { name: { type: 'string' } } },
-          },
-          { type: 'null' },
-        ],
-      }
-
-      const result = optimizeValueForDisplay(input)
-
-      // After filtering null, only one schema remains and gets merged
-      expect(result).toHaveProperty('originalRef', '#/components/schemas/User')
-      expect(result).toHaveProperty('nullable', true)
-    })
-
-    it('preserves originalRef when merging root properties into oneOf schemas', () => {
-      const input: SchemaObject = {
-        type: 'object',
-        properties: {
-          id: { type: 'string' },
-        },
-        oneOf: [
-          {
-            $ref: '#/components/schemas/Admin',
-            '$ref-value': { type: 'object', properties: { role: { type: 'string' } } },
-          },
-          {
-            $ref: '#/components/schemas/User',
-            '$ref-value': { type: 'object', properties: { name: { type: 'string' } } },
-          },
-        ],
-      }
-
-      const result = optimizeValueForDisplay(input)
-
-      expect(result?.oneOf?.[0]).toHaveProperty('originalRef', '#/components/schemas/Admin')
-      expect(result?.oneOf?.[1]).toHaveProperty('originalRef', '#/components/schemas/User')
-    })
-
-    it('handles mixed refs and inline schemas', () => {
-      const input: SchemaObject = {
-        __scalar_: '',
-        oneOf: [
-          {
-            $ref: '#/components/schemas/User',
-            '$ref-value': { type: 'object', properties: { name: { type: 'string' } } },
-          },
-          { type: 'object', properties: { name: { type: 'string' } } },
-          {
-            $ref: '#/components/schemas/Admin',
-            '$ref-value': { type: 'object', properties: { role: { type: 'string' } } },
-          },
-        ],
-      }
-
-      const result = optimizeValueForDisplay(input)
-
-      expect(result?.oneOf?.[0]).toHaveProperty('originalRef', '#/components/schemas/User')
-      expect(result?.oneOf?.[1]).not.toHaveProperty('originalRef')
-      expect(result?.oneOf?.[2]).toHaveProperty('originalRef', '#/components/schemas/Admin')
-    })
-
-    it('preserves originalRef with external refs', () => {
-      const input: SchemaObject = {
-        __scalar_: '',
-        anyOf: [
-          {
-            $ref: 'https://example.com/schemas/user.json',
-            '$ref-value': { type: 'object', properties: { id: { type: 'string' } } },
-          },
-          {
-            $ref: './local-schema.json#/definitions/Pet',
-            '$ref-value': { type: 'object', properties: { name: { type: 'string' } } },
-          },
-        ],
-      }
-
-      const result = optimizeValueForDisplay(input)
-
-      expect(result?.anyOf?.[0]).toHaveProperty('originalRef', 'https://example.com/schemas/user.json')
-      expect(result?.anyOf?.[1]).toHaveProperty('originalRef', './local-schema.json#/definitions/Pet')
-    })
-
-    it('does not add originalRef when $ref is empty string', () => {
-      const input: SchemaObject = {
-        __scalar_: '',
-        oneOf: [
-          {
-            $ref: '',
-            '$ref-value': { type: 'object' },
-          },
-          { type: 'string' },
-        ],
-      }
-
-      const result = optimizeValueForDisplay(input)
-
-      expect(result?.oneOf?.[0]).not.toHaveProperty('originalRef')
     })
   })
 })

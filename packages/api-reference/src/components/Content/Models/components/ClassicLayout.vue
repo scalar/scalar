@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { ApiReferenceConfigurationRaw } from '@scalar/types/api-reference'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
-import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import { resolve } from '@scalar/workspace-store/resolve'
 import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
 import { Anchor } from '@/components/Anchor'
@@ -52,7 +52,7 @@ const { eventBus, id } = defineProps<{
         :name="property"
         :options
         :required="schema.required?.includes(property)"
-        :schema="getResolvedRef(value)" />
+        :schema="resolve.schema(value)" />
     </div>
     <div v-else>
       <SchemaProperty

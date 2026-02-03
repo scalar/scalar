@@ -1,5 +1,5 @@
 import type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
-import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import { resolve } from '@scalar/workspace-store/resolve'
 import type { DiscriminatorObject, SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
 import { isTypeObject } from './is-type-object'
@@ -77,7 +77,7 @@ export const sortPropertyNames = (
       return 0
     })
     .filter((property) => {
-      const resolved = schema.properties && getResolvedRef(schema.properties[property])
+      const resolved = schema.properties && resolve.schema(schema.properties[property])
 
       // If hideReadOnly is true, filter out properties that are readOnly
       if (hideReadOnly && resolved?.readOnly === true) {

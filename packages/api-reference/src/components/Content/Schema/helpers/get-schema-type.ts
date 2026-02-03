@@ -1,9 +1,8 @@
-import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import { resolve } from '@scalar/workspace-store/resolve'
 import type { ReferenceType, SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { isArraySchema } from '@scalar/workspace-store/schemas/v3.1/strict/type-guards'
 
 import { getRefName } from '@/components/Content/Schema/helpers/get-ref-name'
-import type { SchemaWithOriginalRef } from '@/components/Content/Schema/helpers/optimize-value-for-display'
 
 /**
  * Formats an array type string with proper wrapping for union types.
@@ -25,7 +24,7 @@ const processArrayType = (value: Extract<SchemaObject, { type: 'array' }>, isUni
     return isUnionType ? 'array' : value.title || value.xml?.name || 'array'
   }
 
-  const itemType = getSchemaType(value.items)
+  const itemType = getSchemaType(resolve.schema(value.items))
   const baseType = formatArrayType(itemType)
 
   if (isUnionType) {
@@ -48,13 +47,13 @@ const processArrayType = (value: Extract<SchemaObject, { type: 'array' }>, isUni
  * 6. $ref names
  * 7. raw type
  */
-export const getSchemaType = (valueOrRef: SchemaWithOriginalRef | ReferenceType<SchemaObject>): string => {
+export const getSchemaType = (valueOrRef: SchemaObject | ReferenceType<SchemaObject>): string => {
   // Early return for falsy values
   if (!valueOrRef) {
     return ''
   }
 
-  const value = getResolvedRef(valueOrRef)
+  const value = resolve.schema(valueOrRef)
 
   // Handle const values first (highest priority)
   if (value.const !== undefined) {
@@ -94,14 +93,6 @@ export const getSchemaType = (valueOrRef: SchemaWithOriginalRef | ReferenceType<
   // Handle type with content encoding
   if ('type' in value && value.type && value.contentEncoding) {
     return `${value.type} • ${value.contentEncoding}`
-  }
-
-  // Handle original ref
-  if ('originalRef' in valueOrRef && valueOrRef.originalRef) {
-    const refName = getRefName(valueOrRef.originalRef)
-    if (refName) {
-      return refName
-    }
   }
 
   // Handle referenced schemas

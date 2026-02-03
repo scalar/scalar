@@ -30,6 +30,7 @@ import {
   externalValueResolver,
   loadingStatus,
   normalizeAuthSchemes,
+  normalizeRefs,
   refsEverywhere,
   restoreOriginalRefs,
 } from '@/plugins/bundler'
@@ -834,7 +835,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         async () =>
           await bundle(getRaw(strictDocument), {
             treeShake: false,
-            plugins: [...loaders, externalValueResolver(), refsEverywhere(), normalizeAuthSchemes()],
+            plugins: [...loaders, normalizeRefs(), externalValueResolver(), refsEverywhere(), normalizeAuthSchemes()],
             urlMap: true,
             origin: input.documentSource, // use the document origin (if provided) as the base URL for resolution
           }),

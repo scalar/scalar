@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { ScalarMarkdown, ScalarWrappingText } from '@scalar/components'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
-import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import { resolve } from '@scalar/workspace-store/resolve'
 import type {
   DiscriminatorObject,
   SchemaObject,
@@ -130,7 +130,7 @@ const resolvedArrayItems = computed(() => {
   if (!value || !isArraySchema(value) || typeof value.items !== 'object') {
     return undefined
   }
-  return getResolvedRef(value.items)
+  return resolve.schema(value.items)
 })
 
 /** Check if discriminator matches current property */
@@ -230,7 +230,7 @@ const isDiscriminatorProperty = computed(() =>
         :name="name"
         :noncollapsible="noncollapsible"
         :options="options"
-        :schema="resolvedArrayItems" />
+        :schema="resolve.schema(resolvedArrayItems)" />
     </div>
 
     <!-- Compositions -->

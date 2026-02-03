@@ -1,5 +1,6 @@
 import { objectKeys } from '@scalar/helpers/object/object-keys'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import { resolve } from '@scalar/workspace-store/resolve'
 import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { isArraySchema } from '@scalar/workspace-store/schemas/v3.1/strict/type-guards'
 
@@ -30,7 +31,7 @@ export const mergeAllOfSchemas = (schemas: SchemaObject | undefined, rootSchema?
     }
 
     // Resolve ref if present
-    const schema = getResolvedRef(_schema)
+    const schema = resolve.schema(_schema)
 
     // Handle nested allOf recursively
     if (schema.allOf) {
@@ -77,7 +78,7 @@ const mergeSchemaIntoResult = (result: SchemaObject, schema: SchemaObject, overr
 
   // Loop through all schema properties and handle them appropriately
   for (const key of schemaKeys) {
-    const value = getResolvedRef(schema[key]) as SchemaObject
+    const value = getResolvedRef(schema[key]) as any
 
     if (value === undefined) {
       continue
@@ -114,7 +115,7 @@ const mergeSchemaIntoResult = (result: SchemaObject, schema: SchemaObject, overr
     // Items
     else if ((key as string) === 'items') {
       // Handle items (for both arrays and objects with items)
-      const items = getResolvedRef(value)
+      const items = resolve.schema(value)
       if (items) {
         if (isArraySchema(schema)) {
           // @ts-expect-error
@@ -167,8 +168,8 @@ const mergeSchemaIntoResult = (result: SchemaObject, schema: SchemaObject, overr
           result.properties = {}
         }
         for (const _option of value) {
-          const option = getResolvedRef(_option)
-          if (option.properties && 'properties' in result) {
+          const option = resolve.schema(_option)
+          if (option && 'properties' in option && 'properties' in result) {
             mergePropertiesIntoResult(result.properties, option.properties)
           }
         }
@@ -181,7 +182,6 @@ const mergeSchemaIntoResult = (result: SchemaObject, schema: SchemaObject, overr
     // For all other properties, preserve the first occurrence or override if specified
     else {
       if (override || result[key] === undefined) {
-        // @ts-expect-error
         result[key] = value
       }
     }
@@ -201,7 +201,7 @@ const mergePropertiesIntoResult = (
   }
 
   for (const key of propertyKeys) {
-    const schema = getResolvedRef(properties[key])
+    const schema = resolve.schema(properties[key])
     if (!schema) {
       delete result[key]
       continue
@@ -216,10 +216,10 @@ const mergePropertiesIntoResult = (
       // Handle new property with allOf
       if (schema.allOf) {
         result[key] = mergeAllOfSchemas(schema)
-      } else if (isArraySchema(schema) && getResolvedRef(schema.items)?.allOf) {
+      } else if (isArraySchema(schema) && resolve.schema(schema.items)?.allOf) {
         result[key] = {
           ...schema,
-          items: mergeAllOfSchemas(getResolvedRef(schema.items)),
+          items: mergeAllOfSchemas(resolve.schema(schema.items)),
         }
       } else if (properties[key]) {
         result[key] = properties[key]
@@ -228,16 +228,16 @@ const mergePropertiesIntoResult = (
     }
 
     // Merge existing property
-    const existing = getResolvedRef(result[key])
+    const existing = resolve.schema(result[key])
 
     if (schema.allOf) {
       result[key] = mergeAllOfSchemas({ allOf: [existing, ...schema.allOf] } as SchemaObject)
     } else if (isArraySchema(schema) && isArraySchema(existing) && schema.items) {
-      const existingItems = getResolvedRef(existing.items)
+      const existingItems = resolve.schema(existing.items)
       result[key] = {
         ...existing,
         type: 'array',
-        items: existingItems ? mergeItems(existingItems, getResolvedRef(schema.items)) : getResolvedRef(schema.items),
+        items: existingItems ? mergeItems(existingItems, resolve.schema(schema.items)) : resolve.schema(schema.items),
       }
     } else {
       // Create merged object with properties handled separately
@@ -266,7 +266,7 @@ const mergeItemsIntoResult = (result: SchemaObject, items: SchemaObject): void =
 
     if (result.allOf) {
       for (const schema of result.allOf) {
-        allOfSchemas.push(getResolvedRef(schema))
+        allOfSchemas.push(resolve.schema(schema))
       }
     } else {
       allOfSchemas.push(result)
@@ -274,7 +274,7 @@ const mergeItemsIntoResult = (result: SchemaObject, items: SchemaObject): void =
 
     if (items.allOf) {
       for (const schema of items.allOf) {
-        allOfSchemas.push(getResolvedRef(schema))
+        allOfSchemas.push(resolve.schema(schema))
       }
     } else {
       allOfSchemas.push(items)
@@ -305,7 +305,7 @@ const mergeItems = (existing: SchemaObject, incoming: SchemaObject): SchemaObjec
 
     if (existing.allOf) {
       for (const schema of existing.allOf) {
-        allOfSchemas.push(getResolvedRef(schema))
+        allOfSchemas.push(resolve.schema(schema))
       }
     } else {
       allOfSchemas.push(existing)
@@ -313,7 +313,7 @@ const mergeItems = (existing: SchemaObject, incoming: SchemaObject): SchemaObjec
 
     if (incoming.allOf) {
       for (const schema of incoming.allOf) {
-        allOfSchemas.push(getResolvedRef(schema))
+        allOfSchemas.push(resolve.schema(schema))
       }
     } else {
       allOfSchemas.push(incoming)
