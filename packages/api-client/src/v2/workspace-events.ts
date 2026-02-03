@@ -92,6 +92,13 @@ export function initializeWorkspaceEventHandlers({
       hooks,
     )(payload),
   )
+  eventBus.on('workspace:update:active-environment', (payload) =>
+    withHook(
+      'workspace:update:active-environment',
+      mutators.value.workspace().workspace.updateActiveEnvironment,
+      hooks,
+    )(payload),
+  )
 
   //------------------------------------------------------------------------------------
   // Document Event Handlers
