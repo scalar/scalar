@@ -137,7 +137,7 @@ div + .userMessage {
   max-width: 744px;
   z-index: 1;
 }
-.chat:deep(.markdown) {
+.chat :deep(.markdown) {
   margin-bottom: 12px;
 }
 </style>

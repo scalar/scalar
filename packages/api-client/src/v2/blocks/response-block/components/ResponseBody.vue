@@ -83,7 +83,7 @@ const mediaConfig = computed(() =>
   </CollapsibleSection>
 </template>
 <style scoped>
-.scalar-code-block:deep(.hljs *) {
+.scalar-code-block :deep(.hljs *) {
   font-size: var(--scalar-small);
 }
 </style>
