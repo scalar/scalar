@@ -15,13 +15,15 @@ import ResponseBody from '@/components/ResponseBody/ResponseBody.vue'
 import ResponseBodyToggle from '@/components/ResponseBody/ResponseBodyToggle.vue'
 import SendingRequest from '@/components/SendingRequest.vue'
 import type {
-  ExecuteRequestToolInput,
-  ExecuteRequestToolOutput,
+  ExecuteClientSideRequestToolInput,
+  ExecuteClientSideRequestToolOutput,
 } from '@/entities/tools/execute-request'
 
 const { request, response, state } = defineProps<{
-  request?: ExecuteRequestToolInput | DeepPartial<ExecuteRequestToolInput>
-  response?: ExecuteRequestToolOutput
+  request?:
+    | ExecuteClientSideRequestToolInput
+    | DeepPartial<ExecuteClientSideRequestToolInput>
+  response?: ExecuteClientSideRequestToolOutput
   state:
     | 'requiresApproval'
     | 'sendingRequest'
@@ -32,17 +34,17 @@ const { request, response, state } = defineProps<{
 }>()
 
 const responseData = computed(() => {
-  if (response?.structuredContent.success) {
+  if (response?.success) {
     return {
-      data: response.structuredContent.data.responseBody,
-      headers: response.structuredContent.data.headers,
+      data: response.data.responseBody,
+      headers: response.data.headers,
     }
   }
 
-  if (response?.structuredContent.error?.code === 'REQUEST_NOT_OK') {
+  if (response?.error?.code === 'REQUEST_NOT_OK') {
     return {
-      data: response.structuredContent.error.detail.responseBody,
-      headers: response.structuredContent.error.detail.headers,
+      data: response.error.detail.responseBody,
+      headers: response.error.detail.headers,
     }
   }
 

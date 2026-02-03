@@ -1,34 +1,56 @@
-import type { ToolUIPart, UIMessagePart, UITools } from 'ai'
+import type { ToolUIPart, UIMessagePart } from 'ai'
 import { computed } from 'vue'
 
-import { useState } from '@/state/state'
+import { executeRequestTool } from '@/client-tools/execute-request'
+import { EXECUTE_CLIENT_SIDE_REQUEST_TOOL_NAME } from '@/entities'
+import { createDocumentSettings } from '@/helpers'
+import { type Tools, useState } from '@/state/state'
 
-type ApprovalRequestedToolPart = ToolUIPart & { state: 'approval-requested' }
-
-function isRequestedToolPart(part: UIMessagePart<any, UITools>): part is ApprovalRequestedToolPart {
-  return part.type.startsWith('tool') && (part as ToolUIPart).state === 'approval-requested'
+type RequestToolPart = ToolUIPart & {
+  type: 'tool-execute-request'
+  state: 'input-available'
+  input: Tools['execute-request']['input']
 }
 
-export function useChatApprovals() {
+export function requestPartRequiresApproval(part: UIMessagePart<any, Tools>): part is RequestToolPart {
+  return (
+    part.type === (`tool-${EXECUTE_CLIENT_SIDE_REQUEST_TOOL_NAME}` as const) &&
+    part.state === 'input-available' &&
+    part.input?.method?.toLowerCase() !== 'get'
+  )
+}
+
+export function useRequestApprovals() {
   const state = useState()
 
-  const approvalRequestedParts = computed(() => {
+  const approvalRequiredParts = computed(() => {
     return state.chat.messages
-      .filter((message) => message.parts.some(isRequestedToolPart))
+      .filter((message) => message.parts.some(requestPartRequiresApproval))
       .flatMap((message) => message.parts)
-      .filter(isRequestedToolPart) as ApprovalRequestedToolPart[]
+      .filter(requestPartRequiresApproval) as RequestToolPart[]
   })
 
-  async function respondToToolCalls(approved: boolean) {
-    const approvalPromises = approvalRequestedParts.value.map((toolPart) =>
-      state.chat.addToolApprovalResponse({
-        id: toolPart.approval.id,
-        approved,
-      }),
-    )
+  async function respondToRequestApprovals(approved: boolean) {
+    const approvalPromises = approvalRequiredParts.value.map(async (toolPart) => {
+      if (!approved) {
+        return await state.chat.addToolOutput({
+          tool: EXECUTE_CLIENT_SIDE_REQUEST_TOOL_NAME,
+          toolCallId: toolPart.toolCallId,
+          state: 'output-error',
+          errorText: 'The user denied the request.',
+        })
+      }
+
+      await executeRequestTool({
+        documentSettings: createDocumentSettings(state.workspaceStore),
+        input: toolPart.input,
+        toolCallId: toolPart.toolCallId,
+        chat: state.chat,
+      })
+    })
 
     await Promise.all(approvalPromises)
   }
 
-  return { approvalRequestedParts, respondToToolCalls }
+  return { approvalRequiredParts, respondToRequestApprovals }
 }

@@ -204,6 +204,9 @@ catalogs:
     tailwindcss:
       specifier: ^4.1.18
       version: 4.1.18
+    truncate-json:
+      specifier: 3.0.1
+      version: 3.0.1
     type-fest:
       specifier: ^5.3.1
       version: 5.3.1
@@ -1166,6 +1169,9 @@ importers:
       neverpanic:
         specifier: catalog:*
         version: 0.0.5(typescript@5.9.3)
+      truncate-json:
+        specifier: catalog:*
+        version: 3.0.1
       vue:
         specifier: catalog:*
         version: 3.5.26(typescript@5.9.3)
@@ -11679,6 +11685,10 @@ packages:
     resolution: {integrity: sha512-pCcEwRi+TKpMlxAQObHDQ56KawURgyAf6jtIY046fJ5tIv3zDe/LEIubckAO8fj6JnAxLdmWkUfNyulQ2iKdEw==}
     engines: {node: '>=14.0.0'}
 
+  guess-json-indent@3.0.1:
+    resolution: {integrity: sha512-LWZ3Vr8BG7DHE3TzPYFqkhjNRw4vYgFSsv2nfMuHklAlOfiy54/EwiDQuQfFVLxENCVv20wpbjfTayooQHrEhQ==}
+    engines: {node: '>=18.18.0'}
+
   gzip-size@6.0.0:
     resolution: {integrity: sha512-ax7ZYomf6jqPTQ4+XCpUGyXKHk5WweS+e05MBO4/y3WJ5RkmPXNKvX+bx1behVILVwr6JSQvZAku021CHPXG3Q==}
     engines: {node: '>=10'}
@@ -16348,6 +16358,14 @@ packages:
     resolution: {integrity: sha512-aqD2Q0144Z+/RqG52NeHEkZauTAUWJO8c6yTftGJKO3Tja5tUgIfmIl6kExvhtxSDP7fXB6DvzkfMpCd/F3G+Q==}
     engines: {node: '>=0.6.19'}
 
+  string-byte-length@3.0.1:
+    resolution: {integrity: sha512-yJ8vP0HMwZ54CcA8S8mKoXbkezpZHANFtmafFo8lGxZThCQcAwRHjdFabuSLgOzxj9OFJcmssmiAvmcOK4O2Hw==}
+    engines: {node: '>=18.18.0'}
+
+  string-byte-slice@3.0.1:
+    resolution: {integrity: sha512-GWv2K4lYyd2+AhmKH3BV+OVx62xDX+99rSLfKpaqFiQU7uOMaUY1tDjdrRD4gsrCr9lTyjMgjna7tZcCOw+Smg==}
+    engines: {node: '>=18.18.0'}
+
   string-length@4.0.2:
     resolution: {integrity: sha512-+l6rNN5fYHNhZZy41RXsYptCjA2Igmq4EG7kZAYFQI1E1VTXarr6ZPXBg6eq7Y6eK4FEhY6AJlyuFIb/v/S0VQ==}
     engines: {node: '>=10'}
@@ -16863,6 +16881,10 @@ packages:
 
   trough@2.2.0:
     resolution: {integrity: sha512-tmMpK00BjZiUyVyvrBK7knerNgmgvcV/KLVyuma/SC+TQN167GrMRciANTz09+k3zW8L8t60jWO1GpfkZdjTaw==}
+
+  truncate-json@3.0.1:
+    resolution: {integrity: sha512-QVsbr1WhGLq2F0oDyYbqtOXcf3gcnL8C9H5EX8bBwAr8ZWvWGJzukpPrDrWgJMrNtgDbo74BIjI4kJu3q2xQWw==}
+    engines: {node: '>=18.18.0'}
 
   ts-api-utils@2.4.0:
     resolution: {integrity: sha512-3TaVTaAv2gTiMB35i3FiGJaRfwb3Pyn/j3m/bfAvGe8FB7CF6u+LMYqYlDh7reQf7UNvoTvdfAqHGmPGOSsPmA==}
@@ -17720,8 +17742,8 @@ packages:
   vue-component-type-helpers@3.2.2:
     resolution: {integrity: sha512-x8C2nx5XlUNM0WirgfTkHjJGO/ABBxlANZDtHw2HclHtQnn+RFPTnbjMJn8jHZW4TlUam0asHcA14lf1C6Jb+A==}
 
-  vue-component-type-helpers@3.2.3:
-    resolution: {integrity: sha512-lpJTa8a+12Cgy/n5OdlQTzQhSWOCu+6zQoNFbl3KYxwAoB95mYIgMLKEYMvQykPJ2ucBDjJJISdIBHc1d9Hd3w==}
+  vue-component-type-helpers@3.2.4:
+    resolution: {integrity: sha512-05lR16HeZDcDpB23ku5b5f1fBOoHqFnMiKRr2CiEvbG5Ux4Yi0McmQBOET0dR0nxDXosxyVqv67q6CzS3AK8rw==}
 
   vue-demi@0.14.10:
     resolution: {integrity: sha512-nMZBOwuzabUO0nLgIcc6rycZEebF6eeUfaiQx9+WSk8e29IbLvPU9feI6tqW4kTo3hvoYAJkMh8n8D0fuISphg==}
@@ -24393,7 +24415,7 @@ snapshots:
       storybook: 10.1.11(@testing-library/dom@9.3.4)(prettier@3.6.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       type-fest: 2.19.0
       vue: 3.5.26(typescript@5.9.3)
-      vue-component-type-helpers: 3.2.3
+      vue-component-type-helpers: 3.2.4
 
   '@sveltejs/acorn-typescript@1.0.5(acorn@8.15.0)':
     dependencies:
@@ -29237,6 +29259,8 @@ snapshots:
     transitivePeerDependencies:
       - encoding
       - supports-color
+
+  guess-json-indent@3.0.1: {}
 
   gzip-size@6.0.0:
     dependencies:
@@ -35157,6 +35181,10 @@ snapshots:
 
   string-argv@0.3.2: {}
 
+  string-byte-length@3.0.1: {}
+
+  string-byte-slice@3.0.1: {}
+
   string-length@4.0.2:
     dependencies:
       char-regex: 1.0.2
@@ -35707,6 +35735,12 @@ snapshots:
   trim-trailing-lines@2.1.0: {}
 
   trough@2.2.0: {}
+
+  truncate-json@3.0.1:
+    dependencies:
+      guess-json-indent: 3.0.1
+      string-byte-length: 3.0.1
+      string-byte-slice: 3.0.1
 
   ts-api-utils@2.4.0(typescript@5.9.3):
     dependencies:
@@ -36644,7 +36678,7 @@ snapshots:
 
   vue-component-type-helpers@3.2.2: {}
 
-  vue-component-type-helpers@3.2.3: {}
+  vue-component-type-helpers@3.2.4: {}
 
   vue-demi@0.14.10(vue@3.5.26(typescript@5.9.3)):
     dependencies:
