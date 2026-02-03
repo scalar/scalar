@@ -70,7 +70,7 @@ export const getModelName = (value: SchemaObject, hideModelNames = false): strin
     }
 
     // Use the model name
-    const itemModelName = getModelNameFromSchema(resolve.schema(value.items))
+    const itemModelName = getModelNameFromSchema(items)
     if (itemModelName && 'type' in items && itemModelName !== items.type) {
       return formatTypeWithModel(valueType, itemModelName)
     }
