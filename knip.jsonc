@@ -298,7 +298,8 @@
         "./src/schemas/extensions/security/index.ts",
         "./src/schemas/v3.1/strict/openapi-document.ts",
         "./src/schemas/v3.1/strict/type-guards.ts",
-        "./src/server.ts"
+        "./src/server.ts",
+        "./src/resolve.ts"
       ]
     },
     "integrations/django-ninja": {
