@@ -120,9 +120,7 @@ const state = useState()
 div + .userMessage {
   margin-top: 64px;
 }
-.chat
-  > div:has(:deep(.executeRequestTool))
-  + div:has(:deep(.executeRequestTool)) {
+.chat > :deep(div:has(.executeRequestTool)) + div:has(.executeRequestTool) {
   margin-top: -12px;
 }
 .spacer {
@@ -137,7 +135,7 @@ div + .userMessage {
   max-width: 744px;
   z-index: 1;
 }
-.chat:deep(.markdown) {
+.chat :deep(.markdown) {
   margin-bottom: 12px;
 }
 </style>
