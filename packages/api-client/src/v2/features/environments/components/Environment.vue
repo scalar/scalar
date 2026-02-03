@@ -9,15 +9,20 @@ import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensi
 
 import EnvironmentVariablesTable from '@/v2/features/environments/components/EnvironmentVariablesTable.vue'
 
-const { environmentName, environment, eventBus, collectionType, isActive } =
-  defineProps<
-    {
-      environment: XScalarEnvironment
-      environmentName: string
-      eventBus: WorkspaceEventBus
-      isActive: boolean
-    } & CollectionType
-  >()
+const {
+  environmentName,
+  environment,
+  eventBus,
+  collectionType,
+  isActive = false,
+} = defineProps<
+  {
+    environment: XScalarEnvironment
+    environmentName: string
+    eventBus: WorkspaceEventBus
+    isActive?: boolean
+  } & CollectionType
+>()
 
 const emit = defineEmits<{
   (e: 'edit'): void
