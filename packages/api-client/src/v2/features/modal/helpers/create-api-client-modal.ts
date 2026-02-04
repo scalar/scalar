@@ -1,7 +1,7 @@
 import { type ModalState, useModal } from '@scalar/components'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { type WorkspaceEventBus, createWorkspaceEventBus } from '@scalar/workspace-store/events'
-import { type App, computed, createApp, reactive } from 'vue'
+import { type App, computed, createApp, reactive, watch } from 'vue'
 
 import {
   type DefaultEntities,
@@ -101,6 +101,37 @@ export const createApiClientModal = ({
     workspaceStore,
     options,
   } satisfies ModalProps)
+
+  watch(
+    () => modalState.open,
+    async (open) => {
+      if (open) {
+        return
+      }
+
+      // When the modal is closed, revert the document changes
+      const selectedServer = document.value?.['x-scalar-selected-server']
+      const securitySchemes = document.value?.components?.securitySchemes
+      const servers = document.value?.servers
+
+      await workspaceStore.revertDocumentChanges(documentSlug.value ?? '')
+
+      if (!document.value) {
+        return
+      }
+
+      if (selectedServer) {
+        document.value['x-scalar-selected-server'] = selectedServer
+      }
+      if (securitySchemes) {
+        document.value.components ??= {}
+        document.value.components.securitySchemes = securitySchemes
+      }
+      if (servers) {
+        document.value.servers = servers
+      }
+    },
+  )
 
   // Use a unique id prefix to prevent collisions with other Vue apps on the page
   app.config.idPrefix = 'scalar-client'

@@ -126,11 +126,6 @@ const { activate: activateFocusTrap, deactivate: deactivateFocusTrap } =
 const cleanUp = () => {
   deactivateFocusTrap()
   eventBus.emit('operation:cancel:request')
-
-  // We also drop any changes to the document when we close the modal
-  workspaceStore.revertDocumentChanges(
-    document.value?.['x-scalar-navigation']?.name ?? '',
-  )
 }
 
 const isLocked = useScrollLock(() => {
