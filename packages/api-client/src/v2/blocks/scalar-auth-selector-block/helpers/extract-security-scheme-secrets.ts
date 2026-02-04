@@ -41,17 +41,16 @@ const SECRET_TO_INPUT_FIELD_MAP = {
  */
 const mergeFlowSecrets = <const T extends readonly (keyof typeof SECRET_TO_INPUT_FIELD_MAP)[]>(
   properties: T,
-  input: Record<string, unknown>,
-  secrets: Record<string, string> = {},
+  configSecrets: Record<string, unknown>,
+  authStoreSecrets: Record<string, string> = {},
 ): Record<T[number], string> => {
   const result = {} as Record<T[number], string>
 
   for (const property of properties) {
-    const secretValue = secrets[property]
-    const inputFieldName = SECRET_TO_INPUT_FIELD_MAP[property]
-    const inputValue = inputFieldName ? (input[inputFieldName] as string | undefined) : undefined
+    const authStorevalue = authStoreSecrets[property]
+    const configSecretValue = configSecrets[SECRET_TO_INPUT_FIELD_MAP[property]] as string | undefined
 
-    result[property as T[number]] = secretValue || inputValue || ''
+    result[property as T[number]] = authStorevalue || configSecretValue || ''
   }
 
   return result
