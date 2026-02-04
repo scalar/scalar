@@ -133,14 +133,14 @@ const handleImport = async (newSource: string): Promise<void> => {
   // First load the document into a draft store
   // This is to get the title of the document so we can generate a unique slug for store
   const draftStore = createWorkspaceStore()
-  const success = await loadDocumentFromSource(
+  const isSuccessfullyLoaded = await loadDocumentFromSource(
     draftStore,
     newSource,
     TEMP_DOCUMENT_NAME,
     watchMode.value,
   )
 
-  if (!success) {
+  if (!isSuccessfullyLoaded) {
     return handleImportError('Failed to import document')
   }
 
