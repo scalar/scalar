@@ -41,12 +41,24 @@ export const loadDocumentFromSource = async (
     })
   }
 
+  /** Attempts to convert a Postman collection to OpenAPI, returning null if conversion fails.  */
+  const safeConvertPostmanToOpenApi = (source: string) => {
+    try {
+      return getOpenApiFromPostman(source)
+    } catch {
+      return null
+    }
+  }
+
   // Handle Postman Collection: convert to OpenAPI and add as document.
   if (isPostmanCollection(source)) {
-    return await workspaceStore.addDocument({
-      name,
-      document: getOpenApiFromPostman(source),
-    })
+    const document = safeConvertPostmanToOpenApi(source)
+
+    if (document === null) {
+      return false
+    }
+
+    return await workspaceStore.addDocument({ name, document })
   }
 
   const getNormalizedContent = (source: string) => {
