@@ -29,6 +29,7 @@
   },
   "type": "module",
   "dependencies": {
+    "posthog-js": "^1.336.1",
     "vue": "catalog:*"
   },
   "devDependencies": {
