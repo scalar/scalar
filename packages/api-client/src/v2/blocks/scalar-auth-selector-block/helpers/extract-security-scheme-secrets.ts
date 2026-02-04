@@ -39,7 +39,7 @@ const SECRET_TO_INPUT_FIELD_MAP = {
  * Safely merge secret values with priority: auth store > config > empty string.
  * Returns an object with exactly the specified properties as keys.
  */
-const mergeFlowSecrets = <const T extends readonly string[]>(
+const mergeFlowSecrets = <const T extends readonly (keyof typeof SECRET_TO_INPUT_FIELD_MAP)[]>(
   properties: T,
   input: Record<string, unknown>,
   secrets: Record<string, string> = {},
