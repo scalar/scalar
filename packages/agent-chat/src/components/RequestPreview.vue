@@ -221,7 +221,7 @@ const displayMode = computed(() => {
   color: var(--scalar-color-3);
   padding: 8px;
 }
-.code:deep(.codeBlock) {
+.code :deep(.codeBlock) {
   max-height: calc(50vh - 100px);
   padding-top: 0;
 }

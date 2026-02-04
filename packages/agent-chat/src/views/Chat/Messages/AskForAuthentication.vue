@@ -143,10 +143,10 @@ async function authorizeClicked() {
   margin: auto;
   width: 100%;
 }
-.authContentInner:deep(> div) {
+.authContentInner :deep(> div) {
   margin: 36px 0 48px 0;
 }
-.authContent:deep(.markdown) {
+.authContent :deep(.markdown) {
   margin-bottom: 0 !important;
 }
 .askForAuthentication.open .authContent {
