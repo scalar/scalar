@@ -270,9 +270,7 @@ describe('createApiClientModal', () => {
     document!.info.version = '2.0.0'
 
     // Also modify servers (should be preserved)
-    document!.servers = [
-      { url: 'https://api.example.com', description: 'Production server' },
-    ]
+    document!.servers = [{ url: 'https://api.example.com', description: 'Production server' }]
 
     await nextTick()
 
@@ -289,9 +287,7 @@ describe('createApiClientModal', () => {
     expect(restoredDocument!.info.version).toBe('1.0.0')
 
     // But servers should be preserved
-    expect(restoredDocument!.servers).toEqual([
-      { url: 'https://api.example.com', description: 'Production server' },
-    ])
+    expect(restoredDocument!.servers).toEqual([{ url: 'https://api.example.com', description: 'Production server' }])
 
     modal.app.unmount()
   })
