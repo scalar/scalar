@@ -26,20 +26,20 @@ import type {
  * Maps x-scalar-secret fields to their corresponding input field names.
  * This allows us to fall back to config values when auth store secrets are not available.
  */
-const SECRET_TO_INPUT_FIELD_MAP: Record<string, string> = {
+const SECRET_TO_INPUT_FIELD_MAP = {
   'x-scalar-secret-client-id': 'x-scalar-client-id',
   'x-scalar-secret-client-secret': 'clientSecret',
   'x-scalar-secret-password': 'password',
   'x-scalar-secret-redirect-uri': 'x-scalar-redirect-uri',
   'x-scalar-secret-token': 'token',
   'x-scalar-secret-username': 'username',
-}
+} as const
 
 /**
  * Safely merge secret values with priority: auth store > config > empty string.
  * Returns an object with exactly the specified properties as keys.
  */
-const mergeSecrets = <const T extends readonly string[]>(
+const mergeFlowSecrets = <const T extends readonly string[]>(
   properties: T,
   input: Record<string, unknown>,
   secrets: Record<string, string> = {},
@@ -73,7 +73,7 @@ export const extractSecuritySchemeSecrets = (
     return {
       ...scheme,
       'x-scalar-secret-token': storeSecrets?.['x-scalar-secret-token'] ?? scheme.value ?? '',
-    } as ApiKeyObjectSecret
+    } satisfies ApiKeyObjectSecret
   }
 
   // Handle HTTP Auth security schemes (e.g., Basic, Bearer)
@@ -81,11 +81,9 @@ export const extractSecuritySchemeSecrets = (
     const storeSecrets = secrets?.type === 'http' ? secrets : undefined
     return {
       ...scheme,
-      ...mergeSecrets(
-        ['x-scalar-secret-token', 'x-scalar-secret-username', 'x-scalar-secret-password'],
-        scheme,
-        storeSecrets,
-      ),
+      'x-scalar-secret-token': storeSecrets?.['x-scalar-secret-token'] ?? scheme.token ?? '',
+      'x-scalar-secret-username': storeSecrets?.['x-scalar-secret-username'] ?? scheme.username ?? '',
+      'x-scalar-secret-password': storeSecrets?.['x-scalar-secret-password'] ?? scheme.password ?? '',
     } satisfies HttpObjectSecret
   }
 
@@ -112,7 +110,7 @@ export const extractSecuritySchemeSecrets = (
         if (key === 'implicit') {
           acc.implicit = {
             ...(flow as OAuthFlowImplicit),
-            ...mergeSecrets(
+            ...mergeFlowSecrets(
               ['x-scalar-secret-client-id', 'x-scalar-secret-redirect-uri', 'x-scalar-secret-token'],
               flow,
               storeSecrets?.implicit,
@@ -124,7 +122,7 @@ export const extractSecuritySchemeSecrets = (
         if (key === 'password') {
           acc[key] = {
             ...(flow as OAuthFlowPassword),
-            ...mergeSecrets(
+            ...mergeFlowSecrets(
               [
                 'x-scalar-secret-client-id',
                 'x-scalar-secret-client-secret',
@@ -142,7 +140,7 @@ export const extractSecuritySchemeSecrets = (
         if (key === 'clientCredentials') {
           acc[key] = {
             ...(flow as OAuthFlowClientCredentials),
-            ...mergeSecrets(
+            ...mergeFlowSecrets(
               ['x-scalar-secret-client-id', 'x-scalar-secret-client-secret', 'x-scalar-secret-token'],
               flow,
               storeSecrets?.clientCredentials,
@@ -154,7 +152,7 @@ export const extractSecuritySchemeSecrets = (
         if (key === 'authorizationCode') {
           acc[key] = {
             ...(flow as OAuthFlowAuthorizationCode),
-            ...mergeSecrets(
+            ...mergeFlowSecrets(
               [
                 'x-scalar-secret-client-id',
                 'x-scalar-secret-client-secret',
