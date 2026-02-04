@@ -1,5 +1,16 @@
 # @scalar/api-client-react
 
+## 1.3.88
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-client@2.23.3**
+  - [#8035](https://github.com/scalar/scalar/pull/8035): fix: correctly resolve and validate refs
+  - [#8033](https://github.com/scalar/scalar/pull/8033): fix: add failsafe to incorrect array parameter style
+  - [#8043](https://github.com/scalar/scalar/pull/8043): fix: :deep selector for bun build
+
 ## 1.3.87
 
 ### Patch Changes

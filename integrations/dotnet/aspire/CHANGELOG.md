@@ -1,5 +1,14 @@
 # @scalar/aspire
 
+## 0.8.42
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.44.12**
+  - [#8035](https://github.com/scalar/scalar/pull/8035): fix: correctly resolve and validate refs
+
 ## 0.8.41
 
 ### Patch Changes
