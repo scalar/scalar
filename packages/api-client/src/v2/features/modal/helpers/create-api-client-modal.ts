@@ -1,18 +1,15 @@
 import { type ModalState, useModal } from '@scalar/components'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { type WorkspaceEventBus, createWorkspaceEventBus } from '@scalar/workspace-store/events'
-import type {
-  OpenApiDocument,
-  SecuritySchemes,
-  ServerObject,
-} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import { type App, computed, createApp, reactive, watch } from 'vue'
+import type { InMemoryWorkspace } from '@scalar/workspace-store/schemas/inmemory-workspace'
+import { type App, computed, createApp, reactive, ref, watch } from 'vue'
 
 import {
   type DefaultEntities,
   type RoutePayload,
   resolveRouteParameters,
 } from '@/v2/features/modal/helpers/resolve-route-parameters'
+import { restoreWorkspaceState } from '@/v2/features/modal/helpers/restore-workspace-state'
 import { useModalSidebar } from '@/v2/features/modal/hooks/use-modal-sidebar'
 import Modal, { type ModalProps } from '@/v2/features/modal/Modal.vue'
 import type { ClientPlugin } from '@/v2/helpers/plugins'
@@ -66,6 +63,8 @@ export const createApiClientModal = ({
     documentSlug: workspaceStore.workspace['x-scalar-active-document'] || 'default',
   }
 
+  const workspaceStoreSnapshot = ref<InMemoryWorkspace | null>(null)
+
   const parameters = reactive<DefaultEntities>({ ...defaultEntities })
 
   /** Navigate to the specified path, method, and example. */
@@ -107,53 +106,33 @@ export const createApiClientModal = ({
     options,
   } satisfies ModalProps)
 
-  type PreservedProperties = {
-    selectedServer?: string
-    securitySchemes?: SecuritySchemes
-    servers?: ServerObject[]
+  /** Snapshot the workspace store when the modal is opened. */
+  const handleModalOpen = () => {
+    workspaceStoreSnapshot.value = window.structuredClone(workspaceStore.exportWorkspace())
   }
 
-  /**
-   * Restores preserved properties to the document after reverting changes.
-   * These properties need to be preserved because they represent user selections
-   * that should persist across modal sessions.
-   */
-  const restorePreservedProperties = (doc: OpenApiDocument | null, preserved: PreservedProperties): void => {
-    if (!doc) {
+  /** Restore the workspace store when the modal is closed. */
+  const handleModalClose = () => {
+    if (!workspaceStoreSnapshot.value) {
+      console.warn('No workspace store snapshot to restore')
       return
     }
-    if (preserved.selectedServer !== undefined) {
-      doc['x-scalar-selected-server'] = preserved.selectedServer
+
+    const result = restoreWorkspaceState({
+      workspaceStore,
+      workspaceState: workspaceStoreSnapshot.value,
+      name: documentSlug.value ?? '',
+    })
+
+    if (!result.ok) {
+      console.error('Failed to restore workspace state', result.error)
     }
-    if (preserved.securitySchemes !== undefined) {
-      doc.components ??= {}
-      doc.components.securitySchemes = preserved.securitySchemes
-    }
-    if (preserved.servers !== undefined) {
-      doc.servers = preserved.servers
-    }
+    return
   }
 
   watch(
     () => modalState.open,
-    async (open) => {
-      if (open) {
-        return
-      }
-
-      // When the modal is closed, revert the document changes while preserving user selections
-      const preservedProperties = {
-        selectedServer: document.value?.['x-scalar-selected-server'],
-        securitySchemes: document.value?.components?.securitySchemes,
-        servers: document.value?.servers,
-      }
-
-      // Any other changes to the document will be reverted
-      await workspaceStore.revertDocumentChanges(documentSlug.value ?? '')
-
-      // Restore the preserved properties
-      restorePreservedProperties(document.value, preservedProperties)
-    },
+    (open) => (open ? handleModalOpen() : handleModalClose()),
   )
 
   // Use a unique id prefix to prevent collisions with other Vue apps on the page
