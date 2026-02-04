@@ -378,7 +378,7 @@ const sidebarItems = computed<TraversedEntry[]>(() => {
   }
 
   return docItems.filter((item) =>
-    config.hideModels ? item.id !== 'models' : true,
+    config.hideModels ? !item.id.endsWith('models') : true,
   )
 })
 
