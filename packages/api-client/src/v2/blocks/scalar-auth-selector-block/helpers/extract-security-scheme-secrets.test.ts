@@ -228,6 +228,24 @@ describe('extractSecuritySchemeSecrets', () => {
       } satisfies HttpObjectSecret)
     })
 
+    it('returns http bearer scheme with token from config when no auth store data', () => {
+      const authStore = createAuthStore()
+      const scheme: SecuritySchemeObject & Partial<SecurityScheme> = {
+        type: 'http',
+        scheme: 'bearer',
+        token: 'config-bearer-token',
+      }
+
+      const result = extractSecuritySchemeSecrets(scheme, authStore, schemeName, documentSlug)
+      expect(result).toMatchObject({
+        type: 'http',
+        scheme: 'bearer',
+        'x-scalar-secret-token': 'config-bearer-token',
+        'x-scalar-secret-username': '',
+        'x-scalar-secret-password': '',
+      } satisfies HttpObjectSecret)
+    })
+
     it('returns http scheme with credentials from config when no auth store data', () => {
       const authStore = createAuthStore()
       const scheme: SecuritySchemeObject & Partial<SecurityScheme> = {
@@ -244,6 +262,31 @@ describe('extractSecuritySchemeSecrets', () => {
         'x-scalar-secret-token': '',
         'x-scalar-secret-username': 'config-user',
         'x-scalar-secret-password': 'config-pass',
+      } satisfies HttpObjectSecret)
+    })
+
+    it('prioritizes auth store token over config token for bearer', () => {
+      const authStore = createAuthStore()
+      authStore.setAuthSecrets(documentSlug, schemeName, {
+        type: 'http',
+        'x-scalar-secret-token': 'store-bearer-token',
+        'x-scalar-secret-username': '',
+        'x-scalar-secret-password': '',
+      })
+
+      const scheme: SecuritySchemeObject & Partial<SecurityScheme> = {
+        type: 'http',
+        scheme: 'bearer',
+        token: 'config-bearer-token',
+      }
+
+      const result = extractSecuritySchemeSecrets(scheme, authStore, schemeName, documentSlug)
+      expect(result).toMatchObject({
+        type: 'http',
+        scheme: 'bearer',
+        'x-scalar-secret-token': 'store-bearer-token',
+        'x-scalar-secret-username': '',
+        'x-scalar-secret-password': '',
       } satisfies HttpObjectSecret)
     })
 
@@ -391,7 +434,7 @@ describe('extractSecuritySchemeSecrets', () => {
 
     it('returns oauth2 implicit flow with secrets from config when no auth store data', () => {
       const authStore = createAuthStore()
-      const scheme: SecuritySchemeObject = {
+      const scheme: SecuritySchemeObject & Partial<OAuth2Object> = {
         type: 'oauth2',
         flows: {
           implicit: {
