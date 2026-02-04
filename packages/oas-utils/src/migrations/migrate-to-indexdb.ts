@@ -1,3 +1,6 @@
+import { extractConfigSecrets, removeSecretFields } from '@scalar/helpers/general/extract-config-secrets'
+import { objectEntries } from '@scalar/helpers/object/object-entries'
+import type { Oauth2Flow, SecuritySchemeOauth2 } from '@scalar/types/entities'
 import { type Auth, AuthSchema } from '@scalar/workspace-store/entities/auth'
 import { xScalarEnvironmentSchema } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import { xScalarCookieSchema } from '@scalar/workspace-store/schemas/extensions/general/x-scalar-cookies'
@@ -88,47 +91,6 @@ export const shouldMigrateToIndexDb = (): boolean => {
   return hasOldData
 }
 
-/** Transforms a collection and everything it includes into a WorkspaceDocument + auth */
-const transformCollectionToDocument = (
-  collection: v_2_5_0['Collection'],
-  _dataRecords: v_2_5_0['DataRecord'],
-): { document: WorkspaceDocument; auth: Auth } => {
-  // // The collection IS the OpenAPI document (not wrapped in a spec property)
-  // const documentName = collection.info?.title || collection.uid
-
-  // documents[documentName] = coerceValue(OpenAPIDocumentSchema, {
-  //   openapi: collection.openapi || '3.1.0',
-  //   info: collection.info || {
-  //     title: documentName,
-  //     version: '1.0',
-  //   },
-  //   servers: [],
-  //   paths: {},
-  //   components: collection.components || {},
-  //   security: collection.security || [],
-  //   tags: [],
-  //   webhooks: collection.webhooks,
-  //   externalDocs: collection.externalDocs,
-  //   // Preserve scalar extensions
-  //   'x-scalar-icon': collection['x-scalar-icon'],
-  //   'x-scalar-environments': collection['x-scalar-environments'],
-  //   'x-scalar-original-document-hash': '',
-  // })
-  return {
-    document: coerceValue(OpenAPIDocumentSchema, {
-      openapi: collection.openapi || '3.1.0',
-      info: collection.info || {
-        title: 'documentName',
-        version: '1.0',
-      },
-    }),
-    auth: coerceValue(AuthSchema, {
-      secrets: {},
-      selected: {},
-    }),
-  }
-}
-
 type MigrateToIndexDbResults = {
   name: string
   slug: string
@@ -166,7 +128,7 @@ export const transformLegacyDataToWorkspace = (legacyData: {
         }
 
         const documentName = collection.info?.title || collection.uid
-        const { document, auth } = transformCollectionToDocument(collection, legacyData.records)
+        const { document, auth } = transformCollectionToDocument(documentName, collection, legacyData.records)
         workspaceAuth[documentName] = auth
 
         return [[documentName, document]]
@@ -221,6 +183,118 @@ export const transformLegacyDataToWorkspace = (legacyData: {
       auth: workspaceAuth,
     }
   })
+
+/** Transforms a collection and everything it includes into a WorkspaceDocument + auth */
+const transformCollectionToDocument = (
+  documentName: string,
+  collection: v_2_5_0['Collection'],
+  _dataRecords: v_2_5_0['DataRecord'],
+): { document: WorkspaceDocument; auth: Auth } => {
+  return {
+    document: coerceValue(OpenAPIDocumentSchema, {
+      openapi: collection.openapi || '3.1.0',
+      info: collection.info || {
+        title: documentName,
+        version: '1.0',
+      },
+      servers: [],
+      paths: {},
+      components: {
+        securitySchemes: collection.securitySchemes.reduce((acc, uid) => {
+          const securityScheme = _dataRecords.securitySchemes[uid]
+          if (!securityScheme) {
+            return acc
+          }
+
+          // Clean the flows
+          if (securityScheme.type === 'oauth2') {
+            const selectedScopes = new Set<string>()
+
+            return {
+              ...acc,
+              [securityScheme.nameKey]: {
+                ...securityScheme,
+                flows: objectEntries(securityScheme.flows).reduce(
+                  (acc, [key, flow]) => {
+                    if (!flow) {
+                      return acc
+                    }
+
+                    // Store any selected scopes from the config
+                    if ('selectedScopes' in flow && Array.isArray(flow.selectedScopes)) {
+                      flow.selectedScopes?.forEach((scope) => selectedScopes.add(scope))
+                    }
+
+                    acc[key] = removeSecretFields(flow) as Oauth2Flow
+                    return acc
+                  },
+                  {} as Record<string, Oauth2Flow>,
+                ),
+                'x-default-scopes': Array.from(selectedScopes),
+              },
+            }
+          }
+
+          /** We don't want any secrets in the document */
+          const cleanedSecurityScheme = removeSecretFields(securityScheme)
+
+          return {
+            ...acc,
+            [securityScheme.nameKey]: cleanedSecurityScheme,
+          }
+        }, {}),
+      },
+      security: collection.security || [],
+      tags: [],
+      webhooks: collection.webhooks,
+      externalDocs: collection.externalDocs,
+      // Preserve scalar extensions
+      'x-scalar-icon': collection['x-scalar-icon'],
+      'x-scalar-environments': collection['x-scalar-environments'],
+      'x-scalar-original-document-hash': '',
+    }),
+    auth: coerceValue(AuthSchema, {
+      secrets: collection.securitySchemes.reduce((acc, uid) => {
+        const securityScheme = _dataRecords.securitySchemes[uid]
+        if (!securityScheme) {
+          return acc
+        }
+
+        // Oauth 2
+        if (securityScheme.type === 'oauth2') {
+          return {
+            ...acc,
+            [securityScheme.nameKey]: {
+              type: securityScheme.type,
+              ...objectEntries(securityScheme.flows).reduce(
+                (acc, [key, flow]) => {
+                  if (!flow) {
+                    return acc
+                  }
+
+                  acc[key] = extractConfigSecrets(flow)
+                  return acc
+                },
+                {} as Record<string, Record<string, string>>,
+              ),
+            },
+          }
+        }
+
+        // The rest
+        return {
+          ...acc,
+          [securityScheme.nameKey]: {
+            type: securityScheme.type,
+            ...extractConfigSecrets(securityScheme),
+          },
+        }
+      }, {}),
+
+      selected: {},
+    }),
+  }
+}
 
 /**
  * Marks migration as complete by setting a flag in localStorage.

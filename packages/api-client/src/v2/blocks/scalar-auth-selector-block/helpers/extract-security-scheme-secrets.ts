@@ -1,3 +1,4 @@
+import { extractConfigSecrets } from '@scalar/helpers/general/extract-config-secrets'
 import { objectEntries } from '@scalar/helpers/object/object-entries'
 import type { SecurityScheme } from '@scalar/types/entities'
 import type { AuthStore } from '@scalar/workspace-store/entities/auth'

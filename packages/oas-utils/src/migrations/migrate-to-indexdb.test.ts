@@ -222,7 +222,7 @@ describe('migrate-to-indexdb', () => {
     })
   })
 
-  describe.skip('transformLegacyDataToWorkspace - Security Schemes', () => {
+  describe('transformLegacyDataToWorkspace - Security Schemes', () => {
     it('should transform API key security schemes into document components and auth store', () => {
       const scheme = securitySchemeSchema.parse({
         uid: 'security-1',
@@ -241,9 +241,7 @@ describe('migrate-to-indexdb', () => {
           title: 'Test API',
           version: '1.0.0',
         },
-        components: {
-          securitySchemes: [scheme.uid],
-        },
+        securitySchemes: [scheme.uid],
       })
 
       const workspace = workspaceSchema.parse({
@@ -265,19 +263,19 @@ describe('migrate-to-indexdb', () => {
       assert(resultWorkspace)
 
       // Verify security scheme is in document components
-      console.dir(resultWorkspace.documents, { depth: null })
-      console.dir(resultWorkspace.auth, { depth: null })
-      expect(resultWorkspace.documents['Test API']!.components?.securitySchemes).toBeDefined()
-      expect(resultWorkspace.documents['Test API']!.components?.securitySchemes?.['api-key-auth']).toEqual({
+      expect(resultWorkspace.documents['Test API']!.components?.securitySchemes?.['api-key-auth']).toMatchObject({
         type: 'apiKey',
         name: 'X-API-Key',
         in: 'header',
         description: 'API Key authentication',
       })
+      expect(
+        // @ts-expect-error - value is not in the type
+        resultWorkspace.documents['Test API']!.components?.securitySchemes?.['api-key-auth']?.value,
+      ).toBeUndefined()
 
       // Verify security scheme secrets are in auth store
-      expect(resultWorkspace.auth['Test API']!).toBeDefined()
-      expect(resultWorkspace.auth['Test API']!.secrets['api-key-auth']).toEqual({
+      expect(resultWorkspace.auth['Test API']?.secrets['api-key-auth']).toEqual({
         type: 'apiKey',
         'x-scalar-secret-token': 'secret-api-key-123',
       })
@@ -290,24 +288,6 @@ describe('migrate-to-indexdb', () => {
         collections: ['collection-1'],
       })
 
-      const collection = collectionSchema.parse({
-        uid: 'collection-1',
-        openapi: '3.1.0',
-        info: {
-          title: 'Bearer API',
-          version: '1.0.0',
-        },
-        components: {
-          securitySchemes: {
-            'bearer-auth': {
-              type: 'http',
-              scheme: 'bearer',
-              bearerFormat: 'JWT',
-            },
-          },
-        },
-      })
-
       const scheme = securitySchemeSchema.parse({
         uid: 'security-1',
         nameKey: 'bearer-auth',
@@ -315,6 +295,16 @@ describe('migrate-to-indexdb', () => {
         scheme: 'bearer',
         bearerFormat: 'JWT',
         token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
+      })
+
+      const collection = collectionSchema.parse({
+        uid: 'collection-1',
+        openapi: '3.1.0',
+        info: {
+          title: 'Bearer API',
+          version: '1.0.0',
+        },
+        securitySchemes: [scheme.uid],
       })
 
       const legacyData = createLegacyData({
@@ -329,15 +319,21 @@ describe('migrate-to-indexdb', () => {
       const resultWorkspace = result[0]!
 
       // Verify security scheme is in document components
-      expect(resultWorkspace.documents['Bearer API']!.components?.securitySchemes?.['bearer-auth']).toEqual({
+      expect(resultWorkspace.documents['Bearer API']!.components?.securitySchemes?.['bearer-auth']).toMatchObject({
         type: 'http',
         scheme: 'bearer',
         bearerFormat: 'JWT',
       })
+      expect(
+        // @ts-expect-error - token is not in the type
+        resultWorkspace.documents['Bearer API']!.components?.securitySchemes?.['bearer-auth']?.token,
+      ).toBeUndefined()
 
       // Verify security scheme secrets are in auth store
       expect(resultWorkspace.auth['Bearer API']!.secrets['bearer-auth']).toEqual({
         type: 'http',
+        'x-scalar-secret-username': '',
+        'x-scalar-secret-password': '',
         'x-scalar-secret-token': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
       })
     })
@@ -349,23 +345,6 @@ describe('migrate-to-indexdb', () => {
         collections: ['collection-1'],
       })
 
-      const collection = collectionSchema.parse({
-        uid: 'collection-1',
-        openapi: '3.1.0',
-        info: {
-          title: 'Basic Auth API',
-          version: '1.0.0',
-        },
-        components: {
-          securitySchemes: {
-            'basic-auth': {
-              type: 'http',
-              scheme: 'basic',
-            },
-          },
-        },
-      })
-
       const scheme = securitySchemeSchema.parse({
         uid: 'security-1',
         nameKey: 'basic-auth',
@@ -373,6 +352,16 @@ describe('migrate-to-indexdb', () => {
         scheme: 'basic',
         username: 'admin',
         password: 'secret123',
+      })
+
+      const collection = collectionSchema.parse({
+        uid: 'collection-1',
+        openapi: '3.1.0',
+        info: {
+          title: 'Basic Auth API',
+          version: '1.0.0',
+        },
+        securitySchemes: [scheme.uid],
       })
 
       const legacyData = createLegacyData({
@@ -387,15 +376,24 @@ describe('migrate-to-indexdb', () => {
       const resultWorkspace = result[0]!
 
       // Verify security scheme is in document components
-      expect(resultWorkspace.documents['Basic Auth API']!.components?.securitySchemes?.['basic-auth']).toEqual({
+      expect(resultWorkspace.documents['Basic Auth API']!.components?.securitySchemes?.['basic-auth']).toMatchObject({
         type: 'http',
         scheme: 'basic',
       })
+      expect(
+        // @ts-expect-error - username and password are not in the type
+        resultWorkspace.documents['Basic Auth API']!.components?.securitySchemes?.['basic-auth']?.username,
+      ).toBeUndefined()
+      expect(
+        // @ts-expect-error - username and password are not in the type
+        resultWorkspace.documents['Basic Auth API']!.components?.securitySchemes?.['basic-auth']?.password,
+      ).toBeUndefined()
 
       // Verify security scheme secrets are in auth store
       expect(resultWorkspace.auth['Basic Auth API']!.secrets['basic-auth']).toEqual({
         type: 'http',
         'x-scalar-secret-username': 'admin',
+        'x-scalar-secret-token': '',
         'x-scalar-secret-password': 'secret123',
       })
     })
@@ -405,32 +403,6 @@ describe('migrate-to-indexdb', () => {
         uid: 'workspace-1',
         name: 'Test Workspace',
         collections: ['collection-1'],
-      })
-
-      const collection = collectionSchema.parse({
-        uid: 'collection-1',
-        openapi: '3.1.0',
-        info: {
-          title: 'OAuth API',
-          version: '1.0.0',
-        },
-        components: {
-          securitySchemes: {
-            'oauth2-auth': {
-              type: 'oauth2',
-              flows: {
-                authorizationCode: {
-                  authorizationUrl: 'https://example.com/oauth/authorize',
-                  tokenUrl: 'https://example.com/oauth/token',
-                  scopes: {
-                    'read:users': 'Read user data',
-                    'write:users': 'Write user data',
-                  },
-                },
-              },
-            },
-          },
-        },
       })
 
       const scheme = securitySchemeSchema.parse({
@@ -455,6 +427,16 @@ describe('migrate-to-indexdb', () => {
         },
       })
 
+      const collection = collectionSchema.parse({
+        uid: 'collection-1',
+        openapi: '3.1.0',
+        info: {
+          title: 'OAuth API',
+          version: '1.0.0',
+        },
+        securitySchemes: [scheme.uid],
+      })
+
       const legacyData = createLegacyData({
         workspaces: [workspace],
         collections: [collection],
@@ -462,21 +444,20 @@ describe('migrate-to-indexdb', () => {
       })
 
       const result = transformLegacyDataToWorkspace(legacyData)
-
-      expect(result).toHaveLength(1)
       const resultWorkspace = result[0]!
 
       // Verify security scheme is in document components
       const oauthScheme = resultWorkspace.documents['OAuth API']!.components?.securitySchemes?.['oauth2-auth']
-      expect(oauthScheme).toBeDefined()
       if (oauthScheme && 'type' in oauthScheme && oauthScheme.type === 'oauth2') {
         expect(oauthScheme.type).toBe('oauth2')
-        expect(oauthScheme.flows?.authorizationCode).toBeDefined()
-        expect(oauthScheme.flows?.authorizationCode?.authorizationUrl).toBe('https://example.com/oauth/authorize')
-        expect(oauthScheme.flows?.authorizationCode?.tokenUrl).toBe('https://example.com/oauth/token')
-        expect(oauthScheme.flows?.authorizationCode?.scopes).toEqual({
-          'read:users': 'Read user data',
-          'write:users': 'Write user data',
+        expect(oauthScheme.flows?.authorizationCode).toEqual({
+          refreshUrl: '',
+          scopes: { 'read:users': 'Read user data', 'write:users': 'Write user data' },
+          selectedScopes: ['read:users'],
+          type: 'authorizationCode',
+          authorizationUrl: 'https://example.com/oauth/authorize',
+          'x-usePkce': 'no',
+          tokenUrl: 'https://example.com/oauth/token',
         })
       }
 
@@ -499,41 +480,6 @@ describe('migrate-to-indexdb', () => {
         collections: ['collection-1', 'collection-2'],
       })
 
-      const collection1 = collectionSchema.parse({
-        uid: 'collection-1',
-        openapi: '3.1.0',
-        info: {
-          title: 'API One',
-          version: '1.0.0',
-        },
-        components: {
-          securitySchemes: {
-            'api-key': {
-              type: 'apiKey',
-              name: 'X-API-Key',
-              in: 'header',
-            },
-          },
-        },
-      })
-
-      const collection2 = collectionSchema.parse({
-        uid: 'collection-2',
-        openapi: '3.1.0',
-        info: {
-          title: 'API Two',
-          version: '1.0.0',
-        },
-        components: {
-          securitySchemes: {
-            'bearer-token': {
-              type: 'http',
-              scheme: 'bearer',
-            },
-          },
-        },
-      })
-
       const scheme1 = securitySchemeSchema.parse({
         uid: 'security-1',
         nameKey: 'api-key',
@@ -551,6 +497,26 @@ describe('migrate-to-indexdb', () => {
         token: 'token-456',
       })
 
+      const collection1 = collectionSchema.parse({
+        uid: 'collection-1',
+        openapi: '3.1.0',
+        info: {
+          title: 'API One',
+          version: '1.0.0',
+        },
+        securitySchemes: [scheme1.uid],
+      })
+
+      const collection2 = collectionSchema.parse({
+        uid: 'collection-2',
+        openapi: '3.1.0',
+        info: {
+          title: 'API Two',
+          version: '1.0.0',
+        },
+        securitySchemes: [scheme2.uid],
+      })
+
       const legacyData = createLegacyData({
         workspaces: [workspace],
         collections: [collection1, collection2],
@@ -563,12 +529,26 @@ describe('migrate-to-indexdb', () => {
       const resultWorkspace = result[0]!
 
       // Verify both documents have their security schemes
-      expect(resultWorkspace.documents['API One']!.components?.securitySchemes?.['api-key']).toBeDefined()
-      expect(resultWorkspace.documents['API Two']!.components?.securitySchemes?.['bearer-token']).toBeDefined()
+      expect(resultWorkspace.documents['API One']!.components?.securitySchemes?.['api-key']).toMatchObject({
+        type: 'apiKey',
+        name: 'X-API-Key',
+        in: 'header',
+      })
+      expect(resultWorkspace.documents['API Two']!.components?.securitySchemes?.['bearer-token']).toMatchObject({
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+      })
 
       // Verify both auth stores have their secrets
-      expect(resultWorkspace.auth['API One']!.secrets['api-key']).toBeDefined()
-      expect(resultWorkspace.auth['API Two']!.secrets['bearer-token']).toBeDefined()
+      expect(resultWorkspace.auth['API One']!.secrets['api-key']).toMatchObject({
+        type: 'apiKey',
+        'x-scalar-secret-token': 'key-123',
+      })
+      expect(resultWorkspace.auth['API Two']!.secrets['bearer-token']).toMatchObject({
+        type: 'http',
+        'x-scalar-secret-token': 'token-456',
+      })
     })
 
     it('should handle collections without security schemes', () => {
@@ -599,7 +579,7 @@ describe('migrate-to-indexdb', () => {
 
       // Document should exist but have no security schemes
       expect(resultWorkspace.documents['No Auth API']).toBeDefined()
-      expect(resultWorkspace.documents['No Auth API']!.components?.securitySchemes).toBeUndefined()
+      expect(resultWorkspace.documents['No Auth API']!.components?.securitySchemes).toMatchObject({})
 
       // Auth store should exist but be empty or have empty secrets
       expect(resultWorkspace.auth['No Auth API']).toBeDefined()
