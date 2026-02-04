@@ -1,6 +1,11 @@
 import { type ModalState, useModal } from '@scalar/components'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { type WorkspaceEventBus, createWorkspaceEventBus } from '@scalar/workspace-store/events'
+import type {
+  OpenApiDocument,
+  SecuritySchemes,
+  ServerObject,
+} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { type App, computed, createApp, reactive, watch } from 'vue'
 
 import {
@@ -102,6 +107,33 @@ export const createApiClientModal = ({
     options,
   } satisfies ModalProps)
 
+  type PreservedProperties = {
+    selectedServer?: string
+    securitySchemes?: SecuritySchemes
+    servers?: ServerObject[]
+  }
+
+  /**
+   * Restores preserved properties to the document after reverting changes.
+   * These properties need to be preserved because they represent user selections
+   * that should persist across modal sessions.
+   */
+  const restorePreservedProperties = (doc: OpenApiDocument | null, preserved: PreservedProperties): void => {
+    if (!doc) {
+      return
+    }
+    if (preserved.selectedServer !== undefined) {
+      doc['x-scalar-selected-server'] = preserved.selectedServer
+    }
+    if (preserved.securitySchemes !== undefined) {
+      doc.components ??= {}
+      doc.components.securitySchemes = preserved.securitySchemes
+    }
+    if (preserved.servers !== undefined) {
+      doc.servers = preserved.servers
+    }
+  }
+
   watch(
     () => modalState.open,
     async (open) => {
@@ -109,27 +141,18 @@ export const createApiClientModal = ({
         return
       }
 
-      // When the modal is closed, revert the document changes
-      const selectedServer = document.value?.['x-scalar-selected-server']
-      const securitySchemes = document.value?.components?.securitySchemes
-      const servers = document.value?.servers
+      // When the modal is closed, revert the document changes while preserving user selections
+      const preservedProperties = {
+        selectedServer: document.value?.['x-scalar-selected-server'],
+        securitySchemes: document.value?.components?.securitySchemes,
+        servers: document.value?.servers,
+      }
 
+      // Any other changes to the document will be reverted
       await workspaceStore.revertDocumentChanges(documentSlug.value ?? '')
 
-      if (!document.value) {
-        return
-      }
-
-      if (selectedServer) {
-        document.value['x-scalar-selected-server'] = selectedServer
-      }
-      if (securitySchemes) {
-        document.value.components ??= {}
-        document.value.components.securitySchemes = securitySchemes
-      }
-      if (servers) {
-        document.value.servers = servers
-      }
+      // Restore the preserved properties
+      restorePreservedProperties(document.value, preservedProperties)
     },
   )
 
