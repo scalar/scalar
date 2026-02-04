@@ -30,8 +30,10 @@ import {
   ScalarTooltip,
   useLoadingState,
 } from '@scalar/components'
+import { isObject } from '@scalar/helpers/object/is-object'
 import { normalize } from '@scalar/openapi-parser'
 import type { UnknownObject } from '@scalar/types/utils'
+import { useToasts } from '@scalar/use-toasts'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { generateUniqueValue } from '@scalar/workspace-store/helpers/generate-unique-value'
@@ -51,7 +53,9 @@ import CommandActionInput from './CommandActionInput.vue'
 import WatchModeToggle from './WatchModeToggle.vue'
 
 /** Result type for import operations */
-type ImportResult = { success: true; name: string } | { success: false }
+type ImportResult =
+  | { success: true; name: string }
+  | { success: false; error: string }
 
 const { workspaceStore, eventBus } = defineProps<{
   /** The workspace store for adding documents */
@@ -66,6 +70,8 @@ const emit = defineEmits<{
   /** Emitted when user navigates back (e.g., backspace on empty input) */
   (event: 'back', keyboardEvent: KeyboardEvent): void
 }>()
+
+const { toast } = useToasts()
 
 /** Maximum number of attempts to generate a unique document name */
 const MAX_NAME_RETRIES = 100
@@ -162,7 +168,7 @@ const importContents = async (content: string): Promise<ImportResult> => {
 
     if (!name) {
       console.error('Failed to generate a unique name')
-      return { success: false }
+      return { success: false, error: 'Failed to generate a unique name' }
     }
 
     const success = await workspaceStore.addDocument({
@@ -173,7 +179,11 @@ const importContents = async (content: string): Promise<ImportResult> => {
       },
     })
 
-    return { success, name }
+    if (!success) {
+      return { success: false, error: 'Failed to add the document' }
+    }
+
+    return { success: true, name }
   }
 
   /** Import from Postman collection (convert to OpenAPI first) */
@@ -184,7 +194,7 @@ const importContents = async (content: string): Promise<ImportResult> => {
 
     if (!name) {
       console.error('Failed to generate a unique name')
-      return { success: false }
+      return { success: false, error: 'Failed to generate a unique name' }
     }
 
     const success = await workspaceStore.addDocument({
@@ -192,17 +202,27 @@ const importContents = async (content: string): Promise<ImportResult> => {
       document,
     })
 
-    return { success, name }
+    if (!success) {
+      return { success: false, error: 'Failed to add the document' }
+    }
+
+    return { success: true, name }
   }
 
   /** Import from OpenAPI document (JSON or YAML) */
-  const document = normalize(content) as UnknownObject
+  const document = normalize(content)
+
+  if (isObject(document) === false) {
+    console.error('Failed to parse the document')
+    return { success: false, error: 'Failed to parse the document' }
+  }
+
   const defaultName = extractDocumentTitle(document)
   const name = await generateUniqueDocumentName(defaultName)
 
   if (!name) {
     console.error('Failed to generate a unique name')
-    return { success: false }
+    return { success: false, error: 'Failed to generate a unique name' }
   }
 
   const success = await workspaceStore.addDocument({
@@ -210,7 +230,11 @@ const importContents = async (content: string): Promise<ImportResult> => {
     document,
   })
 
-  return { success, name }
+  if (!success) {
+    return { success: false, error: 'Failed to add the document' }
+  }
+
+  return { success: true, name }
 }
 
 /** Navigate to the document overview page after successful import */
@@ -224,6 +248,7 @@ const navigateToDocument = (documentName: string): void => {
 /**
  * Handle file selection and import from file dialog.
  * Reads the file as text and imports it as OpenAPI or Postman collection.
+ * Shows loading state during the import process.
  */
 const { open: openSpecFileDialog } = useFileDialog({
   onChange: (files) => {
@@ -233,15 +258,21 @@ const { open: openSpecFileDialog } = useFileDialog({
       return
     }
 
+    loader.start()
+
     const onLoad = async (event: ProgressEvent<FileReader>): Promise<void> => {
       const text = event.target?.result as string
       const result = await importContents(text)
 
       if (result.success) {
+        await loader.validate()
         navigateToDocument(result.name)
+        return emit('close')
       }
 
-      emit('close')
+      // Show error toast and invalidate loading state
+      await loader.invalidate()
+      toast(result.error, 'error')
     }
 
     const reader = new FileReader()
@@ -265,11 +296,12 @@ const handleImport = async (): Promise<void> => {
   if (result.success) {
     await loader.clear()
     navigateToDocument(result.name)
-  } else {
-    await loader.invalidate()
+    return emit('close')
   }
 
-  emit('close')
+  // Show error toast and invalidate loading state
+  await loader.invalidate()
+  toast(result.error, 'error')
 }
 
 /**
