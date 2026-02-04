@@ -1,6 +1,5 @@
 import { objectEntries } from '@scalar/helpers/object/object-entries'
 import type { AuthenticationConfiguration } from '@scalar/types/api-reference'
-import type { SecurityScheme } from '@scalar/types/entities'
 import type { AuthStore } from '@scalar/workspace-store/entities/auth'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { mergeObjects } from '@scalar/workspace-store/helpers/merge-object'
@@ -33,12 +32,9 @@ export const mergeSecurity = (
     {} as Record<string, SecuritySchemeObject>,
   )
 
-  /** Merge the config auth schemes into the document security schemes */
+  /** Merge the config security schemes into the document security schemes */
   const mergedSchemes =
-    mergeObjects<Record<string, SecuritySchemeObject & Partial<SecurityScheme>>>(
-      resolvedDocumentSecuritySchemes,
-      configSecuritySchemes,
-    ) ?? {}
+    mergeObjects<Record<string, SecuritySchemeObject>>(resolvedDocumentSecuritySchemes, configSecuritySchemes) ?? {}
 
   /** Convert the config secrets to the new secret extensions */
   return objectEntries(mergedSchemes).reduce((acc, [name, value]) => {

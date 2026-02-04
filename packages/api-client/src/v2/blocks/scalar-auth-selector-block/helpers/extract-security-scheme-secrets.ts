@@ -1,6 +1,7 @@
 import { objectEntries } from '@scalar/helpers/object/object-entries'
 import type { SecurityScheme } from '@scalar/types/entities'
 import type { AuthStore } from '@scalar/workspace-store/entities/auth'
+import type { DeepPartial } from '@scalar/workspace-store/helpers/overrides-proxy'
 import type {
   OAuthFlowAuthorizationCode,
   OAuthFlowClientCredentials,
@@ -21,6 +22,9 @@ import type {
   OpenIdConnectObjectSecret,
   SecuritySchemeObjectSecret,
 } from './secret-types'
+
+/** A combined scheme that includes both the auth store secrets and a deep partial of the config auth */
+export type ConfigAuthScheme = SecuritySchemeObject & DeepPartial<SecurityScheme>
 
 /**
  * Maps x-scalar-secret fields to their corresponding input field names.
@@ -59,7 +63,7 @@ const mergeFlowSecrets = <const T extends readonly (keyof typeof SECRET_TO_INPUT
 /** Extract the secrets from the config and the auth store */
 export const extractSecuritySchemeSecrets = (
   // Include the config fields
-  scheme: SecuritySchemeObject & Partial<SecurityScheme>,
+  scheme: SecuritySchemeObject & DeepPartial<SecurityScheme>,
   authStore: AuthStore,
   name: string,
   documentSlug: string,
@@ -102,7 +106,7 @@ export const extractSecuritySchemeSecrets = (
 
         // Store any selected scopes from the config
         if ('selectedScopes' in flow && Array.isArray(flow.selectedScopes)) {
-          flow.selectedScopes?.forEach((scope) => selectedScopes.add(scope))
+          flow.selectedScopes?.forEach((scope) => scope && selectedScopes.add(scope))
         }
 
         // Implicit flow

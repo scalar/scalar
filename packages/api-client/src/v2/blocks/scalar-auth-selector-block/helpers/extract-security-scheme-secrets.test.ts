@@ -1,10 +1,9 @@
 import type { SecurityScheme } from '@scalar/types/entities'
 import { createAuthStore } from '@scalar/workspace-store/entities/auth'
-import type { OAuthFlowImplicit } from '@scalar/workspace-store/schemas/v3.1/strict/oauth-flow'
 import type { SecuritySchemeObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { describe, expect, it } from 'vitest'
 
-import { extractSecuritySchemeSecrets } from './extract-security-scheme-secrets'
+import { type ConfigAuthScheme, extractSecuritySchemeSecrets } from './extract-security-scheme-secrets'
 import type {
   ApiKeyObjectSecret,
   HttpObjectSecret,
@@ -19,7 +18,7 @@ describe('extractSecuritySchemeSecrets', () => {
   describe('apiKey security scheme', () => {
     it('returns apiKey scheme with empty secret when no auth store data', () => {
       const authStore = createAuthStore()
-      const scheme: SecuritySchemeObject = {
+      const scheme: ConfigAuthScheme = {
         type: 'apiKey',
         name: 'X-API-Key',
         in: 'header',
@@ -42,7 +41,7 @@ describe('extractSecuritySchemeSecrets', () => {
         'x-scalar-secret-token': 'secret-token-123',
       })
 
-      const scheme: SecuritySchemeObject = {
+      const scheme: ConfigAuthScheme = {
         type: 'apiKey',
         name: 'X-API-Key',
         in: 'header',
@@ -104,7 +103,7 @@ describe('extractSecuritySchemeSecrets', () => {
 
     it('handles apiKey in query parameter', () => {
       const authStore = createAuthStore()
-      const scheme: SecuritySchemeObject = {
+      const scheme: ConfigAuthScheme = {
         type: 'apiKey',
         name: 'api_key',
         in: 'query',
@@ -122,7 +121,7 @@ describe('extractSecuritySchemeSecrets', () => {
 
     it('handles apiKey in cookie', () => {
       const authStore = createAuthStore()
-      const scheme: SecuritySchemeObject = {
+      const scheme: ConfigAuthScheme = {
         type: 'apiKey',
         name: 'session',
         in: 'cookie',
@@ -140,7 +139,7 @@ describe('extractSecuritySchemeSecrets', () => {
 
     it('preserves additional properties from scheme', () => {
       const authStore = createAuthStore()
-      const scheme: SecuritySchemeObject = {
+      const scheme: ConfigAuthScheme = {
         type: 'apiKey',
         name: 'X-API-Key',
         in: 'header',
@@ -162,7 +161,7 @@ describe('extractSecuritySchemeSecrets', () => {
   describe('http security scheme', () => {
     it('returns http scheme with empty secrets when no auth store data', () => {
       const authStore = createAuthStore()
-      const scheme: SecuritySchemeObject = {
+      const scheme: ConfigAuthScheme = {
         type: 'http',
         scheme: 'bearer',
       }
@@ -187,7 +186,7 @@ describe('extractSecuritySchemeSecrets', () => {
         'x-scalar-secret-password': '',
       })
 
-      const scheme: SecuritySchemeObject = {
+      const scheme: ConfigAuthScheme = {
         type: 'http',
         scheme: 'bearer',
       }
@@ -212,7 +211,7 @@ describe('extractSecuritySchemeSecrets', () => {
         'x-scalar-secret-password': 'secret-pass',
       })
 
-      const scheme: SecuritySchemeObject = {
+      const scheme: ConfigAuthScheme = {
         type: 'http',
         scheme: 'basic',
       }
@@ -228,27 +227,9 @@ describe('extractSecuritySchemeSecrets', () => {
       } satisfies HttpObjectSecret)
     })
 
-    it('returns http bearer scheme with token from config when no auth store data', () => {
-      const authStore = createAuthStore()
-      const scheme: SecuritySchemeObject & Partial<SecurityScheme> = {
-        type: 'http',
-        scheme: 'bearer',
-        token: 'config-bearer-token',
-      }
-
-      const result = extractSecuritySchemeSecrets(scheme, authStore, schemeName, documentSlug)
-      expect(result).toMatchObject({
-        type: 'http',
-        scheme: 'bearer',
-        'x-scalar-secret-token': 'config-bearer-token',
-        'x-scalar-secret-username': '',
-        'x-scalar-secret-password': '',
-      } satisfies HttpObjectSecret)
-    })
-
     it('returns http scheme with credentials from config when no auth store data', () => {
       const authStore = createAuthStore()
-      const scheme: SecuritySchemeObject & Partial<SecurityScheme> = {
+      const scheme: ConfigAuthScheme = {
         type: 'http',
         scheme: 'basic',
         username: 'config-user',
@@ -265,31 +246,6 @@ describe('extractSecuritySchemeSecrets', () => {
       } satisfies HttpObjectSecret)
     })
 
-    it('prioritizes auth store token over config token for bearer', () => {
-      const authStore = createAuthStore()
-      authStore.setAuthSecrets(documentSlug, schemeName, {
-        type: 'http',
-        'x-scalar-secret-token': 'store-bearer-token',
-        'x-scalar-secret-username': '',
-        'x-scalar-secret-password': '',
-      })
-
-      const scheme: SecuritySchemeObject & Partial<SecurityScheme> = {
-        type: 'http',
-        scheme: 'bearer',
-        token: 'config-bearer-token',
-      }
-
-      const result = extractSecuritySchemeSecrets(scheme, authStore, schemeName, documentSlug)
-      expect(result).toMatchObject({
-        type: 'http',
-        scheme: 'bearer',
-        'x-scalar-secret-token': 'store-bearer-token',
-        'x-scalar-secret-username': '',
-        'x-scalar-secret-password': '',
-      } satisfies HttpObjectSecret)
-    })
-
     it('prioritizes auth store credentials over config', () => {
       const authStore = createAuthStore()
       authStore.setAuthSecrets(documentSlug, schemeName, {
@@ -299,7 +255,7 @@ describe('extractSecuritySchemeSecrets', () => {
         'x-scalar-secret-password': 'store-pass',
       })
 
-      const scheme: SecuritySchemeObject & Partial<SecurityScheme> = {
+      const scheme: ConfigAuthScheme = {
         type: 'http',
         scheme: 'basic',
         username: 'config-user',
@@ -307,6 +263,7 @@ describe('extractSecuritySchemeSecrets', () => {
       }
 
       const result = extractSecuritySchemeSecrets(scheme, authStore, schemeName, documentSlug)
+
       expect(result).toMatchObject({
         type: 'http',
         scheme: 'basic',
@@ -318,13 +275,14 @@ describe('extractSecuritySchemeSecrets', () => {
 
     it('handles http bearer with bearerFormat', () => {
       const authStore = createAuthStore()
-      const scheme: SecuritySchemeObject = {
+      const scheme: ConfigAuthScheme = {
         type: 'http',
         scheme: 'bearer',
         bearerFormat: 'JWT',
       }
 
       const result = extractSecuritySchemeSecrets(scheme, authStore, schemeName, documentSlug)
+
       expect(result).toEqual({
         type: 'http',
         scheme: 'bearer',
@@ -337,13 +295,14 @@ describe('extractSecuritySchemeSecrets', () => {
 
     it('preserves description from scheme', () => {
       const authStore = createAuthStore()
-      const scheme: SecuritySchemeObject = {
+      const scheme: ConfigAuthScheme = {
         type: 'http',
         scheme: 'bearer',
         description: 'JWT Bearer authentication',
       }
 
       const result = extractSecuritySchemeSecrets(scheme, authStore, schemeName, documentSlug)
+
       expect(result).toEqual({
         type: 'http',
         scheme: 'bearer',
@@ -358,7 +317,7 @@ describe('extractSecuritySchemeSecrets', () => {
   describe('oauth2 security scheme - implicit flow', () => {
     it('returns oauth2 implicit flow with empty secrets when no auth store data', () => {
       const authStore = createAuthStore()
-      const scheme = {
+      const scheme: ConfigAuthScheme = {
         type: 'oauth2',
         flows: {
           implicit: {
@@ -373,6 +332,7 @@ describe('extractSecuritySchemeSecrets', () => {
       }
 
       const result = extractSecuritySchemeSecrets(scheme, authStore, schemeName, documentSlug)
+
       expect(result).toEqual({
         type: 'oauth2',
         flows: {
@@ -403,7 +363,7 @@ describe('extractSecuritySchemeSecrets', () => {
         },
       })
 
-      const scheme: SecuritySchemeObject = {
+      const scheme: ConfigAuthScheme = {
         type: 'oauth2',
         flows: {
           implicit: {
@@ -434,7 +394,7 @@ describe('extractSecuritySchemeSecrets', () => {
 
     it('returns oauth2 implicit flow with secrets from config when no auth store data', () => {
       const authStore = createAuthStore()
-      const scheme: SecuritySchemeObject & Partial<OAuth2Object> = {
+      const scheme: ConfigAuthScheme = {
         type: 'oauth2',
         flows: {
           implicit: {
@@ -476,7 +436,7 @@ describe('extractSecuritySchemeSecrets', () => {
         },
       })
 
-      const scheme: SecuritySchemeObject = {
+      const scheme: ConfigAuthScheme = {
         type: 'oauth2',
         flows: {
           implicit: {
@@ -509,7 +469,7 @@ describe('extractSecuritySchemeSecrets', () => {
 
     it('extracts selected scopes from implicit flow config', () => {
       const authStore = createAuthStore()
-      const scheme: SecuritySchemeObject = {
+      const scheme: ConfigAuthScheme = {
         type: 'oauth2',
         flows: {
           implicit: {
@@ -551,7 +511,7 @@ describe('extractSecuritySchemeSecrets', () => {
   describe('oauth2 security scheme - password flow', () => {
     it('returns oauth2 password flow with empty secrets when no auth store data', () => {
       const authStore = createAuthStore()
-      const scheme: SecuritySchemeObject = {
+      const scheme: ConfigAuthScheme = {
         type: 'oauth2',
         flows: {
           password: {
@@ -595,7 +555,7 @@ describe('extractSecuritySchemeSecrets', () => {
         },
       })
 
-      const scheme: SecuritySchemeObject = {
+      const scheme: ConfigAuthScheme = {
         type: 'oauth2',
         flows: {
           password: {
@@ -628,7 +588,7 @@ describe('extractSecuritySchemeSecrets', () => {
 
     it('returns oauth2 password flow with secrets from config when no auth store data', () => {
       const authStore = createAuthStore()
-      const scheme: SecuritySchemeObject = {
+      const scheme: ConfigAuthScheme = {
         type: 'oauth2',
         flows: {
           password: {
@@ -665,7 +625,7 @@ describe('extractSecuritySchemeSecrets', () => {
 
     it('extracts selected scopes from password flow config', () => {
       const authStore = createAuthStore()
-      const scheme: SecuritySchemeObject = {
+      const scheme: ConfigAuthScheme = {
         type: 'oauth2',
         flows: {
           password: {
@@ -689,7 +649,7 @@ describe('extractSecuritySchemeSecrets', () => {
   describe('oauth2 security scheme - clientCredentials flow', () => {
     it('returns oauth2 clientCredentials flow with empty secrets when no auth store data', () => {
       const authStore = createAuthStore()
-      const scheme: SecuritySchemeObject = {
+      const scheme: ConfigAuthScheme = {
         type: 'oauth2',
         flows: {
           clientCredentials: {
@@ -729,7 +689,7 @@ describe('extractSecuritySchemeSecrets', () => {
         },
       })
 
-      const scheme: SecuritySchemeObject = {
+      const scheme: ConfigAuthScheme = {
         type: 'oauth2',
         flows: {
           clientCredentials: {
@@ -760,7 +720,7 @@ describe('extractSecuritySchemeSecrets', () => {
 
     it('returns oauth2 clientCredentials flow with secrets from config when no auth store data', () => {
       const authStore = createAuthStore()
-      const scheme: SecuritySchemeObject = {
+      const scheme: ConfigAuthScheme = {
         type: 'oauth2',
         flows: {
           clientCredentials: {
@@ -793,7 +753,7 @@ describe('extractSecuritySchemeSecrets', () => {
 
     it('extracts selected scopes from clientCredentials flow config', () => {
       const authStore = createAuthStore()
-      const scheme: SecuritySchemeObject = {
+      const scheme: ConfigAuthScheme = {
         type: 'oauth2',
         flows: {
           clientCredentials: {
@@ -817,7 +777,7 @@ describe('extractSecuritySchemeSecrets', () => {
   describe('oauth2 security scheme - authorizationCode flow', () => {
     it('returns oauth2 authorizationCode flow with empty secrets when no auth store data', () => {
       const authStore = createAuthStore()
-      const scheme: SecuritySchemeObject = {
+      const scheme: ConfigAuthScheme = {
         type: 'oauth2',
         flows: {
           authorizationCode: {
@@ -863,7 +823,7 @@ describe('extractSecuritySchemeSecrets', () => {
         },
       })
 
-      const scheme: SecuritySchemeObject = {
+      const scheme: ConfigAuthScheme = {
         type: 'oauth2',
         flows: {
           authorizationCode: {
@@ -899,7 +859,7 @@ describe('extractSecuritySchemeSecrets', () => {
 
     it('returns oauth2 authorizationCode flow with secrets from config when no auth store data', () => {
       const authStore = createAuthStore()
-      const scheme: SecuritySchemeObject = {
+      const scheme: ConfigAuthScheme = {
         type: 'oauth2',
         flows: {
           authorizationCode: {
@@ -938,7 +898,7 @@ describe('extractSecuritySchemeSecrets', () => {
 
     it('handles authorizationCode flow with PKCE enabled', () => {
       const authStore = createAuthStore()
-      const scheme: SecuritySchemeObject = {
+      const scheme: ConfigAuthScheme = {
         type: 'oauth2',
         flows: {
           authorizationCode: {
@@ -958,7 +918,7 @@ describe('extractSecuritySchemeSecrets', () => {
 
     it('extracts selected scopes from authorizationCode flow config', () => {
       const authStore = createAuthStore()
-      const scheme: SecuritySchemeObject = {
+      const scheme: ConfigAuthScheme = {
         type: 'oauth2',
         flows: {
           authorizationCode: {
@@ -1000,7 +960,7 @@ describe('extractSecuritySchemeSecrets', () => {
         },
       })
 
-      const scheme: SecuritySchemeObject = {
+      const scheme: ConfigAuthScheme = {
         type: 'oauth2',
         flows: {
           implicit: {
@@ -1044,7 +1004,7 @@ describe('extractSecuritySchemeSecrets', () => {
 
     it('handles oauth2 with all four flows', () => {
       const authStore = createAuthStore()
-      const scheme: SecuritySchemeObject = {
+      const scheme: ConfigAuthScheme = {
         type: 'oauth2',
         flows: {
           implicit: {
@@ -1082,7 +1042,7 @@ describe('extractSecuritySchemeSecrets', () => {
 
     it('merges selected scopes from all flows', () => {
       const authStore = createAuthStore()
-      const scheme: SecuritySchemeObject = {
+      const scheme: ConfigAuthScheme = {
         type: 'oauth2',
         flows: {
           implicit: {
@@ -1110,7 +1070,7 @@ describe('extractSecuritySchemeSecrets', () => {
 
     it('handles duplicate scopes across flows', () => {
       const authStore = createAuthStore()
-      const scheme: SecuritySchemeObject = {
+      const scheme: ConfigAuthScheme = {
         type: 'oauth2',
         flows: {
           implicit: {
@@ -1138,7 +1098,7 @@ describe('extractSecuritySchemeSecrets', () => {
   describe('oauth2 security scheme - edge cases', () => {
     it('handles oauth2 with empty flows object', () => {
       const authStore = createAuthStore()
-      const scheme: SecuritySchemeObject = {
+      const scheme: ConfigAuthScheme = {
         type: 'oauth2',
         flows: {},
       }
@@ -1154,8 +1114,9 @@ describe('extractSecuritySchemeSecrets', () => {
 
     it('handles oauth2 with undefined flows', () => {
       const authStore = createAuthStore()
-      const scheme: SecuritySchemeObject = {
+      const scheme: ConfigAuthScheme = {
         type: 'oauth2',
+        // @ts-expect-error - invalid type
         flows: undefined,
       }
 
@@ -1170,9 +1131,10 @@ describe('extractSecuritySchemeSecrets', () => {
 
     it('handles oauth2 flow with null value', () => {
       const authStore = createAuthStore()
-      const scheme: SecuritySchemeObject = {
+      const scheme: ConfigAuthScheme = {
         type: 'oauth2',
         flows: {
+          // @ts-expect-error - invalid type
           implicit: null,
         },
       }
@@ -1184,13 +1146,14 @@ describe('extractSecuritySchemeSecrets', () => {
 
     it('handles oauth2 with selectedScopes that is not an array', () => {
       const authStore = createAuthStore()
-      const scheme: SecuritySchemeObject = {
+      const scheme: ConfigAuthScheme = {
         type: 'oauth2',
         flows: {
           implicit: {
             authorizationUrl: 'https://example.com/oauth/authorize',
             scopes: {},
             refreshUrl: '',
+            // @ts-expect-error - invalid type
             selectedScopes: 'invalid',
           },
         },
@@ -1204,7 +1167,7 @@ describe('extractSecuritySchemeSecrets', () => {
 
     it('handles oauth2 with empty selectedScopes array', () => {
       const authStore = createAuthStore()
-      const scheme: SecuritySchemeObject = {
+      const scheme: ConfigAuthScheme = {
         type: 'oauth2',
         flows: {
           implicit: {
@@ -1223,7 +1186,7 @@ describe('extractSecuritySchemeSecrets', () => {
 
     it('preserves description in oauth2 scheme', () => {
       const authStore = createAuthStore()
-      const scheme: SecuritySchemeObject = {
+      const scheme: ConfigAuthScheme = {
         type: 'oauth2',
         description: 'OAuth 2.0 authentication',
         flows: {
@@ -1244,7 +1207,7 @@ describe('extractSecuritySchemeSecrets', () => {
   describe('openIdConnect security scheme', () => {
     it('returns openIdConnect scheme unchanged', () => {
       const authStore = createAuthStore()
-      const scheme: SecuritySchemeObject = {
+      const scheme: ConfigAuthScheme = {
         type: 'openIdConnect',
         openIdConnectUrl: 'https://example.com/.well-known/openid-configuration',
       }
@@ -1259,7 +1222,7 @@ describe('extractSecuritySchemeSecrets', () => {
 
     it('preserves description in openIdConnect scheme', () => {
       const authStore = createAuthStore()
-      const scheme: SecuritySchemeObject = {
+      const scheme: ConfigAuthScheme = {
         type: 'openIdConnect',
         openIdConnectUrl: 'https://example.com/.well-known/openid-configuration',
         description: 'OpenID Connect authentication',
@@ -1282,7 +1245,7 @@ describe('extractSecuritySchemeSecrets', () => {
         'x-scalar-secret-token': 'some-token',
       })
 
-      const scheme: SecuritySchemeObject = {
+      const scheme: ConfigAuthScheme = {
         type: 'openIdConnect',
         openIdConnectUrl: 'https://example.com/.well-known/openid-configuration',
       }
@@ -1306,7 +1269,7 @@ describe('extractSecuritySchemeSecrets', () => {
       })
 
       // But scheme is http type
-      const scheme: SecuritySchemeObject = {
+      const scheme: ConfigAuthScheme = {
         type: 'http',
         scheme: 'bearer',
       }
@@ -1332,7 +1295,7 @@ describe('extractSecuritySchemeSecrets', () => {
         'x-scalar-secret-password': 'pass',
       })
 
-      const scheme: SecuritySchemeObject = {
+      const scheme: ConfigAuthScheme = {
         type: 'apiKey',
         name: 'X-API-Key',
         in: 'header',
@@ -1359,7 +1322,7 @@ describe('extractSecuritySchemeSecrets', () => {
         },
       })
 
-      const scheme: SecuritySchemeObject = {
+      const scheme: ConfigAuthScheme = {
         type: 'http',
         scheme: 'bearer',
       }
@@ -1388,7 +1351,7 @@ describe('extractSecuritySchemeSecrets', () => {
         'x-scalar-secret-token': 'token-2',
       })
 
-      const scheme: SecuritySchemeObject = {
+      const scheme: ConfigAuthScheme = {
         type: 'apiKey',
         name: 'X-API-Key',
         in: 'header',
@@ -1412,7 +1375,7 @@ describe('extractSecuritySchemeSecrets', () => {
         'x-scalar-secret-token': 'token-2',
       })
 
-      const scheme: SecuritySchemeObject = {
+      const scheme: ConfigAuthScheme = {
         type: 'apiKey',
         name: 'X-API-Key',
         in: 'header',
@@ -1432,7 +1395,7 @@ describe('extractSecuritySchemeSecrets', () => {
         'x-scalar-secret-token': 'token',
       })
 
-      const scheme: SecuritySchemeObject = {
+      const scheme: ConfigAuthScheme = {
         type: 'apiKey',
         name: 'X-API-Key',
         in: 'header',
@@ -1440,6 +1403,7 @@ describe('extractSecuritySchemeSecrets', () => {
 
       const result = extractSecuritySchemeSecrets(scheme, authStore, schemeName, 'non-existing-document')
 
+      // @ts-expect-error - invalid type
       expect(result['x-scalar-secret-token']).toBe('')
     })
 
@@ -1450,7 +1414,7 @@ describe('extractSecuritySchemeSecrets', () => {
         'x-scalar-secret-token': 'token',
       })
 
-      const scheme: SecuritySchemeObject = {
+      const scheme: ConfigAuthScheme = {
         type: 'apiKey',
         name: 'X-API-Key',
         in: 'header',
@@ -1458,6 +1422,7 @@ describe('extractSecuritySchemeSecrets', () => {
 
       const result = extractSecuritySchemeSecrets(scheme, authStore, 'non-existing-scheme', documentSlug)
 
+      // @ts-expect-error - invalid type
       expect(result['x-scalar-secret-token']).toBe('')
     })
   })
