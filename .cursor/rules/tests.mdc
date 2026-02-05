@@ -41,6 +41,27 @@ You write tests that are clear, maintainable, and thorough. You optimize for rea
 * Example file: @local.spec.ts.
 * Be selective. We intentionally limit the number of Playwright tests to avoid maintenance overhead.
 
+## Assertions
+
+* Use strict, precise assertions. Prefer `toBe`, `toEqual`, and `toStrictEqual` over loose checks.
+* Do not use `toBeDefined`, `toBeTruthy`, `toHaveLength`, or `toMatchObject` when you can assert the exact value instead.
+* Do not use `expect.arrayContaining` or `expect.objectContaining`. Assert the full expected value.
+* Use `toStrictEqual` when checking objects or arrays to catch extra or missing properties.
+* Use `toBe` for primitives (strings, numbers, booleans).
+* Use `toBeUndefined` only when the expected value is genuinely undefined.
+
+```ts
+// ❌ BAD - vague, does not catch wrong values
+expect(result).toBeDefined()
+expect(items).toHaveLength(2)
+expect(user).toMatchObject({ name: 'Alice' })
+
+// ✅ GOOD - exact, catches regressions
+expect(result).toBe('expected-value')
+expect(items).toStrictEqual([{ id: 1 }, { id: 2 }])
+expect(user).toStrictEqual({ name: 'Alice', role: 'admin' })
+```
+
 ## Style & Best Practices
 
 * Clarity first. Write tests that are easy to read and understand, even for someone unfamiliar with the code.

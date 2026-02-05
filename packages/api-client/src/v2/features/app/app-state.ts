@@ -115,7 +115,7 @@ const getWorkspaceId = (namespace: string, slug: string) => `${namespace}/${slug
  * Run migration from localStorage to IndexedDB if needed
  * This happens once per user and transforms old data structure to new workspace format
  */
-await migrateLocalStorageToIndexDb({ workspace: persistence })
+await migrateLocalStorageToIndexDb()
 
 /** Update the workspace list when the component is mounted */
 workspaces.value = await persistence.getAll().then((w) =>
