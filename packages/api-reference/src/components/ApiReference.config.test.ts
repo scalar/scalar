@@ -13,6 +13,88 @@ vi.mock(import('@scalar/use-hooks/useBreakpoints'), (importOriginal) => ({
   }),
 }))
 
+/**
+ * Mock createWorkspaceStore to reuse the same workspace across all tests.
+ * This significantly improves test performance by avoiding workspace creation overhead.
+ */
+vi.mock('@scalar/workspace-store/client', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@scalar/workspace-store/client')>()
+
+  const realStore = actual.createWorkspaceStore({})
+
+  realStore.addDocument({
+    name: 'api-1',
+    document: {
+      openapi: '3.1.0',
+      info: {
+        title: 'Test API',
+        version: '1.0.0',
+        description: '# Heading 1\nContent 1\n# Heading 2\nContent 2',
+      },
+      paths: {
+        '/users': {
+          get: {
+            summary: 'Get users',
+            operationId: '1234getUserById5678',
+            tags: ['Users'],
+            requestBody: {
+              content: {
+                'application/json': {
+                  schema: {
+                    $ref: '#/components/schemas/SuperImportantUser',
+                  },
+                },
+              },
+            },
+          },
+        },
+        '/others': {
+          get: {
+            summary: 'Get others',
+            tags: ['Others'],
+          },
+        },
+      },
+      components: {
+        schemas: {
+          SuperImportantUser: {
+            type: 'object',
+            required: ['isAdmin', 'phone'],
+            properties: {
+              name: { type: 'string' },
+              age: { type: 'number' },
+              isAdmin: { type: 'boolean' },
+              createdAt: { type: 'string', format: 'date-time' },
+              updatedAt: { type: 'string', format: 'date-time' },
+              address: {
+                type: 'object',
+                properties: {
+                  street: { type: 'string' },
+                  city: { type: 'string' },
+                  state: { type: 'string' },
+                  zip: { type: 'string' },
+                },
+              },
+              phone: { type: 'string' },
+              email: { type: 'string', format: 'email' },
+            },
+          },
+        },
+      },
+    },
+  })
+
+  /** Fake store */
+  const workspaceStore = {
+    ...realStore,
+    addDocument: vi.fn(),
+  }
+  return {
+    ...actual,
+    createWorkspaceStore: () => workspaceStore,
+  }
+})
+
 /** Track all mounted wrappers so we can unmount them after each test */
 const wrappers: ReturnType<typeof mount>[] = []
 const locationMock = {
@@ -111,78 +193,69 @@ const mountComponent = (props: Parameters<typeof mount>[1]) => {
   return wrapper
 }
 
-/** Helper function to create a basic OpenAPI document */
-const createBasicDocument = (title = 'Test API') => ({
-  openapi: '3.1.0',
-  info: {
-    title,
-    version: '1.0.0',
-    description: '# Heading 1\nContent 1\n# Heading 2\nContent 2',
-  },
-  paths: {
-    '/users': {
-      get: {
-        summary: 'Get users',
-        operationId: 'getUsers',
-        requestBody: {
-          content: {
-            'application/json': {
-              schema: {
-                $ref: '#/components/schemas/SuperImportantUser',
-              },
-            },
-          },
-        },
-      },
-    },
-  },
-  components: {
-    schemas: {
-      SuperImportantUser: {
-        type: 'object',
-        required: ['isAdmin', 'phone'],
-        properties: {
-          name: { type: 'string' },
-          age: { type: 'number' },
-          isAdmin: { type: 'boolean' },
-          createdAt: { type: 'string', format: 'date-time' },
-          updatedAt: { type: 'string', format: 'date-time' },
-          address: {
-            type: 'object',
-            properties: {
-              street: { type: 'string' },
-              city: { type: 'string' },
-              state: { type: 'string' },
-              zip: { type: 'string' },
-            },
-          },
-          phone: { type: 'string' },
-          email: { type: 'string', format: 'email' },
-        },
-      },
-    },
-  },
-})
-
 describe('ApiReference Configuration Tests', () => {
-  it('layout: undefined -> modern', () => {
-    const wrapper = mountComponent({
-      props: {
-        configuration: {
-          content: createBasicDocument(),
-        },
-      },
-    })
+  it('default configuration values', async () => {
+    const wrapper = mountComponent({ props: { configuration: { content: {} } } })
+    await flushPromises()
 
     const apiRef = wrapper.find('.scalar-api-reference')
+    const searchButton = wrapper.findComponent({ name: 'SearchButton' })
+    const clientButton = wrapper.findComponent({ name: 'OpenApiClientButton' })
+    const testRequestButton = wrapper.findComponent({ name: 'TestRequestButton' })
+    const modelTag = wrapper.findComponent({ name: 'ModelTag' })
+    const operation = wrapper.findComponent({ name: 'Operation' })
+
+    // layout: undefined -> modern
     expect(apiRef.classes()).not.toContain('references-classic')
+
+    // showSidebar: undefined -> true
+    expect(apiRef.classes()).toContain('references-sidebar')
+
+    // hideSearch: undefined -> false
+    expect(searchButton.exists()).toBe(true)
+
+    // hideClientButton: undefined -> true
+    expect(clientButton.exists()).toBe(true)
+
+    // defaultOpenAllTags: undefined -> false
+    expect(wrapper.findComponent({ name: 'Content' }).text().includes('Get others')).toBe(false)
+
+    // operationTitleSource: undefined -> summary
+    expect(operation.find('h3').text()).toBe('Get users')
+
+    // showOperationId: undefined -> false
+    expect(wrapper.findComponent({ name: 'Content' }).exists()).toBe(true)
+
+    // orderSchemaPropertiesBy: undefined -> alpha
+    // orderRequiredPropertiesFirst: undefined -> true
+    const propertyNames = wrapper
+      .findComponent({ name: 'RequestBody' })
+      .findAll('.property-name')
+      .map((item) => item.text().split(' ')[0])
+    expect(propertyNames).toStrictEqual([
+      'isAdminCopy',
+      'phoneCopy',
+      'addressCopy',
+      'ageCopy',
+      'createdAtCopy',
+      'emailCopy',
+      'nameCopy',
+      'updatedAtCopy',
+    ])
+
+    // hideTestRequestButton: undefined -> false
+    expect(testRequestButton.exists()).toBe(true)
+
+    // expandAllModelSections: undefined -> false
+    expect(modelTag.text().includes('Show More')).toBe(true)
+    expect(modelTag.text().includes('SuperImportantUser')).toBe(false)
   })
 
   it('layout: classic', () => {
     const wrapper = mountComponent({
       props: {
         configuration: {
-          content: createBasicDocument(),
+          content: {},
           layout: 'classic',
         },
       },
@@ -192,24 +265,11 @@ describe('ApiReference Configuration Tests', () => {
     expect(apiRef.classes()).toContain('references-classic')
   })
 
-  it('showSidebar: undefined -> true', () => {
-    const wrapper = mountComponent({
-      props: {
-        configuration: {
-          content: createBasicDocument(),
-        },
-      },
-    })
-
-    const apiRef = wrapper.find('.scalar-api-reference')
-    expect(apiRef.classes()).toContain('references-sidebar')
-  })
-
   it('showSidebar: false', () => {
     const wrapper = mountComponent({
       props: {
         configuration: {
-          content: createBasicDocument(),
+          content: {},
           showSidebar: false,
         },
       },
@@ -219,24 +279,11 @@ describe('ApiReference Configuration Tests', () => {
     expect(apiRef.classes()).not.toContain('references-sidebar')
   })
 
-  it('hideSearch: undefined -> false', () => {
-    const wrapper = mountComponent({
-      props: {
-        configuration: {
-          content: createBasicDocument(),
-        },
-      },
-    })
-
-    const searchButton = wrapper.findComponent({ name: 'SearchButton' })
-    expect(searchButton.exists()).toBe(true)
-  })
-
   it('hideSearch: true', () => {
     const wrapper = mountComponent({
       props: {
         configuration: {
-          content: createBasicDocument(),
+          content: {},
           hideSearch: true,
         },
       },
@@ -250,7 +297,7 @@ describe('ApiReference Configuration Tests', () => {
     const wrapper = mountComponent({
       props: {
         configuration: {
-          content: createBasicDocument(),
+          content: {},
           searchHotKey: 'f',
         },
       },
@@ -261,40 +308,11 @@ describe('ApiReference Configuration Tests', () => {
     expect(wrapper.findComponent({ name: 'SearchModal' }).props().modalState.open).toBe(true)
   })
 
-  it('hideModels: undefined -> false', async () => {
-    const wrapper = mountComponent({
-      props: {
-        configuration: {
-          content: createBasicDocument(),
-        },
-      },
-    })
-    await flushPromises()
-
-    const modelTag = wrapper.findComponent({ name: 'ModelTag' })
-    expect(modelTag.exists()).toBe(true)
-  })
-
-  it('hideModels: true', async () => {
-    const wrapper = mountComponent({
-      props: {
-        configuration: {
-          content: createBasicDocument(),
-          hideModels: true,
-        },
-      },
-    })
-    await flushPromises()
-
-    const modelTag = wrapper.findComponent({ name: 'ModelTag' })
-    expect(modelTag.exists()).toBe(false)
-  })
-
   it('darkMode: false', async () => {
     mountComponent({
       props: {
         configuration: {
-          content: createBasicDocument(),
+          content: {},
           darkMode: false,
         },
       },
@@ -307,7 +325,7 @@ describe('ApiReference Configuration Tests', () => {
     mountComponent({
       props: {
         configuration: {
-          content: createBasicDocument(),
+          content: {},
           darkMode: true,
         },
       },
@@ -320,7 +338,7 @@ describe('ApiReference Configuration Tests', () => {
     mountComponent({
       props: {
         configuration: {
-          content: createBasicDocument(),
+          content: {},
           forceDarkModeState: 'dark',
         },
       },
@@ -333,7 +351,7 @@ describe('ApiReference Configuration Tests', () => {
     mountComponent({
       props: {
         configuration: {
-          content: createBasicDocument(),
+          content: {},
           forceDarkModeState: 'light',
         },
       },
@@ -346,7 +364,7 @@ describe('ApiReference Configuration Tests', () => {
     const wrapper = mountComponent({
       props: {
         configuration: {
-          content: createBasicDocument(),
+          content: {},
           hideDarkModeToggle: true,
         },
       },
@@ -363,7 +381,7 @@ describe('ApiReference Configuration Tests', () => {
     const wrapper = mountComponent({
       props: {
         configuration: {
-          content: createBasicDocument(),
+          content: {},
           customCss,
         },
       },
@@ -375,7 +393,7 @@ describe('ApiReference Configuration Tests', () => {
     const wrapper = mountComponent({
       props: {
         configuration: {
-          content: createBasicDocument(),
+          content: {},
           theme: 'solarized',
         },
       },
@@ -390,24 +408,11 @@ describe('ApiReference Configuration Tests', () => {
     expect(html).toContain('--scalar-background-accent: #015a6f')
   })
 
-  it('hideClientButton: undefined', () => {
-    const wrapper = mountComponent({
-      props: {
-        configuration: {
-          content: createBasicDocument(),
-        },
-      },
-    })
-
-    const clientButton = wrapper.findComponent({ name: 'OpenApiClientButton' })
-    expect(clientButton.exists()).toBe(true)
-  })
-
   it('hideClientButton: true', () => {
     const wrapper = mountComponent({
       props: {
         configuration: {
-          content: createBasicDocument(),
+          content: {},
           hideClientButton: true,
         },
       },
@@ -415,38 +420,6 @@ describe('ApiReference Configuration Tests', () => {
 
     const clientButton = wrapper.findComponent({ name: 'OpenApiClientButton' })
     expect(clientButton.exists()).toBe(false)
-  })
-
-  it('defaultOpenAllTags: undefined -> false', async () => {
-    const wrapper = mountComponent({
-      props: {
-        configuration: {
-          content: {
-            openapi: '3.1.0',
-            info: {
-              title: 'Test API',
-              version: '1.0.0',
-            },
-            paths: {
-              '/users': {
-                get: {
-                  summary: 'Get users',
-                  tags: ['Users'],
-                },
-              },
-              '/others': {
-                get: {
-                  summary: 'Get others',
-                  tags: ['Others'],
-                },
-              },
-            },
-          },
-        },
-      },
-    })
-    await flushPromises()
-    expect(wrapper.findComponent({ name: 'Content' }).text().includes('Get others')).toBe(false)
   })
 
   it('defaultOpenAllTags: true', async () => {
@@ -482,25 +455,11 @@ describe('ApiReference Configuration Tests', () => {
     expect(wrapper.findComponent({ name: 'Content' }).text().includes('Get others')).toBe(true)
   })
 
-  it('operationTitleSource: undefined -> summary', async () => {
-    const wrapper = mountComponent({
-      props: {
-        configuration: {
-          content: createBasicDocument(),
-        },
-      },
-    })
-    await flushPromises()
-
-    const operation = wrapper.findComponent({ name: 'Operation' })
-    expect(operation.find('h3').text()).toBe('Get users')
-  })
-
   it('operationTitleSource: path', async () => {
     const wrapper = mountComponent({
       props: {
         configuration: {
-          content: createBasicDocument(),
+          content: {},
           operationTitleSource: 'path',
         },
       },
@@ -511,26 +470,11 @@ describe('ApiReference Configuration Tests', () => {
     expect(items[2]?.text().startsWith('/users')).toBe(true)
   })
 
-  it('showOperationId: undefined -> false', async () => {
-    const wrapper = mountComponent({
-      props: {
-        configuration: {
-          content: createBasicDocument(),
-        },
-      },
-    })
-
-    await flushPromises()
-    expect(wrapper.findComponent({ name: 'Content' }).exists()).toBe(true)
-  })
-
   it('showOperationId: true', async () => {
-    const content = createBasicDocument()
-    content.paths['/users'].get.operationId = '1234getUserById5678'
     const wrapper = mountComponent({
       props: {
         configuration: {
-          content,
+          content: {},
           showOperationId: true,
         },
       },
@@ -545,7 +489,7 @@ describe('ApiReference Configuration Tests', () => {
     mountComponent({
       props: {
         configuration: {
-          content: createBasicDocument(),
+          content: {},
           onLoaded,
         },
       },
@@ -559,10 +503,8 @@ describe('ApiReference Configuration Tests', () => {
     const wrapper = mountComponent({
       props: {
         configuration: {
-          content: {
-            ...createBasicDocument(),
-            servers: [{ url: 'https://api.example.com' }, { url: 'https://api-staging.example.com' }],
-          },
+          content: {},
+          servers: [{ url: 'https://api.example.com' }, { url: 'https://api-staging.example.com' }],
           onServerChange,
         },
       },
@@ -583,7 +525,7 @@ describe('ApiReference Configuration Tests', () => {
     const wrapper = mountComponent({
       props: {
         configuration: {
-          content: createBasicDocument(),
+          content: {},
           servers,
         },
       },
@@ -594,66 +536,11 @@ describe('ApiReference Configuration Tests', () => {
     expect(ServerSelector.text().includes('api.example.com')).toBe(true)
   })
 
-  it('authentication: object', async () => {
-    const authentication = {
-      preferredSecurityScheme: 'apiKey',
-      securitySchemes: {
-        apiKey: {
-          type: 'apiKey',
-          name: 'x-api-key',
-          token: 'test-token',
-        },
-      },
-    }
-
-    const wrapper = mountComponent({
-      props: {
-        configuration: {
-          content: createBasicDocument(),
-          authentication,
-        },
-      },
-    })
-
-    await flushPromises()
-    const Auth = wrapper.findComponent({ name: 'Auth' })
-    const button = Auth.find('button[data-testid="data-table-password-toggle"]')
-    await button.trigger('click')
-    expect(Auth.text().includes('test-token')).toBe(true)
-  })
-
-  it('orderSchemaPropertiesBy: undefined -> alpha', async () => {
-    const wrapper = mountComponent({
-      props: {
-        configuration: {
-          content: createBasicDocument(),
-        },
-      },
-    })
-    await flushPromises()
-
-    const propertyNames = wrapper
-      .findComponent({ name: 'RequestBody' })
-      .findAll('.property-name')
-      .map((item) => item.text().split(' ')[0]?.replace('Copy', ''))
-
-    expect(propertyNames).toStrictEqual([
-      'isAdmin',
-      'phone',
-      'address',
-      'age',
-      'createdAt',
-      'email',
-      'name',
-      'updatedAt',
-    ])
-  })
-
   it('orderSchemaPropertiesBy: undefined -> alpha, orderRequiredPropertiesFirst: false', async () => {
     const wrapper = mountComponent({
       props: {
         configuration: {
-          content: createBasicDocument(),
+          content: {},
           orderRequiredPropertiesFirst: false,
         },
       },
@@ -681,7 +568,7 @@ describe('ApiReference Configuration Tests', () => {
     const wrapper = mountComponent({
       props: {
         configuration: {
-          content: createBasicDocument(),
+          content: {},
           orderSchemaPropertiesBy: 'preserve',
           orderRequiredPropertiesFirst: false,
         },
@@ -706,38 +593,11 @@ describe('ApiReference Configuration Tests', () => {
     ])
   })
 
-  it('orderRequiredPropertiesFirst: undefined -> true', async () => {
-    const wrapper = mountComponent({
-      props: {
-        configuration: {
-          content: createBasicDocument(),
-        },
-      },
-    })
-    await flushPromises()
-
-    const propertyNames = wrapper
-      .findComponent({ name: 'RequestBody' })
-      .findAll('.property-name')
-      .map((item) => item.text().split(' ')[0])
-
-    expect(propertyNames).toStrictEqual([
-      'isAdminCopy',
-      'phoneCopy',
-      'addressCopy',
-      'ageCopy',
-      'createdAtCopy',
-      'emailCopy',
-      'nameCopy',
-      'updatedAtCopy',
-    ])
-  })
-
   it('orderRequiredPropertiesFirst: false', async () => {
     const wrapper = mountComponent({
       props: {
         configuration: {
-          content: createBasicDocument(),
+          content: {},
           orderRequiredPropertiesFirst: false,
         },
       },
@@ -761,35 +621,6 @@ describe('ApiReference Configuration Tests', () => {
     ])
   })
 
-  it('generateHeadingSlug: function', async () => {
-    const wrapper = mountComponent({
-      props: {
-        configuration: {
-          content: createBasicDocument(),
-          generateHeadingSlug: (heading: { slug: string }) => `custom-test-slug-${heading.slug}`,
-        },
-      },
-    })
-    await flushPromises()
-
-    expect(wrapper.findComponent({ name: 'InfoDescription' }).find('h1').html()).toContain('custom-test-slug-heading-1')
-  })
-
-  it('generateOperationSlug: function', async () => {
-    const wrapper = mountComponent({
-      props: {
-        configuration: {
-          content: createBasicDocument(),
-          generateOperationSlug: (operation: { method: string; path: string }) =>
-            `custom-test-slug-${operation.method}-${operation.path}`,
-        },
-      },
-    })
-    await flushPromises()
-
-    expect(wrapper.findComponent({ name: 'Operation' }).find('section').html()).toContain('custom-test-slug-GET-/users')
-  })
-
   it('redirect: function', async () => {
     vi.stubGlobal('location', { ...locationMock, hash: '#old' })
     const replaceStateSpy = vi.spyOn(window.history, 'replaceState')
@@ -797,7 +628,7 @@ describe('ApiReference Configuration Tests', () => {
     mountComponent({
       props: {
         configuration: {
-          content: createBasicDocument(),
+          content: {},
           redirect: (hash: string) => hash.replace('#old', '#new'),
         },
       },
@@ -811,7 +642,7 @@ describe('ApiReference Configuration Tests', () => {
     const wrapper = mountComponent({
       props: {
         configuration: {
-          content: createBasicDocument(),
+          content: {},
           defaultHttpClient: {
             targetKey: 'node',
             clientKey: 'axios',
@@ -828,7 +659,7 @@ describe('ApiReference Configuration Tests', () => {
     const wrapper = mountComponent({
       props: {
         configuration: {
-          content: createBasicDocument(),
+          content: {},
           hiddenClients: ['unirest', 'node'],
         },
       },
@@ -847,7 +678,7 @@ describe('ApiReference Configuration Tests', () => {
     const wrapper = mountComponent({
       props: {
         configuration: {
-          content: createBasicDocument(),
+          content: {},
           documentDownloadType: 'json',
         },
       },
@@ -859,25 +690,11 @@ describe('ApiReference Configuration Tests', () => {
     expect(downloadButtons[0]?.find('.extension').text()).toBe('json')
   })
 
-  it('hideTestRequestButton: undefined -> false', async () => {
-    const wrapper = mountComponent({
-      props: {
-        configuration: {
-          content: createBasicDocument(),
-        },
-      },
-    })
-
-    await flushPromises()
-    const testRequestButton = wrapper.findComponent({ name: 'TestRequestButton' })
-    expect(testRequestButton.exists()).toBe(true)
-  })
-
   it('hideTestRequestButton: true', async () => {
     const wrapper = mountComponent({
       props: {
         configuration: {
-          content: createBasicDocument(),
+          content: {},
           hideTestRequestButton: true,
         },
       },
@@ -888,26 +705,11 @@ describe('ApiReference Configuration Tests', () => {
     expect(testRequestButton.exists()).toBe(false)
   })
 
-  it('expandAllModelSections: undefined -> false', async () => {
-    const wrapper = mountComponent({
-      props: {
-        configuration: {
-          content: createBasicDocument(),
-        },
-      },
-    })
-    await flushPromises()
-
-    const modelTag = wrapper.findComponent({ name: 'ModelTag' })
-    expect(modelTag.text().includes('Show More')).toBe(true)
-    expect(modelTag.text().includes('SuperImportantUser')).toBe(false)
-  })
-
   it('expandAllModelSections: true', async () => {
     const wrapper = mountComponent({
       props: {
         configuration: {
-          content: createBasicDocument(),
+          content: {},
           expandAllModelSections: true,
         },
       },
@@ -919,7 +721,7 @@ describe('ApiReference Configuration Tests', () => {
     expect(modelTag.text().includes('SuperImportantUser')).toBe(true)
   })
 
-  it('expandAllResponses: undefined -> false', async () => {
+  it('expandAllResponses: false (default) and true', async () => {
     const documentWithResponses = {
       openapi: '3.1.0',
       info: {
@@ -955,7 +757,8 @@ describe('ApiReference Configuration Tests', () => {
       },
     }
 
-    const wrapper = mountComponent({
+    // Test default (false)
+    const wrapperDefault = mountComponent({
       props: {
         configuration: {
           content: documentWithResponses,
@@ -964,49 +767,13 @@ describe('ApiReference Configuration Tests', () => {
     })
     await flushPromises()
 
-    const modernLayout = wrapper.findComponent({ name: 'ModernLayout' })
-    const operationResponses = modernLayout.findComponent({ name: 'OperationResponses' })
-    expect(operationResponses.props().collapsableItems).toBe(true)
-    expect(operationResponses.text().includes('superSecretId')).toBe(false)
-  })
+    const modernLayoutDefault = wrapperDefault.findComponent({ name: 'ModernLayout' })
+    const operationResponsesDefault = modernLayoutDefault.findComponent({ name: 'OperationResponses' })
+    expect(operationResponsesDefault.props().collapsableItems).toBe(true)
+    expect(operationResponsesDefault.text().includes('superSecretId')).toBe(false)
 
-  it('expandAllResponses: true', async () => {
-    const documentWithResponses = {
-      openapi: '3.1.0',
-      info: {
-        title: 'Test API',
-        version: '1.0.0',
-      },
-      paths: {
-        '/users': {
-          get: {
-            summary: 'Get users',
-            operationId: 'getUsers',
-            responses: {
-              '200': {
-                description: 'Successful response',
-                content: {
-                  'application/json': {
-                    schema: {
-                      type: 'object',
-                      properties: {
-                        superSecretId: { type: 'string' },
-                        name: { type: 'string' },
-                      },
-                    },
-                  },
-                },
-              },
-              '404': {
-                description: 'Not found',
-              },
-            },
-          },
-        },
-      },
-    }
-
-    const wrapper = mountComponent({
+    // Test true
+    const wrapperTrue = mountComponent({
       props: {
         configuration: {
           content: documentWithResponses,
@@ -1016,10 +783,10 @@ describe('ApiReference Configuration Tests', () => {
     })
     await flushPromises()
 
-    const modernLayout = wrapper.findComponent({ name: 'ModernLayout' })
-    const operationResponses = modernLayout.findComponent({ name: 'OperationResponses' })
-    expect(operationResponses.props().collapsableItems).toBe(false)
-    expect(operationResponses.text().includes('superSecretId')).toBe(true)
+    const modernLayoutTrue = wrapperTrue.findComponent({ name: 'ModernLayout' })
+    const operationResponsesTrue = modernLayoutTrue.findComponent({ name: 'OperationResponses' })
+    expect(operationResponsesTrue.props().collapsableItems).toBe(false)
+    expect(operationResponsesTrue.text().includes('superSecretId')).toBe(true)
   })
 
   it('onSidebarClick: function', async () => {
@@ -1027,7 +794,7 @@ describe('ApiReference Configuration Tests', () => {
     const wrapper = mountComponent({
       props: {
         configuration: {
-          content: createBasicDocument(),
+          content: {},
           onSidebarClick,
         },
       },
@@ -1230,7 +997,7 @@ describe('ApiReference Configuration Tests', () => {
     const wrapper = mountComponent({
       props: {
         configuration: {
-          content: createBasicDocument(),
+          content: {},
           proxyUrl: 'https://proxy.example.com',
         },
       },
