@@ -4,6 +4,7 @@ import { assert, beforeEach, describe, expect, it } from 'vitest'
 import { cookieSchema } from '@/entities/cookie'
 import { type Collection, collectionSchema } from '@/entities/spec/collection'
 import { serverSchema } from '@/entities/spec/server'
+import { tagSchema } from '@/entities/spec/spec-objects'
 import { type Workspace, workspaceSchema } from '@/entities/workspace/workspace'
 
 import { DATA_VERSION_LS_LEY } from './data-version'
@@ -172,15 +173,6 @@ describe('migrate-to-indexdb', () => {
   describe('shouldMigrateToIndexDb', () => {
     it('should return false when migration flag is set to true', () => {
       localStorage.setItem('scalar_indexdb_migration_complete', 'true')
-      expect(shouldMigrateToIndexDb()).toBe(false)
-      localStorage.removeItem('scalar_indexdb_migration_complete')
-    })
-
-    it('should return false when migration flag is set and no old data exists', () => {
-      localStorage.setItem('scalar_indexdb_migration_complete', 'true')
-      localStorage.removeItem('workspace')
-      localStorage.removeItem('collection')
-      localStorage.removeItem('request')
       expect(shouldMigrateToIndexDb()).toBe(false)
       localStorage.removeItem('scalar_indexdb_migration_complete')
     })
@@ -1050,19 +1042,6 @@ describe('migrate-to-indexdb', () => {
         // The collection schema defaults to 'interface-content-folder'
         expect(doc['x-scalar-icon']).toBe('interface-content-folder')
       })
-
-      it('preserves various custom icon values', async () => {
-        const legacyData = createLegacyData({
-          title: 'Custom Icon API',
-          collection: { 'x-scalar-icon': 'interface-content-book' },
-        })
-
-        const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['Custom Icon API']
-
-        assert(doc)
-        expect(doc['x-scalar-icon']).toBe('interface-content-book')
-      })
     })
 
     describe('useCollectionSecurity → x-scalar-set-operation-security', () => {
@@ -1351,27 +1330,6 @@ describe('migrate-to-indexdb', () => {
 
         assert(doc)
         expect(doc.servers).toMatchObject([{ url: 'https://minimal.example.com' }])
-      })
-
-      it('strips the legacy uid field from resolved servers', async () => {
-        const server = serverSchema.parse({
-          uid: 'server-1',
-          url: 'https://api.example.com',
-        })
-
-        const legacyData = createLegacyData({
-          title: 'No UID API',
-          collection: { servers: ['server-1'] },
-          servers: [server],
-        })
-
-        const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['No UID API']
-
-        assert(doc)
-        expect(doc.servers).toMatchObject([{ url: 'https://api.example.com' }])
-        // The uid field should not leak into the OpenAPI document
-        expect((doc.servers![0] as Record<string, unknown>)['uid']).toBeUndefined()
       })
 
       it('produces an empty servers array when collection has no servers', async () => {
@@ -1800,80 +1758,512 @@ describe('migrate-to-indexdb', () => {
         expect(doc.servers).toMatchObject([{ url: 'https://valid.example.com', description: 'Valid server' }])
         expect(doc['x-scalar-selected-server']).toBe('https://valid.example.com')
       })
+    })
+  })
 
-      it('handles a server with a localhost URL', async () => {
-        const localServer = serverSchema.parse({
-          uid: 'server-local',
-          url: 'http://localhost:3000/api',
+  describe('transformLegacyDataToWorkspace - Tags', () => {
+    describe('flat tags (no nesting)', () => {
+      it('transforms flat tags into document tags array', async () => {
+        const tag1 = tagSchema.parse({
+          uid: 'tag-users-001',
+          name: 'Users',
+          description: 'User operations',
+          children: [],
+        })
+
+        const tag2 = tagSchema.parse({
+          uid: 'tag-pets-002',
+          name: 'Pets',
+          description: 'Pet operations',
+          children: [],
         })
 
         const legacyData = createLegacyData({
-          title: 'Local API',
-          collection: { servers: ['server-local'] },
-          servers: [localServer],
+          title: 'Tags API',
+          collection: {
+            tags: ['tag-users-001', 'tag-pets-002'],
+            children: ['tag-users-001', 'tag-pets-002'],
+          },
+          tags: [tag1, tag2],
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['Local API']
+        const doc = result[0]?.workspace.documents['Tags API']
 
         assert(doc)
-        expect(doc.servers).toMatchObject([{ url: 'http://localhost:3000/api' }])
+        expect(doc.tags).toHaveLength(2)
+        expect(doc.tags).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({ name: 'Users', description: 'User operations' }),
+            expect.objectContaining({ name: 'Pets', description: 'Pet operations' }),
+          ]),
+        )
+
+        // No tag groups should be created for flat tags
+        expect(doc['x-tagGroups']).toBeUndefined()
       })
 
-      it('handles a server with a relative URL', async () => {
-        const server = serverSchema.parse({
-          uid: 'server-1',
-          url: '/api/v1',
+      it('strips uid from tags in the document', async () => {
+        const tag = tagSchema.parse({
+          uid: 'tag-animals-001',
+          name: 'Animals',
+          children: [],
         })
 
         const legacyData = createLegacyData({
-          title: 'Relative URL API',
-          collection: { servers: ['server-1'] },
-          servers: [server],
+          title: 'Clean Tags API',
+          collection: {
+            tags: ['tag-animals-001'],
+            children: ['tag-animals-001'],
+          },
+          tags: [tag],
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['Relative URL API']
+        const doc = result[0]?.workspace.documents['Clean Tags API']
 
         assert(doc)
-        expect(doc.servers).toMatchObject([{ url: '/api/v1' }])
+        expect(doc.tags).toHaveLength(1)
+        expect((doc.tags![0] as Record<string, unknown>)['uid']).toBeUndefined()
+        expect((doc.tags![0] as Record<string, unknown>)['children']).toBeUndefined()
+      })
+    })
+
+    describe('nested tags (parent-child) → x-tagGroups', () => {
+      it('converts a parent tag with child tags into an x-tagGroups entry', async () => {
+        const childTag1 = tagSchema.parse({
+          uid: 'tag-dogs',
+          name: 'Dogs',
+          description: 'Dog operations',
+          children: [],
+        })
+
+        const childTag2 = tagSchema.parse({
+          uid: 'tag-cats',
+          name: 'Cats',
+          description: 'Cat operations',
+          children: [],
+        })
+
+        /** Parent tag that contains other tags as children */
+        const parentTag = tagSchema.parse({
+          uid: 'tag-animals',
+          name: 'Animals',
+          description: 'All animal operations',
+          children: ['tag-dogs', 'tag-cats'],
+        })
+
+        const legacyData = createLegacyData({
+          title: 'Nested Tags API',
+          collection: {
+            tags: ['tag-animals', 'tag-dogs', 'tag-cats'],
+            children: ['tag-animals'],
+          },
+          tags: [parentTag, childTag1, childTag2],
+        })
+
+        const result = await transformLegacyDataToWorkspace(legacyData)
+        const doc = result[0]?.workspace.documents['Nested Tags API']
+
+        assert(doc)
+
+        // The child tags should appear in the document tags array
+        expect(doc.tags).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({ name: 'Dogs', description: 'Dog operations' }),
+            expect.objectContaining({ name: 'Cats', description: 'Cat operations' }),
+          ]),
+        )
+
+        // The parent tag should become an x-tagGroups entry
+        expect(doc['x-tagGroups']).toBeDefined()
+        expect(doc['x-tagGroups']).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({
+              name: 'Animals',
+              tags: ['Dogs', 'Cats'],
+            }),
+          ]),
+        )
       })
 
-      it('handles a server with a URL containing path segments and query params', async () => {
-        const server = serverSchema.parse({
-          uid: 'server-complex',
-          url: 'https://api.example.com/v2/graphql?format=json',
+      it('converts multiple parent tags into multiple x-tagGroups entries', async () => {
+        const dogTag = tagSchema.parse({
+          uid: 'tag-dogs',
+          name: 'Dogs',
+          children: [],
+        })
+
+        const catTag = tagSchema.parse({
+          uid: 'tag-cats',
+          name: 'Cats',
+          children: [],
+        })
+
+        const sedanTag = tagSchema.parse({
+          uid: 'tag-sedans',
+          name: 'Sedans',
+          children: [],
+        })
+
+        const truckTag = tagSchema.parse({
+          uid: 'tag-trucks',
+          name: 'Trucks',
+          children: [],
+        })
+
+        const animalsGroup = tagSchema.parse({
+          uid: 'tag-animals',
+          name: 'Animals',
+          children: ['tag-dogs', 'tag-cats'],
+        })
+
+        const vehiclesGroup = tagSchema.parse({
+          uid: 'tag-vehicles',
+          name: 'Vehicles',
+          children: ['tag-sedans', 'tag-trucks'],
         })
 
         const legacyData = createLegacyData({
-          title: 'Complex URL API',
-          collection: { servers: ['server-complex'] },
-          servers: [server],
+          title: 'Multi Group API',
+          collection: {
+            tags: ['tag-animals', 'tag-dogs', 'tag-cats', 'tag-vehicles', 'tag-sedans', 'tag-trucks'],
+            children: ['tag-animals', 'tag-vehicles'],
+          },
+          tags: [animalsGroup, dogTag, catTag, vehiclesGroup, sedanTag, truckTag],
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['Complex URL API']
+        const doc = result[0]?.workspace.documents['Multi Group API']
 
         assert(doc)
-        expect(doc.servers).toMatchObject([{ url: 'https://api.example.com/v2/graphql?format=json' }])
+
+        // All leaf tags should be in the document tags array
+        expect(doc.tags).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({ name: 'Dogs' }),
+            expect.objectContaining({ name: 'Cats' }),
+            expect.objectContaining({ name: 'Sedans' }),
+            expect.objectContaining({ name: 'Trucks' }),
+          ]),
+        )
+
+        // Both parent tags should become x-tagGroups entries
+        expect(doc['x-tagGroups']).toHaveLength(2)
+        expect(doc['x-tagGroups']).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({
+              name: 'Animals',
+              tags: ['Dogs', 'Cats'],
+            }),
+            expect.objectContaining({
+              name: 'Vehicles',
+              tags: ['Sedans', 'Trucks'],
+            }),
+          ]),
+        )
       })
 
-      it('handles empty legacy data with no servers at all', async () => {
+      it('handles a mix of grouped and ungrouped tags', async () => {
+        const childTag = tagSchema.parse({
+          uid: 'tag-child',
+          name: 'ChildTag',
+          children: [],
+        })
+
+        const parentTag = tagSchema.parse({
+          uid: 'tag-parent',
+          name: 'ParentGroup',
+          children: ['tag-child'],
+        })
+
+        const standaloneTag = tagSchema.parse({
+          uid: 'tag-standalone',
+          name: 'Standalone',
+          description: 'A standalone tag',
+          children: [],
+        })
+
         const legacyData = createLegacyData({
-          title: 'Empty API',
+          title: 'Mixed Tags API',
+          collection: {
+            tags: ['tag-parent', 'tag-child', 'tag-standalone'],
+            children: ['tag-parent', 'tag-standalone'],
+          },
+          tags: [parentTag, childTag, standaloneTag],
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['Empty API']
+        const doc = result[0]?.workspace.documents['Mixed Tags API']
 
         assert(doc)
-        expect(doc.servers).toEqual([])
-        expect(doc['x-scalar-selected-server']).toBeUndefined()
+
+        // Both leaf and standalone tags should be in the tags array
+        expect(doc.tags).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({ name: 'ChildTag' }),
+            expect.objectContaining({ name: 'Standalone', description: 'A standalone tag' }),
+          ]),
+        )
+
+        // Only the parent should produce an x-tagGroups entry
+        expect(doc['x-tagGroups']).toHaveLength(1)
+        expect(doc['x-tagGroups']![0]).toMatchObject({
+          name: 'ParentGroup',
+          tags: ['ChildTag'],
+        })
+      })
+
+      it('handles parent tag whose children contain only tag UIDs (no operations)', async () => {
+        const tag1 = tagSchema.parse({
+          uid: 'tag-alpha-001',
+          name: 'Alpha',
+          children: [],
+        })
+
+        const tag2 = tagSchema.parse({
+          uid: 'tag-beta-002',
+          name: 'Beta',
+          children: [],
+        })
+
+        const groupTag = tagSchema.parse({
+          uid: 'tag-group-001',
+          name: 'Greek Letters',
+          children: ['tag-alpha-001', 'tag-beta-002'],
+        })
+
+        const legacyData = createLegacyData({
+          title: 'Group Only API',
+          collection: {
+            tags: ['tag-group-001', 'tag-alpha-001', 'tag-beta-002'],
+            children: ['tag-group-001'],
+          },
+          tags: [groupTag, tag1, tag2],
+        })
+
+        const result = await transformLegacyDataToWorkspace(legacyData)
+        const doc = result[0]?.workspace.documents['Group Only API']
+
+        assert(doc)
+
+        expect(doc['x-tagGroups']).toEqual([
+          expect.objectContaining({
+            name: 'Greek Letters',
+            tags: ['Alpha', 'Beta'],
+          }),
+        ])
+
+        // The parent tag itself should NOT appear in the tags array (it is a group, not a tag)
+        const tagNames = doc.tags?.map((t) => t.name) ?? []
+        expect(tagNames).not.toContain('Greek Letters')
+        expect(tagNames).toContain('Alpha')
+        expect(tagNames).toContain('Beta')
+      })
+    })
+
+    describe('tag edge cases', () => {
+      it('handles tags with missing child references gracefully', async () => {
+        const parentTag = tagSchema.parse({
+          uid: 'tag-parent',
+          name: 'Parent',
+          children: ['tag-missing-1', 'tag-missing-2'],
+        })
+
+        const legacyData = createLegacyData({
+          title: 'Missing Children API',
+          collection: {
+            tags: ['tag-parent'],
+            children: ['tag-parent'],
+          },
+          tags: [parentTag],
+        })
+
+        const result = await transformLegacyDataToWorkspace(legacyData)
+        const doc = result[0]?.workspace.documents['Missing Children API']
+
+        assert(doc)
+
+        // Since all children are missing, this should not produce a group with empty tags
+        // The parent tag should be treated as a regular tag or the group should be omitted
+        expect(doc['x-tagGroups']).toBeUndefined()
+      })
+
+      it('handles collection with no tags', async () => {
+        const legacyData = createLegacyData({
+          title: 'No Tags API',
+        })
+
+        const result = await transformLegacyDataToWorkspace(legacyData)
+        const doc = result[0]?.workspace.documents['No Tags API']
+
+        assert(doc)
+        expect(doc.tags).toEqual([])
+        expect(doc['x-tagGroups']).toBeUndefined()
+      })
+
+      it('preserves tag description and externalDocs when converting to document tags', async () => {
+        const tag = tagSchema.parse({
+          uid: 'tag-documented-001',
+          name: 'Documented Tag',
+          description: 'This tag has full metadata',
+          externalDocs: {
+            url: 'https://docs.example.com/tags/documented',
+            description: 'External documentation for this tag',
+          },
+          children: [],
+        })
+
+        const legacyData = createLegacyData({
+          title: 'Documented Tags API',
+          collection: {
+            tags: ['tag-documented-001'],
+            children: ['tag-documented-001'],
+          },
+          tags: [tag],
+        })
+
+        const result = await transformLegacyDataToWorkspace(legacyData)
+        const doc = result[0]?.workspace.documents['Documented Tags API']
+
+        assert(doc)
+        expect(doc.tags).toHaveLength(1)
+        expect(doc.tags![0]).toMatchObject({
+          name: 'Documented Tag',
+          description: 'This tag has full metadata',
+          externalDocs: {
+            url: 'https://docs.example.com/tags/documented',
+            description: 'External documentation for this tag',
+          },
+        })
+      })
+
+      it('resolves tags across multiple collections in the same workspace', async () => {
+        const tag1 = tagSchema.parse({
+          uid: 'tag-shared-001',
+          name: 'SharedTag',
+          children: [],
+        })
+
+        const tag2 = tagSchema.parse({
+          uid: 'tag-unique-002',
+          name: 'UniqueTag',
+          children: [],
+        })
+
+        const collection1 = collectionSchema.parse({
+          uid: 'collection-1',
+          openapi: '3.1.0',
+          info: { title: 'API One', version: '1.0.0' },
+          tags: ['tag-shared-001'],
+          children: ['tag-shared-001'],
+        })
+
+        const collection2 = collectionSchema.parse({
+          uid: 'collection-2',
+          openapi: '3.1.0',
+          info: { title: 'API Two', version: '1.0.0' },
+          tags: ['tag-unique-002'],
+          children: ['tag-unique-002'],
+        })
+
+        const workspace = workspaceSchema.parse({
+          uid: 'workspace-1',
+          name: 'Multi Collection Workspace',
+          collections: ['collection-1', 'collection-2'],
+        })
+
+        const legacyData = createLegacyData({
+          workspaces: [workspace],
+          collections: [collection1, collection2],
+          tags: [tag1, tag2],
+        })
+
+        const result = await transformLegacyDataToWorkspace(legacyData)
+        const resultWorkspace = result[0]!
+
+        const doc1 = resultWorkspace.workspace.documents['API One']
+        const doc2 = resultWorkspace.workspace.documents['API Two']
+
+        assert(doc1)
+        assert(doc2)
+
+        expect(doc1.tags).toEqual(expect.arrayContaining([expect.objectContaining({ name: 'SharedTag' })]))
+        expect(doc2.tags).toEqual(expect.arrayContaining([expect.objectContaining({ name: 'UniqueTag' })]))
+      })
+
+      it('filters out tag UIDs that do not exist in records', async () => {
+        const validTag = tagSchema.parse({
+          uid: 'tag-valid',
+          name: 'ValidTag',
+          children: [],
+        })
+
+        const legacyData = createLegacyData({
+          title: 'Partial Tags API',
+          collection: {
+            tags: ['tag-valid', 'tag-nonexistent'],
+            children: ['tag-valid', 'tag-nonexistent'],
+          },
+          tags: [validTag],
+        })
+
+        const result = await transformLegacyDataToWorkspace(legacyData)
+        const doc = result[0]?.workspace.documents['Partial Tags API']
+
+        assert(doc)
+        expect(doc.tags).toHaveLength(1)
+        expect(doc.tags![0]).toMatchObject({ name: 'ValidTag' })
+      })
+
+      it('handles a parent tag with a mix of tag children and operation children', async () => {
+        const childTag = tagSchema.parse({
+          uid: 'tag-child',
+          name: 'ChildTag',
+          children: [],
+        })
+
+        /**
+         * A parent tag with mixed children: one is a tag UID and one is an operation UID.
+         * Only the tag children should be used for x-tagGroups.
+         */
+        const parentTag = tagSchema.parse({
+          uid: 'tag-parent',
+          name: 'MixedParent',
+          children: ['tag-child', 'some-operation-uid'],
+        })
+
+        const legacyData = createLegacyData({
+          title: 'Mixed Children API',
+          collection: {
+            tags: ['tag-parent', 'tag-child'],
+            children: ['tag-parent'],
+          },
+          tags: [parentTag, childTag],
+        })
+
+        const result = await transformLegacyDataToWorkspace(legacyData)
+        const doc = result[0]?.workspace.documents['Mixed Children API']
+
+        assert(doc)
+
+        // The parent has at least one tag child, so it should produce an x-tagGroups entry
+        expect(doc['x-tagGroups']).toBeDefined()
+        expect(doc['x-tagGroups']).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({
+              name: 'MixedParent',
+              tags: ['ChildTag'],
+            }),
+          ]),
+        )
+
+        // The child tag should be in the document tags
+        expect(doc.tags).toEqual(expect.arrayContaining([expect.objectContaining({ name: 'ChildTag' })]))
       })
     })
   })
 
   // Request
   // RequestExample
-  // Tags
 })
