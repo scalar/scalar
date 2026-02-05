@@ -47,7 +47,7 @@ defineSlots<{
         <slot name="sidebarMenuActions">
           <ScalarMenuWorkspacePicker
             :modelValue="activeWorkspace.id"
-            :workspaceOptions="workspaces"
+            :workspaceOptions="[{ options: workspaces }]"
             @createWorkspace="emit('create:workspace')"
             @update:modelValue="(value) => emit('select:workspace', value)" />
           <ScalarMenuLink

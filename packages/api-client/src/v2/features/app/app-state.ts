@@ -239,10 +239,14 @@ const navigateToWorkspace = async (namespace?: string, slug?: string): Promise<v
  *   // -> Navigates to /workspace/my-awesome-api (if available)
  */
 const createWorkspace = async ({
-  key,
+  teamUid,
+  namespace,
+  slug,
   name,
 }: {
-  key?: { teamUid?: string; namespace?: string; slug: string }
+  teamUid?: string
+  namespace?: string
+  slug?: string
   name: string
 }) => {
   // Clear up the current store, in order to show the loading state
@@ -250,8 +254,8 @@ const createWorkspace = async ({
 
   // Generate a unique slug/id for the workspace, based on the name.
   const newWorkspaceSlug = await generateUniqueValue({
-    defaultValue: key?.slug ?? name, // Use the provided id if it exists, otherwise use the name
-    validation: async (value) => !(await persistence.has({ namespace: key?.namespace ?? 'local', slug: value })),
+    defaultValue: slug ?? name, // Use the provided id if it exists, otherwise use the name
+    validation: async (value) => !(await persistence.has({ namespace: namespace ?? 'local', slug: value })),
     maxRetries: 100,
     transformation: slugify,
   })
@@ -262,8 +266,8 @@ const createWorkspace = async ({
   }
 
   const newWorkspaceDetails = {
-    teamUid: key?.teamUid,
-    namespace: key?.namespace,
+    teamUid,
+    namespace,
     slug: newWorkspaceSlug,
     name,
   }
@@ -328,7 +332,7 @@ const changeWorkspace = async (namespace: string, slug: string) => {
   // If loading failed (workspace does not exist), create the default workspace and navigate to it.
   const createResult = await createWorkspace({
     name: 'Default Workspace',
-    key: { slug: 'default' },
+    slug: 'default',
   })
 
   isSyncingWorkspace.value = false
