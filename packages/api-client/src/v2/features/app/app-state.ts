@@ -325,6 +325,13 @@ const changeWorkspace = async (namespace: string, slug: string) => {
     return
   }
 
+  // Navigate to the default workspace, or fall back to the first available workspace
+  const targetWorkspace = workspaces.value.find((workspace) => workspace.slug === 'default') ?? workspaces.value[0]
+
+  if (targetWorkspace) {
+    return navigateToWorkspace(targetWorkspace.namespace, targetWorkspace.slug)
+  }
+
   // If loading failed (workspace does not exist), create the default workspace and navigate to it.
   const createResult = await createWorkspace({
     name: 'Default Workspace',
