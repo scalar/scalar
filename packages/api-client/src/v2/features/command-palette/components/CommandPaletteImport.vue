@@ -82,6 +82,9 @@ const watchMode = ref(false)
 
 /** Check if the input content is a URL */
 const isUrlInput = computed<boolean>(() => isUrl(inputContent.value))
+const isLocalUrlInput = computed<boolean>(
+  () => isUrlInput.value && isLocalUrl(inputContent.value),
+)
 
 /** Get document details based on the content type (Postman or OpenAPI) */
 const documentDetails = computed(() => {
@@ -105,8 +108,8 @@ const isDisabled = computed<boolean>(() => {
  * Toggle watchMode based on whether the input is a local URL.
  * Only enables watch mode for local URLs, not for files or pasted content.
  */
-watch(isUrlInput, (isUrl: boolean) => {
-  watchMode.value = isUrl && isLocalUrl(inputContent.value)
+watch(isLocalUrlInput, (value: boolean) => {
+  watchMode.value = value
 })
 
 /**
