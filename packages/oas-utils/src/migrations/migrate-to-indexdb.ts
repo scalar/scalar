@@ -3,7 +3,10 @@ import { objectEntries } from '@scalar/helpers/object/object-entries'
 import type { Oauth2Flow } from '@scalar/types/entities'
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
 import { type Auth, AuthSchema } from '@scalar/workspace-store/entities/auth'
-import { xScalarEnvironmentSchema } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
+import {
+  type XScalarEnvironments,
+  xScalarEnvironmentSchema,
+} from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import { xScalarCookieSchema } from '@scalar/workspace-store/schemas/extensions/general/x-scalar-cookies'
 import type { InMemoryWorkspace } from '@scalar/workspace-store/schemas/inmemory-workspace'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
@@ -188,78 +191,135 @@ export const transformLegacyDataToWorkspace = async (legacyData: {
     }),
   )
 
+/**
+ * Converts legacy environment variables from record format to the new array format.
+ *
+ * Legacy format:  { variables: { API_URL: 'https://...', API_KEY: 'secret' } }
+ * New format:     { variables: [{ name: 'API_URL', value: 'https://...' }, { name: 'API_KEY', value: 'secret' }] }
+ */
+const transformLegacyEnvironments = (
+  environments: v_2_5_0['Collection']['x-scalar-environments'],
+): XScalarEnvironments | undefined => {
+  const entries = Object.entries(environments || {})
+  if (entries.length === 0) {
+    return undefined
+  }
+
+  return Object.fromEntries(
+    entries.map(([envName, env]) => [
+      envName,
+      coerceValue(xScalarEnvironmentSchema, {
+        color: env.color,
+        variables: Object.entries(env.variables || {}).map(([name, value]) => ({
+          name,
+          value: typeof value === 'string' ? value : value.default || '',
+        })),
+      }),
+    ]),
+  )
+}
+
 /** Transforms a collection and everything it includes into a WorkspaceDocument + auth */
 const transformCollectionToDocument = (
   documentName: string,
   collection: v_2_5_0['Collection'],
-  _dataRecords: v_2_5_0['DataRecord'],
+  dataRecords: v_2_5_0['DataRecord'],
 ): { document: WorkspaceDocument; auth: Auth } => {
-  return {
-    document: coerceValue(OpenAPIDocumentSchema, {
-      openapi: collection.openapi || '3.1.0',
-      info: collection.info || {
-        title: documentName,
-        version: '1.0',
-      },
-      servers: [],
-      paths: {},
-      components: {
-        securitySchemes: collection.securitySchemes.reduce((acc, uid) => {
-          const securityScheme = _dataRecords.securitySchemes[uid]
-          if (!securityScheme) {
-            return acc
-          }
+  // Resolve selectedServerUid → server URL for x-scalar-selected-server
+  const selectedServerUrl =
+    collection.selectedServerUid && dataRecords.servers[collection.selectedServerUid]
+      ? dataRecords.servers[collection.selectedServerUid]?.url
+      : undefined
 
-          // Clean the flows
-          if (securityScheme.type === 'oauth2') {
-            const selectedScopes = new Set<string>()
+  const document: Record<string, unknown> = {
+    openapi: collection.openapi || '3.1.0',
+    info: collection.info || {
+      title: documentName,
+      version: '1.0',
+    },
+    servers: [],
+    paths: {},
+    components: {
+      securitySchemes: collection.securitySchemes.reduce((acc, uid) => {
+        const securityScheme = dataRecords.securitySchemes[uid]
+        if (!securityScheme) {
+          return acc
+        }
 
-            return {
-              ...acc,
-              [securityScheme.nameKey]: {
-                ...securityScheme,
-                flows: objectEntries(securityScheme.flows).reduce(
-                  (acc, [key, flow]) => {
-                    if (!flow) {
-                      return acc
-                    }
-
-                    // Store any selected scopes from the config
-                    if ('selectedScopes' in flow && Array.isArray(flow.selectedScopes)) {
-                      flow.selectedScopes?.forEach((scope) => selectedScopes.add(scope))
-                    }
-
-                    acc[key] = removeSecretFields(flow) as Oauth2Flow
-                    return acc
-                  },
-                  {} as Record<string, Oauth2Flow>,
-                ),
-                'x-default-scopes': Array.from(selectedScopes),
-              },
-            }
-          }
-
-          /** We don't want any secrets in the document */
-          const cleanedSecurityScheme = removeSecretFields(securityScheme)
+        // Clean the flows
+        if (securityScheme.type === 'oauth2') {
+          const selectedScopes = new Set<string>()
 
           return {
             ...acc,
-            [securityScheme.nameKey]: cleanedSecurityScheme,
+            [securityScheme.nameKey]: {
+              ...securityScheme,
+              flows: objectEntries(securityScheme.flows).reduce(
+                (acc, [key, flow]) => {
+                  if (!flow) {
+                    return acc
+                  }
+
+                  // Store any selected scopes from the config
+                  if ('selectedScopes' in flow && Array.isArray(flow.selectedScopes)) {
+                    flow.selectedScopes?.forEach((scope) => selectedScopes.add(scope))
+                  }
+
+                  acc[key] = removeSecretFields(flow) as Oauth2Flow
+                  return acc
+                },
+                {} as Record<string, Oauth2Flow>,
+              ),
+              'x-default-scopes': Array.from(selectedScopes),
+            },
           }
-        }, {}),
-      },
-      security: collection.security || [],
-      tags: [],
-      webhooks: collection.webhooks,
-      externalDocs: collection.externalDocs,
-      // Preserve scalar extensions
-      'x-scalar-icon': collection['x-scalar-icon'],
-      'x-scalar-environments': collection['x-scalar-environments'],
-      'x-scalar-original-document-hash': '',
-    }),
+        }
+
+        /** We don't want any secrets in the document */
+        const cleanedSecurityScheme = removeSecretFields(securityScheme)
+
+        return {
+          ...acc,
+          [securityScheme.nameKey]: cleanedSecurityScheme,
+        }
+      }, {}),
+    },
+    security: collection.security || [],
+    tags: [],
+    webhooks: collection.webhooks,
+    externalDocs: collection.externalDocs,
+    'x-scalar-original-document-hash': '',
+
+    // Preserve scalar extensions
+    'x-scalar-icon': collection['x-scalar-icon'],
+
+    // Convert legacy record-based environment variables to the new array format
+    'x-scalar-environments': transformLegacyEnvironments(collection['x-scalar-environments']),
+
+    // useCollectionSecurity → x-scalar-set-operation-security
+    'x-scalar-set-operation-security': collection.useCollectionSecurity ?? false,
+  }
+
+  // x-scalar-active-environment → x-scalar-client-config-active-environment
+  if (collection['x-scalar-active-environment']) {
+    document['x-scalar-client-config-active-environment'] = collection['x-scalar-active-environment']
+  }
+
+  // selectedServerUid → x-scalar-selected-server (resolved to URL)
+  if (selectedServerUrl) {
+    document['x-scalar-selected-server'] = selectedServerUrl
+  }
+
+  // documentUrl → x-scalar-original-source-url
+  if (collection.documentUrl) {
+    document['x-scalar-original-source-url'] = collection.documentUrl
+  }
+
+  return {
+    document: coerceValue(OpenAPIDocumentSchema, document),
     auth: coerceValue(AuthSchema, {
       secrets: collection.securitySchemes.reduce((acc, uid) => {
-        const securityScheme = _dataRecords.securitySchemes[uid]
+        const securityScheme = dataRecords.securitySchemes[uid]
         if (!securityScheme) {
           return acc
         }
