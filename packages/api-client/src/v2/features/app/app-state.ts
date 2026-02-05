@@ -230,7 +230,7 @@ const navigateToWorkspace = async (namespace?: string, slug?: string): Promise<v
 
 /**
  * Creates a new workspace with the provided name.
- * - Generates a unique slug for the workspace (sluggified from the name and guaranteed unique).
+ * - Generates a unique slug for the workspace (uses the provided slug if it is unique, otherwise generates a unique slug).
  * - Adds a default blank document ("drafts") to the workspace.
  * - Persists the workspace and navigates to it.
  *
