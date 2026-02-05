@@ -333,16 +333,8 @@ paths:
       ],
     })
 
-    try {
-      const result = await loadDocumentFromSource(workspaceStore, invalidPostmanCollection, 'Invalid Collection', false)
-
-      // If conversion throws an error, it should propagate
-      // If it doesn't throw, result might be false or true depending on how conversion handles it
-      expect(typeof result).toBe('boolean')
-    } catch (error) {
-      // Expect an error to be thrown for invalid collections
-      expect(error).toBeDefined()
-    }
+    const result = await loadDocumentFromSource(workspaceStore, invalidPostmanCollection, 'Invalid Collection', false)
+    expect(result).toBe(false)
   })
 
   it('handles empty Postman collection', async () => {
