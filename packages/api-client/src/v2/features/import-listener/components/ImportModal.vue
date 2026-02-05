@@ -102,7 +102,7 @@ const handleModalStateChange = async (isOpen: boolean): Promise<void> => {
   updateBodyClasses(true)
 
   // Toggle watch mode based on whether the source is a local URL
-  watchMode.value = source !== null && isLocalUrl(source)
+  watchMode.value = source !== null && isUrl(source) && isLocalUrl(source)
 
   // Set the state to loading
   state.value = 'loading'
