@@ -1,5 +1,14 @@
 # @scalar/oas-utils
 
+## 0.6.35
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.28.4**
+  - [#8047](https://github.com/scalar/scalar/pull/8047): fix: unpack proxy when update an environment
+
 ## 0.6.34
 
 ### Patch Changes

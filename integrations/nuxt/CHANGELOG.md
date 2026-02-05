@@ -1,5 +1,17 @@
 # @scalar/nuxt
 
+## 0.5.70
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-client@2.23.4**
+  - [#8058](https://github.com/scalar/scalar/pull/8058): fix: correctly drop changes when modal closes
+  - [#8059](https://github.com/scalar/scalar/pull/8059): fix: harden auth secret extraction plus tests
+
+- **@scalar/api-reference@1.44.13**
+
 ## 0.5.69
 
 ### Patch Changes
