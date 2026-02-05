@@ -1,5 +1,17 @@
 # scalar-app
 
+## 0.1.282
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-client@2.23.4**
+  - [#8058](https://github.com/scalar/scalar/pull/8058): fix: correctly drop changes when modal closes
+  - [#8059](https://github.com/scalar/scalar/pull/8059): fix: harden auth secret extraction plus tests
+
+- **@scalar/components@0.17.5**
+
 ## 0.1.281
 
 ### Patch Changes
