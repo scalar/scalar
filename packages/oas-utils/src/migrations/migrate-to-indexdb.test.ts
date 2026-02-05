@@ -3,6 +3,7 @@ import { assert, beforeEach, describe, expect, it } from 'vitest'
 
 import { cookieSchema } from '@/entities/cookie'
 import { type Collection, collectionSchema } from '@/entities/spec/collection'
+import { serverSchema } from '@/entities/spec/server'
 import { type Workspace, workspaceSchema } from '@/entities/workspace/workspace'
 
 import { DATA_VERSION_LS_LEY } from './data-version'
@@ -1066,4 +1067,688 @@ describe('migrate-to-indexdb', () => {
       expect(meta?.['x-scalar-color-mode']).toBeUndefined()
     })
   })
+
+  describe('transformLegacyDataToWorkspace - Document Meta', () => {
+    describe('x-scalar-environments on document', () => {
+      it('preserves collection x-scalar-environments on the output document', async () => {
+        const collection = collectionSchema.parse({
+          uid: 'collection-1',
+          openapi: '3.1.0',
+          info: { title: 'Env API', version: '1.0.0' },
+          'x-scalar-environments': {
+            production: {
+              color: '#FF0000',
+              variables: {
+                API_URL: 'https://api.production.com',
+                API_KEY: 'prod-key-123',
+              },
+            },
+          },
+        })
+
+        const workspace = workspaceSchema.parse({
+          uid: 'workspace-1',
+          name: 'Test Workspace',
+          collections: ['collection-1'],
+        })
+
+        const legacyData = createLegacyData({
+          workspaces: [workspace],
+          collections: [collection],
+        })
+
+        const result = await transformLegacyDataToWorkspace(legacyData)
+        const doc = result[0]?.workspace.documents['Env API']
+        assert(doc)
+
+        expect(doc['x-scalar-environments']).toStrictEqual({
+          production: {
+            color: '#FF0000',
+            variables: [
+              { name: 'API_URL', value: 'https://api.production.com' },
+              { name: 'API_KEY', value: 'prod-key-123' },
+            ],
+          },
+        })
+      })
+
+      it('preserves multiple environments from collection to document', async () => {
+        const collection = collectionSchema.parse({
+          uid: 'collection-1',
+          openapi: '3.1.0',
+          info: { title: 'Multi Env API', version: '1.0.0' },
+          'x-scalar-environments': {
+            development: {
+              color: '#00FF00',
+              variables: {
+                BASE_URL: 'http://localhost:3000',
+              },
+            },
+            production: {
+              color: '#FF0000',
+              variables: {
+                BASE_URL: 'https://api.example.com',
+              },
+            },
+          },
+        })
+
+        const workspace = workspaceSchema.parse({
+          uid: 'workspace-1',
+          name: 'Test Workspace',
+          collections: ['collection-1'],
+        })
+
+        const legacyData = createLegacyData({
+          workspaces: [workspace],
+          collections: [collection],
+        })
+
+        const result = await transformLegacyDataToWorkspace(legacyData)
+        const doc = result[0]?.workspace.documents['Multi Env API']
+        assert(doc)
+
+        expect(doc['x-scalar-environments']).toStrictEqual({
+          development: {
+            color: '#00FF00',
+            variables: [{ name: 'BASE_URL', value: 'http://localhost:3000' }],
+          },
+          production: {
+            color: '#FF0000',
+            variables: [{ name: 'BASE_URL', value: 'https://api.example.com' }],
+          },
+        })
+      })
+
+      it('handles collection with no x-scalar-environments', async () => {
+        const collection = collectionSchema.parse({
+          uid: 'collection-1',
+          openapi: '3.1.0',
+          info: { title: 'No Env API', version: '1.0.0' },
+        })
+
+        const workspace = workspaceSchema.parse({
+          uid: 'workspace-1',
+          name: 'Test Workspace',
+          collections: ['collection-1'],
+        })
+
+        const legacyData = createLegacyData({
+          workspaces: [workspace],
+          collections: [collection],
+        })
+
+        const result = await transformLegacyDataToWorkspace(legacyData)
+        const doc = result[0]?.workspace.documents['No Env API']
+
+        assert(doc)
+        expect(doc['x-scalar-environments']).toBeUndefined()
+      })
+    })
+
+    describe('x-scalar-active-environment → x-scalar-client-config-active-environment', () => {
+      it('transforms x-scalar-active-environment to x-scalar-client-config-active-environment', async () => {
+        const collection = collectionSchema.parse({
+          uid: 'collection-1',
+          openapi: '3.1.0',
+          info: { title: 'Active Env API', version: '1.0.0' },
+          'x-scalar-active-environment': 'production',
+          'x-scalar-environments': {
+            production: {
+              color: '#FF0000',
+              variables: {
+                API_URL: 'https://api.production.com',
+              },
+            },
+          },
+        })
+
+        const workspace = workspaceSchema.parse({
+          uid: 'workspace-1',
+          name: 'Test Workspace',
+          collections: ['collection-1'],
+        })
+
+        const legacyData = createLegacyData({
+          workspaces: [workspace],
+          collections: [collection],
+        })
+
+        const result = await transformLegacyDataToWorkspace(legacyData)
+        const doc = result[0]?.workspace.documents['Active Env API']
+
+        assert(doc)
+        expect(doc['x-scalar-client-config-active-environment']).toBe('production')
+      })
+
+      it('does not set x-scalar-client-config-active-environment when x-scalar-active-environment is absent', async () => {
+        const collection = collectionSchema.parse({
+          uid: 'collection-1',
+          openapi: '3.1.0',
+          info: { title: 'No Active Env API', version: '1.0.0' },
+        })
+
+        const workspace = workspaceSchema.parse({
+          uid: 'workspace-1',
+          name: 'Test Workspace',
+          collections: ['collection-1'],
+        })
+
+        const legacyData = createLegacyData({
+          workspaces: [workspace],
+          collections: [collection],
+        })
+
+        const result = await transformLegacyDataToWorkspace(legacyData)
+        const doc = result[0]?.workspace.documents['No Active Env API']
+
+        assert(doc)
+        expect(doc['x-scalar-client-config-active-environment']).toBeUndefined()
+      })
+    })
+
+    describe('selectedServerUid → x-scalar-selected-server', () => {
+      it('transforms selectedServerUid to x-scalar-selected-server using the server URL', async () => {
+        const server = serverSchema.parse({
+          uid: 'server-1',
+          url: 'https://api.example.com/v1',
+          description: 'Production server',
+        })
+
+        const collection = collectionSchema.parse({
+          uid: 'collection-1',
+          openapi: '3.1.0',
+          info: { title: 'Server API', version: '1.0.0' },
+          selectedServerUid: 'server-1',
+          servers: ['server-1'],
+        })
+
+        const workspace = workspaceSchema.parse({
+          uid: 'workspace-1',
+          name: 'Test Workspace',
+          collections: ['collection-1'],
+        })
+
+        const legacyData = createLegacyData({
+          workspaces: [workspace],
+          collections: [collection],
+          servers: [server],
+        })
+
+        const result = await transformLegacyDataToWorkspace(legacyData)
+        const doc = result[0]?.workspace.documents['Server API']
+
+        assert(doc)
+        expect(doc['x-scalar-selected-server']).toBe('https://api.example.com/v1')
+      })
+
+      it('does not set x-scalar-selected-server when selectedServerUid is not present', async () => {
+        const collection = collectionSchema.parse({
+          uid: 'collection-1',
+          openapi: '3.1.0',
+          info: { title: 'No Server API', version: '1.0.0' },
+        })
+
+        const workspace = workspaceSchema.parse({
+          uid: 'workspace-1',
+          name: 'Test Workspace',
+          collections: ['collection-1'],
+        })
+
+        const legacyData = createLegacyData({
+          workspaces: [workspace],
+          collections: [collection],
+        })
+
+        const result = await transformLegacyDataToWorkspace(legacyData)
+        const doc = result[0]?.workspace.documents['No Server API']
+
+        assert(doc)
+        expect(doc['x-scalar-selected-server']).toBeUndefined()
+      })
+
+      it('does not set x-scalar-selected-server when the referenced server is missing from records', async () => {
+        const collection = collectionSchema.parse({
+          uid: 'collection-1',
+          openapi: '3.1.0',
+          info: { title: 'Missing Server API', version: '1.0.0' },
+          selectedServerUid: 'server-nonexistent',
+        })
+
+        const workspace = workspaceSchema.parse({
+          uid: 'workspace-1',
+          name: 'Test Workspace',
+          collections: ['collection-1'],
+        })
+
+        const legacyData = createLegacyData({
+          workspaces: [workspace],
+          collections: [collection],
+        })
+
+        const result = await transformLegacyDataToWorkspace(legacyData)
+        const doc = result[0]?.workspace.documents['Missing Server API']
+
+        assert(doc)
+        expect(doc['x-scalar-selected-server']).toBeUndefined()
+      })
+
+      it('selects the correct server when multiple servers exist', async () => {
+        const server1 = serverSchema.parse({
+          uid: 'server-1',
+          url: 'https://api.dev.example.com',
+          description: 'Dev server',
+        })
+
+        const server2 = serverSchema.parse({
+          uid: 'server-2',
+          url: 'https://api.prod.example.com',
+          description: 'Prod server',
+        })
+
+        const collection = collectionSchema.parse({
+          uid: 'collection-1',
+          openapi: '3.1.0',
+          info: { title: 'Multi Server API', version: '1.0.0' },
+          selectedServerUid: 'server-2',
+          servers: ['server-1', 'server-2'],
+        })
+
+        const workspace = workspaceSchema.parse({
+          uid: 'workspace-1',
+          name: 'Test Workspace',
+          collections: ['collection-1'],
+        })
+
+        const legacyData = createLegacyData({
+          workspaces: [workspace],
+          collections: [collection],
+          servers: [server1, server2],
+        })
+
+        const result = await transformLegacyDataToWorkspace(legacyData)
+        const doc = result[0]?.workspace.documents['Multi Server API']
+
+        assert(doc)
+        expect(doc['x-scalar-selected-server']).toBe('https://api.prod.example.com')
+      })
+    })
+
+    describe('x-scalar-icon → x-scalar-icon', () => {
+      it('preserves x-scalar-icon from collection to document', async () => {
+        const collection = collectionSchema.parse({
+          uid: 'collection-1',
+          openapi: '3.1.0',
+          info: { title: 'Icon API', version: '1.0.0' },
+          'x-scalar-icon': 'interface-home',
+        })
+
+        const workspace = workspaceSchema.parse({
+          uid: 'workspace-1',
+          name: 'Test Workspace',
+          collections: ['collection-1'],
+        })
+
+        const legacyData = createLegacyData({
+          workspaces: [workspace],
+          collections: [collection],
+        })
+
+        const result = await transformLegacyDataToWorkspace(legacyData)
+        const doc = result[0]?.workspace.documents['Icon API']
+
+        assert(doc)
+        expect(doc['x-scalar-icon']).toBe('interface-home')
+      })
+
+      it('uses the default icon when x-scalar-icon is not explicitly set', async () => {
+        const collection = collectionSchema.parse({
+          uid: 'collection-1',
+          openapi: '3.1.0',
+          info: { title: 'Default Icon API', version: '1.0.0' },
+        })
+
+        const workspace = workspaceSchema.parse({
+          uid: 'workspace-1',
+          name: 'Test Workspace',
+          collections: ['collection-1'],
+        })
+
+        const legacyData = createLegacyData({
+          workspaces: [workspace],
+          collections: [collection],
+        })
+
+        const result = await transformLegacyDataToWorkspace(legacyData)
+        const doc = result[0]?.workspace.documents['Default Icon API']
+
+        assert(doc)
+        // The collection schema defaults to 'interface-content-folder'
+        expect(doc['x-scalar-icon']).toBe('interface-content-folder')
+      })
+
+      it('preserves various custom icon values', async () => {
+        const collection = collectionSchema.parse({
+          uid: 'collection-1',
+          openapi: '3.1.0',
+          info: { title: 'Custom Icon API', version: '1.0.0' },
+          'x-scalar-icon': 'interface-content-book',
+        })
+
+        const workspace = workspaceSchema.parse({
+          uid: 'workspace-1',
+          name: 'Test Workspace',
+          collections: ['collection-1'],
+        })
+
+        const legacyData = createLegacyData({
+          workspaces: [workspace],
+          collections: [collection],
+        })
+
+        const result = await transformLegacyDataToWorkspace(legacyData)
+        const doc = result[0]?.workspace.documents['Custom Icon API']
+
+        assert(doc)
+        expect(doc['x-scalar-icon']).toBe('interface-content-book')
+      })
+    })
+
+    describe('useCollectionSecurity → x-scalar-set-operation-security', () => {
+      it('transforms useCollectionSecurity true to x-scalar-set-operation-security true', async () => {
+        const collection = collectionSchema.parse({
+          uid: 'collection-1',
+          openapi: '3.1.0',
+          info: { title: 'Collection Security API', version: '1.0.0' },
+          useCollectionSecurity: true,
+        })
+
+        const workspace = workspaceSchema.parse({
+          uid: 'workspace-1',
+          name: 'Test Workspace',
+          collections: ['collection-1'],
+        })
+
+        const legacyData = createLegacyData({
+          workspaces: [workspace],
+          collections: [collection],
+        })
+
+        const result = await transformLegacyDataToWorkspace(legacyData)
+        const doc = result[0]?.workspace.documents['Collection Security API']
+
+        assert(doc)
+        expect(doc['x-scalar-set-operation-security']).toBe(true)
+      })
+
+      it('transforms useCollectionSecurity false to x-scalar-set-operation-security false', async () => {
+        const collection = collectionSchema.parse({
+          uid: 'collection-1',
+          openapi: '3.1.0',
+          info: { title: 'No Collection Security API', version: '1.0.0' },
+          useCollectionSecurity: false,
+        })
+
+        const workspace = workspaceSchema.parse({
+          uid: 'workspace-1',
+          name: 'Test Workspace',
+          collections: ['collection-1'],
+        })
+
+        const legacyData = createLegacyData({
+          workspaces: [workspace],
+          collections: [collection],
+        })
+
+        const result = await transformLegacyDataToWorkspace(legacyData)
+        const doc = result[0]?.workspace.documents['No Collection Security API']
+
+        assert(doc)
+        expect(doc['x-scalar-set-operation-security']).toBe(false)
+      })
+
+      it('defaults to false when useCollectionSecurity is not set', async () => {
+        const collection = collectionSchema.parse({
+          uid: 'collection-1',
+          openapi: '3.1.0',
+          info: { title: 'Default Security API', version: '1.0.0' },
+        })
+
+        const workspace = workspaceSchema.parse({
+          uid: 'workspace-1',
+          name: 'Test Workspace',
+          collections: ['collection-1'],
+        })
+
+        const legacyData = createLegacyData({
+          workspaces: [workspace],
+          collections: [collection],
+        })
+
+        const result = await transformLegacyDataToWorkspace(legacyData)
+        const doc = result[0]?.workspace.documents['Default Security API']
+
+        assert(doc)
+        expect(doc['x-scalar-set-operation-security']).toBe(false)
+      })
+    })
+
+    describe('documentUrl → x-scalar-original-source-url', () => {
+      it('transforms documentUrl to x-scalar-original-source-url', async () => {
+        const collection = collectionSchema.parse({
+          uid: 'collection-1',
+          openapi: '3.1.0',
+          info: { title: 'Doc URL API', version: '1.0.0' },
+          documentUrl: 'https://example.com/openapi.yaml',
+        })
+
+        const workspace = workspaceSchema.parse({
+          uid: 'workspace-1',
+          name: 'Test Workspace',
+          collections: ['collection-1'],
+        })
+
+        const legacyData = createLegacyData({
+          workspaces: [workspace],
+          collections: [collection],
+        })
+
+        const result = await transformLegacyDataToWorkspace(legacyData)
+        const doc = result[0]?.workspace.documents['Doc URL API']
+
+        assert(doc)
+        expect(doc['x-scalar-original-source-url']).toBe('https://example.com/openapi.yaml')
+      })
+
+      it('does not set x-scalar-original-source-url when documentUrl is not present', async () => {
+        const collection = collectionSchema.parse({
+          uid: 'collection-1',
+          openapi: '3.1.0',
+          info: { title: 'No Doc URL API', version: '1.0.0' },
+        })
+
+        const workspace = workspaceSchema.parse({
+          uid: 'workspace-1',
+          name: 'Test Workspace',
+          collections: ['collection-1'],
+        })
+
+        const legacyData = createLegacyData({
+          workspaces: [workspace],
+          collections: [collection],
+        })
+
+        const result = await transformLegacyDataToWorkspace(legacyData)
+        const doc = result[0]?.workspace.documents['No Doc URL API']
+
+        assert(doc)
+        expect(doc['x-scalar-original-source-url']).toBeUndefined()
+      })
+
+      it('handles various URL formats for documentUrl', async () => {
+        const collection = collectionSchema.parse({
+          uid: 'collection-1',
+          openapi: '3.1.0',
+          info: { title: 'Relative URL API', version: '1.0.0' },
+          documentUrl: './specs/openapi.json',
+        })
+
+        const workspace = workspaceSchema.parse({
+          uid: 'workspace-1',
+          name: 'Test Workspace',
+          collections: ['collection-1'],
+        })
+
+        const legacyData = createLegacyData({
+          workspaces: [workspace],
+          collections: [collection],
+        })
+
+        const result = await transformLegacyDataToWorkspace(legacyData)
+        const doc = result[0]?.workspace.documents['Relative URL API']
+
+        assert(doc)
+        expect(doc['x-scalar-original-source-url']).toBe('./specs/openapi.json')
+      })
+    })
+
+    describe('combined document meta transformations', () => {
+      it('transforms all document meta fields simultaneously on a single collection', async () => {
+        const server = serverSchema.parse({
+          uid: 'server-1',
+          url: 'https://api.example.com',
+        })
+
+        const collection = collectionSchema.parse({
+          uid: 'collection-1',
+          openapi: '3.1.0',
+          info: { title: 'Full Meta API', version: '2.0.0' },
+          'x-scalar-icon': 'interface-content-star',
+          'x-scalar-environments': {
+            staging: {
+              color: '#FFAA00',
+              variables: {
+                HOST: 'https://staging.example.com',
+              },
+            },
+          },
+          'x-scalar-active-environment': 'staging',
+          selectedServerUid: 'server-1',
+          servers: ['server-1'],
+          useCollectionSecurity: true,
+          documentUrl: 'https://example.com/api/openapi.yaml',
+        })
+
+        const workspace = workspaceSchema.parse({
+          uid: 'workspace-1',
+          name: 'Test Workspace',
+          collections: ['collection-1'],
+        })
+
+        const legacyData = createLegacyData({
+          workspaces: [workspace],
+          collections: [collection],
+          servers: [server],
+        })
+
+        const result = await transformLegacyDataToWorkspace(legacyData)
+        const doc = result[0]?.workspace.documents['Full Meta API']
+
+        assert(doc)
+
+        // x-scalar-icon preserved
+        expect(doc['x-scalar-icon']).toBe('interface-content-star')
+
+        // x-scalar-environments preserved with variable conversion
+        expect(doc['x-scalar-environments']).toStrictEqual({
+          staging: {
+            color: '#FFAA00',
+            variables: [{ name: 'HOST', value: 'https://staging.example.com' }],
+          },
+        })
+
+        // x-scalar-active-environment → x-scalar-client-config-active-environment
+        expect(doc['x-scalar-client-config-active-environment']).toBe('staging')
+
+        // selectedServerUid → x-scalar-selected-server
+        expect(doc['x-scalar-selected-server']).toBe('https://api.example.com')
+
+        // useCollectionSecurity → x-scalar-set-operation-security
+        expect(doc['x-scalar-set-operation-security']).toBe(true)
+
+        // documentUrl → x-scalar-original-source-url
+        expect(doc['x-scalar-original-source-url']).toBe('https://example.com/api/openapi.yaml')
+      })
+
+      it('transforms document meta across multiple collections in one workspace', async () => {
+        const server1 = serverSchema.parse({
+          uid: 'server-1',
+          url: 'https://api1.example.com',
+        })
+
+        const server2 = serverSchema.parse({
+          uid: 'server-2',
+          url: 'https://api2.example.com',
+        })
+
+        const collection1 = collectionSchema.parse({
+          uid: 'collection-1',
+          openapi: '3.1.0',
+          info: { title: 'API One', version: '1.0.0' },
+          'x-scalar-icon': 'interface-content-folder',
+          selectedServerUid: 'server-1',
+          servers: ['server-1'],
+          useCollectionSecurity: true,
+          documentUrl: 'https://example.com/api1.yaml',
+        })
+
+        const collection2 = collectionSchema.parse({
+          uid: 'collection-2',
+          openapi: '3.1.0',
+          info: { title: 'API Two', version: '2.0.0' },
+          'x-scalar-icon': 'interface-content-book',
+          selectedServerUid: 'server-2',
+          servers: ['server-2'],
+          useCollectionSecurity: false,
+          documentUrl: 'https://example.com/api2.yaml',
+        })
+
+        const workspace = workspaceSchema.parse({
+          uid: 'workspace-1',
+          name: 'Test Workspace',
+          collections: ['collection-1', 'collection-2'],
+        })
+
+        const legacyData = createLegacyData({
+          workspaces: [workspace],
+          collections: [collection1, collection2],
+          servers: [server1, server2],
+        })
+
+        const result = await transformLegacyDataToWorkspace(legacyData)
+        const doc1 = result[0]?.workspace.documents['API One']
+        const doc2 = result[0]?.workspace.documents['API Two']
+
+        assert(doc1)
+        assert(doc2)
+
+        // API One
+        expect(doc1['x-scalar-icon']).toBe('interface-content-folder')
+        expect(doc1['x-scalar-selected-server']).toBe('https://api1.example.com')
+        expect(doc1['x-scalar-set-operation-security']).toBe(true)
+        expect(doc1['x-scalar-original-source-url']).toBe('https://example.com/api1.yaml')
+
+        // API Two
+        expect(doc2['x-scalar-icon']).toBe('interface-content-book')
+        expect(doc2['x-scalar-selected-server']).toBe('https://api2.example.com')
+        expect(doc2['x-scalar-set-operation-security']).toBe(false)
+        expect(doc2['x-scalar-original-source-url']).toBe('https://example.com/api2.yaml')
+      })
+    })
+  })
+
+  // Servers
+  // Request
+  // RequestExample
+  // Tags
 })

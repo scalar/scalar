@@ -56,14 +56,6 @@ export const migrateLocalStorageToIndexDb = async () => {
 
     console.info(`🔄 Transformed into ${workspaces.length} workspace(s)`)
 
-    // Step 3: Save to IndexedDB
-    // await Promise.all(
-    //   workspaces.map(async ({ slug, name, documents, meta, extensions, auth }) => {
-    //     console.info(`💾 Saving workspace: ${name} (${id})`)
-    //     await persistence.workspace.setItem(id, { name, workspace })
-    //   }),
-    // )
-
     // Step 4: Mark migration as complete
     markMigrationComplete()
 
