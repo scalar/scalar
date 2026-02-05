@@ -6,6 +6,7 @@ import {
   type ModalState,
   type ScalarListboxOption,
 } from '@scalar/components'
+import { isLocalUrl } from '@scalar/helpers/url/is-local-url'
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
 import type { InMemoryWorkspace } from '@scalar/workspace-store/schemas/inmemory-workspace'
 import { computed, onUnmounted, ref, watch } from 'vue'
@@ -99,6 +100,9 @@ const handleModalStateChange = async (isOpen: boolean): Promise<void> => {
 
   // Add the class to the body
   updateBodyClasses(true)
+
+  // Toggle watch mode based on whether the source is a local URL
+  watchMode.value = source !== null && isLocalUrl(source)
 
   // Set the state to loading
   state.value = 'loading'
