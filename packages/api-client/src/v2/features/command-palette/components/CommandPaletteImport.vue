@@ -30,6 +30,7 @@ import {
   ScalarTooltip,
   useLoadingState,
 } from '@scalar/components'
+import { isLocalUrl } from '@scalar/helpers/url/is-local-url'
 import { normalize } from '@scalar/openapi-parser'
 import type { UnknownObject } from '@scalar/types/utils'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
@@ -101,11 +102,11 @@ const isDisabled = computed<boolean>(() => {
 })
 
 /**
- * Watch for changes to isUrlInput and toggle watchMode accordingly.
- * Watch mode is only available for URL imports, not file or pasted content.
+ * Toggle watchMode based on whether the input is a local URL.
+ * Only enables watch mode for local URLs, not for files or pasted content.
  */
 watch(isUrlInput, (isUrl: boolean) => {
-  watchMode.value = isUrl
+  watchMode.value = isUrl && isLocalUrl(inputContent.value)
 })
 
 /**
