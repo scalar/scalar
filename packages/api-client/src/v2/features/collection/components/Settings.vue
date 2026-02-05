@@ -49,7 +49,7 @@ const handleDeleteDocument = () => {
     :documentUrl="document?.['x-scalar-original-source-url']"
     :isDraftDocument="documentSlug === 'drafts'"
     :title="document?.info.title ?? ''"
-    :watchMode="document?.['x-scalar-watch-mode'] ?? true"
+    :watchMode="document?.['x-scalar-watch-mode']"
     @delete:document="handleDeleteDocument"
     @update:watchMode="handleUpdateWatchMode" />
   <CollectionSettings

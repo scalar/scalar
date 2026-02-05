@@ -77,7 +77,7 @@ const router = useRouter()
 const loader = useLoadingState()
 
 const inputContent = ref('')
-const watchMode = ref(true)
+const watchMode = ref(false)
 
 /** Check if the input content is a URL */
 const isUrlInput = computed<boolean>(() => isUrl(inputContent.value))
