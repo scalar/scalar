@@ -75,7 +75,7 @@ export const extractSecuritySchemeSecrets = (
     const storeSecrets = secrets?.type === 'apiKey' ? secrets : undefined
     return {
       ...scheme,
-      'x-scalar-secret-token': storeSecrets?.['x-scalar-secret-token'] ?? scheme.value ?? '',
+      'x-scalar-secret-token': storeSecrets?.['x-scalar-secret-token'] || scheme.value || '',
     } satisfies ApiKeyObjectSecret
   }
 
@@ -84,9 +84,9 @@ export const extractSecuritySchemeSecrets = (
     const storeSecrets = secrets?.type === 'http' ? secrets : undefined
     return {
       ...scheme,
-      'x-scalar-secret-token': storeSecrets?.['x-scalar-secret-token'] ?? scheme.token ?? '',
-      'x-scalar-secret-username': storeSecrets?.['x-scalar-secret-username'] ?? scheme.username ?? '',
-      'x-scalar-secret-password': storeSecrets?.['x-scalar-secret-password'] ?? scheme.password ?? '',
+      'x-scalar-secret-token': storeSecrets?.['x-scalar-secret-token'] || scheme.token || '',
+      'x-scalar-secret-username': storeSecrets?.['x-scalar-secret-username'] || scheme.username || '',
+      'x-scalar-secret-password': storeSecrets?.['x-scalar-secret-password'] || scheme.password || '',
     } satisfies HttpObjectSecret
   }
 
