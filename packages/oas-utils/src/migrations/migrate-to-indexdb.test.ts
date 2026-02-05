@@ -223,7 +223,7 @@ describe('migrate-to-indexdb', () => {
   })
 
   describe('transformLegacyDataToWorkspace - Security Schemes', () => {
-    it('should transform API key security schemes into document components and auth store', () => {
+    it('should transform API key security schemes into document components and auth store', async () => {
       const scheme = securitySchemeSchema.parse({
         uid: 'security-1',
         nameKey: 'api-key-auth',
@@ -256,14 +256,16 @@ describe('migrate-to-indexdb', () => {
         securitySchemes: [scheme],
       })
 
-      const result = transformLegacyDataToWorkspace(legacyData)
+      const result = await transformLegacyDataToWorkspace(legacyData)
 
       expect(result).toHaveLength(1)
       const [resultWorkspace] = result
       assert(resultWorkspace)
 
       // Verify security scheme is in document components
-      expect(resultWorkspace.documents['Test API']!.components?.securitySchemes?.['api-key-auth']).toMatchObject({
+      expect(
+        resultWorkspace.workspace.documents['Test API']!.components?.securitySchemes?.['api-key-auth'],
+      ).toMatchObject({
         type: 'apiKey',
         name: 'X-API-Key',
         in: 'header',
@@ -271,17 +273,17 @@ describe('migrate-to-indexdb', () => {
       })
       expect(
         // @ts-expect-error - value is not in the type
-        resultWorkspace.documents['Test API']!.components?.securitySchemes?.['api-key-auth']?.value,
+        resultWorkspace.workspace.documents['Test API']!.components?.securitySchemes?.['api-key-auth']?.value,
       ).toBeUndefined()
 
       // Verify security scheme secrets are in auth store
-      expect(resultWorkspace.auth['Test API']?.secrets['api-key-auth']).toEqual({
+      expect(resultWorkspace.workspace.auth['Test API']?.secrets['api-key-auth']).toEqual({
         type: 'apiKey',
         'x-scalar-secret-token': 'secret-api-key-123',
       })
     })
 
-    it('should transform HTTP bearer security schemes into document components and auth store', () => {
+    it('should transform HTTP bearer security schemes into document components and auth store', async () => {
       const workspace = workspaceSchema.parse({
         uid: 'workspace-1',
         name: 'Test Workspace',
@@ -313,24 +315,26 @@ describe('migrate-to-indexdb', () => {
         securitySchemes: [scheme],
       })
 
-      const result = transformLegacyDataToWorkspace(legacyData)
+      const result = await transformLegacyDataToWorkspace(legacyData)
 
       expect(result).toHaveLength(1)
       const resultWorkspace = result[0]!
 
       // Verify security scheme is in document components
-      expect(resultWorkspace.documents['Bearer API']!.components?.securitySchemes?.['bearer-auth']).toMatchObject({
+      expect(
+        resultWorkspace.workspace.documents['Bearer API']!.components?.securitySchemes?.['bearer-auth'],
+      ).toMatchObject({
         type: 'http',
         scheme: 'bearer',
         bearerFormat: 'JWT',
       })
       expect(
         // @ts-expect-error - token is not in the type
-        resultWorkspace.documents['Bearer API']!.components?.securitySchemes?.['bearer-auth']?.token,
+        resultWorkspace.workspace.documents['Bearer API']!.components?.securitySchemes?.['bearer-auth']?.token,
       ).toBeUndefined()
 
       // Verify security scheme secrets are in auth store
-      expect(resultWorkspace.auth['Bearer API']!.secrets['bearer-auth']).toEqual({
+      expect(resultWorkspace.workspace.auth['Bearer API']!.secrets['bearer-auth']).toEqual({
         type: 'http',
         'x-scalar-secret-username': '',
         'x-scalar-secret-password': '',
@@ -338,7 +342,7 @@ describe('migrate-to-indexdb', () => {
       })
     })
 
-    it('should transform HTTP basic security schemes into document components and auth store', () => {
+    it('should transform HTTP basic security schemes into document components and auth store', async () => {
       const workspace = workspaceSchema.parse({
         uid: 'workspace-1',
         name: 'Test Workspace',
@@ -370,27 +374,29 @@ describe('migrate-to-indexdb', () => {
         securitySchemes: [scheme],
       })
 
-      const result = transformLegacyDataToWorkspace(legacyData)
+      const result = await transformLegacyDataToWorkspace(legacyData)
 
       expect(result).toHaveLength(1)
       const resultWorkspace = result[0]!
 
       // Verify security scheme is in document components
-      expect(resultWorkspace.documents['Basic Auth API']!.components?.securitySchemes?.['basic-auth']).toMatchObject({
+      expect(
+        resultWorkspace.workspace.documents['Basic Auth API']!.components?.securitySchemes?.['basic-auth'],
+      ).toMatchObject({
         type: 'http',
         scheme: 'basic',
       })
       expect(
         // @ts-expect-error - username and password are not in the type
-        resultWorkspace.documents['Basic Auth API']!.components?.securitySchemes?.['basic-auth']?.username,
+        resultWorkspace.workspace.documents['Basic Auth API']!.components?.securitySchemes?.['basic-auth']?.username,
       ).toBeUndefined()
       expect(
         // @ts-expect-error - username and password are not in the type
-        resultWorkspace.documents['Basic Auth API']!.components?.securitySchemes?.['basic-auth']?.password,
+        resultWorkspace.workspace.documents['Basic Auth API']!.components?.securitySchemes?.['basic-auth']?.password,
       ).toBeUndefined()
 
       // Verify security scheme secrets are in auth store
-      expect(resultWorkspace.auth['Basic Auth API']!.secrets['basic-auth']).toEqual({
+      expect(resultWorkspace.workspace.auth['Basic Auth API']!.secrets['basic-auth']).toEqual({
         type: 'http',
         'x-scalar-secret-username': 'admin',
         'x-scalar-secret-token': '',
@@ -398,7 +404,7 @@ describe('migrate-to-indexdb', () => {
       })
     })
 
-    it('should transform OAuth2 security schemes into document components and auth store', () => {
+    it('should transform OAuth2 security schemes into document components and auth store', async () => {
       const workspace = workspaceSchema.parse({
         uid: 'workspace-1',
         name: 'Test Workspace',
@@ -443,11 +449,11 @@ describe('migrate-to-indexdb', () => {
         securitySchemes: [scheme],
       })
 
-      const result = transformLegacyDataToWorkspace(legacyData)
+      const result = await transformLegacyDataToWorkspace(legacyData)
       const resultWorkspace = result[0]!
 
       // Verify security scheme is in document components
-      const oauthScheme = resultWorkspace.documents['OAuth API']!.components?.securitySchemes?.['oauth2-auth']
+      const oauthScheme = resultWorkspace.workspace.documents['OAuth API']!.components?.securitySchemes?.['oauth2-auth']
       if (oauthScheme && 'type' in oauthScheme && oauthScheme.type === 'oauth2') {
         expect(oauthScheme.type).toBe('oauth2')
         expect(oauthScheme.flows?.authorizationCode).toEqual({
@@ -462,7 +468,7 @@ describe('migrate-to-indexdb', () => {
       }
 
       // Verify security scheme secrets are in auth store
-      expect(resultWorkspace.auth['OAuth API']!.secrets['oauth2-auth']).toEqual({
+      expect(resultWorkspace.workspace.auth['OAuth API']!.secrets['oauth2-auth']).toEqual({
         type: 'oauth2',
         authorizationCode: {
           'x-scalar-secret-client-id': 'client-123',
@@ -473,7 +479,7 @@ describe('migrate-to-indexdb', () => {
       })
     })
 
-    it('should handle multiple security schemes across multiple documents', () => {
+    it('should handle multiple security schemes across multiple documents', async () => {
       const workspace = workspaceSchema.parse({
         uid: 'workspace-1',
         name: 'Test Workspace',
@@ -523,35 +529,37 @@ describe('migrate-to-indexdb', () => {
         securitySchemes: [scheme1, scheme2],
       })
 
-      const result = transformLegacyDataToWorkspace(legacyData)
+      const result = await transformLegacyDataToWorkspace(legacyData)
 
       expect(result).toHaveLength(1)
       const resultWorkspace = result[0]!
 
       // Verify both documents have their security schemes
-      expect(resultWorkspace.documents['API One']!.components?.securitySchemes?.['api-key']).toMatchObject({
+      expect(resultWorkspace.workspace.documents['API One']!.components?.securitySchemes?.['api-key']).toMatchObject({
         type: 'apiKey',
         name: 'X-API-Key',
         in: 'header',
       })
-      expect(resultWorkspace.documents['API Two']!.components?.securitySchemes?.['bearer-token']).toMatchObject({
+      expect(
+        resultWorkspace.workspace.documents['API Two']!.components?.securitySchemes?.['bearer-token'],
+      ).toMatchObject({
         type: 'http',
         scheme: 'bearer',
         bearerFormat: 'JWT',
       })
 
       // Verify both auth stores have their secrets
-      expect(resultWorkspace.auth['API One']!.secrets['api-key']).toMatchObject({
+      expect(resultWorkspace.workspace.auth['API One']!.secrets['api-key']).toMatchObject({
         type: 'apiKey',
         'x-scalar-secret-token': 'key-123',
       })
-      expect(resultWorkspace.auth['API Two']!.secrets['bearer-token']).toMatchObject({
+      expect(resultWorkspace.workspace.auth['API Two']!.secrets['bearer-token']).toMatchObject({
         type: 'http',
         'x-scalar-secret-token': 'token-456',
       })
     })
 
-    it('should handle collections without security schemes', () => {
+    it('should handle collections without security schemes', async () => {
       const workspace = workspaceSchema.parse({
         uid: 'workspace-1',
         name: 'Test Workspace',
@@ -572,23 +580,23 @@ describe('migrate-to-indexdb', () => {
         collections: [collection],
       })
 
-      const result = transformLegacyDataToWorkspace(legacyData)
+      const result = await transformLegacyDataToWorkspace(legacyData)
 
       expect(result).toHaveLength(1)
       const resultWorkspace = result[0]!
 
       // Document should exist but have no security schemes
-      expect(resultWorkspace.documents['No Auth API']).toBeDefined()
-      expect(resultWorkspace.documents['No Auth API']!.components?.securitySchemes).toMatchObject({})
+      expect(resultWorkspace.workspace.documents['No Auth API']).toBeDefined()
+      expect(resultWorkspace.workspace.documents['No Auth API']!.components?.securitySchemes).toMatchObject({})
 
       // Auth store should exist but be empty or have empty secrets
-      expect(resultWorkspace.auth['No Auth API']).toBeDefined()
-      expect(Object.keys(resultWorkspace.auth['No Auth API']!.secrets)).toHaveLength(0)
+      expect(resultWorkspace.workspace.auth['No Auth API']).toBeDefined()
+      expect(Object.keys(resultWorkspace.workspace.auth['No Auth API']!.secrets)).toHaveLength(0)
     })
   })
 
   describe('transformLegacyDataToWorkspace - Environments', () => {
-    it('should transform workspace environments into x-scalar-environments meta', () => {
+    it('should transform workspace environments into x-scalar-environments meta', async () => {
       const oldWorkspace = workspaceSchema.parse({
         uid: 'workspace-1',
         name: 'Test Workspace',
@@ -615,11 +623,13 @@ describe('migrate-to-indexdb', () => {
         collections: [collection],
       })
 
-      const result = transformLegacyDataToWorkspace(legacyData)
-      const extensions = result[0]?.extensions
+      const result = await transformLegacyDataToWorkspace(legacyData)
+      const workspace = result[0]
+      expect(workspace).toBeDefined()
+      assert(workspace)
 
       // Verify x-scalar-environments is set in workspace meta
-      expect(extensions?.['x-scalar-environments']).toStrictEqual({
+      expect(workspace.workspace.meta['x-scalar-environments']).toStrictEqual({
         default: {
           color: '#FFFFFF',
           variables: [
@@ -632,7 +642,7 @@ describe('migrate-to-indexdb', () => {
       })
     })
 
-    it('should handle workspace with empty environments', () => {
+    it('should handle workspace with empty environments', async () => {
       const oldWorkspace = workspaceSchema.parse({
         uid: 'workspace-1',
         name: 'Test Workspace',
@@ -654,14 +664,16 @@ describe('migrate-to-indexdb', () => {
         collections: [collection],
       })
 
-      const result = transformLegacyDataToWorkspace(legacyData)
-      const extensions = result[0]?.extensions
+      const result = await transformLegacyDataToWorkspace(legacyData)
+      const workspace = result[0]
+      assert(workspace)
+      expect(workspace).toBeDefined()
 
       // x-scalar-environments should not be set when environments is empty
-      expect(extensions?.['x-scalar-environments']).toBeUndefined()
+      expect(workspace.workspace.meta['x-scalar-environments']).toBeUndefined()
     })
 
-    it('should handle multiple workspaces with different environments', () => {
+    it('should handle multiple workspaces with different environments', async () => {
       const workspace1 = workspaceSchema.parse({
         uid: 'workspace-1',
         name: 'Dev Workspace',
@@ -705,11 +717,11 @@ describe('migrate-to-indexdb', () => {
         collections: [collection1, collection2],
       })
 
-      const result = transformLegacyDataToWorkspace(legacyData)
+      const result = await transformLegacyDataToWorkspace(legacyData)
       expect(result).toHaveLength(2)
 
       // Verify first workspace environments
-      const devEnvironments = result[0]?.extensions?.['x-scalar-environments']
+      const devEnvironments = result[0]?.workspace.meta['x-scalar-environments']
       expect(devEnvironments).toStrictEqual({
         default: {
           color: '#FFFFFF',
@@ -721,7 +733,7 @@ describe('migrate-to-indexdb', () => {
       })
 
       // Verify second workspace environments
-      const prodEnvironments = result[1]?.extensions?.['x-scalar-environments']
+      const prodEnvironments = result[1]?.workspace.meta['x-scalar-environments']
       expect(prodEnvironments).toStrictEqual({
         default: {
           color: '#FFFFFF',
@@ -735,7 +747,7 @@ describe('migrate-to-indexdb', () => {
   })
 
   describe('transformLegacyDataToWorkspace - Cookies', () => {
-    it('should transform workspace cookies into x-scalar-cookies extension', () => {
+    it('should transform workspace cookies into x-scalar-cookies extension', async () => {
       const cookie1 = cookieSchema.parse({
         uid: 'cookie-1',
         name: 'session_id',
@@ -773,15 +785,17 @@ describe('migrate-to-indexdb', () => {
         cookies: [cookie1, cookie2],
       })
 
-      const result = transformLegacyDataToWorkspace(legacyData)
-      const extensions = result[0]?.extensions
+      const result = await transformLegacyDataToWorkspace(legacyData)
+      const workspaceResult = result[0]
+      assert(workspaceResult)
+      expect(workspaceResult).toBeDefined()
 
       // Verify x-scalar-cookies is set in workspace extensions
-      expect(extensions?.['x-scalar-cookies']).toBeDefined()
-      expect(extensions?.['x-scalar-cookies']).toHaveLength(2)
+      expect(workspaceResult.workspace.meta['x-scalar-cookies']).toBeDefined()
+      expect(workspaceResult.workspace.meta['x-scalar-cookies']).toHaveLength(2)
 
       // Check each cookie has the correct properties (uid should be stripped by coerceValue)
-      const cookies = extensions?.['x-scalar-cookies']
+      const cookies = workspaceResult.workspace.meta['x-scalar-cookies']
       expect(cookies?.[0]).toMatchObject({
         name: 'session_id',
         value: 'abc123xyz',
@@ -795,7 +809,7 @@ describe('migrate-to-indexdb', () => {
       })
     })
 
-    it('should handle workspace with no cookies', () => {
+    it('should handle workspace with no cookies', async () => {
       const workspace = workspaceSchema.parse({
         uid: 'workspace-1',
         name: 'Test Workspace',
@@ -817,14 +831,16 @@ describe('migrate-to-indexdb', () => {
         collections: [collection],
       })
 
-      const result = transformLegacyDataToWorkspace(legacyData)
-      const extensions = result[0]?.extensions
+      const result = await transformLegacyDataToWorkspace(legacyData)
+      const workspaceResult = result[0]
+      assert(workspaceResult)
+      expect(workspaceResult).toBeDefined()
 
       // x-scalar-cookies should not be set when there are no cookies
-      expect(extensions?.['x-scalar-cookies']).toBeUndefined()
+      expect(workspaceResult.workspace.meta['x-scalar-cookies']).toBeUndefined()
     })
 
-    it('should filter out invalid cookies that do not exist in records', () => {
+    it('should filter out invalid cookies that do not exist in records', async () => {
       const cookie = cookieSchema.parse({
         uid: 'cookie-1',
         name: 'valid_cookie',
@@ -853,8 +869,8 @@ describe('migrate-to-indexdb', () => {
         cookies: [cookie],
       })
 
-      const result = transformLegacyDataToWorkspace(legacyData)
-      const extensions = result[0]?.extensions
+      const result = await transformLegacyDataToWorkspace(legacyData)
+      const extensions = result[0]?.workspace.meta
 
       // Only the valid cookie should be included
       expect(extensions?.['x-scalar-cookies']).toBeDefined()
@@ -870,7 +886,7 @@ describe('migrate-to-indexdb', () => {
   })
 
   describe('transformLegacyDataToWorkspace - Proxy URL', () => {
-    it('should transform workspace proxyUrl into x-scalar-active-proxy meta', () => {
+    it('should transform workspace proxyUrl into x-scalar-active-proxy meta', async () => {
       const workspace = workspaceSchema.parse({
         uid: 'workspace-1',
         name: 'Test Workspace',
@@ -892,14 +908,14 @@ describe('migrate-to-indexdb', () => {
         collections: [collection],
       })
 
-      const result = transformLegacyDataToWorkspace(legacyData)
-      const meta = result[0]?.meta
+      const result = await transformLegacyDataToWorkspace(legacyData)
+      const meta = result[0]?.workspace.meta
 
       // Verify x-scalar-active-proxy is set in workspace meta
       expect(meta?.['x-scalar-active-proxy']).toBe('https://proxy.example.com')
     })
 
-    it('should not set x-scalar-active-proxy when proxyUrl is not present', () => {
+    it('should not set x-scalar-active-proxy when proxyUrl is not present', async () => {
       const workspace = workspaceSchema.parse({
         uid: 'workspace-1',
         name: 'Test Workspace',
@@ -920,8 +936,8 @@ describe('migrate-to-indexdb', () => {
         collections: [collection],
       })
 
-      const result = transformLegacyDataToWorkspace(legacyData)
-      const meta = result[0]?.meta
+      const result = await transformLegacyDataToWorkspace(legacyData)
+      const meta = result[0]?.workspace.meta
 
       // x-scalar-active-proxy should not be set
       expect(meta?.['x-scalar-active-proxy']).toBeUndefined()
@@ -929,7 +945,7 @@ describe('migrate-to-indexdb', () => {
   })
 
   describe('transformLegacyDataToWorkspace - Theme ID', () => {
-    it('should transform workspace themeId into x-scalar-theme meta', () => {
+    it('should transform workspace themeId into x-scalar-theme meta', async () => {
       const workspace = workspaceSchema.parse({
         uid: 'workspace-1',
         name: 'Test Workspace',
@@ -951,14 +967,14 @@ describe('migrate-to-indexdb', () => {
         collections: [collection],
       })
 
-      const result = transformLegacyDataToWorkspace(legacyData)
-      const meta = result[0]?.meta
+      const result = await transformLegacyDataToWorkspace(legacyData)
+      const meta = result[0]?.workspace.meta
 
       // Verify x-scalar-theme is set in workspace meta
       expect(meta?.['x-scalar-theme']).toBe('alternate')
     })
 
-    it('should not set x-scalar-theme when themeId is not present', () => {
+    it('should not set x-scalar-theme when themeId is not present', async () => {
       const workspace = workspaceSchema.parse({
         uid: 'workspace-1',
         name: 'Test Workspace',
@@ -979,8 +995,8 @@ describe('migrate-to-indexdb', () => {
         collections: [collection],
       })
 
-      const result = transformLegacyDataToWorkspace(legacyData)
-      const meta = result[0]?.meta
+      const result = await transformLegacyDataToWorkspace(legacyData)
+      const meta = result[0]?.workspace.meta
 
       // x-scalar-theme should not be set
       expect(meta?.['x-scalar-theme']).toBe('default')
@@ -988,7 +1004,7 @@ describe('migrate-to-indexdb', () => {
   })
 
   describe('transformLegacyDataToWorkspace - Color Mode', () => {
-    it('should transform localStorage colorMode into x-scalar-color-mode meta', () => {
+    it('should transform localStorage colorMode into x-scalar-color-mode meta', async () => {
       localStorage.setItem('colorMode', 'dark')
 
       const workspace = workspaceSchema.parse({
@@ -1011,8 +1027,8 @@ describe('migrate-to-indexdb', () => {
         collections: [collection],
       })
 
-      const result = transformLegacyDataToWorkspace(legacyData)
-      const meta = result[0]?.meta
+      const result = await transformLegacyDataToWorkspace(legacyData)
+      const meta = result[0]?.workspace.meta
 
       // Verify x-scalar-color-mode is set in workspace meta
       expect(meta?.['x-scalar-color-mode']).toBe('dark')
@@ -1020,7 +1036,7 @@ describe('migrate-to-indexdb', () => {
       localStorage.removeItem('colorMode')
     })
 
-    it('should not set x-scalar-color-mode when colorMode is not in localStorage', () => {
+    it('should not set x-scalar-color-mode when colorMode is not in localStorage', async () => {
       localStorage.removeItem('colorMode')
 
       const workspace = workspaceSchema.parse({
@@ -1043,8 +1059,8 @@ describe('migrate-to-indexdb', () => {
         collections: [collection],
       })
 
-      const result = transformLegacyDataToWorkspace(legacyData)
-      const meta = result[0]?.meta
+      const result = await transformLegacyDataToWorkspace(legacyData)
+      const meta = result[0]?.workspace.meta
 
       // x-scalar-color-mode should not be set
       expect(meta?.['x-scalar-color-mode']).toBeUndefined()
