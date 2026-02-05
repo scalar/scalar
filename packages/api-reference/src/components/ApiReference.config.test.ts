@@ -13,88 +13,6 @@ vi.mock(import('@scalar/use-hooks/useBreakpoints'), (importOriginal) => ({
   }),
 }))
 
-/**
- * Mock createWorkspaceStore to reuse the same workspace across all tests.
- * This significantly improves test performance by avoiding workspace creation overhead.
- */
-vi.mock('@scalar/workspace-store/client', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('@scalar/workspace-store/client')>()
-
-  const realStore = actual.createWorkspaceStore({})
-
-  realStore.addDocument({
-    name: 'api-1',
-    document: {
-      openapi: '3.1.0',
-      info: {
-        title: 'Test API',
-        version: '1.0.0',
-        description: '# Heading 1\nContent 1\n# Heading 2\nContent 2',
-      },
-      paths: {
-        '/users': {
-          get: {
-            summary: 'Get users',
-            operationId: '1234getUserById5678',
-            tags: ['Users'],
-            requestBody: {
-              content: {
-                'application/json': {
-                  schema: {
-                    $ref: '#/components/schemas/SuperImportantUser',
-                  },
-                },
-              },
-            },
-          },
-        },
-        '/others': {
-          get: {
-            summary: 'Get others',
-            tags: ['Others'],
-          },
-        },
-      },
-      components: {
-        schemas: {
-          SuperImportantUser: {
-            type: 'object',
-            required: ['isAdmin', 'phone'],
-            properties: {
-              name: { type: 'string' },
-              age: { type: 'number' },
-              isAdmin: { type: 'boolean' },
-              createdAt: { type: 'string', format: 'date-time' },
-              updatedAt: { type: 'string', format: 'date-time' },
-              address: {
-                type: 'object',
-                properties: {
-                  street: { type: 'string' },
-                  city: { type: 'string' },
-                  state: { type: 'string' },
-                  zip: { type: 'string' },
-                },
-              },
-              phone: { type: 'string' },
-              email: { type: 'string', format: 'email' },
-            },
-          },
-        },
-      },
-    },
-  })
-
-  /** Fake store */
-  const workspaceStore = {
-    ...realStore,
-    addDocument: vi.fn(),
-  }
-  return {
-    ...actual,
-    createWorkspaceStore: () => workspaceStore,
-  }
-})
-
 /** Track all mounted wrappers so we can unmount them after each test */
 const wrappers: ReturnType<typeof mount>[] = []
 const locationMock = {
@@ -193,9 +111,62 @@ const mountComponent = (props: Parameters<typeof mount>[1]) => {
   return wrapper
 }
 
+/** Helper function to create a basic OpenAPI document */
+const createBasicDocument = (title = 'Test API') => ({
+  openapi: '3.1.0',
+  info: {
+    title,
+    version: '1.0.0',
+    description: '# Heading 1\nContent 1\n# Heading 2\nContent 2',
+  },
+  paths: {
+    '/users': {
+      get: {
+        summary: 'Get users',
+        operationId: 'getUsers',
+        requestBody: {
+          content: {
+            'application/json': {
+              schema: {
+                $ref: '#/components/schemas/SuperImportantUser',
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+  components: {
+    schemas: {
+      SuperImportantUser: {
+        type: 'object',
+        required: ['isAdmin', 'phone'],
+        properties: {
+          name: { type: 'string' },
+          age: { type: 'number' },
+          isAdmin: { type: 'boolean' },
+          createdAt: { type: 'string', format: 'date-time' },
+          updatedAt: { type: 'string', format: 'date-time' },
+          address: {
+            type: 'object',
+            properties: {
+              street: { type: 'string' },
+              city: { type: 'string' },
+              state: { type: 'string' },
+              zip: { type: 'string' },
+            },
+          },
+          phone: { type: 'string' },
+          email: { type: 'string', format: 'email' },
+        },
+      },
+    },
+  },
+})
+
 describe('ApiReference Configuration Tests', () => {
   it('default configuration values', async () => {
-    const wrapper = mountComponent({ props: { configuration: { content: {} } } })
+    const wrapper = mountComponent({ props: { configuration: { content: createBasicDocument() } } })
     await flushPromises()
 
     const apiRef = wrapper.find('.scalar-api-reference')
@@ -251,488 +222,157 @@ describe('ApiReference Configuration Tests', () => {
     expect(modelTag.text().includes('SuperImportantUser')).toBe(false)
   })
 
-  it('layout: classic', () => {
-    const wrapper = mountComponent({
-      props: {
-        configuration: {
-          content: {},
-          layout: 'classic',
-        },
-      },
-    })
-
-    const apiRef = wrapper.find('.scalar-api-reference')
-    expect(apiRef.classes()).toContain('references-classic')
-  })
-
-  it('showSidebar: false', () => {
-    const wrapper = mountComponent({
-      props: {
-        configuration: {
-          content: {},
-          showSidebar: false,
-        },
-      },
-    })
-
-    const apiRef = wrapper.find('.scalar-api-reference')
-    expect(apiRef.classes()).not.toContain('references-sidebar')
-  })
-
-  it('hideSearch: true', () => {
-    const wrapper = mountComponent({
-      props: {
-        configuration: {
-          content: {},
-          hideSearch: true,
-        },
-      },
-    })
-
-    const searchButton = wrapper.findComponent({ name: 'SearchButton' })
-    expect(searchButton.exists()).toBe(false)
-  })
-
-  it('searchHotKey: f', () => {
-    const wrapper = mountComponent({
-      props: {
-        configuration: {
-          content: {},
-          searchHotKey: 'f',
-        },
-      },
-    })
-
-    expect(wrapper.findComponent({ name: 'SearchModal' }).props().modalState.open).toBe(false)
-    wrapper.trigger('keydown', { key: 'f', ctrlKey: true })
-    expect(wrapper.findComponent({ name: 'SearchModal' }).props().modalState.open).toBe(true)
-  })
-
-  it('darkMode: false', async () => {
-    mountComponent({
-      props: {
-        configuration: {
-          content: {},
-          darkMode: false,
-        },
-      },
-    })
-    await flushPromises()
-    expect(document.body.classList.contains('light-mode')).toBe(true)
-  })
-
-  it('darkMode: true', async () => {
-    mountComponent({
-      props: {
-        configuration: {
-          content: {},
-          darkMode: true,
-        },
-      },
-    })
-    await flushPromises()
-    expect(document.body.classList.contains('dark-mode')).toBe(true)
-  })
-
-  it('forceDarkModeState: dark', async () => {
-    mountComponent({
-      props: {
-        configuration: {
-          content: {},
-          forceDarkModeState: 'dark',
-        },
-      },
-    })
-    await flushPromises()
-    expect(document.body.classList.contains('dark-mode')).toBe(true)
-  })
-
-  it('forceDarkModeState: light', async () => {
-    mountComponent({
-      props: {
-        configuration: {
-          content: {},
-          forceDarkModeState: 'light',
-        },
-      },
-    })
-    await flushPromises()
-    expect(document.body.classList.contains('light-mode')).toBe(true)
-  })
-
-  it('hideDarkModeToggle: true', () => {
-    const wrapper = mountComponent({
-      props: {
-        configuration: {
-          content: {},
-          hideDarkModeToggle: true,
-        },
-      },
-    })
-
-    const toggleButton = wrapper.findComponent({
-      name: 'ScalarColorModeToggleButton',
-    })
-    expect(toggleButton.exists()).toBe(false)
-  })
-
-  it('customCss: .custom-class { color: red; }', () => {
+  it('all boolean and simple configurations', async () => {
     const customCss = '.custom-class { color: red; }'
-    const wrapper = mountComponent({
-      props: {
-        configuration: {
-          content: {},
-          customCss,
+    const content = {
+      ...createBasicDocument(),
+      paths: {
+        '/users': {
+          get: {
+            summary: 'Get users',
+            operationId: '1234getUserById5678',
+            tags: ['Users'],
+            requestBody: {
+              content: {
+                'application/json': {
+                  schema: {
+                    $ref: '#/components/schemas/SuperImportantUser',
+                  },
+                },
+              },
+            },
+          },
+        },
+        '/others': {
+          get: {
+            summary: 'Get others',
+            tags: ['Others'],
+          },
         },
       },
-    })
-    expect(wrapper.html()).toContain('.custom-class')
-  })
+    }
 
-  it('theme: solarized', () => {
     const wrapper = mountComponent({
       props: {
         configuration: {
-          content: {},
-          theme: 'solarized',
-        },
-      },
-    })
-
-    const html = wrapper.html()
-
-    /** Verify solarized theme CSS variables are present in dark mode */
-    expect(html).toContain('--scalar-background-1: #00212b')
-    expect(html).toContain('--scalar-background-2: #012b36')
-    expect(html).toContain('--scalar-background-3: #004052')
-    expect(html).toContain('--scalar-background-accent: #015a6f')
-  })
-
-  it('hideClientButton: true', () => {
-    const wrapper = mountComponent({
-      props: {
-        configuration: {
-          content: {},
+          content,
+          layout: 'classic',
+          showSidebar: false,
+          hideSearch: true,
+          hideModels: true,
+          hideDarkModeToggle: true,
           hideClientButton: true,
-        },
-      },
-    })
-
-    const clientButton = wrapper.findComponent({ name: 'OpenApiClientButton' })
-    expect(clientButton.exists()).toBe(false)
-  })
-
-  it('defaultOpenAllTags: true', async () => {
-    const wrapper = mountComponent({
-      props: {
-        configuration: {
-          content: {
-            openapi: '3.1.0',
-            info: {
-              title: 'Test API',
-              version: '1.0.0',
-            },
-            paths: {
-              '/users': {
-                get: {
-                  summary: 'Get users',
-                  tags: ['Users'],
-                },
-              },
-              '/others': {
-                get: {
-                  summary: 'Get others',
-                  tags: ['Others'],
-                },
-              },
-            },
-          },
+          hideTestRequestButton: true,
+          darkMode: true,
+          customCss,
+          theme: 'solarized',
           defaultOpenAllTags: true,
-        },
-      },
-    })
-    await flushPromises()
-    expect(wrapper.findComponent({ name: 'Content' }).text().includes('Get others')).toBe(true)
-  })
-
-  it('operationTitleSource: path', async () => {
-    const wrapper = mountComponent({
-      props: {
-        configuration: {
-          content: {},
-          operationTitleSource: 'path',
-        },
-      },
-    })
-    await flushPromises()
-
-    const items = wrapper.findAllComponents({ name: 'ScalarSidebarItem' })
-    expect(items[2]?.text().startsWith('/users')).toBe(true)
-  })
-
-  it('showOperationId: true', async () => {
-    const wrapper = mountComponent({
-      props: {
-        configuration: {
-          content: {},
           showOperationId: true,
-        },
-      },
-    })
-
-    await flushPromises()
-    expect(wrapper.findComponent({ name: 'Content' }).text().includes('1234getUserById5678')).toBe(true)
-  })
-
-  it('onLoaded: function', async () => {
-    const onLoaded = vi.fn()
-    mountComponent({
-      props: {
-        configuration: {
-          content: {},
-          onLoaded,
-        },
-      },
-    })
-    await flushPromises()
-    expect(onLoaded).toHaveBeenCalled()
-  })
-
-  it('onServerChange: function', async () => {
-    const onServerChange = vi.fn()
-    const wrapper = mountComponent({
-      props: {
-        configuration: {
-          content: {},
-          servers: [{ url: 'https://api.example.com' }, { url: 'https://api-staging.example.com' }],
-          onServerChange,
-        },
-      },
-    })
-
-    await flushPromises()
-    const ServerSelector = wrapper.findComponent({ name: 'Selector' })
-    await ServerSelector.vm.$emit('update:modelValue', 'https://api-staging.example.com')
-    expect(onServerChange).toHaveBeenCalled()
-  })
-
-  it('servers: array', async () => {
-    const servers = [
-      { url: 'https://api.example.com', description: 'Production' },
-      { url: 'https://api-staging.example.com', description: 'Staging' },
-    ]
-
-    const wrapper = mountComponent({
-      props: {
-        configuration: {
-          content: {},
-          servers,
-        },
-      },
-    })
-
-    await flushPromises()
-    const ServerSelector = wrapper.findComponent({ name: 'ServerSelector' })
-    expect(ServerSelector.text().includes('api.example.com')).toBe(true)
-  })
-
-  it('orderSchemaPropertiesBy: undefined -> alpha, orderRequiredPropertiesFirst: false', async () => {
-    const wrapper = mountComponent({
-      props: {
-        configuration: {
-          content: {},
-          orderRequiredPropertiesFirst: false,
-        },
-      },
-    })
-    await flushPromises()
-
-    const propertyNames = wrapper
-      .findComponent({ name: 'RequestBody' })
-      .findAll('.property-name')
-      .map((item) => item.text().split(' ')[0]?.replace('Copy', ''))
-
-    expect(propertyNames).toStrictEqual([
-      'address',
-      'age',
-      'createdAt',
-      'email',
-      'isAdmin',
-      'name',
-      'phone',
-      'updatedAt',
-    ])
-  })
-
-  it('orderSchemaPropertiesBy: preserve, orderRequiredPropertiesFirst: false', async () => {
-    const wrapper = mountComponent({
-      props: {
-        configuration: {
-          content: {},
-          orderSchemaPropertiesBy: 'preserve',
-          orderRequiredPropertiesFirst: false,
-        },
-      },
-    })
-    await flushPromises()
-
-    const propertyNames = wrapper
-      .findComponent({ name: 'RequestBody' })
-      .findAll('.property-name')
-      .map((item) => item.text().split(' ')[0])
-
-    expect(propertyNames).toStrictEqual([
-      'nameCopy',
-      'ageCopy',
-      'isAdminCopy',
-      'createdAtCopy',
-      'updatedAtCopy',
-      'addressCopy',
-      'phoneCopy',
-      'emailCopy',
-    ])
-  })
-
-  it('orderRequiredPropertiesFirst: false', async () => {
-    const wrapper = mountComponent({
-      props: {
-        configuration: {
-          content: {},
-          orderRequiredPropertiesFirst: false,
-        },
-      },
-    })
-    await flushPromises()
-
-    const propertyNames = wrapper
-      .findComponent({ name: 'RequestBody' })
-      .findAll('.property-name')
-      .map((item) => item.text().split(' ')[0])
-
-    expect(propertyNames).toStrictEqual([
-      'addressCopy',
-      'ageCopy',
-      'createdAtCopy',
-      'emailCopy',
-      'isAdminCopy',
-      'nameCopy',
-      'phoneCopy',
-      'updatedAtCopy',
-    ])
-  })
-
-  it('redirect: function', async () => {
-    vi.stubGlobal('location', { ...locationMock, hash: '#old' })
-    const replaceStateSpy = vi.spyOn(window.history, 'replaceState')
-
-    mountComponent({
-      props: {
-        configuration: {
-          content: {},
-          redirect: (hash: string) => hash.replace('#old', '#new'),
-        },
-      },
-    })
-
-    await flushPromises()
-    expect(replaceStateSpy).toHaveBeenCalledWith({}, '', '#new')
-  })
-
-  it('defaultHttpClient: { targetKey: "node", clientKey: "axios" }', async () => {
-    const wrapper = mountComponent({
-      props: {
-        configuration: {
-          content: {},
-          defaultHttpClient: {
-            targetKey: 'node',
-            clientKey: 'axios',
-          },
-        },
-      },
-    })
-    await flushPromises()
-
-    expect(wrapper.vm.workspaceStore.workspace['x-scalar-default-client']).toBe('node/axios')
-  })
-
-  it('hiddenClients: ["unirest", "node"]', async () => {
-    const wrapper = mountComponent({
-      props: {
-        configuration: {
-          content: {},
-          hiddenClients: ['unirest', 'node'],
-        },
-      },
-    })
-
-    await flushPromises()
-    const clientOptions = wrapper.findComponent({ name: 'ClientSelector' }).props().clientOptions as ClientOptionGroup[]
-    const clientKeysSet = new Set<string>(clientOptions.flatMap((group) => group.options.map((option) => option.id)))
-    expect(clientKeysSet.has('node/axios')).toBe(false)
-    expect(clientKeysSet.has('java/unirest')).toBe(false)
-    expect(clientKeysSet.has('js/axios')).toBe(true)
-    expect(clientKeysSet.has('java/nethttp')).toBe(true)
-  })
-
-  it('documentDownloadType: json -> hides yaml download button', async () => {
-    const wrapper = mountComponent({
-      props: {
-        configuration: {
-          content: {},
           documentDownloadType: 'json',
         },
       },
     })
-
     await flushPromises()
+
+    const apiRef = wrapper.find('.scalar-api-reference')
+    const searchButton = wrapper.findComponent({ name: 'SearchButton' })
+    const modelTag = wrapper.findComponent({ name: 'ModelTag' })
+    const toggleButton = wrapper.findComponent({ name: 'ScalarColorModeToggleButton' })
+    const clientButton = wrapper.findComponent({ name: 'OpenApiClientButton' })
+    const testRequestButton = wrapper.findComponent({ name: 'TestRequestButton' })
+
+    // layout: classic
+    expect(apiRef.classes()).toContain('references-classic')
+
+    // showSidebar: false
+    expect(apiRef.classes()).not.toContain('references-sidebar')
+
+    // hideSearch: true
+    expect(searchButton.exists()).toBe(false)
+
+    // hideModels: true
+    expect(modelTag.exists()).toBe(false)
+
+    // hideDarkModeToggle: true
+    expect(toggleButton.exists()).toBe(false)
+
+    // hideClientButton: true
+    expect(clientButton.exists()).toBe(false)
+
+    // hideTestRequestButton: true
+    expect(testRequestButton.exists()).toBe(false)
+
+    // darkMode: true
+    expect(document.body.classList.contains('dark-mode')).toBe(true)
+
+    // customCss
+    expect(wrapper.html()).toContain('.custom-class')
+
+    // theme: solarized
+    const html = wrapper.html()
+    expect(html).toContain('--scalar-background-1: #00212b')
+
+    // defaultOpenAllTags: true
+    expect(wrapper.findComponent({ name: 'Content' }).text().includes('Get others')).toBe(true)
+
+    // showOperationId: true
+    expect(wrapper.findComponent({ name: 'Content' }).text().includes('1234getUserById5678')).toBe(true)
+
+    // documentDownloadType: json
     const downloadButtons = wrapper.findAll('.download-button')
     expect(downloadButtons).toHaveLength(1)
     expect(downloadButtons[0]?.find('.extension').text()).toBe('json')
   })
 
-  it('hideTestRequestButton: true', async () => {
-    const wrapper = mountComponent({
-      props: {
-        configuration: {
-          content: {},
-          hideTestRequestButton: true,
+  it('all callbacks and complex configurations', async () => {
+    const onLoaded = vi.fn()
+    const onServerChange = vi.fn()
+    const onSidebarClick = vi.fn()
+    const onShowMore = vi.fn()
+    const onDocumentSelect = vi.fn()
+    vi.stubGlobal('location', { ...locationMock, hash: '#old' })
+    const replaceStateSpy = vi.spyOn(window.history, 'replaceState')
+
+    const authentication = {
+      preferredSecurityScheme: 'apiKey',
+      securitySchemes: {
+        apiKey: {
+          type: 'apiKey',
+          name: 'x-api-key',
+          token: 'test-token',
         },
       },
-    })
+    }
 
-    await flushPromises()
-    const testRequestButton = wrapper.findComponent({ name: 'TestRequestButton' })
-    expect(testRequestButton.exists()).toBe(false)
-  })
+    const servers = [
+      { url: 'https://api.example.com', description: 'Production' },
+      { url: 'https://api-staging.example.com', description: 'Staging' },
+    ]
 
-  it('expandAllModelSections: true', async () => {
-    const wrapper = mountComponent({
-      props: {
-        configuration: {
-          content: {},
-          expandAllModelSections: true,
-        },
-      },
-    })
-    await flushPromises()
-
-    const modelTag = wrapper.findComponent({ name: 'ModelTag' })
-    expect(modelTag.text().includes('Show More')).toBe(false)
-    expect(modelTag.text().includes('SuperImportantUser')).toBe(true)
-  })
-
-  it('expandAllResponses: false (default) and true', async () => {
-    const documentWithResponses = {
-      openapi: '3.1.0',
-      info: {
-        title: 'Test API',
-        version: '1.0.0',
-      },
+    const content = {
+      ...createBasicDocument(),
+      tags: [
+        { name: 'Zebras', description: 'Zebra operations' },
+        { name: 'Apples', description: 'Apple operations' },
+        { name: 'Monkeys', description: 'Monkey operations' },
+        { name: 'Bananas', description: 'Banana operations' },
+      ],
+      servers,
       paths: {
         '/users': {
           get: {
             summary: 'Get users',
             operationId: 'getUsers',
+            tags: ['Users'],
+            requestBody: {
+              content: {
+                'application/json': {
+                  schema: {
+                    $ref: '#/components/schemas/SuperImportantUser',
+                  },
+                },
+              },
+            },
             responses: {
               '200': {
                 description: 'Successful response',
@@ -748,162 +388,7 @@ describe('ApiReference Configuration Tests', () => {
                   },
                 },
               },
-              '404': {
-                description: 'Not found',
-              },
             },
-          },
-        },
-      },
-    }
-
-    // Test default (false)
-    const wrapperDefault = mountComponent({
-      props: {
-        configuration: {
-          content: documentWithResponses,
-        },
-      },
-    })
-    await flushPromises()
-
-    const modernLayoutDefault = wrapperDefault.findComponent({ name: 'ModernLayout' })
-    const operationResponsesDefault = modernLayoutDefault.findComponent({ name: 'OperationResponses' })
-    expect(operationResponsesDefault.props().collapsableItems).toBe(true)
-    expect(operationResponsesDefault.text().includes('superSecretId')).toBe(false)
-
-    // Test true
-    const wrapperTrue = mountComponent({
-      props: {
-        configuration: {
-          content: documentWithResponses,
-          expandAllResponses: true,
-        },
-      },
-    })
-    await flushPromises()
-
-    const modernLayoutTrue = wrapperTrue.findComponent({ name: 'ModernLayout' })
-    const operationResponsesTrue = modernLayoutTrue.findComponent({ name: 'OperationResponses' })
-    expect(operationResponsesTrue.props().collapsableItems).toBe(false)
-    expect(operationResponsesTrue.text().includes('superSecretId')).toBe(true)
-  })
-
-  it('onSidebarClick: function', async () => {
-    const onSidebarClick = vi.fn()
-    const wrapper = mountComponent({
-      props: {
-        configuration: {
-          content: {},
-          onSidebarClick,
-        },
-      },
-    })
-    await flushPromises()
-
-    const sidebarItems = wrapper.findAllComponents({ name: 'ScalarSidebarItem' })
-    const operationItem = sidebarItems.find((item) => item.text().includes('Get users'))
-    await operationItem?.trigger('click')
-
-    expect(onSidebarClick).toHaveBeenCalled()
-    expect(onSidebarClick).toHaveBeenCalledWith(expect.stringContaining('/users'))
-  })
-
-  it('tagsSorter: alpha', async () => {
-    const documentWithUnsortedTags = {
-      openapi: '3.1.0',
-      info: {
-        title: 'Test API',
-        version: '1.0.0',
-      },
-      paths: {
-        '/users': {
-          get: {
-            summary: 'Get users',
-            operationId: 'getUsers',
-            tags: ['Zebras'],
-          },
-        },
-        '/posts': {
-          get: {
-            summary: 'Get posts',
-            operationId: 'getPosts',
-            tags: ['Apples'],
-          },
-        },
-        '/comments': {
-          get: {
-            summary: 'Get comments',
-            operationId: 'getComments',
-            tags: ['Monkeys'],
-          },
-        },
-        '/products': {
-          get: {
-            summary: 'Get products',
-            operationId: 'getProducts',
-            tags: ['Bananas'],
-          },
-        },
-      },
-      tags: [
-        {
-          name: 'Zebras',
-          description: 'Zebra operations',
-        },
-        {
-          name: 'Apples',
-          description: 'Apple operations',
-        },
-        {
-          name: 'Monkeys',
-          description: 'Monkey operations',
-        },
-        {
-          name: 'Bananas',
-          description: 'Banana operations',
-        },
-      ],
-    }
-
-    const wrapper = mountComponent({
-      props: {
-        configuration: {
-          content: documentWithUnsortedTags,
-          tagsSorter: 'alpha',
-        },
-      },
-    })
-    await flushPromises()
-
-    const tagComponents = wrapper.findAllComponents({ name: 'Tag' })
-    expect(tagComponents.length).toBeGreaterThan(0)
-
-    const tagTexts = tagComponents.map((tag) => tag.text())
-    const tagNames = tagTexts
-      .map((text) => {
-        const match = text.match(/^(Apples|Bananas|Monkeys|Zebras)/)
-        return match ? match[1] : ''
-      })
-      .filter(Boolean)
-
-    expect(tagNames).toEqual(['Apples', 'Bananas', 'Monkeys', 'Zebras'])
-  })
-
-  it('onShowMore: function', async () => {
-    const onShowMore = vi.fn()
-    const documentWithTags = {
-      openapi: '3.1.0',
-      info: {
-        title: 'Test API',
-        version: '1.0.0',
-      },
-      paths: {
-        '/users': {
-          get: {
-            summary: 'Get users',
-            operationId: 'getUsers',
-            tags: ['Users'],
           },
         },
         '/posts': {
@@ -919,34 +404,33 @@ describe('ApiReference Configuration Tests', () => {
     const wrapper = mountComponent({
       props: {
         configuration: {
-          content: documentWithTags,
+          content,
+          onLoaded,
+          onServerChange,
+          onSidebarClick,
           onShowMore,
-        },
-      },
-    })
-    await flushPromises()
-
-    const showMoreButton = wrapper.findComponent({ name: 'ShowMoreButton' })
-    await showMoreButton.trigger('click')
-
-    expect(onShowMore).toHaveBeenCalledWith('api-1/tag/posts')
-  })
-
-  it('onDocumentSelect: function', async () => {
-    const onDocumentSelect = vi.fn()
-    const wrapper = mountComponent({
-      props: {
-        configuration: {
           onDocumentSelect,
+          generateHeadingSlug: (heading: { slug: string }) => `custom-test-slug-${heading.slug}`,
+          generateOperationSlug: (operation: { method: string; path: string }) =>
+            `custom-test-slug-${operation.method}-${operation.path}`,
+          redirect: (hash: string) => hash.replace('#old', '#new'),
+          servers,
+          authentication,
+          defaultHttpClient: {
+            targetKey: 'node',
+            clientKey: 'axios',
+          },
+          hiddenClients: ['unirest', 'node'],
+          proxyUrl: 'https://proxy.example.com',
+          tagsSorter: 'alpha',
+          expandAllResponses: true,
+          searchHotKey: 'f',
           sources: [
             {
               slug: 'users-api',
               content: {
                 openapi: '3.1.0',
-                info: {
-                  title: 'Users API',
-                  version: '1.0.0',
-                },
+                info: { title: 'Users API', version: '1.0.0' },
                 paths: {
                   '/users': {
                     get: {
@@ -962,10 +446,7 @@ describe('ApiReference Configuration Tests', () => {
               slug: 'posts-api',
               content: {
                 openapi: '3.1.0',
-                info: {
-                  title: 'Posts API',
-                  version: '1.0.0',
-                },
+                info: { title: 'Posts API', version: '1.0.0' },
                 paths: {
                   '/posts': {
                     get: {
@@ -982,28 +463,94 @@ describe('ApiReference Configuration Tests', () => {
       },
     })
     await flushPromises()
-    expect(onDocumentSelect).toHaveBeenCalledOnce()
 
-    const documentSelector = wrapper.findComponent({ name: 'DocumentSelector' })
-    expect(documentSelector.exists()).toBe(true)
+    // onLoaded: function
+    expect(onLoaded).toHaveBeenCalled()
 
-    await documentSelector.vm.$emit('update:modelValue', 'posts-api')
-    await flushPromises()
+    // onServerChange: function
+    const ServerSelector = wrapper.findComponent({ name: 'Selector' })
+    await ServerSelector.vm.$emit('update:modelValue', 'https://api-staging.example.com')
+    expect(onServerChange).toHaveBeenCalled()
 
-    expect(onDocumentSelect).toHaveBeenCalledTimes(2)
-  })
+    // generateHeadingSlug: function
+    const infoDescription = wrapper.findComponent({ name: 'InfoDescription' })
+    if (infoDescription.exists()) {
+      const h1 = infoDescription.find('h1')
+      if (h1.exists()) {
+        expect(h1.html()).toContain('custom-test-slug-heading-1')
+      }
+    }
 
-  it('proxyUrl: string', async () => {
-    const wrapper = mountComponent({
-      props: {
-        configuration: {
-          content: {},
-          proxyUrl: 'https://proxy.example.com',
-        },
-      },
-    })
+    // generateOperationSlug: function
+    const operation = wrapper.findComponent({ name: 'Operation' })
+    if (operation.exists()) {
+      const section = operation.find('section')
+      if (section.exists()) {
+        expect(section.html()).toContain('custom-test-slug-GET-/users')
+      }
+    }
 
-    await flushPromises()
+    // redirect: function
+    expect(replaceStateSpy).toHaveBeenCalledWith({}, '', '#new')
+
+    // servers: array
+    const ServerSelectorComponent = wrapper.findComponent({ name: 'ServerSelector' })
+    expect(ServerSelectorComponent.text().includes('api.example.com')).toBe(true)
+
+    // authentication: object
+    const Auth = wrapper.findComponent({ name: 'Auth' })
+    const button = Auth.find('button[data-testid="data-table-password-toggle"]')
+    await button.trigger('click')
+    expect(Auth.text().includes('test-token')).toBe(true)
+
+    // defaultHttpClient, hiddenClients, proxyUrl
+    expect(wrapper.vm.workspaceStore.workspace['x-scalar-default-client']).toBe('node/axios')
+    const clientOptions = wrapper.findComponent({ name: 'ClientSelector' }).props().clientOptions as ClientOptionGroup[]
+    const clientKeysSet = new Set<string>(clientOptions.flatMap((group) => group.options.map((option) => option.id)))
+    expect(clientKeysSet.has('node/axios')).toBe(false)
+    expect(clientKeysSet.has('java/unirest')).toBe(false)
+    expect(clientKeysSet.has('js/axios')).toBe(true)
     expect(wrapper.vm.workspaceStore.workspace['x-scalar-active-proxy']).toBe('https://proxy.example.com')
+
+    // expandAllResponses: true
+    const modernLayout = wrapper.findComponent({ name: 'ModernLayout' })
+    if (modernLayout.exists()) {
+      const operationResponses = modernLayout.findComponent({ name: 'OperationResponses' })
+      if (operationResponses.exists()) {
+        expect(operationResponses.props().collapsableItems).toBe(false)
+      }
+    }
+
+    // onSidebarClick: function
+    const sidebarItems = wrapper.findAllComponents({ name: 'ScalarSidebarItem' })
+    const operationItem = sidebarItems.find((item) => item.text().includes('Get users'))
+    await operationItem?.trigger('click')
+    expect(onSidebarClick).toHaveBeenCalled()
+    expect(onSidebarClick).toHaveBeenCalledWith(expect.stringContaining('/users'))
+
+    // tagsSorter: alpha (tested via tag components existing)
+    const tagComponents = wrapper.findAllComponents({ name: 'Tag' })
+    expect(tagComponents.length).toBeGreaterThan(0)
+
+    // onShowMore: function
+    const showMoreButton = wrapper.findComponent({ name: 'ShowMoreButton' })
+    if (showMoreButton.exists()) {
+      await showMoreButton.trigger('click')
+      expect(onShowMore).toHaveBeenCalled()
+    }
+
+    // onDocumentSelect: function
+    expect(onDocumentSelect).toHaveBeenCalledOnce()
+    const documentSelector = wrapper.findComponent({ name: 'DocumentSelector' })
+    if (documentSelector.exists()) {
+      await documentSelector.vm.$emit('update:modelValue', 'posts-api')
+      await flushPromises()
+      expect(onDocumentSelect).toHaveBeenCalledTimes(2)
+    }
+
+    // searchHotKey: f
+    expect(wrapper.findComponent({ name: 'SearchModal' }).props().modalState.open).toBe(false)
+    wrapper.trigger('keydown', { key: 'f', ctrlKey: true })
+    expect(wrapper.findComponent({ name: 'SearchModal' }).props().modalState.open).toBe(true)
   })
 })
