@@ -8,11 +8,13 @@ import {
   xScalarEnvironmentSchema,
 } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import { xScalarCookieSchema } from '@scalar/workspace-store/schemas/extensions/general/x-scalar-cookies'
+import type { XTagGroup } from '@scalar/workspace-store/schemas/extensions/tag/x-tag-groups'
 import type { InMemoryWorkspace } from '@scalar/workspace-store/schemas/inmemory-workspace'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import {
   OpenAPIDocumentSchema,
   type OpenApiDocument,
+  type TagObject,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import type { WorkspaceDocument, WorkspaceExtensions, WorkspaceMeta } from '@scalar/workspace-store/schemas/workspace'
 import { ColorModeSchema, ThemeIdSchema } from '@scalar/workspace-store/schemas/workspace'
@@ -219,6 +221,97 @@ const transformLegacyEnvironments = (
   )
 }
 
+/**
+ * Transforms legacy tags into OpenAPI tags and x-tagGroups.
+ *
+ * Legacy tags have a parent-child structure where:
+ * - Parent tags (tags with children) become x-tagGroups entries
+ * - Child tags become regular OpenAPI tags
+ * - Tags that appear in collection.children are considered top-level
+ *
+ * @param collection - The legacy collection containing tag UIDs
+ * @param dataRecords - The data records containing actual tag objects
+ * @returns Object with tags array and tagGroups array
+ */
+/**
+ * Transforms legacy tags into OpenAPI tags and tag groups.
+ *
+ * Legacy structure:
+ * - Tags can have children (nested tags)
+ * - Top-level parent tags become tag groups
+ * - Child tags and standalone tags become regular tags
+ */
+const transformLegacyTags = (
+  collection: v_2_5_0['Collection'],
+  dataRecords: v_2_5_0['DataRecord'],
+): { tags: TagObject[]; tagGroups: Array<{ name: string; tags: string[] }> } => {
+  const tags: TagObject[] = []
+  const tagGroups: XTagGroup = []
+
+  /**
+   * Identifies which tags are top-level (appear in collection.children).
+   * Top-level parent tags become tag groups, others become regular tags.
+   */
+  const topLevelTagUids = new Set(collection.children.filter((uid) => dataRecords.tags[uid] !== undefined))
+
+  /**
+   * Identifies which tags have children.
+   * Only top-level parent tags become tag groups.
+   */
+  const parentTagUids = new Set(
+    collection.tags.filter((uid) => {
+      const tag = dataRecords.tags[uid]
+      return tag?.children && tag.children.length > 0
+    }),
+  )
+
+  /**
+   * Process each tag to create either a tag group or a regular tag.
+   */
+  for (const tagUid of collection.tags) {
+    const tag = dataRecords.tags[tagUid]
+    if (!tag) {
+      continue
+    }
+
+    const isTopLevelParent = topLevelTagUids.has(tagUid) && parentTagUids.has(tagUid)
+
+    if (isTopLevelParent) {
+      /**
+       * Top-level parent tags become tag groups.
+       * Resolve child tag names, filtering out any missing children.
+       */
+      const childTagNames = tag.children
+        .map((childUid) => dataRecords.tags[childUid]?.name)
+        .filter((name): name is string => name !== undefined)
+
+      if (childTagNames.length > 0) {
+        tagGroups.push({
+          name: tag.name,
+          tags: childTagNames,
+        })
+      }
+    } else {
+      /**
+       * All other tags (child tags and standalone tags) become regular tags.
+       * Preserve optional fields from the legacy tag.
+       */
+      const tagObject: TagObject = { name: tag.name }
+
+      if (tag.description) {
+        tagObject.description = tag.description
+      }
+      if (tag.externalDocs) {
+        tagObject.externalDocs = tag.externalDocs
+      }
+
+      tags.push(tagObject)
+    }
+  }
+
+  return { tags, tagGroups }
+}
+
 /** Transforms a collection and everything it includes into a WorkspaceDocument + auth */
 const transformCollectionToDocument = (
   documentName: string,
@@ -230,6 +323,9 @@ const transformCollectionToDocument = (
     collection.selectedServerUid && dataRecords.servers[collection.selectedServerUid]
       ? dataRecords.servers[collection.selectedServerUid]?.url
       : undefined
+
+  // Transform tags: separate parent tags (groups) from child tags
+  const { tags, tagGroups } = transformLegacyTags(collection, dataRecords)
 
   const document: Record<string, unknown> = {
     openapi: collection.openapi || '3.1.0',
@@ -293,7 +389,7 @@ const transformCollectionToDocument = (
       }, {}),
     },
     security: collection.security || [],
-    tags: [],
+    tags,
     webhooks: collection.webhooks,
     externalDocs: collection.externalDocs,
     'x-scalar-original-document-hash': '',
@@ -306,6 +402,11 @@ const transformCollectionToDocument = (
 
     // useCollectionSecurity → x-scalar-set-operation-security
     'x-scalar-set-operation-security': collection.useCollectionSecurity ?? false,
+  }
+
+  // Add x-tagGroups if there are any parent tags
+  if (tagGroups.length > 0) {
+    document['x-tagGroups'] = tagGroups
   }
 
   // x-scalar-active-environment → x-scalar-client-config-active-environment

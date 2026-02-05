@@ -1792,8 +1792,8 @@ describe('migrate-to-indexdb', () => {
 
         assert(doc)
         expect(doc.tags).toEqual([
-          { name: 'Users', description: 'User operations' },
-          { name: 'Pets', description: 'Pet operations' },
+          { name: 'Users', description: 'User operations', 'x-scalar-order': [] },
+          { name: 'Pets', description: 'Pet operations', 'x-scalar-order': [] },
         ])
         expect(doc['x-tagGroups']).toBeUndefined()
       })
@@ -1838,14 +1838,15 @@ describe('migrate-to-indexdb', () => {
         assert(doc)
 
         expect(doc.tags).toEqual([
-          { name: 'Dogs', description: 'Dog operations' },
-          { name: 'Cats', description: 'Cat operations' },
+          { name: 'Dogs', description: 'Dog operations', 'x-scalar-order': [] },
+          { name: 'Cats', description: 'Cat operations', 'x-scalar-order': [] },
         ])
 
         expect(doc['x-tagGroups']).toEqual([
           {
             name: 'Animals',
             tags: ['Dogs', 'Cats'],
+            'x-scalar-order': ['nested-tags-api/tag/dogs', 'nested-tags-api/tag/cats'],
           },
         ])
       })
@@ -1900,12 +1901,23 @@ describe('migrate-to-indexdb', () => {
         const doc = result[0]?.workspace.documents['Multi Group API']
 
         assert(doc)
-
-        expect(doc.tags).toEqual([{ name: 'Dogs' }, { name: 'Cats' }, { name: 'Sedans' }, { name: 'Trucks' }])
-
+        expect(doc.tags).toEqual([
+          { name: 'Dogs', 'x-scalar-order': [] },
+          { name: 'Cats', 'x-scalar-order': [] },
+          { name: 'Sedans', 'x-scalar-order': [] },
+          { name: 'Trucks', 'x-scalar-order': [] },
+        ])
         expect(doc['x-tagGroups']).toEqual([
-          { name: 'Animals', tags: ['Dogs', 'Cats'] },
-          { name: 'Vehicles', tags: ['Sedans', 'Trucks'] },
+          {
+            name: 'Animals',
+            tags: ['Dogs', 'Cats'],
+            'x-scalar-order': ['multi-group-api/tag/dogs', 'multi-group-api/tag/cats'],
+          },
+          {
+            name: 'Vehicles',
+            tags: ['Sedans', 'Trucks'],
+            'x-scalar-order': ['multi-group-api/tag/sedans', 'multi-group-api/tag/trucks'],
+          },
         ])
       })
 
@@ -1942,13 +1954,15 @@ describe('migrate-to-indexdb', () => {
         const doc = result[0]?.workspace.documents['Mixed Tags API']
 
         assert(doc)
-
-        expect(doc.tags).toEqual([{ name: 'ChildTag' }, { name: 'Standalone', description: 'A standalone tag' }])
-
+        expect(doc.tags).toEqual([
+          { name: 'ChildTag', 'x-scalar-order': [] },
+          { name: 'Standalone', description: 'A standalone tag' },
+        ])
         expect(doc['x-tagGroups']).toEqual([
           {
             name: 'ParentGroup',
             tags: ['ChildTag'],
+            'x-scalar-order': ['mixed-tags-api/tag/childtag'],
           },
         ])
       })
@@ -2012,6 +2026,7 @@ describe('migrate-to-indexdb', () => {
               url: 'https://docs.example.com/tags/documented',
               description: 'External documentation for this tag',
             },
+            'x-scalar-order': [],
           },
         ])
       })
