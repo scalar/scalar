@@ -88,11 +88,6 @@ const {
   workspaceStore,
 } = defineProps<ModalProps>()
 
-/** Expose workspace store to window for debugging purposes. */
-if (typeof window !== 'undefined') {
-  window.dataDumpWorkspace = () => workspaceStore
-}
-
 const activeWorkspace: ScalarListboxOption = {
   label: 'default',
   id: 'default',
