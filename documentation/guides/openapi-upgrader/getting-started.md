@@ -34,7 +34,7 @@ npm add @scalar/openapi-upgrader
 
 ### Usage
 
-```ts
+```typescript
 import { upgrade } from '@scalar/openapi-upgrader'
 
 const document = upgrade({
@@ -52,7 +52,7 @@ console.log(document.openapi)
 
 ### Experimental: Upgrade to OpenAPI 3.2
 
-```ts
+```typescript
 import { upgrade } from '@scalar/openapi-upgrader'
 
 const OPENAPI_DOCUMENT = {
@@ -73,7 +73,7 @@ console.log(document.openapi)
 
 ### From Swagger 2.0 to OpenAPI 3.0
 
-```ts
+```typescript
 import { upgradeFromTwoToThree } from '@scalar/openapi-upgrader/2.0-to-3.0'
 
 const document = upgradeFromTwoToThree({
@@ -91,7 +91,7 @@ console.log(document.openapi)
 
 ### From OpenAPI 3.0 to OpenAPI 3.1
 
-```ts
+```typescript
 import { upgradeFromThreeToThreeOne } from '@scalar/openapi-upgrader/3.0-to-3.1'
 
 const document = upgradeFromThreeToThreeOne({
@@ -109,7 +109,7 @@ console.log(document.openapi)
 
 ### From OpenAPI 3.1 to OpenAPI 3.2
 
-```ts
+```typescript
 import { upgradeFromThreeOneToThreeTwo } from '@scalar/openapi-upgrader/3.1-to-3.2'
 
 const document = upgradeFromThreeOneToThreeTwo({

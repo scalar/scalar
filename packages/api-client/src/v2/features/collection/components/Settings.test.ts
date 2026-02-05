@@ -180,7 +180,7 @@ describe('Settings', () => {
       const documentSettings = wrapper.findComponent({ name: 'DocumentSettings' })
       expect(documentSettings.props('documentUrl')).toBeUndefined()
       expect(documentSettings.props('title')).toBe('Test API')
-      expect(documentSettings.props('watchMode')).toBe(true)
+      expect(documentSettings.props('watchMode')).toBe(undefined)
     })
   })
 

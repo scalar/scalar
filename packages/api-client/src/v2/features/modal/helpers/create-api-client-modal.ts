@@ -1,13 +1,15 @@
 import { type ModalState, useModal } from '@scalar/components'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { type WorkspaceEventBus, createWorkspaceEventBus } from '@scalar/workspace-store/events'
-import { type App, computed, createApp, reactive } from 'vue'
+import type { InMemoryWorkspace } from '@scalar/workspace-store/schemas/inmemory-workspace'
+import { type App, computed, createApp, reactive, ref, watch } from 'vue'
 
 import {
   type DefaultEntities,
   type RoutePayload,
   resolveRouteParameters,
 } from '@/v2/features/modal/helpers/resolve-route-parameters'
+import { restoreWorkspaceState } from '@/v2/features/modal/helpers/restore-workspace-state'
 import { useModalSidebar } from '@/v2/features/modal/hooks/use-modal-sidebar'
 import Modal, { type ModalProps } from '@/v2/features/modal/Modal.vue'
 import type { ClientPlugin } from '@/v2/helpers/plugins'
@@ -61,6 +63,8 @@ export const createApiClientModal = ({
     documentSlug: workspaceStore.workspace['x-scalar-active-document'] || 'default',
   }
 
+  const workspaceStoreSnapshot = ref<InMemoryWorkspace | null>(null)
+
   const parameters = reactive<DefaultEntities>({ ...defaultEntities })
 
   /** Navigate to the specified path, method, and example. */
@@ -101,6 +105,35 @@ export const createApiClientModal = ({
     workspaceStore,
     options,
   } satisfies ModalProps)
+
+  /** Snapshot the workspace store when the modal is opened. */
+  const handleModalOpen = () => {
+    workspaceStoreSnapshot.value = window.structuredClone(workspaceStore.exportWorkspace())
+  }
+
+  /** Restore the workspace store when the modal is closed. */
+  const handleModalClose = () => {
+    if (!workspaceStoreSnapshot.value) {
+      console.warn('No workspace store snapshot to restore')
+      return
+    }
+
+    const result = restoreWorkspaceState({
+      workspaceStore,
+      workspaceState: workspaceStoreSnapshot.value,
+      name: documentSlug.value ?? '',
+    })
+
+    if (!result.ok) {
+      console.error('Failed to restore workspace state', result.error)
+    }
+    return
+  }
+
+  watch(
+    () => modalState.open,
+    (open) => (open ? handleModalOpen() : handleModalClose()),
+  )
 
   // Use a unique id prefix to prevent collisions with other Vue apps on the page
   app.config.idPrefix = 'scalar-client'

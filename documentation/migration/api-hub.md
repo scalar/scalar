@@ -84,8 +84,6 @@ To set this up, create a `scalar.config.json` file in your repository root:
 
 The `"publishOnMerge": true` setting tells Scalar to automatically publish your documentation when a branch is merged into your main branch.
 
-Learn more about [GitHub Sync](../guides/docs/github-sync.md).
-
 ## How to migrate from API Hub Explore to Scalar
 
 Scalar's API client is a direct replacement for API Hub Explore. Both you and your end users can get a version of it by clicking **Test Request** in the API reference or by going to the [API client page](https://client.scalar.com/). You can also [download a desktop version](../guides/app/getting-started.md).

@@ -1,4 +1,4 @@
-import { bundle } from '@/bundle'
+import { type Plugin, bundle } from '@/bundle'
 import { fetchUrls } from '@/bundle/plugins/fetch-urls'
 import { createMagicProxy } from '@/magic-proxy'
 import type { UnknownObject } from '@/types'
@@ -25,7 +25,7 @@ type ReturnDereferenceResult<Opt extends { sync?: boolean }> = Opt['sync'] exten
  * Otherwise, it bundles the document, resolving all $refs (including remote ones), and returns a promise.
  *
  * @param input - JSON Schema object to dereference.
- * @param options - Optional settings. If `sync` is true, dereferencing is synchronous.
+ * @param options - Optional settings. If `sync` is true, dereferencing is synchronous. If `plugins` is provided, those plugins are used for resolution instead of the default `fetchUrls()`.
  * @returns A DereferenceResult (or Promise thereof) indicating success and the dereferenced data, or errors.
  *
  * @example
@@ -45,8 +45,13 @@ type ReturnDereferenceResult<Opt extends { sync?: boolean }> = Opt['sync'] exten
  *       console.error(result.errors);
  *     }
  *   });
+ *
+ * @example
+ * // Asynchronous dereference (with custom loader plugin)
+ * const plugin = { type: 'loader', validate: (v) => v.startsWith('workspace:'), exec: (v) => resolve(v) };
+ * const result = await dereference({ $ref: 'workspace:my-schema' }, { plugins: [plugin] });
  */
-export const dereference = <Opts extends { sync?: boolean }>(
+export const dereference = <Opts extends { sync?: boolean; plugins?: Plugin[] }>(
   input: UnknownObject,
   options?: Opts,
 ): ReturnDereferenceResult<Opts> => {
@@ -58,9 +63,10 @@ export const dereference = <Opts extends { sync?: boolean }>(
   }
 
   const errors: string[] = []
+  const plugins = options?.plugins || [fetchUrls()]
 
   return bundle(input, {
-    plugins: [fetchUrls()],
+    plugins,
     treeShake: false,
     urlMap: true,
     hooks: {

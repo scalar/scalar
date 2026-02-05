@@ -1,5 +1,22 @@
 # @scalar/api-reference-react
 
+## 0.8.50
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.44.13**
+
+## 0.8.49
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.44.12**
+  - [#8035](https://github.com/scalar/scalar/pull/8035): fix: correctly resolve and validate refs
+
 ## 0.8.48
 
 ### Patch Changes

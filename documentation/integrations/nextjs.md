@@ -25,7 +25,7 @@ please use version `0.4.106` of this package.
 
 If you have a OpenAPI/Swagger file already, you can pass a URL to the plugin in an API [Route](https://nextjs.org/docs/app/building-your-application/routing/route-handlers):
 
-```ts
+```typescript
 // app/reference/route.ts
 import { ApiReference } from '@scalar/nextjs-api-reference'
 
@@ -38,7 +38,7 @@ export const GET = ApiReference(config)
 
 Or, if you just have a static OpenAPI spec, you can directly pass it as well:
 
-```ts
+```typescript
 const config = {
   content: '{ "openapi": "3.1.1", … }',
 }
@@ -50,7 +50,7 @@ The Next.js handler takes our universal configuration object, [read more about c
 
 By default, we're using a custom Next.js theme and it's beautiful. But you can choose [one of our other themes](../themes.md), too:
 
-```ts
+```typescript
 const config = {
   theme: 'purple',
 }
@@ -90,7 +90,7 @@ You can also pin the CDN to a specific version by specifying it in the CDN strin
 
 You can find all available CDN versions [here](https://www.jsdelivr.com/package/npm/@scalar/api-reference?tab=files)
 
-```ts
+```typescript
 // app/reference/route.ts
 import { ApiReference } from '@scalar/nextjs-api-reference'
 
@@ -147,7 +147,7 @@ npm add @scalar/nextjs-api-reference
 
 … and add a new app route:
 
-```js
+```javascript
 // app/reference/route.js
 import { ApiReference } from '@scalar/nextjs-api-reference'
 
@@ -170,7 +170,7 @@ npm add @scalar/api-reference-react
 
 … and add a new page route:
 
-```js
+```javascript
 import { ApiReferenceReact } from '@scalar/api-reference-react'
 
 import '@scalar/api-reference-react/style.css'

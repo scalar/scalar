@@ -30,6 +30,7 @@ import {
   ScalarTooltip,
   useLoadingState,
 } from '@scalar/components'
+import { isLocalUrl } from '@scalar/helpers/url/is-local-url'
 import { useToasts } from '@scalar/use-toasts'
 import {
   createWorkspaceStore,
@@ -71,10 +72,13 @@ const router = useRouter()
 const loader = useLoadingState()
 
 const inputContent = ref('')
-const watchMode = ref(true)
+const watchMode = ref(false)
 
 /** Check if the input content is a URL */
 const isUrlInput = computed<boolean>(() => isUrl(inputContent.value))
+const isLocalUrlInput = computed<boolean>(
+  () => isUrlInput.value && isLocalUrl(inputContent.value),
+)
 
 /** Get document details based on the content type (Postman or OpenAPI) */
 const documentDetails = computed(() => {
@@ -95,11 +99,11 @@ const isDisabled = computed<boolean>(() => {
 })
 
 /**
- * Watch for changes to isUrlInput and toggle watchMode accordingly.
- * Watch mode is only available for URL imports, not file or pasted content.
+ * Toggle watchMode based on whether the input is a local URL.
+ * Only enables watch mode for local URLs, not for files or pasted content.
  */
-watch(isUrlInput, (isUrl: boolean) => {
-  watchMode.value = isUrl
+watch(isLocalUrlInput, (value: boolean) => {
+  watchMode.value = value
 })
 
 /**

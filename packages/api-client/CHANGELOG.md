@@ -1,5 +1,47 @@
 # @scalar/api-client
 
+## 2.23.4
+
+### Patch Changes
+
+- [#8058](https://github.com/scalar/scalar/pull/8058): fix: correctly drop changes when modal closes
+- [#8059](https://github.com/scalar/scalar/pull/8059): fix: harden auth secret extraction plus tests
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.28.4**
+  - [#8047](https://github.com/scalar/scalar/pull/8047): fix: unpack proxy when update an environment
+
+- **@scalar/oas-utils@0.6.35**
+
+- **@scalar/sidebar@0.7.28**
+
+- **@scalar/components@0.17.5**
+
+- **@scalar/use-codemirror@0.13.32**
+
+## 2.23.3
+
+### Patch Changes
+
+- [#8035](https://github.com/scalar/scalar/pull/8035): fix: correctly resolve and validate refs
+- [#8033](https://github.com/scalar/scalar/pull/8033): fix: add failsafe to incorrect array parameter style
+- [#8043](https://github.com/scalar/scalar/pull/8043): fix: :deep selector for bun build
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.28.3**
+  - [#8035](https://github.com/scalar/scalar/pull/8035): fix: correctly resolve and validate refs
+  - [#8034](https://github.com/scalar/scalar/pull/8034): fix: allow setting servers which dont exist in the document (from the config)
+
+- **@scalar/oas-utils@0.6.34**
+
+- **@scalar/sidebar@0.7.27**
+
+- **@scalar/components@0.17.4**
+
+- **@scalar/use-codemirror@0.13.31**
+
 ## 2.23.2
 
 ### Patch Changes

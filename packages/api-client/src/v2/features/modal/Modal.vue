@@ -88,11 +88,6 @@ const {
   workspaceStore,
 } = defineProps<ModalProps>()
 
-/** Expose workspace store to window for debugging purposes. */
-if (typeof window !== 'undefined') {
-  window.dataDumpWorkspace = () => workspaceStore
-}
-
 const activeWorkspace: ScalarListboxOption = {
   label: 'default',
   id: 'default',
@@ -126,11 +121,6 @@ const { activate: activateFocusTrap, deactivate: deactivateFocusTrap } =
 const cleanUp = () => {
   deactivateFocusTrap()
   eventBus.emit('operation:cancel:request')
-
-  // We also drop any changes to the document when we close the modal
-  workspaceStore.revertDocumentChanges(
-    document.value?.['x-scalar-navigation']?.name ?? '',
-  )
 }
 
 const isLocked = useScrollLock(() => {
@@ -203,7 +193,12 @@ defineExpose({
     v-show="modalState.open"
     class="scalar scalar-app">
     <div class="scalar-container">
+      <!-- 
+      adding v-show also here to ensure proper rendering in Safari.
+      @see https://github.com/scalar/scalar/issues/7983
+      -->
       <div
+        v-show="modalState.open"
         :id="id"
         ref="client"
         aria-label="API Client"
@@ -314,22 +309,6 @@ defineExpose({
 .dark-mode .scalar .scalar-app-exit {
   background: rgba(0, 0, 0, 0.45);
 }
-.scalar .scalar-app-exit:before {
-  font-family: sans-serif;
-  position: absolute;
-  top: 0;
-  right: 0;
-  font-size: 30px;
-  font-weight: 100;
-  line-height: 50px;
-  right: 12px;
-  text-align: center;
-  color: white;
-  opacity: 0.6;
-}
-.scalar .scalar-app-exit:hover:before {
-  opacity: 1;
-}
 @keyframes scalardrawerexitfadein {
   from {
     opacity: 0;
@@ -338,6 +317,21 @@ defineExpose({
     opacity: 1;
   }
 }
+.scalar .scalar-app-exit:before {
+  font-family: sans-serif;
+  position: absolute;
+  top: 0;
+  right: 12px;
+  font-size: 30px;
+  font-weight: 100;
+  line-height: 50px;
+  text-align: center;
+  color: white;
+  opacity: 0.6;
+}
+.scalar .scalar-app-exit:hover:before {
+  opacity: 1;
+}
 .scalar-container {
   overflow: hidden;
   visibility: visible;
@@ -345,7 +339,6 @@ defineExpose({
   bottom: 0;
   left: 0;
   top: 0;
-  left: 0;
   width: 100%;
   height: 100%;
   display: flex;
@@ -353,50 +346,11 @@ defineExpose({
   justify-content: center;
   @apply z-overlay;
 }
-
-.scalar .url-form-input {
-  min-height: auto !important;
-}
-
 .scalar .scalar-container {
   line-height: normal;
 }
-.scalar .scalar-app-header span {
-  color: var(--scalar-color-3);
-}
-.scalar .scalar-app-header a {
-  color: var(--scalar-color-1);
-}
-.scalar .scalar-app-header a:hover {
-  text-decoration: underline;
-}
-.scalar-activate {
-  width: fit-content;
-  margin: 0px 0.75rem 0.75rem auto;
-  line-height: 24px;
-  font-size: 0.75rem;
-  cursor: pointer;
-  font-size: 0.875rem;
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-.scalar-activate-button {
-  display: flex;
-  gap: 6px;
-  align-items: center;
-  color: var(--scalar-color-blue);
-  appearance: none;
-  outline: none;
-  border: none;
-  background: transparent;
-}
-.scalar-activate-button {
-  padding: 0 0.5rem;
-}
-.scalar-activate:hover .scalar-activate-button {
-  background: var(--scalar-background-3);
-  border-radius: 3px;
+
+.scalar .url-form-input {
+  min-height: auto !important;
 }
 </style>

@@ -1,5 +1,18 @@
 # @scalar/workspace-store
 
+## 0.28.4
+
+### Patch Changes
+
+- [#8047](https://github.com/scalar/scalar/pull/8047): fix: unpack proxy when update an environment
+
+## 0.28.3
+
+### Patch Changes
+
+- [#8035](https://github.com/scalar/scalar/pull/8035): fix: correctly resolve and validate refs
+- [#8034](https://github.com/scalar/scalar/pull/8034): fix: allow setting servers which dont exist in the document (from the config)
+
 ## 0.28.2
 
 ### Patch Changes

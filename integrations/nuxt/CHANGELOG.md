@@ -1,5 +1,31 @@
 # @scalar/nuxt
 
+## 0.5.70
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-client@2.23.4**
+  - [#8058](https://github.com/scalar/scalar/pull/8058): fix: correctly drop changes when modal closes
+  - [#8059](https://github.com/scalar/scalar/pull/8059): fix: harden auth secret extraction plus tests
+
+- **@scalar/api-reference@1.44.13**
+
+## 0.5.69
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.44.12**
+  - [#8035](https://github.com/scalar/scalar/pull/8035): fix: correctly resolve and validate refs
+
+- **@scalar/api-client@2.23.3**
+  - [#8035](https://github.com/scalar/scalar/pull/8035): fix: correctly resolve and validate refs
+  - [#8033](https://github.com/scalar/scalar/pull/8033): fix: add failsafe to incorrect array parameter style
+  - [#8043](https://github.com/scalar/scalar/pull/8043): fix: :deep selector for bun build
+
 ## 0.5.68
 
 ### Patch Changes

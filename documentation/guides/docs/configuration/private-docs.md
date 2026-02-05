@@ -1,7 +1,8 @@
-# Access
-This guide will help you start using our Access Groups to manage user access across your private guides and docs in our dashboard on scalar.com, which can be done alongside our [CLI](cli/getting-started.md).
+# Private Docs
 
-Make sure you have created a Scalar Account & are logged in ([see create account guide](registry/getting-started.md#create-your-scalar-account))
+This guide will help you start using our Access Groups to manage user access across your private guides and docs in our dashboard on scalar.com, which can be done alongside our [CLI](../../cli/getting-started.md).
+
+Make sure you have created a Scalar Account & are logged in ([see create account guide](../../registry/getting-started.md#create-your-scalar-account))
 
 ## Create your first access group
 Now let's make our first access group!
@@ -9,8 +10,6 @@ Now let's make our first access group!
 From the [dashboard](https://dashboard.scalar.com) left-most sidebar under Access > Groups, then click Create Access Group.
 
 ![Scalar Access Group Page](https://api.scalar.com/cdn/images/UCkGjASrXpR8OxgWEj32i/fkz45YW1-1ncvfHnyDC_g.png "Scalar Access Group Page")
-
-
 
 ![Scalar Create Access Group](https://api.scalar.com/cdn/images/UCkGjASrXpR8OxgWEj32i/ZouPnTXFy7QpbbLSwXNOD.png "Scalar Create Access Group")
 
@@ -28,7 +27,7 @@ To add only specific emails to an access group, type in the email you want to gi
 
 
 ## Use the Access Group
-Now let's restrict one of our [Scalar Docs](docs/getting-started.md) projects to the newly created access group.
+Now let's restrict one of our [Scalar Docs](../getting-started.md) projects to the newly created access group.
 
 Navigate to your Docs Project and navigate to the Security section, ensure "Private Docs" is enabled then you can allow access to the newly created access group.
 

@@ -9,7 +9,7 @@
   display: flex;
   margin-bottom: 12px;
   flex-direction: column;
-  justify-content: start;
+  justify-content: flex-start;
 }
 .introduction-card-item:has(.description) :deep(.server-form-container) {
   border-bottom-left-radius: 0;
