@@ -16,7 +16,7 @@ npm install @scalar/express-api-reference
 
 > Wait, but how do we get the OpenAPI document? 🤔 There are multiple ways to generate an OpenAPI file for Express. The most popular way is to use [`swagger-jsdoc`](https://github.com/Surnet/swagger-jsdoc).
 
-```ts
+```typescript
 import { apiReference } from '@scalar/express-api-reference'
 
 app.use(
@@ -34,7 +34,7 @@ The Express middleware takes our universal configuration object, [read more abou
 
 The middleware comes with a custom theme for Express. You can use one of [the other predefined themes](https://github.com/scalar/scalar/blob/main/packages/themes/src/index.ts#L15) (`alternate`, `default`, `moon`, `purple`, `solarized`) or overwrite it with `none`. All themes come with a light and dark color scheme.
 
-```ts
+```typescript
 import { apiReference } from '@scalar/express-api-reference'
 
 app.use(
@@ -50,7 +50,7 @@ app.use(
 
 You can use a custom CDN, default is `https://cdn.jsdelivr.net/npm/@scalar/api-reference`.
 
-```ts
+```typescript
 import { apiReference } from '@scalar/express-api-reference'
 
 app.use(

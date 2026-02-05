@@ -18,7 +18,7 @@ That's it! You can now use @scalar/nuxt in your Nuxt app ✨
 
 If you are using nuxt server routes you can enable Scalar simply by enabling openAPI in the nitro config in your nuxt.config.ts
 
-```ts
+```typescript
 export default defineNuxtConfig({
   modules: ['@scalar/nuxt'],
   nitro: {
@@ -31,7 +31,7 @@ export default defineNuxtConfig({
 
 If you would like to add your own OpenAPI document you can do so with the following minimal config
 
-```ts
+```typescript
 export default defineNuxtConfig({
   modules: ['@scalar/nuxt'],
   scalar: {
@@ -43,7 +43,7 @@ export default defineNuxtConfig({
 By default the docs will be hosted at `/docs` but you can easily customize that, here's a more in
 depth config example.
 
-```ts
+```typescript
 export default defineNuxtConfig({
   modules: ['@scalar/nuxt'],
   scalar: {
@@ -66,7 +66,7 @@ export default defineNuxtConfig({
 For multiple references, pass in an array of configuration objects which extend on top of the base
 config.
 
-```ts
+```typescript
 export default defineNuxtConfig({
   modules: ['@scalar/nuxt'],
   scalar: {
@@ -95,7 +95,7 @@ export default defineNuxtConfig({
 
 For theme configuration, you can pass a `theme` property to the configuration object. The default theme is `nuxt`, but you can also pass `default` to use the default theme.
 
-```ts
+```typescript
 export default defineNuxtConfig({
   modules: ['@scalar/nuxt'],
   scalar: {

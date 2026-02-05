@@ -26,7 +26,7 @@ Secondary text shown below the title. Defaults to `"Link to a page in the guide"
 <scalar-page-link filepath="documentation/guides/docs/components/row.md">
 </scalar-page-link>
 
-```md
+```markdown
 <scalar-page-link filepath="documentation/guides/docs/components/row.md">
 </scalar-page-link>
 ```
@@ -37,7 +37,7 @@ Secondary text shown below the title. Defaults to `"Link to a page in the guide"
 
 ::scalar-page-link{filepath="documentation/guides/docs/components/row.md"}
 
-```md
+```markdown
 ::scalar-page-link{filepath="documentation/guides/docs/components/row.md"}
 ```
 
@@ -53,7 +53,7 @@ Secondary text shown below the title. Defaults to `"Link to a page in the guide"
 <scalar-page-link filepath="documentation/guides/docs/components/row.md" title="Row Docs" description="">
 </scalar-page-link>
 
-```md
+```markdown
 <scalar-page-link filepath="documentation/guides/docs/components/row.md" title="Row Docs" description="">
 </scalar-page-link>
 ```
@@ -64,7 +64,7 @@ Secondary text shown below the title. Defaults to `"Link to a page in the guide"
 
 ::scalar-page-link{filepath="documentation/guides/docs/components/row.md" title="Row Docs" description=""}
 
-```md
+```markdown
 ::scalar-page-link{filepath="documentation/guides/docs/components/row.md" title="Row Docs" description=""}
 ```
 
@@ -79,7 +79,7 @@ Secondary text shown below the title. Defaults to `"Link to a page in the guide"
 <scalar-page-link filepath="documentation/guides/docs/components/row.md" title="Row Docs" description="Row component documentation">
 </scalar-page-link>
 
-```md
+```markdown
 <scalar-page-link filepath="documentation/guides/docs/components/row.md" title="Row Docs" description="Row component documentation">
 </scalar-page-link>
 ```
@@ -90,7 +90,7 @@ Secondary text shown below the title. Defaults to `"Link to a page in the guide"
 
 ::scalar-page-link{filepath="documentation/guides/docs/components/row.md" title="Row Docs" description="Row component documentation"}
 
-```md
+```markdown
 ::scalar-page-link{filepath="documentation/guides/docs/components/row.md" title="Row Docs" description="Row component documentation"}
 ```
 

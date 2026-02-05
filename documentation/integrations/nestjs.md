@@ -12,7 +12,7 @@ npm install @scalar/nestjs-api-reference
 
 [Set up NestJS](https://docs.nestjs.com/first-steps) and [set up NestJS Swagger](https://docs.nestjs.com/openapi/introduction) and pass an OpenAPI/Swagger document to the `apiReference` middleware:
 
-```ts
+```typescript
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
 import { apiReference } from '@scalar/nestjs-api-reference'
 
@@ -42,7 +42,7 @@ const OpenApiSpecification =
 
 Recommended: If you're serving an OpenAPI/Swagger file already, you can pass an URL, too:
 
-```ts
+```typescript
 import { apiReference } from '@scalar/nestjs-api-reference'
 
 app.use(
@@ -57,7 +57,7 @@ app.use(
 
 When using NestJS with the Fastify adapter instead of Express, you need to set the `withFastify` option to `true`:
 
-```ts
+```typescript
 /* ... */
 
 app.use(
@@ -75,7 +75,7 @@ The NestJS middleware takes our universal configuration object, [read more about
 
 The middleware comes with a custom theme for NestJS. You can use one of [the other predefined themes](https://github.com/scalar/scalar/blob/main/packages/themes/src/index.ts#L15) (`alternate`, `default`, `moon`, `purple`, `solarized`) or overwrite it with `none`. All themes come with a light and dark color scheme.
 
-```ts
+```typescript
 import { apiReference } from '@scalar/nestjs-api-reference'
 
 app.use(
@@ -95,7 +95,7 @@ You can also pin the CDN to a specific version by specifying it in the CDN strin
 
 You can find all available CDN versions [here](https://www.jsdelivr.com/package/npm/@scalar/api-reference?tab=files)
 
-```ts
+```typescript
 import { apiReference } from '@scalar/nestjs-api-reference'
 
 app.use(
