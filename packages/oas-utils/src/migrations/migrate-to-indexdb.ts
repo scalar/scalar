@@ -1,6 +1,7 @@
 import { extractConfigSecrets, removeSecretFields } from '@scalar/helpers/general/extract-config-secrets'
 import { objectEntries } from '@scalar/helpers/object/object-entries'
-import type { Oauth2Flow, SecuritySchemeOauth2 } from '@scalar/types/entities'
+import type { Oauth2Flow } from '@scalar/types/entities'
+import { createWorkspaceStore } from '@scalar/workspace-store/client'
 import { type Auth, AuthSchema } from '@scalar/workspace-store/entities/auth'
 import { xScalarEnvironmentSchema } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import { xScalarCookieSchema } from '@scalar/workspace-store/schemas/extensions/general/x-scalar-cookies'
@@ -34,7 +35,7 @@ const MIGRATION_FLAG_KEY = 'scalar_indexdb_migration_complete'
  *
  * Old data is preserved for rollback. Typically completes in < 1 second.
  */
-export const migrateLocalStorageToIndexDb = () => {
+export const migrateLocalStorageToIndexDb = async () => {
   if (!shouldMigrateToIndexDb()) {
     console.info('ℹ️  No migration needed or already completed')
     return
@@ -51,7 +52,7 @@ export const migrateLocalStorageToIndexDb = () => {
     )
 
     // Step 2: Transform to new workspace structure
-    const workspaces = transformLegacyDataToWorkspace(legacyData)
+    const workspaces = await transformLegacyDataToWorkspace(legacyData)
 
     console.info(`🔄 Transformed into ${workspaces.length} workspace(s)`)
 
@@ -91,15 +92,6 @@ export const shouldMigrateToIndexDb = (): boolean => {
   return hasOldData
 }
 
-type MigrateToIndexDbResults = {
-  name: string
-  slug: string
-  documents: Record<string, WorkspaceDocument>
-  meta: WorkspaceMeta
-  extensions: WorkspaceExtensions
-  auth: InMemoryWorkspace['auth']
-}[]
-
 /**
  * Transforms legacy localStorage data into IndexedDB workspace structure.
  *
@@ -111,78 +103,98 @@ type MigrateToIndexDbResults = {
  *
  * Creates a default workspace if none exist. Falls back to collection uid if info.title is missing.
  */
-export const transformLegacyDataToWorkspace = (legacyData: {
+export const transformLegacyDataToWorkspace = async (legacyData: {
   arrays: v_2_5_0['DataArray']
   records: v_2_5_0['DataRecord']
-}): MigrateToIndexDbResults =>
-  legacyData.arrays.workspaces.map((workspace) => {
-    /** Grab auth from the collections */
-    const workspaceAuth: InMemoryWorkspace['auth'] = {}
+}) =>
+  await Promise.all(
+    legacyData.arrays.workspaces.map(async (workspace) => {
+      /** Grab auth from the collections */
+      const workspaceAuth: InMemoryWorkspace['auth'] = {}
 
-    /** Each collection becomes a document in the new system and grab the auth as well */
-    const documents: Record<string, OpenApiDocument> = Object.fromEntries(
-      workspace.collections.flatMap<[string, OpenApiDocument]>((uid) => {
-        const collection = legacyData.records.collections[uid]
-        if (!collection) {
-          return []
-        }
+      /** Each collection becomes a document in the new system and grab the auth as well */
+      const documents: Record<string, OpenApiDocument> = Object.fromEntries(
+        workspace.collections.flatMap<[string, OpenApiDocument]>((uid) => {
+          const collection = legacyData.records.collections[uid]
+          if (!collection) {
+            return []
+          }
 
-        const documentName = collection.info?.title || collection.uid
-        const { document, auth } = transformCollectionToDocument(documentName, collection, legacyData.records)
-        workspaceAuth[documentName] = auth
+          const documentName = collection.info?.title || collection.uid
+          const { document, auth } = transformCollectionToDocument(documentName, collection, legacyData.records)
+          workspaceAuth[documentName] = auth
 
-        return [[documentName, document]]
-      }),
-    )
-
-    const meta: WorkspaceMeta = {}
-    const extensions: WorkspaceExtensions = {}
-
-    // Add environment
-    const environmentEntries = Object.entries(workspace.environments)
-    if (environmentEntries.length > 0) {
-      extensions['x-scalar-environments'] = {
-        default: coerceValue(xScalarEnvironmentSchema, {
-          variables: environmentEntries.map(([name, value]) => ({
-            name,
-            value,
-          })),
+          return [[documentName, document]]
         }),
+      )
+
+      const meta: WorkspaceMeta = {}
+      const extensions: WorkspaceExtensions = {}
+
+      // Add environment
+      const environmentEntries = Object.entries(workspace.environments)
+      if (environmentEntries.length > 0) {
+        extensions['x-scalar-environments'] = {
+          default: coerceValue(xScalarEnvironmentSchema, {
+            variables: environmentEntries.map(([name, value]) => ({
+              name,
+              value,
+            })),
+          }),
+        }
       }
-    }
 
-    // Add cookies to meta
-    if (workspace.cookies.length > 0) {
-      extensions['x-scalar-cookies'] = workspace.cookies.flatMap((uid) => {
-        const cookie = legacyData.records.cookies[uid]
-        return cookie ? coerceValue(xScalarCookieSchema, cookie) : []
+      // Add cookies to meta
+      if (workspace.cookies.length > 0) {
+        extensions['x-scalar-cookies'] = workspace.cookies.flatMap((uid) => {
+          const cookie = legacyData.records.cookies[uid]
+          return cookie ? coerceValue(xScalarCookieSchema, cookie) : []
+        })
+      }
+
+      // Add proxy URL if present
+      if (workspace.proxyUrl) {
+        meta['x-scalar-active-proxy'] = workspace.proxyUrl
+      }
+
+      // Add theme if present
+      if (workspace.themeId) {
+        meta['x-scalar-theme'] = coerceValue(ThemeIdSchema, workspace.themeId)
+      }
+
+      // Set color mode
+      if (localStorage.getItem('colorMode')) {
+        meta['x-scalar-color-mode'] = coerceValue(ColorModeSchema, localStorage.getItem('colorMode'))
+      }
+
+      const store = createWorkspaceStore({
+        meta,
       })
-    }
 
-    // Add proxy URL if present
-    if (workspace.proxyUrl) {
-      meta['x-scalar-active-proxy'] = workspace.proxyUrl
-    }
+      await Promise.all(
+        Object.entries(documents).map(async ([name, document]) => {
+          await store.addDocument({
+            name,
+            document,
+          })
+        }),
+      )
 
-    // Add theme if present
-    if (workspace.themeId) {
-      meta['x-scalar-theme'] = coerceValue(ThemeIdSchema, workspace.themeId)
-    }
+      // Load the auth into the store
+      store.auth.load(workspaceAuth)
 
-    // Set color mode
-    if (localStorage.getItem('colorMode')) {
-      meta['x-scalar-color-mode'] = coerceValue(ColorModeSchema, localStorage.getItem('colorMode'))
-    }
+      // Load the extensions into the store
+      objectEntries(extensions).forEach(([key, value]) => {
+        store.update(key, value)
+      })
 
-    return {
-      slug: workspace.uid,
-      name: workspace.name || 'Untitled Workspace',
-      meta,
-      documents,
-      extensions,
-      auth: workspaceAuth,
-    }
-  })
+      return {
+        slug: workspace.uid.toString(), // Convert to string to convert it to a simple string type
+        name: workspace.name || 'Untitled Workspace',
+        workspace: store.exportWorkspace(),
+      }
+    }),
+  )
 
 /** Transforms a collection and everything it includes into a WorkspaceDocument + auth */
 const transformCollectionToDocument = (
