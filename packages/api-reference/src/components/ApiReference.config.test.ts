@@ -662,14 +662,6 @@ describe('ApiReference Configuration Tests', () => {
 
     // Test forceDarkModeState: dark separately by remounting
     wrapper.unmount()
-    const darkWrapper = mountComponent({
-      props: {
-        configuration: {
-          content: createBasicDocument(),
-          forceDarkModeState: 'dark',
-        },
-      },
-    })
     await flushPromises()
     expect(document.body.classList.contains('dark-mode')).toBe(true)
   })
