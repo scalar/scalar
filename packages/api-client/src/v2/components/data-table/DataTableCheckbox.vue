@@ -32,7 +32,7 @@ const variants = cva({
   <DataTableCell class="group/cell relative flex min-w-8">
     <input
       :checked="modelValue"
-      class="peer absolute inset-0 cursor-pointer opacity-0 disabled:cursor-default"
+      class="peer absolute inset-0 h-full w-full cursor-pointer opacity-0 disabled:cursor-default"
       :disabled="Boolean(disabled)"
       type="checkbox"
       @change="(e: any) => $emit('update:modelValue', e.target.checked)" />
