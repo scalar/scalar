@@ -53,23 +53,41 @@ global.localStorage = createLocalStorageMock()
  * Helper function to create legacy data structures for testing.
  * This reduces duplication and makes test data creation more consistent.
  *
+ * For single-workspace / single-collection tests (the most common case), use the shorthand:
+ * - `title` sets the collection info.title (default: 'Test API')
+ * - `workspace` provides partial overrides for the default workspace
+ * - `collection` provides partial overrides for the default collection
+ *
+ * For multi-workspace / multi-collection tests, pass explicit `workspaces` and `collections` arrays.
+ *
  * @param options - Configuration for the legacy data structure
  * @returns A properly typed legacy data object with both arrays and records
  */
-const createLegacyData = (options: {
-  workspaces?: Workspace[]
-  collections?: Collection[]
-  securitySchemes?: SecurityScheme[]
-  cookies?: v_2_5_0['Cookie'][]
-  environments?: v_2_5_0['Environment'][]
-  requestExamples?: v_2_5_0['RequestExample'][]
-  requests?: v_2_5_0['Request'][]
-  servers?: v_2_5_0['Server'][]
-  tags?: v_2_5_0['Tag'][]
-}): { arrays: v_2_5_0['DataArray']; records: v_2_5_0['DataRecord'] } => {
+const createLegacyData = (
+  options: {
+    /** Shorthand for collection info.title (default: 'Test API') */
+    title?: string
+    /** Partial overrides for a single default workspace (ignored when workspaces is provided) */
+    workspace?: Record<string, unknown>
+    /** Partial overrides for a single default collection (ignored when collections is provided) */
+    collection?: Record<string, unknown>
+    /** Explicit workspace array, overrides the workspace shorthand */
+    workspaces?: Workspace[]
+    /** Explicit collection array, overrides the collection shorthand */
+    collections?: Collection[]
+    securitySchemes?: SecurityScheme[]
+    cookies?: v_2_5_0['Cookie'][]
+    environments?: v_2_5_0['Environment'][]
+    requestExamples?: v_2_5_0['RequestExample'][]
+    requests?: v_2_5_0['Request'][]
+    servers?: v_2_5_0['Server'][]
+    tags?: v_2_5_0['Tag'][]
+  } = {},
+): { arrays: v_2_5_0['DataArray']; records: v_2_5_0['DataRecord'] } => {
   const {
-    workspaces = [],
-    collections = [],
+    title = 'Test API',
+    workspace: workspaceOverrides,
+    collection: collectionOverrides,
     securitySchemes = [],
     cookies = [],
     environments = [],
@@ -78,6 +96,24 @@ const createLegacyData = (options: {
     servers = [],
     tags = [],
   } = options
+
+  const collections = options.collections ?? [
+    collectionSchema.parse({
+      uid: 'collection-1',
+      openapi: '3.1.0',
+      info: { title, version: '1.0.0' },
+      ...collectionOverrides,
+    }),
+  ]
+
+  const workspaces = options.workspaces ?? [
+    workspaceSchema.parse({
+      uid: 'workspace-1',
+      name: 'Test Workspace',
+      collections: collections.map((c) => c.uid),
+      ...workspaceOverrides,
+    }),
+  ]
 
   return {
     arrays: {
@@ -235,25 +271,8 @@ describe('migrate-to-indexdb', () => {
         description: 'API Key authentication',
       })
 
-      const collection = collectionSchema.parse({
-        uid: 'collection-1',
-        openapi: '3.1.0',
-        info: {
-          title: 'Test API',
-          version: '1.0.0',
-        },
-        securitySchemes: [scheme.uid],
-      })
-
-      const workspace = workspaceSchema.parse({
-        uid: 'workspace-1',
-        name: 'Test Workspace',
-        collections: [collection.uid],
-      })
-
       const legacyData = createLegacyData({
-        workspaces: [workspace],
-        collections: [collection],
+        collection: { securitySchemes: [scheme.uid] },
         securitySchemes: [scheme],
       })
 
@@ -285,12 +304,6 @@ describe('migrate-to-indexdb', () => {
     })
 
     it('should transform HTTP bearer security schemes into document components and auth store', async () => {
-      const workspace = workspaceSchema.parse({
-        uid: 'workspace-1',
-        name: 'Test Workspace',
-        collections: ['collection-1'],
-      })
-
       const scheme = securitySchemeSchema.parse({
         uid: 'security-1',
         nameKey: 'bearer-auth',
@@ -300,25 +313,13 @@ describe('migrate-to-indexdb', () => {
         token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
       })
 
-      const collection = collectionSchema.parse({
-        uid: 'collection-1',
-        openapi: '3.1.0',
-        info: {
-          title: 'Bearer API',
-          version: '1.0.0',
-        },
-        securitySchemes: [scheme.uid],
-      })
-
       const legacyData = createLegacyData({
-        workspaces: [workspace],
-        collections: [collection],
+        title: 'Bearer API',
+        collection: { securitySchemes: [scheme.uid] },
         securitySchemes: [scheme],
       })
 
       const result = await transformLegacyDataToWorkspace(legacyData)
-
-      expect(result).toHaveLength(1)
       const resultWorkspace = result[0]!
 
       // Verify security scheme is in document components
@@ -344,12 +345,6 @@ describe('migrate-to-indexdb', () => {
     })
 
     it('should transform HTTP basic security schemes into document components and auth store', async () => {
-      const workspace = workspaceSchema.parse({
-        uid: 'workspace-1',
-        name: 'Test Workspace',
-        collections: ['collection-1'],
-      })
-
       const scheme = securitySchemeSchema.parse({
         uid: 'security-1',
         nameKey: 'basic-auth',
@@ -359,19 +354,9 @@ describe('migrate-to-indexdb', () => {
         password: 'secret123',
       })
 
-      const collection = collectionSchema.parse({
-        uid: 'collection-1',
-        openapi: '3.1.0',
-        info: {
-          title: 'Basic Auth API',
-          version: '1.0.0',
-        },
-        securitySchemes: [scheme.uid],
-      })
-
       const legacyData = createLegacyData({
-        workspaces: [workspace],
-        collections: [collection],
+        title: 'Basic Auth API',
+        collection: { securitySchemes: [scheme.uid] },
         securitySchemes: [scheme],
       })
 
@@ -406,12 +391,6 @@ describe('migrate-to-indexdb', () => {
     })
 
     it('should transform OAuth2 security schemes into document components and auth store', async () => {
-      const workspace = workspaceSchema.parse({
-        uid: 'workspace-1',
-        name: 'Test Workspace',
-        collections: ['collection-1'],
-      })
-
       const scheme = securitySchemeSchema.parse({
         uid: 'security-1',
         nameKey: 'oauth2-auth',
@@ -434,19 +413,9 @@ describe('migrate-to-indexdb', () => {
         },
       })
 
-      const collection = collectionSchema.parse({
-        uid: 'collection-1',
-        openapi: '3.1.0',
-        info: {
-          title: 'OAuth API',
-          version: '1.0.0',
-        },
-        securitySchemes: [scheme.uid],
-      })
-
       const legacyData = createLegacyData({
-        workspaces: [workspace],
-        collections: [collection],
+        title: 'OAuth API',
+        collection: { securitySchemes: [scheme.uid] },
         securitySchemes: [scheme],
       })
 
@@ -561,24 +530,8 @@ describe('migrate-to-indexdb', () => {
     })
 
     it('should handle collections without security schemes', async () => {
-      const workspace = workspaceSchema.parse({
-        uid: 'workspace-1',
-        name: 'Test Workspace',
-        collections: ['collection-1'],
-      })
-
-      const collection = collectionSchema.parse({
-        uid: 'collection-1',
-        openapi: '3.1.0',
-        info: {
-          title: 'No Auth API',
-          version: '1.0.0',
-        },
-      })
-
       const legacyData = createLegacyData({
-        workspaces: [workspace],
-        collections: [collection],
+        title: 'No Auth API',
       })
 
       const result = await transformLegacyDataToWorkspace(legacyData)
@@ -598,30 +551,15 @@ describe('migrate-to-indexdb', () => {
 
   describe('transformLegacyDataToWorkspace - Environments', () => {
     it('should transform workspace environments into x-scalar-environments meta', async () => {
-      const oldWorkspace = workspaceSchema.parse({
-        uid: 'workspace-1',
-        name: 'Test Workspace',
-        collections: ['collection-1'],
-        environments: {
-          API_URL: 'https://api.example.com',
-          API_KEY: 'secret-key-123',
-          TIMEOUT: '5000',
-          camelcase: 'lower-case-value',
-        },
-      })
-
-      const collection = collectionSchema.parse({
-        uid: 'collection-1',
-        openapi: '3.1.0',
-        info: {
-          title: 'Test API',
-          version: '1.0.0',
-        },
-      })
-
       const legacyData = createLegacyData({
-        workspaces: [oldWorkspace],
-        collections: [collection],
+        workspace: {
+          environments: {
+            API_URL: 'https://api.example.com',
+            API_KEY: 'secret-key-123',
+            TIMEOUT: '5000',
+            camelcase: 'lower-case-value',
+          },
+        },
       })
 
       const result = await transformLegacyDataToWorkspace(legacyData)
@@ -644,25 +582,8 @@ describe('migrate-to-indexdb', () => {
     })
 
     it('should handle workspace with empty environments', async () => {
-      const oldWorkspace = workspaceSchema.parse({
-        uid: 'workspace-1',
-        name: 'Test Workspace',
-        collections: ['collection-1'],
-        environments: {},
-      })
-
-      const collection = collectionSchema.parse({
-        uid: 'collection-1',
-        openapi: '3.1.0',
-        info: {
-          title: 'Test API',
-          version: '1.0.0',
-        },
-      })
-
       const legacyData = createLegacyData({
-        workspaces: [oldWorkspace],
-        collections: [collection],
+        workspace: { environments: {} },
       })
 
       const result = await transformLegacyDataToWorkspace(legacyData)
@@ -764,25 +685,8 @@ describe('migrate-to-indexdb', () => {
         domain: 'api.example.com',
       })
 
-      const workspace = workspaceSchema.parse({
-        uid: 'workspace-1',
-        name: 'Test Workspace',
-        collections: ['collection-1'],
-        cookies: ['cookie-1', 'cookie-2'],
-      })
-
-      const collection = collectionSchema.parse({
-        uid: 'collection-1',
-        openapi: '3.1.0',
-        info: {
-          title: 'Test API',
-          version: '1.0.0',
-        },
-      })
-
       const legacyData = createLegacyData({
-        workspaces: [workspace],
-        collections: [collection],
+        workspace: { cookies: ['cookie-1', 'cookie-2'] },
         cookies: [cookie1, cookie2],
       })
 
@@ -811,25 +715,8 @@ describe('migrate-to-indexdb', () => {
     })
 
     it('should handle workspace with no cookies', async () => {
-      const workspace = workspaceSchema.parse({
-        uid: 'workspace-1',
-        name: 'Test Workspace',
-        collections: ['collection-1'],
-        cookies: [],
-      })
-
-      const collection = collectionSchema.parse({
-        uid: 'collection-1',
-        openapi: '3.1.0',
-        info: {
-          title: 'Test API',
-          version: '1.0.0',
-        },
-      })
-
       const legacyData = createLegacyData({
-        workspaces: [workspace],
-        collections: [collection],
+        workspace: { cookies: [] },
       })
 
       const result = await transformLegacyDataToWorkspace(legacyData)
@@ -848,25 +735,8 @@ describe('migrate-to-indexdb', () => {
         value: 'value123',
       })
 
-      const workspace = workspaceSchema.parse({
-        uid: 'workspace-1',
-        name: 'Test Workspace',
-        collections: ['collection-1'],
-        cookies: ['cookie-1', 'cookie-nonexistent'],
-      })
-
-      const collection = collectionSchema.parse({
-        uid: 'collection-1',
-        openapi: '3.1.0',
-        info: {
-          title: 'Test API',
-          version: '1.0.0',
-        },
-      })
-
       const legacyData = createLegacyData({
-        workspaces: [workspace],
-        collections: [collection],
+        workspace: { cookies: ['cookie-1', 'cookie-nonexistent'] },
         cookies: [cookie],
       })
 
@@ -888,25 +758,8 @@ describe('migrate-to-indexdb', () => {
 
   describe('transformLegacyDataToWorkspace - Proxy URL', () => {
     it('should transform workspace proxyUrl into x-scalar-active-proxy meta', async () => {
-      const workspace = workspaceSchema.parse({
-        uid: 'workspace-1',
-        name: 'Test Workspace',
-        collections: ['collection-1'],
-        proxyUrl: 'https://proxy.example.com',
-      })
-
-      const collection = collectionSchema.parse({
-        uid: 'collection-1',
-        openapi: '3.1.0',
-        info: {
-          title: 'Test API',
-          version: '1.0.0',
-        },
-      })
-
       const legacyData = createLegacyData({
-        workspaces: [workspace],
-        collections: [collection],
+        workspace: { proxyUrl: 'https://proxy.example.com' },
       })
 
       const result = await transformLegacyDataToWorkspace(legacyData)
@@ -917,25 +770,7 @@ describe('migrate-to-indexdb', () => {
     })
 
     it('should not set x-scalar-active-proxy when proxyUrl is not present', async () => {
-      const workspace = workspaceSchema.parse({
-        uid: 'workspace-1',
-        name: 'Test Workspace',
-        collections: ['collection-1'],
-      })
-
-      const collection = collectionSchema.parse({
-        uid: 'collection-1',
-        openapi: '3.1.0',
-        info: {
-          title: 'Test API',
-          version: '1.0.0',
-        },
-      })
-
-      const legacyData = createLegacyData({
-        workspaces: [workspace],
-        collections: [collection],
-      })
+      const legacyData = createLegacyData()
 
       const result = await transformLegacyDataToWorkspace(legacyData)
       const meta = result[0]?.workspace.meta
@@ -947,25 +782,8 @@ describe('migrate-to-indexdb', () => {
 
   describe('transformLegacyDataToWorkspace - Theme ID', () => {
     it('should transform workspace themeId into x-scalar-theme meta', async () => {
-      const workspace = workspaceSchema.parse({
-        uid: 'workspace-1',
-        name: 'Test Workspace',
-        collections: ['collection-1'],
-        themeId: 'alternate',
-      })
-
-      const collection = collectionSchema.parse({
-        uid: 'collection-1',
-        openapi: '3.1.0',
-        info: {
-          title: 'Test API',
-          version: '1.0.0',
-        },
-      })
-
       const legacyData = createLegacyData({
-        workspaces: [workspace],
-        collections: [collection],
+        workspace: { themeId: 'alternate' },
       })
 
       const result = await transformLegacyDataToWorkspace(legacyData)
@@ -976,25 +794,7 @@ describe('migrate-to-indexdb', () => {
     })
 
     it('should not set x-scalar-theme when themeId is not present', async () => {
-      const workspace = workspaceSchema.parse({
-        uid: 'workspace-1',
-        name: 'Test Workspace',
-        collections: ['collection-1'],
-      })
-
-      const collection = collectionSchema.parse({
-        uid: 'collection-1',
-        openapi: '3.1.0',
-        info: {
-          title: 'Test API',
-          version: '1.0.0',
-        },
-      })
-
-      const legacyData = createLegacyData({
-        workspaces: [workspace],
-        collections: [collection],
-      })
+      const legacyData = createLegacyData()
 
       const result = await transformLegacyDataToWorkspace(legacyData)
       const meta = result[0]?.workspace.meta
@@ -1008,25 +808,7 @@ describe('migrate-to-indexdb', () => {
     it('should transform localStorage colorMode into x-scalar-color-mode meta', async () => {
       localStorage.setItem('colorMode', 'dark')
 
-      const workspace = workspaceSchema.parse({
-        uid: 'workspace-1',
-        name: 'Test Workspace',
-        collections: ['collection-1'],
-      })
-
-      const collection = collectionSchema.parse({
-        uid: 'collection-1',
-        openapi: '3.1.0',
-        info: {
-          title: 'Test API',
-          version: '1.0.0',
-        },
-      })
-
-      const legacyData = createLegacyData({
-        workspaces: [workspace],
-        collections: [collection],
-      })
+      const legacyData = createLegacyData()
 
       const result = await transformLegacyDataToWorkspace(legacyData)
       const meta = result[0]?.workspace.meta
@@ -1040,25 +822,7 @@ describe('migrate-to-indexdb', () => {
     it('should not set x-scalar-color-mode when colorMode is not in localStorage', async () => {
       localStorage.removeItem('colorMode')
 
-      const workspace = workspaceSchema.parse({
-        uid: 'workspace-1',
-        name: 'Test Workspace',
-        collections: ['collection-1'],
-      })
-
-      const collection = collectionSchema.parse({
-        uid: 'collection-1',
-        openapi: '3.1.0',
-        info: {
-          title: 'Test API',
-          version: '1.0.0',
-        },
-      })
-
-      const legacyData = createLegacyData({
-        workspaces: [workspace],
-        collections: [collection],
-      })
+      const legacyData = createLegacyData()
 
       const result = await transformLegacyDataToWorkspace(legacyData)
       const meta = result[0]?.workspace.meta
@@ -1071,30 +835,19 @@ describe('migrate-to-indexdb', () => {
   describe('transformLegacyDataToWorkspace - Document Meta', () => {
     describe('x-scalar-environments on document', () => {
       it('preserves collection x-scalar-environments on the output document', async () => {
-        const collection = collectionSchema.parse({
-          uid: 'collection-1',
-          openapi: '3.1.0',
-          info: { title: 'Env API', version: '1.0.0' },
-          'x-scalar-environments': {
-            production: {
-              color: '#FF0000',
-              variables: {
-                API_URL: 'https://api.production.com',
-                API_KEY: 'prod-key-123',
+        const legacyData = createLegacyData({
+          title: 'Env API',
+          collection: {
+            'x-scalar-environments': {
+              production: {
+                color: '#FF0000',
+                variables: {
+                  API_URL: 'https://api.production.com',
+                  API_KEY: 'prod-key-123',
+                },
               },
             },
           },
-        })
-
-        const workspace = workspaceSchema.parse({
-          uid: 'workspace-1',
-          name: 'Test Workspace',
-          collections: ['collection-1'],
-        })
-
-        const legacyData = createLegacyData({
-          workspaces: [workspace],
-          collections: [collection],
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
@@ -1113,35 +866,24 @@ describe('migrate-to-indexdb', () => {
       })
 
       it('preserves multiple environments from collection to document', async () => {
-        const collection = collectionSchema.parse({
-          uid: 'collection-1',
-          openapi: '3.1.0',
-          info: { title: 'Multi Env API', version: '1.0.0' },
-          'x-scalar-environments': {
-            development: {
-              color: '#00FF00',
-              variables: {
-                BASE_URL: 'http://localhost:3000',
+        const legacyData = createLegacyData({
+          title: 'Multi Env API',
+          collection: {
+            'x-scalar-environments': {
+              development: {
+                color: '#00FF00',
+                variables: {
+                  BASE_URL: 'http://localhost:3000',
+                },
               },
-            },
-            production: {
-              color: '#FF0000',
-              variables: {
-                BASE_URL: 'https://api.example.com',
+              production: {
+                color: '#FF0000',
+                variables: {
+                  BASE_URL: 'https://api.example.com',
+                },
               },
             },
           },
-        })
-
-        const workspace = workspaceSchema.parse({
-          uid: 'workspace-1',
-          name: 'Test Workspace',
-          collections: ['collection-1'],
-        })
-
-        const legacyData = createLegacyData({
-          workspaces: [workspace],
-          collections: [collection],
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
@@ -1161,57 +903,31 @@ describe('migrate-to-indexdb', () => {
       })
 
       it('handles collection with no x-scalar-environments', async () => {
-        const collection = collectionSchema.parse({
-          uid: 'collection-1',
-          openapi: '3.1.0',
-          info: { title: 'No Env API', version: '1.0.0' },
-        })
-
-        const workspace = workspaceSchema.parse({
-          uid: 'workspace-1',
-          name: 'Test Workspace',
-          collections: ['collection-1'],
-        })
-
         const legacyData = createLegacyData({
-          workspaces: [workspace],
-          collections: [collection],
+          title: 'No Env API',
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
         const doc = result[0]?.workspace.documents['No Env API']
-
-        assert(doc)
-        expect(doc['x-scalar-environments']).toBeUndefined()
+        expect(doc?.['x-scalar-environments']).toBeUndefined()
       })
     })
 
     describe('x-scalar-active-environment → x-scalar-client-config-active-environment', () => {
       it('transforms x-scalar-active-environment to x-scalar-client-config-active-environment', async () => {
-        const collection = collectionSchema.parse({
-          uid: 'collection-1',
-          openapi: '3.1.0',
-          info: { title: 'Active Env API', version: '1.0.0' },
-          'x-scalar-active-environment': 'production',
-          'x-scalar-environments': {
-            production: {
-              color: '#FF0000',
-              variables: {
-                API_URL: 'https://api.production.com',
+        const legacyData = createLegacyData({
+          title: 'Active Env API',
+          collection: {
+            'x-scalar-active-environment': 'production',
+            'x-scalar-environments': {
+              production: {
+                color: '#FF0000',
+                variables: {
+                  API_URL: 'https://api.production.com',
+                },
               },
             },
           },
-        })
-
-        const workspace = workspaceSchema.parse({
-          uid: 'workspace-1',
-          name: 'Test Workspace',
-          collections: ['collection-1'],
-        })
-
-        const legacyData = createLegacyData({
-          workspaces: [workspace],
-          collections: [collection],
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
@@ -1222,21 +938,8 @@ describe('migrate-to-indexdb', () => {
       })
 
       it('does not set x-scalar-client-config-active-environment when x-scalar-active-environment is absent', async () => {
-        const collection = collectionSchema.parse({
-          uid: 'collection-1',
-          openapi: '3.1.0',
-          info: { title: 'No Active Env API', version: '1.0.0' },
-        })
-
-        const workspace = workspaceSchema.parse({
-          uid: 'workspace-1',
-          name: 'Test Workspace',
-          collections: ['collection-1'],
-        })
-
         const legacyData = createLegacyData({
-          workspaces: [workspace],
-          collections: [collection],
+          title: 'No Active Env API',
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
@@ -1255,23 +958,9 @@ describe('migrate-to-indexdb', () => {
           description: 'Production server',
         })
 
-        const collection = collectionSchema.parse({
-          uid: 'collection-1',
-          openapi: '3.1.0',
-          info: { title: 'Server API', version: '1.0.0' },
-          selectedServerUid: 'server-1',
-          servers: ['server-1'],
-        })
-
-        const workspace = workspaceSchema.parse({
-          uid: 'workspace-1',
-          name: 'Test Workspace',
-          collections: ['collection-1'],
-        })
-
         const legacyData = createLegacyData({
-          workspaces: [workspace],
-          collections: [collection],
+          title: 'Server API',
+          collection: { selectedServerUid: 'server-1', servers: ['server-1'] },
           servers: [server],
         })
 
@@ -1283,21 +972,8 @@ describe('migrate-to-indexdb', () => {
       })
 
       it('does not set x-scalar-selected-server when selectedServerUid is not present', async () => {
-        const collection = collectionSchema.parse({
-          uid: 'collection-1',
-          openapi: '3.1.0',
-          info: { title: 'No Server API', version: '1.0.0' },
-        })
-
-        const workspace = workspaceSchema.parse({
-          uid: 'workspace-1',
-          name: 'Test Workspace',
-          collections: ['collection-1'],
-        })
-
         const legacyData = createLegacyData({
-          workspaces: [workspace],
-          collections: [collection],
+          title: 'No Server API',
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
@@ -1308,22 +984,9 @@ describe('migrate-to-indexdb', () => {
       })
 
       it('does not set x-scalar-selected-server when the referenced server is missing from records', async () => {
-        const collection = collectionSchema.parse({
-          uid: 'collection-1',
-          openapi: '3.1.0',
-          info: { title: 'Missing Server API', version: '1.0.0' },
-          selectedServerUid: 'server-nonexistent',
-        })
-
-        const workspace = workspaceSchema.parse({
-          uid: 'workspace-1',
-          name: 'Test Workspace',
-          collections: ['collection-1'],
-        })
-
         const legacyData = createLegacyData({
-          workspaces: [workspace],
-          collections: [collection],
+          title: 'Missing Server API',
+          collection: { selectedServerUid: 'server-nonexistent' },
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
@@ -1346,23 +1009,9 @@ describe('migrate-to-indexdb', () => {
           description: 'Prod server',
         })
 
-        const collection = collectionSchema.parse({
-          uid: 'collection-1',
-          openapi: '3.1.0',
-          info: { title: 'Multi Server API', version: '1.0.0' },
-          selectedServerUid: 'server-2',
-          servers: ['server-1', 'server-2'],
-        })
-
-        const workspace = workspaceSchema.parse({
-          uid: 'workspace-1',
-          name: 'Test Workspace',
-          collections: ['collection-1'],
-        })
-
         const legacyData = createLegacyData({
-          workspaces: [workspace],
-          collections: [collection],
+          title: 'Multi Server API',
+          collection: { selectedServerUid: 'server-2', servers: ['server-1', 'server-2'] },
           servers: [server1, server2],
         })
 
@@ -1376,22 +1025,9 @@ describe('migrate-to-indexdb', () => {
 
     describe('x-scalar-icon → x-scalar-icon', () => {
       it('preserves x-scalar-icon from collection to document', async () => {
-        const collection = collectionSchema.parse({
-          uid: 'collection-1',
-          openapi: '3.1.0',
-          info: { title: 'Icon API', version: '1.0.0' },
-          'x-scalar-icon': 'interface-home',
-        })
-
-        const workspace = workspaceSchema.parse({
-          uid: 'workspace-1',
-          name: 'Test Workspace',
-          collections: ['collection-1'],
-        })
-
         const legacyData = createLegacyData({
-          workspaces: [workspace],
-          collections: [collection],
+          title: 'Icon API',
+          collection: { 'x-scalar-icon': 'interface-home' },
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
@@ -1402,21 +1038,8 @@ describe('migrate-to-indexdb', () => {
       })
 
       it('uses the default icon when x-scalar-icon is not explicitly set', async () => {
-        const collection = collectionSchema.parse({
-          uid: 'collection-1',
-          openapi: '3.1.0',
-          info: { title: 'Default Icon API', version: '1.0.0' },
-        })
-
-        const workspace = workspaceSchema.parse({
-          uid: 'workspace-1',
-          name: 'Test Workspace',
-          collections: ['collection-1'],
-        })
-
         const legacyData = createLegacyData({
-          workspaces: [workspace],
-          collections: [collection],
+          title: 'Default Icon API',
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
@@ -1428,22 +1051,9 @@ describe('migrate-to-indexdb', () => {
       })
 
       it('preserves various custom icon values', async () => {
-        const collection = collectionSchema.parse({
-          uid: 'collection-1',
-          openapi: '3.1.0',
-          info: { title: 'Custom Icon API', version: '1.0.0' },
-          'x-scalar-icon': 'interface-content-book',
-        })
-
-        const workspace = workspaceSchema.parse({
-          uid: 'workspace-1',
-          name: 'Test Workspace',
-          collections: ['collection-1'],
-        })
-
         const legacyData = createLegacyData({
-          workspaces: [workspace],
-          collections: [collection],
+          title: 'Custom Icon API',
+          collection: { 'x-scalar-icon': 'interface-content-book' },
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
@@ -1456,22 +1066,9 @@ describe('migrate-to-indexdb', () => {
 
     describe('useCollectionSecurity → x-scalar-set-operation-security', () => {
       it('transforms useCollectionSecurity true to x-scalar-set-operation-security true', async () => {
-        const collection = collectionSchema.parse({
-          uid: 'collection-1',
-          openapi: '3.1.0',
-          info: { title: 'Collection Security API', version: '1.0.0' },
-          useCollectionSecurity: true,
-        })
-
-        const workspace = workspaceSchema.parse({
-          uid: 'workspace-1',
-          name: 'Test Workspace',
-          collections: ['collection-1'],
-        })
-
         const legacyData = createLegacyData({
-          workspaces: [workspace],
-          collections: [collection],
+          title: 'Collection Security API',
+          collection: { useCollectionSecurity: true },
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
@@ -1482,22 +1079,9 @@ describe('migrate-to-indexdb', () => {
       })
 
       it('transforms useCollectionSecurity false to x-scalar-set-operation-security false', async () => {
-        const collection = collectionSchema.parse({
-          uid: 'collection-1',
-          openapi: '3.1.0',
-          info: { title: 'No Collection Security API', version: '1.0.0' },
-          useCollectionSecurity: false,
-        })
-
-        const workspace = workspaceSchema.parse({
-          uid: 'workspace-1',
-          name: 'Test Workspace',
-          collections: ['collection-1'],
-        })
-
         const legacyData = createLegacyData({
-          workspaces: [workspace],
-          collections: [collection],
+          title: 'No Collection Security API',
+          collection: { useCollectionSecurity: false },
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
@@ -1508,21 +1092,8 @@ describe('migrate-to-indexdb', () => {
       })
 
       it('defaults to false when useCollectionSecurity is not set', async () => {
-        const collection = collectionSchema.parse({
-          uid: 'collection-1',
-          openapi: '3.1.0',
-          info: { title: 'Default Security API', version: '1.0.0' },
-        })
-
-        const workspace = workspaceSchema.parse({
-          uid: 'workspace-1',
-          name: 'Test Workspace',
-          collections: ['collection-1'],
-        })
-
         const legacyData = createLegacyData({
-          workspaces: [workspace],
-          collections: [collection],
+          title: 'Default Security API',
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
@@ -1535,22 +1106,9 @@ describe('migrate-to-indexdb', () => {
 
     describe('documentUrl → x-scalar-original-source-url', () => {
       it('transforms documentUrl to x-scalar-original-source-url', async () => {
-        const collection = collectionSchema.parse({
-          uid: 'collection-1',
-          openapi: '3.1.0',
-          info: { title: 'Doc URL API', version: '1.0.0' },
-          documentUrl: 'https://example.com/openapi.yaml',
-        })
-
-        const workspace = workspaceSchema.parse({
-          uid: 'workspace-1',
-          name: 'Test Workspace',
-          collections: ['collection-1'],
-        })
-
         const legacyData = createLegacyData({
-          workspaces: [workspace],
-          collections: [collection],
+          title: 'Doc URL API',
+          collection: { documentUrl: 'https://example.com/openapi.yaml' },
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
@@ -1561,21 +1119,8 @@ describe('migrate-to-indexdb', () => {
       })
 
       it('does not set x-scalar-original-source-url when documentUrl is not present', async () => {
-        const collection = collectionSchema.parse({
-          uid: 'collection-1',
-          openapi: '3.1.0',
-          info: { title: 'No Doc URL API', version: '1.0.0' },
-        })
-
-        const workspace = workspaceSchema.parse({
-          uid: 'workspace-1',
-          name: 'Test Workspace',
-          collections: ['collection-1'],
-        })
-
         const legacyData = createLegacyData({
-          workspaces: [workspace],
-          collections: [collection],
+          title: 'No Doc URL API',
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
@@ -1586,22 +1131,9 @@ describe('migrate-to-indexdb', () => {
       })
 
       it('handles various URL formats for documentUrl', async () => {
-        const collection = collectionSchema.parse({
-          uid: 'collection-1',
-          openapi: '3.1.0',
-          info: { title: 'Relative URL API', version: '1.0.0' },
-          documentUrl: './specs/openapi.json',
-        })
-
-        const workspace = workspaceSchema.parse({
-          uid: 'workspace-1',
-          name: 'Test Workspace',
-          collections: ['collection-1'],
-        })
-
         const legacyData = createLegacyData({
-          workspaces: [workspace],
-          collections: [collection],
+          title: 'Relative URL API',
+          collection: { documentUrl: './specs/openapi.json' },
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
@@ -1619,35 +1151,24 @@ describe('migrate-to-indexdb', () => {
           url: 'https://api.example.com',
         })
 
-        const collection = collectionSchema.parse({
-          uid: 'collection-1',
-          openapi: '3.1.0',
-          info: { title: 'Full Meta API', version: '2.0.0' },
-          'x-scalar-icon': 'interface-content-star',
-          'x-scalar-environments': {
-            staging: {
-              color: '#FFAA00',
-              variables: {
-                HOST: 'https://staging.example.com',
+        const legacyData = createLegacyData({
+          collection: {
+            info: { title: 'Full Meta API', version: '2.0.0' },
+            'x-scalar-icon': 'interface-content-star',
+            'x-scalar-environments': {
+              staging: {
+                color: '#FFAA00',
+                variables: {
+                  HOST: 'https://staging.example.com',
+                },
               },
             },
+            'x-scalar-active-environment': 'staging',
+            selectedServerUid: 'server-1',
+            servers: ['server-1'],
+            useCollectionSecurity: true,
+            documentUrl: 'https://example.com/api/openapi.yaml',
           },
-          'x-scalar-active-environment': 'staging',
-          selectedServerUid: 'server-1',
-          servers: ['server-1'],
-          useCollectionSecurity: true,
-          documentUrl: 'https://example.com/api/openapi.yaml',
-        })
-
-        const workspace = workspaceSchema.parse({
-          uid: 'workspace-1',
-          name: 'Test Workspace',
-          collections: ['collection-1'],
-        })
-
-        const legacyData = createLegacyData({
-          workspaces: [workspace],
-          collections: [collection],
           servers: [server],
         })
 
