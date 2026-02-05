@@ -246,7 +246,7 @@ const transformLegacyTags = (
   dataRecords: v_2_5_0['DataRecord'],
 ): { tags: TagObject[]; tagGroups: Array<{ name: string; tags: string[] }> } => {
   const tags: TagObject[] = []
-  const tagGroups: XTagGroup = []
+  const tagGroups: XTagGroup[] = []
 
   /**
    * Identifies which tags are top-level (appear in collection.children).
