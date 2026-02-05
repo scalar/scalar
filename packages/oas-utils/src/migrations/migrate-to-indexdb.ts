@@ -237,7 +237,15 @@ const transformCollectionToDocument = (
       title: documentName,
       version: '1.0',
     },
-    servers: [],
+    servers: collection.servers.flatMap((uid) => {
+      const server = dataRecords.servers[uid]
+      if (!server) {
+        return []
+      }
+
+      const { uid: _, ...rest } = server
+      return [rest]
+    }),
     paths: {},
     components: {
       securitySchemes: collection.securitySchemes.reduce((acc, uid) => {
