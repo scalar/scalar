@@ -1270,7 +1270,609 @@ describe('migrate-to-indexdb', () => {
     })
   })
 
-  // Servers
+  describe('transformLegacyDataToWorkspace - Servers', () => {
+    describe('resolving server UIDs into document servers', () => {
+      it('resolves a single server UID into the document servers array', async () => {
+        const server = serverSchema.parse({
+          uid: 'server-1',
+          url: 'https://api.example.com',
+          description: 'Production server',
+        })
+
+        const legacyData = createLegacyData({
+          title: 'Single Server API',
+          collection: { servers: ['server-1'] },
+          servers: [server],
+        })
+
+        const result = await transformLegacyDataToWorkspace(legacyData)
+        const doc = result[0]?.workspace.documents['Single Server API']
+
+        assert(doc)
+        expect(doc.servers).toHaveLength(1)
+        expect(doc.servers).toStrictEqual([
+          {
+            url: 'https://api.example.com',
+            description: 'Production server',
+          },
+        ])
+      })
+
+      it('resolves multiple server UIDs preserving order', async () => {
+        const server1 = serverSchema.parse({
+          uid: 'server-1',
+          url: 'https://api.dev.example.com',
+          description: 'Development',
+        })
+
+        const server2 = serverSchema.parse({
+          uid: 'server-2',
+          url: 'https://api.staging.example.com',
+          description: 'Staging',
+        })
+
+        const server3 = serverSchema.parse({
+          uid: 'server-3',
+          url: 'https://api.prod.example.com',
+          description: 'Production',
+        })
+
+        const legacyData = createLegacyData({
+          title: 'Multi Server API',
+          collection: { servers: ['server-1', 'server-2', 'server-3'] },
+          servers: [server1, server2, server3],
+        })
+
+        const result = await transformLegacyDataToWorkspace(legacyData)
+        const doc = result[0]?.workspace.documents['Multi Server API']
+
+        assert(doc)
+        expect(doc.servers).toMatchObject([
+          { url: 'https://api.dev.example.com', description: 'Development' },
+          { url: 'https://api.staging.example.com', description: 'Staging' },
+          { url: 'https://api.prod.example.com', description: 'Production' },
+        ])
+      })
+
+      it('resolves a server with only a URL (no optional fields)', async () => {
+        const server = serverSchema.parse({
+          uid: 'server-minimal',
+          url: 'https://minimal.example.com',
+        })
+
+        const legacyData = createLegacyData({
+          title: 'Minimal Server API',
+          collection: { servers: ['server-minimal'] },
+          servers: [server],
+        })
+
+        const result = await transformLegacyDataToWorkspace(legacyData)
+        const doc = result[0]?.workspace.documents['Minimal Server API']
+
+        assert(doc)
+        expect(doc.servers).toMatchObject([{ url: 'https://minimal.example.com' }])
+      })
+
+      it('strips the legacy uid field from resolved servers', async () => {
+        const server = serverSchema.parse({
+          uid: 'server-1',
+          url: 'https://api.example.com',
+        })
+
+        const legacyData = createLegacyData({
+          title: 'No UID API',
+          collection: { servers: ['server-1'] },
+          servers: [server],
+        })
+
+        const result = await transformLegacyDataToWorkspace(legacyData)
+        const doc = result[0]?.workspace.documents['No UID API']
+
+        assert(doc)
+        expect(doc.servers).toMatchObject([{ url: 'https://api.example.com' }])
+        // The uid field should not leak into the OpenAPI document
+        expect((doc.servers![0] as Record<string, unknown>)['uid']).toBeUndefined()
+      })
+
+      it('produces an empty servers array when collection has no servers', async () => {
+        const legacyData = createLegacyData({
+          title: 'No Servers API',
+        })
+
+        const result = await transformLegacyDataToWorkspace(legacyData)
+        const doc = result[0]?.workspace.documents['No Servers API']
+
+        assert(doc)
+        expect(doc.servers).toEqual([])
+      })
+    })
+
+    describe('server variables', () => {
+      it('preserves server variables with enum, default, and description', async () => {
+        const server = serverSchema.parse({
+          uid: 'server-1',
+          url: 'https://{environment}.example.com/v{version}',
+          description: 'Templated server',
+          variables: {
+            environment: {
+              default: 'api',
+              enum: ['api', 'staging', 'dev'],
+              description: 'Environment to connect to',
+            },
+            version: {
+              default: '1',
+            },
+          },
+        })
+
+        const legacyData = createLegacyData({
+          title: 'Templated Server API',
+          collection: { servers: ['server-1'] },
+          servers: [server],
+        })
+
+        const result = await transformLegacyDataToWorkspace(legacyData)
+        const doc = result[0]?.workspace.documents['Templated Server API']
+
+        assert(doc)
+        expect(doc.servers).toMatchObject([
+          {
+            url: 'https://{environment}.example.com/v{version}',
+            description: 'Templated server',
+            variables: {
+              environment: {
+                default: 'api',
+                enum: ['api', 'staging', 'dev'],
+                description: 'Environment to connect to',
+              },
+              version: {
+                default: '1',
+              },
+            },
+          },
+        ])
+      })
+
+      it('preserves a server variable with only a default value', async () => {
+        const server = serverSchema.parse({
+          uid: 'server-1',
+          url: 'https://api.example.com/{basePath}',
+          variables: {
+            basePath: {
+              default: 'v1',
+            },
+          },
+        })
+
+        const legacyData = createLegacyData({
+          title: 'Default Var API',
+          collection: { servers: ['server-1'] },
+          servers: [server],
+        })
+
+        const result = await transformLegacyDataToWorkspace(legacyData)
+        const doc = result[0]?.workspace.documents['Default Var API']
+
+        assert(doc)
+        expect(doc.servers).toMatchObject([
+          {
+            url: 'https://api.example.com/{basePath}',
+            variables: {
+              basePath: { default: 'v1' },
+            },
+          },
+        ])
+      })
+
+      it('preserves a server with multiple variables', async () => {
+        const server = serverSchema.parse({
+          uid: 'server-1',
+          url: '{scheme}://{host}:{port}/{basePath}',
+          variables: {
+            scheme: {
+              default: 'https',
+              enum: ['https', 'http'],
+            },
+            host: {
+              default: 'api.example.com',
+              description: 'API host',
+            },
+            port: {
+              default: '443',
+              enum: ['443', '8443'],
+            },
+            basePath: {
+              default: 'v2',
+            },
+          },
+        })
+
+        const legacyData = createLegacyData({
+          title: 'Multi Var API',
+          collection: { servers: ['server-1'] },
+          servers: [server],
+        })
+
+        const result = await transformLegacyDataToWorkspace(legacyData)
+        const doc = result[0]?.workspace.documents['Multi Var API']
+
+        assert(doc)
+        expect(doc.servers).toMatchObject([
+          {
+            url: '{scheme}://{host}:{port}/{basePath}',
+            variables: {
+              scheme: { default: 'https', enum: ['https', 'http'] },
+              host: { default: 'api.example.com', description: 'API host' },
+              port: { default: '443', enum: ['443', '8443'] },
+              basePath: { default: 'v2' },
+            },
+          },
+        ])
+      })
+    })
+
+    describe('servers across multiple collections and workspaces', () => {
+      it('resolves different servers per collection in the same workspace', async () => {
+        const server1 = serverSchema.parse({
+          uid: 'server-1',
+          url: 'https://api-one.example.com',
+          description: 'API One server',
+        })
+
+        const server2 = serverSchema.parse({
+          uid: 'server-2',
+          url: 'https://api-two.example.com',
+          description: 'API Two server',
+        })
+
+        const collection1 = collectionSchema.parse({
+          uid: 'collection-1',
+          openapi: '3.1.0',
+          info: { title: 'API One', version: '1.0.0' },
+          selectedServerUid: 'server-1',
+          servers: ['server-1'],
+        })
+
+        const collection2 = collectionSchema.parse({
+          uid: 'collection-2',
+          openapi: '3.1.0',
+          info: { title: 'API Two', version: '1.0.0' },
+          selectedServerUid: 'server-2',
+          servers: ['server-2'],
+        })
+
+        const workspace = workspaceSchema.parse({
+          uid: 'workspace-1',
+          name: 'Multi Collection Workspace',
+          collections: ['collection-1', 'collection-2'],
+        })
+
+        const legacyData = createLegacyData({
+          workspaces: [workspace],
+          collections: [collection1, collection2],
+          servers: [server1, server2],
+        })
+
+        const result = await transformLegacyDataToWorkspace(legacyData)
+
+        expect(result).toHaveLength(1)
+        const resultWorkspace = result[0]!
+
+        const doc1 = resultWorkspace.workspace.documents['API One']
+        const doc2 = resultWorkspace.workspace.documents['API Two']
+
+        assert(doc1)
+        assert(doc2)
+
+        expect(doc1.servers).toMatchObject([{ url: 'https://api-one.example.com', description: 'API One server' }])
+        expect(doc1['x-scalar-selected-server']).toBe('https://api-one.example.com')
+
+        expect(doc2.servers).toMatchObject([{ url: 'https://api-two.example.com', description: 'API Two server' }])
+        expect(doc2['x-scalar-selected-server']).toBe('https://api-two.example.com')
+      })
+
+      it('handles collections sharing the same server record', async () => {
+        const sharedServer = serverSchema.parse({
+          uid: 'shared-server',
+          url: 'https://shared.example.com',
+          description: 'Shared API server',
+        })
+
+        const collection1 = collectionSchema.parse({
+          uid: 'collection-1',
+          openapi: '3.1.0',
+          info: { title: 'API Alpha', version: '1.0.0' },
+          selectedServerUid: 'shared-server',
+          servers: ['shared-server'],
+        })
+
+        const collection2 = collectionSchema.parse({
+          uid: 'collection-2',
+          openapi: '3.1.0',
+          info: { title: 'API Beta', version: '2.0.0' },
+          selectedServerUid: 'shared-server',
+          servers: ['shared-server'],
+        })
+
+        const workspace = workspaceSchema.parse({
+          uid: 'workspace-1',
+          name: 'Shared Server Workspace',
+          collections: ['collection-1', 'collection-2'],
+        })
+
+        const legacyData = createLegacyData({
+          workspaces: [workspace],
+          collections: [collection1, collection2],
+          servers: [sharedServer],
+        })
+
+        const result = await transformLegacyDataToWorkspace(legacyData)
+        const resultWorkspace = result[0]!
+
+        const docAlpha = resultWorkspace.workspace.documents['API Alpha']
+        const docBeta = resultWorkspace.workspace.documents['API Beta']
+
+        assert(docAlpha)
+        assert(docBeta)
+
+        // Both documents should have the shared server in their servers array
+        expect(docAlpha.servers).toMatchObject([
+          { url: 'https://shared.example.com', description: 'Shared API server' },
+        ])
+        expect(docBeta.servers).toMatchObject([{ url: 'https://shared.example.com', description: 'Shared API server' }])
+
+        expect(docAlpha['x-scalar-selected-server']).toBe('https://shared.example.com')
+        expect(docBeta['x-scalar-selected-server']).toBe('https://shared.example.com')
+      })
+
+      it('resolves servers independently across multiple workspaces', async () => {
+        const serverDev = serverSchema.parse({
+          uid: 'server-dev',
+          url: 'https://dev.example.com',
+        })
+
+        const serverProd = serverSchema.parse({
+          uid: 'server-prod',
+          url: 'https://prod.example.com',
+        })
+
+        const collection1 = collectionSchema.parse({
+          uid: 'collection-1',
+          openapi: '3.1.0',
+          info: { title: 'Dev API', version: '1.0.0' },
+          selectedServerUid: 'server-dev',
+          servers: ['server-dev'],
+        })
+
+        const collection2 = collectionSchema.parse({
+          uid: 'collection-2',
+          openapi: '3.1.0',
+          info: { title: 'Prod API', version: '1.0.0' },
+          selectedServerUid: 'server-prod',
+          servers: ['server-prod'],
+        })
+
+        const workspace1 = workspaceSchema.parse({
+          uid: 'workspace-dev',
+          name: 'Dev Workspace',
+          collections: ['collection-1'],
+        })
+
+        const workspace2 = workspaceSchema.parse({
+          uid: 'workspace-prod',
+          name: 'Prod Workspace',
+          collections: ['collection-2'],
+        })
+
+        const legacyData = createLegacyData({
+          workspaces: [workspace1, workspace2],
+          collections: [collection1, collection2],
+          servers: [serverDev, serverProd],
+        })
+
+        const result = await transformLegacyDataToWorkspace(legacyData)
+
+        expect(result).toHaveLength(2)
+
+        const devDoc = result[0]?.workspace.documents['Dev API']
+        const prodDoc = result[1]?.workspace.documents['Prod API']
+
+        assert(devDoc)
+        assert(prodDoc)
+
+        expect(devDoc.servers).toMatchObject([{ url: 'https://dev.example.com' }])
+        expect(devDoc['x-scalar-selected-server']).toBe('https://dev.example.com')
+
+        expect(prodDoc.servers).toMatchObject([{ url: 'https://prod.example.com' }])
+        expect(prodDoc['x-scalar-selected-server']).toBe('https://prod.example.com')
+      })
+
+      it('handles one collection with servers and another without', async () => {
+        const server = serverSchema.parse({
+          uid: 'server-1',
+          url: 'https://api.example.com',
+        })
+
+        const collectionWithServer = collectionSchema.parse({
+          uid: 'collection-1',
+          openapi: '3.1.0',
+          info: { title: 'With Server', version: '1.0.0' },
+          selectedServerUid: 'server-1',
+          servers: ['server-1'],
+        })
+
+        const collectionWithoutServer = collectionSchema.parse({
+          uid: 'collection-2',
+          openapi: '3.1.0',
+          info: { title: 'Without Server', version: '1.0.0' },
+        })
+
+        const workspace = workspaceSchema.parse({
+          uid: 'workspace-1',
+          name: 'Mixed Workspace',
+          collections: ['collection-1', 'collection-2'],
+        })
+
+        const legacyData = createLegacyData({
+          workspaces: [workspace],
+          collections: [collectionWithServer, collectionWithoutServer],
+          servers: [server],
+        })
+
+        const result = await transformLegacyDataToWorkspace(legacyData)
+        const resultWorkspace = result[0]!
+
+        const docWith = resultWorkspace.workspace.documents['With Server']
+        const docWithout = resultWorkspace.workspace.documents['Without Server']
+
+        assert(docWith)
+        assert(docWithout)
+
+        expect(docWith.servers).toMatchObject([{ url: 'https://api.example.com' }])
+        expect(docWith['x-scalar-selected-server']).toBe('https://api.example.com')
+
+        expect(docWithout.servers).toEqual([])
+        expect(docWithout['x-scalar-selected-server']).toBeUndefined()
+      })
+    })
+
+    describe('server edge cases', () => {
+      it('handles server records that exist but are not referenced by any collection', async () => {
+        const unreferencedServer = serverSchema.parse({
+          uid: 'server-orphan',
+          url: 'https://orphan.example.com',
+          description: 'This server is not referenced by any collection',
+        })
+
+        const legacyData = createLegacyData({
+          title: 'No Server Refs API',
+          servers: [unreferencedServer],
+        })
+
+        const result = await transformLegacyDataToWorkspace(legacyData)
+        const doc = result[0]?.workspace.documents['No Server Refs API']
+
+        assert(doc)
+        // Unreferenced servers should not appear in the document
+        expect(doc.servers).toEqual([])
+        expect(doc['x-scalar-selected-server']).toBeUndefined()
+      })
+
+      it('filters out non-existent server UIDs from the collection', async () => {
+        const legacyData = createLegacyData({
+          title: 'Ghost Server API',
+          collection: {
+            servers: ['server-ghost-1', 'server-ghost-2'],
+            selectedServerUid: 'server-ghost-1',
+          },
+        })
+
+        const result = await transformLegacyDataToWorkspace(legacyData)
+        const doc = result[0]?.workspace.documents['Ghost Server API']
+
+        assert(doc)
+        // Non-existent servers should be filtered out, not produce errors
+        expect(doc.servers).toEqual([])
+        expect(doc['x-scalar-selected-server']).toBeUndefined()
+      })
+
+      it('resolves only valid servers when collection has a mix of valid and non-existent UIDs', async () => {
+        const validServer = serverSchema.parse({
+          uid: 'server-valid',
+          url: 'https://valid.example.com',
+          description: 'Valid server',
+        })
+
+        const legacyData = createLegacyData({
+          title: 'Mixed Servers API',
+          collection: {
+            servers: ['server-valid', 'server-missing'],
+            selectedServerUid: 'server-valid',
+          },
+          servers: [validServer],
+        })
+
+        const result = await transformLegacyDataToWorkspace(legacyData)
+        const doc = result[0]?.workspace.documents['Mixed Servers API']
+
+        assert(doc)
+        // Only the valid server should appear
+        expect(doc.servers).toMatchObject([{ url: 'https://valid.example.com', description: 'Valid server' }])
+        expect(doc['x-scalar-selected-server']).toBe('https://valid.example.com')
+      })
+
+      it('handles a server with a localhost URL', async () => {
+        const localServer = serverSchema.parse({
+          uid: 'server-local',
+          url: 'http://localhost:3000/api',
+        })
+
+        const legacyData = createLegacyData({
+          title: 'Local API',
+          collection: { servers: ['server-local'] },
+          servers: [localServer],
+        })
+
+        const result = await transformLegacyDataToWorkspace(legacyData)
+        const doc = result[0]?.workspace.documents['Local API']
+
+        assert(doc)
+        expect(doc.servers).toMatchObject([{ url: 'http://localhost:3000/api' }])
+      })
+
+      it('handles a server with a relative URL', async () => {
+        const server = serverSchema.parse({
+          uid: 'server-1',
+          url: '/api/v1',
+        })
+
+        const legacyData = createLegacyData({
+          title: 'Relative URL API',
+          collection: { servers: ['server-1'] },
+          servers: [server],
+        })
+
+        const result = await transformLegacyDataToWorkspace(legacyData)
+        const doc = result[0]?.workspace.documents['Relative URL API']
+
+        assert(doc)
+        expect(doc.servers).toMatchObject([{ url: '/api/v1' }])
+      })
+
+      it('handles a server with a URL containing path segments and query params', async () => {
+        const server = serverSchema.parse({
+          uid: 'server-complex',
+          url: 'https://api.example.com/v2/graphql?format=json',
+        })
+
+        const legacyData = createLegacyData({
+          title: 'Complex URL API',
+          collection: { servers: ['server-complex'] },
+          servers: [server],
+        })
+
+        const result = await transformLegacyDataToWorkspace(legacyData)
+        const doc = result[0]?.workspace.documents['Complex URL API']
+
+        assert(doc)
+        expect(doc.servers).toMatchObject([{ url: 'https://api.example.com/v2/graphql?format=json' }])
+      })
+
+      it('handles empty legacy data with no servers at all', async () => {
+        const legacyData = createLegacyData({
+          title: 'Empty API',
+        })
+
+        const result = await transformLegacyDataToWorkspace(legacyData)
+        const doc = result[0]?.workspace.documents['Empty API']
+
+        assert(doc)
+        expect(doc.servers).toEqual([])
+        expect(doc['x-scalar-selected-server']).toBeUndefined()
+      })
+    })
+  })
+
   // Request
   // RequestExample
   // Tags
