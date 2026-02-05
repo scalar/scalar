@@ -601,7 +601,7 @@ describe('ApiReference Configuration Tests', () => {
         apiKey: {
           type: 'apiKey',
           name: 'x-api-key',
-          token: 'test-token',
+          value: 'test-token',
         },
       },
     }
