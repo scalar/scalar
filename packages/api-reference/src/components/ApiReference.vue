@@ -437,6 +437,7 @@ if (typeof window !== 'undefined') {
 defineExpose({
   eventBus,
   workspaceStore,
+  sidebarItems,
 })
 
 // ---------------------------------------------------------------------------

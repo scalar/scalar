@@ -1,4 +1,5 @@
 import type { ClientOptionGroup } from '@scalar/api-client/v2/blocks/operation-code-sample'
+import type { TraversedTag } from '@scalar/workspace-store/schemas/navigation'
 import { flushPromises, mount } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
@@ -339,7 +340,7 @@ describe('ApiReference Configuration Tests', () => {
         apiKey: {
           type: 'apiKey',
           name: 'x-api-key',
-          token: 'test-token',
+          value: 'test-token',
         },
       },
     }
@@ -363,7 +364,7 @@ describe('ApiReference Configuration Tests', () => {
           get: {
             summary: 'Get users',
             operationId: 'getUsers',
-            tags: ['Users'],
+            tags: ['Zebras'],
             requestBody: {
               content: {
                 'application/json': {
@@ -390,12 +391,36 @@ describe('ApiReference Configuration Tests', () => {
               },
             },
           },
+          post: {
+            summary: 'Create user',
+            operationId: 'createUser',
+            tags: ['Zebras'],
+          },
+          delete: {
+            summary: 'Delete users',
+            operationId: 'deleteUsers',
+            tags: ['Zebras'],
+          },
         },
         '/posts': {
           get: {
             summary: 'Get posts',
             operationId: 'getPosts',
-            tags: ['Posts'],
+            tags: ['Apples'],
+          },
+        },
+        '/monkeys': {
+          get: {
+            summary: 'Get monkeys',
+            operationId: 'getMonkeys',
+            tags: ['Monkeys'],
+          },
+        },
+        '/bananas': {
+          get: {
+            summary: 'Get bananas',
+            operationId: 'getBananas',
+            tags: ['Bananas'],
           },
         },
       },
@@ -404,7 +429,6 @@ describe('ApiReference Configuration Tests', () => {
     const wrapper = mountComponent({
       props: {
         configuration: {
-          content,
           onLoaded,
           onServerChange,
           onSidebarClick,
@@ -423,24 +447,13 @@ describe('ApiReference Configuration Tests', () => {
           hiddenClients: ['unirest', 'node'],
           proxyUrl: 'https://proxy.example.com',
           tagsSorter: 'alpha',
+          operationsSorter: 'method',
           expandAllResponses: true,
           searchHotKey: 'f',
           sources: [
             {
               slug: 'users-api',
-              content: {
-                openapi: '3.1.0',
-                info: { title: 'Users API', version: '1.0.0' },
-                paths: {
-                  '/users': {
-                    get: {
-                      summary: 'Get users',
-                      operationId: 'getUsers',
-                      tags: ['Users'],
-                    },
-                  },
-                },
-              },
+              content,
             },
             {
               slug: 'posts-api',
@@ -486,7 +499,7 @@ describe('ApiReference Configuration Tests', () => {
     if (operation.exists()) {
       const section = operation.find('section')
       if (section.exists()) {
-        expect(section.html()).toContain('custom-test-slug-GET-/users')
+        expect(section.html()).toContain('custom-test-slug-GET-/posts')
       }
     }
 
@@ -523,20 +536,30 @@ describe('ApiReference Configuration Tests', () => {
 
     // onSidebarClick: function
     const sidebarItems = wrapper.findAllComponents({ name: 'ScalarSidebarItem' })
-    const operationItem = sidebarItems.find((item) => item.text().includes('Get users'))
+    const operationItem = sidebarItems.find((item) => item.text().includes('Get posts'))
     await operationItem?.trigger('click')
     expect(onSidebarClick).toHaveBeenCalled()
-    expect(onSidebarClick).toHaveBeenCalledWith(expect.stringContaining('/users'))
+    expect(onSidebarClick).toHaveBeenCalledWith(expect.stringContaining('/posts'))
 
-    // tagsSorter: alpha (tested via tag components existing)
-    const tagComponents = wrapper.findAllComponents({ name: 'Tag' })
-    expect(tagComponents.length).toBeGreaterThan(0)
+    // tagsSorter: alpha
+    const tagNames = wrapper.vm.sidebarItems
+      .map((item) => item.title)
+      .filter((text) => ['Apples', 'Bananas', 'Monkeys', 'Zebras'].includes(text))
+    expect(tagNames).toEqual(['Apples', 'Bananas', 'Monkeys', 'Zebras'])
+
+    // operationsSorter: method - operations within a tag are sorted by HTTP method
+    const zebrasTag = wrapper.vm.sidebarItems.find((item) => item.title === 'Zebras')
+    const operationMethods = (zebrasTag as TraversedTag)?.children
+      ?.filter((child) => child.type === 'operation')
+      .map((child) => child.method)
+    expect(operationMethods).toEqual(['delete', 'get', 'post'])
 
     // onShowMore: function
     const showMoreButton = wrapper.findComponent({ name: 'ShowMoreButton' })
     if (showMoreButton.exists()) {
       await showMoreButton.trigger('click')
       expect(onShowMore).toHaveBeenCalled()
+      expect(onShowMore).toHaveBeenCalledWith(expect.stringContaining('/bananas'))
     }
 
     // onDocumentSelect: function
@@ -663,6 +686,17 @@ describe('ApiReference Configuration Tests', () => {
     // Test forceDarkModeState: dark separately by remounting
     wrapper.unmount()
     await flushPromises()
+
+    const darkWrapper = mountComponent({
+      props: {
+        configuration: {
+          content,
+          forceDarkModeState: 'dark',
+        },
+      },
+    })
+    await flushPromises()
     expect(document.body.classList.contains('dark-mode')).toBe(true)
+    darkWrapper.unmount()
   })
 })
