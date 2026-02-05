@@ -12,7 +12,7 @@ npm install @scalar/sveltekit
 
 ## Usage
 
-```ts
+```typescript
 // routes/+server.ts
 import { ScalarApiReference } from '@scalar/sveltekit'
 import type { RequestHandler } from './$types'

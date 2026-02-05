@@ -1,5 +1,25 @@
 # @scalar/api-client
 
+## 2.23.4
+
+### Patch Changes
+
+- [#8058](https://github.com/scalar/scalar/pull/8058): fix: correctly drop changes when modal closes
+- [#8059](https://github.com/scalar/scalar/pull/8059): fix: harden auth secret extraction plus tests
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.28.4**
+  - [#8047](https://github.com/scalar/scalar/pull/8047): fix: unpack proxy when update an environment
+
+- **@scalar/oas-utils@0.6.35**
+
+- **@scalar/sidebar@0.7.28**
+
+- **@scalar/components@0.17.5**
+
+- **@scalar/use-codemirror@0.13.32**
+
 ## 2.23.3
 
 ### Patch Changes

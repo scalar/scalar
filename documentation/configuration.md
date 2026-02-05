@@ -4,7 +4,7 @@ You can pass a - what we call universal - configuration object to fine-tune your
 
 > **Note:** This page covers the runtime configuration object for the Scalar API Reference used to control how Scalar displays your API docs.
 >
-> This is NOT the `scalar.config.json` (used for the [GitHub Sync](guides/docs/github-sync.md)).
+> This is NOT the `scalar.config.json` (used for the [Scalar Docs](guides/docs/configuration/scalar.config.json.md)).
 
 
 ## Universal Configuration
@@ -13,7 +13,7 @@ It is universal, because it works in all environments. You can pass it to the JS
 
 Let's say you are working with just an HTML file, that's how you pass the configuration:
 
-```js
+```javascript
 Scalar.createApiReference('#app', {
   // Your configuration goes here…
   url: '…'
@@ -22,7 +22,7 @@ Scalar.createApiReference('#app', {
 
 Or — just as an example — in the Hono server framework, you would pass the same configuration like this:
 
-```js
+```javascript
 app.get(
   '/doc',
   Scalar({
@@ -42,7 +42,7 @@ There are a bunch of ways to pass your OpenAPI document:
 
 Pass an absolute or relative URL to your OpenAPI document.
 
-```js
+```javascript
 Scalar.createApiReference('#app', {
   url: '/openapi.json'
 })
@@ -60,7 +60,7 @@ It's the recommended way to pass your OpenAPI document. In most cases, the OpenA
 
 You can just directly pass JSON/YAML content:
 
-```js
+```javascript
 Scalar.createApiReference('#app', {
   content: `{
     "openapi": "3.1.0",
@@ -79,7 +79,7 @@ Scalar.createApiReference('#app', {
 
 Add multiple OpenAPI documents to render all of them. We will need a slug and title to distinguish them in the UI and in the URL. You can just omit those attributes, and we will try our best to still distinguish them, though.
 
-```js
+```javascript
 Scalar.createApiReference('#app', {
   sources: [
     // API #1
@@ -102,7 +102,7 @@ Scalar.createApiReference('#app', {
 
 The first one in the list is the default one. Sometimes, this list is auto-generated and you might want to explicitly set the default like this:
 
-```js
+```javascript
 Scalar.createApiReference('#app', {
   sources: [
     // API #1
@@ -125,7 +125,7 @@ Sometimes, you want to modify the configuration for your OpenAPI documents. And 
 
 Pass an array of configurations to render multiple documents with specific configurations:
 
-```js
+```javascript
 Scalar.createApiReference('#app', [
   // Configuration #1
   {
@@ -149,7 +149,7 @@ Scalar.createApiReference('#app', [
 
 By default, the first one in the list will be the default configuration. You can explicitly set one with `default: true`:
 
-```js
+```javascript
 Scalar.createApiReference('#app', [
   {
     url: 'https://registry.scalar.com/@scalar/apis/galaxy?format=json',
@@ -169,7 +169,7 @@ Scalar.createApiReference('#app', [
 
 You can even combine multiple configurations that each have their own set of sources. This gives you maximum flexibility in organizing and configuring your API documents:
 
-```js
+```javascript
 Scalar.createApiReference('#app', [
   // Configuration #1
   {
@@ -259,7 +259,7 @@ Configuration properties to customize the behavior and appearance of your API re
 
 To make authentication easier you can prefill the credentials for your users:
 
-```js
+```javascript
 {
   authentication: {
     // The OpenAPI file has keys for all security schemes.
@@ -377,7 +377,7 @@ The `authentication` configuration accepts:
 
 If you want to prefix all relative servers with a base URL, you can do so here.
 
-```js
+```javascript
 {
   baseServerURL: 'https://scalar.com'
 }
@@ -389,7 +389,7 @@ If you want to prefix all relative servers with a base URL, you can do so here.
 
 Directly pass an OpenAPI/Swagger document (JSON or YAML) as a string:
 
-```js
+```javascript
 {
   content: '{ "openapi": "3.1.1" }'
 }
@@ -397,7 +397,7 @@ Directly pass an OpenAPI/Swagger document (JSON or YAML) as a string:
 
 Or as a JavaScript object:
 
-```js
+```javascript
 {
   content: {
     openapi: '3.1.1',
@@ -407,7 +407,7 @@ Or as a JavaScript object:
 
 Or as a callback returning the actual document:
 
-```js
+```javascript
 {
   content() {
     return {
@@ -425,7 +425,7 @@ You can pass custom CSS directly to the component. This is helpful for the integ
 
 In Vue or React you'd probably use other ways to add custom CSS.
 
-```js
+```javascript
 {
   customCss: `* { font-family: "Comic Sans MS", cursive, sans-serif; }`
 }
@@ -439,7 +439,7 @@ Whether dark mode is on or off initially (light mode).
 
 **Default:** `false`
 
-```js
+```javascript
 {
   darkMode: true
 }
@@ -455,7 +455,7 @@ By default, we're using Shell/curl as the default HTTP client. Or, if that's dis
 
 You can explicitly set the default HTTP client, though:
 
-```js
+```javascript
 {
   defaultHttpClient: {
     targetKey: 'node',
@@ -472,7 +472,7 @@ By default we only open the relevant tag based on the url, however if you want a
 
 **Default:** `false`
 
-```js
+```javascript
 {
   defaultOpenAllTags: true
 }
@@ -486,7 +486,7 @@ Sets the file type of the document to download, set to `'none'` to hide the down
 
 **Default:** `'both'`
 
-```js
+```javascript
 {
   documentDownloadType: 'json'
 }
@@ -502,7 +502,7 @@ By default the models are all closed in the model section at the bottom, this fl
 
 **Default:** `false`
 
-```js
+```javascript
 {
   expandAllModelSections: true
 }
@@ -516,7 +516,7 @@ By default response sections are closed in the operations. This flag will open t
 
 **Default:** `false`
 
-```js
+```javascript
 {
   expandAllResponses: true
 }
@@ -528,7 +528,7 @@ By default response sections are closed in the operations. This flag will open t
 
 You can specify the path to a favicon to be used for the documentation.
 
-```js
+```javascript
 {
   favicon: '/favicon.svg'
 }
@@ -540,7 +540,7 @@ You can specify the path to a favicon to be used for the documentation.
 
 Force dark mode to always be this state no matter what.
 
-```js
+```javascript
 {
   forceDarkModeState: 'dark'
 }
@@ -554,7 +554,7 @@ Whether to show the client button from the reference sidebar and modal.
 
 **Default:** `false`
 
-```js
+```javascript
 {
   hideClientButton: true
 }
@@ -568,7 +568,7 @@ Whether to show the dark mode toggle.
 
 **Default:** `false`
 
-```js
+```javascript
 {
   hideDarkModeToggle: true
 }
@@ -584,7 +584,7 @@ By default we don't render it in the UI. If it's helpful to show it to your user
 
 **Default:** `false`
 
-```js
+```javascript
 {
   showOperationId: true
 }
@@ -598,7 +598,7 @@ Whether models (`components.schemas` or `definitions`) should be shown in the si
 
 **Default:** `false`
 
-```js
+```javascript
 {
   hideModels: true
 }
@@ -612,7 +612,7 @@ Whether to show the sidebar search bar.
 
 **Default:** `false`
 
-```js
+```javascript
 {
   hideSearch: true
 }
@@ -626,7 +626,7 @@ Whether to show the "Test Request" button.
 
 **Default:** `false`
 
-```js
+```javascript
 {
   hideTestRequestButton: true
 }
@@ -640,7 +640,7 @@ We're generating code examples for a long list of popular HTTP clients. You can 
 
 Pass an empty array `[]` to show all available clients:
 
-```js
+```javascript
 {
   hiddenClients: []
 }
@@ -648,7 +648,7 @@ Pass an empty array `[]` to show all available clients:
 
 Pass an array of individual clients to hide just those clients:
 
-```js
+```javascript
 {
   hiddenClients: ['fetch']
 }
@@ -661,7 +661,7 @@ Here's a list of all clients that you can potentially hide:
 <!-- Source: packages/snippetz/src/clients/index.ts -->
 <!-- Generator: packages/snippetz/scripts/generate-markdown-docs.ts -->
 
-```js
+```javascript
 {
   hiddenClients: {
     // C
@@ -714,7 +714,7 @@ Here's a list of all clients that you can potentially hide:
 
 But you can also pass `true` to **hide all** HTTP clients. If you have any custom code examples (`x-scalar-examples`) in your API definition, these still render:
 
-```js
+```javascript
 {
   hiddenClients: true
 }
@@ -729,7 +729,7 @@ and each **value** specifies the visibility behavior for the clients of that lan
 * `false` — shows all clients for the specified language
 * `['client1', 'client2']` — hides only the listed clients for the specified language
 
-```ts
+```typescript
 {
   hiddenClients: {
     c: false,
@@ -747,7 +747,7 @@ Controls whether the references show a loading state in the intro section. Usefu
 
 **Default:** `false`
 
-```js
+```javascript
 {
   isLoading: true
 }
@@ -761,7 +761,7 @@ The layout style to use for the API reference.
 
 **Default:** `'modern'`
 
-```js
+```javascript
 {
   layout: 'modern' // or 'classic'
 }
@@ -773,7 +773,7 @@ The layout style to use for the API reference.
 
 You can pass information to the config object to configure meta information out of the box.
 
-```js
+```javascript
 {
   metaData: {
     title: 'Page title',
@@ -795,7 +795,7 @@ Whether the sidebar display text and search should use the operation summary or 
 
 **Default:** `'summary'`
 
-```js
+```javascript
 {
   operationTitleSource: 'path'
 }
@@ -809,7 +809,7 @@ Whether to order required properties first in schema objects. When enabled, requ
 
 **Default:** `true`
 
-```js
+```javascript
 {
   orderRequiredPropertiesFirst: true
 }
@@ -826,7 +826,7 @@ Control how schema properties are ordered in model definitions. Can be set to:
 
 **Default:** `'alpha'`
 
-```js
+```javascript
 // Preserve original ordering
 {
   orderSchemaPropertiesBy: 'preserve'
@@ -839,7 +839,7 @@ Control how schema properties are ordered in model definitions. Can be set to:
 
 Configuration for path-based routing instead of hash-based routing. Your server must support this routing method.
 
-```js
+```javascript
 {
   pathRouting: {
     basePath: '/standalone-api-reference'
@@ -855,7 +855,7 @@ Whether to persist authentication credentials in local storage. This allows the 
 
 **Default:** `false`
 
-```js
+```javascript
 {
   persistAuth: true
 }
@@ -878,7 +878,7 @@ Anyway, totally makes sense to disable it in some environments, so feel free to 
 
 **Default:** `true`
 
-```js
+```javascript
 {
   telemetry: false
 }
@@ -890,7 +890,7 @@ Anyway, totally makes sense to disable it in some environments, so feel free to 
 
 Pass an array of custom plugins that you want. [Read more about plugins here.](plugins.md)
 
-```js
+```javascript
 {
   plugins: [
     XCustomExtensionPlugin(),
@@ -904,7 +904,7 @@ Pass an array of custom plugins that you want. [Read more about plugins here.](p
 
 Making requests to other domains is restricted in the browser and requires [CORS headers](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS). It's recommended to use a proxy to send requests to other origins.
 
-```js
+```javascript
 {
   proxyUrl: 'https://proxy.example.com'
 }
@@ -912,7 +912,7 @@ Making requests to other domains is restricted in the browser and requires [CORS
 
 You can use our hosted proxy:
 
-```js
+```javascript
 {
   proxyUrl: 'https://proxy.scalar.com'
 }
@@ -930,7 +930,7 @@ Key used with CTRL/CMD to open the search modal.
 
 **Default:** `'k'` (e.g. CMD+k)
 
-```js
+```javascript
 {
   searchHotKey: 'l'
 }
@@ -942,7 +942,7 @@ Key used with CTRL/CMD to open the search modal.
 
 Pass a list of servers to override the servers in your OpenAPI document.
 
-```js
+```javascript
 {
   servers: [
     {
@@ -970,7 +970,7 @@ Whether the sidebar should be shown.
 
 **Default:** `true`
 
-```js
+```javascript
 {
   showSidebar: true
 }
@@ -986,7 +986,7 @@ Whether and when to show the developer tools. By default only shows on `localhos
 
 To disable the toolbar set:
 
-```js
+```javascript
 {
   showDeveloperTools: 'never'
 }
@@ -1002,7 +1002,7 @@ Can be one of: **alternate**, **default**, **moon**, **purple**, **solarized**, 
 
 **Default:** `'default'`
 
-```js
+```javascript
 {
   theme: 'default'
 }
@@ -1014,7 +1014,7 @@ Can be one of: **alternate**, **default**, **moon**, **purple**, **solarized**, 
 
 Pass the URL of an OpenAPI document (JSON or YAML).
 
-```js
+```javascript
 {
   url: '/openapi.json'
 }
@@ -1028,7 +1028,7 @@ By default we're using Inter and JetBrains Mono, served from our fonts CDN at `h
 
 **Default:** `true`
 
-```js
+```javascript
 {
   withDefaultFonts: false
 }
@@ -1044,7 +1044,7 @@ Custom functions to control specific behaviors and URL generation.
 
 Custom [fetch function](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API) to fetch documents with a custom logic. Can be used to add custom headers, handle auth, etc.
 
-```js
+```javascript
 {
   fetch: (input: string | URL | globalThis.Request, init?: RequestInit) => {
     return window.fetch(input, init)
@@ -1060,7 +1060,7 @@ Customize how heading URLs are generated. This function receives the heading and
 
 > Note: This must be passed through JavaScript, setting a data attribute will not work.
 
-```js
+```javascript
 // Default behavior - results in hash: #description/heading-slug
 {
   generateHeadingSlug: (heading) => `#description/${heading.slug}`
@@ -1080,7 +1080,7 @@ Customize how model URLs are generated. This function receives the model object 
 
 > Note: This must be passed through JavaScript, setting a data attribute will not work.
 
-```js
+```javascript
 // Default behavior - results in hash: #model/model-name
 {
   generateModelSlug: (model) => slug(model.name)
@@ -1100,7 +1100,7 @@ Customize how operation URLs are generated. This function receives the operation
 
 > Note: This must be passed through JavaScript, setting a data attribute will not work.
 
-```js
+```javascript
 // Default behavior - results in hash: #tag/tag-name/post-path
 {
   generateOperationSlug: (operation) => `${operation.method}${operation.path}`
@@ -1121,7 +1121,7 @@ Customize how tag URLs are generated. This function receives the tag object and 
 
 > Note: This must be passed through JavaScript, setting a data attribute will not work.
 
-```js
+```javascript
 // Default behavior - results in hash: #tag/tag-name
 {
   generateTagSlug: (tag) => slug(tag.name)
@@ -1141,7 +1141,7 @@ Customize how webhook URLs are generated. This function receives the webhook obj
 
 > Note: This must be passed through JavaScript, setting a data attribute will not work.
 
-```js
+```javascript
 // Default behavior - results in hash: #webhook/webhook-name
 {
   generateWebhookSlug: (webhook) => slug(webhook.name)
@@ -1160,7 +1160,7 @@ Customize how webhook URLs are generated. This function receives the webhook obj
 
 Sort tags alphanumerically (`'alpha'`):
 
-```js
+```javascript
 {
   tagsSorter: 'alpha'
 }
@@ -1174,7 +1174,7 @@ Sort operations alphanumerically (`'alpha'`) or by HTTP method (`'method'`):
 
 **Default:** `'alpha'`
 
-```js
+```javascript
 {
   operationsSorter: 'alpha'
 }
@@ -1182,7 +1182,7 @@ Sort operations alphanumerically (`'alpha'`) or by HTTP method (`'method'`):
 
 Or specify a custom function to sort the operations:
 
-```js
+```javascript
 {
   operationsSorter: (a, b) => {
     const methodOrder = ['get', 'post', 'put', 'delete']
@@ -1207,7 +1207,7 @@ Function to handle redirects in the API reference. Receives either:
 - The current path with hash if pathRouting is enabled
 - The current hash if using hashRouting (default)
 
-```js
+```javascript
 // Example for hashRouting (default)
 {
   redirect: (hash) => hash.replace('#v1/old-path', '#v2/new-path')
@@ -1236,7 +1236,7 @@ Callback function that is fired before a request is sent through the API client.
 
 The function receives the request object and can be used to modify the request before it is sent.
 
-```js
+```javascript
 {
   onBeforeRequest: ({ request }) => {
     // Add a custom header to all requests
@@ -1259,7 +1259,7 @@ Callback that triggers as soon as the references are lazy loaded.
 
 > Note: This must be passed through JavaScript, setting a data attribute will not work.
 
-```js
+```javascript
 {
   onLoaded: () => {
     console.log('References loaded')
@@ -1273,7 +1273,7 @@ Callback that triggers as soon as the references are lazy loaded.
 
 Callback function that is triggered when a request is sent through the API client. The function receives the request details as a string.
 
-```js
+```javascript
 {
   onRequestSent: (request) => {
     console.log('Request sent:', request)
@@ -1287,7 +1287,7 @@ Callback function that is triggered when a request is sent through the API clien
 
 You can listen to changes with onServerChange that runs on server change.
 
-```js
+```javascript
 {
   onServerChange: (value: string) => {
     console.log('Server updated:', value)
@@ -1301,7 +1301,7 @@ You can listen to changes with onServerChange that runs on server change.
 
 Callback function that is triggered when a user clicks the "Show more" button in the references. The function receives the ID of the tag that was clicked.
 
-```js
+```javascript
 {
   onShowMore: (tagId) => {
     console.log('Show more clicked for tag:', tagId)
@@ -1315,7 +1315,7 @@ Callback function that is triggered when a user clicks the "Show more" button in
 
 Callback function that is triggered when a user clicks on any item in the sidebar. The function receives the href of the clicked item.
 
-```js
+```javascript
 {
   onSidebarClick: (href) => {
     console.log('Sidebar item clicked:', href)
@@ -1329,7 +1329,7 @@ Callback function that is triggered when a user clicks on any item in the sideba
 
 You can listen to changes with onSpecUpdate that runs on spec/swagger content change.
 
-```js
+```javascript
 {
   onSpecUpdate: (value: string) => {
     console.log('Content updated:', value)

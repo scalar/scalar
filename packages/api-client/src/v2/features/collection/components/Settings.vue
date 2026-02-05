@@ -29,7 +29,7 @@ const handleUpdateColorMode = (colorMode: ColorMode) => {
     :documentUrl="document?.['x-scalar-original-source-url']"
     :isDraftDocument="documentSlug === 'drafts'"
     :title="document?.info.title ?? ''"
-    :watchMode="document?.['x-scalar-watch-mode'] ?? true"
+    :watchMode="document?.['x-scalar-watch-mode']"
     @delete:document="
       eventBus.emit('document:delete:document', { name: documentSlug })
     "

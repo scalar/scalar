@@ -133,6 +133,18 @@ const authMeta = computed<AuthMeta>(() => {
   } as const
 })
 
+/** Combine environments from document and workspace into a unique array of environment names */
+const environments = computed(() => {
+  return Array.from(
+    new Set(
+      Object.keys({
+        ...document?.['x-scalar-environments'],
+        ...workspaceStore.workspace['x-scalar-environments'],
+      }),
+    ),
+  )
+})
+
 /** Temporarily use the old config.hiddenClients until we migrate to the new httpClients config */
 const httpClients = computed(() =>
   mapHiddenClientsConfig(toValue(options)?.hiddenClients),
@@ -146,6 +158,9 @@ const APP_VERSION = PACKAGE_VERSION
   <!-- Operation exists -->
   <template v-if="path && method && exampleName && operation">
     <OperationBlock
+      :activeEnvironment="
+        workspaceStore.workspace['x-scalar-active-environment']
+      "
       :appVersion="APP_VERSION"
       :authMeta
       :documentSecurity="document?.security ?? []"
@@ -157,6 +172,7 @@ const APP_VERSION = PACKAGE_VERSION
       "
       :documentUrl="document?.['x-scalar-original-source-url']"
       :environment
+      :environments
       :eventBus
       :exampleKey="exampleName"
       :globalCookies

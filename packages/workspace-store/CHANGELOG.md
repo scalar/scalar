@@ -1,5 +1,11 @@
 # @scalar/workspace-store
 
+## 0.28.4
+
+### Patch Changes
+
+- [#8047](https://github.com/scalar/scalar/pull/8047): fix: unpack proxy when update an environment
+
 ## 0.28.3
 
 ### Patch Changes

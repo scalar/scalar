@@ -1,0 +1,112 @@
+# MDX
+
+MDX lets you use JavaScript and JSX components inside your Markdown files.
+
+## Prerequisites
+
+* Use `.mdx` instead of `.md` for the file extension.
+
+## Configuration
+
+Reference MDX files the same way as Markdown files:
+
+```json
+// scalar.config.json
+{
+  "$schema": "https://cdn.scalar.com/schema/scalar-config-next.json",
+  "scalar": "2.0.0",
+  "navigation": {
+    "routes": {
+      "/example": {
+        "title": "Example",
+        "type": "page",
+        "filepath": "docs/content/example.mdx" // .mdx extension
+      }
+    }
+  }
+}
+```
+
+## Frontmatter
+
+Add metadata at the top of your MDX files:
+
+```markdown
+---
+title: "Page Title"
+description: "Page description for SEO"
+---
+
+# Content
+
+This is the content of the page.
+```
+
+## Importing Components
+
+Import and use other MDX files as components:
+
+```markdown
+// Import MDX from other files
+import Intro from './intro.mdx'
+
+<Intro />
+
+# Example
+
+This is **Markdown**.
+```
+
+And this how the other
+
+```markdown
+# Introduction
+
+This MDX file serves as an imported component in another MDX document.
+
+You can include any Markdown or JSX content here to be reused elsewhere.
+```
+
+## JSX Elements
+
+Use JSX directly in your content:
+
+```markdown
+<div style={{ padding: "16px", border: "3px dashed #ccc", borderRadius: "8px", margin: "16px 0" }}>
+  Custom styled content
+</div>
+```
+
+<div style={{ padding: "16px", border: "3px dashed #ccc", borderRadius: "8px", margin: "16px 0" }}>
+  Custom Styles
+</div>
+
+Interactive elements work too:
+
+```markdown
+<button onClick={() => alert("Hello!")}>
+  Click me
+</button>
+```
+
+<button onClick={() => alert("Hello!")} style={{ background: "#007bff", color: "#fff", padding: "8px 16px", borderRadius: "4px", cursor: "pointer", margin: "16px 0" }}>
+  Click me
+</button>
+
+## Expressions
+
+Embed JavaScript expressions using curly braces:
+
+::::scalar-tabs
+:::scalar-tab{ title="Code" }
+
+```markdown
+The current year is {new Date().getFullYear()}.
+```
+:::
+:::scalar-tab{ title="Preview" }
+
+The current year is {new Date().getFullYear()}.
+
+:::
+::::

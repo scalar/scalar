@@ -13,12 +13,17 @@ import EnvironmentDeleteModal from '@/v2/features/environments/components/Enviro
 
 import EnvironmentComponent from './components/Environment.vue'
 
-const { environments, eventBus, collectionType } = defineProps<
-  {
-    environments: NonNullable<XScalarEnvironments['x-scalar-environments']>
-    eventBus: WorkspaceEventBus
-  } & CollectionType
->()
+const { environments, eventBus, collectionType, activeEnvironment } =
+  defineProps<
+    {
+      /** List of environments, ensured to be non-nullable for safety */
+      environments: NonNullable<XScalarEnvironments['x-scalar-environments']>
+      /** Event bus to handle workspace-related events */
+      eventBus: WorkspaceEventBus
+      /** The currently active environment name */
+      activeEnvironment?: string
+    } & CollectionType
+  >()
 
 const createEnvironmentModalState = useModal()
 const deleteEnvironmentModalState = useModal()
@@ -58,6 +63,7 @@ const openUpsertModal = (name?: string) => {
     :environment
     :environmentName
     :eventBus="eventBus"
+    :isActive="activeEnvironment === environmentName"
     @delete="() => openDeleteModal(environmentName)"
     @edit="() => openUpsertModal(environmentName)" />
 
