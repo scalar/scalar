@@ -553,4 +553,124 @@ describe('ApiReference Configuration Tests', () => {
     wrapper.trigger('keydown', { key: 'f', ctrlKey: true })
     expect(wrapper.findComponent({ name: 'SearchModal' }).props().modalState.open).toBe(true)
   })
+
+  it('alternative values and edge cases', async () => {
+    const content = {
+      ...createBasicDocument(),
+      paths: {
+        '/users': {
+          get: {
+            summary: 'Get users',
+            operationId: 'getUsers',
+            requestBody: {
+              content: {
+                'application/json': {
+                  schema: {
+                    $ref: '#/components/schemas/SuperImportantUser',
+                  },
+                },
+              },
+            },
+            responses: {
+              '200': {
+                description: 'Successful response',
+                content: {
+                  'application/json': {
+                    schema: {
+                      type: 'object',
+                      properties: {
+                        superSecretId: { type: 'string' },
+                        name: { type: 'string' },
+                      },
+                    },
+                  },
+                },
+              },
+              '404': {
+                description: 'Not found',
+              },
+            },
+          },
+        },
+        '/posts': {
+          get: {
+            summary: 'Get posts',
+            operationId: 'getPosts',
+            tags: ['Posts'],
+          },
+        },
+      },
+    }
+
+    const wrapper = mountComponent({
+      props: {
+        configuration: {
+          content,
+          darkMode: false,
+          forceDarkModeState: 'light',
+          operationTitleSource: 'path',
+          orderSchemaPropertiesBy: 'preserve',
+          orderRequiredPropertiesFirst: false,
+          expandAllModelSections: true,
+        },
+      },
+    })
+    await flushPromises()
+
+    // darkMode: false
+    expect(document.body.classList.contains('light-mode')).toBe(true)
+
+    // forceDarkModeState: light
+    expect(document.body.classList.contains('light-mode')).toBe(true)
+
+    // operationTitleSource: path
+    const items = wrapper.findAllComponents({ name: 'ScalarSidebarItem' })
+    const userPathItem = items.find((item) => item.text().includes('/users'))
+    expect(userPathItem?.text().startsWith('/users')).toBe(true)
+
+    // orderSchemaPropertiesBy: preserve, orderRequiredPropertiesFirst: false
+    const propertyNames = wrapper
+      .findComponent({ name: 'RequestBody' })
+      .findAll('.property-name')
+      .map((item) => item.text().split(' ')[0])
+
+    expect(propertyNames).toStrictEqual([
+      'nameCopy',
+      'ageCopy',
+      'isAdminCopy',
+      'createdAtCopy',
+      'updatedAtCopy',
+      'addressCopy',
+      'phoneCopy',
+      'emailCopy',
+    ])
+
+    // expandAllModelSections: true
+    const modelTag = wrapper.findComponent({ name: 'ModelTag' })
+    expect(modelTag.text().includes('Show More')).toBe(false)
+    expect(modelTag.text().includes('SuperImportantUser')).toBe(true)
+
+    // expandAllResponses: false (default)
+    const modernLayout = wrapper.findComponent({ name: 'ModernLayout' })
+    if (modernLayout.exists()) {
+      const operationResponses = modernLayout.findComponent({ name: 'OperationResponses' })
+      if (operationResponses.exists()) {
+        expect(operationResponses.props().collapsableItems).toBe(true)
+        expect(operationResponses.text().includes('superSecretId')).toBe(false)
+      }
+    }
+
+    // Test forceDarkModeState: dark separately by remounting
+    wrapper.unmount()
+    const darkWrapper = mountComponent({
+      props: {
+        configuration: {
+          content: createBasicDocument(),
+          forceDarkModeState: 'dark',
+        },
+      },
+    })
+    await flushPromises()
+    expect(document.body.classList.contains('dark-mode')).toBe(true)
+  })
 })
