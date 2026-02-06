@@ -694,7 +694,7 @@ const copyTabUrl = async (index: number): Promise<void> => {
 // Path syncing
 
 /** When the route changes we need to update the active entities in the store */
-const handleRouteChange = async (to: RouteLocationNormalizedGeneric) => {
+const handleRouteChange = (to: RouteLocationNormalizedGeneric) => {
   const slug = getRouteParam('workspaceSlug', to)
   const document = getRouteParam('documentSlug', to)
   const namespaceValue = getRouteParam('namespace', to)
@@ -705,7 +705,9 @@ const handleRouteChange = async (to: RouteLocationNormalizedGeneric) => {
   }
 
   // Try to see if the user can load this workspace based on the teamUid and namespace
-  const workspace = await persistence.getItem({ namespace: namespaceValue, slug })
+  const workspace = workspaces.value.find(
+    (workspace) => workspace.slug === slug && workspace.namespace === namespaceValue,
+  )
 
   // If the workspace is not found or the teamUid does not match, try to redirect to the default workspace
   if (workspace && !canLoadWorkspace(workspace.teamUid, teamUid.value)) {
@@ -736,6 +738,7 @@ const handleRouteChange = async (to: RouteLocationNormalizedGeneric) => {
 
   syncTabs(to)
   syncSidebar(to)
+  return
 }
 
 /** Aligns the tabs with any potential slug changes */
