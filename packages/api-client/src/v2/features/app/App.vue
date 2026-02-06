@@ -12,8 +12,6 @@ import {
   ScalarTeleportRoot,
   useModal,
   type ModalState,
-  type ScalarListboxOption,
-  type WorkspaceGroup,
 } from '@scalar/components'
 import { getThemeStyles } from '@scalar/themes'
 import { ScalarToasts } from '@scalar/use-toasts'
@@ -24,6 +22,7 @@ import { RouterView } from 'vue-router'
 import { mergeSecurity } from '@/v2/blocks/scalar-auth-selector-block'
 import CreateWorkspaceModal from '@/v2/features/app/components/CreateWorkspaceModal.vue'
 import SplashScreen from '@/v2/features/app/components/SplashScreen.vue'
+import { groupWorkspacesByTeam } from '@/v2/features/app/helpers/group-workspaces'
 import type { RouteProps } from '@/v2/features/app/helpers/routes'
 import { useDocumentWatcher } from '@/v2/features/app/hooks/use-document-watcher'
 import TheCommandPalette from '@/v2/features/command-palette/TheCommandPalette.vue'
@@ -149,48 +148,16 @@ const routerViewProps = computed<RouteProps>(() => {
   }
 })
 
-const workspaceOptions = computed(() => {
-  const workspaces = app.workspace.filteredWorkspaceList.value
-  // Group workspaces by teamUid
-  const workspacesResult = workspaces.reduce<
-    Record<string, ScalarListboxOption[]>
-  >((acc, workspace) => {
-    const teamUid = workspace.teamUid
-
-    if (!acc[teamUid]) {
-      acc[teamUid] = []
-    }
-
-    acc[teamUid].push({
-      id: workspace.id,
-      label: workspace.label,
-    })
-
-    return acc
-  }, {})
-
-  const result: WorkspaceGroup[] = []
-
-  // Current team workspaces
-  if (app.activeEntities.teamUid.value !== 'local') {
-    const teamWorkspaces =
-      workspacesResult[app.activeEntities.teamUid.value] ?? []
-
-    if (teamWorkspaces.length > 0) {
-      result.push({
-        label: 'Team Workspaces',
-        options: teamWorkspaces,
-      })
-    }
-  }
-
-  result.push({
-    label: 'Local Workspaces',
-    options: workspacesResult['local'] ?? [],
-  })
-
-  return result
-})
+/**
+ * Groups workspaces into team and local categories for display in the workspace picker.
+ * Team workspaces are shown first (when not on local team), followed by local workspaces.
+ */
+const workspaceOptions = computed(() =>
+  groupWorkspacesByTeam(
+    app.workspace.filteredWorkspaceList.value,
+    app.activeEntities.teamUid.value,
+  ),
+)
 </script>
 
 <template>
