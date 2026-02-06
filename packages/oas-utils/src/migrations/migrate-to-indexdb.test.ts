@@ -4014,7 +4014,422 @@ describe('migrate-to-indexdb', () => {
           title: 'All Circular API',
           version: '1.0.0',
         },
-        paths: {},
+        servers: [],
+        paths: {
+          '/all-circular': {
+            post: {
+              summary: 'All circular component types',
+              parameters: [
+                {
+                  in: 'query',
+                  name: 'filter',
+                  required: false,
+                  deprecated: false,
+                  schema: {
+                    type: 'object',
+                    properties: {
+                      field: {
+                        type: 'string',
+                      },
+                      subFilter: {
+                        $ref: '#/components/schemas/CircularRef3',
+                      },
+                    },
+                  },
+                },
+              ],
+              requestBody: {
+                description: 'Multi-format body',
+                content: {
+                  'application/json': {
+                    schema: {
+                      type: 'object',
+                      properties: {
+                        format: {
+                          type: 'string',
+                        },
+                        data: {
+                          type: 'object',
+                          properties: {
+                            format: {
+                              type: 'string',
+                            },
+                            data: {
+                              $ref: '#/components/schemas/CircularRef1',
+                            },
+                          },
+                        },
+                      },
+                    },
+                  },
+                  'application/xml': {
+                    schema: {
+                      type: 'object',
+                      properties: {
+                        format: {
+                          type: 'string',
+                        },
+                        data: {
+                          type: 'object',
+                          properties: {
+                            format: {
+                              type: 'string',
+                            },
+                            data: {
+                              $ref: '#/components/schemas/CircularRef2',
+                            },
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+              responses: {
+                '200': {
+                  description: 'Full response',
+                  headers: {
+                    'X-Pagination': {
+                      description: 'Pagination metadata',
+                      schema: {
+                        type: 'object',
+                        properties: {
+                          page: {
+                            type: 'integer',
+                          },
+                          next: {
+                            $ref: '#/components/schemas/CircularRef4',
+                            '$ref-value': {},
+                          },
+                        },
+                      },
+                    },
+                  },
+                  content: {
+                    'application/json': {
+                      schema: {
+                        type: 'object',
+                        properties: {
+                          id: {
+                            type: 'string',
+                          },
+                          embedded: {
+                            $ref: '#/components/schemas/CircularRef5',
+                            '$ref-value': {},
+                          },
+                        },
+                      },
+                      examples: {
+                        tree: {
+                          summary: 'Recursive tree',
+                          value: {
+                            name: 'root',
+                            children: [
+                              {
+                                $ref: '#/components/schemas/CircularRef6',
+                                '$ref-value': {},
+                              },
+                            ],
+                          },
+                        },
+                      },
+                    },
+                  },
+                  links: {
+                    GetRelated: {
+                      operationId: 'getRelated',
+                      parameters: {
+                        id: '$response.body#/id',
+                      },
+                      server: {
+                        url: '',
+                      },
+                    },
+                  },
+                },
+              },
+              callbacks: {
+                onEvent: {
+                  '{$request.body#/callbackUrl}': {
+                    post: {
+                      summary: 'Event callback',
+                      responses: {
+                        '200': {
+                          description: 'OK',
+                          content: {
+                            'application/json': {
+                              schema: {
+                                type: 'object',
+                                properties: {
+                                  event: {
+                                    type: 'string',
+                                  },
+                                  origin: {
+                                    $ref: '#/components/schemas/CircularRef7',
+                                  },
+                                },
+                              },
+                            },
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        components: {
+          schemas: {
+            CircularRef1: {
+              type: 'object',
+              properties: {
+                format: {
+                  type: 'string',
+                },
+                data: {
+                  $ref: '#/components/schemas/CircularRef2',
+                  '$ref-value': {},
+                },
+              },
+            },
+            CircularRef2: {
+              type: 'object',
+              properties: {
+                format: {
+                  type: 'string',
+                },
+                data: {
+                  type: 'object',
+                  properties: {
+                    format: {
+                      type: 'string',
+                    },
+                    data: {
+                      $ref: '#/components/schemas/CircularRef2',
+                      '$ref-value': {},
+                    },
+                  },
+                },
+              },
+            },
+            CircularRef3: {
+              type: 'object',
+              properties: {
+                field: {
+                  type: 'string',
+                },
+                subFilter: {
+                  $ref: '#/components/schemas/CircularRef3',
+                  '$ref-value': {},
+                },
+              },
+            },
+            CircularRef4: {
+              type: 'object',
+              properties: {
+                page: {
+                  type: 'integer',
+                },
+                next: {
+                  $ref: '#/components/schemas/CircularRef4',
+                  '$ref-value': {},
+                },
+              },
+            },
+            CircularRef6: {
+              __scalar_: '',
+              name: 'root',
+            },
+            CircularRef5: {
+              description: 'Full response',
+              headers: {
+                'X-Pagination': {
+                  description: 'Pagination metadata',
+                  schema: {
+                    type: 'object',
+                    properties: {
+                      page: {
+                        type: 'integer',
+                      },
+                      next: {
+                        $ref: '#/components/schemas/CircularRef4',
+                        '$ref-value': {},
+                      },
+                    },
+                  },
+                },
+              },
+              content: {
+                'application/json': {
+                  schema: {
+                    type: 'object',
+                    properties: {
+                      id: {
+                        type: 'string',
+                      },
+                      embedded: {
+                        $ref: '#/components/schemas/CircularRef5',
+                        '$ref-value': {},
+                      },
+                    },
+                  },
+                  examples: {
+                    tree: {
+                      summary: 'Recursive tree',
+                      value: {
+                        name: 'root',
+                        children: [
+                          {
+                            $ref: '#/components/schemas/CircularRef6',
+                            '$ref-value': {},
+                          },
+                        ],
+                      },
+                    },
+                  },
+                },
+              },
+              links: {
+                GetRelated: {
+                  operationId: 'getRelated',
+                  parameters: {
+                    id: '$response.body#/id',
+                  },
+                  server: {
+                    url: '',
+                  },
+                },
+              },
+            },
+            CircularRef7: {
+              __scalar_: '',
+            },
+            CircularRef8: {
+              type: 'null',
+              name: 'X-API-Key',
+            },
+          },
+          securitySchemes: {
+            myApiKey: {
+              type: 'apiKey',
+              name: 'X-API-Key',
+              in: 'header',
+              uid: 'scheme-1',
+              nameKey: 'myApiKey',
+              'x-metadata': {
+                type: 'apiKey',
+                name: 'X-API-Key',
+                in: 'header',
+                uid: 'scheme-1',
+                nameKey: 'myApiKey',
+                value: '',
+                'x-metadata': {
+                  $ref: '#/components/schemas/CircularRef8',
+                },
+              },
+            },
+          },
+        },
+        security: [],
+        tags: [],
+        'x-scalar-set-operation-security': false,
+        'x-scalar-icon': 'interface-content-folder',
+        'x-scalar-original-document-hash': 'b872a1e997fd61ea',
+        'x-original-oas-version': '3.1.0',
+        'x-ext-urls': {},
+        'x-scalar-order': ['all-circular-api/POST/all-circular', 'all-circular-api/models'],
+        'x-scalar-navigation': {
+          id: 'all-circular-api',
+          type: 'document',
+          title: 'All Circular API',
+          name: 'All Circular API',
+          children: [
+            {
+              id: 'all-circular-api/POST/all-circular',
+              title: 'All circular component types',
+              path: '/all-circular',
+              method: 'post',
+              ref: '#/paths/~1all-circular/post',
+              type: 'operation',
+              isDeprecated: false,
+              children: [
+                {
+                  type: 'example',
+                  id: 'all-circular-api/POST/all-circular/example/tree',
+                  title: 'tree',
+                  name: 'tree',
+                },
+              ],
+            },
+            {
+              type: 'models',
+              id: 'all-circular-api/models',
+              title: 'Models',
+              name: 'Models',
+              children: [
+                {
+                  id: 'all-circular-api/model/circularref1',
+                  title: 'CircularRef1',
+                  name: 'CircularRef1',
+                  ref: '#/components/schemas/CircularRef1',
+                  type: 'model',
+                },
+                {
+                  id: 'all-circular-api/model/circularref2',
+                  title: 'CircularRef2',
+                  name: 'CircularRef2',
+                  ref: '#/components/schemas/CircularRef2',
+                  type: 'model',
+                },
+                {
+                  id: 'all-circular-api/model/circularref3',
+                  title: 'CircularRef3',
+                  name: 'CircularRef3',
+                  ref: '#/components/schemas/CircularRef3',
+                  type: 'model',
+                },
+                {
+                  id: 'all-circular-api/model/circularref4',
+                  title: 'CircularRef4',
+                  name: 'CircularRef4',
+                  ref: '#/components/schemas/CircularRef4',
+                  type: 'model',
+                },
+                {
+                  id: 'all-circular-api/model/circularref6',
+                  title: 'CircularRef6',
+                  name: 'CircularRef6',
+                  ref: '#/components/schemas/CircularRef6',
+                  type: 'model',
+                },
+                {
+                  id: 'all-circular-api/model/circularref5',
+                  title: 'CircularRef5',
+                  name: 'CircularRef5',
+                  ref: '#/components/schemas/CircularRef5',
+                  type: 'model',
+                },
+                {
+                  id: 'all-circular-api/model/circularref7',
+                  title: 'CircularRef7',
+                  name: 'CircularRef7',
+                  ref: '#/components/schemas/CircularRef7',
+                  type: 'model',
+                },
+                {
+                  id: 'all-circular-api/model/circularref8',
+                  title: 'CircularRef8',
+                  name: 'CircularRef8',
+                  ref: '#/components/schemas/CircularRef8',
+                  type: 'model',
+                },
+              ],
+            },
+          ],
+          icon: 'interface-content-folder',
+        },
       })
     })
   })
