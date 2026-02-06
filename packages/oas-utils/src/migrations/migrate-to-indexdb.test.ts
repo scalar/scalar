@@ -3604,4 +3604,154 @@ describe('migrate-to-indexdb', () => {
       })
     })
   })
+
+  describe('transformLegacyDataToWorkspace - Circular Schemas', () => {
+    it('converts a self-referencing circular schema into $ref', async () => {
+      const request = requestSchema.parse({
+        uid: 'request-1',
+        path: '/nodes',
+        method: 'get',
+        summary: 'Get tree nodes',
+        responses: {
+          '200': {
+            description: 'A tree node',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    name: { type: 'string' },
+                    children: {
+                      type: 'array',
+                      items: {},
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      })
+
+      /**
+       * Simulate de-referenced legacy data: the old client resolved all $refs
+       * inline, creating circular JS objects for self-referencing schemas.
+       * TreeNode.children.items → TreeNode (same object reference)
+       */
+      const treeNodeSchema = (request as any).responses['200'].content['application/json'].schema
+      treeNodeSchema.properties.children.items = treeNodeSchema
+
+      const legacyData = createLegacyData({
+        title: 'Tree API',
+        collection: { requests: ['request-1'] },
+        requests: [request],
+      })
+
+      const result = await transformLegacyDataToWorkspace(legacyData)
+      const doc = result[0]?.workspace.documents['Tree API']
+
+      assert(doc)
+
+      // The document must be JSON-serializable — circular JS objects should be gone
+      expect(() => JSON.stringify(doc)).not.toThrow()
+
+      // The self-referencing schema should be extracted into components/schemas
+      // and the inline occurrence replaced with a $ref pointer
+      const operation = getResolvedRef(doc.paths?.['/nodes']?.get)
+      const response200 = getResolvedRef(operation?.responses?.['200']) as Record<string, any> | undefined
+      const responseSchema = response200?.content?.['application/json']?.schema
+
+      expect(responseSchema).toBeDefined()
+
+      // Walk the output to find that children.items now uses a $ref instead of a circular object
+      const childrenItems = responseSchema?.properties?.children?.items ?? responseSchema
+      expect(childrenItems?.$ref ?? responseSchema?.$ref).toMatch(/^#\/components\/schemas\//)
+    })
+
+    it('converts mutually circular schemas into $refs', async () => {
+      const request = requestSchema.parse({
+        uid: 'request-1',
+        path: '/people',
+        method: 'get',
+        summary: 'Get people',
+        responses: {
+          '200': {
+            description: 'A person with their employer',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    name: { type: 'string' },
+                    employer: {
+                      type: 'object',
+                      properties: {
+                        companyName: { type: 'string' },
+                        employees: {
+                          type: 'array',
+                          items: {},
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      })
+
+      /**
+       * Simulate de-referenced legacy data with mutually circular schemas:
+       * Person.employer → Company, Company.employees.items → Person.
+       * The old client inlined these creating a circular JS object graph.
+       */
+      const personSchema = (request as any).responses['200'].content['application/json'].schema
+      const companySchema = personSchema.properties.employer
+      companySchema.properties.employees.items = personSchema
+
+      const legacyData = createLegacyData({
+        title: 'People API',
+        collection: { requests: ['request-1'] },
+        requests: [request],
+      })
+
+      const result = await transformLegacyDataToWorkspace(legacyData)
+      const doc = result[0]?.workspace.documents['People API']
+
+      assert(doc)
+
+      // The document must be JSON-serializable — no circular JS objects should remain
+      expect(() => JSON.stringify(doc)).not.toThrow()
+
+      // The mutually referencing schemas should be extracted into components/schemas
+      // with $ref pointers replacing the circular inline objects
+      const operation = getResolvedRef(doc.paths?.['/people']?.get)
+      const response200 = getResolvedRef(operation?.responses?.['200']) as Record<string, any> | undefined
+      const schema = response200?.content?.['application/json']?.schema
+
+      expect(schema).toBeDefined()
+
+      /**
+       * Collect all $ref strings from the schema tree. At least one $ref should
+       * point into components/schemas, proving the circular objects were extracted.
+       */
+      const refs: string[] = []
+      const collectRefs = (obj: any): void => {
+        if (!obj || typeof obj !== 'object') {
+          return
+        }
+        if (obj.$ref) {
+          refs.push(obj.$ref)
+        }
+        for (const value of Object.values(obj)) {
+          collectRefs(value)
+        }
+      }
+      collectRefs(schema)
+
+      expect(refs.length).toBeGreaterThan(0)
+      expect(refs.every((ref) => ref.startsWith('#/components/schemas/'))).toBe(true)
+    })
+  })
 })
