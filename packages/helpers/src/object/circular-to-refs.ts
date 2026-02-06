@@ -22,31 +22,14 @@ type ComponentType = keyof typeof COMPONENT_PREFIXES
  * Using an object lookup is faster than a switch statement for many keys.
  */
 const KEY_TO_CONTEXT: Readonly<Record<string, ComponentType>> = {
-  // Response context
   responses: 'responses',
-
-  // Parameter context
   parameters: 'parameters',
-
-  // Request body context
   requestBody: 'requestBodies',
-
-  // Header context
   headers: 'headers',
-
-  // Example context
   examples: 'examples',
-
-  // Link context
   links: 'links',
-
-  // Callback context
   callbacks: 'callbacks',
-
-  // Security scheme context
   securitySchemes: 'securitySchemes',
-
-  // Schema context (JSON Schema keywords)
   schema: 'schemas',
   items: 'schemas',
   additionalProperties: 'schemas',
@@ -56,8 +39,6 @@ const KEY_TO_CONTEXT: Readonly<Record<string, ComponentType>> = {
   not: 'schemas',
   properties: 'schemas',
   patternProperties: 'schemas',
-
-  // HTTP methods map to pathItems context
   get: 'pathItems',
   put: 'pathItems',
   post: 'pathItems',
