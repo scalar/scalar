@@ -597,6 +597,7 @@ const breakCircularReferences = (document: Record<string, unknown>): Record<stri
       }
       return {
         $ref: `#/components/schemas/${circularNames.get(obj)}`,
+        // Needed for the union apparently
         '$ref-value': {},
       }
     }
