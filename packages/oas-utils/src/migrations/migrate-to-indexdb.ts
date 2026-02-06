@@ -11,7 +11,7 @@ import {
   xScalarEnvironmentSchema,
 } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import { xScalarCookieSchema } from '@scalar/workspace-store/schemas/extensions/general/x-scalar-cookies'
-import type { XTagGroup } from '@scalar/workspace-store/schemas/extensions/tag/x-tag-groups'
+import type { XTagGroup } from '@scalar/workspace-store/schemas/extensions/tag'
 import type { InMemoryWorkspace } from '@scalar/workspace-store/schemas/inmemory-workspace'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import {

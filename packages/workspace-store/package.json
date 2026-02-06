@@ -108,6 +108,11 @@
       "types": "./dist/schemas/extensions/security/index.d.ts",
       "default": "./dist/schemas/extensions/security/index.js"
     },
+    "./schemas/extensions/tag": {
+      "import": "./dist/schemas/extensions/tag/index.js",
+      "types": "./dist/schemas/extensions/tag/index.d.ts",
+      "default": "./dist/schemas/extensions/tag/index.js"
+    },
     "./schemas/extensions/workspace": {
       "import": "./dist/schemas/extensions/workspace/index.js",
       "types": "./dist/schemas/extensions/workspace/index.d.ts",
