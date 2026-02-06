@@ -135,9 +135,12 @@ export const transformLegacyDataToWorkspace = async (legacyData: {
 
         const documentName = collection.info?.title || collection.uid
         const { document, auth } = transformCollectionToDocument(documentName, collection, legacyData.records)
-        workspaceAuth[documentName] = auth
 
-        return { name: documentName, document }
+        // Normalize document name to match the store (lowercase "Drafts" → "drafts")
+        const normalizedName = documentName === 'Drafts' ? 'drafts' : documentName
+        workspaceAuth[normalizedName] = auth
+
+        return { name: normalizedName, document }
       })
 
       const meta: WorkspaceMeta = {}
@@ -186,8 +189,7 @@ export const transformLegacyDataToWorkspace = async (legacyData: {
       await Promise.all(
         documents.map(async ({ name, document }) => {
           await store.addDocument({
-            // Lowercase drafts to match the new store
-            name: name === 'Drafts' ? 'drafts' : name,
+            name,
             document,
           })
         }),
