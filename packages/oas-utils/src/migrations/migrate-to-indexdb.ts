@@ -671,50 +671,61 @@ const transformCollectionToDocument = (
       return [rest]
     }),
     paths,
+    /**
+     * Preserve all component types from the collection and merge with transformed security schemes.
+     * OpenAPI components object supports: schemas, responses, parameters, examples,
+     * requestBodies, headers, securitySchemes, links, callbacks, pathItems
+     */
     components: {
-      securitySchemes: collection.securitySchemes.reduce((acc, uid) => {
-        const securityScheme = dataRecords.securitySchemes[uid]
-        if (!securityScheme) {
-          return acc
-        }
+      // Preserve existing components from the collection (schemas, responses, parameters, etc.)
+      ...(collection.components || {}),
+      // Merge security schemes (transformed from UIDs) with any existing security schemes
+      securitySchemes: {
+        ...((collection.components as Record<string, unknown>)?.securitySchemes || {}),
+        ...collection.securitySchemes.reduce((acc, uid) => {
+          const securityScheme = dataRecords.securitySchemes[uid]
+          if (!securityScheme) {
+            return acc
+          }
 
-        // Clean the flows
-        if (securityScheme.type === 'oauth2') {
-          const selectedScopes = new Set<string>()
+          // Clean the flows
+          if (securityScheme.type === 'oauth2') {
+            const selectedScopes = new Set<string>()
+
+            return {
+              ...acc,
+              [securityScheme.nameKey]: {
+                ...securityScheme,
+                flows: objectEntries(securityScheme.flows).reduce(
+                  (acc, [key, flow]) => {
+                    if (!flow) {
+                      return acc
+                    }
+
+                    // Store any selected scopes from the config
+                    if ('selectedScopes' in flow && Array.isArray(flow.selectedScopes)) {
+                      flow.selectedScopes?.forEach((scope) => selectedScopes.add(scope))
+                    }
+
+                    acc[key] = removeSecretFields(flow) as Oauth2Flow
+                    return acc
+                  },
+                  {} as Record<string, Oauth2Flow>,
+                ),
+                'x-default-scopes': Array.from(selectedScopes),
+              },
+            }
+          }
+
+          /** We don't want any secrets in the document */
+          const cleanedSecurityScheme = removeSecretFields(securityScheme)
 
           return {
             ...acc,
-            [securityScheme.nameKey]: {
-              ...securityScheme,
-              flows: objectEntries(securityScheme.flows).reduce(
-                (acc, [key, flow]) => {
-                  if (!flow) {
-                    return acc
-                  }
-
-                  // Store any selected scopes from the config
-                  if ('selectedScopes' in flow && Array.isArray(flow.selectedScopes)) {
-                    flow.selectedScopes?.forEach((scope) => selectedScopes.add(scope))
-                  }
-
-                  acc[key] = removeSecretFields(flow) as Oauth2Flow
-                  return acc
-                },
-                {} as Record<string, Oauth2Flow>,
-              ),
-              'x-default-scopes': Array.from(selectedScopes),
-            },
+            [securityScheme.nameKey]: cleanedSecurityScheme,
           }
-        }
-
-        /** We don't want any secrets in the document */
-        const cleanedSecurityScheme = removeSecretFields(securityScheme)
-
-        return {
-          ...acc,
-          [securityScheme.nameKey]: cleanedSecurityScheme,
-        }
-      }, {}),
+        }, {}),
+      },
     },
     security: collection.security || [],
     tags,
