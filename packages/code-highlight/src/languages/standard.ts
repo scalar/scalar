@@ -66,7 +66,7 @@ import curl from 'highlightjs-curl'
 /**
  * These are the most popular languages that cover the majority of use cases.
  */
-export const standardLanguages: Record<string, LanguageFn> = {
+export const standardLanguages = {
   bash,
   c,
   clojure,
@@ -116,4 +116,4 @@ export const standardLanguages: Record<string, LanguageFn> = {
   typescript,
   xml,
   yaml,
-}
+} as const satisfies Record<string, LanguageFn>

@@ -46,17 +46,16 @@ const icon = computed<ScalarIconComponent>(() => {
     type="button"
     v-bind="
       cx(
-        'group/copy-button relative flex items-center justify-center',
-        'size-6 p-1.25 -m-1 rounded',
-        'font-medium text-xs',
-        copied ? 'text-c-1 bg-b-2' : 'text-c-2 hover:text-c-1 hover:bg-b-2',
+        'group/copy-button relative flex items-center justify-center bg-b-1',
+        'size-6 p-1.25 -m-1 rounded text-xs',
+        copied ? 'text-c-1' : 'text-c-2 hover:text-c-1',
       )
     ">
     <Transition
       mode="out-in"
       enter-active-class="transition-transform"
       enter-from-class="scale-0"
-      enter-to-class="scale3100"
+      enter-to-class="scale-100"
       leave-active-class="transition-transform"
       leave-from-class="scale-100"
       leave-to-class="scale-0">
@@ -65,35 +64,38 @@ const icon = computed<ScalarIconComponent>(() => {
         class="size-full" />
     </Transition>
     <div
-      class="absolute -inset-y-1 px-1.5 p-1 flex items-center mask-y-from-70% mask-y-to-90%"
+      class="group/copy-label absolute flex items-center -inset-y-1 bg-inherit rounded"
       :class="{
-        'left-full': placement === 'right',
-        'right-full': placement === 'left',
+        'left-full pr-3 mask-r-from-[calc(100%-12px)]': placement === 'right',
+        'right-full pl-3 mask-l-from-[calc(100%-12px)]': placement === 'left',
       }">
-      <Transition
-        mode="out-in"
-        enter-active-class="transition-transform ease-out"
-        enter-from-class="translate-y-4"
-        enter-to-class="translate-y-0"
-        leave-active-class="transition-transform ease-in"
-        leave-from-class="translate-y-0"
-        leave-to-class="-translate-y-4">
-        <div
-          v-if="copied"
-          role="alert"
-          class="whitespace-nowrap">
-          <slot name="copied">Copied to clipboard</slot>
-        </div>
-        <div
-          v-else
-          class="whitespace-nowrap!"
-          :class="{
-            'group-hover/copy-button:not-sr-only group-focus-visible/copy-button:not-sr-only sr-only':
-              !showLabel && !copied,
-          }">
-          <slot name="copy">Copy to clipboard</slot>
-        </div>
-      </Transition>
+      <div
+        class="flex items-center py-2 mask-y-from-[calc(100%-8px)] mask-y-to-100%">
+        <Transition
+          mode="out-in"
+          enter-active-class="transition-transform ease-out"
+          enter-from-class="translate-y-1.5"
+          enter-to-class="translate-y-0"
+          leave-active-class="transition-transform ease-in"
+          leave-from-class="translate-y-0"
+          leave-to-class="-translate-y-1.5">
+          <div
+            v-if="copied"
+            role="alert"
+            class="whitespace-nowrap">
+            <slot name="copied">Copied</slot>
+          </div>
+          <div
+            v-else
+            class="whitespace-nowrap!"
+            :class="{
+              'group-hover/copy-button:not-sr-only group-focus-visible/copy-button:not-sr-only sr-only':
+                !showLabel && !copied,
+            }">
+            <slot name="copy">Copy</slot>
+          </div>
+        </Transition>
+      </div>
     </div>
   </button>
 </template>
