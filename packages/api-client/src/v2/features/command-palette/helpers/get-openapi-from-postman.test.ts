@@ -53,40 +53,40 @@ describe('getOpenApiFromPostman', () => {
     expect(convert).toHaveBeenCalledTimes(1)
   })
 
-  it('throws error with descriptive message when conversion fails', () => {
+  it('returns null when conversion fails', () => {
     const postmanJson = '{"invalid":"collection"}'
 
     vi.mocked(convert).mockImplementation(() => {
       throw new Error('Invalid Postman collection structure')
     })
 
-    expect(() => getOpenApiFromPostman(postmanJson)).toThrow(
-      'Failed to convert Postman collection to OpenAPI: Invalid Postman collection structure',
-    )
+    const result = getOpenApiFromPostman(postmanJson)
+
+    expect(result).toBeNull()
   })
 
-  it('throws error when convert throws non-Error object', () => {
+  it('returns null when convert throws non-Error object', () => {
     const postmanJson = '{"info":{"name":"Test"}}'
 
     vi.mocked(convert).mockImplementation(() => {
       throw 'String error'
     })
 
-    expect(() => getOpenApiFromPostman(postmanJson)).toThrow(
-      'Failed to convert Postman collection to OpenAPI: Unknown error',
-    )
+    const result = getOpenApiFromPostman(postmanJson)
+
+    expect(result).toBeNull()
   })
 
-  it('handles JSON parsing errors from convert function', () => {
+  it('returns null when handling JSON parsing errors from convert function', () => {
     const invalidJson = '{not valid json}'
 
     vi.mocked(convert).mockImplementation(() => {
       throw new Error('Unexpected token n in JSON at position 1')
     })
 
-    expect(() => getOpenApiFromPostman(invalidJson)).toThrow(
-      'Failed to convert Postman collection to OpenAPI: Unexpected token n in JSON at position 1',
-    )
+    const result = getOpenApiFromPostman(invalidJson)
+
+    expect(result).toBeNull()
   })
 
   it('converts complex Postman collection with multiple requests', () => {
@@ -139,8 +139,8 @@ describe('getOpenApiFromPostman', () => {
     const result = getOpenApiFromPostman(complexPostmanJson)
 
     expect(result).toEqual(expectedOpenAPI)
-    expect(result.paths).toBeDefined()
-    expect(Object.keys(result.paths ?? {})).toHaveLength(1)
+    expect(result?.paths).toBeDefined()
+    expect(Object.keys(result?.paths ?? {})).toHaveLength(1)
   })
 
   it('handles empty Postman collection', () => {
@@ -167,7 +167,7 @@ describe('getOpenApiFromPostman', () => {
     const result = getOpenApiFromPostman(emptyPostmanJson)
 
     expect(result).toEqual(expectedOpenAPI)
-    expect(result.paths).toEqual({})
+    expect(result?.paths).toEqual({})
   })
 
   it('handles Postman collection with nested folders', () => {
@@ -242,8 +242,8 @@ describe('getOpenApiFromPostman', () => {
 
     const result = getOpenApiFromPostman(postmanJson)
 
-    expect(result.info?.description).toBe('This is a test API')
-    expect(result.info?.version).toBe('2.0.0')
+    expect(result?.info?.description).toBe('This is a test API')
+    expect(result?.info?.version).toBe('2.0.0')
   })
 
   it('handles conversion with authentication', () => {
@@ -287,10 +287,10 @@ describe('getOpenApiFromPostman', () => {
 
     const result = getOpenApiFromPostman(postmanJson)
 
-    expect(result.components?.securitySchemes).toBeDefined()
+    expect(result?.components?.securitySchemes).toBeDefined()
   })
 
-  it('throws error with original error message preserved', () => {
+  it('returns null when convert throws error', () => {
     const postmanJson = '{"malformed":"data"}'
     const originalError = new Error('Specific validation failed: missing required field')
 
@@ -298,57 +298,57 @@ describe('getOpenApiFromPostman', () => {
       throw originalError
     })
 
-    expect(() => getOpenApiFromPostman(postmanJson)).toThrow(
-      'Failed to convert Postman collection to OpenAPI: Specific validation failed: missing required field',
-    )
+    const result = getOpenApiFromPostman(postmanJson)
+
+    expect(result).toBeNull()
   })
 
-  it('handles TypeError from convert function', () => {
+  it('returns null when handling TypeError from convert function', () => {
     const postmanJson = '{"info":{"name":"Test"}}'
 
     vi.mocked(convert).mockImplementation(() => {
       throw new TypeError('Cannot read property of undefined')
     })
 
-    expect(() => getOpenApiFromPostman(postmanJson)).toThrow(
-      'Failed to convert Postman collection to OpenAPI: Cannot read property of undefined',
-    )
+    const result = getOpenApiFromPostman(postmanJson)
+
+    expect(result).toBeNull()
   })
 
-  it('handles number thrown as error', () => {
+  it('returns null when handling number thrown as error', () => {
     const postmanJson = '{"info":{"name":"Test"}}'
 
     vi.mocked(convert).mockImplementation(() => {
       throw 404
     })
 
-    expect(() => getOpenApiFromPostman(postmanJson)).toThrow(
-      'Failed to convert Postman collection to OpenAPI: Unknown error',
-    )
+    const result = getOpenApiFromPostman(postmanJson)
+
+    expect(result).toBeNull()
   })
 
-  it('handles null thrown as error', () => {
+  it('returns null when handling null thrown as error', () => {
     const postmanJson = '{"info":{"name":"Test"}}'
 
     vi.mocked(convert).mockImplementation(() => {
       throw null
     })
 
-    expect(() => getOpenApiFromPostman(postmanJson)).toThrow(
-      'Failed to convert Postman collection to OpenAPI: Unknown error',
-    )
+    const result = getOpenApiFromPostman(postmanJson)
+
+    expect(result).toBeNull()
   })
 
-  it('handles undefined thrown as error', () => {
+  it('returns null when handling undefined thrown as error', () => {
     const postmanJson = '{"info":{"name":"Test"}}'
 
     vi.mocked(convert).mockImplementation(() => {
       throw undefined
     })
 
-    expect(() => getOpenApiFromPostman(postmanJson)).toThrow(
-      'Failed to convert Postman collection to OpenAPI: Unknown error',
-    )
+    const result = getOpenApiFromPostman(postmanJson)
+
+    expect(result).toBeNull()
   })
 
   it('returns OpenAPI document with servers from Postman variables', () => {
@@ -385,7 +385,7 @@ describe('getOpenApiFromPostman', () => {
 
     const result = getOpenApiFromPostman(postmanJson)
 
-    expect(result.servers).toBeDefined()
-    expect(result.servers).toHaveLength(1)
+    expect(result?.servers).toBeDefined()
+    expect(result?.servers).toHaveLength(1)
   })
 })

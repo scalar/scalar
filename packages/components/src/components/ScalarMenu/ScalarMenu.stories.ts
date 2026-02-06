@@ -11,6 +11,7 @@ import {
   ScalarMenuSection,
   ScalarMenuTeamPicker,
   ScalarMenuTeamProfile,
+  ScalarMenuWorkspacePicker,
 } from './'
 import { images } from './fixtures'
 
@@ -82,6 +83,70 @@ export const TeamPicker: Story = {
         <template #title>Account</template>
         <ScalarMenuTeamPicker :teams="teams" v-model:team="team" @add="handleAddTeam" />
         <ScalarMenuLink :icon="ScalarIconGear" >Settings</ScalarMenuLink>
+        <ScalarMenuLink :icon="ScalarIconSignOut">Logout</ScalarMenuLink>
+      </ScalarMenuSection>
+      <ScalarMenuResources />
+    </template>
+  </ScalarMenu>
+</div>`,
+  }),
+}
+
+export const WorkspacePicker: Story = {
+  render: (args) => ({
+    components: {
+      ScalarMenu,
+      ScalarMenuLink,
+      ScalarMenuSection,
+      ScalarMenuWorkspacePicker,
+      ScalarMenuTeamProfile,
+      ScalarMenuResources,
+    },
+    setup() {
+      const workspaceOptions = [
+        {
+          label: 'Personal',
+          options: [
+            { label: 'My Workspace', id: 'workspace-1' },
+            { label: 'Development', id: 'workspace-2' },
+          ],
+        },
+        {
+          label: 'Teams',
+          options: [
+            { label: 'Team Alpha', id: 'workspace-3' },
+            { label: 'Team Beta', id: 'workspace-4' },
+            { label: 'Team Gamma', id: 'workspace-5' },
+          ],
+        },
+      ]
+      const selectedWorkspace = ref('workspace-1')
+      const handleCreateWorkspace = () => alert('Create workspace!')
+
+      return {
+        args,
+        workspaceOptions,
+        selectedWorkspace,
+        handleCreateWorkspace,
+        ScalarIconGear,
+        ScalarIconSignOut,
+      }
+    },
+    template: `
+<div class="w-full min-h-96">
+  <ScalarMenu v-bind="args">
+    <template #logo>
+      <ScalarMenuTeamProfile label="Current Team" :src="undefined" />
+    </template>
+    <template #sections>
+      <ScalarMenuSection>
+        <template #title>Account</template>
+        <ScalarMenuWorkspacePicker 
+          :workspaceOptions="workspaceOptions" 
+          v-model="selectedWorkspace" 
+          @createWorkspace="handleCreateWorkspace" 
+        />
+        <ScalarMenuLink :icon="ScalarIconGear">Settings</ScalarMenuLink>
         <ScalarMenuLink :icon="ScalarIconSignOut">Logout</ScalarMenuLink>
       </ScalarMenuSection>
       <ScalarMenuResources />

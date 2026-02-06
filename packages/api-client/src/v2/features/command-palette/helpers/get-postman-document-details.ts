@@ -1,4 +1,4 @@
-import { isPostmanCollection } from '@/v2/features/import-listener/helpers/is-postman-collection'
+import { isPostmanCollection } from '@/v2/features/command-palette/helpers/is-postman-collection'
 
 /**
  * Represents the extracted details from a Postman collection.

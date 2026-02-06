@@ -2,8 +2,8 @@ import { normalize } from '@scalar/openapi-parser'
 import type { UnknownObject } from '@scalar/types/utils'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 
-import { getOpenApiFromPostman } from '@/v2/features/import-listener/helpers/get-openapi-from-postman'
-import { isPostmanCollection } from '@/v2/features/import-listener/helpers/is-postman-collection'
+import { getOpenApiFromPostman } from '@/v2/features/command-palette/helpers/get-openapi-from-postman'
+import { isPostmanCollection } from '@/v2/features/command-palette/helpers/is-postman-collection'
 import { isUrl } from '@/v2/helpers/is-url'
 
 /**
@@ -41,18 +41,9 @@ export const loadDocumentFromSource = async (
     })
   }
 
-  /** Attempts to convert a Postman collection to OpenAPI, returning null if conversion fails.  */
-  const safeConvertPostmanToOpenApi = (source: string) => {
-    try {
-      return getOpenApiFromPostman(source)
-    } catch {
-      return null
-    }
-  }
-
   // Handle Postman Collection: convert to OpenAPI and add as document.
   if (isPostmanCollection(source)) {
-    const document = safeConvertPostmanToOpenApi(source)
+    const document = getOpenApiFromPostman(source)
 
     if (document === null) {
       return false

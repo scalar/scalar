@@ -240,6 +240,11 @@
       "types": "./dist/v2/features/app/components/index.d.ts",
       "default": "./dist/v2/features/app/components/index.js"
     },
+    "./v2/features/command-palette": {
+      "import": "./dist/v2/features/command-palette/index.js",
+      "types": "./dist/v2/features/command-palette/index.d.ts",
+      "default": "./dist/v2/features/command-palette/index.js"
+    },
     "./v2/features/environments": {
       "import": "./dist/v2/features/environments/index.js",
       "types": "./dist/v2/features/environments/index.d.ts",
@@ -249,11 +254,6 @@
       "import": "./dist/v2/features/global-cookies/index.js",
       "types": "./dist/v2/features/global-cookies/index.d.ts",
       "default": "./dist/v2/features/global-cookies/index.js"
-    },
-    "./v2/features/import-listener": {
-      "import": "./dist/v2/features/import-listener/index.js",
-      "types": "./dist/v2/features/import-listener/index.d.ts",
-      "default": "./dist/v2/features/import-listener/index.js"
     },
     "./v2/features/modal": {
       "import": "./dist/v2/features/modal/index.js",
