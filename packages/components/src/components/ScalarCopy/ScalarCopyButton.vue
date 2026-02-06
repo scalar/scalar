@@ -1,3 +1,20 @@
+<script lang="ts">
+/**
+ * Scalar Copy Button component
+ *
+ * A copy button for copying text to the clipboard.
+ *
+ * Often used in conjunction with the useClipboard
+ * hook from @scalar/use-hooks.
+ *
+ * @example
+ *   <ScalarCopyButton @click="handleCopy">
+ *     <template #copy>Button label</template>
+ *     <template #copied>Copied label</template>
+ *   </ScalarCopyButton>
+ */
+export default {}
+</script>
 <script setup lang="ts">
 import { ScalarIconCheck, ScalarIconCopy } from '@scalar/icons'
 import type { ScalarIconComponent } from '@scalar/icons/types'
