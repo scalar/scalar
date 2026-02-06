@@ -55,6 +55,11 @@ const contentJson = JSON.stringify([
   },
 ])
 
+const contentCurl = String.raw`curl --request PUT \
+  --url https://galaxy.scalar.com/planets \
+  --header 'Authorization: Bearer 123234324'
+`
+
 /**
  * Syntax highlighting in a light weight component
  */
@@ -64,13 +69,20 @@ const meta = {
     class: { control: 'text' },
     lang: { control: 'text' },
   },
+  parameters: {
+    layout: 'fullscreen',
+  },
   tags: ['autodocs'],
   render: (args) => ({
     components: { ScalarCodeBlock },
     setup() {
       return { args }
     },
-    template: `<ScalarCodeBlock v-bind="args" />`,
+    template: `
+<div class="grid h-dvh w-dvw">
+  <ScalarCodeBlock class="min-h-0 min-w-0" v-bind="args" />
+</div>
+    `,
   }),
 } satisfies Meta<typeof ScalarCodeBlock>
 
@@ -87,11 +99,25 @@ export const JSONString: Story = {
   args: { content: contentJson, lineNumbers: true, lang: 'json' },
 }
 
+export const Bordered: Story = {
+  args: { content: contentJs, lineNumbers: true, lang: 'javascript', class: 'border rounded' },
+  render: (args) => ({
+    components: { ScalarCodeBlock },
+    setup() {
+      return { args }
+    },
+    template: `
+<div class="flex h-dvh w-dvw p-2">
+  <ScalarCodeBlock v-bind="args" />
+</div>
+    `,
+  }),
+}
+
 export const HideCredentials: Story = {
   args: {
-    content: `curl --request PUT \
-  --url https://galaxy.scalar.com/planets \
-  --header 'Authorization: Bearer 123234324'`,
+    content: contentCurl,
+    lang: 'curl',
     hideCredentials: ['123234324'],
   },
 }

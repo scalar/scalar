@@ -144,7 +144,7 @@ defineExpose({
             role="tabpanel"
             tabindex="1">
             <ScalarCodeBlock
-              class="rounded-t-none rounded-b-lg px-3 py-2 -outline-offset-1 has-focus:outline"
+              class="rounded-b-lg *:first:p-3"
               :content="installationInstructions.source"
               :copy="true"
               lang="shell" />

@@ -1,14 +1,16 @@
 <script lang="ts" setup>
 import { standardLanguages, syntaxHighlight } from '@scalar/code-highlight'
 import { prettyPrintJson } from '@scalar/oas-utils/helpers'
+import { useBindCx } from '@scalar/use-hooks/useBindCx'
 import { computed, useId } from 'vue'
 
 import { ScalarCodeBlockCopy } from '../ScalarCodeBlock'
+import type { StandardLanguageKey } from './types'
 
 type BaseProps = {
   content?: string | object
   prettyPrintedContent?: string
-  lang?: string
+  lang?: StandardLanguageKey | string
   lineNumbers?: boolean
   hideCredentials?: string | string[]
   copy?: boolean
@@ -71,39 +73,34 @@ const isContentValid = computed(() => {
     prettyContent.value !== '404 Not Found'
   )
 })
+
+defineOptions({ inheritAttrs: false })
+const { cx } = useBindCx()
 </script>
 <template>
   <div
-    class="scalar-code-block group/code-block custom-scroll min-h-12 focus-visible:outline"
-    tabindex="0">
+    v-bind="
+      cx(
+        'scalar-code-block group/code-block flex flex-col',
+        'relative bg-b-1 min-h-0 min-w-0 focus-visible:outline',
+      )
+    ">
+    <div
+      tabindex="0"
+      class="custom-scroll overflow-x-auto p-2 -outline-offset-2 min-h-0 min-w-0 flex-1">
+      <pre
+        :id="id"
+        class="m-0 bg-transparent text-nowrap whitespace-pre w-fit"
+        v-html="highlightedCode" />
+    </div>
     <ScalarCodeBlockCopy
       v-if="copy && isContentValid"
+      class="absolute top-2.5 right-2.5 bg-inherit"
       :content="prettyContent"
       :lang
       :aria-controls="id" />
-    <pre
-      :id="id"
-      class="scalar-codeblock-pre"
-      v-html="highlightedCode" />
   </div>
 </template>
 <style>
 @import '@scalar/code-highlight/css/code.css';
-.scalar-code-block {
-  background: inherit;
-  position: relative;
-  overflow: auto;
-  padding: 10px 8px 12px 12px;
-}
-
-/* Code blocks */
-.scalar-codeblock-pre {
-  all: unset;
-  margin: 0;
-  background: transparent;
-  text-wrap: nowrap;
-  white-space-collapse: preserve;
-  border-radius: 0;
-  width: fit-content;
-}
 </style>

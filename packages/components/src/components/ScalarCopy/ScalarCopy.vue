@@ -14,6 +14,7 @@ export default {}
 </script>
 <script setup lang="ts">
 import { useClipboard } from '@vueuse/core'
+import { watch } from 'vue'
 
 import ScalarCopyButton from './ScalarCopyButton.vue'
 import type { ScalarCopyProps, ScalarCopySlots } from './types'
@@ -22,13 +23,21 @@ const { content = '', duration = 1500 } = defineProps<ScalarCopyProps>()
 
 defineSlots<ScalarCopySlots>()
 
-const { copy, copied } = useClipboard({ legacy: true, copiedDuring: duration })
+const copied = defineModel<boolean>('copied', { default: false })
+
+const { copy, copied: clipboardCopied } = useClipboard({
+  legacy: true,
+  copiedDuring: duration,
+})
+
+/** Watch the clipboard copied state and emit it to the consuming component */
+watch(clipboardCopied, (v) => (copied.value = v))
 </script>
 <template>
   <ScalarCopyButton
     :placement
     :showLabel
-    :copied
+    :copied="copied || clipboardCopied"
     @click="copy(content)">
     <template
       v-if="$slots.copy"
