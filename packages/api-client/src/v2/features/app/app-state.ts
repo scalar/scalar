@@ -12,7 +12,7 @@ import {
 } from '@scalar/workspace-store/events'
 import { generateUniqueValue } from '@scalar/workspace-store/helpers/generate-unique-value'
 import { getParentEntry } from '@scalar/workspace-store/navigation'
-import { createWorkspaceStorePersistence } from '@scalar/workspace-store/persistence'
+import { createWorkspaceStorePersistence, getWorkspaceId } from '@scalar/workspace-store/persistence'
 import { persistencePlugin } from '@scalar/workspace-store/plugins/client'
 import type { Workspace, WorkspaceDocument } from '@scalar/workspace-store/schemas'
 import { extensions } from '@scalar/workspace-store/schemas/extensions'
