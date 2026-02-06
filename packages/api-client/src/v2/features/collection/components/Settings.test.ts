@@ -1,4 +1,5 @@
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
+import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import { xScalarEnvironmentSchema } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import { OpenAPIDocumentSchema } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
@@ -239,32 +240,32 @@ describe('Settings', () => {
   describe('delete document', () => {
     it('calls workspaceStore.deleteDocument and navigates when DocumentSettings emits delete:document', async () => {
       const workspaceStore = createWorkspaceStoreInstance()
-      const deleteDocumentSpy = vi.spyOn(workspaceStore, 'deleteDocument')
+      const eventBus = createWorkspaceEventBus()
+      const fn = vi.fn()
+      eventBus.on('document:delete:document', fn)
 
       const props = createDocumentProps({
         documentSlug: 'test-document',
         workspaceStore,
+        eventBus,
       })
       const wrapper = mount(Settings, { props })
 
       const documentSettings = wrapper.findComponent({ name: 'DocumentSettings' })
       await documentSettings.vm.$emit('delete:document')
 
-      expect(deleteDocumentSpy).toHaveBeenCalledWith('test-document')
-      expect(push).toHaveBeenCalledWith({
-        name: 'workspace.environment',
-        params: {
-          workspaceSlug: 'test-workspace',
-        },
-      })
+      expect(fn).toHaveBeenCalledWith({ name: 'test-document' })
     })
 
     it('uses correct workspace ID when navigating after delete', async () => {
       const workspaceStore = createWorkspaceStoreInstance()
-      const deleteDocumentSpy = vi.spyOn(workspaceStore, 'deleteDocument')
+      const eventBus = createWorkspaceEventBus()
+      const fn = vi.fn()
+      eventBus.on('document:delete:document', fn)
 
       const props = createDocumentProps({
         documentSlug: 'my-doc',
+        eventBus,
         workspaceStore,
         activeWorkspace: {
           id: 'custom-workspace',
@@ -276,13 +277,7 @@ describe('Settings', () => {
       const documentSettings = wrapper.findComponent({ name: 'DocumentSettings' })
       await documentSettings.vm.$emit('delete:document')
 
-      expect(deleteDocumentSpy).toHaveBeenCalledWith('my-doc')
-      expect(push).toHaveBeenCalledWith({
-        name: 'workspace.environment',
-        params: {
-          workspaceSlug: 'custom-workspace',
-        },
-      })
+      expect(fn).toHaveBeenCalledWith({ name: 'my-doc' })
     })
   })
 })
