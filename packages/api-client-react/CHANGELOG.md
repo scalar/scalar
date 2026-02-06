@@ -1,5 +1,14 @@
 # @scalar/api-client-react
 
+## 1.3.91
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-client@2.25.0**
+  - [#8077](https://github.com/scalar/scalar/pull/8077): feat: support team workspaces
+
 ## 1.3.90
 
 ### Patch Changes

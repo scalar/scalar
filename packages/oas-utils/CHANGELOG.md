@@ -1,5 +1,14 @@
 # @scalar/oas-utils
 
+## 0.6.37
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.30.0**
+  - [#8077](https://github.com/scalar/scalar/pull/8077): feat: support team workspaces
+
 ## 0.6.36
 
 ### Patch Changes

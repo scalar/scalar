@@ -1,5 +1,27 @@
 # @scalar/api-client
 
+## 2.25.0
+
+### Minor Changes
+
+- [#8077](https://github.com/scalar/scalar/pull/8077): feat: support team workspaces
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.30.0**
+  - [#8077](https://github.com/scalar/scalar/pull/8077): feat: support team workspaces
+
+- **@scalar/components@0.18.0**
+  - [#8077](https://github.com/scalar/scalar/pull/8077): feat: support team workspaces
+
+- **@scalar/oas-utils@0.6.37**
+
+- **@scalar/sidebar@0.7.30**
+
+- **@scalar/use-codemirror@0.13.34**
+
 ## 2.24.0
 
 ### Minor Changes

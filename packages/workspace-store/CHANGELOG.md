@@ -1,5 +1,11 @@
 # @scalar/workspace-store
 
+## 0.30.0
+
+### Minor Changes
+
+- [#8077](https://github.com/scalar/scalar/pull/8077): feat: support team workspaces
+
 ## 0.29.0
 
 ### Minor Changes
