@@ -1,5 +1,17 @@
 # @scalar/components
 
+## 0.18.0
+
+### Minor Changes
+
+- [#8077](https://github.com/scalar/scalar/pull/8077): feat: support team workspaces
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/oas-utils@0.6.37**
+
 ## 0.17.6
 
 ### Patch Changes

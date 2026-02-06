@@ -1,5 +1,16 @@
 # @scalar/nuxt
 
+## 0.5.72
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-client@2.25.0**
+  - [#8077](https://github.com/scalar/scalar/pull/8077): feat: support team workspaces
+
+- **@scalar/api-reference@1.44.15**
+
 ## 0.5.71
 
 ### Patch Changes
