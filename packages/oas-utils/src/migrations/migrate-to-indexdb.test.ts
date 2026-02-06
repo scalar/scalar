@@ -1,8 +1,12 @@
 import { type SecurityScheme, securitySchemeSchema } from '@scalar/types/entities'
+import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import type { ParameterWithSchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { assert, beforeEach, describe, expect, it } from 'vitest'
 
 import { cookieSchema } from '@/entities/cookie'
 import { type Collection, collectionSchema } from '@/entities/spec/collection'
+import { requestExampleSchema } from '@/entities/spec/request-examples'
+import { requestSchema } from '@/entities/spec/requests'
 import { serverSchema } from '@/entities/spec/server'
 import { tagSchema } from '@/entities/spec/spec-objects'
 import { type Workspace, workspaceSchema } from '@/entities/workspace/workspace'
@@ -2033,6 +2037,1571 @@ describe('migrate-to-indexdb', () => {
     })
   })
 
-  // Request
-  // RequestExample
+  describe('transformLegacyDataToWorkspace - Requests & RequestExamples', () => {
+    describe('basic request transformation', () => {
+      it('transforms a simple GET request into an OpenAPI operation', async () => {
+        const request = requestSchema.parse({
+          uid: 'request-1',
+          path: '/users',
+          method: 'get',
+          summary: 'Get all users',
+          description: 'Retrieves a list of all users',
+          operationId: 'getUsers',
+          tags: ['Users'],
+        })
+
+        const legacyData = createLegacyData({
+          title: 'Users API',
+          collection: { requests: ['request-1'] },
+          requests: [request],
+        })
+
+        const result = await transformLegacyDataToWorkspace(legacyData)
+        const doc = result[0]?.workspace.documents['Users API']
+
+        assert(doc)
+        expect(doc.paths?.['/users']?.get).toEqual({
+          summary: 'Get all users',
+          description: 'Retrieves a list of all users',
+          operationId: 'getUsers',
+          tags: ['Users'],
+        })
+      })
+
+      it('transforms a POST request with request body', async () => {
+        const request = requestSchema.parse({
+          uid: 'request-1',
+          path: '/users',
+          method: 'post',
+          summary: 'Create user',
+          operationId: 'createUser',
+          requestBody: {
+            required: true,
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    name: { type: 'string' },
+                    email: { type: 'string' },
+                  },
+                },
+              },
+            },
+          },
+        })
+
+        const legacyData = createLegacyData({
+          title: 'Users API',
+          collection: { requests: ['request-1'] },
+          requests: [request],
+        })
+
+        const result = await transformLegacyDataToWorkspace(legacyData)
+        const doc = result[0]?.workspace.documents['Users API']
+
+        assert(doc)
+        expect(doc.paths?.['/users']?.post).toEqual({
+          summary: 'Create user',
+          operationId: 'createUser',
+          requestBody: {
+            required: true,
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    name: { type: 'string' },
+                    email: { type: 'string' },
+                  },
+                },
+              },
+            },
+          },
+        })
+      })
+
+      it('transforms a request with parameters', async () => {
+        const request = requestSchema.parse({
+          uid: 'request-1',
+          path: '/users/{id}',
+          method: 'get',
+          summary: 'Get user by ID',
+          parameters: [
+            {
+              name: 'id',
+              in: 'path',
+              required: true,
+              schema: { type: 'string' },
+              description: 'User ID',
+            },
+            {
+              name: 'include',
+              in: 'query',
+              schema: { type: 'string' },
+              description: 'Related resources to include',
+            },
+          ],
+        })
+
+        const legacyData = createLegacyData({
+          title: 'Users API',
+          collection: { requests: ['request-1'] },
+          requests: [request],
+        })
+
+        const result = await transformLegacyDataToWorkspace(legacyData)
+        const doc = result[0]?.workspace.documents['Users API']
+
+        assert(doc)
+        expect(getResolvedRef(doc.paths?.['/users/{id}']?.get)?.parameters).toEqual([
+          {
+            name: 'id',
+            in: 'path',
+            required: true,
+            schema: { type: 'string' },
+            description: 'User ID',
+          },
+          {
+            name: 'include',
+            in: 'query',
+            schema: { type: 'string' },
+            description: 'Related resources to include',
+          },
+        ])
+      })
+
+      it('transforms multiple requests across different paths and methods', async () => {
+        const getRequest = requestSchema.parse({
+          uid: 'request-1',
+          path: '/users',
+          method: 'get',
+          summary: 'List users',
+        })
+
+        const postRequest = requestSchema.parse({
+          uid: 'request-2',
+          path: '/users',
+          method: 'post',
+          summary: 'Create user',
+        })
+
+        const deleteRequest = requestSchema.parse({
+          uid: 'request-3',
+          path: '/users/{id}',
+          method: 'delete',
+          summary: 'Delete user',
+        })
+
+        const legacyData = createLegacyData({
+          title: 'Users API',
+          collection: { requests: ['request-1', 'request-2', 'request-3'] },
+          requests: [getRequest, postRequest, deleteRequest],
+        })
+
+        const result = await transformLegacyDataToWorkspace(legacyData)
+        const doc = result[0]?.workspace.documents['Users API']
+
+        assert(doc)
+        expect(doc.paths).toEqual({
+          '/users': {
+            get: { summary: 'List users' },
+            post: { summary: 'Create user' },
+          },
+          '/users/{id}': {
+            delete: { summary: 'Delete user' },
+          },
+        })
+      })
+    })
+
+    describe('request examples transformation', () => {
+      it('transforms a request with a single example into parameter examples', async () => {
+        const example = requestExampleSchema.parse({
+          uid: 'example-1',
+          requestUid: 'request-1',
+          name: 'Basic Example',
+          parameters: {
+            query: [
+              { key: 'page', value: '1', enabled: true },
+              { key: 'limit', value: '10', enabled: true },
+            ],
+            headers: [{ key: 'Accept', value: 'application/json', enabled: true }],
+          },
+        })
+
+        const request = requestSchema.parse({
+          uid: 'request-1',
+          path: '/users',
+          method: 'get',
+          summary: 'Get users',
+          examples: ['example-1'],
+        })
+
+        const legacyData = createLegacyData({
+          title: 'Users API',
+          collection: { requests: ['request-1'] },
+          requests: [request],
+          requestExamples: [example],
+        })
+
+        const result = await transformLegacyDataToWorkspace(legacyData)
+        const doc = result[0]?.workspace.documents['Users API']
+
+        assert(doc)
+        const operation = getResolvedRef(doc.paths?.['/users']?.get)
+
+        // Find the query parameters
+        const pageParam = operation?.parameters?.find((p) => getResolvedRef(p)?.name === 'page')
+        const limitParam = operation?.parameters?.find((p) => getResolvedRef(p)?.name === 'limit')
+        const acceptHeader = operation?.parameters?.find((p) => getResolvedRef(p)?.name === 'Accept')
+
+        expect(getResolvedRef(pageParam)).toMatchObject({
+          name: 'page',
+          in: 'query',
+          examples: {
+            'Basic Example': { value: '1', 'x-disabled': false },
+          },
+        })
+
+        expect(getResolvedRef(limitParam)).toMatchObject({
+          name: 'limit',
+          in: 'query',
+          examples: {
+            'Basic Example': { value: '10', 'x-disabled': false },
+          },
+        })
+
+        expect(getResolvedRef(acceptHeader)).toMatchObject({
+          name: 'Accept',
+          in: 'header',
+          examples: {
+            'Basic Example': { value: 'application/json', 'x-disabled': false },
+          },
+        })
+      })
+
+      it('transforms a request with multiple examples', async () => {
+        const example1 = requestExampleSchema.parse({
+          uid: 'example-1',
+          requestUid: 'request-1',
+          name: 'First Page',
+          parameters: {
+            query: [{ key: 'page', value: '1', enabled: true }],
+            headers: [{ key: 'Accept', value: '*/*', enabled: true }],
+          },
+        })
+
+        const example2 = requestExampleSchema.parse({
+          uid: 'example-2',
+          requestUid: 'request-1',
+          name: 'Second Page',
+          parameters: {
+            query: [{ key: 'page', value: '2', enabled: true }],
+            headers: [{ key: 'Accept', value: '*/*', enabled: true }],
+          },
+        })
+
+        const request = requestSchema.parse({
+          uid: 'request-1',
+          path: '/users',
+          method: 'get',
+          summary: 'Get users',
+          examples: ['example-1', 'example-2'],
+        })
+
+        const legacyData = createLegacyData({
+          title: 'Users API',
+          collection: { requests: ['request-1'] },
+          requests: [request],
+          requestExamples: [example1, example2],
+        })
+
+        const result = await transformLegacyDataToWorkspace(legacyData)
+        const doc = result[0]?.workspace.documents['Users API']
+
+        assert(doc)
+        const operation = getResolvedRef(doc.paths?.['/users']?.get)
+        expect(operation?.parameters).toBeDefined()
+
+        // Find the parameters
+        const pageParam = operation?.parameters?.find((p) => getResolvedRef(p)?.name === 'page')
+        const acceptHeader = operation?.parameters?.find((p) => getResolvedRef(p)?.name === 'Accept')
+
+        // Check that both examples exist for the page parameter
+        expect(getResolvedRef(pageParam)).toMatchObject({
+          name: 'page',
+          in: 'query',
+          examples: {
+            'First Page': { value: '1', 'x-disabled': false },
+            'Second Page': { value: '2', 'x-disabled': false },
+          },
+        })
+
+        // Check that both examples exist for the Accept header
+        expect(getResolvedRef(acceptHeader)).toMatchObject({
+          name: 'Accept',
+          in: 'header',
+          examples: {
+            'First Page': { value: '*/*', 'x-disabled': false },
+            'Second Page': { value: '*/*', 'x-disabled': false },
+          },
+        })
+      })
+
+      it('transforms an example with a JSON request body', async () => {
+        const example = requestExampleSchema.parse({
+          uid: 'example-1',
+          requestUid: 'request-1',
+          name: 'Create User Example',
+          body: {
+            activeBody: 'raw',
+            raw: {
+              encoding: 'json',
+              value: JSON.stringify({ name: 'John Doe', email: 'john@example.com' }),
+            },
+          },
+          parameters: {
+            headers: [{ key: 'Content-Type', value: 'application/json', enabled: true }],
+          },
+        })
+
+        const request = requestSchema.parse({
+          uid: 'request-1',
+          path: '/users',
+          method: 'post',
+          summary: 'Create user',
+          examples: ['example-1'],
+        })
+
+        const legacyData = createLegacyData({
+          title: 'Users API',
+          collection: { requests: ['request-1'] },
+          requests: [request],
+          requestExamples: [example],
+        })
+
+        const result = await transformLegacyDataToWorkspace(legacyData)
+        const doc = result[0]?.workspace.documents['Users API']
+
+        assert(doc)
+        const operation = getResolvedRef(doc.paths?.['/users']?.post)
+
+        // Check request body example
+        const requestBody = getResolvedRef(operation?.requestBody)
+        expect(requestBody?.content?.['application/json']?.examples).toBeDefined()
+        expect(requestBody?.content?.['application/json']?.examples?.['Create User Example']).toEqual({
+          value: JSON.stringify({ name: 'John Doe', email: 'john@example.com' }),
+        })
+
+        // Check Content-Type header parameter
+        const contentTypeHeader = operation?.parameters?.find((p) => getResolvedRef(p)?.name === 'Content-Type')
+        expect(getResolvedRef(contentTypeHeader)).toMatchObject({
+          name: 'Content-Type',
+          in: 'header',
+          examples: {
+            'Create User Example': { value: 'application/json', 'x-disabled': false },
+          },
+        })
+      })
+
+      it('transforms an example with form data', async () => {
+        const example = requestExampleSchema.parse({
+          uid: 'example-1',
+          requestUid: 'request-1',
+          name: 'Form Example',
+          body: {
+            activeBody: 'formData',
+            formData: {
+              encoding: 'form-data',
+              value: [
+                { key: 'username', value: 'johndoe', enabled: true },
+                { key: 'password', value: 'secret123', enabled: true },
+              ],
+            },
+          },
+          parameters: {
+            headers: [{ key: 'Accept', value: '*/*', enabled: true }],
+          },
+        })
+
+        const request = requestSchema.parse({
+          uid: 'request-1',
+          path: '/login',
+          method: 'post',
+          summary: 'Login',
+          examples: ['example-1'],
+        })
+
+        const legacyData = createLegacyData({
+          title: 'Auth API',
+          collection: { requests: ['request-1'] },
+          requests: [request],
+          requestExamples: [example],
+        })
+
+        const result = await transformLegacyDataToWorkspace(legacyData)
+        const doc = result[0]?.workspace.documents['Auth API']
+
+        assert(doc)
+        const operation = getResolvedRef(doc.paths?.['/login']?.post)
+
+        // Check request body example for multipart/form-data
+        const requestBody = getResolvedRef(operation?.requestBody)
+        expect(requestBody?.content?.['multipart/form-data']?.examples).toBeDefined()
+        expect(requestBody?.content?.['multipart/form-data']?.examples?.['Form Example']).toEqual({
+          value: [
+            { key: 'username', type: 'string', value: 'johndoe' },
+            { key: 'password', type: 'string', value: 'secret123' },
+          ],
+        })
+
+        // Check Accept header parameter
+        const acceptHeader = operation?.parameters?.find((p) => getResolvedRef(p)?.name === 'Accept')
+        expect(getResolvedRef(acceptHeader)).toMatchObject({
+          name: 'Accept',
+          in: 'header',
+          examples: {
+            'Form Example': { value: '*/*', 'x-disabled': false },
+          },
+        })
+      })
+
+      it('transforms an example with URL-encoded form data', async () => {
+        const example = requestExampleSchema.parse({
+          uid: 'example-1',
+          requestUid: 'request-1',
+          name: 'URL Encoded Example',
+          body: {
+            activeBody: 'formData',
+            formData: {
+              encoding: 'urlencoded',
+              value: [
+                { key: 'email', value: 'user@example.com', enabled: true },
+                { key: 'password', value: 'secret', enabled: true },
+              ],
+            },
+          },
+          parameters: {
+            headers: [{ key: 'Accept', value: '*/*', enabled: true }],
+          },
+        })
+
+        const request = requestSchema.parse({
+          uid: 'request-1',
+          path: '/auth',
+          method: 'post',
+          summary: 'Authenticate',
+          examples: ['example-1'],
+        })
+
+        const legacyData = createLegacyData({
+          title: 'Auth API',
+          collection: { requests: ['request-1'] },
+          requests: [request],
+          requestExamples: [example],
+        })
+
+        const result = await transformLegacyDataToWorkspace(legacyData)
+        const doc = result[0]?.workspace.documents['Auth API']
+
+        assert(doc)
+        const operation = getResolvedRef(doc.paths?.['/auth']?.post)
+
+        // Check request body example for application/x-www-form-urlencoded
+        const requestBody = getResolvedRef(operation?.requestBody)
+        expect(requestBody?.content?.['application/x-www-form-urlencoded']?.examples).toBeDefined()
+        expect(requestBody?.content?.['application/x-www-form-urlencoded']?.examples?.['URL Encoded Example']).toEqual({
+          value: [
+            { key: 'email', type: 'string', value: 'user@example.com' },
+            { key: 'password', type: 'string', value: 'secret' },
+          ],
+        })
+
+        // Check Accept header parameter
+        const acceptHeader = operation?.parameters?.find((p) => getResolvedRef(p)?.name === 'Accept')
+        expect(getResolvedRef(acceptHeader)).toMatchObject({
+          name: 'Accept',
+          in: 'header',
+          examples: {
+            'URL Encoded Example': { value: '*/*', 'x-disabled': false },
+          },
+        })
+      })
+
+      it('transforms an example with XML request body', async () => {
+        const example = requestExampleSchema.parse({
+          uid: 'example-1',
+          requestUid: 'request-1',
+          name: 'XML Example',
+          body: {
+            activeBody: 'raw',
+            raw: {
+              encoding: 'xml',
+              value: '<user><name>John Doe</name><email>john@example.com</email></user>',
+            },
+          },
+          parameters: {
+            headers: [{ key: 'Content-Type', value: 'application/xml', enabled: true }],
+          },
+        })
+
+        const request = requestSchema.parse({
+          uid: 'request-1',
+          path: '/users',
+          method: 'post',
+          summary: 'Create user',
+          examples: ['example-1'],
+        })
+
+        const legacyData = createLegacyData({
+          title: 'Users API',
+          collection: { requests: ['request-1'] },
+          requests: [request],
+          requestExamples: [example],
+        })
+
+        const result = await transformLegacyDataToWorkspace(legacyData)
+        const doc = result[0]?.workspace.documents['Users API']
+
+        assert(doc)
+        const operation = getResolvedRef(doc.paths?.['/users']?.post)
+
+        // Check request body example
+        const requestBody = getResolvedRef(operation?.requestBody)
+        expect(requestBody?.content?.['application/xml']?.examples).toBeDefined()
+        expect(requestBody?.content?.['application/xml']?.examples?.['XML Example']).toEqual({
+          value: '<user><name>John Doe</name><email>john@example.com</email></user>',
+        })
+
+        // Check Content-Type header parameter
+        const contentTypeHeader = operation?.parameters?.find((p) => getResolvedRef(p)?.name === 'Content-Type')
+        expect(getResolvedRef(contentTypeHeader)).toMatchObject({
+          name: 'Content-Type',
+          in: 'header',
+          examples: {
+            'XML Example': { value: 'application/xml', 'x-disabled': false },
+          },
+        })
+      })
+
+      it('transforms an example with YAML request body', async () => {
+        const example = requestExampleSchema.parse({
+          uid: 'example-1',
+          requestUid: 'request-1',
+          name: 'YAML Example',
+          body: {
+            activeBody: 'raw',
+            raw: {
+              encoding: 'yaml',
+              value: 'name: John Doe\nemail: john@example.com',
+            },
+          },
+          parameters: {
+            headers: [{ key: 'Content-Type', value: 'application/yaml', enabled: true }],
+          },
+        })
+
+        const request = requestSchema.parse({
+          uid: 'request-1',
+          path: '/config',
+          method: 'post',
+          summary: 'Update config',
+          examples: ['example-1'],
+        })
+
+        const legacyData = createLegacyData({
+          title: 'Config API',
+          collection: { requests: ['request-1'] },
+          requests: [request],
+          requestExamples: [example],
+        })
+
+        const result = await transformLegacyDataToWorkspace(legacyData)
+        const doc = result[0]?.workspace.documents['Config API']
+
+        assert(doc)
+        const operation = getResolvedRef(doc.paths?.['/config']?.post)
+
+        // Check request body example
+        const requestBody = getResolvedRef(operation?.requestBody)
+        expect(requestBody?.content?.['application/yaml']?.examples).toBeDefined()
+        expect(requestBody?.content?.['application/yaml']?.examples?.['YAML Example']).toEqual({
+          value: 'name: John Doe\nemail: john@example.com',
+        })
+
+        // Check Content-Type header parameter
+        const contentTypeHeader = operation?.parameters?.find((p) => getResolvedRef(p)?.name === 'Content-Type')
+        expect(getResolvedRef(contentTypeHeader)).toMatchObject({
+          name: 'Content-Type',
+          in: 'header',
+          examples: {
+            'YAML Example': { value: 'application/yaml', 'x-disabled': false },
+          },
+        })
+      })
+
+      it('transforms an example with EDN request body', async () => {
+        const example = requestExampleSchema.parse({
+          uid: 'example-1',
+          requestUid: 'request-1',
+          name: 'EDN Example',
+          body: {
+            activeBody: 'raw',
+            raw: {
+              encoding: 'edn',
+              value: '{:name "John Doe" :email "john@example.com"}',
+            },
+          },
+          parameters: {
+            headers: [{ key: 'Content-Type', value: 'application/edn', enabled: true }],
+          },
+        })
+
+        const request = requestSchema.parse({
+          uid: 'request-1',
+          path: '/data',
+          method: 'post',
+          summary: 'Submit data',
+          examples: ['example-1'],
+        })
+
+        const legacyData = createLegacyData({
+          title: 'Data API',
+          collection: { requests: ['request-1'] },
+          requests: [request],
+          requestExamples: [example],
+        })
+
+        const result = await transformLegacyDataToWorkspace(legacyData)
+        const doc = result[0]?.workspace.documents['Data API']
+
+        assert(doc)
+        const operation = getResolvedRef(doc.paths?.['/data']?.post)
+
+        // Check request body example
+        const requestBody = getResolvedRef(operation?.requestBody)
+        expect(requestBody?.content?.['application/edn']?.examples).toBeDefined()
+        expect(requestBody?.content?.['application/edn']?.examples?.['EDN Example']).toEqual({
+          value: '{:name "John Doe" :email "john@example.com"}',
+        })
+
+        // Check Content-Type header parameter
+        const contentTypeHeader = operation?.parameters?.find((p) => getResolvedRef(p)?.name === 'Content-Type')
+        expect(getResolvedRef(contentTypeHeader)).toMatchObject({
+          name: 'Content-Type',
+          in: 'header',
+          examples: {
+            'EDN Example': { value: 'application/edn', 'x-disabled': false },
+          },
+        })
+      })
+
+      it('transforms an example with binary file (octet-stream)', async () => {
+        const example = requestExampleSchema.parse({
+          uid: 'example-1',
+          requestUid: 'request-1',
+          name: 'Binary Example',
+          body: {
+            activeBody: 'binary',
+          },
+          parameters: {
+            headers: [
+              { key: 'Content-Type', value: 'application/octet-stream', enabled: true },
+              { key: 'Accept', value: '*/*', enabled: true },
+            ],
+          },
+        })
+
+        const request = requestSchema.parse({
+          uid: 'request-1',
+          path: '/upload',
+          method: 'post',
+          summary: 'Upload file',
+          examples: ['example-1'],
+        })
+
+        const legacyData = createLegacyData({
+          title: 'Upload API',
+          collection: { requests: ['request-1'] },
+          requests: [request],
+          requestExamples: [example],
+        })
+
+        const result = await transformLegacyDataToWorkspace(legacyData)
+        const doc = result[0]?.workspace.documents['Upload API']
+
+        assert(doc)
+        const operation = getResolvedRef(doc.paths?.['/upload']?.post)
+
+        // Check request body example for binary
+        const requestBody = getResolvedRef(operation?.requestBody)
+        expect(requestBody?.content?.['binary']?.examples).toBeDefined()
+        expect(requestBody?.content?.['binary']?.examples?.['Binary Example']).toBeDefined()
+
+        // Check Content-Type header parameter
+        const contentTypeHeader = operation?.parameters?.find((p) => getResolvedRef(p)?.name === 'Content-Type')
+        expect(getResolvedRef(contentTypeHeader)).toMatchObject({
+          name: 'Content-Type',
+          in: 'header',
+          examples: {
+            'Binary Example': { value: 'application/octet-stream', 'x-disabled': false },
+          },
+        })
+
+        // Check Accept header parameter
+        const acceptHeader = operation?.parameters?.find((p) => getResolvedRef(p)?.name === 'Accept')
+        expect(getResolvedRef(acceptHeader)).toMatchObject({
+          name: 'Accept',
+          in: 'header',
+          examples: {
+            'Binary Example': { value: '*/*', 'x-disabled': false },
+          },
+        })
+      })
+
+      it('transforms an example with path parameters', async () => {
+        const example = requestExampleSchema.parse({
+          uid: 'example-1',
+          requestUid: 'request-1',
+          name: 'Get User 123',
+          parameters: {
+            path: [{ key: 'id', value: '123', enabled: true }],
+            headers: [{ key: 'Accept', value: '*/*', enabled: true }],
+          },
+        })
+
+        const request = requestSchema.parse({
+          uid: 'request-1',
+          path: '/users/{id}',
+          method: 'get',
+          summary: 'Get user',
+          examples: ['example-1'],
+        })
+
+        const legacyData = createLegacyData({
+          title: 'Users API',
+          collection: { requests: ['request-1'] },
+          requests: [request],
+          requestExamples: [example],
+        })
+
+        const result = await transformLegacyDataToWorkspace(legacyData)
+        const doc = result[0]?.workspace.documents['Users API']
+
+        assert(doc)
+        const operation = getResolvedRef(doc.paths?.['/users/{id}']?.get)
+        expect(operation?.parameters).toBeDefined()
+
+        // Find the path parameter
+        const idParam = operation?.parameters?.find((p) => getResolvedRef(p)?.name === 'id')
+        const acceptHeader = operation?.parameters?.find((p) => getResolvedRef(p)?.name === 'Accept')
+
+        expect(getResolvedRef(idParam)).toMatchObject({
+          name: 'id',
+          in: 'path',
+          required: true,
+          examples: {
+            'Get User 123': { value: '123', 'x-disabled': false },
+          },
+        })
+
+        expect(getResolvedRef(acceptHeader)).toMatchObject({
+          name: 'Accept',
+          in: 'header',
+          examples: {
+            'Get User 123': { value: '*/*', 'x-disabled': false },
+          },
+        })
+      })
+    })
+
+    describe('request with servers', () => {
+      it('transforms a request with server overrides', async () => {
+        const server1 = serverSchema.parse({
+          uid: 'server-1',
+          url: 'https://api.example.com',
+          description: 'Main server',
+        })
+
+        const server2 = serverSchema.parse({
+          uid: 'server-2',
+          url: 'https://api-staging.example.com',
+          description: 'Staging server',
+        })
+
+        const request = requestSchema.parse({
+          uid: 'request-1',
+          path: '/users',
+          method: 'get',
+          summary: 'Get users',
+          servers: ['server-2'],
+        })
+
+        const legacyData = createLegacyData({
+          title: 'Users API',
+          collection: { servers: ['server-1'], requests: ['request-1'] },
+          servers: [server1, server2],
+          requests: [request],
+        })
+
+        const result = await transformLegacyDataToWorkspace(legacyData)
+        const doc = result[0]?.workspace.documents['Users API']
+
+        assert(doc)
+        expect(getResolvedRef(doc.paths?.['/users']?.get)?.servers).toEqual([
+          {
+            url: 'https://api-staging.example.com',
+            description: 'Staging server',
+          },
+        ])
+      })
+
+      it('transforms a request with multiple server overrides', async () => {
+        const server1 = serverSchema.parse({
+          uid: 'server-1',
+          url: 'https://api.example.com',
+          description: 'Production',
+        })
+
+        const server2 = serverSchema.parse({
+          uid: 'server-2',
+          url: 'https://api-staging.example.com',
+          description: 'Staging',
+        })
+
+        const server3 = serverSchema.parse({
+          uid: 'server-3',
+          url: 'https://api-dev.example.com',
+          description: 'Development',
+        })
+
+        const request = requestSchema.parse({
+          uid: 'request-1',
+          path: '/users',
+          method: 'get',
+          summary: 'Get users',
+          servers: ['server-2', 'server-3'],
+        })
+
+        const legacyData = createLegacyData({
+          title: 'Users API',
+          collection: { servers: ['server-1'], requests: ['request-1'] },
+          servers: [server1, server2, server3],
+          requests: [request],
+        })
+
+        const result = await transformLegacyDataToWorkspace(legacyData)
+        const doc = result[0]?.workspace.documents['Users API']
+
+        assert(doc)
+        expect(getResolvedRef(doc.paths?.['/users']?.get)?.servers).toEqual([
+          { url: 'https://api-staging.example.com', description: 'Staging' },
+          { url: 'https://api-dev.example.com', description: 'Development' },
+        ])
+      })
+
+      it('transforms a request with server variables', async () => {
+        const server = serverSchema.parse({
+          uid: 'server-1',
+          url: 'https://{environment}.example.com',
+          description: 'Templated server',
+          variables: {
+            environment: {
+              default: 'api',
+              enum: ['api', 'staging'],
+              description: 'Environment',
+            },
+          },
+        })
+
+        const request = requestSchema.parse({
+          uid: 'request-1',
+          path: '/users',
+          method: 'get',
+          summary: 'Get users',
+          servers: ['server-1'],
+        })
+
+        const legacyData = createLegacyData({
+          title: 'Users API',
+          collection: { requests: ['request-1'] },
+          servers: [server],
+          requests: [request],
+        })
+
+        const result = await transformLegacyDataToWorkspace(legacyData)
+        const doc = result[0]?.workspace.documents['Users API']
+
+        assert(doc)
+        expect(getResolvedRef(doc.paths?.['/users']?.get)?.servers).toEqual([
+          {
+            url: 'https://{environment}.example.com',
+            description: 'Templated server',
+            variables: {
+              environment: {
+                default: 'api',
+                enum: ['api', 'staging'],
+                description: 'Environment',
+              },
+            },
+          },
+        ])
+      })
+
+      it('handles request with no server overrides', async () => {
+        const request = requestSchema.parse({
+          uid: 'request-1',
+          path: '/users',
+          method: 'get',
+          summary: 'Get users',
+        })
+
+        const legacyData = createLegacyData({
+          title: 'Users API',
+          collection: { requests: ['request-1'] },
+          requests: [request],
+        })
+
+        const result = await transformLegacyDataToWorkspace(legacyData)
+        const doc = result[0]?.workspace.documents['Users API']
+
+        assert(doc)
+        expect(getResolvedRef(doc.paths?.['/users']?.get)?.servers).toBeUndefined()
+      })
+
+      it('filters out non-existent server UIDs from request', async () => {
+        const server = serverSchema.parse({
+          uid: 'server-1',
+          url: 'https://api.example.com',
+        })
+
+        const request = requestSchema.parse({
+          uid: 'request-1',
+          path: '/users',
+          method: 'get',
+          summary: 'Get users',
+          servers: ['server-1', 'server-nonexistent'],
+        })
+
+        const legacyData = createLegacyData({
+          title: 'Users API',
+          collection: { requests: ['request-1'] },
+          servers: [server],
+          requests: [request],
+        })
+
+        const result = await transformLegacyDataToWorkspace(legacyData)
+        const doc = result[0]?.workspace.documents['Users API']
+
+        assert(doc)
+        expect(getResolvedRef(doc.paths?.['/users']?.get)?.servers).toEqual([{ url: 'https://api.example.com' }])
+      })
+    })
+
+    describe('request with security', () => {
+      it('transforms a request with security requirements', async () => {
+        const scheme = securitySchemeSchema.parse({
+          uid: 'security-1',
+          nameKey: 'api-key',
+          type: 'apiKey',
+          name: 'X-API-Key',
+          in: 'header',
+          value: 'secret-key',
+        })
+
+        const request = requestSchema.parse({
+          uid: 'request-1',
+          path: '/protected',
+          method: 'get',
+          summary: 'Protected endpoint',
+          security: [{ 'api-key': [] }],
+          selectedSecuritySchemeUids: ['security-1'],
+        })
+
+        const legacyData = createLegacyData({
+          title: 'Protected API',
+          collection: { securitySchemes: [scheme.uid], requests: ['request-1'] },
+          securitySchemes: [scheme],
+          requests: [request],
+        })
+
+        const result = await transformLegacyDataToWorkspace(legacyData)
+        const doc = result[0]?.workspace.documents['Protected API']
+
+        assert(doc)
+        expect(getResolvedRef(doc.paths?.['/protected']?.get)?.security).toEqual([{ 'api-key': [] }])
+      })
+
+      it('transforms a request with multiple security requirements (AND)', async () => {
+        const apiKeyScheme = securitySchemeSchema.parse({
+          uid: 'security-1',
+          nameKey: 'api-key',
+          type: 'apiKey',
+          name: 'X-API-Key',
+          in: 'header',
+          value: 'key-123',
+        })
+
+        const bearerScheme = securitySchemeSchema.parse({
+          uid: 'security-2',
+          nameKey: 'bearer-auth',
+          type: 'http',
+          scheme: 'bearer',
+          token: 'token-456',
+        })
+
+        const request = requestSchema.parse({
+          uid: 'request-1',
+          path: '/protected',
+          method: 'get',
+          summary: 'Protected endpoint',
+          security: [{ 'api-key': [], 'bearer-auth': [] }],
+          selectedSecuritySchemeUids: ['security-1', 'security-2'],
+        })
+
+        const legacyData = createLegacyData({
+          title: 'Protected API',
+          collection: {
+            securitySchemes: [apiKeyScheme.uid, bearerScheme.uid],
+            requests: ['request-1'],
+          },
+          securitySchemes: [apiKeyScheme, bearerScheme],
+          requests: [request],
+        })
+
+        const result = await transformLegacyDataToWorkspace(legacyData)
+        const doc = result[0]?.workspace.documents['Protected API']
+
+        assert(doc)
+        expect(getResolvedRef(doc.paths?.['/protected']?.get)?.security).toEqual([{ 'api-key': [], 'bearer-auth': [] }])
+      })
+
+      it('transforms a request with alternative security requirements (OR)', async () => {
+        const apiKeyScheme = securitySchemeSchema.parse({
+          uid: 'security-1',
+          nameKey: 'api-key',
+          type: 'apiKey',
+          name: 'X-API-Key',
+          in: 'header',
+          value: 'key-123',
+        })
+
+        const bearerScheme = securitySchemeSchema.parse({
+          uid: 'security-2',
+          nameKey: 'bearer-auth',
+          type: 'http',
+          scheme: 'bearer',
+          token: 'token-456',
+        })
+
+        const request = requestSchema.parse({
+          uid: 'request-1',
+          path: '/protected',
+          method: 'get',
+          summary: 'Protected endpoint',
+          security: [{ 'api-key': [] }, { 'bearer-auth': [] }],
+          selectedSecuritySchemeUids: ['security-1', 'security-2'],
+        })
+
+        const legacyData = createLegacyData({
+          title: 'Protected API',
+          collection: {
+            securitySchemes: [apiKeyScheme.uid, bearerScheme.uid],
+            requests: ['request-1'],
+          },
+          securitySchemes: [apiKeyScheme, bearerScheme],
+          requests: [request],
+        })
+
+        const result = await transformLegacyDataToWorkspace(legacyData)
+        const doc = result[0]?.workspace.documents['Protected API']
+
+        assert(doc)
+        expect(getResolvedRef(doc.paths?.['/protected']?.get)?.security).toEqual([
+          { 'api-key': [] },
+          { 'bearer-auth': [] },
+        ])
+      })
+
+      it('transforms a request with OAuth2 security and scopes', async () => {
+        const oauthScheme = securitySchemeSchema.parse({
+          uid: 'security-1',
+          nameKey: 'oauth2',
+          type: 'oauth2',
+          flows: {
+            authorizationCode: {
+              type: 'authorizationCode',
+              authorizationUrl: 'https://example.com/oauth/authorize',
+              tokenUrl: 'https://example.com/oauth/token',
+              scopes: {
+                'read:users': 'Read user data',
+                'write:users': 'Write user data',
+              },
+              selectedScopes: ['read:users'],
+            },
+          },
+        })
+
+        const request = requestSchema.parse({
+          uid: 'request-1',
+          path: '/users',
+          method: 'get',
+          summary: 'Get users',
+          security: [{ oauth2: ['read:users'] }],
+          selectedSecuritySchemeUids: ['security-1'],
+        })
+
+        const legacyData = createLegacyData({
+          title: 'OAuth API',
+          collection: {
+            securitySchemes: [oauthScheme.uid],
+            requests: ['request-1'],
+          },
+          securitySchemes: [oauthScheme],
+          requests: [request],
+        })
+
+        const result = await transformLegacyDataToWorkspace(legacyData)
+        const doc = result[0]?.workspace.documents['OAuth API']
+
+        assert(doc)
+        expect(getResolvedRef(doc.paths?.['/users']?.get)?.security).toEqual([{ oauth2: ['read:users'] }])
+      })
+
+      it('transforms a request with empty security (no authentication required)', async () => {
+        const request = requestSchema.parse({
+          uid: 'request-1',
+          path: '/public',
+          method: 'get',
+          summary: 'Public endpoint',
+          security: [],
+        })
+
+        const legacyData = createLegacyData({
+          title: 'Public API',
+          collection: { requests: ['request-1'] },
+          requests: [request],
+        })
+
+        const result = await transformLegacyDataToWorkspace(legacyData)
+        const doc = result[0]?.workspace.documents['Public API']
+
+        assert(doc)
+        expect(getResolvedRef(doc.paths?.['/public']?.get)?.security).toEqual([])
+      })
+
+      it('handles request with no security field', async () => {
+        const request = requestSchema.parse({
+          uid: 'request-1',
+          path: '/users',
+          method: 'get',
+          summary: 'Get users',
+        })
+
+        const legacyData = createLegacyData({
+          title: 'Users API',
+          collection: { requests: ['request-1'] },
+          requests: [request],
+        })
+
+        const result = await transformLegacyDataToWorkspace(legacyData)
+        const doc = result[0]?.workspace.documents['Users API']
+
+        assert(doc)
+        expect(getResolvedRef(doc.paths?.['/users']?.get)?.security).toBeUndefined()
+      })
+
+      it('transforms different security requirements across multiple requests', async () => {
+        const apiKeyScheme = securitySchemeSchema.parse({
+          uid: 'security-1',
+          nameKey: 'api-key',
+          type: 'apiKey',
+          name: 'X-API-Key',
+          in: 'header',
+          value: 'key-123',
+        })
+
+        const bearerScheme = securitySchemeSchema.parse({
+          uid: 'security-2',
+          nameKey: 'bearer-auth',
+          type: 'http',
+          scheme: 'bearer',
+          token: 'token-456',
+        })
+
+        const publicRequest = requestSchema.parse({
+          uid: 'request-1',
+          path: '/public',
+          method: 'get',
+          summary: 'Public endpoint',
+          security: [],
+        })
+
+        const apiKeyRequest = requestSchema.parse({
+          uid: 'request-2',
+          path: '/api-key-protected',
+          method: 'get',
+          summary: 'API key protected',
+          security: [{ 'api-key': [] }],
+        })
+
+        const bearerRequest = requestSchema.parse({
+          uid: 'request-3',
+          path: '/bearer-protected',
+          method: 'get',
+          summary: 'Bearer protected',
+          security: [{ 'bearer-auth': [] }],
+        })
+
+        const legacyData = createLegacyData({
+          title: 'Mixed Security API',
+          collection: {
+            securitySchemes: [apiKeyScheme.uid, bearerScheme.uid],
+            requests: ['request-1', 'request-2', 'request-3'],
+          },
+          securitySchemes: [apiKeyScheme, bearerScheme],
+          requests: [publicRequest, apiKeyRequest, bearerRequest],
+        })
+
+        const result = await transformLegacyDataToWorkspace(legacyData)
+        const doc = result[0]?.workspace.documents['Mixed Security API']
+
+        assert(doc)
+        expect(getResolvedRef(doc.paths?.['/public']?.get)?.security).toEqual([])
+        expect(getResolvedRef(doc.paths?.['/api-key-protected']?.get)?.security).toEqual([{ 'api-key': [] }])
+        expect(getResolvedRef(doc.paths?.['/bearer-protected']?.get)?.security).toEqual([{ 'bearer-auth': [] }])
+      })
+    })
+
+    describe('request with scalar extensions', () => {
+      it('preserves x-scalar-stability extension', async () => {
+        const request = requestSchema.parse({
+          uid: 'request-1',
+          path: '/experimental',
+          method: 'get',
+          summary: 'Experimental endpoint',
+          'x-scalar-stability': 'experimental',
+        })
+
+        const legacyData = createLegacyData({
+          title: 'Experimental API',
+          collection: { requests: ['request-1'] },
+          requests: [request],
+        })
+
+        const result = await transformLegacyDataToWorkspace(legacyData)
+        const doc = result[0]?.workspace.documents['Experimental API']
+
+        assert(doc)
+        expect(getResolvedRef(doc.paths?.['/experimental']?.get)?.['x-scalar-stability']).toBe('experimental')
+      })
+
+      it('preserves x-internal extension', async () => {
+        const request = requestSchema.parse({
+          uid: 'request-1',
+          path: '/internal',
+          method: 'get',
+          summary: 'Internal endpoint',
+          'x-internal': true,
+        })
+
+        const legacyData = createLegacyData({
+          title: 'Internal API',
+          collection: { requests: ['request-1'] },
+          requests: [request],
+        })
+
+        const result = await transformLegacyDataToWorkspace(legacyData)
+        const doc = result[0]?.workspace.documents['Internal API']
+
+        assert(doc)
+        expect(getResolvedRef(doc.paths?.['/internal']?.get)?.['x-internal']).toBe(true)
+      })
+    })
+
+    describe('request edge cases', () => {
+      it('handles requests with no examples', async () => {
+        const request = requestSchema.parse({
+          uid: 'request-1',
+          path: '/users',
+          method: 'get',
+          summary: 'Get users',
+        })
+
+        const legacyData = createLegacyData({
+          title: 'Users API',
+          collection: { requests: ['request-1'] },
+          requests: [request],
+        })
+
+        const result = await transformLegacyDataToWorkspace(legacyData)
+        const doc = result[0]?.workspace.documents['Users API']
+
+        assert(doc)
+        expect(doc.paths?.['/users']?.get).toBeDefined()
+        // When there are no examples, parameters should either be undefined or empty
+        expect(getResolvedRef(doc.paths?.['/users']?.get)?.parameters).toBeUndefined()
+      })
+
+      it('filters out non-existent example UIDs from request', async () => {
+        const example = requestExampleSchema.parse({
+          uid: 'example-1',
+          requestUid: 'request-1',
+          name: 'Valid Example',
+          parameters: {
+            headers: [{ key: 'Accept', value: '*/*', enabled: true }],
+          },
+        })
+
+        const request = requestSchema.parse({
+          uid: 'request-1',
+          path: '/users',
+          method: 'get',
+          summary: 'Get users',
+          examples: ['example-1', 'example-nonexistent'],
+        })
+
+        const legacyData = createLegacyData({
+          title: 'Users API',
+          collection: { requests: ['request-1'] },
+          requests: [request],
+          requestExamples: [example],
+        })
+
+        const result = await transformLegacyDataToWorkspace(legacyData)
+        const doc = result[0]?.workspace.documents['Users API']
+
+        assert(doc)
+        const operation = getResolvedRef(doc.paths?.['/users']?.get)
+        expect(operation?.parameters).toBeDefined()
+
+        // Check that only the valid example exists
+        const acceptHeader = getResolvedRef(
+          operation?.parameters?.find((p) => getResolvedRef(p)?.name === 'Accept'),
+        ) as ParameterWithSchemaObject
+        expect(acceptHeader?.examples).toBeDefined()
+        expect(acceptHeader?.examples?.['Valid Example']).toEqual({ value: '*/*', 'x-disabled': false })
+      })
+
+      it('handles orphaned examples that do not reference any request', async () => {
+        const orphanedExample = requestExampleSchema.parse({
+          uid: 'example-orphan',
+          requestUid: 'request-nonexistent',
+          name: 'Orphaned Example',
+          parameters: {
+            headers: [{ key: 'Accept', value: '*/*', enabled: true }],
+          },
+        })
+
+        const legacyData = createLegacyData({
+          title: 'Users API',
+          requestExamples: [orphanedExample],
+        })
+
+        const result = await transformLegacyDataToWorkspace(legacyData)
+        const doc = result[0]?.workspace.documents['Users API']
+
+        assert(doc)
+        // Orphaned examples should not appear anywhere in the document
+        expect(doc.paths).toEqual({})
+      })
+
+      it('handles collections with no requests', async () => {
+        const legacyData = createLegacyData({
+          title: 'Empty API',
+        })
+
+        const result = await transformLegacyDataToWorkspace(legacyData)
+        const doc = result[0]?.workspace.documents['Empty API']
+
+        assert(doc)
+        expect(doc.paths).toEqual({})
+      })
+
+      it('handles request with deprecated flag', async () => {
+        const request = requestSchema.parse({
+          uid: 'request-1',
+          path: '/old-endpoint',
+          method: 'get',
+          summary: 'Old endpoint',
+          deprecated: true,
+        })
+
+        const legacyData = createLegacyData({
+          title: 'Legacy API',
+          collection: { requests: ['request-1'] },
+          requests: [request],
+        })
+
+        const result = await transformLegacyDataToWorkspace(legacyData)
+        const doc = result[0]?.workspace.documents['Legacy API']
+
+        assert(doc)
+        expect(getResolvedRef(doc.paths?.['/old-endpoint']?.get)?.deprecated).toBe(true)
+      })
+    })
+
+    describe('requests across multiple collections', () => {
+      it('transforms requests independently across multiple collections in one workspace', async () => {
+        const request1 = requestSchema.parse({
+          uid: 'request-1',
+          type: 'request',
+          path: '/users',
+          method: 'get',
+          summary: 'Get users from API One',
+        })
+
+        const request2 = requestSchema.parse({
+          uid: 'request-2',
+          type: 'request',
+          path: '/products',
+          method: 'get',
+          summary: 'Get products from API Two',
+        })
+
+        const collection1 = collectionSchema.parse({
+          uid: 'collection-1',
+          openapi: '3.1.0',
+          info: { title: 'API One', version: '1.0.0' },
+          requests: ['request-1'],
+        })
+
+        const collection2 = collectionSchema.parse({
+          uid: 'collection-2',
+          openapi: '3.1.0',
+          info: { title: 'API Two', version: '1.0.0' },
+          requests: ['request-2'],
+        })
+
+        const workspace = workspaceSchema.parse({
+          uid: 'workspace-1',
+          name: 'Multi Collection Workspace',
+          collections: ['collection-1', 'collection-2'],
+        })
+
+        const legacyData = createLegacyData({
+          workspaces: [workspace],
+          collections: [collection1, collection2],
+          requests: [request1, request2],
+        })
+
+        const result = await transformLegacyDataToWorkspace(legacyData)
+        const resultWorkspace = result[0]!
+
+        const doc1 = resultWorkspace.workspace.documents['API One']
+        const doc2 = resultWorkspace.workspace.documents['API Two']
+
+        assert(doc1)
+        assert(doc2)
+
+        expect(doc1.paths).toEqual({
+          '/users': {
+            get: { summary: 'Get users from API One' },
+          },
+        })
+        expect(doc2.paths).toEqual({
+          '/products': {
+            get: { summary: 'Get products from API Two' },
+          },
+        })
+      })
+    })
+
+    describe('request with responses and callbacks', () => {
+      it('preserves response definitions on the request', async () => {
+        const request = requestSchema.parse({
+          uid: 'request-1',
+          path: '/users',
+          method: 'get',
+          summary: 'Get users',
+          responses: {
+            '200': {
+              description: 'Successful response',
+              content: {
+                'application/json': {
+                  schema: {
+                    type: 'array',
+                    items: { type: 'object' },
+                  },
+                },
+              },
+            },
+            '404': {
+              description: 'Not found',
+            },
+          },
+        })
+
+        const legacyData = createLegacyData({
+          title: 'Users API',
+          collection: { requests: ['request-1'] },
+          requests: [request],
+        })
+
+        const result = await transformLegacyDataToWorkspace(legacyData)
+        const doc = result[0]?.workspace.documents['Users API']
+
+        assert(doc)
+        expect(getResolvedRef(doc.paths?.['/users']?.get)?.responses).toEqual({
+          '200': {
+            description: 'Successful response',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'array',
+                  items: { type: 'object' },
+                },
+              },
+            },
+          },
+          '404': {
+            description: 'Not found',
+          },
+        })
+      })
+
+      it('preserves callbacks on the request', async () => {
+        const request = requestSchema.parse({
+          uid: 'request-1',
+          path: '/subscribe',
+          method: 'post',
+          summary: 'Subscribe to webhooks',
+          callbacks: {
+            onData: {
+              '{$request.body#/callbackUrl}': {
+                post: {
+                  requestBody: {
+                    content: {
+                      'application/json': {
+                        schema: { type: 'object' },
+                      },
+                    },
+                  },
+                  responses: {
+                    '200': {
+                      description: 'Callback received',
+                    },
+                  },
+                },
+              },
+            },
+          },
+        })
+
+        const legacyData = createLegacyData({
+          title: 'Webhook API',
+          collection: { requests: ['request-1'] },
+          requests: [request],
+        })
+
+        const result = await transformLegacyDataToWorkspace(legacyData)
+        const doc = result[0]?.workspace.documents['Webhook API']
+
+        assert(doc)
+        expect(getResolvedRef(doc.paths?.['/subscribe']?.post)?.callbacks).toBeDefined()
+        expect(getResolvedRef(doc.paths?.['/subscribe']?.post)?.callbacks?.onData).toBeDefined()
+      })
+    })
+  })
 })
