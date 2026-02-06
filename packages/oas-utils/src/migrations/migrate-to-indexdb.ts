@@ -681,7 +681,6 @@ const transformCollectionToDocument = (
   // The legacy client dereferenced $refs inline, creating circular object graphs
   // that would cause JSON serialization and schema validation to fail.
   const safeDocument = circularToRefs(document, { '$ref-value': '' })
-  console.dir(safeDocument, { depth: null })
 
   return {
     document: coerceValue(OpenAPIDocumentSchema, safeDocument),
