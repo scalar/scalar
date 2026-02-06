@@ -13,7 +13,7 @@ import {
 } from '@scalar/workspace-store/events'
 import { generateUniqueValue } from '@scalar/workspace-store/helpers/generate-unique-value'
 import { getParentEntry } from '@scalar/workspace-store/navigation'
-import { createWorkspaceStorePersistence } from '@scalar/workspace-store/persistence'
+import { createWorkspaceStorePersistence, getWorkspaceId } from '@scalar/workspace-store/persistence'
 import { persistencePlugin } from '@scalar/workspace-store/plugins/client'
 import type { Workspace, WorkspaceDocument } from '@scalar/workspace-store/schemas'
 import { extensions } from '@scalar/workspace-store/schemas/extensions'
@@ -107,9 +107,6 @@ const activeDocument = computed(() => {
 const environment = computed<XScalarEnvironment>(() => getActiveEnvironment(store.value, activeDocument.value))
 
 const { workspace: persistence } = await createWorkspaceStorePersistence()
-
-/** Generates a workspace ID from namespace and slug. */
-const getWorkspaceId = (namespace: string, slug: string) => `${namespace}/${slug}`
 
 /**
  * Run migration from localStorage to IndexedDB if needed

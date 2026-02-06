@@ -4,6 +4,8 @@ import { objectEntries } from '@scalar/helpers/object/object-entries'
 import type { Oauth2Flow } from '@scalar/types/entities'
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
 import { type Auth, AuthSchema } from '@scalar/workspace-store/entities/auth'
+import { getWorkspaceId } from '@scalar/workspace-store/persistence'
+import { persistencePlugin } from '@scalar/workspace-store/plugins/client'
 import {
   type XScalarEnvironments,
   xScalarEnvironmentSchema,
@@ -111,20 +113,18 @@ export const transformLegacyDataToWorkspace = async (legacyData: {
       const workspaceAuth: InMemoryWorkspace['auth'] = {}
 
       /** Each collection becomes a document in the new system and grab the auth as well */
-      const documents: Record<string, OpenApiDocument> = Object.fromEntries(
-        workspace.collections.flatMap<[string, OpenApiDocument]>((uid) => {
-          const collection = legacyData.records.collections[uid]
-          if (!collection) {
-            return []
-          }
+      const documents: { name: string; document: OpenApiDocument }[] = workspace.collections.flatMap((uid) => {
+        const collection = legacyData.records.collections[uid]
+        if (!collection) {
+          return []
+        }
 
-          const documentName = collection.info?.title || collection.uid
-          const { document, auth } = transformCollectionToDocument(documentName, collection, legacyData.records)
-          workspaceAuth[documentName] = auth
+        const documentName = collection.info?.title || collection.uid
+        const { document, auth } = transformCollectionToDocument(documentName, collection, legacyData.records)
+        workspaceAuth[documentName] = auth
 
-          return [[documentName, document]]
-        }),
-      )
+        return { name: documentName, document }
+      })
 
       const meta: WorkspaceMeta = {}
       const extensions: WorkspaceExtensions = {}
@@ -167,12 +167,19 @@ export const transformLegacyDataToWorkspace = async (legacyData: {
 
       const store = createWorkspaceStore({
         meta,
+        plugins: [
+          await persistencePlugin({
+            workspaceId: getWorkspaceId('local', workspace.uid),
+            debounceDelay: 0,
+          }),
+        ],
       })
 
       await Promise.all(
-        Object.entries(documents).map(async ([name, document]) => {
+        documents.map(async ({ name, document }) => {
           await store.addDocument({
-            name,
+            // Lowercase drafts to match the new store
+            name: name === 'Drafts' ? 'drafts' : name,
             document,
           })
         }),
@@ -721,7 +728,6 @@ const transformCollectionToDocument = (
           },
         }
       }, {}),
-
       selected: {},
     }),
   }
