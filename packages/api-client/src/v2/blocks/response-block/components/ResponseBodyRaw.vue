@@ -35,7 +35,7 @@ const getCurrentContent = () => {
       v-if="getCurrentContent()"
       class="z-context top-2 mr-2"
       :content="getCurrentContent()"
-      :controls="id" />
+      :aria-controls="id" />
     <div
       class="body-raw-scroller custom-scroll relative pr-1"
       tabindex="0">

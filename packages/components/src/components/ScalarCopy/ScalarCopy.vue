@@ -27,6 +27,7 @@ const { copy, copied } = useClipboard({ legacy: true, copiedDuring: duration })
 <template>
   <ScalarCopyButton
     :placement
+    :showLabel
     :copied
     @click="copy(content)">
     <template

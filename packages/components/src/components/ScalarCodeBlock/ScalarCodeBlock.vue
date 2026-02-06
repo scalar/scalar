@@ -79,7 +79,8 @@ const isContentValid = computed(() => {
     <ScalarCodeBlockCopy
       v-if="copy && isContentValid"
       :content="prettyContent"
-      :controls="id" />
+      :lang
+      :aria-controls="id" />
     <pre
       :id="id"
       class="scalar-codeblock-pre"

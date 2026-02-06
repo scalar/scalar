@@ -1,113 +1,46 @@
 <script setup lang="ts">
-import { ScalarIconCheck, ScalarIconCopy } from '@scalar/icons'
-import { cva, cx } from '@scalar/use-hooks/useBindCx'
-import { useClipboard } from '@scalar/use-hooks/useClipboard'
-import { ref } from 'vue'
+import { ScalarCopy } from '@/components/ScalarCopy'
+import { useBindCx } from '@scalar/use-hooks/useBindCx'
+import { computed } from 'vue'
 
-import { ScalarButton } from '../ScalarButton'
-
-const {
-  content,
-  controls,
-  class: className,
-} = defineProps<{
+const { content } = defineProps<{
   /** Content to copy to clipboard */
   content: string | object
-  /** ID of the parent element this button controls */
-  controls?: string
-  /** Class to apply to the copy button */
-  class?: string
+  /** Language of the code block */
+  lang?: string
 }>()
 
-/** Copy to clipboard hook */
-const { copyToClipboard } = useClipboard()
-
-/** Whether the copy button has been clicked */
-const showCopied = ref(false)
-
 /** Handles the copy button click */
-const handleCopy = async () => {
-  if (showCopied.value) {
-    return
-  }
-
-  const contentToCopy =
-    typeof content === 'string' ? content : JSON.stringify(content, null, 2)
-
-  await copyToClipboard(contentToCopy)
-  showCopied.value = true
-
-  setTimeout(() => {
-    showCopied.value = false
-  }, 1200)
-}
-
-/** Variants for the copy button */
-const variants = cva({
-  base: 'absolute top-0 right-0 h-8 w-8 p-0 flex items-center justify-center brightness-lifted bg-inherit rounded focus-visible:opacity-100 -outline-offset-1',
-  variants: {
-    showCopied: {
-      true: 'text-c-1',
-      false: 'text-c-3 hover:text-c-1',
-    },
-  },
+const contentToCopy = computed<string>(() => {
+  return typeof content === 'string'
+    ? content
+    : JSON.stringify(content, null, 2)
 })
+
+const { stylingAttrsCx: cx, otherAttrs } = useBindCx()
 </script>
 
 <template>
   <div
-    :class="
+    v-bind="
       cx(
         'scalar-code-copy opacity-0 group-hover/code-block:opacity-100 sticky flex inset-0 justify-end items-start bg-inherit',
-        className,
       )
     ">
-    <ScalarButton
-      :aria-controls="controls"
-      aria-label="Copy"
-      :class="cx(variants({ showCopied }))"
-      type="button"
-      variant="ghost"
-      @click="handleCopy">
-      <ScalarIconCopy
-        class="copy-icon size-4"
-        :class="{ copied: showCopied }" />
-      <ScalarIconCheck
-        class="check-icon size-4"
-        :class="{ visible: showCopied }" />
-    </ScalarButton>
-    <div
-      v-if="showCopied"
-      class="sr-only"
-      role="alert">
-      Copied
-    </div>
+    <ScalarCopy
+      class="group-hover/code-block:bg-b-2 group-focus-visible/code-block:bg-b-2"
+      :content="contentToCopy"
+      showLabel
+      placement="left"
+      v-bind="otherAttrs">
+      <template
+        v-if="lang"
+        #copy>
+        <span class="group-hover/copy-button:hidden">{{ lang }}</span>
+        <span class="hidden group-hover/copy-button:inline">
+          Copy to clipboard
+        </span>
+      </template>
+    </ScalarCopy>
   </div>
 </template>
-
-<style scoped>
-.scalar-code-block:hover .scalar-code-copy {
-  opacity: 100;
-}
-
-.copy-icon,
-.check-icon {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%) scale(1);
-  transition: transform 0.15s ease-in-out;
-}
-
-.copy-icon.copied {
-  transform: translate(-50%, -50%) scale(0);
-}
-
-.check-icon {
-  transform: translate(-50%, -50%) scale(0);
-}
-
-.check-icon.visible {
-  transform: translate(-50%, -50%) scale(1);
-}
-</style>

@@ -4,7 +4,11 @@ export type ScalarCopyProps = {
   /** The content to copy to the clipboard */
   content?: string
   /** The placement of the label relative to the copy button */
-  placement?: 'left' | 'right'
+  placement?: ScalarCopyPlacement
+  /**
+   * Whether the label should always be shown or only when the copy button is hovered
+   */
+  showLabel?: boolean
   /**
    * The duration to show the copied state after the copy button is clicked in milliseconds
    *
