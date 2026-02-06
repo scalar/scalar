@@ -268,11 +268,6 @@ const transformRequestsToPaths = (
       paths[path] = {}
     }
 
-    // Clean up parameters to remove default values
-    if (operation.parameters) {
-      operation.parameters = operation.parameters.map(cleanParameter)
-    }
-
     // Get request examples for this request
     const requestExamples = (examples || []).flatMap((exampleUid) => {
       const example = dataRecords.requestExamples[exampleUid]
@@ -301,60 +296,6 @@ const transformRequestsToPaths = (
   }
 
   return paths
-}
-
-/**
- * Removes default values from parameters to keep the output clean.
- * Only includes fields that were explicitly set.
- */
-const cleanParameter = (param: any): any => {
-  const cleaned: any = {
-    name: param.name,
-    in: param.in,
-  }
-
-  // Only add fields if they're not default values
-  if (param.description !== undefined) {
-    cleaned.description = param.description
-  }
-
-  if (param.required === true) {
-    cleaned.required = param.required
-  }
-
-  if (param.deprecated === true) {
-    cleaned.deprecated = param.deprecated
-  }
-
-  if (param.schema !== undefined) {
-    cleaned.schema = param.schema
-  }
-
-  if (param.content !== undefined) {
-    cleaned.content = param.content
-  }
-
-  if (param.style !== undefined) {
-    cleaned.style = param.style
-  }
-
-  if (param.explode !== undefined) {
-    cleaned.explode = param.explode
-  }
-
-  if (param.allowReserved !== undefined) {
-    cleaned.allowReserved = param.allowReserved
-  }
-
-  if (param.example !== undefined) {
-    cleaned.example = param.example
-  }
-
-  if (param.examples !== undefined) {
-    cleaned.examples = param.examples
-  }
-
-  return cleaned
 }
 
 /**
