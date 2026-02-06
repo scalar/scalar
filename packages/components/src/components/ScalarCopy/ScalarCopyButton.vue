@@ -2,10 +2,10 @@
 /**
  * Scalar Copy Button component
  *
- * A copy button for copying text to the clipboard.
+ * A dumb button with copy animations.
  *
- * Often used in conjunction with the useClipboard
- * hook from @scalar/use-hooks.
+ * If you're looking for a button that copies content to the clipboard,
+ * use the ScalarCopy component instead.
  *
  * @example
  *   <ScalarCopyButton @click="handleCopy">
@@ -19,30 +19,18 @@ export default {}
 import { ScalarIconCheck, ScalarIconCopy } from '@scalar/icons'
 import type { ScalarIconComponent } from '@scalar/icons/types'
 import { useBindCx } from '@scalar/use-hooks/useBindCx'
-import { computed, watch } from 'vue'
+import { computed } from 'vue'
 
-const { placement = 'right', clear = 1500 } = defineProps<{
-  /** The placement of the copy button */
-  placement?: 'left' | 'right'
-  /**
-   * The timeout to clear the empty state after in milliseconds
-   * Set to false to disable clearing
-   */
-  clear?: number | false
+import type { ScalarCopyPlacement, ScalarCopySlots } from './types'
+
+const { placement = 'right' } = defineProps<{
+  placement?: ScalarCopyPlacement
 }>()
 
-/** Whether the copy button has been clicked */
-const copied = defineModel<boolean>({ default: false })
+defineSlots<ScalarCopySlots>()
 
-/** Clear the empty state after the timeout */
-watch(
-  () => [copied.value, clear],
-  ([value, timeout]) => {
-    if (value && typeof timeout === 'number') {
-      setTimeout(() => (copied.value = false), timeout)
-    }
-  },
-)
+/** Whether the copy button has been clicked */
+const copied = defineModel<boolean>('copied', { default: false })
 
 const { cx } = useBindCx()
 
@@ -60,8 +48,7 @@ const icon = computed<ScalarIconComponent>(() => {
         'font-medium text-xs',
         copied ? 'text-c-1 bg-b-2' : 'text-c-2 hover:text-c-1 hover:bg-b-2',
       )
-    "
-    @click="copied = true">
+    ">
     <Transition
       mode="out-in"
       enter-active-class="transition-transform"

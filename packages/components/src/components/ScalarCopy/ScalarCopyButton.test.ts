@@ -1,19 +1,11 @@
 import { ScalarIconCheck, ScalarIconCopy } from '@scalar/icons'
 import { mount } from '@vue/test-utils'
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import { nextTick } from 'vue'
 
 import ScalarCopyButton from './ScalarCopyButton.vue'
 
 describe('ScalarCopyButton', () => {
-  beforeEach(() => {
-    vi.useFakeTimers()
-  })
-
-  afterEach(() => {
-    vi.useRealTimers()
-  })
-
   describe('rendering', () => {
     it('renders with copy icon by default', () => {
       const wrapper = mount(ScalarCopyButton)
@@ -23,9 +15,7 @@ describe('ScalarCopyButton', () => {
 
     it('renders with check icon when copied is true', async () => {
       const wrapper = mount(ScalarCopyButton, {
-        props: {
-          modelValue: true,
-        },
+        props: { copied: true },
       })
       await nextTick()
       const iconComponent = wrapper.findComponent(ScalarIconCheck)
@@ -33,66 +23,29 @@ describe('ScalarCopyButton', () => {
     })
   })
 
-  describe('placement prop', () => {
-    it('accepts left placement prop', () => {
-      const wrapper = mount(ScalarCopyButton, {
-        props: {
-          placement: 'left',
-        },
-      })
-      expect(wrapper.props('placement')).toBe('left')
-    })
-
-    it('accepts right placement prop', () => {
-      const wrapper = mount(ScalarCopyButton, {
-        props: {
-          placement: 'right',
-        },
-      })
-      expect(wrapper.props('placement')).toBe('right')
-    })
-  })
-
   describe('click behavior', () => {
-    it('sets copied to true when clicked', async () => {
+    it('shows check icon when copied model is true', async () => {
       const wrapper = mount(ScalarCopyButton, {
-        props: {
-          modelValue: false,
-        },
-      })
-
-      await wrapper.find('button').trigger('click')
-      await nextTick()
-
-      expect(wrapper.emitted('update:modelValue')).toBeTruthy()
-      expect(wrapper.emitted('update:modelValue')?.[0]).toEqual([true])
-    })
-
-    it('shows check icon after click', async () => {
-      const wrapper = mount(ScalarCopyButton, {
-        props: {
-          modelValue: false,
-        },
+        props: { copied: false },
       })
 
       expect(wrapper.findComponent(ScalarIconCopy).exists()).toBeTruthy()
       expect(wrapper.findComponent(ScalarIconCheck).exists()).toBeFalsy()
 
-      await wrapper.find('button').trigger('click')
+      await wrapper.setProps({ copied: true })
       await nextTick()
 
       expect(wrapper.findComponent(ScalarIconCheck).exists()).toBeTruthy()
       expect(wrapper.findComponent(ScalarIconCopy).exists()).toBeFalsy()
     })
 
-    it('shows copied message after click', async () => {
+    it('shows copied message when copied is true', async () => {
       const wrapper = mount(ScalarCopyButton, {
         props: {
-          modelValue: false,
+          copied: true,
         },
       })
 
-      await wrapper.find('button').trigger('click')
       await nextTick()
 
       expect(wrapper.text()).toBe('Copied to clipboard')
@@ -103,34 +56,30 @@ describe('ScalarCopyButton', () => {
     it('renders default copy slot text', () => {
       const wrapper = mount(ScalarCopyButton, {
         props: {
-          modelValue: false,
+          copied: false,
         },
       })
 
-      expect(wrapper.text()).toBe('Copy to clipboard')
+      expect(wrapper.text()).toContain('Copy to clipboard')
     })
 
     it('renders custom copy slot', () => {
       const wrapper = mount(ScalarCopyButton, {
         props: {
-          modelValue: false,
+          copied: false,
         },
         slots: {
           copy: 'Custom copy text',
         },
       })
 
-      expect(wrapper.text()).toBe('Custom copy text')
+      expect(wrapper.text()).toContain('Custom copy text')
     })
 
     it('renders custom copied slot', async () => {
       const wrapper = mount(ScalarCopyButton, {
-        props: {
-          modelValue: true,
-        },
-        slots: {
-          copied: 'Custom copied text',
-        },
+        props: { copied: true },
+        slots: { copied: 'Custom copied text' },
       })
 
       await nextTick()
@@ -139,131 +88,30 @@ describe('ScalarCopyButton', () => {
     })
   })
 
-  describe('clear timeout', () => {
-    it('clears copied state after default timeout', async () => {
+  describe('copied model updates', () => {
+    it('updates icon when copied changes externally', async () => {
       const wrapper = mount(ScalarCopyButton, {
-        props: {
-          modelValue: false,
-          clear: 1500,
-        },
+        props: { copied: false },
       })
-
-      await wrapper.find('button').trigger('click')
-      await nextTick()
-
-      expect(wrapper.findComponent(ScalarIconCheck).exists()).toBeTruthy()
-
-      vi.advanceTimersByTime(1500)
-      await nextTick()
 
       expect(wrapper.findComponent(ScalarIconCopy).exists()).toBeTruthy()
-      expect(wrapper.findComponent(ScalarIconCheck).exists()).toBeFalsy()
-    })
 
-    it('clears copied state after custom timeout', async () => {
-      const wrapper = mount(ScalarCopyButton, {
-        props: {
-          modelValue: false,
-          clear: 2000,
-        },
-      })
-
-      await wrapper.find('button').trigger('click')
-      await nextTick()
-
-      expect(wrapper.findComponent(ScalarIconCheck).exists()).toBeTruthy()
-
-      vi.advanceTimersByTime(1999)
-      await nextTick()
-      expect(wrapper.findComponent(ScalarIconCheck).exists()).toBeTruthy()
-
-      vi.advanceTimersByTime(1)
-      await nextTick()
-
-      expect(wrapper.findComponent(ScalarIconCopy).exists()).toBeTruthy()
-      expect(wrapper.findComponent(ScalarIconCheck).exists()).toBeFalsy()
-    })
-
-    it('does not clear copied state when clear is false', async () => {
-      const wrapper = mount(ScalarCopyButton, {
-        props: {
-          modelValue: false,
-          clear: false,
-        },
-      })
-
-      await wrapper.find('button').trigger('click')
-      await nextTick()
-
-      expect(wrapper.findComponent(ScalarIconCheck).exists()).toBeTruthy()
-
-      vi.advanceTimersByTime(10000)
+      await wrapper.setProps({ copied: true })
       await nextTick()
 
       expect(wrapper.findComponent(ScalarIconCheck).exists()).toBeTruthy()
       expect(wrapper.findComponent(ScalarIconCopy).exists()).toBeFalsy()
     })
 
-    it('handles multiple clicks correctly', async () => {
+    it('updates icon when copied changes from true to false', async () => {
       const wrapper = mount(ScalarCopyButton, {
-        props: {
-          modelValue: false,
-          clear: 1000,
-        },
-      })
-
-      // First click - sets copied to true
-      await wrapper.find('button').trigger('click')
-      await nextTick()
-      expect(wrapper.findComponent(ScalarIconCheck).exists()).toBeTruthy()
-
-      // Wait for timeout to complete
-      vi.advanceTimersByTime(1000)
-      await nextTick()
-      expect(wrapper.findComponent(ScalarIconCopy).exists()).toBeTruthy()
-
-      // Click again - should set a new timeout
-      await wrapper.find('button').trigger('click')
-      await nextTick()
-      expect(wrapper.findComponent(ScalarIconCheck).exists()).toBeTruthy()
-
-      // Wait for the new timeout to complete
-      vi.advanceTimersByTime(1000)
-      await nextTick()
-
-      expect(wrapper.findComponent(ScalarIconCopy).exists()).toBeTruthy()
-      expect(wrapper.findComponent(ScalarIconCheck).exists()).toBeFalsy()
-    })
-  })
-
-  describe('model value updates', () => {
-    it('updates icon when modelValue changes externally', async () => {
-      const wrapper = mount(ScalarCopyButton, {
-        props: {
-          modelValue: false,
-        },
-      })
-
-      expect(wrapper.findComponent(ScalarIconCopy).exists()).toBeTruthy()
-
-      await wrapper.setProps({ modelValue: true })
-      await nextTick()
-
-      expect(wrapper.findComponent(ScalarIconCheck).exists()).toBeTruthy()
-      expect(wrapper.findComponent(ScalarIconCopy).exists()).toBeFalsy()
-    })
-
-    it('updates icon when modelValue changes from true to false', async () => {
-      const wrapper = mount(ScalarCopyButton, {
-        props: {
-          modelValue: true,
-        },
+        props: { copied: true },
       })
 
       await nextTick()
       expect(wrapper.findComponent(ScalarIconCheck).exists()).toBeTruthy()
 
-      await wrapper.setProps({ modelValue: false })
+      await wrapper.setProps({ copied: false })
       await nextTick()
 
       expect(wrapper.findComponent(ScalarIconCopy).exists()).toBeTruthy()
@@ -280,12 +128,9 @@ describe('ScalarCopyButton', () => {
 
     it('has role="alert" on copied message for screen reader announcements', async () => {
       const wrapper = mount(ScalarCopyButton, {
-        props: {
-          modelValue: false,
-        },
+        props: { copied: true },
       })
 
-      await wrapper.find('button').trigger('click')
       await nextTick()
 
       const alertElement = wrapper.find('[role="alert"]')

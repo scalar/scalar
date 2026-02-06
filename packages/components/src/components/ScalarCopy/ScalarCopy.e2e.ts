@@ -7,7 +7,7 @@ test.use({
   background: true,
 })
 
-test.describe('ScalarCopyButton', () => {
+test.describe('ScalarCopy', () => {
   stories.forEach((story) =>
     test(story, async ({ page, snapshot }) => {
       await snapshot('1-base')
