@@ -222,18 +222,6 @@ const transformLegacyEnvironments = (
 }
 
 /**
- * Transforms legacy tags into OpenAPI tags and x-tagGroups.
- *
- * Legacy tags have a parent-child structure where:
- * - Parent tags (tags with children) become x-tagGroups entries
- * - Child tags become regular OpenAPI tags
- * - Tags that appear in collection.children are considered top-level
- *
- * @param collection - The legacy collection containing tag UIDs
- * @param dataRecords - The data records containing actual tag objects
- * @returns Object with tags array and tagGroups array
- */
-/**
  * Transforms legacy requests and request examples into OpenAPI paths.
  *
  * Each request becomes an operation in the paths object.
@@ -299,155 +287,185 @@ const transformRequestsToPaths = (
 }
 
 /**
- * Merges request examples into parameter examples.
+ * The legacy data model uses plural "headers"/"cookies" for parameter categories,
+ * but OpenAPI uses singular "header"/"cookie" for the `in` field. This mapping
+ * normalizes the legacy names to their OpenAPI equivalents.
+ */
+const PARAM_TYPE_TO_IN: Record<string, string> = {
+  path: 'path',
+  query: 'query',
+  headers: 'header',
+  cookies: 'cookie',
+}
+
+/**
+ * Merges request example values into OpenAPI parameter objects.
  *
- * For each parameter in the operation, we collect all example values from request examples
- * and add them to the parameter's examples object.
+ * In the legacy data model, parameter values live on individual RequestExample
+ * objects (one per "example" tab in the UI). OpenAPI instead stores examples
+ * directly on each Parameter object via the `examples` map.
  */
 const mergeExamplesIntoParameters = (parameters: any[], requestExamples: v_2_5_0['RequestExample'][]): any[] => {
-  const parameterMap = new Map<string, any>()
+  /**
+   * We track parameters and their collected examples together in a single map
+   * keyed by `{in}:{name}` (e.g. "query:page") to avoid a second lookup pass.
+   */
+  const paramEntries = new Map<
+    string,
+    { param: any; examples: Record<string, { value: string; 'x-disabled': boolean }> }
+  >()
 
-  // Initialize with existing parameters
+  // Seed with the operation's existing parameters so they are preserved even if
+  // no request example references them.
   for (const param of parameters) {
-    const key = `${param.in}:${param.name}`
-    parameterMap.set(key, { ...param })
+    paramEntries.set(`${param.in}:${param.name}`, { param: { ...param }, examples: {} })
   }
 
-  // Collect all parameter examples
-  const examplesByParam = new Map<string, Map<string, { value: string; disabled: boolean }>>()
+  const paramTypes = Object.keys(PARAM_TYPE_TO_IN)
 
-  for (const example of requestExamples) {
-    const paramTypes = ['path', 'query', 'headers', 'cookies'] as const
+  for (const requestExample of requestExamples) {
+    const exampleName = requestExample.name || 'Example'
 
     for (const paramType of paramTypes) {
-      const params = example.parameters?.[paramType] || []
+      const inValue = PARAM_TYPE_TO_IN[paramType]
+      const items = requestExample.parameters?.[paramType as keyof typeof requestExample.parameters] || []
 
-      for (const param of params) {
-        const inValue = paramType === 'headers' ? 'header' : paramType === 'cookies' ? 'cookie' : paramType
-        const key = `${inValue}:${param.key}`
+      for (const item of items) {
+        const key = `${inValue}:${item.key}`
 
-        if (!examplesByParam.has(key)) {
-          examplesByParam.set(key, new Map())
+        // Lazily create a parameter stub when one does not already exist.
+        // Path parameters are always required per the OpenAPI spec.
+        if (!paramEntries.has(key)) {
+          paramEntries.set(key, {
+            param: {
+              name: item.key,
+              in: inValue,
+              schema: { type: 'string' },
+              ...(inValue === 'path' && { required: true }),
+            },
+            examples: {},
+          })
         }
 
-        examplesByParam.get(key)!.set(example.name || 'Example', {
-          value: param.value,
-          disabled: !param.enabled,
-        })
-
-        // Ensure parameter exists with minimal required fields
-        if (!parameterMap.has(key)) {
-          const newParam: any = {
-            name: param.key,
-            in: inValue,
-            schema: { type: 'string' },
-          }
-
-          // Only add required if it's a path parameter
-          if (inValue === 'path') {
-            newParam.required = true
-          }
-
-          parameterMap.set(key, newParam)
+        // Attach this example's value to the parameter
+        paramEntries.get(key)!.examples[exampleName] = {
+          value: item.value,
+          'x-disabled': !item.enabled,
         }
       }
     }
   }
 
-  // Merge examples into parameters
-  const result: any[] = []
-
-  for (const [key, param] of parameterMap) {
-    const examples = examplesByParam.get(key)
-
-    if (examples && examples.size > 0) {
-      param.examples = Object.fromEntries(
-        Array.from(examples.entries()).map(([name, { value, disabled }]) => [name, { value, 'x-disabled': disabled }]),
-      )
+  // Build the final parameter list, only attaching `examples` when there are any
+  return Array.from(paramEntries.values()).map(({ param, examples }) => {
+    if (Object.keys(examples).length > 0) {
+      param.examples = examples
     }
+    return param
+  })
+}
 
-    result.push(param)
+/** Maps legacy raw body encoding names (e.g. "json", "xml") to their corresponding MIME content types */
+const RAW_ENCODING_TO_CONTENT_TYPE: Record<string, string> = {
+  json: 'application/json',
+  xml: 'application/xml',
+  yaml: 'application/yaml',
+  edn: 'application/edn',
+  text: 'text/plain',
+  html: 'text/html',
+  javascript: 'application/javascript',
+}
+
+/**
+ * Extracts the content type and example value from a single request example body.
+ *
+ * The legacy data model stored body content in one of three shapes:
+ * - `raw`      — text-based body with an encoding hint (json, xml, etc.)
+ * - `formData` — key/value pairs with either multipart or URL-encoded encoding
+ * - `binary`   — file upload with no inline content
+ */
+const extractBodyExample = (
+  body: v_2_5_0['RequestExample']['body'],
+): { contentType: string; value: any } | undefined => {
+  if (!body?.activeBody) {
+    return undefined
   }
 
-  return result
+  // Raw text body — resolve the short encoding name to a full MIME type
+  if (body.activeBody === 'raw' && body.raw) {
+    return {
+      contentType: RAW_ENCODING_TO_CONTENT_TYPE[body.raw.encoding] || 'text/plain',
+      value: body.raw.value,
+    }
+  }
+
+  // Form data — distinguish between multipart (file uploads) and URL-encoded
+  if (body.activeBody === 'formData' && body.formData) {
+    return {
+      contentType: body.formData.encoding === 'form-data' ? 'multipart/form-data' : 'application/x-www-form-urlencoded',
+      value: body.formData.value.map((param) => ({
+        key: param.key,
+        type: 'string',
+        value: param.value,
+      })),
+    }
+  }
+
+  // Binary uploads have no inline content to migrate
+  if (body.activeBody === 'binary') {
+    return { contentType: 'binary', value: {} }
+  }
+
+  return undefined
 }
 
 /**
  * Merges request examples into request body examples.
  *
- * Creates or updates the requestBody with examples from request examples.
+ * The v2.5.0 data model stored request examples separately from the
+ * operation's requestBody. In the new model, examples live directly inside
+ * `requestBody.content[contentType].examples`. This function bridges the two
+ * by grouping examples by content type in a single pass and writing them into
+ * the requestBody structure.
+ *
+ * Returns the original requestBody unchanged when no examples have body content.
  */
-const mergeExamplesIntoRequestBody = (
-  requestBody: any,
-  requestExamples: v_2_5_0['RequestExample'][],
-): any | undefined => {
-  const bodyExamples = new Map<string, { contentType: string; value: any }>()
+const mergeExamplesIntoRequestBody = (requestBody: any, requestExamples: v_2_5_0['RequestExample'][]): any => {
+  /**
+   * Single pass: extract each example body and bucket it by content type.
+   * Using a plain object as the inner value (instead of a nested Map) avoids
+   * a second conversion step when assigning to the result.
+   */
+  const groupedByContentType = new Map<string, Record<string, { value: any }>>()
 
   for (const example of requestExamples) {
-    const body = example.body
-
-    if (!body || !body.activeBody) {
+    const extracted = extractBodyExample(example.body)
+    if (!extracted) {
       continue
     }
 
-    const exampleName = example.name || 'Example'
+    const name = example.name || 'Example'
+    const group = groupedByContentType.get(extracted.contentType)
 
-    if (body.activeBody === 'raw' && body.raw) {
-      const contentTypeMap: Record<string, string> = {
-        json: 'application/json',
-        xml: 'application/xml',
-        yaml: 'application/yaml',
-        edn: 'application/edn',
-        text: 'text/plain',
-        html: 'text/html',
-        javascript: 'application/javascript',
-      }
-
-      const contentType = contentTypeMap[body.raw.encoding] || 'text/plain'
-      bodyExamples.set(exampleName, { contentType, value: body.raw.value })
-    } else if (body.activeBody === 'formData' && body.formData) {
-      const contentType =
-        body.formData.encoding === 'form-data' ? 'multipart/form-data' : 'application/x-www-form-urlencoded'
-
-      const value = body.formData.value.map((param) => ({
-        key: param.key,
-        type: 'string',
-        value: param.value,
-      }))
-
-      bodyExamples.set(exampleName, { contentType, value })
-    } else if (body.activeBody === 'binary') {
-      bodyExamples.set(exampleName, { contentType: 'binary', value: {} })
+    if (group) {
+      group[name] = { value: extracted.value }
+    } else {
+      groupedByContentType.set(extracted.contentType, { [name]: { value: extracted.value } })
     }
   }
 
-  if (bodyExamples.size === 0) {
+  // Nothing to merge — return early so we do not mutate the requestBody
+  if (groupedByContentType.size === 0) {
     return requestBody
   }
 
-  // Group examples by content type
-  const examplesByContentType = new Map<string, Map<string, any>>()
+  // Ensure the requestBody and its content map exist before writing
+  const result = requestBody ?? {}
+  result.content ??= {}
 
-  for (const [name, { contentType, value }] of bodyExamples) {
-    if (!examplesByContentType.has(contentType)) {
-      examplesByContentType.set(contentType, new Map())
-    }
-    examplesByContentType.get(contentType)!.set(name, { value })
-  }
-
-  // Build request body
-  const result = requestBody || {}
-
-  if (!result.content) {
-    result.content = {}
-  }
-
-  for (const [contentType, examples] of examplesByContentType) {
-    if (!result.content[contentType]) {
-      result.content[contentType] = {}
-    }
-
-    result.content[contentType].examples = Object.fromEntries(examples)
+  for (const [contentType, examples] of groupedByContentType) {
+    result.content[contentType] ??= {}
+    result.content[contentType].examples = examples
   }
 
   return result
