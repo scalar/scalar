@@ -2142,6 +2142,9 @@ importers:
       '@types/node':
         specifier: ^22.19.3
         version: 22.19.3
+      fake-indexeddb:
+        specifier: catalog:*
+        version: 6.2.3
       vite:
         specifier: catalog:*
         version: 7.3.1(@types/node@22.19.3)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.31.2)(tsx@4.19.1)(yaml@2.8.0)

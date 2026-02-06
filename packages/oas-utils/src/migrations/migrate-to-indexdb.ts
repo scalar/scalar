@@ -85,7 +85,6 @@ export const migrateLocalStorageToIndexDb = async () => {
     console.info(`✅ Successfully migrated ${workspaces.length} workspace(s) to IndexedDB`)
   } catch (error) {
     console.error('❌ Migration failed:', error)
-    throw error
   }
 }
 
