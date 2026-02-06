@@ -584,18 +584,40 @@ describe('circularToRefs', () => {
       const schema = document.paths['/nodes'].get.responses['200'].content['application/json'].schema
       schema.properties.children.items = schema
 
-      const result = circularToRefs(document) as any
-
-      // Existing schema should be preserved
-      expect(result.components?.schemas?.ExistingSchema).toEqual({
-        type: 'object',
-        properties: {
-          id: { type: 'string' },
+      const result = circularToRefs(document)
+      expect(result).toEqual({
+        openapi: '3.1.0',
+        info: { title: 'API with Components', version: '1.0.0' },
+        paths: {
+          '/nodes': {
+            get: {
+              responses: {
+                '200': {
+                  content: {
+                    'application/json': {
+                      schema: { '$ref': '#/components/schemas/CircularSchema1' },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        components: {
+          schemas: {
+            ExistingSchema: { type: 'object', properties: { id: { type: 'string' } } },
+            CircularSchema1: {
+              type: 'object',
+              properties: {
+                children: {
+                  type: 'array',
+                  items: { '$ref': '#/components/schemas/CircularSchema1' },
+                },
+              },
+            },
+          },
         },
       })
-
-      // Circular ref should be added
-      expect(result.components?.schemas?.CircularSchema1).toBeDefined()
     })
 
     it('handles deeply nested circular references', () => {
@@ -642,12 +664,52 @@ describe('circularToRefs', () => {
       const rootSchema = document.paths['/deep'].get.responses['200'].content['application/json'].schema
       rootSchema.properties.level1.properties.level2.properties.level3.properties.backToRoot = rootSchema
 
-      const result = circularToRefs(document) as any
-
-      expect(result.components?.schemas?.CircularSchema1).toBeDefined()
-      // The schema is replaced with a $ref since it's circular
-      expect(result.paths['/deep'].get.responses['200'].content['application/json'].schema).toEqual({
-        $ref: '#/components/schemas/CircularSchema1',
+      const result = circularToRefs(document)
+      expect(result).toEqual({
+        openapi: '3.1.0',
+        info: { title: 'Deep Nesting API', version: '1.0.0' },
+        paths: {
+          '/deep': {
+            get: {
+              responses: {
+                '200': {
+                  content: {
+                    'application/json': {
+                      schema: { '$ref': '#/components/schemas/CircularSchema1' },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        components: {
+          schemas: {
+            CircularSchema1: {
+              type: 'object',
+              properties: {
+                level1: {
+                  type: 'object',
+                  properties: {
+                    level2: {
+                      type: 'object',
+                      properties: {
+                        level3: {
+                          type: 'object',
+                          properties: {
+                            backToRoot: {
+                              '$ref': '#/components/schemas/CircularSchema1',
+                            },
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
       })
     })
 
