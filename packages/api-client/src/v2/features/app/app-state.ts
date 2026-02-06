@@ -230,7 +230,7 @@ const navigateToWorkspace = async (namespace?: string, slug?: string): Promise<v
 
 /**
  * Creates a new workspace with the provided name.
- * - Generates a unique slug for the workspace (sluggified from the name and guaranteed unique).
+ * - Generates a unique slug for the workspace (uses the provided slug if it is unique, otherwise generates a unique slug).
  * - Adds a default blank document ("drafts") to the workspace.
  * - Persists the workspace and navigates to it.
  *
@@ -327,6 +327,13 @@ const changeWorkspace = async (namespace: string, slug: string) => {
 
     isSyncingWorkspace.value = false
     return
+  }
+
+  // Navigate to the default workspace, or fall back to the first available workspace
+  const targetWorkspace = workspaces.value.find((workspace) => workspace.slug === 'default') ?? workspaces.value[0]
+
+  if (targetWorkspace) {
+    return navigateToWorkspace(targetWorkspace.namespace, targetWorkspace.slug)
   }
 
   // If loading failed (workspace does not exist), create the default workspace and navigate to it.
