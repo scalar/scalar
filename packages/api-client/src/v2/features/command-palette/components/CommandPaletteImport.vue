@@ -136,7 +136,13 @@ const handleImport = async (newSource: string): Promise<void> => {
 
   // First load the document into a draft store
   // This is to get the title of the document so we can generate a unique slug for store
-  const draftStore = createWorkspaceStore()
+  const draftStore = createWorkspaceStore({
+    meta: {
+      /** Ensure we use the active proxy to fetch documents */
+      'x-scalar-active-proxy':
+        workspaceStore.workspace['x-scalar-active-proxy'],
+    },
+  })
   const isSuccessfullyLoaded = await loadDocumentFromSource(
     draftStore,
     newSource,
