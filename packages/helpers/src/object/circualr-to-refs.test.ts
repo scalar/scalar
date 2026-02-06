@@ -71,16 +71,7 @@ describe('circularToRefs', () => {
                   content: {
                     'application/json': {
                       schema: {
-                        type: 'object',
-                        properties: {
-                          name: { type: 'string' },
-                          children: {
-                            type: 'array',
-                            items: {
-                              $ref: '#/components/schemas/CircularRef1',
-                            },
-                          },
-                        },
+                        $ref: '#/components/schemas/CircularSchema1',
                       },
                     },
                   },
@@ -91,14 +82,14 @@ describe('circularToRefs', () => {
         },
         components: {
           schemas: {
-            CircularRef1: {
+            CircularSchema1: {
               type: 'object',
               properties: {
                 name: { type: 'string' },
                 children: {
                   type: 'array',
                   items: {
-                    $ref: '#/components/schemas/CircularRef1',
+                    $ref: '#/components/schemas/CircularSchema1',
                   },
                 },
               },
@@ -182,22 +173,7 @@ describe('circularToRefs', () => {
                   content: {
                     'application/json': {
                       schema: {
-                        type: 'object',
-                        properties: {
-                          name: { type: 'string' },
-                          employer: {
-                            type: 'object',
-                            properties: {
-                              companyName: { type: 'string' },
-                              employees: {
-                                type: 'array',
-                                items: {
-                                  $ref: '#/components/schemas/CircularRef1',
-                                },
-                              },
-                            },
-                          },
-                        },
+                        $ref: '#/components/schemas/CircularSchema1',
                       },
                     },
                   },
@@ -208,7 +184,7 @@ describe('circularToRefs', () => {
         },
         components: {
           schemas: {
-            CircularRef1: {
+            CircularSchema1: {
               type: 'object',
               properties: {
                 name: { type: 'string' },
@@ -219,7 +195,7 @@ describe('circularToRefs', () => {
                     employees: {
                       type: 'array',
                       items: {
-                        $ref: '#/components/schemas/CircularRef1',
+                        $ref: '#/components/schemas/CircularSchema1',
                       },
                     },
                   },
@@ -401,16 +377,83 @@ describe('circularToRefs', () => {
           },
         },
         components: {
-          schemas: {
-            CircularSchema1: {
-              type: 'object',
-              properties: {
-                id: { type: 'string' },
-                children: {
-                  type: 'array',
-                  items: { $ref: '#/components/schemas/CircularSchema1' },
+          callbacks: {
+            CircularCallback1: {
+              '{$request.body#/callbackUrl}': {
+                $ref: '#/components/pathItems/CircularPathItem1',
+              },
+            },
+          },
+          examples: {
+            CircularExample1: {
+              summary: 'Recursive tree example',
+              value: {
+                name: 'root',
+                nested: { $ref: '#/components/examples/CircularExample1' },
+              },
+            },
+          },
+          headers: {
+            CircularHeader1: {
+              description: 'Pagination metadata',
+              schema: {
+                type: 'object',
+                properties: {
+                  page: { type: 'integer' },
+                  nextPage: { $ref: '#/components/headers/CircularHeader1' },
                 },
-                selfResponse: { $ref: '#/components/responses/CircularResponse1' },
+              },
+            },
+          },
+          links: {
+            CircularLink1: {
+              operationId: 'getRelated',
+              parameters: { id: '$response.body#/id' },
+              server: {
+                relatedLink: { $ref: '#/components/links/CircularLink1' },
+              },
+            },
+          },
+          parameters: {
+            CircularParameter1: {
+              name: 'filter',
+              in: 'query',
+              schema: {
+                type: 'object',
+                properties: {
+                  field: { type: 'string' },
+                  nested: { $ref: '#/components/parameters/CircularParameter1' },
+                },
+              },
+            },
+          },
+          pathItems: {
+            CircularPathItem1: {
+              post: {
+                summary: 'Event callback',
+                responses: {
+                  '200': {
+                    description: 'Callback OK',
+                    relatedCallback: { $ref: '#/components/callbacks/CircularCallback1' },
+                    pathItemRef: { $ref: '#/components/pathItems/CircularPathItem1' },
+                  },
+                },
+              },
+            },
+          },
+          requestBodies: {
+            CircularRequestBody1: {
+              description: 'Request body with circular reference',
+              content: {
+                'application/json': {
+                  schema: {
+                    type: 'object',
+                    properties: {
+                      data: { type: 'string' },
+                      related: { $ref: '#/components/requestBodies/CircularRequestBody1' },
+                    },
+                  },
+                },
               },
             },
           },
@@ -439,84 +482,16 @@ describe('circularToRefs', () => {
               },
             },
           },
-          parameters: {
-            CircularParameter1: {
-              name: 'filter',
-              in: 'query',
-              schema: {
-                type: 'object',
-                properties: {
-                  field: { type: 'string' },
-                  nested: { $ref: '#/components/parameters/CircularParameter1' },
+          schemas: {
+            CircularSchema1: {
+              type: 'object',
+              properties: {
+                id: { type: 'string' },
+                children: {
+                  type: 'array',
+                  items: { $ref: '#/components/schemas/CircularSchema1' },
                 },
-              },
-            },
-          },
-          examples: {
-            CircularExample1: {
-              summary: 'Recursive tree example',
-              value: {
-                name: 'root',
-                nested: { $ref: '#/components/examples/CircularExample1' },
-              },
-            },
-          },
-          requestBodies: {
-            CircularRequestBody1: {
-              description: 'Request body with circular reference',
-              content: {
-                'application/json': {
-                  schema: {
-                    type: 'object',
-                    properties: {
-                      data: { type: 'string' },
-                      related: { $ref: '#/components/requestBodies/CircularRequestBody1' },
-                    },
-                  },
-                },
-              },
-            },
-          },
-          headers: {
-            CircularHeader1: {
-              description: 'Pagination metadata',
-              schema: {
-                type: 'object',
-                properties: {
-                  page: { type: 'integer' },
-                  nextPage: { $ref: '#/components/headers/CircularHeader1' },
-                },
-              },
-            },
-          },
-          securitySchemes: {},
-          links: {
-            CircularLink1: {
-              operationId: 'getRelated',
-              parameters: { id: '$response.body#/id' },
-              server: {
-                relatedLink: { $ref: '#/components/links/CircularLink1' },
-              },
-            },
-          },
-          callbacks: {
-            CircularCallback1: {
-              '{$request.body#/callbackUrl}': {
-                $ref: '#/components/pathItems/CircularPathItem1',
-              },
-            },
-          },
-          pathItems: {
-            CircularPathItem1: {
-              post: {
-                summary: 'Event callback',
-                responses: {
-                  '200': {
-                    description: 'Callback OK',
-                    relatedCallback: { $ref: '#/components/callbacks/CircularCallback1' },
-                    pathItemRef: { $ref: '#/components/pathItems/CircularPathItem1' },
-                  },
-                },
+                selfResponse: { $ref: '#/components/responses/CircularResponse1' },
               },
             },
           },
@@ -620,7 +595,7 @@ describe('circularToRefs', () => {
       })
 
       // Circular ref should be added
-      expect(result.components?.schemas?.CircularRef1).toBeDefined()
+      expect(result.components?.schemas?.CircularSchema1).toBeDefined()
     })
 
     it('handles deeply nested circular references', () => {
@@ -669,12 +644,10 @@ describe('circularToRefs', () => {
 
       const result = circularToRefs(document) as any
 
-      expect(result.components?.schemas?.CircularRef1).toBeDefined()
-      expect(
-        result.paths['/deep'].get.responses['200'].content['application/json'].schema.properties.level1.properties
-          .level2.properties.level3.properties.backToRoot,
-      ).toEqual({
-        $ref: '#/components/schemas/CircularRef1',
+      expect(result.components?.schemas?.CircularSchema1).toBeDefined()
+      // The schema is replaced with a $ref since it's circular
+      expect(result.paths['/deep'].get.responses['200'].content['application/json'].schema).toEqual({
+        $ref: '#/components/schemas/CircularSchema1',
       })
     })
 
@@ -707,12 +680,41 @@ describe('circularToRefs', () => {
       const schema = document.paths['/test'].get.responses['200'].content['application/json'].schema
       schema.properties.self = schema
 
-      const result = circularToRefs(document, { '$ref-value': {} }) as any
-
-      const selfRef = result.paths['/test'].get.responses['200'].content['application/json'].schema.properties.self
-      expect(selfRef).toEqual({
-        $ref: '#/components/schemas/CircularRef1',
-        '$ref-value': {},
+      const result = circularToRefs(document, { '$ref-value': {} })
+      expect(result).toEqual({
+        openapi: '3.1.0',
+        info: { title: 'Test API', version: '1.0.0' },
+        paths: {
+          '/test': {
+            get: {
+              responses: {
+                '200': {
+                  content: {
+                    'application/json': {
+                      schema: {
+                        '$ref': '#/components/schemas/CircularSchema1',
+                        '$ref-value': {},
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        components: {
+          schemas: {
+            CircularSchema1: {
+              type: 'object',
+              properties: {
+                self: {
+                  '$ref': '#/components/schemas/CircularSchema1',
+                  '$ref-value': {},
+                },
+              },
+            },
+          },
+        },
       })
     })
   })
