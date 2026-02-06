@@ -4,8 +4,7 @@ import { objectEntries } from '@scalar/helpers/object/object-entries'
 import type { Oauth2Flow } from '@scalar/types/entities'
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
 import { type Auth, AuthSchema } from '@scalar/workspace-store/entities/auth'
-import { getWorkspaceId } from '@scalar/workspace-store/persistence'
-import { persistencePlugin } from '@scalar/workspace-store/plugins/client'
+import { createWorkspaceStorePersistence } from '@scalar/workspace-store/persistence'
 import {
   type XScalarEnvironments,
   xScalarEnvironmentSchema,
@@ -55,12 +54,28 @@ export const migrateLocalStorageToIndexDb = async () => {
     // Step 1: Run existing migrations to get latest data structure
     const legacyData = migrator()
 
+    const { workspace: workspacePersistence } = await createWorkspaceStorePersistence()
+
     console.info(
       `📦 Found legacy data: ${legacyData.arrays.workspaces.length} workspace(s), ${legacyData.arrays.collections.length} collection(s)`,
     )
 
     // Step 2: Transform to new workspace structure
     const workspaces = await transformLegacyDataToWorkspace(legacyData)
+
+    // Step 3: Save to IndexedDB
+    await Promise.all(
+      workspaces.map((workspace) =>
+        workspacePersistence.setItem(
+          { namespace: 'local', slug: workspace.slug },
+          {
+            name: workspace.name,
+            workspace: workspace.workspace,
+            teamUid: 'local',
+          },
+        ),
+      ),
+    )
 
     console.info(`🔄 Transformed into ${workspaces.length} workspace(s)`)
 
@@ -167,12 +182,6 @@ export const transformLegacyDataToWorkspace = async (legacyData: {
 
       const store = createWorkspaceStore({
         meta,
-        plugins: [
-          await persistencePlugin({
-            workspaceId: getWorkspaceId('local', workspace.uid),
-            debounceDelay: 0,
-          }),
-        ],
       })
 
       await Promise.all(
