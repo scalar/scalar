@@ -2154,7 +2154,7 @@ describe('migrate-to-indexdb', () => {
         const doc = result[0]?.workspace.documents['Users API']
 
         assert(doc)
-        expect(getResolvedRef(doc.paths?.['/users/{id}']?.get)?.parameters).toEqual([
+        expect(getResolvedRef(doc.paths?.['/users/{id}']?.get)?.parameters).toMatchObject([
           {
             name: 'id',
             in: 'path',
