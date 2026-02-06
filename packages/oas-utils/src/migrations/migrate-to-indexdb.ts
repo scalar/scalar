@@ -234,6 +234,285 @@ const transformLegacyEnvironments = (
  * @returns Object with tags array and tagGroups array
  */
 /**
+ * Transforms legacy requests and request examples into OpenAPI paths.
+ *
+ * Each request becomes an operation in the paths object.
+ * Request examples are merged into parameter examples and request body examples.
+ */
+const transformRequestsToPaths = (
+  collection: v_2_5_0['Collection'],
+  dataRecords: v_2_5_0['DataRecord'],
+): Record<string, any> => {
+  const paths: Record<string, any> = {}
+
+  for (const requestUid of collection.requests || []) {
+    const request = dataRecords.requests[requestUid]
+    if (!request) {
+      continue
+    }
+
+    const {
+      path,
+      method,
+      uid: _uid,
+      type: _type,
+      selectedServerUid: _selectedServerUid,
+      examples,
+      servers,
+      selectedSecuritySchemeUids: _selectedSecuritySchemeUids,
+      ...operation
+    } = request
+
+    // Initialize path object if it doesn't exist
+    if (!paths[path]) {
+      paths[path] = {}
+    }
+
+    // Clean up parameters to remove default values
+    if (operation.parameters) {
+      operation.parameters = operation.parameters.map(cleanParameter)
+    }
+
+    // Get request examples for this request
+    const requestExamples = (examples || []).flatMap((exampleUid) => {
+      const example = dataRecords.requestExamples[exampleUid]
+      return example ? [example] : []
+    })
+
+    // Merge examples into parameters and request body
+    if (requestExamples.length > 0) {
+      operation.parameters = mergeExamplesIntoParameters(operation.parameters || [], requestExamples)
+      operation.requestBody = mergeExamplesIntoRequestBody(operation.requestBody, requestExamples)
+    }
+
+    // Add server overrides if present
+    if (servers && servers.length > 0) {
+      ;(operation as any).servers = servers.flatMap((serverUid) => {
+        const server = dataRecords.servers[serverUid]
+        if (!server) {
+          return []
+        }
+        const { uid: _, ...rest } = server
+        return [rest]
+      })
+    }
+
+    paths[path][method] = operation
+  }
+
+  return paths
+}
+
+/**
+ * Removes default values from parameters to keep the output clean.
+ * Only includes fields that were explicitly set.
+ */
+const cleanParameter = (param: any): any => {
+  const cleaned: any = {
+    name: param.name,
+    in: param.in,
+  }
+
+  // Only add fields if they're not default values
+  if (param.description !== undefined) {
+    cleaned.description = param.description
+  }
+
+  if (param.required === true) {
+    cleaned.required = param.required
+  }
+
+  if (param.deprecated === true) {
+    cleaned.deprecated = param.deprecated
+  }
+
+  if (param.schema !== undefined) {
+    cleaned.schema = param.schema
+  }
+
+  if (param.content !== undefined) {
+    cleaned.content = param.content
+  }
+
+  if (param.style !== undefined) {
+    cleaned.style = param.style
+  }
+
+  if (param.explode !== undefined) {
+    cleaned.explode = param.explode
+  }
+
+  if (param.allowReserved !== undefined) {
+    cleaned.allowReserved = param.allowReserved
+  }
+
+  if (param.example !== undefined) {
+    cleaned.example = param.example
+  }
+
+  if (param.examples !== undefined) {
+    cleaned.examples = param.examples
+  }
+
+  return cleaned
+}
+
+/**
+ * Merges request examples into parameter examples.
+ *
+ * For each parameter in the operation, we collect all example values from request examples
+ * and add them to the parameter's examples object.
+ */
+const mergeExamplesIntoParameters = (parameters: any[], requestExamples: v_2_5_0['RequestExample'][]): any[] => {
+  const parameterMap = new Map<string, any>()
+
+  // Initialize with existing parameters
+  for (const param of parameters) {
+    const key = `${param.in}:${param.name}`
+    parameterMap.set(key, { ...param })
+  }
+
+  // Collect all parameter examples
+  const examplesByParam = new Map<string, Map<string, { value: string; disabled: boolean }>>()
+
+  for (const example of requestExamples) {
+    const paramTypes = ['path', 'query', 'headers', 'cookies'] as const
+
+    for (const paramType of paramTypes) {
+      const params = example.parameters?.[paramType] || []
+
+      for (const param of params) {
+        const inValue = paramType === 'headers' ? 'header' : paramType === 'cookies' ? 'cookie' : paramType
+        const key = `${inValue}:${param.key}`
+
+        if (!examplesByParam.has(key)) {
+          examplesByParam.set(key, new Map())
+        }
+
+        examplesByParam.get(key)!.set(example.name || 'Example', {
+          value: param.value,
+          disabled: !param.enabled,
+        })
+
+        // Ensure parameter exists with minimal required fields
+        if (!parameterMap.has(key)) {
+          const newParam: any = {
+            name: param.key,
+            in: inValue,
+            schema: { type: 'string' },
+          }
+
+          // Only add required if it's a path parameter
+          if (inValue === 'path') {
+            newParam.required = true
+          }
+
+          parameterMap.set(key, newParam)
+        }
+      }
+    }
+  }
+
+  // Merge examples into parameters
+  const result: any[] = []
+
+  for (const [key, param] of parameterMap) {
+    const examples = examplesByParam.get(key)
+
+    if (examples && examples.size > 0) {
+      param.examples = Object.fromEntries(
+        Array.from(examples.entries()).map(([name, { value, disabled }]) => [name, { value, 'x-disabled': disabled }]),
+      )
+    }
+
+    result.push(param)
+  }
+
+  return result
+}
+
+/**
+ * Merges request examples into request body examples.
+ *
+ * Creates or updates the requestBody with examples from request examples.
+ */
+const mergeExamplesIntoRequestBody = (
+  requestBody: any,
+  requestExamples: v_2_5_0['RequestExample'][],
+): any | undefined => {
+  const bodyExamples = new Map<string, { contentType: string; value: any }>()
+
+  for (const example of requestExamples) {
+    const body = example.body
+
+    if (!body || !body.activeBody) {
+      continue
+    }
+
+    const exampleName = example.name || 'Example'
+
+    if (body.activeBody === 'raw' && body.raw) {
+      const contentTypeMap: Record<string, string> = {
+        json: 'application/json',
+        xml: 'application/xml',
+        yaml: 'application/yaml',
+        edn: 'application/edn',
+        text: 'text/plain',
+        html: 'text/html',
+        javascript: 'application/javascript',
+      }
+
+      const contentType = contentTypeMap[body.raw.encoding] || 'text/plain'
+      bodyExamples.set(exampleName, { contentType, value: body.raw.value })
+    } else if (body.activeBody === 'formData' && body.formData) {
+      const contentType =
+        body.formData.encoding === 'form-data' ? 'multipart/form-data' : 'application/x-www-form-urlencoded'
+
+      const value = body.formData.value.map((param) => ({
+        key: param.key,
+        type: 'string',
+        value: param.value,
+      }))
+
+      bodyExamples.set(exampleName, { contentType, value })
+    } else if (body.activeBody === 'binary') {
+      bodyExamples.set(exampleName, { contentType: 'binary', value: {} })
+    }
+  }
+
+  if (bodyExamples.size === 0) {
+    return requestBody
+  }
+
+  // Group examples by content type
+  const examplesByContentType = new Map<string, Map<string, any>>()
+
+  for (const [name, { contentType, value }] of bodyExamples) {
+    if (!examplesByContentType.has(contentType)) {
+      examplesByContentType.set(contentType, new Map())
+    }
+    examplesByContentType.get(contentType)!.set(name, { value })
+  }
+
+  // Build request body
+  const result = requestBody || {}
+
+  if (!result.content) {
+    result.content = {}
+  }
+
+  for (const [contentType, examples] of examplesByContentType) {
+    if (!result.content[contentType]) {
+      result.content[contentType] = {}
+    }
+
+    result.content[contentType].examples = Object.fromEntries(examples)
+  }
+
+  return result
+}
+
+/**
  * Transforms legacy tags into OpenAPI tags and tag groups.
  *
  * Legacy structure:
@@ -327,6 +606,9 @@ const transformCollectionToDocument = (
   // Transform tags: separate parent tags (groups) from child tags
   const { tags, tagGroups } = transformLegacyTags(collection, dataRecords)
 
+  // Transform requests into paths
+  const paths = transformRequestsToPaths(collection, dataRecords)
+
   const document: Record<string, unknown> = {
     openapi: collection.openapi || '3.1.0',
     info: collection.info || {
@@ -342,7 +624,7 @@ const transformCollectionToDocument = (
       const { uid: _, ...rest } = server
       return [rest]
     }),
-    paths: {},
+    paths,
     components: {
       securitySchemes: collection.securitySchemes.reduce((acc, uid) => {
         const securityScheme = dataRecords.securitySchemes[uid]
