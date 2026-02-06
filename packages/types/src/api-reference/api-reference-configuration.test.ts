@@ -73,8 +73,6 @@ describe('api-reference-configuration', () => {
         'deepSpace',
         'saturn',
         'kepler',
-        'elysiajs',
-        'fastify',
         'mars',
         'none',
       ]
@@ -256,6 +254,26 @@ describe('api-reference-configuration', () => {
       expect(migratedConfig.showDeveloperTools).toBe('always')
       // @ts-expect-error showToolbar is not in the type
       expect(migratedConfig.showToolbar).toBeUndefined()
+    })
+
+    it('migrates fastify theme to default', () => {
+      const config = {
+        theme: 'fastify',
+      }
+
+      const migratedConfig = apiReferenceConfigurationWithSourceSchema.parse(config)
+
+      expect(migratedConfig.theme).toBe('default')
+    })
+
+    it('migrates elysiajs theme to default', () => {
+      const config = {
+        theme: 'elysiajs',
+      }
+
+      const migratedConfig = apiReferenceConfigurationWithSourceSchema.parse(config)
+
+      expect(migratedConfig.theme).toBe('default')
     })
   })
 

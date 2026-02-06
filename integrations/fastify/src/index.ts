@@ -1,2 +1,2 @@
-export { default } from './fastifyApiReference'
-export * from './types'
+export { default } from './fastify'
+export type { ApiReferenceConfiguration, FastifyApiReferenceHooksOptions, FastifyApiReferenceOptions } from './types'

@@ -22,8 +22,8 @@
     "node": ">=20"
   },
   "scripts": {
-    "build": "scalar-build-esbuild && pnpm copy:standalone",
-    "copy:standalone": "shx mkdir -p ./dist/js && shx cp ../../packages/api-reference/dist/browser/standalone.js ./dist/js/standalone.js",
+    "build": "pnpm copy:standalone && scalar-build-esbuild",
+    "copy:standalone": "shx cp ../../packages/api-reference/dist/browser/standalone.js ./src/assets/scalar.js",
     "dev": "nodemon --exec \"vite-node playground/index.ts\" --ext ts --quiet --watch ./",
     "docker:build": "docker build --build-arg BASE_IMAGE=scalar-base -t fastify-api-reference -f Dockerfile .",
     "docker:run": "docker run -p 5053:5053 fastify-api-reference",
@@ -79,6 +79,7 @@
     "@scalar/api-reference": "workspace:*",
     "@scalar/build-tooling": "workspace:*",
     "fastify": "^4.0.0",
+    "esbuild": "catalog:*",
     "vite": "catalog:*",
     "vitest": "catalog:*",
     "yaml": "catalog:*"

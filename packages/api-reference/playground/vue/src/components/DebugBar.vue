@@ -39,9 +39,8 @@ const themes = [
   'deepSpace',
   'saturn',
   'kepler',
-  'elysiajs',
-  'fastify',
   'mars',
+  'laserwave',
   'none',
 ] as ThemeId[]
 </script>

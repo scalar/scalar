@@ -30,7 +30,7 @@ jobs:
       - name: Build
         uses: ./.github/actions/build
         with:
-          packages: './{packages,integrations}/**'
+          packages: "./{packages,integrations}/**"
       - name: Copy and rename standalone.js to scalar.js
         run: |
           mkdir -p temp-artifacts
@@ -161,10 +161,10 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6
         with:
-          node-version-file: '.nvmrc'
-          cache: 'pnpm'
+          node-version-file: ".nvmrc"
+          cache: "pnpm"
           # prettier and biome versions are pinned in package.json
-          cache-dependency-path: 'package.json'
+          cache-dependency-path: "package.json"
       # Install only root dependencies
       - name: Install dev dependencies
         run: pnpm install --filter .
@@ -186,8 +186,8 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6
         with:
-          node-version-file: '.nvmrc'
-          cache: 'pnpm'
+          node-version-file: ".nvmrc"
+          cache: "pnpm"
       - name: Install dependencies
         run: pnpm install
       - name: Lint Component Library Icons
@@ -218,7 +218,7 @@ jobs:
       - name: Build
         uses: ./.github/actions/build
         with:
-          packages: './{packages,integrations}/**'
+          packages: "./{packages,integrations}/**"
       - name: Knip
         run: pnpm lint:knip
 
@@ -236,7 +236,7 @@ jobs:
       - name: Build packages
         uses: ./.github/actions/build
         with:
-          packages: './packages/**'
+          packages: "./packages/**"
       - name: Start test servers
         run: pnpm script run test-servers & pnpm script wait -p 5051 5052
         timeout-minutes: 1
@@ -256,14 +256,18 @@ jobs:
         BLACKSMITH_INSTALLATION_MODEL_ID: ${{ env.BLACKSMITH_INSTALLATION_MODEL_ID }}
         BLACKSMITH_REGION: ${{ env.BLACKSMITH_REGION }}
     env:
-      HOME: '/root'
+      HOME: "/root"
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
+      - name: Build @scalar/api-reference
+        uses: ./.github/actions/build
+        with:
+          packages: "@scalar/api-reference..."
       - name: Build packages
         uses: ./.github/actions/build
         with:
-          packages: './integrations/**'
+          packages: "./integrations/**"
       - name: Run tests
         run: pnpm vitest integrations/* --silent
         # For now we will integrate the E2E tests with the integrations tests as they are quite fast and this avoids another job.
@@ -306,7 +310,7 @@ jobs:
       - name: Build packages
         uses: ./.github/actions/build
         with:
-          packages: '@scalar/api-reference...'
+          packages: "@scalar/api-reference..."
       - name: Generate new DEPLOY_ID
         run: echo "DEPLOY_ID=$(pnpx uuid)" >> "$GITHUB_ENV" && echo $DEPLOY_ID
       - name: Run e2e tests (@scalar/api-reference)
@@ -326,7 +330,7 @@ jobs:
         name: Add Netlify Playwright Report URL to the PR
         uses: daun/playwright-report-summary@93883773b4f4f0951d8bcdb780c6443ca51eaf7b # v3
         with:
-          comment-title: 'Scalar References End to End Test Results'
+          comment-title: "Scalar References End to End Test Results"
           report-url: https://${{env.DEPLOY_ID}}--scalar-snapshots.netlify.app
           report-file: packages/api-reference/playwright-results.json
           report-tag: test-references-e2e
@@ -355,7 +359,7 @@ jobs:
       - name: Build packages
         uses: ./.github/actions/build
         with:
-          packages: 'scalar-app...'
+          packages: "scalar-app..."
       - name: Check whether the appFiles are there
         run: ls -R ./projects/scalar-app/dist
       - name: Start Xvfb
@@ -366,7 +370,7 @@ jobs:
         run: pnpm --filter scalar-app test:e2e
         env:
           DEBUG: pw:browser*
-          DISPLAY: ':99'
+          DISPLAY: ":99"
       - if: failure()
         name: Show stack traces and debug info
         working-directory: playwright
@@ -407,7 +411,7 @@ jobs:
       - name: Build packages
         uses: ./.github/actions/build
         with:
-          packages: '@scalar/components...'
+          packages: "@scalar/components..."
       - name: Generate new DEPLOY_ID
         run: echo "DEPLOY_ID=$(pnpx uuid)" >> "$GITHUB_ENV" && echo $DEPLOY_ID
       - name: Build storybook
@@ -429,7 +433,7 @@ jobs:
         name: Add Netlify Playwright Report URL to the PR
         uses: daun/playwright-report-summary@93883773b4f4f0951d8bcdb780c6443ca51eaf7b # v3
         with:
-          comment-title: 'Scalar Components Snapshot Test Results'
+          comment-title: "Scalar Components Snapshot Test Results"
           report-url: https://${{env.DEPLOY_ID}}--scalar-snapshots.netlify.app
           report-file: packages/components/playwright-results.json
           report-tag: test-components-snapshots
@@ -456,7 +460,7 @@ jobs:
       - name: Build packages
         uses: ./.github/actions/build
         with:
-          packages: '@scalar/api-reference...'
+          packages: "@scalar/api-reference..."
       - name: Generate new DEPLOY_ID
         run: echo "DEPLOY_ID=$(pnpx uuid)" >> "$GITHUB_ENV" && echo $DEPLOY_ID
       - name: Run snapshot tests (@scalar/api-reference)
@@ -476,7 +480,7 @@ jobs:
         name: Add Netlify Playwright Report URL to the PR
         uses: daun/playwright-report-summary@93883773b4f4f0951d8bcdb780c6443ca51eaf7b # v3
         with:
-          comment-title: 'Scalar CDN Snapshot Diff Results'
+          comment-title: "Scalar CDN Snapshot Diff Results"
           report-url: https://${{env.DEPLOY_ID}}--scalar-snapshots.netlify.app
           report-file: packages/api-reference/playwright-results-cdn.json
           report-tag: test-cdn-snapshots
@@ -569,7 +573,7 @@ jobs:
         uses: ./.github/actions/build
         with:
           # Build everything
-          packages: './**'
+          packages: "./**"
       - name: Git Status
         run: git status
       - name: Stash changes
@@ -579,13 +583,13 @@ jobs:
         uses: changesets/action@e0145edc7d9d8679003495b11f87bd8ef63c0cba # v1
         with:
           # The pull request title.
-          title: 'chore: release'
+          title: "chore: release"
           # The command to update version, edit CHANGELOG, read and delete changesets.
-          version: 'pnpm changeset version'
+          version: "pnpm changeset version"
           # The commit message to use.
-          commit: 'chore: version packages'
+          commit: "chore: version packages"
           # The command to use to build and publish packages
-          publish: 'pnpm -r publish --access public'
+          publish: "pnpm -r publish --access public"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           # https://www.npmjs.com/settings/YOUR_ACCOUNT_HANDLE/tokens/granular-access-tokens/new
@@ -598,8 +602,8 @@ jobs:
         if: steps.changesets.outputs.published == 'true'
         uses: fjogeleit/http-request-action@23ad54bcd1178fcff6a0d17538fa09de3a7f0a4d # v1.16.4
         with:
-          url: 'https://purge.jsdelivr.net/npm/@scalar/api-reference'
-          method: 'GET'
+          url: "https://purge.jsdelivr.net/npm/@scalar/api-reference"
+          method: "GET"
 
   todesktop-build:
     if: github.ref == 'refs/heads/main' && startsWith(github.event.head_commit.message, 'RELEASING:')
@@ -612,7 +616,7 @@ jobs:
       - name: Build
         uses: ./.github/actions/build
         with:
-          packages: './{packages,integrations,projects}/**'
+          packages: "./{packages,integrations,projects}/**"
       - name: Git Status
         run: git status
       - name: Stash changes
@@ -657,7 +661,7 @@ jobs:
         name: Build
         uses: ./.github/actions/build
         with:
-          packages: 'client-scalar-com...'
+          packages: "client-scalar-com..."
       - if: steps.changed-files.outputs.api_client_any_changed == 'true'
         name: Deploy to client.staging.scalar.com (staging)
         id: deploy-client-staging
@@ -681,7 +685,7 @@ jobs:
             **Cloudflare Preview for the API Client**
 
             ${{ steps.deploy-client-staging.outputs.deployment-url }}
-          comment-tag: 'cloudflare-preview'
+          comment-tag: "cloudflare-preview"
       - if: github.ref == 'refs/heads/main' && startsWith(github.event.head_commit.message, 'RELEASING:')
         name: Check for new @scalar/api-client version
         id: client-version
@@ -717,7 +721,7 @@ jobs:
       - name: Build @scalar/galaxy
         uses: ./.github/actions/build
         with:
-          packages: '@scalar/galaxy...'
+          packages: "@scalar/galaxy..."
       - name: Check whether there's a new version of @scalar/galaxy
         id: changed-files
         uses: step-security/changed-files@60967b822d3001fa82242f8d6b4ed46bc3600a68 # v47
@@ -760,7 +764,7 @@ jobs:
       - name: Build
         uses: ./.github/actions/build
         with:
-          packages: '@scalar-examples/web...'
+          packages: "@scalar-examples/web..."
 
       - name: Generate DEPLOY_ID
         run: echo "DEPLOY_ID=$(pnpx uuid)" >> "$GITHUB_ENV"
@@ -803,7 +807,7 @@ jobs:
       - name: Build
         uses: ./.github/actions/build
         with:
-          packages: './packages/**'
+          packages: "./packages/**"
 
       - name: Generate DEPLOY_ID
         run: echo "DEPLOY_ID=$(pnpx uuid)" >> "$GITHUB_ENV"
@@ -861,7 +865,7 @@ jobs:
       - name: Build @scalar/galaxy
         uses: ./.github/actions/build
         with:
-          packages: '@scalar/galaxy...'
+          packages: "@scalar/galaxy..."
 
       - name: Extract version and generate preview version
         id: preview-version
@@ -940,7 +944,7 @@ jobs:
         uses: thollander/actions-comment-pull-request@24bffb9b452ba05a4f3f77933840a6a841d1b32b # v3
         with:
           message: ${{ steps.build-message.outputs.message }}
-          comment-tag: 'deployment-preview'
+          comment-tag: "deployment-preview"
 
   # ---------------------------------------------------------------------------------------------------------
   # Integration builds, tests, and publishes
@@ -981,12 +985,12 @@ jobs:
       - name: Scan for vulnerabilities
         uses: aquasecurity/trivy-action@b6643a29fecd7f34b3597bc6acb0a98b03d33ff8 # 0.33.1
         with:
-          scan-type: 'image'
-          image-ref: 'scalarapi/api-reference:latest'
-          format: 'table'
+          scan-type: "image"
+          image-ref: "scalarapi/api-reference:latest"
+          format: "table"
           ignore-unfixed: true
-          vuln-type: 'os,library'
-          severity: 'CRITICAL,HIGH'
+          vuln-type: "os,library"
+          severity: "CRITICAL,HIGH"
 
   docker-publish:
     if: github.ref == 'refs/heads/main' && startsWith(github.event.head_commit.message, 'RELEASING:') && needs.check-changes.outputs.docker_package_changed == 'true'
@@ -1332,7 +1336,7 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6
         with:
-          python-version: '3.11'
+          python-version: "3.11"
 
       - name: Install build dependencies
         working-directory: integrations/fastapi
@@ -1364,7 +1368,7 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6
         with:
-          python-version: '3.11'
+          python-version: "3.11"
 
       - name: Install build dependencies
         working-directory: integrations/fastapi
@@ -1394,7 +1398,7 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6
         with:
-          python-version: '3.11'
+          python-version: "3.11"
 
       - name: Install build dependencies
         working-directory: integrations/django-ninja
@@ -1426,7 +1430,7 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6
         with:
-          python-version: '3.11'
+          python-version: "3.11"
 
       - name: Install build dependencies
         working-directory: integrations/django-ninja
@@ -1571,10 +1575,10 @@ jobs:
       - name: Setup Java
         uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654 # v5
         with:
-          distribution: 'temurin'
-          java-version: '17'
-          cache: 'maven'
-          cache-dependency-path: 'integrations/java/**/pom.xml'
+          distribution: "temurin"
+          java-version: "17"
+          cache: "maven"
+          cache-dependency-path: "integrations/java/**/pom.xml"
       - name: Run Maven tests
         working-directory: integrations/java
         run: mvn clean test
@@ -1599,11 +1603,11 @@ jobs:
       - name: Setup Java
         uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654 # v5
         with:
-          distribution: 'temurin'
-          java-version: '17'
-          cache: 'maven'
-          cache-dependency-path: '**/java/pom.xml'
-          server-id: 'central'
+          distribution: "temurin"
+          java-version: "17"
+          cache: "maven"
+          cache-dependency-path: "**/java/pom.xml"
+          server-id: "central"
           server-username: MAVEN_USERNAME
           server-password: MAVEN_PASSWORD
           gpg-private-key: ${{ secrets.GPG_PRIVATE_KEY }}
