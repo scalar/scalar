@@ -3650,22 +3650,44 @@ describe('migrate-to-indexdb', () => {
       const result = await transformLegacyDataToWorkspace(legacyData)
       const doc = result[0]?.workspace.documents['Tree API']
 
-      assert(doc)
-
-      // The document must be JSON-serializable — circular JS objects should be gone
-      expect(() => JSON.stringify(doc)).not.toThrow()
-
-      // The self-referencing schema should be extracted into components/schemas
-      // and the inline occurrence replaced with a $ref pointer
-      const operation = getResolvedRef(doc.paths?.['/nodes']?.get)
-      const response200 = getResolvedRef(operation?.responses?.['200']) as Record<string, any> | undefined
-      const responseSchema = response200?.content?.['application/json']?.schema
-
-      expect(responseSchema).toBeDefined()
-
-      // Walk the output to find that children.items now uses a $ref instead of a circular object
-      const childrenItems = responseSchema?.properties?.children?.items ?? responseSchema
-      expect(childrenItems?.$ref ?? responseSchema?.$ref).toMatch(/^#\/components\/schemas\//)
+      expect(doc).toMatchObject({
+        openapi: '3.1.0',
+        info: {
+          title: 'Tree API',
+          version: '1.0',
+        },
+        paths: {
+          '/nodes': {
+            get: {
+              summary: 'Get tree nodes',
+              responses: {
+                '200': {
+                  description: 'A tree node',
+                  content: {
+                    'application/json': {
+                      schema: { $ref: '#/components/schemas/TreeNode' },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        components: {
+          schemas: {
+            TreeNode: {
+              type: 'object',
+              properties: {
+                name: { type: 'string' },
+                children: {
+                  type: 'array',
+                  items: { $ref: '#/components/schemas/TreeNode' },
+                },
+              },
+            },
+          },
+        },
+      })
     })
 
     it('converts mutually circular schemas into $refs', async () => {
@@ -3719,39 +3741,368 @@ describe('migrate-to-indexdb', () => {
       const result = await transformLegacyDataToWorkspace(legacyData)
       const doc = result[0]?.workspace.documents['People API']
 
-      assert(doc)
+      expect(doc).toMatchObject({
+        openapi: '3.1.0',
+        info: {
+          title: 'People API',
+          version: '1.0',
+        },
+        paths: {
+          '/people': {
+            get: {
+              summary: 'Get people',
+              responses: {
+                '200': {
+                  description: 'A person with their employer',
+                  content: {
+                    'application/json': {
+                      schema: { $ref: '#/components/schemas/Person' },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        components: {
+          schemas: {
+            Person: {
+              type: 'object',
+              properties: {
+                name: { type: 'string' },
+                employer: { $ref: '#/components/schemas/Company' },
+              },
+            },
+            Company: {
+              type: 'object',
+              properties: {
+                companyName: { type: 'string' },
+                employees: {
+                  type: 'array',
+                  items: { $ref: '#/components/schemas/Person' },
+                },
+              },
+            },
+          },
+        },
+      })
+    })
 
-      // The document must be JSON-serializable — no circular JS objects should remain
-      expect(() => JSON.stringify(doc)).not.toThrow()
+    it('handles circular references across all component types at once', async () => {
+      const request = requestSchema.parse({
+        uid: 'request-1',
+        path: '/all-circular',
+        method: 'post',
+        summary: 'All circular component types',
+        // parameters — circular parameter schema
+        parameters: [
+          {
+            name: 'filter',
+            in: 'query',
+            schema: {
+              type: 'object',
+              properties: {
+                field: { type: 'string' },
+                subFilter: {},
+              },
+            },
+          },
+        ],
+        // requestBodies + mediaTypes — two media type schemas referencing each other
+        requestBody: {
+          description: 'Multi-format body',
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  format: { type: 'string' },
+                  data: {},
+                },
+              },
+            },
+            'application/xml': {
+              schema: {
+                type: 'object',
+                properties: {
+                  format: { type: 'string' },
+                  data: {},
+                },
+              },
+            },
+          },
+        },
+        // responses + schemas + headers + links + examples
+        responses: {
+          '200': {
+            description: 'Full response',
+            headers: {
+              'X-Pagination': {
+                description: 'Pagination metadata',
+                schema: {
+                  type: 'object',
+                  properties: {
+                    page: { type: 'integer' },
+                    next: {},
+                  },
+                },
+              },
+            },
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    id: { type: 'string' },
+                    embedded: {},
+                  },
+                },
+                examples: {
+                  tree: {
+                    summary: 'Recursive tree',
+                    value: {
+                      name: 'root',
+                      children: [],
+                    },
+                  },
+                },
+              },
+            },
+            links: {
+              GetRelated: {
+                operationId: 'getRelated',
+                parameters: { id: '$response.body#/id' },
+              },
+            },
+          },
+        },
+      })
 
-      // The mutually referencing schemas should be extracted into components/schemas
-      // with $ref pointers replacing the circular inline objects
-      const operation = getResolvedRef(doc.paths?.['/people']?.get)
-      const response200 = getResolvedRef(operation?.responses?.['200']) as Record<string, any> | undefined
-      const schema = response200?.content?.['application/json']?.schema
+      const req = request as any
 
-      expect(schema).toBeDefined()
+      // schemas — response schema references the response object (cycle through response)
+      const response200 = req.responses['200']
+      response200.content['application/json'].schema.properties.embedded = response200
 
-      /**
-       * Collect all $ref strings from the schema tree. At least one $ref should
-       * point into components/schemas, proving the circular objects were extracted.
-       */
-      const refs: string[] = []
-      const collectRefs = (obj: any): void => {
-        if (!obj || typeof obj !== 'object') {
-          return
-        }
-        if (obj.$ref) {
-          refs.push(obj.$ref)
-        }
-        for (const value of Object.values(obj)) {
-          collectRefs(value)
-        }
+      // parameters — self-referencing filter schema
+      const paramSchema = req.parameters[0].schema
+      paramSchema.properties.subFilter = paramSchema
+
+      // examples — example value references itself
+      const exampleValue = response200.content['application/json'].examples.tree.value
+      exampleValue.children.push(exampleValue)
+
+      // headers — header schema references itself
+      const headerSchema = response200.headers['X-Pagination'].schema
+      headerSchema.properties.next = headerSchema
+
+      // links — link server references parent response
+      response200.links.GetRelated.server = response200
+
+      // requestBodies + mediaTypes — JSON ↔ XML mutual references
+      const jsonSchema = req.requestBody.content['application/json'].schema
+      const xmlSchema = req.requestBody.content['application/xml'].schema
+      jsonSchema.properties.data = xmlSchema
+      xmlSchema.properties.data = jsonSchema
+
+      // callbacks + pathItems — callback path item references itself
+      const callbackPathItem: Record<string, any> = {
+        post: {
+          summary: 'Event callback',
+          responses: {
+            '200': {
+              description: 'OK',
+              content: {
+                'application/json': {
+                  schema: {
+                    type: 'object',
+                    properties: {
+                      event: { type: 'string' },
+                      origin: {},
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
       }
-      collectRefs(schema)
+      callbackPathItem.post.responses['200'].content['application/json'].schema.properties.origin = callbackPathItem
+      req.callbacks = {
+        onEvent: { '{$request.body#/callbackUrl}': callbackPathItem },
+      }
 
-      expect(refs.length).toBeGreaterThan(0)
-      expect(refs.every((ref) => ref.startsWith('#/components/schemas/'))).toBe(true)
+      // securitySchemes — scheme references itself via extension
+      const scheme = securitySchemeSchema.parse({
+        uid: 'scheme-1',
+        nameKey: 'myApiKey',
+        type: 'apiKey',
+        name: 'X-API-Key',
+        in: 'header',
+      })
+      ;(scheme as any)['x-metadata'] = scheme
+
+      const legacyData = createLegacyData({
+        title: 'All Circular API',
+        collection: {
+          requests: ['request-1'],
+          securitySchemes: ['scheme-1'],
+        },
+        requests: [request],
+        securitySchemes: [scheme],
+      })
+
+      const result = await transformLegacyDataToWorkspace(legacyData)
+      const doc = result[0]?.workspace.documents['All Circular API']
+
+      expect(doc).toMatchObject({
+        openapi: '3.1.0',
+        info: {
+          title: 'All Circular API',
+          version: '1.0',
+        },
+        paths: {
+          '/all-circular': {
+            post: {
+              summary: 'All circular component types',
+              parameters: [
+                {
+                  name: 'filter',
+                  in: 'query',
+                  schema: { $ref: '#/components/schemas/Filter' },
+                },
+              ],
+              requestBody: {
+                description: 'Multi-format body',
+                content: {
+                  'application/json': {
+                    schema: { $ref: '#/components/schemas/JsonBody' },
+                  },
+                  'application/xml': {
+                    schema: { $ref: '#/components/schemas/XmlBody' },
+                  },
+                },
+              },
+              responses: {
+                '200': {
+                  description: 'Full response',
+                  headers: {
+                    'X-Pagination': {
+                      description: 'Pagination metadata',
+                      schema: { $ref: '#/components/schemas/XPagination' },
+                    },
+                  },
+                  content: {
+                    'application/json': {
+                      schema: { $ref: '#/components/schemas/Response200' },
+                      examples: {
+                        tree: {
+                          summary: 'Recursive tree',
+                          value: { $ref: '#/components/examples/Tree' },
+                        },
+                      },
+                    },
+                  },
+                  links: {
+                    GetRelated: {
+                      operationId: 'getRelated',
+                      parameters: { id: '$response.body#/id' },
+                      server: { $ref: '#/components/responses/200' },
+                    },
+                  },
+                },
+              },
+              callbacks: {
+                onEvent: {
+                  '{$request.body#/callbackUrl}': {
+                    post: {
+                      summary: 'Event callback',
+                      responses: {
+                        '200': {
+                          description: 'OK',
+                          content: {
+                            'application/json': {
+                              schema: { $ref: '#/components/schemas/CallbackResponse' },
+                            },
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        components: {
+          schemas: {
+            Filter: {
+              type: 'object',
+              properties: {
+                field: { type: 'string' },
+                subFilter: { $ref: '#/components/schemas/Filter' },
+              },
+            },
+            JsonBody: {
+              type: 'object',
+              properties: {
+                format: { type: 'string' },
+                data: { $ref: '#/components/schemas/XmlBody' },
+              },
+            },
+            XmlBody: {
+              type: 'object',
+              properties: {
+                format: { type: 'string' },
+                data: { $ref: '#/components/schemas/JsonBody' },
+              },
+            },
+            XPagination: {
+              type: 'object',
+              properties: {
+                page: { type: 'integer' },
+                next: { $ref: '#/components/schemas/XPagination' },
+              },
+            },
+            Response200: {
+              type: 'object',
+              properties: {
+                id: { type: 'string' },
+                embedded: { $ref: '#/components/responses/200' },
+              },
+            },
+            CallbackResponse: {
+              type: 'object',
+              properties: {
+                event: { type: 'string' },
+                origin: { $ref: '#/components/pathItems/CallbackPathItem' },
+              },
+            },
+          },
+          examples: {
+            Tree: {
+              name: 'root',
+              children: [{ $ref: '#/components/examples/Tree' }],
+            },
+          },
+          responses: {
+            '200': { $ref: '#/paths/~1all-circular/post/responses/200' },
+          },
+          pathItems: {
+            CallbackPathItem: {
+              $ref: '#/paths/~1all-circular/post/callbacks/onEvent/{$request.body#~1callbackUrl}',
+            },
+          },
+          securitySchemes: {
+            myApiKey: {
+              type: 'apiKey',
+              name: 'X-API-Key',
+              in: 'header',
+              'x-metadata': { $ref: '#/components/securitySchemes/myApiKey' },
+            },
+          },
+        },
+      })
     })
   })
 })
