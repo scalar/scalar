@@ -1,5 +1,18 @@
 # @scalar/sidebar
 
+## 0.7.29
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.29.0**
+  - [#8061](https://github.com/scalar/scalar/pull/8061): fix: do not throw when try to update a non existent document metadata
+  - [#8045](https://github.com/scalar/scalar/pull/8045): feat: manage active environments
+
+- **@scalar/components@0.17.6**
+  - [#8070](https://github.com/scalar/scalar/pull/8070): chore: remove the import modal and change the workspace picker to support groups
+
 ## 0.7.28
 
 ### Patch Changes

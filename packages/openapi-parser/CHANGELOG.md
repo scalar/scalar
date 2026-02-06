@@ -1,5 +1,14 @@
 # @scalar/openapi-parser
 
+## 0.24.8
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/json-magic@0.10.0**
+  - [#8052](https://github.com/scalar/scalar/pull/8052): feat: allow custom LoaderPlugin plugins in dereference
+
 ## 0.24.7
 
 ### Patch Changes
