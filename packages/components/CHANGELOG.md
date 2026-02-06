@@ -1,5 +1,16 @@
 # @scalar/components
 
+## 0.17.6
+
+### Patch Changes
+
+- [#8070](https://github.com/scalar/scalar/pull/8070): chore: remove the import modal and change the workspace picker to support groups
+
+#### Updated Dependencies
+
+- **@scalar/oas-utils@0.6.36**
+  - [#8037](https://github.com/scalar/scalar/pull/8037): Improve error message when running oas-utils tests while test-servers are not running
+
 ## 0.17.5
 
 ### Patch Changes

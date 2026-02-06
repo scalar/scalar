@@ -1,5 +1,20 @@
 # @scalar/workspace-store
 
+## 0.29.0
+
+### Minor Changes
+
+- [#8045](https://github.com/scalar/scalar/pull/8045): feat: manage active environments
+
+### Patch Changes
+
+- [#8061](https://github.com/scalar/scalar/pull/8061): fix: do not throw when try to update a non existent document metadata
+
+#### Updated Dependencies
+
+- **@scalar/json-magic@0.10.0**
+  - [#8052](https://github.com/scalar/scalar/pull/8052): feat: allow custom LoaderPlugin plugins in dereference
+
 ## 0.28.4
 
 ### Patch Changes
