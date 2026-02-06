@@ -3603,5 +3603,132 @@ describe('migrate-to-indexdb', () => {
         expect(getResolvedRef(doc.paths?.['/subscribe']?.post)?.callbacks?.onData).toBeDefined()
       })
     })
+
+    describe('circular documents', () => {
+      it('migrates collection with self-referencing circular schema (tree node)', async () => {
+        const treeNodeSchema = {
+          type: 'object',
+          properties: {
+            name: { type: 'string' },
+            children: {
+              type: 'array',
+              items: {} as Record<string, unknown>,
+            },
+          },
+        }
+
+        const legacyData = createLegacyData({
+          title: 'Tree API',
+          collection: {
+            components: {
+              schemas: {
+                TreeNode: treeNodeSchema,
+              },
+            },
+          },
+        })
+
+        // @ts-expect-error: Yolo
+        legacyData.records.collections['collection-1'].components.schemas.TreeNode.properties.children.items =
+          // @ts-expect-error: Yolo
+          legacyData.records.collections['collection-1'].components.schemas.TreeNode
+
+        const result = await transformLegacyDataToWorkspace(legacyData)
+        const doc = result[0]?.workspace.documents['Tree API']
+        expect(doc).toMatchObject({
+          openapi: '3.1.0',
+          info: {
+            title: 'Tree API',
+            version: '1.0.0',
+          },
+          servers: [],
+          paths: {},
+          components: {
+            schemas: {
+              TreeNode: {
+                type: 'object',
+                properties: {
+                  name: { type: 'string' },
+                  children: {
+                    type: 'array',
+                    items: {
+                      $ref: '#/components/schemas/TreeNode',
+                    },
+                  },
+                },
+              },
+            },
+          },
+          security: [],
+          tags: [],
+        })
+      })
+
+      it('migrates collection with mutually circular schemas (person and company)', async () => {
+        const personSchema = {
+          type: 'object',
+          properties: {
+            name: { type: 'string' },
+            employer: {
+              type: 'object',
+              properties: {
+                companyName: { type: 'string' },
+                employees: {
+                  type: 'array',
+                  items: {} as Record<string, unknown>,
+                },
+              },
+            },
+          },
+        }
+
+        const legacyData = createLegacyData({
+          title: 'People API',
+          collection: {
+            components: {
+              schemas: {
+                Person: personSchema,
+              },
+            },
+          },
+        })
+
+        // @ts-expect-error: Yolo
+        legacyData.records.collections[
+          'collection-1'
+        ].components.schemas.Person.properties.employer.properties.employees.items =
+          // @ts-expect-error: Yolo
+          legacyData.records.collections['collection-1'].components.schemas.Person
+
+        const result = await transformLegacyDataToWorkspace(legacyData)
+        const doc = result[0]?.workspace.documents['People API']
+        expect(doc).toMatchObject({
+          openapi: '3.1.0',
+          info: { title: 'People API', version: '1.0.0' },
+          servers: [],
+          paths: {},
+          components: {
+            schemas: {
+              Person: {
+                type: 'object',
+                properties: {
+                  name: { type: 'string' },
+                  employer: {
+                    type: 'object',
+                    properties: {
+                      companyName: { type: 'string' },
+                      employees: { type: 'array', items: { $ref: '#/components/schemas/Person' } },
+                    },
+                  },
+                },
+              },
+            },
+            securitySchemes: {},
+          },
+          security: [],
+          tags: [],
+        })
+      })
+    })
   })
 })

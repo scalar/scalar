@@ -4,6 +4,64 @@ import { circularToRefs } from '@/object/circular-to-refs'
 
 describe('circularToRefs', () => {
   describe('Circular Schemas', () => {
+    it('converts a self-referencing circular schema into $ref with extra properties', () => {
+      const document = {
+        openapi: '3.1.0',
+        info: {
+          title: 'Tree API',
+          version: '1.0.0',
+        },
+        servers: [],
+        paths: {},
+        components: {
+          schemas: {
+            TreeNode: {
+              type: 'object',
+              properties: {
+                name: { type: 'string' },
+                children: {
+                  type: 'array',
+                  items: {},
+                },
+              },
+            },
+          },
+        },
+        security: [],
+        tags: [],
+      }
+
+      // Make circle
+      document.components.schemas.TreeNode.properties.children.items = document.components.schemas.TreeNode
+
+      const safeDoc = circularToRefs(document)
+      expect(safeDoc).toEqual({
+        openapi: '3.1.0',
+        info: {
+          title: 'Tree API',
+          version: '1.0.0',
+        },
+        servers: [],
+        paths: {},
+        components: {
+          schemas: {
+            TreeNode: {
+              type: 'object',
+              properties: {
+                name: { type: 'string' },
+                children: {
+                  type: 'array',
+                  items: { $ref: '#/components/schemas/TreeNode' },
+                },
+              },
+            },
+          },
+        },
+        security: [],
+        tags: [],
+      })
+    })
+
     it('converts a self-referencing circular schema into $ref', () => {
       const document = {
         openapi: '3.1.0',

@@ -1,4 +1,5 @@
 import { extractConfigSecrets, removeSecretFields } from '@scalar/helpers/general/extract-config-secrets'
+import { circularToRefs } from '@scalar/helpers/object/circular-to-refs'
 import { objectEntries } from '@scalar/helpers/object/object-entries'
 import type { Oauth2Flow } from '@scalar/types/entities'
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
@@ -231,7 +232,7 @@ const transformRequestsToPaths = (
   collection: v_2_5_0['Collection'],
   dataRecords: v_2_5_0['DataRecord'],
 ): Record<string, any> => {
-  const paths: Record<string, any> = {}
+  const paths = Object.create(null) as Record<string, any>
 
   for (const requestUid of collection.requests || []) {
     const request = dataRecords.requests[requestUid]
@@ -679,7 +680,8 @@ const transformCollectionToDocument = (
   // Break any circular JS object references before coercion.
   // The legacy client dereferenced $refs inline, creating circular object graphs
   // that would cause JSON serialization and schema validation to fail.
-  const safeDocument = breakCircularReferences(document)
+  const safeDocument = circularToRefs(document, { '$ref-value': '' })
+  console.dir(safeDocument, { depth: null })
 
   return {
     document: coerceValue(OpenAPIDocumentSchema, safeDocument),
