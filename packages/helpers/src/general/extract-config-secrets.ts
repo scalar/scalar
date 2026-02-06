@@ -20,7 +20,7 @@ const SECRET_FIELD_MAPPINGS = {
 export const extractConfigSecrets = (input: Record<string, unknown>): Record<string, string> =>
   objectEntries(SECRET_FIELD_MAPPINGS).reduce<Record<string, string>>((result, [field, secretField]) => {
     const value = input[field]
-    if (value !== undefined && typeof value === 'string') {
+    if (value && typeof value === 'string') {
       result[secretField] = value
     }
     return result
