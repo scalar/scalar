@@ -79,9 +79,10 @@ const icon = computed<ScalarIconComponent>(() => {
         </div>
         <div
           v-else
-          class="whitespace-nowrap"
+          class="whitespace-nowrap!"
           :class="{
-            'group-hover:block group-focus-visible:block hidden': !copied,
+            'group-hover:not-sr-only group-focus-visible:not-sr-only sr-only':
+              !copied,
           }">
           <slot name="copy">Copy to clipboard</slot>
         </div>

@@ -1,9 +1,20 @@
-import { takeSnapshot, test } from '@test/helpers'
+import { test } from '@test/helpers'
 
 const stories = ['Base']
 
-// TODO: Add snapshots
+test.use({
+  viewport: { width: 240, height: 160 },
+  background: true,
+})
+
 test.describe('ScalarCopyButton', () => {
-  test.use({ background: true })
-  stories.forEach((story) => test(story, takeSnapshot))
+  stories.forEach((story) =>
+    test(story, async ({ page, snapshot }) => {
+      await snapshot('1-base')
+      await page.getByRole('button', { name: 'Copy to clipboard' }).hover()
+      await snapshot('2-hover')
+      await page.getByRole('button', { name: 'Copy to clipboard' }).click()
+      await snapshot('3-clicked')
+    }),
+  )
 })
