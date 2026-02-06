@@ -34,7 +34,7 @@ const getCurrentContent = () => {
     <ScalarCodeBlockCopy
       v-if="getCurrentContent()"
       :content="getCurrentContent()"
-      :controls="id"
+      :aria-controls="id"
       class="z-context top-2 mr-2" />
     <div
       class="body-raw-scroller custom-scroll relative pr-1"

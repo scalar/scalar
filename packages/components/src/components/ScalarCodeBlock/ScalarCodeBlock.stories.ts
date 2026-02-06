@@ -62,6 +62,7 @@ const meta = {
   component: ScalarCodeBlock,
   argTypes: {
     class: { control: 'text' },
+    lang: { control: 'text' },
   },
   tags: ['autodocs'],
   render: (args) => ({
@@ -76,7 +77,7 @@ const meta = {
 export default meta
 type Story = StoryObj<typeof meta>
 
-export const Base: Story = { args: { content: contentJs } }
+export const Base: Story = { args: { content: contentJs, lang: 'javascript' } }
 
 export const LineNumbers: Story = {
   args: { content: contentJs, lineNumbers: true },

@@ -24,6 +24,9 @@ import { computed } from 'vue'
 import type { ScalarCopyPlacement, ScalarCopySlots } from './types'
 
 const { placement = 'right' } = defineProps<{
+  /** Whether the label should be shown on hover or always */
+  showLabel?: boolean
+  /** The placement of the copy button */
   placement?: ScalarCopyPlacement
 }>()
 
@@ -43,7 +46,7 @@ const icon = computed<ScalarIconComponent>(() => {
     type="button"
     v-bind="
       cx(
-        'group relative flex items-center justify-center',
+        'group/copy-button relative flex items-center justify-center',
         'size-6 p-1.25 -m-1 rounded',
         'font-medium text-xs',
         copied ? 'text-c-1 bg-b-2' : 'text-c-2 hover:text-c-1 hover:bg-b-2',
@@ -85,8 +88,8 @@ const icon = computed<ScalarIconComponent>(() => {
           v-else
           class="whitespace-nowrap!"
           :class="{
-            'group-hover:not-sr-only group-focus-visible:not-sr-only sr-only':
-              !copied,
+            'group-hover/copy-button:not-sr-only group-focus-visible/copy-button:not-sr-only sr-only':
+              !showLabel && !copied,
           }">
           <slot name="copy">Copy to clipboard</slot>
         </div>
