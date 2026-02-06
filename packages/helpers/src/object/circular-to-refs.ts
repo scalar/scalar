@@ -105,10 +105,12 @@ export const circularToRefs = (
    * Phase 1 structures:
    * - circularMeta: Maps circular objects to their component type and generated name
    * - objectContext: Records the context when an object is first encountered
+   * - existingComponentNames: Maps objects to their existing component names (if in components section)
    * - counters: Tracks unique naming counters per component type
    */
   const circularMeta = new Map<object, CircularMeta>()
   const objectContext = new Map<object, ComponentType>()
+  const existingComponentNames = new Map<object, { type: ComponentType; name: string }>()
   const counters: Record<ComponentType, number> = {
     schemas: 0,
     responses: 0,
@@ -120,6 +122,30 @@ export const circularToRefs = (
     links: 0,
     callbacks: 0,
     pathItems: 0,
+  }
+
+  /**
+   * Pre-scan: Map existing components to their names.
+   * This allows us to reference existing schemas instead of creating duplicates.
+   */
+  const scanExistingComponents = (doc: Record<string, unknown>): void => {
+    const components = doc.components as Record<string, unknown> | undefined
+    if (!components) {
+      return
+    }
+
+    for (const componentType of Object.keys(COMPONENT_PREFIXES) as ComponentType[]) {
+      const section = components[componentType] as Record<string, unknown> | undefined
+      if (!section) {
+        continue
+      }
+
+      for (const [name, value] of Object.entries(section)) {
+        if (value !== null && typeof value === 'object') {
+          existingComponentNames.set(value as object, { type: componentType, name })
+        }
+      }
+    }
   }
 
   /**
@@ -143,14 +169,21 @@ export const circularToRefs = (
 
     // Cycle detected: this object is already in our ancestor chain
     if (ancestors.has(obj)) {
-      // Only register once — use the context from when we first saw this object
+      // Only register once — use existing name if available, otherwise generate new one
       if (!circularMeta.has(obj)) {
-        const componentType = objectContext.get(obj) ?? context
-        const count = ++counters[componentType]
-        circularMeta.set(obj, {
-          type: componentType,
-          name: `${COMPONENT_PREFIXES[componentType]}${count}`,
-        })
+        const existing = existingComponentNames.get(obj)
+        if (existing) {
+          // Use the existing component name
+          circularMeta.set(obj, existing)
+        } else {
+          // Generate a new name
+          const componentType = objectContext.get(obj) ?? context
+          const count = ++counters[componentType]
+          circularMeta.set(obj, {
+            type: componentType,
+            name: `${COMPONENT_PREFIXES[componentType]}${count}`,
+          })
+        }
       }
       return
     }
@@ -211,6 +244,18 @@ export const circularToRefs = (
         return createRefObject(meta)
       }
 
+      // Check if this object already exists in components section
+      const isExistingComponent = existingComponentNames.has(obj)
+
+      if (isExistingComponent) {
+        // Do not extract — it already exists in components.
+        // Just clone it in place and replace circular back-references with $ref
+        visited.add(obj)
+        const cloned = Array.isArray(obj) ? cloneArray(obj, visited, context) : cloneObject(obj, visited, context)
+        visited.delete(obj)
+        return cloned
+      }
+
       // Get or create the section for this component type
       let section = extractedComponents.get(meta.type)
       if (section === undefined) {
@@ -254,6 +299,9 @@ export const circularToRefs = (
 
     return result
   }
+
+  // Execute Pre-scan: map existing components
+  scanExistingComponents(document)
 
   // Execute Phase 1: identify all circular objects
   identifyCircularObjects(document, new Set(), 'schemas')
