@@ -2,7 +2,13 @@ import { describe, expect, it } from 'vitest'
 
 import type { Workspace } from '@/schemas'
 
-import { updateActiveProxy, updateColorMode, updateSelectedClient, updateTheme } from './workspace'
+import {
+  updateActiveEnvironment,
+  updateActiveProxy,
+  updateColorMode,
+  updateSelectedClient,
+  updateTheme,
+} from './workspace'
 
 function createWorkspace(initial?: Partial<Workspace>): Workspace {
   return {
@@ -269,5 +275,48 @@ describe('updateSelectedClient', () => {
     updateSelectedClient(workspace, 'js/fetch')
 
     expect(workspace['x-scalar-default-client']).toBe('js/fetch')
+  })
+})
+
+describe('updateActiveEnvironment', () => {
+  it('does nothing when workspace is null', () => {
+    updateActiveEnvironment(null, 'production')
+    // Should not throw
+  })
+
+  it('sets x-scalar-active-environment to an environment name', () => {
+    const workspace = createWorkspace()
+
+    updateActiveEnvironment(workspace, 'production')
+
+    expect(workspace['x-scalar-active-environment']).toBe('production')
+  })
+
+  it('sets x-scalar-active-environment to undefined when payload is null', () => {
+    const workspace = createWorkspace()
+
+    updateActiveEnvironment(workspace, null)
+
+    expect(workspace['x-scalar-active-environment']).toBeUndefined()
+  })
+
+  it('updates existing x-scalar-active-environment value', () => {
+    const workspace = createWorkspace({
+      'x-scalar-active-environment': 'development',
+    })
+
+    updateActiveEnvironment(workspace, 'production')
+
+    expect(workspace['x-scalar-active-environment']).toBe('production')
+  })
+
+  it('clears x-scalar-active-environment when setting to null', () => {
+    const workspace = createWorkspace({
+      'x-scalar-active-environment': 'staging',
+    })
+
+    updateActiveEnvironment(workspace, null)
+
+    expect(workspace['x-scalar-active-environment']).toBeUndefined()
   })
 })

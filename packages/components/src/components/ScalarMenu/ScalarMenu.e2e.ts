@@ -14,4 +14,14 @@ test.describe('ScalarMenu', () => {
     await page.getByRole('menuitem', { name: 'Change team' }).click()
     await snapshot('2')
   })
+
+  test('Workspace Picker', async ({ page, snapshot }) => {
+    // Open the dropdown
+    await page.getByRole('button', { expanded: false }).click()
+    await snapshot('1')
+
+    // Open workspace picker submenu
+    await page.getByRole('menuitem', { name: 'Change workspace' }).click()
+    await snapshot('2')
+  })
 })

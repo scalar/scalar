@@ -8,8 +8,9 @@ import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/o
 import { OpenApiClientButton } from '@/components'
 import type { ClientLayout } from '@/hooks'
 import { AddressBar, type History } from '@/v2/blocks/scalar-address-bar-block'
+import EnvironmentSelector from '@/v2/blocks/scalar-address-bar-block/components/EnvironmentSelector.vue'
 
-const { hideClientButton = false } = defineProps<{
+const { hideClientButton = false, eventBus } = defineProps<{
   /** Current request path */
   path: string
   /** Current request method */
@@ -32,6 +33,10 @@ const { hideClientButton = false } = defineProps<{
   history: History[]
   /** Event bus */
   eventBus: WorkspaceEventBus
+  /** Environment list */
+  environments?: string[]
+  /** Currently selected environment */
+  activeEnvironment?: string
   /** Environment variables */
   environment: XScalarEnvironment
 }>()
@@ -41,7 +46,17 @@ const emit = defineEmits<{
   (e: 'update:servers'): void
   /** Select a request history item by index */
   (e: 'select:history:item', payload: { index: number }): void
+  /** Add a new environment */
+  (e: 'add:environment'): void
 }>()
+
+const handleSelectEnvironment = (environmentName: string) => {
+  eventBus.emit('workspace:update:active-environment', environmentName)
+}
+
+const handleAddEnvironment = () => {
+  eventBus.emit('ui:route:page', { name: 'workspace.environment' })
+}
 </script>
 
 <template>
@@ -57,7 +72,9 @@ const emit = defineEmits<{
       <div class="size-8"></div>
     </div>
     <AddressBar
+      :activeEnvironment
       :environment
+      :environments
       :eventBus
       :history
       :layout
@@ -65,12 +82,23 @@ const emit = defineEmits<{
       :path
       :server
       :servers
+      @add:environment="emit('add:environment')"
       @execute="emit('execute')"
       @select:history:item="(payload) => emit('select:history:item', payload)"
       @update:servers="emit('update:servers')" />
 
     <div
-      class="mb-2 flex w-1/2 flex-row items-center justify-end gap-1 lg:mb-0 lg:flex-1 lg:px-2.5">
+      class="mb-2 flex w-1/2 flex-row items-center justify-end gap-2 lg:mb-0 lg:flex-1 lg:px-2.5">
+      <!--
+        Environment Selector
+        Hidden for `modal` layout
+      -->
+      <EnvironmentSelector
+        v-if="layout !== 'modal'"
+        :activeEnvironment="activeEnvironment"
+        :environments="environments"
+        @add:environment="handleAddEnvironment"
+        @select:environment="handleSelectEnvironment" />
       <!--
           Open API Client Button
 

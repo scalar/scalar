@@ -112,6 +112,48 @@ describe('create-workspace-store', () => {
     expect(store.workspace.documents['default']?.['x-scalar-active-server']).toBe('server-3')
   })
 
+  it('does not throw when updating non-existent document', () => {
+    const store = createWorkspaceStore()
+
+    // Should not throw when updating a document that does not exist
+    expect(() => {
+      store.updateDocument('non-existent', 'x-scalar-active-server', 'server-1')
+    }).not.toThrow()
+
+    // Should return false when document is not found
+    const result = store.updateDocument('non-existent', 'x-scalar-active-server', 'server-1')
+    expect(result).toBe(false)
+  })
+
+  it('updates document meta field correctly', async () => {
+    const store = createWorkspaceStore()
+
+    await store.addDocument({
+      name: 'test-doc',
+      document: {
+        openapi: '3.0.0',
+        info: { title: 'Test API' },
+      },
+      meta: {
+        'x-scalar-active-server': 'initial-server',
+      },
+    })
+
+    // Update the meta field
+    const result = store.updateDocument('test-doc', 'x-scalar-active-server', 'updated-server')
+
+    // Should return true when successful
+    expect(result).toBe(true)
+
+    // Should update the meta field
+    expect(store.workspace.documents['test-doc']?.['x-scalar-active-server']).toBe('updated-server')
+
+    // Should preserve other document fields (note: openapi version gets upgraded to 3.1.1)
+    const document = store.workspace.documents['test-doc']
+    expect(document?.info.title).toBe('Test API')
+    expect(document?.openapi).toBeDefined()
+  })
+
   it('correctly get the correct document', async () => {
     const store = createWorkspaceStore({
       meta: {

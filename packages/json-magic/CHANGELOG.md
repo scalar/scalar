@@ -1,5 +1,11 @@
 # @scalar/json-magic
 
+## 0.10.0
+
+### Minor Changes
+
+- [#8052](https://github.com/scalar/scalar/pull/8052): feat: allow custom LoaderPlugin plugins in dereference
+
 ## 0.9.6
 
 ### Patch Changes

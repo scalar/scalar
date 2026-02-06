@@ -183,22 +183,22 @@ export type WorkspaceStore = {
     value: (WorkspaceMeta & WorkspaceExtensions)[K],
   ): void
   /**
-   * Updates a specific metadata field in a document
-   * @param name - The name of the document to update ('active' or a specific document name)
-   * @param key - The metadata field to update
-   * @param value - The new value for the field
-   * @throws Error if the specified document doesn't exist
+   * Updates a specific metadata field for a given document in the workspace.
+   * @param name - The document to update. Use 'active' for the currently active document, or provide a specific document name.
+   * @param key - The metadata field to update, as defined in WorkspaceDocumentMeta.
+   * @param value - The new value for the selected metadata field.
+   * @returns true if the update was successful, false otherwise.
    * @example
-   * // Update the auth of the active document
+   * // Update the auth metadata for the active document
    * updateDocument('active', 'x-scalar-active-auth', 'Bearer')
-   * // Update the auth of a specific document
+   * // Update the auth metadata for a specific document
    * updateDocument('document-name', 'x-scalar-active-auth', 'Bearer')
    */
   updateDocument<K extends keyof WorkspaceDocumentMeta>(
     name: 'active' | (string & {}),
     key: K,
     value: WorkspaceDocumentMeta[K],
-  ): void
+  ): boolean
   /**
    * Replaces the content of a specific document in the workspace with the provided input.
    * This method computes the difference between the current document and the new input,
@@ -996,11 +996,12 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       const currentDocument = workspace.documents[name === 'active' ? getActiveDocumentName() : name]
 
       if (!currentDocument) {
-        throw 'Please select a valid document'
+        return false
       }
 
       preventPollution(key)
       Object.assign(currentDocument, { [key]: value })
+      return true
     },
     async replaceDocument(documentName: string, input: Record<string, unknown>) {
       const currentDocument = workspace.documents[documentName]

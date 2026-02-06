@@ -1,5 +1,19 @@
 # @scalar/api-client-react
 
+## 1.3.90
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-client@2.24.0**
+  - [#7989](https://github.com/scalar/scalar/pull/7989): fix: prevent API client modal from disappearing on reopen in Safari
+  - [#8049](https://github.com/scalar/scalar/pull/8049): fix: gracefully handle import errors when importing from command palette
+  - [#8061](https://github.com/scalar/scalar/pull/8061): fix: correctly display watch mode toggle state
+  - [#8062](https://github.com/scalar/scalar/pull/8062): fix: correctly handle redirect after the document deletion
+  - [#8070](https://github.com/scalar/scalar/pull/8070): chore: remove the import modal and change the workspace picker to support groups
+  - [#8045](https://github.com/scalar/scalar/pull/8045): feat: manage active environments
+
 ## 1.3.89
 
 ### Patch Changes

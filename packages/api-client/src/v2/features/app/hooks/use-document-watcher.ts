@@ -188,7 +188,7 @@ export const useDocumentWatcher = ({
    */
   watch(
     [() => document.value?.['x-scalar-original-source-url'], () => document.value?.['x-scalar-watch-mode']],
-    ([sourceUrl, watchMode = true]) => {
+    ([sourceUrl, watchMode = false]) => {
       const storeValue = toValue(store)
 
       // Clear timer if store is unavailable

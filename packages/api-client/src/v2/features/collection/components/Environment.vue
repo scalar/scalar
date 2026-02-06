@@ -14,6 +14,10 @@ const environments = computed(
       ? document['x-scalar-environments']
       : workspaceStore.workspace['x-scalar-environments']) ?? {},
 )
+
+const activeEnvironment = computed(() => {
+  return workspaceStore.workspace['x-scalar-active-environment']
+})
 </script>
 
 <template>
@@ -37,6 +41,7 @@ const environments = computed(
     </div>
 
     <EnvironmentsList
+      :activeEnvironment
       :collectionType
       :environments
       :eventBus />

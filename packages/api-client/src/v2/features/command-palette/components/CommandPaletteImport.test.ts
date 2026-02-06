@@ -61,7 +61,7 @@ describe('CommandPaletteImport', () => {
     expect(input.props('modelValue')).toBe('')
   })
 
-  it('initializes with watch mode enabled', () => {
+  it('initializes with watch mode disabled', () => {
     const workspaceStore = createWorkspaceStore()
     const eventBus = createWorkspaceEventBus()
 
@@ -73,7 +73,8 @@ describe('CommandPaletteImport', () => {
     })
 
     const watchToggle = wrapper.findComponent({ name: 'WatchModeToggle' })
-    expect(watchToggle.props('modelValue')).toBe(true)
+    expect(watchToggle.props('modelValue')).toBe(false)
+    expect(watchToggle.props('disabled')).toBe(true)
   })
 
   it('renders input placeholder text', () => {
@@ -302,7 +303,15 @@ describe('CommandPaletteImport', () => {
     await nextTick()
 
     let watchToggle = wrapper.findComponent({ name: 'WatchModeToggle' })
+    expect(watchToggle.props('modelValue')).toBe(false)
+    expect(watchToggle.props('disabled')).toBe(false)
+
+    /** Only local URLs are allowed for watch mode */
+    await input.vm.$emit('update:modelValue', 'http://localhost:3000/api.json')
+    await nextTick()
+
     expect(watchToggle.props('modelValue')).toBe(true)
+    expect(watchToggle.props('disabled')).toBe(false)
 
     /** Switch to content */
     await input.vm.$emit('update:modelValue', '{"openapi": "3.1.0"}')
@@ -310,6 +319,7 @@ describe('CommandPaletteImport', () => {
 
     watchToggle = wrapper.findComponent({ name: 'WatchModeToggle' })
     expect(watchToggle.props('modelValue')).toBe(false)
+    expect(watchToggle.props('disabled')).toBe(true)
   })
 
   it('shows preview mode for pasted OpenAPI content', async () => {

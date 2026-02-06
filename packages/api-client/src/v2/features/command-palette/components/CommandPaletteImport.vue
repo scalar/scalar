@@ -30,28 +30,27 @@ import {
   ScalarTooltip,
   useLoadingState,
 } from '@scalar/components'
-import { normalize } from '@scalar/openapi-parser'
-import type { UnknownObject } from '@scalar/types/utils'
-import type { WorkspaceStore } from '@scalar/workspace-store/client'
+import { isLocalUrl } from '@scalar/helpers/url/is-local-url'
+import { useToasts } from '@scalar/use-toasts'
+import {
+  createWorkspaceStore,
+  type WorkspaceStore,
+} from '@scalar/workspace-store/client'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
-import { generateUniqueValue } from '@scalar/workspace-store/helpers/generate-unique-value'
 import { computed, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 
 import { useFileDialog } from '@/hooks'
 import { getOpenApiDocumentDetails } from '@/v2/features/command-palette/helpers/get-openapi-document-details'
-import { getOpenApiFromPostman } from '@/v2/features/command-palette/helpers/get-openapi-from-postman'
 import { getPostmanDocumentDetails } from '@/v2/features/command-palette/helpers/get-postman-document-details'
+import { importDocumentToWorkspace } from '@/v2/features/command-palette/helpers/import-document-to-workspace'
 import { isPostmanCollection } from '@/v2/features/command-palette/helpers/is-postman-collection'
+import { loadDocumentFromSource } from '@/v2/features/command-palette/helpers/load-document-from-source'
 import { isUrl } from '@/v2/helpers/is-url'
-import { slugify } from '@/v2/helpers/slugify'
 
 import CommandActionForm from './CommandActionForm.vue'
 import CommandActionInput from './CommandActionInput.vue'
 import WatchModeToggle from './WatchModeToggle.vue'
-
-/** Result type for import operations */
-type ImportResult = { success: true; name: string } | { success: false }
 
 const { workspaceStore, eventBus } = defineProps<{
   /** The workspace store for adding documents */
@@ -67,20 +66,19 @@ const emit = defineEmits<{
   (event: 'back', keyboardEvent: KeyboardEvent): void
 }>()
 
-/** Maximum number of attempts to generate a unique document name */
-const MAX_NAME_RETRIES = 100
-
-/** Default document name when none can be extracted */
-const DEFAULT_DOCUMENT_NAME = 'document'
+const { toast } = useToasts()
 
 const router = useRouter()
 const loader = useLoadingState()
 
 const inputContent = ref('')
-const watchMode = ref(true)
+const watchMode = ref(false)
 
 /** Check if the input content is a URL */
 const isUrlInput = computed<boolean>(() => isUrl(inputContent.value))
+const isLocalUrlInput = computed<boolean>(
+  () => isUrlInput.value && isLocalUrl(inputContent.value),
+)
 
 /** Get document details based on the content type (Postman or OpenAPI) */
 const documentDetails = computed(() => {
@@ -101,116 +99,79 @@ const isDisabled = computed<boolean>(() => {
 })
 
 /**
- * Watch for changes to isUrlInput and toggle watchMode accordingly.
- * Watch mode is only available for URL imports, not file or pasted content.
+ * Toggle watchMode based on whether the input is a local URL.
+ * Only enables watch mode for local URLs, not for files or pasted content.
  */
-watch(isUrlInput, (isUrl: boolean) => {
-  watchMode.value = isUrl
+watch(isLocalUrlInput, (value: boolean) => {
+  watchMode.value = value
 })
 
 /**
- * Validate that a document name does not already exist in the workspace.
- * Used to ensure unique document names during import.
+ * Handles errors during the import process.
+ * Shows an error toast, invalidates the loader to show an error state,
+ * and closes the command palette modal.
+ *
+ * @param errorMessage - The error message to display and log
  */
-const isDocumentNameUnique = (name: string): boolean => {
-  return !Object.keys(workspaceStore.workspace.documents).includes(name)
+const handleImportError = async (errorMessage: string) => {
+  // Log the error
+  console.error(errorMessage)
+  toast(errorMessage, 'error')
+
+  // Invalidate the loader to show the error state
+  await loader.invalidate()
+
+  // Close the command palette
+  emit('close')
 }
 
 /**
- * Generate a unique document name based on a default value.
- * Uses slugification and retries to ensure uniqueness.
- * Returns undefined if no unique name could be generated after max retries.
+ * Directly imports a document into the workspace without showing the modal.
+ * This is used when there is only one workspace and it is empty.
  */
-const generateUniqueDocumentName = async (
-  defaultValue: string,
-): Promise<string | undefined> => {
-  return await generateUniqueValue({
-    defaultValue,
-    validation: isDocumentNameUnique,
-    maxRetries: MAX_NAME_RETRIES,
-    transformation: slugify,
+const handleImport = async (newSource: string): Promise<void> => {
+  loader.start()
+
+  const TEMP_DOCUMENT_NAME = 'drafts'
+
+  // First load the document into a draft store
+  // This is to get the title of the document so we can generate a unique slug for store
+  const draftStore = createWorkspaceStore({
+    meta: {
+      /** Ensure we use the active proxy to fetch documents */
+      'x-scalar-active-proxy':
+        workspaceStore.workspace['x-scalar-active-proxy'],
+    },
   })
-}
+  const isSuccessfullyLoaded = await loadDocumentFromSource(
+    draftStore,
+    newSource,
+    TEMP_DOCUMENT_NAME,
+    watchMode.value,
+  )
 
-/**
- * Extract the title from an OpenAPI document object.
- * Returns the default document name if title cannot be found or is not a string.
- */
-const extractDocumentTitle = (document: UnknownObject): string => {
-  if (
-    typeof document.info === 'object' &&
-    document.info !== null &&
-    'title' in document.info &&
-    typeof document.info.title === 'string'
-  ) {
-    return document.info.title
-  }
-  return DEFAULT_DOCUMENT_NAME
-}
-
-/**
- * Import content from a URL, Postman collection, or OpenAPI document.
- * Handles three types of imports:
- * 1. URL - Creates a document with watch mode support
- * 2. Postman collection - Converts to OpenAPI first
- * 3. OpenAPI document - Imports directly
- */
-const importContents = async (content: string): Promise<ImportResult> => {
-  /** Import from URL with optional watch mode */
-  if (isUrl(content)) {
-    const name = await generateUniqueDocumentName(DEFAULT_DOCUMENT_NAME)
-
-    if (!name) {
-      console.error('Failed to generate a unique name')
-      return { success: false }
-    }
-
-    const success = await workspaceStore.addDocument({
-      name,
-      url: content,
-      meta: {
-        'x-scalar-watch-mode': watchMode.value,
-      },
-    })
-
-    return { success, name }
+  if (!isSuccessfullyLoaded) {
+    return handleImportError('Failed to import document')
   }
 
-  /** Import from Postman collection (convert to OpenAPI first) */
-  if (isPostmanCollection(content)) {
-    const document = getOpenApiFromPostman(content)
-    const defaultName = document.info?.title ?? DEFAULT_DOCUMENT_NAME
-    const name = await generateUniqueDocumentName(defaultName)
-
-    if (!name) {
-      console.error('Failed to generate a unique name')
-      return { success: false }
-    }
-
-    const success = await workspaceStore.addDocument({
-      name,
-      document,
-    })
-
-    return { success, name }
-  }
-
-  /** Import from OpenAPI document (JSON or YAML) */
-  const document = normalize(content) as UnknownObject
-  const defaultName = extractDocumentTitle(document)
-  const name = await generateUniqueDocumentName(defaultName)
-
-  if (!name) {
-    console.error('Failed to generate a unique name')
-    return { success: false }
-  }
-
-  const success = await workspaceStore.addDocument({
-    name,
-    document,
+  const importResult = await importDocumentToWorkspace({
+    workspaceStore,
+    workspaceState: draftStore.exportWorkspace(),
+    name: TEMP_DOCUMENT_NAME,
   })
 
-  return { success, name }
+  if (!importResult.ok) {
+    return handleImportError(importResult.error)
+  }
+
+  // Validate the loader to show the success state
+  await loader.validate()
+
+  // Navigate to the document overview page
+  navigateToDocument(importResult.slug)
+
+  // Close the command palette
+  emit('close')
 }
 
 /** Navigate to the document overview page after successful import */
@@ -224,6 +185,7 @@ const navigateToDocument = (documentName: string): void => {
 /**
  * Handle file selection and import from file dialog.
  * Reads the file as text and imports it as OpenAPI or Postman collection.
+ * Shows loading state during the import process.
  */
 const { open: openSpecFileDialog } = useFileDialog({
   onChange: (files) => {
@@ -233,15 +195,11 @@ const { open: openSpecFileDialog } = useFileDialog({
       return
     }
 
+    loader.start()
+
     const onLoad = async (event: ProgressEvent<FileReader>): Promise<void> => {
       const text = event.target?.result as string
-      const result = await importContents(text)
-
-      if (result.success) {
-        navigateToDocument(result.name)
-      }
-
-      emit('close')
+      await handleImport(text)
     }
 
     const reader = new FileReader()
@@ -251,26 +209,6 @@ const { open: openSpecFileDialog } = useFileDialog({
   multiple: false,
   accept: '.json,.yaml,.yml',
 })
-
-/**
- * Handle the import submission.
- * Shows loading state during import and navigates on success.
- */
-const handleImport = async (): Promise<void> => {
-  loader.start()
-
-  const result = await importContents(inputContent.value)
-
-  /** Clear loading state or show error */
-  if (result.success) {
-    await loader.clear()
-    navigateToDocument(result.name)
-  } else {
-    await loader.invalidate()
-  }
-
-  emit('close')
-}
 
 /**
  * Handle input changes.
@@ -299,7 +237,7 @@ const handleBack = (event: KeyboardEvent): void => {
   <CommandActionForm
     :disabled="isDisabled"
     :loader
-    @submit="handleImport">
+    @submit="handleImport(inputContent)">
     <!-- URL or cURL input mode -->
     <template v-if="!documentDetails || isUrlInput">
       <CommandActionInput

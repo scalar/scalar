@@ -1,5 +1,15 @@
 # @scalar/java-integration
 
+## 0.5.44
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.44.14**
+  - [#8025](https://github.com/scalar/scalar/pull/8025): fix: use flex-start instead of start for better browser support
+  - [#8056](https://github.com/scalar/scalar/pull/8056): fix: hideModels not applying correctly
+
 ## 0.5.43
 
 ### Patch Changes

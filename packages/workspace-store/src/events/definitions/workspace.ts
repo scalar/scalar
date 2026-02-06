@@ -21,4 +21,8 @@ export type WorkspaceEvents = {
    * Update the selected client on the workspace
    */
   'workspace:update:selected-client': AvailableClient
+  /**
+   * Update the active environment on the workspace
+   */
+  'workspace:update:active-environment': string | null
 }
