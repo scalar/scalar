@@ -28,6 +28,7 @@ import { slugify } from '@/v2/helpers/slugify'
 import { workspaceStorage } from '@/v2/helpers/storage'
 
 import { initializeAppEventHandlers } from './app-events'
+import { canLoadWorkspace, filterWorkspacesByTeam } from './helpers/filter-workspaces'
 import type { ScalarClientAppRouteParams } from './helpers/routes'
 
 const DEFAULT_DEBOUNCE_DELAY = 1000
@@ -37,6 +38,7 @@ const eventBus = createWorkspaceEventBus({
   debug: import.meta.env.DEV,
 })
 
+const teamUid = ref<string>('local')
 const namespace = ref<string | undefined>(undefined)
 const workspaceSlug = ref<string | undefined>(undefined)
 const documentSlug = ref<string | undefined>(undefined)
@@ -92,6 +94,7 @@ type WorkspaceOption = ScalarListboxOption & { teamUid: string; namespace: strin
 
 const activeWorkspace = shallowRef<{ id: string; label: string } | null>(null)
 const workspaces = ref<WorkspaceOption[]>([])
+const filteredWorkspaces = computed(() => filterWorkspacesByTeam(workspaces.value, teamUid.value))
 const store = shallowRef<WorkspaceStore | null>(null)
 
 const activeDocument = computed(() => {
@@ -330,7 +333,9 @@ const changeWorkspace = async (namespace: string, slug: string) => {
   }
 
   // Navigate to the default workspace, or fall back to the first available workspace
-  const targetWorkspace = workspaces.value.find((workspace) => workspace.slug === 'default') ?? workspaces.value[0]
+  const targetWorkspace =
+    filteredWorkspaces.value.find((workspace) => workspace.teamUid === 'local' && workspace.slug === 'default') ??
+    filteredWorkspaces.value[0]
 
   if (targetWorkspace) {
     return navigateToWorkspace(targetWorkspace.namespace, targetWorkspace.slug)
@@ -689,21 +694,33 @@ const copyTabUrl = async (index: number): Promise<void> => {
 // Path syncing
 
 /** When the route changes we need to update the active entities in the store */
-const handleRouteChange = (to: RouteLocationNormalizedGeneric): void | Promise<void> => {
+const handleRouteChange = (to: RouteLocationNormalizedGeneric) => {
   const slug = getRouteParam('workspaceSlug', to)
   const document = getRouteParam('documentSlug', to)
+  const namespaceValue = getRouteParam('namespace', to)
 
-  namespace.value = getRouteParam('namespace', to)
+  // Must have an active workspace to syncs
+  if (!namespaceValue || !slug) {
+    return
+  }
+
+  // Try to see if the user can load this workspace based on the teamUid and namespace
+  const workspace = workspaces.value.find(
+    (workspace) => workspace.slug === slug && workspace.namespace === namespaceValue,
+  )
+
+  // If the workspace is not found or the teamUid does not match, try to redirect to the default workspace
+  if (workspace && !canLoadWorkspace(workspace.teamUid, teamUid.value)) {
+    // try to redirect to the default workspace
+    return navigateToWorkspace('local', 'default')
+  }
+
+  namespace.value = namespaceValue
   workspaceSlug.value = slug
   documentSlug.value = document
   method.value = getRouteParam('method', to)
   path.value = getRouteParam('pathEncoded', to)
   exampleName.value = getRouteParam('exampleName', to)
-
-  // Must have an active workspace to syncs
-  if (!namespace.value || !slug) {
-    return
-  }
 
   // Save the current path to the persistence storage
   if (to.path !== '') {
@@ -721,6 +738,7 @@ const handleRouteChange = (to: RouteLocationNormalizedGeneric): void | Promise<v
 
   syncTabs(to)
   syncSidebar(to)
+  return
 }
 
 /** Aligns the tabs with any potential slug changes */
@@ -778,41 +796,77 @@ initializeAppEventHandlers({
   onToggleSidebar: () => (isSidebarOpen.value = !isSidebarOpen.value),
 })
 
+/** Defines the overall application state structure and its main feature modules */
 export type AppState = {
+  /** The workspace store */
   store: ShallowRef<WorkspaceStore | null>
+  /** The sidebar management */
   sidebar: {
+    /** The sidebar state */
     state: typeof sidebarState
+    /** The width of the sidebar */
     width: ComputedRef<number>
+    /** Whether the sidebar is open */
     isOpen: Ref<boolean>
+    /** Handles the selection of an item in the sidebar */
     handleSelectItem: typeof handleSelectItem
+    /** Handles the width update of the sidebar */
     handleSidebarWidthUpdate: typeof handleSidebarWidthUpdate
+    /** Gets the entry by location */
     getEntryByLocation: typeof getEntryByLocation
   }
+  /** The tabs management */
   tabs: {
+    /** The tabs state */
     state: Ref<Tab[]>
+    /** The active tab index */
     activeTabIndex: Ref<number>
-    copyTabUrl: typeof copyTabUrl
+    /** Copies the URL of the tab at the given index to the clipboard */
+    copyTabUrl: (index: number) => Promise<void>
   }
+  /** The workspace management */
   workspace: {
+    /** Creates a new workspace and navigates to it */
     create: typeof createWorkspace
+    /** All workspace list */
     workspaceList: Ref<WorkspaceOption[]>
-    activeWorkspace: ShallowRef<ScalarListboxOption | null>
+    /** Filtered workspace list, based on the current teamUid */
+    filteredWorkspaceList: ComputedRef<WorkspaceOption[]>
+    /** The currently active workspace */
+    activeWorkspace: ShallowRef<{ id: string; label: string } | null>
+    /** Navigates to the specified workspace */
     navigateToWorkspace: typeof navigateToWorkspace
+    /** Whether the workspace page is open */
     isOpen: ComputedRef<boolean>
   }
+  /** The workspace event bus for handling workspace-level events */
   eventBus: WorkspaceEventBus
+  /** The router instance */
   router: ShallowRef<Router | null>
+  /** The current route derived from the router */
   currentRoute: Ref<RouteLocationNormalizedGeneric | null>
+  /** Whether the workspace is currently syncing */
   loading: Ref<boolean>
+  /** The currently active entities */
   activeEntities: {
+    /** The namespace of the current entity, e.g. "default" or a custom namespace */
     namespace: Ref<string | undefined>
+    /** The slug identifying the current workspace */
     workspaceSlug: Ref<string | undefined>
+    /** The slug of the currently selected document in the workspace */
     documentSlug: Ref<string | undefined>
+    /** The API path currently selected (e.g. "/users/{id}") */
     path: Ref<string | undefined>
+    /** The HTTP method for the currently selected API path (e.g. GET, POST) */
     method: Ref<HttpMethod | undefined>
+    /** The name of the currently selected example (for examples within an endpoint) */
     exampleName: Ref<string | undefined>
+    /** The unique identifier for the selected team context */
+    teamUid: Ref<string>
   }
+  /** The currently active environment */
   environment: ComputedRef<XScalarEnvironment>
+  /** The currently active document */
   document: ComputedRef<WorkspaceDocument | null>
 }
 
@@ -839,6 +893,7 @@ export function useAppState(_router: Router): AppState {
     workspace: {
       create: createWorkspace,
       workspaceList: workspaces,
+      filteredWorkspaceList: filteredWorkspaces,
       activeWorkspace: activeWorkspace,
       navigateToWorkspace,
       isOpen: computed(() => Boolean(workspaceSlug.value && !documentSlug.value)),
@@ -854,6 +909,7 @@ export function useAppState(_router: Router): AppState {
       path,
       method,
       exampleName,
+      teamUid,
     },
     environment,
     document: activeDocument,

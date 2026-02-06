@@ -8,7 +8,11 @@ export default {}
 </script>
 
 <script setup lang="ts">
-import { ScalarTeleportRoot, useModal } from '@scalar/components'
+import {
+  ScalarTeleportRoot,
+  useModal,
+  type ModalState,
+} from '@scalar/components'
 import { getThemeStyles } from '@scalar/themes'
 import { ScalarToasts } from '@scalar/use-toasts'
 import { extensions } from '@scalar/workspace-store/schemas/extensions'
@@ -18,6 +22,7 @@ import { RouterView } from 'vue-router'
 import { mergeSecurity } from '@/v2/blocks/scalar-auth-selector-block'
 import CreateWorkspaceModal from '@/v2/features/app/components/CreateWorkspaceModal.vue'
 import SplashScreen from '@/v2/features/app/components/SplashScreen.vue'
+import { groupWorkspacesByTeam } from '@/v2/features/app/helpers/group-workspaces'
 import type { RouteProps } from '@/v2/features/app/helpers/routes'
 import { useDocumentWatcher } from '@/v2/features/app/hooks/use-document-watcher'
 import TheCommandPalette from '@/v2/features/command-palette/TheCommandPalette.vue'
@@ -54,7 +59,7 @@ defineSlots<{
    * Slot for customizing the create workspace modal.
    * This slot is used to render custom actions or components within the create workspace modal.
    */
-  'create-workspace'?: () => unknown
+  'create-workspace'?: (payload: { state: ModalState }) => unknown
 }>()
 
 defineExpose({
@@ -142,6 +147,17 @@ const routerViewProps = computed<RouteProps>(() => {
     securitySchemes,
   }
 })
+
+/**
+ * Groups workspaces into team and local categories for display in the workspace picker.
+ * Team workspaces are shown first (when not on local team), followed by local workspaces.
+ */
+const workspaceOptions = computed(() =>
+  groupWorkspacesByTeam(
+    app.workspace.filteredWorkspaceList.value,
+    app.activeEntities.teamUid.value,
+  ),
+)
 </script>
 
 <template>
@@ -171,7 +187,7 @@ const routerViewProps = computed<RouteProps>(() => {
       <WebTopNav
         v-else
         :activeWorkspace="app.workspace.activeWorkspace.value!"
-        :workspaces="app.workspace.workspaceList.value!"
+        :workspaces="workspaceOptions"
         @create:workspace="createWorkspaceModalState.show()"
         @select:workspace="setActiveWorkspace" />
 
@@ -187,7 +203,7 @@ const routerViewProps = computed<RouteProps>(() => {
           :sidebarState="app.sidebar.state"
           :sidebarWidth="app.sidebar.width.value"
           :store="app.store.value!"
-          :workspaces="app.workspace.workspaceList.value"
+          :workspaces="workspaceOptions"
           @click:workspace="app.workspace.navigateToWorkspace"
           @create:workspace="createWorkspaceModalState.show()"
           @select:workspace="setActiveWorkspace"
@@ -204,7 +220,9 @@ const routerViewProps = computed<RouteProps>(() => {
         </div>
       </div>
 
-      <slot name="create-workspace">
+      <slot
+        name="create-workspace"
+        :state="createWorkspaceModalState">
         <!-- Create workspace modal -->
         <CreateWorkspaceModal
           :state="createWorkspaceModalState"
