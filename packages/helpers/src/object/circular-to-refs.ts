@@ -180,56 +180,24 @@ export const circularToRefs = (
     ancestors.delete(obj)
   }
 
-  /**
-   * Phase 2 structures:
-   * - extractedComponents: Stores processed (cycle-free) definitions by type and name
-   * - processingSet: Tracks objects currently being processed to detect cycles during cloning
-   */
+  /** Stores processed (cycle-free) definitions by type and name */
   const extractedComponents = new Map<ComponentType, Map<string, unknown>>()
 
-  /**
-   * Creates a $ref object pointing to the extracted component.
-   * Includes any extra properties (e.g., '$ref-value').
-   */
+  /** Precompute whether we have extra props to avoid repeated Object.keys calls */
+  const hasExtraProps = Object.keys(extraProps).length > 0
+
+  /** Creates a $ref object pointing to the extracted component */
   const createRefObject = (meta: CircularMeta): Record<string, unknown> => {
     const ref = { $ref: `#/components/${meta.type}/${meta.name}` }
-    // Only spread if we have extra properties to add
-    if (Object.keys(extraProps).length > 0) {
-      return { ...ref, ...extraProps }
-    }
-    return ref
-  }
-
-  /**
-   * Ensures a component type section exists in extractedComponents.
-   * Returns the section map for the given type.
-   */
-  const getComponentSection = (type: ComponentType): Map<string, unknown> => {
-    let section = extractedComponents.get(type)
-    if (section === undefined) {
-      section = new Map()
-      extractedComponents.set(type, section)
-    }
-    return section
+    return hasExtraProps ? { ...ref, ...extraProps } : ref
   }
 
   /**
    * Phase 2: Create a deep clone with circular references replaced by $refs.
-   *
-   * For circular objects, we:
-   * 1. Return a $ref immediately if we're already processing this object (cycle in clone path)
-   * 2. Extract the object's content to the components section
-   * 3. Return a $ref in place of the original
-   *
+   * For circular objects, we extract to components and return $ref.
    * For non-circular objects, we simply deep clone.
-   *
-   * @param value - Current value being cloned
-   * @param visited - Set of objects in the current clone path (cycle detection)
-   * @param context - Current OpenAPI component context
-   * @returns Cloned value with circular refs replaced
    */
   const cloneWithRefs = (value: unknown, visited: Set<object>, context: ComponentType): unknown => {
-    // Primitives and null: return as-is (no cloning needed)
     if (value === null || typeof value !== 'object') {
       return value
     }
@@ -237,24 +205,23 @@ export const circularToRefs = (
     const obj = value as object
     const meta = circularMeta.get(obj)
 
-    // If this is a circular object and we're already visiting it in this path,
-    // return a $ref to break the cycle
-    if (visited.has(obj) && meta !== undefined) {
-      return createRefObject(meta)
-    }
-
-    // Handle circular objects: extract to components and return $ref
+    // If this is a circular object and we're already visiting it, return a $ref to break the cycle
     if (meta !== undefined) {
-      const section = getComponentSection(meta.type)
+      if (visited.has(obj)) {
+        return createRefObject(meta)
+      }
+
+      // Get or create the section for this component type
+      let section = extractedComponents.get(meta.type)
+      if (section === undefined) {
+        section = new Map()
+        extractedComponents.set(meta.type, section)
+      }
 
       // Only process and extract if we haven't already
       if (!section.has(meta.name)) {
-        // Mark as visited to detect self-references during extraction
         visited.add(obj)
-
-        // Clone the object's contents
         const cloned = Array.isArray(obj) ? cloneArray(obj, visited, context) : cloneObject(obj, visited, context)
-
         visited.delete(obj)
         section.set(meta.name, cloned)
       }
@@ -262,12 +229,8 @@ export const circularToRefs = (
       return createRefObject(meta)
     }
 
-    // Non-circular object: deep clone normally
-    visited.add(obj)
-    const result = Array.isArray(obj) ? cloneArray(obj, visited, context) : cloneObject(obj, visited, context)
-    visited.delete(obj)
-
-    return result
+    // Non-circular object: deep clone (no need to track in visited set)
+    return Array.isArray(obj) ? cloneArray(obj, visited, context) : cloneObject(obj, visited, context)
   }
 
   /**
@@ -310,78 +273,6 @@ export const circularToRefs = (
       components[componentType] = section
     }
 
-    result.components = components
-  }
-
-  return result
-}
-
-/**
- * Detects and breaks circular JavaScript object references in a document tree.
- */
-export const breakCircularReferences = (document: Record<string, unknown>): Record<string, unknown> => {
-  /** Maps each circular JS object to its assigned schema name */
-  const circularNames = new Map<object, string>()
-  /** Stores the processed (cycle-free) schema definitions keyed by name */
-  const extractedSchemas = new Map<string, unknown>()
-  let counter = 0
-
-  /**
-   * Walks the value tree depth-first. The `ancestors` set tracks the current
-   * path from root so that a revisited object (by reference) signals a cycle.
-   */
-  const walk = (value: unknown, ancestors: Set<object>): unknown => {
-    if (value === null || typeof value !== 'object') {
-      return value
-    }
-
-    const obj = value as Record<string, unknown>
-
-    // Cycle detected — this object is already an ancestor on the current path.
-    // Return a clean reference object with ONLY $ref and $ref-value so that
-    // TypeBox picks the reference union branch instead of trying to match it
-    // as a schema object.
-    if (ancestors.has(obj)) {
-      if (!circularNames.has(obj)) {
-        counter++
-        circularNames.set(obj, `CircularRef${counter}`)
-      }
-      return {
-        $ref: `#/components/schemas/${circularNames.get(obj)}`,
-        // Needed for the union apparently
-        '$ref-value': {},
-      }
-    }
-
-    ancestors.add(obj)
-
-    const result: unknown = Array.isArray(obj)
-      ? obj.map((item) => walk(item, ancestors))
-      : Object.fromEntries(Object.entries(obj).map(([k, v]) => [k, walk(v, ancestors)]))
-
-    ancestors.delete(obj)
-
-    // If this object was identified as circular, store the clean copy for components/schemas
-    const name = circularNames.get(obj)
-    if (name !== undefined) {
-      extractedSchemas.set(name, result)
-    }
-
-    return result
-  }
-
-  const result = walk(document, new Set()) as Record<string, unknown>
-
-  // If cycles were found, inject the extracted schemas into components/schemas
-  if (extractedSchemas.size > 0) {
-    const components = (result.components ?? {}) as Record<string, unknown>
-    const schemas = (components.schemas ?? {}) as Record<string, unknown>
-
-    for (const [name, schema] of extractedSchemas) {
-      schemas[name] = schema
-    }
-
-    components.schemas = schemas
     result.components = components
   }
 
