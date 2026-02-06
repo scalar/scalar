@@ -37,6 +37,7 @@ const eventBus = createWorkspaceEventBus({
   debug: import.meta.env.DEV,
 })
 
+const teamUid = ref<string>('local')
 const namespace = ref<string | undefined>(undefined)
 const workspaceSlug = ref<string | undefined>(undefined)
 const documentSlug = ref<string | undefined>(undefined)
@@ -92,6 +93,9 @@ type WorkspaceOption = ScalarListboxOption & { teamUid: string; namespace: strin
 
 const activeWorkspace = shallowRef<{ id: string; label: string } | null>(null)
 const workspaces = ref<WorkspaceOption[]>([])
+const filteredWorkspaces = computed(() =>
+  workspaces.value.filter((workspace) => workspace.teamUid === teamUid.value || workspace.teamUid === 'local'),
+)
 const store = shallowRef<WorkspaceStore | null>(null)
 
 const activeDocument = computed(() => {
@@ -330,7 +334,9 @@ const changeWorkspace = async (namespace: string, slug: string) => {
   }
 
   // Navigate to the default workspace, or fall back to the first available workspace
-  const targetWorkspace = workspaces.value.find((workspace) => workspace.slug === 'default') ?? workspaces.value[0]
+  const targetWorkspace =
+    filteredWorkspaces.value.find((workspace) => workspace.teamUid === 'local' && workspace.slug === 'default') ??
+    filteredWorkspaces.value[0]
 
   if (targetWorkspace) {
     return navigateToWorkspace(targetWorkspace.namespace, targetWorkspace.slug)
@@ -689,21 +695,31 @@ const copyTabUrl = async (index: number): Promise<void> => {
 // Path syncing
 
 /** When the route changes we need to update the active entities in the store */
-const handleRouteChange = (to: RouteLocationNormalizedGeneric): void | Promise<void> => {
+const handleRouteChange = async (to: RouteLocationNormalizedGeneric) => {
   const slug = getRouteParam('workspaceSlug', to)
   const document = getRouteParam('documentSlug', to)
+  const namespaceValue = getRouteParam('namespace', to)
 
-  namespace.value = getRouteParam('namespace', to)
+  // Must have an active workspace to syncs
+  if (!namespaceValue || !slug) {
+    return
+  }
+
+  // Try to see if the user can load this workspace based on the teamUid and namespace
+  const workspace = await persistence.getItem({ namespace: namespaceValue, slug })
+
+  // If the workspace is not found or the teamUid does not match, try to redirect to the default workspace
+  if (workspace && workspace.teamUid !== teamUid.value && workspace.teamUid !== 'local') {
+    // try to redirect to the default workspace
+    return navigateToWorkspace('local', 'default')
+  }
+
+  namespace.value = namespaceValue
   workspaceSlug.value = slug
   documentSlug.value = document
   method.value = getRouteParam('method', to)
   path.value = getRouteParam('pathEncoded', to)
   exampleName.value = getRouteParam('exampleName', to)
-
-  // Must have an active workspace to syncs
-  if (!namespace.value || !slug) {
-    return
-  }
 
   // Save the current path to the persistence storage
   if (to.path !== '') {
@@ -796,6 +812,7 @@ export type AppState = {
   workspace: {
     create: typeof createWorkspace
     workspaceList: Ref<WorkspaceOption[]>
+    filteredWorkspaceList: ComputedRef<WorkspaceOption[]>
     activeWorkspace: ShallowRef<ScalarListboxOption | null>
     navigateToWorkspace: typeof navigateToWorkspace
     isOpen: ComputedRef<boolean>
@@ -811,6 +828,7 @@ export type AppState = {
     path: Ref<string | undefined>
     method: Ref<HttpMethod | undefined>
     exampleName: Ref<string | undefined>
+    teamUid: Ref<string>
   }
   environment: ComputedRef<XScalarEnvironment>
   document: ComputedRef<WorkspaceDocument | null>
@@ -839,6 +857,7 @@ export function useAppState(_router: Router): AppState {
     workspace: {
       create: createWorkspace,
       workspaceList: workspaces,
+      filteredWorkspaceList: filteredWorkspaces,
       activeWorkspace: activeWorkspace,
       navigateToWorkspace,
       isOpen: computed(() => Boolean(workspaceSlug.value && !documentSlug.value)),
@@ -854,6 +873,7 @@ export function useAppState(_router: Router): AppState {
       path,
       method,
       exampleName,
+      teamUid,
     },
     environment,
     document: activeDocument,

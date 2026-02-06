@@ -13,7 +13,7 @@ import {
 } from '../ScalarListbox'
 import ScalarMenuLink from './ScalarMenuLink.vue'
 
-type WorkspaceGroup = {
+export type WorkspaceGroup = {
   /** Label for the group */
   label?: string
   /** Options within the group */

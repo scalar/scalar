@@ -2,7 +2,7 @@
 import {
   ScalarIconButton,
   ScalarSidebarSearchInput,
-  type ScalarListboxOption,
+  type WorkspaceGroup,
 } from '@scalar/components'
 import { ScalarIconFileDashed, ScalarIconMagnifyingGlass } from '@scalar/icons'
 import {
@@ -29,7 +29,7 @@ const { documents, sidebarState, layout } = defineProps<{
   /** The currently active workspace */
   activeWorkspace: { id: string }
   /** The list of all available workspaces */
-  workspaces: ScalarListboxOption[]
+  workspaces: WorkspaceGroup[]
   /** The documents belonging to the workspace */
   documents: WorkspaceDocument[]
   /**

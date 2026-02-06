@@ -8,7 +8,13 @@ export default {}
 </script>
 
 <script setup lang="ts">
-import { ScalarTeleportRoot, useModal } from '@scalar/components'
+import {
+  ScalarTeleportRoot,
+  useModal,
+  type ModalState,
+  type ScalarListboxOption,
+  type WorkspaceGroup,
+} from '@scalar/components'
 import { getThemeStyles } from '@scalar/themes'
 import { ScalarToasts } from '@scalar/use-toasts'
 import { extensions } from '@scalar/workspace-store/schemas/extensions'
@@ -54,7 +60,7 @@ defineSlots<{
    * Slot for customizing the create workspace modal.
    * This slot is used to render custom actions or components within the create workspace modal.
    */
-  'create-workspace'?: () => unknown
+  'create-workspace'?: (payload: { state: ModalState }) => unknown
 }>()
 
 defineExpose({
@@ -142,6 +148,49 @@ const routerViewProps = computed<RouteProps>(() => {
     securitySchemes,
   }
 })
+
+const workspaceOptions = computed(() => {
+  const workspaces = app.workspace.filteredWorkspaceList.value
+  // Group workspaces by teamUid
+  const workspacesResult = workspaces.reduce<
+    Record<string, ScalarListboxOption[]>
+  >((acc, workspace) => {
+    const teamUid = workspace.teamUid
+
+    if (!acc[teamUid]) {
+      acc[teamUid] = []
+    }
+
+    acc[teamUid].push({
+      id: workspace.id,
+      label: workspace.label,
+    })
+
+    return acc
+  }, {})
+
+  const result: WorkspaceGroup[] = []
+
+  // Current team workspaces
+  if (app.activeEntities.teamUid.value !== 'local') {
+    const teamWorkspaces =
+      workspacesResult[app.activeEntities.teamUid.value] ?? []
+
+    if (teamWorkspaces.length > 0) {
+      result.push({
+        label: 'Team Workspaces',
+        options: teamWorkspaces,
+      })
+    }
+  }
+
+  result.push({
+    label: 'Local Workspaces',
+    options: workspacesResult['local'] ?? [],
+  })
+
+  return result
+})
 </script>
 
 <template>
@@ -171,7 +220,7 @@ const routerViewProps = computed<RouteProps>(() => {
       <WebTopNav
         v-else
         :activeWorkspace="app.workspace.activeWorkspace.value!"
-        :workspaces="app.workspace.workspaceList.value!"
+        :workspaces="workspaceOptions"
         @create:workspace="createWorkspaceModalState.show()"
         @select:workspace="setActiveWorkspace" />
 
@@ -187,7 +236,7 @@ const routerViewProps = computed<RouteProps>(() => {
           :sidebarState="app.sidebar.state"
           :sidebarWidth="app.sidebar.width.value"
           :store="app.store.value!"
-          :workspaces="app.workspace.workspaceList.value"
+          :workspaces="workspaceOptions"
           @click:workspace="app.workspace.navigateToWorkspace"
           @create:workspace="createWorkspaceModalState.show()"
           @select:workspace="setActiveWorkspace"
@@ -204,7 +253,9 @@ const routerViewProps = computed<RouteProps>(() => {
         </div>
       </div>
 
-      <slot name="create-workspace">
+      <slot
+        name="create-workspace"
+        :state="createWorkspaceModalState">
         <!-- Create workspace modal -->
         <CreateWorkspaceModal
           :state="createWorkspaceModalState"
