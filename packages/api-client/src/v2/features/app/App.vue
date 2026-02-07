@@ -28,7 +28,6 @@ import type { RouteProps } from '@/v2/features/app/helpers/routes'
 import { useDocumentWatcher } from '@/v2/features/app/hooks/use-document-watcher'
 import TheCommandPalette from '@/v2/features/command-palette/TheCommandPalette.vue'
 import type { ClientPlugin } from '@/v2/helpers/plugins'
-import { useColorMode } from '@/v2/hooks/use-color-mode'
 import { useGlobalHotKeys } from '@/v2/hooks/use-global-hot-keys'
 import type { ClientLayout } from '@/v2/types/layout'
 
@@ -77,9 +76,6 @@ if (typeof window !== 'undefined') {
   window.dataDumpWorkspace = () => app.store.value
   window.dumpAppState = () => app
 }
-
-/** Initialize color mode to ensure it is set on mount. */
-useColorMode({ workspaceStore: app.store })
 
 /** Register global hotkeys for the app, passing the workspace event bus and layout state */
 useGlobalHotKeys(app.eventBus, layout)

@@ -3,6 +3,7 @@ import { isDefined } from '@scalar/helpers/array/is-defined'
 import { sortByOrder } from '@scalar/helpers/array/sort-by-order'
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { isHttpMethod } from '@scalar/helpers/http/is-http-method'
+import type { LoaderPlugin } from '@scalar/json-magic/bundle'
 import { createSidebarState, generateReverseIndex } from '@scalar/sidebar'
 import { type WorkspaceStore, createWorkspaceStore } from '@scalar/workspace-store/client'
 import {
@@ -26,6 +27,7 @@ import { getActiveEnvironment } from '@/v2/helpers/get-active-environment'
 import { getTabDetails } from '@/v2/helpers/get-tab-details'
 import { slugify } from '@/v2/helpers/slugify'
 import { workspaceStorage } from '@/v2/helpers/storage'
+import { useColorMode } from '@/v2/hooks/use-color-mode'
 
 import { initializeAppEventHandlers } from './app-events'
 import { canLoadWorkspace, filterWorkspacesByTeam } from './helpers/filter-workspaces'
@@ -124,6 +126,8 @@ workspaces.value = await persistence.getAll().then((w) =>
   })),
 )
 
+const fileLoaderPlugin = ref<LoaderPlugin | undefined>(undefined)
+
 /**
  * Creates a client-side workspace store with persistence enabled for the given workspace id.
  */
@@ -132,6 +136,7 @@ const createClientStore = async ({ namespace, slug }: { namespace: string; slug:
     plugins: [
       await persistencePlugin({ workspaceId: getWorkspaceId(namespace, slug), debounceDelay: DEFAULT_DEBOUNCE_DELAY }),
     ],
+    fileLoader: fileLoaderPlugin.value,
   })
 }
 
@@ -796,6 +801,12 @@ initializeAppEventHandlers({
   onToggleSidebar: () => (isSidebarOpen.value = !isSidebarOpen.value),
 })
 
+// ---------------------------------------------------------------------------
+// Color mode
+
+/** Initialize color mode to ensure it is set on mount. */
+const { isDarkMode } = useColorMode({ workspaceStore: store })
+
 /** Defines the overall application state structure and its main feature modules */
 export type AppState = {
   /** The workspace store */
@@ -868,11 +879,14 @@ export type AppState = {
   environment: ComputedRef<XScalarEnvironment>
   /** The currently active document */
   document: ComputedRef<WorkspaceDocument | null>
+  /** Whether the current color mode is dark */
+  isDarkMode: ComputedRef<boolean>
 }
 
-export function useAppState(_router: Router): AppState {
+export function useAppState({ router: _router, fileLoader }: { router: Router; fileLoader?: LoaderPlugin }): AppState {
   if (_router) {
     router.value = _router
+    fileLoaderPlugin.value = fileLoader
   }
   return {
     /** Active workspace store */
@@ -913,5 +927,6 @@ export function useAppState(_router: Router): AppState {
     },
     environment,
     document: activeDocument,
+    isDarkMode,
   }
 }

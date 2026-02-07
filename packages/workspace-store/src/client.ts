@@ -109,9 +109,29 @@ export type WorkspaceDocumentInput = UrlDoc | ObjectDoc
  *   document: { openapi: '3.0.0', paths: {} }
  * })
  */
-function loadDocument(workspaceDocument: WorkspaceDocumentInput): ReturnType<LoaderPlugin['exec']> {
+function loadDocument(
+  workspaceDocument: WorkspaceDocumentInput & {
+    /** A file loader plugin for resolving local file references (for non browser environments) */
+    fileLoader?: LoaderPlugin
+  },
+): ReturnType<LoaderPlugin['exec']> {
   if ('url' in workspaceDocument) {
-    return fetchUrls({ fetch: workspaceDocument.fetch }).exec(workspaceDocument.url)
+    const loaders = [fetchUrls({ fetch: workspaceDocument.fetch })]
+
+    if (workspaceDocument.fileLoader) {
+      loaders.push(workspaceDocument.fileLoader)
+    }
+
+    const loader = loaders.find((loader) => loader.validate(workspaceDocument.url))
+
+    if (!loader) {
+      console.log('no loader found')
+      return Promise.resolve({
+        ok: false,
+      })
+    }
+
+    return loader.exec(workspaceDocument.url)
   }
 
   return Promise.resolve({
@@ -889,7 +909,10 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       proxyUrl: workspace['x-scalar-active-proxy'],
     })
 
-    const resolve = await measureAsync('loadDocument', async () => await loadDocument({ ...input, fetch }))
+    const resolve = await measureAsync(
+      'loadDocument',
+      async () => await loadDocument({ ...input, fetch, fileLoader: workspaceProps?.fileLoader }),
+    )
 
     // Log the time taken to add a document
     return await measureAsync('addDocument', async () => {

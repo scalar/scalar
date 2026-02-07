@@ -42,7 +42,7 @@ export const createAppRouter = (layout: CreateApiClientOptions['layout']) => {
 export const createApiClientApp = (el: HTMLElement | null, { layout = 'desktop', plugins }: CreateApiClientOptions) => {
   // Add the router
   const router = createAppRouter(layout)
-  const state = useAppState(router)
+  const state = useAppState({ router })
   const commandPaletteState = useCommandPaletteState()
 
   // Pass in our initial props at the top level
