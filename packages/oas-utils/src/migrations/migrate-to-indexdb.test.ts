@@ -1,8 +1,15 @@
 import { type SecurityScheme, securitySchemeSchema } from '@scalar/types/entities'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
-import type { ParameterWithSchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import {
+  MediaTypeObjectSchema,
+  type ParameterWithSchemaObject,
+} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { assert, beforeEach, describe, expect, it } from 'vitest'
 import 'fake-indexeddb/auto'
+
+import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
+import { SchemaObjectRef } from '@scalar/workspace-store/schemas/v3.1/strict/ref-definitions'
+import { reference } from '@scalar/workspace-store/schemas/v3.1/strict/reference'
 
 import { cookieSchema } from '@/entities/cookie'
 import { type Collection, collectionSchema } from '@/entities/spec/collection'
@@ -2350,6 +2357,50 @@ describe('migrate-to-indexdb', () => {
         })
       })
 
+      it('removes the accept */* header', async () => {
+        /**
+         * This test ensures that the Accept header remains as a proper OpenAPI parameter
+         * and is not transformed into any other structure (like request body or response).
+         * The Accept header should maintain its parameter properties: name, in, and examples.
+         */
+        const example = requestExampleSchema.parse({
+          uid: 'example-1',
+          requestUid: 'request-1',
+          name: 'JSON Accept',
+          parameters: {
+            headers: [
+              { key: 'Accept', value: '*/*', enabled: true },
+              { key: 'Authorization', value: 'Bearer token123', enabled: true },
+            ],
+          },
+        })
+
+        const request = requestSchema.parse({
+          uid: 'request-1',
+          path: '/api/data',
+          method: 'get',
+          summary: 'Get data',
+          examples: ['example-1'],
+        })
+
+        const legacyData = createLegacyData({
+          title: 'API',
+          collection: { requests: ['request-1'] },
+          requests: [request],
+          requestExamples: [example],
+        })
+
+        const result = await transformLegacyDataToWorkspace(legacyData)
+        const doc = result[0]?.workspace.documents['API']
+        assert(doc)
+
+        // Find the Accept header parameter
+        const acceptHeader = getResolvedRef(doc.paths?.['/api/data']?.get)?.parameters?.find(
+          (p) => getResolvedRef(p)?.name === 'Accept',
+        )
+        expect(acceptHeader).toBeUndefined()
+      })
+
       it('transforms an example with a JSON request body', async () => {
         const example = requestExampleSchema.parse({
           uid: 'example-1',
@@ -2812,6 +2863,261 @@ describe('migrate-to-indexdb', () => {
           in: 'header',
           examples: {
             'Get User 123': { value: '*/*', 'x-disabled': false },
+          },
+        })
+      })
+
+      it('transforms an example with multiple parameter types and body', async () => {
+        const example = requestExampleSchema.parse({
+          uid: 'tcHS3GOyvbQeNKQyi6A8r',
+          type: 'requestExample',
+          requestUid: 'DQOYkZ1uQzzNhuXI-tFWC',
+          name: 'Default Example',
+          body: {
+            raw: {
+              encoding: 'json',
+              value: '{\n"test": "me"}',
+            },
+            formData: {
+              encoding: 'form-data',
+              value: [
+                {
+                  key: 'just',
+                  value: 'amrit',
+                  enabled: true,
+                },
+                {
+                  key: 'some',
+                  value: 'times',
+                  enabled: false,
+                },
+              ],
+            },
+            activeBody: 'raw',
+          },
+          parameters: {
+            path: [],
+            query: [
+              {
+                key: '1',
+                value: '2',
+                enabled: true,
+              },
+              {
+                key: '',
+                value: '',
+                enabled: false,
+              },
+            ],
+            headers: [
+              {
+                key: 'Accept',
+                value: '*/*',
+                enabled: true,
+              },
+              {
+                key: 'Content-Type',
+                value: 'application/json',
+                enabled: true,
+              },
+              {
+                key: '',
+                value: '',
+                enabled: false,
+              },
+            ],
+            cookies: [
+              {
+                key: '',
+                value: '',
+                enabled: false,
+              },
+            ],
+          },
+          serverVariables: {},
+        })
+
+        const request = requestSchema.parse({
+          uid: 'DQOYkZ1uQzzNhuXI-tFWC',
+          path: '/test',
+          method: 'post',
+          summary: 'Test endpoint',
+          examples: ['tcHS3GOyvbQeNKQyi6A8r'],
+        })
+
+        const legacyData = createLegacyData({
+          title: 'Test API',
+          collection: { requests: ['DQOYkZ1uQzzNhuXI-tFWC'] },
+          requests: [request],
+          requestExamples: [example],
+        })
+
+        const result = await transformLegacyDataToWorkspace(legacyData)
+        const doc = result[0]?.workspace.documents['Test API']
+        expect(doc).toEqual({})
+      })
+
+      it.only('coerce schema', () => {
+        const schema = {
+          schema: {
+            $ref: '#/components/schemas/CircularSchema1',
+            '$global': false,
+            'description': 'This ref was created from a circular schema',
+            'summary': 'This ref was creaed from a',
+          },
+        }
+        const coerced = coerceValue(MediaTypeObjectSchema, schema)
+        expect(coerced).toEqual({ schema: { $ref: '#/components/schemas/CircularSchema1', '$ref-value': '' } })
+      })
+
+      it('transforms a request with circular schema in request body', async () => {
+        const example = requestExampleSchema.parse({
+          uid: 'example-1',
+          requestUid: 'request-1',
+          name: 'Create Planet',
+          body: {
+            activeBody: 'raw',
+            raw: {
+              encoding: 'json',
+              value: '{"name": "Earth", "satellites": [{"name": "Moon"}]}',
+            },
+          },
+        })
+
+        const request = requestSchema.parse({
+          uid: 'request-1',
+          path: '/planets',
+          method: 'post',
+          requestBody: {
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    name: { type: 'string' },
+                    satellites: { type: 'array', items: { type: 'string' } },
+                  },
+                },
+              },
+            },
+          },
+          summary: 'Create a new planet',
+          examples: ['example-1'],
+        })
+
+        // Make circular connection
+        request.requestBody.content['application/json'].schema.properties.satellites.items =
+          request.requestBody.content['application/json'].schema
+
+        const legacyData = createLegacyData({
+          title: 'Scalar Galaxy',
+          collection: { requests: ['request-1'] },
+          requests: [request],
+          requestExamples: [example],
+        })
+
+        const result = await transformLegacyDataToWorkspace(legacyData)
+        const doc = result[0]?.workspace.documents['Scalar Galaxy']
+        expect(doc).toEqual({
+          openapi: '3.1.0',
+          info: { title: 'Scalar Galaxy', version: '1.0.0' },
+          servers: [],
+          paths: {
+            '/planets': {
+              post: {
+                summary: 'Create a new planet',
+                parameters: [
+                  {
+                    name: 'Accept',
+                    in: 'header',
+                    schema: { type: 'string' },
+                    examples: { 'Create Planet': { value: '*/*', 'x-disabled': false } },
+                  },
+                ],
+                requestBody: {
+                  content: {
+                    'application/json': {
+                      schema: { $ref: '#/components/schemas/CircularSchema1', '$ref-value': '' },
+                      examples: {
+                        'Create Planet': {
+                          value: '{"name": "Earth", "satellites": [{"name": "Moon"}]}',
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          components: {
+            securitySchemes: {},
+            schemas: {
+              CircularSchema1: {
+                type: 'object',
+                properties: {
+                  name: { type: 'string' },
+                  satellites: {
+                    type: 'array',
+                    items: {
+                      '$ref': '#/components/schemas/CircularSchema1',
+                      '$ref-value': '',
+                    },
+                  },
+                },
+              },
+            },
+          },
+          security: [],
+          tags: [],
+          webhooks: undefined,
+          'x-scalar-set-operation-security': false,
+          'x-scalar-icon': 'interface-content-folder',
+          'x-scalar-original-document-hash': '0b83e9b767eb342b',
+          'x-original-oas-version': '3.1.0',
+          'x-scalar-original-source-url': undefined,
+          'x-scalar-environments': undefined,
+          'x-ext-urls': {},
+          'x-scalar-order': ['scalar-galaxy/POST/planets', 'scalar-galaxy/models'],
+          'x-scalar-navigation': {
+            id: 'scalar-galaxy',
+            type: 'document',
+            title: 'Scalar Galaxy',
+            name: 'Scalar Galaxy',
+            children: [
+              {
+                id: 'scalar-galaxy/POST/planets',
+                title: 'Create a new planet',
+                path: '/planets',
+                method: 'post',
+                ref: '#/paths/~1planets/post',
+                type: 'operation',
+                isDeprecated: false,
+                children: [
+                  {
+                    type: 'example',
+                    id: 'scalar-galaxy/POST/planets/example/create-planet',
+                    title: 'Create Planet',
+                    name: 'Create Planet',
+                  },
+                ],
+              },
+              {
+                type: 'models',
+                id: 'scalar-galaxy/models',
+                title: 'Models',
+                name: 'Models',
+                children: [
+                  {
+                    id: 'scalar-galaxy/model/circularschema1',
+                    title: 'CircularSchema1',
+                    name: 'CircularSchema1',
+                    ref: '#/components/schemas/CircularSchema1',
+                    type: 'model',
+                  },
+                ],
+              },
+            ],
+            icon: 'interface-content-folder',
           },
         })
       })
