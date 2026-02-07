@@ -35,6 +35,7 @@ defineSlots<ScalarCopySlots>()
 /** Whether the copy button has been clicked */
 const copied = defineModel<boolean>('copied', { default: false })
 
+defineOptions({ inheritAttrs: false })
 const { cx } = useBindCx()
 
 const icon = computed<ScalarIconComponent>(() => {
@@ -64,13 +65,13 @@ const icon = computed<ScalarIconComponent>(() => {
         class="size-full" />
     </Transition>
     <div
-      class="group/copy-label absolute flex items-center -inset-y-1 bg-inherit rounded"
+      class="group/copy-label absolute flex items-center -inset-y-0.5 bg-inherit rounded"
       :class="{
         'left-full pr-3 mask-r-from-[calc(100%-12px)]': placement === 'right',
         'right-full pl-3 mask-l-from-[calc(100%-12px)]': placement === 'left',
       }">
       <div
-        class="flex items-center py-2 mask-y-from-[calc(100%-8px)] mask-y-to-100%">
+        class="flex items-center py-1.5 mask-y-from-[calc(100%-8px)] mask-y-to-100%">
         <Transition
           mode="out-in"
           enter-active-class="transition-transform ease-out"
