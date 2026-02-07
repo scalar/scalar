@@ -11,9 +11,9 @@ test.describe('ScalarCopy', () => {
   stories.forEach((story) =>
     test(story, async ({ page, snapshot }) => {
       await snapshot('1-base')
-      await page.getByRole('button', { name: 'Copy to clipboard' }).hover()
+      await page.getByRole('button', { name: 'Copy' }).hover()
       await snapshot('2-hover')
-      await page.getByRole('button', { name: 'Copy to clipboard' }).click()
+      await page.getByRole('button', { name: 'Copy' }).click()
       await snapshot('3-clicked')
     }),
   )
