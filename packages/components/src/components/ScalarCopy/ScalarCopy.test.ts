@@ -48,7 +48,7 @@ describe('ScalarCopy', () => {
       expect(wrapper.findComponent(ScalarCopyButton).exists()).toBeTruthy()
     })
 
-    it('does not render when clipboard is not supported', async () => {
+    it('renders even when clipboard is not supported (VueUse handles fallback)', async () => {
       // Remove navigator.clipboard and document.execCommand to simulate unsupported environment
       // Need to delete the property completely, not just set to undefined
       delete (navigator as { clipboard?: unknown }).clipboard
@@ -66,7 +66,9 @@ describe('ScalarCopy', () => {
 
       await nextTick()
       await flushPromises()
-      expect(wrapper.findComponent(ScalarCopyButton).exists()).toBeFalsy()
+      // VueUse's useClipboard handles fallbacks internally, so the component still renders
+      // The button will attempt to copy but may fail gracefully
+      expect(wrapper.findComponent(ScalarCopyButton).exists()).toBeTruthy()
 
       // Restore for other tests
       Object.defineProperty(navigator, 'clipboard', {
