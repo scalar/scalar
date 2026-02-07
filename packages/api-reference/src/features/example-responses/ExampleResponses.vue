@@ -179,7 +179,6 @@ const showSchema = ref(false)
       <ScalarCodeBlock
         v-if="showSchema && currentResponseContent?.schema"
         :id="id"
-        class="-outline-offset-2"
         :content="getResolvedRefDeep(currentResponseContent?.schema)"
         lang="json" />
 

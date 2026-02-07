@@ -141,7 +141,7 @@ const hasClients = computed(() =>
         <DataTableRow>
           <div class="overflow-hidden">
             <ScalarCodeBlock
-              class="text-base -outline-offset-2"
+              class="text-base"
               :content="generatedCode"
               :hideCredentials="secretCredentials"
               :lang="localSelectedClient?.lang ?? 'plaintext'"
