@@ -22,6 +22,8 @@ const { clientOptions, featuredClients, eventBus, selectedClient } =
     selectedClient?: AvailableClients[number]
     /** List of featured clients */
     featuredClients: ClientOption[]
+    /** List of featured clients IDs (to check highlighting) */
+    featuredClientsIds?: AvailableClients[number][]
     /** Event bus */
     eventBus: WorkspaceEventBus
   }>()
@@ -90,13 +92,18 @@ const selectedTargetKey = computed(
         class="client-libraries client-libraries__select"
         :class="{
           'client-libraries__active':
-            selectedClient && !isFeaturedClient(selectedClient),
+            selectedClient &&
+            !isFeaturedClient(selectedClient, featuredClientsIds),
         }"
         type="button">
         <div
           aria-hidden="true"
           class="client-libraries-icon__more">
-          <template v-if="selectedClient && !isFeaturedClient(selectedClient)">
+          <template
+            v-if="
+              selectedClient &&
+              !isFeaturedClient(selectedClient, featuredClientsIds)
+            ">
             <div :class="`client-libraries-icon__${selectedTargetKey}`">
               <ScalarIcon
                 v-if="selectedTargetKey"

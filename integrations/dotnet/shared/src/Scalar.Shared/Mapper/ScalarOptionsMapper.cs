@@ -43,6 +43,7 @@ internal static partial class ScalarOptionsMapper
             TagSorter = options.TagSorter,
             OperationsSorter = options.OperationSorter,
             HiddenClients = options.HiddenClients ? options.HiddenClients : GetHiddenClients(options),
+            FeaturedClients = options.FeaturedClients.Length > 0 ? options.FeaturedClients : null,
             DefaultHttpClient = options.DefaultHttpClient.HasValue
                 ? new DefaultHttpClient
                 {

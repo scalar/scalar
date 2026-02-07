@@ -39,6 +39,7 @@ const { document, items, environment, eventBus, options, authStore } =
       | 'baseServerURL'
       | 'documentDownloadType'
       | 'expandAllResponses'
+      | 'featuredClients'
       | 'hiddenClients'
       | 'hideTestRequestButton'
       | 'layout'
@@ -151,6 +152,7 @@ const securitySchemes = computed(() =>
                 class="introduction-card-item scalar-reference-intro-clients"
                 :clientOptions
                 :eventBus
+                :featuredClients="options.featuredClients"
                 :selectedClient="xScalarDefaultClient"
                 :xScalarSdkInstallation="
                   document?.info?.['x-scalar-sdk-installation']

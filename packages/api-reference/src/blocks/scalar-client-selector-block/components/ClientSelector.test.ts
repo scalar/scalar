@@ -121,5 +121,29 @@ describe('ClientLibraries', () => {
       const vm = wrapper.vm
       expect(vm.selectedClientOption?.id).toBe(DEFAULT_CLIENT)
     })
+
+    it('uses provided featuredClients when available', () => {
+      const featuredClients = ['shell/httpie'] as any
+
+      const wrapper = mount(ClientSelector, {
+        props: {
+          clientOptions: mockClientOptions,
+          eventBus,
+          featuredClients,
+        },
+        global: {
+          stubs: {
+            'ScalarCodeBlock': true,
+            'ScalarMarkdown': true,
+            'ClientSelector': true,
+          },
+        },
+      })
+
+      // The featuredClients computed property should match the prop
+      const vm = wrapper.vm as any
+      expect(vm.featuredClients).toHaveLength(1)
+      expect(vm.featuredClients[0].id).toBe('shell/httpie')
+    })
   })
 })

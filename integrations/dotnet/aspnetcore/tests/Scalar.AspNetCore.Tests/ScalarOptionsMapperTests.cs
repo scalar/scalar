@@ -37,9 +37,9 @@ public class ScalarOptionsMapperTests
         configuration.Sources.Should().BeEmpty();
         configuration.PersistAuth.Should().BeNull();
         configuration.Telemetry.Should().BeNull();
-        configuration.OrderRequiredPropertiesFirst.Should().BeNull();
         configuration.OrderSchemaPropertiesBy.Should().BeNull();
         configuration.ShowDeveloperTools.Should().BeNull();
+        configuration.FeaturedClients.Should().BeNull();
     }
 
     [Fact]
@@ -85,7 +85,8 @@ public class ScalarOptionsMapperTests
             Telemetry = false,
             OrderRequiredPropertiesFirst = true,
             SchemaPropertyOrder = PropertyOrder.Alpha,
-            ShowDeveloperTools = DeveloperToolsVisibility.Always
+            ShowDeveloperTools = DeveloperToolsVisibility.Always,
+            FeaturedClients = [ScalarClient.NetHttp, ScalarClient.Curl]
         };
         options.AddDocument("v2");
 
@@ -128,6 +129,7 @@ public class ScalarOptionsMapperTests
         configuration.OrderRequiredPropertiesFirst.Should().BeTrue();
         configuration.OrderSchemaPropertiesBy.Should().Be(PropertyOrder.Alpha);
         configuration.ShowDeveloperTools.Should().Be(DeveloperToolsVisibility.Always);
+        configuration.FeaturedClients.Should().BeEquivalentTo([ScalarClient.NetHttp, ScalarClient.Curl]);
     }
 
     [Fact]
