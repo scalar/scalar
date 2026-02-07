@@ -189,76 +189,73 @@ defineExpose({
 </script>
 
 <template>
-  <div
-    v-show="modalState.open"
-    class="scalar scalar-app">
-    <div class="scalar-container">
-      <!-- 
-      adding v-show also here to ensure proper rendering in Safari.
-      @see https://github.com/scalar/scalar/issues/7983
-      -->
-      <div
-        v-show="modalState.open"
-        :id="id"
-        ref="client"
-        aria-label="API Client"
-        aria-modal="true"
-        class="scalar-app-layout scalar-client flex"
-        role="dialog"
-        tabindex="-1">
-        <ScalarTeleportRoot>
-          <!-- Toasts -->
-          <ScalarToasts />
+  <Transition name="scalar-client-fade">
+    <div
+      v-show="modalState.open"
+      class="scalar scalar-app z-overlay relative">
+      <div class="scalar-container">
+        <div
+          :id="id"
+          ref="client"
+          aria-label="API Client"
+          aria-modal="true"
+          class="scalar-app-layout scalar-client flex"
+          role="dialog"
+          tabindex="-1">
+          <ScalarTeleportRoot>
+            <!-- Toasts -->
+            <ScalarToasts />
 
-          <!-- If we have a document, path and method, render the operation -->
-          <main
-            v-if="document.value && path?.value && method?.value"
-            class="relative flex flex-1">
-            <SidebarToggle
-              v-model="isSidebarOpen"
-              class="absolute top-2 left-3 z-[10001]" />
-            <Sidebar
-              v-show="isSidebarOpen"
-              v-model:sidebarWidth="sidebarWidth"
-              :activeWorkspace="activeWorkspace"
-              class="z-[10000] h-full max-md:absolute! max-md:w-full!"
-              :documents="[document.value]"
-              :eventBus
-              :isDroppable="() => false"
-              layout="modal"
-              :sidebarState="sidebarState.state"
-              :workspaces="[]"
-              @selectItem="sidebarState.handleSelectItem"
-              @update:sidebarWidth="handleSidebarWidthUpdate" />
-            <Operation
-              :activeWorkspace="activeWorkspace"
-              class="flex-1"
-              :document="document.value"
-              :documentSlug="document.value['x-scalar-navigation']?.id ?? ''"
-              :environment
-              :eventBus
-              :exampleName="exampleName?.value"
-              layout="modal"
-              :method="method?.value"
-              :options
-              :path="path?.value"
-              :plugins
-              :securitySchemes
-              :workspaceStore />
-          </main>
-          <!-- Empty state -->
-          <div
-            v-else
-            class="flex h-full w-full items-center justify-center">
-            <span class="text-c-3">No document selected</span>
-          </div>
-        </ScalarTeleportRoot>
+            <!-- If we have a document, path and method, render the operation -->
+            <main
+              v-if="document.value && path?.value && method?.value"
+              class="relative flex flex-1">
+              <SidebarToggle
+                v-model="isSidebarOpen"
+                class="absolute top-2 left-3 z-[10001]" />
+              <Sidebar
+                v-show="isSidebarOpen"
+                v-model:sidebarWidth="sidebarWidth"
+                :activeWorkspace="activeWorkspace"
+                class="z-[10000] h-full max-md:absolute! max-md:w-full!"
+                :documents="[document.value]"
+                :eventBus
+                :isDroppable="() => false"
+                layout="modal"
+                :sidebarState="sidebarState.state"
+                :workspaces="[]"
+                @selectItem="sidebarState.handleSelectItem"
+                @update:sidebarWidth="handleSidebarWidthUpdate" />
+              <Operation
+                :activeWorkspace="activeWorkspace"
+                class="flex-1"
+                :document="document.value"
+                :documentSlug="document.value['x-scalar-navigation']?.id ?? ''"
+                :environment
+                :eventBus
+                :exampleName="exampleName?.value"
+                layout="modal"
+                :method="method?.value"
+                :options
+                :path="path?.value"
+                :plugins
+                :securitySchemes
+                :workspaceStore />
+            </main>
+            <!-- Empty state -->
+            <div
+              v-else
+              class="flex h-full w-full items-center justify-center">
+              <span class="text-c-3">No document selected</span>
+            </div>
+          </ScalarTeleportRoot>
+        </div>
+        <div
+          class="scalar-app-exit"
+          @click="modalState.hide()"></div>
       </div>
-      <div
-        class="scalar-app-exit"
-        @click="modalState.hide()"></div>
     </div>
-  </div>
+  </Transition>
 </template>
 <style scoped>
 @reference "@/style.css";
@@ -269,8 +266,6 @@ defineExpose({
   max-width: 1390px;
   width: 100%;
   margin: auto;
-  opacity: 0;
-  animation: scalarapiclientfadein 0.35s forwards;
   position: relative;
   overflow: hidden;
   border-radius: 8px;
@@ -286,14 +281,7 @@ defineExpose({
     max-height: 90svh;
   }
 }
-@keyframes scalarapiclientfadein {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
+
 .scalar .scalar-app-exit {
   position: fixed;
   top: 0;
@@ -301,22 +289,14 @@ defineExpose({
   width: 100vw;
   height: 100vh;
   background: #00000038;
-  transition: all 0.3s ease-in-out;
   cursor: pointer;
-  animation: scalardrawerexitfadein 0.35s forwards;
   z-index: -1;
 }
+
 .dark-mode .scalar .scalar-app-exit {
   background: rgba(0, 0, 0, 0.45);
 }
-@keyframes scalardrawerexitfadein {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
+
 .scalar .scalar-app-exit:before {
   font-family: sans-serif;
   position: absolute;
@@ -332,6 +312,7 @@ defineExpose({
 .scalar .scalar-app-exit:hover:before {
   opacity: 1;
 }
+
 .scalar-container {
   overflow: hidden;
   visibility: visible;
@@ -344,13 +325,23 @@ defineExpose({
   display: flex;
   align-items: center;
   justify-content: center;
-  @apply z-overlay;
 }
+
 .scalar .scalar-container {
   line-height: normal;
 }
 
 .scalar .url-form-input {
   min-height: auto !important;
+}
+
+.scalar-client-fade-enter-active,
+.scalar-client-fade-leave-active {
+  transition: opacity 0.35s ease;
+}
+
+.scalar-client-fade-enter-from,
+.scalar-client-fade-leave-to {
+  opacity: 0;
 }
 </style>
