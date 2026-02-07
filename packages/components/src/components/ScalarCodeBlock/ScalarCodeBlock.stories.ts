@@ -124,6 +124,7 @@ export const SingleLine: Story = {
     content: 'curl --request PUT --url https://galaxy.scalar.com/planets',
     lang: 'curl',
     class: 'border rounded',
+    copy: 'always',
   },
   render: (args) => ({
     components: { ScalarCodeBlock },
