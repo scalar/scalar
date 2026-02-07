@@ -13,7 +13,7 @@ type BaseProps = {
   lang?: StandardLanguageKey | string
   lineNumbers?: boolean
   hideCredentials?: string | string[]
-  copy?: boolean
+  copy?: 'always' | 'hover' | false
 }
 
 /**
@@ -24,7 +24,7 @@ type BaseProps = {
 const {
   lang = 'plaintext',
   lineNumbers = false,
-  copy = true,
+  copy = 'hover',
   content,
   prettyPrintedContent,
   hideCredentials,
@@ -66,6 +66,9 @@ const highlightedCode = computed(() => {
   return html.slice(5, -6)
 })
 
+/** Determine if the content is a single line */
+const isOneLine = computed(() => !prettyContent.value.includes('\n'))
+
 const isContentValid = computed(() => {
   return (
     prettyContent.value !== null &&
@@ -95,7 +98,13 @@ const { cx } = useBindCx()
     </div>
     <ScalarCodeBlockCopy
       v-if="copy && isContentValid"
-      class="absolute top-2.5 right-2.5 bg-inherit"
+      class="absolute bg-inherit"
+      :class="[
+        isOneLine
+          ? 'top-1/2 -translate-y-1/2 m-0 right-1'
+          : 'top-2.5 right-2.5',
+        { 'opacity-100': copy === 'always' },
+      ]"
       :content="prettyContent"
       :lang
       :aria-controls="id" />

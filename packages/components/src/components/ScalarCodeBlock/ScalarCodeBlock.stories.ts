@@ -1,7 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
 
 import ScalarCodeBlock from './ScalarCodeBlock.vue'
-import ScalarCodeBlockCopy from './ScalarCodeBlockCopy.vue'
 
 const contentJs = `import { ApiClientReact } from '@scalar/api-client-react'
 import React, { useState } from 'react'
@@ -68,6 +67,7 @@ const meta = {
   argTypes: {
     class: { control: 'text' },
     lang: { control: 'text' },
+    copy: { control: 'select', options: ['always', 'hover', false] },
   },
   parameters: {
     layout: 'fullscreen',
@@ -92,7 +92,7 @@ type Story = StoryObj<typeof meta>
 export const Base: Story = { args: { content: contentJs, lang: 'javascript' } }
 
 export const LineNumbers: Story = {
-  args: { content: contentJs, lineNumbers: true },
+  args: { content: contentJs, lineNumbers: true, lang: 'javascript' },
 }
 
 export const JSONString: Story = {
@@ -100,7 +100,12 @@ export const JSONString: Story = {
 }
 
 export const Bordered: Story = {
-  args: { content: contentJs, lineNumbers: true, lang: 'javascript', class: 'border rounded' },
+  args: {
+    content: contentJs,
+    lineNumbers: true,
+    lang: 'javascript',
+    class: 'border rounded',
+  },
   render: (args) => ({
     components: { ScalarCodeBlock },
     setup() {
@@ -114,29 +119,29 @@ export const Bordered: Story = {
   }),
 }
 
+export const SingleLine: Story = {
+  args: {
+    content: 'curl --request PUT --url https://galaxy.scalar.com/planets',
+    lang: 'curl',
+    class: 'border rounded',
+  },
+  render: (args) => ({
+    components: { ScalarCodeBlock },
+    setup() {
+      return { args }
+    },
+    template: `
+<div class="flex flex-col h-dvh w-dvw p-2">
+  <ScalarCodeBlock v-bind="args" />
+</div>
+    `,
+  }),
+}
+
 export const HideCredentials: Story = {
   args: {
     content: contentCurl,
     lang: 'curl',
     hideCredentials: ['123234324'],
   },
-}
-
-export const CopyButton: StoryObj = {
-  argTypes: {
-    content: { control: 'text' },
-    controls: { control: 'text' },
-    class: { control: 'text' },
-  },
-  render: (args) => ({
-    components: { ScalarCodeBlockCopy },
-    setup() {
-      return { args }
-    },
-    template: `
-      <div class="bg-b-2 flex">
-        <ScalarCodeBlockCopy v-bind="args" class="opacity-100 left-10" />
-      </div>
-      `,
-  }),
 }

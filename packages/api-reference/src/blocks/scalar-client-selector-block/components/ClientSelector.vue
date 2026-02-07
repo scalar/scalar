@@ -146,7 +146,7 @@ defineExpose({
             <ScalarCodeBlock
               class="rounded-b-lg *:first:p-3"
               :content="installationInstructions.source"
-              :copy="true"
+              copy="always"
               lang="shell" />
           </div>
         </template>

@@ -52,12 +52,14 @@ const { cx } = useBindCx()
     <template
       v-if="lang"
       #copy>
-      <span
-        class="group-hover/copy-button:hidden"
-        :class="{ capitalize: !isStandardLanguage(lang) }">
-        {{ isStandardLanguage(lang) ? LANGUAGE_LABELS[lang] : lang }}
+      <span class="hidden group-hover/code-block:inline">
+        <span
+          class="group-hover/copy-button:hidden"
+          :class="{ capitalize: !isStandardLanguage(lang) }">
+          {{ isStandardLanguage(lang) ? LANGUAGE_LABELS[lang] : lang }}
+        </span>
+        <span class="hidden group-hover/copy-button:inline">Copy</span>
       </span>
-      <span class="hidden group-hover/copy-button:inline">Copy</span>
     </template>
   </ScalarCopy>
 </template>
