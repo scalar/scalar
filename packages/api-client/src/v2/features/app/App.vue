@@ -12,6 +12,7 @@ import {
   ScalarTeleportRoot,
   useModal,
   type ModalState,
+  type WorkspaceGroup,
 } from '@scalar/components'
 import { getThemeStyles } from '@scalar/themes'
 import { ScalarToasts } from '@scalar/use-toasts'
@@ -54,7 +55,9 @@ defineSlots<{
    * Slot for customizing the actions section of the sidebar menu.
    * This slot is used to render custom actions or components within the actions section.
    */
-  'sidebar-menu-actions': []
+  'sidebar-menu-actions': (payload: {
+    workspaceOptions: WorkspaceGroup[]
+  }) => unknown
   /**
    * Slot for customizing the create workspace modal.
    * This slot is used to render custom actions or components within the create workspace modal.
@@ -210,7 +213,9 @@ const workspaceOptions = computed(() =>
           @selectItem="app.sidebar.handleSelectItem"
           @update:sidebarWidth="app.sidebar.handleSidebarWidthUpdate">
           <template #sidebarMenuActions>
-            <slot name="sidebar-menu-actions" />
+            <slot
+              name="sidebar-menu-actions"
+              :workspaceOptions="workspaceOptions" />
           </template>
         </AppSidebar>
 

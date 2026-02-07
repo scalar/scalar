@@ -63,7 +63,7 @@ const slots = defineSlots<{
   /** Slot to add additional content to the empty folder */
   empty?(props: { item: TraversedEntry }): unknown
   /** Slot for customizing the actions section of the sidebar menu. */
-  sidebarMenuActions?(): unknown
+  sidebarMenuActions?(props: { workspaceOptions: WorkspaceGroup[] }): unknown
   /** Slot to add additional content to the icon */
   icon?(props: { item: TraversedEntry; open: boolean }): unknown
 }>()
@@ -123,8 +123,10 @@ const handleSelectItem = (id: string) => {
                 :workspaces="workspaces"
                 @create:workspace="emit('create:workspace')"
                 @select:workspace="(id) => emit('select:workspace', id)">
-                <template #sidebarMenuActions>
-                  <slot name="sidebarMenuActions" />
+                <template #sidebarMenuActions="props">
+                  <slot
+                    name="sidebarMenuActions"
+                    v-bind="props" />
                 </template>
               </SidebarMenu>
 
