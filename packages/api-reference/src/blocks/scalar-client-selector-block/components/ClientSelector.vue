@@ -15,12 +15,11 @@ import {
   isFeaturedClient,
 } from '@/blocks/scalar-client-selector-block/helpers/featured-clients'
 
-import ClientDropdown from './ClientDropdown.vue'
-
 const {
   clientOptions,
   xScalarSdkInstallation,
   eventBus,
+  featuredClients: featuredClientsProp,
   selectedClient = DEFAULT_CLIENT,
 } = defineProps<{
   /** Selected SDK installation instructions */
@@ -29,6 +28,8 @@ const {
   clientOptions: ClientOptionGroup[]
   /** The currently selected Http Client */
   selectedClient?: AvailableClient
+  /** List of featured clients */
+  featuredClients?: AvailableClient[]
   /** Event bus */
   eventBus: WorkspaceEventBus
 }>()
@@ -47,7 +48,9 @@ const selectedClientOption = computed(
 )
 
 /** List of featured clients */
-const featuredClients = computed(() => getFeaturedClients(clientOptions))
+const featuredClients = computed(() =>
+  getFeaturedClients(clientOptions, featuredClientsProp),
+)
 
 /** Currently selected tab index */
 const tabIndex = computed(() =>
@@ -119,6 +122,7 @@ defineExpose({
           :clientOptions
           :eventBus
           :featuredClients
+          :featuredClientsIds="featuredClientsProp"
           :morePanel
           :selectedClient />
       </TabList>

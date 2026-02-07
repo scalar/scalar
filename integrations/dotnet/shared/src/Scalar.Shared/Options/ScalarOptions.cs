@@ -148,6 +148,12 @@ public partial class ScalarOptions
     public ScalarTarget[] EnabledTargets { get; set; } = [];
 
     /// <summary>
+    /// Controls which HTTPSnippet clients are displayed by default in the clients menu.
+    /// </summary>
+    /// <remarks>If an empty array is sent, the default featured clients will be displayed.</remarks>
+    public ScalarClient[] FeaturedClients { get; set; } = [];
+
+    /// <summary>
     /// Controls metadata information for configuring meta information out of the box.
     /// </summary>
     public IDictionary<string, string>? Metadata { get; set; }

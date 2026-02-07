@@ -43,6 +43,8 @@ internal sealed class ScalarConfiguration
     /// </remarks>
     public required object? HiddenClients { get; init; }
 
+    public required IEnumerable<ScalarClient>? FeaturedClients { get; init; }
+
     public required ScalarAuthenticationOptions? Authentication { get; init; }
 
     public required bool? WithDefaultFonts { get; init; }

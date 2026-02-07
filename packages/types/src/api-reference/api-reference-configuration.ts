@@ -1,6 +1,6 @@
 import { type ZodType, z } from 'zod'
 
-import type { TargetId } from '../snippetz'
+import type { AvailableClient, TargetId } from '../snippetz'
 import { apiReferencePluginSchema } from './api-reference-plugin'
 import type { AuthenticationConfiguration } from './authentication-configuration'
 import { NEW_PROXY_URL, OLD_PROXY_URL, baseConfigurationSchema } from './base-configuration'
@@ -109,6 +109,10 @@ export const apiReferenceConfigurationSchema = baseConfigurationSchema.extend({
   hiddenClients: z
     .union([z.record(z.string(), z.union([z.boolean(), z.array(z.string())])), z.array(z.string()), z.literal(true)])
     .optional(),
+  /**
+   * List of httpsnippet clients to display in the clients menu
+   */
+  featuredClients: z.array(z.custom<AvailableClient>()).optional(),
   /** Determine the HTTP client that's selected by default */
   defaultHttpClient: z
     .object({
