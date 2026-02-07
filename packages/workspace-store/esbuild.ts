@@ -8,6 +8,7 @@ const entries = [
   './src/schemas/*.ts',
   './src/schemas/extensions/operation/index.ts',
   './src/schemas/extensions/security/index.ts',
+  './src/schemas/extensions/tag/index.ts',
   './src/schemas/extensions/workspace/index.ts',
   './src/schemas/v3.1/strict/openapi-document.ts',
   './src/schemas/v3.1/strict/type-guards.ts',
