@@ -48,7 +48,7 @@ describe('ScalarCopyButton', () => {
 
       await nextTick()
 
-      expect(wrapper.text()).toBe('Copied to clipboard')
+      expect(wrapper.text()).toBe('Copied')
     })
   })
 
@@ -60,7 +60,7 @@ describe('ScalarCopyButton', () => {
         },
       })
 
-      expect(wrapper.text()).toContain('Copy to clipboard')
+      expect(wrapper.text()).toContain('Copy')
     })
 
     it('renders custom copy slot', () => {
@@ -135,7 +135,7 @@ describe('ScalarCopyButton', () => {
 
       const alertElement = wrapper.find('[role="alert"]')
       expect(alertElement.exists()).toBeTruthy()
-      expect(alertElement.text()).toBe('Copied to clipboard')
+      expect(alertElement.text()).toBe('Copied')
     })
   })
 })
