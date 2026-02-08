@@ -117,15 +117,17 @@ const shouldRenderRequestBody = computed(
     <div class="request-body-header">
       <div class="request-body-title">
         <slot name="title" />
+      </div>
+      <div class="flex items-center gap-2">
         <div
           v-if="requestBody.required"
           class="request-body-required">
           required
         </div>
+        <ContentTypeSelect
+          v-model="selectedContentType"
+          :content="requestBody.content" />
       </div>
-      <ContentTypeSelect
-        v-model="selectedContentType"
-        :content="requestBody.content" />
       <div
         v-if="requestBody.description"
         class="request-body-description">
@@ -209,6 +211,10 @@ const shouldRenderRequestBody = computed(
   font-size: var(--scalar-micro);
   color: var(--scalar-color-orange);
   font-weight: normal;
+  border-radius: 16px;
+  border: var(--scalar-border-width) solid var(--scalar-border-color);
+  padding: 2px 8px;
+  height: 20px;
 }
 .request-body-description {
   margin-top: 6px;

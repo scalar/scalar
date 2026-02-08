@@ -50,6 +50,7 @@ defineProps<{
 .property-enum-value-label {
   font-family: var(--scalar-font-code);
   color: var(--scalar-color-1);
+  font-size: var(--scalar-font-size-4);
   position: relative;
 }
 
