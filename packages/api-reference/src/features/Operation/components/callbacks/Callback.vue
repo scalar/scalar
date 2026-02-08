@@ -29,7 +29,8 @@ const { method, name, url, options } = defineProps<{
     <summary
       class="font-code bg-b-1 callback-sticky-offset callback-list-item-title sticky flex cursor-pointer flex-row items-start gap-2 border-t py-2.5 text-sm group-open:flex-wrap">
       <ScalarIconCaretRight
-        class="callback-list-item-icon text-c-3 group-hover:text-c-1 absolute top-3.5 -left-5 size-4 transition-transform duration-100 group-open:rotate-90" />
+        class="callback-list-item-icon text-c-3 group-hover:text-c-1 absolute top-3.5 -left-5 size-3 transition-transform duration-100 group-open:rotate-90"
+        weight="bold" />
       <HttpMethod
         as="span"
         class="request-method py-0.75 font-bold"
