@@ -118,6 +118,8 @@ minimumReleaseAgeExclude:
   - vite-node
   - vitest
   - vue
+  # Renovate security update: @modelcontextprotocol/sdk@1.26.0
+  - "@modelcontextprotocol/sdk@1.26.0"
 
 onlyBuiltDependencies:
   - '@nestjs/core'
