@@ -35,6 +35,11 @@
       "types": "./dist/array/*.d.ts",
       "default": "./dist/array/*.js"
     },
+    "./consts/*": {
+      "import": "./dist/consts/*.js",
+      "types": "./dist/consts/*.d.ts",
+      "default": "./dist/consts/*.js"
+    },
     "./crypto/*": {
       "import": "./dist/crypto/*.js",
       "types": "./dist/crypto/*.d.ts",

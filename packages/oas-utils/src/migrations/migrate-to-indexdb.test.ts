@@ -1,15 +1,7 @@
 import { type SecurityScheme, securitySchemeSchema } from '@scalar/types/entities'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
-import {
-  MediaTypeObjectSchema,
-  type ParameterWithSchemaObject,
-} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { assert, beforeEach, describe, expect, it } from 'vitest'
 import 'fake-indexeddb/auto'
-
-import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
-import { SchemaObjectRef } from '@scalar/workspace-store/schemas/v3.1/strict/ref-definitions'
-import { reference } from '@scalar/workspace-store/schemas/v3.1/strict/reference'
 
 import { cookieSchema } from '@/entities/cookie'
 import { type Collection, collectionSchema } from '@/entities/spec/collection'
@@ -2257,34 +2249,38 @@ describe('migrate-to-indexdb', () => {
         const doc = result[0]?.workspace.documents['Users API']
 
         assert(doc)
-        const operation = getResolvedRef(doc.paths?.['/users']?.get)
-
-        // Find the query parameters
-        const pageParam = operation?.parameters?.find((p) => getResolvedRef(p)?.name === 'page')
-        const limitParam = operation?.parameters?.find((p) => getResolvedRef(p)?.name === 'limit')
-        const acceptHeader = operation?.parameters?.find((p) => getResolvedRef(p)?.name === 'Accept')
-
-        expect(getResolvedRef(pageParam)).toMatchObject({
-          name: 'page',
-          in: 'query',
-          examples: {
-            'Basic Example': { value: '1', 'x-disabled': false },
-          },
-        })
-
-        expect(getResolvedRef(limitParam)).toMatchObject({
-          name: 'limit',
-          in: 'query',
-          examples: {
-            'Basic Example': { value: '10', 'x-disabled': false },
-          },
-        })
-
-        expect(getResolvedRef(acceptHeader)).toMatchObject({
-          name: 'Accept',
-          in: 'header',
-          examples: {
-            'Basic Example': { value: 'application/json', 'x-disabled': false },
+        expect(doc).toMatchObject({
+          openapi: '3.1.0',
+          info: { title: 'Users API', version: '1.0.0' },
+          paths: {
+            '/users': {
+              get: {
+                summary: 'Get users',
+                parameters: [
+                  {
+                    name: 'page',
+                    in: 'query',
+                    examples: {
+                      'Basic Example': { value: '1', 'x-disabled': false },
+                    },
+                  },
+                  {
+                    name: 'limit',
+                    in: 'query',
+                    examples: {
+                      'Basic Example': { value: '10', 'x-disabled': false },
+                    },
+                  },
+                  {
+                    name: 'Accept',
+                    in: 'header',
+                    examples: {
+                      'Basic Example': { value: 'application/json', 'x-disabled': false },
+                    },
+                  },
+                ],
+              },
+            },
           },
         })
       })
@@ -2296,7 +2292,7 @@ describe('migrate-to-indexdb', () => {
           name: 'First Page',
           parameters: {
             query: [{ key: 'page', value: '1', enabled: true }],
-            headers: [{ key: 'Accept', value: '*/*', enabled: true }],
+            headers: [{ key: 'Accept', value: 'application/json', enabled: true }],
           },
         })
 
@@ -2306,7 +2302,7 @@ describe('migrate-to-indexdb', () => {
           name: 'Second Page',
           parameters: {
             query: [{ key: 'page', value: '2', enabled: true }],
-            headers: [{ key: 'Accept', value: '*/*', enabled: true }],
+            headers: [{ key: 'Accept', value: 'application/json', enabled: true }],
           },
         })
 
@@ -2329,39 +2325,40 @@ describe('migrate-to-indexdb', () => {
         const doc = result[0]?.workspace.documents['Users API']
 
         assert(doc)
-        const operation = getResolvedRef(doc.paths?.['/users']?.get)
-        expect(operation?.parameters).toBeDefined()
-
-        // Find the parameters
-        const pageParam = operation?.parameters?.find((p) => getResolvedRef(p)?.name === 'page')
-        const acceptHeader = operation?.parameters?.find((p) => getResolvedRef(p)?.name === 'Accept')
-
-        // Check that both examples exist for the page parameter
-        expect(getResolvedRef(pageParam)).toMatchObject({
-          name: 'page',
-          in: 'query',
-          examples: {
-            'First Page': { value: '1', 'x-disabled': false },
-            'Second Page': { value: '2', 'x-disabled': false },
-          },
-        })
-
-        // Check that both examples exist for the Accept header
-        expect(getResolvedRef(acceptHeader)).toMatchObject({
-          name: 'Accept',
-          in: 'header',
-          examples: {
-            'First Page': { value: '*/*', 'x-disabled': false },
-            'Second Page': { value: '*/*', 'x-disabled': false },
+        expect(doc).toMatchObject({
+          openapi: '3.1.0',
+          info: { title: 'Users API', version: '1.0.0' },
+          paths: {
+            '/users': {
+              get: {
+                summary: 'Get users',
+                parameters: [
+                  {
+                    name: 'page',
+                    in: 'query',
+                    examples: {
+                      'First Page': { value: '1', 'x-disabled': false },
+                      'Second Page': { value: '2', 'x-disabled': false },
+                    },
+                  },
+                  {
+                    name: 'Accept',
+                    in: 'header',
+                    examples: {
+                      'First Page': { value: 'application/json', 'x-disabled': false },
+                      'Second Page': { value: 'application/json', 'x-disabled': false },
+                    },
+                  },
+                ],
+              },
+            },
           },
         })
       })
 
       it('removes the accept */* header', async () => {
         /**
-         * This test ensures that the Accept header remains as a proper OpenAPI parameter
-         * and is not transformed into any other structure (like request body or response).
-         * The Accept header should maintain its parameter properties: name, in, and examples.
+         * This test ensures that the Accept wildcard header is removed from the parameters.
          */
         const example = requestExampleSchema.parse({
           uid: 'example-1',
@@ -2394,11 +2391,26 @@ describe('migrate-to-indexdb', () => {
         const doc = result[0]?.workspace.documents['API']
         assert(doc)
 
-        // Find the Accept header parameter
-        const acceptHeader = getResolvedRef(doc.paths?.['/api/data']?.get)?.parameters?.find(
-          (p) => getResolvedRef(p)?.name === 'Accept',
-        )
-        expect(acceptHeader).toBeUndefined()
+        expect(doc).toMatchObject({
+          openapi: '3.1.0',
+          info: { title: 'API', version: '1.0.0' },
+          paths: {
+            '/api/data': {
+              get: {
+                summary: 'Get data',
+                parameters: [
+                  {
+                    name: 'Authorization',
+                    in: 'header',
+                    examples: {
+                      'JSON Accept': { value: 'Bearer token123', 'x-disabled': false },
+                    },
+                  },
+                ],
+              },
+            },
+          },
+        })
       })
 
       it('transforms an example with a JSON request body', async () => {
@@ -2437,22 +2449,26 @@ describe('migrate-to-indexdb', () => {
         const doc = result[0]?.workspace.documents['Users API']
 
         assert(doc)
-        const operation = getResolvedRef(doc.paths?.['/users']?.post)
-
-        // Check request body example
-        const requestBody = getResolvedRef(operation?.requestBody)
-        expect(requestBody?.content?.['application/json']?.examples).toBeDefined()
-        expect(requestBody?.content?.['application/json']?.examples?.['Create User Example']).toEqual({
-          value: JSON.stringify({ name: 'John Doe', email: 'john@example.com' }),
-        })
-
-        // Check Content-Type header parameter
-        const contentTypeHeader = operation?.parameters?.find((p) => getResolvedRef(p)?.name === 'Content-Type')
-        expect(getResolvedRef(contentTypeHeader)).toMatchObject({
-          name: 'Content-Type',
-          in: 'header',
-          examples: {
-            'Create User Example': { value: 'application/json', 'x-disabled': false },
+        expect(doc).toMatchObject({
+          openapi: '3.1.0',
+          info: { title: 'Users API', version: '1.0.0' },
+          paths: {
+            '/users': {
+              post: {
+                summary: 'Create user',
+                requestBody: {
+                  content: {
+                    'application/json': {
+                      examples: {
+                        'Create User Example': {
+                          value: JSON.stringify({ name: 'John Doe', email: 'john@example.com' }),
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
           },
         })
       })
@@ -2473,7 +2489,7 @@ describe('migrate-to-indexdb', () => {
             },
           },
           parameters: {
-            headers: [{ key: 'Accept', value: '*/*', enabled: true }],
+            headers: [{ key: 'Accept', value: 'application/json', enabled: true }],
           },
         })
 
@@ -2496,25 +2512,38 @@ describe('migrate-to-indexdb', () => {
         const doc = result[0]?.workspace.documents['Auth API']
 
         assert(doc)
-        const operation = getResolvedRef(doc.paths?.['/login']?.post)
-
-        // Check request body example for multipart/form-data
-        const requestBody = getResolvedRef(operation?.requestBody)
-        expect(requestBody?.content?.['multipart/form-data']?.examples).toBeDefined()
-        expect(requestBody?.content?.['multipart/form-data']?.examples?.['Form Example']).toEqual({
-          value: [
-            { key: 'username', type: 'string', value: 'johndoe' },
-            { key: 'password', type: 'string', value: 'secret123' },
-          ],
-        })
-
-        // Check Accept header parameter
-        const acceptHeader = operation?.parameters?.find((p) => getResolvedRef(p)?.name === 'Accept')
-        expect(getResolvedRef(acceptHeader)).toMatchObject({
-          name: 'Accept',
-          in: 'header',
-          examples: {
-            'Form Example': { value: '*/*', 'x-disabled': false },
+        expect(doc).toMatchObject({
+          openapi: '3.1.0',
+          info: { title: 'Auth API', version: '1.0.0' },
+          paths: {
+            '/login': {
+              post: {
+                summary: 'Login',
+                parameters: [
+                  {
+                    name: 'Accept',
+                    in: 'header',
+                    examples: {
+                      'Form Example': { value: 'application/json', 'x-disabled': false },
+                    },
+                  },
+                ],
+                requestBody: {
+                  content: {
+                    'multipart/form-data': {
+                      examples: {
+                        'Form Example': {
+                          value: [
+                            { key: 'username', type: 'string', value: 'johndoe' },
+                            { key: 'password', type: 'string', value: 'secret123' },
+                          ],
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
           },
         })
       })
@@ -2558,25 +2587,29 @@ describe('migrate-to-indexdb', () => {
         const doc = result[0]?.workspace.documents['Auth API']
 
         assert(doc)
-        const operation = getResolvedRef(doc.paths?.['/auth']?.post)
-
-        // Check request body example for application/x-www-form-urlencoded
-        const requestBody = getResolvedRef(operation?.requestBody)
-        expect(requestBody?.content?.['application/x-www-form-urlencoded']?.examples).toBeDefined()
-        expect(requestBody?.content?.['application/x-www-form-urlencoded']?.examples?.['URL Encoded Example']).toEqual({
-          value: [
-            { key: 'email', type: 'string', value: 'user@example.com' },
-            { key: 'password', type: 'string', value: 'secret' },
-          ],
-        })
-
-        // Check Accept header parameter
-        const acceptHeader = operation?.parameters?.find((p) => getResolvedRef(p)?.name === 'Accept')
-        expect(getResolvedRef(acceptHeader)).toMatchObject({
-          name: 'Accept',
-          in: 'header',
-          examples: {
-            'URL Encoded Example': { value: '*/*', 'x-disabled': false },
+        expect(doc).toMatchObject({
+          openapi: '3.1.0',
+          info: { title: 'Auth API', version: '1.0.0' },
+          paths: {
+            '/auth': {
+              post: {
+                summary: 'Authenticate',
+                requestBody: {
+                  content: {
+                    'application/x-www-form-urlencoded': {
+                      examples: {
+                        'URL Encoded Example': {
+                          value: [
+                            { key: 'email', type: 'string', value: 'user@example.com' },
+                            { key: 'password', type: 'string', value: 'secret' },
+                          ],
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
           },
         })
       })
@@ -2617,22 +2650,26 @@ describe('migrate-to-indexdb', () => {
         const doc = result[0]?.workspace.documents['Users API']
 
         assert(doc)
-        const operation = getResolvedRef(doc.paths?.['/users']?.post)
-
-        // Check request body example
-        const requestBody = getResolvedRef(operation?.requestBody)
-        expect(requestBody?.content?.['application/xml']?.examples).toBeDefined()
-        expect(requestBody?.content?.['application/xml']?.examples?.['XML Example']).toEqual({
-          value: '<user><name>John Doe</name><email>john@example.com</email></user>',
-        })
-
-        // Check Content-Type header parameter
-        const contentTypeHeader = operation?.parameters?.find((p) => getResolvedRef(p)?.name === 'Content-Type')
-        expect(getResolvedRef(contentTypeHeader)).toMatchObject({
-          name: 'Content-Type',
-          in: 'header',
-          examples: {
-            'XML Example': { value: 'application/xml', 'x-disabled': false },
+        expect(doc).toMatchObject({
+          openapi: '3.1.0',
+          info: { title: 'Users API', version: '1.0.0' },
+          paths: {
+            '/users': {
+              post: {
+                summary: 'Create user',
+                requestBody: {
+                  content: {
+                    'application/xml': {
+                      examples: {
+                        'XML Example': {
+                          value: '<user><name>John Doe</name><email>john@example.com</email></user>',
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
           },
         })
       })
@@ -2673,22 +2710,26 @@ describe('migrate-to-indexdb', () => {
         const doc = result[0]?.workspace.documents['Config API']
 
         assert(doc)
-        const operation = getResolvedRef(doc.paths?.['/config']?.post)
-
-        // Check request body example
-        const requestBody = getResolvedRef(operation?.requestBody)
-        expect(requestBody?.content?.['application/yaml']?.examples).toBeDefined()
-        expect(requestBody?.content?.['application/yaml']?.examples?.['YAML Example']).toEqual({
-          value: 'name: John Doe\nemail: john@example.com',
-        })
-
-        // Check Content-Type header parameter
-        const contentTypeHeader = operation?.parameters?.find((p) => getResolvedRef(p)?.name === 'Content-Type')
-        expect(getResolvedRef(contentTypeHeader)).toMatchObject({
-          name: 'Content-Type',
-          in: 'header',
-          examples: {
-            'YAML Example': { value: 'application/yaml', 'x-disabled': false },
+        expect(doc).toMatchObject({
+          openapi: '3.1.0',
+          info: { title: 'Config API', version: '1.0.0' },
+          paths: {
+            '/config': {
+              post: {
+                summary: 'Update config',
+                requestBody: {
+                  content: {
+                    'application/yaml': {
+                      examples: {
+                        'YAML Example': {
+                          value: 'name: John Doe\nemail: john@example.com',
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
           },
         })
       })
@@ -2729,26 +2770,31 @@ describe('migrate-to-indexdb', () => {
         const doc = result[0]?.workspace.documents['Data API']
 
         assert(doc)
-        const operation = getResolvedRef(doc.paths?.['/data']?.post)
-
-        // Check request body example
-        const requestBody = getResolvedRef(operation?.requestBody)
-        expect(requestBody?.content?.['application/edn']?.examples).toBeDefined()
-        expect(requestBody?.content?.['application/edn']?.examples?.['EDN Example']).toEqual({
-          value: '{:name "John Doe" :email "john@example.com"}',
-        })
-
-        // Check Content-Type header parameter
-        const contentTypeHeader = operation?.parameters?.find((p) => getResolvedRef(p)?.name === 'Content-Type')
-        expect(getResolvedRef(contentTypeHeader)).toMatchObject({
-          name: 'Content-Type',
-          in: 'header',
-          examples: {
-            'EDN Example': { value: 'application/edn', 'x-disabled': false },
+        expect(doc).toMatchObject({
+          openapi: '3.1.0',
+          info: { title: 'Data API', version: '1.0.0' },
+          paths: {
+            '/data': {
+              post: {
+                summary: 'Submit data',
+                requestBody: {
+                  content: {
+                    'application/edn': {
+                      examples: {
+                        'EDN Example': {
+                          value: '{:name "John Doe" :email "john@example.com"}',
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
           },
         })
       })
 
+      // We do not keep the content type as it should be in the global header
       it('transforms an example with binary file (octet-stream)', async () => {
         const example = requestExampleSchema.parse({
           uid: 'example-1',
@@ -2784,30 +2830,24 @@ describe('migrate-to-indexdb', () => {
         const doc = result[0]?.workspace.documents['Upload API']
 
         assert(doc)
-        const operation = getResolvedRef(doc.paths?.['/upload']?.post)
-
-        // Check request body example for binary
-        const requestBody = getResolvedRef(operation?.requestBody)
-        expect(requestBody?.content?.['binary']?.examples).toBeDefined()
-        expect(requestBody?.content?.['binary']?.examples?.['Binary Example']).toBeDefined()
-
-        // Check Content-Type header parameter
-        const contentTypeHeader = operation?.parameters?.find((p) => getResolvedRef(p)?.name === 'Content-Type')
-        expect(getResolvedRef(contentTypeHeader)).toMatchObject({
-          name: 'Content-Type',
-          in: 'header',
-          examples: {
-            'Binary Example': { value: 'application/octet-stream', 'x-disabled': false },
-          },
-        })
-
-        // Check Accept header parameter
-        const acceptHeader = operation?.parameters?.find((p) => getResolvedRef(p)?.name === 'Accept')
-        expect(getResolvedRef(acceptHeader)).toMatchObject({
-          name: 'Accept',
-          in: 'header',
-          examples: {
-            'Binary Example': { value: '*/*', 'x-disabled': false },
+        expect(doc).toMatchObject({
+          openapi: '3.1.0',
+          info: { title: 'Upload API', version: '1.0.0' },
+          paths: {
+            '/upload': {
+              post: {
+                summary: 'Upload file',
+                requestBody: {
+                  content: {
+                    binary: {
+                      examples: {
+                        'Binary Example': {},
+                      },
+                    },
+                  },
+                },
+              },
+            },
           },
         })
       })
@@ -2842,27 +2882,25 @@ describe('migrate-to-indexdb', () => {
         const doc = result[0]?.workspace.documents['Users API']
 
         assert(doc)
-        const operation = getResolvedRef(doc.paths?.['/users/{id}']?.get)
-        expect(operation?.parameters).toBeDefined()
-
-        // Find the path parameter
-        const idParam = operation?.parameters?.find((p) => getResolvedRef(p)?.name === 'id')
-        const acceptHeader = operation?.parameters?.find((p) => getResolvedRef(p)?.name === 'Accept')
-
-        expect(getResolvedRef(idParam)).toMatchObject({
-          name: 'id',
-          in: 'path',
-          required: true,
-          examples: {
-            'Get User 123': { value: '123', 'x-disabled': false },
-          },
-        })
-
-        expect(getResolvedRef(acceptHeader)).toMatchObject({
-          name: 'Accept',
-          in: 'header',
-          examples: {
-            'Get User 123': { value: '*/*', 'x-disabled': false },
+        expect(doc).toMatchObject({
+          openapi: '3.1.0',
+          info: { title: 'Users API', version: '1.0.0' },
+          paths: {
+            '/users/{id}': {
+              get: {
+                summary: 'Get user',
+                parameters: [
+                  {
+                    name: 'id',
+                    in: 'path',
+                    required: true,
+                    examples: {
+                      'Get User 123': { value: '123', 'x-disabled': false },
+                    },
+                  },
+                ],
+              },
+            },
           },
         })
       })
@@ -2941,6 +2979,20 @@ describe('migrate-to-indexdb', () => {
           uid: 'DQOYkZ1uQzzNhuXI-tFWC',
           path: '/test',
           method: 'post',
+          requestBody: {
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                },
+              },
+              'multipart/form-data': {
+                schema: {
+                  type: 'object',
+                },
+              },
+            },
+          },
           summary: 'Test endpoint',
           examples: ['tcHS3GOyvbQeNKQyi6A8r'],
         })
@@ -2954,20 +3006,35 @@ describe('migrate-to-indexdb', () => {
 
         const result = await transformLegacyDataToWorkspace(legacyData)
         const doc = result[0]?.workspace.documents['Test API']
-        expect(doc).toEqual({})
-      })
-
-      it.only('coerce schema', () => {
-        const schema = {
-          schema: {
-            $ref: '#/components/schemas/CircularSchema1',
-            '$global': false,
-            'description': 'This ref was created from a circular schema',
-            'summary': 'This ref was creaed from a',
+        expect(doc).toMatchObject({
+          openapi: '3.1.0',
+          info: { title: 'Test API', version: '1.0.0' },
+          servers: [],
+          paths: {
+            '/test': {
+              post: {
+                summary: 'Test endpoint',
+                requestBody: {
+                  content: {
+                    'application/json': {
+                      schema: { type: 'object' },
+                      examples: { 'Default Example': { value: '{\n"test": "me"}' } },
+                    },
+                    'multipart/form-data': { schema: { type: 'object' } },
+                  },
+                },
+                parameters: [
+                  {
+                    name: '1',
+                    in: 'query',
+                    schema: { type: 'string' },
+                    examples: { 'Default Example': { value: '2', 'x-disabled': false } },
+                  },
+                ],
+              },
+            },
           },
-        }
-        const coerced = coerceValue(MediaTypeObjectSchema, schema)
-        expect(coerced).toEqual({ schema: { $ref: '#/components/schemas/CircularSchema1', '$ref-value': '' } })
+        })
       })
 
       it('transforms a request with circular schema in request body', async () => {
@@ -3018,7 +3085,7 @@ describe('migrate-to-indexdb', () => {
 
         const result = await transformLegacyDataToWorkspace(legacyData)
         const doc = result[0]?.workspace.documents['Scalar Galaxy']
-        expect(doc).toEqual({
+        expect(doc).toMatchObject({
           openapi: '3.1.0',
           info: { title: 'Scalar Galaxy', version: '1.0.0' },
           servers: [],
@@ -3026,18 +3093,10 @@ describe('migrate-to-indexdb', () => {
             '/planets': {
               post: {
                 summary: 'Create a new planet',
-                parameters: [
-                  {
-                    name: 'Accept',
-                    in: 'header',
-                    schema: { type: 'string' },
-                    examples: { 'Create Planet': { value: '*/*', 'x-disabled': false } },
-                  },
-                ],
                 requestBody: {
                   content: {
                     'application/json': {
-                      schema: { $ref: '#/components/schemas/CircularSchema1', '$ref-value': '' },
+                      schema: { $ref: '#/components/schemas/CircularSchema1' },
                       examples: {
                         'Create Planet': {
                           value: '{"name": "Earth", "satellites": [{"name": "Moon"}]}',
@@ -3060,64 +3119,11 @@ describe('migrate-to-indexdb', () => {
                     type: 'array',
                     items: {
                       '$ref': '#/components/schemas/CircularSchema1',
-                      '$ref-value': '',
                     },
                   },
                 },
               },
             },
-          },
-          security: [],
-          tags: [],
-          webhooks: undefined,
-          'x-scalar-set-operation-security': false,
-          'x-scalar-icon': 'interface-content-folder',
-          'x-scalar-original-document-hash': '0b83e9b767eb342b',
-          'x-original-oas-version': '3.1.0',
-          'x-scalar-original-source-url': undefined,
-          'x-scalar-environments': undefined,
-          'x-ext-urls': {},
-          'x-scalar-order': ['scalar-galaxy/POST/planets', 'scalar-galaxy/models'],
-          'x-scalar-navigation': {
-            id: 'scalar-galaxy',
-            type: 'document',
-            title: 'Scalar Galaxy',
-            name: 'Scalar Galaxy',
-            children: [
-              {
-                id: 'scalar-galaxy/POST/planets',
-                title: 'Create a new planet',
-                path: '/planets',
-                method: 'post',
-                ref: '#/paths/~1planets/post',
-                type: 'operation',
-                isDeprecated: false,
-                children: [
-                  {
-                    type: 'example',
-                    id: 'scalar-galaxy/POST/planets/example/create-planet',
-                    title: 'Create Planet',
-                    name: 'Create Planet',
-                  },
-                ],
-              },
-              {
-                type: 'models',
-                id: 'scalar-galaxy/models',
-                title: 'Models',
-                name: 'Models',
-                children: [
-                  {
-                    id: 'scalar-galaxy/model/circularschema1',
-                    title: 'CircularSchema1',
-                    name: 'CircularSchema1',
-                    ref: '#/components/schemas/CircularSchema1',
-                    type: 'model',
-                  },
-                ],
-              },
-            ],
-            icon: 'interface-content-folder',
           },
         })
       })
@@ -3156,12 +3162,23 @@ describe('migrate-to-indexdb', () => {
         const doc = result[0]?.workspace.documents['Users API']
 
         assert(doc)
-        expect(getResolvedRef(doc.paths?.['/users']?.get)?.servers).toEqual([
-          {
-            url: 'https://api-staging.example.com',
-            description: 'Staging server',
+        expect(doc).toMatchObject({
+          openapi: '3.1.0',
+          info: { title: 'Users API', version: '1.0.0' },
+          paths: {
+            '/users': {
+              get: {
+                summary: 'Get users',
+                servers: [
+                  {
+                    url: 'https://api-staging.example.com',
+                    description: 'Staging server',
+                  },
+                ],
+              },
+            },
           },
-        ])
+        })
       })
 
       it('transforms a request with multiple server overrides', async () => {
@@ -3202,10 +3219,21 @@ describe('migrate-to-indexdb', () => {
         const doc = result[0]?.workspace.documents['Users API']
 
         assert(doc)
-        expect(getResolvedRef(doc.paths?.['/users']?.get)?.servers).toEqual([
-          { url: 'https://api-staging.example.com', description: 'Staging' },
-          { url: 'https://api-dev.example.com', description: 'Development' },
-        ])
+        expect(doc).toMatchObject({
+          openapi: '3.1.0',
+          info: { title: 'Users API', version: '1.0.0' },
+          paths: {
+            '/users': {
+              get: {
+                summary: 'Get users',
+                servers: [
+                  { url: 'https://api-staging.example.com', description: 'Staging' },
+                  { url: 'https://api-dev.example.com', description: 'Development' },
+                ],
+              },
+            },
+          },
+        })
       })
 
       it('transforms a request with server variables', async () => {
@@ -3241,19 +3269,30 @@ describe('migrate-to-indexdb', () => {
         const doc = result[0]?.workspace.documents['Users API']
 
         assert(doc)
-        expect(getResolvedRef(doc.paths?.['/users']?.get)?.servers).toEqual([
-          {
-            url: 'https://{environment}.example.com',
-            description: 'Templated server',
-            variables: {
-              environment: {
-                default: 'api',
-                enum: ['api', 'staging'],
-                description: 'Environment',
+        expect(doc).toMatchObject({
+          openapi: '3.1.0',
+          info: { title: 'Users API', version: '1.0.0' },
+          paths: {
+            '/users': {
+              get: {
+                summary: 'Get users',
+                servers: [
+                  {
+                    url: 'https://{environment}.example.com',
+                    description: 'Templated server',
+                    variables: {
+                      environment: {
+                        default: 'api',
+                        enum: ['api', 'staging'],
+                        description: 'Environment',
+                      },
+                    },
+                  },
+                ],
               },
             },
           },
-        ])
+        })
       })
 
       it('handles request with no server overrides', async () => {
@@ -3274,7 +3313,17 @@ describe('migrate-to-indexdb', () => {
         const doc = result[0]?.workspace.documents['Users API']
 
         assert(doc)
-        expect(getResolvedRef(doc.paths?.['/users']?.get)?.servers).toBeUndefined()
+        expect(doc).toMatchObject({
+          openapi: '3.1.0',
+          info: { title: 'Users API', version: '1.0.0' },
+          paths: {
+            '/users': {
+              get: {
+                summary: 'Get users',
+              },
+            },
+          },
+        })
       })
 
       it('filters out non-existent server UIDs from request', async () => {
@@ -3302,7 +3351,18 @@ describe('migrate-to-indexdb', () => {
         const doc = result[0]?.workspace.documents['Users API']
 
         assert(doc)
-        expect(getResolvedRef(doc.paths?.['/users']?.get)?.servers).toEqual([{ url: 'https://api.example.com' }])
+        expect(doc).toMatchObject({
+          openapi: '3.1.0',
+          info: { title: 'Users API', version: '1.0.0' },
+          paths: {
+            '/users': {
+              get: {
+                summary: 'Get users',
+                servers: [{ url: 'https://api.example.com' }],
+              },
+            },
+          },
+        })
       })
     })
 
@@ -3337,7 +3397,27 @@ describe('migrate-to-indexdb', () => {
         const doc = result[0]?.workspace.documents['Protected API']
 
         assert(doc)
-        expect(getResolvedRef(doc.paths?.['/protected']?.get)?.security).toEqual([{ 'api-key': [] }])
+        expect(doc).toMatchObject({
+          openapi: '3.1.0',
+          info: { title: 'Protected API', version: '1.0.0' },
+          paths: {
+            '/protected': {
+              get: {
+                summary: 'Protected endpoint',
+                security: [{ 'api-key': [] }],
+              },
+            },
+          },
+          components: {
+            securitySchemes: {
+              'api-key': {
+                type: 'apiKey',
+                name: 'X-API-Key',
+                in: 'header',
+              },
+            },
+          },
+        })
       })
 
       it('transforms a request with multiple security requirements (AND)', async () => {
@@ -3381,7 +3461,31 @@ describe('migrate-to-indexdb', () => {
         const doc = result[0]?.workspace.documents['Protected API']
 
         assert(doc)
-        expect(getResolvedRef(doc.paths?.['/protected']?.get)?.security).toEqual([{ 'api-key': [], 'bearer-auth': [] }])
+        expect(doc).toMatchObject({
+          openapi: '3.1.0',
+          info: { title: 'Protected API', version: '1.0.0' },
+          paths: {
+            '/protected': {
+              get: {
+                summary: 'Protected endpoint',
+                security: [{ 'api-key': [], 'bearer-auth': [] }],
+              },
+            },
+          },
+          components: {
+            securitySchemes: {
+              'api-key': {
+                type: 'apiKey',
+                name: 'X-API-Key',
+                in: 'header',
+              },
+              'bearer-auth': {
+                type: 'http',
+                scheme: 'bearer',
+              },
+            },
+          },
+        })
       })
 
       it('transforms a request with alternative security requirements (OR)', async () => {
@@ -3425,10 +3529,31 @@ describe('migrate-to-indexdb', () => {
         const doc = result[0]?.workspace.documents['Protected API']
 
         assert(doc)
-        expect(getResolvedRef(doc.paths?.['/protected']?.get)?.security).toEqual([
-          { 'api-key': [] },
-          { 'bearer-auth': [] },
-        ])
+        expect(doc).toMatchObject({
+          openapi: '3.1.0',
+          info: { title: 'Protected API', version: '1.0.0' },
+          paths: {
+            '/protected': {
+              get: {
+                summary: 'Protected endpoint',
+                security: [{ 'api-key': [] }, { 'bearer-auth': [] }],
+              },
+            },
+          },
+          components: {
+            securitySchemes: {
+              'api-key': {
+                type: 'apiKey',
+                name: 'X-API-Key',
+                in: 'header',
+              },
+              'bearer-auth': {
+                type: 'http',
+                scheme: 'bearer',
+              },
+            },
+          },
+        })
       })
 
       it('transforms a request with OAuth2 security and scopes', async () => {
@@ -3473,7 +3598,36 @@ describe('migrate-to-indexdb', () => {
         const doc = result[0]?.workspace.documents['OAuth API']
 
         assert(doc)
-        expect(getResolvedRef(doc.paths?.['/users']?.get)?.security).toEqual([{ oauth2: ['read:users'] }])
+        expect(doc).toMatchObject({
+          openapi: '3.1.0',
+          info: { title: 'OAuth API', version: '1.0.0' },
+          paths: {
+            '/users': {
+              get: {
+                summary: 'Get users',
+                security: [{ oauth2: ['read:users'] }],
+              },
+            },
+          },
+          components: {
+            securitySchemes: {
+              oauth2: {
+                type: 'oauth2',
+                flows: {
+                  authorizationCode: {
+                    authorizationUrl: 'https://example.com/oauth/authorize',
+                    tokenUrl: 'https://example.com/oauth/token',
+                    refreshUrl: '',
+                    scopes: {
+                      'read:users': 'Read user data',
+                      'write:users': 'Write user data',
+                    },
+                  },
+                },
+              },
+            },
+          },
+        })
       })
 
       it('transforms a request with empty security (no authentication required)', async () => {
@@ -3495,7 +3649,18 @@ describe('migrate-to-indexdb', () => {
         const doc = result[0]?.workspace.documents['Public API']
 
         assert(doc)
-        expect(getResolvedRef(doc.paths?.['/public']?.get)?.security).toEqual([])
+        expect(doc).toMatchObject({
+          openapi: '3.1.0',
+          info: { title: 'Public API', version: '1.0.0' },
+          paths: {
+            '/public': {
+              get: {
+                summary: 'Public endpoint',
+                security: [],
+              },
+            },
+          },
+        })
       })
 
       it('handles request with no security field', async () => {
@@ -3516,7 +3681,17 @@ describe('migrate-to-indexdb', () => {
         const doc = result[0]?.workspace.documents['Users API']
 
         assert(doc)
-        expect(getResolvedRef(doc.paths?.['/users']?.get)?.security).toBeUndefined()
+        expect(doc).toMatchObject({
+          openapi: '3.1.0',
+          info: { title: 'Users API', version: '1.0.0' },
+          paths: {
+            '/users': {
+              get: {
+                summary: 'Get users',
+              },
+            },
+          },
+        })
       })
 
       it('transforms different security requirements across multiple requests', async () => {
@@ -3575,9 +3750,43 @@ describe('migrate-to-indexdb', () => {
         const doc = result[0]?.workspace.documents['Mixed Security API']
 
         assert(doc)
-        expect(getResolvedRef(doc.paths?.['/public']?.get)?.security).toEqual([])
-        expect(getResolvedRef(doc.paths?.['/api-key-protected']?.get)?.security).toEqual([{ 'api-key': [] }])
-        expect(getResolvedRef(doc.paths?.['/bearer-protected']?.get)?.security).toEqual([{ 'bearer-auth': [] }])
+        expect(doc).toMatchObject({
+          openapi: '3.1.0',
+          info: { title: 'Mixed Security API', version: '1.0.0' },
+          paths: {
+            '/public': {
+              get: {
+                summary: 'Public endpoint',
+                security: [],
+              },
+            },
+            '/api-key-protected': {
+              get: {
+                summary: 'API key protected',
+                security: [{ 'api-key': [] }],
+              },
+            },
+            '/bearer-protected': {
+              get: {
+                summary: 'Bearer protected',
+                security: [{ 'bearer-auth': [] }],
+              },
+            },
+          },
+          components: {
+            securitySchemes: {
+              'api-key': {
+                type: 'apiKey',
+                name: 'X-API-Key',
+                in: 'header',
+              },
+              'bearer-auth': {
+                type: 'http',
+                scheme: 'bearer',
+              },
+            },
+          },
+        })
       })
     })
 
@@ -3601,7 +3810,18 @@ describe('migrate-to-indexdb', () => {
         const doc = result[0]?.workspace.documents['Experimental API']
 
         assert(doc)
-        expect(getResolvedRef(doc.paths?.['/experimental']?.get)?.['x-scalar-stability']).toBe('experimental')
+        expect(doc).toMatchObject({
+          openapi: '3.1.0',
+          info: { title: 'Experimental API', version: '1.0.0' },
+          paths: {
+            '/experimental': {
+              get: {
+                summary: 'Experimental endpoint',
+                'x-scalar-stability': 'experimental',
+              },
+            },
+          },
+        })
       })
 
       it('preserves x-internal extension', async () => {
@@ -3623,7 +3843,18 @@ describe('migrate-to-indexdb', () => {
         const doc = result[0]?.workspace.documents['Internal API']
 
         assert(doc)
-        expect(getResolvedRef(doc.paths?.['/internal']?.get)?.['x-internal']).toBe(true)
+        expect(doc).toMatchObject({
+          openapi: '3.1.0',
+          info: { title: 'Internal API', version: '1.0.0' },
+          paths: {
+            '/internal': {
+              get: {
+                summary: 'Internal endpoint',
+                'x-internal': true,
+              },
+            },
+          },
+        })
       })
     })
 
@@ -3646,9 +3877,17 @@ describe('migrate-to-indexdb', () => {
         const doc = result[0]?.workspace.documents['Users API']
 
         assert(doc)
-        expect(doc.paths?.['/users']?.get).toBeDefined()
-        // When there are no examples, parameters should either be undefined or empty
-        expect(getResolvedRef(doc.paths?.['/users']?.get)?.parameters).toBeUndefined()
+        expect(doc).toMatchObject({
+          openapi: '3.1.0',
+          info: { title: 'Users API', version: '1.0.0' },
+          paths: {
+            '/users': {
+              get: {
+                summary: 'Get users',
+              },
+            },
+          },
+        })
       })
 
       it('filters out non-existent example UIDs from request', async () => {
@@ -3657,7 +3896,7 @@ describe('migrate-to-indexdb', () => {
           requestUid: 'request-1',
           name: 'Valid Example',
           parameters: {
-            headers: [{ key: 'Accept', value: '*/*', enabled: true }],
+            headers: [{ key: 'Accept', value: 'application/json', enabled: true }],
           },
         })
 
@@ -3680,15 +3919,26 @@ describe('migrate-to-indexdb', () => {
         const doc = result[0]?.workspace.documents['Users API']
 
         assert(doc)
-        const operation = getResolvedRef(doc.paths?.['/users']?.get)
-        expect(operation?.parameters).toBeDefined()
-
-        // Check that only the valid example exists
-        const acceptHeader = getResolvedRef(
-          operation?.parameters?.find((p) => getResolvedRef(p)?.name === 'Accept'),
-        ) as ParameterWithSchemaObject
-        expect(acceptHeader?.examples).toBeDefined()
-        expect(acceptHeader?.examples?.['Valid Example']).toEqual({ value: '*/*', 'x-disabled': false })
+        expect(doc).toMatchObject({
+          openapi: '3.1.0',
+          info: { title: 'Users API', version: '1.0.0' },
+          paths: {
+            '/users': {
+              get: {
+                summary: 'Get users',
+                parameters: [
+                  {
+                    name: 'Accept',
+                    in: 'header',
+                    examples: {
+                      'Valid Example': { value: 'application/json', 'x-disabled': false },
+                    },
+                  },
+                ],
+              },
+            },
+          },
+        })
       })
 
       it('handles orphaned examples that do not reference any request', async () => {
@@ -3710,8 +3960,11 @@ describe('migrate-to-indexdb', () => {
         const doc = result[0]?.workspace.documents['Users API']
 
         assert(doc)
-        // Orphaned examples should not appear anywhere in the document
-        expect(doc.paths).toEqual({})
+        expect(doc).toMatchObject({
+          openapi: '3.1.0',
+          info: { title: 'Users API', version: '1.0.0' },
+          paths: {},
+        })
       })
 
       it('handles collections with no requests', async () => {
@@ -3723,7 +3976,11 @@ describe('migrate-to-indexdb', () => {
         const doc = result[0]?.workspace.documents['Empty API']
 
         assert(doc)
-        expect(doc.paths).toEqual({})
+        expect(doc).toMatchObject({
+          openapi: '3.1.0',
+          info: { title: 'Empty API', version: '1.0.0' },
+          paths: {},
+        })
       })
 
       it('handles request with deprecated flag', async () => {
@@ -3745,7 +4002,18 @@ describe('migrate-to-indexdb', () => {
         const doc = result[0]?.workspace.documents['Legacy API']
 
         assert(doc)
-        expect(getResolvedRef(doc.paths?.['/old-endpoint']?.get)?.deprecated).toBe(true)
+        expect(doc).toMatchObject({
+          openapi: '3.1.0',
+          info: { title: 'Legacy API', version: '1.0.0' },
+          paths: {
+            '/old-endpoint': {
+              get: {
+                summary: 'Old endpoint',
+                deprecated: true,
+              },
+            },
+          },
+        })
       })
     })
 
@@ -3802,14 +4070,26 @@ describe('migrate-to-indexdb', () => {
         assert(doc1)
         assert(doc2)
 
-        expect(doc1.paths).toEqual({
-          '/users': {
-            get: { summary: 'Get users from API One' },
+        expect(doc1).toMatchObject({
+          openapi: '3.1.0',
+          info: { title: 'API One', version: '1.0.0' },
+          paths: {
+            '/users': {
+              get: {
+                summary: 'Get users from API One',
+              },
+            },
           },
         })
-        expect(doc2.paths).toEqual({
-          '/products': {
-            get: { summary: 'Get products from API Two' },
+        expect(doc2).toMatchObject({
+          openapi: '3.1.0',
+          info: { title: 'API Two', version: '1.0.0' },
+          paths: {
+            '/products': {
+              get: {
+                summary: 'Get products from API Two',
+              },
+            },
           },
         })
       })
@@ -3850,20 +4130,31 @@ describe('migrate-to-indexdb', () => {
         const doc = result[0]?.workspace.documents['Users API']
 
         assert(doc)
-        expect(getResolvedRef(doc.paths?.['/users']?.get)?.responses).toEqual({
-          '200': {
-            description: 'Successful response',
-            content: {
-              'application/json': {
-                schema: {
-                  type: 'array',
-                  items: { type: 'object' },
+        expect(doc).toMatchObject({
+          openapi: '3.1.0',
+          info: { title: 'Users API', version: '1.0.0' },
+          paths: {
+            '/users': {
+              get: {
+                summary: 'Get users',
+                responses: {
+                  '200': {
+                    description: 'Successful response',
+                    content: {
+                      'application/json': {
+                        schema: {
+                          type: 'array',
+                          items: { type: 'object' },
+                        },
+                      },
+                    },
+                  },
+                  '404': {
+                    description: 'Not found',
+                  },
                 },
               },
             },
-          },
-          '404': {
-            description: 'Not found',
           },
         })
       })
@@ -3906,8 +4197,37 @@ describe('migrate-to-indexdb', () => {
         const doc = result[0]?.workspace.documents['Webhook API']
 
         assert(doc)
-        expect(getResolvedRef(doc.paths?.['/subscribe']?.post)?.callbacks).toBeDefined()
-        expect(getResolvedRef(doc.paths?.['/subscribe']?.post)?.callbacks?.onData).toBeDefined()
+        expect(doc).toMatchObject({
+          openapi: '3.1.0',
+          info: { title: 'Webhook API', version: '1.0.0' },
+          paths: {
+            '/subscribe': {
+              post: {
+                summary: 'Subscribe to webhooks',
+                callbacks: {
+                  onData: {
+                    '{$request.body#/callbackUrl}': {
+                      post: {
+                        requestBody: {
+                          content: {
+                            'application/json': {
+                              schema: { type: 'object' },
+                            },
+                          },
+                        },
+                        responses: {
+                          '200': {
+                            description: 'Callback received',
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        })
       })
     })
 

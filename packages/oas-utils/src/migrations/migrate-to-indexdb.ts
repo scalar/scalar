@@ -1,3 +1,4 @@
+import { CONTENT_TYPES } from '@scalar/helpers/consts/content-types'
 import { extractConfigSecrets, removeSecretFields } from '@scalar/helpers/general/extract-config-secrets'
 import { circularToRefs } from '@scalar/helpers/object/circular-to-refs'
 import { objectEntries } from '@scalar/helpers/object/object-entries'
@@ -16,11 +17,18 @@ import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import {
   OpenAPIDocumentSchema,
   type OpenApiDocument,
+  type OperationObject,
+  type ParameterObject,
+  type ParameterWithContentObject,
+  type ParameterWithSchemaObject,
+  type PathItemObject,
+  type RequestBodyObject,
   type TagObject,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import type { WorkspaceDocument, WorkspaceExtensions, WorkspaceMeta } from '@scalar/workspace-store/schemas/workspace'
 import { ColorModeSchema, ThemeIdSchema } from '@scalar/workspace-store/schemas/workspace'
 
+import type { RequestParameter } from '@/entities/spec/parameters'
 import { DATA_VERSION_LS_LEY } from '@/migrations/data-version'
 import { migrator } from '@/migrations/migrator'
 import type { v_2_5_0 } from '@/migrations/v-2.5.0/types.generated'
@@ -248,8 +256,8 @@ const transformLegacyEnvironments = (
 const transformRequestsToPaths = (
   collection: v_2_5_0['Collection'],
   dataRecords: v_2_5_0['DataRecord'],
-): Record<string, any> => {
-  const paths = Object.create(null) as Record<string, any>
+): Record<string, PathItemObject> => {
+  const paths = Object.create(null) as Record<string, PathItemObject>
 
   for (const requestUid of collection.requests || []) {
     const request = dataRecords.requests[requestUid]
@@ -266,12 +274,19 @@ const transformRequestsToPaths = (
       examples,
       servers,
       selectedSecuritySchemeUids: _selectedSecuritySchemeUids,
-      ...operation
+      parameters = [],
+      requestBody,
+      ...rest
     } = request
 
     // Initialize path object if it doesn't exist
     if (!paths[path]) {
       paths[path] = {}
+    }
+
+    /** Start building the OAS operation object  */
+    const partialOperation: OperationObject = {
+      ...rest,
     }
 
     // Get request examples for this request
@@ -280,15 +295,21 @@ const transformRequestsToPaths = (
       return example ? [example] : []
     })
 
-    // Merge examples into parameters and request body
-    if (requestExamples.length > 0) {
-      operation.parameters = mergeExamplesIntoParameters(operation.parameters || [], requestExamples)
-      operation.requestBody = mergeExamplesIntoRequestBody(operation.requestBody, requestExamples)
+    // Merge examples into parameters
+    const mergedParameters = mergeExamplesIntoParameters(parameters, requestExamples)
+    if (mergedParameters.length > 0) {
+      partialOperation.parameters = mergedParameters
+    }
+
+    // Merge examples into request body
+    const mergedRequestBody = mergeExamplesIntoRequestBody(requestBody, requestExamples)
+    if (mergedRequestBody) {
+      partialOperation.requestBody = mergedRequestBody
     }
 
     // Add server overrides if present
     if (servers && servers.length > 0) {
-      ;(operation as any).servers = servers.flatMap((serverUid) => {
+      partialOperation.servers = servers.flatMap((serverUid) => {
         const server = dataRecords.servers[serverUid]
         if (!server) {
           return []
@@ -298,7 +319,7 @@ const transformRequestsToPaths = (
       })
     }
 
-    paths[path][method] = operation
+    paths[path][method] = partialOperation
   }
 
   return paths
@@ -323,20 +344,66 @@ const PARAM_TYPE_TO_IN: Record<string, string> = {
  * objects (one per "example" tab in the UI). OpenAPI instead stores examples
  * directly on each Parameter object via the `examples` map.
  */
-const mergeExamplesIntoParameters = (parameters: any[], requestExamples: v_2_5_0['RequestExample'][]): any[] => {
+const mergeExamplesIntoParameters = (
+  parameters: RequestParameter[],
+  requestExamples: v_2_5_0['RequestExample'][],
+): ParameterObject[] => {
   /**
    * We track parameters and their collected examples together in a single map
    * keyed by `{in}:{name}` (e.g. "query:page") to avoid a second lookup pass.
    */
   const paramEntries = new Map<
     string,
-    { param: any; examples: Record<string, { value: string; 'x-disabled': boolean }> }
+    { param: ParameterObject; examples: Record<string, { value: string; 'x-disabled': boolean }> }
   >()
 
   // Seed with the operation's existing parameters so they are preserved even if
   // no request example references them.
   for (const param of parameters) {
-    paramEntries.set(`${param.in}:${param.name}`, { param: { ...param }, examples: {} })
+    // Build a type-safe ParameterObject by explicitly mapping properties
+    // The old RequestParameter type uses z.unknown() for schema/content/examples,
+    // but these values come from validated OpenAPI documents and are already in the correct format.
+    // We use type assertions (via unknown) to bridge from the old loose types to the new strict types.
+    // This is safe because the data has already been validated by the Zod schema.
+
+    // Build either ParameterWithSchemaObject or ParameterWithContentObject
+    let paramObject: ParameterObject
+
+    // Param with Content Type
+    if (param.content && typeof param.content === 'object') {
+      paramObject = {
+        name: param.name,
+        in: param.in,
+        required: param.required ?? param.in === 'path',
+        deprecated: param.deprecated ?? false,
+        content: param.content as ParameterWithContentObject['content'],
+        ...(param.description && { description: param.description }),
+      } satisfies ParameterWithContentObject
+    }
+
+    // Param with Schema Type
+    else {
+      paramObject = {
+        name: param.name,
+        in: param.in,
+        required: param.required ?? param.in === 'path',
+        deprecated: param.deprecated ?? false,
+        ...(param.description && { description: param.description }),
+        ...(param.schema ? { schema: param.schema as ParameterWithSchemaObject['schema'] } : {}),
+        ...(param.style && { style: param.style }),
+        ...(param.explode !== undefined && { explode: param.explode }),
+        ...(param.example !== undefined && { example: param.example }),
+        ...(param.examples &&
+          typeof param.examples === 'object' && {
+            examples: param.examples as ParameterWithSchemaObject['examples'],
+          }),
+      } satisfies ParameterWithSchemaObject
+    }
+
+    paramEntries.set(`${param.in}:${param.name}`, {
+      param: paramObject,
+      examples: {},
+    })
   }
 
   const paramTypes = Object.keys(PARAM_TYPE_TO_IN)
@@ -351,22 +418,44 @@ const mergeExamplesIntoParameters = (parameters: any[], requestExamples: v_2_5_0
       for (const item of items) {
         const key = `${inValue}:${item.key}`
 
-        // Lazily create a parameter stub when one does not already exist.
-        // Path parameters are always required per the OpenAPI spec.
-        if (!paramEntries.has(key)) {
+        // Lets not save any params without a key
+        if (!item.key) {
+          continue
+        }
+
+        const lowerKey = item.key.toLowerCase()
+
+        /**
+         * Lazily create a parameter stub when one does not already exist
+         * Path parameters are always required per the OpenAPI spec
+         *
+         * We do not add Accept: *\/*
+         * We do not add any Content-Type headers that are auto added in the client
+         */
+        if (
+          !paramEntries.has(key) &&
+          (lowerKey !== 'content-type' || !CONTENT_TYPES[item.value as keyof typeof CONTENT_TYPES]) &&
+          (lowerKey !== 'accept' || item.value !== '*/*')
+        ) {
           paramEntries.set(key, {
             param: {
               name: item.key,
-              in: inValue,
+              in: (inValue as ParameterObject['in']) ?? 'query',
+              required: inValue === 'path',
+              deprecated: false,
               schema: { type: 'string' },
-              ...(inValue === 'path' && { required: true }),
             },
             examples: {},
           })
         }
 
-        // Attach this example's value to the parameter
-        paramEntries.get(key)!.examples[exampleName] = {
+        // We have skipped the content-type or accept headers above
+        const param = paramEntries.get(key)
+        if (!param) {
+          continue
+        }
+
+        param.examples[exampleName] = {
           value: item.value,
           'x-disabled': !item.enabled,
         }
@@ -377,7 +466,7 @@ const mergeExamplesIntoParameters = (parameters: any[], requestExamples: v_2_5_0
   // Build the final parameter list, only attaching `examples` when there are any
   return Array.from(paramEntries.values()).map(({ param, examples }) => {
     if (Object.keys(examples).length > 0) {
-      param.examples = examples
+      ;(param as ParameterWithSchemaObject).examples = examples
     }
     return param
   })
@@ -448,7 +537,10 @@ const extractBodyExample = (
  *
  * Returns the original requestBody unchanged when no examples have body content.
  */
-const mergeExamplesIntoRequestBody = (requestBody: any, requestExamples: v_2_5_0['RequestExample'][]): any => {
+const mergeExamplesIntoRequestBody = (
+  requestBody: RequestBodyObject,
+  requestExamples: v_2_5_0['RequestExample'][],
+): any => {
   /**
    * Single pass: extract each example body and bucket it by content type.
    * Using a plain object as the inner value (instead of a nested Map) avoids
@@ -697,7 +789,11 @@ const transformCollectionToDocument = (
   // Break any circular JS object references before coercion.
   // The legacy client dereferenced $refs inline, creating circular object graphs
   // that would cause JSON serialization and schema validation to fail.
-  const safeDocument = circularToRefs(document, { '$ref-value': '' })
+  const safeDocument = circularToRefs(document, {
+    '$ref-value': '',
+    '$global': false,
+    'summary': 'This ref was re-created from a circular schema reference',
+  })
 
   return {
     document: coerceValue(OpenAPIDocumentSchema, safeDocument),
