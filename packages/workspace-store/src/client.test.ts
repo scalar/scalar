@@ -1650,6 +1650,267 @@ describe('create-workspace-store', () => {
     expect(fn).toHaveBeenCalledWith('local-file.yaml')
   })
 
+  describe('loading documents from filesystem', () => {
+    it('loads a document from a file path using fileLoader', async () => {
+      const mockDocument = {
+        openapi: '3.0.0',
+        info: { title: 'File System API', version: '2.0.0' },
+        paths: {
+          '/posts': {
+            get: {
+              summary: 'Get all posts',
+              responses: {
+                '200': {
+                  description: 'Success',
+                },
+              },
+            },
+          },
+        },
+      }
+
+      const fileLoaderExec = vi.fn()
+      const store = createWorkspaceStore({
+        fileLoader: {
+          type: 'loader',
+          validate: () => true,
+          exec: (path) => {
+            fileLoaderExec(path)
+            return Promise.resolve({
+              ok: true,
+              data: mockDocument,
+              raw: JSON.stringify(mockDocument),
+            })
+          },
+        },
+      })
+
+      const result = await store.addDocument({
+        name: 'fs-document',
+        path: '/path/to/openapi.yaml',
+      })
+
+      expect(result).toBe(true)
+      expect(fileLoaderExec).toHaveBeenCalledWith('/path/to/openapi.yaml')
+      expect(store.workspace.documents['fs-document']).toBeDefined()
+      expect(store.workspace.documents['fs-document']?.info.title).toBe('File System API')
+    })
+
+    it('sets the correct document source when loading from file path', async () => {
+      const mockDocument = {
+        openapi: '3.1.0',
+        info: { title: 'Local File API', version: '1.0.0' },
+      }
+
+      const store = createWorkspaceStore({
+        fileLoader: {
+          type: 'loader',
+          validate: () => true,
+          exec: () =>
+            Promise.resolve({
+              ok: true,
+              data: mockDocument,
+              raw: JSON.stringify(mockDocument),
+            }),
+        },
+      })
+
+      await store.addDocument({
+        name: 'local-doc',
+        path: '/Users/projects/specs/api.yaml',
+      })
+
+      const document = store.workspace.documents['local-doc']
+      expect(document?.['x-scalar-original-source-url']).toBe('/Users/projects/specs/api.yaml')
+    })
+
+    it('handles error when no fileLoader is provided for file path', async () => {
+      resetConsoleSpies()
+      const store = createWorkspaceStore()
+
+      const result = await store.addDocument({
+        name: 'missing-loader',
+        path: '/path/to/file.yaml',
+      })
+
+      expect(result).toBe(false)
+      expect(consoleErrorSpy).toHaveBeenCalledWith('No loader provided for loading files')
+      expect(store.workspace.documents['missing-loader']).toBeDefined()
+      expect(store.workspace.documents['missing-loader']?.info.title).toContain('could not be loaded')
+    })
+
+    it('preserves document metadata when loading from file', async () => {
+      const mockDocument = {
+        openapi: '3.0.0',
+        info: { title: 'Test API', version: '1.0.0' },
+      }
+
+      const store = createWorkspaceStore({
+        fileLoader: {
+          type: 'loader',
+          validate: () => true,
+          exec: () =>
+            Promise.resolve({
+              ok: true,
+              data: mockDocument,
+              raw: JSON.stringify(mockDocument),
+            }),
+        },
+      })
+
+      await store.addDocument({
+        name: 'test-doc',
+        path: './specs/test.yaml',
+        meta: {
+          'x-scalar-active-auth': 'ApiKey',
+          'x-scalar-active-server': 'staging',
+        },
+      })
+
+      const document = store.workspace.documents['test-doc']
+      expect(document?.['x-scalar-active-auth']).toBe('ApiKey')
+      expect(document?.['x-scalar-active-server']).toBe('staging')
+    })
+
+    it('resolves external references in file-loaded documents', async () => {
+      const mockDocument = {
+        openapi: '3.1.0',
+        info: { title: 'API with refs', version: '1.0.0' },
+        paths: {
+          '/items': {
+            get: {
+              $ref: './operations/get-items.yaml',
+            },
+          },
+        },
+      }
+
+      const mockOperation = {
+        summary: 'Get all items',
+        responses: {
+          '200': {
+            description: 'Success',
+          },
+        },
+      }
+
+      const fileLoaderExec = vi.fn()
+      const store = createWorkspaceStore({
+        fileLoader: {
+          type: 'loader',
+          validate: () => true,
+          exec: (path) => {
+            fileLoaderExec(path)
+            if (path === './main-spec.yaml') {
+              return Promise.resolve({
+                ok: true,
+                data: mockDocument,
+                raw: JSON.stringify(mockDocument),
+              })
+            }
+            if (path === 'operations/get-items.yaml') {
+              return Promise.resolve({
+                ok: true,
+                data: mockOperation,
+                raw: JSON.stringify(mockOperation),
+              })
+            }
+            return Promise.resolve({ ok: false })
+          },
+        },
+      })
+
+      await store.addDocument({
+        name: 'ref-doc',
+        path: './main-spec.yaml',
+      })
+
+      expect(fileLoaderExec).toHaveBeenCalledWith('./main-spec.yaml')
+      expect(fileLoaderExec).toHaveBeenCalledWith('operations/get-items.yaml')
+      expect(store.workspace.documents['ref-doc']).toBeDefined()
+    })
+
+    it('stores the original document hash when loading from file', async () => {
+      const mockDocument = {
+        openapi: '3.1.0',
+        info: { title: 'Hash Test API', version: '1.0.0' },
+      }
+
+      const store = createWorkspaceStore({
+        fileLoader: {
+          type: 'loader',
+          validate: () => true,
+          exec: () =>
+            Promise.resolve({
+              ok: true,
+              data: mockDocument,
+              raw: JSON.stringify(mockDocument),
+            }),
+        },
+      })
+
+      await store.addDocument({
+        name: 'hash-doc',
+        path: '/specs/test.yaml',
+      })
+
+      const document = store.workspace.documents['hash-doc']
+      expect(document?.['x-scalar-original-document-hash']).toBeDefined()
+      expect(typeof document?.['x-scalar-original-document-hash']).toBe('string')
+    })
+
+    it('loads multiple documents from different file paths', async () => {
+      const mockDoc1 = {
+        openapi: '3.0.0',
+        info: { title: 'API 1', version: '1.0.0' },
+      }
+
+      const mockDoc2 = {
+        openapi: '3.0.0',
+        info: { title: 'API 2', version: '2.0.0' },
+      }
+
+      const store = createWorkspaceStore({
+        fileLoader: {
+          type: 'loader',
+          validate: () => true,
+          exec: (path) => {
+            if (path === '/specs/api1.yaml') {
+              return Promise.resolve({
+                ok: true,
+                data: mockDoc1,
+                raw: JSON.stringify(mockDoc1),
+              })
+            }
+            if (path === '/specs/api2.yaml') {
+              return Promise.resolve({
+                ok: true,
+                data: mockDoc2,
+                raw: JSON.stringify(mockDoc2),
+              })
+            }
+            return Promise.resolve({ ok: false })
+          },
+        },
+      })
+
+      const result1 = await store.addDocument({
+        name: 'doc1',
+        path: '/specs/api1.yaml',
+      })
+
+      const result2 = await store.addDocument({
+        name: 'doc2',
+        path: '/specs/api2.yaml',
+      })
+
+      expect(result1).toBe(true)
+      expect(result2).toBe(true)
+      expect(store.workspace.documents['doc1']?.info.title).toBe('API 1')
+      expect(store.workspace.documents['doc2']?.info.title).toBe('API 2')
+    })
+  })
+
   describe('download original document', () => {
     it('gets the original document from the store json', async () => {
       const store = createWorkspaceStore()
