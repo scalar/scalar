@@ -68,7 +68,7 @@ describe('App', () => {
       routes: ROUTES,
     })
 
-    const appState = useAppState(router)
+    const appState = useAppState({ router })
 
     await router.push({
       name: 'document.overview',

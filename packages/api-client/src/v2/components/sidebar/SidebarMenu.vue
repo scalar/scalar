@@ -33,7 +33,7 @@ const emit = defineEmits<{
 
 defineSlots<{
   /** Slot for customizing the actions section of the sidebar menu. */
-  sidebarMenuActions?(props: { workspaceOptions: WorkspaceGroup[] }): unknown
+  sidebarMenuActions?(): unknown
 }>()
 </script>
 <template>
@@ -44,9 +44,7 @@ defineSlots<{
     </template>
     <template #sections="{ close }">
       <ScalarMenuSection>
-        <slot
-          name="sidebarMenuActions"
-          :workspaceOptions="workspaces">
+        <slot name="sidebarMenuActions">
           <ScalarMenuWorkspacePicker
             :modelValue="activeWorkspace.id"
             :workspaceOptions="workspaces"

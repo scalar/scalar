@@ -80,7 +80,7 @@ const emit = defineEmits<{
 
 defineSlots<{
   /** Slot for customizing the actions section of the sidebar menu. */
-  sidebarMenuActions?(props: { workspaceOptions: WorkspaceGroup[] }): unknown
+  sidebarMenuActions?(): unknown
 }>()
 
 /** The label for the workspace button in the sidebar */
@@ -272,10 +272,8 @@ const handleAddEmptyFolder = (item: TraversedEntry) => {
       "
       @select:workspace="(id) => emit('select:workspace', id)"
       @selectItem="(id) => emit('selectItem', id)">
-      <template #sidebarMenuActions="props">
-        <slot
-          name="sidebarMenuActions"
-          v-bind="props" />
+      <template #sidebarMenuActions>
+        <slot name="sidebarMenuActions" />
       </template>
       <!-- Workspace Identifier -->
       <template #workspaceButton>
