@@ -22,7 +22,7 @@ import type {
   OperationObject,
   ServerObject,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 
 import { Anchor } from '@/components/Anchor'
 import { Badge } from '@/components/Badge'
@@ -68,6 +68,9 @@ const {
 
 const operationTitle = computed(() => operation.summary || path || '')
 const operationExtensions = computed(() => getXKeysFromObject(operation))
+
+/** Track the currently selected example for passing to the modal */
+const selectedExampleKey = ref<string>('')
 
 const { copyToClipboard } = useClipboard()
 </script>
@@ -134,6 +137,7 @@ const { copyToClipboard } = useClipboard()
           v-if="active && !isWebhook"
           :id
           :eventBus
+          :exampleName="selectedExampleKey"
           :method
           :path />
         <ScalarIconPlay
@@ -212,6 +216,7 @@ const { copyToClipboard } = useClipboard()
         <!-- Request Example -->
         <ScalarErrorBoundary>
           <OperationCodeSample
+            v-model:selectedExample="selectedExampleKey"
             class="operation-example-card"
             :clientOptions
             :eventBus

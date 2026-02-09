@@ -13,7 +13,7 @@ import type {
   OperationObject,
   ServerObject,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import { computed, useId } from 'vue'
+import { computed, ref, useId } from 'vue'
 
 import { Anchor } from '@/components/Anchor'
 import { Badge } from '@/components/Badge'
@@ -38,6 +38,9 @@ import { getXKeysFromObject } from '@/features/specification-extension'
 import SpecificationExtension from '@/features/specification-extension/SpecificationExtension.vue'
 import { TestRequestButton } from '@/features/test-request-button'
 import { XBadges } from '@/features/x-badges'
+
+/** Track the currently selected example for passing to the modal */
+const selectedExampleKey = ref<string>('')
 
 const {
   clientOptions,
@@ -176,6 +179,7 @@ const operationExtensions = computed(() => getXKeysFromObject(operation))
             <!-- New Example Request -->
             <ScalarErrorBoundary>
               <OperationCodeSample
+                v-model:selectedExample="selectedExampleKey"
                 :clientOptions
                 :eventBus
                 fallback
@@ -200,6 +204,7 @@ const operationExtensions = computed(() => getXKeysFromObject(operation))
                     v-if="!options.hideTestRequestButton"
                     :id
                     :eventBus
+                    :exampleName="selectedExampleKey"
                     :method
                     :path />
                 </template>

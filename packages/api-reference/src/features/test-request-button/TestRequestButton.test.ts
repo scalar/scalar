@@ -74,4 +74,23 @@ describe('TestRequestButton', () => {
       id: 'test-operation-3',
     })
   })
+
+  it('emits ui:open:client-modal event with exampleName when provided', async () => {
+    const wrapper = mount(TestRequestButton, {
+      props: {
+        id: 'test-operation-4',
+        method: 'post',
+        path: '/users',
+        eventBus: mockEventBus,
+        exampleName: 'create-user-example',
+      },
+    })
+
+    await wrapper.find('button').trigger('click')
+
+    expect(mockEventBus.emit).toHaveBeenCalledWith('ui:open:client-modal', {
+      id: 'test-operation-4',
+      exampleName: 'create-user-example',
+    })
+  })
 })
