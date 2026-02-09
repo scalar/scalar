@@ -1,4 +1,4 @@
-import type { ScalarListboxOption } from '@scalar/components'
+import type { ScalarListboxOption, WorkspaceGroup } from '@scalar/components'
 import { isDefined } from '@scalar/helpers/array/is-defined'
 import { sortByOrder } from '@scalar/helpers/array/sort-by-order'
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
@@ -23,6 +23,7 @@ import type { TraversedEntry } from '@scalar/workspace-store/schemas/navigation'
 import { type ComputedRef, type Ref, type ShallowRef, computed, ref, shallowRef, watch } from 'vue'
 import type { RouteLocationNormalizedGeneric, Router } from 'vue-router'
 
+import { groupWorkspacesByTeam } from '@/v2/features/app/helpers/group-workspaces'
 import { getActiveEnvironment } from '@/v2/helpers/get-active-environment'
 import { getTabDetails } from '@/v2/helpers/get-tab-details'
 import { slugify } from '@/v2/helpers/slugify'
@@ -97,6 +98,7 @@ type WorkspaceOption = ScalarListboxOption & { teamUid: string; namespace: strin
 const activeWorkspace = shallowRef<{ id: string; label: string } | null>(null)
 const workspaces = ref<WorkspaceOption[]>([])
 const filteredWorkspaces = computed(() => filterWorkspacesByTeam(workspaces.value, teamUid.value))
+const workspaceGroups = computed(() => groupWorkspacesByTeam(filteredWorkspaces.value, teamUid.value))
 const store = shallowRef<WorkspaceStore | null>(null)
 
 const activeDocument = computed(() => {
@@ -843,6 +845,11 @@ export type AppState = {
     workspaceList: Ref<WorkspaceOption[]>
     /** Filtered workspace list, based on the current teamUid */
     filteredWorkspaceList: ComputedRef<WorkspaceOption[]>
+    /**
+     * Groups workspaces into team and local categories for display in the workspace picker.
+     * Team workspaces are shown first (when not on local team), followed by local workspaces.
+     */
+    workspaceGroups: ComputedRef<WorkspaceGroup[]>
     /** The currently active workspace */
     activeWorkspace: ShallowRef<{ id: string; label: string } | null>
     /** Navigates to the specified workspace */
@@ -908,7 +915,8 @@ export function useAppState({ router: _router, fileLoader }: { router: Router; f
       create: createWorkspace,
       workspaceList: workspaces,
       filteredWorkspaceList: filteredWorkspaces,
-      activeWorkspace: activeWorkspace,
+      workspaceGroups,
+      activeWorkspace,
       navigateToWorkspace,
       isOpen: computed(() => Boolean(workspaceSlug.value && !documentSlug.value)),
     },
