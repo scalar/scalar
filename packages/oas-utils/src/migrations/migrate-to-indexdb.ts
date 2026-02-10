@@ -493,7 +493,7 @@ const RAW_ENCODING_TO_CONTENT_TYPE: Record<string, string> = {
  */
 const extractBodyExample = (
   body: v_2_5_0['RequestExample']['body'],
-): { contentType: string; value: any } | undefined => {
+): { contentType: string; value: unknown } | undefined => {
   if (!body?.activeBody) {
     return undefined
   }
@@ -511,9 +511,9 @@ const extractBodyExample = (
     return {
       contentType: body.formData.encoding === 'form-data' ? 'multipart/form-data' : 'application/x-www-form-urlencoded',
       value: body.formData.value.map((param) => ({
-        key: param.key,
-        type: 'string',
+        name: param.key,
         value: param.value,
+        isDisabled: !param.enabled,
       })),
     }
   }
@@ -540,13 +540,13 @@ const extractBodyExample = (
 const mergeExamplesIntoRequestBody = (
   requestBody: RequestBodyObject,
   requestExamples: v_2_5_0['RequestExample'][],
-): any => {
+): RequestBodyObject => {
   /**
    * Single pass: extract each example body and bucket it by content type.
    * Using a plain object as the inner value (instead of a nested Map) avoids
    * a second conversion step when assigning to the result.
    */
-  const groupedByContentType = new Map<string, Record<string, { value: any }>>()
+  const groupedByContentType = new Map<string, Record<string, { value: unknown }>>()
 
   for (const example of requestExamples) {
     const extracted = extractBodyExample(example.body)
