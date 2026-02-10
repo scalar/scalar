@@ -23,6 +23,16 @@ import type { Icon } from './utils'
 import { variants } from './variants'
 
 /**
+ * Icon wrapper for all icons and logos
+ */
+const props = defineProps<
+  {
+    icon: Icon | ScalarIconComponent
+  } & ScalarIconProps &
+    Omit<LegacyScalarIconProps, 'icon'>
+>()
+
+/**
  * Maps weight to legacy thickness for the string-icon branch.
  * Lets callers pass only weight; legacy ScalarIcon still receives a thickness value.
  */
@@ -34,16 +44,6 @@ const WEIGHT_TO_THICKNESS: Record<ScalarIconWeight, string> = {
   fill: '2.5',
   duotone: '2.5',
 }
-
-/**
- * Icon wrapper for all icons and logos
- */
-const props = defineProps<
-  {
-    icon: Icon | ScalarIconComponent
-  } & ScalarIconProps &
-    Omit<LegacyScalarIconProps, 'icon'>
->()
 
 defineOptions({ inheritAttrs: false })
 const { cx } = useBindCx()

@@ -5,7 +5,7 @@ import {
   ScalarDropdownMenu,
   ScalarFloating,
   ScalarHotkey,
-  ScalarIcon,
+  ScalarIconLegacyAdapter,
   type Icon,
 } from '@scalar/components'
 import { ScalarIconLink, ScalarIconPlus } from '@scalar/icons'
@@ -235,7 +235,7 @@ onBeforeUnmount(() => events.hotKeys.off(handleHotKey))
               <component
                 :is="
                   typeof topNavItems[0]?.icon === 'string'
-                    ? ScalarIcon
+                    ? ScalarIconLegacyAdapter
                     : topNavItems[0]?.icon
                 "
                 v-else-if="topNavItems[0]?.icon"

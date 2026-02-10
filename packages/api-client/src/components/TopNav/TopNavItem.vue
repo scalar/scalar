@@ -6,7 +6,7 @@ import {
   ScalarDropdownMenu,
   ScalarFloating,
   ScalarHotkey,
-  ScalarIcon,
+  ScalarIconLegacyAdapter,
   ScalarTooltip,
   type Icon,
 } from '@scalar/components'
@@ -48,9 +48,9 @@ defineEmits<{
               v-if="isCollection"
               class="size-3.5 min-w-3.5 stroke-2"
               :src="icon as string" />
-            <ScalarIcon
+            <ScalarIconLegacyAdapter
               v-else-if="typeof icon === 'string'"
-              :icon="icon as any"
+              :icon="icon as Icon"
               size="xs"
               weight="bold" />
             <component
