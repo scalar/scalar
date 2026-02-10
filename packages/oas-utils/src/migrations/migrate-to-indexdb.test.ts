@@ -2940,9 +2940,7 @@ describe('migrate-to-indexdb', () => {
 
         const result = await transformLegacyDataToWorkspace(legacyData)
         const doc = result[0]?.workspace.documents['Users API']
-
-        assert(doc)
-        expect(doc.paths['/users']?.get?.requestBody).toBeUndefined()
+        expect(getResolvedRef(doc?.paths?.['/users']?.get)?.requestBody).toBeUndefined()
       })
 
       it('transforms an example with path parameters', async () => {
