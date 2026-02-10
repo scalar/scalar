@@ -2534,8 +2534,8 @@ describe('migrate-to-indexdb', () => {
                       examples: {
                         'Form Example': {
                           value: [
-                            { key: 'username', type: 'string', value: 'johndoe' },
-                            { key: 'password', type: 'string', value: 'secret123' },
+                            { name: 'username', value: 'johndoe' },
+                            { name: 'password', value: 'secret123' },
                           ],
                         },
                       },
@@ -2600,8 +2600,8 @@ describe('migrate-to-indexdb', () => {
                       examples: {
                         'URL Encoded Example': {
                           value: [
-                            { key: 'email', type: 'string', value: 'user@example.com' },
-                            { key: 'password', type: 'string', value: 'secret' },
+                            { name: 'email', value: 'user@example.com' },
+                            { name: 'password', value: 'secret' },
                           ],
                         },
                       },
@@ -2850,6 +2850,99 @@ describe('migrate-to-indexdb', () => {
             },
           },
         })
+      })
+
+      it('sets x-scalar-selected-content-type for multiple examples', async () => {
+        const formExample = requestExampleSchema.parse({
+          uid: 'example-form',
+          requestUid: 'request-1',
+          name: 'Form Example',
+          body: {
+            activeBody: 'formData',
+            formData: {
+              encoding: 'form-data',
+              value: [
+                { key: 'username', value: 'johndoe', enabled: true },
+                { key: 'password', value: 'secret123', enabled: true },
+              ],
+            },
+          },
+          parameters: {
+            headers: [{ key: 'Accept', value: 'application/json', enabled: true }],
+          },
+        })
+
+        const jsonExample = requestExampleSchema.parse({
+          uid: 'example-json',
+          requestUid: 'request-1',
+          name: 'Create User Example',
+          body: {
+            activeBody: 'raw',
+            raw: {
+              encoding: 'json',
+              value: JSON.stringify({ name: 'John Doe', email: 'john@example.com' }),
+            },
+          },
+          parameters: {
+            headers: [{ key: 'Content-Type', value: 'application/json', enabled: true }],
+          },
+        })
+
+        const request = requestSchema.parse({
+          uid: 'request-1',
+          path: '/login',
+          method: 'post',
+          summary: 'Login',
+          examples: ['example-form', 'example-json'],
+        })
+
+        const legacyData = createLegacyData({
+          title: 'Auth API',
+          collection: { requests: ['request-1'] },
+          requests: [request],
+          requestExamples: [formExample, jsonExample],
+        })
+
+        const result = await transformLegacyDataToWorkspace(legacyData)
+        const doc = result[0]?.workspace.documents['Auth API']
+        expect(
+          getResolvedRef(getResolvedRef(doc?.paths?.['/login']?.post)?.requestBody)?.['x-scalar-selected-content-type'],
+        ).toEqual({
+          'Form Example': 'multipart/form-data',
+          'Create User Example': 'application/json',
+        })
+      })
+
+      it('does not set x-scalar-selected-content-type when there is no request body', async () => {
+        const example = requestExampleSchema.parse({
+          uid: 'example-1',
+          requestUid: 'request-1',
+          name: 'Get User Example',
+          parameters: {
+            query: [{ key: 'id', value: '123', enabled: true }],
+          },
+        })
+
+        const request = requestSchema.parse({
+          uid: 'request-1',
+          path: '/users',
+          method: 'get',
+          summary: 'Get user',
+          examples: ['example-1'],
+        })
+
+        const legacyData = createLegacyData({
+          title: 'Users API',
+          collection: { requests: ['request-1'] },
+          requests: [request],
+          requestExamples: [example],
+        })
+
+        const result = await transformLegacyDataToWorkspace(legacyData)
+        const doc = result[0]?.workspace.documents['Users API']
+
+        assert(doc)
+        expect(doc.paths['/users']?.get?.requestBody).toBeUndefined()
       })
 
       it('transforms an example with path parameters', async () => {

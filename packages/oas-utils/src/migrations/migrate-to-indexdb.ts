@@ -548,6 +548,9 @@ const mergeExamplesIntoRequestBody = (
    */
   const groupedByContentType = new Map<string, Record<string, { value: unknown }>>()
 
+  /** We track the selected content type for each example */
+  const selectedContentTypes = {} as Record<string, string>
+
   for (const example of requestExamples) {
     const extracted = extractBodyExample(example.body)
     if (!extracted) {
@@ -562,6 +565,8 @@ const mergeExamplesIntoRequestBody = (
     } else {
       groupedByContentType.set(extracted.contentType, { [name]: { value: extracted.value } })
     }
+
+    selectedContentTypes[name] = extracted.contentType
   }
 
   // Nothing to merge — return early so we do not mutate the requestBody
@@ -576,6 +581,11 @@ const mergeExamplesIntoRequestBody = (
   for (const [contentType, examples] of groupedByContentType) {
     result.content[contentType] ??= {}
     result.content[contentType].examples = examples
+  }
+
+  // Add the x-scalar-selected-content-type mapping
+  if (Object.keys(selectedContentTypes).length > 0) {
+    result['x-scalar-selected-content-type'] = selectedContentTypes
   }
 
   return result
