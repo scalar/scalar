@@ -38,4 +38,15 @@ async fn main() {
 }
 ```
 
+### Agent Scalar
+
+To enable [Agent Scalar](rust.md#agent-scalar) (AI chat) in production, add an API key to your configuration. To disable it, set `"agent": { "disabled": true }`. See the [Rust integration configuration](rust.md#agent-scalar) for details.
+
+```rust
+let configuration = json!({
+    "url": "https://registry.scalar.com/@scalar/apis/galaxy?format=json",
+    "agent": { "key": "your-agent-scalar-key" }
+});
+```
+
 **Note:** For Warp, the path should not include leading slashes (e.g., use `"scalar"` instead of `"/scalar"`). This is due to Warp's path handling requirements.

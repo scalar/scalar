@@ -39,6 +39,17 @@ async fn main() {
 }
 ```
 
+### Agent Scalar
+
+To enable [Agent Scalar](rust.md#agent-scalar) (AI chat) in production, add an API key to your configuration. To disable it, set `"agent": { "disabled": true }`. See the [Rust integration configuration](rust.md#agent-scalar) for details.
+
+```rust
+let configuration = json!({
+    "url": "https://registry.scalar.com/@scalar/apis/galaxy?format=json",
+    "agent": { "key": "your-agent-scalar-key" }
+});
+```
+
 ### Separate Routes
 
 If you need more control over routing, you can use separate routes:
