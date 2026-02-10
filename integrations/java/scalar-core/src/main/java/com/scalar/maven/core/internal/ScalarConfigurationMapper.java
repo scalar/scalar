@@ -62,6 +62,7 @@ public class ScalarConfigurationMapper {
         config.setForceDarkModeState(properties.getForceThemeMode());
         config.setOrderSchemaPropertiesBy(properties.getSchemaPropertyOrder());
         config.setShowDeveloperTools(properties.getShowDeveloperTools());
+        config.setAgent(properties.getAgent());
 
         return config;
     }

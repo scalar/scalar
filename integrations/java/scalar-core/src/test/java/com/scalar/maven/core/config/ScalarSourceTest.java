@@ -81,6 +81,25 @@ class ScalarSourceTest {
             source.setDefault(null);
             assertThat(source.isDefault()).isNull();
         }
+
+        @Test
+        @DisplayName("should set and get agent")
+        void shouldSetAndGetAgent() {
+            ScalarSource source = new ScalarSource();
+            assertThat(source.getAgent()).isNull();
+
+            ScalarAgentOptions agent = new ScalarAgentOptions();
+            agent.setKey("agent-key");
+            agent.setDisabled(true);
+            source.setAgent(agent);
+
+            assertThat(source.getAgent()).isSameAs(agent);
+            assertThat(source.getAgent().getKey()).isEqualTo("agent-key");
+            assertThat(source.getAgent().getDisabled()).isTrue();
+
+            source.setAgent(null);
+            assertThat(source.getAgent()).isNull();
+        }
     }
 }
 
