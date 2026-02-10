@@ -17,3 +17,14 @@
     @slot;
   }
 }
+
+/**
+ * Custom hover and focus visible variant
+ *
+ * Use when you want to apply styles to both hover and focus states.
+ *
+ * @see https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Selectors/:focus-visible
+ * @see https://stackoverflow.com/a/74565470
+ */
+@custom-variant hocus (&:hover, &:focus-visible);
+@custom-variant hocus-within (&:hover, &:focus-within);

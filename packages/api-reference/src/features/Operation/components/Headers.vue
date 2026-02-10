@@ -111,8 +111,8 @@ button.headers-card-title:hover {
   padding-bottom: 10px;
 }
 .headers-card-title > .headers-card-title-icon {
-  width: 10px;
-  height: 10px;
+  width: 14px;
+  height: 14px;
   margin: 0;
 }
 .headers-card-title > .headers-card-title-icon--open {

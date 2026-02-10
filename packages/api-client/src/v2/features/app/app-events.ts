@@ -19,7 +19,7 @@ export function initializeAppEventHandlers({
 }: {
   eventBus: WorkspaceEventBus
   store: ShallowRef<WorkspaceStore | null>
-  router: ShallowRef<Router | null>
+  router: Router
   rebuildSidebar: (documentName?: string) => void
   navigateToCurrentTab: () => Promise<void>
   onSelectSidebarItem: (id: string) => void
@@ -27,7 +27,7 @@ export function initializeAppEventHandlers({
   onCopyTabUrl: (tabIndex: number) => void
   onToggleSidebar: () => void
 }) {
-  const currentRoute = computed(() => router.value?.currentRoute?.value)
+  const currentRoute = computed(() => router.currentRoute?.value)
 
   /**
    * Checks if the current route params match the specified operation meta.
@@ -72,7 +72,7 @@ export function initializeAppEventHandlers({
         onAfterExecute: async (payload) => {
           // Redirect to the workspace environment page if the document was deleted
           if (currentRoute?.value?.params.documentSlug === payload.name) {
-            await router.value?.push({
+            await router.push({
               name: 'workspace.environment',
             })
           }
@@ -87,7 +87,7 @@ export function initializeAppEventHandlers({
           callback: async (status) => {
             // Redirect to the new example if the mutation was successful
             if (status === 'success') {
-              await router.value?.replace({
+              await router.replace({
                 name: 'example',
                 params: {
                   method: payload.payload.method,
@@ -128,7 +128,7 @@ export function initializeAppEventHandlers({
               method,
             })
           ) {
-            await router.value?.replace({
+            await router.replace({
               name: 'document.overview',
               params: {
                 documentSlug: documentName,
@@ -154,7 +154,7 @@ export function initializeAppEventHandlers({
               exampleName: exampleKey,
             })
           ) {
-            await router.value?.replace({
+            await router.replace({
               name: 'example',
               params: {
                 pathEncoded: encodeURIComponent(path),
@@ -220,11 +220,11 @@ export function initializeAppEventHandlers({
   // UI Related Event Handlers
   //------------------------------------------------------------------------------------
   eventBus.on('ui:toggle:sidebar', onToggleSidebar)
-  eventBus.on('ui:route:page', ({ name }) => router.value?.push({ name }))
+  eventBus.on('ui:route:page', ({ name }) => router.push({ name }))
   // Command palette handler is colocated with the command palette component
 
   eventBus.on('ui:route:example', async ({ exampleName, callback }) => {
-    const result = await router.value?.replace({
+    const result = await router.replace({
       name: 'example',
       params: {
         exampleName,

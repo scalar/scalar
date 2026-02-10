@@ -1,20 +1,33 @@
-import { prettyPrintJson } from '@scalar/oas-utils/helpers'
 import { type VueWrapper, flushPromises, mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { ref } from 'vue'
 
+import ScalarCopyButton from '../ScalarCopy/ScalarCopyButton.vue'
 import ScalarCodeBlock from './ScalarCodeBlock.vue'
 
-const mockCopyToClipboard = vi.fn()
+const mockWriteText = vi.fn().mockResolvedValue(undefined)
+const mockCopy = vi.fn()
+const mockCopied = ref(false)
 
-vi.mock('@scalar/use-hooks/useClipboard', () => ({
+vi.mock('@vueuse/core', () => ({
   useClipboard: vi.fn(() => ({
-    copyToClipboard: mockCopyToClipboard,
+    copy: mockCopy,
+    copied: mockCopied,
   })),
 }))
 
+// Mock navigator.clipboard
+Object.defineProperty(navigator, 'clipboard', {
+  value: {
+    writeText: mockWriteText,
+  },
+  writable: true,
+  configurable: true,
+})
+
 const createWrapper = () => {
   return mount(ScalarCodeBlock, {
-    attrs: {
+    props: {
       content: 'console.log()',
       lang: 'js',
     },
@@ -25,6 +38,7 @@ let wrapper: VueWrapper<InstanceType<typeof ScalarCodeBlock>>
 
 beforeEach(() => {
   vi.clearAllMocks()
+  mockCopied.value = false
 })
 
 describe('ScalarCodeBlock', () => {
@@ -33,11 +47,13 @@ describe('ScalarCodeBlock', () => {
 
     await flushPromises()
 
-    // Check the outer elements
-    const pre = wrapper.find('pre.scalar-codeblock-pre')
-    const code = pre.find('code')
-
+    // Check the outer elements - the pre element contains v-html with highlighted code
+    const pre = wrapper.find('pre')
     expect(pre.element.nodeName.toLowerCase()).toBe('pre')
+
+    // The highlighted code is inserted via v-html, so find the code element inside
+    const code = pre.find('code')
+    expect(code.exists()).toBe(true)
     expect(code.element.nodeName.toLowerCase()).toBe('code')
 
     // Confirm the syntax highlighting has been applied
@@ -48,7 +64,7 @@ describe('ScalarCodeBlock', () => {
 
   it('renders a schema', async () => {
     const wrapper = mount(ScalarCodeBlock, {
-      attrs: {
+      props: {
         lang: 'json',
         content: {
           description: 'successful operation',
@@ -73,11 +89,13 @@ describe('ScalarCodeBlock', () => {
 
     await flushPromises()
 
-    // Check the outer elements
-    const pre = wrapper.find('pre.scalar-codeblock-pre')
-    const code = pre.find('code')
-
+    // Check the outer elements - the pre element contains v-html with highlighted code
+    const pre = wrapper.find('pre')
     expect(pre.element.nodeName.toLowerCase()).toBe('pre')
+
+    // The highlighted code is inserted via v-html, so find the code element inside
+    const code = pre.find('code')
+    expect(code.exists()).toBe(true)
     expect(code.element.nodeName.toLowerCase()).toBe('code')
 
     // Confirm the syntax highlighting has been applied
@@ -105,15 +123,18 @@ describe('ScalarCodeBlock', () => {
     it('copies content when copy button is clicked', async () => {
       wrapper = createWrapper()
 
-      const copyButton = wrapper.find('.scalar-code-copy')
+      await flushPromises()
+
+      // Find the ScalarCopyButton component
+      const copyButton = wrapper.findComponent(ScalarCopyButton)
       expect(copyButton.exists()).toBe(true)
 
-      const button = copyButton.find('button')
-      expect(button.exists()).toBe(true)
+      await copyButton.trigger('click')
+      await flushPromises()
 
-      await button.trigger('click')
-
-      expect(mockCopyToClipboard).toHaveBeenCalledWith(prettyPrintJson(wrapper.vm.content ?? ''))
+      // The copy function from useClipboard should be called with the formatted content
+      // prettyPrintJson doesn't modify regular strings, so 'console.log()' stays as 'console.log()'
+      expect(mockCopy).toHaveBeenCalledWith('console.log()')
     })
 
     it('does not render the copy button when content is null', async () => {

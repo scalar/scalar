@@ -22,12 +22,10 @@ import { RouterView } from 'vue-router'
 import { mergeSecurity } from '@/v2/blocks/scalar-auth-selector-block'
 import CreateWorkspaceModal from '@/v2/features/app/components/CreateWorkspaceModal.vue'
 import SplashScreen from '@/v2/features/app/components/SplashScreen.vue'
-import { groupWorkspacesByTeam } from '@/v2/features/app/helpers/group-workspaces'
 import type { RouteProps } from '@/v2/features/app/helpers/routes'
 import { useDocumentWatcher } from '@/v2/features/app/hooks/use-document-watcher'
 import TheCommandPalette from '@/v2/features/command-palette/TheCommandPalette.vue'
 import type { ClientPlugin } from '@/v2/helpers/plugins'
-import { useColorMode } from '@/v2/hooks/use-color-mode'
 import { useGlobalHotKeys } from '@/v2/hooks/use-global-hot-keys'
 import type { ClientLayout } from '@/v2/types/layout'
 
@@ -54,7 +52,7 @@ defineSlots<{
    * Slot for customizing the actions section of the sidebar menu.
    * This slot is used to render custom actions or components within the actions section.
    */
-  'sidebar-menu-actions': []
+  'sidebar-menu-actions': () => unknown
   /**
    * Slot for customizing the create workspace modal.
    * This slot is used to render custom actions or components within the create workspace modal.
@@ -74,9 +72,6 @@ if (typeof window !== 'undefined') {
   window.dataDumpWorkspace = () => app.store.value
   window.dumpAppState = () => app
 }
-
-/** Initialize color mode to ensure it is set on mount. */
-useColorMode({ workspaceStore: app.store })
 
 /** Register global hotkeys for the app, passing the workspace event bus and layout state */
 useGlobalHotKeys(app.eventBus, layout)
@@ -147,17 +142,6 @@ const routerViewProps = computed<RouteProps>(() => {
     securitySchemes,
   }
 })
-
-/**
- * Groups workspaces into team and local categories for display in the workspace picker.
- * Team workspaces are shown first (when not on local team), followed by local workspaces.
- */
-const workspaceOptions = computed(() =>
-  groupWorkspacesByTeam(
-    app.workspace.filteredWorkspaceList.value,
-    app.activeEntities.teamUid.value,
-  ),
-)
 </script>
 
 <template>
@@ -187,7 +171,7 @@ const workspaceOptions = computed(() =>
       <WebTopNav
         v-else
         :activeWorkspace="app.workspace.activeWorkspace.value!"
-        :workspaces="workspaceOptions"
+        :workspaces="app.workspace.workspaceGroups.value"
         @create:workspace="createWorkspaceModalState.show()"
         @select:workspace="setActiveWorkspace" />
 
@@ -203,7 +187,7 @@ const workspaceOptions = computed(() =>
           :sidebarState="app.sidebar.state"
           :sidebarWidth="app.sidebar.width.value"
           :store="app.store.value!"
-          :workspaces="workspaceOptions"
+          :workspaces="app.workspace.workspaceGroups.value"
           @click:workspace="app.workspace.navigateToWorkspace"
           @create:workspace="createWorkspaceModalState.show()"
           @select:workspace="setActiveWorkspace"
