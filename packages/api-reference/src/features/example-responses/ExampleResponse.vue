@@ -49,14 +49,14 @@ const prettyPrintedContent = computed<string>(() =>
   <!-- Example -->
   <ScalarCodeBlock
     v-if="example !== undefined && !shouldVirtualize"
-    class="bg-b-2 -outline-offset-2"
+    class="bg-b-2"
     lang="json"
     :prettyPrintedContent="prettyPrintedContent" />
 
   <!-- Schema -->
   <ScalarCodeBlock
     v-else-if="response?.schema && !shouldVirtualize"
-    class="bg-b-2 -outline-offset-2"
+    class="bg-b-2"
     lang="json"
     :prettyPrintedContent="prettyPrintedContent" />
 

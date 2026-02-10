@@ -44,7 +44,7 @@ const layout = computed<'modern' | 'classic'>({
     <ScalarFormSection>
       <template #label>Scalar Configuration</template>
       <ScalarCodeBlock
-        class="bg-b-1.5 max-h-40 rounded border text-sm"
+        class="bg-b-1.5 flex max-h-40 flex-col rounded border text-sm"
         :content="snippet"
         lang="json" />
     </ScalarFormSection>
