@@ -293,7 +293,10 @@ export const circularToRefs = (
   }
 
   /** Lifts illegal container self-cycles to a legal reference target. */
-  const createLiftedRefForContainer = (container: object): Record<string, unknown> | undefined => {
+  const createLiftedRefForContainer = (
+    container: object,
+    clonedContainer?: Record<string, unknown>,
+  ): Record<string, unknown> | undefined => {
     const info = nonReferenceContainerInfo.get(container)
     if (info === undefined) {
       return undefined
@@ -307,14 +310,39 @@ export const circularToRefs = (
     // responses map values must be Response Object or Reference Object.
     // Lift self-cycle to the first concrete response entry.
     const responses = container as Record<string, unknown>
-    for (const value of Object.values(responses)) {
-      if (value !== null && typeof value === 'object' && value !== container) {
-        const meta = ensureMeta(value as object, 'responses')
-        return createRefObject(meta)
+    for (const [key, value] of Object.entries(responses)) {
+      if (value === null || typeof value !== 'object' || value === container) {
+        continue
       }
+
+      const responseObject = value as object
+      const meta = ensureMeta(responseObject, 'responses')
+      if (!existingComponentNames.has(responseObject)) {
+        const section = getOrCreateExtractedSection(meta.type)
+        if (!section.has(meta.name)) {
+          const clonedValue = clonedContainer?.[key]
+          if (clonedValue !== undefined) {
+            section.set(meta.name, clonedValue)
+          }
+        }
+      }
+
+      return createRefObject(meta)
     }
 
     return undefined
+  }
+
+  const cloneNode = (obj: object, visited: Set<object>, context: ComponentType): unknown => {
+    return Array.isArray(obj) ? cloneArray(obj, visited, context) : cloneObject(obj, visited, context)
+  }
+
+  const cloneNodeWithVisitTracking = (obj: object, visited: Set<object>, context: ComponentType): unknown => {
+    // Keep visit bookkeeping in one place so all clone paths handle cycles consistently.
+    visited.add(obj)
+    const cloned = cloneNode(obj, visited, context)
+    visited.delete(obj)
+    return cloned
   }
 
   /**
@@ -336,26 +364,16 @@ export const circularToRefs = (
         return createRefObject(meta)
       }
 
-      // Check if this object already exists in components section
-      const isExistingComponent = existingComponentNames.has(obj)
-
-      if (isExistingComponent) {
+      const cloned = cloneNodeWithVisitTracking(obj, visited, context)
+      if (existingComponentNames.has(obj)) {
         // Do not extract — it already exists in components.
-        // Just clone it in place and replace circular back-references with $ref
-        visited.add(obj)
-        const cloned = Array.isArray(obj) ? cloneArray(obj, visited, context) : cloneObject(obj, visited, context)
-        visited.delete(obj)
+        // Just clone it in place and replace circular back-references with $ref.
         return cloned
       }
 
-      // Get or create the section for this component type
       const section = getOrCreateExtractedSection(meta.type)
-
-      // Only process and extract if we haven't already
       if (!section.has(meta.name)) {
-        visited.add(obj)
-        const cloned = Array.isArray(obj) ? cloneArray(obj, visited, context) : cloneObject(obj, visited, context)
-        visited.delete(obj)
+        // Store the extracted clone once; later occurrences can directly return a $ref.
         section.set(meta.name, cloned)
       }
 
@@ -368,28 +386,22 @@ export const circularToRefs = (
       return undefined
     }
 
-    visited.add(obj)
-    const cloned = Array.isArray(obj) ? cloneArray(obj, visited, context) : cloneObject(obj, visited, context)
-    visited.delete(obj)
+    const cloned = cloneNodeWithVisitTracking(obj, visited, context)
 
     // This object may become referenceable while cloning children (e.g. lifting
     // a container self-cycle to the parent object). If so, extract it now.
     const lateMeta = circularMeta.get(obj)
-    if (lateMeta !== undefined) {
-      if (existingComponentNames.has(obj)) {
-        return cloned
-      }
-
-      const section = getOrCreateExtractedSection(lateMeta.type)
-
-      if (!section.has(lateMeta.name)) {
-        section.set(lateMeta.name, cloned)
-      }
-
-      return createRefObject(lateMeta)
+    if (lateMeta === undefined || existingComponentNames.has(obj)) {
+      // Existing components keep their inline structure, but still have back-refs normalized.
+      return cloned
     }
 
-    return cloned
+    const section = getOrCreateExtractedSection(lateMeta.type)
+    if (!section.has(lateMeta.name)) {
+      section.set(lateMeta.name, cloned)
+    }
+
+    return createRefObject(lateMeta)
   }
 
   /**
@@ -425,7 +437,7 @@ export const circularToRefs = (
 
       // If a value loops back to its parent container map, lift to a legal reference target.
       if (value === obj && nonReferenceContainers.has(obj)) {
-        const liftedRef = createLiftedRefForContainer(obj)
+        const liftedRef = createLiftedRefForContainer(obj, result)
         if (liftedRef !== undefined) {
           result[key] = liftedRef
         }

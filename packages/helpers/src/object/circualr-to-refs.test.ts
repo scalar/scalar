@@ -1010,6 +1010,13 @@ describe('circularToRefs', () => {
             },
           },
         },
+        components: {
+          responses: {
+            CircularResponse1: {
+              description: 'Success',
+            },
+          },
+        },
       })
     })
   })
