@@ -1808,7 +1808,7 @@ describe('create-workspace-store', () => {
                 raw: JSON.stringify(mockDocument),
               })
             }
-            if (path === 'operations/get-items.yaml') {
+            if (path === '/operations/get-items.yaml') {
               return Promise.resolve({
                 ok: true,
                 data: mockOperation,
@@ -1826,7 +1826,7 @@ describe('create-workspace-store', () => {
       })
 
       expect(fileLoaderExec).toHaveBeenCalledWith('./main-spec.yaml')
-      expect(fileLoaderExec).toHaveBeenCalledWith('operations/get-items.yaml')
+      expect(fileLoaderExec).toHaveBeenCalledWith('/operations/get-items.yaml')
       expect(store.workspace.documents['ref-doc']).toBeDefined()
     })
 
