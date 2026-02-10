@@ -1895,6 +1895,38 @@ describe('bundle', () => {
         },
       })
     })
+
+    it('stores relative paths in the x-ext-urls map', async () => {
+      const chunk1 = { a: 'a', b: 'b' }
+      const chunk1Path = `${randomUUID()}.json`
+
+      await fs.writeFile(chunk1Path, JSON.stringify(chunk1))
+
+      const input = {
+        a: {
+          '$ref': `./${chunk1Path}#/a`,
+        },
+      }
+
+      await bundle(input, { origin: cwd(), plugins: [fetchUrls(), readFiles()], treeShake: false, urlMap: true })
+
+      await fs.rm(chunk1Path)
+
+      expect(input).toEqual({
+        'a': {
+          '$ref': `#/x-ext/${getHash(chunk1Path)}/a`,
+        },
+        'x-ext': {
+          [getHash(chunk1Path)]: {
+            'a': 'a',
+            'b': 'b',
+          },
+        },
+        'x-ext-urls': {
+          [getHash(chunk1Path)]: chunk1Path,
+        },
+      })
+    })
   })
 
   describe('json inputs', () => {
