@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import ScalarCopyBackdrop from '@/components/ScalarCopy/ScalarCopyBackdrop.vue'
 import { standardLanguages, syntaxHighlight } from '@scalar/code-highlight'
 import { prettyPrintJson } from '@scalar/oas-utils/helpers'
 import { useBindCx } from '@scalar/use-hooks/useBindCx'
@@ -98,18 +99,42 @@ const { cx } = useBindCx()
     </div>
     <ScalarCodeBlockCopy
       v-if="copy && isContentValid"
-      class="absolute bg-inherit"
+      class="scalar-code-copy absolute"
       :class="[
         isOneLine
-          ? 'top-1/2 -translate-y-1/2 m-0 right-1'
+          ? 'top-[calc(10px+0.5lh)] -translate-y-1/2 m-0 right-1'
           : 'top-2.5 right-2.5',
         { 'opacity-100': copy === 'always' },
       ]"
       :content="prettyContent"
-      :lang
-      :aria-controls="id" />
+      :showLang="!isOneLine"
+      :lang="lang"
+      :aria-controls="id">
+      <template #backdrop>
+        <ScalarCopyBackdrop
+          class="scalar-code-copy-backdrop"
+          :class="[
+            isOneLine
+              ? '-inset-y-0.75 -right-1 group-hocus-within/code-block:-left-0.5 left-3'
+              : '-right-1.5 -top-1',
+          ]" />
+      </template>
+    </ScalarCodeBlockCopy>
   </div>
 </template>
 <style>
+@reference '../../style.css';
 @import '@scalar/code-highlight/css/code.css';
+
+/** Make the copy button label backdrop match the background */
+.scalar-code-block.bg-b-1 .scalar-code-copy-backdrop {
+  @apply bg-b-1;
+}
+.scalar-code-block.bg-b-2 .scalar-code-copy-backdrop {
+  @apply bg-b-2;
+}
+/** Make the copy button one shade darker than the background */
+.scalar-code-block.bg-b-2 .scalar-code-copy {
+  @apply bg-b-3;
+}
 </style>

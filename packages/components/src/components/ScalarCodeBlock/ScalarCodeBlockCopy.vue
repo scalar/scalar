@@ -7,6 +7,8 @@ import { LANGUAGE_LABELS } from './constants'
 import type { StandardLanguageKey } from './types'
 
 const { content } = defineProps<{
+  /** Whether to show the language label */
+  showLang?: boolean
   /** Content to copy to clipboard */
   content: string | object
   /** Language of the code block */
@@ -38,28 +40,31 @@ const { cx } = useBindCx()
     placement="left"
     v-bind="{
       ...cx(
-        'scalar-code-copy',
         copied
           ? 'opacity-100'
-          : [
-              'opacity-0',
-              'group-hover/code-block:opacity-100',
-              'group-focus-visible/code-block:opacity-100',
-              'group-focus-within/code-block:opacity-100',
-            ],
+          : 'opacity-0 group-hocus-within/code-block:opacity-100',
       ),
     }">
     <template
       v-if="lang"
       #copy>
-      <span class="hidden group-hover/code-block:inline">
+      <span class="hidden group-hocus-within/code-block:inline">
         <span
-          class="group-hover/copy-button:hidden"
+          v-if="showLang"
+          class="group-hocus/copy-button:sr-only"
           :class="{ capitalize: !isStandardLanguage(lang) }">
           {{ isStandardLanguage(lang) ? LANGUAGE_LABELS[lang] : lang }}
         </span>
-        <span class="hidden group-hover/copy-button:inline">Copy</span>
+        <span
+          :class="{
+            'group-hocus/copy-button:not-sr-only sr-only': showLang,
+          }"
+          >Copy</span
+        >
       </span>
+    </template>
+    <template #backdrop>
+      <slot name="backdrop" />
     </template>
   </ScalarCopy>
 </template>

@@ -49,5 +49,10 @@ watch(clipboardCopied, (v) => (copied.value = v))
       #copied>
       <slot name="copied" />
     </template>
+    <template
+      v-if="$slots.backdrop"
+      #backdrop>
+      <slot name="backdrop" />
+    </template>
   </ScalarCopyButton>
 </template>

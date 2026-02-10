@@ -22,4 +22,11 @@ export type ScalarCopySlots = {
   copy?: () => unknown
   /** The label shown next to the copy button after it is clicked */
   copied?: () => unknown
+  /**
+   * Overrides the backdrop for the label
+   *
+   * This should match the background color of the parent
+   * container to ensure the label is legible
+   */
+  backdrop?(): unknown
 }
