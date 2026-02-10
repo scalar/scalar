@@ -24,16 +24,16 @@ import CreateWorkspaceModal from '@/v2/features/app/components/CreateWorkspaceMo
 import SplashScreen from '@/v2/features/app/components/SplashScreen.vue'
 import type { RouteProps } from '@/v2/features/app/helpers/routes'
 import { useDocumentWatcher } from '@/v2/features/app/hooks/use-document-watcher'
+import type { CommandPaletteState } from '@/v2/features/command-palette/hooks/use-command-palette-state'
 import TheCommandPalette from '@/v2/features/command-palette/TheCommandPalette.vue'
 import type { ClientPlugin } from '@/v2/helpers/plugins'
 import { useGlobalHotKeys } from '@/v2/hooks/use-global-hot-keys'
 import type { ClientLayout } from '@/v2/types/layout'
 
-import type { CommandPaletteState } from '../command-palette/hooks/use-command-palette-state'
 import { type AppState } from './app-state'
 import AppSidebar from './components/AppSidebar.vue'
 import DesktopTabs from './components/DesktopTabs.vue'
-import WebTopNav from './components/WebTopNav.vue'
+import DownloadAppButton from './components/DownloadAppButton.vue'
 
 const {
   layout,
@@ -158,25 +158,8 @@ const routerViewProps = computed<RouteProps>(() => {
         app.store.value !== null &&
         app.workspace.activeWorkspace.value !== null &&
         !app.loading.value
-      "
-      class="flex flex-1 flex-col">
-      <!-- Desktop App Tabs -->
-      <DesktopTabs
-        v-if="layout === 'desktop'"
-        :activeTabIndex="app.tabs.activeTabIndex.value"
-        :eventBus="app.eventBus"
-        :tabs="app.tabs.state.value" />
-
-      <!-- Web App Top Nav -->
-      <WebTopNav
-        v-else
-        :activeWorkspace="app.workspace.activeWorkspace.value!"
-        :workspaces="app.workspace.workspaceGroups.value"
-        @create:workspace="createWorkspaceModalState.show()"
-        @select:workspace="setActiveWorkspace" />
-
-      <!-- min-h-0 is required here for scrolling, do not remove it -->
-      <div class="flex min-h-0 flex-1">
+      ">
+      <div class="flex h-dvh w-dvw flex-1 flex-row">
         <!-- App sidebar -->
         <AppSidebar
           v-model:isSidebarOpen="app.sidebar.isOpen.value"
@@ -198,9 +181,25 @@ const routerViewProps = computed<RouteProps>(() => {
           </template>
         </AppSidebar>
 
-        <!-- Router view -->
-        <div class="bg-b-1 flex-1">
-          <RouterView v-bind="routerViewProps" />
+        <div class="flex flex-1 flex-col">
+          <!-- Desktop App Tabs -->
+          <DesktopTabs
+            v-if="layout === 'desktop'"
+            :activeTabIndex="app.tabs.activeTabIndex.value"
+            :eventBus="app.eventBus"
+            :tabs="app.tabs.state.value" />
+
+          <!-- Web App Top Nav (just download button now) -->
+          <nav
+            v-if="layout === 'web'"
+            class="flex h-12 items-center justify-end border-b p-2">
+            <DownloadAppButton />
+          </nav>
+
+          <!-- Router view min-h-0 is required for scrolling, do not remove it -->
+          <div class="bg-b-1 min-h-0 flex-1">
+            <RouterView v-bind="routerViewProps" />
+          </div>
         </div>
       </div>
 
@@ -228,10 +227,6 @@ const routerViewProps = computed<RouteProps>(() => {
 
 <style>
 #scalar-client {
-  display: flex;
-  flex-direction: column;
-  height: 100dvh;
-  width: 100dvw;
   position: relative;
   background-color: var(--scalar-background-2);
 }
