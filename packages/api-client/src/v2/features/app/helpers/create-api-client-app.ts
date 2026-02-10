@@ -39,10 +39,13 @@ export const createAppRouter = (layout: CreateApiClientOptions['layout']) => {
 /**
  * Create the API Client with router and passes in the workspace store as a prop
  */
-export const createApiClientApp = (el: HTMLElement | null, { layout = 'desktop', plugins }: CreateApiClientOptions) => {
+export const createApiClientApp = async (
+  el: HTMLElement | null,
+  { layout = 'desktop', plugins }: CreateApiClientOptions,
+) => {
   // Add the router
   const router = createAppRouter(layout)
-  const state = createAppState({ router })
+  const state = await createAppState({ router })
   const commandPaletteState = useCommandPaletteState()
 
   // Pass in our initial props at the top level
