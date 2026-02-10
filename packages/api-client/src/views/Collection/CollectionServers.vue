@@ -1,12 +1,11 @@
 <script setup lang="ts">
 import {
   ScalarButton,
-  ScalarIcon,
   ScalarMarkdown,
   ScalarModal,
   useModal,
 } from '@scalar/components'
-import { ScalarIconTrash } from '@scalar/icons'
+import { ScalarIconPlus, ScalarIconTrash } from '@scalar/icons'
 import type { Server } from '@scalar/oas-utils/entities/spec'
 import { computed, ref } from 'vue'
 
@@ -106,9 +105,8 @@ const openDeleteModal = (serverUid: Server['uid']) => {
           size="sm"
           variant="ghost"
           @click="handleAddServer">
-          <ScalarIcon
+          <ScalarIconPlus
             class="inline-flex"
-            icon="Add"
             size="sm"
             weight="light" />
           <span>Add Server</span>
