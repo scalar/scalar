@@ -1,4 +1,4 @@
-<script lang="ts">
+<script setup lang="ts">
 /**
  * Scalar Icon Legacy Adapter
  *
@@ -6,9 +6,6 @@
  * as a prop to accept a component instead to be compatible with `@scalar/icons`
  * while staying backwards compatible with the legacy ScalarIcon component
  */
-export default {}
-</script>
-<script setup lang="ts">
 import type {
   ScalarIconComponent,
   ScalarIconProps,
@@ -54,13 +51,21 @@ const legacyThickness = computed(
       ? WEIGHT_TO_THICKNESS[props.weight]
       : props.thickness) ?? '2',
 )
+
+/** Pass only props the legacy ScalarIcon accepts so weight is never forwarded (legacy uses thickness). */
+const legacyIconBind = computed(
+  (): LegacyScalarIconProps & { thickness: string } => ({
+    icon: props.icon as Icon,
+    size: props.size,
+    label: props.label,
+    thickness: legacyThickness.value,
+  }),
+)
 </script>
 <template>
   <ScalarIcon
     v-if="typeof icon === 'string'"
-    v-bind="{ ...$props, ...$attrs }"
-    :icon="icon"
-    :thickness="legacyThickness" />
+    v-bind="legacyIconBind" />
   <component
     :is="icon"
     v-else
