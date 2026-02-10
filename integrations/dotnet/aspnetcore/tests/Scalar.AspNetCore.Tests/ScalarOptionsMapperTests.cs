@@ -40,6 +40,7 @@ public class ScalarOptionsMapperTests
         configuration.OrderRequiredPropertiesFirst.Should().BeNull();
         configuration.OrderSchemaPropertiesBy.Should().BeNull();
         configuration.ShowDeveloperTools.Should().BeNull();
+        configuration.Agent.Should().BeNull();
     }
 
     [Fact]
@@ -240,5 +241,54 @@ public class ScalarOptionsMapperTests
 
         // Assert
         configuration.Authentication!.PreferredSecuritySchemes.Should().ContainSingle().Which.Should().Be("my-scheme");
+    }
+
+    [Fact]
+    public void ToConfiguration_ShouldMapAgent_WhenAgentDisabled()
+    {
+        // Arrange
+        var options = new ScalarOptions
+        {
+            Agent = new ScalarAgentOptions { Disabled = true }
+        };
+
+        // Act
+        var configuration = options.ToScalarConfiguration();
+
+        // Assert
+        configuration.Agent.Should().NotBeNull();
+        configuration.Agent!.Disabled.Should().BeTrue();
+    }
+
+    [Fact]
+    public void ToConfiguration_ShouldMapAgent_WhenAgentKeyIsSet()
+    {
+        // Arrange
+        var options = new ScalarOptions
+        {
+            Agent = new ScalarAgentOptions { Key = "my-key" }
+        };
+
+        // Act
+        var configuration = options.ToScalarConfiguration();
+
+        // Assert
+        configuration.Agent.Should().NotBeNull();
+        configuration.Agent!.Key.Should().Be("my-key");
+    }
+
+    [Fact]
+    public void ToConfiguration_ShouldMapAgentOnSource_WhenDocumentHasAgent()
+    {
+        // Arrange
+        var options = new ScalarOptions();
+        options.AddDocument("v1", agent: new ScalarAgentOptions { Key = "doc-key" });
+
+        // Act
+        var configuration = options.ToScalarConfiguration();
+
+        // Assert
+        configuration.Sources.Should().ContainSingle().Which.Agent.Should().NotBeNull();
+        configuration.Sources.Should().ContainSingle().Which.Agent!.Key.Should().Be("doc-key");
     }
 }

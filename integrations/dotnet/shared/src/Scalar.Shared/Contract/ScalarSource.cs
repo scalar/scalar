@@ -14,4 +14,6 @@ internal sealed class ScalarSource
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public required bool Default { get; init; }
+
+    public ScalarAgentOptions? Agent { get; init; }
 }

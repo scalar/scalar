@@ -1,4 +1,4 @@
-﻿using System.Text.Json.Serialization;
+using System.Text.Json.Serialization;
 
 #if SCALAR_ASPIRE
 namespace Scalar.Aspire;
@@ -90,9 +90,12 @@ internal sealed class ScalarConfiguration
     public required bool? ShowOperationId { get; init; }
 
     public required DeveloperToolsVisibility? ShowDeveloperTools { get; init; }
+
+    public required ScalarAgentOptions? Agent { get; init; }
 }
 
 [JsonSerializable(typeof(ScalarConfiguration))]
+[JsonSerializable(typeof(ScalarAgentOptions))]
 [JsonSerializable(typeof(Dictionary<ScalarTarget, ScalarClient[]>))] // Type of hidden clients
 [JsonSourceGenerationOptions(DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull, PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase)]
 internal sealed partial class ScalarConfigurationSerializerContext : JsonSerializerContext;

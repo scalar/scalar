@@ -23,6 +23,31 @@ public static partial class ScalarOptionsExtensions
     }
 
     /// <summary>
+    /// Sets the Agent Scalar API key for production. On localhost, Agent Scalar is available with a limited free tier without a key.
+    /// </summary>
+    /// <param name="options">The options to configure.</param>
+    /// <param name="key">The Agent Scalar API key.</param>
+    /// <returns>The configured <see cref="ScalarOptions" />.</returns>
+    public static TOptions WithAgentKey<TOptions>(this TOptions options, string key) where TOptions : ScalarOptions
+    {
+        options.Agent ??= new ScalarAgentOptions();
+        options.Agent.Key = key;
+        return options;
+    }
+
+    /// <summary>
+    /// Disables Agent Scalar (AI chat) for the API reference.
+    /// </summary>
+    /// <param name="options">The options to configure.</param>
+    /// <returns>The configured <see cref="ScalarOptions" />.</returns>
+    public static TOptions DisableAgent<TOptions>(this TOptions options) where TOptions : ScalarOptions
+    {
+        options.Agent ??= new ScalarAgentOptions();
+        options.Agent.Disabled = true;
+        return options;
+    }
+
+    /// <summary>
     /// Adds an OpenAPI document to the Scalar API Reference.
     /// </summary>
     /// <param name="options">The options to configure.</param>
@@ -30,13 +55,14 @@ public static partial class ScalarOptionsExtensions
     /// <param name="title">Optional display title for the document. If not provided, the document name will be used as the title.</param>
     /// <param name="routePattern">Optional route pattern for the OpenAPI document. If not provided, the <see cref="ScalarOptions.OpenApiRoutePattern"/> will be used. The pattern can include the '{documentName}' placeholder which will be replaced with the document name.</param>
     /// <param name="isDefault">Indicates whether this document should be the default selection when multiple documents are available. Only one document should be marked as default.</param>
+    /// <param name="agent">Optional Agent Scalar options for this document (e.g. API key).</param>
     /// <remarks>
     /// When multiple documents are added, they will be displayed as selectable options in a dropdown menu.
     /// If no documents are explicitly added, a default document named 'v1' will be used.
     /// </remarks>
-    public static TOptions AddDocument<TOptions>(this TOptions options, string documentName, string? title = null, string? routePattern = null, bool isDefault = false) where TOptions : ScalarOptions
+    public static TOptions AddDocument<TOptions>(this TOptions options, string documentName, string? title = null, string? routePattern = null, bool isDefault = false, ScalarAgentOptions? agent = null) where TOptions : ScalarOptions
     {
-        options.Documents.Add(new ScalarDocument(documentName, title, routePattern, isDefault));
+        options.Documents.Add(new ScalarDocument(documentName, title, routePattern, isDefault, agent));
         return options;
     }
 

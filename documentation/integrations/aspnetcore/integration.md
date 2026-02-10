@@ -236,6 +236,33 @@ You can also specify a document name directly in the URL path (e.g., `/scalar/v1
 **Note on case sensitivity**: Scalar forwards document names to the OpenAPI generator exactly as they appear in the URL path or as they are defined, preserving the case. The behavior depends on whether your OpenAPI generator treats document names as case-sensitive. To avoid issues, use consistent casing for document names (e.g., lowercase `"v1"`).
 :::
 
+### Agent Scalar
+
+Agent Scalar adds an AI chat interface to your API reference. It is enabled by default on localhost with a limited free tier (10 messages). For production, you need an [Agent Scalar key](guides/agent/key.md).
+
+To set an Agent Scalar API key globally:
+
+```csharp
+app.MapScalarApiReference(options => options
+    .WithAgentKey("your-agent-scalar-key"));
+```
+
+To disable Agent Scalar:
+
+```csharp
+app.MapScalarApiReference(options => options.DisableAgent());
+```
+
+To set an Agent Scalar key per document (e.g., when using multiple OpenAPI documents):
+
+```csharp
+app.MapScalarApiReference(options => options
+    .AddDocument("v1", "API v1", agent: new ScalarAgentOptions { Key = "your-key" })
+    .AddDocument("v2", "API v2"));
+```
+
+For more details, see [Agent Scalar](configuration.md#agent-scalar) and [How to get an Agent Scalar key](guides/agent/key.md).
+
 ### Authentication
 
 Scalar allows you to pre-configure authentication details for your API, making it easier for developers to test your endpoints. Scalar supports API Key, OAuth2, and HTTP authentication schemes.
