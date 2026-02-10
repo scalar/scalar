@@ -41,6 +41,12 @@ def test_scalar_fastapi_imports():
     assert source.title == "Test"
     assert source.url == "/openapi.json"
 
+    # Test DocumentDownloadType import (documented usage for document_download_type)
+    from scalar_fastapi import DocumentDownloadType
+    assert DocumentDownloadType.BOTH is not None
+    assert DocumentDownloadType.JSON.value == "json"
+    assert DocumentDownloadType.NONE.value == "none"
+
 
 def test_fastapi_imports():
     """Test that FastAPI imports work correctly"""

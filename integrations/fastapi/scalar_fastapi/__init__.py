@@ -1,3 +1,17 @@
-from .scalar_fastapi import get_scalar_api_reference, Layout, OpenAPISource, SearchHotKey, Theme
+from .scalar_fastapi import (
+    DocumentDownloadType,
+    get_scalar_api_reference,
+    Layout,
+    OpenAPISource,
+    SearchHotKey,
+    Theme,
+)
 
-__all__ = ["get_scalar_api_reference", "Layout", "OpenAPISource", "SearchHotKey", "Theme"]
+__all__ = [
+    "DocumentDownloadType",
+    "get_scalar_api_reference",
+    "Layout",
+    "OpenAPISource",
+    "SearchHotKey",
+    "Theme",
+]
