@@ -145,7 +145,7 @@ describe('App', () => {
      * This ensures the correct navigation UI is rendered based on the environment
      */
     const desktopTabs = wrapper.findComponent({ name: 'DesktopTabs' })
-    const webTopNav = wrapper.findComponent({ name: 'WebTopNav' })
+    const webTopNav = wrapper.findComponent({ name: 'DownloadAppButton' })
 
     expect(desktopTabs.exists()).toBe(true)
     expect(webTopNav.exists()).toBe(false)
@@ -158,7 +158,7 @@ describe('App', () => {
      * Web layout should show WebTopNav instead of DesktopTabs
      * This is critical for maintaining the correct UI in browser-based environments
      */
-    const webTopNav = wrapper.findComponent({ name: 'WebTopNav' })
+    const webTopNav = wrapper.findComponent({ name: 'DownloadAppButton' })
     const desktopTabs = wrapper.findComponent({ name: 'DesktopTabs' })
 
     expect(webTopNav.exists()).toBe(true)
