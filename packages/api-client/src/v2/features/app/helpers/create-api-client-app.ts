@@ -2,7 +2,7 @@ import { createApp } from 'vue'
 import { createRouter as createVueRouter, createWebHashHistory, createWebHistory } from 'vue-router'
 
 import App from '@/v2/features/app/App.vue'
-import { useAppState } from '@/v2/features/app/app-state'
+import { createAppState } from '@/v2/features/app/app-state'
 import { ROUTES } from '@/v2/features/app/helpers/routes'
 import type { ClientPlugin } from '@/v2/helpers/plugins'
 import type { ClientLayout } from '@/v2/types/layout'
@@ -42,7 +42,7 @@ export const createAppRouter = (layout: CreateApiClientOptions['layout']) => {
 export const createApiClientApp = (el: HTMLElement | null, { layout = 'desktop', plugins }: CreateApiClientOptions) => {
   // Add the router
   const router = createAppRouter(layout)
-  const state = useAppState({ router })
+  const state = createAppState({ router })
   const commandPaletteState = useCommandPaletteState()
 
   // Pass in our initial props at the top level
