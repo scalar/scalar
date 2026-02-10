@@ -28,3 +28,4 @@ rollup.config-*.mjs
 .astro
 
 .pnpm-store/
+.venv

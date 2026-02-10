@@ -26,6 +26,7 @@ if not settings.configured:
     )
 
 from scalar_ninja import (
+    AgentConfig,
     DocumentDownloadType,
     Layout,
     OpenAPISource,
@@ -144,6 +145,46 @@ class TestOpenAPISource:
         assert source.content == content
         assert source.url is None
 
+    def test_with_agent_config(self):
+        """Test OpenAPISource with agent configuration"""
+        source = OpenAPISource(
+            url="/openapi.json",
+            agent=AgentConfig(key="test-key"),
+        )
+        assert source.agent is not None
+        assert source.agent.key == "test-key"
+        assert source.agent.disabled is None
+
+    def test_with_agent_disabled(self):
+        """Test OpenAPISource with agent disabled for this source"""
+        source = OpenAPISource(
+            url="/openapi.json",
+            agent=AgentConfig(disabled=True),
+        )
+        assert source.agent.disabled is True
+
+
+class TestAgentConfig:
+    """Test the AgentConfig model"""
+
+    def test_agent_config_with_key(self):
+        """Test AgentConfig with key"""
+        agent = AgentConfig(key="my-agent-key")
+        assert agent.key == "my-agent-key"
+        assert agent.disabled is None
+
+    def test_agent_config_disabled(self):
+        """Test AgentConfig with disabled=True"""
+        agent = AgentConfig(disabled=True)
+        assert agent.disabled is True
+        assert agent.key is None
+
+    def test_agent_config_serialization(self):
+        """Test AgentConfig model_dump excludes None and produces JS-ready keys"""
+        agent = AgentConfig(key="key123", disabled=False)
+        dumped = agent.model_dump(exclude_none=True)
+        assert dumped == {"key": "key123", "disabled": False}
+
 
 class TestScalarConfig:
     """Test the ScalarConfig model"""
@@ -191,6 +232,7 @@ class TestScalarConfig:
         assert config.custom_css == ""
         assert config.integration is None
         assert config.theme == Theme.DEFAULT
+        assert config.agent is None
 
     def test_with_custom_values(self):
         """Test ScalarConfig with custom values"""
@@ -254,6 +296,23 @@ class TestScalarConfig:
         auth = {"apiKey": {"type": "apiKey", "in": "header", "name": "X-API-Key"}}
         config = ScalarConfig(authentication=auth)
         assert config.authentication == auth
+
+    def test_with_agent_config(self):
+        """Test ScalarConfig with top-level agent"""
+        config = ScalarConfig(
+            openapi_url="/openapi.json",
+            agent=AgentConfig(disabled=True),
+        )
+        assert config.agent is not None
+        assert config.agent.disabled is True
+
+    def test_with_agent_key(self):
+        """Test ScalarConfig with agent key"""
+        config = ScalarConfig(
+            openapi_url="/openapi.json",
+            agent=AgentConfig(key="production-key"),
+        )
+        assert config.agent.key == "production-key"
 
 
 class TestGetScalarApiReference:
@@ -406,6 +465,46 @@ class TestGetScalarApiReference:
 
         # Default theme should not be in config
         assert "theme" not in config_section
+
+    def test_top_level_agent_disabled(self):
+        """Test ScalarConfig(agent=AgentConfig(disabled=True)) produces top-level agent in JS config"""
+        config = ScalarConfig(
+            openapi_url="/openapi.json",
+            agent=AgentConfig(disabled=True),
+        )
+        response = get_scalar_api_reference(config)
+        html_content = response.content.decode()
+        assert '"agent": {"disabled": true}' in html_content
+
+    def test_top_level_agent_key(self):
+        """Test top-level agent key is serialized in JS config"""
+        config = ScalarConfig(
+            openapi_url="/openapi.json",
+            agent=AgentConfig(key="test-key"),
+        )
+        response = get_scalar_api_reference(config)
+        html_content = response.content.decode()
+        assert '"agent": {"key": "test-key"}' in html_content
+
+    def test_sources_with_per_source_agent(self):
+        """Test that OpenAPISource with agent serializes agent on the source object"""
+        sources = [
+            OpenAPISource(
+                title="API 1",
+                url="/api1/openapi.json",
+                default=True,
+                agent=AgentConfig(key="source-one-key"),
+            ),
+            OpenAPISource(title="API 2", url="/api2/openapi.json"),
+        ]
+        config = ScalarConfig(sources=sources, title="Multi-API Docs")
+        response = get_scalar_api_reference(config)
+        html_content = response.content.decode()
+
+        assert '"sources":' in html_content
+        assert '"title": "API 1"' in html_content
+        assert '"agent": {"key": "source-one-key"}' in html_content
+        assert '"default": true' in html_content
 
     def test_with_sources(self):
         """Test with multiple OpenAPI sources"""

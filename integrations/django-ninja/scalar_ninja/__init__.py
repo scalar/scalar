@@ -1,4 +1,5 @@
 from .scalar_ninja import (
+    AgentConfig,
     DocumentDownloadType,
     Layout,
     OpenAPISource,
@@ -9,6 +10,7 @@ from .scalar_ninja import (
 )
 
 __all__ = [
+    "AgentConfig",
     "DocumentDownloadType",
     "Layout",
     "OpenAPISource",
