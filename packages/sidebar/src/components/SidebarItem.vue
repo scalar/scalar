@@ -125,6 +125,7 @@ const { draggableAttrs, draggableEvents } = useDraggable({
   <!-- Sidebar section -->
   <ScalarSidebarSection
     v-if="hasChildren(item) && isGroup(item)"
+    :data-sidebar-id="item.id"
     v-bind="draggableAttrs"
     v-on="draggableEvents">
     {{ item.title }}
@@ -172,6 +173,7 @@ const { draggableAttrs, draggableEvents } = useDraggable({
     :active="isSelected(item.id)"
     class="relative"
     controlled
+    :data-sidebar-id="item.id"
     :open="isExpanded(item.id)"
     v-bind="draggableAttrs"
     v-on="draggableEvents"
@@ -276,6 +278,7 @@ const { draggableAttrs, draggableEvents } = useDraggable({
     v-else
     v-bind="draggableAttrs"
     class="relative"
+    :data-sidebar-id="item.id"
     :selected="isSelected(item.id)"
     v-on="draggableEvents"
     @click="() => emit('selectItem', item.id)">
