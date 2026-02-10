@@ -19,7 +19,6 @@ import {
   prefixInternalRef,
   prefixInternalRefRecursive,
   resolveAndCopyReferences,
-  setValueAtPath,
 } from './bundle'
 import { fetchUrls } from './plugins/fetch-urls'
 import { readFiles } from './plugins/read-files'
@@ -2808,17 +2807,6 @@ describe('prefixInternalRefRecursive', () => {
   ])('recursively prefixes any internal ref with the correct values', (a, b, c) => {
     prefixInternalRefRecursive(a, b)
     expect(a).toEqual(c)
-  })
-})
-
-describe('setValueAtPath', () => {
-  it.each([
-    [{}, '/a/b/c', { hello: 'hi' }, { a: { b: { c: { hello: 'hi' } } } }],
-    [{ a: { b: 'b' } }, '/a/c', { hello: 'hi' }, { a: { b: 'b', c: { hello: 'hi' } } }],
-  ])('correctly sets a value at the specified path by creating new objects if necessary', (a, b, c, d) => {
-    setValueAtPath(a, b, c)
-
-    expect(a).toEqual(d)
   })
 })
 
