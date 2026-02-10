@@ -35,6 +35,12 @@ def test_scalar_fastapi_imports():
     assert Theme.LASERWAVE.value == "laserwave"
     assert Theme.NONE.value == "none"
 
+    # Test OpenAPISource import and instantiation (documented usage for multiple sources)
+    from scalar_fastapi import OpenAPISource
+    source = OpenAPISource(title="Test", url="/openapi.json")
+    assert source.title == "Test"
+    assert source.url == "/openapi.json"
+
 
 def test_fastapi_imports():
     """Test that FastAPI imports work correctly"""
