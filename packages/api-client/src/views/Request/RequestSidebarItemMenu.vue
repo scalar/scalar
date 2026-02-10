@@ -184,19 +184,6 @@ const isDraftsMenuItem = computed(() => {
           </span>
         </ScalarDropdownButton>
 
-        <!-- Duplicate -->
-        <!-- <ScalarDropdownButton
-        class="flex  items-center !gap-2"
-        @click="handleItemDuplicate">
-        <ScalarIcon
-          class="inline-flex"
-          weight="light"
-          icon="Duplicate"
-          size="sm" />
-        <span>Duplicate</span>
-      </ScalarDropdownButton>
-      <ScalarDropdownDivider /> -->
-
         <!-- Watch -->
         <ScalarDropdownButton
           v-if="menuItem.item?.documentUrl"
