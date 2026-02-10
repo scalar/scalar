@@ -42,7 +42,7 @@ describe('plugins', () => {
         plugins: [
           {
             type: 'loader',
-            validate: (value: string) => value === 'some-ref',
+            validate: (value: string) => value === '/some-ref',
             exec: () =>
               Promise.resolve({
                 ok: true,

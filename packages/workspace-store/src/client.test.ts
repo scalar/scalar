@@ -1323,19 +1323,19 @@ describe('create-workspace-store', () => {
     })
 
     expect(JSON.stringify(store.exportWorkspace())).toEqual(
-      '{"documents":{"default":{"openapi":"3.1.1","paths":{"/users":{"get":{"requestBody":{"$ref":"#/x-ext/6831e08"}}}},"x-original-oas-version":"3.1.1","x-scalar-original-document-hash":"22a67d89a1832713","x-scalar-original-source-url":"http://localhost:9988","x-ext-urls":{"6831e08":"http://localhost:9988/a"},"x-ext":{"6831e08":{"description":"Some description","content":{}}},"info":{"title":"","version":""},"x-scalar-order":["default/GET/users"],"x-scalar-navigation":{"id":"default","type":"document","title":"","name":"default","children":[{"id":"default/GET/users","title":"/users","path":"/users","method":"get","ref":"#/paths/~1users/get","type":"operation","isDeprecated":false}]}}},"meta":{},"originalDocuments":{"default":{"openapi":"3.1.1","paths":{"/users":{"get":{"requestBody":{"$ref":"http://localhost:9988/a"}}}}}},"intermediateDocuments":{"default":{"openapi":"3.1.1","paths":{"/users":{"get":{"requestBody":{"$ref":"http://localhost:9988/a"}}}}}},"overrides":{"default":{}},"history":{},"auth":{}}',
+      '{"documents":{"default":{"openapi":"3.1.1","paths":{"/users":{"get":{"requestBody":{"$ref":"#/x-ext/26e1ce1"}}}},"x-original-oas-version":"3.1.1","x-scalar-original-document-hash":"22a67d89a1832713","x-scalar-original-source-url":"http://localhost:9988","x-ext-urls":{"26e1ce1":"a"},"x-ext":{"26e1ce1":{"description":"Some description","content":{}}},"info":{"title":"","version":""},"x-scalar-order":["default/GET/users"],"x-scalar-navigation":{"id":"default","type":"document","title":"","name":"default","children":[{"id":"default/GET/users","title":"/users","path":"/users","method":"get","ref":"#/paths/~1users/get","type":"operation","isDeprecated":false}]}}},"meta":{},"originalDocuments":{"default":{"openapi":"3.1.1","paths":{"/users":{"get":{"requestBody":{"$ref":"http://localhost:9988/a"}}}}}},"intermediateDocuments":{"default":{"openapi":"3.1.1","paths":{"/users":{"get":{"requestBody":{"$ref":"http://localhost:9988/a"}}}}}},"overrides":{"default":{}},"history":{},"auth":{}}',
     )
 
     await store.revertDocumentChanges('default')
 
     expect(JSON.stringify(store.exportWorkspace())).toEqual(
-      '{"documents":{"default":{"openapi":"3.1.1","paths":{"/users":{"get":{"requestBody":{"$ref":"#/x-ext/6831e08"}}}},"x-original-oas-version":"3.1.1","x-scalar-original-document-hash":"22a67d89a1832713","x-scalar-original-source-url":"http://localhost:9988","x-ext-urls":{"6831e08":"http://localhost:9988/a"},"x-ext":{"6831e08":{"description":"Some description","content":{}}},"info":{"title":"","version":""},"x-scalar-order":["default/GET/users"],"x-scalar-navigation":{"id":"default","type":"document","title":"","name":"default","children":[{"id":"default/GET/users","title":"/users","path":"/users","method":"get","ref":"#/paths/~1users/get","type":"operation","isDeprecated":false}]}}},"meta":{},"originalDocuments":{"default":{"openapi":"3.1.1","paths":{"/users":{"get":{"requestBody":{"$ref":"http://localhost:9988/a"}}}}}},"intermediateDocuments":{"default":{"openapi":"3.1.1","paths":{"/users":{"get":{"requestBody":{"$ref":"http://localhost:9988/a"}}}}}},"overrides":{"default":{}},"history":{},"auth":{}}',
+      '{"documents":{"default":{"openapi":"3.1.1","paths":{"/users":{"get":{"requestBody":{"$ref":"#/x-ext/26e1ce1"}}}},"x-original-oas-version":"3.1.1","x-scalar-original-document-hash":"22a67d89a1832713","x-scalar-original-source-url":"http://localhost:9988","x-ext-urls":{"26e1ce1":"a"},"x-ext":{"26e1ce1":{"description":"Some description","content":{}}},"info":{"title":"","version":""},"x-scalar-order":["default/GET/users"],"x-scalar-navigation":{"id":"default","type":"document","title":"","name":"default","children":[{"id":"default/GET/users","title":"/users","path":"/users","method":"get","ref":"#/paths/~1users/get","type":"operation","isDeprecated":false}]}}},"meta":{},"originalDocuments":{"default":{"openapi":"3.1.1","paths":{"/users":{"get":{"requestBody":{"$ref":"http://localhost:9988/a"}}}}}},"intermediateDocuments":{"default":{"openapi":"3.1.1","paths":{"/users":{"get":{"requestBody":{"$ref":"http://localhost:9988/a"}}}}}},"overrides":{"default":{}},"history":{},"auth":{}}',
     )
 
     await store.replaceDocument('default', getRaw(store.workspace.documents['default'] ?? {}))
 
     expect(JSON.stringify(store.exportWorkspace())).toEqual(
-      '{"documents":{"default":{"openapi":"3.1.1","paths":{"/users":{"get":{"requestBody":{"$ref":"#/x-ext/6831e08"}}}},"x-original-oas-version":"3.1.1","x-scalar-original-document-hash":"22a67d89a1832713","x-scalar-original-source-url":"http://localhost:9988","x-ext-urls":{"6831e08":"http://localhost:9988/a"},"x-ext":{"6831e08":{"description":"Some description","content":{}}},"info":{"title":"","version":""},"x-scalar-order":["default/GET/users"],"x-scalar-navigation":{"id":"default","type":"document","title":"","name":"default","children":[{"id":"default/GET/users","title":"/users","path":"/users","method":"get","ref":"#/paths/~1users/get","type":"operation","isDeprecated":false}]}}},"meta":{},"originalDocuments":{"default":{"openapi":"3.1.1","paths":{"/users":{"get":{"requestBody":{"$ref":"http://localhost:9988/a"}}}}}},"intermediateDocuments":{"default":{"openapi":"3.1.1","paths":{"/users":{"get":{"requestBody":{"$ref":"http://localhost:9988/a"}}}}}},"overrides":{"default":{}},"history":{},"auth":{}}',
+      '{"documents":{"default":{"openapi":"3.1.1","paths":{"/users":{"get":{"requestBody":{"$ref":"#/x-ext/26e1ce1"}}}},"x-original-oas-version":"3.1.1","x-scalar-original-document-hash":"22a67d89a1832713","x-scalar-original-source-url":"http://localhost:9988","x-ext-urls":{"26e1ce1":"a"},"x-ext":{"26e1ce1":{"description":"Some description","content":{}}},"info":{"title":"","version":""},"x-scalar-order":["default/GET/users"],"x-scalar-navigation":{"id":"default","type":"document","title":"","name":"default","children":[{"id":"default/GET/users","title":"/users","path":"/users","method":"get","ref":"#/paths/~1users/get","type":"operation","isDeprecated":false}]}}},"meta":{},"originalDocuments":{"default":{"openapi":"3.1.1","paths":{"/users":{"get":{"requestBody":{"$ref":"http://localhost:9988/a"}}}}}},"intermediateDocuments":{"default":{"openapi":"3.1.1","paths":{"/users":{"get":{"requestBody":{"$ref":"http://localhost:9988/a"}}}}}},"overrides":{"default":{}},"history":{},"auth":{}}',
     )
   })
 
@@ -1379,7 +1379,7 @@ describe('create-workspace-store', () => {
       'paths': {
         '/users': {
           'get': {
-            '$ref': '#/x-ext/f2c1510',
+            '$ref': '#/x-ext/a5826a3',
             '$ref-value': {
               'summary': 'User path',
             },
@@ -1387,12 +1387,12 @@ describe('create-workspace-store', () => {
         },
       },
       'x-ext': {
-        'f2c1510': {
+        'a5826a3': {
           'summary': 'User path',
         },
       },
       'x-ext-urls': {
-        'f2c1510': 'http://localhost:9988/path',
+        'a5826a3': 'path',
       },
       'x-original-oas-version': undefined,
       'x-scalar-order': ['default/GET/users'],
@@ -1463,7 +1463,7 @@ describe('create-workspace-store', () => {
       'paths': {
         '/users': {
           'get': {
-            '$ref': '#/x-ext/f2c1510',
+            '$ref': '#/x-ext/a5826a3',
             '$ref-value': {
               'summary': 'User path',
             },
@@ -1471,13 +1471,13 @@ describe('create-workspace-store', () => {
         },
       },
       'x-ext': {
-        'f2c1510': {
+        'a5826a3': {
           'summary': 'User path',
         },
       },
       'x-original-oas-version': undefined,
       'x-ext-urls': {
-        'f2c1510': 'http://localhost:9988/path',
+        'a5826a3': 'path',
       },
       'x-scalar-order': ['default/GET/users'],
       'x-scalar-navigation': {
@@ -1647,7 +1647,7 @@ describe('create-workspace-store', () => {
       },
     })
 
-    expect(fn).toHaveBeenCalledWith('local-file.yaml')
+    expect(fn).toHaveBeenCalledWith('/local-file.yaml')
   })
 
   describe('download original document', () => {
