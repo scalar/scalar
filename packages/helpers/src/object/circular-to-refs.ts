@@ -16,6 +16,7 @@ const COMPONENT_PREFIXES = {
 } as const
 
 type ComponentType = keyof typeof COMPONENT_PREFIXES
+const COMPONENT_TYPES = Object.keys(COMPONENT_PREFIXES) as ComponentType[]
 
 /**
  * Lookup table for OpenAPI keys that change the component context.
@@ -50,6 +51,12 @@ const KEY_TO_CONTEXT: Readonly<Record<string, ComponentType>> = {
 }
 
 /**
+ * These container objects must remain maps in OpenAPI and cannot be replaced by a Reference Object.
+ * When a cycle points to one of these containers, we lift the ref to a legal parent object.
+ */
+const NON_REFERENCE_CONTAINER_KEYS = new Set(['properties', 'patternProperties', 'responses'])
+
+/**
  * Determines the component context for a given OpenAPI key.
  * Returns the appropriate ComponentType or null to inherit parent context.
  */
@@ -73,6 +80,11 @@ const getContextForKey = (key: string): ComponentType | null => {
 type CircularMeta = {
   readonly type: ComponentType
   readonly name: string
+}
+
+type NonReferenceContainerInfo = {
+  readonly key: 'properties' | 'patternProperties' | 'responses'
+  readonly owner: object
 }
 
 /**
@@ -111,6 +123,8 @@ export const circularToRefs = (
   const circularMeta = new Map<object, CircularMeta>()
   const objectContext = new Map<object, ComponentType>()
   const existingComponentNames = new Map<object, { type: ComponentType; name: string }>()
+  const nonReferenceContainers = new WeakSet<object>()
+  const nonReferenceContainerInfo = new WeakMap<object, NonReferenceContainerInfo>()
   const counters: Record<ComponentType, number> = {
     schemas: 0,
     responses: 0,
@@ -134,7 +148,7 @@ export const circularToRefs = (
       return
     }
 
-    for (const componentType of Object.keys(COMPONENT_PREFIXES) as ComponentType[]) {
+    for (const componentType of COMPONENT_TYPES) {
       const section = components[componentType] as Record<string, unknown> | undefined
       if (!section) {
         continue
@@ -169,6 +183,11 @@ export const circularToRefs = (
 
     // Cycle detected: this object is already in our ancestor chain
     if (ancestors.has(obj)) {
+      // Keep container maps as maps; we will lift refs on their entries during cloning.
+      if (nonReferenceContainers.has(obj)) {
+        return
+      }
+
       // Only register once — use existing name if available, otherwise generate new one
       if (!circularMeta.has(obj)) {
         const existing = existingComponentNames.get(obj)
@@ -204,8 +223,22 @@ export const circularToRefs = (
       // Objects: check each property, updating context as needed
       const record = obj as Record<string, unknown>
       for (const key of Object.keys(record)) {
+        const child = record[key]
+        if (
+          NON_REFERENCE_CONTAINER_KEYS.has(key) &&
+          child !== null &&
+          typeof child === 'object' &&
+          !Array.isArray(child)
+        ) {
+          nonReferenceContainers.add(child as object)
+          nonReferenceContainerInfo.set(child as object, {
+            key: key as NonReferenceContainerInfo['key'],
+            owner: obj,
+          })
+        }
+
         const newContext = getContextForKey(key) ?? context
-        identifyCircularObjects(record[key], ancestors, newContext)
+        identifyCircularObjects(child, ancestors, newContext)
       }
     }
 
@@ -223,6 +256,65 @@ export const circularToRefs = (
   const createRefObject = (meta: CircularMeta): Record<string, unknown> => {
     const ref = { $ref: `#/components/${meta.type}/${meta.name}` }
     return hasExtraProps ? { ...ref, ...extraProps } : ref
+  }
+
+  /** Gets or creates the target section for extracted components. */
+  const getOrCreateExtractedSection = (type: ComponentType): Map<string, unknown> => {
+    const existing = extractedComponents.get(type)
+    if (existing !== undefined) {
+      return existing
+    }
+
+    const section = new Map<string, unknown>()
+    extractedComponents.set(type, section)
+    return section
+  }
+
+  /** Ensures an object has component metadata so it can be referenced legally. */
+  const ensureMeta = (obj: object, fallbackType: ComponentType): CircularMeta => {
+    const existingMeta = circularMeta.get(obj)
+    if (existingMeta !== undefined) {
+      return existingMeta
+    }
+
+    const existingName = existingComponentNames.get(obj)
+    if (existingName !== undefined) {
+      circularMeta.set(obj, existingName)
+      return existingName
+    }
+
+    const count = ++counters[fallbackType]
+    const meta: CircularMeta = {
+      type: fallbackType,
+      name: `${COMPONENT_PREFIXES[fallbackType]}${count}`,
+    }
+    circularMeta.set(obj, meta)
+    return meta
+  }
+
+  /** Lifts illegal container self-cycles to a legal reference target. */
+  const createLiftedRefForContainer = (container: object): Record<string, unknown> | undefined => {
+    const info = nonReferenceContainerInfo.get(container)
+    if (info === undefined) {
+      return undefined
+    }
+
+    if (info.key === 'properties' || info.key === 'patternProperties') {
+      const meta = ensureMeta(info.owner, 'schemas')
+      return createRefObject(meta)
+    }
+
+    // responses map values must be Response Object or Reference Object.
+    // Lift self-cycle to the first concrete response entry.
+    const responses = container as Record<string, unknown>
+    for (const value of Object.values(responses)) {
+      if (value !== null && typeof value === 'object' && value !== container) {
+        const meta = ensureMeta(value as object, 'responses')
+        return createRefObject(meta)
+      }
+    }
+
+    return undefined
   }
 
   /**
@@ -257,11 +349,7 @@ export const circularToRefs = (
       }
 
       // Get or create the section for this component type
-      let section = extractedComponents.get(meta.type)
-      if (section === undefined) {
-        section = new Map()
-        extractedComponents.set(meta.type, section)
-      }
+      const section = getOrCreateExtractedSection(meta.type)
 
       // Only process and extract if we haven't already
       if (!section.has(meta.name)) {
@@ -274,15 +362,49 @@ export const circularToRefs = (
       return createRefObject(meta)
     }
 
-    // Non-circular object: deep clone (no need to track in visited set)
-    return Array.isArray(obj) ? cloneArray(obj, visited, context) : cloneObject(obj, visited, context)
+    // Non-circular object: track traversal path to handle cycles that are intentionally
+    // not extracted (for container maps where we lift refs to legal targets).
+    if (visited.has(obj)) {
+      return undefined
+    }
+
+    visited.add(obj)
+    const cloned = Array.isArray(obj) ? cloneArray(obj, visited, context) : cloneObject(obj, visited, context)
+    visited.delete(obj)
+
+    // This object may become referenceable while cloning children (e.g. lifting
+    // a container self-cycle to the parent object). If so, extract it now.
+    const lateMeta = circularMeta.get(obj)
+    if (lateMeta !== undefined) {
+      if (existingComponentNames.has(obj)) {
+        return cloned
+      }
+
+      const section = getOrCreateExtractedSection(lateMeta.type)
+
+      if (!section.has(lateMeta.name)) {
+        section.set(lateMeta.name, cloned)
+      }
+
+      return createRefObject(lateMeta)
+    }
+
+    return cloned
   }
 
   /**
    * Clones an array, recursively processing each element.
    */
-  const cloneArray = (arr: unknown[], visited: Set<object>, context: ComponentType): unknown[] =>
-    arr.map((item) => cloneWithRefs(item, visited, context))
+  const cloneArray = (arr: unknown[], visited: Set<object>, context: ComponentType): unknown[] => {
+    const result: unknown[] = []
+    for (const item of arr) {
+      const clonedItem = cloneWithRefs(item, visited, context)
+      if (clonedItem !== undefined) {
+        result.push(clonedItem)
+      }
+    }
+    return result
+  }
 
   /**
    * Clones an object, recursively processing each property.
@@ -294,7 +416,20 @@ export const circularToRefs = (
 
     for (const key of Object.keys(record)) {
       const newContext = getContextForKey(key) ?? context
-      result[key] = cloneWithRefs(record[key], visited, newContext)
+      const value = record[key]
+      const clonedValue = cloneWithRefs(value, visited, newContext)
+      if (clonedValue !== undefined) {
+        result[key] = clonedValue
+        continue
+      }
+
+      // If a value loops back to its parent container map, lift to a legal reference target.
+      if (value === obj && nonReferenceContainers.has(obj)) {
+        const liftedRef = createLiftedRefForContainer(obj)
+        if (liftedRef !== undefined) {
+          result[key] = liftedRef
+        }
+      }
     }
 
     return result

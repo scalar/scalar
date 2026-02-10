@@ -837,5 +837,180 @@ describe('circularToRefs', () => {
         },
       })
     })
+
+    it('lifts schema.properties self-reference to the owning schema ref', () => {
+      const document: Record<string, any> = {
+        openapi: '3.1.0',
+        info: { title: 'Schema Properties API', version: '1.0.0' },
+        paths: {
+          '/resource': {
+            get: {
+              responses: {
+                '200': {
+                  content: {
+                    'application/json': {
+                      schema: {
+                        type: 'object',
+                        properties: {
+                          id: { type: 'string' },
+                          name: { type: 'string' },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      }
+
+      /**
+       * Create a circular reference where the parent property
+       * references the entire schema object.
+       */
+      const schema = document.paths['/resource'].get.responses['200'].content['application/json'].schema
+      schema.properties.parent = schema.properties
+
+      const result = circularToRefs(document)
+      expect(result).toEqual({
+        openapi: '3.1.0',
+        info: { title: 'Schema Properties API', version: '1.0.0' },
+        paths: {
+          '/resource': {
+            get: {
+              responses: {
+                '200': {
+                  content: {
+                    'application/json': {
+                      schema: {
+                        $ref: '#/components/schemas/CircularSchema1',
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        components: {
+          schemas: {
+            CircularSchema1: {
+              type: 'object',
+              properties: {
+                id: { type: 'string' },
+                name: { type: 'string' },
+                parent: { $ref: '#/components/schemas/CircularSchema1' },
+              },
+            },
+          },
+        },
+      })
+    })
+
+    it('lifts schema.patternProperties self-reference to the owning schema ref', () => {
+      const document: Record<string, any> = {
+        openapi: '3.1.0',
+        info: { title: 'Pattern Properties API', version: '1.0.0' },
+        paths: {
+          '/resource': {
+            get: {
+              responses: {
+                '200': {
+                  content: {
+                    'application/json': {
+                      schema: {
+                        type: 'object',
+                        patternProperties: {
+                          '^item_': { type: 'string' },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      }
+
+      const schema = document.paths['/resource'].get.responses['200'].content['application/json'].schema
+      schema.patternProperties.self = schema.patternProperties
+
+      const result = circularToRefs(document)
+      expect(result).toEqual({
+        openapi: '3.1.0',
+        info: { title: 'Pattern Properties API', version: '1.0.0' },
+        paths: {
+          '/resource': {
+            get: {
+              responses: {
+                '200': {
+                  content: {
+                    'application/json': {
+                      schema: {
+                        $ref: '#/components/schemas/CircularSchema1',
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        components: {
+          schemas: {
+            CircularSchema1: {
+              type: 'object',
+              patternProperties: {
+                '^item_': { type: 'string' },
+                self: { $ref: '#/components/schemas/CircularSchema1' },
+              },
+            },
+          },
+        },
+      })
+    })
+
+    it('lifts operation.responses self-reference to a response object ref', () => {
+      const document: Record<string, any> = {
+        openapi: '3.1.0',
+        info: { title: 'Responses API', version: '1.0.0' },
+        paths: {
+          '/resource': {
+            get: {
+              responses: {
+                '200': {
+                  description: 'Success',
+                },
+              },
+            },
+          },
+        },
+      }
+
+      const responses = document.paths['/resource'].get.responses
+      responses.default = responses
+
+      const result = circularToRefs(document)
+      expect(result).toEqual({
+        openapi: '3.1.0',
+        info: { title: 'Responses API', version: '1.0.0' },
+        paths: {
+          '/resource': {
+            get: {
+              responses: {
+                '200': {
+                  description: 'Success',
+                },
+                default: {
+                  $ref: '#/components/responses/CircularResponse1',
+                },
+              },
+            },
+          },
+        },
+      })
+    })
   })
 })
