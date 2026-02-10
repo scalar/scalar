@@ -87,6 +87,82 @@ describe('buildRequestBody', () => {
     expect(params.get('field2')).toBe('static_value')
   })
 
+  it('builds URLSearchParams for application/x-www-form-urlencoded with object example value', () => {
+    // This tests the case where the example value is a plain object (from schema)
+    // rather than the array format (from UI editor)
+    const requestBody = {
+      content: {
+        'application/x-www-form-urlencoded': {
+          examples: {
+            default: {
+              value: {
+                ac: '4',
+                product_id: '{{productId}}',
+              },
+            },
+          },
+        },
+      },
+    }
+    const env = { productId: '8' }
+    const result = buildRequestBody(requestBody, env, 'default')
+
+    expect(result).toBeInstanceOf(URLSearchParams)
+    const params = result as URLSearchParams
+    expect(params.get('ac')).toBe('4')
+    expect(params.get('product_id')).toBe('8')
+  })
+
+  it('converts non-string values to strings in form-urlencoded object format', () => {
+    const requestBody = {
+      content: {
+        'application/x-www-form-urlencoded': {
+          examples: {
+            default: {
+              value: {
+                count: 42,
+                active: true,
+                name: 'test',
+              },
+            },
+          },
+        },
+      },
+    }
+    const result = buildRequestBody(requestBody, {}, 'default')
+
+    expect(result).toBeInstanceOf(URLSearchParams)
+    const params = result as URLSearchParams
+    expect(params.get('count')).toBe('42')
+    expect(params.get('active')).toBe('true')
+    expect(params.get('name')).toBe('test')
+  })
+
+  it('skips null and undefined values in form-urlencoded object format', () => {
+    const requestBody = {
+      content: {
+        'application/x-www-form-urlencoded': {
+          examples: {
+            default: {
+              value: {
+                valid: 'value',
+                nullField: null,
+                undefinedField: undefined,
+              },
+            },
+          },
+        },
+      },
+    }
+    const result = buildRequestBody(requestBody, {}, 'default')
+
+    expect(result).toBeInstanceOf(URLSearchParams)
+    const params = result as URLSearchParams
+    expect(params.get('valid')).toBe('value')
+    expect(params.has('nullField')).toBe(false)
+    expect(params.has('undefinedField')).toBe(false)
+  })
+
   it('handles File objects in FormData for multipart/form-data', () => {
     const mockFile = new File(['file content'], 'test.txt', { type: 'text/plain' })
     const requestBody = {
