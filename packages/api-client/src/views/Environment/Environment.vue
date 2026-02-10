@@ -1,11 +1,6 @@
 <script setup lang="ts">
-import {
-  ScalarButton,
-  ScalarIcon,
-  ScalarModal,
-  useModal,
-} from '@scalar/components'
-import { ScalarIconPlus } from '@scalar/icons'
+import { ScalarButton, ScalarModal, useModal } from '@scalar/components'
+import { ScalarIconCaretRight, ScalarIconPlus } from '@scalar/icons'
 import { LibraryIcon } from '@scalar/icons/library'
 import type { Collection } from '@scalar/oas-utils/entities/spec'
 import { useToasts } from '@scalar/use-toasts'
@@ -459,9 +454,8 @@ watch(
                     :class="{
                       'rotate-90': collapsedSidebarFolders[collection.uid],
                     }">
-                    <ScalarIcon
+                    <ScalarIconCaretRight
                       class="text-c-3 hover:text-c-1 hidden text-sm group-hover:block"
-                      icon="ChevronRight"
                       size="md" />
                   </div>
                 </span>

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ScalarIcon } from '@scalar/components'
+import { ScalarIconLegacyAdapter } from '@scalar/components'
 import { ScalarIconGear } from '@scalar/icons'
 import { useRouter } from 'vue-router'
 
@@ -34,7 +34,7 @@ const { activeWorkspace } = useActiveEntities()
         }"
         href="https://www.scalar.com"
         target="_blank">
-        <ScalarIcon
+        <ScalarIconLegacyAdapter
           icon="Logo"
           size="xl" />
       </a>

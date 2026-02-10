@@ -6,7 +6,7 @@ import {
   type ClientOptionGroup,
   type CustomClientOption,
 } from '@scalar/api-client/v2/blocks/operation-code-sample'
-import { ScalarCombobox, ScalarIcon } from '@scalar/components'
+import { ScalarCombobox, ScalarIconLegacyAdapter } from '@scalar/components'
 import { freezeElement } from '@scalar/helpers/dom/freeze-element'
 import type { AvailableClients, TargetId } from '@scalar/types/snippetz'
 import { type WorkspaceEventBus } from '@scalar/workspace-store/events'
@@ -70,7 +70,7 @@ const selectedTargetKey = computed(
         'client-libraries__active': featuredClient.id === selectedClient,
       }">
       <div :class="`client-libraries-icon__${featuredClient.targetKey}`">
-        <ScalarIcon
+        <ScalarIconLegacyAdapter
           class="client-libraries-icon"
           :icon="getIconByLanguageKey(featuredClient.targetKey)" />
       </div>
@@ -98,7 +98,7 @@ const selectedTargetKey = computed(
           class="client-libraries-icon__more">
           <template v-if="selectedClient && !isFeaturedClient(selectedClient)">
             <div :class="`client-libraries-icon__${selectedTargetKey}`">
-              <ScalarIcon
+              <ScalarIconLegacyAdapter
                 v-if="selectedTargetKey"
                 class="client-libraries-icon"
                 :icon="getIconByLanguageKey(selectedTargetKey)" />

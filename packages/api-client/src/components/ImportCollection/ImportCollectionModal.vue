@@ -1,5 +1,9 @@
 <script setup lang="ts">
-import { ScalarIcon, ScalarModal, useModal } from '@scalar/components'
+import {
+  ScalarIconLegacyAdapter,
+  ScalarModal,
+  useModal,
+} from '@scalar/components'
 import { isLocalUrl } from '@scalar/oas-utils/helpers'
 import { normalize } from '@scalar/openapi-parser'
 import type { OpenAPI } from '@scalar/openapi-types'
@@ -323,7 +327,7 @@ function handleImportFinished() {
             <a
               href="https://scalar.com/download"
               target="_blank">
-              <ScalarIcon
+              <ScalarIconLegacyAdapter
                 icon="Logo"
                 size="xl" />
             </a>

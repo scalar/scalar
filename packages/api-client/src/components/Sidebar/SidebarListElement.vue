@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ScalarIcon, type Icon } from '@scalar/components'
+import { ScalarIconLegacyAdapter, type Icon } from '@scalar/components'
 import {
   Draggable,
   type DraggableProps,
@@ -113,7 +113,7 @@ const getDraggableOffsets = computed(() => ({
             class="h-2.5 w-2.5 rounded-xl"
             :style="{ backgroundColor: variable.color }"></div>
         </button>
-        <ScalarIcon
+        <ScalarIconLegacyAdapter
           v-if="variable.icon"
           class="text-sidebar-c-2 size-3.5 stroke-[2.25]"
           :icon="variable.icon" />

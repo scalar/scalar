@@ -2,7 +2,7 @@
 import {
   ScalarFormInputGroup,
   ScalarFormSection,
-  ScalarIcon,
+  ScalarIconLegacyAdapter,
   ScalarToggleInput,
   type Icon as LegacyIcon,
 } from '@scalar/components'
@@ -58,7 +58,7 @@ const selectedLanguages = ref<LanguageKey[]>([])
                   ))
           ">
           <span class="inline-flex items-center gap-2">
-            <ScalarIcon
+            <ScalarIconLegacyAdapter
               :icon="icon"
               class="text-c-2 size-3.5" />
             {{ label }}

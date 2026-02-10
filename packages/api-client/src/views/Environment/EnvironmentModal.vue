@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import {
   ScalarButton,
-  ScalarIcon,
   ScalarListbox,
   ScalarModal,
   type ModalState,
 } from '@scalar/components'
+import { ScalarIconCaretDown } from '@scalar/icons'
 import type { Collection } from '@scalar/oas-utils/entities/spec'
 import { useToasts } from '@scalar/use-toasts'
 import { computed, ref, watch } from 'vue'
@@ -137,9 +137,8 @@ const redirectToCreateCollection = () => {
                 ? selectedEnvironment.label
                 : 'Select Collection'
             }}</span>
-            <ScalarIcon
+            <ScalarIconCaretDown
               class="text-c-3"
-              icon="ChevronDown"
               size="xs" />
           </ScalarButton>
           <ScalarButton

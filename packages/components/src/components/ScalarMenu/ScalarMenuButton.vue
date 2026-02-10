@@ -2,7 +2,7 @@
 import { ScalarIconCaretDown } from '@scalar/icons'
 
 import { ScalarHeaderButton } from '../ScalarHeader'
-import { ScalarIcon } from '../ScalarIcon'
+import { ScalarIconLegacyAdapter } from '../ScalarIcon'
 import type { ScalarMenuButtonProps, ScalarMenuButtonSlots } from './types'
 
 defineProps<ScalarMenuButtonProps>()
@@ -13,7 +13,7 @@ defineSlots<ScalarMenuButtonSlots>()
   <ScalarHeaderButton class="gap-0.75 px-2">
     <div class="h-5 w-auto">
       <slot name="logo">
-        <ScalarIcon icon="Logo" />
+        <ScalarIconLegacyAdapter icon="Logo" />
       </slot>
     </div>
     <span class="sr-only">
