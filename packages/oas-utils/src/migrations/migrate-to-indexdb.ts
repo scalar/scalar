@@ -510,11 +510,15 @@ const extractBodyExample = (
   if (body.activeBody === 'formData' && body.formData) {
     return {
       contentType: body.formData.encoding === 'form-data' ? 'multipart/form-data' : 'application/x-www-form-urlencoded',
-      value: body.formData.value.map((param) => ({
-        name: param.key,
-        value: param.value,
-        isDisabled: !param.enabled,
-      })),
+      value: body.formData.value.flatMap((param) =>
+        param.key
+          ? {
+              name: param.key,
+              value: param.value,
+              isDisabled: !param.enabled,
+            }
+          : [],
+      ),
     }
   }
 
