@@ -47,7 +47,7 @@ export type CommandPaletteEvent = {
 
 <script setup lang="ts">
 import { Dialog, DialogPanel, DialogTitle } from '@headlessui/vue'
-import { useModal } from '@scalar/components'
+import { ScalarIconLegacyAdapter, useModal } from '@scalar/components'
 import { ScalarIconCaretLeft, ScalarIconMagnifyingGlass } from '@scalar/icons'
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
@@ -393,9 +393,9 @@ onBeforeUnmount(() => {
               'bg-b-2': command.name === selectedCommand?.name,
             }"
             @click="executeCommand(command)">
-            <component
-              :is="command.icon"
+            <ScalarIconLegacyAdapter
               class="text-c-2 mr-2.5"
+              :icon="command.icon"
               size="md"
               thickness="1.5" />
             {{ command.name }}
