@@ -16,7 +16,7 @@ describe('get-schema-type', () => {
       expect(result).toBe('string | number | boolean')
     })
 
-    it('returns title when present', () => {
+    it('returns raw type when title is present', () => {
       const schema = coerceValue(SchemaObjectSchema, {
         title: 'User Profile',
         type: 'object',
@@ -24,7 +24,7 @@ describe('get-schema-type', () => {
 
       const result = getSchemaType(schema)
 
-      expect(result).toBe('User Profile')
+      expect(result).toBe('object')
     })
 
     it('returns type with content encoding when both present', () => {
@@ -151,7 +151,7 @@ describe('get-schema-type', () => {
 
       const result = getSchemaType(schema)
 
-      expect(result).toBe('array object[]')
+      expect(result).toBe('object[]')
     })
 
     it('handles nullable array schema with object items', () => {
@@ -164,7 +164,7 @@ describe('get-schema-type', () => {
 
       const result = getSchemaType(schema)
 
-      expect(result).toBe('array object[] | null')
+      expect(result).toBe('object[] | null')
     })
 
     it('handles array type with array and other types', () => {
@@ -177,7 +177,7 @@ describe('get-schema-type', () => {
 
       const result = getSchemaType(schema)
 
-      expect(result).toBe('array number[] | string | null')
+      expect(result).toBe('number[] | string | null')
     })
 
     it('handles array type with array but no items', () => {
@@ -187,7 +187,7 @@ describe('get-schema-type', () => {
 
       const result = getSchemaType(schema)
 
-      expect(result).toBe('array | string')
+      expect(result).toBe('unknown[] | string')
     })
 
     it('handles array type with array and items but no other types', () => {
@@ -200,7 +200,7 @@ describe('get-schema-type', () => {
 
       const result = getSchemaType(schema)
 
-      expect(result).toBe('array boolean[]')
+      expect(result).toBe('boolean[]')
     })
 
     it('handles array schema with items that have no type', () => {
@@ -211,7 +211,7 @@ describe('get-schema-type', () => {
 
       const result = getSchemaType(schema)
 
-      expect(result).toBe('array')
+      expect(result).toBe('unknown[]')
     })
 
     it('handles array schema with items that have title', () => {
@@ -225,7 +225,7 @@ describe('get-schema-type', () => {
 
       const result = getSchemaType(schema)
 
-      expect(result).toBe('array User Object[]')
+      expect(result).toBe('object[]')
     })
 
     it('handles array schema with items that have content encoding', () => {
@@ -239,7 +239,7 @@ describe('get-schema-type', () => {
 
       const result = getSchemaType(schema)
 
-      expect(result).toBe('array string • base64[]')
+      expect(result).toBe('string • base64[]')
     })
 
     it('handles array schema with items that are arrays', () => {
@@ -255,7 +255,7 @@ describe('get-schema-type', () => {
 
       const result = getSchemaType(schema)
 
-      expect(result).toBe('array array string[][]')
+      expect(result).toBe('(string[])[]')
     })
 
     it('handles nullable array schema with items that have no type', () => {
@@ -267,7 +267,7 @@ describe('get-schema-type', () => {
 
       const result = getSchemaType(schema as any)
 
-      expect(result).toBe('array | null')
+      expect(result).toBe('unknown[] | null')
     })
 
     it('handles array schema without items property', () => {
@@ -277,7 +277,7 @@ describe('get-schema-type', () => {
 
       const result = getSchemaType(schema)
 
-      expect(result).toBe('array')
+      expect(result).toBe('unknown[]')
     })
 
     it('handles nullable array schema without items property', () => {
@@ -288,7 +288,7 @@ describe('get-schema-type', () => {
 
       const result = getSchemaType(schema)
 
-      expect(result).toBe('array')
+      expect(result).toBe('unknown[]')
     })
 
     it('handles schema with only type property', () => {
@@ -330,7 +330,7 @@ describe('get-schema-type', () => {
 
       const result = getSchemaType(schema)
 
-      expect(result).toBe('array string[]')
+      expect(result).toBe('string[]')
     })
 
     it('handles deeply nested array items', () => {
@@ -349,7 +349,7 @@ describe('get-schema-type', () => {
 
       const result = getSchemaType(schema)
 
-      expect(result).toBe('array array array string[][][]')
+      expect(result).toBe('((string[])[])[]')
     })
 
     it('handles array type with multiple array types', () => {
@@ -362,7 +362,7 @@ describe('get-schema-type', () => {
 
       const result = getSchemaType(schema)
 
-      expect(result).toBe('array string[]')
+      expect(result).toBe('string[]')
     })
 
     it('handles array type with array and complex items', () => {
@@ -375,7 +375,7 @@ describe('get-schema-type', () => {
 
       const result = getSchemaType(schema)
 
-      expect(result).toBe('array (string | number)[] | object')
+      expect(result).toBe('(string | number)[] | object')
     })
 
     it('handles array schema with nullable items', () => {
@@ -389,7 +389,7 @@ describe('get-schema-type', () => {
 
       const result = getSchemaType(schema)
 
-      expect(result).toBe('array string[]')
+      expect(result).toBe('string[]')
     })
 
     it('handles array schema with items that have array type', () => {
@@ -405,7 +405,7 @@ describe('get-schema-type', () => {
 
       const result = getSchemaType(schema)
 
-      expect(result).toBe('array (array number[] | string)[]')
+      expect(result).toBe('(number[] | string)[]')
     })
 
     it('handles array schema with items that have array type and other properties', () => {
@@ -422,7 +422,7 @@ describe('get-schema-type', () => {
 
       const result = getSchemaType(schema)
 
-      expect(result).toBe('array (array number[] | string)[]')
+      expect(result).toBe('(number[] | string)[]')
     })
 
     it('handles array schema with items that have array type', () => {
@@ -438,7 +438,7 @@ describe('get-schema-type', () => {
 
       const result = getSchemaType(schema)
 
-      expect(result).toBe('array (array number[] | string)[]')
+      expect(result).toBe('(number[] | string)[]')
     })
 
     it('handles array schema with items that have array type and content encoding', () => {
@@ -455,7 +455,7 @@ describe('get-schema-type', () => {
 
       const result = getSchemaType(schema)
 
-      expect(result).toBe('array (array number[] | string)[]')
+      expect(result).toBe('(number[] | string)[]')
     })
 
     it('handles array schema with items that have only array type', () => {
@@ -471,7 +471,7 @@ describe('get-schema-type', () => {
 
       const result = getSchemaType(schema)
 
-      expect(result).toBe('array array number[][]')
+      expect(result).toBe('(number[])[]')
     })
 
     it('handles array schema with items that have array type but no items', () => {
@@ -484,17 +484,17 @@ describe('get-schema-type', () => {
 
       const result = getSchemaType(schema)
 
-      expect(result).toBe('array (string | array)[]')
+      expect(result).toBe('(string | unknown[])[]')
     })
 
     describe('title property', () => {
-      it('uses the title for an array type if items are not defined', () => {
+      it('returns array type when items are not defined (title shown separately in UI)', () => {
         const schema = coerceValue(SchemaObjectSchema, {
           title: 'CustomArray',
           type: 'array',
         })
         const result = getSchemaType(schema)
-        expect(result).toBe('CustomArray')
+        expect(result).toBe('unknown[]')
       })
 
       it('ignores the title for an array type if items are defined', () => {
@@ -506,12 +506,12 @@ describe('get-schema-type', () => {
           },
         })
         const result = getSchemaType(schema)
-        expect(result).toBe('array string[]')
+        expect(result).toBe('string[]')
       })
     })
 
     describe('xml.name property', () => {
-      it('returns xml.name when present and no title or name', () => {
+      it('returns raw type when xml.name is present', () => {
         const schema = coerceValue(SchemaObjectSchema, {
           type: 'object',
           xml: {
@@ -521,10 +521,10 @@ describe('get-schema-type', () => {
 
         const result = getSchemaType(schema)
 
-        expect(result).toBe('XmlTag')
+        expect(result).toBe('object')
       })
 
-      it('prioritizes title over xml.name', () => {
+      it('returns raw type when both title and xml.name present', () => {
         const schema = coerceValue(SchemaObjectSchema, {
           title: 'Schema Title',
           type: 'object',
@@ -535,10 +535,10 @@ describe('get-schema-type', () => {
 
         const result = getSchemaType(schema)
 
-        expect(result).toBe('Schema Title')
+        expect(result).toBe('object')
       })
 
-      it('prioritizes xml.name over type with content encoding', () => {
+      it('returns type with content encoding', () => {
         const schema = coerceValue(SchemaObjectSchema, {
           type: 'string',
           contentEncoding: 'base64',
@@ -549,10 +549,10 @@ describe('get-schema-type', () => {
 
         const result = getSchemaType(schema)
 
-        expect(result).toBe('XmlTag')
+        expect(result).toBe('string • base64')
       })
 
-      it('prioritizes xml.name over type only', () => {
+      it('returns raw type when xml.name present (name shown separately in UI)', () => {
         const schema = coerceValue(SchemaObjectSchema, {
           type: 'string',
           xml: {
@@ -562,10 +562,10 @@ describe('get-schema-type', () => {
 
         const result = getSchemaType(schema)
 
-        expect(result).toBe('XmlTag')
+        expect(result).toBe('string')
       })
 
-      it('uses xml.name for an array type when items are not defined', () => {
+      it('returns array when xml.name on array with no items', () => {
         const schema = coerceValue(SchemaObjectSchema, {
           type: 'array',
           xml: {
@@ -575,7 +575,7 @@ describe('get-schema-type', () => {
 
         const result = getSchemaType(schema)
 
-        expect(result).toBe('XmlArray')
+        expect(result).toBe('unknown[]')
       })
 
       it('ignores xml.name for an array type when items are defined', () => {
@@ -591,7 +591,7 @@ describe('get-schema-type', () => {
 
         const result = getSchemaType(schema)
 
-        expect(result).toBe('array string[]')
+        expect(result).toBe('string[]')
       })
 
       it('handles xml.name with array type in type array', () => {
@@ -604,7 +604,7 @@ describe('get-schema-type', () => {
 
         const result = getSchemaType(schema)
 
-        expect(result).toBe('array | null')
+        expect(result).toBe('unknown[] | null')
       })
 
       it('handles xml.name with complex array type', () => {
@@ -644,12 +644,12 @@ describe('get-schema-type', () => {
         expect(result).toBe('object')
       })
 
-      it('handles xml.name for different schema types', () => {
+      it('handles xml.name for different schema types (returns raw type)', () => {
         const schemas = [
-          { type: 'string', xml: { name: 'XmlString' }, expected: 'XmlString' },
-          { type: 'number', xml: { name: 'XmlNumber' }, expected: 'XmlNumber' },
-          { type: 'boolean', xml: { name: 'XmlBoolean' }, expected: 'XmlBoolean' },
-          { type: 'integer', xml: { name: 'XmlInteger' }, expected: 'XmlInteger' },
+          { type: 'string', xml: { name: 'XmlString' }, expected: 'string' },
+          { type: 'number', xml: { name: 'XmlNumber' }, expected: 'number' },
+          { type: 'boolean', xml: { name: 'XmlBoolean' }, expected: 'boolean' },
+          { type: 'integer', xml: { name: 'XmlInteger' }, expected: 'integer' },
         ]
 
         schemas.forEach(({ type, xml, expected }) => {
@@ -659,7 +659,7 @@ describe('get-schema-type', () => {
         })
       })
 
-      it('handles xml.name with all properties present', () => {
+      it('handles xml.name with all properties present (returns type with encoding)', () => {
         const schema = coerceValue(SchemaObjectSchema, {
           type: 'string',
           title: 'Schema Title',
@@ -671,10 +671,10 @@ describe('get-schema-type', () => {
 
         const result = getSchemaType(schema)
 
-        expect(result).toBe('Schema Title')
+        expect(result).toBe('string • base64')
       })
 
-      it('handles xml.name in array items', () => {
+      it('handles xml.name in array items (returns structural type)', () => {
         const schema = coerceValue(SchemaObjectSchema, {
           type: 'array',
           items: {
@@ -687,7 +687,7 @@ describe('get-schema-type', () => {
 
         const result = getSchemaType(schema)
 
-        expect(result).toBe('array XmlItem[]')
+        expect(result).toBe('object[]')
       })
 
       it('handles xml.name in nested array items', () => {
@@ -706,10 +706,10 @@ describe('get-schema-type', () => {
 
         const result = getSchemaType(schema)
 
-        expect(result).toBe('array array NestedXmlItem[][]')
+        expect(result).toBe('(object[])[]')
       })
 
-      it('prioritizes title over xml.name in array items', () => {
+      it('returns structural type for array items with title and xml.name', () => {
         const schema = coerceValue(SchemaObjectSchema, {
           type: 'array',
           items: {
@@ -723,7 +723,7 @@ describe('get-schema-type', () => {
 
         const result = getSchemaType(schema)
 
-        expect(result).toBe('array Item Title[]')
+        expect(result).toBe('object[]')
       })
     })
   })

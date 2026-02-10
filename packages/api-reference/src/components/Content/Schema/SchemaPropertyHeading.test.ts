@@ -129,7 +129,7 @@ describe('SchemaPropertyHeading', () => {
       })
 
       const typeElement = wrapper.find('.property-detail')
-      expect(typeElement.text()).toContain('array')
+      expect(typeElement.text()).toMatch(/array|const\[\]/)
 
       const constElement = wrapper.find('.property-const')
       expect(constElement.text()).toContain('const:')
@@ -151,7 +151,8 @@ describe('SchemaPropertyHeading', () => {
     })
 
     const detailsElement = wrapper.find('.property-heading')
-    expect(detailsElement.text()).toContain('array Model[]')
+    expect(detailsElement.text()).toContain('object[]')
+    expect(detailsElement.text()).toContain('Model')
   })
 
   it('renders default value: null', () => {
@@ -203,7 +204,8 @@ describe('SchemaPropertyHeading', () => {
       },
     })
     const detailsElement = wrapper.find('.property-heading')
-    expect(detailsElement.text()).toContain('array FooModel[]')
+    expect(detailsElement.text()).toContain('object[]')
+    expect(detailsElement.text()).toContain('FooModel')
   })
 
   it('formats object type with direct model reference', () => {
@@ -230,7 +232,8 @@ describe('SchemaPropertyHeading', () => {
       },
     })
     const detailsElement = wrapper.find('.property-heading')
-    expect(detailsElement.text()).toContain('array BarModel[]')
+    expect(detailsElement.text()).toContain('object[]')
+    expect(detailsElement.text()).toContain('BarModel')
   })
 
   it('displays plain type when no model name is present', () => {
@@ -265,14 +268,14 @@ describe('SchemaPropertyHeading', () => {
     expect(detailsElement.text()).toContain('object')
   })
 
-  it("doesn't show model name when hideModelNames is true", () => {
+  it("doesn't show model title when hideModelTitles is true", () => {
     const wrapper = mount(SchemaPropertyHeading, {
       props: {
         value: coerceValue(SchemaObjectSchema, {
           type: 'array',
           items: { type: 'string' },
         }),
-        hideModelNames: true,
+        hideModelTitles: true,
         schemas: {
           Planet: {
             type: 'array',
@@ -282,11 +285,11 @@ describe('SchemaPropertyHeading', () => {
       },
     })
     const detailsElement = wrapper.find('.property-heading')
-    expect(detailsElement.text()).toContain('Type: array string[]')
+    expect(detailsElement.text()).toContain('Type: string[]')
     expect(detailsElement.text()).not.toContain('Planet')
   })
 
-  it('shows model name when hideModelNames is false', () => {
+  it('shows model title when hideModelTitles is false', () => {
     const wrapper = mount(SchemaPropertyHeading, {
       props: {
         value: coerceValue(SchemaObjectSchema, {
@@ -294,11 +297,12 @@ describe('SchemaPropertyHeading', () => {
           type: 'array',
           items: { type: 'string' },
         }),
-        hideModelNames: false,
+        hideModelTitles: false,
       },
     })
     const detailsElement = wrapper.find('.property-heading')
-    expect(detailsElement.text()).toContain('Type: array Planet[]')
+    expect(detailsElement.text()).toContain('string[]')
+    expect(detailsElement.text()).toContain('Planet')
   })
 
   it('renders multipleOf property', () => {

@@ -44,7 +44,7 @@ const props = withDefaults(
     compact?: boolean
     discriminator?: DiscriminatorObject
     description?: string
-    hideModelNames?: boolean
+    hideModelTitles?: boolean
     hideHeading?: boolean
     variant?: 'additionalProperties' | 'patternProperties'
     breadcrumb?: string[]
@@ -55,7 +55,7 @@ const props = withDefaults(
     level: 0,
     required: false,
     compact: false,
-    hideModelNames: false,
+    hideModelTitles: false,
   },
 )
 
@@ -153,7 +153,7 @@ const isDiscriminatorProperty = computed(() =>
       v-if="shouldDisplayHeadingComputed"
       class="group"
       :enum="hasEnum"
-      :hideModelNames
+      :hideModelTitles="name ? hideModelTitles : true"
       :isDiscriminator="isDiscriminatorProperty"
       :required
       :value="optimizedValue">

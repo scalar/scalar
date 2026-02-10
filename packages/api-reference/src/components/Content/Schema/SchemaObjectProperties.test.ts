@@ -18,7 +18,7 @@ vi.mock('./SchemaProperty.vue', () => ({
       'level',
       'compact',
       'hideHeading',
-      'hideModelNames',
+      'hideModelTitles',
       'required',
       'schemas',
       'discriminatorMapping',

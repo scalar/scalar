@@ -27,7 +27,7 @@ const {
   additionalProperties,
   discriminator,
   breadcrumb,
-  hideModelNames = false,
+  hideModelTitles = false,
   options,
 } = defineProps<{
   schema?: SchemaObject
@@ -43,8 +43,8 @@ const {
   hideHeading?: boolean
   /** Show a special one way toggle for additional properties, also has a top border when open */
   additionalProperties?: boolean
-  /** Hide model names in type display */
-  hideModelNames?: boolean
+  /** Hide schema titles in type display */
+  hideModelTitles?: boolean
   /** Discriminator object */
   discriminator?: DiscriminatorObject
   /** Breadcrumb for the schema */
@@ -195,7 +195,7 @@ const handleClick = (e: MouseEvent) => noncollapsible && e.stopPropagation()
             :discriminator
             :eventBus="eventBus"
             :hideHeading
-            :hideModelNames
+            :hideModelTitles
             :level="level + 1"
             :options
             :schema />
@@ -207,7 +207,7 @@ const handleClick = (e: MouseEvent) => noncollapsible && e.stopPropagation()
               :compact
               :eventBus="eventBus"
               :hideHeading
-              :hideModelNames
+              :hideModelTitles
               :level
               :options
               :schema />

@@ -40,7 +40,6 @@ const { schema, options } = defineProps<{
       <Schema
         :eventBus
         hideHeading
-        hideModelNames
         :level="1"
         noncollapsible
         :options="options"

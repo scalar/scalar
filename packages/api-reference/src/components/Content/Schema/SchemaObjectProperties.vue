@@ -19,7 +19,7 @@ const { schema, discriminator, options } = defineProps<{
   compact?: boolean
   hideHeading?: boolean
   level?: number
-  hideModelNames?: boolean
+  hideModelTitles?: boolean
   breadcrumb?: string[]
   eventBus: WorkspaceEventBus | null
   options: SchemaOptions
@@ -100,7 +100,7 @@ const getAdditionalPropertiesValue = (
       :discriminator
       :eventBus="eventBus"
       :hideHeading
-      :hideModelNames
+      :hideModelTitles
       :level
       :name="property"
       :options="options"
@@ -118,7 +118,7 @@ const getAdditionalPropertiesValue = (
       :discriminator
       :eventBus="eventBus"
       :hideHeading
-      :hideModelNames="hideModelNames"
+      :hideModelTitles="hideModelTitles"
       :level
       :name="key"
       :options="options"
@@ -133,7 +133,7 @@ const getAdditionalPropertiesValue = (
       :discriminator
       :eventBus="eventBus"
       :hideHeading
-      :hideModelNames
+      :hideModelTitles
       :level
       :name="getAdditionalPropertiesName(schema.additionalProperties)"
       noncollapsible

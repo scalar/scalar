@@ -2,18 +2,19 @@ import { resolve } from '@scalar/workspace-store/resolve'
 import type { ReferenceType, SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { isArraySchema } from '@scalar/workspace-store/schemas/v3.1/strict/type-guards'
 
-import { getRefName } from '@/components/Content/Schema/helpers/get-ref-name'
-
 /**
- * Formats an array type string with proper wrapping for union types.
+ * Formats an array type string in TS-style (type[] only, no "array " prefix).
+ * Wraps in parentheses when the item type is a union (contains " | ") or already an array type (ends with "]").
+ * No space between consecutive brackets.
  */
 const formatArrayType = (itemType: string): string => {
   if (!itemType) {
-    return 'array'
+    return 'unknown[]'
   }
 
-  const wrappedItemType = itemType.includes(' | ') ? `(${itemType})` : itemType
-  return `array ${wrappedItemType}[]`
+  const needsParens = itemType.includes(' | ') || itemType.endsWith(']')
+  const wrappedItemType = needsParens ? `(${itemType})` : itemType
+  return `${wrappedItemType}[]`
 }
 
 /**
@@ -21,7 +22,7 @@ const formatArrayType = (itemType: string): string => {
  */
 const processArrayType = (value: Extract<SchemaObject, { type: 'array' }>, isUnionType: boolean = false): string => {
   if (!value.items) {
-    return isUnionType ? 'array' : value.title || value.xml?.name || 'array'
+    return 'unknown[]'
   }
 
   const itemType = getSchemaType(resolve.schema(value.items))
@@ -36,16 +37,15 @@ const processArrayType = (value: Extract<SchemaObject, { type: 'array' }>, isUni
 }
 
 /**
- * Computes the human-readable type for a schema.
+ * Computes the human-readable structural type for a schema.
+ * Always returns the type (string, object, array, etc.), never title or ref name.
  *
  * Priority order:
  * 1. const values
- * 2. Array types (with special handling for items)
- * 3. title property
- * 4. xml.name property
- * 5. type with contentEncoding
- * 6. $ref names
- * 7. raw type
+ * 2. Union types (array of types)
+ * 3. Array types (with special handling for items)
+ * 4. type with contentEncoding
+ * 5. raw type
  */
 export const getSchemaType = (valueOrRef: SchemaObject | ReferenceType<SchemaObject>): string => {
   // Early return for falsy values
@@ -71,8 +71,8 @@ export const getSchemaType = (valueOrRef: SchemaObject | ReferenceType<SchemaObj
       return otherTypes.length > 0 ? `${arrayType} | ${otherTypes.join(' | ')}` : arrayType
     }
 
-    // Regular union types
-    return value.type.join(' | ')
+    // Regular union types (array with no items shown as unknown[] in TS-style)
+    return value.type.map((t) => (t === 'array' ? 'unknown[]' : t)).join(' | ')
   }
 
   // Handle single array type
@@ -80,27 +80,9 @@ export const getSchemaType = (valueOrRef: SchemaObject | ReferenceType<SchemaObj
     return processArrayType(value, false)
   }
 
-  // Handle named schemas (title has highest priority)
-  if (value.title) {
-    return value.title
-  }
-
-  // Handle XML-named schemas
-  if (value.xml?.name) {
-    return value.xml.name
-  }
-
   // Handle type with content encoding
   if ('type' in value && value.type && value.contentEncoding) {
     return `${value.type} • ${value.contentEncoding}`
-  }
-
-  // Handle referenced schemas
-  if ('$ref' in valueOrRef) {
-    const refName = getRefName(valueOrRef.$ref)
-    if (refName) {
-      return refName
-    }
   }
 
   // Fallback to raw type

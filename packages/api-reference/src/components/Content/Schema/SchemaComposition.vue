@@ -15,6 +15,7 @@ import type { SchemaOptions } from '@/components/Content/Schema/types'
 import { getSchemaType } from './helpers/get-schema-type'
 import { mergeAllOfSchemas } from './helpers/merge-all-of-schemas'
 import { type CompositionKeyword } from './helpers/schema-composition'
+import { getModelTitleFromSchema } from './helpers/schema-title'
 import Schema from './Schema.vue'
 
 const props = withDefaults(
@@ -59,10 +60,16 @@ const composition = computed(() =>
  * Each option represents a schema in the composition with a human-readable label.
  */
 const listboxOptions = computed((): ScalarListboxOption[] =>
-  composition.value.map((schema, index: number) => ({
-    id: String(index),
-    label: getSchemaType(resolve.schema(schema.original!)) || 'Schema',
-  })),
+  composition.value.map((schema, index: number) => {
+    const resolved = resolve.schema(schema.original!)
+    return {
+      id: String(index),
+      label:
+        getModelTitleFromSchema(resolved) ||
+        getSchemaType(resolved) ||
+        'Schema',
+    }
+  }),
 )
 
 /**

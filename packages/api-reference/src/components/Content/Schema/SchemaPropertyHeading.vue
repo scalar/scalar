@@ -13,7 +13,7 @@ import { Badge } from '@/components/Badge'
 import ScreenReader from '@/components/ScreenReader.vue'
 
 import { getSchemaType } from './helpers/get-schema-type'
-import { getModelName } from './helpers/schema-name'
+import { getModelTitleFromSchema } from './helpers/schema-title'
 import RenderString from './RenderString.vue'
 import SchemaPropertyDetail from './SchemaPropertyDetail.vue'
 import SchemaPropertyExamples from './SchemaPropertyExamples.vue'
@@ -26,13 +26,13 @@ const props = withDefaults(
     required?: boolean
     additional?: boolean
     withExamples?: boolean
-    hideModelNames?: boolean
+    hideModelTitles?: boolean
   }>(),
   {
     isDiscriminator: false,
     required: false,
     withExamples: true,
-    hideModelNames: false,
+    hideModelTitles: false,
   },
 )
 
@@ -184,15 +184,6 @@ const validationProperties = computed(() => {
   return properties
 })
 
-/** Gets the model name */
-const modelName = computed(() => {
-  if (!props.value) {
-    return null
-  }
-
-  return getModelName(props.value, props.hideModelNames)
-})
-
 /** Check if we should show the type information */
 const shouldShowType = computed(() => {
   if (!props.value || !('type' in props.value)) {
@@ -208,12 +199,31 @@ const shouldShowType = computed(() => {
   return !constValue.value
 })
 
-/** Get the display type */
+/** Always the structural type (string, object, array, etc.) */
 const displayType = computed(() => {
   if (!props.value) {
     return ''
   }
-  return modelName.value || getSchemaType(props.value)
+  return getSchemaType(props.value)
+})
+
+/**
+ * Optional schema title to show in addition to the type.
+ * Uses schema title or $ref name; for arrays without a schema title, uses item title (e.g. User[]).
+ */
+const displayTitle = computed(() => {
+  if (!props.value || props.hideModelTitles) {
+    return null
+  }
+  const title = getModelTitleFromSchema(props.value)
+  if (title) {
+    return title
+  }
+  if (isArraySchema(props.value) && props.value.items) {
+    const itemTitle = getModelTitleFromSchema(props.value.items)
+    return itemTitle ? `${itemTitle}[]` : null
+  }
+  return null
 })
 
 /**
@@ -263,7 +273,8 @@ const flattenedDefaultValue = computed(() => {
       <SchemaPropertyDetail
         v-if="shouldShowType"
         truncate>
-        <ScreenReader>Type: </ScreenReader>{{ displayType }}
+        <ScreenReader>Type: </ScreenReader>{{ displayType
+        }}{{ displayTitle ? ` · ${displayTitle}` : '' }}
       </SchemaPropertyDetail>
 
       <!-- Dynamic validation properties from composable -->
