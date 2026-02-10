@@ -55,6 +55,7 @@ const saveChanges = () => {
         :aria-label="`title: ${title}`"
         class="mx-auto flex h-fit w-full flex-col gap-2 pt-6 pb-3 md:mx-auto md:max-w-[720px]">
         <Callout
+          v-if="document?.['x-scalar-is-dirty']"
           class="mb-5"
           type="warning">
           <p>
