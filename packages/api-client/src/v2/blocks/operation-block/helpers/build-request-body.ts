@@ -30,7 +30,7 @@ export const buildRequestBody = (
     return null
   }
 
-  // Form data
+  // Form data - array format (from UI editor)
   if (
     (bodyContentType === 'multipart/form-data' || bodyContentType === 'application/x-www-form-urlencoded') &&
     Array.isArray(example.value)
@@ -59,6 +59,29 @@ export const buildRequestBody = (
         form.append(replacedName, replaceEnvVariables(value, env))
       }
     })
+
+    return form
+  }
+
+  // Form data - object format (from schema examples)
+  // When the example value is a plain object and content type is form-urlencoded,
+  // convert to URLSearchParams instead of JSON stringifying
+  if (
+    bodyContentType === 'application/x-www-form-urlencoded' &&
+    example.value !== null &&
+    typeof example.value === 'object' &&
+    !Array.isArray(example.value)
+  ) {
+    const form = new URLSearchParams()
+
+    // Convert object properties to form fields
+    for (const [key, value] of Object.entries(example.value)) {
+      if (key && value !== undefined && value !== null) {
+        const replacedKey = replaceEnvVariables(key, env)
+        const stringValue = typeof value === 'string' ? value : String(value)
+        form.append(replacedKey, replaceEnvVariables(stringValue, env))
+      }
+    }
 
     return form
   }

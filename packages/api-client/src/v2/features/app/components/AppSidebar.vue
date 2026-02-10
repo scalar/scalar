@@ -5,7 +5,7 @@ import {
   ScalarModal,
   ScalarSidebarItem,
   useModal,
-  type ScalarListboxOption,
+  type WorkspaceGroup,
 } from '@scalar/components'
 import { isMacOS } from '@scalar/helpers/general/is-mac-os'
 import {
@@ -54,7 +54,7 @@ const { sidebarState, layout, activeWorkspace, workspaces, store, eventBus } =
      * The list of all available workspaces.
      * Used to render options for workspace switching and selection.
      */
-    workspaces: ScalarListboxOption[]
+    workspaces: WorkspaceGroup[]
     /**
      * The workspace event bus for handling workspace-level events.
      * Used for triggering and responding to workspace changes and actions.

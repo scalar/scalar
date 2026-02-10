@@ -83,6 +83,8 @@ const {
   securitySchemes,
   selectedClient,
   server,
+  environments,
+  activeEnvironment,
 } = defineProps<{
   /** Event bus */
   eventBus: WorkspaceEventBus
@@ -132,6 +134,10 @@ const {
   securitySchemes: MergedSecuritySchemes
   /** Client plugins */
   plugins: ClientPlugin[]
+  /** Environment list */
+  environments?: string[]
+  /** Currently selected environment */
+  activeEnvironment?: string
   /** For environment variables in the inputs */
   environment: XScalarEnvironment
   /** The proxy URL for sending requests */
@@ -333,8 +339,10 @@ onBeforeUnmount(() => {
       class="lg:min-h-header flex w-full flex-wrap items-center justify-center p-2 lg:p-0">
       <!-- Address Bar -->
       <Header
+        :activeEnvironment
         :documentUrl
         :environment
+        :environments
         :eventBus
         :hideClientButton
         :history="operationHistory"

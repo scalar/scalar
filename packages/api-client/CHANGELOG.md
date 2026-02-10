@@ -1,5 +1,104 @@
 # @scalar/api-client
 
+## 2.25.0
+
+### Minor Changes
+
+- [#8077](https://github.com/scalar/scalar/pull/8077): feat: support team workspaces
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.30.0**
+  - [#8077](https://github.com/scalar/scalar/pull/8077): feat: support team workspaces
+
+- **@scalar/components@0.18.0**
+  - [#8077](https://github.com/scalar/scalar/pull/8077): feat: support team workspaces
+
+- **@scalar/oas-utils@0.6.37**
+
+- **@scalar/sidebar@0.7.30**
+
+- **@scalar/use-codemirror@0.13.34**
+
+## 2.24.0
+
+### Minor Changes
+
+- [#8045](https://github.com/scalar/scalar/pull/8045): feat: manage active environments
+
+### Patch Changes
+
+- [#7989](https://github.com/scalar/scalar/pull/7989): fix: prevent API client modal from disappearing on reopen in Safari
+- [#8049](https://github.com/scalar/scalar/pull/8049): fix: gracefully handle import errors when importing from command palette
+- [#8061](https://github.com/scalar/scalar/pull/8061): fix: correctly display watch mode toggle state
+- [#8062](https://github.com/scalar/scalar/pull/8062): fix: correctly handle redirect after the document deletion
+- [#8070](https://github.com/scalar/scalar/pull/8070): chore: remove the import modal and change the workspace picker to support groups
+
+#### Updated Dependencies
+
+- **@scalar/json-magic@0.10.0**
+  - [#8052](https://github.com/scalar/scalar/pull/8052): feat: allow custom LoaderPlugin plugins in dereference
+
+- **@scalar/workspace-store@0.29.0**
+  - [#8061](https://github.com/scalar/scalar/pull/8061): fix: do not throw when try to update a non existent document metadata
+  - [#8045](https://github.com/scalar/scalar/pull/8045): feat: manage active environments
+
+- **@scalar/oas-utils@0.6.36**
+  - [#8037](https://github.com/scalar/scalar/pull/8037): Improve error message when running oas-utils tests while test-servers are not running
+
+- **@scalar/components@0.17.6**
+  - [#8070](https://github.com/scalar/scalar/pull/8070): chore: remove the import modal and change the workspace picker to support groups
+
+- **@scalar/openapi-parser@0.24.8**
+
+- **@scalar/sidebar@0.7.29**
+
+- **@scalar/use-codemirror@0.13.33**
+
+## 2.23.4
+
+### Patch Changes
+
+- [#8058](https://github.com/scalar/scalar/pull/8058): fix: correctly drop changes when modal closes
+- [#8059](https://github.com/scalar/scalar/pull/8059): fix: harden auth secret extraction plus tests
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.28.4**
+  - [#8047](https://github.com/scalar/scalar/pull/8047): fix: unpack proxy when update an environment
+
+- **@scalar/oas-utils@0.6.35**
+
+- **@scalar/sidebar@0.7.28**
+
+- **@scalar/components@0.17.5**
+
+- **@scalar/use-codemirror@0.13.32**
+
+## 2.23.3
+
+### Patch Changes
+
+- [#8035](https://github.com/scalar/scalar/pull/8035): fix: correctly resolve and validate refs
+- [#8033](https://github.com/scalar/scalar/pull/8033): fix: add failsafe to incorrect array parameter style
+- [#8043](https://github.com/scalar/scalar/pull/8043): fix: :deep selector for bun build
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.28.3**
+  - [#8035](https://github.com/scalar/scalar/pull/8035): fix: correctly resolve and validate refs
+  - [#8034](https://github.com/scalar/scalar/pull/8034): fix: allow setting servers which dont exist in the document (from the config)
+
+- **@scalar/oas-utils@0.6.34**
+
+- **@scalar/sidebar@0.7.27**
+
+- **@scalar/components@0.17.4**
+
+- **@scalar/use-codemirror@0.13.31**
+
 ## 2.23.2
 
 ### Patch Changes

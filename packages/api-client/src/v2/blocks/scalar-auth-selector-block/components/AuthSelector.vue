@@ -215,7 +215,7 @@ defineExpose({
 
         <span
           v-if="authIndicator"
-          class="text-c-3 hover:bg-b-3 hover:text-c-1 -mr-1 cursor-pointer rounded px-1 py-0.5 text-xs leading-[normal]"
+          class="text-c-3 hover:bg-b-3 hover:text-c-1 -my-0.5 -mr-1 cursor-pointer rounded px-1 py-0.5 leading-[normal] font-normal"
           :class="{ 'text-c-1': authIndicator.text === 'Required' }"
           data-testid="auth-indicator"
           @click="handleAuthIndicatorClick">

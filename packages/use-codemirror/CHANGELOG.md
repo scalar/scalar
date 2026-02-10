@@ -1,5 +1,39 @@
 # @scalar/use-codemirror
 
+## 0.13.34
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/components@0.18.0**
+  - [#8077](https://github.com/scalar/scalar/pull/8077): feat: support team workspaces
+
+## 0.13.33
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/components@0.17.6**
+  - [#8070](https://github.com/scalar/scalar/pull/8070): chore: remove the import modal and change the workspace picker to support groups
+
+## 0.13.32
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/components@0.17.5**
+
+## 0.13.31
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/components@0.17.4**
+
 ## 0.13.30
 
 ### Patch Changes

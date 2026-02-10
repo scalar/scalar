@@ -1,6 +1,8 @@
 import { type FastifyInstance, fastify } from 'fastify'
 import { beforeEach, describe, expect, it } from 'vitest'
 
+import type { Plugin } from '@/bundle'
+import { getHash } from '@/bundle/value-generator'
 import { dereference } from '@/dereference/dereference'
 
 describe('dereference', () => {
@@ -120,6 +122,42 @@ describe('dereference', () => {
           },
           'x-ext-urls': {
             'f053c6d': `${url}/users`,
+          },
+        },
+      })
+    })
+
+    it('should dereference with custom plugin', async () => {
+      const sensorData = { temperature: 97 }
+      const plugin: Plugin = {
+        type: 'loader',
+        validate: (v) => v === 'workspace:foo-xyz',
+        exec: () =>
+          Promise.resolve({
+            ok: true,
+            data: sensorData,
+            raw: '',
+          }),
+      }
+      const data = {
+        sensor: {
+          $ref: 'workspace:foo-xyz',
+        },
+      }
+      const result = await dereference(data, { plugins: [plugin] })
+      expect(result).toEqual({
+        success: true,
+        data: {
+          sensor: {
+            '$ref': `#/x-ext/${getHash('workspace:foo-xyz')}`,
+            '$ref-value': sensorData,
+          },
+          'x-ext': {
+            // bundle() records the original URI in x-ext-urls when urlMap is enabled
+            [getHash('workspace:foo-xyz')]: sensorData,
+          },
+          'x-ext-urls': {
+            [getHash('workspace:foo-xyz')]: 'workspace:foo-xyz',
           },
         },
       })

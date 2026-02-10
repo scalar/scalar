@@ -11,7 +11,7 @@ type WorkspaceKey = {
 }
 
 type WorkspaceStoreShape = {
-  teamUid?: string
+  teamUid: string
   name: string
   workspace: InMemoryWorkspace
 }
@@ -232,7 +232,10 @@ export const createWorkspaceStorePersistence = async () => {
        * All chunks (meta, documents, configs, etc.) are upsert in their respective tables.
        * If a workspace with the same ID already exists, it will be replaced.
        */
-      setItem: async ({ namespace = 'local', slug }: WorkspaceKey, value: WorkspaceStoreShape) => {
+      setItem: async (
+        { namespace = 'local', slug }: WorkspaceKey,
+        value: Omit<WorkspaceStoreShape, 'teamUid'> & Partial<Pick<WorkspaceStoreShape, 'teamUid'>>,
+      ) => {
         const workspace = await workspaceTable.addItem(
           { namespace, slug },
           {
@@ -240,7 +243,6 @@ export const createWorkspaceStorePersistence = async () => {
             teamUid: value.teamUid ?? 'local',
           },
         )
-
         const id = getWorkspaceId(namespace, slug)
 
         // Save all meta info for workspace.

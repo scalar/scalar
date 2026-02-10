@@ -8,7 +8,7 @@ export default {}
 </script>
 
 <script setup lang="ts">
-import type { ScalarListboxOption } from '@scalar/components'
+import type { WorkspaceGroup } from '@scalar/components'
 
 import { SidebarMenu } from '@/v2/components/sidebar'
 
@@ -24,7 +24,7 @@ defineProps<{
    * The list of all available workspaces.
    * Used to render options for workspace switching and selection.
    */
-  workspaces: ScalarListboxOption[]
+  workspaces: WorkspaceGroup[]
 }>()
 
 const emit = defineEmits<{

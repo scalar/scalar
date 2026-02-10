@@ -93,6 +93,7 @@
         "src/views/Request/RequestSection/RequestAuth/index.ts",
         "src/views/Request/ResponseSection/index.ts",
         "src/views/Request/types/index.ts",
+        "src/v2/features/command-palette/index.ts",
         //
         "playground/{app,modal,web}/main.ts",
         "playground/v2/{app,modal,web}/main.ts"

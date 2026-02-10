@@ -8,7 +8,11 @@ export default {}
 </script>
 
 <script setup lang="ts">
-import { ScalarTeleportRoot, useModal } from '@scalar/components'
+import {
+  ScalarTeleportRoot,
+  useModal,
+  type ModalState,
+} from '@scalar/components'
 import { getThemeStyles } from '@scalar/themes'
 import { ScalarToasts } from '@scalar/use-toasts'
 import { extensions } from '@scalar/workspace-store/schemas/extensions'
@@ -21,9 +25,7 @@ import SplashScreen from '@/v2/features/app/components/SplashScreen.vue'
 import type { RouteProps } from '@/v2/features/app/helpers/routes'
 import { useDocumentWatcher } from '@/v2/features/app/hooks/use-document-watcher'
 import TheCommandPalette from '@/v2/features/command-palette/TheCommandPalette.vue'
-import { ImportListener } from '@/v2/features/import-listener'
 import type { ClientPlugin } from '@/v2/helpers/plugins'
-import { useColorMode } from '@/v2/hooks/use-color-mode'
 import { useGlobalHotKeys } from '@/v2/hooks/use-global-hot-keys'
 import type { ClientLayout } from '@/v2/types/layout'
 
@@ -50,7 +52,12 @@ defineSlots<{
    * Slot for customizing the actions section of the sidebar menu.
    * This slot is used to render custom actions or components within the actions section.
    */
-  'sidebar-menu-actions': []
+  'sidebar-menu-actions': () => unknown
+  /**
+   * Slot for customizing the create workspace modal.
+   * This slot is used to render custom actions or components within the create workspace modal.
+   */
+  'create-workspace'?: (payload: { state: ModalState }) => unknown
 }>()
 
 defineExpose({
@@ -65,9 +72,6 @@ if (typeof window !== 'undefined') {
   window.dataDumpWorkspace = () => app.store.value
   window.dumpAppState = () => app
 }
-
-/** Initialize color mode to ensure it is set on mount. */
-const { isDarkMode } = useColorMode({ workspaceStore: app.store })
 
 /** Register global hotkeys for the app, passing the workspace event bus and layout state */
 useGlobalHotKeys(app.eventBus, layout)
@@ -148,91 +152,77 @@ const routerViewProps = computed<RouteProps>(() => {
     <!-- Toasts -->
     <ScalarToasts />
 
-    <!-- Import listener -->
-    <ImportListener
-      :activeWorkspace="app.workspace.activeWorkspace.value"
-      :darkMode="isDarkMode"
-      :workspaceStore="app.store.value"
-      :workspaces="app.workspace.workspaceList.value"
-      @create:workspace="(payload) => app.workspace.create(payload)"
-      @navigateTo:document="
-        (slug) =>
-          app.router.value?.push({
-            name: 'document.overview',
-            params: {
-              documentSlug: slug,
-            },
-          })
+    <!-- Main content -->
+    <main
+      v-if="
+        app.store.value !== null &&
+        app.workspace.activeWorkspace.value !== null &&
+        !app.loading.value
       "
-      @select:workspace="setActiveWorkspace">
-      <!-- Main content -->
-      <main
-        v-if="
-          app.store.value !== null &&
-          app.workspace.activeWorkspace.value !== null &&
-          !app.loading.value
-        "
-        class="flex flex-1 flex-col">
-        <!-- Desktop App Tabs -->
-        <DesktopTabs
-          v-if="layout === 'desktop'"
-          :activeTabIndex="app.tabs.activeTabIndex.value"
+      class="flex flex-1 flex-col">
+      <!-- Desktop App Tabs -->
+      <DesktopTabs
+        v-if="layout === 'desktop'"
+        :activeTabIndex="app.tabs.activeTabIndex.value"
+        :eventBus="app.eventBus"
+        :tabs="app.tabs.state.value" />
+
+      <!-- Web App Top Nav -->
+      <WebTopNav
+        v-else
+        :activeWorkspace="app.workspace.activeWorkspace.value!"
+        :workspaces="app.workspace.workspaceGroups.value"
+        @create:workspace="createWorkspaceModalState.show()"
+        @select:workspace="setActiveWorkspace" />
+
+      <!-- min-h-0 is required here for scrolling, do not remove it -->
+      <div class="flex min-h-0 flex-1">
+        <!-- App sidebar -->
+        <AppSidebar
+          v-model:isSidebarOpen="app.sidebar.isOpen.value"
+          :activeWorkspace="app.workspace.activeWorkspace.value"
           :eventBus="app.eventBus"
-          :tabs="app.tabs.state.value" />
-
-        <!-- Web App Top Nav -->
-        <WebTopNav
-          v-else
-          :activeWorkspace="app.workspace.activeWorkspace.value!"
-          :workspaces="app.workspace.workspaceList.value!"
+          :isWorkspaceOpen="app.workspace.isOpen.value"
+          :layout
+          :sidebarState="app.sidebar.state"
+          :sidebarWidth="app.sidebar.width.value"
+          :store="app.store.value!"
+          :workspaces="app.workspace.workspaceGroups.value"
+          @click:workspace="app.workspace.navigateToWorkspace"
           @create:workspace="createWorkspaceModalState.show()"
-          @select:workspace="setActiveWorkspace" />
+          @select:workspace="setActiveWorkspace"
+          @selectItem="app.sidebar.handleSelectItem"
+          @update:sidebarWidth="app.sidebar.handleSidebarWidthUpdate">
+          <template #sidebarMenuActions>
+            <slot name="sidebar-menu-actions" />
+          </template>
+        </AppSidebar>
 
-        <!-- min-h-0 is required here for scrolling, do not remove it -->
-        <div class="flex min-h-0 flex-1">
-          <!-- App sidebar -->
-          <AppSidebar
-            v-model:isSidebarOpen="app.sidebar.isOpen.value"
-            :activeWorkspace="app.workspace.activeWorkspace.value"
-            :eventBus="app.eventBus"
-            :isWorkspaceOpen="app.workspace.isOpen.value"
-            :layout
-            :sidebarState="app.sidebar.state"
-            :sidebarWidth="app.sidebar.width.value"
-            :store="app.store.value!"
-            :workspaces="app.workspace.workspaceList.value"
-            @click:workspace="app.workspace.navigateToWorkspace"
-            @create:workspace="createWorkspaceModalState.show()"
-            @select:workspace="setActiveWorkspace"
-            @selectItem="app.sidebar.handleSelectItem"
-            @update:sidebarWidth="app.sidebar.handleSidebarWidthUpdate">
-            <template #sidebarMenuActions>
-              <slot name="sidebar-menu-actions" />
-            </template>
-          </AppSidebar>
-
-          <!-- Router view -->
-          <div class="bg-b-1 flex-1">
-            <RouterView v-bind="routerViewProps" />
-          </div>
+        <!-- Router view -->
+        <div class="bg-b-1 flex-1">
+          <RouterView v-bind="routerViewProps" />
         </div>
+      </div>
 
+      <slot
+        name="create-workspace"
+        :state="createWorkspaceModalState">
         <!-- Create workspace modal -->
         <CreateWorkspaceModal
           :state="createWorkspaceModalState"
           @create:workspace="(payload) => app.workspace.create(payload)" />
+      </slot>
 
-        <!-- Popup command palette to add resources from anywhere -->
-        <TheCommandPalette
-          :eventBus="app.eventBus"
-          :paletteState="paletteState"
-          :workspaceStore="app.store.value!" />
-      </main>
-      <!-- Splash screen -->
-      <main v-else>
-        <SplashScreen />
-      </main>
-    </ImportListener>
+      <!-- Popup command palette to add resources from anywhere -->
+      <TheCommandPalette
+        :eventBus="app.eventBus"
+        :paletteState="paletteState"
+        :workspaceStore="app.store.value!" />
+    </main>
+    <!-- Splash screen -->
+    <main v-else>
+      <SplashScreen />
+    </main>
   </ScalarTeleportRoot>
 </template>
 

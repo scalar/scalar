@@ -350,7 +350,7 @@ const id = useId()
         class="code-snippet">
         <ScalarCodeBlock
           v-if="!shouldVirtualize"
-          class="bg-b-2 !min-h-full -outline-offset-2"
+          class="bg-b-2 h-full"
           :content="generatedCode"
           :hideCredentials="secretCredentials"
           :lang="codeBlockLanguage"

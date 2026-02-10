@@ -76,6 +76,15 @@ export type UrlDoc = {
   url: string
 } & WorkspaceDocumentMetaInput
 
+/**
+ * Represents a document that is loaded from a URL.
+ * This type extends WorkspaceDocumentMetaInput to include URL-specific properties.
+ */
+export type FileDoc = {
+  /** Path to the local file to read the OpenAPI document from */
+  path: string
+} & WorkspaceDocumentMetaInput
+
 /** Represents a document that is provided directly as an object rather than loaded from a URL */
 export type ObjectDoc = {
   /** The OpenAPI document object containing the API specification */
@@ -87,7 +96,7 @@ export type ObjectDoc = {
  * - UrlDoc: Document loaded from a URL with optional fetch configuration
  * - ObjectDoc: Direct document object with metadata
  */
-export type WorkspaceDocumentInput = UrlDoc | ObjectDoc
+export type WorkspaceDocumentInput = UrlDoc | ObjectDoc | FileDoc
 
 /**
  * Resolves a workspace document from various input sources (URL, local file, or direct document object).
@@ -109,9 +118,25 @@ export type WorkspaceDocumentInput = UrlDoc | ObjectDoc
  *   document: { openapi: '3.0.0', paths: {} }
  * })
  */
-function loadDocument(workspaceDocument: WorkspaceDocumentInput): ReturnType<LoaderPlugin['exec']> {
+function loadDocument(
+  workspaceDocument: WorkspaceDocumentInput & {
+    /** A file loader plugin for resolving local file references (for non browser environments) */
+    fileLoader?: LoaderPlugin
+  },
+): ReturnType<LoaderPlugin['exec']> {
   if ('url' in workspaceDocument) {
     return fetchUrls({ fetch: workspaceDocument.fetch }).exec(workspaceDocument.url)
+  }
+
+  if ('path' in workspaceDocument) {
+    const loader = workspaceDocument.fileLoader
+    if (!loader) {
+      console.error('No loader provided for loading files')
+      return Promise.resolve({
+        ok: false,
+      })
+    }
+    return loader.exec(workspaceDocument.path)
   }
 
   return Promise.resolve({
@@ -123,8 +148,10 @@ function loadDocument(workspaceDocument: WorkspaceDocumentInput): ReturnType<Loa
 }
 
 /**
- * Returns the origin (URL) of a workspace document if it was loaded from a URL.
+ * Returns the base source of a workspace document if it was loaded from a URL or file.
+ * If the document was loaded from a file, returns the path to the file.
  * If the document was provided directly as an object, returns undefined.
+ * Which can be used to resolve relative references in the document.
  *
  * @param input - The workspace document input (either UrlDoc or ObjectDoc)
  * @returns The URL string if present, otherwise undefined
@@ -132,6 +159,9 @@ function loadDocument(workspaceDocument: WorkspaceDocumentInput): ReturnType<Loa
 const getDocumentSource = (input: WorkspaceDocumentInput) => {
   if ('url' in input) {
     return input.url
+  }
+  if ('path' in input) {
+    return input.path
   }
   return undefined
 }
@@ -183,22 +213,22 @@ export type WorkspaceStore = {
     value: (WorkspaceMeta & WorkspaceExtensions)[K],
   ): void
   /**
-   * Updates a specific metadata field in a document
-   * @param name - The name of the document to update ('active' or a specific document name)
-   * @param key - The metadata field to update
-   * @param value - The new value for the field
-   * @throws Error if the specified document doesn't exist
+   * Updates a specific metadata field for a given document in the workspace.
+   * @param name - The document to update. Use 'active' for the currently active document, or provide a specific document name.
+   * @param key - The metadata field to update, as defined in WorkspaceDocumentMeta.
+   * @param value - The new value for the selected metadata field.
+   * @returns true if the update was successful, false otherwise.
    * @example
-   * // Update the auth of the active document
+   * // Update the auth metadata for the active document
    * updateDocument('active', 'x-scalar-active-auth', 'Bearer')
-   * // Update the auth of a specific document
+   * // Update the auth metadata for a specific document
    * updateDocument('document-name', 'x-scalar-active-auth', 'Bearer')
    */
   updateDocument<K extends keyof WorkspaceDocumentMeta>(
     name: 'active' | (string & {}),
     key: K,
     value: WorkspaceDocumentMeta[K],
-  ): void
+  ): boolean
   /**
    * Replaces the content of a specific document in the workspace with the provided input.
    * This method computes the difference between the current document and the new input,
@@ -889,7 +919,10 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       proxyUrl: workspace['x-scalar-active-proxy'],
     })
 
-    const resolve = await measureAsync('loadDocument', async () => await loadDocument({ ...input, fetch }))
+    const resolve = await measureAsync(
+      'loadDocument',
+      async () => await loadDocument({ ...input, fetch, fileLoader: workspaceProps?.fileLoader }),
+    )
 
     // Log the time taken to add a document
     return await measureAsync('addDocument', async () => {
@@ -996,11 +1029,12 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       const currentDocument = workspace.documents[name === 'active' ? getActiveDocumentName() : name]
 
       if (!currentDocument) {
-        throw 'Please select a valid document'
+        return false
       }
 
       preventPollution(key)
       Object.assign(currentDocument, { [key]: value })
+      return true
     },
     async replaceDocument(documentName: string, input: Record<string, unknown>) {
       const currentDocument = workspace.documents[documentName]
@@ -1184,7 +1218,12 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       // ---- Resolve input document
       const resolve = await measureAsync(
         'loadDocument',
-        async () => await loadDocument({ ...input, fetch: input.fetch ?? workspaceProps?.fetch }),
+        async () =>
+          await loadDocument({
+            ...input,
+            fetch: input.fetch ?? workspaceProps?.fetch,
+            fileLoader: workspaceProps?.fileLoader,
+          }),
       )
 
       if (!resolve.ok || !isObject(resolve.data)) {

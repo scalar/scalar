@@ -6,7 +6,7 @@ import {
   ScalarMenuSection,
   ScalarMenuSupport,
   ScalarMenuWorkspacePicker,
-  type ScalarListboxOption,
+  type WorkspaceGroup,
 } from '@scalar/components'
 import { ScalarIconGear } from '@scalar/icons'
 import { RouterLink } from 'vue-router'
@@ -21,7 +21,7 @@ const { activeWorkspace, workspaces } = defineProps<{
    * The list of all available workspaces.
    * Used to render options for workspace switching and selection.
    */
-  workspaces: ScalarListboxOption[]
+  workspaces: WorkspaceGroup[]
 }>()
 
 const emit = defineEmits<{

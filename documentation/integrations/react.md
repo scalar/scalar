@@ -15,7 +15,7 @@ The API Reference package is written in Vue. That shouldn't stop you from using 
 > [!WARNING]
 > This is untested on SSR/SSG!
 
-```ts
+```typescript
 import { ApiReferenceReact } from '@scalar/api-reference-react'
 import '@scalar/api-reference-react/style.css'
 

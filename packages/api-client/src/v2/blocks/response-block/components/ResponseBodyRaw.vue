@@ -29,19 +29,19 @@ const getCurrentContent = () => {
 </script>
 <template>
   <div
-    class="scalar-code-block group/code-block body-raw grid min-h-0 overflow-hidden p-px outline-none has-[:focus-visible]:outline">
-    <!-- Copy button -->
-    <ScalarCodeBlockCopy
-      v-if="getCurrentContent()"
-      class="z-context top-2 mr-2"
-      :content="getCurrentContent()"
-      :controls="id" />
+    class="scalar-code-block group/code-block body-raw relative grid min-h-0 overflow-hidden p-px outline-none has-focus-visible:outline">
     <div
       class="body-raw-scroller custom-scroll relative pr-1"
       tabindex="0">
       <!-- CodeMirror container -->
       <div ref="codeMirrorRef" />
     </div>
+    <!-- Copy button -->
+    <ScalarCodeBlockCopy
+      v-if="getCurrentContent()"
+      class="absolute top-2 right-2"
+      :content="getCurrentContent()"
+      :aria-controls="id" />
   </div>
 </template>
 <style scoped>

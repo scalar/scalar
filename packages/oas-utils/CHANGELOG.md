@@ -1,5 +1,48 @@
 # @scalar/oas-utils
 
+## 0.6.37
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.30.0**
+  - [#8077](https://github.com/scalar/scalar/pull/8077): feat: support team workspaces
+
+## 0.6.36
+
+### Patch Changes
+
+- [#8037](https://github.com/scalar/scalar/pull/8037): Improve error message when running oas-utils tests while test-servers are not running
+
+#### Updated Dependencies
+
+- **@scalar/json-magic@0.10.0**
+  - [#8052](https://github.com/scalar/scalar/pull/8052): feat: allow custom LoaderPlugin plugins in dereference
+
+- **@scalar/workspace-store@0.29.0**
+  - [#8061](https://github.com/scalar/scalar/pull/8061): fix: do not throw when try to update a non existent document metadata
+  - [#8045](https://github.com/scalar/scalar/pull/8045): feat: manage active environments
+
+## 0.6.35
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.28.4**
+  - [#8047](https://github.com/scalar/scalar/pull/8047): fix: unpack proxy when update an environment
+
+## 0.6.34
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.28.3**
+  - [#8035](https://github.com/scalar/scalar/pull/8035): fix: correctly resolve and validate refs
+  - [#8034](https://github.com/scalar/scalar/pull/8034): fix: allow setting servers which dont exist in the document (from the config)
+
 ## 0.6.33
 
 ### Patch Changes

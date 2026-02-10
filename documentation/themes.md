@@ -16,7 +16,7 @@ You don't like the color scheme? We've prepared some themes for you:
 
 Just pass the theme name to your [Scalar API Reference configuration](configuration.md):
 
-```js
+```javascript
 {
   theme: 'moon'
 }

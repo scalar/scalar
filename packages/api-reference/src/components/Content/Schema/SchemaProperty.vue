@@ -257,7 +257,7 @@ const isDiscriminatorProperty = computed(() =>
   color: var(--scalar-color-1);
   display: flex;
   flex-direction: column;
-  padding: 8px;
+  padding: 10px;
   font-size: var(--scalar-small);
   position: relative;
 }
@@ -275,7 +275,7 @@ const isDiscriminatorProperty = computed(() =>
 
 .property--compact.property--level-0,
 .property--compact.property--level-1 {
-  padding: 8px 0;
+  padding: 10px 0;
 }
 
 .composition-panel .property.property.property.property--level-0 {
@@ -356,18 +356,18 @@ const isDiscriminatorProperty = computed(() =>
 
 .property-rule
   :deep(
-    .composition-panel .schema-card .schema-properties.schema-properties-open
+    .composition-panel
+      .schema-card--level-1
+      > .schema-properties.schema-properties-open
   ) {
-  border-top-left-radius: 0;
-  border-top-right-radius: 0;
+  border-radius: 0 0 var(--scalar-radius-lg) var(--scalar-radius-lg);
 }
 
 .property-rule
   :deep(.composition-panel > .schema-card > .schema-card-description) {
-  padding-left: 8px;
-  padding-right: 8px;
-  border-left: 1px solid var(--scalar-border-color);
-  border-right: 1px solid var(--scalar-border-color);
+  padding: 10px;
+  border-left: var(--scalar-border-width) solid var(--scalar-border-color);
+  border-right: var(--scalar-border-width) solid var(--scalar-border-color);
 
   & + .schema-properties {
     margin-top: 0;
@@ -407,7 +407,7 @@ const isDiscriminatorProperty = computed(() =>
   padding: 2px 4px;
   border-radius: var(--scalar-radius);
   color: var(--scalar-color-1);
-  border: 1px solid var(--scalar-border-color);
+  border: var(--scalar-border-width) solid var(--scalar-border-color);
   background-color: var(--scalar-background-2);
   margin-right: 4px;
 }

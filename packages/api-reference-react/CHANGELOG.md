@@ -1,5 +1,40 @@
 # @scalar/api-reference-react
 
+## 0.8.52
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.44.15**
+
+## 0.8.51
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.44.14**
+  - [#8025](https://github.com/scalar/scalar/pull/8025): fix: use flex-start instead of start for better browser support
+  - [#8056](https://github.com/scalar/scalar/pull/8056): fix: hideModels not applying correctly
+
+## 0.8.50
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.44.13**
+
+## 0.8.49
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.44.12**
+  - [#8035](https://github.com/scalar/scalar/pull/8035): fix: correctly resolve and validate refs
+
 ## 0.8.48
 
 ### Patch Changes

@@ -1,5 +1,40 @@
 # @scalar/aspnetcore
 
+## 2.12.36
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.44.15**
+
+## 2.12.35
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.44.14**
+  - [#8025](https://github.com/scalar/scalar/pull/8025): fix: use flex-start instead of start for better browser support
+  - [#8056](https://github.com/scalar/scalar/pull/8056): fix: hideModels not applying correctly
+
+## 2.12.34
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.44.13**
+
+## 2.12.33
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.44.12**
+  - [#8035](https://github.com/scalar/scalar/pull/8035): fix: correctly resolve and validate refs
+
 ## 2.12.32
 
 ### Patch Changes

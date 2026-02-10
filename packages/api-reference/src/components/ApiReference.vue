@@ -377,9 +377,7 @@ const sidebarItems = computed<TraversedEntry[]>(() => {
     }
   }
 
-  return docItems.filter((item) =>
-    config.hideModels ? item.id !== 'models' : true,
-  )
+  return docItems
 })
 
 /** Find the sidebar entry that represents the introduction section */
@@ -437,6 +435,7 @@ if (typeof window !== 'undefined') {
 defineExpose({
   eventBus,
   workspaceStore,
+  sidebarItems,
 })
 
 // ---------------------------------------------------------------------------

@@ -1,5 +1,50 @@
 # @scalar/openapi-to-markdown
 
+## 0.3.40
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/components@0.18.0**
+  - [#8077](https://github.com/scalar/scalar/pull/8077): feat: support team workspaces
+
+- **@scalar/oas-utils@0.6.37**
+
+## 0.3.39
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/oas-utils@0.6.36**
+  - [#8037](https://github.com/scalar/scalar/pull/8037): Improve error message when running oas-utils tests while test-servers are not running
+
+- **@scalar/components@0.17.6**
+  - [#8070](https://github.com/scalar/scalar/pull/8070): chore: remove the import modal and change the workspace picker to support groups
+
+- **@scalar/openapi-parser@0.24.8**
+
+## 0.3.38
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/oas-utils@0.6.35**
+
+- **@scalar/components@0.17.5**
+
+## 0.3.37
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/oas-utils@0.6.34**
+
+- **@scalar/components@0.17.4**
+
 ## 0.3.36
 
 ### Patch Changes

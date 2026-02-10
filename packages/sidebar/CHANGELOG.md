@@ -1,5 +1,53 @@
 # @scalar/sidebar
 
+## 0.7.30
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.30.0**
+  - [#8077](https://github.com/scalar/scalar/pull/8077): feat: support team workspaces
+
+- **@scalar/components@0.18.0**
+  - [#8077](https://github.com/scalar/scalar/pull/8077): feat: support team workspaces
+
+## 0.7.29
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.29.0**
+  - [#8061](https://github.com/scalar/scalar/pull/8061): fix: do not throw when try to update a non existent document metadata
+  - [#8045](https://github.com/scalar/scalar/pull/8045): feat: manage active environments
+
+- **@scalar/components@0.17.6**
+  - [#8070](https://github.com/scalar/scalar/pull/8070): chore: remove the import modal and change the workspace picker to support groups
+
+## 0.7.28
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.28.4**
+  - [#8047](https://github.com/scalar/scalar/pull/8047): fix: unpack proxy when update an environment
+
+- **@scalar/components@0.17.5**
+
+## 0.7.27
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.28.3**
+  - [#8035](https://github.com/scalar/scalar/pull/8035): fix: correctly resolve and validate refs
+  - [#8034](https://github.com/scalar/scalar/pull/8034): fix: allow setting servers which dont exist in the document (from the config)
+
+- **@scalar/components@0.17.4**
+
 ## 0.7.26
 
 ### Patch Changes
