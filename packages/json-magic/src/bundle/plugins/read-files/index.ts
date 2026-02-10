@@ -1,5 +1,5 @@
 import type { LoaderPlugin, ResolveResult } from '@/bundle'
-import { isFilePath } from '@/bundle/bundle'
+import { isFilePath } from '@/helpers/is-file-path'
 import { normalize } from '@/helpers/normalize'
 
 /**
@@ -24,6 +24,7 @@ export async function readFile(path: string): Promise<ResolveResult> {
   }
 
   try {
+    console.log('readFile', path)
     const fileContents = await fs.readFile(path, { encoding: 'utf-8' })
 
     return {

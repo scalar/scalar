@@ -1,5 +1,6 @@
 import { randomUUID } from 'node:crypto'
 import fs from 'node:fs/promises'
+import { cwd } from 'node:process'
 
 import { consoleWarnSpy, resetConsoleSpies } from '@scalar/helpers/testing/console-spies'
 import fastify, { type FastifyInstance } from 'fastify'
@@ -15,7 +16,6 @@ import {
   bundle,
   extensions,
   isLocalRef,
-  isRemoteUrl,
   prefixInternalRef,
   prefixInternalRefRecursive,
   resolveAndCopyReferences,
@@ -336,17 +336,17 @@ describe('bundle', () => {
 
       expect(output).toEqual({
         'x-ext': {
-          [getHash(`${url}/top-level`)]: {
+          [getHash('../top-level')]: {
             c: 'c',
           },
-          [getHash(`${url}/nested/chunk1.json`)]: {
+          [getHash('../nested/chunk1.json')]: {
             b: {
-              $ref: `#/x-ext/${getHash(`${url}/top-level`)}`,
+              $ref: `#/x-ext/${getHash('../top-level')}`,
             },
           },
         },
         a: {
-          $ref: `#/x-ext/${getHash(`${url}/nested/chunk1.json`)}`,
+          $ref: `#/x-ext/${getHash('../nested/chunk1.json')}`,
         },
       })
     })
@@ -387,21 +387,21 @@ describe('bundle', () => {
 
         expect(output).toEqual({
           'x-ext': {
-            [getHash(`${url}/top-level`)]: {
+            [getHash('../top-level')]: {
               c: 'c',
             },
-            [getHash(`${url}/nested/chunk1.json`)]: {
+            [getHash('../nested/chunk1.json')]: {
               b: {
-                $ref: `#/x-ext/${getHash(`${url}/top-level`)}`,
+                $ref: `#/x-ext/${getHash('../top-level')}`,
               },
             },
           },
           [externalDocumentsMappingsKey]: {
-            [getHash(`${url}/top-level`)]: `${url}/top-level`,
-            [getHash(`${url}/nested/chunk1.json`)]: `${url}/nested/chunk1.json`,
+            [getHash('../top-level')]: '../top-level',
+            [getHash('../nested/chunk1.json')]: '../nested/chunk1.json',
           },
           a: {
-            $ref: `#/x-ext/${getHash(`${url}/nested/chunk1.json`)}`,
+            $ref: `#/x-ext/${getHash('../nested/chunk1.json')}`,
           },
         })
       },
@@ -756,7 +756,7 @@ describe('bundle', () => {
           },
           c: 'c',
           external: {
-            $ref: './chunk2#/a/b',
+            $ref: '/chunk2#/a/b',
           },
         },
         d: {
@@ -1265,10 +1265,10 @@ describe('bundle', () => {
 
       expect(result).toEqual({
         'a': {
-          '$ref': '#/x-ext/814f1d7',
+          '$ref': `#/x-ext/${getHash('')}`,
         },
         'x-ext': {
-          '814f1d7': {
+          [getHash('')]: {
             'message': 'some resolved external reference',
           },
         },
@@ -1293,8 +1293,8 @@ describe('bundle', () => {
       })
 
       expect(result).toEqual({
-        a: { '$ref': '#/x-ext/220f104' },
-        'x-ext': { '220f104': { message: 'some resolved external reference' } },
+        a: { '$ref': `#/x-ext/${getHash('../../../d')}` },
+        'x-ext': { [getHash('../../../d')]: { message: 'some resolved external reference' } },
       })
     })
 
@@ -1508,12 +1508,12 @@ describe('bundle', () => {
         'a': {
           'b': {
             'c': {
-              '$ref': '#/x-ext/ce08d76',
+              '$ref': `#/x-ext/${getHash('../b')}`,
             },
           },
         },
         'x-ext': {
-          'ce08d76': {
+          [getHash('../b')]: {
             'message': 'resolved value',
           },
         },
@@ -1562,12 +1562,12 @@ describe('bundle', () => {
         'a': {
           'b': {
             'c': {
-              '$ref': '#/x-ext/b9d44e3',
+              '$ref': `#/x-ext/${getHash('../b')}`,
             },
           },
         },
         'x-ext': {
-          'b9d44e3': {
+          [getHash('../b')]: {
             'message': 'resolved value',
           },
         },
@@ -1626,12 +1626,12 @@ describe('bundle', () => {
         'a': {
           'b': {
             'c': {
-              '$ref': '#/x-ext/c3654f1',
+              '$ref': `#/x-ext/${getHash('../b')}`,
             },
           },
         },
         'x-ext': {
-          'c3654f1': {
+          [getHash('../b')]: {
             'message': 'resolved value',
           },
         },
@@ -1743,7 +1743,7 @@ describe('bundle', () => {
   describe('local files', () => {
     it('resolves from local files', async () => {
       const chunk1 = { a: 'a', b: 'b' }
-      const chunk1Path = randomUUID()
+      const chunk1Path = `${randomUUID()}.json`
 
       await fs.writeFile(chunk1Path, JSON.stringify(chunk1))
 
@@ -1753,7 +1753,7 @@ describe('bundle', () => {
         },
       }
 
-      await bundle(input, { plugins: [fetchUrls(), readFiles()], treeShake: false })
+      await bundle(input, { origin: cwd(), plugins: [fetchUrls(), readFiles()], treeShake: false })
 
       await fs.rm(chunk1Path)
 
@@ -1771,10 +1771,10 @@ describe('bundle', () => {
 
     it('resolves external refs from resolved files', async () => {
       const chunk1 = { a: 'a', b: 'b' }
-      const chunk1Path = randomUUID()
+      const chunk1Path = `${randomUUID()}.json`
 
       const chunk2 = { a: { '$ref': `./${chunk1Path}#` } }
-      const chunk2Path = randomUUID()
+      const chunk2Path = `${randomUUID()}.json`
 
       await fs.writeFile(chunk1Path, JSON.stringify(chunk1))
       await fs.writeFile(chunk2Path, JSON.stringify(chunk2))
@@ -1785,7 +1785,7 @@ describe('bundle', () => {
         },
       }
 
-      await bundle(input, { plugins: [fetchUrls(), readFiles()], treeShake: false })
+      await bundle(input, { origin: cwd(), plugins: [fetchUrls(), readFiles()], treeShake: false })
 
       await fs.rm(chunk1Path)
       await fs.rm(chunk2Path)
@@ -1809,14 +1809,14 @@ describe('bundle', () => {
       const c = {
         c: 'c',
       }
-      const cName = randomUUID()
+      const cName = `${randomUUID()}.json`
 
       const b = {
         b: {
           '$ref': `./${cName}`,
         },
       }
-      const bName = randomUUID()
+      const bName = `${randomUUID()}.json`
 
       await fs.mkdir('./nested').catch(() => {
         return
@@ -1830,7 +1830,7 @@ describe('bundle', () => {
         },
       }
 
-      await bundle(input, { plugins: [fetchUrls(), readFiles()], treeShake: false })
+      await bundle(input, { origin: cwd(), plugins: [fetchUrls(), readFiles()], treeShake: false })
 
       await fs.rm(`./nested/${bName}`)
       await fs.rm(`./nested/${cName}`)
@@ -1855,14 +1855,14 @@ describe('bundle', () => {
       const c = {
         c: 'c',
       }
-      const cName = randomUUID()
+      const cName = `${randomUUID()}.json`
 
       const b = {
         b: {
           '$ref': `./${cName}`,
         },
       }
-      const bName = randomUUID()
+      const bName = `${randomUUID()}.json`
 
       await fs.mkdir('./nested').catch(() => {
         return
@@ -1875,10 +1875,10 @@ describe('bundle', () => {
           '$ref': `./${bName}`,
         },
       }
-      const inputName = randomUUID()
+      const inputName = `${randomUUID()}.json`
       await fs.writeFile(`./nested/${inputName}`, JSON.stringify(input))
 
-      const result = await bundle(`./nested/${bName}`, { plugins: [fetchUrls(), readFiles()], treeShake: false })
+      const result = await bundle(`${cwd()}/nested/${bName}`, { plugins: [fetchUrls(), readFiles()], treeShake: false })
 
       await fs.rm(`./nested/${bName}`)
       await fs.rm(`./nested/${cName}`)
@@ -1887,10 +1887,10 @@ describe('bundle', () => {
 
       expect(result).toEqual({
         'b': {
-          '$ref': `#/x-ext/${getHash(`nested/${cName}`)}`,
+          '$ref': `#/x-ext/${getHash(cName)}`,
         },
         'x-ext': {
-          [getHash(`nested/${cName}`)]: {
+          [getHash(cName)]: {
             'c': 'c',
           },
         },
@@ -1916,7 +1916,7 @@ describe('bundle', () => {
 
     it('should correctly resolve refs for json inputs', async () => {
       const chunk1 = { a: 'a', b: 'b' }
-      const chunk1Path = randomUUID()
+      const chunk1Path = `${randomUUID()}.json`
 
       await fs.writeFile(chunk1Path, JSON.stringify(chunk1))
 
@@ -1926,7 +1926,7 @@ describe('bundle', () => {
         },
       })
 
-      const result = await bundle(input, { plugins: [readFiles(), parseJson()], treeShake: false })
+      const result = await bundle(input, { origin: cwd(), plugins: [readFiles(), parseJson()], treeShake: false })
 
       await fs.rm(chunk1Path)
 
@@ -1983,7 +1983,7 @@ describe('bundle', () => {
         },
       })
 
-      const result = await bundle(input, { plugins: [parseYaml(), readFiles()], treeShake: false })
+      const result = await bundle(input, { origin: cwd(), plugins: [parseYaml(), readFiles()], treeShake: false })
 
       await fs.rm(chunk1Path)
 
@@ -2408,10 +2408,10 @@ describe('bundle', () => {
       const result = await bundle({ $ref: 'hello' }, { treeShake: false, plugins: [resolver()] })
 
       expect(validate).toHaveBeenCalledOnce()
-      expect(validate).toHaveBeenLastCalledWith('hello')
+      expect(validate).toHaveBeenLastCalledWith('/hello')
 
       expect(exec).toHaveBeenCalledOnce()
-      expect(exec).toHaveBeenLastCalledWith('hello')
+      expect(exec).toHaveBeenLastCalledWith('/hello')
 
       expect(result).toEqual({
         $ref: '#/x-ext/f265832',
@@ -2439,7 +2439,7 @@ describe('bundle', () => {
       const result = await bundle({ $ref: 'hello' }, { treeShake: false, plugins: [resolver()] })
 
       expect(validate).toHaveBeenCalledOnce()
-      expect(validate).toHaveBeenLastCalledWith('hello')
+      expect(validate).toHaveBeenLastCalledWith('/hello')
 
       expect(exec).not.toHaveBeenCalled()
 
@@ -2447,7 +2447,7 @@ describe('bundle', () => {
 
       expect(consoleWarnSpy).toHaveBeenCalledTimes(1)
       expect(consoleWarnSpy).toHaveBeenCalledWith(
-        'Failed to resolve external reference "hello". The reference may be invalid, inaccessible, or missing a loader for this type of reference.',
+        'Failed to resolve external reference "/hello". The reference may be invalid, inaccessible, or missing a loader for this type of reference.',
       )
     })
 
@@ -2560,7 +2560,7 @@ describe('bundle', () => {
 
     it('lets plugins hook into nodes lifecycle #2', async () => {
       const validate = vi.fn<LoaderPlugin['validate']>((value) => {
-        if (value === 'resolve') {
+        if (value === '/resolve') {
           return true
         }
         return false
@@ -2757,19 +2757,6 @@ describe('bundle', () => {
         }),
       )
     })
-  })
-})
-
-describe('isRemoteUrl', () => {
-  it.each([
-    ['https://example.com/schema.json', true],
-    ['http://api.example.com/schemas/user.json', true],
-    ['file://some/path', false],
-    ['random-string', false],
-    ['#/components/schemas/User', false],
-    ['./local-schema.json', false],
-  ])('detects remote urls', (a, b) => {
-    expect(isRemoteUrl(a)).toBe(b)
   })
 })
 

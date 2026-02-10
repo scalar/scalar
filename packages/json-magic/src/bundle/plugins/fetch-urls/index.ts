@@ -1,6 +1,6 @@
 import type { LoaderPlugin, ResolveResult } from '@/bundle'
-import { isRemoteUrl } from '@/bundle/bundle'
 import { createLimiter } from '@/bundle/create-limiter'
+import { isRemoteUrl } from '@/helpers/is-remote-url'
 import { normalize } from '@/helpers/normalize'
 
 type FetchConfig = Partial<{

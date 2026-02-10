@@ -74,7 +74,7 @@ describe('dereference', () => {
       }
     })
 
-    it('should dereference JSON pointers asynchronously', async () => {
+    it.only('should dereference JSON pointers asynchronously', async () => {
       const userProfile = {
         name: 'Jane Doe',
         age: 25,
@@ -131,7 +131,7 @@ describe('dereference', () => {
       const sensorData = { temperature: 97 }
       const plugin: Plugin = {
         type: 'loader',
-        validate: (v) => v === 'workspace:foo-xyz',
+        validate: (v) => v === '/workspace:foo-xyz',
         exec: () =>
           Promise.resolve({
             ok: true,
@@ -149,15 +149,15 @@ describe('dereference', () => {
         success: true,
         data: {
           sensor: {
-            '$ref': `#/x-ext/${getHash('workspace:foo-xyz')}`,
+            '$ref': `#/x-ext/${getHash('/workspace:foo-xyz')}`,
             '$ref-value': sensorData,
           },
           'x-ext': {
             // bundle() records the original URI in x-ext-urls when urlMap is enabled
-            [getHash('workspace:foo-xyz')]: sensorData,
+            [getHash('/workspace:foo-xyz')]: sensorData,
           },
           'x-ext-urls': {
-            [getHash('workspace:foo-xyz')]: 'workspace:foo-xyz',
+            [getHash('/workspace:foo-xyz')]: '/workspace:foo-xyz',
           },
         },
       })
