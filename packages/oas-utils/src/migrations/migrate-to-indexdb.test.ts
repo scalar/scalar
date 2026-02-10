@@ -695,7 +695,7 @@ describe('migrate-to-indexdb', () => {
       expect(workspaceResult.workspace.meta['x-scalar-cookies']).toBeDefined()
       expect(workspaceResult.workspace.meta['x-scalar-cookies']).toHaveLength(2)
 
-      // Check each cookie has the correct properties (uid should be stripped by coerceValue)
+      // Check each cookie has the correct properties (uid should be stripped)
       const cookies = workspaceResult.workspace.meta['x-scalar-cookies']
       expect(cookies?.[0]).toMatchObject({
         name: 'session_id',
@@ -743,7 +743,7 @@ describe('migrate-to-indexdb', () => {
       expect(extensions?.['x-scalar-cookies']).toBeDefined()
       expect(extensions?.['x-scalar-cookies']).toHaveLength(1)
 
-      // Check cookie has correct properties (uid should be stripped by coerceValue)
+      // Check cookie has correct properties (uid should be stripped)
       const cookies = extensions?.['x-scalar-cookies']
       expect(cookies?.[0]).toMatchObject({
         name: 'valid_cookie',
