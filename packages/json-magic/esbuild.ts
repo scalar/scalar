@@ -13,6 +13,6 @@ await build({
     'src/helpers/unescape-json-pointer.ts',
     'src/helpers/get-segments-from-path.ts',
     'src/helpers/is-file-path.ts',
-    'src/helpers/is-remote-url.ts',
+    'src/helpers/is-http-url.ts',
   ],
 })

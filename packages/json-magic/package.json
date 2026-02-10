@@ -62,10 +62,10 @@
       "types": "./dist/helpers/is-file-path.d.ts",
       "default": "./dist/helpers/is-file-path.js"
     },
-    "./helpers/is-remote-url": {
-      "import": "./dist/helpers/is-remote-url.js",
-      "types": "./dist/helpers/is-remote-url.d.ts",
-      "default": "./dist/helpers/is-remote-url.js"
+    "./helpers/is-http-url": {
+      "import": "./dist/helpers/is-http-url.js",
+      "types": "./dist/helpers/is-http-url.d.ts",
+      "default": "./dist/helpers/is-http-url.js"
     },
     "./helpers/unescape-json-pointer": {
       "import": "./dist/helpers/unescape-json-pointer.js",
