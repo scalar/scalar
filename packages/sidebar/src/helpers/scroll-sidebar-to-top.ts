@@ -7,7 +7,7 @@ const DEFAULT_SCROLL_OFFSET_TOP = 100
  * @param offsetTop - the offset from the top of the scroller to scroll to
  * @returns
  */
-export const scrollToSidebarTop = (id: string, offsetTop: number = DEFAULT_SCROLL_OFFSET_TOP) => {
+export const scrollSidebarToTop = (id: string, offsetTop: number = DEFAULT_SCROLL_OFFSET_TOP) => {
   if (typeof window === 'undefined') {
     return
   }

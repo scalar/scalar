@@ -16,7 +16,7 @@ import { redirectToProxy } from '@scalar/helpers/url/redirect-to-proxy'
 import {
   createSidebarState,
   ScalarSidebar,
-  scrollToSidebarTop,
+  scrollSidebarToTop,
 } from '@scalar/sidebar'
 import { getThemeStyles, hasObtrusiveScrollbars } from '@scalar/themes'
 import {
@@ -771,8 +771,8 @@ eventBus.on('intersecting:nav-item', ({ id }) => {
   sidebarState.setSelected(id)
   setBreadcrumb(id)
 
-  // Scroll element to the top of the sidebar
-  scrollToSidebarTop(id)
+  // Scroll the sidebar to keep the selected element near the top
+  scrollSidebarToTop(id)
 
   const url = makeUrlFromId(id, basePath.value, isMultiDocument.value)
   if (url && workspaceStore.workspace.activeDocument) {
