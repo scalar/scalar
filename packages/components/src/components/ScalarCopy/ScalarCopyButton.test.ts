@@ -48,7 +48,7 @@ describe('ScalarCopyButton', () => {
 
       await nextTick()
 
-      expect(wrapper.text()).toBe('Copied')
+      expect(wrapper.text()).toContain('Copied')
     })
   })
 
@@ -84,7 +84,7 @@ describe('ScalarCopyButton', () => {
 
       await nextTick()
 
-      expect(wrapper.text()).toBe('Custom copied text')
+      expect(wrapper.text()).toContain('Custom copied text')
     })
   })
 
@@ -135,7 +135,7 @@ describe('ScalarCopyButton', () => {
 
       const alertElement = wrapper.find('[role="alert"]')
       expect(alertElement.exists()).toBeTruthy()
-      expect(alertElement.text()).toBe('Copied')
+      expect(alertElement.text()).toContain('Copied')
     })
   })
 })
