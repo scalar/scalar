@@ -9,7 +9,7 @@ import 'fake-indexeddb/auto'
 import { useCommandPaletteState } from '@/v2/features/command-palette/hooks/use-command-palette-state'
 
 import App from './App.vue'
-import { useAppState } from './app-state'
+import { createAppState } from './app-state'
 import { ROUTES } from './helpers/routes'
 
 /**
@@ -68,7 +68,7 @@ describe('App', () => {
       routes: ROUTES,
     })
 
-    const appState = useAppState({ router })
+    const appState = await createAppState({ router })
 
     await router.push({
       name: 'document.overview',

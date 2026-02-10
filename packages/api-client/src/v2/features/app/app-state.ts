@@ -56,7 +56,7 @@ export type AppState = {
   /** The sidebar management */
   sidebar: {
     /** The sidebar state */
-    state: ReturnType<typeof createSidebarState>
+    state: ReturnType<typeof createSidebarState<TraversedEntry>>
     /** The width of the sidebar */
     width: ComputedRef<number>
     /** Whether the sidebar is open */
@@ -80,7 +80,12 @@ export type AppState = {
   /** The workspace management */
   workspace: {
     /** Creates a new workspace and navigates to it */
-    create: (payload: { name: string; teamUid?: string; namespace?: string; slug?: string }) => Promise<void>
+    create: (payload: {
+      teamUid?: string
+      namespace?: string
+      slug?: string
+      name: string
+    }) => Promise<{ name: string; namespace: string; slug: string; teamUid: string } | undefined>
     /** All workspace list */
     workspaceList: Ref<WorkspaceOption[]>
     /** Filtered workspace list, based on the current teamUid */
@@ -100,7 +105,7 @@ export type AppState = {
   /** The workspace event bus for handling workspace-level events */
   eventBus: WorkspaceEventBus
   /** The router instance */
-  router: ShallowRef<Router | null>
+  router: Router
   /** The current route derived from the router */
   currentRoute: Ref<RouteLocationNormalizedGeneric | null>
   /** Whether the workspace is currently syncing */
@@ -144,7 +149,13 @@ const getWorkspaceId = (namespace: string, slug: string) => `${namespace}/${slug
 // ---------------------------------------------------------------------------
 // App State
 // ---------------------------------------------------------------------------
-export const createAppState = async ({ router, fileLoader }: { router: Router; fileLoader?: LoaderPlugin }) => {
+export const createAppState = async ({
+  router,
+  fileLoader,
+}: {
+  router: Router
+  fileLoader?: LoaderPlugin
+}): Promise<AppState> => {
   /** Workspace event bus for handling workspace-level events. */
   const eventBus = createWorkspaceEventBus({
     debug: import.meta.env.DEV,
