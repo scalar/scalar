@@ -1,6 +1,6 @@
 import { path } from '@scalar/helpers/node/path'
 
-import { isRemoteUrl } from '@/helpers/is-remote-url'
+import { isHttpUrl } from '@/helpers/is-http-url'
 
 /**
  * Converts an input path or URL to a relative path based on the provided base.
@@ -12,7 +12,7 @@ import { isRemoteUrl } from '@/helpers/is-remote-url'
  */
 export const toRelativePath = (input: string, base: string) => {
   // Both input and base are remote URLs
-  if (isRemoteUrl(input) && isRemoteUrl(base)) {
+  if (isHttpUrl(input) && isHttpUrl(base)) {
     const inputUrl = new URL(input)
     const baseUrl = new URL(base)
     // If origins aren't the same, return input as is
@@ -28,7 +28,7 @@ export const toRelativePath = (input: string, base: string) => {
   }
 
   // Base is a remote URL, input is a local path
-  if (isRemoteUrl(base)) {
+  if (isHttpUrl(base)) {
     const baseUrl = new URL(base)
     const baseDir = path.dirname(path.resolve(baseUrl.pathname))
     const inputPath = path.resolve(input)
@@ -38,7 +38,7 @@ export const toRelativePath = (input: string, base: string) => {
   }
 
   // Input is a remote URL, base is a local path; just return input
-  if (isRemoteUrl(input)) {
+  if (isHttpUrl(input)) {
     return input
   }
 

@@ -4,7 +4,7 @@ import { convertToLocalRef } from '@/helpers/convert-to-local-ref'
 import { getId, getSchemas } from '@/helpers/get-schemas'
 import { getValueByPath } from '@/helpers/get-value-by-path'
 import { isFilePath } from '@/helpers/is-file-path'
-import { isRemoteUrl } from '@/helpers/is-remote-url'
+import { isHttpUrl } from '@/helpers/is-http-url'
 import { resolveReferencePath } from '@/helpers/resolve-reference-path'
 import { setValueAtPath } from '@/helpers/set-value-at-path'
 import { toRelativePath } from '@/helpers/to-relative-path'
@@ -567,7 +567,7 @@ export async function bundle(input: UnknownObject | string, config: Config) {
       return '/'
     }
 
-    if (isRemoteUrl(input) || isFilePath(input)) {
+    if (isHttpUrl(input) || isFilePath(input)) {
       return input
     }
 

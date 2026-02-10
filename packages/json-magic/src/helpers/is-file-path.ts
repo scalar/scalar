@@ -1,5 +1,5 @@
+import { isHttpUrl } from '@/helpers/is-http-url'
 import { isJsonObject } from '@/helpers/is-json-object'
-import { isRemoteUrl } from '@/helpers/is-remote-url'
 import { isYaml } from '@/helpers/is-yaml'
 
 /**
@@ -17,5 +17,5 @@ import { isYaml } from '@/helpers/is-yaml'
  * ```
  */
 export function isFilePath(value: string) {
-  return !isRemoteUrl(value) && !isYaml(value) && !isJsonObject(value)
+  return !isHttpUrl(value) && !isYaml(value) && !isJsonObject(value)
 }

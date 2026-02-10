@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { isRemoteUrl } from '@/helpers/is-remote-url'
+import { isHttpUrl } from '@/helpers/is-http-url'
 
 describe('valid remote URLs', () => {
   it.each([
@@ -20,7 +20,7 @@ describe('valid remote URLs', () => {
     ['http://example.com/path%20with%20spaces', 'http with encoded spaces'],
     ['https://example.com/path/to/file.json', 'https with file extension'],
   ])('returns true for %s (%s)', (url) => {
-    expect(isRemoteUrl(url)).toBe(true)
+    expect(isHttpUrl(url)).toBe(true)
   })
 })
 
@@ -51,49 +51,49 @@ describe('non-remote URLs and invalid inputs', () => {
     ['\\\\network\\share\\file', 'network share path'],
     ['C:\\Windows\\file.json', 'Windows path'],
   ])('returns false for %s (%s)', (input) => {
-    expect(isRemoteUrl(input)).toBe(false)
+    expect(isHttpUrl(input)).toBe(false)
   })
 })
 
 describe('edge cases', () => {
   it('handles URLs with special characters', () => {
-    expect(isRemoteUrl('https://example.com/path?q=hello+world')).toBe(true)
-    expect(isRemoteUrl('https://example.com/path?q=hello%20world')).toBe(true)
+    expect(isHttpUrl('https://example.com/path?q=hello+world')).toBe(true)
+    expect(isHttpUrl('https://example.com/path?q=hello%20world')).toBe(true)
   })
 
   it('handles URLs with unicode characters', () => {
-    expect(isRemoteUrl('https://例え.jp/パス')).toBe(true)
-    expect(isRemoteUrl('https://example.com/café')).toBe(true)
+    expect(isHttpUrl('https://例え.jp/パス')).toBe(true)
+    expect(isHttpUrl('https://example.com/café')).toBe(true)
   })
 
   it('handles URLs with multiple subdomains', () => {
-    expect(isRemoteUrl('https://api.v2.staging.example.com/endpoint')).toBe(true)
+    expect(isHttpUrl('https://api.v2.staging.example.com/endpoint')).toBe(true)
   })
 
   it('handles URLs with unusual ports', () => {
-    expect(isRemoteUrl('http://example.com:80/api')).toBe(true)
-    expect(isRemoteUrl('https://example.com:443/api')).toBe(true)
-    expect(isRemoteUrl('http://example.com:65535/api')).toBe(true)
+    expect(isHttpUrl('http://example.com:80/api')).toBe(true)
+    expect(isHttpUrl('https://example.com:443/api')).toBe(true)
+    expect(isHttpUrl('http://example.com:65535/api')).toBe(true)
   })
 
   it('handles localhost variations', () => {
-    expect(isRemoteUrl('http://localhost/api')).toBe(true)
-    expect(isRemoteUrl('http://127.0.0.1/api')).toBe(true)
-    expect(isRemoteUrl('http://[::1]/api')).toBe(true)
+    expect(isHttpUrl('http://localhost/api')).toBe(true)
+    expect(isHttpUrl('http://127.0.0.1/api')).toBe(true)
+    expect(isHttpUrl('http://[::1]/api')).toBe(true)
   })
 
   it('handles extremely long URLs', () => {
     const longPath = 'a'.repeat(1000)
-    expect(isRemoteUrl(`https://example.com/${longPath}`)).toBe(true)
+    expect(isHttpUrl(`https://example.com/${longPath}`)).toBe(true)
   })
 
   it('handles URLs with many query parameters', () => {
-    expect(isRemoteUrl('https://example.com/api?a=1&b=2&c=3&d=4&e=5&f=6&g=7&h=8&i=9&j=10')).toBe(true)
+    expect(isHttpUrl('https://example.com/api?a=1&b=2&c=3&d=4&e=5&f=6&g=7&h=8&i=9&j=10')).toBe(true)
   })
 
   it('distinguishes between similar looking strings', () => {
-    expect(isRemoteUrl('https://example.com')).toBe(true)
-    expect(isRemoteUrl('https//example.com')).toBe(false)
-    expect(isRemoteUrl('htps://example.com')).toBe(false)
+    expect(isHttpUrl('https://example.com')).toBe(true)
+    expect(isHttpUrl('https//example.com')).toBe(false)
+    expect(isHttpUrl('htps://example.com')).toBe(false)
   })
 })
