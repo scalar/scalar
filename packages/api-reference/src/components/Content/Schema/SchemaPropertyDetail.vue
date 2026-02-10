@@ -52,9 +52,13 @@ code.property-detail-value {
   font-family: var(--scalar-font-code);
   font-size: var(--scalar-font-size-3);
   color: var(--scalar-color-2);
-  background: var(--scalar-background-3);
+  background: color-mix(
+    in srgb,
+    var(--scalar-background-2),
+    var(--scalar-background-1)
+  );
   padding: 0 4px;
-  border: 0.5px solid var(--scalar-border-color);
+  border: var(--scalar-border-width) solid var(--scalar-border-color);
   border-radius: var(--scalar-radius);
 }
 </style>

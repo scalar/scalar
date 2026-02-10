@@ -265,6 +265,17 @@ button.schema-card-title:hover {
 .schema-card-description + .schema-properties {
   margin-top: 8px;
 }
+.schema-card--level-0:nth-of-type(1)
+  > .schema-card-description:has(+ .schema-properties) {
+  margin-bottom: -8px;
+  padding-bottom: 8px;
+  border-bottom: var(--scalar-border-width) solid var(--scalar-border-color);
+}
+.schema-card--level-0
+  ~ .schema-card--level-0
+  > .schema-card-description:has(+ .schema-properties) {
+  padding-top: 8px;
+}
 
 .schema-properties-open.schema-properties,
 .schema-properties-open > .schema-card--open {
