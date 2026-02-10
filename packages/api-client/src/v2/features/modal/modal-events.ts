@@ -54,7 +54,7 @@ export function initializeModalEvents({
         // Try to find the specific example in the operation's children
         if (operationEntry && 'children' in operationEntry && operationEntry.children) {
           const exampleEntry = operationEntry.children.find(
-            (child: any) => child.type === 'example' && child.name === payload.exampleName,
+            (child: TraversedEntry) => child.type === 'example' && child.name === payload.exampleName,
           )
           if (exampleEntry) {
             targetId = exampleEntry.id
