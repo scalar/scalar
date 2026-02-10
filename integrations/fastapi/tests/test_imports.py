@@ -47,6 +47,13 @@ def test_scalar_fastapi_imports():
     assert DocumentDownloadType.JSON.value == "json"
     assert DocumentDownloadType.NONE.value == "none"
 
+    # Test AgentScalarConfig import and instantiation (Agent Scalar configuration)
+    from scalar_fastapi import AgentScalarConfig
+    agent_with_key = AgentScalarConfig(key="test")
+    assert agent_with_key.key == "test"
+    agent_disabled = AgentScalarConfig(disabled=True)
+    assert agent_disabled.disabled is True
+
 
 def test_fastapi_imports():
     """Test that FastAPI imports work correctly"""

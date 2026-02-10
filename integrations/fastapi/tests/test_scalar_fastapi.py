@@ -7,6 +7,8 @@ from fastapi.responses import HTMLResponse
 from scalar_fastapi import (
     get_scalar_api_reference,
     Layout,
+    OpenAPISource,
+    AgentScalarConfig,
     SearchHotKey,
     Theme,
 )
@@ -106,6 +108,7 @@ class TestGetScalarApiReference:
         assert 'hideClientButton' not in config_section
         assert '_integration' in config_section
         assert 'theme' not in config_section
+        assert 'agent' not in config_section
 
         # Check other HTML elements
         assert 'href="https://fastapi.tiangolo.com/img/favicon.png"' in html_content
@@ -157,6 +160,34 @@ class TestGetScalarApiReference:
         assert "<title>Custom API</title>" in html_content
         assert 'src="https://custom.cdn.com/scalar.js"' in html_content
         assert 'href="https://example.com/favicon.ico"' in html_content
+
+    def test_top_level_agent_disabled_in_config(self):
+        """Test that top-level agent=AgentScalarConfig(disabled=True) is serialized in config"""
+        response = get_scalar_api_reference(
+            openapi_url="/openapi.json",
+            title="Test",
+            agent=AgentScalarConfig(disabled=True),
+        )
+        html_content = response.body.decode()
+        assert '"agent"' in html_content
+        assert '"disabled": true' in html_content
+
+    def test_per_source_agent_in_config(self):
+        """Test that OpenAPISource with agent is serialized in sources config"""
+        response = get_scalar_api_reference(
+            sources=[
+                OpenAPISource(
+                    title="API",
+                    url="/openapi.json",
+                    agent=AgentScalarConfig(key="my-key"),
+                ),
+            ],
+            title="Test",
+        )
+        html_content = response.body.decode()
+        assert '"sources"' in html_content
+        assert '"agent"' in html_content
+        assert '"key": "my-key"' in html_content
 
     def test_theme_parameter_all_values(self):
         """Test all theme enum values work correctly"""

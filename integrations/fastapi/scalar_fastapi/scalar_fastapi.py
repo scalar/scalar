@@ -64,6 +64,26 @@ class DocumentDownloadType(Enum):
     NONE = "none"
 
 
+class AgentScalarConfig(BaseModel):
+    """
+    Agent Scalar configuration: AI chat in the API reference.
+    Use key for production; use disabled=True to turn off Agent entirely.
+    See: https://scalar.com/products/api-references/configuration#agent-scalar
+    """
+
+    model_config = ConfigDict(extra="forbid")
+
+    key: Optional[str] = Field(
+        default=None,
+        description="Agent Scalar key for production. Required for Agent beyond localhost.",
+    )
+
+    disabled: Optional[bool] = Field(
+        default=None,
+        description="Set to True to disable Agent Scalar entirely.",
+    )
+
+
 class OpenAPISource(BaseModel):
     """Configuration for a single OpenAPI source"""
 
@@ -92,6 +112,11 @@ class OpenAPISource(BaseModel):
     default: bool = Field(
         default=False,
         description="Whether this source should be the default when multiple sources are provided.",
+    )
+
+    agent: Optional[AgentScalarConfig] = Field(
+        default=None,
+        description="Optional Agent Scalar config for this source (key, disabled). See configuration docs.",
     )
 
 
@@ -509,6 +534,16 @@ def get_scalar_api_reference(
             """
         ),
     ] = True,
+    agent: Annotated[
+        AgentScalarConfig | None,
+        Doc(
+            """
+            Agent Scalar config: set to AgentScalarConfig(disabled=True) to disable Agent entirely,
+            or use per-source agent on OpenAPISource for keys.
+            See: https://scalar.com/products/api-references/configuration#agent-scalar
+            """
+        ),
+    ] = None,
     overrides: Annotated[
         Dict[str, Any],
         Doc(
@@ -541,6 +576,9 @@ def get_scalar_api_reference(
     # Only add options that differ from defaults
     if scalar_proxy_url:
         config["proxyUrl"] = scalar_proxy_url
+
+    if agent is not None:
+        config["agent"] = agent.model_dump(exclude_none=True)
 
     if layout != Layout.MODERN:
         config["layout"] = layout.value
