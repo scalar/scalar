@@ -240,7 +240,7 @@ You can also specify a document name directly in the URL path (e.g., `/scalar/v1
 
 Agent Scalar adds an AI chat interface to your API reference. It is enabled by default on localhost with a limited free tier (10 messages). For production, you need an [Agent Scalar key](guides/agent/key.md).
 
-To set an Agent Scalar API key globally:
+To set an Agent Scalar key globally:
 
 ```csharp
 app.MapScalarApiReference(options => options

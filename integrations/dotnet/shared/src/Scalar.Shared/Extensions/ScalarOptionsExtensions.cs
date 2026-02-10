@@ -23,10 +23,10 @@ public static partial class ScalarOptionsExtensions
     }
 
     /// <summary>
-    /// Sets the Agent Scalar API key for production. On localhost, Agent Scalar is available with a limited free tier without a key.
+    /// Sets the Agent Scalar key for production. On localhost, Agent Scalar is available with a limited free tier without a key.
     /// </summary>
     /// <param name="options">The options to configure.</param>
-    /// <param name="key">The Agent Scalar API key.</param>
+    /// <param name="key">The Agent Scalar key.</param>
     /// <returns>The configured <see cref="ScalarOptions" />.</returns>
     public static TOptions WithAgentKey<TOptions>(this TOptions options, string key) where TOptions : ScalarOptions
     {

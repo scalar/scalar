@@ -10,7 +10,7 @@ namespace Scalar.AspNetCore;
 public sealed class ScalarAgentOptions
 {
     /// <summary>
-    /// Agent Scalar API key. Required for production; on localhost a limited free tier is available.
+    /// Agent Scalar key. Required for production; on localhost a limited free tier is available.
     /// </summary>
     public string? Key { get; set; }
 
