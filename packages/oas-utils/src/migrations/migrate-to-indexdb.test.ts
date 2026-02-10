@@ -3,6 +3,9 @@ import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref
 import { assert, beforeEach, describe, expect, it } from 'vitest'
 import 'fake-indexeddb/auto'
 
+import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
+import { SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+
 import { cookieSchema } from '@/entities/cookie'
 import { type Collection, collectionSchema } from '@/entities/spec/collection'
 import { requestExampleSchema } from '@/entities/spec/request-examples'
@@ -4445,6 +4448,256 @@ describe('migrate-to-indexdb', () => {
           },
           security: [],
           tags: [],
+        })
+      })
+
+      it('migrates request with complex circular request body (planets with nested satellites)', async () => {
+        const example = requestExampleSchema.parse({
+          uid: 'example-1',
+          requestUid: 'request-1',
+          name: 'Create Planet',
+          body: {
+            activeBody: 'raw',
+            raw: {
+              encoding: 'json',
+              value: '{"name": "Earth", "satellites": [{"name": "Moon", "satellites": []}]}',
+            },
+          },
+        })
+
+        const request = requestSchema.parse({
+          uid: 'request-1',
+          path: '/planets',
+          method: 'post',
+          requestBody: {
+            content: {
+              'application/json': {
+                schema: {
+                  additionalProperties: false,
+                  description: 'A planet in the Scalar Galaxy',
+                  properties: {
+                    atmosphere: {
+                      type: 'array',
+                      description: 'Atmospheric composition',
+                      items: {},
+                    },
+                    creator: {
+                      description: 'A user',
+                      type: 'object',
+                      val: {},
+                      properties: {},
+                    },
+                    description: {
+                      type: 'array',
+                      examples: [['A planet in the Scalar Galaxy']],
+                    },
+                    discoveredAt: {
+                      type: 'string',
+                      format: 'date-time',
+                      examples: ['2024-01-01T00:00:00Z'],
+                    },
+                    failureCallbackURL: {
+                      type: 'string',
+                      format: 'url',
+                      description: 'URL which gets invoked upon a failed operation',
+                      examples: ['https://example.com/callback'],
+                    },
+                    habitabilityIndex: {
+                      type: 'number',
+                      format: 'float',
+                      minimum: 0,
+                      maximum: 1,
+                      description: 'A score from 0 to 1 indicating potential habitability',
+                      examples: [0.8],
+                    },
+                    id: {
+                      type: 'integer',
+                      format: 'int64',
+                      readOnly: true,
+                      examples: [1],
+                      'x-variable': 'planetId',
+                    },
+                    image: {
+                      type: 'array',
+                      examples: [['https://example.com/planet.jpg']],
+                    },
+                    lastUpdated: {
+                      type: 'string',
+                      format: 'date-time',
+                      readOnly: true,
+                      examples: ['2024-01-01T00:00:00Z'],
+                    },
+                    name: {
+                      type: 'string',
+                      examples: ['Earth'],
+                    },
+                    physicalProperties: {
+                      type: 'object',
+                      additionalProperties: {},
+                      properties: {},
+                    },
+                    satellites: {
+                      type: 'array',
+                      description: 'Every satellite in the Scalar Galaxy',
+                      items: {},
+                    },
+                    successCallbackURL: {
+                      type: 'string',
+                      format: 'url',
+                      description: 'URL which gets invoked upon a successful operation',
+                      examples: ['https://example.com/callback'],
+                    },
+                    type: {
+                      type: 'string',
+                      enum: ['rocky', 'gas', 'ice', 'dwarf'],
+                      'x-enum-varnames': ['Rocky', 'Gas', 'Ice', 'Dwarf'],
+                      'x-enum-descriptions': {},
+                    },
+                  },
+                  required: ['id', 'name'],
+                  type: 'object',
+                },
+              },
+            },
+          },
+          summary: 'Create a new planet',
+          description:
+            "It's easy to say you know them all, but do you really know all the planets and check whether you missed one.",
+          operationId: 'createPlanet',
+          examples: ['example-1'],
+        })
+
+        request.requestBody.content['application/json'].schema.properties.satellites.items =
+          request.requestBody.content['application/json'].schema
+
+        const legacyData = createLegacyData({
+          title: 'Scalar Galaxy',
+          collection: { requests: ['request-1'] },
+          requests: [request],
+          requestExamples: [example],
+        })
+
+        const result = await transformLegacyDataToWorkspace(legacyData)
+        const doc = result[0]?.workspace.documents['Scalar Galaxy']
+
+        expect(doc).toMatchObject({
+          openapi: '3.1.0',
+          info: { title: 'Scalar Galaxy', version: '1.0.0' },
+          servers: [],
+          paths: {
+            '/planets': {
+              post: {
+                summary: 'Create a new planet',
+                description:
+                  "It's easy to say you know them all, but do you really know all the planets and check whether you missed one.",
+                operationId: 'createPlanet',
+                requestBody: {
+                  content: {
+                    'application/json': {
+                      schema: { $ref: '#/components/schemas/CircularSchema1' },
+                      examples: {
+                        'Create Planet': {
+                          value: '{"name": "Earth", "satellites": [{"name": "Moon", "satellites": []}]}',
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          components: {
+            securitySchemes: {},
+            schemas: {
+              CircularSchema1: {
+                additionalProperties: false,
+                description: 'A planet in the Scalar Galaxy',
+                type: 'object',
+                required: ['id', 'name'],
+                properties: {
+                  atmosphere: {
+                    type: 'array',
+                    description: 'Atmospheric composition',
+                    items: {},
+                  },
+                  creator: {
+                    description: 'A user',
+                    type: 'object',
+                    val: {},
+                    properties: {},
+                  },
+                  description: {
+                    type: 'array',
+                    examples: [['A planet in the Scalar Galaxy']],
+                  },
+                  discoveredAt: {
+                    type: 'string',
+                    format: 'date-time',
+                    examples: ['2024-01-01T00:00:00Z'],
+                  },
+                  failureCallbackURL: {
+                    type: 'string',
+                    format: 'url',
+                    description: 'URL which gets invoked upon a failed operation',
+                    examples: ['https://example.com/callback'],
+                  },
+                  habitabilityIndex: {
+                    type: 'number',
+                    format: 'float',
+                    minimum: 0,
+                    maximum: 1,
+                    description: 'A score from 0 to 1 indicating potential habitability',
+                    examples: [0.8],
+                  },
+                  id: {
+                    type: 'integer',
+                    format: 'int64',
+                    readOnly: true,
+                    examples: [1],
+                    'x-variable': 'planetId',
+                  },
+                  image: {
+                    type: 'array',
+                    examples: [['https://example.com/planet.jpg']],
+                  },
+                  lastUpdated: {
+                    type: 'string',
+                    format: 'date-time',
+                    readOnly: true,
+                    examples: ['2024-01-01T00:00:00Z'],
+                  },
+                  name: {
+                    type: 'string',
+                    examples: ['Earth'],
+                  },
+                  physicalProperties: {
+                    type: 'object',
+                    additionalProperties: {},
+                    properties: {},
+                  },
+                  satellites: {
+                    type: 'array',
+                    description: 'Every satellite in the Scalar Galaxy',
+                    items: {
+                      $ref: '#/components/schemas/CircularSchema1',
+                    },
+                  },
+                  successCallbackURL: {
+                    type: 'string',
+                    format: 'url',
+                    description: 'URL which gets invoked upon a successful operation',
+                    examples: ['https://example.com/callback'],
+                  },
+                  type: {
+                    type: 'string',
+                    enum: ['rocky', 'gas', 'ice', 'dwarf'],
+                    'x-enum-varnames': ['Rocky', 'Gas', 'Ice', 'Dwarf'],
+                    'x-enum-descriptions': {},
+                  },
+                },
+              },
+            },
+          },
         })
       })
     })
