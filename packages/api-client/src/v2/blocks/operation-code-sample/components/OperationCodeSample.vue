@@ -145,14 +145,13 @@ import type { SecuritySchemeObjectSecret } from '@/v2/blocks/scalar-auth-selecto
 import { generateCodeSnippet } from '../helpers/generate-code-snippet'
 import ExamplePicker from './ExamplePicker.vue'
 
-const props = defineProps<OperationCodeSampleProps>()
-
 const {
   integration,
   clientOptions,
   selectedClient,
   selectedServer = null,
   selectedContentType,
+  selectedExample,
   securitySchemes = [],
   method,
   eventBus,
@@ -161,7 +160,7 @@ const {
   isWebhook,
   generateLabel,
   globalCookies,
-} = props
+} = defineProps<OperationCodeSampleProps>()
 
 defineSlots<{
   header: () => unknown
@@ -184,10 +183,10 @@ const selectedExampleKey = defineModel<string>('selectedExample', {
   default: '',
 })
 
-// Initialize from requestBodyExamples or props if not provided
+// Initialize from requestBodyExamples
 if (!selectedExampleKey.value) {
   selectedExampleKey.value =
-    props.selectedExample ?? Object.keys(requestBodyExamples.value)[0] ?? ''
+    selectedExample ?? Object.keys(requestBodyExamples.value)[0] ?? ''
 }
 
 /** Grab any custom code samples from the operation */
