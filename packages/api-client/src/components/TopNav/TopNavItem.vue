@@ -52,19 +52,19 @@ defineEmits<{
               v-else-if="typeof icon === 'string'"
               :icon="icon as any"
               size="xs"
-              thickness="2.5" />
+              weight="bold" />
             <component
               :is="icon"
               v-else
               size="xs"
-              thickness="2.5" />
+              weight="bold" />
             <span class="custom-scroll nav-item-copy text-sm">{{ label }}</span>
           </div>
           <button
             class="nav-item-close"
             type="button"
             @click="$emit('close')">
-            <ScalarIconX thickness="1.75" />
+            <ScalarIconX weight="light" />
           </button>
         </div>
       </ScalarTooltip>
@@ -78,7 +78,7 @@ defineEmits<{
               @click="$emit('newTab')">
               <ScalarIconPlus
                 size="sm"
-                thickness="1.5" />
+                weight="light" />
               New Tab
               <ScalarHotkey
                 class="bg-b-2 ml-auto"
@@ -89,7 +89,7 @@ defineEmits<{
               @click="$emit('copyUrl')">
               <ScalarIconLink
                 size="sm"
-                thickness="1.5" />
+                weight="light" />
               Copy URL
             </ScalarDropdownButton>
             <ScalarDropdownDivider />
@@ -98,7 +98,7 @@ defineEmits<{
               @click="$emit('close')">
               <ScalarIconX
                 size="sm"
-                thickness="1.5" />
+                weight="light" />
               Close Tab
               <ScalarHotkey
                 class="bg-b-2 ml-auto"
@@ -109,7 +109,7 @@ defineEmits<{
               @click="$emit('closeOtherTabs')">
               <ScalarIconX
                 size="sm"
-                thickness="1.5" />
+                weight="light" />
               Close Other Tabs
             </ScalarDropdownButton>
           </ScalarDropdownMenu>

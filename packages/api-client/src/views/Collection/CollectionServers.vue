@@ -110,7 +110,7 @@ const openDeleteModal = (serverUid: Server['uid']) => {
             class="inline-flex"
             icon="Add"
             size="sm"
-            thickness="1.5" />
+            weight="light" />
           <span>Add Server</span>
         </ScalarButton>
       </div>

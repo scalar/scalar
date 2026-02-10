@@ -281,7 +281,7 @@ const handleDragEnd = (
               class="inline-flex"
               icon="Add"
               size="sm"
-              thickness="1.5" />
+              weight="light" />
             <span>Add Environment</span>
           </ScalarButton>
         </div>

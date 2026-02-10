@@ -196,24 +196,24 @@ describe('ScalarIconButton', () => {
       expect(iconComponent.props('weight')).toBe('bold')
     })
 
-    it('passes thickness prop to icon component (deprecated)', () => {
+    it('passes weight prop to icon component', () => {
       const wrapper = mount(ScalarIconButton, {
         props: {
           icon: 'Logo',
-          label: 'Thick Icon',
-          thickness: '2',
+          label: 'Icon with weight',
+          weight: 'regular',
         },
       })
 
       const iconComponent = wrapper.findComponent(ScalarIconLegacyAdapter)
-      expect(iconComponent.props('thickness')).toBe('2')
+      expect(iconComponent.props('weight')).toBe('regular')
     })
 
-    it('passes both weight and thickness props', () => {
+    it('passes weight and does not forward deprecated thickness', () => {
       const wrapper = mount(ScalarIconButton, {
         props: {
           icon: 'Logo',
-          label: 'Icon with both props',
+          label: 'Icon with weight',
           weight: 'light',
           thickness: '1.5',
         },
@@ -221,7 +221,7 @@ describe('ScalarIconButton', () => {
 
       const iconComponent = wrapper.findComponent(ScalarIconLegacyAdapter)
       expect(iconComponent.props('weight')).toBe('light')
-      expect(iconComponent.props('thickness')).toBe('1.5')
+      expect(iconComponent.props('thickness')).toBeUndefined()
     })
   })
 

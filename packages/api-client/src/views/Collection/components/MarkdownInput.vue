@@ -50,7 +50,7 @@ const handleBlur = () => {
         @click="mode = 'edit'">
         <ScalarIconPencil
           size="sm"
-          thickness="1.5" />
+          weight="light" />
         <span>Edit</span>
       </ScalarButton>
     </div>
@@ -79,7 +79,7 @@ const handleBlur = () => {
               @click="mode = 'edit'">
               <ScalarIconPencil
                 size="sm"
-                thickness="1.5" />
+                weight="light" />
               <span>Write a description</span>
             </ScalarButton>
           </div>

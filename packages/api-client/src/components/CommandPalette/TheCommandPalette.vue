@@ -345,7 +345,7 @@ onBeforeUnmount(() => {
             <ScalarIconMagnifyingGlass
               class="text-c-2 mr-2.5"
               size="md"
-              thickness="1.5" />
+              weight="light" />
           </label>
           <input
             id="commandmenu"
@@ -397,7 +397,7 @@ onBeforeUnmount(() => {
               class="text-c-2 mr-2.5"
               :icon="command.icon"
               size="md"
-              thickness="1.5" />
+              weight="light" />
             {{ command.name }}
           </div>
         </template>
@@ -417,7 +417,7 @@ onBeforeUnmount(() => {
           @click="activeCommand = null">
           <ScalarIconCaretLeft
             size="md"
-            thickness="1.5" />
+            weight="light" />
         </button>
         <component
           :is="PaletteComponents[activeCommand]"

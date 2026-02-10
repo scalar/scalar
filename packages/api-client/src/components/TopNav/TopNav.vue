@@ -245,7 +245,7 @@ onBeforeUnmount(() => events.hotKeys.off(handleHotKey))
                     : {}
                 "
                 size="xs"
-                thickness="2.5" />
+                weight="bold" />
               <span>{{ topNavItems[0]?.label }}</span>
             </template>
             <template #content>
@@ -257,7 +257,7 @@ onBeforeUnmount(() => events.hotKeys.off(handleHotKey))
                       @click="addNavItem">
                       <ScalarIconPlus
                         size="sm"
-                        thickness="1.5" />
+                        weight="light" />
                       New Tab
                       <ScalarHotkey
                         class="bg-b-2 ml-auto"
@@ -268,7 +268,7 @@ onBeforeUnmount(() => events.hotKeys.off(handleHotKey))
                       @click="copyUrl(activeNavItemIdxValue)">
                       <ScalarIconLink
                         size="sm"
-                        thickness="1.5" />
+                        weight="light" />
                       Copy URL
                     </ScalarDropdownButton>
                   </ScalarDropdownMenu>
@@ -303,7 +303,7 @@ onBeforeUnmount(() => events.hotKeys.off(handleHotKey))
         @click="addNavItem">
         <ScalarIconPlus
           size="sm"
-          thickness="2.5" />
+          weight="bold" />
       </button>
     </div>
   </nav>

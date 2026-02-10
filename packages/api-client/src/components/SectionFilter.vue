@@ -60,7 +60,7 @@ const navigateSection = (direction: 'next' | 'prev') => {
         <span class="context-bar-group-hover:hidden mr-1.5">{{ model }}</span>
         <ScalarIconFunnel
           size="md"
-          thickness="2" />
+          weight="regular" />
       </div>
     </div>
   </div>

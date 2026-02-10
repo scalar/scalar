@@ -28,7 +28,7 @@ const buttonStyles = cva({
         <ScalarIconCheck
           v-if="colorMode === 'system'"
           size="xs"
-          thickness="3.5" />
+          weight="bold" />
       </div>
       System Preference (default)
     </ScalarButton>
@@ -43,7 +43,7 @@ const buttonStyles = cva({
         <ScalarIconCheck
           v-if="colorMode === 'light'"
           size="xs"
-          thickness="3.5" />
+          weight="bold" />
       </div>
       Light Mode Always
     </ScalarButton>
@@ -58,7 +58,7 @@ const buttonStyles = cva({
         <ScalarIconCheck
           v-if="colorMode === 'dark'"
           size="xs"
-          thickness="3.5" />
+          weight="bold" />
       </div>
       Dark Mode Always
     </ScalarButton>

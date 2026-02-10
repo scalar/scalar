@@ -387,7 +387,7 @@ function handleBlur(e: FocusEvent) {
               <ScalarIconScribbleLoop
                 v-if="collection.info?.title === 'Drafts'"
                 class="text-sidebar-c-2 group-hover:hidden"
-                thickness="2.25" />
+                weight="regular" />
               <LibraryIcon
                 v-else
                 class="text-sidebar-c-2 size-3.5 min-w-3.5 stroke-2 group-hover:hidden"

@@ -14,7 +14,7 @@ const { layout } = useLayout()
     <template #icon>
       <ScalarIconDownload
         size="sm"
-        thickness="2" />
+        weight="regular" />
     </template>
     <span
       class="sr-only text-sm font-medium"

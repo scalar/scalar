@@ -218,7 +218,7 @@ onBeforeUnmount(() => eventBus.off('ui:open:command-palette', onOpen))
             <ScalarIconMagnifyingGlass
               class="text-c-2 mr-2.5"
               size="md"
-              thickness="1.5" />
+              weight="light" />
           </label>
           <input
             id="commandmenu"
@@ -262,7 +262,7 @@ onBeforeUnmount(() => eventBus.off('ui:open:command-palette', onOpen))
               v-if="'icon' in command"
               class="text-c-2 mr-2.5"
               size="md"
-              thickness="1.5" />
+              weight="light" />
             {{ command.name }}
           </button>
         </template>

@@ -46,7 +46,7 @@ const variants = cva({
         " />
       <ScalarIconCheck
         size="xs"
-        thickness="2.5" />
+        weight="bold" />
     </div>
   </DataTableCell>
 </template>

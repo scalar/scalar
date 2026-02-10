@@ -28,7 +28,6 @@ defineOptions({ inheritAttrs: false })
         typeof icon === 'string' ? 'size-3' : 'size-3.5 -mx-0.25',
       ]"
       :icon="icon"
-      :thickness="strong ? '2.5' : '2'"
       :weight="strong ? 'bold' : 'regular'" />
     <div
       v-else

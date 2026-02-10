@@ -149,7 +149,7 @@ const deleteWorkspace = async () => {
                   <ScalarIconPencil
                     class="inline-flex"
                     size="md"
-                    thickness="1.5" />
+                    weight="light" />
                   <span>Rename</span>
                 </ScalarDropdownItem>
                 <ScalarDropdownItem
@@ -160,7 +160,7 @@ const deleteWorkspace = async () => {
                   <ScalarIconTrash
                     class="inline-flex"
                     size="md"
-                    thickness="1.5" />
+                    weight="light" />
                   <span>Delete</span>
                 </ScalarDropdownItem>
               </template>

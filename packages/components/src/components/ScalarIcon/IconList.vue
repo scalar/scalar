@@ -1,11 +1,12 @@
 <script setup lang="ts">
+import type { ScalarIconWeight } from '@scalar/icons/types'
 import { ref } from 'vue'
 
 import { ScalarIconButton } from '../ScalarIconButton'
 import { ICONS } from './icons'
 
 defineProps<{
-  thickness?: string
+  weight?: ScalarIconWeight
 }>()
 
 defineOptions({ inheritAttrs: false })
@@ -28,7 +29,7 @@ const copied = ref(false)
         class="hover:bg-b-2"
         :icon="icon"
         :label="icon"
-        :thickness="thickness"
+        :weight="weight"
         v-bind="$attrs"
         @click="copyToClipboard(icon)"
         @mouseenter="selected = icon" />

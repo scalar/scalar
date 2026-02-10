@@ -221,7 +221,7 @@ const bodyValue = computed(() => {
                 <ScalarIconUpload
                   class="ml-1"
                   size="xs"
-                  thickness="2.5" />
+                  weight="bold" />
               </ScalarButton>
             </template>
           </div>

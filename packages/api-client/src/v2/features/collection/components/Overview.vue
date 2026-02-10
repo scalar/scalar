@@ -51,7 +51,7 @@ const switchMode = async (newMode: 'edit' | 'preview'): Promise<void> => {
         @click="switchMode('edit')">
         <ScalarIconPencil
           size="sm"
-          thickness="1.5" />
+          weight="light" />
         <span>Edit</span>
       </ScalarButton>
     </div>
@@ -78,7 +78,7 @@ const switchMode = async (newMode: 'edit' | 'preview'): Promise<void> => {
             @click="switchMode('edit')">
             <ScalarIconPencil
               size="sm"
-              thickness="1.5" />
+              weight="light" />
             <span>Write a description</span>
           </ScalarButton>
         </div>

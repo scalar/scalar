@@ -33,7 +33,7 @@ import SideNavLink from './SideNavLink.vue'
           <div class="flex items-center justify-center">
             <ScalarIconDiscordLogo
               size="xs"
-              thickness="1.75" />
+              weight="light" />
           </div>
           <span>Discord</span>
         </ScalarDropdownItem>
@@ -46,7 +46,7 @@ import SideNavLink from './SideNavLink.vue'
           <div class="flex items-center justify-center">
             <ScalarIconGithubLogo
               size="xs"
-              thickness="1.75" />
+              weight="light" />
           </div>
           <span>GitHub</span>
         </ScalarDropdownItem>
@@ -71,7 +71,7 @@ import SideNavLink from './SideNavLink.vue'
           <div class="flex items-center justify-center">
             <ScalarIconNote
               size="xs"
-              thickness="1.75" />
+              weight="light" />
           </div>
           <span>Changelog</span>
         </ScalarDropdownItem>
@@ -84,7 +84,7 @@ import SideNavLink from './SideNavLink.vue'
           <div class="flex items-center justify-center">
             <ScalarIconMapTrifold
               size="xs"
-              thickness="1.75" />
+              weight="light" />
           </div>
           <span>Roadmap</span>
         </ScalarDropdownItem>

@@ -24,7 +24,7 @@ const { layout } = useLayout()
       <component
         :is="icon"
         :class="layout === 'web' ? 'sm:hidden' : ''"
-        thickness="1.5" />
+        weight="light" />
     </slot>
     <span
       class="sr-only text-sm font-medium"

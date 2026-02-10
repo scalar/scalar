@@ -81,7 +81,7 @@ const href = computed((): string | undefined => {
     target="_blank">
     <ScalarIconArrowSquareOut
       size="xs"
-      thickness="2" />
+      weight="regular" />
     Open API Client
   </a>
 </template>

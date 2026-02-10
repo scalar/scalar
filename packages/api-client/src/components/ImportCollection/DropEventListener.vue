@@ -121,7 +121,7 @@ function handleDragEnter(event: DragEvent) {
         <div>
           <ScalarIconDownload
             size="xl"
-            thickness="2" />
+            weight="regular" />
         </div>
         <div class="text-c-1 m-4 text-center">
           Drop your OpenAPI document here

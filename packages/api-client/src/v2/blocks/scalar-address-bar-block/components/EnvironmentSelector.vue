@@ -113,7 +113,7 @@ const handleSelectEnvironment = (environmentName: string) => {
             <ScalarIcon
               class="size-2.5"
               icon="Checkmark"
-              thickness="3" />
+              weight="bold" />
           </div>
           <span class="text-c-2">No Environment</span>
         </ScalarDropdownItem>
@@ -136,7 +136,7 @@ const handleSelectEnvironment = (environmentName: string) => {
             <ScalarIcon
               class="size-2.5"
               icon="Checkmark"
-              thickness="3" />
+              weight="bold" />
           </div>
           <span class="overflow-hidden text-ellipsis">{{
             environmentName

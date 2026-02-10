@@ -75,7 +75,7 @@ const { currentRoute } = useRouter()
         @click="$emit('hideModal')">
         <ScalarIconX
           size="lg"
-          thickness="2" />
+          weight="regular" />
         <span class="sr-only">Close Client</span>
       </button>
       <!-- TODO: temporary solution: 2nd button (not fixed position) for our friends at GitBook -->
@@ -86,7 +86,7 @@ const { currentRoute } = useRouter()
         @click="$emit('hideModal')">
         <ScalarIconX
           size="md"
-          thickness="1.75" />
+          weight="light" />
         <span class="sr-only">Close Client</span>
       </button>
     </div>

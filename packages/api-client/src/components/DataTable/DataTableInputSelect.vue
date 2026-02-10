@@ -152,7 +152,7 @@ const updateSelectedOptions = (selectedOptions: any) => {
               ">
               <ScalarIconCheck
                 class="size-2.5"
-                thickness="3" />
+                weight="bold" />
             </div>
             <span class="overflow-hidden text-ellipsis">{{ option }}</span>
           </ScalarDropdownItem>

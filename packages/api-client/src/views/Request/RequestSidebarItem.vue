@@ -542,7 +542,7 @@ const shouldShowItem = computed(() => {
                 @click.stop.prevent="addRequest(item.entity.uid)">
                 <ScalarIconPlus
                   size="md"
-                  thickness="2" />
+                  weight="regular" />
               </ScalarButton>
             </div>
             <ScalarTooltip
@@ -557,7 +557,7 @@ const shouldShowItem = computed(() => {
                   class="ml-0.5 text-sm"
                   :class="watchIconColor"
                   size="md"
-                  thickness="2" />
+                  weight="regular" />
               </button>
             </ScalarTooltip>
             <span>&hairsp;</span>
@@ -622,7 +622,7 @@ const shouldShowItem = computed(() => {
                 @click.stop.prevent="addRequest(item.entity.uid)">
                 <ScalarIconPlus
                   size="md"
-                  thickness="2" />
+                  weight="regular" />
               </ScalarButton>
             </div>
             <ScalarTooltip
@@ -637,7 +637,7 @@ const shouldShowItem = computed(() => {
                   class="ml-0.5 text-sm"
                   :class="watchIconColor"
                   size="md"
-                  thickness="2" />
+                  weight="regular" />
               </button>
             </ScalarTooltip>
             <span>&hairsp;</span>

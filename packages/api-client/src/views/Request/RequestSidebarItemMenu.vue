@@ -162,7 +162,7 @@ const isDraftsMenuItem = computed(() => {
           <ScalarIconPuzzlePiece
             class="inline-flex"
             size="md"
-            thickness="1.5" />
+            weight="light" />
           <span>Add Example</span>
         </ScalarDropdownButton>
 
@@ -175,7 +175,7 @@ const isDraftsMenuItem = computed(() => {
           <ScalarIconPencil
             class="inline-flex"
             size="md"
-            thickness="1.5" />
+            weight="light" />
           <span>
             <template v-if="menuItem.item?.entity.type === 'collection'">
               Edit
@@ -190,7 +190,7 @@ const isDraftsMenuItem = computed(() => {
         @click="handleItemDuplicate">
         <ScalarIcon
           class="inline-flex"
-          thickness="1.5"
+          weight="light"
           icon="Duplicate"
           size="sm" />
         <span>Duplicate</span>
@@ -207,7 +207,7 @@ const isDraftsMenuItem = computed(() => {
             :is="menuItem.item?.watchMode ? ScalarIconEyeSlash : ScalarIconEye"
             class="inline-flex"
             size="md"
-            thickness="1.5" />
+            weight="light" />
           <span>
             {{
               menuItem.item?.watchMode
@@ -225,7 +225,7 @@ const isDraftsMenuItem = computed(() => {
           <ScalarIconTrash
             class="inline-flex"
             size="md"
-            thickness="1.5" />
+            weight="light" />
           <span>Delete</span>
         </ScalarDropdownButton>
 
@@ -237,7 +237,7 @@ const isDraftsMenuItem = computed(() => {
           <ScalarIconTrash
             class="inline-flex"
             size="md"
-            thickness="1.5" />
+            weight="light" />
           <span>Clear Drafts</span>
         </ScalarDropdownButton>
       </ScalarDropdownMenu>

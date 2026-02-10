@@ -214,7 +214,7 @@ const showDeleteButton = (item: RequestExampleParameter) => {
               <ScalarIconUpload
                 class="ml-1"
                 size="xs"
-                thickness="2.5" />
+                weight="bold" />
             </ScalarButton>
           </div>
         </template>
