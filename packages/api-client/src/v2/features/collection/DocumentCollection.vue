@@ -13,13 +13,14 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { ScalarButton, ScalarFormError } from '@scalar/components'
-import { ScalarIconArrowLeft, ScalarIconFloppyDisk } from '@scalar/icons'
+import { ScalarButton } from '@scalar/components'
+import { ScalarIconFloppyDisk } from '@scalar/icons'
 import { LibraryIcon } from '@scalar/icons/library'
 import { computed } from 'vue'
 import { RouterView } from 'vue-router'
 
 import IconSelector from '@/components/IconSelector.vue'
+import Callout from '@/v2/components/callout/Callout.vue'
 import type { RouteProps } from '@/v2/features/app/helpers/routes'
 
 import LabelInput from './components/LabelInput.vue'
@@ -53,31 +54,36 @@ const saveChanges = () => {
       <div
         :aria-label="`title: ${title}`"
         class="mx-auto flex h-fit w-full flex-col gap-2 pt-6 pb-3 md:mx-auto md:max-w-[720px]">
-        <ScalarFormError
-          v-if="document['x-scalar-is-dirty']"
-          variant="warning">
-          <div>
+        <Callout
+          v-if="document?.['x-scalar-is-dirty']"
+          class="mb-5"
+          type="warning">
+          <p>
             You have unsaved changes. Save your work to keep your changes, or
             undo to revert them.
-          </div>
-          <div class="flex-1"></div>
-          <div class="flex">
+          </p>
+          <template #actions>
             <ScalarButton
-              size="sm"
-              variant="ghost"
+              class="text-c-2 hover:text-c-1 flex items-center gap-2"
+              size="xs"
+              type="button"
+              variant="outlined"
               @click="undoChanges">
-              <ScalarIconArrowLeft />
               <span>Undo</span>
             </ScalarButton>
             <ScalarButton
-              size="sm"
-              variant="ghost"
+              class="text-c-btn flex items-center gap-2"
+              size="xs"
+              type="button"
+              variant="solid"
               @click="saveChanges">
-              <ScalarIconFloppyDisk />
+              <ScalarIconFloppyDisk
+                size="sm"
+                thickness="1.5" />
               <span>Save</span>
             </ScalarButton>
-          </div>
-        </ScalarFormError>
+          </template>
+        </Callout>
         <div class="flex flex-row items-center gap-2">
           <IconSelector
             :modelValue="icon"
