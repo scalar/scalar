@@ -17,6 +17,7 @@ const { row } = defineProps<{
 .introduction-card {
   display: flex;
   flex-direction: column;
+  gap: 12px;
 }
 .introduction-card-row {
   gap: 24px;

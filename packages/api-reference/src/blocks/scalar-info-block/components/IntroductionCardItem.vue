@@ -7,9 +7,11 @@
 <style scoped>
 .introduction-card-item {
   display: flex;
-  margin-bottom: 12px;
   flex-direction: column;
   justify-content: flex-start;
+}
+.introduction-card-item:empty {
+  display: none;
 }
 .introduction-card-item:has(.description) :deep(.server-form-container) {
   border-bottom-left-radius: 0;

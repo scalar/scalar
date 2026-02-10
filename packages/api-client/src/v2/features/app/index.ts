@@ -1,4 +1,4 @@
-export { type AppState, useAppState } from '@/v2/features/app/app-state'
+export { type AppState, createAppState } from '@/v2/features/app/app-state'
 export { default as CreateWorkspaceModal } from '@/v2/features/app/components/CreateWorkspaceModal.vue'
 export { default as CommandActionForm } from '@/v2/features/command-palette/components/CommandActionForm.vue'
 export { default as CommandActionInput } from '@/v2/features/command-palette/components/CommandActionInput.vue'

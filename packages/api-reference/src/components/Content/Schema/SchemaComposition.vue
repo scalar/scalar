@@ -116,7 +116,7 @@ const showNestedSchema = ref(false)
         :options="listboxOptions"
         resize>
         <button
-          class="composition-selector bg-b-1.5 hover:bg-b-2 flex w-full cursor-pointer items-center gap-1 rounded-t-lg border border-b-0 px-2 py-1.25 pr-3 text-left"
+          class="composition-selector bg-b-1.5 hover:bg-b-2 flex w-full cursor-pointer items-center gap-1 rounded-t-lg border px-2.5 py-2.5 pr-3 text-left"
           type="button">
           <span class="text-c-2">{{ humanizeType(props.composition) }}</span>
           <span
