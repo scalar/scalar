@@ -1,5 +1,5 @@
 import type { LoaderPlugin, ResolveResult } from '@/bundle'
-import { isFilePath } from '@/bundle/bundle'
+import { isFilePath } from '@/helpers/is-file-path'
 import { normalize } from '@/helpers/normalize'
 
 /**

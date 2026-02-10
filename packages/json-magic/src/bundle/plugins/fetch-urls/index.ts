@@ -1,6 +1,6 @@
 import type { LoaderPlugin, ResolveResult } from '@/bundle'
-import { isRemoteUrl } from '@/bundle/bundle'
 import { createLimiter } from '@/bundle/create-limiter'
+import { isHttpUrl } from '@/helpers/is-http-url'
 import { normalize } from '@/helpers/normalize'
 
 type FetchConfig = Partial<{
@@ -99,7 +99,7 @@ export function fetchUrls(config?: FetchConfig & Partial<{ limit: number | null 
 
   return {
     type: 'loader',
-    validate: isRemoteUrl,
+    validate: isHttpUrl,
     exec: (value) => fetchUrl(value, limiter, config),
   }
 }

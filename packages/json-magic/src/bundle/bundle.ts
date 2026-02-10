@@ -1,59 +1,22 @@
-import { path } from '@scalar/helpers/node/path'
 import { isObject } from '@scalar/helpers/object/is-object'
 
 import { convertToLocalRef } from '@/helpers/convert-to-local-ref'
 import { getId, getSchemas } from '@/helpers/get-schemas'
 import { getValueByPath } from '@/helpers/get-value-by-path'
+import { isFilePath } from '@/helpers/is-file-path'
+import { isHttpUrl } from '@/helpers/is-http-url'
+import { resolveReferencePath } from '@/helpers/resolve-reference-path'
+import { setValueAtPath } from '@/helpers/set-value-at-path'
+import { toRelativePath } from '@/helpers/to-relative-path'
 import type { UnknownObject } from '@/types'
 
 import { escapeJsonPointer } from '../helpers/escape-json-pointer'
 import { getSegmentsFromPath } from '../helpers/get-segments-from-path'
-import { isJsonObject } from '../helpers/is-json-object'
-import { isYaml } from '../helpers/is-yaml'
 import { getHash, uniqueValueGeneratorFactory } from './value-generator'
 
 /** Type guard to check if a value is an object with a $ref property */
 const hasRef = (value: unknown): value is UnknownObject & Record<'$ref', string> =>
   isObject(value) && '$ref' in value && typeof value['$ref'] === 'string'
-
-/**
- * Checks if a string is a remote URL (starts with http:// or https://)
- * @param value - The URL string to check
- * @returns true if the string is a remote URL, false otherwise
- * @example
- * ```ts
- * isRemoteUrl('https://example.com/schema.json') // true
- * isRemoteUrl('http://api.example.com/schemas/user.json') // true
- * isRemoteUrl('#/components/schemas/User') // false
- * isRemoteUrl('./local-schema.json') // false
- * ```
- */
-export function isRemoteUrl(value: string) {
-  try {
-    const url = new URL(value)
-    return url.protocol === 'http:' || url.protocol === 'https:'
-  } catch {
-    return false
-  }
-}
-
-/**
- * Checks if a string represents a file path by ensuring it's not a remote URL,
- * YAML content, or JSON content.
- *
- * @param value - The string to check
- * @returns true if the string appears to be a file path, false otherwise
- * @example
- * ```ts
- * isFilePath('./schemas/user.json') // true
- * isFilePath('https://example.com/schema.json') // false
- * isFilePath('{"type": "object"}') // false
- * isFilePath('type: object') // false
- * ```
- */
-export function isFilePath(value: string) {
-  return !isRemoteUrl(value) && !isYaml(value) && !isJsonObject(value)
-}
 
 /**
  * Checks if a string is a local reference (starts with #)
@@ -95,118 +58,6 @@ function resolveContents(value: string, plugins: LoaderPlugin[]): Promise<Resolv
   return Promise.resolve({
     ok: false,
   })
-}
-
-/**
- * Sets a value at a specified path in an object, creating intermediate objects/arrays as needed.
- * This function traverses the object structure and creates any missing intermediate objects
- * or arrays based on the path segments. If the next segment is a numeric string, it creates
- * an array instead of an object.
- *
- * ⚠️ Warning: Be careful with object keys that look like numbers (e.g. "123") as this function
- * will interpret them as array indices and create arrays instead of objects. If you need to
- * use numeric-looking keys, consider prefixing them with a non-numeric character.
- *
- * @param obj - The target object to set the value in
- * @param path - The JSON pointer path where the value should be set
- * @param value - The value to set at the specified path
- * @throws {Error} If attempting to set a value at the root path ('')
- *
- * @example
- * const obj = {}
- * setValueAtPath(obj, '/foo/bar/0', 'value')
- * // Result:
- * // {
- * //   foo: {
- * //     bar: ['value']
- * //   }
- * // }
- *
- * @example
- * const obj = { existing: { path: 'old' } }
- * setValueAtPath(obj, '/existing/path', 'new')
- * // Result:
- * // {
- * //   existing: {
- * //     path: 'new'
- * //   }
- * // }
- *
- * @example
- * // ⚠️ Warning: This will create an array instead of an object with key "123"
- * setValueAtPath(obj, '/foo/123/bar', 'value')
- * // Result:
- * // {
- * //   foo: [
- * //     undefined,
- * //     undefined,
- * //     undefined,
- * //     { bar: 'value' }
- * //   ]
- * // }
- */
-export function setValueAtPath(obj: any, path: string, value: any): void {
-  if (path === '') {
-    throw new Error("Cannot set value at root ('') pointer")
-  }
-
-  const parts = getSegmentsFromPath(path)
-
-  let current = obj
-
-  for (let i = 0; i < parts.length; i++) {
-    const key = parts[i]
-    const isLast = i === parts.length - 1
-
-    const nextKey = parts[i + 1]
-    const shouldBeArray = /^\d+$/.test(nextKey ?? '')
-
-    if (isLast) {
-      current[key] = value
-    } else {
-      if (!(key in current) || typeof current[key] !== 'object') {
-        current[key] = shouldBeArray ? [] : {}
-      }
-      current = current[key]
-    }
-  }
-}
-
-/**
- * Resolves a reference path by combining a base path with a relative path.
- * Handles both remote URLs and local file paths.
- *
- * @param base - The base path (can be a URL or local file path)
- * @param relativePath - The relative path to resolve against the base
- * @returns The resolved absolute path
- * @example
- * // Resolve remote URL
- * resolveReferencePath('https://example.com/api/schema.json', 'user.json')
- * // Returns: 'https://example.com/api/user.json'
- *
- * // Resolve local path
- * resolveReferencePath('/path/to/schema.json', 'user.json')
- * // Returns: '/path/to/user.json'
- */
-function resolveReferencePath(base: string, relativePath: string) {
-  if (isRemoteUrl(relativePath)) {
-    return relativePath
-  }
-
-  if (isRemoteUrl(base)) {
-    const url = new URL(base)
-
-    // If the url stars with a / we want it to resolve from the origin so we replace the pathname
-    if (relativePath.startsWith('/')) {
-      url.pathname = relativePath
-      return url.toString()
-    }
-
-    const mergedPath = path.join(path.dirname(url.pathname), relativePath)
-    return new URL(mergedPath, base).toString()
-  }
-
-  return path.join(path.dirname(base), relativePath)
 }
 
 /**
@@ -700,22 +551,30 @@ export async function bundle(input: UnknownObject | string, config: Config) {
 
   // Determines the initial origin path for the bundler based on the input type.
   // For string inputs that are URLs or file paths, uses the input as the origin.
-  // For non-string inputs or other string types, returns an empty string.
-  const defaultOrigin = () => {
+  // For non-string inputs or other string types, returns an '/' as a root path.
+  const getDefaultOrigin = () => {
+    // Id field is the first priority
+    const id = getId(documentRoot)
+    if (id) {
+      return id
+    }
+
     if (config.origin) {
       return config.origin
     }
 
     if (typeof input !== 'string') {
-      return ''
+      return '/'
     }
 
-    if (isRemoteUrl(input) || isFilePath(input)) {
+    if (isHttpUrl(input) || isFilePath(input)) {
       return input
     }
 
-    return ''
+    return '/'
   }
+
+  const defaultOrigin = getDefaultOrigin()
 
   // Create the cache to store the compressed values to their map values
   if (documentRoot[config.externalDocumentsMappingsKey] === undefined) {
@@ -757,7 +616,7 @@ export async function bundle(input: UnknownObject | string, config: Config) {
 
   const bundler = async (
     root: unknown,
-    origin: string = defaultOrigin(),
+    origin: string = defaultOrigin,
     isChunkParent = false,
     depth = 0,
     currentPath: readonly string[] = [],
@@ -827,22 +686,23 @@ export async function bundle(input: UnknownObject | string, config: Config) {
       // Combine the current origin with the new path to resolve relative references
       // correctly within the context of the external file being processed
       const resolvedPath = resolveReferencePath(id ?? origin, prefix)
+      const relativePath = toRelativePath(resolvedPath, defaultOrigin)
 
       // Generate a unique compressed path for the external document
       // This is used as a key to store and reference the bundled external document
       // The compression helps reduce the overall file size of the bundled document
-      const compressedPath = await generate(resolvedPath)
+      const compressedPath = await generate(relativePath)
 
-      const seen = cache.has(resolvedPath)
+      const seen = cache.has(relativePath)
 
       if (!seen) {
-        cache.set(resolvedPath, resolveContents(resolvedPath, loaderPlugins))
+        cache.set(relativePath, resolveContents(resolvedPath, loaderPlugins))
       }
 
       await executeHooks('onResolveStart', root)
 
       // Resolve the remote document
-      const result = await cache.get(resolvedPath)
+      const result = await cache.get(relativePath)
 
       if (result.ok) {
         // Process the result only once to avoid duplicate processing and prevent multiple prefixing
@@ -878,7 +738,7 @@ export async function bundle(input: UnknownObject | string, config: Config) {
           setValueAtPath(
             documentRoot,
             `/${config.externalDocumentsMappingsKey}/${escapeJsonPointer(compressedPath)}`,
-            resolvedPath,
+            relativePath,
           )
         }
 
