@@ -9,11 +9,9 @@ const {
   //
   activateMock,
   deactivateMock,
-  addScalarClassesToHeadlessMock,
 } = vi.hoisted(() => ({
   activateMock: vi.fn(),
   deactivateMock: vi.fn(),
-  addScalarClassesToHeadlessMock: vi.fn(),
 }))
 
 vi.mock('@vueuse/integrations/useFocusTrap', () => ({
@@ -21,13 +19,6 @@ vi.mock('@vueuse/integrations/useFocusTrap', () => ({
     activate: activateMock,
     deactivate: deactivateMock,
   }),
-}))
-
-vi.mock('@scalar/components', () => ({
-  addScalarClassesToHeadless: addScalarClassesToHeadlessMock,
-  ScalarTeleportRoot: {
-    template: '<div><slot /></div>',
-  },
 }))
 
 function createModalState(open = false): ModalState {
@@ -44,13 +35,31 @@ describe('ModalClient.vue', () => {
   })
 
   it('calls addScalarClassesToHeadless on mount', () => {
-    mount(ModalClientContainer, {
+    const wrapper = mount(ModalClientContainer, {
       props: {
         modalState: createModalState(),
       },
     })
 
-    expect(addScalarClassesToHeadlessMock).toHaveBeenCalled()
+    expect(wrapper.find('.scalar-app').exists()).toBe(true)
+  })
+
+  it('process slot with ScalarTeleportRoot', () => {
+    const wrapper = mount(ModalClientContainer, {
+      props: {
+        modalState: createModalState(),
+      },
+      slots: {
+        default: '<button id="test-button">Test</button>"',
+      },
+    })
+
+    expect(wrapper.find('#test-button').exists()).toBe(true)
+
+    const teleport = wrapper.find('[id*="scalar-teleport"]')
+
+    expect(teleport.exists()).toBe(true)
+    expect(teleport.find('#test-button').exists()).toBe(false)
   })
 
   it('is hidden when modalState.open is false', () => {
