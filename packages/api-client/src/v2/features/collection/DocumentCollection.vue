@@ -14,7 +14,7 @@ export default {
 
 <script setup lang="ts">
 import { ScalarButton } from '@scalar/components'
-import { ScalarIconArrowLeft, ScalarIconFloppyDisk } from '@scalar/icons'
+import { ScalarIconFloppyDisk } from '@scalar/icons'
 import { LibraryIcon } from '@scalar/icons/library'
 import { computed } from 'vue'
 import { RouterView } from 'vue-router'
@@ -69,9 +69,6 @@ const saveChanges = () => {
               type="button"
               variant="outlined"
               @click="undoChanges">
-              <ScalarIconArrowLeft
-                size="sm"
-                thickness="1.5" />
               <span>Undo</span>
             </ScalarButton>
             <ScalarButton
