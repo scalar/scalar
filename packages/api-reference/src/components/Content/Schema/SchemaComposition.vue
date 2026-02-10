@@ -88,6 +88,9 @@ const humanizeType = (type: CompositionKeyword): string =>
 const selectedComposition = computed(
   () => composition.value[Number(selectedOption.value?.id ?? '0')]?.value,
 )
+
+/** Controls whether the nested schema is displayed */
+const showNestedSchema = ref(false)
 </script>
 
 <template>
@@ -133,8 +136,19 @@ const selectedComposition = computed(
       </ScalarListbox>
 
       <div class="composition-panel">
+        <!-- Button to toggle nested schema display -->
+        <button
+          v-if="!showNestedSchema && level > 2"
+          class="bg-b-1 hover:bg-b-2 text-c-1 flex w-full items-center justify-center gap-2 rounded-b-lg border border-t-0 px-2 py-2 text-sm font-medium transition-colors"
+          type="button"
+          @click="showNestedSchema = true">
+          Show Schema Details
+          <ScalarIconCaretDown class="h-3 w-3" />
+        </button>
+
         <!-- Render the selected schema if it has content to display -->
         <Schema
+          v-else
           :breadcrumb="breadcrumb"
           :compact="compact"
           :discriminator="discriminator"
