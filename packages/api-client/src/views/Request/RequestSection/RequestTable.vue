@@ -105,8 +105,9 @@ const showDeleteButton = (item: RequestExampleParameter) => {
             content="Global cookies are shared across the whole workspace."
             placement="top">
             <ScalarIconGlobe
-              class="text-c-2"
-              size="sm" />
+              class="text-c-1"
+              size="xs"
+              tabindex="0" />
           </ScalarTooltip>
         </RouterLink>
       </template>
