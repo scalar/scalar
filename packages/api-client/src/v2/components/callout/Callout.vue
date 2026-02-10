@@ -107,7 +107,6 @@ const iconsMapping = {
 
   --callout-primary: var(--scalar-border-color);
   --callout-secondary: var(--scalar-background-2);
-  --callout-font-color: var(--scalar-color-1);
   --callout-svg: var(--callout-primary);
 
   background: var(--callout-secondary);
