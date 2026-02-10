@@ -24,7 +24,6 @@ export async function readFile(path: string): Promise<ResolveResult> {
   }
 
   try {
-    console.log('readFile', path)
     const fileContents = await fs.readFile(path, { encoding: 'utf-8' })
 
     return {

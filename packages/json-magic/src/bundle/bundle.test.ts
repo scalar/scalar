@@ -2,6 +2,7 @@ import { randomUUID } from 'node:crypto'
 import fs from 'node:fs/promises'
 import { cwd } from 'node:process'
 
+import { path } from '@scalar/helpers/node/path'
 import { consoleWarnSpy, resetConsoleSpies } from '@scalar/helpers/testing/console-spies'
 import fastify, { type FastifyInstance } from 'fastify'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
@@ -1292,8 +1293,8 @@ describe('bundle', () => {
       })
 
       expect(result).toEqual({
-        a: { '$ref': `#/x-ext/${getHash('../../../d')}` },
-        'x-ext': { [getHash('../../../d')]: { message: 'some resolved external reference' } },
+        a: { '$ref': `#/x-ext/${getHash('../../d')}` },
+        'x-ext': { [getHash('../../d')]: { message: 'some resolved external reference' } },
       })
     })
 
@@ -1507,12 +1508,12 @@ describe('bundle', () => {
         'a': {
           'b': {
             'c': {
-              '$ref': `#/x-ext/${getHash('../b')}`,
+              '$ref': `#/x-ext/${getHash('b')}`,
             },
           },
         },
         'x-ext': {
-          [getHash('../b')]: {
+          [getHash('b')]: {
             'message': 'resolved value',
           },
         },
@@ -1561,12 +1562,12 @@ describe('bundle', () => {
         'a': {
           'b': {
             'c': {
-              '$ref': `#/x-ext/${getHash('../b')}`,
+              '$ref': `#/x-ext/${getHash('b')}`,
             },
           },
         },
         'x-ext': {
-          [getHash('../b')]: {
+          [getHash('b')]: {
             'message': 'resolved value',
           },
         },
@@ -1625,12 +1626,12 @@ describe('bundle', () => {
         'a': {
           'b': {
             'c': {
-              '$ref': `#/x-ext/${getHash('../b')}`,
+              '$ref': `#/x-ext/${getHash('b')}`,
             },
           },
         },
         'x-ext': {
-          [getHash('../b')]: {
+          [getHash('b')]: {
             'message': 'resolved value',
           },
         },
@@ -1742,9 +1743,9 @@ describe('bundle', () => {
   describe('local files', () => {
     it('resolves from local files', async () => {
       const chunk1 = { a: 'a', b: 'b' }
-      const chunk1Path = `${randomUUID()}.json`
+      const chunk1Path = randomUUID()
 
-      await fs.writeFile(chunk1Path, JSON.stringify(chunk1))
+      await fs.writeFile(path.join(__dirname, chunk1Path), JSON.stringify(chunk1))
 
       const input = {
         a: {
@@ -1752,9 +1753,9 @@ describe('bundle', () => {
         },
       }
 
-      await bundle(input, { origin: cwd(), plugins: [fetchUrls(), readFiles()], treeShake: false })
+      await bundle(input, { origin: __filename, plugins: [fetchUrls(), readFiles()], treeShake: false })
 
-      await fs.rm(chunk1Path)
+      await fs.rm(path.join(__dirname, chunk1Path))
 
       expect(input).toEqual({
         'x-ext': {
@@ -1770,13 +1771,13 @@ describe('bundle', () => {
 
     it('resolves external refs from resolved files', async () => {
       const chunk1 = { a: 'a', b: 'b' }
-      const chunk1Path = `${randomUUID()}.json`
+      const chunk1Path = randomUUID()
 
       const chunk2 = { a: { '$ref': `./${chunk1Path}#` } }
-      const chunk2Path = `${randomUUID()}.json`
+      const chunk2Path = randomUUID()
 
-      await fs.writeFile(chunk1Path, JSON.stringify(chunk1))
-      await fs.writeFile(chunk2Path, JSON.stringify(chunk2))
+      await fs.writeFile(path.join(__dirname, chunk1Path), JSON.stringify(chunk1))
+      await fs.writeFile(path.join(__dirname, chunk2Path), JSON.stringify(chunk2))
 
       const input = {
         a: {
@@ -1784,10 +1785,10 @@ describe('bundle', () => {
         },
       }
 
-      await bundle(input, { origin: cwd(), plugins: [fetchUrls(), readFiles()], treeShake: false })
+      await bundle(input, { origin: __filename, plugins: [fetchUrls(), readFiles()], treeShake: false })
 
-      await fs.rm(chunk1Path)
-      await fs.rm(chunk2Path)
+      await fs.rm(path.join(__dirname, chunk1Path))
+      await fs.rm(path.join(__dirname, chunk2Path))
 
       expect(input).toEqual({
         'x-ext': {
@@ -1808,20 +1809,20 @@ describe('bundle', () => {
       const c = {
         c: 'c',
       }
-      const cName = `${randomUUID()}.json`
+      const cName = randomUUID()
 
       const b = {
         b: {
           '$ref': `./${cName}`,
         },
       }
-      const bName = `${randomUUID()}.json`
+      const bName = randomUUID()
 
-      await fs.mkdir('./nested').catch(() => {
+      await fs.mkdir(path.join(__dirname, 'nested')).catch(() => {
         return
       })
-      await fs.writeFile(`./nested/${bName}`, JSON.stringify(b))
-      await fs.writeFile(`./nested/${cName}`, JSON.stringify(c))
+      await fs.writeFile(path.join(__dirname, `nested/${bName}`), JSON.stringify(b))
+      await fs.writeFile(path.join(__dirname, `nested/${cName}`), JSON.stringify(c))
 
       const input = {
         a: {
@@ -1829,11 +1830,11 @@ describe('bundle', () => {
         },
       }
 
-      await bundle(input, { origin: cwd(), plugins: [fetchUrls(), readFiles()], treeShake: false })
+      await bundle(input, { origin: __filename, plugins: [fetchUrls(), readFiles()], treeShake: false })
 
-      await fs.rm(`./nested/${bName}`)
-      await fs.rm(`./nested/${cName}`)
-      await fs.rmdir('nested')
+      await fs.rm(path.join(__dirname, `./nested/${bName}`))
+      await fs.rm(path.join(__dirname, `./nested/${cName}`))
+      await fs.rmdir(path.join(__dirname, 'nested'))
 
       expect(input).toEqual({
         'x-ext': {
@@ -1898,9 +1899,9 @@ describe('bundle', () => {
 
     it('stores relative paths in the x-ext-urls map', async () => {
       const chunk1 = { a: 'a', b: 'b' }
-      const chunk1Path = `${randomUUID()}.json`
+      const chunk1Path = randomUUID()
 
-      await fs.writeFile(chunk1Path, JSON.stringify(chunk1))
+      await fs.writeFile(path.join(__dirname, chunk1Path), JSON.stringify(chunk1))
 
       const input = {
         a: {
@@ -1908,9 +1909,9 @@ describe('bundle', () => {
         },
       }
 
-      await bundle(input, { origin: cwd(), plugins: [fetchUrls(), readFiles()], treeShake: false, urlMap: true })
+      await bundle(input, { origin: __filename, plugins: [fetchUrls(), readFiles()], treeShake: false, urlMap: true })
 
-      await fs.rm(chunk1Path)
+      await fs.rm(path.join(__dirname, chunk1Path))
 
       expect(input).toEqual({
         'a': {
@@ -1947,9 +1948,9 @@ describe('bundle', () => {
 
     it('should correctly resolve refs for json inputs', async () => {
       const chunk1 = { a: 'a', b: 'b' }
-      const chunk1Path = `${randomUUID()}.json`
+      const chunk1Path = randomUUID()
 
-      await fs.writeFile(chunk1Path, JSON.stringify(chunk1))
+      await fs.writeFile(path.join(__dirname, chunk1Path), JSON.stringify(chunk1))
 
       const input = JSON.stringify({
         a: {
@@ -1957,9 +1958,9 @@ describe('bundle', () => {
         },
       })
 
-      const result = await bundle(input, { origin: cwd(), plugins: [readFiles(), parseJson()], treeShake: false })
+      const result = await bundle(input, { origin: __filename, plugins: [readFiles(), parseJson()], treeShake: false })
 
-      await fs.rm(chunk1Path)
+      await fs.rm(path.join(__dirname, chunk1Path))
 
       expect(result).toEqual({
         'x-ext': {
@@ -2006,7 +2007,7 @@ describe('bundle', () => {
       const chunk1 = { a: 'a', b: 'b' }
       const chunk1Path = randomUUID()
 
-      await fs.writeFile(chunk1Path, YAML.stringify(chunk1))
+      await fs.writeFile(path.join(__dirname, chunk1Path), YAML.stringify(chunk1))
 
       const input = YAML.stringify({
         a: {
@@ -2014,9 +2015,9 @@ describe('bundle', () => {
         },
       })
 
-      const result = await bundle(input, { origin: cwd(), plugins: [parseYaml(), readFiles()], treeShake: false })
+      const result = await bundle(input, { origin: __filename, plugins: [parseYaml(), readFiles()], treeShake: false })
 
-      await fs.rm(chunk1Path)
+      await fs.rm(path.join(__dirname, chunk1Path))
 
       expect(result).toEqual({
         'x-ext': {

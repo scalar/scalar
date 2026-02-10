@@ -250,7 +250,7 @@ describe('resolveReferencePath', () => {
     })
 
     it('handles base directories', () => {
-      const base = '/Users/someone/Desktop/Projects/my-project/packages/json-magic'
+      const base = '/Users/someone/Desktop/Projects/my-project/packages/json-magic/test'
       const relativePath = './7d4f3a5d-dca9-4bb3-bb48-30da2bc43f18'
       const result = resolveReferencePath(base, relativePath)
       expect(result).toBe(

@@ -3,17 +3,6 @@ import { path } from '@scalar/helpers/node/path'
 import { isRemoteUrl } from '@/helpers/is-remote-url'
 
 /**
- * Returns the directory of the input path, or the input itself if it's already a directory.
- * If the input is a file (has an extension), returns its parent directory.
- */
-export const getDirectory = (input: string) => {
-  if (path.extname(input) !== '') {
-    return path.dirname(input)
-  }
-  return input
-}
-
-/**
  * Converts an input path or URL to a relative path based on the provided base.
  * Handles both remote URLs and local file system paths.
  * - If both input and base are remote URLs and share the same origin, computes the relative pathname.
@@ -32,7 +21,7 @@ export const toRelativePath = (input: string, base: string) => {
     }
 
     // Get the directory of the base URL pathname (not the file itself)
-    const baseDir = getDirectory(path.resolve(baseUrl.pathname))
+    const baseDir = path.dirname(path.resolve(baseUrl.pathname))
     const inputPath = path.resolve(inputUrl.pathname)
     // Return the relative path from baseDir to inputPath
     return path.relative(baseDir, inputPath)
@@ -41,7 +30,7 @@ export const toRelativePath = (input: string, base: string) => {
   // Base is a remote URL, input is a local path
   if (isRemoteUrl(base)) {
     const baseUrl = new URL(base)
-    const baseDir = getDirectory(path.resolve(baseUrl.pathname))
+    const baseDir = path.dirname(path.resolve(baseUrl.pathname))
     const inputPath = path.resolve(input)
     // Set the pathname of the base URL to the relative path and return the URL as a string
     baseUrl.pathname = path.relative(baseDir, inputPath)
@@ -54,7 +43,7 @@ export const toRelativePath = (input: string, base: string) => {
   }
 
   // Both input and base are local paths; return the relative path
-  const baseDir = getDirectory(path.resolve(base))
+  const baseDir = path.dirname(path.resolve(base))
   const inputPath = path.resolve(input)
   return path.relative(baseDir, inputPath)
 }

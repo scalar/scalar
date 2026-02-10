@@ -57,6 +57,16 @@
       "types": "./dist/helpers/get-segments-from-path.d.ts",
       "default": "./dist/helpers/get-segments-from-path.js"
     },
+    "./helpers/is-file-path": {
+      "import": "./dist/helpers/is-file-path.js",
+      "types": "./dist/helpers/is-file-path.d.ts",
+      "default": "./dist/helpers/is-file-path.js"
+    },
+    "./helpers/is-remote-url": {
+      "import": "./dist/helpers/is-remote-url.js",
+      "types": "./dist/helpers/is-remote-url.d.ts",
+      "default": "./dist/helpers/is-remote-url.js"
+    },
     "./helpers/unescape-json-pointer": {
       "import": "./dist/helpers/unescape-json-pointer.js",
       "types": "./dist/helpers/unescape-json-pointer.d.ts",

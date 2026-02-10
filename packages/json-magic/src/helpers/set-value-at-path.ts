@@ -1,3 +1,5 @@
+import { preventPollution } from '@scalar/helpers/object/prevent-pollution'
+
 import { getSegmentsFromPath } from '@/helpers/get-segments-from-path'
 
 /**
@@ -54,6 +56,9 @@ export function setValueAtPath(obj: any, path: string, value: any): void {
   }
 
   const parts = getSegmentsFromPath(path)
+
+  // Prevent prototype pollution
+  parts.forEach((part) => preventPollution(part))
 
   let current = obj
 

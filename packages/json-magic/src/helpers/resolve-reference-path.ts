@@ -1,7 +1,6 @@
 import { path } from '@scalar/helpers/node/path'
 
 import { isRemoteUrl } from '@/helpers/is-remote-url'
-import { getDirectory } from '@/helpers/to-relative-path'
 
 /**
  * Resolves a reference path by combining a base path with a relative path.
@@ -26,9 +25,9 @@ export const resolveReferencePath = (base: string, relativePath: string) => {
 
   if (isRemoteUrl(base)) {
     const baseUrl = new URL(base)
-    baseUrl.pathname = path.resolve(getDirectory(baseUrl.pathname), relativePath)
+    baseUrl.pathname = path.resolve(path.dirname(baseUrl.pathname), relativePath)
     return baseUrl.toString()
   }
 
-  return path.resolve(getDirectory(base), relativePath)
+  return path.resolve(path.dirname(base), relativePath)
 }
