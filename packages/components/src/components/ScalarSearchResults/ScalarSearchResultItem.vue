@@ -50,7 +50,7 @@ const { cx } = useBindCx()
       </div>
       <div
         v-if="$slots.description"
-        class="truncate zoomed:!whitespace-normal break-words text-base text-c-2">
+        class="truncate zoomed:!whitespace-normal wrap-break-word text-base text-c-2">
         <slot name="description" />
       </div>
     </div>

@@ -215,7 +215,6 @@ describe('ScalarIconButton', () => {
           icon: 'Logo',
           label: 'Icon with weight',
           weight: 'light',
-          thickness: '1.5',
         },
       })
 

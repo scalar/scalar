@@ -13,6 +13,10 @@ import ApiReferenceToolbarBlurb from '@/features/toolbar/ApiReferenceToolbarBlur
 import ApiReferenceToolbarPopover from '@/features/toolbar/ApiReferenceToolbarPopover.vue'
 import ApiReferenceToolbarRegisterButton from '@/features/toolbar/ApiReferenceToolbarRegisterButton.vue'
 
+const { workspace } = defineProps<{
+  workspace: WorkspaceStore
+}>()
+
 const LANGUAGES = [
   {
     key: 'typescript',
@@ -32,10 +36,6 @@ const LANGUAGES = [
 }>
 
 type LanguageKey = (typeof LANGUAGES)[number]['key']
-
-const { workspace } = defineProps<{
-  workspace: WorkspaceStore
-}>()
 
 const selectedLanguages = ref<LanguageKey[]>([])
 </script>
@@ -59,8 +59,8 @@ const selectedLanguages = ref<LanguageKey[]>([])
           ">
           <span class="inline-flex items-center gap-2">
             <ScalarIconLegacyAdapter
-              :icon="icon"
-              class="text-c-2 size-3.5" />
+              class="text-c-2 size-3.5"
+              :icon="icon" />
             {{ label }}
           </span>
         </ScalarToggleInput>

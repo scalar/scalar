@@ -79,7 +79,7 @@ const saveChanges = () => {
               @click="saveChanges">
               <ScalarIconFloppyDisk
                 size="sm"
-                thickness="1.5" />
+                weight="light" />
               <span>Save</span>
             </ScalarButton>
           </template>

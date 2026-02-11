@@ -50,7 +50,7 @@ defineEmits<{
               :src="icon as string" />
             <ScalarIconLegacyAdapter
               v-else-if="typeof icon === 'string'"
-              :icon="icon as Icon"
+              :icon="icon"
               size="xs"
               weight="bold" />
             <component

@@ -22,7 +22,7 @@ import { variants } from './variants'
 /**
  * Icon wrapper for all icons and logos
  */
-const props = defineProps<
+const { icon, size, label, weight, thickness } = defineProps<
   {
     icon: Icon | ScalarIconComponent
   } & ScalarIconProps &
@@ -43,21 +43,19 @@ const WEIGHT_TO_THICKNESS: Record<ScalarIconWeight, string> = {
 }
 
 defineOptions({ inheritAttrs: false })
+
 const { cx } = useBindCx()
 
 const legacyThickness = computed(
-  () =>
-    (props.weight != null
-      ? WEIGHT_TO_THICKNESS[props.weight]
-      : props.thickness) ?? '2',
+  () => (weight != null ? WEIGHT_TO_THICKNESS[weight] : thickness) ?? '2',
 )
 
 /** Pass only props the legacy ScalarIcon accepts so weight is never forwarded (legacy uses thickness). */
 const legacyIconBind = computed(
   (): LegacyScalarIconProps & { thickness: string } => ({
-    icon: props.icon as Icon,
-    size: props.size,
-    label: props.label,
+    icon: icon as Icon,
+    size: size,
+    label: label,
     thickness: legacyThickness.value,
   }),
 )
