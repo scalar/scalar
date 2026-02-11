@@ -1,5 +1,11 @@
 # @scalar/code-highlight
 
+## 0.2.3
+
+### Patch Changes
+
+- [#8081](https://github.com/scalar/scalar/pull/8081): feat(components): improve ScalarCodeBlock copy UI
+
 ## 0.2.2
 
 ### Patch Changes

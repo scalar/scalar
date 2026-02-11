@@ -1,5 +1,27 @@
 # @scalar/nuxt
 
+## 0.5.73
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-client@2.26.0**
+  - [#8069](https://github.com/scalar/scalar/pull/8069): Added full width and height classes to the DataTableCheckbox input so it renders correctly on Safari.
+  - [#8108](https://github.com/scalar/scalar/pull/8108): feat: unify the api client desktop and web layout
+  - [#8095](https://github.com/scalar/scalar/pull/8095): feat: support loading files into the store
+  - [#8079](https://github.com/scalar/scalar/pull/8079): fix(api-client): handle object values for form-urlencoded body
+  - [#8081](https://github.com/scalar/scalar/pull/8081): feat(components): improve ScalarCodeBlock copy UI
+  - [#8086](https://github.com/scalar/scalar/pull/8086): fix(api-reference): inconsistent styles throughout api-reference
+  - [#8048](https://github.com/scalar/scalar/pull/8048): chore: improve save modal
+  - [#8110](https://github.com/scalar/scalar/pull/8110): feat: support file plugin on the import document palette
+  - [#8111](https://github.com/scalar/scalar/pull/8111): fix: move useColorMode hook to the app component
+
+- **@scalar/api-reference@1.44.16**
+  - [#8081](https://github.com/scalar/scalar/pull/8081): feat(components): improve ScalarCodeBlock copy UI
+  - [#8098](https://github.com/scalar/scalar/pull/8098): fix(api-reference): revert stacking context for toolbar
+  - [#8086](https://github.com/scalar/scalar/pull/8086): fix(api-reference): inconsistent styles throughout api-reference
+
 ## 0.5.72
 
 ### Patch Changes

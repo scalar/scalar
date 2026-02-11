@@ -1,5 +1,45 @@
 # @scalar/api-reference
 
+## 1.44.16
+
+### Patch Changes
+
+- [#8081](https://github.com/scalar/scalar/pull/8081): feat(components): improve ScalarCodeBlock copy UI
+- [#8098](https://github.com/scalar/scalar/pull/8098): fix(api-reference): revert stacking context for toolbar
+- [#8086](https://github.com/scalar/scalar/pull/8086): fix(api-reference): inconsistent styles throughout api-reference
+
+#### Updated Dependencies
+
+- **@scalar/api-client@2.26.0**
+  - [#8069](https://github.com/scalar/scalar/pull/8069): Added full width and height classes to the DataTableCheckbox input so it renders correctly on Safari.
+  - [#8108](https://github.com/scalar/scalar/pull/8108): feat: unify the api client desktop and web layout
+  - [#8095](https://github.com/scalar/scalar/pull/8095): feat: support loading files into the store
+  - [#8079](https://github.com/scalar/scalar/pull/8079): fix(api-client): handle object values for form-urlencoded body
+  - [#8081](https://github.com/scalar/scalar/pull/8081): feat(components): improve ScalarCodeBlock copy UI
+  - [#8086](https://github.com/scalar/scalar/pull/8086): fix(api-reference): inconsistent styles throughout api-reference
+  - [#8048](https://github.com/scalar/scalar/pull/8048): chore: improve save modal
+  - [#8110](https://github.com/scalar/scalar/pull/8110): feat: support file plugin on the import document palette
+  - [#8111](https://github.com/scalar/scalar/pull/8111): fix: move useColorMode hook to the app component
+
+- **@scalar/workspace-store@0.31.0**
+  - [#8095](https://github.com/scalar/scalar/pull/8095): feat: support loading files into the store
+  - [#8096](https://github.com/scalar/scalar/pull/8096): feat: store relative urls/paths against base under the url mappings
+
+- **@scalar/code-highlight@0.2.3**
+  - [#8081](https://github.com/scalar/scalar/pull/8081): feat(components): improve ScalarCodeBlock copy UI
+
+- **@scalar/components@0.19.0**
+  - [#8081](https://github.com/scalar/scalar/pull/8081): feat(components): improve ScalarCodeBlock copy UI
+  - [#8065](https://github.com/scalar/scalar/pull/8065): feat(components): add editor to ScalarMenu and optionally remove docs
+
+- **@scalar/agent-chat@0.5.7**
+
+- **@scalar/oas-utils@0.6.38**
+
+- **@scalar/sidebar@0.7.31**
+
+- **@scalar/openapi-parser@0.24.9**
+
 ## 1.44.15
 
 ### Patch Changes

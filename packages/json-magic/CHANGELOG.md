@@ -1,5 +1,12 @@
 # @scalar/json-magic
 
+## 0.11.0
+
+### Minor Changes
+
+- [#8095](https://github.com/scalar/scalar/pull/8095): feat: support loading files into the store
+- [#8096](https://github.com/scalar/scalar/pull/8096): feat: store relative urls/paths against base under the url mappings
+
 ## 0.10.0
 
 ### Minor Changes

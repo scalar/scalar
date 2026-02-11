@@ -1,5 +1,22 @@
 # @scalar/components
 
+## 0.19.0
+
+### Minor Changes
+
+- [#8065](https://github.com/scalar/scalar/pull/8065): feat(components): add editor to ScalarMenu and optionally remove docs
+
+### Patch Changes
+
+- [#8081](https://github.com/scalar/scalar/pull/8081): feat(components): improve ScalarCodeBlock copy UI
+
+#### Updated Dependencies
+
+- **@scalar/code-highlight@0.2.3**
+  - [#8081](https://github.com/scalar/scalar/pull/8081): feat(components): improve ScalarCodeBlock copy UI
+
+- **@scalar/oas-utils@0.6.38**
+
 ## 0.18.0
 
 ### Minor Changes

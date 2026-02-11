@@ -1,5 +1,17 @@
 # @scalar/scripts
 
+## 0.0.85
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/components@0.19.0**
+  - [#8081](https://github.com/scalar/scalar/pull/8081): feat(components): improve ScalarCodeBlock copy UI
+  - [#8065](https://github.com/scalar/scalar/pull/8065): feat(components): add editor to ScalarMenu and optionally remove docs
+
+- **@scalar/oas-utils@0.6.38**
+
 ## 0.0.84
 
 ### Patch Changes

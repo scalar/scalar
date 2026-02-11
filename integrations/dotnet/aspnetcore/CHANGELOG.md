@@ -1,5 +1,16 @@
 # @scalar/aspnetcore
 
+## 2.12.37
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.44.16**
+  - [#8081](https://github.com/scalar/scalar/pull/8081): feat(components): improve ScalarCodeBlock copy UI
+  - [#8098](https://github.com/scalar/scalar/pull/8098): fix(api-reference): revert stacking context for toolbar
+  - [#8086](https://github.com/scalar/scalar/pull/8086): fix(api-reference): inconsistent styles throughout api-reference
+
 ## 2.12.36
 
 ### Patch Changes
