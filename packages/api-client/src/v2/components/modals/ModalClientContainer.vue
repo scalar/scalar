@@ -35,10 +35,10 @@ onBeforeMount(() => addScalarClassesToHeadless())
 // manage the focus trap and emit lifecycle events
 watch(
   () => props.modalState.open,
-  (open) => {
+  async (open) => {
     if (open) {
-      // trap focus after DOM settle
-      activateFocusTrap({ checkCanFocusTrap: () => nextTick() })
+      await nextTick()
+      activateFocusTrap()
       emit('open')
     } else {
       deactivateFocusTrap()
