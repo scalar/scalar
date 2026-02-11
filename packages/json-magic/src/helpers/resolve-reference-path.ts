@@ -29,5 +29,10 @@ export const resolveReferencePath = (base: string, relativePath: string) => {
     return baseUrl.toString()
   }
 
+  // Keep relative bases relative so local refs resolve from the input file location, not from filesystem root.
+  if (!path.isAbsolute(base)) {
+    return path.normalize(path.join(path.dirname(base), relativePath))
+  }
+
   return path.resolve(path.dirname(base), relativePath)
 }
