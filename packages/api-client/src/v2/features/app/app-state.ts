@@ -28,7 +28,6 @@ import { getActiveEnvironment } from '@/v2/helpers/get-active-environment'
 import { getTabDetails } from '@/v2/helpers/get-tab-details'
 import { slugify } from '@/v2/helpers/slugify'
 import { workspaceStorage } from '@/v2/helpers/storage'
-import { useColorMode } from '@/v2/hooks/use-color-mode'
 
 import { initializeAppEventHandlers } from './app-events'
 import { canLoadWorkspace, filterWorkspacesByTeam } from './helpers/filter-workspaces'
@@ -881,9 +880,13 @@ export const createAppState = async ({
     onToggleSidebar: () => (isSidebarOpen.value = !isSidebarOpen.value),
   })
 
-  // ---------------------------------------------------------------------------
-  // Color mode
-  const { isDarkMode } = useColorMode({ workspaceStore: store })
+  const isDarkMode = computed(() => {
+    const colorMode = store.value?.workspace['x-scalar-color-mode'] ?? 'system'
+    if (colorMode === 'system') {
+      return window.matchMedia?.('(prefers-color-scheme: dark)').matches
+    }
+    return colorMode === 'dark'
+  })
 
   return {
     /** Active workspace store */
