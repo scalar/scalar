@@ -238,6 +238,63 @@ Configure a proxy URL for API requests:
 scalar.proxyUrl=https://api-gateway.company.com
 ```
 
+### Agent Scalar
+
+Agent Scalar adds an AI chat interface to your API reference. Users can ask questions about your API and get contextual answers based on your OpenAPI document.
+
+- Enabled by default on `http://localhost` for testing (with limited free messages).
+- In production, the agent does not appear unless you provide a key.
+- To use Agent Scalar in production, configure an [Agent Scalar key](guides/agent/key.md).
+
+**Single-URL mode** (when using `scalar.url` without `sources`):
+
+```yaml
+scalar:
+  url: https://api.example.com/openapi.json
+  agent:
+    key: put-your-agent-scalar-key-here
+```
+
+To disable Agent Scalar entirely in single-URL mode:
+
+```yaml
+scalar:
+  agent:
+    disabled: true
+```
+
+**Multiple OpenAPI documents** (when using `sources`): set agent options per source:
+
+```yaml
+scalar:
+  sources:
+    - url: https://api.example.com/v1/openapi.json
+      title: Production API
+      agent:
+        key: put-your-agent-scalar-key-here
+    - url: https://api.example.com/v2/openapi.json
+      title: Beta API
+      agent:
+        disabled: true
+```
+
+In `application.properties` for a single source:
+
+```properties
+scalar.agent.key=put-your-agent-scalar-key-here
+# Or to disable:
+scalar.agent.disabled=true
+```
+
+For multiple sources:
+
+```properties
+scalar.sources[0].agent.key=put-your-agent-scalar-key-here
+scalar.sources[1].agent.disabled=true
+```
+
+Related: [How to get an Agent Scalar key](guides/agent/key.md).
+
 ### Authentication
 
 Scalar allows you to pre-configure authentication details for your API, making it easier for developers to test your endpoints.

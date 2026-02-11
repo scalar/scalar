@@ -32,6 +32,12 @@ public class ScalarSource {
     private Boolean isDefault;
 
     /**
+     * Agent Scalar options for this source (key for production, or disabled to
+     * turn off the agent for this document).
+     */
+    private ScalarAgentOptions agent;
+
+    /**
      * Creates an OpenAPI Reference source
      * {@link #url} must be set
      */
@@ -123,5 +129,23 @@ public class ScalarSource {
      */
     public void setDefault(Boolean isDefault) {
         this.isDefault = isDefault;
+    }
+
+    /**
+     * Gets the Agent Scalar options for this source.
+     *
+     * @return the agent options or null
+     */
+    public ScalarAgentOptions getAgent() {
+        return agent;
+    }
+
+    /**
+     * Sets the Agent Scalar options for this source.
+     *
+     * @param agent the agent options
+     */
+    public void setAgent(ScalarAgentOptions agent) {
+        this.agent = agent;
     }
 }

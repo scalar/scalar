@@ -2,6 +2,7 @@ package com.scalar.maven.core;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.scalar.maven.core.config.ScalarAgentOptions;
 import com.scalar.maven.core.enums.*;
 import com.scalar.maven.core.internal.ScalarConfiguration;
 import com.scalar.maven.core.internal.ScalarConfigurationMapper;
@@ -109,6 +110,34 @@ public class ScalarConfigurationTest {
         assertEquals(ThemeMode.DARK, config.getForceDarkModeState());
         assertEquals(PropertyOrder.ALPHA, config.getOrderSchemaPropertiesBy());
         assertEquals(DeveloperToolsVisibility.NEVER, config.getShowDeveloperTools());
+    }
+
+    @Test
+    public void testScalarConfigurationMappingIncludesAgent() {
+        ScalarProperties properties = new ScalarProperties();
+        ScalarAgentOptions agent = new ScalarAgentOptions();
+        agent.setKey("production-agent-key");
+        agent.setDisabled(false);
+        properties.setAgent(agent);
+
+        ScalarConfiguration config = ScalarConfigurationMapper.map(properties);
+
+        assertNotNull(config.getAgent());
+        assertEquals("production-agent-key", config.getAgent().getKey());
+        assertEquals(false, config.getAgent().getDisabled());
+    }
+
+    @Test
+    public void testScalarConfigurationMappingWithAgentDisabled() {
+        ScalarProperties properties = new ScalarProperties();
+        ScalarAgentOptions agent = new ScalarAgentOptions();
+        agent.setDisabled(true);
+        properties.setAgent(agent);
+
+        ScalarConfiguration config = ScalarConfigurationMapper.map(properties);
+
+        assertNotNull(config.getAgent());
+        assertEquals(true, config.getAgent().getDisabled());
     }
 
 }

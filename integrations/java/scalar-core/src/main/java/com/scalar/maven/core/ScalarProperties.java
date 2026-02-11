@@ -2,6 +2,7 @@ package com.scalar.maven.core;
 
 import com.scalar.maven.core.authentication.ScalarAuthenticationOptions;
 import com.scalar.maven.core.config.DefaultHttpClient;
+import com.scalar.maven.core.config.ScalarAgentOptions;
 import com.scalar.maven.core.config.ScalarServer;
 import com.scalar.maven.core.config.ScalarSource;
 import com.scalar.maven.core.enums.*;
@@ -263,6 +264,12 @@ public class ScalarProperties {
      * Controls the visibility of the developer tools toolbar.
      */
     private DeveloperToolsVisibility showDeveloperTools;
+
+    /**
+     * Agent Scalar options for single-URL mode. Use a key for production, or set
+     * disabled to true to turn off the agent for the entire reference.
+     */
+    private ScalarAgentOptions agent;
 
     // Getters and setters
 
@@ -576,6 +583,14 @@ public class ScalarProperties {
 
     public void setShowDeveloperTools(DeveloperToolsVisibility showDeveloperTools) {
         this.showDeveloperTools = showDeveloperTools;
+    }
+
+    public ScalarAgentOptions getAgent() {
+        return agent;
+    }
+
+    public void setAgent(ScalarAgentOptions agent) {
+        this.agent = agent;
     }
 }
 

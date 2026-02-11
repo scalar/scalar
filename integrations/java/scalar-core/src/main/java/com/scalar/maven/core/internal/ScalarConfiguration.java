@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.scalar.maven.core.authentication.ScalarAuthenticationOptions;
 import com.scalar.maven.core.config.DefaultHttpClient;
+import com.scalar.maven.core.config.ScalarAgentOptions;
 import com.scalar.maven.core.config.ScalarServer;
 import com.scalar.maven.core.config.ScalarSource;
 import com.scalar.maven.core.enums.*;
@@ -129,6 +130,9 @@ public class ScalarConfiguration {
 
     @JsonProperty("showDeveloperTools")
     private DeveloperToolsVisibility showDeveloperTools;
+
+    @JsonProperty("agent")
+    private ScalarAgentOptions agent;
 
     // Getters and setters
     public String getUrl() {
@@ -409,5 +413,13 @@ public class ScalarConfiguration {
 
     public void setShowDeveloperTools(DeveloperToolsVisibility showDeveloperTools) {
         this.showDeveloperTools = showDeveloperTools;
+    }
+
+    public ScalarAgentOptions getAgent() {
+        return agent;
+    }
+
+    public void setAgent(ScalarAgentOptions agent) {
+        this.agent = agent;
     }
 }
