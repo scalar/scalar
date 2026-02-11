@@ -35,6 +35,25 @@ def test_scalar_fastapi_imports():
     assert Theme.LASERWAVE.value == "laserwave"
     assert Theme.NONE.value == "none"
 
+    # Test OpenAPISource import and instantiation (documented usage for multiple sources)
+    from scalar_fastapi import OpenAPISource
+    source = OpenAPISource(title="Test", url="/openapi.json")
+    assert source.title == "Test"
+    assert source.url == "/openapi.json"
+
+    # Test DocumentDownloadType import (documented usage for document_download_type)
+    from scalar_fastapi import DocumentDownloadType
+    assert DocumentDownloadType.BOTH is not None
+    assert DocumentDownloadType.JSON.value == "json"
+    assert DocumentDownloadType.NONE.value == "none"
+
+    # Test AgentScalarConfig import and instantiation (Agent Scalar configuration)
+    from scalar_fastapi import AgentScalarConfig
+    agent_with_key = AgentScalarConfig(key="test")
+    assert agent_with_key.key == "test"
+    agent_disabled = AgentScalarConfig(disabled=True)
+    assert agent_disabled.disabled is True
+
 
 def test_fastapi_imports():
     """Test that FastAPI imports work correctly"""

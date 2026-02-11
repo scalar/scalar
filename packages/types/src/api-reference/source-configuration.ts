@@ -94,7 +94,7 @@ export const sourceConfigurationSchema = z.object({
     })
     .optional(),
   /**
-   * Scalar Agent configuration options.
+   * Agent Scalar configuration
    **/
   agent: z
     .object({

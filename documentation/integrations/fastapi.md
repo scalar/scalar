@@ -76,6 +76,43 @@ async def scalar_html():
     )
 ```
 
+### Agent Scalar
+
+Agent Scalar adds an AI chat interface to your API reference. It is enabled by default on localhost (with limited free messages). For production you need an [Agent Scalar key](../guides/agent/key.md). See the [Agent Scalar configuration section](../configuration.md#agent-scalar) for details.
+
+**Per-source: enable Agent with a key**
+
+```python
+from scalar_fastapi import get_scalar_api_reference, OpenAPISource, AgentScalarConfig
+
+@app.get("/scalar", include_in_schema=False)
+async def scalar_html():
+    return get_scalar_api_reference(
+        sources=[
+            OpenAPISource(
+                title="User API",
+                url="/openapi.json",
+                default=True,
+                agent=AgentScalarConfig(key="your-agent-scalar-key"),
+            ),
+        ],
+        title="My API Documentation"
+    )
+```
+
+**Disable Agent entirely**
+
+```python
+from scalar_fastapi import get_scalar_api_reference, AgentScalarConfig
+
+@app.get("/scalar", include_in_schema=False)
+async def scalar_html():
+    return get_scalar_api_reference(
+        openapi_url="/openapi.json",
+        agent=AgentScalarConfig(disabled=True),
+    )
+```
+
 ## Configuration
 
 Currently available [configuration options](../configuration.md) are listed below.
@@ -96,6 +133,7 @@ When using multiple sources, each `OpenAPISource` can be configured with:
 - `url` (default `None`) - URL to the OpenAPI document (JSON or YAML). Mutually exclusive with content.
 - `content` (default `None`) - Direct OpenAPI content as string (JSON/YAML) or dictionary. Mutually exclusive with url.
 - `default` (default `False`) - Whether this source should be the default when multiple sources are provided.
+- `agent` (default `None`) - Optional Agent Scalar config for this source (`key`, `disabled`). See [Agent Scalar](../configuration.md#agent-scalar) for details.
 
 ### Display Options
 
@@ -154,6 +192,7 @@ DocumentDownloadType.NONE    # Hide download button
 - `scalar_proxy_url` (default `None`)
 - `integration` (default `None`)
 - `theme` (default `Theme.DEFAULT`)
+- `agent` (default `None`) - Set to `AgentScalarConfig(disabled=True)` to disable Agent Scalar entirely, or use per-source `agent` on `OpenAPISource` for keys. See [Agent Scalar](../configuration.md#agent-scalar).
 - `overrides` (default `{}`) - Specific overrides directly to the `config` dictionary which is passed as `Scalar.createApiReference("#app", {json.dumps(config)})`
 - `telemetry` (default `True`) - Enable or disable api client usage telemetry. Options: `True`, `False`
 
