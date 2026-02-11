@@ -146,6 +146,21 @@ paths:
                         items:
                           $ref: '#/components/schemas/Planet'
                   - $ref: '#/components/schemas/PaginatedResource'
+      x-post-response: |
+        pm.test("Status code is 200", () => {
+          pm.response.to.have.status(200);
+        });
+
+        pm.test("Content-Type header is present", () => {
+          pm.response.to.have.header("Content-Type");
+        });
+
+        pm.test("Response has data array and meta", () => {
+          const jsonData = pm.response.json();
+          pm.expect(jsonData).to.have.property("data");
+          pm.expect(jsonData.data).to.be.an("array");
+          pm.expect(jsonData).to.have.property("meta");
+        });
     post:
       tags:
         - Planets
@@ -225,6 +240,20 @@ paths:
           $ref: '#/components/responses/BadRequest'
         '403':
           $ref: '#/components/responses/Forbidden'
+      x-post-response: |
+        pm.test("Status code is 201", () => {
+          pm.response.to.have.status(201);
+        });
+
+        pm.test("Content-Type header is present", () => {
+          pm.response.to.have.header("Content-Type");
+        });
+
+        pm.test("Response is a planet with id and name", () => {
+          const jsonData = pm.response.json();
+          pm.expect(jsonData).to.have.property("id");
+          pm.expect(jsonData).to.have.property("name");
+        });
   /planets/{planetId}:
     get:
       tags:
@@ -259,6 +288,20 @@ paths:
                 $ref: '#/components/schemas/Planet'
         '404':
           $ref: '#/components/responses/NotFound'
+      x-post-response: |
+        pm.test("Status code is 200", () => {
+          pm.response.to.have.status(200);
+        });
+
+        pm.test("Content-Type header is present", () => {
+          pm.response.to.have.header("Content-Type");
+        });
+
+        pm.test("Response is a planet with id and name", () => {
+          const jsonData = pm.response.json();
+          pm.expect(jsonData).to.have.property("id");
+          pm.expect(jsonData).to.have.property("name");
+        });
     put:
       tags:
         - Planets
@@ -293,6 +336,20 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '404':
           $ref: '#/components/responses/NotFound'
+      x-post-response: |
+        pm.test("Status code is 200", () => {
+          pm.response.to.have.status(200);
+        });
+
+        pm.test("Content-Type header is present", () => {
+          pm.response.to.have.header("Content-Type");
+        });
+
+        pm.test("Response is a planet with id and name", () => {
+          const jsonData = pm.response.json();
+          pm.expect(jsonData).to.have.property("id");
+          pm.expect(jsonData).to.have.property("name");
+        });
     delete:
       tags:
         - Planets
@@ -309,6 +366,10 @@ paths:
           description: No Content
         '404':
           $ref: '#/components/responses/NotFound'
+      x-post-response: |
+        pm.test("Status code is 204", () => {
+          pm.response.to.have.status(204);
+        });
   /planets/{planetId}/image:
     post:
       tags:
@@ -341,6 +402,20 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '404':
           $ref: '#/components/responses/NotFound'
+      x-post-response: |
+        pm.test("Status code is 200", () => {
+          pm.response.to.have.status(200);
+        });
+
+        pm.test("Content-Type header is present", () => {
+          pm.response.to.have.header("Content-Type");
+        });
+
+        pm.test("Response has message and imageUrl", () => {
+          const jsonData = pm.response.json();
+          pm.expect(jsonData).to.have.property("message");
+          pm.expect(jsonData).to.have.property("imageUrl");
+        });
   /celestial-bodies:
     post:
       tags:
@@ -361,6 +436,20 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/CelestialBody'
+      x-post-response: |
+        pm.test("Status code is 201", () => {
+          pm.response.to.have.status(201);
+        });
+
+        pm.test("Content-Type header is present", () => {
+          pm.response.to.have.header("Content-Type");
+        });
+
+        pm.test("Response is a celestial body with id and name", () => {
+          const jsonData = pm.response.json();
+          pm.expect(jsonData).to.have.property("id");
+          pm.expect(jsonData).to.have.property("name");
+        });
   /user/signup:
     post:
       tags:
@@ -442,6 +531,20 @@ paths:
           $ref: '#/components/responses/Conflict'
         '422':
           $ref: '#/components/responses/UnprocessableEntity'
+      x-post-response: |
+        pm.test("Status code is 201", () => {
+          pm.response.to.have.status(201);
+        });
+
+        pm.test("Content-Type header is present", () => {
+          pm.response.to.have.header("Content-Type");
+        });
+
+        pm.test("Response is a user with id and name", () => {
+          const jsonData = pm.response.json();
+          pm.expect(jsonData).to.have.property("id");
+          pm.expect(jsonData).to.have.property("name");
+        });
   /auth/token:
     post:
       tags:
@@ -489,6 +592,20 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '429':
           $ref: '#/components/responses/TooManyRequests'
+      x-post-response: |
+        pm.test("Status code is 201", () => {
+          pm.response.to.have.status(201);
+        });
+
+        pm.test("Content-Type header is present", () => {
+          pm.response.to.have.header("Content-Type");
+        });
+
+        pm.test("Response contains token", () => {
+          const jsonData = pm.response.json();
+          pm.expect(jsonData).to.have.property("token");
+          pm.expect(jsonData.token).to.be.an("string");
+        });
   /me:
     get:
       tags:
@@ -526,6 +643,20 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         '403':
           $ref: '#/components/responses/Forbidden'
+      x-post-response: |
+        pm.test("Status code is 200", () => {
+          pm.response.to.have.status(200);
+        });
+
+        pm.test("Content-Type header is present", () => {
+          pm.response.to.have.header("Content-Type");
+        });
+
+        pm.test("Response is a user with id and name", () => {
+          const jsonData = pm.response.json();
+          pm.expect(jsonData).to.have.property("id");
+          pm.expect(jsonData).to.have.property("name");
+        });
 webhooks:
   newPlanet:
     post:
@@ -542,6 +673,10 @@ webhooks:
           description:
             Return a 200 status to indicate that the data was received
             successfully
+      x-post-response: |
+        pm.test("Status code is 200", () => {
+          pm.response.to.have.status(200);
+        });
 components:
   securitySchemes:
     bearerAuth:
