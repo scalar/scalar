@@ -244,7 +244,7 @@ Agent Scalar adds an AI chat interface to your API reference. Users can ask ques
 
 - Enabled by default on `http://localhost` for testing (with limited free messages).
 - In production, the agent does not appear unless you provide a key.
-- To use Agent Scalar in production, configure an [Agent Scalar key](guides/agent/key.md).
+- To use Agent Scalar in production, configure an [Agent Scalar key](../guides/agent/key.md).
 
 **Single-URL mode** (when using `scalar.url` without `sources`):
 
@@ -293,7 +293,7 @@ scalar.sources[0].agent.key=put-your-agent-scalar-key-here
 scalar.sources[1].agent.disabled=true
 ```
 
-Related: [How to get an Agent Scalar key](guides/agent/key.md).
+Related: [How to get an Agent Scalar key](../guides/agent/key.md).
 
 ### Authentication
 
@@ -505,19 +505,19 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 public class CustomScalarController extends ScalarWebMvcController {
-    
+
     @Override
     protected ScalarProperties configureProperties(
-            ScalarProperties properties, 
+            ScalarProperties properties,
             HttpServletRequest request) {
         // Customize properties based on request
         if (request.isUserInRole("ADMIN")) {
             properties.setPageTitle("Admin API Documentation");
         }
-        
+
         // Modify other properties as needed
         properties.setDarkMode(true);
-        
+
         return properties;
     }
 }
@@ -533,20 +533,20 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 public class CustomScalarController extends ScalarWebFluxController {
-    
+
     @Override
     protected ScalarProperties configureProperties(
-            ScalarProperties properties, 
+            ScalarProperties properties,
             ServerHttpRequest request) {
         // Customize properties based on request
         String path = request.getPath().value();
         if (path.contains("/admin")) {
             properties.setPageTitle("Admin API Documentation");
         }
-        
+
         // Modify other properties as needed
         properties.setDarkMode(true);
-        
+
         return properties;
     }
 }

@@ -28,6 +28,4 @@ Scalar.createApiReference('#app', {
 
 ## Keeping Documents in Sync
 
-For production, use GitHub Actions to automatically sync your OpenAPI document with the Scalar Registry. This ensures your Agent always has the latest API information.
-
-See [GitHub Sync](../docs/github-sync.md) for setup instructions.
+For production, use [GitHub Actions](../registry/github-actions.md) to automatically sync your OpenAPI document with the Scalar Registry. This ensures your Agent always has the latest API information.

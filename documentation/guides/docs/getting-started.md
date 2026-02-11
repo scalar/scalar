@@ -140,7 +140,7 @@
         <b class="font-medium">Additional Reading</b>
       </p>
       <p>
-        <a class="flex items-center gap-1.5 font-medium text-c-2 hover:bg-b-2 rounded px-2 p-1" href="/products/docs/github-sync"><scalar-icon src="phosphor/bold/git-branch"></scalar-icon> GitHub Sync</a>
+        <a class="flex items-center gap-1.5 font-medium text-c-2 hover:bg-b-2 rounded px-2 p-1" href="/products/docs/configuration/scalar.config.json"><scalar-icon src="phosphor/bold/git-branch"></scalar-icon> GitHub Sync</a>
       </p>
       <p>
         <a class="flex items-center gap-1.5 font-medium text-c-2 hover:bg-b-2 rounded px-2 p-1" href="/products/docs/components/markdown-support"><scalar-icon src="phosphor/bold/file-md"></scalar-icon> Markdown Support</a>
