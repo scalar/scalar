@@ -23,6 +23,7 @@ import {
   ScalarButton,
   ScalarDropdown,
   ScalarDropdownItem,
+  ScalarListbox,
 } from '@scalar/components'
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { ScalarIconCaretDown } from '@scalar/icons'
