@@ -1,5 +1,29 @@
 # @scalar/api-reference
 
+## 1.44.17
+
+### Patch Changes
+
+- [#8094](https://github.com/scalar/scalar/pull/8094): feat: open client to the correct example name
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.31.1**
+  - [#8114](https://github.com/scalar/scalar/pull/8114): feat(workspace-store): sync path variables on ingress
+  - [#8094](https://github.com/scalar/scalar/pull/8094): feat: open client to the correct example name
+
+- **@scalar/api-client@2.26.1**
+  - [#8072](https://github.com/scalar/scalar/pull/8072): fix: add `ModalClientContainer` to unify logic and styles across `Modal` and `ApiClientModal`.
+  - [#8094](https://github.com/scalar/scalar/pull/8094): feat: open client to the correct example name
+
+- **@scalar/agent-chat@0.5.8**
+
+- **@scalar/oas-utils@0.6.39**
+
+- **@scalar/sidebar@0.7.32**
+
+- **@scalar/components@0.19.1**
+
 ## 1.44.16
 
 ### Patch Changes

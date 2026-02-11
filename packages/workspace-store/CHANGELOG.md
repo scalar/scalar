@@ -1,5 +1,12 @@
 # @scalar/workspace-store
 
+## 0.31.1
+
+### Patch Changes
+
+- [#8114](https://github.com/scalar/scalar/pull/8114): feat(workspace-store): sync path variables on ingress
+- [#8094](https://github.com/scalar/scalar/pull/8094): feat: open client to the correct example name
+
 ## 0.31.0
 
 ### Minor Changes

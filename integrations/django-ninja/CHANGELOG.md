@@ -1,5 +1,11 @@
 # scalar-ninja
 
+## 0.1.2
+
+### Patch Changes
+
+- [#8105](https://github.com/scalar/scalar/pull/8105): feat: agent scalar configuration
+
 ## 0.1.1
 
 ### Patch Changes

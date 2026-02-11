@@ -1,5 +1,17 @@
 # @scalar/sidebar
 
+## 0.7.32
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.31.1**
+  - [#8114](https://github.com/scalar/scalar/pull/8114): feat(workspace-store): sync path variables on ingress
+  - [#8094](https://github.com/scalar/scalar/pull/8094): feat: open client to the correct example name
+
+- **@scalar/components@0.19.1**
+
 ## 0.7.31
 
 ### Patch Changes
