@@ -54,20 +54,6 @@
     "./dist",
     "CHANGELOG.md"
   ],
-  "readme": {
-    "title": "Scalar AsyncAPI Types",
-    "badges": [
-      {
-        "type": "npm-version"
-      },
-      {
-        "type": "npm-downloads"
-      },
-      {
-        "type": "npm-license"
-      }
-    ]
-  },
   "dependencies": {},
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",

@@ -1,4 +1,4 @@
-// Export types from individual files
+export type { AsyncApiDocument } from './asyncapi-document'
 export type {
   ChannelBindingsObject,
   MessageBindingsObject,
