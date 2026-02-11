@@ -1,6 +1,9 @@
 use rust_embed::RustEmbed;
 use serde_json::Value;
 
+pub mod config;
+pub use config::{AgentOptions, Source};
+
 /// Embedded UI assets
 #[derive(RustEmbed)]
 #[folder = "ui/"]
@@ -340,7 +343,7 @@ pub mod warp {
 mod tests {
     use crate::{
         get_asset, get_asset_with_mime, get_mime_type, scalar_html, scalar_html_default,
-        scalar_html_from_json, scalar_html_from_json_default,
+        scalar_html_from_json, scalar_html_from_json_default, AgentOptions, Source,
     };
     use serde_json::json;
 
@@ -457,6 +460,42 @@ mod tests {
         assert!(result.is_ok());
         let html = result.unwrap();
         assert!(html.contains("https://cdn.jsdelivr.net/npm/@scalar/api-reference"));
+    }
+
+    #[test]
+    fn test_agent_options_in_config() {
+        let agent = AgentOptions::with_key("test-key");
+        let config = json!({
+            "url": "/openapi.json",
+            "agent": serde_json::to_value(&agent).unwrap()
+        });
+        let html = scalar_html(&config, None);
+        assert!(html.contains("test-key"));
+        assert!(html.contains("/openapi.json"));
+
+        let agent_disabled = AgentOptions::disabled();
+        let config2 = json!({
+            "url": "/openapi.json",
+            "agent": serde_json::to_value(&agent_disabled).unwrap()
+        });
+        let html2 = scalar_html(&config2, None);
+        assert!(html2.contains("true")); // "disabled":true in JSON
+    }
+
+    #[test]
+    fn test_sources_with_agent_in_config() {
+        let sources = vec![
+            Source::new("https://api.example.com/v1.json")
+                .with_agent(AgentOptions::with_key("doc-key")),
+            Source::new("https://api.example.com/v2.json"),
+        ];
+        let config = json!({
+            "sources": serde_json::to_value(&sources).unwrap()
+        });
+        let html = scalar_html(&config, None);
+        assert!(html.contains("doc-key"));
+        assert!(html.contains("https://api.example.com/v1.json"));
+        assert!(html.contains("https://api.example.com/v2.json"));
     }
 
     #[test]

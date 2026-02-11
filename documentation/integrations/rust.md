@@ -117,3 +117,75 @@ The configuration object supports all standard Scalar options. Common options in
 
 See the documentation for [the complete configuration reference](../configuration.md).
 
+### Agent Scalar
+
+Agent Scalar adds an AI chat interface to your API reference. It is enabled by default on localhost with a limited free tier (10 messages). For production, you need an [Agent Scalar key](guides/agent/key.md).
+
+To set an Agent Scalar API key (top-level):
+
+```rust
+let configuration = json!({
+    "url": "/openapi.json",
+    "agent": {
+        "key": "your-agent-scalar-key"
+    }
+});
+```
+
+To disable Agent Scalar:
+
+```rust
+let configuration = json!({
+    "url": "/openapi.json",
+    "agent": {
+        "disabled": true
+    }
+});
+```
+
+With multiple sources, you can set an agent key per document:
+
+```rust
+let configuration = json!({
+    "sources": [
+        {
+            "url": "https://api.example.com/openapi/v1.json",
+            "agent": { "key": "your-key-for-api-v1" }
+        },
+        {
+            "url": "https://api.example.com/openapi/v2.json"
+        }
+    ]
+});
+```
+
+You can also build agent configuration with the provided types and serialize to JSON for `scalar_html`:
+
+```rust
+use scalar_api_reference::{scalar_html_default, AgentOptions, Source};
+use serde_json::json;
+
+// Top-level agent key
+let agent = AgentOptions::with_key("your-agent-scalar-key");
+let config = json!({
+    "url": "/openapi.json",
+    "agent": serde_json::to_value(&agent).unwrap()
+});
+let html = scalar_html_default(&config);
+
+// Or disable agent
+let config = json!({
+    "url": "/openapi.json",
+    "agent": serde_json::to_value(&AgentOptions::disabled()).unwrap()
+});
+
+// Per-source agent (multiple documents)
+let sources = vec![
+    Source::new("https://api.example.com/v1.json").with_agent(AgentOptions::with_key("key-for-v1")),
+    Source::new("https://api.example.com/v2.json"),
+];
+let config = json!({ "sources": serde_json::to_value(&sources).unwrap() });
+```
+
+For more details, see [Agent Scalar](../configuration.md#agent-scalar) and [How to get an Agent Scalar key](guides/agent/key.md).
+
