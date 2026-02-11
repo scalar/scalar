@@ -128,7 +128,14 @@ import type {
   ServerObject,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { operationToHar } from '@v2/blocks/operation-code-sample/helpers/operation-to-har/operation-to-har'
-import { computed, ref, useId, watch, type ComponentPublicInstance } from 'vue'
+import {
+  computed,
+  onBeforeMount,
+  ref,
+  useId,
+  watch,
+  type ComponentPublicInstance,
+} from 'vue'
 
 import HttpMethod from '@/v2/blocks/operation-code-sample/components/HttpMethod.vue'
 import { findClient } from '@/v2/blocks/operation-code-sample/helpers/find-client'
@@ -151,7 +158,6 @@ const {
   selectedClient,
   selectedServer = null,
   selectedContentType,
-  selectedExample,
   securitySchemes = [],
   method,
   eventBus,
@@ -164,7 +170,7 @@ const {
 
 defineSlots<{
   header: () => unknown
-  footer: () => unknown
+  footer: ({ exampleName }: { exampleName: string }) => unknown
 }>()
 
 /** Grab the examples for the given content type */
@@ -183,11 +189,10 @@ const selectedExampleKey = defineModel<string>('selectedExample', {
   default: '',
 })
 
-// Initialize from requestBodyExamples
-if (!selectedExampleKey.value) {
-  selectedExampleKey.value =
-    selectedExample ?? Object.keys(requestBodyExamples.value)[0] ?? ''
-}
+// Set default value to the first example
+onBeforeMount(() => {
+  selectedExampleKey.value ||= Object.keys(requestBodyExamples.value)[0] ?? ''
+})
 
 /** Grab any custom code samples from the operation */
 const customCodeSamples = computed(() => getCustomCodeSamples(operation))
@@ -386,7 +391,9 @@ const id = useId()
       </div>
 
       <!-- Footer -->
-      <slot name="footer" />
+      <slot
+        :exampleName="selectedExampleKey"
+        name="footer" />
     </ScalarCardFooter>
   </ScalarCard>
 
@@ -402,7 +409,9 @@ const id = useId()
           :method="method" />
         <slot name="header" />
       </div>
-      <slot name="footer" />
+      <slot
+        :exampleName="selectedExampleKey"
+        name="footer" />
     </ScalarCardSection>
   </ScalarCard>
 </template>

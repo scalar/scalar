@@ -16,9 +16,9 @@ const { id, method, path, eventBus, exampleName } = defineProps<{
 /** Route via ID and optionally with example name */
 const handleClick = () => {
   // Include exampleName in payload if provided
-  const payload = { 
+  const payload = {
     id,
-    ...(exampleName && { exampleName }) 
+    ...(exampleName && { exampleName }),
   }
   eventBus.emit('ui:open:client-modal', payload)
 }

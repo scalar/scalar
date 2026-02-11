@@ -1,6 +1,7 @@
 import type { ModalState } from '@scalar/components'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
+import type { TraversedEntry } from '@scalar/workspace-store/schemas/navigation'
 import { type Ref, ref } from 'vue'
 
 import type { UseModalSidebarReturn } from '@/v2/features/modal/hooks/use-modal-sidebar'
