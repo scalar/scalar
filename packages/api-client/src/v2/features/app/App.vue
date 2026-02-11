@@ -26,6 +26,7 @@ import type { RouteProps } from '@/v2/features/app/helpers/routes'
 import { useDocumentWatcher } from '@/v2/features/app/hooks/use-document-watcher'
 import TheCommandPalette from '@/v2/features/command-palette/TheCommandPalette.vue'
 import type { ClientPlugin } from '@/v2/helpers/plugins'
+import { useColorMode } from '@/v2/hooks/use-color-mode'
 import { useGlobalHotKeys } from '@/v2/hooks/use-global-hot-keys'
 import type { ClientLayout } from '@/v2/types/layout'
 
@@ -85,6 +86,9 @@ useDocumentWatcher({
   store: app.store,
   initialTimeout: DEFAULT_DOCUMENT_WATCH_TIMEOUT,
 })
+
+/** Color mode */
+useColorMode({ workspaceStore: app.store })
 
 /** Generate the theme style tag for dynamic theme application. */
 const themeStyleTag = computed(() => {
