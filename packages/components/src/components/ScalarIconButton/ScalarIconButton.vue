@@ -77,7 +77,6 @@ useTooltip({
     v-bind="cx(variants({ size, variant, disabled }))">
     <ScalarIconLegacyAdapter
       :icon="icon"
-      :thickness="thickness"
       :weight="weight" />
     <span
       v-if="!tooltip"

@@ -1,11 +1,7 @@
 <script setup lang="ts">
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
-import {
-  ScalarButton,
-  ScalarIcon,
-  ScalarSearchInput,
-  useModal,
-} from '@scalar/components'
+import { ScalarButton, ScalarSearchInput, useModal } from '@scalar/components'
+import { ScalarIconCaretDown, ScalarIconCaretRight } from '@scalar/icons'
 import type { ApiReferenceEvents } from '@scalar/workspace-store/events'
 import type {
   OAuthFlow,
@@ -142,10 +138,12 @@ const addNewScopeModal = useModal()
               Select All
             </ScalarButton>
 
-            <ScalarIcon
-              class="text-c-3 group-hover/scopes-accordion:text-c-2"
-              :icon="open ? 'ChevronDown' : 'ChevronRight'"
-              size="md" />
+            <ScalarIconCaretDown
+              v-if="open"
+              class="text-c-3 group-hover/scopes-accordion:text-c-2 size-4" />
+            <ScalarIconCaretRight
+              v-else
+              class="text-c-3 group-hover/scopes-accordion:text-c-2 size-4" />
           </div>
         </DisclosureButton>
         <!-- Scopes List -->

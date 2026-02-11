@@ -4,11 +4,16 @@ import {
   ScalarDropdown,
   ScalarDropdownDivider,
   ScalarDropdownItem,
-  ScalarIcon,
   ScalarListboxCheckbox,
   ScalarModal,
   useModal,
 } from '@scalar/components'
+import {
+  ScalarIconDotsThree,
+  ScalarIconPencil,
+  ScalarIconPlus,
+  ScalarIconTrash,
+} from '@scalar/icons'
 import type { Workspace } from '@scalar/oas-utils/entities/workspace'
 import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
@@ -134,20 +139,18 @@ const deleteWorkspace = async () => {
                 size="sm"
                 type="button"
                 variant="ghost">
-                <ScalarIcon
-                  icon="Ellipses"
-                  size="sm" />
+                <ScalarIconDotsThree
+                  class="size-4"
+                  weight="bold" />
               </ScalarButton>
               <template #items>
                 <ScalarDropdownItem
                   class="flex gap-2"
                   @mousedown="openRenameModal(workspace.uid)"
                   @touchend.prevent="openRenameModal(workspace.uid)">
-                  <ScalarIcon
-                    class="inline-flex"
-                    icon="Edit"
-                    size="md"
-                    thickness="1.5" />
+                  <ScalarIconPencil
+                    class="inline-flex size-4"
+                    weight="light" />
                   <span>Rename</span>
                 </ScalarDropdownItem>
                 <ScalarDropdownItem
@@ -155,11 +158,9 @@ const deleteWorkspace = async () => {
                   class="flex gap-2"
                   @mousedown.prevent="openDeleteModal(workspace.uid)"
                   @touchend.prevent="openDeleteModal(workspace.uid)">
-                  <ScalarIcon
-                    class="inline-flex"
-                    icon="Delete"
-                    size="md"
-                    thickness="1.5" />
+                  <ScalarIconTrash
+                    class="inline-flex size-4"
+                    weight="light" />
                   <span>Delete</span>
                 </ScalarDropdownItem>
               </template>
@@ -172,9 +173,7 @@ const deleteWorkspace = async () => {
             class="flex items-center gap-1.5"
             @click="createNewWorkspace">
             <div class="flex h-4 w-4 items-center justify-center">
-              <ScalarIcon
-                icon="Add"
-                size="sm" />
+              <ScalarIconPlus class="size-3.5" />
             </div>
             <span>Create Workspace</span>
           </ScalarDropdownItem>

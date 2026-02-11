@@ -13,7 +13,6 @@ const meta = {
       control: 'select',
       options: ['xs', 'sm', 'md', 'lg', 'xl', '2xl', '3xl'],
     },
-    thickness: { control: { type: 'range', min: 0, max: 3, step: 0.1 } },
     class: { control: 'text' },
     style: { control: 'text' },
   },

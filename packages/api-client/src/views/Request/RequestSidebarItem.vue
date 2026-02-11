@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import {
   ScalarButton,
-  ScalarIcon,
   ScalarSidebarGroupToggle,
   ScalarTooltip,
 } from '@scalar/components'
@@ -11,6 +10,11 @@ import {
   type DraggingItem,
   type HoveredItem,
 } from '@scalar/draggable'
+import {
+  ScalarIconDotsThree,
+  ScalarIconEye,
+  ScalarIconPlus,
+} from '@scalar/icons'
 import type { Collection, Request } from '@scalar/oas-utils/entities/spec'
 import { shouldIgnoreEntity } from '@scalar/oas-utils/helpers'
 import { computed, nextTick, ref } from 'vue'
@@ -451,9 +455,9 @@ const shouldShowItem = computed(() => {
                       open: !menuItem.open,
                     })
                 ">
-                <ScalarIcon
-                  icon="Ellipses"
-                  size="md" />
+                <ScalarIconDotsThree
+                  class="size-4"
+                  weight="bold" />
               </ScalarButton>
             </div>
             <span class="flex items-start">
@@ -530,9 +534,9 @@ const shouldShowItem = computed(() => {
                       open: true,
                     })
                 ">
-                <ScalarIcon
-                  icon="Ellipses"
-                  size="md" />
+                <ScalarIconDotsThree
+                  class="size-4"
+                  weight="bold" />
               </ScalarButton>
               <ScalarButton
                 v-if="layout !== 'modal'"
@@ -540,26 +544,23 @@ const shouldShowItem = computed(() => {
                 size="sm"
                 variant="ghost"
                 @click.stop.prevent="addRequest(item.entity.uid)">
-                <ScalarIcon
-                  icon="Add"
-                  size="md"
-                  thickness="2" />
+                <ScalarIconPlus
+                  class="size-4"
+                  weight="regular" />
               </ScalarButton>
             </div>
             <ScalarTooltip
               v-if="item.watchMode"
-              placement="right"
+              :content="`Watching: ${item.documentUrl}`"
               :offset="12"
-              :content="`Watching: ${item.documentUrl}`">
+              placement="right">
               <button
                 class="flex items-center justify-center"
                 type="button">
-                <ScalarIcon
-                  class="ml-0.5 text-sm"
+                <ScalarIconEye
+                  class="ml-0.5 size-4 text-sm"
                   :class="watchIconColor"
-                  icon="Watch"
-                  size="md"
-                  thickness="2" />
+                  weight="regular" />
               </button>
             </ScalarTooltip>
             <span>&hairsp;</span>
@@ -614,9 +615,9 @@ const shouldShowItem = computed(() => {
                       open: true,
                     })
                 ">
-                <ScalarIcon
-                  icon="Ellipses"
-                  size="md" />
+                <ScalarIconDotsThree
+                  class="size-4"
+                  weight="bold" />
               </ScalarButton>
               <ScalarButton
                 v-if="layout !== 'modal'"
@@ -624,26 +625,23 @@ const shouldShowItem = computed(() => {
                 size="sm"
                 variant="ghost"
                 @click.stop.prevent="addRequest(item.entity.uid)">
-                <ScalarIcon
-                  icon="Add"
-                  size="md"
-                  thickness="2" />
+                <ScalarIconPlus
+                  class="size-4"
+                  weight="regular" />
               </ScalarButton>
             </div>
             <ScalarTooltip
               v-if="item.watchMode"
               content="Watching: {{ item.documentUrl }}"
-              placement="right"
-              :offset="12">
+              :offset="12"
+              placement="right">
               <button
                 class="flex items-center justify-center"
                 type="button">
-                <ScalarIcon
-                  class="ml-0.5 text-sm"
+                <ScalarIconEye
+                  class="ml-0.5 size-4 text-sm"
                   :class="watchIconColor"
-                  icon="Watch"
-                  size="md"
-                  thickness="2" />
+                  weight="regular" />
               </button>
             </ScalarTooltip>
             <span>&hairsp;</span>
@@ -671,9 +669,7 @@ const shouldShowItem = computed(() => {
           :class="parentUids.length ? 'pl-9' : ''"
           variant="ghost"
           @click="addRequest(item.entity.uid)">
-          <ScalarIcon
-            icon="Add"
-            size="sm" />
+          <ScalarIconPlus class="size-3.5" />
           <span>Add Request</span>
         </ScalarButton>
       </ul>

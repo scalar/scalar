@@ -2,7 +2,7 @@
 import {
   ScalarFormInputGroup,
   ScalarFormSection,
-  ScalarIcon,
+  ScalarIconLegacyAdapter,
   ScalarToggleInput,
   type Icon as LegacyIcon,
 } from '@scalar/components'
@@ -12,6 +12,10 @@ import { ref } from 'vue'
 import ApiReferenceToolbarBlurb from '@/features/toolbar/ApiReferenceToolbarBlurb.vue'
 import ApiReferenceToolbarPopover from '@/features/toolbar/ApiReferenceToolbarPopover.vue'
 import ApiReferenceToolbarRegisterButton from '@/features/toolbar/ApiReferenceToolbarRegisterButton.vue'
+
+const { workspace } = defineProps<{
+  workspace: WorkspaceStore
+}>()
 
 const LANGUAGES = [
   {
@@ -32,10 +36,6 @@ const LANGUAGES = [
 }>
 
 type LanguageKey = (typeof LANGUAGES)[number]['key']
-
-const { workspace } = defineProps<{
-  workspace: WorkspaceStore
-}>()
 
 const selectedLanguages = ref<LanguageKey[]>([])
 </script>
@@ -58,9 +58,9 @@ const selectedLanguages = ref<LanguageKey[]>([])
                   ))
           ">
           <span class="inline-flex items-center gap-2">
-            <ScalarIcon
-              :icon="icon"
-              class="text-c-2 size-3.5" />
+            <ScalarIconLegacyAdapter
+              class="text-c-2 size-3.5"
+              :icon="icon" />
             {{ label }}
           </span>
         </ScalarToggleInput>

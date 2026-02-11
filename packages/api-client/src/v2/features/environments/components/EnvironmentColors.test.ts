@@ -1,3 +1,4 @@
+import { ScalarIconCheck } from '@scalar/icons'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 
@@ -21,9 +22,7 @@ describe('EnvironmentColors', () => {
       },
     })
 
-    const icons = wrapper.findAllComponents({ name: 'ScalarIcon' })
-    const checkmarks = icons.filter((icon) => icon.props('icon') === 'Checkmark')
-
+    const checkmarks = wrapper.findAllComponents(ScalarIconCheck)
     expect(checkmarks.length).toBeGreaterThan(0)
   })
 

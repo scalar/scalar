@@ -1,12 +1,7 @@
 <script setup lang="ts">
-import {
-  ScalarButton,
-  ScalarIcon,
-  ScalarModal,
-  useModal,
-} from '@scalar/components'
+import { ScalarButton, ScalarModal, useModal } from '@scalar/components'
 import { Draggable } from '@scalar/draggable'
-import { ScalarIconTrash } from '@scalar/icons'
+import { ScalarIconPlus, ScalarIconTrash } from '@scalar/icons'
 import type { Environment } from '@scalar/oas-utils/entities/environment'
 import { computed, ref } from 'vue'
 
@@ -277,11 +272,9 @@ const handleDragEnd = (
             size="sm"
             variant="ghost"
             @click="environmentModal.show()">
-            <ScalarIcon
-              class="inline-flex"
-              icon="Add"
-              size="sm"
-              thickness="1.5" />
+            <ScalarIconPlus
+              class="inline-flex size-3.5"
+              weight="light" />
             <span>Add Environment</span>
           </ScalarButton>
         </div>

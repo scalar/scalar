@@ -1,10 +1,7 @@
 <script setup lang="ts">
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/vue'
-import {
-  ScalarFloating,
-  ScalarFloatingBackdrop,
-  ScalarIcon,
-} from '@scalar/components'
+import { ScalarFloating, ScalarFloatingBackdrop } from '@scalar/components'
+import { ScalarIconClockClockwise } from '@scalar/icons'
 import type { Operation, RequestEvent } from '@scalar/oas-utils/entities/spec'
 import { httpStatusCodes } from '@scalar/oas-utils/helpers'
 import { computed } from 'vue'
@@ -52,10 +49,9 @@ function handleHistoryClick(requestHistoryItem: RequestEvent) {
       <MenuButton
         v-if="history?.length"
         class="address-bar-history-button z-context-plus text-c-3 focus:text-c-1 relative mr-1 rounded-lg p-1.5">
-        <ScalarIcon
-          icon="History"
-          size="sm"
-          thickness="2.25" />
+        <ScalarIconClockClockwise
+          class="size-3.5"
+          weight="regular" />
         <span class="sr-only">Request History</span>
       </MenuButton>
       <!-- History shadow and placement-->

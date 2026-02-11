@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { ScalarIcon } from '@scalar/components'
+import { ScalarIconDownload } from '@scalar/icons'
 import { onBeforeUnmount, onMounted, ref } from 'vue'
 
 const emit = defineEmits<{
@@ -119,10 +119,9 @@ function handleDragEnter(event: DragEvent) {
       class="bg-b-2 fixed right-1/2 bottom-1/2 z-50 h-64 w-64 translate-x-1/2 translate-y-1/2 rounded-xl border transition-opacity duration-200 md:right-10 md:bottom-10 md:translate-x-0 md:translate-y-0">
       <div class="flex h-full flex-col items-center justify-center">
         <div>
-          <ScalarIcon
-            icon="Download"
-            size="xl"
-            thickness="2" />
+          <ScalarIconDownload
+            class="size-6"
+            weight="regular" />
         </div>
         <div class="text-c-1 m-4 text-center">
           Drop your OpenAPI document here

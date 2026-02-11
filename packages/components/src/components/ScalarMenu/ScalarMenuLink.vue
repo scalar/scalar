@@ -25,10 +25,9 @@ defineOptions({ inheritAttrs: false })
       v-if="icon"
       :class="[
         strong ? 'text-c-1' : 'text-c-2',
-        typeof icon === 'string' ? 'size-3' : 'size-3.5 -mx-0.25',
+        typeof icon === 'string' ? 'size-3' : 'size-3.5 -mx-px',
       ]"
       :icon="icon"
-      :thickness="strong ? '2.5' : '2'"
       :weight="strong ? 'bold' : 'regular'" />
     <div
       v-else

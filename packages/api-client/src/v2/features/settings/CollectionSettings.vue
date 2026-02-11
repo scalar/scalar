@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { cva, cx, ScalarButton, ScalarIcon } from '@scalar/components'
+import { cva, cx, ScalarButton } from '@scalar/components'
+import { ScalarIconCheck } from '@scalar/icons'
 import {
   themeLabels,
   type IntegrationThemeId,
@@ -91,11 +92,10 @@ const buttonStyles = cva({
               'bg-c-accent text-b-1 border-transparent':
                 activeProxyUrl === DEFAULT_PROXY_URL,
             }">
-            <ScalarIcon
+            <ScalarIconCheck
               v-if="activeProxyUrl === DEFAULT_PROXY_URL"
-              icon="Checkmark"
-              size="xs"
-              thickness="3.5" />
+              class="size-3"
+              weight="bold" />
           </div>
           Use proxy.scalar.com (default)
         </ScalarButton>
@@ -113,11 +113,10 @@ const buttonStyles = cva({
           @click="emit('update:proxyUrl', customProxyUrl)">
           <div
             class="bg-c-accent text-b-1 flex h-5 w-5 items-center justify-center rounded-full border-[1.5px] border-transparent p-1">
-            <ScalarIcon
+            <ScalarIconCheck
               v-if="customProxyUrl === activeProxyUrl"
-              icon="Checkmark"
-              size="xs"
-              thickness="3.5" />
+              class="size-3"
+              weight="bold" />
           </div>
           Use custom proxy ({{ customProxyUrl }})
         </ScalarButton> -->
@@ -131,11 +130,10 @@ const buttonStyles = cva({
             :class="
               !activeProxyUrl && 'bg-c-accent text-b-1 border-transparent'
             ">
-            <ScalarIcon
+            <ScalarIconCheck
               v-if="!activeProxyUrl"
-              icon="Checkmark"
-              size="xs"
-              thickness="3.5" />
+              class="size-3"
+              weight="bold" />
           </div>
           Skip the proxy
         </ScalarButton>
@@ -169,11 +167,10 @@ const buttonStyles = cva({
                   'bg-c-accent text-b-1 border-transparent':
                     activeThemeId === themeId,
                 }">
-                <ScalarIcon
+                <ScalarIconCheck
                   v-if="activeThemeId === themeId"
-                  icon="Checkmark"
-                  size="xs"
-                  thickness="3.5" />
+                  class="size-3"
+                  weight="bold" />
               </div>
               {{ themeLabels[themeId] }}
             </div>
@@ -226,11 +223,10 @@ const buttonStyles = cva({
                 'bg-c-accent text-b-1 border-transparent':
                   activeThemeId === themeId,
               }">
-              <ScalarIcon
+              <ScalarIconCheck
                 v-if="activeThemeId === themeId"
-                icon="Checkmark"
-                size="xs"
-                thickness="3.5" />
+                class="size-3"
+                weight="bold" />
             </div>
             {{ themeLabels[themeId] }}
           </div>

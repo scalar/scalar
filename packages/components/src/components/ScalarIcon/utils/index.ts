@@ -45,5 +45,6 @@ export const getLogo = (name: Logo) => {
     console.warn(`Could not find icon: ${name}`)
     return null
   }
+
   return logos[filename]
 }

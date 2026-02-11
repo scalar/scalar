@@ -14,16 +14,16 @@ import type { ScalarIconProps } from './types'
 import { getIcon, getLogo } from './utils'
 import { variants } from './variants'
 
-const props = defineProps<ScalarIconProps>()
+const { icon, logo, size, thickness, label } = defineProps<ScalarIconProps>()
 
 defineOptions({ inheritAttrs: false })
 const { cx } = useBindCx()
 
-const stroke = computed(() => props.thickness ?? '2')
+const stroke = computed(() => thickness ?? '2')
 
 const accessibilityAttrs = computed(() =>
-  props.label
-    ? { 'aria-label': props.label }
+  label
+    ? { 'aria-label': label }
     : {
         'aria-hidden': true,
         'role': 'presentation',
@@ -31,11 +31,11 @@ const accessibilityAttrs = computed(() =>
 )
 
 const svg = computed(() => {
-  if (props.icon) {
-    return getIcon(props.icon)
+  if (icon) {
+    return getIcon(icon)
   }
-  if (props.logo) {
-    return getLogo(props.logo)
+  if (logo) {
+    return getLogo(logo)
   }
 
   return undefined

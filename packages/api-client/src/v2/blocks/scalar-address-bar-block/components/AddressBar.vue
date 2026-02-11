@@ -1,12 +1,16 @@
 <script setup lang="ts">
 import {
   ScalarButton,
-  ScalarIcon,
+  ScalarIconButton,
   ScalarWrappingText,
 } from '@scalar/components'
 import { REQUEST_METHODS } from '@scalar/helpers/http/http-info'
 import type { HttpMethod as HttpMethodType } from '@scalar/helpers/http/http-methods'
-import { ScalarIconCopy, ScalarIconWarningCircle } from '@scalar/icons'
+import {
+  ScalarIconCopy,
+  ScalarIconPlay,
+  ScalarIconWarningCircle,
+} from '@scalar/icons'
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
 import type {
   ApiReferenceEvents,
@@ -265,14 +269,12 @@ defineExpose({
       </div>
 
       <!-- Copy url button -->
-      <ScalarButton
-        class="hover:bg-b-3 mx-1"
-        size="xs"
-        variant="ghost"
-        @click="copyUrl">
-        <ScalarIconCopy />
-        <span class="sr-only">Copy URL</span>
-      </ScalarButton>
+      <ScalarIconButton
+        class="hover:bg-b-3 z-context-plus relative size-6.5 self-center p-1.25"
+        :icon="ScalarIconCopy"
+        size="sm"
+        label="Copy URL"
+        @click="copyUrl" />
 
       <AddressBarHistory
         :history="history"
@@ -285,7 +287,7 @@ defineExpose({
         class="absolute inset-x-0 top-[calc(100%+4px)] flex flex-col items-center rounded px-6">
         <div
           class="text-c-danger bg-b-danger border-c-danger flex items-center gap-1 rounded border p-1">
-          <ScalarIconWarningCircle size="sm" />
+          <ScalarIconWarningCircle class="size-3.5" />
           <div class="min-w-0 flex-1">
             A
             <em>{{ methodConflict?.toUpperCase() ?? method.toUpperCase() }}</em>
@@ -303,10 +305,9 @@ defineExpose({
         <span
           aria-hidden="true"
           class="inline-flex items-center gap-1">
-          <ScalarIcon
-            class="relative shrink-0 fill-current"
-            icon="Play"
-            size="xs" />
+          <ScalarIconPlay
+            class="relative size-3 shrink-0 fill-current"
+            weight="fill" />
           <span class="text-xxs hidden lg:flex">Send</span>
         </span>
         <span class="sr-only">

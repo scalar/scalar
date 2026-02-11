@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { ScalarIcon } from '@scalar/components'
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
+import { ScalarIconX } from '@scalar/icons'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
@@ -122,10 +122,9 @@ const handleAddEnvironment = () => {
         class="app-exit-button zoomed:static zoomed:p-1 fixed top-2 right-2 rounded-full p-2"
         type="button"
         @click="eventBus.emit('ui:close:client-modal')">
-        <ScalarIcon
-          icon="Close"
-          size="lg"
-          thickness="2" />
+        <ScalarIconX
+          class="size-5"
+          weight="regular" />
         <span class="sr-only">Close Client</span>
       </button>
 
@@ -139,10 +138,9 @@ const handleAddEnvironment = () => {
         class="text-c-1 hover:bg-b-2 active:text-c-1 -mr-1.5 rounded p-2"
         type="button"
         @click="eventBus.emit('ui:close:client-modal')">
-        <ScalarIcon
-          icon="Close"
-          size="md"
-          thickness="1.75" />
+        <ScalarIconX
+          class="size-4"
+          weight="light" />
         <span class="sr-only">Close Client</span>
       </button>
     </div>

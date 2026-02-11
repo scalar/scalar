@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
-import { ScalarIcon } from '@scalar/components'
+import { ScalarIconPlus } from '@scalar/icons'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { HeaderObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
@@ -28,11 +28,9 @@ const { headers, breadcrumb } = defineProps<{
           :style="{
             top: `calc(var(--refs-viewport-offset)))`,
           }">
-          <ScalarIcon
-            class="headers-card-title-icon"
-            :class="{ 'headers-card-title-icon--open': open }"
-            icon="Add"
-            size="sm" />
+          <ScalarIconPlus
+            class="headers-card-title-icon size-3.5"
+            :class="{ 'headers-card-title-icon--open': open }" />
           <template v-if="open"> Hide Headers </template>
           <template v-else> Show Headers </template>
         </DisclosureButton>

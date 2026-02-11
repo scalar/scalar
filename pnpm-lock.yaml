@@ -2343,6 +2343,9 @@ importers:
       '@scalar/components':
         specifier: workspace:*
         version: link:../components
+      '@scalar/icons':
+        specifier: workspace:*
+        version: link:../icons
       '@scalar/oas-utils':
         specifier: workspace:*
         version: link:../oas-utils

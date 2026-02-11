@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import { ScalarIcon } from '@scalar/components'
+import { ScalarIconLegacyAdapter } from '@scalar/components'
 </script>
 
 <template>
   <div
     class="splash-screen bg-b-1 fixed inset-0 z-50 flex items-center justify-center">
     <div class="flex flex-col items-center gap-4">
-      <ScalarIcon
+      <ScalarIconLegacyAdapter
         class="logo-icon text-c-1 h-16 w-16"
         icon="Logo" />
     </div>

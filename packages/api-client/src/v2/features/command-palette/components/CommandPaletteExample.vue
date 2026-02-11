@@ -23,10 +23,10 @@ import {
   ScalarButton,
   ScalarDropdown,
   ScalarDropdownItem,
-  ScalarIcon,
   ScalarListbox,
 } from '@scalar/components'
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
+import { ScalarIconCaretDown } from '@scalar/icons'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type {
   TraversedEntry,
@@ -224,10 +224,7 @@ const handleBack = (event: KeyboardEvent): void => {
                 selectedDocument ? selectedDocument.label : 'Select Document'
               }}
             </span>
-            <ScalarIcon
-              class="text-c-3"
-              icon="ChevronDown"
-              size="md" />
+            <ScalarIconCaretDown class="text-c-3 size-4" />
           </ScalarButton>
         </ScalarListbox>
 
@@ -253,10 +250,7 @@ const handleBack = (event: KeyboardEvent): void => {
               <HttpMethodBadge
                 v-if="selectedOperation"
                 :method="selectedOperation.method" />
-              <ScalarIcon
-                class="text-c-3"
-                icon="ChevronDown"
-                size="md" />
+              <ScalarIconCaretDown class="text-c-3 size-4" />
             </div>
           </ScalarButton>
 

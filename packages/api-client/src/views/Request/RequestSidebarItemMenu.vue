@@ -3,11 +3,17 @@ import {
   ScalarDropdownButton,
   ScalarDropdownMenu,
   ScalarFloating,
-  ScalarIcon,
   ScalarModal,
   useModal,
   type ScalarDropdown,
 } from '@scalar/components'
+import {
+  ScalarIconEye,
+  ScalarIconEyeSlash,
+  ScalarIconPencil,
+  ScalarIconPuzzlePiece,
+  ScalarIconTrash,
+} from '@scalar/icons'
 import type { Collection } from '@scalar/oas-utils/entities/spec'
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
@@ -153,11 +159,9 @@ const isDraftsMenuItem = computed(() => {
           v-if="menuItem.item?.entity.type === 'request'"
           class="flex items-center gap-2"
           @click="handleAddExample">
-          <ScalarIcon
-            class="inline-flex"
-            icon="Example"
-            size="md"
-            thickness="1.5" />
+          <ScalarIconPuzzlePiece
+            class="inline-flex size-4"
+            weight="light" />
           <span>Add Example</span>
         </ScalarDropdownButton>
 
@@ -167,11 +171,9 @@ const isDraftsMenuItem = computed(() => {
           ref="menuRef"
           class="flex items-center gap-2"
           @click="editModal.show()">
-          <ScalarIcon
-            class="inline-flex"
-            icon="Edit"
-            size="md"
-            thickness="1.5" />
+          <ScalarIconPencil
+            class="inline-flex size-4"
+            weight="light" />
           <span>
             <template v-if="menuItem.item?.entity.type === 'collection'">
               Edit
@@ -180,30 +182,16 @@ const isDraftsMenuItem = computed(() => {
           </span>
         </ScalarDropdownButton>
 
-        <!-- Duplicate -->
-        <!-- <ScalarDropdownButton
-        class="flex  items-center !gap-2"
-        @click="handleItemDuplicate">
-        <ScalarIcon
-          class="inline-flex"
-          thickness="1.5"
-          icon="Duplicate"
-          size="sm" />
-        <span>Duplicate</span>
-      </ScalarDropdownButton>
-      <ScalarDropdownDivider /> -->
-
         <!-- Watch -->
         <ScalarDropdownButton
           v-if="menuItem.item?.documentUrl"
           ref="menuRef"
           class="flex items-center gap-2"
           @click="toggleWatchMode">
-          <ScalarIcon
-            class="inline-flex"
-            :icon="menuItem.item?.watchMode ? 'Unwatch' : 'Watch'"
-            size="md"
-            thickness="1.5" />
+          <component
+            :is="menuItem.item?.watchMode ? ScalarIconEyeSlash : ScalarIconEye"
+            class="inline-flex size-4"
+            weight="light" />
           <span>
             {{
               menuItem.item?.watchMode
@@ -218,11 +206,9 @@ const isDraftsMenuItem = computed(() => {
           v-if="!isDraftsMenuItem"
           class="flex items-center gap-2"
           @click="deleteModal.show()">
-          <ScalarIcon
-            class="inline-flex"
-            icon="Delete"
-            size="md"
-            thickness="1.5" />
+          <ScalarIconTrash
+            class="inline-flex size-4"
+            weight="light" />
           <span>Delete</span>
         </ScalarDropdownButton>
 
@@ -231,11 +217,9 @@ const isDraftsMenuItem = computed(() => {
           v-if="isDraftsMenuItem"
           class="flex items-center gap-2"
           @click="clearDraftsModal.show()">
-          <ScalarIcon
-            class="inline-flex"
-            icon="Delete"
-            size="md"
-            thickness="1.5" />
+          <ScalarIconTrash
+            class="inline-flex size-4"
+            weight="light" />
           <span>Clear Drafts</span>
         </ScalarDropdownButton>
       </ScalarDropdownMenu>

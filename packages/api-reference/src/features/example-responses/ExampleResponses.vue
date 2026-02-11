@@ -9,9 +9,9 @@ import {
   ScalarCardFooter,
   ScalarCardSection,
   ScalarCodeBlock,
-  ScalarIcon,
   ScalarMarkdown,
 } from '@scalar/components'
+import { ScalarIconClipboard } from '@scalar/icons'
 import {
   getObjectKeys,
   normalizeMimeTypeObject,
@@ -157,9 +157,7 @@ const showSchema = ref(false)
           class="code-copy"
           type="button"
           @click="() => copyToClipboard(currentResponseContent?.example)">
-          <ScalarIcon
-            icon="Clipboard"
-            width="12px" />
+          <ScalarIconClipboard class="size-3" />
         </button>
         <label
           v-if="currentResponseContent?.schema"

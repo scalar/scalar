@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { ScalarButton, ScalarIcon, ScalarListbox } from '@scalar/components'
+import { ScalarButton, ScalarListbox } from '@scalar/components'
+import { ScalarIconCaretDown, ScalarIconUpload } from '@scalar/icons'
 import type { ApiReferenceEvents } from '@scalar/workspace-store/events'
 import { unpackProxyObject } from '@scalar/workspace-store/helpers/unpack-proxy'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
@@ -163,9 +164,7 @@ const bodyValue = computed(() => {
               contentTypes[selectedContentType as keyof typeof contentTypes] ??
               selectedContentType
             }}</span>
-            <ScalarIcon
-              icon="ChevronDown"
-              size="md" />
+            <ScalarIconCaretDown class="size-3.5" />
           </ScalarButton>
         </ScalarListbox>
       </DataTableHeader>
@@ -219,11 +218,9 @@ const bodyValue = computed(() => {
                     )
                 ">
                 <span>Select File</span>
-                <ScalarIcon
-                  class="ml-1"
-                  icon="Upload"
-                  size="xs"
-                  thickness="2.5" />
+                <ScalarIconUpload
+                  class="ml-1 size-3"
+                  weight="bold" />
               </ScalarButton>
             </template>
           </div>

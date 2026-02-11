@@ -37,11 +37,11 @@ export default {
 import {
   ScalarButton,
   ScalarCodeBlock,
-  ScalarIcon,
   ScalarTooltip,
   useLoadingState,
 } from '@scalar/components'
 import { isLocalUrl } from '@scalar/helpers/url/is-local-url'
+import { ScalarIconUpload } from '@scalar/icons'
 import type { LoaderPlugin } from '@scalar/json-magic/bundle'
 import { useToasts } from '@scalar/use-toasts'
 import {
@@ -327,10 +327,7 @@ const handleBack = (event: KeyboardEvent): void => {
             variant="outlined"
             @click="openSpecFileDialog">
             JSON, or YAML File
-            <ScalarIcon
-              class="text-c-3"
-              icon="Upload"
-              size="md" />
+            <ScalarIconUpload class="text-c-3 size-4" />
           </ScalarButton>
         </slot>
 

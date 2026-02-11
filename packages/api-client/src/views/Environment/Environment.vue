@@ -1,10 +1,6 @@
 <script setup lang="ts">
-import {
-  ScalarButton,
-  ScalarIcon,
-  ScalarModal,
-  useModal,
-} from '@scalar/components'
+import { ScalarButton, ScalarModal, useModal } from '@scalar/components'
+import { ScalarIconCaretRight, ScalarIconPlus } from '@scalar/icons'
 import { LibraryIcon } from '@scalar/icons/library'
 import type { Collection } from '@scalar/oas-utils/entities/spec'
 import { useToasts } from '@scalar/use-toasts'
@@ -458,10 +454,8 @@ watch(
                     :class="{
                       'rotate-90': collapsedSidebarFolders[collection.uid],
                     }">
-                    <ScalarIcon
-                      class="text-c-3 hover:text-c-1 hidden text-sm group-hover:block"
-                      icon="ChevronRight"
-                      size="md" />
+                    <ScalarIconCaretRight
+                      class="text-c-3 hover:text-c-1 hidden size-4 text-sm group-hover:block" />
                   </div>
                 </span>
                 {{ collection.info?.title ?? '' }}
@@ -482,9 +476,9 @@ watch(
                   :collectionId="collection.uid"
                   :isCopyable="false"
                   :isDeletable="true"
-                  :isRenameable="true"
                   :isDraggable="true"
                   :isDroppable="isDroppable"
+                  :isRenameable="true"
                   :to="{
                     name: 'environment.collection',
                     params: {
@@ -505,8 +499,8 @@ watch(
                   "
                   @colorModal="handleOpenColorModal(environmentName)"
                   @delete="removeCollectionEnvironment(environmentName)"
-                  @rename="openRenameModal(environmentName, collection.uid)"
-                  @onDragEnd="handleDragEnd" />
+                  @onDragEnd="handleDragEnd"
+                  @rename="openRenameModal(environmentName, collection.uid)" />
                 <ScalarButton
                   v-if="
                     Object.keys(collection['x-scalar-environments'] || {})
@@ -515,9 +509,7 @@ watch(
                   class="text-c-1 hover:bg-b-2 flex h-8 w-full justify-start gap-1.5 py-0 pl-6 text-xs"
                   variant="ghost"
                   @click="openEnvironmentModal(collection.uid)">
-                  <ScalarIcon
-                    icon="Add"
-                    size="sm" />
+                  <ScalarIconPlus class="size-3.5" />
                   <span>Add Environment</span>
                 </ScalarButton>
               </div>

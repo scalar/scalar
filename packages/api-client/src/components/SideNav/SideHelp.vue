@@ -1,9 +1,13 @@
 <script setup lang="ts">
+import { ScalarDropdown, ScalarDropdownItem } from '@scalar/components'
 import {
-  ScalarDropdown,
-  ScalarDropdownItem,
-  ScalarIcon,
-} from '@scalar/components'
+  ScalarIconDiscordLogo,
+  ScalarIconEnvelope,
+  ScalarIconGithubLogo,
+  ScalarIconMapTrifold,
+  ScalarIconNote,
+  ScalarIconQuestion,
+} from '@scalar/icons'
 
 import SideNavLink from './SideNavLink.vue'
 </script>
@@ -13,7 +17,7 @@ import SideNavLink from './SideNavLink.vue'
     :placement="'top-end'">
     <SideNavLink
       is="button"
-      icon="Help"
+      :icon="ScalarIconQuestion"
       type="button">
       About
     </SideNavLink>
@@ -27,10 +31,9 @@ import SideNavLink from './SideNavLink.vue'
         target="_blank">
         <ScalarDropdownItem class="flex w-full items-center gap-1.5">
           <div class="flex items-center justify-center">
-            <ScalarIcon
-              icon="Discord"
-              size="xs"
-              thickness="1.75" />
+            <ScalarIconDiscordLogo
+              class="size-3"
+              weight="light" />
           </div>
           <span>Discord</span>
         </ScalarDropdownItem>
@@ -41,10 +44,9 @@ import SideNavLink from './SideNavLink.vue'
         target="_blank">
         <ScalarDropdownItem class="flex w-full items-center gap-1.5">
           <div class="flex items-center justify-center">
-            <ScalarIcon
-              icon="GitHubLine"
-              size="xs"
-              thickness="1.75" />
+            <ScalarIconGithubLogo
+              class="size-3"
+              weight="light" />
           </div>
           <span>GitHub</span>
         </ScalarDropdownItem>
@@ -55,9 +57,7 @@ import SideNavLink from './SideNavLink.vue'
         target="_blank">
         <ScalarDropdownItem class="flex w-full items-center gap-1.5">
           <div class="flex items-center justify-center">
-            <ScalarIcon
-              icon="Email"
-              size="xs" />
+            <ScalarIconEnvelope class="size-3" />
           </div>
           <span>Email</span>
         </ScalarDropdownItem>
@@ -69,10 +69,9 @@ import SideNavLink from './SideNavLink.vue'
         target="_blank">
         <ScalarDropdownItem class="flex w-full items-center gap-1.5">
           <div class="flex items-center justify-center">
-            <ScalarIcon
-              icon="Changelog"
-              size="xs"
-              thickness="1.75" />
+            <ScalarIconNote
+              class="size-3"
+              weight="light" />
           </div>
           <span>Changelog</span>
         </ScalarDropdownItem>
@@ -83,10 +82,9 @@ import SideNavLink from './SideNavLink.vue'
         target="_blank">
         <ScalarDropdownItem class="flex w-full items-center gap-1.5">
           <div class="flex items-center justify-center">
-            <ScalarIcon
-              icon="Roadmap"
-              size="xs"
-              thickness="1.75" />
+            <ScalarIconMapTrifold
+              class="size-3"
+              weight="light" />
           </div>
           <span>Roadmap</span>
         </ScalarDropdownItem>

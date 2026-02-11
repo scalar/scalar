@@ -4,8 +4,13 @@ import {
   ScalarDropdown,
   ScalarDropdownDivider,
   ScalarDropdownItem,
-  ScalarIcon,
 } from '@scalar/components'
+import {
+  ScalarIconCaretDown,
+  ScalarIconCheck,
+  ScalarIconGlobe,
+  ScalarIconPlus,
+} from '@scalar/icons'
 import { computed } from 'vue'
 
 const { environments = [], activeEnvironment } = defineProps<{
@@ -77,11 +82,9 @@ const handleSelectEnvironment = (environmentName: string) => {
         variant="ghost">
         <div class="flex items-center gap-1.5">
           <!-- Icon indicator -->
-          <ScalarIcon
-            class="shrink-0"
-            :class="hasActiveEnvironment ? 'text-c-accent' : 'text-c-3'"
-            icon="Globe"
-            size="sm" />
+          <ScalarIconGlobe
+            class="size-3.5 shrink-0"
+            :class="hasActiveEnvironment ? 'text-c-accent' : 'text-c-3'" />
 
           <!-- Environment name -->
           <span
@@ -90,10 +93,7 @@ const handleSelectEnvironment = (environmentName: string) => {
           </span>
 
           <!-- Dropdown arrow -->
-          <ScalarIcon
-            class="shrink-0"
-            icon="ChevronDown"
-            size="xs" />
+          <ScalarIconCaretDown class="size-3 shrink-0" />
         </div>
       </ScalarButton>
 
@@ -110,10 +110,9 @@ const handleSelectEnvironment = (environmentName: string) => {
                 ? 'bg-c-accent text-b-1'
                 : 'shadow-border text-transparent'
             ">
-            <ScalarIcon
+            <ScalarIconCheck
               class="size-2.5"
-              icon="Checkmark"
-              thickness="3" />
+              weight="bold" />
           </div>
           <span class="text-c-2">No Environment</span>
         </ScalarDropdownItem>
@@ -133,10 +132,9 @@ const handleSelectEnvironment = (environmentName: string) => {
                 ? 'bg-c-accent text-b-1'
                 : 'shadow-border text-transparent'
             ">
-            <ScalarIcon
+            <ScalarIconCheck
               class="size-2.5"
-              icon="Checkmark"
-              thickness="3" />
+              weight="bold" />
           </div>
           <span class="overflow-hidden text-ellipsis">{{
             environmentName
@@ -150,9 +148,9 @@ const handleSelectEnvironment = (environmentName: string) => {
           class="text-c-accent flex items-center gap-1.5"
           @click="handleAddEnvironment">
           <div class="flex h-4 w-4 items-center justify-center">
-            <ScalarIcon
-              icon="Add"
-              size="sm" />
+            <ScalarIconPlus
+              class="size-3.5"
+              weight="light" />
           </div>
           <span>{{
             hasEnvironments ? 'New Environment' : 'Create Environment'

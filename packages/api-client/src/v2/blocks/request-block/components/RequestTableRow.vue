@@ -1,6 +1,10 @@
 <script setup lang="ts">
-import { ScalarButton, ScalarIcon, ScalarIconButton } from '@scalar/components'
-import { ScalarIconGlobe, ScalarIconTrash } from '@scalar/icons'
+import { ScalarButton, ScalarIconButton } from '@scalar/components'
+import {
+  ScalarIconGlobe,
+  ScalarIconTrash,
+  ScalarIconUpload,
+} from '@scalar/icons'
 import { unpackProxyObject } from '@scalar/workspace-store/helpers/unpack-proxy'
 import { resolve } from '@scalar/workspace-store/resolve'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
@@ -286,11 +290,9 @@ const handleUpdateRow = (
             variant="outlined"
             @click="emit('uploadFile')">
             <span>Select File</span>
-            <ScalarIcon
-              class="ml-1"
-              icon="Upload"
-              size="xs"
-              thickness="2.5" />
+            <ScalarIconUpload
+              class="ml-1 size-3"
+              weight="bold" />
           </ScalarButton>
         </div>
       </template>

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ScalarIcon } from '@scalar/components'
+import { ScalarIconClipboard } from '@scalar/icons'
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
 
 import { formatExample } from './helpers/format-example'
@@ -28,10 +28,8 @@ const { copyToClipboard } = useClipboard()
           <span>
             {{ formatExample(example) }}
           </span>
-          <ScalarIcon
-            class="group-hover:text-c-1 text-c-3 ml-auto min-h-3 min-w-3"
-            icon="Clipboard"
-            size="xs" />
+          <ScalarIconClipboard
+            class="group-hover:text-c-1 text-c-3 ml-auto size-3 min-h-3 min-w-3" />
         </button>
       </div>
     </div>
@@ -60,10 +58,8 @@ const { copyToClipboard } = useClipboard()
           type="button"
           @click="copyToClipboard(formatExample(ex))">
           <span>{{ formatExample(ex) }} </span>
-          <ScalarIcon
-            class="text-c-3 group-hover:text-c-1 ml-auto min-h-3 min-w-3"
-            icon="Clipboard"
-            size="xs" />
+          <ScalarIconClipboard
+            class="text-c-3 group-hover:text-c-1 ml-auto size-3 min-h-3 min-w-3" />
         </button>
       </div>
     </div>

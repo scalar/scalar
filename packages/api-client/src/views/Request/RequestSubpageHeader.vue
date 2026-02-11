@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ScalarIcon } from '@scalar/components'
+import { ScalarIconX } from '@scalar/icons'
 import type { Environment } from '@scalar/oas-utils/entities/environment'
 import type {
   Collection,
@@ -73,10 +73,9 @@ const { currentRoute } = useRouter()
         class="app-exit-button gitbook-hidden zoomed:static zoomed:p-1 fixed top-2 right-2 rounded-full p-2"
         type="button"
         @click="$emit('hideModal')">
-        <ScalarIcon
-          icon="Close"
-          size="lg"
-          thickness="2" />
+        <ScalarIconX
+          class="size-5"
+          weight="regular" />
         <span class="sr-only">Close Client</span>
       </button>
       <!-- TODO: temporary solution: 2nd button (not fixed position) for our friends at GitBook -->
@@ -85,10 +84,9 @@ const { currentRoute } = useRouter()
         class="text-c-1 hover:bg-b-2 active:text-c-1 gitbook-show -mr-1.5 rounded p-2"
         type="button"
         @click="$emit('hideModal')">
-        <ScalarIcon
-          icon="Close"
-          size="md"
-          thickness="1.75" />
+        <ScalarIconX
+          class="size-4"
+          weight="light" />
         <span class="sr-only">Close Client</span>
       </button>
     </div>

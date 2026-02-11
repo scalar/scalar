@@ -6,25 +6,27 @@ import {
   ScalarDropdownMenu,
   ScalarFloating,
   ScalarHotkey,
-  ScalarIcon,
+  ScalarIconLegacyAdapter,
   ScalarTooltip,
   type Icon,
 } from '@scalar/components'
 import { isMacOS } from '@scalar/helpers/general/is-mac-os'
+import { ScalarIconLink, ScalarIconPlus, ScalarIconX } from '@scalar/icons'
 import { LibraryIcon } from '@scalar/icons/library'
+import type { Component } from 'vue'
 
 defineProps<{
   hotkey?: string
   active: boolean
   label: string
-  icon: Icon
+  icon: Component | Icon
   isCollection?: boolean
 }>()
 
 defineEmits<{
   (e: 'click'): void
-  (e: 'close'): void
   (e: 'newTab'): void
+  (e: 'close'): void
   (e: 'copyUrl'): void
   (e: 'closeOtherTabs'): void
 }>()
@@ -45,21 +47,24 @@ defineEmits<{
             <LibraryIcon
               v-if="isCollection"
               class="size-3.5 min-w-3.5 stroke-2"
-              :src="icon" />
-            <ScalarIcon
-              v-else
+              :src="icon as string" />
+            <ScalarIconLegacyAdapter
+              v-else-if="typeof icon === 'string'"
               :icon="icon"
               size="xs"
-              thickness="2.5" />
+              weight="bold" />
+            <component
+              :is="icon"
+              v-else
+              class="size-3"
+              weight="bold" />
             <span class="custom-scroll nav-item-copy text-sm">{{ label }}</span>
           </div>
           <button
             class="nav-item-close"
             type="button"
             @click="$emit('close')">
-            <ScalarIcon
-              icon="Close"
-              thickness="1.75" />
+            <ScalarIconX weight="light" />
           </button>
         </div>
       </ScalarTooltip>
@@ -71,10 +76,9 @@ defineEmits<{
             <ScalarDropdownButton
               class="flex items-center gap-1.5"
               @click="$emit('newTab')">
-              <ScalarIcon
-                icon="AddTab"
-                size="sm"
-                thickness="1.5" />
+              <ScalarIconPlus
+                class="size-3.5"
+                weight="light" />
               New Tab
               <ScalarHotkey
                 class="bg-b-2 ml-auto"
@@ -83,20 +87,18 @@ defineEmits<{
             <ScalarDropdownButton
               class="flex items-center gap-1.5"
               @click="$emit('copyUrl')">
-              <ScalarIcon
-                icon="Link"
-                size="sm"
-                thickness="1.5" />
+              <ScalarIconLink
+                class="size-3.5"
+                weight="light" />
               Copy URL
             </ScalarDropdownButton>
             <ScalarDropdownDivider />
             <ScalarDropdownButton
               class="flex items-center gap-1.5"
               @click="$emit('close')">
-              <ScalarIcon
-                icon="CloseTab"
-                size="sm"
-                thickness="1.5" />
+              <ScalarIconX
+                class="size-3.5"
+                weight="light" />
               Close Tab
               <ScalarHotkey
                 class="bg-b-2 ml-auto"
@@ -105,10 +107,9 @@ defineEmits<{
             <ScalarDropdownButton
               class="flex items-center gap-1.5"
               @click="$emit('closeOtherTabs')">
-              <ScalarIcon
-                icon="CloseTabs"
-                size="sm"
-                thickness="1.5" />
+              <ScalarIconX
+                class="size-3.5"
+                weight="light" />
               Close Other Tabs
             </ScalarDropdownButton>
           </ScalarDropdownMenu>

@@ -47,7 +47,8 @@ export type CommandPaletteEvent = {
 
 <script setup lang="ts">
 import { Dialog, DialogPanel, DialogTitle } from '@headlessui/vue'
-import { ScalarIcon, useModal } from '@scalar/components'
+import { ScalarIconLegacyAdapter, useModal } from '@scalar/components'
+import { ScalarIconCaretLeft, ScalarIconMagnifyingGlass } from '@scalar/icons'
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 
@@ -341,11 +342,9 @@ onBeforeUnmount(() => {
         <div
           class="bg-b-2 focus-within:bg-b-1 sticky top-0 flex items-center rounded-md border border-transparent pl-2 shadow-[0_-8px_0_8px_var(--scalar-background-1),0_0_8px_8px_var(--scalar-background-1)] focus-within:border-(--scalar-background-3)">
           <label for="commandmenu">
-            <ScalarIcon
-              class="text-c-2 mr-2.5"
-              icon="Search"
-              size="md"
-              thickness="1.5" />
+            <ScalarIconMagnifyingGlass
+              class="text-c-2 mr-2.5 size-4"
+              weight="light" />
           </label>
           <input
             id="commandmenu"
@@ -393,11 +392,11 @@ onBeforeUnmount(() => {
               'bg-b-2': command.name === selectedCommand?.name,
             }"
             @click="executeCommand(command)">
-            <ScalarIcon
+            <ScalarIconLegacyAdapter
               class="text-c-2 mr-2.5"
               :icon="command.icon"
               size="md"
-              thickness="1.5" />
+              weight="light" />
             {{ command.name }}
           </div>
         </template>
@@ -415,10 +414,9 @@ onBeforeUnmount(() => {
           class="hover:bg-b-3 text-c-3 active:text-c-1 absolute z-1 mt-[0.5px] rounded p-1.5"
           type="button"
           @click="activeCommand = null">
-          <ScalarIcon
-            icon="ChevronLeft"
-            size="md"
-            thickness="1.5" />
+          <ScalarIconCaretLeft
+            class="size-4"
+            weight="light" />
         </button>
         <component
           :is="PaletteComponents[activeCommand]"
