@@ -14,7 +14,7 @@ export type ImportEventData = {
 /**
  * Loader plugin to detect and convert Postman collections into OpenAPI documents
  */
-export const readPostmanCollection = (): LoaderPlugin => {
+const readPostmanCollection = (): LoaderPlugin => {
   return {
     type: 'loader',
     validate: isPostmanCollection,

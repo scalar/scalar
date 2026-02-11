@@ -241,7 +241,8 @@ const { open: openSpecFileDialog } = useFileDialog({
 
     const onLoad = async (event: ProgressEvent<FileReader>): Promise<void> => {
       const text = event.target?.result as string
-      await handleImport(text)
+      // Import file as raw content since we are in a browser environment
+      await handleImport(text, 'raw')
     }
 
     const reader = new FileReader()
