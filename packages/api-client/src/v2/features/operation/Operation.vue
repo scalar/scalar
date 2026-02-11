@@ -201,7 +201,7 @@ const APP_VERSION = PACKAGE_VERSION
         document?.['x-scalar-set-operation-security'] ?? false
       "
       @update:servers="
-        eventBus.emit('ui:route:page', { name: 'document.servers' })
+        eventBus.emit('ui:navigate', { page: 'document', path: 'servers' })
       " />
   </template>
 

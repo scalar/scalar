@@ -192,7 +192,9 @@ const defaultCookies = computed(() => {
         name: it.name,
         value: it.value,
         globalRoute:
-          it.location === 'document' ? 'document.cookies' : 'workspace.cookies',
+          it.location === 'document'
+            ? ({ page: 'document', path: 'cookies' } as const)
+            : ({ page: 'workspace', path: 'cookies' } as const),
         isReadonly: true,
         isDisabled: disabledGlobalCookies[it.name.toLowerCase()] ?? false,
       })) ?? ([] satisfies TableRow[])
