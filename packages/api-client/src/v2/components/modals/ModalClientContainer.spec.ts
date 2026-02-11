@@ -70,10 +70,8 @@ describe('ModalClient.vue', () => {
 
     expect(wrapper.find('.scalar').isVisible()).toBe(true)
 
-    onTestFinished(async () => {
-      await wrapper.unmount()
-      // Clean the body after the test
-      document.body.innerHTML = ''
+    onTestFinished(() => {
+      wrapper.unmount()
     })
   })
 
@@ -85,7 +83,6 @@ describe('ModalClient.vue', () => {
       slots: { default: '<button id="focus-target">Target</button>' },
       attachTo: document.body,
     })
-    console.log('document.outerHTML', document.body.outerHTML)
 
     modalState = { ...modalState, open: true }
     await wrapper.setProps({ modalState })
@@ -112,9 +109,8 @@ describe('ModalClient.vue', () => {
      */
     expect([focusTarget, fallbackFocus]).toContain(document.activeElement)
 
-    onTestFinished(async () => {
-      await wrapper.unmount()
-      document.body.innerHTML = ''
+    onTestFinished(() => {
+      wrapper.unmount()
     })
   })
 
