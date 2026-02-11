@@ -1633,9 +1633,6 @@ importers:
         specifier: catalog:*
         version: 0.1.3
     devDependencies:
-      '@google-cloud/storage':
-        specifier: catalog:*
-        version: 7.16.0(encoding@0.1.13)
       '@scalar/build-tooling':
         specifier: workspace:*
         version: link:../build-tooling
