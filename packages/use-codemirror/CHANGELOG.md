@@ -1,5 +1,15 @@
 # @scalar/use-codemirror
 
+## 0.13.35
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/components@0.19.0**
+  - [#8081](https://github.com/scalar/scalar/pull/8081): feat(components): improve ScalarCodeBlock copy UI
+  - [#8065](https://github.com/scalar/scalar/pull/8065): feat(components): add editor to ScalarMenu and optionally remove docs
+
 ## 0.13.34
 
 ### Patch Changes

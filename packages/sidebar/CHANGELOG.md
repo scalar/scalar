@@ -1,5 +1,19 @@
 # @scalar/sidebar
 
+## 0.7.31
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.31.0**
+  - [#8095](https://github.com/scalar/scalar/pull/8095): feat: support loading files into the store
+  - [#8096](https://github.com/scalar/scalar/pull/8096): feat: store relative urls/paths against base under the url mappings
+
+- **@scalar/components@0.19.0**
+  - [#8081](https://github.com/scalar/scalar/pull/8081): feat(components): improve ScalarCodeBlock copy UI
+  - [#8065](https://github.com/scalar/scalar/pull/8065): feat(components): add editor to ScalarMenu and optionally remove docs
+
 ## 0.7.30
 
 ### Patch Changes

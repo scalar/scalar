@@ -1,5 +1,19 @@
 # @scalar/mock-server
 
+## 0.8.33
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/json-magic@0.11.0**
+  - [#8095](https://github.com/scalar/scalar/pull/8095): feat: support loading files into the store
+  - [#8096](https://github.com/scalar/scalar/pull/8096): feat: store relative urls/paths against base under the url mappings
+
+- **@scalar/oas-utils@0.6.38**
+
+- **@scalar/openapi-parser@0.24.9**
+
 ## 0.8.32
 
 ### Patch Changes

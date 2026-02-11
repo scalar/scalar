@@ -1,5 +1,19 @@
 # @scalar/openapi-to-markdown
 
+## 0.3.41
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/components@0.19.0**
+  - [#8081](https://github.com/scalar/scalar/pull/8081): feat(components): improve ScalarCodeBlock copy UI
+  - [#8065](https://github.com/scalar/scalar/pull/8065): feat(components): add editor to ScalarMenu and optionally remove docs
+
+- **@scalar/oas-utils@0.6.38**
+
+- **@scalar/openapi-parser@0.24.9**
+
 ## 0.3.40
 
 ### Patch Changes
