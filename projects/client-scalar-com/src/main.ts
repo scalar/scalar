@@ -1,5 +1,8 @@
 import { createApiClientWeb } from '@scalar/api-client/layouts/Web'
 import '@scalar/api-client/style.css'
+
+import { postResponseScriptsPlugin } from '@scalar/pre-post-request-scripts'
+
 import './style.css'
 
 import posthog from 'posthog-js'
@@ -11,4 +14,5 @@ posthog.init('phc_3elIjSOvGOo5aEwg6krzIY9IcQiRubsBtglOXsQ4Uu4', {
 
 void createApiClientWeb(document.getElementById('scalar-client'), {
   proxyUrl: 'https://proxy.scalar.com',
+  plugins: [postResponseScriptsPlugin()],
 })

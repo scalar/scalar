@@ -24,6 +24,7 @@ import { computed, ref, useId, watch } from 'vue'
 import SectionFilter from '@/components/SectionFilter.vue'
 import ViewLayoutSection from '@/components/ViewLayout/ViewLayoutSection.vue'
 import type { ClientLayout } from '@/hooks'
+import { usePluginManager } from '@/plugins'
 import { filterGlobalCookie } from '@/v2/blocks/operation-block/helpers/filter-global-cookies'
 import { getExample } from '@/v2/blocks/operation-block/helpers/get-example'
 import { getResolvedUrl } from '@/v2/blocks/operation-block/helpers/get-resolved-url'
@@ -381,6 +382,14 @@ const handleUpdateBodyFormValue = ({
 }
 
 const labelRequestNameId = useId()
+
+// Plugins
+const pluginManager = usePluginManager()
+const requestSectionViews = pluginManager.getViewComponents('request.section')
+// TODO: Receives edited scripts, we need to update the document using the event bus
+const updateOperationHandler = (key: string, value: string) => {
+  console.log('updateOperationHandler', key, value)
+}
 </script>
 <template>
   <ViewLayoutSection :aria-label="`Request: ${operation.summary}`">
@@ -497,6 +506,19 @@ const labelRequestNameId = useId()
           :operation
           :selectedExample="exampleKey" />
       </ScalarErrorBoundary>
+
+      <!-- Plugins -->
+      <template
+        v-for="(view, index) in requestSectionViews"
+        :key="view.title ?? index">
+        <ScalarErrorBoundary>
+          <component
+            :is="view.component"
+            v-show="selectedFilter === 'All' || selectedFilter === view.title"
+            :operation="operation"
+            @update:operation="updateOperationHandler" />
+        </ScalarErrorBoundary>
+      </template>
 
       <!-- Spacer -->
       <div class="flex grow" />

@@ -1,6 +1,7 @@
 import { createApp } from 'vue'
 import { createRouter as createVueRouter, createWebHashHistory, createWebHistory } from 'vue-router'
 
+import { PLUGIN_MANAGER_SYMBOL, createPluginManager } from '@/plugins'
 import App from '@/v2/features/app/App.vue'
 import { createAppState } from '@/v2/features/app/app-state'
 import { ROUTES } from '@/v2/features/app/helpers/routes'
@@ -48,6 +49,13 @@ export const createApiClientApp = async (
   const state = await createAppState({ router })
   const commandPaletteState = useCommandPaletteState()
 
+  // Create plugin manager for ApiClientPlugin-compatible plugins (functions)
+  // ClientPlugin can be either object ({ hooks, components }) or ApiClientPlugin (function)
+  const apiClientPlugins = (plugins ?? []).filter((p) => typeof p === 'function')
+  const pluginManager = createPluginManager({
+    plugins: apiClientPlugins as Parameters<typeof createPluginManager>[0]['plugins'],
+  })
+
   // Pass in our initial props at the top level
   const app = createApp(App, {
     layout,
@@ -55,6 +63,7 @@ export const createApiClientApp = async (
     getAppState: () => state,
     getCommandPaletteState: () => commandPaletteState,
   })
+  app.provide(PLUGIN_MANAGER_SYMBOL, pluginManager)
   app.use(router)
 
   // Mount the vue app

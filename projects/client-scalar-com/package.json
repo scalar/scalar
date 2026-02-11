@@ -30,7 +30,8 @@
   "type": "module",
   "dependencies": {
     "posthog-js": "^1.336.1",
-    "vue": "catalog:*"
+    "vue": "catalog:*",
+    "@scalar/pre-post-request-scripts": "workspace:*"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20260120.0",

@@ -1267,6 +1267,9 @@ importers:
       '@scalar/postman-to-openapi':
         specifier: workspace:*
         version: link:../postman-to-openapi
+      '@scalar/pre-post-request-scripts':
+        specifier: workspace:*
+        version: link:../pre-post-request-scripts
       '@scalar/sidebar':
         specifier: workspace:*
         version: link:../sidebar
@@ -2754,6 +2757,9 @@ importers:
 
   projects/client-scalar-com:
     dependencies:
+      '@scalar/pre-post-request-scripts':
+        specifier: workspace:*
+        version: link:../../packages/pre-post-request-scripts
       posthog-js:
         specifier: ^1.336.1
         version: 1.336.1

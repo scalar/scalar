@@ -364,7 +364,8 @@
     "vue-router": "catalog:*",
     "whatwg-mimetype": "catalog:*",
     "yaml": "catalog:*",
-    "zod": "catalog:*"
+    "zod": "catalog:*",
+    "@scalar/pre-post-request-scripts": "workspace:*"
   },
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",

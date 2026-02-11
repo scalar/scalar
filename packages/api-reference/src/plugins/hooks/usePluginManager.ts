@@ -1,5 +1,6 @@
-import { type PluginManager, createPluginManager } from '@/plugins/plugin-manager'
 import { type InjectionKey, inject } from 'vue'
+
+import { type PluginManager, createPluginManager } from '@/plugins/plugin-manager'
 
 export const PLUGIN_MANAGER_SYMBOL = Symbol() as InjectionKey<PluginManager>
 
