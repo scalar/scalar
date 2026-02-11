@@ -63,7 +63,7 @@ const legacyIconBind = computed(
 <template>
   <ScalarIcon
     v-if="typeof icon === 'string'"
-    v-bind="legacyIconBind" />
+    v-bind="{ ...legacyIconBind, ...$attrs }" />
   <component
     :is="icon"
     v-else
