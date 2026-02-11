@@ -1,10 +1,46 @@
-import { normalize } from '@scalar/openapi-parser'
-import type { UnknownObject } from '@scalar/types/utils'
+import { isObject } from '@scalar/helpers/object/is-object'
+import type { LoaderPlugin } from '@scalar/json-magic/bundle'
+import { parseJson, parseYaml } from '@scalar/json-magic/bundle/plugins/browser'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 
 import { getOpenApiFromPostman } from '@/v2/features/command-palette/helpers/get-openapi-from-postman'
 import { isPostmanCollection } from '@/v2/features/command-palette/helpers/is-postman-collection'
-import { isUrl } from '@/v2/helpers/is-url'
+
+export type ImportEventData = {
+  source: string
+  type: 'url' | 'file' | 'raw'
+}
+
+/**
+ * Loader plugin to detect and convert Postman collections into OpenAPI documents
+ */
+export const readPostmanCollection = (): LoaderPlugin => {
+  return {
+    type: 'loader',
+    validate: isPostmanCollection,
+    exec: (source: string) => {
+      try {
+        const document = getOpenApiFromPostman(source)
+
+        if (document) {
+          return Promise.resolve({
+            ok: true,
+            data: document,
+            raw: source,
+          })
+        }
+
+        return Promise.resolve({
+          ok: false,
+        })
+      } catch {
+        return Promise.resolve({
+          ok: false,
+        })
+      }
+    },
+  }
+}
 
 /**
  * Attempts to add a document to the workspace from a given source, which may be a URL or raw content.
@@ -21,17 +57,18 @@ import { isUrl } from '@/v2/helpers/is-url'
  */
 export const loadDocumentFromSource = async (
   workspaceStore: WorkspaceStore,
-  source: string | null,
+  importEventData: ImportEventData,
   name: string,
   watchMode: boolean,
 ): Promise<boolean> => {
+  const { source, type } = importEventData
   if (!source) {
     // No source provided, do nothing.
     return false
   }
 
   // If the source is a URL, add it directly with watch mode metadata.
-  if (isUrl(source)) {
+  if (type === 'url') {
     return await workspaceStore.addDocument({
       name,
       url: source,
@@ -41,36 +78,40 @@ export const loadDocumentFromSource = async (
     })
   }
 
-  // Handle Postman Collection: convert to OpenAPI and add as document.
-  if (isPostmanCollection(source)) {
-    const document = getOpenApiFromPostman(source)
-
-    if (document === null) {
-      return false
-    }
-
-    return await workspaceStore.addDocument({ name, document })
+  if (type === 'file') {
+    return await workspaceStore.addDocument({
+      name,
+      path: source,
+    })
   }
 
-  const getNormalizedContent = (source: string) => {
-    try {
-      return normalize(source) as UnknownObject
-    } catch (error) {
-      console.error(error)
-      return null
-    }
-  }
+  const loaders = [readPostmanCollection(), parseJson(), parseYaml()]
+  const loader = loaders.find((l) => l.validate(source))
 
-  // For other sources, try to normalize as JSON/YAML/OpenAPI.
-  const normalizedContent = getNormalizedContent(source)
-
-  if (normalizedContent === null) {
-    // Normalization failed, unable to add document.
+  // If no loader is found, return false
+  if (!loader) {
     return false
   }
 
-  return await workspaceStore.addDocument({
+  // Execute the loader
+  const result = await loader.exec(source)
+  // If the loader failed, return false
+  if (!result.ok) {
+    return false
+  }
+
+  if (!isObject(result.data)) {
+    return false
+  }
+
+  const addDocumentResult = await workspaceStore.addDocument({
     name,
-    document: normalizedContent,
+    document: result.data,
   })
+
+  if (!addDocumentResult) {
+    return false
+  }
+
+  return true
 }
