@@ -1,13 +1,19 @@
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
-import { describe, expect, it } from 'vitest'
+import { assert, describe, expect, it } from 'vitest'
 
+import type { ImportEventData } from './load-document-from-source'
 import { loadDocumentFromSource } from './load-document-from-source'
 
 describe('loadDocumentFromSource', () => {
-  it('returns false when source is null', async () => {
+  it('returns false when source is empty', async () => {
     const workspaceStore = createWorkspaceStore()
 
-    const result = await loadDocumentFromSource(workspaceStore, null, 'My API', false)
+    const importEventData: ImportEventData = {
+      source: '',
+      type: 'raw',
+    }
+
+    const result = await loadDocumentFromSource(workspaceStore, importEventData, 'My API', false)
 
     expect(result).toBe(false)
   })
@@ -35,7 +41,12 @@ describe('loadDocumentFromSource', () => {
       },
     })
 
-    const result = await loadDocumentFromSource(workspaceStore, rawOpenAPI, 'Raw API', false)
+    const importEventData: ImportEventData = {
+      source: rawOpenAPI,
+      type: 'raw',
+    }
+
+    const result = await loadDocumentFromSource(workspaceStore, importEventData, 'Raw API', false)
 
     expect(result).toBe(true)
 
@@ -66,7 +77,12 @@ paths:
           description: Success
 `
 
-    const result = await loadDocumentFromSource(workspaceStore, rawYAML, 'YAML API', true)
+    const importEventData: ImportEventData = {
+      source: rawYAML,
+      type: 'raw',
+    }
+
+    const result = await loadDocumentFromSource(workspaceStore, importEventData, 'YAML API', true)
 
     expect(result).toBe(true)
 
@@ -141,7 +157,12 @@ paths:
       },
     })
 
-    const result = await loadDocumentFromSource(workspaceStore, complexOpenAPI, 'Complex API', false)
+    const importEventData: ImportEventData = {
+      source: complexOpenAPI,
+      type: 'raw',
+    }
+
+    const result = await loadDocumentFromSource(workspaceStore, importEventData, 'Complex API', false)
 
     expect(result).toBe(true)
 
@@ -165,7 +186,12 @@ paths:
     const minifiedJSON =
       '{"openapi":"3.1.0","info":{"title":"Minified API","version":"1.0.0"},"paths":{"/test":{"get":{"responses":{"200":{"description":"OK"}}}}}}'
 
-    const result = await loadDocumentFromSource(workspaceStore, minifiedJSON, 'Minified API', false)
+    const importEventData: ImportEventData = {
+      source: minifiedJSON,
+      type: 'raw',
+    }
+
+    const result = await loadDocumentFromSource(workspaceStore, importEventData, 'Minified API', false)
 
     expect(result).toBe(true)
 
@@ -202,7 +228,12 @@ paths:
       ],
     })
 
-    const result = await loadDocumentFromSource(workspaceStore, postmanCollection, 'My Postman API', false)
+    const importEventData: ImportEventData = {
+      source: postmanCollection,
+      type: 'raw',
+    }
+
+    const result = await loadDocumentFromSource(workspaceStore, importEventData, 'My Postman API', false)
 
     expect(result).toBe(true)
 
@@ -264,12 +295,12 @@ paths:
       ],
     })
 
-    const result = await loadDocumentFromSource(
-      workspaceStore,
-      complexPostmanCollection,
-      'Complex Postman Collection',
-      false,
-    )
+    const importEventData: ImportEventData = {
+      source: complexPostmanCollection,
+      type: 'raw',
+    }
+
+    const result = await loadDocumentFromSource(workspaceStore, importEventData, 'Complex Postman Collection', false)
 
     expect(result).toBe(true)
 
@@ -295,13 +326,13 @@ paths:
       item: [],
     })
 
+    const importEventData: ImportEventData = {
+      source: postmanCollection,
+      type: 'raw',
+    }
+
     // Pass watchMode as true, but it should be ignored for Postman collections
-    const result = await loadDocumentFromSource(
-      workspaceStore,
-      postmanCollection,
-      'Postman Collection Watch Test',
-      true,
-    )
+    const result = await loadDocumentFromSource(workspaceStore, importEventData, 'Postman Collection Watch Test', true)
 
     expect(result).toBe(true)
 
@@ -333,7 +364,12 @@ paths:
       ],
     })
 
-    const result = await loadDocumentFromSource(workspaceStore, invalidPostmanCollection, 'Invalid Collection', false)
+    const importEventData: ImportEventData = {
+      source: invalidPostmanCollection,
+      type: 'raw',
+    }
+
+    const result = await loadDocumentFromSource(workspaceStore, importEventData, 'Invalid Collection', false)
     expect(result).toBe(false)
   })
 
@@ -349,12 +385,12 @@ paths:
       item: [],
     })
 
-    const result = await loadDocumentFromSource(
-      workspaceStore,
-      emptyPostmanCollection,
-      'Empty Postman Collection',
-      false,
-    )
+    const importEventData: ImportEventData = {
+      source: emptyPostmanCollection,
+      type: 'raw',
+    }
+
+    const result = await loadDocumentFromSource(workspaceStore, importEventData, 'Empty Postman Collection', false)
 
     expect(result).toBe(true)
 
@@ -396,7 +432,12 @@ paths:
       ],
     })
 
-    const result = await loadDocumentFromSource(workspaceStore, postmanWithAuth, 'Authenticated API', false)
+    const importEventData: ImportEventData = {
+      source: postmanWithAuth,
+      type: 'raw',
+    }
+
+    const result = await loadDocumentFromSource(workspaceStore, importEventData, 'Authenticated API', false)
 
     expect(result).toBe(true)
 
@@ -413,7 +454,12 @@ paths:
     // Content that is not valid JSON, YAML, or Postman
     const invalidContent = 'This is just plain text, not a valid API document'
 
-    const result = await loadDocumentFromSource(workspaceStore, invalidContent, 'Invalid Doc', false)
+    const importEventData: ImportEventData = {
+      source: invalidContent,
+      type: 'raw',
+    }
+
+    const result = await loadDocumentFromSource(workspaceStore, importEventData, 'Invalid Doc', false)
 
     expect(result).toBe(false)
   })
@@ -456,7 +502,12 @@ paths:
       ],
     })
 
-    const result = await loadDocumentFromSource(workspaceStore, postmanWithVariables, 'API with Variables', false)
+    const importEventData: ImportEventData = {
+      source: postmanWithVariables,
+      type: 'raw',
+    }
+
+    const result = await loadDocumentFromSource(workspaceStore, importEventData, 'API with Variables', false)
 
     expect(result).toBe(true)
 
@@ -465,5 +516,71 @@ paths:
 
     expect(addedDocument).toBeDefined()
     expect(addedDocument?.openapi).toBeDefined()
+  })
+
+  it('adds document from file path', async () => {
+    const workspaceStore = createWorkspaceStore({
+      fileLoader: {
+        type: 'loader',
+        validate: () => true,
+        exec: () => {
+          return Promise.resolve({
+            ok: true,
+            data: { openapi: '3.1.0', info: { title: 'File API' } },
+            raw: 'This is a test file',
+          })
+        },
+      },
+    })
+
+    const importEventData: ImportEventData = {
+      source: '/path/to/openapi.yaml',
+      type: 'file',
+    }
+
+    const result = await loadDocumentFromSource(workspaceStore, importEventData, 'file-api', false)
+
+    expect(result).toBe(true)
+
+    const document = workspaceStore.workspace.documents['file-api']
+
+    expect(document).toBeDefined()
+    assert(document)
+
+    expect(document['x-scalar-original-source-url']).toBe('/path/to/openapi.yaml')
+    expect(document['x-scalar-watch-mode']).toBeUndefined()
+  })
+
+  it('ignores watch mode when adding document from file', async () => {
+    const workspaceStore = createWorkspaceStore({
+      fileLoader: {
+        type: 'loader',
+        validate: () => true,
+        exec: () => {
+          return Promise.resolve({
+            ok: true,
+            data: { openapi: '3.1.0', info: { title: 'File API Watch Test' } },
+            raw: 'This is a test file',
+          })
+        },
+      },
+    })
+
+    const importEventData: ImportEventData = {
+      source: '/path/to/openapi.yaml',
+      type: 'file',
+    }
+
+    const result = await loadDocumentFromSource(workspaceStore, importEventData, 'file-api-watch-test', true)
+
+    expect(result).toBe(true)
+
+    const document = workspaceStore.workspace.documents['file-api-watch-test']
+
+    expect(document).toBeDefined()
+    assert(document)
+
+    expect(document['x-scalar-original-source-url']).toBe('/path/to/openapi.yaml')
+    expect(document['x-scalar-watch-mode']).toBeUndefined()
   })
 })

@@ -16,6 +16,17 @@
  *   @back="handleBack"
  *   @open-command="handleOpenCommand"
  * />
+ *
+ * @example Custom file upload button
+ * <CommandPaletteImport
+ *   :workspaceStore="workspaceStore"
+ *   @close="handleClose">
+ *   <template #fileUpload="{ import: importDocument }">
+ *     <button @click="() => importDocument(source, 'file')">
+ *       Custom Upload
+ *     </button>
+ *   </template>
+ * </CommandPaletteImport>
  */
 export default {
   name: 'CommandPaletteImport',
@@ -31,6 +42,7 @@ import {
   useLoadingState,
 } from '@scalar/components'
 import { isLocalUrl } from '@scalar/helpers/url/is-local-url'
+import type { LoaderPlugin } from '@scalar/json-magic/bundle'
 import { useToasts } from '@scalar/use-toasts'
 import {
   createWorkspaceStore,
@@ -45,18 +57,23 @@ import { getOpenApiDocumentDetails } from '@/v2/features/command-palette/helpers
 import { getPostmanDocumentDetails } from '@/v2/features/command-palette/helpers/get-postman-document-details'
 import { importDocumentToWorkspace } from '@/v2/features/command-palette/helpers/import-document-to-workspace'
 import { isPostmanCollection } from '@/v2/features/command-palette/helpers/is-postman-collection'
-import { loadDocumentFromSource } from '@/v2/features/command-palette/helpers/load-document-from-source'
+import {
+  loadDocumentFromSource,
+  type ImportEventData,
+} from '@/v2/features/command-palette/helpers/load-document-from-source'
 import { isUrl } from '@/v2/helpers/is-url'
 
 import CommandActionForm from './CommandActionForm.vue'
 import CommandActionInput from './CommandActionInput.vue'
 import WatchModeToggle from './WatchModeToggle.vue'
 
-const { workspaceStore, eventBus } = defineProps<{
+const { workspaceStore, eventBus, fileLoader } = defineProps<{
   /** The workspace store for adding documents */
   workspaceStore: WorkspaceStore
   /** Event bus for emitting operation creation events */
   eventBus: WorkspaceEventBus
+  /** Loader plugin for file import */
+  fileLoader?: LoaderPlugin
 }>()
 
 const emit = defineEmits<{
@@ -64,6 +81,14 @@ const emit = defineEmits<{
   (event: 'close'): void
   /** Emitted when user navigates back (e.g., backspace on empty input) */
   (event: 'back', keyboardEvent: KeyboardEvent): void
+}>()
+
+defineSlots<{
+  /** Slot for custom file upload component that can trigger import */
+  fileUpload(props: {
+    /** Function to trigger import with source content and type */
+    import: (source: string, type: 'file' | 'raw') => Promise<void>
+  }): void
 }>()
 
 const { toast } = useToasts()
@@ -129,7 +154,10 @@ const handleImportError = async (errorMessage: string) => {
  * Directly imports a document into the workspace without showing the modal.
  * This is used when there is only one workspace and it is empty.
  */
-const handleImport = async (newSource: string): Promise<void> => {
+const handleImport = async (
+  newSource: string,
+  type?: ImportEventData['type'],
+): Promise<void> => {
   loader.start()
 
   const TEMP_DOCUMENT_NAME = 'drafts'
@@ -137,15 +165,29 @@ const handleImport = async (newSource: string): Promise<void> => {
   // First load the document into a draft store
   // This is to get the title of the document so we can generate a unique slug for store
   const draftStore = createWorkspaceStore({
+    fileLoader,
     meta: {
       /** Ensure we use the active proxy to fetch documents */
       'x-scalar-active-proxy':
         workspaceStore.workspace['x-scalar-active-proxy'],
     },
   })
+
+  const eventType = (() => {
+    if (type) {
+      return type
+    }
+
+    if (isUrlInput.value) {
+      return 'url'
+    }
+
+    return 'raw'
+  })()
+
   const isSuccessfullyLoaded = await loadDocumentFromSource(
     draftStore,
-    newSource,
+    { source: newSource, type: eventType },
     TEMP_DOCUMENT_NAME,
     watchMode.value,
   )
@@ -199,7 +241,8 @@ const { open: openSpecFileDialog } = useFileDialog({
 
     const onLoad = async (event: ProgressEvent<FileReader>): Promise<void> => {
       const text = event.target?.result as string
-      await handleImport(text)
+      // Import file as raw content since we are in a browser environment
+      await handleImport(text, 'raw')
     }
 
     const reader = new FileReader()
@@ -274,17 +317,22 @@ const handleBack = (event: KeyboardEvent): void => {
     <!-- Actions: File upload and watch mode toggle -->
     <template #options>
       <div class="flex w-full flex-row items-center justify-between gap-3">
-        <!-- File upload button -->
-        <ScalarButton
-          class="hover:bg-b-2 relative max-h-8 gap-1.5 p-2 text-xs"
-          variant="outlined"
-          @click="openSpecFileDialog">
-          JSON, or YAML File
-          <ScalarIcon
-            class="text-c-3"
-            icon="Upload"
-            size="md" />
-        </ScalarButton>
+        <!-- Custom file upload slot or default button -->
+        <slot
+          :import="handleImport"
+          name="fileUpload">
+          <!-- Default file upload button -->
+          <ScalarButton
+            class="hover:bg-b-2 relative max-h-8 gap-1.5 p-2 text-xs"
+            variant="outlined"
+            @click="openSpecFileDialog">
+            JSON, or YAML File
+            <ScalarIcon
+              class="text-c-3"
+              icon="Upload"
+              size="md" />
+          </ScalarButton>
+        </slot>
 
         <!-- Watch mode toggle (only enabled for URL imports) -->
         <ScalarTooltip
