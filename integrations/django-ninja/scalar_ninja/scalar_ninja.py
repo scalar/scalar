@@ -62,6 +62,22 @@ class DocumentDownloadType(Enum):
     NONE = "none"
 
 
+class AgentConfig(BaseModel):
+    """Agent Scalar configuration. Use key for production, disabled to turn off."""
+
+    key: Optional[str] = Field(
+        default=None,
+        description="Agent Scalar key for production. Required for production deployments.",
+    )
+
+    disabled: Optional[bool] = Field(
+        default=None,
+        description="When True, disables Agent Scalar for this source or globally.",
+    )
+
+    model_config = ConfigDict(extra="forbid")
+
+
 class OpenAPISource(BaseModel):
     """Configuration for a single OpenAPI source"""
 
@@ -88,6 +104,11 @@ class OpenAPISource(BaseModel):
     default: bool = Field(
         default=False,
         description="Whether this source should be the default when multiple sources are provided.",
+    )
+
+    agent: Optional[AgentConfig] = Field(
+        default=None,
+        description="Agent Scalar configuration for this source (key for production, disabled to turn off).",
     )
 
     model_config = ConfigDict(extra="forbid")  # Don't allow extra fields
@@ -254,6 +275,11 @@ class ScalarConfig(BaseModel):
     theme: Theme = Field(
         default=Theme.DEFAULT,
         description="The theme to use for Scalar. Default is 'default'.",
+    )
+
+    agent: Optional[AgentConfig] = Field(
+        default=None,
+        description="Agent Scalar configuration (e.g. disabled=True to disable globally).",
     )
 
     model_config = ConfigDict(
@@ -462,6 +488,9 @@ def get_scalar_api_reference(config: ScalarConfig) -> HttpResponse:
 
     if config.theme != Theme.DEFAULT:  # Default is DEFAULT
         js_config["theme"] = config.theme.value
+
+    if config.agent is not None:
+        js_config["agent"] = config.agent.model_dump(exclude_none=True)
 
     html = f"""
 <!doctype html>

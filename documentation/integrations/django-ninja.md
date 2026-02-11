@@ -86,7 +86,7 @@ Currently available [configuration options](../configuration.md) are listed belo
 
 ### Core Configuration
 
-- `openapi_url` (default `None`) - The OpenAPI URL that Scalar should load and use. This is normally done automatically by FastAPI using the default URL `/api/openapi.json`. If `content` or `sources` are provided, this parameter is ignored.
+- `openapi_url` (default `None`) - The OpenAPI URL that Scalar should load and use. This is normally done automatically by Django Ninja using the default URL `/api/openapi.json`. If `content` or `sources` are provided, this parameter is ignored.
 - `content` (default `None`) - Directly pass an OpenAPI/Swagger document as a string (JSON or YAML) or as a dictionary. If `sources` are provided, this parameter is ignored.
 - `sources` (default `None`) - Add multiple OpenAPI documents to render all of them. Each source can have a title, slug, url, content, and default flag.
 - `title` (default `"Scalar"`) - The title of the API reference page
@@ -100,6 +100,7 @@ When using multiple sources, each `OpenAPISource` can be configured with:
 - `url` (default `None`) - URL to the OpenAPI document (JSON or YAML). Mutually exclusive with content.
 - `content` (default `None`) - Direct OpenAPI content as string (JSON/YAML) or dictionary. Mutually exclusive with url.
 - `default` (default `False`) - Whether this source should be the default when multiple sources are provided.
+- `agent` (default `None`) - Agent Scalar configuration for this source. Object with optional `key` (string) for production and optional `disabled` (boolean) to turn off for this source.
 
 ### Display Options
 
@@ -146,6 +147,56 @@ When using multiple sources, each `OpenAPISource` can be configured with:
 - `scalar_favicon_url` (default `"https://django-ninja.dev/img/favicon.png"`)
 - `integration` (default `None`)
 - `theme` (default `Theme.DEFAULT`) - Options: [Theme](#Theme)
+- `agent` (default `None`) - Agent Scalar configuration (e.g. `AgentConfig(disabled=True)` to disable globally). Same shape as per-source agent: optional `key`, optional `disabled`.
+
+### Agent Scalar
+
+Agent Scalar adds an AI chat interface to your API reference. Users can ask questions about your API and get contextual answers based on your OpenAPI document.
+
+- Enabled by default on `http://localhost` for testing (10 free messages)
+- Does not appear in production unless a key is provided
+- Requires an [Agent Scalar key](../guides/agent/key.md) for production deployments
+- Your OpenAPI document is uploaded on first message
+
+To enable Agent Scalar in production, pass your key. With a single document (no sources):
+
+```python
+from scalar_ninja import AgentConfig, ScalarConfig, ScalarViewer
+
+api = NinjaAPI(
+    docs=ScalarViewer(ScalarConfig(
+        openapi_url="/api/openapi.json",
+        agent=AgentConfig(key="put-your-agent-scalar-key-here"),
+    )),
+)
+```
+
+With multiple sources, set the key per source:
+
+```python
+from scalar_ninja import AgentConfig, OpenAPISource, ScalarConfig, ScalarViewer
+
+api = NinjaAPI(
+    docs=ScalarViewer(ScalarConfig(
+        sources=[
+            OpenAPISource(
+                url="https://example.com/openapi.json",
+                agent=AgentConfig(key="put-your-agent-scalar-key-here"),
+            ),
+        ],
+    )),
+)
+```
+
+To disable Agent Scalar entirely:
+
+```python
+from scalar_ninja import AgentConfig, ScalarConfig, ScalarViewer
+
+api = NinjaAPI(
+    docs=ScalarViewer(ScalarConfig(agent=AgentConfig(disabled=True))),
+)
+```
 
 ### DocumentDownloadType
 

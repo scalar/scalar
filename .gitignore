@@ -7,6 +7,7 @@ dist/
 *.tgz
 *.tsbuildinfo
 __pycache__/
+*.egg-info/
 .output
 .nuxt
 .scalar/
@@ -28,3 +29,4 @@ rollup.config-*.mjs
 .astro
 
 .pnpm-store/
+.venv
