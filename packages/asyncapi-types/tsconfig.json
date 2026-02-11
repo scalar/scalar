@@ -1,0 +1,10 @@
+{
+  "extends": "../../tsconfig.json",
+  "include": ["src", "test", "esbuild.ts"],
+  "compilerOptions": {
+    "paths": {
+      "@/*": ["./src/*"],
+      "@test/*": ["./test/*"]
+    }
+  }
+}

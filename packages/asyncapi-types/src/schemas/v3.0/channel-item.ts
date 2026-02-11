@@ -1,0 +1,34 @@
+import { Type } from '@scalar/typebox'
+
+import { compose } from '@/helpers/compose'
+import { ExternalDocumentationObjectRef, TagObjectRef } from '@/openapi-types/v3.1/strict/ref-definitions'
+
+import { ChannelBindingsObjectRef, MessagesObjectRef, ParametersObjectRef } from './ref-definitions'
+
+/**
+ * Describes a shared communication channel.
+ */
+export const ChannelObjectSchemaDefinition = compose(
+  Type.Object({
+    /** An optional string for the channel's address (URL, topic name, queue name, etc.). */
+    address: Type.Optional(Type.String()),
+    /** A human-friendly title for the channel. */
+    title: Type.Optional(Type.String()),
+    /** A short summary of the channel. */
+    summary: Type.Optional(Type.String()),
+    /** An optional description of this channel. CommonMark syntax MAY be used for rich text representation. */
+    description: Type.Optional(Type.String()),
+    /** An optional list of servers on which this channel is available. If absent or empty, this channel is available on all servers defined for this application. */
+    servers: Type.Optional(Type.Array(Type.String())),
+    /** A map of the parameters included in the channel address. It MUST be present only when the address contains Channel Address Expressions. */
+    parameters: Type.Optional(ParametersObjectRef),
+    /** A list of tags for logical grouping and categorization of channels. */
+    tags: Type.Optional(Type.Array(TagObjectRef)),
+    /** Additional external documentation for this channel. */
+    externalDocs: Type.Optional(ExternalDocumentationObjectRef),
+    /** A map where the keys describe the name of the protocol and the values describe protocol-specific definitions for the channel. */
+    bindings: Type.Optional(ChannelBindingsObjectRef),
+    /** A map of Message Objects (or references to them) that will be sent to this channel by any application at any time. */
+    messages: Type.Optional(MessagesObjectRef),
+  }),
+)
