@@ -5,15 +5,23 @@ import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 
 import ScreenReader from '@/components/ScreenReader.vue'
 
-const { id, method, path, eventBus } = defineProps<{
+const { id, method, path, eventBus, exampleName } = defineProps<{
   id: string
   method: HttpMethod
   path: string
   eventBus: WorkspaceEventBus
+  exampleName?: string
 }>()
 
-/** Route via ID */
-const handleClick = () => eventBus.emit('ui:open:client-modal', { id })
+/** Route via ID and optionally with example name */
+const handleClick = () => {
+  // Include exampleName in payload if provided
+  const payload = {
+    id,
+    ...(exampleName && { exampleName }),
+  }
+  eventBus.emit('ui:open:client-modal', payload)
+}
 </script>
 <template>
   <!-- Render the Test Request Button -->

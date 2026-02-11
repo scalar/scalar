@@ -139,6 +139,8 @@ export type UIEvents = {
     | {
         /** The id of the operation to directly load */
         id: string
+        /** Optional example name to load for this operation */
+        exampleName?: string
       }
     | {
         /** The HTTP method of the operation to load (e.g., GET, POST) */

@@ -194,12 +194,13 @@ const operationExtensions = computed(() => getXKeysFromObject(operation))
                 </template>
                 <template
                   v-if="!isWebhook"
-                  #footer>
+                  #footer="{ exampleName }">
                   <AskAgentButton />
                   <TestRequestButton
                     v-if="!options.hideTestRequestButton"
                     :id
                     :eventBus
+                    :exampleName
                     :method
                     :path />
                 </template>

@@ -1,6 +1,7 @@
 import type { ModalState } from '@scalar/components'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
+import type { TraversedEntry } from '@scalar/workspace-store/schemas/navigation'
 import { type Ref, ref } from 'vue'
 
 import type { UseModalSidebarReturn } from '@/v2/features/modal/hooks/use-modal-sidebar'
@@ -45,7 +46,24 @@ export function initializeModalEvents({
 
     // We route to the exact ID
     if ('id' in payload && payload.id) {
-      sidebarState.handleSelectItem(payload.id)
+      let targetId = payload.id
+
+      // If exampleName is provided, try to find the specific example entry
+      if ('exampleName' in payload && payload.exampleName) {
+        const operationEntry = sidebarState.state.getEntryById(payload.id)
+
+        // Try to find the specific example in the operation's children
+        if (operationEntry && 'children' in operationEntry && operationEntry.children) {
+          const exampleEntry = operationEntry.children.find(
+            (child: TraversedEntry) => child.type === 'example' && child.name === payload.exampleName,
+          )
+          if (exampleEntry) {
+            targetId = exampleEntry.id
+          }
+        }
+      }
+
+      sidebarState.handleSelectItem(targetId)
     }
     // We must find the ID first from the entries
     else if ('method' in payload && 'path' in payload) {
