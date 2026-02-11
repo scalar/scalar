@@ -33,6 +33,7 @@ import {
   normalizeRefs,
   refsEverywhere,
   restoreOriginalRefs,
+  syncPathParameters,
 } from '@/plugins/bundler'
 import { extensions } from '@/schemas/extensions'
 import type { InMemoryWorkspace } from '@/schemas/inmemory-workspace'
@@ -865,7 +866,14 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         async () =>
           await bundle(getRaw(strictDocument), {
             treeShake: false,
-            plugins: [...loaders, normalizeRefs(), externalValueResolver(), refsEverywhere(), normalizeAuthSchemes()],
+            plugins: [
+              ...loaders,
+              normalizeRefs(),
+              externalValueResolver(),
+              refsEverywhere(),
+              normalizeAuthSchemes(),
+              syncPathParameters(),
+            ],
             urlMap: true,
             origin: input.documentSource, // use the document origin (if provided) as the base URL for resolution
           }),

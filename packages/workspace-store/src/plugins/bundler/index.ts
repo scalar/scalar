@@ -4,9 +4,12 @@
  * such as adding lifecycle hooks or custom processing logic.
  */
 
+import { HTTP_METHODS } from '@scalar/helpers/http/http-methods'
+import { isObject } from '@scalar/helpers/object/is-object'
 import type { LifecyclePlugin } from '@scalar/json-magic/bundle'
 
 import { isLocalRef } from '@/helpers/general'
+import { syncParametersForPathChange } from '@/mutators/operation/helpers/sync-path-parameters'
 import { getResolvedRef } from '@/plugins/bundler/helpers'
 
 /**
@@ -246,6 +249,80 @@ export const normalizeRefs = (): LifecyclePlugin => {
             delete node[key]
           }
         })
+      }
+    },
+  }
+}
+
+/**
+ * Lifecycle plugin to sync path parameters for all operations under a path item.
+ *
+ * When processing a path item (e.g., '/users/{id}'), this plugin will:
+ *   - Extract path variables from the path string
+ *   - For each HTTP method operation (get, post, put, delete, etc.)
+ *   - Sync the operation's parameters to match the path variables
+ *   - Preserve existing parameter configurations when possible
+ *
+ * This ensures that path parameters are always in sync with the path string,
+ * even after bundling or other transformations.
+ */
+export const syncPathParameters = (): LifecyclePlugin => {
+  return {
+    type: 'lifecycle',
+    onBeforeNodeProcess: (node, context) => {
+      const { path } = context
+
+      // Only process path items (e.g., paths -> /users/{id} -> operations)
+      if (path.length !== 2 || path[0] !== 'paths' || typeof path[1] !== 'string') {
+        return
+      }
+
+      const pathString = path[1]
+
+      // Sync parameters for each operation method
+      for (const method of HTTP_METHODS) {
+        const operation = getResolvedRef(node[method], context)
+
+        if (!isObject(operation)) {
+          continue
+        }
+
+        const existingParameters =
+          'parameters' in operation && Array.isArray(operation.parameters) ? operation.parameters : []
+
+        const { path: pathParameters, other: restParameters } = existingParameters.reduce<{
+          path: any[]
+          other: any[]
+        }>(
+          (acc, param) => {
+            const resolved = getResolvedRef(param, context)
+
+            if (!isObject(resolved)) {
+              return acc
+            }
+
+            if (resolved.in === 'path') {
+              acc.path.push(resolved)
+              return acc
+            }
+            acc.other.push(param)
+            return acc
+          },
+          {
+            path: [],
+            other: [],
+          },
+        )
+
+        // Sync path parameters using the same path for old and new
+        // This ensures parameters match the current path string
+        const syncedParameters = syncParametersForPathChange(pathString, pathString, pathParameters)
+
+        const result = [...syncedParameters, ...restParameters]
+
+        if (result.length > 0) {
+          operation.parameters = result
+        }
       }
     },
   }
