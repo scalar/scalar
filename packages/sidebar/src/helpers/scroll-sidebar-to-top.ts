@@ -1,41 +1,73 @@
 const DEFAULT_SCROLL_OFFSET_TOP = 100
 
 /**
- * Scrolls the selected element near the top of the scroller, offset by the given amount
- *
- * @param id - the id of the element to scroll to
- * @param offsetTop - the offset from the top of the scroller to scroll to
- * @returns
+ * Returns the element that should be used for vertical position measurement.
  */
-export const scrollSidebarToTop = (id: string, offsetTop: number = DEFAULT_SCROLL_OFFSET_TOP) => {
+const getMeasurableElement = (element: HTMLElement): HTMLElement => {
+  if (window.getComputedStyle(element).display !== 'contents') {
+    return element
+  }
+
+  /**
+   * `display: contents` does not render a layout box, so use the first child with
+   * a measurable offset to keep the scroll target aligned with what users see.
+   */
+  for (const child of element.children) {
+    if (child instanceof HTMLElement && child.offsetParent !== null) {
+      return child
+    }
+  }
+
+  return element
+}
+
+/**
+ * Adds extra offset for heading rows so the selected item stays visible below labels.
+ */
+const getHeadingOffset = (element: HTMLElement): number => {
+  if (element.dataset.sidebarType !== 'heading') {
+    return 0
+  }
+
+  return element.querySelector<HTMLElement>('.sidebar-heading')?.offsetHeight ?? 0
+}
+
+/**
+ * Computes an element top position relative to the provided scroll container.
+ */
+const getTopRelativeToScroller = (element: HTMLElement, scroller: HTMLElement): number => {
+  let top = element.offsetTop
+  let currentOffsetParent = element.offsetParent as HTMLElement | null
+
+  while (currentOffsetParent && currentOffsetParent !== scroller) {
+    top += currentOffsetParent.offsetTop
+    currentOffsetParent = currentOffsetParent.offsetParent as HTMLElement | null
+  }
+
+  return top
+}
+
+/**
+ * Scrolls the sidebar container so the requested item appears near the top.
+ */
+export const scrollSidebarToTop = (id: string, offsetTop: number = DEFAULT_SCROLL_OFFSET_TOP): void => {
   if (typeof window === 'undefined') {
     return
   }
 
-  /** Grab the element and scroller if needed */
   const element = document.querySelector<HTMLElement>(`[data-sidebar-id="${id}"]`)
   const scroller = element?.closest<HTMLElement>('.custom-scroll, .custom-scrollbar') ?? null
   if (!element || !scroller) {
     return
   }
 
-  let top = element.offsetTop
-  let parent = element.parentElement
-
-  /** We walk up the parents to add to the offset to account for nested items */
-  while (parent && parent !== scroller) {
-    top += parent.offsetTop
-    parent = parent.parentElement
-  }
-
-  /** Heading items include a label block; account for its height to keep the selected row visible */
-  if (element.dataset.sidebarType === 'heading') {
-    const headingElement = element.querySelector<HTMLElement>('.sidebar-heading')
-    top += headingElement?.offsetHeight ?? 0
-  }
+  const measurableElement = getMeasurableElement(element)
+  const itemTop = getTopRelativeToScroller(measurableElement, scroller)
+  const itemOffset = getHeadingOffset(element)
+  const targetTop = itemTop + itemOffset - offsetTop
 
   scroller.scrollTo({
-    top: Math.max(top - offsetTop, 0),
+    top: targetTop > 0 ? targetTop : 0,
     behavior: 'smooth',
   })
 }

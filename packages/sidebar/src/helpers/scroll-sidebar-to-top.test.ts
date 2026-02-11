@@ -16,6 +16,13 @@ const setOffsetHeight = (element: HTMLElement, value: number): void => {
   })
 }
 
+const setOffsetParent = (element: HTMLElement, value: HTMLElement | null): void => {
+  Object.defineProperty(element, 'offsetParent', {
+    value,
+    configurable: true,
+  })
+}
+
 describe('scroll-to-sidebar-top', () => {
   beforeEach(() => {
     document.body.innerHTML = ''
@@ -68,6 +75,9 @@ describe('scroll-to-sidebar-top', () => {
     setOffsetTop(element, 70)
     setOffsetTop(levelTwo, 25)
     setOffsetTop(levelOne, 20)
+    setOffsetParent(element, levelTwo)
+    setOffsetParent(levelTwo, levelOne)
+    setOffsetParent(levelOne, scroller)
 
     levelTwo.append(element)
     levelOne.append(levelTwo)
@@ -78,6 +88,79 @@ describe('scroll-to-sidebar-top', () => {
 
     expect(scrollToSpy).toHaveBeenCalledWith({
       top: 15,
+      behavior: 'smooth',
+    })
+  })
+
+  it('walks the offsetParent chain to avoid double-counting static wrappers', () => {
+    const scroller = document.createElement('div')
+    const sectionWrapper = document.createElement('div')
+    const listWrapper = document.createElement('ul')
+    const element = document.createElement('li')
+    const scrollToSpy = vi.fn()
+
+    scroller.className = 'custom-scroll'
+    element.setAttribute('data-sidebar-id', 'offset-parent-item')
+    Object.defineProperty(scroller, 'scrollTo', {
+      value: scrollToSpy,
+      configurable: true,
+    })
+
+    /**
+     * `listWrapper` is a static wrapper whose offset is already measured against `scroller`.
+     * If we walked `parentElement`, adding `listWrapper.offsetTop` would overcount.
+     */
+    setOffsetTop(element, 200)
+    setOffsetTop(listWrapper, 200)
+    setOffsetParent(element, scroller)
+    setOffsetParent(listWrapper, scroller)
+
+    listWrapper.append(element)
+    sectionWrapper.append(listWrapper)
+    scroller.append(sectionWrapper)
+    document.body.append(scroller)
+
+    scrollSidebarToTop('offset-parent-item')
+
+    expect(scrollToSpy).toHaveBeenCalledWith({
+      top: 100,
+      behavior: 'smooth',
+    })
+  })
+
+  it('uses the first measurable child offset when a section wrapper has no layout box', () => {
+    const scroller = document.createElement('div')
+    const section = document.createElement('li')
+    const headingButton = document.createElement('div')
+    const items = document.createElement('ul')
+    const scrollToSpy = vi.fn()
+
+    scroller.className = 'custom-scroll'
+    section.style.display = 'contents'
+    section.setAttribute('data-sidebar-id', 'tag-section-1')
+    Object.defineProperty(scroller, 'scrollTo', {
+      value: scrollToSpy,
+      configurable: true,
+    })
+
+    /**
+     * `ScalarSidebarSection` renders with `display: contents`, so its own layout box does not exist
+     * and `offsetTop` reads as `0`. The visual row is represented by a measurable child.
+     */
+    setOffsetTop(section, 0)
+    setOffsetTop(headingButton, 240)
+    setOffsetParent(section, scroller)
+    setOffsetParent(headingButton, scroller)
+
+    section.append(headingButton)
+    section.append(items)
+    scroller.append(section)
+    document.body.append(scroller)
+
+    scrollSidebarToTop('tag-section-1')
+
+    expect(scrollToSpy).toHaveBeenCalledWith({
+      top: 140,
       behavior: 'smooth',
     })
   })
