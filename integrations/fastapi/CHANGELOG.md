@@ -1,5 +1,12 @@
 # scalar-fastapi
 
+## 1.6.2
+
+### Patch Changes
+
+- [#8101](https://github.com/scalar/scalar/pull/8101): feat: agent scalar configuration
+- [#8101](https://github.com/scalar/scalar/pull/8101): feat: export OpenAPISource and DocumentDownloadType
+
 ## 1.6.1
 
 ### Patch Changes

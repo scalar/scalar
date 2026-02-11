@@ -1,5 +1,17 @@
 # scalar-app
 
+## 0.1.286
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-client@2.26.1**
+  - [#8072](https://github.com/scalar/scalar/pull/8072): fix: add `ModalClientContainer` to unify logic and styles across `Modal` and `ApiClientModal`.
+  - [#8094](https://github.com/scalar/scalar/pull/8094): feat: open client to the correct example name
+
+- **@scalar/components@0.19.1**
+
 ## 0.1.285
 
 ### Patch Changes

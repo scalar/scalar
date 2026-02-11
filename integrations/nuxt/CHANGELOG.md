@@ -1,5 +1,18 @@
 # @scalar/nuxt
 
+## 0.5.74
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-client@2.26.1**
+  - [#8072](https://github.com/scalar/scalar/pull/8072): fix: add `ModalClientContainer` to unify logic and styles across `Modal` and `ApiClientModal`.
+  - [#8094](https://github.com/scalar/scalar/pull/8094): feat: open client to the correct example name
+
+- **@scalar/api-reference@1.44.17**
+  - [#8094](https://github.com/scalar/scalar/pull/8094): feat: open client to the correct example name
+
 ## 0.5.73
 
 ### Patch Changes

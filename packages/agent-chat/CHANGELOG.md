@@ -1,5 +1,21 @@
 # @scalar/agent-chat
 
+## 0.5.8
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.31.1**
+  - [#8114](https://github.com/scalar/scalar/pull/8114): feat(workspace-store): sync path variables on ingress
+  - [#8094](https://github.com/scalar/scalar/pull/8094): feat: open client to the correct example name
+
+- **@scalar/api-client@2.26.1**
+  - [#8072](https://github.com/scalar/scalar/pull/8072): fix: add `ModalClientContainer` to unify logic and styles across `Modal` and `ApiClientModal`.
+  - [#8094](https://github.com/scalar/scalar/pull/8094): feat: open client to the correct example name
+
+- **@scalar/components@0.19.1**
+
 ## 0.5.7
 
 ### Patch Changes

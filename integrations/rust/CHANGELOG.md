@@ -1,5 +1,11 @@
 # scalar_api_reference
 
+## 0.1.4
+
+### Patch Changes
+
+- [#8103](https://github.com/scalar/scalar/pull/8103): feat: agent scalar configuration
+
 ## 0.1.3
 
 ### Patch Changes

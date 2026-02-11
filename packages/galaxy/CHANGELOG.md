@@ -1,5 +1,11 @@
 # @scalar/galaxy
 
+## 0.5.13
+
+### Patch Changes
+
+- [#8117](https://github.com/scalar/scalar/pull/8117): feat: post-response scripts
+
 ## 0.5.12
 
 ### Patch Changes

@@ -1,5 +1,14 @@
 # @scalar/aspire
 
+## 0.8.47
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.44.17**
+  - [#8094](https://github.com/scalar/scalar/pull/8094): feat: open client to the correct example name
+
 ## 0.8.46
 
 ### Patch Changes
