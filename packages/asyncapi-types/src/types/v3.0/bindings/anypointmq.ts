@@ -1,6 +1,12 @@
 import type { SchemaObject } from '@/openapi-types/v3.1/strict/schema'
 
 /**
+ * Protocol-specific information for an Anypoint MQ server.
+ * This object MUST NOT contain any properties. Its name is reserved for future use.
+ */
+export type AnypointMqServerBinding = Record<string, never>
+
+/**
  * Protocol-specific information for an Anypoint MQ channel.
  */
 export type AnypointMqChannelBinding = {

@@ -11,6 +11,12 @@ import {
 } from '../ref-definitions'
 
 /**
+ * Protocol-specific information for an SNS server.
+ * This object MUST NOT contain any properties. Its name is reserved for future use.
+ */
+export const SnsServerBindingSchemaDefinition = Type.Object({})
+
+/**
  * Ordering Object for SNS.
  */
 export const OrderingSchemaDefinition = Type.Object({

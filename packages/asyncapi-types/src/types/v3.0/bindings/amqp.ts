@@ -1,4 +1,10 @@
 /**
+ * Protocol-specific information for an AMQP 0-9-1 server.
+ * This object MUST NOT contain any properties. Its name is reserved for future use.
+ */
+export type AmqpServerBinding = Record<string, never>
+
+/**
  * Exchange Object for AMQP.
  */
 export type Exchange = {

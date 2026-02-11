@@ -1,4 +1,10 @@
 /**
+ * Protocol-specific information for an SQS server.
+ * This object MUST NOT contain any properties. Its name is reserved for future use.
+ */
+export type SqsServerBinding = Record<string, never>
+
+/**
  * Identifier Object for SQS.
  */
 export type Identifier = {

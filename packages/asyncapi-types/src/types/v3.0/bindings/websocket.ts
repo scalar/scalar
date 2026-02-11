@@ -1,6 +1,12 @@
 import type { SchemaObject } from '@/openapi-types/v3.1/strict/schema'
 
 /**
+ * Protocol-specific information for a WebSocket server.
+ * This object MUST NOT contain any properties. Its name is reserved for future use.
+ */
+export type WebSocketServerBinding = Record<string, never>
+
+/**
  * Protocol-specific information for a WebSocket channel.
  * When using WebSockets, the channel represents the connection.
  */

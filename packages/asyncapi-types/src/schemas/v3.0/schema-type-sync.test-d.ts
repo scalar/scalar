@@ -89,27 +89,19 @@ import {
 
 describe('schema-type sync', () => {
   it('AsyncApiDocumentSchema matches AsyncApiDocument', () => {
-    expectTypeOf<RequiredDeep<Static<typeof AsyncApiDocumentSchema>>>().toEqualTypeOf<
-      RequiredDeep<AsyncApiDocument>
-    >()
+    expectTypeOf<RequiredDeep<Static<typeof AsyncApiDocumentSchema>>>().toEqualTypeOf<RequiredDeep<AsyncApiDocument>>()
   })
 
   it('ChannelObjectSchema matches ChannelObject', () => {
-    expectTypeOf<RequiredDeep<Static<typeof ChannelObjectSchema>>>().toEqualTypeOf<
-      RequiredDeep<ChannelObject>
-    >()
+    expectTypeOf<RequiredDeep<Static<typeof ChannelObjectSchema>>>().toEqualTypeOf<RequiredDeep<ChannelObject>>()
   })
 
   it('ChannelsObjectSchema matches ChannelsObject', () => {
-    expectTypeOf<RequiredDeep<Static<typeof ChannelsObjectSchema>>>().toEqualTypeOf<
-      RequiredDeep<ChannelsObject>
-    >()
+    expectTypeOf<RequiredDeep<Static<typeof ChannelsObjectSchema>>>().toEqualTypeOf<RequiredDeep<ChannelsObject>>()
   })
 
   it('ComponentsObjectSchema matches ComponentsObject', () => {
-    expectTypeOf<RequiredDeep<Static<typeof ComponentsObjectSchema>>>().toEqualTypeOf<
-      RequiredDeep<ComponentsObject>
-    >()
+    expectTypeOf<RequiredDeep<Static<typeof ComponentsObjectSchema>>>().toEqualTypeOf<RequiredDeep<ComponentsObject>>()
   })
 
   it('CorrelationIdObjectSchema matches CorrelationIdObject', () => {
@@ -119,9 +111,7 @@ describe('schema-type sync', () => {
   })
 
   it('MessageObjectSchema matches MessageObject', () => {
-    expectTypeOf<RequiredDeep<Static<typeof MessageObjectSchema>>>().toEqualTypeOf<
-      RequiredDeep<MessageObject>
-    >()
+    expectTypeOf<RequiredDeep<Static<typeof MessageObjectSchema>>>().toEqualTypeOf<RequiredDeep<MessageObject>>()
   })
 
   it('MessageExampleObjectSchema matches MessageExampleObject', () => {
@@ -137,9 +127,7 @@ describe('schema-type sync', () => {
   })
 
   it('MessagesObjectSchema matches MessagesObject', () => {
-    expectTypeOf<RequiredDeep<Static<typeof MessagesObjectSchema>>>().toEqualTypeOf<
-      RequiredDeep<MessagesObject>
-    >()
+    expectTypeOf<RequiredDeep<Static<typeof MessagesObjectSchema>>>().toEqualTypeOf<RequiredDeep<MessagesObject>>()
   })
 
   it('MultiFormatSchemaObjectSchema matches MultiFormatSchemaObject', () => {
@@ -149,21 +137,15 @@ describe('schema-type sync', () => {
   })
 
   it('OAuthFlowObjectSchema matches OAuthFlowObject', () => {
-    expectTypeOf<RequiredDeep<Static<typeof OAuthFlowObjectSchema>>>().toEqualTypeOf<
-      RequiredDeep<OAuthFlowObject>
-    >()
+    expectTypeOf<RequiredDeep<Static<typeof OAuthFlowObjectSchema>>>().toEqualTypeOf<RequiredDeep<OAuthFlowObject>>()
   })
 
   it('OAuthFlowsObjectSchema matches OAuthFlowsObject', () => {
-    expectTypeOf<RequiredDeep<Static<typeof OAuthFlowsObjectSchema>>>().toEqualTypeOf<
-      RequiredDeep<OAuthFlowsObject>
-    >()
+    expectTypeOf<RequiredDeep<Static<typeof OAuthFlowsObjectSchema>>>().toEqualTypeOf<RequiredDeep<OAuthFlowsObject>>()
   })
 
   it('OperationSchema matches OperationObject', () => {
-    expectTypeOf<RequiredDeep<Static<typeof OperationSchema>>>().toEqualTypeOf<
-      RequiredDeep<OperationObject>
-    >()
+    expectTypeOf<RequiredDeep<Static<typeof OperationSchema>>>().toEqualTypeOf<RequiredDeep<OperationObject>>()
   })
 
   it('OperationTraitObjectSchema matches OperationTraitObject', () => {
@@ -173,27 +155,19 @@ describe('schema-type sync', () => {
   })
 
   it('OperationsObjectSchema matches OperationsObject', () => {
-    expectTypeOf<RequiredDeep<Static<typeof OperationsObjectSchema>>>().toEqualTypeOf<
-      RequiredDeep<OperationsObject>
-    >()
+    expectTypeOf<RequiredDeep<Static<typeof OperationsObjectSchema>>>().toEqualTypeOf<RequiredDeep<OperationsObject>>()
   })
 
   it('ParameterObjectSchema matches ParameterObject', () => {
-    expectTypeOf<RequiredDeep<Static<typeof ParameterObjectSchema>>>().toEqualTypeOf<
-      RequiredDeep<ParameterObject>
-    >()
+    expectTypeOf<RequiredDeep<Static<typeof ParameterObjectSchema>>>().toEqualTypeOf<RequiredDeep<ParameterObject>>()
   })
 
   it('ParametersObjectSchema matches ParametersObject', () => {
-    expectTypeOf<RequiredDeep<Static<typeof ParametersObjectSchema>>>().toEqualTypeOf<
-      RequiredDeep<ParametersObject>
-    >()
+    expectTypeOf<RequiredDeep<Static<typeof ParametersObjectSchema>>>().toEqualTypeOf<RequiredDeep<ParametersObject>>()
   })
 
   it('ReplyObjectSchema matches ReplyObject', () => {
-    expectTypeOf<RequiredDeep<Static<typeof ReplyObjectSchema>>>().toEqualTypeOf<
-      RequiredDeep<ReplyObject>
-    >()
+    expectTypeOf<RequiredDeep<Static<typeof ReplyObjectSchema>>>().toEqualTypeOf<RequiredDeep<ReplyObject>>()
   })
 
   it('ReplyAddressObjectSchema matches ReplyAddressObject', () => {
@@ -209,9 +183,7 @@ describe('schema-type sync', () => {
   })
 
   it('ServerObjectSchema matches ServerObject', () => {
-    expectTypeOf<RequiredDeep<Static<typeof ServerObjectSchema>>>().toEqualTypeOf<
-      RequiredDeep<ServerObject>
-    >()
+    expectTypeOf<RequiredDeep<Static<typeof ServerObjectSchema>>>().toEqualTypeOf<RequiredDeep<ServerObject>>()
   })
 
   it('ServerVariableObjectSchema matches ServerVariableObject', () => {
@@ -221,15 +193,11 @@ describe('schema-type sync', () => {
   })
 
   it('ServersObjectSchema matches ServersObject', () => {
-    expectTypeOf<RequiredDeep<Static<typeof ServersObjectSchema>>>().toEqualTypeOf<
-      RequiredDeep<ServersObject>
-    >()
+    expectTypeOf<RequiredDeep<Static<typeof ServersObjectSchema>>>().toEqualTypeOf<RequiredDeep<ServersObject>>()
   })
 
   it('TagsObjectSchema matches TagsObject', () => {
-    expectTypeOf<RequiredDeep<Static<typeof TagsObjectSchema>>>().toEqualTypeOf<
-      RequiredDeep<TagsObject>
-    >()
+    expectTypeOf<RequiredDeep<Static<typeof TagsObjectSchema>>>().toEqualTypeOf<RequiredDeep<TagsObject>>()
   })
 
   it('ChannelBindingsObjectSchema matches ChannelBindingsObject', () => {

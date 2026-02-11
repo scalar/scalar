@@ -10,14 +10,33 @@ export type {
   AmqpMessageBinding,
   AmqpOperationBinding,
 } from './bindings/amqp'
-export type { HttpMessageBinding, HttpOperationBinding } from './bindings/http'
+export type { Amqp1ChannelBinding } from './bindings/amqp1'
+export type { AnypointMqChannelBinding, AnypointMqMessageBinding } from './bindings/anypointmq'
+export type { GooglePubSubChannelBinding, GooglePubSubMessageBinding } from './bindings/googlepubsub'
+export type { HttpChannelBinding, HttpMessageBinding, HttpOperationBinding } from './bindings/http'
+export type { IbmMqChannelBinding, IbmMqMessageBinding, IbmMqServerBinding } from './bindings/ibmmq'
+export type { JmsChannelBinding, JmsMessageBinding, JmsServerBinding } from './bindings/jms'
 export type {
   KafkaChannelBinding,
   KafkaMessageBinding,
   KafkaOperationBinding,
   KafkaServerBinding,
 } from './bindings/kafka'
-export type { MqttMessageBinding, MqttOperationBinding, MqttServerBinding } from './bindings/mqtt'
+export type { MercureChannelBinding } from './bindings/mercure'
+export type {
+  MqttChannelBinding,
+  MqttMessageBinding,
+  MqttOperationBinding,
+  MqttServerBinding,
+} from './bindings/mqtt'
+export type { Mqtt5ChannelBinding, Mqtt5ServerBinding } from './bindings/mqtt5'
+export type { NatsChannelBinding, NatsOperationBinding } from './bindings/nats'
+export type { PulsarChannelBinding, PulsarServerBinding } from './bindings/pulsar'
+export type { RedisChannelBinding } from './bindings/redis'
+export type { SnsChannelBinding, SnsOperationBinding } from './bindings/sns'
+export type { SolaceChannelBinding, SolaceOperationBinding, SolaceServerBinding } from './bindings/solace'
+export type { SqsChannelBinding, SqsOperationBinding } from './bindings/sqs'
+export type { StompChannelBinding } from './bindings/stomp'
 export type { WebSocketChannelBinding } from './bindings/websocket'
 export type { ChannelObject } from './channel-item'
 export type { ChannelsObject } from './channels'

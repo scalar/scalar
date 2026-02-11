@@ -3,6 +3,12 @@ import { Type } from '@scalar/typebox'
 import { SchemaObjectRef } from '@/openapi-types/v3.1/strict/ref-definitions'
 
 /**
+ * Protocol-specific information for a WebSocket server.
+ * This object MUST NOT contain any properties. Its name is reserved for future use.
+ */
+export const WebSocketServerBindingSchemaDefinition = Type.Object({})
+
+/**
  * Protocol-specific information for a WebSocket channel.
  * When using WebSockets, the channel represents the connection.
  */

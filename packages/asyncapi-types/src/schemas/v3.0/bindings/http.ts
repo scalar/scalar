@@ -3,6 +3,18 @@ import { Type } from '@scalar/typebox'
 import { SchemaObjectRef } from '@/openapi-types/v3.1/strict/ref-definitions'
 
 /**
+ * Protocol-specific information for an HTTP server.
+ * This object MUST NOT contain any properties. Its name is reserved for future use.
+ */
+export const HttpServerBindingSchemaDefinition = Type.Object({})
+
+/**
+ * Protocol-specific information for an HTTP channel.
+ * This object MUST NOT contain any properties. Its name is reserved for future use.
+ */
+export const HttpChannelBindingSchemaDefinition = Type.Object({})
+
+/**
  * Protocol-specific information for an HTTP operation.
  */
 export const HttpOperationBindingSchemaDefinition = Type.Object({

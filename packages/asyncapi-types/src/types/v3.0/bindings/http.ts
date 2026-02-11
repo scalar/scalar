@@ -1,6 +1,18 @@
 import type { SchemaObject } from '@/openapi-types/v3.1/strict/schema'
 
 /**
+ * Protocol-specific information for an HTTP server.
+ * This object MUST NOT contain any properties. Its name is reserved for future use.
+ */
+export type HttpServerBinding = Record<string, never>
+
+/**
+ * Protocol-specific information for an HTTP channel.
+ * This object MUST NOT contain any properties. Its name is reserved for future use.
+ */
+export type HttpChannelBinding = Record<string, never>
+
+/**
  * Protocol-specific information for an HTTP operation.
  */
 export type HttpOperationBinding = {

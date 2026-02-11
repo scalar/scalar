@@ -28,20 +28,72 @@ import {
   AmqpChannelBindingSchemaDefinition,
   AmqpMessageBindingSchemaDefinition,
   AmqpOperationBindingSchemaDefinition,
+  AmqpServerBindingSchemaDefinition,
 } from './bindings/amqp'
-import { HttpMessageBindingSchemaDefinition, HttpOperationBindingSchemaDefinition } from './bindings/http'
+import { Amqp1ChannelBindingSchemaDefinition, Amqp1ServerBindingSchemaDefinition } from './bindings/amqp1'
+import {
+  AnypointMqChannelBindingSchemaDefinition,
+  AnypointMqMessageBindingSchemaDefinition,
+  AnypointMqServerBindingSchemaDefinition,
+} from './bindings/anypointmq'
+import {
+  GooglePubSubChannelBindingSchemaDefinition,
+  GooglePubSubMessageBindingSchemaDefinition,
+} from './bindings/googlepubsub'
+import {
+  HttpChannelBindingSchemaDefinition,
+  HttpMessageBindingSchemaDefinition,
+  HttpOperationBindingSchemaDefinition,
+  HttpServerBindingSchemaDefinition,
+} from './bindings/http'
+import {
+  IbmMqChannelBindingSchemaDefinition,
+  IbmMqMessageBindingSchemaDefinition,
+  IbmMqServerBindingSchemaDefinition,
+} from './bindings/ibmmq'
+import {
+  JmsChannelBindingSchemaDefinition,
+  JmsMessageBindingSchemaDefinition,
+  JmsServerBindingSchemaDefinition,
+} from './bindings/jms'
 import {
   KafkaChannelBindingSchemaDefinition,
   KafkaMessageBindingSchemaDefinition,
   KafkaOperationBindingSchemaDefinition,
   KafkaServerBindingSchemaDefinition,
 } from './bindings/kafka'
+import { MercureChannelBindingSchemaDefinition, MercureServerBindingSchemaDefinition } from './bindings/mercure'
 import {
+  MqttChannelBindingSchemaDefinition,
   MqttMessageBindingSchemaDefinition,
   MqttOperationBindingSchemaDefinition,
   MqttServerBindingSchemaDefinition,
 } from './bindings/mqtt'
-import { WebSocketChannelBindingSchemaDefinition } from './bindings/websocket'
+import { Mqtt5ChannelBindingSchemaDefinition, Mqtt5ServerBindingSchemaDefinition } from './bindings/mqtt5'
+import {
+  NatsChannelBindingSchemaDefinition,
+  NatsOperationBindingSchemaDefinition,
+  NatsServerBindingSchemaDefinition,
+} from './bindings/nats'
+import { PulsarChannelBindingSchemaDefinition, PulsarServerBindingSchemaDefinition } from './bindings/pulsar'
+import { RedisChannelBindingSchemaDefinition, RedisServerBindingSchemaDefinition } from './bindings/redis'
+import {
+  SnsChannelBindingSchemaDefinition,
+  SnsOperationBindingSchemaDefinition,
+  SnsServerBindingSchemaDefinition,
+} from './bindings/sns'
+import {
+  SolaceChannelBindingSchemaDefinition,
+  SolaceOperationBindingSchemaDefinition,
+  SolaceServerBindingSchemaDefinition,
+} from './bindings/solace'
+import {
+  SqsChannelBindingSchemaDefinition,
+  SqsOperationBindingSchemaDefinition,
+  SqsServerBindingSchemaDefinition,
+} from './bindings/sqs'
+import { StompChannelBindingSchemaDefinition, StompServerBindingSchemaDefinition } from './bindings/stomp'
+import { WebSocketChannelBindingSchemaDefinition, WebSocketServerBindingSchemaDefinition } from './bindings/websocket'
 import { ChannelObjectSchemaDefinition } from './channel-item'
 import { ChannelsObjectSchemaDefinition } from './channels'
 import { ComponentsObjectSchemaDefinition } from './components'
@@ -140,20 +192,74 @@ const module = Type.Module({
   [ASYNCAPI_REF_DEFINITIONS.AmqpChannelBinding]: AmqpChannelBindingSchemaDefinition,
   [ASYNCAPI_REF_DEFINITIONS.AmqpOperationBinding]: AmqpOperationBindingSchemaDefinition,
   [ASYNCAPI_REF_DEFINITIONS.AmqpMessageBinding]: AmqpMessageBindingSchemaDefinition,
+  [ASYNCAPI_REF_DEFINITIONS.AmqpServerBinding]: AmqpServerBindingSchemaDefinition,
+  // AMQP 1.0
+  [ASYNCAPI_REF_DEFINITIONS.Amqp1ChannelBinding]: Amqp1ChannelBindingSchemaDefinition,
+  [ASYNCAPI_REF_DEFINITIONS.Amqp1ServerBinding]: Amqp1ServerBindingSchemaDefinition,
   // HTTP
+  [ASYNCAPI_REF_DEFINITIONS.HttpChannelBinding]: HttpChannelBindingSchemaDefinition,
   [ASYNCAPI_REF_DEFINITIONS.HttpOperationBinding]: HttpOperationBindingSchemaDefinition,
   [ASYNCAPI_REF_DEFINITIONS.HttpMessageBinding]: HttpMessageBindingSchemaDefinition,
+  [ASYNCAPI_REF_DEFINITIONS.HttpServerBinding]: HttpServerBindingSchemaDefinition,
   // WebSocket
   [ASYNCAPI_REF_DEFINITIONS.WebSocketChannelBinding]: WebSocketChannelBindingSchemaDefinition,
+  [ASYNCAPI_REF_DEFINITIONS.WebSocketServerBinding]: WebSocketServerBindingSchemaDefinition,
   // Kafka
   [ASYNCAPI_REF_DEFINITIONS.KafkaServerBinding]: KafkaServerBindingSchemaDefinition,
   [ASYNCAPI_REF_DEFINITIONS.KafkaChannelBinding]: KafkaChannelBindingSchemaDefinition,
   [ASYNCAPI_REF_DEFINITIONS.KafkaOperationBinding]: KafkaOperationBindingSchemaDefinition,
   [ASYNCAPI_REF_DEFINITIONS.KafkaMessageBinding]: KafkaMessageBindingSchemaDefinition,
   // MQTT
+  [ASYNCAPI_REF_DEFINITIONS.MqttChannelBinding]: MqttChannelBindingSchemaDefinition,
   [ASYNCAPI_REF_DEFINITIONS.MqttServerBinding]: MqttServerBindingSchemaDefinition,
   [ASYNCAPI_REF_DEFINITIONS.MqttOperationBinding]: MqttOperationBindingSchemaDefinition,
   [ASYNCAPI_REF_DEFINITIONS.MqttMessageBinding]: MqttMessageBindingSchemaDefinition,
+  // MQTT5
+  [ASYNCAPI_REF_DEFINITIONS.Mqtt5ChannelBinding]: Mqtt5ChannelBindingSchemaDefinition,
+  [ASYNCAPI_REF_DEFINITIONS.Mqtt5ServerBinding]: Mqtt5ServerBindingSchemaDefinition,
+  // NATS
+  [ASYNCAPI_REF_DEFINITIONS.NatsChannelBinding]: NatsChannelBindingSchemaDefinition,
+  [ASYNCAPI_REF_DEFINITIONS.NatsOperationBinding]: NatsOperationBindingSchemaDefinition,
+  [ASYNCAPI_REF_DEFINITIONS.NatsServerBinding]: NatsServerBindingSchemaDefinition,
+  // SNS
+  [ASYNCAPI_REF_DEFINITIONS.SnsChannelBinding]: SnsChannelBindingSchemaDefinition,
+  [ASYNCAPI_REF_DEFINITIONS.SnsOperationBinding]: SnsOperationBindingSchemaDefinition,
+  [ASYNCAPI_REF_DEFINITIONS.SnsServerBinding]: SnsServerBindingSchemaDefinition,
+  // SQS
+  [ASYNCAPI_REF_DEFINITIONS.SqsChannelBinding]: SqsChannelBindingSchemaDefinition,
+  [ASYNCAPI_REF_DEFINITIONS.SqsOperationBinding]: SqsOperationBindingSchemaDefinition,
+  [ASYNCAPI_REF_DEFINITIONS.SqsServerBinding]: SqsServerBindingSchemaDefinition,
+  // Google Pub/Sub
+  [ASYNCAPI_REF_DEFINITIONS.GooglePubSubChannelBinding]: GooglePubSubChannelBindingSchemaDefinition,
+  [ASYNCAPI_REF_DEFINITIONS.GooglePubSubMessageBinding]: GooglePubSubMessageBindingSchemaDefinition,
+  // Anypoint MQ
+  [ASYNCAPI_REF_DEFINITIONS.AnypointMqChannelBinding]: AnypointMqChannelBindingSchemaDefinition,
+  [ASYNCAPI_REF_DEFINITIONS.AnypointMqMessageBinding]: AnypointMqMessageBindingSchemaDefinition,
+  [ASYNCAPI_REF_DEFINITIONS.AnypointMqServerBinding]: AnypointMqServerBindingSchemaDefinition,
+  // IBM MQ
+  [ASYNCAPI_REF_DEFINITIONS.IbmMqServerBinding]: IbmMqServerBindingSchemaDefinition,
+  [ASYNCAPI_REF_DEFINITIONS.IbmMqChannelBinding]: IbmMqChannelBindingSchemaDefinition,
+  [ASYNCAPI_REF_DEFINITIONS.IbmMqMessageBinding]: IbmMqMessageBindingSchemaDefinition,
+  // JMS
+  [ASYNCAPI_REF_DEFINITIONS.JmsServerBinding]: JmsServerBindingSchemaDefinition,
+  [ASYNCAPI_REF_DEFINITIONS.JmsChannelBinding]: JmsChannelBindingSchemaDefinition,
+  [ASYNCAPI_REF_DEFINITIONS.JmsMessageBinding]: JmsMessageBindingSchemaDefinition,
+  // Pulsar
+  [ASYNCAPI_REF_DEFINITIONS.PulsarServerBinding]: PulsarServerBindingSchemaDefinition,
+  [ASYNCAPI_REF_DEFINITIONS.PulsarChannelBinding]: PulsarChannelBindingSchemaDefinition,
+  // Solace
+  [ASYNCAPI_REF_DEFINITIONS.SolaceChannelBinding]: SolaceChannelBindingSchemaDefinition,
+  [ASYNCAPI_REF_DEFINITIONS.SolaceServerBinding]: SolaceServerBindingSchemaDefinition,
+  [ASYNCAPI_REF_DEFINITIONS.SolaceOperationBinding]: SolaceOperationBindingSchemaDefinition,
+  // STOMP
+  [ASYNCAPI_REF_DEFINITIONS.StompChannelBinding]: StompChannelBindingSchemaDefinition,
+  [ASYNCAPI_REF_DEFINITIONS.StompServerBinding]: StompServerBindingSchemaDefinition,
+  // Redis
+  [ASYNCAPI_REF_DEFINITIONS.RedisChannelBinding]: RedisChannelBindingSchemaDefinition,
+  [ASYNCAPI_REF_DEFINITIONS.RedisServerBinding]: RedisServerBindingSchemaDefinition,
+  // Mercure
+  [ASYNCAPI_REF_DEFINITIONS.MercureChannelBinding]: MercureChannelBindingSchemaDefinition,
+  [ASYNCAPI_REF_DEFINITIONS.MercureServerBinding]: MercureServerBindingSchemaDefinition,
 
   // Multi-format schemas
   [ASYNCAPI_REF_DEFINITIONS.MultiFormatSchemaObject]: MultiFormatSchemaObjectSchemaDefinition,

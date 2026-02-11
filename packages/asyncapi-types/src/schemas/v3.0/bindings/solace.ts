@@ -3,6 +3,12 @@ import { Type } from '@scalar/typebox'
 import { SchemaObjectRef } from '@/openapi-types/v3.1/strict/ref-definitions'
 
 /**
+ * Protocol-specific information for a Solace channel.
+ * This object MUST NOT contain any properties. Its name is reserved for future use.
+ */
+export const SolaceChannelBindingSchemaDefinition = Type.Object({})
+
+/**
  * Protocol-specific information for a Solace server.
  */
 export const SolaceServerBindingSchemaDefinition = Type.Object({

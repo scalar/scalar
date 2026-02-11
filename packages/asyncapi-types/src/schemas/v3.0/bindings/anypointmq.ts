@@ -3,6 +3,12 @@ import { Type } from '@scalar/typebox'
 import { SchemaObjectRef } from '@/openapi-types/v3.1/strict/ref-definitions'
 
 /**
+ * Protocol-specific information for an Anypoint MQ server.
+ * This object MUST NOT contain any properties. Its name is reserved for future use.
+ */
+export const AnypointMqServerBindingSchemaDefinition = Type.Object({})
+
+/**
  * Protocol-specific information for an Anypoint MQ channel.
  */
 export const AnypointMqChannelBindingSchemaDefinition = Type.Object({

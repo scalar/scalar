@@ -1,4 +1,10 @@
 /**
+ * Protocol-specific information for an SNS server.
+ * This object MUST NOT contain any properties. Its name is reserved for future use.
+ */
+export type SnsServerBinding = Record<string, never>
+
+/**
  * Ordering Object for SNS.
  */
 export type Ordering = {

@@ -15,6 +15,12 @@ export type LastWill = {
 }
 
 /**
+ * Protocol-specific information for an MQTT channel.
+ * This object MUST NOT contain any properties. Its name is reserved for future use.
+ */
+export type MqttChannelBinding = Record<string, never>
+
+/**
  * Protocol-specific information for an MQTT server.
  */
 export type MqttServerBinding = {

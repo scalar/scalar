@@ -3,6 +3,12 @@ import { Type } from '@scalar/typebox'
 import { AmqpExchangeRef, AmqpQueueRef } from '../ref-definitions'
 
 /**
+ * Protocol-specific information for an AMQP 0-9-1 server.
+ * This object MUST NOT contain any properties. Its name is reserved for future use.
+ */
+export const AmqpServerBindingSchemaDefinition = Type.Object({})
+
+/**
  * Exchange Object for AMQP.
  */
 export const ExchangeSchemaDefinition = Type.Object({

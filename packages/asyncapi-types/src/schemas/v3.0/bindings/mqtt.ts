@@ -5,6 +5,12 @@ import { SchemaObjectRef } from '@/openapi-types/v3.1/strict/ref-definitions'
 import { MqttLastWillRef } from '../ref-definitions'
 
 /**
+ * Protocol-specific information for an MQTT channel.
+ * This object MUST NOT contain any properties. Its name is reserved for future use.
+ */
+export const MqttChannelBindingSchemaDefinition = Type.Object({})
+
+/**
  * Last Will and Testament configuration for MQTT.
  */
 export const LastWillSchemaDefinition = Type.Object({

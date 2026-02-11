@@ -1,4 +1,16 @@
 /**
+ * Protocol-specific information for a NATS server.
+ * This object MUST NOT contain any properties. Its name is reserved for future use.
+ */
+export type NatsServerBinding = Record<string, never>
+
+/**
+ * Protocol-specific information for a NATS channel.
+ * This object MUST NOT contain any properties. Its name is reserved for future use.
+ */
+export type NatsChannelBinding = Record<string, never>
+
+/**
  * Protocol-specific information for a NATS operation.
  */
 export type NatsOperationBinding = {

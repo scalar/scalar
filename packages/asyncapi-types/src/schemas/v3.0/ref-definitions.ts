@@ -35,36 +35,50 @@ export const ASYNCAPI_REF_DEFINITIONS = {
   AmqpChannelBinding: 'AmqpChannelBinding',
   AmqpOperationBinding: 'AmqpOperationBinding',
   AmqpMessageBinding: 'AmqpMessageBinding',
+  AmqpServerBinding: 'AmqpServerBinding',
+  // AMQP 1.0
+  Amqp1ChannelBinding: 'Amqp1ChannelBinding',
+  Amqp1ServerBinding: 'Amqp1ServerBinding',
   // HTTP
+  HttpChannelBinding: 'HttpChannelBinding',
   HttpOperationBinding: 'HttpOperationBinding',
   HttpMessageBinding: 'HttpMessageBinding',
+  HttpServerBinding: 'HttpServerBinding',
   // WebSocket
   WebSocketChannelBinding: 'WebSocketChannelBinding',
+  WebSocketServerBinding: 'WebSocketServerBinding',
   // Kafka
   KafkaServerBinding: 'KafkaServerBinding',
   KafkaChannelBinding: 'KafkaChannelBinding',
   KafkaOperationBinding: 'KafkaOperationBinding',
   KafkaMessageBinding: 'KafkaMessageBinding',
   // MQTT
+  MqttChannelBinding: 'MqttChannelBinding',
   MqttServerBinding: 'MqttServerBinding',
   MqttOperationBinding: 'MqttOperationBinding',
   MqttMessageBinding: 'MqttMessageBinding',
   // MQTT5
+  Mqtt5ChannelBinding: 'Mqtt5ChannelBinding',
   Mqtt5ServerBinding: 'Mqtt5ServerBinding',
   // NATS
+  NatsChannelBinding: 'NatsChannelBinding',
   NatsOperationBinding: 'NatsOperationBinding',
+  NatsServerBinding: 'NatsServerBinding',
   // SNS
   SnsChannelBinding: 'SnsChannelBinding',
   SnsOperationBinding: 'SnsOperationBinding',
+  SnsServerBinding: 'SnsServerBinding',
   // SQS
   SqsChannelBinding: 'SqsChannelBinding',
   SqsOperationBinding: 'SqsOperationBinding',
+  SqsServerBinding: 'SqsServerBinding',
   // Google Pub/Sub
   GooglePubSubChannelBinding: 'GooglePubSubChannelBinding',
   GooglePubSubMessageBinding: 'GooglePubSubMessageBinding',
   // Anypoint MQ
   AnypointMqChannelBinding: 'AnypointMqChannelBinding',
   AnypointMqMessageBinding: 'AnypointMqMessageBinding',
+  AnypointMqServerBinding: 'AnypointMqServerBinding',
   // IBM MQ
   IbmMqServerBinding: 'IbmMqServerBinding',
   IbmMqChannelBinding: 'IbmMqChannelBinding',
@@ -77,8 +91,18 @@ export const ASYNCAPI_REF_DEFINITIONS = {
   PulsarServerBinding: 'PulsarServerBinding',
   PulsarChannelBinding: 'PulsarChannelBinding',
   // Solace
+  SolaceChannelBinding: 'SolaceChannelBinding',
   SolaceServerBinding: 'SolaceServerBinding',
   SolaceOperationBinding: 'SolaceOperationBinding',
+  // STOMP
+  StompChannelBinding: 'StompChannelBinding',
+  StompServerBinding: 'StompServerBinding',
+  // Redis
+  RedisChannelBinding: 'RedisChannelBinding',
+  RedisServerBinding: 'RedisServerBinding',
+  // Mercure
+  MercureChannelBinding: 'MercureChannelBinding',
+  MercureServerBinding: 'MercureServerBinding',
 
   // Nested schema objects
   // AMQP
@@ -157,36 +181,50 @@ export const MessageBindingsObjectRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.Messag
 export const AmqpChannelBindingRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.AmqpChannelBinding)
 export const AmqpOperationBindingRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.AmqpOperationBinding)
 export const AmqpMessageBindingRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.AmqpMessageBinding)
+export const AmqpServerBindingRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.AmqpServerBinding)
+// AMQP 1.0
+export const Amqp1ChannelBindingRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.Amqp1ChannelBinding)
+export const Amqp1ServerBindingRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.Amqp1ServerBinding)
 // HTTP
+export const HttpChannelBindingRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.HttpChannelBinding)
 export const HttpOperationBindingRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.HttpOperationBinding)
 export const HttpMessageBindingRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.HttpMessageBinding)
+export const HttpServerBindingRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.HttpServerBinding)
 // WebSocket
 export const WebSocketChannelBindingRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.WebSocketChannelBinding)
+export const WebSocketServerBindingRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.WebSocketServerBinding)
 // Kafka
 export const KafkaServerBindingRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.KafkaServerBinding)
 export const KafkaChannelBindingRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.KafkaChannelBinding)
 export const KafkaOperationBindingRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.KafkaOperationBinding)
 export const KafkaMessageBindingRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.KafkaMessageBinding)
 // MQTT
+export const MqttChannelBindingRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.MqttChannelBinding)
 export const MqttServerBindingRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.MqttServerBinding)
 export const MqttOperationBindingRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.MqttOperationBinding)
 export const MqttMessageBindingRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.MqttMessageBinding)
 // MQTT5
+export const Mqtt5ChannelBindingRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.Mqtt5ChannelBinding)
 export const Mqtt5ServerBindingRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.Mqtt5ServerBinding)
 // NATS
+export const NatsChannelBindingRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.NatsChannelBinding)
 export const NatsOperationBindingRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.NatsOperationBinding)
+export const NatsServerBindingRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.NatsServerBinding)
 // SNS
 export const SnsChannelBindingRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.SnsChannelBinding)
 export const SnsOperationBindingRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.SnsOperationBinding)
+export const SnsServerBindingRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.SnsServerBinding)
 // SQS
 export const SqsChannelBindingRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.SqsChannelBinding)
 export const SqsOperationBindingRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.SqsOperationBinding)
+export const SqsServerBindingRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.SqsServerBinding)
 // Google Pub/Sub
 export const GooglePubSubChannelBindingRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.GooglePubSubChannelBinding)
 export const GooglePubSubMessageBindingRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.GooglePubSubMessageBinding)
 // Anypoint MQ
 export const AnypointMqChannelBindingRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.AnypointMqChannelBinding)
 export const AnypointMqMessageBindingRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.AnypointMqMessageBinding)
+export const AnypointMqServerBindingRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.AnypointMqServerBinding)
 // IBM MQ
 export const IbmMqServerBindingRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.IbmMqServerBinding)
 export const IbmMqChannelBindingRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.IbmMqChannelBinding)
@@ -199,8 +237,18 @@ export const JmsMessageBindingRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.JmsMessage
 export const PulsarServerBindingRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.PulsarServerBinding)
 export const PulsarChannelBindingRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.PulsarChannelBinding)
 // Solace
+export const SolaceChannelBindingRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.SolaceChannelBinding)
 export const SolaceServerBindingRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.SolaceServerBinding)
 export const SolaceOperationBindingRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.SolaceOperationBinding)
+// STOMP
+export const StompChannelBindingRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.StompChannelBinding)
+export const StompServerBindingRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.StompServerBinding)
+// Redis
+export const RedisChannelBindingRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.RedisChannelBinding)
+export const RedisServerBindingRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.RedisServerBinding)
+// Mercure
+export const MercureChannelBindingRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.MercureChannelBinding)
+export const MercureServerBindingRef = Type.Ref(ASYNCAPI_REF_DEFINITIONS.MercureServerBinding)
 
 // Nested schema object references
 // AMQP

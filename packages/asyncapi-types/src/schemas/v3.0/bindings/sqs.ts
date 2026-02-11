@@ -3,6 +3,12 @@ import { Type } from '@scalar/typebox'
 import { SqsIdentifierRef, SqsPolicyRef, SqsQueueRef, SqsRedrivePolicyRef, SqsStatementRef } from '../ref-definitions'
 
 /**
+ * Protocol-specific information for an SQS server.
+ * This object MUST NOT contain any properties. Its name is reserved for future use.
+ */
+export const SqsServerBindingSchemaDefinition = Type.Object({})
+
+/**
  * Identifier Object for SQS.
  */
 export const IdentifierSchemaDefinition = Type.Object({
