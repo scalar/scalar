@@ -3,6 +3,7 @@ import { isDefined } from '@scalar/helpers/array/is-defined'
 import { sortByOrder } from '@scalar/helpers/array/sort-by-order'
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import type { LoaderPlugin } from '@scalar/json-magic/bundle'
+import { migrateLocalStorageToIndexDb } from '@scalar/oas-utils/migrations'
 import { createSidebarState, generateReverseIndex } from '@scalar/sidebar'
 import { type WorkspaceStore, createWorkspaceStore } from '@scalar/workspace-store/client'
 import {
@@ -142,9 +143,6 @@ const DEFAULT_DEBOUNCE_DELAY = 1000
 /** Default sidebar width in pixels. */
 const DEFAULT_SIDEBAR_WIDTH = 288
 
-/** Generates a workspace ID from namespace and slug. */
-const getWorkspaceId = (namespace: string, slug: string) => `${namespace}/${slug}`
-
 // ---------------------------------------------------------------------------
 // App State
 // ---------------------------------------------------------------------------
@@ -161,6 +159,12 @@ export const createAppState = async ({
   })
 
   const { workspace: persistence } = await createWorkspaceStorePersistence()
+
+  /**
+   * Run migration from localStorage to IndexedDB if needed
+   * This happens once per user and transforms old data structure to new workspace format
+   */
+  await migrateLocalStorageToIndexDb()
 
   // ---------------------------------------------------------------------------
   // Active entities
