@@ -1897,6 +1897,43 @@ describe('bundle', () => {
       })
     })
 
+    it.only('bundles from a relative path correctly', async () => {
+      const c = {
+        c: 'c',
+      }
+      const cName = randomUUID()
+
+      const b = {
+        b: {
+          '$ref': `./${cName}`,
+        },
+      }
+      const bName = randomUUID()
+
+      await fs.mkdir('./nested').catch(() => {
+        return
+      })
+      await fs.writeFile(`./nested/${bName}`, JSON.stringify(b))
+      await fs.writeFile(`./nested/${cName}`, JSON.stringify(c))
+
+      const result = await bundle(`./nested/${bName}`, { plugins: [fetchUrls(), readFiles()], treeShake: false })
+
+      await fs.rm(`./nested/${bName}`)
+      await fs.rm(`./nested/${cName}`)
+      await fs.rmdir('nested')
+
+      expect(result).toEqual({
+        'b': {
+          '$ref': `#/x-ext/${getHash(`./${cName}`)}`,
+        },
+        'x-ext': {
+          [`${getHash(`./${cName}`)}`]: {
+            'c': 'c',
+          },
+        },
+      })
+    })
+
     it('stores relative paths in the x-ext-urls map', async () => {
       const chunk1 = { a: 'a', b: 'b' }
       const chunk1Path = randomUUID()
