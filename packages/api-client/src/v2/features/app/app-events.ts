@@ -4,6 +4,7 @@ import type { OperationExampleMeta, WorkspaceEventBus } from '@scalar/workspace-
 import { type ShallowRef, computed } from 'vue'
 import { type NavigationFailure, NavigationFailureType, type Router } from 'vue-router'
 
+import type { ScalarClientAppRouteParams } from '@/v2/features/app/helpers/routes'
 import { initializeWorkspaceEventHandlers } from '@/v2/workspace-events'
 
 export function initializeAppEventHandlers({
@@ -241,12 +242,15 @@ export function initializeAppEventHandlers({
       return payload.callback?.('success')
     }
 
+    type ValidParams = Partial<Record<ScalarClientAppRouteParams, string>>
+
     if (payload.page === 'document') {
       const params = {
         documentSlug: payload.documentSlug,
         workspaceSlug: payload.workspaceSlug,
         namespace: payload.namespace,
-      }
+      } satisfies ValidParams
+
       if (payload.path === 'overview') {
         return execCallback(await router.push({ name: 'document.overview', params }))
       }
@@ -268,25 +272,28 @@ export function initializeAppEventHandlers({
     }
 
     if (payload.page === 'workspace') {
-      const params = { workspaceSlug: payload.workspaceSlug, namespace: payload.namespace }
+      const params = { workspaceSlug: payload.workspaceSlug, namespace: payload.namespace } satisfies ValidParams
       if (payload.path === 'environment') {
-        router.push({ name: 'workspace.environment', params })
+        return execCallback(await router.push({ name: 'workspace.environment', params }))
       }
       if (payload.path === 'cookies') {
-        router.push({ name: 'workspace.cookies', params })
+        return execCallback(await router.push({ name: 'workspace.cookies', params }))
       }
       if (payload.path === 'settings') {
-        router.push({ name: 'workspace.settings', params })
+        return execCallback(await router.push({ name: 'workspace.settings', params }))
       }
     }
 
     if (payload.page === 'example') {
       const params = {
-        documentSlug: payload.documentSlug,
-        workspaceSlug: payload.workspaceSlug,
         namespace: payload.namespace,
-      }
-      router.push({ name: 'example', params })
+        workspaceSlug: payload.workspaceSlug,
+        documentSlug: payload.documentSlug,
+        pathEncoded: encodeURIComponent(payload.path),
+        method: payload.method,
+        exampleName: payload.exampleName,
+      } satisfies ValidParams
+      return execCallback(await router.push({ name: 'example', params }))
     }
   })
 
