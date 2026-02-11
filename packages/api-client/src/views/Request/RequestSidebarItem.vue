@@ -455,7 +455,9 @@ const shouldShowItem = computed(() => {
                       open: !menuItem.open,
                     })
                 ">
-                <ScalarIconDotsThree class="size-4" />
+                <ScalarIconDotsThree
+                  class="size-4"
+                  weight="bold" />
               </ScalarButton>
             </div>
             <span class="flex items-start">
@@ -532,7 +534,9 @@ const shouldShowItem = computed(() => {
                       open: true,
                     })
                 ">
-                <ScalarIconDotsThree class="size-4" />
+                <ScalarIconDotsThree
+                  class="size-4"
+                  weight="bold" />
               </ScalarButton>
               <ScalarButton
                 v-if="layout !== 'modal'"
@@ -611,7 +615,9 @@ const shouldShowItem = computed(() => {
                       open: true,
                     })
                 ">
-                <ScalarIconDotsThree class="size-4" />
+                <ScalarIconDotsThree
+                  class="size-4"
+                  weight="bold" />
               </ScalarButton>
               <ScalarButton
                 v-if="layout !== 'modal'"

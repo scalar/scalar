@@ -139,7 +139,9 @@ const deleteWorkspace = async () => {
                 size="sm"
                 type="button"
                 variant="ghost">
-                <ScalarIconDotsThree class="size-4" />
+                <ScalarIconDotsThree
+                  class="size-4"
+                  weight="bold" />
               </ScalarButton>
               <template #items>
                 <ScalarDropdownItem
