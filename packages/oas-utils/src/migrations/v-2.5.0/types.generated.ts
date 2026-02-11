@@ -459,6 +459,7 @@ export namespace v_2_5_0 {
       | 'elysiajs'
       | 'fastify'
       | 'mars'
+      | 'laserwave'
       | 'none'
     /** Added in v-2.5.0 */
     selectedHttpClient: {
