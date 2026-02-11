@@ -38,6 +38,16 @@
       "import": "./dist/index.js",
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
+    },
+    "./schemas/v3.0": {
+      "import": "./dist/schemas/v3.0/index.js",
+      "types": "./dist/schemas/v3.0/index.d.ts",
+      "default": "./dist/schemas/v3.0/index.js"
+    },
+    "./types/v3.0": {
+      "import": "./dist/types/v3.0/index.js",
+      "types": "./dist/types/v3.0/index.d.ts",
+      "default": "./dist/types/v3.0/index.js"
     }
   },
   "files": [

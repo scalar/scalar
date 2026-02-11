@@ -35,15 +35,6 @@ export const REF_DEFINITIONS = {
   DiscriminatorObject: 'DiscriminatorObject',
   OAuthFlowsObject: 'OAuthFlowsObject',
   ServerVariableObject: 'ServerVariableObject',
-
-  // Navigation schemas
-  TraversedDescriptionObject: 'TraversedDescriptionObject',
-  TraversedOperationObject: 'TraversedOperationObject',
-  TraversedSchemaObject: 'TraversedSchemaObject',
-  TraversedWebhookObject: 'TraversedWebhookObject',
-  TraversedTagObject: 'TraversedTagObject',
-  TraversedEntryObject: 'TraversedEntryObject',
-  TraversedDocumentObject: 'TraversedDocumentObject',
 } as const
 
 // Type alias for schema definitions
@@ -74,8 +65,3 @@ export const XMLObjectRef = Type.Ref(REF_DEFINITIONS.XMLObject)
 export const DiscriminatorObjectRef = Type.Ref(REF_DEFINITIONS.DiscriminatorObject)
 export const OAuthFlowsObjectRef = Type.Ref(REF_DEFINITIONS.OAuthFlowsObject)
 export const ServerVariableObjectRef = Type.Ref(REF_DEFINITIONS.ServerVariableObject)
-
-// Navigation schema references
-export const TraversedEntryObjectRef = Type.Ref(REF_DEFINITIONS.TraversedEntryObject)
-// export const TraversedTagObjectRef = Type.Ref(REF_DEFINITIONS.TraversedTagObject)
-export const TraversedDocumentObjectRef = Type.Ref(REF_DEFINITIONS.TraversedDocumentObject)

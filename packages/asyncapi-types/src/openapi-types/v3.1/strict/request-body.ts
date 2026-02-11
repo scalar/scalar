@@ -1,10 +1,6 @@
 import { Type } from '@scalar/typebox'
 
 import { compose } from '@/helpers/compose'
-import {
-  type XScalarSelectedContentType,
-  XScalarSelectedContentTypeSchema,
-} from '@/schemas/extensions/operation/x-scalar-selected-content-type'
 
 import type { MediaTypeObject } from './media-type'
 import { MediaTypeObjectRef } from './ref-definitions'
@@ -19,7 +15,6 @@ export const RequestBodyObjectSchemaDefinition = compose(
     /** Determines if the request body is required in the request. Defaults to false. */
     required: Type.Optional(Type.Boolean()),
   }),
-  XScalarSelectedContentTypeSchema,
 )
 
 /** Describes a single request body. */
@@ -30,4 +25,4 @@ export type RequestBodyObject = {
   content: Record<string, MediaTypeObject>
   /** Determines if the request body is required in the request. Defaults to false. */
   required?: boolean
-} & XScalarSelectedContentType
+}

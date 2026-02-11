@@ -7,6 +7,8 @@ import {
   TagObjectRef,
 } from '@/openapi-types/v3.1/strict/ref-definitions'
 
+import { OperationBindingsObjectRef, OperationTraitObjectRef, ReplyObjectRef } from './ref-definitions'
+
 export const OperationActionSchema = Type.Union([Type.Literal('send'), Type.Literal('receive')])
 
 /**

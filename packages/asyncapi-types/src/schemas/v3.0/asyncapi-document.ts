@@ -16,6 +16,7 @@ import {
 import { SchemaObjectSchemaDefinition } from '@/openapi-types/v3.1/strict/schema'
 import { SecurityRequirementObjectSchemaDefinition } from '@/openapi-types/v3.1/strict/security-requirement'
 import { TagObjectSchemaDefinition } from '@/openapi-types/v3.1/strict/tag'
+import { XMLObjectSchemaDefinition } from '@/openapi-types/v3.1/strict/xml'
 
 import {
   ChannelBindingsObjectSchemaDefinition,

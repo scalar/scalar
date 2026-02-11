@@ -3,17 +3,6 @@ import { Type } from '@scalar/typebox'
 import { compose } from '@/helpers/compose'
 import type { ExternalDocumentationObject } from '@/openapi-types/v3.1/strict/external-documentation'
 import type { XMLObject } from '@/openapi-types/v3.1/strict/xml'
-import { type XInternal, XInternalSchema } from '@/schemas/extensions/document/x-internal'
-import { type XScalarIgnore, XScalarIgnoreSchema } from '@/schemas/extensions/document/x-scalar-ignore'
-import { XTags } from '@/schemas/extensions/document/x-tags'
-import {
-  type XAdditionalPropertiesName,
-  XAdditionalPropertiesNameSchema,
-} from '@/schemas/extensions/schema/x-additional-properties-name'
-import { type XEnumDescriptions, XEnumDescriptionsSchema } from '@/schemas/extensions/schema/x-enum-descriptions'
-import { type XEnumVarNames, XEnumVarNamesSchema } from '@/schemas/extensions/schema/x-enum-varnames'
-import { type XExamples, XExamplesSchema } from '@/schemas/extensions/schema/x-examples'
-import { type XVariable, XVariableSchema } from '@/schemas/extensions/schema/x-variable'
 
 import type { DiscriminatorObject } from './discriminator'
 import {
@@ -34,7 +23,7 @@ const schemaOrReference = Type.Union([
 /** We use this type to ensure that we are parsing a schema object as every property can be optional */
 type _InternalType = CoreProperties & {
   __scalar_: string
-} & Extensions
+}
 
 /**
  * Primitive types that don't have additional validation properties.
@@ -65,27 +54,7 @@ type OtherType = 'boolean' | 'null' | ('string' | 'number' | 'boolean' | 'object
 
 type OtherTypes = CoreProperties & {
   type: OtherType
-} & Extensions
-
-const Extensions = compose(
-  XScalarIgnoreSchema,
-  XInternalSchema,
-  XVariableSchema,
-  XExamplesSchema,
-  XEnumDescriptionsSchema,
-  XEnumVarNamesSchema,
-  XAdditionalPropertiesNameSchema,
-  XTags,
-)
-
-type Extensions = XScalarIgnore &
-  XInternal &
-  XVariable &
-  XEnumDescriptions &
-  XEnumVarNames &
-  XExamples &
-  XAdditionalPropertiesName &
-  XTags
+}
 
 const CorePropertiesWithSchema = Type.Object({
   name: Type.Optional(Type.String()),
@@ -238,7 +207,7 @@ type NumericObject = CoreProperties & {
   minimum?: number
   /** Minimum value (exclusive). */
   exclusiveMinimum?: number
-} & Extensions
+}
 
 /**
  * String validation properties for string types.
@@ -313,7 +282,7 @@ type StringObject = CoreProperties & {
   minLength?: number
   /** Regular expression pattern. */
   pattern?: string
-} & Extensions
+}
 
 const ArrayValidationPropertiesWithSchema = Type.Object({
   type: Type.Literal('array'),
@@ -341,7 +310,7 @@ type ArrayObject = CoreProperties & {
   items?: SchemaReferenceType<SchemaObject>
   /** Schema for tuple validation. */
   prefixItems?: SchemaReferenceType<SchemaObject>[]
-} & Extensions
+}
 
 const ObjectValidationPropertiesWithSchema = Type.Object({
   type: Type.Literal('object'),
@@ -373,7 +342,7 @@ type ObjectObject = CoreProperties & {
   additionalProperties?: boolean | SchemaReferenceType<SchemaObject>
   /** Properties matching regex patterns. */
   patternProperties?: Record<string, SchemaReferenceType<SchemaObject>>
-} & Extensions
+}
 
 /** Builds the recursive schema schema */
 export const SchemaObjectSchemaDefinition = Type.Union([
@@ -381,12 +350,12 @@ export const SchemaObjectSchemaDefinition = Type.Union([
   // Make sure there is always a required field so not all properties are optional
   // When all properties are optional (1) typescript will not throw any warnings/error and accepts anything
   // even a non resolved ref and (2) it will match any schema so it will not validate the refs correctly
-  compose(Type.Object({ __scalar_: Type.String() }), CorePropertiesWithSchema, Extensions),
-  compose(OtherTypes, CorePropertiesWithSchema, Extensions),
-  compose(NumericProperties, CorePropertiesWithSchema, Extensions),
-  compose(StringValidationProperties, CorePropertiesWithSchema, Extensions),
-  compose(ObjectValidationPropertiesWithSchema, CorePropertiesWithSchema, Extensions),
-  compose(ArrayValidationPropertiesWithSchema, CorePropertiesWithSchema, Extensions),
+  compose(Type.Object({ __scalar_: Type.String() }), CorePropertiesWithSchema),
+  compose(OtherTypes, CorePropertiesWithSchema),
+  compose(NumericProperties, CorePropertiesWithSchema),
+  compose(StringValidationProperties, CorePropertiesWithSchema),
+  compose(ObjectValidationPropertiesWithSchema, CorePropertiesWithSchema),
+  compose(ArrayValidationPropertiesWithSchema, CorePropertiesWithSchema),
 ])
 
 export type SchemaObject = _InternalType | OtherTypes | NumericObject | StringObject | ObjectObject | ArrayObject

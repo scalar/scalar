@@ -6,9 +6,6 @@ import type { MediaTypeObject } from '@/openapi-types/v3.1/strict/media-type'
 import { ExampleObjectRef, MediaTypeObjectRef, SchemaObjectRef } from '@/openapi-types/v3.1/strict/ref-definitions'
 import { type ReferenceType, reference } from '@/openapi-types/v3.1/strict/reference'
 import type { SchemaObject } from '@/openapi-types/v3.1/strict/schema'
-import { type XInternal, XInternalSchema } from '@/schemas/extensions/document/x-internal'
-import { type XScalarIgnore, XScalarIgnoreSchema } from '@/schemas/extensions/document/x-scalar-ignore'
-import { XGlobal } from '@/schemas/extensions/parameter/x-global'
 
 const ParameterObjectBaseSchema = compose(
   Type.Object({
@@ -28,9 +25,6 @@ const ParameterObjectBaseSchema = compose(
     /** If true, clients MAY pass a zero-length string value in place of parameters that would otherwise be omitted entirely, which the server SHOULD interpret as the parameter being unused. Default value is false. If style is used, and if behavior is n/a (cannot be serialized), the value of allowEmptyValue SHALL be ignored. Interactions between this field and the parameter's Schema Object are implementation-defined. This field is valid only for query parameters. Use of this field is NOT RECOMMENDED, and it is likely to be removed in a later revision. */
     allowEmptyValue: Type.Optional(Type.Boolean()),
   }),
-  XGlobal,
-  XInternalSchema,
-  XScalarIgnoreSchema,
 )
 
 type ParameterObjectBase = {
@@ -54,8 +48,7 @@ type ParameterObjectBase = {
    * for the entire workspace. When set, this parameter will be injected into every request automatically.
    */
   'x-global'?: boolean
-} & XInternal &
-  XScalarIgnore
+}
 
 const ParameterObjectWithSchemaSchema = compose(
   ParameterObjectBaseSchema,

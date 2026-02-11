@@ -1,63 +1,5 @@
-// Export all AsyncAPI schemas
-// Export strict validation schema for AsyncAPI 3.0 (same as regular schema for now)
-export {
-  // Protocol-specific binding schemas - AMQP
-  AmqpChannelBindingSchema,
-  AmqpMessageBindingSchema,
-  AmqpOperationBindingSchema,
-  type AsyncApiDocument,
-  AsyncApiDocumentSchema,
-  AsyncApiDocumentSchema as AsyncApiDocumentSchemaStrict,
-  type AsyncApiExtensions,
-  // Binding object schemas
-  ChannelBindingsObjectSchema,
-  ChannelObjectSchema,
-  ChannelsObjectSchema,
-  ComponentsObjectSchema,
-  CorrelationIdObjectSchema,
-  // Protocol-specific binding schemas - HTTP
-  HttpMessageBindingSchema,
-  HttpOperationBindingSchema,
-  // Protocol-specific binding schemas - Kafka
-  KafkaChannelBindingSchema,
-  KafkaMessageBindingSchema,
-  KafkaOperationBindingSchema,
-  KafkaServerBindingSchema,
-  MessageBindingsObjectSchema,
-  MessageExampleObjectSchema,
-  MessageObjectSchema,
-  MessageTraitObjectSchema,
-  MessagesObjectSchema,
-  // Protocol-specific binding schemas - MQTT
-  MqttMessageBindingSchema,
-  MqttOperationBindingSchema,
-  MqttServerBindingSchema,
-  MultiFormatSchemaObjectSchema,
-  OAuthFlowObjectSchema,
-  OAuthFlowsObjectSchema,
-  OperationBindingsObjectSchema,
-  OperationSchema,
-  OperationTraitObjectSchema,
-  OperationsObjectSchema,
-  ParameterObjectSchema,
-  // Object map schemas
-  ParametersObjectSchema,
-  ReplyAddressObjectSchema,
-  ReplyObjectSchema,
-  SecuritySchemeObjectSchema,
-  ServerBindingsObjectSchema,
-  // Export AsyncAPI-specific schemas from the module
-  ServerObjectSchema,
-  ServerVariableObjectSchema,
-  ServersObjectSchema,
-  TagsObjectSchema,
-  // Protocol-specific binding schemas - WebSocket
-  WebSocketChannelBindingSchema,
-} from './asyncapi-document'
 // Export types from individual files
 export type {
-  /** @deprecated Use specific binding object types instead */
-  Binding,
   ChannelBindingsObject,
   MessageBindingsObject,
   OperationBindingsObject,
@@ -99,8 +41,6 @@ export type { OperationTraitObject } from './operation-trait'
 export type { OperationsObject } from './operations'
 export type { ParameterObject } from './parameter'
 export type { ParametersObject } from './parameters'
-// Export reference definitions
-export { ASYNCAPI_REF_DEFINITIONS } from './ref-definitions'
 export type { ReplyObject } from './reply'
 export type { ReplyAddressObject } from './reply-address'
 export type {

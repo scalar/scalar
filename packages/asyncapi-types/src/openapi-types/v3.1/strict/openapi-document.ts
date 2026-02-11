@@ -1,34 +1,6 @@
 import { type TSchema, Type } from '@scalar/typebox'
 
 import { compose } from '@/helpers/compose'
-import { extensions } from '@/schemas/extensions'
-import {
-  type XScalarEnvironments,
-  xScalarEnvironmentsSchema,
-} from '@/schemas/extensions/document/x-scalar-environments'
-import { type XScalarIcon, XScalarIconSchema } from '@/schemas/extensions/document/x-scalar-icon'
-import { type XScalarIsDirty, XScalarIsDirtySchema } from '@/schemas/extensions/document/x-scalar-is-dirty'
-import {
-  type XScalarSetOperationSecurity,
-  XScalarSetOperationSecuritySchema,
-} from '@/schemas/extensions/document/x-scalar-set-operation-security'
-import { type XScalarCookies, xScalarCookiesSchema } from '@/schemas/extensions/general/x-scalar-cookies'
-import { type XScalarOrder, XScalarOrderSchema } from '@/schemas/extensions/general/x-scalar-order'
-import {
-  type XScalarSelectedServer,
-  XScalarSelectedServerSchema,
-} from '@/schemas/extensions/server/x-scalar-selected-server'
-import { type XTagGroups, XTagGroupsSchema } from '@/schemas/extensions/tag/x-tag-groups'
-import {
-  TraversedDescriptionSchemaDefinition,
-  type TraversedDocument,
-  TraversedDocumentSchemaDefinition,
-  TraversedEntrySchemaDefinition,
-  TraversedOperationSchemaDefinition,
-  TraversedSchemaSchemaDefinition,
-  TraversedTagSchemaDefinition,
-  TraversedWebhookSchemaDefinition,
-} from '@/schemas/navigation'
 
 import { CallbackObjectSchemaDefinition } from './callback'
 import { type ComponentsObject, ComponentsObjectSchemaDefinition, SecuritySchemesSchemaDefinition } from './components'
@@ -57,7 +29,6 @@ import {
   SecurityRequirementObjectRef,
   ServerObjectRef,
   TagObjectRef,
-  TraversedDocumentObjectRef,
 } from './ref-definitions'
 import { RequestBodyObjectSchemaDefinition } from './request-body'
 import { ResponseObjectSchemaDefinition } from './response'
@@ -69,46 +40,6 @@ import { type ServerObject, ServerObjectSchemaDefinition } from './server'
 import { ServerVariableObjectSchemaDefinition } from './server-variable'
 import { type TagObject, TagObjectSchemaDefinition } from './tag'
 import { XMLObjectSchemaDefinition } from './xml'
-
-const OpenApiExtensionsSchema = compose(
-  Type.Partial(
-    Type.Object({
-      'x-scalar-client-config-active-environment': Type.String(),
-      'x-original-oas-version': Type.String(),
-      'x-scalar-original-source-url': Type.String(),
-      [extensions.document.navigation]: TraversedDocumentObjectRef,
-    }),
-  ),
-  XTagGroupsSchema,
-  xScalarEnvironmentsSchema,
-  XScalarSelectedServerSchema,
-  XScalarSetOperationSecuritySchema,
-  XScalarIconSchema,
-  XScalarOrderSchema,
-  xScalarCookiesSchema,
-  Type.Object({
-    'x-scalar-original-document-hash': Type.String(),
-  }),
-  XScalarIsDirtySchema,
-)
-
-export type OpenAPIExtensions = Partial<{
-  'x-scalar-client-config-active-environment': string
-  'x-original-oas-version': string
-  /** Original document source url / when loading a document from an external source */
-  'x-scalar-original-source-url': string
-  [extensions.document.navigation]: TraversedDocument
-}> & {
-  /** Original input document hash */
-  'x-scalar-original-document-hash': string
-} & XTagGroups &
-  XScalarEnvironments &
-  XScalarSelectedServer &
-  XScalarSetOperationSecurity &
-  XScalarIcon &
-  XScalarOrder &
-  XScalarCookies &
-  XScalarIsDirty
 
 const OpenApiDocumentSchemaDefinition = compose(
   Type.Object({
@@ -133,7 +64,6 @@ const OpenApiDocumentSchemaDefinition = compose(
     /** Additional external documentation. */
     externalDocs: Type.Optional(ExternalDocumentationObjectRef),
   }),
-  OpenApiExtensionsSchema,
 )
 
 export type OpenApiDocument = {
@@ -157,7 +87,7 @@ export type OpenApiDocument = {
   tags?: TagObject[]
   /** Additional external documentation. */
   externalDocs?: ExternalDocumentationObject
-} & OpenAPIExtensions
+}
 
 // ----- Module Definition ----
 const module = Type.Module({
@@ -195,17 +125,6 @@ const module = Type.Module({
   [REF_DEFINITIONS.OAuthFlowsObject]: OAuthFlowsObjectSchemaDefinition,
   [REF_DEFINITIONS.ServerVariableObject]: ServerVariableObjectSchemaDefinition,
   OpenApiDocument: OpenApiDocumentSchemaDefinition,
-
-  // Navigation schemas
-  [REF_DEFINITIONS.TraversedDescriptionObject]: TraversedDescriptionSchemaDefinition,
-  [REF_DEFINITIONS.TraversedOperationObject]: TraversedOperationSchemaDefinition,
-  [REF_DEFINITIONS.TraversedSchemaObject]: TraversedSchemaSchemaDefinition,
-  [REF_DEFINITIONS.TraversedWebhookObject]: TraversedWebhookSchemaDefinition,
-  [REF_DEFINITIONS.TraversedTagObject]: TraversedTagSchemaDefinition,
-  [REF_DEFINITIONS.TraversedEntryObject]: TraversedEntrySchemaDefinition,
-  [REF_DEFINITIONS.TraversedDocumentObject]: TraversedDocumentSchemaDefinition,
-
-  // Enforces that all references are included in the module
 } satisfies Record<keyof typeof REF_DEFINITIONS, TSchema> & Record<'OpenApiDocument', TSchema>)
 
 //  ----- Schemas ----
@@ -244,13 +163,6 @@ export const XMLObjectSchema = module.Import('XMLObject')
 export const DiscriminatorObjectSchema = module.Import('DiscriminatorObject')
 export const OAuthFlowsObjectSchema = module.Import('OAuthFlowsObject')
 export const ServerVariableObjectSchema = module.Import('ServerVariableObject')
-
-export const TraversedDescriptionSchema = module.Import('TraversedDescriptionObject')
-export const TraversedEntrySchema = module.Import('TraversedEntryObject')
-export const TraversedTagSchema = module.Import('TraversedTagObject')
-export const TraversedOperationSchema = module.Import('TraversedOperationObject')
-export const TraversedSchemaSchema = module.Import('TraversedSchemaObject')
-export const TraversedWebhookSchema = module.Import('TraversedWebhookObject')
 
 //  ----- Type re-exports ----
 export type { ExternalDocumentationObject }

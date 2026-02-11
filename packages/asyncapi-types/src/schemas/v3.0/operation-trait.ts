@@ -7,6 +7,8 @@ import {
   TagObjectRef,
 } from '@/openapi-types/v3.1/strict/ref-definitions'
 
+import { ReplyObjectRef } from './ref-definitions'
+
 /**o an Operation Object.
  * This object MAY contain any property from the Operation Object, except action and channel.
  */

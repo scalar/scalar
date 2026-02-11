@@ -3,7 +3,6 @@ import { Type } from '@scalar/typebox'
 import { compose } from '@/helpers/compose'
 import type { OAuthFlowsObject } from '@/openapi-types/v3.1/strict/oauthflows'
 import { OAuthFlowsObjectRef } from '@/openapi-types/v3.1/strict/ref-definitions'
-import { type XDefaultScopes, XDefaultScopesSchema } from '@/schemas/extensions/security/x-default-scopes'
 
 const DescriptionSchema = Type.Object({
   /** A description for security scheme. CommonMark syntax MAY be used for rich text representation. */
@@ -65,7 +64,6 @@ const OAuth2 = compose(
     /** REQUIRED. An object containing configuration information for the flow types supported. */
     flows: OAuthFlowsObjectRef,
   }),
-  XDefaultScopesSchema,
 )
 
 export type OAuth2Object = Description & {
@@ -73,7 +71,7 @@ export type OAuth2Object = Description & {
   type: 'oauth2'
   /** REQUIRED. An object containing configuration information for the flow types supported. */
   flows: OAuthFlowsObject
-} & XDefaultScopes
+}
 
 const OpenIdConnect = compose(
   DescriptionSchema,
