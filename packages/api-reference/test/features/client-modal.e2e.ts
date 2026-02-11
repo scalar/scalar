@@ -2,7 +2,14 @@ import { expect, test } from '@playwright/test'
 import { serveExample } from '@test/utils/serve-example'
 
 test.describe('client modal', () => {
-  test('opens the client modal when clicked', async ({ page }) => {
+  /**
+   * Unit test:
+   * - packages/api-client/src/v2/components/modals/ModalClientContainer.spec.ts
+   * - 'activates focus trap and emits open'
+   *
+   * @see https://github.com/scalar/scalar/pull/8072#pullrequestreview-3783424790
+   */
+  test('opens the client modal when clicked and set focus properly', async ({ page }) => {
     const example = await serveExample({
       content: {
         openapi: '3.1.1',

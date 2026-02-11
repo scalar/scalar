@@ -100,6 +100,16 @@ describe('ModalClient.vue', () => {
     const focusTarget = wrapper.find('#focus-target').element
     const fallbackFocus = wrapper.find('[role="dialog"]').element
 
+    /**
+     * Reliably targeting the button in unit tests wasn’t feasible,
+     * an E2E test (via `playwright`) was added to ensure focus behaves correctly when the modal opens.
+     *
+     * E2E test:
+     * - packages/api-reference/test/features/client-modal.e2e.ts
+     * - 'opens the client modal when clicked and set focus properly'
+     *
+     * @see https://github.com/scalar/scalar/pull/8072#pullrequestreview-3783424790
+     */
     expect([focusTarget, fallbackFocus]).toContain(document.activeElement)
 
     onTestFinished(async () => {
