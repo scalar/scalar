@@ -159,46 +159,48 @@ const routerViewProps = computed<RouteProps>(() => {
         app.workspace.activeWorkspace.value !== null &&
         !app.loading.value
       ">
-      <div class="flex h-dvh w-dvw flex-1 flex-row">
-        <!-- App sidebar -->
-        <AppSidebar
-          v-model:isSidebarOpen="app.sidebar.isOpen.value"
-          :activeWorkspace="app.workspace.activeWorkspace.value"
+      <div class="flex h-dvh w-dvw flex-1 flex-col">
+        <!-- Desktop App Tabs -->
+        <DesktopTabs
+          v-if="layout === 'desktop'"
+          :activeTabIndex="app.tabs.activeTabIndex.value"
           :eventBus="app.eventBus"
-          :isWorkspaceOpen="app.workspace.isOpen.value"
-          :layout
-          :sidebarState="app.sidebar.state"
-          :sidebarWidth="app.sidebar.width.value"
-          :store="app.store.value!"
-          :workspaces="app.workspace.workspaceGroups.value"
-          @click:workspace="app.workspace.navigateToWorkspace"
-          @create:workspace="createWorkspaceModalState.show()"
-          @select:workspace="setActiveWorkspace"
-          @selectItem="app.sidebar.handleSelectItem"
-          @update:sidebarWidth="app.sidebar.handleSidebarWidthUpdate">
-          <template #sidebarMenuActions>
-            <slot name="sidebar-menu-actions" />
-          </template>
-        </AppSidebar>
+          :tabs="app.tabs.state.value" />
 
-        <div class="flex flex-1 flex-col">
-          <!-- Desktop App Tabs -->
-          <DesktopTabs
-            v-if="layout === 'desktop'"
-            :activeTabIndex="app.tabs.activeTabIndex.value"
+        <div class="flex min-h-0 flex-1 flex-row">
+          <!-- App sidebar -->
+          <AppSidebar
+            v-model:isSidebarOpen="app.sidebar.isOpen.value"
+            :activeWorkspace="app.workspace.activeWorkspace.value"
             :eventBus="app.eventBus"
-            :tabs="app.tabs.state.value" />
+            :isWorkspaceOpen="app.workspace.isOpen.value"
+            :layout
+            :sidebarState="app.sidebar.state"
+            :sidebarWidth="app.sidebar.width.value"
+            :store="app.store.value!"
+            :workspaces="app.workspace.workspaceGroups.value"
+            @click:workspace="app.workspace.navigateToWorkspace"
+            @create:workspace="createWorkspaceModalState.show()"
+            @select:workspace="setActiveWorkspace"
+            @selectItem="app.sidebar.handleSelectItem"
+            @update:sidebarWidth="app.sidebar.handleSidebarWidthUpdate">
+            <template #sidebarMenuActions>
+              <slot name="sidebar-menu-actions" />
+            </template>
+          </AppSidebar>
 
-          <!-- Web App Top Nav (just download button now) -->
-          <nav
-            v-if="layout === 'web'"
-            class="flex h-12 items-center justify-end border-b p-2">
-            <DownloadAppButton />
-          </nav>
+          <div class="flex flex-1 flex-col">
+            <!-- Web App Top Nav (just download button now) -->
+            <nav
+              v-if="layout === 'web'"
+              class="flex h-12 items-center justify-end border-b p-2">
+              <DownloadAppButton />
+            </nav>
 
-          <!-- Router view min-h-0 is required for scrolling, do not remove it -->
-          <div class="bg-b-1 min-h-0 flex-1">
-            <RouterView v-bind="routerViewProps" />
+            <!-- Router view min-h-0 is required for scrolling, do not remove it -->
+            <div class="bg-b-1 min-h-0 flex-1">
+              <RouterView v-bind="routerViewProps" />
+            </div>
           </div>
         </div>
       </div>
