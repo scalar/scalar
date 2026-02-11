@@ -1,4 +1,5 @@
 import { ScalarIconArrowSquareOut, ScalarIconBracketsCurly, ScalarIconCookie, ScalarIconGear } from '@scalar/icons'
+import { markRaw } from 'vue'
 
 export const ROUTES = [
   {
@@ -6,28 +7,28 @@ export const ROUTES = [
     to: {
       name: 'request.root',
     },
-    icon: ScalarIconArrowSquareOut,
+    icon: markRaw(ScalarIconArrowSquareOut),
   },
   {
     displayName: 'Cookies',
     to: {
       name: 'cookies.default',
     },
-    icon: ScalarIconCookie,
+    icon: markRaw(ScalarIconCookie),
   },
   {
     displayName: 'Environment',
     to: {
       name: 'environment.default',
     },
-    icon: ScalarIconBracketsCurly,
+    icon: markRaw(ScalarIconBracketsCurly),
   },
   {
     displayName: 'Settings',
     to: {
       name: 'settings.default',
     },
-    icon: ScalarIconGear,
+    icon: markRaw(ScalarIconGear),
   },
   // {
   //   displayName: 'Servers',
