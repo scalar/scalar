@@ -883,7 +883,7 @@ export const createAppState = async ({
   const isDarkMode = computed(() => {
     const colorMode = store.value?.workspace['x-scalar-color-mode'] ?? 'system'
     if (colorMode === 'system') {
-      return window.matchMedia?.('(prefers-color-scheme: dark)').matches
+      return window.matchMedia?.('(prefers-color-scheme: dark)')?.matches ?? false
     }
     return colorMode === 'dark'
   })
