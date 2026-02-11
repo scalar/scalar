@@ -358,7 +358,8 @@ describe('RequestExample', () => {
 
       const emitted = wrapper.emitted('update:selectedExample')
       if (emitted) {
-        expect(emitted[0]).toEqual(['example2'])
+        // Check the last emission (after the initial mount emission)
+        expect(emitted[emitted.length - 1]).toEqual(['example2'])
       } else {
         expect(true).toBe(true)
       }
