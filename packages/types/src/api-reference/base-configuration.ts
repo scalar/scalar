@@ -90,24 +90,33 @@ export const baseConfigurationSchema = z.object({
    */
   operationTitleSource: z.enum(['summary', 'path']).optional().default('summary').catch('summary'),
   /** A string to use one of the color presets */
-  theme: z
-    .enum([
-      'alternate',
-      'default',
-      'moon',
-      'purple',
-      'solarized',
-      'bluePlanet',
-      'deepSpace',
-      'saturn',
-      'kepler',
-      'mars',
-      'laserwave',
-      'none',
-    ])
-    .optional()
-    .default('default')
-    .catch('default'),
+  theme: z.preprocess(
+    (val) => {
+      if (val === 'fastify' || val === 'elysiajs') {
+        console.warn(`[DEPRECATED] You're using the deprecated '${val}' theme. It has been replaced with 'default'.`)
+        return 'default'
+      }
+      return val
+    },
+    z
+      .enum([
+        'alternate',
+        'default',
+        'moon',
+        'purple',
+        'solarized',
+        'bluePlanet',
+        'deepSpace',
+        'saturn',
+        'kepler',
+        'mars',
+        'laserwave',
+        'none',
+      ])
+      .optional()
+      .default('default')
+      .catch('default'),
+  ),
   /** Integration type identifier */
   _integration: z
     .enum([
