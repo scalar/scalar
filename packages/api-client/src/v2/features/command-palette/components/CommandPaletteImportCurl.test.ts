@@ -1,3 +1,4 @@
+import { ScalarIconCaretDown } from '@scalar/icons'
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
 import { mount } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -697,9 +698,8 @@ describe('CommandPaletteImportCurl', () => {
       },
     })
 
-    const icon = wrapper.findComponent({ name: 'ScalarIcon' })
+    const icon = wrapper.findComponent(ScalarIconCaretDown)
     expect(icon.exists()).toBe(true)
-    expect(icon.props('icon')).toBe('ChevronDown')
   })
 
   it('updates selected document when listbox value changes', async () => {

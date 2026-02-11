@@ -1,3 +1,4 @@
+import { ScalarIconUpload } from '@scalar/icons'
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import { mount } from '@vue/test-utils'
@@ -546,9 +547,8 @@ describe('CommandPaletteImport', () => {
       },
     })
 
-    const icons = wrapper.findAllComponents({ name: 'ScalarIcon' })
-    const uploadIcon = icons.find((icon) => icon.props('icon') === 'Upload')
-    expect(uploadIcon).toBeDefined()
+    const uploadIcon = wrapper.findComponent(ScalarIconUpload)
+    expect(uploadIcon.exists()).toBe(true)
   })
 
   it('passes loading state to form', () => {
