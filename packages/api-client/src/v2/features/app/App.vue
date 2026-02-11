@@ -159,7 +159,7 @@ const routerViewProps = computed<RouteProps>(() => {
         app.workspace.activeWorkspace.value !== null &&
         !app.loading.value
       "
-      class="flex flex-1 flex-col">
+      class="flex h-full flex-1 flex-col overflow-hidden">
       <!-- Desktop App Tabs -->
       <DesktopTabs
         v-if="layout === 'desktop'"
