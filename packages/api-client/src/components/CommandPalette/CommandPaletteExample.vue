@@ -104,9 +104,7 @@ const visibleRequests = computed<Request[]>(() =>
           {{ selectedRequest.summary }}
           <div class="flex items-center gap-2">
             <HttpMethod :method="selectedRequest.method" />
-            <ScalarIconCaretDown
-              class="text-c-3"
-              size="md" />
+            <ScalarIconCaretDown class="text-c-3 size-4" />
           </div>
         </ScalarButton>
         <template #items>

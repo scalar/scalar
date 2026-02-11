@@ -343,8 +343,7 @@ onBeforeUnmount(() => {
           class="bg-b-2 focus-within:bg-b-1 sticky top-0 flex items-center rounded-md border border-transparent pl-2 shadow-[0_-8px_0_8px_var(--scalar-background-1),0_0_8px_8px_var(--scalar-background-1)] focus-within:border-(--scalar-background-3)">
           <label for="commandmenu">
             <ScalarIconMagnifyingGlass
-              class="text-c-2 mr-2.5"
-              size="md"
+              class="text-c-2 mr-2.5 size-4"
               weight="light" />
           </label>
           <input
@@ -416,7 +415,7 @@ onBeforeUnmount(() => {
           type="button"
           @click="activeCommand = null">
           <ScalarIconCaretLeft
-            size="md"
+            class="size-4"
             weight="light" />
         </button>
         <component

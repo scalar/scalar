@@ -51,7 +51,7 @@ const emits = defineEmits<{
         v-if="history.length"
         class="address-bar-history-button text-c-3 focus:text-c-1 relative mr-1 rounded-lg p-1.5">
         <ScalarIconClockClockwise
-          size="sm"
+          class="size-3.5"
           weight="regular" />
         <span class="sr-only">Request History</span>
       </MenuButton>

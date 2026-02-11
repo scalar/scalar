@@ -235,7 +235,7 @@ const customCodeContent = computed(() => {
               class="text-c-2 hover:text-c-1 flex h-full w-fit gap-1.5 px-1.25 py-0.75 font-normal"
               variant="ghost">
               <span>{{ selectedPlugin?.label }}</span>
-              <ScalarIconCaretDown size="md" />
+              <ScalarIconCaretDown class="size-4" />
             </ScalarButton>
           </ScalarCombobox>
         </div>

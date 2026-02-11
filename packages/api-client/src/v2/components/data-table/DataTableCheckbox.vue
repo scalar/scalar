@@ -45,7 +45,7 @@ const variants = cva({
           'group-has-[:focus-visible]/cell:border-c-accent group-hover:opacity-100 group-has-[:focus-visible]/cell:opacity-100'
         " />
       <ScalarIconCheck
-        size="xs"
+        class="size-3"
         weight="bold" />
     </div>
   </DataTableCell>

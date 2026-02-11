@@ -38,8 +38,7 @@ const resultStatus = computed(() => {
       <div class="flex items-center gap-3 p-2">
         <component
           :is="resultStatus.component"
-          :class="resultStatus.color"
-          size="sm" />
+          :class="[resultStatus.color, 'size-3.5']" />
 
         <span class="text-c-2 overflow-hidden text-ellipsis whitespace-nowrap">
           {{ result.title }}

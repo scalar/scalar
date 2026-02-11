@@ -160,8 +160,7 @@ const isDraftsMenuItem = computed(() => {
           class="flex items-center gap-2"
           @click="handleAddExample">
           <ScalarIconPuzzlePiece
-            class="inline-flex"
-            size="md"
+            class="inline-flex size-4"
             weight="light" />
           <span>Add Example</span>
         </ScalarDropdownButton>
@@ -173,8 +172,7 @@ const isDraftsMenuItem = computed(() => {
           class="flex items-center gap-2"
           @click="editModal.show()">
           <ScalarIconPencil
-            class="inline-flex"
-            size="md"
+            class="inline-flex size-4"
             weight="light" />
           <span>
             <template v-if="menuItem.item?.entity.type === 'collection'">
@@ -192,8 +190,7 @@ const isDraftsMenuItem = computed(() => {
           @click="toggleWatchMode">
           <component
             :is="menuItem.item?.watchMode ? ScalarIconEyeSlash : ScalarIconEye"
-            class="inline-flex"
-            size="md"
+            class="inline-flex size-4"
             weight="light" />
           <span>
             {{
@@ -210,8 +207,7 @@ const isDraftsMenuItem = computed(() => {
           class="flex items-center gap-2"
           @click="deleteModal.show()">
           <ScalarIconTrash
-            class="inline-flex"
-            size="md"
+            class="inline-flex size-4"
             weight="light" />
           <span>Delete</span>
         </ScalarDropdownButton>
@@ -222,8 +218,7 @@ const isDraftsMenuItem = computed(() => {
           class="flex items-center gap-2"
           @click="clearDraftsModal.show()">
           <ScalarIconTrash
-            class="inline-flex"
-            size="md"
+            class="inline-flex size-4"
             weight="light" />
           <span>Clear Drafts</span>
         </ScalarDropdownButton>

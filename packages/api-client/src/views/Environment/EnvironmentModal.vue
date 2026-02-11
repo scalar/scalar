@@ -137,9 +137,7 @@ const redirectToCreateCollection = () => {
                 ? selectedEnvironment.label
                 : 'Select Collection'
             }}</span>
-            <ScalarIconCaretDown
-              class="text-c-3"
-              size="xs" />
+            <ScalarIconCaretDown class="text-c-3 size-3" />
           </ScalarButton>
           <ScalarButton
             v-else

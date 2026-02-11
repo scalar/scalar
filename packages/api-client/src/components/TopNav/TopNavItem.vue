@@ -56,7 +56,7 @@ defineEmits<{
             <component
               :is="icon"
               v-else
-              size="xs"
+              class="size-3"
               weight="bold" />
             <span class="custom-scroll nav-item-copy text-sm">{{ label }}</span>
           </div>
@@ -77,7 +77,7 @@ defineEmits<{
               class="flex items-center gap-1.5"
               @click="$emit('newTab')">
               <ScalarIconPlus
-                size="sm"
+                class="size-3.5"
                 weight="light" />
               New Tab
               <ScalarHotkey
@@ -88,7 +88,7 @@ defineEmits<{
               class="flex items-center gap-1.5"
               @click="$emit('copyUrl')">
               <ScalarIconLink
-                size="sm"
+                class="size-3.5"
                 weight="light" />
               Copy URL
             </ScalarDropdownButton>
@@ -97,7 +97,7 @@ defineEmits<{
               class="flex items-center gap-1.5"
               @click="$emit('close')">
               <ScalarIconX
-                size="sm"
+                class="size-3.5"
                 weight="light" />
               Close Tab
               <ScalarHotkey
@@ -108,7 +108,7 @@ defineEmits<{
               class="flex items-center gap-1.5"
               @click="$emit('closeOtherTabs')">
               <ScalarIconX
-                size="sm"
+                class="size-3.5"
                 weight="light" />
               Close Other Tabs
             </ScalarDropdownButton>

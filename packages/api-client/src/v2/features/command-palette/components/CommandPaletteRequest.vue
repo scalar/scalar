@@ -276,9 +276,7 @@ const handleBack = (event: KeyboardEvent): void => {
                 selectedDocument ? selectedDocument.label : 'Select Document'
               }}
             </span>
-            <ScalarIconCaretDown
-              class="text-c-3"
-              size="md" />
+            <ScalarIconCaretDown class="text-c-3 size-4" />
           </ScalarButton>
         </ScalarListbox>
 
@@ -293,9 +291,7 @@ const handleBack = (event: KeyboardEvent): void => {
               <HttpMethodBadge
                 v-if="selectedMethod"
                 :method="selectedMethod.method" />
-              <ScalarIconCaretDown
-                class="text-c-3"
-                size="md" />
+              <ScalarIconCaretDown class="text-c-3 size-4" />
             </div>
           </ScalarButton>
 
@@ -324,9 +320,7 @@ const handleBack = (event: KeyboardEvent): void => {
             <span :class="selectedTag ? 'text-c-1 truncate' : 'text-c-3'">
               {{ selectedTag ? selectedTag.label : 'Select Tag (Optional)' }}
             </span>
-            <ScalarIconCaretDown
-              class="text-c-3"
-              size="md" />
+            <ScalarIconCaretDown class="text-c-3 size-4" />
           </ScalarButton>
 
           <!-- Dropdown list of available tags -->

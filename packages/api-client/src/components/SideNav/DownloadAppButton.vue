@@ -13,7 +13,7 @@ const { layout } = useLayout()
     target="_blank">
     <template #icon>
       <ScalarIconDownload
-        size="sm"
+        class="size-3.5"
         weight="regular" />
     </template>
     <span

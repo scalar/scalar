@@ -399,8 +399,7 @@ function handleBlur(e: FocusEvent) {
                   'rotate-90': collapsedSidebarFolders[collection.uid],
                 }">
                 <ScalarIconCaretRight
-                  class="text-c-3 hover:text-c-1 hidden text-sm group-hover:block"
-                  size="md" />
+                  class="text-c-3 hover:text-c-1 hidden size-4 text-sm group-hover:block" />
               </div>
             </template>
           </RequestSidebarItem>

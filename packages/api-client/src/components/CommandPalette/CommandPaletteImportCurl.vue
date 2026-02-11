@@ -174,9 +174,7 @@ const wrapper = useTemplateRef('wrapper-ref')
                   : 'Select Collection'
               }}
             </span>
-            <ScalarIconCaretDown
-              class="text-c-3"
-              size="md" />
+            <ScalarIconCaretDown class="text-c-3 size-4" />
           </ScalarButton>
         </ScalarListbox>
       </div>

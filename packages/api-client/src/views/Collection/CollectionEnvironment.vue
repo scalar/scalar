@@ -273,8 +273,7 @@ const handleDragEnd = (
             variant="ghost"
             @click="environmentModal.show()">
             <ScalarIconPlus
-              class="inline-flex"
-              size="sm"
+              class="inline-flex size-3.5"
               weight="light" />
             <span>Add Environment</span>
           </ScalarButton>

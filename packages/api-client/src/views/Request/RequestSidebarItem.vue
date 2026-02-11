@@ -455,7 +455,7 @@ const shouldShowItem = computed(() => {
                       open: !menuItem.open,
                     })
                 ">
-                <ScalarIconDotsThree size="md" />
+                <ScalarIconDotsThree class="size-4" />
               </ScalarButton>
             </div>
             <span class="flex items-start">
@@ -532,7 +532,7 @@ const shouldShowItem = computed(() => {
                       open: true,
                     })
                 ">
-                <ScalarIconDotsThree size="md" />
+                <ScalarIconDotsThree class="size-4" />
               </ScalarButton>
               <ScalarButton
                 v-if="layout !== 'modal'"
@@ -541,7 +541,7 @@ const shouldShowItem = computed(() => {
                 variant="ghost"
                 @click.stop.prevent="addRequest(item.entity.uid)">
                 <ScalarIconPlus
-                  size="md"
+                  class="size-4"
                   weight="regular" />
               </ScalarButton>
             </div>
@@ -554,9 +554,8 @@ const shouldShowItem = computed(() => {
                 class="flex items-center justify-center"
                 type="button">
                 <ScalarIconEye
-                  class="ml-0.5 text-sm"
+                  class="ml-0.5 size-4 text-sm"
                   :class="watchIconColor"
-                  size="md"
                   weight="regular" />
               </button>
             </ScalarTooltip>
@@ -612,7 +611,7 @@ const shouldShowItem = computed(() => {
                       open: true,
                     })
                 ">
-                <ScalarIconDotsThree size="md" />
+                <ScalarIconDotsThree class="size-4" />
               </ScalarButton>
               <ScalarButton
                 v-if="layout !== 'modal'"
@@ -621,7 +620,7 @@ const shouldShowItem = computed(() => {
                 variant="ghost"
                 @click.stop.prevent="addRequest(item.entity.uid)">
                 <ScalarIconPlus
-                  size="md"
+                  class="size-4"
                   weight="regular" />
               </ScalarButton>
             </div>
@@ -634,9 +633,8 @@ const shouldShowItem = computed(() => {
                 class="flex items-center justify-center"
                 type="button">
                 <ScalarIconEye
-                  class="ml-0.5 text-sm"
+                  class="ml-0.5 size-4 text-sm"
                   :class="watchIconColor"
-                  size="md"
                   weight="regular" />
               </button>
             </ScalarTooltip>
@@ -665,7 +663,7 @@ const shouldShowItem = computed(() => {
           :class="parentUids.length ? 'pl-9' : ''"
           variant="ghost"
           @click="addRequest(item.entity.uid)">
-          <ScalarIconPlus size="sm" />
+          <ScalarIconPlus class="size-3.5" />
           <span>Add Request</span>
         </ScalarButton>
       </ul>

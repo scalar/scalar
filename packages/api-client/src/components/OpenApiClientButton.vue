@@ -80,7 +80,7 @@ const href = computed((): string | undefined => {
     :href="href"
     target="_blank">
     <ScalarIconArrowSquareOut
-      size="xs"
+      class="size-3"
       weight="regular" />
     Open API Client
   </a>

@@ -29,9 +29,8 @@ const { headers, breadcrumb } = defineProps<{
             top: `calc(var(--refs-viewport-offset)))`,
           }">
           <ScalarIconPlus
-            class="headers-card-title-icon"
-            :class="{ 'headers-card-title-icon--open': open }"
-            size="sm" />
+            class="headers-card-title-icon size-3.5"
+            :class="{ 'headers-card-title-icon--open': open }" />
           <template v-if="open"> Hide Headers </template>
           <template v-else> Show Headers </template>
         </DisclosureButton>

@@ -83,9 +83,8 @@ const selectColor = (color: string) => {
         @click="handleSelectorClick">
         <ScalarIconCheck
           v-if="activeColor"
-          class="text-c-btn"
-          :class="props.selector && 'p-0.5'"
-          size="xs" />
+          class="text-c-btn size-3"
+          :class="props.selector && 'p-0.5'" />
       </div>
       <div
         v-if="showSelector || !props.selector"
@@ -100,9 +99,8 @@ const selectColor = (color: string) => {
           @click="selectColor(option.color)">
           <ScalarIconCheck
             v-if="activeColor === option.color && !customColor"
-            class="text-c-btn"
-            :class="props.selector && 'p-0.5'"
-            size="xs" />
+            class="text-c-btn size-3"
+            :class="props.selector && 'p-0.5'" />
         </div>
         <hr class="border-ghost h-5 w-0.5 border-l" />
         <label
@@ -117,8 +115,7 @@ const selectColor = (color: string) => {
                 (activeColor &&
                   !colorOptions.some((option) => option.color === activeColor)))
             "
-            class="text-c-btn"
-            size="xs" />
+            class="text-c-btn size-3" />
         </label>
       </div>
     </template>
@@ -145,7 +142,7 @@ const selectColor = (color: string) => {
         class="text-c-3 hover:bg-b-2 rounded-lg p-1.5"
         type="button"
         @click="handleClick">
-        <ScalarIconCheck size="xs" />
+        <ScalarIconCheck class="size-3" />
       </button>
     </div>
   </div>

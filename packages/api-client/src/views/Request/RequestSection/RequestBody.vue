@@ -531,7 +531,7 @@ const selectedExample = computed({
               class="text-c-2 hover:text-c-1 flex h-full w-fit gap-1.5 px-3 font-normal"
               variant="ghost">
               <span>{{ selectedContentType?.label }}</span>
-              <ScalarIconCaretDown size="md" />
+              <ScalarIconCaretDown class="size-4" />
             </ScalarButton>
           </ScalarListbox>
           <ScalarListbox
@@ -545,7 +545,7 @@ const selectedExample = computed({
               fullWidth
               variant="ghost">
               <span>{{ selectedExample?.label }}</span>
-              <ScalarIconCaretDown size="md" />
+              <ScalarIconCaretDown class="size-4" />
             </ScalarButton>
           </ScalarListbox>
         </DataTableHeader>
@@ -581,8 +581,7 @@ const selectedExample = computed({
                 @click="handleFileUpload">
                 <span>Upload File</span>
                 <ScalarIconUpload
-                  class="ml-1"
-                  size="xs"
+                  class="ml-1 size-3"
                   weight="bold" />
               </ScalarButton>
             </template>

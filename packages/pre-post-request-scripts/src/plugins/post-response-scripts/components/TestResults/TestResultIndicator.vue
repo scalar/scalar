@@ -80,8 +80,7 @@ const getTestCountDisplay = computed(() => {
     <component
       :is="icon.component"
       v-if="state"
-      :class="icon.color"
-      size="sm" />
+      :class="[icon.color, 'size-3.5']" />
     <span
       v-if="!inline"
       class="ml-1.25 capitalize">

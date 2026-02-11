@@ -121,7 +121,7 @@ const handleAddExample = () => {
         v-if="canAddOperation()"
         @click="handleAddOperation()">
         <div class="flex items-center gap-2">
-          <ScalarIconPlus size="sm" />
+          <ScalarIconPlus class="size-3.5" />
           Add Operation
         </div>
       </ScalarDropdownItem>
@@ -130,7 +130,7 @@ const handleAddExample = () => {
         v-if="canAddTag()"
         @click="handleAddTag()">
         <div class="flex items-center gap-2">
-          <ScalarIconPlus size="sm" />
+          <ScalarIconPlus class="size-3.5" />
           Add Tag
         </div>
       </ScalarDropdownItem>
@@ -139,7 +139,7 @@ const handleAddExample = () => {
         v-if="canAddExample()"
         @click="handleAddExample()">
         <div class="flex items-center gap-2">
-          <ScalarIconPlus size="sm" />
+          <ScalarIconPlus class="size-3.5" />
           Add Example
         </div>
       </ScalarDropdownItem>
@@ -151,7 +151,7 @@ const handleAddExample = () => {
         v-if="canDelete()"
         @click="emit('showDeleteModal')">
         <div class="text-red flex items-center gap-2">
-          <ScalarIconTrash size="sm" />
+          <ScalarIconTrash class="size-3.5" />
           Delete
         </div>
       </ScalarDropdownItem>

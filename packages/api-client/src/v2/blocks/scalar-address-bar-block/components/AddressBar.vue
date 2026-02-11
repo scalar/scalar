@@ -287,7 +287,7 @@ defineExpose({
         class="absolute inset-x-0 top-[calc(100%+4px)] flex flex-col items-center rounded px-6">
         <div
           class="text-c-danger bg-b-danger border-c-danger flex items-center gap-1 rounded border p-1">
-          <ScalarIconWarningCircle size="sm" />
+          <ScalarIconWarningCircle class="size-3.5" />
           <div class="min-w-0 flex-1">
             A
             <em>{{ methodConflict?.toUpperCase() ?? method.toUpperCase() }}</em>

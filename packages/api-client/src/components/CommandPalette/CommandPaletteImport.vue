@@ -235,9 +235,7 @@ const handleInput = (value: string) => {
           variant="outlined"
           @click="openSpecFileDialog">
           JSON, or YAML File
-          <ScalarIconUpload
-            class="text-c-3"
-            size="md" />
+          <ScalarIconUpload class="text-c-3 size-4" />
         </ScalarButton>
 
         <!-- Watch -->

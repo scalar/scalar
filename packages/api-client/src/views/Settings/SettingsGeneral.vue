@@ -126,7 +126,7 @@ const setProxy = (newProxy: string | undefined) =>
                 }">
                 <ScalarIconCheck
                   v-if="activeWorkspace?.proxyUrl === DEFAULT_PROXY_URL"
-                  size="xs"
+                  class="size-3"
                   weight="bold" />
               </div>
               Use proxy.scalar.com (default)
@@ -151,7 +151,7 @@ const setProxy = (newProxy: string | undefined) =>
                 }">
                 <ScalarIconCheck
                   v-if="activeWorkspace?.proxyUrl === proxyUrl"
-                  size="xs"
+                  class="size-3"
                   weight="bold" />
               </div>
               Use custom proxy ({{ proxyUrl }})
@@ -169,7 +169,7 @@ const setProxy = (newProxy: string | undefined) =>
                 ">
                 <ScalarIconCheck
                   v-if="!activeWorkspace?.proxyUrl"
-                  size="xs"
+                  class="size-3"
                   weight="bold" />
               </div>
               Skip the proxy
@@ -206,7 +206,7 @@ const setProxy = (newProxy: string | undefined) =>
                     }">
                     <ScalarIconCheck
                       v-if="activeWorkspace?.themeId === themeId"
-                      size="xs"
+                      class="size-3"
                       weight="bold" />
                   </div>
                   {{ themeLabels[themeId] }}
@@ -262,7 +262,7 @@ const setProxy = (newProxy: string | undefined) =>
                   }">
                   <ScalarIconCheck
                     v-if="activeWorkspace?.themeId === themeId"
-                    size="xs"
+                    class="size-3"
                     weight="bold" />
                 </div>
                 {{ themeLabels[themeId] }}

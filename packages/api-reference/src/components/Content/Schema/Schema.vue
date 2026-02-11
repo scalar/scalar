@@ -140,9 +140,7 @@ const handleClick = (e: MouseEvent) => noncollapsible && e.stopPropagation()
             as="button"
             class="schema-card-title schema-card-title--compact"
             @click.capture="handleClick">
-            <ScalarIconPlus
-              class="schema-card-title-icon"
-              size="sm" />
+            <ScalarIconPlus class="schema-card-title-icon size-3.5" />
             Show additional properties
             <ScreenReader v-if="name">for {{ name }}</ScreenReader>
           </DisclosureButton>
@@ -160,9 +158,8 @@ const handleClick = (e: MouseEvent) => noncollapsible && e.stopPropagation()
           @click.capture="handleClick">
           <template v-if="compact">
             <ScalarIconPlus
-              class="schema-card-title-icon"
-              :class="{ 'schema-card-title-icon--open': open }"
-              size="sm" />
+              class="schema-card-title-icon size-3.5"
+              :class="{ 'schema-card-title-icon--open': open }" />
             <template v-if="open">
               Hide {{ schema?.title ?? 'Child Attributes' }}
             </template>
@@ -173,9 +170,8 @@ const handleClick = (e: MouseEvent) => noncollapsible && e.stopPropagation()
           </template>
           <template v-else>
             <ScalarIconPlus
-              class="schema-card-title-icon"
-              :class="{ 'schema-card-title-icon--open': open }"
-              size="sm" />
+              class="schema-card-title-icon size-3.5"
+              :class="{ 'schema-card-title-icon--open': open }" />
             <SchemaHeading
               :name="schema?.title ?? name"
               :value="schema" />

@@ -216,8 +216,7 @@ onBeforeUnmount(() => eventBus.off('ui:open:command-palette', onOpen))
           class="bg-b-2 focus-within:bg-b-1 sticky top-0 flex items-center rounded-md border border-transparent pl-2 shadow-[0_-8px_0_8px_var(--scalar-background-1),0_0_8px_8px_var(--scalar-background-1)] focus-within:border-(--scalar-background-3)">
           <label for="commandmenu">
             <ScalarIconMagnifyingGlass
-              class="text-c-2 mr-2.5"
-              size="md"
+              class="text-c-2 mr-2.5 size-4"
               weight="light" />
           </label>
           <input
@@ -260,8 +259,7 @@ onBeforeUnmount(() => eventBus.off('ui:open:command-palette', onOpen))
             <component
               :is="command.icon"
               v-if="'icon' in command"
-              class="text-c-2 mr-2.5"
-              size="md"
+              class="text-c-2 mr-2.5 size-4"
               weight="light" />
             {{ command.name }}
           </button>
@@ -287,7 +285,7 @@ onBeforeUnmount(() => eventBus.off('ui:open:command-palette', onOpen))
           class="hover:bg-b-3 text-c-3 active:text-c-1 absolute z-1 mt-[0.5px] rounded p-1.5"
           type="button"
           @click="handleBackEvent">
-          <ScalarIconCaretLeft size="md" />
+          <ScalarIconCaretLeft class="size-4" />
         </button>
 
         <!-- Dynamic command component -->

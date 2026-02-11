@@ -123,7 +123,7 @@ const handleAddEnvironment = () => {
         type="button"
         @click="eventBus.emit('ui:close:client-modal')">
         <ScalarIconX
-          size="lg"
+          class="size-5"
           weight="regular" />
         <span class="sr-only">Close Client</span>
       </button>
@@ -139,7 +139,7 @@ const handleAddEnvironment = () => {
         type="button"
         @click="eventBus.emit('ui:close:client-modal')">
         <ScalarIconX
-          size="md"
+          class="size-4"
           weight="light" />
         <span class="sr-only">Close Client</span>
       </button>

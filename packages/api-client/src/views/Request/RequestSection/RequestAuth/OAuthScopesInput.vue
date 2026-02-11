@@ -102,12 +102,10 @@ const deselectAllScopes = () => {
 
             <ScalarIconCaretDown
               v-if="open"
-              class="text-c-3 group-hover/scopes-accordion:text-c-2"
-              size="md" />
+              class="text-c-3 group-hover/scopes-accordion:text-c-2 size-4" />
             <ScalarIconCaretRight
               v-else
-              class="text-c-3 group-hover/scopes-accordion:text-c-2"
-              size="md" />
+              class="text-c-3 group-hover/scopes-accordion:text-c-2 size-4" />
           </div>
         </DisclosureButton>
         <DisclosurePanel as="template">

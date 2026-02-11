@@ -74,7 +74,7 @@ const { currentRoute } = useRouter()
         type="button"
         @click="$emit('hideModal')">
         <ScalarIconX
-          size="lg"
+          class="size-5"
           weight="regular" />
         <span class="sr-only">Close Client</span>
       </button>
@@ -85,7 +85,7 @@ const { currentRoute } = useRouter()
         type="button"
         @click="$emit('hideModal')">
         <ScalarIconX
-          size="md"
+          class="size-4"
           weight="light" />
         <span class="sr-only">Close Client</span>
       </button>

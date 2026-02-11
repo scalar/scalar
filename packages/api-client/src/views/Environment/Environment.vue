@@ -455,8 +455,7 @@ watch(
                       'rotate-90': collapsedSidebarFolders[collection.uid],
                     }">
                     <ScalarIconCaretRight
-                      class="text-c-3 hover:text-c-1 hidden text-sm group-hover:block"
-                      size="md" />
+                      class="text-c-3 hover:text-c-1 hidden size-4 text-sm group-hover:block" />
                   </div>
                 </span>
                 {{ collection.info?.title ?? '' }}
@@ -510,7 +509,7 @@ watch(
                   class="text-c-1 hover:bg-b-2 flex h-8 w-full justify-start gap-1.5 py-0 pl-6 text-xs"
                   variant="ghost"
                   @click="openEnvironmentModal(collection.uid)">
-                  <ScalarIconPlus size="sm" />
+                  <ScalarIconPlus class="size-3.5" />
                   <span>Add Environment</span>
                 </ScalarButton>
               </div>

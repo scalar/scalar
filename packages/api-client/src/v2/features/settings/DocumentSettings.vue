@@ -89,9 +89,7 @@ const handleDocumentDelete = () => {
               </a>
             </template>
             <template v-else>
-              <ScalarIconProhibit
-                class="text-c-2 mr-2 ml-3 w-4"
-                size="sm" />
+              <ScalarIconProhibit class="text-c-2 mr-2 ml-3 size-3.5 w-4" />
               <span class="text-c-2 pr-3">
                 No URL configured. Try importing an OpenAPI document from an
                 URL.

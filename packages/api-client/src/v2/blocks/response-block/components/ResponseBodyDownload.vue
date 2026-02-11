@@ -22,7 +22,7 @@ const filenameExtension = computed(() => {
     :download="`${filenameExtension}`"
     :href="href"
     @click.stop>
-    <ScalarIconDownload size="md" />
+    <ScalarIconDownload class="size-4" />
     <span>
       <span>Download</span>
       <span class="sr-only">Response Body</span>

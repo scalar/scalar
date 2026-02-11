@@ -123,7 +123,7 @@ const wrapper = useTemplateRef('wrapper-ref')
       </template>
       <template v-else>
         <span class="sr-only">Add Server</span>
-        <ScalarIconPlus size="xs" />
+        <ScalarIconPlus class="size-3" />
       </template>
     </ScalarButton>
     <template #popover="{ close }">
@@ -161,7 +161,7 @@ const wrapper = useTemplateRef('wrapper-ref')
             type="button"
             @click="handleAddServer">
             <div class="flex h-4 w-4 items-center justify-center">
-              <ScalarIconPlus size="sm" />
+              <ScalarIconPlus class="size-3.5" />
             </div>
             <span>Add Server</span>
           </button>

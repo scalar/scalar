@@ -108,9 +108,7 @@ const updateSelectedOptions = (selectedOptions: any) => {
               ? selectedArrayOptions.map((option) => option.label).join(', ')
               : 'Select a value'
           }}</span>
-          <ScalarIconCaretDown
-            class="min-w-4"
-            size="md" />
+          <ScalarIconCaretDown class="size-4 min-w-4" />
         </ScalarButton>
       </ScalarComboboxMultiselect>
     </template>
@@ -134,7 +132,7 @@ const updateSelectedOptions = (selectedOptions: any) => {
           <span class="text-c-1 overflow-hidden text-ellipsis">{{
             initialValue || 'Select a value'
           }}</span>
-          <ScalarIconCaretDown size="md" />
+          <ScalarIconCaretDown class="size-4" />
         </ScalarButton>
         <template #items>
           <ScalarDropdownItem
@@ -162,7 +160,7 @@ const updateSelectedOptions = (selectedOptions: any) => {
               class="flex items-center gap-1.5"
               @click="addingCustomValue = true">
               <div class="flex h-4 w-4 items-center justify-center">
-                <ScalarIconPlus size="sm" />
+                <ScalarIconPlus class="size-3.5" />
               </div>
               <span>Add value</span>
             </ScalarDropdownItem>

@@ -49,7 +49,7 @@ const handleBlur = () => {
         variant="outlined"
         @click="mode = 'edit'">
         <ScalarIconPencil
-          size="sm"
+          class="size-3.5"
           weight="light" />
         <span>Edit</span>
       </ScalarButton>
@@ -78,7 +78,7 @@ const handleBlur = () => {
               variant="ghost"
               @click="mode = 'edit'">
               <ScalarIconPencil
-                size="sm"
+                class="size-3.5"
                 weight="light" />
               <span>Write a description</span>
             </ScalarButton>

@@ -73,7 +73,7 @@ const handleCreateWorkspace = () => {
           <h2 class="line-clamp-1 w-[calc(100%-10px)] text-left text-xs">
             {{ activeWorkspace?.name }}
           </h2>
-          <ScalarIconCaretDown size="md" />
+          <ScalarIconCaretDown class="size-4" />
         </div>
       </ScalarButton>
 
@@ -106,7 +106,7 @@ const handleCreateWorkspace = () => {
           class="flex items-center gap-1.5"
           @click="modal.show()">
           <div class="flex h-4 w-4 items-center justify-center">
-            <ScalarIconPlus size="sm" />
+            <ScalarIconPlus class="size-3.5" />
           </div>
           <span>New Workspace</span>
         </ScalarDropdownItem>

@@ -72,9 +72,7 @@ const handleSubmit = () => {
           <span :class="selectedCollection ? 'text-c-1' : 'text-c-3'">{{
             selectedCollection ? selectedCollection.label : 'Select Collection'
           }}</span>
-          <ScalarIconCaretDown
-            class="text-c-3"
-            size="md" />
+          <ScalarIconCaretDown class="text-c-3 size-4" />
         </ScalarButton>
       </ScalarListbox>
     </template>

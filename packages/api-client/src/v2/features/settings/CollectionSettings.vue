@@ -94,7 +94,7 @@ const buttonStyles = cva({
             }">
             <ScalarIconCheck
               v-if="activeProxyUrl === DEFAULT_PROXY_URL"
-              size="xs"
+              class="size-3"
               weight="bold" />
           </div>
           Use proxy.scalar.com (default)
@@ -115,7 +115,7 @@ const buttonStyles = cva({
             class="bg-c-accent text-b-1 flex h-5 w-5 items-center justify-center rounded-full border-[1.5px] border-transparent p-1">
             <ScalarIconCheck
               v-if="customProxyUrl === activeProxyUrl"
-              size="xs"
+              class="size-3"
               weight="bold" />
           </div>
           Use custom proxy ({{ customProxyUrl }})
@@ -132,7 +132,7 @@ const buttonStyles = cva({
             ">
             <ScalarIconCheck
               v-if="!activeProxyUrl"
-              size="xs"
+              class="size-3"
               weight="bold" />
           </div>
           Skip the proxy
@@ -169,7 +169,7 @@ const buttonStyles = cva({
                 }">
                 <ScalarIconCheck
                   v-if="activeThemeId === themeId"
-                  size="xs"
+                  class="size-3"
                   weight="bold" />
               </div>
               {{ themeLabels[themeId] }}
@@ -225,7 +225,7 @@ const buttonStyles = cva({
               }">
               <ScalarIconCheck
                 v-if="activeThemeId === themeId"
-                size="xs"
+                class="size-3"
                 weight="bold" />
             </div>
             {{ themeLabels[themeId] }}

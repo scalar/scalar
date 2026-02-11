@@ -291,8 +291,7 @@ const handleUpdateRow = (
             @click="emit('uploadFile')">
             <span>Select File</span>
             <ScalarIconUpload
-              class="ml-1"
-              size="xs"
+              class="ml-1 size-3"
               weight="bold" />
           </ScalarButton>
         </div>

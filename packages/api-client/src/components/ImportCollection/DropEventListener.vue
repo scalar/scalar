@@ -120,7 +120,7 @@ function handleDragEnter(event: DragEvent) {
       <div class="flex h-full flex-col items-center justify-center">
         <div>
           <ScalarIconDownload
-            size="xl"
+            class="size-6"
             weight="regular" />
         </div>
         <div class="text-c-1 m-4 text-center">

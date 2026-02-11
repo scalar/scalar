@@ -164,7 +164,7 @@ const bodyValue = computed(() => {
               contentTypes[selectedContentType as keyof typeof contentTypes] ??
               selectedContentType
             }}</span>
-            <ScalarIconCaretDown size="sm" />
+            <ScalarIconCaretDown class="size-3.5" />
           </ScalarButton>
         </ScalarListbox>
       </DataTableHeader>
@@ -219,8 +219,7 @@ const bodyValue = computed(() => {
                 ">
                 <span>Select File</span>
                 <ScalarIconUpload
-                  class="ml-1"
-                  size="xs"
+                  class="ml-1 size-3"
                   weight="bold" />
               </ScalarButton>
             </template>

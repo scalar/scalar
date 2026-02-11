@@ -241,8 +241,7 @@ function updateRequestPath(url: string) {
           aria-hidden="true"
           class="inline-flex items-center gap-1">
           <ScalarIconPlay
-            class="relative shrink-0"
-            size="xs"
+            class="relative size-3 shrink-0"
             weight="fill" />
           <span class="text-xxs hidden lg:flex">Send</span>
         </span>

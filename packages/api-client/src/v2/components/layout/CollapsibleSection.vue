@@ -62,8 +62,7 @@ const headingId = useId()
           :disabled="isStatic">
           <ScalarIconCaretRight
             v-if="!isStatic"
-            class="text-c-3 group-hover:text-c-1 rounded-px ui-open:rotate-90 ui-not-open:rotate-0 outline-offset-2 group-focus-visible:outline"
-            size="md" />
+            class="text-c-3 group-hover:text-c-1 rounded-px ui-open:rotate-90 ui-not-open:rotate-0 size-4 outline-offset-2 group-focus-visible:outline" />
 
           <!-- Heading with title -->
           <h2

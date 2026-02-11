@@ -39,9 +39,8 @@ const id = useId()
           <ScalarIconCaretRight
             v-if="layout !== 'reference'"
             :class="[
-              'text-c-3 group-hover:text-c-1 ui-open:rotate-90 ui-not-open:rotate-0 rounded-px outline-offset-2 group-focus-visible:outline',
-            ]"
-            size="md" />
+              'text-c-3 group-hover:text-c-1 ui-open:rotate-90 ui-not-open:rotate-0 rounded-px size-4 outline-offset-2 group-focus-visible:outline',
+            ]" />
           <h2
             class="text-c-1 m-0 flex flex-1 items-center gap-1.5 leading-[20px]">
             <span

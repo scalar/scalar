@@ -105,8 +105,7 @@ const showDeleteButton = (item: RequestExampleParameter) => {
             content="Global cookies are shared across the whole workspace."
             placement="top">
             <ScalarIconGlobe
-              class="text-c-1"
-              size="xs"
+              class="text-c-1 size-3"
               tabindex="0" />
           </ScalarTooltip>
         </RouterLink>
@@ -212,8 +211,7 @@ const showDeleteButton = (item: RequestExampleParameter) => {
               @click="handleFileUpload(idx)">
               <span>Upload File</span>
               <ScalarIconUpload
-                class="ml-1"
-                size="xs"
+                class="ml-1 size-3"
                 weight="bold" />
             </ScalarButton>
           </div>

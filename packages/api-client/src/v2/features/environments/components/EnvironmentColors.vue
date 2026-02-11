@@ -116,8 +116,7 @@ const handleCustomColorInput = (): void => {
       @click="toggleSelector">
       <ScalarIconCheck
         v-if="activeColor"
-        class="text-c-btn p-0.5"
-        size="xs" />
+        class="text-c-btn size-3 p-0.5" />
     </div>
 
     <!-- Expanded view: color palette selector -->
@@ -133,8 +132,7 @@ const handleCustomColorInput = (): void => {
         @click="selectColor(option)">
         <ScalarIconCheck
           v-if="isActiveColor(option)"
-          class="text-c-btn p-0.5"
-          size="xs" />
+          class="text-c-btn size-3 p-0.5" />
       </div>
 
       <!-- Divider -->
@@ -148,8 +146,7 @@ const handleCustomColorInput = (): void => {
         @click="toggleCustomInput">
         <ScalarIconCheck
           v-if="isCustomColor"
-          class="text-c-btn"
-          size="xs" />
+          class="text-c-btn size-3" />
       </button>
     </div>
 
@@ -172,7 +169,7 @@ const handleCustomColorInput = (): void => {
         class="text-c-3 hover:bg-b-2 rounded-lg p-1.5"
         type="button"
         @click="toggleCustomInput">
-        <ScalarIconCheck size="xs" />
+        <ScalarIconCheck class="size-3" />
       </button>
     </div>
   </div>

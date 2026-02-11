@@ -83,9 +83,8 @@ const handleSelectEnvironment = (environmentName: string) => {
         <div class="flex items-center gap-1.5">
           <!-- Icon indicator -->
           <ScalarIconGlobe
-            class="shrink-0"
-            :class="hasActiveEnvironment ? 'text-c-accent' : 'text-c-3'"
-            size="sm" />
+            class="size-3.5 shrink-0"
+            :class="hasActiveEnvironment ? 'text-c-accent' : 'text-c-3'" />
 
           <!-- Environment name -->
           <span
@@ -94,9 +93,7 @@ const handleSelectEnvironment = (environmentName: string) => {
           </span>
 
           <!-- Dropdown arrow -->
-          <ScalarIconCaretDown
-            class="shrink-0"
-            size="xs" />
+          <ScalarIconCaretDown class="size-3 shrink-0" />
         </div>
       </ScalarButton>
 
@@ -152,7 +149,7 @@ const handleSelectEnvironment = (environmentName: string) => {
           @click="handleAddEnvironment">
           <div class="flex h-4 w-4 items-center justify-center">
             <ScalarIconPlus
-              size="sm"
+              class="size-3.5"
               weight="light" />
           </div>
           <span>{{

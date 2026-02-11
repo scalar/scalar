@@ -51,7 +51,7 @@ const model = computed<boolean>({
     <span
       class="text-c-1 flex items-center gap-1 text-xs font-medium"
       :class="{ 'text-c-3': !modelValue }">
-      <ScalarIconEye size="sm" />
+      <ScalarIconEye class="size-3.5" />
       Watch Mode
     </span>
 

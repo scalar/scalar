@@ -241,10 +241,9 @@ onBeforeUnmount(() => events.hotKeys.off(handleHotKey))
                 v-else-if="topNavItems[0]?.icon"
                 v-bind="
                   typeof topNavItems[0]?.icon === 'string'
-                    ? { icon: topNavItems[0]?.icon as Icon }
-                    : {}
+                    ? { icon: topNavItems[0]?.icon as Icon, size: 'xs' }
+                    : { class: 'size-3' }
                 "
-                size="xs"
                 weight="bold" />
               <span>{{ topNavItems[0]?.label }}</span>
             </template>
@@ -256,7 +255,7 @@ onBeforeUnmount(() => events.hotKeys.off(handleHotKey))
                       class="flex items-center gap-1.5"
                       @click="addNavItem">
                       <ScalarIconPlus
-                        size="sm"
+                        class="size-3.5"
                         weight="light" />
                       New Tab
                       <ScalarHotkey
@@ -267,7 +266,7 @@ onBeforeUnmount(() => events.hotKeys.off(handleHotKey))
                       class="flex items-center gap-1.5"
                       @click="copyUrl(activeNavItemIdxValue)">
                       <ScalarIconLink
-                        size="sm"
+                        class="size-3.5"
                         weight="light" />
                       Copy URL
                     </ScalarDropdownButton>
@@ -302,7 +301,7 @@ onBeforeUnmount(() => events.hotKeys.off(handleHotKey))
         type="button"
         @click="addNavItem">
         <ScalarIconPlus
-          size="sm"
+          class="size-3.5"
           weight="bold" />
       </button>
     </div>

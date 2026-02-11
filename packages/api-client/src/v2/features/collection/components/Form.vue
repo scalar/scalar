@@ -58,7 +58,7 @@ const id = useId()
               #icon>
               <div
                 class="centered-y bg-b-2 flex-center absolute right-1 z-1 rounded px-1 py-0.5">
-                <ScalarIconMarkdownLogo size="lg" />
+                <ScalarIconMarkdownLogo class="size-5" />
               </div>
             </template>
           </DataTableInput>

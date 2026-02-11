@@ -64,7 +64,7 @@ const handleCopyTabUrl = (index: number): void => {
       type="button"
       @click="handleAddTab">
       <ScalarIconPlus
-        size="sm"
+        class="size-3.5"
         weight="bold" />
     </button>
   </nav>

@@ -223,9 +223,7 @@ const handleBack = (event: KeyboardEvent): void => {
                 selectedDocument ? selectedDocument.label : 'Select Document'
               }}
             </span>
-            <ScalarIconCaretDown
-              class="text-c-3"
-              size="md" />
+            <ScalarIconCaretDown class="text-c-3 size-4" />
           </ScalarButton>
         </ScalarListbox>
 
@@ -251,9 +249,7 @@ const handleBack = (event: KeyboardEvent): void => {
               <HttpMethodBadge
                 v-if="selectedOperation"
                 :method="selectedOperation.method" />
-              <ScalarIconCaretDown
-                class="text-c-3"
-                size="md" />
+              <ScalarIconCaretDown class="text-c-3 size-4" />
             </div>
           </ScalarButton>
 

@@ -139,7 +139,7 @@ const deleteWorkspace = async () => {
                 size="sm"
                 type="button"
                 variant="ghost">
-                <ScalarIconDotsThree size="md" />
+                <ScalarIconDotsThree class="size-4" />
               </ScalarButton>
               <template #items>
                 <ScalarDropdownItem
@@ -147,8 +147,7 @@ const deleteWorkspace = async () => {
                   @mousedown="openRenameModal(workspace.uid)"
                   @touchend.prevent="openRenameModal(workspace.uid)">
                   <ScalarIconPencil
-                    class="inline-flex"
-                    size="md"
+                    class="inline-flex size-4"
                     weight="light" />
                   <span>Rename</span>
                 </ScalarDropdownItem>
@@ -158,8 +157,7 @@ const deleteWorkspace = async () => {
                   @mousedown.prevent="openDeleteModal(workspace.uid)"
                   @touchend.prevent="openDeleteModal(workspace.uid)">
                   <ScalarIconTrash
-                    class="inline-flex"
-                    size="md"
+                    class="inline-flex size-4"
                     weight="light" />
                   <span>Delete</span>
                 </ScalarDropdownItem>
@@ -173,7 +171,7 @@ const deleteWorkspace = async () => {
             class="flex items-center gap-1.5"
             @click="createNewWorkspace">
             <div class="flex h-4 w-4 items-center justify-center">
-              <ScalarIconPlus size="sm" />
+              <ScalarIconPlus class="size-3.5" />
             </div>
             <span>Create Workspace</span>
           </ScalarDropdownItem>

@@ -59,7 +59,7 @@ const navigateSection = (direction: 'next' | 'prev') => {
         class="filter-button context-bar-group-hover:text-c-1 absolute -right-[30px] flex items-center">
         <span class="context-bar-group-hover:hidden mr-1.5">{{ model }}</span>
         <ScalarIconFunnel
-          size="md"
+          class="size-4"
           weight="regular" />
       </div>
     </div>

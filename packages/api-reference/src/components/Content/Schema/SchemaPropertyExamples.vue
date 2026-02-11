@@ -29,8 +29,7 @@ const { copyToClipboard } = useClipboard()
             {{ formatExample(example) }}
           </span>
           <ScalarIconClipboard
-            class="group-hover:text-c-1 text-c-3 ml-auto min-h-3 min-w-3"
-            size="xs" />
+            class="group-hover:text-c-1 text-c-3 ml-auto size-3 min-h-3 min-w-3" />
         </button>
       </div>
     </div>
@@ -60,8 +59,7 @@ const { copyToClipboard } = useClipboard()
           @click="copyToClipboard(formatExample(ex))">
           <span>{{ formatExample(ex) }} </span>
           <ScalarIconClipboard
-            class="text-c-3 group-hover:text-c-1 ml-auto min-h-3 min-w-3"
-            size="xs" />
+            class="text-c-3 group-hover:text-c-1 ml-auto size-3 min-h-3 min-w-3" />
         </button>
       </div>
     </div>

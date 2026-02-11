@@ -7,7 +7,7 @@ import { ScalarIconDownloadSimple } from '@scalar/icons'
     href="https://scalar.com/download?utm_source=web_client&utm_medium=download_button&utm_campaign=topnav"
     target="_blank"
     type="button">
-    <ScalarIconDownloadSimple size="sm" />
+    <ScalarIconDownloadSimple class="size-3.5" />
     <span class="sr-only text-sm font-medium sm:not-sr-only">
       Download App
     </span>

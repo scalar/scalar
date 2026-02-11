@@ -106,8 +106,7 @@ const openDeleteModal = (serverUid: Server['uid']) => {
           variant="ghost"
           @click="handleAddServer">
           <ScalarIconPlus
-            class="inline-flex"
-            size="sm"
+            class="inline-flex size-3.5"
             weight="light" />
           <span>Add Server</span>
         </ScalarButton>
