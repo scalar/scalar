@@ -297,8 +297,8 @@ watch(
         :workspace="workspace" />
 
       <template
-        v-for="view in requestSectionViews"
-        :key="view.component">
+        v-for="(view, index) in requestSectionViews"
+        :key="view.title ?? index">
         <ScalarErrorBoundary>
           <component
             :is="view.component"

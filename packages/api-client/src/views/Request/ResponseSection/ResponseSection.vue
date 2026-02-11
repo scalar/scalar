@@ -202,8 +202,8 @@ const requestHeaders = computed(
           :role="activeFilter === 'All' ? 'none' : 'tabpanel'" />
 
         <template
-          v-for="view in responseSectionViews"
-          :key="view.component">
+          v-for="(view, index) in responseSectionViews"
+          :key="view.title ?? index">
           <ScalarErrorBoundary>
             <component
               :is="view.component"
