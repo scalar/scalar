@@ -72,7 +72,8 @@
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
     "vite": "catalog:*",
-    "@google-cloud/storage": "catalog:*"
+    "type-fest": "catalog:*",
+    "vitest": "catalog:*"
   },
   "peerDependencies": {
     "@scalar/typebox": "catalog:*"

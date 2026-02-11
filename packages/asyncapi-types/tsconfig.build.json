@@ -1,7 +1,7 @@
 {
   "extends": "./tsconfig.json",
   "include": ["src"],
-  "exclude": ["test", "esbuild.ts", "**/*.test.ts"],
+  "exclude": ["test", "esbuild.ts", "**/*.test.ts","**/*.test-d.ts"],
   "compilerOptions": {
     "skipLibCheck": true,
     "declaration": true,

@@ -6,7 +6,6 @@ export {
   AmqpMessageBindingSchema,
   AmqpOperationBindingSchema,
   AsyncApiDocumentSchema,
-  AsyncApiDocumentSchema as AsyncApiDocumentSchemaStrict,
   // Binding object schemas
   ChannelBindingsObjectSchema,
   ChannelObjectSchema,
