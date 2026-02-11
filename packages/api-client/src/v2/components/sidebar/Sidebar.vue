@@ -118,7 +118,7 @@ const handleSelectItem = (id: string) => {
             <div class="flex items-center justify-between">
               <!-- Desktop gets the workspace menu here  -->
               <SidebarMenu
-                v-if="layout === 'desktop'"
+                v-if="layout !== 'modal'"
                 :activeWorkspace="activeWorkspace"
                 :workspaces="workspaces"
                 @create:workspace="emit('create:workspace')"
@@ -133,16 +133,15 @@ const handleSelectItem = (id: string) => {
 
               <!-- Toggle search, always visible on web -->
               <ScalarIconButton
-                v-if="layout !== 'web'"
                 :icon="ScalarIconMagnifyingGlass"
                 label="Search"
                 @click="isSearchVisible = !isSearchVisible" />
             </div>
 
             <ScalarSidebarSearchInput
-              v-if="isSearchVisible || layout === 'web'"
+              v-if="isSearchVisible"
               v-model="query"
-              :autofocus="layout !== 'web'" />
+              autofocus />
           </div>
         </template>
 
