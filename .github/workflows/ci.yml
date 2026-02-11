@@ -718,6 +718,7 @@ jobs:
         uses: ./.github/actions/build
         with:
           packages: '@scalar/galaxy...'
+          node-version: 24
       - name: Check whether there's a new version of @scalar/galaxy
         id: changed-files
         uses: step-security/changed-files@60967b822d3001fa82242f8d6b4ed46bc3600a68 # v47
@@ -862,6 +863,7 @@ jobs:
         uses: ./.github/actions/build
         with:
           packages: '@scalar/galaxy...'
+          node-version: 24
 
       - name: Extract version and generate preview version
         id: preview-version
