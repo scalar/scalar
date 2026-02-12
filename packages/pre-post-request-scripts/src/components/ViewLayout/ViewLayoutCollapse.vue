@@ -1,10 +1,20 @@
+<script lang="ts">
+/**
+ * Simple collapsible section component that can be used to wrap content that should be collapsed and expanded
+ *
+ * Would like to replace with details/summary elements, but they are not supported in all browsers yet?
+ */
+export default {
+  name: 'CollapsibleSection',
+}
+</script>
+
 <script setup lang="ts">
-// TODO: This is a copy of the CollapsibleSection component in the API client.
-// I've copied it here, so we can move the scripts to a separate package.
-// But maybe we can move the component to a shared package?
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
 import { ScalarIcon } from '@scalar/components'
 import { useId } from 'vue'
+
+import ValueEmitter from './ValueEmitter.vue'
 
 const {
   defaultOpen = true,
@@ -18,6 +28,11 @@ const {
   /** Whether the disclosure is static and cannot be toggled. */
   isStatic?: boolean
 }>()
+
+const emit = defineEmits<{
+  (e: 'update:modelValue', value: boolean): void
+}>()
+
 const headingId = useId()
 </script>
 
@@ -29,6 +44,11 @@ const headingId = useId()
     :class="isStatic && 'last-of-type:first-of-type:border-b-0'"
     :defaultOpen="defaultOpen"
     :static="isStatic">
+    <!-- We use this hack to emit the slot value back to the parent -->
+    <ValueEmitter
+      :value="open as boolean"
+      @change="(value) => emit('update:modelValue', value)" />
+
     <section
       :aria-labelledby="headingId"
       class="contents">
