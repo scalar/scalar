@@ -505,13 +505,15 @@
   "navigation": {
     "header": [
       {
+        "type": "link",
         "title": "Log in",
-        "url": "https://dashboard.scalar.com/login"
+        "to": "https://dashboard.scalar.com/login"
       },
       {
+        "type": "link",
         "title": "Register",
         "style": "button",
-        "url": "https://dashboard.scalar.com/register"
+        "to": "https://dashboard.scalar.com/register"
       }
     ],
     "routes": {
