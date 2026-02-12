@@ -119,7 +119,7 @@ See the documentation for [the complete configuration reference](../configuratio
 
 ### Agent Scalar
 
-Agent Scalar adds an AI chat interface to your API reference. It is enabled by default on localhost with a limited free tier (10 messages). For production, you need an [Agent Scalar key](guides/agent/key.md).
+Agent Scalar adds an AI chat interface to your API reference. It is enabled by default on localhost with a limited free tier (10 messages). For production, you need an [Agent Scalar key](../guides/agent/key.md).
 
 To set an Agent Scalar API key (top-level):
 
@@ -187,5 +187,5 @@ let sources = vec![
 let config = json!({ "sources": serde_json::to_value(&sources).unwrap() });
 ```
 
-For more details, see [Agent Scalar](../configuration.md#agent-scalar) and [How to get an Agent Scalar key](guides/agent/key.md).
+For more details, see [Agent Scalar](../configuration.md#agent-scalar) and [How to get an Agent Scalar key](../guides/agent/key.md).
 
