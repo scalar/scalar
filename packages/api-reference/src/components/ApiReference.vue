@@ -753,9 +753,13 @@ eventBus.on('ui:download:document', async ({ format }) => {
  */
 const handleSelectItem = (id: string, caller?: 'sidebar') => {
   const item = sidebarState.getEntryById(id)
+  const isCollapsibleTextGroup =
+    item?.type === 'text' && !!('children' in item && item.children?.length)
 
   if (
-    (item?.type === 'tag' || item?.type === 'models') &&
+    (item?.type === 'tag' ||
+      item?.type === 'models' ||
+      isCollapsibleTextGroup) &&
     sidebarState.isExpanded(id)
   ) {
     // hack until we fix intersection logic
