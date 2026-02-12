@@ -2209,7 +2209,10 @@ describe('migrate-to-indexdb', () => {
             post: { summary: 'Create user' },
           },
           '/users/{id}': {
-            delete: { summary: 'Delete user' },
+            delete: {
+              summary: 'Delete user',
+              parameters: [{ name: 'id', in: 'path' }],
+            },
           },
         })
       })
