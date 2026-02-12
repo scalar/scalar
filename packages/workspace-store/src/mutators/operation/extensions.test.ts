@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
+import { getResolvedRef } from '@/helpers/get-resolved-ref'
 import type { WorkspaceDocument } from '@/schemas'
 
 import { updateOperationExtension } from './extensions'
@@ -30,7 +31,12 @@ describe('updateOperationExtension', () => {
       payload: { 'x-post-response': 'console.log(response)' },
     })
 
-    expect(document.paths?.['/users']?.get?.['x-post-response']).toBe('console.log(response)')
+    const operation = document.paths?.['/users']?.get
+    if (!operation) {
+      throw new Error('Expected operation in test setup')
+    }
+
+    expect(getResolvedRef(operation)['x-post-response']).toBe('console.log(response)')
   })
 
   it('overwrites an existing extension value', () => {
@@ -49,7 +55,7 @@ describe('updateOperationExtension', () => {
       payload: { 'x-post-response': 'console.log(new)' },
     })
 
-    expect(document.paths?.['/users']?.get?.['x-post-response']).toBe('console.log(new)')
+    expect(getResolvedRef(document.paths?.['/users']?.get)?.['x-post-response']).toBe('console.log(new)')
   })
 
   it('deep merges extension objects without dropping existing nested keys', () => {
@@ -57,11 +63,12 @@ describe('updateOperationExtension', () => {
       paths: {
         '/users': {
           get: {
-            'x-scalar-config': {
-              retries: 1,
-              nested: {
-                enabled: true,
-                mode: 'strict',
+            'x-scalar-disable-parameters': {
+              'global-headers': {
+                default: {
+                  Authorization: true,
+                  Accept: false,
+                },
               },
             },
           },
@@ -72,19 +79,27 @@ describe('updateOperationExtension', () => {
     updateOperationExtension(document, {
       meta: { method: 'get', path: '/users' },
       payload: {
-        'x-scalar-config': {
-          nested: {
-            mode: 'loose',
+        'x-scalar-disable-parameters': {
+          'global-headers': {
+            default: {
+              Authorization: false,
+            },
           },
         },
       },
     })
 
-    expect(document.paths?.['/users']?.get?.['x-scalar-config']).toEqual({
-      retries: 1,
-      nested: {
-        enabled: true,
-        mode: 'loose',
+    const operation = document.paths?.['/users']?.get
+    if (!operation) {
+      throw new Error('Expected operation in test setup')
+    }
+
+    expect(getResolvedRef(operation)['x-scalar-disable-parameters']).toEqual({
+      'global-headers': {
+        default: {
+          Authorization: false,
+          Accept: false,
+        },
       },
     })
   })

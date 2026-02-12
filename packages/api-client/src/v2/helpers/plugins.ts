@@ -98,11 +98,3 @@ export const executeHook = async <K extends keyof HookPayloadMap>(
 
   return currentPayload
 }
-
-/**
- * Filter plugins by component
- */
-export const getComponents = <K extends keyof ClientPluginComponents>(
-  name: K,
-  plugins: ClientPlugin[],
-): ClientPluginComponents[K][] => plugins.flatMap((plugin) => plugin.components?.[name] ?? [])
