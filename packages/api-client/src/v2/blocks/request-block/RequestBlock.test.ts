@@ -1,7 +1,8 @@
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
+import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
-import { defineComponent, markRaw } from 'vue'
+import { type DefineComponent, defineComponent, markRaw } from 'vue'
 
 import RequestBody from '@/v2/blocks/request-block/components/RequestBody.vue'
 import { AuthSelector } from '@/v2/blocks/scalar-auth-selector-block'
@@ -355,21 +356,30 @@ describe('RequestBlock', () => {
   })
 
   it('renders plugin component when provided', () => {
+    const PluginRequestComponent = markRaw(
+      defineComponent({
+        template: '<div>Plugin Request Component</div>',
+      }) as DefineComponent<
+        { operation: OperationObject },
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        { 'operation:update:extension': (payload: any) => void }
+      >,
+    )
+
     const wrapper = mount(RequestBlock, {
       props: {
         ...defaultProps,
         plugins: [
           {
             components: {
-              request: markRaw(
-                defineComponent({
-                  props: {
-                    operation: { type: Object, required: true },
-                    selectedExample: { type: String, required: false },
-                  },
-                  template: '<div>Plugin Request Component</div>',
-                }),
-              ),
+              request: {
+                component: PluginRequestComponent,
+              },
             },
           },
         ],
