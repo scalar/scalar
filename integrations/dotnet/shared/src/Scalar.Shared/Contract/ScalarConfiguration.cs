@@ -95,7 +95,6 @@ internal sealed class ScalarConfiguration
 }
 
 [JsonSerializable(typeof(ScalarConfiguration))]
-[JsonSerializable(typeof(ScalarAgentOptions))]
 [JsonSerializable(typeof(Dictionary<ScalarTarget, ScalarClient[]>))] // Type of hidden clients
 [JsonSourceGenerationOptions(DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull, PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase)]
 internal sealed partial class ScalarConfigurationSerializerContext : JsonSerializerContext;
