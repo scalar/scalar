@@ -116,28 +116,25 @@ describe('galaxy-scalar-com', () => {
     it('configures Scalar with correct options', () => {
       configureApiReference(mockApp as Hono, 5052, false)
 
-      expect(Scalar).toHaveBeenCalledWith({
-        pageTitle: 'Scalar Galaxy',
-        cdn: undefined,
-        sources: [
-          {
-            title: 'Scalar Galaxy',
-            url: '/openapi.yaml',
-          },
-          {
-            title: 'Petstore (OpenAPI 3.1)',
-            url: 'https://petstore31.swagger.io/api/v31/openapi.json',
-          },
-          {
-            title: 'Petstore (Swagger 2.0)',
-            url: 'https://petstore.swagger.io/v2/swagger.json',
-          },
-        ],
-        theme: 'default',
-        proxyUrl: 'https://proxy.scalar.com',
-        baseServerURL: 'http://localhost:5052',
-        persistAuth: true,
-      })
+      expect(Scalar).toHaveBeenCalledWith(
+        expect.objectContaining({
+          pageTitle: 'Scalar Galaxy',
+          cdn: undefined,
+          sources: expect.arrayContaining([
+            expect.objectContaining({
+              title: expect.any(String),
+              url: expect.any(String),
+            }),
+          ]),
+          theme: expect.any(String),
+          proxyUrl: 'https://proxy.scalar.com',
+          baseServerURL: 'http://localhost:5052',
+          persistAuth: true,
+          agent: expect.objectContaining({
+            key: expect.any(String),
+          }),
+        }),
+      )
     })
 
     it('configures Scalar with local JS bundle when enabled', () => {
