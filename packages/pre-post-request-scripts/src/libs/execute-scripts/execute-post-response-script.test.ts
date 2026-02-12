@@ -63,6 +63,21 @@ describe('execute-post-response-script', () => {
     })
   })
 
+  it('supports header assertions with pm.response.to.have.header', async () => {
+    const results = await executeScript({
+      script: `pm.test("Content-Type header is present", function () {
+  pm.response.to.have.header("Content-Type")
+})`,
+    })
+
+    expect(results).toHaveLength(1)
+    expect(results[0]).toMatchObject({
+      title: 'Content-Type header is present',
+      passed: true,
+      status: 'passed',
+    })
+  })
+
   it('reports runtime errors outside pm.test', async () => {
     const results = await executeScript({
       script: `throw new Error("kaboom")`,

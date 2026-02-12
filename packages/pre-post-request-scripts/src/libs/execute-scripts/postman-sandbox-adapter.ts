@@ -25,7 +25,7 @@ const toPostmanResponse = async (response: Response) => {
   return {
     code: response.status,
     status: response.statusText || String(response.status),
-    header: Object.fromEntries(response.headers.entries()),
+    header: Array.from(response.headers.entries()).map(([key, value]) => ({ key, value })),
     stream: {
       type: 'Buffer',
       data: responseBytes,
