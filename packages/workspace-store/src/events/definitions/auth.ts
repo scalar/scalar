@@ -7,7 +7,7 @@ import type {
   SecurityRequirementObject,
   SecuritySchemeObject,
 } from '@/schemas/v3.1/strict/openapi-document'
-import type { ApiKeyObject, HttpObject, OAuth2Object } from '@/schemas/v3.1/strict/security-scheme'
+import type { ApiKeyObject, HttpObject, OAuth2Object, OpenIdConnectObject } from '@/schemas/v3.1/strict/security-scheme'
 
 /**
  * AuthMeta defines the meta information needed to specify whether the authentication operation
@@ -45,6 +45,9 @@ type SecuritySchemeUpdatePayload =
   | ({
       type: 'oauth2'
     } & PartialDeep<Omit<OAuth2Object, 'type'>>)
+  | ({
+      type: 'openIdConnect'
+    } & Partial<Omit<OpenIdConnectObject, 'type'>>)
 
 /** Event definitions for auth */
 export type AuthEvents = {

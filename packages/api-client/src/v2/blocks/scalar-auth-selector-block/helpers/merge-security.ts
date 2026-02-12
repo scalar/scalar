@@ -3,7 +3,6 @@ import type { AuthenticationConfiguration } from '@scalar/types/api-reference'
 import type { AuthStore } from '@scalar/workspace-store/entities/auth'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { mergeObjects } from '@scalar/workspace-store/helpers/merge-object'
-import { unpackProxyObject } from '@scalar/workspace-store/helpers/unpack-proxy'
 import type {
   ComponentsObject,
   SecuritySchemeObject,
@@ -15,6 +14,21 @@ import type { SecuritySchemeObjectSecret } from './secret-types'
 /** Document security merged with the config security schemes */
 export type MergedSecuritySchemes = Record<string, SecuritySchemeObjectSecret>
 
+/**
+ * Creates a deep, plain clone by traversing the resolved scheme object.
+ * We intentionally read through the proxy so Vue can track nested dependencies
+ * and invalidate any computed value that consumes mergeSecurity.
+ *
+ * This was previously a structuredClone with unpackProxyObject but it was causing issues with vue's reactivity
+ */
+const cloneResolvedSecurityScheme = (scheme: SecuritySchemeObject | undefined): SecuritySchemeObject | undefined => {
+  if (!scheme) {
+    return undefined
+  }
+
+  return mergeObjects<SecuritySchemeObject>({}, scheme as Record<string, unknown>)
+}
+
 /** Merge the authentication config with the document security schemes + the auth store secrets */
 export const mergeSecurity = (
   documentSecuritySchemes: ComponentsObject['securitySchemes'] = {},
@@ -25,8 +39,10 @@ export const mergeSecurity = (
   /** Resolve any refs in the document security schemes */
   const resolvedDocumentSecuritySchemes = objectEntries(documentSecuritySchemes).reduce(
     (acc, [key, value]) => {
-      // Use structuredClone to ensure we don't mutate the original object when we merge
-      acc[key] = structuredClone(unpackProxyObject(getResolvedRef(value)))
+      const resolved = cloneResolvedSecurityScheme(getResolvedRef(value))
+      if (resolved) {
+        acc[key] = resolved
+      }
       return acc
     },
     {} as Record<string, SecuritySchemeObject>,

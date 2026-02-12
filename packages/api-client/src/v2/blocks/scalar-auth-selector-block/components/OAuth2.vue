@@ -42,7 +42,6 @@ const {
   environment: XScalarEnvironment
   /** OAuth flows */
   flows: OAuthFlowsObjectSecret
-  /** Current environment configuration */
   /** Type of the OAuth flow */
   type: keyof OAuthFlowsObjectSecret
   /** Selected scopes */

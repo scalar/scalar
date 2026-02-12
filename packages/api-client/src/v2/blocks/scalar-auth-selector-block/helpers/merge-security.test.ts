@@ -6,6 +6,7 @@ import {
   SecuritySchemeObjectSchema,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { describe, expect, it } from 'vitest'
+import { computed, reactive } from 'vue'
 
 import { mergeSecurity } from './merge-security'
 
@@ -654,5 +655,23 @@ describe('mergeSecurity', () => {
     })
     expect(result.oauth2).not.toHaveProperty('$ref')
     expect(result.oauth2).not.toHaveProperty('$ref-value')
+  })
+
+  it('reacts to nested security scheme updates in computed consumers', () => {
+    const securitySchemes = reactive<NonNullable<ComponentsObject['securitySchemes']>>({
+      bearerAuth: {
+        type: 'http',
+        scheme: 'bearer',
+        token: 'first-token',
+      },
+    })
+
+    const merged = computed(() => mergeSecurity(securitySchemes, {}, authStore, documentSlug))
+
+    expect(merged.value.bearerAuth?.['x-scalar-secret-token']).toBe('first-token')
+
+    securitySchemes.bearerAuth.token = 'updated-token'
+
+    expect(merged.value.bearerAuth?.['x-scalar-secret-token']).toBe('updated-token')
   })
 })

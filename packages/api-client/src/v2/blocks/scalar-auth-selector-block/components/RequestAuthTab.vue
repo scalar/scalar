@@ -18,10 +18,11 @@ import type {
 import { capitalize, computed, ref } from 'vue'
 
 import type { MergedSecuritySchemes } from '@/v2/blocks/scalar-auth-selector-block'
-import OAuth2 from '@/v2/blocks/scalar-auth-selector-block/components/OAuth2.vue'
 import type { SecuritySchemeObjectSecret } from '@/v2/blocks/scalar-auth-selector-block/helpers/secret-types'
 import { DataTableCell, DataTableRow } from '@/v2/components/data-table'
 
+import OAuth2 from './OAuth2.vue'
+import OpenIDConnect from './OpenIDConnect.vue'
 import RequestAuthDataTableInput from './RequestAuthDataTableInput.vue'
 
 type SecurityItem = {
@@ -312,13 +313,16 @@ const getFlowTabClasses = (flowKey: string, index: number): string => {
       </template>
     </template>
 
-    <!-- OpenID Connect: coming soon -->
-    <template v-else-if="scheme?.type === 'openIdConnect'">
-      <div
-        class="text-c-3 bg-b-1 flex min-h-[calc(4rem+1px)] items-center justify-center border-t border-b-0 px-4 text-base"
-        :class="{ 'rounded-b-lg': isStatic }">
-        Coming soon
-      </div>
-    </template>
+    <!-- OpenID Connect -->
+    <OpenIDConnect
+      v-else-if="scheme?.type === 'openIdConnect'"
+      :environment
+      :eventBus
+      :getStaticBorderClass
+      :isFlowActive
+      :name
+      :proxyUrl
+      :scheme
+      :server />
   </template>
 </template>
