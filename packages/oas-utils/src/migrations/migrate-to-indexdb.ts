@@ -57,12 +57,14 @@ export const migrateLocalStorageToIndexDb = async () => {
   }
 
   console.info('🚀 Starting migration from localStorage to IndexedDB...')
+  let closeWorkspacePersistence: (() => void) | undefined
 
   try {
     // Step 1: Run existing migrations to get latest data structure
     const legacyData = migrator()
 
-    const { workspace: workspacePersistence } = await createWorkspaceStorePersistence()
+    const { close, workspace: workspacePersistence } = await createWorkspaceStorePersistence()
+    closeWorkspacePersistence = close
 
     console.info(
       `📦 Found legacy data: ${legacyData.arrays.workspaces.length} workspace(s), ${legacyData.arrays.collections.length} collection(s)`,
@@ -93,6 +95,8 @@ export const migrateLocalStorageToIndexDb = async () => {
     console.info(`✅ Successfully migrated ${workspaces.length} workspace(s) to IndexedDB`)
   } catch (error) {
     console.error('❌ Migration failed:', error)
+  } finally {
+    closeWorkspacePersistence?.()
   }
 }
 
