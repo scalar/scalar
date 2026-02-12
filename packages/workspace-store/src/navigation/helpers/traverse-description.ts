@@ -37,6 +37,7 @@ export const traverseDescription = ({
   const lowestLevel = getLowestHeadingLevel(headings)
 
   const entries: TraversedDescription[] = []
+  let introductionEntry: TraversedDescription | null = null
   let currentParent: TraversedDescription | null = null
 
   // Add "Introduction" as the first heading
@@ -61,10 +62,12 @@ export const traverseDescription = ({
       id,
       title,
       type: 'text',
+      children: [],
     } satisfies TraversedDescription
 
     // Push to entries
     entries.push(entry)
+    introductionEntry = entry
   }
 
   // Traverse for the rest
@@ -88,7 +91,11 @@ export const traverseDescription = ({
 
     if (heading.depth === lowestLevel) {
       entry.children = []
-      entries.push(entry)
+      if (introductionEntry) {
+        introductionEntry.children?.push(entry)
+      } else {
+        entries.push(entry)
+      }
       currentParent = entry
     } else if (currentParent) {
       currentParent.children?.push(entry)
