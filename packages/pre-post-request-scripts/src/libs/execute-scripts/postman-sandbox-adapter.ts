@@ -99,48 +99,50 @@ export const executeInPostmanSandbox = async ({
     ;(consoleMethod as (...params: unknown[]) => void)(...args)
   }
 
-  sandboxContext.on('execution.assertion', handleAssertion)
-  sandboxContext.on('console', handleConsole)
+  try {
+    sandboxContext.on('execution.assertion', handleAssertion)
+    sandboxContext.on('console', handleConsole)
 
-  const postmanResponse = await toPostmanResponse(response)
+    const postmanResponse = await toPostmanResponse(response)
 
-  await new Promise<void>((resolve) => {
-    sandboxContext.execute(
-      {
-        listen: 'test',
-        script: {
-          exec: [script],
+    await new Promise<void>((resolve) => {
+      sandboxContext.execute(
+        {
+          listen: 'test',
+          script: {
+            exec: [script],
+          },
         },
-      },
-      {
-        disableLegacyAPIs: true,
-        context: {
-          response: postmanResponse,
+        {
+          disableLegacyAPIs: true,
+          context: {
+            response: postmanResponse,
+          },
         },
-      },
-      (error: unknown) => {
-        if (error) {
-          const duration = Number((performance.now() - startedAt).toFixed(2))
-          const errorMessage = toErrorMessage(error)
+        (error: unknown) => {
+          if (error) {
+            const duration = Number((performance.now() - startedAt).toFixed(2))
+            const errorMessage = toErrorMessage(error)
 
-          scriptConsole.error(`[Post-Response Script] Error (${duration}ms):`, errorMessage)
+            scriptConsole.error(`[Post-Response Script] Error (${duration}ms):`, errorMessage)
 
-          testResults.push({
-            title: 'Script Execution',
-            passed: false,
-            duration,
-            error: errorMessage,
-            status: 'failed',
-          })
-          onTestResultsUpdate?.([...testResults])
-        }
+            testResults.push({
+              title: 'Script Execution',
+              passed: false,
+              duration,
+              error: errorMessage,
+              status: 'failed',
+            })
+            onTestResultsUpdate?.([...testResults])
+          }
 
-        resolve()
-      },
-    )
-  })
-
-  sandboxContext.off('execution.assertion', handleAssertion)
-  sandboxContext.off('console', handleConsole)
-  sandboxContext.dispose()
+          resolve()
+        },
+      )
+    })
+  } finally {
+    sandboxContext.off('execution.assertion', handleAssertion)
+    sandboxContext.off('console', handleConsole)
+    sandboxContext.dispose()
+  }
 }
