@@ -61,6 +61,9 @@ export function configureApiReference(app: Hono, port: number, useLocalJsBundle:
       proxyUrl: 'https://proxy.scalar.com',
       baseServerURL: `http://localhost:${port}`,
       persistAuth: true,
+      agent: {
+        key: 'eyJhbGciOiJFZERTQSJ9.eyJ1aWQiOiJKcWpjUkQ0aEZFRGpocGpCNDJEM24iLCJ0ZWFtVWlkIjoiSWxNbm05TXh5LVNhYm1MeEVfaTBMIiwiZXhwIjoxOTI4NTc4NDQ3LCJpYXQiOjE3NzA4OTg0NDd9.URUeP5n-RCTCHk8yJyAwlYZaLgJs0yAnOm6av-QoUD1vAuMd18eaSD3ziJFv9O5Vthcat7ICjJmq-qKe18EjBw',
+      },
     }),
   )
 
