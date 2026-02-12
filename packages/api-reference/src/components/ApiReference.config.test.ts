@@ -1,9 +1,11 @@
 import type { ClientOptionGroup } from '@scalar/api-client/v2/blocks/operation-code-sample'
 import type { TraversedTag } from '@scalar/workspace-store/schemas/navigation'
-import { flushPromises, mount } from '@vue/test-utils'
+import { enableAutoUnmount, flushPromises, mount } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import ApiReference from './ApiReference.vue'
+
+enableAutoUnmount(afterEach)
 
 vi.mock(import('@scalar/use-hooks/useBreakpoints'), (importOriginal) => ({
   ...importOriginal(),
@@ -15,7 +17,6 @@ vi.mock(import('@scalar/use-hooks/useBreakpoints'), (importOriginal) => ({
 }))
 
 /** Track all mounted wrappers so we can unmount them after each test */
-const wrappers: ReturnType<typeof mount>[] = []
 const locationMock = {
   href: 'http://localhost:3000/',
   origin: 'http://localhost:3000',
@@ -92,23 +93,12 @@ beforeEach(() => {
   }))
 })
 
-// Clean up all mounted wrappers after each test
-afterEach(() => {
-  while (wrappers.length > 0) {
-    const wrapper = wrappers.pop()
-    if (wrapper?.vm) {
-      wrapper.unmount()
-    }
-  }
-})
-
 /** Helper function to mount and track component */
 const mountComponent = (props: Parameters<typeof mount>[1]) => {
   const wrapper = mount(ApiReference, {
     ...props,
     attachTo: document.body,
   })
-  wrappers.push(wrapper)
   return wrapper
 }
 

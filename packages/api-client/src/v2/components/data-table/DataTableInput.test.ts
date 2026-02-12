@@ -1,8 +1,10 @@
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
-import { type VueWrapper, mount } from '@vue/test-utils'
+import { type VueWrapper, enableAutoUnmount, mount } from '@vue/test-utils'
 import { afterEach, describe, expect, it } from 'vitest'
 
 import DataTableInput from './DataTableInput.vue'
+
+enableAutoUnmount(afterEach)
 
 const mockEnvironment: XScalarEnvironment = {
   color: '#ff0000',
@@ -11,10 +13,6 @@ const mockEnvironment: XScalarEnvironment = {
 
 describe('DataTableInput', () => {
   let wrapper: VueWrapper<InstanceType<typeof DataTableInput>>
-
-  afterEach(() => {
-    wrapper?.unmount()
-  })
 
   describe('input functionality', () => {
     it('renders a text input when type is not password', () => {

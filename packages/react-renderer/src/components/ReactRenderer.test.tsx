@@ -1,27 +1,21 @@
 // @vitest-environment jsdom
-import { mount } from '@vue/test-utils'
+import { enableAutoUnmount, mount } from '@vue/test-utils'
 import type { FC } from 'react'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+
 import { ReactConnector } from './ReactConnector'
 import ReactRenderer from './ReactRenderer.vue'
+
+enableAutoUnmount(afterEach)
 
 /**
  * Those tests are a bit flaky, so we're retrying them 3 times.
  */
-
 describe('ReactRenderer', { retry: 3 }, () => {
-  let TestComponent: FC<{ message?: string }>
+  const TestComponent: FC<{ message?: string }> = ({ message = 'Default message' }) => (
+    <div data-testid="react-test">{message}</div>
+  )
   let wrapper: ReturnType<typeof mount>
-
-  beforeEach(() => {
-    TestComponent = ({ message = 'Default message' }) => <div data-testid="react-test">{message}</div>
-  })
-
-  afterEach(() => {
-    if (wrapper) {
-      wrapper.unmount()
-    }
-  })
 
   it('renders the React component', async () => {
     wrapper = mount(ReactRenderer, {

@@ -1,13 +1,15 @@
 import { environmentSchema } from '@scalar/oas-utils/entities/environment'
 import { operationSchema, requestExampleSchema } from '@scalar/oas-utils/entities/spec'
 import { workspaceSchema } from '@scalar/oas-utils/entities/workspace'
-import { mount } from '@vue/test-utils'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { enableAutoUnmount, mount } from '@vue/test-utils'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { useWorkspace } from '@/store'
 import { createStoreEvents } from '@/store/events'
 
 import RequestBody from './RequestBody.vue'
+
+enableAutoUnmount(afterEach)
 
 // Mock the useWorkspace hook
 vi.mock('@/store', () => ({
@@ -67,7 +69,6 @@ describe('RequestBody.vue', () => {
   it('renders correctly with no body', () => {
     const wrapper = mount(RequestBody, props)
     expect(wrapper.findComponent({ name: 'ScalarListbox' }).text()).toContain('None')
-    wrapper.unmount()
   })
 
   it('renders with multipart form', () => {
@@ -81,7 +82,6 @@ describe('RequestBody.vue', () => {
 
     const wrapper = mount(RequestBody, props)
     expect(wrapper.findComponent({ name: 'ScalarListbox' }).text()).toContain('Multipart Form')
-    wrapper.unmount()
   })
 
   it('renders with url encoded form', () => {
@@ -95,7 +95,6 @@ describe('RequestBody.vue', () => {
     const wrapper = mount(RequestBody, props)
 
     expect(wrapper.findComponent({ name: 'ScalarListbox' }).text()).toContain('Form URL Encoded')
-    wrapper.unmount()
   })
 
   it('renders with binary file', () => {
@@ -105,7 +104,6 @@ describe('RequestBody.vue', () => {
     const wrapper = mount(RequestBody, props)
 
     expect(wrapper.findComponent({ name: 'ScalarListbox' }).text()).toContain('Binary File')
-    wrapper.unmount()
   })
 
   it('renders with json', async () => {
@@ -121,7 +119,6 @@ describe('RequestBody.vue', () => {
     await new Promise((resolve) => setTimeout(resolve, 750))
 
     expect(wrapper.findComponent({ name: 'ScalarListbox' }).text()).toContain('JSON')
-    wrapper.unmount()
   })
 
   it('renders with xml', () => {
@@ -135,7 +132,6 @@ describe('RequestBody.vue', () => {
     const wrapper = mount(RequestBody, props)
 
     expect(wrapper.findComponent({ name: 'ScalarListbox' }).text()).toContain('XML')
-    wrapper.unmount()
   })
 
   it('renders with yaml', () => {
@@ -149,7 +145,6 @@ describe('RequestBody.vue', () => {
     const wrapper = mount(RequestBody, props)
 
     expect(wrapper.findComponent({ name: 'ScalarListbox' }).text()).toContain('YAML')
-    wrapper.unmount()
   })
 
   it('renders with edn', () => {
@@ -163,7 +158,6 @@ describe('RequestBody.vue', () => {
     const wrapper = mount(RequestBody, props)
 
     expect(wrapper.findComponent({ name: 'ScalarListbox' }).text()).toContain('EDN')
-    wrapper.unmount()
   })
 
   it('renders with other', () => {
@@ -177,7 +171,6 @@ describe('RequestBody.vue', () => {
     const wrapper = mount(RequestBody, props)
 
     expect(wrapper.findComponent({ name: 'ScalarListbox' }).text()).toContain('Other')
-    wrapper.unmount()
   })
 
   it('keeps Content-Type header when switching to raw body type', async () => {
@@ -204,8 +197,6 @@ describe('RequestBody.vue', () => {
     expect(mockRequestExampleMutators.edit).toHaveBeenCalledWith('mockExampleUid', 'parameters.headers', [
       { key: 'Content-Type', value: 'application/json', enabled: true },
     ])
-
-    wrapper.unmount()
   })
 
   it('removes Content-Type header when switching to none body type', async () => {
@@ -230,8 +221,6 @@ describe('RequestBody.vue', () => {
     await listbox.vm.$emit('update:modelValue', { id: 'none', label: 'None' })
 
     expect(mockRequestExampleMutators.edit).toHaveBeenCalledWith('mockExampleUid', 'parameters.headers', [])
-
-    wrapper.unmount()
   })
 
   it('uses vendor-specific JSON content type when available', async () => {
@@ -264,8 +253,6 @@ describe('RequestBody.vue', () => {
     expect(mockRequestExampleMutators.edit).toHaveBeenCalledWith('mockExampleUid', 'parameters.headers', [
       { key: 'Content-Type', value: 'application/vnd.api+json', enabled: true },
     ])
-
-    wrapper.unmount()
   })
 
   describe('delete row from form-data and urlencoded', () => {
@@ -291,8 +278,6 @@ describe('RequestBody.vue', () => {
         { key: 'field1', value: 'value1', enabled: true },
         { key: '', value: '', enabled: false },
       ])
-
-      wrapper.unmount()
     })
 
     it('does not delete row with invalid index', async () => {
@@ -312,8 +297,6 @@ describe('RequestBody.vue', () => {
 
       // Verify that edit was not called for the invalid deletion
       expect(vi.mocked(mockRequestExampleMutators.edit).mock.calls.length).toBe(initialCallCount)
-
-      wrapper.unmount()
     })
 
     it('deletes a row from form urlencoded', async () => {
@@ -336,8 +319,6 @@ describe('RequestBody.vue', () => {
       expect(mockRequestExampleMutators.edit).toHaveBeenCalledWith('mockExampleUid', 'body.formData.value', [
         { key: '', value: '', enabled: false },
       ])
-
-      wrapper.unmount()
     })
 
     it('deletes row with file attachment', async () => {
@@ -364,8 +345,6 @@ describe('RequestBody.vue', () => {
         { key: 'field1', value: 'value1', enabled: true },
         { key: 'field3', value: 'value3', enabled: true },
       ])
-
-      wrapper.unmount()
     })
   })
 })

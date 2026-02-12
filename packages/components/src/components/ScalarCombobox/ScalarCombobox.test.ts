@@ -1,10 +1,12 @@
-import { mount } from '@vue/test-utils'
-import { describe, expect, it, vi } from 'vitest'
+import { enableAutoUnmount, mount } from '@vue/test-utils'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { nextTick } from 'vue'
 
 import ScalarCombobox from './ScalarCombobox.vue'
 import ScalarComboboxOption from './ScalarComboboxOption.vue'
 import type { Option, OptionGroup } from './types'
+
+enableAutoUnmount(afterEach)
 
 // Mock data
 const singleOptions = [
@@ -93,12 +95,10 @@ describe('ScalarCombobox', () => {
       const input = wrapper.find('input[type="text"]')
       expect(input.element).toBe(document.activeElement)
 
-      wrapper.unmount()
-
       vi.useRealTimers()
     })
 
-    it('closes combobox when tabbing out of the input', async () => {
+    it('closes combobox when tabbing out of the input', async ({ onTestFinished }) => {
       // Create a container with the combobox and another focusable element
       const container = document.createElement('div')
       container.innerHTML = '<button id="after-button">After Button</button>'
@@ -131,8 +131,9 @@ describe('ScalarCombobox', () => {
       const optionsList = wrapper.find('ul[role="listbox"]')
       expect(optionsList.exists()).toBe(false)
 
-      wrapper.unmount()
-      document.body.removeChild(container)
+      onTestFinished(() => {
+        document.body.removeChild(container)
+      })
     })
   })
 

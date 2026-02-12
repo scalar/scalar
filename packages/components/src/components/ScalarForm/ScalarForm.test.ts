@@ -1,7 +1,9 @@
-import { mount } from '@vue/test-utils'
-import { describe, expect, it } from 'vitest'
+import { enableAutoUnmount, mount } from '@vue/test-utils'
+import { afterEach, describe, expect, it } from 'vitest'
 
 import ScalarForm from './ScalarForm.vue'
+
+enableAutoUnmount(afterEach)
 
 describe('ScalarForm', () => {
   it('renders correctly', () => {
@@ -21,7 +23,5 @@ describe('ScalarForm', () => {
     await wrapper.find('button').trigger('click')
 
     expect(wrapper.emitted()).toHaveProperty('submit')
-
-    wrapper.unmount()
   })
 })

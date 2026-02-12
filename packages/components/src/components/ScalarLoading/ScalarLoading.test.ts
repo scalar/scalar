@@ -1,16 +1,18 @@
-import { mount } from '@vue/test-utils'
+import { enableAutoUnmount, mount } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { nextTick } from 'vue'
 
 import { ScalarLoading, useLoadingState } from './'
 
+enableAutoUnmount(afterEach)
+
 describe('ScalarLoading', () => {
   beforeEach(() => {
     vi.useFakeTimers()
-  })
 
-  afterEach(() => {
-    vi.useRealTimers()
+    return () => {
+      vi.useRealTimers()
+    }
   })
 
   it('does not render when loader is not provided', () => {
@@ -261,8 +263,6 @@ describe('ScalarLoading', () => {
 
       const loaderWrapper = wrapper.find('.loader-wrapper')
       expect(loaderWrapper.exists()).toBe(true)
-
-      wrapper.unmount()
     })
   })
 

@@ -1,7 +1,7 @@
 import { useModal } from '@scalar/components'
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
 import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import { flushPromises, mount } from '@vue/test-utils'
+import { enableAutoUnmount, flushPromises, mount } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { computed, nextTick } from 'vue'
 
@@ -11,6 +11,8 @@ import { mockEventBus } from '@/v2/helpers/test-utils'
 
 import { useModalSidebar } from './hooks/use-modal-sidebar'
 import Modal from './Modal.vue'
+
+enableAutoUnmount(afterEach)
 
 /**
  * Mock useFocusTrap - requires a real focusable DOM element which is unavailable in JSDOM tests.
@@ -139,8 +141,6 @@ describe('Modal', () => {
     expect(modalContainer.exists()).toBe(true)
     expect(modalContainer.attributes('role')).toBe('dialog')
     expect(modalContainer.attributes('aria-modal')).toBe('true')
-
-    wrapper.unmount()
   })
 
   it('hides when modal state is closed', async () => {
@@ -156,8 +156,6 @@ describe('Modal', () => {
      */
     const scalarApp = wrapper.find('.scalar')
     expect(scalarApp.attributes('style')).toContain('display: none')
-
-    wrapper.unmount()
   })
 
   it('renders Operation component when document, path, and method are provided', async () => {
@@ -173,8 +171,6 @@ describe('Modal', () => {
      */
     const operation = wrapper.findComponent({ name: 'Operation' })
     expect(operation.exists()).toBe(true)
-
-    wrapper.unmount()
   })
 
   it('renders empty state when document is missing', async () => {
@@ -216,8 +212,6 @@ describe('Modal', () => {
     expect(wrapper.text()).toContain('No document selected')
     const operation = wrapper.findComponent({ name: 'Operation' })
     expect(operation.exists()).toBe(false)
-
-    wrapper.unmount()
   })
 
   it('renders Sidebar component', async () => {
@@ -233,8 +227,6 @@ describe('Modal', () => {
      */
     const sidebar = wrapper.findComponent({ name: 'Sidebar' })
     expect(sidebar.exists()).toBe(true)
-
-    wrapper.unmount()
   })
 
   it('renders SidebarToggle component', async () => {
@@ -249,8 +241,6 @@ describe('Modal', () => {
      */
     const sidebarToggle = wrapper.findComponent({ name: 'SidebarToggle' })
     expect(sidebarToggle.exists()).toBe(true)
-
-    wrapper.unmount()
   })
 
   it('closes modal when clicking exit overlay', async () => {
@@ -269,8 +259,6 @@ describe('Modal', () => {
 
     await exitOverlay.trigger('click')
     expect(modalState.open).toBe(false)
-
-    wrapper.unmount()
   })
 
   it('uses default sidebar width when not configured', async () => {
@@ -288,8 +276,6 @@ describe('Modal', () => {
      * The default is 288 pixels.
      */
     expect(wrapper.vm.sidebarWidth).toBe(288)
-
-    wrapper.unmount()
   })
 
   it('uses configured sidebar width from workspace store', async () => {
@@ -305,18 +291,17 @@ describe('Modal', () => {
      * This ensures user preferences are applied.
      */
     expect(wrapper.vm.sidebarWidth).toBe(400)
-
-    wrapper.unmount()
   })
 
   it('computes environment from workspace and document', async () => {
     const { props, modalState, store } = await createModalProps({
       'x-scalar-environments': {
         prod: {
+          color: '#FFFFFF',
           variables: [{ name: 'API_KEY', value: 'doc-key-123' }],
         },
       },
-    } as any)
+    })
 
     // Set workspace-level environment
     store.workspace['x-scalar-active-environment'] = 'prod'
@@ -351,8 +336,6 @@ describe('Modal', () => {
         },
       ],
     })
-
-    wrapper.unmount()
   })
 
   it('passes correct props to Operation component', async () => {
@@ -371,8 +354,6 @@ describe('Modal', () => {
     expect(operation.props('method')).toBe(method.value)
     expect(operation.props('exampleName')).toBe(exampleName.value)
     expect(operation.props('layout')).toBe('modal')
-
-    wrapper.unmount()
   })
 
   it('has correct accessibility attributes', async () => {
@@ -390,14 +371,12 @@ describe('Modal', () => {
     expect(dialog.attributes('aria-modal')).toBe('true')
     expect(dialog.attributes('aria-label')).toBe('API Client')
     expect(dialog.attributes('tabindex')).toBe('-1')
-
-    wrapper.unmount()
   })
 
   it('disables page scrolling when modal opens', async () => {
     const { props, modalState } = await createModalProps()
 
-    const wrapper = mount(Modal, { props, attachTo: '#scalar-modal-test' })
+    mount(Modal, { props, attachTo: '#scalar-modal-test' })
     await waitForUpdates()
 
     // Open the modal
@@ -417,8 +396,6 @@ describe('Modal', () => {
      * Page scrolling should be restored when modal is closed.
      */
     expect(document.documentElement.style.overflow).toBe('')
-
-    wrapper.unmount()
   })
 
   it('renders with modal layout for Operation', async () => {
@@ -437,8 +414,6 @@ describe('Modal', () => {
 
     const sidebar = wrapper.findComponent({ name: 'Sidebar' })
     expect(sidebar.props('layout')).toBe('modal')
-
-    wrapper.unmount()
   })
 
   it('passes hideClientButton option to Operation component', async () => {
@@ -501,7 +476,5 @@ describe('Modal', () => {
     const operationWithDefault = wrapperWithDefault.findComponent({ name: 'OperationBlock' })
     expect(operationWithDefault.exists()).toBe(true)
     expect(operationWithDefault.props('hideClientButton')).toBe(false)
-
-    wrapperWithDefault.unmount()
   })
 })

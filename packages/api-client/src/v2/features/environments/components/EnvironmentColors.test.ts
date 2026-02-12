@@ -1,7 +1,9 @@
-import { mount } from '@vue/test-utils'
-import { describe, expect, it } from 'vitest'
+import { enableAutoUnmount, mount } from '@vue/test-utils'
+import { afterEach, describe, expect, it } from 'vitest'
 
 import EnvironmentColors from './EnvironmentColors.vue'
+
+enableAutoUnmount(afterEach)
 
 describe('EnvironmentColors', () => {
   it('renders the component', () => {
@@ -166,7 +168,5 @@ describe('EnvironmentColors', () => {
     const input = wrapper.find('input[type="text"]')
     expect(input.exists()).toBe(true)
     expect(input.element).toBe(document.activeElement)
-
-    wrapper.unmount()
   })
 })

@@ -1,10 +1,12 @@
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { TraversedOperation, TraversedWebhook } from '@scalar/workspace-store/schemas/navigation'
-import { mount } from '@vue/test-utils'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { enableAutoUnmount, mount } from '@vue/test-utils'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { nextTick } from 'vue'
 
 import OperationsListItem from './OperationsListItem.vue'
+
+enableAutoUnmount(afterEach)
 
 vi.mock('@scalar/oas-utils/helpers', () => ({
   isOperationDeprecated: vi.fn(),
@@ -180,7 +182,6 @@ describe('OperationsListItem', () => {
       await nextTick()
 
       expect(testHandler).toHaveBeenCalledWith({ id: operation.id })
-      wrapper.unmount()
     })
 
     it('prevents default link behavior', async () => {
@@ -203,8 +204,6 @@ describe('OperationsListItem', () => {
       await link.trigger('click')
       // Verify the event was emitted (indicating preventDefault was called)
       expect(testHandler).toHaveBeenCalledWith({ id: operation.id })
-
-      wrapper.unmount()
     })
   })
 

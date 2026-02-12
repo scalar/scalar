@@ -1,9 +1,11 @@
 import { renderToString } from '@vue/server-renderer'
-import { flushPromises, mount } from '@vue/test-utils'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { enableAutoUnmount, flushPromises, mount } from '@vue/test-utils'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { createSSRApp, h } from 'vue'
 
 import ApiReference from '@/components/ApiReference.vue'
+
+enableAutoUnmount(afterEach)
 
 vi.mock(import('@scalar/use-hooks/useBreakpoints'), (importOriginal) => ({
   ...importOriginal(),
@@ -65,7 +67,6 @@ describe('multiple configurations', () => {
 
     // Check whether it renders the Content component only once
     expect(wrapper.findAllComponents({ name: 'Content' })).toHaveLength(1)
-    wrapper.unmount()
   })
 
   it(`doesn't render the select when there is only one configuration`, async () => {
@@ -94,7 +95,6 @@ describe('multiple configurations', () => {
 
     // Check whether it doesn't render the select
     expect(documentSelector.exists()).toBe(false)
-    wrapper.unmount()
   })
 
   it('renders a select when multiple configurations are provided', async () => {
@@ -132,7 +132,6 @@ describe('multiple configurations', () => {
 
     // Ensure the select is rendered
     expect(documentSelector.html()).not.toBe('<!--v-if-->')
-    wrapper.unmount()
   })
 
   it('renders a select with the names', async () => {
@@ -179,7 +178,6 @@ describe('multiple configurations', () => {
     await documentSelector.vm.$emit('update:modelValue', 'my-api-2')
     await wrapper.vm.$nextTick()
     expect(documentSelector.html()).toContain('my-api-2')
-    wrapper.unmount()
   })
 
   it('should fire `onDocumentSelect` when changing document', async () => {
@@ -235,8 +233,6 @@ describe('multiple configurations', () => {
 
     // onDocumentSelect should be called after choosing another document
     expect(onDocumentSelect).toHaveBeenCalledTimes(2)
-
-    wrapper.unmount()
   })
 
   it('should fire `onDocumentSelect` then `onLoaded`', async () => {
@@ -314,8 +310,6 @@ describe('multiple configurations', () => {
 
     // now onLoaded should have been called
     expect(onLoaded).toHaveBeenCalledOnce()
-
-    wrapper.unmount()
   })
 })
 
@@ -384,8 +378,6 @@ describe('circular documents', () => {
     // Check that the component is still functional despite circular dependencies
     const Content = wrapper.findComponent({ name: 'Content' })
     expect(Content.exists()).toBe(true)
-
-    wrapper.unmount()
   })
 })
 
@@ -423,7 +415,6 @@ describe('multiple sources', () => {
     await documentSelector.vm.$emit('update:modelValue', 'my-api-1')
     await wrapper.vm.$nextTick()
     expect(documentSelector.text()).toContain('my-api-1')
-    wrapper.unmount()
   })
 })
 
@@ -502,8 +493,6 @@ describe('proxy configuration', () => {
       'https://custom-proxy.example.com/?scalar_url=https%3A%2F%2Fapi.example.com%2Fv1%2Fopenapi.yaml',
       expect.any(Object),
     )
-
-    wrapper.unmount()
   })
 
   it('does not use the proxy when custom fetch is provided', async () => {
@@ -550,7 +539,5 @@ describe('proxy configuration', () => {
 
     // Verify that fetch was called without the proxied URL
     expect(mockFetch).toHaveBeenCalledWith('https://api.example.com/v1/openapi.yaml', expect.any(Object))
-
-    wrapper.unmount()
   })
 })

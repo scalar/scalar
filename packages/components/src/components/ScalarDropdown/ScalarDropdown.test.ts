@@ -1,11 +1,13 @@
-import { flushPromises, mount } from '@vue/test-utils'
-import { describe, expect, it, vi } from 'vitest'
+import { enableAutoUnmount, flushPromises, mount } from '@vue/test-utils'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { h, nextTick } from 'vue'
 
 import ScalarDropdown from './ScalarDropdown.vue'
 import ScalarDropdownButton from './ScalarDropdownButton.vue'
 import ScalarDropdownDivider from './ScalarDropdownDivider.vue'
 import ScalarDropdownItem from './ScalarDropdownItem.vue'
+
+enableAutoUnmount(afterEach)
 
 describe('ScalarDropdown', () => {
   describe('ARIA attributes', () => {
@@ -153,7 +155,6 @@ describe('ScalarDropdown', () => {
       expect(wrapper.find('[role="menu"]').exists()).toBe(true)
       const menu = wrapper.get('[role="menu"]')
       expect(menu.attributes('aria-activedescendant')).toBe('item-1')
-      wrapper.unmount()
     })
 
     it('opens menu and activates last item on Up Arrow', async () => {
@@ -177,7 +178,6 @@ describe('ScalarDropdown', () => {
       expect(wrapper.find('[role="menu"]').exists()).toBe(true)
       const menu = wrapper.get('[role="menu"]')
       expect(menu.attributes('aria-activedescendant')).toBe('item-3')
-      wrapper.unmount()
     })
 
     it('opens menu and activates first item on Space', async () => {
@@ -201,7 +201,6 @@ describe('ScalarDropdown', () => {
       expect(wrapper.find('[role="menu"]').exists()).toBe(true)
       const menu = wrapper.get('[role="menu"]')
       expect(menu.attributes('aria-activedescendant')).toBe('item-1')
-      wrapper.unmount()
     })
 
     it('opens menu and activates first item on Enter', async () => {
@@ -224,7 +223,6 @@ describe('ScalarDropdown', () => {
       expect(wrapper.find('[role="menu"]').exists()).toBe(true)
       const menu = wrapper.get('[role="menu"]')
       expect(menu.attributes('aria-activedescendant')).toBe('item-1')
-      wrapper.unmount()
     })
 
     it('focuses menu container when opened via keyboard', async () => {
@@ -247,7 +245,6 @@ describe('ScalarDropdown', () => {
       // Menu should be focused (for aria-activedescendant pattern)
       expect(focusSpy).toHaveBeenCalled()
       focusSpy.mockRestore()
-      wrapper.unmount()
     })
   })
 
@@ -285,7 +282,6 @@ describe('ScalarDropdown', () => {
 
       // Verify menu closed (handleSelected called handleClose)
       expect(wrapper.find('[role="menu"]').exists()).toBe(false)
-      wrapper.unmount()
     })
 
     it('activates item and closes menu on Space', async () => {
@@ -321,7 +317,6 @@ describe('ScalarDropdown', () => {
 
       // Verify menu closed (handleSelected called handleClose)
       expect(wrapper.find('[role="menu"]').exists()).toBe(false)
-      wrapper.unmount()
     })
 
     it('closes menu and returns focus to button on Escape', async () => {
@@ -554,7 +549,6 @@ describe('ScalarDropdown', () => {
 
       expect(focusSpy).toHaveBeenCalled()
       focusSpy.mockRestore()
-      wrapper.unmount()
     })
 
     it('closes menu when clicking outside', async () => {
