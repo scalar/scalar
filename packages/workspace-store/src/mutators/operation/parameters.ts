@@ -3,7 +3,6 @@ import { getResolvedRef } from '@/helpers/get-resolved-ref'
 import { unpackProxyObject } from '@/helpers/unpack-proxy'
 import type { WorkspaceDocument } from '@/schemas'
 import type { DisableParametersConfig } from '@/schemas/extensions/operation/x-scalar-disable-parameters'
-import { isContentTypeParameterObject } from '@/schemas/v3.1/strict/type-guards'
 
 /**
  * Updates an existing parameter of a given `type` by its index within that
@@ -29,11 +28,6 @@ export const upsertOperationParameter = (
   // We are editing an existing parameter
   if (originalParameter) {
     originalParameter.name = payload.name
-
-    if (isContentTypeParameterObject(originalParameter)) {
-      // TODO: handle content-type parameters
-      return
-    }
 
     if (!originalParameter.examples) {
       originalParameter.examples = {}

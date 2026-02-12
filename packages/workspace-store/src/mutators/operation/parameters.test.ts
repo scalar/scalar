@@ -214,6 +214,48 @@ describe('upsertOperationParameter', () => {
     expect(getResolvedRef(updatedQueryParam?.examples?.default as any)?.value).toBe('1')
   })
 
+  it('updates a content-type parameter with examples', () => {
+    const document = createDocument({
+      paths: {
+        '/users': {
+          get: {
+            parameters: [
+              {
+                name: 'message',
+                in: 'query',
+                required: true,
+                content: {
+                  'application/json': {
+                    schema: { type: 'object' },
+                  },
+                },
+              },
+            ],
+          },
+        },
+      },
+    })
+
+    const op = getResolvedRef(document.paths?.['/users']?.get)
+    assert(op)
+    const param = getResolvedRef(op.parameters?.[0])
+    assert(param)
+
+    upsertOperationParameter(document, {
+      type: 'query',
+      originalParameter: param,
+      meta: { method: 'get', path: '/users', exampleKey: 'default' },
+      payload: { name: 'message', value: '{"id": 1}', isDisabled: false },
+    })
+
+    assert('examples' in param && param.examples)
+    expect(getResolvedRef(param.examples.default)?.value).toBe('{"id": 1}')
+    expect(getResolvedRef(param.examples.default)?.['x-disabled']).toBe(false)
+    // Content property should remain untouched
+    assert('content' in param && param.content)
+    expect(param.content['application/json']).toBeDefined()
+  })
+
   it('adds multiple parameters of different types', () => {
     const document = createDocument({
       paths: {
