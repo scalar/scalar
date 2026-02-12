@@ -10,10 +10,7 @@ import type {
 import { ref } from 'vue'
 
 import { DataTableRow } from '@/components/DataTable'
-import {
-  fetchOpenIDConnectDiscovery,
-  type OpenIDConnectDiscovery as OpenIDConnectDiscoveryType,
-} from '@/v2/blocks/scalar-auth-selector-block/helpers/openid-connect'
+import { fetchOpenIDConnectDiscovery } from '@/v2/blocks/scalar-auth-selector-block/helpers/fetch-openid-connect-discovery'
 import type { OAuthFlowsObjectSecret } from '@/v2/blocks/scalar-auth-selector-block/helpers/secret-types'
 
 import OAuth2 from './OAuth2.vue'
@@ -58,8 +55,9 @@ const handleOpenIdConnect = async (): Promise<void> => {
   }
 
   loader.start()
-  const [error, discovery] = await fetchOpenIDConnectDiscovery(
+  const [error, _discovery] = await fetchOpenIDConnectDiscovery(
     scheme.openIdConnectUrl,
+    proxyUrl,
   )
 
   // Toast for error

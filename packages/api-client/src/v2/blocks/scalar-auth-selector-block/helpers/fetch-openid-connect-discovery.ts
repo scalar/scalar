@@ -1,8 +1,6 @@
-import { SecretsAuthSchema, type SecretsOAuthFlows } from '@scalar/workspace-store/entities/auth'
-import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
+import { redirectToProxy } from '@scalar/helpers/url/redirect-to-proxy'
 
 import type { ErrorResponse } from '@/libs/errors'
-import type { OAuthFlowsObjectSecret } from '@/v2/blocks/scalar-auth-selector-block/helpers/secret-types'
 
 /**
  * OpenID Connect Discovery Document
@@ -120,7 +118,10 @@ export const OPENID_SCOPE = 'openid'
  * @param url - The OpenID Connect discovery URL or issuer URL
  * @returns The discovery document or an error
  */
-export const fetchOpenIDConnectDiscovery = async (url: string): Promise<ErrorResponse<OpenIDConnectDiscovery>> => {
+export const fetchOpenIDConnectDiscovery = async (
+  url: string,
+  proxyUrl: string,
+): Promise<ErrorResponse<OpenIDConnectDiscovery>> => {
   try {
     // If the URL does not end with the well-known path, append it
     let discoveryUrl = url.trim()
@@ -139,7 +140,8 @@ export const fetchOpenIDConnectDiscovery = async (url: string): Promise<ErrorRes
       discoveryUrl = `${discoveryUrl}/.well-known/openid-configuration`
     }
 
-    const response = await fetch(discoveryUrl)
+    const proxiedUrl = redirectToProxy(proxyUrl, discoveryUrl)
+    const response = await fetch(proxiedUrl)
 
     if (!response.ok) {
       return [
@@ -163,6 +165,3 @@ export const fetchOpenIDConnectDiscovery = async (url: string): Promise<ErrorRes
     return [new Error('Failed to fetch OpenID Connect discovery document'), null]
   }
 }
-
-/** Takes in an open ID Connect discovery response and converts it into an oauth flow to be used for authorization */
-export const openIDConnectDiscoveryToOAuth2Flows = (discovery: OpenIDConnectDiscovery): OAuthFlowsObjectSecret => {}
