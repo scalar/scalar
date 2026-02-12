@@ -282,7 +282,7 @@ public class ScalarOptionsMapperTests
     {
         // Arrange
         var options = new ScalarOptions();
-        options.AddDocument("v1", agent: new ScalarAgentOptions { Key = "doc-key" });
+        options.AddDocument("v1", agentKey: "doc-key");
 
         // Act
         var configuration = options.ToScalarConfiguration();

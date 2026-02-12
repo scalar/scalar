@@ -257,7 +257,7 @@ To set an Agent Scalar key per document (e.g., when using multiple OpenAPI docum
 
 ```csharp
 app.MapScalarApiReference(options => options
-    .AddDocument("v1", "API v1", agent: new ScalarAgentOptions { Key = "your-key" })
+    .AddDocument("v1", "API v1", agentKey: "your-key")
     .AddDocument("v2", "API v2"));
 ```
 
