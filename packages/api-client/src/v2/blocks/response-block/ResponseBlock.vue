@@ -199,6 +199,7 @@ defineExpose({
         <!-- Inject response section plugin components -->
         <ScalarErrorBoundary
           v-for="(plugin, index) in plugins"
+          v-show="activeFilter === 'All'"
           :key="index">
           <component
             :is="plugin.components.response.component"

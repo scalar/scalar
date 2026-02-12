@@ -496,18 +496,17 @@ const updateOperationExtension = (
         @update:value="handleUpdateBodyValue" />
 
       <!-- Inject request section plugin components -->
-      <template v-if="selectedFilter === 'All'">
-        <ScalarErrorBoundary
-          v-for="(plugin, index) in plugins"
-          :key="index">
-          <component
-            :is="plugin.components.request.component"
-            v-if="plugin?.components?.request"
-            :operation
-            v-bind="plugin.components.request.additionalProps"
-            @operation:update:extension="updateOperationExtension" />
-        </ScalarErrorBoundary>
-      </template>
+      <ScalarErrorBoundary
+        v-for="(plugin, index) in plugins"
+        v-show="selectedFilter === 'All'"
+        :key="index">
+        <component
+          :is="plugin.components.request.component"
+          v-if="plugin?.components?.request"
+          :operation
+          v-bind="plugin.components.request.additionalProps"
+          @operation:update:extension="updateOperationExtension" />
+      </ScalarErrorBoundary>
 
       <!-- Spacer -->
       <div class="flex grow" />
