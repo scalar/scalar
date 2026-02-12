@@ -44,6 +44,7 @@ export default {}
 <script setup lang="ts">
 import { type ModalState, type ScalarListboxOption } from '@scalar/components'
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
+import type { ClientPlugin } from '@scalar/oas-utils/helpers'
 import type { ApiReferenceConfigurationRaw } from '@scalar/types/api-reference'
 import { ScalarToasts } from '@scalar/use-toasts'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
@@ -66,7 +67,6 @@ import { type UseModalSidebarReturn } from '@/v2/features/modal/hooks/use-modal-
 import { initializeModalEvents } from '@/v2/features/modal/modal-events'
 import Operation from '@/v2/features/operation/Operation.vue'
 import { getActiveEnvironment } from '@/v2/helpers/get-active-environment'
-import type { ClientPlugin } from '@/v2/helpers/plugins'
 import { useGlobalHotKeys } from '@/v2/hooks/use-global-hot-keys'
 import { useScrollLock } from '@/v2/hooks/use-scroll-lock'
 

@@ -13,6 +13,7 @@ import {
   useModal,
   type ModalState,
 } from '@scalar/components'
+import type { ClientPlugin } from '@scalar/oas-utils/helpers'
 import { getThemeStyles } from '@scalar/themes'
 import { ScalarToasts } from '@scalar/use-toasts'
 import { extensions } from '@scalar/workspace-store/schemas/extensions'
@@ -26,7 +27,6 @@ import type { RouteProps } from '@/v2/features/app/helpers/routes'
 import { useDocumentWatcher } from '@/v2/features/app/hooks/use-document-watcher'
 import type { CommandPaletteState } from '@/v2/features/command-palette/hooks/use-command-palette-state'
 import TheCommandPalette from '@/v2/features/command-palette/TheCommandPalette.vue'
-import type { ClientPlugin } from '@/v2/helpers/plugins'
 import { useColorMode } from '@/v2/hooks/use-color-mode'
 import { useGlobalHotKeys } from '@/v2/hooks/use-global-hot-keys'
 import type { ClientLayout } from '@/v2/types/layout'

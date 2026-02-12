@@ -3,6 +3,7 @@ import { ScalarErrorBoundary } from '@scalar/components'
 import { canMethodHaveBody } from '@scalar/helpers/http/can-method-have-body'
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { REGEX } from '@scalar/helpers/regex/regex-helpers'
+import type { ClientPlugin } from '@scalar/oas-utils/helpers'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { SelectedSecurity } from '@scalar/workspace-store/entities/auth'
 import type {
@@ -42,7 +43,6 @@ import {
   type MergedSecuritySchemes,
 } from '@/v2/blocks/scalar-auth-selector-block'
 import type { SecuritySchemeObjectSecret } from '@/v2/blocks/scalar-auth-selector-block/helpers/secret-types'
-import type { ClientPlugin } from '@/v2/helpers/plugins'
 
 type Filter =
   | 'All'
@@ -383,6 +383,12 @@ const handleUpdateBodyFormValue = ({
 }
 
 const labelRequestNameId = useId()
+
+/** Allow updating the operation extensions for the plugins */
+const updateOperationExtension = (
+  payload: ApiReferenceEvents['operation:update:extension']['payload'],
+): void =>
+  eventBus.emit('operation:update:extension', { payload, meta: meta.value })
 </script>
 <template>
   <ViewLayoutSection :aria-label="`Request: ${operation.summary}`">
@@ -492,12 +498,14 @@ const labelRequestNameId = useId()
       <!-- Inject request section plugin components -->
       <ScalarErrorBoundary
         v-for="(plugin, index) in plugins"
+        v-show="selectedFilter === 'All'"
         :key="index">
         <component
-          :is="plugin.components.request"
+          :is="plugin.components.request.component"
           v-if="plugin?.components?.request"
           :operation
-          :selectedExample="exampleKey" />
+          v-bind="plugin.components.request.additionalProps"
+          @operation:update:extension="updateOperationExtension" />
       </ScalarErrorBoundary>
 
       <!-- Spacer -->

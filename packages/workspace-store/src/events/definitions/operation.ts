@@ -123,6 +123,16 @@ export type OperationEvents = {
     meta: OperationExampleMeta
   }
 
+  /**
+   * Update any extensions of the operation, takes in an object as a payload with the extensions keys and values
+   * @example { 'x-post-response': 'console.log(response)' }
+   */
+  'operation:update:extension': {
+    payload: Pick<OperationObject, Extract<keyof OperationObject, `x-${string}`>>
+    /** Identifies the target operation by original method and path */
+    meta: OperationMeta
+  }
+
   /** ------------------------------------------------------------------------------------------------
    * Operation Parameters Mutators
    * ------------------------------------------------------------------------------------------------ */

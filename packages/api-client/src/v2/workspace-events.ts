@@ -247,6 +247,9 @@ export function initializeWorkspaceEventHandlers({
       hooks,
     )(payload),
   )
+  eventBus.on('operation:update:extension', (payload) =>
+    withHook('operation:update:extension', mutators.value.active().operation.updateOperationExtension, hooks)(payload),
+  )
 
   //------------------------------------------------------------------------------------
   // Operation Request Body Related Event Handlers

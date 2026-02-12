@@ -6,6 +6,7 @@ export type {
   CommandPaletteAction,
   CommandPalettePayload,
   KeyboardEventPayload,
+  OperationEvents,
   OperationExampleMeta,
   OperationMeta,
 } from './definitions'

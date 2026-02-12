@@ -1,4 +1,4 @@
-import type { ClientPlugin } from '@scalar/api-client/v2/helpers'
+import type { ClientPlugin } from '@scalar/oas-utils/helpers'
 import type { ApiReferenceConfigurationRaw } from '@scalar/types/api-reference'
 import { assert, describe, expect, it, vi } from 'vitest'
 import { type ComputedRef, type Ref, computed, nextTick, ref } from 'vue'
@@ -51,8 +51,8 @@ describe('mapConfigPlugins', () => {
 
       // Verify the modified request is returned
       expect(result).toEqual({ request: modifiedRequest })
-      expect(result.request.url).toBe('https://example.com/api/modified')
-      expect(result.request.method).toBe('POST')
+      expect(result?.request.url).toBe('https://example.com/api/modified')
+      expect(result?.request.method).toBe('POST')
     }
   })
 
@@ -93,8 +93,8 @@ describe('mapConfigPlugins', () => {
 
       // Critical assertion: original payload is returned when callback returns void
       expect(result).toEqual({ request: mockRequest })
-      expect(result.request).toBe(mockRequest)
-      expect(result.request.url).toBe('https://example.com/api/test')
+      expect(result?.request).toBe(mockRequest)
+      expect(result?.request.url).toBe('https://example.com/api/test')
     }
   })
 

@@ -1,9 +1,10 @@
+import type { ApiReferenceEvents } from '@scalar/workspace-store/events'
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/operation'
-import type { Component } from 'vue'
+import type { DefineComponent } from 'vue'
 
 /** A type representing the hooks that a client plugin can define */
 type ClientPluginHooks = {
-  beforeRequest: (payload: { request: Request }) => { request: Request } | Promise<{ request: Request }>
+  beforeRequest: (payload: { request: Request }) => { request: Request } | void | Promise<{ request: Request } | void>
   responseReceived: (payload: {
     response: Response
     request: Request
@@ -11,10 +12,31 @@ type ClientPluginHooks = {
   }) => void | Promise<void>
 }
 
-/** A type representing the components that a client plugin can define */
+/** A vue component which accepts the specified props */
+type ClientPluginComponent<
+  Props extends Record<string, unknown>,
+  Emits extends Record<string, (...args: any[]) => void> = {},
+> = {
+  component: DefineComponent<Props, {}, {}, {}, {}, {}, {}, Emits>
+  additionalProps?: Record<string, unknown>
+}
+
 type ClientPluginComponents = {
-  request: Component
-  response: Component
+  request: ClientPluginComponent<
+    {
+      operation: OperationObject
+      // We could pre-build the js request and pass it here in the future if needed
+      // request: Request
+    },
+    {
+      'operation:update:extension': (payload: ApiReferenceEvents['operation:update:extension']['payload']) => void
+    }
+  >
+  response: ClientPluginComponent<{
+    // response: Response
+    // request: Request
+    // operation: OperationObject
+  }>
 }
 
 /**
