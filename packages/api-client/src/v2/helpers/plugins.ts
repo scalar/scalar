@@ -1,5 +1,6 @@
+import type { ApiReferenceEvents } from '@scalar/workspace-store/events'
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/operation'
-import type { Component } from 'vue'
+import type { DefineComponent } from 'vue'
 
 /** A type representing the hooks that a client plugin can define */
 type ClientPluginHooks = {
@@ -11,10 +12,31 @@ type ClientPluginHooks = {
   }) => void | Promise<void>
 }
 
-/** A type representing the components that a client plugin can define */
+/** A vue component which accepts the specified props */
+type ClientPluginComponent<
+  Props extends Record<string, unknown>,
+  Emits extends Record<string, (...args: any[]) => void> = Record<string, never>,
+> = {
+  component: DefineComponent<Props, {}, {}, {}, {}, {}, {}, Emits>
+  additionalProps?: Record<string, unknown>
+}
+
 type ClientPluginComponents = {
-  request: Component
-  response: Component
+  request: ClientPluginComponent<
+    {
+      operation: OperationObject
+      // We could pre-build the js request and pass it here in the future if needed
+      // request: Request
+    },
+    {
+      'operation:update:extension': (payload: ApiReferenceEvents['operation:update:extension']['payload']) => void
+    }
+  >
+  response: ClientPluginComponent<{
+    // response: Response
+    // request: Request
+    // operation: OperationObject
+  }>
 }
 
 /**
@@ -76,3 +98,11 @@ export const executeHook = async <K extends keyof HookPayloadMap>(
 
   return currentPayload
 }
+
+/**
+ * Filter plugins by component
+ */
+export const getComponents = <K extends keyof ClientPluginComponents>(
+  name: K,
+  plugins: ClientPlugin[],
+): ClientPluginComponents[K][] => plugins.flatMap((plugin) => plugin.components?.[name] ?? [])

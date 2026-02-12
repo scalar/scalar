@@ -1,4 +1,5 @@
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
+import type { ConditionalPick } from 'type-fest'
 
 import type { OperationObject, ParameterObject } from '@/schemas/v3.1/strict/openapi-document'
 
@@ -121,6 +122,16 @@ export type OperationEvents = {
     documentName: string
     /** Identifies the target operation by original method and path */
     meta: OperationExampleMeta
+  }
+
+  /**
+   * Update any extensions of the operation, takes in an object as a payload with the extensions keys and values
+   * @example { 'x-post-response': 'console.log(response)' }
+   */
+  'operation:update:extension': {
+    payload: ConditionalPick<OperationObject, `x-${string}`>
+    /** Identifies the target operation by original method and path */
+    meta: OperationMeta
   }
 
   /** ------------------------------------------------------------------------------------------------

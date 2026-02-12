@@ -42,3 +42,30 @@ export const postResponseScriptsPlugin = (): ApiClientPlugin => {
     },
   })
 }
+
+// @TODO share the types
+export const postResponseScriptsPluginV2 = (): any => {
+  const results = ref<TestResult[]>([])
+
+  return {
+    components: {
+      request: { component: PostResponseScripts },
+      response: { component: TestResults, additionalProps: { results } },
+    },
+
+    hooks: {
+      // Reset test results when a new request is sent
+      beforeRequest: () => {
+        results.value = []
+      },
+      // Execute post-response scripts when a response is received
+      // @ts-expect-error - share the types later
+      responseReceived: async ({ response, operation }) => {
+        await executePostResponseScript(operation['x-post-response'], {
+          response,
+          onTestResultsUpdate: (newResults) => (results.value = [...newResults]),
+        })
+      },
+    },
+  }
+}

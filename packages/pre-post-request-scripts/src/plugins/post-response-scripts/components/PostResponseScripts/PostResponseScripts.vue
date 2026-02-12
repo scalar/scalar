@@ -8,16 +8,22 @@ import ExampleScripts from './ExampleScripts.vue'
 import ScriptEditor from './ScriptEditor.vue'
 
 const { operation } = defineProps<{
-  operation: Pick<Operation, 'uid' | 'x-post-response'>
+  operation: Pick<Operation, 'x-post-response'>
 }>()
 
 const emit = defineEmits<{
   (e: 'update:operation', key: keyof Operation, value: string): void
+  (e: 'operation:update:extension', payload: any): void
 }>()
 
 const script = computed(() => (operation['x-post-response'] as string) || '')
 
 const updatePostResponseScript = (value: string) => {
+  emit('operation:update:extension', {
+    'x-post-response': value,
+  })
+
+  // Keep the legacy event for older integrations.
   emit('update:operation', 'x-post-response', value)
 }
 </script>

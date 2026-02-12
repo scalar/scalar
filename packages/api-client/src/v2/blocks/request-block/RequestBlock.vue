@@ -383,6 +383,12 @@ const handleUpdateBodyFormValue = ({
 }
 
 const labelRequestNameId = useId()
+
+/** Allow updating the operation extensions for the plugins */
+const updateOperationExtension = (
+  payload: ApiReferenceEvents['operation:update:extension']['payload'],
+): void =>
+  eventBus.emit('operation:update:extension', { payload, meta: meta.value })
 </script>
 <template>
   <ViewLayoutSection :aria-label="`Request: ${operation.summary}`">
@@ -490,15 +496,18 @@ const labelRequestNameId = useId()
         @update:value="handleUpdateBodyValue" />
 
       <!-- Inject request section plugin components -->
-      <ScalarErrorBoundary
-        v-for="(plugin, index) in plugins"
-        :key="index">
-        <component
-          :is="plugin.components.request"
-          v-if="plugin?.components?.request"
-          :operation
-          :selectedExample="exampleKey" />
-      </ScalarErrorBoundary>
+      <template v-if="selectedFilter === 'All'">
+        <ScalarErrorBoundary
+          v-for="(plugin, index) in plugins"
+          :key="index">
+          <component
+            :is="plugin.components.request.component"
+            v-if="plugin?.components?.request"
+            :operation
+            v-bind="plugin.components.request.additionalProps"
+            @operation:update:extension="updateOperationExtension" />
+        </ScalarErrorBoundary>
+      </template>
 
       <!-- Spacer -->
       <div class="flex grow" />
