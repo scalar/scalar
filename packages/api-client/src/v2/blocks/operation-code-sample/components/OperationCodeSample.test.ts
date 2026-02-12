@@ -3,8 +3,8 @@ import type { AvailableClient } from '@scalar/types/snippetz'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import type { OperationObject, ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import { mount } from '@vue/test-utils'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { enableAutoUnmount, mount } from '@vue/test-utils'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { nextTick, ref } from 'vue'
 
 import type { SecuritySchemeObjectSecret } from '@/v2/blocks/scalar-auth-selector-block'
@@ -12,6 +12,8 @@ import { mockEventBus } from '@/v2/helpers/test-utils'
 
 import type { ClientOptionGroup } from '../types'
 import RequestExample from './OperationCodeSample.vue'
+
+enableAutoUnmount(afterEach)
 
 // Mock the useClipboard hook from VueUse
 const mockCopy = vi.fn()
@@ -1308,7 +1310,6 @@ describe('RequestExample', () => {
         expect(copiedContent).toContain(method)
         expect(copiedContent).toContain('test.event')
 
-        wrapper.unmount()
         mockCopy.mockClear()
       }
     })

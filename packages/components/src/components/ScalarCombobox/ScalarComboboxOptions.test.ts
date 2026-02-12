@@ -1,11 +1,13 @@
-import { mount } from '@vue/test-utils'
-import { describe, expect, it, vi } from 'vitest'
+import { enableAutoUnmount, mount } from '@vue/test-utils'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { nextTick } from 'vue'
 
 import ScalarComboboxOption from './ScalarComboboxOption.vue'
 import ScalarComboboxOptionGroup from './ScalarComboboxOptionGroup.vue'
 import ScalarComboboxOptions from './ScalarComboboxOptions.vue'
 import type { Option, OptionGroup } from './types'
+
+enableAutoUnmount(afterEach)
 
 // Mock data
 const singleOptions = [
@@ -75,7 +77,7 @@ describe('ScalarComboboxOptions', () => {
       expect(filteredOptions[0]?.text()).toBe('Option 2')
     })
 
-    it('focuses the input when component is mounted', async () => {
+    it('focuses the input when component is mounted', ({ onTestFinished }) => {
       vi.useFakeTimers()
 
       const wrapper = mount(ScalarComboboxOptions, {
@@ -83,14 +85,14 @@ describe('ScalarComboboxOptions', () => {
         attachTo: document.body,
       })
 
-      await vi.runAllTimers()
+      vi.runAllTimers()
 
       const input = wrapper.find('input[type="text"]')
       expect(input.element).toBe(document.activeElement)
 
-      wrapper.unmount()
-
-      vi.useRealTimers()
+      onTestFinished(() => {
+        vi.useRealTimers()
+      })
     })
   })
 

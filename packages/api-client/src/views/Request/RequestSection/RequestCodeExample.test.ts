@@ -7,12 +7,14 @@ import {
 } from '@scalar/oas-utils/entities/spec'
 import { workspaceSchema } from '@scalar/oas-utils/entities/workspace'
 import type { ClientId, TargetId } from '@scalar/snippetz'
-import { mount } from '@vue/test-utils'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { enableAutoUnmount, mount } from '@vue/test-utils'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { useWorkspace } from '@/store'
 
 import RequestCodeExample from './RequestCodeExample.vue'
+
+enableAutoUnmount(afterEach)
 
 // Mock the useWorkspace hook
 vi.mock('@/store', () => ({
@@ -107,7 +109,6 @@ describe('RequestCodeExample.vue', () => {
 
     expect(wrapper.find('.w-full').exists()).toBe(true)
     expect(wrapper.findComponent({ name: 'ViewLayoutCollapse' }).exists()).toBe(true)
-    wrapper.unmount()
   })
 
   it('selects a different client when dropdown changes', async () => {
@@ -121,8 +122,6 @@ describe('RequestCodeExample.vue', () => {
       targetKey: 'shell' as TargetId,
       clientKey: 'curl' as ClientId<'shell'>,
     })
-
-    wrapper.unmount()
   })
 
   it('filters security schemes correctly', () => {
@@ -150,8 +149,6 @@ describe('RequestCodeExample.vue', () => {
 
     expect((wrapper.vm as any).selectedSecuritySchemes.length).toBe(1)
     expect((wrapper.vm as any).selectedSecuritySchemes[0]).toEqual(securitySchemes[scheme.uid])
-
-    wrapper.unmount()
   })
 
   it('includes optional selected security schemes', () => {
@@ -192,7 +189,5 @@ describe('RequestCodeExample.vue', () => {
     expect(selected.length).toBe(2)
     expect(selected).toContain(securitySchemes[requiredScheme.uid])
     expect(selected).toContain(securitySchemes[optionalScheme.uid])
-
-    wrapper.unmount()
   })
 })

@@ -1,11 +1,13 @@
-import { mount } from '@vue/test-utils'
+import { type VueWrapper, enableAutoUnmount, mount } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { nextTick } from 'vue'
 
 import ScalarFloating from './ScalarFloating.vue'
 
+enableAutoUnmount(afterEach)
+
 describe('ScalarFloating', () => {
-  let wrapper: any
+  let wrapper: VueWrapper<InstanceType<typeof ScalarFloating>>
   let targetDiv: HTMLElement
 
   beforeEach(() => {
@@ -13,12 +15,10 @@ describe('ScalarFloating', () => {
     targetDiv = document.createElement('div')
     targetDiv.id = 'test-target'
     document.body.appendChild(targetDiv)
-  })
 
-  // Cleanup after each test
-  afterEach(() => {
-    wrapper?.unmount()
-    targetDiv.remove()
+    return () => {
+      targetDiv.remove()
+    }
   })
 
   describe('floating target', () => {
@@ -37,7 +37,10 @@ describe('ScalarFloating', () => {
 
       await nextTick()
 
-      expect(wrapper.vm.targetRef).toBe(wrapper.vm.wrapperRef)
+      expect(wrapper.vm.targetRef).toBe(
+        // @ts-expect-error wrapperRef is not exposed
+        wrapper.vm.wrapperRef,
+      )
       expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('non-existent-id'))
 
       consoleSpy.mockRestore()
@@ -75,7 +78,10 @@ describe('ScalarFloating', () => {
 
       await nextTick()
 
-      expect(wrapper.vm.targetRef).toBe(wrapper.vm.wrapperRef)
+      expect(wrapper.vm.targetRef).toBe(
+        // @ts-expect-error wrapperRef is not exposed
+        wrapper.vm.wrapperRef,
+      )
     })
   })
 })

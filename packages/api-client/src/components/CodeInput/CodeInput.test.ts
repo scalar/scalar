@@ -2,12 +2,14 @@ import { environmentSchema } from '@scalar/oas-utils/entities/environment'
 import { workspaceSchema } from '@scalar/oas-utils/entities/workspace'
 import { useCodeMirror } from '@scalar/use-codemirror'
 import { enableConsoleError, enableConsoleWarn } from '@test/vitest.setup'
-import { type VueWrapper, mount } from '@vue/test-utils'
+import { type VueWrapper, enableAutoUnmount, mount } from '@vue/test-utils'
 import { nanoid } from 'nanoid'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { ref, toValue } from 'vue'
 
 import CodeInput from './CodeInput.vue'
+
+enableAutoUnmount(afterEach)
 
 // Mock dependencies
 vi.mock('@scalar/use-codemirror', async (importOriginal) => {
@@ -46,12 +48,6 @@ describe('CodeInput', () => {
     vi.clearAllMocks()
     enableConsoleWarn()
     enableConsoleError()
-  })
-
-  afterEach(() => {
-    if (wrapper) {
-      wrapper.unmount()
-    }
   })
 
   const defaultProps = {

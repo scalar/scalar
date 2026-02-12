@@ -1,6 +1,6 @@
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
 import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import { mount } from '@vue/test-utils'
+import { enableAutoUnmount, mount } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { nextTick, ref } from 'vue'
 
@@ -9,6 +9,8 @@ import 'fake-indexeddb/auto'
 import Modal, { type ModalProps } from '@/v2/features/modal/Modal.vue'
 
 import { createApiClientModal } from './create-api-client-modal'
+
+enableAutoUnmount(afterEach)
 
 // Mock useFocusTrap - requires a real focusable DOM element which is unavailable in JSDOM tests.
 vi.mock('@vueuse/integrations/useFocusTrap', () => ({
@@ -74,8 +76,6 @@ describe('createApiClientModal', () => {
     expect(modal.app).toBeDefined()
     expect(modal.app._instance).not.toBeNull()
     expect(mountElement.innerHTML).not.toBe('')
-
-    modal.app.unmount()
   })
 
   it('creates modal without mounting when mountOnInitialize is false', async () => {
@@ -91,8 +91,6 @@ describe('createApiClientModal', () => {
     expect(modal.app).toBeDefined()
     expect(modal.app._instance).toBeNull()
     expect(mountElement.innerHTML).toBe('')
-
-    modal.app.unmount()
   })
 
   it('opens modal and routes to specified operation', async () => {
@@ -126,9 +124,6 @@ describe('createApiClientModal', () => {
     expect(operationBlock.props('path')).toBe('/users')
     expect(operationBlock.props('method')).toBe('post')
     expect(operationBlock.props('exampleKey')).toBe('default')
-
-    wrapper.unmount()
-    modal.app.unmount()
   })
 
   it('reacts to changes in options.authentication', async () => {
@@ -238,9 +233,6 @@ describe('createApiClientModal', () => {
         authorizationCode: { authorizationUrl: 'https://new-auth.test' },
       },
     })
-
-    wrapper.unmount()
-    modal.app.unmount()
   })
 
   it('drops document changes when modal closes, but preserves servers', async () => {
@@ -288,8 +280,6 @@ describe('createApiClientModal', () => {
 
     // But servers should be preserved
     expect(restoredDocument!.servers).toEqual([{ url: 'https://api.example.com', description: 'Production server' }])
-
-    modal.app.unmount()
   })
 
   it('drops document changes when modal closes, but preserves security schemes', async () => {
@@ -355,8 +345,6 @@ describe('createApiClientModal', () => {
         in: 'header',
       },
     })
-
-    modal.app.unmount()
   })
 
   it('drops document changes when modal closes, but preserves selected server', async () => {
@@ -402,8 +390,6 @@ describe('createApiClientModal', () => {
 
     // But selected server should be preserved
     expect(restoredDocument!['x-scalar-selected-server']).toBe('production')
-
-    modal.app.unmount()
   })
 
   it('preserves multiple properties while dropping other changes', async () => {
@@ -500,7 +486,5 @@ describe('createApiClientModal', () => {
         },
       },
     })
-
-    modal.app.unmount()
   })
 })

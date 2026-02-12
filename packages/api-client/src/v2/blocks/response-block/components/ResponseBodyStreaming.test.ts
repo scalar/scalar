@@ -1,9 +1,11 @@
 import { ScalarButton } from '@scalar/components'
-import { flushPromises, mount } from '@vue/test-utils'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { enableAutoUnmount, flushPromises, mount } from '@vue/test-utils'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { nextTick } from 'vue'
 
 import ResponseBodyStreaming from './ResponseBodyStreaming.vue'
+
+enableAutoUnmount(afterEach)
 
 describe('ResponseBodyStreaming', () => {
   let mockReader: ReadableStreamDefaultReader<Uint8Array>

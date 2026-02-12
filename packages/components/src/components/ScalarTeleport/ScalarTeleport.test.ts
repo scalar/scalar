@@ -1,8 +1,10 @@
-import { mount } from '@vue/test-utils'
-import { beforeEach, describe, expect, it } from 'vitest'
+import { enableAutoUnmount, mount } from '@vue/test-utils'
+import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 
 import ScalarTeleport from './ScalarTeleport.vue'
 import ScalarTeleportRoot from './ScalarTeleportRoot.vue'
+
+enableAutoUnmount(afterEach)
 
 describe('ScalarTeleport', () => {
   beforeEach(() => {
@@ -34,8 +36,6 @@ describe('ScalarTeleport', () => {
 
     // Check that the content is in the teleport root
     expect(wrapper.find('.scalar-teleport-root #teleported').exists()).toBeTruthy()
-
-    wrapper.unmount()
   })
 
   it('teleports to a body if no teleport root is found', () => {
@@ -89,8 +89,6 @@ describe('ScalarTeleport', () => {
 
     expect(container.find('#teleported').exists()).toBe(false)
     expect(root.find('#teleported').exists()).toBe(true)
-
-    wrapper.unmount()
   })
 
   it('allows custom teleport root id', () => {
@@ -115,8 +113,6 @@ describe('ScalarTeleport', () => {
 
     // Should render the teleported content in the teleport root
     expect(wrapper.find('#custom-root #teleported').exists()).toBeTruthy()
-
-    wrapper.unmount()
   })
 
   it('allows custom teleport target', () => {
