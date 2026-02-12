@@ -55,35 +55,32 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div
-    v-show="modalState.open"
-    class="scalar scalar-app">
-    <div class="scalar-container">
-      <!-- 
-      adding v-show also here to ensure proper rendering in Safari.
-      @see https://github.com/scalar/scalar/issues/7983
-      -->
-      <div
-        v-show="modalState.open"
-        :id="id"
-        ref="client"
-        aria-label="API Client"
-        aria-modal="true"
-        v-bind="$attrs"
-        class="scalar-app-layout scalar-client"
-        role="dialog"
-        tabindex="-1">
-        <ScalarTeleportRoot>
-          <slot />
-        </ScalarTeleportRoot>
-      </div>
+  <Transition name="scalar-client-fade">
+    <div
+      v-show="modalState.open"
+      class="scalar scalar-app z-overlay relative">
+      <div class="scalar-container">
+        <div
+          :id="id"
+          ref="client"
+          aria-label="API Client"
+          aria-modal="true"
+          v-bind="$attrs"
+          class="scalar-app-layout scalar-client"
+          role="dialog"
+          tabindex="-1">
+          <ScalarTeleportRoot>
+            <slot />
+          </ScalarTeleportRoot>
+        </div>
 
-      <!-- overlay / exit area -->
-      <div
-        class="scalar-app-exit"
-        @click="modalState.hide()" />
+        <!-- overlay / exit area -->
+        <div
+          class="scalar-app-exit"
+          @click="modalState.hide()" />
+      </div>
     </div>
-  </div>
+  </Transition>
 </template>
 
 <style scoped>
@@ -95,8 +92,6 @@ onBeforeUnmount(() => {
   max-width: 1390px;
   width: 100%;
   margin: auto;
-  opacity: 0;
-  animation: scalarapiclientfadein 0.35s forwards;
   position: relative;
   overflow: hidden;
   border-radius: 8px;
@@ -112,14 +107,6 @@ onBeforeUnmount(() => {
     max-height: 90svh;
   }
 }
-@keyframes scalarapiclientfadein {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
 
 .scalar .scalar-app-exit {
   position: fixed;
@@ -128,22 +115,14 @@ onBeforeUnmount(() => {
   width: 100vw;
   height: 100vh;
   background: #00000038;
-  transition: all 0.3s ease-in-out;
   cursor: pointer;
-  animation: scalardrawerexitfadein 0.35s forwards;
   z-index: -1;
 }
+
 .dark-mode .scalar .scalar-app-exit {
   background: rgba(0, 0, 0, 0.45);
 }
-@keyframes scalardrawerexitfadein {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
+
 .scalar .scalar-app-exit:before {
   font-family: sans-serif;
   position: absolute;
@@ -156,6 +135,7 @@ onBeforeUnmount(() => {
   color: white;
   opacity: 0.6;
 }
+
 .scalar .scalar-app-exit:hover:before {
   opacity: 1;
 }
@@ -173,7 +153,6 @@ onBeforeUnmount(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  @apply z-overlay;
 }
 
 .scalar .url-form-input {
@@ -182,5 +161,15 @@ onBeforeUnmount(() => {
 
 .scalar .scalar-container {
   line-height: normal;
+}
+
+.scalar-client-fade-enter-active,
+.scalar-client-fade-leave-active {
+  transition: opacity 0.35s ease;
+}
+
+.scalar-client-fade-enter-from,
+.scalar-client-fade-leave-to {
+  opacity: 0;
 }
 </style>
