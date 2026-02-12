@@ -104,15 +104,7 @@ const handleToggle = (event: MouseEvent) => {
           @click="handleToggle">
           <slot
             name="icon"
-            :open>
-            <ScalarSidebarGroupToggle
-              :icon
-              :open>
-              <template #label>
-                {{ open ? 'Close' : 'Open' }} <slot :open="open" />
-              </template>
-            </ScalarSidebarGroupToggle>
-          </slot>
+            :open />
         </button>
         <ScalarSidebarButton
           is="button"
@@ -135,19 +127,17 @@ const handleToggle = (event: MouseEvent) => {
             <slot
               v-else
               name="icon"
+              :open />
+          </template>
+          <template #aside>
+            <slot
+              name="aside"
               :open>
               <ScalarSidebarGroupToggle
-                class="text-c-3"
+                class="shrink-0"
                 :icon
                 :open />
             </slot>
-          </template>
-          <template
-            v-if="$slots.aside"
-            #aside>
-            <slot
-              name="aside"
-              :open />
           </template>
           <slot :open />
         </ScalarSidebarButton>
