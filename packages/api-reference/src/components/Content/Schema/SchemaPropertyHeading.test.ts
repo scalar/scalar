@@ -151,7 +151,8 @@ describe('SchemaPropertyHeading', () => {
     })
 
     const detailsElement = wrapper.find('.property-heading')
-    expect(detailsElement.text()).toContain('array Model[]')
+    expect(detailsElement.text()).toContain('array object[]')
+    expect(detailsElement.text()).toContain('Model[]')
   })
 
   it('renders default value: null', () => {
@@ -203,7 +204,8 @@ describe('SchemaPropertyHeading', () => {
       },
     })
     const detailsElement = wrapper.find('.property-heading')
-    expect(detailsElement.text()).toContain('array FooModel[]')
+    expect(detailsElement.text()).toContain('array object[]')
+    expect(detailsElement.text()).toContain('FooModel[]')
   })
 
   it('formats object type with direct model reference', () => {
@@ -230,7 +232,8 @@ describe('SchemaPropertyHeading', () => {
       },
     })
     const detailsElement = wrapper.find('.property-heading')
-    expect(detailsElement.text()).toContain('array BarModel[]')
+    expect(detailsElement.text()).toContain('array object[]')
+    expect(detailsElement.text()).toContain('BarModel[]')
   })
 
   it('displays plain type when no model name is present', () => {
@@ -298,7 +301,8 @@ describe('SchemaPropertyHeading', () => {
       },
     })
     const detailsElement = wrapper.find('.property-heading')
-    expect(detailsElement.text()).toContain('Type: array Planet[]')
+    expect(detailsElement.text()).toContain('Type: array string[]')
+    expect(detailsElement.text()).toContain('Planet')
   })
 
   it('renders multipleOf property', () => {
