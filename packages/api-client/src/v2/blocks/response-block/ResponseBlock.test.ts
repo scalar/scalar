@@ -2,7 +2,7 @@ import type { ResponseInstance } from '@scalar/oas-utils/entities/spec'
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
-import { defineComponent, markRaw } from 'vue'
+import { type DefineComponent, defineComponent, markRaw } from 'vue'
 
 import type { ClientLayout } from '@/hooks'
 import { createStoreEvents } from '@/store/events'
@@ -411,12 +411,9 @@ describe('ResponseBlock', () => {
 
   it('renders plugin component when provided', () => {
     const PluginResponseComponent = markRaw(
-      defineComponent<{
-        request: Request
-        response: ResponseInstance
-      }>({
+      defineComponent({
         template: '<div>Plugin Response Component</div>',
-      }),
+      }) as DefineComponent<{}, {}, {}, {}, {}, {}, {}, Record<string, never>>,
     )
 
     const wrapper = mount(ResponseBlock, {
@@ -427,7 +424,7 @@ describe('ResponseBlock', () => {
         plugins: [
           {
             components: {
-              response: PluginResponseComponent,
+              response: { component: PluginResponseComponent, additionalProps: {} },
             },
           },
         ],
