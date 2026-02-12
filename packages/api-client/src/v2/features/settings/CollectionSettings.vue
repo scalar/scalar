@@ -3,6 +3,7 @@ import { cva, cx, ScalarButton, ScalarIcon } from '@scalar/components'
 import {
   themeLabels,
   type IntegrationThemeId,
+  type Theme,
   type ThemeId,
 } from '@scalar/themes'
 
@@ -12,24 +13,32 @@ import Appearance from './components/Appearance.vue'
 import Section from './components/Section.vue'
 import { getThemeColors } from './helpers/get-theme-colors'
 
-defineProps<{
+const {
+  activeProxyUrl,
+  customThemes = [],
+  activeThemeSlug,
+  colorMode,
+} = defineProps<{
   /** Currently active proxy URL, when set to null means no proxy */
   activeProxyUrl?: string | null
+  /** Custom themes available to the team */
+  customThemes?: Theme[]
   /** Currently active theme ID */
-  activeThemeId: ThemeId
+  activeThemeSlug: string
   /** Currently active color mode */
   colorMode: 'system' | 'light' | 'dark'
 }>()
 
 const emit = defineEmits<{
   (e: 'update:proxyUrl', value: string | null): void
-  (e: 'update:themeId', value: ThemeId): void
+  (e: 'update:themeId', value: string): void
   (e: 'update:colorMode', value: 'system' | 'light' | 'dark'): void
 }>()
 
 const DEFAULT_PROXY_URL = 'https://proxy.scalar.com'
 
 const themeIds: Exclude<ThemeId, IntegrationThemeId>[] = [
+  'none',
   'default',
   'alternate',
   'purple',
@@ -51,7 +60,7 @@ const buttonStyles = cva({
 })
 </script>
 <template>
-  <div class="flex flex-col gap-4">
+  <div class="flex flex-col gap-10">
     <!-- Proxy -->
     <Section>
       <template #title> CORS Proxy </template>
@@ -157,7 +166,7 @@ const buttonStyles = cva({
             :class="
               cx(
                 buttonStyles({
-                  active: activeThemeId === themeId,
+                  active: activeThemeSlug === themeId,
                 }),
               )
             "
@@ -167,10 +176,10 @@ const buttonStyles = cva({
                 class="flex h-5 w-5 items-center justify-center rounded-full border-[1.5px] p-1"
                 :class="{
                   'bg-c-accent text-b-1 border-transparent':
-                    activeThemeId === themeId,
+                    activeThemeSlug === themeId,
                 }">
                 <ScalarIcon
-                  v-if="activeThemeId === themeId"
+                  v-if="activeThemeSlug === themeId"
                   icon="Checkmark"
                   size="xs"
                   thickness="3.5" />
@@ -214,7 +223,7 @@ const buttonStyles = cva({
           :class="
             cx(
               buttonStyles({
-                active: activeThemeId === themeId,
+                active: activeThemeSlug === themeId,
               }),
             )
           "
@@ -224,10 +233,10 @@ const buttonStyles = cva({
               class="flex h-5 w-5 items-center justify-center rounded-full border-[1.5px] p-1"
               :class="{
                 'bg-c-accent text-b-1 border-transparent':
-                  activeThemeId === themeId,
+                  activeThemeSlug === themeId,
               }">
               <ScalarIcon
-                v-if="activeThemeId === themeId"
+                v-if="activeThemeSlug === themeId"
                 icon="Checkmark"
                 size="xs"
                 thickness="3.5" />
@@ -238,6 +247,44 @@ const buttonStyles = cva({
             <div class="size-7 rounded-xl">
               <IntegrationLogo :integration="themeId" />
             </div>
+          </div>
+        </ScalarButton>
+      </div>
+    </Section>
+
+    <!-- Custom Themes -->
+    <Section v-if="customThemes.length > 0">
+      <template #title> Custom Themes </template>
+      <template #description>
+        Team defined themes are available to all workspaces in the team.
+      </template>
+
+      <div class="grid grid-cols-2 gap-2">
+        <ScalarButton
+          v-for="theme in customThemes"
+          :key="theme.slug"
+          :class="
+            cx(
+              buttonStyles({
+                active: activeThemeSlug === theme.slug,
+              }),
+            )
+          "
+          @click="emit('update:themeId', theme.slug)">
+          <div class="flex items-center gap-2">
+            <div
+              class="flex h-5 w-5 items-center justify-center rounded-full border-[1.5px] p-1"
+              :class="{
+                'bg-c-accent text-b-1 border-transparent':
+                  activeThemeSlug === theme.slug,
+              }">
+              <ScalarIcon
+                v-if="activeThemeSlug === theme.slug"
+                icon="Checkmark"
+                size="xs"
+                thickness="3.5" />
+            </div>
+            {{ theme.name }}
           </div>
         </ScalarButton>
       </div>

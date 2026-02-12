@@ -13,7 +13,12 @@ import {
   useModal,
   type ModalState,
 } from '@scalar/components'
-import { getThemeStyles } from '@scalar/themes'
+import {
+  getThemeStyles,
+  themeIds,
+  type Theme,
+  type ThemeId,
+} from '@scalar/themes'
 import { ScalarToasts } from '@scalar/use-toasts'
 import { extensions } from '@scalar/workspace-store/schemas/extensions'
 import { computed } from 'vue'
@@ -38,12 +43,14 @@ import DownloadAppButton from './components/DownloadAppButton.vue'
 
 const {
   layout,
+  customThemes = [],
   plugins = [],
   getAppState,
   getCommandPaletteState,
 } = defineProps<{
   layout: Exclude<ClientLayout, 'modal'>
   plugins?: ClientPlugin[]
+  customThemes?: Theme[]
   getAppState: () => AppState
   getCommandPaletteState: () => CommandPaletteState
 }>()
@@ -90,6 +97,11 @@ useDocumentWatcher({
 /** Color mode */
 useColorMode({ workspaceStore: app.store })
 
+/** Type guard to check if a string is a valid ThemeId. */
+const isThemeId = (id: string): id is ThemeId => {
+  return themeIds.includes(id as ThemeId)
+}
+
 /** Generate the theme style tag for dynamic theme application. */
 const themeStyleTag = computed(() => {
   if (app.store.value === null) {
@@ -98,7 +110,7 @@ const themeStyleTag = computed(() => {
 
   const themeId = app.store.value.workspace['x-scalar-theme']
 
-  if (!themeId) return ''
+  if (!themeId || !isThemeId(themeId)) return ''
 
   return `<style>${getThemeStyles(themeId)}</style>`
 })
@@ -144,6 +156,7 @@ const routerViewProps = computed<RouteProps>(() => {
     activeWorkspace: app.workspace.activeWorkspace.value!,
     plugins,
     securitySchemes,
+    customThemes,
   }
 })
 </script>

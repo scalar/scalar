@@ -1,4 +1,3 @@
-import { type ThemeId, themeIds } from '@scalar/themes'
 import { Type } from '@scalar/typebox'
 import { AVAILABLE_CLIENTS, type AvailableClients } from '@scalar/types/snippetz'
 
@@ -57,7 +56,7 @@ export const WorkspaceMetaSchema = Type.Partial(
       ]),
       [extensions.workspace.defaultClient]: Type.Union(AVAILABLE_CLIENTS.map((client) => Type.Literal(client))),
       [extensions.workspace.activeDocument]: Type.String(),
-      [extensions.workspace.theme]: Type.Union(themeIds.map((t) => Type.Literal(t))),
+      [extensions.workspace.theme]: Type.String(),
       [extensions.workspace.sidebarWidth]: Type.Number({ default: 288 }),
     }),
     XScalarActiveProxySchema,
@@ -70,7 +69,7 @@ export type WorkspaceMeta = {
   [extensions.workspace.colorMode]?: ColorMode
   [extensions.workspace.defaultClient]?: AvailableClients[number]
   [extensions.workspace.activeDocument]?: string
-  [extensions.workspace.theme]?: ThemeId
+  [extensions.workspace.theme]?: string
   [extensions.workspace.sidebarWidth]?: number
 } & XScalarActiveProxy
 
