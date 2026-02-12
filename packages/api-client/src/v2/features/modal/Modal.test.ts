@@ -376,7 +376,7 @@ describe('Modal', () => {
   it('disables page scrolling when modal opens', async () => {
     const { props, modalState } = await createModalProps()
 
-    const wrapper = mount(Modal, { props, attachTo: '#scalar-modal-test' })
+    mount(Modal, { props, attachTo: '#scalar-modal-test' })
     await waitForUpdates()
 
     // Open the modal
