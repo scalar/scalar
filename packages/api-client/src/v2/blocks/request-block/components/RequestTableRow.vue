@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ScalarButton, ScalarIcon, ScalarIconButton } from '@scalar/components'
 import { ScalarIconGlobe, ScalarIconTrash } from '@scalar/icons'
+import type { ApiReferenceEvents } from '@scalar/workspace-store/events'
 import { unpackProxyObject } from '@scalar/workspace-store/helpers/unpack-proxy'
 import { resolve } from '@scalar/workspace-store/resolve'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
@@ -29,7 +30,7 @@ export type TableRow = {
   /** Optional description for the parameter */
   description?: string
   /** Optional route for global parameters (e.g., cookies shared across workspace) */
-  globalRoute?: string
+  globalRoute?: ApiReferenceEvents['ui:navigate']
   /** Whether the parameter is disabled/inactive */
   isDisabled?: boolean
   /** OpenAPI schema object with type, validation rules, examples, etc. */
@@ -70,7 +71,7 @@ const emit = defineEmits<{
   (e: 'deleteRow'): void
   (e: 'uploadFile'): void
   (e: 'removeFile'): void
-  (e: 'navigate', route: string): void
+  (e: 'navigate', route: NonNullable<TableRow['globalRoute']>): void
 }>()
 
 /**

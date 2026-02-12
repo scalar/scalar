@@ -2,8 +2,9 @@ import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { OperationExampleMeta, WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { type ShallowRef, computed } from 'vue'
-import type { Router } from 'vue-router'
+import { type NavigationFailure, NavigationFailureType, type Router } from 'vue-router'
 
+import type { ScalarClientAppRouteParams } from '@/v2/features/app/helpers/routes'
 import { initializeWorkspaceEventHandlers } from '@/v2/workspace-events'
 
 export function initializeAppEventHandlers({
@@ -219,18 +220,81 @@ export function initializeAppEventHandlers({
   //------------------------------------------------------------------------------------
   // UI Related Event Handlers
   //------------------------------------------------------------------------------------
-  eventBus.on('ui:toggle:sidebar', onToggleSidebar)
-  eventBus.on('ui:route:page', ({ name }) => router.push({ name }))
-  // Command palette handler is colocated with the command palette component
+  // Note: Command palette handler is colocated with the command palette component
 
-  eventBus.on('ui:route:example', async ({ exampleName, callback }) => {
-    const result = await router.replace({
-      name: 'example',
-      params: {
-        exampleName,
-      },
-    })
-    callback(result ? 'error' : 'success')
+  eventBus.on('ui:toggle:sidebar', onToggleSidebar)
+
+  /**
+   * Bind the inernal navigation to a public api
+   */
+  eventBus.on('ui:navigate', async (payload) => {
+    const execCallback = (result: NavigationFailure | void | undefined) => {
+      if (!result) {
+        return payload.callback?.('success')
+      }
+
+      const navigationFailure: 16 = NavigationFailureType.duplicated
+
+      if (result.type !== navigationFailure) {
+        return payload.callback?.('error')
+      }
+
+      return payload.callback?.('success')
+    }
+
+    type ValidParams = Partial<Record<ScalarClientAppRouteParams, string>>
+
+    if (payload.page === 'document') {
+      const params = {
+        documentSlug: payload.documentSlug,
+        workspaceSlug: payload.workspaceSlug,
+        namespace: payload.namespace,
+      } satisfies ValidParams
+
+      if (payload.path === 'overview') {
+        return execCallback(await router.push({ name: 'document.overview', params }))
+      }
+      if (payload.path === 'servers') {
+        return execCallback(await router.push({ name: 'document.servers', params }))
+      }
+      if (payload.path === 'environment') {
+        return execCallback(await router.push({ name: 'document.environment', params }))
+      }
+      if (payload.path === 'authentication') {
+        return execCallback(await router.push({ name: 'document.authentication', params }))
+      }
+      if (payload.path === 'cookies') {
+        return execCallback(await router.push({ name: 'document.cookies', params }))
+      }
+      if (payload.path === 'settings') {
+        return execCallback(await router.push({ name: 'document.settings', params }))
+      }
+    }
+
+    if (payload.page === 'workspace') {
+      const params = { workspaceSlug: payload.workspaceSlug, namespace: payload.namespace } satisfies ValidParams
+      if (payload.path === 'environment') {
+        return execCallback(await router.push({ name: 'workspace.environment', params }))
+      }
+      if (payload.path === 'cookies') {
+        return execCallback(await router.push({ name: 'workspace.cookies', params }))
+      }
+      if (payload.path === 'settings') {
+        return execCallback(await router.push({ name: 'workspace.settings', params }))
+      }
+    }
+
+    if (payload.page === 'example') {
+      const params = {
+        namespace: payload.namespace,
+        workspaceSlug: payload.workspaceSlug,
+        documentSlug: payload.documentSlug,
+        pathEncoded: encodeURIComponent(payload.path),
+        method: payload.method,
+        exampleName: payload.exampleName,
+      } satisfies ValidParams
+      return execCallback(await router.push({ name: 'example', params }))
+    }
   })
 
   //------------------------------------------------------------------------------------

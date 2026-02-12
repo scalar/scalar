@@ -97,7 +97,7 @@ const handleUpserRow = (
       :label="label"
       :showAddRowPlaceholder="showAddRowPlaceholder"
       @deleteRow="(index) => emit('delete', { index })"
-      @navigate="(route) => eventBus.emit('ui:route:page', { name: route })"
+      @navigate="(route) => eventBus.emit('ui:navigate', route)"
       @upsertRow="handleUpserRow" />
   </CollapsibleSection>
 </template>

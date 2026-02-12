@@ -51,7 +51,7 @@ const emit = defineEmits<{
    */
   (e: 'uploadFile', index: number): void
   (e: 'removeFile', index: number): void
-  (e: 'navigate', route: string): void
+  (e: 'navigate', route: NonNullable<TableRow['globalRoute']>): void
 }>()
 
 const columns = computed(() => {

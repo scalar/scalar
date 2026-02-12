@@ -214,23 +214,30 @@ export type UIEvents = {
     index: number
   }
   /**
-   * Route to a page
-   * We cannot have any routing in any components used by the modal so we use this event to route to a page
+   * Navigate to a page
+   * This will navigate to a page in the workspace
+   * It can be a document page, a workspace page, or an example page
    */
-  'ui:route:page': {
-    /** The name of the route to route to */
-    name: string
-  }
-  /**
-   * Route to an example page
-   * We cannot have any routing in any components used by the modal so we use this event to route to an example page
-   *
-   * This will only route to the example for the current operation.
-   */
-  'ui:route:example': {
-    /** The example name to route to */
-    exampleName: string
-    /** The callback to call when navigation is complete */
-    callback: (status: 'success' | 'error') => void
-  }
+  'ui:navigate': {
+    namespace?: string
+    workspaceSlug?: string
+    callback?: (status: 'success' | 'error') => void
+  } & (
+    | {
+        page: 'document'
+        path: 'overview' | 'servers' | 'environment' | 'authentication' | 'cookies' | 'settings'
+        documentSlug?: string
+      }
+    | {
+        page: 'workspace'
+        path: 'environment' | 'cookies' | 'settings'
+      }
+    | {
+        page: 'example'
+        documentSlug?: string
+        path: string
+        method: HttpMethod
+        exampleName: string
+      }
+  )
 }
