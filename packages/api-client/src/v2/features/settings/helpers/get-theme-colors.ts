@@ -1,9 +1,7 @@
-import type { IntegrationThemeId, ThemeId } from '@scalar/themes'
+import type { ThemeId } from '@scalar/themes'
 
-type Themes = Exclude<ThemeId, IntegrationThemeId>
-
-export const getThemeColors = (themeId: Themes): { light: string; dark: string; accent: string } => {
-  const colors: Record<Themes, { light: string; dark: string; accent: string }> = {
+export const getThemeColors = (themeId: ThemeId): { light: string; dark: string; accent: string } => {
+  const colors: Record<ThemeId, { light: string; dark: string; accent: string }> = {
     default: { light: '#fff', dark: '#0f0f0f', accent: '#0099ff' },
     alternate: { light: '#f9f9f9', dark: '#131313', accent: '#e7e7e7' },
     moon: { light: '#ccc9b3', dark: '#313332', accent: '#645b0f' },

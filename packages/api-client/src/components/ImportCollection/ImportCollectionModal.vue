@@ -3,11 +3,7 @@ import { ScalarIcon, ScalarModal, useModal } from '@scalar/components'
 import { isLocalUrl } from '@scalar/oas-utils/helpers'
 import { normalize } from '@scalar/openapi-parser'
 import type { OpenAPI } from '@scalar/openapi-types'
-import {
-  getThemeStyles,
-  themeIds,
-  type IntegrationThemeId,
-} from '@scalar/themes'
+import { getThemeStyles, themeIds, type ThemeId } from '@scalar/themes'
 import { useColorMode } from '@scalar/use-hooks/useColorMode'
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
@@ -190,16 +186,16 @@ const themeStyleTag = computed(
     activeWorkspace.value &&
     shouldShowIntegrationIcon.value &&
     props.integration &&
-    `<style>${getThemeStyles(props.integration as IntegrationThemeId)}</style>`,
+    `<style>${getThemeStyles(props.integration as ThemeId)}</style>`,
 )
 
 function handleImportFinished() {
   // If the integration is not a valid theme id, set the theme to default
-  const isIntegrationThemeId = (value: string): value is IntegrationThemeId =>
-    themeIds.includes(value as IntegrationThemeId)
+  const isValidThemeId = (value: string): value is ThemeId =>
+    themeIds.includes(value as ThemeId)
 
   const integrationThemeId =
-    props.integration && isIntegrationThemeId(props.integration)
+    props.integration && isValidThemeId(props.integration)
       ? props.integration
       : 'default'
 

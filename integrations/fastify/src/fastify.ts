@@ -1,12 +1,13 @@
 import { getHtmlDocument } from '@scalar/core/libs/html-rendering'
-import { normalize, toJson, toYaml } from '@scalar/openapi-parser'
+import { normalize, toYaml } from '@scalar/openapi-parser'
 import type { OpenAPI } from '@scalar/openapi-types'
 import type { FastifyBaseLogger, FastifyTypeProviderDefault, RawServerDefault } from 'fastify'
 import fp from 'fastify-plugin'
 import { slug } from 'github-slugger'
 
+import fastifyTheme from './assets/theme.css?raw'
 import type { ApiReferenceConfiguration, FastifyApiReferenceHooksOptions, FastifyApiReferenceOptions } from './types'
-import { getJavaScriptFile } from './utils/getJavaScriptFile'
+import { getJavaScriptFile } from './utils/get-javascript-file'
 
 /**
  * Path to the bundled Scalar JavaScript file
@@ -32,12 +33,11 @@ const getRoutePrefix = (routePrefix?: string) => {
 }
 
 /**
- * Get the endpoints for the OpenAPI specification.
+ * Get the endpoints for the OpenAPI document.
  */
-const getOpenApiDocumentEndpoints = (
-  openApiDocumentEndpoints: FastifyApiReferenceOptions['openApiDocumentEndpoints'],
-) => {
+const getDocumentUrls = (openApiDocumentEndpoints: FastifyApiReferenceOptions['openApiDocumentEndpoints']) => {
   const { json = '/openapi.json', yaml = '/openapi.yaml' } = openApiDocumentEndpoints ?? {}
+
   return { json, yaml }
 }
 
@@ -69,7 +69,7 @@ const fastifyApiReference = fp<
       ...givenConfiguration,
     }
 
-    const specSource = (() => {
+    const source = (() => {
       const { content, url } = configuration ?? {}
       if (content) {
         return {
@@ -100,10 +100,10 @@ const fastifyApiReference = fp<
       return void 0
     })()
 
-    // If no OpenAPI specification is passed and @fastify/swagger isn't loaded, show a warning.
-    if (!specSource && !configuration.sources) {
+    // If no OpenAPI document is passed and @fastify/swagger isn't loaded, show a warning.
+    if (!source && !configuration.sources) {
       fastify.log.warn(
-        "[@scalar/fastify-api-reference] You didn't provide a `content`, `url`, `sources` or @fastify/swagger could not be found. Please provide one of these options.",
+        "[@scalar/fastify-api-reference] You didn't provide a `content`, `url`, `sources` or @fastify/swagger could not be found. Please provide one of these options to render the API Reference.",
       )
 
       return next()
@@ -123,45 +123,49 @@ const fastifyApiReference = fp<
       }
     }
 
-    const getSpecFilenameSlug = (spec: OpenAPI.Document) => {
+    const getFilename = (document: OpenAPI.Document): string => {
       // Same GitHub Slugger and default file name as in `@scalar/api-reference`, when generating the download
-      return slug(spec?.specification?.info?.title ?? 'spec')
+      return slug(document?.specification?.info?.title ?? 'openapi')
     }
 
-    // Only expose the endpoints if specSource is available
-    if (specSource) {
-      const openApiSpecUrlJson = `${getRoutePrefix(options.routePrefix)}${getOpenApiDocumentEndpoints(options.openApiDocumentEndpoints).json}`
+    // Only expose the endpoints if source is available
+    if (source) {
+      const { json } = getDocumentUrls(options.openApiDocumentEndpoints)
+      const documentUrlJson = `${getRoutePrefix(options.routePrefix)}${json}`
+
       fastify.route({
         method: 'GET',
-        url: openApiSpecUrlJson,
+        url: documentUrlJson,
         schema: schemaToHideRoute,
         ...hooks,
         ...(options.logLevel && { logLevel: options.logLevel }),
         handler(_, reply) {
-          const spec = normalize(specSource.get())
-          const filename = getSpecFilenameSlug(spec)
-          const json = JSON.parse(toJson(spec)) // parsing minifies the JSON
+          const document = normalize(source.get())
+          const filename = getFilename(document)
 
           return reply
             .header('Content-Type', 'application/json')
             .header('Content-Disposition', `filename=${filename}.json`)
             .header('Access-Control-Allow-Origin', '*')
             .header('Access-Control-Allow-Methods', '*')
-            .send(json)
+            .send(document)
         },
       })
 
-      const openApiSpecUrlYaml = `${getRoutePrefix(options.routePrefix)}${getOpenApiDocumentEndpoints(options.openApiDocumentEndpoints).yaml}`
+      const { yaml } = getDocumentUrls(options.openApiDocumentEndpoints)
+      const documentUrlYaml = `${getRoutePrefix(options.routePrefix)}${yaml}`
+
       fastify.route({
         method: 'GET',
-        url: openApiSpecUrlYaml,
+        url: documentUrlYaml,
         schema: schemaToHideRoute,
         ...hooks,
         ...(options.logLevel && { logLevel: options.logLevel }),
         handler(_, reply) {
-          const spec = normalize(specSource.get())
-          const filename = getSpecFilenameSlug(spec)
-          const yaml = toYaml(spec)
+          const document = normalize(source.get())
+          const filename = getFilename(document)
+          const yaml = toYaml(document)
+
           return reply
             .header('Content-Type', 'application/yaml')
             .header('Content-Disposition', `filename=${filename}.yaml`)
@@ -191,6 +195,7 @@ const fastifyApiReference = fp<
         handler(request, reply) {
           // we are in a route without a trailing slash so redirect directly to the one with a trailing slash
           const currentUrl = new URL(request.url, `${request.protocol}://${request.hostname}`)
+
           return reply.redirect(`${currentUrl.pathname}/`, 301)
         },
       })
@@ -216,21 +221,24 @@ const fastifyApiReference = fp<
          * download button point to the exposed endpoint.
          * If the URL is explicitly passed, defer to that URL instead.
          */
-        if (specSource && specSource.type !== 'url') {
+        if (source && source.type !== 'url') {
           configuration = {
             ...configuration,
             // Use a relative URL in case we're proxied
-            url: `.${getOpenApiDocumentEndpoints(options.openApiDocumentEndpoints).json}`,
+            url: `.${getDocumentUrls(options.openApiDocumentEndpoints).json}`,
           }
         }
 
         // Respond with the HTML document
         return reply.header('Content-Type', 'text/html; charset=utf-8').send(
-          getHtmlDocument({
-            // We're using the bundled JS here by default, but the user can pass a CDN URL.
-            cdn: RELATIVE_JAVASCRIPT_PATH,
-            ...configuration,
-          }),
+          getHtmlDocument(
+            {
+              // We're using the bundled JS here by default, but the user can pass a CDN URL.
+              cdn: RELATIVE_JAVASCRIPT_PATH,
+              ...configuration,
+            },
+            fastifyTheme,
+          ),
         )
       },
     })
