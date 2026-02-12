@@ -51,8 +51,8 @@ describe('mapConfigPlugins', () => {
 
       // Verify the modified request is returned
       expect(result).toEqual({ request: modifiedRequest })
-      expect(result.request.url).toBe('https://example.com/api/modified')
-      expect(result.request.method).toBe('POST')
+      expect(result?.request.url).toBe('https://example.com/api/modified')
+      expect(result?.request.method).toBe('POST')
     }
   })
 
@@ -93,8 +93,8 @@ describe('mapConfigPlugins', () => {
 
       // Critical assertion: original payload is returned when callback returns void
       expect(result).toEqual({ request: mockRequest })
-      expect(result.request).toBe(mockRequest)
-      expect(result.request.url).toBe('https://example.com/api/test')
+      expect(result?.request).toBe(mockRequest)
+      expect(result?.request.url).toBe('https://example.com/api/test')
     }
   })
 
