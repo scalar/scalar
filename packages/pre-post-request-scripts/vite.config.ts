@@ -15,7 +15,6 @@ export default defineConfig({
     entry: [
       'src/index.ts',
       'src/libs/execute-scripts/index.ts',
-      'src/libs/execute-scripts/context/postman-scripts/index.ts',
       'src/plugins/post-response-scripts/index.ts',
       'src/plugins/post-response-scripts/components/PostResponseScripts/index.ts',
       'src/plugins/post-response-scripts/components/TestResults/index.ts',
