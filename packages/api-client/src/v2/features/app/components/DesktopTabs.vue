@@ -44,8 +44,7 @@ const handleCopyTabUrl = (index: number): void => {
 </script>
 
 <template>
-  <nav
-    class="mac:pl-[72px] t-app__top-nav z-1 flex h-10 items-center gap-2 px-2">
+  <nav class="t-app__top-nav z-1 flex h-10 items-center gap-2 px-2">
     <DesktopTab
       v-for="(tab, index) in tabs"
       :key="index"

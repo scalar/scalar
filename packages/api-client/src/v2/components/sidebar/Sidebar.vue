@@ -100,7 +100,7 @@ const handleSelectItem = (id: string) => {
     class="flex flex-col">
     <template #default>
       <ScalarSidebar
-        class="flex w-auto flex-1 pt-2"
+        class="mac:pt-10 flex w-auto flex-1 pt-2"
         :indent="15"
         :isDraggable="layout !== 'modal'"
         :isDroppable="isDroppable"
