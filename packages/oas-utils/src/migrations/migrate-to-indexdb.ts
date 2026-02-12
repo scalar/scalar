@@ -725,6 +725,8 @@ const transformCollectionToDocument = (
             return acc
           }
 
+          const { uid: _uid, nameKey: _nameKey, ...publicSecurityScheme } = removeSecretFields(securityScheme)
+
           // Clean the flows
           if (securityScheme.type === 'oauth2') {
             const selectedScopes = new Set<string>()
@@ -732,7 +734,7 @@ const transformCollectionToDocument = (
             return {
               ...acc,
               [securityScheme.nameKey]: {
-                ...securityScheme,
+                ...publicSecurityScheme,
                 flows: objectEntries(securityScheme.flows).reduce(
                   (acc, [key, flow]) => {
                     if (!flow) {
@@ -754,12 +756,9 @@ const transformCollectionToDocument = (
             }
           }
 
-          /** We don't want any secrets in the document */
-          const cleanedSecurityScheme = removeSecretFields(securityScheme)
-
           return {
             ...acc,
-            [securityScheme.nameKey]: cleanedSecurityScheme,
+            [securityScheme.nameKey]: publicSecurityScheme,
           }
         }, {}),
       },

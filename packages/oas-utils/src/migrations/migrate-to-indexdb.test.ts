@@ -291,6 +291,14 @@ describe('migrate-to-indexdb', () => {
         // @ts-expect-error - value is not in the type
         resultWorkspace.workspace.documents['Test API']!.components?.securitySchemes?.['api-key-auth']?.value,
       ).toBeUndefined()
+      expect(
+        // @ts-expect-error - uid is not in the type
+        resultWorkspace.workspace.documents['Test API']!.components?.securitySchemes?.['api-key-auth']?.uid,
+      ).toBeUndefined()
+      expect(
+        // @ts-expect-error - nameKey is not in the type
+        resultWorkspace.workspace.documents['Test API']!.components?.securitySchemes?.['api-key-auth']?.nameKey,
+      ).toBeUndefined()
 
       // Verify security scheme secrets are in auth store
       expect(resultWorkspace.workspace.auth['Test API']?.secrets['api-key-auth']).toEqual({
@@ -329,6 +337,14 @@ describe('migrate-to-indexdb', () => {
       expect(
         // @ts-expect-error - token is not in the type
         resultWorkspace.workspace.documents['Bearer API']!.components?.securitySchemes?.['bearer-auth']?.token,
+      ).toBeUndefined()
+      expect(
+        // @ts-expect-error - uid is not in the type
+        resultWorkspace.workspace.documents['Bearer API']!.components?.securitySchemes?.['bearer-auth']?.uid,
+      ).toBeUndefined()
+      expect(
+        // @ts-expect-error - nameKey is not in the type
+        resultWorkspace.workspace.documents['Bearer API']!.components?.securitySchemes?.['bearer-auth']?.nameKey,
       ).toBeUndefined()
 
       // Verify security scheme secrets are in auth store
@@ -375,6 +391,14 @@ describe('migrate-to-indexdb', () => {
       expect(
         // @ts-expect-error - username and password are not in the type
         resultWorkspace.workspace.documents['Basic Auth API']!.components?.securitySchemes?.['basic-auth']?.password,
+      ).toBeUndefined()
+      expect(
+        // @ts-expect-error - uid is not in the type
+        resultWorkspace.workspace.documents['Basic Auth API']!.components?.securitySchemes?.['basic-auth']?.uid,
+      ).toBeUndefined()
+      expect(
+        // @ts-expect-error - nameKey is not in the type
+        resultWorkspace.workspace.documents['Basic Auth API']!.components?.securitySchemes?.['basic-auth']?.nameKey,
       ).toBeUndefined()
 
       // Verify security scheme secrets are in auth store
@@ -431,6 +455,14 @@ describe('migrate-to-indexdb', () => {
           'x-usePkce': 'no',
           tokenUrl: 'https://example.com/oauth/token',
         })
+        expect(
+          // @ts-expect-error - uid is not in the type
+          oauthScheme.uid,
+        ).toBeUndefined()
+        expect(
+          // @ts-expect-error - nameKey is not in the type
+          oauthScheme.nameKey,
+        ).toBeUndefined()
       }
 
       // Verify security scheme secrets are in auth store
