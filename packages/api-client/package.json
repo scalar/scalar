@@ -369,6 +369,7 @@
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
     "@scalar/galaxy": "workspace:*",
+    "@scalar/pre-post-request-scripts": "workspace:*",
     "@tailwindcss/vite": "catalog:*",
     "@types/shell-quote": "^1.7.5",
     "@types/whatwg-mimetype": "catalog:*",
@@ -378,8 +379,8 @@
     "fastify": "catalog:*",
     "jsdom": "catalog:*",
     "tailwindcss": "catalog:*",
-    "vite": "catalog:*",
     "vite-svg-loader": "catalog:*",
+    "vite": "catalog:*",
     "vitest": "catalog:*"
   }
 }

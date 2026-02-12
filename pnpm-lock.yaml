@@ -1349,6 +1349,9 @@ importers:
       '@scalar/galaxy':
         specifier: workspace:*
         version: link:../galaxy
+      '@scalar/pre-post-request-scripts':
+        specifier: workspace:*
+        version: link:../pre-post-request-scripts
       '@tailwindcss/vite':
         specifier: catalog:*
         version: 4.1.18(vite@7.3.1(@types/node@22.19.3)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.31.2)(tsx@4.19.1)(yaml@2.8.0))
