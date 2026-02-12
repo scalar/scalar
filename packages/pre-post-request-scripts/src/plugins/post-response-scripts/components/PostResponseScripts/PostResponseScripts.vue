@@ -12,7 +12,6 @@ const { operation } = defineProps<{
 }>()
 
 const emit = defineEmits<{
-  (e: 'update:operation', key: keyof Operation, value: string): void
   (e: 'operation:update:extension', payload: any): void
 }>()
 
@@ -22,9 +21,6 @@ const updatePostResponseScript = (value: string) => {
   emit('operation:update:extension', {
     'x-post-response': value,
   })
-
-  // Keep the legacy event for older integrations.
-  emit('update:operation', 'x-post-response', value)
 }
 </script>
 

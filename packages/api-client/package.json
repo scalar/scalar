@@ -321,10 +321,7 @@
       "default": "./dist/views/Request/types/index.js"
     }
   },
-  "files": [
-    "dist",
-    "CHANGELOG.md"
-  ],
+  "files": ["dist", "CHANGELOG.md"],
   "dependencies": {
     "@headlessui/tailwindcss": "catalog:*",
     "@headlessui/vue": "catalog:*",
@@ -379,8 +376,8 @@
     "fastify": "catalog:*",
     "jsdom": "catalog:*",
     "tailwindcss": "catalog:*",
-    "vite-svg-loader": "catalog:*",
     "vite": "catalog:*",
+    "vite-svg-loader": "catalog:*",
     "vitest": "catalog:*"
   }
 }

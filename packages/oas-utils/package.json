@@ -103,6 +103,7 @@
     "@scalar/workspace-store": "workspace:*",
     "flatted": "catalog:*",
     "type-fest": "catalog:*",
+    "vue": "catalog:*",
     "yaml": "catalog:*",
     "zod": "catalog:*"
   },

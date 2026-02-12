@@ -1,3 +1,4 @@
+import type { ClientPlugin } from '@scalar/oas-utils/helpers'
 import type { ApiClientPlugin } from '@scalar/types/api-reference'
 import { ref } from 'vue'
 
@@ -44,8 +45,8 @@ export const postResponseScriptsPlugin = (): ApiClientPlugin => {
   })
 }
 
-// @TODO share the types
-export const postResponseScriptsPluginV2 = (): any => {
+/** Post Response Scripts Plugin for client V2 */
+export const postResponseScriptsPluginV2 = (): ClientPlugin => {
   const results = ref<TestResult[]>([])
 
   return {
@@ -60,7 +61,6 @@ export const postResponseScriptsPluginV2 = (): any => {
         results.value = []
       },
       // Execute post-response scripts when a response is received
-      // @ts-expect-error - share the types later
       responseReceived: async ({ response, operation }) => {
         await executePostResponseScript(operation['x-post-response'], {
           response,

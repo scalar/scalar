@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
-import type { ClientPlugin } from './plugins'
-import { executeHook } from './plugins'
+import type { ClientPlugin } from './client-plugins'
+import { executeHook } from './client-plugins'
 
 describe('executeHook', () => {
   it('returns the original payload when no plugins are provided', async () => {

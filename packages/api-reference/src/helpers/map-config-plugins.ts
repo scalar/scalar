@@ -1,4 +1,4 @@
-import type { ClientPlugin } from '@scalar/api-client/v2/helpers'
+import type { ClientPlugin } from '@scalar/oas-utils/helpers'
 import type { ApiReferenceConfigurationRaw } from '@scalar/types/api-reference'
 import { type ComputedRef, watch } from 'vue'
 

@@ -2,6 +2,7 @@
 import { ScalarErrorBoundary } from '@scalar/components'
 import { isDefined } from '@scalar/helpers/array/is-defined'
 import type { ResponseInstance } from '@scalar/oas-utils/entities/spec'
+import type { ClientPlugin } from '@scalar/oas-utils/helpers'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { computed, ref, useId } from 'vue'
 
@@ -18,7 +19,6 @@ import ResponseLoadingOverlay from '@/v2/blocks/response-block/components/Respon
 import ResponseMetaInformation from '@/v2/blocks/response-block/components/ResponseMetaInformation.vue'
 import { textMediaTypes } from '@/v2/blocks/response-block/helpers/media-types'
 import { parseSetCookie } from '@/v2/blocks/response-block/helpers/parse-set-cookie'
-import type { ClientPlugin } from '@/v2/helpers/plugins'
 
 const { layout, totalPerformedRequests, response, request } = defineProps<{
   /** Preprocessed response */

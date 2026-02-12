@@ -1,10 +1,10 @@
+import type { ClientPlugin } from '@scalar/oas-utils/helpers'
 import { createApp } from 'vue'
 import { createRouter as createVueRouter, createWebHashHistory, createWebHistory } from 'vue-router'
 
 import App from '@/v2/features/app/App.vue'
 import { createAppState } from '@/v2/features/app/app-state'
 import { ROUTES } from '@/v2/features/app/helpers/routes'
-import type { ClientPlugin } from '@/v2/helpers/plugins'
 import type { ClientLayout } from '@/v2/types/layout'
 
 import { useCommandPaletteState } from '../../command-palette/hooks/use-command-palette-state'

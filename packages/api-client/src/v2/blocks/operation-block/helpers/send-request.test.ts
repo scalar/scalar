@@ -1,7 +1,6 @@
+import type { ClientPlugin } from '@scalar/oas-utils/helpers'
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/operation'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-
-import type { ClientPlugin } from '@/v2/helpers/plugins'
 
 import { sendRequest } from './send-request'
 

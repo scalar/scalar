@@ -19,6 +19,7 @@ export default {
 <script setup lang="ts">
 import type { HttpMethod as HttpMethodType } from '@scalar/helpers/http/http-methods'
 import type { ResponseInstance } from '@scalar/oas-utils/entities/spec'
+import { type ClientPlugin } from '@scalar/oas-utils/helpers'
 import {
   AVAILABLE_CLIENTS,
   type AvailableClients,
@@ -58,7 +59,6 @@ import {
   getSecurityRequirements,
   getSelectedSecurity,
 } from '@/v2/features/operation'
-import { type ClientPlugin } from '@/v2/helpers/plugins'
 
 import Header from './components/Header.vue'
 

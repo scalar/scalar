@@ -3,6 +3,7 @@ import { ScalarErrorBoundary } from '@scalar/components'
 import { canMethodHaveBody } from '@scalar/helpers/http/can-method-have-body'
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { REGEX } from '@scalar/helpers/regex/regex-helpers'
+import type { ClientPlugin } from '@scalar/oas-utils/helpers'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { SelectedSecurity } from '@scalar/workspace-store/entities/auth'
 import type {
@@ -42,7 +43,6 @@ import {
   type MergedSecuritySchemes,
 } from '@/v2/blocks/scalar-auth-selector-block'
 import type { SecuritySchemeObjectSecret } from '@/v2/blocks/scalar-auth-selector-block/helpers/secret-types'
-import type { ClientPlugin } from '@/v2/helpers/plugins'
 
 type Filter =
   | 'All'

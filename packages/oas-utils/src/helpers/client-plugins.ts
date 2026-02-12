@@ -4,7 +4,7 @@ import type { DefineComponent } from 'vue'
 
 /** A type representing the hooks that a client plugin can define */
 type ClientPluginHooks = {
-  beforeRequest: (payload: { request: Request }) => { request: Request } | Promise<{ request: Request }>
+  beforeRequest: (payload: { request: Request }) => { request: Request } | void | Promise<{ request: Request } | void>
   responseReceived: (payload: {
     response: Response
     request: Request
@@ -15,7 +15,7 @@ type ClientPluginHooks = {
 /** A vue component which accepts the specified props */
 type ClientPluginComponent<
   Props extends Record<string, unknown>,
-  Emits extends Record<string, (...args: any[]) => void> = Record<string, never>,
+  Emits extends Record<string, (...args: any[]) => void> = {},
 > = {
   component: DefineComponent<Props, {}, {}, {}, {}, {}, {}, Emits>
   additionalProps?: Record<string, unknown>

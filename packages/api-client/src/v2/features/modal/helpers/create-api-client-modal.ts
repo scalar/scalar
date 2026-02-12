@@ -1,4 +1,5 @@
 import { type ModalState, useModal } from '@scalar/components'
+import type { ClientPlugin } from '@scalar/oas-utils/helpers'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { type WorkspaceEventBus, createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { InMemoryWorkspace } from '@scalar/workspace-store/schemas/inmemory-workspace'
@@ -12,7 +13,6 @@ import {
 import { restoreWorkspaceState } from '@/v2/features/modal/helpers/restore-workspace-state'
 import { useModalSidebar } from '@/v2/features/modal/hooks/use-modal-sidebar'
 import Modal, { type ModalProps } from '@/v2/features/modal/Modal.vue'
-import type { ClientPlugin } from '@/v2/helpers/plugins'
 
 type CreateApiClientModalOptions = {
   /** Element to mount the client modal to. */
