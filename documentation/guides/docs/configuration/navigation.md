@@ -37,15 +37,17 @@ The `navigation.header` array defines links that appear in the top navigation ba
   "navigation": {
     "header": [
       {
+        "type": "link",
         "title": "Log in",
-        "url": "https://dashboard.scalar.com/login"
+        "to": "https://dashboard.scalar.com/login"
       },
       {
+        "type": "link",
         "title": "Register",
         "style": "button",
         "icon": "phosphor/regular/user-plus",
         "newTab": true,
-        "url": "https://dashboard.scalar.com/register"
+        "to": "https://dashboard.scalar.com/register"
       }
     ],
     "routes": {
@@ -60,7 +62,8 @@ The `navigation.header` array defines links that appear in the top navigation ba
 | Property | Type                 | Required | Description                           |
 | -------- | -------------------- | -------- | ------------------------------------- |
 | `title`  | `string`             | Yes      | The display text for the header link  |
-| `url`    | `string`             | Yes      | The URL the link points to            |
+| `type`   | `"link"`             | Yes      | Must be `"link"`                      |
+| `to`     | `string`             | Yes      | The route path or URL the link points to |
 | `style`  | `"button" \| "link"` | No       | Display style (defaults to `"link"`)  |
 | `icon`   | `string`             | No       | An icon to display next to the link   |
 | `newTab` | `boolean`            | No       | Whether to open the link in a new tab |
