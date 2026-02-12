@@ -13,7 +13,11 @@ import {
   ScalarSidebarFooter,
 } from '@scalar/components'
 import { redirectToProxy } from '@scalar/helpers/url/redirect-to-proxy'
-import { createSidebarState, ScalarSidebar } from '@scalar/sidebar'
+import {
+  createSidebarState,
+  ScalarSidebar,
+  scrollSidebarToTop,
+} from '@scalar/sidebar'
 import { getThemeStyles, hasObtrusiveScrollbars } from '@scalar/themes'
 import {
   apiReferenceConfigurationSchema,
@@ -766,6 +770,9 @@ eventBus.on('intersecting:nav-item', ({ id }) => {
 
   sidebarState.setSelected(id)
   setBreadcrumb(id)
+
+  // Scroll the sidebar to keep the selected element near the top
+  scrollSidebarToTop(id)
 
   const url = makeUrlFromId(id, basePath.value, isMultiDocument.value)
   if (url && workspaceStore.workspace.activeDocument) {

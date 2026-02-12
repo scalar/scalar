@@ -10,6 +10,7 @@ export {
 } from './helpers/create-sidebar-state'
 export { generateReverseIndex } from './helpers/generate-reverse-index'
 export { getChildEntry } from './helpers/get-child-entry'
+export { scrollSidebarToTop } from './helpers/scroll-sidebar-to-top'
 export {
   type DragOffset,
   type DraggingItem,
