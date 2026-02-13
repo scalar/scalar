@@ -1,3 +1,5 @@
+import { cwd } from 'node:process'
+
 import { consoleErrorSpy, resetConsoleSpies } from '@scalar/helpers/testing/console-spies'
 import { getRaw } from '@scalar/json-magic/magic-proxy'
 import fastify, { type FastifyInstance } from 'fastify'
@@ -1808,7 +1810,7 @@ describe('create-workspace-store', () => {
                 raw: JSON.stringify(mockDocument),
               })
             }
-            if (path === '/operations/get-items.yaml') {
+            if (path === `${cwd()}/operations/get-items.yaml`) {
               return Promise.resolve({
                 ok: true,
                 data: mockOperation,
@@ -1826,7 +1828,7 @@ describe('create-workspace-store', () => {
       })
 
       expect(fileLoaderExec).toHaveBeenCalledWith('./main-spec.yaml')
-      expect(fileLoaderExec).toHaveBeenCalledWith('/operations/get-items.yaml')
+      expect(fileLoaderExec).toHaveBeenCalledWith(`${cwd()}/operations/get-items.yaml`)
       expect(store.workspace.documents['ref-doc']).toBeDefined()
     })
 

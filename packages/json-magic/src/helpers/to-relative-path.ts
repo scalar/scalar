@@ -21,30 +21,24 @@ export const toRelativePath = (input: string, base: string) => {
     }
 
     // Get the directory of the base URL pathname (not the file itself)
-    const baseDir = path.dirname(path.resolve(baseUrl.pathname))
-    const inputPath = path.resolve(inputUrl.pathname)
+    const baseDir = path.dirname(path.posix.resolve('/', baseUrl.pathname))
+    const inputPath = path.posix.resolve('/', inputUrl.pathname)
     // Return the relative path from baseDir to inputPath
-    return path.relative(baseDir, inputPath)
+    return path.posix.relative(baseDir, inputPath)
   }
 
   // Base is a remote URL, input is a local path
   if (isHttpUrl(base)) {
     const baseUrl = new URL(base)
-    const baseDir = path.dirname(path.resolve(baseUrl.pathname))
-    const inputPath = path.resolve(input)
+    const baseDir = path.dirname(path.posix.resolve('/', baseUrl.pathname))
     // Set the pathname of the base URL to the relative path and return the URL as a string
-    baseUrl.pathname = path.relative(baseDir, inputPath)
+    baseUrl.pathname = path.posix.relative(baseDir, path.posix.resolve('/', input))
     return baseUrl.toString()
   }
 
   // Input is a remote URL, base is a local path; just return input
   if (isHttpUrl(input)) {
     return input
-  }
-
-  // If the base is a relative path, we can't compute the relative path so return the input as is
-  if (!path.isAbsolute(base)) {
-    return path.normalize(input)
   }
 
   // Both input and base are local paths; return the relative path

@@ -25,20 +25,9 @@ export const resolveReferencePath = (base: string, relativePath: string) => {
 
   if (isHttpUrl(base)) {
     const baseUrl = new URL(base)
-    baseUrl.pathname = path.resolve(path.dirname(baseUrl.pathname), relativePath)
+    baseUrl.pathname = path.posix.resolve('/', path.dirname(baseUrl.pathname), relativePath)
     return baseUrl.toString()
   }
 
-  // If the base is absolute we can compute an absolute path
-  if (path.isAbsolute(base)) {
-    return path.resolve(path.dirname(base), relativePath)
-  }
-
-  // If the relativePath is absolute we can return it as is
-  if (path.isAbsolute(relativePath)) {
-    return relativePath
-  }
-
-  // Both base and relativePath are relative paths, so we can compute a relative path
-  return path.join(path.dirname(base), path.normalize(relativePath))
+  return path.resolve(path.dirname(base), relativePath)
 }

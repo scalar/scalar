@@ -1,3 +1,5 @@
+import { cwd } from 'node:process'
+
 import { describe, expect, it } from 'vitest'
 
 import { resolveReferencePath } from '@/helpers/resolve-reference-path'
@@ -280,35 +282,35 @@ describe('resolveReferencePath', () => {
       const base = 'api/openapi.json'
       const relativePath = 'schemas/user.json'
       const result = resolveReferencePath(base, relativePath)
-      expect(result).toBe('api/schemas/user.json')
+      expect(result).toBe(`${cwd()}/api/schemas/user.json`)
     })
 
     it('resolves relative paths with ../ navigation', () => {
       const base = 'api/v1/openapi.json'
       const relativePath = '../schemas/user.json'
       const result = resolveReferencePath(base, relativePath)
-      expect(result).toBe('api/schemas/user.json')
+      expect(result).toBe(`${cwd()}/api/schemas/user.json`)
     })
 
     it('resolves relative paths with ./ prefix', () => {
       const base = 'api/openapi.json'
       const relativePath = './user.json'
       const result = resolveReferencePath(base, relativePath)
-      expect(result).toBe('api/user.json')
+      expect(result).toBe(`${cwd()}/api/user.json`)
     })
 
     it('handles relative base with nested relative path', () => {
       const base = './openapi.json'
       const relativePath = 'schemas/user.json'
       const result = resolveReferencePath(base, relativePath)
-      expect(result).toBe('schemas/user.json')
+      expect(result).toBe(`${cwd()}/schemas/user.json`)
     })
 
     it('handles multiple levels of ../ in relative paths', () => {
       const base = 'a/b/c/openapi.json'
       const relativePath = '../../../schemas/user.json'
       const result = resolveReferencePath(base, relativePath)
-      expect(result).toBe('schemas/user.json')
+      expect(result).toBe(`${cwd()}/schemas/user.json`)
     })
   })
 
