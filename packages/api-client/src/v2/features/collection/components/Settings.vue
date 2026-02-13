@@ -17,7 +17,7 @@ const handleUpdateWatchMode = (watchMode: boolean) => {
   eventBus.emit('document:update:watch-mode', watchMode)
 }
 
-const handleUpdateThemeId = (themeSlug: string) => {
+const handleUpdateThemeSlug = (themeSlug?: string) => {
   eventBus.emit('workspace:update:theme', themeSlug)
 }
 const handleUpdateActiveProxy = (proxy: string | null) => {
@@ -47,5 +47,5 @@ const handleUpdateColorMode = (colorMode: ColorMode) => {
     :customThemes="customThemes"
     @update:colorMode="handleUpdateColorMode"
     @update:proxyUrl="handleUpdateActiveProxy"
-    @update:themeId="handleUpdateThemeId" />
+    @update:themeSlug="handleUpdateThemeSlug" />
 </template>

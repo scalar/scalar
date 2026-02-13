@@ -15,7 +15,7 @@ export type WorkspaceEvents = {
   /**
    * Update the theme of the workspace
    */
-  'workspace:update:theme': string // theme slug
+  'workspace:update:theme': string | undefined // theme id
   /**
    * Update the selected client on the workspace
    */

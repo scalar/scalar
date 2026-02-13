@@ -6,6 +6,7 @@ import {
   type Theme,
   type ThemeId,
 } from '@scalar/themes'
+import { computed } from 'vue'
 
 import IntegrationLogo from '@/components/ImportCollection/IntegrationLogo.vue'
 
@@ -24,14 +25,14 @@ const {
   /** Custom themes available to the team */
   customThemes?: Theme[]
   /** Currently active theme ID */
-  activeThemeSlug: string
+  activeThemeSlug?: string
   /** Currently active color mode */
   colorMode: 'system' | 'light' | 'dark'
 }>()
 
 const emit = defineEmits<{
   (e: 'update:proxyUrl', value: string | null): void
-  (e: 'update:themeId', value: string): void
+  (e: 'update:themeSlug', value: string | undefined): void
   (e: 'update:colorMode', value: 'system' | 'light' | 'dark'): void
 }>()
 
@@ -47,6 +48,8 @@ const themeIds: Exclude<ThemeId, IntegrationThemeId>[] = [
   'kepler',
 ]
 
+const customThemeSlugs = new Set(customThemes.map((theme) => theme.slug))
+
 const integrationThemeIds: IntegrationThemeId[] = ['elysiajs', 'fastify']
 
 const buttonStyles = cva({
@@ -58,6 +61,13 @@ const buttonStyles = cva({
     },
   },
 })
+
+const isNoneThemeSelected = computed(
+  () =>
+    (activeThemeSlug === undefined || activeThemeSlug === 'none') &&
+    !customThemeSlugs.has(activeThemeSlug ?? ''),
+)
+const isNoneTheme = (themeId: string) => themeId === 'none'
 </script>
 <template>
   <div class="flex flex-col gap-10">
@@ -166,20 +176,31 @@ const buttonStyles = cva({
             :class="
               cx(
                 buttonStyles({
-                  active: activeThemeSlug === themeId,
+                  active:
+                    activeThemeSlug === themeId ||
+                    (isNoneTheme(themeId) && isNoneThemeSelected),
                 }),
               )
             "
-            @click="emit('update:themeId', themeId)">
+            @click="
+              emit(
+                'update:themeSlug',
+                isNoneTheme(themeId) ? undefined : themeId,
+              )
+            ">
             <div class="flex items-center gap-2">
               <div
                 class="flex h-5 w-5 items-center justify-center rounded-full border-[1.5px] p-1"
                 :class="{
                   'bg-c-accent text-b-1 border-transparent':
-                    activeThemeSlug === themeId,
+                    activeThemeSlug === themeId ||
+                    (isNoneTheme(themeId) && isNoneThemeSelected),
                 }">
                 <ScalarIcon
-                  v-if="activeThemeSlug === themeId"
+                  v-if="
+                    activeThemeSlug === themeId ||
+                    (isNoneTheme(themeId) && isNoneThemeSelected)
+                  "
                   icon="Checkmark"
                   size="xs"
                   thickness="3.5" />
@@ -227,7 +248,7 @@ const buttonStyles = cva({
               }),
             )
           "
-          @click="emit('update:themeId', themeId)">
+          @click="emit('update:themeSlug', themeId)">
           <div class="flex items-center gap-2">
             <div
               class="flex h-5 w-5 items-center justify-center rounded-full border-[1.5px] p-1"
@@ -270,7 +291,7 @@ const buttonStyles = cva({
               }),
             )
           "
-          @click="emit('update:themeId', theme.slug)">
+          @click="emit('update:themeSlug', theme.slug)">
           <div class="flex items-center gap-2">
             <div
               class="flex h-5 w-5 items-center justify-center rounded-full border-[1.5px] p-1"

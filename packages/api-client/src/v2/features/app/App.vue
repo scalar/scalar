@@ -13,12 +13,7 @@ import {
   useModal,
   type ModalState,
 } from '@scalar/components'
-import {
-  getThemeStyles,
-  themeIds,
-  type Theme,
-  type ThemeId,
-} from '@scalar/themes'
+import { type Theme } from '@scalar/themes'
 import { ScalarToasts } from '@scalar/use-toasts'
 import { extensions } from '@scalar/workspace-store/schemas/extensions'
 import { computed } from 'vue'
@@ -40,10 +35,12 @@ import { type AppState } from './app-state'
 import AppSidebar from './components/AppSidebar.vue'
 import DesktopTabs from './components/DesktopTabs.vue'
 import DownloadAppButton from './components/DownloadAppButton.vue'
+import { useTheme } from '@/v2/features/app/hooks/use-theme'
 
 const {
   layout,
   customThemes = [],
+  fallbackThemeSlug = 'default',
   plugins = [],
   getAppState,
   getCommandPaletteState,
@@ -51,6 +48,7 @@ const {
   layout: Exclude<ClientLayout, 'modal'>
   plugins?: ClientPlugin[]
   customThemes?: Theme[]
+  fallbackThemeSlug?: string
   getAppState: () => AppState
   getCommandPaletteState: () => CommandPaletteState
 }>()
@@ -97,22 +95,10 @@ useDocumentWatcher({
 /** Color mode */
 useColorMode({ workspaceStore: app.store })
 
-/** Type guard to check if a string is a valid ThemeId. */
-const isThemeId = (id: string): id is ThemeId => {
-  return themeIds.includes(id as ThemeId)
-}
-
-/** Generate the theme style tag for dynamic theme application. */
-const themeStyleTag = computed(() => {
-  if (app.store.value === null) {
-    return ''
-  }
-
-  const themeId = app.store.value.workspace['x-scalar-theme']
-
-  if (!themeId || !isThemeId(themeId)) return ''
-
-  return `<style>${getThemeStyles(themeId)}</style>`
+const { themeStyleTag } = useTheme({
+  fallbackThemeSlug: () => fallbackThemeSlug,
+  store: app.store,
+  customThemes: () => customThemes,
 })
 
 /** Sets the active workspace by ID: finds the workspace in the list and updates app state & navigation. */
