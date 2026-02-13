@@ -48,12 +48,8 @@ const emit = defineEmits<{
   (e: 'clearDrafts'): void
 }>()
 
-const {
-  collapsedSidebarFolders,
-  isSidebarOpen,
-  setCollapsedSidebarFolder,
-  toggleSidebarOpen,
-} = useSidebar()
+const { isSidebarOpen, setCollapsedSidebarFolder, toggleSidebarOpen } =
+  useSidebar()
 const { layout } = useLayout()
 
 const workspaceContext = useWorkspace()
@@ -383,24 +379,15 @@ function handleBlur(e: FocusEvent) {
             <template #leftIcon>
               <ScalarIcon
                 v-if="collection.info?.title === 'Drafts'"
-                class="text-sidebar-c-2 group-hover:hidden"
+                class="text-sidebar-c-2"
                 icon="Scribble"
                 thickness="2.25" />
               <LibraryIcon
                 v-else
-                class="text-sidebar-c-2 size-3.5 min-w-3.5 stroke-2 group-hover:hidden"
+                class="text-sidebar-c-2 size-3.5 min-w-3.5 stroke-2"
                 :src="
                   collection['x-scalar-icon'] || 'interface-content-folder'
                 " />
-              <div
-                :class="{
-                  'rotate-90': collapsedSidebarFolders[collection.uid],
-                }">
-                <ScalarIcon
-                  class="text-c-3 hover:text-c-1 hidden text-sm group-hover:block"
-                  icon="ChevronRight"
-                  size="md" />
-              </div>
             </template>
           </RequestSidebarItem>
         </nav>
