@@ -24,6 +24,7 @@ import CreateWorkspaceModal from '@/v2/features/app/components/CreateWorkspaceMo
 import SplashScreen from '@/v2/features/app/components/SplashScreen.vue'
 import type { RouteProps } from '@/v2/features/app/helpers/routes'
 import { useDocumentWatcher } from '@/v2/features/app/hooks/use-document-watcher'
+import { useTheme } from '@/v2/features/app/hooks/use-theme'
 import type { CommandPaletteState } from '@/v2/features/command-palette/hooks/use-command-palette-state'
 import TheCommandPalette from '@/v2/features/command-palette/TheCommandPalette.vue'
 import type { ClientPlugin } from '@/v2/helpers/plugins'
@@ -35,7 +36,6 @@ import { type AppState } from './app-state'
 import AppSidebar from './components/AppSidebar.vue'
 import DesktopTabs from './components/DesktopTabs.vue'
 import DownloadAppButton from './components/DownloadAppButton.vue'
-import { useTheme } from '@/v2/features/app/hooks/use-theme'
 
 const {
   layout,
@@ -97,8 +97,8 @@ useColorMode({ workspaceStore: app.store })
 
 const { themeStyleTag } = useTheme({
   fallbackThemeSlug: () => fallbackThemeSlug,
-  store: app.store,
   customThemes: () => customThemes,
+  store: app.store,
 })
 
 /** Sets the active workspace by ID: finds the workspace in the list and updates app state & navigation. */
