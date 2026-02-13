@@ -146,7 +146,11 @@ const handleToggle = (event: MouseEvent) => {
           <slot
             name="toggle"
             :open>
-            <ScalarSidebarGroupToggle :open />
+            <ScalarSidebarGroupToggle :open>
+              <template #label>
+                {{ open ? 'Close' : 'Open' }} <slot :open="open" />
+              </template>
+            </ScalarSidebarGroupToggle>
           </slot>
         </button>
       </slot>
