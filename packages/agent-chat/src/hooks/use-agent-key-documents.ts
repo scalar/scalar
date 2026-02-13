@@ -15,7 +15,7 @@ export function useAgentKeyDocuments() {
     const keyDocumentsResult = await api.getKeyDocuments()
 
     if (!keyDocumentsResult.success) {
-      toast('Unable to fetch registry documents for the provided key')
+      toast('Unable to fetch registry documents for the provided key', 'error')
       return
     }
 

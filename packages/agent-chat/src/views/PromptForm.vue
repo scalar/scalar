@@ -102,6 +102,10 @@ function acceptTerms() {
   }
 }
 
+const isPending = computed(() =>
+  Object.values(state.pendingDocuments).some(Boolean),
+)
+
 const submitDisabled = computed(() => {
   const tooLarge = promptTooLarge.value
   const missingInput = !inputHasContent.value
@@ -112,6 +116,7 @@ const submitDisabled = computed(() => {
 
   const termsNotAccepted = isPreview && !state.terms.accepted.value
   const uploadingTmpDoc = isPreview && !!uploadTmpDoc.uploadState.value
+  const isLoading = isPending.value
 
   return (
     tooLarge ||
@@ -119,7 +124,8 @@ const submitDisabled = computed(() => {
     awaitingApproval ||
     pendingToolParts ||
     termsNotAccepted ||
-    uploadingTmpDoc
+    uploadingTmpDoc ||
+    isLoading
   )
 })
 
@@ -130,10 +136,6 @@ function handleSubmit() {
 
   emit('submit')
 }
-
-const isPending = computed(() =>
-  Object.values(state.pendingDocuments).some(Boolean),
-)
 
 const chatError = useChatError()
 </script>
