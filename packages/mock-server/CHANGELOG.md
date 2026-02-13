@@ -1,5 +1,14 @@
 # @scalar/mock-server
 
+## 0.8.35
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/oas-utils@0.6.40**
+  - [#8121](https://github.com/scalar/scalar/pull/8121): chore: moved client plugin types to oas-utils so they can be shared
+
 ## 0.8.34
 
 ### Patch Changes
