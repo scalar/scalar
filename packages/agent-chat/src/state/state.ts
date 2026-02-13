@@ -6,10 +6,12 @@ import { type WorkspaceStore, createWorkspaceStore } from '@scalar/workspace-sto
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import { DefaultChatTransport, type UIDataTypes, type UIMessage, lastAssistantMessageIsCompleteWithToolCalls } from 'ai'
+import { n } from 'neverpanic'
 import { type ComputedRef, type InjectionKey, type Ref, computed, inject, reactive, ref, watch } from 'vue'
 
 import { type Api, createApi, createAuthorizationHeaders } from '@/api'
 import { executeRequestTool } from '@/client-tools/execute-request'
+import { createError } from '@/entities'
 import type { ApiMetadata } from '@/entities/registry/document'
 import type {
   ASK_FOR_AUTHENTICATION_TOOL_NAME,
@@ -287,14 +289,15 @@ export function createState({
 
     pendingDocuments[identifier] = true
 
-    const embeddingStatusResponse = await fetch(
-      makeScalarProxyUrl(`${baseUrl}/vector/registry/embeddings/${namespace}/${slug}`),
-      {
-        method: 'GET',
-      },
+    const embeddingStatusResponse = await n.fromUnsafe(
+      () =>
+        fetch(makeScalarProxyUrl(`${baseUrl}/vector/registry/embeddings/${namespace}/${slug}`), {
+          method: 'GET',
+        }),
+      (originalError) => createError('FAILED_TO_GET_EMBEDDING_STATUS', originalError),
     )
 
-    if (embeddingStatusResponse.ok) {
+    if (embeddingStatusResponse.success && embeddingStatusResponse.data.ok) {
       const loadDocumentResult = await loadDocument({
         namespace,
         slug,
