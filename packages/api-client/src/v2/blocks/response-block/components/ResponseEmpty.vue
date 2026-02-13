@@ -2,7 +2,6 @@
 import { ScalarHotkey } from '@scalar/components'
 
 import Computer from '@/assets/computer.ascii?raw'
-import EmptyState from '@/components/EmptyState.vue'
 import ScalarAsciiArt from '@/components/ScalarAsciiArt.vue'
 import { type ClientLayout } from '@/hooks'
 
@@ -26,7 +25,7 @@ const emits = defineEmits<{
     <div
       class="flex h-[calc(100%_-_50px)] flex-col items-center justify-center"
       :class="{
-        'hidden opacity-0': totalPerformedRequests < 1 && layout !== 'modal',
+        'hidden opacity-0': totalPerformedRequests > 0 && layout !== 'modal',
       }">
       <div
         v-if="layout !== 'modal'"
@@ -50,14 +49,7 @@ const emits = defineEmits<{
         :art="Computer"
         class="text-c-3" />
     </div>
-    <div
-      v-if="layout !== 'modal'"
-      class="hidden h-[calc(100%_-_50px)] items-center justify-center pb-5"
-      :class="{
-        '!flex opacity-100': totalPerformedRequests == 0,
-      }">
-      <EmptyState />
-    </div>
+
     <div
       class="text-c-3 right-4 mt-auto flex w-full flex-col items-end gap-2 text-sm">
       <button
@@ -67,8 +59,8 @@ const emits = defineEmits<{
         @click="emits('openCommandPalette')">
         Get Started
         <ScalarHotkey
-          hotkey="p"
-          :modifier="['default', 'Shift']" />
+          hotkey="k"
+          :modifier="['default']" />
       </button>
       <button
         v-if="layout === 'desktop'"
