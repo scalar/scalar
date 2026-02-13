@@ -100,6 +100,9 @@ const generateLabel = (
     case 'oauth2': {
       const firstFlow = Object.keys(scheme.flows ?? {})[0]
       const currentFlow = activeFlow.value || firstFlow
+      if (!currentFlow) {
+        return `${capitalizedName}${description}`
+      }
       return `${capitalizedName}: ${currentFlow}${description}`
     }
 

@@ -435,6 +435,30 @@ describe('RequestAuthTab', () => {
       expect(wrapper.findComponent(OpenIDConnect).exists()).toBe(false)
       expect(wrapper.findComponent(OAuth2).exists()).toBe(true)
     })
+
+    it('does not render undefined in multi-scheme header before discovery flows are available', () => {
+      const wrapper = mountWithProps({
+        securitySchemes: {
+          'OpenIDConnect': {
+            type: 'openIdConnect',
+            openIdConnectUrl: 'https://example.com/.well-known/openid_configuration',
+            description: 'OpenID Connect authentication',
+          },
+          'BearerAuth': {
+            type: 'http',
+            scheme: 'bearer',
+            'x-scalar-secret-token': '',
+          },
+        },
+        selectedSecuritySchemas: {
+          'OpenIDConnect': [],
+          'BearerAuth': [],
+        },
+      })
+
+      expect(wrapper.text()).toContain('OpenIDConnect: OpenID Connect authentication')
+      expect(wrapper.text()).not.toContain('OpenIDConnect: undefined')
+    })
   })
 
   describe('shows correct description', () => {
