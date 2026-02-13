@@ -19,7 +19,7 @@ describe('respond-with-authorize-page', () => {
 
     expect(response.status).toBe(200)
     const html = await response.text()
-    expect(html).toContain('Requested scopes')
+    expect(html).toContain('Requested Scopes')
     expect(html).toContain('read:account')
     expect(html).toContain('write:planets')
     expect(html).toContain('read:planets')
@@ -33,7 +33,7 @@ describe('respond-with-authorize-page', () => {
 
     expect(response.status).toBe(200)
     const html = await response.text()
-    expect(html).toContain('Requested scopes')
+    expect(html).toContain('Requested Scopes')
     expect(html).toContain('read')
     expect(html).toContain('write')
   })
@@ -70,6 +70,6 @@ describe('respond-with-authorize-page', () => {
 
     expect(response.status).toBe(200)
     const html = await response.text()
-    expect(html).not.toContain('Requested scopes')
+    expect(html).not.toContain('Requested Scopes')
   })
 })
