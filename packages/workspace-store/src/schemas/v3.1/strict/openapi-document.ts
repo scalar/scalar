@@ -70,7 +70,7 @@ import { ServerVariableObjectSchemaDefinition } from './server-variable'
 import { type TagObject, TagObjectSchemaDefinition } from './tag'
 import { XMLObjectSchemaDefinition } from './xml'
 
-const OpenApiExtensionsSchema = compose(
+export const OpenApiExtensionsSchema = compose(
   Type.Partial(
     Type.Object({
       'x-scalar-client-config-active-environment': Type.String(),

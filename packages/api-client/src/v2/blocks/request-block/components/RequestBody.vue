@@ -5,9 +5,10 @@ import { unpackProxyObject } from '@scalar/workspace-store/helpers/unpack-proxy'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type { RequestBodyObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import type { Entries } from 'type-fest'
-import { computed, watch } from 'vue'
+import { computed } from 'vue'
 
 import { useFileDialog } from '@/hooks'
+import { getSelectedBodyContentType } from '@/v2/blocks/operation-block/helpers/get-selected-body-content-type'
 import RequestBodyForm from '@/v2/blocks/request-block/components/RequestBodyForm.vue'
 import { getFileName } from '@/v2/blocks/request-block/helpers/files'
 import { getExampleFromBody } from '@/v2/blocks/request-block/helpers/get-request-body-example'
@@ -71,21 +72,7 @@ const contentTypes = {
 
 /** Selected content type with default */
 const selectedContentType = computed(
-  () =>
-    requestBody?.['x-scalar-selected-content-type']?.[exampleKey] ??
-    Object.keys(requestBody?.content ?? {})[0] ??
-    'none',
-)
-
-watch(
-  () => requestBody?.['x-scalar-selected-content-type']?.[exampleKey],
-  (contentType) => {
-    // If there's no selected content type, set it
-    if (!contentType) {
-      emits('update:contentType', { value: selectedContentType.value })
-    }
-  },
-  { immediate: true },
+  () => getSelectedBodyContentType(requestBody, exampleKey) ?? 'none',
 )
 
 /** Convert content types to options for the dropdown */

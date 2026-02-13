@@ -5,7 +5,7 @@ import {
   createApiClientModal,
   type ApiClientModal,
 } from '@scalar/api-client/v2/features/modal'
-import { getActiveEnvironment } from '@scalar/api-client/v2/helpers'
+import { getActiveEnvironment, getServers } from '@scalar/api-client/v2/helpers'
 import {
   addScalarClassesToHeadless,
   ScalarColorModeToggleButton,
@@ -485,7 +485,7 @@ const changeSelectedDocument = async (
 
   // If the document is not in the store, we asynchronously load it
   if (isFirstLoad) {
-    await workspaceStore.addDocument(
+    const result = await workspaceStore.addDocument(
       normalized.source.url
         ? {
             name: slug,
@@ -498,6 +498,26 @@ const changeSelectedDocument = async (
           },
       config,
     )
+
+    const document = workspaceStore.workspace.documents[slug]
+
+    if (result === true && document) {
+      // Set the active server if the document is loaded successfully
+      const servers = getServers(
+        normalized.config.servers ?? document.servers,
+        {
+          baseServerUrl: mergedConfig.value.baseServerURL,
+          documentUrl: normalized.source.url,
+        },
+      )
+      if (servers.length > 0) {
+        workspaceStore.updateDocument(
+          slug,
+          'x-scalar-selected-server',
+          servers[0]!.url,
+        )
+      }
+    }
   }
 
   // Always set it to active; if the document is null we show a loading state
