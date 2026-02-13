@@ -14,8 +14,7 @@ jobs:
       contents: write
       pull-requests: write
     if: ${{ github.repository_owner == 'scalar' }}
-    # Fails to create a PR on blacksmith runners.
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 15
     strategy:
       matrix:
