@@ -174,3 +174,131 @@ describe('edge cases', () => {
     expect(result).toBeTruthy()
   })
 })
+
+describe('relative base path scenarios', () => {
+  it('normalizes input when base is relative path', () => {
+    const input = './schemas/user.json'
+    const base = 'api/openapi.json'
+    const result = toRelativePath(input, base)
+    // Should normalize the input since base is relative
+    expect(result).toBeTruthy()
+  })
+
+  it('normalizes absolute input when base is relative path', () => {
+    const input = '/absolute/path/schema.json'
+    const base = './openapi.json'
+    const result = toRelativePath(input, base)
+    expect(result).toBeTruthy()
+  })
+
+  it('handles both paths being relative', () => {
+    const input = 'schemas/user.json'
+    const base = 'api/openapi.json'
+    const result = toRelativePath(input, base)
+    expect(result).toBeTruthy()
+  })
+
+  it('normalizes path with ../ when base is relative', () => {
+    const input = '../schemas/user.json'
+    const base = './openapi.json'
+    const result = toRelativePath(input, base)
+    expect(result).toBeTruthy()
+  })
+})
+
+describe('root-level and boundary cases', () => {
+  it('handles files at filesystem root', () => {
+    const input = '/schema.json'
+    const base = '/openapi.json'
+    const result = toRelativePath(input, base)
+    expect(result).toBe('schema.json')
+  })
+
+  it('handles input at root when base is nested', () => {
+    const input = '/schema.json'
+    const base = '/path/to/openapi.json'
+    const result = toRelativePath(input, base)
+    expect(result).toBe('../../schema.json')
+  })
+
+  it('handles base at root when input is nested', () => {
+    const input = '/path/to/schemas/user.json'
+    const base = '/openapi.json'
+    const result = toRelativePath(input, base)
+    expect(result).toBe('path/to/schemas/user.json')
+  })
+
+  it('handles URLs at root level', () => {
+    const input = 'https://example.com/schema.json'
+    const base = 'https://example.com/openapi.json'
+    const result = toRelativePath(input, base)
+    expect(result).toBe('schema.json')
+  })
+
+  it('handles very long nested paths', () => {
+    const input = '/a/b/c/d/e/f/g/h/i/j/schema.json'
+    const base = '/a/b/c/openapi.json'
+    const result = toRelativePath(input, base)
+    expect(result).toBe('d/e/f/g/h/i/j/schema.json')
+  })
+
+  it('handles paths going up many levels', () => {
+    const input = '/a/b/schema.json'
+    const base = '/a/b/c/d/e/f/g/openapi.json'
+    const result = toRelativePath(input, base)
+    expect(result).toBe('../../../../../schema.json')
+  })
+
+  it('handles identical file paths', () => {
+    const input = '/path/to/openapi.json'
+    const base = '/path/to/openapi.json'
+    const result = toRelativePath(input, base)
+    // When they are the same file, relative path should be the filename
+    expect(result).toBe('openapi.json')
+  })
+
+  it('handles input and base in completely different directory trees', () => {
+    const input = '/var/www/schemas/user.json'
+    const base = '/home/project/openapi.json'
+    const result = toRelativePath(input, base)
+    expect(result).toBeTruthy()
+    expect(result).toContain('..')
+  })
+})
+
+describe('trailing slashes and edge formatting', () => {
+  it('handles input with trailing slash', () => {
+    const input = '/path/to/schemas/'
+    const base = '/path/to/openapi.json'
+    const result = toRelativePath(input, base)
+    expect(result).toBeTruthy()
+  })
+
+  it('handles base with trailing slash', () => {
+    const input = '/path/to/schemas/user.json'
+    const base = '/path/to/'
+    const result = toRelativePath(input, base)
+    expect(result).toBeTruthy()
+  })
+
+  it('handles URL with trailing slash in both', () => {
+    const input = 'https://example.com/api/'
+    const base = 'https://example.com/schemas/'
+    const result = toRelativePath(input, base)
+    expect(result).toBeTruthy()
+  })
+
+  it('handles URL with no path', () => {
+    const input = 'https://example.com/schema.json'
+    const base = 'https://example.com'
+    const result = toRelativePath(input, base)
+    expect(result).toBeTruthy()
+  })
+
+  it('handles base URL at root with trailing slash', () => {
+    const input = 'https://example.com/schema.json'
+    const base = 'https://example.com/'
+    const result = toRelativePath(input, base)
+    expect(result).toBeTruthy()
+  })
+})

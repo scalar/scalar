@@ -29,5 +29,16 @@ export const resolveReferencePath = (base: string, relativePath: string) => {
     return baseUrl.toString()
   }
 
-  return path.resolve(path.dirname(base), relativePath)
+  // If the base is absolute we can compute an absolute path
+  if (path.isAbsolute(base)) {
+    return path.resolve(path.dirname(base), relativePath)
+  }
+
+  // If the relativePath is absolute we can return it as is
+  if (path.isAbsolute(relativePath)) {
+    return relativePath
+  }
+
+  // Both base and relativePath are relative paths, so we can compute a relative path
+  return path.join(path.dirname(base), path.normalize(relativePath))
 }

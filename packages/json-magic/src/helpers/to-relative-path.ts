@@ -42,6 +42,11 @@ export const toRelativePath = (input: string, base: string) => {
     return input
   }
 
+  // If the base is a relative path, we can't compute the relative path so return the input as is
+  if (!path.isAbsolute(base)) {
+    return path.normalize(input)
+  }
+
   // Both input and base are local paths; return the relative path
   const baseDir = path.dirname(path.resolve(base))
   const inputPath = path.resolve(input)
