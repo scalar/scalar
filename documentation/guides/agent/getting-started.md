@@ -55,10 +55,10 @@ Scalar.createApiReference('#app', {
 
 The `agent` configuration accepts:
 
-| Property  | Type      | Default     | Description                    |
-| --------- | --------- | ----------- | ------------------------------ |
-| `key`     | `string`  | `undefined` | Your Agent Scalar API key      |
-| `disabled`| `boolean` | `false`     | Enable or disable Agent Scalar |
+| Property   | Type      | Default     | Description                    |
+| ---------- | --------- | ----------- | ------------------------------ |
+| `key`      | `string`  | `undefined` | Your Agent Scalar key          |
+| `disabled` | `boolean` | `false`     | Enable or disable Agent Scalar |
 
 ### Per-Source Configuration
 

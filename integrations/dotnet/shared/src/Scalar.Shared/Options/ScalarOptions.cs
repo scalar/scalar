@@ -234,4 +234,9 @@ public partial class ScalarOptions
     /// Controls the visibility of the developer tools toolbar.
     /// </summary>
     public DeveloperToolsVisibility? ShowDeveloperTools { get; set; }
+
+    /// <summary>
+    /// Agent Scalar (AI chat) options. Use to set a default key or disable Agent Scalar globally.
+    /// </summary>
+    public ScalarAgentOptions? Agent { get; set; }
 }
