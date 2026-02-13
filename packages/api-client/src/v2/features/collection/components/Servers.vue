@@ -13,6 +13,7 @@ import { computed, ref } from 'vue'
 import { ServerVariablesForm } from '@/components/Server'
 import DeleteSidebarListElement from '@/components/Sidebar/Actions/DeleteSidebarListElement.vue'
 import type { CollectionProps } from '@/v2/features/app/helpers/routes'
+import Section from '@/v2/features/settings/components/Section.vue'
 
 import Form from './Form.vue'
 
@@ -102,15 +103,12 @@ const getServerDisplayName = (server?: ServerObject, index = 0): string =>
 </script>
 
 <template>
-  <div class="flex flex-col gap-4">
-    <!-- Header Section -->
-    <div class="flex flex-col gap-2">
-      <h3 class="font-bold">Servers</h3>
-      <p class="text-sm">
-        Add different base URLs for your API. You can use
-        <code class="font-code text-c-2">{variables}</code> for dynamic parts.
-      </p>
-    </div>
+  <Section>
+    <template #title>Servers</template>
+    <template #description>
+      Add different base URLs for your API. You can use
+      <code class="font-code text-c-2">{variables}</code> for dynamic parts.
+    </template>
 
     <!-- Server List -->
     <div class="flex flex-col gap-4">
@@ -169,7 +167,7 @@ const getServerDisplayName = (server?: ServerObject, index = 0): string =>
         <span>Add Server</span>
       </ScalarButton>
     </div>
-  </div>
+  </Section>
 
   <!-- Delete Confirmation Modal -->
   <ScalarModal

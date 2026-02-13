@@ -12,6 +12,7 @@ import {
 
 import { CodeInput } from '@/v2/components/code-input'
 import type { CollectionProps } from '@/v2/features/app/helpers/routes'
+import Section from '@/v2/features/settings/components/Section.vue'
 
 const { document, eventBus, layout } = defineProps<CollectionProps>()
 
@@ -38,10 +39,9 @@ const switchMode = async (newMode: 'edit' | 'preview'): Promise<void> => {
 </script>
 
 <template>
-  <div class="flex flex-col gap-2">
-    <div class="flex items-center justify-between gap-2 pl-1.5">
-      <h3 class="font-bold">Description</h3>
-
+  <Section>
+    <template #title>Description</template>
+    <template #actions>
       <ScalarButton
         v-if="mode === 'preview'"
         class="text-c-2 hover:text-c-1 flex items-center gap-2"
@@ -54,8 +54,8 @@ const switchMode = async (newMode: 'edit' | 'preview'): Promise<void> => {
           thickness="1.5" />
         <span>Edit</span>
       </ScalarButton>
-    </div>
-    <div class="has-[:focus-visible]:bg-b-1 group rounded-lg">
+    </template>
+    <div class="has-focus-visible:bg-b-1 group rounded-lg">
       <!-- Preview -->
       <template v-if="mode === 'preview'">
         <template v-if="description.trim().length">
@@ -65,7 +65,7 @@ const switchMode = async (newMode: 'edit' | 'preview'): Promise<void> => {
             withImages
             @dblclick="switchMode('edit')" />
           <div
-            class="brightness-lifted bg-b-1 absolute inset-0 -z-1 hidden rounded group-hover:block group-has-[:focus-visible]:hidden" />
+            class="brightness-lifted bg-b-1 absolute inset-0 -z-1 hidden rounded group-hover:block group-has-focus-visible:hidden" />
         </template>
 
         <div
@@ -99,7 +99,7 @@ const switchMode = async (newMode: 'edit' | 'preview'): Promise<void> => {
           " />
       </template>
     </div>
-  </div>
+  </Section>
 </template>
 
 <style scoped>
