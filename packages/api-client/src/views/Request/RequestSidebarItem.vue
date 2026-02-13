@@ -491,11 +491,7 @@ const shouldShowItem = computed(() => {
         :to="item.to">
         <span
           class="flex h-5 max-w-[14px] shrink-0 items-center justify-center">
-          <slot name="leftIcon">
-            <ScalarSidebarGroupToggle
-              class="text-c-3 shrink-0"
-              :open="Boolean(collapsedSidebarFolders[item.entity.uid])" />
-          </slot>
+          <slot name="leftIcon" />
           &hairsp;
         </span>
         <div class="flex flex-1 flex-row justify-between font-medium">
@@ -547,9 +543,9 @@ const shouldShowItem = computed(() => {
             </div>
             <ScalarTooltip
               v-if="item.watchMode"
-              placement="right"
+              :content="`Watching: ${item.documentUrl}`"
               :offset="12"
-              :content="`Watching: ${item.documentUrl}`">
+              placement="right">
               <button
                 class="flex items-center justify-center"
                 type="button">
@@ -582,11 +578,7 @@ const shouldShowItem = computed(() => {
         @click="toggleSidebarFolder(item.entity.uid)">
         <span
           class="flex h-5 max-w-[14px] shrink-0 items-center justify-center">
-          <slot name="leftIcon">
-            <ScalarSidebarGroupToggle
-              class="text-c-3 hover:text-c-1 shrink-0"
-              :open="Boolean(collapsedSidebarFolders[item.entity.uid])" />
-          </slot>
+          <slot name="leftIcon" />
           &hairsp;
         </span>
         <div class="flex flex-1 flex-row justify-between">
@@ -639,8 +631,8 @@ const shouldShowItem = computed(() => {
             <ScalarTooltip
               v-if="item.watchMode"
               content="Watching: {{ item.documentUrl }}"
-              placement="right"
-              :offset="12">
+              :offset="12"
+              placement="right">
               <button
                 class="flex items-center justify-center"
                 type="button">
