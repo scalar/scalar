@@ -54,6 +54,7 @@ const INPUT_ALLOWED_KEYS = new Set(['Escape', 'ArrowDown', 'ArrowUp', 'Enter'])
  * Resolves 'default' to metaKey (macOS) or ctrlKey (Windows/Linux).
  */
 const areModifiersPressed = (event: KeyboardEvent, modifiers: HotKeyModifiers): boolean =>
+  modifiers.length > 0 &&
   modifiers
     .map((modifier) => (modifier === 'default' ? (isMacOS() ? 'metaKey' : 'ctrlKey') : modifier))
     .every((key) => event[key] === true)
@@ -108,6 +109,11 @@ export const handleHotkeys = (event: KeyboardEvent, eventBus: WorkspaceEventBus,
   // If modifiers are pressed, fire the hotkey (even in input fields)
   if (areModifiersPressed(event, hotkeyEvent.modifiers)) {
     eventBus.emit(hotkeyEvent.event, payload, { skipUnpackProxy: true })
+    return
+  }
+
+  // If modifiers are required but missing, do not fire the hotkey.
+  if (hotkeyEvent.modifiers.length > 0) {
     return
   }
 
