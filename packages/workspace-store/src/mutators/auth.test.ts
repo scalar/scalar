@@ -295,6 +295,7 @@ describe('clearSecuritySchemeSecrets', () => {
         refreshUrl: '',
         scopes: { openid: '' },
         'x-usePkce': 'no',
+        'x-scalar-secret-token': '',
         'x-scalar-secret-client-id': 'client-id',
         'x-scalar-secret-client-secret': 'client-secret',
         'x-scalar-secret-redirect-uri': 'https://app.example.com/callback',
@@ -303,13 +304,11 @@ describe('clearSecuritySchemeSecrets', () => {
 
     const mutators = authMutatorsFactory({
       store,
-      document: store.workspace.activeDocument,
+      document: store.workspace.activeDocument ?? null,
     })
 
     expect(store.auth.getAuthSecrets(documentName, 'OpenIDConnect')).toBeTruthy()
-
     mutators.clearSecuritySchemeSecrets({ name: 'OpenIDConnect' })
-
     expect(store.auth.getAuthSecrets(documentName, 'OpenIDConnect')).toBeUndefined()
   })
 })
