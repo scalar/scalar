@@ -1157,6 +1157,9 @@ importers:
       '@scalar/types':
         specifier: workspace:*
         version: link:../types
+      '@scalar/use-toasts':
+        specifier: workspace:*
+        version: link:../use-toasts
       '@scalar/workspace-store':
         specifier: workspace:*
         version: link:../workspace-store

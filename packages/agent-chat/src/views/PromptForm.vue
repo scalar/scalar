@@ -131,16 +131,18 @@ function handleSubmit() {
   emit('submit')
 }
 
+const isPending = computed(() =>
+  Object.values(state.pendingDocuments).some(Boolean),
+)
+
 const chatError = useChatError()
 </script>
 
 <template>
   <div class="actionContainer">
     <UploadSection
-      v-if="
-        uploadTmpDoc.uploadState.value || state.pendingDocuments.value.length
-      "
-      :uploadState="uploadTmpDoc.uploadState.value ?? { type: 'processing' }" />
+      v-if="uploadTmpDoc.uploadState.value || isPending"
+      :uploadState="uploadTmpDoc.uploadState.value ?? { type: 'loading' }" />
     <ErrorMessageMessage
       v-if="chatError"
       :error="chatError" />
