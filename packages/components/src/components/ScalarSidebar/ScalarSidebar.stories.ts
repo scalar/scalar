@@ -18,7 +18,7 @@ import ScalarSidebarSection from './ScalarSidebarSection.vue'
 const nestedItemGroups = ({
   itemAttrs = (label: string) =>
     `is="button" :icon="args.icon" :selected="selected === '${label}'" @click="selected = '${label}'"`,
-  groupAttrs = () => `:controlled="args.controlled"`,
+  groupAttrs = () => `:icon="args.icon" :controlled="args.controlled"`,
 }: {
   itemAttrs?: (label: string) => string
   groupAttrs?: (label: string) => string
@@ -139,16 +139,16 @@ const meta: Meta = {
     <ScalarSidebarSection>
       Navigation
       <template #items>
-        <ScalarSidebarNestedItems :controlled="args.controlled">
+        <ScalarSidebarNestedItems :icon="args.icon" :controlled="args.controlled">
           Nested Items Level 1
           <template #back-label>
             Top Level Sidebar
           </template>
           <template #items>
-            <ScalarSidebarNestedItems :controlled="args.controlled">
+            <ScalarSidebarNestedItems :icon="args.icon" :controlled="args.controlled">
               Nested Items Level 2
               <template #items>
-                <ScalarSidebarNestedItems :controlled="args.controlled">
+                <ScalarSidebarNestedItems :icon="args.icon" :controlled="args.controlled">
                   Nested Items Level 3
                   <template #items>
                     ${nestedItemGroups()}
@@ -160,11 +160,11 @@ const meta: Meta = {
             ${nestedItemGroups()}
           </template>
         </ScalarSidebarNestedItems>
-        <ScalarSidebarGroup>
+        <ScalarSidebarGroup :icon="args.icon">
           Group with Nested Sidebar
           <template #items>
             <ScalarSidebarItem is="button" :icon="args.icon" :selected="selected === 'Subitem 1'" @click="selected = 'Subitem 1'">Subitem 1</ScalarSidebarItem>
-            <ScalarSidebarNestedItems :controlled="args.controlled">
+            <ScalarSidebarNestedItems :icon="args.icon" :controlled="args.controlled">
               Nested Items in a Group
               <template #items>
                 ${nestedItemGroups()}
@@ -179,7 +179,7 @@ const meta: Meta = {
     <ScalarSidebarSection>
       Additional Items
       <template #items>
-        <ScalarSidebarNestedItems>
+        <ScalarSidebarNestedItems :icon="args.icon">
           More nested items
           <template #items>
             ${nestedItemGroups()}

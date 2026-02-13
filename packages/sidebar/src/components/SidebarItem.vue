@@ -1,7 +1,6 @@
 <script lang="ts" setup>
 import {
   ScalarSidebarGroup,
-  ScalarSidebarGroupToggle,
   ScalarSidebarItem,
   ScalarSidebarSection,
 } from '@scalar/components'
@@ -201,9 +200,8 @@ const { draggableAttrs, draggableEvents } = useDraggable({
       v-else
       :item
       :operationTitleSource="options?.operationTitleSource" />
-    <template #aside="{ open }">
+    <template v-if="'method' in item">
       <SidebarHttpBadge
-        v-if="'method' in item"
         :active="isSelected(item.id)"
         class="ml-2 h-4 self-start"
         :class="{
@@ -213,10 +211,6 @@ const { draggableAttrs, draggableEvents } = useDraggable({
         }"
         :method="item.method"
         :webhook="item.type === 'webhook'" />
-      <ScalarSidebarGroupToggle
-        v-else
-        class="text-c-3 ml-1 shrink-0"
-        :open="open" />
     </template>
     <template
       v-if="slots.decorator"
