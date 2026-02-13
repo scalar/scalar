@@ -3,6 +3,7 @@ import { assert, describe, expect, it } from 'vitest'
 import { createWorkspaceStore } from '@/client'
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
 import {
+  authMutatorsFactory,
   deleteSecurityScheme,
   updateSecurityScheme,
   updateSelectedAuthTab,
@@ -240,6 +241,30 @@ describe('updateSecurityScheme', () => {
     expect(flow['x-usePkce']).toBe('SHA-256')
   })
 
+  it('updates openIdConnect discovery url', () => {
+    const document = createDocument({
+      components: {
+        securitySchemes: {
+          OpenIDConnect: {
+            type: 'openIdConnect',
+            openIdConnectUrl: 'https://issuer.example.com/.well-known/openid-configuration',
+          },
+        },
+      },
+    })
+
+    updateSecurityScheme(document, {
+      name: 'OpenIDConnect',
+      payload: {
+        type: 'openIdConnect',
+        openIdConnectUrl: 'https://new-issuer.example.com/.well-known/openid-configuration',
+      },
+    })
+
+    const scheme = document.components!.securitySchemes!.OpenIDConnect as Record<string, unknown>
+    expect(scheme['openIdConnectUrl']).toBe('https://new-issuer.example.com/.well-known/openid-configuration')
+  })
+
   it('is a no-op when document is null or scheme missing', () => {
     // null document
     updateSecurityScheme(null, { name: 'X', payload: { type: 'http' } })
@@ -250,6 +275,42 @@ describe('updateSecurityScheme', () => {
 
     // Nothing to assert beyond no throw and document untouched
     expect(document.components!.securitySchemes).toEqual({})
+  })
+})
+
+describe('clearSecuritySchemeSecrets', () => {
+  it('clears secrets for a security scheme through authMutatorsFactory', async () => {
+    const documentName = 'test'
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: documentName,
+      document: createDocument(),
+    })
+
+    store.auth.setAuthSecrets(documentName, 'OpenIDConnect', {
+      type: 'openIdConnect',
+      authorizationCode: {
+        authorizationUrl: 'https://issuer.example.com/authorize',
+        tokenUrl: 'https://issuer.example.com/token',
+        refreshUrl: '',
+        scopes: { openid: '' },
+        'x-usePkce': 'no',
+        'x-scalar-secret-client-id': 'client-id',
+        'x-scalar-secret-client-secret': 'client-secret',
+        'x-scalar-secret-redirect-uri': 'https://app.example.com/callback',
+      },
+    })
+
+    const mutators = authMutatorsFactory({
+      store,
+      document: store.workspace.activeDocument,
+    })
+
+    expect(store.auth.getAuthSecrets(documentName, 'OpenIDConnect')).toBeTruthy()
+
+    mutators.clearSecuritySchemeSecrets({ name: 'OpenIDConnect' })
+
+    expect(store.auth.getAuthSecrets(documentName, 'OpenIDConnect')).toBeUndefined()
   })
 })
 

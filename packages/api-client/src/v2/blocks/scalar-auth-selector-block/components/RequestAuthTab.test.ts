@@ -4,6 +4,7 @@ import { assert, describe, expect, it, vi } from 'vitest'
 import { nextTick } from 'vue'
 
 import OAuth2 from '@/v2/blocks/scalar-auth-selector-block/components/OAuth2.vue'
+import OpenIDConnect from '@/v2/blocks/scalar-auth-selector-block/components/OpenIDConnect.vue'
 import RequestAuthDataTableInput from '@/v2/blocks/scalar-auth-selector-block/components/RequestAuthDataTableInput.vue'
 import RequestAuthTab from '@/v2/blocks/scalar-auth-selector-block/components/RequestAuthTab.vue'
 
@@ -393,7 +394,7 @@ describe('RequestAuthTab', () => {
   })
 
   describe('OpenID Connect Authentication', () => {
-    it('renders "Coming soon" message when scheme type is openIdConnect', () => {
+    it('renders OpenID discovery form when scheme type is openIdConnect and no flows are discovered', () => {
       const wrapper = mountWithProps({
         securitySchemes: {
           'OpenIDConnect': {
@@ -407,7 +408,32 @@ describe('RequestAuthTab', () => {
         },
       })
 
-      expect(wrapper.text()).toContain('Coming soon')
+      expect(wrapper.findComponent(OpenIDConnect).exists()).toBe(true)
+      expect(wrapper.text()).toContain('Fetch Configuration')
+    })
+
+    it('renders OAuth2 flow editor when openIdConnect flows are already available', () => {
+      const wrapper = mountWithProps({
+        securitySchemes: {
+          'OpenIDConnect': {
+            type: 'openIdConnect',
+            openIdConnectUrl: 'https://example.com/.well-known/openid_configuration',
+            flows: {
+              authorizationCode: {
+                authorizationUrl: 'https://example.com/auth',
+                tokenUrl: 'https://example.com/token',
+                scopes: { openid: 'OpenID' },
+              },
+            },
+          },
+        },
+        selectedSecuritySchemas: {
+          'OpenIDConnect': [],
+        },
+      })
+
+      expect(wrapper.findComponent(OpenIDConnect).exists()).toBe(false)
+      expect(wrapper.findComponent(OAuth2).exists()).toBe(true)
     })
   })
 

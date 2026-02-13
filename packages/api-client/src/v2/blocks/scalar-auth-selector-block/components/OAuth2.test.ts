@@ -26,6 +26,7 @@ describe('OAuth2', () => {
       selectedScopes: string[]
       server: any
       proxyUrl: string
+      scheme: any
     }> = {},
   ) => {
     const flows =
@@ -49,6 +50,7 @@ describe('OAuth2', () => {
         selectedScopes: custom.selectedScopes ?? [],
         server: custom.server ?? null,
         proxyUrl: custom.proxyUrl ?? '',
+        scheme: custom.scheme ?? { type: 'oauth2' },
         eventBus,
         name: 'OAuth2',
       },
@@ -160,9 +162,8 @@ describe('OAuth2', () => {
     expect(emit).toEqual({ scopes: ['read'] })
   })
 
-  it('defaults x-scalar-secret-redirect-uri to window.location.origin + window.location.pathname', async () => {
+  it('defaults x-scalar-secret-redirect-uri to window.location.origin', async () => {
     const originalOrigin = window.location.origin
-    const originalPathname = window.location.pathname
 
     const emitted = vi.fn()
     eventBus.on('auth:update:security-scheme-secrets', emitted)
@@ -184,16 +185,44 @@ describe('OAuth2', () => {
 
     await nextTick()
 
-    const expectedRedirectUri = originalOrigin + originalPathname
-
     expect(emitted).toHaveBeenCalledTimes(1)
     expect(emitted).toHaveBeenCalledWith({
       payload: {
         type: 'oauth2',
         authorizationCode: {
-          'x-scalar-secret-redirect-uri': expectedRedirectUri,
+          'x-scalar-secret-redirect-uri': originalOrigin,
         },
       },
+      name: 'OAuth2',
+    })
+  })
+
+  it('emits clear security scheme secrets for openIdConnect flow', async () => {
+    const wrapper = mountWithProps({
+      scheme: { type: 'openIdConnect' },
+      flows: {
+        authorizationCode: {
+          authorizationUrl: 'https://example.com/auth',
+          tokenUrl: 'https://example.com/token',
+          refreshUrl: 'https://example.com/token',
+          'x-usePkce': 'no',
+          scopes: { openid: 'OpenID' },
+          'x-scalar-secret-client-id': '',
+          'x-scalar-secret-client-secret': '',
+          'x-scalar-secret-redirect-uri': '',
+        },
+      },
+    })
+
+    const emitted = vi.fn()
+    eventBus.on('auth:clear:security-scheme-secrets', emitted)
+
+    const clearBtn = wrapper.findAll('button').find((b) => b.text() === 'Clear')
+    expect(clearBtn, 'Clear button should exist').toBeTruthy()
+    await clearBtn!.trigger('click')
+
+    expect(emitted).toHaveBeenCalledTimes(1)
+    expect(emitted).toHaveBeenCalledWith({
       name: 'OAuth2',
     })
   })
