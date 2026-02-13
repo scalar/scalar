@@ -72,7 +72,7 @@ const openUpsertModal = (name?: string) => {
     class="text-c-3 flex h-full items-center justify-center rounded-lg border p-4">
     <ScalarButton
       class="hover:bg-b-2 hover:text-c-1 flex items-center gap-2"
-      size="sm"
+      size="xs"
       variant="ghost"
       @click="() => openUpsertModal()">
       <ScalarIconPlus />
