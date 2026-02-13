@@ -89,6 +89,19 @@ describe('getExample', () => {
       expect(result).toEqual({ value: '<user><name>John</name></user>' })
     })
 
+    it('returns content example field when exampleKey is provided and examples map is missing', () => {
+      const param = {
+        content: {
+          'application/json': {
+            example: { name: 'Fallback Content Example' },
+          },
+        },
+      }
+
+      const result = getExample(param, 'default', 'application/json')
+      expect(result).toEqual({ value: { name: 'Fallback Content Example' } })
+    })
+
     it('returns example from examples object when exampleKey is provided', () => {
       const param = {
         content: {
@@ -451,6 +464,17 @@ describe('getExample', () => {
       } satisfies ParameterObject
 
       const result = getExample(param, undefined, undefined)
+      expect(result?.value).toEqual('fallback')
+    })
+
+    it('returns deprecated param.example when exampleKey is provided and examples map is missing', () => {
+      const param = {
+        name: 'q',
+        in: 'query',
+        example: 'fallback',
+      } satisfies ParameterObject
+
+      const result = getExample(param, 'default', undefined)
       expect(result?.value).toEqual('fallback')
     })
 
