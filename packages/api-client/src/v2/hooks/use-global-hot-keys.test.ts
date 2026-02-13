@@ -74,6 +74,19 @@ describe('use-hot-keys', () => {
     expect(handleHotkeys).toHaveBeenCalledTimes(1)
   })
 
+  it('does not call handleHotkeys when listeners are disabled', () => {
+    const layout: ClientLayout = 'web'
+
+    useGlobalHotKeys(mockEventBus, layout, true)
+
+    const callback = addEventListenerSpy.mock.calls[0]?.[1] as EventListener
+    const keyboardEvent = new KeyboardEvent('keydown', { key: 'l', metaKey: true })
+
+    callback(keyboardEvent)
+
+    expect(handleHotkeys).not.toHaveBeenCalled()
+  })
+
   it('passes desktop layout to handleHotkeys when using desktop layout', () => {
     const layout: ClientLayout = 'desktop'
 
