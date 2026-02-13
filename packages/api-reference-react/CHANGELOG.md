@@ -1,5 +1,14 @@
 # @scalar/api-reference-react
 
+## 0.8.56
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.44.19**
+  - [#8155](https://github.com/scalar/scalar/pull/8155): fix(api-reference): bugs with cards rendering
+
 ## 0.8.55
 
 ### Patch Changes

@@ -1,5 +1,17 @@
 # @scalar/aspire
 
+## 0.8.49
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/dotnet-shared@0.1.2**
+  - [#8102](https://github.com/scalar/scalar/pull/8102): feat: agent scalar configuration
+
+- **@scalar/api-reference@1.44.19**
+  - [#8155](https://github.com/scalar/scalar/pull/8155): fix(api-reference): bugs with cards rendering
+
 ## 0.8.48
 
 ### Patch Changes

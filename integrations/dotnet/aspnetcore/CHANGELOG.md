@@ -1,5 +1,19 @@
 # @scalar/aspnetcore
 
+## 2.12.40
+
+### Patch Changes
+
+- [#8102](https://github.com/scalar/scalar/pull/8102): feat: agent scalar configuration
+
+#### Updated Dependencies
+
+- **@scalar/dotnet-shared@0.1.2**
+  - [#8102](https://github.com/scalar/scalar/pull/8102): feat: agent scalar configuration
+
+- **@scalar/api-reference@1.44.19**
+  - [#8155](https://github.com/scalar/scalar/pull/8155): fix(api-reference): bugs with cards rendering
+
 ## 2.12.39
 
 ### Patch Changes

@@ -1,5 +1,15 @@
 # @scalar/workspace-store
 
+## 0.32.0
+
+### Minor Changes
+
+- [#8152](https://github.com/scalar/scalar/pull/8152): feat: support custom themes
+
+### Patch Changes
+
+- [#8135](https://github.com/scalar/scalar/pull/8135): feat: added support for OpenID Connect Discovery
+
 ## 0.31.2
 
 ### Patch Changes

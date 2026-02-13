@@ -1,5 +1,14 @@
 # @scalar/use-codemirror
 
+## 0.13.38
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/components@0.19.3**
+  - [#8155](https://github.com/scalar/scalar/pull/8155): fix(api-reference): bugs with cards rendering
+
 ## 0.13.37
 
 ### Patch Changes

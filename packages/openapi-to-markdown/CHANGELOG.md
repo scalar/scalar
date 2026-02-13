@@ -1,5 +1,16 @@
 # @scalar/openapi-to-markdown
 
+## 0.3.44
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/components@0.19.3**
+  - [#8155](https://github.com/scalar/scalar/pull/8155): fix(api-reference): bugs with cards rendering
+
+- **@scalar/oas-utils@0.6.41**
+
 ## 0.3.43
 
 ### Patch Changes
