@@ -42,8 +42,12 @@ export const mergeSecurity = (
 
   /** Convert the config secrets to the new secret extensions */
   return objectEntries(mergedSchemes).reduce((acc, [name, value]) => {
+    // We coerce in case the scheme is missing any key fields like type
     const coerced = coerceValue(SecuritySchemeObjectSchema, value)
-    acc[name] = extractSecuritySchemeSecrets(coerced, authStore, name, documentSlug)
+    // We then overwrite it back with the original value to keep any other fields like description, etc.
+    const merged = { ...coerced, ...value }
+
+    acc[name] = extractSecuritySchemeSecrets(merged, authStore, name, documentSlug)
     return acc
   }, {} as MergedSecuritySchemes)
 }

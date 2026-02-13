@@ -120,6 +120,69 @@ describe('mergeSecurity', () => {
     })
   })
 
+  it('keeps apiKey config value when config scheme is partial', () => {
+    const securitySchemes: ComponentsObject['securitySchemes'] = {
+      apiKeyAuth: {
+        type: 'apiKey',
+        name: 'x-api-key',
+        in: 'header',
+      },
+    }
+
+    // Mirrors ApiReference authentication config where apiKey does not always include `in`.
+    const config: AuthenticationConfiguration['securitySchemes'] = {
+      apiKeyAuth: {
+        type: 'apiKey',
+        name: 'x-api-key',
+        value: 'test-token',
+      },
+    }
+
+    const result = mergeSecurity(securitySchemes, config, authStore, documentSlug)
+
+    expect(result.apiKeyAuth).toMatchObject({
+      type: 'apiKey',
+      name: 'x-api-key',
+      in: 'header',
+      'x-scalar-secret-token': 'test-token',
+    })
+  })
+
+  it('keeps apiKey config value when only config schemes are provided', () => {
+    // Mirrors ApiReference authentication config where apiKey may be config-only and omit `in`.
+    const config: AuthenticationConfiguration['securitySchemes'] = {
+      apiKey: {
+        type: 'apiKey',
+        name: 'x-api-key',
+        value: 'test-token',
+      },
+    }
+
+    const result = mergeSecurity(undefined, config, authStore, documentSlug)
+    expect(result.apiKey).toMatchObject({
+      type: 'apiKey',
+      name: 'x-api-key',
+      'x-scalar-secret-token': 'test-token',
+    })
+  })
+
+  it('adds apiKey type when missing in config-only security scheme', () => {
+    const config: AuthenticationConfiguration['securitySchemes'] = {
+      apiKey: {
+        name: 'x-api-key',
+        value: 'test-token',
+      },
+    }
+
+    const result = mergeSecurity(undefined, config, authStore, documentSlug)
+
+    expect(result.apiKey).toMatchObject({
+      type: 'apiKey',
+      name: 'x-api-key',
+      'x-scalar-secret-token': 'test-token',
+    })
+  })
+
   it('handles deeply nested OAuth2 configuration merging', () => {
     const securitySchemes = {
       oauth2: coerceValue(SecuritySchemeObjectSchema, {
