@@ -105,7 +105,7 @@ describe('App', () => {
      * This is critical for maintaining consistent theming across the application
      */
     const html = wrapper.html()
-    expect(html).toContain('<style id="scalar-theme">')
+    expect(html).toContain('<style id="scalar-theme" data-testid="default">')
   })
 
   it('merges workspace and document environment variables correctly', async () => {

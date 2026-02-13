@@ -1,4 +1,4 @@
-import { type Theme, presets, themePresets } from '@scalar/themes'
+import { type Theme, defaultFonts, themePresets } from '@scalar/themes'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { type MaybeRefOrGetter, computed, toValue } from 'vue'
 
@@ -7,8 +7,8 @@ const themePresentsMap = new Map<string, Theme>(themePresets.map((theme) => [the
 /**
  * Wraps theme CSS styles in a style tag for injection into the DOM.
  */
-const wrapThemeInStyleTag = (themeStyles: string) => {
-  return `<style id="scalar-theme">${themeStyles}</style>`
+const wrapThemeInStyleTag = (themeStyles: string, dataTestId: string = 'scalar-theme') => {
+  return `<style id="scalar-theme" data-testid="${dataTestId}">${themeStyles}</style>`
 }
 
 /**
@@ -16,15 +16,19 @@ const wrapThemeInStyleTag = (themeStyles: string) => {
  * Returns undefined if the theme is not found.
  */
 const resolveThemeStyles = (themeSlug: string, customThemes: Theme[]): string | undefined => {
+  const addFonts = (themeStyles?: string) => {
+    return `${themeStyles}\n${defaultFonts}`
+  }
+
   // Check built-in theme presets first
   if (themePresentsMap.has(themeSlug)) {
-    return themePresentsMap.get(themeSlug)?.theme
+    return addFonts(themePresentsMap.get(themeSlug)?.theme ?? '')
   }
 
   // Check custom themes provided via props
   const customTheme = customThemes.find((theme) => theme.slug === themeSlug)
   if (customTheme) {
-    return customTheme.theme
+    return addFonts(customTheme.theme)
   }
 
   return undefined
@@ -72,7 +76,7 @@ export const useTheme = ({
 }) => {
   const themeStyleTag = computed(() => {
     // Always-defined fallback: built-in "default" theme
-    const defaultThemeStyles = wrapThemeInStyleTag(presets['default'].theme)
+    const defaultThemeStyles = wrapThemeInStyleTag(resolveThemeStyles('default', [])!, 'default')
 
     // Evaluate values
     const storeValue = toValue(store)
@@ -90,19 +94,19 @@ export const useTheme = ({
     // First: If no theme slug is set, try fallback theme, else default
     if (!themeSlug) {
       const fallbackStyles = resolveThemeStyles(fallbackThemeSlugValue, toValue(customThemes))
-      return fallbackStyles ? wrapThemeInStyleTag(fallbackStyles) : defaultThemeStyles
+      return fallbackStyles ? wrapThemeInStyleTag(fallbackStyles, fallbackThemeSlugValue) : defaultThemeStyles
     }
 
     // Second: Try resolving styles for the workspace or specified theme
     const themeStyles = resolveThemeStyles(themeSlug, toValue(customThemes))
     if (themeStyles) {
-      return wrapThemeInStyleTag(themeStyles)
+      return wrapThemeInStyleTag(themeStyles, themeSlug)
     }
 
     // Third: If theme not found, try resolving fallback theme
     const fallbackStyles = resolveThemeStyles(fallbackThemeSlugValue, toValue(customThemes))
     if (fallbackStyles) {
-      return wrapThemeInStyleTag(fallbackStyles)
+      return wrapThemeInStyleTag(fallbackStyles, fallbackThemeSlugValue)
     }
 
     // Last resort: use the built-in default theme
