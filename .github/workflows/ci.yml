@@ -1547,7 +1547,7 @@ jobs:
         env:
           VERSION: ${{ steps.package-version.outputs.VERSION }}
         run: |
-          sed -i "s/^version = \".*\"/version = \"$VERSION\"/" Cargo.toml
+          sed -i "0,/^version = \".*\"/{s/^version = \".*\"/version = \"$VERSION\"/}" Cargo.toml
           cat Cargo.toml | grep version
 
       - name: Publish to crates.io
