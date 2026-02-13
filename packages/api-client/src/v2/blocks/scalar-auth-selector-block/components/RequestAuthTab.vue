@@ -78,6 +78,23 @@ const security = computed<SecurityItem[]>(() =>
 /** Tracks which OAuth2 flow is currently active when multiple flows are available. */
 const activeFlow = ref<string>('')
 
+/** Keeps the selected flow in sync with currently available flow keys. */
+const selectedFlow = computed<string>(() => {
+  const authFlowKeys = security.value.flatMap(({ scheme }) => {
+    if (scheme?.type !== 'oauth2' && scheme?.type !== 'openIdConnect') {
+      return []
+    }
+
+    return Object.keys(scheme.flows ?? {})
+  })
+
+  return authFlowKeys.includes(activeFlow.value) ? activeFlow.value : ''
+})
+
+const setActiveFlow = (flow: string): void => {
+  activeFlow.value = flow
+}
+
 /** Determines if multiple auth schemes are configured, which affects the UI layout. */
 const hasMultipleSchemes = computed<boolean>(() => security.value.length > 1)
 
@@ -99,7 +116,7 @@ const generateLabel = (
     case 'openIdConnect':
     case 'oauth2': {
       const firstFlow = Object.keys(scheme.flows ?? {})[0]
-      const currentFlow = activeFlow.value || firstFlow
+      const currentFlow = selectedFlow.value || firstFlow
       if (!currentFlow) {
         return `${capitalizedName}${description}`
       }
@@ -119,7 +136,7 @@ const generateLabel = (
  * The first flow is active by default if no flow is explicitly selected.
  */
 const isFlowActive = (flowKey: string, index: number): boolean =>
-  activeFlow.value === flowKey || (index === 0 && !activeFlow.value)
+  selectedFlow.value === flowKey || (index === 0 && !selectedFlow.value)
 
 /** Computes the container class for static display mode. */
 const getStaticBorderClass = (): string | false => isStatic && 'border-t'
@@ -303,7 +320,7 @@ const getFlowTabClasses = (flowKey: string, index: number): string => {
               :key="key"
               :class="getFlowTabClasses(key, ind)"
               type="button"
-              @click="activeFlow = key">
+              @click="setActiveFlow(key)">
               <span class="relative z-10">{{ key }}</span>
             </button>
           </div>

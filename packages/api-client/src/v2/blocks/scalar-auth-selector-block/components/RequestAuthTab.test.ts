@@ -459,6 +459,63 @@ describe('RequestAuthTab', () => {
       expect(wrapper.text()).toContain('OpenIDConnect: OpenID Connect authentication')
       expect(wrapper.text()).not.toContain('OpenIDConnect: undefined')
     })
+
+    it('resets active flow when rediscovered flows do not include previously selected key', async () => {
+      const wrapper = mountWithProps({
+        securitySchemes: {
+          'OpenIDConnect': {
+            type: 'openIdConnect',
+            openIdConnectUrl: 'https://example.com/.well-known/openid_configuration',
+            flows: {
+              implicit: {
+                authorizationUrl: 'https://example.com/auth',
+                scopes: { openid: 'OpenID' },
+              },
+              authorizationCode: {
+                authorizationUrl: 'https://example.com/auth',
+                tokenUrl: 'https://example.com/token',
+                scopes: { profile: 'Profile' },
+              },
+            },
+          },
+        },
+        selectedSecuritySchemas: {
+          'OpenIDConnect': [],
+        },
+      })
+
+      const flowTabs = wrapper.findAll('button')
+      const implicitTab = flowTabs.find((tab) => tab.text() === 'implicit')
+      expect(implicitTab, 'Implicit flow tab should exist').toBeTruthy()
+      await implicitTab!.trigger('click')
+
+      await wrapper.setProps({
+        securitySchemes: {
+          'OpenIDConnect': {
+            type: 'openIdConnect',
+            openIdConnectUrl: 'https://example.com/.well-known/openid_configuration',
+            flows: {
+              authorizationCode: {
+                authorizationUrl: 'https://example.com/new-auth',
+                tokenUrl: 'https://example.com/new-token',
+                refreshUrl: '',
+                'x-usePkce': 'no',
+                'x-scalar-secret-client-id': '',
+                'x-scalar-secret-client-secret': '',
+                'x-scalar-secret-redirect-uri': '',
+                'x-scalar-secret-token': '',
+                scopes: { email: 'Email' },
+              },
+            },
+          },
+        },
+      })
+      await nextTick()
+
+      const oauth2Component = wrapper.findComponent(OAuth2)
+      expect(oauth2Component.exists()).toBe(true)
+      expect(oauth2Component.props('type')).toBe('authorizationCode')
+    })
   })
 
   describe('shows correct description', () => {
