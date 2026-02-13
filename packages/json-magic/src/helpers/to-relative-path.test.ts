@@ -301,4 +301,11 @@ describe('trailing slashes and edge formatting', () => {
     const result = toRelativePath(input, base)
     expect(result).toBeTruthy()
   })
+
+  it('handles windows style paths', () => {
+    const input = 'C:\\path\\to\\schemas\\user.json'
+    const base = 'C:\\path\\to\\openapi.json'
+    const result = toRelativePath(input, base)
+    expect(result).toBe('schemas/user.json')
+  })
 })

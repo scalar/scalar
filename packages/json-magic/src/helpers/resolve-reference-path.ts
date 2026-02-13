@@ -1,4 +1,4 @@
-import { path } from '@scalar/helpers/node/path'
+import path from 'pathe'
 
 import { isHttpUrl } from '@/helpers/is-http-url'
 

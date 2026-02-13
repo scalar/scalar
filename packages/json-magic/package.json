@@ -84,6 +84,7 @@
   ],
   "dependencies": {
     "@scalar/helpers": "workspace:*",
+    "pathe": "^2.0.3",
     "yaml": "catalog:*"
   },
   "devDependencies": {

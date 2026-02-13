@@ -352,5 +352,19 @@ describe('resolveReferencePath', () => {
       const result = resolveReferencePath(base, relativePath)
       expect(result).toBe('/path')
     })
+
+    it('handles windows style paths', () => {
+      const base = 'C:\\path\\to\\openapi.json'
+      const relativePath = 'schemas\\user.json'
+      const result = resolveReferencePath(base, relativePath)
+      expect(result).toBe('C:/path/to/schemas/user.json')
+    })
+
+    it('handles windows style paths with multiple ../', () => {
+      const base = 'C:\\path\\to\\openapi.json'
+      const relativePath = '\\schemas\\user.json'
+      const result = resolveReferencePath(base, relativePath)
+      expect(result).toBe('/schemas/user.json')
+    })
   })
 })
