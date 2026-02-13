@@ -501,7 +501,12 @@ const changeSelectedDocument = async (
 
     const document = workspaceStore.workspace.documents[slug]
 
-    if (result === true && document) {
+    // If the document does not have a selected server we set it to the first server
+    if (
+      result === true &&
+      document !== undefined &&
+      document['x-scalar-selected-server'] === undefined
+    ) {
       // Set the active server if the document is loaded successfully
       const servers = getServers(
         normalized.config.servers ?? document.servers,
