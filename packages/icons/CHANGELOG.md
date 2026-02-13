@@ -1,5 +1,11 @@
 # @scalar/icons
 
+## 0.5.3
+
+### Patch Changes
+
+- [#8134](https://github.com/scalar/scalar/pull/8134): fix(components): change caret position to right
+
 ## 0.5.2
 
 ### Patch Changes

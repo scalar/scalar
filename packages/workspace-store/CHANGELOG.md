@@ -1,5 +1,12 @@
 # @scalar/workspace-store
 
+## 0.31.2
+
+### Patch Changes
+
+- [#8120](https://github.com/scalar/scalar/pull/8120): refactor: make navigation router-agnostic
+- [#8121](https://github.com/scalar/scalar/pull/8121): feat: added post response scripts/testing to api client v2
+
 ## 0.31.1
 
 ### Patch Changes

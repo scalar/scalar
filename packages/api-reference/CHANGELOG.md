@@ -1,5 +1,40 @@
 # @scalar/api-reference
 
+## 1.44.18
+
+### Patch Changes
+
+- [#8109](https://github.com/scalar/scalar/pull/8109): feat: keep the sidebar scrolled near the top
+- [#8134](https://github.com/scalar/scalar/pull/8134): fix(components): change caret position to right
+- [#8121](https://github.com/scalar/scalar/pull/8121): chore: moved client plugin types to oas-utils so they can be shared
+
+#### Updated Dependencies
+
+- **@scalar/sidebar@0.7.33**
+  - [#8109](https://github.com/scalar/scalar/pull/8109): feat: keep the sidebar scrolled near the top
+  - [#8134](https://github.com/scalar/scalar/pull/8134): fix(components): change caret position to right
+
+- **@scalar/workspace-store@0.31.2**
+  - [#8120](https://github.com/scalar/scalar/pull/8120): refactor: make navigation router-agnostic
+  - [#8121](https://github.com/scalar/scalar/pull/8121): feat: added post response scripts/testing to api client v2
+
+- **@scalar/api-client@2.26.2**
+  - [#8120](https://github.com/scalar/scalar/pull/8120): refactor: make navigation router-agnostic
+  - [#8075](https://github.com/scalar/scalar/pull/8075): Use Vue Transition for modal animation for better cross browser support.
+  - [#8121](https://github.com/scalar/scalar/pull/8121): feat: added post response scripts/testing to api client v2
+  - [#8134](https://github.com/scalar/scalar/pull/8134): fix(components): change caret position to right
+
+- **@scalar/components@0.19.2**
+  - [#8134](https://github.com/scalar/scalar/pull/8134): fix(components): change caret position to right
+
+- **@scalar/icons@0.5.3**
+  - [#8134](https://github.com/scalar/scalar/pull/8134): fix(components): change caret position to right
+
+- **@scalar/oas-utils@0.6.40**
+  - [#8121](https://github.com/scalar/scalar/pull/8121): chore: moved client plugin types to oas-utils so they can be shared
+
+- **@scalar/agent-chat@0.5.9**
+
 ## 1.44.17
 
 ### Patch Changes

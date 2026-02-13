@@ -1,5 +1,24 @@
 # @scalar/sidebar
 
+## 0.7.33
+
+### Patch Changes
+
+- [#8109](https://github.com/scalar/scalar/pull/8109): feat: keep the sidebar scrolled near the top
+- [#8134](https://github.com/scalar/scalar/pull/8134): fix(components): change caret position to right
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.31.2**
+  - [#8120](https://github.com/scalar/scalar/pull/8120): refactor: make navigation router-agnostic
+  - [#8121](https://github.com/scalar/scalar/pull/8121): feat: added post response scripts/testing to api client v2
+
+- **@scalar/components@0.19.2**
+  - [#8134](https://github.com/scalar/scalar/pull/8134): fix(components): change caret position to right
+
+- **@scalar/icons@0.5.3**
+  - [#8134](https://github.com/scalar/scalar/pull/8134): fix(components): change caret position to right
+
 ## 0.7.32
 
 ### Patch Changes
