@@ -73,6 +73,13 @@ export type AuthStore = {
   setAuthSecrets: (documentName: string, schemeName: string, auth: SecretsAuthUnion) => void
 
   /**
+   * Clears the authentication secrets for a given document and security scheme.
+   * @param documentName - Name/id of the OpenAPI document.
+   * @param schemeName - Name of the security scheme.
+   */
+  clearAuthSecrets: (documentName: string, schemeName: string) => void
+
+  /**
    * Removes the authentication data for a given document.
    * @param documentName - Name/id of the OpenAPI document.
    */
@@ -131,6 +138,9 @@ export const createAuthStore = ({ hooks }: CreateAuthStoreOptions = {}): AuthSto
     auth[documentName].secrets[schemeName] = coerceValue(SecretsAuthUnionSchema, data)
   }
 
+  const clearAuthSecrets: AuthStore['clearAuthSecrets'] = (documentName, schemeName) =>
+    delete auth[documentName]?.secrets?.[schemeName]
+
   const getAuthSelectedSchemas: AuthStore['getAuthSelectedSchemas'] = (payload) => {
     if (payload.type === 'document') {
       return auth[payload.documentName]?.selected?.document
@@ -176,6 +186,7 @@ export const createAuthStore = ({ hooks }: CreateAuthStoreOptions = {}): AuthSto
   return {
     getAuthSecrets,
     setAuthSecrets,
+    clearAuthSecrets,
     getAuthSelectedSchemas,
     setAuthSelectedSchemas,
     clearDocumentAuth,

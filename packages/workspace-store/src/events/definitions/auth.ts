@@ -105,6 +105,14 @@ export type AuthEvents = {
   }
 
   /**
+   * Removes a scheme from the auth store
+   */
+  'auth:clear:security-scheme-secrets': {
+    /** The name of the security scheme to clear */
+    name: string
+  }
+
+  /**
    * Update the selected scopes for a given security scheme.
    * Triggers when the user selects/deselects scopes for an OAuth2 (or other scopes-supporting) scheme in the UI.
    */

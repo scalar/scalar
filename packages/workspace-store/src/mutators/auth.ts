@@ -170,6 +170,19 @@ const updateSecuritySchemeSecrets = (
   store?.auth.setAuthSecrets(documentName, name, result as any)
 }
 
+const clearSecuritySchemeSecrets = (
+  store: WorkspaceStore | null,
+  document: WorkspaceDocument | null,
+  { name }: AuthEvents['auth:clear:security-scheme-secrets'],
+) => {
+  const documentName = document?.['x-scalar-navigation']?.name
+  if (!documentName) {
+    return
+  }
+
+  store?.auth.clearAuthSecrets(documentName, name)
+}
+
 /**
  * Sets the selected authentication tab (scheme) index for the given OpenAPI document or operation.
  * - When on the document level, updates the 'selectedIndex' on the document's x-scalar-selected-security extension.
@@ -432,6 +445,8 @@ export const authMutatorsFactory = ({
       updateSecurityScheme(document, payload),
     updateSecuritySchemeSecrets: (payload: AuthEvents['auth:update:security-scheme-secrets']) =>
       updateSecuritySchemeSecrets(store, document, payload),
+    clearSecuritySchemeSecrets: (payload: AuthEvents['auth:clear:security-scheme-secrets']) =>
+      clearSecuritySchemeSecrets(store, document, payload),
     updateSelectedAuthTab: (payload: AuthEvents['auth:update:active-index']) =>
       updateSelectedAuthTab(store, document, payload),
     updateSelectedScopes: (payload: AuthEvents['auth:update:selected-scopes']) =>

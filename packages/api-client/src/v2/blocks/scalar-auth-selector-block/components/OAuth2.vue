@@ -117,6 +117,12 @@ const handleOauth2SecretsUpdate = (
     name,
   })
 
+/** Clears the flow secrets */
+const clearOauth2Secrets = (): void =>
+  eventBus.emit('auth:clear:security-scheme-secrets', {
+    name,
+  })
+
 /** Track if we have set the redirect uri */
 const hasPrefilledRedirectUri = ref(false)
 
@@ -353,9 +359,7 @@ const handleSecretLocationUpdate = (value: string): void =>
           :loader
           size="sm"
           variant="outlined"
-          @click="
-            () => handleOauth2SecretsUpdate({ 'x-scalar-secret-token': '' })
-          ">
+          @click="clearOauth2Secrets">
           Clear
         </ScalarButton>
 
