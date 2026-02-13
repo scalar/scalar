@@ -131,6 +131,7 @@ describe('OpenIDConnect', () => {
     expect(emitted).toHaveBeenCalledWith({
       payload: flows,
       name: 'OpenIDConnect',
+      overwrite: true,
     })
     expect(mockToast).not.toHaveBeenCalled()
   })

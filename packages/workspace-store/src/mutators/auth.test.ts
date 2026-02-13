@@ -279,6 +279,81 @@ describe('updateSecurityScheme', () => {
 })
 
 describe('clearSecuritySchemeSecrets', () => {
+  it('replaces openIdConnect flow keys when replace is requested', async () => {
+    const documentName = 'test'
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: documentName,
+      document: createDocument(),
+    })
+
+    const mutators = authMutatorsFactory({
+      store,
+      document: store.workspace.activeDocument ?? null,
+    })
+
+    mutators.updateSecuritySchemeSecrets({
+      name: 'OpenIDConnect',
+      overwrite: true,
+      payload: {
+        type: 'openIdConnect',
+        authorizationCode: {
+          authorizationUrl: 'https://issuer-a.example.com/authorize',
+          tokenUrl: 'https://issuer-a.example.com/token',
+          scopes: { openid: '' },
+          refreshUrl: '',
+          'x-usePkce': 'no',
+          'x-scalar-secret-token': '',
+          'x-scalar-secret-client-id': '',
+          'x-scalar-secret-client-secret': '',
+          'x-scalar-secret-redirect-uri': '',
+        },
+        implicit: {
+          authorizationUrl: 'https://issuer-a.example.com/authorize',
+          scopes: { profile: '' },
+          refreshUrl: '',
+          'x-scalar-secret-token': '',
+          'x-scalar-secret-client-id': '',
+          'x-scalar-secret-redirect-uri': '',
+        },
+      },
+    })
+
+    mutators.updateSecuritySchemeSecrets({
+      name: 'OpenIDConnect',
+      overwrite: true,
+      payload: {
+        type: 'openIdConnect',
+        authorizationCode: {
+          authorizationUrl: 'https://issuer-b.example.com/authorize',
+          tokenUrl: 'https://issuer-b.example.com/token',
+          scopes: { email: '' },
+          refreshUrl: '',
+          'x-usePkce': 'SHA-256',
+          'x-scalar-secret-token': '',
+          'x-scalar-secret-client-id': '',
+          'x-scalar-secret-client-secret': '',
+          'x-scalar-secret-redirect-uri': '',
+        },
+      },
+    })
+
+    expect(store.auth.getAuthSecrets(documentName, 'OpenIDConnect')).toEqual({
+      type: 'openIdConnect',
+      authorizationCode: {
+        authorizationUrl: 'https://issuer-b.example.com/authorize',
+        tokenUrl: 'https://issuer-b.example.com/token',
+        scopes: { email: '' },
+        refreshUrl: '',
+        'x-usePkce': 'SHA-256',
+        'x-scalar-secret-token': '',
+        'x-scalar-secret-client-id': '',
+        'x-scalar-secret-client-secret': '',
+        'x-scalar-secret-redirect-uri': '',
+      },
+    })
+  })
+
   it('clears secrets for a security scheme through authMutatorsFactory', async () => {
     const documentName = 'test'
     const store = createWorkspaceStore()

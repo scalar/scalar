@@ -1,4 +1,5 @@
 import { preventPollution } from '@scalar/helpers/object/prevent-pollution'
+import type { PartialDeep } from 'type-fest'
 import { reactive } from 'vue'
 
 import {
@@ -70,7 +71,7 @@ export type AuthStore = {
    * @param schemeName - Name of the security scheme.
    * @param auth - The secret/auth object to set.
    */
-  setAuthSecrets: (documentName: string, schemeName: string, auth: SecretsAuthUnion) => void
+  setAuthSecrets: (documentName: string, schemeName: string, auth: PartialDeep<SecretsAuthUnion>) => void
 
   /**
    * Clears the authentication secrets for a given document and security scheme.

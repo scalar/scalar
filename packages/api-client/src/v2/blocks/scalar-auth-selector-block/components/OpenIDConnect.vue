@@ -60,6 +60,7 @@ const handleOpenIdConnect = async (): Promise<void> => {
   eventBus.emit('auth:update:security-scheme-secrets', {
     payload: openIdConnect,
     name,
+    overwrite: true,
   })
 }
 

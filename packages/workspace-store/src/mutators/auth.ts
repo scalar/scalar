@@ -158,16 +158,25 @@ export const updateSecurityScheme = (
 const updateSecuritySchemeSecrets = (
   store: WorkspaceStore | null,
   document: WorkspaceDocument | null,
-  { payload, name }: AuthEvents['auth:update:security-scheme-secrets'],
+  { payload, name, overwrite = false }: AuthEvents['auth:update:security-scheme-secrets'],
 ) => {
   const documentName = document?.['x-scalar-navigation']?.name
   if (!documentName) {
     return
   }
 
+  // If we want to remove properties then we should set replace to true
+  if (overwrite) {
+    store?.auth.setAuthSecrets(documentName, name, payload)
+    return
+  }
+
   const auth = store?.auth.getAuthSecrets(documentName, name)
-  const result = mergeObjects(unpackProxyObject(auth, { depth: 1 }) ?? {}, payload) as typeof payload
-  store?.auth.setAuthSecrets(documentName, name, result as any)
+  const result = mergeObjects(
+    unpackProxyObject(auth, { depth: 1 }) ?? {},
+    payload,
+  ) as AuthEvents['auth:update:security-scheme-secrets']['payload']
+  store?.auth.setAuthSecrets(documentName, name, result)
 }
 
 const clearSecuritySchemeSecrets = (

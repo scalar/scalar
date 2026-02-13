@@ -102,6 +102,8 @@ export type AuthEvents = {
     payload: PartialDeep<SecretsAuth[string]> & { type: SecretsAuth[string]['type'] }
     /** The name of the security scheme to update */
     name: string
+    /** Replace existing secrets instead of deep-merging with previous values, required when removing properties */
+    overwrite?: boolean
   }
 
   /**
