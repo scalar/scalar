@@ -1,5 +1,15 @@
 # @scalar/components
 
+## 0.19.3
+
+### Patch Changes
+
+- [#8155](https://github.com/scalar/scalar/pull/8155): fix(api-reference): bugs with cards rendering
+
+#### Updated Dependencies
+
+- **@scalar/oas-utils@0.6.41**
+
 ## 0.19.2
 
 ### Patch Changes

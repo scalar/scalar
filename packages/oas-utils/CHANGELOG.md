@@ -1,5 +1,15 @@
 # @scalar/oas-utils
 
+## 0.6.41
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.32.0**
+  - [#8135](https://github.com/scalar/scalar/pull/8135): feat: added support for OpenID Connect Discovery
+  - [#8152](https://github.com/scalar/scalar/pull/8152): feat: support custom themes
+
 ## 0.6.40
 
 ### Patch Changes

@@ -1,5 +1,14 @@
 # @scalarapi/docker-api-reference
 
+## 0.4.58
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.44.19**
+  - [#8155](https://github.com/scalar/scalar/pull/8155): fix(api-reference): bugs with cards rendering
+
 ## 0.4.57
 
 ### Patch Changes
