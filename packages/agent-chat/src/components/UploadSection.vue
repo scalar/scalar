@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ScalarLoading, useLoadingState } from '@scalar/components'
 import { ScalarIconCheck, ScalarIconXCircle } from '@scalar/icons'
+import { computed } from 'vue'
 
 import { type UploadTmpDocumentState } from '@/hooks/use-upload-tmp-document'
 
@@ -9,6 +10,10 @@ const { uploadState } = defineProps<{
 }>()
 
 const loadingState = useLoadingState()
+
+const isLoading = computed(() =>
+  ['uploading', 'processing', 'loading'].includes(uploadState.type),
+)
 </script>
 
 <template>
@@ -19,10 +24,8 @@ const loadingState = useLoadingState()
       done: uploadState.type === 'done',
     }">
     <div
-      class="flex items-center gap-1.5"
-      v-if="
-        uploadState.type === 'uploading' || uploadState.type === 'processing'
-      ">
+      v-if="isLoading"
+      class="flex items-center gap-1.5">
       <ScalarLoading
         class="text-blue"
         :loader="{
@@ -31,7 +34,12 @@ const loadingState = useLoadingState()
         }"
         size="lg" />
       <strong
-        v-if="uploadState.type === 'processing'"
+        v-if="uploadState.type === 'loading'"
+        class="uploadText">
+        Loading document...
+      </strong>
+      <strong
+        v-else-if="uploadState.type === 'processing'"
         class="uploadText">
         Processing document...
       </strong>

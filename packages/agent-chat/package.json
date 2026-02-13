@@ -58,6 +58,7 @@
     "@scalar/openapi-types": "workspace:*",
     "@scalar/themes": "workspace:*",
     "@scalar/types": "workspace:*",
+    "@scalar/use-toasts": "workspace:*",
     "@scalar/workspace-store": "workspace:*",
     "@vueuse/core": "catalog:*",
     "ai": "catalog:*",
