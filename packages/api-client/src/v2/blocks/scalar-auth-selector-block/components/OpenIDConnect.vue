@@ -64,17 +64,13 @@ const handleOpenIdConnect = async (): Promise<void> => {
 }
 
 const handleUpdateOpenIdConnectUrl = (value: string): void =>
-  eventBus.emit(
-    'auth:update:security-scheme',
-    {
-      payload: {
-        type: 'openIdConnect',
-        openIdConnectUrl: value,
-      },
-      name,
+  eventBus.emit('auth:update:security-scheme', {
+    payload: {
+      type: 'openIdConnect',
+      openIdConnectUrl: value,
     },
-    { debounceKey: `openIdConnectUrl-${name}` },
-  )
+    name,
+  })
 </script>
 
 <template>

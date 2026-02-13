@@ -1,5 +1,6 @@
 import type { AuthenticationConfiguration } from '@scalar/types/api-reference'
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
+import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import {
   type ComponentsObject,
@@ -162,6 +163,51 @@ describe('mergeSecurity', () => {
         },
       },
     })
+  })
+
+  it('does not mutate source document schemes when deeply merging oauth2 config', () => {
+    const securitySchemes = reactive<NonNullable<ComponentsObject['securitySchemes']>>({
+      oauth2: coerceValue(SecuritySchemeObjectSchema, {
+        type: 'oauth2',
+        flows: {
+          authorizationCode: {
+            authorizationUrl: 'https://example.com/oauth/authorize',
+            tokenUrl: 'https://example.com/oauth/token',
+            scopes: {
+              'read:users': 'Read user information',
+            },
+          },
+        },
+      }),
+    })
+
+    const config: AuthenticationConfiguration['securitySchemes'] = {
+      oauth2: {
+        flows: {
+          authorizationCode: {
+            token: 'merged-token',
+          },
+        },
+      },
+    }
+
+    mergeSecurity(securitySchemes, config, authStore, documentSlug)
+
+    const sourceOauthScheme = getResolvedRef(securitySchemes.oauth2)
+    expect(sourceOauthScheme?.type).toBe('oauth2')
+    if (!sourceOauthScheme || sourceOauthScheme.type !== 'oauth2') {
+      throw new Error('Expected oauth2 scheme in source securitySchemes')
+    }
+
+    const sourceAuthorizationCode = sourceOauthScheme.flows?.authorizationCode
+    expect(sourceAuthorizationCode).toMatchObject({
+      authorizationUrl: 'https://example.com/oauth/authorize',
+      tokenUrl: 'https://example.com/oauth/token',
+      scopes: {
+        'read:users': 'Read user information',
+      },
+    })
+    expect(sourceAuthorizationCode).not.toHaveProperty('token')
   })
 
   it('preserves security schemes not mentioned in config', () => {
