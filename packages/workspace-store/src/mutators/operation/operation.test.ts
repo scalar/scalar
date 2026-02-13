@@ -22,7 +22,32 @@ const createDocument = (initial?: Partial<WorkspaceDocument>): WorkspaceDocument
 }
 
 describe('updateOperationSummary', () => {
-  it('updates summary for an existing operation', () => {
+  it('updates summary for an existing operation', async () => {
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: 'test-doc',
+      document: createDocument({
+        paths: {
+          '/users': {
+            get: {
+              summary: 'Old summary',
+            },
+          },
+        },
+      }),
+    })
+
+    const document = store.workspace.documents['test-doc']!
+
+    updateOperationSummary(store, document, {
+      meta: { method: 'get', path: '/users' },
+      payload: { summary: 'New summary' },
+    })
+
+    expect(document.paths?.['/users']?.get?.summary).toBe('New summary')
+  })
+
+  it('no-ops when store is null', () => {
     const document = createDocument({
       paths: {
         '/users': {
@@ -33,36 +58,99 @@ describe('updateOperationSummary', () => {
       },
     })
 
-    updateOperationSummary(document, {
-      meta: { method: 'get', path: '/users' },
-      payload: { summary: 'New summary' },
-    })
-
-    expect(document.paths?.['/users']?.get?.summary).toBe('New summary')
-  })
-
-  it('no-ops when document is null', () => {
     expect(() =>
-      updateOperationSummary(null, {
+      updateOperationSummary(null, document, {
         meta: { method: 'get', path: '/users' },
         payload: { summary: 'Anything' },
       }),
     ).not.toThrow()
   })
 
-  it('no-ops when operation does not exist', () => {
-    const document = createDocument({
-      paths: {
-        '/users': {},
-      },
+  it('no-ops when document is null', () => {
+    const store = createWorkspaceStore()
+
+    expect(() =>
+      updateOperationSummary(store, null, {
+        meta: { method: 'get', path: '/users' },
+        payload: { summary: 'Anything' },
+      }),
+    ).not.toThrow()
+  })
+
+  it('no-ops when operation does not exist', async () => {
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: 'test-doc',
+      document: createDocument({
+        paths: {
+          '/users': {},
+        },
+      }),
     })
 
-    updateOperationSummary(document, {
+    const document = store.workspace.documents['test-doc']!
+
+    updateOperationSummary(store, document, {
       meta: { method: 'get', path: '/users' },
       payload: { summary: 'New summary' },
     })
 
     expect(document.paths?.['/users']).toEqual({})
+  })
+
+  it('no-ops when document navigation name is undefined', () => {
+    const store = createWorkspaceStore()
+    const document = createDocument({
+      paths: {
+        '/users': {
+          get: {
+            summary: 'Old summary',
+          },
+        },
+      },
+    })
+
+    /** Document without x-scalar-navigation */
+    expect(() =>
+      updateOperationSummary(store, document, {
+        meta: { method: 'get', path: '/users' },
+        payload: { summary: 'New summary' },
+      }),
+    ).not.toThrow()
+
+    expect(document.paths?.['/users']?.get?.summary).toBe('Old summary')
+  })
+
+  it('rebuilds sidebar after updating summary', async () => {
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: 'test-doc',
+      document: createDocument({
+        paths: {
+          '/users': {
+            get: {
+              summary: 'Old summary',
+            },
+          },
+        },
+      }),
+    })
+
+    store.buildSidebar('test-doc')
+    const document = store.workspace.documents['test-doc']!
+
+    /** Store the initial sidebar state */
+    const initialNavigation = document['x-scalar-navigation']
+
+    updateOperationSummary(store, document, {
+      meta: { method: 'get', path: '/users' },
+      payload: { summary: 'Updated summary' },
+    })
+
+    /** Sidebar should be rebuilt (navigation object will have been updated) */
+    expect(document.paths?.['/users']?.get?.summary).toBe('Updated summary')
+    expect(document['x-scalar-navigation']).toBeDefined()
+    expect(initialNavigation).toBeDefined()
   })
 })
 
