@@ -180,6 +180,7 @@ const showSchema = ref(false)
         v-if="showSchema && currentResponseContent?.schema"
         :id="id"
         :content="getResolvedRefDeep(currentResponseContent?.schema)"
+        class="bg-b-2"
         lang="json" />
 
       <!-- Example -->
