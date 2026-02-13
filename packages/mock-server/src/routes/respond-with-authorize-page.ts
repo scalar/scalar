@@ -4,6 +4,31 @@ import type { Context } from 'hono'
 const EXAMPLE_AUTHORIZATION_CODE = 'super-secret-token'
 
 /**
+ * Escapes HTML special characters to prevent XSS when rendering user-controlled scope values.
+ */
+function escapeHtml(s: string): string {
+  return s
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
+}
+
+/**
+ * Parses the OAuth 2.0 scope query parameter (space- or +-separated) into an array of scope strings.
+ */
+function parseScopeParam(scopeQuery: string | undefined): string[] {
+  if (!scopeQuery || scopeQuery.trim() === '') {
+    return []
+  }
+  return scopeQuery
+    .split(/[\s+]+/)
+    .map((s) => s.trim())
+    .filter(Boolean)
+}
+
+/**
  * Responds with an HTML page that simulates an OAuth 2.0 authorization page.
  */
 export function respondWithAuthorizePage(c: Context, title = '') {
@@ -37,7 +62,8 @@ export function respondWithAuthorizePage(c: Context, title = '') {
     deniedUrl.searchParams.set('error', 'access_denied')
     deniedUrl.searchParams.set('error_description', 'User has denied the authorization request')
 
-    const htmlContent = generateAuthorizationHtml(redirectUrl.toString(), deniedUrl.toString(), title)
+    const scopes = parseScopeParam(c.req.query('scope'))
+    const htmlContent = generateAuthorizationHtml(redirectUrl.toString(), deniedUrl.toString(), title, scopes)
 
     return c.html(htmlContent)
   } catch {
@@ -51,7 +77,16 @@ export function respondWithAuthorizePage(c: Context, title = '') {
   }
 }
 
-function generateAuthorizationHtml(redirectUrl: string, deniedUrl: string, title = '') {
+function generateAuthorizationHtml(redirectUrl: string, deniedUrl: string, title = '', scopes: string[] = []) {
+  const scopesSection =
+    scopes.length > 0
+      ? `
+              <p class="font-medium text-gray-700">Requested Scopes</p>
+              <ul class="list-disc list-inside space-y-1">
+                ${scopes.map((scope) => `<li><code class="bg-gray-100 py-1 px-2 rounded text-sm">${escapeHtml(scope)}</code></li>`).join('\n                ')}
+              </ul>`
+      : ''
+
   return `
 <!DOCTYPE html>
 <html lang="en">
@@ -65,9 +100,9 @@ function generateAuthorizationHtml(redirectUrl: string, deniedUrl: string, title
 
     <div class="flex flex-col">
       <div class="mb-5 flex justify-center items-center gap-2">
-        <img src="https://scalar.com/logo-dark.svg" class="w-6 inline-block" />
+        <img src="https://cdn.scalar.com/images/logo-dark.svg" class="w-6 inline-block" />
         <div class="font-medium truncate max-w-[26ch] text-lg">
-          ${title}
+          ${escapeHtml(title)}
         </div>
       </div>
       <div class="bg-gray-50 rounded-lg p-1 rounded-lg w-[28rem] shadow">
@@ -80,6 +115,7 @@ function generateAuthorizationHtml(redirectUrl: string, deniedUrl: string, title
               <p>
                 This application is requesting access to your account. By granting authorization, you allow the application to perform certain actions on your behalf.
               </p>
+              ${scopesSection}
               <p>
                 If you're comfortable with the access being requested, click the button below to grant authorization:
               </p>
@@ -97,7 +133,7 @@ function generateAuthorizationHtml(redirectUrl: string, deniedUrl: string, title
       </div>
 
       <p class="text-xs text-gray-400 mt-5 text-center">
-        This authorization page is provided by @scalar/mock-server
+        This authorization page is provided by the <a href="https://scalar.com/products/mock-server/getting-started" target="_blank" class="underline text-gray-600 hover:text-gray-800">Scalar Mock Server</a>.
       </p>
 
     </div>
