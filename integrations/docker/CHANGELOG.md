@@ -1,5 +1,16 @@
 # @scalarapi/docker-api-reference
 
+## 0.4.57
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.44.18**
+  - [#8109](https://github.com/scalar/scalar/pull/8109): feat: keep the sidebar scrolled near the top
+  - [#8134](https://github.com/scalar/scalar/pull/8134): fix(components): change caret position to right
+  - [#8121](https://github.com/scalar/scalar/pull/8121): chore: moved client plugin types to oas-utils so they can be shared
+
 ## 0.4.56
 
 ### Patch Changes

@@ -4,6 +4,7 @@ import { assert, describe, expect, it, vi } from 'vitest'
 import { nextTick } from 'vue'
 
 import OAuth2 from '@/v2/blocks/scalar-auth-selector-block/components/OAuth2.vue'
+import OpenIDConnect from '@/v2/blocks/scalar-auth-selector-block/components/OpenIDConnect.vue'
 import RequestAuthDataTableInput from '@/v2/blocks/scalar-auth-selector-block/components/RequestAuthDataTableInput.vue'
 import RequestAuthTab from '@/v2/blocks/scalar-auth-selector-block/components/RequestAuthTab.vue'
 
@@ -393,7 +394,7 @@ describe('RequestAuthTab', () => {
   })
 
   describe('OpenID Connect Authentication', () => {
-    it('renders "Coming soon" message when scheme type is openIdConnect', () => {
+    it('renders OpenID discovery form when scheme type is openIdConnect and no flows are discovered', () => {
       const wrapper = mountWithProps({
         securitySchemes: {
           'OpenIDConnect': {
@@ -407,7 +408,113 @@ describe('RequestAuthTab', () => {
         },
       })
 
-      expect(wrapper.text()).toContain('Coming soon')
+      expect(wrapper.findComponent(OpenIDConnect).exists()).toBe(true)
+      expect(wrapper.text()).toContain('Fetch Configuration')
+    })
+
+    it('renders OAuth2 flow editor when openIdConnect flows are already available', () => {
+      const wrapper = mountWithProps({
+        securitySchemes: {
+          'OpenIDConnect': {
+            type: 'openIdConnect',
+            openIdConnectUrl: 'https://example.com/.well-known/openid_configuration',
+            flows: {
+              authorizationCode: {
+                authorizationUrl: 'https://example.com/auth',
+                tokenUrl: 'https://example.com/token',
+                scopes: { openid: 'OpenID' },
+              },
+            },
+          },
+        },
+        selectedSecuritySchemas: {
+          'OpenIDConnect': [],
+        },
+      })
+
+      expect(wrapper.findComponent(OpenIDConnect).exists()).toBe(false)
+      expect(wrapper.findComponent(OAuth2).exists()).toBe(true)
+    })
+
+    it('does not render undefined in multi-scheme header before discovery flows are available', () => {
+      const wrapper = mountWithProps({
+        securitySchemes: {
+          'OpenIDConnect': {
+            type: 'openIdConnect',
+            openIdConnectUrl: 'https://example.com/.well-known/openid_configuration',
+            description: 'OpenID Connect authentication',
+          },
+          'BearerAuth': {
+            type: 'http',
+            scheme: 'bearer',
+            'x-scalar-secret-token': '',
+          },
+        },
+        selectedSecuritySchemas: {
+          'OpenIDConnect': [],
+          'BearerAuth': [],
+        },
+      })
+
+      expect(wrapper.text()).toContain('OpenIDConnect: OpenID Connect authentication')
+      expect(wrapper.text()).not.toContain('OpenIDConnect: undefined')
+    })
+
+    it('resets active flow when rediscovered flows do not include previously selected key', async () => {
+      const wrapper = mountWithProps({
+        securitySchemes: {
+          'OpenIDConnect': {
+            type: 'openIdConnect',
+            openIdConnectUrl: 'https://example.com/.well-known/openid_configuration',
+            flows: {
+              implicit: {
+                authorizationUrl: 'https://example.com/auth',
+                scopes: { openid: 'OpenID' },
+              },
+              authorizationCode: {
+                authorizationUrl: 'https://example.com/auth',
+                tokenUrl: 'https://example.com/token',
+                scopes: { profile: 'Profile' },
+              },
+            },
+          },
+        },
+        selectedSecuritySchemas: {
+          'OpenIDConnect': [],
+        },
+      })
+
+      const flowTabs = wrapper.findAll('button')
+      const implicitTab = flowTabs.find((tab) => tab.text() === 'implicit')
+      expect(implicitTab, 'Implicit flow tab should exist').toBeTruthy()
+      await implicitTab!.trigger('click')
+
+      await wrapper.setProps({
+        securitySchemes: {
+          'OpenIDConnect': {
+            type: 'openIdConnect',
+            openIdConnectUrl: 'https://example.com/.well-known/openid_configuration',
+            flows: {
+              authorizationCode: {
+                authorizationUrl: 'https://example.com/new-auth',
+                tokenUrl: 'https://example.com/new-token',
+                refreshUrl: '',
+                'x-usePkce': 'no',
+                'x-scalar-secret-client-id': '',
+                'x-scalar-secret-client-secret': '',
+                'x-scalar-secret-redirect-uri': '',
+                'x-scalar-secret-token': '',
+                scopes: { email: 'Email' },
+              },
+            },
+          },
+        },
+      })
+      await nextTick()
+
+      const oauth2Component = wrapper.findComponent(OAuth2)
+      expect(oauth2Component.exists()).toBe(true)
+      expect(oauth2Component.props('type')).toBe('authorizationCode')
     })
   })
 

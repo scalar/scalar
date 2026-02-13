@@ -91,6 +91,8 @@ export type ScalarSidebarGroupSlots = {
   button?(props: { open: boolean; level: SidebarGroupLevel }): unknown
   /** Icon for the sidebar group */
   icon?(props: { open: boolean }): unknown
+  /** Override the toggle button for the sidebar group */
+  toggle?(props: { open: boolean }): unknown
   /** Content to display to the right of the text content */
   aside?(props: { open: boolean }): unknown
   /** Content to display before the button */

@@ -1,7 +1,6 @@
 <script lang="ts" setup>
 import {
   ScalarSidebarGroup,
-  ScalarSidebarGroupToggle,
   ScalarSidebarItem,
   ScalarSidebarSection,
 } from '@scalar/components'
@@ -186,11 +185,8 @@ const { draggableAttrs, draggableEvents } = useDraggable({
         name="icon"
         :open="open">
         <LibraryIcon
-          class="text-c-3 block group-hover/group-button:hidden"
+          class="block"
           :src="('icon' in item && item.icon) || 'interface-content-folder'" />
-        <ScalarSidebarGroupToggle
-          class="text-c-3 hidden group-hover/group-button:flex"
-          :open="open" />
       </slot>
     </template>
     <span
@@ -204,11 +200,8 @@ const { draggableAttrs, draggableEvents } = useDraggable({
       v-else
       :item
       :operationTitleSource="options?.operationTitleSource" />
-    <template
-      v-if="'method' in item"
-      #aside>
+    <template v-if="'method' in item">
       <SidebarHttpBadge
-        v-if="'method' in item"
         :active="isSelected(item.id)"
         class="ml-2 h-4 self-start"
         :class="{

@@ -1,5 +1,27 @@
 # @scalar/agent-chat
 
+## 0.5.9
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.31.2**
+  - [#8120](https://github.com/scalar/scalar/pull/8120): refactor: make navigation router-agnostic
+  - [#8121](https://github.com/scalar/scalar/pull/8121): feat: added post response scripts/testing to api client v2
+
+- **@scalar/api-client@2.26.2**
+  - [#8120](https://github.com/scalar/scalar/pull/8120): refactor: make navigation router-agnostic
+  - [#8075](https://github.com/scalar/scalar/pull/8075): Use Vue Transition for modal animation for better cross browser support.
+  - [#8121](https://github.com/scalar/scalar/pull/8121): feat: added post response scripts/testing to api client v2
+  - [#8134](https://github.com/scalar/scalar/pull/8134): fix(components): change caret position to right
+
+- **@scalar/components@0.19.2**
+  - [#8134](https://github.com/scalar/scalar/pull/8134): fix(components): change caret position to right
+
+- **@scalar/icons@0.5.3**
+  - [#8134](https://github.com/scalar/scalar/pull/8134): fix(components): change caret position to right
+
 ## 0.5.8
 
 ### Patch Changes

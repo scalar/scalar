@@ -101,40 +101,42 @@ describe('EnvironmentSelector', () => {
     })
   })
 
-  describe('active environment indicator badge', () => {
-    it('shows badge when environment is active', () => {
+  describe('active environment indicator', () => {
+    it('shows active state when environment is selected', () => {
       const wrapper = mountWithProps({
         environments: mockEnvironments,
         activeEnvironment: 'production',
       })
 
       /**
-       * The badge provides a quick visual indicator that an environment
-       * is currently active, visible even when the button is collapsed.
+       * When an environment is active, the button shows its name and
+       * accent styling so the user can see the current context at a glance.
        */
-      const badge = wrapper.find('.bg-c-accent.rounded-full')
-      expect(badge.exists()).toBe(true)
+      const button = wrapper.find('button')
+      expect(button.text()).toContain('production')
+      expect(button.classes()).toContain('text-c-accent')
     })
 
-    it('hides badge when no environment is active', () => {
+    it('shows neutral state when no environment is active', () => {
       const wrapper = mountWithProps({ environments: mockEnvironments })
 
       /**
-       * No badge should appear when no environment is selected,
-       * keeping the UI clean and uncluttered.
+       * No active styling when no environment is selected.
        */
-      const badge = wrapper.find('.bg-c-accent.rounded-full')
-      expect(badge.exists()).toBe(false)
+      const button = wrapper.find('button')
+      expect(button.text()).toContain('Select Environment')
+      expect(button.classes()).not.toContain('text-c-accent')
     })
 
-    it('hides badge when environments array is empty', () => {
+    it('shows add state when environments array is empty', () => {
       const wrapper = mountWithProps({ environments: [] })
 
       /**
-       * The badge should not appear in the empty state.
+       * Empty state shows add-environment prompt without active styling.
        */
-      const badge = wrapper.find('.bg-c-accent.rounded-full')
-      expect(badge.exists()).toBe(false)
+      const button = wrapper.find('button')
+      expect(button.text()).toContain('Add Environment')
+      expect(button.classes()).not.toContain('text-c-accent')
     })
   })
 
@@ -425,12 +427,6 @@ describe('EnvironmentSelector', () => {
        */
       expect(button.classes()).toContain('text-c-accent')
       expect(button.classes()).toContain('bg-c-accent/10')
-
-      /**
-       * Should show the active indicator badge.
-       */
-      const badge = wrapper.find('.bg-c-accent.rounded-full')
-      expect(badge.exists()).toBe(true)
 
       /**
        * User should be able to clear the invalid active environment.

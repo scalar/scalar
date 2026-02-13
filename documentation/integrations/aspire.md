@@ -292,4 +292,4 @@ var scalar = builder.AddScalarApiReference(options =>
 
 ## Additional Resources
 
-For more advanced configuration options see the [.NET ASP.NET Core documentation](aspnetcore/integration.md#configuration-options). Many configuration options are similar between `Scalar.AspNetCore` and `Scalar.Aspire` integrations.
+For more advanced configuration options see the [.NET ASP.NET Core documentation](aspnetcore/integration.md#configuration-options). Many configuration options are similar between `Scalar.AspNetCore` and `Scalar.Aspire` integrations, including [Agent Scalar](aspnetcore/integration.md#agent-scalar) (AI chat).

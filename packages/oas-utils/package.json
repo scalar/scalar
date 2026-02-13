@@ -16,7 +16,7 @@
     "specification",
     "yaml"
   ],
-  "version": "0.6.39",
+  "version": "0.6.40",
   "engines": {
     "node": ">=20"
   },
@@ -103,6 +103,7 @@
     "@scalar/workspace-store": "workspace:*",
     "flatted": "catalog:*",
     "type-fest": "catalog:*",
+    "vue": "catalog:*",
     "yaml": "catalog:*",
     "zod": "catalog:*"
   },

@@ -5,6 +5,7 @@ import { type XInternal, XInternalSchema } from '@/schemas/extensions/document/x
 import { type XScalarIgnore, XScalarIgnoreSchema } from '@/schemas/extensions/document/x-scalar-ignore'
 import { type XBadges, XBadgesSchema } from '@/schemas/extensions/operation/x-badge'
 import { type XCodeSamples, XCodeSamplesSchema } from '@/schemas/extensions/operation/x-code-samples'
+import { type XPostResponse, XPostResponseSchema } from '@/schemas/extensions/operation/x-post-response'
 import {
   type XScalarDisableParameters,
   XScalarDisableParametersSchema,
@@ -62,6 +63,7 @@ export const OperationObjectSchemaDefinition = compose(
   XCodeSamplesSchema,
   XScalarStabilitySchema,
   XScalarDisableParametersSchema,
+  XPostResponseSchema,
 )
 
 export type OperationObject = {
@@ -94,4 +96,5 @@ export type OperationObject = {
   XScalarIgnore &
   XCodeSamples &
   XScalarStability &
-  XScalarDisableParameters
+  XScalarDisableParameters &
+  XPostResponse

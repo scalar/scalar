@@ -1,14 +1,17 @@
 import { Chat } from '@ai-sdk/vue'
 import { type ModalState, useModal } from '@scalar/components'
 import { type ApiReferenceConfigurationRaw, apiReferenceConfigurationSchema } from '@scalar/types/api-reference'
+import { useToasts } from '@scalar/use-toasts'
 import { type WorkspaceStore, createWorkspaceStore } from '@scalar/workspace-store/client'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import { DefaultChatTransport, type UIDataTypes, type UIMessage, lastAssistantMessageIsCompleteWithToolCalls } from 'ai'
-import { type ComputedRef, type InjectionKey, type Ref, computed, inject, ref, watch } from 'vue'
+import { n } from 'neverpanic'
+import { type ComputedRef, type InjectionKey, type Ref, computed, inject, reactive, ref, watch } from 'vue'
 
 import { type Api, createApi, createAuthorizationHeaders } from '@/api'
 import { executeRequestTool } from '@/client-tools/execute-request'
+import { createError } from '@/entities'
 import type { ApiMetadata } from '@/entities/registry/document'
 import type {
   ASK_FOR_AUTHENTICATION_TOOL_NAME,
@@ -61,6 +64,8 @@ export type Tools = {
 
 export const STATE_SYMBOL: InjectionKey<State> = Symbol('STATE_SYMBOL')
 
+const { toast } = useToasts()
+
 type State = {
   prompt: Ref<string>
   chat: Chat<UIMessage<unknown, UIDataTypes, Tools>>
@@ -75,7 +80,7 @@ type State = {
   baseUrl: string
   isLoggedIn?: Ref<boolean>
   registryDocuments: Ref<ApiMetadata[]>
-  pendingDocuments: Ref<{ namespace: string; slug: string }[]>
+  pendingDocuments: Record<string, boolean>
   mode: ChatMode
   terms: { accepted: Ref<boolean>; accept: () => void }
   addDocument: (document: { namespace: string; slug: string; removable?: boolean }) => Promise<void>
@@ -159,7 +164,7 @@ export function createState({
 }): State {
   const prompt = ref<State['prompt']['value']>(prefilledMessageRef?.value ?? '')
   const registryDocuments = ref<ApiMetadata[]>([])
-  const pendingDocuments = ref<{ namespace: string; slug: string }[]>([])
+  const pendingDocuments = reactive<Record<string, boolean>>({})
   const curatedDocuments = ref<ApiMetadata[]>([])
   const proxyUrl = ref<State['proxyUrl']['value']>('https://proxy.scalar.com')
   const uploadedTmpDocumentUrl = ref<string>()
@@ -238,7 +243,11 @@ export function createState({
       return
     }
 
-    await loadDocument({
+    const identifier = `@${namespace}/${slug}`
+
+    pendingDocuments[identifier] = true
+
+    const loadDocumentResult = await loadDocument({
       namespace,
       slug,
       workspaceStore,
@@ -248,6 +257,14 @@ export function createState({
       api,
       removable,
     })
+
+    pendingDocuments[identifier] = false
+
+    if (!loadDocumentResult.success) {
+      console.warn('[AGENT]: Unable to load document', loadDocumentResult.error)
+      toast(`Unable to load the document @${namespace}/${slug}`, 'warn')
+      throw loadDocumentResult.error
+    }
   }
 
   /**
@@ -269,31 +286,40 @@ export function createState({
       return
     }
 
-    pendingDocuments.value.push({ namespace, slug })
+    const identifier = `@${namespace}/${slug}`
 
-    const embeddingStatusResponse = await fetch(
-      makeScalarProxyUrl(`${baseUrl}/vector/registry/embeddings/${namespace}/${slug}`),
-      {
-        method: 'GET',
-      },
+    pendingDocuments[identifier] = true
+
+    const embeddingStatusResponse = await n.fromUnsafe(
+      () =>
+        fetch(makeScalarProxyUrl(`${baseUrl}/vector/registry/embeddings/${namespace}/${slug}`), {
+          method: 'GET',
+        }),
+      (originalError) => createError('FAILED_TO_GET_EMBEDDING_STATUS', originalError),
     )
 
-    pendingDocuments.value = pendingDocuments.value.filter((d) => d.namespace !== namespace || d.slug !== slug)
+    if (embeddingStatusResponse.success && embeddingStatusResponse.data.ok) {
+      const loadDocumentResult = await loadDocument({
+        namespace,
+        slug,
+        workspaceStore,
+        registryUrl,
+        registryDocuments,
+        config: config.value,
+        api,
+        removable,
+      })
 
-    if (!embeddingStatusResponse.ok) {
-      return
+      if (!loadDocumentResult.success) {
+        console.warn('[AGENT]: Unable to load document', loadDocumentResult.error)
+        toast(`Unable to load the document @${namespace}/${slug}`, 'warn')
+      }
+    } else {
+      console.warn('[AGENT]: Document could not be embedded')
+      toast(`Unable to embed the document @${namespace}/${slug}`, 'warn')
     }
 
-    await loadDocument({
-      namespace,
-      slug,
-      workspaceStore,
-      registryUrl,
-      registryDocuments,
-      config: config.value,
-      api,
-      removable,
-    })
+    pendingDocuments[identifier] = false
   }
 
   function removeDocument({ namespace, slug }: { namespace: string; slug: string }) {

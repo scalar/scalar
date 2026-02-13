@@ -1,11 +1,13 @@
 import type { AuthenticationConfiguration } from '@scalar/types/api-reference'
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
+import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import {
   type ComponentsObject,
   SecuritySchemeObjectSchema,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { describe, expect, it } from 'vitest'
+import { computed, reactive } from 'vue'
 
 import { mergeSecurity } from './merge-security'
 
@@ -118,6 +120,69 @@ describe('mergeSecurity', () => {
     })
   })
 
+  it('keeps apiKey config value when config scheme is partial', () => {
+    const securitySchemes: ComponentsObject['securitySchemes'] = {
+      apiKeyAuth: {
+        type: 'apiKey',
+        name: 'x-api-key',
+        in: 'header',
+      },
+    }
+
+    // Mirrors ApiReference authentication config where apiKey does not always include `in`.
+    const config: AuthenticationConfiguration['securitySchemes'] = {
+      apiKeyAuth: {
+        type: 'apiKey',
+        name: 'x-api-key',
+        value: 'test-token',
+      },
+    }
+
+    const result = mergeSecurity(securitySchemes, config, authStore, documentSlug)
+
+    expect(result.apiKeyAuth).toMatchObject({
+      type: 'apiKey',
+      name: 'x-api-key',
+      in: 'header',
+      'x-scalar-secret-token': 'test-token',
+    })
+  })
+
+  it('keeps apiKey config value when only config schemes are provided', () => {
+    // Mirrors ApiReference authentication config where apiKey may be config-only and omit `in`.
+    const config: AuthenticationConfiguration['securitySchemes'] = {
+      apiKey: {
+        type: 'apiKey',
+        name: 'x-api-key',
+        value: 'test-token',
+      },
+    }
+
+    const result = mergeSecurity(undefined, config, authStore, documentSlug)
+    expect(result.apiKey).toMatchObject({
+      type: 'apiKey',
+      name: 'x-api-key',
+      'x-scalar-secret-token': 'test-token',
+    })
+  })
+
+  it('adds apiKey type when missing in config-only security scheme', () => {
+    const config: AuthenticationConfiguration['securitySchemes'] = {
+      apiKey: {
+        name: 'x-api-key',
+        value: 'test-token',
+      },
+    }
+
+    const result = mergeSecurity(undefined, config, authStore, documentSlug)
+
+    expect(result.apiKey).toMatchObject({
+      type: 'apiKey',
+      name: 'x-api-key',
+      'x-scalar-secret-token': 'test-token',
+    })
+  })
+
   it('handles deeply nested OAuth2 configuration merging', () => {
     const securitySchemes = {
       oauth2: coerceValue(SecuritySchemeObjectSchema, {
@@ -161,6 +226,51 @@ describe('mergeSecurity', () => {
         },
       },
     })
+  })
+
+  it('does not mutate source document schemes when deeply merging oauth2 config', () => {
+    const securitySchemes = reactive<NonNullable<ComponentsObject['securitySchemes']>>({
+      oauth2: coerceValue(SecuritySchemeObjectSchema, {
+        type: 'oauth2',
+        flows: {
+          authorizationCode: {
+            authorizationUrl: 'https://example.com/oauth/authorize',
+            tokenUrl: 'https://example.com/oauth/token',
+            scopes: {
+              'read:users': 'Read user information',
+            },
+          },
+        },
+      }),
+    })
+
+    const config: AuthenticationConfiguration['securitySchemes'] = {
+      oauth2: {
+        flows: {
+          authorizationCode: {
+            token: 'merged-token',
+          },
+        },
+      },
+    }
+
+    mergeSecurity(securitySchemes, config, authStore, documentSlug)
+
+    const sourceOauthScheme = getResolvedRef(securitySchemes.oauth2)
+    expect(sourceOauthScheme?.type).toBe('oauth2')
+    if (!sourceOauthScheme || sourceOauthScheme.type !== 'oauth2') {
+      throw new Error('Expected oauth2 scheme in source securitySchemes')
+    }
+
+    const sourceAuthorizationCode = sourceOauthScheme.flows?.authorizationCode
+    expect(sourceAuthorizationCode).toMatchObject({
+      authorizationUrl: 'https://example.com/oauth/authorize',
+      tokenUrl: 'https://example.com/oauth/token',
+      scopes: {
+        'read:users': 'Read user information',
+      },
+    })
+    expect(sourceAuthorizationCode).not.toHaveProperty('token')
   })
 
   it('preserves security schemes not mentioned in config', () => {
@@ -362,8 +472,8 @@ describe('mergeSecurity', () => {
       type: 'http',
       scheme: 'basic',
       description: 'Basic authentication',
-      username: 'test-user',
-      password: 'test-password',
+      'x-scalar-secret-username': 'test-user',
+      'x-scalar-secret-password': 'test-password',
     })
 
     expect(result.bearerAuth).toMatchObject({
@@ -371,7 +481,7 @@ describe('mergeSecurity', () => {
       scheme: 'bearer',
       bearerFormat: 'JWT',
       description: 'Bearer token authentication',
-      token: 'bearer-jwt-token',
+      'x-scalar-secret-token': 'bearer-jwt-token',
     })
 
     expect(result.oauth2AllFlows).toMatchObject({
@@ -654,5 +764,37 @@ describe('mergeSecurity', () => {
     })
     expect(result.oauth2).not.toHaveProperty('$ref')
     expect(result.oauth2).not.toHaveProperty('$ref-value')
+  })
+
+  it('reacts to nested security scheme updates in computed consumers', () => {
+    const securitySchemes = reactive<NonNullable<ComponentsObject['securitySchemes']>>({
+      bearerAuth: {
+        type: 'http',
+        scheme: 'bearer',
+      },
+    })
+    const config = reactive<NonNullable<AuthenticationConfiguration['securitySchemes']>>({
+      bearerAuth: {
+        token: 'first-token',
+      },
+    })
+
+    const merged = computed(() => mergeSecurity(securitySchemes, config, authStore, documentSlug))
+
+    const firstBearerAuth = merged.value.bearerAuth
+    expect(firstBearerAuth?.type).toBe('http')
+    if (firstBearerAuth?.type === 'http') {
+      expect(firstBearerAuth['x-scalar-secret-token']).toBe('first-token')
+    }
+
+    config.bearerAuth = {
+      token: 'updated-token',
+    }
+
+    const updatedBearerAuth = merged.value.bearerAuth
+    expect(updatedBearerAuth?.type).toBe('http')
+    if (updatedBearerAuth?.type === 'http') {
+      expect(updatedBearerAuth['x-scalar-secret-token']).toBe('updated-token')
+    }
   })
 })

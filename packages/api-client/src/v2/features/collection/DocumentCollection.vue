@@ -49,11 +49,11 @@ const saveChanges = () => {
   <div class="custom-scroll h-full">
     <div
       v-if="document"
-      class="w-full md:mx-auto md:max-w-[720px]">
+      class="w-full md:mx-auto md:max-w-180">
       <!-- Header -->
       <div
         :aria-label="`title: ${title}`"
-        class="mx-auto flex h-fit w-full flex-col gap-2 pt-6 pb-3 md:mx-auto md:max-w-[720px]">
+        class="mx-auto flex h-fit w-full flex-col gap-2 pt-6 pb-3 md:max-w-180">
         <Callout
           v-if="document?.['x-scalar-is-dirty']"
           class="mb-5"
@@ -100,16 +100,16 @@ const saveChanges = () => {
                 stroke-width="2" />
             </ScalarButton>
           </IconSelector>
-        </div>
 
-        <div class="group relative ml-1.25">
-          <LabelInput
-            class="text-xl font-bold"
-            inputId="documentName"
-            :modelValue="title"
-            @update:modelValue="
-              (title) => eventBus.emit('document:update:info', { title })
-            " />
+          <div class="group relative ml-1.25">
+            <LabelInput
+              class="text-xl font-bold"
+              inputId="documentName"
+              :modelValue="title"
+              @update:modelValue="
+                (title) => eventBus.emit('document:update:info', { title })
+              " />
+          </div>
         </div>
       </div>
 

@@ -18,7 +18,7 @@
     "rest",
     "testing"
   ],
-  "version": "2.26.1",
+  "version": "2.26.2",
   "engines": {
     "node": ">=20"
   },
@@ -343,6 +343,7 @@
     "@scalar/sidebar": "workspace:*",
     "@scalar/snippetz": "workspace:*",
     "@scalar/themes": "workspace:*",
+    "@scalar/typebox": "^0.1.3",
     "@scalar/types": "workspace:*",
     "@scalar/use-codemirror": "workspace:*",
     "@scalar/use-hooks": "workspace:*",
@@ -369,6 +370,7 @@
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
     "@scalar/galaxy": "workspace:*",
+    "@scalar/pre-post-request-scripts": "workspace:*",
     "@tailwindcss/vite": "catalog:*",
     "@types/shell-quote": "^1.7.5",
     "@types/whatwg-mimetype": "catalog:*",

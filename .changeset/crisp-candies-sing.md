@@ -3,4 +3,4 @@
 '@scalar/api-client': patch
 ---
 
-refactor: make navigation router-agnostic
+feat: added support for OpenID Connect Discovery

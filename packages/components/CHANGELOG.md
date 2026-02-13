@@ -1,5 +1,19 @@
 # @scalar/components
 
+## 0.19.2
+
+### Patch Changes
+
+- [#8134](https://github.com/scalar/scalar/pull/8134): fix(components): change caret position to right
+
+#### Updated Dependencies
+
+- **@scalar/icons@0.5.3**
+  - [#8134](https://github.com/scalar/scalar/pull/8134): fix(components): change caret position to right
+
+- **@scalar/oas-utils@0.6.40**
+  - [#8121](https://github.com/scalar/scalar/pull/8121): chore: moved client plugin types to oas-utils so they can be shared
+
 ## 0.19.1
 
 ### Patch Changes

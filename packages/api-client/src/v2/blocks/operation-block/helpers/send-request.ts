@@ -1,10 +1,10 @@
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { httpStatusCodes } from '@scalar/helpers/http/http-status-codes'
+import { type ClientPlugin, executeHook } from '@scalar/oas-utils/helpers'
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
 import { ERRORS, type ErrorResponse, normalizeError } from '@/libs/errors'
 import { normalizeHeaders } from '@/libs/normalize-headers'
-import { type ClientPlugin, executeHook } from '@/v2/helpers/plugins'
 
 import { decodeBuffer } from './decode-buffer'
 import { getCookieHeaderKeys } from './get-cookie-header-keys'

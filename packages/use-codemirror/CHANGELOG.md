@@ -1,5 +1,14 @@
 # @scalar/use-codemirror
 
+## 0.13.37
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/components@0.19.2**
+  - [#8134](https://github.com/scalar/scalar/pull/8134): fix(components): change caret position to right
+
 ## 0.13.36
 
 ### Patch Changes

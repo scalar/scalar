@@ -62,7 +62,8 @@ internal static partial class ScalarOptionsMapper
             OrderRequiredPropertiesFirst = options.OrderRequiredPropertiesFirst,
             OrderSchemaPropertiesBy = options.SchemaPropertyOrder,
             ShowOperationId = options.ShowOperationId,
-            ShowDeveloperTools = options.ShowDeveloperTools
+            ShowDeveloperTools = options.ShowDeveloperTools,
+            Agent = options.Agent
         };
     }
 
@@ -70,14 +71,15 @@ internal static partial class ScalarOptionsMapper
     {
         var trimmedOpenApiRoutePattern = options.OpenApiRoutePattern.TrimStart('/');
 
-        foreach (var (name, title, routePattern, isDefault) in options.Documents)
+        foreach (var document in options.Documents)
         {
-            var openApiRoutePattern = routePattern is null ? trimmedOpenApiRoutePattern : routePattern.TrimStart('/');
+            var openApiRoutePattern = document.RoutePattern is null ? trimmedOpenApiRoutePattern : document.RoutePattern.TrimStart('/');
             yield return new ScalarSource
             {
-                Title = title ?? name,
-                Url = openApiRoutePattern.Replace(DocumentName, name),
-                Default = isDefault
+                Title = document.Title ?? document.Name,
+                Url = openApiRoutePattern.Replace(DocumentName, document.Name),
+                Default = document.IsDefault,
+                Agent = document.Agent
             };
         }
     }

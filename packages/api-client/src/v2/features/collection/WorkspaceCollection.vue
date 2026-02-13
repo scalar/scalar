@@ -21,11 +21,11 @@ const props = defineProps<RouteProps>()
 
 <template>
   <div class="custom-scroll h-full">
-    <div class="w-full md:mx-auto md:max-w-[720px]">
+    <div class="w-full md:mx-auto md:max-w-180">
       <!-- Header -->
       <div
         :aria-label="`title: ${activeWorkspace.label}`"
-        class="mx-auto flex h-fit w-full flex-col gap-2 pt-6 pb-3 md:mx-auto md:max-w-[720px]">
+        class="mx-auto flex h-fit w-full flex-row items-center gap-2 pt-8 pb-3 md:max-w-180">
         <ScalarIconGlobe class="text-c-2 size-6" />
 
         <div class="group relative ml-1.25">

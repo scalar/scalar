@@ -185,6 +185,13 @@ export function initializeWorkspaceEventHandlers({
       hooks,
     )(payload),
   )
+  eventBus.on('auth:clear:security-scheme-secrets', (payload) =>
+    withHook(
+      'auth:clear:security-scheme-secrets',
+      mutators.value.active().auth.clearSecuritySchemeSecrets,
+      hooks,
+    )(payload),
+  )
 
   //------------------------------------------------------------------------------------
   // Server Related Event Handlers
@@ -246,6 +253,9 @@ export function initializeWorkspaceEventHandlers({
       mutators.value.active().operation.deleteAllOperationParameters,
       hooks,
     )(payload),
+  )
+  eventBus.on('operation:update:extension', (payload) =>
+    withHook('operation:update:extension', mutators.value.active().operation.updateOperationExtension, hooks)(payload),
   )
 
   //------------------------------------------------------------------------------------

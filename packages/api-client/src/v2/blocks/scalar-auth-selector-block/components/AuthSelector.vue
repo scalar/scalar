@@ -132,7 +132,6 @@ const activeSchemeOptions = computed<SecuritySchemeOption[]>(() => {
 
     return formatScheme({
       name: schemeName,
-      type: scheme.type,
       value: requirement,
     })
   })

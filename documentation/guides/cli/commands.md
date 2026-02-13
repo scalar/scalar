@@ -310,6 +310,7 @@ Commands:
   preview [options] [config]  Preview scalar guides
   publish [options]           Publish new build for a github sync project that
                               is not linked.
+  upgrade [config]            Upgrade scalar project
   help [command]              display help for command
 ```
 
@@ -366,13 +367,15 @@ Options:
   -p, --port [port]                  port to run the server on. If the port is
                                      not available, it will select another one.
                                      (default: "7970")
+  -h, --host [host]                  Specify which IP addresses the server
+                                     should listen on.
   -L, --log-level <level>            Set the log level (debug, info, warn,
                                      error, trace) (default: "info")
   -F, --log-formatting <formatting>  Set the log formatting (pretty|none).
                                      Defaults to pretty formatting outside of
                                      CI. (default: "pretty")
   -N, --no-open                      Do not open the browser automatically
-  -h, --help                         display help for command
+  --help                             display help for command
 ```
 
 ### publish
@@ -382,9 +385,24 @@ Usage: scalar project publish [options]
 Publish new build for a github sync project that is not linked.
 
 Options:
-  -s, --slug [slug]      project slug
-  -c, --config [config]  your config file of the project
+  -s, --slug [slug]      Project slug found in Scalar Dashboard
+  -c, --config [config]  Your config file of the project
+  -p, --preview          Publish in preview mode
   -h, --help             display help for command
+```
+
+### upgrade
+```
+Usage: scalar project upgrade [options] [config]
+
+Upgrade scalar project
+
+Arguments:
+  config      Path to the Scalar configuration file (usually
+              `scalar.config.json5` or `scalar.config.json`)
+
+Options:
+  -h, --help  display help for command
 ```
 
 ## registry

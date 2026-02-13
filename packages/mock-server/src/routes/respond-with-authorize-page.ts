@@ -2,12 +2,16 @@ import type { Context } from 'hono'
 
 /** Always responds with this code */
 const EXAMPLE_AUTHORIZATION_CODE = 'super-secret-token'
+/** Always responds with this token for implicit flow */
+const EXAMPLE_ACCESS_TOKEN = 'super-secret-access-token'
 
 /**
  * Responds with an HTML page that simulates an OAuth 2.0 authorization page.
  */
 export function respondWithAuthorizePage(c: Context, title = '') {
   const redirectUri = c.req.query('redirect_uri')
+  const responseType = c.req.query('response_type')
+  const scope = c.req.query('scope')
   const state = c.req.query('state')
 
   if (!redirectUri) {
@@ -23,19 +27,49 @@ export function respondWithAuthorizePage(c: Context, title = '') {
   try {
     // Validate redirect URI against allowed domains
     const redirectUrl = new URL(redirectUri)
+    const isImplicitFlow = responseType === 'token'
 
-    redirectUrl.searchParams.set('code', EXAMPLE_AUTHORIZATION_CODE)
+    if (isImplicitFlow) {
+      const fragmentParams = new URLSearchParams()
+      fragmentParams.set('access_token', EXAMPLE_ACCESS_TOKEN)
+      fragmentParams.set('token_type', 'Bearer')
+      fragmentParams.set('expires_in', '3600')
 
-    if (state) {
-      redirectUrl.searchParams.set('state', state)
+      if (scope) {
+        fragmentParams.set('scope', scope)
+      }
+
+      if (state) {
+        fragmentParams.set('state', state)
+      }
+
+      redirectUrl.hash = fragmentParams.toString()
+    } else {
+      redirectUrl.searchParams.set('code', EXAMPLE_AUTHORIZATION_CODE)
+
+      if (state) {
+        redirectUrl.searchParams.set('state', state)
+      }
     }
 
     const deniedUrl = new URL(redirectUri)
-    if (state) {
-      deniedUrl.searchParams.set('state', state)
+    if (isImplicitFlow) {
+      const deniedFragmentParams = new URLSearchParams()
+      deniedFragmentParams.set('error', 'access_denied')
+      deniedFragmentParams.set('error_description', 'User has denied the authorization request')
+
+      if (state) {
+        deniedFragmentParams.set('state', state)
+      }
+
+      deniedUrl.hash = deniedFragmentParams.toString()
+    } else {
+      if (state) {
+        deniedUrl.searchParams.set('state', state)
+      }
+      deniedUrl.searchParams.set('error', 'access_denied')
+      deniedUrl.searchParams.set('error_description', 'User has denied the authorization request')
     }
-    deniedUrl.searchParams.set('error', 'access_denied')
-    deniedUrl.searchParams.set('error_description', 'User has denied the authorization request')
 
     const htmlContent = generateAuthorizationHtml(redirectUrl.toString(), deniedUrl.toString(), title)
 

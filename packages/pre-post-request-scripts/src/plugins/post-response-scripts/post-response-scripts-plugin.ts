@@ -1,7 +1,9 @@
+import type { ClientPlugin } from '@scalar/oas-utils/helpers'
 import type { ApiClientPlugin } from '@scalar/types/api-reference'
 import { ref } from 'vue'
 
-import { type TestResult, executePostResponseScript } from '../../libs/execute-scripts'
+import { type TestResult, executePostResponseScript } from '@/libs/execute-scripts'
+
 import { PostResponseScripts } from './components/PostResponseScripts'
 import { TestResults } from './components/TestResults'
 
@@ -41,4 +43,30 @@ export const postResponseScriptsPlugin = (): ApiClientPlugin => {
       },
     },
   })
+}
+
+/** Post Response Scripts Plugin for client V2 */
+export const postResponseScriptsPluginV2 = (): ClientPlugin => {
+  const results = ref<TestResult[]>([])
+
+  return {
+    components: {
+      request: { component: PostResponseScripts },
+      response: { component: TestResults, additionalProps: { results } },
+    },
+
+    hooks: {
+      // Reset test results when a new request is sent
+      beforeRequest: () => {
+        results.value = []
+      },
+      // Execute post-response scripts when a response is received
+      responseReceived: async ({ response, operation }) => {
+        await executePostResponseScript(operation['x-post-response'], {
+          response,
+          onTestResultsUpdate: (newResults) => (results.value = [...newResults]),
+        })
+      },
+    },
+  }
 }

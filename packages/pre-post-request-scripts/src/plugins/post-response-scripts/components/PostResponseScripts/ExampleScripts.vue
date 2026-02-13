@@ -27,8 +27,8 @@ const addExample = (example: string) => {
       :key="example.title"
       class="bg-b-2 text-c-2 hover:bg-b-3 inline-flex flex-col rounded-full px-3 py-1 text-xs font-medium">
       <button
-        type="button"
         class="w-full"
+        type="button"
         @click="addExample(example.script)">
         {{ example.title }}
       </button>

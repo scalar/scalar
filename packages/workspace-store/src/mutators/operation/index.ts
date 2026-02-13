@@ -6,6 +6,7 @@ import {
   updateOperationRequestBodyExample,
   updateOperationRequestBodyFormValue,
 } from '@/mutators/operation/body'
+import { updateOperationExtension } from '@/mutators/operation/extensions'
 import { addResponseToHistory, reloadOperationHistory } from '@/mutators/operation/history'
 import {
   createOperation,
@@ -38,6 +39,8 @@ export const operationMutatorsFactory = ({
     deleteOperation: (payload: OperationEvents['operation:delete:operation']) => deleteOperation(store, payload),
     deleteOperationExample: (payload: OperationEvents['operation:delete:example']) =>
       deleteOperationExample(store, payload),
+    updateOperationExtension: (payload: OperationEvents['operation:update:extension']) =>
+      updateOperationExtension(document, payload),
     updateOperationExtraParameters: (payload: OperationEvents['operation:update:extra-parameters']) =>
       updateOperationExtraParameters(document, payload),
     upsertOperationParameter: (payload: OperationEvents['operation:upsert:parameter']) =>

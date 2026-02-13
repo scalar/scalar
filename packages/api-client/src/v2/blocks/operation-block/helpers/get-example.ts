@@ -17,6 +17,8 @@ const getExampleFromExamples = (
     return undefined
   }
 
+  const hasExamples = !!examples && Object.keys(examples).length > 0
+
   // Grab the example key
   const key = exampleKey || Object.keys(examples ?? {})[0] || ''
   const example = getResolvedRefDeep(examples?.[key])
@@ -24,8 +26,9 @@ const getExampleFromExamples = (
     return example
   }
 
-  // Fallback to example field if no exampleKey is provided
-  if (!exampleKey && exampleField !== undefined) {
+  // Fallback to example field when no examples map exists,
+  // or when no specific example key was requested.
+  if ((!hasExamples || !exampleKey) && exampleField !== undefined) {
     return { value: getResolvedRefDeep(exampleField) }
   }
 

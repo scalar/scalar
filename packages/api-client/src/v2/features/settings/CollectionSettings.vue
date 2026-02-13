@@ -122,7 +122,7 @@ const checkmarkClasses = (isActive: boolean) =>
   <div class="flex flex-col gap-10">
     <!-- Proxy -->
     <Section>
-      <template #title> CORS Proxy </template>
+      <template #title>CORS Proxy</template>
       <template #description>
         Browsers block cross-origin requests for security. We provide a public
         proxy to
@@ -179,7 +179,7 @@ const checkmarkClasses = (isActive: boolean) =>
 
     <!-- Themes -->
     <Section>
-      <template #title> Themes </template>
+      <template #title>Themes</template>
       <template #description>
         We've got a whole rainbow of themes for you to play with:
       </template>
@@ -228,7 +228,7 @@ const checkmarkClasses = (isActive: boolean) =>
 
     <!-- Frameworks -->
     <Section>
-      <template #title> Framework Themes </template>
+      <template #title>Framework Themes</template>
       <template #description>
         Are you a real fan? Show your support by using your favorite framework's
         theme!
@@ -288,7 +288,7 @@ const checkmarkClasses = (isActive: boolean) =>
 
     <!-- Appearance -->
     <Section>
-      <template #title> Appearance </template>
+      <template #title>Appearance</template>
       <template #description>
         Choose between light, dark, or system-based appearance for your
         workspace.
