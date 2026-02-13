@@ -90,11 +90,15 @@ const ParameterObjectWithContentSchema = compose(
   ParameterObjectBaseSchema,
   Type.Object({
     content: Type.Optional(Type.Record(Type.String(), MediaTypeObjectRef)),
+    /** Examples of the parameter's potential value; see Working With Examples. https://swagger.io/specification/#working-with-examples */
+    examples: Type.Optional(Type.Record(Type.String(), Type.Union([ExampleObjectRef, reference(ExampleObjectRef)]))),
   }),
 )
 
 export type ParameterWithContentObject = ParameterObjectBase & {
   content?: Record<string, MediaTypeObject>
+  /** Examples of the parameter's potential value; see Working With Examples. https://swagger.io/specification/#working-with-examples */
+  examples?: Record<string, ReferenceType<ExampleObject>>
 }
 
 /**
