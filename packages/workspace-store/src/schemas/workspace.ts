@@ -10,6 +10,10 @@ import {
 import { type XScalarCookies, xScalarCookiesSchema } from '@/schemas/extensions/general/x-scalar-cookies'
 import { type XScalarOrder, XScalarOrderSchema } from '@/schemas/extensions/general/x-scalar-order'
 import {
+  type XScalarSelectedServer,
+  XScalarSelectedServerSchema,
+} from '@/schemas/extensions/server/x-scalar-selected-server'
+import {
   type XScalarActiveEnvironment,
   XScalarActiveEnvironmentSchema,
 } from '@/schemas/extensions/workspace/x-scalar-active-environment'
@@ -29,17 +33,16 @@ export const WorkspaceDocumentMetaSchema = compose(
   Type.Partial(
     Type.Object({
       [extensions.document.activeAuth]: Type.String(),
-      [extensions.document.activeServer]: Type.String(),
       'x-scalar-watch-mode': Type.Boolean(),
     }),
   ),
+  XScalarSelectedServerSchema,
 )
 
 export type WorkspaceDocumentMeta = {
   [extensions.document.activeAuth]?: string
-  [extensions.document.activeServer]?: string
   'x-scalar-watch-mode'?: boolean
-}
+} & XScalarSelectedServer
 
 // Note: use Type.Intersect to combine schemas here because Type.Compose does not work as expected with Modules
 export const WorkspaceDocumentSchema = Type.Intersect([WorkspaceDocumentMetaSchema, OpenAPIDocumentSchema])

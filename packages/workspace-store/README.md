@@ -65,7 +65,7 @@ await store.addDocument({
   },
 }, {
   name: 'document-2',
-  "x-scalar-active-server": "server1"
+  "x-scalar-selected-server": "server1"
 })
 
 // Get the workspace
@@ -136,7 +136,7 @@ await store.addDocument({
   },
 }, {
   name: 'document-2',
-  "x-scalar-active-server": "server1"
+  "x-scalar-selected-server": "server1"
 })
 
 // Generate the workspace file system
