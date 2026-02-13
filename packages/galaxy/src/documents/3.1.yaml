@@ -12,9 +12,6 @@ info:
 
     ## Markdown Support
 
-    > [!tip]
-    > You can use Markdown alerts in your descriptions.
-
     All descriptions *can* contain ~~tons of text~~ **Markdown**. [If GitHub supports the syntax](https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax), chances are we're supporting it, too.
 
     <details>
