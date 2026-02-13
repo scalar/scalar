@@ -258,12 +258,13 @@ export function createState({
       removable,
     })
 
+    pendingDocuments[identifier] = false
+
     if (!loadDocumentResult.success) {
       console.warn('[AGENT]: Unable to load document', loadDocumentResult.error)
       toast(`Unable to load the document @${namespace}/${slug}`, 'warn')
+      throw loadDocumentResult.error
     }
-
-    pendingDocuments[identifier] = false
   }
 
   /**
