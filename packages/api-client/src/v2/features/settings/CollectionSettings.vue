@@ -54,7 +54,7 @@ const buttonStyles = cva({
   <div class="flex flex-col gap-4">
     <!-- Proxy -->
     <Section>
-      <template #title> CORS Proxy </template>
+      <template #title>CORS Proxy</template>
       <template #description>
         Browsers block cross-origin requests for security. We provide a public
         proxy to
@@ -144,7 +144,7 @@ const buttonStyles = cva({
 
     <!-- Themes -->
     <Section>
-      <template #title> Themes </template>
+      <template #title>Themes</template>
       <template #description>
         We've got a whole rainbow of themes for you to play with:
       </template>
@@ -201,7 +201,7 @@ const buttonStyles = cva({
 
     <!-- Frameworks -->
     <Section>
-      <template #title> Framework Themes </template>
+      <template #title>Framework Themes</template>
       <template #description>
         Are you a real fan? Show your support by using your favorite framework's
         theme!
@@ -245,7 +245,7 @@ const buttonStyles = cva({
 
     <!-- Appearance -->
     <Section>
-      <template #title> Appearance </template>
+      <template #title>Appearance</template>
       <template #description>
         Choose between light, dark, or system-based appearance for your
         workspace.

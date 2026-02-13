@@ -9,6 +9,8 @@ import {
 
 import DeleteSidebarListElement from '@/components/Sidebar/Actions/DeleteSidebarListElement.vue'
 
+import Section from './components/Section.vue'
+
 const {
   documentUrl,
   watchMode,
@@ -53,10 +55,8 @@ const handleDocumentDelete = () => {
 
 <template>
   <div class="flex flex-col gap-12">
-    <div class="flex flex-col gap-2">
-      <div class="flex h-8 items-center">
-        <h3 class="font-bold">Features</h3>
-      </div>
+    <Section>
+      <template #title>Features</template>
       <!-- Watch Mode -->
       <div class="bg-b-2 rounded-lg border text-sm">
         <div
@@ -102,11 +102,11 @@ const handleDocumentDelete = () => {
           </div>
         </div>
       </div>
-    </div>
+    </Section>
 
     <!-- Danger Zone -->
-    <div class="flex flex-col gap-4">
-      <h3 class="font-bold">Danger Zone</h3>
+    <Section>
+      <template #title>Danger Zone</template>
       <div
         class="flex items-center justify-between rounded-lg border p-3 text-sm">
         <div>
@@ -125,7 +125,7 @@ const handleDocumentDelete = () => {
           Delete Collection
         </ScalarButton>
       </div>
-    </div>
+    </Section>
   </div>
   <!-- Delete Modal -->
   <ScalarModal
