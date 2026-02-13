@@ -292,6 +292,9 @@ export function initializeWorkspaceEventHandlers({
   eventBus.on('tag:create:tag', (payload) =>
     withHook('tag:create:tag', mutators.value.active().tag.createTag, hooks)(payload),
   )
+  eventBus.on('tag:edit:tag', (payload) =>
+    withHook('tag:edit:tag', mutators.value.active().tag.editTag, hooks)(payload),
+  )
   eventBus.on('tag:delete:tag', (payload) =>
     withHook('tag:delete:tag', mutators.value.active().tag.deleteTag, hooks)(payload),
   )

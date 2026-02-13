@@ -29,6 +29,63 @@ export const createTag = (store: WorkspaceStore | null, payload: TagEvents['tag:
 }
 
 /**
+ * Edits a tag in the WorkspaceDocument's
+ *
+ * @param document - The target WorkspaceDocument
+ * @param payload - holds the old tag and the new name
+ */
+export const editTag = (store: WorkspaceStore | null, payload: TagEvents['tag:edit:tag']) => {
+  const document = store?.workspace.documents[payload.documentName]
+  if (!document) {
+    console.error('Document not found', { payload, store })
+    return
+  }
+
+  const oldName = payload.tag.name
+  const newName = payload.newName
+
+  if (document.tags?.length) {
+    const plainTags = unpackProxyObject(document.tags, { depth: null })
+    document.tags = plainTags.map((tag) => (tag.name === oldName ? { ...tag, name: newName } : tag))
+  }
+
+  // Update the tag name in all child operations and webhooks
+  payload.tag.children?.forEach((child) => {
+    // Operation
+    if (child.type === 'operation') {
+      const operation = getResolvedRef(document.paths?.[child.path]?.[child.method])
+
+      if (operation && 'tags' in operation) {
+        const plainTags = unpackProxyObject(operation.tags, { depth: null })
+        operation.tags = plainTags?.map((tag) => (tag === oldName ? newName : tag))
+      }
+    }
+
+    // Webhook
+    else if (child.type === 'webhook') {
+      const webhook = getResolvedRef(document.webhooks?.[child.name]?.[child.method])
+
+      if (webhook && 'tags' in webhook) {
+        const plainTags = unpackProxyObject(webhook.tags, { depth: null })
+        webhook.tags = plainTags?.map((tag) => (tag === oldName ? newName : tag))
+      }
+    }
+  })
+
+  // Update x-tagGroups references to the renamed tag
+  if (document['x-tagGroups']) {
+    const plainGroups = unpackProxyObject(document['x-tagGroups'], { depth: null })
+    document['x-tagGroups'] = plainGroups.map((group) => ({
+      ...group,
+      tags: group.tags.map((tag) => (tag === oldName ? newName : tag)),
+    }))
+  }
+
+  // Rebuild the sidebar
+  store?.buildSidebar(payload.documentName)
+}
+
+/**
  * Deletes a tag from the workspace
  *
  * Example:
@@ -56,10 +113,8 @@ export const deleteTag = (workspace: WorkspaceStore | null, payload: TagEvents['
       const resolvedOperation = getResolvedRef(operation)
 
       if ('tags' in resolvedOperation) {
-        resolvedOperation.tags = unpackProxyObject(
-          resolvedOperation.tags?.filter((tag) => tag !== payload.name),
-          { depth: 2 },
-        )
+        const plainTags = unpackProxyObject(resolvedOperation.tags, { depth: null })
+        resolvedOperation.tags = plainTags?.filter((tag) => tag !== payload.name)
       }
     })
   })
@@ -73,23 +128,20 @@ export const deleteTag = (workspace: WorkspaceStore | null, payload: TagEvents['
 
       const resolvedOperation = getResolvedRef(operation)
 
-      resolvedOperation.tags = unpackProxyObject(
-        resolvedOperation.tags?.filter((tag) => tag !== payload.name),
-        { depth: 2 },
-      )
+      const plainTags = unpackProxyObject(resolvedOperation.tags, { depth: null })
+      resolvedOperation.tags = plainTags?.filter((tag) => tag !== payload.name)
     })
   })
 
   // Remove the tag from the document tags array
-  document.tags = unpackProxyObject(
-    document.tags?.filter((tag) => tag.name !== payload.name),
-    { depth: 2 },
-  )
+  const plainDocTags = unpackProxyObject(document.tags, { depth: null })
+  document.tags = plainDocTags?.filter((tag) => tag.name !== payload.name)
 }
 
 export const tagMutatorsFactory = ({ store }: { store: WorkspaceStore | null }) => {
   return {
     createTag: (payload: TagEvents['tag:create:tag']) => createTag(store, payload),
+    editTag: (payload: TagEvents['tag:edit:tag']) => editTag(store, payload),
     deleteTag: (payload: TagEvents['tag:delete:tag']) => deleteTag(store, payload),
   }
 }
