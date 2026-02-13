@@ -4,9 +4,11 @@ import type { AuthStore } from '@scalar/workspace-store/entities/auth'
 import { deepClone } from '@scalar/workspace-store/helpers/deep-clone'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { mergeObjects } from '@scalar/workspace-store/helpers/merge-object'
-import type {
-  ComponentsObject,
-  SecuritySchemeObject,
+import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
+import {
+  type ComponentsObject,
+  type SecuritySchemeObject,
+  SecuritySchemeObjectSchema,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
 import { extractSecuritySchemeSecrets } from './extract-security-scheme-secrets'
@@ -40,7 +42,8 @@ export const mergeSecurity = (
 
   /** Convert the config secrets to the new secret extensions */
   return objectEntries(mergedSchemes).reduce((acc, [name, value]) => {
-    acc[name] = extractSecuritySchemeSecrets(value, authStore, name, documentSlug)
+    const coerced = coerceValue(SecuritySchemeObjectSchema, value)
+    acc[name] = extractSecuritySchemeSecrets(coerced, authStore, name, documentSlug)
     return acc
   }, {} as MergedSecuritySchemes)
 }

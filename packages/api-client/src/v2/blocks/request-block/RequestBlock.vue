@@ -498,11 +498,11 @@ const updateOperationExtension = (
       <!-- Inject request section plugin components -->
       <ScalarErrorBoundary
         v-for="(plugin, index) in plugins"
-        v-show="selectedFilter === 'All'"
         :key="index">
         <component
           :is="plugin.components.request.component"
           v-if="plugin?.components?.request"
+          v-show="selectedFilter === 'All'"
           :operation
           v-bind="plugin.components.request.additionalProps"
           @operation:update:extension="updateOperationExtension" />

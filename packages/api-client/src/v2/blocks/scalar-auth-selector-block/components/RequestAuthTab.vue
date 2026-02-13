@@ -303,7 +303,10 @@ const getFlowTabClasses = (flowKey: string, index: number): string => {
       v-else-if="scheme?.type === 'oauth2' || scheme?.type === 'openIdConnect'">
       <!-- OpenID Connect -->
       <OpenIDConnect
-        v-if="scheme?.type === 'openIdConnect' && !scheme.flows"
+        v-if="
+          scheme?.type === 'openIdConnect' &&
+          !Object.keys(scheme.flows ?? {}).length
+        "
         :environment
         :eventBus
         :getStaticBorderClass
@@ -345,5 +348,13 @@ const getFlowTabClasses = (flowKey: string, index: number): string => {
           @update:selectedScopes="(event) => handleScopesUpdate(name, event)" />
       </template>
     </template>
+
+    <!-- Scheme is missing type -->
+    <div
+      v-else
+      class="text-c-3 flex items-center justify-center border-t p-4 px-4 text-center text-xs text-balance">
+      The security scheme is missing a type, please double check your OpenAPI
+      document or Authentication Configuration
+    </div>
   </template>
 </template>
