@@ -1,4 +1,4 @@
-import { type Theme, getThemeStyles, themePresets } from '@scalar/themes'
+import { type Theme, presets, themePresets } from '@scalar/themes'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { type MaybeRefOrGetter, computed, toValue } from 'vue'
 
@@ -30,6 +30,37 @@ const resolveThemeStyles = (themeSlug: string, customThemes: Theme[]): string | 
   return undefined
 }
 
+/**
+ * useTheme
+ *
+ * Reactive Vue.js hook to resolve and generate a <style> tag string based on the current theme.
+ * Automatically selects the appropriate theme styles in the following priority order:
+ *    1. Workspace theme (from the provided store, e.g. store.workspace['x-scalar-theme'])
+ *    2. Fallback theme (from the fallbackThemeSlug prop)
+ *    3. Default built-in theme (with slug "default")
+ *
+ * The returned `themeStyleTag` can be injected into your page to dynamically apply theming.
+ *
+ * @example
+ * ```ts
+ * // In a Vue component setup() function
+ * import { ref } from 'vue'
+ * import { useTheme } from './use-theme'
+ *
+ * const myThemes = ref([...])
+ * const workspaceStore = ref(...)
+ * const fallbackThemeSlug = ref('dark')
+ *
+ * const { themeStyleTag } = useTheme({
+ *   customThemes: myThemes,
+ *   fallbackThemeSlug,
+ *   store: workspaceStore
+ * })
+ *
+ * // To inject in template:
+ * // <div v-html="themeStyleTag"></div>
+ * ```
+ */
 export const useTheme = ({
   fallbackThemeSlug,
   store,
@@ -39,48 +70,42 @@ export const useTheme = ({
   fallbackThemeSlug: MaybeRefOrGetter<string>
   store: MaybeRefOrGetter<WorkspaceStore | null>
 }) => {
-  /**
-   * Generates the theme style tag for dynamic theme application.
-   * Resolution order:
-   * 1. Workspace theme (from store)
-   * 2. Fallback theme (from props)
-   * 3. Default theme (built-in)
-   */
   const themeStyleTag = computed(() => {
-    const defaultThemeStyles = wrapThemeInStyleTag(getThemeStyles('default'))
+    // Always-defined fallback: built-in "default" theme
+    const defaultThemeStyles = wrapThemeInStyleTag(presets['default'].theme)
 
+    // Evaluate values
     const storeValue = toValue(store)
+    const fallbackThemeSlugValue = toValue(fallbackThemeSlug)
 
-    // No store loaded yet, use default theme
+    // If the store is not loaded, fall back immediately to default styling
     if (storeValue === null) {
       return defaultThemeStyles
     }
 
-    const fallbackThemeSlugValue = toValue(fallbackThemeSlug)
-
-    // Determine which theme to use
+    // Determine which theme to use: prefer workspace theme, unless it's 'none'
     const workspaceTheme = storeValue.workspace['x-scalar-theme']
     const themeSlug = workspaceTheme === 'none' ? fallbackThemeSlugValue : workspaceTheme
 
-    // If no theme is specified, try fallback then default
+    // First: If no theme slug is set, try fallback theme, else default
     if (!themeSlug) {
       const fallbackStyles = resolveThemeStyles(fallbackThemeSlugValue, toValue(customThemes))
       return fallbackStyles ? wrapThemeInStyleTag(fallbackStyles) : defaultThemeStyles
     }
 
-    // Try to resolve the requested theme
+    // Second: Try resolving styles for the workspace or specified theme
     const themeStyles = resolveThemeStyles(themeSlug, toValue(customThemes))
     if (themeStyles) {
       return wrapThemeInStyleTag(themeStyles)
     }
 
-    // Theme not found, try fallback
+    // Third: If theme not found, try resolving fallback theme
     const fallbackStyles = resolveThemeStyles(fallbackThemeSlugValue, toValue(customThemes))
     if (fallbackStyles) {
       return wrapThemeInStyleTag(fallbackStyles)
     }
 
-    // Last resort: use default theme
+    // Last resort: use the built-in default theme
     return defaultThemeStyles
   })
 
