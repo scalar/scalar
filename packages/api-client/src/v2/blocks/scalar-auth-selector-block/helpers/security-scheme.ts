@@ -30,17 +30,9 @@ export type SecuritySchemeGroup = {
  * We also add a hash to the id to ensure it is unique across
  * multiple requirements of the same scheme with different scopes
  */
-export const formatScheme = ({
-  name,
-  type,
-  value,
-}: {
-  name: string
-  type: SecuritySchemeObject['type'] | 'complex'
-  value: SecurityRequirementObject
-}) => ({
+export const formatScheme = ({ name, value }: { name: string; value: SecurityRequirementObject }) => ({
   id: generateHash(JSON.stringify(value)),
-  label: type === 'openIdConnect' ? `${name} (coming soon)` : name,
+  label: name,
   value,
   isDeletable: true,
 })
@@ -48,7 +40,6 @@ export const formatScheme = ({
 /** Formats complex security schemes */
 export const formatComplexScheme = (scheme: NonNullable<OpenApiDocument['security']>[number]) =>
   formatScheme({
-    type: 'complex' as const,
     name: Object.keys(scheme).join(' & '),
     value: scheme,
   })
@@ -74,7 +65,7 @@ const formatSecurityRequirement = (
     if (!scheme) {
       return undefined
     }
-    return formatScheme({ name: keys[0], type: scheme.type, value: requirement })
+    return formatScheme({ name: keys[0], value: requirement })
   }
 
   return undefined
@@ -124,7 +115,7 @@ export const getSecuritySchemeOptions = (
 
     const scheme = getResolvedRef(schemeRef)
     if (scheme) {
-      const formatted = formatScheme({ name, type: scheme.type, value: { [name]: [] } })
+      const formatted = formatScheme({ name, value: { [name]: [] } })
       availableFormatted.push(formatted)
       existingIds.add(formatted.id)
     }

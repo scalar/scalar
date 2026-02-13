@@ -185,6 +185,13 @@ export function initializeWorkspaceEventHandlers({
       hooks,
     )(payload),
   )
+  eventBus.on('auth:clear:security-scheme-secrets', (payload) =>
+    withHook(
+      'auth:clear:security-scheme-secrets',
+      mutators.value.active().auth.clearSecuritySchemeSecrets,
+      hooks,
+    )(payload),
+  )
 
   //------------------------------------------------------------------------------------
   // Server Related Event Handlers

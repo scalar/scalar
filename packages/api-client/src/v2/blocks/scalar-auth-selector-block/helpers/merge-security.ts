@@ -1,12 +1,14 @@
 import { objectEntries } from '@scalar/helpers/object/object-entries'
 import type { AuthenticationConfiguration } from '@scalar/types/api-reference'
 import type { AuthStore } from '@scalar/workspace-store/entities/auth'
+import { deepClone } from '@scalar/workspace-store/helpers/deep-clone'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { mergeObjects } from '@scalar/workspace-store/helpers/merge-object'
-import { unpackProxyObject } from '@scalar/workspace-store/helpers/unpack-proxy'
-import type {
-  ComponentsObject,
-  SecuritySchemeObject,
+import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
+import {
+  type ComponentsObject,
+  type SecuritySchemeObject,
+  SecuritySchemeObjectSchema,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
 import { extractSecuritySchemeSecrets } from './extract-security-scheme-secrets'
@@ -25,8 +27,10 @@ export const mergeSecurity = (
   /** Resolve any refs in the document security schemes */
   const resolvedDocumentSecuritySchemes = objectEntries(documentSecuritySchemes).reduce(
     (acc, [key, value]) => {
-      // Use structuredClone to ensure we don't mutate the original object when we merge
-      acc[key] = structuredClone(unpackProxyObject(getResolvedRef(value)))
+      const resolved = deepClone(getResolvedRef(value))
+      if (resolved) {
+        acc[key] = resolved
+      }
       return acc
     },
     {} as Record<string, SecuritySchemeObject>,
@@ -38,7 +42,12 @@ export const mergeSecurity = (
 
   /** Convert the config secrets to the new secret extensions */
   return objectEntries(mergedSchemes).reduce((acc, [name, value]) => {
-    acc[name] = extractSecuritySchemeSecrets(value, authStore, name, documentSlug)
+    // We coerce in case the scheme is missing any key fields like type
+    const coerced = coerceValue(SecuritySchemeObjectSchema, value)
+    // We then overwrite it back with the original value to keep any other fields like description, etc.
+    const merged = { ...coerced, ...value }
+
+    acc[name] = extractSecuritySchemeSecrets(merged, authStore, name, documentSlug)
     return acc
   }, {} as MergedSecuritySchemes)
 }
