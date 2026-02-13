@@ -36,10 +36,13 @@ const {
   securitySchemes,
   workspaceStore,
   plugins,
+  isModalOpen,
 } = defineProps<
   RouteProps & {
     /** Subset of config options for the modal */
     options?: ModalProps['options']
+    /** Whether the modal client is currently open */
+    isModalOpen?: boolean
   }
 >()
 
@@ -179,6 +182,7 @@ const APP_VERSION = PACKAGE_VERSION
       :hideClientButton="toValue(options)?.hideClientButton ?? false"
       :history="workspaceStore.history.getHistory(documentSlug, path, method)"
       :httpClients
+      :isModalOpen
       :layout
       :method
       :operation

@@ -199,6 +199,7 @@ defineExpose({
         :environment
         :eventBus
         :exampleName="exampleName?.value"
+        :isModalOpen="modalState.open"
         layout="modal"
         :method="method?.value"
         :options
