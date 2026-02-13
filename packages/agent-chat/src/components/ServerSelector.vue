@@ -58,14 +58,14 @@ const updateServerVariable = (key: string, value: string) => {
 
 <template>
   <label
-    class="bg-b-2 flex h-8 items-center rounded-t-lg border border-b-0 px-3 py-2.5 font-medium">
+    class="bg-b-2 flex h-8 items-center rounded-t-xl border border-b-0 px-3 py-2.5 font-medium">
     Server
   </label>
   <div
     :id="id"
     class="border"
     :class="{
-      'rounded-b-lg':
+      'rounded-b-xl':
         !selectedServer?.description && !selectedServer?.variables,
     }">
     <Selector
@@ -83,6 +83,6 @@ const updateServerVariable = (key: string, value: string) => {
   <!-- Description -->
   <ScalarMarkdown
     v-if="selectedServer?.description"
-    class="text-c-3 rounded-b-lg border border-t-0 px-3 py-1.5"
+    class="text-c-3 rounded-b-xl border border-t-0 px-3 py-1.5"
     :value="selectedServer.description" />
 </template>

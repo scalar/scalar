@@ -37,9 +37,9 @@ import { Tab } from '@headlessui/vue'
   position: absolute;
   z-index: 0;
   left: -6px;
-  top: -6px;
+  top: -2px;
   width: calc(100% + 12px);
-  height: calc(100% + 12px);
+  height: calc(100% + 4px);
   border-radius: var(--scalar-radius);
   background: var(--scalar-background-3);
   opacity: 0;
