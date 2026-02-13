@@ -62,7 +62,7 @@ jobs:
 
       - name: Create Pull Request
         if: steps.check-changes.outputs.has-changes == 'true'
-        uses: peter-evans/create-pull-request@271a8d0340265f705b14b6d32b9829c1cb33d45e # v7
+        uses: peter-evans/create-pull-request@c0f553fe549906ede9cf27b5156039d195d2ece0 # v8
         with:
           base: main
           commit-message: 'docs(cli): update commands'
