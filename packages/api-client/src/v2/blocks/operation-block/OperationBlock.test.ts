@@ -180,51 +180,6 @@ describe('OperationBlock', () => {
     expect(mockEventBus.off).toHaveBeenCalledWith('operation:cancel:request', expect.any(Function))
   })
 
-  it('does not execute hotkey request when modal is closed', () => {
-    const mockEventBus = createMockEventBus()
-
-    mount(OperationBlock, {
-      props: {
-        ...createDefaultProps(),
-        eventBus: mockEventBus,
-        layout: 'modal',
-        isModalOpen: false,
-      },
-    })
-
-    const hotkeyHandler = vi
-      .mocked(mockEventBus.on)
-      .mock.calls.find(([eventName]) => eventName === 'operation:send:request:hotkey')?.[1] as (() => void) | undefined
-
-    expect(hotkeyHandler).toBeDefined()
-    hotkeyHandler?.()
-
-    expect(buildRequest).not.toHaveBeenCalled()
-  })
-
-  it('executes hotkey request when modal is open', () => {
-    const mockEventBus = createMockEventBus()
-    vi.mocked(buildRequest).mockReturnValue([new Error('Invalid URL'), null])
-
-    mount(OperationBlock, {
-      props: {
-        ...createDefaultProps(),
-        eventBus: mockEventBus,
-        layout: 'modal',
-        isModalOpen: true,
-      },
-    })
-
-    const hotkeyHandler = vi
-      .mocked(mockEventBus.on)
-      .mock.calls.find(([eventName]) => eventName === 'operation:send:request:hotkey')?.[1] as (() => void) | undefined
-
-    expect(hotkeyHandler).toBeDefined()
-    hotkeyHandler?.()
-
-    expect(buildRequest).toHaveBeenCalledOnce()
-  })
-
   it('executes request when handleExecute is called', async () => {
     const mockController = new AbortController()
     const mockRequest = new Request('https://api.example.com/api/users')

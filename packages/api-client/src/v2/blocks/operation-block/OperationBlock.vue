@@ -71,10 +71,8 @@ const {
   exampleKey,
   globalCookies = [],
   hideClientButton,
-  isModalOpen = false,
   httpClients = AVAILABLE_CLIENTS,
   history = [],
-  layout,
   method,
   operation,
   operationSelectedSecurity,
@@ -108,8 +106,6 @@ const {
   history?: HistoryEntry[]
   /** Client layout */
   layout: ClientLayout
-  /** Whether the modal client is currently open (modal layout only) */
-  isModalOpen?: boolean
   /** Currently selected server */
   server: ServerObject | null
   /** Currently selected client */
@@ -259,21 +255,12 @@ const handleExecute = async () => {
   request.value = sendResult.request
 }
 
-/** Guard hotkey execution so closed modal instances do not react to global hotkeys. */
-const handleHotkeyExecute = () => {
-  if (layout === 'modal' && !isModalOpen) {
-    return
-  }
-
-  handleExecute()
-}
-
 onMounted(() => {
-  eventBus.on('operation:send:request:hotkey', handleHotkeyExecute)
+  eventBus.on('operation:send:request:hotkey', handleExecute)
   eventBus.on('operation:cancel:request', cancelRequest)
 })
 onBeforeUnmount(() => {
-  eventBus.off('operation:send:request:hotkey', handleHotkeyExecute)
+  eventBus.off('operation:send:request:hotkey', handleExecute)
   eventBus.off('operation:cancel:request', cancelRequest)
 })
 

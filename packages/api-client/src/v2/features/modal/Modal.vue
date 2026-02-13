@@ -98,7 +98,7 @@ initializeModalEvents({
 })
 
 /** Register global hotkeys for the app, passing the workspace event bus and layout state */
-useGlobalHotKeys(eventBus, 'modal')
+useGlobalHotKeys(eventBus, 'modal', () => !modalState.open)
 
 /** Clean up on close */
 const cleanUp = () => {
@@ -199,7 +199,6 @@ defineExpose({
         :environment
         :eventBus
         :exampleName="exampleName?.value"
-        :isModalOpen="modalState.open"
         layout="modal"
         :method="method?.value"
         :options
