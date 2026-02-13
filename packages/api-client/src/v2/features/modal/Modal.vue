@@ -174,15 +174,15 @@ defineExpose({
     <!-- If we have a document, path and method, render the operation -->
     <main
       v-if="document.value && path?.value && method?.value"
-      class="relative flex flex-1">
+      class="relative flex h-full min-h-0 w-full flex-1">
       <SidebarToggle
         v-model="isSidebarOpen"
-        class="absolute top-2 left-3 z-[10001]" />
+        class="absolute top-2 left-3 z-2" />
       <Sidebar
         v-show="isSidebarOpen"
         v-model:sidebarWidth="sidebarWidth"
         :activeWorkspace="activeWorkspace"
-        class="z-[10000] h-full max-md:absolute! max-md:w-full!"
+        class="h-full max-md:absolute! max-md:w-full!"
         :documents="[document.value]"
         :eventBus
         :isDroppable="() => false"
