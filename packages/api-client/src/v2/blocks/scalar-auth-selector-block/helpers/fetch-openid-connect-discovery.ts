@@ -10,7 +10,7 @@ import type { ErrorResponse } from '@/libs/errors'
  *
  * @see https://openid.net/specs/openid-connect-discovery-1_0.html
  */
-export const OpenIDConnectDiscoverySchema = Type.Object({
+const OpenIDConnectDiscoverySchema = Type.Object({
   /** URL of the OAuth 2.0 Authorization Endpoint */
   authorization_endpoint: Type.Optional(Type.String()),
   /** URL of the OAuth 2.0 Token Endpoint */

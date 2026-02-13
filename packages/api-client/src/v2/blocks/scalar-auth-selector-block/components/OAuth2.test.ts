@@ -197,6 +197,30 @@ describe('OAuth2', () => {
     })
   })
 
+  it('does not overwrite an existing x-scalar-secret-redirect-uri on mount', async () => {
+    const emitted = vi.fn()
+    eventBus.on('auth:update:security-scheme-secrets', emitted)
+
+    mountWithProps({
+      flows: {
+        authorizationCode: {
+          authorizationUrl: 'https://example.com/auth',
+          tokenUrl: 'https://example.com/token',
+          'x-scalar-secret-token': '',
+          'x-usePkce': 'no',
+          'x-scalar-secret-redirect-uri': 'https://myapp.com/callback',
+          scopes: {},
+          'x-scalar-secret-client-id': '',
+          'x-scalar-secret-client-secret': '',
+        },
+      },
+    })
+
+    await nextTick()
+
+    expect(emitted).not.toHaveBeenCalled()
+  })
+
   it('emits clear security scheme secrets for openIdConnect flow', async () => {
     const wrapper = mountWithProps({
       scheme: { type: 'openIdConnect' },

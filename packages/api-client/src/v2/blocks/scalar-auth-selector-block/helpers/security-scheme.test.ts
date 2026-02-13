@@ -13,7 +13,6 @@ describe('security-scheme', () => {
     it('should format a basic API key scheme', () => {
       const result = formatScheme({
         name: 'apiKey',
-        type: 'apiKey',
         value: { apiKey: [] },
       })
 
@@ -28,7 +27,6 @@ describe('security-scheme', () => {
     it('should format an OpenID Connect scheme label', () => {
       const result = formatScheme({
         name: 'openIdConnect',
-        type: 'openIdConnect',
         value: { openIdConnect: [] },
       })
 
@@ -43,7 +41,6 @@ describe('security-scheme', () => {
     it('should format a complex scheme type', () => {
       const result = formatScheme({
         name: 'complexAuth',
-        type: 'complex',
         value: { complexAuth: [] },
       })
 
@@ -58,7 +55,6 @@ describe('security-scheme', () => {
     it('should format HTTP basic scheme', () => {
       const result = formatScheme({
         name: 'httpBasic',
-        type: 'http',
         value: { httpBasic: [] },
       })
 
@@ -73,7 +69,6 @@ describe('security-scheme', () => {
     it('should format OAuth2 scheme', () => {
       const result = formatScheme({
         name: 'oauth2',
-        type: 'oauth2',
         value: { oauth2: [] },
       })
 

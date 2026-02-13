@@ -132,9 +132,10 @@ watch(
     (flow.value as OAuthFlowAuthorizationCodeSecret)[
       'x-scalar-secret-redirect-uri'
     ],
-  () => {
+  (newRedirectUri) => {
     if (
       hasPrefilledRedirectUri.value ||
+      newRedirectUri ||
       typeof window === 'undefined' ||
       !('x-scalar-secret-redirect-uri' in flow.value)
     ) {

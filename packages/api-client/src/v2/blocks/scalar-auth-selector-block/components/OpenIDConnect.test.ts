@@ -32,6 +32,7 @@ describe('OpenIDConnect', () => {
     color: '#FFFFFF',
     value: '',
     isDefault: true,
+    variables: [],
   }
 
   const mountWithProps = (

@@ -363,8 +363,8 @@ describe('mergeSecurity', () => {
       type: 'http',
       scheme: 'basic',
       description: 'Basic authentication',
-      username: 'test-user',
-      password: 'test-password',
+      'x-scalar-secret-username': 'test-user',
+      'x-scalar-secret-password': 'test-password',
     })
 
     expect(result.bearerAuth).toMatchObject({
@@ -372,7 +372,7 @@ describe('mergeSecurity', () => {
       scheme: 'bearer',
       bearerFormat: 'JWT',
       description: 'Bearer token authentication',
-      token: 'bearer-jwt-token',
+      'x-scalar-secret-token': 'bearer-jwt-token',
     })
 
     expect(result.oauth2AllFlows).toMatchObject({
@@ -662,16 +662,30 @@ describe('mergeSecurity', () => {
       bearerAuth: {
         type: 'http',
         scheme: 'bearer',
+      },
+    })
+    const config = reactive<NonNullable<AuthenticationConfiguration['securitySchemes']>>({
+      bearerAuth: {
         token: 'first-token',
       },
     })
 
-    const merged = computed(() => mergeSecurity(securitySchemes, {}, authStore, documentSlug))
+    const merged = computed(() => mergeSecurity(securitySchemes, config, authStore, documentSlug))
 
-    expect(merged.value.bearerAuth?.['x-scalar-secret-token']).toBe('first-token')
+    const firstBearerAuth = merged.value.bearerAuth
+    expect(firstBearerAuth?.type).toBe('http')
+    if (firstBearerAuth?.type === 'http') {
+      expect(firstBearerAuth['x-scalar-secret-token']).toBe('first-token')
+    }
 
-    securitySchemes.bearerAuth.token = 'updated-token'
+    config.bearerAuth = {
+      token: 'updated-token',
+    }
 
-    expect(merged.value.bearerAuth?.['x-scalar-secret-token']).toBe('updated-token')
+    const updatedBearerAuth = merged.value.bearerAuth
+    expect(updatedBearerAuth?.type).toBe('http')
+    if (updatedBearerAuth?.type === 'http') {
+      expect(updatedBearerAuth['x-scalar-secret-token']).toBe('updated-token')
+    }
   })
 })

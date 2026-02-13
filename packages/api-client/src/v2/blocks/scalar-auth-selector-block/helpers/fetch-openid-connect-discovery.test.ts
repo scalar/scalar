@@ -7,7 +7,7 @@ const mockRedirectToProxy = vi.fn((proxyUrl: string, targetUrl: string) =>
 )
 
 vi.mock('@scalar/helpers/url/redirect-to-proxy', () => ({
-  redirectToProxy: (...args: unknown[]) => mockRedirectToProxy(...args),
+  redirectToProxy: (proxyUrl: string, targetUrl: string) => mockRedirectToProxy(proxyUrl, targetUrl),
 }))
 
 describe('fetch-openid-connect-discovery', () => {
