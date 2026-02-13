@@ -9,7 +9,6 @@ import {
   type WorkspaceGroup,
 } from '@scalar/components'
 import { ScalarIconGear } from '@scalar/icons'
-import { RouterLink } from 'vue-router'
 
 const { activeWorkspace, workspaces } = defineProps<{
   /**
@@ -29,6 +28,8 @@ const emit = defineEmits<{
   (e: 'create:workspace'): void
   /** Emitted when the user selects a workspace */
   (e: 'select:workspace', id?: string): void
+  /** Emitted when the user wants to open the settings */
+  (e: 'navigate:to:settings'): void
 }>()
 
 defineSlots<{
@@ -51,10 +52,14 @@ defineSlots<{
             @createWorkspace="emit('create:workspace')"
             @update:modelValue="(value) => emit('select:workspace', value)" />
           <ScalarMenuLink
-            :is="RouterLink"
+            is="button"
             :icon="ScalarIconGear"
-            to="/settings"
-            @click="close">
+            @click="
+              () => {
+                close()
+                emit('navigate:to:settings')
+              }
+            ">
             Settings
           </ScalarMenuLink>
         </slot>

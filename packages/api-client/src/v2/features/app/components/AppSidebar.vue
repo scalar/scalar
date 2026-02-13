@@ -268,6 +268,9 @@ const handleAddEmptyFolder = (item: TraversedEntry) => {
       :sidebarState="sidebarState"
       :workspaces="workspaces"
       @create:workspace="emit('create:workspace')"
+      @navigate:to:settings="
+        eventBus.emit('ui:navigate', { page: 'workspace', path: 'settings' })
+      "
       @reorder="
         (draggingItem, hoveredItem) => handleDragEnd(draggingItem, hoveredItem)
       "
