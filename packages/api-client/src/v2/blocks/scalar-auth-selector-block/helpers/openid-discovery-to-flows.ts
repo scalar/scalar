@@ -1,13 +1,11 @@
+import { OpenIDConnectSchema, type SecretsOpenIdConnect } from '@scalar/workspace-store/entities/auth'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
-import {
-  type OAuthFlowsObject,
-  OAuthFlowsObjectSchema,
-} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { OAuthFlowsObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
 import type { OpenIDConnectDiscovery } from './fetch-openid-connect-discovery'
 
 /** Takes in an open ID Connect discovery response and converts it into an oauth flow to be used for authorization */
-export const openIDDiscoveryToFlows = (discovery: OpenIDConnectDiscovery): OAuthFlowsObject => {
+export const openIDDiscoveryToFlows = (discovery: OpenIDConnectDiscovery): SecretsOpenIdConnect => {
   const scopes = Object.fromEntries((discovery.scopes_supported ?? []).map((scope) => [scope, '']))
   const grantTypes = new Set(discovery.grant_types_supported ?? ['authorization_code', 'implicit'])
   const authorizationUrl = discovery.authorization_endpoint
@@ -59,5 +57,5 @@ export const openIDDiscoveryToFlows = (discovery: OpenIDConnectDiscovery): OAuth
     }
   }
 
-  return coerceValue(OAuthFlowsObjectSchema, flows)
+  return coerceValue(OpenIDConnectSchema, flows)
 }

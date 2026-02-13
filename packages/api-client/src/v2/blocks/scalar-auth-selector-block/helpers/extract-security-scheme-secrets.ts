@@ -1,6 +1,7 @@
+import { isObject } from '@scalar/helpers/object/is-object'
 import { objectEntries } from '@scalar/helpers/object/object-entries'
 import type { SecurityScheme } from '@scalar/types/entities'
-import type { AuthStore } from '@scalar/workspace-store/entities/auth'
+import type { AuthStore, SecretsOAuthFlows, SecretsOpenIdConnect } from '@scalar/workspace-store/entities/auth'
 import type { DeepPartial } from '@scalar/workspace-store/helpers/overrides-proxy'
 import type {
   OAuthFlowAuthorizationCode,
@@ -39,25 +40,111 @@ const SECRET_TO_INPUT_FIELD_MAP = {
   'x-scalar-secret-username': 'username',
 } as const
 
-/**
- * Safely merge secret values with priority: auth store > config > empty string.
- * Returns an object with exactly the specified properties as keys.
- */
 const mergeFlowSecrets = <const T extends readonly (keyof typeof SECRET_TO_INPUT_FIELD_MAP)[]>(
   properties: T,
   configSecrets: Record<string, unknown>,
-  authStoreSecrets: Record<string, string> = {},
-): Record<T[number], string> => {
-  const result = {} as Record<T[number], string>
+  authStoreSecrets: Record<string, unknown> = {},
+): Record<T[number], string> =>
+  Object.fromEntries(
+    properties.map((property) => {
+      // Super merge in order of priority: auth store > config > config input field > empty string
+      const value =
+        authStoreSecrets[property] ||
+        configSecrets[property] ||
+        configSecrets[SECRET_TO_INPUT_FIELD_MAP[property]] ||
+        ''
 
-  for (const property of properties) {
-    const authStorevalue = authStoreSecrets[property]
-    const configSecretValue = configSecrets[SECRET_TO_INPUT_FIELD_MAP[property]] as string | undefined
+      return [property, value]
+    }),
+  ) as Record<T[number], string>
 
-    result[property as T[number]] = authStorevalue || configSecretValue || ''
-  }
+/**
+ * Extract flow secrets and selected scopes for OAuth-like flows.
+ * Reused by both oauth2 and openIdConnect security schemes.
+ */
+const extractOAuthFlowSecrets = (
+  flows: Record<string, unknown> | undefined,
+  storeSecrets?: Partial<SecretsOAuthFlows> | Partial<SecretsOpenIdConnect>,
+): {
+  flows: OAuthFlowsObjectSecret
+  selectedScopes: string[]
+} => {
+  const selectedScopes = new Set<string>()
 
-  return result
+  const extractedFlows = objectEntries(flows ?? {}).reduce((acc, [key, flow]) => {
+    if (!isObject(flow)) {
+      return acc
+    }
+
+    // Store any selected scopes from the config
+    const flowSelectedScopes = flow['selectedScopes']
+    if (Array.isArray(flowSelectedScopes)) {
+      flowSelectedScopes.forEach((scope) => typeof scope === 'string' && selectedScopes.add(scope))
+    }
+
+    // Implicit flow
+    if (key === 'implicit') {
+      acc.implicit = {
+        ...(flow as OAuthFlowImplicit),
+        ...mergeFlowSecrets(
+          ['x-scalar-secret-client-id', 'x-scalar-secret-redirect-uri', 'x-scalar-secret-token'],
+          flow,
+          storeSecrets?.implicit,
+        ),
+      } satisfies OAuthFlowImplicitSecret
+    }
+
+    // Password flow
+    if (key === 'password') {
+      acc[key] = {
+        ...(flow as OAuthFlowPassword),
+        ...mergeFlowSecrets(
+          [
+            'x-scalar-secret-client-id',
+            'x-scalar-secret-client-secret',
+            'x-scalar-secret-username',
+            'x-scalar-secret-password',
+            'x-scalar-secret-token',
+          ],
+          flow,
+          storeSecrets?.password,
+        ),
+      } satisfies OAuthFlowPasswordSecret
+    }
+
+    // Client credentials flow
+    if (key === 'clientCredentials') {
+      acc[key] = {
+        ...(flow as OAuthFlowClientCredentials),
+        ...mergeFlowSecrets(
+          ['x-scalar-secret-client-id', 'x-scalar-secret-client-secret', 'x-scalar-secret-token'],
+          flow,
+          storeSecrets?.clientCredentials,
+        ),
+      } satisfies OAuthFlowClientCredentialsSecret
+    }
+
+    // Authorization code flow
+    if (key === 'authorizationCode') {
+      acc[key] = {
+        ...(flow as OAuthFlowAuthorizationCode),
+        ...mergeFlowSecrets(
+          [
+            'x-scalar-secret-client-id',
+            'x-scalar-secret-client-secret',
+            'x-scalar-secret-redirect-uri',
+            'x-scalar-secret-token',
+          ],
+          flow,
+          storeSecrets?.authorizationCode,
+        ),
+      } satisfies OAuthFlowAuthorizationCodeSecret
+    }
+
+    return acc
+  }, {} as OAuthFlowsObjectSecret)
+
+  return { flows: extractedFlows, selectedScopes: Array.from(selectedScopes) }
 }
 
 /** Extract the secrets from the config and the auth store */
@@ -93,89 +180,32 @@ export const extractSecuritySchemeSecrets = (
   // Handle OAuth2 security schemes and all supported flows
   if (scheme.type === 'oauth2') {
     const storeSecrets = secrets?.type === 'oauth2' ? secrets : undefined
-
-    /** Collect any selected scopes from the flow configs */
-    const selectedScopes = new Set<string>()
+    const extracted = extractOAuthFlowSecrets(scheme.flows, storeSecrets)
 
     return {
       ...scheme,
-      flows: objectEntries(scheme?.flows ?? {}).reduce((acc, [key, flow]) => {
-        if (!flow) {
-          return acc
-        }
-
-        // Store any selected scopes from the config
-        if ('selectedScopes' in flow && Array.isArray(flow.selectedScopes)) {
-          flow.selectedScopes?.forEach((scope) => scope && selectedScopes.add(scope))
-        }
-
-        // Implicit flow
-        if (key === 'implicit') {
-          acc.implicit = {
-            ...(flow as OAuthFlowImplicit),
-            ...mergeFlowSecrets(
-              ['x-scalar-secret-client-id', 'x-scalar-secret-redirect-uri', 'x-scalar-secret-token'],
-              flow,
-              storeSecrets?.implicit,
-            ),
-          } satisfies OAuthFlowImplicitSecret
-        }
-
-        // Password flow
-        if (key === 'password') {
-          acc[key] = {
-            ...(flow as OAuthFlowPassword),
-            ...mergeFlowSecrets(
-              [
-                'x-scalar-secret-client-id',
-                'x-scalar-secret-client-secret',
-                'x-scalar-secret-username',
-                'x-scalar-secret-password',
-                'x-scalar-secret-token',
-              ],
-              flow,
-              storeSecrets?.password,
-            ),
-          } satisfies OAuthFlowPasswordSecret
-        }
-
-        // Client credentials flow
-        if (key === 'clientCredentials') {
-          acc[key] = {
-            ...(flow as OAuthFlowClientCredentials),
-            ...mergeFlowSecrets(
-              ['x-scalar-secret-client-id', 'x-scalar-secret-client-secret', 'x-scalar-secret-token'],
-              flow,
-              storeSecrets?.clientCredentials,
-            ),
-          } satisfies OAuthFlowClientCredentialsSecret
-        }
-
-        // Authorization code flow
-        if (key === 'authorizationCode') {
-          acc[key] = {
-            ...(flow as OAuthFlowAuthorizationCode),
-            ...mergeFlowSecrets(
-              [
-                'x-scalar-secret-client-id',
-                'x-scalar-secret-client-secret',
-                'x-scalar-secret-redirect-uri',
-                'x-scalar-secret-token',
-              ],
-              flow,
-              storeSecrets?.authorizationCode,
-            ),
-          } satisfies OAuthFlowAuthorizationCodeSecret
-        }
-
-        return acc
-      }, {} as OAuthFlowsObjectSecret),
-      'x-default-scopes': Array.from(selectedScopes),
+      flows: extracted.flows,
+      'x-default-scopes': extracted.selectedScopes,
     } satisfies OAuth2ObjectSecret
   }
 
+  // OpenID Connect uses auth-store-only discovered flows, but we expose them in OAuth-like flow format.
   if (scheme.type === 'openIdConnect') {
-    return scheme as OpenIdConnectObjectSecret
+    const storeSecrets = secrets?.type === 'openIdConnect' ? secrets : undefined
+    const extracted = extractOAuthFlowSecrets(
+      {
+        implicit: storeSecrets?.implicit,
+        password: storeSecrets?.password,
+        clientCredentials: storeSecrets?.clientCredentials,
+        authorizationCode: storeSecrets?.authorizationCode,
+      },
+      storeSecrets,
+    )
+
+    return {
+      ...scheme,
+      ...(objectEntries(extracted.flows).length ? { flows: extracted.flows } : {}),
+    } as OpenIdConnectObjectSecret
   }
 
   return scheme as SecuritySchemeObjectSecret

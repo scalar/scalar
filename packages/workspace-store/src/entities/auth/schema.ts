@@ -9,6 +9,12 @@ import {
   XScalarSecretRedirectUriSchema,
   XScalarSecretTokenSchema,
 } from '@/schemas/extensions/security/x-scalar-security-secrets'
+import {
+  OAuthFlowAuthorizationCodeSchema,
+  OAuthFlowClientCredentialsSchema,
+  OAuthFlowImplicitSchema,
+  OAuthFlowPasswordSchema,
+} from '@/schemas/v3.1/strict/oauth-flow'
 import { SecurityRequirementObjectSchema } from '@/schemas/v3.1/strict/openapi-document'
 
 const SecretsApiKeySchema = compose(
@@ -66,7 +72,48 @@ const OAuthSchema = compose(
 
 export type SecretsOAuth = Static<typeof OAuthSchema>
 
-export const SecretsAuthUnionSchema = Type.Union([SecretsApiKeySchema, SecretsHttpSchema, OAuthSchema])
+/** OpenID Connect schema contain the base flows as well since it doesn't exist in the spec */
+export const OpenIDConnectSchema = Type.Object({
+  type: Type.Literal('openIdConnect'),
+  implicit: Type.Optional(
+    compose(OAuthFlowImplicitSchema, SecretsOAuthFlowCommonSchema, XScalarSecretRedirectUriSchema),
+  ),
+  password: Type.Optional(
+    compose(
+      OAuthFlowPasswordSchema,
+      SecretsOAuthFlowCommonSchema,
+      XScalarSecretHTTPSchema,
+      XScalarSecretClientSecretSchema,
+      XScalarCredentialsLocationSchema,
+    ),
+  ),
+  clientCredentials: Type.Optional(
+    compose(
+      OAuthFlowClientCredentialsSchema,
+      SecretsOAuthFlowCommonSchema,
+      XScalarSecretClientSecretSchema,
+      XScalarCredentialsLocationSchema,
+    ),
+  ),
+  authorizationCode: Type.Optional(
+    compose(
+      OAuthFlowAuthorizationCodeSchema,
+      SecretsOAuthFlowCommonSchema,
+      XScalarSecretClientSecretSchema,
+      XScalarSecretRedirectUriSchema,
+      XScalarCredentialsLocationSchema,
+    ),
+  ),
+})
+
+export type SecretsOpenIdConnect = Static<typeof OpenIDConnectSchema>
+
+export const SecretsAuthUnionSchema = Type.Union([
+  SecretsApiKeySchema,
+  SecretsHttpSchema,
+  OAuthSchema,
+  OpenIDConnectSchema,
+])
 export type SecretsAuthUnion = Static<typeof SecretsAuthUnionSchema>
 
 export const SecretsAuthSchema = Type.Record(Type.String(), SecretsAuthUnionSchema)

@@ -3,48 +3,32 @@ import { ScalarButton, useLoadingState } from '@scalar/components'
 import { useToasts } from '@scalar/use-toasts'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
-import type {
-  OpenIdConnectObject,
-  ServerObject,
-} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import { ref } from 'vue'
+import { type OpenIdConnectObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
 import { DataTableRow } from '@/components/DataTable'
 import { fetchOpenIDConnectDiscovery } from '@/v2/blocks/scalar-auth-selector-block/helpers/fetch-openid-connect-discovery'
-import type { OAuthFlowsObjectSecret } from '@/v2/blocks/scalar-auth-selector-block/helpers/secret-types'
+import { openIDDiscoveryToFlows } from '@/v2/blocks/scalar-auth-selector-block/helpers/openid-discovery-to-flows'
 
-import OAuth2 from './OAuth2.vue'
 import RequestAuthDataTableInput from './RequestAuthDataTableInput.vue'
 
-const {
-  environment,
-  eventBus,
-  getStaticBorderClass,
-  name,
-  scheme,
-  server,
-  proxyUrl,
-} = defineProps<{
-  /** Current environment configuration */
-  environment: XScalarEnvironment
-  /** Event bus for authentication updates */
-  eventBus: WorkspaceEventBus
-  /** Get the static border class */
-  getStaticBorderClass: () => string | false
-  /** Name of the security scheme */
-  name: string
-  /** Current server configuration */
-  server: ServerObject | null
-  /** Proxy URL */
-  proxyUrl: string
-  /** OpenID Connect scheme */
-  scheme: OpenIdConnectObject
-}>()
+const { environment, eventBus, getStaticBorderClass, name, scheme, proxyUrl } =
+  defineProps<{
+    /** Current environment configuration */
+    environment: XScalarEnvironment
+    /** Event bus for authentication updates */
+    eventBus: WorkspaceEventBus
+    /** Get the static border class */
+    getStaticBorderClass: () => string | false
+    /** Name of the security scheme */
+    name: string
+    /** Proxy URL */
+    proxyUrl: string
+    /** OpenID Connect scheme */
+    scheme: OpenIdConnectObject
+  }>()
 
 const loader = useLoadingState()
 const { toast } = useToasts()
-const flows = ref<OAuthFlowsObjectSecret | null>(null)
-const scopes = ref<string[]>([])
 
 /**
  * Fetches the OpenID Connect discovery document and triggers authorization
@@ -59,6 +43,7 @@ const handleOpenIdConnect = async (): Promise<void> => {
     scheme.openIdConnectUrl,
     proxyUrl,
   )
+  await loader.clear()
 
   // Toast for error
   if (error) {
@@ -70,7 +55,12 @@ const handleOpenIdConnect = async (): Promise<void> => {
     return
   }
 
-  await loader.clear()
+  /** Set the newly discovered params in the secret store */
+  const openIdConnect = openIDDiscoveryToFlows(_discovery)
+  eventBus.emit('auth:update:security-scheme-secrets', {
+    payload: openIdConnect,
+    name,
+  })
 }
 
 const handleUpdateOpenIdConnectUrl = (value: string): void =>
@@ -113,21 +103,4 @@ const handleUpdateOpenIdConnectUrl = (value: string): void =>
       </ScalarButton>
     </div>
   </DataTableRow>
-
-  <!-- OAuth2 flow configuration -->
-  <template
-    v-for="(_flow, key) in flows"
-    :key="key">
-    <OAuth2
-      v-if="flows"
-      :environment
-      :eventBus
-      :flows
-      :name
-      :proxyUrl
-      :selectedScopes="scopes"
-      :server="server"
-      :type="key"
-      @update:selectedScopes="(event) => console.log(name, event)" />
-  </template>
 </template>

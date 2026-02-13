@@ -96,6 +96,7 @@ const generateLabel = (
     case 'apiKey':
       return `${capitalizedName}${description || `: ${scheme.in}`}`
 
+    case 'openIdConnect':
     case 'oauth2': {
       const firstFlow = Object.keys(scheme.flows ?? {})[0]
       const currentFlow = activeFlow.value || firstFlow
@@ -106,7 +107,7 @@ const generateLabel = (
       return `${capitalizedName}: ${scheme.scheme}${description}`
 
     default:
-      return `${capitalizedName}${description || `: ${scheme.type}`}`
+      return `${capitalizedName}${description}`
   }
 }
 
@@ -277,10 +278,21 @@ const getFlowTabClasses = (flowKey: string, index: number): string => {
       </DataTableRow>
     </template>
 
-    <!-- OAuth 2.0 Authentication -->
-    <template v-else-if="scheme?.type === 'oauth2'">
+    <!-- OAuth 2.0  / OpenID Connect Authentication -->
+    <template
+      v-else-if="scheme?.type === 'oauth2' || scheme?.type === 'openIdConnect'">
+      <!-- OpenID Connect -->
+      <OpenIDConnect
+        v-if="scheme?.type === 'openIdConnect' && !scheme.flows"
+        :environment
+        :eventBus
+        :getStaticBorderClass
+        :name
+        :proxyUrl
+        :scheme />
+
       <!-- Flow selector tabs: shown when multiple flows are available -->
-      <DataTableRow v-if="Object.keys(scheme.flows).length > 1">
+      <DataTableRow v-if="Object.keys(scheme.flows ?? {}).length > 1">
         <div class="flex min-h-8 border-t text-base">
           <div class="flex h-8 max-w-full gap-2.5 overflow-x-auto px-3">
             <button
@@ -300,29 +312,18 @@ const getFlowTabClasses = (flowKey: string, index: number): string => {
         v-for="(_flow, key, ind) in scheme.flows"
         :key="key">
         <OAuth2
-          v-if="isFlowActive(key, ind)"
+          v-if="scheme.flows && isFlowActive(key, ind)"
           :environment
           :eventBus
           :flows="scheme.flows"
           :name="name"
           :proxyUrl
+          :scheme
           :selectedScopes="scopes"
           :server="server"
           :type="key"
           @update:selectedScopes="(event) => handleScopesUpdate(name, event)" />
       </template>
     </template>
-
-    <!-- OpenID Connect -->
-    <OpenIDConnect
-      v-else-if="scheme?.type === 'openIdConnect'"
-      :environment
-      :eventBus
-      :getStaticBorderClass
-      :isFlowActive
-      :name
-      :proxyUrl
-      :scheme
-      :server />
   </template>
 </template>

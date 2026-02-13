@@ -1220,6 +1220,124 @@ describe('extractSecuritySchemeSecrets', () => {
       } satisfies OpenIdConnectObjectSecret)
     })
 
+    it('returns openIdConnect scheme with discovered flows from auth store', () => {
+      const authStore = createAuthStore()
+      authStore.setAuthSecrets(documentSlug, schemeName, {
+        type: 'openIdConnect',
+        implicit: {
+          authorizationUrl: 'https://example.com/oauth/authorize',
+          scopes: { openid: 'OpenID', profile: 'Profile' },
+          refreshUrl: '',
+          'x-scalar-secret-client-id': 'client-123',
+          'x-scalar-secret-redirect-uri': 'https://app.example.com/callback',
+          'x-scalar-secret-token': 'token-123',
+        },
+      })
+
+      const scheme: ConfigAuthScheme = {
+        type: 'openIdConnect',
+        openIdConnectUrl: 'https://example.com/.well-known/openid-configuration',
+      }
+
+      const result = extractSecuritySchemeSecrets(scheme, authStore, schemeName, documentSlug)
+
+      expect(result).toEqual({
+        type: 'openIdConnect',
+        openIdConnectUrl: 'https://example.com/.well-known/openid-configuration',
+        flows: {
+          implicit: {
+            authorizationUrl: 'https://example.com/oauth/authorize',
+            scopes: { openid: 'OpenID', profile: 'Profile' },
+            refreshUrl: '',
+            'x-scalar-secret-client-id': 'client-123',
+            'x-scalar-secret-redirect-uri': 'https://app.example.com/callback',
+            'x-scalar-secret-token': 'token-123',
+          },
+        },
+      } satisfies OpenIdConnectObjectSecret)
+    })
+
+    it('returns openIdConnect scheme with multiple discovered flows from auth store', () => {
+      const authStore = createAuthStore()
+      authStore.setAuthSecrets(documentSlug, schemeName, {
+        type: 'openIdConnect',
+        implicit: {
+          authorizationUrl: 'https://example.com/oauth/authorize',
+          scopes: { openid: 'OpenID', profile: 'Profile' },
+          refreshUrl: '',
+          'x-scalar-secret-client-id': 'implicit-client-id',
+          'x-scalar-secret-redirect-uri': 'https://app.example.com/implicit/callback',
+          'x-scalar-secret-token': 'implicit-token',
+        },
+        authorizationCode: {
+          authorizationUrl: 'https://example.com/oauth/authorize',
+          tokenUrl: 'https://example.com/oauth/token',
+          scopes: { email: 'Email' },
+          refreshUrl: '',
+          'x-usePkce': 'SHA-256',
+          'x-scalar-secret-client-id': 'auth-code-client-id',
+          'x-scalar-secret-client-secret': 'auth-code-client-secret',
+          'x-scalar-secret-redirect-uri': 'https://app.example.com/auth-code/callback',
+          'x-scalar-secret-token': 'auth-code-token',
+        },
+      })
+
+      const scheme: ConfigAuthScheme = {
+        type: 'openIdConnect',
+        openIdConnectUrl: 'https://example.com/.well-known/openid-configuration',
+      }
+
+      const result = extractSecuritySchemeSecrets(scheme, authStore, schemeName, documentSlug)
+
+      expect((result as OpenIdConnectObjectSecret).flows).toEqual({
+        implicit: {
+          authorizationUrl: 'https://example.com/oauth/authorize',
+          scopes: { openid: 'OpenID', profile: 'Profile' },
+          refreshUrl: '',
+          'x-scalar-secret-client-id': 'implicit-client-id',
+          'x-scalar-secret-redirect-uri': 'https://app.example.com/implicit/callback',
+          'x-scalar-secret-token': 'implicit-token',
+        },
+        authorizationCode: {
+          authorizationUrl: 'https://example.com/oauth/authorize',
+          tokenUrl: 'https://example.com/oauth/token',
+          scopes: { email: 'Email' },
+          refreshUrl: '',
+          'x-usePkce': 'SHA-256',
+          'x-scalar-secret-client-id': 'auth-code-client-id',
+          'x-scalar-secret-client-secret': 'auth-code-client-secret',
+          'x-scalar-secret-redirect-uri': 'https://app.example.com/auth-code/callback',
+          'x-scalar-secret-token': 'auth-code-token',
+        },
+      })
+    })
+
+    it('does not include x-default-scopes on openIdConnect schemes', () => {
+      const authStore = createAuthStore()
+      authStore.setAuthSecrets(documentSlug, schemeName, {
+        type: 'openIdConnect',
+        implicit: {
+          authorizationUrl: 'https://example.com/oauth/authorize',
+          scopes: { openid: 'OpenID' },
+          refreshUrl: '',
+          // @ts-expect-error - invalid type
+          selectedScopes: ['openid'],
+          'x-scalar-secret-client-id': 'client-id',
+          'x-scalar-secret-redirect-uri': 'https://app.example.com/callback',
+          'x-scalar-secret-token': 'token',
+        },
+      })
+
+      const scheme: ConfigAuthScheme = {
+        type: 'openIdConnect',
+        openIdConnectUrl: 'https://example.com/.well-known/openid-configuration',
+      }
+
+      const result = extractSecuritySchemeSecrets(scheme, authStore, schemeName, documentSlug)
+
+      expect(result).not.toHaveProperty('x-default-scopes')
+    })
+
     it('preserves description in openIdConnect scheme', () => {
       const authStore = createAuthStore()
       const scheme: ConfigAuthScheme = {
@@ -1237,9 +1355,8 @@ describe('extractSecuritySchemeSecrets', () => {
       } satisfies OpenIdConnectObjectSecret)
     })
 
-    it('returns openIdConnect scheme unchanged even when auth store has data', () => {
+    it('returns openIdConnect scheme unchanged when auth store has a different type', () => {
       const authStore = createAuthStore()
-      // Even if we set some auth data, openIdConnect should not use it
       authStore.setAuthSecrets(documentSlug, schemeName, {
         type: 'apiKey',
         'x-scalar-secret-token': 'some-token',

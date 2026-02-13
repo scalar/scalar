@@ -14,7 +14,7 @@ import type {
   OAuthFlow,
   ServerObject,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import { computed, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 
 import { DataTableRow } from '@/components/DataTable'
 import OAuthScopesInput from '@/v2/blocks/scalar-auth-selector-block/components/OAuthScopesInput.vue'
@@ -24,6 +24,7 @@ import type {
   OAuthFlowClientCredentialsSecret,
   OAuthFlowPasswordSecret,
   OAuthFlowsObjectSecret,
+  SecuritySchemeObjectSecret,
 } from '@/v2/blocks/scalar-auth-selector-block/helpers/secret-types'
 
 import RequestAuthDataTableInput from './RequestAuthDataTableInput.vue'
@@ -32,6 +33,7 @@ const {
   environment,
   flows,
   type,
+  scheme,
   selectedScopes: selectedScopesProp,
   server,
   proxyUrl,
@@ -46,6 +48,8 @@ const {
   type: keyof OAuthFlowsObjectSecret
   /** Selected scopes */
   selectedScopes: string[]
+  /** Security scheme */
+  scheme: SecuritySchemeObjectSecret
   /** Current server configuration */
   server: ServerObject | null
   /** Proxy URL */
@@ -81,30 +85,40 @@ const selectedScopes = computed(() =>
   selectedScopesProp.filter((scope) => scope in (flow.value.scopes ?? {})),
 )
 
+/** Updates the security scheme base */
 const handleOauth2Update = (
   payload: Partial<OAuthFlow & XScalarCredentialsLocation>,
-): void =>
+): void => {
+  // OpenIdConnect uses the secrets update for all
+  if (scheme.type === 'openIdConnect') {
+    return handleOauth2SecretsUpdate(payload)
+  }
+
   eventBus.emit('auth:update:security-scheme', {
     payload: {
-      type: 'oauth2',
+      type: scheme.type,
       flows: {
         [type]: payload,
       },
     },
     name,
   })
+}
 
-/** Updates the flow  */
+/** Updates the flow secrets */
 const handleOauth2SecretsUpdate = (
   payload: Omit<Partial<SecretsOAuthFlows[keyof SecretsOAuthFlows]>, 'type'>,
 ): void =>
   eventBus.emit('auth:update:security-scheme-secrets', {
     payload: {
-      type: 'oauth2',
+      type: scheme.type,
       [type]: payload,
     },
     name,
   })
+
+/** Track if we have set the redirect uri */
+const hasPrefilledRedirectUri = ref(false)
 
 /** Default the redirect-uri to the current origin if we have access to window */
 watch(
@@ -112,17 +126,17 @@ watch(
     (flow.value as OAuthFlowAuthorizationCodeSecret)[
       'x-scalar-secret-redirect-uri'
     ],
-  (newRedirectUri) => {
+  () => {
     if (
-      newRedirectUri ||
+      hasPrefilledRedirectUri.value ||
       typeof window === 'undefined' ||
       !('x-scalar-secret-redirect-uri' in flow.value)
     ) {
       return
     }
+    hasPrefilledRedirectUri.value = true
     handleOauth2SecretsUpdate({
-      'x-scalar-secret-redirect-uri':
-        window.location.origin + window.location.pathname,
+      'x-scalar-secret-redirect-uri': window.location.origin,
     })
   },
   { immediate: true },
@@ -332,6 +346,19 @@ const handleSecretLocationUpdate = (value: string): void =>
 
     <DataTableRow class="min-w-full">
       <div class="flex h-8 w-full items-center justify-end border-t">
+        <!-- Allow clearing the oauth section and going back to discovery -->
+        <ScalarButton
+          v-if="scheme.type === 'openIdConnect'"
+          class="mr-1 p-0 px-2 py-0.5"
+          :loader
+          size="sm"
+          variant="outlined"
+          @click="
+            () => handleOauth2SecretsUpdate({ 'x-scalar-secret-token': '' })
+          ">
+          Clear
+        </ScalarButton>
+
         <ScalarButton
           class="mr-0.75 p-0 px-2 py-0.5"
           :loader

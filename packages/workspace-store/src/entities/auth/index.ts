@@ -21,10 +21,12 @@ export type {
   SecretsHttp,
   SecretsOAuth,
   SecretsOAuthFlows,
+  SecretsOpenIdConnect,
   SelectedSecurity,
 } from './schema'
 export {
   AuthSchema,
+  OpenIDConnectSchema,
   SecretsAuthSchema,
 } from './schema'
 
