@@ -56,6 +56,10 @@ describe('RequestBlock', () => {
     expect(input.attributes('placeholder')).toBe('example.com/foo')
 
     await input.setValue('New Name')
+    await input.trigger('blur')
+
+    // Wait for the debounce to complete
+    await new Promise((resolve) => setTimeout(resolve, 500))
 
     expect(fn).toHaveBeenCalledTimes(1)
     expect(fn).toHaveBeenCalledWith({
