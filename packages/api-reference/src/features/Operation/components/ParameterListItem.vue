@@ -65,13 +65,17 @@ const value = computed(() => {
 
   // Convert examples to schema examples which is an array
   const paramExamples = 'examples' in parameter ? parameter.examples : {}
-  const arrayExamples =
-    schema.value?.examples ??
-    ('example' in parameter ? [parameter.example] : [])
   const recordExamples = Object.values({
     ...paramExamples,
     ...content.value?.[selectedContentType.value]?.examples,
   })
+
+  // Only use parameter.example as fallback if no other examples exist
+  const arrayExamples =
+    schema.value?.examples ??
+    (recordExamples.length === 0 && 'example' in parameter
+      ? [parameter.example]
+      : [])
 
   /** Combine param examples with content ones */
   const examples = [...recordExamples, ...arrayExamples]
