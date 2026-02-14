@@ -139,11 +139,15 @@ const handleSubmit = (): void => {
 
   /** In edit mode, emit the new name and close */
   if (isEditMode.value && tag) {
-    eventBus.emit('tag:edit:tag', {
-      tag: unpackProxyObject(tag),
-      documentName: selectedDocument.value.id,
-      newName: nameTrimmed.value,
-    })
+    eventBus.emit(
+      'tag:edit:tag',
+      {
+        tag,
+        documentName: selectedDocument.value.id,
+        newName: nameTrimmed.value,
+      },
+      { skipUnpackProxy: true },
+    )
     emit('close')
     return
   }

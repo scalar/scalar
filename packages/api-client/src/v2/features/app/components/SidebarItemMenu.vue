@@ -94,13 +94,14 @@ const handleAddTag = () => {
 
 const handleEditTag = () => {
   if (item.type === 'tag') {
+    const itemWithParent = sidebarState.getEntryById(item.id)
     eventBus.emit(
       'ui:open:command-palette',
       {
         action: 'edit-tag',
         payload: {
           tag: item,
-          documentId: getParentEntry('document', item)?.id ?? '',
+          documentId: getParentEntry('document', itemWithParent)?.id ?? '',
         },
       },
       { skipUnpackProxy: true },

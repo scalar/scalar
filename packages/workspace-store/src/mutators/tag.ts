@@ -47,8 +47,11 @@ export const editTag = (store: WorkspaceStore | null, payload: TagEvents['tag:ed
   const newName = payload.newName
 
   if (document.tags?.length) {
-    const plainTags = unpackProxyObject(document.tags, { depth: null })
-    document.tags = plainTags.map((tag) => (tag.name === oldName ? { ...tag, name: newName } : tag))
+    // const plainTags = unpackProxyObject(document.tags, { depth: null })
+    document.tags = document.tags.map((_tag) => {
+      const tag = unpackProxyObject(_tag)
+      return tag.name === oldName ? { ...tag, name: newName } : tag
+    })
   }
 
   console.log('document.tags', { document })
