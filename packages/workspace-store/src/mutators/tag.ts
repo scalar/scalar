@@ -41,6 +41,8 @@ export const editTag = (store: WorkspaceStore | null, payload: TagEvents['tag:ed
     return
   }
 
+  console.log('editTag', { payload })
+
   const oldName = payload.tag.name
   const newName = payload.newName
 
@@ -48,6 +50,8 @@ export const editTag = (store: WorkspaceStore | null, payload: TagEvents['tag:ed
     const plainTags = unpackProxyObject(document.tags, { depth: null })
     document.tags = plainTags.map((tag) => (tag.name === oldName ? { ...tag, name: newName } : tag))
   }
+
+  console.log('document.tags', { document })
 
   // Update the tag name in all child operations and webhooks
   payload.tag.children?.forEach((child) => {
@@ -80,6 +84,8 @@ export const editTag = (store: WorkspaceStore | null, payload: TagEvents['tag:ed
       tags: group.tags.map((tag) => (tag === oldName ? newName : tag)),
     }))
   }
+
+  console.log('updated children', { document })
 
   // Rebuild the sidebar
   store?.buildSidebar(payload.documentName)

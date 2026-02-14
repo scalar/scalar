@@ -1,5 +1,7 @@
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 
+import type { TraversedTag } from '@/schemas/navigation'
+
 /**
  * Available actions that can be triggered from the command palette.
  * Each action may have an associated payload type.
@@ -13,6 +15,13 @@ export type CommandPalettePayload = {
   'add-tag': {
     /** The document id to add the tag to */
     documentId?: string
+  }
+  /** Edit an existing tag name */
+  'edit-tag': {
+    /** The current name of the tag to pre-fill in the input */
+    tag: TraversedTag
+    /** The document id the tag belongs to */
+    documentId: string
   }
   /** Create a new HTTP request */
   'create-request': {

@@ -26,7 +26,6 @@ const { item, eventBus, sidebarState, target } = defineProps<{
 const emit = defineEmits<{
   (e: 'closeMenu'): void
   (e: 'showDeleteModal'): void
-  (e: 'showEditModal'): void
 }>()
 
 const open = ref(false)
@@ -93,6 +92,22 @@ const handleAddTag = () => {
   }
 }
 
+const handleEditTag = () => {
+  if (item.type === 'tag') {
+    eventBus.emit(
+      'ui:open:command-palette',
+      {
+        action: 'edit-tag',
+        payload: {
+          tag: item,
+          documentId: getParentEntry('document', item)?.id ?? '',
+        },
+      },
+      { skipUnpackProxy: true },
+    )
+  }
+}
+
 const handleAddExample = () => {
   if (item.type === 'operation') {
     const itemWithParent = sidebarState.getEntryById(item.id)
@@ -140,7 +155,7 @@ const handleAddExample = () => {
       <!-- Edit tag option for tags only -->
       <ScalarDropdownItem
         v-if="canEditTag()"
-        @click="emit('showEditModal')">
+        @click="handleEditTag()">
         <div class="flex items-center gap-2">
           <ScalarIconPencil size="sm" />
           Rename Tag

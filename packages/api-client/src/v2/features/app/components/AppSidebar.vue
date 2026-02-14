@@ -414,10 +414,11 @@ const handleAddEmptyFolder = (item: TraversedEntry) => {
       :target="menuTarget.el"
       @closeMenu="closeMenu"
       @showDeleteModal="deleteModalState.show()" />
+
     <!-- Delete Modal -->
     <ScalarModal
       v-if="menuTarget"
-      :size="'xxs'"
+      size="xxs"
       :state="deleteModalState"
       :title="`Delete ${menuTarget.item.title}`">
       <DeleteSidebarListElement
