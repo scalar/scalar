@@ -84,6 +84,7 @@ watch(
     v-if="Object.keys(securitySchemes).length"
     :environment
     :eventBus
+    :hideAddNewAuthentication="options.authentication?.hideAddNewAuthentication"
     isStatic
     layout="reference"
     :meta="{ type: 'document' }"

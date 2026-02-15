@@ -40,6 +40,7 @@ import RequestAuthDataTable from './RequestAuthDataTable.vue'
 const {
   environment,
   eventBus,
+  hideAddNewAuthentication = false,
   isStatic = false,
   meta,
   proxyUrl,
@@ -51,6 +52,8 @@ const {
 } = defineProps<{
   environment: XScalarEnvironment
   eventBus: WorkspaceEventBus
+  /** Hides the generic "Add new authentication" options in the dropdown */
+  hideAddNewAuthentication?: boolean
   /** Creates a static disclosure that cannot be collapsed */
   isStatic?: boolean
   meta: AuthMeta
@@ -97,8 +100,23 @@ const availableSchemeOptions = computed(() =>
     securityRequirements ?? [],
     securitySchemes ?? {},
     selectedSecurity?.selectedSchemes ?? [],
+    hideAddNewAuthentication,
   ),
 )
+
+/** Total number of selectable options across all groups (for hiding dropdown when only one exists) */
+const totalSelectableOptions = computed(() => {
+  const options = availableSchemeOptions.value
+  if (!Array.isArray(options)) return 0
+  // Check if grouped (SecuritySchemeGroup[]) or flat (SecuritySchemeOption[])
+  if (options.length > 0 && 'options' in options[0]) {
+    return (options as { options: unknown[] }[]).reduce(
+      (sum, group) => sum + group.options.length,
+      0,
+    )
+  }
+  return options.length
+})
 
 /** Currently active auth schemes selected for this operation or collection */
 const activeSchemeOptions = computed<SecuritySchemeOption[]>(() => {
@@ -223,8 +241,10 @@ defineExpose({
       </div>
     </template>
 
-    <!-- Auth Dropdown -->
-    <template #actions>
+    <!-- Auth Dropdown (hidden when only one scheme is available) -->
+    <template
+      v-if="totalSelectableOptions > 1"
+      #actions>
       <ScalarComboboxMultiselect
         class="w-72 text-xs"
         :modelValue="activeSchemeOptions"

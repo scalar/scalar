@@ -81,6 +81,8 @@ export const getSecuritySchemeOptions = (
   securitySchemes: NonNullable<ComponentsObject['securitySchemes']>,
   /** We need to add the selected schemes if they do not already exist in the calculated options */
   selectedSchemes: SecurityRequirementObject[],
+  /** When true, hides the generic "Add new authentication" options */
+  hideAddNewAuthentication?: boolean,
 ): SecuritySchemeOption[] | SecuritySchemeGroup[] => {
   /**
    * Build required schemes formatted as options and track scheme names in a single pass.
@@ -138,17 +140,19 @@ export const getSecuritySchemeOptions = (
     { label: 'Available authentication', options: availableFormatted },
   ]
 
-  // Add new authentication options
-  options.push({
-    label: 'Add new authentication',
-    options: Object.entries(authOptions).map(([key, value]) => ({
-      id: key,
-      label: value.label,
-      value: { [key]: [] },
-      payload: value.payload,
-      isDeletable: false,
-    })),
-  })
+  // Add new authentication options (unless explicitly hidden)
+  if (!hideAddNewAuthentication) {
+    options.push({
+      label: 'Add new authentication',
+      options: Object.entries(authOptions).map(([key, value]) => ({
+        id: key,
+        label: value.label,
+        value: { [key]: [] },
+        payload: value.payload,
+        isDeletable: false,
+      })),
+    })
+  }
 
   return options
 }

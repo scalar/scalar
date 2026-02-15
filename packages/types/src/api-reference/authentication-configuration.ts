@@ -52,4 +52,11 @@ export type AuthenticationConfiguration = {
    *
    */
   securitySchemes?: Record<string, PartialDeep<SecurityScheme>>
+
+  /**
+   * Whether to hide the "Add new authentication" generic options in the auth dropdown.
+   * When true, only security schemes defined in the OpenAPI spec are shown.
+   * @default false
+   */
+  hideAddNewAuthentication?: boolean
 }
