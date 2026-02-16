@@ -15,6 +15,7 @@ const {
   layout,
   items,
   indent = 20,
+  onChevronClick,
 } = defineProps<{
   /**
    * Layout type for the sidebar.
@@ -56,6 +57,10 @@ const {
    * @default true
    */
   isDroppable?: UseDraggableOptions['isDroppable']
+  /**
+   * Optional handler called when only the chevron (expand/collapse icon) of a group is clicked.
+   */
+  onChevronClick?: (id: string) => void
 }>()
 
 const emit = defineEmits<{
@@ -121,6 +126,7 @@ const handleDragEnd = (
           :isSelected="isSelected"
           :item="item"
           :layout="layout"
+          :onChevronClick="onChevronClick"
           :options="options"
           @onDragEnd="handleDragEnd"
           @selectItem="(id) => emit('selectItem', id)">
