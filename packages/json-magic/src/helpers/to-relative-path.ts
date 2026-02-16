@@ -1,4 +1,4 @@
-import { path } from '@scalar/helpers/node/path'
+import path from 'pathe'
 
 import { isHttpUrl } from '@/helpers/is-http-url'
 
@@ -21,19 +21,18 @@ export const toRelativePath = (input: string, base: string) => {
     }
 
     // Get the directory of the base URL pathname (not the file itself)
-    const baseDir = path.dirname(path.resolve(baseUrl.pathname))
-    const inputPath = path.resolve(inputUrl.pathname)
+    const baseDir = path.dirname(path.posix.resolve('/', baseUrl.pathname))
+    const inputPath = path.posix.resolve('/', inputUrl.pathname)
     // Return the relative path from baseDir to inputPath
-    return path.relative(baseDir, inputPath)
+    return path.posix.relative(baseDir, inputPath)
   }
 
   // Base is a remote URL, input is a local path
   if (isHttpUrl(base)) {
     const baseUrl = new URL(base)
-    const baseDir = path.dirname(path.resolve(baseUrl.pathname))
-    const inputPath = path.resolve(input)
+    const baseDir = path.dirname(path.posix.resolve('/', baseUrl.pathname))
     // Set the pathname of the base URL to the relative path and return the URL as a string
-    baseUrl.pathname = path.relative(baseDir, inputPath)
+    baseUrl.pathname = path.posix.relative(baseDir, path.posix.resolve('/', input))
     return baseUrl.toString()
   }
 
