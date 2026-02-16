@@ -1,5 +1,21 @@
 # scalar-app
 
+## 0.1.289
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-client@2.27.1**
+  - [#8159](https://github.com/scalar/scalar/pull/8159): fix: do not mutate document after ingress
+  - [#8158](https://github.com/scalar/scalar/pull/8158): fix: disable all listeners when modal is closed
+  - [#8178](https://github.com/scalar/scalar/pull/8178): chore: package bump due to ci failure
+
+- **@scalar/components@0.19.4**
+  - [#8178](https://github.com/scalar/scalar/pull/8178): chore: package bump due to ci failure
+
+- **@scalar/import@0.4.49**
+
 ## 0.1.288
 
 ### Patch Changes

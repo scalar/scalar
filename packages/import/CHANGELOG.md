@@ -1,5 +1,14 @@
 # @scalar/import
 
+## 0.4.49
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/helpers@0.2.12**
+  - [#8178](https://github.com/scalar/scalar/pull/8178): chore: package bump due to ci failure
+
 ## 0.4.48
 
 ### Patch Changes

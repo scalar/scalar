@@ -1,5 +1,20 @@
 # @scalar/aspnetcore
 
+## 2.12.41
+
+### Patch Changes
+
+- [#8178](https://github.com/scalar/scalar/pull/8178): chore: package bump due to ci failure
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.44.20**
+  - [#8159](https://github.com/scalar/scalar/pull/8159): fix: do not mutate document after ingress
+  - [#8178](https://github.com/scalar/scalar/pull/8178): chore: package bump due to ci failure
+
+- **@scalar/dotnet-shared@0.1.3**
+  - [#8178](https://github.com/scalar/scalar/pull/8178): chore: package bump due to ci failure
+
 ## 2.12.40
 
 ### Patch Changes
