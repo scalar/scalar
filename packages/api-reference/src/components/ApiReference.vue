@@ -751,25 +751,28 @@ eventBus.on('ui:download:document', async ({ format }) => {
  * - Operation:
  *        Open all parents and scroll to the operation
  */
-const handleSelectItem = (id: string, caller?: 'sidebar') => {
+const handleSelectSidebarEntry = (id: string, caller?: 'sidebar') => {
   const item = sidebarState.getEntryById(id)
-  const isCollapsibleTextGroup =
-    item?.type === 'text' && !!('children' in item && item.children?.length)
+  const isTextEntryWithChildren =
+    item?.type === 'text' && Boolean(item.children?.length)
 
   if (
     (item?.type === 'tag' ||
       item?.type === 'models' ||
-      isCollapsibleTextGroup) &&
+      isTextEntryWithChildren) &&
     sidebarState.isExpanded(id)
   ) {
     // hack until we fix intersection logic
     const unblock = blockIntersection()
+
     sidebarState.setExpanded(id, false)
+
     unblock()
+
     return
   }
 
-  /** When in mobile menu we close the menu when we select an item that is not a tag */
+  // Close the mobile menu upon selecting any item that's not a tag or model
   if (item?.type !== 'tag' && item?.type !== 'models') {
     isSidebarOpen.value = false
   }
@@ -790,8 +793,14 @@ const handleSelectItem = (id: string, caller?: 'sidebar') => {
     agent.closeAgent()
   }
 }
-eventBus.on('select:nav-item', ({ id }) => handleSelectItem(id))
-eventBus.on('scroll-to:nav-item', ({ id }) => handleSelectItem(id))
+
+/** Handle a navigation item selection event */
+eventBus.on('select:nav-item', ({ id }) => handleSelectSidebarEntry(id))
+
+/** Handle a scroll to navigation item event */
+eventBus.on('scroll-to:nav-item', ({ id }) => handleSelectSidebarEntry(id))
+
+/** Handle an intersecting navigation item event */
 eventBus.on('intersecting:nav-item', ({ id }) => {
   if (!intersectionEnabled.value) {
     return
@@ -808,12 +817,14 @@ eventBus.on('intersecting:nav-item', ({ id }) => {
     window.history.replaceState({}, '', url.toString())
   }
 })
+
 eventBus.on('toggle:nav-item', ({ id, open }) => {
   if (open) {
     mergedConfig.value.onShowMore?.(id)
   }
   sidebarState.setExpanded(id, open ?? !sidebarState.isExpanded(id))
 })
+
 eventBus.on('copy-url:nav-item', ({ id }) => {
   const url = makeUrlFromId(
     id,
@@ -927,7 +938,7 @@ watch(agent.showAgent, () => (bodyScrollLocked.value = agent.showAgent.value))
             layout="reference"
             :options="mergedConfig"
             role="navigation"
-            @selectItem="(id) => handleSelectItem(id, 'sidebar')">
+            @selectItem="(id) => handleSelectSidebarEntry(id, 'sidebar')">
             <template #header>
               <!-- Wrap in a div when slot is filled -->
               <DocumentSelector
