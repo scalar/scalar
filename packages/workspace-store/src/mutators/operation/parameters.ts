@@ -3,6 +3,8 @@ import { getResolvedRef } from '@/helpers/get-resolved-ref'
 import { unpackProxyObject } from '@/helpers/unpack-proxy'
 import type { WorkspaceDocument } from '@/schemas'
 import type { DisableParametersConfig } from '@/schemas/extensions/operation/x-scalar-disable-parameters'
+import type { ExampleObject } from '@/schemas/v3.1/strict/example'
+import type { ReferenceType } from '@/schemas/v3.1/strict/reference'
 
 /**
  * Updates an existing parameter of a given `type` by its index within that
@@ -27,15 +29,21 @@ export const upsertOperationParameter = (
 ) => {
   // We are editing an existing parameter
   if (originalParameter) {
-    originalParameter.name = payload.name
-
-    if (!originalParameter.examples) {
-      originalParameter.examples = {}
+    // To support content-type parameters in the API client, we just assume an
+    // examples property can be set.
+    const param = originalParameter as typeof originalParameter & {
+      examples: Record<string, ReferenceType<ExampleObject>>
+    }
+    param.name = payload.name
+    if (!param.examples) {
+      param.examples = {}
     }
 
     // Create the example if it doesn't exist
-    originalParameter.examples[meta.exampleKey] ||= {}
-    const example = getResolvedRef(originalParameter.examples[meta.exampleKey])!
+    if (!param.examples[meta.exampleKey]) {
+      param.examples[meta.exampleKey] = {}
+    }
+    const example = getResolvedRef(param.examples[meta.exampleKey])!
 
     // Update the example value and disabled state
     example.value = payload.value
