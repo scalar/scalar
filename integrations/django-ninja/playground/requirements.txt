@@ -1,5 +1,5 @@
-Django>=4.2
-django-ninja==1.1.0
-pydantic==2.7.1
-pydantic_core==2.18.2
+Django>=4.2.28
+django-ninja==1.5.3
+pydantic==2.12.5
+pydantic_core==2.41.5
 
