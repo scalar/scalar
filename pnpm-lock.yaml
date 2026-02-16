@@ -35,10 +35,10 @@ catalogs:
       version: 1.7.23
     '@hono/node-server':
       specifier: ^1.19.7
-      version: 1.19.7
+      version: 1.19.9
     '@modelcontextprotocol/sdk':
-      specifier: 1.25.2
-      version: 1.25.2
+      specifier: 1.26.0
+      version: 1.26.0
     '@nestjs/cli':
       specifier: ^11.0.14
       version: 11.0.14
@@ -954,7 +954,7 @@ importers:
     devDependencies:
       '@hono/node-server':
         specifier: catalog:*
-        version: 1.19.7(hono@4.11.7)
+        version: 1.19.9(hono@4.11.7)
       '@hono/zod-openapi':
         specifier: ^1.2.0
         version: 1.2.0(hono@4.11.7)(zod@4.3.5)
@@ -1187,7 +1187,7 @@ importers:
     devDependencies:
       '@modelcontextprotocol/sdk':
         specifier: catalog:*
-        version: 1.25.2(hono@4.11.7)(zod@4.3.5)
+        version: 1.26.0(zod@4.3.5)
       '@scalar/build-tooling':
         specifier: workspace:*
         version: link:../build-tooling
@@ -1506,7 +1506,7 @@ importers:
     devDependencies:
       '@hono/node-server':
         specifier: catalog:*
-        version: 1.19.7(hono@4.11.7)
+        version: 1.19.9(hono@4.11.7)
       '@playwright/test':
         specifier: catalog:*
         version: 1.56.0
@@ -1603,7 +1603,7 @@ importers:
     dependencies:
       '@hono/node-server':
         specifier: catalog:*
-        version: 1.19.7(hono@4.11.7)
+        version: 1.19.9(hono@4.11.7)
       '@scalar/api-reference':
         specifier: workspace:*
         version: link:../..
@@ -2021,7 +2021,7 @@ importers:
     dependencies:
       '@hono/node-server':
         specifier: catalog:*
-        version: 1.19.7(hono@4.11.7)
+        version: 1.19.9(hono@4.11.7)
       '@scalar/hono-api-reference':
         specifier: workspace:*
         version: link:../../../integrations/hono
@@ -2043,7 +2043,7 @@ importers:
     devDependencies:
       '@hono/node-server':
         specifier: catalog:*
-        version: 1.19.7(hono@4.11.7)
+        version: 1.19.9(hono@4.11.7)
       '@scalar/build-tooling':
         specifier: workspace:*
         version: link:../../build-tooling
@@ -2276,7 +2276,7 @@ importers:
     devDependencies:
       '@hono/node-server':
         specifier: catalog:*
-        version: 1.19.7(hono@4.11.7)
+        version: 1.19.9(hono@4.11.7)
       '@scalar/build-tooling':
         specifier: workspace:*
         version: link:../build-tooling
@@ -2691,7 +2691,7 @@ importers:
     dependencies:
       '@hono/node-server':
         specifier: catalog:*
-        version: 1.19.7(hono@4.11.7)
+        version: 1.19.9(hono@4.11.7)
       '@scalar/helpers':
         specifier: workspace:*
         version: link:../helpers
@@ -5626,12 +5626,6 @@ packages:
     peerDependencies:
       vue: ^3.2.0
 
-  '@hono/node-server@1.19.7':
-    resolution: {integrity: sha512-vUcD0uauS7EU2caukW8z5lJKtoGMokxNbJtBiwHgpqxEXokaHCBkQUmCHhjFB1VUTWdqj25QoMkMKzgjq+uhrw==}
-    engines: {node: '>=18.14.1'}
-    peerDependencies:
-      hono: ^4
-
   '@hono/node-server@1.19.9':
     resolution: {integrity: sha512-vHL6w3ecZsky+8P5MD+eFfaGTyCeOHUIFYMGpQGbrBTSmNNoxv0if69rEZ5giu36weC5saFuznL411gRX7bJDw==}
     engines: {node: '>=18.14.1'}
@@ -6307,8 +6301,8 @@ packages:
   '@microsoft/tsdoc@0.15.1':
     resolution: {integrity: sha512-4aErSrCR/On/e5G2hDP0wjooqDdauzEbIq8hIkIe5pXV0rtWJZvdCEKL0ykZxex+IxIwBp0eGeV48hQN07dXtw==}
 
-  '@modelcontextprotocol/sdk@1.25.2':
-    resolution: {integrity: sha512-LZFeo4F9M5qOhC/Uc1aQSrBHxMrvxett+9KLHt7OhcExtoiRN9DKgbZffMP/nxjutWDQpfMDfP3nkHI4X9ijww==}
+  '@modelcontextprotocol/sdk@1.26.0':
+    resolution: {integrity: sha512-Y5RmPncpiDtTXDbLKswIJzTqu2hyBKxTNsgKqKclDbhIgg1wgtf1fRuvxgTnRfcnxtvvgbIEcqUOzZrJ6iSReg==}
     engines: {node: '>=18'}
     peerDependencies:
       '@cfworker/json-schema': ^4.1.1
@@ -8642,11 +8636,6 @@ packages:
     peerDependencies:
       unhead: 2.0.14
 
-  '@unhead/vue@2.0.14':
-    resolution: {integrity: sha512-Ym9f+Kd2Afqek2FtUHvYvK+j2uZ2vbZ6Rr9NCnNGGBMdmafAuiZpT117YGyh0ARcueL6Znia0U8ySqPsnHOZIg==}
-    peerDependencies:
-      vue: '>=3.5.18'
-
   '@unhead/vue@2.1.4':
     resolution: {integrity: sha512-MFvywgkHMt/AqbhmKOqRuzvuHBTcmmmnUa7Wm/Sg11leXAeRShv2PcmY7IiYdeeJqBMCm1jwhcs6201jj6ggZg==}
     peerDependencies:
@@ -8739,9 +8728,6 @@ packages:
   '@volar/language-core@2.4.15':
     resolution: {integrity: sha512-3VHw+QZU0ZG9IuQmzT68IyN4hZNd9GchGPhbD9+pa8CVv7rnoOZwo7T8weIbrRmihqy3ATpdfXFnqRrfPVK6CA==}
 
-  '@volar/language-core@2.4.23':
-    resolution: {integrity: sha512-hEEd5ET/oSmBC6pi1j6NaNYRWoAiDhINbT8rmwtINugR39loROSlufGdYMF9TaKGfz+ViGs1Idi3mAhnuPcoGQ==}
-
   '@volar/language-core@2.4.27':
     resolution: {integrity: sha512-DjmjBWZ4tJKxfNC1F6HyYERNHPYS7L7OPFyCrestykNdUZMFYzI9WTyvwPcaNaHlrEUwESHYsfEw3isInncZxQ==}
 
@@ -8750,9 +8736,6 @@ packages:
 
   '@volar/source-map@2.4.15':
     resolution: {integrity: sha512-CPbMWlUN6hVZJYGcU/GSoHu4EnCHiLaXI9n8c9la6RaI9W5JHX+NqG+GSQcB0JdC2FIBLdZJwGsfKyBB71VlTg==}
-
-  '@volar/source-map@2.4.23':
-    resolution: {integrity: sha512-Z1Uc8IB57Lm6k7q6KIDu/p+JWtf3xsXJqAX/5r18hYOTpJyBn0KXUR8oTJ4WFYOcDzWC9n3IflGgHowx6U6z9Q==}
 
   '@volar/source-map@2.4.27':
     resolution: {integrity: sha512-ynlcBReMgOZj2i6po+qVswtDUeeBRCTgDurjMGShbm8WYZgJ0PA4RmtebBJ0BCYol1qPv3GQF6jK7C9qoVc7lg==}
@@ -8838,14 +8821,6 @@ packages:
 
   '@vue/language-core@2.2.12':
     resolution: {integrity: sha512-IsGljWbKGU1MZpBPN+BvPAdr55YPkj2nB/TBNGNC32Vy2qLG25DYu/NBN2vNtZqdRbTRjaoYrahLrToim2NanA==}
-    peerDependencies:
-      typescript: '*'
-    peerDependenciesMeta:
-      typescript:
-        optional: true
-
-  '@vue/language-core@3.0.7':
-    resolution: {integrity: sha512-0sqqyqJ0Gn33JH3TdIsZLCZZ8Gr4kwlg8iYOnOrDDkJKSjFurlQY/bEFQx5zs7SX2C/bjMkmPYq/NiyY1fTOkw==}
     peerDependencies:
       typescript: '*'
     peerDependenciesMeta:
@@ -9177,9 +9152,6 @@ packages:
 
   alien-signals@1.0.13:
     resolution: {integrity: sha512-OGj9yyTnJEttvzhTUWuscOvtqxq5vrhF7vL9oS0xJ2mK0ItPYP1/y+vCFebfxoEyAz0++1AIwJ5CMr+Fk3nDmg==}
-
-  alien-signals@2.0.7:
-    resolution: {integrity: sha512-wE7y3jmYeb0+h6mr5BOovuqhFv22O/MV9j5p0ndJsa7z1zJNPGQ4ph5pQk/kTTCWRC3xsA4SmtwmkzQO+7NCNg==}
 
   alien-signals@3.1.2:
     resolution: {integrity: sha512-d9dYqZTS90WLiU0I5c6DHj/HcKkF8ZyGN3G5x8wSbslulz70KOxaqCT0hQCo9KOyhVqzqGojvNdJXoTumZOtcw==}
@@ -11156,8 +11128,8 @@ packages:
     resolution: {integrity: sha512-2Zks0hf1VLFYI1kbh0I5jP3KHHyCHpkfyHBzsSXRFgl/Bg9mWYfMW8oD+PdMPlEwy5HNsR9JutYy6pMeOh61nw==}
     engines: {node: ^14.15.0 || ^16.10.0 || >=18.0.0}
 
-  express-rate-limit@7.5.1:
-    resolution: {integrity: sha512-7iN8iPMDzOMHPUYllBEsQdWVB6fPDMPqwjBaFrgr4Jgr/+okjvzAy+UHlYYL/Vs0OsOrMkwS6PJDkFlJwoxUnw==}
+  express-rate-limit@8.2.1:
+    resolution: {integrity: sha512-PCZEIEIxqwhzw4KF0n7QF4QqruVTcF73O5kFKUnGOyjbCCgizBBiFaYpd/fnBLUMPw/BWw9OsiN7GgrNYr7j6g==}
     engines: {node: '>= 16'}
     peerDependencies:
       express: '>= 4.11'
@@ -12272,6 +12244,10 @@ packages:
   ioredis@5.7.0:
     resolution: {integrity: sha512-NUcA93i1lukyXU+riqEyPtSEkyFq8tX90uL659J+qpCZ3rEdViB/APC58oAhIh3+bJln2hzdlZbBZsGNrlsR8g==}
     engines: {node: '>=12.22.0'}
+
+  ip-address@10.0.1:
+    resolution: {integrity: sha512-NWv9YLW4PoW2B7xtzaS3NCot75m6nK7Icdv0o3lfMceJVRfSoQwqD4wEH5rLwoKJwUiZ/rfpiVBhnaF0FK4HoA==}
+    engines: {node: '>= 12'}
 
   ip-regex@5.0.0:
     resolution: {integrity: sha512-fOCG6lhoKKakwv+C6KdsOnGvgXnmgfmp0myi3bcNwj3qfwPAxRKWEuFhvEFF7ceYIz6+1jRZ+yguLFAmUNPEfw==}
@@ -17316,9 +17292,6 @@ packages:
   unenv@2.0.0-rc.24:
     resolution: {integrity: sha512-i7qRCmY42zmCwnYlh9H2SvLEypEFGye5iRmEMKjcGi7zk9UquigRjFtTLz0TYqr0ZGLZhaMHl/foy1bZR+Cwlw==}
 
-  unhead@2.0.14:
-    resolution: {integrity: sha512-dRP6OCqtShhMVZQe1F4wdt/WsYl2MskxKK+cvfSo0lQnrPJ4oAUQEkxRg7pPP+vJENabhlir31HwAyHUv7wfMg==}
-
   unhead@2.1.4:
     resolution: {integrity: sha512-+5091sJqtNNmgfQ07zJOgUnMIMKzVKAWjeMlSrTdSGPB6JSozhpjUKuMfWEoLxlMAfhIvgOU8Me0XJvmMA/0fA==}
 
@@ -21920,10 +21893,6 @@ snapshots:
       '@tanstack/vue-virtual': 3.8.5(vue@3.5.26(typescript@5.9.3))
       vue: 3.5.26(typescript@5.9.3)
 
-  '@hono/node-server@1.19.7(hono@4.11.7)':
-    dependencies:
-      hono: 4.11.7
-
   '@hono/node-server@1.19.9(hono@4.11.7)':
     dependencies:
       hono: 4.11.7
@@ -22727,7 +22696,7 @@ snapshots:
 
   '@microsoft/tsdoc@0.15.1': {}
 
-  '@modelcontextprotocol/sdk@1.25.2(hono@4.11.7)(zod@4.3.5)':
+  '@modelcontextprotocol/sdk@1.26.0(zod@4.3.5)':
     dependencies:
       '@hono/node-server': 1.19.9(hono@4.11.7)
       ajv: 8.17.1
@@ -22738,7 +22707,8 @@ snapshots:
       eventsource: 3.0.7
       eventsource-parser: 3.0.6
       express: 5.2.1
-      express-rate-limit: 7.5.1(express@5.2.1)
+      express-rate-limit: 8.2.1(express@5.2.1)
+      hono: 4.11.7
       jose: 6.1.3
       json-schema-typed: 8.0.2
       pkce-challenge: 5.0.1
@@ -22746,7 +22716,6 @@ snapshots:
       zod: 4.3.5
       zod-to-json-schema: 3.25.1(zod@4.3.5)
     transitivePeerDependencies:
-      - hono
       - supports-color
 
   '@mole-inc/bin-wrapper@8.0.1':
@@ -25529,12 +25498,6 @@ snapshots:
     dependencies:
       unhead: 2.1.4
 
-  '@unhead/vue@2.0.14(vue@3.5.26(typescript@5.9.3))':
-    dependencies:
-      hookable: 5.5.3
-      unhead: 2.0.14
-      vue: 3.5.26(typescript@5.9.3)
-
   '@unhead/vue@2.1.4(vue@3.5.26(typescript@5.9.3))':
     dependencies:
       hookable: 6.0.1
@@ -25668,10 +25631,7 @@ snapshots:
   '@volar/language-core@2.4.15':
     dependencies:
       '@volar/source-map': 2.4.15
-
-  '@volar/language-core@2.4.23':
-    dependencies:
-      '@volar/source-map': 2.4.23
+    optional: true
 
   '@volar/language-core@2.4.27':
     dependencies:
@@ -25681,9 +25641,8 @@ snapshots:
     dependencies:
       muggle-string: 0.4.1
 
-  '@volar/source-map@2.4.15': {}
-
-  '@volar/source-map@2.4.23': {}
+  '@volar/source-map@2.4.15':
+    optional: true
 
   '@volar/source-map@2.4.27': {}
 
@@ -25698,6 +25657,7 @@ snapshots:
       '@volar/language-core': 2.4.15
       path-browserify: 1.0.1
       vscode-uri: 3.1.0
+    optional: true
 
   '@volar/typescript@2.4.27':
     dependencies:
@@ -25821,7 +25781,7 @@ snapshots:
 
   '@vue/language-core@2.1.6(typescript@5.9.3)':
     dependencies:
-      '@volar/language-core': 2.4.23
+      '@volar/language-core': 2.4.27
       '@vue/compiler-dom': 3.5.26
       '@vue/compiler-vue2': 2.7.16
       '@vue/shared': 3.5.26
@@ -25845,19 +25805,6 @@ snapshots:
     optionalDependencies:
       typescript: 5.9.3
     optional: true
-
-  '@vue/language-core@3.0.7(typescript@5.9.3)':
-    dependencies:
-      '@volar/language-core': 2.4.23
-      '@vue/compiler-dom': 3.5.26
-      '@vue/compiler-vue2': 2.7.16
-      '@vue/shared': 3.5.26
-      alien-signals: 2.0.7
-      muggle-string: 0.4.1
-      path-browserify: 1.0.1
-      picomatch: 4.0.3
-    optionalDependencies:
-      typescript: 5.9.3
 
   '@vue/language-core@3.2.4':
     dependencies:
@@ -26228,8 +26175,6 @@ snapshots:
 
   alien-signals@1.0.13:
     optional: true
-
-  alien-signals@2.0.7: {}
 
   alien-signals@3.1.2: {}
 
@@ -28566,9 +28511,10 @@ snapshots:
       jest-message-util: 29.7.0
       jest-util: 29.7.0
 
-  express-rate-limit@7.5.1(express@5.2.1):
+  express-rate-limit@8.2.1(express@5.2.1):
     dependencies:
       express: 5.2.1
+      ip-address: 10.0.1
 
   express@4.22.1:
     dependencies:
@@ -30186,6 +30132,8 @@ snapshots:
       standard-as-callback: 2.1.0
     transitivePeerDependencies:
       - supports-color
+
+  ip-address@10.0.1: {}
 
   ip-regex@5.0.0: {}
 
@@ -32440,7 +32388,7 @@ snapshots:
       '@nuxt/schema': 3.19.2
       '@nuxt/telemetry': 2.6.6(magicast@0.3.5)
       '@nuxt/vite-builder': 3.19.2(@biomejs/biome@2.2.4)(@types/node@22.19.3)(eslint@9.39.2(jiti@2.6.1))(lightningcss@1.30.2)(magicast@0.3.5)(meow@13.2.0)(optionator@0.9.4)(rollup@4.50.2)(terser@5.31.2)(tsx@4.19.1)(typescript@5.9.3)(vue-tsc@3.2.4(typescript@5.9.3))(vue@3.5.26(typescript@5.9.3))(yaml@2.8.0)
-      '@unhead/vue': 2.0.14(vue@3.5.26(typescript@5.9.3))
+      '@unhead/vue': 2.1.4(vue@3.5.26(typescript@5.9.3))
       '@vue/shared': 3.5.26
       c12: 3.3.3(magicast@0.3.5)
       chokidar: 4.0.3
@@ -32489,7 +32437,7 @@ snapshots:
       unctx: 2.4.1
       unimport: 5.2.0
       unplugin: 2.3.11
-      unplugin-vue-router: 0.15.0(@vue/compiler-sfc@3.5.26)(typescript@5.9.3)(vue-router@4.6.2(vue@3.5.26(typescript@5.9.3)))(vue@3.5.26(typescript@5.9.3))
+      unplugin-vue-router: 0.15.0(@vue/compiler-sfc@3.5.26)(vue-router@4.6.2(vue@3.5.26(typescript@5.9.3)))(vue@3.5.26(typescript@5.9.3))
       unstorage: 1.17.2(@netlify/blobs@9.1.2)(db0@0.3.2)(ioredis@5.7.0)
       untyped: 2.0.0
       vue: 3.5.26(typescript@5.9.3)
@@ -32563,7 +32511,7 @@ snapshots:
       '@nuxt/schema': 4.1.2
       '@nuxt/telemetry': 2.6.6(magicast@0.5.1)
       '@nuxt/vite-builder': 4.1.2(@biomejs/biome@2.2.4)(@types/node@22.19.3)(eslint@9.39.2(jiti@2.6.1))(lightningcss@1.30.2)(magicast@0.5.1)(meow@13.2.0)(optionator@0.9.4)(rollup@4.50.2)(terser@5.31.2)(tsx@4.19.1)(typescript@5.9.3)(vue-tsc@2.2.12(typescript@5.9.3))(vue@3.5.26(typescript@5.9.3))(yaml@2.8.0)
-      '@unhead/vue': 2.0.14(vue@3.5.26(typescript@5.9.3))
+      '@unhead/vue': 2.1.4(vue@3.5.26(typescript@5.9.3))
       '@vue/shared': 3.5.26
       c12: 3.3.3(magicast@0.5.1)
       chokidar: 4.0.3
@@ -32612,7 +32560,7 @@ snapshots:
       unctx: 2.4.1
       unimport: 5.2.0
       unplugin: 2.3.11
-      unplugin-vue-router: 0.15.0(@vue/compiler-sfc@3.5.26)(typescript@5.9.3)(vue-router@4.6.2(vue@3.5.26(typescript@5.9.3)))(vue@3.5.26(typescript@5.9.3))
+      unplugin-vue-router: 0.15.0(@vue/compiler-sfc@3.5.26)(vue-router@4.6.2(vue@3.5.26(typescript@5.9.3)))(vue@3.5.26(typescript@5.9.3))
       unstorage: 1.17.2(@netlify/blobs@9.1.2)(db0@0.3.2)(ioredis@5.7.0)
       untyped: 2.0.0
       vue: 3.5.26(typescript@5.9.3)
@@ -36338,10 +36286,6 @@ snapshots:
     dependencies:
       pathe: 2.0.3
 
-  unhead@2.0.14:
-    dependencies:
-      hookable: 5.5.3
-
   unhead@2.1.4:
     dependencies:
       hookable: 6.0.1
@@ -36524,11 +36468,11 @@ snapshots:
       pathe: 2.0.3
       picomatch: 4.0.3
 
-  unplugin-vue-router@0.15.0(@vue/compiler-sfc@3.5.26)(typescript@5.9.3)(vue-router@4.6.2(vue@3.5.26(typescript@5.9.3)))(vue@3.5.26(typescript@5.9.3)):
+  unplugin-vue-router@0.15.0(@vue/compiler-sfc@3.5.26)(vue-router@4.6.2(vue@3.5.26(typescript@5.9.3)))(vue@3.5.26(typescript@5.9.3)):
     dependencies:
       '@vue-macros/common': 3.0.0-beta.16(vue@3.5.26(typescript@5.9.3))
       '@vue/compiler-sfc': 3.5.26
-      '@vue/language-core': 3.0.7(typescript@5.9.3)
+      '@vue/language-core': 3.2.4
       ast-walker-scope: 0.8.1
       chokidar: 4.0.3
       json5: 2.2.3
@@ -36546,7 +36490,6 @@ snapshots:
     optionalDependencies:
       vue-router: 4.6.2(vue@3.5.26(typescript@5.9.3))
     transitivePeerDependencies:
-      - typescript
       - vue
 
   unplugin@1.16.0:
@@ -36822,7 +36765,7 @@ snapshots:
     dependencies:
       '@microsoft/api-extractor': 7.48.1(@types/node@22.19.3)
       '@rollup/pluginutils': 5.3.0(rollup@4.50.2)
-      '@volar/typescript': 2.4.15
+      '@volar/typescript': 2.4.27
       '@vue/language-core': 2.1.6(typescript@5.9.3)
       compare-versions: 6.1.1
       debug: 4.4.3(supports-color@5.5.0)
@@ -36867,7 +36810,7 @@ snapshots:
   vite-ssg@28.1.0(prettier@3.6.2)(unhead@2.1.4)(vite@7.3.1(@types/node@22.19.3)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.31.2)(tsx@4.19.1)(yaml@2.8.0))(vue-router@4.6.2(vue@3.5.26(typescript@5.9.3)))(vue@3.5.26(typescript@5.9.3)):
     dependencies:
       '@unhead/dom': 2.0.14(unhead@2.1.4)
-      '@unhead/vue': 2.0.14(vue@3.5.26(typescript@5.9.3))
+      '@unhead/vue': 2.1.4(vue@3.5.26(typescript@5.9.3))
       ansis: 4.2.0
       cac: 6.7.14
       html-minifier-terser: 7.2.0
