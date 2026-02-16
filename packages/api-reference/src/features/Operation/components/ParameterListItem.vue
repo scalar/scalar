@@ -5,7 +5,6 @@ import {
   ScalarMarkdownSummary,
   ScalarWrappingText,
 } from '@scalar/components'
-import { isDefined } from '@scalar/helpers/array/is-defined'
 import { ScalarIconCaretRight } from '@scalar/icons'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
@@ -66,11 +65,17 @@ const value = computed(() => {
 
   // Convert examples to schema examples which is an array
   const paramExamples = 'examples' in parameter ? parameter.examples : {}
-  const arrayExamples = schema.value?.examples ?? []
   const recordExamples = Object.values({
     ...paramExamples,
     ...content.value?.[selectedContentType.value]?.examples,
   })
+
+  // Only use parameter.example as fallback if no other examples exist
+  const arrayExamples =
+    schema.value?.examples ??
+    (recordExamples.length === 0 && 'example' in parameter
+      ? [parameter.example]
+      : [])
 
   /** Combine param examples with content ones */
   const examples = [...recordExamples, ...arrayExamples]
@@ -78,8 +83,6 @@ const value = computed(() => {
   return {
     ...getResolvedRef(baseSchema),
     deprecated: deprecated,
-    ...('example' in parameter &&
-      isDefined(parameter.example) && { example: parameter.example }),
     examples,
   } as SchemaObject
 })
