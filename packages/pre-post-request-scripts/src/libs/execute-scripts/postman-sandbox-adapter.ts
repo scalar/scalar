@@ -1,3 +1,4 @@
+import type { SandboxContext } from 'postman-sandbox'
 import Sandbox from 'postman-sandbox'
 
 import type { ConsoleContext } from './context/console'
@@ -9,13 +10,6 @@ type AssertionEvent = {
   passed: boolean
   skipped: boolean
   error: { message?: string } | null
-}
-
-type PostmanSandboxContext = {
-  on: (event: string, listener: (...args: any[]) => void) => void
-  off: (event: string, listener: (...args: any[]) => void) => void
-  execute: (target: unknown, options: unknown, callback: (error: unknown) => void) => void
-  dispose: (callback?: () => void) => void
 }
 
 const toPostmanResponse = async (response: Response) => {
@@ -33,9 +27,9 @@ const toPostmanResponse = async (response: Response) => {
   }
 }
 
-const createContext = (): Promise<PostmanSandboxContext> =>
+const createContext = (): Promise<SandboxContext> =>
   new Promise((resolve, reject) => {
-    Sandbox.createContext((error: unknown, context: PostmanSandboxContext) => {
+    Sandbox.createContext((error: unknown, context: SandboxContext) => {
       if (error) {
         reject(error)
         return
