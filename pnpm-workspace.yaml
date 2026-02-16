@@ -23,7 +23,7 @@ catalogs:
     '@headlessui/tailwindcss': ^0.2.2
     '@headlessui/vue': 1.7.23
     '@hono/node-server': ^1.19.7
-    '@modelcontextprotocol/sdk': 1.25.2
+    '@modelcontextprotocol/sdk': 1.26.0
     '@nestjs/cli': '^11.0.14'
     '@nestjs/common': '^11.1.11'
     '@nestjs/core': '^11.1.11'
