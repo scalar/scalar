@@ -1,5 +1,14 @@
 # @scalar/types
 
+## 0.6.3
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/helpers@0.2.12**
+  - [#8178](https://github.com/scalar/scalar/pull/8178): chore: package bump due to ci failure
+
 ## 0.6.2
 
 ### Patch Changes

@@ -1,5 +1,16 @@
 # @scalar/scripts
 
+## 0.0.89
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/components@0.19.4**
+  - [#8178](https://github.com/scalar/scalar/pull/8178): chore: package bump due to ci failure
+
+- **@scalar/oas-utils@0.6.42**
+
 ## 0.0.88
 
 ### Patch Changes

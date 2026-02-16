@@ -1,5 +1,27 @@
 # @scalar/workspace-store
 
+## 0.32.1
+
+### Patch Changes
+
+- [#8159](https://github.com/scalar/scalar/pull/8159): fix: do not mutate document after ingress
+- [#8178](https://github.com/scalar/scalar/pull/8178): chore: package bump due to ci failure
+
+#### Updated Dependencies
+
+- **@scalar/helpers@0.2.12**
+  - [#8178](https://github.com/scalar/scalar/pull/8178): chore: package bump due to ci failure
+
+- **@scalar/json-magic@0.11.1**
+
+- **@scalar/object-utils@1.2.26**
+
+- **@scalar/types@0.6.3**
+
+- **@scalar/openapi-upgrader@0.1.8**
+
+- **@scalar/snippetz@0.6.12**
+
 ## 0.32.0
 
 ### Minor Changes

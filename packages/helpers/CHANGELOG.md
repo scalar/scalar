@@ -1,5 +1,11 @@
 # @scalar/helpers
 
+## 0.2.12
+
+### Patch Changes
+
+- [#8178](https://github.com/scalar/scalar/pull/8178): chore: package bump due to ci failure
+
 ## 0.2.11
 
 ### Patch Changes

@@ -1,5 +1,14 @@
 # @scalar/use-codemirror
 
+## 0.13.39
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/components@0.19.4**
+  - [#8178](https://github.com/scalar/scalar/pull/8178): chore: package bump due to ci failure
+
 ## 0.13.38
 
 ### Patch Changes

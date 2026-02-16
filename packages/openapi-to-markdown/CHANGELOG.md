@@ -1,5 +1,25 @@
 # @scalar/openapi-to-markdown
 
+## 0.3.45
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/components@0.19.4**
+  - [#8178](https://github.com/scalar/scalar/pull/8178): chore: package bump due to ci failure
+
+- **@scalar/helpers@0.2.12**
+  - [#8178](https://github.com/scalar/scalar/pull/8178): chore: package bump due to ci failure
+
+- **@scalar/oas-utils@0.6.42**
+
+- **@scalar/openapi-parser@0.24.10**
+
+- **@scalar/types@0.6.3**
+
+- **@scalar/openapi-upgrader@0.1.8**
+
 ## 0.3.44
 
 ### Patch Changes

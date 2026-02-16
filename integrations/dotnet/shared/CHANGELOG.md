@@ -1,5 +1,11 @@
 # @scalar/dotnet-shared
 
+## 0.1.3
+
+### Patch Changes
+
+- [#8178](https://github.com/scalar/scalar/pull/8178): chore: package bump due to ci failure
+
 ## 0.1.2
 
 ### Patch Changes

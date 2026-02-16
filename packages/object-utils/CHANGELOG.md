@@ -1,5 +1,14 @@
 # @scalar/object-utils
 
+## 1.2.26
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/helpers@0.2.12**
+  - [#8178](https://github.com/scalar/scalar/pull/8178): chore: package bump due to ci failure
+
 ## 1.2.25
 
 ### Patch Changes

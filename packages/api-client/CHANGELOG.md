@@ -1,5 +1,46 @@
 # @scalar/api-client
 
+## 2.27.1
+
+### Patch Changes
+
+- [#8159](https://github.com/scalar/scalar/pull/8159): fix: do not mutate document after ingress
+- [#8158](https://github.com/scalar/scalar/pull/8158): fix: disable all listeners when modal is closed
+- [#8178](https://github.com/scalar/scalar/pull/8178): chore: package bump due to ci failure
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.32.1**
+  - [#8159](https://github.com/scalar/scalar/pull/8159): fix: do not mutate document after ingress
+  - [#8178](https://github.com/scalar/scalar/pull/8178): chore: package bump due to ci failure
+
+- **@scalar/components@0.19.4**
+  - [#8178](https://github.com/scalar/scalar/pull/8178): chore: package bump due to ci failure
+
+- **@scalar/helpers@0.2.12**
+  - [#8178](https://github.com/scalar/scalar/pull/8178): chore: package bump due to ci failure
+
+- **@scalar/sidebar@0.7.35**
+  - [#8178](https://github.com/scalar/scalar/pull/8178): chore: package bump due to ci failure
+
+- **@scalar/oas-utils@0.6.42**
+
+- **@scalar/use-codemirror@0.13.39**
+
+- **@scalar/import@0.4.49**
+
+- **@scalar/json-magic@0.11.1**
+
+- **@scalar/object-utils@1.2.26**
+
+- **@scalar/openapi-parser@0.24.10**
+
+- **@scalar/postman-to-openapi@0.4.4**
+
+- **@scalar/types@0.6.3**
+
+- **@scalar/snippetz@0.6.12**
+
 ## 2.27.0
 
 ### Minor Changes

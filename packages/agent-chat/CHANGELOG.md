@@ -1,5 +1,32 @@
 # @scalar/agent-chat
 
+## 0.5.11
+
+### Patch Changes
+
+- [#8178](https://github.com/scalar/scalar/pull/8178): chore: package bump due to ci failure
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.32.1**
+  - [#8159](https://github.com/scalar/scalar/pull/8159): fix: do not mutate document after ingress
+  - [#8178](https://github.com/scalar/scalar/pull/8178): chore: package bump due to ci failure
+
+- **@scalar/api-client@2.27.1**
+  - [#8159](https://github.com/scalar/scalar/pull/8159): fix: do not mutate document after ingress
+  - [#8158](https://github.com/scalar/scalar/pull/8158): fix: disable all listeners when modal is closed
+  - [#8178](https://github.com/scalar/scalar/pull/8178): chore: package bump due to ci failure
+
+- **@scalar/components@0.19.4**
+  - [#8178](https://github.com/scalar/scalar/pull/8178): chore: package bump due to ci failure
+
+- **@scalar/helpers@0.2.12**
+  - [#8178](https://github.com/scalar/scalar/pull/8178): chore: package bump due to ci failure
+
+- **@scalar/json-magic@0.11.1**
+
+- **@scalar/types@0.6.3**
+
 ## 0.5.10
 
 ### Patch Changes
