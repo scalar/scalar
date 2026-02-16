@@ -3,7 +3,10 @@ import type { Heading, TraverseSpecOptions } from '@/navigation/types'
 import type { TraversedDescription } from '@/schemas/navigation'
 import type { InfoObject } from '@/schemas/v3.1/strict/info'
 
-const DEFAULT_INTRODUCTION_SLUG = 'introduction'
+const DEFAULT_DESCRIPTION_ENTRY = {
+  TITLE: 'Introduction',
+  SLUG: 'introduction',
+} as const
 
 /**
  * Creates a hierarchical navigation structure from markdown headings in an OpenAPI description.
@@ -16,9 +19,11 @@ const DEFAULT_INTRODUCTION_SLUG = 'introduction'
  * is automatically added as the first entry.
  *
  * @param description - The markdown description text to process
- * @param entitiesMap - Map to store heading IDs and titles for mobile header navigation
- * @param getHeadingId - Function to generate unique IDs for headings
- * @returns Array of navigation entries with their hierarchy
+ * @param generateId - Function to generate unique IDs for headings
+ * @param parentId - The ID of the parent entry
+ * @param info - OpenAPI Info Object
+ *
+ * @returns Array of TraversedDescription entries with their hierarchy
  */
 export const traverseDescription = ({
   generateId,
@@ -29,23 +34,27 @@ export const traverseDescription = ({
   parentId: string
   info: InfoObject
 }): TraversedDescription[] => {
-  if (!info.description?.trim()) {
+  const description = info.description?.trim()
+
+  // No description, return empty array
+  if (!description) {
     return []
   }
 
-  const headings = getHeadingsFromMarkdown(info.description)
+  const headings = getHeadingsFromMarkdown(description)
   const lowestLevel = getLowestHeadingLevel(headings)
 
   const entries: TraversedDescription[] = []
-  let introductionEntry: TraversedDescription | null = null
+
+  let descriptionHeadingsEntry: TraversedDescription | null = null
   let currentParent: TraversedDescription | null = null
 
   // Add "Introduction" as the first heading
-  if (info.description && !info.description.trim().startsWith('#')) {
+  if (!description.startsWith('#')) {
     const heading: Heading = {
       depth: 1,
-      value: 'Introduction',
-      slug: DEFAULT_INTRODUCTION_SLUG,
+      value: DEFAULT_DESCRIPTION_ENTRY.TITLE,
+      slug: DEFAULT_DESCRIPTION_ENTRY.SLUG,
     }
 
     const id = generateId({
@@ -53,25 +62,26 @@ export const traverseDescription = ({
       depth: heading.depth,
       slug: heading.slug,
       parentId: parentId,
-      info: info,
+      info,
       value: heading.value,
     })
-    const title = heading.value
 
     const entry = {
       id,
-      title,
+      title: heading.value,
       type: 'text',
       children: [],
     } satisfies TraversedDescription
 
     // Push to entries
     entries.push(entry)
-    introductionEntry = entry
+
+    descriptionHeadingsEntry = entry
   }
 
-  // Traverse for the rest
+  // Go through each heading
   for (const heading of headings) {
+    // Skip if not a main or sub heading
     if (heading.depth !== lowestLevel && heading.depth !== lowestLevel + 1) {
       continue
     }
@@ -91,11 +101,16 @@ export const traverseDescription = ({
 
     if (heading.depth === lowestLevel) {
       entry.children = []
-      if (introductionEntry) {
-        introductionEntry.children?.push(entry)
-      } else {
+
+      // Add to description headings to the 'Introduction' entry
+      if (descriptionHeadingsEntry) {
+        descriptionHeadingsEntry.children?.push(entry)
+      }
+      // If no 'Introduction' entry, add to entries
+      else {
         entries.push(entry)
       }
+
       currentParent = entry
     } else if (currentParent) {
       currentParent.children?.push(entry)
