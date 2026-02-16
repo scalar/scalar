@@ -47,9 +47,8 @@ const toErrorMessage = (error: unknown): string => {
   return String(error)
 }
 
-const upsertTestResult = (testResults: TestResult[], assertion: AssertionEvent, startedAt: number): void => {
+const upsertTestResult = (testResults: TestResult[], assertion: AssertionEvent, duration: number): void => {
   const title = assertion.name || `Assertion ${assertion.index + 1}`
-  const duration = Number((performance.now() - startedAt).toFixed(2))
 
   const nextResult: TestResult = {
     title,
@@ -80,11 +79,16 @@ export const executeInPostmanSandbox = async ({
   scriptConsole: ConsoleContext
 }): Promise<void> => {
   const testResults: TestResult[] = []
-  const startedAt = performance.now()
+  let lastAssertionTime = 0
+  let scriptExecutionStartedAt = 0
   const sandboxContext = await createContext()
 
   const handleAssertion = (_cursor: unknown, assertions: AssertionEvent[]) => {
-    assertions.forEach((assertion) => upsertTestResult(testResults, assertion, startedAt))
+    assertions.forEach((assertion) => {
+      const duration = Number((performance.now() - lastAssertionTime).toFixed(2))
+      lastAssertionTime = performance.now()
+      upsertTestResult(testResults, assertion, duration)
+    })
     onTestResultsUpdate?.([...testResults])
   }
 
@@ -98,6 +102,9 @@ export const executeInPostmanSandbox = async ({
     sandboxContext.on('console', handleConsole)
 
     const postmanResponse = await toPostmanResponse(response)
+
+    scriptExecutionStartedAt = performance.now()
+    lastAssertionTime = scriptExecutionStartedAt
 
     await new Promise<void>((resolve) => {
       sandboxContext.execute(
@@ -115,7 +122,7 @@ export const executeInPostmanSandbox = async ({
         },
         (error: unknown) => {
           if (error) {
-            const duration = Number((performance.now() - startedAt).toFixed(2))
+            const duration = Number((performance.now() - scriptExecutionStartedAt).toFixed(2))
             const errorMessage = toErrorMessage(error)
 
             scriptConsole.error(`[Post-Response Script] Error (${duration}ms):`, errorMessage)
