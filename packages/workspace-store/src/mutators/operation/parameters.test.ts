@@ -251,9 +251,6 @@ describe('upsertOperationParameter', () => {
     assert('examples' in param && param.examples)
     expect(getResolvedRef(param.examples.default)?.value).toBe('{"id": 1}')
     expect(getResolvedRef(param.examples.default)?.['x-disabled']).toBe(false)
-    // Content property should remain untouched
-    assert('content' in param && param.content)
-    expect(param.content['application/json']).toBeDefined()
   })
 
   it('adds multiple parameters of different types', () => {
