@@ -753,13 +753,9 @@ eventBus.on('ui:download:document', async ({ format }) => {
  */
 const handleSelectSidebarEntry = (id: string, caller?: 'sidebar') => {
   const item = sidebarState.getEntryById(id)
-  const isTextEntryWithChildren =
-    item?.type === 'text' && Boolean(item.children?.length)
 
   if (
-    (item?.type === 'tag' ||
-      item?.type === 'models' ||
-      isTextEntryWithChildren) &&
+    (item?.type === 'tag' || item?.type === 'models') &&
     sidebarState.isExpanded(id)
   ) {
     // hack until we fix intersection logic
@@ -936,6 +932,10 @@ watch(agent.showAgent, () => (bodyScrollLocked.value = agent.showAgent.value))
             :isSelected="sidebarState.isSelected"
             :items="sidebarItems"
             layout="reference"
+            :onChevronClick="
+              (id: string) =>
+                sidebarState.setExpanded(id, !sidebarState.isExpanded(id))
+            "
             :options="mergedConfig"
             role="navigation"
             @selectItem="(id) => handleSelectSidebarEntry(id, 'sidebar')">
