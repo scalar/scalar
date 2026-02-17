@@ -58,9 +58,6 @@ describe('RequestBlock', () => {
     await input.setValue('New Name')
     await input.trigger('blur')
 
-    // Wait for the debounce to complete
-    await new Promise((resolve) => setTimeout(resolve, 500))
-
     expect(fn).toHaveBeenCalledTimes(1)
     expect(fn).toHaveBeenCalledWith({
       payload: { summary: 'New Name' },

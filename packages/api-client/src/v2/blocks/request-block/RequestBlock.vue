@@ -302,16 +302,10 @@ watch(
 /** Handle operation summary updates */
 const handleSummaryUpdate = (event: Event): void => {
   const summary = (event.target as HTMLInputElement).value
-  eventBus.emit(
-    'operation:update:summary',
-    {
-      meta: meta.value,
-      payload: { summary },
-    },
-    {
-      debounceKey: `update:operation:summary-${meta.value.path}-${meta.value.method}`,
-    },
-  )
+  eventBus.emit('operation:update:summary', {
+    meta: meta.value,
+    payload: { summary },
+  })
 }
 
 /** Parameter handlers */
