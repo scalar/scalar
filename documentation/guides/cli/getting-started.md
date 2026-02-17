@@ -1,8 +1,8 @@
 # Getting Started
 <div class="flex gap-2">
-<a href="https://www.npmjs.com/@scalar/cli"><img alt="NPM Version" src="https://img.shields.io/npm/v/@scalar/cli"></a>
-<a href="https://www.npmjs.com/@scalar/cli"><img alt="NPM Downloads" src="https://img.shields.io/npm/dm/@scalar/cli"></a>
-<a href="https://discord.gg/scalar"><img alt="Discord" src="https://img.shields.io/discord/1135330207960678410?style=flat&color=5865F2"></a>
+<a href="https://www.npmjs.com/@scalar/cli" aria-label="View @scalar/cli on NPM"><img alt="NPM Version" src="https://img.shields.io/npm/v/@scalar/cli"></a>
+<a href="https://www.npmjs.com/@scalar/cli" aria-label="View NPM downloads for @scalar/cli"><img alt="NPM Downloads" src="https://img.shields.io/npm/dm/@scalar/cli"></a>
+<a href="https://discord.gg/scalar" aria-label="Join Scalar community on Discord"><img alt="Discord" src="https://img.shields.io/discord/1135330207960678410?style=flat&color=5865F2"></a>
 </div>
 
 Reading this guide helps you to get started with our CLI. We have dozens of commands around API Docs rendering (Markdown + MDX), OpenAPI bundling & linting, pushing to our cloud for governance+hosting & much more!

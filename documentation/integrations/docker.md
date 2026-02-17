@@ -1,9 +1,9 @@
 # Scalar API Reference Docker Image
 
 <div class="flex gap-2">
-<a href="https://hub.docker.com/r/scalarapi/api-reference"><img alt="Docker Image Version" src="https://img.shields.io/docker/v/scalarapi/api-reference?label=Docker%20image"></a>
-<a href="https://hub.docker.com/r/scalarapi/api-reference"><img alt="Docker Pulls" src="https://img.shields.io/docker/pulls/scalarapi/api-reference?label=Docker%20pulls"></a>
-<a href="https://discord.gg/scalar"><img alt="Discord" src="https://img.shields.io/discord/1135330207960678410?style=flat&color=5865F2"></a>
+<a href="https://hub.docker.com/r/scalarapi/api-reference" aria-label="View Scalar API Reference on Docker Hub"><img alt="Docker Image Version" src="https://img.shields.io/docker/v/scalarapi/api-reference?label=Docker%20image"></a>
+<a href="https://hub.docker.com/r/scalarapi/api-reference" aria-label="View Docker pulls for Scalar API Reference"><img alt="Docker Pulls" src="https://img.shields.io/docker/pulls/scalarapi/api-reference?label=Docker%20pulls"></a>
+<a href="https://discord.gg/scalar" aria-label="Join Scalar community on Discord"><img alt="Discord" src="https://img.shields.io/discord/1135330207960678410?style=flat&color=5865F2"></a>
 </div>
 
 ## Quick Start

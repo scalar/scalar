@@ -152,7 +152,7 @@
           Private or Public
         </b>
       </div>
-      <a class="mt-3 t-editor__anchor" href="/products/registry/getting-started">
+      <a class="mt-3 t-editor__anchor" href="/products/registry/getting-started" aria-label="Connect your API for free with Scalar Registry">
       Connect Your API for Free
        →
       </a>
@@ -202,7 +202,7 @@
           Linux, Windows, macOS
         </b>
       </div>
-      <a class="mt-3 t-editor__anchor" href="/products/api-client/getting-started">Send Your First Request →</a>
+      <a class="mt-3 t-editor__anchor" href="/products/api-client/getting-started" aria-label="Send your first API request with Scalar">Send Your First Request →</a>
     </div>
     <div class="product-image">
       <div class="product-image-transform">
@@ -249,7 +249,7 @@
           Fine-grained Access
         </b>
       </div>
-      <a class="mt-3 t-editor__anchor" href="/products/docs/getting-started">Create Your New Documentation →</a>
+      <a class="mt-3 t-editor__anchor" href="/products/docs/getting-started" aria-label="Create your new API documentation with Scalar">Create Your New Documentation →</a>
     </div>
     <div class="product-image">
       <div class="product-image-transform">
@@ -296,7 +296,7 @@
           File Streaming Support
         </b>
       </div>
-      <a class="mt-3 t-editor__anchor" href="/products/sdks/getting-started">Generate your first SDK →</a>
+      <a class="mt-3 t-editor__anchor" href="/products/sdks/getting-started" aria-label="Generate your first SDK with Scalar">Generate your first SDK →</a>
     </div>
     <div class="product-image">
       <div class="product-image-transform">
@@ -358,9 +358,9 @@
     <a class="t-editor__button" href="https://dashboard.scalar.com/register">Get Started</a>
     <a class="t-editor__button" href="https://scalar.cal.com/scalar/chat-with-scalar" target="_blank">Book a Demo</a>
   </div>
-  <a class="expander-hover-link" href="https://discord.gg/scalar" target="_blank">Community →</a>
-  <a class="expander-hover-link" href="https://github.com/scalar/scalar" target="_blank">GitHub →</a>
-  <a class="expander-hover-link" href="mailto:support@scalar.com" target="_blank">Contact Us →</a>
+  <a class="expander-hover-link" href="https://discord.gg/scalar" target="_blank" aria-label="Join Scalar community on Discord">Community →</a>
+  <a class="expander-hover-link" href="https://github.com/scalar/scalar" target="_blank" aria-label="View Scalar on GitHub">GitHub →</a>
+  <a class="expander-hover-link" href="mailto:support@scalar.com" target="_blank" aria-label="Contact Scalar support">Contact Us →</a>
 </div>
 
 <div class="expander-container">
@@ -380,7 +380,7 @@
           Minimal, powerful, fully open-source API Client built on open standards by us + our community.
         </div>
       </div>
-      <a class="expander-hover-link" href="https://client.scalar.com/" target="_blank">Learn More</a>
+      <a class="expander-hover-link" href="https://client.scalar.com/" target="_blank" aria-label="Learn more about API Client">Learn More</a>
     </div>
   </div>
   <div class="expander-hover">
@@ -399,7 +399,7 @@
           Bring your OpenAPI document and get type-safe client libraries for TypeScript, Python and more.
         </div>
       </div>
-      <a class="expander-hover-link" href="/products/sdks/getting-started">Learn More</a>
+      <a class="expander-hover-link" href="/products/sdks/getting-started" aria-label="Learn more about SDKs">Learn More</a>
     </div>
   </div>
   <div class="expander-hover">
@@ -418,7 +418,7 @@
           Managing & versioning OpenAPI Documents with a deep Git integration.
         </div>
       </div>
-      <a class="expander-hover-link" href="/products/registry/getting-started">Learn More</a>
+      <a class="expander-hover-link" href="/products/registry/getting-started" aria-label="Learn more about API Registry">Learn More</a>
     </div>
   </div>
   <div class="expander-hover">
@@ -436,7 +436,7 @@
           Write beautiful documentation with Markdown + MDX + Git Sync.
         </div>
       </div>
-      <a class="expander-hover-link" href="/products/docs/getting-started">Learn More</a>
+      <a class="expander-hover-link" href="/products/docs/getting-started" aria-label="Learn more about API Docs">Learn More</a>
     </div>
   </div>
 </div>
