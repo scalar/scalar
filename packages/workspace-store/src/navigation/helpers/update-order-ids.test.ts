@@ -455,7 +455,9 @@ describe('update-order-ids', () => {
 
       // generateId returns the old ID for the parent lookup, new ID for the tag
       const generateId = vi.fn((props) => {
-        if (props.type === 'tag') return 'test-api/tag/customers'
+        if (props.type === 'tag') {
+          return 'test-api/tag/customers'
+        }
         return props.id ?? 'unknown'
       })
 
