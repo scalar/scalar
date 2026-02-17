@@ -16,7 +16,7 @@
     "openapi",
     "scalar"
   ],
-  "version": "0.31.2",
+  "version": "0.32.1",
   "engines": {
     "node": ">=18"
   },
@@ -107,6 +107,11 @@
       "import": "./dist/schemas/extensions/security/index.js",
       "types": "./dist/schemas/extensions/security/index.d.ts",
       "default": "./dist/schemas/extensions/security/index.js"
+    },
+    "./schemas/extensions/tag": {
+      "import": "./dist/schemas/extensions/tag/index.js",
+      "types": "./dist/schemas/extensions/tag/index.d.ts",
+      "default": "./dist/schemas/extensions/tag/index.js"
     },
     "./schemas/extensions/workspace": {
       "import": "./dist/schemas/extensions/workspace/index.js",

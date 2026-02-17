@@ -47,7 +47,7 @@ const createDefaultHeader = (name: string, defaultValue: string, existingHeaders
  * This function intelligently adds standard HTTP headers based on the request context:
  * - Content-Type: Added only if the HTTP method supports a request body (POST, PUT, PATCH, etc.).
  *   Uses the selected content type from the operation or defaults to "application/json".
- * - Accept: Always added with a wildcard value to accept all response types.
+ * - Accept: Derived from the 2xx response content types in the spec (joined as a comma-separated list), falling back to a wildcard.
  * - User-Agent: Added in Electron environments (desktop app or proxy) to identify the client.
  *
  * The function respects OpenAPI operation parameters and marks headers as overridden
@@ -94,8 +94,12 @@ export const getDefaultHeaders = ({
     }
   }
 
-  // Always add Accept header to indicate we accept all response types
-  headers.push(createDefaultHeader('Accept', DEFAULT_ACCEPT, existingHeaders))
+  // Derive Accept from the 2xx response content types so the server can pick the best match.
+  const successResponseKey = Object.keys(operation.responses ?? {}).find((k) => k.startsWith('2'))
+  const successResponse = successResponseKey ? getResolvedRef(operation.responses![successResponseKey]) : null
+  const acceptValue = Object.keys(successResponse?.content ?? {}).join(', ') || DEFAULT_ACCEPT
+
+  headers.push(createDefaultHeader('Accept', acceptValue, existingHeaders))
 
   // Add User-Agent in Electron environments for client identification
   if (isElectron() && APP_VERSION) {

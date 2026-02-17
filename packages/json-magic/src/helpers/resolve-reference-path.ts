@@ -1,4 +1,4 @@
-import { path } from '@scalar/helpers/node/path'
+import path from 'pathe'
 
 import { isHttpUrl } from '@/helpers/is-http-url'
 
@@ -25,7 +25,7 @@ export const resolveReferencePath = (base: string, relativePath: string) => {
 
   if (isHttpUrl(base)) {
     const baseUrl = new URL(base)
-    baseUrl.pathname = path.resolve(path.dirname(baseUrl.pathname), relativePath)
+    baseUrl.pathname = path.posix.resolve('/', path.dirname(baseUrl.pathname), relativePath)
     return baseUrl.toString()
   }
 

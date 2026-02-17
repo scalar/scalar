@@ -1,5 +1,24 @@
 # @scalarapi/docker-api-reference
 
+## 0.4.59
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.44.20**
+  - [#8159](https://github.com/scalar/scalar/pull/8159): fix: do not mutate document after ingress
+  - [#8178](https://github.com/scalar/scalar/pull/8178): chore: package bump due to ci failure
+
+## 0.4.58
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.44.19**
+  - [#8155](https://github.com/scalar/scalar/pull/8155): fix(api-reference): bugs with cards rendering
+
 ## 0.4.57
 
 ### Patch Changes

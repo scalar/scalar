@@ -1,5 +1,41 @@
 # @scalar/nuxt
 
+## 0.5.77
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.44.20**
+  - [#8159](https://github.com/scalar/scalar/pull/8159): fix: do not mutate document after ingress
+  - [#8178](https://github.com/scalar/scalar/pull/8178): chore: package bump due to ci failure
+
+- **@scalar/api-client@2.27.1**
+  - [#8159](https://github.com/scalar/scalar/pull/8159): fix: do not mutate document after ingress
+  - [#8158](https://github.com/scalar/scalar/pull/8158): fix: disable all listeners when modal is closed
+  - [#8178](https://github.com/scalar/scalar/pull/8178): chore: package bump due to ci failure
+
+- **@scalar/types@0.6.3**
+
+## 0.5.76
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-client@2.27.0**
+  - [#8135](https://github.com/scalar/scalar/pull/8135): feat: added support for OpenID Connect Discovery
+  - [#8149](https://github.com/scalar/scalar/pull/8149): fix: prefill parameter inputs from parameter-level examples
+  - [#8155](https://github.com/scalar/scalar/pull/8155): fix(api-reference): bugs with cards rendering
+  - [#8138](https://github.com/scalar/scalar/pull/8138): chore: some minor style and ui updates
+  - [#8152](https://github.com/scalar/scalar/pull/8152): feat: support custom themes
+  - [#8157](https://github.com/scalar/scalar/pull/8157): fix: navigate to workspace settings from the menu
+  - [#8154](https://github.com/scalar/scalar/pull/8154): fix: scrolling issues in client modal
+  - [#8156](https://github.com/scalar/scalar/pull/8156): fix: only trigger send request when client is open
+
+- **@scalar/api-reference@1.44.19**
+  - [#8155](https://github.com/scalar/scalar/pull/8155): fix(api-reference): bugs with cards rendering
+
 ## 0.5.75
 
 ### Patch Changes

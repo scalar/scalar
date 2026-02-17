@@ -1,5 +1,33 @@
 # @scalar/mock-server
 
+## 0.8.37
+
+### Patch Changes
+
+- [#8146](https://github.com/scalar/scalar/pull/8146): fix: oauth2 confirmation page shows broken logo
+- [#8146](https://github.com/scalar/scalar/pull/8146): feat: show requested scopes on oauth2 confirmation page
+
+#### Updated Dependencies
+
+- **@scalar/helpers@0.2.12**
+  - [#8178](https://github.com/scalar/scalar/pull/8178): chore: package bump due to ci failure
+
+- **@scalar/oas-utils@0.6.42**
+
+- **@scalar/json-magic@0.11.1**
+
+- **@scalar/openapi-parser@0.24.10**
+
+- **@scalar/openapi-upgrader@0.1.8**
+
+## 0.8.36
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/oas-utils@0.6.41**
+
 ## 0.8.35
 
 ### Patch Changes

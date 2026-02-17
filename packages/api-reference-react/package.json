@@ -18,7 +18,7 @@
     "testing",
     "react"
   ],
-  "version": "0.8.55",
+  "version": "0.8.57",
   "engines": {
     "node": ">=20"
   },

@@ -17,7 +17,7 @@ type WorkspaceStoreShape = {
 }
 
 /** Generates a workspace ID from namespace and slug. */
-const getWorkspaceId = (namespace: string, slug: string) => `${namespace}/${slug}`
+export const getWorkspaceId = (namespace: string, slug: string) => `${namespace}/${slug}`
 
 /**
  * Creates the persistence layer for the workspace store using IndexedDB.

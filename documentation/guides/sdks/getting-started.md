@@ -105,9 +105,9 @@ Once created, you will get redirected to the SDK Overview page where you can:
     <a class="t-editor__button" href="https://dashboard.scalar.com/register">Get Started</a>
     <a class="t-editor__button" href="https://scalar.cal.com/scalar/chat-with-scalar" target="_blank">Book a Demo</a>
   </div>
-  <a class="expander-hover-link" href="https://discord.gg/scalar" target="_blank">Community →</a>
-  <a class="expander-hover-link" href="https://github.com/scalar/scalar" target="_blank">GitHub →</a>
-  <a class="expander-hover-link" href="mailto:support@scalar.com" target="_blank">Contact Us →</a>
+  <a class="expander-hover-link" href="https://discord.gg/scalar" target="_blank" aria-label="Join Scalar community on Discord">Community →</a>
+  <a class="expander-hover-link" href="https://github.com/scalar/scalar" target="_blank" aria-label="View Scalar on GitHub">GitHub →</a>
+  <a class="expander-hover-link" href="mailto:support@scalar.com" target="_blank" aria-label="Contact Scalar support">Contact Us →</a>
 </div>
 </div>
 </div>
@@ -141,8 +141,8 @@ Once created, you will get redirected to the SDK Overview page where you can:
 <div class="expander-container">
   <div class="expander-hover">
     <div class="expander-hover-preview">
-      <img class="light-image" src="/api-client-static.svg" />
-      <img class="dark-image" src="/api-client-static-dark.svg" />
+      <img alt="API Client Preview" class="light-image" src="/api-client-static.svg" />
+      <img alt="API Client Preview" class="dark-image" src="/api-client-static-dark.svg" />
     </div>
     <div class="relative">
       <div class="expander-hover-sticker">
@@ -155,13 +155,13 @@ Once created, you will get redirected to the SDK Overview page where you can:
           Minimal, powerful, fully open-source API Client built on open standards by us + our community.
         </div>
       </div>
-      <a class="expander-hover-link" href="https://client.scalar.com/" target="_blank">Learn More</a>
+      <a class="expander-hover-link" href="https://client.scalar.com/" target="_blank" aria-label="Learn more about API Client">Learn More</a>
     </div>
   </div>
   <div class="expander-hover">
     <div class="expander-hover-preview">
-      <img class="light-image" src="/sdks-static.svg" />
-      <img class="dark-image" src="/sdks-static-dark.svg" />
+      <img alt="SDKs Preview" class="light-image" src="/sdks-static.svg" />
+      <img alt="SDKs Preview" class="dark-image" src="/sdks-static-dark.svg" />
     </div>
     <div class="relative">
       <div class="expander-hover-sticker">
@@ -174,13 +174,13 @@ Once created, you will get redirected to the SDK Overview page where you can:
           Bring your OpenAPI document and get type-safe client libraries for TypeScript, Python and more.
         </div>
       </div>
-      <a class="expander-hover-link" href="/products/sdks/getting-started">Learn More</a>
+      <a class="expander-hover-link" href="/products/sdks/getting-started" aria-label="Learn more about SDKs">Learn More</a>
     </div>
   </div>
   <div class="expander-hover">
     <div class="expander-hover-preview">
-      <img class="light-image" src="/registry-static.svg" />
-      <img class="dark-image" src="/registry-static-dark.svg" />
+      <img alt="API Registry Preview" class="light-image" src="/registry-static.svg" />
+      <img alt="API Registry Preview" class="dark-image" src="/registry-static-dark.svg" />
     </div>
     <div class="relative">
       <div class="expander-hover-sticker">
@@ -193,13 +193,13 @@ Once created, you will get redirected to the SDK Overview page where you can:
           Managing & versioning OpenAPI Documents with a deep Git integration.
         </div>
       </div>
-      <a class="expander-hover-link" href="/products/registry/getting-started">Learn More</a>
+      <a class="expander-hover-link" href="/products/registry/getting-started" aria-label="Learn more about API Registry">Learn More</a>
     </div>
   </div>
   <div class="expander-hover">
     <div class="expander-hover-preview">
-      <img class="light-image" src="/api-docs-static-zoom.svg" />
-      <img class="dark-image" src="/api-docs-static-zoom-dark.svg" />
+      <img alt="API Docs Preview" class="light-image" src="/api-docs-static-zoom.svg" />
+      <img alt="API Docs Preview" class="dark-image" src="/api-docs-static-zoom-dark.svg" />
     </div>
     <div class="relative">
       <div class="expander-hover-sticker">
@@ -211,7 +211,7 @@ Once created, you will get redirected to the SDK Overview page where you can:
           Write beautiful documentation with Markdown + MDX + Git Sync.
         </div>
       </div>
-      <a class="expander-hover-link" href="/products/docs/getting-started">Learn More</a>
+      <a class="expander-hover-link" href="/products/docs/getting-started" aria-label="Learn more about API Docs">Learn More</a>
     </div>
   </div>
 </div>

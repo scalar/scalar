@@ -13,7 +13,7 @@ export default {}
 <script setup lang="ts">
 import type { AuthMeta } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
-import { computed, onMounted, toValue } from 'vue'
+import { computed, toValue } from 'vue'
 
 import { OperationBlock } from '@/v2/blocks/operation-block'
 import type { ExtendedScalarCookie } from '@/v2/blocks/request-block/RequestBlock.vue'
@@ -107,16 +107,6 @@ const servers = computed(() => {
 const selectedServer = computed(() =>
   getSelectedServer(document, servers.value),
 )
-
-onMounted(() => {
-  /** Select the first server if the user has not specifically unselected it */
-  if (
-    typeof document?.['x-scalar-selected-server'] === 'undefined' &&
-    servers.value?.[0]?.url
-  ) {
-    eventBus.emit('server:update:selected', { url: servers.value[0]!.url })
-  }
-})
 
 /** Select document vs operation meta based on the extension */
 const authMeta = computed<AuthMeta>(() => {

@@ -1,5 +1,26 @@
 # @scalar/api-reference-react
 
+## 0.8.57
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.44.20**
+  - [#8159](https://github.com/scalar/scalar/pull/8159): fix: do not mutate document after ingress
+  - [#8178](https://github.com/scalar/scalar/pull/8178): chore: package bump due to ci failure
+
+- **@scalar/types@0.6.3**
+
+## 0.8.56
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.44.19**
+  - [#8155](https://github.com/scalar/scalar/pull/8155): fix(api-reference): bugs with cards rendering
+
 ## 0.8.55
 
 ### Patch Changes

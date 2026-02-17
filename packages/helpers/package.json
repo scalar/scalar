@@ -14,7 +14,7 @@
     "helpers",
     "js"
   ],
-  "version": "0.2.11",
+  "version": "0.2.12",
   "engines": {
     "node": ">=20"
   },
@@ -34,6 +34,11 @@
       "import": "./dist/array/*.js",
       "types": "./dist/array/*.d.ts",
       "default": "./dist/array/*.js"
+    },
+    "./consts/*": {
+      "import": "./dist/consts/*.js",
+      "types": "./dist/consts/*.d.ts",
+      "default": "./dist/consts/*.js"
     },
     "./crypto/*": {
       "import": "./dist/crypto/*.js",

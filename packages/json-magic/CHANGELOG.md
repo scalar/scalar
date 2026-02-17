@@ -1,5 +1,14 @@
 # @scalar/json-magic
 
+## 0.11.1
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/helpers@0.2.12**
+  - [#8178](https://github.com/scalar/scalar/pull/8178): chore: package bump due to ci failure
+
 ## 0.11.0
 
 ### Minor Changes

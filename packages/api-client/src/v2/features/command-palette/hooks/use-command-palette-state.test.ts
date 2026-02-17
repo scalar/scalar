@@ -56,10 +56,10 @@ describe('useCommandPaletteState', () => {
     vi.mocked(useModal).mockReturnValue(mockModalState)
 
     const state = useCommandPaletteState()
-    state.open('create-document', undefined)
+    state.open('create-openapi-document', undefined)
 
     expect(mockModalState.show).toHaveBeenCalledOnce()
-    expect(state.activeCommand.value?.id).toBe('create-document')
+    expect(state.activeCommand.value?.id).toBe('create-openapi-document')
     expect(state.activeCommandProps.value).toBeNull()
   })
 
@@ -83,7 +83,7 @@ describe('useCommandPaletteState', () => {
     const state = useCommandPaletteState()
 
     state.setFilterQuery('import')
-    state.open('create-document', undefined)
+    state.open('create-openapi-document', undefined)
     state.close()
 
     expect(mockModalState.hide).toHaveBeenCalledOnce()
@@ -109,7 +109,7 @@ describe('useCommandPaletteState', () => {
     const state = useCommandPaletteState()
 
     state.setFilterQuery('test query')
-    state.open('create-document', undefined)
+    state.open('create-openapi-document', undefined)
     state.reset()
 
     expect(state.filterQuery.value).toBe('')
@@ -267,7 +267,7 @@ describe('useCommandPaletteState', () => {
     await nextTick()
 
     const allCommands = state.filteredCommands.value.flatMap((group) => group.commands)
-    expect(allCommands.some((cmd) => cmd.name === 'Create Document')).toBe(true)
+    expect(allCommands.some((cmd) => cmd.id === 'create-openapi-document')).toBe(true)
   })
 
   it('maintains command properties after filtering', async () => {
@@ -275,18 +275,18 @@ describe('useCommandPaletteState', () => {
     vi.mocked(useModal).mockReturnValue(mockModalState)
 
     const state = useCommandPaletteState()
-    state.setFilterQuery('create document')
+    state.setFilterQuery('create openapi document')
 
     await nextTick()
 
     const filteredCommand = state.filteredCommands.value
       .flatMap((group) => group.commands)
-      .find((cmd) => cmd.id === 'create-document')
+      .find((cmd) => cmd.id === 'create-openapi-document')
 
     expect(filteredCommand).toBeDefined()
     /** Actions don't have a 'type' property, routes have 'type': 'route' */
-    expect(filteredCommand?.id).toBe('create-document')
-    expect(filteredCommand?.name).toBe('Create Document')
+    expect(filteredCommand?.id).toBe('create-openapi-document')
+    expect(filteredCommand?.name).toBe('Create OpenAPI Document')
   })
 
   it('allows opening different commands sequentially', () => {
@@ -295,8 +295,8 @@ describe('useCommandPaletteState', () => {
 
     const state = useCommandPaletteState()
 
-    state.open('create-document', undefined)
-    expect(state.activeCommand.value?.id).toBe('create-document')
+    state.open('create-openapi-document', undefined)
+    expect(state.activeCommand.value?.id).toBe('create-openapi-document')
 
     state.open('add-tag', {})
     expect(state.activeCommand.value?.id).toBe('add-tag')
