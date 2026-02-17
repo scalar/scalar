@@ -403,7 +403,7 @@ const handleAddEmptyFolder = (item: TraversedEntry) => {
                 K
               </span>
             </ScalarButton>
-            <DownloadAppButton />
+            <DownloadAppButton v-if="layout === 'web'" />
           </div>
         </div>
       </template>
