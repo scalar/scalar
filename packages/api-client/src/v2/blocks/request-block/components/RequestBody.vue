@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { ScalarButton, ScalarIcon, ScalarListbox } from '@scalar/components'
+import { CONTENT_TYPES } from '@scalar/helpers/consts/content-types'
+import { objectEntries } from '@scalar/helpers/object/object-entries'
 import type { ApiReferenceEvents } from '@scalar/workspace-store/events'
 import { unpackProxyObject } from '@scalar/workspace-store/helpers/unpack-proxy'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type { RequestBodyObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import type { Entries } from 'type-fest'
 import { computed } from 'vue'
 
 import { useFileDialog } from '@/hooks'
@@ -58,27 +59,13 @@ const contentTypeToLanguageMap = {
   'application/yaml': 'yaml',
 } as const
 
-const contentTypes = {
-  'multipart/form-data': 'Multipart Form',
-  'application/x-www-form-urlencoded': 'Form URL Encoded',
-  'application/octet-stream': 'Binary File',
-  'application/json': 'JSON',
-  'application/xml': 'XML',
-  'application/yaml': 'YAML',
-  'application/edn': 'EDN',
-  'other': 'Other',
-  'none': 'None',
-} as const
-
 /** Selected content type with default */
 const selectedContentType = computed(
   () => getSelectedBodyContentType(requestBody, exampleKey) ?? 'none',
 )
 
 /** Convert content types to options for the dropdown */
-const contentTypeOptions = (
-  Object.entries(contentTypes) as Entries<typeof contentTypes>
-).map(([id, label]) => ({
+const contentTypeOptions = objectEntries(CONTENT_TYPES).map(([id, label]) => ({
   id,
   label,
 }))
@@ -147,8 +134,9 @@ const bodyValue = computed(() => {
             fullWidth
             variant="ghost">
             <span>{{
-              contentTypes[selectedContentType as keyof typeof contentTypes] ??
-              selectedContentType
+              CONTENT_TYPES[
+                selectedContentType as keyof typeof CONTENT_TYPES
+              ] ?? selectedContentType
             }}</span>
             <ScalarIcon
               icon="ChevronDown"
