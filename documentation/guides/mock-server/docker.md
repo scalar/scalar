@@ -1,9 +1,9 @@
 # Docker
 
 <div class="flex gap-2">
-<a href="https://hub.docker.com/r/scalarapi/mock-server"><img src="https://img.shields.io/docker/v/scalarapi/mock-server?label=Docker%20image"></a>
-<a href="https://hub.docker.com/r/scalarapi/mock-server"><img src="https://img.shields.io/docker/pulls/scalarapi/mock-server?label=Docker%20pulls"></a>
-<a href="https://discord.gg/scalar"><img src="https://img.shields.io/discord/1135330207960678410?style=flat&color=5865F2"></a>
+<a href="https://hub.docker.com/r/scalarapi/mock-server"><img alt="Docker Image Version" src="https://img.shields.io/docker/v/scalarapi/mock-server?label=Docker%20image"></a>
+<a href="https://hub.docker.com/r/scalarapi/mock-server"><img alt="Docker Pulls" src="https://img.shields.io/docker/pulls/scalarapi/mock-server?label=Docker%20pulls"></a>
+<a href="https://discord.gg/scalar"><img alt="Discord" src="https://img.shields.io/discord/1135330207960678410?style=flat&color=5865F2"></a>
 </div>
 
 Run the Scalar Mock Server in a Docker container.

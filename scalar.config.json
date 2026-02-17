@@ -36,6 +36,48 @@
           "property": "og:image",
           "name": "og:image",
           "content": "https://api.scalar.com/cdn/images/IlMnm9Mxy-SabmLxE_i0L/8O99z8O2xzEypGxOzuZYo.png"
+        },
+        {
+          "name": "description",
+          "content": "Industry leading Developer Docs, SDKs, API Client & Registry that your APIs deserve."
+        },
+        {
+          "property": "og:title",
+          "content": "Scalar - The OpenAPI Company"
+        },
+        {
+          "property": "og:description",
+          "content": "Industry leading Developer Docs, SDKs, API Client & Registry that your APIs deserve."
+        },
+        {
+          "property": "og:site_name",
+          "content": "Scalar"
+        },
+        {
+          "property": "og:locale",
+          "content": "en_US"
+        },
+        {
+          "property": "og:type",
+          "content": "website"
+        }, {
+          "name": "twitter:title",
+          "content": "Scalar - The OpenAPI Company"
+        }, {
+          "name": "twitter:description",
+          "content": "Industry leading Developer Docs, SDKs, API Client & Registry that your APIs deserve."
+        },
+        {
+          "name": "twitter:image",
+          "content": "/twitter-image.png"
+        },
+        {
+          "name": "twitter:image:width",
+          "content": "1200"
+        },
+        {
+          "name": "twitter:image:height",
+          "content": "630"
         }
       ],
       "links": [
@@ -525,10 +567,27 @@
             "type": "page",
             "filepath": "documentation/guides/introduction.md",
             "title": "Introduction",
-            "description": "Introduction to Scalar",
+            "description": "Industry leading Developer Docs, SDKs, API Client & Registry that your APIs deserve.",
             "icon": "phosphor/regular/house",
             "layout": {
               "toc": false
+            },
+            "head": {
+              "title": "Scalar - The OpenAPI Company",
+              "links": [{
+                "rel": "canonical",
+                "href": "https://scalar.com"
+              }],
+              "meta": [
+                {
+                  "name": "robots",
+                  "content": "index, follow"
+                },
+                {
+                  "name": "googlebot",
+                  "content": "index, follow, max-image-preview:large"
+                }
+              ]
             }
           },
           "/pricing": {

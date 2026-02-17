@@ -548,8 +548,8 @@
 <div class="expander-container">
   <div class="expander-hover">
     <div class="expander-hover-preview">
-      <img class="light-image" src="/api-client-static.svg" />
-      <img class="dark-image" src="/api-client-static-dark.svg" />
+      <img alt="API Client Preview" class="light-image" src="/api-client-static.svg" />
+      <img alt="API Client Preview" class="dark-image" src="/api-client-static-dark.svg" />
     </div>
     <div class="relative">
       <div class="expander-hover-sticker">
@@ -567,8 +567,8 @@
   </div>
   <div class="expander-hover">
     <div class="expander-hover-preview">
-      <img class="light-image" src="/sdks-static.svg" />
-      <img class="dark-image" src="/sdks-static-dark.svg" />
+      <img alt="SDKs Preview" class="light-image" src="/sdks-static.svg" />
+      <img alt="SDKs Preview" class="dark-image" src="/sdks-static-dark.svg" />
     </div>
     <div class="relative">
       <div class="expander-hover-sticker">
@@ -586,8 +586,8 @@
   </div>
   <div class="expander-hover">
     <div class="expander-hover-preview">
-      <img class="light-image" src="/registry-static.svg" />
-      <img class="dark-image" src="/registry-static-dark.svg" />
+      <img alt="API Registry Preview" class="light-image" src="/registry-static.svg" />
+      <img alt="API Registry Preview" class="dark-image" src="/registry-static-dark.svg" />
     </div>
     <div class="relative">
       <div class="expander-hover-sticker">
@@ -605,8 +605,8 @@
   </div>
   <div class="expander-hover">
     <div class="expander-hover-preview">
-      <img class="light-image" src="/api-docs-static-zoom.svg" />
-      <img class="dark-image" src="/api-docs-static-zoom-dark.svg" />
+      <img alt="API Docs Preview" class="light-image" src="/api-docs-static-zoom.svg" />
+      <img alt="API Docs Preview" class="dark-image" src="/api-docs-static-zoom-dark.svg" />
     </div>
     <div class="relative">
       <div class="expander-hover-sticker">

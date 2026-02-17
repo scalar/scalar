@@ -33,20 +33,20 @@
   <button type="button" data-target="#slide-4">API Client</button>
   <ul class="gallery container-full" id="gallery">
     <li id="slide-1">
-      <img class="light-image" src="/app-docs-animated.svg" />
-      <img class="dark-image" src="/app-docs-animated-dark.svg" />
+      <img alt="API References Animation" class="light-image" src="/app-docs-animated.svg" />
+      <img alt="API References Animation" class="dark-image" src="/app-docs-animated-dark.svg" />
     </li>
     <li id="slide-2">
-      <img class="light-image" src="/registry-animated.svg" />
-      <img class="dark-image" src="/registry-animated-dark.svg" />
+      <img alt="API Registry Animation" class="light-image" src="/registry-animated.svg" />
+      <img alt="API Registry Animation" class="dark-image" src="/registry-animated-dark.svg" />
     </li>
     <li id="slide-3">
-      <img class="light-image" src="/sdks-animated.svg" />
-      <img class="dark-image" src="/sdks-animated-dark.svg" />
+      <img alt="SDK Animation" class="light-image" src="/sdks-animated.svg" />
+      <img alt="SDK Animation" class="dark-image" src="/sdks-animated-dark.svg" />
     </li>
     <li id="slide-4">
-      <img class="light-image" src="/api-client-animated.svg" />
-      <img class="dark-image" src="/api-client-animated-dark.svg" />
+      <img alt="Client Animation" class="light-image" src="/api-client-animated.svg" />
+      <img alt="Client Animation" class="dark-image" src="/api-client-animated-dark.svg" />
     </li>
   </ul>
 </div>
@@ -159,8 +159,8 @@
     </div>
     <div class="product-image">
       <div class="product-image-transform">
-        <img class="light-image" src="/registry-static.svg" />
-        <img class="dark-image" src="/registry-static-dark.svg" />
+        <img alt="Scalar Registry" class="light-image" src="/registry-static.svg" />
+        <img alt="Scalar Registry" class="dark-image" src="/registry-static-dark.svg" />
       </div>
     </div>
     <div class="draggable sticker-4">
@@ -206,8 +206,8 @@
     </div>
     <div class="product-image">
       <div class="product-image-transform">
-        <img class="light-image" src="/api-client-static.svg"/>
-        <img class="dark-image" src="/api-client-static-dark.svg"/>
+        <img alt="API Client" class="light-image" src="/api-client-static.svg"/>
+        <img alt="API Client" class="dark-image" src="/api-client-static-dark.svg"/>
       </div>
     </div>
     <div class="draggable sticker-8">
@@ -253,8 +253,8 @@
     </div>
     <div class="product-image">
       <div class="product-image-transform">
-        <img class="light-image" src="/api-docs-static-zoom.svg"/>
-        <img class="dark-image" src="/api-docs-static-zoom-dark.svg"/>
+        <img alt="Scalar Docs" class="light-image" src="/api-docs-static-zoom.svg"/>
+        <img alt="Scalar Docs" class="dark-image" src="/api-docs-static-zoom-dark.svg"/>
       </div>
     </div>
     <div class="draggable sticker-3">
@@ -300,8 +300,8 @@
     </div>
     <div class="product-image">
       <div class="product-image-transform">
-        <img class="light-image" src="/sdks-static.svg" />
-        <img class="dark-image" src="/sdks-static-dark.svg" />
+        <img alt="Scalar SDKs" class="light-image" src="/sdks-static.svg" />
+        <img alt="Scalar SDKs" class="dark-image" src="/sdks-static-dark.svg" />
       </div>
     </div>
     <div class="draggable sticker-2">
@@ -366,8 +366,8 @@
 <div class="expander-container">
   <div class="expander-hover">
     <div class="expander-hover-preview">
-      <img class="light-image" src="/api-client-static.svg" />
-      <img class="dark-image" src="/api-client-static-dark.svg" />
+      <img alt="API Client Preview" class="light-image" src="/api-client-static.svg" />
+      <img alt="API Client Preview" class="dark-image" src="/api-client-static-dark.svg" />
     </div>
     <div class="relative">
       <div class="expander-hover-sticker">
@@ -385,8 +385,8 @@
   </div>
   <div class="expander-hover">
     <div class="expander-hover-preview">
-      <img class="light-image" src="/sdks-static.svg" />
-      <img class="dark-image" src="/sdks-static-dark.svg" />
+      <img alt="SDKs Preview" class="light-image" src="/sdks-static.svg" />
+      <img alt="SDKs Preview" class="dark-image" src="/sdks-static-dark.svg" />
     </div>
     <div class="relative">
       <div class="expander-hover-sticker">
@@ -404,8 +404,8 @@
   </div>
   <div class="expander-hover">
     <div class="expander-hover-preview">
-      <img class="light-image" src="/registry-static.svg" />
-      <img class="dark-image" src="/registry-static-dark.svg" />
+      <img alt="API Registry Preview" class="light-image" src="/registry-static.svg" />
+      <img alt="API Registry Preview" class="dark-image" src="/registry-static-dark.svg" />
     </div>
     <div class="relative">
       <div class="expander-hover-sticker">
@@ -423,8 +423,8 @@
   </div>
   <div class="expander-hover">
     <div class="expander-hover-preview">
-      <img class="light-image" src="/api-docs-static-zoom.svg" />
-      <img class="dark-image" src="/api-docs-static-zoom-dark.svg" />
+      <img alt="API Docs Preview" class="light-image" src="/api-docs-static-zoom.svg" />
+      <img alt="API Docs Preview" class="dark-image" src="/api-docs-static-zoom-dark.svg" />
     </div>
     <div class="relative">
       <div class="expander-hover-sticker">
