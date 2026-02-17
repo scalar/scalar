@@ -46,7 +46,7 @@ export type OAuthFlowsObjectSecret = {
 export type ApiKeyObjectSecret = ApiKeyObject & XScalarSecretToken
 export type HttpObjectSecret = HttpObject & XScalarSecretHTTP & XScalarSecretToken
 export type OAuth2ObjectSecret = Omit<OAuth2Object, 'flows'> & { flows: OAuthFlowsObjectSecret }
-export type OpenIdConnectObjectSecret = OpenIdConnectObject
+export type OpenIdConnectObjectSecret = OpenIdConnectObject & { flows?: OAuthFlowsObjectSecret }
 
 export type SecuritySchemeObjectSecret =
   | ApiKeyObjectSecret

@@ -1,5 +1,37 @@
 # @scalar/mock-server-docker
 
+## 0.1.33
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/mock-server@0.8.37**
+  - [#8146](https://github.com/scalar/scalar/pull/8146): fix: oauth2 confirmation page shows broken logo
+  - [#8146](https://github.com/scalar/scalar/pull/8146): feat: show requested scopes on oauth2 confirmation page
+
+- **@scalar/hono-api-reference@0.9.41**
+
+## 0.1.32
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/mock-server@0.8.36**
+
+- **@scalar/hono-api-reference@0.9.40**
+
+## 0.1.31
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/mock-server@0.8.35**
+
+- **@scalar/hono-api-reference@0.9.40**
+
 ## 0.1.30
 
 ### Patch Changes

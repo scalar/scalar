@@ -13,7 +13,6 @@ describe('security-scheme', () => {
     it('should format a basic API key scheme', () => {
       const result = formatScheme({
         name: 'apiKey',
-        type: 'apiKey',
         value: { apiKey: [] },
       })
 
@@ -25,16 +24,15 @@ describe('security-scheme', () => {
       })
     })
 
-    it('should format an OpenID Connect scheme with "coming soon" label', () => {
+    it('should format an OpenID Connect scheme label', () => {
       const result = formatScheme({
         name: 'openIdConnect',
-        type: 'openIdConnect',
         value: { openIdConnect: [] },
       })
 
       expect(result).toEqual({
         id: '8da8c10db72dcac3',
-        label: 'openIdConnect (coming soon)',
+        label: 'openIdConnect',
         isDeletable: true,
         value: { openIdConnect: [] },
       })
@@ -43,7 +41,6 @@ describe('security-scheme', () => {
     it('should format a complex scheme type', () => {
       const result = formatScheme({
         name: 'complexAuth',
-        type: 'complex',
         value: { complexAuth: [] },
       })
 
@@ -58,7 +55,6 @@ describe('security-scheme', () => {
     it('should format HTTP basic scheme', () => {
       const result = formatScheme({
         name: 'httpBasic',
-        type: 'http',
         value: { httpBasic: [] },
       })
 
@@ -73,7 +69,6 @@ describe('security-scheme', () => {
     it('should format OAuth2 scheme', () => {
       const result = formatScheme({
         name: 'oauth2',
-        type: 'oauth2',
         value: { oauth2: [] },
       })
 
@@ -231,7 +226,7 @@ describe('security-scheme', () => {
             },
             {
               id: '8da8c10db72dcac3',
-              label: 'openIdConnect (coming soon)',
+              label: 'openIdConnect',
               isDeletable: true,
               value: { openIdConnect: [] },
             },
@@ -442,7 +437,7 @@ describe('security-scheme', () => {
         { id: '48cc5a8ff1d2df93', label: 'oauth2', isDeletable: true, value: { oauth2: [] } },
         {
           id: '8da8c10db72dcac3',
-          label: 'openIdConnect (coming soon)',
+          label: 'openIdConnect',
           isDeletable: true,
           value: { openIdConnect: [] },
         },
@@ -506,7 +501,7 @@ describe('security-scheme', () => {
         },
         {
           id: '8da8c10db72dcac3',
-          label: 'openIdConnect (coming soon)',
+          label: 'openIdConnect',
           isDeletable: true,
           value: { openIdConnect: [] },
         },

@@ -521,55 +521,6 @@ describe('RequestBody', () => {
     // CodeInput should still be rendered even with no example
     const noExampleCodeInput = noExampleWrapper.find('[data-testid="code-input"]')
     expect(noExampleCodeInput.exists()).toBe(true)
-
-    // Test content type watcher - should emit update:contentType when no selected type exists
-    const watcherWrapper = mount(RequestBody, {
-      props: {
-        ...defaultProps,
-        requestBody: objectRequestBody,
-      },
-      global: {
-        stubs: {
-          ScalarButton: {
-            template: '<button><slot /></button>',
-            props: ['variant', 'size', 'fullWidth'],
-          },
-          ScalarIcon: true,
-          ScalarListbox: {
-            template: '<div><slot /></div>',
-            props: ['modelValue', 'options', 'teleport'],
-            emits: ['update:modelValue'],
-          },
-          CollapsibleSection: {
-            template: '<div><slot name="title" /><slot /></div>',
-          },
-          DataTable: {
-            template: '<div><slot /></div>',
-          },
-          DataTableHeader: {
-            template: '<div><slot /></div>',
-          },
-          DataTableRow: {
-            template: '<div><slot /></div>',
-          },
-          CodeInput: {
-            template: '<div data-testid="code-input"></div>',
-            props: ['modelValue', 'language', 'environment'],
-            emits: ['update:modelValue'],
-          },
-        },
-      },
-    })
-
-    await nextTick()
-
-    // Watcher should emit update:contentType with the default (first content type)
-    const contentTypeEvents = watcherWrapper.emitted('update:contentType')
-    expect(contentTypeEvents).toBeTruthy()
-    if (contentTypeEvents && contentTypeEvents.length > 0 && contentTypeEvents[0]) {
-      const firstEvent = contentTypeEvents[0][0] as { value: string }
-      expect(firstEvent.value).toBe('application/json')
-    }
   })
 
   it('handles edge cases: no request body, multiple content types, form data with array examples, and binary file deletion', async () => {

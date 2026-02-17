@@ -1,5 +1,18 @@
 # @scalar/openapi-parser
 
+## 0.24.10
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/helpers@0.2.12**
+  - [#8178](https://github.com/scalar/scalar/pull/8178): chore: package bump due to ci failure
+
+- **@scalar/json-magic@0.11.1**
+
+- **@scalar/openapi-upgrader@0.1.8**
+
 ## 0.24.9
 
 ### Patch Changes

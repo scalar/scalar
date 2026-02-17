@@ -62,11 +62,6 @@ const handleSelectEnvironment = (environmentName: string) => {
 <template>
   <div class="relative flex items-center">
     <!-- Environment indicator badge (only show when active) -->
-    <div
-      v-if="hasActiveEnvironment"
-      aria-hidden="true"
-      class="bg-c-accent absolute -top-0.5 -left-0.5 size-2 rounded-full"
-      title="Environment active" />
 
     <ScalarDropdown>
       <ScalarButton

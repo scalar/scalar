@@ -18,10 +18,11 @@ import type {
 import { capitalize, computed, ref } from 'vue'
 
 import type { MergedSecuritySchemes } from '@/v2/blocks/scalar-auth-selector-block'
-import OAuth2 from '@/v2/blocks/scalar-auth-selector-block/components/OAuth2.vue'
 import type { SecuritySchemeObjectSecret } from '@/v2/blocks/scalar-auth-selector-block/helpers/secret-types'
 import { DataTableCell, DataTableRow } from '@/v2/components/data-table'
 
+import OAuth2 from './OAuth2.vue'
+import OpenIDConnect from './OpenIDConnect.vue'
 import RequestAuthDataTableInput from './RequestAuthDataTableInput.vue'
 
 type SecurityItem = {
@@ -77,6 +78,23 @@ const security = computed<SecurityItem[]>(() =>
 /** Tracks which OAuth2 flow is currently active when multiple flows are available. */
 const activeFlow = ref<string>('')
 
+/** Keeps the selected flow in sync with currently available flow keys. */
+const selectedFlow = computed<string>(() => {
+  const authFlowKeys = security.value.flatMap(({ scheme }) => {
+    if (scheme?.type !== 'oauth2' && scheme?.type !== 'openIdConnect') {
+      return []
+    }
+
+    return Object.keys(scheme.flows ?? {})
+  })
+
+  return authFlowKeys.includes(activeFlow.value) ? activeFlow.value : ''
+})
+
+const setActiveFlow = (flow: string): void => {
+  activeFlow.value = flow
+}
+
 /** Determines if multiple auth schemes are configured, which affects the UI layout. */
 const hasMultipleSchemes = computed<boolean>(() => security.value.length > 1)
 
@@ -95,9 +113,13 @@ const generateLabel = (
     case 'apiKey':
       return `${capitalizedName}${description || `: ${scheme.in}`}`
 
+    case 'openIdConnect':
     case 'oauth2': {
       const firstFlow = Object.keys(scheme.flows ?? {})[0]
-      const currentFlow = activeFlow.value || firstFlow
+      const currentFlow = selectedFlow.value || firstFlow
+      if (!currentFlow) {
+        return `${capitalizedName}${description}`
+      }
       return `${capitalizedName}: ${currentFlow}${description}`
     }
 
@@ -105,7 +127,7 @@ const generateLabel = (
       return `${capitalizedName}: ${scheme.scheme}${description}`
 
     default:
-      return `${capitalizedName}${description || `: ${scheme.type}`}`
+      return `${capitalizedName}${description}`
   }
 }
 
@@ -114,7 +136,7 @@ const generateLabel = (
  * The first flow is active by default if no flow is explicitly selected.
  */
 const isFlowActive = (flowKey: string, index: number): boolean =>
-  activeFlow.value === flowKey || (index === 0 && !activeFlow.value)
+  selectedFlow.value === flowKey || (index === 0 && !selectedFlow.value)
 
 /** Computes the container class for static display mode. */
 const getStaticBorderClass = (): string | false => isStatic && 'border-t'
@@ -276,10 +298,24 @@ const getFlowTabClasses = (flowKey: string, index: number): string => {
       </DataTableRow>
     </template>
 
-    <!-- OAuth 2.0 Authentication -->
-    <template v-else-if="scheme?.type === 'oauth2'">
+    <!-- OAuth 2.0  / OpenID Connect Authentication -->
+    <template
+      v-else-if="scheme?.type === 'oauth2' || scheme?.type === 'openIdConnect'">
+      <!-- OpenID Connect -->
+      <OpenIDConnect
+        v-if="
+          scheme?.type === 'openIdConnect' &&
+          !Object.keys(scheme.flows ?? {}).length
+        "
+        :environment
+        :eventBus
+        :getStaticBorderClass
+        :name
+        :proxyUrl
+        :scheme />
+
       <!-- Flow selector tabs: shown when multiple flows are available -->
-      <DataTableRow v-if="Object.keys(scheme.flows).length > 1">
+      <DataTableRow v-if="Object.keys(scheme.flows ?? {}).length > 1">
         <div class="flex min-h-8 border-t text-base">
           <div class="flex h-8 max-w-full gap-2.5 overflow-x-auto px-3">
             <button
@@ -287,7 +323,7 @@ const getFlowTabClasses = (flowKey: string, index: number): string => {
               :key="key"
               :class="getFlowTabClasses(key, ind)"
               type="button"
-              @click="activeFlow = key">
+              @click="setActiveFlow(key)">
               <span class="relative z-10">{{ key }}</span>
             </button>
           </div>
@@ -299,12 +335,13 @@ const getFlowTabClasses = (flowKey: string, index: number): string => {
         v-for="(_flow, key, ind) in scheme.flows"
         :key="key">
         <OAuth2
-          v-if="isFlowActive(key, ind)"
+          v-if="scheme.flows && isFlowActive(key, ind)"
           :environment
           :eventBus
           :flows="scheme.flows"
           :name="name"
           :proxyUrl
+          :scheme
           :selectedScopes="scopes"
           :server="server"
           :type="key"
@@ -312,13 +349,12 @@ const getFlowTabClasses = (flowKey: string, index: number): string => {
       </template>
     </template>
 
-    <!-- OpenID Connect: coming soon -->
-    <template v-else-if="scheme?.type === 'openIdConnect'">
-      <div
-        class="text-c-3 bg-b-1 flex min-h-[calc(4rem+1px)] items-center justify-center border-t border-b-0 px-4 text-base"
-        :class="{ 'rounded-b-lg': isStatic }">
-        Coming soon
-      </div>
-    </template>
+    <!-- Scheme is missing type -->
+    <div
+      v-else
+      class="text-c-3 flex items-center justify-center border-t p-4 px-4 text-center text-xs text-balance">
+      The security scheme is missing a type, please double check your OpenAPI
+      document or Authentication Configuration
+    </div>
   </template>
 </template>

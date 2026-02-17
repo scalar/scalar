@@ -1,5 +1,46 @@
 # @scalar/oas-utils
 
+## 0.6.42
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.32.1**
+  - [#8159](https://github.com/scalar/scalar/pull/8159): fix: do not mutate document after ingress
+  - [#8178](https://github.com/scalar/scalar/pull/8178): chore: package bump due to ci failure
+
+- **@scalar/helpers@0.2.12**
+  - [#8178](https://github.com/scalar/scalar/pull/8178): chore: package bump due to ci failure
+
+- **@scalar/json-magic@0.11.1**
+
+- **@scalar/object-utils@1.2.26**
+
+- **@scalar/types@0.6.3**
+
+## 0.6.41
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.32.0**
+  - [#8135](https://github.com/scalar/scalar/pull/8135): feat: added support for OpenID Connect Discovery
+  - [#8152](https://github.com/scalar/scalar/pull/8152): feat: support custom themes
+
+## 0.6.40
+
+### Patch Changes
+
+- [#8121](https://github.com/scalar/scalar/pull/8121): chore: moved client plugin types to oas-utils so they can be shared
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.31.2**
+  - [#8120](https://github.com/scalar/scalar/pull/8120): refactor: make navigation router-agnostic
+  - [#8121](https://github.com/scalar/scalar/pull/8121): feat: added post response scripts/testing to api client v2
+
 ## 0.6.39
 
 ### Patch Changes

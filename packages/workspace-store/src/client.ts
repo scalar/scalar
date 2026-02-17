@@ -273,7 +273,7 @@ export type WorkspaceStore = {
    *   },
    *   meta: {
    *     'x-scalar-active-auth': 'Bearer',
-   *     'x-scalar-active-server': 'production'
+   *     'x-scalar-selected-server': 'production'
    *   }
    * })
    */
@@ -1060,7 +1060,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         documentHash: currentDocument['x-scalar-original-document-hash'],
         meta: {
           'x-scalar-active-auth': currentDocument['x-scalar-active-auth'],
-          'x-scalar-active-server': currentDocument['x-scalar-active-server'],
+          'x-scalar-selected-server': currentDocument['x-scalar-selected-server'],
         },
         initialize: false,
       })

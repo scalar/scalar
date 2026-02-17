@@ -4,6 +4,7 @@ import { computed } from 'vue'
 
 import { AuthSelector } from '@/v2/blocks/scalar-auth-selector-block'
 import type { CollectionProps } from '@/v2/features/app/helpers/routes'
+import Section from '@/v2/features/settings/components/Section.vue'
 
 const { document, eventBus, environment, securitySchemes } =
   defineProps<CollectionProps>()
@@ -23,11 +24,15 @@ const server = computed(
 </script>
 
 <template>
-  <div class="flex flex-col gap-4">
-    <!-- Header -->
-    <div class="flex flex-col gap-2">
-      <div class="flex h-8 items-center justify-between">
-        <h3 class="font-bold">Authentication</h3>
+  <Section>
+    <template #title>Authentication</template>
+    <template #description>
+      If enabled, all selected authentication will apply to all operations in
+      this document. You can override this by disabling the toggle and
+      authentication will then be applied at the operation level.
+    </template>
+    <template #actions>
+      <div class="flex h-8 items-center">
         <ScalarToggle
           class="w-4"
           :modelValue="useDocumentSecurity"
@@ -35,17 +40,12 @@ const server = computed(
             () => eventBus.emit('document:toggle:security')
           " />
       </div>
-      <p class="pr-6 text-sm">
-        If enabled, all selected authentication will apply to all operations in
-        this document. You can override this by disabling the toggle and
-        authentication will then be applied at the operation level.
-      </p>
-    </div>
+    </template>
 
     <!-- Auth Selector -->
     <div :class="!useDocumentSecurity && 'cursor-not-allowed'">
       <AuthSelector
-        class="scalar-collection-auth !border-none"
+        class="scalar-collection-auth border-none!"
         :class="
           !useDocumentSecurity &&
           'pointer-events-none opacity-50 mix-blend-luminosity'
@@ -66,7 +66,7 @@ const server = computed(
         :server
         title="Authentication" />
     </div>
-  </div>
+  </Section>
 </template>
 <style scoped>
 .scalar-collection-auth {

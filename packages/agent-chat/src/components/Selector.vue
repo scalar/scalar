@@ -53,7 +53,7 @@ defineExpose({
     :target="target"
     @update:modelValue="(e) => emit('update:modelValue', e.id)">
     <ScalarButton
-      class="bg-b-1 text-c-1 h-auto w-full justify-start gap-1.5 overflow-x-auto rounded-t-none rounded-b-lg px-3 py-1.5 text-base font-normal whitespace-nowrap -outline-offset-1"
+      class="bg-b-1 text-c-1 h-auto w-full justify-start gap-1.5 overflow-x-auto rounded-t-none rounded-b-xl px-3 py-1.5 text-base font-normal whitespace-nowrap -outline-offset-1"
       variant="ghost">
       <span class="sr-only">Server:</span>
       <span class="overflow-x-auto">{{

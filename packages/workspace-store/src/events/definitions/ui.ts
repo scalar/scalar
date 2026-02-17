@@ -8,7 +8,7 @@ export type CommandPalettePayload = {
   /** Trigger the import flow for OpenAPI, Swagger, Postman, or cURL */
   'import-from-openapi-swagger-postman-curl': undefined
   /** Create a new document in the workspace */
-  'create-document': undefined
+  'create-openapi-document': undefined
   /** Add a new tag to organize requests */
   'add-tag': {
     /** The document id to add the tag to */
@@ -40,7 +40,7 @@ export type CommandPalettePayload = {
  * This ensures that when an action is dispatched, it must include the correct payload type.
  *
  * Example:
- * - { action: 'create-document', payload: undefined }
+ * - { action: 'create-openapi-document', payload: undefined }
  * - { action: 'import-curl-command', payload: { curl: 'curl ...' } }
  */
 export type CommandPaletteAction<K extends keyof CommandPalettePayload = keyof CommandPalettePayload> = {

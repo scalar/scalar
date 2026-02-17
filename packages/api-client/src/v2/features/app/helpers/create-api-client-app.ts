@@ -1,4 +1,5 @@
 import type { ClientPlugin } from '@scalar/oas-utils/helpers'
+import type { Theme } from '@scalar/themes'
 import { createApp } from 'vue'
 import { createRouter as createVueRouter, createWebHashHistory, createWebHistory } from 'vue-router'
 
@@ -21,6 +22,15 @@ type CreateApiClientOptions = {
    * Api client plugins to include in the app
    */
   plugins?: ClientPlugin[]
+  /**
+   * Custom themes to include in the app
+   */
+  customThemes?: Theme[]
+  /**
+   * Fallback theme slug to use if no theme is selected for the workspace
+   * @default 'default'
+   */
+  fallbackThemeSlug?: string
 }
 
 /**
@@ -41,7 +51,7 @@ export const createAppRouter = (layout: CreateApiClientOptions['layout']) => {
  */
 export const createApiClientApp = async (
   el: HTMLElement | null,
-  { layout = 'desktop', plugins }: CreateApiClientOptions,
+  { layout = 'desktop', plugins, customThemes, fallbackThemeSlug = 'default' }: CreateApiClientOptions,
 ) => {
   // Add the router
   const router = createAppRouter(layout)
@@ -52,6 +62,8 @@ export const createApiClientApp = async (
   const app = createApp(App, {
     layout,
     plugins,
+    customThemes,
+    fallbackThemeSlug,
     getAppState: () => state,
     getCommandPaletteState: () => commandPaletteState,
   })

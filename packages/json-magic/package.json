@@ -10,7 +10,7 @@
     "url": "git+https://github.com/scalar/scalar.git",
     "directory": "packages/json-magic"
   },
-  "version": "0.11.0",
+  "version": "0.11.1",
   "engines": {
     "node": ">=20"
   },
@@ -84,6 +84,7 @@
   ],
   "dependencies": {
     "@scalar/helpers": "workspace:*",
+    "pathe": "^2.0.3",
     "yaml": "catalog:*"
   },
   "devDependencies": {

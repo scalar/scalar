@@ -102,6 +102,10 @@ function acceptTerms() {
   }
 }
 
+const isPending = computed(() =>
+  Object.values(state.pendingDocuments).some(Boolean),
+)
+
 const submitDisabled = computed(() => {
   const tooLarge = promptTooLarge.value
   const missingInput = !inputHasContent.value
@@ -112,6 +116,7 @@ const submitDisabled = computed(() => {
 
   const termsNotAccepted = isPreview && !state.terms.accepted.value
   const uploadingTmpDoc = isPreview && !!uploadTmpDoc.uploadState.value
+  const isLoading = isPending.value
 
   return (
     tooLarge ||
@@ -119,7 +124,8 @@ const submitDisabled = computed(() => {
     awaitingApproval ||
     pendingToolParts ||
     termsNotAccepted ||
-    uploadingTmpDoc
+    uploadingTmpDoc ||
+    isLoading
   )
 })
 
@@ -137,10 +143,8 @@ const chatError = useChatError()
 <template>
   <div class="actionContainer">
     <UploadSection
-      v-if="
-        uploadTmpDoc.uploadState.value || state.pendingDocuments.value.length
-      "
-      :uploadState="uploadTmpDoc.uploadState.value ?? { type: 'processing' }" />
+      v-if="uploadTmpDoc.uploadState.value || isPending"
+      :uploadState="uploadTmpDoc.uploadState.value ?? { type: 'loading' }" />
     <ErrorMessageMessage
       v-if="chatError"
       :error="chatError" />

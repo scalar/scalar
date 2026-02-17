@@ -90,35 +90,12 @@ const handleToggle = (event: MouseEvent) => {
         :level="level"
         name="button"
         :open>
-        <button
-          v-if="discrete"
-          type="button"
-          :aria-expanded="open"
-          class="absolute top-[1lh] -translate-y-1/2 p-0.75 rounded left-[calc(4px+var(--scalar-sidebar-indent)*var(--scalar-sidebar-level))]"
-          :class="
-            selected
-              ? 'text-sidebar-c-1  hover:bg-sidebar-b-1 hover:text-sidebar-c-1'
-              : 'text-c-3 hover:bg-sidebar-b-hover hover:text-sidebar-c-hover'
-          "
-          :style="{ '--scalar-sidebar-level': level }"
-          @click="handleToggle">
-          <slot
-            name="icon"
-            :open>
-            <ScalarSidebarGroupToggle
-              :icon
-              :open>
-              <template #label>
-                {{ open ? 'Close' : 'Open' }} <slot :open="open" />
-              </template>
-            </ScalarSidebarGroupToggle>
-          </slot>
-        </button>
         <ScalarSidebarButton
           is="button"
           :active
           :aria-expanded="open"
           :disabled
+          :icon
           :indent="level"
           :selected
           @click="handleClick">
@@ -128,29 +105,54 @@ const handleToggle = (event: MouseEvent) => {
               :indent="level"
               :selected />
           </template>
-          <template #icon>
-            <div
-              v-if="discrete"
-              class="size-4" />
-            <slot
-              v-else
-              name="icon"
-              :open>
-              <ScalarSidebarGroupToggle
-                class="text-c-3"
-                :icon
-                :open />
-            </slot>
-          </template>
           <template
-            v-if="$slots.aside"
-            #aside>
+            v-if="$slots.icon"
+            #icon>
+            <slot
+              name="icon"
+              :open />
+          </template>
+          <template #aside>
             <slot
               name="aside"
               :open />
+            <div
+              v-if="discrete"
+              class="size-4">
+              <!-- Placeholder for discrete group toggle -->
+            </div>
+            <slot
+              v-else
+              name="toggle"
+              :open>
+              <ScalarSidebarGroupToggle
+                class="text-sidebar-c-2"
+                :open />
+            </slot>
           </template>
           <slot :open />
         </ScalarSidebarButton>
+        <button
+          v-if="discrete"
+          :aria-expanded="open"
+          class="absolute top-[1lh] -translate-y-1/2 p-0.75 rounded right-1.25 text-sidebar-c-2"
+          :class="
+            selected
+              ? 'hover:bg-sidebar-b-1 hover:text-sidebar-c-1'
+              : 'hover:bg-sidebar-b-hover hover:text-sidebar-c-hover'
+          "
+          type="button"
+          @click="handleToggle">
+          <slot
+            name="toggle"
+            :open>
+            <ScalarSidebarGroupToggle :open>
+              <template #label>
+                {{ open ? 'Close' : 'Open' }} <slot :open="open" />
+              </template>
+            </ScalarSidebarGroupToggle>
+          </slot>
+        </button>
       </slot>
       <slot
         name="after"

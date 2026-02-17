@@ -668,6 +668,87 @@ describe('createMockServer', () => {
     expect(response.headers.get('X-Custom')).toBe('foobar')
   })
 
+  it('returns implicit flow redirect URL with token fragment', async () => {
+    const document = {
+      openapi: '3.1.0',
+      info: {
+        title: 'Hello World',
+        version: '1.0.0',
+      },
+      components: {
+        securitySchemes: {
+          oAuth2Implicit: {
+            type: 'oauth2',
+            flows: {
+              implicit: {
+                authorizationUrl: '/oauth/authorize',
+                scopes: {
+                  read: 'Read access',
+                },
+              },
+            },
+          },
+        },
+      },
+      paths: {},
+    }
+
+    const server = await createMockServer({ document })
+    const redirectUri = 'https://example.com/callback'
+    const response = await server.request(
+      `/oauth/authorize?response_type=token&redirect_uri=${encodeURIComponent(redirectUri)}&scope=read&state=abc123`,
+    )
+    const html = await response.text()
+
+    expect(response.status).toBe(200)
+    expect(html).toContain(
+      'href="https://example.com/callback#access_token=super-secret-access-token&token_type=Bearer&expires_in=3600&scope=read&state=abc123"',
+    )
+    expect(html).toContain(
+      'href="https://example.com/callback#error=access_denied&error_description=User+has+denied+the+authorization+request&state=abc123"',
+    )
+  })
+
+  it('returns authorization code redirect URL for auth code flow', async () => {
+    const document = {
+      openapi: '3.1.0',
+      info: {
+        title: 'Hello World',
+        version: '1.0.0',
+      },
+      components: {
+        securitySchemes: {
+          oAuth2AuthCode: {
+            type: 'oauth2',
+            flows: {
+              authorizationCode: {
+                authorizationUrl: '/oauth/authorize',
+                tokenUrl: '/oauth/token',
+                scopes: {
+                  read: 'Read access',
+                },
+              },
+            },
+          },
+        },
+      },
+      paths: {},
+    }
+
+    const server = await createMockServer({ document })
+    const redirectUri = 'https://example.com/callback'
+    const response = await server.request(
+      `/oauth/authorize?redirect_uri=${encodeURIComponent(redirectUri)}&state=abc123`,
+    )
+    const html = await response.text()
+
+    expect(response.status).toBe(200)
+    expect(html).toContain('href="https://example.com/callback?code=super-secret-token&state=abc123"')
+    expect(html).toContain(
+      'href="https://example.com/callback?state=abc123&error=access_denied&error_description=User+has+denied+the+authorization+request"',
+    )
+  })
+
   it('handles redirect headers', async () => {
     const document = {
       openapi: '3.1.0',

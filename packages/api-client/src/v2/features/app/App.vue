@@ -14,7 +14,7 @@ import {
   type ModalState,
 } from '@scalar/components'
 import type { ClientPlugin } from '@scalar/oas-utils/helpers'
-import { getThemeStyles } from '@scalar/themes'
+import { type Theme } from '@scalar/themes'
 import { ScalarToasts } from '@scalar/use-toasts'
 import { extensions } from '@scalar/workspace-store/schemas/extensions'
 import { computed } from 'vue'
@@ -25,6 +25,7 @@ import CreateWorkspaceModal from '@/v2/features/app/components/CreateWorkspaceMo
 import SplashScreen from '@/v2/features/app/components/SplashScreen.vue'
 import type { RouteProps } from '@/v2/features/app/helpers/routes'
 import { useDocumentWatcher } from '@/v2/features/app/hooks/use-document-watcher'
+import { useTheme } from '@/v2/features/app/hooks/use-theme'
 import type { CommandPaletteState } from '@/v2/features/command-palette/hooks/use-command-palette-state'
 import TheCommandPalette from '@/v2/features/command-palette/TheCommandPalette.vue'
 import { useColorMode } from '@/v2/hooks/use-color-mode'
@@ -37,12 +38,16 @@ import DesktopTabs from './components/DesktopTabs.vue'
 
 const {
   layout,
+  customThemes = [],
+  fallbackThemeSlug = 'default',
   plugins = [],
   getAppState,
   getCommandPaletteState,
 } = defineProps<{
   layout: Exclude<ClientLayout, 'modal'>
   plugins?: ClientPlugin[]
+  customThemes?: Theme[]
+  fallbackThemeSlug?: string
   getAppState: () => AppState
   getCommandPaletteState: () => CommandPaletteState
 }>()
@@ -89,17 +94,10 @@ useDocumentWatcher({
 /** Color mode */
 useColorMode({ workspaceStore: app.store })
 
-/** Generate the theme style tag for dynamic theme application. */
-const themeStyleTag = computed(() => {
-  if (app.store.value === null) {
-    return ''
-  }
-
-  const themeId = app.store.value.workspace['x-scalar-theme']
-
-  if (!themeId) return ''
-
-  return `<style>${getThemeStyles(themeId)}</style>`
+const { themeStyleTag } = useTheme({
+  fallbackThemeSlug: () => fallbackThemeSlug,
+  customThemes: () => customThemes,
+  store: app.store,
 })
 
 /** Sets the active workspace by ID: finds the workspace in the list and updates app state & navigation. */
@@ -143,6 +141,7 @@ const routerViewProps = computed<RouteProps>(() => {
     activeWorkspace: app.workspace.activeWorkspace.value!,
     plugins,
     securitySchemes,
+    customThemes,
   }
 })
 </script>

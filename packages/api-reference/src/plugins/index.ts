@@ -4,3 +4,5 @@ export {
   type PluginManager,
   createPluginManager,
 } from '@/plugins/plugin-manager'
+
+export { persistencePlugin } from './persistance-plugin'

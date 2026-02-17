@@ -21,7 +21,6 @@ export default {}
 import { ScalarIconArrowRight, ScalarIconCaretLeft } from '@scalar/icons'
 import { nextTick, ref, useTemplateRef } from 'vue'
 
-import { ScalarIconLegacyAdapter } from '../ScalarIcon'
 import ScalarSidebarButton from './ScalarSidebarButton.vue'
 import ScalarSidebarItems from './ScalarSidebarItems.vue'
 import ScalarSidebarSpacer from './ScalarSidebarSpacer.vue'
@@ -122,19 +121,15 @@ const handleBack = (event: MouseEvent) => {
         is="button"
         :aria-expanded="open"
         :disabled
+        :icon
         :indent="level"
         :selected
         v-bind="$attrs"
         @click="handleClick">
         <template
-          v-if="icon || $slots.icon"
+          v-if="$slots.icon"
           #icon>
-          <slot name="icon">
-            <ScalarIconLegacyAdapter
-              v-if="icon"
-              :icon
-              weight="bold" />
-          </slot>
+          <slot name="icon" />
         </template>
         <slot />
         <template #aside>

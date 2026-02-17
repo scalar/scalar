@@ -2,6 +2,7 @@ import { replaceEnvVariables } from '@scalar/helpers/regex/replace-variables'
 import { unpackProxyObject } from '@scalar/workspace-store/helpers/unpack-proxy'
 import type { RequestBodyObject } from '@scalar/workspace-store/schemas/v3.1/strict/request-body'
 
+import { getSelectedBodyContentType } from '@/v2/blocks/operation-block/helpers/get-selected-body-content-type'
 import { getExampleFromBody } from '@/v2/blocks/request-block/helpers/get-request-body-example'
 
 /**
@@ -19,10 +20,10 @@ export const buildRequestBody = (
   }
 
   /** Selected content type for the body from the dropdown, stored as x-scalar-selected-content-type */
-  const bodyContentType =
-    requestBody?.['x-scalar-selected-content-type']?.[exampleKey] ??
-    Object.keys(requestBody?.content ?? {})[0] ??
-    'application/json'
+  const bodyContentType = getSelectedBodyContentType(requestBody, exampleKey)
+  if (!bodyContentType) {
+    return null
+  }
 
   /** An example value or generated example from the schema */
   const example = getExampleFromBody(requestBody, bodyContentType, exampleKey)

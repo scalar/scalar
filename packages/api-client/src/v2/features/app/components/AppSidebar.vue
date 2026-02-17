@@ -13,6 +13,7 @@ import {
   ScalarIconGlobe,
   ScalarIconPlus,
 } from '@scalar/icons'
+import { LibraryIcon } from '@scalar/icons/library'
 import type { DraggingItem, HoveredItem, SidebarState } from '@scalar/sidebar'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
@@ -267,6 +268,9 @@ const handleAddEmptyFolder = (item: TraversedEntry) => {
       :sidebarState="sidebarState"
       :workspaces="workspaces"
       @create:workspace="emit('create:workspace')"
+      @navigate:to:settings="
+        eventBus.emit('ui:navigate', { page: 'workspace', path: 'settings' })
+      "
       @reorder="
         (draggingItem, hoveredItem) => handleDragEnd(draggingItem, hoveredItem)
       "
@@ -309,8 +313,16 @@ const handleAddEmptyFolder = (item: TraversedEntry) => {
             item.type === 'document' &&
             store.workspace.documents[item.name]?.['x-scalar-is-dirty'] === true
           ">
-          <div class="flex items-center">
-            <div class="h-2 w-2 rounded-full bg-white"></div>
+          <div class="relative flex items-center">
+            <LibraryIcon
+              class="block"
+              :src="
+                ('icon' in item && item.icon) || 'interface-content-folder'
+              " />
+            <div
+              class="bg-orange absolute -top-1.25 -right-1.25 flex h-2.5 w-2.5 items-center justify-center rounded-full text-[9px] font-bold text-white">
+              !
+            </div>
           </div>
         </template>
       </template>

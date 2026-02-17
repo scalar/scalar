@@ -490,20 +490,15 @@ const shouldShowItem = computed(() => {
         ]"
         :to="item.to">
         <span
-          class="flex h-5 max-w-[14px] cursor-pointer items-center justify-center"
-          @click.stop.prevent="toggleSidebarFolder(item.entity.uid)">
-          <slot name="leftIcon">
-            <ScalarSidebarGroupToggle
-              class="text-c-3 shrink-0"
-              :open="Boolean(collapsedSidebarFolders[item.entity.uid])" />
-          </slot>
+          class="flex h-5 max-w-[14px] shrink-0 items-center justify-center">
+          <slot name="leftIcon" />
           &hairsp;
         </span>
         <div class="flex flex-1 flex-row justify-between font-medium">
           <span class="line-clamp-1 w-full text-left break-all">
             {{ item.title }}
           </span>
-          <div class="relative flex h-fit justify-end">
+          <div class="relative flex h-fit items-center justify-end gap-0.5">
             <div
               class="items-center gap-px opacity-0 group-hover:flex group-hover:opacity-100 group-focus-visible:opacity-100 group-has-[:focus-visible]:opacity-100"
               :class="{
@@ -548,9 +543,9 @@ const shouldShowItem = computed(() => {
             </div>
             <ScalarTooltip
               v-if="item.watchMode"
-              placement="right"
+              :content="`Watching: ${item.documentUrl}`"
               :offset="12"
-              :content="`Watching: ${item.documentUrl}`">
+              placement="right">
               <button
                 class="flex items-center justify-center"
                 type="button">
@@ -562,7 +557,13 @@ const shouldShowItem = computed(() => {
                   thickness="2" />
               </button>
             </ScalarTooltip>
-            <span>&hairsp;</span>
+            <span
+              class="flex cursor-pointer items-center justify-center"
+              @click.stop.prevent="toggleSidebarFolder(item.entity.uid)">
+              <ScalarSidebarGroupToggle
+                class="text-c-3 hover:text-c-1 shrink-0"
+                :open="Boolean(collapsedSidebarFolders[item.entity.uid])" />
+            </span>
           </div>
         </div>
       </RouterLink>
@@ -575,19 +576,16 @@ const shouldShowItem = computed(() => {
         :class="[highlightClasses]"
         type="button"
         @click="toggleSidebarFolder(item.entity.uid)">
-        <span class="flex h-5 max-w-[14px] items-center justify-center">
-          <slot name="leftIcon">
-            <ScalarSidebarGroupToggle
-              class="text-c-3 hover:text-c-1 shrink-0"
-              :open="Boolean(collapsedSidebarFolders[item.entity.uid])" />
-          </slot>
+        <span
+          class="flex h-5 max-w-[14px] shrink-0 items-center justify-center">
+          <slot name="leftIcon" />
           &hairsp;
         </span>
         <div class="flex flex-1 flex-row justify-between">
           <span class="line-clamp-1 w-full text-left font-medium break-all">
             {{ item.title }}
           </span>
-          <div class="relative flex h-fit justify-end">
+          <div class="relative flex h-fit items-center justify-end gap-0.5">
             <div
               class="items-center gap-px opacity-0 group-hover:flex group-hover:opacity-100 group-focus-visible:opacity-100 group-has-[:focus-visible]:opacity-100"
               :class="{
@@ -633,8 +631,8 @@ const shouldShowItem = computed(() => {
             <ScalarTooltip
               v-if="item.watchMode"
               content="Watching: {{ item.documentUrl }}"
-              placement="right"
-              :offset="12">
+              :offset="12"
+              placement="right">
               <button
                 class="flex items-center justify-center"
                 type="button">
@@ -646,7 +644,13 @@ const shouldShowItem = computed(() => {
                   thickness="2" />
               </button>
             </ScalarTooltip>
-            <span>&hairsp;</span>
+            <span
+              class="flex cursor-pointer items-center justify-center"
+              @click.stop.prevent="toggleSidebarFolder(item.entity.uid)">
+              <ScalarSidebarGroupToggle
+                class="text-c-3 hover:text-c-1 shrink-0"
+                :open="Boolean(collapsedSidebarFolders[item.entity.uid])" />
+            </span>
           </div>
         </div>
       </button>

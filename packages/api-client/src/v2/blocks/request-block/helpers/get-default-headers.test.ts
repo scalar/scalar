@@ -135,7 +135,7 @@ describe('get-default-headers', () => {
       expect(contentTypeHeader?.defaultValue).toBe('application/json')
     })
 
-    it('always adds Accept header', () => {
+    it('always adds Accept header, falling back to wildcard when no responses are defined', () => {
       const operation: OperationObject = {}
 
       const headers = getDefaultHeaders({
@@ -149,6 +149,99 @@ describe('get-default-headers', () => {
       expect(acceptHeader).toBeDefined()
       expect(acceptHeader?.defaultValue).toBe('*/*')
       expect(acceptHeader?.isOverridden).toBe(false)
+    })
+
+    it('derives Accept header from the 2xx response content type', () => {
+      const operation: OperationObject = {
+        responses: {
+          '200': {
+            description: 'OK',
+            content: {
+              'application/json': {},
+            },
+          },
+        },
+      }
+
+      const headers = getDefaultHeaders({
+        method: 'get',
+        operation,
+        exampleKey: 'example-1',
+      })
+
+      const acceptHeader = headers.find((header) => header.name.toLowerCase() === 'accept')
+
+      expect(acceptHeader).toBeDefined()
+      expect(acceptHeader?.defaultValue).toBe('application/json')
+    })
+
+    it('joins all content types of the 2xx response when multiple are defined', () => {
+      const operation: OperationObject = {
+        responses: {
+          '200': {
+            description: 'OK',
+            content: {
+              'application/json': {},
+              'application/xml': {},
+            },
+          },
+        },
+      }
+
+      const headers = getDefaultHeaders({
+        method: 'get',
+        operation,
+        exampleKey: 'example-1',
+      })
+
+      const acceptHeader = headers.find((header) => header.name.toLowerCase() === 'accept')
+
+      expect(acceptHeader?.defaultValue).toBe('application/json, application/xml')
+    })
+
+    it('falls back to wildcard when the 2xx response has no content', () => {
+      const operation: OperationObject = {
+        responses: {
+          '204': {
+            description: 'No Content',
+          },
+        },
+      }
+
+      const headers = getDefaultHeaders({
+        method: 'delete',
+        operation,
+        exampleKey: 'example-1',
+      })
+
+      const acceptHeader = headers.find((header) => header.name.toLowerCase() === 'accept')
+
+      expect(acceptHeader?.defaultValue).toBe('*/*')
+    })
+
+    it('falls back to wildcard when only non-2xx responses are defined', () => {
+      const operation: OperationObject = {
+        responses: {
+          '400': {
+            description: 'Bad Request',
+            content: { 'application/json': {} },
+          },
+          '500': {
+            description: 'Internal Server Error',
+            content: { 'application/json': {} },
+          },
+        },
+      }
+
+      const headers = getDefaultHeaders({
+        method: 'get',
+        operation,
+        exampleKey: 'example-1',
+      })
+
+      const acceptHeader = headers.find((header) => header.name.toLowerCase() === 'accept')
+
+      expect(acceptHeader?.defaultValue).toBe('*/*')
     })
 
     it('marks header as overridden when defined in operation parameters', () => {

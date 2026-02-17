@@ -1,5 +1,42 @@
 # @scalar/components
 
+## 0.19.4
+
+### Patch Changes
+
+- [#8178](https://github.com/scalar/scalar/pull/8178): chore: package bump due to ci failure
+
+#### Updated Dependencies
+
+- **@scalar/helpers@0.2.12**
+  - [#8178](https://github.com/scalar/scalar/pull/8178): chore: package bump due to ci failure
+
+- **@scalar/oas-utils@0.6.42**
+
+## 0.19.3
+
+### Patch Changes
+
+- [#8155](https://github.com/scalar/scalar/pull/8155): fix(api-reference): bugs with cards rendering
+
+#### Updated Dependencies
+
+- **@scalar/oas-utils@0.6.41**
+
+## 0.19.2
+
+### Patch Changes
+
+- [#8134](https://github.com/scalar/scalar/pull/8134): fix(components): change caret position to right
+
+#### Updated Dependencies
+
+- **@scalar/icons@0.5.3**
+  - [#8134](https://github.com/scalar/scalar/pull/8134): fix(components): change caret position to right
+
+- **@scalar/oas-utils@0.6.40**
+  - [#8121](https://github.com/scalar/scalar/pull/8121): chore: moved client plugin types to oas-utils so they can be shared
+
 ## 0.19.1
 
 ### Patch Changes

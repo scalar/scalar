@@ -7,6 +7,7 @@ export type UploadTmpDocumentState =
   | { type: 'error'; error: unknown }
   | { type: 'uploading' }
   | { type: 'processing' }
+  | { type: 'loading' }
   | { type: 'done' }
 
 const TMP_DOC_LS_KEY = 'scalar-tmp-doc'

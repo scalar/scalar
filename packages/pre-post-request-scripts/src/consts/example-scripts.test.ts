@@ -17,8 +17,15 @@ describe('example scripts', () => {
     })
 
     expect(testResults[0]).toMatchObject({
+      title: expect.any(String),
       passed: true,
+      error: undefined,
+      duration: expect.any(Number),
       status: 'passed',
     })
+
+    expect(testResults[0]?.duration).toBeGreaterThan(0)
+
+    expect(testResults.length).toBe(1)
   })
 })

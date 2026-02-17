@@ -301,7 +301,7 @@ const html = computed(() => {
   /* Details */
   .markdown details {
     border: var(--markdown-border);
-    border-radius: var(--scalar-radius);
+    border-radius: var(--scalar-radius-xl);
     color: var(--scalar-color-1);
   }
 

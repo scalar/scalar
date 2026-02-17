@@ -1,5 +1,45 @@
 # @scalar/aspnetcore
 
+## 2.12.41
+
+### Patch Changes
+
+- [#8178](https://github.com/scalar/scalar/pull/8178): chore: package bump due to ci failure
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.44.20**
+  - [#8159](https://github.com/scalar/scalar/pull/8159): fix: do not mutate document after ingress
+  - [#8178](https://github.com/scalar/scalar/pull/8178): chore: package bump due to ci failure
+
+- **@scalar/dotnet-shared@0.1.3**
+  - [#8178](https://github.com/scalar/scalar/pull/8178): chore: package bump due to ci failure
+
+## 2.12.40
+
+### Patch Changes
+
+- [#8102](https://github.com/scalar/scalar/pull/8102): feat: agent scalar configuration
+
+#### Updated Dependencies
+
+- **@scalar/dotnet-shared@0.1.2**
+  - [#8102](https://github.com/scalar/scalar/pull/8102): feat: agent scalar configuration
+
+- **@scalar/api-reference@1.44.19**
+  - [#8155](https://github.com/scalar/scalar/pull/8155): fix(api-reference): bugs with cards rendering
+
+## 2.12.39
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.44.18**
+  - [#8109](https://github.com/scalar/scalar/pull/8109): feat: keep the sidebar scrolled near the top
+  - [#8134](https://github.com/scalar/scalar/pull/8134): fix(components): change caret position to right
+  - [#8121](https://github.com/scalar/scalar/pull/8121): chore: moved client plugin types to oas-utils so they can be shared
+
 ## 2.12.38
 
 ### Patch Changes

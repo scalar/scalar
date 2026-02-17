@@ -62,7 +62,7 @@ export const loadAllResources = (mutators: WorkspaceStore) => {
       securitySchemes,
       tags,
       workspaces,
-    } = migrator()
+    } = migrator().arrays
 
     // Load the migrated data up into the mutators with safe parsing
     // TODO: we should probably make rawAdd -> add, and add a new name for adding with side effects

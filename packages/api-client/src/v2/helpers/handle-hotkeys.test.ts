@@ -68,32 +68,39 @@ describe('handle-hotkey-down', () => {
   it('fires hotkey when correct default modifier is pressed on macOS', () => {
     vi.mocked(isMacOS).mockReturnValue(true)
 
-    const event = createKeyboardEvent('l', { metaKey: true })
+    const event = createKeyboardEvent('Enter', { metaKey: true })
     handleHotkeys(event, mockEventBus, 'web')
 
-    expect(mockEventBus.emit).toHaveBeenCalledWith('ui:focus:address-bar', { event }, { skipUnpackProxy: true })
+    expect(mockEventBus.emit).toHaveBeenCalledWith(
+      'operation:send:request:hotkey',
+      { event },
+      { skipUnpackProxy: true },
+    )
     expect(mockEventBus.emit).toHaveBeenCalledTimes(1)
   })
 
   it('fires hotkey when correct default modifier is pressed on Windows/Linux', () => {
     vi.mocked(isMacOS).mockReturnValue(false)
 
-    const event = createKeyboardEvent('l', { ctrlKey: true })
+    const event = createKeyboardEvent('Enter', { ctrlKey: true })
     handleHotkeys(event, mockEventBus, 'web')
 
-    expect(mockEventBus.emit).toHaveBeenCalledWith('ui:focus:address-bar', { event }, { skipUnpackProxy: true })
+    expect(mockEventBus.emit).toHaveBeenCalledWith(
+      'operation:send:request:hotkey',
+      { event },
+      { skipUnpackProxy: true },
+    )
     expect(mockEventBus.emit).toHaveBeenCalledTimes(1)
   })
 
-  it('fires hotkey without correct modifiers when not in editable element', () => {
+  it('does not fire hotkey without required modifiers when not in editable element', () => {
     vi.mocked(isMacOS).mockReturnValue(true)
 
-    // Pressing l without Meta on macOS - still fires when not in editable element
+    // Pressing l without Meta on macOS does not fire.
     const event = createKeyboardEvent('l', {})
     handleHotkeys(event, mockEventBus, 'web')
 
-    // Hotkeys work without modifiers outside editable elements
-    expect(mockEventBus.emit).toHaveBeenCalledWith('ui:focus:address-bar', { event }, { skipUnpackProxy: true })
+    expect(mockEventBus.emit).not.toHaveBeenCalled()
   })
 
   it('does not fire hotkey for unmapped keys', () => {
@@ -145,14 +152,18 @@ describe('handle-hotkey-down', () => {
     expect(mockEventBus.emit).not.toHaveBeenCalled()
   })
 
-  it('fires hotkey in editable elements when modifier is pressed', () => {
+  it('fires modified hotkeys in editable elements when required modifier is pressed', () => {
     vi.mocked(isMacOS).mockReturnValue(true)
 
     const textarea = createElement('textarea')
-    const event = createKeyboardEvent('l', { metaKey: true }, textarea)
+    const event = createKeyboardEvent('Enter', { metaKey: true }, textarea)
     handleHotkeys(event, mockEventBus, 'web')
 
-    expect(mockEventBus.emit).toHaveBeenCalledWith('ui:focus:address-bar', { event }, { skipUnpackProxy: true })
+    expect(mockEventBus.emit).toHaveBeenCalledWith(
+      'operation:send:request:hotkey',
+      { event },
+      { skipUnpackProxy: true },
+    )
   })
 
   it('correctly passes payload to event bus for tab navigation', () => {
@@ -173,16 +184,14 @@ describe('handle-hotkey-down', () => {
     expect(mockEventBus.emit).toHaveBeenCalledWith('tabs:navigate:previous', { event }, { skipUnpackProxy: true })
   })
 
-  it('fires hotkey with partial modifiers when not in editable element', () => {
+  it('does not fire hotkey with partial modifiers', () => {
     vi.mocked(isMacOS).mockReturnValue(true)
 
     // ArrowLeft requires both Meta and Alt, but only Meta is pressed
-    // Still fires when not in editable element
     const event = createKeyboardEvent('ArrowLeft', { metaKey: true })
     handleHotkeys(event, mockEventBus, 'desktop')
 
-    // Hotkeys work without exact modifiers outside editable elements
-    expect(mockEventBus.emit).toHaveBeenCalledWith('tabs:navigate:previous', { event }, { skipUnpackProxy: true })
+    expect(mockEventBus.emit).not.toHaveBeenCalled()
   })
 
   it('handles contenteditable attribute with string value', () => {
@@ -223,6 +232,15 @@ describe('handle-hotkey-down', () => {
       { event },
       { skipUnpackProxy: true },
     )
+  })
+
+  it('does not fire Enter hotkey without default modifier', () => {
+    vi.mocked(isMacOS).mockReturnValue(true)
+
+    const event = createKeyboardEvent('Enter')
+    handleHotkeys(event, mockEventBus, 'web')
+
+    expect(mockEventBus.emit).not.toHaveBeenCalled()
   })
 
   it('uses desktop-specific hotkeys in desktop layout', () => {
