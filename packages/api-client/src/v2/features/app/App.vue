@@ -187,6 +187,7 @@ const routerViewProps = computed<RouteProps>(() => {
           <div class="flex flex-1 flex-col">
             <!-- App Tabs -->
             <DesktopTabs
+              v-if="layout === 'desktop'"
               :activeTabIndex="app.tabs.activeTabIndex.value"
               :eventBus="app.eventBus"
               :tabs="app.tabs.state.value" />

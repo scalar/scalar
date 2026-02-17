@@ -26,6 +26,7 @@ import RabbitJump from '@/assets/rabbitjump.ascii?raw'
 import ScalarAsciiArt from '@/components/ScalarAsciiArt.vue'
 import DeleteSidebarListElement from '@/components/Sidebar/Actions/DeleteSidebarListElement.vue'
 import { Sidebar } from '@/v2/components/sidebar'
+import DownloadAppButton from '@/v2/features/app/components/DownloadAppButton.vue'
 import SidebarItemMenu from '@/v2/features/app/components/SidebarItemMenu.vue'
 import { dragHandleFactory } from '@/v2/helpers/drag-handle-factory'
 import type { ClientLayout } from '@/v2/types/layout'
@@ -367,7 +368,7 @@ const handleAddEmptyFolder = (item: TraversedEntry) => {
             </div>
           </div>
 
-          <div class="gap-1.5 p-2">
+          <div class="flex flex-col gap-1.5 p-2">
             <ScalarButton
               v-if="showGettingStarted"
               class="w-full"
@@ -402,6 +403,7 @@ const handleAddEmptyFolder = (item: TraversedEntry) => {
                 K
               </span>
             </ScalarButton>
+            <DownloadAppButton />
           </div>
         </div>
       </template>
