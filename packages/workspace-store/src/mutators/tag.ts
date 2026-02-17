@@ -98,7 +98,7 @@ export const editTag = (store: WorkspaceStore | null, payload: TagEvents['tag:ed
   const tagEntriesMap = getTagEntries(documentNavigation)
   const entries = tagEntriesMap.get(oldName)
 
-  // Updates the order ID so we don't lose the sidebar ordering when it rebuilds
+  // Updates the order ID so we don't lose the sidebar ordering when it rebuilds.
   if (entries) {
     updateOrderIds({ store, tag: { name: newName }, generateId, entries })
   }

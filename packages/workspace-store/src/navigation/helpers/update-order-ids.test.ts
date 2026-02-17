@@ -427,6 +427,235 @@ describe('update-order-ids', () => {
 
       expect(generateId).not.toHaveBeenCalled()
     })
+
+    // -------------------------------------------------------------------------
+    // Child x-scalar-order rewrite (tag rename)
+    // -------------------------------------------------------------------------
+
+    it('rewrites child IDs in the tag x-scalar-order when the tag ID changes', () => {
+      // Operation IDs are prefixed with the parent tag slug, e.g.
+      // "test-api/tag/users/GET/users". When the tag is renamed the prefix
+      // changes and the stored IDs become stale. updateOrderIds must also
+      // update the tag's own x-scalar-order so sortByOrder keeps working.
+      const store = createWorkspaceStore()
+      const docName = 'test-api'
+
+      store.workspace.documents[docName] = {
+        openapi: '3.1.0',
+        info: { title: 'Test API', version: '1.0.0' },
+        tags: [
+          {
+            name: 'customers',
+            'x-scalar-order': ['test-api/tag/users/GET/users', 'test-api/tag/users/POST/users'],
+          },
+        ],
+        'x-scalar-order': ['test-api/tag/users'],
+        'x-scalar-original-document-hash': 'abc',
+      }
+
+      // generateId returns the old ID for the parent lookup, new ID for the tag
+      const generateId = vi.fn((props) => {
+        if (props.type === 'tag') return 'test-api/tag/customers'
+        return props.id ?? 'unknown'
+      })
+
+      const docEntry = makeDocumentEntry(docName)
+      const entry = makeTagEntry({
+        id: 'test-api/tag/users',
+        name: 'users',
+        parent: docEntry,
+      })
+
+      updateOrderIds({
+        store,
+        generateId,
+        entries: [entry],
+        tag: { name: 'customers' },
+      })
+
+      const tag = store.workspace.documents[docName].tags?.[0]
+      expect(tag?.['x-scalar-order']).toEqual(['test-api/tag/customers/GET/users', 'test-api/tag/customers/POST/users'])
+    })
+
+    it('skips the rewrite when the direct parent is a tagGroup (getOpenapiObject returns null for x-tagGroups)', () => {
+      // When x-tagGroups are used the tag entry's immediate parent is the tagGroup
+      // node. getOpenapiObject resolves tags via document.tags, not x-tagGroups,
+      // so the lookup returns null and updateOrderIds exits early — the child
+      // x-scalar-order is intentionally left untouched for now.
+      const store = createWorkspaceStore()
+      const docName = 'test-api'
+      const originalChildOrder = ['test-api/tag/users/GET/users']
+
+      store.workspace.documents[docName] = {
+        openapi: '3.1.0',
+        info: { title: 'Test API', version: '1.0.0' },
+        tags: [{ name: 'customers', 'x-scalar-order': [...originalChildOrder] }],
+        'x-scalar-order': ['test-api/tag/users'],
+        'x-scalar-original-document-hash': 'abc',
+      }
+
+      const generateId = vi.fn().mockReturnValue('test-api/tag/customers')
+
+      const docEntry = makeDocumentEntry(docName)
+      const tagGroupEntry: WithParent<TraversedTag> = {
+        id: 'test-api/tag/user-management',
+        type: 'tag',
+        title: 'User Management',
+        name: 'User Management',
+        isGroup: true,
+        parent: docEntry,
+      }
+      const entry = makeTagEntry({
+        id: 'test-api/tag/users',
+        name: 'users',
+        parent: tagGroupEntry,
+      })
+
+      updateOrderIds({
+        store,
+        generateId,
+        entries: [entry],
+        tag: { name: 'customers' },
+      })
+
+      // Early exit: nothing was changed because the tagGroup parent cannot be
+      // resolved via getOpenapiObject (it searches document.tags, not x-tagGroups)
+      const tag = store.workspace.documents[docName].tags?.[0]
+      expect(tag?.['x-scalar-order']).toEqual(originalChildOrder)
+    })
+
+    it('does not touch child order when old and new tag IDs are identical', () => {
+      // If the slug does not change (e.g. same name), no rewrite is needed.
+      const store = createWorkspaceStore()
+      const docName = 'test-api'
+      const sameId = 'test-api/tag/users'
+      const originalChildOrder = ['test-api/tag/users/GET/users']
+
+      store.workspace.documents[docName] = {
+        openapi: '3.1.0',
+        info: { title: 'Test API', version: '1.0.0' },
+        tags: [{ name: 'users', 'x-scalar-order': [...originalChildOrder] }],
+        'x-scalar-order': [sameId],
+        'x-scalar-original-document-hash': 'abc',
+      }
+
+      // generateId returns the same ID as the entry — no rename happened
+      const generateId = vi.fn().mockReturnValue(sameId)
+      const entry = makeTagEntry({ id: sameId, name: 'users', parent: makeDocumentEntry(docName) })
+
+      updateOrderIds({
+        store,
+        generateId,
+        entries: [entry],
+        tag: { name: 'users' },
+      })
+
+      const tag = store.workspace.documents[docName].tags?.[0]
+      expect(tag?.['x-scalar-order']).toEqual(originalChildOrder)
+    })
+
+    it('leaves unrelated IDs unchanged when rewriting child order', () => {
+      // IDs that do not start with the old tag prefix must be left as-is.
+      const store = createWorkspaceStore()
+      const docName = 'test-api'
+
+      store.workspace.documents[docName] = {
+        openapi: '3.1.0',
+        info: { title: 'Test API', version: '1.0.0' },
+        tags: [
+          {
+            name: 'customers',
+            'x-scalar-order': [
+              'test-api/tag/users/GET/users', // should be rewritten
+              'some-other-prefix/GET/other', // should NOT be touched
+            ],
+          },
+        ],
+        'x-scalar-order': ['test-api/tag/users'],
+        'x-scalar-original-document-hash': 'abc',
+      }
+
+      const generateId = vi.fn().mockReturnValue('test-api/tag/customers')
+      const entry = makeTagEntry({
+        id: 'test-api/tag/users',
+        name: 'users',
+        parent: makeDocumentEntry(docName),
+      })
+
+      updateOrderIds({
+        store,
+        generateId,
+        entries: [entry],
+        tag: { name: 'customers' },
+      })
+
+      const tag = store.workspace.documents[docName].tags?.[0]
+      expect(tag?.['x-scalar-order']).toEqual(['test-api/tag/customers/GET/users', 'some-other-prefix/GET/other'])
+    })
+
+    it('skips child order rewrite when the renamed tag is not found in document.tags', () => {
+      // Should not throw when the tag object cannot be found by new name.
+      const store = createWorkspaceStore()
+      const docName = 'test-api'
+
+      store.workspace.documents[docName] = {
+        openapi: '3.1.0',
+        info: { title: 'Test API', version: '1.0.0' },
+        tags: [{ name: 'admin' }], // no 'customers' tag exists
+        'x-scalar-order': ['test-api/tag/users'],
+        'x-scalar-original-document-hash': 'abc',
+      }
+
+      const generateId = vi.fn().mockReturnValue('test-api/tag/customers')
+      const entry = makeTagEntry({
+        id: 'test-api/tag/users',
+        name: 'users',
+        parent: makeDocumentEntry(docName),
+      })
+
+      // Should not throw
+      expect(() =>
+        updateOrderIds({
+          store,
+          generateId,
+          entries: [entry],
+          tag: { name: 'customers' },
+        }),
+      ).not.toThrow()
+    })
+
+    it('skips child order rewrite when the tag has no x-scalar-order', () => {
+      // A tag that was never reordered has no x-scalar-order; must be a no-op.
+      const store = createWorkspaceStore()
+      const docName = 'test-api'
+
+      store.workspace.documents[docName] = {
+        openapi: '3.1.0',
+        info: { title: 'Test API', version: '1.0.0' },
+        tags: [{ name: 'customers' }], // no x-scalar-order property
+        'x-scalar-order': ['test-api/tag/users'],
+        'x-scalar-original-document-hash': 'abc',
+      }
+
+      const generateId = vi.fn().mockReturnValue('test-api/tag/customers')
+      const entry = makeTagEntry({
+        id: 'test-api/tag/users',
+        name: 'users',
+        parent: makeDocumentEntry(docName),
+      })
+
+      expect(() =>
+        updateOrderIds({
+          store,
+          generateId,
+          entries: [entry],
+          tag: { name: 'customers' },
+        }),
+      ).not.toThrow()
+
+      // The tag object should remain unchanged (no x-scalar-order added)
+      expect(store.workspace.documents[docName].tags?.[0]).not.toHaveProperty('x-scalar-order')
+    })
   })
 
   describe('updateOrderIds – webhook entries', () => {

@@ -2,6 +2,7 @@ import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 
 import type { WorkspaceStore } from '@/client'
 import { canHaveOrder, getOpenapiObject } from '@/navigation/helpers/get-openapi-object'
+import { getParentEntry } from '@/navigation/helpers/get-parent-entry'
 import type { IdGenerator, TraversedOperation, TraversedTag, TraversedWebhook, WithParent } from '@/schemas/navigation'
 import type { TagObject } from '@/schemas/v3.1/strict/openapi-document'
 import type { OperationObject } from '@/schemas/v3.1/strict/operation'
@@ -52,11 +53,30 @@ export const updateOrderIds = ({ store, generateId, ...rest }: UpdateOrderIdPara
 
     // Tag entries: generate a new tag ID using the updated tag object
     if ('tag' in rest) {
-      order[index] = generateId({
+      const oldTagId = entry.id
+      const newTagId = generateId({
         type: 'tag',
         parentId: entry.parent.id,
         tag: rest.tag,
       })
+      order[index] = newTagId
+
+      // Ensure we update the children as well, so we don't lose the sidebar ordering when it rebuilds
+      if (oldTagId !== newTagId) {
+        const documentEntry = getParentEntry('document', entry)
+        const document = documentEntry ? store.workspace.documents[documentEntry.name] : null
+        const renamedTagObj = document?.tags?.find((t) => t.name === rest.tag.name)
+        const childOrder = renamedTagObj?.['x-scalar-order']
+
+        if (renamedTagObj && Array.isArray(childOrder)) {
+          const oldPrefix = `${oldTagId}/`
+          const newPrefix = `${newTagId}/`
+          renamedTagObj['x-scalar-order'] = childOrder.map((id: string) =>
+            id.startsWith(oldPrefix) ? newPrefix + id.slice(oldPrefix.length) : id,
+          )
+        }
+      }
+
       return
     }
 
