@@ -72,7 +72,7 @@ scalar project preview
 
 ## Preview Deployments
 
-Publish in preview mode (e.g. for staging) without going live:
+Publish in preview mode (e.g. for pull requests) without going live:
 
 ```bash
 scalar project publish --slug your-docs --preview
