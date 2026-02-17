@@ -660,7 +660,7 @@ export const createAppState = async ({
       return
     }
 
-    // Skip this when we are on the document redirect route so DocumentRedirect's
+    // Skip this when we are on the document redirect route
     if (currentRoute.value?.name === 'document.redirect') {
       return
     }
