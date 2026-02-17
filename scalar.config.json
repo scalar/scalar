@@ -600,7 +600,6 @@
               "toc": false
             },
             "head": {
-              "title": "Pricing - Scalar",
               "links": [{
                 "rel": "canonical",
                 "href": "https://scalar.com/pricing"
@@ -643,7 +642,6 @@
                     "title": "Getting Started",
                     "description": "Learn how to create and publish stunning developer documentation with Scalar Docs in minutes.",
                     "head": {
-                      "title": "Getting Started with Scalar Docs",
                       "links": [{
                         "rel": "canonical",
                         "href": "https://scalar.com/products/docs/getting-started"
@@ -680,7 +678,6 @@
                         "filepath": "documentation/guides/docs/configuration/scalar.config.json.md",
                         "description": "Complete configuration reference for scalar.config.json including routing, navigation, and site settings.",
                         "head": {
-                          "title": "scalar.config.json Configuration - Scalar Docs",
                           "links": [{
                             "rel": "canonical",
                             "href": "https://scalar.com/products/docs/configuration/scalar.config.json"
@@ -723,7 +720,6 @@
                         "filepath": "documentation/guides/docs/configuration/themes.md",
                         "description": "Customize your documentation appearance with themes, colors, fonts, and CSS variables for perfect brand alignment.",
                         "head": {
-                          "title": "Themes and Customization - Scalar Docs",
                           "links": [{
                             "rel": "canonical",
                             "href": "https://scalar.com/products/docs/configuration/themes"
@@ -746,7 +742,6 @@
                         "type": "page",
                         "description": "Control access to your documentation with password protection, SSO, and team-based permissions.",
                         "head": {
-                          "title": "Private Documentation and Access Control - Scalar Docs",
                           "links": [{
                             "rel": "canonical",
                             "href": "https://scalar.com/products/docs/configuration/private-docs"
@@ -792,7 +787,6 @@
                         "title": "GitHub Actions",
                         "description": "Automate documentation deployment with GitHub Actions workflows for continuous delivery and preview environments.",
                         "head": {
-                          "title": "GitHub Actions Deployment - Scalar Docs",
                           "links": [{
                             "rel": "canonical",
                             "href": "https://scalar.com/products/docs/deployment/github-actions"
@@ -856,7 +850,6 @@
                         "title": "Markdown Support",
                         "description": "Full markdown syntax reference including tables, lists, links, images, and GitHub-flavored markdown features.",
                         "head": {
-                          "title": "Markdown Support - Scalar Docs Components",
                           "links": [{
                             "rel": "canonical",
                             "href": "https://scalar.com/products/docs/components/markdown-support"
@@ -899,7 +892,6 @@
                         "title": "Code Blocks",
                         "description": "Syntax highlighting for 100+ programming languages with line numbers, highlighting, and copy-to-clipboard functionality.",
                         "head": {
-                          "title": "Code Blocks and Syntax Highlighting - Scalar Docs",
                           "links": [{
                             "rel": "canonical",
                             "href": "https://scalar.com/products/docs/components/code-blocks"
@@ -973,7 +965,6 @@
                     "title": "Getting Started",
                     "description": "Automatically generate type-safe SDKs from OpenAPI specifications in multiple programming languages.",
                     "head": {
-                      "title": "Getting Started with Scalar SDKs - Generate Client Libraries",
                       "links": [{
                         "rel": "canonical",
                         "href": "https://scalar.com/products/sdks/getting-started"
@@ -1061,7 +1052,6 @@
                     "title": "Getting Started",
                     "description": "Store, version, and manage your OpenAPI specifications in a centralized registry with automated CI/CD workflows.",
                     "head": {
-                      "title": "Getting Started with Scalar Registry - OpenAPI Management",
                       "links": [{
                         "rel": "canonical",
                         "href": "https://scalar.com/products/registry/getting-started"
@@ -1131,7 +1121,6 @@
                     "type": "page",
                     "description": "Create stunning API documentation from OpenAPI specs with a modern, customizable interface and built-in request testing.",
                     "head": {
-                      "title": "Getting Started with Scalar API References - OpenAPI Documentation",
                       "links": [{
                         "rel": "canonical",
                         "href": "https://scalar.com/products/api-references/getting-started"
@@ -1162,7 +1151,6 @@
                     "type": "page",
                     "description": "Configure API references with custom layouts, authentication, server URLs, and request customization options.",
                     "head": {
-                      "title": "API Reference Configuration - Scalar",
                       "links": [{
                         "rel": "canonical",
                         "href": "https://scalar.com/products/api-references/configuration"
@@ -1185,7 +1173,6 @@
                     "type": "page",
                     "description": "Customize API reference appearance with built-in themes, dark mode, and custom CSS for perfect brand matching.",
                     "head": {
-                      "title": "API Reference Themes - Scalar",
                       "links": [{
                         "rel": "canonical",
                         "href": "https://scalar.com/products/api-references/themes"
@@ -1213,7 +1200,6 @@
                     "type": "page",
                     "description": "Learn how Scalar handles OpenAPI 3.0 and 3.1 specifications including schemas, operations, and extensions.",
                     "head": {
-                      "title": "OpenAPI Specification Support - Scalar API References",
                       "links": [{
                         "rel": "canonical",
                         "href": "https://scalar.com/products/api-references/openapi"
@@ -1339,7 +1325,6 @@
                         "type": "page",
                         "description": "Add Scalar API references to Express.js applications with a simple middleware for instant documentation.",
                         "head": {
-                          "title": "Express.js Integration - Scalar API References for Node.js",
                           "links": [{
                             "rel": "canonical",
                             "href": "https://scalar.com/products/api-references/integrations/express"
@@ -1362,7 +1347,6 @@
                         "type": "page",
                         "description": "Replace Swagger UI with Scalar in your FastAPI application for modern, beautiful API documentation.",
                         "head": {
-                          "title": "FastAPI Integration - Scalar API References for Python",
                           "links": [{
                             "rel": "canonical",
                             "href": "https://scalar.com/products/api-references/integrations/fastapi"
@@ -1430,7 +1414,6 @@
                         "type": "page",
                         "description": "Add beautiful API references to your Next.js application with automatic OpenAPI generation and React components.",
                         "head": {
-                          "title": "Next.js Integration - Scalar API References",
                           "links": [{
                             "rel": "canonical",
                             "href": "https://scalar.com/products/api-references/integrations/nextjs"
@@ -1478,7 +1461,6 @@
                         "type": "page",
                         "description": "Embed Scalar API references in React applications with a native component for interactive API documentation.",
                         "head": {
-                          "title": "React Integration - Scalar API References Component",
                           "links": [{
                             "rel": "canonical",
                             "href": "https://scalar.com/products/api-references/integrations/react"
@@ -1569,7 +1551,6 @@
                     "filepath": "documentation/guides/agent/getting-started.md",
                     "description": "Deploy an AI assistant that provides instant, accurate answers based on your API documentation and specs.",
                     "head": {
-                      "title": "Getting Started with Agent Scalar - AI-Powered API Support",
                       "links": [{
                         "rel": "canonical",
                         "href": "https://scalar.com/products/agent/getting-started"
@@ -1619,7 +1600,6 @@
                     "title": "Getting Started",
                     "description": "Download and start testing APIs with the most beautiful API client built for developers who love great tools.",
                     "head": {
-                      "title": "Getting Started with Scalar API Client - Modern API Testing",
                       "links": [{
                         "rel": "canonical",
                         "href": "https://scalar.com/products/api-client/getting-started"
@@ -1659,7 +1639,6 @@
                     "type": "page",
                     "description": "Spin up realistic mock API servers instantly from OpenAPI specs with custom handlers and data seeding.",
                     "head": {
-                      "title": "Getting Started with Scalar Mock Server - API Mocking",
                       "links": [{
                         "rel": "canonical",
                         "href": "https://scalar.com/products/mock-server/getting-started"
@@ -1721,7 +1700,6 @@
                     "title": "Getting Started",
                     "description": "Install and use the Scalar CLI to validate, bundle, and deploy OpenAPI specifications from your terminal.",
                     "head": {
-                      "title": "Getting Started with Scalar CLI - OpenAPI Command Line",
                       "links": [{
                         "rel": "canonical",
                         "href": "https://scalar.com/tools/cli/getting-started"
@@ -1766,7 +1744,6 @@
                     "type": "page",
                     "description": "Migrate legacy Swagger 2.0 specs to modern OpenAPI 3.x formats automatically with our free conversion tool.",
                     "head": {
-                      "title": "Getting Started with OpenAPI Upgrader - Swagger to OpenAPI 3.x",
                       "links": [{
                         "rel": "canonical",
                         "href": "https://scalar.com/tools/openapi-upgrader/getting-started"
@@ -1821,7 +1798,6 @@
                     "type": "page",
                     "description": "Complete guide to migrating from Swagger UI to Scalar API References with modern features and better UX.",
                     "head": {
-                      "title": "Migrate from Swagger UI to Scalar - Migration Guide",
                       "links": [{
                         "rel": "canonical",
                         "href": "https://scalar.com/guides/migration/swagger-ui"
@@ -1881,7 +1857,6 @@
                     "type": "page",
                     "description": "Set up SSO and SAML authentication for Scalar with enterprise identity providers and secure team access.",
                     "head": {
-                      "title": "Getting Started with SSO/SAML - Scalar Authentication",
                       "links": [{
                         "rel": "canonical",
                         "href": "https://scalar.com/guides/sso/getting-started"
