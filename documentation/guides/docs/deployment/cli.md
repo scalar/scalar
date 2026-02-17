@@ -54,7 +54,7 @@ This command prompts for a subdomain and creates the configuration file.
 Create a new project on the Scalar platform:
 
 ```bash
-scalar project create --name "My Documentation" --slug my-docs
+scalar project create --name "My Documentation" --slug your-docs
 ```
 
 | Option   | Type     | Required | Description                     |
@@ -62,12 +62,20 @@ scalar project create --name "My Documentation" --slug my-docs
 | `--name` | `string` | No       | Display name for your project   |
 | `--slug` | `string` | No       | URL-friendly project identifier |
 
-## Preview
+## Local Preview
 
 Preview your documentation locally before publishing:
 
 ```bash
 scalar project preview
+```
+
+## Preview Deployments
+
+Publish in preview mode (e.g. for staging) without going live:
+
+```bash
+scalar project publish --slug your-docs --preview
 ```
 
 ## Publishing
@@ -81,13 +89,14 @@ scalar project publish
 Specify a project slug and config file:
 
 ```bash
-scalar project publish --slug my-docs --config scalar.config.json
+scalar project publish --slug your-docs --config scalar.config.json
 ```
 
-| Option     | Type     | Required | Description                          |
-| ---------- | -------- | -------- | ------------------------------------ |
-| `--slug`   | `string` | No       | Project slug identifier              |
-| `--config` | `string` | No       | Path to your scalar.config.json file |
+| Option      | Type      | Required | Description                              |
+| ----------- | --------- | -------- | ---------------------------------------- |
+| `--slug`    | `string`  | No       | Project slug identifier                  |
+| `--config`  | `string`  | No       | Path to your scalar.config.json file     |
+| `--preview` | `boolean` | No       | Publish in preview mode (do not go live) |
 
 The publish command uploads your project configuration and all referenced content files to Scalar's platform.
 
