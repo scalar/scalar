@@ -281,15 +281,15 @@ Configure API key authentication:
 
 ```properties
 # API Key authentication (security scheme name must match OpenAPI document)
-scalar.authentication.apiKey.my-api-key.name=X-API-Key
-scalar.authentication.apiKey.my-api-key.value=my-api-key-value
+scalar.authentication.apiKey.your-api-key.name=X-API-Key
+scalar.authentication.apiKey.your-api-key.value=your-api-key-value
 
 # Preferred security schemes (single scheme - simplified syntax)
-scalar.authentication.preferredSecurityScheme=my-api-key
+scalar.authentication.preferredSecurityScheme=your-api-key
 
 # Or multiple security schemes (list syntax)
 # scalar.authentication.preferredSecuritySchemes[0]=my-oauth-scheme
-# scalar.authentication.preferredSecuritySchemes[1]=my-api-key
+# scalar.authentication.preferredSecuritySchemes[1]=your-api-key
 ```
 
 ### OAuth2 Authentication
@@ -313,7 +313,7 @@ scalar.authentication.preferredSecurityScheme=my-oauth-scheme
 
 # Or multiple security schemes (list syntax)
 # scalar.authentication.preferredSecuritySchemes[0]=my-oauth-scheme
-# scalar.authentication.preferredSecuritySchemes[1]=my-api-key
+# scalar.authentication.preferredSecuritySchemes[1]=your-api-key
 ```
 
 ### HTTP Authentication
@@ -341,13 +341,13 @@ scalar:
     # Or multiple security schemes (list syntax)
     # preferredSecuritySchemes:
     #   - my-oauth-scheme
-    #   - my-api-key
+    #   - your-api-key
 
     # API Key security schemes
     apiKey:
-      my-api-key:
+      your-api-key:
         name: X-API-Key
-        value: my-api-key-value
+        value: your-api-key-value
 
     # HTTP security schemes (Basic and Bearer)
     http:
@@ -402,7 +402,7 @@ Here's an example showing common configuration options:
 
 ```properties
 # Basic configuration
-scalar.url=https://my-api-spec.json
+scalar.url=https://example.com/openapi.json
 scalar.path=/docs
 scalar.enabled=true
 
@@ -427,7 +427,7 @@ Or in `application.yml`:
 
 ```yaml
 scalar:
-  url: https://my-api-spec.json
+  url: https://example.com/openapi.json
   path: /docs
   enabled: true
   theme: deepSpace

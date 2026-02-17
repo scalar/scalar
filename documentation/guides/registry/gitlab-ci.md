@@ -60,7 +60,7 @@ deploy_production:
     name: production
   script:
     - npx @scalar/cli auth login --token $SCALAR_API_KEY
-    - npx @scalar/cli registry publish --namespace $SCALAR_NAMESPACE_PRODUCTION --slug your-api-slug api/openapi.json
+    - npx @scalar/cli registry publish --namespace $SCALAR_NAMESPACE_PRODUCTION --slug your-api api/openapi.json
   rules:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
   needs:
@@ -73,7 +73,7 @@ deploy_development:
     name: development
   script:
     - npx @scalar/cli auth login --token $SCALAR_API_KEY
-    - npx @scalar/cli registry publish --namespace $SCALAR_NAMESPACE_DEVELOPMENT --slug your-api-slug api/openapi.json
+    - npx @scalar/cli registry publish --namespace $SCALAR_NAMESPACE_DEVELOPMENT --slug your-api api/openapi.json
   rules:
     - if: $CI_COMMIT_BRANCH == "development"
   needs:

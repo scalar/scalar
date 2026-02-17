@@ -77,7 +77,7 @@ jobs:
         run: echo "NAMESPACE=${{ vars.SCALAR_NAMESPACE_DEVELOPMENT }}" >> $GITHUB_ENV
 
       - name: Publish API
-        run: scalar registry version your-api-slug ./api/openapi.json --namespace "$NAMESPACE"
+        run: scalar registry publish ./api/openapi.json --namespace "$NAMESPACE" --slug your-api
 ```
 
 ## Pull Request Validation
