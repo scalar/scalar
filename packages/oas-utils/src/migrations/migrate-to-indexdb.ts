@@ -26,45 +26,42 @@ import {
   type TagObject,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import type { WorkspaceDocument, WorkspaceExtensions, WorkspaceMeta } from '@scalar/workspace-store/schemas/workspace'
-import { ColorModeSchema, ThemeIdSchema } from '@scalar/workspace-store/schemas/workspace'
+import { ColorModeSchema } from '@scalar/workspace-store/schemas/workspace'
 
 import type { RequestParameter } from '@/entities/spec/parameters'
 import { DATA_VERSION_LS_LEY } from '@/migrations/data-version'
 import { migrator } from '@/migrations/migrator'
 import type { v_2_5_0 } from '@/migrations/v-2.5.0/types.generated'
 
-const MIGRATION_FLAG_KEY = 'scalar_indexdb_migration_complete'
-
 /**
  * Migrates localStorage data to IndexedDB workspace structure.
  *
  * Called early in app initialization (app-state.ts) before workspace data loads.
- * Idempotent and non-destructive - only runs once, preserves old data.
+ * Idempotent and non-destructive - runs when legacy data exists but IndexedDB is empty.
  *
  * Flow:
- * 1. Check if migration needed
+ * 1. Check if migration needed (has legacy data + IndexedDB is empty)
  * 2. Run existing migrations to get latest data structure
  * 3. Transform to new workspace format
  * 4. Save to IndexedDB
- * 5. Mark complete
  *
  * Old data is preserved for rollback. Typically completes in < 1 second.
  */
 export const migrateLocalStorageToIndexDb = async () => {
-  if (!shouldMigrateToIndexDb()) {
-    console.info('ℹ️  No migration needed or already completed')
-    return
-  }
-
-  console.info('🚀 Starting migration from localStorage to IndexedDB...')
-  let closeWorkspacePersistence: (() => void) | undefined
+  const { close, workspace: workspacePersistence } = await createWorkspaceStorePersistence()
 
   try {
+    const shouldMigrate = await shouldMigrateToIndexDb(workspacePersistence)
+
+    if (!shouldMigrate) {
+      console.info('ℹ️  No migration needed - IndexedDB already has workspaces or no legacy data exists')
+      return
+    }
+
+    console.info('🚀 Starting migration from localStorage to IndexedDB...')
+
     // Step 1: Run existing migrations to get latest data structure
     const legacyData = migrator()
-
-    const { close, workspace: workspacePersistence } = await createWorkspaceStorePersistence()
-    closeWorkspacePersistence = close
 
     console.info(
       `📦 Found legacy data: ${legacyData.arrays.workspaces.length} workspace(s), ${legacyData.arrays.collections.length} collection(s)`,
@@ -87,35 +84,45 @@ export const migrateLocalStorageToIndexDb = async () => {
       ),
     )
 
-    console.info(`🔄 Transformed into ${workspaces.length} workspace(s)`)
-
-    // Step 4: Mark migration as complete
-    markMigrationComplete()
-
     console.info(`✅ Successfully migrated ${workspaces.length} workspace(s) to IndexedDB`)
   } catch (error) {
     console.error('❌ Migration failed:', error)
   } finally {
-    closeWorkspacePersistence?.()
+    close()
   }
 }
 
 /**
- * Checks if migration is needed by verifying the completion flag and presence of old data.
+ * Checks if migration is needed by verifying IndexedDB state and presence of legacy data.
+ *
+ * Migration is needed when:
+ * 1. Legacy data exists in localStorage (workspace, collection, or request keys)
+ * 2. AND IndexedDB has no workspaces yet
+ *
+ * This approach is more reliable than using a flag because:
+ * - If IndexedDB is cleared, migration will run again automatically
+ * - No risk of flag getting out of sync with actual data state
+ * - Handles edge cases like partial migrations or database corruption
  */
-export const shouldMigrateToIndexDb = (): boolean => {
-  // Check if migration already completed
-  if (localStorage.getItem(MIGRATION_FLAG_KEY) === 'true') {
-    return false
-  }
-
+export const shouldMigrateToIndexDb = async (
+  workspacePersistence: Awaited<ReturnType<typeof createWorkspaceStorePersistence>>['workspace'],
+): Promise<boolean> => {
   // Check if there is any old data in localStorage
-  const hasOldData =
+  const hasLegacyData =
     localStorage.getItem('workspace') !== null ||
     localStorage.getItem('collection') !== null ||
     localStorage.getItem('request') !== null
 
-  return hasOldData
+  if (!hasLegacyData) {
+    return false
+  }
+
+  // Check if IndexedDB already has workspaces
+  const existingWorkspaces = await workspacePersistence.getAll()
+  const hasIndexDbData = existingWorkspaces.length > 0
+
+  // Only migrate if we have legacy data but no IndexedDB data
+  return !hasIndexDbData
 }
 
 /**
@@ -186,7 +193,7 @@ export const transformLegacyDataToWorkspace = async (legacyData: {
 
       // Add theme if present
       if (workspace.themeId) {
-        meta['x-scalar-theme'] = coerceValue(ThemeIdSchema, workspace.themeId)
+        meta['x-scalar-theme'] = workspace.themeId
       }
 
       // Set color mode
@@ -857,21 +864,12 @@ const transformCollectionToDocument = (
 }
 
 /**
- * Marks migration as complete by setting a flag in localStorage.
- * Stored in localStorage (not IndexedDB) to persist even if IndexedDB is cleared.
- */
-export const markMigrationComplete = (): void => {
-  localStorage.setItem(MIGRATION_FLAG_KEY, 'true')
-  console.info('✅ Migration to IndexedDB complete')
-}
-
-/**
  * Clears legacy localStorage data after successful migration.
  *
  * NOT called automatically - old data is preserved as a safety net for rollback.
  * Call only after migration succeeds and a grace period passes (e.g., 30 days).
  *
- * To rollback: remove the migration flag, clear IndexedDB, and reload.
+ * To rollback: clear IndexedDB and reload - migration will run again automatically.
  */
 export const clearLegacyLocalStorage = (): void => {
   const keysToRemove = [

@@ -12,12 +12,7 @@ import { tagSchema } from '@/entities/spec/spec-objects'
 import { type Workspace, workspaceSchema } from '@/entities/workspace/workspace'
 
 import { DATA_VERSION_LS_LEY } from './data-version'
-import {
-  clearLegacyLocalStorage,
-  markMigrationComplete,
-  shouldMigrateToIndexDb,
-  transformLegacyDataToWorkspace,
-} from './migrate-to-indexdb'
+import { clearLegacyLocalStorage, shouldMigrateToIndexDb, transformLegacyDataToWorkspace } from './migrate-to-indexdb'
 import type { v_2_5_0 } from './v-2.5.0/types.generated'
 
 /**
@@ -175,48 +170,85 @@ describe('migrate-to-indexdb', () => {
   })
 
   describe('shouldMigrateToIndexDb', () => {
-    it('should return false when migration flag is set to true', () => {
-      localStorage.setItem('scalar_indexdb_migration_complete', 'true')
-      expect(shouldMigrateToIndexDb()).toBe(false)
-      localStorage.removeItem('scalar_indexdb_migration_complete')
+    it('returns false when no legacy data exists', async () => {
+      const mockWorkspacePersistence = {
+        getAll: async () => [],
+      }
+      const result = await shouldMigrateToIndexDb(mockWorkspacePersistence as any)
+      expect(result).toBe(false)
     })
 
-    it('should return true when migration flag is not set and workspace data exists', () => {
-      localStorage.removeItem('scalar_indexdb_migration_complete')
+    it('returns false when legacy data exists but IndexedDB already has workspaces', async () => {
       localStorage.setItem('workspace', '[]')
-      expect(shouldMigrateToIndexDb()).toBe(true)
+      const mockWorkspacePersistence = {
+        getAll: async () => [{ namespace: 'local', slug: 'existing-workspace' }],
+      }
+      const result = await shouldMigrateToIndexDb(mockWorkspacePersistence as any)
+      expect(result).toBe(false)
       localStorage.removeItem('workspace')
     })
 
-    it('should return true when migration flag is not set and collection data exists', () => {
-      localStorage.removeItem('scalar_indexdb_migration_complete')
+    it('returns true when workspace data exists and IndexedDB is empty', async () => {
+      localStorage.setItem('workspace', '[]')
+      const mockWorkspacePersistence = {
+        getAll: async () => [],
+      }
+      const result = await shouldMigrateToIndexDb(mockWorkspacePersistence as any)
+      expect(result).toBe(true)
+      localStorage.removeItem('workspace')
+    })
+
+    it('returns true when collection data exists and IndexedDB is empty', async () => {
       localStorage.setItem('collection', '[]')
-      expect(shouldMigrateToIndexDb()).toBe(true)
+      const mockWorkspacePersistence = {
+        getAll: async () => [],
+      }
+      const result = await shouldMigrateToIndexDb(mockWorkspacePersistence as any)
+      expect(result).toBe(true)
       localStorage.removeItem('collection')
     })
 
-    it('should return true when migration flag is not set and request data exists', () => {
-      localStorage.removeItem('scalar_indexdb_migration_complete')
+    it('returns true when request data exists and IndexedDB is empty', async () => {
       localStorage.setItem('request', '[]')
-      expect(shouldMigrateToIndexDb()).toBe(true)
+      const mockWorkspacePersistence = {
+        getAll: async () => [],
+      }
+      const result = await shouldMigrateToIndexDb(mockWorkspacePersistence as any)
+      expect(result).toBe(true)
       localStorage.removeItem('request')
     })
 
-    it('should return false when no migration flag and no old data exists', () => {
-      localStorage.removeItem('scalar_indexdb_migration_complete')
+    it('returns false when no legacy data and IndexedDB is empty', async () => {
+      const mockWorkspacePersistence = {
+        getAll: async () => [],
+      }
+      const result = await shouldMigrateToIndexDb(mockWorkspacePersistence as any)
+      expect(result).toBe(false)
+    })
+
+    it('handles IndexedDB being cleared after migration - migration runs again', async () => {
+      // This test verifies the fix for the original issue:
+      // If IndexedDB is cleared but legacy data remains, migration should run again
+      localStorage.setItem('workspace', '[]')
+
+      // First check: IndexedDB is empty, should migrate
+      const emptyPersistence = {
+        getAll: async () => [],
+      }
+      const shouldMigrateFirst = await shouldMigrateToIndexDb(emptyPersistence as any)
+      expect(shouldMigrateFirst).toBe(true)
+
+      // Simulate IndexedDB being cleared (user clears browser data, different profile, etc.)
+      // Legacy data still exists in localStorage
+      const clearedPersistence = {
+        getAll: async () => [],
+      }
+      const shouldMigrateAfterClear = await shouldMigrateToIndexDb(clearedPersistence as any)
+
+      // Migration should run again because IndexedDB is empty but legacy data exists
+      expect(shouldMigrateAfterClear).toBe(true)
+
       localStorage.removeItem('workspace')
-      localStorage.removeItem('collection')
-      localStorage.removeItem('request')
-      expect(shouldMigrateToIndexDb()).toBe(false)
-    })
-  })
-
-  describe('markMigrationComplete', () => {
-    it('should set the migration flag in localStorage', () => {
-      localStorage.removeItem('scalar_indexdb_migration_complete')
-      markMigrationComplete()
-      expect(localStorage.getItem('scalar_indexdb_migration_complete')).toBe('true')
-      localStorage.removeItem('scalar_indexdb_migration_complete')
     })
   })
 
