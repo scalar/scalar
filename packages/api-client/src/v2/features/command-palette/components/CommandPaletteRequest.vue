@@ -44,13 +44,13 @@ import HttpMethodBadge from '@/v2/blocks/operation-code-sample/components/HttpMe
 import CommandActionForm from './CommandActionForm.vue'
 import CommandActionInput from './CommandActionInput.vue'
 
-const { workspaceStore, eventBus, documentId, tagId } = defineProps<{
+const { workspaceStore, eventBus, documentName, tagId } = defineProps<{
   /** The workspace store for accessing documents and operations */
   workspaceStore: WorkspaceStore
   /** Event bus for emitting operation creation events */
   eventBus: WorkspaceEventBus
   /** Preselected document id to create the request in */
-  documentId?: string
+  documentName?: string
   /** Preselected tag id to add the request to (optional) */
   tagId?: string
 }>()
@@ -98,8 +98,8 @@ const availableMethods: MethodOption[] = HTTP_METHODS.map((method) => ({
 }))
 
 const selectedDocument = ref<{ id: string; label: string } | undefined>(
-  documentId
-    ? availableDocuments.value.find((document) => document.id === documentId)
+  documentName
+    ? availableDocuments.value.find((document) => document.id === documentName)
     : (availableDocuments.value[0] ?? undefined),
 )
 

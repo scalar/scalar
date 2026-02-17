@@ -40,11 +40,11 @@ import HttpMethodBadge from '@/v2/blocks/operation-code-sample/components/HttpMe
 import CommandActionForm from './CommandActionForm.vue'
 import CommandActionInput from './CommandActionInput.vue'
 
-const { workspaceStore, documentId, operationId } = defineProps<{
+const { workspaceStore, documentName, operationId } = defineProps<{
   /** The workspace store for accessing documents and operations */
   workspaceStore: WorkspaceStore
   /** Document id to create the example for */
-  documentId?: string
+  documentName?: string
   /** Preselected path and method to create the example for */
   operationId?: string
 }>()
@@ -80,8 +80,8 @@ const availableDocuments = computed(() =>
 )
 
 const selectedDocument = ref<{ id: string; label: string } | undefined>(
-  documentId
-    ? availableDocuments.value.find((document) => document.id === documentId)
+  documentName
+    ? availableDocuments.value.find((document) => document.id === documentName)
     : (availableDocuments.value[0] ?? undefined),
 )
 
