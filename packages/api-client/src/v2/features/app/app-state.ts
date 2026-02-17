@@ -328,8 +328,8 @@ export const createAppState = async ({
    */
   const navigateToWorkspace = async (namespace?: string, slug?: string): Promise<void> => {
     await router.push({
-      name: 'workspace.environment',
-      params: { namespace, workspaceSlug: slug },
+      name: 'document.redirect',
+      params: { namespace, workspaceSlug: slug, documentSlug: 'drafts' },
     })
   }
 
@@ -657,6 +657,11 @@ export const createAppState = async ({
    */
   const navigateToCurrentTab = async (): Promise<void> => {
     if (!store.value) {
+      return
+    }
+
+    // Skip this when we are on the document redirect route so DocumentRedirect's
+    if (currentRoute.value?.name === 'document.redirect') {
       return
     }
 

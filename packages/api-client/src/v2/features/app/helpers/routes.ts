@@ -11,6 +11,7 @@ import type { RouteRecordRaw } from 'vue-router'
 import type { MergedSecuritySchemes } from '@/v2/blocks/scalar-auth-selector-block/helpers/merge-security'
 import Authentication from '@/v2/features/collection/components/Authentication.vue'
 import Cookies from '@/v2/features/collection/components/Cookies.vue'
+import DocumentRedirect from '@/v2/features/collection/components/DocumentRedirect.vue'
 import Environment from '@/v2/features/collection/components/Environment.vue'
 import Overview from '@/v2/features/collection/components/Overview.vue'
 import Servers from '@/v2/features/collection/components/Servers.vue'
@@ -67,7 +68,7 @@ export const ROUTES = [
     path: '/@:namespace/:workspaceSlug',
     children: [
       {
-        path: ':documentSlug',
+        path: 'document/:documentSlug',
         children: [
           // Example page
           {
@@ -81,13 +82,10 @@ export const ROUTES = [
             path: '',
             component: DocumentCollection,
             children: [
-              // Redirect to overview
               {
                 name: 'document.redirect',
                 path: '',
-                redirect: {
-                  name: 'document.overview',
-                },
+                component: DocumentRedirect,
               },
               // Document overview
               {
@@ -160,7 +158,7 @@ export const ROUTES = [
   {
     path: '/:pathMatch(.*)*',
     redirect: () => {
-      const DEFAULT_PATH = '/@local/local/drafts/overview'
+      const DEFAULT_PATH = '/@local/local/document/drafts/overview'
       const lastPath = workspaceStorage.getLastPath() ?? DEFAULT_PATH
 
       // Set the default path to the last path so we don't go to an inifite loop if the last path is invalid

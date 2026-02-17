@@ -100,6 +100,15 @@ const { themeStyleTag } = useTheme({
   store: app.store,
 })
 
+const navigateToWorkspaceOverview = (namespace?: string, slug?: string) => {
+  app.eventBus.emit('ui:navigate', {
+    page: 'workspace',
+    path: 'environment',
+    namespace,
+    workspaceSlug: slug,
+  })
+}
+
 /** Sets the active workspace by ID: finds the workspace in the list and updates app state & navigation. */
 const setActiveWorkspace = (id?: string) => {
   if (!id) {
@@ -111,7 +120,8 @@ const setActiveWorkspace = (id?: string) => {
   if (!workspace) {
     return
   }
-  app.workspace.navigateToWorkspace(workspace.namespace, workspace.slug)
+
+  navigateToWorkspaceOverview(workspace.namespace, workspace.slug)
 }
 
 const createWorkspaceModalState = useModal()
@@ -174,7 +184,7 @@ const routerViewProps = computed<RouteProps>(() => {
             :sidebarWidth="app.sidebar.width.value"
             :store="app.store.value!"
             :workspaces="app.workspace.workspaceGroups.value"
-            @click:workspace="app.workspace.navigateToWorkspace"
+            @click:workspace="navigateToWorkspaceOverview"
             @create:workspace="createWorkspaceModalState.show()"
             @select:workspace="setActiveWorkspace"
             @selectItem="app.sidebar.handleSelectItem"
