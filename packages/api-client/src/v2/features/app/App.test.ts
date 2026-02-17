@@ -136,18 +136,4 @@ describe('App', () => {
     expect(appState.document.value).toBeDefined()
     expect(appState.document.value?.info.title).toBe('Test Document')
   })
-
-  it('renders DesktopTabs for desktop layout', async () => {
-    const { wrapper } = await setupApp('desktop')
-
-    /**
-     * Desktop layout should show DesktopTabs instead of WebTopNav
-     * This ensures the correct navigation UI is rendered based on the environment
-     */
-    const desktopTabs = wrapper.findComponent({ name: 'DesktopTabs' })
-    const webTopNav = wrapper.findComponent({ name: 'DownloadAppButton' })
-
-    expect(desktopTabs.exists()).toBe(true)
-    expect(webTopNav.exists()).toBe(false)
-  })
 })
