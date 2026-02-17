@@ -182,6 +182,9 @@ export function initializeAppEventHandlers({
       'tag:create:tag': {
         onAfterExecute: (payload) => rebuildSidebar(payload.documentName),
       },
+      'tag:edit:tag': {
+        onAfterExecute: (payload) => rebuildSidebar(payload.documentName),
+      },
       'tag:delete:tag': {
         onAfterExecute: (payload) => rebuildSidebar(payload.documentName),
       },

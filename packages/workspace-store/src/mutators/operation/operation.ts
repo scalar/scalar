@@ -10,10 +10,8 @@ import { unpackProxyObject } from '@/helpers/unpack-proxy'
 import { syncParametersForPathChange } from '@/mutators/operation/helpers/sync-path-parameters'
 import { getOperationEntries } from '@/navigation'
 import { getNavigationOptions } from '@/navigation/get-navigation-options'
-import { canHaveOrder, getOpenapiObject } from '@/navigation/helpers/get-openapi-object'
+import { updateOrderIds } from '@/navigation/helpers/update-order-ids'
 import type { WorkspaceDocument } from '@/schemas'
-import type { IdGenerator, TraversedOperation, TraversedWebhook, WithParent } from '@/schemas/navigation'
-import type { OperationObject } from '@/schemas/v3.1/strict/operation'
 
 /**
  * Creates a new operation at a specific path and method in the document.
@@ -123,60 +121,6 @@ export const updateOperationSummary = (
 }
 
 /**
- * Updates the order ID of an operation in the sidebar.
- * Used when changing path or method so we do not lose the sidebar ordering
- */
-const updateOperationOrderId = ({
-  store,
-  operation,
-  generateId,
-  method,
-  path,
-  entries,
-}: {
-  store: WorkspaceStore
-  operation: OperationObject
-  generateId: IdGenerator
-  method: HttpMethod
-  path: string
-  entries: (WithParent<TraversedOperation> | WithParent<TraversedWebhook>)[]
-}) => {
-  // Loop over the entries and replace the ID in the x-scalar-order with the new ID
-  entries?.forEach((entry) => {
-    if (!canHaveOrder(entry.parent)) {
-      return
-    }
-
-    // Ensure we have an x-scalar-order property
-    const parentOpenAPIObject = getOpenapiObject({ store, entry: entry.parent })
-    if (!parentOpenAPIObject || !('x-scalar-order' in parentOpenAPIObject)) {
-      return
-    }
-
-    const order = parentOpenAPIObject['x-scalar-order']
-    const index = order?.indexOf(entry.id)
-    if (!Array.isArray(order) || typeof index !== 'number' || index < 0) {
-      return
-    }
-
-    const parentTag =
-      entry.parent.type === 'tag' && 'name' in parentOpenAPIObject
-        ? { tag: parentOpenAPIObject, id: entry.parent.id }
-        : undefined
-
-    // Generate the new ID based on whether this is an operation or webhook
-    order[index] = generateId({
-      type: 'operation',
-      path,
-      method,
-      operation,
-      parentId: entry.parent.id,
-      parentTag,
-    })
-  })
-}
-
-/**
  * Updates the HTTP method and/or path of an operation and moves it to the new location.
  * This function:
  * 1. Moves the operation from the old method/path to the new method/path under paths
@@ -258,7 +202,7 @@ export const updateOperationPathMethod = (
 
   // Updates the order ID so we don't lose the sidebar ordering when it rebuilds
   if (entries) {
-    updateOperationOrderId({ store, operation, generateId, method: finalMethod, path: finalPath, entries })
+    updateOrderIds({ store, operation, generateId, method: finalMethod, path: finalPath, entries })
   }
 
   // Initialize the paths object if it does not exist

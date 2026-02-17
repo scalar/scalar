@@ -249,7 +249,7 @@ const handleAddEmptyFolder = (item: TraversedEntry) => {
   eventBus.emit('ui:open:command-palette', {
     action: 'create-request',
     payload: {
-      documentId: document?.id,
+      documentName: document?.id,
       tagId: tag?.name,
     },
   })

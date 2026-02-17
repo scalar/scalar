@@ -64,7 +64,7 @@ const handleAddOperation = () => {
     eventBus.emit('ui:open:command-palette', {
       action: 'create-request',
       payload: {
-        documentId: item.id,
+        documentName: item.name,
       },
     })
   }
@@ -74,7 +74,7 @@ const handleAddOperation = () => {
     eventBus.emit('ui:open:command-palette', {
       action: 'create-request',
       payload: {
-        documentId: getParentEntry('document', itemWithParent)?.id,
+        documentName: getParentEntry('document', itemWithParent)?.name,
         tagId: item.name,
       },
     })
@@ -86,7 +86,7 @@ const handleAddTag = () => {
     eventBus.emit('ui:open:command-palette', {
       action: 'add-tag',
       payload: {
-        documentId: item.id,
+        documentName: item.name,
       },
     })
   }
@@ -101,7 +101,7 @@ const handleEditTag = () => {
         action: 'edit-tag',
         payload: {
           tag: item,
-          documentId: getParentEntry('document', itemWithParent)?.id ?? '',
+          documentName: getParentEntry('document', itemWithParent)?.name ?? '',
         },
       },
       { skipUnpackProxy: true },
@@ -115,7 +115,7 @@ const handleAddExample = () => {
     eventBus.emit('ui:open:command-palette', {
       action: 'add-example',
       payload: {
-        documentId: getParentEntry('document', itemWithParent)?.id,
+        documentName: getParentEntry('document', itemWithParent)?.name,
         operationId: item.id,
       },
     })

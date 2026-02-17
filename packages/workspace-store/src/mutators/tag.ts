@@ -2,6 +2,9 @@ import type { WorkspaceStore } from '@/client'
 import type { TagEvents } from '@/events/definitions/tag'
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
 import { unpackProxyObject } from '@/helpers/unpack-proxy'
+import { getNavigationOptions } from '@/navigation/get-navigation-options'
+import { getTagEntries } from '@/navigation/helpers/get-tag-entries'
+import { updateOrderIds } from '@/navigation/helpers/update-order-ids'
 
 /**
  * Adds a new tag to the WorkspaceDocument's `tags` array.
@@ -36,12 +39,11 @@ export const createTag = (store: WorkspaceStore | null, payload: TagEvents['tag:
  */
 export const editTag = (store: WorkspaceStore | null, payload: TagEvents['tag:edit:tag']) => {
   const document = store?.workspace.documents[payload.documentName]
-  if (!document) {
+  const documentNavigation = document?.['x-scalar-navigation']
+  if (!document || !documentNavigation) {
     console.error('Document not found', { payload, store })
     return
   }
-
-  console.log('editTag', { payload })
 
   const oldName = payload.tag.name
   const newName = payload.newName
@@ -53,8 +55,6 @@ export const editTag = (store: WorkspaceStore | null, payload: TagEvents['tag:ed
       return tag.name === oldName ? { ...tag, name: newName } : tag
     })
   }
-
-  console.log('document.tags', { document })
 
   // Update the tag name in all child operations and webhooks
   payload.tag.children?.forEach((child) => {
@@ -88,10 +88,20 @@ export const editTag = (store: WorkspaceStore | null, payload: TagEvents['tag:ed
     }))
   }
 
-  console.log('updated children', { document })
+  /**
+   * We don't pass navigation options as we don't have config on the client,
+   * and we don't change path or method on the references
+   */
+  const { generateId } = getNavigationOptions(documentNavigation.name)
 
-  // Rebuild the sidebar
-  store?.buildSidebar(payload.documentName)
+  /** Grabs all sidebar entries for the tag that is being renamed */
+  const tagEntriesMap = getTagEntries(documentNavigation)
+  const entries = tagEntriesMap.get(oldName)
+
+  // Updates the order ID so we don't lose the sidebar ordering when it rebuilds
+  if (entries) {
+    updateOrderIds({ store, tag: { name: newName }, generateId, entries })
+  }
 }
 
 /**
@@ -122,7 +132,7 @@ export const deleteTag = (workspace: WorkspaceStore | null, payload: TagEvents['
       const resolvedOperation = getResolvedRef(operation)
 
       if ('tags' in resolvedOperation) {
-        const plainTags = unpackProxyObject(resolvedOperation.tags, { depth: null })
+        const plainTags = unpackProxyObject(resolvedOperation.tags, { depth: 1 })
         resolvedOperation.tags = plainTags?.filter((tag) => tag !== payload.name)
       }
     })
@@ -137,7 +147,7 @@ export const deleteTag = (workspace: WorkspaceStore | null, payload: TagEvents['
 
       const resolvedOperation = getResolvedRef(operation)
 
-      const plainTags = unpackProxyObject(resolvedOperation.tags, { depth: null })
+      const plainTags = unpackProxyObject(resolvedOperation.tags, { depth: 1 })
       resolvedOperation.tags = plainTags?.filter((tag) => tag !== payload.name)
     })
   })

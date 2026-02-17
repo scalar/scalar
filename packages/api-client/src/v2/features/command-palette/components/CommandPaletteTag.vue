@@ -42,20 +42,19 @@ export default {
 import { ScalarButton, ScalarIcon, ScalarListbox } from '@scalar/components'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
-import { unpackProxyObject } from '@scalar/workspace-store/helpers/unpack-proxy'
 import type { TraversedTag } from '@scalar/workspace-store/schemas/navigation'
 import { computed, ref } from 'vue'
 
 import CommandActionForm from './CommandActionForm.vue'
 import CommandActionInput from './CommandActionInput.vue'
 
-const { workspaceStore, eventBus, documentId, tag } = defineProps<{
+const { workspaceStore, eventBus, documentName, tag } = defineProps<{
   /** The workspace store for accessing documents and tags */
   workspaceStore: WorkspaceStore
   /** Event bus for emitting tag creation events */
   eventBus: WorkspaceEventBus
   /** Preselected document id to create the tag in */
-  documentId?: string
+  documentName?: string
   /** When provided, the component enters edit mode with this name pre-filled */
   tag?: TraversedTag
 }>()
@@ -83,15 +82,18 @@ const availableDocuments = computed(() =>
 )
 
 const selectedDocument = ref<{ id: string; label: string } | undefined>(
-  documentId
-    ? availableDocuments.value.find((document) => document.id === documentId)
+  documentName
+    ? availableDocuments.value.find((document) => document.id === documentName)
     : (availableDocuments.value[0] ?? undefined),
 )
 
 /**
  * Check if the form should be disabled.
  *
- * In edit mode, disabled when the name is empty or unchanged.
+ * In edit mode, disabled when:
+ * - Tag name is empty
+ * - Name is unchanged from the original
+ * - The new name conflicts with an existing tag in the same document
  *
  * In create mode, disabled when:
  * - Tag name is empty
@@ -100,27 +102,20 @@ const selectedDocument = ref<{ id: string; label: string } | undefined>(
  * - A tag with the same name already exists in the selected document
  */
 const isDisabled = computed<boolean>(() => {
-  if (!nameTrimmed.value) {
+  const document =
+    workspaceStore.workspace.documents[selectedDocument.value?.id ?? '']
+  if (!nameTrimmed.value || !selectedDocument.value || !document) {
     return true
   }
 
-  /** In edit mode, only require a non-empty name that differs from the original */
+  // In edit mode, disable if the name has not changed
   if (isEditMode.value) {
-    return nameTrimmed.value === tag?.name
+    if (nameTrimmed.value === tag?.name) {
+      return true
+    }
   }
 
-  if (!selectedDocument.value) {
-    return true
-  }
-
-  const document = workspaceStore.workspace.documents[selectedDocument.value.id]
-
-  /** Prevent submission if the document does not exist */
-  if (!document) {
-    return true
-  }
-
-  /** Prevent creating duplicate tags with the same name */
+  // Prevent creating duplicate tags with the same name
   if (document.tags?.some((tag) => tag.name === nameTrimmed.value)) {
     return true
   }
@@ -137,7 +132,7 @@ const handleSubmit = (): void => {
     return
   }
 
-  /** In edit mode, emit the new name and close */
+  // In edit mode, emit the new name and close
   if (isEditMode.value && tag) {
     eventBus.emit(
       'tag:edit:tag',
@@ -162,7 +157,7 @@ const handleSubmit = (): void => {
 
 /** Handle back navigation when user presses backspace on empty input */
 const handleBack = (event: KeyboardEvent): void => {
-  /** Do not allow back navigation in edit mode */
+  // Do not allow back navigation in edit mode
   if (isEditMode.value) {
     return
   }
