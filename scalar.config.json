@@ -69,7 +69,7 @@
         },
         {
           "name": "twitter:image",
-          "content": "/twitter-image.png"
+          "content": "https://cdn.scalar.com/images/twitter-image.png"
         },
         {
           "name": "twitter:image:width",
