@@ -99,8 +99,8 @@ You can use Scalar's built-in components in your HTML:
 Use CSS classes to show different content based on the color mode:
 
 ```html
-<img class="light-image" src="/screenshot-light.png" />
-<img class="dark-image" src="/screenshot-dark.png" />
+<img alt="Screenshot in light mode" class="light-image" src="/screenshot-light.png" />
+<img alt="Screenshot in dark mode" class="dark-image" src="/screenshot-dark.png" />
 
 <style>
 .light-mode .dark-image {
