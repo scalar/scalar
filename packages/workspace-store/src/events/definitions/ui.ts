@@ -219,8 +219,13 @@ export type UIEvents = {
    * It can be a document page, a workspace page, or an example page
    */
   'ui:navigate': {
+    /** If true, the navigation will replace the current route instead of pushing a new one */
+    replace?: boolean
+    /** The namespace of the workspace to navigate to */
     namespace?: string
+    /** The slug of the workspace to navigate to */
     workspaceSlug?: string
+    /** The callback to call when the navigation is complete */
     callback?: (status: 'success' | 'error') => void
   } & (
     | {

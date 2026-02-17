@@ -3,7 +3,7 @@ import { ScalarIconDownloadSimple } from '@scalar/icons'
 </script>
 <template>
   <a
-    class="download-app-button flex flex-row gap-2 rounded !px-3 !py-1.5 sm:px-3"
+    class="download-app-button flex w-full flex-row items-center justify-center gap-2 rounded px-3.5 py-2 text-sm leading-5 font-medium"
     href="https://scalar.com/download?utm_source=web_client&utm_medium=download_button&utm_campaign=topnav"
     target="_blank"
     type="button">
