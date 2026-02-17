@@ -186,8 +186,10 @@ export function initializeAppEventHandlers({
         onAfterExecute: async (payload) => {
           rebuildSidebar(payload.documentName)
 
-          // If the currently viewed operation is a child of the renamed tag, redirect to
-          // the same route so the sidebar and breadcrumbs reflect the new tag name
+          /**
+           * If the currently viewed operation is a child of the renamed tag, redirect to
+           * the same route so the sidebar and breadcrumbs reflect the new tag name
+           */
           const isNestedUnderTag = payload.tag.children?.some(
             (child) =>
               child.type === 'operation' &&
