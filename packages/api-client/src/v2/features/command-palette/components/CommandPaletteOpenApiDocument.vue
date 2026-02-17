@@ -1,13 +1,13 @@
 <script lang="ts">
 /**
- * Command Palette Document Component
+ * Command Palette OpenAPI Document Component
  *
  * Provides a form for creating a new empty document in the workspace.
  * Users can name the document and select an icon before creation.
  * Validates that the name is not empty and not already in use.
  *
  * @example
- * <CommandPaletteDocument
+ * <CommandPaletteOpenApiDocument
  *   :workspaceStore="workspaceStore"
  *   :eventBus="eventBus"
  *   @close="handleClose"

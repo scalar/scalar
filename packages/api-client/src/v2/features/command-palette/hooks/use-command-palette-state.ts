@@ -25,10 +25,10 @@ import {
 } from 'vue'
 import type { RouteLocationRaw } from 'vue-router'
 
-import CommandPaletteDocument from '../components/CommandPaletteDocument.vue'
 import CommandPaletteExample from '../components/CommandPaletteExample.vue'
 import CommandPaletteImport from '../components/CommandPaletteImport.vue'
 import CommandPaletteImportCurl from '../components/CommandPaletteImportCurl.vue'
+import CommandPaletteOpenApiDocument from '../components/CommandPaletteOpenApiDocument.vue'
 import CommandPaletteRequest from '../components/CommandPaletteRequest.vue'
 import CommandPaletteTag from '../components/CommandPaletteTag.vue'
 
@@ -128,7 +128,7 @@ export type CommandPaletteState = {
  * palette.open()
  *
  * // Open with a specific command
- * palette.open('create-document')
+ * palette.open('create-openapi-document')
  *
  * // Open with command props
  * palette.open('import-curl-command', { curl: 'curl https://api.example.com' })
@@ -159,7 +159,7 @@ export const useCommandPaletteState = (
     () =>
       new Fuse(toValue(actions), {
         keys: ['name'],
-        threshold: 0.1,
+        threshold: 0.2,
       }),
   )
 
@@ -167,7 +167,7 @@ export const useCommandPaletteState = (
     () =>
       new Fuse(toValue(routes), {
         keys: ['name'],
-        threshold: 0.1,
+        threshold: 0.2,
       }),
   )
 
@@ -295,9 +295,9 @@ export const baseClientActions = [
     icon: ScalarIconArrowSquareIn,
   },
   {
-    id: 'create-document',
-    name: 'Create Document',
-    component: CommandPaletteDocument,
+    id: 'create-openapi-document',
+    name: 'Create OpenAPI Document',
+    component: CommandPaletteOpenApiDocument,
     icon: ScalarIconPackage,
   },
   {
