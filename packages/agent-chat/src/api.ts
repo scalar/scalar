@@ -1,7 +1,9 @@
 import { redirectToProxy } from '@scalar/helpers/url/redirect-to-proxy'
 import { n } from 'neverpanic'
+import type { Ref } from 'vue'
 import z from 'zod'
 
+import { URLS } from '@/consts/urls'
 import { createError } from '@/entities/error/helpers'
 import { registryApiMetadata } from '@/entities/registry/document'
 
@@ -28,10 +30,12 @@ export function createAuthorizationHeaders({
 /** Minimal set of API requests needed for agent chat */
 export function createApi({
   baseUrl,
+  proxyUrl,
   getAccessToken,
   getAgentKey,
 }: {
   baseUrl: string
+  proxyUrl: Ref<string | undefined>
   getAccessToken?: () => string
   getAgentKey?: () => string
 }) {
@@ -50,10 +54,11 @@ export function createApi({
       responseSchema: T
     }) => {
       const url = `${baseUrl}${path}${query ? `?${new URLSearchParams(query)}` : ''}`
+      const effectiveProxyUrl = proxyUrl.value?.trim() || URLS.DEFAULT_PROXY_URL
 
       const fetchResult = await n.fromUnsafe(
         async () =>
-          fetch(redirectToProxy('https://proxy.scalar.com', url), {
+          fetch(redirectToProxy(effectiveProxyUrl, url), {
             method,
             ...(body && { body: JSON.stringify(body) }),
             headers: {
