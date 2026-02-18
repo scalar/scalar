@@ -1,9 +1,16 @@
 <script setup lang="ts">
 import { useId } from 'vue'
 
+const emit = defineEmits<{
+  blur: [value: string]
+}>()
 const model = defineModel<string>({ required: true })
 
 const id = useId()
+
+const handleBlur = () => {
+  emit('blur', model.value)
+}
 </script>
 <template>
   <div class="group pointer-events-none flex flex-1 items-center gap-1">
@@ -14,7 +21,9 @@ const id = useId()
       :id="id"
       v-model="model"
       class="text-c-1 group-hover-input pointer-events-auto relative z-10 -ml-0.5 h-8 w-full flex-1 rounded pl-1.25 has-[:focus-visible]:outline md:-ml-1.25"
-      placeholder="Untitled Document" />
+      placeholder="Untitled Document"
+      @blur="handleBlur"
+      @keydown.enter="($event.target as HTMLInputElement)?.blur()" />
   </div>
 </template>
 <style scoped>

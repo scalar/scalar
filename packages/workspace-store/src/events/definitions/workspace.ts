@@ -24,4 +24,8 @@ export type WorkspaceEvents = {
    * Update the active environment on the workspace
    */
   'workspace:update:active-environment': string | null
+  /**
+   * Update the dispaly name of the workspace
+   */
+  'workspace:update:name': string
 }

@@ -328,6 +328,25 @@ export const createWorkspaceStorePersistence = async () => {
       },
 
       /**
+       * Updates fields of an existing workspace in the table.
+       * Only the fields provided in `fields` will be updated.
+       * Returns the updated workspace if successful, undefined otherwise.
+       */
+      update: async (worksapceKey: WorkspaceKey, fields: Partial<{ name: string }>) => {
+        const workspace = await workspaceTable.getItem(worksapceKey)
+        if (!workspace) {
+          return undefined
+        }
+        // Update the workspace fields
+        const result = await workspaceTable.addItem(worksapceKey, {
+          ...workspace,
+          ...fields,
+        })
+
+        return result
+      },
+
+      /**
        * Checks if a workspace with the given ID exists in the store.
        */
       has: async ({ namespace, slug }: Required<WorkspaceKey>): Promise<boolean> => {

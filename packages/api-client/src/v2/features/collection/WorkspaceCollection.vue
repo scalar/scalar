@@ -9,14 +9,18 @@ export default {}
 </script>
 
 <script setup lang="ts">
-import { ScalarIconGlobe } from '@scalar/icons'
 import { RouterView } from 'vue-router'
 
 import type { RouteProps } from '@/v2/features/app/helpers/routes'
+import LabelInput from '@/v2/features/collection/components/LabelInput.vue'
 
 import Tabs from './components/Tabs.vue'
 
 const props = defineProps<RouteProps>()
+
+const handleUpdateWorkspaceTitle = (title: string) => {
+  props.eventBus.emit('workspace:update:name', title)
+}
 </script>
 
 <template>
@@ -26,12 +30,12 @@ const props = defineProps<RouteProps>()
       <div
         :aria-label="`title: ${activeWorkspace.label}`"
         class="mx-auto flex h-fit w-full flex-row items-center gap-2 pt-8 pb-3 md:max-w-180">
-        <ScalarIconGlobe class="text-c-2 size-6" />
-
         <div class="group relative ml-1.25">
-          <span class="text-c-1 flex h-8 items-center">
-            {{ activeWorkspace.label }}
-          </span>
+          <LabelInput
+            class="text-xl font-bold"
+            inputId="workspaceName"
+            :modelValue="activeWorkspace.label"
+            @blur="handleUpdateWorkspaceTitle" />
         </div>
       </div>
 
