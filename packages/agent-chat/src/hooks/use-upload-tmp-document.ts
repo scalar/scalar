@@ -1,3 +1,4 @@
+import { redirectToProxy } from '@scalar/helpers/url/redirect-to-proxy'
 import { ref } from 'vue'
 import { z } from 'zod/mini'
 
@@ -40,16 +41,8 @@ export function useUploadTmpDocument() {
   const uploadState = ref<UploadTmpDocumentState>()
 
   function createUrl(path: string) {
-    const url = `${state.baseUrl}${path}`
-
-    // Localhost proxy
-    if (url.startsWith('/')) {
-      return url
-    }
-
-    const params = new URLSearchParams({ scalar_url: url.toString() })
-
-    return new URL(`https://proxy.scalar.com/?${params}`)
+    const fullUrl = `${state.baseUrl}${path}`
+    return redirectToProxy('https://proxy.scalar.com', fullUrl)
   }
 
   async function uploadTempDocument(document: string, isAgent = false) {
