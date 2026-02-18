@@ -506,7 +506,7 @@ const id = useId()
   padding: 0.5px 8px 0 6px;
 }
 .scalar-card-checkbox:hover {
-  color: var(--scalar-color--1);
+  color: var(--scalar-color-1);
 }
 .scalar-card-checkbox-input {
   position: absolute;
