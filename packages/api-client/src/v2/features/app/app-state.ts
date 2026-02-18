@@ -2,7 +2,6 @@ import type { ScalarListboxOption, WorkspaceGroup } from '@scalar/components'
 import { isDefined } from '@scalar/helpers/array/is-defined'
 import { sortByOrder } from '@scalar/helpers/array/sort-by-order'
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
-import { isHttpMethod } from '@scalar/helpers/http/is-http-method'
 import type { LoaderPlugin } from '@scalar/json-magic/bundle'
 import { migrateLocalStorageToIndexDb } from '@scalar/oas-utils/migrations'
 import { createSidebarState, generateReverseIndex } from '@scalar/sidebar'
@@ -22,7 +21,7 @@ import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensi
 import type { Tab } from '@scalar/workspace-store/schemas/extensions/workspace/x-scalar-tabs'
 import type { TraversedEntry } from '@scalar/workspace-store/schemas/navigation'
 import { type ComputedRef, type Ref, type ShallowRef, computed, ref, shallowRef } from 'vue'
-import type { NavigationFailure, RouteLocationNormalizedGeneric, Router } from 'vue-router'
+import type { RouteLocationNormalizedGeneric, Router } from 'vue-router'
 
 import { getRouteParam } from '@/v2/features/app/helpers/get-route-param'
 import { groupWorkspacesByTeam } from '@/v2/features/app/helpers/group-workspaces'
@@ -99,7 +98,7 @@ export type AppState = {
     /** The currently active workspace */
     activeWorkspace: ShallowRef<{ id: string; label: string } | null>
     /** Navigates to the specified workspace */
-    navigateToWorkspace: (namespace?: string, slug?: string) => Promise<void | NavigationFailure | undefined>
+    navigateToWorkspace: (namespace?: string, slug?: string) => Promise<void>
     /** Whether the workspace page is open */
     isOpen: ComputedRef<boolean>
   }
@@ -322,51 +321,29 @@ export const createAppState = async ({
 
   /**
    * Navigates to the overview page of the specified workspace.
+   *
+   * @param namespace - The workspace namespace.
+   * @param slug - The unique workspace slug (identifier).
    */
-  const navigateToWorkspace = async (
-    namespace?: string,
-    slug?: string,
-  ): Promise<void | NavigationFailure | undefined> => {
-    // Hit the default route
+  const navigateToWorkspace = async (namespace?: string, slug?: string): Promise<void> => {
     if (!namespace || !slug) {
-      return await router.push('/')
+      await router.push('/')
+      return
     }
 
-    // Workspace was not loaded
-    if (!store.value) {
-      console.error(
-        'No workspace loaded, navigating to default route. You must ensure you load the workspace before navigating to it.',
-      )
-      return await router.push('/')
-    }
-
-    const document = store.value?.workspace.documents.drafts ?? Object.values(store.value?.workspace.documents ?? {})[0]
-    const documentSlug = document?.['x-scalar-navigation']?.name ?? 'drafts'
-    const path = Object.keys(document?.paths ?? {})[0] ?? '/'
-    const method = Object.keys(document?.paths?.[path] ?? {}).filter(isHttpMethod)[0]
-
-    // If no method we go to the document overview page
-    if (!method) {
-      return await router.push({
-        name: 'document.overview',
-        params: {
-          documentSlug,
-        },
-      })
-    }
-
-    // Otherwise we go to the example page
-    return await router.push({
+    // We should always have this drafts document available in a new workspace
+    await router.push({
       name: 'example',
       params: {
         namespace,
         workspaceSlug: slug,
-        documentSlug,
-        pathEncoded: encodeURIComponent(path),
-        method: method,
+        documentSlug: 'drafts',
+        pathEncoded: '/',
+        method: 'get',
         exampleName: 'default',
       },
     })
+    return
   }
 
   /**
@@ -390,35 +367,35 @@ export const createAppState = async ({
     slug?: string
     name: string
   }) => {
-    // Clear the current store to show the loading state immediately.
+    // Clear up the current store, in order to show the loading state
     store.value = null
 
-    const newSlug = await generateUniqueValue({
-      defaultValue: slug ?? name,
+    // Generate a unique slug/id for the workspace, based on the name.
+    const newWorkspaceSlug = await generateUniqueValue({
+      defaultValue: slug ?? name, // Use the provided id if it exists, otherwise use the name
       validation: async (value) => !(await persistence.has({ namespace: namespace ?? 'local', slug: value })),
       maxRetries: 100,
       transformation: slugify,
     })
 
-    if (!newSlug) {
-      console.error('Failed to generate a unique workspace slug')
+    // Failed to generate a unique workspace id, so we can't create the workspace.
+    if (!newWorkspaceSlug) {
       return undefined
     }
 
-    const created = await createAndPersistWorkspace({ teamUid, namespace, slug: newSlug, name })
-    if (!created) {
-      console.error('Failed to create the workspace, something went wrong, can not load the workspace')
-      return undefined
+    const newWorkspaceDetails = {
+      teamUid,
+      namespace,
+      slug: newWorkspaceSlug,
+      name,
     }
 
-    const loaded = await loadWorkspace(created.namespace, created.slug)
-    if (!loaded.success) {
-      console.error('Failed to load the newly created workspace, something went wrong, can not load the workspace')
-      return undefined
-    }
+    // Create a new client store with the workspace ID and add a default document.
+    const createdWorkspace = await createAndPersistWorkspace(newWorkspaceDetails)
 
-    await navigateToWorkspace(created.namespace, created.slug)
-    return created
+    // Navigate to the newly created workspace.
+    await navigateToWorkspace(createdWorkspace.namespace, createdWorkspace.slug)
+    return createdWorkspace
   }
 
   /**
