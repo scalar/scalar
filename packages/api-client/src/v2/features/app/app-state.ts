@@ -2,6 +2,7 @@ import type { ScalarListboxOption, WorkspaceGroup } from '@scalar/components'
 import { isDefined } from '@scalar/helpers/array/is-defined'
 import { sortByOrder } from '@scalar/helpers/array/sort-by-order'
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
+import { isHttpMethod } from '@scalar/helpers/http/is-http-method'
 import type { LoaderPlugin } from '@scalar/json-magic/bundle'
 import { migrateLocalStorageToIndexDb } from '@scalar/oas-utils/migrations'
 import { createSidebarState, generateReverseIndex } from '@scalar/sidebar'
@@ -21,7 +22,7 @@ import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensi
 import type { Tab } from '@scalar/workspace-store/schemas/extensions/workspace/x-scalar-tabs'
 import type { TraversedEntry } from '@scalar/workspace-store/schemas/navigation'
 import { type ComputedRef, type Ref, type ShallowRef, computed, ref, shallowRef } from 'vue'
-import type { RouteLocationNormalizedGeneric, Router } from 'vue-router'
+import type { NavigationFailure, RouteLocationNormalizedGeneric, Router } from 'vue-router'
 
 import { getRouteParam } from '@/v2/features/app/helpers/get-route-param'
 import { groupWorkspacesByTeam } from '@/v2/features/app/helpers/group-workspaces'
@@ -36,6 +37,7 @@ import { canLoadWorkspace, filterWorkspacesByTeam } from './helpers/filter-works
 // ---------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------
+
 export type GetEntryByLocation = (location: {
   document: string
   path?: string
@@ -71,9 +73,9 @@ export type AppState = {
   /** The tabs management */
   tabs: {
     /** The tabs state */
-    state: Ref<Tab[]>
+    state: ComputedRef<Tab[]>
     /** The active tab index */
-    activeTabIndex: Ref<number>
+    activeTabIndex: ComputedRef<number>
     /** Copies the URL of the tab at the given index to the clipboard */
     copyTabUrl: (index: number) => Promise<void>
   }
@@ -98,7 +100,7 @@ export type AppState = {
     /** The currently active workspace */
     activeWorkspace: ShallowRef<{ id: string; label: string } | null>
     /** Navigates to the specified workspace */
-    navigateToWorkspace: (namespace?: string, slug?: string) => Promise<void>
+    navigateToWorkspace: (namespace?: string, slug?: string) => Promise<void | NavigationFailure | undefined>
     /** Whether the workspace page is open */
     isOpen: ComputedRef<boolean>
   }
@@ -107,7 +109,7 @@ export type AppState = {
   /** The router instance */
   router: Router
   /** The current route derived from the router */
-  currentRoute: Ref<RouteLocationNormalizedGeneric | null>
+  currentRoute: ComputedRef<RouteLocationNormalizedGeneric | null>
   /** Whether the workspace is currently syncing */
   loading: Ref<boolean>
   /** The currently active entities */
@@ -138,14 +140,23 @@ export type AppState = {
 // ---------------------------------------------------------------------------
 // Constants
 // ---------------------------------------------------------------------------
+
 /** Default debounce delay in milliseconds for workspace store persistence. */
 const DEFAULT_DEBOUNCE_DELAY = 1000
+
 /** Default sidebar width in pixels. */
 const DEFAULT_SIDEBAR_WIDTH = 288
+
+/** Workspace store extension key for persisted tabs. */
+const TABS_KEY = 'x-scalar-tabs' as const
+
+/** Workspace store extension key for the active tab index. */
+const ACTIVE_TAB_KEY = 'x-scalar-active-tab' as const
 
 // ---------------------------------------------------------------------------
 // App State
 // ---------------------------------------------------------------------------
+
 export const createAppState = async ({
   router,
   fileLoader,
@@ -161,14 +172,16 @@ export const createAppState = async ({
   const { workspace: persistence } = await createWorkspaceStorePersistence()
 
   /**
-   * Run migration from localStorage to IndexedDB if needed
-   * This happens once per user and transforms old data structure to new workspace format
+   * Run migration from localStorage to IndexedDB if needed.
+   * This happens once per user and transforms old data to the new workspace format.
    */
   await migrateLocalStorageToIndexDb()
 
   // ---------------------------------------------------------------------------
-  // Active entities
-  // ---------------------------------------------------------------------------
+  // Route and active entity state
+
+  const currentRoute = computed(() => router.currentRoute.value ?? null)
+
   const teamUid = ref<string>('local')
   const namespace = ref<string | undefined>(undefined)
   const workspaceSlug = ref<string | undefined>(undefined)
@@ -178,36 +191,26 @@ export const createAppState = async ({
   const exampleName = ref<string | undefined>(undefined)
 
   // ---------------------------------------------------------------------------
-  // Loading states
+  // Workspace state
+
   const isSyncingWorkspace = ref(false)
-
-  // ---------------------------------------------------------------------------
-  // Router state
-  router.afterEach((to) => handleRouteChange(to))
-  const currentRoute = computed(() => router.currentRoute.value ?? null)
-
-  // ---------------------------------------------------------------------------
-  // Workspace persistence state management
   const activeWorkspace = shallowRef<{ id: string; label: string } | null>(null)
   const workspaces = ref<WorkspaceOption[]>([])
-  const filteredWorkspaces = computed(() => filterWorkspacesByTeam(workspaces.value, teamUid.value))
-  const workspaceGroups = computed(() => groupWorkspacesByTeam(filteredWorkspaces.value, teamUid.value))
   const store = shallowRef<WorkspaceStore | null>(null)
 
-  const activeDocument = computed(() => {
-    return store.value?.workspace.documents[documentSlug.value ?? ''] || null
-  })
+  const filteredWorkspaces = computed(() => filterWorkspacesByTeam(workspaces.value, teamUid.value))
+  const workspaceGroups = computed(() => groupWorkspacesByTeam(filteredWorkspaces.value, teamUid.value))
+
+  const activeDocument = computed(() => store.value?.workspace.documents[documentSlug.value ?? ''] ?? null)
 
   /**
    * Merged environment variables from workspace and document levels.
-   * Variables from both sources are combined, with document variables
-   * taking precedence in case of naming conflicts.
+   * Document-level variables take precedence over workspace-level ones.
    */
   const environment = computed<XScalarEnvironment>(() => getActiveEnvironment(store.value, activeDocument.value))
 
-  /** Update the workspace list when the component is mounted */
-  workspaces.value = await persistence.getAll().then((w) =>
-    w.map(({ teamUid, namespace, slug, name }) => ({
+  workspaces.value = await persistence.getAll().then((all) =>
+    all.map(({ teamUid, namespace, slug, name }) => ({
       id: getWorkspaceId(namespace, slug),
       teamUid,
       namespace,
@@ -216,17 +219,14 @@ export const createAppState = async ({
     })),
   )
 
+  // ---------------------------------------------------------------------------
+  // Workspace loading and creation
+
   /**
-   * Creates a client-side workspace store with persistence enabled for the given workspace id.
+   * Creates a client-side workspace store with persistence enabled for the given workspace.
    */
-  const createClientStore = async ({
-    namespace,
-    slug,
-  }: {
-    namespace: string
-    slug: string
-  }): Promise<WorkspaceStore> => {
-    return createWorkspaceStore({
+  const createClientStore = async ({ namespace, slug }: { namespace: string; slug: string }): Promise<WorkspaceStore> =>
+    createWorkspaceStore({
       plugins: [
         await persistencePlugin({
           workspaceId: getWorkspaceId(namespace, slug),
@@ -235,38 +235,31 @@ export const createAppState = async ({
       ],
       fileLoader,
     })
-  }
 
   /**
-   * Attempts to load and activate a workspace by id.
-   * Returns true when the workspace was found and activated.
+   * Attempts to load and activate a workspace by namespace and slug.
+   * Returns a discriminated union indicating success or failure.
    */
   const loadWorkspace = async (
     namespace: string,
     slug: string,
   ): Promise<{ success: true; workspace: Workspace } | { success: false }> => {
-    const workspace = await persistence.getItem({ namespace, slug })
-
-    if (!workspace) {
-      return {
-        success: false,
-      }
+    const persisted = await persistence.getItem({ namespace, slug })
+    if (!persisted) {
+      return { success: false }
     }
 
     const client = await createClientStore({ namespace, slug })
-    client.loadWorkspace(workspace.workspace)
-    activeWorkspace.value = { id: getWorkspaceId(workspace.namespace, workspace.slug), label: workspace.name }
+    client.loadWorkspace(persisted.workspace)
+    activeWorkspace.value = { id: getWorkspaceId(persisted.namespace, persisted.slug), label: persisted.name }
     store.value = client
 
-    return {
-      success: true,
-      workspace: client.workspace,
-    }
+    return { success: true, workspace: client.workspace }
   }
 
   /**
-   * Creates and persists the default workspace with a blank draft document.
-   * Used when no workspaces exist yet.
+   * Creates a workspace with a default "drafts" document and persists it to storage.
+   * Also appends the new workspace to the in-memory workspace list.
    */
   const createAndPersistWorkspace = async ({
     name,
@@ -284,31 +277,18 @@ export const createAppState = async ({
       name: 'drafts',
       document: {
         openapi: '3.1.0',
-        info: {
-          title: 'Drafts',
-          version: '1.0.0',
-        },
-        paths: {
-          '/': {
-            get: {},
-          },
-        },
+        info: { title: 'Drafts', version: '1.0.0' },
+        paths: { '/': { get: {} } },
         'x-scalar-original-document-hash': 'drafts',
         'x-scalar-icon': 'interface-edit-tool-pencil',
       },
     })
 
-    // Persist the workspace
     const workspace = await persistence.setItem(
       { namespace, slug },
-      {
-        name: name,
-        teamUid,
-        workspace: draftStore.exportWorkspace(),
-      },
+      { name, teamUid, workspace: draftStore.exportWorkspace() },
     )
 
-    // Update the workspace list
     workspaces.value.push({
       id: getWorkspaceId(workspace.namespace, workspace.slug),
       teamUid: workspace.teamUid,
@@ -316,28 +296,64 @@ export const createAppState = async ({
       slug: workspace.slug,
       label: workspace.name,
     })
+
     return workspace
   }
 
   /**
    * Navigates to the overview page of the specified workspace.
-   * Updates the route based on the given namespace and slug.
-   *
-   * @param namespace - The workspace namespace.
-   * @param slug - The unique workspace slug (identifier).
    */
-  const navigateToWorkspace = async (namespace?: string, slug?: string): Promise<void> => {
-    await router.push({
-      name: 'document.redirect',
-      params: { namespace, workspaceSlug: slug, documentSlug: 'drafts' },
+  const navigateToWorkspace = async (
+    namespace?: string,
+    slug?: string,
+  ): Promise<void | NavigationFailure | undefined> => {
+    // Hit the default route
+    if (!namespace || !slug) {
+      return await router.push('/')
+    }
+
+    // Workspace was not loaded
+    if (!store.value) {
+      console.error(
+        'No store value, navigating to default route. You must ensure you load the workspace before navigating to it.',
+      )
+      return await router.push('/')
+    }
+
+    const document = store.value?.workspace.documents.drafts ?? Object.values(store.value?.workspace.documents ?? {})[0]
+    const documentSlug = document?.['x-scalar-navigation']?.name ?? 'drafts'
+    const path = Object.keys(document?.paths ?? {})[0] ?? '/'
+    const method = Object.keys(document?.paths?.[path] ?? {}).filter(isHttpMethod)[0]
+
+    // If no method we go to the document overview page
+    if (!method) {
+      return await router.push({
+        name: 'document.overview',
+        params: {
+          documentSlug,
+        },
+      })
+    }
+
+    // Otherwise we go to the example page
+    return await router.push({
+      name: 'example',
+      params: {
+        namespace,
+        workspaceSlug: slug,
+        documentSlug,
+        pathEncoded: encodeURIComponent(path),
+        method: method,
+        exampleName: 'default',
+      },
     })
   }
 
   /**
-   * Creates a new workspace with the provided name.
-   * - Generates a unique slug for the workspace (uses the provided slug if it is unique, otherwise generates a unique slug).
-   * - Adds a default blank document ("drafts") to the workspace.
-   * - Persists the workspace and navigates to it.
+   * Creates a new workspace:
+   * - Generates a unique slug (uses provided slug if unique, otherwise derives one from the name).
+   * - Adds a default "drafts" document.
+   * - Persists and navigates to the new workspace.
    *
    * Example usage:
    *   await createWorkspace({ name: 'My Awesome API' })
@@ -354,79 +370,70 @@ export const createAppState = async ({
     slug?: string
     name: string
   }) => {
-    // Clear up the current store, in order to show the loading state
+    // Clear the current store to show the loading state immediately.
     store.value = null
 
-    // Generate a unique slug/id for the workspace, based on the name.
-    const newWorkspaceSlug = await generateUniqueValue({
-      defaultValue: slug ?? name, // Use the provided id if it exists, otherwise use the name
+    const newSlug = await generateUniqueValue({
+      defaultValue: slug ?? name,
       validation: async (value) => !(await persistence.has({ namespace: namespace ?? 'local', slug: value })),
       maxRetries: 100,
       transformation: slugify,
     })
 
-    // Failed to generate a unique workspace id, so we can't create the workspace.
-    if (!newWorkspaceSlug) {
+    if (!newSlug) {
+      console.error('Failed to generate a unique workspace slug')
       return undefined
     }
 
-    const newWorkspaceDetails = {
-      teamUid,
-      namespace,
-      slug: newWorkspaceSlug,
-      name,
+    const created = await createAndPersistWorkspace({ teamUid, namespace, slug: newSlug, name })
+    if (!created) {
+      console.error('Failed to create the workspace, something went wrong, can not load the workspace')
+      return undefined
     }
 
-    // Create a new client store with the workspace ID and add a default document.
-    const createdWorkspace = await createAndPersistWorkspace(newWorkspaceDetails)
+    const loaded = await loadWorkspace(created.namespace, created.slug)
+    if (!loaded.success) {
+      console.error('Failed to load the newly created workspace, something went wrong, can not load the workspace')
+      return undefined
+    }
 
-    // Navigate to the newly created workspace.
-    await navigateToWorkspace(createdWorkspace.namespace, createdWorkspace.slug)
-    return createdWorkspace
+    await navigateToWorkspace(created.namespace, created.slug)
+    return created
   }
 
   /**
-   * Handles changing the active workspace when the workspace slug changes in the route.
-   * This function:
-   *  - Clears the current workspace store and sets loading state.
-   *  - Attempts to load the workspace by slug.
-   *    - If found, navigates to the active tab path (if available).
-   *    - If not found, creates the default workspace and navigates to it.
+   * Handles changing the active workspace when the workspace identifier changes in the route.
+   * - Clears the current store and shows a loading state.
+   * - On success: restores the previously active tab or initializes a fresh one.
+   * - On failure: redirects to an existing workspace, or bootstraps a new default one.
    */
   const changeWorkspace = async (namespace: string, slug: string) => {
-    // Clear the current store and set loading to true before loading new workspace.
     store.value = null
     isSyncingWorkspace.value = true
 
-    // Try to load the workspace
     const result = await loadWorkspace(namespace, slug)
 
     if (result.success) {
-      // Navigate to the correct tab if the workspace has a tab already
-      const index = result.workspace['x-scalar-active-tab'] ?? 0
-      const tabs = result.workspace['x-scalar-tabs']
-      const tab = tabs?.[index]
+      const { workspace } = result
+      const tabIndex = workspace[ACTIVE_TAB_KEY] ?? 0
+      const savedTabs = workspace[TABS_KEY]
+      const activeTab = savedTabs?.[tabIndex]
 
-      if (tab) {
-        // Preserve query parameters when navigating to the active tab
-        await router.replace({
-          path: tab.path,
-          query: currentRoute.value?.query ?? {},
-        })
+      if (activeTab) {
+        // Preserve query parameters (e.g. environment) when restoring the tab
+        await router.replace({ path: activeTab.path, query: currentRoute.value?.query ?? {} })
       }
 
-      // Heal the active tab index if it is out of bounds
-      if (tabs && index >= tabs.length) {
-        eventBus.emit('tabs:update:tabs', {
-          'x-scalar-active-tab': 0,
-        })
+      // Heal an out-of-bounds tab index
+      if (savedTabs && tabIndex >= savedTabs.length) {
+        eventBus.emit('tabs:update:tabs', { [ACTIVE_TAB_KEY]: 0 })
       }
 
-      // Initialize the tabs if they does not exist
-      if (!tabs) {
+      // Bootstrap tabs when none are persisted yet
+      if (!savedTabs) {
         eventBus.emit('tabs:update:tabs', {
-          'x-scalar-tabs': [createTabFromRoute(currentRoute.value)],
-          'x-scalar-active-tab': 0,
+          [TABS_KEY]: [createTabFromRoute(currentRoute.value)],
+          [ACTIVE_TAB_KEY]: 0,
         })
       }
 
@@ -434,43 +441,41 @@ export const createAppState = async ({
       return
     }
 
-    // Navigate to the default workspace, or fall back to the first available workspace
-    const targetWorkspace =
-      filteredWorkspaces.value.find((workspace) => workspace.teamUid === 'local' && workspace.slug === 'default') ??
-      filteredWorkspaces.value[0]
+    // Workspace not found - redirect to the first accessible workspace
+    const fallback =
+      filteredWorkspaces.value.find((w) => w.teamUid === 'local' && w.slug === 'default') ?? filteredWorkspaces.value[0]
 
-    if (targetWorkspace) {
-      return navigateToWorkspace(targetWorkspace.namespace, targetWorkspace.slug)
+    if (fallback) {
+      // Leave isSyncingWorkspace true - the navigation will trigger changeWorkspace again
+      return navigateToWorkspace(fallback.namespace, fallback.slug)
     }
 
-    // If loading failed (workspace does not exist), create the default workspace and navigate to it.
-    const createResult = await createWorkspace({
-      name: 'Default Workspace',
-      slug: 'default',
-    })
+    // No workspaces exist yet - bootstrap with a default one
+    const created = await createWorkspace({ name: 'Default Workspace', slug: 'default' })
 
     isSyncingWorkspace.value = false
 
-    if (!createResult) {
-      return console.error('Failed to create the default workspace, something went wrong, can not load the workspace')
+    if (!created) {
+      console.error('Failed to create the default workspace, something went wrong, can not load the workspace')
+      return
     }
 
-    // Must reset the sidebar state when the workspace changes
     sidebarState.reset()
   }
 
   // ---------------------------------------------------------------------------
-  // Sidebar state management
+  // Sidebar
 
-  const entries = computed(() => {
+  const entries = computed<TraversedEntry[]>(() => {
     const activeStore = store.value
     if (!activeStore) {
       return []
     }
 
-    const order = activeStore.workspace['x-scalar-order'] ?? Object.keys(activeStore.workspace.documents)
+    const docKeys = Object.keys(activeStore.workspace.documents)
+    const order = activeStore.workspace['x-scalar-order'] ?? docKeys
 
-    return sortByOrder(Object.keys(activeStore.workspace.documents), order, (item) => item)
+    return sortByOrder(docKeys, order, (item) => item)
       .map((doc) => activeStore.workspace.documents[doc]?.['x-scalar-navigation'])
       .filter(isDefined) as TraversedEntry[]
   })
@@ -478,15 +483,8 @@ export const createAppState = async ({
   const sidebarState = createSidebarState(entries)
 
   /**
-   * Generates a unique string ID for an API location, based on the document, path, method, and example.
-   * Filters out undefined values and serializes the composite array into a stable string.
-   *
-   * @param params - An object containing document, path, method, and optional example name.
-   * @returns A stringified array representing the unique location identifier.
-   *
-   * Example:
-   *   generateId({ document: 'mydoc', path: '/users', method: 'get', example: 'default' })
-   *   // => '["mydoc","/users","get","default"]'
+   * Generates a stable lookup key from an API location.
+   * Undefined segments are filtered out to keep keys as short as possible.
    */
   const generateId = ({
     document,
@@ -498,16 +496,11 @@ export const createAppState = async ({
     path?: string
     method?: HttpMethod
     example?: string
-  }) => {
-    return JSON.stringify([document, path, method, example].filter(isDefined))
-  }
+  }) => JSON.stringify([document, path, method, example].filter(isDefined))
 
   /**
-   * Computed index for fast lookup of sidebar nodes by their unique API location.
-   *
-   * - Only indexes nodes of type 'document', 'operation', or 'example'.
-   * - The lookup key is a serialized array of: [documentName, operationPath, operationMethod, exampleName?].
-   * - Supports precise resolution of sidebar entries given an API "location".
+   * Computed reverse index mapping location keys to sidebar entries.
+   * Only indexes document, operation, and example nodes for precise lookups.
    */
   const locationIndex = computed(() =>
     generateReverseIndex({
@@ -528,45 +521,16 @@ export const createAppState = async ({
   )
 
   /**
-   * Looks up a sidebar entry by its unique API location.
-   * - First tries to find an entry matching all provided properties (including example).
-   * - If not found, falls back to matching only the operation (ignores example field).
-   * This allows resolving either examples, operations, or documents as appropriate.
-   *
-   * @param location - Object specifying the document name, path, method, and optional example name.
-   * @returns The matching sidebar entry, or undefined if none found.
-   *
-   * Example:
-   *   const entry = getEntryByLocation({
-   *     document: 'pets',
-   *     path: '/pets',
-   *     method: 'get',
-   *     example: 'default',
-   *   })
+   * Looks up a sidebar entry by its API location.
+   * First tries an exact match (including example), then falls back to the operation level.
+   * This allows resolving examples, operations, or documents as appropriate.
    */
-  const getEntryByLocation: GetEntryByLocation = (location) => {
-    // Try to find an entry with the most-specific location (including example)
-    const entryWithExample = locationIndex.value.get(generateId(location))
-
-    if (entryWithExample) {
-      return entryWithExample
-    }
-
-    // Fallback to the operation (ignoring example) if an example wasn't found or specified
-    return locationIndex.value.get(
-      generateId({
-        document: location.document,
-        path: location.path,
-        method: location.method,
-      }),
-    )
-  }
+  const getEntryByLocation: GetEntryByLocation = (location) =>
+    locationIndex.value.get(generateId(location)) ??
+    locationIndex.value.get(generateId({ document: location.document, path: location.path, method: location.method }))
 
   /**
-   * Handles item selection from the sidebar and routes navigation accordingly.
-   *
-   * Example:
-   *   handleSelectItem('id-of-entry')
+   * Handles sidebar item selection and routes to the corresponding page.
    */
   const handleSelectItem = (id: string) => {
     const entry = sidebarState.getEntryById(id)
@@ -576,33 +540,27 @@ export const createAppState = async ({
       return
     }
 
-    // Navigate to the document overview page
     if (entry.type === 'document') {
-      // If we are already in the document, just toggle expansion
+      // If already selected, toggle expansion instead of re-navigating
       if (sidebarState.selectedItem.value === id) {
         sidebarState.setExpanded(id, !sidebarState.isExpanded(id))
         return
       }
 
-      // Otherwise, select it
       sidebarState.setSelected(id)
       sidebarState.setExpanded(id, true)
-      return router.push({
-        name: 'document.overview',
-        params: { documentSlug: entry.name },
-      })
+      void router.push({ name: 'document.overview', params: { documentSlug: entry.name } })
+      return
     }
 
-    // Navigate to the example page
     // TODO: temporary until we have the operation overview page
     if (entry.type === 'operation') {
-      // If we are already in the operation, just togle the expansion
+      // If already selected, toggle expansion instead of re-navigating
       if (sidebarState.isSelected(id)) {
         sidebarState.setExpanded(id, !sidebarState.isExpanded(id))
         return
       }
 
-      // Otherwise, select the first example
       const firstExample = entry.children?.find((child) => child.type === 'example')
 
       if (firstExample) {
@@ -612,7 +570,7 @@ export const createAppState = async ({
         sidebarState.setSelected(id)
       }
 
-      return router.push({
+      void router.push({
         name: 'example',
         params: {
           documentSlug: getParentEntry('document', entry)?.name,
@@ -621,13 +579,13 @@ export const createAppState = async ({
           exampleName: firstExample?.name ?? 'default',
         },
       })
+      return
     }
 
-    // Navigate to the example page
     if (entry.type === 'example') {
       sidebarState.setSelected(id)
       const operation = getParentEntry('operation', entry)
-      return router.push({
+      void router.push({
         name: 'example',
         params: {
           documentSlug: getParentEntry('document', entry)?.name,
@@ -636,49 +594,91 @@ export const createAppState = async ({
           exampleName: entry.name,
         },
       })
+      return
     }
 
     if (entry.type === 'text') {
-      return router.push({
+      void router.push({
         name: 'document.overview',
-        params: {
-          documentSlug: getParentEntry('document', entry)?.name,
-        },
+        params: { documentSlug: getParentEntry('document', entry)?.name },
       })
+      return
     }
 
     sidebarState.setExpanded(id, !sidebarState.isExpanded(id))
-    return
   }
 
+  /** Width of the sidebar, with fallback to default. */
+  const sidebarWidth = computed(() => store.value?.workspace?.['x-scalar-sidebar-width'] ?? DEFAULT_SIDEBAR_WIDTH)
+
+  /** Updates the persisted sidebar width. */
+  const handleSidebarWidthUpdate = (width: number) => store.value?.update('x-scalar-sidebar-width', width)
+
+  const isSidebarOpen = ref(true)
+
+  // ---------------------------------------------------------------------------
+  // Tabs
+
   /**
-   * Navigates to the currently active tab's path using the router.
-   * Returns early if the workspace store or active tab is unavailable.
+   * Creates a tab from the given route. Used when no saved tab state exists or
+   * when the active tab's path needs to be updated after a navigation.
+   */
+  const createTabFromRoute = (to: RouteLocationNormalizedGeneric | null): Tab => ({
+    ...getTabDetails({
+      workspace: getRouteParam('workspaceSlug', to),
+      document: getRouteParam('documentSlug', to),
+      path: getRouteParam('pathEncoded', to),
+      method: getRouteParam('method', to),
+      getEntryByLocation,
+    }),
+    path: to?.path ?? '',
+  })
+
+  const tabs = computed(() => store.value?.workspace[TABS_KEY] ?? [createTabFromRoute(currentRoute.value)])
+  const activeTabIndex = computed(() => store.value?.workspace[ACTIVE_TAB_KEY] ?? 0)
+
+  /**
+   * Copies the full URL of the tab at the given index to the clipboard.
+   * Constructs the URL using the current origin and the tab path.
+   */
+  const copyTabUrl = async (index: number): Promise<void> => {
+    const tab = tabs.value[index]
+
+    if (!tab) {
+      console.warn(`Cannot copy URL: tab at index ${index} does not exist`)
+      return
+    }
+
+    try {
+      await navigator.clipboard.writeText(`${window.location.origin}${tab.path}`)
+    } catch (error) {
+      console.error('Failed to copy URL to clipboard:', error)
+    }
+  }
+
+  // ---------------------------------------------------------------------------
+  // Route syncing
+
+  /**
+   * Navigates to the currently active tab's path.
+   * Skips navigation when on the document redirect route to avoid redirect loops.
    */
   const navigateToCurrentTab = async (): Promise<void> => {
     if (!store.value) {
       return
     }
 
-    // Skip this when we are on the document redirect route
-    if (currentRoute.value?.name === 'document.redirect') {
-      return
-    }
+    const tabIndex = store.value.workspace[ACTIVE_TAB_KEY] ?? 0
+    const activeTab = store.value.workspace[TABS_KEY]?.[tabIndex]
 
-    const activeTabIndex = store.value.workspace['x-scalar-active-tab'] ?? 0
-    const activeTab = store.value.workspace['x-scalar-tabs']?.[activeTabIndex]
-    if (!activeTab) {
-      return
+    if (activeTab) {
+      await router.replace(activeTab.path)
     }
-
-    await router.replace(activeTab.path)
   }
 
   /**
-   * Rebuilds the sidebar for the given document.
-   * This is used to refresh the sidebar state after structural changes (e.g. after adding or removing items).
-   *
-   * @param documentName - The name (id) of the document for which to rebuild the sidebar
+   * Triggers a sidebar rebuild for the given document.
+   * Used after structural changes like adding or removing items.
    */
   const rebuildSidebar = (documentName: string | undefined) => {
     if (documentName) {
@@ -687,11 +687,8 @@ export const createAppState = async ({
   }
 
   /**
-   * Ensures the sidebar is refreshed after a new example is created.
-   *
-   * If the sidebar entry for the new example does not exist or is of a different type,
-   * this will rebuild the sidebar for the current document. This helps keep the sidebar state
-   * consistent (e.g., after adding a new example via the UI).
+   * Ensures the sidebar is up to date after a new example is created.
+   * If the sidebar entry for the example does not exist yet, rebuilds the sidebar.
    */
   const refreshSidebarAfterExampleCreation = (payload: OperationExampleMeta) => {
     const documentName = activeDocument.value?.['x-scalar-navigation']?.name
@@ -707,156 +704,35 @@ export const createAppState = async ({
     })
 
     if (!entry || entry.type !== 'example') {
-      // Sidebar entry for this example doesn't exist, so rebuild sidebar for consistency.
       rebuildSidebar(documentName)
       if (currentRoute.value) {
         syncSidebar(currentRoute.value)
       }
     }
-    return
   }
-
-  /** Width of the sidebar, with fallback to default. */
-  const sidebarWidth = computed(() => store.value?.workspace?.['x-scalar-sidebar-width'] ?? DEFAULT_SIDEBAR_WIDTH)
-
-  /** Handler for sidebar width changes. */
-  const handleSidebarWidthUpdate = (width: number) => store.value?.update('x-scalar-sidebar-width', width)
-
-  /** Controls the visibility of the sidebar. */
-  const isSidebarOpen = ref(true)
-  // ---------------------------------------------------------------------------
-  // Tab Management
-
-  /** Constants for workspace store keys */
-  const TABS_KEY = 'x-scalar-tabs' as const
-  const ACTIVE_TAB_KEY = 'x-scalar-active-tab' as const
 
   /**
-   * Creates a tab object based on the current route and workspace state.
-   * Used as a fallback when no tabs exist or when creating new tabs.
+   * Syncs the active tab's metadata with the current route.
+   * Mutates the tab in-place since the workspace store array is already reactive
+   * and a full update event would be overly expensive for a path-only change.
    */
-  const createTabFromRoute = (to: RouteLocationNormalizedGeneric | null): Tab => {
-    const method = getRouteParam('method', to)
-    const path = getRouteParam('pathEncoded', to)
-    const document = getRouteParam('documentSlug', to)
-    const workspace = getRouteParam('workspaceSlug', to)
-    return {
-      ...getTabDetails({
-        workspace,
-        document,
-        path,
-        method,
-        getEntryByLocation,
-      }),
-      path: currentRoute.value?.path ?? '',
-    }
-  }
-
-  const tabs = computed(() => {
-    return store.value?.workspace[TABS_KEY] ?? [createTabFromRoute(currentRoute.value)]
-  })
-
-  const activeTabIndex = computed(() => {
-    return store.value?.workspace[ACTIVE_TAB_KEY] ?? 0
-  })
-
-  /**
-   * Copies the URL of the tab at the given index to the clipboard.
-   * Constructs the full URL using the current origin and the tab path.
-   *
-   * Note: Will silently fail if clipboard API is unavailable or the tab does not exist.
-   */
-  const copyTabUrl = async (index: number): Promise<void> => {
-    const tab = tabs.value[index]
-
-    if (!tab) {
-      console.warn(`Cannot copy URL: tab at index ${index} does not exist`)
-      return
-    }
-
-    const url = `${window.location.origin}${tab.path}`
-
-    try {
-      await navigator.clipboard.writeText(url)
-    } catch (error) {
-      console.error('Failed to copy URL to clipboard:', error)
-    }
-  }
-
-  // ---------------------------------------------------------------------------
-  // Path syncing
-
-  /** When the route changes we need to update the active entities in the store */
-  const handleRouteChange = (to: RouteLocationNormalizedGeneric) => {
-    const slug = getRouteParam('workspaceSlug', to)
-    const document = getRouteParam('documentSlug', to)
-    const namespaceValue = getRouteParam('namespace', to)
-
-    // Must have an active workspace to syncs
-    if (!namespaceValue || !slug) {
-      return
-    }
-
-    // Try to see if the user can load this workspace based on the teamUid and namespace
-    const workspace = workspaces.value.find(
-      (workspace) => workspace.slug === slug && workspace.namespace === namespaceValue,
-    )
-
-    // If the workspace is not found or the teamUid does not match, try to redirect to the default workspace
-    if (workspace && !canLoadWorkspace(workspace.teamUid, teamUid.value)) {
-      // try to redirect to the default workspace
-      return navigateToWorkspace('local', 'default')
-    }
-
-    namespace.value = namespaceValue
-    workspaceSlug.value = slug
-    documentSlug.value = document
-    method.value = getRouteParam('method', to)
-    path.value = getRouteParam('pathEncoded', to)
-    exampleName.value = getRouteParam('exampleName', to)
-
-    // Save the current path to the persistence storage
-    if (to.path !== '') {
-      workspaceStorage.setCurrentPath(to.path)
-    }
-
-    if (getWorkspaceId(namespace.value, slug) !== activeWorkspace.value?.id) {
-      return changeWorkspace(namespace.value, slug)
-    }
-
-    // Update the active document if the document slug has changes
-    if (document && document !== store.value?.workspace[extensions.workspace.activeDocument]) {
-      store?.value?.update('x-scalar-active-document', document)
-    }
-
-    syncTabs(to)
-    syncSidebar(to)
-    return
-  }
-
-  /** Aligns the tabs with any potential slug changes */
   const syncTabs = (to: RouteLocationNormalizedGeneric) => {
-    const tabs = store.value?.workspace['x-scalar-tabs'] ?? []
-    const index = store.value?.workspace['x-scalar-active-tab'] ?? 0
+    const currentTabs = store.value?.workspace[TABS_KEY] ?? []
+    const index = store.value?.workspace[ACTIVE_TAB_KEY] ?? 0
+    const tab = currentTabs[index]
 
-    const tab = tabs[index]
-
-    // If there is no tab or the tab path is the same we leave the tab state alone
     if (!tab || tab.path === to.path) {
-      // Already on the correct path, do nothing
       return
     }
 
-    // Otherwise we replace the tab content with the new route
-    tabs[index] = createTabFromRoute(to)
+    currentTabs[index] = createTabFromRoute(to)
   }
 
-  /** Aligns the sidebar state with any potential slug changes */
+  /** Syncs the sidebar selection state with the current route. */
   const syncSidebar = (to: RouteLocationNormalizedGeneric) => {
     const document = getRouteParam('documentSlug', to)
 
     if (!document) {
-      // Reset selection if no document is selected
       sidebarState.setSelected(null)
       return
     }
@@ -874,8 +750,57 @@ export const createAppState = async ({
     }
   }
 
+  /**
+   * Central handler for route changes. Responsible for:
+   * - Updating active entity refs from route params.
+   * - Triggering a workspace switch when the workspace identifier changes.
+   * - Syncing the active document, tabs, and sidebar for same-workspace navigations.
+   */
+  const handleRouteChange = async (to: RouteLocationNormalizedGeneric) => {
+    const slug = getRouteParam('workspaceSlug', to)
+    const document = getRouteParam('documentSlug', to)
+    const namespaceValue = getRouteParam('namespace', to)
+
+    if (!namespaceValue || !slug) {
+      return
+    }
+
+    const matchedWorkspace = workspaces.value.find((w) => w.slug === slug && w.namespace === namespaceValue)
+
+    // Redirect away if the user cannot access this workspace (e.g. wrong team context)
+    if (matchedWorkspace && !canLoadWorkspace(matchedWorkspace.teamUid, teamUid.value)) {
+      await navigateToWorkspace('local', 'default')
+      return
+    }
+
+    namespace.value = namespaceValue
+    workspaceSlug.value = slug
+    documentSlug.value = document
+    method.value = getRouteParam('method', to)
+    path.value = getRouteParam('pathEncoded', to)
+    exampleName.value = getRouteParam('exampleName', to)
+
+    if (to.path !== '') {
+      workspaceStorage.setCurrentPath(to.path)
+    }
+
+    if (getWorkspaceId(namespace.value, slug) !== activeWorkspace.value?.id) {
+      await changeWorkspace(namespace.value, slug)
+      return
+    }
+
+    if (document && document !== store.value?.workspace[extensions.workspace.activeDocument]) {
+      store.value?.update('x-scalar-active-document', document)
+    }
+
+    syncTabs(to)
+    syncSidebar(to)
+  }
+
+  router.afterEach((to) => handleRouteChange(to))
+
   // ---------------------------------------------------------------------------
-  // Events handling
+  // Events
 
   initializeAppEventHandlers({
     eventBus,
@@ -885,9 +810,12 @@ export const createAppState = async ({
     rebuildSidebar,
     onAfterExampleCreation: refreshSidebarAfterExampleCreation,
     onSelectSidebarItem: handleSelectItem,
-    onCopyTabUrl: (index) => copyTabUrl(index),
+    onCopyTabUrl: copyTabUrl,
     onToggleSidebar: () => (isSidebarOpen.value = !isSidebarOpen.value),
   })
+
+  // ---------------------------------------------------------------------------
+  // Dark mode
 
   const isDarkMode = computed(() => {
     const colorMode = store.value?.workspace['x-scalar-color-mode'] ?? 'system'
@@ -897,8 +825,10 @@ export const createAppState = async ({
     return colorMode === 'dark'
   })
 
+  // ---------------------------------------------------------------------------
+  // Return
+
   return {
-    /** Active workspace store */
     store,
     sidebar: {
       state: sidebarState,
