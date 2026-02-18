@@ -94,7 +94,7 @@ function selectDocument(name: string) {
 }
 
 .settingsModal .scalar-modal-body {
-  overflow-y: scroll;
+  overflow-y: auto;
   overflow-x: hidden;
 }
 </style>
