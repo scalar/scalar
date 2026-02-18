@@ -4,7 +4,7 @@ import { createWorkspaceStore } from '@/client'
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
 import type { OpenApiDocument } from '@/schemas/v3.1/strict/openapi-document'
 
-import { createTag, deleteTag } from './tag'
+import { createTag, deleteTag, editTag } from './tag'
 
 const createDocument = (overrides: Partial<OpenApiDocument> = {}): OpenApiDocument => {
   return {
@@ -327,5 +327,261 @@ describe('deleteTag', () => {
     const document = store.workspace.documents['test-doc']
     expect(document?.tags?.map((t) => t.name)).toEqual(['existing-tag'])
     expect(getResolvedRef(document?.paths?.['/users']?.get)?.tags).toEqual(['existing-tag'])
+  })
+})
+
+describe('editTag', () => {
+  const store = createWorkspaceStore()
+  const createTraversedTag = (name: string, children?: Parameters<typeof editTag>[1]['tag']['children']) => ({
+    id: `tag-${name}`,
+    title: name,
+    type: 'tag' as const,
+    name,
+    isGroup: true,
+    children,
+  })
+
+  it('no-ops when editing a tag that does not exist', async () => {
+    await store.addDocument({
+      name: 'test-doc',
+      document: createDocument({
+        tags: [{ name: 'existing-tag' }],
+        paths: {
+          '/users': {
+            get: {
+              tags: ['existing-tag'],
+            },
+          },
+        },
+      }),
+    })
+
+    editTag(store, {
+      documentName: 'test-doc',
+      tag: createTraversedTag('non-existent-tag'),
+      newName: 'renamed-tag',
+    })
+
+    const document = store.workspace.documents['test-doc']
+    expect(document?.tags?.map((tag) => tag.name)).toEqual(['existing-tag'])
+    expect(getResolvedRef(document?.paths?.['/users']?.get)?.tags).toEqual(['existing-tag'])
+  })
+
+  it('updates the tag name in document tags and all associated operations', async () => {
+    await store.addDocument({
+      name: 'test-doc',
+      document: createDocument({
+        tags: [{ name: 'users' }, { name: 'admin' }],
+        paths: {
+          '/users': {
+            get: {
+              tags: ['users', 'admin'],
+            },
+            post: {
+              tags: ['users'],
+            },
+          },
+          '/admin': {
+            get: {
+              tags: ['admin'],
+            },
+          },
+        },
+        webhooks: {
+          userUpdated: {
+            post: {
+              tags: ['users'],
+            },
+          },
+        },
+      }),
+    })
+
+    editTag(store, {
+      documentName: 'test-doc',
+      tag: createTraversedTag('users', [
+        { id: 'op-get-users', title: 'Get users', type: 'operation', ref: '', method: 'get', path: '/users' },
+        { id: 'op-post-users', title: 'Create user', type: 'operation', ref: '', method: 'post', path: '/users' },
+        { id: 'wh-user-updated', title: 'User updated', type: 'webhook', ref: '', method: 'post', name: 'userUpdated' },
+      ]),
+      newName: 'customers',
+    })
+
+    const document = store.workspace.documents['test-doc']
+    expect(document?.tags?.map((tag) => tag.name)).toEqual(['customers', 'admin'])
+    expect(getResolvedRef(document?.paths?.['/users']?.get)?.tags).toEqual(['customers', 'admin'])
+    expect(getResolvedRef(document?.paths?.['/users']?.post)?.tags).toEqual(['customers'])
+    expect(getResolvedRef(document?.paths?.['/admin']?.get)?.tags).toEqual(['admin'])
+    expect(getResolvedRef(document?.webhooks?.userUpdated?.post)?.tags).toEqual(['customers'])
+  })
+
+  it('produces correct navigation after editTag and a subsequent sidebar rebuild', async () => {
+    // editTag does not rebuild the sidebar itself — that is handled externally by
+    // the onAfterExecute hook in app-events.ts. This test ensures the document
+    // data left by editTag is in the right shape so the next buildSidebar call
+    // produces a navigation that reflects the new tag name.
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: 'test-doc',
+      document: createDocument({
+        tags: [{ name: 'users' }],
+        paths: {
+          '/users': {
+            get: {
+              tags: ['users'],
+            },
+          },
+        },
+      }),
+    })
+
+    editTag(store, {
+      documentName: 'test-doc',
+      tag: createTraversedTag('users', [
+        { id: 'op-get-users', title: 'Get users', type: 'operation', ref: '', method: 'get', path: '/users' },
+      ]),
+      newName: 'customers',
+    })
+
+    // Simulate the external rebuild triggered by onAfterExecute
+    store.buildSidebar('test-doc')
+
+    const navigation = store.workspace.documents['test-doc']?.['x-scalar-navigation']
+    const tagEntry = navigation?.children?.find((c: { type: string; name?: string }) => c.type === 'tag') as
+      | { name?: string }
+      | undefined
+    expect(tagEntry?.name).toBe('customers')
+  })
+
+  it('updates the tag name in webhook operations', async () => {
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: 'test-doc',
+      document: createDocument({
+        tags: [{ name: 'notifications' }, { name: 'billing' }],
+        webhooks: {
+          newUser: {
+            post: {
+              tags: ['notifications'],
+              summary: 'New user webhook',
+            },
+          },
+          paymentReceived: {
+            post: {
+              tags: ['notifications', 'billing'],
+              summary: 'Payment received',
+            },
+          },
+          invoiceCreated: {
+            put: {
+              tags: ['billing'],
+              summary: 'Invoice created',
+            },
+          },
+        },
+      }),
+    })
+
+    editTag(store, {
+      documentName: 'test-doc',
+      tag: createTraversedTag('notifications', [
+        { id: 'wh-new-user', title: 'New user webhook', type: 'webhook', ref: '', method: 'post', name: 'newUser' },
+        {
+          id: 'wh-payment-received',
+          title: 'Payment received',
+          type: 'webhook',
+          ref: '',
+          method: 'post',
+          name: 'paymentReceived',
+        },
+      ]),
+      newName: 'alerts',
+    })
+
+    const document = store.workspace.documents['test-doc']
+    expect(document?.tags?.map((tag) => tag.name)).toEqual(['alerts', 'billing'])
+    expect(getResolvedRef(document?.webhooks?.newUser?.post)?.tags).toEqual(['alerts'])
+    expect(getResolvedRef(document?.webhooks?.paymentReceived?.post)?.tags).toEqual(['alerts', 'billing'])
+    expect(getResolvedRef(document?.webhooks?.invoiceCreated?.put)?.tags).toEqual(['billing'])
+  })
+
+  it('updates child operation IDs in the tag x-scalar-order when renaming', async () => {
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: 'test-doc',
+      document: createDocument({
+        tags: [{ name: 'users' }],
+        paths: {
+          '/users': {
+            post: { tags: ['users'], summary: 'Create user' },
+            get: { tags: ['users'], summary: 'List users' },
+          },
+        },
+      }),
+    })
+
+    // Simulate a user-defined custom ordering: POST before GET (reverse of default).
+    // The IDs follow the pattern generated by getNavigationOptions for document "test-doc"
+    // and tag "users": "test-doc/tag/users/METHOD/path".
+    const document = store.workspace.documents['test-doc']
+    const usersTag = document?.tags?.find((t) => t.name === 'users')
+    const oldPostId = 'test-doc/tag/users/POST/users'
+    const oldGetId = 'test-doc/tag/users/GET/users'
+    usersTag!['x-scalar-order'] = [oldPostId, oldGetId]
+
+    editTag(store, {
+      documentName: 'test-doc',
+      tag: createTraversedTag('users', [
+        { id: 'op-post-users', title: 'Create user', type: 'operation', ref: '', method: 'post', path: '/users' },
+        { id: 'op-get-users', title: 'List users', type: 'operation', ref: '', method: 'get', path: '/users' },
+      ]),
+      newName: 'customers',
+    })
+
+    // The tag object itself should now be renamed
+    const renamedTag = store.workspace.documents['test-doc']?.tags?.find((t) => t.name === 'customers')
+    expect(renamedTag).toBeDefined()
+
+    // x-scalar-order must have the SAME relative ordering, but with new IDs.
+    // Without the fix, it would still hold the stale "users" IDs and sortByOrder
+    // in traverseTags would find no matches, silently dropping the custom order.
+    expect(renamedTag?.['x-scalar-order']).toEqual([
+      'test-doc/tag/customers/POST/users',
+      'test-doc/tag/customers/GET/users',
+    ])
+  })
+
+  it('updates tag name in x-tagGroups', async () => {
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: 'test-doc',
+      document: createDocument({
+        tags: [{ name: 'users' }, { name: 'admin' }],
+        paths: {
+          '/users': {
+            get: {
+              tags: ['users'],
+            },
+          },
+        },
+        'x-tagGroups': [
+          { name: 'User Management', tags: ['users', 'admin'] },
+          { name: 'Admin Only', tags: ['admin'] },
+        ],
+      }),
+    })
+
+    editTag(store, {
+      documentName: 'test-doc',
+      tag: createTraversedTag('users', [
+        { id: 'op-get-users', title: 'Get users', type: 'operation', ref: '', method: 'get', path: '/users' },
+      ]),
+      newName: 'customers',
+    })
+
+    const document = store.workspace.documents['test-doc']
+    expect(document?.tags?.map((tag) => tag.name)).toEqual(['customers', 'admin'])
+    expect(document?.['x-tagGroups']?.[0]?.tags).toEqual(['customers', 'admin'])
+    expect(document?.['x-tagGroups']?.[1]?.tags).toEqual(['admin'])
   })
 })

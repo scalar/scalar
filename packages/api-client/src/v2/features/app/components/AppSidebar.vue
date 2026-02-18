@@ -22,6 +22,7 @@ import RabbitJump from '@/assets/rabbitjump.ascii?raw'
 import ScalarAsciiArt from '@/components/ScalarAsciiArt.vue'
 import DeleteSidebarListElement from '@/components/Sidebar/Actions/DeleteSidebarListElement.vue'
 import { Sidebar } from '@/v2/components/sidebar'
+import DownloadAppButton from '@/v2/features/app/components/DownloadAppButton.vue'
 import SidebarItemMenu from '@/v2/features/app/components/SidebarItemMenu.vue'
 import { dragHandleFactory } from '@/v2/helpers/drag-handle-factory'
 import type { ClientLayout } from '@/v2/types/layout'
@@ -239,13 +240,13 @@ const closeMenu = () => {
 /** Opens the command palette with the payload needed to create a request */
 const handleAddEmptyFolder = (item: TraversedEntry) => {
   const itemWithParent = sidebarState.getEntryById(item.id)
-  const document = getParentEntry('document', itemWithParent)
+  const documentEntry = getParentEntry('document', itemWithParent)
   const tag = getParentEntry('tag', itemWithParent)
 
   eventBus.emit('ui:open:command-palette', {
     action: 'create-request',
     payload: {
-      documentId: document?.id,
+      documentName: documentEntry?.name,
       tagId: tag?.name,
     },
   })
@@ -362,7 +363,7 @@ const handleAddEmptyFolder = (item: TraversedEntry) => {
             </div>
           </div>
 
-          <div class="gap-1.5 p-2">
+          <div class="flex flex-col gap-1.5 p-2">
             <ScalarButton
               v-if="showGettingStarted"
               class="w-full"
@@ -397,6 +398,7 @@ const handleAddEmptyFolder = (item: TraversedEntry) => {
                 K
               </span>
             </ScalarButton>
+            <DownloadAppButton v-if="layout === 'web'" />
           </div>
         </div>
       </template>
@@ -409,10 +411,11 @@ const handleAddEmptyFolder = (item: TraversedEntry) => {
       :target="menuTarget.el"
       @closeMenu="closeMenu"
       @showDeleteModal="deleteModalState.show()" />
+
     <!-- Delete Modal -->
     <ScalarModal
       v-if="menuTarget"
-      :size="'xxs'"
+      size="xxs"
       :state="deleteModalState"
       :title="`Delete ${menuTarget.item.title}`">
       <DeleteSidebarListElement

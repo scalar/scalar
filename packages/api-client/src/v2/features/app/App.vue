@@ -35,7 +35,6 @@ import type { ClientLayout } from '@/v2/types/layout'
 import { type AppState } from './app-state'
 import AppSidebar from './components/AppSidebar.vue'
 import DesktopTabs from './components/DesktopTabs.vue'
-import DownloadAppButton from './components/DownloadAppButton.vue'
 
 const {
   layout,
@@ -101,6 +100,15 @@ const { themeStyleTag } = useTheme({
   store: app.store,
 })
 
+const navigateToWorkspaceOverview = (namespace?: string, slug?: string) => {
+  app.eventBus.emit('ui:navigate', {
+    page: 'workspace',
+    path: 'environment',
+    namespace,
+    workspaceSlug: slug,
+  })
+}
+
 /** Sets the active workspace by ID: finds the workspace in the list and updates app state & navigation. */
 const setActiveWorkspace = (id?: string) => {
   if (!id) {
@@ -112,7 +120,8 @@ const setActiveWorkspace = (id?: string) => {
   if (!workspace) {
     return
   }
-  app.workspace.navigateToWorkspace(workspace.namespace, workspace.slug)
+
+  navigateToWorkspaceOverview(workspace.namespace, workspace.slug)
 }
 
 const createWorkspaceModalState = useModal()
@@ -163,13 +172,6 @@ const routerViewProps = computed<RouteProps>(() => {
         !app.loading.value
       ">
       <div class="flex h-dvh w-dvw flex-1 flex-col">
-        <!-- Desktop App Tabs -->
-        <DesktopTabs
-          v-if="layout === 'desktop'"
-          :activeTabIndex="app.tabs.activeTabIndex.value"
-          :eventBus="app.eventBus"
-          :tabs="app.tabs.state.value" />
-
         <div class="flex min-h-0 flex-1 flex-row">
           <!-- App sidebar -->
           <AppSidebar
@@ -182,7 +184,7 @@ const routerViewProps = computed<RouteProps>(() => {
             :sidebarWidth="app.sidebar.width.value"
             :store="app.store.value!"
             :workspaces="app.workspace.workspaceGroups.value"
-            @click:workspace="app.workspace.navigateToWorkspace"
+            @click:workspace="navigateToWorkspaceOverview"
             @create:workspace="createWorkspaceModalState.show()"
             @select:workspace="setActiveWorkspace"
             @selectItem="app.sidebar.handleSelectItem"
@@ -193,12 +195,12 @@ const routerViewProps = computed<RouteProps>(() => {
           </AppSidebar>
 
           <div class="flex flex-1 flex-col">
-            <!-- Web App Top Nav (just download button now) -->
-            <nav
-              v-if="layout === 'web'"
-              class="flex h-12 items-center justify-end border-b p-2">
-              <DownloadAppButton />
-            </nav>
+            <!-- App Tabs -->
+            <DesktopTabs
+              v-if="layout === 'desktop'"
+              :activeTabIndex="app.tabs.activeTabIndex.value"
+              :eventBus="app.eventBus"
+              :tabs="app.tabs.state.value" />
 
             <!-- Router view min-h-0 is required for scrolling, do not remove it -->
             <div class="bg-b-1 min-h-0 flex-1">

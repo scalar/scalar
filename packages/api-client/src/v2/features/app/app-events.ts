@@ -184,6 +184,29 @@ export function initializeAppEventHandlers({
       'tag:create:tag': {
         onAfterExecute: (payload) => rebuildSidebar(payload.documentName),
       },
+      'tag:edit:tag': {
+        onAfterExecute: async (payload) => {
+          rebuildSidebar(payload.documentName)
+
+          /**
+           * If the currently viewed operation is a child of the renamed tag, redirect to
+           * the same route so the sidebar and breadcrumbs reflect the new tag name
+           */
+          const isNestedUnderTag = payload.tag.children?.some(
+            (child) =>
+              child.type === 'operation' &&
+              isRouteParamsMatch({
+                documentName: payload.documentName,
+                path: child.path,
+                method: child.method,
+              }),
+          )
+
+          if (isNestedUnderTag) {
+            await router.replace({ ...currentRoute.value })
+          }
+        },
+      },
       'tag:delete:tag': {
         onAfterExecute: (payload) => rebuildSidebar(payload.documentName),
       },
@@ -233,6 +256,9 @@ export function initializeAppEventHandlers({
    * Bind the inernal navigation to a public api
    */
   eventBus.on('ui:navigate', async (payload) => {
+    const { replace = false } = payload
+    const fn = replace ? router.replace : router.push
+
     const execCallback = (result: NavigationFailure | void | undefined) => {
       if (!result) {
         return payload.callback?.('success')
@@ -257,35 +283,35 @@ export function initializeAppEventHandlers({
       } satisfies ValidParams
 
       if (payload.path === 'overview') {
-        return execCallback(await router.push({ name: 'document.overview', params }))
+        return execCallback(await fn({ name: 'document.overview', params }))
       }
       if (payload.path === 'servers') {
-        return execCallback(await router.push({ name: 'document.servers', params }))
+        return execCallback(await fn({ name: 'document.servers', params }))
       }
       if (payload.path === 'environment') {
-        return execCallback(await router.push({ name: 'document.environment', params }))
+        return execCallback(await fn({ name: 'document.environment', params }))
       }
       if (payload.path === 'authentication') {
-        return execCallback(await router.push({ name: 'document.authentication', params }))
+        return execCallback(await fn({ name: 'document.authentication', params }))
       }
       if (payload.path === 'cookies') {
-        return execCallback(await router.push({ name: 'document.cookies', params }))
+        return execCallback(await fn({ name: 'document.cookies', params }))
       }
       if (payload.path === 'settings') {
-        return execCallback(await router.push({ name: 'document.settings', params }))
+        return execCallback(await fn({ name: 'document.settings', params }))
       }
     }
 
     if (payload.page === 'workspace') {
       const params = { workspaceSlug: payload.workspaceSlug, namespace: payload.namespace } satisfies ValidParams
       if (payload.path === 'environment') {
-        return execCallback(await router.push({ name: 'workspace.environment', params }))
+        return execCallback(await fn({ name: 'workspace.environment', params }))
       }
       if (payload.path === 'cookies') {
-        return execCallback(await router.push({ name: 'workspace.cookies', params }))
+        return execCallback(await fn({ name: 'workspace.cookies', params }))
       }
       if (payload.path === 'settings') {
-        return execCallback(await router.push({ name: 'workspace.settings', params }))
+        return execCallback(await fn({ name: 'workspace.settings', params }))
       }
     }
 
@@ -298,7 +324,7 @@ export function initializeAppEventHandlers({
         method: payload.method,
         exampleName: payload.exampleName,
       } satisfies ValidParams
-      return execCallback(await router.push({ name: 'example', params }))
+      return execCallback(await fn({ name: 'example', params }))
     }
   })
 
