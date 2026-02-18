@@ -370,6 +370,7 @@ The `authentication` configuration accepts:
   - An array of security scheme names (OR relationship)
   - An array containing strings or arrays of strings (AND/OR relationship)
 - `securitySchemes`: An object mapping security scheme names to their configurations. Each security scheme can be configured with type-specific options.
+- `createAnySecurityScheme`: When `true`, shows generic "Add new authentication" options (API Key, HTTP Basic, OAuth2 flows, etc.) in the auth dropdown alongside the schemes defined in your OpenAPI document. Default: `false`.
 
 #### baseServerURL
 
