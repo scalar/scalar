@@ -1,11 +1,65 @@
 import vue from '@vitejs/plugin-vue'
-import { defineConfig } from 'vite'
+import { defineConfig, Plugin } from 'vite'
 import path from 'path'
 import fs from 'fs'
 
+const AI_USER_AGENTS = [
+  'anthropic-ai',
+  'claude',
+  'openai',
+  'gptbot',
+  'chatgpt',
+  'bingbot',
+  'googlebot',
+  'google-extended',
+  'perplexitybot',
+  'amazonbot',
+  'meta-externalagent',
+  'cohere-ai',
+  'diffbot',
+  'curl',
+]
+
+function isAIRequest(userAgent: string | undefined): boolean {
+  if (!userAgent) return false
+  const ua = userAgent.toLowerCase()
+  return AI_USER_AGENTS.some((agent) => ua.includes(agent))
+}
+
+function llmsTxtPlugin(): Plugin {
+  let llmsContent: string
+
+  return {
+    name: 'llms-txt-plugin',
+    configureServer(server) {
+      const llmsPath = path.resolve(__dirname, '../../llms.txt')
+      llmsContent = fs.readFileSync(llmsPath, 'utf-8')
+
+      server.middlewares.use((req, res, next) => {
+        const userAgent = req.headers['user-agent']
+
+        if (req.url === '/llms.txt') {
+          res.setHeader('Content-Type', 'text/plain; charset=utf-8')
+          res.end(llmsContent)
+          return
+        }
+
+        if (req.url === '/' && isAIRequest(userAgent)) {
+          res.setHeader('Content-Type', 'text/plain; charset=utf-8')
+          res.setHeader('X-Served-As', 'llms.txt')
+          res.end(llmsContent)
+          return
+        }
+
+        next()
+      })
+    },
+  }
+}
+
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [vue()],
+  plugins: [llmsTxtPlugin(), vue()],
   server: {
     port: 5050,
     open: true,
