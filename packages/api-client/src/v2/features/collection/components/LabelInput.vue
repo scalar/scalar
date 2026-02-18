@@ -2,7 +2,7 @@
 import { useId } from 'vue'
 
 const emit = defineEmits<{
-  blur: [value: string]
+  (e: 'blur', value: string): void
 }>()
 const model = defineModel<string>({ required: true })
 
