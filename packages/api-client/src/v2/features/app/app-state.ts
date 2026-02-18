@@ -343,7 +343,6 @@ export const createAppState = async ({
         exampleName: 'default',
       },
     })
-    return
   }
 
   /**

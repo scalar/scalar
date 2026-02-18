@@ -81,6 +81,14 @@ export const ROUTES = [
             path: '',
             component: DocumentCollection,
             children: [
+              // Redirect to overview
+              {
+                name: 'document.redirect',
+                path: '',
+                redirect: {
+                  name: 'document.overview',
+                },
+              },
               // Document overview
               {
                 name: 'document.overview',
