@@ -321,15 +321,27 @@ export const createAppState = async ({
 
   /**
    * Navigates to the overview page of the specified workspace.
-   * Updates the route based on the given namespace and slug.
    *
    * @param namespace - The workspace namespace.
    * @param slug - The unique workspace slug (identifier).
    */
   const navigateToWorkspace = async (namespace?: string, slug?: string): Promise<void> => {
+    if (!namespace || !slug) {
+      await router.push('/')
+      return
+    }
+
+    // We should always have this drafts document available in a new workspace
     await router.push({
-      name: 'document.redirect',
-      params: { namespace, workspaceSlug: slug, documentSlug: 'drafts' },
+      name: 'example',
+      params: {
+        namespace,
+        workspaceSlug: slug,
+        documentSlug: 'drafts',
+        pathEncoded: encodeURIComponent('/'),
+        method: 'get',
+        exampleName: 'default',
+      },
     })
   }
 
@@ -657,11 +669,6 @@ export const createAppState = async ({
    */
   const navigateToCurrentTab = async (): Promise<void> => {
     if (!store.value) {
-      return
-    }
-
-    // Skip this when we are on the document redirect route
-    if (currentRoute.value?.name === 'document.redirect') {
       return
     }
 
