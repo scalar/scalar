@@ -339,9 +339,12 @@ export const deleteOperationExample = (
   }
 
   // Remove the example from the x-draft-examples array
-  const dedupe = new Set(operation['x-draft-examples'])
+  const dedupe = new Set(operation['x-draft-examples'] ?? [])
   dedupe.delete(exampleKey)
-  operation['x-draft-examples'] = Array.from(dedupe)
+
+  if (operation['x-draft-examples'] !== undefined) {
+    operation['x-draft-examples'] = Array.from(dedupe)
+  }
 
   // Remove the example from all operation parameters
   operation.parameters?.forEach((parameter) => {
