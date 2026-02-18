@@ -3,6 +3,8 @@ import { z } from 'zod/mini'
 
 import { useState } from '@/state/state'
 
+const SHOW_UPLOAD_SUCCESS_DELAY = 5_000 // 5 seconds
+
 export type UploadTmpDocumentState =
   | { type: 'error'; error: unknown }
   | { type: 'uploading' }
@@ -30,6 +32,9 @@ export function getTmpDocFromLocalStorage() {
     .parse(JSON.parse(tmpDoc))
 }
 
+/**
+ * Handle uploading a temporary OpenAPI document.
+ */
 export function useUploadTmpDocument() {
   const state = useState()
   const uploadState = ref<UploadTmpDocumentState>()
@@ -38,7 +43,9 @@ export function useUploadTmpDocument() {
     const url = `${state.baseUrl}${path}`
 
     // Localhost proxy
-    if (url.startsWith('/')) return url
+    if (url.startsWith('/')) {
+      return url
+    }
 
     const params = new URLSearchParams({ scalar_url: url.toString() })
 
@@ -47,25 +54,31 @@ export function useUploadTmpDocument() {
 
   async function uploadTempDocument(document: string, isAgent = false) {
     try {
-      uploadState.value = { type: 'uploading' }
+      uploadState.value = {
+        type: 'uploading',
+      }
 
       const response = await fetch(createUrl(`/core/share/upload/apis${isAgent ? '?source=agent' : ''}`), {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify({ document }),
       })
 
       if (!response.ok) {
         uploadState.value = {
           type: 'error',
-          error: 'Failed to upload document.',
+          error: 'Failed to upload your OpenAPI document.',
         }
+
         return
       }
 
       const json = await response.json()
 
       const { success, data } = z.object({ url: z.string(), namespace: z.string(), slug: z.string() }).safeParse(json)
+
       if (!success) {
         uploadState.value = {
           type: 'error',
@@ -108,11 +121,11 @@ export function useUploadTmpDocument() {
 
       setTimeout(() => {
         uploadState.value = undefined
-      }, 2000)
+      }, SHOW_UPLOAD_SUCCESS_DELAY)
 
       return data
     } catch {
-      uploadState.value = { type: 'error', error: 'Failed to upload document.' }
+      uploadState.value = { type: 'error', error: 'Failed to upload your OpenAPI document.' }
       return
     }
   }
