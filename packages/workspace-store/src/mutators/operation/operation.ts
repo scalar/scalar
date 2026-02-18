@@ -105,10 +105,16 @@ export const createOperation = (
  * ```
  */
 export const updateOperationSummary = (
+  store: WorkspaceStore | null,
   document: WorkspaceDocument | null,
   { meta, payload: { summary } }: OperationEvents['operation:update:summary'],
 ) => {
-  if (!document) {
+  if (!document || !store) {
+    return
+  }
+
+  const documentName = document['x-scalar-navigation']?.name
+  if (documentName === undefined) {
     return
   }
 
@@ -118,6 +124,10 @@ export const updateOperationSummary = (
   }
 
   operation.summary = summary
+
+  // Rebuild the sidebar to reflect the cahnges
+  // We can't just go any find all the entries this operation is part so we just rebuild the sidebar
+  store.buildSidebar(documentName)
 }
 
 /**

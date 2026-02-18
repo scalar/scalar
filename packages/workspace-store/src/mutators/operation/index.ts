@@ -33,7 +33,7 @@ export const operationMutatorsFactory = ({
   return {
     createOperation: (payload: OperationEvents['operation:create:operation']) => createOperation(store, payload),
     updateOperationSummary: (payload: OperationEvents['operation:update:summary']) =>
-      updateOperationSummary(document, payload),
+      updateOperationSummary(store, document, payload),
     updateOperationPathMethod: (payload: OperationEvents['operation:update:pathMethod']) =>
       updateOperationPathMethod(document, store, payload),
     deleteOperation: (payload: OperationEvents['operation:delete:operation']) => deleteOperation(store, payload),
