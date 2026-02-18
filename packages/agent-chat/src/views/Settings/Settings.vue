@@ -82,7 +82,7 @@ function selectDocument(name: string) {
         id="proxyUrl"
         v-model="proxyUrl"
         label="Proxy URL"
-        placeholder="https://proxy.scalar.com" />
+        :placeholder="URLS.DEFAULT_PROXY_URL" />
     </div>
   </ScalarModal>
 </template>

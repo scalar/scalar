@@ -2,6 +2,7 @@ import { redirectToProxy } from '@scalar/helpers/url/redirect-to-proxy'
 import { ref } from 'vue'
 import { z } from 'zod/mini'
 
+import { URLS } from '@/consts/urls'
 import { useState } from '@/state/state'
 
 const SHOW_UPLOAD_SUCCESS_DELAY = 5_000 // 5 seconds
@@ -42,7 +43,8 @@ export function useUploadTmpDocument() {
 
   function createUrl(path: string) {
     const fullUrl = `${state.baseUrl}${path}`
-    return redirectToProxy('https://proxy.scalar.com', fullUrl)
+    const effectiveProxyUrl = state.proxyUrl?.value?.trim() || URLS.DEFAULT_PROXY_URL
+    return redirectToProxy(effectiveProxyUrl, fullUrl)
   }
 
   async function uploadTempDocument(document: string, isAgent = false) {

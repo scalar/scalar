@@ -100,19 +100,23 @@ function createChat({
   registryDocuments,
   workspaceStore,
   baseUrl,
+  proxyUrl,
   getAccessToken,
   getAgentKey,
 }: {
   registryDocuments: Ref<ApiMetadata[]>
   workspaceStore: WorkspaceStore
   baseUrl: string
+  proxyUrl: Ref<string | undefined>
   getAccessToken?: () => string
   getAgentKey?: () => string
 }) {
+  const effectiveProxyUrl = () => proxyUrl.value?.trim() || URLS.DEFAULT_PROXY_URL
+
   const chat = new Chat<UIMessage<unknown, UIDataTypes, Tools>>({
     sendAutomaticallyWhen: lastAssistantMessageIsCompleteWithToolCalls,
     transport: new DefaultChatTransport({
-      api: redirectToProxy('https://proxy.scalar.com', `${baseUrl}/vector/openapi/chat`),
+      api: redirectToProxy(effectiveProxyUrl(), `${baseUrl}/vector/openapi/chat`),
       headers: () => createAuthorizationHeaders({ getAccessToken, getAgentKey }),
       body: () => ({
         registryDocuments: registryDocuments.value,
@@ -133,6 +137,7 @@ function createChat({
           input: toolCall.input,
           toolCallId: toolCall.toolCallId,
           chat,
+          proxyUrl: effectiveProxyUrl(),
         })
       }
     },
@@ -192,12 +197,14 @@ export function createState({
     registryDocuments,
     workspaceStore,
     baseUrl,
+    proxyUrl,
     getAccessToken,
     getAgentKey,
   })
 
   const api = createApi({
     baseUrl,
+    proxyUrl,
     getAccessToken,
     getAgentKey,
   })
@@ -292,14 +299,12 @@ export function createState({
 
     pendingDocuments[identifier] = true
 
+    const effectiveProxyUrl = proxyUrl.value?.trim() || URLS.DEFAULT_PROXY_URL
     const embeddingStatusResponse = await n.fromUnsafe(
       () =>
-        fetch(
-          redirectToProxy('https://proxy.scalar.com', `${baseUrl}/vector/registry/embeddings/${namespace}/${slug}`),
-          {
-            method: 'GET',
-          },
-        ),
+        fetch(redirectToProxy(effectiveProxyUrl, `${baseUrl}/vector/registry/embeddings/${namespace}/${slug}`), {
+          method: 'GET',
+        }),
       (originalError) => createError('FAILED_TO_GET_EMBEDDING_STATUS', originalError),
     )
 
