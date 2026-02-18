@@ -1,15 +1,10 @@
 <script lang="ts">
-/**
- * Document Collection Page
- *
- * Displays primary document editing and viewing interface, enabling users navigate among
- * Overview, Servers, Authentication, Environment, Cookies, and Settings tabs
- */
+/** Document collection page — tabs for Overview, Servers, Auth, Environment, Cookies, and Settings. */
 export default {}
 </script>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { RouterView } from 'vue-router'
 
 import type { RouteProps } from '@/v2/features/app/helpers/routes'
@@ -20,21 +15,22 @@ import Tabs from './components/Tabs.vue'
 const props = defineProps<RouteProps>()
 
 /**
- * Local copy of the workspace label so we can reset it when an empty-title
- * blur is rejected.  Without this, defineModel inside LabelInput holds a
- * stale empty string because the parent prop never changed.
+ * Local copy of the label so we can reset on empty-blur rejection and stay in
+ * sync when Vue Router reuses this component across workspace navigations.
  */
 const workspaceTitle = ref(props.activeWorkspace.label)
 
-/**
- * Handles updating the workspace title when the input loses focus.
- * Emits 'workspace:update:name' event only if the trimmed title is not empty.
- * Resets the local ref to the current label so the input is not left blank.
- */
+watch(
+  () => props.activeWorkspace.label,
+  (newLabel) => {
+    workspaceTitle.value = newLabel
+  },
+)
+
+/** Emits the rename event on blur, or resets the input if the title is blank. */
 const handleUpdateWorkspaceTitle = (title: string) => {
   if (title.trim() === '') {
-    // Reset the local ref so defineModel inside LabelInput re-syncs to the
-    // original value instead of staying permanently empty.
+    // Force defineModel inside LabelInput to re-sync to the original value.
     workspaceTitle.value = props.activeWorkspace.label
     return
   }

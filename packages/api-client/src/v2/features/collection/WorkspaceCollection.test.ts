@@ -66,11 +66,7 @@ describe('WorkspaceCollection', () => {
       await input.trigger('blur')
       await nextTick()
 
-      /**
-       * The input must not be left permanently empty after a rejected blur.
-       * Without a local ref reset, defineModel's sync never fires because the
-       * prop value (activeWorkspace.label) did not change.
-       */
+      // Without the local ref reset, defineModel stays empty because the prop never changed.
       expect(input.element.value).toBe('My Workspace')
     })
 
@@ -117,6 +113,45 @@ describe('WorkspaceCollection', () => {
       await input.trigger('blur')
 
       expect(eventBus.emit).not.toHaveBeenCalledWith('workspace:update:name', expect.anything())
+    })
+  })
+
+  describe('workspace prop change (component reuse)', () => {
+    it('updates the input when activeWorkspace.label changes to a new workspace', async () => {
+      const { wrapper } = await mountWorkspaceCollection('Workspace A')
+
+      const input = wrapper.find('input')
+      expect(input.element.value).toBe('Workspace A')
+
+      /**
+       * Simulate Vue Router reusing the component when navigating to a different
+       * workspace. The parent updates activeWorkspace without unmounting the component.
+       */
+      await wrapper.setProps({
+        activeWorkspace: { id: 'workspace-2', label: 'Workspace B' },
+      })
+      await nextTick()
+
+      expect(input.element.value).toBe('Workspace B')
+    })
+
+    it('does not emit workspace:update:name with the old label after the workspace changes', async () => {
+      const { wrapper, eventBus } = await mountWorkspaceCollection('Workspace A')
+
+      await wrapper.setProps({
+        activeWorkspace: { id: 'workspace-2', label: 'Workspace B' },
+      })
+      await nextTick()
+
+      /**
+       * If the watch is missing, workspaceTitle still holds 'Workspace A'.
+       * A blur at this point would emit 'Workspace A' and rename the new
+       * workspace to the old name, which is the bug we are guarding against.
+       */
+      const input = wrapper.find('input')
+      await input.trigger('blur')
+
+      expect(eventBus.emit).not.toHaveBeenCalledWith('workspace:update:name', 'Workspace A')
     })
   })
 })
