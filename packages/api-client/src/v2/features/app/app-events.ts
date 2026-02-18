@@ -138,6 +138,20 @@ export function initializeAppEventHandlers({
           }
         },
       },
+      'operation:create:draft-example': {
+        onAfterExecute: async (payload) => {
+          onAfterExampleCreation({ ...payload.meta, exampleKey: payload.exampleName })
+          await router.push({
+            name: 'example',
+            params: {
+              documentSlug: payload.documentName,
+              pathEncoded: encodeURIComponent(payload.meta.path),
+              method: payload.meta.method,
+              exampleName: payload.exampleName,
+            },
+          })
+        },
+      },
       'operation:delete:example': {
         onAfterExecute: async (payload) => {
           rebuildSidebar(payload.documentName)

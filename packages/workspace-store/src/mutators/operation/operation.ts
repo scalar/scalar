@@ -282,6 +282,40 @@ export const deleteOperation = (
 }
 
 /**
+ * Adds an example name to the 'x-draft-examples' array for a specific operation in a document.
+ *
+ * - Finds the target operation using the provided path and method within the specified document.
+ * - If the operation is found and has an 'x-draft-examples' array, pushes the new exampleName to it.
+ * - Safely no-ops if the document or operation does not exist.
+ */
+export const createOperationDraftExample = (
+  workspace: WorkspaceStore | null,
+  { meta: { path, method }, documentName, exampleName }: OperationEvents['operation:create:draft-example'],
+) => {
+  const document = workspace?.workspace.documents[documentName]
+  if (!document) {
+    console.error('Document not found', { documentName })
+    return
+  }
+
+  const operation = getResolvedRef(document.paths?.[path]?.[method])
+  if (!operation) {
+    console.error('Operation not found', { path, method })
+    return
+  }
+
+  // Ensure that the x-draft-examples array exists
+  operation['x-draft-examples'] ??= []
+
+  // Remove duplicates
+  const dedupe = new Set(operation['x-draft-examples'])
+  // Add the new example name
+  dedupe.add(exampleName)
+  // Update the operation with the new x-draft-examples array
+  operation['x-draft-examples'] = Array.from(dedupe)
+}
+
+/**
  * Deletes an example with the given exampleKey from operation parameters and request body.
  *
  * - Finds the target operation within the specified document and path/method.
@@ -303,6 +337,11 @@ export const deleteOperationExample = (
   if (!operation) {
     return
   }
+
+  // Remove the example from the x-draft-examples array
+  const dedupe = new Set(operation['x-draft-examples'])
+  dedupe.delete(exampleKey)
+  operation['x-draft-examples'] = Array.from(dedupe)
 
   // Remove the example from all operation parameters
   operation.parameters?.forEach((parameter) => {
