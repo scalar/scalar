@@ -9,6 +9,7 @@ export default {}
 </script>
 
 <script setup lang="ts">
+import { ref } from 'vue'
 import { RouterView } from 'vue-router'
 
 import type { RouteProps } from '@/v2/features/app/helpers/routes'
@@ -19,11 +20,22 @@ import Tabs from './components/Tabs.vue'
 const props = defineProps<RouteProps>()
 
 /**
+ * Local copy of the workspace label so we can reset it when an empty-title
+ * blur is rejected.  Without this, defineModel inside LabelInput holds a
+ * stale empty string because the parent prop never changed.
+ */
+const workspaceTitle = ref(props.activeWorkspace.label)
+
+/**
  * Handles updating the workspace title when the input loses focus.
  * Emits 'workspace:update:name' event only if the trimmed title is not empty.
+ * Resets the local ref to the current label so the input is not left blank.
  */
 const handleUpdateWorkspaceTitle = (title: string) => {
   if (title.trim() === '') {
+    // Reset the local ref so defineModel inside LabelInput re-syncs to the
+    // original value instead of staying permanently empty.
+    workspaceTitle.value = props.activeWorkspace.label
     return
   }
   props.eventBus.emit('workspace:update:name', title)
@@ -39,9 +51,9 @@ const handleUpdateWorkspaceTitle = (title: string) => {
         class="mx-auto flex h-fit w-full flex-row items-center gap-2 pt-8 pb-3 md:max-w-180">
         <div class="group relative ml-1.25">
           <LabelInput
+            v-model="workspaceTitle"
             class="text-xl font-bold"
             inputId="workspaceName"
-            :modelValue="activeWorkspace.label"
             @blur="handleUpdateWorkspaceTitle" />
         </div>
       </div>
