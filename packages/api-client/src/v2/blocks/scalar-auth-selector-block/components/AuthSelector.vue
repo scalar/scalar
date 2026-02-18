@@ -40,7 +40,7 @@ import RequestAuthDataTable from './RequestAuthDataTable.vue'
 const {
   environment,
   eventBus,
-  hideAddNewAuthentication = false,
+  createAnySecurityScheme = true,
   isStatic = false,
   meta,
   proxyUrl,
@@ -52,8 +52,8 @@ const {
 } = defineProps<{
   environment: XScalarEnvironment
   eventBus: WorkspaceEventBus
-  /** Hides the generic "Add new authentication" options in the dropdown */
-  hideAddNewAuthentication?: boolean
+  /** Allows adding authentication which is not in the document */
+  createAnySecurityScheme?: boolean
   /** Creates a static disclosure that cannot be collapsed */
   isStatic?: boolean
   meta: AuthMeta
@@ -100,7 +100,7 @@ const availableSchemeOptions = computed(() =>
     securityRequirements ?? [],
     securitySchemes ?? {},
     selectedSecurity?.selectedSchemes ?? [],
-    hideAddNewAuthentication,
+    createAnySecurityScheme,
   ),
 )
 
