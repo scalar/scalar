@@ -5,6 +5,7 @@ import {
   ScalarDropdownItem,
   ScalarIcon,
 } from '@scalar/components'
+import { ScalarIconPencil } from '@scalar/icons'
 import type { SidebarState } from '@scalar/sidebar'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { getParentEntry } from '@scalar/workspace-store/navigation'
@@ -39,36 +40,31 @@ watch(open, async (newValue, oldValue) => {
 })
 
 /** Returns whether the item supports adding operations */
-const canAddOperation = (): boolean => {
-  return item.type === 'document' || item.type === 'tag'
-}
+const canAddOperation = (): boolean =>
+  item.type === 'document' || item.type === 'tag'
 
 /** Returns whether the item supports adding tags */
-const canAddTag = (): boolean => {
-  return item.type === 'document'
-}
+const canAddTag = (): boolean => item.type === 'document'
+
+/** Returns whether the item supports editing tags */
+const canEditTag = (): boolean => item.type === 'tag'
 
 /** Returns whether the item supports adding examples */
-const canAddExample = (): boolean => {
-  return item.type === 'operation'
-}
+const canAddExample = (): boolean => item.type === 'operation'
 
 /** Returns whether the item supports deletion */
-const canDelete = (): boolean => {
-  return (
-    (item.type === 'document' && item.id !== 'drafts') ||
-    item.type === 'tag' ||
-    item.type === 'operation' ||
-    item.type === 'example'
-  )
-}
+const canDelete = (): boolean =>
+  (item.type === 'document' && item.id !== 'drafts') ||
+  item.type === 'tag' ||
+  item.type === 'operation' ||
+  item.type === 'example'
 
 const handleAddOperation = () => {
   if (item.type === 'document') {
     eventBus.emit('ui:open:command-palette', {
       action: 'create-request',
       payload: {
-        documentId: item.id,
+        documentName: item.name,
       },
     })
   }
@@ -78,7 +74,7 @@ const handleAddOperation = () => {
     eventBus.emit('ui:open:command-palette', {
       action: 'create-request',
       payload: {
-        documentId: getParentEntry('document', itemWithParent)?.id,
+        documentName: getParentEntry('document', itemWithParent)?.name,
         tagId: item.name,
       },
     })
@@ -90,9 +86,26 @@ const handleAddTag = () => {
     eventBus.emit('ui:open:command-palette', {
       action: 'add-tag',
       payload: {
-        documentId: item.id,
+        documentName: item.name,
       },
     })
+  }
+}
+
+const handleEditTag = () => {
+  if (item.type === 'tag') {
+    const itemWithParent = sidebarState.getEntryById(item.id)
+    eventBus.emit(
+      'ui:open:command-palette',
+      {
+        action: 'edit-tag',
+        payload: {
+          tag: item,
+          documentName: getParentEntry('document', itemWithParent)?.name ?? '',
+        },
+      },
+      { skipUnpackProxy: true },
+    )
   }
 }
 
@@ -102,7 +115,7 @@ const handleAddExample = () => {
     eventBus.emit('ui:open:command-palette', {
       action: 'add-example',
       payload: {
-        documentId: getParentEntry('document', itemWithParent)?.id,
+        documentName: getParentEntry('document', itemWithParent)?.name,
         operationId: item.id,
       },
     })
@@ -127,6 +140,7 @@ const handleAddExample = () => {
           Add Operation
         </div>
       </ScalarDropdownItem>
+
       <!-- Add tag option for documents only -->
       <ScalarDropdownItem
         v-if="canAddTag()"
@@ -138,6 +152,17 @@ const handleAddExample = () => {
           Add Tag
         </div>
       </ScalarDropdownItem>
+
+      <!-- Edit tag option for tags only -->
+      <ScalarDropdownItem
+        v-if="canEditTag()"
+        @click="handleEditTag()">
+        <div class="flex items-center gap-2">
+          <ScalarIconPencil size="sm" />
+          Rename Tag
+        </div>
+      </ScalarDropdownItem>
+
       <!-- Add example option for operations -->
       <ScalarDropdownItem
         v-if="canAddExample()"

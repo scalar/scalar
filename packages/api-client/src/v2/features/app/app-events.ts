@@ -182,6 +182,29 @@ export function initializeAppEventHandlers({
       'tag:create:tag': {
         onAfterExecute: (payload) => rebuildSidebar(payload.documentName),
       },
+      'tag:edit:tag': {
+        onAfterExecute: async (payload) => {
+          rebuildSidebar(payload.documentName)
+
+          /**
+           * If the currently viewed operation is a child of the renamed tag, redirect to
+           * the same route so the sidebar and breadcrumbs reflect the new tag name
+           */
+          const isNestedUnderTag = payload.tag.children?.some(
+            (child) =>
+              child.type === 'operation' &&
+              isRouteParamsMatch({
+                documentName: payload.documentName,
+                path: child.path,
+                method: child.method,
+              }),
+          )
+
+          if (isNestedUnderTag) {
+            await router.replace({ ...currentRoute.value })
+          }
+        },
+      },
       'tag:delete:tag': {
         onAfterExecute: (payload) => rebuildSidebar(payload.documentName),
       },

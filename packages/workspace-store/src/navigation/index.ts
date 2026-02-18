@@ -1,5 +1,6 @@
 export { getOpenapiObject } from './helpers/get-openapi-object'
 export { type OperationEntriesMap, getOperationEntries } from './helpers/get-operation-entries'
 export { getParentEntry } from './helpers/get-parent-entry'
+export { type TagEntriesMap, getTagEntries } from './helpers/get-tag-entries'
 export { traverseDocument as createNavigation } from './helpers/traverse-document'
 export type { TraverseSpecOptions as createNavigationOptions } from './types'

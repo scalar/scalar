@@ -324,4 +324,10 @@ export const baseClientActions = [
     hidden: true,
     component: CommandPaletteImportCurl,
   },
+  {
+    id: 'edit-tag',
+    name: 'Edit Tag',
+    hidden: true,
+    component: CommandPaletteTag,
+  },
 ] as const satisfies BaseCommandPaletteAction[]

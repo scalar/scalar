@@ -1,5 +1,7 @@
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 
+import type { TraversedTag } from '@/schemas/navigation'
+
 /**
  * Available actions that can be triggered from the command palette.
  * Each action may have an associated payload type.
@@ -11,20 +13,27 @@ export type CommandPalettePayload = {
   'create-openapi-document': undefined
   /** Add a new tag to organize requests */
   'add-tag': {
-    /** The document id to add the tag to */
-    documentId?: string
+    /** The name of the document to add the tag to */
+    documentName?: string
+  }
+  /** Edit an existing tag name */
+  'edit-tag': {
+    /** The current name of the tag to pre-fill in the input */
+    tag: TraversedTag
+    /** The name of the document the tag belongs to */
+    documentName: string
   }
   /** Create a new HTTP request */
   'create-request': {
-    /** The document id to create the request in */
-    documentId?: string
+    /** The name of the document to create the request in */
+    documentName?: string
     /** The tag id to add the request to (optional) */
     tagId?: string
   }
   /** Add a new example to an existing request */
   'add-example': {
-    /** The document id to add the example to */
-    documentId?: string
+    /** The name of the document to add the example to */
+    documentName?: string
     /** The operation id to add the example to */
     operationId?: string
   }

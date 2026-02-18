@@ -244,13 +244,13 @@ const closeMenu = () => {
 /** Opens the command palette with the payload needed to create a request */
 const handleAddEmptyFolder = (item: TraversedEntry) => {
   const itemWithParent = sidebarState.getEntryById(item.id)
-  const document = getParentEntry('document', itemWithParent)
+  const documentEntry = getParentEntry('document', itemWithParent)
   const tag = getParentEntry('tag', itemWithParent)
 
   eventBus.emit('ui:open:command-palette', {
     action: 'create-request',
     payload: {
-      documentId: document?.id,
+      documentName: documentEntry?.name,
       tagId: tag?.name,
     },
   })
@@ -416,10 +416,11 @@ const handleAddEmptyFolder = (item: TraversedEntry) => {
       :target="menuTarget.el"
       @closeMenu="closeMenu"
       @showDeleteModal="deleteModalState.show()" />
+
     <!-- Delete Modal -->
     <ScalarModal
       v-if="menuTarget"
-      :size="'xxs'"
+      size="xxs"
       :state="deleteModalState"
       :title="`Delete ${menuTarget.item.title}`">
       <DeleteSidebarListElement
