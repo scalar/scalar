@@ -31,7 +31,7 @@ jobs:
         run: npx @scalar/cli auth login --token ${{ secrets.SCALAR_API_KEY }}
 
       - name: Publish Project
-        run: npx @scalar/cli project publish --slug my-docs
+        run: npx @scalar/cli project publish --slug your-docs
 ```
 
 ## Environment-Based Deployment
