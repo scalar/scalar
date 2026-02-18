@@ -316,6 +316,10 @@ export const createWorkspaceStorePersistence = async () => {
         ])
       },
 
+      /**
+       * Deletes a single document and all related records (overrides, history, auth, etc.)
+       * for the given workspace and document name from all relevant tables.
+       */
       deleteDocument: async (workspaceId: string, documentName: string): Promise<void> => {
         await Promise.all([
           documentsTable.deleteItem({ workspaceId, documentName }),
@@ -328,22 +332,17 @@ export const createWorkspaceStorePersistence = async () => {
       },
 
       /**
-       * Updates fields of an existing workspace in the table.
-       * Only the fields provided in `fields` will be updated.
-       * Returns the updated workspace if successful, undefined otherwise.
+       * Updates the name of an existing workspace.
+       * Returns the updated workspace object, or undefined if the workspace does not exist.
        */
-      update: async (worksapceKey: WorkspaceKey, fields: Partial<{ name: string }>) => {
-        const workspace = await workspaceTable.getItem(worksapceKey)
+      updateName: async ({ namespace, slug }: Required<WorkspaceKey>, name: string) => {
+        const workspace = await workspaceTable.getItem({ namespace, slug })
         if (!workspace) {
           return undefined
         }
-        // Update the workspace fields
-        const result = await workspaceTable.addItem(worksapceKey, {
-          ...workspace,
-          ...fields,
-        })
 
-        return result
+        // Update the workspace name
+        return await workspaceTable.addItem({ namespace, slug }, { ...workspace, name })
       },
 
       /**

@@ -228,7 +228,8 @@ export const createAppState = async ({
       return
     }
     const workspaceId = getWorkspaceId(namespaceValue, slugValue)
-    const updateResult = await persistence.update({ namespace: namespaceValue, slug: slugValue }, { name })
+    const updateResult = await persistence.updateName({ namespace: namespaceValue, slug: slugValue }, name)
+
     // If the update fails, return early
     if (updateResult === undefined) {
       return

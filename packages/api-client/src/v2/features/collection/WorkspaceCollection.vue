@@ -18,7 +18,14 @@ import Tabs from './components/Tabs.vue'
 
 const props = defineProps<RouteProps>()
 
+/**
+ * Handles updating the workspace title when the input loses focus.
+ * Emits 'workspace:update:name' event only if the trimmed title is not empty.
+ */
 const handleUpdateWorkspaceTitle = (title: string) => {
+  if (title.trim() === '') {
+    return
+  }
   props.eventBus.emit('workspace:update:name', title)
 }
 </script>
