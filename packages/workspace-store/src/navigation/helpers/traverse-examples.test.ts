@@ -15,6 +15,107 @@ describe('traverseOperationExamples', () => {
     expect(result).toEqual([])
   })
 
+  describe('draft examples extraction', () => {
+    it('extracts examples from x-draft-examples when array exists', () => {
+      const operation: OperationObject = {
+        'x-draft-examples': ['draft-1', 'draft-2'],
+        responses: {},
+      }
+
+      const result = traverseOperationExamples(operation)
+
+      expect(result).toHaveLength(2)
+      expect(result).toContain('draft-1')
+      expect(result).toContain('draft-2')
+    })
+
+    it('returns empty array when x-draft-examples is missing', () => {
+      const operation: OperationObject = {
+        responses: {},
+      }
+
+      const result = traverseOperationExamples(operation)
+
+      expect(result).toEqual([])
+    })
+
+    it('returns empty array when x-draft-examples is empty array', () => {
+      const operation: OperationObject = {
+        'x-draft-examples': [],
+        responses: {},
+      }
+
+      const result = traverseOperationExamples(operation)
+
+      expect(result).toEqual([])
+    })
+
+    it('merges draft examples with request body and response examples', () => {
+      const operation: OperationObject = {
+        'x-draft-examples': ['draft-example'],
+        requestBody: {
+          content: {
+            'application/json': {
+              examples: {
+                requestExample: { value: { id: 1 } },
+              },
+            },
+          },
+        },
+        responses: {
+          '200': {
+            description: 'Success',
+            content: {
+              'application/json': {
+                examples: {
+                  responseExample: { value: { success: true } },
+                },
+              },
+            },
+          },
+        },
+      }
+
+      const result = traverseOperationExamples(operation)
+
+      expect(result).toHaveLength(3)
+      expect(result).toContain('draft-example')
+      expect(result).toContain('requestExample')
+      expect(result).toContain('responseExample')
+    })
+
+    it('deduplicates draft example names with examples from other sources', () => {
+      const operation: OperationObject = {
+        'x-draft-examples': ['shared'],
+        requestBody: {
+          content: {
+            'application/json': {
+              examples: {
+                shared: { value: { id: 1 } },
+              },
+            },
+          },
+        },
+        responses: {},
+      }
+
+      const result = traverseOperationExamples(operation)
+
+      expect(result).toEqual(['shared'])
+    })
+
+    it('preserves draft examples first in result when only draft examples exist', () => {
+      const operation: OperationObject = {
+        'x-draft-examples': ['first-draft', 'second-draft'],
+        responses: {},
+      }
+
+      const result = traverseOperationExamples(operation)
+
+      expect(result).toEqual(['first-draft', 'second-draft'])
+    })
+  })
+
   it('extracts examples from request body', () => {
     const operation: OperationObject = {
       requestBody: {
