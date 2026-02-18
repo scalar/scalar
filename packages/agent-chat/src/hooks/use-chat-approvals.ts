@@ -2,6 +2,7 @@ import type { ToolUIPart, UIMessagePart } from 'ai'
 import { computed } from 'vue'
 
 import { executeRequestTool } from '@/client-tools/execute-request'
+import { URLS } from '@/consts/urls'
 import { EXECUTE_CLIENT_SIDE_REQUEST_TOOL_NAME } from '@/entities'
 import { createDocumentSettings } from '@/helpers'
 import { type Tools, useState } from '@/state/state'
@@ -43,6 +44,7 @@ export function useRequestApprovals() {
 
       await executeRequestTool({
         documentSettings: createDocumentSettings(state.workspaceStore),
+        proxyUrl: state.proxyUrl.value?.trim() || URLS.DEFAULT_PROXY_URL,
         input: toolPart.input,
         toolCallId: toolPart.toolCallId,
         chat: state.chat,
