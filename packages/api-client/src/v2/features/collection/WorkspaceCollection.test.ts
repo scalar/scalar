@@ -123,10 +123,7 @@ describe('WorkspaceCollection', () => {
       const input = wrapper.find('input')
       expect(input.element.value).toBe('Workspace A')
 
-      /**
-       * Simulate Vue Router reusing the component when navigating to a different
-       * workspace. The parent updates activeWorkspace without unmounting the component.
-       */
+      // Simulate Vue Router reusing the component — parent updates props without unmounting.
       await wrapper.setProps({
         activeWorkspace: { id: 'workspace-2', label: 'Workspace B' },
       })
@@ -143,11 +140,7 @@ describe('WorkspaceCollection', () => {
       })
       await nextTick()
 
-      /**
-       * If the watch is missing, workspaceTitle still holds 'Workspace A'.
-       * A blur at this point would emit 'Workspace A' and rename the new
-       * workspace to the old name, which is the bug we are guarding against.
-       */
+      // Without the watch, a stale workspaceTitle would rename the new workspace to the old label on blur.
       const input = wrapper.find('input')
       await input.trigger('blur')
 
