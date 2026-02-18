@@ -143,7 +143,8 @@ watch(
     }
     hasPrefilledRedirectUri.value = true
     handleOauth2SecretsUpdate({
-      'x-scalar-secret-redirect-uri': window.location.origin,
+      'x-scalar-secret-redirect-uri':
+        window.location.origin + window.location.pathname,
     })
   },
   { immediate: true },
