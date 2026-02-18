@@ -34,7 +34,6 @@ import type {
   TraversedOperation,
 } from '@scalar/workspace-store/schemas/navigation'
 import { computed, ref, watch } from 'vue'
-import { useRouter } from 'vue-router'
 
 import HttpMethodBadge from '@/v2/blocks/operation-code-sample/components/HttpMethod.vue'
 
@@ -66,8 +65,6 @@ type OperationOption = {
   path: string
   method: HttpMethod
 }
-
-const router = useRouter()
 
 const exampleName = ref('')
 const exampleNameTrimmed = computed(() => exampleName.value.trim())
@@ -192,16 +189,6 @@ const createExample = (): void => {
     },
     exampleName: exampleNameTrimmed.value,
   })
-
-  // router.push({
-  //   name: 'example',
-  //   params: {
-  //     documentSlug: selectedDocument.value.id,
-  //     pathEncoded: encodeURIComponent(selectedOperation.value.path),
-  //     method: selectedOperation.value.method,
-  //     exampleName: exampleNameTrimmed.value,
-  //   },
-  // })
 
   emit('close')
 }
