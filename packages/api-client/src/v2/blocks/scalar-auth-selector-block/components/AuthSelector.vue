@@ -40,6 +40,7 @@ import RequestAuthDataTable from './RequestAuthDataTable.vue'
 const {
   environment,
   eventBus,
+  createAnySecurityScheme = true,
   isStatic = false,
   meta,
   proxyUrl,
@@ -51,6 +52,8 @@ const {
 } = defineProps<{
   environment: XScalarEnvironment
   eventBus: WorkspaceEventBus
+  /** Allows adding authentication which is not in the document */
+  createAnySecurityScheme?: boolean
   /** Creates a static disclosure that cannot be collapsed */
   isStatic?: boolean
   meta: AuthMeta
@@ -97,6 +100,7 @@ const availableSchemeOptions = computed(() =>
     securityRequirements ?? [],
     securitySchemes ?? {},
     selectedSecurity?.selectedSchemes ?? [],
+    createAnySecurityScheme,
   ),
 )
 
@@ -223,7 +227,7 @@ defineExpose({
       </div>
     </template>
 
-    <!-- Auth Dropdown -->
+    <!-- Auth Dropdown (hidden when only one scheme is available) -->
     <template #actions>
       <ScalarComboboxMultiselect
         class="w-72 text-xs"
