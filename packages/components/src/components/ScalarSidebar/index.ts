@@ -11,3 +11,5 @@ export { default as ScalarSidebarSearchButton } from './ScalarSidebarSearchButto
 export { default as ScalarSidebarSearchInput } from './ScalarSidebarSearchInput.vue'
 export { default as ScalarSidebarSection } from './ScalarSidebarSection.vue'
 export { default as ScalarSidebarSpacer } from './ScalarSidebarSpacer.vue'
+export { useSidebarGroups } from './useSidebarGroups'
+export { useSidebarNestedItem, useSidebarNestedItems } from './useSidebarNestedItems'
