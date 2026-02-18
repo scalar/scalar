@@ -338,7 +338,7 @@ export const createAppState = async ({
         namespace,
         workspaceSlug: slug,
         documentSlug: 'drafts',
-        pathEncoded: '/',
+        pathEncoded: encodeURIComponent('/'),
         method: 'get',
         exampleName: 'default',
       },
@@ -670,11 +670,6 @@ export const createAppState = async ({
    */
   const navigateToCurrentTab = async (): Promise<void> => {
     if (!store.value) {
-      return
-    }
-
-    // Skip this when we are on the document redirect route
-    if (currentRoute.value?.name === 'document.redirect') {
       return
     }
 
