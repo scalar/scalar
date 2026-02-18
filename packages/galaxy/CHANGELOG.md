@@ -1,5 +1,11 @@
 # @scalar/galaxy
 
+## 0.5.14
+
+### Patch Changes
+
+- [#8147](https://github.com/scalar/scalar/pull/8147): fix: broken links
+
 ## 0.5.13
 
 ### Patch Changes

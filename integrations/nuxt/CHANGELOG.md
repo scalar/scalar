@@ -1,5 +1,32 @@
 # @scalar/nuxt
 
+## 0.5.78
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-client@2.28.0**
+  - [#8162](https://github.com/scalar/scalar/pull/8162): feat: allow editing tags
+  - [#8167](https://github.com/scalar/scalar/pull/8167): Accept header now defaults to the response content types defined in the OpenAPI spec instead of always using _/_
+  - [#8197](https://github.com/scalar/scalar/pull/8197): fix: include path in redirect uri
+  - [#8132](https://github.com/scalar/scalar/pull/8132): chore: unify the app and web layout
+  - [#8191](https://github.com/scalar/scalar/pull/8191): chore: rename create document command
+  - [#8199](https://github.com/scalar/scalar/pull/8199): feat: create draft example
+  - [#7826](https://github.com/scalar/scalar/pull/7826): feat: added migrator for v1 local storage to v2 indexdb
+  - [#8194](https://github.com/scalar/scalar/pull/8194): fix: correctly display the env pill on light mode
+  - [#8204](https://github.com/scalar/scalar/pull/8204): fix: remove DocumentRedirect component
+  - [#8160](https://github.com/scalar/scalar/pull/8160): fix: update sidebar entry when the operation summary changes
+  - [#8174](https://github.com/scalar/scalar/pull/8174): feat: add `createAnySecurityScheme` config option to control generic auth scheme creation
+
+- **@scalar/api-reference@1.44.21**
+  - [#8164](https://github.com/scalar/scalar/pull/8164): fix: remove duplicate examples
+  - [#8186](https://github.com/scalar/scalar/pull/8186): feat(api-reference): export new helpers
+  - [#8174](https://github.com/scalar/scalar/pull/8174): feat: add `createAnySecurityScheme` config option to control generic auth scheme creation
+
+- **@scalar/types@0.6.4**
+  - [#8174](https://github.com/scalar/scalar/pull/8174): feat: add `createAnySecurityScheme` config option to control generic auth scheme creation
+
 ## 0.5.77
 
 ### Patch Changes

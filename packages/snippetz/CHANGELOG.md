@@ -1,5 +1,14 @@
 # @scalar/snippetz
 
+## 0.6.13
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/types@0.6.4**
+  - [#8174](https://github.com/scalar/scalar/pull/8174): feat: add `createAnySecurityScheme` config option to control generic auth scheme creation
+
 ## 0.6.12
 
 ### Patch Changes

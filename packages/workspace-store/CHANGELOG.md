@@ -1,5 +1,37 @@
 # @scalar/workspace-store
 
+## 0.33.0
+
+### Minor Changes
+
+- [#8199](https://github.com/scalar/scalar/pull/8199): feat: create draft example
+
+### Patch Changes
+
+- [#8162](https://github.com/scalar/scalar/pull/8162): feat: allow editing tags
+- [#8151](https://github.com/scalar/scalar/pull/8151): fix: resolve external references on windows
+- [#8191](https://github.com/scalar/scalar/pull/8191): chore: rename create document command
+- [#7826](https://github.com/scalar/scalar/pull/7826): feat: added migrator for v1 local storage to v2 indexdb
+- [#8160](https://github.com/scalar/scalar/pull/8160): fix: update sidebar entry when the operation summary changes
+- [#8133](https://github.com/scalar/scalar/pull/8133): fix: allow editing content-type query parameters in the API client
+
+#### Updated Dependencies
+
+- **@scalar/json-magic@0.11.2**
+  - [#8151](https://github.com/scalar/scalar/pull/8151): fix: resolve external references on windows
+
+- **@scalar/helpers@0.2.13**
+  - [#7826](https://github.com/scalar/scalar/pull/7826): feat: added migrator for v1 local storage to v2 indexdb
+
+- **@scalar/types@0.6.4**
+  - [#8174](https://github.com/scalar/scalar/pull/8174): feat: add `createAnySecurityScheme` config option to control generic auth scheme creation
+
+- **@scalar/object-utils@1.2.27**
+
+- **@scalar/openapi-upgrader@0.1.8**
+
+- **@scalar/snippetz@0.6.13**
+
 ## 0.32.1
 
 ### Patch Changes
