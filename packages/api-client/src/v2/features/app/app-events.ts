@@ -17,6 +17,7 @@ export function initializeAppEventHandlers({
   onAfterExampleCreation,
   onCopyTabUrl,
   onToggleSidebar,
+  renameWorkspace,
 }: {
   eventBus: WorkspaceEventBus
   store: ShallowRef<WorkspaceStore | null>
@@ -27,6 +28,7 @@ export function initializeAppEventHandlers({
   onAfterExampleCreation: (o: OperationExampleMeta) => void
   onCopyTabUrl: (tabIndex: number) => void
   onToggleSidebar: () => void
+  renameWorkspace: (name: string) => Promise<void>
 }) {
   const currentRoute = computed(() => router.currentRoute?.value)
 
@@ -248,6 +250,9 @@ export function initializeAppEventHandlers({
       },
     },
   })
+
+  // Worksapce rename event handler
+  eventBus.on('workspace:update:name', (payload) => renameWorkspace(payload))
 
   //------------------------------------------------------------------------------------
   // Navigation Event Handlers

@@ -217,6 +217,36 @@ export const createAppState = async ({
   )
 
   /**
+   * Renames the currently active workspace.
+   * Updates the workspace name in persistence and updates activeWorkspace if successful.
+   * Returns early if namespace or workspaceSlug is not set, or if update fails.
+   */
+  const renameWorkspace = async (name: string) => {
+    const namespaceValue = namespace.value
+    const slugValue = workspaceSlug.value
+    if (!namespaceValue || !slugValue) {
+      return
+    }
+    const workspaceId = getWorkspaceId(namespaceValue, slugValue)
+    const updateResult = await persistence.updateName({ namespace: namespaceValue, slug: slugValue }, name)
+
+    // If the update fails, return early
+    if (updateResult === undefined) {
+      return
+    }
+
+    // Update the workspace list
+    workspaces.value = workspaces.value.map((workspace) => {
+      // If the workspace is the currently active workspace, update the label
+      if (workspace.id === workspaceId) {
+        return { ...workspace, label: name }
+      }
+      return workspace
+    })
+    activeWorkspace.value = { id: workspaceId, label: name }
+  }
+
+  /**
    * Creates a client-side workspace store with persistence enabled for the given workspace id.
    */
   const createClientStore = async ({
@@ -894,6 +924,7 @@ export const createAppState = async ({
     onSelectSidebarItem: handleSelectItem,
     onCopyTabUrl: (index) => copyTabUrl(index),
     onToggleSidebar: () => (isSidebarOpen.value = !isSidebarOpen.value),
+    renameWorkspace,
   })
 
   const isDarkMode = computed(() => {

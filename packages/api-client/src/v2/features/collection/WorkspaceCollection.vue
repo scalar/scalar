@@ -1,22 +1,41 @@
 <script lang="ts">
-/**
- * Document Collection Page
- *
- * Displays primary document editing and viewing interface, enabling users navigate among
- * Overview, Servers, Authentication, Environment, Cookies, and Settings tabs
- */
+/** Document collection page — tabs for Overview, Servers, Auth, Environment, Cookies, and Settings. */
 export default {}
 </script>
 
 <script setup lang="ts">
-import { ScalarIconGlobe } from '@scalar/icons'
+import { ref, watch } from 'vue'
 import { RouterView } from 'vue-router'
 
 import type { RouteProps } from '@/v2/features/app/helpers/routes'
+import LabelInput from '@/v2/features/collection/components/LabelInput.vue'
 
 import Tabs from './components/Tabs.vue'
 
 const props = defineProps<RouteProps>()
+
+/**
+ * Local copy of the label so we can reset on empty-blur rejection and stay in
+ * sync when Vue Router reuses this component across workspace navigations.
+ */
+const workspaceTitle = ref(props.activeWorkspace.label)
+
+watch(
+  () => props.activeWorkspace.label,
+  (newLabel) => {
+    workspaceTitle.value = newLabel
+  },
+)
+
+/** Emits the rename event on blur, or resets the input if the title is blank. */
+const handleUpdateWorkspaceTitle = (title: string) => {
+  if (title.trim() === '') {
+    // Force defineModel inside LabelInput to re-sync to the original value.
+    workspaceTitle.value = props.activeWorkspace.label
+    return
+  }
+  props.eventBus.emit('workspace:update:name', title)
+}
 </script>
 
 <template>
@@ -26,12 +45,12 @@ const props = defineProps<RouteProps>()
       <div
         :aria-label="`title: ${activeWorkspace.label}`"
         class="mx-auto flex h-fit w-full flex-row items-center gap-2 pt-8 pb-3 md:max-w-180">
-        <ScalarIconGlobe class="text-c-2 size-6" />
-
         <div class="group relative ml-1.25">
-          <span class="text-c-1 flex h-8 items-center">
-            {{ activeWorkspace.label }}
-          </span>
+          <LabelInput
+            v-model="workspaceTitle"
+            class="text-xl font-bold"
+            inputId="workspaceName"
+            @blur="handleUpdateWorkspaceTitle" />
         </div>
       </div>
 
