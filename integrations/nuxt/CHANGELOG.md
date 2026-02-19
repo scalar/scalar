@@ -1,5 +1,21 @@
 # @scalar/nuxt
 
+## 0.5.79
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-client@2.29.0**
+  - [#8198](https://github.com/scalar/scalar/pull/8198): feat: handle workspace rename
+  - [#8207](https://github.com/scalar/scalar/pull/8207): chore: version bump
+
+- **@scalar/api-reference@1.44.22**
+  - [#8207](https://github.com/scalar/scalar/pull/8207): chore: version bump
+
+- **@scalar/types@0.6.5**
+  - [#8207](https://github.com/scalar/scalar/pull/8207): chore: version bump
+
 ## 0.5.78
 
 ### Patch Changes

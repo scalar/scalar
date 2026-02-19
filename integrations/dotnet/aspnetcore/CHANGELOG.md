@@ -1,5 +1,16 @@
 # @scalar/aspnetcore
 
+## 2.12.43
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.44.22**
+  - [#8207](https://github.com/scalar/scalar/pull/8207): chore: version bump
+
+- **@scalar/dotnet-shared@0.1.3**
+
 ## 2.12.42
 
 ### Patch Changes

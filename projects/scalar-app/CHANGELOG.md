@@ -1,5 +1,19 @@
 # scalar-app
 
+## 0.1.291
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-client@2.29.0**
+  - [#8198](https://github.com/scalar/scalar/pull/8198): feat: handle workspace rename
+  - [#8207](https://github.com/scalar/scalar/pull/8207): chore: version bump
+
+- **@scalar/components@0.19.6**
+
+- **@scalar/import@0.4.51**
+
 ## 0.1.290
 
 ### Patch Changes

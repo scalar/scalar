@@ -1,5 +1,20 @@
 # @scalar/scripts
 
+## 0.2.0
+
+### Minor Changes
+
+- [#8207](https://github.com/scalar/scalar/pull/8207): chore: version bump
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/oas-utils@0.6.44**
+  - [#8207](https://github.com/scalar/scalar/pull/8207): chore: version bump
+
+- **@scalar/components@0.19.6**
+
 ## 0.1.0
 
 ### Minor Changes

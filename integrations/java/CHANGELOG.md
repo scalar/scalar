@@ -1,5 +1,14 @@
 # @scalar/java-integration
 
+## 0.5.52
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.44.22**
+  - [#8207](https://github.com/scalar/scalar/pull/8207): chore: version bump
+
 ## 0.5.51
 
 ### Patch Changes

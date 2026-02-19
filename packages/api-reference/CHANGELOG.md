@@ -1,5 +1,42 @@
 # @scalar/api-reference
 
+## 1.44.22
+
+### Patch Changes
+
+- [#8207](https://github.com/scalar/scalar/pull/8207): chore: version bump
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.34.0**
+  - [#8198](https://github.com/scalar/scalar/pull/8198): feat: handle workspace rename
+  - [#8208](https://github.com/scalar/scalar/pull/8208): fix: unpack proxy before assigning
+  - [#8207](https://github.com/scalar/scalar/pull/8207): chore: version bump
+
+- **@scalar/api-client@2.29.0**
+  - [#8198](https://github.com/scalar/scalar/pull/8198): feat: handle workspace rename
+  - [#8207](https://github.com/scalar/scalar/pull/8207): chore: version bump
+
+- **@scalar/helpers@0.2.14**
+  - [#8207](https://github.com/scalar/scalar/pull/8207): chore: version bump
+
+- **@scalar/oas-utils@0.6.44**
+  - [#8207](https://github.com/scalar/scalar/pull/8207): chore: version bump
+
+- **@scalar/sidebar@0.7.37**
+  - [#8207](https://github.com/scalar/scalar/pull/8207): chore: version bump
+
+- **@scalar/types@0.6.5**
+  - [#8207](https://github.com/scalar/scalar/pull/8207): chore: version bump
+
+- **@scalar/agent-chat@0.5.13**
+
+- **@scalar/components@0.19.6**
+
+- **@scalar/openapi-parser@0.24.12**
+
+- **@scalar/snippetz@0.6.14**
+
 ## 1.44.21
 
 ### Patch Changes

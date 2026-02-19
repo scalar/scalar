@@ -1,5 +1,31 @@
 # @scalar/agent-chat
 
+## 0.5.13
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.34.0**
+  - [#8198](https://github.com/scalar/scalar/pull/8198): feat: handle workspace rename
+  - [#8208](https://github.com/scalar/scalar/pull/8208): fix: unpack proxy before assigning
+  - [#8207](https://github.com/scalar/scalar/pull/8207): chore: version bump
+
+- **@scalar/api-client@2.29.0**
+  - [#8198](https://github.com/scalar/scalar/pull/8198): feat: handle workspace rename
+  - [#8207](https://github.com/scalar/scalar/pull/8207): chore: version bump
+
+- **@scalar/helpers@0.2.14**
+  - [#8207](https://github.com/scalar/scalar/pull/8207): chore: version bump
+
+- **@scalar/json-magic@0.11.3**
+  - [#8207](https://github.com/scalar/scalar/pull/8207): chore: version bump
+
+- **@scalar/types@0.6.5**
+  - [#8207](https://github.com/scalar/scalar/pull/8207): chore: version bump
+
+- **@scalar/components@0.19.6**
+
 ## 0.5.12
 
 ### Patch Changes

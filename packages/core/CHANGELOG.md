@@ -1,5 +1,14 @@
 # @scalar/core
 
+## 0.3.40
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/types@0.6.5**
+  - [#8207](https://github.com/scalar/scalar/pull/8207): chore: version bump
+
 ## 0.3.39
 
 ### Patch Changes

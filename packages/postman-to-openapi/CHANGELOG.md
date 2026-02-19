@@ -1,5 +1,14 @@
 # @scalar/postman-to-openapi
 
+## 0.4.6
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/helpers@0.2.14**
+  - [#8207](https://github.com/scalar/scalar/pull/8207): chore: version bump
+
 ## 0.4.5
 
 ### Patch Changes

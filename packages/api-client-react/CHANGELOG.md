@@ -1,5 +1,18 @@
 # @scalar/api-client-react
 
+## 1.3.98
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-client@2.29.0**
+  - [#8198](https://github.com/scalar/scalar/pull/8198): feat: handle workspace rename
+  - [#8207](https://github.com/scalar/scalar/pull/8207): chore: version bump
+
+- **@scalar/types@0.6.5**
+  - [#8207](https://github.com/scalar/scalar/pull/8207): chore: version bump
+
 ## 1.3.97
 
 ### Patch Changes
