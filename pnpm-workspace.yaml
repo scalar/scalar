@@ -66,7 +66,7 @@ catalogs:
     fastify: ^5.3.3
     flatted: ^3.3.3
     fuse.js: ^7.1.0
-    hono: 4.11.7
+    hono: 4.11.10
     js-base64: ^3.7.8
     jsdom: 27.4.0
     microdiff: ^1.5.0
