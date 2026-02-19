@@ -1,5 +1,16 @@
 # @scalar/json-magic
 
+## 0.11.3
+
+### Patch Changes
+
+- [#8207](https://github.com/scalar/scalar/pull/8207): chore: version bump
+
+#### Updated Dependencies
+
+- **@scalar/helpers@0.2.14**
+  - [#8207](https://github.com/scalar/scalar/pull/8207): chore: version bump
+
 ## 0.11.2
 
 ### Patch Changes

@@ -1,5 +1,17 @@
 # @scalar/components
 
+## 0.19.6
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/helpers@0.2.14**
+  - [#8207](https://github.com/scalar/scalar/pull/8207): chore: version bump
+
+- **@scalar/oas-utils@0.6.44**
+  - [#8207](https://github.com/scalar/scalar/pull/8207): chore: version bump
+
 ## 0.19.5
 
 ### Patch Changes

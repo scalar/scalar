@@ -1,5 +1,11 @@
 # @scalar/helpers
 
+## 0.2.14
+
+### Patch Changes
+
+- [#8207](https://github.com/scalar/scalar/pull/8207): chore: version bump
+
 ## 0.2.13
 
 ### Patch Changes

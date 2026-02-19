@@ -1,5 +1,16 @@
 # @scalar/aspire
 
+## 0.8.52
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.44.22**
+  - [#8207](https://github.com/scalar/scalar/pull/8207): chore: version bump
+
+- **@scalar/dotnet-shared@0.1.3**
+
 ## 0.8.51
 
 ### Patch Changes

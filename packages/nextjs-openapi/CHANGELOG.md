@@ -1,5 +1,16 @@
 # @scalar/nextjs-openapi
 
+## 0.2.47
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/types@0.6.5**
+  - [#8207](https://github.com/scalar/scalar/pull/8207): chore: version bump
+
+- **@scalar/nextjs-api-reference@0.9.21**
+
 ## 0.2.46
 
 ### Patch Changes

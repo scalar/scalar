@@ -1,5 +1,17 @@
 # @scalar/api-reference-react
 
+## 0.8.59
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.44.22**
+  - [#8207](https://github.com/scalar/scalar/pull/8207): chore: version bump
+
+- **@scalar/types@0.6.5**
+  - [#8207](https://github.com/scalar/scalar/pull/8207): chore: version bump
+
 ## 0.8.58
 
 ### Patch Changes

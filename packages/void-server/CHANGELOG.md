@@ -1,5 +1,14 @@
 # @scalar/void-server
 
+## 2.3.7
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/helpers@0.2.14**
+  - [#8207](https://github.com/scalar/scalar/pull/8207): chore: version bump
+
 ## 2.3.6
 
 ### Patch Changes

@@ -1,5 +1,51 @@
 # @scalar/api-client
 
+## 2.29.0
+
+### Minor Changes
+
+- [#8198](https://github.com/scalar/scalar/pull/8198): feat: handle workspace rename
+
+### Patch Changes
+
+- [#8207](https://github.com/scalar/scalar/pull/8207): chore: version bump
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.34.0**
+  - [#8198](https://github.com/scalar/scalar/pull/8198): feat: handle workspace rename
+  - [#8208](https://github.com/scalar/scalar/pull/8208): fix: unpack proxy before assigning
+  - [#8207](https://github.com/scalar/scalar/pull/8207): chore: version bump
+
+- **@scalar/helpers@0.2.14**
+  - [#8207](https://github.com/scalar/scalar/pull/8207): chore: version bump
+
+- **@scalar/json-magic@0.11.3**
+  - [#8207](https://github.com/scalar/scalar/pull/8207): chore: version bump
+
+- **@scalar/oas-utils@0.6.44**
+  - [#8207](https://github.com/scalar/scalar/pull/8207): chore: version bump
+
+- **@scalar/sidebar@0.7.37**
+  - [#8207](https://github.com/scalar/scalar/pull/8207): chore: version bump
+
+- **@scalar/types@0.6.5**
+  - [#8207](https://github.com/scalar/scalar/pull/8207): chore: version bump
+
+- **@scalar/components@0.19.6**
+
+- **@scalar/import@0.4.51**
+
+- **@scalar/object-utils@1.2.28**
+
+- **@scalar/openapi-parser@0.24.12**
+
+- **@scalar/postman-to-openapi@0.4.6**
+
+- **@scalar/snippetz@0.6.14**
+
+- **@scalar/use-codemirror@0.13.41**
+
 ## 2.28.0
 
 ### Minor Changes

@@ -11,7 +11,7 @@
     "directory": "packages/core"
   },
   "keywords": [],
-  "version": "0.3.39",
+  "version": "0.3.40",
   "engines": {
     "node": ">=20"
   },

@@ -1,5 +1,14 @@
 # @scalar/docusaurus
 
+## 0.7.39
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/types@0.6.5**
+  - [#8207](https://github.com/scalar/scalar/pull/8207): chore: version bump
+
 ## 0.7.38
 
 ### Patch Changes

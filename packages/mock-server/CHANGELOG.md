@@ -1,5 +1,24 @@
 # @scalar/mock-server
 
+## 0.8.39
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/helpers@0.2.14**
+  - [#8207](https://github.com/scalar/scalar/pull/8207): chore: version bump
+
+- **@scalar/json-magic@0.11.3**
+  - [#8207](https://github.com/scalar/scalar/pull/8207): chore: version bump
+
+- **@scalar/oas-utils@0.6.44**
+  - [#8207](https://github.com/scalar/scalar/pull/8207): chore: version bump
+
+- **@scalar/openapi-parser@0.24.12**
+
+- **@scalar/openapi-upgrader@0.1.8**
+
 ## 0.8.38
 
 ### Patch Changes
