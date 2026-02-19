@@ -11,10 +11,10 @@ import { Type } from '@scalar/typebox'
  * }
  */
 export const XScalarActiveProxySchema = Type.Object({
-  'x-scalar-active-proxy': Type.Optional(Type.String()),
+  'x-scalar-active-proxy': Type.Optional(Type.Union([Type.String(), Type.Null()])),
 })
 
 export type XScalarActiveProxy = {
   /** The currently selected proxy */
-  'x-scalar-active-proxy'?: string
+  'x-scalar-active-proxy'?: string | null
 }

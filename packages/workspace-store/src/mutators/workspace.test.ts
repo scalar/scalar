@@ -32,12 +32,12 @@ describe('updateActiveProxy', () => {
     expect(workspace['x-scalar-active-proxy']).toBe('https://proxy.example.com')
   })
 
-  it('sets x-scalar-active-proxy to undefined when payload is null', () => {
+  it('sets x-scalar-active-proxy to null when payload is null', () => {
     const workspace = createWorkspace()
 
     updateActiveProxy(workspace, null)
 
-    expect(workspace['x-scalar-active-proxy']).toBeUndefined()
+    expect(workspace['x-scalar-active-proxy']).toBeNull()
   })
 
   it('updates existing x-scalar-active-proxy value', () => {
@@ -50,16 +50,6 @@ describe('updateActiveProxy', () => {
     expect(workspace['x-scalar-active-proxy']).toBe('https://new-proxy.example.com')
   })
 
-  it('clears x-scalar-active-proxy when setting to null', () => {
-    const workspace = createWorkspace({
-      'x-scalar-active-proxy': 'https://existing-proxy.example.com',
-    })
-
-    updateActiveProxy(workspace, null)
-
-    expect(workspace['x-scalar-active-proxy']).toBeUndefined()
-  })
-
   it('updates multiple times correctly', () => {
     const workspace = createWorkspace()
 
@@ -70,7 +60,7 @@ describe('updateActiveProxy', () => {
     expect(workspace['x-scalar-active-proxy']).toBe('https://proxy2.example.com')
 
     updateActiveProxy(workspace, null)
-    expect(workspace['x-scalar-active-proxy']).toBeUndefined()
+    expect(workspace['x-scalar-active-proxy']).toBeNull()
 
     updateActiveProxy(workspace, 'https://proxy3.example.com')
     expect(workspace['x-scalar-active-proxy']).toBe('https://proxy3.example.com')
