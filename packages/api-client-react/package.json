@@ -49,11 +49,11 @@
     "CHANGELOG.md"
   ],
   "dependencies": {
-    "@scalar/api-client": "workspace:*",
-    "@scalar/types": "workspace:*"
+    "@scalar/api-client": "2.27.1",
+    "@scalar/types": "0.6.6"
   },
   "devDependencies": {
-    "@scalar/build-tooling": "workspace:*",
+    "@scalar/build-tooling": "0.4.1",
     "@types/react": "catalog:*",
     "@types/react-dom": "catalog:*",
     "@vitejs/plugin-react": "catalog:*",

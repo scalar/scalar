@@ -5,6 +5,10 @@
 [![License](https://img.shields.io/npm/l/%40scalar%2Fapi-client-react)](https://www.npmjs.com/package/@scalar/api-client-react)
 [![Discord](https://img.shields.io/discord/1135330207960678410?style=flat&color=5865F2)](https://discord.gg/scalar)
 
+## IMPORTANT NOTICE
+
+This component uses our old v1 client, the newer more performant client is exported in vue but not react yet. This is because we will may export it differently moving forward (blocks). Stay tuned!
+
 ## Installation
 
 ```bash

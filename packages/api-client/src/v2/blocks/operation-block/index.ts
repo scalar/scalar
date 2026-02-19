@@ -1,3 +1,4 @@
+export { default as OpenApiClientButton } from './components/OpenApiClientButton.vue'
 export { buildRequestSecurity, getSecuritySchemes } from './helpers/build-request-security'
 export { getExample } from './helpers/get-example'
 export { getResolvedUrl } from './helpers/get-resolved-url'
