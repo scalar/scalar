@@ -1,7 +1,7 @@
 import vue from '@vitejs/plugin-vue'
-import { defineConfig, Plugin } from 'vite'
-import path from 'path'
-import fs from 'fs'
+import { defineConfig, type Plugin } from 'vite'
+import { resolve } from 'path'
+import { readFileSync, existsSync, mkdirSync, copyFileSync } from 'fs'
 
 const AI_USER_AGENTS = [
   'anthropic-ai',
@@ -28,12 +28,12 @@ function isAIRequest(userAgent: string | undefined): boolean {
 
 function llmsTxtPlugin(): Plugin {
   let llmsContent: string
+  const llmsPath = resolve(__dirname, '../../llms.txt')
 
   return {
     name: 'llms-txt-plugin',
     configureServer(server) {
-      const llmsPath = path.resolve(__dirname, '../../llms.txt')
-      llmsContent = fs.readFileSync(llmsPath, 'utf-8')
+      llmsContent = readFileSync(llmsPath, 'utf-8')
 
       server.middlewares.use((req, res, next) => {
         const userAgent = req.headers['user-agent']
@@ -54,6 +54,15 @@ function llmsTxtPlugin(): Plugin {
         next()
       })
     },
+    buildEnd() {
+      // Copy llms.txt to dist/public for static deployment
+      const outputDir = resolve(__dirname, 'dist')
+      if (!existsSync(outputDir)) {
+        mkdirSync(outputDir, { recursive: true })
+      }
+      copyFileSync(llmsPath, resolve(outputDir, 'llms.txt'))
+      console.log('✓ Copied llms.txt to dist/')
+    },
   }
 }
 
@@ -63,5 +72,8 @@ export default defineConfig({
   server: {
     port: 5050,
     open: true,
+  },
+  build: {
+    outDir: 'dist',
   },
 })
