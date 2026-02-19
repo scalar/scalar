@@ -163,7 +163,7 @@ describe('Settings', () => {
       const collectionSettings = wrapper.findComponent({ name: 'CollectionSettings' })
       expect(collectionSettings.props('activeThemeSlug')).toBe('none')
       expect(collectionSettings.props('colorMode')).toBe('system')
-      expect(collectionSettings.props('activeProxyUrl')).toBeUndefined()
+      expect(collectionSettings.props('activeProxyUrl')).toBe(null)
     })
 
     it('handles missing document properties gracefully', () => {
