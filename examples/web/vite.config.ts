@@ -54,8 +54,8 @@ function llmsTxtPlugin(): Plugin {
         next()
       })
     },
-    buildEnd() {
-      // Copy llms.txt to dist/public for static deployment
+    closeBundle() {
+      // Copy llms.txt to dist/ after build completes
       const outputDir = resolve(__dirname, 'dist')
       if (!existsSync(outputDir)) {
         mkdirSync(outputDir, { recursive: true })
