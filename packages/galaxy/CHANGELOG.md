@@ -1,5 +1,11 @@
 # @scalar/galaxy
 
+## 0.5.16
+
+### Patch Changes
+
+- [#8212](https://github.com/scalar/scalar/pull/8212): chore: version bump
+
 ## 0.5.15
 
 ### Patch Changes

@@ -1,5 +1,14 @@
 # @scalar/import
 
+## 0.4.52
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/helpers@0.2.15**
+  - [#8212](https://github.com/scalar/scalar/pull/8212): chore: version bump
+
 ## 0.4.51
 
 ### Patch Changes

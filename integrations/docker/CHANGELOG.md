@@ -1,5 +1,14 @@
 # @scalarapi/docker-api-reference
 
+## 0.4.62
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.44.23**
+  - [#8212](https://github.com/scalar/scalar/pull/8212): chore: version bump
+
 ## 0.4.61
 
 ### Patch Changes

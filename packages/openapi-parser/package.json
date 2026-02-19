@@ -17,7 +17,7 @@
     "parser",
     "typescript"
   ],
-  "version": "0.24.12",
+  "version": "0.24.13",
   "engines": {
     "node": ">=20"
   },

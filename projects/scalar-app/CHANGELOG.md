@@ -1,5 +1,18 @@
 # scalar-app
 
+## 0.1.292
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-client@2.29.1**
+  - [#8212](https://github.com/scalar/scalar/pull/8212): chore: version bump
+
+- **@scalar/components@0.19.7**
+
+- **@scalar/import@0.4.52**
+
 ## 0.1.291
 
 ### Patch Changes
