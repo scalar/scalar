@@ -588,7 +588,7 @@ jobs:
           # The commit message to use.
           commit: 'chore: version packages'
           # The command to use to build and publish packages
-          publish: 'pnpm -r publish --access public'
+          publish: 'pnpm -r publish --access public --no-git-checks'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           # https://www.npmjs.com/settings/YOUR_ACCOUNT_HANDLE/tokens/granular-access-tokens/new
