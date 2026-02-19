@@ -20,7 +20,7 @@ import { extensions } from '@scalar/workspace-store/schemas/extensions'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type { Tab } from '@scalar/workspace-store/schemas/extensions/workspace/x-scalar-tabs'
 import type { TraversedEntry } from '@scalar/workspace-store/schemas/navigation'
-import { type ComputedRef, type Ref, type ShallowRef, computed, ref, shallowRef } from 'vue'
+import { type ComputedRef, type Ref, type ShallowRef, computed, readonly, ref, shallowRef } from 'vue'
 import type { RouteLocationNormalizedGeneric, Router } from 'vue-router'
 
 import { getRouteParam } from '@/v2/features/app/helpers/get-route-param'
@@ -124,8 +124,10 @@ export type AppState = {
     method: Ref<HttpMethod | undefined>
     /** The name of the currently selected example (for examples within an endpoint) */
     exampleName: Ref<string | undefined>
-    /** The unique identifier for the selected team context */
-    teamUid: Ref<string>
+    /** The unique identifier for the selected team context (read-only; use setTeamUid to change) */
+    teamUid: Readonly<Ref<string>>
+    /** Sets the current team context by team UID */
+    setTeamUid: (value: string) => void
   }
   /** The currently active environment */
   environment: ComputedRef<XScalarEnvironment>
@@ -499,6 +501,27 @@ export const createAppState = async ({
 
     // Must reset the sidebar state when the workspace changes
     sidebarState.reset()
+  }
+
+  /**
+   * Sets the current team context. If the active workspace is not accessible
+   * with the new team, navigates to the default workspace for that team.
+   */
+  const setTeamUid = (value: string) => {
+    // Update the new teamUid
+    teamUid.value = value
+
+    // Find the current workspace
+    const workspace = filteredWorkspaces.value.find(
+      (w) => w.namespace === namespace.value && w.slug === workspaceSlug.value,
+    )
+
+    // Check if new teamUid is accessible to the current workspace
+    if (workspace && canLoadWorkspace(workspace.teamUid, value)) {
+      return
+    }
+
+    return navigateToWorkspace('local', 'default')
   }
 
   // ---------------------------------------------------------------------------
@@ -971,7 +994,8 @@ export const createAppState = async ({
       path,
       method,
       exampleName,
-      teamUid,
+      teamUid: readonly(teamUid),
+      setTeamUid,
     },
     environment,
     document: activeDocument,
