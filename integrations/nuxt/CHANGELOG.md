@@ -1,5 +1,17 @@
 # @scalar/nuxt
 
+## 0.5.82
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-client@2.29.2**
+  - [#8219](https://github.com/scalar/scalar/pull/8219): chore: default to proxy for web layout
+  - [#8220](https://github.com/scalar/scalar/pull/8220): chore: add guards for team workspaces
+
+- **@scalar/api-reference@1.44.25**
+
 ## 0.5.81
 
 ### Patch Changes

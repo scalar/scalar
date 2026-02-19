@@ -1,5 +1,14 @@
 # @scalar/oas-utils
 
+## 0.6.46
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.34.2**
+  - [#8219](https://github.com/scalar/scalar/pull/8219): chore: default to proxy for web layout
+
 ## 0.6.45
 
 ### Patch Changes
