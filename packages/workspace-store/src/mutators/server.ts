@@ -1,6 +1,7 @@
 import { findVariables } from '@scalar/helpers/regex/find-variables'
 
 import type { ServerEvents } from '@/events/definitions/server'
+import { unpackProxyObject } from '@/helpers/unpack-proxy'
 import { coerceValue } from '@/schemas/typebox-coerce'
 import { type ServerObject, ServerObjectSchema } from '@/schemas/v3.1/strict/openapi-document'
 import type { WorkspaceDocument } from '@/schemas/workspace'
@@ -119,7 +120,11 @@ export const updateServer = (
   document: WorkspaceDocument | null,
   { index, server }: ServerEvents['server:update:server'],
 ): ServerObject | undefined => {
-  const oldServer = document?.servers?.[index]
+  if (!document) {
+    return undefined
+  }
+
+  const oldServer = unpackProxyObject(document.servers?.[index], { depth: 1 })
 
   if (!oldServer) {
     console.error('Server not found at index:', index)
