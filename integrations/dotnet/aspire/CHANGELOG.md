@@ -1,5 +1,18 @@
 # @scalar/aspire
 
+## 0.8.51
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.44.21**
+  - [#8164](https://github.com/scalar/scalar/pull/8164): fix: remove duplicate examples
+  - [#8186](https://github.com/scalar/scalar/pull/8186): feat(api-reference): export new helpers
+  - [#8174](https://github.com/scalar/scalar/pull/8174): feat: add `createAnySecurityScheme` config option to control generic auth scheme creation
+
+- **@scalar/dotnet-shared@0.1.3**
+
 ## 0.8.50
 
 ### Patch Changes

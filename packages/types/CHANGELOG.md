@@ -1,5 +1,16 @@
 # @scalar/types
 
+## 0.6.4
+
+### Patch Changes
+
+- [#8174](https://github.com/scalar/scalar/pull/8174): feat: add `createAnySecurityScheme` config option to control generic auth scheme creation
+
+#### Updated Dependencies
+
+- **@scalar/helpers@0.2.13**
+  - [#7826](https://github.com/scalar/scalar/pull/7826): feat: added migrator for v1 local storage to v2 indexdb
+
 ## 0.6.3
 
 ### Patch Changes

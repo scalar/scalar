@@ -1,5 +1,11 @@
 # @scalar/helpers
 
+## 0.2.13
+
+### Patch Changes
+
+- [#7826](https://github.com/scalar/scalar/pull/7826): feat: added migrator for v1 local storage to v2 indexdb
+
 ## 0.2.12
 
 ### Patch Changes

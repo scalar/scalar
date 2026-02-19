@@ -1,5 +1,14 @@
 # @scalar/void-server
 
+## 2.3.6
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/helpers@0.2.13**
+  - [#7826](https://github.com/scalar/scalar/pull/7826): feat: added migrator for v1 local storage to v2 indexdb
+
 ## 2.3.5
 
 ### Patch Changes

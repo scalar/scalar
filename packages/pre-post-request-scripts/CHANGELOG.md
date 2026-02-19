@@ -1,5 +1,20 @@
 # @scalar/scripts
 
+## 0.1.0
+
+### Minor Changes
+
+- [#8126](https://github.com/scalar/scalar/pull/8126): feat: use `postman-sandbox` for the `pm` JS API
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/oas-utils@0.6.43**
+  - [#7826](https://github.com/scalar/scalar/pull/7826): feat: added migrator for v1 local storage to v2 indexdb
+
+- **@scalar/components@0.19.5**
+
 ## 0.0.89
 
 ### Patch Changes

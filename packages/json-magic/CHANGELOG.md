@@ -1,5 +1,16 @@
 # @scalar/json-magic
 
+## 0.11.2
+
+### Patch Changes
+
+- [#8151](https://github.com/scalar/scalar/pull/8151): fix: resolve external references on windows
+
+#### Updated Dependencies
+
+- **@scalar/helpers@0.2.13**
+  - [#7826](https://github.com/scalar/scalar/pull/7826): feat: added migrator for v1 local storage to v2 indexdb
+
 ## 0.11.1
 
 ### Patch Changes

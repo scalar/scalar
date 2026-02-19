@@ -1,5 +1,26 @@
 # @scalar/openapi-to-markdown
 
+## 0.3.46
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/oas-utils@0.6.43**
+  - [#7826](https://github.com/scalar/scalar/pull/7826): feat: added migrator for v1 local storage to v2 indexdb
+
+- **@scalar/helpers@0.2.13**
+  - [#7826](https://github.com/scalar/scalar/pull/7826): feat: added migrator for v1 local storage to v2 indexdb
+
+- **@scalar/types@0.6.4**
+  - [#8174](https://github.com/scalar/scalar/pull/8174): feat: add `createAnySecurityScheme` config option to control generic auth scheme creation
+
+- **@scalar/openapi-parser@0.24.11**
+
+- **@scalar/components@0.19.5**
+
+- **@scalar/openapi-upgrader@0.1.8**
+
 ## 0.3.45
 
 ### Patch Changes

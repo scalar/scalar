@@ -1,5 +1,19 @@
 # @scalar/api-reference-react
 
+## 0.8.58
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.44.21**
+  - [#8164](https://github.com/scalar/scalar/pull/8164): fix: remove duplicate examples
+  - [#8186](https://github.com/scalar/scalar/pull/8186): feat(api-reference): export new helpers
+  - [#8174](https://github.com/scalar/scalar/pull/8174): feat: add `createAnySecurityScheme` config option to control generic auth scheme creation
+
+- **@scalar/types@0.6.4**
+  - [#8174](https://github.com/scalar/scalar/pull/8174): feat: add `createAnySecurityScheme` config option to control generic auth scheme creation
+
 ## 0.8.57
 
 ### Patch Changes

@@ -1,5 +1,19 @@
 # @scalar/openapi-parser
 
+## 0.24.11
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/json-magic@0.11.2**
+  - [#8151](https://github.com/scalar/scalar/pull/8151): fix: resolve external references on windows
+
+- **@scalar/helpers@0.2.13**
+  - [#7826](https://github.com/scalar/scalar/pull/7826): feat: added migrator for v1 local storage to v2 indexdb
+
+- **@scalar/openapi-upgrader@0.1.8**
+
 ## 0.24.10
 
 ### Patch Changes
