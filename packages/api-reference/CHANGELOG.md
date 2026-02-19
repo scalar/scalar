@@ -1,5 +1,14 @@
 # @scalar/api-reference
 
+## 1.44.24
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/agent-chat@0.5.15**
+  - [#8213](https://github.com/scalar/scalar/pull/8213): Fix position of agent chat input
+
 ## 1.44.23
 
 ### Patch Changes
