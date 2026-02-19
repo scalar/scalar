@@ -1,5 +1,45 @@
 # @scalar/api-client
 
+## 2.29.1
+
+### Patch Changes
+
+- [#8212](https://github.com/scalar/scalar/pull/8212): chore: version bump
+
+#### Updated Dependencies
+
+- **@scalar/helpers@0.2.15**
+  - [#8212](https://github.com/scalar/scalar/pull/8212): chore: version bump
+
+- **@scalar/json-magic@0.11.4**
+  - [#8212](https://github.com/scalar/scalar/pull/8212): chore: version bump
+
+- **@scalar/oas-utils@0.6.45**
+  - [#8212](https://github.com/scalar/scalar/pull/8212): chore: version bump
+
+- **@scalar/sidebar@0.7.38**
+  - [#8212](https://github.com/scalar/scalar/pull/8212): chore: version bump
+
+- **@scalar/types@0.6.6**
+  - [#8212](https://github.com/scalar/scalar/pull/8212): chore: version bump
+
+- **@scalar/workspace-store@0.34.1**
+  - [#8212](https://github.com/scalar/scalar/pull/8212): chore: version bump
+
+- **@scalar/components@0.19.7**
+
+- **@scalar/import@0.4.52**
+
+- **@scalar/object-utils@1.2.29**
+
+- **@scalar/openapi-parser@0.24.13**
+
+- **@scalar/postman-to-openapi@0.4.7**
+
+- **@scalar/snippetz@0.6.15**
+
+- **@scalar/use-codemirror@0.13.42**
+
 ## 2.29.0
 
 ### Minor Changes

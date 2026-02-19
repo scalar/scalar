@@ -1,5 +1,21 @@
 # @scalar/sidebar
 
+## 0.7.38
+
+### Patch Changes
+
+- [#8212](https://github.com/scalar/scalar/pull/8212): chore: version bump
+
+#### Updated Dependencies
+
+- **@scalar/helpers@0.2.15**
+  - [#8212](https://github.com/scalar/scalar/pull/8212): chore: version bump
+
+- **@scalar/workspace-store@0.34.1**
+  - [#8212](https://github.com/scalar/scalar/pull/8212): chore: version bump
+
+- **@scalar/components@0.19.7**
+
 ## 0.7.37
 
 ### Patch Changes

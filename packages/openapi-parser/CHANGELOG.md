@@ -1,5 +1,19 @@
 # @scalar/openapi-parser
 
+## 0.24.13
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/helpers@0.2.15**
+  - [#8212](https://github.com/scalar/scalar/pull/8212): chore: version bump
+
+- **@scalar/json-magic@0.11.4**
+  - [#8212](https://github.com/scalar/scalar/pull/8212): chore: version bump
+
+- **@scalar/openapi-upgrader@0.1.8**
+
 ## 0.24.12
 
 ### Patch Changes

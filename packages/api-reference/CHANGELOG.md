@@ -1,5 +1,39 @@
 # @scalar/api-reference
 
+## 1.44.23
+
+### Patch Changes
+
+- [#8212](https://github.com/scalar/scalar/pull/8212): chore: version bump
+
+#### Updated Dependencies
+
+- **@scalar/api-client@2.29.1**
+  - [#8212](https://github.com/scalar/scalar/pull/8212): chore: version bump
+
+- **@scalar/helpers@0.2.15**
+  - [#8212](https://github.com/scalar/scalar/pull/8212): chore: version bump
+
+- **@scalar/oas-utils@0.6.45**
+  - [#8212](https://github.com/scalar/scalar/pull/8212): chore: version bump
+
+- **@scalar/sidebar@0.7.38**
+  - [#8212](https://github.com/scalar/scalar/pull/8212): chore: version bump
+
+- **@scalar/types@0.6.6**
+  - [#8212](https://github.com/scalar/scalar/pull/8212): chore: version bump
+
+- **@scalar/workspace-store@0.34.1**
+  - [#8212](https://github.com/scalar/scalar/pull/8212): chore: version bump
+
+- **@scalar/agent-chat@0.5.14**
+
+- **@scalar/components@0.19.7**
+
+- **@scalar/openapi-parser@0.24.13**
+
+- **@scalar/snippetz@0.6.15**
+
 ## 1.44.22
 
 ### Patch Changes

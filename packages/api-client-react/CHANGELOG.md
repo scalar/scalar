@@ -1,5 +1,17 @@
 # @scalar/api-client-react
 
+## 1.3.99
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-client@2.29.1**
+  - [#8212](https://github.com/scalar/scalar/pull/8212): chore: version bump
+
+- **@scalar/types@0.6.6**
+  - [#8212](https://github.com/scalar/scalar/pull/8212): chore: version bump
+
 ## 1.3.98
 
 ### Patch Changes

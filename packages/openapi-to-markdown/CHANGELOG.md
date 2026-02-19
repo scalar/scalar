@@ -1,5 +1,26 @@
 # @scalar/openapi-to-markdown
 
+## 0.3.48
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/helpers@0.2.15**
+  - [#8212](https://github.com/scalar/scalar/pull/8212): chore: version bump
+
+- **@scalar/oas-utils@0.6.45**
+  - [#8212](https://github.com/scalar/scalar/pull/8212): chore: version bump
+
+- **@scalar/types@0.6.6**
+  - [#8212](https://github.com/scalar/scalar/pull/8212): chore: version bump
+
+- **@scalar/components@0.19.7**
+
+- **@scalar/openapi-parser@0.24.13**
+
+- **@scalar/openapi-upgrader@0.1.8**
+
 ## 0.3.47
 
 ### Patch Changes
