@@ -1,5 +1,16 @@
 # @scalar/sidebar
 
+## 0.7.39
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.34.2**
+  - [#8219](https://github.com/scalar/scalar/pull/8219): chore: default to proxy for web layout
+
+- **@scalar/components@0.19.8**
+
 ## 0.7.38
 
 ### Patch Changes

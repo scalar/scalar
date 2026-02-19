@@ -1,5 +1,11 @@
 # @scalar/workspace-store
 
+## 0.34.2
+
+### Patch Changes
+
+- [#8219](https://github.com/scalar/scalar/pull/8219): chore: default to proxy for web layout
+
 ## 0.34.1
 
 ### Patch Changes
