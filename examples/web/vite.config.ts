@@ -1,7 +1,7 @@
 import vue from '@vitejs/plugin-vue'
 import { defineConfig, type Plugin } from 'vite'
 import { resolve } from 'path'
-import { readFileSync, existsSync, mkdirSync, copyFileSync } from 'fs'
+import { readFileSync, existsSync, mkdirSync, copyFileSync, cpSync } from 'fs'
 
 const AI_USER_AGENTS = [
   'anthropic-ai',
@@ -62,6 +62,14 @@ function llmsTxtPlugin(): Plugin {
       }
       copyFileSync(llmsPath, resolve(outputDir, 'llms.txt'))
       console.log('✓ Copied llms.txt to dist/')
+
+      // Copy functions/ directory to dist/ for Cloudflare Pages
+      const functionsDir = resolve(__dirname, 'functions')
+      const distFunctionsDir = resolve(outputDir, 'functions')
+      if (existsSync(functionsDir)) {
+        cpSync(functionsDir, distFunctionsDir, { recursive: true })
+        console.log('✓ Copied functions/ to dist/functions/')
+      }
     },
   }
 }
