@@ -1,8 +1,7 @@
+import type { ErrorResponse } from '@scalar/helpers/errors/normalize-error'
 import { redirectToProxy } from '@scalar/helpers/url/redirect-to-proxy'
 import { type Static, Type } from '@scalar/typebox'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
-
-import type { ErrorResponse } from '@/libs/errors'
 
 /**
  * OpenID Connect Discovery Document (subset)

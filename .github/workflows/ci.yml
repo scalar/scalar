@@ -334,57 +334,6 @@ jobs:
             > [!IMPORTANT]
             > These tests include snapshots that may need to be updated if there are intentional changes to the UI components. To update the snapshots run `pnpm test:e2e:update` in `packages/api-reference` and commit the changes.
 
-  test-e2e-scalar-app:
-    needs: [build]
-    runs-on: blacksmith-2vcpu-ubuntu-2204
-    container:
-      image: scalarapi/playwright-runner:1.56.0
-      options: --privileged
-      env:
-        VM_ID: ${{ env.VM_ID }}
-        GITHUB_REPO_NAME: ${{ env.GITHUB_REPO_NAME }}
-        BLACKSMITH_STICKYDISK_TOKEN: ${{ env.BLACKSMITH_STICKYDISK_TOKEN }}
-        BLACKSMITH_INSTALLATION_MODEL_ID: ${{ env.BLACKSMITH_INSTALLATION_MODEL_ID }}
-        BLACKSMITH_REGION: ${{ env.BLACKSMITH_REGION }}
-    permissions:
-      contents: read
-    timeout-minutes: 15
-
-    steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
-      - name: Build packages
-        uses: ./.github/actions/build
-        with:
-          packages: 'scalar-app...'
-      - name: Check whether the appFiles are there
-        run: ls -R ./projects/scalar-app/dist
-      - name: Start Xvfb
-        run: |
-          Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
-          echo "DISPLAY=:99" >> $GITHUB_ENV
-      - name: Run e2e tests (scalar-app)
-        run: pnpm --filter scalar-app test:e2e
-        env:
-          DEBUG: pw:browser*
-          DISPLAY: ':99'
-      - if: failure()
-        name: Show stack traces and debug info
-        working-directory: playwright
-        run: |
-          echo "=== Playwright Logs ==="
-          cat ~/.cache/ms-playwright/browser_logs/*.log || true
-
-          echo "=== Test Results ==="
-          ls -la test-results/ || true
-
-          echo "=== Trace Information ==="
-          for trace_file in test-results/*/trace.zip; do
-            if [ -f "$trace_file" ]; then
-              echo -e "\nAttempting to show trace: $trace_file"
-              timeout 30 pnpm exec playwright show-trace "$trace_file" || echo "Trace viewing timed out"
-            fi
-          done
-
   test-component-snapshots:
     if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch' || github.head_ref == 'changeset-release/main' || github.head_ref == 'main'
     needs: [build]
@@ -604,45 +553,9 @@ jobs:
           url: 'https://purge.jsdelivr.net/npm/@scalar/api-reference'
           method: 'GET'
 
-  todesktop-build:
-    if: github.ref == 'refs/heads/main' && startsWith(github.event.head_commit.message, 'RELEASING:')
-    runs-on: blacksmith-4vcpu-ubuntu-2204
-    timeout-minutes: 10
-    needs: [build, test-packages]
-
-    steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
-      - name: Build
-        uses: ./.github/actions/build
-        with:
-          packages: './{packages,integrations,projects}/**'
-      - name: Git Status
-        run: git status
-      - name: Stash changes
-        run: git stash
-      - name: Check whether appFiles are there
-        run: ls -R ./projects/scalar-app/dist
-      - if: startsWith(github.event.head_commit.message, 'RELEASING:')
-        name: Check whether there's a new version of the app
-        id: changed-files
-        uses: step-security/changed-files@60967b822d3001fa82242f8d6b4ed46bc3600a68 # v47
-        with:
-          files_yaml: |
-            api_client_app:
-              - projects/scalar-app/package.json
-      - if: steps.changed-files.outputs.api_client_app_any_changed == 'true'
-        name: Check whether appFiles are there
-        run: ls -R ./projects/scalar-app/dist
-      - if: steps.changed-files.outputs.api_client_app_any_changed == 'true'
-        name: Build in the toDesktop cloud
-        run: pnpm --filter scalar-app todesktop:build:ci
-        env:
-          TODESKTOP_EMAIL: ${{ secrets.TODESKTOP_EMAIL }}
-          TODESKTOP_ACCESS_TOKEN: ${{ secrets.TODESKTOP_ACCESS_TOKEN }}
-
-  deploy-api-client:
+  deploy-api-client-preview:
     # Only run this job for PRs from the same repository
-    if: github.ref == 'refs/heads/main' || github.event.pull_request.head.repo.full_name == github.repository
+    if: github.event.pull_request.head.repo.full_name == github.repository
     needs: [build]
     runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 10
@@ -654,30 +567,8 @@ jobs:
         with:
           files_yaml: |
             api_client:
-              - projects/client-scalar-com/**
               - packages/api-client/**
-      - if: steps.changed-files.outputs.api_client_any_changed == 'true'
-        name: Build
-        uses: ./.github/actions/build
-        with:
-          packages: 'client-scalar-com...'
-      - if: steps.changed-files.outputs.api_client_any_changed == 'true'
-        name: Deploy to client.staging.scalar.com (staging)
-        id: deploy-client-staging
-        uses: cloudflare/wrangler-action@da0e0dfe58b7a431659754fdf3f186c529afbe65 # v3
-        with:
-          command: pages deploy dist --project-name=client-staging
-          workingDirectory: projects/client-scalar-com
-          # 1) Log in to the Cloudflare dashboard.
-          # 2) Select Workers & Pages.
-          # 3) See the Account ID in the right sidebar.
-          # Read more: https://developers.cloudflare.com/fundamentals/setup/find-account-and-zone-ids/
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          # 1) Go to https://dash.cloudflare.com/profile/api-tokens
-          # 2) Create a token with the following permissions:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-      - if: github.ref != 'refs/heads/main' && steps.deploy-client-staging.outputs.deployment-url
-        name: Add Cloudflare Preview URL to the PR
+      - name: Add Cloudflare Preview URL to the PR
         uses: thollander/actions-comment-pull-request@24bffb9b452ba05a4f3f77933840a6a841d1b32b # v3
         with:
           message: |
@@ -685,29 +576,6 @@ jobs:
 
             ${{ steps.deploy-client-staging.outputs.deployment-url }}
           comment-tag: 'cloudflare-preview'
-      - if: github.ref == 'refs/heads/main' && startsWith(github.event.head_commit.message, 'RELEASING:')
-        name: Check for new @scalar/api-client version
-        id: client-version
-        uses: step-security/changed-files@60967b822d3001fa82242f8d6b4ed46bc3600a68 # v47
-        with:
-          files_yaml: |
-            api_client:
-              - packages/api-client/**
-      - if: steps.client-version.outputs.api_client_any_changed == 'true'
-        name: Deploy to client.scalar.com (production)
-        id: deploy-client-production
-        uses: cloudflare/wrangler-action@da0e0dfe58b7a431659754fdf3f186c529afbe65 # v3
-        with:
-          command: pages deploy dist --project-name=client
-          workingDirectory: projects/client-scalar-com
-          # 1) Log in to the Cloudflare dashboard.
-          # 2) Select Workers & Pages.
-          # 3) See the Account ID in the right sidebar.
-          # Read more: https://developers.cloudflare.com/fundamentals/setup/find-account-and-zone-ids/
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          # 1) Go to https://dash.cloudflare.com/profile/api-tokens
-          # 2) Create a token with the following permissions:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
 
   push-to-scalar-registry:
     if: github.ref == 'refs/heads/main' && startsWith(github.event.head_commit.message, 'RELEASING:')

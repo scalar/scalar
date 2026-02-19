@@ -24,11 +24,11 @@ import {
 } from 'vue'
 
 import { HttpMethod } from '@/components/HttpMethod'
-import { type ClientLayout } from '@/hooks'
 import { getResolvedUrl } from '@/v2/blocks/operation-block/helpers/get-resolved-url'
 import { useLoadingAnimation } from '@/v2/blocks/scalar-address-bar-block/hooks/use-loading-animation'
 import { CodeInput } from '@/v2/components/code-input'
 import { ServerDropdown } from '@/v2/components/server'
+import type { ClientLayout } from '@/v2/types/layout'
 
 import AddressBarHistory, { type History } from './AddressBarHistory.vue'
 

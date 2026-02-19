@@ -14,9 +14,9 @@ import type {
   OAuthFlow,
   ServerObject,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import { DataTableRow } from '@v2/components/data-table'
 import { computed, ref, watch } from 'vue'
 
-import { DataTableRow } from '@/components/DataTable'
 import OAuthScopesInput from '@/v2/blocks/scalar-auth-selector-block/components/OAuthScopesInput.vue'
 import { authorizeOauth2 } from '@/v2/blocks/scalar-auth-selector-block/helpers/oauth'
 import type {

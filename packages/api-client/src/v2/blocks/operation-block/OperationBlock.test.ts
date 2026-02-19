@@ -1,3 +1,4 @@
+import { ERRORS } from '@scalar/helpers/errors/normalize-error'
 import { AVAILABLE_CLIENTS } from '@scalar/types/snippetz'
 import type { AuthMeta, WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
@@ -5,9 +6,8 @@ import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/stric
 import { mount } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import type { ClientLayout } from '@/hooks/useLayout'
-import { ERRORS } from '@/libs/errors'
 import type { ExtendedScalarCookie } from '@/v2/blocks/request-block/RequestBlock.vue'
+import type { ClientLayout } from '@/v2/types/layout'
 
 import { buildRequest } from './helpers/build-request'
 import { type ResponseInstance, sendRequest } from './helpers/send-request'

@@ -6,10 +6,10 @@ import {
   ScalarIcon,
 } from '@scalar/components'
 import type { HttpMethod as HttpMethodType } from '@scalar/helpers/http/http-methods'
+import { formatMilliseconds } from '@scalar/helpers/number/format-milliseconds'
 import { httpStatusCodes } from '@scalar/oas-utils/helpers'
 
 import { HttpMethod } from '@/components/HttpMethod'
-import { formatMs } from '@/libs/formatters'
 import ValueEmitter from '@/v2/components/layout/ValueEmitter.vue'
 
 import { getStatusCodeColor } from './httpStatusCodeColors'
@@ -83,7 +83,7 @@ const emits = defineEmits<{
                 {{ entry.path }}
               </div>
             </div>
-            <div>{{ formatMs(entry.duration) }}</div>
+            <div>{{ formatMilliseconds(entry.duration) }}</div>
             <div :class="[getStatusCodeColor(entry.status).color]">
               {{ entry.status }}
             </div>

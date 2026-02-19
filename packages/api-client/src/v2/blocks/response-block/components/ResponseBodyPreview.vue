@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { ref, watch } from 'vue'
 
-import type { MediaPreview } from '@/views/Request/consts'
+import type { MediaPreview } from '@/v2/blocks/response-block/helpers/media-types'
 
 import ResponseBodyInfo from './ResponseBodyInfo.vue'
 

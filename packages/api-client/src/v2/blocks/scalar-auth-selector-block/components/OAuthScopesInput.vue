@@ -11,13 +11,12 @@ import type {
   OAuthFlow,
   OAuthFlowsObject,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import { computed, ref } from 'vue'
-
 import {
   DataTableCell,
   DataTableCheckbox,
   DataTableRow,
-} from '@/components/DataTable'
+} from '@v2/components/data-table'
+import { computed, ref } from 'vue'
 
 import OAuthScopesAddModal from './OAuthScopesAddModal.vue'
 

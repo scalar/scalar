@@ -9,8 +9,8 @@ import type { ApiReferenceEvents } from '@scalar/workspace-store/events'
 import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed } from 'vue'
 
-import type { ClientLayout } from '@/hooks'
 import ValueEmitter from '@/v2/components/layout/ValueEmitter.vue'
+import type { ClientLayout } from '@/v2/types/layout'
 
 import ServerDropdownItem from './ServerDropdownItem.vue'
 

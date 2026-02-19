@@ -1,6 +1,6 @@
 import type { CodeMirrorLanguage } from '@scalar/use-codemirror'
 
-type MediaPreview = 'object' | 'image' | 'video' | 'audio'
+export type MediaPreview = 'object' | 'image' | 'video' | 'audio'
 
 type MediaConfig = {
   preview?: MediaPreview

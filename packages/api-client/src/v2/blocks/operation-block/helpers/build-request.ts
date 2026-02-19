@@ -1,3 +1,5 @@
+import { ERRORS, type ErrorResponse, normalizeError } from '@scalar/helpers/errors/normalize-error'
+import { isElectron } from '@scalar/helpers/general/is-electron'
 import { canMethodHaveBody } from '@scalar/helpers/http/can-method-have-body'
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { redirectToProxy, shouldUseProxy } from '@scalar/helpers/url/redirect-to-proxy'
@@ -7,8 +9,6 @@ import type { XScalarCookie } from '@scalar/workspace-store/schemas/extensions/g
 import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/operation'
 
-import { isElectron } from '@/libs/electron'
-import { ERRORS, type ErrorResponse, normalizeError } from '@/libs/errors'
 import { getEnvironmentVariables } from '@/v2/blocks/operation-block/helpers/get-environment-variables'
 import { getResolvedUrl } from '@/v2/blocks/operation-block/helpers/get-resolved-url'
 import { getDefaultHeaders } from '@/v2/blocks/request-block/helpers/get-default-headers'

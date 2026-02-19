@@ -24,7 +24,6 @@ import { computed, ref, useId, watch } from 'vue'
 
 import SectionFilter from '@/components/SectionFilter.vue'
 import ViewLayoutSection from '@/components/ViewLayout/ViewLayoutSection.vue'
-import type { ClientLayout } from '@/hooks'
 import { filterGlobalCookie } from '@/v2/blocks/operation-block/helpers/filter-global-cookies'
 import { getExample } from '@/v2/blocks/operation-block/helpers/get-example'
 import { getResolvedUrl } from '@/v2/blocks/operation-block/helpers/get-resolved-url'
@@ -43,6 +42,7 @@ import {
   type MergedSecuritySchemes,
 } from '@/v2/blocks/scalar-auth-selector-block'
 import type { SecuritySchemeObjectSecret } from '@/v2/blocks/scalar-auth-selector-block/helpers/secret-types'
+import type { ClientLayout } from '@/v2/types/layout'
 
 type Filter =
   | 'All'

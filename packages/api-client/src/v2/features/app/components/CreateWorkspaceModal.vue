@@ -1,9 +1,8 @@
 <script setup lang="ts">
 import { ScalarModal, type ModalState } from '@scalar/components'
+import CommandActionForm from '@v2/features/command-palette/components/CommandActionForm.vue'
+import CommandActionInput from '@v2/features/command-palette/components/CommandActionInput.vue'
 import { computed, ref, watch, type ComputedRef, type Ref } from 'vue'
-
-import CommandActionForm from '@/components/CommandPalette/CommandActionForm.vue'
-import CommandActionInput from '@/components/CommandPalette/CommandActionInput.vue'
 
 const { state } = defineProps<{
   state: ModalState

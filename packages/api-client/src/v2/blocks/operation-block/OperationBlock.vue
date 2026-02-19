@@ -17,6 +17,7 @@ export default {
 }
 </script>
 <script setup lang="ts">
+import { ERRORS } from '@scalar/helpers/errors/normalize-error'
 import type { HttpMethod as HttpMethodType } from '@scalar/helpers/http/http-methods'
 import type { ResponseInstance } from '@scalar/oas-utils/entities/spec'
 import { type ClientPlugin } from '@scalar/oas-utils/helpers'
@@ -42,8 +43,6 @@ import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 
 import ViewLayout from '@/components/ViewLayout/ViewLayout.vue'
 import ViewLayoutContent from '@/components/ViewLayout/ViewLayoutContent.vue'
-import type { ClientLayout } from '@/hooks'
-import { ERRORS } from '@/libs/errors'
 import { buildRequest } from '@/v2/blocks/operation-block/helpers/build-request'
 import { getSecuritySchemes } from '@/v2/blocks/operation-block/helpers/build-request-security'
 import { harToFetchRequest } from '@/v2/blocks/operation-block/helpers/har-to-fetch-request'
@@ -59,6 +58,7 @@ import {
   getSecurityRequirements,
   getSelectedSecurity,
 } from '@/v2/features/operation'
+import type { ClientLayout } from '@/v2/types/layout'
 
 import Header from './components/Header.vue'
 

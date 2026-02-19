@@ -1,11 +1,5 @@
-/**
- * @vitest-environment node
- * TODO: we need to remove this when we upgrade to vitest
- */
-
+import * as electron from '@scalar/helpers/general/is-electron'
 import { describe, expect, it, vi } from 'vitest'
-
-import * as electron from '@/libs/electron'
 
 import { buildRequest } from './build-request'
 

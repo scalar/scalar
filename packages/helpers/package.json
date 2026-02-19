@@ -50,6 +50,11 @@
       "types": "./dist/dom/*.d.ts",
       "default": "./dist/dom/*.js"
     },
+    "./errors/*": {
+      "import": "./dist/errors/*.js",
+      "types": "./dist/errors/*.d.ts",
+      "default": "./dist/errors/*.js"
+    },
     "./file/*": {
       "import": "./dist/file/*.js",
       "types": "./dist/file/*.d.ts",
@@ -69,6 +74,11 @@
       "import": "./dist/node/*.js",
       "types": "./dist/node/*.d.ts",
       "default": "./dist/node/*.js"
+    },
+    "./number/*": {
+      "import": "./dist/number/*.js",
+      "types": "./dist/number/*.d.ts",
+      "default": "./dist/number/*.js"
     },
     "./object/*": {
       "import": "./dist/object/*.js",

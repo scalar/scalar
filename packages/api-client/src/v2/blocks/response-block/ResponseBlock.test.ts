@@ -4,14 +4,11 @@ import { mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
 import { type DefineComponent, defineComponent, markRaw } from 'vue'
 
-import type { ClientLayout } from '@/hooks'
-import { createStoreEvents } from '@/store/events'
+import type { ClientLayout } from '@/v2/types/layout'
 
 import ResponseEmpty from './components/ResponseEmpty.vue'
 import ResponseMetaInformation from './components/ResponseMetaInformation.vue'
 import ResponseBlock from './ResponseBlock.vue'
-
-const events = createStoreEvents()
 
 const getDefaultResponse = (overrides: Partial<ResponseInstance> = {}): ResponseInstance => {
   return {
@@ -36,7 +33,6 @@ describe('ResponseBlock', () => {
     totalPerformedRequests: 0,
     appVersion: '1.0.0',
     plugins: [],
-    events: events,
     eventBus: createWorkspaceEventBus(),
   }
 

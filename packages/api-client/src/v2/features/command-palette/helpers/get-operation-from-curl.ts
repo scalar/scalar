@@ -6,7 +6,7 @@ import type {
   ServerObject,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
-import { parseCurlCommand } from '@/libs'
+import { parseCurlCommand } from './parse-curl'
 
 /**
  * Represents the result of parsing a cURL command into an OpenAPI operation.

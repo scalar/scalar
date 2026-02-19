@@ -3,10 +3,10 @@ import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensi
 import { mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
 
-import { OpenApiClientButton } from '@/components'
 import { AddressBar } from '@/v2/blocks/scalar-address-bar-block'
 
 import Header from './Header.vue'
+import OpenApiClientButton from './OpenApiClientButton.vue'
 
 describe('Header', () => {
   const eventBus = createWorkspaceEventBus()
