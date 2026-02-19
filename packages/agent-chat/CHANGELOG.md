@@ -1,5 +1,11 @@
 # @scalar/agent-chat
 
+## 0.5.15
+
+### Patch Changes
+
+- [#8213](https://github.com/scalar/scalar/pull/8213): Fix position of agent chat input
+
 ## 0.5.14
 
 ### Patch Changes
