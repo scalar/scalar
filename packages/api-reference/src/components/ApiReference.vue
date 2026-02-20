@@ -932,13 +932,13 @@ watch(agent.showAgent, () => (bodyScrollLocked.value = agent.showAgent.value))
             :isSelected="sidebarState.isSelected"
             :items="sidebarItems"
             layout="reference"
-            :onChevronClick="
-              (id: string) =>
-                sidebarState.setExpanded(id, !sidebarState.isExpanded(id))
-            "
             :options="mergedConfig"
             role="navigation"
-            @selectItem="(id) => handleSelectSidebarEntry(id, 'sidebar')">
+            @selectItem="(id) => handleSelectSidebarEntry(id, 'sidebar')"
+            @toggleGroup="
+              (id: string) =>
+                sidebarState.setExpanded(id, !sidebarState.isExpanded(id))
+            ">
             <template #header>
               <!-- Wrap in a div when slot is filled -->
               <DocumentSelector
@@ -951,7 +951,7 @@ watch(agent.showAgent, () => (bodyScrollLocked.value = agent.showAgent.value))
               <!-- Search -->
               <div
                 v-if="!mergedConfig.hideSearch"
-                class="flex gap-1.5 p-3 pt-1.5">
+                class="flex gap-1.5 px-3 pt-3">
                 <SearchButton
                   :document="workspaceStore.workspace.activeDocument"
                   :eventBus="eventBus"
