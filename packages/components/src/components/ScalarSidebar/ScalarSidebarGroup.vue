@@ -47,8 +47,6 @@ const emit = defineEmits<{
    * Note: This is only emitted if the group is discrete
    */
   (e: 'toggle', event: MouseEvent): void
-  /** Emitted when only the chevron (expand/collapse icon) is clicked */
-  (e: 'chevronClick', event: MouseEvent): void
 }>()
 
 const open = defineModel<boolean>('open', { default: false })
@@ -76,15 +74,6 @@ const handleToggle = (event: MouseEvent) => {
   emit('toggle', event)
   if (!controlled && discrete) {
     // Only toggle the open state if the group is uncontrolled and not discrete
-    open.value = !open.value
-  }
-}
-
-/** Handle click on the chevron only. Stops propagation so the row click does not fire. */
-const handleChevronClick = (event: MouseEvent) => {
-  event.stopPropagation()
-  emit('chevronClick', event)
-  if (!controlled && !discrete) {
     open.value = !open.value
   }
 }
@@ -116,23 +105,12 @@ const handleChevronClick = (event: MouseEvent) => {
               :indent="level"
               :selected />
           </template>
-          <template #icon>
-            <div
-              v-if="discrete"
-              class="size-4" />
-            <span
-              v-else
-              class="inline-flex cursor-pointer"
-              @click="handleChevronClick">
-              <slot
-                name="icon"
-                :open>
-                <ScalarSidebarGroupToggle
-                  class="text-c-3"
-                  :icon
-                  :open />
-              </slot>
-            </span>
+          <template
+            v-if="$slots.icon"
+            #icon>
+            <slot
+              name="icon"
+              :open />
           </template>
           <template #aside>
             <slot
