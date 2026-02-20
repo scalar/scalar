@@ -2,7 +2,7 @@ import { CONTENT_TYPES } from '@scalar/helpers/consts/content-types'
 import { extractConfigSecrets, removeSecretFields } from '@scalar/helpers/general/extract-config-secrets'
 import { circularToRefs } from '@scalar/helpers/object/circular-to-refs'
 import { objectEntries } from '@scalar/helpers/object/object-entries'
-import { extractServer } from '@scalar/helpers/url/extract-server'
+import { extractServerFromPath } from '@scalar/helpers/url/extract-server-from-path'
 import type { Oauth2Flow } from '@scalar/types/entities'
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
 import { type Auth, AuthSchema } from '@scalar/workspace-store/entities/auth'
@@ -310,19 +310,11 @@ const transformRequestsToPaths = (
      * Extract server from path if it contains a full URL.
      * This handles legacy data where users may have entered full URLs as paths.
      */
-    const extractedServerUrl = extractServer(normalizedPath)
-    if (extractedServerUrl) {
-      extractedServers.push({ url: extractedServerUrl })
-      /**
-       * Strip the server from the path, leaving only the pathname + search + hash.
-       * For example: "https://api.example.com/users?page=1" → "/users?page=1"
-       *
-       * We need to manually extract the path to avoid URL encoding issues.
-       * The URL constructor encodes special characters like {id} → %7Bid%7D,
-       * which breaks OpenAPI path parameters.
-       */
-      const serverLength = extractedServerUrl.length
-      normalizedPath = normalizedPath.slice(serverLength)
+    const extractedServerUrl = extractServerFromPath(normalizedPath)
+    if (extractedServerUrl?.length === 2) {
+      const [serverUrl, remainingPath] = extractedServerUrl
+      extractedServers.push({ url: serverUrl })
+      normalizedPath = remainingPath
 
       /**
        * Handle edge case where the path after server is empty or just "/"
