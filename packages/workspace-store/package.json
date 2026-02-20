@@ -152,7 +152,7 @@
     "@scalar/snippetz": "workspace:*",
     "@scalar/typebox": "catalog:*",
     "@scalar/types": "workspace:*",
-    "github-slugger": "^2.0.0",
+    "github-slugger": "catalog:*",
     "type-fest": "catalog:*",
     "vue": "catalog:*",
     "yaml": "catalog:*"

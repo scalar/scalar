@@ -42,7 +42,13 @@ import {
   OpenAPIDocumentSchema as OpenAPIDocumentSchemaStrict,
   type OpenApiDocument,
 } from '@/schemas/v3.1/strict/openapi-document'
-import type { Workspace, WorkspaceDocumentMeta, WorkspaceExtensions, WorkspaceMeta } from '@/schemas/workspace'
+import type {
+  DocumentMetaExtensions,
+  Workspace,
+  WorkspaceDocumentMeta,
+  WorkspaceExtensions,
+  WorkspaceMeta,
+} from '@/schemas/workspace'
 import type { WorkspaceSpecification } from '@/schemas/workspace-specification'
 import type { WorkspacePlugin, WorkspaceStateChangeEvent } from '@/workspace-plugin'
 
@@ -225,10 +231,10 @@ export type WorkspaceStore = {
    * // Update the auth metadata for a specific document
    * updateDocument('document-name', 'x-scalar-active-auth', 'Bearer')
    */
-  updateDocument<K extends keyof WorkspaceDocumentMeta>(
+  updateDocument<K extends keyof DocumentMetaExtensions>(
     name: 'active' | (string & {}),
     key: K,
-    value: WorkspaceDocumentMeta[K],
+    value: DocumentMetaExtensions[K],
   ): boolean
   /**
    * Replaces the content of a specific document in the workspace with the provided input.
@@ -1029,10 +1035,10 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       preventPollution(key)
       Object.assign(workspace, { [key]: value })
     },
-    updateDocument<K extends keyof WorkspaceDocumentMeta>(
+    updateDocument<K extends keyof DocumentMetaExtensions>(
       name: 'active' | (string & {}),
       key: K,
-      value: WorkspaceDocumentMeta[K],
+      value: DocumentMetaExtensions[K],
     ) {
       const currentDocument = workspace.documents[name === 'active' ? getActiveDocumentName() : name]
 

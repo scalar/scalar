@@ -70,7 +70,7 @@
     "@scalar/openapi-parser": "workspace:*",
     "@scalar/openapi-types": "workspace:*",
     "fastify-plugin": "catalog:*",
-    "github-slugger": "^2.0.0"
+    "github-slugger": "catalog:*"
   },
   "devDependencies": {
     "@fastify/basic-auth": "catalog:*",

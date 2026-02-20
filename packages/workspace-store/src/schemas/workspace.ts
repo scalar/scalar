@@ -20,7 +20,7 @@ import {
 import { type XScalarActiveProxy, XScalarActiveProxySchema } from '@/schemas/extensions/workspace/x-scalar-active-proxy'
 import { type XScalarTabs, XScalarTabsSchema } from '@/schemas/extensions/workspace/x-scalar-tabs'
 
-import { OpenAPIDocumentSchema, type OpenApiDocument } from './v3.1/strict/openapi-document'
+import { OpenAPIDocumentSchema, type OpenAPIExtensions, type OpenApiDocument } from './v3.1/strict/openapi-document'
 
 export const WorkspaceDocumentMetaSchema = compose(
   Type.Partial(
@@ -95,3 +95,5 @@ export type Workspace = WorkspaceMeta & {
   documents: Record<string, WorkspaceDocument>
   activeDocument: WorkspaceDocument | undefined
 } & WorkspaceExtensions
+
+export type DocumentMetaExtensions = WorkspaceDocumentMeta & OpenAPIExtensions

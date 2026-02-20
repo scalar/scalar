@@ -11,8 +11,7 @@ import { serverSchema } from '@/entities/spec/server'
 import { tagSchema } from '@/entities/spec/spec-objects'
 import { type Workspace, workspaceSchema } from '@/entities/workspace/workspace'
 
-import { DATA_VERSION_LS_LEY } from './data-version'
-import { clearLegacyLocalStorage, shouldMigrateToIndexDb, transformLegacyDataToWorkspace } from './migrate-to-indexdb'
+import { shouldMigrateToIndexDb, transformLegacyDataToWorkspace } from './migrate-to-indexdb'
 import type { v_2_5_0 } from './v-2.5.0/types.generated'
 
 /**
@@ -252,41 +251,6 @@ describe('migrate-to-indexdb', () => {
     })
   })
 
-  describe('clearLegacyLocalStorage', () => {
-    it('should remove all legacy localStorage keys', () => {
-      // Set all legacy keys
-      localStorage.setItem('collection', 'test')
-      localStorage.setItem('cookie', 'test')
-      localStorage.setItem('environment', 'test')
-      localStorage.setItem('requestExample', 'test')
-      localStorage.setItem('request', 'test')
-      localStorage.setItem('securityScheme', 'test')
-      localStorage.setItem('server', 'test')
-      localStorage.setItem('tag', 'test')
-      localStorage.setItem('workspace', 'test')
-      localStorage.setItem(DATA_VERSION_LS_LEY, 'test')
-
-      clearLegacyLocalStorage()
-
-      // Verify all are removed
-      expect(localStorage.getItem('collection')).toBeNull()
-      expect(localStorage.getItem('cookie')).toBeNull()
-      expect(localStorage.getItem('environment')).toBeNull()
-      expect(localStorage.getItem('requestExample')).toBeNull()
-      expect(localStorage.getItem('request')).toBeNull()
-      expect(localStorage.getItem('securityScheme')).toBeNull()
-      expect(localStorage.getItem('server')).toBeNull()
-      expect(localStorage.getItem('tag')).toBeNull()
-      expect(localStorage.getItem('workspace')).toBeNull()
-      expect(localStorage.getItem(DATA_VERSION_LS_LEY)).toBeNull()
-    })
-
-    it('should not throw error when keys do not exist', () => {
-      localStorage.clear()
-      expect(() => clearLegacyLocalStorage()).not.toThrow()
-    })
-  })
-
   describe('transformLegacyDataToWorkspace - Security Schemes', () => {
     it('should transform API key security schemes into document components and auth store', async () => {
       const scheme = securitySchemeSchema.parse({
@@ -312,7 +276,7 @@ describe('migrate-to-indexdb', () => {
 
       // Verify security scheme is in document components
       expect(
-        resultWorkspace.workspace.documents['Test API']!.components?.securitySchemes?.['api-key-auth'],
+        resultWorkspace.workspace.documents['test-api']!.components?.securitySchemes?.['api-key-auth'],
       ).toMatchObject({
         type: 'apiKey',
         name: 'X-API-Key',
@@ -321,19 +285,19 @@ describe('migrate-to-indexdb', () => {
       })
       expect(
         // @ts-expect-error - value is not in the type
-        resultWorkspace.workspace.documents['Test API']!.components?.securitySchemes?.['api-key-auth']?.value,
+        resultWorkspace.workspace.documents['test-api']!.components?.securitySchemes?.['api-key-auth']?.value,
       ).toBeUndefined()
       expect(
         // @ts-expect-error - uid is not in the type
-        resultWorkspace.workspace.documents['Test API']!.components?.securitySchemes?.['api-key-auth']?.uid,
+        resultWorkspace.workspace.documents['test-api']!.components?.securitySchemes?.['api-key-auth']?.uid,
       ).toBeUndefined()
       expect(
         // @ts-expect-error - nameKey is not in the type
-        resultWorkspace.workspace.documents['Test API']!.components?.securitySchemes?.['api-key-auth']?.nameKey,
+        resultWorkspace.workspace.documents['test-api']!.components?.securitySchemes?.['api-key-auth']?.nameKey,
       ).toBeUndefined()
 
       // Verify security scheme secrets are in auth store
-      expect(resultWorkspace.workspace.auth['Test API']?.secrets['api-key-auth']).toEqual({
+      expect(resultWorkspace.workspace.auth['test-api']?.secrets['api-key-auth']).toEqual({
         type: 'apiKey',
         'x-scalar-secret-token': 'secret-api-key-123',
       })
@@ -360,7 +324,7 @@ describe('migrate-to-indexdb', () => {
 
       // Verify security scheme is in document components
       expect(
-        resultWorkspace.workspace.documents['Bearer API']!.components?.securitySchemes?.['bearer-auth'],
+        resultWorkspace.workspace.documents['bearer-api']!.components?.securitySchemes?.['bearer-auth'],
       ).toMatchObject({
         type: 'http',
         scheme: 'bearer',
@@ -368,19 +332,19 @@ describe('migrate-to-indexdb', () => {
       })
       expect(
         // @ts-expect-error - token is not in the type
-        resultWorkspace.workspace.documents['Bearer API']!.components?.securitySchemes?.['bearer-auth']?.token,
+        resultWorkspace.workspace.documents['bearer-api']!.components?.securitySchemes?.['bearer-auth']?.token,
       ).toBeUndefined()
       expect(
         // @ts-expect-error - uid is not in the type
-        resultWorkspace.workspace.documents['Bearer API']!.components?.securitySchemes?.['bearer-auth']?.uid,
+        resultWorkspace.workspace.documents['bearer-api']!.components?.securitySchemes?.['bearer-auth']?.uid,
       ).toBeUndefined()
       expect(
         // @ts-expect-error - nameKey is not in the type
-        resultWorkspace.workspace.documents['Bearer API']!.components?.securitySchemes?.['bearer-auth']?.nameKey,
+        resultWorkspace.workspace.documents['bearer-api']!.components?.securitySchemes?.['bearer-auth']?.nameKey,
       ).toBeUndefined()
 
       // Verify security scheme secrets are in auth store
-      expect(resultWorkspace.workspace.auth['Bearer API']!.secrets['bearer-auth']).toEqual({
+      expect(resultWorkspace.workspace.auth['bearer-api']!.secrets['bearer-auth']).toEqual({
         type: 'http',
         'x-scalar-secret-username': '',
         'x-scalar-secret-password': '',
@@ -411,30 +375,30 @@ describe('migrate-to-indexdb', () => {
 
       // Verify security scheme is in document components
       expect(
-        resultWorkspace.workspace.documents['Basic Auth API']!.components?.securitySchemes?.['basic-auth'],
+        resultWorkspace.workspace.documents['basic-auth-api']!.components?.securitySchemes?.['basic-auth'],
       ).toMatchObject({
         type: 'http',
         scheme: 'basic',
       })
       expect(
         // @ts-expect-error - username and password are not in the type
-        resultWorkspace.workspace.documents['Basic Auth API']!.components?.securitySchemes?.['basic-auth']?.username,
+        resultWorkspace.workspace.documents['basic-auth-api']!.components?.securitySchemes?.['basic-auth']?.username,
       ).toBeUndefined()
       expect(
         // @ts-expect-error - username and password are not in the type
-        resultWorkspace.workspace.documents['Basic Auth API']!.components?.securitySchemes?.['basic-auth']?.password,
+        resultWorkspace.workspace.documents['basic-auth-api']!.components?.securitySchemes?.['basic-auth']?.password,
       ).toBeUndefined()
       expect(
         // @ts-expect-error - uid is not in the type
-        resultWorkspace.workspace.documents['Basic Auth API']!.components?.securitySchemes?.['basic-auth']?.uid,
+        resultWorkspace.workspace.documents['basic-auth-api']!.components?.securitySchemes?.['basic-auth']?.uid,
       ).toBeUndefined()
       expect(
         // @ts-expect-error - nameKey is not in the type
-        resultWorkspace.workspace.documents['Basic Auth API']!.components?.securitySchemes?.['basic-auth']?.nameKey,
+        resultWorkspace.workspace.documents['basic-auth-api']!.components?.securitySchemes?.['basic-auth']?.nameKey,
       ).toBeUndefined()
 
       // Verify security scheme secrets are in auth store
-      expect(resultWorkspace.workspace.auth['Basic Auth API']!.secrets['basic-auth']).toEqual({
+      expect(resultWorkspace.workspace.auth['basic-auth-api']!.secrets['basic-auth']).toEqual({
         type: 'http',
         'x-scalar-secret-username': 'admin',
         'x-scalar-secret-token': '',
@@ -475,7 +439,7 @@ describe('migrate-to-indexdb', () => {
       const resultWorkspace = result[0]!
 
       // Verify security scheme is in document components
-      const oauthScheme = resultWorkspace.workspace.documents['OAuth API']!.components?.securitySchemes?.['oauth2-auth']
+      const oauthScheme = resultWorkspace.workspace.documents['oauth-api']!.components?.securitySchemes?.['oauth2-auth']
       if (oauthScheme && 'type' in oauthScheme && oauthScheme.type === 'oauth2') {
         expect(oauthScheme.type).toBe('oauth2')
         expect(oauthScheme.flows?.authorizationCode).toEqual({
@@ -498,7 +462,7 @@ describe('migrate-to-indexdb', () => {
       }
 
       // Verify security scheme secrets are in auth store
-      expect(resultWorkspace.workspace.auth['OAuth API']!.secrets['oauth2-auth']).toEqual({
+      expect(resultWorkspace.workspace.auth['oauth-api']!.secrets['oauth2-auth']).toEqual({
         type: 'oauth2',
         authorizationCode: {
           'x-scalar-secret-client-id': 'client-123',
@@ -565,13 +529,13 @@ describe('migrate-to-indexdb', () => {
       const resultWorkspace = result[0]!
 
       // Verify both documents have their security schemes
-      expect(resultWorkspace.workspace.documents['API One']!.components?.securitySchemes?.['api-key']).toMatchObject({
+      expect(resultWorkspace.workspace.documents['api-one']!.components?.securitySchemes?.['api-key']).toMatchObject({
         type: 'apiKey',
         name: 'X-API-Key',
         in: 'header',
       })
       expect(
-        resultWorkspace.workspace.documents['API Two']!.components?.securitySchemes?.['bearer-token'],
+        resultWorkspace.workspace.documents['api-two']!.components?.securitySchemes?.['bearer-token'],
       ).toMatchObject({
         type: 'http',
         scheme: 'bearer',
@@ -579,11 +543,11 @@ describe('migrate-to-indexdb', () => {
       })
 
       // Verify both auth stores have their secrets
-      expect(resultWorkspace.workspace.auth['API One']!.secrets['api-key']).toMatchObject({
+      expect(resultWorkspace.workspace.auth['api-one']!.secrets['api-key']).toMatchObject({
         type: 'apiKey',
         'x-scalar-secret-token': 'key-123',
       })
-      expect(resultWorkspace.workspace.auth['API Two']!.secrets['bearer-token']).toMatchObject({
+      expect(resultWorkspace.workspace.auth['api-two']!.secrets['bearer-token']).toMatchObject({
         type: 'http',
         'x-scalar-secret-token': 'token-456',
       })
@@ -600,12 +564,12 @@ describe('migrate-to-indexdb', () => {
       const resultWorkspace = result[0]!
 
       // Document should exist but have no security schemes
-      expect(resultWorkspace.workspace.documents['No Auth API']).toBeDefined()
-      expect(resultWorkspace.workspace.documents['No Auth API']!.components?.securitySchemes).toMatchObject({})
+      expect(resultWorkspace.workspace.documents['no-auth-api']).toBeDefined()
+      expect(resultWorkspace.workspace.documents['no-auth-api']!.components?.securitySchemes).toMatchObject({})
 
       // Auth store should exist but be empty or have empty secrets
-      expect(resultWorkspace.workspace.auth['No Auth API']).toBeDefined()
-      expect(Object.keys(resultWorkspace.workspace.auth['No Auth API']!.secrets)).toHaveLength(0)
+      expect(resultWorkspace.workspace.auth['no-auth-api']).toBeDefined()
+      expect(Object.keys(resultWorkspace.workspace.auth['no-auth-api']!.secrets)).toHaveLength(0)
     })
   })
 
@@ -911,7 +875,7 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['Env API']
+        const doc = result[0]?.workspace.documents['env-api']
         assert(doc)
 
         expect(doc['x-scalar-environments']).toStrictEqual({
@@ -947,7 +911,7 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['Multi Env API']
+        const doc = result[0]?.workspace.documents['multi-env-api']
         assert(doc)
 
         expect(doc['x-scalar-environments']).toStrictEqual({
@@ -968,7 +932,7 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['No Env API']
+        const doc = result[0]?.workspace.documents['no-env-api']
         assert(doc)
         expect(doc['x-scalar-environments']).toBeUndefined()
       })
@@ -992,7 +956,7 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['Active Env API']
+        const doc = result[0]?.workspace.documents['active-env-api']
 
         assert(doc)
         expect(doc['x-scalar-client-config-active-environment']).toBe('production')
@@ -1004,7 +968,7 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['No Active Env API']
+        const doc = result[0]?.workspace.documents['no-active-env-api']
 
         assert(doc)
         expect(doc['x-scalar-client-config-active-environment']).toBeUndefined()
@@ -1026,7 +990,7 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['Server API']
+        const doc = result[0]?.workspace.documents['server-api']
 
         assert(doc)
         expect(doc['x-scalar-selected-server']).toBe('https://api.example.com/v1')
@@ -1038,7 +1002,7 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['No Server API']
+        const doc = result[0]?.workspace.documents['no-server-api']
 
         assert(doc)
         expect(doc['x-scalar-selected-server']).toBeUndefined()
@@ -1051,7 +1015,7 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['Missing Server API']
+        const doc = result[0]?.workspace.documents['missing-server-api']
 
         assert(doc)
         expect(doc['x-scalar-selected-server']).toBeUndefined()
@@ -1077,7 +1041,7 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['Multi Server API']
+        const doc = result[0]?.workspace.documents['multi-server-api']
 
         assert(doc)
         expect(doc['x-scalar-selected-server']).toBe('https://api.prod.example.com')
@@ -1092,7 +1056,7 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['Icon API']
+        const doc = result[0]?.workspace.documents['icon-api']
 
         assert(doc)
         expect(doc['x-scalar-icon']).toBe('interface-home')
@@ -1104,7 +1068,7 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['Default Icon API']
+        const doc = result[0]?.workspace.documents['default-icon-api']
 
         assert(doc)
         // The collection schema defaults to 'interface-content-folder'
@@ -1120,7 +1084,7 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['Collection Security API']
+        const doc = result[0]?.workspace.documents['collection-security-api']
 
         assert(doc)
         expect(doc['x-scalar-set-operation-security']).toBe(true)
@@ -1133,7 +1097,7 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['No Collection Security API']
+        const doc = result[0]?.workspace.documents['no-collection-security-api']
 
         assert(doc)
         expect(doc['x-scalar-set-operation-security']).toBe(false)
@@ -1145,15 +1109,14 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['Default Security API']
+        const doc = result[0]?.workspace.documents['default-security-api']
 
         assert(doc)
         expect(doc['x-scalar-set-operation-security']).toBe(false)
       })
     })
 
-    // todo: Overwritten by the workspace store
-    describe.todo('documentUrl → x-scalar-original-source-url', () => {
+    describe('documentUrl → x-scalar-original-source-url', () => {
       it('transforms documentUrl to x-scalar-original-source-url', async () => {
         const legacyData = createLegacyData({
           title: 'Doc URL API',
@@ -1161,7 +1124,7 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['Doc URL API']
+        const doc = result[0]?.workspace.documents['doc-url-api']
 
         assert(doc)
         expect(doc['x-scalar-original-source-url']).toBe('https://example.com/openapi.yaml')
@@ -1173,7 +1136,7 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['No Doc URL API']
+        const doc = result[0]?.workspace.documents['no-doc-url-api']
 
         assert(doc)
         expect(doc['x-scalar-original-source-url']).toBeUndefined()
@@ -1186,10 +1149,67 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['Relative URL API']
+        const doc = result[0]?.workspace.documents['relative-url-api']
 
         assert(doc)
         expect(doc['x-scalar-original-source-url']).toBe('./specs/openapi.json')
+      })
+    })
+
+    describe('watchMode → x-scalar-watch-mode', () => {
+      it('transforms watchMode: true to x-scalar-watch-mode: true', async () => {
+        const legacyData = createLegacyData({
+          title: 'Watch Mode Enabled API',
+          collection: { watchMode: true },
+        })
+
+        const result = await transformLegacyDataToWorkspace(legacyData)
+        const doc = result[0]?.workspace.documents['watch-mode-enabled-api']
+
+        assert(doc)
+        expect(doc['x-scalar-watch-mode']).toBe(true)
+      })
+
+      it('transforms watchMode: false to x-scalar-watch-mode: false', async () => {
+        const legacyData = createLegacyData({
+          title: 'Watch Mode Disabled API',
+          collection: { watchMode: false },
+        })
+
+        const result = await transformLegacyDataToWorkspace(legacyData)
+        const doc = result[0]?.workspace.documents['watch-mode-disabled-api']
+
+        assert(doc)
+        expect(doc['x-scalar-watch-mode']).toBe(false)
+      })
+
+      it('defaults to false when watchMode is not explicitly set', async () => {
+        const legacyData = createLegacyData({
+          title: 'No Watch Mode API',
+        })
+
+        const result = await transformLegacyDataToWorkspace(legacyData)
+        const doc = result[0]?.workspace.documents['no-watch-mode-api']
+
+        assert(doc)
+        expect(doc['x-scalar-watch-mode']).toBe(false)
+      })
+
+      it('transforms watchMode alongside documentUrl', async () => {
+        const legacyData = createLegacyData({
+          title: 'Watch Mode With URL API',
+          collection: {
+            documentUrl: 'https://example.com/openapi.yaml',
+            watchMode: true,
+          },
+        })
+
+        const result = await transformLegacyDataToWorkspace(legacyData)
+        const doc = result[0]?.workspace.documents['watch-mode-with-url-api']
+
+        assert(doc)
+        expect(doc['x-scalar-watch-mode']).toBe(true)
+        expect(doc['x-scalar-original-source-url']).toBe('https://example.com/openapi.yaml')
       })
     })
 
@@ -1217,12 +1237,13 @@ describe('migrate-to-indexdb', () => {
             servers: ['server-1'],
             useCollectionSecurity: true,
             documentUrl: 'https://example.com/api/openapi.yaml',
+            watchMode: true,
           },
           servers: [server],
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['Full Meta API']
+        const doc = result[0]?.workspace.documents['full-meta-api']
 
         assert(doc)
 
@@ -1248,6 +1269,9 @@ describe('migrate-to-indexdb', () => {
 
         // documentUrl → x-scalar-original-source-url
         // expect(doc['x-scalar-original-source-url']).toBe('https://example.com/api/openapi.yaml')
+
+        // watchMode → x-scalar-watch-mode
+        expect(doc['x-scalar-watch-mode']).toBe(true)
       })
 
       it('transforms document meta across multiple collections in one workspace', async () => {
@@ -1296,8 +1320,8 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc1 = result[0]?.workspace.documents['API One']
-        const doc2 = result[0]?.workspace.documents['API Two']
+        const doc1 = result[0]?.workspace.documents['api-one']
+        const doc2 = result[0]?.workspace.documents['api-two']
 
         assert(doc1)
         assert(doc2)
@@ -1333,7 +1357,7 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['Single Server API']
+        const doc = result[0]?.workspace.documents['single-server-api']
 
         assert(doc)
         expect(doc.servers).toHaveLength(1)
@@ -1371,7 +1395,7 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['Multi Server API']
+        const doc = result[0]?.workspace.documents['multi-server-api']
 
         assert(doc)
         expect(doc.servers).toMatchObject([
@@ -1394,7 +1418,7 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['Minimal Server API']
+        const doc = result[0]?.workspace.documents['minimal-server-api']
 
         assert(doc)
         expect(doc.servers).toMatchObject([{ url: 'https://minimal.example.com' }])
@@ -1406,7 +1430,7 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['No Servers API']
+        const doc = result[0]?.workspace.documents['no-servers-api']
 
         assert(doc)
         expect(doc.servers).toEqual([])
@@ -1438,7 +1462,7 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['Templated Server API']
+        const doc = result[0]?.workspace.documents['templated-server-api']
 
         assert(doc)
         expect(doc.servers).toMatchObject([
@@ -1477,7 +1501,7 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['Default Var API']
+        const doc = result[0]?.workspace.documents['default-var-api']
 
         assert(doc)
         expect(doc.servers).toMatchObject([
@@ -1520,7 +1544,7 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['Multi Var API']
+        const doc = result[0]?.workspace.documents['multi-var-api']
 
         assert(doc)
         expect(doc.servers).toMatchObject([
@@ -1584,8 +1608,8 @@ describe('migrate-to-indexdb', () => {
         expect(result).toHaveLength(1)
         const resultWorkspace = result[0]!
 
-        const doc1 = resultWorkspace.workspace.documents['API One']
-        const doc2 = resultWorkspace.workspace.documents['API Two']
+        const doc1 = resultWorkspace.workspace.documents['api-one']
+        const doc2 = resultWorkspace.workspace.documents['api-two']
 
         assert(doc1)
         assert(doc2)
@@ -1635,8 +1659,8 @@ describe('migrate-to-indexdb', () => {
         const result = await transformLegacyDataToWorkspace(legacyData)
         const resultWorkspace = result[0]!
 
-        const docAlpha = resultWorkspace.workspace.documents['API Alpha']
-        const docBeta = resultWorkspace.workspace.documents['API Beta']
+        const docAlpha = resultWorkspace.workspace.documents['api-alpha']
+        const docBeta = resultWorkspace.workspace.documents['api-beta']
 
         assert(docAlpha)
         assert(docBeta)
@@ -1700,8 +1724,8 @@ describe('migrate-to-indexdb', () => {
 
         expect(result).toHaveLength(2)
 
-        const devDoc = result[0]?.workspace.documents['Dev API']
-        const prodDoc = result[1]?.workspace.documents['Prod API']
+        const devDoc = result[0]?.workspace.documents['dev-api']
+        const prodDoc = result[1]?.workspace.documents['prod-api']
 
         assert(devDoc)
         assert(prodDoc)
@@ -1748,8 +1772,8 @@ describe('migrate-to-indexdb', () => {
         const result = await transformLegacyDataToWorkspace(legacyData)
         const resultWorkspace = result[0]!
 
-        const docWith = resultWorkspace.workspace.documents['With Server']
-        const docWithout = resultWorkspace.workspace.documents['Without Server']
+        const docWith = resultWorkspace.workspace.documents['with-server']
+        const docWithout = resultWorkspace.workspace.documents['without-server']
 
         assert(docWith)
         assert(docWithout)
@@ -1776,7 +1800,7 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['No Server Refs API']
+        const doc = result[0]?.workspace.documents['no-server-refs-api']
 
         assert(doc)
         // Unreferenced servers should not appear in the document
@@ -1794,7 +1818,7 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['Ghost Server API']
+        const doc = result[0]?.workspace.documents['ghost-server-api']
 
         assert(doc)
         // Non-existent servers should be filtered out, not produce errors
@@ -1819,7 +1843,7 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['Mixed Servers API']
+        const doc = result[0]?.workspace.documents['mixed-servers-api']
 
         assert(doc)
         // Only the valid server should appear
@@ -1856,7 +1880,7 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['Tags API']
+        const doc = result[0]?.workspace.documents['tags-api']
 
         assert(doc)
         expect(doc.tags).toEqual([
@@ -1901,7 +1925,7 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['Nested Tags API']
+        const doc = result[0]?.workspace.documents['nested-tags-api']
 
         assert(doc)
 
@@ -1966,7 +1990,7 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['Multi Group API']
+        const doc = result[0]?.workspace.documents['multi-group-api']
 
         assert(doc)
         expect(doc.tags).toEqual([
@@ -2019,7 +2043,7 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['Mixed Tags API']
+        const doc = result[0]?.workspace.documents['mixed-tags-api']
 
         assert(doc)
         expect(doc.tags).toEqual([
@@ -2054,7 +2078,7 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['Missing Children API']
+        const doc = result[0]?.workspace.documents['missing-children-api']
 
         assert(doc)
         expect(doc.tags).toEqual([])
@@ -2083,7 +2107,7 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['Documented Tags API']
+        const doc = result[0]?.workspace.documents['documented-tags-api']
 
         assert(doc)
         expect(doc.tags).toEqual([
@@ -2121,7 +2145,7 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['Users API']
+        const doc = result[0]?.workspace.documents['users-api']
 
         assert(doc)
         expect(doc.paths?.['/users']?.get).toEqual({
@@ -2162,7 +2186,7 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['Users API']
+        const doc = result[0]?.workspace.documents['users-api']
 
         assert(doc)
         expect(doc.paths?.['/users']?.post).toEqual({
@@ -2215,7 +2239,7 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['Users API']
+        const doc = result[0]?.workspace.documents['users-api']
 
         assert(doc)
         expect(getResolvedRef(doc.paths?.['/users/{id}']?.get)?.parameters).toMatchObject([
@@ -2264,7 +2288,7 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['Users API']
+        const doc = result[0]?.workspace.documents['users-api']
 
         assert(doc)
         expect(doc.paths).toEqual({
@@ -2313,7 +2337,7 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['Users API']
+        const doc = result[0]?.workspace.documents['users-api']
 
         assert(doc)
         expect(doc).toMatchObject({
@@ -2389,7 +2413,7 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['Users API']
+        const doc = result[0]?.workspace.documents['users-api']
 
         assert(doc)
         expect(doc).toMatchObject({
@@ -2455,7 +2479,7 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['API']
+        const doc = result[0]?.workspace.documents['api']
         assert(doc)
 
         expect(doc).toMatchObject({
@@ -2513,7 +2537,7 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['Users API']
+        const doc = result[0]?.workspace.documents['users-api']
 
         assert(doc)
         expect(doc).toMatchObject({
@@ -2576,7 +2600,7 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['Auth API']
+        const doc = result[0]?.workspace.documents['auth-api']
 
         assert(doc)
         expect(doc).toMatchObject({
@@ -2651,7 +2675,7 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['Auth API']
+        const doc = result[0]?.workspace.documents['auth-api']
 
         assert(doc)
         expect(doc).toMatchObject({
@@ -2714,7 +2738,7 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['Users API']
+        const doc = result[0]?.workspace.documents['users-api']
 
         assert(doc)
         expect(doc).toMatchObject({
@@ -2774,7 +2798,7 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['Config API']
+        const doc = result[0]?.workspace.documents['config-api']
 
         assert(doc)
         expect(doc).toMatchObject({
@@ -2834,7 +2858,7 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['Data API']
+        const doc = result[0]?.workspace.documents['data-api']
 
         assert(doc)
         expect(doc).toMatchObject({
@@ -2894,7 +2918,7 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['Upload API']
+        const doc = result[0]?.workspace.documents['upload-api']
 
         assert(doc)
         expect(doc).toMatchObject({
@@ -2971,7 +2995,7 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['Auth API']
+        const doc = result[0]?.workspace.documents['auth-api']
         expect(
           getResolvedRef(getResolvedRef(doc?.paths?.['/login']?.post)?.requestBody)?.['x-scalar-selected-content-type'],
         ).toEqual({
@@ -3006,7 +3030,7 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['Users API']
+        const doc = result[0]?.workspace.documents['users-api']
         expect(getResolvedRef(doc?.paths?.['/users']?.get)?.requestBody).toBeUndefined()
       })
 
@@ -3037,7 +3061,7 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['Users API']
+        const doc = result[0]?.workspace.documents['users-api']
 
         assert(doc)
         expect(doc).toMatchObject({
@@ -3163,7 +3187,7 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['Test API']
+        const doc = result[0]?.workspace.documents['test-api']
         expect(doc).toMatchObject({
           openapi: '3.1.0',
           info: { title: 'Test API', version: '1.0.0' },
@@ -3242,7 +3266,7 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['Scalar Galaxy']
+        const doc = result[0]?.workspace.documents['scalar-galaxy']
         expect(doc).toMatchObject({
           openapi: '3.1.0',
           info: { title: 'Scalar Galaxy', version: '1.0.0' },
@@ -3285,6 +3309,109 @@ describe('migrate-to-indexdb', () => {
           },
         })
       })
+
+      it('handles duplicate example names by appending #2, #3, etc', async () => {
+        const example1 = requestExampleSchema.parse({
+          uid: 'example-1',
+          requestUid: 'request-1',
+          name: 'Test Example',
+          parameters: {
+            query: [{ key: 'page', value: '1', enabled: true }],
+          },
+          body: {
+            activeBody: 'raw',
+            raw: {
+              encoding: 'json',
+              value: JSON.stringify({ test: 'first' }),
+            },
+          },
+        })
+
+        const example2 = requestExampleSchema.parse({
+          uid: 'example-2',
+          requestUid: 'request-1',
+          name: 'Test Example',
+          parameters: {
+            query: [{ key: 'page', value: '2', enabled: true }],
+          },
+          body: {
+            activeBody: 'raw',
+            raw: {
+              encoding: 'json',
+              value: JSON.stringify({ test: 'second' }),
+            },
+          },
+        })
+
+        const example3 = requestExampleSchema.parse({
+          uid: 'example-3',
+          requestUid: 'request-1',
+          name: 'Test Example',
+          parameters: {
+            query: [{ key: 'page', value: '3', enabled: true }],
+          },
+          body: {
+            activeBody: 'raw',
+            raw: {
+              encoding: 'json',
+              value: JSON.stringify({ test: 'third' }),
+            },
+          },
+        })
+
+        const request = requestSchema.parse({
+          uid: 'request-1',
+          path: '/data',
+          method: 'get',
+          summary: 'Get data',
+          examples: ['example-1', 'example-2', 'example-3'],
+        })
+
+        const legacyData = createLegacyData({
+          title: 'Test API',
+          collection: { requests: ['request-1'] },
+          requests: [request],
+          requestExamples: [example1, example2, example3],
+        })
+
+        const result = await transformLegacyDataToWorkspace(legacyData)
+        const doc = result[0]?.workspace.documents['test-api']
+
+        assert(doc)
+        expect(doc).toMatchObject({
+          openapi: '3.1.0',
+          info: { title: 'Test API', version: '1.0.0' },
+          paths: {
+            '/data': {
+              get: {
+                summary: 'Get data',
+                parameters: [
+                  {
+                    name: 'page',
+                    in: 'query',
+                    examples: {
+                      'Test Example': { value: '1', 'x-disabled': false },
+                      'Test Example #2': { value: '2', 'x-disabled': false },
+                      'Test Example #3': { value: '3', 'x-disabled': false },
+                    },
+                  },
+                ],
+                requestBody: {
+                  content: {
+                    'application/json': {
+                      examples: {
+                        'Test Example': { value: JSON.stringify({ test: 'first' }) },
+                        'Test Example #2': { value: JSON.stringify({ test: 'second' }) },
+                        'Test Example #3': { value: JSON.stringify({ test: 'third' }) },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        })
+      })
     })
 
     describe('request with servers', () => {
@@ -3317,7 +3444,7 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['Users API']
+        const doc = result[0]?.workspace.documents['users-api']
 
         assert(doc)
         expect(doc).toMatchObject({
@@ -3374,7 +3501,7 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['Users API']
+        const doc = result[0]?.workspace.documents['users-api']
 
         assert(doc)
         expect(doc).toMatchObject({
@@ -3424,7 +3551,7 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['Users API']
+        const doc = result[0]?.workspace.documents['users-api']
 
         assert(doc)
         expect(doc).toMatchObject({
@@ -3468,7 +3595,7 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['Users API']
+        const doc = result[0]?.workspace.documents['users-api']
 
         assert(doc)
         expect(doc).toMatchObject({
@@ -3506,7 +3633,7 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['Users API']
+        const doc = result[0]?.workspace.documents['users-api']
 
         assert(doc)
         expect(doc).toMatchObject({
@@ -3517,6 +3644,655 @@ describe('migrate-to-indexdb', () => {
               get: {
                 summary: 'Get users',
                 servers: [{ url: 'https://api.example.com' }],
+              },
+            },
+          },
+        })
+      })
+    })
+
+    describe('extracting servers from paths', () => {
+      it('extracts server from path with full URL before the slash', async () => {
+        const request = requestSchema.parse({
+          uid: 'request-1',
+          path: 'https://api.example.com/users',
+          method: 'get',
+          summary: 'Get users',
+        })
+
+        const legacyData = createLegacyData({
+          title: 'Users API',
+          collection: { requests: ['request-1'] },
+          requests: [request],
+        })
+
+        const result = await transformLegacyDataToWorkspace(legacyData)
+        const doc = result[0]?.workspace.documents['users-api']
+
+        assert(doc)
+        expect(doc).toMatchObject({
+          openapi: '3.1.0',
+          info: { title: 'Users API', version: '1.0.0' },
+          servers: [{ url: 'https://api.example.com' }],
+          paths: {
+            '/users': {
+              get: {
+                summary: 'Get users',
+              },
+            },
+          },
+        })
+      })
+
+      it('extracts server from path with URL and port', async () => {
+        const request = requestSchema.parse({
+          uid: 'request-1',
+          path: 'http://localhost:3000/api/users',
+          method: 'post',
+          summary: 'Create user',
+        })
+
+        const legacyData = createLegacyData({
+          title: 'Local API',
+          collection: { requests: ['request-1'] },
+          requests: [request],
+        })
+
+        const result = await transformLegacyDataToWorkspace(legacyData)
+        const doc = result[0]?.workspace.documents['local-api']
+
+        assert(doc)
+        expect(doc).toMatchObject({
+          openapi: '3.1.0',
+          info: { title: 'Local API', version: '1.0.0' },
+          servers: [{ url: 'http://localhost:3000' }],
+          paths: {
+            '/api/users': {
+              post: {
+                summary: 'Create user',
+              },
+            },
+          },
+        })
+      })
+
+      it('extracts multiple unique servers from different paths', async () => {
+        const request1 = requestSchema.parse({
+          uid: 'request-1',
+          path: 'https://api.example.com/users',
+          method: 'get',
+          summary: 'Get users',
+        })
+
+        const request2 = requestSchema.parse({
+          uid: 'request-2',
+          path: 'https://api-staging.example.com/products',
+          method: 'get',
+          summary: 'Get products',
+        })
+
+        const legacyData = createLegacyData({
+          title: 'Multi Server API',
+          collection: { requests: ['request-1', 'request-2'] },
+          requests: [request1, request2],
+        })
+
+        const result = await transformLegacyDataToWorkspace(legacyData)
+        const doc = result[0]?.workspace.documents['multi-server-api']
+
+        assert(doc)
+        expect(doc.servers).toEqual(
+          expect.arrayContaining([{ url: 'https://api.example.com' }, { url: 'https://api-staging.example.com' }]),
+        )
+        expect(doc.servers).toHaveLength(2)
+        expect(doc).toMatchObject({
+          paths: {
+            '/users': {
+              get: {
+                summary: 'Get users',
+              },
+            },
+            '/products': {
+              get: {
+                summary: 'Get products',
+              },
+            },
+          },
+        })
+      })
+
+      it('does not duplicate servers when URL is already in collection servers', async () => {
+        const existingServer = serverSchema.parse({
+          uid: 'server-1',
+          url: 'https://api.example.com',
+          description: 'Production server',
+        })
+
+        const request = requestSchema.parse({
+          uid: 'request-1',
+          path: 'https://api.example.com/users',
+          method: 'get',
+          summary: 'Get users',
+        })
+
+        const legacyData = createLegacyData({
+          title: 'Users API',
+          collection: { servers: ['server-1'], requests: ['request-1'] },
+          servers: [existingServer],
+          requests: [request],
+        })
+
+        const result = await transformLegacyDataToWorkspace(legacyData)
+        const doc = result[0]?.workspace.documents['users-api']
+
+        assert(doc)
+        expect(doc.servers).toEqual([
+          {
+            url: 'https://api.example.com',
+            description: 'Production server',
+          },
+        ])
+        expect(doc.servers).toHaveLength(1)
+        expect(doc).toMatchObject({
+          paths: {
+            '/users': {
+              get: {
+                summary: 'Get users',
+              },
+            },
+          },
+        })
+      })
+
+      it('does not extract servers from paths missing the leading slash', async () => {
+        const request1 = requestSchema.parse({
+          uid: 'request-1',
+          path: 'users/places',
+          method: 'get',
+          summary: 'Get user places',
+        })
+
+        const request2 = requestSchema.parse({
+          uid: 'request-2',
+          path: 'users',
+          method: 'post',
+          summary: 'Create user',
+        })
+
+        const legacyData = createLegacyData({
+          title: 'Malformed Paths API',
+          collection: { requests: ['request-1', 'request-2'] },
+          requests: [request1, request2],
+        })
+
+        const result = await transformLegacyDataToWorkspace(legacyData)
+        const doc = result[0]?.workspace.documents['malformed-paths-api']
+
+        assert(doc)
+        expect(doc.servers).toEqual([])
+        expect(doc).toMatchObject({
+          paths: {
+            '/users/places': {
+              get: {
+                summary: 'Get user places',
+              },
+            },
+            '/users': {
+              post: {
+                summary: 'Create user',
+              },
+            },
+          },
+        })
+      })
+
+      it('extracts server and preserves existing collection servers', async () => {
+        const existingServer = serverSchema.parse({
+          uid: 'server-1',
+          url: 'https://api-staging.example.com',
+          description: 'Staging server',
+        })
+
+        const request = requestSchema.parse({
+          uid: 'request-1',
+          path: 'https://api.example.com/users',
+          method: 'get',
+          summary: 'Get users',
+        })
+
+        const legacyData = createLegacyData({
+          title: 'Users API',
+          collection: { servers: ['server-1'], requests: ['request-1'] },
+          servers: [existingServer],
+          requests: [request],
+        })
+
+        const result = await transformLegacyDataToWorkspace(legacyData)
+        const doc = result[0]?.workspace.documents['users-api']
+
+        assert(doc)
+        expect(doc.servers).toEqual(
+          expect.arrayContaining([
+            { url: 'https://api-staging.example.com', description: 'Staging server' },
+            { url: 'https://api.example.com' },
+          ]),
+        )
+        expect(doc.servers).toHaveLength(2)
+        expect(doc).toMatchObject({
+          paths: {
+            '/users': {
+              get: {
+                summary: 'Get users',
+              },
+            },
+          },
+        })
+      })
+
+      it('extracts server with trailing slash from path', async () => {
+        const request = requestSchema.parse({
+          uid: 'request-1',
+          path: 'https://api.example.com//users',
+          method: 'get',
+          summary: 'Get users',
+        })
+
+        const legacyData = createLegacyData({
+          title: 'Users API',
+          collection: { requests: ['request-1'] },
+          requests: [request],
+        })
+
+        const result = await transformLegacyDataToWorkspace(legacyData)
+        const doc = result[0]?.workspace.documents['users-api']
+
+        assert(doc)
+        expect(doc).toMatchObject({
+          openapi: '3.1.0',
+          info: { title: 'Users API', version: '1.0.0' },
+          servers: [{ url: 'https://api.example.com' }],
+          paths: {
+            '/users': {
+              get: {
+                summary: 'Get users',
+              },
+            },
+          },
+        })
+      })
+
+      it('handles mixed paths with and without embedded servers', async () => {
+        const request1 = requestSchema.parse({
+          uid: 'request-1',
+          path: 'https://api.example.com/users',
+          method: 'get',
+          summary: 'Get users',
+        })
+
+        const request2 = requestSchema.parse({
+          uid: 'request-2',
+          path: '/products',
+          method: 'get',
+          summary: 'Get products',
+        })
+
+        const request3 = requestSchema.parse({
+          uid: 'request-3',
+          path: 'https://api-v2.example.com/orders',
+          method: 'get',
+          summary: 'Get orders',
+        })
+
+        const legacyData = createLegacyData({
+          title: 'Mixed Paths API',
+          collection: { requests: ['request-1', 'request-2', 'request-3'] },
+          requests: [request1, request2, request3],
+        })
+
+        const result = await transformLegacyDataToWorkspace(legacyData)
+        const doc = result[0]?.workspace.documents['mixed-paths-api']
+
+        assert(doc)
+        expect(doc.servers).toEqual(
+          expect.arrayContaining([{ url: 'https://api.example.com' }, { url: 'https://api-v2.example.com' }]),
+        )
+        expect(doc.servers).toHaveLength(2)
+        expect(doc).toMatchObject({
+          paths: {
+            '/users': {
+              get: {
+                summary: 'Get users',
+              },
+            },
+            '/products': {
+              get: {
+                summary: 'Get products',
+              },
+            },
+            '/orders': {
+              get: {
+                summary: 'Get orders',
+              },
+            },
+          },
+        })
+      })
+
+      it('extracts server from path with complex URL structure', async () => {
+        const request = requestSchema.parse({
+          uid: 'request-1',
+          path: 'https://api.example.com:8080/v1/users',
+          method: 'get',
+          summary: 'Get users',
+        })
+
+        const legacyData = createLegacyData({
+          title: 'Complex URL API',
+          collection: { requests: ['request-1'] },
+          requests: [request],
+        })
+
+        const result = await transformLegacyDataToWorkspace(legacyData)
+        const doc = result[0]?.workspace.documents['complex-url-api']
+
+        assert(doc)
+        expect(doc).toMatchObject({
+          openapi: '3.1.0',
+          info: { title: 'Complex URL API', version: '1.0.0' },
+          servers: [{ url: 'https://api.example.com:8080' }],
+          paths: {
+            '/v1/users': {
+              get: {
+                summary: 'Get users',
+              },
+            },
+          },
+        })
+      })
+
+      it('does not extract from paths that look like URLs but have no protocol', async () => {
+        const request = requestSchema.parse({
+          uid: 'request-1',
+          path: 'api.example.com/users',
+          method: 'get',
+          summary: 'Get users',
+        })
+
+        const legacyData = createLegacyData({
+          title: 'No Protocol API',
+          collection: { requests: ['request-1'] },
+          requests: [request],
+        })
+
+        const result = await transformLegacyDataToWorkspace(legacyData)
+        const doc = result[0]?.workspace.documents['no-protocol-api']
+
+        assert(doc)
+        expect(doc.servers).toEqual([])
+        expect(doc).toMatchObject({
+          paths: {
+            '/api.example.com/users': {
+              get: {
+                summary: 'Get users',
+              },
+            },
+          },
+        })
+      })
+
+      it('extracts same server from multiple paths without duplication', async () => {
+        const request1 = requestSchema.parse({
+          uid: 'request-1',
+          path: 'https://api.example.com/users',
+          method: 'get',
+          summary: 'Get users',
+        })
+
+        const request2 = requestSchema.parse({
+          uid: 'request-2',
+          path: 'https://api.example.com/products',
+          method: 'get',
+          summary: 'Get products',
+        })
+
+        const request3 = requestSchema.parse({
+          uid: 'request-3',
+          path: 'https://api.example.com/orders',
+          method: 'post',
+          summary: 'Create order',
+        })
+
+        const legacyData = createLegacyData({
+          title: 'Dedup Server API',
+          collection: { requests: ['request-1', 'request-2', 'request-3'] },
+          requests: [request1, request2, request3],
+        })
+
+        const result = await transformLegacyDataToWorkspace(legacyData)
+        const doc = result[0]?.workspace.documents['dedup-server-api']
+
+        assert(doc)
+        expect(doc.servers).toEqual([{ url: 'https://api.example.com' }])
+        expect(doc.servers).toHaveLength(1)
+        expect(doc).toMatchObject({
+          paths: {
+            '/users': {
+              get: {
+                summary: 'Get users',
+              },
+            },
+            '/products': {
+              get: {
+                summary: 'Get products',
+              },
+            },
+            '/orders': {
+              post: {
+                summary: 'Create order',
+              },
+            },
+          },
+        })
+      })
+
+      it('extracts server with path containing query parameters', async () => {
+        const request = requestSchema.parse({
+          uid: 'request-1',
+          path: 'https://api.example.com/users?page=1',
+          method: 'get',
+          summary: 'Get users',
+        })
+
+        const legacyData = createLegacyData({
+          title: 'Query Params API',
+          collection: { requests: ['request-1'] },
+          requests: [request],
+        })
+
+        const result = await transformLegacyDataToWorkspace(legacyData)
+        const doc = result[0]?.workspace.documents['query-params-api']
+
+        assert(doc)
+        expect(doc).toMatchObject({
+          openapi: '3.1.0',
+          info: { title: 'Query Params API', version: '1.0.0' },
+          servers: [{ url: 'https://api.example.com' }],
+          paths: {
+            '/users?page=1': {
+              get: {
+                summary: 'Get users',
+              },
+            },
+          },
+        })
+      })
+
+      it('does not duplicate when extracted server matches existing server with same URL but different description', async () => {
+        const existingServer = serverSchema.parse({
+          uid: 'server-1',
+          url: 'https://api.example.com',
+          description: 'Production server',
+        })
+
+        const request = requestSchema.parse({
+          uid: 'request-1',
+          path: 'https://api.example.com/users',
+          method: 'get',
+          summary: 'Get users',
+        })
+
+        const legacyData = createLegacyData({
+          title: 'Users API',
+          collection: { servers: ['server-1'], requests: ['request-1'] },
+          servers: [existingServer],
+          requests: [request],
+        })
+
+        const result = await transformLegacyDataToWorkspace(legacyData)
+        const doc = result[0]?.workspace.documents['users-api']
+
+        assert(doc)
+        expect(doc.servers).toEqual([
+          {
+            url: 'https://api.example.com',
+            description: 'Production server',
+          },
+        ])
+        expect(doc.servers).toHaveLength(1)
+      })
+
+      it('handles paths with just a domain and no path component', async () => {
+        const request = requestSchema.parse({
+          uid: 'request-1',
+          path: 'https://api.example.com/',
+          method: 'get',
+          summary: 'Root endpoint',
+        })
+
+        const legacyData = createLegacyData({
+          title: 'Root API',
+          collection: { requests: ['request-1'] },
+          requests: [request],
+        })
+
+        const result = await transformLegacyDataToWorkspace(legacyData)
+        const doc = result[0]?.workspace.documents['root-api']
+
+        assert(doc)
+        expect(doc).toMatchObject({
+          openapi: '3.1.0',
+          info: { title: 'Root API', version: '1.0.0' },
+          servers: [{ url: 'https://api.example.com' }],
+          paths: {
+            '/': {
+              get: {
+                summary: 'Root endpoint',
+              },
+            },
+          },
+        })
+      })
+
+      it('does not extract from relative paths without protocol', async () => {
+        const request1 = requestSchema.parse({
+          uid: 'request-1',
+          path: 'users/places',
+          method: 'get',
+          summary: 'Get user places',
+        })
+
+        const request2 = requestSchema.parse({
+          uid: 'request-2',
+          path: 'users',
+          method: 'get',
+          summary: 'Get users',
+        })
+
+        const legacyData = createLegacyData({
+          title: 'Relative Paths API',
+          collection: { requests: ['request-1', 'request-2'] },
+          requests: [request1, request2],
+        })
+
+        const result = await transformLegacyDataToWorkspace(legacyData)
+        const doc = result[0]?.workspace.documents['relative-paths-api']
+
+        assert(doc)
+        expect(doc.servers).toEqual([])
+        expect(doc).toMatchObject({
+          paths: {
+            '/users/places': {
+              get: {
+                summary: 'Get user places',
+              },
+            },
+            '/users': {
+              get: {
+                summary: 'Get users',
+              },
+            },
+          },
+        })
+      })
+
+      it('extracts server with subdomain and path', async () => {
+        const request = requestSchema.parse({
+          uid: 'request-1',
+          path: 'https://v2.api.example.com/users',
+          method: 'get',
+          summary: 'Get users',
+        })
+
+        const legacyData = createLegacyData({
+          title: 'Subdomain API',
+          collection: { requests: ['request-1'] },
+          requests: [request],
+        })
+
+        const result = await transformLegacyDataToWorkspace(legacyData)
+        const doc = result[0]?.workspace.documents['subdomain-api']
+
+        assert(doc)
+        expect(doc).toMatchObject({
+          openapi: '3.1.0',
+          info: { title: 'Subdomain API', version: '1.0.0' },
+          servers: [{ url: 'https://v2.api.example.com' }],
+          paths: {
+            '/users': {
+              get: {
+                summary: 'Get users',
+              },
+            },
+          },
+        })
+      })
+
+      it('handles paths with URL and nested path segments', async () => {
+        const request = requestSchema.parse({
+          uid: 'request-1',
+          path: 'https://api.example.com/v1/users/{id}/posts',
+          method: 'get',
+          summary: 'Get user posts',
+        })
+
+        const legacyData = createLegacyData({
+          title: 'Nested Path API',
+          collection: { requests: ['request-1'] },
+          requests: [request],
+        })
+
+        const result = await transformLegacyDataToWorkspace(legacyData)
+        const doc = result[0]?.workspace.documents['nested-path-api']
+
+        assert(doc)
+        expect(doc).toMatchObject({
+          openapi: '3.1.0',
+          info: { title: 'Nested Path API', version: '1.0.0' },
+          servers: [{ url: 'https://api.example.com' }],
+          paths: {
+            '/v1/users/{id}/posts': {
+              get: {
+                summary: 'Get user posts',
               },
             },
           },
@@ -3552,7 +4328,7 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['Protected API']
+        const doc = result[0]?.workspace.documents['protected-api']
 
         assert(doc)
         expect(doc).toMatchObject({
@@ -3616,7 +4392,7 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['Protected API']
+        const doc = result[0]?.workspace.documents['protected-api']
 
         assert(doc)
         expect(doc).toMatchObject({
@@ -3684,7 +4460,7 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['Protected API']
+        const doc = result[0]?.workspace.documents['protected-api']
 
         assert(doc)
         expect(doc).toMatchObject({
@@ -3753,7 +4529,7 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['OAuth API']
+        const doc = result[0]?.workspace.documents['oauth-api']
 
         assert(doc)
         expect(doc).toMatchObject({
@@ -3804,7 +4580,7 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['Public API']
+        const doc = result[0]?.workspace.documents['public-api']
 
         assert(doc)
         expect(doc).toMatchObject({
@@ -3836,7 +4612,7 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['Users API']
+        const doc = result[0]?.workspace.documents['users-api']
 
         assert(doc)
         expect(doc).toMatchObject({
@@ -3905,7 +4681,7 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['Mixed Security API']
+        const doc = result[0]?.workspace.documents['mixed-security-api']
 
         assert(doc)
         expect(doc).toMatchObject({
@@ -3965,7 +4741,7 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['Experimental API']
+        const doc = result[0]?.workspace.documents['experimental-api']
 
         assert(doc)
         expect(doc).toMatchObject({
@@ -3998,7 +4774,7 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['Internal API']
+        const doc = result[0]?.workspace.documents['internal-api']
 
         assert(doc)
         expect(doc).toMatchObject({
@@ -4032,7 +4808,7 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['Users API']
+        const doc = result[0]?.workspace.documents['users-api']
 
         assert(doc)
         expect(doc).toMatchObject({
@@ -4074,7 +4850,7 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['Users API']
+        const doc = result[0]?.workspace.documents['users-api']
 
         assert(doc)
         expect(doc).toMatchObject({
@@ -4115,7 +4891,7 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['Users API']
+        const doc = result[0]?.workspace.documents['users-api']
 
         assert(doc)
         expect(doc).toMatchObject({
@@ -4131,7 +4907,7 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['Empty API']
+        const doc = result[0]?.workspace.documents['empty-api']
 
         assert(doc)
         expect(doc).toMatchObject({
@@ -4157,7 +4933,7 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['Legacy API']
+        const doc = result[0]?.workspace.documents['legacy-api']
 
         assert(doc)
         expect(doc).toMatchObject({
@@ -4168,6 +4944,67 @@ describe('migrate-to-indexdb', () => {
               get: {
                 summary: 'Old endpoint',
                 deprecated: true,
+              },
+            },
+          },
+        })
+      })
+
+      it('defaults empty string path to /', async () => {
+        const request = requestSchema.parse({
+          uid: 'request-1',
+          path: '',
+          method: 'get',
+          summary: 'Root endpoint',
+        })
+
+        const legacyData = createLegacyData({
+          title: 'Root API',
+          collection: { requests: ['request-1'] },
+          requests: [request],
+        })
+
+        const result = await transformLegacyDataToWorkspace(legacyData)
+        const doc = result[0]?.workspace.documents['root-api']
+
+        assert(doc)
+        expect(doc).toMatchObject({
+          openapi: '3.1.0',
+          info: { title: 'Root API', version: '1.0.0' },
+          paths: {
+            '/': {
+              get: {
+                summary: 'Root endpoint',
+              },
+            },
+          },
+        })
+      })
+
+      it('defaults undefined path to /', async () => {
+        const request = requestSchema.parse({
+          uid: 'request-1',
+          method: 'get',
+          summary: 'Root endpoint',
+        })
+
+        const legacyData = createLegacyData({
+          title: 'Root API',
+          collection: { requests: ['request-1'] },
+          requests: [request],
+        })
+
+        const result = await transformLegacyDataToWorkspace(legacyData)
+        const doc = result[0]?.workspace.documents['root-api']
+
+        assert(doc)
+        expect(doc).toMatchObject({
+          openapi: '3.1.0',
+          info: { title: 'Root API', version: '1.0.0' },
+          paths: {
+            '/': {
+              get: {
+                summary: 'Root endpoint',
               },
             },
           },
@@ -4222,8 +5059,8 @@ describe('migrate-to-indexdb', () => {
         const result = await transformLegacyDataToWorkspace(legacyData)
         const resultWorkspace = result[0]!
 
-        const doc1 = resultWorkspace.workspace.documents['API One']
-        const doc2 = resultWorkspace.workspace.documents['API Two']
+        const doc1 = resultWorkspace.workspace.documents['api-one']
+        const doc2 = resultWorkspace.workspace.documents['api-two']
 
         assert(doc1)
         assert(doc2)
@@ -4285,7 +5122,7 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['Users API']
+        const doc = result[0]?.workspace.documents['users-api']
 
         assert(doc)
         expect(doc).toMatchObject({
@@ -4352,7 +5189,7 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['Webhook API']
+        const doc = result[0]?.workspace.documents['webhook-api']
 
         assert(doc)
         expect(doc).toMatchObject({
@@ -4419,7 +5256,7 @@ describe('migrate-to-indexdb', () => {
           legacyData.records.collections['collection-1'].components.schemas.TreeNode
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['Tree API']
+        const doc = result[0]?.workspace.documents['tree-api']
         expect(doc).toMatchObject({
           openapi: '3.1.0',
           info: {
@@ -4486,7 +5323,7 @@ describe('migrate-to-indexdb', () => {
           legacyData.records.collections['collection-1'].components.schemas.Person
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['People API']
+        const doc = result[0]?.workspace.documents['people-api']
         expect(doc).toMatchObject({
           openapi: '3.1.0',
           info: { title: 'People API', version: '1.0.0' },
@@ -4642,7 +5479,7 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['Scalar Galaxy']
+        const doc = result[0]?.workspace.documents['scalar-galaxy']
 
         expect(doc).toMatchObject({
           openapi: '3.1.0',
@@ -4764,6 +5601,406 @@ describe('migrate-to-indexdb', () => {
           },
         })
       })
+    })
+  })
+
+  describe('document name slugification', () => {
+    it('handles multiple documents with the same name by creating unique slugs', async () => {
+      const collection1 = collectionSchema.parse({
+        uid: 'collection-1',
+        openapi: '3.1.0',
+        info: {
+          title: 'My API',
+          version: '1.0.0',
+        },
+      })
+
+      const collection2 = collectionSchema.parse({
+        uid: 'collection-2',
+        openapi: '3.1.0',
+        info: {
+          title: 'My API',
+          version: '2.0.0',
+        },
+      })
+
+      const collection3 = collectionSchema.parse({
+        uid: 'collection-3',
+        openapi: '3.1.0',
+        info: {
+          title: 'My API',
+          version: '3.0.0',
+        },
+      })
+
+      const workspace = workspaceSchema.parse({
+        uid: 'workspace-1',
+        name: 'Test Workspace',
+        collections: ['collection-1', 'collection-2', 'collection-3'],
+      })
+
+      const legacyData = createLegacyData({
+        workspaces: [workspace],
+        collections: [collection1, collection2, collection3],
+      })
+
+      const result = await transformLegacyDataToWorkspace(legacyData)
+      const resultWorkspace = result[0]!
+
+      const documentNames = Object.keys(resultWorkspace.workspace.documents)
+
+      expect(documentNames).toHaveLength(3)
+      expect(documentNames).toContain('my-api')
+      expect(documentNames).toContain('my-api-1')
+      expect(documentNames).toContain('my-api-2')
+
+      expect(resultWorkspace.workspace.documents['my-api']?.info.version).toBe('1.0.0')
+      expect(resultWorkspace.workspace.documents['my-api-1']?.info.version).toBe('2.0.0')
+      expect(resultWorkspace.workspace.documents['my-api-2']?.info.version).toBe('3.0.0')
+    })
+
+    it('handles documents with special characters in names', async () => {
+      const collection1 = collectionSchema.parse({
+        uid: 'collection-1',
+        openapi: '3.1.0',
+        info: {
+          title: 'API: Special & Chars!',
+          version: '1.0.0',
+        },
+      })
+
+      const collection2 = collectionSchema.parse({
+        uid: 'collection-2',
+        openapi: '3.1.0',
+        info: {
+          title: 'API: Special & Chars!',
+          version: '2.0.0',
+        },
+      })
+
+      const workspace = workspaceSchema.parse({
+        uid: 'workspace-1',
+        name: 'Test Workspace',
+        collections: ['collection-1', 'collection-2'],
+      })
+
+      const legacyData = createLegacyData({
+        workspaces: [workspace],
+        collections: [collection1, collection2],
+      })
+
+      const result = await transformLegacyDataToWorkspace(legacyData)
+      const resultWorkspace = result[0]!
+
+      const documentNames = Object.keys(resultWorkspace.workspace.documents)
+
+      expect(documentNames).toHaveLength(2)
+      expect(documentNames).toContain('api-special--chars')
+      expect(documentNames).toContain('api-special--chars-1')
+    })
+
+    it('handles mix of unique and duplicate document names', async () => {
+      const collection1 = collectionSchema.parse({
+        uid: 'collection-1',
+        openapi: '3.1.0',
+        info: {
+          title: 'Unique API',
+          version: '1.0.0',
+        },
+      })
+
+      const collection2 = collectionSchema.parse({
+        uid: 'collection-2',
+        openapi: '3.1.0',
+        info: {
+          title: 'Duplicate API',
+          version: '1.0.0',
+        },
+      })
+
+      const collection3 = collectionSchema.parse({
+        uid: 'collection-3',
+        openapi: '3.1.0',
+        info: {
+          title: 'Duplicate API',
+          version: '2.0.0',
+        },
+      })
+
+      const collection4 = collectionSchema.parse({
+        uid: 'collection-4',
+        openapi: '3.1.0',
+        info: {
+          title: 'Another Unique API',
+          version: '1.0.0',
+        },
+      })
+
+      const workspace = workspaceSchema.parse({
+        uid: 'workspace-1',
+        name: 'Test Workspace',
+        collections: ['collection-1', 'collection-2', 'collection-3', 'collection-4'],
+      })
+
+      const legacyData = createLegacyData({
+        workspaces: [workspace],
+        collections: [collection1, collection2, collection3, collection4],
+      })
+
+      const result = await transformLegacyDataToWorkspace(legacyData)
+      const resultWorkspace = result[0]!
+
+      const documentNames = Object.keys(resultWorkspace.workspace.documents)
+
+      expect(documentNames).toHaveLength(4)
+      expect(documentNames).toContain('unique-api')
+      expect(documentNames).toContain('duplicate-api')
+      expect(documentNames).toContain('duplicate-api-1')
+      expect(documentNames).toContain('another-unique-api')
+
+      expect(resultWorkspace.workspace.documents['unique-api']?.info.version).toBe('1.0.0')
+      expect(resultWorkspace.workspace.documents['duplicate-api']?.info.version).toBe('1.0.0')
+      expect(resultWorkspace.workspace.documents['duplicate-api-1']?.info.version).toBe('2.0.0')
+      expect(resultWorkspace.workspace.documents['another-unique-api']?.info.version).toBe('1.0.0')
+    })
+
+    it('handles documents without title falling back to default title', async () => {
+      const collection1 = collectionSchema.parse({
+        uid: 'my-collection',
+        openapi: '3.1.0',
+        info: {
+          version: '1.0.0',
+        },
+      })
+
+      const collection2 = collectionSchema.parse({
+        uid: 'my-collection-2',
+        openapi: '3.1.0',
+        info: {
+          version: '2.0.0',
+        },
+      })
+
+      const workspace = workspaceSchema.parse({
+        uid: 'workspace-1',
+        name: 'Test Workspace',
+        collections: ['my-collection', 'my-collection-2'],
+      })
+
+      const legacyData = createLegacyData({
+        workspaces: [workspace],
+        collections: [collection1, collection2],
+      })
+
+      const result = await transformLegacyDataToWorkspace(legacyData)
+      const resultWorkspace = result[0]!
+
+      const documentNames = Object.keys(resultWorkspace.workspace.documents)
+
+      expect(documentNames).toHaveLength(2)
+      expect(documentNames).toContain('api')
+      expect(documentNames).toContain('api-1')
+    })
+
+    it('handles duplicate documents when title is missing and defaults to API', async () => {
+      const collection1 = collectionSchema.parse({
+        uid: 'same-uid',
+        openapi: '3.1.0',
+        info: {
+          version: '1.0.0',
+        },
+      })
+
+      const collection2 = collectionSchema.parse({
+        uid: 'same-uid',
+        openapi: '3.1.0',
+        info: {
+          version: '2.0.0',
+        },
+      })
+
+      const workspace = workspaceSchema.parse({
+        uid: 'workspace-1',
+        name: 'Test Workspace',
+        collections: ['same-uid', 'same-uid'],
+      })
+
+      const legacyData = createLegacyData({
+        workspaces: [workspace],
+        collections: [collection1, collection2],
+      })
+
+      const result = await transformLegacyDataToWorkspace(legacyData)
+      const resultWorkspace = result[0]!
+
+      const documentNames = Object.keys(resultWorkspace.workspace.documents)
+
+      expect(documentNames).toHaveLength(2)
+      expect(documentNames).toContain('api')
+      expect(documentNames).toContain('api-1')
+    })
+
+    it('handles many duplicate documents with incremental naming', async () => {
+      const collections = Array.from({ length: 5 }, (_, i) =>
+        collectionSchema.parse({
+          uid: `collection-${i}`,
+          openapi: '3.1.0',
+          info: {
+            title: 'Repeated API',
+            version: `${i + 1}.0.0`,
+          },
+        }),
+      )
+
+      const workspace = workspaceSchema.parse({
+        uid: 'workspace-1',
+        name: 'Test Workspace',
+        collections: collections.map((c) => c.uid),
+      })
+
+      const legacyData = createLegacyData({
+        workspaces: [workspace],
+        collections,
+      })
+
+      const result = await transformLegacyDataToWorkspace(legacyData)
+      const resultWorkspace = result[0]!
+
+      const documentNames = Object.keys(resultWorkspace.workspace.documents)
+
+      expect(documentNames).toHaveLength(5)
+      expect(documentNames).toContain('repeated-api')
+      expect(documentNames).toContain('repeated-api-1')
+      expect(documentNames).toContain('repeated-api-2')
+      expect(documentNames).toContain('repeated-api-3')
+      expect(documentNames).toContain('repeated-api-4')
+
+      expect(resultWorkspace.workspace.documents['repeated-api']?.info.version).toBe('1.0.0')
+      expect(resultWorkspace.workspace.documents['repeated-api-1']?.info.version).toBe('2.0.0')
+      expect(resultWorkspace.workspace.documents['repeated-api-2']?.info.version).toBe('3.0.0')
+      expect(resultWorkspace.workspace.documents['repeated-api-3']?.info.version).toBe('4.0.0')
+      expect(resultWorkspace.workspace.documents['repeated-api-4']?.info.version).toBe('5.0.0')
+    })
+
+    it('preserves "Drafts" special case normalization with duplicates', async () => {
+      const collection1 = collectionSchema.parse({
+        uid: 'collection-1',
+        openapi: '3.1.0',
+        info: {
+          title: 'Drafts',
+          version: '1.0.0',
+        },
+      })
+
+      const collection2 = collectionSchema.parse({
+        uid: 'collection-2',
+        openapi: '3.1.0',
+        info: {
+          title: 'Drafts',
+          version: '2.0.0',
+        },
+      })
+
+      const workspace = workspaceSchema.parse({
+        uid: 'workspace-1',
+        name: 'Test Workspace',
+        collections: ['collection-1', 'collection-2'],
+      })
+
+      const legacyData = createLegacyData({
+        workspaces: [workspace],
+        collections: [collection1, collection2],
+      })
+
+      const result = await transformLegacyDataToWorkspace(legacyData)
+      const resultWorkspace = result[0]!
+
+      const documentNames = Object.keys(resultWorkspace.workspace.documents)
+
+      expect(documentNames).toHaveLength(2)
+      expect(documentNames).toContain('drafts')
+      expect(documentNames).toContain('drafts-1')
+
+      expect(resultWorkspace.workspace.documents['drafts']?.info.version).toBe('1.0.0')
+      expect(resultWorkspace.workspace.documents['drafts-1']?.info.version).toBe('2.0.0')
+    })
+
+    it('ensures uniqueness is per workspace, not global', async () => {
+      const collection1 = collectionSchema.parse({
+        uid: 'collection-1',
+        openapi: '3.1.0',
+        info: {
+          title: 'Shared Name API',
+          version: '1.0.0',
+        },
+      })
+
+      const collection2 = collectionSchema.parse({
+        uid: 'collection-2',
+        openapi: '3.1.0',
+        info: {
+          title: 'Shared Name API',
+          version: '2.0.0',
+        },
+      })
+
+      const collection3 = collectionSchema.parse({
+        uid: 'collection-3',
+        openapi: '3.1.0',
+        info: {
+          title: 'Shared Name API',
+          version: '3.0.0',
+        },
+      })
+
+      const collection4 = collectionSchema.parse({
+        uid: 'collection-4',
+        openapi: '3.1.0',
+        info: {
+          title: 'Shared Name API',
+          version: '4.0.0',
+        },
+      })
+
+      const workspace1 = workspaceSchema.parse({
+        uid: 'workspace-1',
+        name: 'Workspace One',
+        collections: ['collection-1', 'collection-2'],
+      })
+
+      const workspace2 = workspaceSchema.parse({
+        uid: 'workspace-2',
+        name: 'Workspace Two',
+        collections: ['collection-3', 'collection-4'],
+      })
+
+      const legacyData = createLegacyData({
+        workspaces: [workspace1, workspace2],
+        collections: [collection1, collection2, collection3, collection4],
+      })
+
+      const result = await transformLegacyDataToWorkspace(legacyData)
+
+      expect(result).toHaveLength(2)
+
+      const workspace1Result = result[0]!
+      const workspace2Result = result[1]!
+
+      const workspace1DocNames = Object.keys(workspace1Result.workspace.documents)
+      const workspace2DocNames = Object.keys(workspace2Result.workspace.documents)
+
+      expect(workspace1DocNames).toHaveLength(2)
+      expect(workspace1DocNames).toContain('shared-name-api')
+      expect(workspace1DocNames).toContain('shared-name-api-1')
+
+      expect(workspace2DocNames).toHaveLength(2)
+      expect(workspace2DocNames).toContain('shared-name-api')
+      expect(workspace2DocNames).toContain('shared-name-api-1')
+
+      expect(workspace1Result.workspace.documents['shared-name-api']?.info.version).toBe('1.0.0')
+      expect(workspace1Result.workspace.documents['shared-name-api-1']?.info.version).toBe('2.0.0')
+      expect(workspace2Result.workspace.documents['shared-name-api']?.info.version).toBe('3.0.0')
+      expect(workspace2Result.workspace.documents['shared-name-api-1']?.info.version).toBe('4.0.0')
     })
   })
 })

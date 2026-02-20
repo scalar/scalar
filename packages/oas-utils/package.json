@@ -102,6 +102,7 @@
     "@scalar/types": "workspace:*",
     "@scalar/workspace-store": "workspace:*",
     "flatted": "catalog:*",
+    "github-slugger": "catalog:*",
     "type-fest": "catalog:*",
     "vue": "catalog:*",
     "yaml": "catalog:*",
