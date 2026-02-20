@@ -2,6 +2,7 @@ import { CONTENT_TYPES } from '@scalar/helpers/consts/content-types'
 import { extractConfigSecrets, removeSecretFields } from '@scalar/helpers/general/extract-config-secrets'
 import { circularToRefs } from '@scalar/helpers/object/circular-to-refs'
 import { objectEntries } from '@scalar/helpers/object/object-entries'
+import { extractServer } from '@scalar/helpers/url/extract-server'
 import type { Oauth2Flow } from '@scalar/types/entities'
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
 import { type Auth, AuthSchema } from '@scalar/workspace-store/entities/auth'
@@ -23,6 +24,7 @@ import {
   type ParameterWithSchemaObject,
   type PathItemObject,
   type RequestBodyObject,
+  type ServerObject,
   type TagObject,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import type { WorkspaceDocument, WorkspaceExtensions, WorkspaceMeta } from '@scalar/workspace-store/schemas/workspace'
@@ -271,12 +273,16 @@ const transformLegacyEnvironments = (
  *
  * Each request becomes an operation in the paths object.
  * Request examples are merged into parameter examples and request body examples.
+ *
+ * Also extracts servers from paths that contain full URLs (e.g., "https://api.example.com/users")
+ * and returns them separately for deduplication at the document level.
  */
 const transformRequestsToPaths = (
   collection: v_2_5_0['Collection'],
   dataRecords: v_2_5_0['DataRecord'],
-): Record<string, PathItemObject> => {
+): { paths: Record<string, PathItemObject>; extractedServers: ServerObject[] } => {
   const paths = Object.create(null) as Record<string, PathItemObject>
+  const extractedServers: ServerObject[] = []
 
   for (const requestUid of collection.requests || []) {
     const request = dataRecords.requests[requestUid]
@@ -298,7 +304,43 @@ const transformRequestsToPaths = (
       ...rest
     } = request
 
-    const normalizedPath = path || '/'
+    let normalizedPath = path || '/'
+
+    /**
+     * Extract server from path if it contains a full URL.
+     * This handles legacy data where users may have entered full URLs as paths.
+     */
+    const extractedServerUrl = extractServer(normalizedPath)
+    if (extractedServerUrl) {
+      extractedServers.push({ url: extractedServerUrl })
+      /**
+       * Strip the server from the path, leaving only the pathname + search + hash.
+       * For example: "https://api.example.com/users?page=1" → "/users?page=1"
+       *
+       * We need to manually extract the path to avoid URL encoding issues.
+       * The URL constructor encodes special characters like {id} → %7Bid%7D,
+       * which breaks OpenAPI path parameters.
+       */
+      const serverLength = extractedServerUrl.length
+      normalizedPath = normalizedPath.slice(serverLength)
+
+      /**
+       * Handle edge case where the path after server is empty or just "/"
+       * Example: "https://api.example.com" → "" → "/"
+       */
+      if (!normalizedPath) {
+        normalizedPath = '/'
+      }
+      // Handle double slashes from malformed URLs like "https://api.example.com//users"
+      else if (normalizedPath.startsWith('//')) {
+        normalizedPath = normalizedPath.slice(1)
+      }
+    }
+
+    // Normalize relative paths to start with a leading slash. OpenAPI paths must start with "/" per the spec
+    if (!normalizedPath.startsWith('/')) {
+      normalizedPath = `/${normalizedPath}`
+    }
 
     // Initialize path object if it doesn't exist
     if (!paths[normalizedPath]) {
@@ -340,10 +382,13 @@ const transformRequestsToPaths = (
       })
     }
 
-    paths[normalizedPath][method] = partialOperation
+    const pathItem = paths[normalizedPath]
+    if (pathItem) {
+      pathItem[method] = partialOperation
+    }
   }
 
-  return paths
+  return { paths, extractedServers }
 }
 
 /**
@@ -732,8 +777,34 @@ const transformCollectionToDocument = (
   // Transform tags: separate parent tags (groups) from child tags
   const { tags, tagGroups } = transformLegacyTags(collection, dataRecords)
 
-  // Transform requests into paths
-  const paths = transformRequestsToPaths(collection, dataRecords)
+  // Transform requests into paths and extract servers from full URLs
+  const { paths, extractedServers } = transformRequestsToPaths(collection, dataRecords)
+
+  /**
+   * Merge and deduplicate servers:
+   * 1. Start with existing collection servers
+   * 2. Add extracted servers from paths
+   * 3. Deduplicate by URL (keep first occurrence)
+   */
+  const existingServers = collection.servers.flatMap((uid) => {
+    const server = dataRecords.servers[uid]
+    if (!server) {
+      return []
+    }
+
+    const { uid: _, ...rest } = server
+    return [rest]
+  })
+
+  const allServers = [...existingServers, ...extractedServers]
+  const seenUrls = new Set<string>()
+  const deduplicatedServers = allServers.filter((server) => {
+    if (seenUrls.has(server.url)) {
+      return false
+    }
+    seenUrls.add(server.url)
+    return true
+  })
 
   const document: Record<string, unknown> = {
     openapi: collection.openapi || '3.1.0',
@@ -741,15 +812,7 @@ const transformCollectionToDocument = (
       title: documentName,
       version: '1.0',
     },
-    servers: collection.servers.flatMap((uid) => {
-      const server = dataRecords.servers[uid]
-      if (!server) {
-        return []
-      }
-
-      const { uid: _, ...rest } = server
-      return [rest]
-    }),
+    servers: deduplicatedServers,
     paths,
     /**
      * Preserve all component types from the collection and merge with transformed security schemes.

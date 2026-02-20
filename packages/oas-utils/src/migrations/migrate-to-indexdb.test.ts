@@ -3627,6 +3627,655 @@ describe('migrate-to-indexdb', () => {
       })
     })
 
+    describe('extracting servers from paths', () => {
+      it('extracts server from path with full URL before the slash', async () => {
+        const request = requestSchema.parse({
+          uid: 'request-1',
+          path: 'https://api.example.com/users',
+          method: 'get',
+          summary: 'Get users',
+        })
+
+        const legacyData = createLegacyData({
+          title: 'Users API',
+          collection: { requests: ['request-1'] },
+          requests: [request],
+        })
+
+        const result = await transformLegacyDataToWorkspace(legacyData)
+        const doc = result[0]?.workspace.documents['users-api']
+
+        assert(doc)
+        expect(doc).toMatchObject({
+          openapi: '3.1.0',
+          info: { title: 'Users API', version: '1.0.0' },
+          servers: [{ url: 'https://api.example.com' }],
+          paths: {
+            '/users': {
+              get: {
+                summary: 'Get users',
+              },
+            },
+          },
+        })
+      })
+
+      it('extracts server from path with URL and port', async () => {
+        const request = requestSchema.parse({
+          uid: 'request-1',
+          path: 'http://localhost:3000/api/users',
+          method: 'post',
+          summary: 'Create user',
+        })
+
+        const legacyData = createLegacyData({
+          title: 'Local API',
+          collection: { requests: ['request-1'] },
+          requests: [request],
+        })
+
+        const result = await transformLegacyDataToWorkspace(legacyData)
+        const doc = result[0]?.workspace.documents['local-api']
+
+        assert(doc)
+        expect(doc).toMatchObject({
+          openapi: '3.1.0',
+          info: { title: 'Local API', version: '1.0.0' },
+          servers: [{ url: 'http://localhost:3000' }],
+          paths: {
+            '/api/users': {
+              post: {
+                summary: 'Create user',
+              },
+            },
+          },
+        })
+      })
+
+      it('extracts multiple unique servers from different paths', async () => {
+        const request1 = requestSchema.parse({
+          uid: 'request-1',
+          path: 'https://api.example.com/users',
+          method: 'get',
+          summary: 'Get users',
+        })
+
+        const request2 = requestSchema.parse({
+          uid: 'request-2',
+          path: 'https://api-staging.example.com/products',
+          method: 'get',
+          summary: 'Get products',
+        })
+
+        const legacyData = createLegacyData({
+          title: 'Multi Server API',
+          collection: { requests: ['request-1', 'request-2'] },
+          requests: [request1, request2],
+        })
+
+        const result = await transformLegacyDataToWorkspace(legacyData)
+        const doc = result[0]?.workspace.documents['multi-server-api']
+
+        assert(doc)
+        expect(doc.servers).toEqual(
+          expect.arrayContaining([{ url: 'https://api.example.com' }, { url: 'https://api-staging.example.com' }]),
+        )
+        expect(doc.servers).toHaveLength(2)
+        expect(doc).toMatchObject({
+          paths: {
+            '/users': {
+              get: {
+                summary: 'Get users',
+              },
+            },
+            '/products': {
+              get: {
+                summary: 'Get products',
+              },
+            },
+          },
+        })
+      })
+
+      it('does not duplicate servers when URL is already in collection servers', async () => {
+        const existingServer = serverSchema.parse({
+          uid: 'server-1',
+          url: 'https://api.example.com',
+          description: 'Production server',
+        })
+
+        const request = requestSchema.parse({
+          uid: 'request-1',
+          path: 'https://api.example.com/users',
+          method: 'get',
+          summary: 'Get users',
+        })
+
+        const legacyData = createLegacyData({
+          title: 'Users API',
+          collection: { servers: ['server-1'], requests: ['request-1'] },
+          servers: [existingServer],
+          requests: [request],
+        })
+
+        const result = await transformLegacyDataToWorkspace(legacyData)
+        const doc = result[0]?.workspace.documents['users-api']
+
+        assert(doc)
+        expect(doc.servers).toEqual([
+          {
+            url: 'https://api.example.com',
+            description: 'Production server',
+          },
+        ])
+        expect(doc.servers).toHaveLength(1)
+        expect(doc).toMatchObject({
+          paths: {
+            '/users': {
+              get: {
+                summary: 'Get users',
+              },
+            },
+          },
+        })
+      })
+
+      it('does not extract servers from paths missing the leading slash', async () => {
+        const request1 = requestSchema.parse({
+          uid: 'request-1',
+          path: 'users/places',
+          method: 'get',
+          summary: 'Get user places',
+        })
+
+        const request2 = requestSchema.parse({
+          uid: 'request-2',
+          path: 'users',
+          method: 'post',
+          summary: 'Create user',
+        })
+
+        const legacyData = createLegacyData({
+          title: 'Malformed Paths API',
+          collection: { requests: ['request-1', 'request-2'] },
+          requests: [request1, request2],
+        })
+
+        const result = await transformLegacyDataToWorkspace(legacyData)
+        const doc = result[0]?.workspace.documents['malformed-paths-api']
+
+        assert(doc)
+        expect(doc.servers).toEqual([])
+        expect(doc).toMatchObject({
+          paths: {
+            '/users/places': {
+              get: {
+                summary: 'Get user places',
+              },
+            },
+            '/users': {
+              post: {
+                summary: 'Create user',
+              },
+            },
+          },
+        })
+      })
+
+      it('extracts server and preserves existing collection servers', async () => {
+        const existingServer = serverSchema.parse({
+          uid: 'server-1',
+          url: 'https://api-staging.example.com',
+          description: 'Staging server',
+        })
+
+        const request = requestSchema.parse({
+          uid: 'request-1',
+          path: 'https://api.example.com/users',
+          method: 'get',
+          summary: 'Get users',
+        })
+
+        const legacyData = createLegacyData({
+          title: 'Users API',
+          collection: { servers: ['server-1'], requests: ['request-1'] },
+          servers: [existingServer],
+          requests: [request],
+        })
+
+        const result = await transformLegacyDataToWorkspace(legacyData)
+        const doc = result[0]?.workspace.documents['users-api']
+
+        assert(doc)
+        expect(doc.servers).toEqual(
+          expect.arrayContaining([
+            { url: 'https://api-staging.example.com', description: 'Staging server' },
+            { url: 'https://api.example.com' },
+          ]),
+        )
+        expect(doc.servers).toHaveLength(2)
+        expect(doc).toMatchObject({
+          paths: {
+            '/users': {
+              get: {
+                summary: 'Get users',
+              },
+            },
+          },
+        })
+      })
+
+      it('extracts server with trailing slash from path', async () => {
+        const request = requestSchema.parse({
+          uid: 'request-1',
+          path: 'https://api.example.com//users',
+          method: 'get',
+          summary: 'Get users',
+        })
+
+        const legacyData = createLegacyData({
+          title: 'Users API',
+          collection: { requests: ['request-1'] },
+          requests: [request],
+        })
+
+        const result = await transformLegacyDataToWorkspace(legacyData)
+        const doc = result[0]?.workspace.documents['users-api']
+
+        assert(doc)
+        expect(doc).toMatchObject({
+          openapi: '3.1.0',
+          info: { title: 'Users API', version: '1.0.0' },
+          servers: [{ url: 'https://api.example.com' }],
+          paths: {
+            '/users': {
+              get: {
+                summary: 'Get users',
+              },
+            },
+          },
+        })
+      })
+
+      it('handles mixed paths with and without embedded servers', async () => {
+        const request1 = requestSchema.parse({
+          uid: 'request-1',
+          path: 'https://api.example.com/users',
+          method: 'get',
+          summary: 'Get users',
+        })
+
+        const request2 = requestSchema.parse({
+          uid: 'request-2',
+          path: '/products',
+          method: 'get',
+          summary: 'Get products',
+        })
+
+        const request3 = requestSchema.parse({
+          uid: 'request-3',
+          path: 'https://api-v2.example.com/orders',
+          method: 'get',
+          summary: 'Get orders',
+        })
+
+        const legacyData = createLegacyData({
+          title: 'Mixed Paths API',
+          collection: { requests: ['request-1', 'request-2', 'request-3'] },
+          requests: [request1, request2, request3],
+        })
+
+        const result = await transformLegacyDataToWorkspace(legacyData)
+        const doc = result[0]?.workspace.documents['mixed-paths-api']
+
+        assert(doc)
+        expect(doc.servers).toEqual(
+          expect.arrayContaining([{ url: 'https://api.example.com' }, { url: 'https://api-v2.example.com' }]),
+        )
+        expect(doc.servers).toHaveLength(2)
+        expect(doc).toMatchObject({
+          paths: {
+            '/users': {
+              get: {
+                summary: 'Get users',
+              },
+            },
+            '/products': {
+              get: {
+                summary: 'Get products',
+              },
+            },
+            '/orders': {
+              get: {
+                summary: 'Get orders',
+              },
+            },
+          },
+        })
+      })
+
+      it('extracts server from path with complex URL structure', async () => {
+        const request = requestSchema.parse({
+          uid: 'request-1',
+          path: 'https://api.example.com:8080/v1/users',
+          method: 'get',
+          summary: 'Get users',
+        })
+
+        const legacyData = createLegacyData({
+          title: 'Complex URL API',
+          collection: { requests: ['request-1'] },
+          requests: [request],
+        })
+
+        const result = await transformLegacyDataToWorkspace(legacyData)
+        const doc = result[0]?.workspace.documents['complex-url-api']
+
+        assert(doc)
+        expect(doc).toMatchObject({
+          openapi: '3.1.0',
+          info: { title: 'Complex URL API', version: '1.0.0' },
+          servers: [{ url: 'https://api.example.com:8080' }],
+          paths: {
+            '/v1/users': {
+              get: {
+                summary: 'Get users',
+              },
+            },
+          },
+        })
+      })
+
+      it('does not extract from paths that look like URLs but have no protocol', async () => {
+        const request = requestSchema.parse({
+          uid: 'request-1',
+          path: 'api.example.com/users',
+          method: 'get',
+          summary: 'Get users',
+        })
+
+        const legacyData = createLegacyData({
+          title: 'No Protocol API',
+          collection: { requests: ['request-1'] },
+          requests: [request],
+        })
+
+        const result = await transformLegacyDataToWorkspace(legacyData)
+        const doc = result[0]?.workspace.documents['no-protocol-api']
+
+        assert(doc)
+        expect(doc.servers).toEqual([])
+        expect(doc).toMatchObject({
+          paths: {
+            '/api.example.com/users': {
+              get: {
+                summary: 'Get users',
+              },
+            },
+          },
+        })
+      })
+
+      it('extracts same server from multiple paths without duplication', async () => {
+        const request1 = requestSchema.parse({
+          uid: 'request-1',
+          path: 'https://api.example.com/users',
+          method: 'get',
+          summary: 'Get users',
+        })
+
+        const request2 = requestSchema.parse({
+          uid: 'request-2',
+          path: 'https://api.example.com/products',
+          method: 'get',
+          summary: 'Get products',
+        })
+
+        const request3 = requestSchema.parse({
+          uid: 'request-3',
+          path: 'https://api.example.com/orders',
+          method: 'post',
+          summary: 'Create order',
+        })
+
+        const legacyData = createLegacyData({
+          title: 'Dedup Server API',
+          collection: { requests: ['request-1', 'request-2', 'request-3'] },
+          requests: [request1, request2, request3],
+        })
+
+        const result = await transformLegacyDataToWorkspace(legacyData)
+        const doc = result[0]?.workspace.documents['dedup-server-api']
+
+        assert(doc)
+        expect(doc.servers).toEqual([{ url: 'https://api.example.com' }])
+        expect(doc.servers).toHaveLength(1)
+        expect(doc).toMatchObject({
+          paths: {
+            '/users': {
+              get: {
+                summary: 'Get users',
+              },
+            },
+            '/products': {
+              get: {
+                summary: 'Get products',
+              },
+            },
+            '/orders': {
+              post: {
+                summary: 'Create order',
+              },
+            },
+          },
+        })
+      })
+
+      it('extracts server with path containing query parameters', async () => {
+        const request = requestSchema.parse({
+          uid: 'request-1',
+          path: 'https://api.example.com/users?page=1',
+          method: 'get',
+          summary: 'Get users',
+        })
+
+        const legacyData = createLegacyData({
+          title: 'Query Params API',
+          collection: { requests: ['request-1'] },
+          requests: [request],
+        })
+
+        const result = await transformLegacyDataToWorkspace(legacyData)
+        const doc = result[0]?.workspace.documents['query-params-api']
+
+        assert(doc)
+        expect(doc).toMatchObject({
+          openapi: '3.1.0',
+          info: { title: 'Query Params API', version: '1.0.0' },
+          servers: [{ url: 'https://api.example.com' }],
+          paths: {
+            '/users?page=1': {
+              get: {
+                summary: 'Get users',
+              },
+            },
+          },
+        })
+      })
+
+      it('does not duplicate when extracted server matches existing server with same URL but different description', async () => {
+        const existingServer = serverSchema.parse({
+          uid: 'server-1',
+          url: 'https://api.example.com',
+          description: 'Production server',
+        })
+
+        const request = requestSchema.parse({
+          uid: 'request-1',
+          path: 'https://api.example.com/users',
+          method: 'get',
+          summary: 'Get users',
+        })
+
+        const legacyData = createLegacyData({
+          title: 'Users API',
+          collection: { servers: ['server-1'], requests: ['request-1'] },
+          servers: [existingServer],
+          requests: [request],
+        })
+
+        const result = await transformLegacyDataToWorkspace(legacyData)
+        const doc = result[0]?.workspace.documents['users-api']
+
+        assert(doc)
+        expect(doc.servers).toEqual([
+          {
+            url: 'https://api.example.com',
+            description: 'Production server',
+          },
+        ])
+        expect(doc.servers).toHaveLength(1)
+      })
+
+      it('handles paths with just a domain and no path component', async () => {
+        const request = requestSchema.parse({
+          uid: 'request-1',
+          path: 'https://api.example.com/',
+          method: 'get',
+          summary: 'Root endpoint',
+        })
+
+        const legacyData = createLegacyData({
+          title: 'Root API',
+          collection: { requests: ['request-1'] },
+          requests: [request],
+        })
+
+        const result = await transformLegacyDataToWorkspace(legacyData)
+        const doc = result[0]?.workspace.documents['root-api']
+
+        assert(doc)
+        expect(doc).toMatchObject({
+          openapi: '3.1.0',
+          info: { title: 'Root API', version: '1.0.0' },
+          servers: [{ url: 'https://api.example.com' }],
+          paths: {
+            '/': {
+              get: {
+                summary: 'Root endpoint',
+              },
+            },
+          },
+        })
+      })
+
+      it('does not extract from relative paths without protocol', async () => {
+        const request1 = requestSchema.parse({
+          uid: 'request-1',
+          path: 'users/places',
+          method: 'get',
+          summary: 'Get user places',
+        })
+
+        const request2 = requestSchema.parse({
+          uid: 'request-2',
+          path: 'users',
+          method: 'get',
+          summary: 'Get users',
+        })
+
+        const legacyData = createLegacyData({
+          title: 'Relative Paths API',
+          collection: { requests: ['request-1', 'request-2'] },
+          requests: [request1, request2],
+        })
+
+        const result = await transformLegacyDataToWorkspace(legacyData)
+        const doc = result[0]?.workspace.documents['relative-paths-api']
+
+        assert(doc)
+        expect(doc.servers).toEqual([])
+        expect(doc).toMatchObject({
+          paths: {
+            '/users/places': {
+              get: {
+                summary: 'Get user places',
+              },
+            },
+            '/users': {
+              get: {
+                summary: 'Get users',
+              },
+            },
+          },
+        })
+      })
+
+      it('extracts server with subdomain and path', async () => {
+        const request = requestSchema.parse({
+          uid: 'request-1',
+          path: 'https://v2.api.example.com/users',
+          method: 'get',
+          summary: 'Get users',
+        })
+
+        const legacyData = createLegacyData({
+          title: 'Subdomain API',
+          collection: { requests: ['request-1'] },
+          requests: [request],
+        })
+
+        const result = await transformLegacyDataToWorkspace(legacyData)
+        const doc = result[0]?.workspace.documents['subdomain-api']
+
+        assert(doc)
+        expect(doc).toMatchObject({
+          openapi: '3.1.0',
+          info: { title: 'Subdomain API', version: '1.0.0' },
+          servers: [{ url: 'https://v2.api.example.com' }],
+          paths: {
+            '/users': {
+              get: {
+                summary: 'Get users',
+              },
+            },
+          },
+        })
+      })
+
+      it('handles paths with URL and nested path segments', async () => {
+        const request = requestSchema.parse({
+          uid: 'request-1',
+          path: 'https://api.example.com/v1/users/{id}/posts',
+          method: 'get',
+          summary: 'Get user posts',
+        })
+
+        const legacyData = createLegacyData({
+          title: 'Nested Path API',
+          collection: { requests: ['request-1'] },
+          requests: [request],
+        })
+
+        const result = await transformLegacyDataToWorkspace(legacyData)
+        const doc = result[0]?.workspace.documents['nested-path-api']
+
+        assert(doc)
+        expect(doc).toMatchObject({
+          openapi: '3.1.0',
+          info: { title: 'Nested Path API', version: '1.0.0' },
+          servers: [{ url: 'https://api.example.com' }],
+          paths: {
+            '/v1/users/{id}/posts': {
+              get: {
+                summary: 'Get user posts',
+              },
+            },
+          },
+        })
+      })
+    })
+
     describe('request with security', () => {
       it('transforms a request with security requirements', async () => {
         const scheme = securitySchemeSchema.parse({
