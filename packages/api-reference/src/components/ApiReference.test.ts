@@ -566,7 +566,6 @@ Welcome to the API.
     })
 
     await flushPromises()
-    await wrapper.vm.$nextTick()
 
     const introduction = wrapper.vm.sidebarItems.find(
       (item: { type: string; title: string }) => item.type === 'text' && item.title === 'Introduction',
@@ -576,23 +575,21 @@ Welcome to the API.
       throw new Error('Expected Introduction entry in sidebar items')
     }
 
-    const sidebar = wrapper.findComponent({ name: 'ScalarSidebar' })
-    expect(sidebar.exists()).toBe(true)
+    const introductionButton = wrapper.find(`[data-sidebar-id="${introduction.id}"] [aria-selected]`)
+    const introductionToggle = wrapper.find(
+      // Make sure we select the toggle not the group button
+      `[data-sidebar-id="${introduction.id}"] [aria-expanded]:not([aria-selected])`,
+    )
 
-    sidebar.vm.$emit('selectItem', introduction.id)
-    await flushPromises()
-    await wrapper.vm.$nextTick()
+    expect(introductionButton.attributes('aria-expanded')).toBe('false')
+    expect(introductionToggle.attributes('aria-expanded')).toBe('false')
 
-    let introductionToggle = wrapper.find(`[data-sidebar-id="${introduction.id}"] [aria-expanded]`)
-    expect(introductionToggle.exists()).toBe(true)
+    await introductionButton.trigger('click')
+    expect(introductionButton.attributes('aria-expanded')).toBe('true')
     expect(introductionToggle.attributes('aria-expanded')).toBe('true')
 
-    sidebar.vm.$emit('selectItem', introduction.id)
-    await flushPromises()
-    await wrapper.vm.$nextTick()
-
-    introductionToggle = wrapper.find(`[data-sidebar-id="${introduction.id}"] [aria-expanded]`)
-    expect(introductionToggle.exists()).toBe(true)
+    await introductionToggle.trigger('click')
+    expect(introductionButton.attributes('aria-expanded')).toBe('false')
     expect(introductionToggle.attributes('aria-expanded')).toBe('false')
   })
 })
