@@ -486,6 +486,9 @@ const selectedExample = computed({
   get: () => {
     const rawValue = example.body.raw?.value ?? '{}'
     try {
+      if (selectedContentType.value?.id === 'xml') {
+        return exampleOptions.value[0]
+      }
       const parsedValue = JSON.parse(rawValue)
       const getExample = exampleOptions.value.find((e) => {
         const exampleValue = e.value as {
@@ -507,7 +510,11 @@ const selectedExample = computed({
         const exampleValue = exampleOption.value as {
           value: Record<string, string>
         }
-        updateRequestBody(JSON.stringify(exampleValue.value, null, 2))
+        updateRequestBody(
+          selectedContentType.value?.id === 'xml'
+            ? String(exampleValue.value)
+            : JSON.stringify(exampleValue.value, null, 2),
+        )
       }
     }
   },
