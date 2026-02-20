@@ -1,5 +1,29 @@
 # @scalar/astro
 
+## 0.1.20
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/core@0.3.41**
+
+## 0.1.19
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/core@0.3.40**
+
+## 0.1.18
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/core@0.3.39**
+
 ## 0.1.17
 
 ### Patch Changes

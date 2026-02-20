@@ -8,11 +8,7 @@ import {
   type WorkspaceGroup,
 } from '@scalar/components'
 import { isMacOS } from '@scalar/helpers/general/is-mac-os'
-import {
-  ScalarIconDotsThree,
-  ScalarIconGlobe,
-  ScalarIconPlus,
-} from '@scalar/icons'
+import { ScalarIconDotsThree, ScalarIconPlus } from '@scalar/icons'
 import { LibraryIcon } from '@scalar/icons/library'
 import type { DraggingItem, HoveredItem, SidebarState } from '@scalar/sidebar'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
@@ -285,7 +281,6 @@ const handleAddEmptyFolder = (item: TraversedEntry) => {
         <ScalarSidebarItem
           is="button"
           :active="isWorkspaceOpen"
-          :icon="ScalarIconGlobe"
           @click="emit('click:workspace')">
           {{ workspaceLabel }}
         </ScalarSidebarItem>

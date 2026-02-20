@@ -3,6 +3,7 @@ import { assert, describe, expect, it } from 'vitest'
 
 import {
   type SecuritySchemeGroup,
+  type SecuritySchemeOption,
   formatComplexScheme,
   formatScheme,
   getSecuritySchemeOptions,
@@ -626,6 +627,36 @@ describe('security-scheme', () => {
           value: { UserAccessToken: ['read'] },
         },
       ])
+    })
+
+    it('should hide add new authentication options when canAddNewAuth is false', () => {
+      const security: NonNullable<OpenApiDocument['security']> = [{ apiKey: [] }]
+      const result = getSecuritySchemeOptions(security, securitySchemes, [], false)
+
+      const groups = result as SecuritySchemeGroup[]
+      expect(groups).toHaveLength(2) // Required and Available only
+      expect(groups[0]!.label).toBe('Required authentication')
+      expect(groups[1]!.label).toBe('Available authentication')
+    })
+
+    it('should show add new authentication options when canAddNewAuth is true', () => {
+      const security: NonNullable<OpenApiDocument['security']> = [{ apiKey: [] }]
+      const result = getSecuritySchemeOptions(security, securitySchemes, [], true)
+
+      const groups = result as SecuritySchemeGroup[]
+      expect(groups).toHaveLength(3)
+      expect(groups[2]!.label).toBe('Add new authentication')
+      expect(groups[2]!.options.length).toBeGreaterThan(0)
+    })
+
+    it('should return flat available list when canAddNewAuth is false and no required schemes', () => {
+      const security: NonNullable<OpenApiDocument['security']> = []
+      const result = getSecuritySchemeOptions(security, securitySchemes, [], false)
+
+      // Should return flat SecuritySchemeOption[] (not grouped)
+      expect(Array.isArray(result)).toBe(true)
+      expect(result.length).toBe(4)
+      expect((result[0] as SecuritySchemeOption).label).toBe('apiKey')
     })
 
     it('should handle when selected schemes do not exist in the available options but not duplicate them', () => {

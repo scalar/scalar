@@ -1,5 +1,94 @@
 # @scalar/workspace-store
 
+## 0.34.2
+
+### Patch Changes
+
+- [#8219](https://github.com/scalar/scalar/pull/8219): chore: default to proxy for web layout
+
+## 0.34.1
+
+### Patch Changes
+
+- [#8212](https://github.com/scalar/scalar/pull/8212): chore: version bump
+
+#### Updated Dependencies
+
+- **@scalar/helpers@0.2.15**
+  - [#8212](https://github.com/scalar/scalar/pull/8212): chore: version bump
+
+- **@scalar/json-magic@0.11.4**
+  - [#8212](https://github.com/scalar/scalar/pull/8212): chore: version bump
+
+- **@scalar/types@0.6.6**
+  - [#8212](https://github.com/scalar/scalar/pull/8212): chore: version bump
+
+- **@scalar/object-utils@1.2.29**
+
+- **@scalar/openapi-upgrader@0.1.8**
+
+- **@scalar/snippetz@0.6.15**
+
+## 0.34.0
+
+### Minor Changes
+
+- [#8198](https://github.com/scalar/scalar/pull/8198): feat: handle workspace rename
+
+### Patch Changes
+
+- [#8208](https://github.com/scalar/scalar/pull/8208): fix: unpack proxy before assigning
+- [#8207](https://github.com/scalar/scalar/pull/8207): chore: version bump
+
+#### Updated Dependencies
+
+- **@scalar/helpers@0.2.14**
+  - [#8207](https://github.com/scalar/scalar/pull/8207): chore: version bump
+
+- **@scalar/json-magic@0.11.3**
+  - [#8207](https://github.com/scalar/scalar/pull/8207): chore: version bump
+
+- **@scalar/types@0.6.5**
+  - [#8207](https://github.com/scalar/scalar/pull/8207): chore: version bump
+
+- **@scalar/object-utils@1.2.28**
+
+- **@scalar/openapi-upgrader@0.1.8**
+
+- **@scalar/snippetz@0.6.14**
+
+## 0.33.0
+
+### Minor Changes
+
+- [#8199](https://github.com/scalar/scalar/pull/8199): feat: create draft example
+
+### Patch Changes
+
+- [#8162](https://github.com/scalar/scalar/pull/8162): feat: allow editing tags
+- [#8151](https://github.com/scalar/scalar/pull/8151): fix: resolve external references on windows
+- [#8191](https://github.com/scalar/scalar/pull/8191): chore: rename create document command
+- [#7826](https://github.com/scalar/scalar/pull/7826): feat: added migrator for v1 local storage to v2 indexdb
+- [#8160](https://github.com/scalar/scalar/pull/8160): fix: update sidebar entry when the operation summary changes
+- [#8133](https://github.com/scalar/scalar/pull/8133): fix: allow editing content-type query parameters in the API client
+
+#### Updated Dependencies
+
+- **@scalar/json-magic@0.11.2**
+  - [#8151](https://github.com/scalar/scalar/pull/8151): fix: resolve external references on windows
+
+- **@scalar/helpers@0.2.13**
+  - [#7826](https://github.com/scalar/scalar/pull/7826): feat: added migrator for v1 local storage to v2 indexdb
+
+- **@scalar/types@0.6.4**
+  - [#8174](https://github.com/scalar/scalar/pull/8174): feat: add `createAnySecurityScheme` config option to control generic auth scheme creation
+
+- **@scalar/object-utils@1.2.27**
+
+- **@scalar/openapi-upgrader@0.1.8**
+
+- **@scalar/snippetz@0.6.13**
+
 ## 0.32.1
 
 ### Patch Changes

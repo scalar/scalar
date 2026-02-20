@@ -10,6 +10,7 @@ import { updateOperationExtension } from '@/mutators/operation/extensions'
 import { addResponseToHistory, reloadOperationHistory } from '@/mutators/operation/history'
 import {
   createOperation,
+  createOperationDraftExample,
   deleteOperation,
   deleteOperationExample,
   updateOperationPathMethod,
@@ -37,6 +38,8 @@ export const operationMutatorsFactory = ({
     updateOperationPathMethod: (payload: OperationEvents['operation:update:pathMethod']) =>
       updateOperationPathMethod(document, store, payload),
     deleteOperation: (payload: OperationEvents['operation:delete:operation']) => deleteOperation(store, payload),
+    createOperationDraftExample: (payload: OperationEvents['operation:create:draft-example']) =>
+      createOperationDraftExample(store, payload),
     deleteOperationExample: (payload: OperationEvents['operation:delete:example']) =>
       deleteOperationExample(store, payload),
     updateOperationExtension: (payload: OperationEvents['operation:update:extension']) =>

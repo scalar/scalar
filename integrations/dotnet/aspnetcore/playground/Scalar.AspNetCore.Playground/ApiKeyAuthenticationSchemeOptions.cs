@@ -23,7 +23,7 @@ internal sealed class ApiKeyAuthenticationSchemeHandler : AuthenticationHandler<
             return Task.FromResult(AuthenticateResult.NoResult());
         }
 
-        if (apiKey != "my-api-key")
+        if (apiKey != "your-api-key")
         {
             return Task.FromResult(AuthenticateResult.Fail("Invalid API key"));
         }

@@ -12,12 +12,12 @@ The `subdomain` property provides a free domain at `https://<subdomain>.apidocum
   "$schema": "https://cdn.scalar.com/schema/scalar-config-next.json",
   "scalar": "2.0.0",
   "siteConfig": {
-    "subdomain": "my-docs"
+    "subdomain": "your-docs"
   }
 }
 ```
 
-Your documentation will be available at `https://my-docs.apidocumentation.com` after deployment.
+Your documentation will be available at `https://your-docs.apidocumentation.com` after deployment.
 
 ## Custom Domain
 

@@ -1,18 +1,11 @@
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
+import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { mount } from '@vue/test-utils'
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { nextTick } from 'vue'
 
 import CommandPaletteExample from './CommandPaletteExample.vue'
-
-// Mock router
-const mockPush = vi.fn()
-vi.mock('vue-router', () => ({
-  useRouter: () => ({
-    push: mockPush,
-  }),
-}))
 
 describe('CommandPaletteExample', () => {
   const createMockWorkspaceStore = async (documents: Record<string, Record<string, unknown>> = {}) => {
@@ -38,20 +31,14 @@ describe('CommandPaletteExample', () => {
     }
   }
 
-  beforeEach(() => {
-    mockPush.mockClear()
-  })
-
-  afterEach(() => {
-    vi.restoreAllMocks()
-  })
-
   it('renders with required props', async () => {
     const workspaceStore = await createMockWorkspaceStore()
+    const eventBus = createWorkspaceEventBus()
 
     const wrapper = mount(CommandPaletteExample, {
       props: {
         workspaceStore,
+        eventBus,
       },
     })
 
@@ -60,10 +47,12 @@ describe('CommandPaletteExample', () => {
 
   it('initializes with empty example name', async () => {
     const workspaceStore = await createMockWorkspaceStore()
+    const eventBus = createWorkspaceEventBus()
 
     const wrapper = mount(CommandPaletteExample, {
       props: {
         workspaceStore,
+        eventBus,
       },
     })
 
@@ -82,10 +71,12 @@ describe('CommandPaletteExample', () => {
       },
     })
     const workspaceStore = await createMockWorkspaceStore({ 'doc1': document })
+    const eventBus = createWorkspaceEventBus()
 
     const wrapper = mount(CommandPaletteExample, {
       props: {
         workspaceStore,
+        eventBus,
       },
     })
 
@@ -104,10 +95,12 @@ describe('CommandPaletteExample', () => {
       },
     })
     const workspaceStore = await createMockWorkspaceStore({ 'doc1': document })
+    const eventBus = createWorkspaceEventBus()
 
     const wrapper = mount(CommandPaletteExample, {
       props: {
         workspaceStore,
+        eventBus,
       },
     })
 
@@ -121,10 +114,12 @@ describe('CommandPaletteExample', () => {
 
   it('disables form when no document is selected', async () => {
     const workspaceStore = await createMockWorkspaceStore()
+    const eventBus = createWorkspaceEventBus()
 
     const wrapper = mount(CommandPaletteExample, {
       props: {
         workspaceStore,
+        eventBus,
       },
     })
 
@@ -139,10 +134,12 @@ describe('CommandPaletteExample', () => {
   it('disables form when no operation is selected', async () => {
     const document = createMockDocument()
     const workspaceStore = await createMockWorkspaceStore({ 'doc1': document })
+    const eventBus = createWorkspaceEventBus()
 
     const wrapper = mount(CommandPaletteExample, {
       props: {
         workspaceStore,
+        eventBus,
       },
     })
 
@@ -165,10 +162,12 @@ describe('CommandPaletteExample', () => {
       },
     })
     const workspaceStore = await createMockWorkspaceStore({ 'doc1': document })
+    const eventBus = createWorkspaceEventBus()
 
     const wrapper = mount(CommandPaletteExample, {
       props: {
         workspaceStore,
+        eventBus,
       },
     })
 
@@ -182,10 +181,12 @@ describe('CommandPaletteExample', () => {
 
   it('updates example name when input changes', async () => {
     const workspaceStore = await createMockWorkspaceStore()
+    const eventBus = createWorkspaceEventBus()
 
     const wrapper = mount(CommandPaletteExample, {
       props: {
         workspaceStore,
+        eventBus,
       },
     })
 
@@ -228,10 +229,12 @@ describe('CommandPaletteExample', () => {
       doc1,
       doc2,
     })
+    const eventBus = createWorkspaceEventBus()
 
     const wrapper = mount(CommandPaletteExample, {
       props: {
         workspaceStore,
+        eventBus,
       },
     })
 
@@ -275,10 +278,12 @@ describe('CommandPaletteExample', () => {
       doc1,
       doc2,
     })
+    const eventBus = createWorkspaceEventBus()
 
     const wrapper = mount(CommandPaletteExample, {
       props: {
         workspaceStore,
+        eventBus,
       },
     })
 
@@ -307,10 +312,12 @@ describe('CommandPaletteExample', () => {
     })
 
     const workspaceStore = await createMockWorkspaceStore({ 'doc1': document })
+    const eventBus = createWorkspaceEventBus()
 
     const wrapper = mount(CommandPaletteExample, {
       props: {
         workspaceStore,
+        eventBus,
       },
     })
 
@@ -349,10 +356,12 @@ describe('CommandPaletteExample', () => {
     })
 
     const workspaceStore = await createMockWorkspaceStore({ 'doc1': document })
+    const eventBus = createWorkspaceEventBus()
 
     const wrapper = mount(CommandPaletteExample, {
       props: {
         workspaceStore,
+        eventBus,
       },
     })
 
@@ -398,10 +407,12 @@ describe('CommandPaletteExample', () => {
       doc1,
       doc2,
     })
+    const eventBus = createWorkspaceEventBus()
 
     const wrapper = mount(CommandPaletteExample, {
       props: {
         workspaceStore,
+        eventBus,
       },
     })
 
@@ -434,10 +445,15 @@ describe('CommandPaletteExample', () => {
     })
 
     const workspaceStore = await createMockWorkspaceStore({ 'doc1': document })
+    const eventBus = createWorkspaceEventBus()
+
+    const fn = vi.fn()
+    eventBus.on('operation:create:draft-example', fn)
 
     const wrapper = mount(CommandPaletteExample, {
       props: {
         workspaceStore,
+        eventBus,
       },
     })
 
@@ -449,14 +465,13 @@ describe('CommandPaletteExample', () => {
     await form.vm.$emit('submit')
     await nextTick()
 
-    expect(mockPush).toHaveBeenCalledWith({
-      name: 'example',
-      params: {
-        documentSlug: 'doc1',
-        pathEncoded: encodeURIComponent('/api/users'),
+    expect(fn).toHaveBeenCalledWith({
+      documentName: 'doc1',
+      meta: {
+        path: '/api/users',
         method: 'get',
-        exampleName: 'My Example',
       },
+      exampleName: 'My Example',
     })
   })
 
@@ -476,10 +491,15 @@ describe('CommandPaletteExample', () => {
     })
 
     const workspaceStore = await createMockWorkspaceStore({ 'doc1': document })
+    const eventBus = createWorkspaceEventBus()
+
+    const fn = vi.fn()
+    eventBus.on('operation:create:draft-example', fn)
 
     const wrapper = mount(CommandPaletteExample, {
       props: {
         workspaceStore,
+        eventBus,
       },
     })
 
@@ -491,13 +511,14 @@ describe('CommandPaletteExample', () => {
     await form.vm.$emit('submit')
     await nextTick()
 
-    expect(mockPush).toHaveBeenCalledWith(
-      expect.objectContaining({
-        params: expect.objectContaining({
-          pathEncoded: encodeURIComponent('/api/users/:id/posts'),
-        }),
-      }),
-    )
+    expect(fn).toHaveBeenCalledWith({
+      documentName: 'doc1',
+      meta: {
+        path: '/api/users/:id/posts',
+        method: 'get',
+      },
+      exampleName: 'Example',
+    })
   })
 
   it('emits close event on successful submission', async () => {
@@ -512,10 +533,12 @@ describe('CommandPaletteExample', () => {
     })
 
     const workspaceStore = await createMockWorkspaceStore({ 'doc1': document })
+    const eventBus = createWorkspaceEventBus()
 
     const wrapper = mount(CommandPaletteExample, {
       props: {
         workspaceStore,
+        eventBus,
       },
     })
 
@@ -533,10 +556,15 @@ describe('CommandPaletteExample', () => {
 
   it('does not submit when form is disabled', async () => {
     const workspaceStore = await createMockWorkspaceStore()
+    const eventBus = createWorkspaceEventBus()
+
+    const fn = vi.fn()
+    eventBus.on('operation:create:draft-example', fn)
 
     const wrapper = mount(CommandPaletteExample, {
       props: {
         workspaceStore,
+        eventBus,
       },
     })
 
@@ -544,7 +572,7 @@ describe('CommandPaletteExample', () => {
     await form.vm.$emit('submit')
     await nextTick()
 
-    expect(mockPush).not.toHaveBeenCalled()
+    expect(fn).not.toHaveBeenCalled()
     expect(wrapper.emitted('close')).toBeFalsy()
   })
 
@@ -560,10 +588,15 @@ describe('CommandPaletteExample', () => {
     })
 
     const workspaceStore = await createMockWorkspaceStore({ 'doc1': document })
+    const eventBus = createWorkspaceEventBus()
+
+    const fn = vi.fn()
+    eventBus.on('operation:create:draft-example', fn)
 
     const wrapper = mount(CommandPaletteExample, {
       props: {
         workspaceStore,
+        eventBus,
       },
     })
 
@@ -575,16 +608,18 @@ describe('CommandPaletteExample', () => {
     await form.vm.$emit('submit')
     await nextTick()
 
-    expect(mockPush).not.toHaveBeenCalled()
+    expect(fn).not.toHaveBeenCalled()
     expect(wrapper.emitted('close')).toBeFalsy()
   })
 
   it('emits back event when delete is triggered on input', async () => {
     const workspaceStore = await createMockWorkspaceStore()
+    const eventBus = createWorkspaceEventBus()
 
     const wrapper = mount(CommandPaletteExample, {
       props: {
         workspaceStore,
+        eventBus,
       },
     })
 
@@ -600,10 +635,12 @@ describe('CommandPaletteExample', () => {
 
   it('handles multiple back events', async () => {
     const workspaceStore = await createMockWorkspaceStore()
+    const eventBus = createWorkspaceEventBus()
 
     const wrapper = mount(CommandPaletteExample, {
       props: {
         workspaceStore,
+        eventBus,
       },
     })
 
@@ -637,10 +674,15 @@ describe('CommandPaletteExample', () => {
     })
 
     const workspaceStore = await createMockWorkspaceStore({ 'doc1': document })
+    const eventBus = createWorkspaceEventBus()
+
+    const fn = vi.fn()
+    eventBus.on('operation:create:draft-example', fn)
 
     const wrapper = mount(CommandPaletteExample, {
       props: {
         workspaceStore,
+        eventBus,
       },
     })
 
@@ -663,7 +705,14 @@ describe('CommandPaletteExample', () => {
     await nextTick()
 
     /** We expect the route to still be created, even if item click did not work */
-    expect(mockPush).toHaveBeenCalled()
+    expect(fn).toHaveBeenCalledWith({
+      documentName: 'doc1',
+      meta: {
+        path: '/api/users',
+        method: 'get',
+      },
+      exampleName: 'Example',
+    })
   })
 
   it('uses document name as label when title is missing', async () => {
@@ -684,10 +733,12 @@ describe('CommandPaletteExample', () => {
     const workspaceStore = await createMockWorkspaceStore({
       'my-document': document,
     })
+    const eventBus = createWorkspaceEventBus()
 
     const wrapper = mount(CommandPaletteExample, {
       props: {
         workspaceStore,
+        eventBus,
       },
     })
 
@@ -709,10 +760,12 @@ describe('CommandPaletteExample', () => {
     })
 
     const workspaceStore = await createMockWorkspaceStore({ 'doc1': document })
+    const eventBus = createWorkspaceEventBus()
 
     const wrapper = mount(CommandPaletteExample, {
       props: {
         workspaceStore,
+        eventBus,
       },
     })
 
@@ -725,10 +778,12 @@ describe('CommandPaletteExample', () => {
 
   it('renders submit button with correct text', async () => {
     const workspaceStore = await createMockWorkspaceStore()
+    const eventBus = createWorkspaceEventBus()
 
     const wrapper = mount(CommandPaletteExample, {
       props: {
         workspaceStore,
+        eventBus,
       },
     })
 
@@ -749,10 +804,12 @@ describe('CommandPaletteExample', () => {
     })
 
     const workspaceStore = await createMockWorkspaceStore({ 'doc1': document })
+    const eventBus = createWorkspaceEventBus()
 
     const wrapper = mount(CommandPaletteExample, {
       props: {
         workspaceStore,
+        eventBus,
       },
     })
 
@@ -783,10 +840,12 @@ describe('CommandPaletteExample', () => {
     const document = createMockDocument()
 
     const workspaceStore = await createMockWorkspaceStore({ 'doc1': document })
+    const eventBus = createWorkspaceEventBus()
 
     const wrapper = mount(CommandPaletteExample, {
       props: {
         workspaceStore,
+        eventBus,
       },
     })
 
@@ -812,10 +871,12 @@ describe('CommandPaletteExample', () => {
     })
 
     const workspaceStore = await createMockWorkspaceStore({ 'doc1': document })
+    const eventBus = createWorkspaceEventBus()
 
     const wrapper = mount(CommandPaletteExample, {
       props: {
         workspaceStore,
+        eventBus,
       },
     })
 

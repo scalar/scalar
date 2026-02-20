@@ -7,7 +7,8 @@ import type { OperationObject } from '@/schemas/v3.1/strict/openapi-document'
  * @param operation - The OpenAPI operation object to extract examples from
  */
 export const traverseOperationExamples = (operation: OperationObject) => {
-  const examples = new Set<string>()
+  // Add all examples from draft examples
+  const examples = new Set<string>(operation['x-draft-examples'] ?? [])
 
   // Add all examples from request bodies
   if (operation.requestBody) {

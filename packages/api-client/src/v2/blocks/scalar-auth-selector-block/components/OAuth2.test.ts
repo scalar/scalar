@@ -162,8 +162,8 @@ describe('OAuth2', () => {
     expect(emit).toEqual({ scopes: ['read'] })
   })
 
-  it('defaults x-scalar-secret-redirect-uri to window.location.origin', async () => {
-    const originalOrigin = window.location.origin
+  it('defaults x-scalar-secret-redirect-uri to window.location.origin + pathname', async () => {
+    const expectedRedirectUri = window.location.origin + window.location.pathname
 
     const emitted = vi.fn()
     eventBus.on('auth:update:security-scheme-secrets', emitted)
@@ -190,7 +190,7 @@ describe('OAuth2', () => {
       payload: {
         type: 'oauth2',
         authorizationCode: {
-          'x-scalar-secret-redirect-uri': originalOrigin,
+          'x-scalar-secret-redirect-uri': expectedRedirectUri,
         },
       },
       name: 'OAuth2',

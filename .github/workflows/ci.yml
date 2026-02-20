@@ -565,6 +565,9 @@ jobs:
     needs: [required-jobs-main]
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
       - name: Build
         uses: ./.github/actions/build
         with:
@@ -585,7 +588,7 @@ jobs:
           # The commit message to use.
           commit: 'chore: version packages'
           # The command to use to build and publish packages
-          publish: 'pnpm -r publish --access public'
+          publish: 'pnpm -r publish --access public --no-git-checks'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           # https://www.npmjs.com/settings/YOUR_ACCOUNT_HANDLE/tokens/granular-access-tokens/new

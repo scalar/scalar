@@ -81,6 +81,8 @@ export const getSecuritySchemeOptions = (
   securitySchemes: NonNullable<ComponentsObject['securitySchemes']>,
   /** We need to add the selected schemes if they do not already exist in the calculated options */
   selectedSchemes: SecurityRequirementObject[],
+  /** Allows adding authentication which is not in the document */
+  canAddNewAuth = true,
 ): SecuritySchemeOption[] | SecuritySchemeGroup[] => {
   /**
    * Build required schemes formatted as options and track scheme names in a single pass.
@@ -138,7 +140,12 @@ export const getSecuritySchemeOptions = (
     { label: 'Available authentication', options: availableFormatted },
   ]
 
-  // Add new authentication options
+  // We don't return the groups if we don't have any required schemes
+  if (!canAddNewAuth) {
+    return requiredFormatted.length ? options : availableFormatted
+  }
+
+  // Add new authentication options (unless explicitly hidden)
   options.push({
     label: 'Add new authentication',
     options: Object.entries(authOptions).map(([key, value]) => ({

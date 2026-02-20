@@ -16,11 +16,13 @@ const { messagePart } = defineProps<{
 const state = useState()
 
 const requestState = computed(() => {
+  if (messagePart.value.state === 'input-streaming') {
+    return 'buildingRequest'
+  }
+
   if (
-    (messagePart.value.state === 'input-available' &&
-      state.chat.status === 'streaming') ||
-    (messagePart.value.state === 'approval-responded' &&
-      state.chat.status === 'submitted')
+    messagePart.value.state === 'approval-responded' &&
+    state.chat.status === 'submitted'
   ) {
     return 'sendingRequest'
   }

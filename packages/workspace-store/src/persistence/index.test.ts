@@ -813,6 +813,115 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
     })
   })
 
+  describe('workspace.updateName', () => {
+    it('returns undefined when workspace does not exist', async () => {
+      const result = await persistence.workspace.updateName(
+        { namespace: 'local', slug: 'missing-workspace' },
+        'New Name',
+      )
+      expect(result).toBeUndefined()
+    })
+
+    it('updates the name and returns the updated workspace', async () => {
+      await persistence.workspace.setItem(
+        { namespace: 'local', slug: 'workspace-1' },
+        {
+          name: 'Original Name',
+          teamUid: 'team-1',
+          workspace: {
+            documents: {},
+            originalDocuments: {},
+            intermediateDocuments: {},
+            overrides: {},
+            meta: {},
+            history: {},
+            auth: {},
+          },
+        },
+      )
+
+      const result = await persistence.workspace.updateName(
+        { namespace: 'local', slug: 'workspace-1' },
+        'Renamed Workspace',
+      )
+
+      expect(result).toBeDefined()
+      expect(result?.name).toBe('Renamed Workspace')
+      expect(result?.namespace).toBe('local')
+      expect(result?.slug).toBe('workspace-1')
+      expect(result?.teamUid).toBe('team-1')
+    })
+
+    it('leaves other workspace fields unchanged', async () => {
+      const workspaceData = {
+        documents: {
+          'doc-1': {
+            openapi: '3.1.0',
+            info: { title: 'API', version: '1.0.0' },
+            paths: {},
+            'x-scalar-original-document-hash': '',
+          },
+        },
+        originalDocuments: {},
+        intermediateDocuments: {},
+        overrides: {},
+        meta: {},
+        history: {},
+        auth: {},
+      }
+
+      await persistence.workspace.setItem(
+        { namespace: 'my-org', slug: 'api-workspace' },
+        {
+          name: 'Old Name',
+          teamUid: 'team-1',
+          workspace: workspaceData,
+        },
+      )
+
+      const result = await persistence.workspace.updateName({ namespace: 'my-org', slug: 'api-workspace' }, 'New Name')
+
+      expect(result?.name).toBe('New Name')
+      expect(result?.teamUid).toBe('team-1')
+
+      const fullWorkspace = await persistence.workspace.getItem({
+        namespace: 'my-org',
+        slug: 'api-workspace',
+      })
+      expect(fullWorkspace?.name).toBe('New Name')
+      expect(fullWorkspace?.workspace.documents).toEqual(workspaceData.documents)
+      expect(fullWorkspace?.workspace.meta).toEqual(workspaceData.meta)
+    })
+
+    it('works with custom namespace and slug', async () => {
+      await persistence.workspace.setItem(
+        { namespace: 'acme-corp', slug: 'project-alpha' },
+        {
+          name: 'Project Alpha',
+          teamUid: 'team-acme',
+          workspace: {
+            documents: {},
+            originalDocuments: {},
+            intermediateDocuments: {},
+            overrides: {},
+            meta: {},
+            history: {},
+            auth: {},
+          },
+        },
+      )
+
+      const result = await persistence.workspace.updateName(
+        { namespace: 'acme-corp', slug: 'project-alpha' },
+        'Project Alpha v2',
+      )
+
+      expect(result?.name).toBe('Project Alpha v2')
+      expect(result?.namespace).toBe('acme-corp')
+      expect(result?.slug).toBe('project-alpha')
+    })
+  })
+
   describe('workspace chunks', () => {
     describe('meta.setItem', () => {
       it('sets workspace meta information', async () => {

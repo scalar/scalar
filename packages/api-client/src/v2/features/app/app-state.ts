@@ -20,7 +20,7 @@ import { extensions } from '@scalar/workspace-store/schemas/extensions'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type { Tab } from '@scalar/workspace-store/schemas/extensions/workspace/x-scalar-tabs'
 import type { TraversedEntry } from '@scalar/workspace-store/schemas/navigation'
-import { type ComputedRef, type Ref, type ShallowRef, computed, ref, shallowRef } from 'vue'
+import { type ComputedRef, type Ref, type ShallowRef, computed, readonly, ref, shallowRef } from 'vue'
 import type { RouteLocationNormalizedGeneric, Router } from 'vue-router'
 
 import { getRouteParam } from '@/v2/features/app/helpers/get-route-param'
@@ -124,8 +124,10 @@ export type AppState = {
     method: Ref<HttpMethod | undefined>
     /** The name of the currently selected example (for examples within an endpoint) */
     exampleName: Ref<string | undefined>
-    /** The unique identifier for the selected team context */
-    teamUid: Ref<string>
+    /** The unique identifier for the selected team context (read-only; use setTeamUid to change) */
+    teamUid: Readonly<Ref<string>>
+    /** Sets the current team context by team UID */
+    setTeamUid: (value: string) => void
   }
   /** The currently active environment */
   environment: ComputedRef<XScalarEnvironment>
@@ -215,6 +217,36 @@ export const createAppState = async ({
       label: name,
     })),
   )
+
+  /**
+   * Renames the currently active workspace.
+   * Updates the workspace name in persistence and updates activeWorkspace if successful.
+   * Returns early if namespace or workspaceSlug is not set, or if update fails.
+   */
+  const renameWorkspace = async (name: string) => {
+    const namespaceValue = namespace.value
+    const slugValue = workspaceSlug.value
+    if (!namespaceValue || !slugValue) {
+      return
+    }
+    const workspaceId = getWorkspaceId(namespaceValue, slugValue)
+    const updateResult = await persistence.updateName({ namespace: namespaceValue, slug: slugValue }, name)
+
+    // If the update fails, return early
+    if (updateResult === undefined) {
+      return
+    }
+
+    // Update the workspace list
+    workspaces.value = workspaces.value.map((workspace) => {
+      // If the workspace is the currently active workspace, update the label
+      if (workspace.id === workspaceId) {
+        return { ...workspace, label: name }
+      }
+      return workspace
+    })
+    activeWorkspace.value = { id: workspaceId, label: name }
+  }
 
   /**
    * Creates a client-side workspace store with persistence enabled for the given workspace id.
@@ -321,15 +353,27 @@ export const createAppState = async ({
 
   /**
    * Navigates to the overview page of the specified workspace.
-   * Updates the route based on the given namespace and slug.
    *
    * @param namespace - The workspace namespace.
    * @param slug - The unique workspace slug (identifier).
    */
   const navigateToWorkspace = async (namespace?: string, slug?: string): Promise<void> => {
+    if (!namespace || !slug) {
+      await router.push('/')
+      return
+    }
+
+    // We should always have this drafts document available in a new workspace
     await router.push({
-      name: 'document.redirect',
-      params: { namespace, workspaceSlug: slug, documentSlug: 'drafts' },
+      name: 'example',
+      params: {
+        namespace,
+        workspaceSlug: slug,
+        documentSlug: 'drafts',
+        pathEncoded: encodeURIComponent('/'),
+        method: 'get',
+        exampleName: 'default',
+      },
     })
   }
 
@@ -457,6 +501,27 @@ export const createAppState = async ({
 
     // Must reset the sidebar state when the workspace changes
     sidebarState.reset()
+  }
+
+  /**
+   * Sets the current team context. If the active workspace is not accessible
+   * with the new team, navigates to the default workspace for that team.
+   */
+  const setTeamUid = (value: string) => {
+    // Update the new teamUid
+    teamUid.value = value
+
+    // Find the current workspace
+    const workspace = filteredWorkspaces.value.find(
+      (w) => w.namespace === namespace.value && w.slug === workspaceSlug.value,
+    )
+
+    // Check if new teamUid is accessible to the current workspace
+    if (workspace && canLoadWorkspace(workspace.teamUid, value)) {
+      return
+    }
+
+    return navigateToWorkspace('local', 'default')
   }
 
   // ---------------------------------------------------------------------------
@@ -657,11 +722,6 @@ export const createAppState = async ({
    */
   const navigateToCurrentTab = async (): Promise<void> => {
     if (!store.value) {
-      return
-    }
-
-    // Skip this when we are on the document redirect route
-    if (currentRoute.value?.name === 'document.redirect') {
       return
     }
 
@@ -887,6 +947,7 @@ export const createAppState = async ({
     onSelectSidebarItem: handleSelectItem,
     onCopyTabUrl: (index) => copyTabUrl(index),
     onToggleSidebar: () => (isSidebarOpen.value = !isSidebarOpen.value),
+    renameWorkspace,
   })
 
   const isDarkMode = computed(() => {
@@ -933,7 +994,8 @@ export const createAppState = async ({
       path,
       method,
       exampleName,
-      teamUid,
+      teamUid: readonly(teamUid),
+      setTeamUid,
     },
     environment,
     document: activeDocument,

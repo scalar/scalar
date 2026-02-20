@@ -19,6 +19,15 @@ Add the following to your `scalar.config.json`:
 
 ![PR Comment](../../../assets/docs/pr-comment.png)
 
+
+## CLI
+
+If your Scalar Docs project is not connected to your GitHub repository, use the CLI publish in preview mode (e.g. for pull requests) without going live:
+
+```bash
+npx @scalar/cli project publish --slug your-docs --preview
+```
+
 ## Other Deployment Options
 
 Looking for more control over your deployment process?

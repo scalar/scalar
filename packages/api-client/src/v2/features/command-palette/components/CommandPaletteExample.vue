@@ -28,21 +28,23 @@ import {
 } from '@scalar/components'
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
+import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type {
   TraversedEntry,
   TraversedOperation,
 } from '@scalar/workspace-store/schemas/navigation'
 import { computed, ref, watch } from 'vue'
-import { useRouter } from 'vue-router'
 
 import HttpMethodBadge from '@/v2/blocks/operation-code-sample/components/HttpMethod.vue'
 
 import CommandActionForm from './CommandActionForm.vue'
 import CommandActionInput from './CommandActionInput.vue'
 
-const { workspaceStore, documentName, operationId } = defineProps<{
+const { workspaceStore, eventBus, documentName, operationId } = defineProps<{
   /** The workspace store for accessing documents and operations */
   workspaceStore: WorkspaceStore
+  /** Event bus for emitting operation creation events */
+  eventBus: WorkspaceEventBus
   /** Document id to create the example for */
   documentName?: string
   /** Preselected path and method to create the example for */
@@ -63,8 +65,6 @@ type OperationOption = {
   path: string
   method: HttpMethod
 }
-
-const router = useRouter()
 
 const exampleName = ref('')
 const exampleNameTrimmed = computed(() => exampleName.value.trim())
@@ -181,14 +181,13 @@ const createExample = (): void => {
     return
   }
 
-  router.push({
-    name: 'example',
-    params: {
-      documentSlug: selectedDocument.value.id,
-      pathEncoded: encodeURIComponent(selectedOperation.value.path),
+  eventBus.emit('operation:create:draft-example', {
+    documentName: selectedDocument.value.id,
+    meta: {
+      path: selectedOperation.value.path,
       method: selectedOperation.value.method,
-      exampleName: exampleNameTrimmed.value,
     },
+    exampleName: exampleNameTrimmed.value,
   })
 
   emit('close')

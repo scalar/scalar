@@ -168,8 +168,7 @@ function createTableWrapper<T extends TRecord | TObject, const K extends keyof S
    */
   async function addItem(key: Record<K, IDBValidKey>, value: Omit<Static<T>, K>): Promise<Static<T>> {
     const store = getStore('readwrite')
-    const keyObj: any = { ...key }
-    const finalValue = { ...keyObj, ...value }
+    const finalValue = { ...value, ...key }
     await requestAsPromise(store.put(finalValue))
 
     return finalValue

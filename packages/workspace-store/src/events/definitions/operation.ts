@@ -114,6 +114,21 @@ export type OperationEvents = {
   }
 
   /**
+   * Create a new draft example for the operation.
+   * Triggers when the user creates a new draft example for an operation in the UI.
+   *
+   * This is going to be a "fake" example from openapi prespective since it does not exist in the document yet.
+   */
+  'operation:create:draft-example': {
+    /** The document name where the operation should be created */
+    documentName: string
+    /** Identifies the target operation by original method and path */
+    meta: OperationMeta
+    /** The draft example name */
+    exampleName: string
+  }
+
+  /**
    * Delete an example from the operation
    */
   'operation:delete:example': {

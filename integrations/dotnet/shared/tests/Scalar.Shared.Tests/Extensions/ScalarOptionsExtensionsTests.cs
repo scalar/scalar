@@ -234,7 +234,7 @@ public class ScalarOptionsExtensionsTests
         options.AddApiKeyAuthentication("apiKeyScheme", header =>
         {
             header.Name = "X-API-KEY";
-            header.Value = "my-api-key";
+            header.Value = "your-api-key";
         });
 
         // Assert
@@ -244,7 +244,7 @@ public class ScalarOptionsExtensionsTests
         scheme.Should().BeOfType<ScalarApiKeySecurityScheme>();
         var apiKeyScheme = scheme as ScalarApiKeySecurityScheme;
         apiKeyScheme!.Name.Should().Be("X-API-KEY");
-        apiKeyScheme.Value.Should().Be("my-api-key");
+        apiKeyScheme.Value.Should().Be("your-api-key");
     }
 
     [Fact]

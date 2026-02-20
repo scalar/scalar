@@ -52,4 +52,11 @@ export type AuthenticationConfiguration = {
    *
    */
   securitySchemes?: Record<string, PartialDeep<SecurityScheme>>
+
+  /**
+   * Allows adding authentication which is not in the document.
+   * When true, generic options (API Key, HTTP Basic, OAuth2, etc.) are shown in the auth dropdown.
+   * @default false
+   */
+  createAnySecurityScheme?: boolean
 }

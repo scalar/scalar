@@ -17,6 +17,7 @@ export function initializeAppEventHandlers({
   onAfterExampleCreation,
   onCopyTabUrl,
   onToggleSidebar,
+  renameWorkspace,
 }: {
   eventBus: WorkspaceEventBus
   store: ShallowRef<WorkspaceStore | null>
@@ -27,6 +28,7 @@ export function initializeAppEventHandlers({
   onAfterExampleCreation: (o: OperationExampleMeta) => void
   onCopyTabUrl: (tabIndex: number) => void
   onToggleSidebar: () => void
+  renameWorkspace: (name: string) => Promise<void>
 }) {
   const currentRoute = computed(() => router.currentRoute?.value)
 
@@ -138,6 +140,20 @@ export function initializeAppEventHandlers({
           }
         },
       },
+      'operation:create:draft-example': {
+        onAfterExecute: async (payload) => {
+          onAfterExampleCreation({ ...payload.meta, exampleKey: payload.exampleName })
+          await router.push({
+            name: 'example',
+            params: {
+              documentSlug: payload.documentName,
+              pathEncoded: encodeURIComponent(payload.meta.path),
+              method: payload.meta.method,
+              exampleName: payload.exampleName,
+            },
+          })
+        },
+      },
       'operation:delete:example': {
         onAfterExecute: async (payload) => {
           rebuildSidebar(payload.documentName)
@@ -234,6 +250,9 @@ export function initializeAppEventHandlers({
       },
     },
   })
+
+  // Worksapce rename event handler
+  eventBus.on('workspace:update:name', (payload) => renameWorkspace(payload))
 
   //------------------------------------------------------------------------------------
   // Navigation Event Handlers

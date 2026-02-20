@@ -247,7 +247,7 @@ Upload your OpenAPI document to the [Scalar Registry](../../registry/getting-sta
 scalar auth login
 scalar registry publish ./openapi.yaml \
   --namespace my-organization \
-  --slug my-api
+  --slug your-api
 ```
 
 ```json
@@ -255,7 +255,7 @@ scalar registry publish ./openapi.yaml \
   "type": "openapi",
   "title": "My API",
   "namespace": "my-organization",
-  "slug": "my-api",
+  "slug": "your-api",
   // "version": "1.0.0"
 }
 ```

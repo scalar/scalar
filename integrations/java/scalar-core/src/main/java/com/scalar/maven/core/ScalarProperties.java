@@ -23,7 +23,7 @@ import java.util.Map;
  * </p>
  *
  * <pre>
- * scalar.url=https://my-api-spec.json
+ * scalar.url=https://example.com/openapi.json
  * scalar.path=/docs
  * scalar.enabled=true
  * scalar.showSidebar=true
