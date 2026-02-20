@@ -32,7 +32,6 @@ import { ColorModeSchema } from '@scalar/workspace-store/schemas/workspace'
 import GithubSlugger from 'github-slugger'
 
 import type { RequestParameter } from '@/entities/spec/parameters'
-import { DATA_VERSION_LS_LEY } from '@/migrations/data-version'
 import { migrator } from '@/migrations/migrator'
 import type { v_2_5_0 } from '@/migrations/v-2.5.0/types.generated'
 
@@ -221,6 +220,11 @@ export const transformLegacyDataToWorkspace = async (legacyData: {
             name,
             document,
           })
+
+          // addDocument doesn't preserve the source URL as we are adding a document object so we re-add it
+          if (document['x-scalar-original-source-url']) {
+            store.updateDocument(name, 'x-scalar-original-source-url', document['x-scalar-original-source-url'])
+          }
         }),
       )
 
@@ -948,33 +952,4 @@ const transformCollectionToDocument = (
       selected: {},
     }),
   }
-}
-
-/**
- * Clears legacy localStorage data after successful migration.
- *
- * NOT called automatically - old data is preserved as a safety net for rollback.
- * Call only after migration succeeds and a grace period passes (e.g., 30 days).
- *
- * To rollback: clear IndexedDB and reload - migration will run again automatically.
- */
-export const clearLegacyLocalStorage = (): void => {
-  const keysToRemove = [
-    'collection',
-    'cookie',
-    'environment',
-    'requestExample',
-    'request',
-    'securityScheme',
-    'server',
-    'tag',
-    'workspace',
-    DATA_VERSION_LS_LEY,
-  ]
-
-  keysToRemove.forEach((key) => {
-    localStorage.removeItem(key)
-  })
-
-  console.info('🧹 Cleared legacy localStorage data')
 }

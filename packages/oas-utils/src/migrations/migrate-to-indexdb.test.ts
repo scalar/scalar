@@ -12,7 +12,7 @@ import { tagSchema } from '@/entities/spec/spec-objects'
 import { type Workspace, workspaceSchema } from '@/entities/workspace/workspace'
 
 import { DATA_VERSION_LS_LEY } from './data-version'
-import { clearLegacyLocalStorage, shouldMigrateToIndexDb, transformLegacyDataToWorkspace } from './migrate-to-indexdb'
+import { shouldMigrateToIndexDb, transformLegacyDataToWorkspace } from './migrate-to-indexdb'
 import type { v_2_5_0 } from './v-2.5.0/types.generated'
 
 /**
@@ -249,41 +249,6 @@ describe('migrate-to-indexdb', () => {
       expect(shouldMigrateAfterClear).toBe(true)
 
       localStorage.removeItem('workspace')
-    })
-  })
-
-  describe('clearLegacyLocalStorage', () => {
-    it('should remove all legacy localStorage keys', () => {
-      // Set all legacy keys
-      localStorage.setItem('collection', 'test')
-      localStorage.setItem('cookie', 'test')
-      localStorage.setItem('environment', 'test')
-      localStorage.setItem('requestExample', 'test')
-      localStorage.setItem('request', 'test')
-      localStorage.setItem('securityScheme', 'test')
-      localStorage.setItem('server', 'test')
-      localStorage.setItem('tag', 'test')
-      localStorage.setItem('workspace', 'test')
-      localStorage.setItem(DATA_VERSION_LS_LEY, 'test')
-
-      clearLegacyLocalStorage()
-
-      // Verify all are removed
-      expect(localStorage.getItem('collection')).toBeNull()
-      expect(localStorage.getItem('cookie')).toBeNull()
-      expect(localStorage.getItem('environment')).toBeNull()
-      expect(localStorage.getItem('requestExample')).toBeNull()
-      expect(localStorage.getItem('request')).toBeNull()
-      expect(localStorage.getItem('securityScheme')).toBeNull()
-      expect(localStorage.getItem('server')).toBeNull()
-      expect(localStorage.getItem('tag')).toBeNull()
-      expect(localStorage.getItem('workspace')).toBeNull()
-      expect(localStorage.getItem(DATA_VERSION_LS_LEY)).toBeNull()
-    })
-
-    it('should not throw error when keys do not exist', () => {
-      localStorage.clear()
-      expect(() => clearLegacyLocalStorage()).not.toThrow()
     })
   })
 
@@ -1152,8 +1117,7 @@ describe('migrate-to-indexdb', () => {
       })
     })
 
-    // todo: Overwritten by the workspace store
-    describe.todo('documentUrl → x-scalar-original-source-url', () => {
+    describe('documentUrl → x-scalar-original-source-url', () => {
       it('transforms documentUrl to x-scalar-original-source-url', async () => {
         const legacyData = createLegacyData({
           title: 'Doc URL API',
