@@ -27,6 +27,7 @@ import {
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import type { WorkspaceDocument, WorkspaceExtensions, WorkspaceMeta } from '@scalar/workspace-store/schemas/workspace'
 import { ColorModeSchema } from '@scalar/workspace-store/schemas/workspace'
+import GithubSlugger from 'github-slugger'
 
 import type { RequestParameter } from '@/entities/spec/parameters'
 import { DATA_VERSION_LS_LEY } from '@/migrations/data-version'
@@ -145,6 +146,9 @@ export const transformLegacyDataToWorkspace = async (legacyData: {
       /** Grab auth from the collections */
       const workspaceAuth: InMemoryWorkspace['auth'] = {}
 
+      /** Create a slugger instance per workspace to handle duplicate document names */
+      const documentSlugger = new GithubSlugger()
+
       /** Each collection becomes a document in the new system and grab the auth as well */
       const documents: { name: string; document: OpenApiDocument }[] = workspace.collections.flatMap((uid) => {
         const collection = legacyData.records.collections[uid]
@@ -152,14 +156,18 @@ export const transformLegacyDataToWorkspace = async (legacyData: {
           return []
         }
 
-        const documentName = collection.info?.title || collection.uid
+        const documentName = collection.info?.title || 'api'
         const { document, auth } = transformCollectionToDocument(documentName, collection, legacyData.records)
 
         // Normalize document name to match the store (lowercase "Drafts" → "drafts")
         const normalizedName = documentName === 'Drafts' ? 'drafts' : documentName
-        workspaceAuth[normalizedName] = auth
 
-        return { name: normalizedName, document }
+        // Use GitHubSlugger to ensure unique document names
+        const uniqueName = documentSlugger.slug(normalizedName, false)
+
+        workspaceAuth[uniqueName] = auth
+
+        return { name: uniqueName, document }
       })
 
       const meta: WorkspaceMeta = {}
