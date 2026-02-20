@@ -755,8 +755,11 @@ const handleSelectSidebarEntry = (id: string, caller?: 'sidebar') => {
   const item = sidebarState.getEntryById(id)
 
   if (
-    (item?.type === 'tag' || item?.type === 'models') &&
-    sidebarState.isExpanded(id)
+    (item?.type === 'tag' ||
+      item?.type === 'models' ||
+      item?.type === 'text') &&
+    sidebarState.isExpanded(id) && // Only close if the item is expanded
+    sidebarState.selectedItem.value === id // Only close if the item is not the currently selected item
   ) {
     // hack until we fix intersection logic
     const unblock = blockIntersection()
