@@ -6,8 +6,8 @@ import {
   ScalarIcon,
 } from '@scalar/components'
 import type { HttpMethod as HttpMethodType } from '@scalar/helpers/http/http-methods'
+import { httpStatusCodes } from '@scalar/helpers/http/http-status-codes'
 import { formatMilliseconds } from '@scalar/helpers/number/format-milliseconds'
-import { httpStatusCodes } from '@scalar/oas-utils/helpers'
 
 import { HttpMethod } from '@/components/HttpMethod'
 import ValueEmitter from '@/v2/components/layout/ValueEmitter.vue'

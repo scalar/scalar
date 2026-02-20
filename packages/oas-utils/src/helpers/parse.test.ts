@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { isJsonString, json, parseJsonOrYaml, transformToJson, yaml } from './parse'
+import { isJsonString, json, parseJsonOrYaml, yaml } from './parse'
 
 describe('Handles yaml and json parsing', () => {
   it('Parses basic yaml', () => {
@@ -16,10 +16,6 @@ describe('Handles yaml and json parsing', () => {
   it('Fails if any type except an object is not returned', () => {
     expect(() => yaml.parse('10')).toThrowError()
     expect(() => json.parse('10')).toThrowError()
-  })
-
-  it('transforms Yaml to JSON', () => {
-    expect(transformToJson('openapi: 3.0.0')).toBe(JSON.stringify({ openapi: '3.0.0' }))
   })
 })
 

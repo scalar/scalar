@@ -99,7 +99,7 @@ export { type FetchWithProxyFallbackOptions, fetchWithProxyFallback } from './fe
 export { normalizeMimeType } from './normalize-mime-type'
 export { normalizeMimeTypeObject } from './normalize-mime-type-object'
 export { getOperationStability, getOperationStabilityColor, isOperationDeprecated } from './operation-stability'
-export { formatJsonOrYamlString, isJsonString, json, parseJsonOrYaml, transformToJson, yaml } from './parse'
+export { formatJsonOrYamlString, isJsonString, json, parseJsonOrYaml, yaml } from './parse'
 export { prettyPrintJson, replaceCircularDependencies } from './pretty-print-json'
 export { schemaModel } from './schema-model'
 export { getServersFromDocument } from './servers'

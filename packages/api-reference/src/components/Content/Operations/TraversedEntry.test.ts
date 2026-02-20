@@ -1,4 +1,3 @@
-import { serverSchema } from '@scalar/oas-utils/entities/spec'
 import { apiReferenceConfigurationSchema } from '@scalar/types/api-reference'
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
@@ -92,11 +91,10 @@ const mockConfig = apiReferenceConfigurationSchema.parse({
   operationsSorter: 'alpha',
 })
 
-const mockServer = serverSchema.parse({
-  uid: 'server1',
+const mockServer = {
   name: 'Test Server',
   url: 'https://api.example.com',
-})
+}
 
 // Mock WorkspaceStore with documents
 const mockStore = createWorkspaceStore({

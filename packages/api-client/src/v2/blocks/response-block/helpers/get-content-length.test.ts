@@ -1,5 +1,6 @@
-import type { ResponseInstance } from '@scalar/oas-utils/entities/spec'
 import { describe, expect, it } from 'vitest'
+
+import type { ResponseInstance } from '@/v2/blocks/operation-block/helpers/send-request'
 
 import { getContentLength } from './get-content-length'
 

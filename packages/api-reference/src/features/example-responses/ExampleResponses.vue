@@ -12,10 +12,8 @@ import {
   ScalarIcon,
   ScalarMarkdown,
 } from '@scalar/components'
-import {
-  getObjectKeys,
-  normalizeMimeTypeObject,
-} from '@scalar/oas-utils/helpers'
+import { objectKeys } from '@scalar/helpers/object/object-keys'
+import { normalizeMimeTypeObject } from '@scalar/oas-utils/helpers'
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type {
@@ -89,7 +87,7 @@ const currentResponseContent = computed<MediaTypeObject | undefined>(() => {
   )
 
   /** All the keys of the normalized content */
-  const keys = getObjectKeys(normalizedContent ?? {})
+  const keys = objectKeys(normalizedContent ?? {})
 
   return (
     // OpenAPI 3.x
@@ -179,8 +177,8 @@ const showSchema = ref(false)
       <ScalarCodeBlock
         v-if="showSchema && currentResponseContent?.schema"
         :id="id"
-        :content="getResolvedRefDeep(currentResponseContent?.schema)"
         class="bg-b-2"
+        :content="getResolvedRefDeep(currentResponseContent?.schema)"
         lang="json" />
 
       <!-- Example -->

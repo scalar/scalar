@@ -1,11 +1,14 @@
 <script lang="ts" setup>
-import type { ResponseInstance } from '@scalar/oas-utils/entities/spec'
-import { httpStatusCodes, type HttpStatusCode } from '@scalar/oas-utils/helpers'
+import {
+  httpStatusCodes,
+  type HttpStatusCode,
+} from '@scalar/helpers/http/http-status-codes'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import prettyMilliseconds from 'pretty-ms'
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 
 import HelpfulLink from '@/components/HelpfulLink.vue'
+import type { ResponseInstance } from '@/v2/blocks/operation-block/helpers/send-request'
 import { getContentLength } from '@/v2/blocks/response-block/helpers/get-content-length'
 
 const { response, eventBus } = defineProps<{

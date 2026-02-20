@@ -19,7 +19,6 @@ export default {
 <script setup lang="ts">
 import { ERRORS } from '@scalar/helpers/errors/normalize-error'
 import type { HttpMethod as HttpMethodType } from '@scalar/helpers/http/http-methods'
-import type { ResponseInstance } from '@scalar/oas-utils/entities/spec'
 import { type ClientPlugin } from '@scalar/oas-utils/helpers'
 import {
   AVAILABLE_CLIENTS,
@@ -47,7 +46,10 @@ import { buildRequest } from '@/v2/blocks/operation-block/helpers/build-request'
 import { getSecuritySchemes } from '@/v2/blocks/operation-block/helpers/build-request-security'
 import { harToFetchRequest } from '@/v2/blocks/operation-block/helpers/har-to-fetch-request'
 import { harToFetchResponse } from '@/v2/blocks/operation-block/helpers/har-to-fetch-response'
-import { sendRequest } from '@/v2/blocks/operation-block/helpers/send-request'
+import {
+  sendRequest,
+  type ResponseInstance,
+} from '@/v2/blocks/operation-block/helpers/send-request'
 import { generateClientOptions } from '@/v2/blocks/operation-code-sample'
 import { RequestBlock } from '@/v2/blocks/request-block'
 import type { ExtendedScalarCookie } from '@/v2/blocks/request-block/RequestBlock.vue'

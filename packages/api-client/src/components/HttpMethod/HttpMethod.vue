@@ -4,7 +4,8 @@ import {
   getHttpMethodInfo,
   REQUEST_METHODS,
 } from '@scalar/helpers/http/http-info'
-import type { RequestMethod } from '@scalar/oas-utils/entities/spec'
+import type { HttpMethod } from '@scalar/helpers/http/http-methods'
+import { objectEntries } from '@scalar/helpers/object/object-entries'
 import { computed } from 'vue'
 
 const props = withDefaults(
@@ -17,12 +18,12 @@ const props = withDefaults(
 )
 
 const emit = defineEmits<{
-  (e: 'change', value: RequestMethod): void
+  (e: 'change', value: HttpMethod): void
 }>()
 
 const method = computed(() => getHttpMethodInfo(props.method))
-const methodOptions = Object.entries(REQUEST_METHODS).map(([id]) => ({
-  id: id as RequestMethod,
+const methodOptions = objectEntries(REQUEST_METHODS).map(([id]) => ({
+  id,
   label: id.toUpperCase(),
   color: getHttpMethodInfo(id).colorClass,
 }))

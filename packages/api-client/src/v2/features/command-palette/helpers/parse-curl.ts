@@ -1,4 +1,4 @@
-import type { RequestMethod } from '@scalar/oas-utils/entities/spec'
+import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { encode } from 'js-base64'
 import { parse as parseShellCommand } from 'shell-quote'
 
@@ -15,7 +15,7 @@ export function parseCurlCommand(curlCommand: string) {
 
   const result: {
     url: string
-    method?: RequestMethod
+    method?: HttpMethod
     headers?: Record<string, string>
     body?: string
     queryParameters?: Array<{ key: string; value: string }>

@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { ScalarIcon } from '@scalar/components'
-import { makeUrlAbsolute } from '@scalar/oas-utils/helpers'
+import { makeUrlAbsolute } from '@scalar/helpers/url/make-url-absolute'
 import { computed } from 'vue'
 
 const {

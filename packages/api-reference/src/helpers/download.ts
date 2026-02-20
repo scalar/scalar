@@ -1,5 +1,4 @@
-import { isJsonString } from '@scalar/oas-utils/helpers'
-import { isDefined } from '@scalar/oas-utils/helpers'
+import { isDefined, isJsonString } from '@scalar/oas-utils/helpers'
 import { normalize, toJson, toYaml } from '@scalar/openapi-parser'
 
 /**
