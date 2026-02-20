@@ -100,34 +100,34 @@ const hasMultipleSchemes = computed<boolean>(() => security.value.length > 1)
 
 /**
  * Generates a human-readable label for the security scheme.
- * Includes the scheme name, type-specific details, and optional description.
+ * Intentionally omits the description here — it is rendered separately as
+ * rich text via ScalarMarkdownSummary so markdown formatting is preserved.
  */
 const generateLabel = (
   name: string,
   scheme: SecuritySchemeObjectSecret,
 ): string => {
   const capitalizedName = capitalize(name)
-  const description = scheme.description ? `: ${scheme.description}` : ''
 
   switch (scheme.type) {
     case 'apiKey':
-      return `${capitalizedName}${description || `: ${scheme.in}`}`
+      return `${capitalizedName}: ${scheme.in}`
 
     case 'openIdConnect':
     case 'oauth2': {
       const firstFlow = Object.keys(scheme.flows ?? {})[0]
       const currentFlow = selectedFlow.value || firstFlow
       if (!currentFlow) {
-        return `${capitalizedName}${description}`
+        return capitalizedName
       }
-      return `${capitalizedName}: ${currentFlow}${description}`
+      return `${capitalizedName}: ${currentFlow}`
     }
 
     case 'http':
-      return `${capitalizedName}: ${scheme.scheme}${description}`
+      return `${capitalizedName}: ${scheme.scheme}`
 
     default:
-      return `${capitalizedName}${description}`
+      return capitalizedName
   }
 }
 
@@ -197,15 +197,23 @@ const getFlowTabClasses = (flowKey: string, index: number): string => {
   <template
     v-for="{ scheme, name, scopes } in security"
     :key="name">
-    <!-- Header: shown when multiple auth schemes are configured -->
+    <!--
+      Header row for AND'ed schemes: label (bold) and description (rich text) are
+      combined.
+    -->
     <DataTableRow v-if="hasMultipleSchemes && scheme">
       <DataTableCell
         :aria-label="generateLabel(name, scheme)"
-        class="text-c-2 group/auth flex items-center leading-[22px] whitespace-nowrap outline-none hover:whitespace-normal">
-        <p
-          class="bg-b-1 text-c-2 outline-b-3 top-0 z-1 h-full w-full overflow-hidden px-3 py-1.25 text-ellipsis group-hover/auth:absolute group-hover/auth:h-auto group-hover/auth:border-b *:first:line-clamp-1 *:first:text-ellipsis group-hover/auth:*:first:line-clamp-none">
-          {{ generateLabel(name, scheme) }}
-        </p>
+        class="max-h-[auto]">
+        <div class="bg-b-1 min-w-0 flex-1 px-3 py-1.25">
+          <p class="text-c-1 leading-5.5 font-medium">
+            {{ generateLabel(name, scheme) }}
+          </p>
+          <ScalarMarkdownSummary
+            v-if="scheme.description"
+            class="auth-description text-c-2 w-full"
+            :value="scheme.description" />
+        </div>
       </DataTableCell>
     </DataTableRow>
 
