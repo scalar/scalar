@@ -1,3 +1,5 @@
+import type { SidebarState } from '@scalar/sidebar'
+import type { TraversedEntry } from '@scalar/workspace-store/schemas/navigation'
 import { watchDebounced } from '@vueuse/core'
 import { nanoid } from 'nanoid'
 import { computed, nextTick, onBeforeUnmount, reactive, ref } from 'vue'
@@ -237,6 +239,81 @@ export const scrollToLazy = (
     if (parent) {
       addToPriorityQueue(parent.id)
       setExpanded(parent.id, true)
+      addParents(parent.id)
+    }
+  }
+  /** Must use the rawId as schema params are not in the navigation tree */
+  addParents(rawId)
+}
+
+/**
+ * Handle lazy expansion
+ *
+ * Will ensure that all parents are expanded and set to priority load before expanding.
+ *
+ * Requires handlers to expand and lookup navigation items so that we can
+ * traverse the parent structure and load all required items
+ */
+export const lazyExpand = (id: string, sidebarState: SidebarState<TraversedEntry>) => {
+  const item = sidebarState.getEntryById(id)
+
+  if (!item) {
+    return console.warn(`[Lazy Bus]: Unable to find sidebar item ${id}`)
+  }
+
+  if (sidebarState.isExpanded(id)) {
+    return sidebarState.setExpanded(id, false)
+  }
+
+  const hasChildren = 'children' in item && !!item.children
+
+  /**
+   * If the element is lazy we must freeze the element so that it does not move until after the next lazy bus run
+   * If the element never loads then the scroll onFailure callback will be run to unfreeze the element
+   *
+   * If the readyQueue does not have the item we must freeze it while it renders
+   * If the item has lazy children we must freeze the item while the children are (potentially) loaded
+   */
+  const isLazy = !readyQueue.has(id) || (hasChildren && item.children?.some((child) => !readyQueue.has(child.id)))
+
+  const unfreeze = isLazy ? freeze(id) : undefined
+  addLazyCompleteCallback(unfreeze)
+
+  const { rawId } = getSchemaParamsFromId(id)
+
+  addToPriorityQueue(id)
+  addToPriorityQueue(rawId)
+
+  // When there are children we ensure the first 2 are loaded
+  if (hasChildren && item.children) {
+    item.children.slice(0, 2).forEach((child) => {
+      addToPriorityQueue(child.id)
+    })
+  }
+
+  const parent = item.parent ? sidebarState.getEntryById(item.parent.id) : null
+
+  // When there are sibling items we attempt to load the next 2 to better fill the viewport
+  if (parent && 'children' in parent && parent.children) {
+    const elementIdx = parent.children.findIndex((child) => child.id === id)
+
+    if (elementIdx !== undefined && elementIdx >= 0) {
+      parent.children.slice(elementIdx, elementIdx + 2).forEach((child) => {
+        addToPriorityQueue(child.id)
+      })
+    }
+  }
+
+  sidebarState.setExpanded(rawId, true)
+  /**
+   * Recursively expand the parents and set them as a loading priority
+   * This ensures all parents will be immediately loaded and open
+   */
+  const addParents = (currentId: string) => {
+    const parent = sidebarState.getEntryById(currentId)?.parent
+    if (parent) {
+      addToPriorityQueue(parent.id)
+      sidebarState.setExpanded(parent.id, true)
       addParents(parent.id)
     }
   }

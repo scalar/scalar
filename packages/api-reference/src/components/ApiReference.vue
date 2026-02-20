@@ -70,6 +70,7 @@ import {
   scrollToLazy as _scrollToLazy,
   blockIntersection,
   intersectionEnabled,
+  lazyExpand,
 } from '@/helpers/lazy-bus'
 import {
   loadAuthFromStorage,
@@ -808,7 +809,7 @@ eventBus.on('toggle:nav-item', ({ id, open }) => {
   if (open) {
     mergedConfig.value.onShowMore?.(id)
   }
-  sidebarState.setExpanded(id, open ?? !sidebarState.isExpanded(id))
+  lazyExpand(id, sidebarState)
 })
 eventBus.on('copy-url:nav-item', ({ id }) => {
   const url = makeUrlFromId(
