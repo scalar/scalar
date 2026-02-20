@@ -93,12 +93,6 @@ const CorePropertiesWithSchema = Type.Object({
   title: Type.Optional(Type.String()),
   /** A description of the schema. */
   description: Type.Optional(Type.String()),
-  /** Default value for the schema. */
-  default: Type.Optional(Type.Unknown()),
-  /** Array of allowed values. */
-  enum: Type.Optional(Type.Array(Type.Unknown())),
-  /** Constant value that must match exactly. */
-  const: Type.Optional(Type.Unknown()),
   /** Media type for content validation. */
   contentMediaType: Type.Optional(Type.String()),
   /** Content encoding. */
@@ -117,17 +111,6 @@ const CorePropertiesWithSchema = Type.Object({
   xml: Type.Optional(XMLObjectRef),
   /** Additional external documentation for this schema. */
   externalDocs: Type.Optional(ExternalDocumentationObjectRef),
-  /**
-   * A free-form field to include an example of an instance for this schema. To represent examples that cannot be naturally represented in JSON or YAML, a string value can be used to contain the example with escaping where necessary.
-   *
-   * @deprecated The example field has been deprecated in favor of the JSON Schema examples keyword. Use of example is discouraged, and later versions of this specification may remove it.
-   */
-  example: Type.Optional(Type.Unknown()),
-  /**
-   * An array of examples of valid instances for this schema. This keyword follows the JSON Schema Draft 2020-12 specification.
-   * Each example should be a valid instance of the schema.
-   */
-  examples: Type.Optional(Type.Array(Type.Unknown())),
   /** All schemas must be valid. */
   allOf: Type.Optional(Type.Array(schemaOrReference)),
   /** Exactly one schema must be valid. */
