@@ -11,7 +11,6 @@ import { serverSchema } from '@/entities/spec/server'
 import { tagSchema } from '@/entities/spec/spec-objects'
 import { type Workspace, workspaceSchema } from '@/entities/workspace/workspace'
 
-import { DATA_VERSION_LS_LEY } from './data-version'
 import { shouldMigrateToIndexDb, transformLegacyDataToWorkspace } from './migrate-to-indexdb'
 import type { v_2_5_0 } from './v-2.5.0/types.generated'
 
@@ -1157,6 +1156,63 @@ describe('migrate-to-indexdb', () => {
       })
     })
 
+    describe('watchMode → x-scalar-watch-mode', () => {
+      it('transforms watchMode: true to x-scalar-watch-mode: true', async () => {
+        const legacyData = createLegacyData({
+          title: 'Watch Mode Enabled API',
+          collection: { watchMode: true },
+        })
+
+        const result = await transformLegacyDataToWorkspace(legacyData)
+        const doc = result[0]?.workspace.documents['watch-mode-enabled-api']
+
+        assert(doc)
+        expect(doc['x-scalar-watch-mode']).toBe(true)
+      })
+
+      it('transforms watchMode: false to x-scalar-watch-mode: false', async () => {
+        const legacyData = createLegacyData({
+          title: 'Watch Mode Disabled API',
+          collection: { watchMode: false },
+        })
+
+        const result = await transformLegacyDataToWorkspace(legacyData)
+        const doc = result[0]?.workspace.documents['watch-mode-disabled-api']
+
+        assert(doc)
+        expect(doc['x-scalar-watch-mode']).toBe(false)
+      })
+
+      it('defaults to false when watchMode is not explicitly set', async () => {
+        const legacyData = createLegacyData({
+          title: 'No Watch Mode API',
+        })
+
+        const result = await transformLegacyDataToWorkspace(legacyData)
+        const doc = result[0]?.workspace.documents['no-watch-mode-api']
+
+        assert(doc)
+        expect(doc['x-scalar-watch-mode']).toBe(false)
+      })
+
+      it('transforms watchMode alongside documentUrl', async () => {
+        const legacyData = createLegacyData({
+          title: 'Watch Mode With URL API',
+          collection: {
+            documentUrl: 'https://example.com/openapi.yaml',
+            watchMode: true,
+          },
+        })
+
+        const result = await transformLegacyDataToWorkspace(legacyData)
+        const doc = result[0]?.workspace.documents['watch-mode-with-url-api']
+
+        assert(doc)
+        expect(doc['x-scalar-watch-mode']).toBe(true)
+        expect(doc['x-scalar-original-source-url']).toBe('https://example.com/openapi.yaml')
+      })
+    })
+
     describe('combined document meta transformations', () => {
       it('transforms all document meta fields simultaneously on a single collection', async () => {
         const server = serverSchema.parse({
@@ -1181,6 +1237,7 @@ describe('migrate-to-indexdb', () => {
             servers: ['server-1'],
             useCollectionSecurity: true,
             documentUrl: 'https://example.com/api/openapi.yaml',
+            watchMode: true,
           },
           servers: [server],
         })
@@ -1212,6 +1269,9 @@ describe('migrate-to-indexdb', () => {
 
         // documentUrl → x-scalar-original-source-url
         // expect(doc['x-scalar-original-source-url']).toBe('https://example.com/api/openapi.yaml')
+
+        // watchMode → x-scalar-watch-mode
+        expect(doc['x-scalar-watch-mode']).toBe(true)
       })
 
       it('transforms document meta across multiple collections in one workspace', async () => {

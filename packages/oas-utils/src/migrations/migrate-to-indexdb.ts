@@ -901,6 +901,11 @@ const transformCollectionToDocument = (
     document['x-scalar-original-source-url'] = collection.documentUrl
   }
 
+  // watchMode → x-scalar-watch-mode
+  if (collection.watchMode !== undefined) {
+    document['x-scalar-watch-mode'] = collection.watchMode
+  }
+
   // Break any circular JS object references before coercion.
   // The legacy client dereferenced $refs inline, creating circular object graphs
   // that would cause JSON serialization and schema validation to fail.
