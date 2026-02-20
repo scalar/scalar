@@ -15,7 +15,6 @@ const {
   layout,
   items,
   indent = 20,
-  onChevronClick,
 } = defineProps<{
   /**
    * Layout type for the sidebar.
@@ -57,10 +56,6 @@ const {
    * @default true
    */
   isDroppable?: UseDraggableOptions['isDroppable']
-  /**
-   * Optional handler called when only the chevron (expand/collapse icon) of a group is clicked.
-   */
-  onChevronClick?: (id: string) => void
 }>()
 
 const emit = defineEmits<{
@@ -76,6 +71,12 @@ const emit = defineEmits<{
    * @param id - The id of the selected item.
    */
   (e: 'selectItem', id: string): void
+
+  /**
+   * Emitted when the group is toggled.
+   * @param id - The id of the group.
+   */
+  (e: 'toggleGroup', id: string): void
 }>()
 
 const slots = defineSlots<{
@@ -109,12 +110,10 @@ const handleDragEnd = (
 <template>
   <ScalarSidebar
     class="flex min-h-0 flex-col"
-    :style="{
-      '--scalar-sidebar-indent': indent + 'px',
-    }">
+    :style="{ '--scalar-sidebar-indent': indent + 'px' }">
     <slot name="header" />
     <slot>
-      <ScalarSidebarItems class="custom-scroll pt-0">
+      <ScalarSidebarItems class="custom-scroll">
         <!-- First item -->
         <slot name="before" />
         <SidebarItem
@@ -126,10 +125,10 @@ const handleDragEnd = (
           :isSelected="isSelected"
           :item="item"
           :layout="layout"
-          :onChevronClick="onChevronClick"
           :options="options"
           @onDragEnd="handleDragEnd"
-          @selectItem="(id) => emit('selectItem', id)">
+          @selectItem="(id) => emit('selectItem', id)"
+          @toggleGroup="(id) => emit('toggleGroup', id)">
           <template
             v-if="slots.decorator"
             #decorator="props">

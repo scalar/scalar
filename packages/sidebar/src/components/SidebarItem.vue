@@ -21,59 +21,47 @@ import type { Item, Layout } from '@/types'
 import SidebarHttpBadge from './SidebarHttpBadge.vue'
 import SidebarItemLabel from './SidebarItemLabel.vue'
 
-const {
-  item,
-  layout,
-  isSelected,
-  isExpanded,
-  isDraggable,
-  isDroppable,
-  onChevronClick,
-} = defineProps<{
-  /**
-   * The sidebar item to render.
-   */
-  item: Item
-  /**
-   * The layout mode for the sidebar ('client' or 'reference').
-   */
-  layout: Layout
-  /**
-   * Function to determine if an item is currently selected by id.
-   */
-  isSelected: (id: string) => boolean
-  /**
-   * Function to determine if an item is currently expanded (showing its children) by id.
-   */
-  isExpanded: (id: string) => boolean
-  /**
-   * Sidebar configuration options.
-   * - operationTitleSource: sets whether operations show their path or summary as the display title.
-   */
-  options:
-    | {
-        operationTitleSource: 'path' | 'summary' | undefined
-      }
-    | undefined
+const { item, layout, isSelected, isExpanded, isDraggable, isDroppable } =
+  defineProps<{
+    /**
+     * The sidebar item to render.
+     */
+    item: Item
+    /**
+     * The layout mode for the sidebar ('client' or 'reference').
+     */
+    layout: Layout
+    /**
+     * Function to determine if an item is currently selected by id.
+     */
+    isSelected: (id: string) => boolean
+    /**
+     * Function to determine if an item is currently expanded (showing its children) by id.
+     */
+    isExpanded: (id: string) => boolean
+    /**
+     * Sidebar configuration options.
+     * - operationTitleSource: sets whether operations show their path or summary as the display title.
+     */
+    options:
+      | {
+          operationTitleSource: 'path' | 'summary' | undefined
+        }
+      | undefined
 
-  /**
-   * Prevents this item from being dragged.
-   *
-   * @default true
-   */
-  isDraggable?: UseDraggableOptions['isDraggable']
-  /**
-   * Prevents this item from being hovered and dropped into. Can be either a function or a boolean.
-   *
-   * @default true
-   */
-  isDroppable?: UseDraggableOptions['isDroppable']
-  /**
-   * Optional handler called when only the chevron (expand/collapse icon) is clicked.
-   * When provided, the row click (selectItem) does not fire when the chevron is clicked.
-   */
-  onChevronClick?: (id: string) => void
-}>()
+    /**
+     * Prevents this item from being dragged.
+     *
+     * @default true
+     */
+    isDraggable?: UseDraggableOptions['isDraggable']
+    /**
+     * Prevents this item from being hovered and dropped into. Can be either a function or a boolean.
+     *
+     * @default true
+     */
+    isDroppable?: UseDraggableOptions['isDroppable']
+  }>()
 
 const emit = defineEmits<{
   /**
@@ -87,6 +75,12 @@ const emit = defineEmits<{
    * @param hoveredItem - The item currently being hovered over
    */
   (e: 'onDragEnd', draggingItem: DraggingItem, hoveredItem: HoveredItem): void
+
+  /**
+   * Emitted when the group is toggled
+   * @param id - The id of the group
+   */
+  (e: 'toggleGroup', id: string): void
 }>()
 
 const slots = defineSlots<{
@@ -150,10 +144,10 @@ const { draggableAttrs, draggableEvents } = useDraggable({
         :isSelected="isSelected"
         :item="child"
         :layout="layout"
-        :onChevronClick="onChevronClick"
         :options="options"
         @onDragEnd="onDragEnd"
-        @selectItem="(id) => emit('selectItem', id)">
+        @selectItem="(id) => emit('selectItem', id)"
+        @toggleGroup="(id) => emit('toggleGroup', id)">
         <template
           v-if="slots.decorator"
           #decorator="slotProps">
@@ -186,11 +180,12 @@ const { draggableAttrs, draggableEvents } = useDraggable({
     class="relative"
     controlled
     :data-sidebar-id="item.id"
-    :open="isExpanded(item.id)"
     v-bind="draggableAttrs"
+    :discrete="layout === 'reference' && item.type === 'text'"
+    :open="isExpanded(item.id)"
     v-on="draggableEvents"
-    @chevronClick="() => onChevronClick?.(item.id)"
-    @click="() => emit('selectItem', item.id)">
+    @click="() => emit('selectItem', item.id)"
+    @toggle="() => emit('toggleGroup', item.id)">
     <template
       v-if="item.type === 'document'"
       #icon="{ open }">
@@ -247,11 +242,11 @@ const { draggableAttrs, draggableEvents } = useDraggable({
         :isSelected="isSelected"
         :item="child"
         :layout="layout"
-        :onChevronClick="onChevronClick"
         :options="options"
         :parentIds="[]"
         @onDragEnd="onDragEnd"
-        @selectItem="(id) => emit('selectItem', id)">
+        @selectItem="(id) => emit('selectItem', id)"
+        @toggleGroup="(id) => emit('toggleGroup', id)">
         <template
           v-if="slots.decorator"
           #decorator="slotProps">
