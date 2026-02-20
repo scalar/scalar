@@ -22,6 +22,7 @@ import { mapHiddenClientsConfig } from '@/v2/features/modal/helpers/map-hidden-c
 import type { ModalProps } from '@/v2/features/modal/Modal.vue'
 import { combineParams } from '@/v2/features/operation/helpers/combine-params'
 import { getSelectedServer } from '@/v2/features/operation/helpers/get-selected-server'
+import { getActiveProxyUrl } from '@/v2/helpers/get-active-proxy-url'
 import { getServers } from '@/v2/helpers/get-servers'
 
 const {
@@ -182,7 +183,12 @@ const APP_VERSION = PACKAGE_VERSION
       "
       :path
       :plugins="plugins"
-      :proxyUrl="workspaceStore.workspace['x-scalar-active-proxy'] ?? ''"
+      :proxyUrl="
+        getActiveProxyUrl(
+          workspaceStore.workspace['x-scalar-active-proxy'],
+          layout,
+        ) ?? ''
+      "
       :securitySchemes
       :selectedClient="workspaceStore.workspace['x-scalar-default-client']"
       :server="selectedServer"

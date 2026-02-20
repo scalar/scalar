@@ -924,7 +924,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     /** Ensure we use the active proxy to fetch documents unless we have a custom fetch override */
     const fetch = getFetch({
       fetch: input.fetch ?? workspaceProps?.fetch,
-      proxyUrl: workspace['x-scalar-active-proxy'],
+      proxyUrl: workspace['x-scalar-active-proxy'] ?? undefined,
     })
 
     const resolve = await measureAsync(

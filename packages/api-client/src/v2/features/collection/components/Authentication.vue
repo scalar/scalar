@@ -5,6 +5,7 @@ import { computed } from 'vue'
 import { AuthSelector } from '@/v2/blocks/scalar-auth-selector-block'
 import type { CollectionProps } from '@/v2/features/app/helpers/routes'
 import Section from '@/v2/features/settings/components/Section.vue'
+import { getActiveProxyUrl } from '@/v2/helpers/get-active-proxy-url'
 
 const { document, eventBus, environment, securitySchemes } =
   defineProps<CollectionProps>()
@@ -54,7 +55,12 @@ const server = computed(
         :eventBus="eventBus"
         isStatic
         :meta="{ type: 'document' }"
-        :proxyUrl="workspaceStore.workspace['x-scalar-active-proxy'] ?? ''"
+        :proxyUrl="
+          getActiveProxyUrl(
+            workspaceStore.workspace['x-scalar-active-proxy'],
+            layout,
+          ) ?? ''
+        "
         :securityRequirements="document?.security ?? []"
         :securitySchemes
         :selectedSecurity="

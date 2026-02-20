@@ -1,5 +1,25 @@
 # @scalar/api-client
 
+## 2.29.2
+
+### Patch Changes
+
+- [#8219](https://github.com/scalar/scalar/pull/8219): chore: default to proxy for web layout
+- [#8220](https://github.com/scalar/scalar/pull/8220): chore: add guards for team workspaces
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.34.2**
+  - [#8219](https://github.com/scalar/scalar/pull/8219): chore: default to proxy for web layout
+
+- **@scalar/oas-utils@0.6.46**
+
+- **@scalar/sidebar@0.7.39**
+
+- **@scalar/components@0.19.8**
+
+- **@scalar/use-codemirror@0.13.43**
+
 ## 2.29.1
 
 ### Patch Changes

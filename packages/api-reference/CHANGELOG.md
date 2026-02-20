@@ -1,5 +1,26 @@
 # @scalar/api-reference
 
+## 1.44.25
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.34.2**
+  - [#8219](https://github.com/scalar/scalar/pull/8219): chore: default to proxy for web layout
+
+- **@scalar/api-client@2.29.2**
+  - [#8219](https://github.com/scalar/scalar/pull/8219): chore: default to proxy for web layout
+  - [#8220](https://github.com/scalar/scalar/pull/8220): chore: add guards for team workspaces
+
+- **@scalar/agent-chat@0.5.16**
+
+- **@scalar/oas-utils@0.6.46**
+
+- **@scalar/sidebar@0.7.39**
+
+- **@scalar/components@0.19.8**
+
 ## 1.44.24
 
 ### Patch Changes

@@ -3,6 +3,7 @@ import type { ColorMode } from '@scalar/workspace-store/schemas/workspace'
 
 import type { CollectionProps } from '@/v2/features/app/helpers/routes'
 import { CollectionSettings, DocumentSettings } from '@/v2/features/settings'
+import { getActiveProxyUrl } from '@/v2/helpers/get-active-proxy-url'
 
 const {
   eventBus,
@@ -11,6 +12,7 @@ const {
   workspaceStore,
   collectionType,
   customThemes,
+  layout,
 } = defineProps<CollectionProps>()
 
 const handleUpdateWatchMode = (watchMode: boolean) => {
@@ -41,7 +43,12 @@ const handleUpdateColorMode = (colorMode: ColorMode) => {
     @update:watchMode="handleUpdateWatchMode" />
   <CollectionSettings
     v-else
-    :activeProxyUrl="workspaceStore.workspace['x-scalar-active-proxy']"
+    :activeProxyUrl="
+      getActiveProxyUrl(
+        workspaceStore.workspace['x-scalar-active-proxy'],
+        layout,
+      )
+    "
     :activeThemeSlug="workspaceStore.workspace['x-scalar-theme'] ?? 'none'"
     :colorMode="workspaceStore.workspace['x-scalar-color-mode'] ?? 'system'"
     :customThemes="customThemes"

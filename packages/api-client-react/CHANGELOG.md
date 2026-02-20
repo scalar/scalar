@@ -1,5 +1,15 @@
 # @scalar/api-client-react
 
+## 1.3.100
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-client@2.29.2**
+  - [#8219](https://github.com/scalar/scalar/pull/8219): chore: default to proxy for web layout
+  - [#8220](https://github.com/scalar/scalar/pull/8220): chore: add guards for team workspaces
+
 ## 1.3.99
 
 ### Patch Changes

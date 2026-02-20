@@ -1,5 +1,17 @@
 # scalar-app
 
+## 0.1.293
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-client@2.29.2**
+  - [#8219](https://github.com/scalar/scalar/pull/8219): chore: default to proxy for web layout
+  - [#8220](https://github.com/scalar/scalar/pull/8220): chore: add guards for team workspaces
+
+- **@scalar/components@0.19.8**
+
 ## 0.1.292
 
 ### Patch Changes
