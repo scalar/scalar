@@ -4173,6 +4173,67 @@ describe('migrate-to-indexdb', () => {
           },
         })
       })
+
+      it('defaults empty string path to /', async () => {
+        const request = requestSchema.parse({
+          uid: 'request-1',
+          path: '',
+          method: 'get',
+          summary: 'Root endpoint',
+        })
+
+        const legacyData = createLegacyData({
+          title: 'Root API',
+          collection: { requests: ['request-1'] },
+          requests: [request],
+        })
+
+        const result = await transformLegacyDataToWorkspace(legacyData)
+        const doc = result[0]?.workspace.documents['Root API']
+
+        assert(doc)
+        expect(doc).toMatchObject({
+          openapi: '3.1.0',
+          info: { title: 'Root API', version: '1.0.0' },
+          paths: {
+            '/': {
+              get: {
+                summary: 'Root endpoint',
+              },
+            },
+          },
+        })
+      })
+
+      it('defaults undefined path to /', async () => {
+        const request = requestSchema.parse({
+          uid: 'request-1',
+          method: 'get',
+          summary: 'Root endpoint',
+        })
+
+        const legacyData = createLegacyData({
+          title: 'Root API',
+          collection: { requests: ['request-1'] },
+          requests: [request],
+        })
+
+        const result = await transformLegacyDataToWorkspace(legacyData)
+        const doc = result[0]?.workspace.documents['Root API']
+
+        assert(doc)
+        expect(doc).toMatchObject({
+          openapi: '3.1.0',
+          info: { title: 'Root API', version: '1.0.0' },
+          paths: {
+            '/': {
+              get: {
+                summary: 'Root endpoint',
+              },
+            },
+          },
+        })
+      })
     })
 
     describe('requests across multiple collections', () => {

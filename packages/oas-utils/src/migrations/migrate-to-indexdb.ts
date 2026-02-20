@@ -290,9 +290,11 @@ const transformRequestsToPaths = (
       ...rest
     } = request
 
+    const normalizedPath = path || '/'
+
     // Initialize path object if it doesn't exist
-    if (!paths[path]) {
-      paths[path] = {}
+    if (!paths[normalizedPath]) {
+      paths[normalizedPath] = {}
     }
 
     /** Start building the OAS operation object  */
@@ -330,7 +332,7 @@ const transformRequestsToPaths = (
       })
     }
 
-    paths[path][method] = partialOperation
+    paths[normalizedPath][method] = partialOperation
   }
 
   return paths
