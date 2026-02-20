@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ScalarButton, useLoadingState } from '@scalar/components'
+import { XUsePkceValues } from '@scalar/openapi-types/schemas/extensions'
 import { useToasts } from '@scalar/use-toasts'
 import type { SecretsOAuthFlows } from '@scalar/workspace-store/entities/auth'
 import type {
@@ -8,10 +9,7 @@ import type {
 } from '@scalar/workspace-store/events'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type { XScalarCredentialsLocation } from '@scalar/workspace-store/schemas/extensions/security/x-scalar-credentials-location'
-import {
-  XUsePkceValues,
-  type XusePkce,
-} from '@scalar/workspace-store/schemas/extensions/security/x-use-pkce'
+import { type XusePkce } from '@scalar/workspace-store/schemas/extensions/security/x-use-pkce'
 import type {
   OAuthFlow,
   ServerObject,
