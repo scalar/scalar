@@ -108,7 +108,7 @@ const handleCookieDelete = (index: number): void =>
 <template>
   <!-- Cookies table -->
   <DataTable
-    class="group/table data-table h-min flex-1 rounded border border-t-0"
+    class="group/table data-table h-min flex-1 rounded border-x border-b"
     :columns="COLUMNS">
     <!-- Accessibility header row -->
     <DataTableRow class="sr-only !block">

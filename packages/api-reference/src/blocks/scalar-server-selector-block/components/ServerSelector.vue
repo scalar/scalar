@@ -83,6 +83,6 @@ const updateServerVariable = (key: string, value: string) => {
   <!-- Description -->
   <ScalarMarkdown
     v-if="selectedServer?.description"
-    class="text-c-3 rounded-b-xl border border-t-0 px-3 py-1.5"
+    class="text-c-3 rounded-b-xl border-x border-b px-3 py-1.5"
     :value="selectedServer.description" />
 </template>
