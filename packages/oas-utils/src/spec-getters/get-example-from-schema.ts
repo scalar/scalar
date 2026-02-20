@@ -7,12 +7,6 @@ import { unpackOverridesProxy } from '@scalar/workspace-store/helpers/overrides-
 /** Maximum recursion depth to prevent infinite loops in circular references */
 const MAX_LEVELS_DEEP = 10
 
-/**
- * Maximum properties to include after level 3 to prevent exponential growth
- * in deeply nested object structures
- */
-const MAX_PROPERTIES = 10
-
 /** Default name used for additional properties when no custom name is provided */
 const DEFAULT_ADDITIONAL_PROPERTIES_NAME = 'additionalProperty'
 
@@ -199,7 +193,7 @@ const handleObjectSchema = (
 
   if ('properties' in schema && schema.properties) {
     const propertyNames = Object.keys(schema.properties)
-    const limit = level > 3 ? Math.min(MAX_PROPERTIES, propertyNames.length) : propertyNames.length
+    const limit = propertyNames.length
 
     for (let i = 0; i < limit; i++) {
       const propertyName = propertyNames[i]!
@@ -221,9 +215,6 @@ const handleObjectSchema = (
       }
     }
 
-    if (level > 3 && propertyNames.length > MAX_PROPERTIES) {
-      response['...'] = '[Additional Properties Truncated]'
-    }
   }
 
   if ('patternProperties' in schema && schema.patternProperties) {
