@@ -3285,6 +3285,109 @@ describe('migrate-to-indexdb', () => {
           },
         })
       })
+
+      it('handles duplicate example names by appending #2, #3, etc', async () => {
+        const example1 = requestExampleSchema.parse({
+          uid: 'example-1',
+          requestUid: 'request-1',
+          name: 'Test Example',
+          parameters: {
+            query: [{ key: 'page', value: '1', enabled: true }],
+          },
+          body: {
+            activeBody: 'raw',
+            raw: {
+              encoding: 'json',
+              value: JSON.stringify({ test: 'first' }),
+            },
+          },
+        })
+
+        const example2 = requestExampleSchema.parse({
+          uid: 'example-2',
+          requestUid: 'request-1',
+          name: 'Test Example',
+          parameters: {
+            query: [{ key: 'page', value: '2', enabled: true }],
+          },
+          body: {
+            activeBody: 'raw',
+            raw: {
+              encoding: 'json',
+              value: JSON.stringify({ test: 'second' }),
+            },
+          },
+        })
+
+        const example3 = requestExampleSchema.parse({
+          uid: 'example-3',
+          requestUid: 'request-1',
+          name: 'Test Example',
+          parameters: {
+            query: [{ key: 'page', value: '3', enabled: true }],
+          },
+          body: {
+            activeBody: 'raw',
+            raw: {
+              encoding: 'json',
+              value: JSON.stringify({ test: 'third' }),
+            },
+          },
+        })
+
+        const request = requestSchema.parse({
+          uid: 'request-1',
+          path: '/data',
+          method: 'get',
+          summary: 'Get data',
+          examples: ['example-1', 'example-2', 'example-3'],
+        })
+
+        const legacyData = createLegacyData({
+          title: 'Test API',
+          collection: { requests: ['request-1'] },
+          requests: [request],
+          requestExamples: [example1, example2, example3],
+        })
+
+        const result = await transformLegacyDataToWorkspace(legacyData)
+        const doc = result[0]?.workspace.documents['test-api']
+
+        assert(doc)
+        expect(doc).toMatchObject({
+          openapi: '3.1.0',
+          info: { title: 'Test API', version: '1.0.0' },
+          paths: {
+            '/data': {
+              get: {
+                summary: 'Get data',
+                parameters: [
+                  {
+                    name: 'page',
+                    in: 'query',
+                    examples: {
+                      'Test Example': { value: '1', 'x-disabled': false },
+                      'Test Example #2': { value: '2', 'x-disabled': false },
+                      'Test Example #3': { value: '3', 'x-disabled': false },
+                    },
+                  },
+                ],
+                requestBody: {
+                  content: {
+                    'application/json': {
+                      examples: {
+                        'Test Example': { value: JSON.stringify({ test: 'first' }) },
+                        'Test Example #2': { value: JSON.stringify({ test: 'second' }) },
+                        'Test Example #3': { value: JSON.stringify({ test: 'third' }) },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        })
+      })
     })
 
     describe('request with servers', () => {

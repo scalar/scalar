@@ -359,6 +359,23 @@ const PARAM_TYPE_TO_IN: Record<string, string> = {
 }
 
 /**
+ * Ensures unique example names by appending #2, #3, etc. when duplicates are found.
+ * Does not use slugification - preserves the original name with a numeric suffix.
+ */
+const ensureUniqueExampleName = (baseName: string, usedNames: Set<string>): string => {
+  let uniqueName = baseName
+  let counter = 2
+
+  while (usedNames.has(uniqueName)) {
+    uniqueName = `${baseName} #${counter}`
+    counter++
+  }
+
+  usedNames.add(uniqueName)
+  return uniqueName
+}
+
+/**
  * Merges request example values into OpenAPI parameter objects.
  *
  * In the legacy data model, parameter values live on individual RequestExample
@@ -428,9 +445,11 @@ const mergeExamplesIntoParameters = (
   }
 
   const paramTypes = Object.keys(PARAM_TYPE_TO_IN)
+  const usedExampleNames = new Set<string>()
 
   for (const requestExample of requestExamples) {
-    const exampleName = requestExample.name || 'Example'
+    const baseName = requestExample.name || 'Example'
+    const exampleName = ensureUniqueExampleName(baseName, usedExampleNames)
 
     for (const paramType of paramTypes) {
       const inValue = PARAM_TYPE_TO_IN[paramType]
@@ -576,13 +595,16 @@ const mergeExamplesIntoRequestBody = (
   /** We track the selected content type for each example */
   const selectedContentTypes = {} as Record<string, string>
 
+  const usedExampleNames = new Set<string>()
+
   for (const example of requestExamples) {
     const extracted = extractBodyExample(example.body)
     if (!extracted) {
       continue
     }
 
-    const name = example.name || 'Example'
+    const baseName = example.name || 'Example'
+    const name = ensureUniqueExampleName(baseName, usedExampleNames)
     const group = groupedByContentType.get(extracted.contentType)
 
     if (group) {
