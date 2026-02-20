@@ -39,7 +39,7 @@ const variants = cva({
       false: 'rounded-full',
     },
     isEditable: {
-      true: 'http-bg-gradient rounded-md border border-r',
+      true: 'http-bg-gradient rounded-md border',
       false: 'cursor-auto',
     },
   },

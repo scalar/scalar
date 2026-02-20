@@ -40,8 +40,11 @@ const headingId = useId()
   <Disclosure
     v-slot="{ open }"
     as="div"
-    class="group/collapse text-c-2 focus-within:text-c-1 last:ui-open:border-b-0 border-b"
-    :class="isStatic && 'last-of-type:first-of-type:border-b-0'"
+    class="group/collapse text-c-2 focus-within:text-c-1 last:ui-open:border-b-0"
+    :class="{
+      'last-of-type:first-of-type:border-b-0': isStatic,
+      'border-b': !isStatic,
+    }"
     :defaultOpen="defaultOpen"
     :static="isStatic">
     <!-- We use this hack to emit the slot value back to the parent -->
@@ -54,7 +57,7 @@ const headingId = useId()
       class="contents">
       <div
         class="bg-b-2 flex items-center"
-        :class="isStatic && 'rounded-t-xl border border-b-0'">
+        :class="isStatic && 'rounded-t-xl border-x border-t'">
         <!-- Main disclosure button that toggles the panel -->
         <DisclosureButton
           class="hover:text-c-1 group box-content flex max-h-8 flex-1 items-center gap-2.5 overflow-hidden px-1 py-1.5 text-base font-medium outline-none md:px-1.5 xl:pr-0.5 xl:pl-2"

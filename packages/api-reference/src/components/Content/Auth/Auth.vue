@@ -82,9 +82,9 @@ watch(
 <template>
   <AuthSelector
     v-if="Object.keys(securitySchemes).length"
+    :createAnySecurityScheme="options.authentication?.createAnySecurityScheme"
     :environment
     :eventBus
-    :createAnySecurityScheme="options.authentication?.createAnySecurityScheme"
     isStatic
     layout="reference"
     :meta="{ type: 'document' }"
