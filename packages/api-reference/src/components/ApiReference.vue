@@ -928,7 +928,6 @@ watch(agent.showAgent, () => (bodyScrollLocked.value = agent.showAgent.value))
               <!-- Wrap in a div when slot is filled -->
               <DocumentSelector
                 v-if="documentOptionList.length > 1"
-                class="p-3 pb-0"
                 :modelValue="activeSlug"
                 :options="documentOptionList"
                 @update:modelValue="changeSelectedDocument" />

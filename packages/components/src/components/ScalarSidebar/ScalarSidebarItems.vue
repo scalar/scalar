@@ -34,7 +34,7 @@ const { cx } = useBindCx()
     :is="is"
     v-bind="
       cx(
-        'group/items relative flex flex-col p-3 gap-px transition-transform duration-300',
+        'group/items relative flex flex-col px-3 pb-3 pt-3 gap-px transition-transform duration-300',
         open ? '-translate-x-full' : 'translate-x-0',
       )
     ">

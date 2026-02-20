@@ -100,7 +100,7 @@ const activeDescendantId = computed(() => {
     <ScalarSearchResultList
       :id="listboxId"
       aria-label="Reference Search Results"
-      class="custom-scroll p-1 pt-0"
+      class="custom-scroll px-1 pb-1"
       :noResults="!results.length">
       <template #query>
         {{ query }}
