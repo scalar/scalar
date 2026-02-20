@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { htmlFromMarkdown } from '@scalar/code-highlight'
+import { htmlFromMarkdown, textFromNode } from '@scalar/code-highlight'
 import { useBindCx } from '@scalar/use-hooks/useBindCx'
 import { computed, useTemplateRef } from 'vue'
 
@@ -26,7 +26,7 @@ const transformHeading = (node: Record<string, any>) => {
     return transform?.(node) || node
   }
 
-  const headingText = node.children?.[0]?.value || ''
+  const headingText = textFromNode(node)
 
   /** Basic slugify for the heading text */
   const slug = headingText.toLowerCase().replace(/\s+/g, '-')

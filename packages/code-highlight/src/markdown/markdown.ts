@@ -1,4 +1,6 @@
-import type { Heading, PhrasingContent, Root, RootContent, Text } from 'mdast'
+import type { Nodes } from 'hast'
+import { toText } from 'hast-util-to-text'
+import type { Heading, PhrasingContent, Root, RootContent } from 'mdast'
 import rehypeExternalLinks from 'rehype-external-links'
 import rehypeFormat from 'rehype-format'
 import rehypeRaw from 'rehype-raw'
@@ -132,10 +134,10 @@ export function getHeadings(
   }[] = []
 
   visit(tree, 'heading', (node) => {
-    const text = findTextInHeading(node)
+    const text = textFromNode(node)
 
     if (text) {
-      nodes.push({ depth: node.depth ?? depth, value: text.value })
+      nodes.push({ depth: node.depth ?? depth, value: text })
     }
   })
 
@@ -143,24 +145,10 @@ export function getHeadings(
 }
 
 /**
- * Find the text in a Markdown node (recursively).
+ * Get the innerText from a Markdown node (recursively).
  */
-function findTextInHeading(node: Heading | PhrasingContent): Text | null {
-  if (node.type === 'text') {
-    return node as Text
-  }
-
-  if ('children' in node && node.children) {
-    for (const child of node.children) {
-      const text = findTextInHeading(child)
-
-      if (text) {
-        return text
-      }
-    }
-  }
-
-  return null
+export function textFromNode(node: Heading | PhrasingContent): string {
+  return toText(node as Nodes)
 }
 
 /**
