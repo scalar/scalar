@@ -42,6 +42,7 @@
   "workspaces": {
     "packages/api-client": {
       "entry": [
+        "src/index.ts",
         "src/components/HttpMethod/index.ts",
         "src/components/Server/index.ts",
         "src/components/ViewLayout/index.ts",
