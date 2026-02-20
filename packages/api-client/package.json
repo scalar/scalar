@@ -42,6 +42,11 @@
   "main": "dist/index.js",
   "module": "dist/index.js",
   "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
     "./*.css": {
       "import": "./dist/*.css",
       "require": "./dist/*.css",
