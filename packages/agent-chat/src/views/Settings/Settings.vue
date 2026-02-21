@@ -7,6 +7,7 @@ import {
 } from '@scalar/components'
 import { ScalarIconCaretDown, ScalarIconCaretRight } from '@scalar/icons'
 
+import { URLS } from '@/consts/urls'
 import { useState } from '@/state/state'
 import DocSettings from '@/views/Settings/DocSettings.vue'
 
@@ -61,16 +62,27 @@ function selectDocument(name: string) {
       <div
         v-else
         class="noDocuments">
-        No APIs selected. Use + to add context.
+        There's no API definition loaded. Use the + button to load APIs.
       </div>
     </div>
 
     <div class="proxyUrlContainer">
-      <label for="proxyUrl">Proxy URL</label>
+      <label for="proxyUrl">CORS Proxy</label>
+      <p>
+        All requests will be sent through the specified proxy URL to help avoid
+        CORS (Cross-Origin Resource Sharing) issues.
+        <a
+          class="underline"
+          :href="URLS.PROXY_SOURCE_CODE"
+          target="_blank">
+          Read more
+        </a>
+      </p>
       <ScalarTextInput
         id="proxyUrl"
         v-model="proxyUrl"
-        placeholder="https://proxy.scalar.com" />
+        label="Proxy URL"
+        :placeholder="URLS.DEFAULT_PROXY_URL" />
     </div>
   </ScalarModal>
 </template>
@@ -82,7 +94,7 @@ function selectDocument(name: string) {
 }
 
 .settingsModal .scalar-modal-body {
-  overflow-y: scroll;
+  overflow-y: auto;
   overflow-x: hidden;
 }
 </style>

@@ -8,6 +8,14 @@ Agent Scalar adds an AI chat interface to your API reference. Users can ask ques
 2. On first message, your OpenAPI document is uploaded to Scalar
 3. The AI uses your document to answer questions about endpoints, parameters, authentication, and more
 
+## Free Limits
+
+- 10 free messages per session
+- Full chat functionality
+- No API key needed
+
+Ready to upgrade? Read more about the [pricing](./pricing.md).
+
 ## Local Development
 
 Agent Scalar is enabled by default on `http://localhost` with 10 free messages. No configuration required.
