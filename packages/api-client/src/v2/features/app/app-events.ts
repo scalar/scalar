@@ -115,7 +115,6 @@ export function initializeAppEventHandlers({
       'operation:reload:history': {
         onAfterExecute: (payload) => onAfterExampleCreation({ ...payload.meta, exampleKey: 'draft' }),
       },
-
       'operation:delete:operation': {
         onAfterExecute: async (payload) => {
           rebuildSidebar(payload.documentName)

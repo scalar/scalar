@@ -16,8 +16,9 @@ import Overview from '@/v2/features/collection/components/Overview.vue'
 import Servers from '@/v2/features/collection/components/Servers.vue'
 import Settings from '@/v2/features/collection/components/Settings.vue'
 import DocumentCollection from '@/v2/features/collection/DocumentCollection.vue'
+import OperationCollection from '@/v2/features/collection/OperationCollection.vue'
 import WorkspaceCollection from '@/v2/features/collection/WorkspaceCollection.vue'
-import Operation from '@/v2/features/operation/Operation.vue'
+import { Operation } from '@/v2/features/operation'
 import { workspaceStorage } from '@/v2/helpers/storage'
 import type { ClientLayout } from '@/v2/types/layout'
 
@@ -44,7 +45,7 @@ export type RouteProps = {
 export type CollectionProps = RouteProps &
   (
     | {
-        collectionType: 'document'
+        collectionType: 'document' | 'operation'
         document: WorkspaceDocument
       }
     | {
@@ -71,9 +72,36 @@ export const ROUTES = [
         children: [
           // Example page
           {
-            name: 'example',
-            path: 'path/:pathEncoded/method/:method/example/:exampleName',
-            component: Operation,
+            path: 'path/:pathEncoded/method/:method',
+            children: [
+              {
+                name: 'example',
+                path: 'example/:exampleName',
+                component: Operation,
+              },
+              {
+                name: 'operation',
+                path: '',
+                component: OperationCollection,
+                children: [
+                  {
+                    name: 'operation.overview',
+                    path: 'overview',
+                    component: Overview,
+                  },
+                  {
+                    name: 'operation.servers',
+                    path: 'servers',
+                    component: Servers,
+                  },
+                  {
+                    name: 'operation.authentication',
+                    path: 'authentication',
+                    component: Authentication,
+                  },
+                ],
+              },
+            ],
           },
           // Document Page
           {
