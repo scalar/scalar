@@ -70,7 +70,6 @@ export const traverseDescription = ({
       id,
       title: heading.value,
       type: 'text',
-      children: [],
     } satisfies TraversedDescription
 
     // Push to entries
@@ -104,7 +103,10 @@ export const traverseDescription = ({
 
       // Add to description headings to the 'Introduction' entry
       if (descriptionHeadingsEntry) {
-        descriptionHeadingsEntry.children?.push(entry)
+        if (!descriptionHeadingsEntry.children) {
+          descriptionHeadingsEntry.children = []
+        }
+        descriptionHeadingsEntry.children.push(entry)
       }
       // If no 'Introduction' entry, add to entries
       else {

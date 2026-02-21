@@ -48,7 +48,7 @@ describe('traverseDescription', () => {
       },
       parentId: 'parent-1',
     })
-    expect(result).toEqual([{ id: 'heading-introduction', title: 'Introduction', type: 'text', children: [] }])
+    expect(result).toEqual([{ id: 'heading-introduction', title: 'Introduction', type: 'text' }])
   })
 
   it('should nest all headings under introduction when description starts with text', () => {
