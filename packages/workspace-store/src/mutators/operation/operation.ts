@@ -91,23 +91,21 @@ export const createOperation = (
 }
 
 /**
- * Updates the `summary` of an operation.
+ * Updates the `description` of an operation.
  * Safely no-ops if the document or operation does not exist.
  *
  * Example:
  * ```ts
- * updateOperationSummary(
+ * updateOperationDescription(
  *   document,
- *   {
- *   meta: { method: 'get', path: '/users/{id}' },
- *   payload: { summary: 'Get a single user' },
+ *   { meta: { method: 'get', path: '/users' }, payload: { description: 'Get a single user' },
  * })
  * ```
  */
-export const updateOperationSummary = (
+export const updateOperationMeta = (
   store: WorkspaceStore | null,
   document: WorkspaceDocument | null,
-  { meta, payload: { summary } }: OperationEvents['operation:update:summary'],
+  { meta, payload }: OperationEvents['operation:update:meta'],
 ) => {
   if (!document || !store) {
     return
@@ -120,13 +118,14 @@ export const updateOperationSummary = (
 
   const operation = getResolvedRef(document.paths?.[meta.path]?.[meta.method as HttpMethod])
   if (!operation) {
+    console.error('Operation not found', { meta, document })
     return
   }
 
-  operation.summary = summary
+  // Update the description of the operation
+  Object.assign(operation, payload)
 
   // Rebuild the sidebar to reflect the cahnges
-  // We can't just go any find all the entries this operation is part so we just rebuild the sidebar
   store.buildSidebar(documentName)
 }
 

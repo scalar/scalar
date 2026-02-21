@@ -86,6 +86,18 @@ export type OperationEvents = {
   }
 
   /**
+   * Update the description for the operation.
+   * Triggers when the user edits the description for an endpoint.
+   * The new description is provided in the payload, and meta identifies the operation by HTTP method and path.
+   */
+  'operation:update:meta': {
+    /** The new meta properties for the operation */
+    payload: Partial<Pick<OperationObject, 'summary' | 'description' | 'deprecated'>>
+    /** Operation identity for which the meta is being updated (method and path) */
+    meta: OperationMeta
+  }
+
+  /**
    * Update the HTTP method or path for the operation.
    * Triggers when the user changes the HTTP verb (e.g., from GET to POST) or path in the UI for a given operation.
    * We send the full payload each time

@@ -661,29 +661,12 @@ export const createAppState = async ({
     // Navigate to the example page
     // TODO: temporary until we have the operation overview page
     if (entry.type === 'operation') {
-      // If we are already in the operation, just togle the expansion
-      if (sidebarState.isSelected(id)) {
-        sidebarState.setExpanded(id, !sidebarState.isExpanded(id))
-        return
-      }
-
-      // Otherwise, select the first example
-      const firstExample = entry.children?.find((child) => child.type === 'example')
-
-      if (firstExample) {
-        sidebarState.setSelected(firstExample.id)
-        sidebarState.setExpanded(firstExample.id, true)
-      } else {
-        sidebarState.setSelected(id)
-      }
-
       return router.push({
-        name: 'example',
+        name: 'operation.overview',
         params: {
           documentSlug: getParentEntry('document', entry)?.name,
           pathEncoded: encodeURIComponent(entry.path),
           method: entry.method,
-          exampleName: firstExample?.name ?? 'default',
         },
       })
     }

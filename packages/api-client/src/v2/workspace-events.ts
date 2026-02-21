@@ -225,8 +225,8 @@ export function initializeWorkspaceEventHandlers({
       hooks,
     )(payload),
   )
-  eventBus.on('operation:update:summary', (payload) =>
-    withHook('operation:update:summary', mutators.value.active().operation.updateOperationSummary, hooks)(payload),
+  eventBus.on('operation:update:meta', (payload) =>
+    withHook('operation:update:meta', mutators.value.active().operation.updateOperationMeta, hooks)(payload),
   )
   eventBus.on('operation:delete:operation', (payload) =>
     withHook('operation:delete:operation', mutators.value.active().operation.deleteOperation, hooks)(payload),
