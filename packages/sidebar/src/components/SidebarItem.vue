@@ -75,6 +75,12 @@ const emit = defineEmits<{
    * @param hoveredItem - The item currently being hovered over
    */
   (e: 'onDragEnd', draggingItem: DraggingItem, hoveredItem: HoveredItem): void
+
+  /**
+   * Emitted when the group is toggled
+   * @param id - The id of the group
+   */
+  (e: 'toggleGroup', id: string): void
 }>()
 
 const slots = defineSlots<{
@@ -140,7 +146,8 @@ const { draggableAttrs, draggableEvents } = useDraggable({
         :layout="layout"
         :options="options"
         @onDragEnd="onDragEnd"
-        @selectItem="(id) => emit('selectItem', id)">
+        @selectItem="(id) => emit('selectItem', id)"
+        @toggleGroup="(id) => emit('toggleGroup', id)">
         <template
           v-if="slots.decorator"
           #decorator="slotProps">
@@ -173,10 +180,12 @@ const { draggableAttrs, draggableEvents } = useDraggable({
     class="relative"
     controlled
     :data-sidebar-id="item.id"
-    :open="isExpanded(item.id)"
     v-bind="draggableAttrs"
+    :discrete="layout === 'reference' && item.type === 'text'"
+    :open="isExpanded(item.id)"
     v-on="draggableEvents"
-    @click="() => emit('selectItem', item.id)">
+    @click="() => emit('selectItem', item.id)"
+    @toggle="() => emit('toggleGroup', item.id)">
     <template
       v-if="item.type === 'document'"
       #icon="{ open }">
@@ -236,7 +245,8 @@ const { draggableAttrs, draggableEvents } = useDraggable({
         :options="options"
         :parentIds="[]"
         @onDragEnd="onDragEnd"
-        @selectItem="(id) => emit('selectItem', id)">
+        @selectItem="(id) => emit('selectItem', id)"
+        @toggleGroup="(id) => emit('toggleGroup', id)">
         <template
           v-if="slots.decorator"
           #decorator="slotProps">
