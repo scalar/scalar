@@ -2,4 +2,4 @@
 '@scalar/api-client': patch
 ---
 
-fix(api-client): render security scheme descriptions as rich text for AND'ed auth schemes
+fix: selecting multiply security schemes doesn't render Markdown in descriptions
