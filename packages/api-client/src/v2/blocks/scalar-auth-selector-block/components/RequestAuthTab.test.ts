@@ -456,7 +456,9 @@ describe('RequestAuthTab', () => {
         },
       })
 
-      expect(wrapper.text()).toContain('OpenIDConnect: OpenID Connect authentication')
+      // Label should not contain the description — it is rendered separately as rich text
+      expect(wrapper.text()).toContain('OpenIDConnect')
+      expect(wrapper.text()).toContain('OpenID Connect authentication')
       expect(wrapper.text()).not.toContain('OpenIDConnect: undefined')
     })
 
@@ -600,9 +602,12 @@ describe('RequestAuthTab', () => {
         },
       })
 
-      // Should show headers for multiple schemes
+      // Headers show scheme name + type info but never the raw description text
       expect(wrapper.text()).toContain('BearerAuth: bearer')
-      expect(wrapper.text()).toContain('ApiKeyAuth: API Key authentication')
+      expect(wrapper.text()).toContain('ApiKeyAuth: header')
+      // Descriptions are rendered separately as rich text below each header
+      expect(wrapper.text()).toContain('Bearer token authentication')
+      expect(wrapper.text()).toContain('API Key authentication')
     })
   })
 })
