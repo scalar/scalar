@@ -1,4 +1,4 @@
-import type { Heading, PhrasingContent, Root, RootContent } from 'mdast'
+import type { Heading, Node, PhrasingContent, Root, RootContent } from 'mdast'
 import rehypeExternalLinks from 'rehype-external-links'
 import rehypeFormat from 'rehype-format'
 import rehypeRaw from 'rehype-raw'
@@ -9,7 +9,6 @@ import remarkParse from 'remark-parse'
 import remarkRehype from 'remark-rehype'
 import remarkStringify from 'remark-stringify'
 import { unified } from 'unified'
-import type { Node } from 'unist'
 import { SKIP, visit } from 'unist-util-visit'
 
 import { standardLanguages } from '@/languages'
@@ -17,8 +16,17 @@ import { rehypeAlert } from '@/rehype-alert'
 import { rehypeHighlight } from '@/rehype-highlight'
 
 type Options = {
-  transform?: (node: Record<string, any>) => Record<string, any>
+  transform?: (node: Node) => Node
   type?: string
+}
+
+export type { Node } from 'mdast'
+
+/**
+ * Type-guard to check if a node is a heading.
+ */
+export const isHeading = (node: Node): node is Heading => {
+  return node.type === 'heading' && 'depth' in node && 'children' in node
 }
 
 /**
@@ -48,7 +56,7 @@ export function htmlFromMarkdown(
   options?: {
     removeTags?: string[]
     allowTags?: string[]
-    transform?: (node: Record<string, any>) => Record<string, any>
+    transform?: (node: Node) => Node
     transformType?: string
   },
 ) {

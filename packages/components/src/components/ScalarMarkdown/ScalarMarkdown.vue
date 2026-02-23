@@ -1,5 +1,10 @@
 <script setup lang="ts">
-import { htmlFromMarkdown, textFromNode } from '@scalar/code-highlight'
+import {
+  type Node,
+  htmlFromMarkdown,
+  isHeading,
+  textFromNode,
+} from '@scalar/code-highlight'
 import { useBindCx } from '@scalar/use-hooks/useBindCx'
 import { computed, useTemplateRef } from 'vue'
 
@@ -21,9 +26,13 @@ defineOptions({ inheritAttrs: false })
 const templateRef = useTemplateRef('div')
 defineExpose({ el: templateRef })
 
-const transformHeading = (node: Record<string, any>) => {
+const transformHeading = (node: Node) => {
   if (!withAnchors) {
     return transform?.(node) || node
+  }
+
+  if (!isHeading(node)) {
+    return node
   }
 
   const headingText = textFromNode(node)

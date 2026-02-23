@@ -52,7 +52,7 @@ const sections = computed(() => {
 })
 
 /** Add ids to all headings */
-const transformHeading = (node: Record<string, any>) => {
+const transformHeading = (node) => {
   const slugger = new GitHubSlugger()
   const headingText = textFromNode(node)
 
