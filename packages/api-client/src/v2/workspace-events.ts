@@ -205,6 +205,9 @@ export function initializeWorkspaceEventHandlers({
   eventBus.on('server:delete:server', (payload) =>
     withHook('server:delete:server', mutators.value.active().server.deleteServer, hooks)(payload),
   )
+  eventBus.on('server:clear:servers', (payload) =>
+    withHook('server:clear:servers', mutators.value.active().server.clearServers, hooks)(payload),
+  )
   eventBus.on('server:update:variables', (payload) =>
     withHook('server:update:variables', mutators.value.active().server.updateServerVariables, hooks)(payload),
   )

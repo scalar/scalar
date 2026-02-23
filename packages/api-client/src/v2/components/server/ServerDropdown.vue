@@ -5,7 +5,10 @@ import {
   ScalarPopover,
 } from '@scalar/components'
 import { ScalarIconPencilSimple, ScalarIconPlus } from '@scalar/icons'
-import type { ApiReferenceEvents } from '@scalar/workspace-store/events'
+import type {
+  ApiReferenceEvents,
+  ServerMeta,
+} from '@scalar/workspace-store/events'
 import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed } from 'vue'
 
@@ -14,7 +17,9 @@ import ValueEmitter from '@/v2/components/layout/ValueEmitter.vue'
 
 import ServerDropdownItem from './ServerDropdownItem.vue'
 
-const { target, server, servers } = defineProps<{
+const { target, server, servers, meta } = defineProps<{
+  /** The meta information for the server */
+  meta: ServerMeta
   /** List of servers that are available for the operation/document level */
   servers: ServerObject[]
   /** Currently selected server */
@@ -25,7 +30,7 @@ const { target, server, servers } = defineProps<{
   layout: ClientLayout
 }>()
 
-const emits = defineEmits<{
+const emit = defineEmits<{
   /** Update a server variable for the selected server */
   (
     e: 'update:selectedServer',
@@ -88,10 +93,10 @@ const serverUrlWithoutTrailingSlash = computed(() => {
           :serverOption="serverOption"
           type="request"
           @update:selectedServer="
-            emits('update:selectedServer', { url: serverOption.id })
+            emit('update:selectedServer', { url: serverOption.id, meta })
           "
           @update:variable="
-            (key, value) => emits('update:variable', { index, key, value })
+            (key, value) => emit('update:variable', { index, key, value, meta })
           " />
 
         <!-- Add Server -->
@@ -99,7 +104,7 @@ const serverUrlWithoutTrailingSlash = computed(() => {
           <button
             class="text-xxs hover:bg-b-2 flex cursor-pointer items-center gap-1.5 rounded p-1.75"
             type="button"
-            @click="emits('update:servers')">
+            @click="emit('update:servers')">
             <div class="flex items-center justify-center">
               <ScalarIconPencilSimple class="size-4" />
             </div>
@@ -112,8 +117,8 @@ const serverUrlWithoutTrailingSlash = computed(() => {
       <!-- Emit the slot value back out the parent -->
       <ValueEmitter
         :value="open"
-        @change="(value) => emits('update:open', value)"
-        @unmount="emits('update:open', false)" />
+        @change="(value) => emit('update:open', value)"
+        @unmount="emit('update:open', false)" />
 
       <ScalarFloatingBackdrop class="inset-x-px rounded-none rounded-b-lg" />
     </template>

@@ -3,10 +3,14 @@ import {
   ScalarButton,
   ScalarMarkdown,
   ScalarModal,
+  ScalarToggle,
   useModal,
 } from '@scalar/components'
 import { debounce } from '@scalar/helpers/general/debounce'
+import type { HttpMethod } from '@scalar/helpers/http/http-methods'
+import { isHttpMethod } from '@scalar/helpers/http/is-http-method'
 import { ScalarIconPlus, ScalarIconTrash } from '@scalar/icons'
+import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed, ref } from 'vue'
 
@@ -17,7 +21,13 @@ import Section from '@/v2/features/settings/components/Section.vue'
 
 import Form from './Form.vue'
 
-const { document, eventBus } = defineProps<CollectionProps>()
+/** Meta for server events: document-level or operation-level (matches workspace-store ServerMeta) */
+type ServerMeta =
+  | { type: 'document' }
+  | { type: 'operation'; path: string; method: HttpMethod }
+
+const { document, eventBus, collectionType, path, method } =
+  defineProps<CollectionProps>()
 
 const deleteModal = useModal()
 const selectedServerIndex = ref<number>(-1)
@@ -27,8 +37,37 @@ const selectedServer = computed(
   () => document?.servers?.[selectedServerIndex.value],
 )
 
-/** Grab the document servers */
-const servers = computed(() => document?.servers ?? [])
+const operation = computed(() => {
+  if (collectionType === 'operation') {
+    // Operation not found
+    if (!path || !isHttpMethod(method)) {
+      return null
+    }
+    // Operation found, return the servers
+    return getResolvedRef(document?.paths?.[path]?.[method])
+  }
+  return null
+})
+
+const useOperationServers = ref(
+  collectionType === 'operation' && operation.value?.servers !== undefined,
+)
+
+/** Grab the servers for the collection */
+const servers = computed(() => {
+  if (collectionType === 'operation' && operation.value) {
+    return operation.value.servers ?? []
+  }
+  return document?.servers ?? []
+})
+
+/** Meta for server events: document-level or operation-level based on collection type */
+const serverMeta = computed<ServerMeta>(() => {
+  if (collectionType === 'operation' && path && isHttpMethod(method)) {
+    return { type: 'operation', path, method }
+  }
+  return { type: 'document' }
+})
 
 // Form field configuration
 const FORM_OPTIONS = [
@@ -62,7 +101,10 @@ const handleDeleteServer = () => {
     return
   }
 
-  eventBus.emit('server:delete:server', { index: selectedServerIndex.value })
+  eventBus.emit('server:delete:server', {
+    index: selectedServerIndex.value,
+    meta: serverMeta.value,
+  })
   resetState()
 }
 
@@ -79,6 +121,7 @@ const handleServerUpdate = (
     eventBus.emit('server:update:server', {
       index,
       server: { [key]: value },
+      meta: serverMeta.value,
     }),
   )
 
@@ -89,25 +132,67 @@ const handleVariableUpdate = (index: number, key: string, value: string) =>
       index,
       key,
       value,
+      meta: serverMeta.value,
     }),
   )
 
 /** Handles adding a new server */
-const handleAddServer = () => eventBus.emit('server:add:server')
+const handleAddServer = () =>
+  eventBus.emit('server:add:server', { meta: serverMeta.value })
 
 /**
  * Gets the display name for a server
  */
 const getServerDisplayName = (server?: ServerObject, index = 0): string =>
   server?.description || `Server ${index + 1}`
+
+/** Handles toggling the operation servers */
+const handleToggleOperationServers = (newValue: boolean) => {
+  if (newValue === false) {
+    // remove the servers from the operation
+    eventBus.emit('server:clear:servers', { meta: serverMeta.value })
+  }
+
+  // update the operation servers
+  useOperationServers.value = newValue
+}
 </script>
 
 <template>
   <Section>
     <template #title>Servers</template>
     <template #description>
-      Add different base URLs for your API. You can use
-      <code class="font-code text-c-2">{variables}</code> for dynamic parts.
+      <template v-if="collectionType === 'operation'">
+        <span class="block">
+          Override servers for this operation with the toggle.
+        </span>
+        <span class="mt-1 block">
+          <strong>On</strong> — Servers below apply only to this operation.
+        </span>
+        <span class="mt-1 block">
+          <strong>Off</strong> — Removes operation servers; this operation uses
+          document or path servers from the OpenAPI spec.
+        </span>
+        <span class="text-c-3 mt-1 block">
+          Use <code class="font-code text-c-2">{variables}</code> for dynamic
+          URL parts.
+        </span>
+      </template>
+      <template v-else>
+        Add different base URLs for your API. Use
+        <code class="font-code text-c-2">{variables}</code> for dynamic parts.
+      </template>
+    </template>
+    <!-- Operation Servers Toggle to use the operation servers instead of the document servers -->
+    <template
+      v-if="collectionType === 'operation'"
+      #actions>
+      <div class="flex h-8 items-center">
+        <ScalarToggle
+          class="w-4"
+          :modelValue="useOperationServers"
+          @update:modelValue="handleToggleOperationServers" />
+      </div>
     </template>
 
     <!-- Server List -->

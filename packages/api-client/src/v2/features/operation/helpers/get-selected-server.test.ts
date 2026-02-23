@@ -1,63 +1,47 @@
-import type { WorkspaceDocument } from '@scalar/workspace-store/schemas/workspace'
 import { describe, expect, it } from 'vitest'
 
 import { getSelectedServer } from './get-selected-server'
 
-/**
- * Helper to create a minimal WorkspaceDocument for testing.
- */
-function createDocument(initial?: Partial<WorkspaceDocument>): WorkspaceDocument {
-  return {
-    openapi: '3.1.0',
-    info: { title: 'Test', version: '1.0.0' },
-    ...initial,
-    'x-scalar-original-document-hash': '123',
-  }
-}
-
 describe('getSelectedServer', () => {
-  it('returns the server matching x-scalar-selected-server URL', () => {
+  it('returns the server matching selectedServerUrl', () => {
     const servers = [
       { url: 'https://api.example.com' },
       { url: 'https://staging.example.com' },
       { url: 'https://dev.example.com' },
     ]
-    const document = createDocument({
-      'x-scalar-selected-server': 'https://staging.example.com',
-    })
 
-    const result = getSelectedServer(document, servers)
+    const result = getSelectedServer(servers, 'https://staging.example.com')
 
     expect(result).toEqual({ url: 'https://staging.example.com' })
   })
 
-  it('returns null when x-scalar-selected-server does not match any server URL', () => {
+  it('returns null when selectedServerUrl does not match any server URL', () => {
     const servers = [{ url: 'https://api.example.com' }, { url: 'https://staging.example.com' }]
-    const document = createDocument({
-      'x-scalar-selected-server': 'https://nonexistent.example.com',
-    })
 
-    const result = getSelectedServer(document, servers)
+    const result = getSelectedServer(servers, 'https://nonexistent.example.com')
 
     expect(result).toBeNull()
   })
 
   it('returns null when servers array is null', () => {
-    const document = createDocument({
-      'x-scalar-selected-server': 'https://api.example.com',
-    })
-
-    const result = getSelectedServer(document, null)
+    const result = getSelectedServer(null, 'https://api.example.com')
 
     expect(result).toBeNull()
   })
 
-  it('returns first server when x-scalar-selected-server is not set', () => {
+  it('returns first server when selectedServerUrl is undefined', () => {
     const servers = [{ url: 'https://api.example.com' }, { url: 'https://staging.example.com' }]
-    const document = createDocument({})
 
-    const result = getSelectedServer(document, servers)
+    const result = getSelectedServer(servers, undefined)
 
     expect(result).toEqual({ url: 'https://api.example.com' })
+  })
+
+  it('returns null when selectedServerUrl is empty string (user un-selected)', () => {
+    const servers = [{ url: 'https://api.example.com' }]
+
+    const result = getSelectedServer(servers, '')
+
+    expect(result).toBeNull()
   })
 })

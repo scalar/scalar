@@ -10,6 +10,7 @@ import { ScalarIconCopy, ScalarIconWarningCircle } from '@scalar/icons'
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
 import type {
   ApiReferenceEvents,
+  ServerMeta,
   WorkspaceEventBus,
 } from '@scalar/workspace-store/events'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
@@ -41,6 +42,7 @@ const {
   server,
   servers,
   environment,
+  serverMeta,
 } = defineProps<{
   /** Current request path */
   path: string
@@ -58,13 +60,13 @@ const {
   eventBus: WorkspaceEventBus
   /** Environment */
   environment: XScalarEnvironment
+  /** Meta information for the server */
+  serverMeta: ServerMeta
 }>()
 
 const emit = defineEmits<{
   /** Execute the current operation example */
   (e: 'execute'): void
-  /** Update the server list */
-  (e: 'update:servers'): void
   /** Select a request history item by index */
   (e: 'select:history:item', payload: { index: number }): void
 }>()
@@ -189,6 +191,21 @@ const isDropdownOpen = computed(
   () => isServerDropdownOpen.value || isHistoryDropdownOpen.value,
 )
 
+const navigateToServersPage = () => {
+  if (serverMeta.type === 'operation') {
+    return eventBus.emit('ui:navigate', {
+      page: 'operation',
+      path: 'servers',
+      operationPath: serverMeta.path,
+      method: serverMeta.method,
+    })
+  }
+  return eventBus.emit('ui:navigate', {
+    page: 'document',
+    path: 'servers',
+  })
+}
+
 defineExpose({
   methodConflict,
   pathConflict,
@@ -229,6 +246,7 @@ defineExpose({
         <ServerDropdown
           v-if="servers.length"
           :layout="layout"
+          :meta="serverMeta"
           :server="server"
           :servers="servers"
           :target="id"
@@ -236,7 +254,7 @@ defineExpose({
           @update:selectedServer="
             (payload) => eventBus.emit('server:update:selected', payload)
           "
-          @update:servers="emit('update:servers')"
+          @update:servers="navigateToServersPage"
           @update:variable="
             (payload) => eventBus.emit('server:update:variables', payload)
           " />

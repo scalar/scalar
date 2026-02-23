@@ -30,6 +30,7 @@ import type { SelectedSecurity } from '@scalar/workspace-store/entities/auth'
 import type { HistoryEntry } from '@scalar/workspace-store/entities/history/schema'
 import type {
   AuthMeta,
+  ServerMeta,
   WorkspaceEventBus,
 } from '@scalar/workspace-store/events'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
@@ -85,6 +86,7 @@ const {
   server,
   environments,
   activeEnvironment,
+  serverMeta,
 } = defineProps<{
   /** Event bus */
   eventBus: WorkspaceEventBus
@@ -112,6 +114,8 @@ const {
   selectedClient: WorkspaceStore['workspace']['x-scalar-default-client']
   /** Server list available for operation/document */
   servers: ServerObject[]
+  /** Meta information for the server */
+  serverMeta: ServerMeta
   /** Hides the client button on the header */
   hideClientButton?: boolean
   /** Client integration  */
@@ -142,11 +146,6 @@ const {
   environment: XScalarEnvironment
   /** The proxy URL for sending requests */
   proxyUrl: string
-}>()
-
-const emit = defineEmits<{
-  /** Route to the appropriate server page */
-  (e: 'update:servers'): void
 }>()
 
 /** Hoist up client generation so it doesn't get re-generated on every operation */
@@ -358,11 +357,11 @@ onBeforeUnmount(() => {
         :method
         :path
         :server
+        :serverMeta
         :servers
         :source
         @execute="handleExecute"
-        @select:history:item="handleSelectHistoryItem"
-        @update:servers="emit('update:servers')" />
+        @select:history:item="handleSelectHistoryItem" />
     </div>
 
     <ViewLayout class="border-t">

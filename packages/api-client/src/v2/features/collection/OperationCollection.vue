@@ -39,25 +39,25 @@ watch(
 /** Emits the rename event on blur, or resets the input if the title is blank. */
 const handleSummaryUpdate = (payload: string) => {
   const { path, method } = props
-  const summary = payload.trim()
 
   if (!path || !method || !isHttpMethod(method)) {
-    return
-  }
-
-  if (!summary) {
-    // Force defineModel inside LabelInput to re-sync to the original value.
-    operationSummary.value = operation.value?.summary ?? ''
     return
   }
 
   props.eventBus.emit('operation:update:meta', {
     meta: { path, method },
     payload: {
-      summary: summary.trim(),
+      summary: payload.trim(),
     },
   })
 }
+
+const operationPlaceholder = computed(() => {
+  if (!props.path || !props.method) {
+    return 'Untitled Operation'
+  }
+  return `${props.method.toUpperCase()} ${props.path}`
+})
 </script>
 
 <template>
@@ -72,7 +72,7 @@ const handleSummaryUpdate = (payload: string) => {
             v-model="operationSummary"
             class="text-xl font-bold"
             inputId="operationSummary"
-            placeholder="Untitled Operation"
+            :placeholder="operationPlaceholder"
             @blur="handleSummaryUpdate" />
         </div>
       </div>
