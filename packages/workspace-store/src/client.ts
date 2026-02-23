@@ -10,7 +10,7 @@ import { upgrade } from '@scalar/openapi-upgrader'
 import type { Record } from '@scalar/typebox'
 import { Value } from '@scalar/typebox/value'
 import type { PartialDeep } from 'type-fest'
-import { reactive, toRaw } from 'vue'
+import { reactive } from 'vue'
 import YAML from 'yaml'
 
 import { type AuthStore, createAuthStore } from '@/entities/auth'
@@ -22,7 +22,7 @@ import { type UnknownObject, safeAssign } from '@/helpers/general'
 import { getFetch } from '@/helpers/get-fetch'
 import { getValueByPath } from '@/helpers/json-path-utils'
 import { mergeObjects } from '@/helpers/merge-object'
-import { createOverridesProxy, unpackOverridesProxy } from '@/helpers/overrides-proxy'
+import { createOverridesProxy } from '@/helpers/overrides-proxy'
 import { unpackProxyObject } from '@/helpers/unpack-proxy'
 import { createNavigation } from '@/navigation'
 import type { NavigationOptions } from '@/navigation/get-navigation-options'
@@ -1213,11 +1213,11 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       const { name } = input
 
       // ---- Get the current documents
-      const originalDocument = originalDocuments[name]
-      const intermediateDocument = intermediateDocuments[name]
+      const originalDocument = unpackProxyObject(originalDocuments[name], { depth: 1 })
+      const intermediateDocument = unpackProxyObject(intermediateDocuments[name], { depth: 1 })
       // raw version without any proxies
       const activeDocument = workspace.documents[name]
-        ? toRaw(getRaw(unpackOverridesProxy(workspace.documents[name])))
+        ? unpackProxyObject(workspace.documents[name], { depth: 1 })
         : undefined
 
       if (!originalDocument || !intermediateDocument || !activeDocument) {
