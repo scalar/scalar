@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { Node } from '@scalar/code-highlight'
 import { ScalarMarkdown } from '@scalar/components'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { useTemplateRef } from 'vue'
@@ -8,7 +9,7 @@ import { useIntersection } from '@/hooks/use-intersection'
 const { eventBus, id } = defineProps<{
   id?: string
   content: string
-  transformHeading: (node: Record<string, any>) => Record<string, any>
+  transformHeading: (node: Node) => Node
   eventBus: WorkspaceEventBus | null
 }>()
 

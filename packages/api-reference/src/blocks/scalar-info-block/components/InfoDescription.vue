@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import {
   getHeadings,
+  isHeading,
   splitContent,
   textFromNode,
+  type Node,
 } from '@scalar/code-highlight/markdown'
 import type { Heading } from '@scalar/types/legacy'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
@@ -52,8 +54,13 @@ const sections = computed(() => {
 })
 
 /** Add ids to all headings */
-const transformHeading = (node) => {
+const transformHeading = (node: Node) => {
+  if (!isHeading(node)) {
+    return node
+  }
+
   const slugger = new GitHubSlugger()
+
   const headingText = textFromNode(node)
 
   node.data = {
