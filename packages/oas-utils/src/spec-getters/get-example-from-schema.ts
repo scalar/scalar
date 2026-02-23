@@ -214,7 +214,6 @@ const handleObjectSchema = (
         response[propertyXmlName ?? propertyName] = value
       }
     }
-
   }
 
   if ('patternProperties' in schema && schema.patternProperties) {
