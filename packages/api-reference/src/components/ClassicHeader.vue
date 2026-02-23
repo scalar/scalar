@@ -27,7 +27,6 @@
 
 .references-classic-header-container {
   position: relative;
-  z-index: 1;
   padding: 0 60px;
 }
 @container narrow-references-container (max-width: 900px) {
