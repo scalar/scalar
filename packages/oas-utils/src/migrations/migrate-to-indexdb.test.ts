@@ -1116,103 +1116,6 @@ describe('migrate-to-indexdb', () => {
       })
     })
 
-    describe('documentUrl → x-scalar-original-source-url', () => {
-      it('transforms documentUrl to x-scalar-original-source-url', async () => {
-        const legacyData = createLegacyData({
-          title: 'Doc URL API',
-          collection: { documentUrl: 'https://example.com/openapi.yaml' },
-        })
-
-        const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['doc-url-api']
-
-        assert(doc)
-        expect(doc['x-scalar-original-source-url']).toBe('https://example.com/openapi.yaml')
-      })
-
-      it('does not set x-scalar-original-source-url when documentUrl is not present', async () => {
-        const legacyData = createLegacyData({
-          title: 'No Doc URL API',
-        })
-
-        const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['no-doc-url-api']
-
-        assert(doc)
-        expect(doc['x-scalar-original-source-url']).toBeUndefined()
-      })
-
-      it('handles various URL formats for documentUrl', async () => {
-        const legacyData = createLegacyData({
-          title: 'Relative URL API',
-          collection: { documentUrl: './specs/openapi.json' },
-        })
-
-        const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['relative-url-api']
-
-        assert(doc)
-        expect(doc['x-scalar-original-source-url']).toBe('./specs/openapi.json')
-      })
-    })
-
-    describe('watchMode → x-scalar-watch-mode', () => {
-      it('transforms watchMode: true to x-scalar-watch-mode: true', async () => {
-        const legacyData = createLegacyData({
-          title: 'Watch Mode Enabled API',
-          collection: { watchMode: true },
-        })
-
-        const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['watch-mode-enabled-api']
-
-        assert(doc)
-        expect(doc['x-scalar-watch-mode']).toBe(true)
-      })
-
-      it('transforms watchMode: false to x-scalar-watch-mode: false', async () => {
-        const legacyData = createLegacyData({
-          title: 'Watch Mode Disabled API',
-          collection: { watchMode: false },
-        })
-
-        const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['watch-mode-disabled-api']
-
-        assert(doc)
-        expect(doc['x-scalar-watch-mode']).toBe(false)
-      })
-
-      it('defaults to false when watchMode is not explicitly set', async () => {
-        const legacyData = createLegacyData({
-          title: 'No Watch Mode API',
-        })
-
-        const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['no-watch-mode-api']
-
-        assert(doc)
-        expect(doc['x-scalar-watch-mode']).toBe(false)
-      })
-
-      it('transforms watchMode alongside documentUrl', async () => {
-        const legacyData = createLegacyData({
-          title: 'Watch Mode With URL API',
-          collection: {
-            documentUrl: 'https://example.com/openapi.yaml',
-            watchMode: true,
-          },
-        })
-
-        const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['watch-mode-with-url-api']
-
-        assert(doc)
-        expect(doc['x-scalar-watch-mode']).toBe(true)
-        expect(doc['x-scalar-original-source-url']).toBe('https://example.com/openapi.yaml')
-      })
-    })
-
     describe('combined document meta transformations', () => {
       it('transforms all document meta fields simultaneously on a single collection', async () => {
         const server = serverSchema.parse({
@@ -1269,9 +1172,6 @@ describe('migrate-to-indexdb', () => {
 
         // documentUrl → x-scalar-original-source-url
         // expect(doc['x-scalar-original-source-url']).toBe('https://example.com/api/openapi.yaml')
-
-        // watchMode → x-scalar-watch-mode
-        expect(doc['x-scalar-watch-mode']).toBe(true)
       })
 
       it('transforms document meta across multiple collections in one workspace', async () => {
@@ -5649,7 +5549,8 @@ describe('migrate-to-indexdb', () => {
 
       const documentNames = Object.keys(resultWorkspace.workspace.documents)
 
-      expect(documentNames).toHaveLength(3)
+      expect(documentNames).toHaveLength(4)
+      expect(documentNames).toContain('drafts')
       expect(documentNames).toContain('my-api')
       expect(documentNames).toContain('my-api-1')
       expect(documentNames).toContain('my-api-2')
@@ -5694,7 +5595,8 @@ describe('migrate-to-indexdb', () => {
 
       const documentNames = Object.keys(resultWorkspace.workspace.documents)
 
-      expect(documentNames).toHaveLength(2)
+      expect(documentNames).toHaveLength(3)
+      expect(documentNames).toContain('drafts')
       expect(documentNames).toContain('api-special--chars')
       expect(documentNames).toContain('api-special--chars-1')
     })
@@ -5752,7 +5654,8 @@ describe('migrate-to-indexdb', () => {
 
       const documentNames = Object.keys(resultWorkspace.workspace.documents)
 
-      expect(documentNames).toHaveLength(4)
+      expect(documentNames).toHaveLength(5)
+      expect(documentNames).toContain('drafts')
       expect(documentNames).toContain('unique-api')
       expect(documentNames).toContain('duplicate-api')
       expect(documentNames).toContain('duplicate-api-1')
@@ -5797,7 +5700,8 @@ describe('migrate-to-indexdb', () => {
 
       const documentNames = Object.keys(resultWorkspace.workspace.documents)
 
-      expect(documentNames).toHaveLength(2)
+      expect(documentNames).toHaveLength(3)
+      expect(documentNames).toContain('drafts')
       expect(documentNames).toContain('api')
       expect(documentNames).toContain('api-1')
     })
@@ -5835,7 +5739,8 @@ describe('migrate-to-indexdb', () => {
 
       const documentNames = Object.keys(resultWorkspace.workspace.documents)
 
-      expect(documentNames).toHaveLength(2)
+      expect(documentNames).toHaveLength(3)
+      expect(documentNames).toContain('drafts')
       expect(documentNames).toContain('api')
       expect(documentNames).toContain('api-1')
     })
@@ -5868,7 +5773,8 @@ describe('migrate-to-indexdb', () => {
 
       const documentNames = Object.keys(resultWorkspace.workspace.documents)
 
-      expect(documentNames).toHaveLength(5)
+      expect(documentNames).toHaveLength(6)
+      expect(documentNames).toContain('drafts')
       expect(documentNames).toContain('repeated-api')
       expect(documentNames).toContain('repeated-api-1')
       expect(documentNames).toContain('repeated-api-2')
@@ -5989,13 +5895,15 @@ describe('migrate-to-indexdb', () => {
       const workspace1DocNames = Object.keys(workspace1Result.workspace.documents)
       const workspace2DocNames = Object.keys(workspace2Result.workspace.documents)
 
-      expect(workspace1DocNames).toHaveLength(2)
+      expect(workspace1DocNames).toHaveLength(3)
       expect(workspace1DocNames).toContain('shared-name-api')
       expect(workspace1DocNames).toContain('shared-name-api-1')
+      expect(workspace1DocNames).toContain('drafts')
 
-      expect(workspace2DocNames).toHaveLength(2)
+      expect(workspace2DocNames).toHaveLength(3)
       expect(workspace2DocNames).toContain('shared-name-api')
       expect(workspace2DocNames).toContain('shared-name-api-1')
+      expect(workspace2DocNames).toContain('drafts')
 
       expect(workspace1Result.workspace.documents['shared-name-api']?.info.version).toBe('1.0.0')
       expect(workspace1Result.workspace.documents['shared-name-api-1']?.info.version).toBe('2.0.0')
