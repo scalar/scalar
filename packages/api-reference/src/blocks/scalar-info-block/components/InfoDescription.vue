@@ -61,14 +61,14 @@ const transformHeading = (node: Node) => {
 
   const slugger = new GitHubSlugger()
 
-  const headingText = textFromNode(node)
+  const value = textFromNode(node)
 
   node.data = {
     hProperties: {
       id: headingSlugGenerator({
         depth: node.depth,
-        value: headingText,
-        slug: slugger.slug(headingText),
+        value,
+        slug: slugger.slug(value),
       }),
     },
   }
