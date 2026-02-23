@@ -2,6 +2,7 @@ import { CONTENT_TYPES } from '@scalar/helpers/consts/content-types'
 import { extractConfigSecrets, removeSecretFields } from '@scalar/helpers/general/extract-config-secrets'
 import { circularToRefs } from '@scalar/helpers/object/circular-to-refs'
 import { objectEntries } from '@scalar/helpers/object/object-entries'
+import { extractServerFromPath } from '@scalar/helpers/url/extract-server-from-path'
 import type { Oauth2Flow } from '@scalar/types/entities'
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
 import { type Auth, AuthSchema } from '@scalar/workspace-store/entities/auth'
@@ -23,13 +24,14 @@ import {
   type ParameterWithSchemaObject,
   type PathItemObject,
   type RequestBodyObject,
+  type ServerObject,
   type TagObject,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import type { WorkspaceDocument, WorkspaceExtensions, WorkspaceMeta } from '@scalar/workspace-store/schemas/workspace'
 import { ColorModeSchema } from '@scalar/workspace-store/schemas/workspace'
+import GithubSlugger from 'github-slugger'
 
 import type { RequestParameter } from '@/entities/spec/parameters'
-import { DATA_VERSION_LS_LEY } from '@/migrations/data-version'
 import { migrator } from '@/migrations/migrator'
 import type { v_2_5_0 } from '@/migrations/v-2.5.0/types.generated'
 
@@ -145,6 +147,9 @@ export const transformLegacyDataToWorkspace = async (legacyData: {
       /** Grab auth from the collections */
       const workspaceAuth: InMemoryWorkspace['auth'] = {}
 
+      /** Create a slugger instance per workspace to handle duplicate document names */
+      const documentSlugger = new GithubSlugger()
+
       /** Each collection becomes a document in the new system and grab the auth as well */
       const documents: { name: string; document: OpenApiDocument }[] = workspace.collections.flatMap((uid) => {
         const collection = legacyData.records.collections[uid]
@@ -152,14 +157,18 @@ export const transformLegacyDataToWorkspace = async (legacyData: {
           return []
         }
 
-        const documentName = collection.info?.title || collection.uid
+        const documentName = collection.info?.title || 'api'
         const { document, auth } = transformCollectionToDocument(documentName, collection, legacyData.records)
 
         // Normalize document name to match the store (lowercase "Drafts" → "drafts")
         const normalizedName = documentName === 'Drafts' ? 'drafts' : documentName
-        workspaceAuth[normalizedName] = auth
 
-        return { name: normalizedName, document }
+        // Use GitHubSlugger to ensure unique document names
+        const uniqueName = documentSlugger.slug(normalizedName, false)
+
+        workspaceAuth[uniqueName] = auth
+
+        return { name: uniqueName, document }
       })
 
       const meta: WorkspaceMeta = {}
@@ -211,6 +220,11 @@ export const transformLegacyDataToWorkspace = async (legacyData: {
             name,
             document,
           })
+
+          // addDocument doesn't preserve the source URL as we are adding a document object so we re-add it
+          if (document['x-scalar-original-source-url']) {
+            store.updateDocument(name, 'x-scalar-original-source-url', document['x-scalar-original-source-url'])
+          }
         }),
       )
 
@@ -263,12 +277,16 @@ const transformLegacyEnvironments = (
  *
  * Each request becomes an operation in the paths object.
  * Request examples are merged into parameter examples and request body examples.
+ *
+ * Also extracts servers from paths that contain full URLs (e.g., "https://api.example.com/users")
+ * and returns them separately for deduplication at the document level.
  */
 const transformRequestsToPaths = (
   collection: v_2_5_0['Collection'],
   dataRecords: v_2_5_0['DataRecord'],
-): Record<string, PathItemObject> => {
+): { paths: Record<string, PathItemObject>; extractedServers: ServerObject[] } => {
   const paths = Object.create(null) as Record<string, PathItemObject>
+  const extractedServers: ServerObject[] = []
 
   for (const requestUid of collection.requests || []) {
     const request = dataRecords.requests[requestUid]
@@ -290,9 +308,39 @@ const transformRequestsToPaths = (
       ...rest
     } = request
 
+    let normalizedPath = path || '/'
+
+    /**
+     * Extract server from path if it contains a full URL.
+     * This handles legacy data where users may have entered full URLs as paths.
+     */
+    const extractedServerUrl = extractServerFromPath(normalizedPath)
+    if (extractedServerUrl?.length === 2) {
+      const [serverUrl, remainingPath] = extractedServerUrl
+      extractedServers.push({ url: serverUrl })
+      normalizedPath = remainingPath
+
+      /**
+       * Handle edge case where the path after server is empty or just "/"
+       * Example: "https://api.example.com" → "" → "/"
+       */
+      if (!normalizedPath) {
+        normalizedPath = '/'
+      }
+      // Handle double slashes from malformed URLs like "https://api.example.com//users"
+      else if (normalizedPath.startsWith('//')) {
+        normalizedPath = normalizedPath.slice(1)
+      }
+    }
+
+    // Normalize relative paths to start with a leading slash. OpenAPI paths must start with "/" per the spec
+    if (!normalizedPath.startsWith('/')) {
+      normalizedPath = `/${normalizedPath}`
+    }
+
     // Initialize path object if it doesn't exist
-    if (!paths[path]) {
-      paths[path] = {}
+    if (!paths[normalizedPath]) {
+      paths[normalizedPath] = {}
     }
 
     /** Start building the OAS operation object  */
@@ -330,10 +378,13 @@ const transformRequestsToPaths = (
       })
     }
 
-    paths[path][method] = partialOperation
+    const pathItem = paths[normalizedPath]
+    if (pathItem) {
+      pathItem[method] = partialOperation
+    }
   }
 
-  return paths
+  return { paths, extractedServers }
 }
 
 /**
@@ -346,6 +397,23 @@ const PARAM_TYPE_TO_IN: Record<string, string> = {
   query: 'query',
   headers: 'header',
   cookies: 'cookie',
+}
+
+/**
+ * Ensures unique example names by appending #2, #3, etc. when duplicates are found.
+ * Does not use slugification - preserves the original name with a numeric suffix.
+ */
+const ensureUniqueExampleName = (baseName: string, usedNames: Set<string>): string => {
+  let uniqueName = baseName
+  let counter = 2
+
+  while (usedNames.has(uniqueName)) {
+    uniqueName = `${baseName} #${counter}`
+    counter++
+  }
+
+  usedNames.add(uniqueName)
+  return uniqueName
 }
 
 /**
@@ -418,9 +486,11 @@ const mergeExamplesIntoParameters = (
   }
 
   const paramTypes = Object.keys(PARAM_TYPE_TO_IN)
+  const usedExampleNames = new Set<string>()
 
   for (const requestExample of requestExamples) {
-    const exampleName = requestExample.name || 'Example'
+    const baseName = requestExample.name || 'Example'
+    const exampleName = ensureUniqueExampleName(baseName, usedExampleNames)
 
     for (const paramType of paramTypes) {
       const inValue = PARAM_TYPE_TO_IN[paramType]
@@ -566,13 +636,16 @@ const mergeExamplesIntoRequestBody = (
   /** We track the selected content type for each example */
   const selectedContentTypes = {} as Record<string, string>
 
+  const usedExampleNames = new Set<string>()
+
   for (const example of requestExamples) {
     const extracted = extractBodyExample(example.body)
     if (!extracted) {
       continue
     }
 
-    const name = example.name || 'Example'
+    const baseName = example.name || 'Example'
+    const name = ensureUniqueExampleName(baseName, usedExampleNames)
     const group = groupedByContentType.get(extracted.contentType)
 
     if (group) {
@@ -700,8 +773,34 @@ const transformCollectionToDocument = (
   // Transform tags: separate parent tags (groups) from child tags
   const { tags, tagGroups } = transformLegacyTags(collection, dataRecords)
 
-  // Transform requests into paths
-  const paths = transformRequestsToPaths(collection, dataRecords)
+  // Transform requests into paths and extract servers from full URLs
+  const { paths, extractedServers } = transformRequestsToPaths(collection, dataRecords)
+
+  /**
+   * Merge and deduplicate servers:
+   * 1. Start with existing collection servers
+   * 2. Add extracted servers from paths
+   * 3. Deduplicate by URL (keep first occurrence)
+   */
+  const existingServers = collection.servers.flatMap((uid) => {
+    const server = dataRecords.servers[uid]
+    if (!server) {
+      return []
+    }
+
+    const { uid: _, ...rest } = server
+    return [rest]
+  })
+
+  const allServers = [...existingServers, ...extractedServers]
+  const seenUrls = new Set<string>()
+  const deduplicatedServers = allServers.filter((server) => {
+    if (seenUrls.has(server.url)) {
+      return false
+    }
+    seenUrls.add(server.url)
+    return true
+  })
 
   const document: Record<string, unknown> = {
     openapi: collection.openapi || '3.1.0',
@@ -709,15 +808,7 @@ const transformCollectionToDocument = (
       title: documentName,
       version: '1.0',
     },
-    servers: collection.servers.flatMap((uid) => {
-      const server = dataRecords.servers[uid]
-      if (!server) {
-        return []
-      }
-
-      const { uid: _, ...rest } = server
-      return [rest]
-    }),
+    servers: deduplicatedServers,
     paths,
     /**
      * Preserve all component types from the collection and merge with transformed security schemes.
@@ -810,6 +901,11 @@ const transformCollectionToDocument = (
     document['x-scalar-original-source-url'] = collection.documentUrl
   }
 
+  // watchMode → x-scalar-watch-mode
+  if (collection.watchMode !== undefined) {
+    document['x-scalar-watch-mode'] = collection.watchMode
+  }
+
   // Break any circular JS object references before coercion.
   // The legacy client dereferenced $refs inline, creating circular object graphs
   // that would cause JSON serialization and schema validation to fail.
@@ -861,33 +957,4 @@ const transformCollectionToDocument = (
       selected: {},
     }),
   }
-}
-
-/**
- * Clears legacy localStorage data after successful migration.
- *
- * NOT called automatically - old data is preserved as a safety net for rollback.
- * Call only after migration succeeds and a grace period passes (e.g., 30 days).
- *
- * To rollback: clear IndexedDB and reload - migration will run again automatically.
- */
-export const clearLegacyLocalStorage = (): void => {
-  const keysToRemove = [
-    'collection',
-    'cookie',
-    'environment',
-    'requestExample',
-    'request',
-    'securityScheme',
-    'server',
-    'tag',
-    'workspace',
-    DATA_VERSION_LS_LEY,
-  ]
-
-  keysToRemove.forEach((key) => {
-    localStorage.removeItem(key)
-  })
-
-  console.info('🧹 Cleared legacy localStorage data')
 }

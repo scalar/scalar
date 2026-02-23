@@ -120,7 +120,7 @@
     "@unhead/vue": "^2.1.4",
     "@vueuse/core": "catalog:*",
     "fuse.js": "catalog:*",
-    "github-slugger": "^2.0.0",
+    "github-slugger": "catalog:*",
     "microdiff": "catalog:*",
     "nanoid": "catalog:*",
     "vue": "catalog:*"
