@@ -6,7 +6,6 @@
     "projects/**",
     "integrations/docusaurus/**",
     "integrations/dotnet/**",
-    "integrations/express/**",
     "integrations/fastapi/**"
   ],
   "ignoreFiles": [
