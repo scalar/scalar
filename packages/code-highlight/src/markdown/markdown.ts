@@ -1,5 +1,3 @@
-import type { Nodes } from 'hast'
-import { toText } from 'hast-util-to-text'
 import type { Heading, PhrasingContent, Root, RootContent } from 'mdast'
 import rehypeExternalLinks from 'rehype-external-links'
 import rehypeFormat from 'rehype-format'
@@ -145,10 +143,20 @@ export function getHeadings(
 }
 
 /**
- * Get the innerText from a Markdown node (recursively).
+ * Extract plain text from a Markdown AST node (recursively).
+ *
+ * Handles headings with nested phrasing content such as links.
  */
 export function textFromNode(node: Heading | PhrasingContent): string {
-  return toText(node as Nodes)
+  if (node.type === 'text') {
+    return node.value ?? ''
+  }
+
+  if ('children' in node && Array.isArray(node.children)) {
+    return node.children.map((child) => textFromNode(child)).join('')
+  }
+
+  return ''
 }
 
 /**
