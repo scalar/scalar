@@ -544,7 +544,7 @@ const changeSelectedDocument = async (
     scrollToLazyElement(elementId)
   }
   // If there is no specific element targeted and defaultOpenFirstTag is enabled, expand the first tag
-  else if (mergedConfig.value.defaultOpenFirstTag) {
+  else if (config.defaultOpenFirstTag) {
     const firstTag = sidebarItems.value.find((item) => item.type === 'tag')
     if (firstTag) {
       sidebarState.setExpanded(firstTag.id, true)
