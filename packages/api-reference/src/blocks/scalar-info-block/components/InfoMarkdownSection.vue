@@ -21,6 +21,7 @@ useIntersection(element, () =>
 
 <template>
   <div
+    :id
     ref="element"
     class="introduction-description-heading scroll-mt-16">
     <ScalarMarkdown
