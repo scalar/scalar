@@ -503,7 +503,7 @@ const id = useId()
   color: var(--scalar-color-2);
   white-space: nowrap;
   gap: 6px;
-  padding: 0.5px 8px 0 6px;
+  padding: 0 8px 0 6px;
 }
 .scalar-card-checkbox:hover {
   color: var(--scalar-color-1);
