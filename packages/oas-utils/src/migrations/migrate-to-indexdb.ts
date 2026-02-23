@@ -286,7 +286,7 @@ const transformThemeIdToSlug = (themeId: ThemeId): string => {
   if (themeId === 'none') {
     return themeId
   }
-  return presets[themeId].slug
+  return presets[themeId]?.slug ?? 'default'
 }
 
 /**
