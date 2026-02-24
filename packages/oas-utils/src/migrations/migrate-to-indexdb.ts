@@ -3,6 +3,7 @@ import { extractConfigSecrets, removeSecretFields } from '@scalar/helpers/genera
 import { circularToRefs } from '@scalar/helpers/object/circular-to-refs'
 import { objectEntries } from '@scalar/helpers/object/object-entries'
 import { extractServerFromPath } from '@scalar/helpers/url/extract-server-from-path'
+import { type ThemeId, presets } from '@scalar/themes'
 import type { Oauth2Flow } from '@scalar/types/entities'
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
 import { type Auth, AuthSchema } from '@scalar/workspace-store/entities/auth'
@@ -34,6 +35,8 @@ import GithubSlugger from 'github-slugger'
 import type { RequestParameter } from '@/entities/spec/parameters'
 import { migrator } from '@/migrations/migrator'
 import type { v_2_5_0 } from '@/migrations/v-2.5.0/types.generated'
+
+const DRAFTS_DOCUMENT_NAME = 'drafts'
 
 /**
  * Migrates localStorage data to IndexedDB workspace structure.
@@ -202,7 +205,8 @@ export const transformLegacyDataToWorkspace = async (legacyData: {
 
       // Add theme if present
       if (workspace.themeId) {
-        meta['x-scalar-theme'] = workspace.themeId
+        // We use theme slugs on the new system so we need to transform the id to the slug
+        meta['x-scalar-theme'] = transformThemeIdToSlug(workspace.themeId)
       }
 
       // Set color mode
@@ -220,13 +224,42 @@ export const transformLegacyDataToWorkspace = async (legacyData: {
             name,
             document,
           })
-
-          // addDocument doesn't preserve the source URL as we are adding a document object so we re-add it
-          if (document['x-scalar-original-source-url']) {
-            store.updateDocument(name, 'x-scalar-original-source-url', document['x-scalar-original-source-url'])
-          }
+          // Note: we are breaking the relationship between the document and the originial source url
         }),
       )
+
+      // Try to always set the drafts / route
+      if (!(DRAFTS_DOCUMENT_NAME in store.workspace.documents)) {
+        await store.addDocument({
+          name: DRAFTS_DOCUMENT_NAME,
+          document: {
+            openapi: '3.1.0',
+            info: {
+              title: 'Drafts',
+              version: '1.0.0',
+            },
+            paths: {
+              '/': {
+                get: {},
+              },
+            },
+            'x-scalar-icon': 'interface-edit-tool-pencil',
+          },
+        })
+      }
+
+      const drafts = store.workspace.documents[DRAFTS_DOCUMENT_NAME]
+
+      if (drafts) {
+        // Make sure the drafts document has a GET / route cuz that's the first route we navigate the user to
+        drafts.paths ??= {}
+        drafts.paths['/'] ??= {}
+        drafts.paths['/']['get'] ??= {}
+      }
+
+      store.buildSidebar(DRAFTS_DOCUMENT_NAME)
+      // save the document to the store so we don't see the document as dirty
+      await store.saveDocument(DRAFTS_DOCUMENT_NAME)
 
       // Load the auth into the store
       store.auth.load(workspaceAuth)
@@ -243,6 +276,18 @@ export const transformLegacyDataToWorkspace = async (legacyData: {
       }
     }),
   )
+
+/**
+ * Converts a ThemeId to its corresponding theme slug.
+ * If the themeId is 'none', return it as is.
+ * Otherwise, look up the slug in the presets object.
+ */
+const transformThemeIdToSlug = (themeId: ThemeId): string => {
+  if (themeId === 'none') {
+    return themeId
+  }
+  return presets[themeId]?.slug ?? 'default'
+}
 
 /**
  * Converts legacy environment variables from record format to the new array format.
@@ -869,7 +914,6 @@ const transformCollectionToDocument = (
     tags,
     webhooks: collection.webhooks,
     externalDocs: collection.externalDocs,
-    'x-scalar-original-document-hash': '',
 
     // Preserve scalar extensions
     'x-scalar-icon': collection['x-scalar-icon'],
@@ -899,11 +943,6 @@ const transformCollectionToDocument = (
   // documentUrl → x-scalar-original-source-url
   if (collection.documentUrl) {
     document['x-scalar-original-source-url'] = collection.documentUrl
-  }
-
-  // watchMode → x-scalar-watch-mode
-  if (collection.watchMode !== undefined) {
-    document['x-scalar-watch-mode'] = collection.watchMode
   }
 
   // Break any circular JS object references before coercion.
