@@ -1,5 +1,11 @@
 # @scalar/code-highlight
 
+## 0.2.4
+
+### Patch Changes
+
+- [#8248](https://github.com/scalar/scalar/pull/8248): feat: slugs for headings with nested content
+
 ## 0.2.3
 
 ### Patch Changes
