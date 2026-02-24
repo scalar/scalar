@@ -50,6 +50,8 @@ const props = withDefaults(
     breadcrumb?: string[]
     eventBus: WorkspaceEventBus | null
     options: SchemaOptions
+    /** Enum values for property names (from JSON Schema propertyNames keyword). */
+    propertyNamesEnum?: string[]
   }>(),
   {
     level: 0,
@@ -75,8 +77,12 @@ const hasComplexArrayItemsComputed = computed(() =>
   hasComplexArrayItems(optimizedValue.value),
 )
 
-/** Check if enum should be displayed */
-const hasEnum = computed(() => enumValues.value.length > 0)
+/** Check if enum should be displayed (from value schema or from propertyNames) */
+const hasEnum = computed(
+  () =>
+    enumValues.value.length > 0 ||
+    (props.propertyNamesEnum && props.propertyNamesEnum.length > 0),
+)
 
 /** Determine if object properties should be displayed */
 const shouldRenderObjectProperties = computed(() => {
@@ -199,10 +205,19 @@ const isDiscriminatorProperty = computed(() =>
         :value="displayDescription || propertyDescription || ''" />
     </div>
 
-    <!-- Enum -->
+    <!-- Enum values from the value schema -->
     <SchemaEnumValues
-      v-if="hasEnum"
+      v-if="enumValues.length > 0"
       :value="optimizedValue" />
+
+    <!-- Enum values from propertyNames (allowed key names for additionalProperties) -->
+    <SchemaEnumValues
+      v-if="
+        propertyNamesEnum &&
+        propertyNamesEnum.length > 0 &&
+        enumValues.length === 0
+      "
+      :value="{ enum: propertyNamesEnum } as SchemaObject" />
 
     <!-- Object -->
     <div
@@ -417,6 +432,6 @@ const isDiscriminatorProperty = computed(() =>
 }
 
 .property-name-additional-properties::before {
-  content: 'unknown property name';
+  content: 'key';
 }
 </style>
