@@ -80,7 +80,7 @@ describe('ServerDropdown', () => {
     await firstItem.vm.$emit('update:variable', 'version', 'v2')
     const emitted = wrapper.emitted('update:variable')
     expect(emitted).toBeTruthy()
-    expect(emitted?.[0]).toEqual([{ index: 0, key: 'version', value: 'v2' }])
+    expect(emitted?.[0]).toEqual([{ index: 0, key: 'version', value: 'v2', meta: { type: 'document' } }])
   })
 
   it('emits update:servers when the Update Servers button is clicked', async () => {

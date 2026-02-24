@@ -9,6 +9,7 @@ import { AuthSelector } from '@/v2/blocks/scalar-auth-selector-block'
 import type { CollectionProps } from '@/v2/features/app/helpers/routes'
 import { getDefaultOperationSecurityToggle } from '@/v2/features/collection/helpers/get-default-operation-security-toggle'
 import Section from '@/v2/features/settings/components/Section.vue'
+import { getServers } from '@/v2/helpers'
 import { getActiveProxyUrl } from '@/v2/helpers/get-active-proxy-url'
 
 const {
@@ -86,14 +87,19 @@ const proxyUrl = computed(
     ) ?? '',
 )
 
-// TODO: SUPPORT OPERATION LEVEL SERVERS HERE AS WELL
+const servers = computed(() => {
+  return getServers(operation.value?.servers ?? document?.servers, {
+    documentUrl: document?.['x-scalar-original-source-url'],
+  })
+})
+
 /** Grab the currently selected server for relative auth URIs */
-const server = computed(
-  () =>
-    document?.servers?.find(
-      ({ url }) => url === document?.['x-scalar-selected-server'],
-    ) ?? null,
-)
+const server = computed(() => {
+  const selectedServerUrl =
+    operation.value?.['x-scalar-selected-server'] ??
+    document?.['x-scalar-selected-server']
+  return servers.value.find(({ url }) => url === selectedServerUrl) ?? null
+})
 
 const handleToggleOperationSecurity = (value: boolean) => {
   // Only toggle for operation collections

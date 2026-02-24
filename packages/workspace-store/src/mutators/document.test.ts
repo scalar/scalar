@@ -6,7 +6,6 @@ import type { WorkspaceDocument } from '@/schemas'
 import {
   createEmptyDocument,
   deleteDocument,
-  toggleSecurity,
   updateDocumentIcon,
   updateDocumentInfo,
   updateWatchMode,
@@ -20,56 +19,6 @@ function createDocument(initial?: Partial<WorkspaceDocument>): WorkspaceDocument
     'x-scalar-original-document-hash': '123',
   }
 }
-
-describe('toggleSecurity', () => {
-  it('does nothing when document is null', () => {
-    toggleSecurity(null)
-    // Should not throw
-  })
-
-  it('sets x-scalar-set-operation-security to true when undefined', () => {
-    const document = createDocument()
-
-    toggleSecurity(document)
-
-    expect(document['x-scalar-set-operation-security']).toBe(true)
-  })
-
-  it('toggles x-scalar-set-operation-security from false to true', () => {
-    const document = createDocument({
-      'x-scalar-set-operation-security': false,
-    })
-
-    toggleSecurity(document)
-
-    expect(document['x-scalar-set-operation-security']).toBe(true)
-  })
-
-  it('toggles x-scalar-set-operation-security from true to false', () => {
-    const document = createDocument({
-      'x-scalar-set-operation-security': true,
-    })
-
-    toggleSecurity(document)
-
-    expect(document['x-scalar-set-operation-security']).toBe(false)
-  })
-
-  it('toggles multiple times correctly', () => {
-    const document = createDocument({
-      'x-scalar-set-operation-security': false,
-    })
-
-    toggleSecurity(document)
-    expect(document['x-scalar-set-operation-security']).toBe(true)
-
-    toggleSecurity(document)
-    expect(document['x-scalar-set-operation-security']).toBe(false)
-
-    toggleSecurity(document)
-    expect(document['x-scalar-set-operation-security']).toBe(true)
-  })
-})
 
 describe('updateWatchMode', () => {
   it('does nothing when document is null', () => {

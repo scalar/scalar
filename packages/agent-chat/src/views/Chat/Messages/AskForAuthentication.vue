@@ -65,7 +65,7 @@ const selectedServer = computed(() => {
     documentUrl: document.value['x-scalar-original-source-url'],
   })
 
-  return getSelectedServer(document.value, servers)
+  return getSelectedServer(servers, document.value['x-scalar-selected-server'])
 })
 
 const isAuthenticationExpanded = computed(

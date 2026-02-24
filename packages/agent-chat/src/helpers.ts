@@ -30,7 +30,7 @@ export function createDocumentSettings(workspaceStore: WorkspaceStore) {
       return [
         key,
         {
-          activeServer: getSelectedServer(document, servers),
+          activeServer: getSelectedServer(servers, document['x-scalar-selected-server']),
           securitySchemes: getSecurityFromDocument(key, document, workspaceStore.auth),
         },
       ]
