@@ -1,6 +1,6 @@
 import type * as Preset from '@docusaurus/preset-classic'
 import type { Config } from '@docusaurus/types'
-import type { ScalarOptions } from '@scalar/docusaurus'
+import ScalarDocusaurus, { type ScalarOptions } from '@scalar/docusaurus'
 
 const config: Config = {
   title: 'My Site',
@@ -54,7 +54,7 @@ const config: Config = {
 
   plugins: [
     [
-      '@scalar/docusaurus',
+      ScalarDocusaurus,
       {
         id: 'json-url-cdn',
         label: 'json-url-cdn',
@@ -66,7 +66,7 @@ const config: Config = {
       } as ScalarOptions,
     ],
     [
-      '@scalar/docusaurus',
+      ScalarDocusaurus,
       {
         id: 'yaml-url',
         label: 'yaml-url',
@@ -77,7 +77,7 @@ const config: Config = {
       } as ScalarOptions,
     ],
     [
-      '@scalar/docusaurus',
+      ScalarDocusaurus,
       {
         id: 'json-string',
         label: 'json-string',
@@ -95,7 +95,7 @@ const config: Config = {
       } as ScalarOptions,
     ],
     [
-      '@scalar/docusaurus',
+      ScalarDocusaurus,
       {
         id: 'yaml-string',
         label: 'yaml-string',
