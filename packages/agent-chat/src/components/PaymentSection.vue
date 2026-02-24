@@ -1,24 +1,9 @@
 <script setup lang="ts">
 import { ScalarIconInfo } from '@scalar/icons'
 
-import { useState } from '@/state/state'
+import { useSignupLink } from '@/hooks/use-signup-link'
 
-const { dashboardUrl, mode, uploadedTmpDocumentUrl } = useState()
-
-function handleUpgrade() {
-  // agent.scalar.com
-  if (mode === 'full') {
-    window.location.assign(dashboardUrl)
-    return
-  }
-
-  // @scalar/api-reference
-  window.location.assign(
-    uploadedTmpDocumentUrl.value
-      ? `${dashboardUrl}/register?flow=oss-agent&docUrl=${uploadedTmpDocumentUrl.value}`
-      : dashboardUrl,
-  )
-}
+const { navigateToSignup } = useSignupLink()
 </script>
 
 <template>
@@ -34,7 +19,7 @@ function handleUpgrade() {
       <button
         class="actionButton approveButton"
         type="button"
-        @click="handleUpgrade">
+        @click="navigateToSignup">
         Upgrade
       </button>
       <div class="paymentInfo">

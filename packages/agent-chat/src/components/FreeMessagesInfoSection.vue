@@ -1,27 +1,12 @@
 <script setup lang="ts">
 import { ScalarIconInfo, ScalarIconX } from '@scalar/icons'
-import { computed, ref } from 'vue'
+import { ref } from 'vue'
 
 import { URLS } from '@/consts/urls'
-import { useState } from '@/state/state'
+import { useSignupLink } from '@/hooks/use-signup-link'
 
 const isDismissed = ref(false)
-const { dashboardUrl, mode, uploadedTmpDocumentUrl } = useState()
-
-/**
- * Handle signing up for Agent Scalar.
- */
-const signUpLink = computed(() => {
-  // agent.scalar.com
-  if (mode === 'full') {
-    return dashboardUrl
-  }
-
-  // @scalar/api-reference
-  return uploadedTmpDocumentUrl.value
-    ? `${dashboardUrl}/register?flow=oss-agent&docUrl=${uploadedTmpDocumentUrl.value}`
-    : dashboardUrl
-})
+const { signupLink } = useSignupLink()
 
 /**
  * Dismiss the free messages info section.
@@ -42,7 +27,7 @@ function dismiss() {
         weight="bold" />
       <a
         class="underline"
-        :href="signUpLink"
+        :href="signupLink"
         target="_blank"
         >Sign up for Agent Scalar</a
       >
