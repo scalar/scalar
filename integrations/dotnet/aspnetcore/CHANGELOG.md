@@ -1,5 +1,21 @@
 # @scalar/aspnetcore
 
+## 2.12.47
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.44.26**
+  - [#8248](https://github.com/scalar/scalar/pull/8248): fix: local storage migration script
+  - [#8248](https://github.com/scalar/scalar/pull/8248): feat: slugs for headings with nested content
+  - [#8248](https://github.com/scalar/scalar/pull/8248): chore: correctly display header in classic layout
+  - [#8248](https://github.com/scalar/scalar/pull/8248): feat: always show the schema type
+  - [#8248](https://github.com/scalar/scalar/pull/8248): feat: nest description headings in the sidebar
+  - [#8248](https://github.com/scalar/scalar/pull/8248): feat: add option to open first tag by default
+
+- **@scalar/dotnet-shared@0.1.3**
+
 ## 2.12.46
 
 ### Patch Changes

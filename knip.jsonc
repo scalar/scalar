@@ -4,7 +4,6 @@
     // Allows a progressive adoption
     "examples/**",
     "projects/**",
-    "integrations/docusaurus/**",
     "integrations/dotnet/**",
     "integrations/fastapi/**"
   ],
@@ -18,12 +17,10 @@
     "documentation/assets/landing.js",
     "documentation/assets/fathom.js"
   ],
-
   "ignore": [
     // We will use this in the future, just removed it from the workspace store for now
     "packages/workspace-store/src/schemas/reference-config/index.ts"
   ],
-
   "ignoreDependencies": [
     // Used by `ci.yml` `npm-publish` job
     "@changesets/cli",
@@ -38,6 +35,9 @@
     "tsconfig-paths"
   ],
   "ignoreBinaries": ["netlify"],
+  "ignoreIssues": {
+    "integrations/docusaurus/src/ScalarDocusaurus.tsx": ["duplicates"]
+  },
   "workspaces": {
     "packages/api-client": {
       "entry": [
@@ -309,6 +309,32 @@
     "integrations/docker": {
       "ignoreDependencies": [
         "@scalar/api-reference" // uses standalone.js during docker build
+      ]
+    },
+    "integrations/docusaurus": {
+      "docusaurus": {
+        "config": ["playground/docusaurus.config.ts"],
+        "entry": [
+          "playground/sidebars.ts",
+          "playground/src/{pages,components}/**/*.tsx",
+          "playground/{blog,docs}/**/*.mdx",
+          "playground/versioned_docs/**/*.{mdx,jsx,tsx}",
+
+          // Referenced by src/index.ts `addRoute`
+          "src/ScalarDocusaurus.tsx"
+        ]
+      },
+      "typescript": {
+        "config": ["tsconfig.json", "tsconfig.build.json", "playground/tsconfig.json"]
+      },
+      "ignoreFiles": ["playground/.docusaurus/**"],
+      "ignoreDependencies": [
+        // Used by webpack
+        "path",
+
+        // Docusaurus aliases
+        "@theme/*",
+        "@site/*"
       ]
     },
     "integrations/fastify": {

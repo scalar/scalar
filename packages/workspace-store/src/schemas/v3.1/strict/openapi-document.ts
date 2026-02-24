@@ -8,6 +8,10 @@ import {
 } from '@/schemas/extensions/document/x-scalar-environments'
 import { type XScalarIcon, XScalarIconSchema } from '@/schemas/extensions/document/x-scalar-icon'
 import { type XScalarIsDirty, XScalarIsDirtySchema } from '@/schemas/extensions/document/x-scalar-is-dirty'
+import {
+  type XScalarOriginalDocumentHash,
+  XScalarOriginalDocumentHashSchema,
+} from '@/schemas/extensions/document/x-scalar-original-document-hash'
 import { type XScalarCookies, xScalarCookiesSchema } from '@/schemas/extensions/general/x-scalar-cookies'
 import { type XScalarOrder, XScalarOrderSchema } from '@/schemas/extensions/general/x-scalar-order'
 import {
@@ -81,9 +85,7 @@ export const OpenApiExtensionsSchema = compose(
   XScalarIconSchema,
   XScalarOrderSchema,
   xScalarCookiesSchema,
-  Type.Object({
-    'x-scalar-original-document-hash': Type.String(),
-  }),
+  XScalarOriginalDocumentHashSchema,
   XScalarIsDirtySchema,
 )
 
@@ -93,10 +95,9 @@ export type OpenAPIExtensions = Partial<{
   /** Original document source url / when loading a document from an external source */
   'x-scalar-original-source-url': string
   [extensions.document.navigation]: TraversedDocument
-}> & {
-  /** Original input document hash */
-  'x-scalar-original-document-hash': string
-} & XTagGroups &
+}> &
+  XScalarOriginalDocumentHash &
+  XTagGroups &
   XScalarEnvironments &
   XScalarSelectedServer &
   XScalarIcon &

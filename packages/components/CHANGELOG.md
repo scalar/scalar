@@ -1,5 +1,25 @@
 # @scalar/components
 
+## 0.19.9
+
+### Patch Changes
+
+- [#8248](https://github.com/scalar/scalar/pull/8248): feat: slugs for headings with nested content
+- [#8248](https://github.com/scalar/scalar/pull/8248): feat: add optional chevron click handler for the sidebar
+
+#### Updated Dependencies
+
+- **@scalar/oas-utils@0.6.47**
+  - [#8248](https://github.com/scalar/scalar/pull/8248): fix: local storage migration script
+  - [#8248](https://github.com/scalar/scalar/pull/8248): fix: remove unnecessary property truncation in example generation
+  - [#8248](https://github.com/scalar/scalar/pull/8248): chore: map themeId to slug and add default operation to drafts
+
+- **@scalar/helpers@0.2.16**
+  - [#8248](https://github.com/scalar/scalar/pull/8248): fix: local storage migration script
+
+- **@scalar/code-highlight@0.2.4**
+  - [#8248](https://github.com/scalar/scalar/pull/8248): feat: slugs for headings with nested content
+
 ## 0.19.8
 
 ### Patch Changes

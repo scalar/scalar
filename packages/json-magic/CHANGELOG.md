@@ -1,5 +1,14 @@
 # @scalar/json-magic
 
+## 0.11.5
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/helpers@0.2.16**
+  - [#8248](https://github.com/scalar/scalar/pull/8248): fix: local storage migration script
+
 ## 0.11.4
 
 ### Patch Changes

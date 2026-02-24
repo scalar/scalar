@@ -1,5 +1,15 @@
 # @scalar/use-codemirror
 
+## 0.13.44
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/components@0.19.9**
+  - [#8248](https://github.com/scalar/scalar/pull/8248): feat: slugs for headings with nested content
+  - [#8248](https://github.com/scalar/scalar/pull/8248): feat: add optional chevron click handler for the sidebar
+
 ## 0.13.43
 
 ### Patch Changes
