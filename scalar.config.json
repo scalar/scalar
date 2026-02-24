@@ -665,6 +665,11 @@
                       ]
                     }
                   },
+                  "starter-kit": {
+                    "filepath": "documentation/guides/docs/starter-kit.md",
+                    "type": "page",
+                    "title": "Starter Kit"
+                  },
                   "configuration": {
                     "title": "Configuration",
                     "type": "group",
