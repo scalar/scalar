@@ -3,7 +3,6 @@ import { n } from 'neverpanic'
 import type { Ref } from 'vue'
 import z from 'zod'
 
-import { URLS } from '@/consts/urls'
 import { createError } from '@/entities/error/helpers'
 import { registryApiMetadata } from '@/entities/registry/document'
 
@@ -35,7 +34,7 @@ export function createApi({
   getAgentKey,
 }: {
   baseUrl: string
-  proxyUrl: Ref<string | undefined>
+  proxyUrl: Ref<string>
   getAccessToken?: () => string
   getAgentKey?: () => string
 }) {
@@ -54,11 +53,10 @@ export function createApi({
       responseSchema: T
     }) => {
       const url = `${baseUrl}${path}${query ? `?${new URLSearchParams(query)}` : ''}`
-      const effectiveProxyUrl = proxyUrl.value?.trim() || URLS.DEFAULT_PROXY_URL
 
       const fetchResult = await n.fromUnsafe(
         async () =>
-          fetch(redirectToProxy(effectiveProxyUrl, url), {
+          fetch(redirectToProxy(proxyUrl.value, url), {
             method,
             ...(body && { body: JSON.stringify(body) }),
             headers: {

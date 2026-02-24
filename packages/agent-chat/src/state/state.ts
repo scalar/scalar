@@ -75,7 +75,8 @@ type State = {
   loading: ComputedRef<boolean>
   settingsModal: ModalState
   eventBus: WorkspaceEventBus
-  proxyUrl: Ref<string | undefined>
+  proxyUrl: ComputedRef<string>
+  proxyUrlRaw: Ref<string | undefined>
   config: ComputedRef<ApiReferenceConfigurationRaw>
   registryUrl: string
   dashboardUrl: string
@@ -107,16 +108,14 @@ function createChat({
   registryDocuments: Ref<ApiMetadata[]>
   workspaceStore: WorkspaceStore
   baseUrl: string
-  proxyUrl: Ref<string | undefined>
+  proxyUrl: ComputedRef<string>
   getAccessToken?: () => string
   getAgentKey?: () => string
 }) {
-  const effectiveProxyUrl = () => proxyUrl.value?.trim() || URLS.DEFAULT_PROXY_URL
-
   const chat = new Chat<UIMessage<unknown, UIDataTypes, Tools>>({
     sendAutomaticallyWhen: lastAssistantMessageIsCompleteWithToolCalls,
     transport: new DefaultChatTransport({
-      api: redirectToProxy(effectiveProxyUrl(), `${baseUrl}/vector/openapi/chat`),
+      api: redirectToProxy(proxyUrl.value, `${baseUrl}/vector/openapi/chat`),
       headers: () => createAuthorizationHeaders({ getAccessToken, getAgentKey }),
       body: () => ({
         registryDocuments: registryDocuments.value,
@@ -137,7 +136,7 @@ function createChat({
           input: toolCall.input,
           toolCallId: toolCall.toolCallId,
           chat,
-          proxyUrl: effectiveProxyUrl(),
+          proxyUrl: proxyUrl.value,
         })
       }
     },
@@ -173,7 +172,8 @@ export function createState({
   const registryDocuments = ref<ApiMetadata[]>([])
   const pendingDocuments = reactive<Record<string, boolean>>({})
   const curatedDocuments = ref<ApiMetadata[]>([])
-  const proxyUrl = ref<State['proxyUrl']['value']>(URLS.DEFAULT_PROXY_URL)
+  const proxyUrlRaw = ref<State['proxyUrlRaw']['value']>(URLS.DEFAULT_PROXY_URL)
+  const proxyUrl = computed(() => proxyUrlRaw.value?.trim() || URLS.DEFAULT_PROXY_URL)
   const uploadedTmpDocumentUrl = ref<string>()
   const terms = useTermsAndConditions()
 
@@ -299,10 +299,9 @@ export function createState({
 
     pendingDocuments[identifier] = true
 
-    const effectiveProxyUrl = proxyUrl.value?.trim() || URLS.DEFAULT_PROXY_URL
     const embeddingStatusResponse = await n.fromUnsafe(
       () =>
-        fetch(redirectToProxy(effectiveProxyUrl, `${baseUrl}/vector/registry/embeddings/${namespace}/${slug}`), {
+        fetch(redirectToProxy(proxyUrl.value, `${baseUrl}/vector/registry/embeddings/${namespace}/${slug}`), {
           method: 'GET',
         }),
       (originalError) => createError('FAILED_TO_GET_EMBEDDING_STATUS', originalError),
@@ -356,6 +355,7 @@ export function createState({
     registryDocuments,
     pendingDocuments,
     proxyUrl,
+    proxyUrlRaw,
     mode,
     terms,
     isLoggedIn,

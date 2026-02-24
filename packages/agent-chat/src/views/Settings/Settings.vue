@@ -15,7 +15,7 @@ const { modalState } = defineProps<{
   modalState: ModalState
 }>()
 
-const { workspaceStore, proxyUrl } = useState()
+const { workspaceStore, proxyUrlRaw } = useState()
 
 function selectDocument(name: string) {
   workspaceStore.update('x-scalar-active-document', name)
@@ -80,7 +80,7 @@ function selectDocument(name: string) {
       </p>
       <ScalarTextInput
         id="proxyUrl"
-        v-model="proxyUrl"
+        v-model="proxyUrlRaw"
         label="Proxy URL"
         :placeholder="URLS.DEFAULT_PROXY_URL" />
     </div>
