@@ -543,8 +543,8 @@ const changeSelectedDocument = async (
   if (elementId && elementId !== slug) {
     scrollToLazyElement(elementId)
   }
-  // If there is no child element of the document specified we expand the first tag
-  else {
+  // If there is no child element of the document specified and defaultOpenFirstTag is enabled, we expand the first tag
+  else if (config.defaultOpenFirstTag) {
     const firstTag = sidebarItems.value.find((item) => item.type === 'tag')
     if (firstTag) {
       sidebarState.setExpanded(firstTag.id, true)

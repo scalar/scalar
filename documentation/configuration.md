@@ -465,11 +465,25 @@ You can explicitly set the default HTTP client, though:
 }
 ```
 
+#### defaultOpenFirstTag
+
+**Type:** `boolean`
+
+Whether to open the first tag if the URL doesn't contain a specific target.
+
+**Default:** `true`
+
+```javascript
+{
+  defaultOpenFirstTag: false
+}
+```
+
 #### defaultOpenAllTags
 
 **Type:** `boolean`
 
-By default we only open the relevant tag based on the url, however if you want all the tags open by default then set this configuration option.
+Whether to always start with all tags open, regardless of the URL.
 
 **Default:** `false`
 
