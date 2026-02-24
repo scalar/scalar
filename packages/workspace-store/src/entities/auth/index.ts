@@ -192,10 +192,15 @@ export const createAuthStore = ({ hooks }: CreateAuthStoreOptions = {}): AuthSto
       return
     }
 
+    // Prevent altering dangerous keys to the path items object
+    preventPollution(payload.method)
+    preventPollution(payload.path)
+
     const pathAuth = documentAuth.selected.path?.[payload.path]
     if (!pathAuth) {
       return
     }
+
     delete pathAuth[payload.method]
   }
 
