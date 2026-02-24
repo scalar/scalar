@@ -14,6 +14,7 @@ import {
 import {
   getObjectKeys,
   normalizeMimeTypeObject,
+  prettyPrintJson,
 } from '@scalar/oas-utils/helpers'
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
@@ -138,10 +139,8 @@ const schemaContent = computed(() => {
   if (!currentResponseContent.value?.schema) {
     return undefined
   }
-  return JSON.stringify(
+  return prettyPrintJson(
     getResolvedRefDeep(currentResponseContent.value?.schema),
-    null,
-    2,
   )
 })
 
