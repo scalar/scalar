@@ -50,18 +50,24 @@ export const phpCurl: Plugin = {
 
     // Collect all headers to emit once, avoiding duplicate CURLOPT_HTTPHEADER calls.
     // Body processing may add a Content-Type header, so we determine it first.
-    const allHeaders: Array<{ name: string; value: string }> = [
-      ...(normalizedRequest.headers || []),
-    ]
+    const allHeaders: Array<{ name: string; value: string }> = [...(normalizedRequest.headers || [])]
 
     // Helper to add Content-Type header if not already present
     const hasContentType = () => allHeaders.some((h) => h.name.toLowerCase() === 'content-type')
 
     // Determine Content-Type from body before emitting headers
     if (normalizedRequest.postData) {
-      if (normalizedRequest.postData.mimeType === 'multipart/form-data' && normalizedRequest.postData.params && !hasContentType()) {
+      if (
+        normalizedRequest.postData.mimeType === 'multipart/form-data' &&
+        normalizedRequest.postData.params &&
+        !hasContentType()
+      ) {
         allHeaders.push({ name: 'Content-Type', value: 'multipart/form-data' })
-      } else if (normalizedRequest.postData.mimeType === 'application/x-www-form-urlencoded' && normalizedRequest.postData.params && !hasContentType()) {
+      } else if (
+        normalizedRequest.postData.mimeType === 'application/x-www-form-urlencoded' &&
+        normalizedRequest.postData.params &&
+        !hasContentType()
+      ) {
         allHeaders.push({ name: 'Content-Type', value: 'application/x-www-form-urlencoded' })
       } else if (normalizedRequest.postData.mimeType === 'application/octet-stream' && !hasContentType()) {
         allHeaders.push({ name: 'Content-Type', value: 'application/octet-stream' })

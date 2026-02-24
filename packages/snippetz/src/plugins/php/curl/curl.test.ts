@@ -620,9 +620,7 @@ curl_close($ch);`)
       ],
       postData: {
         mimeType: 'application/x-www-form-urlencoded',
-        params: [
-          { name: 'key', value: 'value' },
-        ],
+        params: [{ name: 'key', value: 'value' }],
       },
     })
 
