@@ -77,7 +77,6 @@ const {
   method,
   operation,
   operationSelectedSecurity,
-  setOperationSecurity,
   path,
   plugins = [],
   proxyUrl,
@@ -128,8 +127,6 @@ const {
   operation: OperationObject
   /** Operation selected security */
   operationSelectedSecurity: SelectedSecurity | undefined
-  /** Whether to set security at the operation level */
-  setOperationSecurity: boolean
   /** Currently selected example key for the current operation */
   exampleKey: string
   /** Meta information for the auth update */
@@ -162,7 +159,6 @@ const selectedSecurity = computed(() =>
     documentSelectedSecurity,
     operationSelectedSecurity,
     securityRequirements.value,
-    setOperationSecurity,
   ),
 )
 

@@ -109,9 +109,6 @@ export function initializeWorkspaceEventHandlers({
   eventBus.on('document:update:info', (payload) =>
     withHook('document:update:info', mutators.value.active().document.updateDocumentInfo, hooks)(payload),
   )
-  eventBus.on('document:toggle:security', (payload) =>
-    withHook('document:toggle:security', mutators.value.active().document.toggleSecurity, hooks)(payload),
-  )
   eventBus.on('document:update:watch-mode', (payload) =>
     withHook('document:update:watch-mode', mutators.value.active().document.updateWatchMode, hooks)(payload),
   )
@@ -175,6 +172,13 @@ export function initializeWorkspaceEventHandlers({
     withHook(
       'auth:update:selected-security-schemes',
       mutators.value.active().auth.updateSelectedSecuritySchemes,
+      hooks,
+    )(payload),
+  )
+  eventBus.on('auth:clear:selected-security-schemes', (payload) =>
+    withHook(
+      'auth:clear:selected-security-schemes',
+      mutators.value.active().auth.clearSelectedSecuritySchemes,
       hooks,
     )(payload),
   )

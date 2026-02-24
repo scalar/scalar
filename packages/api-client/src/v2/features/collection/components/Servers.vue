@@ -7,9 +7,9 @@ import {
   useModal,
 } from '@scalar/components'
 import { debounce } from '@scalar/helpers/general/debounce'
-import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { isHttpMethod } from '@scalar/helpers/http/is-http-method'
 import { ScalarIconPlus, ScalarIconTrash } from '@scalar/icons'
+import type { ServerMeta } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed, ref } from 'vue'
@@ -21,21 +21,11 @@ import Section from '@/v2/features/settings/components/Section.vue'
 
 import Form from './Form.vue'
 
-/** Meta for server events: document-level or operation-level (matches workspace-store ServerMeta) */
-type ServerMeta =
-  | { type: 'document' }
-  | { type: 'operation'; path: string; method: HttpMethod }
-
 const { document, eventBus, collectionType, path, method } =
   defineProps<CollectionProps>()
 
 const deleteModal = useModal()
 const selectedServerIndex = ref<number>(-1)
-
-/** Grab whichever server we are working on */
-const selectedServer = computed(
-  () => document?.servers?.[selectedServerIndex.value],
-)
 
 const operation = computed(() => {
   if (collectionType === 'operation') {
@@ -60,6 +50,9 @@ const servers = computed(() => {
   }
   return document?.servers ?? []
 })
+
+/** Grab whichever server we are working on */
+const selectedServer = computed(() => servers.value[selectedServerIndex.value])
 
 /** Meta for server events: document-level or operation-level based on collection type */
 const serverMeta = computed<ServerMeta>(() => {

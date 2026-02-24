@@ -66,6 +66,15 @@ export type AuthStore = {
     selectedSchemes: SelectedSecurity,
   ) => void
   /**
+   * Clears the selected schemas for a given document or path.
+   * @param payload - The payload to clear the selected schemas for.
+   */
+  clearAuthSelectedSchemas: (
+    payload:
+      | { type: 'document'; documentName: string }
+      | { type: 'operation'; documentName: string; path: string; method: string },
+  ) => void
+  /**
    * Sets the authentication secrets for a given document and security scheme.
    * @param documentName - Name/id of the OpenAPI document.
    * @param schemeName - Name of the security scheme.
@@ -172,6 +181,24 @@ export const createAuthStore = ({ hooks }: CreateAuthStoreOptions = {}): AuthSto
     }
   }
 
+  const clearAuthSelectedSchemas: AuthStore['clearAuthSelectedSchemas'] = (payload) => {
+    const documentAuth = auth[payload.documentName]
+    if (!documentAuth) {
+      return
+    }
+
+    if (payload.type === 'document') {
+      delete documentAuth.selected.document
+      return
+    }
+
+    const pathAuth = documentAuth.selected.path?.[payload.path]
+    if (!pathAuth) {
+      return
+    }
+    delete pathAuth[payload.method]
+  }
+
   const clearDocumentAuth: AuthStore['clearDocumentAuth'] = (documentName) => {
     delete auth[documentName]
   }
@@ -185,6 +212,7 @@ export const createAuthStore = ({ hooks }: CreateAuthStoreOptions = {}): AuthSto
   }
 
   return {
+    clearAuthSelectedSchemas,
     getAuthSecrets,
     setAuthSecrets,
     clearAuthSecrets,

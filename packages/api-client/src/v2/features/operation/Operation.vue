@@ -11,6 +11,7 @@ export default {}
 </script>
 
 <script setup lang="ts">
+import type { SelectedSecurity } from '@scalar/workspace-store/entities/auth'
 import type { AuthMeta, ServerMeta } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { computed, toValue } from 'vue'
@@ -37,6 +38,7 @@ const {
   securitySchemes,
   workspaceStore,
   plugins,
+  documentSlug,
 } = defineProps<
   RouteProps & {
     /** Subset of config options for the modal */
@@ -127,19 +129,33 @@ const serverMeta = computed<ServerMeta>(() => {
   return { type: 'document' }
 })
 
+const documentSelectedSecurity = computed<SelectedSecurity | undefined>(() => {
+  return workspaceStore.auth.getAuthSelectedSchemas({
+    type: 'document',
+    documentName: documentSlug,
+  })
+})
+
+const operationSelectedSecurity = computed<SelectedSecurity | undefined>(() => {
+  return workspaceStore.auth.getAuthSelectedSchemas({
+    type: 'operation',
+    documentName: documentSlug,
+    path: path ?? '',
+    method: method ?? 'get',
+  })
+})
+
 /** Select document vs operation meta based on the extension */
 const authMeta = computed<AuthMeta>(() => {
-  if (document?.['x-scalar-set-operation-security']) {
+  if (operationSelectedSecurity.value !== undefined) {
     return {
       type: 'operation',
       path: path ?? '',
       method: method ?? 'get',
-    } as const
+    }
   }
 
-  return {
-    type: 'document',
-  } as const
+  return { type: 'document' }
 })
 
 /** Combine environments from document and workspace into a unique array of environment names */
@@ -173,12 +189,7 @@ const APP_VERSION = PACKAGE_VERSION
       :appVersion="APP_VERSION"
       :authMeta
       :documentSecurity="document?.security ?? []"
-      :documentSelectedSecurity="
-        workspaceStore.auth.getAuthSelectedSchemas({
-          type: 'document',
-          documentName: documentSlug,
-        })
-      "
+      :documentSelectedSecurity="documentSelectedSecurity"
       :documentUrl="document?.['x-scalar-original-source-url']"
       :environment
       :environments
@@ -191,14 +202,7 @@ const APP_VERSION = PACKAGE_VERSION
       :layout
       :method
       :operation
-      :operationSelectedSecurity="
-        workspaceStore.auth.getAuthSelectedSchemas({
-          type: 'operation',
-          documentName: documentSlug,
-          path,
-          method,
-        })
-      "
+      :operationSelectedSecurity="operationSelectedSecurity"
       :path
       :plugins="plugins"
       :proxyUrl="
@@ -211,10 +215,7 @@ const APP_VERSION = PACKAGE_VERSION
       :selectedClient="workspaceStore.workspace['x-scalar-default-client']"
       :server="selectedServer"
       :serverMeta
-      :servers
-      :setOperationSecurity="
-        document?.['x-scalar-set-operation-security'] ?? false
-      " />
+      :servers />
   </template>
 
   <!-- Empty state -->

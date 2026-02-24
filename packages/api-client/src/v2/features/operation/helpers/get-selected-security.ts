@@ -11,16 +11,13 @@ export const getSelectedSecurity = (
   documentSelectedSecurity: SelectedSecurity | undefined,
   operationSelectedSecurity: SelectedSecurity | undefined,
   securityRequirements: NonNullable<OpenApiDocument['security']> = [],
-  setOperationSecurity = false,
 ): SelectedSecurity => {
   // Operation level security
-  if (setOperationSecurity) {
-    if (operationSelectedSecurity) {
-      return operationSelectedSecurity
-    }
+  if (operationSelectedSecurity) {
+    return operationSelectedSecurity
   }
   // Document level security
-  else if (documentSelectedSecurity) {
+  if (documentSelectedSecurity) {
     return documentSelectedSecurity
   }
 

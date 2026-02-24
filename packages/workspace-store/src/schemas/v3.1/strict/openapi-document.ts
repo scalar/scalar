@@ -8,10 +8,6 @@ import {
 } from '@/schemas/extensions/document/x-scalar-environments'
 import { type XScalarIcon, XScalarIconSchema } from '@/schemas/extensions/document/x-scalar-icon'
 import { type XScalarIsDirty, XScalarIsDirtySchema } from '@/schemas/extensions/document/x-scalar-is-dirty'
-import {
-  type XScalarSetOperationSecurity,
-  XScalarSetOperationSecuritySchema,
-} from '@/schemas/extensions/document/x-scalar-set-operation-security'
 import { type XScalarCookies, xScalarCookiesSchema } from '@/schemas/extensions/general/x-scalar-cookies'
 import { type XScalarOrder, XScalarOrderSchema } from '@/schemas/extensions/general/x-scalar-order'
 import {
@@ -82,7 +78,6 @@ export const OpenApiExtensionsSchema = compose(
   XTagGroupsSchema,
   xScalarEnvironmentsSchema,
   XScalarSelectedServerSchema,
-  XScalarSetOperationSecuritySchema,
   XScalarIconSchema,
   XScalarOrderSchema,
   xScalarCookiesSchema,
@@ -104,7 +99,6 @@ export type OpenAPIExtensions = Partial<{
 } & XTagGroups &
   XScalarEnvironments &
   XScalarSelectedServer &
-  XScalarSetOperationSecurity &
   XScalarIcon &
   XScalarOrder &
   XScalarCookies &
