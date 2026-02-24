@@ -48,13 +48,39 @@ export const phpCurl: Plugin = {
       parts.push(`curl_setopt($ch, CURLOPT_USERPWD, '${configuration.auth.username}:${configuration.auth.password}');`)
     }
 
-    // Headers
-    if (normalizedRequest.headers?.length) {
-      const headerStrings = normalizedRequest.headers.map((header) => `'${header.name}: ${header.value}'`)
+    // Collect all headers to emit once, avoiding duplicate CURLOPT_HTTPHEADER calls.
+    // Body processing may add a Content-Type header, so we determine it first.
+    const allHeaders: Array<{ name: string; value: string }> = [...(normalizedRequest.headers || [])]
+
+    // Helper to add Content-Type header if not already present
+    const hasContentType = () => allHeaders.some((h) => h.name.toLowerCase() === 'content-type')
+
+    // Determine Content-Type from body before emitting headers
+    if (normalizedRequest.postData) {
+      if (
+        normalizedRequest.postData.mimeType === 'multipart/form-data' &&
+        normalizedRequest.postData.params &&
+        !hasContentType()
+      ) {
+        allHeaders.push({ name: 'Content-Type', value: 'multipart/form-data' })
+      } else if (
+        normalizedRequest.postData.mimeType === 'application/x-www-form-urlencoded' &&
+        normalizedRequest.postData.params &&
+        !hasContentType()
+      ) {
+        allHeaders.push({ name: 'Content-Type', value: 'application/x-www-form-urlencoded' })
+      } else if (normalizedRequest.postData.mimeType === 'application/octet-stream' && !hasContentType()) {
+        allHeaders.push({ name: 'Content-Type', value: 'application/octet-stream' })
+      }
+    }
+
+    // Emit all headers once
+    if (allHeaders.length) {
+      const headerStrings = allHeaders.map((header) => `'${header.name}: ${header.value}'`)
       parts.push(`curl_setopt($ch, CURLOPT_HTTPHEADER, [${headerStrings.join(', ')}]);`)
 
       // Add encoding option if Accept-Encoding header includes compression
-      const acceptEncoding = normalizedRequest.headers.find((header) => header.name.toLowerCase() === 'accept-encoding')
+      const acceptEncoding = allHeaders.find((header) => header.name.toLowerCase() === 'accept-encoding')
       if (acceptEncoding && /gzip|deflate/.test(acceptEncoding.value)) {
         parts.push("curl_setopt($ch, CURLOPT_ENCODING, '');")
       }
@@ -96,7 +122,6 @@ export const phpCurl: Plugin = {
           return acc
         }, [] as string[])
 
-        parts.push(`curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: multipart/form-data']);`)
         parts.push(`curl_setopt($ch, CURLOPT_POSTFIELDS, [${formData.join(', ')}]);`)
       } else if (
         normalizedRequest.postData.mimeType === 'application/x-www-form-urlencoded' &&
@@ -110,10 +135,8 @@ export const phpCurl: Plugin = {
             return `${encodedName}=${encodedValue}`
           })
           .join('&')
-        parts.push(`curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/x-www-form-urlencoded']);`)
         parts.push(`curl_setopt($ch, CURLOPT_POSTFIELDS, '${formData}');`)
       } else if (normalizedRequest.postData.mimeType === 'application/octet-stream') {
-        parts.push(`curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/octet-stream']);`)
         parts.push(`curl_setopt($ch, CURLOPT_POSTFIELDS, '${normalizedRequest.postData.text || ''}');`)
       } else if (normalizedRequest.postData.text) {
         // Try to parse as JSON and convert to PHP array, otherwise use raw text

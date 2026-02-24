@@ -575,6 +575,62 @@ curl_exec($ch);
 curl_close($ch);`)
   })
 
+  it('does not duplicate CURLOPT_HTTPHEADER when headers and form-urlencoded body both set Content-Type', () => {
+    const result = phpCurl.generate({
+      url: 'https://example.com/register',
+      method: 'POST',
+      headers: [
+        {
+          name: 'Content-Type',
+          value: 'application/x-www-form-urlencoded',
+        },
+      ],
+      postData: {
+        mimeType: 'application/x-www-form-urlencoded',
+        params: [
+          { name: 'username', value: 'john_doe' },
+          { name: 'email', value: 'john@example.com' },
+          { name: 'password', value: 'securePassword123' },
+        ],
+      },
+    })
+
+    // CURLOPT_HTTPHEADER should appear exactly once
+    const httpHeaderCount = (result.match(/CURLOPT_HTTPHEADER/g) || []).length
+    expect(httpHeaderCount).toBe(1)
+
+    expect(result).toBe(`$ch = curl_init("https://example.com/register");
+
+curl_setopt($ch, CURLOPT_POST, true);
+curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/x-www-form-urlencoded']);
+curl_setopt($ch, CURLOPT_POSTFIELDS, 'username=john_doe&email=john%40example.com&password=securePassword123');
+
+curl_exec($ch);
+
+curl_close($ch);`)
+  })
+
+  it('does not duplicate CURLOPT_HTTPHEADER with custom headers and form-urlencoded body', () => {
+    const result = phpCurl.generate({
+      url: 'https://example.com',
+      method: 'POST',
+      headers: [
+        { name: 'Authorization', value: 'Bearer token123' },
+        { name: 'Content-Type', value: 'application/x-www-form-urlencoded' },
+      ],
+      postData: {
+        mimeType: 'application/x-www-form-urlencoded',
+        params: [{ name: 'key', value: 'value' }],
+      },
+    })
+
+    // CURLOPT_HTTPHEADER should appear exactly once and include both headers
+    const httpHeaderCount = (result.match(/CURLOPT_HTTPHEADER/g) || []).length
+    expect(httpHeaderCount).toBe(1)
+    expect(result).toContain("'Authorization: Bearer token123'")
+    expect(result).toContain("'Content-Type: application/x-www-form-urlencoded'")
+  })
+
   it('prettifies JSON body using PHP array', () => {
     const result = phpCurl.generate({
       url: 'https://example.com',
