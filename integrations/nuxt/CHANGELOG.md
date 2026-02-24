@@ -1,25 +1,5 @@
 # @scalar/nuxt
 
-## 0.5.83
-
-### Patch Changes
-
-#### Updated Dependencies
-
-- **@scalar/api-reference@1.45.0**
-  - [#8233](https://github.com/scalar/scalar/pull/8233): fix: local storage migration script
-  - [#8226](https://github.com/scalar/scalar/pull/8226): feat: slugs for headings with nested content
-  - [#8243](https://github.com/scalar/scalar/pull/8243): chore: correctly display header in classic layout
-  - [#8129](https://github.com/scalar/scalar/pull/8129): feat: always show the schema type
-  - [#8130](https://github.com/scalar/scalar/pull/8130): feat: nest description headings in the sidebar
-  - [#8238](https://github.com/scalar/scalar/pull/8238): feat: add option to open first tag by default
-
-- **@scalar/api-client@2.29.3**
-  - [#8225](https://github.com/scalar/scalar/pull/8225): fix: selecting multiply security schemes doesn't render Markdown in descriptions
-  - [#8227](https://github.com/scalar/scalar/pull/8227): fix: remove unnecessary property truncation in example generation
-
-- **@scalar/types@0.6.7**
-
 ## 0.5.82
 
 ### Patch Changes

@@ -1,18 +1,5 @@
 # @scalar/openapi-parser
 
-## 0.24.14
-
-### Patch Changes
-
-#### Updated Dependencies
-
-- **@scalar/helpers@0.2.16**
-  - [#8233](https://github.com/scalar/scalar/pull/8233): fix: local storage migration script
-
-- **@scalar/json-magic@0.11.5**
-
-- **@scalar/openapi-upgrader@0.1.8**
-
 ## 0.24.13
 
 ### Patch Changes
