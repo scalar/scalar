@@ -541,3 +541,55 @@ describe('proxy configuration', () => {
     expect(mockFetch).toHaveBeenCalledWith('https://api.example.com/v1/openapi.yaml', expect.any(Object))
   })
 })
+
+describe('sidebar introduction toggle behavior', () => {
+  it('collapses introduction when clicked a second time', async () => {
+    const wrapper = mount(ApiReference, {
+      props: {
+        configuration: {
+          content: {
+            openapi: '3.1.0',
+            info: {
+              title: 'My API',
+              version: '1.0.0',
+              description: `
+Welcome to the API.
+
+# Main Section
+## Subsection
+              `,
+            },
+            paths: {},
+          },
+        },
+      },
+    })
+
+    await flushPromises()
+
+    const introduction = wrapper.vm.sidebarItems.find(
+      (item: { type: string; title: string }) => item.type === 'text' && item.title === 'Introduction',
+    )
+    expect(introduction).toBeDefined()
+    if (!introduction) {
+      throw new Error('Expected Introduction entry in sidebar items')
+    }
+
+    const introductionButton = wrapper.find(`[data-sidebar-id="${introduction.id}"] [aria-selected]`)
+    const introductionToggle = wrapper.find(
+      // Make sure we select the toggle not the group button
+      `[data-sidebar-id="${introduction.id}"] [aria-expanded]:not([aria-selected])`,
+    )
+
+    expect(introductionButton.attributes('aria-expanded')).toBe('false')
+    expect(introductionToggle.attributes('aria-expanded')).toBe('false')
+
+    await introductionButton.trigger('click')
+    expect(introductionButton.attributes('aria-expanded')).toBe('true')
+    expect(introductionToggle.attributes('aria-expanded')).toBe('true')
+
+    await introductionToggle.trigger('click')
+    expect(introductionButton.attributes('aria-expanded')).toBe('false')
+    expect(introductionToggle.attributes('aria-expanded')).toBe('false')
+  })
+})
