@@ -11,7 +11,7 @@ import type { ExtendedScalarCookie } from '@/v2/blocks/request-block/RequestBloc
 
 import { buildRequest } from './helpers/build-request'
 import { type ResponseInstance, sendRequest } from './helpers/send-request'
-import OperationBlock from './OperationBlock.vue'
+import OperationBlock, { type OperationBlockProps } from './OperationBlock.vue'
 
 vi.mock('./helpers/build-request')
 vi.mock('./helpers/send-request')
@@ -120,7 +120,7 @@ const createMockOriginalResponse = (): Response =>
  * Creates default props for mounting the OperationBlock component.
  * These props represent the minimum required to render the component.
  */
-const createDefaultProps = () => ({
+const createDefaultProps = (): OperationBlockProps => ({
   eventBus: createMockEventBus(),
   appVersion: '1.0.0',
   proxyUrl: '',
@@ -133,7 +133,6 @@ const createDefaultProps = () => ({
   selectedClient: 'js/fetch' as const,
   servers: [{ url: 'https://api.example.com' }],
   history: [],
-  totalPerformedRequests: 0,
   operation: createMockOperation(),
   exampleKey: 'default',
   authMeta: createMockAuthMeta(),
@@ -141,9 +140,11 @@ const createDefaultProps = () => ({
   operationSelectedSecurity: undefined,
   documentSecurity: undefined,
   documentSelectedSecurity: undefined,
-  setOperationSecurity: false,
   plugins: [],
   environment: createMockEnvironment(),
+  serverMeta: {
+    type: 'document',
+  },
 })
 
 describe('OperationBlock', () => {

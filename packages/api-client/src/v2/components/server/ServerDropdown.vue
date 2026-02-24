@@ -1,3 +1,25 @@
+<script lang="ts">
+/**
+ * ServerDropdown component
+ * This component is used to display the server dropdown for the operation block
+ */
+export default {
+  name: 'ServerDropdown',
+}
+
+export type ServerDropdownProps = {
+  /** The meta information for the server */
+  meta: ServerMeta
+  /** List of servers that are available for the operation/document level */
+  servers: ServerObject[]
+  /** Currently selected server */
+  server: ServerObject | null
+  /** The id of the target to use for the popover (e.g. address bar) */
+  target: string
+  /** Client layout */
+  layout: ClientLayout
+}
+</script>
 <script setup lang="ts">
 import {
   ScalarButton,
@@ -17,18 +39,7 @@ import ValueEmitter from '@/v2/components/layout/ValueEmitter.vue'
 
 import ServerDropdownItem from './ServerDropdownItem.vue'
 
-const { target, server, servers, meta } = defineProps<{
-  /** The meta information for the server */
-  meta: ServerMeta
-  /** List of servers that are available for the operation/document level */
-  servers: ServerObject[]
-  /** Currently selected server */
-  server: ServerObject | null
-  /** The id of the target to use for the popover (e.g. address bar) */
-  target: string
-  /** Client layout */
-  layout: ClientLayout
-}>()
+const { target, server, servers, meta } = defineProps<ServerDropdownProps>()
 
 const emit = defineEmits<{
   /** Update a server variable for the selected server */

@@ -14,6 +14,13 @@ export type ServerMeta =
 
 export type ServerEvents = {
   /**
+   * Initialize the servers with an empty array for the target collection
+   */
+  'server:initialize:servers': {
+    /** The meta information for the server */
+    meta: ServerMeta
+  }
+  /**
    * Add a new blank server to the target collection
    */
   'server:add:server': {

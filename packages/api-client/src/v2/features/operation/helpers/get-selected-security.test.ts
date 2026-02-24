@@ -3,21 +3,15 @@ import { describe, expect, it } from 'vitest'
 import { getSelectedSecurity } from './get-selected-security'
 
 describe('getSelectedSecurity', () => {
-  it('returns operation-level selected security when setOperationSecurity is enabled', () => {
+  it('returns operation-level selected security when set', () => {
     const documentSelectedSecurity = undefined
     const operationSelectedSecurity = {
       selectedIndex: 2,
       selectedSchemes: [{ oauth2: [] }],
     }
     const securityRequirements = [{ apiKey: [] }, { basicAuth: [] }, { oauth2: [] }]
-    const setOperationSecurity = true
 
-    const result = getSelectedSecurity(
-      documentSelectedSecurity,
-      operationSelectedSecurity,
-      securityRequirements,
-      setOperationSecurity,
-    )
+    const result = getSelectedSecurity(documentSelectedSecurity, operationSelectedSecurity, securityRequirements)
 
     expect(result).toEqual({
       selectedIndex: 2,
@@ -32,14 +26,8 @@ describe('getSelectedSecurity', () => {
     }
     const operationSelectedSecurity = undefined
     const securityRequirements = [{ apiKey: [] }, { bearerAuth: [] }]
-    const setOperationSecurity = false
 
-    const result = getSelectedSecurity(
-      documentSelectedSecurity,
-      operationSelectedSecurity,
-      securityRequirements,
-      setOperationSecurity,
-    )
+    const result = getSelectedSecurity(documentSelectedSecurity, operationSelectedSecurity, securityRequirements)
 
     expect(result).toEqual({
       selectedIndex: 1,
@@ -52,14 +40,8 @@ describe('getSelectedSecurity', () => {
     const operationSelectedSecurity = undefined
     // Empty requirement makes auth optional
     const securityRequirements = [{ apiKey: [] }, {}]
-    const setOperationSecurity = false
 
-    const result = getSelectedSecurity(
-      documentSelectedSecurity,
-      operationSelectedSecurity,
-      securityRequirements,
-      setOperationSecurity,
-    )
+    const result = getSelectedSecurity(documentSelectedSecurity, operationSelectedSecurity, securityRequirements)
 
     expect(result).toEqual({
       selectedIndex: -1,
@@ -71,14 +53,8 @@ describe('getSelectedSecurity', () => {
     const documentSelectedSecurity = undefined
     const operationSelectedSecurity = undefined
     const securityRequirements = [{ apiKey: [] }, { oauth2: [] }, { basicAuth: [] }]
-    const setOperationSecurity = false
 
-    const result = getSelectedSecurity(
-      documentSelectedSecurity,
-      operationSelectedSecurity,
-      securityRequirements,
-      setOperationSecurity,
-    )
+    const result = getSelectedSecurity(documentSelectedSecurity, operationSelectedSecurity, securityRequirements)
 
     expect(result).toEqual({
       selectedIndex: 0,
@@ -90,14 +66,8 @@ describe('getSelectedSecurity', () => {
     const documentSelectedSecurity = undefined
     const operationSelectedSecurity = undefined
     const securityRequirements: Array<Record<string, string[]>> = []
-    const setOperationSecurity = false
 
-    const result = getSelectedSecurity(
-      documentSelectedSecurity,
-      operationSelectedSecurity,
-      securityRequirements,
-      setOperationSecurity,
-    )
+    const result = getSelectedSecurity(documentSelectedSecurity, operationSelectedSecurity, securityRequirements)
 
     expect(result).toEqual({
       selectedIndex: -1,

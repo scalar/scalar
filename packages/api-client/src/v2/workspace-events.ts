@@ -200,6 +200,9 @@ export function initializeWorkspaceEventHandlers({
   //------------------------------------------------------------------------------------
   // Server Related Event Handlers
   //------------------------------------------------------------------------------------
+  eventBus.on('server:initialize:servers', (payload) =>
+    withHook('server:initialize:servers', mutators.value.active().server.initializeServers, hooks)(payload),
+  )
   eventBus.on('server:add:server', (payload) =>
     withHook('server:add:server', mutators.value.active().server.addServer, hooks)(payload),
   )

@@ -9,7 +9,6 @@ import Authentication from './Authentication.vue'
 
 describe('Authentication', () => {
   const baseDocument = {
-    'x-scalar-set-operation-security': true,
     'x-scalar-selected-server': 'https://api.example.com',
     openapi: '3.1.0',
     info: {

@@ -31,6 +31,26 @@ const getServerTarget = (document: WorkspaceDocument | null, meta: ServerMeta): 
 }
 
 /**
+ * Initializes the servers for the document or operation based on meta.
+ *
+ * @param document - The document to initialize the servers for
+ * @param meta - Target context (document or operation)
+ */
+export const initializeServers = (
+  document: WorkspaceDocument | null,
+  { meta }: ServerEvents['server:initialize:servers'],
+) => {
+  const target = getServerTarget(document, meta)
+
+  if (!target) {
+    console.error('Target not found', meta)
+    return undefined
+  }
+  target.servers = []
+  return target.servers
+}
+
+/**
  * Adds a new ServerObject to the document or operation based on meta.
  *
  * @param document - The document to add the server to
@@ -275,6 +295,7 @@ export const updateSelectedServer = (
 
 export const serverMutatorsFactory = ({ document }: { document: WorkspaceDocument | null }) => {
   return {
+    initializeServers: (payload: ServerEvents['server:initialize:servers']) => initializeServers(document, payload),
     addServer: (payload: ServerEvents['server:add:server']) => addServer(document, payload),
     updateServer: (payload: ServerEvents['server:update:server']) => updateServer(document, payload),
     deleteServer: (payload: ServerEvents['server:delete:server']) => deleteServer(document, payload),

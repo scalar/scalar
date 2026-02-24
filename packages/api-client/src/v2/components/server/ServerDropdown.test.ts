@@ -1,23 +1,25 @@
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 
-import ServerDropdown from './ServerDropdown.vue'
+import ServerDropdown, { type ServerDropdownProps } from './ServerDropdown.vue'
 
 describe('ServerDropdown', () => {
-  const makeWrapper = (options?: { server?: any; servers?: any[]; layout?: 'modal' | 'web' | 'desktop' }) => {
+  const makeWrapper = (options?: Partial<ServerDropdownProps>) => {
     const servers = options?.servers ?? [
       { url: 'https://api-1.example.com', variables: {}, description: 'one' },
       { url: 'https://api-2.example.com/', variables: {} },
     ]
 
-    const server = options && 'server' in options ? options.server : servers[0]
-
     return mount(ServerDropdown, {
       props: {
         servers,
-        server,
         target: 'test-target',
-        layout: options?.layout ?? 'desktop',
+        layout: 'desktop',
+        meta: {
+          type: 'document',
+        },
+        server: options?.server ?? servers[0] ?? null,
+        ...options,
       },
       global: {
         stubs: {

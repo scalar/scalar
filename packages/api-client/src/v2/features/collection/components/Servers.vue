@@ -140,14 +140,17 @@ const getServerDisplayName = (server?: ServerObject, index = 0): string =>
   server?.description || `Server ${index + 1}`
 
 /** Handles toggling the operation servers */
-const handleToggleOperationServers = (newValue: boolean) => {
-  if (newValue === false) {
-    // remove the servers from the operation
-    eventBus.emit('server:clear:servers', { meta: serverMeta.value })
-  }
-
+const handleToggleOperationServers = (value: boolean) => {
   // update the operation servers
-  useOperationServers.value = newValue
+  useOperationServers.value = value
+
+  if (value) {
+    // Initialize the servers with an empty array so we will infer the servers from the operation
+    return eventBus.emit('server:initialize:servers', {
+      meta: serverMeta.value,
+    })
+  }
+  return eventBus.emit('server:clear:servers', { meta: serverMeta.value })
 }
 </script>
 

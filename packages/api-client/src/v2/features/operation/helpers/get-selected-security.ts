@@ -4,8 +4,10 @@ import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/stric
 import { isAuthOptional } from '@/v2/blocks/scalar-auth-selector-block/helpers/is-auth-optional'
 
 /**
- * Get the selected security for an operation or document,
- * Defaults to the first requirement if no selection is made and you pass in requirements
+ * Resolves which security selection to use for an operation.
+ * Priority: operation-level selection, then document-level selection, then a default.
+ * When neither level has a selection, returns the first security requirement unless
+ * authentication is optional or there are no requirements, in which case returns no selection.
  */
 export const getSelectedSecurity = (
   documentSelectedSecurity: SelectedSecurity | undefined,

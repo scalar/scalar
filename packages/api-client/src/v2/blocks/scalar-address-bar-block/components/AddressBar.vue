@@ -1,3 +1,33 @@
+<script lang="ts">
+/**
+ * AddressBar component
+ * This component is used to display the address bar for the operation block
+ * It is used to display the path, method, server, and history for the operation
+ */
+export default {
+  name: 'AddressBar',
+}
+export type AddressBarProps = {
+  /** Current request path */
+  path: string
+  /** Current request method */
+  method: HttpMethodType
+  /** Currently selected server */
+  server: ServerObject | null
+  /** Server list available for operation/document */
+  servers: ServerObject[]
+  /** List of request history */
+  history: History[]
+  /** Client layout */
+  layout: ClientLayout
+  /** Event bus */
+  eventBus: WorkspaceEventBus
+  /** Environment */
+  environment: XScalarEnvironment
+  /** Meta information for the server */
+  serverMeta: ServerMeta
+}
+</script>
 <script setup lang="ts">
 import {
   ScalarButton,
@@ -43,26 +73,7 @@ const {
   servers,
   environment,
   serverMeta,
-} = defineProps<{
-  /** Current request path */
-  path: string
-  /** Current request method */
-  method: HttpMethodType
-  /** Currently selected server */
-  server: ServerObject | null
-  /** Server list available for operation/document */
-  servers: ServerObject[]
-  /** List of request history */
-  history: History[]
-  /** Client layout */
-  layout: ClientLayout
-  /** Event bus */
-  eventBus: WorkspaceEventBus
-  /** Environment */
-  environment: XScalarEnvironment
-  /** Meta information for the server */
-  serverMeta: ServerMeta
-}>()
+} = defineProps<AddressBarProps>()
 
 const emit = defineEmits<{
   /** Execute the current operation example */

@@ -1,19 +1,5 @@
-<script setup lang="ts">
-import { ScalarIcon } from '@scalar/components'
-import type { HttpMethod } from '@scalar/helpers/http/http-methods'
-import type {
-  ServerMeta,
-  WorkspaceEventBus,
-} from '@scalar/workspace-store/events'
-import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
-import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-
-import { OpenApiClientButton } from '@/components'
-import type { ClientLayout } from '@/hooks'
-import { AddressBar, type History } from '@/v2/blocks/scalar-address-bar-block'
-import EnvironmentSelector from '@/v2/blocks/scalar-address-bar-block/components/EnvironmentSelector.vue'
-
-const { hideClientButton = false, eventBus } = defineProps<{
+<script lang="ts">
+export type HeaderProps = {
   /** Current request path */
   path: string
   /** Current request method */
@@ -44,7 +30,25 @@ const { hideClientButton = false, eventBus } = defineProps<{
   environment: XScalarEnvironment
   /** Meta information for the server */
   serverMeta: ServerMeta
-}>()
+}
+</script>
+
+<script setup lang="ts">
+import { ScalarIcon } from '@scalar/components'
+import type { HttpMethod } from '@scalar/helpers/http/http-methods'
+import type {
+  ServerMeta,
+  WorkspaceEventBus,
+} from '@scalar/workspace-store/events'
+import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
+import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+
+import { OpenApiClientButton } from '@/components'
+import type { ClientLayout } from '@/hooks'
+import { AddressBar, type History } from '@/v2/blocks/scalar-address-bar-block'
+import EnvironmentSelector from '@/v2/blocks/scalar-address-bar-block/components/EnvironmentSelector.vue'
+
+const { hideClientButton = false, eventBus } = defineProps<HeaderProps>()
 
 const emit = defineEmits<{
   /** Execute the current operation example */
