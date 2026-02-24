@@ -8,7 +8,6 @@ import {
   ScalarCard,
   ScalarCardFooter,
   ScalarCardSection,
-  ScalarCodeBlock,
   ScalarIcon,
   ScalarMarkdown,
 } from '@scalar/components'
@@ -25,6 +24,7 @@ import type {
 import { computed, ref, toValue, useId, watch } from 'vue'
 
 import ScreenReader from '@/components/ScreenReader.vue'
+import ExampleSchema from '@/features/example-responses/ExampleSchema.vue'
 
 import ExampleResponse from './ExampleResponse.vue'
 import ExampleResponseTab from './ExampleResponseTab.vue'
@@ -134,6 +134,17 @@ const changeTab = (index: number) => {
   selectedExampleKey.value = ''
 }
 
+const schemaContent = computed(() => {
+  if (!currentResponseContent.value?.schema) {
+    return undefined
+  }
+  return JSON.stringify(
+    getResolvedRefDeep(currentResponseContent.value?.schema),
+    null,
+    2,
+  )
+})
+
 const showSchema = ref(false)
 </script>
 <template>
@@ -176,16 +187,13 @@ const showSchema = ref(false)
     </ExampleResponseTabList>
     <ScalarCardSection class="grid flex-1">
       <!-- Schema -->
-      <ScalarCodeBlock
-        v-if="showSchema && currentResponseContent?.schema"
-        :id="id"
-        :content="getResolvedRefDeep(currentResponseContent?.schema)"
-        class="bg-b-2"
-        lang="json" />
+      <ExampleSchema
+        v-if="schemaContent !== undefined && showSchema"
+        :schemaContent="schemaContent" />
 
       <!-- Example -->
       <ExampleResponse
-        v-else
+        v-if="!showSchema"
         :id="id"
         :example="currentExample"
         :response="currentResponseContent" />
