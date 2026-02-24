@@ -1,5 +1,25 @@
 # @scalar/mock-server
 
+## 0.8.42
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/oas-utils@0.6.47**
+  - [#8248](https://github.com/scalar/scalar/pull/8248): fix: local storage migration script
+  - [#8248](https://github.com/scalar/scalar/pull/8248): fix: remove unnecessary property truncation in example generation
+  - [#8248](https://github.com/scalar/scalar/pull/8248): chore: map themeId to slug and add default operation to drafts
+
+- **@scalar/helpers@0.2.16**
+  - [#8248](https://github.com/scalar/scalar/pull/8248): fix: local storage migration script
+
+- **@scalar/json-magic@0.11.5**
+
+- **@scalar/openapi-parser@0.24.14**
+
+- **@scalar/openapi-upgrader@0.1.8**
+
 ## 0.8.41
 
 ### Patch Changes
