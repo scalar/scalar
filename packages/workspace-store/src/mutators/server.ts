@@ -217,9 +217,9 @@ export const clearServers = (document: WorkspaceDocument | null, { meta }: Serve
     return
   }
   // Remove the servers array
-  delete target.servers
+  target.servers = undefined
   // Clear the selected server
-  delete target['x-scalar-selected-server']
+  target['x-scalar-selected-server'] = undefined
 }
 
 /**

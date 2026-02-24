@@ -195,62 +195,73 @@ const handleToggleOperationServers = (newValue: boolean) => {
       </div>
     </template>
 
-    <!-- Server List -->
-    <div class="flex flex-col gap-4">
+    <div :class="!useOperationServers && 'cursor-not-allowed'">
       <div
-        v-for="(server, index) in servers"
-        :key="index"
-        class="rounded-lg border">
-        <!-- Server Header -->
+        class="flex flex-col gap-4"
+        :class="
+          !useOperationServers &&
+          'pointer-events-none cursor-not-allowed opacity-50 mix-blend-luminosity'
+        ">
+        <!-- Server List -->
+        <div class="flex flex-col gap-4">
+          <div
+            v-for="(server, index) in servers"
+            :key="index"
+            class="rounded-lg border">
+            <!-- Server Header -->
+            <div
+              class="bg-b-2 flex items-center justify-between rounded-t-lg px-3 py-1 text-sm">
+              <ScalarMarkdown
+                v-if="server.description"
+                class="self-center"
+                :value="server.description" />
+              <span
+                v-else
+                class="self-center">
+                {{ getServerDisplayName(server, index) }}
+              </span>
+              <ScalarButton
+                class="hover:bg-b-3 hover:text-c-1 h-fit p-1.25"
+                data-testid="delete-server-button"
+                variant="ghost"
+                @click="openDeleteModal(index)">
+                <ScalarIconTrash class="size-3.5" />
+              </ScalarButton>
+            </div>
+
+            <!-- Server Variables Form -->
+            <div
+              class="divide-0 flex w-full flex-col divide-y rounded-b-lg text-sm">
+              <Form
+                :data="server"
+                :environment="environment"
+                :onUpdate="
+                  (key, value) => handleServerUpdate(index, key, value)
+                "
+                :options="FORM_OPTIONS" />
+              <ServerVariablesForm
+                v-if="server.variables"
+                :variables="server.variables"
+                @update:variable="
+                  (name, value) => handleVariableUpdate(index, name, value)
+                " />
+            </div>
+          </div>
+        </div>
+
+        <!-- Add Server Button -->
         <div
-          class="bg-b-2 flex items-center justify-between rounded-t-lg px-3 py-1 text-sm">
-          <ScalarMarkdown
-            v-if="server.description"
-            class="self-center"
-            :value="server.description" />
-          <span
-            v-else
-            class="self-center">
-            {{ getServerDisplayName(server, index) }}
-          </span>
+          class="text-c-3 flex h-full items-center justify-center rounded-lg border p-4">
           <ScalarButton
-            class="hover:bg-b-3 hover:text-c-1 h-fit p-1.25"
-            data-testid="delete-server-button"
+            class="hover:bg-b-2 hover:text-c-1 flex items-center gap-2"
+            size="sm"
             variant="ghost"
-            @click="openDeleteModal(index)">
-            <ScalarIconTrash class="size-3.5" />
+            @click="handleAddServer">
+            <ScalarIconPlus />
+            <span>Add Server</span>
           </ScalarButton>
         </div>
-
-        <!-- Server Variables Form -->
-        <div
-          class="divide-0 flex w-full flex-col divide-y rounded-b-lg text-sm">
-          <Form
-            :data="server"
-            :environment="environment"
-            :onUpdate="(key, value) => handleServerUpdate(index, key, value)"
-            :options="FORM_OPTIONS" />
-          <ServerVariablesForm
-            v-if="server.variables"
-            :variables="server.variables"
-            @update:variable="
-              (name, value) => handleVariableUpdate(index, name, value)
-            " />
-        </div>
       </div>
-    </div>
-
-    <!-- Add Server Button -->
-    <div
-      class="text-c-3 flex h-full items-center justify-center rounded-lg border p-4">
-      <ScalarButton
-        class="hover:bg-b-2 hover:text-c-1 flex items-center gap-2"
-        size="sm"
-        variant="ghost"
-        @click="handleAddServer">
-        <ScalarIconPlus />
-        <span>Add Server</span>
-      </ScalarButton>
     </div>
   </Section>
 

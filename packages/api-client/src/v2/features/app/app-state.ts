@@ -659,14 +659,30 @@ export const createAppState = async ({
     }
 
     // Navigate to the example page
-    // TODO: temporary until we have the operation overview page
     if (entry.type === 'operation') {
+      // If we are already in an operation child we just want to toggle the explanstion
+      if (sidebarState.isSelected(id) && sidebarState.selectedItem.value !== id) {
+        sidebarState.setExpanded(id, !sidebarState.isExpanded(id))
+        return
+      }
+
+      // Otherwise, select the first example
+      const firstExample = entry.children?.find((child) => child.type === 'example')
+
+      if (firstExample) {
+        sidebarState.setSelected(firstExample.id)
+        sidebarState.setExpanded(firstExample.id, true)
+      } else {
+        sidebarState.setSelected(id)
+      }
+
       return router.push({
-        name: 'operation.overview',
+        name: 'example',
         params: {
           documentSlug: getParentEntry('document', entry)?.name,
           pathEncoded: encodeURIComponent(entry.path),
           method: entry.method,
+          exampleName: firstExample?.name ?? 'default',
         },
       })
     }
