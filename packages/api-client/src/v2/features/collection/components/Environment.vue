@@ -1,3 +1,14 @@
+<script lang="ts">
+/**
+ * Environment variables section for the collection.
+ * Renders document or workspace environments and lets users set variables
+ * that can be referenced in request inputs via {{ variable }}.
+ */
+export default {
+  name: 'Environment',
+}
+</script>
+
 <script setup lang="ts">
 import { computed } from 'vue'
 
@@ -22,7 +33,7 @@ const activeEnvironment = computed(() => {
 </script>
 
 <template>
-  <Section>
+  <Section v-if="collectionType !== 'operation'">
     <template #title>Environment Variables</template>
     <template #description>
       Set environment variables at your collection level. Use
