@@ -1,5 +1,14 @@
 # @scalar/void-server
 
+## 2.3.9
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/helpers@0.2.16**
+  - [#8233](https://github.com/scalar/scalar/pull/8233): fix: local storage migration script
+
 ## 2.3.8
 
 ### Patch Changes

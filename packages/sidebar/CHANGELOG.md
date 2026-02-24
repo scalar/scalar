@@ -1,5 +1,25 @@
 # @scalar/sidebar
 
+## 0.7.40
+
+### Patch Changes
+
+- [#8130](https://github.com/scalar/scalar/pull/8130): feat: add optional chevron click handler for the sidebar
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.34.3**
+  - [#8233](https://github.com/scalar/scalar/pull/8233): fix: local storage migration script
+  - [#8130](https://github.com/scalar/scalar/pull/8130): feat: nest description headings in the sidebar
+  - [#8242](https://github.com/scalar/scalar/pull/8242): chore: map themeId to slug and add default operation to drafts
+
+- **@scalar/helpers@0.2.16**
+  - [#8233](https://github.com/scalar/scalar/pull/8233): fix: local storage migration script
+
+- **@scalar/components@0.19.9**
+  - [#8226](https://github.com/scalar/scalar/pull/8226): feat: slugs for headings with nested content
+  - [#8130](https://github.com/scalar/scalar/pull/8130): feat: add optional chevron click handler for the sidebar
+
 ## 0.7.39
 
 ### Patch Changes

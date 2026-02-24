@@ -1,5 +1,21 @@
 # scalar-app
 
+## 0.1.294
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/components@0.19.9**
+  - [#8226](https://github.com/scalar/scalar/pull/8226): feat: slugs for headings with nested content
+  - [#8130](https://github.com/scalar/scalar/pull/8130): feat: add optional chevron click handler for the sidebar
+
+- **@scalar/api-client@2.29.3**
+  - [#8225](https://github.com/scalar/scalar/pull/8225): fix: selecting multiply security schemes doesn't render Markdown in descriptions
+  - [#8227](https://github.com/scalar/scalar/pull/8227): fix: remove unnecessary property truncation in example generation
+
+- **@scalar/import@0.4.53**
+
 ## 0.1.293
 
 ### Patch Changes

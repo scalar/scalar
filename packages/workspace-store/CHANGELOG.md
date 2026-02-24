@@ -1,5 +1,32 @@
 # @scalar/workspace-store
 
+## 0.34.3
+
+### Patch Changes
+
+- [#8233](https://github.com/scalar/scalar/pull/8233): fix: local storage migration script
+- [#8130](https://github.com/scalar/scalar/pull/8130): feat: nest description headings in the sidebar
+- [#8242](https://github.com/scalar/scalar/pull/8242): chore: map themeId to slug and add default operation to drafts
+
+#### Updated Dependencies
+
+- **@scalar/helpers@0.2.16**
+  - [#8233](https://github.com/scalar/scalar/pull/8233): fix: local storage migration script
+
+- **@scalar/code-highlight@0.2.4**
+  - [#8226](https://github.com/scalar/scalar/pull/8226): feat: slugs for headings with nested content
+
+- **@scalar/snippetz@0.6.16**
+  - [#8240](https://github.com/scalar/scalar/pull/8240): fix: duplicate http headers for PHP CURL
+
+- **@scalar/json-magic@0.11.5**
+
+- **@scalar/object-utils@1.2.30**
+
+- **@scalar/types@0.6.7**
+
+- **@scalar/openapi-upgrader@0.1.8**
+
 ## 0.34.2
 
 ### Patch Changes
