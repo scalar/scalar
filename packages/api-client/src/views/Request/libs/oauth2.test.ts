@@ -3,7 +3,7 @@ import { flushPromises } from '@vue/test-utils'
 import { encode } from 'js-base64'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { authorizeOauth2 } from './oauth2'
+import { authorizeOauth2, getInterpolatedServerUrl } from './oauth2'
 
 const baseScheme = {
   uid: 'test-scheme',
@@ -819,6 +819,151 @@ describe('oauth2', () => {
         value: originalLocation,
         writable: true,
       })
+    })
+  })
+
+  describe('Server variable interpolation', () => {
+    it('returns undefined for an undefined server', () => {
+      expect(getInterpolatedServerUrl(undefined)).toBeUndefined()
+    })
+
+    it('returns the URL unchanged when the server has no template variables', () => {
+      const server = serverSchema.parse({ uid: 'test-no-vars', url: 'https://api.example.com' })
+      expect(getInterpolatedServerUrl(server)).toBe('https://api.example.com')
+    })
+
+    it('interpolates multiple server variables', () => {
+      const server = serverSchema.parse({
+        uid: 'test-multi-vars',
+        url: 'https://{tenant}.{region}.example.com',
+        variables: {
+          tenant: { default: 'acme' },
+          region: { default: 'us-east-1' },
+        },
+      })
+      expect(getInterpolatedServerUrl(server)).toBe('https://acme.us-east-1.example.com')
+    })
+
+    it('variable.value takes priority over variable.default when both are present', () => {
+      // variable.value is a Scalar extension for the user-overridden runtime value
+      const server = serverSchema.parse({
+        uid: 'test-value-over-default',
+        url: 'https://{environment}.example.com',
+        variables: { environment: { default: 'prod', value: 'staging' } },
+      })
+      expect(getInterpolatedServerUrl(server)).toBe('https://staging.example.com')
+    })
+
+    it('falls back to variable.default when value is an empty string', () => {
+      const server = serverSchema.parse({
+        uid: 'test-empty-value',
+        url: 'https://{environment}.example.com',
+        variables: { environment: { default: 'prod', value: '' } },
+      })
+      expect(getInterpolatedServerUrl(server)).toBe('https://prod.example.com')
+    })
+
+    it('token URL resolved correctly when server URL contains {variable} — client credentials flow', async () => {
+      const ccScheme = securityOauthSchema.parse({
+        ...baseScheme,
+        flows: {
+          clientCredentials: {
+            ...baseFlow,
+            type: 'clientCredentials',
+            // Relative token URL will be resolved against the interpolated server base
+            tokenUrl: '/oauth/token',
+            clientSecret,
+            token: '',
+          },
+        },
+      })
+      const flow = ccScheme.flows.clientCredentials!
+
+      const serverWithVars = serverSchema.parse({
+        uid: 'server-with-variables',
+        url: 'https://{environment}.api.example.com',
+        variables: { environment: { default: 'prod' } },
+      })
+
+      global.fetch = vi.fn().mockResolvedValueOnce({
+        json: () => Promise.resolve({ access_token: 'token_123' }),
+      })
+
+      await authorizeOauth2(flow, serverWithVars)
+
+      expect(global.fetch).toHaveBeenCalledWith('https://prod.api.example.com/oauth/token', expect.any(Object))
+    })
+
+    it('token URL resolved correctly when server URL contains {variable} — authorization code flow', async () => {
+      const acScheme = securityOauthSchema.parse({
+        ...baseScheme,
+        flows: {
+          authorizationCode: {
+            ...baseFlow,
+            'x-usePkce': 'no',
+            'type': 'authorizationCode',
+            authorizationUrl,
+            // Relative token URL will be resolved against the interpolated server base
+            tokenUrl: '/oauth/token',
+            clientSecret,
+            'x-scalar-redirect-uri': redirectUri,
+            'token': '',
+          },
+        },
+      })
+      const flow = acScheme.flows.authorizationCode!
+
+      const serverWithVars = serverSchema.parse({
+        uid: 'server-with-variables',
+        url: 'https://{environment}.api.example.com',
+        variables: { environment: { default: 'prod' } },
+      })
+
+      const promise = authorizeOauth2(flow, serverWithVars)
+
+      // Simulate the authorization server redirecting back with a code
+      mockWindow.location.href = `${redirectUri}?code=auth_code_123&state=${state}`
+
+      global.fetch = vi.fn().mockResolvedValueOnce({
+        json: () => Promise.resolve({ access_token: 'token_prod' }),
+      })
+
+      vi.advanceTimersByTime(200)
+
+      const [error, result] = await promise
+      expect(error).toBe(null)
+      expect(result).toBe('token_prod')
+
+      // The token URL should be resolved against the interpolated server URL
+      expect(global.fetch).toHaveBeenCalledWith('https://prod.api.example.com/oauth/token', expect.any(Object))
+    })
+
+    it('relative redirect URI resolved against the interpolated server URL', () => {
+      const implicitScheme = securityOauthSchema.parse({
+        ...baseScheme,
+        flows: {
+          implicit: {
+            ...baseFlow,
+            type: 'implicit',
+            authorizationUrl,
+            'x-scalar-redirect-uri': '/callback',
+            token: '',
+          },
+        },
+      })
+      const flow = implicitScheme.flows.implicit!
+
+      const serverWithVars = serverSchema.parse({
+        uid: 'server-with-variables',
+        url: 'https://{tenant}.example.com',
+        variables: { tenant: { default: 'myorg' } },
+      })
+
+      void authorizeOauth2(flow, serverWithVars)
+
+      const [[calledUrl]] = vi.mocked(window.open).mock.calls
+      const openedUrl = calledUrl as URL
+      expect(openedUrl.searchParams.get('redirect_uri')).toBe('https://myorg.example.com/callback')
     })
   })
 
