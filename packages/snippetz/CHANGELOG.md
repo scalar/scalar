@@ -1,15 +1,5 @@
 # @scalar/snippetz
 
-## 0.6.16
-
-### Patch Changes
-
-- [#8240](https://github.com/scalar/scalar/pull/8240): fix: duplicate http headers for PHP CURL
-
-#### Updated Dependencies
-
-- **@scalar/types@0.6.7**
-
 ## 0.6.15
 
 ### Patch Changes

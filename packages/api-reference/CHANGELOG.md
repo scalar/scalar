@@ -1,57 +1,5 @@
 # @scalar/api-reference
 
-## 1.45.0
-
-### Minor Changes
-
-- [#8238](https://github.com/scalar/scalar/pull/8238): feat: add option to open first tag by default
-
-### Patch Changes
-
-- [#8233](https://github.com/scalar/scalar/pull/8233): fix: local storage migration script
-- [#8226](https://github.com/scalar/scalar/pull/8226): feat: slugs for headings with nested content
-- [#8243](https://github.com/scalar/scalar/pull/8243): chore: correctly display header in classic layout
-- [#8129](https://github.com/scalar/scalar/pull/8129): feat: always show the schema type
-- [#8130](https://github.com/scalar/scalar/pull/8130): feat: nest description headings in the sidebar
-
-#### Updated Dependencies
-
-- **@scalar/workspace-store@0.34.3**
-  - [#8233](https://github.com/scalar/scalar/pull/8233): fix: local storage migration script
-  - [#8130](https://github.com/scalar/scalar/pull/8130): feat: nest description headings in the sidebar
-  - [#8242](https://github.com/scalar/scalar/pull/8242): chore: map themeId to slug and add default operation to drafts
-
-- **@scalar/oas-utils@0.6.47**
-  - [#8233](https://github.com/scalar/scalar/pull/8233): fix: local storage migration script
-  - [#8227](https://github.com/scalar/scalar/pull/8227): fix: remove unnecessary property truncation in example generation
-  - [#8242](https://github.com/scalar/scalar/pull/8242): chore: map themeId to slug and add default operation to drafts
-
-- **@scalar/helpers@0.2.16**
-  - [#8233](https://github.com/scalar/scalar/pull/8233): fix: local storage migration script
-
-- **@scalar/code-highlight@0.2.4**
-  - [#8226](https://github.com/scalar/scalar/pull/8226): feat: slugs for headings with nested content
-
-- **@scalar/components@0.19.9**
-  - [#8226](https://github.com/scalar/scalar/pull/8226): feat: slugs for headings with nested content
-  - [#8130](https://github.com/scalar/scalar/pull/8130): feat: add optional chevron click handler for the sidebar
-
-- **@scalar/api-client@2.29.3**
-  - [#8225](https://github.com/scalar/scalar/pull/8225): fix: selecting multiply security schemes doesn't render Markdown in descriptions
-  - [#8227](https://github.com/scalar/scalar/pull/8227): fix: remove unnecessary property truncation in example generation
-
-- **@scalar/sidebar@0.7.40**
-  - [#8130](https://github.com/scalar/scalar/pull/8130): feat: add optional chevron click handler for the sidebar
-
-- **@scalar/snippetz@0.6.16**
-  - [#8240](https://github.com/scalar/scalar/pull/8240): fix: duplicate http headers for PHP CURL
-
-- **@scalar/agent-chat@0.5.17**
-
-- **@scalar/openapi-parser@0.24.14**
-
-- **@scalar/types@0.6.7**
-
 ## 1.44.25
 
 ### Patch Changes

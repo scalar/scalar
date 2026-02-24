@@ -1,14 +1,5 @@
 # @scalar/import
 
-## 0.4.53
-
-### Patch Changes
-
-#### Updated Dependencies
-
-- **@scalar/helpers@0.2.16**
-  - [#8233](https://github.com/scalar/scalar/pull/8233): fix: local storage migration script
-
 ## 0.4.52
 
 ### Patch Changes

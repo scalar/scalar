@@ -1,14 +1,5 @@
 # @scalar/object-utils
 
-## 1.2.30
-
-### Patch Changes
-
-#### Updated Dependencies
-
-- **@scalar/helpers@0.2.16**
-  - [#8233](https://github.com/scalar/scalar/pull/8233): fix: local storage migration script
-
 ## 1.2.29
 
 ### Patch Changes

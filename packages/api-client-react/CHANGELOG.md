@@ -1,17 +1,5 @@
 # @scalar/api-client-react
 
-## 1.3.101
-
-### Patch Changes
-
-#### Updated Dependencies
-
-- **@scalar/api-client@2.29.3**
-  - [#8225](https://github.com/scalar/scalar/pull/8225): fix: selecting multiply security schemes doesn't render Markdown in descriptions
-  - [#8227](https://github.com/scalar/scalar/pull/8227): fix: remove unnecessary property truncation in example generation
-
-- **@scalar/types@0.6.7**
-
 ## 1.3.100
 
 ### Patch Changes
