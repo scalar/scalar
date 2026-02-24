@@ -49,6 +49,8 @@ describe('RequestBlock', () => {
       },
     })
 
+    eventBus.on('operation:update:meta', fn)
+
     const input = wrapper.find('input')
     expect(input.exists()).toBe(true)
     // Placeholder falls back to path without protocol when summary is empty
