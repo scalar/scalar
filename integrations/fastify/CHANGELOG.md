@@ -1,5 +1,17 @@
 # @scalar/fastify-api-reference
 
+## 1.45.0
+
+### Patch Changes
+
+- [#8233](https://github.com/scalar/scalar/pull/8233): fix: local storage migration script
+
+#### Updated Dependencies
+
+- **@scalar/openapi-parser@0.24.14**
+
+- **@scalar/core@0.3.42**
+
 ## 1.44.25
 
 ## 1.44.24
