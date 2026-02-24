@@ -10,6 +10,7 @@ import {
 import { computed, toRef } from 'vue'
 
 import { Badge } from '@/components/Badge'
+import SchemaDefaultValue from '@/components/Content/Schema/SchemaDefaultValue.vue'
 import ScreenReader from '@/components/ScreenReader.vue'
 
 import { getSchemaType } from './helpers/get-schema-type'
@@ -229,35 +230,6 @@ const displayType = computed(() => {
   }
   return getSchemaType(props.value)
 })
-
-/**
- * Flattens default values for display purposes.
- */
-const flattenedDefaultValue = computed(() => {
-  const value = props.value
-
-  if (value?.default === null) {
-    return 'null'
-  }
-
-  if (Array.isArray(value?.default) && value?.default.length === 1) {
-    return String(value?.default[0])
-  }
-
-  if (typeof value?.default === 'string') {
-    return JSON.stringify(value.default)
-  }
-
-  if (Array.isArray(value?.default)) {
-    return JSON.stringify(value?.default)
-  }
-
-  if (typeof value?.default === 'object') {
-    return JSON.stringify(value?.default)
-  }
-
-  return value?.default
-})
 </script>
 <template>
   <div class="property-heading">
@@ -303,11 +275,9 @@ const flattenedDefaultValue = computed(() => {
       <SchemaPropertyDetail v-if="props.enum">enum</SchemaPropertyDetail>
 
       <!-- Default value -->
-      <SchemaPropertyDetail
-        v-if="flattenedDefaultValue !== undefined"
-        truncate>
-        <template #prefix>default:</template>{{ flattenedDefaultValue }}
-      </SchemaPropertyDetail>
+      <SchemaDefaultValue
+        v-if="value?.default !== undefined"
+        :value="value.default" />
     </template>
     <div
       v-if="props.additional"
@@ -337,21 +307,21 @@ const flattenedDefaultValue = computed(() => {
         nullable
       </SchemaPropertyDetail>
     </template>
-    <div
+    <SchemaPropertyDetail
       v-if="props.value?.writeOnly"
       class="property-write-only">
       write-only
-    </div>
-    <div
+    </SchemaPropertyDetail>
+    <SchemaPropertyDetail
       v-else-if="props.value?.readOnly"
       class="property-read-only">
       read-only
-    </div>
-    <div
+    </SchemaPropertyDetail>
+    <SchemaPropertyDetail
       v-if="props.required"
       class="property-required">
       required
-    </div>
+    </SchemaPropertyDetail>
     <!-- examples -->
     <SchemaPropertyExamples
       v-if="props.withExamples"
