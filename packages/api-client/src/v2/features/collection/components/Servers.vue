@@ -49,9 +49,9 @@ const operation = computed(() => {
   return null
 })
 
-const useOperationServers = ref(
-  collectionType === 'operation' && operation.value?.servers !== undefined,
-)
+const isOperation = computed(() => collectionType === 'operation')
+
+const useOperationServers = ref(operation.value?.servers !== undefined)
 
 /** Grab the servers for the collection */
 const servers = computed(() => {
@@ -162,7 +162,7 @@ const handleToggleOperationServers = (newValue: boolean) => {
   <Section>
     <template #title>Servers</template>
     <template #description>
-      <template v-if="collectionType === 'operation'">
+      <template v-if="isOperation">
         <span class="block">
           Override servers for this operation with the toggle.
         </span>
@@ -185,7 +185,7 @@ const handleToggleOperationServers = (newValue: boolean) => {
     </template>
     <!-- Operation Servers Toggle to use the operation servers instead of the document servers -->
     <template
-      v-if="collectionType === 'operation'"
+      v-if="isOperation"
       #actions>
       <div class="flex h-8 items-center">
         <ScalarToggle
@@ -195,10 +195,11 @@ const handleToggleOperationServers = (newValue: boolean) => {
       </div>
     </template>
 
-    <div :class="!useOperationServers && 'cursor-not-allowed'">
+    <div :class="isOperation && !useOperationServers && 'cursor-not-allowed'">
       <div
         class="flex flex-col gap-4"
         :class="
+          isOperation &&
           !useOperationServers &&
           'pointer-events-none cursor-not-allowed opacity-50 mix-blend-luminosity'
         ">
