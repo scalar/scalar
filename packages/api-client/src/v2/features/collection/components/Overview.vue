@@ -53,12 +53,7 @@ const description: ComputedRef<string> = computed(() => {
 })
 
 const deprecated: ComputedRef<boolean> = computed(() => {
-  if (
-    collectionType !== 'operation' ||
-    !path ||
-    !method ||
-    !isHttpMethod(method)
-  ) {
+  if (collectionType !== 'operation' || !path || !isHttpMethod(method)) {
     return false
   }
 

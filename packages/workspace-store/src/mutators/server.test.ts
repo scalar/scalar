@@ -7,6 +7,7 @@ import {
   addServer,
   clearServers,
   deleteServer,
+  initializeServers,
   updateSelectedServer,
   updateServer,
   updateServerVariables,
@@ -23,6 +24,77 @@ function createDocument(initial?: Partial<WorkspaceDocument>): WorkspaceDocument
     'x-scalar-original-document-hash': '123',
   }
 }
+
+describe('initializeServers', () => {
+  it('initializes document-level servers to empty array', () => {
+    const document = createDocument()
+
+    const result = initializeServers(document, { meta: { type: 'document' } })
+
+    expect(result).toEqual([])
+    expect(document.servers).toEqual([])
+  })
+
+  it('replaces existing document-level servers with empty array', () => {
+    const document = createDocument({
+      servers: [{ url: 'https://api.example.com' }, { url: 'https://dev.example.com' }],
+    })
+
+    const result = initializeServers(document, { meta: { type: 'document' } })
+
+    expect(result).toEqual([])
+    expect(document.servers).toEqual([])
+  })
+
+  it('returns undefined when document is null', () => {
+    const result = initializeServers(null, { meta: { type: 'document' } })
+
+    expect(result).toBeUndefined()
+  })
+
+  it('initializes operation-level servers when meta type is operation', () => {
+    const document = createDocument({
+      paths: {
+        '/users': {
+          get: { summary: 'List users' },
+        },
+      },
+    })
+
+    const result = initializeServers(document, { meta: { type: 'operation', path: '/users', method: 'get' } })
+
+    expect(result).toEqual([])
+    const operation = getResolvedRef(document.paths?.['/users']?.get)
+    expect(operation?.servers).toEqual([])
+  })
+
+  it('replaces existing operation-level servers with empty array', () => {
+    const document = createDocument({
+      paths: {
+        '/users': {
+          get: {
+            summary: 'List users',
+            servers: [{ url: 'https://api.example.com' }],
+          },
+        },
+      },
+    })
+
+    const result = initializeServers(document, { meta: { type: 'operation', path: '/users', method: 'get' } })
+
+    expect(result).toEqual([])
+    const operation = getResolvedRef(document.paths?.['/users']?.get)
+    expect(operation?.servers).toEqual([])
+  })
+
+  it('returns undefined when operation path or method does not exist', () => {
+    const document = createDocument()
+
+    const result = initializeServers(document, { meta: { type: 'operation', path: '/missing', method: 'get' } })
+
+    expect(result).toBeUndefined()
+  })
+})
 
 describe('addServer', () => {
   it('adds a new server and initializes servers array when missing', () => {
@@ -374,10 +446,7 @@ describe('deleteServer', () => {
         '/users': {
           get: {
             summary: 'List users',
-            servers: [
-              { url: 'https://api.example.com' },
-              { url: 'https://dev.example.com' },
-            ],
+            servers: [{ url: 'https://api.example.com' }, { url: 'https://dev.example.com' }],
           },
         },
       },
@@ -394,10 +463,7 @@ describe('deleteServer', () => {
 describe('clearServers', () => {
   it('removes servers array and clears selected server on document', () => {
     const document = createDocument({
-      servers: [
-        { url: 'https://api.example.com' },
-        { url: 'https://dev.example.com' },
-      ],
+      servers: [{ url: 'https://api.example.com' }, { url: 'https://dev.example.com' }],
       'x-scalar-selected-server': 'https://dev.example.com',
     })
 
@@ -451,6 +517,43 @@ describe('clearServers', () => {
     const operation = getResolvedRef(document.paths?.['/users']?.get)
     expect(operation?.servers).toBeUndefined()
     expect(operation?.['x-scalar-selected-server']).toBeUndefined()
+  })
+
+  it('leaves document-level servers unchanged when clearing operation-level', () => {
+    const document = createDocument({
+      servers: [{ url: 'https://doc.example.com' }],
+      'x-scalar-selected-server': 'https://doc.example.com',
+      paths: {
+        '/users': {
+          get: {
+            servers: [{ url: 'https://op.example.com' }],
+            'x-scalar-selected-server': 'https://op.example.com',
+          },
+        },
+      },
+    })
+
+    clearServers(document, { meta: { type: 'operation', path: '/users', method: 'get' } })
+
+    expect(document.servers).toHaveLength(1)
+    expect(document.servers?.[0]?.url).toBe('https://doc.example.com')
+    expect(document['x-scalar-selected-server']).toBe('https://doc.example.com')
+
+    const operation = getResolvedRef(document.paths?.['/users']?.get)
+    expect(operation?.servers).toBeUndefined()
+    expect(operation?.['x-scalar-selected-server']).toBeUndefined()
+  })
+
+  it('no-ops when operation path or method does not exist', () => {
+    const document = createDocument({
+      servers: [{ url: 'https://api.example.com' }],
+      'x-scalar-selected-server': 'https://api.example.com',
+    })
+
+    clearServers(document, { meta: { type: 'operation', path: '/missing', method: 'get' } })
+
+    expect(document.servers).toHaveLength(1)
+    expect(document['x-scalar-selected-server']).toBe('https://api.example.com')
   })
 })
 

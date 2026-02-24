@@ -1,4 +1,11 @@
 <script lang="ts">
+/**
+  Operation block header: address bar, environment selector, and modal controls.
+
+  Renders the top bar for the API client operation view: URL/method (AddressBar),
+  optional environment selector, optional "Open API Client" button in modal layout,
+  and close button for modal. Layout and visibility depend on `layout` and `source` props.
+ */
 export type HeaderProps = {
   /** Current request path */
   path: string

@@ -114,6 +114,12 @@ export const updateSelectedSecuritySchemes = async (
   )
 }
 
+/**
+ * Clears the selected security schemes from the workspace store for a document or operation.
+ * This function will remove any selection state related to security (auth) for either the entire document
+ * or for a specific operation if meta.type is 'operation'.
+ * If the document name cannot be determined, nothing happens.
+ */
 const clearSelectedSecuritySchemes = (
   store: WorkspaceStore | null,
   document: WorkspaceDocument | null,

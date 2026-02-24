@@ -40,7 +40,6 @@ describe('RequestBlock', () => {
   it('renders request name input and emits on change for non-modal layout', async () => {
     const eventBus = createWorkspaceEventBus()
     const fn = vi.fn()
-    eventBus.on('operation:update:summary', fn)
     const wrapper = mount(RequestBlock, {
       props: { ...defaultProps, eventBus },
       global: {

@@ -27,19 +27,19 @@ const { document, eventBus, collectionType, path, method } =
 const deleteModal = useModal()
 const selectedServerIndex = ref<number>(-1)
 
-const operation = computed(() => {
-  if (collectionType === 'operation') {
-    // Operation not found
-    if (!path || !isHttpMethod(method)) {
-      return null
-    }
-    // Operation found, return the servers
-    return getResolvedRef(document?.paths?.[path]?.[method])
-  }
-  return null
-})
-
 const isOperation = computed(() => collectionType === 'operation')
+
+const operation = computed(() => {
+  if (!isOperation.value) {
+    return null
+  }
+  // Operation not found
+  if (!path || !isHttpMethod(method)) {
+    return null
+  }
+  // Operation found, return the servers
+  return getResolvedRef(document?.paths?.[path]?.[method])
+})
 
 const useOperationServers = ref(operation.value?.servers !== undefined)
 
@@ -110,7 +110,7 @@ const handleServerUpdate = (
   key: string,
   value: string | number,
 ) =>
-  execute(`${index}-${key}`, () =>
+  execute(`${index}-${key}-${serverMeta.value.type}`, () =>
     eventBus.emit('server:update:server', {
       index,
       server: { [key]: value },
@@ -120,7 +120,7 @@ const handleServerUpdate = (
 
 /** Handles server variable updates with debouncing */
 const handleVariableUpdate = (index: number, key: string, value: string) =>
-  execute(`${index}-${key}`, () =>
+  execute(`${index}-${key}-${serverMeta.value.type}`, () =>
     eventBus.emit('server:update:variables', {
       index,
       key,

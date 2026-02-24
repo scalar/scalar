@@ -25,6 +25,10 @@ const {
   layout,
 } = defineProps<CollectionProps>()
 
+/**
+ * Compute the authentication metadata based on the current collection type.
+ * If we're working with an operation, include its path and method; otherwise, use the document scope.
+ */
 const authMeta = computed<AuthMeta>(() => {
   if (collectionType === 'operation') {
     return {
@@ -36,6 +40,9 @@ const authMeta = computed<AuthMeta>(() => {
   return { type: 'document' }
 })
 
+/**
+ * Compute the operation object based on the current collection type.
+ */
 const operation = computed(() => {
   if (collectionType === 'operation') {
     // Operation not found
@@ -48,7 +55,9 @@ const operation = computed(() => {
   return null
 })
 
-/** If enabled we use/set the selected security schemes on the document level */
+/**
+ * If enabled we use/set the selected security schemes on the operation level
+ */
 const useOperationSecurity = ref(
   getDefaultOperationSecurityToggle({
     authStore: workspaceStore.auth,
@@ -57,6 +66,7 @@ const useOperationSecurity = ref(
   }),
 )
 
+/** Compute the selected security for the operation or document based on the current collection type */
 const selectedSecurity = computed(() => {
   if (collectionType === 'operation') {
     return workspaceStore.auth.getAuthSelectedSchemas({
@@ -72,6 +82,7 @@ const selectedSecurity = computed(() => {
   })
 })
 
+/** Compute the security requirements for the operation or document based on the current collection type */
 const securityRequirements = computed(() => {
   if (collectionType === 'operation') {
     return operation.value?.security ?? []
@@ -79,6 +90,7 @@ const securityRequirements = computed(() => {
   return document?.security ?? []
 })
 
+/** Compute the proxy URL for the current layout (for the electron we don't want to use the proxy by default) */
 const proxyUrl = computed(
   () =>
     getActiveProxyUrl(
@@ -95,22 +107,29 @@ const servers = computed(() => {
 
 /** Grab the currently selected server for relative auth URIs */
 const server = computed(() => {
-  const selectedServerUrl =
-    operation.value?.['x-scalar-selected-server'] ??
-    document?.['x-scalar-selected-server']
+  const documentServer = document?.['x-scalar-selected-server']
+  const operationServer = operation.value?.['x-scalar-selected-server']
+  const selectedServerUrl = operationServer ?? documentServer
   return servers.value.find(({ url }) => url === selectedServerUrl) ?? null
 })
 
+/**
+ * Handles toggling operation-level security authentication. (Only for operation collections)
+ * When enabled (`value` is true), overrides document-level authentication for the current operation.
+ * When disabled (`value` is false), reverts to using document-level authentication instead.
+ */
 const handleToggleOperationSecurity = (value: boolean) => {
   // Only toggle for operation collections
   if (collectionType !== 'operation' || !path || !isHttpMethod(method)) {
     return
   }
+
   // Toggle the operation security
   useOperationSecurity.value = value
 
   if (value) {
-    // Set the operation security
+    // Initailize with an empty array of requirements and schemes for operation-level authentication
+    // So we can read it from the operation object
     return eventBus.emit('auth:update:selected-security-schemes', {
       selectedRequirements: [],
       newSchemes: [],
