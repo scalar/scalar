@@ -1,12 +1,9 @@
 <script lang="ts" setup>
 import {
   ScalarButton,
-  ScalarIconButton,
-  ScalarTextInput,
+  ScalarTextInputCopy,
   useLoadingState,
 } from '@scalar/components'
-import { ScalarIconCopy } from '@scalar/icons'
-import { useClipboard } from '@scalar/use-hooks/useClipboard'
 import { useToasts } from '@scalar/use-toasts'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 
@@ -40,9 +37,9 @@ async function generateTemporaryLink() {
   }
 
   try {
-    tempDocUrl.value = await uploadTempDocument(document)
-    await copyToClipboard(tempDocUrl.value)
-    await loader.validate()
+    const url = await uploadTempDocument(document)
+    await loader.validate({ duration: 900, persist: true }) // Wait to show the success state
+    tempDocUrl.value = url
   } catch (error) {
     const message =
       error instanceof Error ? error.message : 'An unknown error occurred'
@@ -50,37 +47,21 @@ async function generateTemporaryLink() {
     await loader.invalidate()
   }
 }
-
-const { copyToClipboard } = useClipboard()
 </script>
 <template>
   <template v-if="tempDocUrl">
-    <label
-      class="text-c-2 block font-medium"
-      for="temporary-link">
-      URL
-    </label>
-    <ScalarTextInput
-      id="temporary-link"
+    <ScalarTextInputCopy
+      immediate
       :modelValue="tempDocUrl"
-      :placeholder="`${REGISTRY_SHARE_URL}/apis/…`"
-      readonly
-      @click="tempDocUrl && copyToClipboard(tempDocUrl)">
-      <template #aside>
-        <ScalarIconButton
-          class="-m-1.5 -ml-1"
-          :icon="ScalarIconCopy"
-          label="Copy link to clipboard"
-          size="sm"
-          @click="copyToClipboard(tempDocUrl)" />
-      </template>
-    </ScalarTextInput>
+      name="temporary-link"
+      :placeholder="`${REGISTRY_SHARE_URL}/apis/…`">
+    </ScalarTextInputCopy>
   </template>
   <template v-else>
     <ScalarButton
       class="h-auto p-2.5"
       :loader
-      variant="solid"
+      variant="gradient"
       @click="generateTemporaryLink">
       Upload Document
     </ScalarButton>
