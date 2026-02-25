@@ -13,7 +13,11 @@ const { workspace } = defineProps<{
   <ApiReferenceToolbarPopover class="w-120">
     <template #label>Share</template>
     <ScalarFormSection>
-      <template #label>Your Temporary Link</template>
+      <template #label>Share your API Reference</template>
+      <p class="text-c-2 mb-2 leading-normal">
+        Upload your OpenAPI document to share your API Reference with others. As
+        easy as pressing a button.
+      </p>
       <ApiReferenceToolbarShareTemporary :workspace />
     </ScalarFormSection>
   </ApiReferenceToolbarPopover>

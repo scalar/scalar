@@ -55,7 +55,13 @@ const { copyToClipboard } = useClipboard()
 </script>
 <template>
   <template v-if="tempDocUrl">
+    <label
+      class="text-c-2 block font-medium"
+      for="temporary-link">
+      URL
+    </label>
     <ScalarTextInput
+      id="temporary-link"
       :modelValue="tempDocUrl"
       :placeholder="`${REGISTRY_SHARE_URL}/apis/…`"
       readonly
@@ -75,7 +81,7 @@ const { copyToClipboard } = useClipboard()
       class="h-auto p-2.5"
       :disabled="!!tempDocUrl"
       :loader
-      variant="outlined"
+      variant="solid"
       @click="generateTemporaryLink">
       Upload Document
     </ScalarButton>
