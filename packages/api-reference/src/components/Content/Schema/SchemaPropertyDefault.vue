@@ -2,7 +2,7 @@
 import { ScalarIcon } from '@scalar/components'
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
 
-import { formatExample } from './helpers/format-example'
+import { formatValue } from './helpers/format-value'
 
 defineProps<{
   value?: unknown
@@ -22,9 +22,9 @@ const { copyToClipboard } = useClipboard()
         <button
           class="property-default-value group"
           type="button"
-          @click="copyToClipboard(formatExample(value))">
+          @click="copyToClipboard(formatValue(value))">
           <span>
-            {{ formatExample(value) }}
+            {{ formatValue(value) }}
           </span>
           <ScalarIcon
             class="group-hover:text-c-1 text-c-3 ml-auto min-h-3 min-w-3"
