@@ -2,10 +2,17 @@
   "$schema": "./node_modules/knip/schema.json",
   "ignoreWorkspaces": [
     // Allows a progressive adoption
-    "examples/**",
-    "projects/**",
-    "integrations/dotnet/**",
-    "integrations/fastapi/**"
+    "examples/nestjs/**",
+    "examples/nextjs-api-reference/**",
+    "examples/nuxt/**",
+    "examples/react/**",
+    "examples/react-webpack/**",
+    "examples/ssg/**",
+    "examples/sveltekit/**",
+    "examples/web/**",
+    "projects/client-scalar-com/**",
+    "projects/proxy-scalar-com/**",
+    "projects/scalar-app/**"
   ],
   "ignoreFiles": [
     // test types files are marked as unused
@@ -336,6 +343,32 @@
         "@theme/*",
         "@site/*"
       ]
+    },
+    "integrations/dotnet/aspire": {
+      "ignoreDependencies": [
+        // Included to increment the version in alignment with the packages listed below
+        "@scalar/api-reference",
+        "@scalar/dotnet-shared"
+      ]
+    },
+    "integrations/dotnet/aspnetcore": {
+      "entry": ["playground/Scalar.AspNetCore.Playground/wwwroot/scalar/config.js"],
+      "ignoreDependencies": [
+        // Included to increment the version in alignment with the packages listed below.
+        "@scalar/api-reference",
+        "@scalar/dotnet-shared"
+      ]
+    },
+    "integrations/dotnet/shared": {
+      "ignoreDependencies": [
+        // Included for convenience.
+        // Java enums are dynamically generated from the snippetz package.
+        // Having snippetz as a dependency ensures they are regenerated whenever clients or targets change.
+        "@scalar/snippetz"
+      ]
+    },
+    "integrations/fastapi": {
+      "ignoreBinaries": ["python", "uvicorn"]
     },
     "integrations/fastify": {
       "ignoreDependencies": [
