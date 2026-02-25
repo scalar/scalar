@@ -11,8 +11,9 @@ import { useToasts } from '@scalar/use-toasts'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 
 import { REGISTRY_SHARE_URL } from '@/consts/urls'
-import ApiReferenceToolbarBlurb from '@/features/toolbar/ApiReferenceToolbarBlurb.vue'
 import { uploadTempDocument } from '@/helpers/upload-temp-document'
+
+import ApiReferenceToolbarBlurb from './ApiReferenceToolbarBlurb.vue'
 
 const { workspace } = defineProps<{
   workspace: WorkspaceStore
@@ -53,31 +54,33 @@ async function generateTemporaryLink() {
 const { copyToClipboard } = useClipboard()
 </script>
 <template>
-  <ScalarTextInput
-    :modelValue="tempDocUrl"
-    :placeholder="`${REGISTRY_SHARE_URL}/apis/...`"
-    readonly
-    @click="tempDocUrl && copyToClipboard(tempDocUrl)">
-    <template
-      v-if="tempDocUrl"
-      #aside>
-      <ScalarIconButton
-        class="-m-1.5 -ml-1"
-        :icon="ScalarIconCopy"
-        label="Copy link to clipboard"
-        size="sm"
-        @click="copyToClipboard(tempDocUrl)" />
-    </template>
-  </ScalarTextInput>
-  <ScalarButton
-    class="h-auto p-2.5"
-    :disabled="!!tempDocUrl"
-    :loader
-    variant="outlined"
-    @click="generateTemporaryLink">
-    Generate
-  </ScalarButton>
+  <template v-if="tempDocUrl">
+    <ScalarTextInput
+      :modelValue="tempDocUrl"
+      :placeholder="`${REGISTRY_SHARE_URL}/apis/…`"
+      readonly
+      @click="tempDocUrl && copyToClipboard(tempDocUrl)">
+      <template #aside>
+        <ScalarIconButton
+          class="-m-1.5 -ml-1"
+          :icon="ScalarIconCopy"
+          label="Copy link to clipboard"
+          size="sm"
+          @click="copyToClipboard(tempDocUrl)" />
+      </template>
+    </ScalarTextInput>
+  </template>
+  <template v-else>
+    <ScalarButton
+      class="h-auto p-2.5"
+      :disabled="!!tempDocUrl"
+      :loader
+      variant="outlined"
+      @click="generateTemporaryLink">
+      Upload Document
+    </ScalarButton>
+  </template>
   <ApiReferenceToolbarBlurb class="-mt-1">
-    Shared documents will automatically be deleted after 7 days.
+    Your document will automatically be deleted after 7 days.
   </ApiReferenceToolbarBlurb>
 </template>
