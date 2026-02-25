@@ -1201,7 +1201,7 @@ describe('oauth', () => {
           'x-scalar-secret-client-secret': clientSecret,
           'x-scalar-secret-token': '',
         },
-      } satisfies OAuthFlowsObject
+      } satisfies OAuthFlowsObjectSecret
 
       const serverWithVars: ServerObject = {
         url: 'https://{environment}.api.example.com',
@@ -1230,7 +1230,7 @@ describe('oauth', () => {
           'x-scalar-secret-client-secret': clientSecret,
           'x-scalar-secret-token': '',
         },
-      } satisfies OAuthFlowsObject
+      } satisfies OAuthFlowsObjectSecret
 
       const serverWithVars: ServerObject = {
         url: 'https://{environment}.api.example.com',
@@ -1264,7 +1264,7 @@ describe('oauth', () => {
           'x-scalar-secret-redirect-uri': '/callback',
           'x-scalar-secret-token': '',
         },
-      } satisfies OAuthFlowsObject
+      } satisfies OAuthFlowsObjectSecret
 
       const serverWithVars: ServerObject = {
         url: 'https://{tenant}.example.com',
@@ -1273,8 +1273,8 @@ describe('oauth', () => {
 
       void authorizeOauth2(flows, 'implicit', selectedScopes, serverWithVars, '')
 
-      const [[calledUrl]] = vi.mocked(window.open).mock.calls
-      const openedUrl = calledUrl as URL
+      const firstArgs = vi.mocked(window.open).mock.calls[0]
+      const openedUrl = firstArgs?.[0] as URL
       expect(openedUrl.searchParams.get('redirect_uri')).toBe('https://myorg.example.com/callback')
     })
 
@@ -1288,7 +1288,7 @@ describe('oauth', () => {
           'x-scalar-secret-client-secret': clientSecret,
           'x-scalar-secret-token': '',
         },
-      } satisfies OAuthFlowsObject
+      } satisfies OAuthFlowsObjectSecret
 
       const server: ServerObject = {
         url: '{protocol}://void.scalar.com/{path}',

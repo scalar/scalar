@@ -961,8 +961,8 @@ describe('oauth2', () => {
 
       void authorizeOauth2(flow, serverWithVars)
 
-      const [[calledUrl]] = vi.mocked(window.open).mock.calls
-      const openedUrl = calledUrl as URL
+      const firstArgs = vi.mocked(window.open).mock.calls[0]
+      const openedUrl = firstArgs?.[0] as URL
       expect(openedUrl.searchParams.get('redirect_uri')).toBe('https://myorg.example.com/callback')
     })
   })
