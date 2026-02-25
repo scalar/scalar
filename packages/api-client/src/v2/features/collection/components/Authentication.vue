@@ -3,7 +3,7 @@ import { ScalarToggle } from '@scalar/components'
 import { isHttpMethod } from '@scalar/helpers/http/is-http-method'
 import type { AuthMeta } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
-import { computed, ref } from 'vue'
+import { computed, ref, watchEffect } from 'vue'
 
 import { AuthSelector } from '@/v2/blocks/scalar-auth-selector-block'
 import type { CollectionProps } from '@/v2/features/app/helpers/routes'
@@ -58,13 +58,14 @@ const operation = computed(() => {
 /**
  * If enabled we use/set the selected security schemes on the operation level
  */
-const useOperationSecurity = ref(
-  getDefaultOperationSecurityToggle({
+const useOperationSecurity = ref(false)
+watchEffect(() => {
+  useOperationSecurity.value = getDefaultOperationSecurityToggle({
     authStore: workspaceStore.auth,
     documentName: documentSlug,
     ...authMeta.value,
-  }),
-)
+  })
+})
 
 /** Compute the selected security for the operation or document based on the current collection type */
 const selectedSecurity = computed(() => {

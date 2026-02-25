@@ -12,7 +12,7 @@ import { ScalarIconPlus, ScalarIconTrash } from '@scalar/icons'
 import type { ServerMeta } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import { computed, ref } from 'vue'
+import { computed, ref, watchEffect } from 'vue'
 
 import { ServerVariablesForm } from '@/components/Server'
 import DeleteSidebarListElement from '@/components/Sidebar/Actions/DeleteSidebarListElement.vue'
@@ -41,7 +41,10 @@ const operation = computed(() => {
   return getResolvedRef(document?.paths?.[path]?.[method])
 })
 
-const useOperationServers = ref(operation.value?.servers !== undefined)
+const useOperationServers = ref(false)
+watchEffect(() => {
+  useOperationServers.value = operation.value?.servers !== undefined
+})
 
 /** Grab the servers for the collection */
 const servers = computed(() => {
