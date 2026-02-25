@@ -1,14 +1,12 @@
 <script setup lang="ts">
 import { ScalarCodeBlock, ScalarVirtualText } from '@scalar/components'
-import { computed, useId } from 'vue'
+import { computed } from 'vue'
 
-const { schemaContent } = defineProps<{
+const { id, schemaContent } = defineProps<{
+  id: string
   schemaContent: string
 }>()
-
 const VIRTUALIZATION_THRESHOLD = 20_000
-
-const id = useId()
 
 const shouldVirtualizeSchema = computed(() => {
   return schemaContent.length > VIRTUALIZATION_THRESHOLD

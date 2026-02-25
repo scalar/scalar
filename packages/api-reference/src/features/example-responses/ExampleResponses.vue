@@ -188,11 +188,12 @@ const showSchema = ref(false)
       <!-- Schema -->
       <ExampleSchema
         v-if="schemaContent !== undefined && showSchema"
+        :id="id"
         :schemaContent="schemaContent" />
 
       <!-- Example -->
       <ExampleResponse
-        v-if="!showSchema"
+        v-else
         :id="id"
         :example="currentExample"
         :response="currentResponseContent" />
