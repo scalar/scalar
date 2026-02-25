@@ -2,8 +2,6 @@
 import { ScalarFormSection } from '@scalar/components'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 
-import ApiReferenceToolbarBlurb from '@/features/developer-tools/components/ApiReferenceToolbarBlurb.vue'
-
 import ApiReferenceToolbarPopover from './ApiReferenceToolbarPopover.vue'
 import ApiReferenceToolbarShareRegister from './ApiReferenceToolbarShareRegister.vue'
 
