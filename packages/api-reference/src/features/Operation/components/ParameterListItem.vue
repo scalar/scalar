@@ -15,6 +15,7 @@ import type {
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed, ref } from 'vue'
 
+import { getRefName } from '@/components/Content/Schema/helpers/get-ref-name'
 import SchemaProperty from '@/components/Content/Schema/SchemaProperty.vue'
 import type { OperationProps } from '@/features/Operation/Operation.vue'
 
@@ -54,11 +55,33 @@ const headers = computed<ResponseObject['headers'] | null>(() =>
   'headers' in parameter && parameter.headers ? parameter.headers : null,
 )
 
+/** Raw schema (possibly with $ref) for the selected content type or param. */
+const baseSchema = computed(() =>
+  content.value
+    ? content.value?.[selectedContentType.value]?.schema
+    : 'schema' in parameter && parameter.schema
+      ? parameter.schema
+      : null,
+)
+
+/** When the schema is a $ref, preserve its name so the UI can show the ref name instead of just the type. */
+const schemaModelName = computed(() => {
+  const raw = baseSchema.value
+  if (!raw) {
+    return null
+  }
+
+  if ('$ref' in raw) {
+    return getRefName(raw.$ref)
+  }
+
+  return null
+})
+
 /** Computed value from the combined schema param and content param */
 const value = computed(() => {
-  const baseSchema = content.value
-    ? content.value?.[selectedContentType.value]?.schema
-    : schema.value
+  const base = baseSchema.value
+  const resolvedBase = content.value ? getResolvedRef(base) : schema.value
 
   const deprecated =
     'deprecated' in parameter ? parameter.deprecated : schema.value?.deprecated
@@ -81,7 +104,7 @@ const value = computed(() => {
   const examples = [...recordExamples, ...arrayExamples]
 
   return {
-    ...getResolvedRef(baseSchema),
+    ...resolvedBase,
     deprecated: deprecated,
     examples,
   } as SchemaObject
@@ -161,6 +184,7 @@ const shouldCollapse = computed<boolean>(() =>
           :description="shouldCollapse ? '' : parameter.description"
           :eventBus="eventBus"
           :hideWriteOnly="true"
+          :modelName="schemaModelName"
           :name="shouldCollapse ? '' : name"
           :noncollapsible="true"
           :options="{

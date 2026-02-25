@@ -27,6 +27,8 @@ const props = withDefaults(
     additional?: boolean
     withExamples?: boolean
     hideModelNames?: boolean
+    /** When the schema was resolved from a $ref, pass the ref name so it displays as e.g. "Data" instead of "object". */
+    modelName?: string | null
   }>(),
   {
     isDiscriminator: false,
@@ -192,6 +194,11 @@ const displayTitle = computed(() => {
 
   if (props.hideModelNames) {
     return null
+  }
+
+  // Use explicit model name when schema was resolved from a $ref (e.g. in response/param body).
+  if (props.modelName) {
+    return props.modelName
   }
 
   const modelName = getModelNameFromSchema(props.value)
