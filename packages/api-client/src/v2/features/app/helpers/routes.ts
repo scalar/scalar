@@ -83,6 +83,9 @@ export const ROUTES = [
                 name: 'operation',
                 path: '',
                 component: OperationCollection,
+                redirect: {
+                  name: 'operation.overview',
+                },
                 children: [
                   {
                     name: 'operation.overview',
