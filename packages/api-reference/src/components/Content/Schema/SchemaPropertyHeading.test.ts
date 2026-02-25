@@ -17,7 +17,7 @@ describe('SchemaPropertyHeading', () => {
     })
 
     const defaultValueElement = wrapper.find('.property-heading')
-    expect(defaultValueElement.text()).toContain('default:')
+    expect(defaultValueElement.text()).toContain('Default')
     expect(defaultValueElement.text()).toContain('false')
   })
 
@@ -164,7 +164,7 @@ describe('SchemaPropertyHeading', () => {
       },
     })
     const defaultValueElement = wrapper.find('.property-heading')
-    expect(defaultValueElement.text()).toContain('default:')
+    expect(defaultValueElement.text()).toContain('Default')
     expect(defaultValueElement.text()).toContain('null')
   })
 
@@ -177,7 +177,7 @@ describe('SchemaPropertyHeading', () => {
       },
     })
     const defaultValueElement = wrapper.find('.property-heading')
-    expect(defaultValueElement.text()).toContain('default:')
+    expect(defaultValueElement.text()).toContain('Default')
   })
 
   it('renders default value without type being present', () => {
@@ -190,7 +190,7 @@ describe('SchemaPropertyHeading', () => {
       },
     })
     const defaultValueElement = wrapper.find('.property-heading')
-    expect(defaultValueElement.text()).toContain('default:')
+    expect(defaultValueElement.text()).toContain('Default')
     expect(defaultValueElement.text()).toContain('foo')
   })
 
@@ -923,7 +923,7 @@ describe('SchemaPropertyHeading', () => {
       })
 
       const detailsElement = wrapper.find('.property-heading')
-      expect(detailsElement.text()).toContain('default:')
+      expect(detailsElement.text()).toContain('Default')
       expect(detailsElement.text()).toContain('single item')
     })
 
@@ -938,8 +938,8 @@ describe('SchemaPropertyHeading', () => {
       })
 
       const detailsElement = wrapper.find('.property-heading')
-      expect(detailsElement.text()).toContain('default:')
-      expect(detailsElement.text()).toContain('["item1","item2"]')
+      expect(detailsElement.text()).toContain('Default')
+      expect(detailsElement.text()).toContain('["item1", "item2"]')
     })
 
     it('handles non-string default values', () => {
@@ -953,7 +953,7 @@ describe('SchemaPropertyHeading', () => {
       })
 
       const detailsElement = wrapper.find('.property-heading')
-      expect(detailsElement.text()).toContain('default:')
+      expect(detailsElement.text()).toContain('Default')
       expect(detailsElement.text()).toContain('42')
     })
   })

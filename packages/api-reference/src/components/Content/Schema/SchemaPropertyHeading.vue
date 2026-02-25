@@ -302,21 +302,21 @@ const displayType = computed(() => {
         nullable
       </SchemaPropertyDetail>
     </template>
-    <SchemaPropertyDetail
+    <div
       v-if="props.value?.writeOnly"
       class="property-write-only">
       write-only
-    </SchemaPropertyDetail>
-    <SchemaPropertyDetail
+    </div>
+    <div
       v-else-if="props.value?.readOnly"
       class="property-read-only">
       read-only
-    </SchemaPropertyDetail>
-    <SchemaPropertyDetail
+    </div>
+    <div
       v-if="props.required"
       class="property-required">
       required
-    </SchemaPropertyDetail>
+    </div>
     <SchemaPropertyDefault :value="props.value?.default" />
     <SchemaPropertyExamples
       v-if="props.withExamples"
