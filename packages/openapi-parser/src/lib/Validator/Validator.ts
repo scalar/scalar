@@ -8,6 +8,7 @@ import type { AnyObject, Filesystem, ThrowOnErrorOption, ValidateResult } from '
 import { details as getOpenApiVersion } from '@/utils/details'
 import { resolveReferences } from '@/utils/resolve-references'
 import { transformErrors } from '@/utils/transform-errors'
+import { validatePathParameters } from '@/utils/validate-path-parameters'
 
 /**
  * Configure available JSON Schema versions
@@ -103,9 +104,12 @@ export class Validator {
       // Check if the references are valid
       const resolvedReferences = resolveReferences(filesystem, options)
 
+      // Semantic validation: check path parameters match path templates
+      const pathParameterErrors = validatePathParameters(specification)
+
       return {
-        valid: schemaResult && resolvedReferences.valid,
-        errors: [...resolvedReferences.errors],
+        valid: schemaResult && resolvedReferences.valid && pathParameterErrors.length === 0,
+        errors: [...resolvedReferences.errors, ...pathParameterErrors],
         schema: resolvedReferences.schema,
       }
     } catch (error) {
