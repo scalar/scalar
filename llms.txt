@@ -179,6 +179,157 @@ SECTION 1: TVL & PROTOCOL DATA
    }]
    ```
 
+## Protocol TVL Charts (v2)
+
+These endpoints provide time-series chart data for individual protocol TVL.
+The `key` parameter selects which metric to return. The `currency` parameter
+(token-breakdown only) switches values from USD to raw token amounts.
+
+8a. 🔒 **GET /api/v2/metrics/tvl/protocol/{protocol}**
+    Base: `https://pro-api.llama.fi`
+    Purpose: Aggregate TVL metrics for a protocol (metadata + current TVL figures)
+    Parameters:
+      - protocol (path, required): Protocol slug (e.g., "aave")
+    Response:
+    ```json
+    {
+      "id": "parent#aave",
+      "name": "Aave",
+      "symbol": "AAVE",
+      "url": "https://aave.com",
+      "description": "Decentralized lending protocol",
+      "chain": "Multi-Chain",
+      "logo": "https://icons.llama.fi/aave.png",
+      "category": "Lending",
+      "chains": ["Ethereum", "Polygon", "Avalanche"],
+      "currentChainTvls": {"Ethereum": 3200000000, "Polygon": 1500000000},
+      "mcap": 2400000000,
+      "twitter": "AaveAave",
+      "forkedFrom": [],
+      "openSource": true
+    }
+    ```
+
+8b. 🔒 **GET /api/v2/chart/tvl/protocol/{protocol}**
+    Base: `https://pro-api.llama.fi`
+    Purpose: Historical TVL value chart for a protocol
+    Parameters:
+      - protocol (path, required): Protocol slug
+      - key (query, optional): Metric to return. Omit for default TVL. Options: "all" (sum of tvl+borrowed+staking+pool2+vesting), "staking", "borrowed", "vesting", "pool2"
+    Response: Array of [timestamp, value] pairs
+    ```json
+    [[1609459200, 5200000000], [1609545600, 5250000000]]
+    ```
+    Examples:
+      - `/v2/chart/tvl/protocol/uniswap` — default TVL
+      - `/v2/chart/tvl/protocol/uniswap?key=all` — sum of all metrics
+      - `/v2/chart/tvl/protocol/morpho?key=borrowed` — borrowed only
+
+8c. 🔒 **GET /api/v2/chart/tvl/protocol/{protocol}/chain-breakdown**
+    Base: `https://pro-api.llama.fi`
+    Purpose: Historical TVL chart broken down by chain
+    Parameters:
+      - protocol (path, required): Protocol slug
+      - key (query, optional): Metric to return. Same options as 8b.
+    Response: Array of [timestamp, {chain: value}] pairs
+    ```json
+    [[1609459200, {"Ethereum": 3200000000, "Polygon": 1500000000}]]
+    ```
+    Examples:
+      - `/v2/chart/tvl/protocol/euler/chain-breakdown` — default TVL per chain
+      - `/v2/chart/tvl/protocol/euler/chain-breakdown?key=borrowed` — borrowed per chain
+
+8d. 🔒 **GET /api/v2/chart/tvl/protocol/{protocol}/token-breakdown**
+    Base: `https://pro-api.llama.fi`
+    Purpose: Historical TVL chart broken down by token
+    Parameters:
+      - protocol (path, required): Protocol slug
+      - key (query, optional): Metric to return. Same options as 8b.
+      - currency (query, optional): Set to "tokens" to return raw token amounts instead of USD
+    Response: Array of [timestamp, {token: value}] pairs
+    ```json
+    [[1609459200, {"USDC": 1000000000, "USDT": 800000000, "WETH": 500000000}]]
+    ```
+    Examples:
+      - `/v2/chart/tvl/protocol/aave/token-breakdown` — value in USD
+      - `/v2/chart/tvl/protocol/aave/token-breakdown?currency=tokens` — value in raw token amounts
+
+## Protocol Treasury Charts (v2)
+
+These endpoints provide time-series chart data for protocol treasuries.
+By default, the protocol's own tokens (OwnTokens) are excluded. Use the
+`key` parameter to filter: "OwnTokens" for own tokens only, "all" to include everything.
+
+8e. 🔒 **GET /api/v2/metrics/treasury/protocol/{protocol}**
+    Base: `https://pro-api.llama.fi`
+    Purpose: Aggregate treasury metrics for a protocol (metadata + current treasury figures)
+    Parameters:
+      - protocol (path, required): Protocol slug (e.g., "aave")
+    Response:
+    ```json
+    {
+      "id": "parent#aave",
+      "name": "Aave",
+      "symbol": "AAVE",
+      "url": "https://aave.com",
+      "description": "Decentralized lending protocol",
+      "chain": "Multi-Chain",
+      "logo": "https://icons.llama.fi/aave.png",
+      "category": "Lending",
+      "chains": ["Ethereum", "Polygon", "Avalanche"],
+      "currentChainTvls": {"Ethereum": 80000000, "Polygon": 20000000},
+      "mcap": 2400000000,
+      "twitter": "AaveAave"
+    }
+    ```
+
+8f. 🔒 **GET /api/v2/chart/treasury/protocol/{protocol}**
+    Base: `https://pro-api.llama.fi`
+    Purpose: Historical treasury value chart for a protocol (excludes OwnTokens by default)
+    Parameters:
+      - protocol (path, required): Protocol slug
+      - key (query, optional): Token filter. Omit to exclude OwnTokens. "OwnTokens" for own tokens only. "all" for sum including OwnTokens.
+    Response: Array of [timestamp, value] pairs
+    ```json
+    [[1609459200, 120000000], [1609545600, 121000000]]
+    ```
+    Examples:
+      - `/v2/chart/treasury/protocol/uniswap` — excludes OwnTokens
+      - `/v2/chart/treasury/protocol/uniswap?key=OwnTokens` — own tokens only
+      - `/v2/chart/treasury/protocol/uniswap?key=all` — sum of all including OwnTokens
+
+8g. 🔒 **GET /api/v2/chart/treasury/protocol/{protocol}/chain-breakdown**
+    Base: `https://pro-api.llama.fi`
+    Purpose: Historical treasury chart broken down by chain (excludes OwnTokens by default)
+    Parameters:
+      - protocol (path, required): Protocol slug
+      - key (query, optional): Token filter. Same options as 8f.
+    Response: Array of [timestamp, {chain: value}] pairs
+    ```json
+    [[1609459200, {"Ethereum": 80000000, "Polygon": 20000000}]]
+    ```
+    Examples:
+      - `/v2/chart/treasury/protocol/aave/chain-breakdown` — excludes OwnTokens
+      - `/v2/chart/treasury/protocol/aave/chain-breakdown?key=OwnTokens` — own tokens only per chain
+      - `/v2/chart/treasury/protocol/aave/chain-breakdown?key=all` — all tokens per chain
+
+8h. 🔒 **GET /api/v2/chart/treasury/protocol/{protocol}/token-breakdown**
+    Base: `https://pro-api.llama.fi`
+    Purpose: Historical treasury chart broken down by token
+    Parameters:
+      - protocol (path, required): Protocol slug
+      - key (query, optional): Token filter. Same options as 8f.
+      - currency (query, optional): Set to "tokens" to return raw token amounts instead of USD
+    Response: Array of [timestamp, {token: value}] pairs
+    ```json
+    [[1609459200, {"AAVE": 50000000, "USDC": 30000000, "WETH": 20000000}]]
+    ```
+    Examples:
+      - `/v2/chart/treasury/protocol/aave/token-breakdown` — value in USD, excludes OwnTokens
+      - `/v2/chart/treasury/protocol/aave/token-breakdown?currency=tokens` — raw token amounts
+      - `/v2/chart/treasury/protocol/aave/token-breakdown?key=OwnTokens&currency=tokens` — own tokens in raw amounts
+      - `/v2/chart/treasury/protocol/aave/token-breakdown?key=all` — all tokens in USD
+
 9. 🔒 **GET /api/chainAssets**
    Base: `https://pro-api.llama.fi`
    Purpose: Asset breakdown across all chains

@@ -33,6 +33,10 @@
       "description": "Retrieve TVL data - pro"
     },
     {
+      "name": "Treasury",
+      "description": "Retrieve protocol treasury data"
+    },
+    {
       "name": "stablecoins",
       "description": "Data from our stablecoins dashboard - pro"
     },
@@ -5531,6 +5535,1026 @@
             "source": "result = client.tvl.getChains()"
           }
         ]
+      }
+    },
+    "/api/v2/metrics/tvl/protocol/{protocol}": {
+      "get": {
+        "tags": ["TVL"],
+        "x-api-plan-only": true,
+        "summary": "Get aggregate TVL metrics for a protocol",
+        "description": "Returns protocol metadata along with current TVL figures, chain breakdowns, and other aggregate metrics.",
+        "parameters": [
+          {
+            "name": "protocol",
+            "in": "path",
+            "required": true,
+            "description": "protocol slug",
+            "schema": {
+              "type": "string",
+              "example": "aave"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Protocol TVL metrics",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "example": "parent#aave"
+                    },
+                    "name": {
+                      "type": "string",
+                      "example": "Aave"
+                    },
+                    "address": {
+                      "type": "string",
+                      "nullable": true,
+                      "example": "0x7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9"
+                    },
+                    "symbol": {
+                      "type": "string",
+                      "nullable": true,
+                      "example": "AAVE"
+                    },
+                    "url": {
+                      "type": "string",
+                      "example": "https://aave.com"
+                    },
+                    "referralUrl": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "description": {
+                      "type": "string",
+                      "example": "Aave is an Open Source and Non-Custodial protocol to earn interest on deposits & borrow assets"
+                    },
+                    "chain": {
+                      "type": "string",
+                      "example": "Multi-Chain"
+                    },
+                    "logo": {
+                      "type": "string",
+                      "example": "https://icons.llama.fi/aave.png"
+                    },
+                    "audits": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "audit_note": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "gecko_id": {
+                      "type": "string",
+                      "nullable": true,
+                      "example": "aave"
+                    },
+                    "cmcId": {
+                      "type": "string",
+                      "nullable": true,
+                      "example": "7278"
+                    },
+                    "category": {
+                      "type": "string",
+                      "example": "Lending"
+                    },
+                    "tags": {
+                      "type": "array",
+                      "nullable": true,
+                      "items": { "type": "string" }
+                    },
+                    "chains": {
+                      "type": "array",
+                      "items": { "type": "string" },
+                      "example": ["Ethereum", "Polygon", "Avalanche"]
+                    },
+                    "module": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "treasury": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "twitter": {
+                      "type": "string",
+                      "example": "AaveAave"
+                    },
+                    "audit_links": {
+                      "type": "array",
+                      "items": { "type": "string" }
+                    },
+                    "openSource": {
+                      "type": "boolean"
+                    },
+                    "forkedFrom": {
+                      "type": "array",
+                      "items": { "type": "string" }
+                    },
+                    "oraclesByChain": {
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "array",
+                        "items": { "type": "string" }
+                      },
+                      "example": { "Ethereum": ["Chainlink"], "Polygon": ["Chainlink"] }
+                    },
+                    "parentProtocol": {
+                      "type": "string"
+                    },
+                    "governanceID": {
+                      "type": "array",
+                      "items": { "type": "string" }
+                    },
+                    "github": {
+                      "type": "array",
+                      "items": { "type": "string" }
+                    },
+                    "currentChainTvls": {
+                      "type": "object",
+                      "additionalProperties": { "type": "number" },
+                      "example": { "Ethereum": 3200000000, "Polygon": 1500000000 }
+                    },
+                    "isParentProtocol": {
+                      "type": "boolean"
+                    },
+                    "mcap": {
+                      "type": "number",
+                      "nullable": true,
+                      "example": 2400000000
+                    },
+                    "methodology": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "raises": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "round": { "type": "string", "example": "Series A" },
+                          "amount": { "type": "number", "example": 25000000 },
+                          "valuation": { "type": "string" },
+                          "source": { "type": "string" },
+                          "date": { "type": "number", "example": 1601510400 },
+                          "defillamaId": { "type": "string" },
+                          "leadInvestors": { "type": "array", "items": { "type": "string" } },
+                          "otherInvestors": { "type": "array", "items": { "type": "string" } },
+                          "investors": { "type": "array", "items": { "type": "string" } }
+                        }
+                      }
+                    },
+                    "otherProtocols": {
+                      "type": "array",
+                      "items": { "type": "string" }
+                    },
+                    "hallmarks": {
+                      "type": "array",
+                      "description": "Notable events in the protocol's history as [timestamp, description] pairs",
+                      "items": {
+                        "type": "array"
+                      }
+                    },
+                    "stablecoins": {
+                      "type": "array",
+                      "items": { "type": "string" }
+                    },
+                    "misrepresentedTokens": {
+                      "type": "boolean"
+                    },
+                    "deprecated": {
+                      "type": "boolean"
+                    },
+                    "rugged": {
+                      "type": "boolean"
+                    },
+                    "deadUrl": {
+                      "type": "boolean"
+                    },
+                    "warningBanners": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "message": { "type": "string" },
+                          "until": { "type": "string", "nullable": true },
+                          "level": { "type": "string", "enum": ["low", "alert", "rug"] }
+                        }
+                      }
+                    },
+                    "tokenRights": {
+                      "type": "object",
+                      "description": "Token governance and value accrual rights"
+                    },
+                    "wrongLiquidity": {
+                      "type": "boolean"
+                    },
+                    "tvlCodePath": {
+                      "type": "string",
+                      "description": "Path to the TVL adapter source code"
+                    }
+                  },
+                  "example": {
+                    "id": "parent#aave",
+                    "name": "Aave",
+                    "url": "https://aave.com",
+                    "description": "Aave is an Open Source and Non-Custodial protocol to earn interest on deposits and borrow assets",
+                    "logo": "https://icons.llama.fi/aave.png",
+                    "chains": [],
+                    "gecko_id": "aave",
+                    "cmcId": "7278",
+                    "treasury": "aave.js",
+                    "twitter": "aave",
+                    "governanceID": ["snapshot:aave.eth", "eip155:1:0xEC568fffba86c094cf06b22134B23074DFE2252c"],
+                    "wrongLiquidity": true,
+                    "github": ["aave", "bgd-labs"],
+                    "stablecoins": ["gho"],
+                    "tokenRights": {
+                      "rights": [
+                        { "label": "Governance", "hasRight": true, "details": "AAVE" },
+                        { "label": "Treasury", "hasRight": true, "details": "AAVE" },
+                        { "label": "Revenue", "hasRight": true, "details": "AAVE" }
+                      ],
+                      "governanceData": {
+                        "rights": "LIMITED",
+                        "details": "Governance includes protocol parameters, treasury management, upgrades & onchain revenue",
+                        "feeSwitchStatus": "ON",
+                        "feeSwitchDetails": "$50m annual budget for token buybacks"
+                      },
+                      "holdersRevenueAndValueAccrual": {
+                        "buybacks": "ACTIVE",
+                        "dividends": "NONE",
+                        "burns": "NONE",
+                        "primaryValueAccrual": "Buybacks - $50M yearly budget for buybacks"
+                      },
+                      "tokenAlignment": {
+                        "fundraising": "TOKEN",
+                        "raiseDetailsLink": {
+                          "label": "Strategic Round (Decrypt)",
+                          "url": "https://decrypt.co/44653/aave-raises-25-million-to-bring-defi-to-institutions"
+                        },
+                        "associatedEntities": ["DAO", "Labs", "Parent / Holdings Co"],
+                        "equityRevenueCapture": "PARTIAL",
+                        "equityStatement": "Labs owns the interface and offchain revenue"
+                      }
+                    },
+                    "symbol": "AAVE",
+                    "address": "0x7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9",
+                    "currentChainTvls": {
+                      "Ethereum-staking": 300390294,
+                      "Ethereum-pool2": 1001784,
+                      "Avalanche-borrowed": 230805193,
+                      "Ethereum": 21541108640,
+                      "Ethereum-borrowed": 13105470847,
+                      "Polygon": 164069009,
+                      "Avalanche": 425186004,
+                      "Polygon-borrowed": 71777370,
+                      "staking": 300390294,
+                      "pool2": 1001784,
+                      "borrowed": 16477546481,
+                      "Base": 720897079,
+                      "Base-borrowed": 539408955,
+                      "Arbitrum": 710909114,
+                      "Arbitrum-borrowed": 493502165,
+                      "OP Mainnet": 53112825,
+                      "OP Mainnet-borrowed": 30898499,
+                      "Gnosis": 67454440,
+                      "Gnosis-borrowed": 28683972,
+                      "Mantle": 285136854,
+                      "Mantle-borrowed": 186143806,
+                      "Plasma": 1958242285,
+                      "Plasma-borrowed": 1655750534,
+                      "BSC": 174954075,
+                      "BSC-borrowed": 70470380,
+                      "Linea": 49717184,
+                      "Linea-borrowed": 38569924,
+                      "Sonic": 12939987,
+                      "Sonic-borrowed": 5315322,
+                      "Scroll": 6971724,
+                      "Scroll-borrowed": 5290161,
+                      "ZKsync Era": 2782917,
+                      "ZKsync Era-borrowed": 1245328,
+                      "Soneium": 2038301,
+                      "Soneium-borrowed": 292179,
+                      "Metis": 959354,
+                      "Metis-borrowed": 159370,
+                      "Celo": 13373563,
+                      "Celo-borrowed": 4923675,
+                      "MegaETH": 19380664,
+                      "MegaETH-borrowed": 34443,
+                      "Aptos": 18649107,
+                      "Aptos-borrowed": 8493938,
+                      "Fantom": 4575,
+                      "Fantom-borrowed": 1034,
+                      "Harmony": 0,
+                      "Harmony-borrowed": 309375
+                    },
+                    "isParentProtocol": true,
+                    "raises": [
+                      {
+                        "date": 1594771200,
+                        "name": "Aave",
+                        "round": "Private token sale",
+                        "amount": 3,
+                        "source": "https://www.dcforecasts.com/altcoin-news/aave-raises-3m-from-three-arrows-capital-and-framework-ventures/",
+                        "leadInvestors": ["Framework Ventures", "3AC"],
+                        "otherInvestors": [],
+                        "valuation": null,
+                        "defillamaId": "111"
+                      },
+                      {
+                        "date": 1602460800,
+                        "name": "Aave",
+                        "round": "Strategic ",
+                        "amount": 25,
+                        "source": "https://decrypt.co/44653/aave-raises-25-million-to-bring-defi-to-institutions",
+                        "leadInvestors": ["Blockchain Capital", "Blockchain.com Ventures", "Standard Crypto"],
+                        "otherInvestors": [],
+                        "valuation": null,
+                        "defillamaId": "111"
+                      },
+                      {
+                        "date": 1594166400,
+                        "name": "Aave",
+                        "round": "Private token sale",
+                        "amount": 4.5,
+                        "source": "https://decrypt.co/34991/parafi-invests-defi-lending-protocol",
+                        "leadInvestors": ["ParaFi Capital"],
+                        "otherInvestors": [],
+                        "valuation": null,
+                        "defillamaId": "111"
+                      },
+                      {
+                        "date": 1512000000,
+                        "name": "Aave",
+                        "round": "ICO",
+                        "amount": 16.2,
+                        "source": "https://twitter.com/aaveaave/status/936247348816175104",
+                        "leadInvestors": [],
+                        "otherInvestors": [],
+                        "valuation": null,
+                        "defillamaId": "1838"
+                      }
+                    ],
+                    "mcap": 1775192426.0010407,
+                    "otherProtocols": [
+                      "Aave",
+                      "Aave V3",
+                      "Aave Horizon RWA",
+                      "Aave V2",
+                      "Aave Aptos",
+                      "Aave V1",
+                      "Aave Arc"
+                    ],
+                    "hallmarks": [
+                      [1619395200, "Start Ethereum V2 Rewards"],
+                      [1633305600, "Start AVAX V2 Rewards"],
+                      [1635292800, "Potential xSUSHI attack found"],
+                      [1650412800, "Start AVAX Rewards"],
+                      [1651881600, "UST depeg"],
+                      [1654819200, "stETH depeg"],
+                      [1659571200, "Start OP Rewards"]
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Protocol not found"
+          }
+        }
+      }
+    },
+    "/api/v2/chart/tvl/protocol/{protocol}": {
+      "get": {
+        "tags": ["TVL"],
+        "x-api-plan-only": true,
+        "summary": "Get historical TVL chart for a protocol",
+        "description": "Returns an array of [timestamp, value] pairs representing the protocol's TVL over time. By default returns the base TVL metric. Use the `key` parameter to select a different metric or aggregate all metrics.",
+        "parameters": [
+          {
+            "name": "protocol",
+            "in": "path",
+            "required": true,
+            "description": "protocol slug",
+            "schema": {
+              "type": "string",
+              "example": "uniswap"
+            }
+          },
+          {
+            "name": "key",
+            "in": "query",
+            "required": false,
+            "description": "Metric to return. Omit for default TVL. Use \"all\" for the sum of tvl+borrowed+staking+pool2+vesting, or a specific metric like \"staking\", \"borrowed\", \"vesting\", \"pool2\".",
+            "schema": {
+              "type": "string",
+              "enum": ["all", "staking", "borrowed", "vesting", "pool2"],
+              "example": "all"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Array of [timestamp, value] pairs",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "array",
+                    "items": { "type": "number" },
+                    "minItems": 2,
+                    "maxItems": 2,
+                    "example": [1609459200, 5200000000]
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Protocol not found"
+          }
+        }
+      }
+    },
+    "/api/v2/chart/tvl/protocol/{protocol}/chain-breakdown": {
+      "get": {
+        "tags": ["TVL"],
+        "x-api-plan-only": true,
+        "summary": "Get historical TVL chart for a protocol broken down by chain",
+        "description": "Returns an array of [timestamp, { chain: value }] pairs showing the selected metric per chain over time.",
+        "parameters": [
+          {
+            "name": "protocol",
+            "in": "path",
+            "required": true,
+            "description": "protocol slug",
+            "schema": {
+              "type": "string",
+              "example": "euler"
+            }
+          },
+          {
+            "name": "key",
+            "in": "query",
+            "required": false,
+            "description": "Metric to return. Omit for default TVL. Use \"all\" for the sum of tvl+borrowed+staking+pool2+vesting, or a specific metric like \"staking\", \"borrowed\", \"vesting\", \"pool2\".",
+            "schema": {
+              "type": "string",
+              "enum": ["all", "staking", "borrowed", "vesting", "pool2"],
+              "example": "borrowed"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Array of [timestamp, chainBreakdown] pairs. Each entry is a two-element array: first element is a unix timestamp, second is an object mapping chain names to values.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "example": [
+                    [1609459200, { "Ethereum": 3200000000, "Polygon": 1500000000 }],
+                    [1609545600, { "Ethereum": 3250000000, "Polygon": 1520000000 }]
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Protocol not found"
+          }
+        }
+      }
+    },
+    "/api/v2/chart/tvl/protocol/{protocol}/token-breakdown": {
+      "get": {
+        "tags": ["TVL"],
+        "x-api-plan-only": true,
+        "summary": "Get historical TVL chart for a protocol broken down by token",
+        "description": "Returns an array of [timestamp, { token: value }] pairs showing TVL per token over time. Values are in USD by default, set currency=tokens for raw token amounts.",
+        "parameters": [
+          {
+            "name": "protocol",
+            "in": "path",
+            "required": true,
+            "description": "protocol slug",
+            "schema": {
+              "type": "string",
+              "example": "aave"
+            }
+          },
+          {
+            "name": "key",
+            "in": "query",
+            "required": false,
+            "description": "Metric to return. Omit for default TVL. Use \"all\" for the sum of tvl+borrowed+staking+pool2+vesting, or a specific metric like \"staking\", \"borrowed\", \"vesting\", \"pool2\".",
+            "schema": {
+              "type": "string",
+              "enum": ["all", "staking", "borrowed", "vesting", "pool2"]
+            }
+          },
+          {
+            "name": "currency",
+            "in": "query",
+            "required": false,
+            "description": "Set to \"tokens\" to return values denominated in raw token amounts instead of USD",
+            "schema": {
+              "type": "string",
+              "enum": ["tokens"],
+              "example": "tokens"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Array of [timestamp, tokenBreakdown] pairs. Each entry is a two-element array: first element is a unix timestamp, second is an object mapping token names to values (USD by default, raw token amounts if currency=tokens).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "example": [
+                    [1609459200, { "USDC": 1000000000, "USDT": 800000000, "WETH": 500000000 }],
+                    [1609545600, { "USDC": 1010000000, "USDT": 810000000, "WETH": 510000000 }]
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Protocol not found"
+          }
+        }
+      }
+    },
+    "/api/v2/metrics/treasury/protocol/{protocol}": {
+      "get": {
+        "tags": ["Treasury"],
+        "x-api-plan-only": true,
+        "summary": "Get aggregate treasury metrics for a protocol",
+        "description": "Returns protocol metadata along with current treasury figures and chain breakdowns.",
+        "parameters": [
+          {
+            "name": "protocol",
+            "in": "path",
+            "required": true,
+            "description": "protocol slug",
+            "schema": {
+              "type": "string",
+              "example": "aave"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Protocol treasury metrics",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "example": "parent#aave"
+                    },
+                    "name": {
+                      "type": "string",
+                      "example": "Aave"
+                    },
+                    "address": {
+                      "type": "string",
+                      "nullable": true,
+                      "example": "0x7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9"
+                    },
+                    "symbol": {
+                      "type": "string",
+                      "nullable": true,
+                      "example": "AAVE"
+                    },
+                    "url": {
+                      "type": "string",
+                      "example": "https://aave.com"
+                    },
+                    "referralUrl": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "description": {
+                      "type": "string",
+                      "example": "Aave is an Open Source and Non-Custodial protocol to earn interest on deposits & borrow assets"
+                    },
+                    "chain": {
+                      "type": "string",
+                      "example": "Multi-Chain"
+                    },
+                    "logo": {
+                      "type": "string",
+                      "example": "https://icons.llama.fi/aave.png"
+                    },
+                    "audits": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "audit_note": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "gecko_id": {
+                      "type": "string",
+                      "nullable": true,
+                      "example": "aave"
+                    },
+                    "cmcId": {
+                      "type": "string",
+                      "nullable": true,
+                      "example": "7278"
+                    },
+                    "category": {
+                      "type": "string",
+                      "example": "Lending"
+                    },
+                    "tags": {
+                      "type": "array",
+                      "nullable": true,
+                      "items": { "type": "string" }
+                    },
+                    "chains": {
+                      "type": "array",
+                      "items": { "type": "string" },
+                      "example": ["Ethereum", "Polygon", "Avalanche"]
+                    },
+                    "module": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "treasury": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "twitter": {
+                      "type": "string",
+                      "example": "AaveAave"
+                    },
+                    "audit_links": {
+                      "type": "array",
+                      "items": { "type": "string" }
+                    },
+                    "openSource": {
+                      "type": "boolean"
+                    },
+                    "forkedFrom": {
+                      "type": "array",
+                      "items": { "type": "string" }
+                    },
+                    "oraclesByChain": {
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "array",
+                        "items": { "type": "string" }
+                      },
+                      "example": { "Ethereum": ["Chainlink"], "Polygon": ["Chainlink"] }
+                    },
+                    "parentProtocol": {
+                      "type": "string"
+                    },
+                    "governanceID": {
+                      "type": "array",
+                      "items": { "type": "string" }
+                    },
+                    "github": {
+                      "type": "array",
+                      "items": { "type": "string" }
+                    },
+                    "currentChainTvls": {
+                      "type": "object",
+                      "additionalProperties": { "type": "number" },
+                      "example": { "Ethereum": 80000000, "Polygon": 20000000 }
+                    },
+                    "isParentProtocol": {
+                      "type": "boolean"
+                    },
+                    "mcap": {
+                      "type": "number",
+                      "nullable": true,
+                      "example": 2400000000
+                    },
+                    "methodology": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "raises": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "round": { "type": "string", "example": "Series A" },
+                          "amount": { "type": "number", "example": 25000000 },
+                          "valuation": { "type": "string" },
+                          "source": { "type": "string" },
+                          "date": { "type": "number", "example": 1601510400 },
+                          "defillamaId": { "type": "string" },
+                          "leadInvestors": { "type": "array", "items": { "type": "string" } },
+                          "otherInvestors": { "type": "array", "items": { "type": "string" } },
+                          "investors": { "type": "array", "items": { "type": "string" } }
+                        }
+                      }
+                    },
+                    "otherProtocols": {
+                      "type": "array",
+                      "items": { "type": "string" }
+                    },
+                    "hallmarks": {
+                      "type": "array",
+                      "description": "Notable events in the protocol's history as [timestamp, description] pairs",
+                      "items": {
+                        "type": "array"
+                      }
+                    },
+                    "stablecoins": {
+                      "type": "array",
+                      "items": { "type": "string" }
+                    },
+                    "misrepresentedTokens": {
+                      "type": "boolean"
+                    },
+                    "deprecated": {
+                      "type": "boolean"
+                    },
+                    "rugged": {
+                      "type": "boolean"
+                    },
+                    "deadUrl": {
+                      "type": "boolean"
+                    },
+                    "warningBanners": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "message": { "type": "string" },
+                          "until": { "type": "string", "nullable": true },
+                          "level": { "type": "string", "enum": ["low", "alert", "rug"] }
+                        }
+                      }
+                    },
+                    "tokenRights": {
+                      "type": "object",
+                      "description": "Token governance and value accrual rights"
+                    },
+                    "wrongLiquidity": {
+                      "type": "boolean"
+                    },
+                    "tvlCodePath": {
+                      "type": "string",
+                      "description": "Path to the TVL adapter source code"
+                    }
+                  },
+                  "example": {
+                    "id": "parent#aave-treasury",
+                    "name": "Aave (treasury)",
+                    "url": "https://aave.com",
+                    "description": "Aave is an Open Source and Non-Custodial protocol to earn interest on deposits and borrow assets",
+                    "logo": "https://icons.llama.fi/aave.png",
+                    "chains": ["Ethereum", "Arbitrum", "OP Mainnet", "Avalanche", "Fantom", "Polygon"],
+                    "gecko_id": "aave",
+                    "cmcId": "7278",
+                    "treasury": "aave.js",
+                    "twitter": "aave",
+                    "governanceID": ["snapshot:aave.eth", "eip155:1:0xEC568fffba86c094cf06b22134B23074DFE2252c"],
+                    "wrongLiquidity": true,
+                    "github": ["aave", "bgd-labs"],
+                    "stablecoins": ["gho"],
+                    "tokenRights": {
+                      "rights": [
+                        { "label": "Governance", "hasRight": true, "details": "AAVE" },
+                        { "label": "Treasury", "hasRight": true, "details": "AAVE" },
+                        { "label": "Revenue", "hasRight": true, "details": "AAVE" }
+                      ],
+                      "governanceData": {
+                        "rights": "LIMITED",
+                        "details": "Governance includes protocol parameters, treasury management, upgrades & onchain revenue",
+                        "feeSwitchStatus": "ON",
+                        "feeSwitchDetails": "$50m annual budget for token buybacks"
+                      },
+                      "holdersRevenueAndValueAccrual": {
+                        "buybacks": "ACTIVE",
+                        "dividends": "NONE",
+                        "burns": "NONE",
+                        "primaryValueAccrual": "Buybacks - $50M yearly budget for buybacks"
+                      },
+                      "tokenAlignment": {
+                        "fundraising": "TOKEN",
+                        "raiseDetailsLink": {
+                          "label": "Strategic Round (Decrypt)",
+                          "url": "https://decrypt.co/44653/aave-raises-25-million-to-bring-defi-to-institutions"
+                        },
+                        "associatedEntities": ["DAO", "Labs", "Parent / Holdings Co"],
+                        "equityRevenueCapture": "PARTIAL",
+                        "equityStatement": "Labs owns the interface and offchain revenue"
+                      }
+                    },
+                    "symbol": "AAVE",
+                    "address": "0x7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9",
+                    "module": "treasury/aave.js",
+                    "category": "Treasury",
+                    "tvlCodePath": "https://github.com/DefiLlama/DefiLlama-Adapters/blob/main/projects/treasury/aave.js",
+                    "currentChainTvls": {
+                      "Ethereum-OwnTokens": 51486143.11756,
+                      "Arbitrum-OwnTokens": 108.33167,
+                      "OP Mainnet-OwnTokens": 339.41814,
+                      "Avalanche-OwnTokens": 200.26047,
+                      "Fantom-OwnTokens": 0,
+                      "Fantom": 5317.95627,
+                      "Polygon-OwnTokens": 0.49868,
+                      "Arbitrum": 7665284.15367,
+                      "Avalanche": 12653199.04222,
+                      "OP Mainnet": 266147.25573,
+                      "Ethereum": 50207476.33278,
+                      "Polygon": 774382.58832,
+                      "OwnTokens": 51486791.62651
+                    },
+                    "raises": [],
+                    "mcap": 1775192426.0010407
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Protocol not found"
+          }
+        }
+      }
+    },
+    "/api/v2/chart/treasury/protocol/{protocol}": {
+      "get": {
+        "tags": ["Treasury"],
+        "x-api-plan-only": true,
+        "summary": "Get historical treasury chart for a protocol",
+        "description": "Returns an array of [timestamp, value] pairs representing the protocol's treasury value over time. By default excludes the protocol's own tokens (OwnTokens).",
+        "parameters": [
+          {
+            "name": "protocol",
+            "in": "path",
+            "required": true,
+            "description": "protocol slug",
+            "schema": {
+              "type": "string",
+              "example": "uniswap"
+            }
+          },
+          {
+            "name": "key",
+            "in": "query",
+            "required": false,
+            "description": "Token filter. Omit to exclude OwnTokens (default). Use \"OwnTokens\" to return only the protocol's own tokens, or \"all\" for the sum of all tokens including OwnTokens.",
+            "schema": {
+              "type": "string",
+              "enum": ["OwnTokens", "all"],
+              "example": "all"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Array of [timestamp, value] pairs",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "array",
+                    "items": { "type": "number" },
+                    "minItems": 2,
+                    "maxItems": 2,
+                    "example": [1609459200, 120000000]
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Protocol not found"
+          }
+        }
+      }
+    },
+    "/api/v2/chart/treasury/protocol/{protocol}/chain-breakdown": {
+      "get": {
+        "tags": ["Treasury"],
+        "x-api-plan-only": true,
+        "summary": "Get historical treasury chart for a protocol broken down by chain",
+        "description": "Returns an array of [timestamp, { chain: value }] pairs showing treasury value per chain over time. By default excludes the protocol's own tokens.",
+        "parameters": [
+          {
+            "name": "protocol",
+            "in": "path",
+            "required": true,
+            "description": "protocol slug",
+            "schema": {
+              "type": "string",
+              "example": "aave"
+            }
+          },
+          {
+            "name": "key",
+            "in": "query",
+            "required": false,
+            "description": "Token filter. Omit to exclude OwnTokens (default). Use \"OwnTokens\" to return only the protocol's own tokens, or \"all\" for the sum of all tokens including OwnTokens.",
+            "schema": {
+              "type": "string",
+              "enum": ["OwnTokens", "all"],
+              "example": "OwnTokens"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Array of [timestamp, chainBreakdown] pairs. Each entry is a two-element array: first element is a unix timestamp, second is an object mapping chain names to treasury values.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "example": [
+                    [1609459200, { "Ethereum": 80000000, "Polygon": 20000000 }],
+                    [1609545600, { "Ethereum": 81000000, "Polygon": 20500000 }]
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Protocol not found"
+          }
+        }
+      }
+    },
+    "/api/v2/chart/treasury/protocol/{protocol}/token-breakdown": {
+      "get": {
+        "tags": ["Treasury"],
+        "x-api-plan-only": true,
+        "summary": "Get historical treasury chart for a protocol broken down by token",
+        "description": "Returns an array of [timestamp, { token: value }] pairs showing treasury value per token over time. By default excludes OwnTokens and values are in USD. Use key and currency params to customize.",
+        "parameters": [
+          {
+            "name": "protocol",
+            "in": "path",
+            "required": true,
+            "description": "protocol slug",
+            "schema": {
+              "type": "string",
+              "example": "aave"
+            }
+          },
+          {
+            "name": "key",
+            "in": "query",
+            "required": false,
+            "description": "Token filter. Omit to exclude OwnTokens (default). Use \"OwnTokens\" to return only the protocol's own tokens, or \"all\" for the sum of all tokens including OwnTokens.",
+            "schema": {
+              "type": "string",
+              "enum": ["OwnTokens", "all"],
+              "example": "OwnTokens"
+            }
+          },
+          {
+            "name": "currency",
+            "in": "query",
+            "required": false,
+            "description": "Set to \"tokens\" to return values denominated in raw token amounts instead of USD",
+            "schema": {
+              "type": "string",
+              "enum": ["tokens"],
+              "example": "tokens"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Array of [timestamp, tokenBreakdown] pairs. Each entry is a two-element array: first element is a unix timestamp, second is an object mapping token names to treasury values (USD by default, raw token amounts if currency=tokens).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "example": [
+                    [1609459200, { "AAVE": 50000000, "USDC": 30000000, "WETH": 20000000 }],
+                    [1609545600, { "AAVE": 51000000, "USDC": 30500000, "WETH": 20500000 }]
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Protocol not found"
+          }
+        }
       }
     },
     "/coins/prices/current/{coins}": {
