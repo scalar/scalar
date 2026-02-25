@@ -79,7 +79,6 @@ const { copyToClipboard } = useClipboard()
   <template v-else>
     <ScalarButton
       class="h-auto p-2.5"
-      :disabled="!!tempDocUrl"
       :loader
       variant="solid"
       @click="generateTemporaryLink">
