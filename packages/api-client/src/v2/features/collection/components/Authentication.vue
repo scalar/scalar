@@ -121,7 +121,7 @@ const server = computed(() => {
  */
 const handleToggleOperationSecurity = (value: boolean) => {
   // Only toggle for operation collections
-  if (collectionType !== 'operation' || !path || !isHttpMethod(method)) {
+  if (authMeta.value.type !== 'operation') {
     return
   }
 
@@ -134,21 +134,13 @@ const handleToggleOperationSecurity = (value: boolean) => {
     return eventBus.emit('auth:update:selected-security-schemes', {
       selectedRequirements: [],
       newSchemes: [],
-      meta: {
-        type: 'operation',
-        path,
-        method,
-      },
+      meta: authMeta.value,
     })
   }
 
   // Clear the operation security so document level authentication is used
   return eventBus.emit('auth:clear:selected-security-schemes', {
-    meta: {
-      type: 'operation',
-      path,
-      method,
-    },
+    meta: authMeta.value,
   })
 }
 </script>

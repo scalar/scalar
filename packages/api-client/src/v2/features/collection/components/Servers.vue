@@ -144,6 +144,11 @@ const getServerDisplayName = (server?: ServerObject, index = 0): string =>
 
 /** Handles toggling the operation servers */
 const handleToggleOperationServers = (value: boolean) => {
+  // Only toggle for operation collections
+  if (serverMeta.value.type !== 'operation') {
+    return
+  }
+
   // update the operation servers
   useOperationServers.value = value
 
