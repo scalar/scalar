@@ -10,12 +10,13 @@ import {
 import { computed, toRef } from 'vue'
 
 import { Badge } from '@/components/Badge'
-import SchemaDefaultValue from '@/components/Content/Schema/SchemaDefaultValue.vue'
 import ScreenReader from '@/components/ScreenReader.vue'
 
 import { getSchemaType } from './helpers/get-schema-type'
 import { getModelNameFromSchema } from './helpers/schema-name'
 import RenderString from './RenderString.vue'
+import SchemaDefaultValue from './SchemaDefaultValue.vue'
+import SchemaPropertyDefault from './SchemaPropertyDefault.vue'
 import SchemaPropertyDetail from './SchemaPropertyDetail.vue'
 import SchemaPropertyExamples from './SchemaPropertyExamples.vue'
 
@@ -273,11 +274,6 @@ const displayType = computed(() => {
 
       <!-- Enum indicator -->
       <SchemaPropertyDetail v-if="props.enum">enum</SchemaPropertyDetail>
-
-      <!-- Default value -->
-      <SchemaDefaultValue
-        v-if="value?.default !== undefined"
-        :value="value.default" />
     </template>
     <div
       v-if="props.additional"
@@ -322,7 +318,7 @@ const displayType = computed(() => {
       class="property-required">
       required
     </SchemaPropertyDetail>
-    <!-- examples -->
+    <SchemaPropertyDefault :value="props.value?.default" />
     <SchemaPropertyExamples
       v-if="props.withExamples"
       :example="
