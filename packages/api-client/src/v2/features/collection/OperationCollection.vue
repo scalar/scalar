@@ -65,7 +65,7 @@ const operationPlaceholder = computed(() => {
     <div class="w-full md:mx-auto md:max-w-180">
       <!-- Header -->
       <div
-        :aria-label="`title: ${activeWorkspace.label}`"
+        :aria-label="`title: ${operationSummary}`"
         class="mx-auto flex h-fit w-full flex-row items-center gap-2 pt-8 pb-3 md:max-w-180">
         <div class="group relative ml-1.25">
           <LabelInput
