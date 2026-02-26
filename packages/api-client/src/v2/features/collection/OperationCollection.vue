@@ -5,6 +5,7 @@ export default {}
 
 <script setup lang="ts">
 import { isHttpMethod } from '@scalar/helpers/http/is-http-method'
+import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { computed, ref, watch } from 'vue'
 import { RouterView } from 'vue-router'
 
@@ -17,10 +18,10 @@ const props = defineProps<RouteProps>()
 
 const operation = computed(() => {
   if (!props.path || !props.method) {
-    return null
+    return undefined
   }
 
-  return props.document?.paths?.[props.path]?.[props.method]
+  return getResolvedRef(props.document?.paths?.[props.path]?.[props.method])
 })
 
 /**
@@ -61,7 +62,9 @@ const operationPlaceholder = computed(() => {
 </script>
 
 <template>
-  <div class="custom-scroll h-full">
+  <div
+    v-if="operation !== undefined"
+    class="custom-scroll h-full">
     <div class="w-full md:mx-auto md:max-w-180">
       <!-- Header -->
       <div
@@ -86,6 +89,18 @@ const operationPlaceholder = computed(() => {
           v-bind="props"
           collectionType="operation" />
       </div>
+    </div>
+  </div>
+
+  <!-- Operation not found -->
+  <div
+    v-else
+    class="flex w-full flex-1 items-center justify-center">
+    <div class="flex h-full flex-col items-center justify-center">
+      <h1 class="text-2xl font-bold">Operation not found</h1>
+      <p class="text-gray-500">
+        The operation you are looking for does not exist.
+      </p>
     </div>
   </div>
 </template>
