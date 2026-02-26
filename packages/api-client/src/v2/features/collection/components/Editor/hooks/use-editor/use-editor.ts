@@ -64,6 +64,8 @@ export const useJsonEditor = ({
     fontFamily: `'JetBrains Mono', monospace`,
   })
 
+  editor.updateOptions({ insertSpaces: true, tabSize: 2 })
+
   let decorations: string[] = []
 
   const highlightNode = (node: monaco.languages.json.ASTNode) => {

@@ -25,8 +25,7 @@ const editor = ref<ReturnType<typeof useJsonEditor>>()
 const editorValue = ref('')
 const isProgrammaticUpdate = ref(false)
 
-const AUTO_SAVE_STORAGE_KEY = 'scalar:api-client:operation-editor:auto-save'
-const isAutoSaveEnabled = ref(true)
+const isAutoSaveEnabled = ref(false)
 const isDirty = ref(false)
 
 const saveLoader = useLoadingState()
@@ -82,6 +81,58 @@ const editorStatusText = computed(() => {
 })
 
 const shouldShowEditorStatus = computed(() => editorStatusText.value !== null)
+
+const editorStatusTone = computed<
+  'warning' | 'loading' | 'success' | 'danger' | null
+>(() => {
+  if (!shouldShowEditorStatus.value) {
+    return null
+  }
+
+  if (!isAutoSaveEnabled.value && isDirty.value) {
+    return 'warning'
+  }
+
+  if (saveLoader.isLoading) {
+    return 'loading'
+  }
+
+  if (saveLoader.isInvalid) {
+    return 'danger'
+  }
+
+  if (saveLoader.isValid) {
+    return 'success'
+  }
+
+  return null
+})
+
+const editorStatusDotClass = computed(() => {
+  switch (editorStatusTone.value) {
+    case 'warning':
+      return 'bg-c-alert'
+    case 'success':
+      return 'bg-c-accent'
+    case 'danger':
+      return 'bg-c-danger'
+    default:
+      return 'bg-b-3'
+  }
+})
+
+const editorStatusTextClass = computed(() => {
+  switch (editorStatusTone.value) {
+    case 'warning':
+      return 'text-c-alert'
+    case 'success':
+      return 'text-c-accent'
+    case 'danger':
+      return 'text-c-danger'
+    default:
+      return 'text-c-2'
+  }
+})
 
 const loadDocumentIntoEditor = async () => {
   isProgrammaticUpdate.value = true
@@ -156,7 +207,7 @@ const persistEditorToWorkspace = async (
   }
 }
 
-const debouncedPersist = debounce({ delay: 600, maxWait: 1500 })
+const debouncedPersist = debounce({ delay: 1500 })
 
 const saveNow = async () => {
   await persistEditorToWorkspace(
@@ -242,14 +293,6 @@ onMounted(() => {
     return
   }
 
-  const stored =
-    typeof window !== 'undefined'
-      ? window.localStorage.getItem(AUTO_SAVE_STORAGE_KEY)
-      : null
-  if (stored === '0') {
-    isAutoSaveEnabled.value = false
-  }
-
   editor.value = useJsonEditor({
     element: monacoEditorRef.value,
     value: editorValue,
@@ -262,7 +305,11 @@ onMounted(() => {
 })
 
 onBeforeUnmount(() => {
-  debouncedPersist.cleanup()
+  // Persist if there is a pending save
+  if (isDirty.value) {
+    void saveNow()
+  }
+  // debouncedPersist.cleanup()
   window.removeEventListener('keydown', handleKeydown, KEYDOWN_OPTIONS)
 })
 
@@ -279,10 +326,6 @@ watch(
 watch(
   isAutoSaveEnabled,
   (isEnabled) => {
-    if (typeof window !== 'undefined') {
-      window.localStorage.setItem(AUTO_SAVE_STORAGE_KEY, isEnabled ? '1' : '0')
-    }
-
     if (!isEnabled) {
       debouncedPersist.cleanup()
       return
@@ -352,32 +395,53 @@ watch(
     <div
       class="flex min-h-0 w-full min-w-0 flex-1 overflow-hidden rounded-lg border">
       <div class="relative h-[500px] w-full min-w-0 flex-1 overflow-hidden">
-        <div class="absolute top-2 right-2 z-10 flex flex-col items-end gap-1">
+        <div class="pointer-events-none absolute top-2 right-2 z-10">
           <div
-            class="text-c-2 bg-b-1 pointer-events-auto flex items-center gap-2 rounded border px-2 py-1 text-[11px]">
-            <span class="whitespace-nowrap">Auto-save</span>
-            <ScalarToggle v-model="isAutoSaveEnabled" />
-          </div>
+            class="bg-b-1 pointer-events-auto flex flex-col items-stretch overflow-hidden rounded-lg border shadow-sm">
+            <div class="flex items-center gap-2 px-2 py-1.5">
+              <span class="text-c-2 text-[11px] font-medium whitespace-nowrap">
+                Auto-save
+              </span>
+              <ScalarToggle v-model="isAutoSaveEnabled" />
 
-          <ScalarButton
-            v-if="!isAutoSaveEnabled"
-            class="pointer-events-auto"
-            :disabled="!isDirty || saveLoader.isLoading"
-            size="xs"
-            variant="ghost"
-            @click="saveNow">
-            Save
-          </ScalarButton>
+              <div class="bg-b-3 mx-1 h-4 w-px" />
 
-          <div
-            v-if="shouldShowEditorStatus"
-            class="text-c-2 bg-b-1 pointer-events-none flex items-center gap-1 rounded border px-2 py-1 text-[11px]">
-            <ScalarLoading
-              v-if="saveLoader.isActive"
-              class="self-center"
-              :loader="saveLoader"
-              size="sm" />
-            <span class="whitespace-nowrap">{{ editorStatusText }}</span>
+              <div class="min-w-[48px]">
+                <ScalarButton
+                  v-if="!isAutoSaveEnabled"
+                  :disabled="!isDirty || saveLoader.isLoading"
+                  size="xs"
+                  variant="outlined"
+                  @click="saveNow">
+                  Save
+                </ScalarButton>
+                <div
+                  v-else
+                  class="text-c-3 flex h-6 items-center justify-center rounded px-2 text-[11px] whitespace-nowrap">
+                  Auto
+                </div>
+              </div>
+            </div>
+
+            <div
+              v-if="shouldShowEditorStatus"
+              class="bg-b-2/40 flex items-center gap-2 border-t px-2 py-1 text-[11px]">
+              <ScalarLoading
+                v-if="saveLoader.isActive"
+                class="self-center"
+                :loader="saveLoader"
+                size="sm" />
+              <span
+                v-else
+                class="size-1.5 rounded-full"
+                :class="editorStatusDotClass" />
+
+              <span
+                class="whitespace-nowrap"
+                :class="editorStatusTextClass">
+                {{ editorStatusText }}
+              </span>
+            </div>
           </div>
         </div>
 
