@@ -16,7 +16,7 @@ import {
 import type { ClientPlugin } from '@scalar/oas-utils/helpers'
 import { ScalarToasts } from '@scalar/use-toasts'
 import { extensions } from '@scalar/workspace-store/schemas/extensions'
-import { computed } from 'vue'
+import { computed, toValue } from 'vue'
 import { RouterView } from 'vue-router'
 
 import { mergeSecurity } from '@/v2/blocks/scalar-auth-selector-block'
@@ -139,7 +139,9 @@ const routerViewProps = computed<RouteProps>(() => {
     activeWorkspace: app.workspace.activeWorkspace.value!,
     plugins,
     securitySchemes,
-    appState: app,
+    currentTheme: app.theme.styles.value.themeStyles,
+    isDarkMode: app.isDarkMode.value,
+    customThemes: toValue(app.theme.customThemes),
   }
 })
 </script>

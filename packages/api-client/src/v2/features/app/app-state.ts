@@ -21,7 +21,16 @@ import { extensions } from '@scalar/workspace-store/schemas/extensions'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type { Tab } from '@scalar/workspace-store/schemas/extensions/workspace/x-scalar-tabs'
 import type { TraversedEntry } from '@scalar/workspace-store/schemas/navigation'
-import { type ComputedRef, type Ref, type ShallowRef, computed, readonly, ref, shallowRef } from 'vue'
+import {
+  type ComputedRef,
+  type MaybeRefOrGetter,
+  type Ref,
+  type ShallowRef,
+  computed,
+  readonly,
+  ref,
+  shallowRef,
+} from 'vue'
 import type { RouteLocationNormalizedGeneric, Router } from 'vue-router'
 
 import { getRouteParam } from '@/v2/features/app/helpers/get-route-param'
@@ -144,7 +153,7 @@ export type AppState = {
     /** The computed value for the <style> tag containing the current theme styles */
     themeStyleTag: ComputedRef<string>
     /** The custom themes to use */
-    customThemes: Theme[]
+    customThemes: MaybeRefOrGetter<Theme[]>
   }
 }
 
@@ -162,12 +171,12 @@ const DEFAULT_SIDEBAR_WIDTH = 288
 export const createAppState = async ({
   router,
   fileLoader,
-  customThemes = [],
   fallbackThemeSlug = 'default',
+  customThemes = () => [],
 }: {
   router: Router
   fileLoader?: LoaderPlugin
-  customThemes?: Theme[]
+  customThemes?: MaybeRefOrGetter<Theme[]>
   fallbackThemeSlug?: string
 }): Promise<AppState> => {
   /** Workspace event bus for handling workspace-level events. */
@@ -966,7 +975,7 @@ export const createAppState = async ({
 
   const theme = useTheme({
     fallbackThemeSlug: () => fallbackThemeSlug,
-    customThemes: () => customThemes,
+    customThemes,
     store: store,
   })
 

@@ -17,8 +17,15 @@ import type { CollectionProps } from '@/v2/features/app/helpers/routes'
 
 import { useJsonEditor } from './hooks/use-editor/use-editor'
 
-const { appState, collectionType, documentSlug, method, path, workspaceStore } =
-  defineProps<CollectionProps>()
+const {
+  collectionType,
+  documentSlug,
+  method,
+  path,
+  workspaceStore,
+  currentTheme,
+  isDarkMode,
+} = defineProps<CollectionProps>()
 
 const monacoEditorRef = ref<HTMLElement>()
 const editor = ref<ReturnType<typeof useJsonEditor>>()
@@ -266,8 +273,8 @@ onMounted(() => {
     element: monacoEditorRef.value,
     value: editorValue,
     onChange: handleEditorChange,
-    isDarkMode: appState.isDarkMode,
-    theme: appState.theme.styles.value.themeStyles,
+    isDarkMode,
+    theme: currentTheme,
     actions: [
       {
         id: 'scalar.editor.focusOperation',
@@ -288,7 +295,9 @@ onMounted(() => {
       {
         id: 'scalar.editor.formatJson',
         label: 'Format JSON',
-        keybindings: [monaco.KeyMod.Alt | monaco.KeyMod.Shift | monaco.KeyCode.KeyF],
+        keybindings: [
+          monaco.KeyMod.Alt | monaco.KeyMod.Shift | monaco.KeyCode.KeyF,
+        ],
         run: async () => {
           await formatJson()
         },
