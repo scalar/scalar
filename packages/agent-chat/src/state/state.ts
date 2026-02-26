@@ -92,6 +92,7 @@ type State = {
   uploadedTmpDocumentUrl: Ref<string | undefined>
   curatedDocuments: Ref<ApiMetadata[]>
   getActiveDocumentJson?: () => string
+  hideAddApi?: boolean
 }
 
 function createChat({
@@ -150,6 +151,7 @@ export function createState({
   getAgentKey,
   getActiveDocumentJson,
   prefilledMessageRef,
+  hideAddApi,
 }: {
   initialRegistryDocuments: { namespace: string; slug: string }[]
   registryUrl: string
@@ -161,6 +163,7 @@ export function createState({
   getAgentKey?: () => string
   getActiveDocumentJson?: () => string
   prefilledMessageRef?: Ref<string>
+  hideAddApi?: boolean
 }): State {
   const prompt = ref<State['prompt']['value']>(prefilledMessageRef?.value ?? '')
   const registryDocuments = ref<ApiMetadata[]>([])
@@ -358,6 +361,7 @@ export function createState({
     uploadedTmpDocumentUrl,
     curatedDocuments,
     getActiveDocumentJson,
+    hideAddApi,
   }
 }
 

@@ -19,6 +19,20 @@ const { readonly } = defineProps<{
   readonly?: boolean
 }>()
 
+const emit = defineEmits<{
+  /** Emitted when the input is clicked */
+  (e: 'click', event: MouseEvent): void
+}>()
+
+defineSlots<{
+  /* Text content to display before the input text */
+  prefix?: () => unknown
+  /*Text content to display after the input text */
+  suffix?: () => unknown
+  /* Text content to display to the right of the input */
+  aside?: () => unknown
+}>()
+
 const model = defineModel<string>()
 
 const input = ref<HTMLInputElement>()
@@ -31,7 +45,10 @@ onMounted(() => {
   if ('autofocus' in otherAttrs.value) input.value?.focus()
 })
 
-function handleClick() {
+function handleClick(event: MouseEvent) {
+  // Re-emit the click event to any consumers
+  emit('click', event)
+
   if (readonly) {
     input.value?.select() // If readonly, select the input on click
   } else {
