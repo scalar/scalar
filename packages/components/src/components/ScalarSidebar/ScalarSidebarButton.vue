@@ -37,7 +37,7 @@ defineSlots<ScalarSidebarButtonSlots>()
 const variants = cva({
   base: [
     'group/button peer/button flex items-stretch rounded p-2',
-    'font-sidebar text-base/5  text-sidebar-c-2 no-underline wrap-break-word',
+    'font-sidebar text-base/4  text-sidebar-c-2 no-underline wrap-break-word',
   ],
   variants: {
     active: { true: 'text-sidebar-c-active font-sidebar-active' },
@@ -80,7 +80,7 @@ const { cx } = useBindCx()
     </slot>
     <div
       v-if="icon || $slots.icon"
-      class="h-[1lh] *:size-4 mr-1 flex items-center">
+      class="h-lh *:size-4 mr-1 flex items-center">
       <slot name="icon">
         <ScalarIconLegacyAdapter
           v-if="icon"
