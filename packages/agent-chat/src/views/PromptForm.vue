@@ -173,26 +173,28 @@ const chatError = useChatError()
         @keydown="handlePromptKeydown" />
       <div class="inputActionsContainer">
         <div class="inputActionsLeft">
-          <SearchPopover v-if="!state.isLoggedIn?.value">
-            <button
-              class="addAPIButton"
-              type="button">
-              <ScalarIconPlus
-                class="size-4"
-                weight="bold" />
-            </button>
-          </SearchPopover>
-          <ActionsDropdown
-            v-else
-            @uploadApi="$emit('uploadApi')">
-            <button
-              class="addAPIButton"
-              type="button">
-              <ScalarIconPlus
-                class="size-4"
-                weight="bold" />
-            </button>
-          </ActionsDropdown>
+          <template v-if="!state.hideAddApi">
+            <SearchPopover v-if="!state.isLoggedIn?.value">
+              <button
+                class="addAPIButton"
+                type="button">
+                <ScalarIconPlus
+                  class="size-4"
+                  weight="bold" />
+              </button>
+            </SearchPopover>
+            <ActionsDropdown
+              v-else
+              @uploadApi="$emit('uploadApi')">
+              <button
+                class="addAPIButton"
+                type="button">
+                <ScalarIconPlus
+                  class="size-4"
+                  weight="bold" />
+              </button>
+            </ActionsDropdown>
+          </template>
           <div
             v-for="document in state.registryDocuments.value"
             :key="document.id"
@@ -270,7 +272,7 @@ const chatError = useChatError()
     </form>
     <!-- we only show this before the first message gets populated in the chat -->
     <div
-      v-show="state.chat.messages.length <= 1"
+      v-if="state.chat.messages.length <= 1 && !state.hideAddApi"
       class="addMoreContext">
       <span>Add context from dozens of API's</span>
       <div class="ml-auto flex items-center gap-1">
