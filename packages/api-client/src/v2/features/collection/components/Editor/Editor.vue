@@ -91,6 +91,9 @@ const focusOperationServers = async () => {
 
   // Add default servers if not present
   operation.servers ??= []
+
+  // Update the editor value
+  editorValue.value = JSON.stringify(parsed, null, 2)
   await editor.value?.focusPath(['paths', path, method, 'servers'])
 }
 
@@ -126,12 +129,10 @@ const handleKeydown = (e: KeyboardEvent) => {
   }
 }
 
-onMounted(async () => {
+onMounted(() => {
   if (!monacoEditorRef.value) {
     return
   }
-
-  await loadDocumentIntoEditor()
 
   editor.value = useJsonEditor({
     element: monacoEditorRef.value,
@@ -140,8 +141,6 @@ onMounted(async () => {
     isDarkMode: appState.isDarkMode,
     theme: appState.theme.styles.value.themeStyles,
   })
-
-  await focusOperation()
 
   window.addEventListener('keydown', handleKeydown, KEYDOWN_OPTIONS)
 })
@@ -152,12 +151,9 @@ onBeforeUnmount(() => {
 
 watch(
   () => documentSlug,
-  () => {
-    isProgrammaticUpdate.value = true
-    editor.value?.setValue(editorValue.value)
-    setTimeout(() => {
-      isProgrammaticUpdate.value = false
-    }, 0)
+  async () => {
+    await loadDocumentIntoEditor()
+    await focusOperation()
   },
   { immediate: true },
 )
