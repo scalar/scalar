@@ -11,6 +11,7 @@ import type { RouteRecordRaw } from 'vue-router'
 import type { MergedSecuritySchemes } from '@/v2/blocks/scalar-auth-selector-block/helpers/merge-security'
 import Authentication from '@/v2/features/collection/components/Authentication.vue'
 import Cookies from '@/v2/features/collection/components/Cookies.vue'
+import { Editor } from '@/v2/features/collection/components/Editor'
 import Environment from '@/v2/features/collection/components/Environment.vue'
 import Overview from '@/v2/features/collection/components/Overview.vue'
 import Servers from '@/v2/features/collection/components/Servers.vue'
@@ -101,6 +102,11 @@ export const ROUTES = [
                     name: 'operation.authentication',
                     path: 'authentication',
                     component: Authentication,
+                  },
+                  {
+                    name: 'operation.editor',
+                    path: 'editor',
+                    component: Editor,
                   },
                 ],
               },

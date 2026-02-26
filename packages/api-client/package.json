@@ -240,6 +240,11 @@
       "types": "./dist/v2/features/app/components/index.d.ts",
       "default": "./dist/v2/features/app/components/index.js"
     },
+    "./v2/features/collection/components/Editor": {
+      "import": "./dist/v2/features/collection/components/Editor/index.js",
+      "types": "./dist/v2/features/collection/components/Editor/index.d.ts",
+      "default": "./dist/v2/features/collection/components/Editor/index.js"
+    },
     "./v2/features/command-palette": {
       "import": "./dist/v2/features/command-palette/index.js",
       "types": "./dist/v2/features/command-palette/index.d.ts",
@@ -356,6 +361,7 @@
     "fuse.js": "catalog:*",
     "js-base64": "catalog:*",
     "microdiff": "catalog:*",
+    "monaco-editor": "catalog:*",
     "nanoid": "catalog:*",
     "pretty-bytes": "catalog:*",
     "pretty-ms": "^9.3.0",

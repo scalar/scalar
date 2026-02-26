@@ -15,7 +15,7 @@ const routes = computed(() => {
   }
 
   if (type === 'operation') {
-    return ['overview', 'servers', 'authentication']
+    return ['overview', 'servers', 'authentication', 'editor']
   }
 
   return [
@@ -48,7 +48,7 @@ const routes = computed(() => {
               ? 'text-c-1 border-c-1'
               : 'text-c-2 hover:text-c-1 border-transparent'
           ">
-          {{ capitalize(route) }}
+          {{ route === 'json-editor' ? 'Json editor' : capitalize(route) }}
         </span>
       </a>
     </RouterLink>
