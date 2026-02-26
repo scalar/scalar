@@ -920,9 +920,6 @@ const transformCollectionToDocument = (
 
     // Convert legacy record-based environment variables to the new array format
     'x-scalar-environments': transformLegacyEnvironments(collection['x-scalar-environments']),
-
-    // useCollectionSecurity → x-scalar-set-operation-security
-    'x-scalar-set-operation-security': collection.useCollectionSecurity ?? false,
   }
 
   // Add x-tagGroups if there are any parent tags

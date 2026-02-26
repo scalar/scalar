@@ -195,7 +195,7 @@ describe('Overview', () => {
 
       const codeInput = wrapper.findComponent({ name: 'CodeInput' })
       const newDescription = 'Updated description'
-      await codeInput.vm.$emit('update:modelValue', newDescription)
+      await codeInput.vm.$emit('blur', newDescription)
       await nextTick()
 
       expect(mockEventBus.emit).toHaveBeenCalledWith('document:update:info', { description: newDescription })
@@ -209,7 +209,7 @@ describe('Overview', () => {
       await nextTick()
 
       const codeInput = wrapper.findComponent({ name: 'CodeInput' })
-      await codeInput.vm.$emit('update:modelValue', '')
+      await codeInput.vm.$emit('blur', '')
       await nextTick()
 
       expect(mockEventBus.emit).toHaveBeenCalledWith('document:update:info', { description: '' })
