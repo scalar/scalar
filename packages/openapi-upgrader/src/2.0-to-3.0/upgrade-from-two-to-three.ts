@@ -8,6 +8,8 @@ type XExampleExtensions = {
   xExamples: Record<string, unknown> | undefined
 }
 
+const DEFAULT_MEDIA_TYPE = 'application/json'
+
 /** Extracts and removes x-example and x-examples extensions from an object */
 function extractXExampleExtensions(obj: Record<string, unknown>): XExampleExtensions {
   const xExample = obj['x-example'] as Record<string, unknown> | undefined
@@ -67,6 +69,11 @@ function wrapAsExampleObject(value: unknown): OpenAPIV3.ExampleObject {
     return value
   }
   return { value }
+}
+
+/** True if the key looks like a media type (e.g. application/json). Used to distinguish from named example keys. */
+function isMediaTypeKey(key: string): boolean {
+  return key.includes('/')
 }
 
 /** Transforms x-example entries to OpenAPI 3.x examples format */
@@ -206,7 +213,7 @@ export function upgradeFromTwoToThree(originalSpecification: UnknownObject) {
           if (param.in === 'body') {
             bodyParams[name] = migrateBodyParameter(
               param as OpenAPIV2.ParameterObject,
-              (document.consumes as string[] | undefined) ?? ['application/json'],
+              (document.consumes as string[] | undefined) ?? [DEFAULT_MEDIA_TYPE],
             )
           } else if (param.in === 'formData') {
             bodyParams[name] = migrateFormDataParameter(
@@ -255,7 +262,7 @@ export function upgradeFromTwoToThree(originalSpecification: UnknownObject) {
         } else {
           // Transform the response object
           const responseObj = response as Record<string, unknown>
-          const produces = (document.produces as string[] | undefined) ?? ['application/json']
+          const produces = (document.produces as string[] | undefined) ?? [DEFAULT_MEDIA_TYPE]
 
           // Transform schema to content
           if (responseObj.schema) {
@@ -278,12 +285,30 @@ export function upgradeFromTwoToThree(originalSpecification: UnknownObject) {
               responseObj.content = {}
             }
 
-            for (const [mediaType, exampleValue] of Object.entries(responseObj.examples as Record<string, unknown>)) {
-              if (typeof (responseObj.content as Record<string, unknown>)[mediaType] !== 'object') {
-                ;(responseObj.content as Record<string, unknown>)[mediaType] = {}
+            const defaultMediaType = produces[0] ?? DEFAULT_MEDIA_TYPE
+
+            for (const [key, exampleValue] of Object.entries(responseObj.examples as Record<string, unknown>)) {
+              // Media-type keys (e.g. application/json) go to content[key]; named example keys go to content[defaultMediaType].examples[key].
+              if (isMediaTypeKey(key)) {
+                if (typeof (responseObj.content as Record<string, unknown>)[key] !== 'object') {
+                  ;(responseObj.content as Record<string, unknown>)[key] = {}
+                }
+                ;((responseObj.content as Record<string, unknown>)[key] as Record<string, unknown>).example =
+                  exampleValue
+              } else {
+                if (typeof (responseObj.content as Record<string, unknown>)[defaultMediaType] !== 'object') {
+                  ;(responseObj.content as Record<string, unknown>)[defaultMediaType] = {}
+                }
+                const mediaEntry = (responseObj.content as Record<string, unknown>)[defaultMediaType] as Record<
+                  string,
+                  unknown
+                >
+                if (typeof mediaEntry.examples !== 'object') {
+                  mediaEntry.examples = {}
+                }
+                ;(mediaEntry.examples as Record<string, OpenAPIV3.ExampleObject>)[key] =
+                  wrapAsExampleObject(exampleValue)
               }
-              ;((responseObj.content as Record<string, unknown>)[mediaType] as Record<string, unknown>).example =
-                exampleValue
             }
 
             delete responseObj.examples
@@ -336,7 +361,7 @@ export function upgradeFromTwoToThree(originalSpecification: UnknownObject) {
           if (methodOrParameters === 'parameters' && Object.hasOwn(pathItem, methodOrParameters)) {
             const pathItemParameters = migrateParameters(
               (pathItem as any).parameters,
-              (document.consumes as string[] | undefined) ?? ['application/json'],
+              (document.consumes as string[] | undefined) ?? [DEFAULT_MEDIA_TYPE],
             )
 
             ;(pathItem as any).parameters = pathItemParameters.parameters
@@ -351,7 +376,7 @@ export function upgradeFromTwoToThree(originalSpecification: UnknownObject) {
             if (operationItem.parameters) {
               const migrationResult = migrateParameters(
                 operationItem.parameters,
-                operationItem.consumes ?? document.consumes ?? ['application/json'],
+                operationItem.consumes ?? document.consumes ?? [DEFAULT_MEDIA_TYPE],
               )
 
               operationItem.parameters = migrationResult.parameters
@@ -384,7 +409,7 @@ export function upgradeFromTwoToThree(originalSpecification: UnknownObject) {
                     )
                   }
                   if (responseItem.schema) {
-                    const produces = document.produces ?? operationItem.produces ?? ['application/json']
+                    const produces = document.produces ?? operationItem.produces ?? [DEFAULT_MEDIA_TYPE]
 
                     if (typeof responseItem.content !== 'object') {
                       responseItem.content = {}
@@ -400,18 +425,32 @@ export function upgradeFromTwoToThree(originalSpecification: UnknownObject) {
                   }
 
                   // Transform response examples from Swagger 2.0 to OpenAPI 3.0 format
-                  // In Swagger 2.0, examples are at response level: examples: { 'application/json': {...} }
-                  // In OpenAPI 3.0, examples move inside content: content: { 'application/json': { example: {...} } }
+                  // In Swagger 2.0, examples are at response level: examples: { DEFAULT_MEDIA_TYPE: {...} } or named: { 'Example': {...} }
+                  // In OpenAPI 3.0, examples move inside content: content: { DEFAULT_MEDIA_TYPE: { example: {...} } } or examples: { Example: { value: {...} } }
                   if (responseItem.examples && typeof responseItem.examples === 'object') {
                     if (typeof responseItem.content !== 'object') {
                       responseItem.content = {}
                     }
 
-                    for (const [mediaType, exampleValue] of Object.entries(responseItem.examples)) {
-                      if (typeof responseItem.content[mediaType] !== 'object') {
-                        responseItem.content[mediaType] = {}
+                    const produces: string[] = document.produces ?? operationItem.produces ?? [DEFAULT_MEDIA_TYPE]
+                    const defaultMediaType = produces[0] ?? DEFAULT_MEDIA_TYPE
+                    for (const [key, exampleValue] of Object.entries(responseItem.examples)) {
+                      // Media-type keys (e.g. application/json) go to content[key]; named example keys go to content[defaultMediaType].examples[key].
+                      if (isMediaTypeKey(key)) {
+                        if (typeof responseItem.content[key] !== 'object') {
+                          responseItem.content[key] = {}
+                        }
+                        responseItem.content[key].example = exampleValue
+                      } else {
+                        if (typeof responseItem.content[defaultMediaType] !== 'object') {
+                          responseItem.content[defaultMediaType] = {}
+                        }
+                        const mediaEntry = responseItem.content[defaultMediaType]
+                        if (typeof mediaEntry.examples !== 'object') {
+                          mediaEntry.examples = {}
+                        }
+                        mediaEntry.examples[key] = wrapAsExampleObject(exampleValue)
                       }
-                      responseItem.content[mediaType].example = exampleValue
                     }
 
                     delete responseItem.examples
