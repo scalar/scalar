@@ -15,6 +15,7 @@ import ScreenReader from '@/components/ScreenReader.vue'
 import { getSchemaType } from './helpers/get-schema-type'
 import { getModelNameFromSchema } from './helpers/schema-name'
 import RenderString from './RenderString.vue'
+import SchemaPropertyDefault from './SchemaPropertyDefault.vue'
 import SchemaPropertyDetail from './SchemaPropertyDetail.vue'
 import SchemaPropertyExamples from './SchemaPropertyExamples.vue'
 
@@ -229,35 +230,6 @@ const displayType = computed(() => {
   }
   return getSchemaType(props.value)
 })
-
-/**
- * Flattens default values for display purposes.
- */
-const flattenedDefaultValue = computed(() => {
-  const value = props.value
-
-  if (value?.default === null) {
-    return 'null'
-  }
-
-  if (Array.isArray(value?.default) && value?.default.length === 1) {
-    return String(value?.default[0])
-  }
-
-  if (typeof value?.default === 'string') {
-    return JSON.stringify(value.default)
-  }
-
-  if (Array.isArray(value?.default)) {
-    return JSON.stringify(value?.default)
-  }
-
-  if (typeof value?.default === 'object') {
-    return JSON.stringify(value?.default)
-  }
-
-  return value?.default
-})
 </script>
 <template>
   <div class="property-heading">
@@ -301,13 +273,6 @@ const flattenedDefaultValue = computed(() => {
 
       <!-- Enum indicator -->
       <SchemaPropertyDetail v-if="props.enum">enum</SchemaPropertyDetail>
-
-      <!-- Default value -->
-      <SchemaPropertyDetail
-        v-if="flattenedDefaultValue !== undefined"
-        truncate>
-        <template #prefix>default:</template>{{ flattenedDefaultValue }}
-      </SchemaPropertyDetail>
     </template>
     <div
       v-if="props.additional"
@@ -352,7 +317,7 @@ const flattenedDefaultValue = computed(() => {
       class="property-required">
       required
     </div>
-    <!-- examples -->
+    <SchemaPropertyDefault :value="props.value?.default" />
     <SchemaPropertyExamples
       v-if="props.withExamples"
       :example="
