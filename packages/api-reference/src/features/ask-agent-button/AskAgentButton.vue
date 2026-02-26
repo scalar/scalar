@@ -99,7 +99,7 @@ function handleSubmit() {
   position: absolute;
   left: 2px;
   top: 2px;
-  border-radius: var(--scalar-radius-lg);
+  border-radius: var(--scalar-radius);
 }
 .ask-agent-scalar-send {
   background: var(--scalar-color-blue);
