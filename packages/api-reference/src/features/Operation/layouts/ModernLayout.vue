@@ -195,14 +195,16 @@ const operationExtensions = computed(() => getXKeysFromObject(operation))
                 <template
                   v-if="!isWebhook"
                   #footer="{ exampleName }">
-                  <AskAgentButton />
-                  <TestRequestButton
-                    v-if="!options.hideTestRequestButton"
-                    :id
-                    :eventBus
-                    :exampleName
-                    :method
-                    :path />
+                  <div class="flex">
+                    <AskAgentButton />
+                    <TestRequestButton
+                      v-if="!options.hideTestRequestButton"
+                      :id
+                      :eventBus
+                      :exampleName
+                      :method
+                      :path />
+                  </div>
                 </template>
               </OperationCodeSample>
             </ScalarErrorBoundary>
