@@ -45,6 +45,7 @@ import {
 import type {
   DocumentMetaExtensions,
   Workspace,
+  WorkspaceDocument,
   WorkspaceDocumentMeta,
   WorkspaceExtensions,
   WorkspaceMeta,
@@ -352,6 +353,13 @@ export type WorkspaceStore = {
    * const yamlString = store.exportActiveDocument('yaml')
    */
   exportActiveDocument(format: 'json' | 'yaml', minify?: boolean): string | undefined
+  /**
+   * Returns the editable version of the specified document.
+   *
+   * @param documentName - The name of the document to get the editable version of.
+   * @returns The editable version of the document, or undefined if the document does not exist.
+   */
+  getEditableDocument(documentName: string): Promise<WorkspaceDocument | null>
   /**
    * Saves the current state of the specified document to the intermediate documents map.
    *
@@ -986,6 +994,37 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     })
   }
 
+  const READONLY_PROPERTIES = [
+    'x-scalar-original-document-hash',
+    'x-original-oas-version',
+    'x-scalar-is-dirty',
+    'x-scalar-navigation',
+    'x-ext-urls',
+    'x-ext',
+  ] satisfies (keyof WorkspaceDocument | 'x-ext-urls' | 'x-ext')[]
+
+  const getEditableDocument = async (documentName: string) => {
+    const rawDocument = unpackProxyObject(workspace.documents[documentName], { depth: 1 })
+
+    if (!rawDocument) {
+      return null
+    }
+
+    // Reverse all external references
+    const original = (await bundle(deepClone(rawDocument), {
+      plugins: [restoreOriginalRefs()],
+      treeShake: false,
+      urlMap: true,
+    })) as WorkspaceDocument & { 'x-ext-urls'?: unknown; 'x-ext'?: unknown }
+
+    // Remove readonly properties
+    for (const property of READONLY_PROPERTIES) {
+      delete original[property]
+    }
+
+    return original
+  }
+
   /**
    * Builds (or updates) the navigation sidebar for the specified document.
    *
@@ -1035,6 +1074,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       preventPollution(key)
       Object.assign(workspace, { [key]: value })
     },
+    getEditableDocument,
     updateDocument<K extends keyof DocumentMetaExtensions>(
       name: 'active' | (string & {}),
       key: K,

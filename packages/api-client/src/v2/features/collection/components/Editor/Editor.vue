@@ -10,16 +10,8 @@ import type { CollectionProps } from '@/v2/features/app/helpers/routes'
 
 import { useJsonEditor } from './hooks/use-editor/use-editor'
 
-const props = defineProps<CollectionProps>()
-const {
-  appState,
-  collectionType,
-  document,
-  documentSlug,
-  method,
-  path,
-  workspaceStore,
-} = props
+const { appState, collectionType, documentSlug, method, path, workspaceStore } =
+  defineProps<CollectionProps>()
 
 const monacoEditorRef = ref<HTMLElement>()
 const editor = ref<ReturnType<typeof useJsonEditor>>()
@@ -34,9 +26,11 @@ const operationJsonPath = computed(() => {
   return ['paths', path, method] as const
 })
 
-const loadDocumentIntoEditor = () => {
+const loadDocumentIntoEditor = async () => {
   editorValue.value = JSON.stringify(
-    unpackProxyObject(document, { depth: 1 }),
+    unpackProxyObject(await workspaceStore.getEditableDocument(documentSlug), {
+      depth: 1,
+    }),
     null,
     2,
   )
@@ -146,12 +140,12 @@ const handleKeydown = (e: KeyboardEvent) => {
   }
 }
 
-onMounted(() => {
+onMounted(async () => {
   if (!monacoEditorRef.value) {
     return
   }
 
-  loadDocumentIntoEditor()
+  await loadDocumentIntoEditor()
 
   editor.value = useJsonEditor({
     element: monacoEditorRef.value,
@@ -160,6 +154,8 @@ onMounted(() => {
     isDarkMode: appState.isDarkMode,
     theme: appState.theme.styles.value.themeStyles,
   })
+
+  await focusOperation()
 
   window.addEventListener('keydown', handleKeydown, KEYDOWN_OPTIONS)
 })
@@ -172,13 +168,10 @@ watch(
   () => documentSlug,
   () => {
     isProgrammaticUpdate.value = true
-    loadDocumentIntoEditor()
     editor.value?.setValue(editorValue.value)
     setTimeout(() => {
       isProgrammaticUpdate.value = false
     }, 0)
-    // Focus the operation when the document slug changes
-    void focusOperation()
   },
   { immediate: true },
 )
