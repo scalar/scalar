@@ -18,10 +18,18 @@ import type { JsonPath } from './helpers/json-path'
 import { ensureJsonPointerLinkSupport } from './helpers/json-pointer-links'
 import { nodeToWholeLineRange } from './helpers/node-range'
 
+export type MonacoEditorAction = {
+  id: string
+  label: string
+  keybindings?: number[]
+  run: () => void | Promise<void>
+}
+
 export const useJsonEditor = ({
   element,
   value,
   onChange,
+  actions,
   readOnly = false,
   isDarkMode = false,
   theme = presets.default.theme,
@@ -30,6 +38,7 @@ export const useJsonEditor = ({
   value: MaybeRefOrGetter<string>
   readOnly?: MaybeRefOrGetter<boolean>
   onChange?: (e: string) => void
+  actions?: MonacoEditorAction[]
   isDarkMode?: MaybeRefOrGetter<boolean>
   theme?: MaybeRefOrGetter<string>
 }) => {
@@ -67,6 +76,17 @@ export const useJsonEditor = ({
   editor.updateOptions({ insertSpaces: true, tabSize: 2 })
 
   let decorations: string[] = []
+
+  actions?.forEach((action) => {
+    editor.addAction({
+      id: action.id,
+      label: action.label,
+      keybindings: action.keybindings,
+      run: async () => {
+        await action.run()
+      },
+    })
+  })
 
   const highlightNode = (node: monaco.languages.json.ASTNode) => {
     const range = nodeToWholeLineRange(model, node)
@@ -176,6 +196,11 @@ export const useJsonEditor = ({
 
   const hasTextFocus = () => editor.hasTextFocus()
 
+  const dispose = () => {
+    editor.dispose()
+    model.dispose()
+  }
+
   return {
     editor,
     model,
@@ -185,5 +210,6 @@ export const useJsonEditor = ({
     getValue,
     setValue,
     hasTextFocus,
+    dispose,
   }
 }

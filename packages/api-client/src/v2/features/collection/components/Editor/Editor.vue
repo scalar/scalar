@@ -10,6 +10,7 @@ import { debounce } from '@scalar/helpers/general/debounce'
 import { isHttpMethod } from '@scalar/helpers/http/is-http-method'
 import { isObject } from '@scalar/helpers/object/is-object'
 import { unpackProxyObject } from '@scalar/workspace-store/helpers/unpack-proxy'
+import * as monaco from 'monaco-editor'
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 
 import type { CollectionProps } from '@/v2/features/app/helpers/routes'
@@ -256,38 +257,6 @@ const focusOperationServers = async () => {
   await editor.value?.focusPath(['paths', path, method, 'servers'])
 }
 
-const KEYDOWN_OPTIONS = { capture: true } as const
-
-const handleKeydown = (e: KeyboardEvent) => {
-  const hasEditorFocus = editor.value?.hasTextFocus?.() ?? false
-  if (!hasEditorFocus) {
-    return
-  }
-
-  if (!e.altKey || e.metaKey || e.ctrlKey) {
-    return
-  }
-
-  const key = e.key.toLowerCase()
-
-  if (key === 'o' && !e.shiftKey) {
-    e.preventDefault()
-    void focusOperation()
-    return
-  }
-
-  if (key === 's' && !e.shiftKey) {
-    e.preventDefault()
-    void focusOperationServers()
-    return
-  }
-
-  if (key === 'f' && e.shiftKey) {
-    e.preventDefault()
-    void formatJson()
-  }
-}
-
 onMounted(() => {
   if (!monacoEditorRef.value) {
     return
@@ -299,9 +268,33 @@ onMounted(() => {
     onChange: handleEditorChange,
     isDarkMode: appState.isDarkMode,
     theme: appState.theme.styles.value.themeStyles,
+    actions: [
+      {
+        id: 'scalar.editor.focusOperation',
+        label: 'Focus Operation',
+        keybindings: [monaco.KeyMod.Alt | monaco.KeyCode.KeyO],
+        run: async () => {
+          await focusOperation()
+        },
+      },
+      {
+        id: 'scalar.editor.focusOperationServers',
+        label: 'Focus Operation Servers',
+        keybindings: [monaco.KeyMod.Alt | monaco.KeyCode.KeyS],
+        run: async () => {
+          await focusOperationServers()
+        },
+      },
+      {
+        id: 'scalar.editor.formatJson',
+        label: 'Format JSON',
+        keybindings: [monaco.KeyMod.Alt | monaco.KeyMod.Shift | monaco.KeyCode.KeyF],
+        run: async () => {
+          await formatJson()
+        },
+      },
+    ],
   })
-
-  window.addEventListener('keydown', handleKeydown, KEYDOWN_OPTIONS)
 })
 
 onBeforeUnmount(() => {
@@ -310,7 +303,7 @@ onBeforeUnmount(() => {
     void saveNow()
   }
   // debouncedPersist.cleanup()
-  window.removeEventListener('keydown', handleKeydown, KEYDOWN_OPTIONS)
+  editor.value?.dispose?.()
 })
 
 watch(
@@ -386,7 +379,7 @@ watch(
           <span class="text-c-3 ml-2 text-[11px]">
             <ScalarHotkey
               hotkey="F"
-              :modifier="['Alt']" />
+              :modifier="['Alt', 'Shift']" />
           </span>
         </ScalarButton>
       </div>
