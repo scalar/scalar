@@ -927,9 +927,9 @@ const transformCollectionToDocument = (
     document['x-tagGroups'] = tagGroups
   }
 
-  // x-scalar-active-environment → x-scalar-client-config-active-environment
+  // x-scalar-active-environment
   if (collection['x-scalar-active-environment']) {
-    document['x-scalar-client-config-active-environment'] = collection['x-scalar-active-environment']
+    document['x-scalar-active-environment'] = collection['x-scalar-active-environment']
   }
 
   // selectedServerUid → x-scalar-selected-server (resolved to URL)

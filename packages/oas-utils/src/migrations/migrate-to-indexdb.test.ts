@@ -938,8 +938,8 @@ describe('migrate-to-indexdb', () => {
       })
     })
 
-    describe('x-scalar-active-environment → x-scalar-client-config-active-environment', () => {
-      it('transforms x-scalar-active-environment to x-scalar-client-config-active-environment', async () => {
+    describe('x-scalar-active-environment', () => {
+      it('migrates x-scalar-active-environment', async () => {
         const legacyData = createLegacyData({
           title: 'Active Env API',
           collection: {
@@ -959,10 +959,10 @@ describe('migrate-to-indexdb', () => {
         const doc = result[0]?.workspace.documents['active-env-api']
 
         assert(doc)
-        expect(doc['x-scalar-client-config-active-environment']).toBe('production')
+        expect(doc['x-scalar-active-environment']).toBe('production')
       })
 
-      it('does not set x-scalar-client-config-active-environment when x-scalar-active-environment is absent', async () => {
+      it('does not set x-scalar-active-environment when x-scalar-active-environment is absent', async () => {
         const legacyData = createLegacyData({
           title: 'No Active Env API',
         })
@@ -971,7 +971,7 @@ describe('migrate-to-indexdb', () => {
         const doc = result[0]?.workspace.documents['no-active-env-api']
 
         assert(doc)
-        expect(doc['x-scalar-client-config-active-environment']).toBeUndefined()
+        expect(doc['x-scalar-active-environment']).toBeUndefined()
       })
     })
 
@@ -1121,8 +1121,8 @@ describe('migrate-to-indexdb', () => {
           },
         })
 
-        // x-scalar-active-environment → x-scalar-client-config-active-environment
-        expect(doc['x-scalar-client-config-active-environment']).toBe('staging')
+        // x-scalar-active-environment
+        expect(doc['x-scalar-active-environment']).toBe('staging')
 
         // selectedServerUid → x-scalar-selected-server
         expect(doc['x-scalar-selected-server']).toBe('https://api.example.com')
