@@ -1,5 +1,15 @@
 # @scalar/sidebar
 
+## 0.7.41
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.34.4**
+
+- **@scalar/components@0.19.10**
+
 ## 0.7.40
 
 ### Patch Changes

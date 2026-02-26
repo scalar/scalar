@@ -1,5 +1,11 @@
 # @scalar/openapi-upgrader
 
+## 0.1.9
+
+### Patch Changes
+
+- [#8251](https://github.com/scalar/scalar/pull/8251): feat: migrate swagger 2.0 defaults for parameter
+
 ## 0.1.8
 
 ### Patch Changes

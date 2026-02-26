@@ -1,5 +1,15 @@
 # @scalarapi/docker-api-reference
 
+## 0.4.66
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.44.27**
+  - [#8274](https://github.com/scalar/scalar/pull/8274): feat(agent): add config to hide search api
+  - [#8260](https://github.com/scalar/scalar/pull/8260): feat: update developer tools
+
 ## 0.4.65
 
 ### Patch Changes
