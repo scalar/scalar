@@ -162,10 +162,26 @@ export const useJsonEditor = ({
     },
   )
 
+  const formatDocument = async () => {
+    await editor.getAction('editor.action.formatDocument')?.run()
+  }
+
+  const getValue = () => editor.getValue()
+
+  const setValue = (nextValue: string) => {
+    editor.setValue(nextValue)
+  }
+
+  const hasTextFocus = () => editor.hasTextFocus()
+
   return {
     editor,
     model,
     highlightPath,
     focusPath,
+    formatDocument,
+    getValue,
+    setValue,
+    hasTextFocus,
   }
 }
