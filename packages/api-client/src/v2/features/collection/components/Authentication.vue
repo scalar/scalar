@@ -111,7 +111,11 @@ const server = computed(() => {
   const documentServer = document?.['x-scalar-selected-server']
   const operationServer = operation.value?.['x-scalar-selected-server']
   const selectedServerUrl = operationServer ?? documentServer
-  return servers.value.find(({ url }) => url === selectedServerUrl) ?? null
+  return (
+    servers.value.find(({ url }) => url === selectedServerUrl) ??
+    servers.value[0] ??
+    null
+  )
 })
 
 /**
