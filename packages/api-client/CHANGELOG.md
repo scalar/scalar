@@ -1,5 +1,28 @@
 # @scalar/api-client
 
+## 2.29.4
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/types@0.6.8**
+  - [#8274](https://github.com/scalar/scalar/pull/8274): feat(agent): add config to hide search api
+
+- **@scalar/oas-utils@0.6.48**
+
+- **@scalar/openapi-parser@0.24.15**
+
+- **@scalar/snippetz@0.6.17**
+
+- **@scalar/workspace-store@0.34.4**
+
+- **@scalar/components@0.19.10**
+
+- **@scalar/sidebar@0.7.41**
+
+- **@scalar/use-codemirror@0.13.45**
+
 ## 2.29.3
 
 ### Patch Changes

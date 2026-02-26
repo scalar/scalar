@@ -51,14 +51,35 @@ Scalar.createApiReference('#app', {
 })
 ```
 
+## Hiding the Add API control
+
+When you preload specific APIs (e.g. via `sources` or registry documents), you can hide the control that lets users add more APIs from the public list. Set `hideAddApi: true` in the agent config for that source:
+
+```js
+Scalar.createApiReference('#app', {
+  sources: [
+    {
+      url: 'https://registry.scalar.com/@your-namespace/apis/your-api/latest?format=json',
+      agent: {
+        key: 'your-agent-scalar-key',
+        hideAddApi: true,
+      },
+    },
+  ],
+})
+```
+
+Only your preloaded APIs are shown; the “+ API” button and “Add context from dozens of API’s” section are hidden.
+
 ## Configuration Reference
 
 The `agent` configuration accepts:
 
-| Property   | Type      | Default     | Description                    |
-| ---------- | --------- | ----------- | ------------------------------ |
-| `key`      | `string`  | `undefined` | Your Agent Scalar key          |
-| `disabled` | `boolean` | `false`     | Enable or disable Agent Scalar |
+| Property      | Type      | Default     | Description                                                                 |
+| ------------- | --------- | ----------- | --------------------------------------------------------------------------- |
+| `key`         | `string`  | `undefined` | Your Agent Scalar key                                                       |
+| `disabled`    | `boolean` | `false`     | Enable or disable Agent Scalar                                              |
+| `hideAddApi`  | `boolean` | `false`     | Hide the control to add more APIs; only preloaded/registry APIs are shown   |
 
 ### Per-Source Configuration
 

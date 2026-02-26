@@ -1,5 +1,14 @@
 # @scalar/core
 
+## 0.3.43
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/types@0.6.8**
+  - [#8274](https://github.com/scalar/scalar/pull/8274): feat(agent): add config to hide search api
+
 ## 0.3.42
 
 ### Patch Changes

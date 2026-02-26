@@ -85,7 +85,14 @@ const switchMode = async (newMode: 'edit' | 'preview'): Promise<void> => {
  * @param payload - The new description
  * @returns void
  */
-const handleDescriptionUpdate = (payload: string) => {
+const handleDescriptionUpdate = async (payload: string) => {
+  await switchMode('preview')
+
+  /** If the collection type is a document, update the description of the document */
+  if (collectionType === 'document') {
+    return eventBus.emit('document:update:info', { description: payload })
+  }
+
   /** If the collection type is an operation, update the description of the operation */
   if (collectionType === 'operation') {
     if (!path || !method) {
@@ -99,11 +106,6 @@ const handleDescriptionUpdate = (payload: string) => {
         description: payload,
       },
     })
-  }
-
-  /** If the collection type is a document, update the description of the document */
-  if (collectionType === 'document') {
-    return eventBus.emit('document:update:info', { description: payload })
   }
 
   console.error('Invalid collection type', { collectionType })
@@ -190,8 +192,7 @@ const handleDeleteOperation = () => {
             :environment="undefined"
             :layout="layout"
             :modelValue="description"
-            @blur="switchMode('preview')"
-            @update:modelValue="handleDescriptionUpdate" />
+            @blur="handleDescriptionUpdate" />
         </template>
       </div>
     </Section>
