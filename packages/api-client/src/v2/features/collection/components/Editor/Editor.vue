@@ -1,7 +1,11 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 
+import type { CollectionProps } from '@/v2/features/app/helpers/routes'
+
 import { useJsonEditor } from './hooks/use-editor/use-editor'
+
+const { appState } = defineProps<CollectionProps>()
 
 const monacoEditorRef = ref<HTMLElement>()
 const editor = ref<ReturnType<typeof useJsonEditor>>()
@@ -32,7 +36,8 @@ onMounted(() => {
       null,
       2,
     ),
-    isDarkMode: true,
+    isDarkMode: appState.isDarkMode,
+    theme: appState.theme.styles.value.themeStyles,
   })
 })
 

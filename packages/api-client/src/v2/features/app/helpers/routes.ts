@@ -1,7 +1,6 @@
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { mergeSearchParams } from '@scalar/helpers/url/merge-urls'
 import type { ClientPlugin } from '@scalar/oas-utils/helpers'
-import type { Theme } from '@scalar/themes'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
@@ -9,6 +8,7 @@ import type { WorkspaceDocument } from '@scalar/workspace-store/schemas/workspac
 import type { RouteRecordRaw } from 'vue-router'
 
 import type { MergedSecuritySchemes } from '@/v2/blocks/scalar-auth-selector-block/helpers/merge-security'
+import type { AppState } from '@/v2/features/app/app-state'
 import Authentication from '@/v2/features/collection/components/Authentication.vue'
 import Cookies from '@/v2/features/collection/components/Cookies.vue'
 import { Editor } from '@/v2/features/collection/components/Editor'
@@ -37,7 +37,7 @@ export type RouteProps = {
   workspaceStore: WorkspaceStore
   activeWorkspace: { id: string; label: string }
   plugins: ClientPlugin[]
-  customThemes?: Theme[]
+  appState: AppState
   // workspaceSlug: string
   // documentSlug?: string
 }

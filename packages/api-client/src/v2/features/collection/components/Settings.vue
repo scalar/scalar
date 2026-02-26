@@ -11,7 +11,7 @@ const {
   document,
   workspaceStore,
   collectionType,
-  customThemes,
+  appState,
   layout,
 } = defineProps<CollectionProps>()
 
@@ -51,7 +51,7 @@ const handleUpdateColorMode = (colorMode: ColorMode) => {
     "
     :activeThemeSlug="workspaceStore.workspace['x-scalar-theme'] ?? 'none'"
     :colorMode="workspaceStore.workspace['x-scalar-color-mode'] ?? 'system'"
-    :customThemes="customThemes"
+    :customThemes="appState.theme.customThemes"
     @update:colorMode="handleUpdateColorMode"
     @update:proxyUrl="handleUpdateActiveProxy"
     @update:themeSlug="handleUpdateThemeSlug" />

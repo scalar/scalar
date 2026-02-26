@@ -5,8 +5,10 @@ import 'monaco-editor/esm/vs/editor/contrib/folding/browser/folding'
 import 'monaco-editor/esm/vs/editor/contrib/folding/browser/folding.css'
 import 'monaco-editor/esm/vs/base/browser/ui/codicons/codicon/codicon.css'
 
+import { presets } from '@scalar/themes'
 import { type MaybeRefOrGetter, toValue, watch } from 'vue'
 
+import { applyScalarScheme } from '@/v2/features/collection/components/Editor/hooks/use-editor/helpers/apply-scalar-scheme'
 import { parseJsonPointerPath } from '@/v2/features/collection/components/Editor/hooks/use-editor/helpers/json-pointer-path'
 
 import { applyOpenApiJsonSchemaToModel } from './helpers/apply-openapi-json-schema'
@@ -22,12 +24,14 @@ export const useJsonEditor = ({
   onChange,
   readOnly = false,
   isDarkMode = false,
+  theme = presets.default.theme,
 }: {
   element: HTMLElement
   value: MaybeRefOrGetter<string>
   readOnly?: MaybeRefOrGetter<boolean>
   onChange?: (e: string) => void
   isDarkMode?: MaybeRefOrGetter<boolean>
+  theme?: MaybeRefOrGetter<string>
 }) => {
   ensureMonacoEnvironment()
 
@@ -139,13 +143,13 @@ export const useJsonEditor = ({
     },
   )
 
-  //--------------------------------------------------
-  // Theme
-  monaco.editor.setTheme(toValue(isDarkMode) ? 'vs-dark' : 'vs')
   watch(
-    () => toValue(isDarkMode),
-    (dark) => {
-      monaco.editor.setTheme(dark ? 'vs-dark' : 'vs')
+    [() => toValue(theme), () => toValue(isDarkMode)],
+    async ([theme, isDarkMode]) => {
+      await applyScalarScheme(theme, isDarkMode)
+    },
+    {
+      immediate: true,
     },
   )
 

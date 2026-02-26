@@ -5,6 +5,7 @@ import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import type { LoaderPlugin } from '@scalar/json-magic/bundle'
 import { migrateLocalStorageToIndexDb } from '@scalar/oas-utils/migrations'
 import { createSidebarState, generateReverseIndex } from '@scalar/sidebar'
+import type { Theme } from '@scalar/themes'
 import { type WorkspaceStore, createWorkspaceStore } from '@scalar/workspace-store/client'
 import {
   type OperationExampleMeta,
@@ -25,6 +26,7 @@ import type { RouteLocationNormalizedGeneric, Router } from 'vue-router'
 
 import { getRouteParam } from '@/v2/features/app/helpers/get-route-param'
 import { groupWorkspacesByTeam } from '@/v2/features/app/helpers/group-workspaces'
+import { useTheme } from '@/v2/features/app/hooks/use-theme'
 import { getActiveEnvironment } from '@/v2/helpers/get-active-environment'
 import { getTabDetails } from '@/v2/helpers/get-tab-details'
 import { slugify } from '@/v2/helpers/slugify'
@@ -135,6 +137,15 @@ export type AppState = {
   document: ComputedRef<WorkspaceDocument | null>
   /** Whether the current color mode is dark */
   isDarkMode: ComputedRef<boolean>
+  /** The currently active theme */
+  theme: {
+    /** The computed CSS styles for the current theme, as a string */
+    styles: ComputedRef<{ themeStyles: string; themeSlug: string }>
+    /** The computed value for the <style> tag containing the current theme styles */
+    themeStyleTag: ComputedRef<string>
+    /** The custom themes to use */
+    customThemes: Theme[]
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -151,9 +162,13 @@ const DEFAULT_SIDEBAR_WIDTH = 288
 export const createAppState = async ({
   router,
   fileLoader,
+  customThemes = [],
+  fallbackThemeSlug = 'default',
 }: {
   router: Router
   fileLoader?: LoaderPlugin
+  customThemes?: Theme[]
+  fallbackThemeSlug?: string
 }): Promise<AppState> => {
   /** Workspace event bus for handling workspace-level events. */
   const eventBus = createWorkspaceEventBus({
@@ -949,6 +964,12 @@ export const createAppState = async ({
     renameWorkspace,
   })
 
+  const theme = useTheme({
+    fallbackThemeSlug: () => fallbackThemeSlug,
+    customThemes: () => customThemes,
+    store: store,
+  })
+
   const isDarkMode = computed(() => {
     const colorMode = store.value?.workspace['x-scalar-color-mode'] ?? 'system'
     if (colorMode === 'system') {
@@ -999,5 +1020,10 @@ export const createAppState = async ({
     environment,
     document: activeDocument,
     isDarkMode,
+    theme: {
+      styles: theme.themeStyles,
+      themeStyleTag: theme.themeStyleTag,
+      customThemes,
+    },
   }
 }
