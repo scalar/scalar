@@ -1,7 +1,6 @@
 export const extensions = {
   document: {
     navigation: 'x-scalar-navigation',
-    activeAuth: 'x-scalar-active-auth',
   },
   workspace: {
     colorMode: 'x-scalar-color-mode',

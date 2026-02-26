@@ -1,6 +1,7 @@
 import { type Difference, apply, diff } from '@scalar/json-magic/diff'
 
 import { type UnknownObject, split } from '@/helpers/general'
+import type { OpenAPIExtensions } from '@/schemas/v3.1/strict/openapi-document'
 
 /**
  * Checks if a key is a Scalar secret key.
@@ -13,7 +14,20 @@ const isSecretKey = (key: string) => key.startsWith('x-scalar-secret-')
  * These are metadata fields that should be omitted when syncing updates to the original document.
  * Changes to these fields are not persisted.
  */
-const excludeKeys = new Set(['x-scalar-navigation', 'x-ext', 'x-ext-urls', '$status', 'x-scalar-is-dirty'])
+type BunlderKeys = 'x-ext' | 'x-ext-urls' | '$status'
+export const EXCLUDE_KEYS = [
+  // Bundler keys
+  'x-ext',
+  'x-ext-urls',
+  '$status',
+  // Scalar keys
+  'x-scalar-navigation',
+  'x-scalar-is-dirty',
+  'x-original-oas-version',
+  'x-scalar-original-document-hash',
+  'x-scalar-original-source-url',
+] satisfies (keyof OpenAPIExtensions | BunlderKeys)[] as string[]
+export const excludeKeysSet = new Set(EXCLUDE_KEYS)
 
 /**
  * Determines whether a diff should be included when applying updates.
@@ -24,7 +38,7 @@ const excludeKeys = new Set(['x-scalar-navigation', 'x-ext', 'x-ext-urls', '$sta
  */
 const filterDiff = (diff: Difference<unknown>) => {
   // Omit diff if its path contains a key we want to exclude from updates
-  if (diff.path.some((p) => excludeKeys.has(p))) {
+  if (diff.path.some((p) => excludeKeysSet.has(p))) {
     return false
   }
 

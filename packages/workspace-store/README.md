@@ -216,7 +216,7 @@ store.workspace.documents['document']
 store.update('x-scalar-color-mode', true)
 
 // Update settings for the active document
-store.updateDocument('active', "x-scalar-active-auth", '<value>')
+store.updateDocument('active', "x-scalar-watch-mode", '<value>')
 
 // Resolve and load document chunks including any $ref references
 await store.resolve(['paths', '/users', 'get'])

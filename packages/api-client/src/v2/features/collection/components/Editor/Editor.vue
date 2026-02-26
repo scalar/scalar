@@ -308,7 +308,7 @@ onMounted(() => {
 
 onBeforeUnmount(() => {
   // Persist if there is a pending save
-  if (isDirty.value) {
+  if (isDirty.value && isAutoSaveEnabled.value) {
     void saveNow()
   }
   // debouncedPersist.cleanup()
