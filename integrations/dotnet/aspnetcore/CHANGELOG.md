@@ -1,5 +1,17 @@
 # @scalar/aspnetcore
 
+## 2.12.48
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.44.27**
+  - [#8274](https://github.com/scalar/scalar/pull/8274): feat(agent): add config to hide search api
+  - [#8260](https://github.com/scalar/scalar/pull/8260): feat: update developer tools
+
+- **@scalar/dotnet-shared@0.1.3**
+
 ## 2.12.47
 
 ### Patch Changes

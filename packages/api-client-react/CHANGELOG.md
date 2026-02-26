@@ -1,5 +1,16 @@
 # @scalar/api-client-react
 
+## 1.3.102
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/types@0.6.8**
+  - [#8274](https://github.com/scalar/scalar/pull/8274): feat(agent): add config to hide search api
+
+- **@scalar/api-client@2.29.4**
+
 ## 1.3.101
 
 ### Patch Changes
