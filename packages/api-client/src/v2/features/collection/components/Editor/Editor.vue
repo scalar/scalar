@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { ScalarButton } from '@scalar/components'
+import { ScalarButton, ScalarHotkey } from '@scalar/components'
 import { debounce } from '@scalar/helpers/general/debounce'
 import { isHttpMethod } from '@scalar/helpers/http/is-http-method'
 import { isObject } from '@scalar/helpers/object/is-object'
 import { unpackProxyObject } from '@scalar/workspace-store/helpers/unpack-proxy'
-import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
 
 import type { CollectionProps } from '@/v2/features/app/helpers/routes'
 
@@ -18,13 +18,6 @@ const editor = ref<ReturnType<typeof useJsonEditor>>()
 
 const editorValue = ref('')
 const isProgrammaticUpdate = ref(false)
-
-const operationJsonPath = computed(() => {
-  if (!path || !isHttpMethod(method) || collectionType !== 'operation') {
-    return null
-  }
-  return ['paths', path, method] as const
-})
 
 const loadDocumentIntoEditor = async () => {
   editorValue.value = JSON.stringify(
@@ -41,10 +34,26 @@ const formatJson = async () => {
 }
 
 const focusOperation = async () => {
-  if (!operationJsonPath.value) {
+  if (!path || !isHttpMethod(method)) {
     return
   }
-  await editor.value?.focusPath([...operationJsonPath.value])
+  await editor.value?.focusPath(['paths', path, method])
+}
+
+const safeParseJson = (value: string) => {
+  try {
+    return JSON.parse(value)
+  } catch {
+    return null
+  }
+}
+
+const safeParseJsonObject = (value: string) => {
+  const parsed = safeParseJson(value)
+  if (!isObject(parsed)) {
+    return null
+  }
+  return parsed
 }
 
 const persistEditorToWorkspace = async (value: string) => {
@@ -52,15 +61,11 @@ const persistEditorToWorkspace = async (value: string) => {
     return
   }
 
-  try {
-    const parsed = JSON.parse(value) as unknown
-    if (!isObject(parsed)) {
-      return
-    }
-    await workspaceStore.replaceDocument(documentSlug, parsed)
-  } catch {
+  const parsed = safeParseJsonObject(value)
+  if (!parsed) {
     return
   }
+  await workspaceStore.replaceDocument(documentSlug, parsed)
 }
 
 const { execute: debouncedPersist } = debounce({ delay: 600, maxWait: 1500 })
@@ -73,39 +78,20 @@ const handleEditorChange = (value: string) => {
 }
 
 const focusOperationServers = async () => {
-  if (!path || !isHttpMethod(method) || operationJsonPath.value === null) {
+  if (!path || !isHttpMethod(method)) {
     return
   }
 
-  let parsed: any
-  try {
-    parsed = JSON.parse(editor.value?.getValue?.() ?? editorValue.value)
-  } catch {
-    return
-  }
+  const parsed = safeParseJson(editor.value?.getValue?.() ?? editorValue.value)
 
   const operation = parsed?.paths?.[path]?.[method]
-  if (!operation || typeof operation !== 'object') {
+  if (!isObject(operation)) {
     return
   }
 
-  if (operation.servers === undefined) {
-    operation.servers = []
-
-    isProgrammaticUpdate.value = true
-    const nextValue = JSON.stringify(parsed, null, 2)
-    editorValue.value = nextValue
-    editor.value?.setValue(nextValue)
-    await workspaceStore.replaceDocument(
-      documentSlug,
-      parsed as Record<string, unknown>,
-    )
-    setTimeout(() => {
-      isProgrammaticUpdate.value = false
-    }, 0)
-  }
-
-  await editor.value?.focusPath([...operationJsonPath.value, 'servers'])
+  // Add default servers if not present
+  operation.servers ??= []
+  await editor.value?.focusPath(['paths', path, method, 'servers'])
 }
 
 const KEYDOWN_OPTIONS = { capture: true } as const
@@ -179,7 +165,7 @@ watch(
 
 <template>
   <div
-    v-if="operationJsonPath !== null"
+    v-if="collectionType === 'operation' && path && isHttpMethod(method)"
     class="flex w-full min-w-0 flex-1 flex-col gap-2">
     <div class="flex items-center justify-between gap-3">
       <div class="flex min-w-0 flex-wrap items-center gap-2">
@@ -191,8 +177,9 @@ watch(
           @click="focusOperation">
           <span>Operation</span>
           <span class="text-c-3 ml-2 text-[11px]">
-            <kbd class="rounded border px-1 py-0.5">⌥</kbd>
-            <kbd class="ml-0.5 rounded border px-1 py-0.5">O</kbd>
+            <ScalarHotkey
+              hotkey="O"
+              :modifier="['Alt']" />
           </span>
         </ScalarButton>
 
@@ -202,8 +189,9 @@ watch(
           @click="focusOperationServers">
           <span>Servers</span>
           <span class="text-c-3 ml-2 text-[11px]">
-            <kbd class="rounded border px-1 py-0.5">⌥</kbd>
-            <kbd class="ml-0.5 rounded border px-1 py-0.5">S</kbd>
+            <ScalarHotkey
+              hotkey="S"
+              :modifier="['Alt']" />
           </span>
         </ScalarButton>
       </div>
@@ -215,9 +203,9 @@ watch(
         @click="formatJson">
         <span>Format JSON</span>
         <span class="text-c-3 ml-2 text-[11px]">
-          <kbd class="rounded border px-1 py-0.5">⌥</kbd>
-          <kbd class="ml-0.5 rounded border px-1 py-0.5">⇧</kbd>
-          <kbd class="ml-0.5 rounded border px-1 py-0.5">F</kbd>
+          <ScalarHotkey
+            hotkey="F"
+            :modifier="['Alt']" />
         </span>
       </ScalarButton>
     </div>
