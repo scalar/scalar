@@ -775,7 +775,7 @@ export namespace OpenAPIV3 {
   }
 
   export type ReferenceObject = {
-    $ref?: string
+    $ref: string
   } & AnyOtherAttribute
 
   export type ExampleObject = {
