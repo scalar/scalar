@@ -24,5 +24,15 @@ describe('schema-name', () => {
       const schema: SchemaObject = { __scalar_: '' }
       expect(getModelNameFromSchema(schema)).toBe(null)
     })
+
+    it('extracts model name from $ref (#8195)', () => {
+      const schema = { $ref: '#/components/schemas/TestResponse', type: 'object' } as any
+      expect(getModelNameFromSchema(schema)).toBe('TestResponse')
+    })
+
+    it('extracts model name from nested $ref path', () => {
+      const schema = { $ref: '#/components/schemas/MyApi/Response' } as any
+      expect(getModelNameFromSchema(schema)).toBe('Response')
+    })
   })
 })

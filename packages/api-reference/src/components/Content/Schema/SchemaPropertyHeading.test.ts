@@ -865,6 +865,41 @@ describe('SchemaPropertyHeading', () => {
     })
   })
 
+  it('displays model name from $ref for object schemas (#8195)', () => {
+    const wrapper = mount(SchemaPropertyHeading, {
+      props: {
+        // Simulate a resolved schema that preserves the original $ref
+        value: {
+          $ref: '#/components/schemas/TestResponse',
+          type: 'object',
+          properties: {
+            field: { type: 'boolean' },
+          },
+        } as any,
+      },
+    })
+
+    const detailsElement = wrapper.find('.property-heading')
+    expect(detailsElement.text()).toContain('TestResponse')
+  })
+
+  it('displays model name from title for object schemas without $ref (#8195)', () => {
+    const wrapper = mount(SchemaPropertyHeading, {
+      props: {
+        value: coerceValue(SchemaObjectSchema, {
+          type: 'object',
+          title: 'TestResponse',
+          properties: {
+            field: { type: 'boolean' },
+          },
+        }),
+      },
+    })
+
+    const detailsElement = wrapper.find('.property-heading')
+    expect(detailsElement.text()).toContain('TestResponse')
+  })
+
   describe('edge cases', () => {
     it('handles undefined value gracefully', () => {
       const wrapper = mount(SchemaPropertyHeading, {

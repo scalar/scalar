@@ -80,10 +80,17 @@ const value = computed(() => {
   /** Combine param examples with content ones */
   const examples = [...recordExamples, ...arrayExamples]
 
+  const resolved = getResolvedRef(baseSchema)
+
   return {
-    ...getResolvedRef(baseSchema),
+    ...resolved,
     deprecated: deprecated,
     examples,
+    // Preserve the $ref so downstream components (e.g. SchemaPropertyHeading)
+    // can extract the model name from the reference path
+    ...(baseSchema && typeof baseSchema === 'object' && '$ref' in baseSchema
+      ? { $ref: baseSchema.$ref }
+      : {}),
   } as SchemaObject
 })
 
