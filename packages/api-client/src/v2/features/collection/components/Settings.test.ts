@@ -144,12 +144,12 @@ describe('Settings', () => {
       const wrapper = mount(Settings, { props })
 
       const collectionSettings = wrapper.findComponent({ name: 'CollectionSettings' })
-      expect(collectionSettings.props('activeThemeId')).toBe('purple')
+      expect(collectionSettings.props('activeThemeSlug')).toBe('purple')
       expect(collectionSettings.props('colorMode')).toBe('dark')
       expect(collectionSettings.props('activeProxyUrl')).toBe('https://proxy.example.com')
     })
 
-    it('uses default values when workspace properties are undefined', () => {
+    it('uses none theme slug when workspace properties are undefined', () => {
       const workspaceStore = createWorkspaceStoreInstance()
       delete workspaceStore.workspace['x-scalar-theme']
       delete workspaceStore.workspace['x-scalar-color-mode']
@@ -161,9 +161,9 @@ describe('Settings', () => {
       const wrapper = mount(Settings, { props })
 
       const collectionSettings = wrapper.findComponent({ name: 'CollectionSettings' })
-      expect(collectionSettings.props('activeThemeId')).toBe('default')
+      expect(collectionSettings.props('activeThemeSlug')).toBe('none')
       expect(collectionSettings.props('colorMode')).toBe('system')
-      expect(collectionSettings.props('activeProxyUrl')).toBeUndefined()
+      expect(collectionSettings.props('activeProxyUrl')).toBe(null)
     })
 
     it('handles missing document properties gracefully', () => {
@@ -201,7 +201,7 @@ describe('Settings', () => {
       const wrapper = mount(Settings, { props })
 
       const collectionSettings = wrapper.findComponent({ name: 'CollectionSettings' })
-      await collectionSettings.vm.$emit('update:themeId', 'purple')
+      await collectionSettings.vm.$emit('update:themeSlug', 'purple')
 
       expect(mockEventBus.emit).toHaveBeenCalledWith('workspace:update:theme', 'purple')
     })

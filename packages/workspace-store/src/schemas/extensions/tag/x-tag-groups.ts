@@ -17,7 +17,7 @@ const XTagGroupSchema = compose(
   XScalarOrderSchema,
 )
 
-type XTagGroup = {
+export type XTagGroup = {
   /**
    * The group name.
    */

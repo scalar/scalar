@@ -405,7 +405,7 @@ const updateOperationExtension = (
           class="text-c-1 group-hover-input pointer-events-auto relative z-10 -ml-0.5 h-8 w-full rounded pl-1.25 has-[:focus-visible]:outline md:-ml-1.25"
           :placeholder="requestNamePlaceholder"
           :value="operation.summary"
-          @input="handleSummaryUpdate" />
+          @blur="handleSummaryUpdate" />
         <span
           v-else
           class="text-c-1 flex h-8 items-center">

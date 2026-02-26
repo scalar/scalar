@@ -1,0 +1,68 @@
+<script lang="ts" setup>
+import {
+  ScalarCodeBlock,
+  ScalarFormField,
+  ScalarFormSection,
+} from '@scalar/components'
+import { prettyPrintJson } from '@scalar/oas-utils/helpers'
+import { type ThemeId } from '@scalar/themes'
+import type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
+import { computed } from 'vue'
+
+import ApiReferenceToolbarConfigLayout from './ApiReferenceToolbarConfigLayout.vue'
+import ApiReferenceToolbarConfigLayoutOptions from './ApiReferenceToolbarConfigLayoutOptions.vue'
+import ApiReferenceToolbarConfigTheme from './ApiReferenceToolbarConfigTheme.vue'
+import ApiReferenceToolbarPopover from './ApiReferenceToolbarPopover.vue'
+
+const { configuration } = defineProps<{
+  configuration?: Partial<ApiReferenceConfiguration>
+}>()
+
+const overrides = defineModel<Partial<ApiReferenceConfiguration>>('overrides')
+
+const snippet = computed<string>(() => {
+  return prettyPrintJson({
+    ...overrides.value, // Make sure the overrides are first
+    ...configuration,
+    ...overrides.value, // But also that they override the configuration
+  })
+})
+
+const theme = computed<ThemeId>({
+  get: () => overrides.value?.theme ?? configuration?.theme ?? 'default',
+  set: (t) => (overrides.value = { ...overrides.value, theme: t }),
+})
+
+const layout = computed<'modern' | 'classic'>({
+  get: () => overrides.value?.layout ?? configuration?.layout ?? 'modern',
+  set: (l) => (overrides.value = { ...overrides.value, layout: l }),
+})
+</script>
+<template>
+  <ApiReferenceToolbarPopover class="w-120">
+    <template #label>Configure</template>
+    <ScalarFormSection>
+      <template #label>Scalar Configuration</template>
+      <ScalarCodeBlock
+        class="bg-b-1.5 flex max-h-40 flex-col rounded border text-sm"
+        :content="snippet"
+        lang="json" />
+    </ScalarFormSection>
+    <div class="flex flex-col gap-4">
+      <ScalarFormField>
+        <template #label>Theme</template>
+        <ApiReferenceToolbarConfigTheme v-model="theme" />
+      </ScalarFormField>
+      <ScalarFormField>
+        <template #label>Layout</template>
+        <ApiReferenceToolbarConfigLayout v-model="layout" />
+      </ScalarFormField>
+      <ScalarFormField is="div">
+        <template #label>Layout Options</template>
+        <ApiReferenceToolbarConfigLayoutOptions
+          v-model="overrides"
+          :configuration />
+      </ScalarFormField>
+    </div>
+  </ApiReferenceToolbarPopover>
+</template>

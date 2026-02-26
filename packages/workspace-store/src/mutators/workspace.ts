@@ -16,7 +16,7 @@ export const updateActiveProxy = (
     return
   }
   // Set or clear the active proxy in the workspace object
-  workspace['x-scalar-active-proxy'] = payload ?? undefined
+  workspace['x-scalar-active-proxy'] = payload
 }
 
 /**

@@ -233,6 +233,10 @@ const operationExtensions = computed(() => getXKeysFromObject(operation))
   position: relative;
 }
 
+.examples > *:first-of-type:last-of-type {
+  max-height: calc((var(--refs-viewport-height) - 60px));
+}
+
 /*
  * Don't constrain card height on mobile
  * (or zoomed in screens)

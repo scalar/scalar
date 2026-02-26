@@ -1,6 +1,7 @@
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { mergeSearchParams } from '@scalar/helpers/url/merge-urls'
 import type { ClientPlugin } from '@scalar/oas-utils/helpers'
+import type { Theme } from '@scalar/themes'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
@@ -34,6 +35,7 @@ export type RouteProps = {
   workspaceStore: WorkspaceStore
   activeWorkspace: { id: string; label: string }
   plugins: ClientPlugin[]
+  customThemes?: Theme[]
   // workspaceSlug: string
   // documentSlug?: string
 }
@@ -65,7 +67,7 @@ export const ROUTES = [
     path: '/@:namespace/:workspaceSlug',
     children: [
       {
-        path: ':documentSlug',
+        path: 'document/:documentSlug',
         children: [
           // Example page
           {
@@ -158,7 +160,7 @@ export const ROUTES = [
   {
     path: '/:pathMatch(.*)*',
     redirect: () => {
-      const DEFAULT_PATH = '/@local/local/drafts/overview'
+      const DEFAULT_PATH = '/@local/default/document/drafts/overview'
       const lastPath = workspaceStorage.getLastPath() ?? DEFAULT_PATH
 
       // Set the default path to the last path so we don't go to an inifite loop if the last path is invalid

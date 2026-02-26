@@ -370,6 +370,7 @@ The `authentication` configuration accepts:
   - An array of security scheme names (OR relationship)
   - An array containing strings or arrays of strings (AND/OR relationship)
 - `securitySchemes`: An object mapping security scheme names to their configurations. Each security scheme can be configured with type-specific options.
+- `createAnySecurityScheme`: When `true`, shows generic "Add new authentication" options (API Key, HTTP Basic, OAuth2 flows, etc.) in the auth dropdown alongside the schemes defined in your OpenAPI document. Default: `false`.
 
 #### baseServerURL
 
@@ -464,11 +465,25 @@ You can explicitly set the default HTTP client, though:
 }
 ```
 
+#### defaultOpenFirstTag
+
+**Type:** `boolean`
+
+Whether to open the first tag if the URL doesn't contain a specific target.
+
+**Default:** `true`
+
+```javascript
+{
+  defaultOpenFirstTag: false
+}
+```
+
 #### defaultOpenAllTags
 
 **Type:** `boolean`
 
-By default we only open the relevant tag based on the url, however if you want all the tags open by default then set this configuration option.
+Whether to always start with all tags open, regardless of the URL.
 
 **Default:** `false`
 

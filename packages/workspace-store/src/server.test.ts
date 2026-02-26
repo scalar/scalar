@@ -265,7 +265,7 @@ describe('create-server-store', () => {
             name: 'doc-1',
             meta: {
               'x-scalar-active-auth': 'test',
-              'x-scalar-active-server': 'test',
+              'x-scalar-selected-server': 'test',
             },
           },
         ],
@@ -282,7 +282,7 @@ describe('create-server-store', () => {
         name: 'doc-2',
         meta: {
           'x-scalar-active-auth': 'test',
-          'x-scalar-active-server': 'test',
+          'x-scalar-selected-server': 'test',
         },
       })
       await store.generateWorkspaceChunks()
@@ -296,7 +296,7 @@ describe('create-server-store', () => {
         documents: {
           'doc-1': {
             'x-scalar-active-auth': 'test',
-            'x-scalar-active-server': 'test',
+            'x-scalar-selected-server': 'test',
             'openapi': '3.1.1',
             'info': {
               'title': 'Scalar Galaxy',
@@ -334,7 +334,7 @@ describe('create-server-store', () => {
           },
           'doc-2': {
             'x-scalar-active-auth': 'test',
-            'x-scalar-active-server': 'test',
+            'x-scalar-selected-server': 'test',
             'openapi': '3.1.1',
             'info': {
               'title': 'Scalar Galaxy',

@@ -16,7 +16,7 @@
     "specification",
     "yaml"
   ],
-  "version": "0.6.40",
+  "version": "0.6.48",
   "engines": {
     "node": ">=20"
   },
@@ -102,6 +102,7 @@
     "@scalar/types": "workspace:*",
     "@scalar/workspace-store": "workspace:*",
     "flatted": "catalog:*",
+    "github-slugger": "catalog:*",
     "type-fest": "catalog:*",
     "vue": "catalog:*",
     "yaml": "catalog:*",
@@ -112,6 +113,7 @@
     "@scalar/openapi-parser": "workspace:*",
     "@scalar/openapi-types": "workspace:*",
     "@types/node": "catalog:*",
+    "fake-indexeddb": "catalog:*",
     "vite": "catalog:*",
     "vitest": "catalog:*",
     "zod-to-ts": "github:amritk/zod-to-ts#build"

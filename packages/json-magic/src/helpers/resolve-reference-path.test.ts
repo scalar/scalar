@@ -1,3 +1,5 @@
+import { cwd } from 'node:process'
+
 import { describe, expect, it } from 'vitest'
 
 import { resolveReferencePath } from '@/helpers/resolve-reference-path'
@@ -256,6 +258,115 @@ describe('resolveReferencePath', () => {
       expect(result).toBe(
         '/Users/someone/Desktop/Projects/my-project/packages/json-magic/7d4f3a5d-dca9-4bb3-bb48-30da2bc43f18',
       )
+    })
+  })
+
+  describe('absolute relativePath scenarios', () => {
+    it('returns absolute relativePath when base is absolute local path', () => {
+      const base = '/project/api/openapi.json'
+      const relativePath = '/schemas/user.json'
+      const result = resolveReferencePath(base, relativePath)
+      expect(result).toBe('/schemas/user.json')
+    })
+
+    it('returns absolute relativePath when base is relative local path', () => {
+      const base = './api/openapi.json'
+      const relativePath = '/absolute/path/schema.json'
+      const result = resolveReferencePath(base, relativePath)
+      expect(result).toBe('/absolute/path/schema.json')
+    })
+  })
+
+  describe('both paths are relative', () => {
+    it('resolves two relative paths correctly', () => {
+      const base = 'api/openapi.json'
+      const relativePath = 'schemas/user.json'
+      const result = resolveReferencePath(base, relativePath)
+      expect(result).toBe(`${cwd()}/api/schemas/user.json`)
+    })
+
+    it('resolves relative paths with ../ navigation', () => {
+      const base = 'api/v1/openapi.json'
+      const relativePath = '../schemas/user.json'
+      const result = resolveReferencePath(base, relativePath)
+      expect(result).toBe(`${cwd()}/api/schemas/user.json`)
+    })
+
+    it('resolves relative paths with ./ prefix', () => {
+      const base = 'api/openapi.json'
+      const relativePath = './user.json'
+      const result = resolveReferencePath(base, relativePath)
+      expect(result).toBe(`${cwd()}/api/user.json`)
+    })
+
+    it('handles relative base with nested relative path', () => {
+      const base = './openapi.json'
+      const relativePath = 'schemas/user.json'
+      const result = resolveReferencePath(base, relativePath)
+      expect(result).toBe(`${cwd()}/schemas/user.json`)
+    })
+
+    it('handles multiple levels of ../ in relative paths', () => {
+      const base = 'a/b/c/openapi.json'
+      const relativePath = '../../../schemas/user.json'
+      const result = resolveReferencePath(base, relativePath)
+      expect(result).toBe(`${cwd()}/schemas/user.json`)
+    })
+  })
+
+  describe('path normalization', () => {
+    it('normalizes multiple consecutive slashes in relative path', () => {
+      const base = 'https://example.com/api/openapi.json'
+      const relativePath = 'schemas//user.json'
+      const result = resolveReferencePath(base, relativePath)
+      // Should normalize to single slash
+      expect(result).toBeTruthy()
+      expect(result).toContain('schemas')
+      expect(result).toContain('user.json')
+    })
+
+    it('handles redundant ./ in middle of path', () => {
+      const base = 'https://example.com/api/openapi.json'
+      const relativePath = 'schemas/./user.json'
+      const result = resolveReferencePath(base, relativePath)
+      expect(result).toBeTruthy()
+      expect(result).toContain('user.json')
+    })
+
+    it('handles mixed ./ and ../ in path', () => {
+      const base = 'https://example.com/api/v1/openapi.json'
+      const relativePath = './../../schemas/./user.json'
+      const result = resolveReferencePath(base, relativePath)
+      expect(result).toContain('schemas')
+      expect(result).toContain('user.json')
+    })
+
+    it('normalizes paths with only ./', () => {
+      const base = '/path/to/openapi.json'
+      const relativePath = './'
+      const result = resolveReferencePath(base, relativePath)
+      expect(result).toBeTruthy()
+    })
+
+    it('handles path with only ../', () => {
+      const base = '/path/to/openapi.json'
+      const relativePath = '../'
+      const result = resolveReferencePath(base, relativePath)
+      expect(result).toBe('/path')
+    })
+
+    it('handles windows style paths', () => {
+      const base = 'C:\\path\\to\\openapi.json'
+      const relativePath = 'schemas\\user.json'
+      const result = resolveReferencePath(base, relativePath)
+      expect(result).toBe('C:/path/to/schemas/user.json')
+    })
+
+    it('handles windows style paths with multiple ../', () => {
+      const base = 'C:\\path\\to\\openapi.json'
+      const relativePath = '\\schemas\\user.json'
+      const result = resolveReferencePath(base, relativePath)
+      expect(result).toBe('/schemas/user.json')
     })
   })
 })

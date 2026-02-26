@@ -16,7 +16,7 @@
     "openapi",
     "scalar"
   ],
-  "version": "0.31.2",
+  "version": "0.34.4",
   "engines": {
     "node": ">=18"
   },
@@ -108,6 +108,11 @@
       "types": "./dist/schemas/extensions/security/index.d.ts",
       "default": "./dist/schemas/extensions/security/index.js"
     },
+    "./schemas/extensions/tag": {
+      "import": "./dist/schemas/extensions/tag/index.js",
+      "types": "./dist/schemas/extensions/tag/index.d.ts",
+      "default": "./dist/schemas/extensions/tag/index.js"
+    },
     "./schemas/extensions/workspace": {
       "import": "./dist/schemas/extensions/workspace/index.js",
       "types": "./dist/schemas/extensions/workspace/index.d.ts",
@@ -145,10 +150,9 @@
     "@scalar/object-utils": "workspace:*",
     "@scalar/openapi-upgrader": "workspace:*",
     "@scalar/snippetz": "workspace:*",
-    "@scalar/themes": "workspace:*",
     "@scalar/typebox": "catalog:*",
     "@scalar/types": "workspace:*",
-    "github-slugger": "^2.0.0",
+    "github-slugger": "catalog:*",
     "type-fest": "catalog:*",
     "vue": "catalog:*",
     "yaml": "catalog:*"

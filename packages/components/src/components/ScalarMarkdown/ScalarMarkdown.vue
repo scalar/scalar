@@ -1,5 +1,10 @@
 <script setup lang="ts">
-import { htmlFromMarkdown } from '@scalar/code-highlight'
+import {
+  type Node,
+  htmlFromMarkdown,
+  isHeading,
+  textFromNode,
+} from '@scalar/code-highlight'
 import { useBindCx } from '@scalar/use-hooks/useBindCx'
 import { computed, useTemplateRef } from 'vue'
 
@@ -21,12 +26,16 @@ defineOptions({ inheritAttrs: false })
 const templateRef = useTemplateRef('div')
 defineExpose({ el: templateRef })
 
-const transformHeading = (node: Record<string, any>) => {
+const transformHeading = (node: Node) => {
   if (!withAnchors) {
     return transform?.(node) || node
   }
 
-  const headingText = node.children?.[0]?.value || ''
+  if (!isHeading(node)) {
+    return node
+  }
+
+  const headingText = textFromNode(node)
 
   /** Basic slugify for the heading text */
   const slug = headingText.toLowerCase().replace(/\s+/g, '-')
@@ -301,7 +310,7 @@ const html = computed(() => {
   /* Details */
   .markdown details {
     border: var(--markdown-border);
-    border-radius: var(--scalar-radius);
+    border-radius: var(--scalar-radius-xl);
     color: var(--scalar-color-1);
   }
 

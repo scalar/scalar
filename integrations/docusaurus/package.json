@@ -19,13 +19,13 @@
     "testing",
     "react"
   ],
-  "version": "0.7.36",
+  "version": "0.7.42",
   "engines": {
     "node": ">=20"
   },
   "scripts": {
     "build": "shx rm -Rf ./dist && tsc -p tsconfig.build.json && postcss src/theme.css -o dist/theme.css",
-    "dev": "cd ./playground && docusaurus start --port=5063 --no-open",
+    "dev": "docusaurus start playground --port=5063 --no-open",
     "format": "scalar-format",
     "format:check": "scalar-format-check",
     "lint:check": "scalar-lint-check",
@@ -62,6 +62,7 @@
   },
   "devDependencies": {
     "@docusaurus/core": "^3.9.2",
+    "@docusaurus/plugin-content-docs": "^3.9.2",
     "@docusaurus/preset-classic": "^3.9.2",
     "@docusaurus/tsconfig": "^3.9.2",
     "@docusaurus/types": "^3.9.2",

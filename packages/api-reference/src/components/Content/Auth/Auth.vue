@@ -84,6 +84,7 @@ watch(
     v-if="Object.keys(securitySchemes).length"
     :environment
     :eventBus
+    :createAnySecurityScheme="options.authentication?.createAnySecurityScheme"
     isStatic
     layout="reference"
     :meta="{ type: 'document' }"

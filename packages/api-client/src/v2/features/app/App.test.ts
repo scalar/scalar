@@ -105,7 +105,7 @@ describe('App', () => {
      * This is critical for maintaining consistent theming across the application
      */
     const html = wrapper.html()
-    expect(html).toContain('<style>')
+    expect(html).toContain('<style id="scalar-theme" data-testid="default">')
   })
 
   it('merges workspace and document environment variables correctly', async () => {
@@ -135,33 +135,5 @@ describe('App', () => {
      */
     expect(appState.document.value).toBeDefined()
     expect(appState.document.value?.info.title).toBe('Test Document')
-  })
-
-  it('renders DesktopTabs for desktop layout', async () => {
-    const { wrapper } = await setupApp('desktop')
-
-    /**
-     * Desktop layout should show DesktopTabs instead of WebTopNav
-     * This ensures the correct navigation UI is rendered based on the environment
-     */
-    const desktopTabs = wrapper.findComponent({ name: 'DesktopTabs' })
-    const webTopNav = wrapper.findComponent({ name: 'DownloadAppButton' })
-
-    expect(desktopTabs.exists()).toBe(true)
-    expect(webTopNav.exists()).toBe(false)
-  })
-
-  it('renders WebTopNav for web layout', async () => {
-    const { wrapper } = await setupApp('web')
-
-    /**
-     * Web layout should show WebTopNav instead of DesktopTabs
-     * This is critical for maintaining the correct UI in browser-based environments
-     */
-    const webTopNav = wrapper.findComponent({ name: 'DownloadAppButton' })
-    const desktopTabs = wrapper.findComponent({ name: 'DesktopTabs' })
-
-    expect(webTopNav.exists()).toBe(true)
-    expect(desktopTabs.exists()).toBe(false)
   })
 })

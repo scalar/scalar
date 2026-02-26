@@ -58,6 +58,7 @@ export const EXAMPLE_SCRIPTS: ExampleScript[] = [
     title: 'Validate JSON schema',
     script: `pm.test("Response matches schema", () => {
   const schema = {
+    type: 'object',
     required: ['id', 'name'],
     properties: {
       id: { type: 'number' },

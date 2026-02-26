@@ -1,6 +1,6 @@
 import type * as Preset from '@docusaurus/preset-classic'
 import type { Config } from '@docusaurus/types'
-import type { ScalarOptions } from '@scalar/docusaurus'
+import ScalarDocusaurus, { type ScalarOptions } from '@scalar/docusaurus'
 
 const config: Config = {
   title: 'My Site',
@@ -19,7 +19,11 @@ const config: Config = {
   projectName: 'docusaurus', // Usually your repo name.
 
   onBrokenLinks: 'throw',
-  onBrokenMarkdownLinks: 'warn',
+  markdown: {
+    hooks: {
+      onBrokenMarkdownLinks: 'warn',
+    },
+  },
 
   // Even if you don't use internationalization, you can use this field to set
   // useful metadata like html lang. For example, if your site is Chinese, you
@@ -39,12 +43,7 @@ const config: Config = {
           // Remove this to remove the "edit this page" links.
           editUrl: 'https://github.com/facebook/docusaurus/tree/main/packages/create-docusaurus/templates/shared/',
         },
-        blog: {
-          showReadingTime: true,
-          // Please change this to your repo.
-          // Remove this to remove the "edit this page" links.
-          editUrl: 'https://github.com/facebook/docusaurus/tree/main/packages/create-docusaurus/templates/shared/',
-        },
+        blog: false,
         theme: {
           customCss: './src/css/custom.css',
         },
@@ -54,7 +53,7 @@ const config: Config = {
 
   plugins: [
     [
-      '@scalar/docusaurus',
+      ScalarDocusaurus,
       {
         id: 'json-url-cdn',
         label: 'json-url-cdn',
@@ -66,7 +65,7 @@ const config: Config = {
       } as ScalarOptions,
     ],
     [
-      '@scalar/docusaurus',
+      ScalarDocusaurus,
       {
         id: 'yaml-url',
         label: 'yaml-url',
@@ -77,7 +76,7 @@ const config: Config = {
       } as ScalarOptions,
     ],
     [
-      '@scalar/docusaurus',
+      ScalarDocusaurus,
       {
         id: 'json-string',
         label: 'json-string',
@@ -95,7 +94,7 @@ const config: Config = {
       } as ScalarOptions,
     ],
     [
-      '@scalar/docusaurus',
+      ScalarDocusaurus,
       {
         id: 'yaml-string',
         label: 'yaml-string',
@@ -128,7 +127,6 @@ paths: {}
           position: 'left',
           label: 'Tutorial',
         },
-        { to: '/blog', label: 'Blog', position: 'left' },
         {
           href: 'https://github.com/facebook/docusaurus',
           label: 'GitHub',
@@ -168,10 +166,6 @@ paths: {}
         {
           title: 'More',
           items: [
-            {
-              label: 'Blog',
-              to: '/blog',
-            },
             {
               label: 'GitHub',
               href: 'https://github.com/facebook/docusaurus',

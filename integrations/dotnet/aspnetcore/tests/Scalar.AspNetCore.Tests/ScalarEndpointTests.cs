@@ -225,7 +225,7 @@ public class ScalarEndpointTests(WebApplicationFactory<Program> factory) : IClas
     {
         // Arrange
         var client = factory.CreateClient();
-        client.DefaultRequestHeaders.Add("X-Api-Key", "my-api-key");
+        client.DefaultRequestHeaders.Add("X-Api-Key", "your-api-key");
 
         // Act
         var response = await client.GetAsync("/auth/scalar", TestContext.Current.CancellationToken);

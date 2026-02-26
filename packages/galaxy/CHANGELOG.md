@@ -1,5 +1,23 @@
 # @scalar/galaxy
 
+## 0.5.16
+
+### Patch Changes
+
+- [#8212](https://github.com/scalar/scalar/pull/8212): chore: version bump
+
+## 0.5.15
+
+### Patch Changes
+
+- [#8207](https://github.com/scalar/scalar/pull/8207): chore: version bump
+
+## 0.5.14
+
+### Patch Changes
+
+- [#8147](https://github.com/scalar/scalar/pull/8147): fix: broken links
+
 ## 0.5.13
 
 ### Patch Changes

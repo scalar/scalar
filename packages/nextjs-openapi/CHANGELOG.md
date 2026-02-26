@@ -1,5 +1,69 @@
 # @scalar/nextjs-openapi
 
+## 0.2.50
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/types@0.6.8**
+  - [#8274](https://github.com/scalar/scalar/pull/8274): feat(agent): add config to hide search api
+
+- **@scalar/nextjs-api-reference@0.9.24**
+
+## 0.2.49
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/types@0.6.7**
+
+- **@scalar/nextjs-api-reference@0.9.23**
+
+## 0.2.48
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/types@0.6.6**
+  - [#8212](https://github.com/scalar/scalar/pull/8212): chore: version bump
+
+- **@scalar/nextjs-api-reference@0.9.22**
+
+## 0.2.47
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/types@0.6.5**
+  - [#8207](https://github.com/scalar/scalar/pull/8207): chore: version bump
+
+- **@scalar/nextjs-api-reference@0.9.21**
+
+## 0.2.46
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/types@0.6.4**
+  - [#8174](https://github.com/scalar/scalar/pull/8174): feat: add `createAnySecurityScheme` config option to control generic auth scheme creation
+
+- **@scalar/nextjs-api-reference@0.9.20**
+
+## 0.2.45
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/types@0.6.3**
+
+- **@scalar/nextjs-api-reference@0.9.19**
+
 ## 0.2.44
 
 ### Patch Changes

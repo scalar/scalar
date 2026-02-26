@@ -3,6 +3,7 @@ import { isDefined } from '@scalar/helpers/array/is-defined'
 import { sortByOrder } from '@scalar/helpers/array/sort-by-order'
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import type { LoaderPlugin } from '@scalar/json-magic/bundle'
+import { migrateLocalStorageToIndexDb } from '@scalar/oas-utils/migrations'
 import { createSidebarState, generateReverseIndex } from '@scalar/sidebar'
 import { type WorkspaceStore, createWorkspaceStore } from '@scalar/workspace-store/client'
 import {
@@ -12,14 +13,14 @@ import {
 } from '@scalar/workspace-store/events'
 import { generateUniqueValue } from '@scalar/workspace-store/helpers/generate-unique-value'
 import { getParentEntry } from '@scalar/workspace-store/navigation'
-import { createWorkspaceStorePersistence } from '@scalar/workspace-store/persistence'
+import { createWorkspaceStorePersistence, getWorkspaceId } from '@scalar/workspace-store/persistence'
 import { persistencePlugin } from '@scalar/workspace-store/plugins/client'
 import type { Workspace, WorkspaceDocument } from '@scalar/workspace-store/schemas'
 import { extensions } from '@scalar/workspace-store/schemas/extensions'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type { Tab } from '@scalar/workspace-store/schemas/extensions/workspace/x-scalar-tabs'
 import type { TraversedEntry } from '@scalar/workspace-store/schemas/navigation'
-import { type ComputedRef, type Ref, type ShallowRef, computed, ref, shallowRef } from 'vue'
+import { type ComputedRef, type Ref, type ShallowRef, computed, readonly, ref, shallowRef } from 'vue'
 import type { RouteLocationNormalizedGeneric, Router } from 'vue-router'
 
 import { getRouteParam } from '@/v2/features/app/helpers/get-route-param'
@@ -123,8 +124,10 @@ export type AppState = {
     method: Ref<HttpMethod | undefined>
     /** The name of the currently selected example (for examples within an endpoint) */
     exampleName: Ref<string | undefined>
-    /** The unique identifier for the selected team context */
-    teamUid: Ref<string>
+    /** The unique identifier for the selected team context (read-only; use setTeamUid to change) */
+    teamUid: Readonly<Ref<string>>
+    /** Sets the current team context by team UID */
+    setTeamUid: (value: string) => void
   }
   /** The currently active environment */
   environment: ComputedRef<XScalarEnvironment>
@@ -142,9 +145,6 @@ const DEFAULT_DEBOUNCE_DELAY = 1000
 /** Default sidebar width in pixels. */
 const DEFAULT_SIDEBAR_WIDTH = 288
 
-/** Generates a workspace ID from namespace and slug. */
-const getWorkspaceId = (namespace: string, slug: string) => `${namespace}/${slug}`
-
 // ---------------------------------------------------------------------------
 // App State
 // ---------------------------------------------------------------------------
@@ -161,6 +161,12 @@ export const createAppState = async ({
   })
 
   const { workspace: persistence } = await createWorkspaceStorePersistence()
+
+  /**
+   * Run migration from localStorage to IndexedDB if needed
+   * This happens once per user and transforms old data structure to new workspace format
+   */
+  await migrateLocalStorageToIndexDb()
 
   // ---------------------------------------------------------------------------
   // Active entities
@@ -211,6 +217,36 @@ export const createAppState = async ({
       label: name,
     })),
   )
+
+  /**
+   * Renames the currently active workspace.
+   * Updates the workspace name in persistence and updates activeWorkspace if successful.
+   * Returns early if namespace or workspaceSlug is not set, or if update fails.
+   */
+  const renameWorkspace = async (name: string) => {
+    const namespaceValue = namespace.value
+    const slugValue = workspaceSlug.value
+    if (!namespaceValue || !slugValue) {
+      return
+    }
+    const workspaceId = getWorkspaceId(namespaceValue, slugValue)
+    const updateResult = await persistence.updateName({ namespace: namespaceValue, slug: slugValue }, name)
+
+    // If the update fails, return early
+    if (updateResult === undefined) {
+      return
+    }
+
+    // Update the workspace list
+    workspaces.value = workspaces.value.map((workspace) => {
+      // If the workspace is the currently active workspace, update the label
+      if (workspace.id === workspaceId) {
+        return { ...workspace, label: name }
+      }
+      return workspace
+    })
+    activeWorkspace.value = { id: workspaceId, label: name }
+  }
 
   /**
    * Creates a client-side workspace store with persistence enabled for the given workspace id.
@@ -317,15 +353,27 @@ export const createAppState = async ({
 
   /**
    * Navigates to the overview page of the specified workspace.
-   * Updates the route based on the given namespace and slug.
    *
    * @param namespace - The workspace namespace.
    * @param slug - The unique workspace slug (identifier).
    */
   const navigateToWorkspace = async (namespace?: string, slug?: string): Promise<void> => {
+    if (!namespace || !slug) {
+      await router.push('/')
+      return
+    }
+
+    // We should always have this drafts document available in a new workspace
     await router.push({
-      name: 'workspace.environment',
-      params: { namespace, workspaceSlug: slug },
+      name: 'example',
+      params: {
+        namespace,
+        workspaceSlug: slug,
+        documentSlug: 'drafts',
+        pathEncoded: encodeURIComponent('/'),
+        method: 'get',
+        exampleName: 'default',
+      },
     })
   }
 
@@ -453,6 +501,27 @@ export const createAppState = async ({
 
     // Must reset the sidebar state when the workspace changes
     sidebarState.reset()
+  }
+
+  /**
+   * Sets the current team context. If the active workspace is not accessible
+   * with the new team, navigates to the default workspace for that team.
+   */
+  const setTeamUid = (value: string) => {
+    // Update the new teamUid
+    teamUid.value = value
+
+    // Find the current workspace
+    const workspace = filteredWorkspaces.value.find(
+      (w) => w.namespace === namespace.value && w.slug === workspaceSlug.value,
+    )
+
+    // Check if new teamUid is accessible to the current workspace
+    if (workspace && canLoadWorkspace(workspace.teamUid, value)) {
+      return
+    }
+
+    return navigateToWorkspace('local', 'default')
   }
 
   // ---------------------------------------------------------------------------
@@ -878,6 +947,7 @@ export const createAppState = async ({
     onSelectSidebarItem: handleSelectItem,
     onCopyTabUrl: (index) => copyTabUrl(index),
     onToggleSidebar: () => (isSidebarOpen.value = !isSidebarOpen.value),
+    renameWorkspace,
   })
 
   const isDarkMode = computed(() => {
@@ -924,7 +994,8 @@ export const createAppState = async ({
       path,
       method,
       exampleName,
-      teamUid,
+      teamUid: readonly(teamUid),
+      setTeamUid,
     },
     environment,
     document: activeDocument,

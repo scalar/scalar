@@ -623,16 +623,14 @@ defineExpose({
 </style>
 <style>
 .cm-pill {
-  --tw-bg-base: var(--scalar-color-1);
-  color: var(--tw-bg-base);
+  color: var(--scalar-color-1) !important;
   padding: 0px 9px;
   border-radius: 3px;
   display: inline-block;
   border-radius: 30px;
   font-size: var(--scalar-small);
-  background: color-mix(in srgb, var(--tw-bg-base), transparent 94%) !important;
 }
-.cm-pill.bg-grey {
+.light-mode .cm-pill {
   background: var(--scalar-background-3) !important;
 }
 .dark-mode .cm-pill {

@@ -13,7 +13,7 @@ export default {}
 <script setup lang="ts">
 import type { AuthMeta } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
-import { computed, onMounted, toValue } from 'vue'
+import { computed, toValue } from 'vue'
 
 import { OperationBlock } from '@/v2/blocks/operation-block'
 import type { ExtendedScalarCookie } from '@/v2/blocks/request-block/RequestBlock.vue'
@@ -22,6 +22,7 @@ import { mapHiddenClientsConfig } from '@/v2/features/modal/helpers/map-hidden-c
 import type { ModalProps } from '@/v2/features/modal/Modal.vue'
 import { combineParams } from '@/v2/features/operation/helpers/combine-params'
 import { getSelectedServer } from '@/v2/features/operation/helpers/get-selected-server'
+import { getActiveProxyUrl } from '@/v2/helpers/get-active-proxy-url'
 import { getServers } from '@/v2/helpers/get-servers'
 
 const {
@@ -108,16 +109,6 @@ const selectedServer = computed(() =>
   getSelectedServer(document, servers.value),
 )
 
-onMounted(() => {
-  /** Select the first server if the user has not specifically unselected it */
-  if (
-    typeof document?.['x-scalar-selected-server'] === 'undefined' &&
-    servers.value?.[0]?.url
-  ) {
-    eventBus.emit('server:update:selected', { url: servers.value[0]!.url })
-  }
-})
-
 /** Select document vs operation meta based on the extension */
 const authMeta = computed<AuthMeta>(() => {
   if (document?.['x-scalar-set-operation-security']) {
@@ -192,7 +183,12 @@ const APP_VERSION = PACKAGE_VERSION
       "
       :path
       :plugins="plugins"
-      :proxyUrl="workspaceStore.workspace['x-scalar-active-proxy'] ?? ''"
+      :proxyUrl="
+        getActiveProxyUrl(
+          workspaceStore.workspace['x-scalar-active-proxy'],
+          layout,
+        ) ?? ''
+      "
       :securitySchemes
       :selectedClient="workspaceStore.workspace['x-scalar-default-client']"
       :server="selectedServer"

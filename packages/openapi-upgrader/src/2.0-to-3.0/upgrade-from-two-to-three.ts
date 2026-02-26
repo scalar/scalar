@@ -517,6 +517,7 @@ function transformItemsObject<T extends Record<PropertyKey, unknown>>(obj: T): O
   const schemaProperties = [
     'type',
     'format',
+    'default',
     'items',
     'maximum',
     'exclusiveMaximum',

@@ -287,6 +287,11 @@ export const apiReferenceConfigurationSchema = baseConfigurationSchema.extend({
    */
   withDefaultFonts: z.boolean().optional().default(true).catch(true),
   /**
+   * Whether to expand the first tag in the sidebar when no specific URL target is present
+   * @default true
+   */
+  defaultOpenFirstTag: z.boolean().optional().default(true).catch(true),
+  /**
    * Whether to expand all tags by default
    *
    * Warning this can cause performance issues on big documents

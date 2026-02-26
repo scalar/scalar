@@ -231,6 +231,13 @@ export function initializeWorkspaceEventHandlers({
   eventBus.on('operation:delete:operation', (payload) =>
     withHook('operation:delete:operation', mutators.value.active().operation.deleteOperation, hooks)(payload),
   )
+  eventBus.on('operation:create:draft-example', (payload) =>
+    withHook(
+      'operation:create:draft-example',
+      mutators.value.active().operation.createOperationDraftExample,
+      hooks,
+    )(payload),
+  )
   eventBus.on('operation:delete:example', (payload) =>
     withHook('operation:delete:example', mutators.value.active().operation.deleteOperationExample, hooks)(payload),
   )
@@ -291,6 +298,9 @@ export function initializeWorkspaceEventHandlers({
   //------------------------------------------------------------------------------------
   eventBus.on('tag:create:tag', (payload) =>
     withHook('tag:create:tag', mutators.value.active().tag.createTag, hooks)(payload),
+  )
+  eventBus.on('tag:edit:tag', (payload) =>
+    withHook('tag:edit:tag', mutators.value.active().tag.editTag, hooks)(payload),
   )
   eventBus.on('tag:delete:tag', (payload) =>
     withHook('tag:delete:tag', mutators.value.active().tag.deleteTag, hooks)(payload),

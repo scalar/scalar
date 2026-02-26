@@ -33,20 +33,20 @@
   <button type="button" data-target="#slide-4">API Client</button>
   <ul class="gallery container-full" id="gallery">
     <li id="slide-1">
-      <img class="light-image" src="/app-docs-animated.svg" />
-      <img class="dark-image" src="/app-docs-animated-dark.svg" />
+      <img alt="API References Animation" class="light-image" src="/app-docs-animated.svg" />
+      <img alt="API References Animation" class="dark-image" src="/app-docs-animated-dark.svg" />
     </li>
     <li id="slide-2">
-      <img class="light-image" src="/registry-animated.svg" />
-      <img class="dark-image" src="/registry-animated-dark.svg" />
+      <img alt="API Registry Animation" class="light-image" src="/registry-animated.svg" />
+      <img alt="API Registry Animation" class="dark-image" src="/registry-animated-dark.svg" />
     </li>
     <li id="slide-3">
-      <img class="light-image" src="/sdks-animated.svg" />
-      <img class="dark-image" src="/sdks-animated-dark.svg" />
+      <img alt="SDK Animation" class="light-image" src="/sdks-animated.svg" />
+      <img alt="SDK Animation" class="dark-image" src="/sdks-animated-dark.svg" />
     </li>
     <li id="slide-4">
-      <img class="light-image" src="/api-client-animated.svg" />
-      <img class="dark-image" src="/api-client-animated-dark.svg" />
+      <img alt="Client Animation" class="light-image" src="/api-client-animated.svg" />
+      <img alt="Client Animation" class="dark-image" src="/api-client-animated-dark.svg" />
     </li>
   </ul>
 </div>
@@ -152,15 +152,15 @@
           Private or Public
         </b>
       </div>
-      <a class="mt-3 t-editor__anchor" href="/products/registry/getting-started">
+      <a class="mt-3 t-editor__anchor" href="/products/registry/getting-started" aria-label="Connect your API for free with Scalar Registry">
       Connect Your API for Free
        →
       </a>
     </div>
     <div class="product-image">
       <div class="product-image-transform">
-        <img class="light-image" src="/registry-static.svg" />
-        <img class="dark-image" src="/registry-static-dark.svg" />
+        <img alt="Scalar Registry" class="light-image" src="/registry-static.svg" />
+        <img alt="Scalar Registry" class="dark-image" src="/registry-static-dark.svg" />
       </div>
     </div>
     <div class="draggable sticker-4">
@@ -202,12 +202,12 @@
           Linux, Windows, macOS
         </b>
       </div>
-      <a class="mt-3 t-editor__anchor" href="/products/api-client/getting-started">Send Your First Request →</a>
+      <a class="mt-3 t-editor__anchor" href="/products/api-client/getting-started" aria-label="Send your first API request with Scalar">Send Your First Request →</a>
     </div>
     <div class="product-image">
       <div class="product-image-transform">
-        <img class="light-image" src="/api-client-static.svg"/>
-        <img class="dark-image" src="/api-client-static-dark.svg"/>
+        <img alt="API Client" class="light-image" src="/api-client-static.svg"/>
+        <img alt="API Client" class="dark-image" src="/api-client-static-dark.svg"/>
       </div>
     </div>
     <div class="draggable sticker-8">
@@ -249,12 +249,12 @@
           Fine-grained Access
         </b>
       </div>
-      <a class="mt-3 t-editor__anchor" href="/products/docs/getting-started">Create Your New Documentation →</a>
+      <a class="mt-3 t-editor__anchor" href="/products/docs/getting-started" aria-label="Create your new API documentation with Scalar">Create Your New Documentation →</a>
     </div>
     <div class="product-image">
       <div class="product-image-transform">
-        <img class="light-image" src="/api-docs-static-zoom.svg"/>
-        <img class="dark-image" src="/api-docs-static-zoom-dark.svg"/>
+        <img alt="Scalar Docs" class="light-image" src="/api-docs-static-zoom.svg"/>
+        <img alt="Scalar Docs" class="dark-image" src="/api-docs-static-zoom-dark.svg"/>
       </div>
     </div>
     <div class="draggable sticker-3">
@@ -296,12 +296,12 @@
           File Streaming Support
         </b>
       </div>
-      <a class="mt-3 t-editor__anchor" href="/products/sdks/getting-started">Generate your first SDK →</a>
+      <a class="mt-3 t-editor__anchor" href="/products/sdks/getting-started" aria-label="Generate your first SDK with Scalar">Generate your first SDK →</a>
     </div>
     <div class="product-image">
       <div class="product-image-transform">
-        <img class="light-image" src="/sdks-static.svg" />
-        <img class="dark-image" src="/sdks-static-dark.svg" />
+        <img alt="Scalar SDKs" class="light-image" src="/sdks-static.svg" />
+        <img alt="Scalar SDKs" class="dark-image" src="/sdks-static-dark.svg" />
       </div>
     </div>
     <div class="draggable sticker-2">
@@ -358,16 +358,16 @@
     <a class="t-editor__button" href="https://dashboard.scalar.com/register">Get Started</a>
     <a class="t-editor__button" href="https://scalar.cal.com/scalar/chat-with-scalar" target="_blank">Book a Demo</a>
   </div>
-  <a class="expander-hover-link" href="https://discord.gg/scalar" target="_blank">Community →</a>
-  <a class="expander-hover-link" href="https://github.com/scalar/scalar" target="_blank">GitHub →</a>
-  <a class="expander-hover-link" href="mailto:support@scalar.com" target="_blank">Contact Us →</a>
+  <a class="expander-hover-link" href="https://discord.gg/scalar" target="_blank" aria-label="Join Scalar community on Discord">Community →</a>
+  <a class="expander-hover-link" href="https://github.com/scalar/scalar" target="_blank" aria-label="View Scalar on GitHub">GitHub →</a>
+  <a class="expander-hover-link" href="mailto:support@scalar.com" target="_blank" aria-label="Contact Scalar support">Contact Us →</a>
 </div>
 
 <div class="expander-container">
   <div class="expander-hover">
     <div class="expander-hover-preview">
-      <img class="light-image" src="/api-client-static.svg" />
-      <img class="dark-image" src="/api-client-static-dark.svg" />
+      <img alt="API Client Preview" class="light-image" src="/api-client-static.svg" />
+      <img alt="API Client Preview" class="dark-image" src="/api-client-static-dark.svg" />
     </div>
     <div class="relative">
       <div class="expander-hover-sticker">
@@ -380,13 +380,13 @@
           Minimal, powerful, fully open-source API Client built on open standards by us + our community.
         </div>
       </div>
-      <a class="expander-hover-link" href="https://client.scalar.com/" target="_blank">Learn More</a>
+      <a class="expander-hover-link" href="https://client.scalar.com/" target="_blank" aria-label="Learn more about API Client">Learn More</a>
     </div>
   </div>
   <div class="expander-hover">
     <div class="expander-hover-preview">
-      <img class="light-image" src="/sdks-static.svg" />
-      <img class="dark-image" src="/sdks-static-dark.svg" />
+      <img alt="SDKs Preview" class="light-image" src="/sdks-static.svg" />
+      <img alt="SDKs Preview" class="dark-image" src="/sdks-static-dark.svg" />
     </div>
     <div class="relative">
       <div class="expander-hover-sticker">
@@ -399,13 +399,13 @@
           Bring your OpenAPI document and get type-safe client libraries for TypeScript, Python and more.
         </div>
       </div>
-      <a class="expander-hover-link" href="/products/sdks/getting-started">Learn More</a>
+      <a class="expander-hover-link" href="/products/sdks/getting-started" aria-label="Learn more about SDKs">Learn More</a>
     </div>
   </div>
   <div class="expander-hover">
     <div class="expander-hover-preview">
-      <img class="light-image" src="/registry-static.svg" />
-      <img class="dark-image" src="/registry-static-dark.svg" />
+      <img alt="API Registry Preview" class="light-image" src="/registry-static.svg" />
+      <img alt="API Registry Preview" class="dark-image" src="/registry-static-dark.svg" />
     </div>
     <div class="relative">
       <div class="expander-hover-sticker">
@@ -418,13 +418,13 @@
           Managing & versioning OpenAPI Documents with a deep Git integration.
         </div>
       </div>
-      <a class="expander-hover-link" href="/products/registry/getting-started">Learn More</a>
+      <a class="expander-hover-link" href="/products/registry/getting-started" aria-label="Learn more about API Registry">Learn More</a>
     </div>
   </div>
   <div class="expander-hover">
     <div class="expander-hover-preview">
-      <img class="light-image" src="/api-docs-static-zoom.svg" />
-      <img class="dark-image" src="/api-docs-static-zoom-dark.svg" />
+      <img alt="API Docs Preview" class="light-image" src="/api-docs-static-zoom.svg" />
+      <img alt="API Docs Preview" class="dark-image" src="/api-docs-static-zoom-dark.svg" />
     </div>
     <div class="relative">
       <div class="expander-hover-sticker">
@@ -436,7 +436,7 @@
           Write beautiful documentation with Markdown + MDX + Git Sync.
         </div>
       </div>
-      <a class="expander-hover-link" href="/products/docs/getting-started">Learn More</a>
+      <a class="expander-hover-link" href="/products/docs/getting-started" aria-label="Learn more about API Docs">Learn More</a>
     </div>
   </div>
 </div>

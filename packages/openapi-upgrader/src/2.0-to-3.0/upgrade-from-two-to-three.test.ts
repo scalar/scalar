@@ -668,6 +668,104 @@ describe('upgradeFromTwoToThree', () => {
     })
   })
 
+  describe('parameter defaults', () => {
+    it('preserves default on operation-level (inline) parameters', () => {
+      const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+        swagger: '2.0',
+        info: { title: 'API', version: '1.0' },
+        paths: {
+          '/example': {
+            get: {
+              parameters: [
+                {
+                  in: 'header',
+                  name: 'Authorization',
+                  type: 'string',
+                  required: true,
+                  default: 'Token token=LOCATION_KEY_GOES_HERE, btoken=BUSINESS_KEY_GOES_HERE',
+                  description: 'API key and business key as Authorization header.',
+                },
+                {
+                  in: 'header',
+                  name: 'Accept-Language',
+                  type: 'string',
+                  description: 'Short code for locale variant (e.g., fr-ca, es-ES).',
+                  default: 'en',
+                },
+              ],
+              responses: { '200': { description: 'OK' } },
+            },
+          },
+        },
+      })
+
+      const params = result.paths?.['/example']?.get?.parameters
+      expect(params).toHaveLength(2)
+
+      const authParam = params?.[0] as OpenAPIV3.ParameterObject
+      expect(authParam.name).toBe('Authorization')
+      expect(authParam.schema?.default).toBe('Token token=LOCATION_KEY_GOES_HERE, btoken=BUSINESS_KEY_GOES_HERE')
+
+      const acceptLangParam = params?.[1] as OpenAPIV3.ParameterObject
+      expect(acceptLangParam.name).toBe('Accept-Language')
+      expect(acceptLangParam.schema?.default).toBe('en')
+    })
+
+    it('preserves default on globally defined parameters', () => {
+      const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+        swagger: '2.0',
+        info: { title: 'API', version: '1.0' },
+        parameters: {
+          Authorization: {
+            name: 'Authorization',
+            in: 'header',
+            required: true,
+            type: 'string',
+            description: 'API key and business key (UUID) as the Authorization header.',
+            default: 'Token token=LOCATION_KEY_GOES_HERE, btoken=BUSINESS_KEY_GOES_HERE',
+          },
+          'Content-Type': {
+            name: 'Content-Type',
+            in: 'header',
+            required: false,
+            type: 'string',
+            description: 'Set to application/json',
+            default: 'application/json',
+          },
+        },
+        paths: {
+          '/planets/{planetId}': {
+            parameters: [{ $ref: '#/parameters/Authorization' }, { $ref: '#/parameters/Content-Type' }],
+            get: {
+              responses: { '200': { description: 'OK' } },
+            },
+          },
+        },
+      })
+
+      expect(result.components?.parameters).toMatchObject({
+        Authorization: {
+          name: 'Authorization',
+          in: 'header',
+          required: true,
+          schema: {
+            type: 'string',
+            default: 'Token token=LOCATION_KEY_GOES_HERE, btoken=BUSINESS_KEY_GOES_HERE',
+          },
+        },
+        'Content-Type': {
+          name: 'Content-Type',
+          in: 'header',
+          required: false,
+          schema: {
+            type: 'string',
+            default: 'application/json',
+          },
+        },
+      })
+    })
+  })
+
   it('transforms basic security scheme', () => {
     const result: OpenAPIV3.Document = upgradeFromTwoToThree({
       swagger: '2.0',

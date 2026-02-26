@@ -7,6 +7,8 @@
 
 Post-response scripts for your OpenAPI documents.
 
+Scripts are executed with the official Postman sandbox runtime (`postman-sandbox`), so the `pm` API behavior follows Postman semantics.
+
 > Note: This is intended to be used as a plugin with @scalar/api-client.
 
 ## Installation
@@ -16,8 +18,6 @@ npm install @scalar/pre-post-request-scripts
 ```
 
 ## Usage
-
-> ⚠️ This is not published yet, it's still work in progress.
 
 ```ts
 import { createApiClientWeb } from '@scalar/api-client/layouts/Web'
@@ -35,6 +35,12 @@ createApiClientWeb(
   },
 )
 ```
+
+## Script Runtime
+
+- Uses the official Postman sandbox package: <https://github.com/postmanlabs/postman-sandbox>
+- Scripts run as Postman `test` scripts, so `pm.response`, `pm.test`, and `pm.expect` are provided by Postman
+- Script results are surfaced in the Tests panel via the plugin
 
 ## Community
 

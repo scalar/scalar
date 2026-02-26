@@ -14,7 +14,7 @@ import {
   type ModalState,
 } from '@scalar/components'
 import type { ClientPlugin } from '@scalar/oas-utils/helpers'
-import { getThemeStyles } from '@scalar/themes'
+import { type Theme } from '@scalar/themes'
 import { ScalarToasts } from '@scalar/use-toasts'
 import { extensions } from '@scalar/workspace-store/schemas/extensions'
 import { computed } from 'vue'
@@ -25,6 +25,7 @@ import CreateWorkspaceModal from '@/v2/features/app/components/CreateWorkspaceMo
 import SplashScreen from '@/v2/features/app/components/SplashScreen.vue'
 import type { RouteProps } from '@/v2/features/app/helpers/routes'
 import { useDocumentWatcher } from '@/v2/features/app/hooks/use-document-watcher'
+import { useTheme } from '@/v2/features/app/hooks/use-theme'
 import type { CommandPaletteState } from '@/v2/features/command-palette/hooks/use-command-palette-state'
 import TheCommandPalette from '@/v2/features/command-palette/TheCommandPalette.vue'
 import { useColorMode } from '@/v2/hooks/use-color-mode'
@@ -34,16 +35,19 @@ import type { ClientLayout } from '@/v2/types/layout'
 import { type AppState } from './app-state'
 import AppSidebar from './components/AppSidebar.vue'
 import DesktopTabs from './components/DesktopTabs.vue'
-import DownloadAppButton from './components/DownloadAppButton.vue'
 
 const {
   layout,
+  customThemes = [],
+  fallbackThemeSlug = 'default',
   plugins = [],
   getAppState,
   getCommandPaletteState,
 } = defineProps<{
   layout: Exclude<ClientLayout, 'modal'>
   plugins?: ClientPlugin[]
+  customThemes?: Theme[]
+  fallbackThemeSlug?: string
   getAppState: () => AppState
   getCommandPaletteState: () => CommandPaletteState
 }>()
@@ -90,18 +94,20 @@ useDocumentWatcher({
 /** Color mode */
 useColorMode({ workspaceStore: app.store })
 
-/** Generate the theme style tag for dynamic theme application. */
-const themeStyleTag = computed(() => {
-  if (app.store.value === null) {
-    return ''
-  }
-
-  const themeId = app.store.value.workspace['x-scalar-theme']
-
-  if (!themeId) return ''
-
-  return `<style>${getThemeStyles(themeId)}</style>`
+const { themeStyleTag } = useTheme({
+  fallbackThemeSlug: () => fallbackThemeSlug,
+  customThemes: () => customThemes,
+  store: app.store,
 })
+
+const navigateToWorkspaceOverview = (namespace?: string, slug?: string) => {
+  app.eventBus.emit('ui:navigate', {
+    page: 'workspace',
+    path: 'environment',
+    namespace,
+    workspaceSlug: slug,
+  })
+}
 
 /** Sets the active workspace by ID: finds the workspace in the list and updates app state & navigation. */
 const setActiveWorkspace = (id?: string) => {
@@ -114,7 +120,8 @@ const setActiveWorkspace = (id?: string) => {
   if (!workspace) {
     return
   }
-  app.workspace.navigateToWorkspace(workspace.namespace, workspace.slug)
+
+  navigateToWorkspaceOverview(workspace.namespace, workspace.slug)
 }
 
 const createWorkspaceModalState = useModal()
@@ -144,6 +151,7 @@ const routerViewProps = computed<RouteProps>(() => {
     activeWorkspace: app.workspace.activeWorkspace.value!,
     plugins,
     securitySchemes,
+    customThemes,
   }
 })
 </script>
@@ -164,13 +172,6 @@ const routerViewProps = computed<RouteProps>(() => {
         !app.loading.value
       ">
       <div class="flex h-dvh w-dvw flex-1 flex-col">
-        <!-- Desktop App Tabs -->
-        <DesktopTabs
-          v-if="layout === 'desktop'"
-          :activeTabIndex="app.tabs.activeTabIndex.value"
-          :eventBus="app.eventBus"
-          :tabs="app.tabs.state.value" />
-
         <div class="flex min-h-0 flex-1 flex-row">
           <!-- App sidebar -->
           <AppSidebar
@@ -183,7 +184,7 @@ const routerViewProps = computed<RouteProps>(() => {
             :sidebarWidth="app.sidebar.width.value"
             :store="app.store.value!"
             :workspaces="app.workspace.workspaceGroups.value"
-            @click:workspace="app.workspace.navigateToWorkspace"
+            @click:workspace="navigateToWorkspaceOverview"
             @create:workspace="createWorkspaceModalState.show()"
             @select:workspace="setActiveWorkspace"
             @selectItem="app.sidebar.handleSelectItem"
@@ -194,12 +195,12 @@ const routerViewProps = computed<RouteProps>(() => {
           </AppSidebar>
 
           <div class="flex flex-1 flex-col">
-            <!-- Web App Top Nav (just download button now) -->
-            <nav
-              v-if="layout === 'web'"
-              class="flex h-12 items-center justify-end border-b p-2">
-              <DownloadAppButton />
-            </nav>
+            <!-- App Tabs -->
+            <DesktopTabs
+              v-if="layout === 'desktop'"
+              :activeTabIndex="app.tabs.activeTabIndex.value"
+              :eventBus="app.eventBus"
+              :tabs="app.tabs.state.value" />
 
             <!-- Router view min-h-0 is required for scrolling, do not remove it -->
             <div class="bg-b-1 min-h-0 flex-1">

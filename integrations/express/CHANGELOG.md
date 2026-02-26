@@ -1,5 +1,55 @@
 # @scalar/express-api-reference
 
+## 0.8.46
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/core@0.3.43**
+
+## 0.8.45
+
+### Patch Changes
+
+- [#8248](https://github.com/scalar/scalar/pull/8248): fix(express): remove unused `customTheme`
+
+#### Updated Dependencies
+
+- **@scalar/core@0.3.42**
+
+## 0.8.44
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/core@0.3.41**
+
+## 0.8.43
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/core@0.3.40**
+
+## 0.8.42
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/core@0.3.39**
+
+## 0.8.41
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/core@0.3.38**
+
 ## 0.8.40
 
 ### Patch Changes

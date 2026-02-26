@@ -51,6 +51,8 @@ const emit = defineEmits<{
   (e: 'create:workspace'): void
   /** Emitted when sidebar items are reordered via drag and drop */
   (e: 'reorder', draggingItem: DraggingItem, hoveredItem: HoveredItem): void
+  /** Emitted when the user wants to open the settings */
+  (e: 'navigate:to:settings'): void
 }>()
 
 const slots = defineSlots<{
@@ -100,7 +102,7 @@ const handleSelectItem = (id: string) => {
     class="flex flex-col">
     <template #default>
       <ScalarSidebar
-        class="flex w-auto flex-1 pt-2"
+        class="mac:pt-10 flex w-auto flex-1 pt-2"
         :indent="20"
         :isDraggable="layout !== 'modal'"
         :isDroppable="isDroppable"
@@ -122,6 +124,7 @@ const handleSelectItem = (id: string) => {
                 :activeWorkspace="activeWorkspace"
                 :workspaces="workspaces"
                 @create:workspace="emit('create:workspace')"
+                @navigate:to:settings="emit('navigate:to:settings')"
                 @select:workspace="(id) => emit('select:workspace', id)">
                 <template #sidebarMenuActions>
                   <slot name="sidebarMenuActions" />

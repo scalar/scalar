@@ -1,13 +1,13 @@
 # Subpath Deployment
 
-When deploying your API under a subpath (e.g., `https://api.example.com/my-api`), Scalar automatically handles the OpenAPI document URLs by adjusting them according to the base path. This guide explains how to configure subpath deployment with Scalar.
+When deploying your API under a subpath (e.g., `https://api.example.com/your-api`), Scalar automatically handles the OpenAPI document URLs by adjusting them according to the base path. This guide explains how to configure subpath deployment with Scalar.
 
 ## Important Note on Root Deployment
 
-When your API is deployed under a subpath (e.g., `/my-api`), it's recommended to deploy Scalar under a subpath as well (e.g., `/my-api/scalar`). Deploying Scalar at the root path (`/`) while the API is under a subpath may lead to unexpected behavior with OpenAPI document URL resolution.
+When your API is deployed under a subpath (e.g., `/your-api`), it's recommended to deploy Scalar under a subpath as well (e.g., `/your-api/scalar`). Deploying Scalar at the root path (`/`) while the API is under a subpath may lead to unexpected behavior with OpenAPI document URL resolution.
 
 Recommended configuration:
-- API: `https://api.example.com/my-api`
+- API: `https://api.example.com/your-api`
 - Scalar API Reference endpoint: `/scalar`
 - OpenAPI document endpoint: `/openapi/v1.json`
 
@@ -44,7 +44,7 @@ builder.Services.AddOpenApi();
 var app = builder.Build();
 
 // Configure the base path
-app.UsePathBase("/my-api");
+app.UsePathBase("/your-api");
 
 // Must be called after UsePathBase
 app.UseRouting();
@@ -60,7 +60,7 @@ When using multiple OpenAPI documents with subpath deployment:
 ```csharp
 string[] versions = ["v1", "v2"];
 
-app.UsePathBase("/my-api");
+app.UsePathBase("/your-api");
 app.UseRouting();
 
 app.MapScalarApiReference(options =>  options.AddDocuments("v1", "v2"));
@@ -75,10 +75,10 @@ Scalar will automatically handle the base path for all document URLs.
 You can configure a base URL that will be prepended to all relative server URLs defined in your OpenAPI document. This is useful when your API is deployed behind a reverse proxy or when you want to ensure all server URLs have the correct base path.
 
 ```csharp
-app.MapScalarApiReference(options => options.WithBaseServerUrl("https://api.example.com/my-api"));
+app.MapScalarApiReference(options => options.WithBaseServerUrl("https://api.example.com/your-api"));
 ```
 
-For example, if your OpenAPI document defines a server URL as `/server`, it will be transformed to `https://api.example.com/my-api/server`.
+For example, if your OpenAPI document defines a server URL as `/server`, it will be transformed to `https://api.example.com/your-api/server`.
 
 ### Dynamic Base Server URL
 
@@ -88,7 +88,7 @@ Alternatively, you can enable dynamic base server URL detection, which will auto
 app.MapScalarApiReference(options =>  options.WithDynamicBaseServerUrl());
 ```
 
-When enabled, if your application receives a request to `https://api.example.com/my-api/scalar`, any relative server URLs in your OpenAPI document will be automatically prefixed with `https://api.example.com/my-api`.
+When enabled, if your application receives a request to `https://api.example.com/your-api/scalar`, any relative server URLs in your OpenAPI document will be automatically prefixed with `https://api.example.com/your-api`.
 
 ### Combined Configuration Example
 

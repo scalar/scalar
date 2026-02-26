@@ -82,7 +82,7 @@ Add the following to your `application.properties`:
 
 ```properties
 scalar.enabled=true
-scalar.url=https://your-api-spec.json
+scalar.url=https://example.com/openapi.json
 ```
 
 Or in `application.yml`:
@@ -90,7 +90,7 @@ Or in `application.yml`:
 ```yaml
 scalar:
   enabled: true
-  url: https://your-api-spec.json
+  url: https://example.com/openapi.json
 ```
 
 3. **Access the API Reference**
@@ -121,7 +121,7 @@ Add the following to your `application.properties`:
 
 ```properties
 scalar.enabled=true
-scalar.url=https://your-api-spec.json
+scalar.url=https://example.com/openapi.json
 ```
 
 Or in `application.yml`:
@@ -129,7 +129,7 @@ Or in `application.yml`:
 ```yaml
 scalar:
   enabled: true
-  url: https://your-api-spec.json
+  url: https://example.com/openapi.json
 ```
 
 3. **Access the API Reference**

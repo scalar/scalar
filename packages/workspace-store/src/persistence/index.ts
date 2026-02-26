@@ -17,7 +17,7 @@ type WorkspaceStoreShape = {
 }
 
 /** Generates a workspace ID from namespace and slug. */
-const getWorkspaceId = (namespace: string, slug: string) => `${namespace}/${slug}`
+export const getWorkspaceId = (namespace: string, slug: string) => `${namespace}/${slug}`
 
 /**
  * Creates the persistence layer for the workspace store using IndexedDB.
@@ -316,6 +316,10 @@ export const createWorkspaceStorePersistence = async () => {
         ])
       },
 
+      /**
+       * Deletes a single document and all related records (overrides, history, auth, etc.)
+       * for the given workspace and document name from all relevant tables.
+       */
       deleteDocument: async (workspaceId: string, documentName: string): Promise<void> => {
         await Promise.all([
           documentsTable.deleteItem({ workspaceId, documentName }),
@@ -325,6 +329,20 @@ export const createWorkspaceStorePersistence = async () => {
           historyTable.deleteItem({ workspaceId, documentName }),
           authTable.deleteItem({ workspaceId, documentName }),
         ])
+      },
+
+      /**
+       * Updates the name of an existing workspace.
+       * Returns the updated workspace object, or undefined if the workspace does not exist.
+       */
+      updateName: async ({ namespace, slug }: Required<WorkspaceKey>, name: string) => {
+        const workspace = await workspaceTable.getItem({ namespace, slug })
+        if (!workspace) {
+          return undefined
+        }
+
+        // Update the workspace name
+        return await workspaceTable.addItem({ namespace, slug }, { ...workspace, name })
       },
 
       /**

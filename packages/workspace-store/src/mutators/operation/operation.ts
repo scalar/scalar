@@ -10,10 +10,8 @@ import { unpackProxyObject } from '@/helpers/unpack-proxy'
 import { syncParametersForPathChange } from '@/mutators/operation/helpers/sync-path-parameters'
 import { getOperationEntries } from '@/navigation'
 import { getNavigationOptions } from '@/navigation/get-navigation-options'
-import { canHaveOrder, getOpenapiObject } from '@/navigation/helpers/get-openapi-object'
+import { updateOrderIds } from '@/navigation/helpers/update-order-ids'
 import type { WorkspaceDocument } from '@/schemas'
-import type { IdGenerator, TraversedOperation, TraversedWebhook, WithParent } from '@/schemas/navigation'
-import type { OperationObject } from '@/schemas/v3.1/strict/operation'
 
 /**
  * Creates a new operation at a specific path and method in the document.
@@ -107,10 +105,16 @@ export const createOperation = (
  * ```
  */
 export const updateOperationSummary = (
+  store: WorkspaceStore | null,
   document: WorkspaceDocument | null,
   { meta, payload: { summary } }: OperationEvents['operation:update:summary'],
 ) => {
-  if (!document) {
+  if (!document || !store) {
+    return
+  }
+
+  const documentName = document['x-scalar-navigation']?.name
+  if (documentName === undefined) {
     return
   }
 
@@ -120,60 +124,10 @@ export const updateOperationSummary = (
   }
 
   operation.summary = summary
-}
 
-/**
- * Updates the order ID of an operation in the sidebar.
- * Used when changing path or method so we do not lose the sidebar ordering
- */
-const updateOperationOrderId = ({
-  store,
-  operation,
-  generateId,
-  method,
-  path,
-  entries,
-}: {
-  store: WorkspaceStore
-  operation: OperationObject
-  generateId: IdGenerator
-  method: HttpMethod
-  path: string
-  entries: (WithParent<TraversedOperation> | WithParent<TraversedWebhook>)[]
-}) => {
-  // Loop over the entries and replace the ID in the x-scalar-order with the new ID
-  entries?.forEach((entry) => {
-    if (!canHaveOrder(entry.parent)) {
-      return
-    }
-
-    // Ensure we have an x-scalar-order property
-    const parentOpenAPIObject = getOpenapiObject({ store, entry: entry.parent })
-    if (!parentOpenAPIObject || !('x-scalar-order' in parentOpenAPIObject)) {
-      return
-    }
-
-    const order = parentOpenAPIObject['x-scalar-order']
-    const index = order?.indexOf(entry.id)
-    if (!Array.isArray(order) || typeof index !== 'number' || index < 0) {
-      return
-    }
-
-    const parentTag =
-      entry.parent.type === 'tag' && 'name' in parentOpenAPIObject
-        ? { tag: parentOpenAPIObject, id: entry.parent.id }
-        : undefined
-
-    // Generate the new ID based on whether this is an operation or webhook
-    order[index] = generateId({
-      type: 'operation',
-      path,
-      method,
-      operation,
-      parentId: entry.parent.id,
-      parentTag,
-    })
-  })
+  // Rebuild the sidebar to reflect the cahnges
+  // We can't just go any find all the entries this operation is part so we just rebuild the sidebar
+  store.buildSidebar(documentName)
 }
 
 /**
@@ -258,7 +212,7 @@ export const updateOperationPathMethod = (
 
   // Updates the order ID so we don't lose the sidebar ordering when it rebuilds
   if (entries) {
-    updateOperationOrderId({ store, operation, generateId, method: finalMethod, path: finalPath, entries })
+    updateOrderIds({ store, operation, generateId, method: finalMethod, path: finalPath, entries })
   }
 
   // Initialize the paths object if it does not exist
@@ -328,6 +282,40 @@ export const deleteOperation = (
 }
 
 /**
+ * Adds an example name to the 'x-draft-examples' array for a specific operation in a document.
+ *
+ * - Finds the target operation using the provided path and method within the specified document.
+ * - If the operation is found and has an 'x-draft-examples' array, pushes the new exampleName to it.
+ * - Safely no-ops if the document or operation does not exist.
+ */
+export const createOperationDraftExample = (
+  workspace: WorkspaceStore | null,
+  { meta: { path, method }, documentName, exampleName }: OperationEvents['operation:create:draft-example'],
+) => {
+  const document = workspace?.workspace.documents[documentName]
+  if (!document) {
+    console.error('Document not found', { documentName })
+    return
+  }
+
+  const operation = getResolvedRef(document.paths?.[path]?.[method])
+  if (!operation) {
+    console.error('Operation not found', { path, method })
+    return
+  }
+
+  // Ensure that the x-draft-examples array exists
+  operation['x-draft-examples'] ??= []
+
+  // Remove duplicates
+  const dedupe = new Set(operation['x-draft-examples'])
+  // Add the new example name
+  dedupe.add(exampleName)
+  // Update the operation with the new x-draft-examples array
+  operation['x-draft-examples'] = Array.from(dedupe)
+}
+
+/**
  * Deletes an example with the given exampleKey from operation parameters and request body.
  *
  * - Finds the target operation within the specified document and path/method.
@@ -348,6 +336,14 @@ export const deleteOperationExample = (
   const operation = getResolvedRef(document.paths?.[path]?.[method])
   if (!operation) {
     return
+  }
+
+  // Remove the example from the x-draft-examples array
+  const dedupe = new Set(operation['x-draft-examples'] ?? [])
+  dedupe.delete(exampleKey)
+
+  if (operation['x-draft-examples'] !== undefined) {
+    operation['x-draft-examples'] = Array.from(dedupe)
   }
 
   // Remove the example from all operation parameters

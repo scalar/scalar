@@ -9,6 +9,10 @@ import {
 import { type XScalarIcon, XScalarIconSchema } from '@/schemas/extensions/document/x-scalar-icon'
 import { type XScalarIsDirty, XScalarIsDirtySchema } from '@/schemas/extensions/document/x-scalar-is-dirty'
 import {
+  type XScalarOriginalDocumentHash,
+  XScalarOriginalDocumentHashSchema,
+} from '@/schemas/extensions/document/x-scalar-original-document-hash'
+import {
   type XScalarSetOperationSecurity,
   XScalarSetOperationSecuritySchema,
 } from '@/schemas/extensions/document/x-scalar-set-operation-security'
@@ -70,7 +74,7 @@ import { ServerVariableObjectSchemaDefinition } from './server-variable'
 import { type TagObject, TagObjectSchemaDefinition } from './tag'
 import { XMLObjectSchemaDefinition } from './xml'
 
-const OpenApiExtensionsSchema = compose(
+export const OpenApiExtensionsSchema = compose(
   Type.Partial(
     Type.Object({
       'x-scalar-client-config-active-environment': Type.String(),
@@ -86,9 +90,7 @@ const OpenApiExtensionsSchema = compose(
   XScalarIconSchema,
   XScalarOrderSchema,
   xScalarCookiesSchema,
-  Type.Object({
-    'x-scalar-original-document-hash': Type.String(),
-  }),
+  XScalarOriginalDocumentHashSchema,
   XScalarIsDirtySchema,
 )
 
@@ -98,10 +100,9 @@ export type OpenAPIExtensions = Partial<{
   /** Original document source url / when loading a document from an external source */
   'x-scalar-original-source-url': string
   [extensions.document.navigation]: TraversedDocument
-}> & {
-  /** Original input document hash */
-  'x-scalar-original-document-hash': string
-} & XTagGroups &
+}> &
+  XScalarOriginalDocumentHash &
+  XTagGroups &
   XScalarEnvironments &
   XScalarSelectedServer &
   XScalarSetOperationSecurity &

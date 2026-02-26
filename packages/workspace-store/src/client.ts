@@ -10,7 +10,7 @@ import { upgrade } from '@scalar/openapi-upgrader'
 import type { Record } from '@scalar/typebox'
 import { Value } from '@scalar/typebox/value'
 import type { PartialDeep } from 'type-fest'
-import { reactive, toRaw } from 'vue'
+import { reactive } from 'vue'
 import YAML from 'yaml'
 
 import { type AuthStore, createAuthStore } from '@/entities/auth'
@@ -22,7 +22,7 @@ import { type UnknownObject, safeAssign } from '@/helpers/general'
 import { getFetch } from '@/helpers/get-fetch'
 import { getValueByPath } from '@/helpers/json-path-utils'
 import { mergeObjects } from '@/helpers/merge-object'
-import { createOverridesProxy, unpackOverridesProxy } from '@/helpers/overrides-proxy'
+import { createOverridesProxy } from '@/helpers/overrides-proxy'
 import { unpackProxyObject } from '@/helpers/unpack-proxy'
 import { createNavigation } from '@/navigation'
 import type { NavigationOptions } from '@/navigation/get-navigation-options'
@@ -42,7 +42,13 @@ import {
   OpenAPIDocumentSchema as OpenAPIDocumentSchemaStrict,
   type OpenApiDocument,
 } from '@/schemas/v3.1/strict/openapi-document'
-import type { Workspace, WorkspaceDocumentMeta, WorkspaceExtensions, WorkspaceMeta } from '@/schemas/workspace'
+import type {
+  DocumentMetaExtensions,
+  Workspace,
+  WorkspaceDocumentMeta,
+  WorkspaceExtensions,
+  WorkspaceMeta,
+} from '@/schemas/workspace'
 import type { WorkspaceSpecification } from '@/schemas/workspace-specification'
 import type { WorkspacePlugin, WorkspaceStateChangeEvent } from '@/workspace-plugin'
 
@@ -225,10 +231,10 @@ export type WorkspaceStore = {
    * // Update the auth metadata for a specific document
    * updateDocument('document-name', 'x-scalar-active-auth', 'Bearer')
    */
-  updateDocument<K extends keyof WorkspaceDocumentMeta>(
+  updateDocument<K extends keyof DocumentMetaExtensions>(
     name: 'active' | (string & {}),
     key: K,
-    value: WorkspaceDocumentMeta[K],
+    value: DocumentMetaExtensions[K],
   ): boolean
   /**
    * Replaces the content of a specific document in the workspace with the provided input.
@@ -273,7 +279,7 @@ export type WorkspaceStore = {
    *   },
    *   meta: {
    *     'x-scalar-active-auth': 'Bearer',
-   *     'x-scalar-active-server': 'production'
+   *     'x-scalar-selected-server': 'production'
    *   }
    * })
    */
@@ -924,7 +930,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     /** Ensure we use the active proxy to fetch documents unless we have a custom fetch override */
     const fetch = getFetch({
       fetch: input.fetch ?? workspaceProps?.fetch,
-      proxyUrl: workspace['x-scalar-active-proxy'],
+      proxyUrl: workspace['x-scalar-active-proxy'] ?? undefined,
     })
 
     const resolve = await measureAsync(
@@ -1029,10 +1035,10 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       preventPollution(key)
       Object.assign(workspace, { [key]: value })
     },
-    updateDocument<K extends keyof WorkspaceDocumentMeta>(
+    updateDocument<K extends keyof DocumentMetaExtensions>(
       name: 'active' | (string & {}),
       key: K,
-      value: WorkspaceDocumentMeta[K],
+      value: DocumentMetaExtensions[K],
     ) {
       const currentDocument = workspace.documents[name === 'active' ? getActiveDocumentName() : name]
 
@@ -1060,7 +1066,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         documentHash: currentDocument['x-scalar-original-document-hash'],
         meta: {
           'x-scalar-active-auth': currentDocument['x-scalar-active-auth'],
-          'x-scalar-active-server': currentDocument['x-scalar-active-server'],
+          'x-scalar-selected-server': currentDocument['x-scalar-selected-server'],
         },
         initialize: false,
       })
@@ -1207,11 +1213,11 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       const { name } = input
 
       // ---- Get the current documents
-      const originalDocument = originalDocuments[name]
-      const intermediateDocument = intermediateDocuments[name]
+      const originalDocument = unpackProxyObject(originalDocuments[name], { depth: 1 })
+      const intermediateDocument = unpackProxyObject(intermediateDocuments[name], { depth: 1 })
       // raw version without any proxies
       const activeDocument = workspace.documents[name]
-        ? toRaw(getRaw(unpackOverridesProxy(workspace.documents[name])))
+        ? unpackProxyObject(workspace.documents[name], { depth: 1 })
         : undefined
 
       if (!originalDocument || !intermediateDocument || !activeDocument) {

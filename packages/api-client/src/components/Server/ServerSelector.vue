@@ -91,7 +91,7 @@ const serverUrlWithoutTrailingSlash = computed(() => {
     :teleport="`#${target}`"
     class="group">
     <ScalarButton
-      class="bg-b-1 text-c-1 h-auto w-full justify-start gap-1.5 overflow-x-auto rounded-t-none rounded-b-lg px-3 py-1.5 text-base font-normal whitespace-nowrap -outline-offset-1"
+      class="bg-b-1 text-c-1 h-auto w-full justify-start gap-1.5 overflow-x-auto rounded-t-none rounded-b-xl px-3 py-1.5 text-base font-normal whitespace-nowrap -outline-offset-1"
       variant="ghost">
       <span class="sr-only">Server:</span>
       <span class="overflow-x-auto">{{ serverUrlWithoutTrailingSlash }}</span>
@@ -102,7 +102,7 @@ const serverUrlWithoutTrailingSlash = computed(() => {
   </ScalarListbox>
   <div
     v-else
-    class="text-c-1 flex h-auto w-full items-center gap-0.75 rounded-b-lg px-3 py-1.5 text-base leading-[20px] whitespace-nowrap">
+    class="text-c-1 flex h-auto w-full items-center gap-0.75 rounded-b-xl px-3 py-1.5 text-base leading-[20px] whitespace-nowrap">
     <span class="sr-only">Server:</span>
     <span class="overflow-x-auto">{{ serverUrlWithoutTrailingSlash }}</span>
   </div>

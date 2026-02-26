@@ -5,6 +5,7 @@ import { type DeepPartial } from 'ai'
 import { computed, ref } from 'vue'
 
 import AutosendPaused from '@/components/AutosendPaused.vue'
+import BuildingRequest from '@/components/BuildingRequest.vue'
 import RequestApproved from '@/components/RequestApproved.vue'
 import RequestFailed from '@/components/RequestFailed.vue'
 import RequestRejected from '@/components/RequestRejected.vue'
@@ -31,6 +32,7 @@ const { request, response, state } = defineProps<{
     | 'requestFailed'
     | 'approved'
     | 'rejected'
+    | 'buildingRequest'
 }>()
 
 const responseData = computed(() => {
@@ -95,6 +97,11 @@ const displayMode = computed(() => {
       succeeded: state === 'requestSucceeded',
     }">
     <RequestApproved v-if="state === 'approved'" />
+    <div
+      v-else-if="state === 'buildingRequest'"
+      class="autosendContainer">
+      <BuildingRequest />
+    </div>
     <div
       v-else-if="state === 'requiresApproval'"
       class="autosendContainer">

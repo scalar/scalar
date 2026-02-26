@@ -5,7 +5,7 @@ import {
   createApiClientModal,
   type ApiClientModal,
 } from '@scalar/api-client/v2/features/modal'
-import { getActiveEnvironment } from '@scalar/api-client/v2/helpers'
+import { getActiveEnvironment, getServers } from '@scalar/api-client/v2/helpers'
 import {
   addScalarClassesToHeadless,
   ScalarColorModeToggleButton,
@@ -60,9 +60,9 @@ import { useScrollLock } from '@vueuse/core'
 import ClassicHeader from '@/components/ClassicHeader.vue'
 import Content from '@/components/Content/Content.vue'
 import MobileHeader from '@/components/MobileHeader.vue'
+import { DeveloperTools } from '@/features/developer-tools'
 import DocumentSelector from '@/features/multiple-documents/DocumentSelector.vue'
 import SearchButton from '@/features/Search/components/SearchButton.vue'
-import ApiReferenceToolbar from '@/features/toolbar/ApiReferenceToolbar.vue'
 import { getSystemModePreference } from '@/helpers/color-mode'
 import { downloadDocument } from '@/helpers/download'
 import { getIdFromUrl, makeUrlFromId } from '@/helpers/id-routing'
@@ -485,7 +485,7 @@ const changeSelectedDocument = async (
 
   // If the document is not in the store, we asynchronously load it
   if (isFirstLoad) {
-    await workspaceStore.addDocument(
+    const result = await workspaceStore.addDocument(
       normalized.source.url
         ? {
             name: slug,
@@ -498,6 +498,31 @@ const changeSelectedDocument = async (
           },
       config,
     )
+
+    const document = workspaceStore.workspace.documents[slug]
+
+    // If the document does not have a selected server we set it to the first server
+    if (
+      result === true &&
+      document !== undefined &&
+      document['x-scalar-selected-server'] === undefined
+    ) {
+      // Set the active server if the document is loaded successfully
+      const servers = getServers(
+        normalized.config.servers ?? document.servers,
+        {
+          baseServerUrl: mergedConfig.value.baseServerURL,
+          documentUrl: normalized.source.url,
+        },
+      )
+      if (servers.length > 0) {
+        workspaceStore.updateDocument(
+          slug,
+          'x-scalar-selected-server',
+          servers[0]!.url,
+        )
+      }
+    }
   }
 
   // Always set it to active; if the document is null we show a loading state
@@ -518,8 +543,8 @@ const changeSelectedDocument = async (
   if (elementId && elementId !== slug) {
     scrollToLazyElement(elementId)
   }
-  // If there is no child element of the document specified we expand the first tag
-  else {
+  // If there is no child element of the document specified and defaultOpenFirstTag is enabled, we expand the first tag
+  else if (config.defaultOpenFirstTag) {
     const firstTag = sidebarItems.value.find((item) => item.type === 'tag')
     if (firstTag) {
       sidebarState.setExpanded(firstTag.id, true)
@@ -726,21 +751,27 @@ eventBus.on('ui:download:document', async ({ format }) => {
  * - Operation:
  *        Open all parents and scroll to the operation
  */
-const handleSelectItem = (id: string, caller?: 'sidebar') => {
+const handleSelectSidebarEntry = (id: string, caller?: 'sidebar') => {
   const item = sidebarState.getEntryById(id)
 
   if (
-    (item?.type === 'tag' || item?.type === 'models') &&
-    sidebarState.isExpanded(id)
+    (item?.type === 'tag' ||
+      item?.type === 'models' ||
+      item?.type === 'text') &&
+    sidebarState.isExpanded(id) && // Only close if the item is expanded
+    sidebarState.selectedItem.value === id // Only close if the item is not the currently selected item
   ) {
     // hack until we fix intersection logic
     const unblock = blockIntersection()
+
     sidebarState.setExpanded(id, false)
+
     unblock()
+
     return
   }
 
-  /** When in mobile menu we close the menu when we select an item that is not a tag */
+  // Close the mobile menu upon selecting any item that's not a tag or model
   if (item?.type !== 'tag' && item?.type !== 'models') {
     isSidebarOpen.value = false
   }
@@ -761,8 +792,14 @@ const handleSelectItem = (id: string, caller?: 'sidebar') => {
     agent.closeAgent()
   }
 }
-eventBus.on('select:nav-item', ({ id }) => handleSelectItem(id))
-eventBus.on('scroll-to:nav-item', ({ id }) => handleSelectItem(id))
+
+/** Handle a navigation item selection event */
+eventBus.on('select:nav-item', ({ id }) => handleSelectSidebarEntry(id))
+
+/** Handle a scroll to navigation item event */
+eventBus.on('scroll-to:nav-item', ({ id }) => handleSelectSidebarEntry(id))
+
+/** Handle an intersecting navigation item event */
 eventBus.on('intersecting:nav-item', ({ id }) => {
   if (!intersectionEnabled.value) {
     return
@@ -779,12 +816,14 @@ eventBus.on('intersecting:nav-item', ({ id }) => {
     window.history.replaceState({}, '', url.toString())
   }
 })
+
 eventBus.on('toggle:nav-item', ({ id, open }) => {
   if (open) {
     mergedConfig.value.onShowMore?.(id)
   }
   sidebarState.setExpanded(id, open ?? !sidebarState.isExpanded(id))
 })
+
 eventBus.on('copy-url:nav-item', ({ id }) => {
   const url = makeUrlFromId(
     id,
@@ -898,7 +937,11 @@ watch(agent.showAgent, () => (bodyScrollLocked.value = agent.showAgent.value))
             layout="reference"
             :options="mergedConfig"
             role="navigation"
-            @selectItem="(id) => handleSelectItem(id, 'sidebar')">
+            @selectItem="(id) => handleSelectSidebarEntry(id, 'sidebar')"
+            @toggleGroup="
+              (id: string) =>
+                sidebarState.setExpanded(id, !sidebarState.isExpanded(id))
+            ">
             <template #header>
               <!-- Wrap in a div when slot is filled -->
               <DocumentSelector
@@ -911,7 +954,7 @@ watch(agent.showAgent, () => (bodyScrollLocked.value = agent.showAgent.value))
               <!-- Search -->
               <div
                 v-if="!mergedConfig.hideSearch"
-                class="flex gap-1.5 p-3 pt-1.5">
+                class="flex gap-1.5 px-3 pt-3">
                 <SearchButton
                   :document="workspaceStore.workspace.activeDocument"
                   :eventBus="eventBus"
@@ -976,7 +1019,7 @@ watch(agent.showAgent, () => (bodyScrollLocked.value = agent.showAgent.value))
             workspaceStore.workspace['x-scalar-default-client']
           ">
           <template #start>
-            <ApiReferenceToolbar
+            <DeveloperTools
               v-if="
                 workspaceStore.workspace.activeDocument && mediaQueries.lg.value
               "

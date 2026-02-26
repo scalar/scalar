@@ -20,7 +20,7 @@
     "vue",
     "vue3"
   ],
-  "version": "1.44.18",
+  "version": "1.44.27",
   "engines": {
     "node": ">=20"
   },
@@ -117,10 +117,10 @@
     "@scalar/use-hooks": "workspace:*",
     "@scalar/use-toasts": "workspace:*",
     "@scalar/workspace-store": "workspace:*",
-    "@unhead/vue": "^1.11.20",
+    "@unhead/vue": "^2.1.4",
     "@vueuse/core": "catalog:*",
     "fuse.js": "catalog:*",
-    "github-slugger": "^2.0.0",
+    "github-slugger": "catalog:*",
     "microdiff": "catalog:*",
     "nanoid": "catalog:*",
     "vue": "catalog:*"
