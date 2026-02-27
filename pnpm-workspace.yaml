@@ -115,6 +115,7 @@ minimumReleaseAgeExclude:
   - astro
   - hono
   - next
+  - turbo
   - vite
   - vite-node
   - vitest
