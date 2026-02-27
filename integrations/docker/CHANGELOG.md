@@ -1,5 +1,15 @@
 # @scalarapi/docker-api-reference
 
+## 0.4.68
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.46.0**
+  - [#8290](https://github.com/scalar/scalar/pull/8290): chore: update deps
+  - [#8283](https://github.com/scalar/scalar/pull/8283): fix: scrollToLazy can not find id when the browser is busy
+
 ## 0.4.67
 
 ### Patch Changes

@@ -1,5 +1,15 @@
 # @scalar/workspace-store
 
+## 0.35.1
+
+### Patch Changes
+
+- [#8290](https://github.com/scalar/scalar/pull/8290): chore: update deps
+
+#### Updated Dependencies
+
+- **@scalar/code-highlight@0.2.4**
+
 ## 0.35.0
 
 ### Minor Changes
