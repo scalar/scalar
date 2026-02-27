@@ -1,6 +1,9 @@
 import * as monaco from 'monaco-editor'
 
-export const nodeToWholeLineRange = (model: monaco.editor.ITextModel, node: monaco.json.ASTNode): monaco.Range => {
+export const nodeToWholeLineRange = (
+  model: monaco.editor.ITextModel,
+  node: monaco.languages.json.ASTNode,
+): monaco.Range => {
   const start = model.getPositionAt(node.offset)
   const end = model.getPositionAt(node.offset + node.length)
 

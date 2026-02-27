@@ -3,9 +3,9 @@ import type * as monaco from 'monaco-editor'
 import type { JsonPath } from './json-path'
 
 export const getJsonAstNodeAtPath = (
-  node: monaco.json.ASTNode | undefined,
+  node: monaco.languages.json.ASTNode | undefined,
   path: JsonPath,
-): monaco.json.ASTNode | undefined => {
+): monaco.languages.json.ASTNode | undefined => {
   let current = node
 
   for (const segment of path) {

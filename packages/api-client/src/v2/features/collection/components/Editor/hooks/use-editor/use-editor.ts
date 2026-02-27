@@ -1,4 +1,4 @@
-import * as monaco from 'monaco-editor'
+import * as monaco from 'monaco-editor/esm/vs/editor/editor.api.js'
 
 import 'monaco-editor/esm/vs/language/json/monaco.contribution'
 import 'monaco-editor/esm/vs/editor/contrib/folding/browser/folding'
@@ -11,7 +11,7 @@ import { type MaybeRefOrGetter, toValue, watch } from 'vue'
 import { applyScalarScheme } from '@/v2/features/collection/components/Editor/hooks/use-editor/helpers/apply-scalar-scheme'
 import { parseJsonPointerPath } from '@/v2/features/collection/components/Editor/hooks/use-editor/helpers/json-pointer-path'
 
-import { applyOpenApiJsonSchemaToModel } from './helpers/apply-openapi-json-schema'
+import { configureLanguageSupport } from './helpers/configure-language-support'
 import { ensureMonacoEnvironment } from './helpers/ensure-monaco-environment'
 import { getJsonAstNodeFromPath } from './helpers/get-json-ast-node-from-path'
 import type { JsonPath } from './helpers/json-path'
@@ -45,7 +45,7 @@ export const useEditor = ({
   ensureMonacoEnvironment()
 
   const model = monaco.editor.createModel(toValue(value) ?? '', 'json')
-  applyOpenApiJsonSchemaToModel(model.uri.toString())
+  configureLanguageSupport(model.uri.toString())
 
   const editor = monaco.editor.create(element, {
     model,
@@ -88,7 +88,7 @@ export const useEditor = ({
     })
   })
 
-  const highlightNode = (node: monaco.json.ASTNode) => {
+  const highlightNode = (node: monaco.languages.json.ASTNode) => {
     const range = nodeToWholeLineRange(model, node)
 
     decorations = editor.deltaDecorations(decorations, [
