@@ -11,6 +11,7 @@ import { isHttpMethod } from '@scalar/helpers/http/is-http-method'
 import { isObject } from '@scalar/helpers/object/is-object'
 import * as monaco from 'monaco-editor'
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { parse as parseYaml, stringify as stringifyYaml } from 'yaml'
 
 import type { CollectionProps } from '@/v2/features/app/helpers/routes'
 
@@ -31,8 +32,11 @@ const editor = ref<ReturnType<typeof useEditor>>()
 
 const isAutoSaveEnabled = ref(false)
 const isDirty = ref(false)
+const editorLanguage = ref<'json' | 'yaml'>('json')
 
 const saveLoader = useLoadingState()
+
+const isYamlMode = computed(() => editorLanguage.value === 'yaml')
 
 const saveStatusText = computed(() => {
   if (!saveLoader.isActive) {
@@ -113,11 +117,11 @@ const editorStatusTextClass = computed(() => {
 })
 
 const getDocumentValue = async () => {
-  return JSON.stringify(
-    await workspaceStore.getEditableDocument(documentSlug),
-    null,
-    2,
-  )
+  const document = await workspaceStore.getEditableDocument(documentSlug)
+  if (editorLanguage.value === 'yaml') {
+    return stringifyYaml(document, { indent: 2 })
+  }
+  return JSON.stringify(document, null, 2)
 }
 
 const loadDocumentIntoEditor = async () => {
@@ -126,11 +130,14 @@ const loadDocumentIntoEditor = async () => {
   await focusOperation()
 }
 
-const formatJson = async () => {
+const formatDocument = async () => {
   await editor.value?.formatDocument()
 }
 
 const focusOperation = async () => {
+  if (editorLanguage.value !== 'json') {
+    return
+  }
   if (!path || !isHttpMethod(method)) {
     return
   }
@@ -153,8 +160,27 @@ const safeParseJsonObject = (value: string) => {
   return parsed
 }
 
+const safeParseYaml = (value: string) => {
+  try {
+    return parseYaml(value)
+  } catch {
+    return null
+  }
+}
+
+const safeParseYamlObject = (value: string) => {
+  const parsed = safeParseYaml(value)
+  if (!isObject(parsed)) {
+    return null
+  }
+  return parsed
+}
+
 const persistEditorToWorkspace = async (value: string) => {
-  const parsed = safeParseJsonObject(value)
+  const parsed =
+    editorLanguage.value === 'yaml'
+      ? safeParseYamlObject(value)
+      : safeParseJsonObject(value)
   if (!parsed) {
     await saveLoader.invalidate()
     return
@@ -189,6 +215,9 @@ const handleEditorChange = (value: string) => {
 }
 
 const focusOperationServers = async () => {
+  if (editorLanguage.value !== 'json') {
+    return
+  }
   if (!path || !isHttpMethod(method)) {
     return
   }
@@ -218,6 +247,7 @@ onMounted(() => {
     onChange: handleEditorChange,
     isDarkMode,
     theme: currentTheme,
+    language: editorLanguage.value,
     actions: [
       {
         id: 'scalar.editor.focusOperation',
@@ -236,13 +266,13 @@ onMounted(() => {
         },
       },
       {
-        id: 'scalar.editor.formatJson',
-        label: 'Format JSON',
+        id: 'scalar.editor.formatDocument',
+        label: 'Format Document',
         keybindings: [
           monaco.KeyMod.Alt | monaco.KeyMod.Shift | monaco.KeyCode.KeyF,
         ],
         run: async () => {
-          await formatJson()
+          await formatDocument()
         },
       },
     ],
@@ -261,6 +291,30 @@ onBeforeUnmount(() => {
 })
 
 watch(() => documentSlug, loadDocumentIntoEditor)
+
+watch(editorLanguage, (nextLanguage, previousLanguage) => {
+  editor.value?.setLanguage(nextLanguage)
+
+  const value = editor.value?.getValue?.()
+  if (!value) {
+    return
+  }
+
+  const parsed =
+    previousLanguage === 'yaml'
+      ? safeParseYamlObject(value)
+      : safeParseJsonObject(value)
+  if (!parsed) {
+    return
+  }
+
+  editor.value?.setValue(
+    nextLanguage === 'yaml'
+      ? stringifyYaml(parsed, { indent: 2 })
+      : JSON.stringify(parsed, null, 2),
+  )
+  isDirty.value = true
+})
 
 watch(
   isAutoSaveEnabled,
@@ -318,11 +372,28 @@ watch(
       </div>
 
       <div class="flex shrink-0 items-center gap-2">
+        <div class="bg-b-1 flex items-center overflow-hidden rounded-lg border">
+          <ScalarButton
+            size="sm"
+            type="button"
+            :variant="!isYamlMode ? 'solid' : 'ghost'"
+            @click="editorLanguage = 'json'">
+            JSON
+          </ScalarButton>
+          <ScalarButton
+            size="sm"
+            type="button"
+            :variant="isYamlMode ? 'solid' : 'ghost'"
+            @click="editorLanguage = 'yaml'">
+            YAML
+          </ScalarButton>
+        </div>
+
         <ScalarButton
           size="sm"
           variant="ghost"
-          @click="formatJson">
-          <span>Format JSON</span>
+          @click="formatDocument">
+          <span>Format {{ isYamlMode ? 'YAML' : 'JSON' }}</span>
           <span class="text-c-3 ml-2 text-[11px]">
             <ScalarHotkey
               hotkey="F"

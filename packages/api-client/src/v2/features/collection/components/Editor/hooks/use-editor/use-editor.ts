@@ -1,6 +1,7 @@
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api.js'
 
 import 'monaco-editor/esm/vs/language/json/monaco.contribution'
+import 'monaco-editor/esm/vs/basic-languages/yaml/yaml.contribution'
 import 'monaco-editor/esm/vs/editor/contrib/folding/browser/folding'
 import 'monaco-editor/esm/vs/editor/contrib/folding/browser/folding.css'
 import 'monaco-editor/esm/vs/base/browser/ui/codicons/codicon/codicon.css'
@@ -25,6 +26,8 @@ export type MonacoEditorAction = {
   run: () => void | Promise<void>
 }
 
+export type MonacoEditorLanguage = 'json' | 'yaml'
+
 export const useEditor = ({
   element,
   value,
@@ -33,6 +36,7 @@ export const useEditor = ({
   readOnly = false,
   isDarkMode = false,
   theme = presets.default.theme,
+  language = 'json',
 }: {
   element: HTMLElement
   value?: MaybeRefOrGetter<string>
@@ -41,10 +45,11 @@ export const useEditor = ({
   actions?: MonacoEditorAction[]
   isDarkMode?: MaybeRefOrGetter<boolean>
   theme?: MaybeRefOrGetter<string>
+  language?: MonacoEditorLanguage
 }) => {
   ensureMonacoEnvironment()
 
-  const model = monaco.editor.createModel(toValue(value) ?? '', 'json')
+  const model = monaco.editor.createModel(toValue(value) ?? '', language)
   configureLanguageSupport(model.uri.toString())
 
   const editor = monaco.editor.create(element, {
@@ -201,6 +206,10 @@ export const useEditor = ({
 
   const hasTextFocus = () => editor.hasTextFocus()
 
+  const setLanguage = (nextLanguage: MonacoEditorLanguage) => {
+    monaco.editor.setModelLanguage(model, nextLanguage)
+  }
+
   const dispose = () => {
     editor.dispose()
     model.dispose()
@@ -215,6 +224,7 @@ export const useEditor = ({
     getValue,
     setValue,
     hasTextFocus,
+    setLanguage,
     dispose,
   }
 }

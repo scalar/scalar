@@ -1,4 +1,4 @@
-import * as monaco from 'monaco-editor'
+import * as monaco from 'monaco-editor/esm/vs/editor/editor.api.js'
 import { configureMonacoYaml } from 'monaco-yaml'
 
 import openApiJsonSchema from '@/v2/features/collection/components/Editor/schemas/openapi-3.1-schema.json'
@@ -29,13 +29,16 @@ export const confugureJson = (modelUri: string): void => {
 
 export const configureYaml = (modelUri: string): void => {
   configureMonacoYaml(monaco, {
-    enableSchemaRequest: true,
+    enableSchemaRequest: false,
+    validate: true,
+    format: true,
+    completion: true,
+    hover: true,
     schemas: [
       {
         // If YAML file is opened matching this glob
         fileMatch: [modelUri],
         schema: openApiJsonSchema,
-        // Then this schema will be downloaded from the internet and used.
         uri: OPENAPI_JSON_SCHEMA_URI,
       },
     ],
