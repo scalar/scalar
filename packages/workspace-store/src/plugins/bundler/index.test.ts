@@ -1713,4 +1713,196 @@ describe('syncPathParameters', () => {
     expect(userIdParam).toMatchObject({ name: 'userId', in: 'path' })
     expect(postIdParam).toMatchObject({ name: 'postId', in: 'path', description: 'Inline post ID parameter' })
   })
+
+  it('uses path-item level parameters when operation does not declare them', async () => {
+    const input = {
+      paths: {
+        '/users/{id}': {
+          parameters: [
+            {
+              name: 'id',
+              in: 'path',
+              required: true,
+              description: 'The user identifier',
+              schema: { type: 'string' },
+            },
+          ],
+          get: {
+            summary: 'Get user by ID',
+            parameters: [
+              { name: 'limit', in: 'query' },
+              { name: 'offset', in: 'query' },
+            ],
+          },
+        },
+      },
+    }
+
+    await bundle(input, {
+      treeShake: false,
+      plugins: [syncPathParameters()],
+    })
+
+    const params = input.paths['/users/{id}'].get.parameters
+    const pathParam = params.find((p: any) => p.in === 'path' && p.name === 'id')
+
+    expect(pathParam).toBeDefined()
+    expect(pathParam).toMatchObject({
+      name: 'id',
+      in: 'path',
+      required: true,
+      description: 'The user identifier',
+      schema: { type: 'string' },
+    })
+  })
+
+  it('prefers operation-level path params over path-item level params', async () => {
+    const input = {
+      paths: {
+        '/users/{id}': {
+          parameters: [
+            {
+              name: 'id',
+              in: 'path',
+              required: true,
+              description: 'Path-item description',
+            },
+          ],
+          get: {
+            parameters: [
+              {
+                name: 'id',
+                in: 'path',
+                required: true,
+                description: 'Operation-level description',
+              },
+            ],
+          },
+        },
+      },
+    }
+
+    await bundle(input, {
+      treeShake: false,
+      plugins: [syncPathParameters()],
+    })
+
+    const params = input.paths['/users/{id}'].get.parameters
+    const pathParam = params.find((p: any) => p.in === 'path' && p.name === 'id')
+
+    expect(pathParam).toMatchObject({
+      name: 'id',
+      in: 'path',
+      required: true,
+      description: 'Operation-level description',
+    })
+  })
+
+  it('uses path-item $ref parameter when operation does not declare it', async () => {
+    const input = {
+      paths: {
+        '/users/{id}': {
+          parameters: [{ $ref: '#/components/parameters/IdParam' }],
+          get: {
+            summary: 'Get user by ID',
+            parameters: [{ name: 'limit', in: 'query' }],
+          },
+        },
+      },
+      components: {
+        parameters: {
+          IdParam: {
+            name: 'id',
+            in: 'path',
+            required: true,
+            description: 'The user identifier',
+            schema: { type: 'string' },
+          },
+        },
+      },
+    }
+
+    await bundle(input, {
+      treeShake: false,
+      plugins: [syncPathParameters()],
+    })
+
+    const params = input.paths['/users/{id}'].get.parameters
+    const pathParam = params.find((p: any) => p.in === 'path' && p.name === 'id')
+
+    expect(pathParam).toBeDefined()
+  })
+
+  it('does not duplicate when operation $ref and path-item inline resolve to the same param', async () => {
+    const input = {
+      paths: {
+        '/users/{id}': {
+          parameters: [
+            {
+              name: 'id',
+              in: 'path',
+              required: true,
+              description: 'Inline path-item param',
+            },
+          ],
+          get: {
+            parameters: [{ $ref: '#/components/parameters/IdParam' }],
+          },
+        },
+      },
+      components: {
+        parameters: {
+          IdParam: {
+            name: 'id',
+            in: 'path',
+            required: true,
+            description: 'Ref operation param',
+          },
+        },
+      },
+    }
+
+    await bundle(input, {
+      treeShake: false,
+      plugins: [syncPathParameters()],
+    })
+
+    const params = input.paths['/users/{id}'].get.parameters
+    const pathParams = params.filter((p: any) => p.in === 'path' && p.name === 'id')
+
+    expect(pathParams).toHaveLength(1)
+  })
+
+  it('does not duplicate when both path-item and operation use the same $ref', async () => {
+    const input = {
+      paths: {
+        '/users/{id}': {
+          parameters: [{ $ref: '#/components/parameters/IdParam' }],
+          get: {
+            parameters: [{ $ref: '#/components/parameters/IdParam' }, { name: 'limit', in: 'query' }],
+          },
+        },
+      },
+      components: {
+        parameters: {
+          IdParam: {
+            name: 'id',
+            in: 'path',
+            required: true,
+            description: 'Shared $ref param',
+          },
+        },
+      },
+    }
+
+    await bundle(input, {
+      treeShake: false,
+      plugins: [syncPathParameters()],
+    })
+
+    const params = input.paths['/users/{id}'].get.parameters
+    const pathParams = params.filter((p: any) => p.in === 'path' && p.name === 'id')
+
+    expect(pathParams).toHaveLength(1)
+  })
 })
