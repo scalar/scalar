@@ -8,13 +8,20 @@ import {
   type WorkspaceGroup,
 } from '@scalar/components'
 import { isMacOS } from '@scalar/helpers/general/is-mac-os'
-import { ScalarIconDotsThree, ScalarIconPlus } from '@scalar/icons'
+import {
+  ScalarIconDotsThree,
+  ScalarIconGearSix,
+  ScalarIconPlus,
+} from '@scalar/icons'
 import { LibraryIcon } from '@scalar/icons/library'
 import type { DraggingItem, HoveredItem, SidebarState } from '@scalar/sidebar'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { getParentEntry } from '@scalar/workspace-store/navigation'
-import type { TraversedEntry } from '@scalar/workspace-store/schemas/navigation'
+import type {
+  TraversedEntry,
+  TraversedOperation,
+} from '@scalar/workspace-store/schemas/navigation'
 import { capitalize, computed, nextTick, ref } from 'vue'
 
 import Rabbit from '@/assets/rabbit.ascii?raw'
@@ -251,6 +258,23 @@ const handleAddEmptyFolder = (item: TraversedEntry) => {
     },
   })
 }
+
+/**
+ * Navigates to the operations page for the provided operation item.
+ * Emits a navigation event for the operation overview page.
+ */
+const navigateToOperationsPage = (item: TraversedOperation) => {
+  const operationWithParent = sidebarState.getEntryById(item.id)
+  const documentSlug = getParentEntry('document', operationWithParent)?.name
+
+  eventBus.emit('ui:navigate', {
+    page: 'operation',
+    path: 'overview',
+    operationPath: item.path,
+    method: item.method,
+    documentSlug: documentSlug,
+  })
+}
 </script>
 
 <template>
@@ -288,18 +312,29 @@ const handleAddEmptyFolder = (item: TraversedEntry) => {
 
       <!-- Decorator dropdown menu -->
       <template #decorator="{ item }">
-        <ScalarIconButton
-          aria-expanded="false"
-          aria-haspopup="menu"
-          :icon="ScalarIconDotsThree"
-          label="More options"
-          size="sm"
-          weight="bold"
-          @click.stop="(e: MouseEvent) => openMenu(e, item)"
-          @keydown.down.stop="(e: KeyboardEvent) => openMenu(e, item)"
-          @keydown.enter.stop="(e: KeyboardEvent) => openMenu(e, item)"
-          @keydown.space.stop="(e: KeyboardEvent) => openMenu(e, item)"
-          @keydown.up.stop="(e: KeyboardEvent) => openMenu(e, item)" />
+        <div class="flex items-center gap-0.5">
+          <ScalarIconButton
+            v-if="item.type === 'operation'"
+            :icon="ScalarIconGearSix"
+            label="Operation settings"
+            size="sm"
+            weight="bold"
+            @click.stop="navigateToOperationsPage(item)"
+            @keydown.enter.stop="navigateToOperationsPage(item)"
+            @keydown.space.stop="navigateToOperationsPage(item)" />
+          <ScalarIconButton
+            aria-expanded="false"
+            aria-haspopup="menu"
+            :icon="ScalarIconDotsThree"
+            label="More options"
+            size="sm"
+            weight="bold"
+            @click.stop="(e: MouseEvent) => openMenu(e, item)"
+            @keydown.down.stop="(e: KeyboardEvent) => openMenu(e, item)"
+            @keydown.enter.stop="(e: KeyboardEvent) => openMenu(e, item)"
+            @keydown.space.stop="(e: KeyboardEvent) => openMenu(e, item)"
+            @keydown.up.stop="(e: KeyboardEvent) => openMenu(e, item)" />
+        </div>
       </template>
 
       <!-- Dirty document icon slot -->

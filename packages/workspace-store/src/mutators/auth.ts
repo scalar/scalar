@@ -115,6 +115,28 @@ export const updateSelectedSecuritySchemes = async (
 }
 
 /**
+ * Clears the selected security schemes from the workspace store for a document or operation.
+ * This function will remove any selection state related to security (auth) for either the entire document
+ * or for a specific operation if meta.type is 'operation'.
+ * If the document name cannot be determined, nothing happens.
+ */
+const clearSelectedSecuritySchemes = (
+  store: WorkspaceStore | null,
+  document: WorkspaceDocument | null,
+  { meta }: AuthEvents['auth:clear:selected-security-schemes'],
+) => {
+  const documentName = document?.['x-scalar-navigation']?.name
+  if (!documentName) {
+    return
+  }
+
+  if (meta.type === 'document') {
+    return store?.auth.clearAuthSelectedSchemas({ type: 'document', documentName })
+  }
+  return store?.auth.clearAuthSelectedSchemas({ type: 'operation', documentName, path: meta.path, method: meta.method })
+}
+
+/**
  * Updates a security scheme in the OpenAPI document's components object.
  * Handles updates for HTTP, API Key, and OAuth2 types, saving secret information and configuration for UI-auth flows.
  *
@@ -450,6 +472,8 @@ export const authMutatorsFactory = ({
   return {
     updateSelectedSecuritySchemes: (payload: AuthEvents['auth:update:selected-security-schemes']) =>
       updateSelectedSecuritySchemes(store, document, payload),
+    clearSelectedSecuritySchemes: (payload: AuthEvents['auth:clear:selected-security-schemes']) =>
+      clearSelectedSecuritySchemes(store, document, payload),
     updateSecurityScheme: (payload: AuthEvents['auth:update:security-scheme']) =>
       updateSecurityScheme(document, payload),
     updateSecuritySchemeSecrets: (payload: AuthEvents['auth:update:security-scheme-secrets']) =>

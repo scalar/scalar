@@ -659,10 +659,9 @@ export const createAppState = async ({
     }
 
     // Navigate to the example page
-    // TODO: temporary until we have the operation overview page
     if (entry.type === 'operation') {
-      // If we are already in the operation, just togle the expansion
-      if (sidebarState.isSelected(id)) {
+      // If we are already in an operation child we just want to toggle the explanstion
+      if (sidebarState.isSelected(id) && sidebarState.selectedItem.value !== id) {
         sidebarState.setExpanded(id, !sidebarState.isExpanded(id))
         return
       }

@@ -938,8 +938,8 @@ describe('migrate-to-indexdb', () => {
       })
     })
 
-    describe('x-scalar-active-environment → x-scalar-client-config-active-environment', () => {
-      it('transforms x-scalar-active-environment to x-scalar-client-config-active-environment', async () => {
+    describe('x-scalar-active-environment', () => {
+      it('migrates x-scalar-active-environment', async () => {
         const legacyData = createLegacyData({
           title: 'Active Env API',
           collection: {
@@ -959,10 +959,10 @@ describe('migrate-to-indexdb', () => {
         const doc = result[0]?.workspace.documents['active-env-api']
 
         assert(doc)
-        expect(doc['x-scalar-client-config-active-environment']).toBe('production')
+        expect(doc['x-scalar-active-environment']).toBe('production')
       })
 
-      it('does not set x-scalar-client-config-active-environment when x-scalar-active-environment is absent', async () => {
+      it('does not set x-scalar-active-environment when x-scalar-active-environment is absent', async () => {
         const legacyData = createLegacyData({
           title: 'No Active Env API',
         })
@@ -971,7 +971,7 @@ describe('migrate-to-indexdb', () => {
         const doc = result[0]?.workspace.documents['no-active-env-api']
 
         assert(doc)
-        expect(doc['x-scalar-client-config-active-environment']).toBeUndefined()
+        expect(doc['x-scalar-active-environment']).toBeUndefined()
       })
     })
 
@@ -1076,46 +1076,6 @@ describe('migrate-to-indexdb', () => {
       })
     })
 
-    describe('useCollectionSecurity → x-scalar-set-operation-security', () => {
-      it('transforms useCollectionSecurity true to x-scalar-set-operation-security true', async () => {
-        const legacyData = createLegacyData({
-          title: 'Collection Security API',
-          collection: { useCollectionSecurity: true },
-        })
-
-        const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['collection-security-api']
-
-        assert(doc)
-        expect(doc['x-scalar-set-operation-security']).toBe(true)
-      })
-
-      it('transforms useCollectionSecurity false to x-scalar-set-operation-security false', async () => {
-        const legacyData = createLegacyData({
-          title: 'No Collection Security API',
-          collection: { useCollectionSecurity: false },
-        })
-
-        const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['no-collection-security-api']
-
-        assert(doc)
-        expect(doc['x-scalar-set-operation-security']).toBe(false)
-      })
-
-      it('defaults to false when useCollectionSecurity is not set', async () => {
-        const legacyData = createLegacyData({
-          title: 'Default Security API',
-        })
-
-        const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['default-security-api']
-
-        assert(doc)
-        expect(doc['x-scalar-set-operation-security']).toBe(false)
-      })
-    })
-
     describe('combined document meta transformations', () => {
       it('transforms all document meta fields simultaneously on a single collection', async () => {
         const server = serverSchema.parse({
@@ -1161,14 +1121,11 @@ describe('migrate-to-indexdb', () => {
           },
         })
 
-        // x-scalar-active-environment → x-scalar-client-config-active-environment
-        expect(doc['x-scalar-client-config-active-environment']).toBe('staging')
+        // x-scalar-active-environment
+        expect(doc['x-scalar-active-environment']).toBe('staging')
 
         // selectedServerUid → x-scalar-selected-server
         expect(doc['x-scalar-selected-server']).toBe('https://api.example.com')
-
-        // useCollectionSecurity → x-scalar-set-operation-security
-        expect(doc['x-scalar-set-operation-security']).toBe(true)
 
         // documentUrl → x-scalar-original-source-url
         // expect(doc['x-scalar-original-source-url']).toBe('https://example.com/api/openapi.yaml')
@@ -1229,13 +1186,11 @@ describe('migrate-to-indexdb', () => {
         // API One
         expect(doc1['x-scalar-icon']).toBe('interface-content-folder')
         expect(doc1['x-scalar-selected-server']).toBe('https://api1.example.com')
-        expect(doc1['x-scalar-set-operation-security']).toBe(true)
         // expect(doc1['x-scalar-original-source-url']).toBe('https://example.com/api1.yaml')
 
         // API Two
         expect(doc2['x-scalar-icon']).toBe('interface-content-book')
         expect(doc2['x-scalar-selected-server']).toBe('https://api2.example.com')
-        expect(doc2['x-scalar-set-operation-security']).toBe(false)
         // expect(doc2['x-scalar-original-source-url']).toBe('https://example.com/api2.yaml')
       })
     })

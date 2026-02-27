@@ -4,17 +4,6 @@ import { mergeObjects } from '@/helpers/merge-object'
 import type { WorkspaceDocument } from '@/schemas'
 
 /**
- * Toggle setting selected security schemes at the operation level
- */
-export const toggleSecurity = (document: WorkspaceDocument | null) => {
-  if (!document) {
-    return
-  }
-
-  document['x-scalar-set-operation-security'] = !document['x-scalar-set-operation-security']
-}
-
-/**
  * Updates the "watch mode" state of the given document.
  *
  * @param document WorkspaceDocument or null – The document to modify.
@@ -140,7 +129,6 @@ export const documentMutatorsFactory = ({
   store: WorkspaceStore | null
 }) => {
   return {
-    toggleSecurity: () => toggleSecurity(document),
     updateDocumentInfo: (payload: DocumentEvents['document:update:info']) => updateDocumentInfo(document, payload),
     updateWatchMode: (payload: DocumentEvents['document:update:watch-mode']) => updateWatchMode(document, payload),
     updateDocumentIcon: (payload: DocumentEvents['document:update:icon']) => updateDocumentIcon(document, payload),

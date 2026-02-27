@@ -6,7 +6,7 @@ import { describe, expect, it, vi } from 'vitest'
 import { OpenApiClientButton } from '@/components'
 import { AddressBar } from '@/v2/blocks/scalar-address-bar-block'
 
-import Header from './Header.vue'
+import Header, { type HeaderProps } from './Header.vue'
 
 describe('Header', () => {
   const eventBus = createWorkspaceEventBus()
@@ -31,9 +31,12 @@ describe('Header', () => {
       color: '#FF0000',
       description: 'Test Environment',
     } as XScalarEnvironment,
-  }
+    serverMeta: {
+      type: 'document',
+    },
+  } as HeaderProps
 
-  const render = (overrides: Record<string, any> = {}) => {
+  const render = (overrides: Partial<HeaderProps> = {}) => {
     const props = { ...defaultProps, ...overrides }
     return mount(Header, { props })
   }

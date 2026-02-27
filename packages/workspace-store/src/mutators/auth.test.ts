@@ -176,6 +176,73 @@ describe('updateSelectedSecuritySchemes', () => {
   })
 })
 
+describe('clearSelectedSecuritySchemes', () => {
+  it('clears document-level selected schemes when meta.type is document', async () => {
+    const documentName = 'test'
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: documentName,
+      document: createDocument(),
+    })
+    store.auth.setAuthSelectedSchemas(
+      { type: 'document', documentName },
+      { selectedIndex: 0, selectedSchemes: [{ BearerAuth: [] }] },
+    )
+
+    const mutators = authMutatorsFactory({
+      store,
+      document: store.workspace.activeDocument ?? null,
+    })
+    mutators.clearSelectedSecuritySchemes({ meta: { type: 'document' } })
+
+    expect(store.auth.getAuthSelectedSchemas({ type: 'document', documentName })).toBeUndefined()
+  })
+
+  it('clears operation-level selected schemes when meta.type is operation', async () => {
+    const documentName = 'test'
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: documentName,
+      document: createDocument({ paths: { '/pets': { get: {} } } }),
+    })
+    store.auth.setAuthSelectedSchemas(
+      { type: 'operation', documentName, path: '/pets', method: 'get' },
+      { selectedIndex: 0, selectedSchemes: [{ ApiKeyAuth: [] }] },
+    )
+
+    const mutators = authMutatorsFactory({
+      store,
+      document: store.workspace.activeDocument ?? null,
+    })
+    mutators.clearSelectedSecuritySchemes({ meta: { type: 'operation', path: '/pets', method: 'get' } })
+
+    expect(
+      store.auth.getAuthSelectedSchemas({ type: 'operation', documentName, path: '/pets', method: 'get' }),
+    ).toBeUndefined()
+  })
+
+  it('is a no-op when document is null', async () => {
+    const documentName = 'test'
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: documentName,
+      document: createDocument(),
+    })
+    store.auth.setAuthSelectedSchemas(
+      { type: 'document', documentName },
+      { selectedIndex: 0, selectedSchemes: [{ BearerAuth: [] }] },
+    )
+
+    const mutators = authMutatorsFactory({ store, document: null })
+    mutators.clearSelectedSecuritySchemes({ meta: { type: 'document' } })
+
+    expect(store.auth.getAuthSelectedSchemas({ type: 'document', documentName })).toEqual({
+      selectedIndex: 0,
+      selectedSchemes: [{ BearerAuth: [] }],
+    })
+  })
+})
+
 describe('updateSecurityScheme', () => {
   it('updates apiKey scheme name', () => {
     const document = createDocument({

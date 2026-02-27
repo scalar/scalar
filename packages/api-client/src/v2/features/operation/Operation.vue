@@ -11,7 +11,8 @@ export default {}
 </script>
 
 <script setup lang="ts">
-import type { AuthMeta } from '@scalar/workspace-store/events'
+import type { SelectedSecurity } from '@scalar/workspace-store/entities/auth'
+import type { AuthMeta, ServerMeta } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { computed, toValue } from 'vue'
 
@@ -37,6 +38,7 @@ const {
   securitySchemes,
   workspaceStore,
   plugins,
+  documentSlug,
 } = defineProps<
   RouteProps & {
     /** Subset of config options for the modal */
@@ -95,7 +97,7 @@ const servers = computed(() => {
   const _servers =
     toValue(options)?.servers ??
     operation.value?.servers ??
-    pathItem.value?.servers ??
+    // pathItem.value?.servers ?? TODO: add support for pathItem servers
     document?.servers
 
   return getServers(_servers, {
@@ -104,24 +106,56 @@ const servers = computed(() => {
   })
 })
 
-/** Compute the selected server for the document only for now */
+/** Selected server URL from the same source as servers: operation, then document (config has no stored selection so use document selection) */
+const selectedServerUrl = computed(() => {
+  if (toValue(options)?.servers != null) {
+    return document?.['x-scalar-selected-server']
+  }
+  if (operation.value?.servers != null) {
+    return operation.value['x-scalar-selected-server']
+  }
+  return document?.['x-scalar-selected-server']
+})
+
+/** Selected server for the operation (document-level or operation-level servers) */
 const selectedServer = computed(() =>
-  getSelectedServer(document, servers.value),
+  getSelectedServer(servers.value, selectedServerUrl.value),
 )
+
+const serverMeta = computed<ServerMeta>(() => {
+  if (operation.value?.servers != null) {
+    return { type: 'operation', path: path ?? '', method: method ?? 'get' }
+  }
+  return { type: 'document' }
+})
+
+const documentSelectedSecurity = computed<SelectedSecurity | undefined>(() => {
+  return workspaceStore.auth.getAuthSelectedSchemas({
+    type: 'document',
+    documentName: documentSlug,
+  })
+})
+
+const operationSelectedSecurity = computed<SelectedSecurity | undefined>(() => {
+  return workspaceStore.auth.getAuthSelectedSchemas({
+    type: 'operation',
+    documentName: documentSlug,
+    path: path ?? '',
+    method: method ?? 'get',
+  })
+})
 
 /** Select document vs operation meta based on the extension */
 const authMeta = computed<AuthMeta>(() => {
-  if (document?.['x-scalar-set-operation-security']) {
+  if (operationSelectedSecurity.value !== undefined) {
     return {
       type: 'operation',
       path: path ?? '',
       method: method ?? 'get',
-    } as const
+    }
   }
 
-  return {
-    type: 'document',
-  } as const
+  return { type: 'document' }
 })
 
 /** Combine environments from document and workspace into a unique array of environment names */
@@ -155,12 +189,7 @@ const APP_VERSION = PACKAGE_VERSION
       :appVersion="APP_VERSION"
       :authMeta
       :documentSecurity="document?.security ?? []"
-      :documentSelectedSecurity="
-        workspaceStore.auth.getAuthSelectedSchemas({
-          type: 'document',
-          documentName: documentSlug,
-        })
-      "
+      :documentSelectedSecurity="documentSelectedSecurity"
       :documentUrl="document?.['x-scalar-original-source-url']"
       :environment
       :environments
@@ -173,14 +202,7 @@ const APP_VERSION = PACKAGE_VERSION
       :layout
       :method
       :operation
-      :operationSelectedSecurity="
-        workspaceStore.auth.getAuthSelectedSchemas({
-          type: 'operation',
-          documentName: documentSlug,
-          path,
-          method,
-        })
-      "
+      :operationSelectedSecurity="operationSelectedSecurity"
       :path
       :plugins="plugins"
       :proxyUrl="
@@ -192,13 +214,8 @@ const APP_VERSION = PACKAGE_VERSION
       :securitySchemes
       :selectedClient="workspaceStore.workspace['x-scalar-default-client']"
       :server="selectedServer"
-      :servers
-      :setOperationSecurity="
-        document?.['x-scalar-set-operation-security'] ?? false
-      "
-      @update:servers="
-        eventBus.emit('ui:navigate', { page: 'document', path: 'servers' })
-      " />
+      :serverMeta
+      :servers />
   </template>
 
   <!-- Empty state -->

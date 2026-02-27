@@ -24,7 +24,7 @@ const selectedServer = computed(() => {
     documentUrl: document['x-scalar-original-source-url'],
   })
 
-  return getSelectedServer(document, servers)
+  return getSelectedServer(servers, document['x-scalar-selected-server'])
 })
 
 const securitySchemes = computed(

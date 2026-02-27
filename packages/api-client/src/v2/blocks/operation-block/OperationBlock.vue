@@ -15,6 +15,65 @@
 export default {
   name: 'OperationBlock',
 }
+
+export type OperationBlockProps = {
+  /** Event bus */
+  eventBus: WorkspaceEventBus
+  /** Document defined security */
+  documentSecurity: OpenApiDocument['security']
+  /** Document selected security */
+  documentSelectedSecurity: SelectedSecurity | undefined
+  /** Application version */
+  appVersion: string
+  /** Workspace/document cookies */
+  globalCookies: ExtendedScalarCookie[]
+  /** Current request path */
+  path: string
+  /** Current request method */
+  method: HttpMethodType
+  /** HTTP clients */
+  httpClients: AvailableClients
+  /** The history for the operation */
+  history?: HistoryEntry[]
+  /** Client layout */
+  layout: ClientLayout
+  /** Currently selected server */
+  server: ServerObject | null
+  /** Currently selected client */
+  selectedClient: WorkspaceStore['workspace']['x-scalar-default-client']
+  /** Server list available for operation/document */
+  servers: ServerObject[]
+  /** Meta information for the server */
+  serverMeta: ServerMeta
+  /** Hides the client button on the header */
+  hideClientButton?: boolean
+  /** Client integration  */
+  integration?: string | null
+  /** Openapi document url for `modal` mode to open the client app */
+  documentUrl?: string
+  /** Client source */
+  source?: 'gitbook' | 'api-reference'
+  /** Operation object */
+  operation: OperationObject
+  /** Operation selected security */
+  operationSelectedSecurity: SelectedSecurity | undefined
+  /** Currently selected example key for the current operation */
+  exampleKey: string
+  /** Meta information for the auth update */
+  authMeta: AuthMeta
+  /** Document defined security schemes */
+  securitySchemes: MergedSecuritySchemes
+  /** Client plugins */
+  plugins: ClientPlugin[]
+  /** Environment list */
+  environments?: string[]
+  /** Currently selected environment */
+  activeEnvironment?: string
+  /** For environment variables in the inputs */
+  environment: XScalarEnvironment
+  /** The proxy URL for sending requests */
+  proxyUrl: string
+}
 </script>
 <script setup lang="ts">
 import type { HttpMethod as HttpMethodType } from '@scalar/helpers/http/http-methods'
@@ -30,6 +89,7 @@ import type { SelectedSecurity } from '@scalar/workspace-store/entities/auth'
 import type { HistoryEntry } from '@scalar/workspace-store/entities/history/schema'
 import type {
   AuthMeta,
+  ServerMeta,
   WorkspaceEventBus,
 } from '@scalar/workspace-store/events'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
@@ -76,7 +136,6 @@ const {
   method,
   operation,
   operationSelectedSecurity,
-  setOperationSecurity,
   path,
   plugins = [],
   proxyUrl,
@@ -85,69 +144,8 @@ const {
   server,
   environments,
   activeEnvironment,
-} = defineProps<{
-  /** Event bus */
-  eventBus: WorkspaceEventBus
-  /** Document defined security */
-  documentSecurity: OpenApiDocument['security']
-  /** Document selected security */
-  documentSelectedSecurity: SelectedSecurity | undefined
-  /** Application version */
-  appVersion: string
-  /** Workspace/document cookies */
-  globalCookies: ExtendedScalarCookie[]
-  /** Current request path */
-  path: string
-  /** Current request method */
-  method: HttpMethodType
-  /** HTTP clients */
-  httpClients: AvailableClients
-  /** The history for the operation */
-  history?: HistoryEntry[]
-  /** Client layout */
-  layout: ClientLayout
-  /** Currently selected server */
-  server: ServerObject | null
-  /** Currently selected client */
-  selectedClient: WorkspaceStore['workspace']['x-scalar-default-client']
-  /** Server list available for operation/document */
-  servers: ServerObject[]
-  /** Hides the client button on the header */
-  hideClientButton?: boolean
-  /** Client integration  */
-  integration?: string | null
-  /** Openapi document url for `modal` mode to open the client app */
-  documentUrl?: string
-  /** Client source */
-  source?: 'gitbook' | 'api-reference'
-  /** Operation object */
-  operation: OperationObject
-  /** Operation selected security */
-  operationSelectedSecurity: SelectedSecurity | undefined
-  /** Whether to set security at the operation level */
-  setOperationSecurity: boolean
-  /** Currently selected example key for the current operation */
-  exampleKey: string
-  /** Meta information for the auth update */
-  authMeta: AuthMeta
-  /** Document defined security schemes */
-  securitySchemes: MergedSecuritySchemes
-  /** Client plugins */
-  plugins: ClientPlugin[]
-  /** Environment list */
-  environments?: string[]
-  /** Currently selected environment */
-  activeEnvironment?: string
-  /** For environment variables in the inputs */
-  environment: XScalarEnvironment
-  /** The proxy URL for sending requests */
-  proxyUrl: string
-}>()
-
-const emit = defineEmits<{
-  /** Route to the appropriate server page */
-  (e: 'update:servers'): void
-}>()
+  serverMeta,
+} = defineProps<OperationBlockProps>()
 
 /** Hoist up client generation so it doesn't get re-generated on every operation */
 const clientOptions = computed(() => generateClientOptions(httpClients))
@@ -163,7 +161,6 @@ const selectedSecurity = computed(() =>
     documentSelectedSecurity,
     operationSelectedSecurity,
     securityRequirements.value,
-    setOperationSecurity,
   ),
 )
 
@@ -358,11 +355,11 @@ onBeforeUnmount(() => {
         :method
         :path
         :server
+        :serverMeta
         :servers
         :source
         @execute="handleExecute"
-        @select:history:item="handleSelectHistoryItem"
-        @update:servers="emit('update:servers')" />
+        @select:history:item="handleSelectHistoryItem" />
     </div>
 
     <ViewLayout class="border-t">

@@ -302,9 +302,9 @@ watch(
 /** Handle operation summary updates */
 const handleSummaryUpdate = (event: Event): void => {
   const summary = (event.target as HTMLInputElement).value
-  eventBus.emit('operation:update:summary', {
+  eventBus.emit('operation:update:meta', {
     meta: meta.value,
-    payload: { summary },
+    payload: { summary: summary.trim() },
   })
 }
 
