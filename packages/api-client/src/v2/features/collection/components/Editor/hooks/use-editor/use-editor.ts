@@ -25,7 +25,7 @@ export type MonacoEditorAction = {
   run: () => void | Promise<void>
 }
 
-export const useJsonEditor = ({
+export const useEditor = ({
   element,
   value,
   onChange,
@@ -88,7 +88,7 @@ export const useJsonEditor = ({
     })
   })
 
-  const highlightNode = (node: monaco.languages.json.ASTNode) => {
+  const highlightNode = (node: monaco.json.ASTNode) => {
     const range = nodeToWholeLineRange(model, node)
 
     decorations = editor.deltaDecorations(decorations, [

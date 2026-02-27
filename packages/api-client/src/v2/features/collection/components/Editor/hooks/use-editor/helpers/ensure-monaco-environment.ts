@@ -13,7 +13,18 @@ export const ensureMonacoEnvironment = (): void => {
     },
   }
 
-  window.MonacoEnvironment ??= {
+  // Monaco reads `globalThis.MonacoEnvironment` to decide how to spawn workers.
+  // If another part of the app sets a broken MonacoEnvironment first, workers can fail
+  // (which breaks JSON validation/autocomplete). Always ensure a working `getWorker`,
+  // while preserving any other existing MonacoEnvironment fields.
+  const globalScope = globalThis as typeof globalThis & {
+    MonacoEnvironment?: Record<string, unknown> & {
+      getWorker?: (workerId: string, label: string) => Worker
+    }
+  }
+
+  globalScope.MonacoEnvironment = {
+    ...(globalScope.MonacoEnvironment ?? {}),
     getWorker: environment.getWorker,
   }
 }

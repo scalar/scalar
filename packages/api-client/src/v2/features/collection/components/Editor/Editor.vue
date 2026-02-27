@@ -14,7 +14,7 @@ import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 
 import type { CollectionProps } from '@/v2/features/app/helpers/routes'
 
-import { useJsonEditor } from './hooks/use-editor/use-editor'
+import { useEditor } from './hooks/use-editor/use-editor'
 
 const {
   collectionType,
@@ -27,7 +27,7 @@ const {
 } = defineProps<CollectionProps>()
 
 const monacoEditorRef = ref<HTMLElement>()
-const editor = ref<ReturnType<typeof useJsonEditor>>()
+const editor = ref<ReturnType<typeof useEditor>>()
 
 const isAutoSaveEnabled = ref(false)
 const isDirty = ref(false)
@@ -213,7 +213,7 @@ const focusOperationServers = async () => {
 }
 
 onMounted(() => {
-  editor.value = useJsonEditor({
+  editor.value = useEditor({
     element: monacoEditorRef.value ?? document.createElement('div'),
     onChange: handleEditorChange,
     isDarkMode,
