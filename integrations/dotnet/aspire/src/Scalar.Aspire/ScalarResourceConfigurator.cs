@@ -69,7 +69,7 @@ internal static class ScalarResourceConfigurator
             var resourceUrl = GetResourceUrl(resourceName, shouldUseHttps, scalarAspireOptions.DefaultProxy, endpoints);
 
             ConfigureOpenApiServers(scalarAspireOptions, resourceName, resourceUrl);
-            ConfigureOpenApiRoutePattern(scalarAspireOptions, resourceUrl);
+            await ConfigureOpenApiRoutePatternAsync(scalarAspireOptions, resourceUrl, cancellationToken);
             ConfigureDocuments(scalarAspireOptions, resourceName);
 
             yield return scalarAspireOptions;
@@ -83,12 +83,30 @@ internal static class ScalarResourceConfigurator
         scalarOptions.Servers ??= [server];
     }
 
-    private static void ConfigureOpenApiRoutePattern(ScalarOptions scalarOptions, string resourceUrl)
+    private static async Task ConfigureOpenApiRoutePatternAsync(ScalarOptions scalarOptions, string resourceUrl, CancellationToken cancellationToken)
     {
-        // Only set the full URL if the OpenAPI route pattern is not a full URL
-        if (!RegexHelper.HttpUrlPattern().IsMatch(scalarOptions.OpenApiRoutePattern))
+        // Only set the full URL if the OpenAPI route pattern is not already a full URL
+        if (RegexHelper.HttpUrlPattern().IsMatch(scalarOptions.OpenApiRoutePattern))
         {
-            scalarOptions.OpenApiRoutePattern = $"{resourceUrl}/{scalarOptions.OpenApiRoutePattern.TrimStart('/')}";
+            return;
+        }
+
+        string? baseUrl;
+        if (scalarOptions.BaseDocumentUrl is not null)
+        {
+            // BaseDocumentUrl is set: resolve it at startup when all endpoints are known.
+            // A null/empty result means the pattern is used as-is (e.g., a static file served from the Scalar container).
+            baseUrl = await scalarOptions.BaseDocumentUrl.GetValueAsync(cancellationToken);
+        }
+        else
+        {
+            // Default: use the service resource URL discovered via Aspire service discovery.
+            baseUrl = resourceUrl;
+        }
+
+        if (!string.IsNullOrEmpty(baseUrl))
+        {
+            scalarOptions.OpenApiRoutePattern = $"{baseUrl.TrimEnd('/')}/{scalarOptions.OpenApiRoutePattern.TrimStart('/')}";
         }
     }
 
