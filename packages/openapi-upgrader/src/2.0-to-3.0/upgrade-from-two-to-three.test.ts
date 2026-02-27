@@ -2177,6 +2177,38 @@ describe('upgradeFromTwoToThree', () => {
     expect(response200.content?.['application/xml']?.example).toBe('<message>Hello XML</message>')
   })
 
+  it('treats named example keys that contain a slash as named examples, not media types', () => {
+    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+      swagger: '2.0',
+      info: { title: 'Slash in named example key test', version: '1.0' },
+      produces: ['application/json'],
+      paths: {
+        '/test': {
+          get: {
+            responses: {
+              '200': {
+                description: 'OK',
+                schema: { type: 'object', properties: { id: { type: 'integer' } } },
+                examples: {
+                  'application/json': { id: 1 },
+                  'Error 404/Not Found': { id: 0, error: 'Not Found' },
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+
+    const response200 = result.paths?.['/test']?.get?.responses?.['200'] as OpenAPIV3.ResponseObject
+    expect(response200.content?.['application/json']?.example).toStrictEqual({ id: 1 })
+    expect(response200.content?.['Error 404/Not Found']).toBeUndefined()
+    expect(response200.content?.['application/json']?.examples?.['Error 404/Not Found']?.value).toStrictEqual({
+      id: 0,
+      error: 'Not Found',
+    })
+  })
+
   it('transforms global responses defined in #/responses with examples', () => {
     const result: OpenAPIV3.Document = upgradeFromTwoToThree({
       swagger: '2.0',

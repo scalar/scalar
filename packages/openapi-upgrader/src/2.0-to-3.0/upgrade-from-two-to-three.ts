@@ -71,9 +71,17 @@ function wrapAsExampleObject(value: unknown): OpenAPIV3.ExampleObject {
   return { value }
 }
 
-/** True if the key looks like a media type (e.g. application/json). Used to distinguish from named example keys. */
+/**
+ * True if the key looks like a MIME media type (e.g. application/json, text/plain).
+ * Used to distinguish media-type example keys from named example keys when migrating
+ * Swagger 2.0 examples to OpenAPI 3.0 content. Requires exactly one slash and
+ * token-style type/subtype (no spaces or semicolons) to avoid false positives
+ * for named keys that contain a slash (e.g. "Error 404/Not Found").
+ */
+const MEDIA_TYPE_KEY_PATTERN = /^[a-zA-Z0-9*+.-]+\/[a-zA-Z0-9*+.+-]+$/
+
 function isMediaTypeKey(key: string): boolean {
-  return key.includes('/')
+  return MEDIA_TYPE_KEY_PATTERN.test(key)
 }
 
 /** Transforms x-example entries to OpenAPI 3.x examples format */
