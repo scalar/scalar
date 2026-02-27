@@ -742,6 +742,79 @@ describe('deleteSecurityScheme', () => {
     expect(opSchemes.selectedSchemes).toEqual([{ F: [] }])
   })
 
+  it('clamps document selectedIndex after selectedSchemes are cleaned up', async () => {
+    const documentName = 'test'
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: documentName,
+      document: createDocument({
+        components: {
+          securitySchemes: {
+            A: { type: 'http', scheme: 'bearer' },
+            B: { type: 'apiKey', in: 'header', name: 'X-API-Key' },
+            C: { type: 'http', scheme: 'basic' },
+          },
+        },
+      }),
+    })
+
+    store.auth.setAuthSelectedSchemas(
+      { type: 'document', documentName },
+      { selectedIndex: 10, selectedSchemes: [{ A: [] }, { B: [] }, { C: [] }] },
+    )
+
+    deleteSecurityScheme(store, store.workspace.activeDocument!, { names: ['A', 'B'] })
+
+    const docSchemes = store.auth.getAuthSelectedSchemas({ type: 'document', documentName })
+    assert(docSchemes)
+    expect(docSchemes.selectedSchemes).toEqual([{ C: [] }])
+    expect(docSchemes.selectedIndex).toBe(0)
+  })
+
+  it('clamps selectedIndex to 0 when cleanup removes all schemes', async () => {
+    const documentName = 'test'
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: documentName,
+      document: createDocument({
+        components: {
+          securitySchemes: {
+            A: { type: 'http', scheme: 'bearer' },
+          },
+        },
+        paths: {
+          '/p': { get: {} },
+        },
+      }),
+    })
+
+    store.auth.setAuthSelectedSchemas(
+      { type: 'document', documentName },
+      { selectedIndex: 2, selectedSchemes: [{ A: [] }] },
+    )
+    store.auth.setAuthSelectedSchemas(
+      { type: 'operation', documentName, path: '/p', method: 'get' },
+      { selectedIndex: 3, selectedSchemes: [{ A: [] }] },
+    )
+
+    deleteSecurityScheme(store, store.workspace.activeDocument!, { names: ['A'] })
+
+    const docSchemes = store.auth.getAuthSelectedSchemas({ type: 'document', documentName })
+    assert(docSchemes)
+    expect(docSchemes.selectedSchemes).toEqual([])
+    expect(docSchemes.selectedIndex).toBe(0)
+
+    const opSchemes = store.auth.getAuthSelectedSchemas({
+      type: 'operation',
+      documentName,
+      path: '/p',
+      method: 'get',
+    })
+    assert(opSchemes)
+    expect(opSchemes.selectedSchemes).toEqual([])
+    expect(opSchemes.selectedIndex).toBe(0)
+  })
+
   it('is a no-op when document is null or components are missing', async () => {
     // null doc
     deleteSecurityScheme(createWorkspaceStore(), null, { names: ['A'] })
