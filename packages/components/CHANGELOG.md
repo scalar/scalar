@@ -1,5 +1,21 @@
 # @scalar/components
 
+## 0.19.11
+
+### Patch Changes
+
+- [#8276](https://github.com/scalar/scalar/pull/8276): feat(components): standardize form inputs to have a height of 40px
+
+#### Updated Dependencies
+
+- **@scalar/themes@0.14.1**
+  - [#8276](https://github.com/scalar/scalar/pull/8276): feat(components): standardize form inputs to have a height of 40px
+
+- **@scalar/oas-utils@0.7.0**
+  - [#8234](https://github.com/scalar/scalar/pull/8234): support operation level authentication and servers
+
+- **@scalar/code-highlight@0.2.4**
+
 ## 0.19.10
 
 ### Patch Changes

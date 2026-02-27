@@ -1,5 +1,15 @@
 # @scalar/api-client-react
 
+## 1.3.103
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-client@2.30.0**
+  - [#8255](https://github.com/scalar/scalar/pull/8255): fix: correctly handle circular references when deep resolving references
+  - [#8234](https://github.com/scalar/scalar/pull/8234): support operation level authentication and servers
+
 ## 1.3.102
 
 ### Patch Changes
