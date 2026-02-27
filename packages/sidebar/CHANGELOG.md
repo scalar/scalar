@@ -1,5 +1,20 @@
 # @scalar/sidebar
 
+## 0.7.43
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/components@0.19.12**
+  - [#8290](https://github.com/scalar/scalar/pull/8290): chore: update deps
+
+- **@scalar/themes@0.14.2**
+  - [#8290](https://github.com/scalar/scalar/pull/8290): chore: update deps
+
+- **@scalar/workspace-store@0.35.1**
+  - [#8290](https://github.com/scalar/scalar/pull/8290): chore: update deps
+
 ## 0.7.42
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @scalar/themes
 
+## 0.14.2
+
+### Patch Changes
+
+- [#8290](https://github.com/scalar/scalar/pull/8290): chore: update deps
+
 ## 0.14.1
 
 ### Patch Changes

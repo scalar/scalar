@@ -1,5 +1,15 @@
 # @scalar/aspnetcore
 
+## 2.12.50
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.46.0**
+  - [#8290](https://github.com/scalar/scalar/pull/8290): chore: update deps
+  - [#8283](https://github.com/scalar/scalar/pull/8283): fix: scrollToLazy can not find id when the browser is busy
+
 ## 2.12.49
 
 ### Patch Changes
