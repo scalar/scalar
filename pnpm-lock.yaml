@@ -1644,19 +1644,6 @@ importers:
 
   packages/blocks:
     dependencies:
-      '@scalar/snippetz':
-        specifier: workspace:*
-        version: link:../snippetz
-      '@scalar/workspace-store':
-        specifier: workspace:*
-        version: link:../workspace-store
-      vue:
-        specifier: catalog:*
-        version: 3.5.26(typescript@5.9.3)
-    devDependencies:
-      '@scalar/build-tooling':
-        specifier: workspace:*
-        version: link:../build-tooling
       '@scalar/components':
         specifier: workspace:*
         version: link:../components
@@ -1669,6 +1656,34 @@ importers:
       '@scalar/json-magic':
         specifier: workspace:*
         version: link:../json-magic
+      '@scalar/oas-utils':
+        specifier: workspace:*
+        version: link:../oas-utils
+      '@scalar/sidebar':
+        specifier: workspace:*
+        version: link:../sidebar
+      '@scalar/snippetz':
+        specifier: workspace:*
+        version: link:../snippetz
+      '@scalar/themes':
+        specifier: workspace:*
+        version: link:../themes
+      '@scalar/types':
+        specifier: workspace:*
+        version: link:../types
+      '@scalar/workspace-store':
+        specifier: workspace:*
+        version: link:../workspace-store
+      js-base64:
+        specifier: catalog:*
+        version: 3.7.8
+      vue:
+        specifier: catalog:*
+        version: 3.5.26(typescript@5.9.3)
+    devDependencies:
+      '@scalar/build-tooling':
+        specifier: workspace:*
+        version: link:../build-tooling
       '@tailwindcss/vite':
         specifier: catalog:*
         version: 4.1.18(vite@7.3.1(@types/node@22.19.3)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.31.2)(tsx@4.19.1)(yaml@2.8.0))

@@ -137,8 +137,6 @@ import {
   type ComponentPublicInstance,
 } from 'vue'
 
-import HttpMethod from '@/v2/blocks/operation-code-sample/components/HttpMethod.vue'
-
 import { findClient } from '../helpers/find-client'
 import { generateCodeSnippet } from '../helpers/generate-code-snippet'
 import { getClients } from '../helpers/get-clients'
@@ -151,6 +149,7 @@ import type {
   CustomClientOption,
 } from '../types'
 import ExamplePicker from './ExamplePicker.vue'
+import HttpMethod from './HttpMethod.vue'
 
 // import type { SecuritySchemeObjectSecret } from './scalar-auth-selector-block/helpers/secret-types'
 

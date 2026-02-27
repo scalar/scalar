@@ -1,5 +1,6 @@
-export { default as ExamplePicker } from './components/ExamplePicker.vue'
-export { default as OperationCodeSample } from './components/OperationCodeSample.vue'
+// TODO: Failing for whatever reason
+// export { default as ExamplePicker } from './components/ExamplePicker.vue'
+// export { default as OperationCodeSample } from './components/OperationCodeSample.vue'
 export { DEFAULT_CLIENT, findClient, isClient } from './helpers/find-client'
 export { generateClientOptions } from './helpers/generate-client-options'
 export { getExampleFromSchema } from './helpers/get-example-from-schema'

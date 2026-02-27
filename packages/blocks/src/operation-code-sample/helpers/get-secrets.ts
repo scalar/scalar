@@ -1,6 +1,6 @@
 import { encode } from 'js-base64'
 
-import type { SecuritySchemeObjectSecret } from '@/v2/blocks/scalar-auth-selector-block/helpers/secret-types'
+import type { SecuritySchemeObjectSecret } from '@/temp/helpers/secret-types'
 
 /** Extract secrets from security schemes */
 export const getSecrets = (securitySchemes: SecuritySchemeObjectSecret[]): string[] =>

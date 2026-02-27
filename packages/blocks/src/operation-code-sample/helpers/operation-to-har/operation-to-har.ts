@@ -4,9 +4,9 @@ import type { XScalarCookie } from '@scalar/workspace-store/schemas/extensions/g
 import type { OperationObject, ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import type { Request as HarRequest } from 'har-format'
 
-import { filterGlobalCookie } from '@/v2/blocks/operation-block/helpers/filter-global-cookies'
-import { getDefaultHeaders } from '@/v2/blocks/request-block/helpers/get-default-headers'
-import type { SecuritySchemeObjectSecret } from '@/v2/blocks/scalar-auth-selector-block/helpers/secret-types'
+import { filterGlobalCookie } from '@/temp/helpers/filter-global-cookies'
+import { getDefaultHeaders } from '@/temp/helpers/get-default-headers'
+import type { SecuritySchemeObjectSecret } from '@/temp/helpers/secret-types'
 
 import { processBody } from './process-body'
 import { processParameters } from './process-parameters'

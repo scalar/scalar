@@ -4,9 +4,8 @@ import { unpackProxyObject } from '@scalar/workspace-store/helpers/unpack-proxy'
 import type { RequestBodyObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import type { Param, PostData } from 'har-format'
 
-import { getExample } from '@/v2/blocks/operation-block/helpers/get-example'
-
-import { getExampleFromSchema } from './get-example-from-schema'
+import { getExampleFromSchema } from '../get-example-from-schema'
+import { getExample } from './get-example'
 import type { OperationToHarProps } from './operation-to-har'
 
 type ProcessBodyProps = Pick<OperationToHarProps, 'contentType' | 'example'> & {

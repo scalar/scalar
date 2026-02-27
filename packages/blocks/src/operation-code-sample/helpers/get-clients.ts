@@ -1,9 +1,8 @@
 import type { TargetId } from '@scalar/types/snippetz'
 import type { XCodeSample } from '@scalar/workspace-store/schemas/extensions/operation'
 
-import type { ClientOptionGroup, CustomClientOption } from '@/v2/blocks/operation-code-sample'
-import { generateCustomId } from '@/v2/blocks/operation-code-sample/helpers/generate-client-options'
-import type { CustomClientOptionGroup } from '@/v2/blocks/operation-code-sample/types'
+import type { ClientOptionGroup, CustomClientOption, CustomClientOptionGroup } from '../types'
+import { generateCustomId } from './generate-client-options'
 
 /**
  * Merges custom code samples with the client options

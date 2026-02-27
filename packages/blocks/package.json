@@ -23,6 +23,7 @@
   },
   "scripts": {
     "build": "scalar-build-vite",
+    "dev": "vite ./playground -c ./vite.config.ts",
     "format": "scalar-format",
     "format:check": "scalar-format-check",
     "lint:check": "scalar-lint-check",
@@ -56,14 +57,18 @@
   "dependencies": {
     "@scalar/snippetz": "workspace:*",
     "vue": "catalog:*",
-    "@scalar/workspace-store": "workspace:*"
+    "@scalar/workspace-store": "workspace:*",
+    "js-base64": "catalog:*",
+    "@scalar/helpers": "workspace:*",
+    "@scalar/types": "workspace:*",
+    "@scalar/json-magic": "workspace:*",
+    "@scalar/oas-utils": "workspace:*",
+    "@scalar/components": "workspace:*",
+    "@scalar/icons": "workspace:*",
+    "@scalar/themes": "workspace:*"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "catalog:*",
-    "@scalar/helpers": "workspace:*",
-    "@scalar/json-magic": "workspace:*",
-    "@scalar/components": "workspace:*",
-    "@scalar/icons": "workspace:*",
     "@tailwindcss/vite": "catalog:*",
     "@scalar/build-tooling": "workspace:*",
     "@types/har-format": "^1.2.16",

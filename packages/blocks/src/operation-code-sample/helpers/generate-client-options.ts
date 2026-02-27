@@ -2,7 +2,7 @@ import { AVAILABLE_CLIENTS, type AvailableClients, snippetz } from '@scalar/snip
 import type { XCodeSample } from '@scalar/workspace-store/schemas/extensions/operation'
 import { capitalize } from 'vue'
 
-import type { ClientOptionGroup } from '@/v2/blocks/operation-code-sample/types'
+import type { ClientOptionGroup } from '../types'
 
 /** Type of custom code sample IDs */
 export type CustomCodeSampleId = `custom/${string}`

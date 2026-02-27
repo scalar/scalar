@@ -2,8 +2,9 @@ import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref
 import type { OperationObject, ParameterObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import type { Request as HarRequest } from 'har-format'
 
-import { deSerializeParameter } from '@/v2/blocks/operation-block/helpers/de-serialize-parameter'
-import { getExample } from '@/v2/blocks/operation-block/helpers/get-example'
+import { deSerializeParameter } from '../de-serialize-parameter'
+import { getExampleFromSchema } from '../get-example-from-schema'
+import { isParamDisabled } from '../is-param-disabled'
 import {
   serializeContentValue,
   serializeDeepObjectStyle,
@@ -12,10 +13,8 @@ import {
   serializePipeDelimitedStyle,
   serializeSimpleStyle,
   serializeSpaceDelimitedStyle,
-} from '@/v2/blocks/operation-block/helpers/serialize-parameter'
-import { isParamDisabled } from '@/v2/blocks/request-block/helpers/is-param-disabled'
-
-import { getExampleFromSchema } from './get-example-from-schema'
+} from '../serialize-parameter'
+import { getExample } from './get-example'
 
 type ProcessedParameters = {
   url: string
