@@ -208,7 +208,7 @@ const focusOperationServers = async () => {
   operation.servers ??= []
 
   // Update the editor value
-  editor.value?.setValue(JSON.stringify(operation, null, 2))
+  editor.value?.setValue(JSON.stringify(parsed, null, 2))
   await editor.value?.focusPath(['paths', path, method, 'servers'])
 }
 
