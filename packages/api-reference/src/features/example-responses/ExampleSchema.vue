@@ -18,8 +18,8 @@ const shouldVirtualizeSchema = computed(() => {
     v-if="!shouldVirtualizeSchema"
     :id="id"
     class="bg-b-2"
-    :content="schemaContent"
-    lang="json" />
+    lang="json"
+    :prettyPrintedContent="schemaContent" />
   <ScalarVirtualText
     v-else
     :id="id"
