@@ -66,7 +66,15 @@ const safeFetch = n.safeFn(
   (originalError) => createError('FAILED_TO_FETCH', { originalError }),
 )
 
-function createUrl({ path, activeServer }: { path: string; activeServer: ServerObject | null }) {
+function createUrl({
+  path,
+  activeServer,
+  proxyUrl,
+}: {
+  path: string
+  activeServer: ServerObject | null
+  proxyUrl: string
+}) {
   const resolvedUrl = getResolvedUrl({
     path,
     server: activeServer,
@@ -77,7 +85,7 @@ function createUrl({ path, activeServer }: { path: string; activeServer: ServerO
     },
   })
 
-  return redirectToProxy('https://proxy.scalar.com', resolvedUrl)
+  return redirectToProxy(proxyUrl, resolvedUrl)
 }
 
 /**
@@ -88,6 +96,7 @@ export const executeRequestTool = n.safeFn(
     documentSettings,
     toolCallId,
     chat,
+    proxyUrl,
     input: { method, path, body, headers, documentIdentifier },
   }: {
     documentSettings: Record<
@@ -96,6 +105,7 @@ export const executeRequestTool = n.safeFn(
     >
     toolCallId: string
     chat: Chat<UIMessage<unknown, UIDataTypes, Tools>>
+    proxyUrl: string
     input: {
       method: string
       path: string
@@ -141,6 +151,7 @@ export const executeRequestTool = n.safeFn(
     const url = createUrl({
       path,
       activeServer: settings.activeServer,
+      proxyUrl,
     })
 
     const result = await safeFetch(url, fetchOptions)
