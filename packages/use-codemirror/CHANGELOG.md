@@ -1,5 +1,14 @@
 # @scalar/use-codemirror
 
+## 0.13.47
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/components@0.19.12**
+  - [#8290](https://github.com/scalar/scalar/pull/8290): chore: update deps
+
 ## 0.13.46
 
 ### Patch Changes
