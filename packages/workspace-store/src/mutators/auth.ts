@@ -410,8 +410,13 @@ export const deleteSecurityScheme = (
     delete target[name]
   })
 
+  const clampIndex = (index: number, length: number) => {
+    return Math.max(0, Math.min(index, length - 1))
+  }
+
   // Function to remove any security requirement objects that reference given scheme names.
-  const filterSecuritySchemes = (schemes: SecurityRequirementObject[]) => {
+  const filterSecuritySchemes = (_schemes: SecurityRequirementObject[]) => {
+    const schemes = unpackProxyObject(_schemes, { depth: 1 }) ?? []
     // Remove schemes whose key is included in the `names` to be deleted.
     return schemes.filter((scheme) => !names.some((name) => Object.keys(scheme).includes(name)))
   }
@@ -420,8 +425,10 @@ export const deleteSecurityScheme = (
 
   // -- Remove from document-level `x-scalar-selected-security` extension, if present
   if (documentSelectedSecurity) {
-    documentSelectedSecurity.selectedSchemes = filterSecuritySchemes(
-      unpackProxyObject(documentSelectedSecurity.selectedSchemes, { depth: 1 }) ?? [],
+    documentSelectedSecurity.selectedSchemes = filterSecuritySchemes(documentSelectedSecurity.selectedSchemes)
+    documentSelectedSecurity.selectedIndex = clampIndex(
+      documentSelectedSecurity.selectedIndex,
+      documentSelectedSecurity.selectedSchemes.length,
     )
   }
 
@@ -454,8 +461,10 @@ export const deleteSecurityScheme = (
         method,
       })
       if (operationSelectedSecurity) {
-        operationSelectedSecurity.selectedSchemes = filterSecuritySchemes(
-          unpackProxyObject(operationSelectedSecurity.selectedSchemes, { depth: 1 }) ?? [],
+        operationSelectedSecurity.selectedSchemes = filterSecuritySchemes(operationSelectedSecurity.selectedSchemes)
+        operationSelectedSecurity.selectedIndex = clampIndex(
+          operationSelectedSecurity.selectedIndex,
+          operationSelectedSecurity.selectedSchemes.length,
         )
       }
     })

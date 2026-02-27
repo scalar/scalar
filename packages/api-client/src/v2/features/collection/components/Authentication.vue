@@ -196,6 +196,7 @@ const handleToggleOperationSecurity = (value: boolean) => {
           !useOperationSecurity &&
           'pointer-events-none opacity-50 mix-blend-luminosity'
         "
+        :createAnySecurityScheme="true"
         :environment
         :eventBus="eventBus"
         isStatic
