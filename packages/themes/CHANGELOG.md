@@ -1,5 +1,11 @@
 # @scalar/themes
 
+## 0.14.1
+
+### Patch Changes
+
+- [#8276](https://github.com/scalar/scalar/pull/8276): feat(components): standardize form inputs to have a height of 40px
+
 ## 0.14.0
 
 ### Minor Changes
