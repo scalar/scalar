@@ -97,29 +97,3 @@ export function safeParseJson(value: string) {
     return
   }
 }
-
-/**
- * Wrap url with Scalar Proxy
- *
- * Skips wrapping if the url is localhost
- */
-export function makeScalarProxyUrl(url: string) {
-  try {
-    if (url.startsWith('/') || url.startsWith('http://localhost')) {
-      return url
-    }
-
-    const params = new URLSearchParams({ scalar_url: url })
-
-    const proxyUrl = new URL(`https://proxy.scalar.com/?${params}`)
-
-    /**
-     * For now we use our proxy only by default. We do not
-     * want this to come from the config or be set by the user
-     */
-    return proxyUrl.toString()
-  } catch {
-    console.error(`Invalid URL provided: ${url}`)
-    return url
-  }
-}

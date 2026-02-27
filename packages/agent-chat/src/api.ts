@@ -1,9 +1,10 @@
+import { redirectToProxy } from '@scalar/helpers/url/redirect-to-proxy'
 import { n } from 'neverpanic'
+import type { Ref } from 'vue'
 import z from 'zod'
 
 import { createError } from '@/entities/error/helpers'
 import { registryApiMetadata } from '@/entities/registry/document'
-import { makeScalarProxyUrl } from '@/helpers'
 
 export function createAuthorizationHeaders({
   getAccessToken,
@@ -28,10 +29,12 @@ export function createAuthorizationHeaders({
 /** Minimal set of API requests needed for agent chat */
 export function createApi({
   baseUrl,
+  proxyUrl,
   getAccessToken,
   getAgentKey,
 }: {
   baseUrl: string
+  proxyUrl: Ref<string>
   getAccessToken?: () => string
   getAgentKey?: () => string
 }) {
@@ -53,7 +56,7 @@ export function createApi({
 
       const fetchResult = await n.fromUnsafe(
         async () =>
-          fetch(makeScalarProxyUrl(url), {
+          fetch(redirectToProxy(proxyUrl.value, url), {
             method,
             ...(body && { body: JSON.stringify(body) }),
             headers: {

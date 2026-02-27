@@ -8,13 +8,13 @@ import {
   ScalarCard,
   ScalarCardFooter,
   ScalarCardSection,
-  ScalarCodeBlock,
   ScalarIcon,
   ScalarMarkdown,
 } from '@scalar/components'
 import {
   getObjectKeys,
   normalizeMimeTypeObject,
+  prettyPrintJson,
 } from '@scalar/oas-utils/helpers'
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
@@ -25,6 +25,7 @@ import type {
 import { computed, ref, toValue, useId, watch } from 'vue'
 
 import ScreenReader from '@/components/ScreenReader.vue'
+import ExampleSchema from '@/features/example-responses/ExampleSchema.vue'
 
 import ExampleResponse from './ExampleResponse.vue'
 import ExampleResponseTab from './ExampleResponseTab.vue'
@@ -134,6 +135,15 @@ const changeTab = (index: number) => {
   selectedExampleKey.value = ''
 }
 
+const schemaContent = computed(() => {
+  if (!currentResponseContent.value?.schema) {
+    return undefined
+  }
+  return prettyPrintJson(
+    getResolvedRefDeep(currentResponseContent.value?.schema),
+  )
+})
+
 const showSchema = ref(false)
 </script>
 <template>
@@ -176,12 +186,10 @@ const showSchema = ref(false)
     </ExampleResponseTabList>
     <ScalarCardSection class="grid flex-1">
       <!-- Schema -->
-      <ScalarCodeBlock
-        v-if="showSchema && currentResponseContent?.schema"
+      <ExampleSchema
+        v-if="schemaContent !== undefined && showSchema"
         :id="id"
-        :content="getResolvedRefDeep(currentResponseContent?.schema)"
-        class="bg-b-2"
-        lang="json" />
+        :schemaContent="schemaContent" />
 
       <!-- Example -->
       <ExampleResponse

@@ -36,7 +36,9 @@ onMounted(() => {
   <ScalarFormInput
     is="div"
     v-bind="
-      stylingAttrsCx('custom-scroll flex text-c-1 min-h-0 shrink cursor-text')
+      stylingAttrsCx(
+        'custom-scroll flex text-c-1 min-h-0 shrink cursor-text leading-snug',
+      )
     "
     @click="textarea?.focus()">
     <textarea

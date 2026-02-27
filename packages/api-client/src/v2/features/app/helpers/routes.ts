@@ -118,11 +118,6 @@ export const ROUTES = [
                     path: 'authentication',
                     component: Authentication,
                   },
-                  {
-                    name: 'operation.editor',
-                    path: 'editor',
-                    component: Editor,
-                  },
                 ],
               },
             ],

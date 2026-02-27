@@ -1,5 +1,6 @@
 import { Chat } from '@ai-sdk/vue'
 import { type ModalState, useModal } from '@scalar/components'
+import { redirectToProxy } from '@scalar/helpers/url/redirect-to-proxy'
 import { type ApiReferenceConfigurationRaw, apiReferenceConfigurationSchema } from '@scalar/types/api-reference'
 import { useToasts } from '@scalar/use-toasts'
 import { type WorkspaceStore, createWorkspaceStore } from '@scalar/workspace-store/client'
@@ -11,6 +12,7 @@ import { type ComputedRef, type InjectionKey, type Ref, computed, inject, reacti
 
 import { type Api, createApi, createAuthorizationHeaders } from '@/api'
 import { executeRequestTool } from '@/client-tools/execute-request'
+import { URLS } from '@/consts/urls'
 import { createError } from '@/entities'
 import type { ApiMetadata } from '@/entities/registry/document'
 import type {
@@ -31,7 +33,7 @@ import type {
   GET_OPENAPI_SPECS_SUMMARY_TOOL_NAME,
   GetOpenAPISpecsSummaryToolOutput,
 } from '@/entities/tools/get-openapi-spec-summary'
-import { createDocumentSettings, makeScalarProxyUrl } from '@/helpers'
+import { createDocumentSettings } from '@/helpers'
 import { useTermsAndConditions } from '@/hooks/use-term-and-conditions'
 import { persistencePlugin } from '@/plugins/persistance'
 import { loadDocument } from '@/registry/add-documents-to-store'
@@ -73,7 +75,8 @@ type State = {
   loading: ComputedRef<boolean>
   settingsModal: ModalState
   eventBus: WorkspaceEventBus
-  proxyUrl: Ref<string | undefined>
+  proxyUrl: ComputedRef<string>
+  proxyUrlRaw: Ref<string | undefined>
   config: ComputedRef<ApiReferenceConfigurationRaw>
   registryUrl: string
   dashboardUrl: string
@@ -99,19 +102,21 @@ function createChat({
   registryDocuments,
   workspaceStore,
   baseUrl,
+  proxyUrl,
   getAccessToken,
   getAgentKey,
 }: {
   registryDocuments: Ref<ApiMetadata[]>
   workspaceStore: WorkspaceStore
   baseUrl: string
+  proxyUrl: ComputedRef<string>
   getAccessToken?: () => string
   getAgentKey?: () => string
 }) {
   const chat = new Chat<UIMessage<unknown, UIDataTypes, Tools>>({
     sendAutomaticallyWhen: lastAssistantMessageIsCompleteWithToolCalls,
     transport: new DefaultChatTransport({
-      api: makeScalarProxyUrl(`${baseUrl}/vector/openapi/chat`),
+      api: redirectToProxy(proxyUrl.value, `${baseUrl}/vector/openapi/chat`),
       headers: () => createAuthorizationHeaders({ getAccessToken, getAgentKey }),
       body: () => ({
         registryDocuments: registryDocuments.value,
@@ -132,6 +137,7 @@ function createChat({
           input: toolCall.input,
           toolCallId: toolCall.toolCallId,
           chat,
+          proxyUrl: proxyUrl.value,
         })
       }
     },
@@ -169,7 +175,8 @@ export function createState({
   const registryDocuments = ref<ApiMetadata[]>([])
   const pendingDocuments = reactive<Record<string, boolean>>({})
   const curatedDocuments = ref<ApiMetadata[]>([])
-  const proxyUrl = ref<State['proxyUrl']['value']>('https://proxy.scalar.com')
+  const proxyUrlRaw = ref<State['proxyUrlRaw']['value']>(URLS.DEFAULT_PROXY_URL)
+  const proxyUrl = computed(() => proxyUrlRaw.value?.trim() || URLS.DEFAULT_PROXY_URL)
   const uploadedTmpDocumentUrl = ref<string>()
   const terms = useTermsAndConditions()
 
@@ -193,12 +200,14 @@ export function createState({
     registryDocuments,
     workspaceStore,
     baseUrl,
+    proxyUrl,
     getAccessToken,
     getAgentKey,
   })
 
   const api = createApi({
     baseUrl,
+    proxyUrl,
     getAccessToken,
     getAgentKey,
   })
@@ -295,7 +304,7 @@ export function createState({
 
     const embeddingStatusResponse = await n.fromUnsafe(
       () =>
-        fetch(makeScalarProxyUrl(`${baseUrl}/vector/registry/embeddings/${namespace}/${slug}`), {
+        fetch(redirectToProxy(proxyUrl.value, `${baseUrl}/vector/registry/embeddings/${namespace}/${slug}`), {
           method: 'GET',
         }),
       (originalError) => createError('FAILED_TO_GET_EMBEDDING_STATUS', originalError),
@@ -349,6 +358,7 @@ export function createState({
     registryDocuments,
     pendingDocuments,
     proxyUrl,
+    proxyUrlRaw,
     mode,
     terms,
     isLoggedIn,
