@@ -32,14 +32,15 @@ const grouped = useFormGroupInput()
 const variants = cva({
   base: [
     // Layout
-    'bg-b-1.5 flex items-center text-c-2 gap-0.75 px-3 py-2.5 ',
+    'bg-b-1.5 flex items-center text-c-2 gap-0.75 p-3',
+    'text-base leading-5',
     //Focus
     'outline-offset-[-1px] has-[:focus-visible]:outline',
   ],
   variants: {
     grouped: {
       true: 'first:rounded-t-[inherit] last:rounded-b-[inherit]',
-      false: 'rounded border',
+      false: 'rounded shadow-border',
     },
     button: { true: 'cursor-pointer hover:bg-b-2' },
   },

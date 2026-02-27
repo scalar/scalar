@@ -18,7 +18,7 @@
   --shadow-md: var(--scalar-shadow-1);
   --shadow-lg: var(--scalar-shadow-2);
   --shadow-sm: rgba(0, 0, 0, 0.09) 0px 1px 4px;
-  --shadow-border: inset 0 0 0 calc(var(--scalar-border-width) * 2) var(--scalar-border-color);
+  --shadow-border: inset 0 0 0 var(--scalar-border-width) var(--scalar-border-color);
 
   /* Fonts */
   --font-\*: initial;
