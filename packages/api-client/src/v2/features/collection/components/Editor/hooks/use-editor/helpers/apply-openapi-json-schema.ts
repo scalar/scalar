@@ -1,11 +1,11 @@
 import * as monaco from 'monaco-editor'
 
-import openApiJsonSchema from '@/v2/features/collection/components/Editor/schemas/openapi-3.2-schema.json'
+import openApiJsonSchema from '@/v2/features/collection/components/Editor/schemas/openapi-3.1-schema.json'
 
 const OPENAPI_JSON_SCHEMA_URI = 'inmemory://model/scalar/openapi-json-schema'
 
 export const applyOpenApiJsonSchemaToModel = (modelUri: string): void => {
-  const defaults = monaco.languages.json.jsonDefaults
+  const defaults = monaco.json.jsonDefaults
   const current = defaults.diagnosticsOptions
 
   const existingSchemas = current.schemas ?? []
