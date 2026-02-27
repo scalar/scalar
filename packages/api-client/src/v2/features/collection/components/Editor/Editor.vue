@@ -9,7 +9,6 @@ import {
 import { debounce } from '@scalar/helpers/general/debounce'
 import { isHttpMethod } from '@scalar/helpers/http/is-http-method'
 import { isObject } from '@scalar/helpers/object/is-object'
-import { unpackProxyObject } from '@scalar/workspace-store/helpers/unpack-proxy'
 import * as monaco from 'monaco-editor'
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 
@@ -30,39 +29,10 @@ const {
 const monacoEditorRef = ref<HTMLElement>()
 const editor = ref<ReturnType<typeof useJsonEditor>>()
 
-const editorValue = ref('')
-const isProgrammaticUpdate = ref(false)
-
 const isAutoSaveEnabled = ref(false)
 const isDirty = ref(false)
 
 const saveLoader = useLoadingState()
-const savesInFlight = ref(0)
-const saveHadError = ref(false)
-
-const startSaving = () => {
-  if (savesInFlight.value === 0) {
-    saveHadError.value = false
-    saveLoader.start()
-  }
-  savesInFlight.value += 1
-}
-
-const finishSaving = async ({ ok }: { ok: boolean }) => {
-  saveHadError.value = saveHadError.value || !ok
-  savesInFlight.value = Math.max(0, savesInFlight.value - 1)
-
-  if (savesInFlight.value !== 0) {
-    return
-  }
-
-  if (saveHadError.value) {
-    await saveLoader.invalidate()
-    return
-  }
-
-  await saveLoader.validate({ duration: 900 })
-}
 
 const saveStatusText = computed(() => {
   if (!saveLoader.isActive) {
@@ -142,24 +112,18 @@ const editorStatusTextClass = computed(() => {
   }
 })
 
+const getDocumentValue = async () => {
+  return JSON.stringify(
+    await workspaceStore.getEditableDocument(documentSlug),
+    null,
+    2,
+  )
+}
+
 const loadDocumentIntoEditor = async () => {
-  isProgrammaticUpdate.value = true
-  try {
-    editorValue.value = JSON.stringify(
-      unpackProxyObject(
-        await workspaceStore.getEditableDocument(documentSlug),
-        {
-          depth: 1,
-        },
-      ),
-      null,
-      2,
-    )
-  } finally {
-    setTimeout(() => {
-      isProgrammaticUpdate.value = false
-    }, 0)
-  }
+  editor.value?.setValue(await getDocumentValue())
+  isDirty.value = false
+  await focusOperation()
 }
 
 const formatJson = async () => {
@@ -189,50 +153,30 @@ const safeParseJsonObject = (value: string) => {
   return parsed
 }
 
-const persistEditorToWorkspace = async (
-  value: string,
-  { showInvalidJsonError }: { showInvalidJsonError: boolean },
-) => {
-  if (isProgrammaticUpdate.value) {
-    return
-  }
-
+const persistEditorToWorkspace = async (value: string) => {
   const parsed = safeParseJsonObject(value)
   if (!parsed) {
-    if (showInvalidJsonError) {
-      await saveLoader.invalidate()
-    }
+    await saveLoader.invalidate()
     return
   }
 
-  startSaving()
-  try {
-    await workspaceStore.replaceDocument(documentSlug, parsed)
-    isDirty.value = false
-    await finishSaving({ ok: true })
-  } catch {
-    await finishSaving({ ok: false })
-  }
+  saveLoader.start()
+  await workspaceStore.replaceDocument(documentSlug, parsed)
+  isDirty.value = false
+  await saveLoader.validate({ duration: 900 })
 }
 
 const debouncedPersist = debounce({ delay: 1500 })
 
 const saveNow = async () => {
-  await persistEditorToWorkspace(
-    editor.value?.getValue?.() ?? editorValue.value,
-    {
-      showInvalidJsonError: true,
-    },
-  )
+  const value = editor.value?.getValue?.()
+  if (!value) {
+    return
+  }
+  await persistEditorToWorkspace(value)
 }
 
 const handleEditorChange = (value: string) => {
-  editorValue.value = value
-
-  if (isProgrammaticUpdate.value) {
-    return
-  }
-
   isDirty.value = true
 
   if (!isAutoSaveEnabled.value) {
@@ -240,7 +184,7 @@ const handleEditorChange = (value: string) => {
   }
 
   debouncedPersist.execute('editor:replace-document', () =>
-    persistEditorToWorkspace(value, { showInvalidJsonError: false }),
+    persistEditorToWorkspace(value),
   )
 }
 
@@ -249,7 +193,11 @@ const focusOperationServers = async () => {
     return
   }
 
-  const parsed = safeParseJson(editor.value?.getValue?.() ?? editorValue.value)
+  const value = editor.value?.getValue?.()
+  if (!value) {
+    return
+  }
+  const parsed = safeParseJson(value)
 
   const operation = parsed?.paths?.[path]?.[method]
   if (!isObject(operation)) {
@@ -260,18 +208,13 @@ const focusOperationServers = async () => {
   operation.servers ??= []
 
   // Update the editor value
-  editorValue.value = JSON.stringify(parsed, null, 2)
+  editor.value?.setValue(JSON.stringify(operation, null, 2))
   await editor.value?.focusPath(['paths', path, method, 'servers'])
 }
 
 onMounted(() => {
-  if (!monacoEditorRef.value) {
-    return
-  }
-
   editor.value = useJsonEditor({
-    element: monacoEditorRef.value,
-    value: editorValue,
+    element: monacoEditorRef.value ?? document.createElement('div'),
     onChange: handleEditorChange,
     isDarkMode,
     theme: currentTheme,
@@ -304,6 +247,8 @@ onMounted(() => {
       },
     ],
   })
+
+  void loadDocumentIntoEditor()
 })
 
 onBeforeUnmount(() => {
@@ -315,15 +260,7 @@ onBeforeUnmount(() => {
   editor.value?.dispose?.()
 })
 
-watch(
-  () => documentSlug,
-  async () => {
-    await loadDocumentIntoEditor()
-    isDirty.value = false
-    await focusOperation()
-  },
-  { immediate: true },
-)
+watch(() => documentSlug, loadDocumentIntoEditor)
 
 watch(
   isAutoSaveEnabled,
@@ -334,11 +271,12 @@ watch(
     }
 
     if (isDirty.value) {
+      const value = editor.value?.getValue?.()
+      if (!value) {
+        return
+      }
       debouncedPersist.execute('editor:replace-document', () =>
-        persistEditorToWorkspace(
-          editor.value?.getValue?.() ?? editorValue.value,
-          { showInvalidJsonError: false },
-        ),
+        persistEditorToWorkspace(value),
       )
     }
   },

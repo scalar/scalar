@@ -35,7 +35,7 @@ export const useJsonEditor = ({
   theme = presets.default.theme,
 }: {
   element: HTMLElement
-  value: MaybeRefOrGetter<string>
+  value?: MaybeRefOrGetter<string>
   readOnly?: MaybeRefOrGetter<boolean>
   onChange?: (e: string) => void
   actions?: MonacoEditorAction[]
@@ -44,7 +44,7 @@ export const useJsonEditor = ({
 }) => {
   ensureMonacoEnvironment()
 
-  const model = monaco.editor.createModel(toValue(value), 'json')
+  const model = monaco.editor.createModel(toValue(value) ?? '', 'json')
   applyOpenApiJsonSchemaToModel(model.uri.toString())
 
   const editor = monaco.editor.create(element, {
@@ -157,6 +157,11 @@ export const useJsonEditor = ({
   watch(
     () => toValue(value),
     (newValue) => {
+      if (!newValue) {
+        return
+      }
+
+      // If the value is the same, do not update the editor
       if (editor.getValue() === newValue) {
         return
       }
