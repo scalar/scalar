@@ -1,0 +1,73 @@
+{
+  "name": "@scalar/blocks",
+  "description": "Render blocks for your OpenAPI documentation",
+  "license": "MIT",
+  "author": "Scalar (https://github.com/scalar)",
+  "homepage": "https://github.com/scalar/scalar",
+  "bugs": "https://github.com/scalar/scalar/issues/new/choose",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/scalar/scalar.git",
+    "directory": "packages/blocks"
+  },
+  "keywords": [
+    "scalar",
+    "openapi",
+    "swagger",
+    "blocks",
+    "docs"
+  ],
+  "version": "0.0.0",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "scalar-build-vite",
+    "format": "scalar-format",
+    "format:check": "scalar-format-check",
+    "lint:check": "scalar-lint-check",
+    "lint:fix": "scalar-lint-fix",
+    "test": "vitest",
+    "types:build": "scalar-types-build",
+    "types:check": "scalar-types-check"
+  },
+  "type": "module",
+  "exports": {
+    "./*.css": {
+      "import": "./dist/*.css",
+      "require": "./dist/*.css",
+      "default": "./dist/*.css"
+    },
+    "./css/*.css": {
+      "import": "./dist/css/*.css",
+      "require": "./dist/css/*.css",
+      "default": "./dist/css/*.css"
+    },
+    "./operation-code-sample": {
+      "import": "./dist/operation-code-sample/index.js",
+      "types": "./dist/operation-code-sample/index.d.ts",
+      "default": "./dist/operation-code-sample/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "CHANGELOG.md"
+  ],
+  "dependencies": {
+    "@scalar/snippetz": "workspace:*",
+    "vue": "catalog:*",
+    "@scalar/workspace-store": "workspace:*"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "catalog:*",
+    "@scalar/helpers": "workspace:*",
+    "@scalar/json-magic": "workspace:*",
+    "@scalar/components": "workspace:*",
+    "@scalar/icons": "workspace:*",
+    "@tailwindcss/vite": "catalog:*",
+    "@scalar/build-tooling": "workspace:*",
+    "@types/har-format": "^1.2.16",
+    "vite": "catalog:*",
+    "vitest": "catalog:*"
+  }
+}

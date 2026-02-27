@@ -349,7 +349,7 @@
     "@scalar/use-hooks": "workspace:*",
     "@scalar/use-toasts": "workspace:*",
     "@scalar/workspace-store": "workspace:*",
-    "@types/har-format": "^1.2.15",
+    "@types/har-format": "^1.2.16",
     "@vueuse/core": "catalog:*",
     "@vueuse/integrations": "catalog:*",
     "focus-trap": "^7",

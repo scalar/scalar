@@ -1304,7 +1304,7 @@ importers:
         specifier: workspace:*
         version: link:../workspace-store
       '@types/har-format':
-        specifier: ^1.2.15
+        specifier: ^1.2.16
         version: 1.2.16
       '@vueuse/core':
         specifier: catalog:*
@@ -1641,6 +1641,49 @@ importers:
       vite:
         specifier: catalog:*
         version: 7.3.1(@types/node@22.19.3)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.31.2)(tsx@4.19.1)(yaml@2.8.0)
+
+  packages/blocks:
+    dependencies:
+      '@scalar/snippetz':
+        specifier: workspace:*
+        version: link:../snippetz
+      '@scalar/workspace-store':
+        specifier: workspace:*
+        version: link:../workspace-store
+      vue:
+        specifier: catalog:*
+        version: 3.5.26(typescript@5.9.3)
+    devDependencies:
+      '@scalar/build-tooling':
+        specifier: workspace:*
+        version: link:../build-tooling
+      '@scalar/components':
+        specifier: workspace:*
+        version: link:../components
+      '@scalar/helpers':
+        specifier: workspace:*
+        version: link:../helpers
+      '@scalar/icons':
+        specifier: workspace:*
+        version: link:../icons
+      '@scalar/json-magic':
+        specifier: workspace:*
+        version: link:../json-magic
+      '@tailwindcss/vite':
+        specifier: catalog:*
+        version: 4.1.18(vite@7.3.1(@types/node@22.19.3)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.31.2)(tsx@4.19.1)(yaml@2.8.0))
+      '@types/har-format':
+        specifier: ^1.2.16
+        version: 1.2.16
+      '@vitejs/plugin-vue':
+        specifier: catalog:*
+        version: 6.0.3(vite@7.3.1(@types/node@22.19.3)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.31.2)(tsx@4.19.1)(yaml@2.8.0))(vue@3.5.26(typescript@5.9.3))
+      vite:
+        specifier: catalog:*
+        version: 7.3.1(@types/node@22.19.3)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.31.2)(tsx@4.19.1)(yaml@2.8.0)
+      vitest:
+        specifier: catalog:*
+        version: 4.0.16(@opentelemetry/api@1.9.0)(@types/node@22.19.3)(jiti@2.6.1)(jsdom@27.4.0(@noble/hashes@1.8.0))(lightningcss@1.30.2)(terser@5.31.2)(tsx@4.19.1)(yaml@2.8.0)
 
   packages/build-tooling:
     dependencies:
@@ -17134,6 +17177,36 @@ packages:
   tsyringe@4.10.0:
     resolution: {integrity: sha512-axr3IdNuVIxnaK5XGEUFTu3YmAQ6lllgrvqfEoR16g/HGnYY/6We4oWENtAnzK6/LpJ2ur9PAb80RBt7/U4ugw==}
     engines: {node: '>= 6.0.0'}
+
+  turbo-darwin-64@2.8.11:
+    resolution: {integrity: sha512-XKaCWaz4OCt77oYYvGCIRpvYD4c/aNaKjRkUpv+e8rN3RZb+5Xsyew4yRO+gaHdMIUhQznXNXfHlhs+/p7lIhA==}
+    cpu: [x64]
+    os: [darwin]
+
+  turbo-darwin-arm64@2.8.11:
+    resolution: {integrity: sha512-VvynLHGUNvQ9k7GZjRPSsRcK4VkioTfFb7O7liAk4nHKjEcMdls7GqxzjVWgJiKz3hWmQGaP9hRa9UUnhVWCxA==}
+    cpu: [arm64]
+    os: [darwin]
+
+  turbo-linux-64@2.8.11:
+    resolution: {integrity: sha512-cbSn37dcm+EmkQ7DD0euy7xV7o2el4GAOr1XujvkAyKjjNvQ+6QIUeDgQcwAx3D17zPpDvfDMJY2dLQadWnkmQ==}
+    cpu: [x64]
+    os: [linux]
+
+  turbo-linux-arm64@2.8.11:
+    resolution: {integrity: sha512-+trymp2s2aBrhS04l6qFxcExzZ8ffndevuUB9c5RCeqsVpZeiWuGQlWNm5XjOmzoMayxRARZ5ma7yiWbGMiLqQ==}
+    cpu: [arm64]
+    os: [linux]
+
+  turbo-windows-64@2.8.11:
+    resolution: {integrity: sha512-3kJjFSM4yw1n9Uzmi+XkAUgCae19l/bH6RJ442xo7mnZm0tpOjo33F+FYHoSVpIWVMd0HG0LDccyafPSdylQbA==}
+    cpu: [x64]
+    os: [win32]
+
+  turbo-windows-arm64@2.8.11:
+    resolution: {integrity: sha512-JOM4uF2vuLsJUvibdR6X9QqdZr6BhC6Nhlrw4LKFPsXZZI/9HHLoqAiYRpE4MuzIwldCH/jVySnWXrI1SKto0g==}
+    cpu: [arm64]
+    os: [win32]
 
   turbo@2.8.11:
     resolution: {integrity: sha512-H+rwSHHPLoyPOSoHdmI1zY0zy0GGj1Dmr7SeJW+nZiWLz2nex8EJ+fkdVabxXFMNEux+aywI4Sae8EqhmnOv4A==}
@@ -36106,7 +36179,32 @@ snapshots:
     dependencies:
       tslib: 1.14.1
 
-  turbo@2.8.11: {}
+  turbo-darwin-64@2.8.11:
+    optional: true
+
+  turbo-darwin-arm64@2.8.11:
+    optional: true
+
+  turbo-linux-64@2.8.11:
+    optional: true
+
+  turbo-linux-arm64@2.8.11:
+    optional: true
+
+  turbo-windows-64@2.8.11:
+    optional: true
+
+  turbo-windows-arm64@2.8.11:
+    optional: true
+
+  turbo@2.8.11:
+    optionalDependencies:
+      turbo-darwin-64: 2.8.11
+      turbo-darwin-arm64: 2.8.11
+      turbo-linux-64: 2.8.11
+      turbo-linux-arm64: 2.8.11
+      turbo-windows-64: 2.8.11
+      turbo-windows-arm64: 2.8.11
 
   type-check@0.4.0:
     dependencies:
