@@ -362,6 +362,7 @@
     "js-base64": "catalog:*",
     "microdiff": "catalog:*",
     "monaco-editor": "catalog:*",
+    "monaco-yaml": "catalog:*",
     "nanoid": "catalog:*",
     "pretty-bytes": "catalog:*",
     "pretty-ms": "^9.3.0",

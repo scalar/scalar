@@ -71,7 +71,8 @@ catalogs:
     js-base64: ^3.7.8
     jsdom: 27.4.0
     microdiff: ^1.5.0
-    monaco-editor: ^0.47.0
+    monaco-editor: 0.55.1
+    monaco-yaml: 5.2.3
     nanoid: ^5.1.6
     next: ^15.5.10
     neverpanic: 0.0.5
