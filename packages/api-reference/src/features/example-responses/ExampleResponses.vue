@@ -35,8 +35,15 @@ import { hasResponseContent } from './has-response-content'
  * TODO: copyToClipboard isn't using the right content if there are multiple examples
  */
 
-const { responses } = defineProps<{
+const { responses, showSchemaToggle } = defineProps<{
   responses: ResponsesObject
+  /**
+   * Controls whether the "Show Schema" toggle is rendered.
+   *
+   * When `false` the checkbox is hidden. When `true` or `undefined` it is shown
+   * (for backward compatibility with standalone usage).
+   */
+  showSchemaToggle?: boolean
 }>()
 
 const id = useId()
@@ -162,7 +169,7 @@ const showSchema = ref(false)
             width="12px" />
         </button>
         <label
-          v-if="currentResponseContent?.schema"
+          v-if="currentResponseContent?.schema && showSchemaToggle !== false"
           class="scalar-card-checkbox">
           Show Schema
           <input

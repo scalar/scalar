@@ -80,6 +80,13 @@ export type OperationCodeSampleProps = {
    */
   fallback?: boolean
   /**
+   * Controls whether the "Show Schema" toggle is rendered.
+   *
+   * When `false` the checkbox is hidden. When `true` or `undefined` it is shown
+   * (for backward compatibility with standalone usage).
+   */
+  showSchemaToggle?: boolean
+  /**
    * A method to generate the label of the block, should return an html string
    */
   generateLabel?: () => string
@@ -348,7 +355,7 @@ const id = useId()
         v-if="!isWebhook && clients.length"
         #actions>
         <label
-          v-if="requestBodySchema"
+          v-if="requestBodySchema && showSchemaToggle !== false"
           class="scalar-card-checkbox">
           Show Schema
           <input

@@ -73,6 +73,21 @@ const operationExtensions = computed(() => getXKeysFromObject(operation))
 const selectedExampleKey = ref<string>('')
 
 const { copyToClipboard } = useClipboard()
+
+/** Whether to show the "Show Schema" toggle on response examples */
+const showResponseSchemaToggle = computed(
+  () =>
+    !options.showSchemaToggle ||
+    options.showSchemaToggle === 'responses' ||
+    options.showSchemaToggle === 'both',
+)
+
+/** Whether to show the "Show Schema" toggle on request examples */
+const showRequestSchemaToggle = computed(
+  () =>
+    options.showSchemaToggle === 'requests' ||
+    options.showSchemaToggle === 'both',
+)
 </script>
 <template>
   <SectionAccordion
@@ -205,7 +220,8 @@ const { copyToClipboard } = useClipboard()
       <ExampleResponses
         v-if="operation.responses"
         class="operation-example-card"
-        :responses="operation.responses" />
+        :responses="operation.responses"
+        :showSchemaToggle="showResponseSchemaToggle" />
 
       <!-- New Example Request -->
       <div>
@@ -227,7 +243,8 @@ const { copyToClipboard } = useClipboard()
             :path
             :securitySchemes="selectedSecuritySchemes"
             :selectedClient
-            :selectedServer />
+            :selectedServer
+            :showSchemaToggle="showRequestSchemaToggle" />
         </ScalarErrorBoundary>
       </div>
     </div>
