@@ -375,6 +375,7 @@ describe('ExampleResponses', () => {
             },
           },
         },
+        showSchemaToggle: true,
       },
     })
 
