@@ -255,6 +255,47 @@ describe('SchemaComposition', () => {
       },
       required: ['foo'],
     })
+    expect(schemaComponent.props('level')).toBe(1)
+  })
+
+  it('passes merged schema to Schema component for schema composition with allOf', () => {
+    const wrapper = mount(SchemaComposition, {
+      props: {
+        eventBus: null,
+        composition: 'allOf',
+        schema: coerceValue(SchemaObjectSchema, {
+          allOf: [
+            {
+              type: 'object',
+              properties: {
+                foo: { const: 'Foo' },
+              },
+              required: ['foo'],
+            },
+            {
+              type: 'object',
+              properties: {
+                bar: { const: 'Bar' },
+              },
+            },
+          ],
+        }),
+        level: 0,
+        options: {},
+      },
+    })
+
+    const schemaComponent = wrapper.findComponent({ name: 'Schema' })
+    expect(schemaComponent.props('schema')).toEqual({
+      '__scalar_': '',
+      type: 'object',
+      properties: {
+        foo: { '__scalar_': '', const: 'Foo' },
+        bar: { '__scalar_': '', const: 'Bar' },
+      },
+      required: ['foo'],
+    })
+    expect(schemaComponent.props('level')).toBe(1)
   })
 
   it('does not merge allOf schemas within anyOf composition', () => {
