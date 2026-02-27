@@ -7,4 +7,6 @@ internal static class RouteDefaults
     public const string HealthCheckEndpoint = "/health";
 
     public const string ProxyEndpoint = "/scalar-proxy";
+
+    public const string StaticFilesEndpoint = "/openapi";
 }
