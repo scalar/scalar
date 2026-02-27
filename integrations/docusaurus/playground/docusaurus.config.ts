@@ -58,7 +58,7 @@ const config: Config = {
         id: 'json-url-cdn',
         label: 'json-url-cdn',
         route: '/json-url-cdn',
-        cdn: 'https://cdn.jsdelivr.net/npm/@scalar/api-reference@1.28.11',
+        cdn: 'https://cdn.jsdelivr.net/npm/@scalar/api-reference@1.44.27',
         configuration: {
           url: 'https://registry.scalar.com/@scalar/apis/galaxy?format=json',
         },
