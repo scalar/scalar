@@ -296,6 +296,70 @@ describe('de-serialize-parameter', () => {
       expect(deSerializeParameter(undefined, param)).toBe(undefined)
     })
 
+    it('splits comma-separated string into array when schema type is array and JSON parse fails', () => {
+      const param: ParameterWithSchemaObject = {
+        name: 'actionType',
+        in: 'query',
+        schema: {
+          type: 'array',
+          items: { type: 'string' },
+        },
+      }
+      const example = 'foo,bar'
+
+      const result = deSerializeParameter(example, param)
+
+      expect(result).toEqual(['foo', 'bar'])
+    })
+
+    it('splits comma-separated string with spaces into array when schema type is array', () => {
+      const param: ParameterWithSchemaObject = {
+        name: 'tags',
+        in: 'query',
+        schema: {
+          type: 'array',
+          items: { type: 'string' },
+        },
+      }
+      const example = 'alpha, beta, gamma'
+
+      const result = deSerializeParameter(example, param)
+
+      expect(result).toEqual(['alpha', 'beta', 'gamma'])
+    })
+
+    it('handles single value for array schema type that is not valid JSON', () => {
+      const param: ParameterWithSchemaObject = {
+        name: 'ids',
+        in: 'query',
+        schema: {
+          type: 'array',
+          items: { type: 'string' },
+        },
+      }
+      const example = 'single'
+
+      const result = deSerializeParameter(example, param)
+
+      expect(result).toEqual(['single'])
+    })
+
+    it('still parses valid JSON arrays for array schema type', () => {
+      const param: ParameterWithSchemaObject = {
+        name: 'ids',
+        in: 'query',
+        schema: {
+          type: 'array',
+          items: { type: 'string' },
+        },
+      }
+      const example = '["item1","item2"]'
+
+      const result = deSerializeParameter(example, param)
+
+      expect(result).toEqual(['item1', 'item2'])
+    })
+
     it('handles complex nested JSON with content type', () => {
       const param: ParameterObject = {
         name: 'test',

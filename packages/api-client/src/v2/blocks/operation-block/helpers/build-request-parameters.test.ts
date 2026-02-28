@@ -1515,4 +1515,74 @@ describe('buildRequestParameters', () => {
       expect(headerKeys).toEqual(['z-header', 'a-header', 'm-header'])
     })
   })
+
+  describe('array query parameters - OpenAPI spec compliance (#8261)', () => {
+    it('serializes comma-separated array values as repeated query params (explode=true default)', () => {
+      const params = [
+        createParameter(
+          {
+            name: 'actionType',
+            in: 'query',
+            value: 'foo,bar',
+            schema: {
+              type: 'array',
+              items: { type: 'string' },
+            },
+          },
+          { default: { value: 'foo,bar' } },
+        ),
+      ]
+
+      const result = buildRequestParameters(params)
+
+      // Per OpenAPI 3.1 spec, default for query arrays is style=form + explode=true
+      // This means ?actionType=foo&actionType=bar, NOT ?actionType=foo,bar
+      expect(result.urlParams.getAll('actionType')).toEqual(['foo', 'bar'])
+      expect(result.urlParams.toString()).toBe('actionType=foo&actionType=bar')
+    })
+
+    it('serializes array values as CSV when explode is explicitly false', () => {
+      const params = [
+        createParameter(
+          {
+            name: 'actionType',
+            in: 'query',
+            value: 'foo,bar',
+            explode: false,
+            schema: {
+              type: 'array',
+              items: { type: 'string' },
+            },
+          },
+          { default: { value: 'foo,bar' } },
+        ),
+      ]
+
+      const result = buildRequestParameters(params)
+
+      // With explode=false, should be ?actionType=foo,bar (CSV)
+      expect(result.urlParams.get('actionType')).toBe('foo,bar')
+    })
+
+    it('serializes JSON array values as repeated query params', () => {
+      const params = [
+        createParameter(
+          {
+            name: 'ids',
+            in: 'query',
+            value: '[1,2,3]',
+            schema: {
+              type: 'array',
+              items: { type: 'integer' },
+            },
+          },
+          { default: { value: '[1,2,3]' } },
+        ),
+      ]
+
+      const result = buildRequestParameters(params)
+
+      expect(result.urlParams.getAll('ids')).toEqual(['1', '2', '3'])
+    })
+  })
 })
