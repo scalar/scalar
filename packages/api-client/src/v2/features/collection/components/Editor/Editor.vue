@@ -1,30 +1,23 @@
 <script setup lang="ts">
-import {
-  ScalarButton,
-  ScalarHotkey,
-  ScalarLoading,
-  ScalarToggle,
-  useLoadingState,
-} from '@scalar/components'
+import { ScalarButton, ScalarHotkey, useLoadingState } from '@scalar/components'
 import { debounce } from '@scalar/helpers/general/debounce'
-import { isHttpMethod } from '@scalar/helpers/http/is-http-method'
 import { isObject } from '@scalar/helpers/object/is-object'
-import {
-  ScalarIconArrowsIn,
-  ScalarIconArrowsOut,
-  ScalarIconCaretDown,
-  ScalarIconCaretRight,
-  ScalarIconWarning,
-  ScalarIconXCircle,
-} from '@scalar/icons'
+import { ScalarIconArrowsIn, ScalarIconArrowsOut } from '@scalar/icons'
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api.js'
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
-import { parse as parseYaml, stringify as stringifyYaml } from 'yaml'
 
 import type { CollectionProps } from '@/v2/features/app/helpers/routes'
-import { useMonacoMarkers } from '@/v2/features/collection/components/Editor/hooks/use-editor/use-editor-markers'
+import { useEditorMarkers } from '@/v2/features/collection/components/Editor/hooks/use-editor/use-editor-markers'
 
+import EditorDiagnosticsPanel from './components/EditorDiagnosticsPanel.vue'
+import EditorSavePanel from './components/EditorSavePanel.vue'
+import { getDiagnosticCounts } from './hooks/use-editor/helpers/get-diagnostic-counts'
+import { getOperationContext } from './hooks/use-editor/helpers/get-operation-context'
+import { getVisibleDiagnostics } from './hooks/use-editor/helpers/get-visible-diagnostics'
+import { parseEditorObject } from './hooks/use-editor/helpers/parse-editor-object'
+import { stringifyDocument } from './hooks/use-editor/helpers/stringify-document'
 import { useEditor } from './hooks/use-editor/use-editor'
+import { useEditorState } from './hooks/use-editor/use-editor-state'
 
 const {
   collectionType,
@@ -36,198 +29,51 @@ const {
   isDarkMode,
 } = defineProps<CollectionProps>()
 
+const MAX_VISIBLE_DIAGNOSTICS = 6
+
 const monacoEditorRef = ref<HTMLElement>()
 const editor = ref<ReturnType<typeof useEditor>>()
 
-const isAutoSaveEnabled = ref(false)
-const isDirty = ref(false)
-const editorLanguage = ref<'json' | 'yaml'>('json')
-const isDiagnosticsPaneExpanded = ref(false)
-const isEditorMaximized = ref(false)
-
 const saveLoader = useLoadingState()
-
-const isYamlMode = computed(() => editorLanguage.value === 'yaml')
-const editorRootClass = computed(() =>
-  isEditorMaximized.value
-    ? 'fixed inset-0 z-50 h-screen w-screen border bg-b-1 p-3'
-    : '',
-)
+const {
+  isAutoSaveEnabled,
+  isDirty,
+  editorLanguage,
+  isDiagnosticsPaneExpanded,
+  isEditorMaximized,
+  isYamlMode,
+  editorBottomPadding,
+  editorRootClass,
+  getLanguageToggleClass,
+  toggleEditorMaximized,
+} = useEditorState()
 
 const monacoEditorInstance = computed(() => editor.value?.editor)
-const { markers: diagnostics } = useMonacoMarkers(monacoEditorInstance)
+const { markers: diagnostics } = useEditorMarkers(monacoEditorInstance)
 
 const syncEditorBottomPadding = () => {
-  const bottomPadding = isDiagnosticsPaneExpanded.value ? 155 : 46
   editor.value?.editor.updateOptions({
     padding: {
       top: 0,
-      bottom: bottomPadding,
+      bottom: editorBottomPadding.value,
     },
   })
 }
 
-const diagnosticCounts = computed(() => {
-  let errors = 0
-  let warnings = 0
-
-  for (const marker of diagnostics.value) {
-    if (marker.severity === monaco.MarkerSeverity.Error) {
-      errors += 1
-    } else if (marker.severity === monaco.MarkerSeverity.Warning) {
-      warnings += 1
-    }
-  }
-
-  return { errors, warnings }
-})
-
-const compareDiagnostics = (
-  a: monaco.editor.IMarker,
-  b: monaco.editor.IMarker,
-) => {
-  if (a.severity !== b.severity) {
-    return b.severity - a.severity
-  }
-  if (a.startLineNumber !== b.startLineNumber) {
-    return a.startLineNumber - b.startLineNumber
-  }
-  return a.startColumn - b.startColumn
-}
-
-const visibleDiagnostics = computed(() => {
-  const topDiagnostics: monaco.editor.IMarker[] = []
-
-  for (const marker of diagnostics.value) {
-    const isVisibleSeverity =
-      marker.severity === monaco.MarkerSeverity.Error ||
-      marker.severity === monaco.MarkerSeverity.Warning
-    if (!isVisibleSeverity) {
-      continue
-    }
-
-    let inserted = false
-    for (let i = 0; i < topDiagnostics.length; i++) {
-      const current = topDiagnostics[i]
-      if (current && compareDiagnostics(marker, current) < 0) {
-        topDiagnostics.splice(i, 0, marker)
-        inserted = true
-        break
-      }
-    }
-
-    if (!inserted) {
-      topDiagnostics.push(marker)
-    }
-
-    if (topDiagnostics.length > 6) {
-      topDiagnostics.length = 6
-    }
-  }
-
-  return topDiagnostics
-})
+const diagnosticCounts = computed(() => getDiagnosticCounts(diagnostics.value))
+const visibleDiagnostics = computed(() =>
+  getVisibleDiagnostics(diagnostics.value, MAX_VISIBLE_DIAGNOSTICS),
+)
 
 const focusDiagnostic = (marker: monaco.editor.IMarker) => {
   editor.value?.setCursorToMarker(marker)
 }
 
-const toggleEditorMaximized = () => {
-  isEditorMaximized.value = !isEditorMaximized.value
-}
+const getEditorValue = (): string | null => editor.value?.getValue?.() ?? null
 
-const saveStatusText = computed(() => {
-  if (!saveLoader.isActive) {
-    return null
-  }
-  if (saveLoader.isLoading) {
-    return 'Saving…'
-  }
-  if (saveLoader.isInvalid) {
-    return 'Save failed'
-  }
-  if (saveLoader.isValid) {
-    return 'Saved'
-  }
-  return null
-})
-
-const editorStatusText = computed(() => {
-  if (!isAutoSaveEnabled.value && isDirty.value) {
-    return 'Unsaved'
-  }
-
-  return saveStatusText.value
-})
-
-const shouldShowEditorStatus = computed(() => editorStatusText.value !== null)
-
-const getLanguageToggleClass = (isActive: boolean): string => {
-  const base =
-    'rounded-none px-2 py-1 text-[11px] leading-4 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-c-accent/30 focus-visible:ring-offset-1 focus-visible:ring-offset-b-1 first:rounded-md last:rounded-md'
-  const active = 'bg-b-2 text-c-1 hover:bg-b-2'
-  const inactive = 'text-c-2 hover:bg-b-2/60 hover:text-c-1'
-  return `${base} ${isActive ? active : inactive}`
-}
-
-const editorStatusTone = computed<
-  'warning' | 'loading' | 'success' | 'danger' | null
->(() => {
-  if (!shouldShowEditorStatus.value) {
-    return null
-  }
-
-  if (!isAutoSaveEnabled.value && isDirty.value) {
-    return 'warning'
-  }
-
-  if (saveLoader.isLoading) {
-    return 'loading'
-  }
-
-  if (saveLoader.isInvalid) {
-    return 'danger'
-  }
-
-  if (saveLoader.isValid) {
-    return 'success'
-  }
-
-  return null
-})
-
-const editorStatusDotClass = computed(() => {
-  switch (editorStatusTone.value) {
-    case 'warning':
-      return 'bg-c-alert'
-    case 'success':
-      return 'bg-c-accent'
-    case 'danger':
-      return 'bg-c-danger'
-    default:
-      return 'bg-b-3'
-  }
-})
-
-const editorStatusTextClass = computed(() => {
-  switch (editorStatusTone.value) {
-    case 'warning':
-      return 'text-c-alert'
-    case 'success':
-      return 'text-c-accent'
-    case 'danger':
-      return 'text-c-danger'
-    default:
-      return 'text-c-2'
-  }
-})
-
-const getDocumentValue = async () => {
+const getDocumentValue = async (): Promise<string> => {
   const document = await workspaceStore.getEditableDocument(documentSlug)
-  if (editorLanguage.value === 'yaml') {
-    return stringifyYaml(document, { indent: 2 })
-  }
-  return JSON.stringify(document, null, 2)
+  return stringifyDocument(document, editorLanguage.value)
 }
 
 const loadDocumentIntoEditor = async () => {
@@ -241,49 +87,20 @@ const formatDocument = async () => {
 }
 
 const focusOperation = async () => {
-  if (!path || !isHttpMethod(method)) {
+  const operationContext = getOperationContext(path, method)
+  if (!operationContext) {
     return
   }
-  await editor.value?.focusPath(['paths', path, method])
-}
 
-const safeParseJson = (value: string) => {
-  try {
-    return JSON.parse(value)
-  } catch {
-    return null
-  }
-}
-
-const safeParseJsonObject = (value: string) => {
-  const parsed = safeParseJson(value)
-  if (!isObject(parsed)) {
-    return null
-  }
-  return parsed
-}
-
-const safeParseYaml = (value: string) => {
-  try {
-    return parseYaml(value)
-  } catch {
-    return null
-  }
-}
-
-const safeParseYamlObject = (value: string) => {
-  const parsed = safeParseYaml(value)
-  if (!isObject(parsed)) {
-    return null
-  }
-  return parsed
+  await editor.value?.focusPath([
+    'paths',
+    operationContext.path,
+    operationContext.method,
+  ])
 }
 
 const persistEditorToWorkspace = async (value: string) => {
-  const parsed =
-    editorLanguage.value === 'yaml'
-      ? safeParseYamlObject(value)
-      : safeParseJsonObject(value)
+  const parsed = parseEditorObject(value, editorLanguage.value)
   if (!parsed) {
     const firstError = diagnostics.value.find(
       (m) => m.severity === monaco.MarkerSeverity.Error,
@@ -304,7 +121,7 @@ const persistEditorToWorkspace = async (value: string) => {
 const debouncedPersist = debounce({ delay: 1500 })
 
 const saveNow = async () => {
-  const value = editor.value?.getValue?.()
+  const value = getEditorValue()
   if (!value) {
     return
   }
@@ -324,40 +141,44 @@ const handleEditorChange = (value: string) => {
 }
 
 const focusOperationServers = async () => {
-  if (!path || !isHttpMethod(method)) {
+  const operationContext = getOperationContext(path, method)
+  if (!operationContext) {
     return
   }
 
-  const value = editor.value?.getValue?.()
+  const value = getEditorValue()
   if (!value) {
     return
   }
 
-  const parsed =
-    editorLanguage.value === 'yaml'
-      ? safeParseYamlObject(value)
-      : safeParseJsonObject(value)
+  const parsed = parseEditorObject(value, editorLanguage.value)
 
-  if (
-    !parsed ||
-    !isObject(parsed.paths) ||
-    !isObject(parsed.paths[path]) ||
-    !isObject(parsed.paths[path][method])
-  ) {
+  if (!parsed || !isObject(parsed.paths)) {
     return
   }
 
-  const operation = parsed.paths[path][method]
+  const pathsObject = parsed.paths as Record<string, unknown>
+  const operationPathItem = pathsObject[operationContext.path]
+  if (!isObject(operationPathItem)) {
+    return
+  }
+
+  const operation = operationPathItem[operationContext.method]
+  if (!isObject(operation)) {
+    return
+  }
+
   // Add default servers if not present
   operation.servers ??= []
 
   // Update the editor value
-  editor.value?.setValue(
-    editorLanguage.value === 'yaml'
-      ? stringifyYaml(parsed, { indent: 2 })
-      : JSON.stringify(parsed, null, 2),
-  )
-  await editor.value?.focusPath(['paths', path, method, 'servers'])
+  editor.value?.setValue(stringifyDocument(parsed, editorLanguage.value))
+  await editor.value?.focusPath([
+    'paths',
+    operationContext.path,
+    operationContext.method,
+    'servers',
+  ])
 }
 
 onMounted(() => {
@@ -419,21 +240,14 @@ watch(isDiagnosticsPaneExpanded, () => {
 watch(editorLanguage, async (nextLanguage, previousLanguage) => {
   editor.value?.setLanguage(nextLanguage)
 
-  const value = editor.value?.getValue?.()
+  const value = getEditorValue()
   if (!value) {
     return
   }
 
-  const parsed =
-    previousLanguage === 'yaml'
-      ? safeParseYamlObject(value)
-      : safeParseJsonObject(value)
+  const parsed = parseEditorObject(value, previousLanguage)
   if (parsed) {
-    editor.value?.setValue(
-      nextLanguage === 'yaml'
-        ? stringifyYaml(parsed, { indent: 2 })
-        : JSON.stringify(parsed, null, 2),
-    )
+    editor.value?.setValue(stringifyDocument(parsed, nextLanguage))
     isDirty.value = true
   }
 
@@ -449,7 +263,7 @@ watch(
     }
 
     if (isDirty.value) {
-      const value = editor.value?.getValue?.()
+      const value = getEditorValue()
       if (!value) {
         return
       }
@@ -464,7 +278,10 @@ watch(
 
 <template>
   <div
-    v-if="collectionType === 'operation' && path && isHttpMethod(method)"
+    v-if="
+      collectionType === 'operation' &&
+      getOperationContext(path, method) !== null
+    "
     class="flex w-full min-w-0 flex-1 flex-col gap-2"
     :class="editorRootClass">
     <div
@@ -565,126 +382,20 @@ watch(
         class="relative w-full min-w-0 flex-1"
         :class="isEditorMaximized ? 'h-full min-h-0' : 'h-[500px]'">
         <div class="pointer-events-none absolute top-2 right-2 z-10">
-          <div
-            class="bg-b-1 pointer-events-auto flex flex-col items-stretch overflow-hidden rounded-lg border shadow-sm">
-            <div class="flex items-center gap-2 px-2 py-1.5">
-              <span class="text-c-2 text-[11px] font-medium whitespace-nowrap">
-                Auto-save
-              </span>
-              <ScalarToggle v-model="isAutoSaveEnabled" />
-
-              <div class="bg-b-3 mx-1 h-4 w-px" />
-
-              <div class="min-w-[48px]">
-                <ScalarButton
-                  v-if="!isAutoSaveEnabled"
-                  :disabled="!isDirty || saveLoader.isLoading"
-                  size="xs"
-                  variant="outlined"
-                  @click="saveNow">
-                  Save
-                </ScalarButton>
-                <div
-                  v-else
-                  class="text-c-3 flex h-6 items-center justify-center rounded px-2 text-[11px] whitespace-nowrap">
-                  Auto
-                </div>
-              </div>
-            </div>
-
-            <div
-              v-if="shouldShowEditorStatus"
-              class="bg-b-2/40 flex items-center gap-2 border-t px-2 py-1 text-[11px]">
-              <ScalarLoading
-                v-if="saveLoader.isActive"
-                class="self-center"
-                :loader="saveLoader"
-                size="sm" />
-              <span
-                v-else
-                class="size-1.5 rounded-full"
-                :class="editorStatusDotClass" />
-
-              <span
-                class="whitespace-nowrap"
-                :class="editorStatusTextClass">
-                {{ editorStatusText }}
-              </span>
-            </div>
-          </div>
+          <EditorSavePanel
+            :isAutoSaveEnabled="isAutoSaveEnabled"
+            :isDirty="isDirty"
+            :saveLoader="saveLoader"
+            @saveNow="saveNow"
+            @update:isAutoSaveEnabled="isAutoSaveEnabled = $event" />
         </div>
 
-        <div class="pointer-events-none absolute right-2 bottom-2 left-2 z-10">
-          <div
-            class="bg-b-1 shadow-border pointer-events-auto flex flex-col overflow-hidden rounded-lg text-[11px]">
-            <button
-              class="bg-b-2/30 hover:bg-b-2/50 flex items-center justify-between px-2.5 py-2 text-left"
-              type="button"
-              @click="isDiagnosticsPaneExpanded = !isDiagnosticsPaneExpanded">
-              <span class="flex items-center gap-3">
-                <span class="text-c-2 font-medium">Problems</span>
-                <span
-                  class="text-c-danger flex items-center gap-1"
-                  title="Errors">
-                  <ScalarIconXCircle class="size-3" />
-                  <span>{{ diagnosticCounts.errors }}</span>
-                </span>
-                <span
-                  class="text-c-alert flex items-center gap-1"
-                  title="Warnings">
-                  <ScalarIconWarning class="size-3" />
-                  <span>{{ diagnosticCounts.warnings }}</span>
-                </span>
-              </span>
-
-              <span class="text-c-3">
-                <ScalarIconCaretDown
-                  v-if="isDiagnosticsPaneExpanded"
-                  class="size-3" />
-                <ScalarIconCaretRight
-                  v-else
-                  class="size-3" />
-              </span>
-            </button>
-
-            <template v-if="isDiagnosticsPaneExpanded">
-              <div
-                v-if="visibleDiagnostics.length"
-                class="max-h-28 overflow-auto border-t">
-                <button
-                  v-for="(marker, index) in visibleDiagnostics"
-                  :key="`${marker.owner}-${marker.startLineNumber}-${marker.startColumn}-${index}`"
-                  class="hover:bg-b-2/40 flex w-full items-start gap-2 px-2.5 py-2 text-left"
-                  type="button"
-                  @click="focusDiagnostic(marker)">
-                  <span
-                    class="mt-0.5 size-1.5 shrink-0 rounded-full"
-                    :class="
-                      marker.severity === monaco.MarkerSeverity.Error
-                        ? 'bg-c-danger'
-                        : 'bg-c-alert'
-                    " />
-
-                  <span class="min-w-0 flex-1">
-                    <span class="text-c-1 block truncate">{{
-                      marker.message
-                    }}</span>
-                    <span class="text-c-3 block whitespace-nowrap">
-                      Ln {{ marker.startLineNumber }}, Col
-                      {{ marker.startColumn }}
-                    </span>
-                  </span>
-                </button>
-              </div>
-              <div
-                v-else
-                class="text-c-3 border-t px-2.5 py-2">
-                Errors and warnings from the JSON/YAML language workers will
-                show up here.
-              </div>
-            </template>
-          </div>
-        </div>
+        <EditorDiagnosticsPanel
+          :diagnosticCounts="diagnosticCounts"
+          :expanded="isDiagnosticsPaneExpanded"
+          :visibleDiagnostics="visibleDiagnostics"
+          @focusDiagnostic="focusDiagnostic"
+          @toggle="isDiagnosticsPaneExpanded = !isDiagnosticsPaneExpanded" />
 
         <div
           ref="monacoEditorRef"

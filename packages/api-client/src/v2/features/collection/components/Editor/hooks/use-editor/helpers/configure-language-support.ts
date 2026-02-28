@@ -5,6 +5,11 @@ import openApiJsonSchema from '@/v2/features/collection/components/Editor/schema
 
 const OPENAPI_JSON_SCHEMA_URI = 'inmemory://model/scalar/openapi-json-schema'
 
+/**
+ * Configures JSON language support for the given model URI
+ *
+ * @param modelUri - The URI of the model to configure language support for
+ */
 export const confugureJson = (modelUri: string): void => {
   const defaults = monaco.languages.json.jsonDefaults
   const current = defaults.diagnosticsOptions
@@ -27,6 +32,11 @@ export const confugureJson = (modelUri: string): void => {
   })
 }
 
+/**
+ * Configures YAML language support for the given model URI
+ *
+ * @param modelUri - The URI of the model to configure language support for
+ */
 export const configureYaml = (modelUri: string): void => {
   configureMonacoYaml(monaco, {
     enableSchemaRequest: false,
@@ -45,6 +55,11 @@ export const configureYaml = (modelUri: string): void => {
   })
 }
 
+/**
+ * Configures both JSON and YAML language support for the given model URI
+ *
+ * @param modelUri - The URI of the model to configure language support for
+ */
 export const configureLanguageSupport = (modelUri: string): void => {
   confugureJson(modelUri)
   configureYaml(modelUri)

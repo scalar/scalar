@@ -16,7 +16,7 @@ import { parseJsonPointerPath } from '@/v2/features/collection/components/Editor
 import { configureLanguageSupport } from './helpers/configure-language-support'
 import { ensureMonacoEnvironment } from './helpers/ensure-monaco-environment'
 import { getJsonAstNodeFromPath } from './helpers/get-json-ast-node-from-path'
-import type { JsonPath } from './helpers/json-path'
+import type { JsonPath } from './helpers/json-ast'
 import { ensureJsonPointerLinkSupport } from './helpers/json-pointer-links'
 
 export type MonacoEditorAction = {
@@ -27,6 +27,10 @@ export type MonacoEditorAction = {
 }
 
 export type MonacoEditorLanguage = 'json' | 'yaml'
+type OffsetRange = {
+  startOffset: number
+  endOffset: number
+}
 
 export const useEditor = ({
   element,
@@ -106,7 +110,7 @@ export const useEditor = ({
     return new monaco.Range(startLine, 1, endLine, model.getLineMaxColumn(endLine))
   }
 
-  const getPathOffsets = async (path: JsonPath): Promise<{ startOffset: number; endOffset: number } | null> => {
+  const getPathOffsets = async (path: JsonPath): Promise<OffsetRange | null> => {
     if (model.getLanguageId() === 'yaml') {
       return getYamlNodeRangeFromPath(model.getValue(), path)
     }
@@ -119,9 +123,12 @@ export const useEditor = ({
     return { startOffset: node.offset, endOffset: node.offset + node.length }
   }
 
-  const highlightOffsets = (startOffset: number, endOffset: number) => {
-    const range = offsetsToWholeLineRange(startOffset, endOffset)
+  const runEditorAction = async (actionId: string): Promise<void> => {
+    await editor.getAction(actionId)?.run()
+  }
 
+  const highlightOffsets = ({ startOffset, endOffset }: OffsetRange): void => {
+    const range = offsetsToWholeLineRange(startOffset, endOffset)
     decorations = editor.deltaDecorations(decorations, [
       {
         range,
@@ -139,10 +146,10 @@ export const useEditor = ({
       return
     }
 
-    highlightOffsets(offsets.startOffset, offsets.endOffset)
+    highlightOffsets(offsets)
   }
 
-  const focusPath = async (path: JsonPath) => {
+  const focusPath = async (path: JsonPath): Promise<void> => {
     const offsets = await getPathOffsets(path)
     if (!offsets) {
       return
@@ -151,19 +158,20 @@ export const useEditor = ({
     const unfoldRange = offsetsToWholeLineRange(offsets.startOffset, offsets.endOffset)
 
     // fold all and unfold the target node
-    await editor.getAction('editor.foldAll')?.run()
+    await runEditorAction('editor.foldAll')
 
     editor.setSelection(unfoldRange)
-    await editor.getAction('editor.unfoldRecursively')?.run()
+    await runEditorAction('editor.unfoldRecursively')
 
     // Unfold based on the whole-line range so line-anchored folds open reliably.
-    editor.setPosition(model.getPositionAt(offsets.startOffset))
-    editor.revealPositionNearTop(model.getPositionAt(offsets.startOffset))
+    const position = model.getPositionAt(offsets.startOffset)
+    editor.setPosition(position)
+    editor.revealPositionNearTop(position)
 
-    highlightOffsets(offsets.startOffset, offsets.endOffset)
+    highlightOffsets(offsets)
   }
 
-  const navigateToJsonPointer = async (pointer: string) => {
+  const navigateToJsonPointer = async (pointer: string): Promise<void> => {
     const pointerPath = parseJsonPointerPath(pointer)
     if (!pointerPath) {
       return
@@ -220,30 +228,30 @@ export const useEditor = ({
     },
   )
 
-  const formatDocument = async () => {
-    await editor.getAction('editor.action.formatDocument')?.run()
+  const formatDocument = async (): Promise<void> => {
+    await runEditorAction('editor.action.formatDocument')
   }
 
-  const getValue = () => editor.getValue()
+  const getValue = (): string => editor.getValue()
 
-  const setValue = (nextValue: string) => {
+  const setValue = (nextValue: string): void => {
     editor.setValue(nextValue)
   }
 
-  const hasTextFocus = () => editor.hasTextFocus()
+  const hasTextFocus = (): boolean => editor.hasTextFocus()
 
-  const setLanguage = (nextLanguage: MonacoEditorLanguage) => {
+  const setLanguage = (nextLanguage: MonacoEditorLanguage): void => {
     monaco.editor.setModelLanguage(model, nextLanguage)
   }
 
-  const setCursorToMarker = (marker: monaco.editor.IMarker) => {
+  const setCursorToMarker = (marker: monaco.editor.IMarker): void => {
     const lineNumber = Math.min(Math.max(marker.startLineNumber || 1, 1), model.getLineCount())
     const column = Math.min(Math.max(marker.startColumn || 1, 1), model.getLineMaxColumn(lineNumber))
 
     editor.setPosition({ lineNumber, column })
   }
 
-  const dispose = () => {
+  const dispose = (): void => {
     editor.dispose()
     model.dispose()
   }

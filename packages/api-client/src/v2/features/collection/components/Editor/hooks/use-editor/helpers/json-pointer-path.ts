@@ -1,4 +1,4 @@
-import type { JsonPath } from './json-path'
+import type { JsonPath } from './json-ast'
 
 const decodeJsonPointerSegment = (segment: string): string => {
   // RFC 6901: ~1 => /, ~0 => ~

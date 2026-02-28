@@ -1,7 +1,7 @@
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api.js'
 import { type MaybeRefOrGetter, onBeforeUnmount, onMounted, ref, toValue, watch } from 'vue'
 
-export const useMonacoMarkers = (editorRef: MaybeRefOrGetter<monaco.editor.IStandaloneCodeEditor | undefined>) => {
+export const useEditorMarkers = (editorRef: MaybeRefOrGetter<monaco.editor.IStandaloneCodeEditor | undefined>) => {
   const markers = ref<monaco.editor.IMarker[]>([])
 
   let dispose: monaco.IDisposable | null = null
