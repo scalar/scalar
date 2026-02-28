@@ -36,7 +36,7 @@ const { method, name, url, options } = defineProps<{
         class="request-method py-0.75 font-bold"
         :method="method" />
       <div
-        class="text-c-1 min-w-0 flex-1 truncate text-sm leading-3 font-bold group-open:whitespace-normal">
+        class="text-c-1 min-w-0 flex-1 truncate text-sm leading-5 font-bold group-open:whitespace-normal">
         {{ name }}
         <span class="text-c-2 font-normal">
           {{ url }}

@@ -63,7 +63,7 @@ const startDrag = (event: MouseEvent) => {
   <aside
     v-show="isSidebarOpen"
     ref="sidebarRef"
-    class="sidebar bg-b-1 relative flex min-w-full flex-1 flex-col overflow-hidden leading-3 md:min-w-fit md:flex-none md:border-r md:border-b-0"
+    class="sidebar bg-b-1 relative flex min-w-full flex-1 flex-col overflow-hidden leading-5 md:min-w-fit md:flex-none md:border-r md:border-b-0"
     :class="{ dragging: isDragging }"
     :style="{ width: breakpoints.lg ? sidebarWidth : '100%' }">
     <slot name="header" />

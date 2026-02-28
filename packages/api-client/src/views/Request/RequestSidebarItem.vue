@@ -398,7 +398,7 @@ const shouldShowItem = computed(() => {
       :id="item.entity.uid"
       ref="draggableRef"
       :ceiling="getDraggableOffsets.ceiling"
-      class="gap-1/2 flex flex-1 flex-col text-base"
+      class="gap-1/2 flex flex-1 flex-col text-base/5"
       :floor="getDraggableOffsets.floor"
       :isDraggable="isDraggable"
       :isDroppable="isDroppable"
