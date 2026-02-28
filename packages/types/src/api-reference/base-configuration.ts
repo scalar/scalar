@@ -79,6 +79,21 @@ export const baseConfigurationSchema = z.object({
    */
   showDeveloperTools: z.enum(['always', 'localhost', 'never']).optional().default('localhost').catch('localhost'),
   /**
+   * Controls which example panes display the "Show Schema" toggle.
+   *
+   * - `responses` – shows the toggle only on response examples (default)
+   * - `requests`  – shows the toggle only on request examples
+   * - `both`      – shows the toggle on both request and response examples
+   * - `none`      – hides the toggle everywhere
+   *
+   * @default 'responses'
+   */
+  showSchemaToggle: z
+    .enum(['responses', 'requests', 'both', 'none'])
+    .optional()
+    .default('responses')
+    .catch('responses'),
+  /**
    * Sets the visibility of the developer tools
    * @default 'localhost' to only show the toolbar on localhost or similar hosts
    * @deprecated Use showDeveloperTools instead

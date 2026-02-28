@@ -605,6 +605,26 @@ By default we don't render it in the UI. If it's helpful to show it to your user
 }
 ```
 
+#### showSchemaToggle
+
+**Type:** `'responses' | 'requests' | 'both' | 'none'`
+
+Controls which example panes display the "Show Schema" toggle that lets users switch
+between examples and the raw OpenAPI schema.
+
+- `responses`: Shows the toggle on response examples only
+- `requests`: Shows the toggle on request examples only (POST/PUT/PATCH endpoints)
+- `both`: Shows the toggle on both request and response examples
+- `none`: Hides the toggle everywhere
+
+**Default:** `'responses'`
+
+```javascript
+{
+  showSchemaToggle: 'both'
+}
+```
+
 #### hideModels
 
 **Type:** `boolean`

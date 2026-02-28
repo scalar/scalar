@@ -16,7 +16,8 @@ export type OperationProps = {
     | 'orderRequiredPropertiesFirst'
     | 'orderSchemaPropertiesBy'
     | 'showOperationId'
-  >
+  > &
+    Partial<Pick<ApiReferenceConfigurationRaw, 'showSchemaToggle'>>
   /** Document object */
   document: OpenApiDocument
   /** Key of the operations path in the document.paths object */

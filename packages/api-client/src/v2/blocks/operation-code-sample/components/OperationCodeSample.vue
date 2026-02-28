@@ -80,6 +80,13 @@ export type OperationCodeSampleProps = {
    */
   fallback?: boolean
   /**
+   * Controls whether the "Show Schema" toggle is rendered.
+   *
+   * When `false` the checkbox is hidden. When `true` or `undefined` it is shown
+   * (for backward compatibility with standalone usage).
+   */
+  showSchemaToggle?: boolean
+  /**
    * A method to generate the label of the block, should return an html string
    */
   generateLabel?: () => string
@@ -150,6 +157,7 @@ import type {
 import type { SecuritySchemeObjectSecret } from '@/v2/blocks/scalar-auth-selector-block/helpers/secret-types'
 
 import { generateCodeSnippet } from '../helpers/generate-code-snippet'
+import { getResolvedRefDeep } from '../helpers/get-resolved-ref-deep'
 import ExamplePicker from './ExamplePicker.vue'
 
 const {
@@ -183,6 +191,18 @@ const requestBodyExamples = computed(() => {
 
   return examples
 })
+
+/** Grab the request body schema for the selected content type */
+const requestBodySchema = computed(() => {
+  const content = getResolvedRef(operation.requestBody)?.content ?? {}
+  const contentType = selectedContentType || Object.keys(content)[0]
+  if (!contentType) return undefined
+
+  return content[contentType]?.schema
+})
+
+/** Toggle between showing the code snippet and the raw schema */
+const showSchema = ref(false)
 
 /** The currently selected example key with v-model support */
 const selectedExampleKey = defineModel<string>('selectedExample', {
@@ -320,7 +340,7 @@ const id = useId()
     ref="elem"
     class="request-card dark-mode">
     <!-- Header -->
-    <ScalarCardHeader class="pr-2.5">
+    <ScalarCardHeader class="items-center pr-2.5">
       <span class="sr-only">Request Example for</span>
       <HttpMethod
         as="span"
@@ -334,6 +354,17 @@ const id = useId()
       <template
         v-if="!isWebhook && clients.length"
         #actions>
+        <label
+          v-if="requestBodySchema && showSchemaToggle !== false"
+          class="scalar-card-checkbox">
+          Show Schema
+          <input
+            v-model="showSchema"
+            :aria-controls="`${id}-example`"
+            class="scalar-card-checkbox-input"
+            type="checkbox" />
+          <span class="scalar-card-checkbox-checkmark" />
+        </label>
         <ScalarCombobox
           class="max-h-80"
           :modelValue="localSelectedClient"
@@ -359,8 +390,15 @@ const id = useId()
       <div
         :id="`${id}-example`"
         class="code-snippet">
+        <!-- Raw request body schema -->
         <ScalarCodeBlock
-          v-if="!shouldVirtualize"
+          v-if="showSchema && requestBodySchema"
+          class="bg-b-2 h-full"
+          :content="getResolvedRefDeep(requestBodySchema)"
+          lang="json" />
+        <!-- Generated code snippet -->
+        <ScalarCodeBlock
+          v-else-if="!shouldVirtualize"
           class="bg-b-2 h-full"
           :content="generatedCode"
           :hideCredentials="secretCredentials"
@@ -419,6 +457,9 @@ const id = useId()
 .request-card {
   font-size: var(--scalar-font-size-3);
 }
+.request-card :deep(.scalar-card-header > .flex) {
+  align-items: center;
+}
 .request-method {
   font-family: var(--scalar-font-code);
   text-transform: uppercase;
@@ -455,5 +496,62 @@ const id = useId()
   display: flex;
   flex-direction: column;
   width: 100%;
+}
+
+/* Show Schema checkbox */
+.scalar-card-checkbox {
+  display: flex;
+  align-items: center;
+  position: relative;
+  cursor: pointer;
+  user-select: none;
+  font-size: var(--scalar-small);
+  font-weight: var(--scalar-font-normal);
+  color: var(--scalar-color-2);
+  white-space: nowrap;
+  gap: 6px;
+  padding: 0 8px 0 6px;
+}
+.scalar-card-checkbox:hover {
+  color: var(--scalar-color-1);
+}
+.scalar-card-checkbox-input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+.scalar-card-checkbox-checkmark {
+  position: relative;
+  height: 16px;
+  width: 16px;
+  border-radius: var(--scalar-radius);
+  background-color: var(--scalar-background-3);
+  box-shadow: inset 0 0 0 var(--scalar-border-width) var(--scalar-border-color);
+}
+.scalar-card-checkbox-checkmark:after {
+  content: '';
+  position: absolute;
+  left: 5px;
+  top: 2px;
+  width: 5px;
+  height: 9px;
+  border: solid var(--scalar-button-1-color);
+  border-width: 0 1.5px 1.5px 0;
+  transform: rotate(45deg);
+  display: none;
+}
+.scalar-card-checkbox-input:focus-visible ~ .scalar-card-checkbox-checkmark {
+  outline: 1px solid var(--scalar-color-accent);
+}
+.scalar-card-checkbox:has(.scalar-card-checkbox-input:checked) {
+  color: var(--scalar-color-1);
+  font-weight: var(--scalar-semibold);
+}
+.scalar-card-checkbox-input:checked ~ .scalar-card-checkbox-checkmark {
+  background-color: var(--scalar-button-1);
+  box-shadow: none;
+}
+.scalar-card-checkbox-input:checked ~ .scalar-card-checkbox-checkmark:after {
+  display: block;
 }
 </style>

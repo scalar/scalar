@@ -74,6 +74,21 @@ const operationTitle = computed(() => operation.summary || path || '')
 const labelId = useId()
 
 const operationExtensions = computed(() => getXKeysFromObject(operation))
+
+/** Whether to show the "Show Schema" toggle on response examples */
+const showResponseSchemaToggle = computed(
+  () =>
+    !options.showSchemaToggle ||
+    options.showSchemaToggle === 'responses' ||
+    options.showSchemaToggle === 'both',
+)
+
+/** Whether to show the "Show Schema" toggle on request examples */
+const showRequestSchemaToggle = computed(
+  () =>
+    options.showSchemaToggle === 'requests' ||
+    options.showSchemaToggle === 'both',
+)
 </script>
 
 <template>
@@ -185,7 +200,8 @@ const operationExtensions = computed(() => getXKeysFromObject(operation))
                 :path
                 :securitySchemes="selectedSecuritySchemes"
                 :selectedClient
-                :selectedServer>
+                :selectedServer
+                :showSchemaToggle="showRequestSchemaToggle">
                 <template #header>
                   <OperationPath
                     class="font-code text-c-2 [&_em]:text-c-1 [&_em]:not-italic"
@@ -213,6 +229,7 @@ const operationExtensions = computed(() => getXKeysFromObject(operation))
               <ExampleResponses
                 v-if="operation.responses"
                 :responses="operation.responses"
+                :showSchemaToggle="showResponseSchemaToggle"
                 style="margin-top: 12px" />
             </ScalarErrorBoundary>
           </div>
