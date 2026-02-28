@@ -471,9 +471,9 @@ watch(
       class="grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-3">
       <div
         class="flex min-w-0 items-center gap-1 overflow-x-auto whitespace-nowrap">
-        <span class="text-c-2 text-xs font-medium whitespace-nowrap"
-          >Shortcuts</span
-        >
+        <span class="text-c-2 text-xs font-medium whitespace-nowrap">
+          Shortcuts
+        </span>
 
         <ScalarButton
           class="whitespace-nowrap"

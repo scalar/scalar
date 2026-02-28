@@ -7,17 +7,10 @@ export type YamlNodeRange = {
   endOffset: number
 }
 
-const isValidYamlRange = (
-  range: unknown,
-): range is readonly [number, number, ...unknown[]] =>
-  Array.isArray(range) &&
-  typeof range[0] === 'number' &&
-  typeof range[1] === 'number'
+const isValidYamlRange = (range: unknown): range is readonly [number, number, ...unknown[]] =>
+  Array.isArray(range) && typeof range[0] === 'number' && typeof range[1] === 'number'
 
-export const getYamlNodeRangeFromPath = (
-  yamlText: string,
-  path: JsonPath,
-): YamlNodeRange | null => {
+export const getYamlNodeRangeFromPath = (yamlText: string, path: JsonPath): YamlNodeRange | null => {
   try {
     const doc = parseDocument(yamlText)
     let current: unknown = doc.contents
@@ -44,10 +37,7 @@ export const getYamlNodeRangeFromPath = (
       }
 
       if (isSeq(current)) {
-        const index =
-          typeof segment === 'number'
-            ? segment
-            : Number.parseInt(String(segment), 10)
+        const index = typeof segment === 'number' ? segment : Number.parseInt(String(segment), 10)
         if (!Number.isFinite(index) || index < 0 || index >= current.items.length) {
           return null
         }
@@ -90,4 +80,3 @@ export const getYamlNodeRangeFromPath = (
     return null
   }
 }
-
