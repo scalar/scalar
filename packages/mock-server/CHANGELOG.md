@@ -1,5 +1,14 @@
 # @scalar/mock-server
 
+## 0.8.45
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/oas-utils@0.8.0**
+  - [#8290](https://github.com/scalar/scalar/pull/8290): chore: update deps
+
 ## 0.8.44
 
 ### Patch Changes

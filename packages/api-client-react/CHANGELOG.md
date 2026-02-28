@@ -1,5 +1,14 @@
 # @scalar/api-client-react
 
+## 1.3.104
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-client@2.31.0**
+  - [#8290](https://github.com/scalar/scalar/pull/8290): chore: update deps
+
 ## 1.3.103
 
 ### Patch Changes
