@@ -2,7 +2,7 @@ import { isMap, isPair, isScalar, isSeq, parseDocument } from 'yaml'
 
 import type { JsonPath } from './json-ast'
 
-export type YamlNodeRange = {
+type YamlNodeRange = {
   startOffset: number
   endOffset: number
 }

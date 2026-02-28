@@ -1,6 +1,6 @@
 import { computed, ref } from 'vue'
 
-export type EditorLanguage = 'json' | 'yaml'
+import type { MonacoEditorLanguage } from '@/v2/features/collection/components/Editor/hooks/use-editor/use-editor'
 
 const DIAGNOSTICS_COLLAPSED_BOTTOM_PADDING = 46
 const DIAGNOSTICS_EXPANDED_BOTTOM_PADDING = 155
@@ -8,20 +8,16 @@ const DIAGNOSTICS_EXPANDED_BOTTOM_PADDING = 155
 export const useEditorState = () => {
   const isAutoSaveEnabled = ref(false)
   const isDirty = ref(false)
-  const editorLanguage = ref<EditorLanguage>('json')
+  const editorLanguage = ref<MonacoEditorLanguage>('json')
   const isDiagnosticsPaneExpanded = ref(false)
   const isEditorMaximized = ref(false)
 
   const isYamlMode = computed(() => editorLanguage.value === 'yaml')
   const editorBottomPadding = computed(() =>
-    isDiagnosticsPaneExpanded.value
-      ? DIAGNOSTICS_EXPANDED_BOTTOM_PADDING
-      : DIAGNOSTICS_COLLAPSED_BOTTOM_PADDING,
+    isDiagnosticsPaneExpanded.value ? DIAGNOSTICS_EXPANDED_BOTTOM_PADDING : DIAGNOSTICS_COLLAPSED_BOTTOM_PADDING,
   )
   const editorRootClass = computed(() =>
-    isEditorMaximized.value
-      ? 'fixed inset-0 z-50 h-screen w-screen border bg-b-1 p-3'
-      : '',
+    isEditorMaximized.value ? 'fixed inset-0 z-50 h-screen w-screen border bg-b-1 p-3' : '',
   )
 
   const getLanguageToggleClass = (isActive: boolean): string => {

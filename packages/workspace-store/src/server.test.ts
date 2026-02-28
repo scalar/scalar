@@ -251,6 +251,7 @@ describe('create-server-store', () => {
         },
         'x-scalar-order': ['doc-3/GET/planets'],
         'x-scalar-original-document-hash': '',
+        'x-scalar-selected-server': 'test',
       })
     })
   })

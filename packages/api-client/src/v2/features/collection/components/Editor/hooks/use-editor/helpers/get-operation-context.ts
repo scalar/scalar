@@ -1,6 +1,6 @@
 import { isHttpMethod } from '@scalar/helpers/http/is-http-method'
 
-export type OperationContext = {
+type OperationContext = {
   path: string
   method: string
 }

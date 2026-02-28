@@ -7,11 +7,7 @@ import {
 } from '@scalar/components'
 import { computed } from 'vue'
 
-const {
-  isAutoSaveEnabled,
-  isDirty,
-  saveLoader,
-} = defineProps<{
+const { isAutoSaveEnabled, isDirty, saveLoader } = defineProps<{
   isAutoSaveEnabled: boolean
   isDirty: boolean
   saveLoader: LoadingState

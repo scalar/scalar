@@ -10,7 +10,7 @@ const OPENAPI_JSON_SCHEMA_URI = 'inmemory://model/scalar/openapi-json-schema'
  *
  * @param modelUri - The URI of the model to configure language support for
  */
-export const confugureJson = (modelUri: string): void => {
+const confugureJson = (modelUri: string): void => {
   const defaults = monaco.languages.json.jsonDefaults
   const current = defaults.diagnosticsOptions
 
@@ -37,7 +37,7 @@ export const confugureJson = (modelUri: string): void => {
  *
  * @param modelUri - The URI of the model to configure language support for
  */
-export const configureYaml = (modelUri: string): void => {
+const configureYaml = (modelUri: string): void => {
   configureMonacoYaml(monaco, {
     enableSchemaRequest: false,
     validate: true,

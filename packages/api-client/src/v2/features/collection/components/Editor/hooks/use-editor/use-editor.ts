@@ -19,7 +19,7 @@ import { getJsonAstNodeFromPath } from './helpers/get-json-ast-node-from-path'
 import type { JsonPath } from './helpers/json-ast'
 import { ensureJsonPointerLinkSupport } from './helpers/json-pointer-links'
 
-export type MonacoEditorAction = {
+type MonacoEditorAction = {
   id: string
   label: string
   keybindings?: number[]
