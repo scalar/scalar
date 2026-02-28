@@ -134,7 +134,6 @@ export const useEditor = ({
   }
 
   const highlightPath = async (path: JsonPath) => {
-    console.log('highlightPath', path)
     const offsets = await getPathOffsets(path)
     if (!offsets) {
       return
@@ -144,7 +143,6 @@ export const useEditor = ({
   }
 
   const focusPath = async (path: JsonPath) => {
-    console.log('focusPath', path)
     const offsets = await getPathOffsets(path)
     if (!offsets) {
       return
@@ -238,6 +236,13 @@ export const useEditor = ({
     monaco.editor.setModelLanguage(model, nextLanguage)
   }
 
+  const setCursorToMarker = (marker: monaco.editor.IMarker) => {
+    const lineNumber = Math.min(Math.max(marker.startLineNumber || 1, 1), model.getLineCount())
+    const column = Math.min(Math.max(marker.startColumn || 1, 1), model.getLineMaxColumn(lineNumber))
+
+    editor.setPosition({ lineNumber, column })
+  }
+
   const dispose = () => {
     editor.dispose()
     model.dispose()
@@ -253,6 +258,7 @@ export const useEditor = ({
     setValue,
     hasTextFocus,
     setLanguage,
+    setCursorToMarker,
     dispose,
   }
 }

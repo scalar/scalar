@@ -9,11 +9,20 @@ import {
 import { debounce } from '@scalar/helpers/general/debounce'
 import { isHttpMethod } from '@scalar/helpers/http/is-http-method'
 import { isObject } from '@scalar/helpers/object/is-object'
-import * as monaco from 'monaco-editor'
+import {
+  ScalarIconArrowsIn,
+  ScalarIconArrowsOut,
+  ScalarIconCaretDown,
+  ScalarIconCaretRight,
+  ScalarIconWarning,
+  ScalarIconXCircle,
+} from '@scalar/icons'
+import * as monaco from 'monaco-editor/esm/vs/editor/editor.api.js'
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { parse as parseYaml, stringify as stringifyYaml } from 'yaml'
 
 import type { CollectionProps } from '@/v2/features/app/helpers/routes'
+import { useMonacoMarkers } from '@/v2/features/collection/components/Editor/hooks/use-editor/use-editor-markers'
 
 import { useEditor } from './hooks/use-editor/use-editor'
 
@@ -33,10 +42,99 @@ const editor = ref<ReturnType<typeof useEditor>>()
 const isAutoSaveEnabled = ref(false)
 const isDirty = ref(false)
 const editorLanguage = ref<'json' | 'yaml'>('json')
+const isDiagnosticsPaneExpanded = ref(false)
+const isEditorMaximized = ref(false)
 
 const saveLoader = useLoadingState()
 
 const isYamlMode = computed(() => editorLanguage.value === 'yaml')
+const editorRootClass = computed(() =>
+  isEditorMaximized.value
+    ? 'fixed inset-0 z-50 h-screen w-screen border bg-b-1 p-3'
+    : '',
+)
+
+const monacoEditorInstance = computed(() => editor.value?.editor)
+const { markers: diagnostics } = useMonacoMarkers(monacoEditorInstance)
+
+const syncEditorBottomPadding = () => {
+  const bottomPadding = isDiagnosticsPaneExpanded.value ? 155 : 46
+  editor.value?.editor.updateOptions({
+    padding: {
+      top: 0,
+      bottom: bottomPadding,
+    },
+  })
+}
+
+const diagnosticCounts = computed(() => {
+  let errors = 0
+  let warnings = 0
+
+  for (const marker of diagnostics.value) {
+    if (marker.severity === monaco.MarkerSeverity.Error) {
+      errors += 1
+    } else if (marker.severity === monaco.MarkerSeverity.Warning) {
+      warnings += 1
+    }
+  }
+
+  return { errors, warnings }
+})
+
+const compareDiagnostics = (
+  a: monaco.editor.IMarker,
+  b: monaco.editor.IMarker,
+) => {
+  if (a.severity !== b.severity) {
+    return b.severity - a.severity
+  }
+  if (a.startLineNumber !== b.startLineNumber) {
+    return a.startLineNumber - b.startLineNumber
+  }
+  return a.startColumn - b.startColumn
+}
+
+const visibleDiagnostics = computed(() => {
+  const topDiagnostics: monaco.editor.IMarker[] = []
+
+  for (const marker of diagnostics.value) {
+    const isVisibleSeverity =
+      marker.severity === monaco.MarkerSeverity.Error ||
+      marker.severity === monaco.MarkerSeverity.Warning
+    if (!isVisibleSeverity) {
+      continue
+    }
+
+    let inserted = false
+    for (let i = 0; i < topDiagnostics.length; i++) {
+      const current = topDiagnostics[i]
+      if (current && compareDiagnostics(marker, current) < 0) {
+        topDiagnostics.splice(i, 0, marker)
+        inserted = true
+        break
+      }
+    }
+
+    if (!inserted) {
+      topDiagnostics.push(marker)
+    }
+
+    if (topDiagnostics.length > 6) {
+      topDiagnostics.length = 6
+    }
+  }
+
+  return topDiagnostics
+})
+
+const focusDiagnostic = (marker: monaco.editor.IMarker) => {
+  editor.value?.setCursorToMarker(marker)
+}
+
+const toggleEditorMaximized = () => {
+  isEditorMaximized.value = !isEditorMaximized.value
+}
 
 const saveStatusText = computed(() => {
   if (!saveLoader.isActive) {
@@ -187,6 +285,12 @@ const persistEditorToWorkspace = async (value: string) => {
       ? safeParseYamlObject(value)
       : safeParseJsonObject(value)
   if (!parsed) {
+    const firstError = diagnostics.value.find(
+      (m) => m.severity === monaco.MarkerSeverity.Error,
+    )
+    if (firstError) {
+      focusDiagnostic(firstError)
+    }
     await saveLoader.invalidate()
     return
   }
@@ -293,6 +397,7 @@ onMounted(() => {
     ],
   })
 
+  syncEditorBottomPadding()
   void loadDocumentIntoEditor()
 })
 
@@ -307,7 +412,11 @@ onBeforeUnmount(() => {
 
 watch(() => documentSlug, loadDocumentIntoEditor)
 
-watch(editorLanguage, (nextLanguage, previousLanguage) => {
+watch(isDiagnosticsPaneExpanded, () => {
+  syncEditorBottomPadding()
+})
+
+watch(editorLanguage, async (nextLanguage, previousLanguage) => {
   editor.value?.setLanguage(nextLanguage)
 
   const value = editor.value?.getValue?.()
@@ -319,16 +428,16 @@ watch(editorLanguage, (nextLanguage, previousLanguage) => {
     previousLanguage === 'yaml'
       ? safeParseYamlObject(value)
       : safeParseJsonObject(value)
-  if (!parsed) {
-    return
+  if (parsed) {
+    editor.value?.setValue(
+      nextLanguage === 'yaml'
+        ? stringifyYaml(parsed, { indent: 2 })
+        : JSON.stringify(parsed, null, 2),
+    )
+    isDirty.value = true
   }
 
-  editor.value?.setValue(
-    nextLanguage === 'yaml'
-      ? stringifyYaml(parsed, { indent: 2 })
-      : JSON.stringify(parsed, null, 2),
-  )
-  isDirty.value = true
+  await focusOperation()
 })
 
 watch(
@@ -356,13 +465,19 @@ watch(
 <template>
   <div
     v-if="collectionType === 'operation' && path && isHttpMethod(method)"
-    class="flex w-full min-w-0 flex-1 flex-col gap-2">
-    <div class="flex items-center justify-between gap-3">
-      <div class="flex min-w-0 flex-wrap items-center gap-2">
-        <span class="text-c-2 text-xs font-medium">Shortcuts</span>
+    class="flex w-full min-w-0 flex-1 flex-col gap-2"
+    :class="editorRootClass">
+    <div
+      class="grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-3">
+      <div
+        class="flex min-w-0 items-center gap-1 overflow-x-auto whitespace-nowrap">
+        <span class="text-c-2 text-xs font-medium whitespace-nowrap"
+          >Shortcuts</span
+        >
 
         <ScalarButton
-          size="sm"
+          class="whitespace-nowrap"
+          size="xs"
           variant="ghost"
           @click="focusOperation">
           <span>Operation</span>
@@ -374,7 +489,8 @@ watch(
         </ScalarButton>
 
         <ScalarButton
-          size="sm"
+          class="whitespace-nowrap"
+          size="xs"
           variant="ghost"
           @click="focusOperationServers">
           <span>Servers</span>
@@ -386,35 +502,35 @@ watch(
         </ScalarButton>
       </div>
 
-      <div class="flex shrink-0 items-center gap-2">
-        <div
-          aria-label="Editor language"
-          class="bg-b-1 shadow-border flex items-center overflow-hidden rounded-lg p-0.5"
-          role="tablist">
-          <ScalarButton
-            :aria-selected="!isYamlMode"
-            :class="getLanguageToggleClass(!isYamlMode)"
-            role="tab"
-            size="xs"
-            type="button"
-            variant="ghost"
-            @click="editorLanguage = 'json'">
-            JSON
-          </ScalarButton>
-          <ScalarButton
-            :aria-selected="isYamlMode"
-            :class="getLanguageToggleClass(isYamlMode)"
-            role="tab"
-            size="xs"
-            type="button"
-            variant="ghost"
-            @click="editorLanguage = 'yaml'">
-            YAML
-          </ScalarButton>
-        </div>
-
+      <div
+        aria-label="Editor language"
+        class="bg-b-1 shadow-border flex items-center justify-self-center overflow-hidden rounded-lg p-0.5"
+        role="tablist">
         <ScalarButton
-          size="sm"
+          :aria-selected="!isYamlMode"
+          :class="getLanguageToggleClass(!isYamlMode)"
+          role="tab"
+          size="xs"
+          type="button"
+          variant="ghost"
+          @click="editorLanguage = 'json'">
+          JSON
+        </ScalarButton>
+        <ScalarButton
+          :aria-selected="isYamlMode"
+          :class="getLanguageToggleClass(isYamlMode)"
+          role="tab"
+          size="xs"
+          type="button"
+          variant="ghost"
+          @click="editorLanguage = 'yaml'">
+          YAML
+        </ScalarButton>
+      </div>
+
+      <div class="flex min-w-0 shrink-0 items-center gap-2 justify-self-end">
+        <ScalarButton
+          size="xs"
           variant="ghost"
           @click="formatDocument">
           <span>Format {{ isYamlMode ? 'YAML' : 'JSON' }}</span>
@@ -424,12 +540,30 @@ watch(
               :modifier="['Alt', 'Shift']" />
           </span>
         </ScalarButton>
+        <ScalarButton
+          :aria-label="
+            isEditorMaximized ? 'Restore editor size' : 'Maximize editor'
+          "
+          size="xs"
+          variant="ghost"
+          @click="toggleEditorMaximized">
+          <span>{{ isEditorMaximized ? 'Restore' : 'Maximize' }}</span>
+          <span class="text-c-3 ml-2 text-[11px]">
+            <ScalarIconArrowsIn
+              v-if="isEditorMaximized"
+              class="size-3.5" />
+            <ScalarIconArrowsOut
+              v-else
+              class="size-3.5" />
+          </span>
+        </ScalarButton>
       </div>
     </div>
 
-    <div
-      class="flex min-h-0 w-full min-w-0 flex-1 overflow-hidden rounded-lg border">
-      <div class="relative h-[500px] w-full min-w-0 flex-1 overflow-hidden">
+    <div class="flex min-h-0 w-full min-w-0 flex-1 rounded-lg border">
+      <div
+        class="relative w-full min-w-0 flex-1"
+        :class="isEditorMaximized ? 'h-full min-h-0' : 'h-[500px]'">
         <div class="pointer-events-none absolute top-2 right-2 z-10">
           <div
             class="bg-b-1 pointer-events-auto flex flex-col items-stretch overflow-hidden rounded-lg border shadow-sm">
@@ -480,9 +614,81 @@ watch(
           </div>
         </div>
 
+        <div class="pointer-events-none absolute right-2 bottom-2 left-2 z-10">
+          <div
+            class="bg-b-1 shadow-border pointer-events-auto flex flex-col overflow-hidden rounded-lg text-[11px]">
+            <button
+              class="bg-b-2/30 hover:bg-b-2/50 flex items-center justify-between px-2.5 py-2 text-left"
+              type="button"
+              @click="isDiagnosticsPaneExpanded = !isDiagnosticsPaneExpanded">
+              <span class="flex items-center gap-3">
+                <span class="text-c-2 font-medium">Problems</span>
+                <span
+                  class="text-c-danger flex items-center gap-1"
+                  title="Errors">
+                  <ScalarIconXCircle class="size-3" />
+                  <span>{{ diagnosticCounts.errors }}</span>
+                </span>
+                <span
+                  class="text-c-alert flex items-center gap-1"
+                  title="Warnings">
+                  <ScalarIconWarning class="size-3" />
+                  <span>{{ diagnosticCounts.warnings }}</span>
+                </span>
+              </span>
+
+              <span class="text-c-3">
+                <ScalarIconCaretDown
+                  v-if="isDiagnosticsPaneExpanded"
+                  class="size-3" />
+                <ScalarIconCaretRight
+                  v-else
+                  class="size-3" />
+              </span>
+            </button>
+
+            <template v-if="isDiagnosticsPaneExpanded">
+              <div
+                v-if="visibleDiagnostics.length"
+                class="max-h-28 overflow-auto border-t">
+                <button
+                  v-for="(marker, index) in visibleDiagnostics"
+                  :key="`${marker.owner}-${marker.startLineNumber}-${marker.startColumn}-${index}`"
+                  class="hover:bg-b-2/40 flex w-full items-start gap-2 px-2.5 py-2 text-left"
+                  type="button"
+                  @click="focusDiagnostic(marker)">
+                  <span
+                    class="mt-0.5 size-1.5 shrink-0 rounded-full"
+                    :class="
+                      marker.severity === monaco.MarkerSeverity.Error
+                        ? 'bg-c-danger'
+                        : 'bg-c-alert'
+                    " />
+
+                  <span class="min-w-0 flex-1">
+                    <span class="text-c-1 block truncate">{{
+                      marker.message
+                    }}</span>
+                    <span class="text-c-3 block whitespace-nowrap">
+                      Ln {{ marker.startLineNumber }}, Col
+                      {{ marker.startColumn }}
+                    </span>
+                  </span>
+                </button>
+              </div>
+              <div
+                v-else
+                class="text-c-3 border-t px-2.5 py-2">
+                Errors and warnings from the JSON/YAML language workers will
+                show up here.
+              </div>
+            </template>
+          </div>
+        </div>
+
         <div
           ref="monacoEditorRef"
-          class="h-full w-full min-w-0 flex-1 overflow-hidden" />
+          class="h-full w-full min-w-0 flex-1" />
       </div>
     </div>
   </div>
