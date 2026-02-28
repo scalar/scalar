@@ -10,6 +10,7 @@ import { presets } from '@scalar/themes'
 import { type MaybeRefOrGetter, toValue, watch } from 'vue'
 
 import { applyScalarTheme } from '@/v2/features/collection/components/Editor/hooks/use-editor/helpers/apply-scalar-theme'
+import { getYamlNodeRangeFromPath } from '@/v2/features/collection/components/Editor/hooks/use-editor/helpers/get-yaml-node-range-from-path'
 import { parseJsonPointerPath } from '@/v2/features/collection/components/Editor/hooks/use-editor/helpers/json-pointer-path'
 
 import { configureLanguageSupport } from './helpers/configure-language-support'
@@ -17,7 +18,6 @@ import { ensureMonacoEnvironment } from './helpers/ensure-monaco-environment'
 import { getJsonAstNodeFromPath } from './helpers/get-json-ast-node-from-path'
 import type { JsonPath } from './helpers/json-path'
 import { ensureJsonPointerLinkSupport } from './helpers/json-pointer-links'
-import { nodeToWholeLineRange } from './helpers/node-range'
 
 export type MonacoEditorAction = {
   id: string
@@ -93,8 +93,34 @@ export const useEditor = ({
     })
   })
 
-  const highlightNode = (node: monaco.languages.json.ASTNode) => {
-    const range = nodeToWholeLineRange(model, node)
+  const offsetsToWholeLineRange = (startOffset: number, endOffset: number): monaco.Range => {
+    const start = model.getPositionAt(startOffset)
+    // Treat endOffset as exclusive to avoid highlighting an extra line when the
+    // offset happens to fall on the first character of the next line.
+    const inclusiveEndOffset = Math.max(startOffset, endOffset - 1)
+    const end = model.getPositionAt(inclusiveEndOffset)
+
+    const startLine = Math.max(1, start.lineNumber)
+    const endLine = Math.max(startLine, end.lineNumber)
+
+    return new monaco.Range(startLine, 1, endLine, model.getLineMaxColumn(endLine))
+  }
+
+  const getPathOffsets = async (path: JsonPath): Promise<{ startOffset: number; endOffset: number } | null> => {
+    if (model.getLanguageId() === 'yaml') {
+      return getYamlNodeRangeFromPath(model.getValue(), path)
+    }
+
+    const node = await getJsonAstNodeFromPath(model, path)
+    if (!node) {
+      return null
+    }
+
+    return { startOffset: node.offset, endOffset: node.offset + node.length }
+  }
+
+  const highlightOffsets = (startOffset: number, endOffset: number) => {
+    const range = offsetsToWholeLineRange(startOffset, endOffset)
 
     decorations = editor.deltaDecorations(decorations, [
       {
@@ -108,21 +134,23 @@ export const useEditor = ({
   }
 
   const highlightPath = async (path: JsonPath) => {
-    const node = await getJsonAstNodeFromPath(model, path)
-    if (!node) {
+    console.log('highlightPath', path)
+    const offsets = await getPathOffsets(path)
+    if (!offsets) {
       return
     }
 
-    highlightNode(node)
+    highlightOffsets(offsets.startOffset, offsets.endOffset)
   }
 
   const focusPath = async (path: JsonPath) => {
-    const node = await getJsonAstNodeFromPath(model, path)
-    if (!node) {
+    console.log('focusPath', path)
+    const offsets = await getPathOffsets(path)
+    if (!offsets) {
       return
     }
 
-    const unfoldRange = nodeToWholeLineRange(model, node)
+    const unfoldRange = offsetsToWholeLineRange(offsets.startOffset, offsets.endOffset)
 
     // fold all and unfold the target node
     await editor.getAction('editor.foldAll')?.run()
@@ -131,10 +159,10 @@ export const useEditor = ({
     await editor.getAction('editor.unfoldRecursively')?.run()
 
     // Unfold based on the whole-line range so line-anchored folds open reliably.
-    editor.setPosition(model.getPositionAt(node.offset))
-    editor.revealPositionNearTop(model.getPositionAt(node.offset))
+    editor.setPosition(model.getPositionAt(offsets.startOffset))
+    editor.revealPositionNearTop(model.getPositionAt(offsets.startOffset))
 
-    highlightNode(node)
+    highlightOffsets(offsets.startOffset, offsets.endOffset)
   }
 
   const navigateToJsonPointer = async (pointer: string) => {

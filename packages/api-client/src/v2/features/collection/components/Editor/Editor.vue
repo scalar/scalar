@@ -143,9 +143,6 @@ const formatDocument = async () => {
 }
 
 const focusOperation = async () => {
-  if (editorLanguage.value !== 'json') {
-    return
-  }
   if (!path || !isHttpMethod(method)) {
     return
   }
@@ -223,9 +220,6 @@ const handleEditorChange = (value: string) => {
 }
 
 const focusOperationServers = async () => {
-  if (editorLanguage.value !== 'json') {
-    return
-  }
   if (!path || !isHttpMethod(method)) {
     return
   }
@@ -234,18 +228,31 @@ const focusOperationServers = async () => {
   if (!value) {
     return
   }
-  const parsed = safeParseJson(value)
 
-  const operation = parsed?.paths?.[path]?.[method]
-  if (!isObject(operation)) {
+  const parsed =
+    editorLanguage.value === 'yaml'
+      ? safeParseYamlObject(value)
+      : safeParseJsonObject(value)
+
+  if (
+    !parsed ||
+    !isObject(parsed.paths) ||
+    !isObject(parsed.paths[path]) ||
+    !isObject(parsed.paths[path][method])
+  ) {
     return
   }
 
+  const operation = parsed.paths[path][method]
   // Add default servers if not present
   operation.servers ??= []
 
   // Update the editor value
-  editor.value?.setValue(JSON.stringify(parsed, null, 2))
+  editor.value?.setValue(
+    editorLanguage.value === 'yaml'
+      ? stringifyYaml(parsed, { indent: 2 })
+      : JSON.stringify(parsed, null, 2),
+  )
   await editor.value?.focusPath(['paths', path, method, 'servers'])
 }
 
