@@ -23,6 +23,7 @@ export const traverseOperationExamples = (operation: OperationObject) => {
 
   // Add all examples from parameters
   if (operation.parameters) {
+    console.log({ operation, type: typeof operation.parameters })
     operation.parameters.forEach((_parameter) => {
       const parameter = getResolvedRef(_parameter) ?? {}
 
