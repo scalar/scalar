@@ -9,15 +9,14 @@ import 'monaco-editor/esm/vs/base/browser/ui/codicons/codicon/codicon.css'
 import { presets } from '@scalar/themes'
 import { type MaybeRefOrGetter, toValue, watch } from 'vue'
 
-import { applyScalarTheme } from '@/v2/features/collection/components/Editor/hooks/use-editor/helpers/apply-scalar-theme'
-import { getYamlNodeRangeFromPath } from '@/v2/features/collection/components/Editor/hooks/use-editor/helpers/get-yaml-node-range-from-path'
-import { parseJsonPointerPath } from '@/v2/features/collection/components/Editor/hooks/use-editor/helpers/json-pointer-path'
-
-import { configureLanguageSupport } from './helpers/configure-language-support'
-import { ensureMonacoEnvironment } from './helpers/ensure-monaco-environment'
-import { getJsonAstNodeFromPath } from './helpers/get-json-ast-node-from-path'
-import type { JsonPath } from './helpers/json-ast'
-import { ensureJsonPointerLinkSupport } from './helpers/json-pointer-links'
+import { applyScalarTheme } from '@/v2/features/collection/components/Editor/helpers/apply-scalar-theme'
+import { configureLanguageSupport } from '@/v2/features/collection/components/Editor/helpers/configure-language-support'
+import { ensureMonacoEnvironment } from '@/v2/features/collection/components/Editor/helpers/ensure-monaco-environment'
+import { getJsonAstNodeFromPath } from '@/v2/features/collection/components/Editor/helpers/get-json-ast-node-from-path'
+import { getYamlNodeRangeFromPath } from '@/v2/features/collection/components/Editor/helpers/get-yaml-node-range-from-path'
+import type { JsonPath } from '@/v2/features/collection/components/Editor/helpers/json-ast'
+import { ensureJsonPointerLinkSupport } from '@/v2/features/collection/components/Editor/helpers/json-pointer-links'
+import { parseJsonPointerPath } from '@/v2/features/collection/components/Editor/helpers/json-pointer-path'
 
 type MonacoEditorAction = {
   id: string

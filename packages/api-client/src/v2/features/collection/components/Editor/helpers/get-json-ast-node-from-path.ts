@@ -1,7 +1,7 @@
 import * as monaco from 'monaco-editor'
 
-import { getJsonAstNodeAtPath } from './json-ast'
 import type { JsonPath } from './json-ast'
+import { getJsonAstNodeAtPath } from './json-ast'
 
 /**
  * Retrieves a JSON AST node from a Monaco editor model at the specified JSON path.

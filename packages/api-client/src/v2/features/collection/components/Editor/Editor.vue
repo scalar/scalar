@@ -7,17 +7,17 @@ import * as monaco from 'monaco-editor/esm/vs/editor/editor.api.js'
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 
 import type { CollectionProps } from '@/v2/features/app/helpers/routes'
-import { useEditorMarkers } from '@/v2/features/collection/components/Editor/hooks/use-editor/use-editor-markers'
+import { useEditorMarkers } from '@/v2/features/collection/components/Editor/hooks/use-editor-markers'
 
 import EditorDiagnosticsPanel from './components/EditorDiagnosticsPanel.vue'
 import EditorSavePanel from './components/EditorSavePanel.vue'
-import { getDiagnosticCounts } from './hooks/use-editor/helpers/get-diagnostic-counts'
-import { getOperationContext } from './hooks/use-editor/helpers/get-operation-context'
-import { getVisibleDiagnostics } from './hooks/use-editor/helpers/get-visible-diagnostics'
-import { parseEditorObject } from './hooks/use-editor/helpers/parse-editor-object'
-import { stringifyDocument } from './hooks/use-editor/helpers/stringify-document'
-import { useEditor } from './hooks/use-editor/use-editor'
-import { useEditorState } from './hooks/use-editor/use-editor-state'
+import { getDiagnosticCounts } from './helpers/get-diagnostic-counts'
+import { getOperationContext } from './helpers/get-operation-context'
+import { getVisibleDiagnostics } from './helpers/get-visible-diagnostics'
+import { parseEditorObject } from './helpers/parse-editor-object'
+import { stringifyDocument } from './helpers/stringify-document'
+import { useEditor } from './hooks/use-editor'
+import { useEditorState } from './hooks/use-editor-state'
 
 const {
   collectionType,

@@ -1,6 +1,6 @@
 import { computed, ref } from 'vue'
 
-import type { MonacoEditorLanguage } from '@/v2/features/collection/components/Editor/hooks/use-editor/use-editor'
+import type { MonacoEditorLanguage } from '@/v2/features/collection/components/Editor/hooks/use-editor'
 
 const DIAGNOSTICS_COLLAPSED_BOTTOM_PADDING = 46
 const DIAGNOSTICS_EXPANDED_BOTTOM_PADDING = 155

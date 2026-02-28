@@ -1,6 +1,6 @@
 import * as monaco from 'monaco-editor'
 
-import { loadCssVariables } from '@/v2/features/collection/components/Editor/hooks/use-editor/helpers/load-css-variables'
+import { loadCssVariables } from '@/v2/features/collection/components/Editor/helpers/load-css-variables'
 
 const THEME_NAME = 'scalar-theme'
 
