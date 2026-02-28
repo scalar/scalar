@@ -172,8 +172,8 @@ catalogs:
       specifier: ^1.5.0
       version: 1.5.0
     monaco-editor:
-      specifier: 0.47.0
-      version: 0.47.0
+      specifier: 0.54.0
+      version: 0.54.0
     monaco-yaml:
       specifier: 5.2.3
       version: 5.2.3
@@ -720,7 +720,7 @@ importers:
         version: 13.9.0(vue@3.5.26(typescript@5.9.3))
       monaco-editor:
         specifier: catalog:*
-        version: 0.47.0
+        version: 0.54.0
       vue:
         specifier: catalog:*
         version: 3.5.26(typescript@5.9.3)
@@ -1332,10 +1332,10 @@ importers:
         version: 1.5.0
       monaco-editor:
         specifier: catalog:*
-        version: 0.47.0
+        version: 0.54.0
       monaco-yaml:
         specifier: catalog:*
-        version: 5.2.3(monaco-editor@0.47.0)
+        version: 5.2.3(monaco-editor@0.54.0)
       nanoid:
         specifier: catalog:*
         version: 5.1.6
@@ -10678,6 +10678,9 @@ packages:
     resolution: {integrity: sha512-cgwlv/1iFQiFnU96XXgROh8xTeetsnJiDsTc7TYCLFd9+/WNkIqPTxiM/8pSd8VIrhXGTf1Ny1q1hquVqDJB5w==}
     engines: {node: '>= 4'}
 
+  dompurify@3.1.7:
+    resolution: {integrity: sha512-VaTstWtsneJY8xzy7DekmYWEOZcmzIe3Qb3zPd4STve1OBTa+e+WmS1ITQec1fZYXI3HCsOZZiSMpG6oxoWMWQ==}
+
   dompurify@3.3.1:
     resolution: {integrity: sha512-qkdCKzLNtrgPFP1Vo+98FRzJnBRGe4ffyCea9IwHB1fyxPOeNTHpLKYGd4Uk9xvNoH0ZoOjwZxNptyMwqrId1Q==}
 
@@ -13379,6 +13382,11 @@ packages:
   markdown-table@3.0.3:
     resolution: {integrity: sha512-Z1NL3Tb1M9wH4XESsCDEksWoKTdlUafKc4pt0GRwjUyXaCFZ+dc3g2erqB6zm3szA2IUSi7VnPI+o/9jnxh9hw==}
 
+  marked@14.0.0:
+    resolution: {integrity: sha512-uIj4+faQ+MgHgwUW1l2PsPglZLOLOT1uErt06dAPtx2kjteLAkbsd/0FiYg/MGS+i7ZKLb7w2WClxHkzOOuryQ==}
+    engines: {node: '>= 18'}
+    hasBin: true
+
   matcher@3.0.0:
     resolution: {integrity: sha512-OkeDaAZ/bQCxeFAozM55PKcKU0yJMPGifLwV4Qgjitu+5MoAfSQN4lsLJeXZ1b8w0x+/Emda6MZgXS1jvsapng==}
     engines: {node: '>=10'}
@@ -13796,8 +13804,8 @@ packages:
   moment@2.30.1:
     resolution: {integrity: sha512-uEmtNhbDOrWPFS+hdjFCBfy9f2YoyzRpwcl+DqpC6taX21FzsTLQVbMV/W7PzNSX6x/bhC1zA3c2UQ5NzH6how==}
 
-  monaco-editor@0.47.0:
-    resolution: {integrity: sha512-VabVvHvQ9QmMwXu4du008ZDuyLnHs9j7ThVFsiJoXSOQk18+LF89N4ADzPbFenm0W4V2bGHnFBztIRQTgBfxzw==}
+  monaco-editor@0.54.0:
+    resolution: {integrity: sha512-hx45SEUoLatgWxHKCmlLJH81xBo0uXP4sRkESUpmDQevfi+e7K1VuiSprK6UpQ8u4zOcKNiH0pMvHvlMWA/4cw==}
 
   monaco-languageserver-types@0.4.0:
     resolution: {integrity: sha512-QQ3BZiU5LYkJElGncSNb5AKoJ/LCs6YBMCJMAz9EA7v+JaOdn3kx2cXpPTcZfKA5AEsR0vc97sAw+5mdNhVBmw==}
@@ -17914,6 +17922,9 @@ packages:
 
   vue-component-type-helpers@3.2.4:
     resolution: {integrity: sha512-05lR16HeZDcDpB23ku5b5f1fBOoHqFnMiKRr2CiEvbG5Ux4Yi0McmQBOET0dR0nxDXosxyVqv67q6CzS3AK8rw==}
+
+  vue-component-type-helpers@3.2.5:
+    resolution: {integrity: sha512-tkvNr+bU8+xD/onAThIe7CHFvOJ/BO6XCOrxMzeytJq40nTfpGDJuVjyCM8ccGZKfAbGk2YfuZyDMXM56qheZQ==}
 
   vue-demi@0.14.10:
     resolution: {integrity: sha512-nMZBOwuzabUO0nLgIcc6rycZEebF6eeUfaiQx9+WSk8e29IbLvPU9feI6tqW4kTo3hvoYAJkMh8n8D0fuISphg==}
@@ -24651,7 +24662,7 @@ snapshots:
       storybook: 10.1.11(@testing-library/dom@9.3.4)(prettier@3.6.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       type-fest: 2.19.0
       vue: 3.5.26(typescript@5.9.3)
-      vue-component-type-helpers: 3.2.4
+      vue-component-type-helpers: 3.2.5
 
   '@sveltejs/acorn-typescript@1.0.5(acorn@8.15.0)':
     dependencies:
@@ -27927,6 +27938,8 @@ snapshots:
   domhandler@5.0.3:
     dependencies:
       domelementtype: 2.3.0
+
+  dompurify@3.1.7: {}
 
   dompurify@3.3.1:
     optionalDependencies:
@@ -31419,6 +31432,8 @@ snapshots:
 
   markdown-table@3.0.3: {}
 
+  marked@14.0.0: {}
+
   matcher@3.0.0:
     dependencies:
       escape-string-regexp: 4.0.0
@@ -32109,7 +32124,10 @@ snapshots:
   moment@2.30.1:
     optional: true
 
-  monaco-editor@0.47.0: {}
+  monaco-editor@0.54.0:
+    dependencies:
+      dompurify: 3.1.7
+      marked: 14.0.0
 
   monaco-languageserver-types@0.4.0:
     dependencies:
@@ -32123,18 +32141,18 @@ snapshots:
 
   monaco-types@0.1.1: {}
 
-  monaco-worker-manager@2.0.1(monaco-editor@0.47.0):
+  monaco-worker-manager@2.0.1(monaco-editor@0.54.0):
     dependencies:
-      monaco-editor: 0.47.0
+      monaco-editor: 0.54.0
 
-  monaco-yaml@5.2.3(monaco-editor@0.47.0):
+  monaco-yaml@5.2.3(monaco-editor@0.54.0):
     dependencies:
       jsonc-parser: 3.3.1
-      monaco-editor: 0.47.0
+      monaco-editor: 0.54.0
       monaco-languageserver-types: 0.4.0
       monaco-marker-data-provider: 1.2.5
       monaco-types: 0.1.1
-      monaco-worker-manager: 2.0.1(monaco-editor@0.47.0)
+      monaco-worker-manager: 2.0.1(monaco-editor@0.54.0)
       path-browserify: 1.0.1
       prettier: 2.8.8
       vscode-languageserver-textdocument: 1.0.12
@@ -37031,6 +37049,8 @@ snapshots:
   vue-component-type-helpers@2.2.10: {}
 
   vue-component-type-helpers@3.2.4: {}
+
+  vue-component-type-helpers@3.2.5: {}
 
   vue-demi@0.14.10(vue@3.5.26(typescript@5.9.3)):
     dependencies:
