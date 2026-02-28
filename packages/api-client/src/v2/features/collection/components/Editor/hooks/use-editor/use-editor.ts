@@ -9,7 +9,7 @@ import 'monaco-editor/esm/vs/base/browser/ui/codicons/codicon/codicon.css'
 import { presets } from '@scalar/themes'
 import { type MaybeRefOrGetter, toValue, watch } from 'vue'
 
-import { applyScalarScheme } from '@/v2/features/collection/components/Editor/hooks/use-editor/helpers/apply-scalar-scheme'
+import { applyScalarTheme } from '@/v2/features/collection/components/Editor/hooks/use-editor/helpers/apply-scalar-theme'
 import { parseJsonPointerPath } from '@/v2/features/collection/components/Editor/hooks/use-editor/helpers/json-pointer-path'
 
 import { configureLanguageSupport } from './helpers/configure-language-support'
@@ -178,7 +178,7 @@ export const useEditor = ({
   watch(
     [() => toValue(theme), () => toValue(isDarkMode)],
     async ([theme, isDarkMode]) => {
-      await applyScalarScheme(theme, isDarkMode)
+      await applyScalarTheme(theme, isDarkMode)
     },
     {
       immediate: true,

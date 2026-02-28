@@ -4,7 +4,7 @@ import { loadCssVariables } from '@/v2/features/collection/components/Editor/hoo
 
 const THEME_NAME = 'scalar-theme'
 
-export const applyScalarScheme = async (theme: string, isDarkMode: boolean) => {
+export const applyScalarTheme = async (theme: string, isDarkMode: boolean) => {
   const allVars = await loadCssVariables(theme)
 
   const vars = isDarkMode ? allVars.dark : allVars.light

@@ -64,6 +64,14 @@ const editorStatusText = computed(() => {
 
 const shouldShowEditorStatus = computed(() => editorStatusText.value !== null)
 
+const getLanguageToggleClass = (isActive: boolean): string => {
+  const base =
+    'rounded-none px-2 py-1 text-[11px] leading-4 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-c-accent/30 focus-visible:ring-offset-1 focus-visible:ring-offset-b-1 first:rounded-md last:rounded-md'
+  const active = 'bg-b-2 text-c-1 hover:bg-b-2'
+  const inactive = 'text-c-2 hover:bg-b-2/60 hover:text-c-1'
+  return `${base} ${isActive ? active : inactive}`
+}
+
 const editorStatusTone = computed<
   'warning' | 'loading' | 'success' | 'danger' | null
 >(() => {
@@ -372,18 +380,27 @@ watch(
       </div>
 
       <div class="flex shrink-0 items-center gap-2">
-        <div class="bg-b-1 flex items-center overflow-hidden rounded-lg border">
+        <div
+          aria-label="Editor language"
+          class="bg-b-1 shadow-border flex items-center overflow-hidden rounded-lg p-0.5"
+          role="tablist">
           <ScalarButton
-            size="sm"
+            :aria-selected="!isYamlMode"
+            :class="getLanguageToggleClass(!isYamlMode)"
+            role="tab"
+            size="xs"
             type="button"
-            :variant="!isYamlMode ? 'solid' : 'ghost'"
+            variant="ghost"
             @click="editorLanguage = 'json'">
             JSON
           </ScalarButton>
           <ScalarButton
-            size="sm"
+            :aria-selected="isYamlMode"
+            :class="getLanguageToggleClass(isYamlMode)"
+            role="tab"
+            size="xs"
             type="button"
-            :variant="isYamlMode ? 'solid' : 'ghost'"
+            variant="ghost"
             @click="editorLanguage = 'yaml'">
             YAML
           </ScalarButton>
