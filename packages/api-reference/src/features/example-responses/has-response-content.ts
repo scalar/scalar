@@ -21,11 +21,23 @@ function hasMediaTypeContent(mediaType: MediaTypeObject | undefined): boolean {
   return hasSchema || hasExample || hasExamples
 }
 
+function isResponseKey(responseKey: string): boolean {
+  return responseKey === 'default' || /^[1-5][0-9]{2}$/.test(responseKey) || /^[1-5]XX$/.test(responseKey)
+}
+
 /**
  * Checks if a response object has body content (schema, example, or examples).
  * Looks through common media types in priority order.
  */
-export function hasResponseContent(response: ResponseObject | undefined): boolean {
+export function hasResponseContent(response: ResponseObject | undefined, responseKey?: string): boolean {
+  if (responseKey !== undefined) {
+    if (!isResponseKey(responseKey)) {
+      return false
+    }
+
+    return Boolean(response)
+  }
+
   const normalizedContent = normalizeMimeTypeObject(response?.content)
   const keys = getObjectKeys(normalizedContent ?? {})
 
