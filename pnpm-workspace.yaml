@@ -122,6 +122,8 @@ minimumReleaseAgeExclude:
   - vue
   # Renovate security update: @modelcontextprotocol/sdk@1.26.0
   - '@modelcontextprotocol/sdk@1.26.0'
+  # Renovate security update: storybook@10.2.10
+  - storybook@10.2.10
 
 onlyBuiltDependencies:
   - '@nestjs/core'
