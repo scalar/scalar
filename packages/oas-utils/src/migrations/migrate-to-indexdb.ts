@@ -51,10 +51,10 @@ const DRAFTS_DOCUMENT_NAME = 'drafts'
  * Old data is preserved for rollback. Typically completes in < 1 second.
  */
 export const migrateLocalStorageToIndexDb = async () => {
-  const { close } = await createWorkspaceStorePersistence()
+  const { close, workspace: workspacePersistence } = await createWorkspaceStorePersistence()
 
   try {
-    const shouldMigrate = true
+    const shouldMigrate = await shouldMigrateToIndexDb(workspacePersistence)
 
     if (!shouldMigrate) {
       console.info('ℹ️  No migration needed - IndexedDB already has workspaces or no legacy data exists')
@@ -73,21 +73,19 @@ export const migrateLocalStorageToIndexDb = async () => {
     // Step 2: Transform to new workspace structure
     const workspaces = await transformLegacyDataToWorkspace(legacyData)
 
-    console.log({ workspaces })
-
     // Step 3: Save to IndexedDB
-    // await Promise.all(
-    //   workspaces.map((workspace) =>
-    //     workspacePersistence.setItem(
-    //       { namespace: 'local', slug: workspace.slug },
-    //       {
-    //         name: workspace.name,
-    //         workspace: workspace.workspace,
-    //         teamUid: 'local',
-    //       },
-    //     ),
-    //   ),
-    // )
+    await Promise.all(
+      workspaces.map((workspace) =>
+        workspacePersistence.setItem(
+          { namespace: 'local', slug: workspace.slug },
+          {
+            name: workspace.name,
+            workspace: workspace.workspace,
+            teamUid: 'local',
+          },
+        ),
+      ),
+    )
 
     console.info(`✅ Successfully migrated ${workspaces.length} workspace(s) to IndexedDB`)
   } catch (error) {
@@ -220,7 +218,6 @@ export const transformLegacyDataToWorkspace = async (legacyData: {
 
       await Promise.all(
         documents.map(async ({ name, document }) => {
-          console.log({ name, document })
           await store.addDocument({
             name,
             document,
@@ -944,11 +941,7 @@ const transformCollectionToDocument = (
   }
 
   // Convert circular references to $ref pointers which is safe for JSON serialization
-  // const safeDocument = toJsonCompatible(document)
-
-  const cache = new WeakMap<object, string>()
-  const result = toJsonCompatible(document?.components, { prefix: '/components', cache })
-  const safeDocument = toJsonCompatible({ ...document, components: result }, { cache })
+  const safeDocument = toJsonCompatible(document)
 
   return {
     document: safeDocument,

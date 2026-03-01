@@ -1,6 +1,8 @@
 import fs from 'node:fs/promises'
 import { cwd } from 'node:process'
 
+import { parseJsonPointerSegments } from '@scalar/helpers/json/parse-json-pointer-segments'
+import { getValueAtPath } from '@scalar/helpers/object/get-value-at-path'
 import type { LoaderPlugin } from '@scalar/json-magic/bundle'
 import { fetchUrls, readFiles } from '@scalar/json-magic/bundle/plugins/node'
 import { escapeJsonPointer } from '@scalar/json-magic/helpers/escape-json-pointer'
@@ -20,7 +22,6 @@ import {
   type PathsObject,
 } from '@/schemas/v3.1/strict/openapi-document'
 
-import { getValueByPath, parseJsonPointer } from './helpers/json-path-utils'
 import type { WorkspaceDocumentMeta, WorkspaceMeta } from './schemas/workspace'
 
 const DEFAULT_ASSETS_FOLDER = 'assets'
@@ -420,7 +421,25 @@ export async function createServerWorkspaceStore(workspaceProps: CreateServerWor
      * @returns The chunk data if found, undefined otherwise
      */
     get: (pointer: string) => {
-      return getValueByPath(assets, parseJsonPointer(pointer))
+      // Keep the path segments escaped cuz we store them on the filesystem as escaped sequences
+      const pointerPath = (() => {
+        if (pointer.startsWith('#')) {
+          return pointer.slice(1)
+        }
+
+        if (pointer.startsWith('/')) {
+          return pointer
+        }
+
+        try {
+          return new URL(pointer).pathname
+        } catch {
+          return pointer
+        }
+      })()
+
+      const path = parseJsonPointerSegments(pointerPath).map(escapeJsonPointer)
+      return getValueAtPath(assets, path)
     },
     /**
      * Adds a new document to the workspace asynchronously.

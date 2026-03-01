@@ -15,6 +15,7 @@ await build({
     'src/string/*.ts',
     'src/testing/*.ts',
     'src/url/*.ts',
+    'src/json/*.ts',
   ],
   platform: 'shared',
   options: {

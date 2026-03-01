@@ -1,3 +1,4 @@
+import { escapeJsonPointer } from '@/json/escape-json-pointer'
 import { Queue } from '@/queue/queue'
 
 type RemoveCircularOptions = {
@@ -6,8 +7,6 @@ type RemoveCircularOptions = {
   /** Cache of already processed objects */
   cache?: WeakMap<object, string>
 }
-
-const escapeJsonPointer = (key: string) => key.replace(/~/g, '~0').replace(/\//g, '~1')
 
 /**
  * Traverses an object or array, returning a deep copy in which circular references are replaced

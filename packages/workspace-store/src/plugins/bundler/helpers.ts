@@ -1,7 +1,7 @@
+import { getValueAtPath } from '@scalar/helpers/object/get-value-at-path'
 import { getSegmentsFromPath } from '@scalar/json-magic/helpers/get-segments-from-path'
 
 import type { UnknownObject } from '@/helpers/general'
-import { getValueByPath } from '@/helpers/json-path-utils'
 
 /**
  * Recursively resolves the value behind a $ref pointer within the current document tree.
@@ -20,7 +20,7 @@ export const getResolvedRef = (node: unknown, context: { rootNode: UnknownObject
     node['$ref'].startsWith('#')
   ) {
     const segments = getSegmentsFromPath(node['$ref'].slice(1))
-    return getResolvedRef(getValueByPath(context.rootNode, segments), context)
+    return getResolvedRef(getValueAtPath(context.rootNode, segments), context)
   }
   // If this node isn't a $ref, return it as the resolved value
   return node
