@@ -1169,6 +1169,21 @@ Customize how webhook URLs are generated. This function receives the webhook obj
 }
 ```
 
+#### setPageTitle
+
+**Type:** `(item: { title: string; }) => string`
+
+Customize how the document page title is generated. This function receives the sidebar item object containing the title.
+
+> Note: This must be passed through JavaScript, setting a data attribute will not work.
+
+```js
+// Custom example - results in title: API Reference - sidebar-item-title
+{
+  setPageTitle: (item) => `API Reference - ${item.title}`
+}
+```
+
 #### tagsSorter
 
 **Type:** `'alpha' | (a: Tag, b: Tag) => number`
