@@ -314,6 +314,19 @@ export const syncPathParameters = (): LifecyclePlugin => {
           },
         )
 
+        // Include path-item level path parameters as fallbacks for any that the operation does not declare.
+        // Without this, syncParametersForPathChange would create bare `{ name, in: 'path' }` params,
+        // losing description, schema, required, etc. from the path-item definition.
+        const pathItemParameters = 'parameters' in node && Array.isArray(node.parameters) ? node.parameters : []
+
+        for (const param of pathItemParameters) {
+          const resolved = getResolvedRef(param, context)
+
+          if (isObject(resolved) && resolved.in === 'path' && !pathParameters.find((p) => p.name === resolved.name)) {
+            pathParameters.push(resolved)
+          }
+        }
+
         // Sync path parameters using the same path for old and new
         // This ensures parameters match the current path string
         const syncedParameters = syncParametersForPathChange(pathString, pathString, pathParameters)
