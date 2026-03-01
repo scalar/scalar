@@ -1,5 +1,14 @@
 # @scalar/workspace-store
 
+## 0.35.2
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/openapi-upgrader@0.1.10**
+  - [#8272](https://github.com/scalar/scalar/pull/8272): feat: migrate swagger 2.0 response examples
+
 ## 0.35.1
 
 ### Patch Changes

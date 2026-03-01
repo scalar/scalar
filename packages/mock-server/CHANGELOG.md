@@ -1,5 +1,18 @@
 # @scalar/mock-server
 
+## 0.8.46
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/openapi-upgrader@0.1.10**
+  - [#8272](https://github.com/scalar/scalar/pull/8272): feat: migrate swagger 2.0 response examples
+
+- **@scalar/openapi-parser@0.24.16**
+
+- **@scalar/oas-utils@0.8.1**
+
 ## 0.8.45
 
 ### Patch Changes

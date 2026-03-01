@@ -1,5 +1,17 @@
 # @scalar/agent-chat
 
+## 0.7.1
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.35.2**
+
+- **@scalar/api-client@2.31.1**
+
+- **@scalar/components@0.19.13**
+
 ## 0.7.0
 
 ### Minor Changes

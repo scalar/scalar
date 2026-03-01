@@ -1,5 +1,23 @@
 # @scalar/api-client
 
+## 2.31.1
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/openapi-parser@0.24.16**
+
+- **@scalar/workspace-store@0.35.2**
+
+- **@scalar/oas-utils@0.8.1**
+
+- **@scalar/sidebar@0.7.44**
+
+- **@scalar/components@0.19.13**
+
+- **@scalar/use-codemirror@0.13.48**
+
 ## 2.31.0
 
 ### Minor Changes

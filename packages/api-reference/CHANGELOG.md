@@ -1,5 +1,25 @@
 # @scalar/api-reference
 
+## 1.46.1
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/openapi-parser@0.24.16**
+
+- **@scalar/workspace-store@0.35.2**
+
+- **@scalar/api-client@2.31.1**
+
+- **@scalar/oas-utils@0.8.1**
+
+- **@scalar/agent-chat@0.7.1**
+
+- **@scalar/sidebar@0.7.44**
+
+- **@scalar/components@0.19.13**
+
 ## 1.46.0
 
 ### Minor Changes
