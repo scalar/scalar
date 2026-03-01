@@ -426,6 +426,7 @@ const updateOperationExtension = (
       <AuthSelector
         v-show="isSectionVisible('Auth') && !isAuthHidden"
         :id="filterIds.Auth"
+        :createAnySecurityScheme="layout !== 'modal'"
         :environment
         :eventBus
         :meta="authMeta"

@@ -55,6 +55,9 @@ export const sources = [
     title: 'Swagger Petstore 3.1',
     slug: 'swagger-petstore-3-1',
     url: 'https://petstore31.swagger.io/api/v31/openapi.json',
+    authentication: {
+      createAnySecurityScheme: true,
+    },
   },
   {
     title: 'Hello World (string)',
