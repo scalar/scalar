@@ -14,10 +14,9 @@ import {
   type ModalState,
 } from '@scalar/components'
 import type { ClientPlugin } from '@scalar/oas-utils/helpers'
-import { type Theme } from '@scalar/themes'
 import { ScalarToasts } from '@scalar/use-toasts'
 import { extensions } from '@scalar/workspace-store/schemas/extensions'
-import { computed } from 'vue'
+import { computed, toValue } from 'vue'
 import { RouterView } from 'vue-router'
 
 import { mergeSecurity } from '@/v2/blocks/scalar-auth-selector-block'
@@ -25,7 +24,6 @@ import CreateWorkspaceModal from '@/v2/features/app/components/CreateWorkspaceMo
 import SplashScreen from '@/v2/features/app/components/SplashScreen.vue'
 import type { RouteProps } from '@/v2/features/app/helpers/routes'
 import { useDocumentWatcher } from '@/v2/features/app/hooks/use-document-watcher'
-import { useTheme } from '@/v2/features/app/hooks/use-theme'
 import type { CommandPaletteState } from '@/v2/features/command-palette/hooks/use-command-palette-state'
 import TheCommandPalette from '@/v2/features/command-palette/TheCommandPalette.vue'
 import { useColorMode } from '@/v2/hooks/use-color-mode'
@@ -38,16 +36,12 @@ import DesktopTabs from './components/DesktopTabs.vue'
 
 const {
   layout,
-  customThemes = [],
-  fallbackThemeSlug = 'default',
   plugins = [],
   getAppState,
   getCommandPaletteState,
 } = defineProps<{
   layout: Exclude<ClientLayout, 'modal'>
   plugins?: ClientPlugin[]
-  customThemes?: Theme[]
-  fallbackThemeSlug?: string
   getAppState: () => AppState
   getCommandPaletteState: () => CommandPaletteState
 }>()
@@ -93,12 +87,6 @@ useDocumentWatcher({
 
 /** Color mode */
 useColorMode({ workspaceStore: app.store })
-
-const { themeStyleTag } = useTheme({
-  fallbackThemeSlug: () => fallbackThemeSlug,
-  customThemes: () => customThemes,
-  store: app.store,
-})
 
 const navigateToWorkspaceOverview = (namespace?: string, slug?: string) => {
   app.eventBus.emit('ui:navigate', {
@@ -151,7 +139,9 @@ const routerViewProps = computed<RouteProps>(() => {
     activeWorkspace: app.workspace.activeWorkspace.value!,
     plugins,
     securitySchemes,
-    customThemes,
+    currentTheme: app.theme.styles.value.themeStyles,
+    isDarkMode: app.isDarkMode.value,
+    customThemes: toValue(app.theme.customThemes),
   }
 })
 </script>
@@ -159,7 +149,7 @@ const routerViewProps = computed<RouteProps>(() => {
 <template>
   <ScalarTeleportRoot>
     <!-- Theme style tag -->
-    <div v-html="themeStyleTag" />
+    <div v-html="app.theme.themeStyleTag.value" />
 
     <!-- Toasts -->
     <ScalarToasts />
