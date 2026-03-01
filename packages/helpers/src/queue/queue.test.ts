@@ -63,6 +63,57 @@ describe('Queue', () => {
     expect(queue.dequeue()).toBeNull()
   })
 
+  it('dequeue on a single-item queue clears front and rear', () => {
+    queue.enqueue('a')
+
+    expect(queue.dequeue()).toBe('a')
+    expect(queue.getSize()).toBe(0)
+    expect(queue.isEmpty()).toBe(true)
+    expect(queue.front).toBeNull()
+    expect(queue.rear).toBeNull()
+  })
+
+  it('enqueue works again after queue is emptied', () => {
+    queue.enqueue('a')
+    expect(queue.dequeue()).toBe('a')
+
+    queue.enqueue('b')
+    queue.enqueue('c')
+
+    expect(queue.getSize()).toBe(2)
+    expect(queue.peek()).toBe('b')
+    expect(queue.front?.data).toBe('b')
+    expect(queue.rear?.data).toBe('c')
+  })
+
+  it('peek does not remove items or change queue size', () => {
+    queue.enqueue('a')
+    queue.enqueue('b')
+
+    expect(queue.peek()).toBe('a')
+    expect(queue.peek()).toBe('a')
+    expect(queue.getSize()).toBe(2)
+    expect(queue.front?.data).toBe('a')
+    expect(queue.rear?.data).toBe('b')
+  })
+
+  it('maintains correct order through interleaved enqueue and dequeue operations', () => {
+    queue.enqueue('a')
+    queue.enqueue('b')
+    expect(queue.dequeue()).toBe('a')
+
+    queue.enqueue('c')
+    expect(queue.dequeue()).toBe('b')
+    expect(queue.peek()).toBe('c')
+
+    queue.enqueue('d')
+    expect(queue.toString()).toBe('c -> d')
+    expect(queue.dequeue()).toBe('c')
+    expect(queue.dequeue()).toBe('d')
+    expect(queue.dequeue()).toBeNull()
+    expect(queue.isEmpty()).toBe(true)
+  })
+
   it('rear follows the last enqueued item and links nodes', () => {
     queue.enqueue('a')
     queue.enqueue('b')

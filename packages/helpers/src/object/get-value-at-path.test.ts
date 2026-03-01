@@ -29,6 +29,52 @@ describe('getValueAtPath', () => {
     expect(getValueAtPath(target, ['foo', 'missing'])).toBeUndefined()
   })
 
+  it('returns undefined when traversing through null', () => {
+    const target = {
+      foo: null,
+    }
+
+    expect(getValueAtPath(target, ['foo', 'bar'])).toBeUndefined()
+  })
+
+  it('returns undefined when traversing through undefined', () => {
+    const target = {
+      foo: undefined as { bar: string } | undefined,
+    }
+
+    expect(getValueAtPath(target, ['foo', 'bar'])).toBeUndefined()
+  })
+
+  it('returns undefined for out-of-bounds array access', () => {
+    const target = {
+      items: [{ id: 'first' }],
+    }
+
+    expect(getValueAtPath(target, ['items', '4', 'id'])).toBeUndefined()
+  })
+
+  it('returns undefined when root object is null', () => {
+    expect(getValueAtPath(null, ['foo'])).toBeUndefined()
+  })
+
+  it('returns undefined when root object is undefined', () => {
+    expect(getValueAtPath(undefined, ['foo'])).toBeUndefined()
+  })
+
+  it('returns falsy leaf values as-is', () => {
+    const target = {
+      values: {
+        zero: 0,
+        empty: '',
+        bool: false,
+      },
+    }
+
+    expect(getValueAtPath(target, ['values', 'zero'])).toBe(0)
+    expect(getValueAtPath(target, ['values', 'empty'])).toBe('')
+    expect(getValueAtPath(target, ['values', 'bool'])).toBe(false)
+  })
+
   it('returns the original value when segments are empty', () => {
     const target = { foo: 'bar' }
 

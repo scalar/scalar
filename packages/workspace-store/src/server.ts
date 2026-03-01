@@ -421,7 +421,6 @@ export async function createServerWorkspaceStore(workspaceProps: CreateServerWor
      * @returns The chunk data if found, undefined otherwise
      */
     get: (pointer: string) => {
-      // Keep the path segments escaped cuz we store them on the filesystem as escaped sequences
       const pointerPath = (() => {
         if (pointer.startsWith('#')) {
           return pointer.slice(1)
@@ -438,6 +437,7 @@ export async function createServerWorkspaceStore(workspaceProps: CreateServerWor
         }
       })()
 
+      // Keep the path segments escaped cuz we store them on the filesystem as escaped sequences
       const path = parseJsonPointerSegments(pointerPath).map(escapeJsonPointer)
       return getValueAtPath(assets, path)
     },

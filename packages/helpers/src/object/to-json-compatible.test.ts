@@ -72,6 +72,28 @@ describe('arrays', () => {
     expect(3 in (result as unknown[])).toBe(true)
     expect(result).toEqual(input)
   })
+
+  it('replaces root self-referencing array item with $ref', () => {
+    const input: unknown[] = []
+    input.push(input)
+
+    const result = toJsonCompatible(input)
+
+    expect(result).toEqual([{ $ref: '#' }])
+  })
+
+  it('replaces circular reference from array item back to parent object', () => {
+    const parent: Record<string, unknown> = {
+      items: [],
+    }
+    ;(parent.items as unknown[]).push(parent)
+
+    const result = toJsonCompatible(parent)
+
+    expect(result).toEqual({
+      items: [{ $ref: '#' }],
+    })
+  })
 })
 
 describe('circular and shared references', () => {
@@ -158,6 +180,21 @@ describe('JSON Pointer encoding', () => {
     expect(result).toEqual({
       'a~b': { value: 1 },
       second: { $ref: '#/a~0b' },
+    })
+  })
+
+  it('escapes keys containing both "~" and "/"', () => {
+    const shared = { value: 1 }
+    const obj = {
+      'a~/b': shared,
+      second: shared,
+    }
+
+    const result = toJsonCompatible(obj)
+
+    expect(result).toEqual({
+      'a~/b': { value: 1 },
+      second: { $ref: '#/a~0~1b' },
     })
   })
 })
