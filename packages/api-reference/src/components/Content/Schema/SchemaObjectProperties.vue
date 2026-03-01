@@ -36,13 +36,15 @@ const sortedProperties = computed(() =>
 /**
  * Get the display name for additional properties.
  *
- * Uses x-additionalPropertiesName extension if available, otherwise falls back to a default name.
+ * Checks x-additionalPropertiesName extension first, then falls back to the
+ * propertyNames schema title if available.
  */
 const getAdditionalPropertiesName = (
   _additionalProperties: Extract<
     SchemaObject,
     { type: 'object' }
   >['additionalProperties'],
+  _propertyNames?: Extract<SchemaObject, { type: 'object' }>['propertyNames'],
 ) => {
   const additionalProperties =
     typeof _additionalProperties === 'boolean'
@@ -57,8 +59,51 @@ const getAdditionalPropertiesName = (
     return `${additionalProperties['x-additionalPropertiesName'].trim()}`
   }
 
+  // Fall back to the propertyNames title when available
+  if (_propertyNames) {
+    const resolved = resolve.schema(_propertyNames)
+    if (resolved?.title) {
+      return resolved.title
+    }
+  }
+
   return 'propertyName'
 }
+
+/**
+ * Extract enum values from the propertyNames schema.
+ *
+ * JSON Schema's propertyNames keyword constrains which keys are valid
+ * in an object with additionalProperties. When it contains an enum,
+ * these are the allowed key names.
+ */
+const getPropertyNamesEnum = (
+  _propertyNames?: Extract<SchemaObject, { type: 'object' }>['propertyNames'],
+): string[] | undefined => {
+  if (!_propertyNames) {
+    return undefined
+  }
+
+  const resolved = resolve.schema(_propertyNames)
+  if (
+    resolved &&
+    'enum' in resolved &&
+    Array.isArray(resolved.enum) &&
+    resolved.enum.length > 0
+  ) {
+    return resolved.enum as string[]
+  }
+
+  return undefined
+}
+
+/** Enum values for the property keys, derived from propertyNames if present. */
+const additionalPropertiesEnum = computed(() => {
+  if (!isTypeObject(schema) || !schema.additionalProperties) {
+    return undefined
+  }
+  return getPropertyNamesEnum(schema.propertyNames)
+})
 
 /**
  * Get the value for additional properties.
@@ -135,9 +180,15 @@ const getAdditionalPropertiesValue = (
       :hideHeading
       :hideModelNames
       :level
-      :name="getAdditionalPropertiesName(schema.additionalProperties)"
+      :name="
+        getAdditionalPropertiesName(
+          schema.additionalProperties,
+          schema.propertyNames,
+        )
+      "
       noncollapsible
       :options="options"
+      :propertyNamesEnum="additionalPropertiesEnum"
       :schema="getAdditionalPropertiesValue(schema.additionalProperties)"
       variant="additionalProperties" />
   </template>
