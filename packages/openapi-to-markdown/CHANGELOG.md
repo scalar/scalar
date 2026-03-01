@@ -1,5 +1,20 @@
 # @scalar/openapi-to-markdown
 
+## 0.3.54
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/openapi-upgrader@0.1.10**
+  - [#8272](https://github.com/scalar/scalar/pull/8272): feat: migrate swagger 2.0 response examples
+
+- **@scalar/openapi-parser@0.24.16**
+
+- **@scalar/oas-utils@0.8.1**
+
+- **@scalar/components@0.19.13**
+
 ## 0.3.53
 
 ### Patch Changes

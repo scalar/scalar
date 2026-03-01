@@ -1,5 +1,13 @@
 # @scalar/oas-utils
 
+## 0.8.1
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.35.2**
+
 ## 0.8.0
 
 ### Minor Changes
