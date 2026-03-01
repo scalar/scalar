@@ -12,6 +12,38 @@ describe('has-response-content', () => {
       expect(hasResponseContent({ description: 'Empty response' })).toBe(false)
     })
 
+    it('returns true for explicit 204 with no body content', () => {
+      expect(hasResponseContent({ description: 'No content response' }, '204')).toBe(true)
+    })
+
+    it('returns true for explicit default with no body content', () => {
+      expect(hasResponseContent({ description: 'Default response' }, 'default')).toBe(true)
+    })
+
+    it('returns true for explicit range status code with no body content', () => {
+      expect(hasResponseContent({ description: '2XX response' }, '2XX')).toBe(true)
+    })
+
+    it('returns false for non-response keys', () => {
+      expect(
+        hasResponseContent(
+          {
+            description: 'Invalid response key',
+            content: {
+              'application/json': {
+                schema: { type: 'object' },
+              },
+            },
+          },
+          'x-internal',
+        ),
+      ).toBe(false)
+    })
+
+    it('returns false for valid response key with undefined response', () => {
+      expect(hasResponseContent(undefined, '204')).toBe(false)
+    })
+
     it('returns false for response with empty content', () => {
       expect(
         hasResponseContent({

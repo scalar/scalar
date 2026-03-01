@@ -709,4 +709,80 @@ describe('ExampleResponses', () => {
     expect(wrapper.text()).toContain('New Single Example')
     expect(wrapper.text()).not.toContain('Example 2')
   })
+
+  it('renders explicit 204 response tab and shows No Body', () => {
+    const wrapper = mount(ExampleResponses, {
+      props: {
+        responses: {
+          '204': {
+            description: 'No Content',
+          },
+        },
+      },
+    })
+
+    const tabs = wrapper.findAllComponents({ name: 'ExampleResponseTab' })
+    expect(tabs.length).toBe(1)
+    expect(tabs[0]?.text()).toContain('204')
+    expect(wrapper.text()).toContain('No Body')
+  })
+
+  it('renders both contentful and explicit no-content responses', async () => {
+    const wrapper = mount(ExampleResponses, {
+      props: {
+        responses: {
+          '200': {
+            description: 'Success response',
+            content: {
+              'application/json': {
+                examples: {
+                  example1: { value: { status: 'success' } },
+                },
+              },
+            },
+          },
+          '204': {
+            description: 'No Content',
+          },
+        },
+      },
+    })
+
+    const tabs = wrapper.findAllComponents({ name: 'ExampleResponseTab' })
+    expect(tabs.length).toBe(2)
+    expect(tabs[0]?.text()).toContain('200')
+    expect(tabs[1]?.text()).toContain('204')
+
+    await tabs[1]?.trigger('click')
+    await wrapper.vm.$nextTick()
+
+    expect(wrapper.text()).toContain('No Body')
+  })
+
+  it('does not render tabs for non-response keys', () => {
+    const wrapper = mount(ExampleResponses, {
+      props: {
+        responses: {
+          '200': {
+            description: 'Success response',
+            content: {
+              'application/json': {
+                examples: {
+                  example1: { value: { status: 'success' } },
+                },
+              },
+            },
+          },
+          'x-internal': {
+            description: 'Internal metadata',
+          },
+        },
+      },
+    })
+
+    const tabs = wrapper.findAllComponents({ name: 'ExampleResponseTab' })
+    expect(tabs.length).toBe(1)
+    expect(tabs[0]?.text()).toContain('200')
+    expect(wrapper.text()).not.toContain('x-internal')
+  })
 })
