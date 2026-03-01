@@ -122,6 +122,8 @@ minimumReleaseAgeExclude:
   - vue
   # Renovate security update: @modelcontextprotocol/sdk@1.26.0
   - '@modelcontextprotocol/sdk@1.26.0'
+  # Renovate security update: svelte@5.53.5
+  - svelte@5.53.5
 
 onlyBuiltDependencies:
   - '@nestjs/core'
