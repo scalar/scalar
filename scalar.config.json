@@ -221,6 +221,10 @@
           "to": "/products/sdks/getting-started"
         },
         {
+          "from": "/scalar/scalar-sdks/publishing",
+          "to": "/products/sdks/publishing"
+        },
+        {
           "from": "/scalar/scalar-sdks/configuration/typescript",
           "to": "/products/sdks/configuration/typescript"
         },
@@ -995,6 +999,11 @@
                         }
                       ]
                     }
+                  },
+                  "publishing": {
+                    "filepath": "documentation/guides/sdks/publishing.md",
+                    "type": "page",
+                    "title": "Publishing"
                   },
                   "configuration": {
                     "title": "Configuration",
