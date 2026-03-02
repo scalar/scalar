@@ -22,6 +22,27 @@
   color: var(--scalar-sidebar-color-1, var(--scalar-color-1));
 }
 
+/** Active state (matches sidebar active styling) */
+.t-header .link.active,
+.t-header .link.link--active,
+.t-header .link[aria-current="page"] {
+  color: var(--scalar-sidebar-color-active, var(--scalar-header-color-1, var(--scalar-color-1)));
+  font-weight: var(--scalar-sidebar-font-weight-active, var(--scalar-semibold));
+}
+
+/** Home link underline (first nav item) */
+.t-header .navigation .link:first-child {
+  position: relative;
+}
+
+.t-header .navigation .link:first-child::after {
+  content: "";
+  position: absolute;
+  bottom: -15px;
+  inset-inline: 8px 8px;
+  height: 1px;
+  background: currentColor;
+}
 /** __cta styles are for when we display the item as a button */
 .t-header .link.link__button {
   background: var(--scalar-button-1);
@@ -43,4 +64,13 @@
 
 .header .header-center {
   display: none;
+}
+
+/** Keep Home and Agent next to the logo; push Log in and Register to the right */
+.t-header .header-right {
+  flex: 1;
+  min-width: 0;
+}
+.t-header .navigation .link:nth-child(3) {
+  margin-left: auto;
 }
