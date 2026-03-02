@@ -22,7 +22,7 @@ const schemaContent = computed(() => {
 const VIRTUALIZATION_THRESHOLD = 20_000
 
 const shouldVirtualizeSchema = computed(() => {
-  return schemaContent.value?.length ?? 0 > VIRTUALIZATION_THRESHOLD
+  return (schemaContent.value?.length ?? 0) > VIRTUALIZATION_THRESHOLD
 })
 </script>
 

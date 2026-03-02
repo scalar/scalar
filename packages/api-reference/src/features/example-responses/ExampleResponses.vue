@@ -174,9 +174,9 @@ const showSchema = ref(false)
     <ScalarCardSection class="grid flex-1">
       <!-- Schema -->
       <ExampleSchema
-        v-if="showSchema"
+        v-if="currentResponseContent?.schema && showSchema"
         :id="id"
-        :schema="currentResponseContent?.schema ?? { __scalar_: '' }" />
+        :schema="currentResponseContent?.schema" />
 
       <!-- Example -->
       <ExampleResponse
