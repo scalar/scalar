@@ -24,7 +24,7 @@
     "node": ">=20"
   },
   "scripts": {
-    "build": "shx rm -Rf ./dist && tsc -p tsconfig.build.json && postcss src/theme.css -o dist/theme.css",
+    "build": "shx rm -Rf ./dist ./tsconfig.build.tsbuildinfo && tsc -p tsconfig.build.json && postcss src/theme.css -o dist/theme.css",
     "dev": "docusaurus start playground --port=5063 --no-open",
     "format": "scalar-format",
     "format:check": "scalar-format-check",

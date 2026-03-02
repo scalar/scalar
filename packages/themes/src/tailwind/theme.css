@@ -27,14 +27,16 @@
 
   /* Font Sizes */
   --text-\*: initial;
-  --text-3xs: var(--scalar-font-size-7);
-  --text-xxs: var(--scalar-font-size-6);
-  --text-xs: var(--scalar-font-size-5);
-  --text-sm: var(--scalar-font-size-4);
-  --text-base: var(--scalar-font-size-3);
-  --text-lg: var(--scalar-font-size-2);
-  --text-xl: var(--scalar-font-size-1);
-
+  --text-3xs: var(--scalar-font-size-7); /* 10px */
+  --text-xxs: var(--scalar-font-size-6); /* 12px */
+  --text-xs: var(--scalar-font-size-5); /* 12px */
+  --text-sm: var(--scalar-font-size-4); /* 13px */
+  --text-base: var(--scalar-font-size-3); /* 14px */
+  --text-base--line-height: calc(1 / 0.875); /* 16px */
+  --text-lg: var(--scalar-font-size-2); /* 16px */
+  --text-lg--line-height: calc(1.25 / 1); /* 20px */
+  --text-xl: var(--scalar-font-size-1); /* 21px */
+  --text-xl--line-height: calc(1 / 0.875); /* 24px */
   /* Font Weights */
   --font-weight-\*: initial;
   --font-weight-normal: var(--scalar-regular);
@@ -115,13 +117,6 @@
   --color-grey: var(--scalar-color-3);
   --color-indigo: var(--scalar-color-blue);
   --color-pink: var(--scalar-color-pink);
-
-  /* Line Heights */
-  --leading-1: var(--scalar-line-height-1);
-  --leading-2: var(--scalar-line-height-2);
-  --leading-3: var(--scalar-line-height-3);
-  --leading-4: var(--scalar-line-height-4);
-  --leading-5: var(--scalar-line-height-5);
 
   /* Brightness */
   --brightness-lifted: var(--scalar-lifted-brightness);
