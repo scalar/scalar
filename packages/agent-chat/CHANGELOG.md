@@ -1,5 +1,18 @@
 # @scalar/agent-chat
 
+## 0.7.2
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/themes@0.14.3**
+  - [#8315](https://github.com/scalar/scalar/pull/8315): feat(theme): standardize tailwind line height behavior
+
+- **@scalar/api-client@2.31.2**
+
+- **@scalar/components@0.19.14**
+
 ## 0.7.1
 
 ### Patch Changes

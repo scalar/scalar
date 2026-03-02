@@ -1,5 +1,16 @@
 # @scalar/sidebar
 
+## 0.7.45
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/themes@0.14.3**
+  - [#8315](https://github.com/scalar/scalar/pull/8315): feat(theme): standardize tailwind line height behavior
+
+- **@scalar/components@0.19.14**
+
 ## 0.7.44
 
 ### Patch Changes

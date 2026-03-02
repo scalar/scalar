@@ -1,5 +1,26 @@
 # @scalar/api-reference
 
+## 1.46.2
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/themes@0.14.3**
+  - [#8315](https://github.com/scalar/scalar/pull/8315): feat(theme): standardize tailwind line height behavior
+
+- **@scalar/agent-chat@0.7.2**
+
+- **@scalar/api-client@2.31.2**
+
+- **@scalar/code-highlight@0.2.4**
+
+- **@scalar/components@0.19.14**
+
+- **@scalar/oas-utils@0.8.2**
+
+- **@scalar/sidebar@0.7.45**
+
 ## 1.46.1
 
 ### Patch Changes
