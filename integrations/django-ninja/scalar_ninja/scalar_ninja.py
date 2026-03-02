@@ -217,9 +217,9 @@ class ScalarConfig(BaseModel):
         description="If you want to prefix all relative servers with a base URL, you can do so here. Default is empty string.",
     )
 
-    servers: List[Dict[str, str]] = Field(
+    servers: List[Dict[str, Any]] = Field(
         default_factory=list,
-        description="A list of dictionaries with the keys being the server name and the value being the server URL. Default is [] which means no servers are provided.",
+        description="List of OpenAPI Server Objects. Each item must have a required 'url' (string) and may have optional 'description' (string) and 'variables' (map). Example: [{\"url\": \"https://api.example.com\", \"description\": \"Production\"}]. Default is [] which means no servers are provided.",
     )
 
     default_open_all_tags: bool = Field(
