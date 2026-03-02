@@ -11,8 +11,7 @@
     "examples/sveltekit/**",
     "examples/web/**",
     "projects/client-scalar-com/**",
-    "projects/proxy-scalar-com/**",
-    "projects/scalar-app/**"
+    "projects/proxy-scalar-com/**"
   ],
   "ignoreFiles": [
     // test types files are marked as unused
@@ -309,6 +308,12 @@
         "./src/server.ts",
         "./src/resolve.ts"
       ]
+    },
+    "projects/scalar-app": {
+      "vite": {
+        "config": ["electron.vite.config.ts"]
+      },
+      "entry": ["src/main/index.ts", "src/preload/index.ts", "src/preload/index.d.ts", "src/renderer/src/main.ts"]
     },
     "integrations/django-ninja": {
       "ignoreBinaries": ["python"]
