@@ -1,10 +1,9 @@
 <div class="flex flex-col gap-3 hero small-test">
   <scalar-heading level="2" slug="introduction" class="text-balance">
-    A modern API platform built for the OpenAPI™ standard.
+    Industry leading Developer Docs, SDKs & API Registry
   </scalar-heading>
   <p>
-    Industry leading Developer Docs, SDKs, API Client & Registry that your APIs
-    deserve
+    Purpose-built for the OpenAPI™ standard
   </p>
   <div class="flex gap-2">
     <a class="t-editor__button" href="https://dashboard.scalar.com/register">Get Started</a>
