@@ -168,7 +168,7 @@ Put your content where you want: in your repository, any folder, or the Scalar E
         <a class="flex items-center gap-1.5 font-medium text-c-2 hover:bg-b-2 rounded px-2 p-1" href="/products/docs/deployment/cli"><scalar-icon src="phosphor/bold/terminal"></scalar-icon> CLI</a>
       </p>
       <p>
-        <a class="flex items-center gap-1.5 font-medium text-c-2 hover:bg-b-2 rounded px-2 p-1" href="/products/docs/starter-kit"><scalar-icon src="phosphor/bold/rocket-launch"></scalar-icon> Starter Kit</a>
+        <a class="flex items-center gap-1.5 font-medium text-c-2 hover:bg-b-2 rounded px-2 p-1" href="/products/docs/configuration/starter-kit"><scalar-icon src="phosphor/bold/rocket-launch"></scalar-icon> Starter Kit</a>
       </p>
       <p>
         <a class="flex items-center gap-1.5 font-medium text-c-2 hover:bg-b-2 rounded px-2 p-1" href="/products/docs/configuration/themes"><scalar-icon src="phosphor/bold/palette"></scalar-icon> Themes</a>
