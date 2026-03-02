@@ -1,5 +1,20 @@
 # @scalar/types
 
+## 0.6.9
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/helpers@0.2.17**
+  - [#8310](https://github.com/scalar/scalar/pull/8310): refactor: move helpers to the helpers package to share primitive helpers
+
+## 0.6.8
+
+### Patch Changes
+
+- [#8274](https://github.com/scalar/scalar/pull/8274): feat(agent): add config to hide search api
+
 ## 0.6.7
 
 ### Patch Changes

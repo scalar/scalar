@@ -1,5 +1,11 @@
 # @scalar/helpers
 
+## 0.2.17
+
+### Patch Changes
+
+- [#8310](https://github.com/scalar/scalar/pull/8310): refactor: move helpers to the helpers package to share primitive helpers
+
 ## 0.2.16
 
 ### Patch Changes

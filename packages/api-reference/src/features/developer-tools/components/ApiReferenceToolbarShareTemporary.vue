@@ -1,18 +1,16 @@
 <script lang="ts" setup>
 import {
   ScalarButton,
-  ScalarIconButton,
-  ScalarTextInput,
+  ScalarTextInputCopy,
   useLoadingState,
 } from '@scalar/components'
-import { ScalarIconCopy } from '@scalar/icons'
-import { useClipboard } from '@scalar/use-hooks/useClipboard'
 import { useToasts } from '@scalar/use-toasts'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 
 import { REGISTRY_SHARE_URL } from '@/consts/urls'
-import ApiReferenceToolbarBlurb from '@/features/toolbar/ApiReferenceToolbarBlurb.vue'
 import { uploadTempDocument } from '@/helpers/upload-temp-document'
+
+import ApiReferenceToolbarBlurb from './ApiReferenceToolbarBlurb.vue'
 
 const { workspace } = defineProps<{
   workspace: WorkspaceStore
@@ -39,9 +37,9 @@ async function generateTemporaryLink() {
   }
 
   try {
-    tempDocUrl.value = await uploadTempDocument(document)
-    await copyToClipboard(tempDocUrl.value)
-    await loader.validate()
+    const url = await uploadTempDocument(document)
+    await loader.validate({ duration: 900, persist: true }) // Wait to show the success state
+    tempDocUrl.value = url
   } catch (error) {
     const message =
       error instanceof Error ? error.message : 'An unknown error occurred'
@@ -49,35 +47,26 @@ async function generateTemporaryLink() {
     await loader.invalidate()
   }
 }
-
-const { copyToClipboard } = useClipboard()
 </script>
 <template>
-  <ScalarTextInput
-    :modelValue="tempDocUrl"
-    :placeholder="`${REGISTRY_SHARE_URL}/apis/...`"
-    readonly
-    @click="tempDocUrl && copyToClipboard(tempDocUrl)">
-    <template
-      v-if="tempDocUrl"
-      #aside>
-      <ScalarIconButton
-        class="-m-1.5 -ml-1"
-        :icon="ScalarIconCopy"
-        label="Copy link to clipboard"
-        size="sm"
-        @click="copyToClipboard(tempDocUrl)" />
-    </template>
-  </ScalarTextInput>
-  <ScalarButton
-    class="h-auto p-2.5"
-    :disabled="!!tempDocUrl"
-    :loader
-    variant="outlined"
-    @click="generateTemporaryLink">
-    Generate
-  </ScalarButton>
+  <template v-if="tempDocUrl">
+    <ScalarTextInputCopy
+      immediate
+      :modelValue="tempDocUrl"
+      name="temporary-link"
+      :placeholder="`${REGISTRY_SHARE_URL}/apis/…`">
+    </ScalarTextInputCopy>
+  </template>
+  <template v-else>
+    <ScalarButton
+      class="h-auto p-2.5"
+      :loader
+      variant="gradient"
+      @click="generateTemporaryLink">
+      Upload Document
+    </ScalarButton>
+  </template>
   <ApiReferenceToolbarBlurb class="-mt-1">
-    Shared documents will automatically be deleted after 7 days.
+    Your document will automatically be deleted after 7 days.
   </ApiReferenceToolbarBlurb>
 </template>

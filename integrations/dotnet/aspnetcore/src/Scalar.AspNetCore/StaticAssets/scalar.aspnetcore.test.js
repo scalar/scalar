@@ -73,7 +73,7 @@ describe('scalar.aspnetcore', () => {
       )
 
       // Spy on console.error
-      vi.spyOn(console, 'error').mockImplementation(() => {})
+      vi.spyOn(console, 'error').mockImplementation(vi.fn())
     })
 
     afterEach(() => {

@@ -28,7 +28,7 @@ catalogs:
     '@nestjs/common': '^11.1.11'
     '@nestjs/core': '^11.1.11'
     '@nestjs/platform-express': '^11.1.11'
-    '@nestjs/platform-fastify': '^11.1.11'
+    '@nestjs/platform-fastify': '^11.1.14'
     '@nestjs/schematics': '^11.0.9'
     '@nestjs/swagger': '^7.3.1'
     '@nestjs/testing': '^11.1.11'
@@ -115,6 +115,7 @@ minimumReleaseAgeExclude:
   - astro
   - hono
   - next
+  - turbo
   - vite
   - vite-node
   - vitest

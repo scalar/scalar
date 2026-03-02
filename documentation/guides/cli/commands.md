@@ -388,6 +388,7 @@ Options:
   -s, --slug [slug]      Project slug found in Scalar Dashboard
   -c, --config [config]  Your config file of the project
   -p, --preview          Publish in preview mode
+  -g, --github           Publish from your linked remote GitHub repository
   -h, --help             display help for command
 ```
 

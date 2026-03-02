@@ -9,10 +9,10 @@ import { type ThemeId } from '@scalar/themes'
 import type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
 import { computed } from 'vue'
 
-import ApiReferenceToolbarConfigLayout from '@/features/toolbar/ApiReferenceToolbarConfigLayout.vue'
-import ApiReferenceToolbarConfigLayoutOptions from '@/features/toolbar/ApiReferenceToolbarConfigLayoutOptions.vue'
-import ApiReferenceToolbarConfigTheme from '@/features/toolbar/ApiReferenceToolbarConfigTheme.vue'
-import ApiReferenceToolbarPopover from '@/features/toolbar/ApiReferenceToolbarPopover.vue'
+import ApiReferenceToolbarConfigLayout from './ApiReferenceToolbarConfigLayout.vue'
+import ApiReferenceToolbarConfigLayoutOptions from './ApiReferenceToolbarConfigLayoutOptions.vue'
+import ApiReferenceToolbarConfigTheme from './ApiReferenceToolbarConfigTheme.vue'
+import ApiReferenceToolbarPopover from './ApiReferenceToolbarPopover.vue'
 
 const { configuration } = defineProps<{
   configuration?: Partial<ApiReferenceConfiguration>

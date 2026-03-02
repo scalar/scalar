@@ -131,7 +131,7 @@ When using multiple sources, each `OpenAPISource` can be configured with:
 ### Server Configuration
 
 - `base_server_url` (default `""`) - If you want to prefix all relative servers with a base URL
-- `servers` (default `[]`)
+- `servers` (default `[]`) - List of OpenAPI Server Objects. Each item must have a required `url` (string) and may have optional `description` (string) and `variables` (map). Example: `[{"url": "https://api.example.com", "description": "Production"}]`
 - `hidden_clients` (default `[]`)
 
 ### Authentication

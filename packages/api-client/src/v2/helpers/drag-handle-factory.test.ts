@@ -345,7 +345,6 @@ describe('handleDragEnd', () => {
 
   it('successfully moves an operation containing a circular reference to another tag', async () => {
     // Create a document with a schema that has a circular reference (Person references itself via children)
-    // This tests that the removeCircular helper properly handles circular refs during dereference
     const documentWithCircularRef = {
       openapi: '3.1.0',
       info: { title: 'Circular Ref API', version: '1.0.0' },

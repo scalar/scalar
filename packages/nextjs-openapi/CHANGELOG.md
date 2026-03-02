@@ -1,5 +1,26 @@
 # @scalar/nextjs-openapi
 
+## 0.2.51
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/types@0.6.9**
+
+- **@scalar/nextjs-api-reference@0.9.25**
+
+## 0.2.50
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/types@0.6.8**
+  - [#8274](https://github.com/scalar/scalar/pull/8274): feat(agent): add config to hide search api
+
+- **@scalar/nextjs-api-reference@0.9.24**
+
 ## 0.2.49
 
 ### Patch Changes

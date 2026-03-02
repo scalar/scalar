@@ -60,9 +60,9 @@ import { useScrollLock } from '@vueuse/core'
 import ClassicHeader from '@/components/ClassicHeader.vue'
 import Content from '@/components/Content/Content.vue'
 import MobileHeader from '@/components/MobileHeader.vue'
+import { DeveloperTools } from '@/features/developer-tools'
 import DocumentSelector from '@/features/multiple-documents/DocumentSelector.vue'
 import SearchButton from '@/features/Search/components/SearchButton.vue'
-import ApiReferenceToolbar from '@/features/toolbar/ApiReferenceToolbar.vue'
 import { getSystemModePreference } from '@/helpers/color-mode'
 import { downloadDocument } from '@/helpers/download'
 import { getIdFromUrl, makeUrlFromId } from '@/helpers/id-routing'
@@ -1019,7 +1019,7 @@ watch(agent.showAgent, () => (bodyScrollLocked.value = agent.showAgent.value))
             workspaceStore.workspace['x-scalar-default-client']
           ">
           <template #start>
-            <ApiReferenceToolbar
+            <DeveloperTools
               v-if="
                 workspaceStore.workspace.activeDocument && mediaQueries.lg.value
               "

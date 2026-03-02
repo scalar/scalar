@@ -1,23 +1,9 @@
 <script setup lang="ts">
 import { ScalarIconInfo } from '@scalar/icons'
 
-import { useState } from '@/state/state'
+import { useSignupLink } from '@/hooks/use-signup-link'
 
-const { dashboardUrl, mode, uploadedTmpDocumentUrl } = useState()
-
-function handleUpgrade() {
-  if (mode === 'full') {
-    window.location.replace(dashboardUrl)
-  }
-
-  if (mode === 'preview') {
-    window.location.replace(
-      uploadedTmpDocumentUrl.value
-        ? `${dashboardUrl}/register?flow=oss-agent&docUrl=${uploadedTmpDocumentUrl.value}`
-        : dashboardUrl,
-    )
-  }
-}
+const { navigateToSignup } = useSignupLink()
 </script>
 
 <template>
@@ -26,13 +12,14 @@ function handleUpgrade() {
       <ScalarIconInfo
         class="text-blue size-4"
         weight="bold" />
-      You've used up all your free messages, upgrade for $24/mo.
+      You've reached your free message limit. Unlock unlimited access by
+      upgrading now.
     </strong>
     <div class="paymentContainer">
       <button
         class="actionButton approveButton"
         type="button"
-        @click="handleUpgrade">
+        @click="navigateToSignup">
         Upgrade
       </button>
       <div class="paymentInfo">

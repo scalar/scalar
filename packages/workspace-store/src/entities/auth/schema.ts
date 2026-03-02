@@ -130,7 +130,7 @@ export const AuthSchema = Type.Object({
   secrets: SecretsAuthSchema,
   selected: Type.Object({
     document: Type.Optional(SelectedSecuritySchema),
-    path: Type.Optional(Type.Record(Type.String(), Type.Record(Type.String(), SelectedSecuritySchema))),
+    path: Type.Optional(Type.Record(Type.String(), Type.Record(Type.String(), Type.Optional(SelectedSecuritySchema)))),
   }),
 })
 

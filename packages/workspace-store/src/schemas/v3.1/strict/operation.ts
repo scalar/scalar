@@ -12,6 +12,10 @@ import {
   XScalarDisableParametersSchema,
 } from '@/schemas/extensions/operation/x-scalar-disable-parameters'
 import { type XScalarStability, XScalarStabilitySchema } from '@/schemas/extensions/operation/x-scalar-stability'
+import {
+  type XScalarSelectedServer,
+  XScalarSelectedServerSchema,
+} from '@/schemas/extensions/server/x-scalar-selected-server'
 
 import type { CallbackObject } from './callback'
 import type { ExternalDocumentationObject } from './external-documentation'
@@ -66,6 +70,7 @@ export const OperationObjectSchemaDefinition = compose(
   XScalarDisableParametersSchema,
   XPostResponseSchema,
   XDraftExamplesSchema,
+  XScalarSelectedServerSchema,
 )
 
 export type OperationObject = {
@@ -100,4 +105,5 @@ export type OperationObject = {
   XScalarStability &
   XScalarDisableParameters &
   XPostResponse &
-  XDraftExamples
+  XDraftExamples &
+  XScalarSelectedServer

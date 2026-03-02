@@ -253,5 +253,12 @@ export type UIEvents = {
         method: HttpMethod
         exampleName: string
       }
+    | {
+        page: 'operation'
+        path: 'overview' | 'servers' | 'authentication'
+        operationPath: string
+        method: HttpMethod
+        documentSlug?: string
+      }
   )
 }

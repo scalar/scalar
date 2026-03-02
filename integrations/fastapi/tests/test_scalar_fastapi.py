@@ -129,7 +129,7 @@ class TestGetScalarApiReference:
             dark_mode=False,
             search_hot_key=SearchHotKey.S,
             hidden_clients=["client1", "client2"],
-            servers=[{"name": "Production", "url": "https://api.example.com"}],
+            servers=[{"url": "https://api.example.com", "description": "Production"}],
             default_open_all_tags=True,
             authentication={"apiKey": "test-key"},
             hide_client_button=True,
@@ -149,7 +149,7 @@ class TestGetScalarApiReference:
         assert '"darkMode": false' in html_content
         assert '"searchHotKey": "s"' in html_content
         assert '"hiddenClients": ["client1", "client2"]' in html_content
-        assert '"servers": [{"name": "Production", "url": "https://api.example.com"}]' in html_content
+        assert '"servers": [{"url": "https://api.example.com", "description": "Production"}]' in html_content
         assert '"defaultOpenAllTags": true' in html_content
         assert '"authentication": {"apiKey": "test-key"}' in html_content
         assert '"hideClientButton": true' in html_content
@@ -291,17 +291,17 @@ class TestGetScalarApiReference:
         assert f'"hiddenClients": {expected_json}' in html_content
 
     def test_servers_parameter(self):
-        """Test servers parameter with multiple servers"""
+        """Test servers parameter with OpenAPI Server Object format"""
         servers = [
-            {"name": "Production", "url": "https://api.example.com"},
-            {"name": "Staging", "url": "https://staging-api.example.com"},
-            {"name": "Development", "url": "http://localhost:8000"}
+            {"url": "https://api.example.com", "description": "Production"},
+            {"url": "https://staging-api.example.com", "description": "Staging"},
+            {"url": "http://localhost:8000", "description": "Development"},
         ]
 
         response = get_scalar_api_reference(
             openapi_url="/openapi.json",
             title="Test API",
-            servers=servers
+            servers=servers,
         )
 
         html_content = response.body.decode()

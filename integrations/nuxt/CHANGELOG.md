@@ -1,5 +1,73 @@
 # @scalar/nuxt
 
+## 0.5.88
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-client@2.31.2**
+
+- **@scalar/api-reference@1.46.2**
+
+## 0.5.87
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-client@2.31.1**
+  - [#8310](https://github.com/scalar/scalar/pull/8310): refactor: move helpers to the helpers package to share primitive helpers
+  - [#8294](https://github.com/scalar/scalar/pull/8294): default createAnySecurityScheme to false and fix index clamp issue
+
+- **@scalar/api-reference@1.46.1**
+  - [#8294](https://github.com/scalar/scalar/pull/8294): default createAnySecurityScheme to false and fix index clamp issue
+
+- **@scalar/types@0.6.9**
+
+## 0.5.86
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-client@2.31.0**
+  - [#8290](https://github.com/scalar/scalar/pull/8290): chore: update deps
+
+- **@scalar/api-reference@1.46.0**
+  - [#8290](https://github.com/scalar/scalar/pull/8290): chore: update deps
+  - [#8283](https://github.com/scalar/scalar/pull/8283): fix: scrollToLazy can not find id when the browser is busy
+
+## 0.5.85
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.45.0**
+  - [#8255](https://github.com/scalar/scalar/pull/8255): fix: correctly handle circular references when deep resolving references
+  - [#8279](https://github.com/scalar/scalar/pull/8279): fix(api-references): css collision on ask ai input
+  - [#8234](https://github.com/scalar/scalar/pull/8234): support operation level authentication and servers
+
+- **@scalar/api-client@2.30.0**
+  - [#8255](https://github.com/scalar/scalar/pull/8255): fix: correctly handle circular references when deep resolving references
+  - [#8234](https://github.com/scalar/scalar/pull/8234): support operation level authentication and servers
+
+## 0.5.84
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.44.27**
+  - [#8274](https://github.com/scalar/scalar/pull/8274): feat(agent): add config to hide search api
+  - [#8260](https://github.com/scalar/scalar/pull/8260): feat: update developer tools
+
+- **@scalar/types@0.6.8**
+  - [#8274](https://github.com/scalar/scalar/pull/8274): feat(agent): add config to hide search api
+
+- **@scalar/api-client@2.29.4**
+
 ## 0.5.83
 
 ### Patch Changes

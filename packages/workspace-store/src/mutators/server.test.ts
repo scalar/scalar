@@ -1,8 +1,17 @@
 import { describe, expect, it } from 'vitest'
 
+import { getResolvedRef } from '@/helpers/get-resolved-ref'
 import type { WorkspaceDocument } from '@/schemas'
 
-import { addServer, deleteServer, updateSelectedServer, updateServer, updateServerVariables } from './server'
+import {
+  addServer,
+  clearServers,
+  deleteServer,
+  initializeServers,
+  updateSelectedServer,
+  updateServer,
+  updateServerVariables,
+} from './server'
 
 /**
  * Helper to create a minimal WorkspaceDocument for testing.
@@ -16,11 +25,82 @@ function createDocument(initial?: Partial<WorkspaceDocument>): WorkspaceDocument
   }
 }
 
+describe('initializeServers', () => {
+  it('initializes document-level servers to empty array', () => {
+    const document = createDocument()
+
+    const result = initializeServers(document, { meta: { type: 'document' } })
+
+    expect(result).toEqual([])
+    expect(document.servers).toEqual([])
+  })
+
+  it('replaces existing document-level servers with empty array', () => {
+    const document = createDocument({
+      servers: [{ url: 'https://api.example.com' }, { url: 'https://dev.example.com' }],
+    })
+
+    const result = initializeServers(document, { meta: { type: 'document' } })
+
+    expect(result).toEqual([])
+    expect(document.servers).toEqual([])
+  })
+
+  it('returns undefined when document is null', () => {
+    const result = initializeServers(null, { meta: { type: 'document' } })
+
+    expect(result).toBeUndefined()
+  })
+
+  it('initializes operation-level servers when meta type is operation', () => {
+    const document = createDocument({
+      paths: {
+        '/users': {
+          get: { summary: 'List users' },
+        },
+      },
+    })
+
+    const result = initializeServers(document, { meta: { type: 'operation', path: '/users', method: 'get' } })
+
+    expect(result).toEqual([])
+    const operation = getResolvedRef(document.paths?.['/users']?.get)
+    expect(operation?.servers).toEqual([])
+  })
+
+  it('replaces existing operation-level servers with empty array', () => {
+    const document = createDocument({
+      paths: {
+        '/users': {
+          get: {
+            summary: 'List users',
+            servers: [{ url: 'https://api.example.com' }],
+          },
+        },
+      },
+    })
+
+    const result = initializeServers(document, { meta: { type: 'operation', path: '/users', method: 'get' } })
+
+    expect(result).toEqual([])
+    const operation = getResolvedRef(document.paths?.['/users']?.get)
+    expect(operation?.servers).toEqual([])
+  })
+
+  it('returns undefined when operation path or method does not exist', () => {
+    const document = createDocument()
+
+    const result = initializeServers(document, { meta: { type: 'operation', path: '/missing', method: 'get' } })
+
+    expect(result).toBeUndefined()
+  })
+})
+
 describe('addServer', () => {
   it('adds a new server and initializes servers array when missing', () => {
     const document = createDocument()
 
-    const result = addServer(document)
+    const result = addServer(document, { meta: { type: 'document' } })
 
     expect(result).toBeDefined()
     expect(document.servers).toHaveLength(1)
@@ -33,7 +113,7 @@ describe('addServer', () => {
       servers: [{ url: 'https://api.example.com' }],
     })
 
-    const result = addServer(document)
+    const result = addServer(document, { meta: { type: 'document' } })
 
     expect(result).toBeDefined()
     expect(document.servers).toHaveLength(2)
@@ -42,9 +122,26 @@ describe('addServer', () => {
   })
 
   it('returns undefined when document is null', () => {
-    const result = addServer(null)
+    const result = addServer(null, { meta: { type: 'document' } })
 
     expect(result).toBeUndefined()
+  })
+
+  it('adds server to operation when meta type is operation', () => {
+    const document = createDocument({
+      paths: {
+        '/users': {
+          get: { summary: 'List users' },
+        },
+      },
+    })
+
+    const result = addServer(document, { meta: { type: 'operation', path: '/users', method: 'get' } })
+
+    expect(result).toBeDefined()
+    const operation = getResolvedRef(document.paths?.['/users']?.get)
+    expect(operation?.servers).toHaveLength(1)
+    expect(operation?.servers?.[0]).toEqual(result)
   })
 })
 
@@ -60,6 +157,7 @@ describe('updateServer', () => {
     const result = updateServer(document, {
       index: 0,
       server: { url: 'https://api-v2.example.com' },
+      meta: { type: 'document' },
     })
 
     expect(result).toBeDefined()
@@ -90,6 +188,7 @@ describe('updateServer', () => {
       server: {
         url: 'https://{environment}.example.com/{version}',
       },
+      meta: { type: 'document' },
     })
 
     expect(document.servers?.[0]?.url).toBe('https://{environment}.example.com/{version}')
@@ -124,6 +223,7 @@ describe('updateServer', () => {
       server: {
         url: 'https://staging.example.com/',
       },
+      meta: { type: 'document' },
     })
 
     expect(document.servers?.[0]?.url).toBe('https://staging.example.com/')
@@ -157,6 +257,7 @@ describe('updateServer', () => {
       server: {
         url: 'https://{environment}.{address}.com/{path}',
       },
+      meta: { type: 'document' },
     })
 
     expect(document.servers?.[0]?.url).toBe('https://{environment}.{address}.com/{path}')
@@ -202,6 +303,7 @@ describe('updateServer', () => {
       server: {
         url: 'https://{environment}.example.{tld}/{path}',
       },
+      meta: { type: 'document' },
     })
 
     expect(document.servers?.[0]?.url).toBe('https://{environment}.example.{tld}/{path}')
@@ -231,6 +333,7 @@ describe('updateServer', () => {
     const result = updateServer(document, {
       index: 0,
       server: { description: 'Updated description' },
+      meta: { type: 'document' },
     })
 
     expect(result).toBeDefined()
@@ -246,6 +349,7 @@ describe('updateServer', () => {
     const result = updateServer(document, {
       index: 5,
       server: { url: 'https://new.example.com' },
+      meta: { type: 'document' },
     })
 
     expect(result).toBeUndefined()
@@ -264,9 +368,33 @@ describe('updateServer', () => {
     const result = updateServer(document, {
       index: 0,
       server: { url: 'https://new.example.com' },
+      meta: { type: 'document' },
     })
 
     expect(result).toBeUndefined()
+  })
+
+  it('updates server on operation when meta type is operation', () => {
+    const document = createDocument({
+      paths: {
+        '/users': {
+          get: {
+            summary: 'List users',
+            servers: [{ url: 'https://api.example.com' }],
+          },
+        },
+      },
+    })
+
+    const result = updateServer(document, {
+      index: 0,
+      server: { url: 'https://api-v2.example.com' },
+      meta: { type: 'operation', path: '/users', method: 'get' },
+    })
+
+    expect(result?.url).toBe('https://api-v2.example.com')
+    const operation = getResolvedRef(document.paths?.['/users']?.get)
+    expect(operation?.servers?.[0]?.url).toBe('https://api-v2.example.com')
   })
 })
 
@@ -280,7 +408,7 @@ describe('deleteServer', () => {
       ],
     })
 
-    deleteServer(document, { index: 1 })
+    deleteServer(document, { index: 1, meta: { type: 'document' } })
 
     expect(document.servers).toHaveLength(2)
     expect(document.servers?.[0]).toEqual({ url: 'https://api.example.com' })
@@ -292,13 +420,13 @@ describe('deleteServer', () => {
       servers: [{ url: 'https://api.example.com' }],
     })
 
-    deleteServer(document, { index: 0 })
+    deleteServer(document, { index: 0, meta: { type: 'document' } })
 
     expect(document.servers).toHaveLength(0)
   })
 
   it('no-ops when deleting from null document', () => {
-    expect(() => deleteServer(null, { index: 0 })).not.toThrow()
+    expect(() => deleteServer(null, { index: 0, meta: { type: 'document' } })).not.toThrow()
   })
 
   it('no-ops when deleting with out-of-bounds index', () => {
@@ -306,10 +434,126 @@ describe('deleteServer', () => {
       servers: [{ url: 'https://api.example.com' }],
     })
 
-    deleteServer(document, { index: 10 })
+    deleteServer(document, { index: 10, meta: { type: 'document' } })
 
     // servers array should remain unchanged
     expect(document.servers).toHaveLength(1)
+  })
+
+  it('deletes server on operation when meta type is operation', () => {
+    const document = createDocument({
+      paths: {
+        '/users': {
+          get: {
+            summary: 'List users',
+            servers: [{ url: 'https://api.example.com' }, { url: 'https://dev.example.com' }],
+          },
+        },
+      },
+    })
+
+    deleteServer(document, { index: 0, meta: { type: 'operation', path: '/users', method: 'get' } })
+
+    const operation = getResolvedRef(document.paths?.['/users']?.get)
+    expect(operation?.servers).toHaveLength(1)
+    expect(operation?.servers?.[0]?.url).toBe('https://dev.example.com')
+  })
+})
+
+describe('clearServers', () => {
+  it('removes servers array and clears selected server on document', () => {
+    const document = createDocument({
+      servers: [{ url: 'https://api.example.com' }, { url: 'https://dev.example.com' }],
+      'x-scalar-selected-server': 'https://dev.example.com',
+    })
+
+    clearServers(document, { meta: { type: 'document' } })
+
+    expect(document.servers).toBeUndefined()
+    expect(document['x-scalar-selected-server']).toBeUndefined()
+  })
+
+  it('clears selected server when servers array is already empty', () => {
+    const document = createDocument({
+      servers: [],
+      'x-scalar-selected-server': 'https://api.example.com',
+    })
+
+    clearServers(document, { meta: { type: 'document' } })
+
+    expect(document.servers).toBeUndefined()
+    expect(document['x-scalar-selected-server']).toBeUndefined()
+  })
+
+  it('no-ops when document is null', () => {
+    expect(() => clearServers(null, { meta: { type: 'document' } })).not.toThrow()
+  })
+
+  it('no-ops when target has no servers (servers undefined)', () => {
+    const document = createDocument()
+    expect(document.servers).toBeUndefined()
+
+    clearServers(document, { meta: { type: 'document' } })
+
+    expect(document.servers).toBeUndefined()
+    expect(document['x-scalar-selected-server']).toBeUndefined()
+  })
+
+  it('clears servers on operation when meta type is operation', () => {
+    const document = createDocument({
+      paths: {
+        '/users': {
+          get: {
+            summary: 'List users',
+            servers: [{ url: 'https://api.example.com' }],
+            'x-scalar-selected-server': 'https://api.example.com',
+          },
+        },
+      },
+    })
+
+    clearServers(document, { meta: { type: 'operation', path: '/users', method: 'get' } })
+
+    const operation = getResolvedRef(document.paths?.['/users']?.get)
+    expect(operation?.servers).toBeUndefined()
+    expect(operation?.['x-scalar-selected-server']).toBeUndefined()
+  })
+
+  it('leaves document-level servers unchanged when clearing operation-level', () => {
+    const document = createDocument({
+      servers: [{ url: 'https://doc.example.com' }],
+      'x-scalar-selected-server': 'https://doc.example.com',
+      paths: {
+        '/users': {
+          get: {
+            servers: [{ url: 'https://op.example.com' }],
+            'x-scalar-selected-server': 'https://op.example.com',
+          },
+        },
+      },
+    })
+
+    clearServers(document, { meta: { type: 'operation', path: '/users', method: 'get' } })
+
+    expect(document.servers).toHaveLength(1)
+    expect(document.servers?.[0]?.url).toBe('https://doc.example.com')
+    expect(document['x-scalar-selected-server']).toBe('https://doc.example.com')
+
+    const operation = getResolvedRef(document.paths?.['/users']?.get)
+    expect(operation?.servers).toBeUndefined()
+    expect(operation?.['x-scalar-selected-server']).toBeUndefined()
+  })
+
+  it('no-ops when operation path or method does not exist', () => {
+    const document = createDocument({
+      servers: [{ url: 'https://api.example.com' }],
+      'x-scalar-selected-server': 'https://api.example.com',
+    })
+
+    clearServers(document, { meta: { type: 'operation', path: '/missing', method: 'get' } })
+
+    expect(document.servers).toHaveLength(1)
+    expect(document['x-scalar-selected-server']).toBe('https://api.example.com')
   })
 })
 
@@ -333,6 +577,7 @@ describe('updateServerVariables', () => {
       index: 0,
       key: 'environment',
       value: 'staging',
+      meta: { type: 'document' },
     })
 
     expect(result).toBeDefined()
@@ -362,12 +607,14 @@ describe('updateServerVariables', () => {
       index: 0,
       key: 'environment',
       value: 'dev',
+      meta: { type: 'document' },
     })
 
     updateServerVariables(document, {
       index: 0,
       key: 'port',
       value: '8080',
+      meta: { type: 'document' },
     })
 
     expect(document.servers?.[0]?.variables?.environment?.default).toBe('dev')
@@ -388,6 +635,7 @@ describe('updateServerVariables', () => {
       index: 0,
       key: 'nonexistent',
       value: 'value',
+      meta: { type: 'document' },
     })
 
     expect(result).toBeUndefined()
@@ -406,6 +654,7 @@ describe('updateServerVariables', () => {
       index: 0,
       key: 'environment',
       value: 'dev',
+      meta: { type: 'document' },
     })
 
     expect(result).toBeUndefined()
@@ -420,9 +669,39 @@ describe('updateServerVariables', () => {
       index: 5,
       key: 'environment',
       value: 'dev',
+      meta: { type: 'document' },
     })
 
     expect(result).toBeUndefined()
+  })
+
+  it('updates server variable on operation when meta type is operation', () => {
+    const document = createDocument({
+      paths: {
+        '/users': {
+          get: {
+            summary: 'List users',
+            servers: [
+              {
+                url: 'https://{env}.example.com',
+                variables: { env: { default: 'api' } },
+              },
+            ],
+          },
+        },
+      },
+    })
+
+    const result = updateServerVariables(document, {
+      index: 0,
+      key: 'env',
+      value: 'staging',
+      meta: { type: 'operation', path: '/users', method: 'get' },
+    })
+
+    expect(result?.default).toBe('staging')
+    const operation = getResolvedRef(document.paths?.['/users']?.get)
+    expect(operation?.servers?.[0]?.variables?.env?.default).toBe('staging')
   })
 })
 
@@ -442,6 +721,7 @@ describe('syncVariablesForUrlChange', () => {
       server: {
         url: 'https://api-v2.example.com',
       },
+      meta: { type: 'document' },
     })
 
     expect(document.servers?.[0]?.url).toBe('https://api-v2.example.com')
@@ -463,6 +743,7 @@ describe('syncVariablesForUrlChange', () => {
       server: {
         url: 'https://{environment}.example.com:{port}/{version}',
       },
+      meta: { type: 'document' },
     })
 
     expect(document.servers?.[0]?.url).toBe('https://{environment}.example.com:{port}/{version}')
@@ -506,6 +787,7 @@ describe('syncVariablesForUrlChange', () => {
       server: {
         url: 'https://api.example.com',
       },
+      meta: { type: 'document' },
     })
 
     expect(document.servers?.[0]?.url).toBe('https://api.example.com')
@@ -536,6 +818,7 @@ describe('syncVariablesForUrlChange', () => {
       server: {
         url: 'https://{version}.example.com/{environment}',
       },
+      meta: { type: 'document' },
     })
 
     expect(document.servers?.[0]?.url).toBe('https://{version}.example.com/{environment}')
@@ -576,6 +859,7 @@ describe('syncVariablesForUrlChange', () => {
       server: {
         url: 'https://{environment}.example.com/{version}/{region}',
       },
+      meta: { type: 'document' },
     })
 
     expect(document.servers?.[0]?.url).toBe('https://{environment}.example.com/{version}/{region}')
@@ -606,7 +890,7 @@ describe('updateSelectedServer', () => {
       ],
     })
 
-    const result = updateSelectedServer(document, { url: 'https://dev.example.com' })
+    const result = updateSelectedServer(document, { url: 'https://dev.example.com', meta: { type: 'document' } })
 
     expect(result).toBe('https://dev.example.com')
     expect(document['x-scalar-selected-server']).toBe('https://dev.example.com')
@@ -618,7 +902,7 @@ describe('updateSelectedServer', () => {
       'x-scalar-selected-server': 'https://dev.example.com',
     })
 
-    const result = updateSelectedServer(document, { url: 'https://api.example.com' })
+    const result = updateSelectedServer(document, { url: 'https://api.example.com', meta: { type: 'document' } })
 
     expect(result).toBe('https://api.example.com')
     expect(document['x-scalar-selected-server']).toBe('https://api.example.com')
@@ -629,7 +913,7 @@ describe('updateSelectedServer', () => {
       servers: [{ url: 'https://api.example.com' }],
     })
 
-    const result = updateSelectedServer(document, { url: 'https://custom.example.com' })
+    const result = updateSelectedServer(document, { url: 'https://custom.example.com', meta: { type: 'document' } })
 
     expect(result).toBe('https://custom.example.com')
     expect(document['x-scalar-selected-server']).toBe('https://custom.example.com')
@@ -650,10 +934,35 @@ describe('updateSelectedServer', () => {
       ],
     })
 
-    const result = updateSelectedServer(document, { url: 'https://{environment}.example.com' })
+    const result = updateSelectedServer(document, {
+      url: 'https://{environment}.example.com',
+      meta: { type: 'document' },
+    })
 
     expect(result).toBe('https://{environment}.example.com')
     expect(document['x-scalar-selected-server']).toBe('https://{environment}.example.com')
+  })
+
+  it('updates selected server on operation when meta type is operation', () => {
+    const document = createDocument({
+      paths: {
+        '/users': {
+          get: {
+            summary: 'List users',
+            servers: [{ url: 'https://api.example.com' }],
+          },
+        },
+      },
+    })
+
+    const result = updateSelectedServer(document, {
+      url: 'https://api.example.com',
+      meta: { type: 'operation', path: '/users', method: 'get' },
+    })
+
+    expect(result).toBe('https://api.example.com')
+    const operation = getResolvedRef(document.paths?.['/users']?.get)
+    expect(operation?.['x-scalar-selected-server']).toBe('https://api.example.com')
   })
 })
 
@@ -668,6 +977,7 @@ describe('x-scalar-selected-server tracking', () => {
       updateServer(document, {
         index: 0,
         server: { url: 'https://api-v2.example.com' },
+        meta: { type: 'document' },
       })
 
       expect(document.servers?.[0]?.url).toBe('https://api-v2.example.com')
@@ -683,6 +993,7 @@ describe('x-scalar-selected-server tracking', () => {
       updateServer(document, {
         index: 1,
         server: { url: 'https://dev-v2.example.com' },
+        meta: { type: 'document' },
       })
 
       expect(document.servers?.[1]?.url).toBe('https://dev-v2.example.com')
@@ -698,6 +1009,7 @@ describe('x-scalar-selected-server tracking', () => {
       updateServer(document, {
         index: 0,
         server: { description: 'Updated description' },
+        meta: { type: 'document' },
       })
 
       expect(document['x-scalar-selected-server']).toBe('https://api.example.com')
@@ -722,6 +1034,7 @@ describe('x-scalar-selected-server tracking', () => {
       updateServer(document, {
         index: 0,
         server: { url: 'https://{env}.example.com/{version}' },
+        meta: { type: 'document' },
       })
 
       expect(document.servers?.[0]?.url).toBe('https://{env}.example.com/{version}')
@@ -736,6 +1049,7 @@ describe('x-scalar-selected-server tracking', () => {
       updateServer(document, {
         index: 0,
         server: { url: 'https://api-v2.example.com' },
+        meta: { type: 'document' },
       })
 
       expect(document.servers?.[0]?.url).toBe('https://api-v2.example.com')
@@ -754,7 +1068,7 @@ describe('x-scalar-selected-server tracking', () => {
         'x-scalar-selected-server': 'https://api.example.com',
       })
 
-      deleteServer(document, { index: 0 })
+      deleteServer(document, { index: 0, meta: { type: 'document' } })
 
       expect(document.servers).toHaveLength(2)
       expect(document['x-scalar-selected-server']).toBe('https://dev.example.com')
@@ -766,7 +1080,7 @@ describe('x-scalar-selected-server tracking', () => {
         'x-scalar-selected-server': 'https://api.example.com',
       })
 
-      deleteServer(document, { index: 0 })
+      deleteServer(document, { index: 0, meta: { type: 'document' } })
 
       expect(document.servers).toHaveLength(0)
       expect(document['x-scalar-selected-server']).toBeUndefined()
@@ -782,7 +1096,7 @@ describe('x-scalar-selected-server tracking', () => {
         'x-scalar-selected-server': 'https://api.example.com',
       })
 
-      deleteServer(document, { index: 1 })
+      deleteServer(document, { index: 1, meta: { type: 'document' } })
 
       expect(document.servers).toHaveLength(2)
       expect(document['x-scalar-selected-server']).toBe('https://api.example.com')
@@ -798,7 +1112,7 @@ describe('x-scalar-selected-server tracking', () => {
         'x-scalar-selected-server': 'https://dev.example.com',
       })
 
-      deleteServer(document, { index: 1 })
+      deleteServer(document, { index: 1, meta: { type: 'document' } })
 
       expect(document.servers).toHaveLength(2)
       expect(document.servers?.[0]?.url).toBe('https://api.example.com')
@@ -811,7 +1125,7 @@ describe('x-scalar-selected-server tracking', () => {
         servers: [{ url: 'https://api.example.com' }, { url: 'https://dev.example.com' }],
       })
 
-      deleteServer(document, { index: 0 })
+      deleteServer(document, { index: 0, meta: { type: 'document' } })
 
       expect(document.servers).toHaveLength(1)
       expect(document['x-scalar-selected-server']).toBeUndefined()
@@ -834,7 +1148,7 @@ describe('x-scalar-selected-server tracking', () => {
         'x-scalar-selected-server': 'https://{environment}.example.com',
       })
 
-      deleteServer(document, { index: 0 })
+      deleteServer(document, { index: 0, meta: { type: 'document' } })
 
       expect(document.servers).toHaveLength(1)
       expect(document['x-scalar-selected-server']).toBe('https://backup.example.com')
@@ -846,7 +1160,7 @@ describe('x-scalar-selected-server tracking', () => {
         'x-scalar-selected-server': 'https://api.example.com',
       })
 
-      deleteServer(document, { index: 0 })
+      deleteServer(document, { index: 0, meta: { type: 'document' } })
 
       expect(document.servers).toHaveLength(0)
       expect(document['x-scalar-selected-server']).toBe('https://api.example.com')

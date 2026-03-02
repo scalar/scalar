@@ -4,10 +4,10 @@ import type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { computed } from 'vue'
 
-import ApiReferenceToolbarConfig from '@/features/toolbar/ApiReferenceToolbarConfig.vue'
-import ApiReferenceToolbarSdks from '@/features/toolbar/ApiReferenceToolbarSdks.vue'
-import ApiReferenceToolbarShare from '@/features/toolbar/ApiReferenceToolbarShare.vue'
-import ApiReferenceToolbarTitle from '@/features/toolbar/ApiReferenceToolbarTitle.vue'
+import ApiReferenceToolbarTitle from './components/ApiReferenceToolbarTitle.vue'
+import DeployApiReference from './components/DeployApiReference.vue'
+import ModifyConfiguration from './components/ModifyConfiguration.vue'
+import ShareApiReference from './components/ShareApiReference.vue'
 
 const { configuration } = defineProps<{
   workspace?: WorkspaceStore
@@ -42,13 +42,13 @@ const showDeveloperTools = computed<boolean>(() => {
       <div class="flex flex-1 items-center">
         <ApiReferenceToolbarTitle />
       </div>
-      <template v-if="workspace">
-        <ApiReferenceToolbarShare :workspace />
-        <ApiReferenceToolbarSdks :workspace />
-      </template>
-      <ApiReferenceToolbarConfig
+      <ModifyConfiguration
         v-model:overrides="overrides"
         :configuration />
+      <template v-if="workspace">
+        <ShareApiReference :workspace />
+        <DeployApiReference :workspace />
+      </template>
     </div>
   </header>
 </template>

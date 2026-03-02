@@ -2,6 +2,7 @@
 import { ScalarFloatingBackdrop, ScalarPopover } from '@scalar/components'
 import { ScalarIconCaretDown, ScalarIconInfo } from '@scalar/icons'
 </script>
+
 <template>
   <ScalarPopover
     class="max-h-[inherit] max-w-[inherit] p-0 text-base"

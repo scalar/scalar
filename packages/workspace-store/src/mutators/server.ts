@@ -1,30 +1,77 @@
 import { findVariables } from '@scalar/helpers/regex/find-variables'
 
-import type { ServerEvents } from '@/events/definitions/server'
+import type { ServerEvents, ServerMeta } from '@/events/definitions/server'
+import { getResolvedRef } from '@/helpers/get-resolved-ref'
 import { unpackProxyObject } from '@/helpers/unpack-proxy'
 import { coerceValue } from '@/schemas/typebox-coerce'
 import { type ServerObject, ServerObjectSchema } from '@/schemas/v3.1/strict/openapi-document'
 import type { WorkspaceDocument } from '@/schemas/workspace'
 
 /**
- * Adds a new ServerObject to the document.
+ * Target for server mutators: has a servers array and optional selected-server storage.
+ * Document and (resolved) operation both have this shape.
+ */
+type ServerTarget = {
+  servers?: ServerObject[]
+  'x-scalar-selected-server'?: string
+}
+
+/**
+ * Resolves the server target (document or operation) from meta.
+ * Document-level servers live on the document; operation-level servers on the operation object.
+ */
+const getServerTarget = (document: WorkspaceDocument | null, meta: ServerMeta): ServerTarget | null => {
+  if (!document) {
+    return null
+  }
+  if (meta.type === 'document') {
+    return document
+  }
+  return getResolvedRef(document.paths?.[meta.path]?.[meta.method]) ?? null
+}
+
+/**
+ * Initializes the servers for the document or operation based on meta.
+ *
+ * @param document - The document to initialize the servers for
+ * @param meta - Target context (document or operation)
+ */
+export const initializeServers = (
+  document: WorkspaceDocument | null,
+  { meta }: ServerEvents['server:initialize:servers'],
+) => {
+  const target = getServerTarget(document, meta)
+
+  if (!target) {
+    console.error('Target not found', meta)
+    return undefined
+  }
+  target.servers = []
+  return target.servers
+}
+
+/**
+ * Adds a new ServerObject to the document or operation based on meta.
  *
  * @param document - The document to add the server to
- * @returns the new server object or undefined if the document is not found
+ * @returns the new server object or undefined if the target is not found
  */
-export const addServer = (document: WorkspaceDocument | null): ServerObject | undefined => {
-  if (!document) {
+export const addServer = (
+  document: WorkspaceDocument | null,
+  { meta }: ServerEvents['server:add:server'],
+): ServerObject | undefined => {
+  const target = getServerTarget(document, meta)
+  if (!target) {
+    console.error('Target not found', meta)
     return undefined
   }
 
   const parsed = coerceValue(ServerObjectSchema, {})
 
-  // Initialize the servers array if it doesn't exist
-  if (!document.servers) {
-    document.servers = []
+  if (!target.servers) {
+    target.servers = []
   }
-
-  document.servers.push(parsed)
+  target.servers.push(parsed)
   return parsed
 }
 
@@ -107,25 +154,26 @@ const syncVariablesForUrlChange = (
 }
 
 /**
- * Updates a ServerObject in the document.
+ * Updates a ServerObject in the document or operation based on meta.
  * When the URL changes, intelligently syncs variables by preserving configurations
  * for renamed variables (detected by position) and existing variables.
  *
  * @param document - The document containing the server to update
  * @param index - The index of the server to update
  * @param server - The partial server object with fields to update
+ * @param meta - Target context (document or operation)
  * @returns the updated server object or undefined if the server is not found
  */
 export const updateServer = (
   document: WorkspaceDocument | null,
-  { index, server }: ServerEvents['server:update:server'],
+  { index, server, meta }: ServerEvents['server:update:server'],
 ): ServerObject | undefined => {
-  if (!document) {
+  const target = getServerTarget(document, meta)
+  if (!target) {
     return undefined
   }
 
-  const oldServer = unpackProxyObject(document.servers?.[index], { depth: 1 })
-
+  const oldServer = unpackProxyObject(target.servers?.[index], { depth: 1 })
   if (!oldServer) {
     console.error('Server not found at index:', index)
     return undefined
@@ -134,113 +182,124 @@ export const updateServer = (
   const oldUrl = oldServer.url
   const updatedServer = coerceValue(ServerObjectSchema, { ...oldServer, ...server })
 
-  // Sync variables if the URL changed
   const hasUrlChanged = oldUrl && oldUrl !== updatedServer.url
   if (hasUrlChanged) {
     const existingVariables = updatedServer.variables ?? {}
     updatedServer.variables = syncVariablesForUrlChange(updatedServer.url, oldUrl, existingVariables)
 
-    // If the selected server is the one being updated, set the selected server to the new server
-    if (document['x-scalar-selected-server'] === oldUrl) {
-      document['x-scalar-selected-server'] = updatedServer.url
+    if (target['x-scalar-selected-server'] === oldUrl) {
+      target['x-scalar-selected-server'] = updatedServer.url
     }
   }
 
-  // Ensure servers array exists and update the server at the specified index
-  if (!document.servers) {
-    document.servers = [updatedServer]
+  if (!target.servers) {
+    target.servers = [updatedServer]
   } else {
-    document.servers[index] = updatedServer
+    target.servers[index] = updatedServer
   }
 
   return updatedServer
 }
 
 /**
- * Deletes a ServerObject at the specified index from the target array.
+ * Deletes a ServerObject at the specified index from the document or operation based on meta.
  *
  * @param document - The document to delete the server from
- * @param index - The index of the server to delete.
+ * @param index - The index of the server to delete
+ * @param meta - Target context (document or operation)
  */
-export const deleteServer = (document: WorkspaceDocument | null, { index }: ServerEvents['server:delete:server']) => {
-  if (!document?.servers) {
+export const deleteServer = (
+  document: WorkspaceDocument | null,
+  { index, meta }: ServerEvents['server:delete:server'],
+) => {
+  const target = getServerTarget(document, meta)
+  if (!target?.servers) {
     return
   }
 
-  const url = document.servers[index]?.url
-  document.servers.splice(index, 1)
+  const url = target.servers[index]?.url
+  target.servers.splice(index, 1)
 
-  // If the selected server is the one being deleted, set the selected server to the first one after removal
-  if (document['x-scalar-selected-server'] === url) {
-    document['x-scalar-selected-server'] = document.servers[0]?.url ?? undefined
+  if (target['x-scalar-selected-server'] === url) {
+    target['x-scalar-selected-server'] = target.servers[0]?.url ?? undefined
   }
 }
 
 /**
- * Updates a server variable for the selected server
+ * Clears all servers from the document or operation based on meta.
+ *
+ * @param document - The document to clear the servers from
+ * @param meta - Target context (document or operation)
+ */
+export const clearServers = (document: WorkspaceDocument | null, { meta }: ServerEvents['server:clear:servers']) => {
+  const target = getServerTarget(document, meta)
+  if (!target) {
+    return
+  }
+  // Remove the servers array
+  target.servers = undefined
+  // Clear the selected server
+  target['x-scalar-selected-server'] = undefined
+}
+
+/**
+ * Updates a server variable for the document or operation based on meta.
  *
  * @param document - The document to update the server variables in
  * @param index - The index of the server to update
  * @param key - The key of the variable to update
  * @param value - The new value of the variable
+ * @param meta - Target context (document or operation)
  * @returns the updated variable or undefined if the variable is not found
  */
 export const updateServerVariables = (
   document: WorkspaceDocument | null,
-  { index, key, value }: ServerEvents['server:update:variables'],
+  { index, key, value, meta }: ServerEvents['server:update:variables'],
 ) => {
-  const variable = document?.servers?.[index]?.variables?.[key]
+  const target = getServerTarget(document, meta)
+  const variable = target?.servers?.[index]?.variables?.[key]
   if (!variable) {
     console.error('Variable not found', key, index)
     return
   }
 
   variable.default = value
-
-  // Now we need to make the url reflect the new variable value
-  const url = document?.servers?.[index]?.url
-  if (!url) {
-    console.error('URL not found', index)
-    return
-  }
-
   return variable
 }
 
 /**
- * Updates the selected server for the document
+ * Updates the selected server for the document or operation based on meta.
  *
  * @param document - The document to update the selected server in
- * @param index - The index of the server to update
- * @returns the url of the selected server or undefined if the server is not found
+ * @param url - The URL of the server to select (or '' to clear)
+ * @param meta - Target context (document or operation)
+ * @returns the url of the selected server or undefined if the target is not found
  */
 export const updateSelectedServer = (
   document: WorkspaceDocument | null,
-  { url }: ServerEvents['server:update:selected'],
+  { url, meta }: ServerEvents['server:update:selected'],
 ): string | undefined => {
-  if (!document) {
+  const target = getServerTarget(document, meta)
+  if (!target) {
     return
   }
 
-  // We are explicitly de-selecting the server
   if (url === '') {
-    document['x-scalar-selected-server'] = ''
+    target['x-scalar-selected-server'] = ''
     return ''
   }
 
-  /**
-   * [un]set it and return the url,
-   * we specifically use en empty string to indicate that the user has unset the selected server
-   */
-  document['x-scalar-selected-server'] = document['x-scalar-selected-server'] === url ? '' : url
-  return document['x-scalar-selected-server']
+  target['x-scalar-selected-server'] = target['x-scalar-selected-server'] === url ? '' : url
+  return target['x-scalar-selected-server']
 }
 
 export const serverMutatorsFactory = ({ document }: { document: WorkspaceDocument | null }) => {
   return {
-    addServer: () => addServer(document),
+    initializeServers: (payload: ServerEvents['server:initialize:servers']) => initializeServers(document, payload),
+    addServer: (payload: ServerEvents['server:add:server']) => addServer(document, payload),
     updateServer: (payload: ServerEvents['server:update:server']) => updateServer(document, payload),
     deleteServer: (payload: ServerEvents['server:delete:server']) => deleteServer(document, payload),
+    clearServers: (payload: ServerEvents['server:clear:servers']) => clearServers(document, payload),
     updateServerVariables: (payload: ServerEvents['server:update:variables']) =>
       updateServerVariables(document, payload),
     updateSelectedServer: (payload: ServerEvents['server:update:selected']) => updateSelectedServer(document, payload),

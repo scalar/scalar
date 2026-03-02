@@ -82,7 +82,7 @@ export const getSecuritySchemeOptions = (
   /** We need to add the selected schemes if they do not already exist in the calculated options */
   selectedSchemes: SecurityRequirementObject[],
   /** Allows adding authentication which is not in the document */
-  canAddNewAuth = true,
+  canAddNewAuth = false,
 ): SecuritySchemeOption[] | SecuritySchemeGroup[] => {
   /**
    * Build required schemes formatted as options and track scheme names in a single pass.

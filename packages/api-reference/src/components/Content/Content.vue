@@ -81,7 +81,7 @@ const servers = computed(() =>
 
 /** Compute the selected server for the document only (for now) */
 const selectedServer = computed(() =>
-  getSelectedServer(document ?? null, servers.value),
+  getSelectedServer(servers.value, document?.['x-scalar-selected-server']),
 )
 
 /** Merge authentication config with the document security schemes */

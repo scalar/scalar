@@ -1,5 +1,47 @@
 # @scalar/use-codemirror
 
+## 0.13.49
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/components@0.19.14**
+
+## 0.13.48
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/components@0.19.13**
+
+## 0.13.47
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/components@0.19.12**
+  - [#8290](https://github.com/scalar/scalar/pull/8290): chore: update deps
+
+## 0.13.46
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/components@0.19.11**
+  - [#8276](https://github.com/scalar/scalar/pull/8276): feat(components): standardize form inputs to have a height of 40px
+
+## 0.13.45
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/components@0.19.10**
+
 ## 0.13.44
 
 ### Patch Changes

@@ -14,7 +14,7 @@
     "helpers",
     "js"
   ],
-  "version": "0.2.16",
+  "version": "0.2.17",
   "engines": {
     "node": ">=20"
   },
@@ -64,6 +64,11 @@
       "import": "./dist/http/*.js",
       "types": "./dist/http/*.d.ts",
       "default": "./dist/http/*.js"
+    },
+    "./json/*": {
+      "import": "./dist/json/*.js",
+      "types": "./dist/json/*.d.ts",
+      "default": "./dist/json/*.js"
     },
     "./node/*": {
       "import": "./dist/node/*.js",

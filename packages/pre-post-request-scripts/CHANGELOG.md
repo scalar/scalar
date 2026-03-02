@@ -1,5 +1,60 @@
 # @scalar/scripts
 
+## 0.2.8
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/components@0.19.14**
+
+- **@scalar/oas-utils@0.8.2**
+
+## 0.2.7
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/oas-utils@0.8.1**
+  - [#8310](https://github.com/scalar/scalar/pull/8310): fix: correctly handle circular documents during the migration to indexdb
+
+- **@scalar/components@0.19.13**
+
+## 0.2.6
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/oas-utils@0.8.0**
+  - [#8290](https://github.com/scalar/scalar/pull/8290): chore: update deps
+
+- **@scalar/components@0.19.12**
+  - [#8290](https://github.com/scalar/scalar/pull/8290): chore: update deps
+
+## 0.2.5
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/components@0.19.11**
+  - [#8276](https://github.com/scalar/scalar/pull/8276): feat(components): standardize form inputs to have a height of 40px
+
+- **@scalar/oas-utils@0.7.0**
+  - [#8234](https://github.com/scalar/scalar/pull/8234): support operation level authentication and servers
+
+## 0.2.4
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/oas-utils@0.6.48**
+
+- **@scalar/components@0.19.10**
+
 ## 0.2.3
 
 ### Patch Changes

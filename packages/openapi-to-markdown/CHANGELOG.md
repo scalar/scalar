@@ -1,5 +1,78 @@
 # @scalar/openapi-to-markdown
 
+## 0.3.55
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/components@0.19.14**
+
+- **@scalar/oas-utils@0.8.2**
+
+## 0.3.54
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/helpers@0.2.17**
+  - [#8310](https://github.com/scalar/scalar/pull/8310): refactor: move helpers to the helpers package to share primitive helpers
+
+- **@scalar/openapi-upgrader@0.1.10**
+  - [#8272](https://github.com/scalar/scalar/pull/8272): feat: migrate swagger 2.0 response examples
+
+- **@scalar/oas-utils@0.8.1**
+  - [#8310](https://github.com/scalar/scalar/pull/8310): fix: correctly handle circular documents during the migration to indexdb
+
+- **@scalar/components@0.19.13**
+
+- **@scalar/openapi-parser@0.24.16**
+
+- **@scalar/types@0.6.9**
+
+## 0.3.53
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/oas-utils@0.8.0**
+  - [#8290](https://github.com/scalar/scalar/pull/8290): chore: update deps
+
+- **@scalar/components@0.19.12**
+  - [#8290](https://github.com/scalar/scalar/pull/8290): chore: update deps
+
+## 0.3.52
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/components@0.19.11**
+  - [#8276](https://github.com/scalar/scalar/pull/8276): feat(components): standardize form inputs to have a height of 40px
+
+- **@scalar/oas-utils@0.7.0**
+  - [#8234](https://github.com/scalar/scalar/pull/8234): support operation level authentication and servers
+
+## 0.3.51
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/types@0.6.8**
+  - [#8274](https://github.com/scalar/scalar/pull/8274): feat(agent): add config to hide search api
+
+- **@scalar/openapi-upgrader@0.1.9**
+  - [#8251](https://github.com/scalar/scalar/pull/8251): feat: migrate swagger 2.0 defaults for parameter
+
+- **@scalar/oas-utils@0.6.48**
+
+- **@scalar/openapi-parser@0.24.15**
+
+- **@scalar/components@0.19.10**
+
 ## 0.3.50
 
 ### Patch Changes

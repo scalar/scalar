@@ -1,19 +1,30 @@
 import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import type { WorkspaceDocument } from '@scalar/workspace-store/schemas/workspace'
 
 /**
- * Get the selected server for a document,
- * we can later expand this to support operation/path servers as well
+ * Get the selected server from a list of servers and an optional selected-server URL.
+ * Works for both document-level and operation-level servers: the caller passes the
+ * appropriate selected URL (from document or operation).
  *
- * If x-scalar-selected-server is undefined we select the first server (this means the user has not selected a server yet)
- * If the user has un-selected a server it would be an empty string
+ * - If selectedServerUrl is undefined and servers has items, returns the first server
+ *   (user has not selected yet).
+ * - If selectedServerUrl is '' (user un-selected), returns null.
+ * - Otherwise returns the server whose url matches selectedServerUrl, or null.
  */
-export const getSelectedServer = (document: WorkspaceDocument | null, servers: ServerObject[] | null) => {
-  // Select the first server if the user has not selected a server yet
-  if (typeof document?.['x-scalar-selected-server'] === 'undefined' && servers?.length) {
+export const getSelectedServer = (
+  servers: ServerObject[] | null,
+  selectedServerUrl: string | undefined,
+): ServerObject | null => {
+  if (!servers?.length) {
+    return null
+  }
+
+  if (selectedServerUrl === undefined) {
     return servers[0]!
   }
 
-  // Return the server matching the x-scalar-selected-server URL
-  return servers?.find(({ url }) => url === document?.['x-scalar-selected-server']) ?? null
+  if (selectedServerUrl === '') {
+    return null
+  }
+
+  return servers.find(({ url }) => url === selectedServerUrl) ?? null
 }

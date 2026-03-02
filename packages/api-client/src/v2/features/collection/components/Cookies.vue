@@ -1,3 +1,13 @@
+<script lang="ts">
+/**
+ * Cookies section for the collection.
+ * Renders document or workspace cookies and lets users manage key-value data
+ * sent with API requests (e.g. session tokens, auth, preferences).
+ */
+export default {
+  name: 'Cookies',
+}
+</script>
 <script setup lang="ts">
 import { computed } from 'vue'
 
@@ -18,7 +28,7 @@ const cookies = computed(() => {
 </script>
 
 <template>
-  <Section>
+  <Section v-if="collectionType !== 'operation'">
     <template #title>Cookies</template>
     <template #description>
       Manage your collection's cookies here.<br />Cookies allow you to store and

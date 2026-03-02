@@ -13,10 +13,6 @@ export type DocumentEvents = {
    */
   'document:update:icon': string
   /**
-   * Toggle setting selected security schemes at the operation level
-   */
-  'document:toggle:security': undefined
-  /**
    * Update the watch mode of the document
    *
    * Makes sense for the doucments that have been loaded from a remote source

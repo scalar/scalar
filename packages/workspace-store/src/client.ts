@@ -1,3 +1,4 @@
+import { getValueAtPath } from '@scalar/helpers/object/get-value-at-path'
 import { isObject } from '@scalar/helpers/object/is-object'
 import { preventPollution } from '@scalar/helpers/object/prevent-pollution'
 import { generateHash } from '@scalar/helpers/string/generate-hash'
@@ -20,7 +21,6 @@ import { deepClone } from '@/helpers/deep-clone'
 import { createDetectChangesProxy } from '@/helpers/detect-changes-proxy'
 import { type UnknownObject, safeAssign } from '@/helpers/general'
 import { getFetch } from '@/helpers/get-fetch'
-import { getValueByPath } from '@/helpers/json-path-utils'
 import { mergeObjects } from '@/helpers/merge-object'
 import { createOverridesProxy } from '@/helpers/overrides-proxy'
 import { unpackProxyObject } from '@/helpers/unpack-proxy'
@@ -1074,7 +1074,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     resolve: (path) => {
       const activeDocument = workspace.activeDocument
 
-      const target = getValueByPath(activeDocument, path)
+      const target = getValueAtPath(activeDocument, path)
 
       if (!isObject(target)) {
         console.error(

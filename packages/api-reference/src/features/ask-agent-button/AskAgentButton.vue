@@ -37,13 +37,15 @@ function handleSubmit() {
 </template>
 <style scoped>
 .ask-agent-scalar-input {
+  all: initial;
+  color: var(--scalar-color-1);
   appearance: none;
   border: none;
   white-space: nowrap;
   display: flex;
   justify-content: center;
   align-items: center;
-  font-weight: var(--scalar-semibold);
+  font-weight: var(--scalar-regular);
   font-size: var(--scalar-small);
   line-height: 22px;
   font-family: var(--scalar-font);
@@ -69,6 +71,7 @@ function handleSubmit() {
 }
 .ask-agent-scalar-input::placeholder {
   color: var(--scalar-color-1);
+  font-family: var(--scalar-font);
 }
 .ask-agent-scalar-input:focus::placeholder {
   color: var(--scalar-color-2);
@@ -84,19 +87,19 @@ function handleSubmit() {
   border-radius: var(--scalar-radius);
   gap: 4px;
   z-index: 2;
-  height: 24px;
+  height: 100%;
 }
 .agent-button-container:hover:not(:focus-within) {
   background: color-mix(in srgb, var(--scalar-background-3), white 20%);
 }
 .agent-button-container:has(.ask-agent-scalar-input:not(:placeholder-shown)),
 .agent-button-container:focus-within {
-  width: 100%;
-  height: 100%;
+  width: calc(100% - 4px);
+  height: calc(100% - 4px);
   position: absolute;
-  left: 0;
-  top: 0;
-  border-radius: 0;
+  left: 2px;
+  top: 2px;
+  border-radius: var(--scalar-radius);
 }
 .ask-agent-scalar-send {
   background: var(--scalar-color-blue);

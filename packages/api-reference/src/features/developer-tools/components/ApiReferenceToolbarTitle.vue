@@ -3,7 +3,7 @@ import { ScalarIconButton } from '@scalar/components'
 import { ScalarIconCopy, ScalarIconInfo } from '@scalar/icons'
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
 
-import ApiReferenceToolbarPopover from '@/features/toolbar/ApiReferenceToolbarPopover.vue'
+import ApiReferenceToolbarPopover from './ApiReferenceToolbarPopover.vue'
 
 const CONFIG_SETTING = 'showDeveloperTools: "never"'
 

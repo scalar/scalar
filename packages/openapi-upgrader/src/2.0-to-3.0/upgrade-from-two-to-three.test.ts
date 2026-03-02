@@ -668,6 +668,104 @@ describe('upgradeFromTwoToThree', () => {
     })
   })
 
+  describe('parameter defaults', () => {
+    it('preserves default on operation-level (inline) parameters', () => {
+      const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+        swagger: '2.0',
+        info: { title: 'API', version: '1.0' },
+        paths: {
+          '/example': {
+            get: {
+              parameters: [
+                {
+                  in: 'header',
+                  name: 'Authorization',
+                  type: 'string',
+                  required: true,
+                  default: 'Token token=LOCATION_KEY_GOES_HERE, btoken=BUSINESS_KEY_GOES_HERE',
+                  description: 'API key and business key as Authorization header.',
+                },
+                {
+                  in: 'header',
+                  name: 'Accept-Language',
+                  type: 'string',
+                  description: 'Short code for locale variant (e.g., fr-ca, es-ES).',
+                  default: 'en',
+                },
+              ],
+              responses: { '200': { description: 'OK' } },
+            },
+          },
+        },
+      })
+
+      const params = result.paths?.['/example']?.get?.parameters
+      expect(params).toHaveLength(2)
+
+      const authParam = params?.[0] as OpenAPIV3.ParameterObject
+      expect(authParam.name).toBe('Authorization')
+      expect(authParam.schema?.default).toBe('Token token=LOCATION_KEY_GOES_HERE, btoken=BUSINESS_KEY_GOES_HERE')
+
+      const acceptLangParam = params?.[1] as OpenAPIV3.ParameterObject
+      expect(acceptLangParam.name).toBe('Accept-Language')
+      expect(acceptLangParam.schema?.default).toBe('en')
+    })
+
+    it('preserves default on globally defined parameters', () => {
+      const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+        swagger: '2.0',
+        info: { title: 'API', version: '1.0' },
+        parameters: {
+          Authorization: {
+            name: 'Authorization',
+            in: 'header',
+            required: true,
+            type: 'string',
+            description: 'API key and business key (UUID) as the Authorization header.',
+            default: 'Token token=LOCATION_KEY_GOES_HERE, btoken=BUSINESS_KEY_GOES_HERE',
+          },
+          'Content-Type': {
+            name: 'Content-Type',
+            in: 'header',
+            required: false,
+            type: 'string',
+            description: 'Set to application/json',
+            default: 'application/json',
+          },
+        },
+        paths: {
+          '/planets/{planetId}': {
+            parameters: [{ $ref: '#/parameters/Authorization' }, { $ref: '#/parameters/Content-Type' }],
+            get: {
+              responses: { '200': { description: 'OK' } },
+            },
+          },
+        },
+      })
+
+      expect(result.components?.parameters).toMatchObject({
+        Authorization: {
+          name: 'Authorization',
+          in: 'header',
+          required: true,
+          schema: {
+            type: 'string',
+            default: 'Token token=LOCATION_KEY_GOES_HERE, btoken=BUSINESS_KEY_GOES_HERE',
+          },
+        },
+        'Content-Type': {
+          name: 'Content-Type',
+          in: 'header',
+          required: false,
+          schema: {
+            type: 'string',
+            default: 'application/json',
+          },
+        },
+      })
+    })
+  })
+
   it('transforms basic security scheme', () => {
     const result: OpenAPIV3.Document = upgradeFromTwoToThree({
       swagger: '2.0',
@@ -1988,6 +2086,60 @@ describe('upgradeFromTwoToThree', () => {
     expect((response400 as Record<string, unknown>).examples).toBeUndefined()
   })
 
+  it('upgrades tiny.yml example spec (minimal Swagger 2.0 with response schema and named examples)', () => {
+    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+      swagger: '2.0',
+      info: { title: 'Example', version: '1.0' },
+      paths: {
+        '/example': {
+          get: {
+            responses: {
+              '200': {
+                description: 'OK',
+                schema: {
+                  type: 'object',
+                  properties: {
+                    user_id: {
+                      type: 'integer',
+                      description: 'Guest user ID',
+                    },
+                  },
+                },
+                examples: {
+                  Example: {
+                    user_id: 11111111,
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+
+    expect(result.openapi).toBe('3.0.4')
+    expect(result.swagger).toBeUndefined()
+    expect(result.info?.title).toBe('Example')
+    expect(result.info?.version).toBe('1.0')
+
+    const responseOk = result.paths?.['/example']?.get?.responses?.['200'] as OpenAPIV3.ResponseObject
+    expect(responseOk.description).toBe('OK')
+    expect(responseOk.content?.['application/json']?.schema).toStrictEqual({
+      type: 'object',
+      properties: {
+        user_id: {
+          type: 'integer',
+          description: 'Guest user ID',
+        },
+      },
+    })
+    expect(responseOk.content?.['application/json']?.examples?.Example?.value).toStrictEqual({
+      user_id: 11111111,
+    })
+    expect(responseOk.content?.['Example']).toBeUndefined()
+    expect(responseOk.examples).toBeUndefined()
+  })
+
   it('transforms response examples with multiple media types', () => {
     const result: OpenAPIV3.Document = upgradeFromTwoToThree({
       swagger: '2.0',
@@ -2023,6 +2175,38 @@ describe('upgradeFromTwoToThree', () => {
       message: 'Hello JSON',
     })
     expect(response200.content?.['application/xml']?.example).toBe('<message>Hello XML</message>')
+  })
+
+  it('treats named example keys that contain a slash as named examples, not media types', () => {
+    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+      swagger: '2.0',
+      info: { title: 'Slash in named example key test', version: '1.0' },
+      produces: ['application/json'],
+      paths: {
+        '/test': {
+          get: {
+            responses: {
+              '200': {
+                description: 'OK',
+                schema: { type: 'object', properties: { id: { type: 'integer' } } },
+                examples: {
+                  'application/json': { id: 1 },
+                  'Error 404/Not Found': { id: 0, error: 'Not Found' },
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+
+    const response200 = result.paths?.['/test']?.get?.responses?.['200'] as OpenAPIV3.ResponseObject
+    expect(response200.content?.['application/json']?.example).toStrictEqual({ id: 1 })
+    expect(response200.content?.['Error 404/Not Found']).toBeUndefined()
+    expect(response200.content?.['application/json']?.examples?.['Error 404/Not Found']?.value).toStrictEqual({
+      id: 0,
+      error: 'Not Found',
+    })
   })
 
   it('transforms global responses defined in #/responses with examples', () => {

@@ -4,6 +4,7 @@ import type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
 
 type LayoutOptions = {
   showSidebar?: boolean
+  defaultOpenFirstTag?: boolean
   defaultOpenAllTags?: boolean
   expandAllModelSections?: boolean
   expandAllResponses?: boolean
@@ -12,6 +13,7 @@ type LayoutOptions = {
   hideModels?: boolean
   hideSearch?: boolean
   hideTestRequestButton?: boolean
+  showOperationId?: boolean
 }
 
 const { configuration } = defineProps<{
@@ -48,6 +50,11 @@ function setValue(
       Show Sidebar
     </ScalarToggleInput>
     <ScalarToggleInput
+      :modelValue="getValue('defaultOpenFirstTag', true)"
+      @update:modelValue="(v) => setValue('defaultOpenFirstTag', !!v, true)">
+      Default Open First Tag
+    </ScalarToggleInput>
+    <ScalarToggleInput
       :modelValue="getValue('defaultOpenAllTags')"
       @update:modelValue="(v) => setValue('defaultOpenAllTags', !!v)">
       Default Open All Tags
@@ -81,6 +88,11 @@ function setValue(
       :modelValue="getValue('hideSearch')"
       @update:modelValue="(v) => setValue('hideSearch', !!v)">
       Hide Search
+    </ScalarToggleInput>
+    <ScalarToggleInput
+      :modelValue="getValue('showOperationId')"
+      @update:modelValue="(v) => setValue('showOperationId', !!v)">
+      Show Operation ID
     </ScalarToggleInput>
     <ScalarToggleInput
       :modelValue="getValue('hideTestRequestButton')"

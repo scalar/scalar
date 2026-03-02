@@ -1,5 +1,29 @@
 # @scalar/openapi-parser
 
+## 0.24.16
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/helpers@0.2.17**
+  - [#8310](https://github.com/scalar/scalar/pull/8310): refactor: move helpers to the helpers package to share primitive helpers
+
+- **@scalar/openapi-upgrader@0.1.10**
+  - [#8272](https://github.com/scalar/scalar/pull/8272): feat: migrate swagger 2.0 response examples
+
+- **@scalar/json-magic@0.11.6**
+  - [#8310](https://github.com/scalar/scalar/pull/8310): fix: properly parse json pointers
+
+## 0.24.15
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/openapi-upgrader@0.1.9**
+  - [#8251](https://github.com/scalar/scalar/pull/8251): feat: migrate swagger 2.0 defaults for parameter
+
 ## 0.24.14
 
 ### Patch Changes

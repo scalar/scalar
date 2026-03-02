@@ -1,5 +1,66 @@
 # @scalar/workspace-store
 
+## 0.35.2
+
+### Patch Changes
+
+- [#8310](https://github.com/scalar/scalar/pull/8310): refactor: move helpers to the helpers package to share primitive helpers
+- [#8294](https://github.com/scalar/scalar/pull/8294): default createAnySecurityScheme to false and fix index clamp issue
+- [#8287](https://github.com/scalar/scalar/pull/8287): consider path-level parameters in syncPathParameters instead of creating bare synthetic ones
+
+#### Updated Dependencies
+
+- **@scalar/helpers@0.2.17**
+  - [#8310](https://github.com/scalar/scalar/pull/8310): refactor: move helpers to the helpers package to share primitive helpers
+
+- **@scalar/openapi-upgrader@0.1.10**
+  - [#8272](https://github.com/scalar/scalar/pull/8272): feat: migrate swagger 2.0 response examples
+
+- **@scalar/json-magic@0.11.6**
+  - [#8310](https://github.com/scalar/scalar/pull/8310): fix: properly parse json pointers
+
+- **@scalar/object-utils@1.2.31**
+
+- **@scalar/types@0.6.9**
+
+- **@scalar/snippetz@0.6.18**
+
+## 0.35.1
+
+### Patch Changes
+
+- [#8290](https://github.com/scalar/scalar/pull/8290): chore: update deps
+
+#### Updated Dependencies
+
+- **@scalar/code-highlight@0.2.4**
+
+## 0.35.0
+
+### Minor Changes
+
+- [#8234](https://github.com/scalar/scalar/pull/8234): support operation level authentication and servers
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/code-highlight@0.2.4**
+
+## 0.34.4
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/types@0.6.8**
+  - [#8274](https://github.com/scalar/scalar/pull/8274): feat(agent): add config to hide search api
+
+- **@scalar/openapi-upgrader@0.1.9**
+  - [#8251](https://github.com/scalar/scalar/pull/8251): feat: migrate swagger 2.0 defaults for parameter
+
+- **@scalar/snippetz@0.6.17**
+
 ## 0.34.3
 
 ### Patch Changes

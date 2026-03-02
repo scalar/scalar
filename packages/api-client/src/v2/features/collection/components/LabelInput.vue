@@ -1,6 +1,10 @@
 <script setup lang="ts">
 import { useId } from 'vue'
 
+const { placeholder } = defineProps<{
+  placeholder?: string
+}>()
+
 const emit = defineEmits<{
   (e: 'blur', value: string): void
 }>()
@@ -21,7 +25,7 @@ const handleBlur = () => {
       :id="id"
       v-model="model"
       class="text-c-1 group-hover-input pointer-events-auto relative z-10 -ml-0.5 h-8 w-full flex-1 rounded pl-1.25 has-[:focus-visible]:outline md:-ml-1.25"
-      placeholder="Untitled Document"
+      :placeholder="placeholder ?? 'Untitled Document'"
       @blur="handleBlur"
       @keydown.enter="($event.target as HTMLInputElement)?.blur()" />
   </div>

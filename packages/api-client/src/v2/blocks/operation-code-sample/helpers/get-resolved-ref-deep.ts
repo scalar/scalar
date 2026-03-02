@@ -1,5 +1,6 @@
-import { getRaw } from '@scalar/json-magic/magic-proxy'
-import type { Dereference } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import { isObject } from '@scalar/helpers/object/is-object'
+import { type Dereference, getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import { unpackProxyObject } from '@scalar/workspace-store/helpers/unpack-proxy'
 
 type RefNode<Node> = Partial<Node> & { $ref: string; '$ref-value': Node | RefNode<Node> }
 type NodeInput<Node> = Node | RefNode<Node>
@@ -32,60 +33,48 @@ type DeepDereference<T> = Dereference<T> extends T
  * to prevent infinite loops.
  */
 export const getResolvedRefDeep = <Node>(node: NodeInput<Node>): DeepDereference<NodeInput<Node>> => {
-  const visited = new WeakSet()
+  const visited = new WeakSet<object>()
+  const cachedResults = new WeakMap<object, any>()
 
   const resolveNode = (current: any): any => {
-    // Handle primitives and null/undefined
-    if (current === null || current === undefined || typeof current !== 'object') {
+    // Only recurse into objects and arrays; return primitives as-is
+    if (!isObject(current) && !Array.isArray(current)) {
       return current
     }
 
-    // Get raw value to check for circular references
-    const raw = getRaw(current)
+    const rawValue = unpackProxyObject(current, { depth: 1 })
 
-    // Circular reference detected
-    if (visited.has(raw)) {
+    // We don't have to recurse into the same object again
+    // This helps us having to manually remove the tracked node after we recurse into the tree
+    if (cachedResults.has(rawValue)) {
+      return cachedResults.get(rawValue)
+    }
+
+    // Break circular references
+    if (visited.has(rawValue)) {
       return '[circular]'
     }
 
-    visited.add(raw)
+    // Track visited nodes
+    visited.add(rawValue)
 
-    // Handle $ref objects
-    if (typeof current === 'object' && current !== null && '$ref' in current) {
-      const refValue = current['$ref-value']
-      // Recursively resolve the referenced value
-      const resolved = resolveNode(refValue)
-      visited.delete(raw) // Remove from visited after processing to allow multiple non-circular references
-      return resolved
+    if ('$ref' in current) {
+      const resolved = getResolvedRef(current)
+      const result = resolveNode(resolved)
+      cachedResults.set(rawValue, result)
+      return result
     }
 
-    // Handle arrays
+    // For arrays
     if (Array.isArray(current)) {
-      const resolvedArray = current.map((item) => resolveNode(item))
-      visited.delete(raw)
-      return resolvedArray
+      const result = current.map(resolveNode)
+      cachedResults.set(rawValue, result)
+      return result
     }
 
-    // Preserve special objects (File, Date, RegExp, etc.) that shouldn't be converted to plain objects
-    if (current instanceof File || current instanceof Date) {
-      visited.delete(raw)
-      return current
-    }
-
-    // Handle regular objects - recursively process all properties
-    if (typeof current === 'object' && current !== null) {
-      const resolvedObject: any = {}
-
-      for (const [key, value] of Object.entries(current)) {
-        resolvedObject[key] = resolveNode(value)
-      }
-
-      visited.delete(raw)
-      return resolvedObject
-    }
-
-    visited.delete(raw)
-    return current
+    const result = Object.fromEntries(Object.entries(current).map(([key, value]) => [key, resolveNode(value)]))
+    cachedResults.set(rawValue, result)
+    return result
   }
 
   return resolveNode(node)

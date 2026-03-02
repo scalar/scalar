@@ -1,5 +1,161 @@
 # @scalar/api-reference
 
+## 1.46.2
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/themes@0.14.3**
+  - [#8315](https://github.com/scalar/scalar/pull/8315): feat(theme): standardize tailwind line height behavior
+
+- **@scalar/agent-chat@0.7.2**
+
+- **@scalar/api-client@2.31.2**
+
+- **@scalar/code-highlight@0.2.4**
+
+- **@scalar/components@0.19.14**
+
+- **@scalar/oas-utils@0.8.2**
+
+- **@scalar/sidebar@0.7.45**
+
+## 1.46.1
+
+### Patch Changes
+
+- [#8294](https://github.com/scalar/scalar/pull/8294): default createAnySecurityScheme to false and fix index clamp issue
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.35.2**
+  - [#8310](https://github.com/scalar/scalar/pull/8310): refactor: move helpers to the helpers package to share primitive helpers
+  - [#8294](https://github.com/scalar/scalar/pull/8294): default createAnySecurityScheme to false and fix index clamp issue
+  - [#8287](https://github.com/scalar/scalar/pull/8287): consider path-level parameters in syncPathParameters instead of creating bare synthetic ones
+
+- **@scalar/api-client@2.31.1**
+  - [#8310](https://github.com/scalar/scalar/pull/8310): refactor: move helpers to the helpers package to share primitive helpers
+  - [#8294](https://github.com/scalar/scalar/pull/8294): default createAnySecurityScheme to false and fix index clamp issue
+
+- **@scalar/helpers@0.2.17**
+  - [#8310](https://github.com/scalar/scalar/pull/8310): refactor: move helpers to the helpers package to share primitive helpers
+
+- **@scalar/oas-utils@0.8.1**
+  - [#8310](https://github.com/scalar/scalar/pull/8310): fix: correctly handle circular documents during the migration to indexdb
+
+- **@scalar/agent-chat@0.7.1**
+
+- **@scalar/sidebar@0.7.44**
+
+- **@scalar/components@0.19.13**
+
+- **@scalar/openapi-parser@0.24.16**
+
+- **@scalar/types@0.6.9**
+
+- **@scalar/snippetz@0.6.18**
+
+## 1.46.0
+
+### Minor Changes
+
+- [#8290](https://github.com/scalar/scalar/pull/8290): chore: update deps
+
+### Patch Changes
+
+- [#8283](https://github.com/scalar/scalar/pull/8283): fix: scrollToLazy can not find id when the browser is busy
+
+#### Updated Dependencies
+
+- **@scalar/agent-chat@0.7.0**
+  - [#8290](https://github.com/scalar/scalar/pull/8290): chore: update deps
+
+- **@scalar/api-client@2.31.0**
+  - [#8290](https://github.com/scalar/scalar/pull/8290): chore: update deps
+
+- **@scalar/oas-utils@0.8.0**
+  - [#8290](https://github.com/scalar/scalar/pull/8290): chore: update deps
+
+- **@scalar/components@0.19.12**
+  - [#8290](https://github.com/scalar/scalar/pull/8290): chore: update deps
+
+- **@scalar/themes@0.14.2**
+  - [#8290](https://github.com/scalar/scalar/pull/8290): chore: update deps
+
+- **@scalar/workspace-store@0.35.1**
+  - [#8290](https://github.com/scalar/scalar/pull/8290): chore: update deps
+
+- **@scalar/sidebar@0.7.43**
+
+- **@scalar/code-highlight@0.2.4**
+
+## 1.45.0
+
+### Minor Changes
+
+- [#8234](https://github.com/scalar/scalar/pull/8234): support operation level authentication and servers
+
+### Patch Changes
+
+- [#8255](https://github.com/scalar/scalar/pull/8255): fix: correctly handle circular references when deep resolving references
+- [#8279](https://github.com/scalar/scalar/pull/8279): fix(api-references): css collision on ask ai input
+
+#### Updated Dependencies
+
+- **@scalar/agent-chat@0.6.0**
+  - [#8203](https://github.com/scalar/scalar/pull/8203): feat: tweak the copy
+  - [#8234](https://github.com/scalar/scalar/pull/8234): support operation level authentication and servers
+
+- **@scalar/components@0.19.11**
+  - [#8276](https://github.com/scalar/scalar/pull/8276): feat(components): standardize form inputs to have a height of 40px
+
+- **@scalar/themes@0.14.1**
+  - [#8276](https://github.com/scalar/scalar/pull/8276): feat(components): standardize form inputs to have a height of 40px
+
+- **@scalar/api-client@2.30.0**
+  - [#8255](https://github.com/scalar/scalar/pull/8255): fix: correctly handle circular references when deep resolving references
+  - [#8234](https://github.com/scalar/scalar/pull/8234): support operation level authentication and servers
+
+- **@scalar/workspace-store@0.35.0**
+  - [#8234](https://github.com/scalar/scalar/pull/8234): support operation level authentication and servers
+
+- **@scalar/oas-utils@0.7.0**
+  - [#8234](https://github.com/scalar/scalar/pull/8234): support operation level authentication and servers
+
+- **@scalar/sidebar@0.7.42**
+
+- **@scalar/code-highlight@0.2.4**
+
+## 1.44.27
+
+### Patch Changes
+
+- [#8274](https://github.com/scalar/scalar/pull/8274): feat(agent): add config to hide search api
+- [#8260](https://github.com/scalar/scalar/pull/8260): feat: update developer tools
+
+#### Updated Dependencies
+
+- **@scalar/agent-chat@0.5.18**
+  - [#8274](https://github.com/scalar/scalar/pull/8274): feat(agent): add config to hide search api
+
+- **@scalar/types@0.6.8**
+  - [#8274](https://github.com/scalar/scalar/pull/8274): feat(agent): add config to hide search api
+
+- **@scalar/api-client@2.29.4**
+
+- **@scalar/oas-utils@0.6.48**
+
+- **@scalar/openapi-parser@0.24.15**
+
+- **@scalar/snippetz@0.6.17**
+
+- **@scalar/workspace-store@0.34.4**
+
+- **@scalar/components@0.19.10**
+
+- **@scalar/sidebar@0.7.41**
+
 ## 1.44.26
 
 ### Patch Changes

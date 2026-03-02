@@ -1,5 +1,24 @@
 # @scalar/docusaurus
 
+## 0.7.43
+
+### Patch Changes
+
+- [#8295](https://github.com/scalar/scalar/pull/8295): fix(docusaurus): remove extra elements around in markdown summary components
+
+#### Updated Dependencies
+
+- **@scalar/types@0.6.9**
+
+## 0.7.42
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/types@0.6.8**
+  - [#8274](https://github.com/scalar/scalar/pull/8274): feat(agent): add config to hide search api
+
 ## 0.7.41
 
 ### Patch Changes

@@ -100,6 +100,11 @@ export const sourceConfigurationSchema = z.object({
     .object({
       key: z.string().optional(),
       disabled: z.boolean().optional(),
+      /**
+       * When true, hide the control to add more APIs in the agent chat.
+       * Only preloaded/registry documents are shown; the public API list is not offered.
+       */
+      hideAddApi: z.boolean().optional(),
     })
     .optional(),
 })

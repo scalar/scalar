@@ -1,5 +1,55 @@
 # @scalar/api-client-react
 
+## 1.3.106
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-client@2.31.2**
+
+## 1.3.105
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-client@2.31.1**
+  - [#8310](https://github.com/scalar/scalar/pull/8310): refactor: move helpers to the helpers package to share primitive helpers
+  - [#8294](https://github.com/scalar/scalar/pull/8294): default createAnySecurityScheme to false and fix index clamp issue
+
+- **@scalar/types@0.6.9**
+
+## 1.3.104
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-client@2.31.0**
+  - [#8290](https://github.com/scalar/scalar/pull/8290): chore: update deps
+
+## 1.3.103
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-client@2.30.0**
+  - [#8255](https://github.com/scalar/scalar/pull/8255): fix: correctly handle circular references when deep resolving references
+  - [#8234](https://github.com/scalar/scalar/pull/8234): support operation level authentication and servers
+
+## 1.3.102
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/types@0.6.8**
+  - [#8274](https://github.com/scalar/scalar/pull/8274): feat(agent): add config to hide search api
+
+- **@scalar/api-client@2.29.4**
+
 ## 1.3.101
 
 ### Patch Changes

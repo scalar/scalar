@@ -1,5 +1,58 @@
 # @scalar/api-reference-react
 
+## 0.8.68
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.46.2**
+
+## 0.8.67
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.46.1**
+  - [#8294](https://github.com/scalar/scalar/pull/8294): default createAnySecurityScheme to false and fix index clamp issue
+
+- **@scalar/types@0.6.9**
+
+## 0.8.66
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.46.0**
+  - [#8290](https://github.com/scalar/scalar/pull/8290): chore: update deps
+  - [#8283](https://github.com/scalar/scalar/pull/8283): fix: scrollToLazy can not find id when the browser is busy
+
+## 0.8.65
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.45.0**
+  - [#8255](https://github.com/scalar/scalar/pull/8255): fix: correctly handle circular references when deep resolving references
+  - [#8279](https://github.com/scalar/scalar/pull/8279): fix(api-references): css collision on ask ai input
+  - [#8234](https://github.com/scalar/scalar/pull/8234): support operation level authentication and servers
+
+## 0.8.64
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.44.27**
+  - [#8274](https://github.com/scalar/scalar/pull/8274): feat(agent): add config to hide search api
+  - [#8260](https://github.com/scalar/scalar/pull/8260): feat: update developer tools
+
+- **@scalar/types@0.6.8**
+  - [#8274](https://github.com/scalar/scalar/pull/8274): feat(agent): add config to hide search api
+
 ## 0.8.63
 
 ### Patch Changes

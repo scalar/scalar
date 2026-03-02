@@ -57,7 +57,7 @@ const mediaConfig = computed(() =>
       class="bg-b-1 flex max-h-[calc(100%-32px)] flex-col overflow-hidden">
       <div
         class="box-content flex min-h-8 items-center justify-between border-y px-3">
-        <span class="text-xxs font-code leading-3">
+        <span class="text-xxs font-code leading-5">
           {{ responseBody.mimeType?.essence }}
         </span>
         <ResponseBodyToggle
