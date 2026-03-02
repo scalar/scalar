@@ -1,5 +1,20 @@
 # scalar-app
 
+## 0.1.298
+
+### Patch Changes
+
+- [#8297](https://github.com/scalar/scalar/pull/8297): fix: remove redundant dependencies
+  - `@scalar/components`
+  - `@scalar/import`
+  - `@scalar/themes`
+
+#### Updated Dependencies
+
+- **@scalar/api-client@2.31.1**
+  - [#8310](https://github.com/scalar/scalar/pull/8310): refactor: move helpers to the helpers package to share primitive helpers
+  - [#8294](https://github.com/scalar/scalar/pull/8294): default createAnySecurityScheme to false and fix index clamp issue
+
 ## 0.1.297
 
 ### Patch Changes

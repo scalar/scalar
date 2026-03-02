@@ -1,5 +1,11 @@
 # scalar-fastapi
 
+## 1.7.0
+
+### Minor Changes
+
+- [#8304](https://github.com/scalar/scalar/pull/8304): fix: servers had the wrong structure documented, we adhere to the OpenAPI specification now
+
 ## 1.6.2
 
 ### Patch Changes

@@ -1,5 +1,16 @@
 # @scalar/json-magic
 
+## 0.11.6
+
+### Patch Changes
+
+- [#8310](https://github.com/scalar/scalar/pull/8310): fix: properly parse json pointers
+
+#### Updated Dependencies
+
+- **@scalar/helpers@0.2.17**
+  - [#8310](https://github.com/scalar/scalar/pull/8310): refactor: move helpers to the helpers package to share primitive helpers
+
 ## 0.11.5
 
 ### Patch Changes

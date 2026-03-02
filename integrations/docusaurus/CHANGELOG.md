@@ -1,5 +1,15 @@
 # @scalar/docusaurus
 
+## 0.7.43
+
+### Patch Changes
+
+- [#8295](https://github.com/scalar/scalar/pull/8295): fix(docusaurus): remove extra elements around in markdown summary components
+
+#### Updated Dependencies
+
+- **@scalar/types@0.6.9**
+
 ## 0.7.42
 
 ### Patch Changes
