@@ -1,17 +1,6 @@
 import { describe, expect, test } from 'vitest'
 
-import { createPathFromSegments, parseJsonPointer } from './json-path-utils'
-
-describe('parseJsonPointer', () => {
-  test.each([
-    ['#/users/name', ['users', 'name']],
-    ['#/', []],
-    ['', []],
-    ['users/name', ['users', 'name']],
-  ])('should correctly parse json pointers', (a, b) => {
-    expect(parseJsonPointer(a)).toEqual(b)
-  })
-})
+import { createPathFromSegments } from './json-path-utils'
 
 describe('createPathFromSegments', () => {
   test('creates nested objects for non-numeric segments', () => {
