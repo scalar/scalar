@@ -672,10 +672,10 @@
                       ]
                     }
                   },
-                  "starter-kit": {
-                    "filepath": "documentation/guides/docs/starter-kit.md",
+                  "privacy": {
+                    "title": "Privacy",
                     "type": "page",
-                    "title": "Starter Kit"
+                    "filepath": "documentation/guides/docs/privacy.md"
                   },
                   "configuration": {
                     "title": "Configuration",
@@ -683,6 +683,11 @@
                     "mode": "flat",
                     "icon": "phosphor/regular/gear",
                     "children": {
+                      "starter-kit": {
+                        "filepath": "documentation/guides/docs/starter-kit.md",
+                        "type": "page",
+                        "title": "Starter Kit"
+                      },
                       "scalar.config.json": {
                         "title": "scalar.config.json",
                         "type": "page",
