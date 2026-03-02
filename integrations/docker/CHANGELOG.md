@@ -1,5 +1,14 @@
 # @scalarapi/docker-api-reference
 
+## 0.4.69
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.46.1**
+  - [#8294](https://github.com/scalar/scalar/pull/8294): default createAnySecurityScheme to false and fix index clamp issue
+
 ## 0.4.68
 
 ### Patch Changes

@@ -1,5 +1,17 @@
 # @scalar/api-client-react
 
+## 1.3.105
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-client@2.31.1**
+  - [#8310](https://github.com/scalar/scalar/pull/8310): refactor: move helpers to the helpers package to share primitive helpers
+  - [#8294](https://github.com/scalar/scalar/pull/8294): default createAnySecurityScheme to false and fix index clamp issue
+
+- **@scalar/types@0.6.9**
+
 ## 1.3.104
 
 ### Patch Changes

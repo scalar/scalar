@@ -1,5 +1,16 @@
 # @scalar/java-integration
 
+## 0.5.60
+
+### Patch Changes
+
+- [#8284](https://github.com/scalar/scalar/pull/8284): feat(java): relative paths for assets in scalar-webmvc
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.46.1**
+  - [#8294](https://github.com/scalar/scalar/pull/8294): default createAnySecurityScheme to false and fix index clamp issue
+
 ## 0.5.59
 
 ### Patch Changes

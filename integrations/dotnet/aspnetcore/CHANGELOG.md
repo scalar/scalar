@@ -1,5 +1,16 @@
 # @scalar/aspnetcore
 
+## 2.12.51
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.46.1**
+  - [#8294](https://github.com/scalar/scalar/pull/8294): default createAnySecurityScheme to false and fix index clamp issue
+
+- **@scalar/dotnet-shared@0.1.3**
+
 ## 2.12.50
 
 ### Patch Changes

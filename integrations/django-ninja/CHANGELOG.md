@@ -1,5 +1,11 @@
 # scalar-ninja
 
+## 0.2.0
+
+### Minor Changes
+
+- [#8304](https://github.com/scalar/scalar/pull/8304): fix: servers had the wrong structure documented, we adhere to the OpenAPI specification now
+
 ## 0.1.2
 
 ### Patch Changes

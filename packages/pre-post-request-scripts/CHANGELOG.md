@@ -1,5 +1,16 @@
 # @scalar/scripts
 
+## 0.2.7
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/oas-utils@0.8.1**
+  - [#8310](https://github.com/scalar/scalar/pull/8310): fix: correctly handle circular documents during the migration to indexdb
+
+- **@scalar/components@0.19.13**
+
 ## 0.2.6
 
 ### Patch Changes
