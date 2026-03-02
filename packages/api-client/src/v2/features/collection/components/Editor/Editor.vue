@@ -30,6 +30,7 @@ const {
 } = defineProps<CollectionProps>()
 
 const MAX_VISIBLE_DIAGNOSTICS = 6
+const EDITOR_PERSIST_DEBOUNCE_KEY = 'editor:replace-document'
 
 const monacoEditorRef = ref<HTMLElement>()
 const editor = ref<ReturnType<typeof useEditor>>()
@@ -76,8 +77,16 @@ const getDocumentValue = async (): Promise<string> => {
   return stringifyDocument(document, editorLanguage.value)
 }
 
+const debouncedPersist = debounce({ delay: 1500 })
+
+const applyProgrammaticEditorValue = (value: string): void => {
+  // Cancel pending auto-save work so synthetic model updates do not persist stale data.
+  debouncedPersist.cleanup()
+  editor.value?.setValue(value, true)
+}
+
 const loadDocumentIntoEditor = async () => {
-  editor.value?.setValue(await getDocumentValue())
+  applyProgrammaticEditorValue(await getDocumentValue())
   isDirty.value = false
   await focusOperation()
 }
@@ -118,8 +127,6 @@ const persistEditorToWorkspace = async (value: string) => {
   await saveLoader.validate({ duration: 900 })
 }
 
-const debouncedPersist = debounce({ delay: 1500 })
-
 const saveNow = async () => {
   const value = getEditorValue()
   if (!value) {
@@ -135,7 +142,7 @@ const handleEditorChange = (value: string) => {
     return
   }
 
-  debouncedPersist.execute('editor:replace-document', () =>
+  debouncedPersist.execute(EDITOR_PERSIST_DEBOUNCE_KEY, () =>
     persistEditorToWorkspace(value),
   )
 }
@@ -223,11 +230,12 @@ onMounted(() => {
 })
 
 onBeforeUnmount(() => {
+  debouncedPersist.cleanup()
+
   // Persist if there is a pending save
   if (isDirty.value && isAutoSaveEnabled.value) {
     void saveNow()
   }
-  // debouncedPersist.cleanup()
   editor.value?.dispose?.()
 })
 
@@ -238,6 +246,7 @@ watch(isDiagnosticsPaneExpanded, () => {
 })
 
 watch(editorLanguage, async (nextLanguage, previousLanguage) => {
+  const wasDirty = isDirty.value
   editor.value?.setLanguage(nextLanguage)
 
   const value = getEditorValue()
@@ -247,8 +256,8 @@ watch(editorLanguage, async (nextLanguage, previousLanguage) => {
 
   const parsed = parseEditorObject(value, previousLanguage)
   if (parsed) {
-    editor.value?.setValue(stringifyDocument(parsed, nextLanguage))
-    isDirty.value = true
+    applyProgrammaticEditorValue(stringifyDocument(parsed, nextLanguage))
+    isDirty.value = wasDirty
   }
 
   await focusOperation()
@@ -267,7 +276,7 @@ watch(
       if (!value) {
         return
       }
-      debouncedPersist.execute('editor:replace-document', () =>
+      debouncedPersist.execute(EDITOR_PERSIST_DEBOUNCE_KEY, () =>
         persistEditorToWorkspace(value),
       )
     }

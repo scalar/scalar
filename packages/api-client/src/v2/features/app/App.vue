@@ -139,8 +139,8 @@ const routerViewProps = computed<RouteProps>(() => {
     activeWorkspace: app.workspace.activeWorkspace.value!,
     plugins,
     securitySchemes,
-    currentTheme: app.theme.styles.value.themeStyles,
     isDarkMode: app.isDarkMode.value,
+    currentTheme: app.theme.styles.value.themeStyles,
     customThemes: toValue(app.theme.customThemes),
   }
 })

@@ -62,8 +62,6 @@ export const createApiClientApp = async (
   const app = createApp(App, {
     layout,
     plugins,
-    customThemes,
-    fallbackThemeSlug,
     getAppState: () => state,
     getCommandPaletteState: () => commandPaletteState,
   })

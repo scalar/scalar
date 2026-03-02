@@ -65,6 +65,8 @@ const findQuotedStringBounds = (line: string, index: number): { left: number; ri
   return { left, right }
 }
 
+let isInitialized = false
+
 /**
  * Enables clickable JSON Pointer links in Monaco JSON editor.
  *
@@ -75,6 +77,13 @@ const findQuotedStringBounds = (line: string, index: number): { left: number; ri
  * @param navigate Callback to execute on pointer link click.
  */
 export const ensureJsonPointerLinkSupport = (navigate: (pointer: string) => Promise<void> | void): void => {
+  // Only initialize once
+  if (isInitialized) {
+    return
+  }
+
+  isInitialized = true
+
   monaco.languages.registerLinkProvider('json', {
     provideLinks(textModel) {
       const links: monaco.languages.ILink[] = []
@@ -113,7 +122,7 @@ export const ensureJsonPointerLinkSupport = (navigate: (pointer: string) => Prom
           links.push({
             range,
             url: monaco.Uri.parse(`${JSON_POINTER_LINK_SCHEME}:${encodeURIComponent(value)}`),
-            tooltip: 'Go to JSON Pointer',
+            tooltip: 'Follow link',
           })
 
           // Advance search past the string we just handled

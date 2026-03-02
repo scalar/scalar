@@ -84,6 +84,7 @@ export const useEditor = ({
   editor.updateOptions({ insertSpaces: true, tabSize: 2 })
 
   let decorations: string[] = []
+  let suppressedChangeEvents = 0
 
   actions?.forEach((action) => {
     editor.addAction({
@@ -182,6 +183,11 @@ export const useEditor = ({
   ensureJsonPointerLinkSupport(navigateToJsonPointer)
 
   editor.onDidChangeModelContent(() => {
+    if (suppressedChangeEvents > 0) {
+      suppressedChangeEvents -= 1
+      return
+    }
+
     const newValue = editor.getValue()
     if (typeof newValue !== 'string') {
       return
@@ -204,7 +210,7 @@ export const useEditor = ({
         return
       }
 
-      editor.setValue(newValue)
+      setValue(newValue, true)
     },
   )
 
@@ -233,7 +239,11 @@ export const useEditor = ({
 
   const getValue = (): string => editor.getValue()
 
-  const setValue = (nextValue: string): void => {
+  const setValue = (nextValue: string, isProgrammaticUpdate = false): void => {
+    if (isProgrammaticUpdate) {
+      suppressedChangeEvents += 1
+    }
+
     editor.setValue(nextValue)
   }
 
