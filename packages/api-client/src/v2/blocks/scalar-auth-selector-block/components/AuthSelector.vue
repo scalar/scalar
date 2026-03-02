@@ -40,7 +40,7 @@ import RequestAuthDataTable from './RequestAuthDataTable.vue'
 const {
   environment,
   eventBus,
-  createAnySecurityScheme = true,
+  createAnySecurityScheme = false,
   isStatic = false,
   meta,
   proxyUrl,

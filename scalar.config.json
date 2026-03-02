@@ -5,10 +5,7 @@
     "title": "Scalar Documentation",
     "description": "Guides for Scalar, covering your favorite frameworks, languages and use cases."
   },
-  "publishOnMerge": true,
   "assetsDir": "documentation/assets",
-  "publishPreviews": true,
-  "pullRequestComments": true,
   "insertPageTitles": false,
   "siteConfig": {
     "subdomain": "scalar",
@@ -219,6 +216,10 @@
         {
           "from": "/scalar/scalar-sdks/getting-started",
           "to": "/products/sdks/getting-started"
+        },
+        {
+          "from": "/scalar/scalar-sdks/publishing",
+          "to": "/products/sdks/publishing"
         },
         {
           "from": "/scalar/scalar-sdks/configuration/typescript",
@@ -551,6 +552,18 @@
     "header": [
       {
         "type": "link",
+        "title": "Home",
+        "to": "/",
+        "class": "nav-left"
+      },
+      {
+        "type": "link",
+        "title": "Agent",
+        "to": "https://agent.scalar.com",
+        "class": "nav-left"
+      },
+      {
+        "type": "link",
         "title": "Log in",
         "to": "https://dashboard.scalar.com/login"
       },
@@ -668,10 +681,10 @@
                       ]
                     }
                   },
-                  "starter-kit": {
-                    "filepath": "documentation/guides/docs/starter-kit.md",
+                  "privacy": {
+                    "title": "Privacy",
                     "type": "page",
-                    "title": "Starter Kit"
+                    "filepath": "documentation/guides/docs/privacy.md"
                   },
                   "configuration": {
                     "title": "Configuration",
@@ -679,6 +692,11 @@
                     "mode": "flat",
                     "icon": "phosphor/regular/gear",
                     "children": {
+                      "starter-kit": {
+                        "filepath": "documentation/guides/docs/starter-kit.md",
+                        "type": "page",
+                        "title": "Starter Kit"
+                      },
                       "scalar.config.json": {
                         "title": "scalar.config.json",
                         "type": "page",
@@ -995,6 +1013,11 @@
                         }
                       ]
                     }
+                  },
+                  "publishing": {
+                    "filepath": "documentation/guides/sdks/publishing.md",
+                    "type": "page",
+                    "title": "Publishing"
                   },
                   "configuration": {
                     "title": "Configuration",

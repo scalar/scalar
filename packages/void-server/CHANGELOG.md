@@ -1,5 +1,14 @@
 # @scalar/void-server
 
+## 2.3.10
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/helpers@0.2.17**
+  - [#8310](https://github.com/scalar/scalar/pull/8310): refactor: move helpers to the helpers package to share primitive helpers
+
 ## 2.3.9
 
 ### Patch Changes

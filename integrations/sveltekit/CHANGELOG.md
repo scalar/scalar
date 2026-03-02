@@ -1,5 +1,13 @@
 # @scalar/sveltekit
 
+## 0.1.51
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/core@0.3.44**
+
 ## 0.1.50
 
 ### Patch Changes

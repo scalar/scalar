@@ -1,5 +1,16 @@
 # @scalar/aspire
 
+## 0.8.60
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.46.1**
+  - [#8294](https://github.com/scalar/scalar/pull/8294): default createAnySecurityScheme to false and fix index clamp issue
+
+- **@scalar/dotnet-shared@0.1.3**
+
 ## 0.8.59
 
 ### Patch Changes

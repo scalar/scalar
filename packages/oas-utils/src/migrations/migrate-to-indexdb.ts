@@ -1,7 +1,7 @@
 import { CONTENT_TYPES } from '@scalar/helpers/consts/content-types'
 import { extractConfigSecrets, removeSecretFields } from '@scalar/helpers/general/extract-config-secrets'
-import { circularToRefs } from '@scalar/helpers/object/circular-to-refs'
 import { objectEntries } from '@scalar/helpers/object/object-entries'
+import { toJsonCompatible } from '@scalar/helpers/object/to-json-compatible'
 import { extractServerFromPath } from '@scalar/helpers/url/extract-server-from-path'
 import { type ThemeId, presets } from '@scalar/themes'
 import type { Oauth2Flow } from '@scalar/types/entities'
@@ -16,19 +16,17 @@ import { xScalarCookieSchema } from '@scalar/workspace-store/schemas/extensions/
 import type { XTagGroup } from '@scalar/workspace-store/schemas/extensions/tag'
 import type { InMemoryWorkspace } from '@scalar/workspace-store/schemas/inmemory-workspace'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
-import {
-  OpenAPIDocumentSchema,
-  type OpenApiDocument,
-  type OperationObject,
-  type ParameterObject,
-  type ParameterWithContentObject,
-  type ParameterWithSchemaObject,
-  type PathItemObject,
-  type RequestBodyObject,
-  type ServerObject,
-  type TagObject,
+import type {
+  OperationObject,
+  ParameterObject,
+  ParameterWithContentObject,
+  ParameterWithSchemaObject,
+  PathItemObject,
+  RequestBodyObject,
+  ServerObject,
+  TagObject,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import type { WorkspaceDocument, WorkspaceExtensions, WorkspaceMeta } from '@scalar/workspace-store/schemas/workspace'
+import type { WorkspaceExtensions, WorkspaceMeta } from '@scalar/workspace-store/schemas/workspace'
 import { ColorModeSchema } from '@scalar/workspace-store/schemas/workspace'
 import GithubSlugger from 'github-slugger'
 
@@ -154,7 +152,7 @@ export const transformLegacyDataToWorkspace = async (legacyData: {
       const documentSlugger = new GithubSlugger()
 
       /** Each collection becomes a document in the new system and grab the auth as well */
-      const documents: { name: string; document: OpenApiDocument }[] = workspace.collections.flatMap((uid) => {
+      const documents: { name: string; document: Record<string, unknown> }[] = workspace.collections.flatMap((uid) => {
         const collection = legacyData.records.collections[uid]
         if (!collection) {
           return []
@@ -808,7 +806,7 @@ const transformCollectionToDocument = (
   documentName: string,
   collection: v_2_5_0['Collection'],
   dataRecords: v_2_5_0['DataRecord'],
-): { document: WorkspaceDocument; auth: Auth } => {
+): { document: Record<string, unknown>; auth: Auth } => {
   // Resolve selectedServerUid → server URL for x-scalar-selected-server
   const selectedServerUrl =
     collection.selectedServerUid && dataRecords.servers[collection.selectedServerUid]
@@ -942,17 +940,11 @@ const transformCollectionToDocument = (
     document['x-scalar-original-source-url'] = collection.documentUrl
   }
 
-  // Break any circular JS object references before coercion.
-  // The legacy client dereferenced $refs inline, creating circular object graphs
-  // that would cause JSON serialization and schema validation to fail.
-  const safeDocument = circularToRefs(document, {
-    '$ref-value': '',
-    '$global': false,
-    'summary': 'This ref was re-created from a circular schema reference',
-  })
+  // Convert circular references to $ref pointers which is safe for JSON serialization
+  const safeDocument = toJsonCompatible(document)
 
   return {
-    document: coerceValue(OpenAPIDocumentSchema, safeDocument),
+    document: safeDocument,
     auth: coerceValue(AuthSchema, {
       secrets: collection.securitySchemes.reduce((acc, uid) => {
         const securityScheme = dataRecords.securitySchemes[uid]

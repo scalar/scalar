@@ -1,5 +1,11 @@
 # scalar_api_reference
 
+## 0.1.5
+
+### Patch Changes
+
+- [#8305](https://github.com/scalar/scalar/pull/8305): fix: assets not published
+
 ## 0.1.4
 
 ### Patch Changes

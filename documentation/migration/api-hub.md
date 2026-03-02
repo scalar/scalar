@@ -49,7 +49,6 @@ To set this up, create a `scalar.config.json` file in your repository root:
 {
   "$schema": "https://cdn.scalar.com/schema/scalar-config-next.json",
   "scalar": "2.0.0",
-  "publishOnMerge": true,
   "siteConfig": {
     "subdomain": "name-of-your-api"
   },
@@ -82,7 +81,7 @@ To set this up, create a `scalar.config.json` file in your repository root:
 }
 ```
 
-The `"publishOnMerge": true` setting tells Scalar to automatically publish your documentation when a branch is merged into your main branch.
+Configure automatic deployment (publish when a branch is merged into your main branch) in the [Scalar Dashboard](https://dashboard.scalar.com) under your project settings.
 
 ## How to migrate from API Hub Explore to Scalar
 
