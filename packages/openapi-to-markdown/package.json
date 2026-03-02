@@ -16,7 +16,7 @@
     "llm",
     "swagger"
   ],
-  "version": "0.3.54",
+  "version": "0.3.55",
   "engines": {
     "node": ">=20"
   },
