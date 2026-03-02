@@ -5,10 +5,7 @@
     "title": "Scalar Documentation",
     "description": "Guides for Scalar, covering your favorite frameworks, languages and use cases."
   },
-  "publishOnMerge": true,
   "assetsDir": "documentation/assets",
-  "publishPreviews": true,
-  "pullRequestComments": true,
   "insertPageTitles": false,
   "siteConfig": {
     "subdomain": "scalar",
