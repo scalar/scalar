@@ -2,20 +2,16 @@
 
 Preview deployments allow you to see how your documentation changes will look before merging them into your main branch. When you open a pull request, Scalar Docs automatically creates a preview deployment and can post a comment with a link to preview your changes.
 
-## Enable via Configuration
+## Enable in the Dashboard
 
-Add the following to your `scalar.config.json`:
+Configure preview deployments and pull request comments in the [Scalar Dashboard](https://dashboard.scalar.com) under your project settings. You can:
 
-```json
-{
-  // automatically create a preview deployment for every pull request
-  "publishPreviews": true,
-  // automatically post a comment on your pull request with a direct link to the preview deployment
-  "pullRequestComments": true
-}
-```
+- Enable preview deployments for every pull request
+- Enable automatic comments on pull requests with a direct link to the preview
 
 ### GitHub Pull Request Comments for Preview Deployments
+
+When enabled in the Dashboard, Scalar posts a comment on each pull request with a direct link to the preview deployment:
 
 ![PR Comment](../../../assets/docs/pr-comment.png)
 

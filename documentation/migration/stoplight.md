@@ -87,7 +87,6 @@ Once the project is hooked up to Scalar, the next step is to set up the Scalar c
 {
   "$schema": "https://cdn.scalar.com/schema/scalar-config-next.json",
   "scalar": "2.0.0",
-  "publishOnMerge": true,
   "siteConfig": {
     "subdomain": "name-of-your-api"
   },
@@ -120,7 +119,7 @@ Once the project is hooked up to Scalar, the next step is to set up the Scalar c
 }
 ```
 
-The `"publishOnMerge": true` tells Scalar to publish your documentation when a branch is merged into the selected branch, instead of anyone having to manually publish it.
+Configure automatic deployment (publish when a branch is merged into your selected branch) in the [Scalar Dashboard](https://dashboard.scalar.com) under your project settings.
 
 ![](../assets/migration/git-deployments.png)
 
@@ -155,7 +154,6 @@ Copy and paste that chunk of JSON out of there, and make the following changes.
 {
   "$schema": "https://cdn.scalar.com/schema/scalar-config-next.json",
   "scalar": "2.0.0",
-  "publishOnMerge": true,
   "siteConfig": {
     "subdomain": "name-of-your-api"
   },
@@ -196,7 +194,7 @@ Copy and paste that chunk of JSON out of there, and make the following changes.
 > [!NOTE]
 > You can create more complex sidebars with nested pages and more. See this example [scalar.config.json](https://raw.githubusercontent.com/scalar/scalar/refs/heads/main/scalar.config.json) to see how it works.
 
-Commit this file off to the Git repo and push. If `"publishOnMerge": true,` has been added to the config file then a new entry under Deployments should appear, and when that's done we can go and see how it all looks.
+Commit this file and push. If automatic deployment is enabled in the [Scalar Dashboard](https://dashboard.scalar.com) under your project settings, a new entry under Deployments will appear once the branch is merged; when that is done you can see how it all looks.
 
 ## Step 4: Review The New Documentation
 
