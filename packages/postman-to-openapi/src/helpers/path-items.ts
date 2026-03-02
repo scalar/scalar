@@ -237,6 +237,26 @@ type ParameterRow = {
   example?: string
 }
 
+/** OpenAPI 3.0 parameter schema types (ParameterObject uses OpenAPIV3). */
+const OPENAPI_PARAM_SCHEMA_TYPES = ['string', 'number', 'integer', 'boolean', 'object', 'array'] as const
+
+type OpenApiParamSchemaType = (typeof OPENAPI_PARAM_SCHEMA_TYPES)[number]
+
+function toOpenApiParamSchemaType(s: string | undefined): OpenApiParamSchemaType {
+  const value = s ?? 'string'
+  for (const t of OPENAPI_PARAM_SCHEMA_TYPES) {
+    if (t === value) return t
+  }
+  return 'string'
+}
+
+function parameterSchemaFromType(type: OpenApiParamSchemaType): OpenAPIV3_1.ParameterObject['schema'] {
+  if (type === 'array') {
+    return { type: 'array' }
+  }
+  return { type }
+}
+
 function parseParametersFromDescription(description: string): {
   descriptionWithoutTable: string
   parametersFromTable: OpenAPIV3_1.ParameterObject[]
@@ -291,7 +311,7 @@ function parseParametersFromDescription(description: string): {
         in: row.object,
         description: row.description,
         required: row.required === 'true',
-        schema: { type: row.type || 'string' },
+        schema: parameterSchemaFromType(toOpenApiParamSchemaType(row.type)),
       }
 
       if (row.example) {
