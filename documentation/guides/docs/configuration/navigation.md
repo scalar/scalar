@@ -25,7 +25,7 @@ All navigation is configured within the `navigation.routes` object in your `scal
 
 ## Header
 
-The `navigation.header` array defines links that appear in the top navigation bar of your documentation site. These are typically used for authentication links, external resources, or call-to-action buttons.
+The `navigation.header` array defines links that appear in the top navigation bar of your documentation site. These are typically used for authentication links, external resources, or call-to-action buttons. Each item can be `type: "link"` or `type: "spacer"`. A spacer pushes items before it to the left and items after it to the right.
 
 ### Example
 
@@ -36,6 +36,14 @@ The `navigation.header` array defines links that appear in the top navigation ba
   "scalar": "2.0.0",
   "navigation": {
     "header": [
+      {
+        "type": "link",
+        "title": "Home",
+        "to": "/"
+      },
+      {
+        "type": "spacer"
+      },
       {
         "type": "link",
         "title": "Log in",
@@ -59,14 +67,16 @@ The `navigation.header` array defines links that appear in the top navigation ba
 
 ### Properties
 
-| Property | Type                 | Required | Description                              |
-| -------- | -------------------- | -------- | ---------------------------------------- |
-| `title`  | `string`             | Yes      | The display text for the header link     |
-| `type`   | `"link"`             | Yes      | Must be `"link"`                         |
-| `to`     | `string`             | Yes      | The route path or URL the link points to |
-| `style`  | `"button" \| "link"` | No       | Display style (defaults to `"link"`)     |
-| `icon`   | `string`             | No       | An icon to display next to the link      |
-| `newTab` | `boolean`            | No       | Whether to open the link in a new tab    |
+| Property | Type                   | Required | Description                              |
+| -------- | ---------------------- | -------- | ---------------------------------------- |
+| `title`  | `string`               | Yes      | The display text for the header link     |
+| `type`   | `"link"` \| `"spacer"` | Yes      | Must be `"link"` or `"spacer"`           |
+| `to`     | `string`               | Yes      | The route path or URL the link points to |
+| `style`  | `"button" \| "link"`   | No       | Display style (defaults to `"link"`)     |
+| `icon`   | `string`               | No       | An icon to display next to the link      |
+| `newTab` | `boolean`              | No       | Whether to open the link in a new tab    |
+
+For `type: "spacer"`, no other properties are used; only `type` is required.
 
 ## Sidebar
 
