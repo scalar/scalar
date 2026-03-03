@@ -20,6 +20,15 @@ describe('schema-name', () => {
       expect(getModelNameFromSchema(schema)).toBe('Galaxy Planet')
     })
 
+    it('prefers title over ref name when both exist', () => {
+      const schema = {
+        $ref: '#/components/schemas/account-information-request',
+        title: 'Consumer',
+        type: 'object',
+      } as any
+      expect(getModelNameFromSchema(schema)).toBe('Consumer')
+    })
+
     it('returns null for empty object', () => {
       const schema: SchemaObject = { __scalar_: '' }
       expect(getModelNameFromSchema(schema)).toBe(null)

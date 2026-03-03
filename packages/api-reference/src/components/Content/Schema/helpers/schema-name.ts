@@ -15,14 +15,6 @@ export const getModelNameFromSchema = (
     return null
   }
 
-  if ('$ref' in schemaOrRef) {
-    // Grab the name of the schema from the ref path
-    const refName = getRefName(schemaOrRef.$ref)
-    if (refName) {
-      return refName
-    }
-  }
-
   const schema = resolve.schema(schemaOrRef)
 
   // Direct title/name properties - use direct property access for better performance
@@ -32,6 +24,14 @@ export const getModelNameFromSchema = (
 
   if (schema.name) {
     return schema.name
+  }
+
+  if ('$ref' in schemaOrRef) {
+    // Fall back to the schema key when the referenced schema has no human-friendly name.
+    const refName = getRefName(schemaOrRef.$ref)
+    if (refName) {
+      return refName
+    }
   }
 
   return null
