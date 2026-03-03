@@ -203,6 +203,7 @@ Ready? [Create your Scalar Account](https://scalar.com)
 | ---------------------------------------------------------------------------------- | -------------------------------- |
 | [Scalar API Reference](https://scalar.com/products/api-references/getting-started) | Self-hosted API Reference        |
 | [Scalar API Client](https://scalar.com/download)                                   | Postman alternative              |
+| [Agent Scalar](https://scalar.com/products/agent/getting-started)                  | Chat with your API               |
 | [Scalar Registry](https://scalar.com/products/registry/getting-started)            | Manage OpenAPI documents         |
 | [Scalar Docs](https://scalar.com/products/docs/getting-started)                    | Hosted documentation             |
 | [Scalar Docs Starter](https://github.com/scalar/starter)                           | Starter template for Scalar Docs |
