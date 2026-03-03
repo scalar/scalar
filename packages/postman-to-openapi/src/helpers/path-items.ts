@@ -237,7 +237,7 @@ type ParameterRow = {
   example?: string
 }
 
-/** OpenAPI 3.0 parameter schema types (ParameterObject uses OpenAPIV3). */
+/** OpenAPI 3.1 parameter schema types (ParameterObject uses OpenAPIV3_1). */
 const OPENAPI_PARAM_SCHEMA_TYPES = ['string', 'number', 'integer', 'boolean', 'object', 'array'] as const
 
 type OpenApiParamSchemaType = (typeof OPENAPI_PARAM_SCHEMA_TYPES)[number]
