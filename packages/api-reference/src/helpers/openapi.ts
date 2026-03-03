@@ -1,22 +1,45 @@
-import type { OpenAPI, OpenAPIV3_1 } from '@scalar/openapi-types'
+import type { OpenAPI } from '@scalar/openapi-types'
 import { isDereferenced } from '@scalar/openapi-types/helpers'
-import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
-import type { OperationObject, ParameterObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import { type NodeInput, getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import type { MediaTypeObject } from '@scalar/workspace-store/schemas/v3.1/strict/media-type'
+import type {
+  OperationObject,
+  ParameterObject,
+  SchemaObject,
+  SchemaReferenceType,
+} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import { isObjectSchema } from '@scalar/workspace-store/schemas/v3.1/strict/type-guards'
+
+/** Object schema shape with properties, used when logging request body. */
+type ObjectSchemaWithProperties = {
+  properties: Record<string, SchemaReferenceType<SchemaObject>>
+  required?: string[]
+}
+
+/**
+ * Resolves a schema reference from workspace-store to a SchemaObject.
+ * Bridges SchemaReferenceType (which uses '$ref-value': unknown) to NodeInput (which uses '$ref-value': SchemaObject).
+ */
+function resolveSchemaRef(ref: SchemaReferenceType<SchemaObject>): SchemaObject {
+  return getResolvedRef(ref as NodeInput<SchemaObject>)
+}
 
 /**
  * Formats a property object into a string.
  */
-function formatProperty(key: string, obj: OpenAPIV3_1.SchemaObject): string {
+function formatProperty(key: string, obj: ObjectSchemaWithProperties): string {
   let output = key
   const isRequired = obj.required?.includes(key)
   output += isRequired ? ' REQUIRED ' : ' optional '
-  const property = getResolvedRef(obj.properties?.[key])
+  const propRef = obj.properties[key]
+  if (!propRef) return output
+  const property = resolveSchemaRef(propRef)
 
   // Check existence before accessing
-  if (property) {
-    output += property.type
-    if (property.description) {
-      output += ' ' + property.description
+  if (property && typeof property === 'object' && 'type' in property) {
+    output += (property as { type?: string }).type ?? ''
+    if ('description' in property && typeof (property as { description?: string }).description === 'string') {
+      output += ' ' + (property as { description: string }).description
     }
   }
 
@@ -26,28 +49,41 @@ function formatProperty(key: string, obj: OpenAPIV3_1.SchemaObject): string {
 /**
  * Recursively logs the properties of an object.
  */
-function recursiveLogger(obj: OpenAPIV3_1.MediaTypeObject): string[] {
+function recursiveLogger(obj: MediaTypeObject): string[] {
   const results: string[] = ['Body']
   const schema = getResolvedRef(obj?.schema)
 
-  const properties = schema?.properties
-  if (properties) {
-    Object.keys(properties).forEach((key) => {
-      if (!obj.schema) {
-        return
-      }
-
-      results.push(formatProperty(key, schema))
-
-      const property = getResolvedRef(properties[key])
-      const isNestedObject = property.type === 'object' && Boolean(property.properties)
-      if (isNestedObject && property.properties) {
-        Object.keys(property.properties).forEach((subKey) => {
-          results.push(`${subKey} ${getResolvedRef(property.properties?.[subKey])?.type}`)
-        })
-      }
-    })
+  if (!schema || !isObjectSchema(schema) || !schema.properties) {
+    return results
   }
+
+  const properties = schema.properties
+  const schemaWithProps: ObjectSchemaWithProperties = {
+    properties,
+    required: schema.required,
+  }
+  Object.keys(properties).forEach((key) => {
+    if (!obj.schema) {
+      return
+    }
+
+    results.push(formatProperty(key, schemaWithProps))
+
+    const propRef = properties[key]
+    if (!propRef) return
+    const property = resolveSchemaRef(propRef)
+    if (property && isObjectSchema(property) && property.properties) {
+      const nestedProperties = property.properties
+      Object.keys(nestedProperties).forEach((subKey) => {
+        const ref = nestedProperties[subKey]
+        if (!ref) return
+        const nested = resolveSchemaRef(ref)
+        const typeStr =
+          nested && typeof nested === 'object' && 'type' in nested ? ((nested as { type?: string }).type ?? '') : ''
+        results.push(`${subKey} ${typeStr}`)
+      })
+    }
+  })
 
   return results
 }
