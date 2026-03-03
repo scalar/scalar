@@ -11,8 +11,8 @@ export type Snippetz = ReturnType<typeof snippetz>
  *
  * Consumers control what gets bundled by choosing which plugins to pass in:
  * - A hand-picked subset for minimal bundles
- * - `allPlugins` from `@scalar/snippetz/clients` for everything upfront
- * - `allPlugins` from `@scalar/snippetz/clients/lazy` for metadata-only with on-demand loading
+ * - `plugins` from `@scalar/snippetz/clients` for everything upfront
+ * - `plugins` from `@scalar/snippetz/clients/lazy` for metadata-only with on-demand loading
  */
 export function snippetz(plugins: Plugin[]) {
   function findPlugin<T extends TargetId>(target: T | string, client: ClientId<T> | string): Plugin | undefined {

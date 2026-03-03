@@ -17,8 +17,11 @@ npm install @scalar/snippetz
 
 ```ts
 import { snippetz } from '@scalar/snippetz'
+import { plugins } from '@scalar/snippetz/clients'
 
-const snippet = snippetz().print('node', 'undici', {
+const generator = snippetz(plugins)
+
+const snippet = await generator.print('node', 'undici', {
   url: 'https://example.com',
 })
 
@@ -33,12 +36,16 @@ const snippet = snippetz().print('node', 'undici', {
 
 ## API
 
+Create a configured instance by passing a plugin set (see [Plugin loading](#plugin-loading) below), then use its methods.
+
 ### Get all plugins
 
 ```ts
 import { snippetz } from '@scalar/snippetz'
+import { plugins } from '@scalar/snippetz/clients'
 
-const snippet = snippetz().plugins()
+const generator = snippetz(plugins)
+const plugins = generator.plugins()
 
 /* Output */
 
@@ -54,17 +61,56 @@ const snippet = snippetz().plugins()
 
 ```ts
 import { snippetz } from '@scalar/snippetz'
+import { plugins } from '@scalar/snippetz/clients'
 
-const snippet = snippetz().hasPlugin('node', 'undici')
+const generator = snippetz(plugins)
+const hasIt = generator.hasPlugin('node', 'undici')
 
 /* Output */
 
 // true
 ```
 
+### Plugin loading
+
+You control what gets bundled by choosing which plugins to pass to `snippetz()`:
+
+### Eager (all upfront)
+
+Loads every plugin at once.
+
+```ts
+import { plugins } from '@scalar/snippetz/clients'
+
+const generator = snippetz(plugins)
+```
+
+### Lazy (on-demand)
+
+```ts
+import { plugins } from '@scalar/snippetz/clients/lazy'
+
+const generator = snippetz(plugins)
+
+// generator.clients() works immediately
+
+// await generator.print(...) loads the chosen plugin when first used
+```
+
+### Selective (small bundle)
+
+Only selected plugins are bundled.
+
+```ts
+import { shellCurl } from '@scalar/snippetz/plugins/shell/curl'
+import { jsFetch } from '@scalar/snippetz/plugins/js/fetch'
+
+const generator = snippetz([shellCurl, jsFetch])
+```
+
 ### Lean usage
 
-You can also just use one specific plugin to keep your bundle size small.
+You can use a single plugin to keep your bundle size small. Either pass one plugin to the instance or call the plugin’s `generate()` directly:
 
 ```ts
 import { nodeUndici } from '@scalar/snippetz/plugins/node/undici'
@@ -73,14 +119,20 @@ const result = nodeUndici.generate({
   url: 'https://example.com',
 })
 
-console.log(source)
+console.log(result)
 
 // import { request } from 'undici'
-
+//
 // const { statusCode, body } = await request(
-//   'url': 'https://example.com',
+//   'https://example.com',
 // )
 ```
+
+With an instance: `const generator = snippetz([nodeUndici])` then `await generator.print('node', 'undici', request)`.
+
+## Playground
+
+Run `pnpm dev` in this package to try Snippetz in the Vue playground.
 
 ## Community
 

@@ -1,8 +1,8 @@
 import { snippetz } from '@scalar/snippetz'
-import { allPlugins } from '@scalar/snippetz/clients'
+import { plugins } from '@scalar/snippetz/clients'
 
 /**
  * Shared snippetz instance with all plugins loaded eagerly.
  * Re-use this instead of creating new instances per component.
  */
-export const snippetzInstance = snippetz(allPlugins)
+export const snippetzInstance = snippetz(plugins)

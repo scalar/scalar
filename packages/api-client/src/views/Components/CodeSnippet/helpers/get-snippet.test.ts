@@ -8,14 +8,14 @@ import {
   serverSchema,
 } from '@scalar/oas-utils/entities/spec'
 import { AVAILABLE_CLIENTS, type ClientId, type TargetId, snippetz } from '@scalar/snippetz'
-import { allPlugins } from '@scalar/snippetz/clients'
+import { plugins } from '@scalar/snippetz/clients'
 import { describe, expect, it } from 'vitest'
 
 import { getHarRequest } from '@/views/Components/CodeSnippet/helpers/get-har-request'
 
 import { getSnippet } from './get-snippet'
 
-const s = snippetz(allPlugins)
+const s = snippetz(plugins)
 
 describe('getSnippet', () => {
   // Helper functions to create fresh instances

@@ -7,9 +7,9 @@ import type { Plugin } from '@scalar/types/snippetz'
  * plus thin async `generate()` wrappers that call `import()` on first use.
  * Bundlers like Vite will code-split each dynamic import into a separate chunk.
  *
- * Pass this to `snippetz(allPlugins)` for the "metadata upfront, code on demand" pattern.
+ * Pass this to `snippetz(plugins)` for the "metadata upfront, code on demand" pattern.
  */
-export const allPlugins: Plugin[] = [
+export const plugins: Plugin[] = [
   // C
   {
     target: 'c',

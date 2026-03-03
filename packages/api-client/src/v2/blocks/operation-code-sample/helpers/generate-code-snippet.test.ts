@@ -1,6 +1,6 @@
 import type { AvailableClient } from '@scalar/snippetz'
 import { snippetz } from '@scalar/snippetz'
-import { allPlugins } from '@scalar/snippetz/clients'
+import { plugins } from '@scalar/snippetz/clients'
 import type { XCodeSample } from '@scalar/workspace-store/schemas/extensions/operation'
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { consoleErrorSpy } from '@test/vitest.setup'
@@ -8,7 +8,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { generateCodeSnippet } from './generate-code-snippet'
 
-const s = snippetz(allPlugins)
+const s = snippetz(plugins)
 
 describe('generateCodeSnippet', () => {
   const mockOperation: OperationObject = {

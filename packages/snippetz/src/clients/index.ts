@@ -173,9 +173,9 @@ export const clients: Target[] = [
 
 /**
  * Flat array of all plugins, ordered so the first plugin per target matches the default client.
- * Pass this to `snippetz(allPlugins)` to load everything eagerly.
+ * Pass this to `snippetz(plugins)` to load everything eagerly.
  */
-export const allPlugins: Plugin[] = [
+export const plugins: Plugin[] = [
   // C
   cLibcurl,
   // C#  (default: restsharp)

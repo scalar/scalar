@@ -1,12 +1,12 @@
 import { describe, expect, it } from 'vitest'
 
-import { allPlugins } from './clients'
-import { allPlugins as lazyPlugins } from './clients/lazy'
+import { plugins } from './clients'
+import { plugins as lazyPlugins } from './clients/lazy'
 import { snippetz } from './snippetz'
 
 describe('snippetz', () => {
   it('generates code for undici with all plugins', async () => {
-    const snippet = await snippetz(allPlugins).print('node', 'undici', {
+    const snippet = await snippetz(plugins).print('node', 'undici', {
       url: 'https://example.com',
     })
 
@@ -43,7 +43,7 @@ describe('snippetz', () => {
   })
 
   it('builds clients list from registered plugins', () => {
-    expect(snippetz(allPlugins).clients()).toEqual(
+    expect(snippetz(plugins).clients()).toEqual(
       expect.arrayContaining([
         {
           key: 'node',
@@ -91,7 +91,7 @@ describe('snippetz', () => {
 
 describe('plugins', () => {
   it('returns all registered plugin identifiers', () => {
-    const result = snippetz(allPlugins).plugins()
+    const result = snippetz(plugins).plugins()
 
     expect(result).toEqual(
       expect.arrayContaining([
@@ -114,13 +114,13 @@ describe('plugins', () => {
 
 describe('hasPlugin', () => {
   it('returns true if it has the plugin', () => {
-    const result = snippetz(allPlugins).hasPlugin('node', 'undici')
+    const result = snippetz(plugins).hasPlugin('node', 'undici')
 
     expect(result).toBe(true)
   })
 
   it('returns false if it does not know the plugin', () => {
-    const result = snippetz(allPlugins).hasPlugin('node', 'fantasy')
+    const result = snippetz(plugins).hasPlugin('node', 'fantasy')
 
     expect(result).toBe(false)
   })

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { snippetz } from '@scalar/snippetz'
-import { allPlugins as lazyPlugins } from '@scalar/snippetz/clients/lazy'
+import { plugins as lazyPlugins } from '@scalar/snippetz/clients/lazy'
 import { computed, ref, watchEffect } from 'vue'
 
 const selectedClient = ref('shell/curl')

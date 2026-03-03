@@ -1,11 +1,11 @@
 import type { XCodeSample } from '@scalar/openapi-types/schemas/extensions'
 import { AVAILABLE_CLIENTS, snippetz } from '@scalar/snippetz'
-import { allPlugins } from '@scalar/snippetz/clients'
+import { plugins } from '@scalar/snippetz/clients'
 import { describe, expect, it } from 'vitest'
 
 import { generateClientOptions, generateCustomId } from './generate-client-options'
 
-const s = snippetz(allPlugins)
+const s = snippetz(plugins)
 
 describe('generateClientOptions', () => {
   describe('with all clients allowed', () => {
