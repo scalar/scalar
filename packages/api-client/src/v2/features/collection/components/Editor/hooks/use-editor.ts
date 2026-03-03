@@ -1,4 +1,4 @@
-import * as monaco from 'monaco-editor/esm/vs/editor/editor.api.js'
+import * as monaco from 'monaco-editor'
 
 import 'monaco-editor/esm/vs/language/json/monaco.contribution'
 import 'monaco-editor/esm/vs/basic-languages/yaml/yaml.contribution'
@@ -180,7 +180,7 @@ export const useEditor = ({
     await focusPath(pointerPath)
   }
 
-  ensureJsonPointerLinkSupport(navigateToJsonPointer)
+  const { dispose: disposeJsonPointerLinkSupport } = ensureJsonPointerLinkSupport(navigateToJsonPointer)
 
   editor.onDidChangeModelContent(() => {
     if (suppressedChangeEvents > 0) {
@@ -263,6 +263,7 @@ export const useEditor = ({
   const dispose = (): void => {
     editor.dispose()
     model.dispose()
+    disposeJsonPointerLinkSupport()
   }
 
   return {
