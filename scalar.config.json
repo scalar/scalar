@@ -1977,6 +1977,12 @@
                 "type": "link"
               }
             }
+          },
+          "/blog/oss-pledge-2024": {
+            "type": "page",
+            "title": "Scalar Joins the Open-Source Pledge",
+            "filepath": "documentation/blog/oss-pledge-2024.md",
+            "showInSidebar": false
           }
         }
       },

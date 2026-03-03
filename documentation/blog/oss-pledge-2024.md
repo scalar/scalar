@@ -6,15 +6,15 @@ What is OSS Pledge?
 
 You can read more about it [here](https://osspledge.com/), but in short, it's paying Open Source maintainers. The minimum to participate is $2,000 per full-time employed developer per year.
 
-When we met Chad Whitacre at the Open-Source Summit in Seattle earlier this year, we instantly bonded over all things open-source! He also told me the very early stages of the Open-Source Pledge that Sentry was starting and I couldn't have been more excited about joining it.
+When we met Chad Whitacre at the Open-Source Summit in Seattle earlier this year, we instantly bonded over all things open-source! He also told me about the very early stages of the Open-Source Pledge that Sentry was starting and I couldn't have been more excited about joining it.
 
 ![](../assets/blog/oss-pledge.jpeg)
 
-> @getsentry & @scalar love open-source!
+> [@getsentry](https://x.com/getsentry) & [@scalar](https://x.com/scalar) love open-source!
 >
-> w @chadwhitacre_ @linuxfoundation #OSSummit
->
-> [Marc Laventure @marclaventure](https://x.com/MarcLaventure/status/1782403644387922189/)
+> w [@__chadwhitacre](https://x.com/__chadwhitacre) [@linuxfoundation](https://x.com/linuxfoundation) #OSSummit
+
+[@marclaventure on X](https://x.com/MarcLaventure/status/1782403644387922189/)
 
 ## How much Scalar Gives
 
@@ -37,6 +37,6 @@ We have donated $25,569.34 USD so far in 2024, which equates to $3,652.76 USD pe
 
 Thank You OSS
 
-Most of the team at Scalar have started their Engineering careers because of Open-Source, and we couldn't be more honoured to be a part of the OSS Pledge! Thanks to all the maintainers and contributors whose software we are priviliged to use and build with.
+Most of the team at Scalar have started their Engineering careers because of Open-Source, and we couldn't be more honoured to be a part of the OSS Pledge! Thanks to all the maintainers and contributors whose software we are privileged to use and build with.
 
-Marc CEO & co-founder, Scalar
+Marc, CEO & co-founder, Scalar
