@@ -17,6 +17,7 @@ import type {
 import { computed, ref, watch } from 'vue'
 
 import { DataTableRow } from '@/components/DataTable'
+import { getEnvironmentVariables } from '@/v2/blocks/operation-block/helpers/get-environment-variables'
 import OAuthScopesInput from '@/v2/blocks/scalar-auth-selector-block/components/OAuthScopesInput.vue'
 import { authorizeOauth2 } from '@/v2/blocks/scalar-auth-selector-block/helpers/oauth'
 import type {
@@ -167,6 +168,7 @@ const handleAuthorize = async (): Promise<void> => {
     selectedScopes.value,
     server,
     proxyUrl,
+    getEnvironmentVariables(environment),
   )
 
   await loader.clear()
