@@ -7,6 +7,7 @@ import { objectToString } from '@/libs/php'
  */
 export const phpCurl: Plugin = {
   target: 'php',
+  targetTitle: 'PHP',
   client: 'curl',
   title: 'cURL',
   generate(request, configuration) {

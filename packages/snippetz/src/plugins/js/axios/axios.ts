@@ -8,6 +8,7 @@ import { convertWithHttpSnippetLite } from '@/utils/convertWithHttpSnippetLite'
  */
 export const jsAxios: Plugin = {
   target: 'js',
+  targetTitle: 'JavaScript',
   client: 'axios',
   title: 'Axios',
   generate(request) {

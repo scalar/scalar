@@ -8,6 +8,7 @@ import { convertWithHttpSnippetLite } from '@/utils/convertWithHttpSnippetLite'
  */
 export const kotlinOkhttp: Plugin = {
   target: 'kotlin',
+  targetTitle: 'Kotlin',
   client: 'okhttp',
   title: 'OkHttp',
   generate(request) {

@@ -5,6 +5,7 @@ import type { Plugin } from '@scalar/types/snippetz'
  */
 export const fsharpHttpclient: Plugin = {
   target: 'fsharp',
+  targetTitle: 'F#',
   client: 'httpclient',
   title: 'HttpClient',
   generate: (request, _) => {

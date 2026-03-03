@@ -5,6 +5,7 @@ import type { Plugin } from '@scalar/types/snippetz'
  */
 export const httpHttp11: Plugin = {
   target: 'http',
+  targetTitle: 'HTTP',
   client: 'http1.1',
   title: 'HTTP/1.1',
   generate(request) {

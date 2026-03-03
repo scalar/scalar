@@ -8,6 +8,7 @@ import { convertWithHttpSnippetLite } from '@/utils/convertWithHttpSnippetLite'
  */
 export const swiftNsurlsession: Plugin = {
   target: 'swift',
+  targetTitle: 'Swift',
   client: 'nsurlsession',
   title: 'NSURLSession',
   generate(request) {

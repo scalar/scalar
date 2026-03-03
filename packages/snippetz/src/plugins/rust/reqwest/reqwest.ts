@@ -8,6 +8,7 @@ import { createChain, formatJson, indent, wrapInDoubleQuotes } from '@/libs/rust
  */
 export const rustReqwest: Plugin = {
   target: 'rust',
+  targetTitle: 'Rust',
   client: 'reqwest',
   title: 'reqwest',
   generate(request, options?: { auth?: { username: string; password: string } }) {

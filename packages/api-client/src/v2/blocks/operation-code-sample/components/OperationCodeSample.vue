@@ -134,9 +134,11 @@ import {
   ref,
   useId,
   watch,
+  watchEffect,
   type ComponentPublicInstance,
 } from 'vue'
 
+import { snippetzInstance } from '@/libs/snippetz-instance'
 import HttpMethod from '@/v2/blocks/operation-code-sample/components/HttpMethod.vue'
 import { findClient } from '@/v2/blocks/operation-code-sample/helpers/find-client'
 import { getClients } from '@/v2/blocks/operation-code-sample/helpers/get-clients'
@@ -236,12 +238,16 @@ const webhookHar = computed(() => {
 })
 
 /** Generate the code snippet for the selected example */
-const generatedCode = computed<string>(() => {
+const generatedCode = ref('')
+
+watchEffect(async () => {
   if (isWebhook) {
-    return webhookHar.value?.postData?.text ?? ''
+    generatedCode.value = webhookHar.value?.postData?.text ?? ''
+    return
   }
 
-  return generateCodeSnippet({
+  generatedCode.value = await generateCodeSnippet({
+    snippetzInstance,
     includeDefaultHeaders: integration === 'client',
     clientId: localSelectedClient.value?.id,
     customCodeSamples: customCodeSamples.value,

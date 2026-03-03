@@ -12,4 +12,4 @@ export {
   type TargetId,
 } from '@scalar/types/snippetz'
 
-export { snippetz } from './snippetz'
+export { type Snippetz, snippetz } from './snippetz'

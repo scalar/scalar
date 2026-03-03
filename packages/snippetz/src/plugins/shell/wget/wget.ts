@@ -8,6 +8,7 @@ import { convertWithHttpSnippetLite } from '@/utils/convertWithHttpSnippetLite'
  */
 export const shellWget: Plugin = {
   target: 'shell',
+  targetTitle: 'Shell',
   client: 'wget',
   title: 'Wget',
   generate(request) {

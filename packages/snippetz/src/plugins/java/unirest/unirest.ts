@@ -8,6 +8,7 @@ import { convertWithHttpSnippetLite } from '@/utils/convertWithHttpSnippetLite'
  */
 export const javaUnirest: Plugin = {
   target: 'java',
+  targetTitle: 'Java',
   client: 'unirest',
   title: 'Unirest',
   generate(request) {

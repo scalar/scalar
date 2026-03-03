@@ -1,10 +1,14 @@
 import type { AvailableClient } from '@scalar/snippetz'
+import { snippetz } from '@scalar/snippetz'
+import { plugins } from '@scalar/snippetz/clients'
 import type { XCodeSample } from '@scalar/workspace-store/schemas/extensions/operation'
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { consoleErrorSpy } from '@test/vitest.setup'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { generateCodeSnippet } from './generate-code-snippet'
+
+const s = snippetz(plugins)
 
 describe('generateCodeSnippet', () => {
   const mockOperation: OperationObject = {
@@ -18,6 +22,7 @@ describe('generateCodeSnippet', () => {
   const mockServer = { url: 'https://api.example.com' }
 
   const baseParams = {
+    snippetzInstance: s,
     operation: mockOperation,
     method: 'get' as const,
     path: '/users',
@@ -32,8 +37,8 @@ describe('generateCodeSnippet', () => {
     vi.clearAllMocks()
   })
 
-  it('returns empty string when clientId is undefined', () => {
-    const result = generateCodeSnippet({
+  it('returns empty string when clientId is undefined', async () => {
+    const result = await generateCodeSnippet({
       ...baseParams,
       clientId: undefined,
     })
@@ -41,8 +46,8 @@ describe('generateCodeSnippet', () => {
     expect(result).toBe('')
   })
 
-  it('returns generated code snippet when successful', () => {
-    const result = generateCodeSnippet({
+  it('returns generated code snippet when successful', async () => {
+    const result = await generateCodeSnippet({
       ...baseParams,
       clientId: 'js/fetch',
       path: '/users/{userId}',
@@ -51,7 +56,7 @@ describe('generateCodeSnippet', () => {
     expect(result).toBe("fetch('https://api.example.com/users/{userId}')")
   })
 
-  it('returns custom code sample source when clientId starts with "custom"', () => {
+  it('returns custom code sample source when clientId starts with "custom"', async () => {
     const customCodeSamples: XCodeSample[] = [
       {
         lang: 'python',
@@ -65,7 +70,7 @@ describe('generateCodeSnippet', () => {
       },
     ]
 
-    const result = generateCodeSnippet({
+    const result = await generateCodeSnippet({
       ...baseParams,
       clientId: 'custom/python',
       customCodeSamples,
@@ -74,7 +79,7 @@ describe('generateCodeSnippet', () => {
     expect(result).toBe('import requests\nresponse = requests.get("https://api.example.com")')
   })
 
-  it('returns "Custom example not found" when custom clientId does not match any custom code sample', () => {
+  it('returns "Custom example not found" when custom clientId does not match any custom code sample', async () => {
     const customCodeSamples: XCodeSample[] = [
       {
         lang: 'python',
@@ -83,7 +88,7 @@ describe('generateCodeSnippet', () => {
       },
     ]
 
-    const result = generateCodeSnippet({
+    const result = await generateCodeSnippet({
       ...baseParams,
       clientId: 'custom/ruby',
       customCodeSamples,
@@ -92,13 +97,13 @@ describe('generateCodeSnippet', () => {
     expect(result).toBe('Custom example not found')
   })
 
-  it('returns error message when getSnippet fails', () => {
+  it('returns error message when getSnippet fails', async () => {
     // Mock console.error to suppress expected error output
     consoleErrorSpy.mockImplementation(() => {
       // Intentionally empty to suppress console output
     })
 
-    const result = generateCodeSnippet({
+    const result = await generateCodeSnippet({
       ...baseParams,
       clientId: 'js/fetch',
       // @ts-expect-error - testing undefined
@@ -109,8 +114,8 @@ describe('generateCodeSnippet', () => {
     expect(consoleErrorSpy).toHaveBeenCalledWith('[generateCodeSnippet]', expect.any(Error))
   })
 
-  it('generates code snippet with request body and content type', () => {
-    const code = generateCodeSnippet({
+  it('generates code snippet with request body and content type', async () => {
+    const code = await generateCodeSnippet({
       ...baseParams,
       clientId: 'python/requests',
       operation: {
@@ -146,8 +151,8 @@ describe('generateCodeSnippet', () => {
 )`)
   })
 
-  it('generates code snippet with different client formats', () => {
-    const code = generateCodeSnippet({
+  it('generates code snippet with different client formats', async () => {
+    const code = await generateCodeSnippet({
       ...baseParams,
       clientId: 'node/axios',
     })
@@ -164,7 +169,7 @@ try {
 }`)
   })
 
-  it('processes different clientId formats without errors', () => {
+  it('processes different clientId formats without errors', async () => {
     const testCases: Array<{ input: AvailableClient; expectedClient: string }> = [
       { input: 'js/fetch', expectedClient: 'fetch' },
       { input: 'python/requests', expectedClient: 'requests' },
@@ -172,24 +177,24 @@ try {
       { input: 'shell/curl', expectedClient: 'curl' },
     ]
 
-    testCases.forEach(({ input, expectedClient }) => {
-      const result = generateCodeSnippet({
+    for (const { input, expectedClient } of testCases) {
+      const result = await generateCodeSnippet({
         ...baseParams,
         clientId: input,
         path: '/test',
       })
 
       expect(result).toContain(expectedClient)
-    })
+    }
   })
 
-  it('returns error message and logs error when exception is thrown', () => {
+  it('returns error message and logs error when exception is thrown', async () => {
     // Mock console.error to suppress expected error output
     consoleErrorSpy.mockImplementation(() => {
       // Intentionally empty to suppress console output
     })
 
-    const result = generateCodeSnippet({
+    const result = await generateCodeSnippet({
       ...baseParams,
       clientId: 'js/fetch',
       // @ts-expect-error - testing invalid input

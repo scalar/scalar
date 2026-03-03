@@ -21,9 +21,9 @@ vi.mock('@/store', () => ({
   useWorkspace: vi.fn(),
 }))
 
-// Mock the snippetz library
-vi.mock('@scalar/snippetz', () => ({
-  snippetz: () => ({
+// Mock the snippetz instance
+vi.mock('@/libs/snippetz-instance', () => ({
+  snippetzInstance: {
     clients: () => [
       {
         key: 'js',
@@ -39,7 +39,10 @@ vi.mock('@scalar/snippetz', () => ({
         clients: [{ client: 'curl', title: 'Curl' }],
       },
     ],
-  }),
+    print: async () => '// generated code',
+    hasPlugin: () => true,
+    plugins: () => [],
+  },
 }))
 
 // Mock the operation

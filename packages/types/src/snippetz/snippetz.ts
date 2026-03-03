@@ -107,12 +107,14 @@ export type Target = {
 export type Plugin = {
   /** The language or environment this plugin targets. */
   target: TargetId
+  /** Human-readable name for the target (e.g. "Node.js", "Shell"). */
+  targetTitle: string
   /** The identifier of the HTTP client within the target. */
   client: ClientId<TargetId>
   /** Human-readable name for the client. */
   title: string
-  /** Generates source code for the given HTTP request. */
-  generate: (request?: Partial<HarRequest>, configuration?: PluginConfiguration) => string
+  /** Generates source code for the given HTTP request. May be async for lazy-loaded plugins. */
+  generate: (request?: Partial<HarRequest>, configuration?: PluginConfiguration) => string | Promise<string>
 }
 
 /**

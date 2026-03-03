@@ -1,4 +1,4 @@
-import { type ClientId, type TargetId, snippetz } from '@scalar/snippetz'
+import type { ClientId, Snippetz, TargetId } from '@scalar/snippetz'
 import type { Request as HarRequest } from 'har-format'
 
 import type { ErrorResponse } from '@/libs/errors'
@@ -9,11 +9,12 @@ const INVALID_URLS_PREFIX = 'ws://replace.me'
 /**
  * Returns a code example for given operation
  */
-export const getSnippet = <T extends TargetId>(
+export const getSnippet = async <T extends TargetId>(
+  s: Snippetz,
   target: T | 'javascript',
   client: ClientId<T>,
   harRequest: HarRequest,
-): ErrorResponse<string> => {
+): Promise<ErrorResponse<string>> => {
   try {
     if (!harRequest.url) {
       return [new Error('Please enter a URL to see a code snippet'), null]
@@ -41,8 +42,8 @@ export const getSnippet = <T extends TargetId>(
     // TODO: Fix this, use js (instead of javascript) everywhere
     const snippetzTargetKey = target.replace('javascript', 'js') as TargetId
 
-    if (snippetz().hasPlugin(snippetzTargetKey, client)) {
-      const payload = snippetz().print(snippetzTargetKey, client as ClientId<TargetId>, harRequest)
+    if (s.hasPlugin(snippetzTargetKey, client)) {
+      const payload = await s.print(snippetzTargetKey, client as ClientId<TargetId>, harRequest)
       if (!payload) {
         return [new Error('Error generating snippet'), null]
       }

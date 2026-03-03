@@ -7,6 +7,7 @@ import { objectToString } from '@/libs/javascript'
  */
 export const nodeOfetch: Plugin = {
   target: 'node',
+  targetTitle: 'Node.js',
   client: 'ofetch',
   title: 'ofetch',
   generate(request) {

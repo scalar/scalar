@@ -9,9 +9,10 @@ import type {
 import { isDefined } from '@scalar/oas-utils/helpers'
 import type { ClientId, TargetId } from '@scalar/snippetz'
 import { encode } from 'js-base64'
-import { computed } from 'vue'
+import { computed, ref, watchEffect } from 'vue'
 
 import type { EnvVariables } from '@/libs/env-helpers'
+import { snippetzInstance } from '@/libs/snippetz-instance'
 import { getHarRequest, getSnippet } from '@/views/Components/CodeSnippet'
 
 const {
@@ -56,7 +57,12 @@ const secretCredentials = computed(() =>
 )
 
 /** Generated code example */
-const content = computed(() => {
+const content = ref<{ error: Error | null; payload: string | null }>({
+  error: null,
+  payload: null,
+})
+
+watchEffect(async () => {
   const harRequest = getHarRequest({
     operation,
     example,
@@ -65,8 +71,13 @@ const content = computed(() => {
     environment,
   })
 
-  const [error, payload] = getSnippet(target, client, harRequest)
-  return { error, payload }
+  const [error, payload] = await getSnippet(
+    snippetzInstance,
+    target,
+    client,
+    harRequest,
+  )
+  content.value = { error, payload }
 })
 
 /** CodeMirror syntax highlighting language */

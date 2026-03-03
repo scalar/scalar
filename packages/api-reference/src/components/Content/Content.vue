@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { snippetzInstance } from '@scalar/api-client/libs/snippetz-instance'
 import { generateClientOptions } from '@scalar/api-client/v2/blocks/operation-code-sample'
 import { mergeSecurity } from '@scalar/api-client/v2/blocks/scalar-auth-selector-block'
 import { mapHiddenClientsConfig } from '@scalar/api-client/v2/features/modal'
@@ -62,7 +63,10 @@ const { document, items, environment, eventBus, options, authStore } =
 
 /** Generate all client options so that it can be shared between the top client picker and the operations */
 const clientOptions = computed(() =>
-  generateClientOptions(mapHiddenClientsConfig(options.hiddenClients)),
+  generateClientOptions(
+    snippetzInstance,
+    mapHiddenClientsConfig(options.hiddenClients),
+  ),
 )
 
 /** Computed property to get all OpenAPI extension fields from the root document object */
