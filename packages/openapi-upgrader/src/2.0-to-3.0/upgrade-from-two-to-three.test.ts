@@ -764,6 +764,51 @@ describe('upgradeFromTwoToThree', () => {
         },
       })
     })
+
+    it('preserves default on query parameters', () => {
+      const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+        swagger: '2.0',
+        info: { title: 'API', version: '1.0' },
+        paths: {
+          '/users': {
+            get: {
+              parameters: [
+                {
+                  in: 'query',
+                  name: 'email',
+                  type: 'string',
+                  required: false,
+                  default: 'test@example.com',
+                  description: 'Filter by email address.',
+                },
+                {
+                  in: 'query',
+                  name: 'phone',
+                  type: 'string',
+                  required: false,
+                  default: '1111111111',
+                  description: 'Filter by phone number.',
+                },
+              ],
+              responses: { '200': { description: 'OK' } },
+            },
+          },
+        },
+      })
+
+      const params = result.paths?.['/users']?.get?.parameters
+      expect(params).toHaveLength(2)
+
+      const emailParam = params?.[0] as OpenAPIV3.ParameterObject
+      expect(emailParam.name).toBe('email')
+      expect(emailParam.in).toBe('query')
+      expect(emailParam.schema?.default).toBe('test@example.com')
+
+      const phoneParam = params?.[1] as OpenAPIV3.ParameterObject
+      expect(phoneParam.name).toBe('phone')
+      expect(phoneParam.in).toBe('query')
+      expect(phoneParam.schema?.default).toBe('1111111111')
+    })
   })
 
   it('transforms basic security scheme', () => {
@@ -1690,6 +1735,54 @@ describe('upgradeFromTwoToThree', () => {
         value: {
           message: 'Something went wrong',
           type: 'error',
+        },
+      },
+    })
+  })
+
+  it('transforms x-examples keyed by example name instead of media type', () => {
+    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+      swagger: '2.0',
+      info: { title: 'x-examples keyed by example name', version: '1.0' },
+      paths: {
+        '/test': {
+          post: {
+            consumes: ['application/json'],
+            produces: ['application/json'],
+            parameters: [
+              {
+                name: 'body',
+                in: 'body',
+                required: true,
+                schema: {
+                  type: 'object',
+                  properties: {
+                    email: { type: 'string' },
+                    receipt_amount: { type: 'number' },
+                  },
+                },
+                'x-examples': {
+                  Request: {
+                    email: 'test@example.com',
+                    receipt_amount: 300,
+                  },
+                },
+              },
+            ],
+            responses: {
+              '200': { description: 'OK' },
+            },
+          },
+        },
+      },
+    })
+
+    const requestBody = result.paths?.['/test']?.post?.requestBody as OpenAPIV3.RequestBodyObject
+    expect(requestBody?.content?.['application/json']?.examples).toStrictEqual({
+      Request: {
+        value: {
+          email: 'test@example.com',
+          receipt_amount: 300,
         },
       },
     })

@@ -1,5 +1,15 @@
 # scalar-app
 
+## 0.1.300
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-client@2.31.3**
+  - [#8313](https://github.com/scalar/scalar/pull/8313): fix: correctly cache schema examples
+  - [#8254](https://github.com/scalar/scalar/pull/8254): fix: resolve OAuth2 URLs against interpolated server URL
+
 ## 0.1.299
 
 ### Patch Changes

@@ -1,6 +1,5 @@
 import { isDefined } from '@scalar/helpers/array/is-defined'
-import { getRaw } from '@scalar/json-magic/magic-proxy'
-import { unpackOverridesProxy } from '@scalar/workspace-store/helpers/overrides-proxy'
+import { unpackProxyObject } from '@scalar/workspace-store/helpers/unpack-proxy'
 import { resolve } from '@scalar/workspace-store/resolve'
 import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
@@ -82,6 +81,9 @@ const resultCache = new WeakMap<object, Map<string, unknown>>()
 /** Cache required property names per parent schema for O(1) membership checks */
 const requiredNamesCache = new WeakMap<object, ReadonlySet<string>>()
 
+/** Normalize schema identity for cache and cycle tracking */
+const getSchemaCacheTarget = (schema: SchemaObject): object => unpackProxyObject(schema, { depth: 1 }) as object
+
 /**
  * Retrieves the set of required property names from a schema.
  * Caches the result in a WeakMap for efficient lookups.
@@ -117,7 +119,7 @@ const cache = (schema: SchemaObject, result: unknown, cacheKey: string) => {
   if (typeof result !== 'object' || result === null) {
     return result
   }
-  const rawSchema = getRaw(unpackOverridesProxy(schema))
+  const rawSchema = getSchemaCacheTarget(schema)
 
   const cacheMap = resultCache.get(rawSchema) ?? new Map()
   if (cacheMap) {
@@ -504,7 +506,7 @@ export const getExampleFromSchema = (
   }
 
   // Unpack from all proxies to get the raw schema object for cycle detection
-  const targetValue = getRaw(unpackOverridesProxy(_schema))
+  const targetValue = getSchemaCacheTarget(_schema)
   if (seen.has(targetValue)) {
     return undefined
   }

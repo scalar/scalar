@@ -603,7 +603,7 @@ function getParameterLocation(location: OpenAPIV2.ParameterLocation): OpenAPIV3.
 function transformParameterObject(
   parameter: OpenAPIV2.ParameterObject | OpenAPIV2.ReferenceObject,
 ): OpenAPIV3.ParameterObject | OpenAPIV3.ReferenceObject {
-  if (Object.hasOwn(parameter, '$ref') && '$ref' in parameter) {
+  if (Object.hasOwn(parameter, '$ref') && typeof parameter.$ref === 'string') {
     return {
       $ref: parameter.$ref,
     }
@@ -666,7 +666,7 @@ function transformParameterObject(
 function transformResponseHeader(
   header: OpenAPIV2.HeaderObject | OpenAPIV2.ReferenceObject,
 ): OpenAPIV3.HeaderObject | OpenAPIV3.ReferenceObject {
-  if (Object.hasOwn(header, '$ref') && '$ref' in header) {
+  if (Object.hasOwn(header, '$ref') && typeof header.$ref === 'string') {
     return {
       $ref: header.$ref,
     }
@@ -802,6 +802,23 @@ function migrateBodyParameter(
         else {
           requestBodyObject.content[type].examples = {
             default: wrapAsExampleObject(examples),
+          }
+        }
+      }
+      // Fallback: x-examples keyed by example name instead of media type
+      // e.g. x-examples: { Request: { email: "test@example.com" } }
+      else if (isNonEmptyObject(xExamples) && !Object.keys(xExamples).some(isMediaTypeKey)) {
+        if (isNamedExamplesCollection(xExamples)) {
+          requestBodyObject.content[type].examples = Object.entries(xExamples).reduce(
+            (acc, [key, exampleValue]) => {
+              acc[key] = wrapAsExampleObject(exampleValue)
+              return acc
+            },
+            {} as Record<string, OpenAPIV3.ExampleObject>,
+          )
+        } else {
+          requestBodyObject.content[type].examples = {
+            default: wrapAsExampleObject(xExamples),
           }
         }
       }

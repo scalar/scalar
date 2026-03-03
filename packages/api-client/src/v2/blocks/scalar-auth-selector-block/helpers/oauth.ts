@@ -6,6 +6,7 @@ import { encode, fromUint8Array } from 'js-base64'
 
 import type { ErrorResponse } from '@/libs/errors'
 import type { OAuthFlowsObjectSecret } from '@/v2/blocks/scalar-auth-selector-block/helpers/secret-types'
+import { getServerUrl } from '@/v2/blocks/operation-block/helpers/get-server-url'
 
 /** Oauth2 security schemes which are not implicit */
 type NonImplicitFlows = Omit<OAuthFlowsObjectSecret, 'implicit'>
@@ -16,8 +17,8 @@ type PKCEState = {
   codeChallengeMethod: string
 }
 
-const getActiveServerBase = (activeServer: ServerObject | null) => {
-  const serverUrl = activeServer?.url
+const getActiveServerBase = (activeServer: ServerObject | null, environmentVariables: Record<string, string> = {}) => {
+  const serverUrl = getServerUrl(activeServer, environmentVariables)
 
   if (!serverUrl) {
     return {}
@@ -80,6 +81,8 @@ export const authorizeOauth2 = async (
   activeServer: ServerObject | null,
   /** If we want to use the proxy */
   proxyUrl: string,
+  /** Flattened environment variables used to resolve server URL templates like `{protocol}` */
+  environmentVariables: Record<string, string> = {},
 ): Promise<ErrorResponse<string>> => {
   const flow = flows[type]
 
@@ -100,13 +103,17 @@ export const authorizeOauth2 = async (
           proxyUrl,
         },
         activeServer,
+        environmentVariables,
       )
     }
 
     // Generate a random state string with the length of 8 characters
     const state = (Math.random() + 1).toString(36).substring(2, 10)
 
-    const authorizationUrl = makeUrlAbsolute(flows[type]!.authorizationUrl, getActiveServerBase(activeServer))
+    const authorizationUrl = makeUrlAbsolute(
+      flows[type]!.authorizationUrl,
+      getActiveServerBase(activeServer, environmentVariables),
+    )
 
     const url = new URL(authorizationUrl)
 
@@ -143,7 +150,8 @@ export const authorizeOauth2 = async (
 
     // Handle relative redirect uris
     if (typedFlow['x-scalar-secret-redirect-uri'].startsWith('/')) {
-      const baseUrl = activeServer?.url || window.location.origin + window.location.pathname
+      const baseUrl =
+        getServerUrl(activeServer, environmentVariables) || window.location.origin + window.location.pathname
       const redirectUri = new URL(typedFlow['x-scalar-secret-redirect-uri'], baseUrl).toString()
 
       url.searchParams.set('redirect_uri', redirectUri)
@@ -237,6 +245,7 @@ export const authorizeOauth2 = async (
                     proxyUrl,
                   },
                   activeServer,
+                  environmentVariables,
                 ).then(resolve)
               } else {
                 resolve([new Error('State mismatch'), null])
@@ -275,6 +284,7 @@ const authorizeServers = async (
     proxyUrl?: string
   } = {},
   activeServer: ServerObject | null,
+  environmentVariables: Record<string, string> = {},
 ): Promise<ErrorResponse<string>> => {
   const flow = flows[type]
 
@@ -342,7 +352,7 @@ const authorizeServers = async (
     }
 
     // Check if we should use the proxy
-    const tokenUrl = makeUrlAbsolute(flow.tokenUrl, getActiveServerBase(activeServer))
+    const tokenUrl = makeUrlAbsolute(flow.tokenUrl, getActiveServerBase(activeServer, environmentVariables))
     const url = shouldUseProxy(proxyUrl, tokenUrl)
       ? `${proxyUrl}?${new URLSearchParams([['scalar_url', tokenUrl]]).toString()}`
       : tokenUrl

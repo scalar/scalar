@@ -1,5 +1,11 @@
 # @scalar/openapi-types
 
+## 0.5.4
+
+### Patch Changes
+
+- [#8275](https://github.com/scalar/scalar/pull/8275): fix(openapi-types): make the `$ref` property in the `ReferenceObject` type required
+
 ## 0.5.3
 
 ### Patch Changes
