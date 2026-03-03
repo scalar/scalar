@@ -805,6 +805,23 @@ function migrateBodyParameter(
           }
         }
       }
+      // Fallback: x-examples keyed by example name instead of media type
+      // e.g. x-examples: { Request: { email: "test@example.com" } }
+      else if (isNonEmptyObject(xExamples) && !Object.keys(xExamples).some(isMediaTypeKey)) {
+        if (isNamedExamplesCollection(xExamples)) {
+          requestBodyObject.content[type].examples = Object.entries(xExamples).reduce(
+            (acc, [key, exampleValue]) => {
+              acc[key] = wrapAsExampleObject(exampleValue)
+              return acc
+            },
+            {} as Record<string, OpenAPIV3.ExampleObject>,
+          )
+        } else {
+          requestBodyObject.content[type].examples = {
+            default: wrapAsExampleObject(xExamples),
+          }
+        }
+      }
     }
   }
 
