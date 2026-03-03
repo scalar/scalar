@@ -64,8 +64,7 @@ const listboxOptions = computed((): ScalarListboxOption[] =>
   composition.value.map((schema, index: number) => {
     const resolved = resolve.schema(schema.original!)
     const label =
-      (getModelNameFromSchema(schema.original!) ?? getSchemaType(resolved)) ||
-      'Schema'
+      (getModelNameFromSchema(resolved) ?? getSchemaType(resolved)) || 'Schema'
     return { id: String(index), label }
   }),
 )
