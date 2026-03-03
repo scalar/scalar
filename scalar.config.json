@@ -552,6 +552,19 @@
     "header": [
       {
         "type": "link",
+        "title": "Home",
+        "to": "/"
+      },
+      {
+        "type": "link",
+        "title": "Agent Scalar",
+        "to": "https://agent.scalar.com"
+      },
+      {
+        "type": "spacer"
+      },
+      {
+        "type": "link",
         "title": "Log in",
         "to": "https://dashboard.scalar.com/login"
       },
