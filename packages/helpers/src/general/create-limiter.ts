@@ -1,3 +1,5 @@
+import { Queue } from '../queue/queue'
+
 /**
  * Creates a function that limits the number of concurrent executions of async functions.
  *
@@ -19,14 +21,14 @@
  */
 export function createLimiter(maxConcurrent: number) {
   let activeCount = 0
-  const queue: (() => void)[] = []
+  const queue = new Queue<() => void>()
 
   const next = () => {
-    if (queue.length === 0 || activeCount >= maxConcurrent) {
+    if (queue.isEmpty() || activeCount >= maxConcurrent) {
       return
     }
 
-    const resolve = queue.shift()
+    const resolve = queue.dequeue()
 
     if (resolve) {
       resolve()
@@ -35,7 +37,7 @@ export function createLimiter(maxConcurrent: number) {
 
   const run = async <T>(fn: () => Promise<T>): Promise<T> => {
     if (activeCount >= maxConcurrent) {
-      await new Promise<void>((resolve) => queue.push(resolve))
+      await new Promise<void>((resolve) => queue.enqueue(resolve))
     }
 
     activeCount++
