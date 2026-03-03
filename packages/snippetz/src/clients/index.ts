@@ -1,4 +1,4 @@
-import type { Target } from '@scalar/types/snippetz'
+import type { Plugin, Target } from '@scalar/types/snippetz'
 
 import { cLibcurl } from '@/plugins/c/libcurl'
 import { clojureCljhttp } from '@/plugins/clojure/clj_http'
@@ -169,4 +169,71 @@ export const clients: Target[] = [
     default: 'nsurlsession',
     clients: [swiftNsurlsession],
   },
+]
+
+/**
+ * Flat array of all plugins, ordered so the first plugin per target matches the default client.
+ * Pass this to `snippetz(allPlugins)` to load everything eagerly.
+ */
+export const allPlugins: Plugin[] = [
+  // C
+  cLibcurl,
+  // C#  (default: restsharp)
+  csharpRestsharp,
+  csharpHttpclient,
+  // Clojure
+  clojureCljhttp,
+  // Dart
+  dartHttp,
+  // F#
+  fsharpHttpclient,
+  // Go
+  goNative,
+  // HTTP
+  httpHttp11,
+  // Java (default: unirest)
+  javaUnirest,
+  javaAsynchttp,
+  javaNethttp,
+  javaOkhttp,
+  // JavaScript (default: fetch)
+  jsFetch,
+  jsAxios,
+  jsOfetch,
+  jsJquery,
+  jsXhr,
+  // Kotlin
+  kotlinOkhttp,
+  // Node.js (default: fetch)
+  nodeFetch,
+  nodeAxios,
+  nodeOfetch,
+  nodeUndici,
+  // Objective-C
+  objcNsurlsession,
+  // OCaml
+  ocamlCohttp,
+  // PHP (default: curl)
+  phpCurl,
+  phpGuzzle,
+  // PowerShell (default: webrequest)
+  powershellWebrequest,
+  powershellRestmethod,
+  // Python (default: python3)
+  pythonPython3,
+  pythonRequests,
+  pythonHttpxSync,
+  pythonHttpxAsync,
+  // R
+  rHttr,
+  // Ruby
+  rubyNative,
+  // Rust
+  rustReqwest,
+  // Shell (default: curl)
+  shellCurl,
+  shellWget,
+  shellHttpie,
+  // Swift
+  swiftNsurlsession,
 ]

@@ -7,6 +7,7 @@ import { escapeSingleQuotes } from '@/libs/shell'
  */
 export const shellCurl: Plugin = {
   target: 'shell',
+  targetTitle: 'Shell',
   client: 'curl',
   title: 'Curl',
   generate(request, configuration) {

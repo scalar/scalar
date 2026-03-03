@@ -8,6 +8,7 @@ import { Raw, objectToString } from '@/libs/javascript'
  */
 export const jsFetch: Plugin = {
   target: 'js',
+  targetTitle: 'JavaScript',
   client: 'fetch',
   title: 'Fetch',
   generate(request) {

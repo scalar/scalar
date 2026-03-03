@@ -8,6 +8,7 @@ import { convertWithHttpSnippetLite } from '@/utils/convertWithHttpSnippetLite'
  */
 export const javaAsynchttp: Plugin = {
   target: 'java',
+  targetTitle: 'Java',
   client: 'asynchttp',
   title: 'AsyncHttp',
   generate(request) {

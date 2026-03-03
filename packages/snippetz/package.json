@@ -15,12 +15,15 @@
   },
   "scripts": {
     "build": "scalar-build-esbuild",
+    "build:playground": "vite build playground",
+    "dev": "vite playground",
     "generate:dotnet-enums": "vite-node scripts/generate-dotnet-enums.ts",
     "generate:java-enums": "vite-node scripts/generate-java-enums.ts",
     "generate:markdown-docs": "vite-node scripts/generate-markdown-docs.ts",
     "lint:check": "scalar-lint-check",
     "lint:fix": "scalar-lint-fix",
     "postbuild": "pnpm generate:dotnet-enums && pnpm generate:java-enums && pnpm generate:markdown-docs",
+    "preview:playground": "vite preview playground",
     "test": "vitest",
     "types:build": "scalar-types-build",
     "types:check": "scalar-types-check"
@@ -38,6 +41,11 @@
       "import": "./dist/clients/index.js",
       "types": "./dist/clients/index.d.ts",
       "default": "./dist/clients/index.js"
+    },
+    "./clients/lazy": {
+      "import": "./dist/clients/lazy/index.js",
+      "types": "./dist/clients/lazy/index.d.ts",
+      "default": "./dist/clients/lazy/index.js"
     },
     "./plugins/c/libcurl": {
       "import": "./dist/plugins/c/libcurl/index.js",
@@ -247,6 +255,8 @@
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
     "@types/stringify-object": "^4.0.5",
-    "vite": "catalog:*"
+    "@vitejs/plugin-vue": "catalog:*",
+    "vite": "catalog:*",
+    "vue": "catalog:*"
   }
 }

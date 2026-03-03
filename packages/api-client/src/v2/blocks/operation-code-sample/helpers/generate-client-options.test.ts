@@ -1,13 +1,16 @@
 import type { XCodeSample } from '@scalar/openapi-types/schemas/extensions'
-import { AVAILABLE_CLIENTS } from '@scalar/snippetz'
+import { AVAILABLE_CLIENTS, snippetz } from '@scalar/snippetz'
+import { allPlugins } from '@scalar/snippetz/clients'
 import { describe, expect, it } from 'vitest'
 
 import { generateClientOptions, generateCustomId } from './generate-client-options'
 
+const s = snippetz(allPlugins)
+
 describe('generateClientOptions', () => {
   describe('with all clients allowed', () => {
     it('returns all available clients grouped by target', () => {
-      const result = generateClientOptions(AVAILABLE_CLIENTS)
+      const result = generateClientOptions(s, AVAILABLE_CLIENTS)
 
       expect(result).toHaveLength(21)
       expect(result.map((group) => group.label)).toEqual([
@@ -36,7 +39,7 @@ describe('generateClientOptions', () => {
     })
 
     it('structures each group correctly', () => {
-      const result = generateClientOptions(AVAILABLE_CLIENTS)
+      const result = generateClientOptions(s, AVAILABLE_CLIENTS)
 
       expect(result[0]).toEqual({
         label: 'C',
@@ -55,7 +58,7 @@ describe('generateClientOptions', () => {
     })
 
     it('returns 39 total client options', () => {
-      const result = generateClientOptions(AVAILABLE_CLIENTS)
+      const result = generateClientOptions(s, AVAILABLE_CLIENTS)
       const allOptions = result.flatMap((group) => group.options)
 
       expect(allOptions).toHaveLength(39)
@@ -64,7 +67,7 @@ describe('generateClientOptions', () => {
 
   describe('with subset of clients allowed', () => {
     it('includes only allowed clients', () => {
-      const result = generateClientOptions(['js/fetch', 'js/axios', 'node/fetch', 'python/requests'])
+      const result = generateClientOptions(s, ['js/fetch', 'js/axios', 'node/fetch', 'python/requests'])
 
       expect(result).toHaveLength(3)
       expect(result.map((group) => group.label)).toEqual(['JavaScript', 'Node.js', 'Python'])
@@ -83,7 +86,7 @@ describe('generateClientOptions', () => {
     })
 
     it('excludes clients not in the allowed list', () => {
-      const result = generateClientOptions(['js/fetch', 'js/axios'])
+      const result = generateClientOptions(s, ['js/fetch', 'js/axios'])
 
       const jsGroup = result.find((group) => group.label === 'JavaScript')
       const clientIds = jsGroup?.options.map((option) => option.id) ?? []
@@ -94,7 +97,7 @@ describe('generateClientOptions', () => {
     })
 
     it('filters out groups with no allowed clients', () => {
-      const result = generateClientOptions(['js/fetch', 'python/requests'])
+      const result = generateClientOptions(s, ['js/fetch', 'python/requests'])
 
       expect(result.map((group) => group.label)).not.toContain('Node.js')
       expect(result.map((group) => group.label)).not.toContain('Ruby')
@@ -104,7 +107,7 @@ describe('generateClientOptions', () => {
 
   describe('with empty allowed list', () => {
     it('returns empty array', () => {
-      const result = generateClientOptions([])
+      const result = generateClientOptions(s, [])
 
       expect(result).toEqual([])
     })
@@ -112,7 +115,7 @@ describe('generateClientOptions', () => {
 
   describe('curl special handling', () => {
     it('sets lang to "curl" for curl client', () => {
-      const result = generateClientOptions(['shell/curl'])
+      const result = generateClientOptions(s, ['shell/curl'])
 
       const shellGroup = result.find((group) => group.label === 'Shell')
       const curlOption = shellGroup?.options.find((option) => option.id === 'shell/curl')
@@ -121,7 +124,7 @@ describe('generateClientOptions', () => {
     })
 
     it('sets lang to group key for non-curl clients', () => {
-      const result = generateClientOptions(['js/fetch'])
+      const result = generateClientOptions(s, ['js/fetch'])
 
       const jsGroup = result.find((group) => group.label === 'JavaScript')
       const fetchOption = jsGroup?.options.find((option) => option.id === 'js/fetch')
@@ -130,7 +133,7 @@ describe('generateClientOptions', () => {
     })
 
     it('sets lang to group key for other shell clients', () => {
-      const result = generateClientOptions(['shell/httpie', 'shell/wget'])
+      const result = generateClientOptions(s, ['shell/httpie', 'shell/wget'])
 
       const shellGroup = result.find((group) => group.label === 'Shell')
       const httpieOption = shellGroup?.options.find((option) => option.id === 'shell/httpie')
@@ -143,7 +146,7 @@ describe('generateClientOptions', () => {
 
   describe('option structure', () => {
     it('includes all required fields for each option', () => {
-      const result = generateClientOptions(['js/fetch'])
+      const result = generateClientOptions(s, ['js/fetch'])
 
       const jsGroup = result[0]
       expect(jsGroup).toBeDefined()
@@ -159,7 +162,7 @@ describe('generateClientOptions', () => {
     })
 
     it('formats titles correctly', () => {
-      const result = generateClientOptions(['js/fetch', 'python/requests', 'node/axios'])
+      const result = generateClientOptions(s, ['js/fetch', 'python/requests', 'node/axios'])
 
       const allOptions = result.flatMap((group) => group.options)
 
@@ -171,7 +174,7 @@ describe('generateClientOptions', () => {
 
   describe('multiple clients from same target', () => {
     it('groups multiple JavaScript clients together', () => {
-      const result = generateClientOptions(['js/fetch', 'js/axios', 'js/ofetch'])
+      const result = generateClientOptions(s, ['js/fetch', 'js/axios', 'js/ofetch'])
 
       expect(result).toHaveLength(1)
       const jsGroup = result[0]
@@ -182,7 +185,7 @@ describe('generateClientOptions', () => {
     })
 
     it('groups multiple Node.js clients together', () => {
-      const result = generateClientOptions(['node/fetch', 'node/axios', 'node/undici', 'node/ofetch'])
+      const result = generateClientOptions(s, ['node/fetch', 'node/axios', 'node/undici', 'node/ofetch'])
 
       expect(result).toHaveLength(1)
       const nodeGroup = result[0]
@@ -194,7 +197,7 @@ describe('generateClientOptions', () => {
 
   describe('edge cases', () => {
     it('handles single client', () => {
-      const result = generateClientOptions(['js/fetch'])
+      const result = generateClientOptions(s, ['js/fetch'])
 
       expect(result).toHaveLength(1)
       const group = result[0]
@@ -203,7 +206,7 @@ describe('generateClientOptions', () => {
     })
 
     it('handles clients from many different targets', () => {
-      const result = generateClientOptions([
+      const result = generateClientOptions(s, [
         'c/libcurl',
         'go/native',
         'java/unirest',
@@ -217,8 +220,8 @@ describe('generateClientOptions', () => {
     })
 
     it('maintains consistent ordering', () => {
-      const result1 = generateClientOptions(['python/requests', 'js/fetch', 'node/axios'])
-      const result2 = generateClientOptions(['node/axios', 'js/fetch', 'python/requests'])
+      const result1 = generateClientOptions(s, ['python/requests', 'js/fetch', 'node/axios'])
+      const result2 = generateClientOptions(s, ['node/axios', 'js/fetch', 'python/requests'])
 
       expect(result1.map((g) => g.label)).toEqual(result2.map((g) => g.label))
     })

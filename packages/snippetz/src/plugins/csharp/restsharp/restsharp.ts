@@ -8,6 +8,7 @@ import { convertWithHttpSnippetLite } from '@/utils/convertWithHttpSnippetLite'
  */
 export const csharpRestsharp: Plugin = {
   target: 'csharp',
+  targetTitle: 'C#',
   client: 'restsharp',
   title: 'RestSharp',
   generate(request) {

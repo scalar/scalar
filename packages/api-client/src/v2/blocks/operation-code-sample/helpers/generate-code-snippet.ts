@@ -1,5 +1,5 @@
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
-import type { AvailableClient, ClientId, TargetId } from '@scalar/snippetz'
+import type { AvailableClient, ClientId, Snippetz, TargetId } from '@scalar/snippetz'
 import type { XScalarCookie } from '@scalar/workspace-store/schemas/extensions/general/x-scalar-cookies'
 import type { XCodeSample } from '@scalar/workspace-store/schemas/extensions/operation'
 import type { OperationObject, ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
@@ -11,6 +11,8 @@ import { getSnippet } from '@/views/Components/CodeSnippet/helpers/get-snippet'
 import { type CustomCodeSampleId, generateCustomId } from './generate-client-options'
 
 type GenerateCodeSnippetProps = {
+  /** The configured snippetz instance to use for code generation. */
+  snippetzInstance: Snippetz
   /** The selected client/language for code generation (e.g., 'node/fetch') or a custom code sample ID. */
   clientId: AvailableClient | CustomCodeSampleId | undefined
   /** The Content-Type header value for the request body (e.g., 'application/json'). */
@@ -36,7 +38,8 @@ type GenerateCodeSnippetProps = {
 }
 
 /** Generate the code snippet for the selected example OR operation */
-export const generateCodeSnippet = ({
+export const generateCodeSnippet = async ({
+  snippetzInstance,
   clientId,
   customCodeSamples,
   includeDefaultHeaders = false,
@@ -48,7 +51,7 @@ export const generateCodeSnippet = ({
   server,
   securitySchemes,
   globalCookies,
-}: GenerateCodeSnippetProps): string => {
+}: GenerateCodeSnippetProps): Promise<string> => {
   try {
     if (!clientId) {
       return ''
@@ -76,7 +79,7 @@ export const generateCodeSnippet = ({
 
     const [targetKey, clientKey] = clientId.split('/') as [TargetId, ClientId<TargetId>]
 
-    const [error, payload] = getSnippet(targetKey, clientKey, harRequest)
+    const [error, payload] = await getSnippet(snippetzInstance, targetKey, clientKey, harRequest)
     if (error) {
       console.error('[generateCodeSnippet]', error)
       return error.message ?? 'Error generating code snippet'

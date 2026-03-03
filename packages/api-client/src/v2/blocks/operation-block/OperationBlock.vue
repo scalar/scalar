@@ -104,6 +104,7 @@ import ViewLayout from '@/components/ViewLayout/ViewLayout.vue'
 import ViewLayoutContent from '@/components/ViewLayout/ViewLayoutContent.vue'
 import type { ClientLayout } from '@/hooks'
 import { ERRORS } from '@/libs/errors'
+import { snippetzInstance } from '@/libs/snippetz-instance'
 import { buildRequest } from '@/v2/blocks/operation-block/helpers/build-request'
 import { getSecuritySchemes } from '@/v2/blocks/operation-block/helpers/build-request-security'
 import { harToFetchRequest } from '@/v2/blocks/operation-block/helpers/har-to-fetch-request'
@@ -148,7 +149,9 @@ const {
 } = defineProps<OperationBlockProps>()
 
 /** Hoist up client generation so it doesn't get re-generated on every operation */
-const clientOptions = computed(() => generateClientOptions(httpClients))
+const clientOptions = computed(() =>
+  generateClientOptions(snippetzInstance, httpClients),
+)
 
 /** Compute what the security requirements should be for an operation */
 const securityRequirements = computed(() =>

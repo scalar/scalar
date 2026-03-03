@@ -1,10 +1,12 @@
 import { describe, expect, it } from 'vitest'
 
+import { allPlugins } from './clients'
+import { allPlugins as lazyPlugins } from './clients/lazy'
 import { snippetz } from './snippetz'
 
 describe('snippetz', () => {
-  it('returns code for undici', () => {
-    const snippet = snippetz().print('node', 'undici', {
+  it('generates code for undici with all plugins', async () => {
+    const snippet = await snippetz(allPlugins).print('node', 'undici', {
       url: 'https://example.com',
     })
 
@@ -15,8 +17,33 @@ describe('snippetz', () => {
     `)
   })
 
-  it('loads some clients by default', () => {
-    expect(snippetz().clients()).toEqual(
+  it('generates code with a subset of plugins', async () => {
+    const { shellCurl } = await import('./plugins/shell/curl')
+    const { nodeUndici } = await import('./plugins/node/undici')
+
+    const s = snippetz([shellCurl, nodeUndici])
+
+    const snippet = await s.print('shell', 'curl', {
+      url: 'https://example.com',
+    })
+
+    expect(snippet).toContain('curl')
+    expect(snippet).toContain('https://example.com')
+  })
+
+  it('returns undefined for unregistered plugins', async () => {
+    const { shellCurl } = await import('./plugins/shell/curl')
+    const s = snippetz([shellCurl])
+
+    const result = await s.print('node', 'undici', {
+      url: 'https://example.com',
+    })
+
+    expect(result).toBeUndefined()
+  })
+
+  it('builds clients list from registered plugins', () => {
+    expect(snippetz(allPlugins).clients()).toEqual(
       expect.arrayContaining([
         {
           key: 'node',
@@ -50,11 +77,21 @@ describe('snippetz', () => {
       ]),
     )
   })
+
+  it('only shows registered plugins in clients()', async () => {
+    const { shellCurl } = await import('./plugins/shell/curl')
+    const s = snippetz([shellCurl])
+
+    const targets = s.clients()
+    expect(targets).toHaveLength(1)
+    expect(targets[0]?.key).toBe('shell')
+    expect(targets[0]?.clients).toHaveLength(1)
+  })
 })
 
 describe('plugins', () => {
-  it('returns true if it has the plugin', () => {
-    const result = snippetz().plugins()
+  it('returns all registered plugin identifiers', () => {
+    const result = snippetz(allPlugins).plugins()
 
     expect(result).toEqual(
       expect.arrayContaining([
@@ -77,14 +114,36 @@ describe('plugins', () => {
 
 describe('hasPlugin', () => {
   it('returns true if it has the plugin', () => {
-    const result = snippetz().hasPlugin('node', 'undici')
+    const result = snippetz(allPlugins).hasPlugin('node', 'undici')
 
     expect(result).toBe(true)
   })
 
-  it("returns false if it doesn't know the plugin", () => {
-    const result = snippetz().hasPlugin('node', 'fantasy')
+  it('returns false if it does not know the plugin', () => {
+    const result = snippetz(allPlugins).hasPlugin('node', 'fantasy')
 
     expect(result).toBe(false)
+  })
+})
+
+describe('lazy plugins', () => {
+  it('generates code on demand via lazy plugins', async () => {
+    const s = snippetz(lazyPlugins)
+
+    const snippet = await s.print('shell', 'curl', {
+      url: 'https://example.com',
+    })
+
+    expect(snippet).toContain('curl')
+    expect(snippet).toContain('https://example.com')
+  })
+
+  it('provides clients metadata immediately', () => {
+    const s = snippetz(lazyPlugins)
+    const targets = s.clients()
+
+    expect(targets.length).toBeGreaterThan(0)
+    expect(targets.find((t) => t.key === 'shell')).toBeDefined()
+    expect(targets.find((t) => t.key === 'node')).toBeDefined()
   })
 })

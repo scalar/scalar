@@ -8,6 +8,7 @@ import { createSearchParams } from '@/libs/http'
  */
 export const csharpHttpclient: Plugin = {
   target: 'csharp',
+  targetTitle: 'C#',
   client: 'httpclient',
   title: 'HttpClient',
   generate(request, configuration) {

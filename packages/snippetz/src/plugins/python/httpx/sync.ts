@@ -7,6 +7,7 @@ import { requestsLikeGenerate } from '@/plugins/python/requestsLike'
  */
 export const pythonHttpxSync: Plugin = {
   target: 'python',
+  targetTitle: 'Python',
   client: 'httpx_sync',
   title: 'HTTPX (Sync)',
   generate(request, configuration) {

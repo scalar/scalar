@@ -7,8 +7,9 @@ import {
 } from '@scalar/components'
 import { ScalarIconCaretDown } from '@scalar/icons'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
-import { computed, ref, watch } from 'vue'
+import { computed, ref, watch, watchEffect } from 'vue'
 
+import { snippetzInstance } from '@/libs/snippetz-instance'
 import {
   findClient,
   type ClientOption,
@@ -78,8 +79,11 @@ const handleClientChange = (option: ClientOption | undefined) => {
 }
 
 /** Generate the code snippet for the selected example */
-const generatedCode = computed<string>(() =>
-  generateCodeSnippet({
+const generatedCode = ref('')
+
+watchEffect(async () => {
+  generatedCode.value = await generateCodeSnippet({
+    snippetzInstance,
     clientId: localSelectedClient.value?.id,
     customCodeSamples: customCodeSamples.value,
     operation,
@@ -91,8 +95,8 @@ const generatedCode = computed<string>(() =>
     example: selectedExample,
     globalCookies,
     includeDefaultHeaders: integration === 'client',
-  }),
-)
+  })
+})
 
 /** Check if there are any clients available (built-in or custom code samples) */
 const hasClients = computed(() =>

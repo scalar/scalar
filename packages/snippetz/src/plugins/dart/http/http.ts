@@ -5,6 +5,7 @@ import type { Plugin } from '@scalar/types/snippetz'
  */
 export const dartHttp: Plugin = {
   target: 'dart',
+  targetTitle: 'Dart',
   client: 'http',
   title: 'Http',
   generate(request, options?: { auth?: { username: string; password: string } }) {

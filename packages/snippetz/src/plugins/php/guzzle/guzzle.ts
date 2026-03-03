@@ -7,6 +7,7 @@ import { Raw, objectToString } from '@/libs/php'
  */
 export const phpGuzzle: Plugin = {
   target: 'php',
+  targetTitle: 'PHP',
   client: 'guzzle',
   title: 'Guzzle',
   generate(request, configuration) {

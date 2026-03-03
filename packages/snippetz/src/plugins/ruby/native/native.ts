@@ -8,6 +8,7 @@ import { convertWithHttpSnippetLite } from '@/utils/convertWithHttpSnippetLite'
  */
 export const rubyNative: Plugin = {
   target: 'ruby',
+  targetTitle: 'Ruby',
   client: 'native',
   title: 'net::http',
   generate(request) {

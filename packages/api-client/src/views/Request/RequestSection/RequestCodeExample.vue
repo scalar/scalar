@@ -14,13 +14,14 @@ import type {
   Server,
 } from '@scalar/oas-utils/entities/spec'
 import type { Workspace } from '@scalar/oas-utils/entities/workspace'
-import { snippetz, type ClientId, type TargetId } from '@scalar/snippetz'
+import type { ClientId, TargetId } from '@scalar/snippetz'
 import { computed, ref } from 'vue'
 
 import DataTable from '@/components/DataTable/DataTable.vue'
 import DataTableRow from '@/components/DataTable/DataTableRow.vue'
 import ViewLayoutCollapse from '@/components/ViewLayout/ViewLayoutCollapse.vue'
 import type { EnvVariables } from '@/libs/env-helpers'
+import { snippetzInstance } from '@/libs/snippetz-instance'
 import { useWorkspace } from '@/store'
 import { CodeSnippet } from '@/views/Components/CodeSnippet'
 
@@ -97,18 +98,16 @@ const snippets = computed(() => {
   const dict: Record<string, string> = {}
 
   // Get the built-in snippets
-  const builtInOptions = snippetz()
-    .clients()
-    .map((group) => ({
-      label: group.title,
-      options: group.clients.map((plugin) => {
-        dict[`${group.key},${plugin.client}`] = plugin.title
-        return {
-          id: `${group.key},${plugin.client}`,
-          label: plugin.title,
-        }
-      }),
-    }))
+  const builtInOptions = snippetzInstance.clients().map((group) => ({
+    label: group.title,
+    options: group.clients.map((plugin) => {
+      dict[`${group.key},${plugin.client}`] = plugin.title
+      return {
+        id: `${group.key},${plugin.client}`,
+        label: plugin.title,
+      }
+    }),
+  }))
 
   // Get any custom code samples from x-codeSamples
   const customExamples = (

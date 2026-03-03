@@ -7,12 +7,15 @@ import {
   securitySchemeSchema,
   serverSchema,
 } from '@scalar/oas-utils/entities/spec'
-import { AVAILABLE_CLIENTS, type ClientId, type TargetId } from '@scalar/snippetz'
+import { AVAILABLE_CLIENTS, type ClientId, type TargetId, snippetz } from '@scalar/snippetz'
+import { allPlugins } from '@scalar/snippetz/clients'
 import { describe, expect, it } from 'vitest'
 
 import { getHarRequest } from '@/views/Components/CodeSnippet/helpers/get-har-request'
 
 import { getSnippet } from './get-snippet'
+
+const s = snippetz(allPlugins)
 
 describe('getSnippet', () => {
   // Helper functions to create fresh instances
@@ -48,8 +51,9 @@ describe('getSnippet', () => {
       ...overrides,
     })
 
-  it('generates a basic shell/curl example (httpsnippet-lite)', () => {
-    const [error, result] = getSnippet(
+  it('generates a basic shell/curl example (httpsnippet-lite)', async () => {
+    const [error, result] = await getSnippet(
+      s,
       'shell',
       'curl',
       getHarRequest({
@@ -63,8 +67,9 @@ describe('getSnippet', () => {
     expect(result).toEqual('curl https://example.com/users')
   })
 
-  it('generates a basic node/undici example (@scalar/snippetz)', () => {
-    const [error, result] = getSnippet(
+  it('generates a basic node/undici example (@scalar/snippetz)', async () => {
+    const [error, result] = await getSnippet(
+      s,
       'node',
       'undici',
       getHarRequest({
@@ -82,8 +87,9 @@ describe('getSnippet', () => {
     `)
   })
 
-  it('generates a basic javascript/jquery example (httpsnippet-lite)', () => {
-    const [error, result] = getSnippet(
+  it('generates a basic javascript/jquery example (httpsnippet-lite)', async () => {
+    const [error, result] = await getSnippet(
+      s,
       'javascript',
       'jquery',
       getHarRequest({
@@ -109,8 +115,9 @@ describe('getSnippet', () => {
     `)
   })
 
-  it('returns an empty string if passed rubbish', () => {
-    const [error, result] = getSnippet(
+  it('returns an empty string if passed rubbish', async () => {
+    const [error, result] = await getSnippet(
+      s,
       'javascript',
       'invalid-client' as any,
       getHarRequest({
@@ -124,7 +131,7 @@ describe('getSnippet', () => {
     expect(result).toBeNull()
   })
 
-  it('shows the original path before variable replacement', () => {
+  it('shows the original path before variable replacement', async () => {
     const server = createServer({
       url: '{protocol}://void.scalar.com/{path}',
       description: 'Responds with your request data',
@@ -139,7 +146,8 @@ describe('getSnippet', () => {
       },
     })
 
-    const [error, result] = getSnippet(
+    const [error, result] = await getSnippet(
+      s,
       'javascript',
       'fetch',
       getHarRequest({
@@ -153,7 +161,7 @@ describe('getSnippet', () => {
     expect(result).toEqual(`fetch('https://void.scalar.com/{path}/users')`)
   })
 
-  it('should show the accept header if its not */*', () => {
+  it('should show the accept header if its not */*', async () => {
     const example = createExample()
     example.parameters.headers.push({
       key: 'Accept',
@@ -161,7 +169,8 @@ describe('getSnippet', () => {
       enabled: true,
     })
 
-    const [error, result] = getSnippet(
+    const [error, result] = await getSnippet(
+      s,
       'javascript',
       'fetch',
       getHarRequest({
@@ -188,6 +197,7 @@ describe('getSnippet', () => {
     })
 
     const [error, result] = await getSnippet(
+      s,
       'javascript',
       'fetch',
       getHarRequest({
@@ -205,7 +215,7 @@ describe('getSnippet', () => {
 })`)
   })
 
-  it('should show the headers', () => {
+  it('should show the headers', async () => {
     const example = createExample()
     example.parameters.headers.push({
       key: 'x-scalar-token',
@@ -213,7 +223,8 @@ describe('getSnippet', () => {
       enabled: true,
     })
 
-    const [error, result] = getSnippet(
+    const [error, result] = await getSnippet(
+      s,
       'javascript',
       'fetch',
       getHarRequest({
@@ -231,7 +242,7 @@ describe('getSnippet', () => {
 })`)
   })
 
-  it('should show the query parameters', () => {
+  it('should show the query parameters', async () => {
     const example = createExample()
     example.parameters.query.push({
       key: 'query-param',
@@ -239,7 +250,8 @@ describe('getSnippet', () => {
       enabled: true,
     })
 
-    const [error, result] = getSnippet(
+    const [error, result] = await getSnippet(
+      s,
       'javascript',
       'fetch',
       getHarRequest({
@@ -253,8 +265,9 @@ describe('getSnippet', () => {
     expect(result).toEqual(`fetch('https://example.com/users?query-param=query-value')`)
   })
 
-  it('should show the security headers, cookies and query', () => {
-    const [error, result] = getSnippet(
+  it('should show the security headers, cookies and query', async () => {
+    const [error, result] = await getSnippet(
+      s,
       'javascript',
       'fetch',
       getHarRequest({
@@ -301,8 +314,9 @@ describe('getSnippet', () => {
     `)
   })
 
-  it('should include the invalid url', () => {
-    const [error, result] = getSnippet(
+  it('should include the invalid url', async () => {
+    const [error, result] = await getSnippet(
+      s,
       'c',
       'libcurl',
       getHarRequest({
@@ -324,10 +338,11 @@ describe('getSnippet', () => {
 
   describe('it should generate a snipped without a proper URL for every client', () => {
     AVAILABLE_CLIENTS.forEach((id) => {
-      it(id, () => {
+      it(id, async () => {
         const operation = createOperation({ path: '/super-secret-path' })
         const [target, client] = id.split('/') as [TargetId, ClientId<TargetId>]
-        const [error, result] = getSnippet(
+        const [error, result] = await getSnippet(
+          s,
           target,
           client,
           getHarRequest({

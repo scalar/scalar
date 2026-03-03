@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "jsx": "preserve",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "paths": {
+      "@scalar/snippetz": ["../src/index.ts"],
+      "@scalar/snippetz/clients": ["../src/clients/index.ts"],
+      "@scalar/snippetz/clients/lazy": ["../src/clients/lazy/index.ts"]
+    }
+  },
+  "include": ["src/**/*.ts", "src/**/*.vue"]
+}

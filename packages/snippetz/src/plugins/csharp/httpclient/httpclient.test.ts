@@ -318,8 +318,8 @@ request.Content = content;
 using var response = await client.SendAsync(request);`)
   })
 
-  it('handles duplicate headers by keeping the last value', () => {
-    const result = csharpHttpclient.generate({
+  it('handles duplicate headers by keeping the last value', async () => {
+    const result = await csharpHttpclient.generate({
       url: 'https://example.com',
       headers: [
         { name: 'X-Custom', value: 'value1' },

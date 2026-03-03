@@ -8,6 +8,7 @@ import { Raw, objectToString } from '@/libs/javascript'
  */
 export const nodeUndici: Plugin = {
   target: 'node',
+  targetTitle: 'Node.js',
   client: 'undici',
   title: 'undici',
   generate(request) {

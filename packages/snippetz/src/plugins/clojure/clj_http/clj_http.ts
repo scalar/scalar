@@ -8,6 +8,7 @@ import { convertWithHttpSnippetLite } from '@/utils/convertWithHttpSnippetLite'
  */
 export const clojureCljhttp: Plugin = {
   target: 'clojure',
+  targetTitle: 'Clojure',
   client: 'clj_http',
   title: 'clj-http',
   generate(request) {

@@ -8,6 +8,7 @@ import { convertWithHttpSnippetLite } from '@/utils/convertWithHttpSnippetLite'
  */
 export const cLibcurl: Plugin = {
   target: 'c',
+  targetTitle: 'C',
   client: 'libcurl',
   title: 'Libcurl',
   generate(request) {

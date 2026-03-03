@@ -7,6 +7,7 @@ import { requestsLikeGenerate } from '@/plugins/python/requestsLike'
  */
 export const pythonHttpxAsync: Plugin = {
   target: 'python',
+  targetTitle: 'Python',
   client: 'httpx_async',
   title: 'HTTPX (Async)',
   generate(request, configuration) {

@@ -8,6 +8,7 @@ import { convertWithHttpSnippetLite } from '@/utils/convertWithHttpSnippetLite'
  */
 export const jsXhr: Plugin = {
   target: 'js',
+  targetTitle: 'JavaScript',
   client: 'xhr',
   title: 'XHR',
   generate(request) {

@@ -7,6 +7,7 @@ import { requestsLikeGenerate } from '@/plugins/python/requestsLike'
  */
 export const pythonRequests: Plugin = {
   target: 'python',
+  targetTitle: 'Python',
   client: 'requests',
   title: 'Requests',
   generate(request, configuration) {

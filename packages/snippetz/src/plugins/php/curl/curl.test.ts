@@ -575,8 +575,8 @@ curl_exec($ch);
 curl_close($ch);`)
   })
 
-  it('does not duplicate CURLOPT_HTTPHEADER when headers and form-urlencoded body both set Content-Type', () => {
-    const result = phpCurl.generate({
+  it('does not duplicate CURLOPT_HTTPHEADER when headers and form-urlencoded body both set Content-Type', async () => {
+    const result = await phpCurl.generate({
       url: 'https://example.com/register',
       method: 'POST',
       headers: [
@@ -610,8 +610,8 @@ curl_exec($ch);
 curl_close($ch);`)
   })
 
-  it('does not duplicate CURLOPT_HTTPHEADER with custom headers and form-urlencoded body', () => {
-    const result = phpCurl.generate({
+  it('does not duplicate CURLOPT_HTTPHEADER with custom headers and form-urlencoded body', async () => {
+    const result = await phpCurl.generate({
       url: 'https://example.com',
       method: 'POST',
       headers: [
