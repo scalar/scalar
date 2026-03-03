@@ -92,7 +92,7 @@ on:
   pull_request:
     branches:
       - main
-a
+
 jobs:
   validate:
     runs-on: ubuntu-latest
