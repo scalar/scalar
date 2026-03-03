@@ -773,7 +773,7 @@ describe('ExampleResponses', () => {
               },
             },
           },
-          'x-internal': {
+          metadata: {
             description: 'Internal metadata',
           },
         },
@@ -783,6 +783,6 @@ describe('ExampleResponses', () => {
     const tabs = wrapper.findAllComponents({ name: 'ExampleResponseTab' })
     expect(tabs.length).toBe(1)
     expect(tabs[0]?.text()).toContain('200')
-    expect(wrapper.text()).not.toContain('x-internal')
+    expect(wrapper.text()).not.toContain('metadata')
   })
 })
