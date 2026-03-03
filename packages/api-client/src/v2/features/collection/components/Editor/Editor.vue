@@ -241,6 +241,13 @@ onBeforeUnmount(() => {
 
 watch(() => documentSlug, loadDocumentIntoEditor)
 
+watch(
+  () => [path, method] as const,
+  async () => {
+    await focusOperation()
+  },
+)
+
 watch(isDiagnosticsPaneExpanded, () => {
   syncEditorBottomPadding()
 })
