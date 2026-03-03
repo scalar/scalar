@@ -1,5 +1,19 @@
 # @scalar/components
 
+## 0.19.15
+
+### Patch Changes
+
+- [#8319](https://github.com/scalar/scalar/pull/8319): fix(components): fix adjust sidebar section line height
+
+#### Updated Dependencies
+
+- **@scalar/oas-utils@0.8.3**
+  - [#8314](https://github.com/scalar/scalar/pull/8314): chore: limit concurrent operations while migrating workspaces
+
+- **@scalar/helpers@0.2.18**
+  - [#8314](https://github.com/scalar/scalar/pull/8314): chore: limit concurrent operations while migrating workspaces
+
 ## 0.19.14
 
 ### Patch Changes

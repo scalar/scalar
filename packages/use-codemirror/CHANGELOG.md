@@ -1,5 +1,14 @@
 # @scalar/use-codemirror
 
+## 0.13.50
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/components@0.19.15**
+  - [#8319](https://github.com/scalar/scalar/pull/8319): fix(components): fix adjust sidebar section line height
+
 ## 0.13.49
 
 ### Patch Changes

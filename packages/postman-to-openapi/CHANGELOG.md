@@ -1,5 +1,17 @@
 # @scalar/postman-to-openapi
 
+## 0.4.10
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/openapi-types@0.5.4**
+  - [#8275](https://github.com/scalar/scalar/pull/8275): fix(openapi-types): make the `$ref` property in the `ReferenceObject` type required
+
+- **@scalar/helpers@0.2.18**
+  - [#8314](https://github.com/scalar/scalar/pull/8314): chore: limit concurrent operations while migrating workspaces
+
 ## 0.4.9
 
 ### Patch Changes

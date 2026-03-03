@@ -1,5 +1,14 @@
 # @scalar/void-server
 
+## 2.3.11
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/helpers@0.2.18**
+  - [#8314](https://github.com/scalar/scalar/pull/8314): chore: limit concurrent operations while migrating workspaces
+
 ## 2.3.10
 
 ### Patch Changes
