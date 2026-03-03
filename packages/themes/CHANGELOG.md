@@ -1,5 +1,11 @@
 # @scalar/themes
 
+## 0.14.3
+
+### Patch Changes
+
+- [#8315](https://github.com/scalar/scalar/pull/8315): feat(theme): standardize tailwind line height behavior
+
 ## 0.14.2
 
 ### Patch Changes
