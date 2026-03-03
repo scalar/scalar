@@ -1,5 +1,11 @@
 # @scalar/api-reference
 
+## 1.46.4
+
+### Patch Changes
+
+- [#8330](https://github.com/scalar/scalar/pull/8330): fix: use ref name only as a fallback
+
 ## 1.46.3
 
 ### Patch Changes

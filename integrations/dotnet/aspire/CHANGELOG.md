@@ -1,5 +1,14 @@
 # @scalar/aspire
 
+## 0.8.63
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.46.4**
+  - [#8330](https://github.com/scalar/scalar/pull/8330): fix: use ref name only as a fallback
+
 ## 0.8.62
 
 ### Patch Changes

@@ -1,5 +1,14 @@
 # @scalar/aspnetcore
 
+## 2.12.54
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.46.4**
+  - [#8330](https://github.com/scalar/scalar/pull/8330): fix: use ref name only as a fallback
+
 ## 2.12.53
 
 ### Patch Changes
