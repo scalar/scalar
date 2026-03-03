@@ -59,14 +59,14 @@ The `navigation.header` array defines links that appear in the top navigation ba
 
 ### Properties
 
-| Property | Type                 | Required | Description                           |
-| -------- | -------------------- | -------- | ------------------------------------- |
-| `title`  | `string`             | Yes      | The display text for the header link  |
-| `type`   | `"link"`             | Yes      | Must be `"link"`                      |
+| Property | Type                 | Required | Description                              |
+| -------- | -------------------- | -------- | ---------------------------------------- |
+| `title`  | `string`             | Yes      | The display text for the header link     |
+| `type`   | `"link"`             | Yes      | Must be `"link"`                         |
 | `to`     | `string`             | Yes      | The route path or URL the link points to |
-| `style`  | `"button" \| "link"` | No       | Display style (defaults to `"link"`)  |
-| `icon`   | `string`             | No       | An icon to display next to the link   |
-| `newTab` | `boolean`            | No       | Whether to open the link in a new tab |
+| `style`  | `"button" \| "link"` | No       | Display style (defaults to `"link"`)     |
+| `icon`   | `string`             | No       | An icon to display next to the link      |
+| `newTab` | `boolean`            | No       | Whether to open the link in a new tab    |
 
 ## Sidebar
 
