@@ -822,12 +822,14 @@ eventBus.on('toggle:nav-item', ({ id, open }) => {
   if (open) {
     mergedConfig.value.onShowMore?.(id)
 
-    // Pre-queue first children so they render immediately when the tag expands
+    // Pre-queue first child so it renders immediately when the tag expands
     const entry = sidebarState.getEntryById(id)
     if (entry && 'children' in entry && entry.children) {
-      entry.children
-        .slice(0, 3)
-        .forEach((child) => addToPriorityQueue(child.id))
+      const first = entry.children[0]
+
+      if (first) {
+        addToPriorityQueue(first.id)
+      }
     }
   }
   sidebarState.setExpanded(id, open ?? !sidebarState.isExpanded(id))
