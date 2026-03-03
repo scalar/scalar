@@ -68,6 +68,7 @@ import { downloadDocument } from '@/helpers/download'
 import { getIdFromUrl, makeUrlFromId } from '@/helpers/id-routing'
 import {
   scrollToLazy as _scrollToLazy,
+  addToPriorityQueue,
   blockIntersection,
   intersectionEnabled,
 } from '@/helpers/lazy-bus'
@@ -820,6 +821,14 @@ eventBus.on('intersecting:nav-item', ({ id }) => {
 eventBus.on('toggle:nav-item', ({ id, open }) => {
   if (open) {
     mergedConfig.value.onShowMore?.(id)
+
+    // Pre-queue first children so they render immediately when the tag expands
+    const entry = sidebarState.getEntryById(id)
+    if (entry && 'children' in entry && entry.children) {
+      entry.children
+        .slice(0, 3)
+        .forEach((child) => addToPriorityQueue(child.id))
+    }
   }
   sidebarState.setExpanded(id, open ?? !sidebarState.isExpanded(id))
 })

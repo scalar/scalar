@@ -138,7 +138,7 @@ const addToPendingQueue = (id: string | undefined) => {
  * We allow adding items already in readyQueue so that callbacks are still triggered,
  * but processQueue will skip actual re-rendering for items already ready.
  */
-const addToPriorityQueue = (id: string | undefined) => {
+export const addToPriorityQueue = (id: string | undefined) => {
   if (id && !priorityQueue.has(id)) {
     priorityQueue.add(id)
   }
