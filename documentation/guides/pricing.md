@@ -516,31 +516,31 @@
               <div class="pricing-table-column"><scalar-icon src="phosphor/bold/check"></scalar-icon></div>
             </div>
             <div class="pricing-table-row">
-              <div class="pricing-table-column">Agent Web – Tokens included</div>
+              <div class="pricing-table-column">Agent Web: Tokens included</div>
               <div class="pricing-table-column"></div>
               <div class="pricing-table-column">2,000,000</div>
               <div class="pricing-table-column">2,000,000</div>
             </div>
             <div class="pricing-table-row">
-              <div class="pricing-table-column">Agent Web – Additional input tokens</div>
+              <div class="pricing-table-column">Agent Web: Additional input tokens</div>
               <div class="pricing-table-column"></div>
               <div class="pricing-table-column">$2/M</div>
               <div class="pricing-table-column">$2/M</div>
             </div>
             <div class="pricing-table-row">
-              <div class="pricing-table-column">Agent Web – Additional output tokens</div>
+              <div class="pricing-table-column">Agent Web: Additional output tokens</div>
               <div class="pricing-table-column"></div>
               <div class="pricing-table-column">$10/M</div>
               <div class="pricing-table-column">$10/M</div>
             </div>
             <div class="pricing-table-row">
-              <div class="pricing-table-column">Agent Keys (References, Docs) – Messages included</div>
+              <div class="pricing-table-column">Agent Keys: Messages included</div>
               <div class="pricing-table-column"></div>
               <div class="pricing-table-column">250</div>
               <div class="pricing-table-column">250</div>
             </div>
             <div class="pricing-table-row">
-              <div class="pricing-table-column">Agent Keys – Additional messages</div>
+              <div class="pricing-table-column">Agent Keys: Additional messages</div>
               <div class="pricing-table-column"></div>
               <div class="pricing-table-column">$0.02/msg</div>
               <div class="pricing-table-column">$0.02/msg</div>
