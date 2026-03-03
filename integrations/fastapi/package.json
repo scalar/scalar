@@ -13,7 +13,7 @@
   "version": "1.7.0",
   "private": true,
   "engines": {
-    "node": ">=20"
+    "node": ">=22"
   },
   "scripts": {
     "dev": "command -v uvicorn >/dev/null 2>&1 && cd playground && uvicorn main:app --reload || echo '⚠️ uvicorn is not available, skipping the dev server.'",

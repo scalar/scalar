@@ -21,7 +21,7 @@
   ],
   "version": "0.7.43",
   "engines": {
-    "node": ">=20"
+    "node": ">=22"
   },
   "scripts": {
     "build": "shx rm -Rf ./dist ./tsconfig.build.tsbuildinfo && tsc -p tsconfig.build.json && postcss src/theme.css -o dist/theme.css",

@@ -13,7 +13,7 @@
   "version": "0.1.299",
   "private": true,
   "engines": {
-    "node": ">=20"
+    "node": ">=22"
   },
   "scripts": {
     "build": "electron-vite build",

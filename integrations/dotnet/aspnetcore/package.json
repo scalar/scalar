@@ -13,7 +13,7 @@
   "version": "2.12.52",
   "private": true,
   "engines": {
-    "node": ">=20"
+    "node": ">=22"
   },
   "scripts": {
     "compress": "cd ./src/Scalar.AspNetCore/StaticAssets && gzip --keep --verbose --force scalar.js scalar.aspnetcore.js favicon.svg",

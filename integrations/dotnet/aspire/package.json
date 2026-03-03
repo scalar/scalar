@@ -13,7 +13,7 @@
   "version": "0.8.61",
   "private": true,
   "engines": {
-    "node": ">=20"
+    "node": ">=22"
   },
   "scripts": {
     "build:docker": "docker build --no-cache -t scalarapi/aspire-api-reference:latest -f src/Scalar.Aspire.Service/Dockerfile ../",

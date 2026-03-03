@@ -22,7 +22,7 @@
   ],
   "version": "0.1.10",
   "engines": {
-    "node": ">=20"
+    "node": ">=22"
   },
   "scripts": {
     "build": "scalar-build-esbuild",

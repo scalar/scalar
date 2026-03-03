@@ -20,7 +20,7 @@
   ],
   "version": "0.1.51",
   "engines": {
-    "node": ">=20"
+    "node": ">=22"
   },
   "scripts": {
     "build": "svelte-package --input src",

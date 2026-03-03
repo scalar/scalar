@@ -22,7 +22,7 @@
   "version": "0.2.8",
   "private": true,
   "engines": {
-    "node": ">=18"
+    "node": ">=22"
   },
   "scripts": {
     "build": "scalar-build-vite",
