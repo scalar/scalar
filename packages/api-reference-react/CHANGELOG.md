@@ -1,5 +1,17 @@
 # @scalar/api-reference-react
 
+## 0.8.69
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.46.3**
+  - [#8298](https://github.com/scalar/scalar/pull/8298): feat(api-reference): show explicit no-content response tabs for defined response keys
+  - [#8313](https://github.com/scalar/scalar/pull/8313): chore: resolve schemas on demand
+
+- **@scalar/types@0.6.10**
+
 ## 0.8.68
 
 ### Patch Changes

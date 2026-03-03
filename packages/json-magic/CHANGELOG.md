@@ -1,5 +1,16 @@
 # @scalar/json-magic
 
+## 0.11.7
+
+### Patch Changes
+
+- [#8314](https://github.com/scalar/scalar/pull/8314): chore: limit concurrent operations while migrating workspaces
+
+#### Updated Dependencies
+
+- **@scalar/helpers@0.2.18**
+  - [#8314](https://github.com/scalar/scalar/pull/8314): chore: limit concurrent operations while migrating workspaces
+
 ## 0.11.6
 
 ### Patch Changes

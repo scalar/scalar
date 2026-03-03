@@ -1,5 +1,17 @@
 # @scalar/aspnetcore
 
+## 2.12.53
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.46.3**
+  - [#8298](https://github.com/scalar/scalar/pull/8298): feat(api-reference): show explicit no-content response tabs for defined response keys
+  - [#8313](https://github.com/scalar/scalar/pull/8313): chore: resolve schemas on demand
+
+- **@scalar/dotnet-shared@0.1.3**
+
 ## 2.12.52
 
 ### Patch Changes
