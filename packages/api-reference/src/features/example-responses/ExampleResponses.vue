@@ -1,9 +1,6 @@
 <script lang="ts" setup>
 import { getExample } from '@scalar/api-client/v2/blocks/operation-block'
-import {
-  ExamplePicker,
-  getResolvedRefDeep,
-} from '@scalar/api-client/v2/blocks/operation-code-sample'
+import { ExamplePicker } from '@scalar/api-client/v2/blocks/operation-code-sample'
 import {
   ScalarCard,
   ScalarCardFooter,
@@ -14,7 +11,6 @@ import {
 import {
   getObjectKeys,
   normalizeMimeTypeObject,
-  prettyPrintJson,
 } from '@scalar/oas-utils/helpers'
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
@@ -135,15 +131,6 @@ const changeTab = (index: number) => {
   selectedExampleKey.value = ''
 }
 
-const schemaContent = computed(() => {
-  if (!currentResponseContent.value?.schema) {
-    return undefined
-  }
-  return prettyPrintJson(
-    getResolvedRefDeep(currentResponseContent.value?.schema),
-  )
-})
-
 const showSchema = ref(false)
 </script>
 <template>
@@ -187,9 +174,9 @@ const showSchema = ref(false)
     <ScalarCardSection class="grid flex-1">
       <!-- Schema -->
       <ExampleSchema
-        v-if="schemaContent !== undefined && showSchema"
+        v-if="currentResponseContent?.schema && showSchema"
         :id="id"
-        :schemaContent="schemaContent" />
+        :schema="currentResponseContent?.schema" />
 
       <!-- Example -->
       <ExampleResponse
