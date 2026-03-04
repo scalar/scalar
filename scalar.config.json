@@ -1989,11 +1989,27 @@
               }
             }
           },
-          "/blog/oss-pledge-2024": {
-            "type": "page",
-            "title": "Scalar Joins the Open-Source Pledge",
-            "filepath": "documentation/blog/oss-pledge-2024.md",
-            "showInSidebar": false
+          "/blog": {
+            "type": "group",
+            "title": "Blog",
+            "mode": "flat",
+            "children": {
+              "/": {
+                "type": "page",
+                "title": "Blog",
+                "filepath": "documentation/blog/index.md"
+              },
+              "agent-scalar": {
+                "type": "page",
+                "title": "Safely use APIs with AI",
+                "filepath": "documentation/blog/agent-scalar.md"
+              },
+              "oss-pledge-2024": {
+                "type": "page",
+                "title": "Scalar Joins the Open-Source Pledge",
+                "filepath": "documentation/blog/oss-pledge-2024.md"
+              }
+            }
           }
         }
       },
