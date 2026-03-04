@@ -13,7 +13,7 @@
   "version": "0.5.64",
   "private": true,
   "engines": {
-    "node": ">=20"
+    "node": ">=22"
   },
   "scripts": {
     "build": "command -v mvn >/dev/null 2>&1 && pnpm copy:standalone && mvn clean package -Dgpg.skip=true || echo '⚠️ Maven is not available or the build failed, ignoring it.'",

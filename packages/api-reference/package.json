@@ -22,7 +22,7 @@
   ],
   "version": "1.46.5",
   "engines": {
-    "node": ">=20"
+    "node": ">=22"
   },
   "scripts": {
     "build": "pnpm build:default && pnpm build:standalone && pnpm types:build",

@@ -12,7 +12,7 @@
   },
   "version": "0.8.48",
   "engines": {
-    "node": ">=20"
+    "node": ">=22"
   },
   "scripts": {
     "build": "scalar-build-esbuild",

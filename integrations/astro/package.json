@@ -19,7 +19,7 @@
   ],
   "version": "0.1.24",
   "engines": {
-    "node": ">=20"
+    "node": ">=22"
   },
   "scripts": {
     "dev": "cd playground && pnpm dev"

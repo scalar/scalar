@@ -12,7 +12,7 @@
   },
   "version": "1.0.31",
   "engines": {
-    "node": ">=20"
+    "node": ">=22"
   },
   "scripts": {
     "build": "tsup ./src/index.ts --format esm,cjs --dts",
