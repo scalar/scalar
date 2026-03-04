@@ -1002,7 +1002,8 @@ watch(agent.showAgent, () => (bodyScrollLocked.value = agent.showAgent.value))
       <!-- Primary Content -->
       <main
         :aria-label="`Open API Documentation for ${workspaceStore.workspace.activeDocument?.info?.title}`"
-        class="references-rendered">
+        class="references-rendered"
+        :inert="agent.showAgent.value">
         <Content
           :authStore="workspaceStore.auth"
           :document="workspaceStore.workspace.activeDocument"
