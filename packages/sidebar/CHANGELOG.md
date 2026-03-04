@@ -1,5 +1,17 @@
 # @scalar/sidebar
 
+## 0.7.47
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.36.0**
+  - [#8329](https://github.com/scalar/scalar/pull/8329): feat: support navigation options on server store
+  - [#8335](https://github.com/scalar/scalar/pull/8335): chore: disable perf logs by default
+
+- **@scalar/components@0.19.16**
+
 ## 0.7.46
 
 ### Patch Changes
