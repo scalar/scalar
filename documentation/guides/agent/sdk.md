@@ -1,6 +1,6 @@
 # SDK
 
-The `@scalar/agent` SDK connects your AI agent to Scalar's OpenAPI MCP servers. It provides native integrations for the Vercel AI SDK, OpenAI Agents SDK, and Anthropic Claude Agent SDK.
+The [`@scalar/agent`](https://www.npmjs.com/package/@scalar/agent) SDK connects your AI agent to Scalar's OpenAPI MCP servers. It provides native integrations for the Vercel AI SDK, OpenAI Agents SDK, and Anthropic Claude Agent SDK.
 
 ## Installation
 
