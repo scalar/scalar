@@ -3,6 +3,51 @@ import { debounce } from '@scalar/helpers/general/debounce'
 import { createWorkspaceStorePersistence } from '@/persistence'
 import type { WorkspacePlugin } from '@/workspace-plugin'
 
+// Set of weak references to pending flush functions that should run before the page is hidden/unloaded
+const pendingFlushes = new Set<WeakRef<() => void>>()
+// Flag to ensure lifecycle event listeners are only initialized once
+let persistenceLifecycleListenersInitialized = false
+
+/**
+ * Runs (calls) all pending flush functions that are still alive.
+ * Removes dead (garbage-collected) weak refs from the set.
+ */
+const runPendingFlushes = (): void => {
+  for (const flushRef of pendingFlushes) {
+    const flush = flushRef.deref()
+    if (!flush) {
+      // If the flush function has been GCed, remove the weak ref
+      pendingFlushes.delete(flushRef)
+      continue
+    }
+
+    flush() // Call the flush function
+  }
+}
+
+/**
+ * Adds event listeners to ensure flushing on important lifecycle events
+ * (like navigation away or page hide). Ensures they're registered only once.
+ */
+const initializePersistenceLifecycleListeners = (): void => {
+  // Avoid adding listeners multiple times or during SSR/non-browser environments
+  if (persistenceLifecycleListenersInitialized || typeof window === 'undefined' || typeof document === 'undefined') {
+    return
+  }
+
+  persistenceLifecycleListenersInitialized = true
+  // Trigger flush on pagehide (browser is unloading or navigating away)
+  window.addEventListener('pagehide', runPendingFlushes)
+  // Also trigger flush on beforeunload as a fallback
+  window.addEventListener('beforeunload', runPendingFlushes)
+  // For SPAs: trigger flush when the page goes hidden (such as switching tabs)
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden') {
+      runPendingFlushes()
+    }
+  })
+}
+
 /**
  * Plugin to persist workspace state changes with debounced writes.
  * Each type of change (meta, documentConfigs, documents, etc.) is debounced by key (type + workspaceId + optional documentName).
@@ -25,13 +70,8 @@ export const persistencePlugin = async ({
   // Debounced execute function for batching similar state changes
   const { execute, flushAll } = debounce({ delay: debounceDelay, maxWait })
 
-  window.addEventListener('pagehide', () => flushAll())
-  window.addEventListener('beforeunload', () => flushAll())
-  document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'hidden') {
-      flushAll()
-    }
-  })
+  pendingFlushes.add(new WeakRef(flushAll))
+  initializePersistenceLifecycleListeners()
 
   return {
     hooks: {
