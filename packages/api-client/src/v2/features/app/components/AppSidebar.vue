@@ -280,9 +280,13 @@ const navigateToOperationsPage = (item: TraversedOperation) => {
 <template>
   <div class="flex">
     <Sidebar
-      v-model:isSidebarOpen="isSidebarOpen"
       v-model:sidebarWidth="sidebarWidth"
       :activeWorkspace="activeWorkspace"
+      :class="[
+        'md:flex!',
+        'max-md:inset-y-0 max-md:left-0 max-md:z-2 max-md:w-full!',
+        isSidebarOpen ? 'max-md:fixed! max-md:flex!' : 'max-md:hidden!',
+      ]"
       :documents="Object.values(store.workspace.documents)"
       :isDroppable="isDroppable"
       :layout="layout"

@@ -652,6 +652,7 @@ export const createAppState = async ({
       // Otherwise, select it
       sidebarState.setSelected(id)
       sidebarState.setExpanded(id, true)
+      isSidebarOpen.value = false
       return router.push({
         name: 'document.overview',
         params: { documentSlug: entry.name },
@@ -676,6 +677,7 @@ export const createAppState = async ({
         sidebarState.setSelected(id)
       }
 
+      isSidebarOpen.value = false
       return router.push({
         name: 'example',
         params: {
@@ -691,6 +693,7 @@ export const createAppState = async ({
     if (entry.type === 'example') {
       sidebarState.setSelected(id)
       const operation = getParentEntry('operation', entry)
+      isSidebarOpen.value = false
       return router.push({
         name: 'example',
         params: {
@@ -703,6 +706,7 @@ export const createAppState = async ({
     }
 
     if (entry.type === 'text') {
+      isSidebarOpen.value = false
       return router.push({
         name: 'document.overview',
         params: {
@@ -782,7 +786,7 @@ export const createAppState = async ({
   const handleSidebarWidthUpdate = (width: number) => store.value?.update('x-scalar-sidebar-width', width)
 
   /** Controls the visibility of the sidebar. */
-  const isSidebarOpen = ref(true)
+  const isSidebarOpen = ref(false)
   // ---------------------------------------------------------------------------
   // Tab Management
 
@@ -946,6 +950,7 @@ export const createAppState = async ({
     onSelectSidebarItem: handleSelectItem,
     onCopyTabUrl: (index) => copyTabUrl(index),
     onToggleSidebar: () => (isSidebarOpen.value = !isSidebarOpen.value),
+    closeSidebar: () => (isSidebarOpen.value = false),
     renameWorkspace,
   })
 

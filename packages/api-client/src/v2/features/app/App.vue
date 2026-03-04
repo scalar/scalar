@@ -21,6 +21,7 @@ import { computed } from 'vue'
 import { RouterView } from 'vue-router'
 
 import { mergeSecurity } from '@/v2/blocks/scalar-auth-selector-block'
+import { SidebarToggle } from '@/v2/components/sidebar'
 import CreateWorkspaceModal from '@/v2/features/app/components/CreateWorkspaceModal.vue'
 import SplashScreen from '@/v2/features/app/components/SplashScreen.vue'
 import type { RouteProps } from '@/v2/features/app/helpers/routes'
@@ -171,7 +172,10 @@ const routerViewProps = computed<RouteProps>(() => {
         app.workspace.activeWorkspace.value !== null &&
         !app.loading.value
       ">
-      <div class="flex h-dvh w-dvw flex-1 flex-col">
+      <div class="relative flex h-dvh w-dvw flex-1 flex-col">
+        <SidebarToggle
+          v-model="app.sidebar.isOpen.value"
+          class="absolute top-4 left-3 z-[60] md:hidden" />
         <div class="flex min-h-0 flex-1 flex-row">
           <!-- App sidebar -->
           <AppSidebar

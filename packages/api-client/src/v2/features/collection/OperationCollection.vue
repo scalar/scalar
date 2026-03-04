@@ -69,7 +69,7 @@ const operationPlaceholder = computed(() => {
       <!-- Header -->
       <div
         :aria-label="`title: ${operationSummary}`"
-        class="mx-auto flex h-fit w-full flex-row items-center gap-2 pt-8 pb-3 md:max-w-180">
+        class="mx-auto flex h-fit w-full flex-row items-center gap-2 pt-14 pb-3 md:max-w-180 md:pt-8">
         <div class="group relative ml-1.25">
           <LabelInput
             v-model="operationSummary"

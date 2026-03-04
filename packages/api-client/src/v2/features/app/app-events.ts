@@ -17,6 +17,7 @@ export function initializeAppEventHandlers({
   onAfterExampleCreation,
   onCopyTabUrl,
   onToggleSidebar,
+  closeSidebar,
   renameWorkspace,
 }: {
   eventBus: WorkspaceEventBus
@@ -28,6 +29,7 @@ export function initializeAppEventHandlers({
   onAfterExampleCreation: (o: OperationExampleMeta) => void
   onCopyTabUrl: (tabIndex: number) => void
   onToggleSidebar: () => void
+  closeSidebar: () => void
   renameWorkspace: (name: string) => Promise<void>
 }) {
   const currentRoute = computed(() => router.currentRoute?.value)
@@ -274,6 +276,8 @@ export function initializeAppEventHandlers({
 
     const execCallback = (result: NavigationFailure | void | undefined) => {
       if (!result) {
+        // Close the sidebar if it is open
+        closeSidebar()
         return payload.callback?.('success')
       }
 

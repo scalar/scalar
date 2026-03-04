@@ -116,7 +116,9 @@ const handleSelectItem = (id: string) => {
         "
         @selectItem="handleSelectItem">
         <template #header>
-          <div class="bg-sidebar-b-1 z-1 flex flex-col gap-1.5 px-3 pb-1.5">
+          <div
+            class="bg-sidebar-b-1 z-1 flex flex-col gap-1.5 px-3 pb-1.5"
+            :class="{ 'max-md:pt-12': layout !== 'modal' }">
             <div class="flex items-center justify-between">
               <!-- Desktop gets the workspace menu here  -->
               <SidebarMenu

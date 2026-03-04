@@ -53,7 +53,7 @@ const saveChanges = () => {
       <!-- Header -->
       <div
         :aria-label="`title: ${title}`"
-        class="mx-auto flex h-fit w-full flex-col gap-2 pt-6 pb-3 md:max-w-180">
+        class="mx-auto flex h-fit w-full flex-col gap-2 pt-14 pb-3 md:max-w-180 md:pt-6">
         <Callout
           v-if="document?.['x-scalar-is-dirty']"
           class="mb-5"
