@@ -137,6 +137,20 @@ export type OperationEvents = {
   }
 
   /**
+   * Rename an operation example key.
+   */
+  'operation:rename:example': {
+    /** The document name where the operation example should be renamed */
+    documentName: string
+    /** Identifies the target operation and current example key */
+    meta: OperationExampleMeta
+    /** The new example name */
+    payload: {
+      name: string
+    }
+  }
+
+  /**
    * Update any extensions of the operation, takes in an object as a payload with the extensions keys and values
    * @example { 'x-post-response': 'console.log(response)' }
    */

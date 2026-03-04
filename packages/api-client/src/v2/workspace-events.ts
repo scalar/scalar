@@ -251,6 +251,9 @@ export function initializeWorkspaceEventHandlers({
   eventBus.on('operation:delete:example', (payload) =>
     withHook('operation:delete:example', mutators.value.active().operation.deleteOperationExample, hooks)(payload),
   )
+  eventBus.on('operation:rename:example', (payload) =>
+    withHook('operation:rename:example', mutators.value.active().operation.renameOperationExample, hooks)(payload),
+  )
   eventBus.on('operation:upsert:parameter', (payload) =>
     withHook('operation:upsert:parameter', mutators.value.active().operation.upsertOperationParameter, hooks)(payload),
   )

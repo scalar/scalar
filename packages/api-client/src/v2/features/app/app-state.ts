@@ -752,8 +752,8 @@ export const createAppState = async ({
    * this will rebuild the sidebar for the current document. This helps keep the sidebar state
    * consistent (e.g., after adding a new example via the UI).
    */
-  const refreshSidebarAfterExampleCreation = (payload: OperationExampleMeta) => {
-    const documentName = activeDocument.value?.['x-scalar-navigation']?.name
+  const refreshSidebarAfterExampleCreation = (payload: OperationExampleMeta & { documentName?: string }) => {
+    const documentName = payload.documentName ?? activeDocument.value?.['x-scalar-navigation']?.name
     if (!documentName) {
       return
     }
