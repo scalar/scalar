@@ -502,15 +502,6 @@ export async function createServerWorkspaceStore(
       const path = parseJsonPointerSegments(pointerPath).map(escapeJsonPointer)
       return getValueAtPath(assets, path)
     },
-    addDocument: async (input: WorkspaceDocumentInput) => {
-      const document = await loadDocument(input)
-
-      if (!document.ok) {
-        console.warn(`Failed to load document "${input.name}`)
-        return
-      }
-
-      addDocumentSync(document.data as Record<string, unknown>, { name: input.name, ...input.meta })
-    },
+    addDocument,
   }
 }
