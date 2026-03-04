@@ -1990,26 +1990,22 @@
             }
           },
           "/blog": {
-            "type": "group",
+            "type": "page",
             "title": "Blog",
-            "mode": "flat",
-            "children": {
-              "/": {
-                "type": "page",
-                "title": "Blog",
-                "filepath": "documentation/blog/index.md"
-              },
-              "agent-scalar": {
-                "type": "page",
-                "title": "Safely use APIs with AI",
-                "filepath": "documentation/blog/agent-scalar.md"
-              },
-              "oss-pledge-2024": {
-                "type": "page",
-                "title": "Scalar Joins the Open-Source Pledge",
-                "filepath": "documentation/blog/oss-pledge-2024.md"
-              }
-            }
+            "filepath": "documentation/blog/index.md",
+            "showInSidebar": false
+          },
+          "/blog/agent-scalar": {
+            "type": "page",
+            "title": "Safely use APIs with AI",
+            "filepath": "documentation/blog/agent-scalar.md",
+            "showInSidebar": false,
+          },
+          "/blog/oss-pledge-2024": {
+            "type": "page",
+            "title": "Scalar Joins the Open-Source Pledge",
+            "filepath": "documentation/blog/oss-pledge-2024.md",
+            "showInSidebar": false
           }
         }
       },
