@@ -8,7 +8,7 @@ Scalar for Aspire provides:
 
 - **Unified API Documentation**: View documentation for all services in a single, cohesive interface
 - **Simplified Service Discovery**: Automatically discover and configure API endpoints from your Aspire services
-- **Multiple Document Support**: Each service can expose multiple OpenAPI specifications
+- **Multiple Document Support**: Each service can expose multiple OpenAPI documents
 - **CORS Issue Elimination**: Built-in proxy (enabled by default) handles API requests without requiring CORS configuration
 - **HTTPS Support**: Complete support for both HTTP and HTTPS endpoints with automatic handling
 
@@ -18,10 +18,10 @@ The Scalar Aspire integration requires a container solution such as **Docker** o
 
 ### Service Requirements
 
-Each service you want to include in the API Reference must:
+Each service you want to include in the API Reference must implement the `IResourceWithServiceDiscovery` interface and either:
 
-- Expose OpenAPI documents over HTTP or HTTPS endpoints
-- Implement the `IResourceWithServiceDiscovery` interface
+- Expose OpenAPI documents over HTTP or HTTPS endpoints, or
+- Provide a static OpenAPI document (a local file) via the file-based `WithApiReference` overload
 
 ## Quick Start
 
@@ -86,7 +86,7 @@ scalar.WithApiReference(bookService, options =>
 
 ### Multiple OpenAPI Documents
 
-Services can expose multiple OpenAPI specifications:
+Services can expose multiple OpenAPI documents:
 
 ```csharp
 scalar.WithApiReference(catalogService, options =>
@@ -113,6 +113,36 @@ scalar.WithApiReference(bookService, options =>
         .AddDocument("beta", "Book API Beta", "/beta/{documentName}.json");
 });
 ```
+
+### Static OpenAPI Documents
+
+Use the file-based overload when a service does not expose a live OpenAPI endpoint—for example, when the description document is generated at build time or when documenting an external API from a local file. The file is mounted into the Scalar container and served at `/openapi/{filename}`. The document URL in the API Reference uses that path; the `resourceBuilder` is still used to configure the **Try It** server URL (the API base URL for requests).
+
+Supported file formats: `.json`, `.yaml`, `.yml`.
+
+```csharp
+scalar.WithApiReference(
+    myService,
+    new FileInfo("./openapi/openapi.yaml"),
+    options => options.AddDocument("v1", "My API"));
+```
+
+Async configuration is also supported:
+
+```csharp
+scalar.WithApiReference(
+    myService,
+    new FileInfo("./openapi/openapi.yaml"),
+    async (options, cancellationToken) =>
+    {
+        options.AddDocument("v1", "My API");
+        // Optional: load secrets, customize theme, etc.
+    });
+```
+
+### Advanced: Base document URL
+
+`WithBaseDocumentUrl(ReferenceExpression?)` controls the base URL used to resolve the OpenAPI document URL. For static files, the integration sets this internally so the document is loaded from `/openapi/{filename}`. You can override it for custom setups—for example, use `ReferenceExpression.Empty` so the document URL is the route pattern as-is, or pass a different expression to resolve at startup when endpoints are known.
 
 ## HTTPS Support
 

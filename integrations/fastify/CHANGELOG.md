@@ -1,5 +1,20 @@
 # @scalar/fastify-api-reference
 
+## 1.46.4
+
+## 1.46.3
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/openapi-types@0.5.4**
+  - [#8275](https://github.com/scalar/scalar/pull/8275): fix(openapi-types): make the `$ref` property in the `ReferenceObject` type required
+
+- **@scalar/openapi-parser@0.24.17**
+
+- **@scalar/core@0.3.45**
+
 ## 1.46.2
 
 ## 1.46.1

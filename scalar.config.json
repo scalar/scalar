@@ -1570,11 +1570,11 @@
                 }
               },
               "/agent": {
-                "title": "Agent Scalar",
+                "title": "MCP & Agent Scalar",
                 "description": "AI-powered customer support agent that understands your API documentation and helps users with technical questions.",
                 "type": "group",
                 "mode": "nested",
-                "icon": "phosphor/regular/headset",
+                "icon": "phosphor/regular/cpu",
                 "children": {
                   "getting-started": {
                     "title": "Getting Started",
@@ -1605,6 +1605,11 @@
                         }
                       ]
                     }
+                  },
+                  "mcp": {
+                    "title": "MCP",
+                    "type": "page",
+                    "filepath": "documentation/guides/agent/mcp.md"
                   },
                   "pricing": {
                     "title": "Pricing",
