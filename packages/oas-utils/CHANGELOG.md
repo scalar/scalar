@@ -1,15 +1,5 @@
 # @scalar/oas-utils
 
-## 0.8.4
-
-### Patch Changes
-
-#### Updated Dependencies
-
-- **@scalar/workspace-store@0.36.0**
-  - [#8329](https://github.com/scalar/scalar/pull/8329): feat: support navigation options on server store
-  - [#8335](https://github.com/scalar/scalar/pull/8335): chore: disable perf logs by default
-
 ## 0.8.3
 
 ### Patch Changes

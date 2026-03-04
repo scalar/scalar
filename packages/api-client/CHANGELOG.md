@@ -1,23 +1,5 @@
 # @scalar/api-client
 
-## 2.31.4
-
-### Patch Changes
-
-#### Updated Dependencies
-
-- **@scalar/workspace-store@0.36.0**
-  - [#8329](https://github.com/scalar/scalar/pull/8329): feat: support navigation options on server store
-  - [#8335](https://github.com/scalar/scalar/pull/8335): chore: disable perf logs by default
-
-- **@scalar/oas-utils@0.8.4**
-
-- **@scalar/sidebar@0.7.47**
-
-- **@scalar/components@0.19.16**
-
-- **@scalar/use-codemirror@0.13.51**
-
 ## 2.31.3
 
 ### Patch Changes

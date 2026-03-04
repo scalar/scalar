@@ -1,13 +1,5 @@
 # scalar-app
 
-## 0.1.301
-
-### Patch Changes
-
-#### Updated Dependencies
-
-- **@scalar/api-client@2.31.4**
-
 ## 0.1.300
 
 ### Patch Changes
