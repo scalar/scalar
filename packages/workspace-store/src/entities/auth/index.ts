@@ -176,6 +176,7 @@ export const createAuthStore = ({ hooks }: CreateAuthStoreOptions = {}): AuthSto
 
     if (payload.type === 'document') {
       delete documentAuth.selected.document
+      hooks?.onAuthChange?.(payload.documentName)
       return
     }
 
@@ -189,7 +190,6 @@ export const createAuthStore = ({ hooks }: CreateAuthStoreOptions = {}): AuthSto
     }
 
     delete pathAuth[payload.method]
-
     hooks?.onAuthChange?.(payload.documentName)
   }
 
