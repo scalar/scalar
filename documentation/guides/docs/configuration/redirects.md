@@ -8,7 +8,7 @@ Redirects are configured in your `scalar.config.json` file under the `siteConfig
 
 ```json
 {
-  "$schema": "https://cdn.scalar.com/schema/scalar-config-next.json",
+  "$schema": "https://registry.scalar.com/@scalar/schemas/config",
   "scalar": "2.0.0",
   "siteConfig": {
     "routing": {

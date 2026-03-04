@@ -9,7 +9,7 @@ The `subdomain` property provides a free domain at `https://<subdomain>.apidocum
 ```json
 // scalar.config.json
 {
-  "$schema": "https://cdn.scalar.com/schema/scalar-config-next.json",
+  "$schema": "https://registry.scalar.com/@scalar/schemas/config",
   "scalar": "2.0.0",
   "siteConfig": {
     "subdomain": "your-docs"
@@ -26,7 +26,7 @@ The `customDomain` property allows you to use your own domain name. This feature
 ```json
 // scalar.config.json
 {
-  "$schema": "https://cdn.scalar.com/schema/scalar-config-next.json",
+  "$schema": "https://registry.scalar.com/@scalar/schemas/config
   "scalar": "2.0.0",
   "siteConfig": {
     "customDomain": "docs.example.com"
