@@ -16,9 +16,9 @@
     "vue",
     "vue3"
   ],
-  "version": "0.13.45",
+  "version": "0.14.0",
   "engines": {
-    "node": ">=20"
+    "node": ">=22"
   },
   "scripts": {
     "build": "scalar-build-esbuild",

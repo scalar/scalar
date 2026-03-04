@@ -28,7 +28,7 @@ defineSlots<{
 }>()
 
 const variants = cva({
-  base: 'group/button flex items-center rounded  px-2.5 py-1.5 font-medium no-underline leading-3 ',
+  base: 'group/button flex items-center rounded  px-2.5 py-1.5 font-medium no-underline leading-5 ',
   variants: {
     active: {
       true: 'bg-b-3 cursor-default',

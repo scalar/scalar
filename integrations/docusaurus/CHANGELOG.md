@@ -1,5 +1,36 @@
 # @scalar/docusaurus
 
+## 0.8.0
+
+### Minor Changes
+
+- [#8322](https://github.com/scalar/scalar/pull/8322): chore: bump required node version to >=22 (LTS)
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/types@0.7.0**
+  - [#8322](https://github.com/scalar/scalar/pull/8322): chore: bump required node version to >=22 (LTS)
+
+## 0.7.44
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/types@0.6.10**
+
+## 0.7.43
+
+### Patch Changes
+
+- [#8295](https://github.com/scalar/scalar/pull/8295): fix(docusaurus): remove extra elements around in markdown summary components
+
+#### Updated Dependencies
+
+- **@scalar/types@0.6.9**
+
 ## 0.7.42
 
 ### Patch Changes

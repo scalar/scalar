@@ -391,7 +391,7 @@ const navigateToOperationsPage = (item: TraversedOperation) => {
             </div>
             <div class="mt-2 mb-2 text-center text-sm text-balance">
               <b class="font-medium">Let's Get Started</b>
-              <p class="mt-2 leading-3">
+              <p class="mt-2 leading-5">
                 Create request, folder, collection or import from
                 OpenAPI/Postman
               </p>

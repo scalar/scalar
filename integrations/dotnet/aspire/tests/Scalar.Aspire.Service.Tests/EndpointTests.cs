@@ -93,6 +93,21 @@ public class EndpointTests(WebApplicationFactory<Program> factory) : IClassFixtu
     }
 
     [Fact]
+    public async Task MapOpenApiFiles_ShouldReturnNotFound_WhenFileNotMounted()
+    {
+        // Arrange
+        var client = factory.CreateClient();
+
+        // Act
+        var response = await client.GetAsync("/openapi/nonexistent.yaml", TestContext.Current.CancellationToken);
+
+        // Assert
+        // The /openapi directory does not exist in the test environment, so the middleware is not registered
+        // and the request falls through to a 404.
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
+
+    [Fact]
     public async Task MapScalarProxy_ShouldReturnBadRequest_WhenConfigured()
     {
         // Arrange

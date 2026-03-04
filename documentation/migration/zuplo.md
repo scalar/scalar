@@ -162,9 +162,8 @@ If you're using GitHub Sync, create a `scalar.config.json` file in your reposito
 
 ```json
 {
-  "$schema": "https://cdn.scalar.com/schema/scalar-config-next.json",
+  "$schema": "https://registry.scalar.com/@scalar/schemas/config",
   "scalar": "2.0.0",
-  "publishOnMerge": true,
   "siteConfig": {
     "subdomain": "name-of-your-api"
   },
@@ -186,7 +185,7 @@ If you're using GitHub Sync, create a `scalar.config.json` file in your reposito
 }
 ```
 
-The `"publishOnMerge": true` setting tells Scalar to automatically publish your documentation when a branch is merged into your main branch.
+Configure automatic deployment (publish when a branch is merged into your main branch) in the [Scalar Dashboard](https://dashboard.scalar.com) under your project settings.
 
 ### Step 5: Migrate Custom Styling
 

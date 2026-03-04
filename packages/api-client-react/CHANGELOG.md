@@ -1,5 +1,72 @@
 # @scalar/api-client-react
 
+## 1.4.0
+
+### Minor Changes
+
+- [#8322](https://github.com/scalar/scalar/pull/8322): chore: bump required node version to >=22 (LTS)
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-client@2.32.0**
+  - [#8322](https://github.com/scalar/scalar/pull/8322): chore: bump required node version to >=22 (LTS)
+
+- **@scalar/types@0.7.0**
+  - [#8322](https://github.com/scalar/scalar/pull/8322): chore: bump required node version to >=22 (LTS)
+
+## 1.3.107
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-client@2.31.3**
+  - [#8313](https://github.com/scalar/scalar/pull/8313): fix: correctly cache schema examples
+  - [#8254](https://github.com/scalar/scalar/pull/8254): fix: resolve OAuth2 URLs against interpolated server URL
+
+- **@scalar/types@0.6.10**
+
+## 1.3.106
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-client@2.31.2**
+
+## 1.3.105
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-client@2.31.1**
+  - [#8310](https://github.com/scalar/scalar/pull/8310): refactor: move helpers to the helpers package to share primitive helpers
+  - [#8294](https://github.com/scalar/scalar/pull/8294): default createAnySecurityScheme to false and fix index clamp issue
+
+- **@scalar/types@0.6.9**
+
+## 1.3.104
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-client@2.31.0**
+  - [#8290](https://github.com/scalar/scalar/pull/8290): chore: update deps
+
+## 1.3.103
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-client@2.30.0**
+  - [#8255](https://github.com/scalar/scalar/pull/8255): fix: correctly handle circular references when deep resolving references
+  - [#8234](https://github.com/scalar/scalar/pull/8234): support operation level authentication and servers
+
 ## 1.3.102
 
 ### Patch Changes

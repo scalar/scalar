@@ -16,9 +16,9 @@
     "openapi",
     "scalar"
   ],
-  "version": "0.34.4",
+  "version": "0.36.0",
   "engines": {
-    "node": ">=18"
+    "node": ">=22"
   },
   "scripts": {
     "build": "scalar-build-esbuild",

@@ -2,4 +2,4 @@
 '@scalar/agent-chat': patch
 ---
 
-feat: tweak the copy
+feat: remove tmp document on fail

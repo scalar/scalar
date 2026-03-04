@@ -1,5 +1,6 @@
 import { sortByOrder } from '@scalar/helpers/array/sort-by-order'
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
+import { toJsonCompatible } from '@scalar/helpers/object/to-json-compatible'
 import { dereference, escapeJsonPointer } from '@scalar/openapi-parser'
 import type { DragOffset, DraggingItem, HoveredItem, SidebarState } from '@scalar/sidebar'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
@@ -15,8 +16,6 @@ import type {
 import type { OpenApiDocument, TagObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/operation'
 import { type MaybeRefOrGetter, toValue } from 'vue'
-
-import { removeCircular } from '@/v2/helpers/remove-circular'
 
 /**
  * Reorders items in an array by moving an item from one index to another,
@@ -243,7 +242,7 @@ const getDereferencedOperation = (
   const result = dereference(document).schema as OpenApiDocument
   const operation = result.paths?.[path]?.[method]
 
-  return removeCircular(operation, { prefix: `#/paths/${escapeJsonPointer(path)}/${method}` }) as
+  return toJsonCompatible(operation, { prefix: `#/paths/${escapeJsonPointer(path)}/${method}` }) as
     | OperationObject
     | undefined
 }

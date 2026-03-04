@@ -10,10 +10,10 @@
     "url": "git+https://github.com/scalar/scalar.git",
     "directory": "integrations/django-ninja"
   },
-  "version": "0.1.2",
+  "version": "0.3.0",
   "private": true,
   "engines": {
-    "node": ">=20"
+    "node": ">=22"
   },
   "scripts": {
     "dev": "command -v python >/dev/null 2>&1 && python manage.py runserver || echo '⚠️ python is not available, skipping the dev server.'",

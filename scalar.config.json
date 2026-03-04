@@ -1,14 +1,11 @@
 {
-  "$schema": "https://cdn.scalar.com/schema/scalar-config-next.json",
+  "$schema": "https://registry.scalar.com/@scalar/schemas/config",
   "scalar": "2.0.0",
   "info": {
     "title": "Scalar Documentation",
     "description": "Guides for Scalar, covering your favorite frameworks, languages and use cases."
   },
-  "publishOnMerge": true,
   "assetsDir": "documentation/assets",
-  "publishPreviews": true,
-  "pullRequestComments": true,
   "insertPageTitles": false,
   "siteConfig": {
     "subdomain": "scalar",
@@ -219,6 +216,10 @@
         {
           "from": "/scalar/scalar-sdks/getting-started",
           "to": "/products/sdks/getting-started"
+        },
+        {
+          "from": "/scalar/scalar-sdks/publishing",
+          "to": "/products/sdks/publishing"
         },
         {
           "from": "/scalar/scalar-sdks/configuration/typescript",
@@ -551,6 +552,19 @@
     "header": [
       {
         "type": "link",
+        "title": "Home",
+        "to": "/"
+      },
+      {
+        "type": "link",
+        "title": "Agent",
+        "to": "https://agent.scalar.com"
+      },
+      {
+        "type": "spacer"
+      },
+      {
+        "type": "link",
         "title": "Log in",
         "to": "https://dashboard.scalar.com/login"
       },
@@ -668,10 +682,10 @@
                       ]
                     }
                   },
-                  "starter-kit": {
-                    "filepath": "documentation/guides/docs/starter-kit.md",
+                  "privacy": {
+                    "title": "Privacy",
                     "type": "page",
-                    "title": "Starter Kit"
+                    "filepath": "documentation/guides/docs/privacy.md"
                   },
                   "configuration": {
                     "title": "Configuration",
@@ -679,6 +693,11 @@
                     "mode": "flat",
                     "icon": "phosphor/regular/gear",
                     "children": {
+                      "starter-kit": {
+                        "filepath": "documentation/guides/docs/starter-kit.md",
+                        "type": "page",
+                        "title": "Starter Kit"
+                      },
                       "scalar.config.json": {
                         "title": "scalar.config.json",
                         "type": "page",
@@ -995,6 +1014,11 @@
                         }
                       ]
                     }
+                  },
+                  "publishing": {
+                    "filepath": "documentation/guides/sdks/publishing.md",
+                    "type": "page",
+                    "title": "Publishing"
                   },
                   "configuration": {
                     "title": "Configuration",
@@ -1546,11 +1570,11 @@
                 }
               },
               "/agent": {
-                "title": "Agent Scalar",
+                "title": "MCP & Agent Scalar",
                 "description": "AI-powered customer support agent that understands your API documentation and helps users with technical questions.",
                 "type": "group",
                 "mode": "nested",
-                "icon": "phosphor/regular/headset",
+                "icon": "phosphor/regular/cpu",
                 "children": {
                   "getting-started": {
                     "title": "Getting Started",
@@ -1581,6 +1605,11 @@
                         }
                       ]
                     }
+                  },
+                  "mcp": {
+                    "title": "MCP",
+                    "type": "page",
+                    "filepath": "documentation/guides/agent/mcp.md"
                   },
                   "pricing": {
                     "title": "Pricing",
@@ -1954,6 +1983,12 @@
                 "type": "link"
               }
             }
+          },
+          "/blog/oss-pledge-2024": {
+            "type": "page",
+            "title": "Scalar Joins the Open-Source Pledge",
+            "filepath": "documentation/blog/oss-pledge-2024.md",
+            "showInSidebar": false
           }
         }
       },

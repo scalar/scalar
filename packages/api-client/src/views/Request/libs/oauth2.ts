@@ -1,3 +1,4 @@
+import { replaceVariables } from '@scalar/helpers/regex/replace-variables'
 import { isRelativePath } from '@scalar/helpers/url/is-relative-path'
 import { makeUrlAbsolute } from '@scalar/helpers/url/make-url-absolute'
 import { shouldUseProxy } from '@scalar/helpers/url/redirect-to-proxy'
@@ -15,8 +16,30 @@ type PKCEState = {
   codeChallengeMethod: string
 }
 
+/**
+ * Interpolates server URL template variables (e.g. `https://{env}.example.com`)
+ * using the user-set `value` when available, falling back to the OpenAPI `default`.
+ * This is needed so OAuth flows that use the server URL as a base resolve correctly
+ * when the spec defines server variables.
+ */
+export const getInterpolatedServerUrl = (activeServer?: Server): string | undefined => {
+  if (!activeServer?.url) return undefined
+
+  const serverVariables = Object.entries(activeServer.variables ?? {}).reduce(
+    (acc, [name, variable]) => {
+      // User-set value takes priority over the OpenAPI default
+      const value = variable.value || variable.default
+      if (value) acc[name] = value
+      return acc
+    },
+    {} as Record<string, string>,
+  )
+
+  return replaceVariables(activeServer.url, serverVariables)
+}
+
 const getActiveServerBase = (activeServer?: Server) => {
-  const serverUrl = activeServer?.url
+  const serverUrl = getInterpolatedServerUrl(activeServer)
 
   if (!serverUrl) {
     return {}
@@ -136,7 +159,7 @@ export const authorizeOauth2 = async (
 
     // Handle relative redirect uris
     if (flow['x-scalar-redirect-uri'].startsWith('/')) {
-      const baseUrl = activeServer?.url || window.location.origin + window.location.pathname
+      const baseUrl = getInterpolatedServerUrl(activeServer) || window.location.origin + window.location.pathname
       const redirectUri = makeUrlAbsolute(flow['x-scalar-redirect-uri'], { baseUrl: baseUrl })
 
       url.searchParams.set('redirect_uri', redirectUri)

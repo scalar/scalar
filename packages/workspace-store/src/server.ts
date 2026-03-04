@@ -1,6 +1,8 @@
 import fs from 'node:fs/promises'
 import { cwd } from 'node:process'
 
+import { parseJsonPointerSegments } from '@scalar/helpers/json/parse-json-pointer-segments'
+import { getValueAtPath } from '@scalar/helpers/object/get-value-at-path'
 import type { LoaderPlugin } from '@scalar/json-magic/bundle'
 import { fetchUrls, readFiles } from '@scalar/json-magic/bundle/plugins/node'
 import { escapeJsonPointer } from '@scalar/json-magic/helpers/escape-json-pointer'
@@ -20,7 +22,6 @@ import {
   type PathsObject,
 } from '@/schemas/v3.1/strict/openapi-document'
 
-import { getValueByPath, parseJsonPointer } from './helpers/json-path-utils'
 import type { WorkspaceDocumentMeta, WorkspaceMeta } from './schemas/workspace'
 
 const DEFAULT_ASSETS_FOLDER = 'assets'
@@ -278,7 +279,11 @@ export async function createServerWorkspaceStore(workspaceProps: CreateServerWor
    * @param document - The OpenAPI document to process and add
    * @param meta - Document metadata containing the required name and optional settings
    */
-  const addDocumentSync = (document: Record<string, unknown>, meta: { name: string } & WorkspaceDocumentMeta) => {
+  const addDocumentSync = (
+    document: Record<string, unknown>,
+    meta: { name: string } & WorkspaceDocumentMeta,
+    navigationOptions?: NavigationOptions,
+  ) => {
     const { name, ...documentMeta } = meta
 
     const documentV3 = coerceValue(OpenAPIDocumentSchema, upgrade(document, '3.1'))
@@ -298,7 +303,7 @@ export async function createServerWorkspaceStore(workspaceProps: CreateServerWor
     const paths = externalizePathReferences(documentV3, options)
 
     // Build the sidebar entries
-    const navigation = createNavigation(name, documentV3, workspaceProps.navigationOptions)
+    const navigation = createNavigation(name, documentV3, navigationOptions ?? workspaceProps.navigationOptions)
 
     // The document is now a minimal version with externalized references to components and operations.
     // These references will be resolved asynchronously when needed through the workspace's get() method.
@@ -321,7 +326,7 @@ export async function createServerWorkspaceStore(workspaceProps: CreateServerWor
    *
    * @param input - The document input containing the document source and metadata
    */
-  const addDocument = async (input: WorkspaceDocumentInput) => {
+  const addDocument = async (input: WorkspaceDocumentInput, navigationOptions?: NavigationOptions) => {
     const document = await loadDocument(input)
 
     if (!document.ok) {
@@ -329,7 +334,7 @@ export async function createServerWorkspaceStore(workspaceProps: CreateServerWor
       return
     }
 
-    addDocumentSync(document.data as Record<string, unknown>, { name: input.name, ...input.meta })
+    addDocumentSync(document.data as Record<string, unknown>, { name: input.name, ...input.meta }, navigationOptions)
   }
 
   // Load and process all initial documents in parallel
@@ -420,7 +425,25 @@ export async function createServerWorkspaceStore(workspaceProps: CreateServerWor
      * @returns The chunk data if found, undefined otherwise
      */
     get: (pointer: string) => {
-      return getValueByPath(assets, parseJsonPointer(pointer))
+      const pointerPath = (() => {
+        if (pointer.startsWith('#')) {
+          return pointer.slice(1)
+        }
+
+        if (pointer.startsWith('/')) {
+          return pointer
+        }
+
+        try {
+          return new URL(pointer).pathname
+        } catch {
+          return pointer
+        }
+      })()
+
+      // Keep the path segments escaped cuz we store them on the filesystem as escaped sequences
+      const path = parseJsonPointerSegments(pointerPath).map(escapeJsonPointer)
+      return getValueAtPath(assets, path)
     },
     /**
      * Adds a new document to the workspace asynchronously.
