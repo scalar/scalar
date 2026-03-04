@@ -44,7 +44,7 @@ For Scalar Docs 2.0 we still use the `scalar.config.json`, but the structure cha
 ```json
 // scalar.config.json (Scalar Docs 2.0)
 {
-  "$schema": "https://cdn.scalar.com/schema/scalar-config-next.json",
+  "$schema": "https://registry.scalar.com/@scalar/schemas/config",
   "scalar": "2.0.0",
   "info": {
     // …

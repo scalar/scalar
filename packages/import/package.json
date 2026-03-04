@@ -16,9 +16,9 @@
     "postman",
     "scalar"
   ],
-  "version": "0.4.55",
+  "version": "0.5.0",
   "engines": {
-    "node": ">=20"
+    "node": ">=22"
   },
   "scripts": {
     "build": "scalar-build-esbuild",

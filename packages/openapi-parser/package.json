@@ -17,9 +17,9 @@
     "parser",
     "typescript"
   ],
-  "version": "0.24.17",
+  "version": "0.25.0",
   "engines": {
-    "node": ">=20"
+    "node": ">=22"
   },
   "scripts": {
     "build": "scalar-build-esbuild",

@@ -17,9 +17,9 @@
     "openapi",
     "swagger"
   ],
-  "version": "1.46.4",
+  "version": "1.47.0",
   "engines": {
-    "node": ">=20"
+    "node": ">=22"
   },
   "scripts": {
     "build": "scalar-build-esbuild && pnpm copy:standalone",

@@ -14,9 +14,9 @@
     "helpers",
     "js"
   ],
-  "version": "0.2.18",
+  "version": "0.3.0",
   "engines": {
-    "node": ">=20"
+    "node": ">=22"
   },
   "scripts": {
     "build": "scalar-build-esbuild",

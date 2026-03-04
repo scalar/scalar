@@ -518,14 +518,37 @@
             <div class="pricing-table-row">
               <div class="pricing-table-column">Messages included</div>
               <div class="pricing-table-column"></div>
-              <div class="pricing-table-column">1,000</div>
-              <div class="pricing-table-column">1,000</div>
+              <div class="pricing-table-column">250</div>
+              <div class="pricing-table-column">250</div>
             </div>
             <div class="pricing-table-row">
               <div class="pricing-table-column">Additional messages</div>
               <div class="pricing-table-column"></div>
               <div class="pricing-table-column">$0.02/msg</div>
               <div class="pricing-table-column">$0.02/msg</div>
+            </div>
+          </div>
+        </div>
+        <div class="st_wrap_table" data-table_id="4">
+          <header class="pricing-table-group-heading">agent.scalar.com</header>
+          <div class="pricing-table-group">
+            <div class="pricing-table-row">
+              <div class="pricing-table-column">Tokens included</div>
+              <div class="pricing-table-column"></div>
+              <div class="pricing-table-column">2,000,000</div>
+              <div class="pricing-table-column">2,000,000</div>
+            </div>
+            <div class="pricing-table-row">
+              <div class="pricing-table-column">Additional input tokens</div>
+              <div class="pricing-table-column"></div>
+              <div class="pricing-table-column">$2/M</div>
+              <div class="pricing-table-column">$2/M</div>
+            </div>
+            <div class="pricing-table-row">
+              <div class="pricing-table-column">Additional output tokens</div>
+              <div class="pricing-table-column"></div>
+              <div class="pricing-table-column">$10/M</div>
+              <div class="pricing-table-column">$10/M</div>
             </div>
           </div>
         </div>

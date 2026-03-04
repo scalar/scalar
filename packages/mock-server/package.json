@@ -16,9 +16,9 @@
     "swagger",
     "cli"
   ],
-  "version": "0.8.48",
+  "version": "0.9.0",
   "engines": {
-    "node": ">=20"
+    "node": ">=22"
   },
   "scripts": {
     "build": "scalar-build-esbuild",

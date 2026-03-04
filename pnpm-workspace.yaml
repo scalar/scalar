@@ -38,7 +38,7 @@ catalogs:
     '@tailwindcss/vite': ^4.1.18
     '@types/express': 5.0.3
     '@types/jsdom': 27.0.0
-    '@types/node': ^22.19.3
+    '@types/node': ^24.1.0
     '@types/picomatch': 4.0.2
     '@types/react-dom': ^19.2.3
     '@types/react': ^19.2.7

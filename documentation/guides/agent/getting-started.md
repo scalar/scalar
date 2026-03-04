@@ -2,11 +2,19 @@
 
 Agent Scalar adds an AI chat interface to your API reference. Users can ask questions about your API and receive contextual answers based on your OpenAPI document.
 
+## Demo
+
+<scalar-button
+  title="Chat with Agent Scalar"
+  href="https://agent.scalar.com"
+  icon="phosphor/regular/chat-circle-dots">
+</scalar-button>
+
 ## How It Works
 
-1. User opens the chat interface in your API reference
-2. On first message, your OpenAPI document is uploaded to Scalar
-3. The AI uses your document to answer questions about endpoints, parameters, authentication, and more
+1. The user opens the chat interface in your API reference.
+2. On first message, your OpenAPI document is uploaded to Scalar.
+3. The AI uses your document to answer questions about endpoints, parameters, authentication, and more.
 
 ## Free Limits
 
@@ -83,11 +91,11 @@ Only your preloaded APIs are shown; the “+ API” button and “Add context fr
 
 The `agent` configuration accepts:
 
-| Property      | Type      | Default     | Description                                                                 |
-| ------------- | --------- | ----------- | --------------------------------------------------------------------------- |
-| `key`         | `string`  | `undefined` | Your Agent Scalar key                                                       |
-| `disabled`    | `boolean` | `false`     | Enable or disable Agent Scalar                                              |
-| `hideAddApi`  | `boolean` | `false`     | Hide the control to add more APIs; only preloaded/registry APIs are shown   |
+| Property     | Type      | Default     | Description                                                               |
+| ------------ | --------- | ----------- | ------------------------------------------------------------------------- |
+| `key`        | `string`  | `undefined` | Your Agent Scalar key                                                     |
+| `disabled`   | `boolean` | `false`     | Enable or disable Agent Scalar                                            |
+| `hideAddApi` | `boolean` | `false`     | Hide the control to add more APIs; only preloaded/registry APIs are shown |
 
 ### Per-Source Configuration
 

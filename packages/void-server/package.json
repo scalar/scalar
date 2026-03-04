@@ -15,9 +15,9 @@
     "http testing",
     "hono"
   ],
-  "version": "2.3.11",
+  "version": "2.4.0",
   "engines": {
-    "node": ">=20"
+    "node": ">=22"
   },
   "scripts": {
     "build": "scalar-build-esbuild",

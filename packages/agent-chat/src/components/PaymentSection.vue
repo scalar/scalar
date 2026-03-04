@@ -37,7 +37,7 @@ const { navigateToSignup } = useSignupLink()
         <div class="paymentInfoSection">
           <div class="paymentInfoItem">
             <span>Messages</span>
-            <span>1,000</span>
+            <span>250</span>
           </div>
           <div class="paymentInfoItem">
             <span>Additional Messages</span>

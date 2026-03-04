@@ -162,7 +162,7 @@ If you're using GitHub Sync, create a `scalar.config.json` file in your reposito
 
 ```json
 {
-  "$schema": "https://cdn.scalar.com/schema/scalar-config-next.json",
+  "$schema": "https://registry.scalar.com/@scalar/schemas/config",
   "scalar": "2.0.0",
   "siteConfig": {
     "subdomain": "name-of-your-api"

@@ -16,9 +16,9 @@
     "lowlight",
     "highlightjs"
   ],
-  "version": "0.2.4",
+  "version": "0.3.0",
   "engines": {
-    "node": ">=20"
+    "node": ">=22"
   },
   "scripts": {
     "build": "scalar-build-esbuild",

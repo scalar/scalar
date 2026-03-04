@@ -35,6 +35,7 @@ import type {
 } from '@/entities/tools/get-openapi-spec-summary'
 import { createDocumentSettings } from '@/helpers'
 import { useTermsAndConditions } from '@/hooks/use-term-and-conditions'
+import { removeTmpDocFromLocalStorage } from '@/hooks/use-upload-tmp-document'
 import { persistencePlugin } from '@/plugins/persistance'
 import { loadDocument } from '@/registry/add-documents-to-store'
 import { createDocumentName } from '@/registry/create-document-name'
@@ -86,7 +87,7 @@ type State = {
   pendingDocuments: Record<string, boolean>
   mode: ChatMode
   terms: { accepted: Ref<boolean>; accept: () => void }
-  addDocument: (document: { namespace: string; slug: string; removable?: boolean }) => Promise<void>
+  addDocument: (document: { namespace: string; slug: string; removable?: boolean; tmp?: boolean }) => Promise<void>
   addDocumentAsync: (document: { namespace: string; slug: string; removable?: boolean }) => Promise<void>
   removeDocument: (document: { namespace: string; slug: string }) => void
   getAccessToken?: () => string
@@ -244,10 +245,12 @@ export function createState({
     namespace,
     slug,
     removable = true,
+    tmp = false,
   }: {
     namespace: string
     slug: string
     removable?: boolean
+    tmp?: boolean
   }) {
     const matchingDoc = registryDocuments.value.find((doc) => doc.namespace === namespace && doc.slug === slug)
 
@@ -273,6 +276,15 @@ export function createState({
     pendingDocuments[identifier] = false
 
     if (!loadDocumentResult.success) {
+      /**
+       * If we are unable to load a document, we just remove it
+       * from tmp local storage, do not warn the user.
+       */
+      if (tmp) {
+        removeTmpDocFromLocalStorage()
+        throw loadDocumentResult.error
+      }
+
       console.warn('[AGENT]: Unable to load document', loadDocumentResult.error)
       toast(`Unable to load the document @${namespace}/${slug}`, 'warn')
       throw loadDocumentResult.error

@@ -86,6 +86,38 @@ describe('create-workspace-store', () => {
     expect(store.workspace['x-scalar-theme']).toBe('saturn')
   })
 
+  it('does not log measurements by default', async () => {
+    const infoSpy = vi.spyOn(console, 'info').mockImplementation(() => undefined)
+    const store = createWorkspaceStore()
+
+    await store.addDocument({
+      name: 'default',
+      document: {
+        openapi: '3.0.0',
+        info: { title: 'My API' },
+      },
+    })
+
+    expect(infoSpy).not.toHaveBeenCalled()
+    infoSpy.mockRestore()
+  })
+
+  it('logs measurements when enabled in createWorkspaceStore props', async () => {
+    const infoSpy = vi.spyOn(console, 'info').mockImplementation(() => undefined)
+    const store = createWorkspaceStore({ verbose: true })
+
+    await store.addDocument({
+      name: 'default',
+      document: {
+        openapi: '3.0.0',
+        info: { title: 'My API' },
+      },
+    })
+
+    expect(infoSpy).toHaveBeenCalled()
+    infoSpy.mockRestore()
+  })
+
   it('correctly update document metadata', async () => {
     const store = createWorkspaceStore()
 

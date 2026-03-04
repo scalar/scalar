@@ -18,9 +18,9 @@
     "openapi",
     "swagger"
   ],
-  "version": "0.1.52",
+  "version": "0.2.0",
   "engines": {
-    "node": ">=20"
+    "node": ">=22"
   },
   "scripts": {
     "build": "svelte-package --input src",

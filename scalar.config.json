@@ -1,5 +1,5 @@
 {
-  "$schema": "https://cdn.scalar.com/schema/scalar-config-next.json",
+  "$schema": "https://registry.scalar.com/@scalar/schemas/config",
   "scalar": "2.0.0",
   "info": {
     "title": "Scalar Documentation",
@@ -553,14 +553,15 @@
       {
         "type": "link",
         "title": "Home",
-        "to": "/",
-        "class": "nav-left"
+        "to": "/"
       },
       {
         "type": "link",
         "title": "Agent",
-        "to": "https://agent.scalar.com",
-        "class": "nav-left"
+        "to": "https://agent.scalar.com"
+      },
+      {
+        "type": "spacer"
       },
       {
         "type": "link",
@@ -1982,6 +1983,12 @@
                 "type": "link"
               }
             }
+          },
+          "/blog/oss-pledge-2024": {
+            "type": "page",
+            "title": "Scalar Joins the Open-Source Pledge",
+            "filepath": "documentation/blog/oss-pledge-2024.md",
+            "showInSidebar": false
           }
         }
       },

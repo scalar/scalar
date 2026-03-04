@@ -68,6 +68,7 @@ import { downloadDocument } from '@/helpers/download'
 import { getIdFromUrl, makeUrlFromId } from '@/helpers/id-routing'
 import {
   scrollToLazy as _scrollToLazy,
+  addToPriorityQueue,
   blockIntersection,
   intersectionEnabled,
 } from '@/helpers/lazy-bus'
@@ -297,6 +298,7 @@ function syncSlugAndUrlWithDocument(
  * Initializes the new client workspace store.
  */
 const workspaceStore = createWorkspaceStore({
+  verbose: isDevelopment,
   plugins: [
     persistencePlugin({
       prefix: () => activeSlug.value,
@@ -820,6 +822,16 @@ eventBus.on('intersecting:nav-item', ({ id }) => {
 eventBus.on('toggle:nav-item', ({ id, open }) => {
   if (open) {
     mergedConfig.value.onShowMore?.(id)
+
+    // Pre-queue first child so it renders immediately when the tag expands
+    const entry = sidebarState.getEntryById(id)
+    if (entry && 'children' in entry && entry.children) {
+      const first = entry.children[0]
+
+      if (first) {
+        addToPriorityQueue(first.id)
+      }
+    }
   }
   sidebarState.setExpanded(id, open ?? !sidebarState.isExpanded(id))
 })
@@ -1001,7 +1013,8 @@ watch(agent.showAgent, () => (bodyScrollLocked.value = agent.showAgent.value))
       <!-- Primary Content -->
       <main
         :aria-label="`Open API Documentation for ${workspaceStore.workspace.activeDocument?.info?.title}`"
-        class="references-rendered">
+        class="references-rendered"
+        :inert="agent.showAgent.value">
         <Content
           :authStore="workspaceStore.auth"
           :document="workspaceStore.workspace.activeDocument"

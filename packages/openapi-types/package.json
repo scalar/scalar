@@ -16,9 +16,9 @@
     "swagger",
     "typescript"
   ],
-  "version": "0.5.4",
+  "version": "0.6.0",
   "engines": {
-    "node": ">=20"
+    "node": ">=22"
   },
   "scripts": {
     "build": "scalar-build-esbuild",

@@ -11,9 +11,9 @@
     "directory": "packages/analytics-client"
   },
   "keywords": [],
-  "version": "1.0.1",
+  "version": "1.1.0",
   "engines": {
-    "node": ">=20"
+    "node": ">=22"
   },
   "scripts": {
     "build": "scalar-build-esbuild",

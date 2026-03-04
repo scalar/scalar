@@ -1,5 +1,11 @@
 # @scalar/galaxy
 
+## 0.6.0
+
+### Minor Changes
+
+- [#8322](https://github.com/scalar/scalar/pull/8322): chore: bump required node version to >=22 (LTS)
+
 ## 0.5.16
 
 ### Patch Changes

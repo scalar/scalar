@@ -11,9 +11,9 @@
     "directory": "packages/build-tooling"
   },
   "keywords": [],
-  "version": "0.4.1",
+  "version": "0.5.0",
   "engines": {
-    "node": ">=20"
+    "node": ">=22"
   },
   "scripts": {
     "build": "node scripts/build-esbuild.js",
