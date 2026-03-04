@@ -3,24 +3,15 @@ import { debounce } from '@scalar/helpers/general/debounce'
 import { createWorkspaceStorePersistence } from '@/persistence'
 import type { WorkspacePlugin } from '@/workspace-plugin'
 
-// Set of weak references to pending flush functions that should run before the page is hidden/unloaded
-const pendingFlushes = new Set<WeakRef<() => void>>()
+const pendingFlushes = new Set<() => void>()
 // Flag to ensure lifecycle event listeners are only initialized once
 let persistenceLifecycleListenersInitialized = false
 
 /**
- * Runs (calls) all pending flush functions that are still alive.
- * Removes dead (garbage-collected) weak refs from the set.
+ * Runs (calls) all pending flush functions.
  */
 const runPendingFlushes = (): void => {
-  for (const flushRef of pendingFlushes) {
-    const flush = flushRef.deref()
-    if (!flush) {
-      // If the flush function has been GCed, remove the weak ref
-      pendingFlushes.delete(flushRef)
-      continue
-    }
-
+  for (const flush of pendingFlushes) {
     flush() // Call the flush function
   }
 }
@@ -70,7 +61,7 @@ export const persistencePlugin = async ({
   // Debounced execute function for batching similar state changes
   const { execute, flushAll } = debounce({ delay: debounceDelay, maxWait })
 
-  pendingFlushes.add(new WeakRef(flushAll))
+  pendingFlushes.add(flushAll)
   initializePersistenceLifecycleListeners()
 
   return {
