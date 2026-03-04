@@ -332,12 +332,6 @@
       "additionalBranchPrefix": "proxy-scalar-com"
     },
     {
-      "description": "Projects - Scalar App",
-      "matchFileNames": ["projects/scalar-app/**"],
-      "additionalBranchPrefix": "scalar-app"
-    },
-
-    {
       "description": "Scripts",
       "matchFileNames": ["tooling/scripts/**"],
       "additionalBranchPrefix": "tooling-scripts"
