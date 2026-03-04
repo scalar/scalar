@@ -1,5 +1,16 @@
 # @scalar/aspnetcore
 
+## 2.12.55
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.46.5**
+  - [#8325](https://github.com/scalar/scalar/pull/8325): fix: delay when clicking "show more" button
+  - [#8334](https://github.com/scalar/scalar/pull/8334): refactor(api-reference): update AgentScalarDrawer
+  - [#8335](https://github.com/scalar/scalar/pull/8335): chore: enable perf logs only for dev environment
+
 ## 2.12.54
 
 ### Patch Changes
