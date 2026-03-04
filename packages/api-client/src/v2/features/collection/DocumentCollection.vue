@@ -29,7 +29,7 @@ import Tabs from './components/Tabs.vue'
 const props = defineProps<RouteProps>()
 
 /** Snag the title from the info object */
-const title = computed(() => props.document?.info?.title || 'Untitled Document')
+const title = computed(() => props.document?.info?.title ?? '')
 
 /** Default to the folder icon */
 const icon = computed(
@@ -49,7 +49,7 @@ const saveChanges = () => {
   <div class="custom-scroll h-full">
     <div
       v-if="document"
-      class="w-full md:mx-auto md:max-w-180">
+      class="w-full px-3 md:mx-auto md:max-w-180">
       <!-- Header -->
       <div
         :aria-label="`title: ${title}`"

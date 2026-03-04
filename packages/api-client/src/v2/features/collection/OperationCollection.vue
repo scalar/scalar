@@ -65,7 +65,7 @@ const operationPlaceholder = computed(() => {
   <div
     v-if="operation !== undefined"
     class="custom-scroll h-full">
-    <div class="w-full md:mx-auto md:max-w-180">
+    <div class="w-full px-3 md:mx-auto md:max-w-180">
       <!-- Header -->
       <div
         :aria-label="`title: ${operationSummary}`"
