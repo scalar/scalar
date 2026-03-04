@@ -132,7 +132,7 @@ const handleEditExample = () => {
     eventBus.emit(
       'ui:open:command-palette',
       {
-        action: 'add-example',
+        action: 'edit-example',
         payload: {
           example: item,
           documentName: getParentEntry('document', itemWithParent)?.name ?? '',
