@@ -10,7 +10,6 @@
     "examples/ssg/**",
     "examples/sveltekit/**",
     "examples/web/**",
-    "projects/client-scalar-com/**",
     "projects/proxy-scalar-com/**"
   ],
   "ignoreFiles": [
