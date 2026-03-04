@@ -553,14 +553,15 @@
       {
         "type": "link",
         "title": "Home",
-        "to": "/",
-        "class": "nav-left"
+        "to": "/"
       },
       {
         "type": "link",
         "title": "Agent",
-        "to": "https://agent.scalar.com",
-        "class": "nav-left"
+        "to": "https://agent.scalar.com"
+      },
+      {
+        "type": "spacer"
       },
       {
         "type": "link",
