@@ -281,7 +281,8 @@ export function createState({
        * from tmp local storage, do not warn the user.
        */
       if (tmp) {
-        return removeTmpDocFromLocalStorage()
+        removeTmpDocFromLocalStorage()
+        throw loadDocumentResult.error
       }
 
       console.warn('[AGENT]: Unable to load document', loadDocumentResult.error)
