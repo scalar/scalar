@@ -39,6 +39,7 @@ onMounted(async () => {
       namespace: tmpDoc.namespace,
       slug: tmpDoc.slug,
       removable: false,
+      tmp: true,
     })
   }
 

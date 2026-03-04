@@ -33,6 +33,15 @@ export function getTmpDocFromLocalStorage() {
     .parse(JSON.parse(tmpDoc))
 }
 
+export function removeTmpDocFromLocalStorage() {
+  const tmpDoc = localStorage.getItem(TMP_DOC_LS_KEY)
+  if (!tmpDoc) {
+    return
+  }
+
+  localStorage.removeItem(TMP_DOC_LS_KEY)
+}
+
 /**
  * Handle uploading a temporary OpenAPI document.
  */
@@ -99,6 +108,7 @@ export function useUploadTmpDocument() {
         namespace: data.namespace,
         slug: data.slug,
         removable: false,
+        tmp: true,
       })
 
       if (!embeddingStatusResponse.ok) {
