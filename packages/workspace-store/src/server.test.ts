@@ -250,6 +250,51 @@ describe('create-server-store', () => {
         'x-scalar-original-document-hash': '',
       })
     })
+
+    it('applies workspace navigationOptions when building initial documents', async () => {
+      const store = await createServerWorkspaceStore({
+        mode: 'ssr',
+        baseUrl: 'https://example.com',
+        navigationOptions: {
+          generateOperationSlug: () => 'workspace-operation',
+        },
+        documents: [
+          {
+            name: 'doc-1',
+            document: exampleDocument(),
+          },
+        ],
+      })
+
+      const document = store.getWorkspace().documents['doc-1']
+      expect(document?.['x-scalar-order']).toEqual(['doc-1/workspace-operation'])
+      expect(document?.['x-scalar-navigation']?.children?.[0]?.id).toBe('doc-1/workspace-operation')
+    })
+
+    it('applies addDocument navigationOptions over workspace defaults', async () => {
+      const store = await createServerWorkspaceStore({
+        mode: 'ssr',
+        baseUrl: 'https://example.com',
+        navigationOptions: {
+          generateOperationSlug: () => 'workspace-operation',
+        },
+        documents: [],
+      })
+
+      await store.addDocument(
+        {
+          name: 'doc-2',
+          document: exampleDocument(),
+        },
+        {
+          generateOperationSlug: () => 'add-document-operation',
+        },
+      )
+
+      const document = store.getWorkspace().documents['doc-2']
+      expect(document?.['x-scalar-order']).toEqual(['doc-2/add-document-operation'])
+      expect(document?.['x-scalar-navigation']?.children?.[0]?.id).toBe('doc-2/add-document-operation')
+    })
   })
 
   describe('ssg', () => {
