@@ -23,7 +23,15 @@ export const persistencePlugin = async ({
   // Create the persistence instance (e.g., IndexedDB, localForage, etc.)
   const persistence = await createWorkspaceStorePersistence()
   // Debounced execute function for batching similar state changes
-  const { execute } = debounce({ delay: debounceDelay, maxWait })
+  const { execute, flushAll } = debounce({ delay: debounceDelay, maxWait })
+
+  window.addEventListener('pagehide', () => flushAll())
+  window.addEventListener('beforeunload', () => flushAll())
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden') {
+      flushAll()
+    }
+  })
 
   return {
     hooks: {
