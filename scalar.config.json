@@ -1999,7 +1999,7 @@
             "type": "page",
             "title": "Safely use APIs with AI",
             "filepath": "documentation/blog/agent-scalar.md",
-            "showInSidebar": false,
+            "showInSidebar": false
           },
           "/blog/oss-pledge-2024": {
             "type": "page",
