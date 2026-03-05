@@ -30,3 +30,5 @@ rollup.config-*.mjs
 
 .pnpm-store/
 .venv
+
+.idea
