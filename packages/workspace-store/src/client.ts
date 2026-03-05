@@ -16,7 +16,7 @@ import YAML from 'yaml'
 
 import { type AuthStore, createAuthStore } from '@/entities/auth'
 import { type HistoryStore, createHistoryStore } from '@/entities/history'
-import { applySelectiveUpdates } from '@/helpers/apply-selective-updates'
+import { EXCLUDE_KEYS, applySelectiveUpdates } from '@/helpers/apply-selective-updates'
 import { deepClone } from '@/helpers/deep-clone'
 import { createDetectChangesProxy } from '@/helpers/detect-changes-proxy'
 import { type UnknownObject, safeAssign } from '@/helpers/general'
@@ -45,6 +45,7 @@ import {
 import type {
   DocumentMetaExtensions,
   Workspace,
+  WorkspaceDocument,
   WorkspaceDocumentMeta,
   WorkspaceExtensions,
   WorkspaceMeta,
@@ -231,10 +232,10 @@ export type WorkspaceStore = {
    * @param value - The new value for the selected metadata field.
    * @returns true if the update was successful, false otherwise.
    * @example
-   * // Update the auth metadata for the active document
-   * updateDocument('active', 'x-scalar-active-auth', 'Bearer')
-   * // Update the auth metadata for a specific document
-   * updateDocument('document-name', 'x-scalar-active-auth', 'Bearer')
+   * // Update the selected server for the active document
+   * updateDocument('active', 'x-scalar-selected-server', 'staging')
+   * // Update the selected server for a specific document
+   * updateDocument('document-name', 'x-scalar-selected-server', 'staging')
    */
   updateDocument<K extends keyof DocumentMetaExtensions>(
     name: 'active' | (string & {}),
@@ -283,7 +284,6 @@ export type WorkspaceStore = {
    *     info: { title: 'title' },
    *   },
    *   meta: {
-   *     'x-scalar-active-auth': 'Bearer',
    *     'x-scalar-selected-server': 'production'
    *   }
    * })
@@ -357,6 +357,13 @@ export type WorkspaceStore = {
    * const yamlString = store.exportActiveDocument('yaml')
    */
   exportActiveDocument(format: 'json' | 'yaml', minify?: boolean): string | undefined
+  /**
+   * Returns the editable version of the specified document.
+   *
+   * @param documentName - The name of the document to get the editable version of.
+   * @returns The editable version of the document, or undefined if the document does not exist.
+   */
+  getEditableDocument(documentName: string): Promise<WorkspaceDocument | null>
   /**
    * Saves the current state of the specified document to the intermediate documents map.
    *
@@ -1001,6 +1008,39 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
   }
 
   /**
+   * Retrieves an editable clone of a workspace document.
+   *
+   * - Unpacks the proxied document from the workspace.
+   * - Reverses all external references, restoring original $refs.
+   * - Removes transient/in-memory keys defined in EXCLUDE_KEYS.
+   *
+   * @param documentName The name of the document to retrieve.
+   * @returns The editable document object, or null if not found.
+   */
+  const getEditableDocument = async (documentName: string) => {
+    const rawDocument = unpackProxyObject(workspace.documents[documentName], { depth: 1 })
+
+    if (!rawDocument) {
+      // If the document does not exist, return null
+      return null
+    }
+
+    // Reverse all external references and restore original $refs
+    const original = (await bundle(deepClone(rawDocument), {
+      plugins: [restoreOriginalRefs()],
+      treeShake: false,
+      urlMap: true,
+    })) as WorkspaceDocument & { 'x-ext-urls'?: unknown; 'x-ext'?: unknown }
+
+    // Remove properties that should only exist in memory for the original document
+    for (const property of EXCLUDE_KEYS) {
+      delete original[property as keyof WorkspaceDocument]
+    }
+
+    return original
+  }
+
+  /**
    * Builds (or updates) the navigation sidebar for the specified document.
    *
    * This method generates the sidebar navigation structure for a workspace document,
@@ -1049,6 +1089,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       preventPollution(key)
       Object.assign(workspace, { [key]: value })
     },
+    getEditableDocument,
     updateDocument<K extends keyof DocumentMetaExtensions>(
       name: 'active' | (string & {}),
       key: K,
@@ -1079,8 +1120,10 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         documentSource: currentDocument['x-scalar-original-source-url'],
         documentHash: currentDocument['x-scalar-original-document-hash'],
         meta: {
-          'x-scalar-active-auth': currentDocument['x-scalar-active-auth'],
-          'x-scalar-selected-server': currentDocument['x-scalar-selected-server'],
+          // Set the document as dirty
+          'x-scalar-is-dirty': true,
+          // Clear the navigation to trigger a rebuild
+          'x-scalar-navigation': undefined,
         },
         initialize: false,
       })

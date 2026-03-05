@@ -32,7 +32,7 @@
     "@scalar/use-hooks": "workspace:*",
     "@scalar/workspace-store": "workspace:*",
     "@vueuse/core": "catalog:*",
-    "monaco-editor": "^0.47.0",
+    "monaco-editor": "catalog:*",
     "vue": "catalog:*",
     "vue-router": "^4.3.0"
   },

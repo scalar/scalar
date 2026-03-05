@@ -55,15 +55,13 @@ export const createApiClientApp = async (
 ) => {
   // Add the router
   const router = createAppRouter(layout)
-  const state = await createAppState({ router })
+  const state = await createAppState({ router, customThemes, fallbackThemeSlug })
   const commandPaletteState = useCommandPaletteState()
 
   // Pass in our initial props at the top level
   const app = createApp(App, {
     layout,
     plugins,
-    customThemes,
-    fallbackThemeSlug,
     getAppState: () => state,
     getCommandPaletteState: () => commandPaletteState,
   })
