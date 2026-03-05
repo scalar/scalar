@@ -37,7 +37,7 @@ We ran identical tasks across three approaches:
 
 1. Raw OpenAPI documents in prompt
 2. Native MCP server (one tool per endpoint)
-3. Agent Scalar (3 tools: search, mini-spec, execute)
+3. Agent Scalar (3 tools: summarize, search and execute)
 
 We used [Zoom Meetings API](https://developers.zoom.us/docs/api/meetings/) (list, create, update) and [Notions API](https://developers.notion.com/guides/get-started/getting-started) (search, create page, get workspace). Example Notion prompts are aligned with Notion's MCP tools guide.
 
@@ -107,7 +107,10 @@ Guess who's the clear winner with just 0.2% of your context window: Agent Scalar
 
 1. Upload your OpenAPI document to Scalar.
 2. Scalar augments it for search and execution.
-3. Agents connect via MCP with three tools: `get-openapi-specs-summary`, `get-mini-openapi-spec`, `execute-request`.
+3. Agents connect via MCP with three tools:
+   * `summarize-openapi-specs` (short summary of specs and available endpoints)
+   * `search-openapi-operations` (minified OpenAPI documents for the endpoints matching the user's search), and
+   * `execute-request`
 
 ## Try it
 
