@@ -15,7 +15,7 @@ const routes = computed(() => {
   }
 
   if (type === 'operation') {
-    return ['overview', 'servers', 'authentication']
+    return ['overview', 'servers', 'authentication', 'editor']
   }
 
   return [

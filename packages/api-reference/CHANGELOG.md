@@ -1,5 +1,32 @@
 # @scalar/api-reference
 
+## 1.48.0
+
+### Minor Changes
+
+- [#8266](https://github.com/scalar/scalar/pull/8266): support operation level authentication and servers
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/agent-chat@0.9.0**
+  - [#8345](https://github.com/scalar/scalar/pull/8345): feat: remove tmp document on fail
+  - [#8266](https://github.com/scalar/scalar/pull/8266): support operation level authentication and servers
+
+- **@scalar/workspace-store@0.37.0**
+  - [#8266](https://github.com/scalar/scalar/pull/8266): support operation level authentication and servers
+
+- **@scalar/api-client@2.33.0**
+  - [#8266](https://github.com/scalar/scalar/pull/8266): support operation level authentication and servers
+
+- **@scalar/oas-utils@0.10.0**
+  - [#8266](https://github.com/scalar/scalar/pull/8266): support operation level authentication and servers
+
+- **@scalar/sidebar@0.8.1**
+
+- **@scalar/components@0.20.1**
+
 ## 1.47.0
 
 ### Minor Changes

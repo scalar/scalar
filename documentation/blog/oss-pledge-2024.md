@@ -8,7 +8,7 @@ You can read more about it [here](https://osspledge.com/), but in short, it's pa
 
 When we met Chad Whitacre at the Open-Source Summit in Seattle earlier this year, we instantly bonded over all things open-source! He also told me about the very early stages of the Open-Source Pledge that Sentry was starting and I couldn't have been more excited about joining it.
 
-![](../assets/blog/oss-pledge.jpeg)
+![](../assets/blog/oss-pledge.jpg)
 
 > [@getsentry](https://x.com/getsentry) & [@scalar](https://x.com/scalar) love open-source!
 >
