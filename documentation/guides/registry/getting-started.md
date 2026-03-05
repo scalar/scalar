@@ -233,8 +233,9 @@ All of this with just a couple clicks or a few API requests! You handle making y
         <div class="w-1/3 flex flex-col gap-2">
           <b>Company</b>
           <a class="text-c-2 hover:text-c-1 font-normal" href="mailto:support@scalar.com" target="_blank">Support</a>
-          <a class="text-c-2 hover:text-c-1 font-normal" href="https://scalar.com/terms-and-conditions" target="_blank">Terms of Service</a>
-          <a class="text-c-2 hover:text-c-1 font-normal" href="https://scalar.com/privacy-policy" target="_blank">Privacy Policy</a>
+          <a class="text-c-2 hover:text-c-1 font-normal" href="/legal/terms-and-conditions">Terms of Service</a>
+          <a class="text-c-2 hover:text-c-1 font-normal" href="/legal/privacy-policy">Privacy Policy</a>
+          <button class="cky-banner-element text-c-2 hover:text-c-1 font-normal">Cookie Preferences</button>
         </div>
         <div class="w-1/3 flex flex-col gap-2">
           <b>Socials</b>
@@ -543,7 +544,8 @@ All of this with just a couple clicks or a few API requests! You handle making y
   }
   .footer-content span,
   .footer-content p,
-  .footer-content a {
+  .footer-content a,
+  .footer-content button {
     position: relative;
     z-index: 1;
   }
