@@ -30,7 +30,7 @@ type CreateApiClientOptions = {
    * Fallback theme slug to use if no theme is selected for the workspace
    * @default 'default'
    */
-  fallbackThemeSlug?: string
+  fallbackThemeSlug?: () => string
 }
 
 /**
@@ -51,7 +51,7 @@ export const createAppRouter = (layout: CreateApiClientOptions['layout']) => {
  */
 export const createApiClientApp = async (
   el: HTMLElement | null,
-  { layout = 'desktop', plugins, customThemes, fallbackThemeSlug = 'default' }: CreateApiClientOptions,
+  { layout = 'desktop', plugins, customThemes, fallbackThemeSlug }: CreateApiClientOptions,
 ) => {
   // Add the router
   const router = createAppRouter(layout)
