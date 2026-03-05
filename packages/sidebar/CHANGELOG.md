@@ -1,5 +1,16 @@
 # @scalar/sidebar
 
+## 0.8.1
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.37.0**
+  - [#8266](https://github.com/scalar/scalar/pull/8266): support operation level authentication and servers
+
+- **@scalar/components@0.20.1**
+
 ## 0.8.0
 
 ### Minor Changes

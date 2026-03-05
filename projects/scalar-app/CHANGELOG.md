@@ -1,5 +1,14 @@
 # scalar-app
 
+## 0.2.1
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-client@2.33.0**
+  - [#8266](https://github.com/scalar/scalar/pull/8266): support operation level authentication and servers
+
 ## 0.2.0
 
 ### Minor Changes

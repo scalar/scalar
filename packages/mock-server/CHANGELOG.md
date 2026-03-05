@@ -1,5 +1,14 @@
 # @scalar/mock-server
 
+## 0.9.1
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/oas-utils@0.10.0**
+  - [#8266](https://github.com/scalar/scalar/pull/8266): support operation level authentication and servers
+
 ## 0.9.0
 
 ### Minor Changes
