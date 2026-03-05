@@ -1611,6 +1611,11 @@
                     "type": "page",
                     "filepath": "documentation/guides/agent/mcp.md"
                   },
+                  "sdk": {
+                    "title": "SDK",
+                    "type": "page",
+                    "filepath": "documentation/guides/agent/sdk.md"
+                  },
                   "pricing": {
                     "title": "Pricing",
                     "type": "page",

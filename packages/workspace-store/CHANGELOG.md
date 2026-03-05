@@ -1,5 +1,11 @@
 # @scalar/workspace-store
 
+## 0.37.0
+
+### Minor Changes
+
+- [#8266](https://github.com/scalar/scalar/pull/8266): support operation level authentication and servers
+
 ## 0.36.0
 
 ### Minor Changes

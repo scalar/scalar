@@ -11,6 +11,7 @@ import type { RouteRecordRaw } from 'vue-router'
 import type { MergedSecuritySchemes } from '@/v2/blocks/scalar-auth-selector-block/helpers/merge-security'
 import Authentication from '@/v2/features/collection/components/Authentication.vue'
 import Cookies from '@/v2/features/collection/components/Cookies.vue'
+import { Editor } from '@/v2/features/collection/components/Editor'
 import Environment from '@/v2/features/collection/components/Environment.vue'
 import Overview from '@/v2/features/collection/components/Overview.vue'
 import Servers from '@/v2/features/collection/components/Servers.vue'
@@ -24,21 +25,36 @@ import type { ClientLayout } from '@/v2/types/layout'
 
 /** These props are provided at the route level */
 export type RouteProps = {
+  /** The slug of the currently selected document in the workspace */
   documentSlug: string
+  /** The currently active document */
   document: WorkspaceDocument | null
+  /** The workspace event bus */
   eventBus: WorkspaceEventBus
+  /** The layout of the client */
   layout: ClientLayout
+  /** The API path currently selected (e.g. "/users/{id}") */
   path?: string
+  /** The HTTP method for the currently selected API path (e.g. GET, POST) */
   method?: HttpMethod
+  /** The name of the currently selected example (for examples within an endpoint) */
   exampleName?: string
+  /** The currently active environment */
   environment: XScalarEnvironment
+  /** The merged security schemes */
   securitySchemes: MergedSecuritySchemes
+  /** The workspace store */
   workspaceStore: WorkspaceStore
+  /** The currently active workspace */
   activeWorkspace: { id: string; label: string }
+  /** Client plugins */
   plugins: ClientPlugin[]
+  /** Custom themes available to the team */
   customThemes?: Theme[]
-  // workspaceSlug: string
-  // documentSlug?: string
+  /** The currently selected theme styles string */
+  currentTheme?: string
+  /** Whether the current color mode is dark */
+  isDarkMode?: boolean
 }
 
 /** When in the collections pages */
@@ -101,6 +117,11 @@ export const ROUTES = [
                     name: 'operation.authentication',
                     path: 'authentication',
                     component: Authentication,
+                  },
+                  {
+                    name: 'operation.editor',
+                    path: 'editor',
+                    component: Editor,
                   },
                 ],
               },
