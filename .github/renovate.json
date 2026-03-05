@@ -327,11 +327,6 @@
     },
 
     {
-      "description": "Projects - Client Scalar.com",
-      "matchFileNames": ["projects/client-scalar-com/**"],
-      "additionalBranchPrefix": "client-scalar-com"
-    },
-    {
       "description": "Projects - Proxy Scalar.com",
       "matchFileNames": ["projects/proxy-scalar-com/**"],
       "additionalBranchPrefix": "proxy-scalar-com"
