@@ -143,4 +143,4 @@ await Promise.all(servers.map((s) => s.close()))
 
 Agent Scalar is able to scale across N APIs that you want your agent to have access to, without flooding the context window and yielding the most accurate tool calling. Crazy, eh?
 
-**Mar 4, 2025**
+**Mar 5, 2026**

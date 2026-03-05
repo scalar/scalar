@@ -1,10 +1,10 @@
 # Blog
 
-## [Safely use APIs with AI](./agent-scalar.md)
+## [Your API? 0.2% of your context window](./agent-scalar.md)
 
-**Mar 4, 2025**
+**Mar 5, 2025**
 
-Large APIs are a worst-case workload for agent tool use. Agent Scalar keeps the tool surface fixed and fetches just-in-time details – smaller context, fewer steps, and better routing. Benchmarks vs. raw OpenAPI and native MCP included.
+Big APIs blow past context limits with raw OpenAPI and still cost a lot with native MCP. Agent Scalar uses three fixed tools and fetches just-in-time details – so your agent uses 0.2% of the context window, fewer steps, and better routing. Benchmarks on Zoom and Notion included.
 
 [Read more →](./agent-scalar.md)
 
