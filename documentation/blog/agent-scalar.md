@@ -11,12 +11,18 @@ I'm glad to say, we found something better. It's called [Agent Scalar](../guides
 
 Agent Scalar keeps the tool surface fixed and super small. It fetches just-in-time details. The result is smaller context, fewer steps, and better routing. And happy agents. :-)
 
-## Demo
+## Get Started
 
 <scalar-button
   title="Chat with Agent Scalar"
   href="https://agent.scalar.com"
   icon="phosphor/regular/chat-circle-dots">
+</scalar-button>
+
+<scalar-button
+  title="Create your own MCP"
+  href="https://dashboard.scalar.com/register"
+  icon="phosphor/regular/cpu">
 </scalar-button>
 
 ## The problem
