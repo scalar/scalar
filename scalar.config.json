@@ -1997,7 +1997,7 @@
           },
           "/blog/agent-scalar": {
             "type": "page",
-            "title": "Safely use APIs with AI",
+            "title": "Introducing Agent Scalar",
             "filepath": "documentation/blog/agent-scalar.md",
             "showInSidebar": false
           },
