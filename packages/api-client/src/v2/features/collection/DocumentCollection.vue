@@ -16,9 +16,8 @@ export default {
 import { ScalarButton, ScalarModal, useModal } from '@scalar/components'
 import { ScalarIconFloppyDisk } from '@scalar/icons'
 import { LibraryIcon } from '@scalar/icons/library'
-import type { Difference } from '@scalar/json-magic/diff'
-import { unpackProxyObject } from '@scalar/workspace-store/helpers/unpack-proxy'
-import { computed, ref } from 'vue'
+import { apply, diff, merge } from '@scalar/json-magic/diff'
+import { computed } from 'vue'
 import { RouterView } from 'vue-router'
 
 import IconSelector from '@/components/IconSelector.vue'
@@ -31,14 +30,6 @@ import Tabs from './components/Tabs.vue'
 
 const props = defineProps<RouteProps>()
 
-type SyncStatus =
-  | 'idle'
-  | 'running'
-  | 'success'
-  | 'no-changes'
-  | 'conflicts'
-  | 'error'
-
 /** Snag the title from the info object */
 const title = computed(() => props.document?.info?.title || 'Untitled Document')
 
@@ -48,22 +39,6 @@ const icon = computed(
 )
 
 const syncModal = useModal()
-const syncStatus = ref<SyncStatus>('idle')
-const syncMessage = ref(
-  'Run a sync test to check this document against its source URL.',
-)
-const syncConflicts = ref<
-  Array<[Difference<unknown>[], Difference<unknown>[]]>
->([])
-const syncBaseDocument = ref<Record<string, unknown>>({})
-const syncCurrentDocument = ref<Record<string, unknown>>({})
-const isApplyingConflictResolutions = ref(false)
-const applyConflictResolutions = ref<
-  ((resolvedConflicts: Difference<unknown>[]) => Promise<void>) | null
->(null)
-const hasRemoteSource = computed(() =>
-  Boolean(props.document?.['x-scalar-original-source-url']),
-)
 
 const undoChanges = () => {
   props.workspaceStore.revertDocumentChanges(props.documentSlug)
@@ -73,104 +48,73 @@ const saveChanges = () => {
   props.workspaceStore.saveDocument(props.documentSlug)
 }
 
-const runSyncTest = async () => {
-  if (!props.documentSlug || !props.document) {
-    syncStatus.value = 'error'
-    syncMessage.value = 'No active document is available for sync testing.'
-    return
-  }
-
-  const sourceUrl = props.document['x-scalar-original-source-url']
-  if (!sourceUrl) {
-    syncStatus.value = 'error'
-    syncMessage.value =
-      'This document has no source URL, so sync testing is unavailable.'
-    return
-  }
-
-  syncStatus.value = 'running'
-  syncMessage.value = `Testing document sync against ${sourceUrl}...`
-  syncConflicts.value = []
-  applyConflictResolutions.value = null
-
-  try {
-    const result = await props.workspaceStore.rebaseDocument({
-      name: props.documentSlug,
-      url: sourceUrl,
-    })
-
-    if (result?.ok) {
-      if (result.conflicts.length > 0) {
-        const workspaceSnapshot = props.workspaceStore.exportWorkspace()
-        syncBaseDocument.value =
-          unpackProxyObject(
-            workspaceSnapshot.originalDocuments[props.documentSlug],
-            { depth: 1 },
-          ) ?? {}
-        syncCurrentDocument.value = JSON.parse(
-          JSON.stringify(unpackProxyObject(props.document, { depth: 1 })),
-        ) as Record<string, unknown>
-        syncConflicts.value = result.conflicts
-        applyConflictResolutions.value = result.applyChanges
-        syncStatus.value = 'conflicts'
-        syncMessage.value = `Sync test found ${result.conflicts.length} conflict${result.conflicts.length === 1 ? '' : 's'}.`
-        return
-      }
-
-      syncStatus.value = 'success'
-      syncMessage.value =
-        'Sync test passed. Remote changes can be merged automatically.'
-      return
-    }
-
-    if (result?.ok === false && result.type === 'NO_CHANGES_DETECTED') {
-      syncStatus.value = 'no-changes'
-      syncMessage.value = 'Sync test passed. No remote changes were detected.'
-      return
-    }
-
-    syncStatus.value = 'error'
-    syncMessage.value =
-      result?.message ?? 'Sync test failed due to an unexpected error.'
-  } catch (error) {
-    syncStatus.value = 'error'
-    syncMessage.value =
-      error instanceof Error
-        ? error.message
-        : 'Sync test failed due to an unexpected error.'
-  }
+const baseDocument = {
+  info: {
+    title: title.value,
+  },
+  paths: {
+    '/': {
+      get: {
+        summary: 'Get the root path',
+        operationId: 'getRoot',
+      },
+    },
+  },
+  components: {},
+  securitySchemes: {},
+  servers: [],
+  tags: [],
+  externalDocs: {},
 }
 
-const handleApplyConflictResolutions = async (
-  resolvedConflicts: Difference<unknown>[],
-) => {
-  const apply = applyConflictResolutions.value
-  if (!apply) {
-    return
-  }
-
-  try {
-    isApplyingConflictResolutions.value = true
-    await apply(resolvedConflicts)
-    syncStatus.value = 'success'
-    syncMessage.value = 'Conflict resolution applied and document synced.'
-    syncConflicts.value = []
-    applyConflictResolutions.value = null
-  } catch (error) {
-    syncStatus.value = 'error'
-    syncMessage.value =
-      error instanceof Error
-        ? error.message
-        : 'Failed to apply conflict resolutions.'
-  } finally {
-    isApplyingConflictResolutions.value = false
-  }
+const remoteBase = {
+  info: {
+    title: title.value,
+  },
+  paths: {
+    '/': {},
+  },
+  components: {},
+  securitySchemes: {},
+  servers: [],
+  tags: [],
+  externalDocs: {},
 }
 
-const openSyncModal = () => {
-  syncModal.show()
-  void runSyncTest()
+const locanIntermediate = {
+  info: {
+    title: title.value,
+  },
+  paths: {
+    '/': {
+      get: {
+        summary: 'Some updated summary',
+        operationId: 'getRoot',
+      },
+      post: {
+        summary: 'Create a new root path',
+        operationId: 'createRoot',
+      },
+    },
+  },
+  components: {},
+  securitySchemes: {},
+  servers: [],
+  tags: [],
+  externalDocs: {},
 }
+
+const changelogAA = diff(baseDocument, locanIntermediate)
+const changelogAB = diff(baseDocument, remoteBase)
+
+const changesA = merge(changelogAA, changelogAB)
+
+console.log({ changelogAA, changelogAB, changesA })
+
+const resolvedDocument = apply(
+  JSON.parse(JSON.stringify(baseDocument)),
+  changesA.diffs,
+)
 </script>
 
 <template>
@@ -243,11 +187,10 @@ const openSyncModal = () => {
 
           <ScalarButton
             data-testid="document-sync-button"
-            :disabled="!hasRemoteSource"
             size="xs"
             type="button"
             variant="outlined"
-            @click="openSyncModal">
+            @click="syncModal.show()">
             Sync
           </ScalarButton>
         </div>
@@ -280,52 +223,15 @@ const openSyncModal = () => {
     </div>
   </div>
   <ScalarModal
-    :bodyClass="
-      syncStatus === 'conflicts'
-        ? 'sync-conflict-modal-root flex h-dvh flex-col p-4'
-        : undefined
-    "
-    :maxWidth="syncStatus === 'conflicts' ? 'calc(100dvw - 32px)' : undefined"
-    :size="syncStatus === 'conflicts' ? 'full' : 'md'"
+    bodyClass="sync-conflict-modal-root flex h-dvh flex-col p-4"
+    maxWidth="calc(100dvw - 32px)"
+    size="full"
     :state="syncModal">
-    <div
-      class="flex min-h-0 flex-col gap-4"
-      :class="
-        syncStatus === 'conflicts'
-          ? 'h-full overflow-hidden'
-          : 'max-h-[75vh] overflow-auto'
-      ">
-      <p class="text-c-2 text-sm">
-        {{ syncMessage }}
-      </p>
+    <div class="flex h-full min-h-0 flex-col gap-4 overflow-hidden">
       <SyncConflictResolutionEditor
-        v-if="syncStatus === 'conflicts' && syncConflicts.length > 0"
-        :baseDocument="syncBaseDocument"
-        :conflicts="syncConflicts"
-        :document="syncCurrentDocument"
-        :isApplying="isApplyingConflictResolutions"
-        @apply="handleApplyConflictResolutions" />
-      <div class="flex shrink-0 justify-end gap-2">
-        <ScalarButton
-          size="xs"
-          type="button"
-          variant="ghost"
-          @click="syncModal.hide()">
-          Close
-        </ScalarButton>
-        <ScalarButton
-          :disabled="
-            syncStatus === 'running' ||
-            syncStatus === 'conflicts' ||
-            isApplyingConflictResolutions
-          "
-          size="xs"
-          type="button"
-          variant="outlined"
-          @click="runSyncTest">
-          {{ syncStatus === 'running' ? 'Testing...' : 'Run Again' }}
-        </ScalarButton>
-      </div>
+        :baseDocument="baseDocument"
+        :conflicts="changesA.conflicts"
+        :resolvedDocument="resolvedDocument" />
     </div>
   </ScalarModal>
 </template>
