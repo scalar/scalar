@@ -16,12 +16,12 @@ Scalar offers a free tier and transparent pricing compared to Bump.sh.
 | Plan       |        Scalar         |      Bump.sh      |
 | ---------- | :-------------------: | :---------------: |
 | Free       |           ✓           |         ✗         |
-| Starter    | $72/month (Pro, min 3 seats)  | $50/month (Basic) |
-| Team       | $72/month + fees (min 3 seats) | $250/month (Pro)  |
+| Starter    | $72/mo (Pro, 3-seat min)  | $50/month (Basic) |
+| Team       | $72/mo + fees (3-seat min) | $250/month (Pro)  |
 | Enterprise |    Custom pricing     |  Custom pricing   |
 
 - Scalar offers a free plan, Bump.sh does not
-- Scalar Pro starts at $72/month (min 3 seats) vs Bump.sh Basic at $50/month
+- Scalar Pro starts at $72/mo (3-seat min) vs Bump.sh Basic at $50/month
 - Scalar Pro with additional seats is significantly lower than Bump.sh Pro ($250/month)
 - Resource limits: Bump.sh has hard limits on docs and users per plan, while Scalar uses usage-based pricing
 

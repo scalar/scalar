@@ -23,14 +23,14 @@ const { navigateToSignup } = useSignupLink()
         Upgrade
       </button>
       <div class="paymentInfo">
-        <h3>Starting at $72 <span>/ month (min 3 seats)</span></h3>
+        <h3>$72 <span>/ month</span></h3>
         <div class="paymentInfoSection">
           <div class="paymentInfoItem">
-            <span>Minimum seats</span>
+            <span>Seat minimum</span>
             <span>3</span>
           </div>
           <div class="paymentInfoItem">
-            <span>Starting monthly price</span>
+            <span>Base monthly total</span>
             <span>$72.00</span>
           </div>
         </div>
