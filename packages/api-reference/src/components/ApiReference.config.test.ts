@@ -176,8 +176,8 @@ describe('ApiReference Configuration Tests', () => {
     // hideSearch: undefined -> false
     expect(searchButton.exists()).toBe(true)
 
-    // hideClientButton: undefined -> true
-    expect(clientButton.exists()).toBe(true)
+    // hideClientButton: undefined -> false
+    expect(clientButton.exists()).toBe(false)
 
     // defaultOpenAllTags: undefined -> false
     expect(wrapper.findComponent({ name: 'Content' }).text().includes('Get others')).toBe(false)
