@@ -190,9 +190,9 @@ export const apiReferenceConfigurationSchema = baseConfigurationSchema.extend({
   mcp: z
     .object({
       /** Display name for the MCP server */
-      name: z.string(),
+      name: z.string().optional(),
       /** URL of the MCP server */
-      url: z.string(),
+      url: z.string().optional(),
       /** When true, disables the MCP integration */
       disabled: z.boolean().optional(),
     })
