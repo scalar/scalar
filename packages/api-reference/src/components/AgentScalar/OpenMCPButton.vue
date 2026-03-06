@@ -4,8 +4,8 @@ import { useClipboard } from '@scalar/use-hooks/useClipboard'
 
 const props = defineProps<{
   config?: {
-    name: string
-    url: string
+    name?: string
+    url?: string
   }
 }>()
 
