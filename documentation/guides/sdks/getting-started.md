@@ -3,7 +3,7 @@
 </div>
 <div class="flex flex-col gap-3 hero small-test">
   <scalar-heading level="2" slug="scalar-sdks" class="text-balance">
-    Scalar SDKs
+    SDKs
   </scalar-heading>
   <p>
     Get started with generating world-class SDKs in minutes on scalar.com in several languages: TypeScript, Python, Golang & more.
@@ -123,7 +123,7 @@ Once created, you will get redirected to the SDK Overview page where you can:
         <a class="flex items-center gap-1.5 font-medium text-c-2 hover:bg-b-2 rounded px-2 p-1" href="/products/sdks/publishing"><scalar-icon src="phosphor/bold/package"></scalar-icon> Publishing to npm</a>
       </p>
       <p>
-        <a class="flex items-center gap-1.5 font-medium text-c-2 hover:bg-b-2 rounded px-2 p-1" href="/products/registry/getting-started"><scalar-icon src="phosphor/bold/seal-check"></scalar-icon> Scalar Registry</a>
+        <a class="flex items-center gap-1.5 font-medium text-c-2 hover:bg-b-2 rounded px-2 p-1" href="/products/registry/getting-started"><scalar-icon src="phosphor/bold/seal-check"></scalar-icon> Registry</a>
       </p>
       <p class="mt-3 mb-1 pl-2">
         <b class="font-medium">Community</b>

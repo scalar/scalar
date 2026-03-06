@@ -44,7 +44,7 @@
           </header>
           <div class="st_wrap_table text-sm" data-table_id="0">
           <div class="pricing-table-group">
-            <header class="pricing-table-group-heading">Scalar Docs</header>
+            <header class="pricing-table-group-heading">Docs</header>
             <div class="pricing-table-row">
               <div class="pricing-table-column">Subdomains</div>
               <div class="pricing-table-column"><scalar-icon src="phosphor/bold/check"></scalar-icon></div>
@@ -156,7 +156,7 @@
           </div>
         </div>
         <div class="st_wrap_table" data-table_id="1">
-          <header class="pricing-table-group-heading">Scalar API Client</header>
+          <header class="pricing-table-group-heading">API Client</header>
                     <div class="pricing-table-group">
            <div class="pricing-table-row">
              <div class="pricing-table-column">REST Client</div>
@@ -293,7 +293,7 @@
            </div>
         </div>
         <div class="st_wrap_table" data-table_id="2">
-          <header class="pricing-table-group-heading">Scalar SDKs</header>
+          <header class="pricing-table-group-heading">SDKs</header>
           <div class="pricing-table-group">
             <div class="pricing-table-row">
               <div class="pricing-table-column">TypeScript SDK</div>
@@ -406,7 +406,7 @@
           </div>
         </div>
         <div class="st_wrap_table" data-table_id="3">
-          <header class="pricing-table-group-heading">Scalar Registry</header>
+          <header class="pricing-table-group-heading">Registry</header>
           <div class="pricing-table-group">
             <div class="pricing-table-row">
               <div class="pricing-table-column">OpenAPI, JSON Schema support</div>
@@ -495,7 +495,7 @@
           </div>
         </div>
         <div class="st_wrap_table" data-table_id="4">
-          <header class="pricing-table-group-heading">Agent Scalar</header>
+          <header class="pricing-table-group-heading">Agent</header>
           <div class="pricing-table-group">
             <div class="pricing-table-row">
               <div class="pricing-table-column">Chat on localhost</div>

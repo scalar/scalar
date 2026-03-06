@@ -1,11 +1,11 @@
-# Agent Scalar
+# Agent
 
-Agent Scalar adds an AI chat interface to your API reference. Users can ask questions about your API and receive contextual answers based on your OpenAPI document.
+Agent adds an AI chat interface to your API reference. Users can ask questions about your API and receive contextual answers based on your OpenAPI document.
 
 ## Demo
 
 <scalar-button
-  title="Chat with Agent Scalar"
+  title="Chat with Agent"
   href="https://agent.scalar.com"
   icon="phosphor/regular/chat-circle-dots">
 </scalar-button>
@@ -26,7 +26,7 @@ Ready to upgrade? Read more about the [pricing](./pricing.md).
 
 ## Local Development
 
-Agent Scalar is enabled by default on `http://localhost` with 10 free messages. No configuration required.
+Agent is enabled by default on `http://localhost` with 10 free messages. No configuration required.
 
 ```js
 Scalar.createApiReference('#app', {
@@ -38,7 +38,7 @@ The chat icon appears in the top left corner.
 
 ## Production Deployment
 
-Agent Scalar requires a key for production. Without a key, the button and chat interface does not appear.
+Agent requires a key for production. Without a key, the button and chat interface does not appear.
 
 ```js
 Scalar.createApiReference('#app', {
@@ -53,11 +53,11 @@ Scalar.createApiReference('#app', {
 })
 ```
 
-See [How to get an Agent Scalar key](key.md).
+See [How to get an Agent key](key.md).
 
-## Disabling Agent Scalar
+## Disabling Agent
 
-To disable Agent Scalar entirely (including on localhost):
+To disable Agent entirely (including on localhost):
 
 ```js
 Scalar.createApiReference('#app', {
@@ -93,13 +93,13 @@ The `agent` configuration accepts:
 
 | Property     | Type      | Default     | Description                                                               |
 | ------------ | --------- | ----------- | ------------------------------------------------------------------------- |
-| `key`        | `string`  | `undefined` | Your Agent Scalar key                                                     |
-| `disabled`   | `boolean` | `false`     | Enable or disable Agent Scalar                                            |
+| `key`        | `string`  | `undefined` | Your Agent key                                                     |
+| `disabled`   | `boolean` | `false`     | Enable or disable Agent                                            |
 | `hideAddApi` | `boolean` | `false`     | Hide the control to add more APIs; only preloaded/registry APIs are shown |
 
 ### Per-Source Configuration
 
-When using multiple sources, configure Agent Scalar per source:
+When using multiple sources, configure Agent per source:
 
 ```js
 Scalar.createApiReference('#app', {
