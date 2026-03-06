@@ -22,7 +22,7 @@ When you use Agent Scalar in API References or Docs, usage is billed by message 
 
 | Plan       | Price              | Messages Included | Additional Messages |
 | ---------- | ------------------ | ----------------- | ------------------- |
-| Scalar Pro | $24/month per user | 250 messages      | $0.02 per message   |
+| Scalar Pro | Starts at $72/month (min 3 seats) | 250 messages      | $0.02 per message   |
 
 #### Pricing Example
 
@@ -30,9 +30,9 @@ Here is what you would pay for different message levels under the Scalar Pro pla
 
 | Total Messages | Included | Additional | Total Price                      |
 | -------------- | -------- | ---------- | -------------------------------- |
-| 250            | 250      | 0          | $24 (base price)                 |
-| 1,000          | 250      | 750        | $24 + (750 × $0.02) = **$39**    |
-| 5,000          | 250      | 4,750      | $24 + (4,750 × $0.02) = **$119** |
+| 250            | 250      | 0          | $72 (base price)                 |
+| 1,000          | 250      | 750        | $72 + (750 × $0.02) = **$87**    |
+| 5,000          | 250      | 4,750      | $72 + (4,750 × $0.02) = **$167** |
 
 ### agent.scalar.com
 
@@ -40,7 +40,7 @@ Here is what you would pay for different message levels under the Scalar Pro pla
 
 | Plan       | Price              | Tokens Included | Additional Input | Additional Output |
 | ---------- | ------------------ | --------------- | ---------------- | ----------------- |
-| Scalar Pro | $24/month per user | 2,000,000       | $2 / Million     | $10 / Million     |
+| Scalar Pro | Starts at $72/month (min 3 seats) | 2,000,000       | $2 / Million     | $10 / Million     |
 
 - **Included:** 2,000,000 tokens per billing period.
 - **Overage:** $0.000002 per additional input token ($2 / Million input tokens), $0.00001 per additional output token ($10 / Million output tokens).
