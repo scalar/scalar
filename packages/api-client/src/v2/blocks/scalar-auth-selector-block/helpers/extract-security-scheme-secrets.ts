@@ -35,7 +35,6 @@ const SECRET_TO_INPUT_FIELD_MAP = {
   'x-scalar-secret-client-id': 'x-scalar-client-id',
   'x-scalar-secret-client-secret': 'clientSecret',
   'x-scalar-secret-password': 'password',
-  'x-scalar-secret-refresh-token': 'refreshToken',
   'x-scalar-secret-redirect-uri': 'x-scalar-redirect-uri',
   'x-scalar-secret-token': 'token',
   'x-scalar-secret-username': 'username',
