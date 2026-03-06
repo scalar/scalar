@@ -3,6 +3,7 @@ import type {
   XScalarSecretClientSecret,
   XScalarSecretHTTP,
   XScalarSecretRedirectUri,
+  XScalarSecretRefreshToken,
   XScalarSecretToken,
 } from '@scalar/workspace-store/schemas/extensions/security'
 import type {
@@ -18,7 +19,7 @@ import type {
   OpenIdConnectObject,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
-type OAuthFlowCommonSecret = XScalarSecretClientId & XScalarSecretToken
+type OAuthFlowCommonSecret = XScalarSecretClientId & XScalarSecretToken & XScalarSecretRefreshToken
 
 export type OAuthFlowImplicitSecret = OAuthFlowImplicit & OAuthFlowCommonSecret & XScalarSecretRedirectUri
 

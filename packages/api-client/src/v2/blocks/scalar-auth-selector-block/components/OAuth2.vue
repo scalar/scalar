@@ -162,7 +162,7 @@ const handleAuthorize = async (): Promise<void> => {
 
   loader.start()
 
-  const [error, accessToken] = await authorizeOauth2(
+  const [error, tokens] = await authorizeOauth2(
     flows,
     type,
     selectedScopes.value,
@@ -173,8 +173,13 @@ const handleAuthorize = async (): Promise<void> => {
 
   await loader.clear()
 
-  if (accessToken) {
-    handleOauth2SecretsUpdate({ 'x-scalar-secret-token': accessToken })
+  if (tokens?.accessToken) {
+    handleOauth2SecretsUpdate({
+      'x-scalar-secret-token': tokens.accessToken,
+      ...(tokens.refreshToken
+        ? { 'x-scalar-secret-refresh-token': tokens.refreshToken }
+        : {}),
+    })
   } else {
     console.error(error)
     toast(error?.message ?? 'Failed to authorize', 'error')
@@ -213,7 +218,11 @@ const handleSecretLocationUpdate = (value: string): void =>
           size="sm"
           variant="outlined"
           @click="
-            () => handleOauth2SecretsUpdate({ 'x-scalar-secret-token': '' })
+            () =>
+              handleOauth2SecretsUpdate({
+                'x-scalar-secret-token': '',
+                'x-scalar-secret-refresh-token': '',
+              })
           ">
           Clear
         </ScalarButton>

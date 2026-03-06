@@ -83,7 +83,10 @@ describe('OAuth2', () => {
     expect(emitted).toHaveBeenCalledWith({
       payload: {
         type: 'oauth2',
-        authorizationCode: { 'x-scalar-secret-token': '' },
+        authorizationCode: {
+          'x-scalar-secret-token': '',
+          'x-scalar-secret-refresh-token': '',
+        },
       },
       name: 'OAuth2',
     })
