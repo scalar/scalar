@@ -184,6 +184,20 @@ export const apiReferenceConfigurationSchema = baseConfigurationSchema.extend({
     })
     .optional(),
   /**
+   * MCP (Model Context Protocol) configuration
+   * Optional. When provided, enables MCP integration with the given name and url.
+   */
+  mcp: z
+    .object({
+      /** Display name for the MCP server */
+      name: z.string(),
+      /** URL of the MCP server */
+      url: z.string(),
+      /** When true, disables the MCP integration */
+      disabled: z.boolean().optional(),
+    })
+    .optional(),
+  /**
    * Customize the heading portion of the hash
    * @param heading - The heading object
    * @returns A string ID used to generate the URL hash

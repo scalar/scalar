@@ -49,7 +49,11 @@ import {
   watch,
 } from 'vue'
 
-import { AgentScalarButton, AgentScalarDrawer } from '@/components/AgentScalar'
+import {
+  AgentScalarButton,
+  AgentScalarDrawer,
+  OpenMCPButton,
+} from '@/components/AgentScalar'
 import { AGENT_CONTEXT_SYMBOL, useAgent } from '@/hooks/use-agent'
 
 import '@scalar/agent-chat/style.css'
@@ -888,6 +892,22 @@ const colorMode = computed(() => {
 const bodyScrollLocked = useScrollLock(document.body)
 
 watch(agent.showAgent, () => (bodyScrollLocked.value = agent.showAgent.value))
+
+const showMCPButton = computed(() => {
+  if (mergedConfig.value.mcp?.disabled) {
+    return false
+  }
+
+  if (typeof window !== 'undefined' && isLocalUrl(window.location.href)) {
+    return true
+  }
+
+  if (mergedConfig.value.mcp) {
+    return true
+  }
+
+  return false
+})
 </script>
 
 <template>
@@ -987,11 +1007,14 @@ watch(agent.showAgent, () => (bodyScrollLocked.value = agent.showAgent.value))
                 <!-- We default the sidebar footer to the standard scalar elements -->
                 <ScalarSidebarFooter class="darklight-reference">
                   <OpenApiClientButton
-                    v-if="!mergedConfig.hideClientButton"
+                    v-if="!mergedConfig.hideClientButton && !showMCPButton"
                     buttonSource="sidebar"
                     :integration="mergedConfig._integration"
                     :isDevelopment="isDevelopment"
                     :url="documentUrl" />
+                  <OpenMCPButton
+                    v-if="showMCPButton"
+                    :config="mergedConfig.mcp" />
                   <!-- Override the dark mode toggle slot to hide it -->
                   <template #toggle>
                     <ScalarColorModeToggleButton
@@ -1213,6 +1236,15 @@ watch(agent.showAgent, () => (bodyScrollLocked.value = agent.showAgent.value))
 /* Footer */
 .references-footer {
   grid-area: footer;
+}
+
+/* Toolbar: top of page, sticky to viewport top, full viewport width */
+.references-toolbar-sticky {
+  grid-area: toolbar;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  width: 100vw;
 }
 /* ----------------------------------------------------- */
 /* Responsive / Mobile Layout */

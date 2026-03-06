@@ -802,6 +802,39 @@ You can pass information to the config object to configure meta information out 
 }
 ```
 
+#### mcp
+
+**Type:** `{ name: string; url: string; disabled?: boolean }` (optional)
+
+MCP (Model Context Protocol) configuration. When provided, enables MCP integration so users can connect their API reference to MCP-compatible tools. Omit this option to leave MCP disabled.
+
+Related: [MCP guide](guides/agent/mcp.md)
+
+- **name** — Display name for the MCP server.
+- **url** — URL of the MCP server.
+- **disabled** — Optional. When `true`, disables the MCP integration.
+
+```javascript
+{
+  mcp: {
+    name: 'My API',
+    url: 'https://mcp.example.com',
+  }
+}
+```
+
+To disable MCP explicitly:
+
+```javascript
+{
+  mcp: {
+    name: 'My API',
+    url: 'https://mcp.example.com',
+    disabled: true,
+  }
+}
+```
+
 #### operationTitleSource
 
 **Type:** `'summary' | 'path'`
