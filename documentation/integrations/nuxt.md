@@ -1,4 +1,4 @@
-# Scalar API Reference for Nuxt
+# API Reference for Nuxt
 
 This plugin provides an easy way to render a beautiful API reference based on a OpenAPI/Swagger file with Nuxt.
 

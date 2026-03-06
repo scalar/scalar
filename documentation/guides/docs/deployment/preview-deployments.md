@@ -1,6 +1,6 @@
 # Preview Deployments
 
-Preview deployments allow you to see how your documentation changes will look before merging them into your main branch. When you open a pull request, Scalar Docs automatically creates a preview deployment and can post a comment with a link to preview your changes.
+Preview deployments allow you to see how your documentation changes will look before merging them into your main branch. When you open a pull request, Docs automatically creates a preview deployment and can post a comment with a link to preview your changes.
 
 ## Enable in the Dashboard
 
@@ -18,7 +18,7 @@ When enabled in the Dashboard, Scalar posts a comment on each pull request with 
 
 ## CLI
 
-If your Scalar Docs project is not connected to your GitHub repository, use the CLI publish in preview mode (e.g. for pull requests) without going live:
+If your Docs project is not connected to your GitHub repository, use the CLI publish in preview mode (e.g. for pull requests) without going live:
 
 ```bash
 npx @scalar/cli project publish --slug your-docs --preview

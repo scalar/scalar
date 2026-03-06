@@ -93,4 +93,4 @@ Just like API Hub Explore, you can import existing API docs into the API client 
 
 ## Link APIs from Design
 
-The [Scalar Registry](../guides/registry/getting-started.md) matches the API Hub Explore's “Link APIs from Design” feature.
+The [Registry](../guides/registry/getting-started.md) matches the API Hub Explore's “Link APIs from Design” feature.

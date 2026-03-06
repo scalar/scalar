@@ -1,13 +1,13 @@
 # CLI
 
-Publish your Scalar Docs project using the Scalar CLI. The CLI uploads your project configuration and content to Scalar's platform, making your documentation available at a custom domain.
+Publish your Docs project using the Scalar CLI. The CLI uploads your project configuration and content to Scalar's platform, making your documentation available at a custom domain.
 
 ## Deployment modes
 
 `scalar project publish` supports two ways to deploy:
 
 - **Default:** The CLI uploads your project configuration and content from your local machine to Scalar. What you have on disk is what gets deployed.
-- **With `--github`:** Use only when your Scalar Docs project is connected to a GitHub repository. Scalar pulls the files from GitHub and deploys that. Local changes are ignored. Use this to trigger a deploy from the linked repository.
+- **With `--github`:** Use only when your Docs project is connected to a GitHub repository. Scalar pulls the files from GitHub and deploys that. Local changes are ignored. Use this to trigger a deploy from the linked repository.
 
 ## Installation
 

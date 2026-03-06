@@ -35,9 +35,9 @@ Some API teams generate OpenAPI from code, whether that's [code annotations/comm
 
 Those documents being generated then committed to Git, by some sort of build script or continuous integration. Scalar can happily read those same committed OpenAPI and Markdown content from Git.
 
-If the generated OpenAPI is being powered by Stoplight CLI without Git then that could be a straight swap to use the Scalar CLI to push documents to the Scalar Registry (or run both for a while and see how things look.) Or you could take the chance to migrate to using Git, as it's generally considered best practice to keep the OpenAPI/Markdown alongside the source code.
+If the generated OpenAPI is being powered by Stoplight CLI without Git then that could be a straight swap to use the Scalar CLI to push documents to the Registry (or run both for a while and see how things look.) Or you could take the chance to migrate to using Git, as it's generally considered best practice to keep the OpenAPI/Markdown alongside the source code.
 
-Teams following the code-first workflow with Stoplight are probably using the OpenAPI editor Stoplight Studio, using either the long discontinued desktop application, or the hosted editor functionality in Stoplight Platform. Scalar has an [Editor interface](https://editor.scalar.com/) which can be used in the same way, allowing for changes to be made and pushed to the Scalar Registry, and/or synced back to Git. The registry makes OpenAPI documents available for other tools in the workflow, so they can access the latest OpenAPI, or peg to a particular version.
+Teams following the code-first workflow with Stoplight are probably using the OpenAPI editor Stoplight Studio, using either the long discontinued desktop application, or the hosted editor functionality in Stoplight Platform. Scalar has an [Editor interface](https://editor.scalar.com/) which can be used in the same way, allowing for changes to be made and pushed to the Registry, and/or synced back to Git. The registry makes OpenAPI documents available for other tools in the workflow, so they can access the latest OpenAPI, or peg to a particular version.
 
 ![](../assets/migration/editor.png)
 

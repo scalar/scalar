@@ -1,4 +1,4 @@
-# Scalar API Reference for Actix-web
+# API Reference for Actix-web
 
 Use our official Rust crate [`scalar_api_reference`](https://crates.io/crates/scalar_api_reference) to render the API
 reference with Scalar in your Actix-web application.
@@ -41,9 +41,9 @@ async fn main() -> std::io::Result<()> {
 }
 ```
 
-### Agent Scalar
+### Agent
 
-To enable [Agent Scalar](rust.md#agent-scalar) (AI chat) in production, add an API key to your configuration. To disable it, set `"agent": { "disabled": true }`. See the [Rust integration configuration](rust.md#agent-scalar) for details.
+To enable [Agent](rust.md#agent) (AI chat) in production, add an API key to your configuration. To disable it, set `"agent": { "disabled": true }`. See the [Rust integration configuration](rust.md#agent) for details.
 
 ```rust
 let configuration = json!({

@@ -1,4 +1,4 @@
-# Scalar API Reference for Vue
+# API Reference for Vue
 
 ## Installation
 
