@@ -1,6 +1,6 @@
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { WorkspaceDocument } from '@scalar/workspace-store/schemas/workspace'
-import { mount } from '@vue/test-utils'
+import { flushPromises, mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
 import { createRouter, createWebHistory } from 'vue-router'
 
@@ -32,6 +32,13 @@ describe('DocumentCollection', () => {
         documents: {},
       },
       update: vi.fn(),
+      revertDocumentChanges: vi.fn(),
+      saveDocument: vi.fn(),
+      rebaseDocument: vi.fn().mockResolvedValue({
+        ok: false,
+        type: 'NO_CHANGES_DETECTED',
+        message: 'No changes detected',
+      }),
     }) as unknown as WorkspaceStore
 
   const createRouterInstance = () => {
@@ -161,5 +168,25 @@ describe('DocumentCollection', () => {
     /** Verify default icon is used */
     const iconSelector = wrapper.findComponent({ name: 'IconSelector' })
     expect(iconSelector.props('modelValue')).toBe('interface-content-folder')
+  })
+
+  it('opens sync modal and runs document sync test when Sync is clicked', async () => {
+    const document = createMockDocument({
+      info: { title: 'Synced API', version: '1.0.0' },
+      'x-scalar-original-source-url': 'https://example.com/openapi.yaml',
+    })
+
+    const { wrapper, workspaceStore } = await mountWithRouter(document)
+
+    const syncButton = wrapper.find('[data-testid="document-sync-button"]')
+    expect(syncButton.exists()).toBe(true)
+
+    await syncButton.trigger('click')
+    await flushPromises()
+
+    expect(workspaceStore.rebaseDocument).toHaveBeenCalledWith({
+      name: 'test-document',
+      url: 'https://example.com/openapi.yaml',
+    })
   })
 })

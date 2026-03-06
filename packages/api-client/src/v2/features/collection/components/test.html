@@ -1,0 +1,195 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Monaco Conflict Editor with CodeLens</title>
+    <style>
+      body {
+        margin: 0;
+        height: 100vh;
+        display: grid;
+        grid-template-rows: 40vh 1fr;
+      }
+      .top {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        overflow: hidden;
+      }
+      #incoming,
+      #current,
+      #result {
+        height: 100%;
+        width: 100%;
+        border: 1px solid #ddd;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="top">
+      <div id="incoming"></div>
+      <div id="current"></div>
+    </div>
+
+    <div id="result"></div>
+
+    <script src="https://unpkg.com/monaco-editor@0.54.0/min/vs/loader.js"></script>
+    <script>
+      require.config({
+        paths: { vs: 'https://unpkg.com/monaco-editor@0.54.0/min/vs' },
+      })
+
+      require(['vs/editor/editor.main'], function () {
+        const incomingText = `
+{
+  "name": "Johnny",
+  "age": 31,
+  "city": "Boston"
+}
+`
+        const currentText = `
+{
+  "name": "John",
+  "age": 30,
+  "city": "New York"
+}
+`
+        const resultText = `
+{
+<<<<<<< CURRENT
+  "name": "John",
+  "age": 30,
+=======
+  "name": "Johnny",
+  "age": 31,
+>>>>>>> INCOMING
+  "city": "New York"
+}
+`
+
+        const incomingModel = monaco.editor.createModel(incomingText, 'json')
+        const currentModel = monaco.editor.createModel(currentText, 'json')
+        const resultModel = monaco.editor.createModel(resultText, 'json')
+
+        const incomingEditor = monaco.editor.create(
+          document.getElementById('incoming'),
+          {
+            model: incomingModel,
+            readOnly: true,
+            minimap: { enabled: false },
+          },
+        )
+
+        const currentEditor = monaco.editor.create(
+          document.getElementById('current'),
+          {
+            model: currentModel,
+            readOnly: true,
+            minimap: { enabled: false },
+          },
+        )
+
+        const resultEditor = monaco.editor.create(
+          document.getElementById('result'),
+          {
+            model: resultModel,
+            minimap: { enabled: false },
+          },
+        )
+
+        window.addEventListener('resize', () => {
+          incomingEditor.layout()
+          currentEditor.layout()
+          resultEditor.layout()
+        })
+
+        // Register a command for resolving conflicts
+        const commandId = resultEditor.addCommand(
+          0,
+          function (accessor, args) {
+            const { type, conflict } = args
+
+            const allLines = resultModel.getLinesContent()
+            const currentLines = allLines.slice(
+              conflict.start,
+              conflict.mid - 1,
+            )
+            const incomingLines = allLines.slice(conflict.mid, conflict.end - 1)
+
+            let replacement
+            if (type === 'current') replacement = currentLines
+            else if (type === 'incoming') replacement = incomingLines
+            else replacement = [...currentLines, ...incomingLines]
+
+            resultEditor.executeEdits('resolve', [
+              {
+                range: new monaco.Range(conflict.start, 1, conflict.end, 1),
+                text: replacement.join('\n'),
+              },
+            ])
+
+            // refresh lenses
+            monaco.languages.CodeLensProviderRegistry.all().forEach(
+              (provider) => {
+                provider._onDidChangeCodeLenses.fire()
+              },
+            )
+          },
+          '',
+        )
+
+        // CodeLens provider
+        monaco.languages.registerCodeLensProvider('json', {
+          _onDidChangeCodeLenses: new monaco.Emitter(),
+          onDidChange: function () {
+            return this._onDidChangeCodeLenses.event
+          },
+
+          provideCodeLenses: function (model, token) {
+            const lines = model.getLinesContent()
+            const lenses = []
+            let start = null,
+              mid = null
+
+            for (let i = 0; i < lines.length; i++) {
+              if (lines[i].startsWith('<<<<<<<')) start = i + 1
+              else if (lines[i].startsWith('=======')) mid = i + 1
+              else if (lines[i].startsWith('>>>>>>>')) {
+                const conflict = { start, mid, end: i + 1 }
+                const line = start
+
+                ;['current', 'incoming', 'both'].forEach((type) => {
+                  lenses.push({
+                    range: {
+                      startLineNumber: line,
+                      startColumn: 1,
+                      endLineNumber: line,
+                      endColumn: 1,
+                    },
+                    id: type + line,
+                    command: {
+                      id: commandId,
+                      title:
+                        'Accept ' +
+                        type.charAt(0).toUpperCase() +
+                        type.slice(1),
+                      arguments: [{ type, conflict }],
+                    },
+                  })
+                })
+
+                start = null
+                mid = null
+              }
+            }
+
+            return { lenses, dispose: () => {} }
+          },
+
+          resolveCodeLens: function (model, codeLens, token) {
+            return codeLens
+          },
+        })
+      })
+    </script>
+  </body>
+</html>
