@@ -22,7 +22,7 @@ bun i @scalar/agent
 
 ### Personal Access Token
 
-You can create a personal access token in the [Scalar dashboard](https://dashboard.scalar.com/account) under **API Keys**.
+You can create a personal access token in the [Scalar dashboard](https://dashboard.scalar.com/account) under **Account > API Keys**.
 
 ### Setup
 
@@ -153,7 +153,7 @@ pip install "scalar-agent[all]"
 
 ### Personal Access Token
 
-You can create a personal access token in the [Scalar dashboard](https://dashboard.scalar.com/account) under **API Keys**.
+You can create a personal access token in the [Scalar dashboard](https://dashboard.scalar.com/account) under **Account > API Keys**.
 
 ### Setup
 
@@ -173,22 +173,27 @@ installation = scalar.installation("your-installation-id")
 Returns params for `MCPServerStreamableHttp` from `openai-agents`. The agent runtime handles tool discovery and execution natively.
 
 ```python
+import asyncio
+
 from scalar_agent import agent_scalar
 from agents import Agent, Runner
 from agents.mcp import MCPServerStreamableHttp
 
-scalar = agent_scalar(token="your-personal-token")
-installation = scalar.installation("your-installation-id")
+async def main() -> None:
+    scalar = agent_scalar(token="your-personal-token")
+    installation = scalar.installation("your-installation-id")
 
-server = MCPServerStreamableHttp(**installation.create_openai_mcp())
-await server.connect()
+    server = MCPServerStreamableHttp(**installation.create_openai_mcp())
+    await server.connect()
 
-agent = Agent(name="api-agent", mcp_servers=[server])
+    agent = Agent(name="api-agent", mcp_servers=[server])
 
-result = await Runner.run(agent, "Which APIs are available that let me create a planet?")
-print(result.final_output)
+    result = await Runner.run(agent, "Which APIs are available that let me create a planet?")
+    print(result.final_output)
 
-await server.cleanup()
+    await server.cleanup()
+
+asyncio.run(main())
 ```
 
 #### Anthropic Claude Agent SDK
@@ -196,6 +201,8 @@ await server.cleanup()
 Returns an MCP server configuration for `claude_agent_sdk`.
 
 ```python
+import asyncio
+
 from scalar_agent import agent_scalar
 from claude_agent_sdk import query
 from claude_agent_sdk.types import ClaudeAgentOptions, ResultMessage
@@ -203,15 +210,18 @@ from claude_agent_sdk.types import ClaudeAgentOptions, ResultMessage
 scalar = agent_scalar(token="your-personal-token")
 installation = scalar.installation("your-installation-id")
 
-async for message in query(
-    prompt="Which APIs are available that let me create a planet?",
-    options=ClaudeAgentOptions(
-        mcp_servers={"scalar": installation.create_anthropic_mcp()},
-        allowed_tools=["mcp__scalar__*"],
-    ),
-):
-    if isinstance(message, ResultMessage):
-        print(message.result)
+async def main() -> None:
+    async for message in query(
+        prompt="Which APIs are available that let me create a planet?",
+        options=ClaudeAgentOptions(
+            mcp_servers={"scalar": installation.create_anthropic_mcp()},
+            allowed_tools=["mcp__scalar__*"],
+        ),
+    ):
+        if isinstance(message, ResultMessage):
+            print(message.result)
+
+asyncio.run(main())
 ```
 
 ### Configuration
