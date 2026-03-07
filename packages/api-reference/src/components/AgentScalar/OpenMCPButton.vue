@@ -19,7 +19,7 @@ const name = encodeURIComponent(props.config?.name ?? '')
 const cursorLink = `cursor://anysphere.cursor-deeplink/mcp/install?name=${name}&config=${encoded}`
 const vscodeLink = `vscode:mcp/install?${encodeURIComponent(JSON.stringify(props.config ?? {}))}`
 
-const scalarFallBackLink = 'https://scalar.com/register'
+const scalarFallBackLink = 'https://dashboard.scalar.com/register'
 </script>
 
 <template>
@@ -59,6 +59,7 @@ const scalarFallBackLink = 'https://scalar.com/register'
     <!-- localhost + you don't have a MCP added -->
     <a
       v-if="!hasConfig"
+      class="scalar-mcp-layer-link"
       :href="scalarFallBackLink"
       target="_blank">
       <svg
