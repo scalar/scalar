@@ -1,12 +1,16 @@
 <script setup lang="ts">
 import { ScalarIconArrowUpRight } from '@scalar/icons'
+import { makeUrlAbsolute } from '@scalar/oas-utils/helpers'
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
+import { computed } from 'vue'
 
 const props = defineProps<{
   config?: {
     name?: string
     url?: string
   }
+  integration?: string | null
+  url?: string
 }>()
 
 const { copyToClipboard } = useClipboard()
@@ -19,14 +23,50 @@ const name = encodeURIComponent(props.config?.name ?? '')
 const cursorLink = `cursor://anysphere.cursor-deeplink/mcp/install?name=${name}&config=${encoded}`
 const vscodeLink = `vscode:mcp/install?${encodeURIComponent(JSON.stringify(props.config ?? {}))}`
 
-const scalarFallBackLink = 'https://dashboard.scalar.com/register'
+/** Link to import an OpenAPI document */
+const href = computed((): string | undefined => {
+  /**
+   * The URL we want to pass to client.scalar.com for the import.
+   * Might be an OpenAPI document URL, but could also just be the URL of the API reference.
+   */
+  const urlToImportFrom =
+    props.url ??
+    (typeof window !== 'undefined' ? window.location.href : undefined)
+
+  if (!urlToImportFrom) {
+    return undefined
+  }
+
+  const absoluteUrl = makeUrlAbsolute(urlToImportFrom)
+
+  if (!absoluteUrl?.length) {
+    return undefined
+  }
+
+  // Base URL
+  const link = new URL('https://dashboard.scalar.com/register')
+
+  // URL that we'd like to import
+  link.searchParams.set('url', absoluteUrl)
+
+  // Integration identifier
+  if (props.integration !== null) {
+    link.searchParams.set('integration', props.integration ?? 'vue')
+  }
+
+  // UTM Source
+  link.searchParams.set('utm_source', 'api-reference')
+  link.searchParams.set('utm_medium', 'button')
+
+  return link.toString()
+})
 </script>
 
 <template>
   <div class="scalar-mcp-layer">
     <a
       class="scalar-mcp-layer-link"
-      :href="hasConfig ? vscodeLink : scalarFallBackLink"
+      :href="hasConfig ? vscodeLink : href"
       target="_blank">
       <svg
         class="mcp-logo"
@@ -43,7 +83,7 @@ const scalarFallBackLink = 'https://dashboard.scalar.com/register'
     </a>
     <a
       class="scalar-mcp-layer-link"
-      :href="hasConfig ? cursorLink : scalarFallBackLink"
+      :href="hasConfig ? cursorLink : href"
       target="_blank">
       <svg
         class="mcp-logo"
@@ -60,7 +100,7 @@ const scalarFallBackLink = 'https://dashboard.scalar.com/register'
     <a
       v-if="!hasConfig"
       class="scalar-mcp-layer-link"
-      :href="scalarFallBackLink"
+      :href="href"
       target="_blank">
       <svg
         class="mcp-logo"
