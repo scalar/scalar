@@ -1237,15 +1237,6 @@ const showMCPButton = computed(() => {
 .references-footer {
   grid-area: footer;
 }
-
-/* Toolbar: top of page, sticky to viewport top, full viewport width */
-.references-toolbar-sticky {
-  grid-area: toolbar;
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  width: 100vw;
-}
 /* ----------------------------------------------------- */
 /* Responsive / Mobile Layout */
 
