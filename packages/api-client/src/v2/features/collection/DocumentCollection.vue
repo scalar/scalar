@@ -59,6 +59,30 @@ const baseDocument = {
         operationId: 'getRoot',
       },
     },
+    '/users': {
+      get: {
+        summary: 'Get the users path',
+        operationId: 'getUsers',
+      },
+    },
+    '/users/{userId}': {
+      get: {
+        summary: 'Get the user by ID',
+        operationId: 'getUserById',
+      },
+    },
+    '/users/{userId}/posts': {
+      get: {
+        summary: 'Get the posts for a user',
+        operationId: 'getPostsForUser',
+      },
+    },
+    '/users/{userId}/posts/{postId}': {
+      get: {
+        summary: 'Get the post by ID',
+        operationId: 'getPostById',
+      },
+    },
   },
   components: {},
   securitySchemes: {},
@@ -73,6 +97,30 @@ const remoteBase = {
   },
   paths: {
     '/': {},
+    '/users': {
+      get: {
+        summary: 'Get the users path',
+        operationId: 'getUsers',
+      },
+    },
+    '/users/{userId}': {
+      get: {
+        summary: 'Get the user by ID',
+        operationId: 'getUserById',
+      },
+    },
+    '/users/{userId}/posts': {
+      get: {
+        summary: 'Get the posts for a user',
+        operationId: 'getPostsForUser',
+      },
+    },
+    '/users/{userId}/posts/{postId}': {
+      post: {
+        summary: 'Create a new post',
+        operationId: 'createPost',
+      },
+    },
   },
   components: {},
   securitySchemes: {},
@@ -88,12 +136,32 @@ const locanIntermediate = {
   paths: {
     '/': {
       get: {
-        summary: 'Some updated summary',
+        summary: 'I am changed on this and there will be a conflict',
         operationId: 'getRoot',
       },
-      post: {
-        summary: 'Create a new root path',
-        operationId: 'createRoot',
+    },
+    '/users': {
+      get: {
+        summary: 'Get the users path',
+        operationId: 'getUsers',
+      },
+    },
+    '/users/{userId}': {
+      get: {
+        summary: 'Get the user by ID',
+        operationId: 'getUserById',
+      },
+    },
+    '/users/{userId}/posts': {
+      get: {
+        summary: 'Get the posts for a user',
+        operationId: 'getPostsForUser',
+      },
+    },
+    '/users/{userId}/posts/{postId}': {
+      get: {
+        summary: 'I am also a new conflict',
+        operationId: 'getPostById',
       },
     },
   },
@@ -227,7 +295,7 @@ const resolvedDocument = apply(
     maxWidth="calc(100dvw - 32px)"
     size="full"
     :state="syncModal">
-    <div class="flex h-full min-h-0 flex-col gap-4 overflow-hidden">
+    <div class="flex h-full w-full flex-col gap-4 overflow-hidden">
       <SyncConflictResolutionEditor
         :baseDocument="baseDocument"
         :conflicts="changesA.conflicts"
