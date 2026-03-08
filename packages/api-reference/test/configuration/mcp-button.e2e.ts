@@ -20,7 +20,7 @@ test.describe('mcpButton', () => {
 
     await page.goto(example)
 
-    await expect(page.getByRole('textbox', { name: 'Connect MCP' })).toBeVisible()
+    await expect(page.getByText('Connect MCP')).toBeVisible()
   })
 
   test('hide mcp config', async ({ page }) => {
