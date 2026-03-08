@@ -365,6 +365,15 @@ export type WorkspaceStore = {
    */
   getEditableDocument(documentName: string): Promise<WorkspaceDocument | null>
   /**
+   * Returns the original version of the specified document.
+   *
+   * The original version of the document is the version that was loaded from the source which means the original version that we know of when we started editing the document.
+   *
+   * @param documentName - The name of the document to get the original version of.
+   * @returns The original version of the document, or undefined if the document does not exist.
+   */
+  getOriginalDocument(documentName: string): Record<string, unknown> | null
+  /**
    * Saves the current state of the specified document to the intermediate documents map.
    *
    * This function captures the latest (reactive) state of the document from the workspace and
@@ -495,6 +504,7 @@ export type WorkspaceStore = {
       }
     | {
         ok: true
+        changes: ReturnType<typeof merge>['diffs']
         conflicts: ReturnType<typeof merge>['conflicts']
         applyChanges: (resolvedConflicts: Difference<unknown>[]) => Promise<void>
       }
@@ -1040,6 +1050,16 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     return original
   }
 
+  const getOriginalDocument = (documentName: string) => {
+    const rawDocument = unpackProxyObject(originalDocuments[documentName], { depth: 1 })
+
+    if (!rawDocument) {
+      return null
+    }
+
+    return rawDocument
+  }
+
   /**
    * Builds (or updates) the navigation sidebar for the specified document.
    *
@@ -1090,6 +1110,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       Object.assign(workspace, { [key]: value })
     },
     getEditableDocument,
+    getOriginalDocument,
     updateDocument<K extends keyof DocumentMetaExtensions>(
       name: 'active' | (string & {}),
       key: K,
@@ -1342,6 +1363,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       return {
         ok: true,
         conflicts: changesA.conflicts,
+        changes: changesA.diffs,
         applyChanges: async (resolvedConflicts: Difference<unknown>[]) => {
           const changesetA = changesA.diffs.concat(resolvedConflicts)
 

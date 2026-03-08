@@ -16,8 +16,9 @@ export default {
 import { ScalarButton, ScalarModal, useModal } from '@scalar/components'
 import { ScalarIconFloppyDisk } from '@scalar/icons'
 import { LibraryIcon } from '@scalar/icons/library'
-import { apply, diff, merge } from '@scalar/json-magic/diff'
-import { computed } from 'vue'
+import { apply, type Difference, type merge } from '@scalar/json-magic/diff'
+import { deepClone } from '@scalar/workspace-store/helpers/deep-clone'
+import { computed, ref } from 'vue'
 import { RouterView } from 'vue-router'
 
 import IconSelector from '@/components/IconSelector.vue'
@@ -48,141 +49,184 @@ const saveChanges = () => {
   props.workspaceStore.saveDocument(props.documentSlug)
 }
 
-const baseDocument = {
-  info: {
-    title: title.value,
-  },
-  paths: {
-    '/': {
-      get: {
-        summary: 'Get the root path',
-        operationId: 'getRoot',
-      },
-    },
-    '/users': {
-      get: {
-        summary: 'Get the users path',
-        operationId: 'getUsers',
-      },
-    },
-    '/users/{userId}': {
-      get: {
-        summary: 'Get the user by ID',
-        operationId: 'getUserById',
-      },
-    },
-    '/users/{userId}/posts': {
-      get: {
-        summary: 'Get the posts for a user',
-        operationId: 'getPostsForUser',
-      },
-    },
-    '/users/{userId}/posts/{postId}': {
-      get: {
-        summary: 'Get the post by ID',
-        operationId: 'getPostById',
-      },
-    },
-  },
-  components: {},
-  securitySchemes: {},
-  servers: [],
-  tags: [],
-  externalDocs: {},
+// const originalDocument = computed(() =>
+//   props.workspaceStore.getOriginalDocument(props.documentSlug),
+// )
+
+// const resolvedDocument = ref<Record<string, unknown> | null>(null)
+
+const rebaseResult = ref<{
+  originalDocument: Record<string, unknown>
+  resolvedDocument: Record<string, unknown>
+  conflicts: ReturnType<typeof merge>['conflicts']
+  applyChanges: (resolvedConflicts: Difference<unknown>[]) => Promise<void>
+} | null>(null)
+
+const handleSyncFlow = async () => {
+  const result = await props.workspaceStore.rebaseDocument({
+    name: props.documentSlug,
+    url: props.document?.['x-scalar-original-source-url'] ?? '',
+  })
+
+  console.log('result', result)
+  if (result?.ok) {
+    const originalDocument =
+      props.workspaceStore.getOriginalDocument(props.documentSlug) ?? {}
+    rebaseResult.value = {
+      conflicts: result.conflicts,
+      applyChanges: result.applyChanges,
+      resolvedDocument: apply(deepClone(originalDocument), result.changes),
+      originalDocument,
+    }
+
+    console.log('rebaseResult', rebaseResult.value)
+
+    if (rebaseResult.value.conflicts.length > 0) {
+      console.log('showing modal')
+      syncModal.show()
+    } else {
+      console.log('no conflicts')
+    }
+  } else {
+    console.log('no result')
+  }
 }
 
-const remoteBase = {
-  info: {
-    title: title.value,
-  },
-  paths: {
-    '/': {},
-    '/users': {
-      get: {
-        summary: 'Get the users path',
-        operationId: 'getUsers',
-      },
-    },
-    '/users/{userId}': {
-      get: {
-        summary: 'Get the user by ID',
-        operationId: 'getUserById',
-      },
-    },
-    '/users/{userId}/posts': {
-      get: {
-        summary: 'Get the posts for a user',
-        operationId: 'getPostsForUser',
-      },
-    },
-    '/users/{userId}/posts/{postId}': {
-      post: {
-        summary: 'Create a new post',
-        operationId: 'createPost',
-      },
-    },
-  },
-  components: {},
-  securitySchemes: {},
-  servers: [],
-  tags: [],
-  externalDocs: {},
-}
+// const baseDocument = {
+//   info: {
+//     title: title.value,
+//   },
+//   paths: {
+//     '/': {
+//       get: {
+//         summary: 'Get the root path',
+//         operationId: 'getRoot',
+//       },
+//     },
+//     '/users': {
+//       get: {
+//         summary: 'Get the users path',
+//         operationId: 'getUsers',
+//       },
+//     },
+//     '/users/{userId}': {
+//       get: {
+//         summary: 'Get the user by ID',
+//         operationId: 'getUserById',
+//       },
+//     },
+//     '/users/{userId}/posts': {
+//       get: {
+//         summary: 'Get the posts for a user',
+//         operationId: 'getPostsForUser',
+//       },
+//     },
+//     '/users/{userId}/posts/{postId}': {
+//       get: {
+//         summary: 'Get the post by ID',
+//         operationId: 'getPostById',
+//       },
+//     },
+//   },
+//   components: {},
+//   securitySchemes: {},
+//   servers: [],
+//   tags: [],
+//   externalDocs: {},
+// }
 
-const locanIntermediate = {
-  info: {
-    title: title.value,
-  },
-  paths: {
-    '/': {
-      get: {
-        summary: 'I am changed on this and there will be a conflict',
-        operationId: 'getRoot',
-      },
-    },
-    '/users': {
-      get: {
-        summary: 'Get the users path',
-        operationId: 'getUsers',
-      },
-    },
-    '/users/{userId}': {
-      get: {
-        summary: 'Get the user by ID',
-        operationId: 'getUserById',
-      },
-    },
-    '/users/{userId}/posts': {
-      get: {
-        summary: 'Get the posts for a user',
-        operationId: 'getPostsForUser',
-      },
-    },
-    '/users/{userId}/posts/{postId}': {
-      get: {
-        summary: 'I am also a new conflict',
-        operationId: 'getPostById',
-      },
-    },
-  },
-  components: {},
-  securitySchemes: {},
-  servers: [],
-  tags: [],
-  externalDocs: {},
-}
+// const remoteBase = {
+//   info: {
+//     title: title.value,
+//   },
+//   paths: {
+//     '/': {},
+//     '/users': {
+//       get: {
+//         summary: 'Get the users path',
+//         operationId: 'getUsers',
+//       },
+//     },
+//     '/users/{userId}': {
+//       get: {
+//         summary: 'Get the user by ID',
+//         operationId: 'getUserById',
+//       },
+//     },
+//     '/users/{userId}/posts': {
+//       get: {
+//         summary: 'Get the posts for a user',
+//         operationId: 'getPostsForUser',
+//       },
+//     },
+//     '/users/{userId}/posts/{postId}': {
+//       post: {
+//         summary: 'Create a new post',
+//         operationId: 'createPost',
+//       },
+//     },
+//   },
+//   components: {},
+//   securitySchemes: {},
+//   servers: [],
+//   tags: [],
+//   externalDocs: {},
+// }
 
-const changelogAA = diff(baseDocument, locanIntermediate)
-const changelogAB = diff(baseDocument, remoteBase)
+// const locanIntermediate = {
+//   info: {
+//     title: title.value,
+//   },
+//   paths: {
+//     '/': {
+//       get: {
+//         summary: 'I am changed on this and there will be a conflict',
+//         operationId: 'getRoot',
+//       },
+//     },
+//     '/users': {
+//       get: {
+//         summary: 'Get the users path',
+//         operationId: 'getUsers',
+//       },
+//     },
+//     '/users/{userId}': {
+//       get: {
+//         summary: 'Get the user by ID',
+//         operationId: 'getUserById',
+//       },
+//     },
+//     '/users/{userId}/posts': {
+//       get: {
+//         summary: 'Get the posts for a user',
+//         operationId: 'getPostsForUser',
+//       },
+//     },
+//     '/users/{userId}/posts/{postId}': {
+//       get: {
+//         summary: 'I am also a new conflict',
+//         operationId: 'getPostById',
+//       },
+//     },
+//   },
+//   components: {},
+//   securitySchemes: {},
+//   servers: [],
+//   tags: [],
+//   externalDocs: {},
+// }
 
-const changesA = merge(changelogAA, changelogAB)
+// const changelogAA = diff(baseDocument, locanIntermediate)
+// const changelogAB = diff(baseDocument, remoteBase)
 
-console.log({ changelogAA, changelogAB, changesA })
+// const changesA = merge(changelogAA, changelogAB)
 
-const resolvedDocument = apply(
-  JSON.parse(JSON.stringify(baseDocument)),
-  changesA.diffs,
-)
+// console.log({ changelogAA, changelogAB, changesA })
+
+// const resolvedDocument = apply(
+//   JSON.parse(JSON.stringify(baseDocument)),
+//   changesA.diffs,
+// )
 </script>
 
 <template>
@@ -258,7 +302,7 @@ const resolvedDocument = apply(
             size="xs"
             type="button"
             variant="outlined"
-            @click="syncModal.show()">
+            @click="handleSyncFlow">
             Sync
           </ScalarButton>
         </div>
@@ -291,15 +335,16 @@ const resolvedDocument = apply(
     </div>
   </div>
   <ScalarModal
+    v-if="rebaseResult"
     bodyClass="sync-conflict-modal-root flex h-dvh flex-col p-4"
     maxWidth="calc(100dvw - 32px)"
     size="full"
     :state="syncModal">
     <div class="flex h-full w-full flex-col gap-4 overflow-hidden">
       <SyncConflictResolutionEditor
-        :baseDocument="baseDocument"
-        :conflicts="changesA.conflicts"
-        :resolvedDocument="resolvedDocument" />
+        :baseDocument="rebaseResult.originalDocument"
+        :conflicts="rebaseResult.conflicts"
+        :resolvedDocument="rebaseResult.resolvedDocument" />
     </div>
   </ScalarModal>
 </template>
