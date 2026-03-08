@@ -15,13 +15,12 @@ test.describe('mcpButton', () => {
       mcp: {
         name: 'Scalar Galaxy',
         url: 'https://mcp.scalar.com',
-        disabled: true,
       },
     })
 
     await page.goto(example)
 
-    await expect(page.getByRole('link', { name: 'Open API Client' })).not.toBeVisible()
+    await expect(page.getByRole('textbox', { name: 'Connect MCP' })).toBeVisible()
   })
 
   test('hide mcp config', async ({ page }) => {
