@@ -1,5 +1,5 @@
 ---
-'@scalar/api-reference': major
+'@scalar/api-reference': patch
 ---
 
 fix: display the referenced name
