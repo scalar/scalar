@@ -1,5 +1,14 @@
 # @scalar/use-codemirror
 
+## 0.14.2
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/components@0.20.2**
+  - [#8366](https://github.com/scalar/scalar/pull/8366): fix(components): clean up search components and add snapshots
+
 ## 0.14.1
 
 ### Patch Changes

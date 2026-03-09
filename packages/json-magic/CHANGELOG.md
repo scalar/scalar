@@ -1,5 +1,11 @@
 # @scalar/json-magic
 
+## 0.12.1
+
+### Patch Changes
+
+- [#8357](https://github.com/scalar/scalar/pull/8357): chore: improve performance and memory usage of bundler
+
 ## 0.12.0
 
 ### Minor Changes
