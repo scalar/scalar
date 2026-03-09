@@ -19,6 +19,24 @@ export type XScalarSecretToken = {
 }
 
 /**
+ * OAuth refresh token
+ *
+ * We should not export this when exporting the document
+ */
+export const XScalarSecretRefreshTokenSchema = Type.Object({
+  'x-scalar-secret-refresh-token': Type.Optional(Type.String()),
+})
+
+/**
+ * OAuth refresh token
+ *
+ * We should not export this when exporting the document
+ */
+export type XScalarSecretRefreshToken = {
+  'x-scalar-secret-refresh-token'?: string
+}
+
+/**
  * Username and password for HTTP authentication
  *
  * We should not export this when exporting the document
