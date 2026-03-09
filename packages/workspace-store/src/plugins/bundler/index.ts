@@ -9,7 +9,10 @@ import { isObject } from '@scalar/helpers/object/is-object'
 import type { LifecyclePlugin } from '@scalar/json-magic/bundle'
 
 import { isLocalRef } from '@/helpers/general'
-import { syncParametersForPathChange } from '@/mutators/operation/helpers/sync-path-parameters'
+import {
+  type MinimalParameterObject,
+  syncParametersForPathChange,
+} from '@/mutators/operation/helpers/sync-path-parameters'
 import { getResolvedRef } from '@/plugins/bundler/helpers'
 
 /**
@@ -287,31 +290,32 @@ export const syncPathParameters = (): LifecyclePlugin => {
           continue
         }
 
-        const existingParameters =
+        const isParameterNode = (param: unknown): param is MinimalParameterObject => {
+          const resolved = getResolvedRef(param, context)
+
+          return (
+            isObject(resolved) &&
+            'name' in resolved &&
+            typeof resolved.name === 'string' &&
+            'in' in resolved &&
+            typeof resolved.in === 'string'
+          )
+        }
+
+        const isPathParameterNode = (param: unknown): param is MinimalParameterObject => {
+          const resolved = getResolvedRef(param, context)
+          return isParameterNode(resolved) && resolved.in === 'path'
+        }
+
+        const existingParameters = (
           'parameters' in operation && Array.isArray(operation.parameters) ? operation.parameters : []
+        ).filter(isParameterNode)
 
-        const { path: pathParameters, other: restParameters } = existingParameters.reduce<{
-          path: any[]
-          other: any[]
-        }>(
-          (acc, param) => {
-            const resolved = getResolvedRef(param, context)
-
-            if (!isObject(resolved)) {
-              return acc
-            }
-
-            if (resolved.in === 'path') {
-              acc.path.push(resolved)
-              return acc
-            }
-            acc.other.push(param)
-            return acc
-          },
-          {
-            path: [],
-            other: [],
-          },
+        const existingPathParameters = new Set<string>(
+          existingParameters
+            .map((param) => getResolvedRef(param, context))
+            .filter(isPathParameterNode)
+            .map((param) => param.name),
         )
 
         // Include path-item level path parameters as fallbacks for any that the operation does not declare.
@@ -319,20 +323,26 @@ export const syncPathParameters = (): LifecyclePlugin => {
         // losing description, schema, required, etc. from the path-item definition.
         const pathItemParameters = 'parameters' in node && Array.isArray(node.parameters) ? node.parameters : []
 
-        for (const param of pathItemParameters) {
-          const resolved = getResolvedRef(param, context)
-
-          if (isObject(resolved) && resolved.in === 'path' && !pathParameters.find((p) => p.name === resolved.name)) {
-            pathParameters.push(resolved)
+        const pathItemPathParameters = pathItemParameters.filter((param): param is MinimalParameterObject => {
+          if (!isPathParameterNode(param)) {
+            return false
           }
-        }
 
-        // Sync path parameters using the same path for old and new
-        // This ensures parameters match the current path string
-        const syncedParameters = syncParametersForPathChange(pathString, pathString, pathParameters)
+          const result = !existingPathParameters.has(param.name)
 
-        const result = [...syncedParameters, ...restParameters]
+          if (result) {
+            existingPathParameters.add(param.name)
+          }
 
+          return result
+        })
+
+        const result = syncParametersForPathChange(
+          pathString,
+          pathString,
+          [...existingParameters, ...pathItemPathParameters],
+          (node) => getResolvedRef(node, context) as MinimalParameterObject,
+        )
         if (result.length > 0) {
           operation.parameters = result
         }

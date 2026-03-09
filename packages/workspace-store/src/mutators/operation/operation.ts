@@ -80,10 +80,12 @@ export const createOperation = (
     document['x-scalar-selected-server'] = firstServer.url
   }
 
+  const existingParameters = operation.parameters ?? []
+
   // Sync path variables
-  const newParameters = syncParametersForPathChange(normalizedPath, normalizedPath, operation.parameters ?? [])
-  if (newParameters.length > 0) {
-    operation.parameters = newParameters
+  const result = syncParametersForPathChange(normalizedPath, normalizedPath, existingParameters, getResolvedRef)
+  if (result.length > 0) {
+    operation.parameters = result
   }
 
   payload.callback?.(true)
@@ -195,7 +197,10 @@ export const updateOperationPathMethod = (
 
     if (oldPathParams.length > 0 || newPathParams.length > 0) {
       const existingParameters = operation.parameters ?? []
-      operation.parameters = syncParametersForPathChange(finalPath, meta.path, existingParameters)
+      const result = syncParametersForPathChange(finalPath, meta.path, existingParameters, getResolvedRef)
+      if (result.length > 0) {
+        operation.parameters = result
+      }
     }
   }
 
