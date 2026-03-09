@@ -324,14 +324,16 @@ export const syncPathParameters = (): LifecyclePlugin => {
         const pathItemParameters = 'parameters' in node && Array.isArray(node.parameters) ? node.parameters : []
 
         const pathItemPathParameters = pathItemParameters.filter((param): param is MinimalParameterObject => {
-          if (!isPathParameterNode(param)) {
+          const resolved = getResolvedRef(param, context)
+
+          if (!isPathParameterNode(resolved)) {
             return false
           }
 
-          const result = !existingPathParameters.has(param.name)
+          const result = !existingPathParameters.has(resolved.name)
 
           if (result) {
-            existingPathParameters.add(param.name)
+            existingPathParameters.add(resolved.name)
           }
 
           return result
