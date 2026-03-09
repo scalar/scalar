@@ -14,7 +14,7 @@ export default {
 
 <script setup lang="ts">
 import { ScalarButton, ScalarModal, useModal } from '@scalar/components'
-import { ScalarIconFloppyDisk } from '@scalar/icons'
+import { ScalarIconFloppyDisk, ScalarIconWarning } from '@scalar/icons'
 import { LibraryIcon } from '@scalar/icons/library'
 import { apply, type Difference, type merge } from '@scalar/json-magic/diff'
 import { deepClone } from '@scalar/workspace-store/helpers/deep-clone'
@@ -40,6 +40,11 @@ const icon = computed(
 )
 
 const syncModal = useModal()
+const dirtyBeforeSyncModal = useModal()
+
+const isDocumentDirty = computed(
+  () => props.document?.['x-scalar-is-dirty'] === true,
+)
 
 const undoChanges = () => {
   props.workspaceStore.revertDocumentChanges(props.documentSlug)
@@ -47,6 +52,16 @@ const undoChanges = () => {
 
 const saveChanges = () => {
   props.workspaceStore.saveDocument(props.documentSlug)
+}
+
+const handleSaveThenCloseDirtyModal = () => {
+  saveChanges()
+  dirtyBeforeSyncModal.hide()
+}
+
+const handleDiscardThenCloseDirtyModal = () => {
+  undoChanges()
+  dirtyBeforeSyncModal.hide()
 }
 
 const rebaseResult = ref<{
@@ -65,6 +80,11 @@ const rebaseResult = ref<{
 } | null>(null)
 
 const handleSyncFlow = async () => {
+  if (isDocumentDirty.value) {
+    dirtyBeforeSyncModal.show()
+    return
+  }
+
   const result = await props.workspaceStore.rebaseDocument({
     name: props.documentSlug,
     url: props.document?.['x-scalar-original-source-url'] ?? '',
@@ -84,6 +104,20 @@ const handleSyncFlow = async () => {
       syncModal.show()
     }
   }
+}
+
+const handleApplyChanges = async ({
+  resolvedDocument,
+}: {
+  resolvedDocument: Record<string, unknown>
+}) => {
+  await rebaseResult.value?.applyChanges({ resolvedDocument })
+  props.eventBus.emit('hooks:on:rebase:document:complete', {
+    meta: {
+      documentName: props.documentSlug,
+    },
+  })
+  syncModal.hide()
 }
 </script>
 
@@ -193,6 +227,58 @@ const handleSyncFlow = async () => {
     </div>
   </div>
   <ScalarModal
+    bodyClass="border-t-0 rounded-t-lg flex flex-col gap-5"
+    size="xs"
+    :state="dirtyBeforeSyncModal"
+    title="Sync requires saved document"
+    @close="dirtyBeforeSyncModal.hide()">
+    <div class="flex flex-col gap-5">
+      <div class="flex gap-3">
+        <div
+          aria-hidden="true"
+          class="bg-b-3 text-c-2 flex size-10 shrink-0 items-center justify-center rounded-lg">
+          <ScalarIconWarning class="size-5 text-[var(--scalar-color-yellow)]" />
+        </div>
+        <div class="min-w-0 flex-1 space-y-1">
+          <p class="text-c-1 text-sm font-medium leading-snug">
+            You have unsaved changes
+          </p>
+          <p class="text-c-2 text-sm leading-relaxed">
+            Save your work to keep changes, or discard to revert to the last
+            saved version. Then you can sync with the source.
+          </p>
+        </div>
+      </div>
+      <div class="flex flex-wrap items-center justify-end gap-2 border-t border-[var(--scalar-border-color)] pt-4">
+        <ScalarButton
+          size="sm"
+          type="button"
+          variant="ghost"
+          @click="dirtyBeforeSyncModal.hide()">
+          Cancel
+        </ScalarButton>
+        <ScalarButton
+          size="sm"
+          type="button"
+          variant="outlined"
+          @click="handleDiscardThenCloseDirtyModal">
+          Discard changes
+        </ScalarButton>
+        <ScalarButton
+          class="flex items-center gap-2"
+          size="sm"
+          type="button"
+          variant="solid"
+          @click="handleSaveThenCloseDirtyModal">
+          <ScalarIconFloppyDisk
+            size="sm"
+            thickness="1.5" />
+          Save and continue
+        </ScalarButton>
+      </div>
+    </div>
+  </ScalarModal>
+  <ScalarModal
     v-if="rebaseResult"
     bodyClass="sync-conflict-modal-root flex h-dvh flex-col p-4"
     maxWidth="calc(100dvw - 32px)"
@@ -202,7 +288,8 @@ const handleSyncFlow = async () => {
       <SyncConflictResolutionEditor
         :baseDocument="rebaseResult.originalDocument"
         :conflicts="rebaseResult.conflicts"
-        :resolvedDocument="rebaseResult.resolvedDocument" />
+        :resolvedDocument="rebaseResult.resolvedDocument"
+        @applyChanges="(payload) => handleApplyChanges(payload)" />
     </div>
   </ScalarModal>
 </template>
