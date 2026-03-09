@@ -128,6 +128,7 @@ export const syncParametersForPathChange = <T extends MinimalParameterObject>(
     const rawParam = unpackProxyObject(param, { depth: 1 })
     if (resolved?.in !== 'path') {
       result.push(rawParam)
+      continue
     }
 
     // Only adda the parameter if HAS not been used in the old path
