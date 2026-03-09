@@ -240,7 +240,7 @@ const handleApplyChanges = async ({
           <ScalarIconWarning class="size-5 text-[var(--scalar-color-yellow)]" />
         </div>
         <div class="min-w-0 flex-1 space-y-1">
-          <p class="text-c-1 text-sm font-medium leading-snug">
+          <p class="text-c-1 text-sm leading-snug font-medium">
             You have unsaved changes
           </p>
           <p class="text-c-2 text-sm leading-relaxed">
@@ -249,7 +249,8 @@ const handleApplyChanges = async ({
           </p>
         </div>
       </div>
-      <div class="flex flex-wrap items-center justify-end gap-2 border-t border-[var(--scalar-border-color)] pt-4">
+      <div
+        class="flex flex-wrap items-center justify-end gap-2 border-t border-[var(--scalar-border-color)] pt-4">
         <ScalarButton
           size="sm"
           type="button"

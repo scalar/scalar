@@ -26,6 +26,7 @@ import type { RouteProps } from '@/v2/features/app/helpers/routes'
 import { useDocumentWatcher } from '@/v2/features/app/hooks/use-document-watcher'
 import type { CommandPaletteState } from '@/v2/features/command-palette/hooks/use-command-palette-state'
 import TheCommandPalette from '@/v2/features/command-palette/TheCommandPalette.vue'
+import { useMonacoEditorConfiguration } from '@/v2/features/editor'
 import { useColorMode } from '@/v2/hooks/use-color-mode'
 import { useGlobalHotKeys } from '@/v2/hooks/use-global-hot-keys'
 import type { ClientLayout } from '@/v2/types/layout'
@@ -87,6 +88,15 @@ useDocumentWatcher({
 
 /** Color mode */
 useColorMode({ workspaceStore: app.store })
+
+const currentTheme = computed(() => app.theme.styles.value.themeStyles)
+const isDarkMode = computed(() => app.isDarkMode.value)
+
+/** Setup monaco editor configuration */
+useMonacoEditorConfiguration({
+  theme: currentTheme,
+  darkMode: isDarkMode,
+})
 
 const navigateToWorkspaceOverview = (namespace?: string, slug?: string) => {
   app.eventBus.emit('ui:navigate', {

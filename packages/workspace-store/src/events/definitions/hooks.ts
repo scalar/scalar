@@ -42,7 +42,7 @@ export type HooksEvents = {
    */
   'hooks:on:rebase:document:complete': {
     meta: {
-      doucmentName: string
+      documentName: string
     }
   }
 }

@@ -19,9 +19,7 @@ import {
   watch,
 } from 'vue'
 
-import { ensureMonacoEnvironment } from '@/v2/features/collection/components/Editor/helpers/ensure-monaco-environment'
-import { getJsonAstNodeFromPath } from '@/v2/features/collection/components/Editor/helpers/get-json-ast-node-from-path'
-import type { JsonPath } from '@/v2/features/collection/components/Editor/helpers/json-ast'
+import { getJsonAstNodeFromPath } from '@/v2/features/editor/helpers/json/get-json-ast-node-from-path'
 
 type ConflictResolutionState = 'manual' | 'local' | 'remote' | 'ignore' | 'idle'
 const { conflicts, baseDocument, resolvedDocument } = defineProps<{
@@ -78,7 +76,7 @@ const normalizeConflicts = computed(() => {
   })
 })
 
-type ConflictRange = { index: number; path: JsonPath; range: monaco.Range }
+type ConflictRange = { index: number; path: string[]; range: monaco.Range }
 const resolvedConflicts = ref<ConflictResolutionState[]>([])
 const conflictRangesState = shallowRef<ConflictRange[]>([])
 const localConflictRangesState = shallowRef<ConflictRange[]>([])
@@ -327,8 +325,6 @@ const documentWithRemoteChanges = computed(() => {
 })
 
 onMounted(() => {
-  ensureMonacoEnvironment()
-
   const originalModelLocal = monaco.editor.createModel(
     JSON.stringify(resolvedDocument, null, 2),
     'json',
@@ -536,7 +532,7 @@ onMounted(() => {
   const getConflictRange = async (
     model: monaco.editor.ITextModel,
     index: number,
-    path: JsonPath,
+    path: string[],
   ): Promise<ConflictRange> => {
     const fallbackRange = new monaco.Range(1, 1, 1, model.getLineMaxColumn(1))
     let range: monaco.Range | null = null
@@ -544,7 +540,7 @@ onMounted(() => {
     // Deletions can remove the exact path in one side of the diff.
     // Walk up parent paths so we still navigate to the nearest valid location.
     for (let depth = path.length; depth >= 0; depth -= 1) {
-      const candidatePath = path.slice(0, depth) as JsonPath
+      const candidatePath = path.slice(0, depth)
       const node = await getJsonAstNodeFromPath(model, candidatePath)
       if (!node) {
         continue
@@ -569,29 +565,17 @@ onMounted(() => {
     const [resultRanges, localRanges, remoteRanges] = await Promise.all([
       Promise.all(
         normalizeConflicts.value.map((conflict, index) =>
-          getConflictRange(
-            modifiedResultModel,
-            index,
-            conflict.local.path as JsonPath,
-          ),
+          getConflictRange(modifiedResultModel, index, conflict.local.path),
         ),
       ),
       Promise.all(
         normalizeConflicts.value.map((conflict, index) =>
-          getConflictRange(
-            modifiedModelLocal,
-            index,
-            conflict.local.path as JsonPath,
-          ),
+          getConflictRange(modifiedModelLocal, index, conflict.local.path),
         ),
       ),
       Promise.all(
         normalizeConflicts.value.map((conflict, index) =>
-          getConflictRange(
-            modifiedModelRemote,
-            index,
-            conflict.local.path as JsonPath,
-          ),
+          getConflictRange(modifiedModelRemote, index, conflict.local.path),
         ),
       ),
     ])
