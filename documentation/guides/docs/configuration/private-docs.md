@@ -27,7 +27,7 @@ To add only specific emails to an access group, type in the email you want to gi
 
 
 ## Use the Access Group
-Now let's restrict one of our [Scalar Docs](../getting-started.md) projects to the newly created access group.
+Now let's restrict one of our [Docs](../getting-started.md) projects to the newly created access group.
 
 Navigate to your Docs Project and navigate to the Security section, ensure "Private Docs" is enabled then you can allow access to the newly created access group.
 

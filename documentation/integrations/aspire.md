@@ -1,6 +1,6 @@
-# Scalar API Reference for .NET Aspire
+# API Reference for .NET Aspire
 
-The `Scalar.Aspire` package seamlessly integrates Scalar API Reference into your .NET Aspire applications, providing a unified documentation interface for all your services.
+The `Scalar.Aspire` package seamlessly integrates API Reference into your .NET Aspire applications, providing a unified documentation interface for all your services.
 
 ## Overview
 
@@ -44,7 +44,7 @@ var builder = DistributedApplication.CreateBuilder(args);
 var userService = builder.AddNpmApp("user-service", "../MyUserService");
 var bookService = builder.AddProject<Projects.BookService>("book-service");
 
-// Add Scalar API Reference
+// Add API Reference
 var scalar = builder.AddScalarApiReference();
 
 // Register services with the API Reference
@@ -55,7 +55,7 @@ scalar
 builder.Build().Run();
 ```
 
-That's it! 🎉 The Aspire dashboard will display a Scalar API Reference resource with unified documentation for all your services.
+That's it! 🎉 The Aspire dashboard will display a API Reference resource with unified documentation for all your services.
 
 ## Configuration
 
@@ -172,7 +172,7 @@ The `AllowSelfSignedCertificates()` method should only be used in development en
 - **Fallback Behavior**: If HTTPS is preferred but unavailable, HTTP endpoints are used as fallback. Conversely, if no HTTP endpoint is available, HTTPS endpoints are automatically used
 
 :::scalar-callout{ type=info }
-Currently, the Scalar API Reference interface is hosted over HTTP, even when communicating with HTTPS services. Support for hosting the Scalar interface under HTTPS will be added in a future release.
+Currently, the API Reference interface is hosted over HTTP, even when communicating with HTTPS services. Support for hosting the Scalar interface under HTTPS will be added in a future release.
 :::
 
 ## Proxy Configuration
@@ -322,4 +322,4 @@ var scalar = builder.AddScalarApiReference(options =>
 
 ## Additional Resources
 
-For more advanced configuration options see the [.NET ASP.NET Core documentation](aspnetcore/integration.md#configuration-options). Many configuration options are similar between `Scalar.AspNetCore` and `Scalar.Aspire` integrations, including [Agent Scalar](aspnetcore/integration.md#agent-scalar) (AI chat).
+For more advanced configuration options see the [.NET ASP.NET Core documentation](aspnetcore/integration.md#configuration-options). Many configuration options are similar between `Scalar.AspNetCore` and `Scalar.Aspire` integrations, including [Agent](aspnetcore/integration.md#agent) (AI chat).

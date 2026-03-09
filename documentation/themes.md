@@ -14,7 +14,7 @@ You don't like the color scheme? We've prepared some themes for you:
 * `deepSpace`
 * `laserwave`
 
-Just pass the theme name to your [Scalar API Reference configuration](configuration.md):
+Just pass the theme name to your [API Reference configuration](configuration.md):
 
 ```javascript
 {

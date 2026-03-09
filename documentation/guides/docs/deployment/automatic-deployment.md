@@ -1,6 +1,6 @@
 # Automatic Deployment
 
-Scalar Docs can automatically publish your documentation whenever changes are merged into your default branch (usually `main`).
+Docs can automatically publish your documentation whenever changes are merged into your default branch (usually `main`).
 
 Enable automatic deployment and configure which branch triggers it in the [Scalar Dashboard](https://dashboard.scalar.com) under your project settings. Every time you merge changes into your default branch, your documentation will be automatically published.
 

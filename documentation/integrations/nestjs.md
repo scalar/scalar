@@ -1,4 +1,4 @@
-# Scalar API Reference for NestJS
+# API Reference for NestJS
 
 This middleware provides an easy way to render a beautiful API reference based on an OpenAPI/Swagger file with NestJS.
 

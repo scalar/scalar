@@ -1,6 +1,6 @@
 # scalar.config.json
 
-The `scalar.config.json` file is the central configuration file for Scalar Docs. It defines your project's metadata, navigation structure, site settings, and deployment options.
+The `scalar.config.json` file is the central configuration file for Docs. It defines your project's metadata, navigation structure, site settings, and deployment options.
 
 ## Creating the configuration file
 

@@ -17,7 +17,7 @@ Commands:
   project         Manage scalar project
   registry        Manage your scalar registry
   team            Manage user teams
-  sdk             Manage your Scalar SDKs (Enterprise Only)
+  sdk             Manage your SDKs (Enterprise Only)
   schema          Manage your Scalar schemas
   help [command]  display help for command
 ```
@@ -302,7 +302,7 @@ Options:
   -h, --help                  display help for command
 
 Commands:
-  init [options]              Create a new Scalar Docs project.
+  init [options]              Create a new Docs project.
   check-config [file]         Check a Scalar Configuration file
   create [options]            Create a new project that is not linked to a
                               github project.
@@ -317,7 +317,7 @@ Commands:
 ```
 Usage: scalar project init [options]
 
-Create a new Scalar Docs project.
+Create a new Docs project.
 
 Options:
   -s, --subdomain [url]  subdomain to publish on
@@ -531,7 +531,7 @@ Options:
 ```
 Usage: scalar sdk [options] [command]
 
-Manage your Scalar SDKs (Enterprise Only)
+Manage your SDKs (Enterprise Only)
 
 Options:
   -h, --help        display help for command

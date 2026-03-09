@@ -2,10 +2,10 @@
 
 Bump.sh is a modern API documentation platform that supports both OpenAPI and AsyncAPI. Scalar offers the same functionality. When you bring your API into Scalar, you unlock a suite of tools to enhance your API experience:
 
-- **Scalar API Client:** A modern, open-source API testing client for Windows, macOS and Linux
-- **Scalar SDKs:** Generate type-safe client libraries in TypeScript, Python, Golang, and more
+- **API Client:** A modern, open-source API testing client for Windows, macOS and Linux
+- **SDKs:** Generate type-safe client libraries in TypeScript, Python, Golang, and more
 - **Spectral Linting:** Validate and lint your OpenAPI documents with Spectral rules
-- **Scalar Mock Server:** Spin up a fully-functional mock server from your OpenAPI document for frontend development and testing
+- **Mock Server:** Spin up a fully-functional mock server from your OpenAPI document for frontend development and testing
 
 However, if API change detection or AsyncAPI support are critical needs for your organization, Bump.sh currently has an edge in those areas. We don't offer these features yet, but the good news is that both are already on our roadmap or in progress already.
 
@@ -71,7 +71,7 @@ For detailed pricing information, visit [Scalar Pricing](https://scalar.com/pric
 | Custom Security Review                   |       ✓        |        ✓         |
 | Custom Contract                          |       ✓        |        ✓         |
 
-### Scalar SDKs
+### SDKs
 
 Generate type-safe client libraries from your OpenAPI documents. Scalar supports SDK generation in multiple languages:
 
@@ -90,7 +90,7 @@ SDKs sync with your API documentation, so whenever you update your OpenAPI docum
 
 ### Spectral linting
 
-Validate and lint your OpenAPI documents using Spectral rules. Spectral rules can be managed in the Scalar Registry alongside your OpenAPI documents and JSON Schemas.
+Validate and lint your OpenAPI documents using Spectral rules. Spectral rules can be managed in the Registry alongside your OpenAPI documents and JSON Schemas.
 
 ### API prototyping
 
@@ -100,7 +100,7 @@ Spin up a fully-functional mock server from your OpenAPI document. The mock serv
 npx @scalar/cli document mock openapi.json --watch
 ```
 
-Alternatively, run it in a Docker container or integrate it directly into your Node.js application. Learn more in the [Scalar Mock Server documentation](../guides/mock-server/getting-started.md).
+Alternatively, run it in a Docker container or integrate it directly into your Node.js application. Learn more in the [Mock Server documentation](../guides/mock-server/getting-started.md).
 
 ## Migrate from Bump.sh to Scalar
 
