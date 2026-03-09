@@ -12,6 +12,10 @@ import {
   type XScalarOriginalDocumentHash,
   XScalarOriginalDocumentHashSchema,
 } from '@/schemas/extensions/document/x-scalar-original-document-hash'
+import {
+  type XScalarRegistryMeta,
+  XScalarRegistryMetaSchema,
+} from '@/schemas/extensions/document/x-scalar-registry-meta'
 import { type XScalarWatchMode, XScalarWatchModeSchema } from '@/schemas/extensions/document/x-scalar-watch-mode'
 import {
   type XScalarActiveEnvironment,
@@ -93,6 +97,7 @@ export const OpenApiExtensionsSchema = compose(
   XScalarIsDirtySchema,
   XScalarActiveEnvironmentSchema,
   XScalarWatchModeSchema,
+  XScalarRegistryMetaSchema,
 )
 
 export type OpenAPIExtensions = Partial<{
@@ -110,7 +115,8 @@ export type OpenAPIExtensions = Partial<{
   XScalarOrder &
   XScalarCookies &
   XScalarIsDirty &
-  XScalarWatchMode
+  XScalarWatchMode &
+  XScalarRegistryMeta
 
 const OpenApiDocumentSchemaDefinition = compose(
   Type.Object({

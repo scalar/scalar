@@ -3135,7 +3135,7 @@ describe('create-workspace-store', () => {
       )
 
       // Apply the resolved changes (we choose the incoming changes in this case)
-      await result.applyChanges(result.conflicts.flatMap((it) => it[0]))
+      await result.applyChanges({ resolvedConflicts: result.conflicts.flatMap((it) => it[0]) })
 
       // Check if the new intermediate document is correct
       expect(store.exportDocument(documentName, 'json', true)).toEqual(
@@ -3168,7 +3168,7 @@ describe('create-workspace-store', () => {
       assert(result.ok)
 
       // Apply the resolved changes (we choose the incoming changes in this case)
-      await result.applyChanges(result.conflicts.flatMap((it) => it[1]))
+      await result.applyChanges({ resolvedConflicts: result.conflicts.flatMap((it) => it[1]) })
 
       // should override conflicts to the active document on rebase to the one from original
       expect(store.workspace.activeDocument?.info.version).toBe('1.0.1')
@@ -3218,7 +3218,7 @@ describe('create-workspace-store', () => {
 
       assert(result.ok)
 
-      await result.applyChanges([]) // No conflicts to apply
+      await result.applyChanges({ resolvedConflicts: [] }) // No conflicts to apply
 
       expect(fetchDocument).toHaveBeenCalledTimes(1)
       expect(store.workspace.documents.default?.info.title).toBe('My API')
@@ -3289,7 +3289,7 @@ describe('create-workspace-store', () => {
       })
 
       assert(result.ok)
-      await result.applyChanges([]) // No conflicts to apply
+      await result.applyChanges({ resolvedConflicts: [] }) // No conflicts to apply
 
       expect(store.workspace.activeDocument?.['x-scalar-navigation']).toEqual({
         type: 'document',

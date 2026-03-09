@@ -49,17 +49,19 @@ const saveChanges = () => {
   props.workspaceStore.saveDocument(props.documentSlug)
 }
 
-// const originalDocument = computed(() =>
-//   props.workspaceStore.getOriginalDocument(props.documentSlug),
-// )
-
-// const resolvedDocument = ref<Record<string, unknown> | null>(null)
-
 const rebaseResult = ref<{
   originalDocument: Record<string, unknown>
   resolvedDocument: Record<string, unknown>
   conflicts: ReturnType<typeof merge>['conflicts']
-  applyChanges: (resolvedConflicts: Difference<unknown>[]) => Promise<void>
+  applyChanges: (
+    applyChangesInput:
+      | {
+          resolvedConflicts: Difference<unknown>[]
+        }
+      | {
+          resolvedDocument: Record<string, unknown>
+        },
+  ) => Promise<void>
 } | null>(null)
 
 const handleSyncFlow = async () => {
@@ -68,7 +70,6 @@ const handleSyncFlow = async () => {
     url: props.document?.['x-scalar-original-source-url'] ?? '',
   })
 
-  console.log('result', result)
   if (result?.ok) {
     const originalDocument =
       props.workspaceStore.getOriginalDocument(props.documentSlug) ?? {}
@@ -79,154 +80,11 @@ const handleSyncFlow = async () => {
       originalDocument,
     }
 
-    console.log('rebaseResult', rebaseResult.value)
-
     if (rebaseResult.value.conflicts.length > 0) {
-      console.log('showing modal')
       syncModal.show()
-    } else {
-      console.log('no conflicts')
     }
-  } else {
-    console.log('no result')
   }
 }
-
-// const baseDocument = {
-//   info: {
-//     title: title.value,
-//   },
-//   paths: {
-//     '/': {
-//       get: {
-//         summary: 'Get the root path',
-//         operationId: 'getRoot',
-//       },
-//     },
-//     '/users': {
-//       get: {
-//         summary: 'Get the users path',
-//         operationId: 'getUsers',
-//       },
-//     },
-//     '/users/{userId}': {
-//       get: {
-//         summary: 'Get the user by ID',
-//         operationId: 'getUserById',
-//       },
-//     },
-//     '/users/{userId}/posts': {
-//       get: {
-//         summary: 'Get the posts for a user',
-//         operationId: 'getPostsForUser',
-//       },
-//     },
-//     '/users/{userId}/posts/{postId}': {
-//       get: {
-//         summary: 'Get the post by ID',
-//         operationId: 'getPostById',
-//       },
-//     },
-//   },
-//   components: {},
-//   securitySchemes: {},
-//   servers: [],
-//   tags: [],
-//   externalDocs: {},
-// }
-
-// const remoteBase = {
-//   info: {
-//     title: title.value,
-//   },
-//   paths: {
-//     '/': {},
-//     '/users': {
-//       get: {
-//         summary: 'Get the users path',
-//         operationId: 'getUsers',
-//       },
-//     },
-//     '/users/{userId}': {
-//       get: {
-//         summary: 'Get the user by ID',
-//         operationId: 'getUserById',
-//       },
-//     },
-//     '/users/{userId}/posts': {
-//       get: {
-//         summary: 'Get the posts for a user',
-//         operationId: 'getPostsForUser',
-//       },
-//     },
-//     '/users/{userId}/posts/{postId}': {
-//       post: {
-//         summary: 'Create a new post',
-//         operationId: 'createPost',
-//       },
-//     },
-//   },
-//   components: {},
-//   securitySchemes: {},
-//   servers: [],
-//   tags: [],
-//   externalDocs: {},
-// }
-
-// const locanIntermediate = {
-//   info: {
-//     title: title.value,
-//   },
-//   paths: {
-//     '/': {
-//       get: {
-//         summary: 'I am changed on this and there will be a conflict',
-//         operationId: 'getRoot',
-//       },
-//     },
-//     '/users': {
-//       get: {
-//         summary: 'Get the users path',
-//         operationId: 'getUsers',
-//       },
-//     },
-//     '/users/{userId}': {
-//       get: {
-//         summary: 'Get the user by ID',
-//         operationId: 'getUserById',
-//       },
-//     },
-//     '/users/{userId}/posts': {
-//       get: {
-//         summary: 'Get the posts for a user',
-//         operationId: 'getPostsForUser',
-//       },
-//     },
-//     '/users/{userId}/posts/{postId}': {
-//       get: {
-//         summary: 'I am also a new conflict',
-//         operationId: 'getPostById',
-//       },
-//     },
-//   },
-//   components: {},
-//   securitySchemes: {},
-//   servers: [],
-//   tags: [],
-//   externalDocs: {},
-// }
-
-// const changelogAA = diff(baseDocument, locanIntermediate)
-// const changelogAB = diff(baseDocument, remoteBase)
-
-// const changesA = merge(changelogAA, changelogAB)
-
-// console.log({ changelogAA, changelogAB, changesA })
-
-// const resolvedDocument = apply(
-//   JSON.parse(JSON.stringify(baseDocument)),
-//   changesA.diffs,
-// )
 </script>
 
 <template>
