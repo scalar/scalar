@@ -368,6 +368,7 @@
     "pretty-ms": "^9.3.0",
     "shell-quote": "^1.8.1",
     "type-fest": "catalog:*",
+    "vite-plugin-monaco-editor": "^1.1.0",
     "vue": "catalog:*",
     "vue-router": "catalog:*",
     "whatwg-mimetype": "catalog:*",

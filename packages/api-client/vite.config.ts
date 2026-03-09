@@ -1,29 +1,32 @@
+import { createRequire } from 'node:module'
 import { fileURLToPath } from 'node:url'
 
 import { findEntryPoints } from '@scalar/build-tooling'
 import { ViteWatchWorkspace, alias, createViteBuildOptions } from '@scalar/build-tooling/vite'
 import tailwindcss from '@tailwindcss/vite'
 import vue from '@vitejs/plugin-vue'
-import { createLogger } from 'vite'
 import svgLoader from 'vite-svg-loader'
 import { defineConfig } from 'vitest/config'
 
-const viteLogger = createLogger()
-const viteLoggerWarn = viteLogger.warn
-
-viteLogger.warn = (msg, options) => {
-  const isMonacoSourcemapWarning = msg.includes('Failed to load source map for') && msg.includes('monaco-editor')
-
-  if (isMonacoSourcemapWarning) {
-    return
-  }
-
-  viteLoggerWarn(msg, options)
-}
+const require = createRequire(import.meta.url)
+const monacoEditorPlugin = require('vite-plugin-monaco-editor').default
 
 export default defineConfig({
-  customLogger: viteLogger,
-  plugins: [vue(), tailwindcss(), svgLoader(), ViteWatchWorkspace()],
+  plugins: [
+    vue(),
+    tailwindcss(),
+    svgLoader(),
+    ViteWatchWorkspace(),
+    monacoEditorPlugin({
+      languageWorkers: ['json', 'editorWorkerService'],
+      customWorkers: [
+        {
+          label: 'yaml',
+          entry: 'monaco-yaml/yaml.worker',
+        },
+      ],
+    }),
+  ],
   define: {
     PACKAGE_VERSION: JSON.stringify(process.env.npm_package_version),
   },
@@ -32,13 +35,10 @@ export default defineConfig({
       ...alias(import.meta.url),
       '@v2': fileURLToPath(new URL('./src/v2', import.meta.url)),
     },
-    dedupe: ['vue'],
-  },
-  worker: {
-    format: 'es',
+    dedupe: ['vue', 'monaco-editor', 'monaco-yaml'],
   },
   optimizeDeps: {
-    exclude: ['@scalar/*', 'monaco-editor'],
+    exclude: ['@scalar/*', 'monaco-editor', 'monaco-yaml'],
   },
   server: {
     port: 5065,
