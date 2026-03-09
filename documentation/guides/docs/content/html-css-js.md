@@ -1,6 +1,6 @@
 # HTML/CSS/JS
 
-Scalar Docs supports custom HTML, CSS, and JavaScript to give you full control over your documentation pages. You can write raw HTML directly in Markdown files, add custom styles inline or via external stylesheets, and include JavaScript for interactivity.
+Docs supports custom HTML, CSS, and JavaScript to give you full control over your documentation pages. You can write raw HTML directly in Markdown files, add custom styles inline or via external stylesheets, and include JavaScript for interactivity.
 
 ## Writing HTML Pages
 

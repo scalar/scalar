@@ -2,9 +2,9 @@
 
 You can pass a - what we call universal - configuration object to fine-tune your API reference.
 
-> **Note:** This page covers the runtime configuration object for the Scalar API Reference used to control how Scalar displays your API docs.
+> **Note:** This page covers the runtime configuration object for the API Reference used to control how Scalar displays your API docs.
 >
-> This is NOT the `scalar.config.json` (used for the [Scalar Docs](guides/docs/configuration/scalar.config.json.md)).
+> This is NOT the `scalar.config.json` (used for the [Docs](guides/docs/configuration/scalar.config.json.md)).
 
 
 ## Universal Configuration
@@ -212,16 +212,16 @@ It is completely up to you whether you want to pass JSON or YAML. None of the di
 * YAML is easier to read for humans
 * YAML documents tend to be a little bit smaller
 
-## Agent Scalar
+## Agent
 
-Agent Scalar adds an AI chat interface to your API reference. Users can ask questions about your API and get contextual answers based on your OpenAPI document.
+Agent adds an AI chat interface to your API reference. Users can ask questions about your API and get contextual answers based on your OpenAPI document.
 
 - Enabled by default on `http://localhost` for testing (10 free messages)
 - Won’t appear in production unless a key is provided
-- Requires an [Agent Scalar key](guides/agent/key.md) for production deployments
+- Requires an [Agent key](guides/agent/key.md) for production deployments
 - Your OpenAPI document is uploaded on first message
 
-Related: [How to get an Agent Scalar key](guides/agent/key.md)
+Related: [How to get an Agent key](guides/agent/key.md)
 
 ```js
 Scalar.createApiReference('#app', {
@@ -236,11 +236,11 @@ Scalar.createApiReference('#app', {
 })
 ```
 
-To disable Agent Scalar:
+To disable Agent:
 
 ```js
 Scalar.createApiReference('#app', {
-  // Disable Agent Scalar entirely
+  // Disable Agent entirely
   agent: {
     disabled: true,
   },
@@ -637,7 +637,7 @@ Whether to show the sidebar search bar.
 
 **Type:** `boolean`
 
-Whether to show the "Test Request" button.
+Whether to show the "Test Request" button. When `true`, the authentication panel is also hidden, since it is only relevant when test requests are available.
 
 **Default:** `false`
 

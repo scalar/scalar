@@ -9,7 +9,7 @@ Scalar includes many of the same features as API Hub including:
 3. Custom domains, theming, and logos.
 4. A built-in, local-first API client to help developers and end users call endpoints and test  APIs.
 
-Beyond having a simpler name, Scalar is also [free to use forever](../guides/pricing.md) with fewer limits than API Hub. If you want custom domains, GitHub sync, and a few other features, our Pro plan is only $24/m.
+Beyond having a simpler name, Scalar is also [free to use forever](../guides/pricing.md) with fewer limits than API Hub. If you want custom domains, GitHub sync, and a few other features, our Pro plan starts at $72/mo (3-seat min).
 
 As a bonus, Scalar is also open source, meaning you can self-host it and view all of its code on [GitHub](https://github.com/scalar/scalar).
 
@@ -93,4 +93,4 @@ Just like API Hub Explore, you can import existing API docs into the API client 
 
 ## Link APIs from Design
 
-The [Scalar Registry](../guides/registry/getting-started.md) matches the API Hub Explore's “Link APIs from Design” feature.
+The [Registry](../guides/registry/getting-started.md) matches the API Hub Explore's “Link APIs from Design” feature.

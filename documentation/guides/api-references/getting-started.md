@@ -5,7 +5,7 @@
 <a href="https://discord.gg/scalar" aria-label="Join Scalar community on Discord"><img alt="Discord" src="https://img.shields.io/discord/1135330207960678410?style=flat&color=5865F2"></a>
 </div>
 
-The Scalar API Reference renders a modern documentation for your OpenAPI/Swagger documents and all you need is a few lines of code.
+The API Reference renders a modern documentation for your OpenAPI/Swagger documents and all you need is a few lines of code.
 
 The quickest way to start is a HTML page, that loads our JavaScript:
 
@@ -13,7 +13,7 @@ The quickest way to start is a HTML page, that loads our JavaScript:
 <!doctype html>
 <html>
   <head>
-    <title>Scalar API Reference</title>
+    <title>API Reference</title>
     <meta charset="utf-8" />
     <meta
       name="viewport"
@@ -26,7 +26,7 @@ The quickest way to start is a HTML page, that loads our JavaScript:
     <!-- Load the Script -->
     <script src="https://cdn.jsdelivr.net/npm/@scalar/api-reference"></script>
 
-    <!-- Initialize the Scalar API Reference -->
+    <!-- Initialize the API Reference -->
     <script>
       Scalar.createApiReference('#app', {
         // The URL of the OpenAPI/Swagger document

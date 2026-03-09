@@ -1,6 +1,6 @@
 # Legacy .NET Integration
 
-This guide explains how to integrate Scalar API Reference into .NET Framework and .NET Core projects using static assets.
+This guide explains how to integrate API Reference into .NET Framework and .NET Core projects using static assets.
 
 ## Prerequisites
 
@@ -62,7 +62,7 @@ Create `index.html` in the `wwwroot/scalar` directory with:
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Scalar API Reference</title>
+    <title>API Reference</title>
 </head>
 <body>
     <div id="app"></div>
@@ -87,7 +87,7 @@ Scalar.initialize({
 
 ## Step 5: Accessing your API Reference
 
-After starting your application, the Scalar API Reference will be available at:
+After starting your application, the API Reference will be available at:
 
 ```
 http://localhost:<port>/scalar/index.html

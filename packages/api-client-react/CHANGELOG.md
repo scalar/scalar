@@ -1,5 +1,15 @@
 # @scalar/api-client-react
 
+## 1.4.2
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-client@2.34.0**
+  - [#8365](https://github.com/scalar/scalar/pull/8365): feat: store oauth flow refresh tokens on the auth store
+  - [#8356](https://github.com/scalar/scalar/pull/8356): fix: make fallback theme reactive
+
 ## 1.4.1
 
 ### Patch Changes

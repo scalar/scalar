@@ -7,14 +7,14 @@ Make your AI Agents talk to APIs is easy and fun. It's just that bigger APIs are
 
 That's something MCP helps with. You just wrap your API as MCP tools, and you're good to go. That's what we thought. Actually, the repeated schemas come with a cost (tokens), too.
 
-I'm glad to say, we found something better. It's called [Agent Scalar](../guides/agent/getting-started.md) and our newest product, tightly integrated with our set of tools for your API. And here is why it might be better than your average MCP server:
+I'm glad to say, we found something better. It's called [Agent](../guides/agent/getting-started.md) and our newest product, tightly integrated with our set of tools for your API. And here is why it might be better than your average MCP server:
 
-Agent Scalar keeps the tool surface fixed and super small. It fetches just-in-time details. The result is smaller context, fewer steps, and better routing. And happy agents. :-)
+Agent keeps the tool surface fixed and super small. It fetches just-in-time details. The result is smaller context, fewer steps, and better routing. And happy agents. :-)
 
 ## Get Started
 
 <scalar-button
-  title="Chat with Agent Scalar"
+  title="Chat with Agent"
   href="https://agent.scalar.com"
   icon="phosphor/regular/chat-circle-dots">
 </scalar-button>
@@ -31,11 +31,11 @@ If you dump the full OpenAPI document into the prompt, you often blow past the m
 
 Even when the API is smaller, like [Notions API](https://developers.notion.com/guides/get-started/getting-started), raw OpenAPI is so expensive: It works, sure, but you pay a steep token tax every run. MCP reduces cost a lot, but native MCP still carries schema tokens for every single endpoint.
 
-Agent Scalar collapses that into three tools and pulls only the schema it needs.
+Agent collapses that into three tools and pulls only the schema it needs.
 
 ## Benchmarking what we built
 
-We ran a few benchmarks to test Agent Scalar with real-world APIs. And the results are so good, but take a look yourself:
+We ran a few benchmarks to test Agent with real-world APIs. And the results are so good, but take a look yourself:
 
 ### Benchmark setup
 
@@ -43,7 +43,7 @@ We ran identical tasks across three approaches:
 
 1. Raw OpenAPI documents in prompt
 2. Native MCP server (one tool per endpoint)
-3. Agent Scalar (3 tools: summarize, search and execute)
+3. Agent (3 tools: summarize, search and execute)
 
 We used [Zoom Meetings API](https://developers.zoom.us/docs/api/meetings/) (list, create, update) and [Notions API](https://developers.notion.com/guides/get-started/getting-started) (search, create page, get workspace). Example Notion prompts are aligned with Notion's MCP tools guide.
 
@@ -72,7 +72,7 @@ Token counting was done with [tiktoken](https://github.com/openai/tiktoken).
 | Raw OpenAPI Spec in prompt        | --    | 295656     | 0             | 295656        | 147.8%                                                            |
 | Native MCP (full schemas)         | 183   | 89281      | 89530         | 178811        | 89.4%                                                             |
 | Native MCP (required params only) | 183   | 5504       | 89530         | 95034         | 47.5%                                                             |
-| Agent Scalar (MCP tools)          | 3     | 412        | 412           | 412           | <span style="background-color: yellow; color: black;">0.2%</span> |
+| Agent (MCP tools)          | 3     | 412        | 412           | 412           | <span style="background-color: yellow; color: black;">0.2%</span> |
 
 ### Notion
 
@@ -97,13 +97,13 @@ Token counting was done with [tiktoken](https://github.com/openai/tiktoken).
 | Raw OpenAPI Spec in prompt        | --    | 69114      | 0             | 69114         | 34.6%                                                             |
 | Native MCP (full schemas)         | 26    | 2104       | 12803         | 14907         | 7.5%                                                              |
 | Native MCP (required params only) | 26    | 829        | 12803         | 13632         | 6.8%                                                              |
-| Agent Scalar (MCP tools)          | 3     | 400        | 400           | 400           | <span style="background-color: yellow; color: black;">0.2%</span> |
+| Agent (MCP tools)          | 3     | 400        | 400           | 400           | <span style="background-color: yellow; color: black;">0.2%</span> |
 
 ## The Results
 
-Guess who's the clear winner with just 0.2% of your context window: Agent Scalar. Why is that?
+Guess who's the clear winner with just 0.2% of your context window: Agent. Why is that?
 
-1. Native MCP scales with endpoint count. Agent Scalar does not. Three tools cover the entire API.
+1. Native MCP scales with endpoint count. Agent does not. Three tools cover the entire API.
 
 2. Instead of loading the full API definition upfront, the agent calls a tiny version, with just the endpoints and schemas it needs.
 
@@ -120,7 +120,7 @@ Guess who's the clear winner with just 0.2% of your context window: Agent Scalar
 
 ## Try it
 
-You can use Agent Scalar in two ways:
+You can use Agent in two ways:
 
 1. **Chat UI:** upload your OpenAPI and chat at [`agent.scalar.com`](https://agent.scalar.com).
 2. **Agent SDK:** connect to Scalar MCP servers from your agent runtime (Vercel AI SDK, OpenAI Agents SDK, Anthropic Claude SDK).
@@ -150,6 +150,6 @@ const result = await run(agent, 'pls list available endpoints in the zoom api th
 await Promise.all(servers.map((s) => s.close()))
 ```
 
-Agent Scalar is able to scale across N APIs that you want your agent to have access to, without flooding the context window and yielding the most accurate tool calling. Crazy, eh?
+Agent is able to scale across N APIs that you want your agent to have access to, without flooding the context window and yielding the most accurate tool calling. Crazy, eh?
 
 **Mar 5, 2026**

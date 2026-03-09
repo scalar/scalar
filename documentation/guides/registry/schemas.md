@@ -17,11 +17,11 @@ Schemas allow you to reference shared components across your registry APIs.
 
 From the [dashboard](https://dashboard.scalar.com) left-most sidebar under Registry > Schemas, then click "+ New" to create your first schema.
 
-![Scalar Registry Schemas Page](../../assets/schema.png "Scalar Schemas Page")
+![Registry Schemas Page](../../assets/schema.png "Scalar Schemas Page")
 
 You'll be taken to the schema creation page where you can configure your new JSON Schema.
 
-![Scalar Registry Create Schema](../../assets/schema-1.png "Scalar Create Schema")
+![Registry Create Schema](../../assets/schema-1.png "Scalar Create Schema")
 
 ### Configure Schema Details
 
@@ -277,7 +277,7 @@ jobs:
         with:
           node-version: 24
 
-      - name: Log in to Scalar Registry
+      - name: Log in to Registry
         run: npx @scalar/cli auth login --token ${{ secrets.SCALAR_API_KEY }}
 
       - name: Publish Schema

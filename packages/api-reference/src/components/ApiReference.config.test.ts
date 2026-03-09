@@ -315,6 +315,45 @@ describe('ApiReference Configuration Tests', () => {
     expect(downloadButtons[0]?.find('.extension').text()).toBe('json')
   })
 
+  it('hides authentication when test requests are hidden', async () => {
+    const authentication = {
+      preferredSecurityScheme: 'apiKey',
+      securitySchemes: {
+        apiKey: {
+          type: 'apiKey',
+          name: 'x-api-key',
+          value: 'test-token',
+        },
+      },
+    }
+
+    const visibleWrapper = mountComponent({
+      props: {
+        configuration: {
+          content: createBasicDocument(),
+          authentication,
+        },
+      },
+    })
+    await flushPromises()
+
+    expect(visibleWrapper.findComponent({ name: 'Auth' }).exists()).toBe(true)
+
+    const hiddenWrapper = mountComponent({
+      props: {
+        configuration: {
+          content: createBasicDocument(),
+          authentication,
+          hideClientButton: true,
+          hideTestRequestButton: true,
+        },
+      },
+    })
+    await flushPromises()
+
+    expect(hiddenWrapper.findComponent({ name: 'Auth' }).exists()).toBe(false)
+  })
+
   it('all callbacks and complex configurations', async () => {
     const onLoaded = vi.fn()
     const onServerChange = vi.fn()
