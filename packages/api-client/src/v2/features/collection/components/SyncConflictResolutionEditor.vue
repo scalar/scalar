@@ -1,14 +1,9 @@
 <script setup lang="ts">
 import { ScalarButton } from '@scalar/components'
 import { apply, type merge } from '@scalar/json-magic/diff'
-import * as monaco from 'monaco-editor'
-
-import 'monaco-editor/esm/vs/language/json/monaco.contribution'
-import 'monaco-editor/esm/vs/base/browser/ui/codicons/codicon/codicon.css'
-import 'monaco-editor/esm/vs/editor/contrib/codelens/browser/codelensController'
-
 import { useToasts } from '@scalar/use-toasts'
 import { deepClone } from '@scalar/workspace-store/helpers/deep-clone'
+import * as monaco from 'monaco-editor'
 import {
   computed,
   markRaw,
@@ -19,7 +14,10 @@ import {
   watch,
 } from 'vue'
 
-import { getJsonAstNodeFromPath } from '@/v2/features/editor/helpers/json/get-json-ast-node-from-path'
+import { useSplitResize } from '@/v2/components/resize'
+import { rangeToWholeLine } from '@/v2/features/editor'
+import { createJsonModel } from '@/v2/features/editor/helpers/json/create-json-model'
+import type { EditorModel } from '@/v2/features/editor/helpers/model'
 
 type ConflictResolutionState = 'manual' | 'local' | 'remote' | 'ignore' | 'idle'
 const { conflicts, baseDocument, resolvedDocument } = defineProps<{
@@ -86,7 +84,18 @@ const splitContainerRef = ref<HTMLDivElement>()
 const topEditorsRowRef = ref<HTMLDivElement>()
 const topPaneSize = ref(50)
 const leftPaneSize = ref(50)
-let activeResizeCleanup: (() => void) | undefined
+
+const { onHorizontalResizeStart, onVerticalResizeStart, stopActiveResize } =
+  useSplitResize({
+    horizontalContainerRef: topEditorsRowRef,
+    verticalContainerRef: splitContainerRef,
+    leftPaneSize,
+    topPaneSize,
+    horizontalMin: 20,
+    horizontalMax: 80,
+    verticalMin: 25,
+    verticalMax: 75,
+  })
 
 const conflictsLeft = computed(() => {
   return resolvedConflicts.value.filter((status) => status === 'idle').length
@@ -96,101 +105,6 @@ const leftPaneStyle = computed(() => ({ width: `${leftPaneSize.value}%` }))
 const rightPaneStyle = computed(() => ({
   width: `${100 - leftPaneSize.value}%`,
 }))
-
-const clamp = (value: number, min: number, max: number): number =>
-  Math.min(max, Math.max(min, value))
-
-const stopActiveResize = (): void => {
-  activeResizeCleanup?.()
-  activeResizeCleanup = undefined
-}
-
-const startResize = (
-  event: PointerEvent,
-  onMove: (event: PointerEvent) => void,
-  cursor: string,
-): void => {
-  event.preventDefault()
-  stopActiveResize()
-
-  const previousUserSelect = document.body.style.userSelect
-  const previousCursor = document.body.style.cursor
-  document.body.style.userSelect = 'none'
-  document.body.style.cursor = cursor
-
-  const handleMove = (moveEvent: PointerEvent): void => {
-    onMove(moveEvent)
-  }
-
-  const handleUp = (): void => {
-    stopActiveResize()
-  }
-
-  window.addEventListener('pointermove', handleMove)
-  window.addEventListener('pointerup', handleUp, { once: true })
-
-  activeResizeCleanup = () => {
-    window.removeEventListener('pointermove', handleMove)
-    window.removeEventListener('pointerup', handleUp)
-    document.body.style.userSelect = previousUserSelect
-    document.body.style.cursor = previousCursor
-  }
-}
-
-const onHorizontalResizeStart = (event: PointerEvent): void => {
-  const rowElement = topEditorsRowRef.value
-  if (!rowElement) {
-    return
-  }
-
-  startResize(
-    event,
-    (moveEvent) => {
-      const rect = rowElement.getBoundingClientRect()
-      const ratio = ((moveEvent.clientX - rect.left) / rect.width) * 100
-      leftPaneSize.value = clamp(ratio, 20, 80)
-    },
-    'col-resize',
-  )
-}
-
-const onVerticalResizeStart = (event: PointerEvent): void => {
-  const containerElement = splitContainerRef.value
-  if (!containerElement) {
-    return
-  }
-
-  startResize(
-    event,
-    (moveEvent) => {
-      const rect = containerElement.getBoundingClientRect()
-      const ratio = ((moveEvent.clientY - rect.top) / rect.height) * 100
-      topPaneSize.value = clamp(ratio, 25, 75)
-    },
-    'row-resize',
-  )
-}
-
-const offsetsToWholeLineRange = (
-  model: monaco.editor.ITextModel,
-  startOffset: number,
-  endOffset: number,
-): monaco.Range => {
-  const start = model.getPositionAt(startOffset)
-  // Treat endOffset as exclusive to avoid selecting one extra line.
-  const inclusiveEndOffset = Math.max(startOffset, endOffset - 1)
-  const end = model.getPositionAt(inclusiveEndOffset)
-
-  const startLine = Math.max(1, start.lineNumber)
-  const endLine = Math.max(startLine, end.lineNumber)
-
-  return new monaco.Range(
-    startLine,
-    1,
-    endLine,
-    model.getLineMaxColumn(endLine),
-  )
-}
 
 const focusEditorRange = (
   diffEditor: monaco.editor.IStandaloneDiffEditor | undefined,
@@ -329,18 +243,16 @@ onMounted(() => {
     JSON.stringify(resolvedDocument, null, 2),
     'json',
   )
-  const modifiedModelLocal = monaco.editor.createModel(
+  const modifiedModelLocal = createJsonModel(
     JSON.stringify(documentWithLocalChanges.value, null, 2),
-    'json',
   )
 
   const originalModelRemote = monaco.editor.createModel(
     JSON.stringify(resolvedDocument, null, 2),
     'json',
   )
-  const modifiedModelRemote = monaco.editor.createModel(
+  const modifiedModelRemote = createJsonModel(
     JSON.stringify(documentWithRemoteChanges.value, null, 2),
-    'json',
   )
 
   const originalResultModel = monaco.editor.createModel(
@@ -348,9 +260,8 @@ onMounted(() => {
     'json',
   )
 
-  const modifiedResultModel = monaco.editor.createModel(
+  const modifiedResultModel = createJsonModel(
     JSON.stringify(resolvedDocument, null, 2),
-    'json',
   )
 
   // diff editro
@@ -366,7 +277,7 @@ onMounted(() => {
 
   localDiffEditor.setModel({
     original: originalModelLocal,
-    modified: modifiedModelLocal,
+    modified: modifiedModelLocal.model,
   })
   localChangesEditor.value = localDiffEditor
 
@@ -382,7 +293,7 @@ onMounted(() => {
   )
   remoteDiffEditor.setModel({
     original: originalModelRemote,
-    modified: modifiedModelRemote,
+    modified: modifiedModelRemote.model,
   })
 
   remoteChangesEditor.value = remoteDiffEditor
@@ -398,7 +309,7 @@ onMounted(() => {
   )
   resultDiffEditor.setModel({
     original: originalResultModel,
-    modified: modifiedResultModel,
+    modified: modifiedResultModel.model,
   })
   const resultModifiedEditor = resultDiffEditor.getModifiedEditor()
   resultModifiedEditor.updateOptions({ codeLens: true })
@@ -473,7 +384,9 @@ onMounted(() => {
     resultCodeLensProviderDisposable =
       monaco.languages.registerCodeLensProvider('json', {
         provideCodeLenses: (model) => {
-          if (model.uri.toString() !== modifiedResultModel.uri.toString()) {
+          if (
+            model.uri.toString() !== modifiedResultModel.model.uri.toString()
+          ) {
             return {
               lenses: [],
               dispose: () => undefined,
@@ -530,10 +443,11 @@ onMounted(() => {
   }
 
   const getConflictRange = async (
-    model: monaco.editor.ITextModel,
+    editorModel: EditorModel,
     index: number,
     path: string[],
   ): Promise<ConflictRange> => {
+    const { model } = editorModel
     const fallbackRange = new monaco.Range(1, 1, 1, model.getLineMaxColumn(1))
     let range: monaco.Range | null = null
 
@@ -541,16 +455,12 @@ onMounted(() => {
     // Walk up parent paths so we still navigate to the nearest valid location.
     for (let depth = path.length; depth >= 0; depth -= 1) {
       const candidatePath = path.slice(0, depth)
-      const node = await getJsonAstNodeFromPath(model, candidatePath)
-      if (!node) {
+      const nodeRange = await editorModel.getRangeFromPath(candidatePath)
+      if (!nodeRange) {
         continue
       }
 
-      range = offsetsToWholeLineRange(
-        model,
-        node.offset,
-        node.offset + node.length,
-      )
+      range = rangeToWholeLine(model, nodeRange)
       break
     }
 
@@ -619,10 +529,9 @@ onMounted(() => {
 
     let currentDocument: Record<string, unknown> | null = null
     try {
-      currentDocument = JSON.parse(modifiedResultModel.getValue()) as Record<
-        string,
-        unknown
-      >
+      currentDocument = JSON.parse(
+        modifiedResultModel.model.getValue(),
+      ) as Record<string, unknown>
     } catch {
       return
     }
@@ -632,7 +541,7 @@ onMounted(() => {
     const nextDocument = apply(deepClone(currentDocument), changes)
 
     suppressedChangeEvents += 1
-    modifiedResultModel.setValue(JSON.stringify(nextDocument, null, 2))
+    modifiedResultModel.model.setValue(JSON.stringify(nextDocument, null, 2))
 
     setConflictResolution(index, source)
     await refreshConflictRangesAndDecorations()

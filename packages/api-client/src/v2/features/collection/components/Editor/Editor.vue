@@ -15,7 +15,7 @@ import {
 } from 'vue'
 
 import type { CollectionProps } from '@/v2/features/app/helpers/routes'
-import { useEditor } from '@/v2/features/editor'
+import { useEditor, useJsonPointerLinkSupport } from '@/v2/features/editor'
 import { createJsonModel } from '@/v2/features/editor/helpers/json/create-json-model'
 import { createYamlModel } from '@/v2/features/editor/helpers/yaml/create-yaml-model'
 import { useEditorMarkers } from '@/v2/features/editor/hooks/use-editor-markers'
@@ -96,6 +96,10 @@ const focusDiagnostic = (marker: monaco.editor.IMarker) => {
 }
 
 const getEditorValue = (): string | null => currentModel.value.model.getValue()
+
+/** Value from the editor for a specific language (use when switching to avoid reading the wrong model). */
+const getEditorValueForLanguage = (language: 'json' | 'yaml'): string | null =>
+  (language === 'json' ? jsonModel : yamlModel).model.getValue()
 
 const getDocumentValue = async (
   language?: 'json' | 'yaml',
@@ -215,6 +219,8 @@ const focusOperationServers = async () => {
   ])
 }
 
+useJsonPointerLinkSupport(editorApi, currentModel)
+
 onMounted(() => {
   editorApi.value = useEditor({
     element: monacoEditorRef.value ?? document.createElement('div'),
@@ -279,20 +285,23 @@ watch(isDiagnosticsPaneExpanded, () => {
 
 watch(editorLanguage, async (nextLanguage, previousLanguage) => {
   const wasDirty = isDirty.value
-  selectedLanguage.value = nextLanguage
-  await nextTick()
-
-  const value = getEditorValue()
+  // Read from the previous model before switching; getEditorValue() would use currentModel
+  // which changes with selectedLanguage, so we would read the (empty) new model otherwise.
+  const value = getEditorValueForLanguage(previousLanguage ?? 'json')
   if (!value) {
+    selectedLanguage.value = nextLanguage
+    await nextTick()
+    await focusOperation()
     return
   }
 
-  const parsed = parseEditorObject(value, previousLanguage)
+  const parsed = parseEditorObject(value, previousLanguage ?? 'json')
+  selectedLanguage.value = nextLanguage
+  await nextTick()
   if (parsed) {
     applyProgrammaticEditorValue(stringifyDocument(parsed, nextLanguage))
     isDirty.value = wasDirty
   }
-
   await focusOperation()
 })
 
