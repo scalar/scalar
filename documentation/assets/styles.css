@@ -13,7 +13,6 @@
   font-size: var(--scalar-small);
   font-weight: normal;
   line-height: 18px;
-  color: var(--scalar-header-color-2, var(--scalar-color-2));
   height: auto;
 }
 
