@@ -11,17 +11,17 @@ However, if API change detection or AsyncAPI support are critical needs for your
 
 ## Pricing
 
-Scalar offers a more accessible entry point with a free tier and lower starting prices compared to Bump.sh.
+Scalar offers a free tier and transparent pricing compared to Bump.sh.
 
 | Plan       |        Scalar         |      Bump.sh      |
 | ---------- | :-------------------: | :---------------: |
 | Free       |           ✓           |         ✗         |
-| Starter    | $24/user/month (Pro)  | $50/month (Basic) |
-| Team       | $24/user/month + fees | $250/month (Pro)  |
+| Starter    | $72/mo (Pro, 3-seat min)  | $50/month (Basic) |
+| Team       | $72/mo + fees (3-seat min) | $250/month (Pro)  |
 | Enterprise |    Custom pricing     |  Custom pricing   |
 
 - Scalar offers a free plan, Bump.sh does not
-- Scalar Pro starts at $24/month vs Bump.sh Basic at $50/month
+- Scalar Pro starts at $72/mo (3-seat min) vs Bump.sh Basic at $50/month
 - Scalar Pro with additional seats is significantly lower than Bump.sh Pro ($250/month)
 - Resource limits: Bump.sh has hard limits on docs and users per plan, while Scalar uses usage-based pricing
 

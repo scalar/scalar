@@ -21,7 +21,7 @@ Scalar offers a more accessible entry point with a free tier and simpler pricing
 | Plan       |     Scalar     |      Zuplo       |
 | ---------- | :------------: | :--------------: |
 | Free       |       ✓        | limited requests |
-| Paid       | $24/user/month |   usage-based    |
+| Paid       | $72/mo (3-seat min) |   usage-based    |
 | Enterprise | custom pricing |  custom pricing  |
 
 - Scalar pricing is user-based (documentation platform), while Zuplo pricing is request-based (gateway usage)

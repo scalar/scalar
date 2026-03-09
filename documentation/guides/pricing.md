@@ -29,8 +29,8 @@
               </div>
               <div class="pricing-table-column">
                 <b class="text-sm">Pro</b>
-                <p class="text-xl font-bold ">$24 / month*</p>
-                <p class=" text-c-2 text-sm font-normal">* Additional fees per member or based on usage & services</p>
+                <p class="text-xl font-bold ">$72 / month*</p>
+                <p class=" text-c-2 text-sm font-normal">* 3-seat minimum. Plus member, usage, and service fees.</p>
                 <p></p>
                 <a href="https://dashboard.scalar.com/register" class="pricing-cta pricing-cta-main">Try For Free</a>
               </div>
