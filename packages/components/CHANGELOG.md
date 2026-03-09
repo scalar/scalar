@@ -1,5 +1,15 @@
 # @scalar/components
 
+## 0.20.2
+
+### Patch Changes
+
+- [#8366](https://github.com/scalar/scalar/pull/8366): fix(components): clean up search components and add snapshots
+
+#### Updated Dependencies
+
+- **@scalar/oas-utils@0.10.1**
+
 ## 0.20.1
 
 ### Patch Changes
