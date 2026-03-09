@@ -637,7 +637,7 @@ Whether to show the sidebar search bar.
 
 **Type:** `boolean`
 
-Whether to show the "Test Request" button.
+Whether to show the "Test Request" button. When `true`, the authentication panel is also hidden, since it is only relevant when test requests are available.
 
 **Default:** `false`
 

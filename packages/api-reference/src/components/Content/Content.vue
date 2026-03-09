@@ -129,7 +129,7 @@ const securitySchemes = computed(() =>
           <!-- Auth selector -->
           <ScalarErrorBoundary>
             <IntroductionCardItem
-              v-if="document"
+              v-if="document && !options.hideTestRequestButton"
               class="scalar-reference-intro-auth scalar-client introduction-card-item leading-normal">
               <Auth
                 :authStore
