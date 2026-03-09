@@ -14,19 +14,23 @@ export type MinimalParameterObject = Pick<ParameterObject, 'name' | 'in'>
  * Behavior:
  * - Preserves as much of the existing parameter configuration as possible when the set of path variables
  *   changes due to a path update.
- * - If a parameter with the same name exists in the new path, its configuration is preserved in place.
+ * - If a parameter with the same name exists in the new path, its configuration is preserved.
  * - If a parameter appears at the same position as an old parameter (name changed), the old parameter's
- *   configuration is kept and its name is updated in place.
- * - Any newly required parameters (variables present in the new path but not in the old path) are appended
+ *   configuration is kept and its name is updated in place via the resolved object.
+ * - Any newly required parameters (variables present in the new path but not in the old path) are added
  *   as new minimal parameter objects.
  * - Parameters that are no longer present in the new path are dropped.
+ * - Non-path parameters (query, header, etc.) from `existingParameters` are included unchanged in the result.
  *
- * ⚠️ This function mutates parameter objects in the `existingParameters` array in place
- *     (i.e., reused objects may have their `name` updated).
+ * ⚠️ This function mutates parameter objects in the `existingParameters` array in place when a path
+ *     parameter is renamed (i.e., reused objects may have their `name` updated via `resolve`).
  *
- * Only parameters that did not previously exist are returned (i.e., newly created parameters).
- * To get the correct full parameters array for your operation, combine the possibly-mutated
- * `existingParameters` with the result of this function, for example:
+ * Returns the full new parameters array. Use the return value directly as the new operation.parameters.
+ *
+ * @param newPath - The path string after the change (e.g. '/users/{id}/posts/{postId}').
+ * @param oldPath - The path string before the change (e.g. '/users/{userId}').
+ * @param existingParameters - Current operation parameters (may be refs); path params are synced, others passed through.
+ * @param resolve - Callback to resolve a reference to a minimal parameter object (used for reading and mutating).
  *
  * @example
  * ```ts
@@ -35,21 +39,17 @@ export type MinimalParameterObject = Pick<ParameterObject, 'name' | 'in'>
  * // - newPath: '/users/{id}/posts/{postId}'
  * // - existingParameters: [ { name: 'userId', in: 'path' } ]
  *
- * const extraParams = syncParametersForPathChange(
+ * const newParams = syncParametersForPathChange(
  *   '/users/{id}/posts/{postId}',
  *   '/users/{userId}',
- *   existingParameters
+ *   existingParameters,
+ *   (node) => resolveRef(node) // or unwrap $ref to get { name, in }
  * )
  *
- * // At this point:
- * // - existingParameters[0].name === 'id'   // was mutated in place (renamed)
- * // - extraParams === [ { name: 'postId', in: 'path' } ]
+ * // existingParameters[0] was mutated in place (name -> 'id' via resolve).
+ * // newParams is the full array: [ renamed path param 'id', new path param 'postId' ]
  *
- * const finalParams = [
- *   ...existingParameters, // (now with 'id')
- *   ...extraParams         // 'postId'
- * ]
- * // Use `finalParams` as your new operation.parameters
+ * operation.parameters = newParams
  * ```
  */
 export const syncParametersForPathChange = <T extends MinimalParameterObject>(
