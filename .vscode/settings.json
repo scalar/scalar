@@ -91,5 +91,8 @@
   "vitest.commandLine": "pnpm vitest",
   "vitest.enable": true,
   "cSpell.words": ["microdiff", "Typeguard"],
-  "json.schemaDownload.enable": true
+  "json.schemaDownload.enable": true,
+  "json.schemaDownload.trustedDomains": {
+    "https://registry.scalar.com": true
+  }
 }
