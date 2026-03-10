@@ -1,7 +1,6 @@
 import type { Ref } from 'vue'
 
-const clamp = (value: number, min: number, max: number): number =>
-  Math.min(max, Math.max(min, value))
+const clamp = (value: number, min: number, max: number): number => Math.min(max, Math.max(min, value))
 
 export type UseSplitResizeOptions = {
   /** Ref to the container used for horizontal resize (width + clientX). */
@@ -46,11 +45,7 @@ export function useSplitResize(options: UseSplitResizeOptions): {
     activeResizeCleanup = undefined
   }
 
-  const startResize = (
-    event: PointerEvent,
-    onMove: (event: PointerEvent) => void,
-    cursor: string,
-  ): void => {
+  const startResize = (event: PointerEvent, onMove: (event: PointerEvent) => void, cursor: string): void => {
     event.preventDefault()
     stopActiveResize()
 
