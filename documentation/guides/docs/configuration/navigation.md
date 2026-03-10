@@ -32,7 +32,7 @@ The `navigation.header` array defines links that appear in the top navigation ba
 ```json
 // scalar.config.json
 {
-  "$schema": "https://registry.scalar.com/@scalar/schemas/config
+  "$schema": "https://registry.scalar.com/@scalar/schemas/config",
   "scalar": "2.0.0",
   "navigation": {
     "header": [
@@ -87,7 +87,7 @@ The `navigation.sidebar` array defines links that appear at the bottom of the si
 ```json
 // scalar.config.json
 {
-  "$schema": "https://registry.scalar.com/@scalar/schemas/config
+  "$schema": "https://registry.scalar.com/@scalar/schemas/config",
   "scalar": "2.0.0",
   "navigation": {
     "sidebar": [
@@ -123,7 +123,7 @@ The `navigation.tabs` array defines tabs that appear in the navigation area. Tab
 ```json
 // scalar.config.json
 {
-  "$schema": "https://registry.scalar.com/@scalar/schemas/config
+  "$schema": "https://registry.scalar.com/@scalar/schemas/config",
   "scalar": "2.0.0",
   "navigation": {
     "tabs": [
