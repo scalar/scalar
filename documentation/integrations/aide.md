@@ -1,4 +1,4 @@
-# Scalar API Reference for Aide
+# API Reference for Aide
 
 There's [a wonderful package to generate OpenAPI files for Rust](https://github.com/tamasfe/aide) (called Aide) and it comes with Scalar.
 

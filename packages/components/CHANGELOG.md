@@ -1,5 +1,32 @@
 # @scalar/components
 
+## 0.20.3
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/oas-utils@0.10.2**
+
+## 0.20.2
+
+### Patch Changes
+
+- [#8366](https://github.com/scalar/scalar/pull/8366): fix(components): clean up search components and add snapshots
+
+#### Updated Dependencies
+
+- **@scalar/oas-utils@0.10.1**
+
+## 0.20.1
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/oas-utils@0.10.0**
+  - [#8266](https://github.com/scalar/scalar/pull/8266): support operation level authentication and servers
+
 ## 0.20.0
 
 ### Minor Changes

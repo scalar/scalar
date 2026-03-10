@@ -45,7 +45,7 @@ const { stylingAttrsCx, otherAttrs } = useBindCx()
   <label
     v-bind="
       stylingAttrsCx(
-        'flex items-center text-lg font-medium h-10 pl-3 pr-1 py-2 gap-2.25',
+        'flex items-center text-lg font-medium h-10 pl-3 pr-1.5 py-2 gap-2.25',
       )
     ">
     <ScalarIconMagnifyingGlass class="text-sidebar-c-search size-4" />
@@ -63,14 +63,15 @@ const { stylingAttrsCx, otherAttrs } = useBindCx()
       type="search" />
     <ScalarLoading
       v-if="loader && loader.isActive"
-      class="self-center"
+      class="mr-1"
       :loader
-      size="md" />
+      size="lg" />
     <ScalarIconButton
       v-else-if="model"
-      class="p-0 size-5"
+      class="-my-1"
       :icon="ScalarIconX"
       label="Clear Search"
+      size="sm"
       weight="bold"
       @click.stop.prevent="handleClear" />
   </label>

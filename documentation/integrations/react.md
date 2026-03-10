@@ -1,4 +1,4 @@
-# Scalar API Reference for React
+# API Reference for React
 
 [React](https://react.dev/) is one of the most popular libraries for web and native user interfaces. If you plan to render an API reference in React, we've got great news for you: There's a React integration of our package to render OpenAPI documents and here's how you can use it:
 

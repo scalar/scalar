@@ -205,7 +205,7 @@
         "schemas": {
           "type": "object",
           "additionalProperties": {
-            "$dynamicRef": "#meta"
+            "$ref": "#/$defs/schema"
           }
         },
         "responses": {
@@ -504,7 +504,7 @@
           "type": "boolean"
         },
         "schema": {
-          "$dynamicRef": "#meta"
+          "$ref": "#/$defs/schema"
         },
         "content": {
           "$ref": "#/$defs/content",
@@ -728,10 +728,10 @@
           "type": "string"
         },
         "schema": {
-          "$dynamicRef": "#meta"
+          "$ref": "#/$defs/schema"
         },
         "itemSchema": {
-          "$dynamicRef": "#meta"
+          "$ref": "#/$defs/schema"
         },
         "encoding": {
           "type": "object",
@@ -1065,7 +1065,7 @@
           "type": "boolean"
         },
         "schema": {
-          "$dynamicRef": "#meta"
+          "$ref": "#/$defs/schema"
         },
         "content": {
           "$ref": "#/$defs/content",

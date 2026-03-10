@@ -74,9 +74,9 @@ export const useTheme = ({
   fallbackThemeSlug: MaybeRefOrGetter<string>
   store: MaybeRefOrGetter<WorkspaceStore | null>
 }) => {
-  const themeStyleTag = computed(() => {
+  const themeStyles = computed<{ themeStyles: string; themeSlug: string }>(() => {
     // Always-defined fallback: built-in "default" theme
-    const defaultThemeStyles = wrapThemeInStyleTag(resolveThemeStyles('default', [])!, 'default')
+    const defaultThemeStyles = { themeStyles: resolveThemeStyles('default', [])!, themeSlug: 'default' }
 
     // Evaluate values
     const storeValue = toValue(store)
@@ -94,26 +94,42 @@ export const useTheme = ({
     // First: If no theme slug is set, try fallback theme, else default
     if (!themeSlug) {
       const fallbackStyles = resolveThemeStyles(fallbackThemeSlugValue, toValue(customThemes))
-      return fallbackStyles ? wrapThemeInStyleTag(fallbackStyles, fallbackThemeSlugValue) : defaultThemeStyles
+      return fallbackStyles ? { themeStyles: fallbackStyles, themeSlug: fallbackThemeSlugValue } : defaultThemeStyles
     }
 
     // Second: Try resolving styles for the workspace or specified theme
     const themeStyles = resolveThemeStyles(themeSlug, toValue(customThemes))
     if (themeStyles) {
-      return wrapThemeInStyleTag(themeStyles, themeSlug)
+      return { themeStyles: themeStyles, themeSlug }
     }
 
     // Third: If theme not found, try resolving fallback theme
     const fallbackStyles = resolveThemeStyles(fallbackThemeSlugValue, toValue(customThemes))
     if (fallbackStyles) {
-      return wrapThemeInStyleTag(fallbackStyles, fallbackThemeSlugValue)
+      return { themeStyles: fallbackStyles, themeSlug: fallbackThemeSlugValue }
     }
 
     // Last resort: use the built-in default theme
     return defaultThemeStyles
   })
 
+  const themeStyleTag = computed(() => {
+    return wrapThemeInStyleTag(themeStyles.value.themeStyles, themeStyles.value.themeSlug)
+  })
+
   return {
+    /**
+     * Computed ref containing the resolved theme styles object
+     * for the currently active theme. Always returns a style object,
+     * never null, with proper fallback logic if custom or workspace themes are missing.
+     */
+    themeStyles,
+
+    /**
+     * Computed ref containing a <style> tag as a string,
+     * ready to be injected into the DOM.
+     * This wraps the currently active theme CSS variables/styles.
+     */
     themeStyleTag,
   }
 }

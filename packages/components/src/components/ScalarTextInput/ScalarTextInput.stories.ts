@@ -14,6 +14,9 @@ const meta: Meta = {
     prefix: { control: 'text' },
     suffix: { control: 'text' },
   },
+  args: {
+    placeholder: 'Placeholder text...',
+  },
   render: (args) => ({
     components: { ScalarTextInput },
     setup() {
@@ -57,7 +60,7 @@ export const WithAside: Story = {
   render: (args) => ({
     components: { ScalarTextInput, ScalarIconButton },
     setup() {
-      const model = ref('password')
+      const model = ref('')
       const mask = ref(true)
       return { args, model, mask }
     },

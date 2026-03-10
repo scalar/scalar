@@ -1,4 +1,4 @@
-# Scalar API Reference for Astro
+# API Reference for Astro
 
 This component provides an easy way to render a beautiful API reference based on an OpenAPI/Swagger document with Astro.
 

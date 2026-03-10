@@ -4,10 +4,10 @@ Zuplo is an API gateway where your API traffic flows through their infrastructur
 
 Scalar takes a different approach: it lives alongside your API without touching your traffic, focusing on documentation and developer tools. When you migrate your developer portal from Zuplo to Scalar, you unlock a suite of tools to enhance your API experience:
 
-- **Scalar API Client:** A modern, open-source API testing client for Windows, macOS and Linux
-- **Scalar SDKs:** Generate type-safe client libraries in TypeScript, Python, Golang, and more
+- **API Client:** A modern, open-source API testing client for Windows, macOS and Linux
+- **SDKs:** Generate type-safe client libraries in TypeScript, Python, Golang, and more
 - **Spectral Linting:** Validate and lint your OpenAPI documents with Spectral rules
-- **Scalar Mock Server:** Spin up a fully-functional mock server from your OpenAPI document for frontend development and testing
+- **Mock Server:** Spin up a fully-functional mock server from your OpenAPI document for frontend development and testing
 - **Open-Source:** Most of our packages are fully open-source, self-hosting is easy
 
 Scalar is trusted by thousands of developers worldwide, with over 13,000 GitHub stars, millions of npm downloads, and official integrations for all the frameworks including Express, Fastify, Hono, NestJS, Next.js, Nuxt, ASP.NET Core, FastAPI, and more.
@@ -21,7 +21,7 @@ Scalar offers a more accessible entry point with a free tier and simpler pricing
 | Plan       |     Scalar     |      Zuplo       |
 | ---------- | :------------: | :--------------: |
 | Free       |       ✓        | limited requests |
-| Paid       | $24/user/month |   usage-based    |
+| Paid       | $72/mo (3-seat min) |   usage-based    |
 | Enterprise | custom pricing |  custom pricing  |
 
 - Scalar pricing is user-based (documentation platform), while Zuplo pricing is request-based (gateway usage)
@@ -68,7 +68,7 @@ For detailed pricing information, visit [Scalar Pricing](../guides/pricing.md) a
 | PRs merged (2025)            | [2,075](https://github.com/scalar/scalar/pulls?q=is%3Apr+is%3Amerged+merged%3A2025-01-01..2025-12-31) | [973](https://github.com/zuplo/zudoku/pulls?q=is%3Apr+is%3Amerged+merged%3A2025-01-01..2025-12-31) |
 | Discord                      |                             [discord.gg/scalar](http://discord.gg/scalar)                             |
 
-### Scalar SDKs
+### SDKs
 
 Generate type-safe client libraries from your OpenAPI documents. Scalar supports SDK generation in multiple languages:
 
@@ -111,7 +111,7 @@ All integrations are actively maintained and follow the same configuration patte
 
 ### Spectral linting
 
-Validate and lint your OpenAPI documents using Spectral rules. Spectral rules can be managed in the Scalar Registry alongside your OpenAPI documents and JSON Schemas.
+Validate and lint your OpenAPI documents using Spectral rules. Spectral rules can be managed in the Registry alongside your OpenAPI documents and JSON Schemas.
 
 ### API prototyping
 
@@ -121,7 +121,7 @@ Spin up a fully-functional mock server from your OpenAPI document. The mock serv
 npx @scalar/cli document mock openapi.json --watch
 ```
 
-Alternatively, run it in a Docker container or integrate it directly into your Node.js application. Learn more in the [Scalar Mock Server documentation](../guides/mock-server/getting-started.md).
+Alternatively, run it in a Docker container or integrate it directly into your Node.js application. Learn more in the [Mock Server documentation](../guides/mock-server/getting-started.md).
 
 ## Migrate from Zuplo to Scalar
 

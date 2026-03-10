@@ -1,6 +1,6 @@
 # Scalar for SvelteKit
 
-A SvelteKit integration for the Scalar API Reference
+A SvelteKit integration for the API Reference
 
 ![Screenshot of the SvelteKit integration](../assets/screenshots/sveltekit.png)
 

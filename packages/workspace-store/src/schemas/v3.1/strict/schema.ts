@@ -357,6 +357,8 @@ const ObjectValidationPropertiesWithSchema = Type.Object({
   additionalProperties: Type.Optional(Type.Union([Type.Boolean(), schemaOrReference])),
   /** Properties matching regex patterns. */
   patternProperties: Type.Optional(Type.Record(Type.String(), schemaOrReference)),
+  /** Constraints on property names (JSON Schema propertyNames keyword). */
+  propertyNames: Type.Optional(schemaOrReference),
 })
 
 type ObjectObject = CoreProperties & {
@@ -373,6 +375,8 @@ type ObjectObject = CoreProperties & {
   additionalProperties?: boolean | SchemaReferenceType<SchemaObject>
   /** Properties matching regex patterns. */
   patternProperties?: Record<string, SchemaReferenceType<SchemaObject>>
+  /** Constraints on property names (JSON Schema propertyNames keyword). */
+  propertyNames?: SchemaReferenceType<SchemaObject>
 } & Extensions
 
 /** Builds the recursive schema schema */

@@ -66,11 +66,13 @@ catalogs:
     fastify: ^5.3.3
     flatted: ^3.3.3
     fuse.js: ^7.1.0
-    hono: 4.11.10
+    hono: 4.12.4
     github-slugger: 2.0.0
     js-base64: ^3.7.8
     jsdom: 27.4.0
     microdiff: ^1.5.0
+    monaco-editor: 0.54.0
+    monaco-yaml: 5.2.3
     nanoid: ^5.1.6
     next: ^15.5.10
     neverpanic: 0.0.5

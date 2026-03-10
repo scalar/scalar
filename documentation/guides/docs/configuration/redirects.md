@@ -1,6 +1,6 @@
 # Redirects
 
-Redirects allow you to automatically redirect users from one URL to another in your Scalar Docs project. This is useful for handling URL changes, deprecated pages, migrating from other platforms, or creating shortcuts to commonly accessed content.
+Redirects allow you to automatically redirect users from one URL to another in your Docs project. This is useful for handling URL changes, deprecated pages, migrating from other platforms, or creating shortcuts to commonly accessed content.
 
 ## Configuration
 
