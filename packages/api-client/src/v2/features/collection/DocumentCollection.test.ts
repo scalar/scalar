@@ -146,7 +146,7 @@ describe('DocumentCollection', () => {
     expect(eventBus.emit).toHaveBeenCalledWith('document:update:icon', 'interface-content-star')
   })
 
-  it('uses default values when document info is missing or incomplete', async () => {
+  it('uses empty string values when document info is missing or incomplete', async () => {
     const document = createMockDocument({
       info: undefined,
       'x-scalar-client-config-icon': undefined,
@@ -154,9 +154,8 @@ describe('DocumentCollection', () => {
 
     const { wrapper } = await mountWithRouter(document)
 
-    /** Verify fallback title is used */
     const labelInput = wrapper.findComponent({ name: 'LabelInput' })
-    expect(labelInput.props('modelValue')).toBe('Untitled Document')
+    expect(labelInput.find('input')?.element.placeholder).toBe('Untitled Document')
 
     /** Verify default icon is used */
     const iconSelector = wrapper.findComponent({ name: 'IconSelector' })

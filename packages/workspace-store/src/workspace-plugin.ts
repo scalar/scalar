@@ -56,6 +56,7 @@ export type WorkspaceStateChangeEvent =
  * Plugin type for extending workspace-store behavior with hooks.
  *
  * - hooks.onWorkspaceStateChanges: Optional hook called when workspace state changes.
+ * - dispose: Optional cleanup called when the workspace/store is torn down (e.g. workspace removed).
  */
 export type WorkspacePlugin = Partial<{
   hooks: Partial<{
@@ -65,4 +66,9 @@ export type WorkspacePlugin = Partial<{
      */
     onWorkspaceStateChanges: (event: WorkspaceStateChangeEvent) => void
   }>
+  /**
+   * Called when the workspace or store is disposed.
+   * Use this to unregister listeners, clear caches, or release references.
+   */
+  dispose?: () => void
 }>

@@ -42,8 +42,9 @@ export const updateDocumentInfo = (
 
   // Update the document title if it is present and the navigation object is present
   // We do this because we don't want to rebuild the entire navigation object if only the title is changed
-  if (payload.title && document['x-scalar-navigation']) {
-    document['x-scalar-navigation'].title = payload.title
+  // Normalize like traverseDocument: trim and treat whitespace-only as empty so we show "Untitled Document"
+  if (document['x-scalar-navigation'] && payload.title !== undefined) {
+    document['x-scalar-navigation'].title = payload.title?.trim() || 'Untitled Document'
   }
 }
 
