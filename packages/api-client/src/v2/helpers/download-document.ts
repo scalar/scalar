@@ -12,6 +12,10 @@ export function downloadAsFile(content: string, filename: string, mimeType = 'ap
   const link = document.createElement('a')
   link.href = url
   link.download = filename
+  link.style.display = 'none'
+  link.setAttribute('aria-hidden', 'true')
+  document.body.appendChild(link)
   link.click()
+  document.body.removeChild(link)
   URL.revokeObjectURL(url)
 }
