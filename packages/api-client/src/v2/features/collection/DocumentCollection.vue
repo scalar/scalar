@@ -14,9 +14,14 @@ export default {
 
 <script setup lang="ts">
 import { ScalarButton, ScalarModal, useModal } from '@scalar/components'
-import { ScalarIconFloppyDisk, ScalarIconWarning } from '@scalar/icons'
+import {
+  ScalarIconCloudArrowDown,
+  ScalarIconFloppyDisk,
+  ScalarIconWarning,
+} from '@scalar/icons'
 import { LibraryIcon } from '@scalar/icons/library'
 import { apply, type Difference, type merge } from '@scalar/json-magic/diff'
+import { useToasts } from '@scalar/use-toasts'
 import { deepClone } from '@scalar/workspace-store/helpers/deep-clone'
 import { computed, ref } from 'vue'
 import { RouterView } from 'vue-router'
@@ -45,6 +50,12 @@ const dirtyBeforeSyncModal = useModal()
 const isDocumentDirty = computed(
   () => props.document?.['x-scalar-is-dirty'] === true,
 )
+
+const documentSourceUrl = computed(
+  () => props.document?.['x-scalar-original-source-url'],
+)
+
+const { toast } = useToasts()
 
 const undoChanges = () => {
   props.workspaceStore.revertDocumentChanges(props.documentSlug)
@@ -85,9 +96,14 @@ const handleSyncFlow = async () => {
     return
   }
 
+  if (!documentSourceUrl.value) {
+    toast('Document source URL is not set', 'warn')
+    return
+  }
+
   const result = await props.workspaceStore.rebaseDocument({
     name: props.documentSlug,
-    url: props.document?.['x-scalar-original-source-url'] ?? '',
+    url: documentSourceUrl.value,
   })
 
   if (result?.ok) {
@@ -103,6 +119,10 @@ const handleSyncFlow = async () => {
     if (rebaseResult.value.conflicts.length > 0) {
       syncModal.show()
     }
+  } else if (result?.ok === false && result.type === 'NO_CHANGES_DETECTED') {
+    toast('No changes detected. Your document is up to date.', 'info')
+  } else {
+    toast('Failed to sync document', 'error')
   }
 }
 
@@ -190,12 +210,19 @@ const handleApplyChanges = async ({
           </div>
 
           <ScalarButton
+            v-if="document?.['x-scalar-original-source-url'] !== undefined"
+            class="text-c-2 hover:text-c-1 shrink-0 gap-1.5"
             data-testid="document-sync-button"
             size="xs"
+            :title="'Pull the latest version from the document source and merge with your local copy. Save your changes first if you have unsaved edits.'"
             type="button"
-            variant="outlined"
+            variant="ghost"
             @click="handleSyncFlow">
-            Sync
+            <ScalarIconCloudArrowDown
+              class="size-3.5"
+              size="sm"
+              thickness="1.5" />
+            <span>Sync from source</span>
           </ScalarButton>
         </div>
       </div>
