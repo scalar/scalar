@@ -5,7 +5,7 @@ import { isParamDisabled } from '@/v2/blocks/request-block/helpers/is-param-disa
 
 import { getExample } from './get-example'
 
-export type ValidatePathParametersResult = { ok: true } | { ok: false; invalidParams: string[] }
+type ValidatePathParametersResult = { ok: true } | { ok: false; invalidParams: string[] }
 
 /** Treats undefined, null, and blank/whitespace strings as empty. */
 const isEmptyParamValue = (value: unknown): boolean => {
