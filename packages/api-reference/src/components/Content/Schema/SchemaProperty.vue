@@ -46,6 +46,8 @@ const props = withDefaults(
     description?: string
     hideModelNames?: boolean
     hideHeading?: boolean
+    /** When the root schema was resolved from a $ref, pass the ref name for display (e.g. "Data"). */
+    modelName?: string | null
     variant?: 'additionalProperties' | 'patternProperties'
     breadcrumb?: string[]
     eventBus: WorkspaceEventBus | null
@@ -155,6 +157,7 @@ const isDiscriminatorProperty = computed(() =>
       :enum="hasEnum"
       :hideModelNames
       :isDiscriminator="isDiscriminatorProperty"
+      :modelName="modelName"
       :required
       :value="optimizedValue">
       <template
