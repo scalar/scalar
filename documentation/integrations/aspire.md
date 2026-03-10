@@ -116,14 +116,26 @@ scalar.WithApiReference(bookService, options =>
 
 ### Static OpenAPI Documents
 
-Use the file-based overload when a service does not expose a live OpenAPI endpoint—for example, when the description document is generated at build time or when documenting an external API from a local file. The file is mounted into the Scalar container and served at `/openapi/{filename}`. The document URL in the API Reference uses that path; the `resourceBuilder` is still used to configure the **Try It** server URL (the API base URL for requests).
+Use the file-based overload when a service does not expose a live OpenAPI endpoint—for example, when the description document is generated at build time or when documenting an external API from a local file. The file is mounted into the Scalar container and served at `/openapi/{folderPath}/{filename}`. When the optional `folderPath` parameter is not provided, the resource name is used as the folder, so the path is `/openapi/{resourceName}/{filename}`. You can pass an explicit `folderPath` to override the default folder or to avoid name collisions when multiple services serve static files. The document URL in the API Reference uses that path; the `resourceBuilder` is still used to configure the **Try It** server URL (the API base URL for requests).
 
 Supported file formats: `.json`, `.yaml`, `.yml`.
+
+Default folder (resource name):
 
 ```csharp
 scalar.WithApiReference(
     myService,
     new FileInfo("./openapi/openapi.yaml"),
+    options => options.AddDocument("v1", "My API"));
+```
+
+Optional custom folder path:
+
+```csharp
+scalar.WithApiReference(
+    myService,
+    new FileInfo("./openapi/openapi.yaml"),
+    folderPath: "my-service",
     options => options.AddDocument("v1", "My API"));
 ```
 
@@ -142,7 +154,7 @@ scalar.WithApiReference(
 
 ### Advanced: Base document URL
 
-`WithBaseDocumentUrl(ReferenceExpression?)` controls the base URL used to resolve the OpenAPI document URL. For static files, the integration sets this internally so the document is loaded from `/openapi/{filename}`. You can override it for custom setups—for example, use `ReferenceExpression.Empty` so the document URL is the route pattern as-is, or pass a different expression to resolve at startup when endpoints are known.
+`WithBaseDocumentUrl(ReferenceExpression?)` controls the base URL used to resolve the OpenAPI document URL. For static files, the integration sets this internally so the document is loaded from the route pattern `/openapi/{resourceName}/{filename}` (or `/openapi/{folderPath}/{filename}` when `folderPath` is specified). You can override it for custom setups—for example, use `ReferenceExpression.Empty` so the document URL is the route pattern as-is, or pass a different expression to resolve at startup when endpoints are known.
 
 ## HTTPS Support
 
