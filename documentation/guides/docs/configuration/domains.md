@@ -26,7 +26,7 @@ The `customDomain` property allows you to use your own domain name. This feature
 ```json
 // scalar.config.json
 {
-  "$schema": "https://registry.scalar.com/@scalar/schemas/config
+  "$schema": "https://registry.scalar.com/@scalar/schemas/config",
   "scalar": "2.0.0",
   "siteConfig": {
     "customDomain": "docs.example.com"
