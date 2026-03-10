@@ -77,4 +77,28 @@ describe('persistence-plugin', () => {
     expect(firstPluginDebounce.flushAll).toHaveBeenCalledTimes(1)
     expect(secondPluginDebounce.flushAll).toHaveBeenCalledTimes(1)
   })
+
+  it('dispose removes flushAll from pendingFlushes so only remaining plugins are flushed', async () => {
+    const { persistencePlugin } = await import('./persistence')
+
+    const plugin1 = await persistencePlugin({ workspaceId: 'workspace-1' })
+    await persistencePlugin({ workspaceId: 'workspace-2' })
+
+    const pagehideHandler = addWindowListener.mock.calls.find((call) => call[0] === 'pagehide')?.[1]
+    expect(pagehideHandler).toBeTypeOf('function')
+
+    pagehideHandler()
+    expect(debounceSpy).toHaveBeenCalledTimes(2)
+    expect(debounceSpy.mock.results[0]?.value.flushAll).toHaveBeenCalledTimes(1)
+    expect(debounceSpy.mock.results[1]?.value.flushAll).toHaveBeenCalledTimes(1)
+
+    plugin1.dispose?.()
+
+    debounceSpy.mock.results[0]?.value.flushAll.mockClear()
+    debounceSpy.mock.results[1]?.value.flushAll.mockClear()
+    pagehideHandler()
+
+    expect(debounceSpy.mock.results[0]?.value.flushAll).not.toHaveBeenCalled()
+    expect(debounceSpy.mock.results[1]?.value.flushAll).toHaveBeenCalledTimes(1)
+  })
 })

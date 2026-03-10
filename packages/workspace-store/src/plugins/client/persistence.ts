@@ -64,7 +64,12 @@ export const persistencePlugin = async ({
   pendingFlushes.add(flushAll)
   initializePersistenceLifecycleListeners()
 
+  const dispose = (): void => {
+    pendingFlushes.delete(flushAll)
+  }
+
   return {
+    dispose,
     hooks: {
       /**
        * Handles all workspace state change events.
