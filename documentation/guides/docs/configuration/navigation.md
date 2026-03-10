@@ -288,6 +288,36 @@ Fetch an OpenAPI document from a remote URL. The document is fetched on each pag
 - `flat` Shows a single level of links with a section title
 - `nested` Shows a sub-sidebar with breadcrumbs for deep navigation
 
+### API Reference configuration
+
+When you add an OpenAPI route (`type: "openapi"`) in your navigation, you can pass API Reference options by adding a `config` object. The same options supported by the [API Reference configuration](../../../configuration.md) (e.g. `authentication`, `theme`) can be used here.
+
+Example:
+
+```json
+// scalar.config.json
+"/api": {
+  "type": "openapi",
+  "title": "My API",
+  "url": "https://example.com/openapi.json",
+  "mode": "nested",
+  "config": {
+    "authentication": {
+      "preferredSecurityScheme": "httpBasic",
+      "securitySchemes": {
+        "httpBasic": {
+          "type": "http",
+          "scheme": "basic",
+          "username": "my-username"
+        }
+      }
+    }
+  }
+}
+```
+
+For all available options, see [Configuration](../../../configuration.md).
+
 ## Groups
 
 Groups allow you to organize related pages, API references, and links into collapsible sections in your navigation. They can be nested to create multi-level hierarchies.
