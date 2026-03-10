@@ -1,5 +1,18 @@
 # @scalar/aspire
 
+## 0.9.3
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.48.2**
+  - [#8381](https://github.com/scalar/scalar/pull/8381): feat: add mcp config support
+  - [#8375](https://github.com/scalar/scalar/pull/8375): feat(api-reference): export lazy bus queue helper
+  - [#8370](https://github.com/scalar/scalar/pull/8370): fix: hide the authentication panel when test requests are disabled
+
+- **@scalar/dotnet-shared@0.2.0**
+
 ## 0.9.2
 
 ### Patch Changes

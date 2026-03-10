@@ -1,5 +1,16 @@
 # @scalar/api-client-react
 
+## 1.4.3
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/types@0.7.1**
+  - [#8381](https://github.com/scalar/scalar/pull/8381): feat: add mcp config support
+
+- **@scalar/api-client@2.34.1**
+
 ## 1.4.2
 
 ### Patch Changes
