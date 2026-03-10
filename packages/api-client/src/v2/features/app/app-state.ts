@@ -31,7 +31,7 @@ import {
   ref,
   shallowRef,
 } from 'vue'
-import type { RouteLocationNormalizedGeneric, Router } from 'vue-router'
+import type { RouteLocationNormalizedGeneric, RouteLocationRaw, Router } from 'vue-router'
 
 import { getRouteParam } from '@/v2/features/app/helpers/get-route-param'
 import { groupWorkspacesByTeam } from '@/v2/features/app/helpers/group-workspaces'
@@ -665,6 +665,12 @@ export const createAppState = async ({
       return
     }
 
+    /** Close sidebar and navigate. Used for every branch that performs navigation. */
+    const navigate = (route: RouteLocationRaw) => {
+      isSidebarOpen.value = false
+      return router.push(route)
+    }
+
     // Navigate to the document overview page
     if (entry.type === 'document') {
       // If we are already in the document, just toggle expansion
@@ -676,8 +682,7 @@ export const createAppState = async ({
       // Otherwise, select it
       sidebarState.setSelected(id)
       sidebarState.setExpanded(id, true)
-      isSidebarOpen.value = false
-      return router.push({
+      return navigate({
         name: 'document.overview',
         params: { documentSlug: entry.name },
       })
@@ -701,8 +706,7 @@ export const createAppState = async ({
         sidebarState.setSelected(id)
       }
 
-      isSidebarOpen.value = false
-      return router.push({
+      return navigate({
         name: 'example',
         params: {
           documentSlug: getParentEntry('document', entry)?.name,
@@ -717,8 +721,7 @@ export const createAppState = async ({
     if (entry.type === 'example') {
       sidebarState.setSelected(id)
       const operation = getParentEntry('operation', entry)
-      isSidebarOpen.value = false
-      return router.push({
+      return navigate({
         name: 'example',
         params: {
           documentSlug: getParentEntry('document', entry)?.name,
@@ -730,8 +733,7 @@ export const createAppState = async ({
     }
 
     if (entry.type === 'text') {
-      isSidebarOpen.value = false
-      return router.push({
+      return navigate({
         name: 'document.overview',
         params: {
           documentSlug: getParentEntry('document', entry)?.name,
