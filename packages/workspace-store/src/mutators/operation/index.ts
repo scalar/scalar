@@ -13,6 +13,7 @@ import {
   createOperationDraftExample,
   deleteOperation,
   deleteOperationExample,
+  renameOperationExample,
   updateOperationMeta,
   updateOperationPathMethod,
 } from '@/mutators/operation/operation'
@@ -42,6 +43,8 @@ export const operationMutatorsFactory = ({
       createOperationDraftExample(store, payload),
     deleteOperationExample: (payload: OperationEvents['operation:delete:example']) =>
       deleteOperationExample(store, payload),
+    renameOperationExample: (payload: OperationEvents['operation:rename:example']) =>
+      renameOperationExample(store, payload),
     updateOperationExtension: (payload: OperationEvents['operation:update:extension']) =>
       updateOperationExtension(document, payload),
     updateOperationExtraParameters: (payload: OperationEvents['operation:update:extra-parameters']) =>

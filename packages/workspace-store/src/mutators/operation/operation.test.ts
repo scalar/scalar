@@ -9,6 +9,7 @@ import {
   createOperationDraftExample,
   deleteOperation,
   deleteOperationExample,
+  renameOperationExample,
   updateOperationMeta,
   updateOperationPathMethod,
 } from './operation'
@@ -1500,6 +1501,151 @@ describe('deleteOperationExample', () => {
     expect(param.examples?.small).toBeUndefined()
     expect(param.examples?.large).toBeDefined()
     expect(operation?.['x-draft-examples']).toEqual(['default', 'large'])
+  })
+})
+
+describe('renameOperationExample', () => {
+  it('renames an example across draft examples, parameters, and request body', async () => {
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: 'test-doc',
+      document: createDocument({
+        paths: {
+          '/users': {
+            post: {
+              summary: 'Create user',
+              'x-draft-examples': ['default', 'custom'],
+              parameters: [
+                {
+                  name: 'limit',
+                  in: 'query',
+                  examples: {
+                    default: { value: '10' },
+                    custom: { value: '50' },
+                  },
+                },
+              ],
+              requestBody: {
+                content: {
+                  'application/json': {
+                    examples: {
+                      default: { value: '{}' },
+                      custom: { value: '{"name":"Ada"}' },
+                    },
+                  },
+                },
+                'x-scalar-selected-content-type': {
+                  default: 'application/json',
+                  custom: 'application/json',
+                },
+              },
+            },
+          },
+        },
+      }),
+    })
+
+    renameOperationExample(store, {
+      documentName: 'test-doc',
+      meta: { method: 'post', path: '/users', exampleKey: 'custom' },
+      payload: { name: 'renamed' },
+    })
+
+    const document = store.workspace.documents['test-doc']
+    const operation = getResolvedRef(document?.paths?.['/users']?.post)
+    const parameter = getResolvedRef(operation?.parameters?.[0])
+    const requestBody = getResolvedRef(operation?.requestBody)
+
+    expect(operation?.['x-draft-examples']).toEqual(['default', 'renamed'])
+    assert(parameter && 'examples' in parameter)
+    expect(parameter.examples?.custom).toBeUndefined()
+    expect(parameter.examples?.renamed).toBeDefined()
+    expect(requestBody?.content?.['application/json']?.examples?.custom).toBeUndefined()
+    expect(requestBody?.content?.['application/json']?.examples?.renamed).toBeDefined()
+    expect(requestBody?.['x-scalar-selected-content-type']?.custom).toBeUndefined()
+    expect(requestBody?.['x-scalar-selected-content-type']?.renamed).toBe('application/json')
+  })
+
+  it('does not rename when target example already exists', async () => {
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: 'test-doc',
+      document: createDocument({
+        paths: {
+          '/users': {
+            get: {
+              summary: 'Get users',
+              'x-draft-examples': ['default', 'custom'],
+              parameters: [
+                {
+                  name: 'limit',
+                  in: 'query',
+                  examples: {
+                    default: { value: '10' },
+                    custom: { value: '50' },
+                  },
+                },
+              ],
+            },
+          },
+        },
+      }),
+    })
+
+    renameOperationExample(store, {
+      documentName: 'test-doc',
+      meta: { method: 'get', path: '/users', exampleKey: 'custom' },
+      payload: { name: 'default' },
+    })
+
+    const document = store.workspace.documents['test-doc']
+    const operation = getResolvedRef(document?.paths?.['/users']?.get)
+    const parameter = getResolvedRef(operation?.parameters?.[0])
+
+    expect(operation?.['x-draft-examples']).toEqual(['default', 'custom'])
+    assert(parameter && 'examples' in parameter)
+    expect(parameter.examples?.custom).toBeDefined()
+    expect(parameter.examples?.default).toBeDefined()
+  })
+
+  it('does not rename when target key exists only in request body examples', async () => {
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: 'test-doc',
+      document: createDocument({
+        paths: {
+          '/users': {
+            post: {
+              summary: 'Create user',
+              requestBody: {
+                content: {
+                  'application/json': {
+                    examples: {
+                      custom: { value: '{"name":"Jane"}' },
+                      existing: { value: '{"name":"Ada"}' },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      }),
+    })
+
+    renameOperationExample(store, {
+      documentName: 'test-doc',
+      meta: { method: 'post', path: '/users', exampleKey: 'custom' },
+      payload: { name: 'existing' },
+    })
+
+    const document = store.workspace.documents['test-doc']
+    const operation = getResolvedRef(document?.paths?.['/users']?.post)
+    const requestBody = getResolvedRef(operation?.requestBody)
+    const examples = requestBody?.content?.['application/json']?.examples
+
+    expect(examples?.custom).toBeDefined()
+    expect(examples?.existing).toBeDefined()
   })
 })
 
