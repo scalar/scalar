@@ -17,7 +17,7 @@ const { eventBus, documentDownloadType, documentUrl } = defineProps<{
 }>()
 
 // The id is retrieved at the layout level.
-const handleDownloadClick = (format: 'json' | 'yaml' | 'direct') => {
+const handleDownloadClick = (format: 'json' | 'yaml') => {
   eventBus.emit('ui:download:document', { format })
 }
 </script>
