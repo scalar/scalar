@@ -1,8 +1,15 @@
 <script setup lang="ts">
-import { ScalarButton, ScalarIcon, ScalarListbox } from '@scalar/components'
+import {
+  ScalarButton,
+  ScalarIcon,
+  ScalarListbox,
+  type ScalarListboxOption,
+} from '@scalar/components'
+import { ScalarIconCaretDown } from '@scalar/icons'
 import { CONTENT_TYPES } from '@scalar/helpers/consts/content-types'
 import { objectEntries } from '@scalar/helpers/object/object-entries'
 import type { ApiReferenceEvents } from '@scalar/workspace-store/events'
+import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { unpackProxyObject } from '@scalar/workspace-store/helpers/unpack-proxy'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type { RequestBodyObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
@@ -10,6 +17,7 @@ import { computed } from 'vue'
 
 import { useFileDialog } from '@/hooks'
 import { getSelectedBodyContentType } from '@/v2/blocks/operation-block/helpers/get-selected-body-content-type'
+import { getResolvedRefDeep } from '@/v2/blocks/operation-code-sample/helpers/get-resolved-ref-deep'
 import RequestBodyForm from '@/v2/blocks/request-block/components/RequestBodyForm.vue'
 import { getFileName } from '@/v2/blocks/request-block/helpers/files'
 import { getExampleFromBody } from '@/v2/blocks/request-block/helpers/get-request-body-example'
@@ -116,6 +124,76 @@ const bodyValue = computed(() => {
 
   return JSON.stringify(value, null, 2)
 })
+
+/** Request body examples for the selected content type (from OpenAPI spec) */
+const bodyExampleOptions = computed<ScalarListboxOption[]>(() => {
+  const contentType = selectedContentType.value
+  const mediaType = requestBody?.content?.[contentType]
+  if (!mediaType) {
+    return []
+  }
+  const content = getResolvedRef(mediaType) as {
+    examples?: Record<string, { value?: unknown; summary?: string }>
+  }
+  const examples = content?.examples
+  if (!examples || Object.keys(examples).length === 0) {
+    return []
+  }
+  return Object.entries(examples).map(([key, ex]) => ({
+    id: key,
+    label: (getResolvedRefDeep(ex) as { summary?: string })?.summary ?? key,
+  }))
+})
+
+/** Selected body example - matches current value to examples, or first if no match */
+const selectedBodyExample = computed<ScalarListboxOption | undefined>({
+  get: () => {
+    const options = bodyExampleOptions.value
+    if (options.length === 0) {
+      return undefined
+    }
+    const currentValue = bodyValue.value
+    const content = getResolvedRef(
+      requestBody?.content?.[selectedContentType.value],
+    ) as { examples?: Record<string, { value?: unknown }> }
+    const examples = content?.examples
+    if (!examples) {
+      return options[0]
+    }
+    for (const opt of options) {
+      const ex = getResolvedRefDeep(examples[opt.id]) as { value?: unknown }
+      const exValue = ex?.value
+      const exStr =
+        typeof exValue === 'string'
+          ? exValue
+          : JSON.stringify(exValue ?? null, null, 2)
+      if (exStr === currentValue) {
+        return opt
+      }
+    }
+    return options[0]
+  },
+  set: (opt) => {
+    if (!opt?.id || !requestBody?.content) {
+      return
+    }
+    const content = getResolvedRef(
+      requestBody.content[selectedContentType.value],
+    ) as { examples?: Record<string, { value?: unknown }> }
+    const ex = content?.examples?.[opt.id]
+    if (!ex) {
+      return
+    }
+    const resolved = getResolvedRefDeep(ex) as { value?: unknown }
+    const value = resolved?.value
+    const payload =
+      typeof value === 'string' ? value : JSON.stringify(value ?? null, null, 2)
+    emits('update:value', {
+      payload,
+      contentType: selectedContentType.value,
+    })
+  },
+})
 </script>
 <template>
   <CollapsibleSection>
@@ -124,25 +202,46 @@ const bodyValue = computed(() => {
       :columns="['']"
       presentational>
       <DataTableHeader
-        class="relative col-span-full flex h-8 cursor-pointer items-center justify-between border-r-0 !p-0">
-        <ScalarListbox
-          v-model="selectedContentTypeModel"
-          :options="contentTypeOptions"
-          teleport>
-          <ScalarButton
-            class="text-c-2 hover:text-c-1 flex h-full w-fit gap-1.5 px-3 font-normal"
-            fullWidth
-            variant="ghost">
-            <span>{{
-              CONTENT_TYPES[
-                selectedContentType as keyof typeof CONTENT_TYPES
-              ] ?? selectedContentType
-            }}</span>
-            <ScalarIcon
-              icon="ChevronDown"
-              size="md" />
-          </ScalarButton>
-        </ScalarListbox>
+        class="relative col-span-full flex h-8 cursor-pointer items-center justify-between gap-2 border-r-0 !p-0">
+        <div class="flex min-w-0 flex-1 items-center gap-2">
+          <ScalarListbox
+            v-model="selectedContentTypeModel"
+            :options="contentTypeOptions"
+            teleport>
+            <ScalarButton
+              class="text-c-2 hover:text-c-1 flex h-full w-fit gap-1.5 px-3 font-normal"
+              fullWidth
+              variant="ghost">
+              <span>{{
+                CONTENT_TYPES[
+                  selectedContentType as keyof typeof CONTENT_TYPES
+                ] ?? selectedContentType
+              }}</span>
+              <ScalarIcon
+                icon="ChevronDown"
+                size="md" />
+            </ScalarButton>
+          </ScalarListbox>
+          <ScalarListbox
+            v-if="bodyExampleOptions.length > 0"
+            v-model="selectedBodyExample"
+            class="w-fit min-w-32"
+            :options="bodyExampleOptions"
+            placement="bottom-start"
+            teleport>
+            <ScalarButton
+              class="text-c-2 hover:text-c-1 flex h-full w-fit min-w-0 gap-1.5 px-1.5 py-0.75 text-base font-normal"
+              data-testid="example-picker"
+              variant="ghost">
+              <div class="min-w-0 flex-1 truncate">
+                {{ selectedBodyExample?.label ?? 'Select an example' }}
+              </div>
+              <ScalarIconCaretDown
+                class="ui-open:rotate-180 mt-0.25 size-3 transition-transform duration-100"
+                weight="bold" />
+            </ScalarButton>
+          </ScalarListbox>
+        </div>
       </DataTableHeader>
       <DataTableRow>
         <!-- No Body -->
