@@ -1,5 +1,16 @@
 # @scalar/oas-utils
 
+## 0.10.2
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/types@0.7.1**
+  - [#8381](https://github.com/scalar/scalar/pull/8381): feat: add mcp config support
+
+- **@scalar/workspace-store@0.38.1**
+
 ## 0.10.1
 
 ### Patch Changes

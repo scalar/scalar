@@ -1,5 +1,34 @@
 # @scalar/api-reference
 
+## 1.48.2
+
+### Patch Changes
+
+- [#8381](https://github.com/scalar/scalar/pull/8381): feat: add mcp config support
+- [#8375](https://github.com/scalar/scalar/pull/8375): feat(api-reference): export lazy bus queue helper
+- [#8370](https://github.com/scalar/scalar/pull/8370): fix: hide the authentication panel when test requests are disabled
+
+#### Updated Dependencies
+
+- **@scalar/types@0.7.1**
+  - [#8381](https://github.com/scalar/scalar/pull/8381): feat: add mcp config support
+
+- **@scalar/agent-chat@0.9.2**
+
+- **@scalar/api-client@2.34.1**
+
+- **@scalar/oas-utils@0.10.2**
+
+- **@scalar/openapi-parser@0.25.1**
+
+- **@scalar/snippetz@0.7.1**
+
+- **@scalar/workspace-store@0.38.1**
+
+- **@scalar/components@0.20.3**
+
+- **@scalar/sidebar@0.8.3**
+
 ## 1.48.1
 
 ### Patch Changes

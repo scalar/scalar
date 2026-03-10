@@ -1,5 +1,14 @@
 # @scalar/snippetz
 
+## 0.7.1
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/types@0.7.1**
+  - [#8381](https://github.com/scalar/scalar/pull/8381): feat: add mcp config support
+
 ## 0.7.0
 
 ### Minor Changes
