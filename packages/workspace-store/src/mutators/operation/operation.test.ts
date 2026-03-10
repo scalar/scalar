@@ -440,8 +440,8 @@ describe('updateOperationPathMethod (path only)', () => {
         get: {
           summary: 'Get users',
           parameters: [
-            { name: 'limit', in: 'path', examples: { test: { value: '10' } } },
             { name: 'id', in: 'path', examples: { test: { value: '1212' } } },
+            { name: 'limit', in: 'path', examples: { test: { value: '10' } } },
             { name: 'name', in: 'query' },
           ],
         },
@@ -525,8 +525,8 @@ describe('updateOperationPathMethod (path only)', () => {
         get: {
           summary: 'Get users',
           parameters: [
-            { name: 'limit', in: 'path' },
             { name: 'name', in: 'query' },
+            { name: 'limit', in: 'path' },
           ],
         },
       },

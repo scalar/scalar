@@ -1,25 +1,63 @@
 import { findVariables } from '@scalar/helpers/regex/find-variables'
 
-import { getResolvedRef } from '@/helpers/get-resolved-ref'
 import { unpackProxyObject } from '@/helpers/unpack-proxy'
 import { getParameterPositions } from '@/mutators/operation/helpers/get-parameter-position'
 import type { ParameterObject } from '@/schemas/v3.1/strict/parameter'
 import type { ReferenceType } from '@/schemas/v3.1/strict/reference'
 
+// We use a minimal parameter object becuase we use this function during bundling and we don't want to prevalidate the parameters
+export type MinimalParameterObject = Pick<ParameterObject, 'name' | 'in'>
+
 /**
- * Syncs path parameters when the path changes.
+ * Synchronizes path parameters when a path string changes.
  *
- * Preserves parameter configurations by:
- * 1. Keeping parameters with matching names
- * 2. Renaming parameters at the same position
- * 3. Creating new parameters with empty examples
- * 4. Removing parameters that no longer exist in the new path
+ * Behavior:
+ * - Preserves as much of the existing parameter configuration as possible when the set of path variables
+ *   changes due to a path update.
+ * - If a parameter with the same name exists in the new path, its configuration is preserved.
+ * - If a parameter appears at the same position as an old parameter (name changed), the old parameter's
+ *   configuration is kept and its name is updated in place via the resolved object.
+ * - Any newly required parameters (variables present in the new path but not in the old path) are added
+ *   as new minimal parameter objects.
+ * - Parameters that are no longer present in the new path are dropped.
+ * - Non-path parameters (query, header, etc.) from `existingParameters` are included unchanged in the result.
+ *
+ * ⚠️ This function mutates parameter objects in the `existingParameters` array in place when a path
+ *     parameter is renamed (i.e., reused objects may have their `name` updated via `resolve`).
+ *
+ * Returns the full new parameters array. Use the return value directly as the new operation.parameters.
+ *
+ * @param newPath - The path string after the change (e.g. '/users/{id}/posts/{postId}').
+ * @param oldPath - The path string before the change (e.g. '/users/{userId}').
+ * @param existingParameters - Current operation parameters (may be refs); path params are synced, others passed through.
+ * @param resolve - Callback to resolve a reference to a minimal parameter object (used for reading and mutating).
+ *
+ * @example
+ * ```ts
+ * // Given:
+ * // - oldPath: '/users/{userId}'
+ * // - newPath: '/users/{id}/posts/{postId}'
+ * // - existingParameters: [ { name: 'userId', in: 'path' } ]
+ *
+ * const newParams = syncParametersForPathChange(
+ *   '/users/{id}/posts/{postId}',
+ *   '/users/{userId}',
+ *   existingParameters,
+ *   (node) => resolveRef(node) // or unwrap $ref to get { name, in }
+ * )
+ *
+ * // existingParameters[0] was mutated in place (name -> 'id' via resolve).
+ * // newParams is the full array: [ renamed path param 'id', new path param 'postId' ]
+ *
+ * operation.parameters = newParams
+ * ```
  */
-export const syncParametersForPathChange = (
+export const syncParametersForPathChange = <T extends MinimalParameterObject>(
   newPath: string,
   oldPath: string,
-  existingParameters: ReferenceType<ParameterObject>[],
-): ReferenceType<ParameterObject>[] => {
+  existingParameters: ReferenceType<T>[],
+  resolve: (node: ReferenceType<T>) => MinimalParameterObject,
+): ReferenceType<T>[] => {
   // Extract path parameter names from both paths
   const oldPathParams = findVariables(oldPath, { includePath: true, includeEnv: false }).filter(
     (v): v is string => v !== undefined,
@@ -31,35 +69,29 @@ export const syncParametersForPathChange = (
   const oldPositions = getParameterPositions(oldPath, oldPathParams)
   const newPositions = getParameterPositions(newPath, newPathParams)
 
-  // Separate path and non-path parameters, resolving each parameter only once
-  const pathParameters: ParameterObject[] = []
-  const nonPathParameters: ReferenceType<ParameterObject>[] = []
+  // Keep a map of path parameters by name for quick lookup (references unchanged objects)
+  const pathParameters: Record<string, ReferenceType<T>> = Object.create(null)
 
+  // Populate the map with the existing path parameters
   for (const param of existingParameters) {
-    const resolved = getResolvedRef(param)
+    const resolved = resolve(param)
     if (resolved?.in === 'path') {
-      pathParameters.push(resolved)
-    } else {
-      nonPathParameters.push(param)
+      pathParameters[resolved.name] = param
     }
   }
 
-  // Create a map of existing path parameters by name for quick lookup
-  const existingPathParamsByName = new Map<string, ParameterObject>()
-  for (const param of pathParameters) {
-    if (param.name) {
-      existingPathParamsByName.set(param.name, param)
-    }
-  }
-
+  // Keep track of old parameters that we have already used
   const usedOldParams = new Set<string>()
-  const syncedPathParameters: ReferenceType<ParameterObject>[] = []
+  // Keep track of path parameter objects we keep after sync
+  const usedPathParameters = new Set<ReferenceType<T>>()
+  // These are only truly new parameters created in this run
+  const newPathParameters: T[] = []
 
   for (const newParamName of newPathParams) {
-    // Case 1: Parameter with same name exists - preserve its config
-    if (existingPathParamsByName.has(newParamName)) {
-      syncedPathParameters.push(existingPathParamsByName.get(newParamName)!)
+    // Case 1: Parameter with same name exists - preserve its config, and mark as used
+    if (pathParameters[newParamName]) {
       usedOldParams.add(newParamName)
+      usedPathParameters.add(pathParameters[newParamName])
       continue
     }
 
@@ -69,22 +101,43 @@ export const syncParametersForPathChange = (
       (oldParam) => oldPositions[oldParam] === newParamPosition && !usedOldParams.has(oldParam),
     )
 
-    // Rename: transfer the old parameter's config to the new name
-    if (oldParamAtPosition && existingPathParamsByName.has(oldParamAtPosition)) {
-      const oldParam = existingPathParamsByName.get(oldParamAtPosition)!
-      oldParam.name = newParamName
-      syncedPathParameters.push(oldParam)
+    // If found, mutate old parameter's name and mark as used
+    if (oldParamAtPosition && pathParameters[oldParamAtPosition] !== undefined) {
+      const oldParam = pathParameters[oldParamAtPosition]
+      if (oldParam) {
+        // Change its name in-place
+        resolve(oldParam).name = newParamName
+        usedPathParameters.add(oldParam)
+      }
       usedOldParams.add(oldParamAtPosition)
       continue
     }
 
-    // Case 3: New parameter - create with empty examples
-    syncedPathParameters.push({
-      name: newParamName,
+    // Case 3: New parameter - create a new minimal parameter object
+    newPathParameters.push({
       in: 'path',
-    })
+      name: newParamName,
+    } as T)
   }
 
-  // Return all parameters: synced path parameters + preserved non-path parameters
-  return unpackProxyObject([...syncedPathParameters, ...nonPathParameters], { depth: 1 })
+  const result: ReferenceType<T>[] = []
+
+  // Push the raw parameters to enure we are not pushing proxies
+  for (const param of existingParameters) {
+    const resolved = resolve(param)
+    const rawParam = unpackProxyObject(param, { depth: 1 })
+    if (resolved?.in !== 'path') {
+      result.push(rawParam)
+      continue
+    }
+
+    // Only adda the parameter if HAS not been used in the old path
+    // This we we ensure to drop parameters that are no longer present in the new path
+    if (usedPathParameters.has(param)) {
+      result.push(rawParam)
+    }
+  }
+
+  // Only return newly created parameter objects—call site should combine with possibly-mutated originals
+  return result.concat(newPathParameters)
 }
