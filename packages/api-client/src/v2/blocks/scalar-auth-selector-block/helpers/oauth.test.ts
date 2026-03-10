@@ -105,7 +105,7 @@ describe('oauth', () => {
       // Resolve
       const [error, result] = await promise
       expect(error).toBe(null)
-      expect(result).toBe(accessToken)
+      expect(result).toEqual({ accessToken })
 
       // Test the server call
       expect(global.fetch).toHaveBeenCalledWith(tokenUrl, {
@@ -185,7 +185,7 @@ describe('oauth', () => {
       // Resolve
       const [error, result] = await promise
       expect(error).toBe(null)
-      expect(result).toBe(accessToken)
+      expect(result).toEqual({ accessToken })
 
       // Check fetch parameters
       expect(global.fetch).toHaveBeenCalledWith(tokenUrl, {
@@ -232,7 +232,7 @@ describe('oauth', () => {
       // Resolve
       const [error, result] = await promise
       expect(error).toBe(null)
-      expect(result).toBe(accessToken)
+      expect(result).toEqual({ accessToken })
 
       // Test the server call includes custom body parameters
       expect(global.fetch).toHaveBeenCalledWith(tokenUrl, {
@@ -343,7 +343,7 @@ describe('oauth', () => {
       // Resolve
       const [error, result] = await promise
       expect(error).toBe(null)
-      expect(result).toBe(accessToken)
+      expect(result).toEqual({ accessToken })
 
       // Test the server call uses window.location as base
       expect(global.fetch).toHaveBeenCalledWith('https://example.com/oauth/token', {
@@ -420,7 +420,7 @@ describe('oauth', () => {
       // Resolve
       const [error, result] = await promise
       expect(error).toBe(null)
-      expect(result).toBe(accessToken)
+      expect(result).toEqual({ accessToken })
 
       // Test the server call
       expect(global.fetch).toHaveBeenCalledWith(
@@ -465,7 +465,7 @@ describe('oauth', () => {
       // Resolve
       const [error, result] = await promise
       expect(error).toBe(null)
-      expect(result).toBe(accessToken)
+      expect(result).toEqual({ accessToken })
 
       // Test the server call - credentials should be in body, not in header
       expect(global.fetch).toHaveBeenCalledWith(tokenUrl, {
@@ -529,7 +529,7 @@ describe('oauth', () => {
       // Resolve
       const [error, result] = await promise
       expect(error).toBe(null)
-      expect(result).toBe(accessToken)
+      expect(result).toEqual({ accessToken })
 
       // Check fetch parameters - credentials should be in body, not in header
       expect(global.fetch).toHaveBeenCalledWith(tokenUrl, {
@@ -584,7 +584,7 @@ describe('oauth', () => {
       // Resolve
       const [error, result] = await promise
       expect(error).toBe(null)
-      expect(result).toBe(accessToken)
+      expect(result).toEqual({ accessToken })
 
       // Test the server call - credentials in body, custom params also in body, no Authorization header
       expect(global.fetch).toHaveBeenCalledWith(tokenUrl, {
@@ -628,7 +628,7 @@ describe('oauth', () => {
 
       const [error, result] = await authorizeOauth2(scheme, 'clientCredentials', selectedScopes, mockServer, '')
       expect(error).toBe(null)
-      expect(result).toBe('access_token_123')
+      expect(result).toEqual({ accessToken: 'access_token_123' })
 
       expect(global.fetch).toHaveBeenCalledWith(tokenUrl, {
         method: 'POST',
@@ -665,7 +665,7 @@ describe('oauth', () => {
 
       const [error, result] = await authorizeOauth2(flows, 'clientCredentials', selectedScopes, mockServer, '')
       expect(error).toBe(null)
-      expect(result).toBe('custom_token_123')
+      expect(result).toEqual({ accessToken: 'custom_token_123' })
     })
 
     it('should include x-scalar-security-body parameters in token request', async () => {
@@ -685,7 +685,7 @@ describe('oauth', () => {
 
       const [error, result] = await authorizeOauth2(flows, 'clientCredentials', selectedScopes, mockServer, '')
       expect(error).toBe(null)
-      expect(result).toBe('access_token_123')
+      expect(result).toEqual({ accessToken: 'access_token_123' })
 
       expect(global.fetch).toHaveBeenCalledWith(tokenUrl, {
         method: 'POST',
@@ -716,7 +716,7 @@ describe('oauth', () => {
 
       const [error, result] = await authorizeOauth2(flows, 'clientCredentials', selectedScopes, mockServer, '')
       expect(error).toBe(null)
-      expect(result).toBe('access_token_123')
+      expect(result).toEqual({ accessToken: 'access_token_123' })
 
       expect(global.fetch).toHaveBeenCalledWith(tokenUrl, {
         method: 'POST',
@@ -757,7 +757,7 @@ describe('oauth', () => {
 
       const [error, result] = await authorizeOauth2(flows, 'clientCredentials', selectedScopes, mockServer, '')
       expect(error).toBe(null)
-      expect(result).toBe('access_token_123')
+      expect(result).toEqual({ accessToken: 'access_token_123' })
 
       expect(global.fetch).toHaveBeenCalledWith(tokenUrl, {
         method: 'POST',
@@ -796,7 +796,7 @@ describe('oauth', () => {
 
       const [error, result] = await authorizeOauth2(flows, 'clientCredentials', selectedScopes, mockServer, '')
       expect(error).toBe(null)
-      expect(result).toBe('access_token_123')
+      expect(result).toEqual({ accessToken: 'access_token_123' })
 
       // Test the server call uses absolute URL
       expect(global.fetch).toHaveBeenCalledWith(`${mockServer.url}/oauth/token`, {
@@ -849,7 +849,7 @@ describe('oauth', () => {
       // Resolve
       const [error, result] = await promise
       expect(error).toBe(null)
-      expect(result).toBe('implicit_token_123')
+      expect(result).toEqual({ accessToken: 'implicit_token_123' })
     })
 
     it('should use custom token name when x-tokenName is specified', async () => {
@@ -872,7 +872,7 @@ describe('oauth', () => {
       // Resolve
       const [error, result] = await promise
       expect(error).toBe(null)
-      expect(result).toBe('custom_implicit_token_123')
+      expect(result).toEqual({ accessToken: 'custom_implicit_token_123' })
     })
 
     it('should handle relative authorization URL in implicit flow', async () => {
@@ -910,7 +910,7 @@ describe('oauth', () => {
       // Resolve
       const [error, result] = await promise
       expect(error).toBe(null)
-      expect(result).toBe('implicit_token_123')
+      expect(result).toEqual({ accessToken: 'implicit_token_123' })
     })
   })
 
@@ -941,7 +941,10 @@ describe('oauth', () => {
 
       const [error, result] = await authorizeOauth2(scheme, 'password', selectedScopes, mockServer, '')
       expect(error).toBe(null)
-      expect(result).toBe('access_token_123')
+      expect(result).toEqual({
+        accessToken: 'access_token_123',
+        refreshToken: 'refresh_token_123',
+      })
 
       // Check the server call
       expect(global.fetch).toHaveBeenCalledWith(tokenUrl, {
@@ -976,7 +979,7 @@ describe('oauth', () => {
 
       const [error, result] = await authorizeOauth2(flows, 'password', selectedScopes, mockServer, '')
       expect(error).toBe(null)
-      expect(result).toBe('access_token_123')
+      expect(result).toEqual({ accessToken: 'access_token_123' })
 
       expect(global.fetch).toHaveBeenCalledWith(tokenUrl, {
         method: 'POST',
@@ -1016,7 +1019,10 @@ describe('oauth', () => {
 
       const [error, result] = await authorizeOauth2(flows, 'password', selectedScopes, mockServer, '')
       expect(error).toBe(null)
-      expect(result).toBe('access_token_123')
+      expect(result).toEqual({
+        accessToken: 'access_token_123',
+        refreshToken: 'refresh_token_123',
+      })
 
       expect(global.fetch).toHaveBeenCalledWith(tokenUrl, {
         method: 'POST',
@@ -1066,7 +1072,10 @@ describe('oauth', () => {
 
       const [error, result] = await authorizeOauth2(flows, 'password', selectedScopes, mockServer, '')
       expect(error).toBe(null)
-      expect(result).toBe('access_token_123')
+      expect(result).toEqual({
+        accessToken: 'access_token_123',
+        refreshToken: 'refresh_token_123',
+      })
 
       expect(global.fetch).toHaveBeenCalledWith(tokenUrl, {
         method: 'POST',
@@ -1114,7 +1123,10 @@ describe('oauth', () => {
 
       const [error, result] = await authorizeOauth2(flows, 'password', selectedScopes, mockServer, '')
       expect(error).toBe(null)
-      expect(result).toBe('access_token_123')
+      expect(result).toEqual({
+        accessToken: 'access_token_123',
+        refreshToken: 'refresh_token_123',
+      })
 
       // Test the server call uses absolute URL
       expect(global.fetch).toHaveBeenCalledWith(`${mockServer.url}/oauth/token`, {
@@ -1167,7 +1179,10 @@ describe('oauth', () => {
 
       const [error, result] = await authorizeOauth2(flows, 'password', selectedScopes, relativeServer, '')
       expect(error).toBe(null)
-      expect(result).toBe('access_token_123')
+      expect(result).toEqual({
+        accessToken: 'access_token_123',
+        refreshToken: 'refresh_token_123',
+      })
 
       expect(global.fetch).toHaveBeenCalledWith('https://example.com/partners/auth/token', {
         method: 'POST',
@@ -1187,6 +1202,123 @@ describe('oauth', () => {
         value: originalLocation,
         writable: true,
       })
+    })
+  })
+
+  describe('Server variable interpolation', () => {
+    it('token URL resolved correctly when server URL contains {variable} — client credentials flow', async () => {
+      const flows = {
+        clientCredentials: {
+          'refreshUrl': 'https://auth.example.com/refresh',
+          'scopes': { read: 'Read access' },
+          'x-scalar-secret-client-id': 'xxxxx',
+          tokenUrl: '/oauth/token',
+          'x-scalar-secret-client-secret': clientSecret,
+          'x-scalar-secret-token': '',
+        },
+      } satisfies OAuthFlowsObjectSecret
+
+      const serverWithVars: ServerObject = {
+        url: 'https://{environment}.api.example.com',
+        variables: { environment: { default: 'prod' } },
+      }
+
+      global.fetch = vi.fn().mockResolvedValueOnce({
+        json: () => Promise.resolve({ access_token: 'token_123' }),
+      })
+
+      const [error, result] = await authorizeOauth2(flows, 'clientCredentials', ['read'], serverWithVars, '')
+      expect(error).toBe(null)
+      expect(result).toEqual({ accessToken: 'token_123' })
+
+      expect(global.fetch).toHaveBeenCalledWith('https://prod.api.example.com/oauth/token', expect.any(Object))
+    })
+
+    it('token URL resolved correctly when server URL contains {variable} — authorization code flow', async () => {
+      const flows = {
+        authorizationCode: {
+          ...baseFlow,
+          'x-usePkce': 'no',
+          authorizationUrl,
+          tokenUrl: '/oauth/token',
+          'x-scalar-secret-redirect-uri': redirectUri,
+          'x-scalar-secret-client-secret': clientSecret,
+          'x-scalar-secret-token': '',
+        },
+      } satisfies OAuthFlowsObjectSecret
+
+      const serverWithVars: ServerObject = {
+        url: 'https://{environment}.api.example.com',
+        variables: { environment: { default: 'prod' } },
+      }
+
+      const promise = authorizeOauth2(flows, 'authorizationCode', selectedScopes, serverWithVars, '')
+
+      // Mock redirect back from login with authorization code
+      mockWindow.location.href = `${redirectUri}?code=auth_code_123&state=${state}`
+
+      global.fetch = vi.fn().mockResolvedValueOnce({
+        json: () => Promise.resolve({ access_token: 'token_prod' }),
+      })
+
+      vi.advanceTimersByTime(200)
+
+      const [error, result] = await promise
+      expect(error).toBe(null)
+      expect(result).toEqual({ accessToken: 'token_prod' })
+
+      // The token URL should be resolved against the interpolated server URL
+      expect(global.fetch).toHaveBeenCalledWith('https://prod.api.example.com/oauth/token', expect.any(Object))
+    })
+
+    it('relative redirect URI resolved against the interpolated server URL', () => {
+      const flows = {
+        implicit: {
+          ...baseFlow,
+          authorizationUrl,
+          'x-scalar-secret-redirect-uri': '/callback',
+          'x-scalar-secret-token': '',
+        },
+      } satisfies OAuthFlowsObjectSecret
+
+      const serverWithVars: ServerObject = {
+        url: 'https://{tenant}.example.com',
+        variables: { tenant: { default: 'myorg' } },
+      }
+
+      void authorizeOauth2(flows, 'implicit', selectedScopes, serverWithVars, '')
+
+      const firstArgs = vi.mocked(window.open).mock.calls[0]
+      const openedUrl = firstArgs?.[0] as URL
+      expect(openedUrl.searchParams.get('redirect_uri')).toBe('https://myorg.example.com/callback')
+    })
+
+    it('token URL resolved via environment variables — client credentials flow', async () => {
+      const flows = {
+        clientCredentials: {
+          'refreshUrl': 'https://auth.example.com/refresh',
+          'scopes': { read: 'Read access' },
+          'x-scalar-secret-client-id': 'xxxxx',
+          tokenUrl: '/oauth/token',
+          'x-scalar-secret-client-secret': clientSecret,
+          'x-scalar-secret-token': '',
+        },
+      } satisfies OAuthFlowsObjectSecret
+
+      const server: ServerObject = {
+        url: '{protocol}://void.scalar.com/{path}',
+      }
+      const envVars = { protocol: 'https', path: '' }
+
+      global.fetch = vi.fn().mockResolvedValueOnce({
+        json: () => Promise.resolve({ access_token: 'token_env' }),
+      })
+
+      const [error, result] = await authorizeOauth2(flows, 'clientCredentials', ['read'], server, '', envVars)
+      expect(error).toBe(null)
+      expect(result).toEqual({ accessToken: 'token_env' })
+
+      expect(global.fetch).toHaveBeenCalledWith('https://void.scalar.com/oauth/token', expect.any(Object))
     })
   })
 })

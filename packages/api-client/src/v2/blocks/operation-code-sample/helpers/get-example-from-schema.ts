@@ -1,6 +1,5 @@
 import { isDefined } from '@scalar/helpers/array/is-defined'
-import { getRaw } from '@scalar/json-magic/magic-proxy'
-import { unpackOverridesProxy } from '@scalar/workspace-store/helpers/overrides-proxy'
+import { unpackProxyObject } from '@scalar/workspace-store/helpers/unpack-proxy'
 import { resolve } from '@scalar/workspace-store/resolve'
 import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
@@ -52,6 +51,23 @@ const genericExampleValues: Record<string, string> = {
 }
 
 /**
+ * Extract enum values from the propertyNames keyword of an object schema.
+ * JSON Schema's propertyNames constrains which keys are valid in a map/dict.
+ */
+const getPropertyNamesEnumValues = (schema: SchemaObject): unknown[] | undefined => {
+  if (!('propertyNames' in schema) || !schema.propertyNames) {
+    return undefined
+  }
+
+  const resolved = resolve.schema(schema.propertyNames as SchemaObject)
+  if (resolved && 'enum' in resolved && Array.isArray(resolved.enum) && resolved.enum.length > 0) {
+    return resolved.enum
+  }
+
+  return undefined
+}
+
+/**
  * Generate example values for string types based on their format.
  * Special handling for binary format which returns a File object.
  */
@@ -81,6 +97,9 @@ const resultCache = new WeakMap<object, Map<string, unknown>>()
 
 /** Cache required property names per parent schema for O(1) membership checks */
 const requiredNamesCache = new WeakMap<object, ReadonlySet<string>>()
+
+/** Normalize schema identity for cache and cycle tracking */
+const getSchemaCacheTarget = (schema: SchemaObject): object => unpackProxyObject(schema, { depth: 1 }) as object
 
 /**
  * Retrieves the set of required property names from a schema.
@@ -117,7 +136,7 @@ const cache = (schema: SchemaObject, result: unknown, cacheKey: string) => {
   if (typeof result !== 'object' || result === null) {
     return result
   }
-  const rawSchema = getRaw(unpackOverridesProxy(schema))
+  const rawSchema = getSchemaCacheTarget(schema)
 
   const cacheMap = resultCache.get(rawSchema) ?? new Map()
   if (cacheMap) {
@@ -257,15 +276,21 @@ const handleObjectSchema = (
       schema.additionalProperties === true ||
       (typeof schema.additionalProperties === 'object' && Object.keys(schema.additionalProperties).length === 0)
 
-    const additionalName =
+    // Check for explicit x-additionalPropertiesName first
+    const hasCustomName =
       typeof additional === 'object' &&
       'x-additionalPropertiesName' in additional &&
       typeof additional['x-additionalPropertiesName'] === 'string' &&
       additional['x-additionalPropertiesName'].trim().length > 0
-        ? additional['x-additionalPropertiesName'].trim()
-        : DEFAULT_ADDITIONAL_PROPERTIES_NAME
 
-    response[additionalName] = isAnyType
+    // Use propertyNames enum values as example keys when no custom name is set
+    const propertyNamesEnum = hasCustomName ? undefined : getPropertyNamesEnumValues(schema)
+
+    const additionalName = hasCustomName
+      ? (additional as unknown as Record<string, string>)['x-additionalPropertiesName']!.trim()
+      : DEFAULT_ADDITIONAL_PROPERTIES_NAME
+
+    const additionalValue = isAnyType
       ? 'anything'
       : typeof additional === 'object'
         ? getExampleFromSchema(additional, options, {
@@ -273,6 +298,13 @@ const handleObjectSchema = (
             seen,
           })
         : 'anything'
+
+    if (propertyNamesEnum && propertyNamesEnum.length > 0) {
+      // Use the first enum value as a realistic example key
+      response[String(propertyNamesEnum[0])] = additionalValue
+    } else {
+      response[additionalName] = additionalValue
+    }
   }
 
   // onOf
@@ -504,7 +536,7 @@ export const getExampleFromSchema = (
   }
 
   // Unpack from all proxies to get the raw schema object for cycle detection
-  const targetValue = getRaw(unpackOverridesProxy(_schema))
+  const targetValue = getSchemaCacheTarget(_schema)
   if (seen.has(targetValue)) {
     return undefined
   }

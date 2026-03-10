@@ -1,14 +1,10 @@
 <script lang="ts" setup>
 import { getExample } from '@scalar/api-client/v2/blocks/operation-block'
-import {
-  ExamplePicker,
-  getResolvedRefDeep,
-} from '@scalar/api-client/v2/blocks/operation-code-sample'
+import { ExamplePicker } from '@scalar/api-client/v2/blocks/operation-code-sample'
 import {
   ScalarCard,
   ScalarCardFooter,
   ScalarCardSection,
-  ScalarCodeBlock,
   ScalarIcon,
   ScalarMarkdown,
 } from '@scalar/components'
@@ -25,6 +21,7 @@ import type {
 import { computed, ref, toValue, useId, watch } from 'vue'
 
 import ScreenReader from '@/components/ScreenReader.vue'
+import ExampleSchema from '@/features/example-responses/ExampleSchema.vue'
 
 import ExampleResponse from './ExampleResponse.vue'
 import ExampleResponseTab from './ExampleResponseTab.vue'
@@ -47,10 +44,10 @@ const orderedStatusCodes = computed<string[]>(() =>
   Object.keys(responses ?? {}).sort(),
 )
 
-// Filter to only status codes that have response content
+// Filter to only valid response keys that should render in the example responses panel
 const statusCodesWithContent = computed<string[]>(() =>
   orderedStatusCodes.value.filter((statusCode) =>
-    hasResponseContent(getResolvedRef(responses?.[statusCode])),
+    hasResponseContent(getResolvedRef(responses?.[statusCode]), statusCode),
   ),
 )
 
@@ -176,12 +173,10 @@ const showSchema = ref(false)
     </ExampleResponseTabList>
     <ScalarCardSection class="grid flex-1">
       <!-- Schema -->
-      <ScalarCodeBlock
-        v-if="showSchema && currentResponseContent?.schema"
+      <ExampleSchema
+        v-if="currentResponseContent?.schema && showSchema"
         :id="id"
-        :content="getResolvedRefDeep(currentResponseContent?.schema)"
-        class="bg-b-2"
-        lang="json" />
+        :schema="currentResponseContent?.schema" />
 
       <!-- Example -->
       <ExampleResponse

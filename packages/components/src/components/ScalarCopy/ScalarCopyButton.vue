@@ -54,13 +54,13 @@ const icon = computed<ScalarIconComponent>(() => {
       )
     ">
     <Transition
-      mode="out-in"
-      enter-active-class="transition-transform"
-      enter-from-class="scale-0"
-      enter-to-class="scale-100"
-      leave-active-class="transition-transform"
-      leave-from-class="scale-100"
-      leave-to-class="scale-0">
+      enterActiveClass="transition-transform"
+      enterFromClass="scale-0"
+      enterToClass="scale-100"
+      leaveActiveClass="transition-transform"
+      leaveFromClass="scale-100"
+      leaveToClass="scale-0"
+      mode="out-in">
       <component
         :is="icon"
         class="size-full" />
@@ -76,13 +76,13 @@ const icon = computed<ScalarIconComponent>(() => {
         aria-hidden="true"
         class="flex items-center py-1.5 mask-y-from-[calc(100%-8px)] mask-y-to-100%">
         <Transition
-          mode="out-in"
-          enter-active-class="transition-transform ease-out"
-          enter-from-class="translate-y-1.5"
-          enter-to-class="translate-y-0"
-          leave-active-class="transition-transform ease-in"
-          leave-from-class="translate-y-0"
-          leave-to-class="-translate-y-1.5">
+          enterActiveClass="transition-transform ease-out"
+          enterFromClass="translate-y-1.5"
+          enterToClass="translate-y-0"
+          leaveActiveClass="transition-transform ease-in"
+          leaveFromClass="translate-y-0"
+          leaveToClass="-translate-y-1.5"
+          mode="out-in">
           <div
             v-if="copied"
             class="whitespace-nowrap px-1.5">
@@ -100,8 +100,8 @@ const icon = computed<ScalarIconComponent>(() => {
       </div>
       <div
         v-if="copied"
-        role="alert"
-        class="sr-only">
+        class="sr-only"
+        role="alert">
         <slot name="copied">Copied</slot>
       </div>
       <div

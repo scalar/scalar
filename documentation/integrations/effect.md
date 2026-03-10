@@ -1,4 +1,4 @@
-# Scalar API Reference for Effect
+# API Reference for Effect
 
 Effect is natively integrated with Scalar, making it easy to use together out of the box.
 

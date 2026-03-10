@@ -10,9 +10,9 @@
     "url": "git+https://github.com/scalar/scalar.git",
     "directory": "integrations/hono"
   },
-  "version": "0.9.45",
+  "version": "0.10.1",
   "engines": {
-    "node": ">=20"
+    "node": ">=22"
   },
   "scripts": {
     "build": "scalar-build-esbuild",
@@ -69,6 +69,6 @@
     "vitest": "catalog:*"
   },
   "peerDependencies": {
-    "hono": "^4.11.5"
+    "hono": "^4.12.5"
   }
 }

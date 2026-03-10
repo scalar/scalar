@@ -1,12 +1,12 @@
-# Migrate from Scalar Docs 1.0
+# Migrate from Docs 1.0
 
-With Scalar Docs 2.0 we've completely started from scratch. We tried to stick to the patterns we already had, so they way you set it up is not too different.
+With Docs 2.0 we've completely started from scratch. We tried to stick to the patterns we already had, so they way you set it up is not too different.
 
 **TL;DR**
 
 Migrate your scalar.config.json with: `npx @scalar/cli project upgrade`
 
-## New Features in Scalar Docs 2.0
+## New Features in Docs 2.0
 
 * MDX support with custom components
 * `[relative Markdown paths](../your-other-file.md)`
@@ -19,12 +19,12 @@ Migrate your scalar.config.json with: `npx @scalar/cli project upgrade`
 * "Copy as Markdown"
 * … and so much more, it's crazy.
 
-## How do I know whether I use Scalar Docs 1.0?
+## How do I know whether I use Docs 1.0?
 
-If you created a project before February 2026, you probably use Scalar Docs 1.0:
+If you created a project before February 2026, you probably use Docs 1.0:
 
 ```json
-// scalar.config.json (Scalar Docs 1.0)
+// scalar.config.json (Docs 1.0)
 {
   "$schema": "https://cdn.scalar.com/schema/scalar-config.json",
   "siteConfig": {
@@ -39,12 +39,12 @@ If you created a project before February 2026, you probably use Scalar Docs 1.0:
 }
 ```
 
-For Scalar Docs 2.0 we still use the `scalar.config.json`, but the structure changed a bit:
+For Docs 2.0 we still use the `scalar.config.json`, but the structure changed a bit:
 
 ```json
-// scalar.config.json (Scalar Docs 2.0)
+// scalar.config.json (Docs 2.0)
 {
-  "$schema": "https://cdn.scalar.com/schema/scalar-config-next.json",
+  "$schema": "https://registry.scalar.com/@scalar/schemas/config",
   "scalar": "2.0.0",
   "info": {
     // …
@@ -62,7 +62,7 @@ For Scalar Docs 2.0 we still use the `scalar.config.json`, but the structure cha
 
 ## Do you have to switch to 2.0?
 
-Actually, under the hood, you’re using Scalar Docs Version 2 already.
+Actually, under the hood, you’re using Docs Version 2 already.
 
 If you want to actually use new features and upgrade your configuration file use the CLI to upgrade:
 

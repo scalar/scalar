@@ -49,7 +49,11 @@ import {
   watch,
 } from 'vue'
 
-import { AgentScalarButton, AgentScalarDrawer } from '@/components/AgentScalar'
+import {
+  AgentScalarButton,
+  AgentScalarDrawer,
+  OpenMCPButton,
+} from '@/components/AgentScalar'
 import { AGENT_CONTEXT_SYMBOL, useAgent } from '@/hooks/use-agent'
 
 import '@scalar/agent-chat/style.css'
@@ -60,14 +64,15 @@ import { useScrollLock } from '@vueuse/core'
 import ClassicHeader from '@/components/ClassicHeader.vue'
 import Content from '@/components/Content/Content.vue'
 import MobileHeader from '@/components/MobileHeader.vue'
+import { DeveloperTools } from '@/features/developer-tools'
 import DocumentSelector from '@/features/multiple-documents/DocumentSelector.vue'
 import SearchButton from '@/features/Search/components/SearchButton.vue'
-import ApiReferenceToolbar from '@/features/toolbar/ApiReferenceToolbar.vue'
 import { getSystemModePreference } from '@/helpers/color-mode'
 import { downloadDocument } from '@/helpers/download'
 import { getIdFromUrl, makeUrlFromId } from '@/helpers/id-routing'
 import {
   scrollToLazy as _scrollToLazy,
+  addToPriorityQueue,
   blockIntersection,
   intersectionEnabled,
 } from '@/helpers/lazy-bus'
@@ -297,6 +302,7 @@ function syncSlugAndUrlWithDocument(
  * Initializes the new client workspace store.
  */
 const workspaceStore = createWorkspaceStore({
+  verbose: isDevelopment,
   plugins: [
     persistencePlugin({
       prefix: () => activeSlug.value,
@@ -820,6 +826,16 @@ eventBus.on('intersecting:nav-item', ({ id }) => {
 eventBus.on('toggle:nav-item', ({ id, open }) => {
   if (open) {
     mergedConfig.value.onShowMore?.(id)
+
+    // Pre-queue first child so it renders immediately when the tag expands
+    const entry = sidebarState.getEntryById(id)
+    if (entry && 'children' in entry && entry.children) {
+      const first = entry.children[0]
+
+      if (first) {
+        addToPriorityQueue(first.id)
+      }
+    }
   }
   sidebarState.setExpanded(id, open ?? !sidebarState.isExpanded(id))
 })
@@ -876,6 +892,22 @@ const colorMode = computed(() => {
 const bodyScrollLocked = useScrollLock(document.body)
 
 watch(agent.showAgent, () => (bodyScrollLocked.value = agent.showAgent.value))
+
+const showMCPButton = computed(() => {
+  if (mergedConfig.value.mcp?.disabled) {
+    return false
+  }
+
+  if (typeof window !== 'undefined' && isLocalUrl(window.location.href)) {
+    return true
+  }
+
+  if (mergedConfig.value.mcp) {
+    return true
+  }
+
+  return false
+})
 </script>
 
 <template>
@@ -975,11 +1007,17 @@ watch(agent.showAgent, () => (bodyScrollLocked.value = agent.showAgent.value))
                 <!-- We default the sidebar footer to the standard scalar elements -->
                 <ScalarSidebarFooter class="darklight-reference">
                   <OpenApiClientButton
-                    v-if="!mergedConfig.hideClientButton"
+                    v-if="!mergedConfig.hideClientButton && !showMCPButton"
                     buttonSource="sidebar"
                     :integration="mergedConfig._integration"
                     :isDevelopment="isDevelopment"
                     :url="documentUrl" />
+                  <OpenMCPButton
+                    v-if="showMCPButton"
+                    :config="mergedConfig.mcp"
+                    :isDevelopment="isDevelopment"
+                    :url="documentUrl"
+                    :workspace="workspaceStore" />
                   <!-- Override the dark mode toggle slot to hide it -->
                   <template #toggle>
                     <ScalarColorModeToggleButton
@@ -1001,7 +1039,8 @@ watch(agent.showAgent, () => (bodyScrollLocked.value = agent.showAgent.value))
       <!-- Primary Content -->
       <main
         :aria-label="`Open API Documentation for ${workspaceStore.workspace.activeDocument?.info?.title}`"
-        class="references-rendered">
+        class="references-rendered"
+        :inert="agent.showAgent.value">
         <Content
           :authStore="workspaceStore.auth"
           :document="workspaceStore.workspace.activeDocument"
@@ -1019,7 +1058,7 @@ watch(agent.showAgent, () => (bodyScrollLocked.value = agent.showAgent.value))
             workspaceStore.workspace['x-scalar-default-client']
           ">
           <template #start>
-            <ApiReferenceToolbar
+            <DeveloperTools
               v-if="
                 workspaceStore.workspace.activeDocument && mediaQueries.lg.value
               "

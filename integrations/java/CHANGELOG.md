@@ -1,5 +1,121 @@
 # @scalar/java-integration
 
+## 0.6.3
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.48.2**
+  - [#8381](https://github.com/scalar/scalar/pull/8381): feat: add mcp config support
+  - [#8375](https://github.com/scalar/scalar/pull/8375): feat(api-reference): export lazy bus queue helper
+  - [#8370](https://github.com/scalar/scalar/pull/8370): fix: hide the authentication panel when test requests are disabled
+
+## 0.6.2
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.48.1**
+  - [#8288](https://github.com/scalar/scalar/pull/8288): fix: add consistent border to schema composition components
+  - [#8348](https://github.com/scalar/scalar/pull/8348): fix(api-reference): bump dev tools z index for themes
+  - [#8366](https://github.com/scalar/scalar/pull/8366): fix(components): clean up search components and add snapshots
+
+## 0.6.1
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.48.0**
+  - [#8266](https://github.com/scalar/scalar/pull/8266): support operation level authentication and servers
+
+## 0.6.0
+
+### Minor Changes
+
+- [#8322](https://github.com/scalar/scalar/pull/8322): chore: bump required node version to >=22 (LTS)
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.47.0**
+  - [#8340](https://github.com/scalar/scalar/pull/8340): fix: delay when clicking "show more" button
+  - [#8340](https://github.com/scalar/scalar/pull/8340): refactor(api-reference): update AgentScalarDrawer
+  - [#8340](https://github.com/scalar/scalar/pull/8340): chore: enable perf logs only for dev environment
+  - [#8322](https://github.com/scalar/scalar/pull/8322): chore: bump required node version to >=22 (LTS)
+
+## 0.5.63
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.46.4**
+  - [#8330](https://github.com/scalar/scalar/pull/8330): fix: use ref name only as a fallback
+
+## 0.5.62
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.46.3**
+  - [#8298](https://github.com/scalar/scalar/pull/8298): feat(api-reference): show explicit no-content response tabs for defined response keys
+  - [#8313](https://github.com/scalar/scalar/pull/8313): chore: resolve schemas on demand
+
+## 0.5.61
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.46.2**
+
+## 0.5.60
+
+### Patch Changes
+
+- [#8284](https://github.com/scalar/scalar/pull/8284): feat(java): relative paths for assets in scalar-webmvc
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.46.1**
+  - [#8294](https://github.com/scalar/scalar/pull/8294): default createAnySecurityScheme to false and fix index clamp issue
+
+## 0.5.59
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.46.0**
+  - [#8290](https://github.com/scalar/scalar/pull/8290): chore: update deps
+  - [#8283](https://github.com/scalar/scalar/pull/8283): fix: scrollToLazy can not find id when the browser is busy
+
+## 0.5.58
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.45.0**
+  - [#8255](https://github.com/scalar/scalar/pull/8255): fix: correctly handle circular references when deep resolving references
+  - [#8279](https://github.com/scalar/scalar/pull/8279): fix(api-references): css collision on ask ai input
+  - [#8234](https://github.com/scalar/scalar/pull/8234): support operation level authentication and servers
+
+## 0.5.57
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.44.27**
+  - [#8274](https://github.com/scalar/scalar/pull/8274): feat(agent): add config to hide search api
+  - [#8260](https://github.com/scalar/scalar/pull/8260): feat: update developer tools
+
 ## 0.5.56
 
 ### Patch Changes

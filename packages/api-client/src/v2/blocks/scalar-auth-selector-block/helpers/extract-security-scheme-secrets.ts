@@ -58,6 +58,18 @@ const mergeFlowSecrets = <const T extends readonly (keyof typeof SECRET_TO_INPUT
     }),
   ) as Record<T[number], string>
 
+const extractRefreshTokenSecret = (
+  authStoreSecrets: { 'x-scalar-secret-refresh-token'?: string } = {},
+): { 'x-scalar-secret-refresh-token'?: string } => {
+  const refreshToken = authStoreSecrets['x-scalar-secret-refresh-token']
+
+  if (typeof refreshToken === 'string') {
+    return { 'x-scalar-secret-refresh-token': refreshToken }
+  }
+
+  return {}
+}
+
 /**
  * Extract flow secrets and selected scopes for OAuth-like flows.
  * Reused by both oauth2 and openIdConnect security schemes.
@@ -91,6 +103,7 @@ const extractOAuthFlowSecrets = (
           flow,
           storeSecrets?.implicit,
         ),
+        ...extractRefreshTokenSecret(storeSecrets?.implicit),
       } satisfies OAuthFlowImplicitSecret
     }
 
@@ -109,6 +122,7 @@ const extractOAuthFlowSecrets = (
           flow,
           storeSecrets?.password,
         ),
+        ...extractRefreshTokenSecret(storeSecrets?.password),
       } satisfies OAuthFlowPasswordSecret
     }
 
@@ -121,6 +135,7 @@ const extractOAuthFlowSecrets = (
           flow,
           storeSecrets?.clientCredentials,
         ),
+        ...extractRefreshTokenSecret(storeSecrets?.clientCredentials),
       } satisfies OAuthFlowClientCredentialsSecret
     }
 
@@ -138,6 +153,7 @@ const extractOAuthFlowSecrets = (
           flow,
           storeSecrets?.authorizationCode,
         ),
+        ...extractRefreshTokenSecret(storeSecrets?.authorizationCode),
       } satisfies OAuthFlowAuthorizationCodeSecret
     }
 

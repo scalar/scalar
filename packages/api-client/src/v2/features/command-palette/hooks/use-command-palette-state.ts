@@ -330,4 +330,10 @@ export const baseClientActions = [
     hidden: true,
     component: CommandPaletteTag,
   },
+  {
+    id: 'edit-example',
+    name: 'Edit Example',
+    hidden: true,
+    component: CommandPaletteExample,
+  },
 ] as const satisfies BaseCommandPaletteAction[]

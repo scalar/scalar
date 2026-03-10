@@ -7,7 +7,7 @@ The `assetsDir` configuration allows you to specify a folder containing custom a
 ```json
 // scalar.config.json
 {
-  "$schema": "https://cdn.scalar.com/schema/scalar-config-next.json",
+  "$schema": "https://registry.scalar.com/@scalar/schemas/config",
   "scalar": "2.0.0",
   "assetsDir": "docs/assets",
   "navigation": {
@@ -63,7 +63,7 @@ Assets can also be referenced in the `siteConfig.head` configuration for scripts
 
 ```json
 {
-  "$schema": "https://cdn.scalar.com/schema/scalar-config-next.json",
+  "$schema": "https://registry.scalar.com/@scalar/schemas/config",
   "scalar": "2.0.0",
   "assetsDir": "docs/assets",
   "siteConfig": {
@@ -99,7 +99,7 @@ Here's a complete example showing how to configure assets and use them throughou
 
 ```json
 {
-  "$schema": "https://cdn.scalar.com/schema/scalar-config-next.json",
+  "$schema": "https://registry.scalar.com/@scalar/schemas/config",
   "scalar": "2.0.0",
   "assetsDir": "docs/assets",
   "siteConfig": {

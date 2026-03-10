@@ -29,7 +29,7 @@ const { cx } = useBindCx()
     v-bind="cx('flex flex-col gap-1.5 rounded')">
     <div
       v-if="$slots.label"
-      class="flex items-start justify-between gap-2 text-sm leading-none text-c-1 whitespace-nowrap font-medium">
+      class="flex items-start justify-between gap-2 text-sm/none text-c-1 whitespace-nowrap font-medium">
       <slot name="label" />
     </div>
     <slot />

@@ -7,7 +7,7 @@ import { nextTick } from 'vue'
 
 import type { ClientLayout } from '@/v2/types/layout'
 
-import AddressBar from './AddressBar.vue'
+import AddressBar, { type AddressBarProps } from './AddressBar.vue'
 
 vi.mock('vue', async () => {
   const actual = await vi.importActual('vue')
@@ -28,17 +28,7 @@ describe('AddressBar', () => {
     description: 'Production Server',
   }
 
-  const mountWithProps = (
-    custom: Partial<{
-      path: string
-      method: string
-      server: any
-      servers: any[]
-      history: any[]
-      layout: string
-      percentage: number
-    }> = {},
-  ) => {
+  const mountWithProps = (custom: Partial<AddressBarProps> = {}) => {
     const eventBus = createWorkspaceEventBus()
 
     const wrapper = mount(AddressBar, {
@@ -49,9 +39,11 @@ describe('AddressBar', () => {
         servers: custom.servers ?? [baseServer],
         history: custom.history ?? [],
         layout: (custom.layout ?? 'web') as ClientLayout,
-        percentage: custom.percentage ?? 100,
         eventBus,
         environment: baseEnvironment,
+        serverMeta: {
+          type: 'document',
+        },
       },
     })
 

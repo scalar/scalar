@@ -1,3 +1,4 @@
+import { getValueAtPath } from '@scalar/helpers/object/get-value-at-path'
 import { isObject } from '@scalar/helpers/object/is-object'
 import { preventPollution } from '@scalar/helpers/object/prevent-pollution'
 import { generateHash } from '@scalar/helpers/string/generate-hash'
@@ -15,12 +16,11 @@ import YAML from 'yaml'
 
 import { type AuthStore, createAuthStore } from '@/entities/auth'
 import { type HistoryStore, createHistoryStore } from '@/entities/history'
-import { applySelectiveUpdates } from '@/helpers/apply-selective-updates'
+import { EXCLUDE_KEYS, applySelectiveUpdates } from '@/helpers/apply-selective-updates'
 import { deepClone } from '@/helpers/deep-clone'
 import { createDetectChangesProxy } from '@/helpers/detect-changes-proxy'
 import { type UnknownObject, safeAssign } from '@/helpers/general'
 import { getFetch } from '@/helpers/get-fetch'
-import { getValueByPath } from '@/helpers/json-path-utils'
 import { mergeObjects } from '@/helpers/merge-object'
 import { createOverridesProxy } from '@/helpers/overrides-proxy'
 import { unpackProxyObject } from '@/helpers/unpack-proxy'
@@ -45,6 +45,7 @@ import {
 import type {
   DocumentMetaExtensions,
   Workspace,
+  WorkspaceDocument,
   WorkspaceDocumentMeta,
   WorkspaceExtensions,
   WorkspaceMeta,
@@ -182,6 +183,11 @@ type WorkspaceProps = {
   meta?: WorkspaceMeta
   /** Fetch function for retrieving documents */
   fetch?: WorkspaceDocumentInput['fetch']
+  /**
+   * Enables internal timing logs for workspace operations.
+   * Disabled by default to avoid noisy console output.
+   */
+  verbose?: boolean
   /** A list of all registered plugins for the current workspace */
   plugins?: WorkspacePlugin[]
   /** A file loader plugin for resolving local file references (for non browser environments) */
@@ -226,10 +232,10 @@ export type WorkspaceStore = {
    * @param value - The new value for the selected metadata field.
    * @returns true if the update was successful, false otherwise.
    * @example
-   * // Update the auth metadata for the active document
-   * updateDocument('active', 'x-scalar-active-auth', 'Bearer')
-   * // Update the auth metadata for a specific document
-   * updateDocument('document-name', 'x-scalar-active-auth', 'Bearer')
+   * // Update the selected server for the active document
+   * updateDocument('active', 'x-scalar-selected-server', 'staging')
+   * // Update the selected server for a specific document
+   * updateDocument('document-name', 'x-scalar-selected-server', 'staging')
    */
   updateDocument<K extends keyof DocumentMetaExtensions>(
     name: 'active' | (string & {}),
@@ -278,7 +284,6 @@ export type WorkspaceStore = {
    *     info: { title: 'title' },
    *   },
    *   meta: {
-   *     'x-scalar-active-auth': 'Bearer',
    *     'x-scalar-selected-server': 'production'
    *   }
    * })
@@ -352,6 +357,13 @@ export type WorkspaceStore = {
    * const yamlString = store.exportActiveDocument('yaml')
    */
   exportActiveDocument(format: 'json' | 'yaml', minify?: boolean): string | undefined
+  /**
+   * Returns the editable version of the specified document.
+   *
+   * @param documentName - The name of the document to get the editable version of.
+   * @returns The editable version of the document, or undefined if the document does not exist.
+   */
+  getEditableDocument(documentName: string): Promise<WorkspaceDocument | null>
   /**
    * Saves the current state of the specified document to the intermediate documents map.
    *
@@ -501,6 +513,15 @@ export type WorkspaceStore = {
  * @returns An object containing methods and getters for managing the workspace
  */
 export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): WorkspaceStore => {
+  const { verbose = false } = workspaceProps ?? {}
+
+  const withMeasurementSync = <F extends () => unknown>(
+    name: string,
+    fn: ReturnType<F> extends Promise<unknown> ? never : F,
+  ): ReturnType<F> => (verbose ? measureSync(name, fn) : fn()) as ReturnType<F>
+  const withMeasurementAsync = <T>(name: string, fn: () => Promise<T>): Promise<T> =>
+    verbose ? measureAsync(name, fn) : fn()
+
   /**
    * Holds additional configuration options for each document in the workspace.
    *
@@ -816,9 +837,9 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     navigationOptions?: NavigationOptions,
   ) {
     const { name, meta } = input
-    const clonedRawInputDocument = measureSync('deepClone', () => deepClone(input.document))
+    const clonedRawInputDocument = withMeasurementSync('deepClone', () => deepClone(input.document))
 
-    measureSync('initialize', () => {
+    withMeasurementSync('initialize', () => {
       if (input.initialize !== false) {
         // Store the original document in the originalDocuments map
         // This is used to track the original state of the document as it was loaded into the workspace
@@ -838,7 +859,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       }
     })
 
-    const inputDocument = measureSync('upgrade', () => upgrade(deepClone(clonedRawInputDocument), '3.1'))
+    const inputDocument = withMeasurementSync('upgrade', () => upgrade(deepClone(clonedRawInputDocument), '3.1'))
 
     const strictDocument: UnknownObject = createMagicProxy(
       {
@@ -867,7 +888,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         loaders.push(workspaceProps.fileLoader)
       }
 
-      await measureAsync(
+      await withMeasurementAsync(
         'bundle',
         async () =>
           await bundle(getRaw(strictDocument), {
@@ -886,10 +907,10 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       )
 
       // We coerce the values only when the document is not preprocessed by the server-side-store
-      const coerced = measureSync('coerceValue', () =>
+      const coerced = withMeasurementSync('coerceValue', () =>
         coerceValue(OpenAPIDocumentSchemaStrict, deepClone(strictDocument)),
       )
-      measureSync('mergeObjects', () => mergeObjects(strictDocument, coerced))
+      withMeasurementSync('mergeObjects', () => mergeObjects(strictDocument, coerced))
     }
 
     const isValid = Value.Check(OpenAPIDocumentSchemaStrict, strictDocument)
@@ -933,13 +954,13 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       proxyUrl: workspace['x-scalar-active-proxy'] ?? undefined,
     })
 
-    const resolve = await measureAsync(
+    const resolve = await withMeasurementAsync(
       'loadDocument',
       async () => await loadDocument({ ...input, fetch, fileLoader: workspaceProps?.fileLoader }),
     )
 
     // Log the time taken to add a document
-    return await measureAsync('addDocument', async () => {
+    return await withMeasurementAsync('addDocument', async () => {
       if (!resolve.ok) {
         console.error(`Failed to fetch document '${name}': request was not successful`)
 
@@ -984,6 +1005,39 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
 
       return true
     })
+  }
+
+  /**
+   * Retrieves an editable clone of a workspace document.
+   *
+   * - Unpacks the proxied document from the workspace.
+   * - Reverses all external references, restoring original $refs.
+   * - Removes transient/in-memory keys defined in EXCLUDE_KEYS.
+   *
+   * @param documentName The name of the document to retrieve.
+   * @returns The editable document object, or null if not found.
+   */
+  const getEditableDocument = async (documentName: string) => {
+    const rawDocument = unpackProxyObject(workspace.documents[documentName], { depth: 1 })
+
+    if (!rawDocument) {
+      // If the document does not exist, return null
+      return null
+    }
+
+    // Reverse all external references and restore original $refs
+    const original = (await bundle(deepClone(rawDocument), {
+      plugins: [restoreOriginalRefs()],
+      treeShake: false,
+      urlMap: true,
+    })) as WorkspaceDocument & { 'x-ext-urls'?: unknown; 'x-ext'?: unknown }
+
+    // Remove properties that should only exist in memory for the original document
+    for (const property of EXCLUDE_KEYS) {
+      delete original[property as keyof WorkspaceDocument]
+    }
+
+    return original
   }
 
   /**
@@ -1035,6 +1089,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       preventPollution(key)
       Object.assign(workspace, { [key]: value })
     },
+    getEditableDocument,
     updateDocument<K extends keyof DocumentMetaExtensions>(
       name: 'active' | (string & {}),
       key: K,
@@ -1065,8 +1120,10 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         documentSource: currentDocument['x-scalar-original-source-url'],
         documentHash: currentDocument['x-scalar-original-document-hash'],
         meta: {
-          'x-scalar-active-auth': currentDocument['x-scalar-active-auth'],
-          'x-scalar-selected-server': currentDocument['x-scalar-selected-server'],
+          // Set the document as dirty
+          'x-scalar-is-dirty': true,
+          // Clear the navigation to trigger a rebuild
+          'x-scalar-navigation': undefined,
         },
         initialize: false,
       })
@@ -1074,7 +1131,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     resolve: (path) => {
       const activeDocument = workspace.activeDocument
 
-      const target = getValueByPath(activeDocument, path)
+      const target = getValueAtPath(activeDocument, path)
 
       if (!isObject(target)) {
         console.error(
@@ -1230,7 +1287,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       }
 
       // ---- Resolve input document
-      const resolve = await measureAsync(
+      const resolve = await withMeasurementAsync(
         'loadDocument',
         async () =>
           await loadDocument({

@@ -10,9 +10,7 @@
     "examples/ssg/**",
     "examples/sveltekit/**",
     "examples/web/**",
-    "projects/client-scalar-com/**",
-    "projects/proxy-scalar-com/**",
-    "projects/scalar-app/**"
+    "projects/proxy-scalar-com/**"
   ],
   "ignoreFiles": [
     // test types files are marked as unused

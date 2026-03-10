@@ -302,8 +302,7 @@ Options:
   -h, --help                  display help for command
 
 Commands:
-  init [options]              Create a new `scalar.config.json` file to
-                              configure where your OpenAPI file is placed.
+  init [options]              Create a new Scalar Docs project.
   check-config [file]         Check a Scalar Configuration file
   create [options]            Create a new project that is not linked to a
                               github project.
@@ -318,8 +317,7 @@ Commands:
 ```
 Usage: scalar project init [options]
 
-Create a new `scalar.config.json` file to configure where your OpenAPI file is
-placed.
+Create a new Scalar Docs project.
 
 Options:
   -s, --subdomain [url]  subdomain to publish on
@@ -388,6 +386,7 @@ Options:
   -s, --slug [slug]      Project slug found in Scalar Dashboard
   -c, --config [config]  Your config file of the project
   -p, --preview          Publish in preview mode
+  -g, --github           Publish from your linked remote GitHub repository
   -h, --help             display help for command
 ```
 

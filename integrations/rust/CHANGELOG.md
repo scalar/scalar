@@ -1,5 +1,17 @@
 # scalar_api_reference
 
+## 0.2.0
+
+### Minor Changes
+
+- [#8322](https://github.com/scalar/scalar/pull/8322): chore: bump required node version to >=22 (LTS)
+
+## 0.1.5
+
+### Patch Changes
+
+- [#8305](https://github.com/scalar/scalar/pull/8305): fix: assets not published
+
 ## 0.1.4
 
 ### Patch Changes

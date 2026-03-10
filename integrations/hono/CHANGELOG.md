@@ -1,5 +1,50 @@
 # @scalar/hono-api-reference
 
+## 0.10.1
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/core@0.4.1**
+
+## 0.10.0
+
+### Minor Changes
+
+- [#8322](https://github.com/scalar/scalar/pull/8322): chore: bump required node version to >=22 (LTS)
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/core@0.4.0**
+  - [#8322](https://github.com/scalar/scalar/pull/8322): chore: bump required node version to >=22 (LTS)
+
+## 0.9.48
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/core@0.3.45**
+
+## 0.9.47
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/core@0.3.44**
+
+## 0.9.46
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/core@0.3.43**
+
 ## 0.9.45
 
 ### Patch Changes

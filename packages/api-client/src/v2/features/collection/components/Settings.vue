@@ -11,7 +11,6 @@ const {
   document,
   workspaceStore,
   collectionType,
-  customThemes,
   layout,
 } = defineProps<CollectionProps>()
 

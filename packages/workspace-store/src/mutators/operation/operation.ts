@@ -91,23 +91,21 @@ export const createOperation = (
 }
 
 /**
- * Updates the `summary` of an operation.
+ * Updates the `description` of an operation.
  * Safely no-ops if the document or operation does not exist.
  *
  * Example:
  * ```ts
- * updateOperationSummary(
+ * updateOperationDescription(
  *   document,
- *   {
- *   meta: { method: 'get', path: '/users/{id}' },
- *   payload: { summary: 'Get a single user' },
+ *   { meta: { method: 'get', path: '/users' }, payload: { description: 'Get a single user' },
  * })
  * ```
  */
-export const updateOperationSummary = (
+export const updateOperationMeta = (
   store: WorkspaceStore | null,
   document: WorkspaceDocument | null,
-  { meta, payload: { summary } }: OperationEvents['operation:update:summary'],
+  { meta, payload }: OperationEvents['operation:update:meta'],
 ) => {
   if (!document || !store) {
     return
@@ -120,13 +118,14 @@ export const updateOperationSummary = (
 
   const operation = getResolvedRef(document.paths?.[meta.path]?.[meta.method as HttpMethod])
   if (!operation) {
+    console.error('Operation not found', { meta, document })
     return
   }
 
-  operation.summary = summary
+  // Update the description of the operation
+  Object.assign(operation, payload)
 
   // Rebuild the sidebar to reflect the cahnges
-  // We can't just go any find all the entries this operation is part so we just rebuild the sidebar
   store.buildSidebar(documentName)
 }
 
@@ -372,5 +371,91 @@ export const deleteOperationExample = (
   // For each media type, remove the example matching exampleKey
   Object.values(requestBody.content ?? {}).forEach((mediaType) => {
     delete mediaType.examples?.[exampleKey]
+  })
+}
+
+/**
+ * Renames an example key for an operation across all operation-level example containers:
+ * - `x-draft-examples`
+ * - parameter-level examples
+ * - parameter content-level examples
+ * - request-body content examples
+ * - request-body selected-content-type map
+ *
+ * If the target example name already exists in any container, this is a no-op to avoid
+ * accidental data overwrites.
+ */
+export const renameOperationExample = (
+  workspace: WorkspaceStore | null,
+  { meta: { path, method, exampleKey }, documentName, payload }: OperationEvents['operation:rename:example'],
+) => {
+  const document = workspace?.workspace.documents[documentName]
+  if (!document) {
+    return
+  }
+
+  const operation = getResolvedRef(document.paths?.[path]?.[method])
+  if (!operation) {
+    return
+  }
+
+  const nextExampleName = payload.name.trim()
+  if (!nextExampleName || nextExampleName === exampleKey) {
+    return
+  }
+
+  preventPollution(nextExampleName)
+
+  const records: Record<string, unknown>[] = []
+
+  operation.parameters?.forEach((parameter) => {
+    const resolvedParameter = getResolvedRef(parameter)
+
+    if ('examples' in resolvedParameter && resolvedParameter.examples) {
+      records.push(resolvedParameter.examples)
+    }
+
+    if ('content' in resolvedParameter && resolvedParameter.content) {
+      Object.values(resolvedParameter.content).forEach((mediaType) => {
+        if (mediaType.examples) {
+          records.push(mediaType.examples)
+        }
+      })
+    }
+  })
+
+  const requestBody = getResolvedRef(operation.requestBody)
+  if (requestBody) {
+    Object.values(requestBody.content ?? {}).forEach((mediaType) => {
+      if (mediaType.examples) {
+        records.push(mediaType.examples)
+      }
+    })
+
+    if (requestBody['x-scalar-selected-content-type']) {
+      records.push(requestBody['x-scalar-selected-content-type'])
+    }
+  }
+
+  if (
+    operation['x-draft-examples']?.includes(nextExampleName) ||
+    records.some((record) => Object.hasOwn(record, nextExampleName))
+  ) {
+    return
+  }
+
+  if (operation['x-draft-examples']) {
+    operation['x-draft-examples'] = operation['x-draft-examples'].map((name) =>
+      name === exampleKey ? nextExampleName : name,
+    )
+  }
+
+  records.forEach((record) => {
+    if (!Object.hasOwn(record, exampleKey)) {
+      return
+    }
+
+    record[nextExampleName] = unpackProxyObject(record[exampleKey])
+    delete record[exampleKey]
   })
 }

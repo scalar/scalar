@@ -29,8 +29,8 @@
               </div>
               <div class="pricing-table-column">
                 <b class="text-sm">Pro</b>
-                <p class="text-xl font-bold ">$24 / month*</p>
-                <p class=" text-c-2 text-sm font-normal">* Additional fees per member or based on usage & services</p>
+                <p class="text-xl font-bold ">$72 / month*</p>
+                <p class=" text-c-2 text-sm font-normal">* 3-seat minimum. Plus member, usage, and service fees.</p>
                 <p></p>
                 <a href="https://dashboard.scalar.com/register" class="pricing-cta pricing-cta-main">Try For Free</a>
               </div>
@@ -44,7 +44,7 @@
           </header>
           <div class="st_wrap_table text-sm" data-table_id="0">
           <div class="pricing-table-group">
-            <header class="pricing-table-group-heading">Scalar Docs</header>
+            <header class="pricing-table-group-heading">Docs</header>
             <div class="pricing-table-row">
               <div class="pricing-table-column">Subdomains</div>
               <div class="pricing-table-column"><scalar-icon src="phosphor/bold/check"></scalar-icon></div>
@@ -156,7 +156,7 @@
           </div>
         </div>
         <div class="st_wrap_table" data-table_id="1">
-          <header class="pricing-table-group-heading">Scalar API Client</header>
+          <header class="pricing-table-group-heading">API Client</header>
                     <div class="pricing-table-group">
            <div class="pricing-table-row">
              <div class="pricing-table-column">REST Client</div>
@@ -293,7 +293,7 @@
            </div>
         </div>
         <div class="st_wrap_table" data-table_id="2">
-          <header class="pricing-table-group-heading">Scalar SDKs</header>
+          <header class="pricing-table-group-heading">SDKs</header>
           <div class="pricing-table-group">
             <div class="pricing-table-row">
               <div class="pricing-table-column">TypeScript SDK</div>
@@ -406,7 +406,7 @@
           </div>
         </div>
         <div class="st_wrap_table" data-table_id="3">
-          <header class="pricing-table-group-heading">Scalar Registry</header>
+          <header class="pricing-table-group-heading">Registry</header>
           <div class="pricing-table-group">
             <div class="pricing-table-row">
               <div class="pricing-table-column">OpenAPI, JSON Schema support</div>
@@ -495,7 +495,7 @@
           </div>
         </div>
         <div class="st_wrap_table" data-table_id="4">
-          <header class="pricing-table-group-heading">Agent Scalar</header>
+          <header class="pricing-table-group-heading">Agent</header>
           <div class="pricing-table-group">
             <div class="pricing-table-row">
               <div class="pricing-table-column">Chat on localhost</div>
@@ -518,14 +518,37 @@
             <div class="pricing-table-row">
               <div class="pricing-table-column">Messages included</div>
               <div class="pricing-table-column"></div>
-              <div class="pricing-table-column">1,000</div>
-              <div class="pricing-table-column">1,000</div>
+              <div class="pricing-table-column">250</div>
+              <div class="pricing-table-column">250</div>
             </div>
             <div class="pricing-table-row">
               <div class="pricing-table-column">Additional messages</div>
               <div class="pricing-table-column"></div>
               <div class="pricing-table-column">$0.02/msg</div>
               <div class="pricing-table-column">$0.02/msg</div>
+            </div>
+          </div>
+        </div>
+        <div class="st_wrap_table" data-table_id="4">
+          <header class="pricing-table-group-heading">agent.scalar.com</header>
+          <div class="pricing-table-group">
+            <div class="pricing-table-row">
+              <div class="pricing-table-column">Tokens included</div>
+              <div class="pricing-table-column"></div>
+              <div class="pricing-table-column">2,000,000</div>
+              <div class="pricing-table-column">2,000,000</div>
+            </div>
+            <div class="pricing-table-row">
+              <div class="pricing-table-column">Additional input tokens</div>
+              <div class="pricing-table-column"></div>
+              <div class="pricing-table-column">$2/M</div>
+              <div class="pricing-table-column">$2/M</div>
+            </div>
+            <div class="pricing-table-row">
+              <div class="pricing-table-column">Additional output tokens</div>
+              <div class="pricing-table-column"></div>
+              <div class="pricing-table-column">$10/M</div>
+              <div class="pricing-table-column">$10/M</div>
             </div>
           </div>
         </div>
@@ -642,8 +665,9 @@
         <div class="w-1/3 flex flex-col gap-2">
           <b>Company</b>
           <a class="text-c-2 hover:text-c-1 font-normal" href="mailto:support@scalar.com" target="_blank">Support</a>
-          <a class="text-c-2 hover:text-c-1 font-normal" href="https://scalar.com/terms-and-conditions" target="_blank">Terms of Service</a>
-          <a class="text-c-2 hover:text-c-1 font-normal" href="https://scalar.com/privacy-policy" target="_blank">Privacy Policy</a>
+          <a class="text-c-2 hover:text-c-1 font-normal" href="/legal/terms-and-conditions">Terms of Service</a>
+          <a class="text-c-2 hover:text-c-1 font-normal" href="/legal/privacy-policy">Privacy Policy</a>
+          <button class="cky-banner-element text-c-2 hover:text-c-1 font-normal">Cookie Preferences</button>
         </div>
         <div class="w-1/3 flex flex-col gap-2">
           <b>Socials</b>
@@ -1032,7 +1056,8 @@ h4.t-editor__heading {
   }
   .footer-content span,
   .footer-content p,
-  .footer-content a {
+  .footer-content a,
+  .footer-content button {
     position: relative;
     z-index: 1;
   }

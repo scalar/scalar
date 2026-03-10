@@ -19,6 +19,9 @@ const readyQueue = reactive<Set<string>>(new Set())
  */
 const isRunning = ref(false)
 
+/** How long tryScroll keeps retrying to find the element (ms). Must exceed worst-case lazy-bus delay. */
+const SCROLL_RETRY_MS = 3000
+
 /** Tracks when the initial load is complete.
  * We will have placeholder content to allow the active item to be scrolled to the top while
  * the rest of the content is loaded.
@@ -135,7 +138,7 @@ const addToPendingQueue = (id: string | undefined) => {
  * We allow adding items already in readyQueue so that callbacks are still triggered,
  * but processQueue will skip actual re-rendering for items already ready.
  */
-const addToPriorityQueue = (id: string | undefined) => {
+export const addToPriorityQueue = (id: string | undefined) => {
   if (id && !priorityQueue.has(id)) {
     priorityQueue.add(id)
   }
@@ -225,7 +228,7 @@ export const scrollToLazy = (
   }
 
   /** Scroll to the element targeted */
-  tryScroll(id, Date.now() + 1000, unblock, unfreeze)
+  tryScroll(id, Date.now() + SCROLL_RETRY_MS, unblock, unfreeze)
 
   setExpanded(rawId, true)
   /**

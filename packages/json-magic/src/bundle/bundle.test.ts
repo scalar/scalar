@@ -2705,36 +2705,28 @@ describe('bundle', () => {
 
       expect(onBeforeNodeProcess).toHaveBeenNthCalledWith(
         3,
-        input.d,
+        input.a.b,
         expect.objectContaining({
-          parentNode: input,
+          parentNode: input.a,
         }),
       )
 
       expect(onBeforeNodeProcess).toHaveBeenNthCalledWith(
         4,
-        input.e,
+        input.a.b.c,
         expect.objectContaining({
-          parentNode: input,
+          parentNode: input.a.b,
         }),
       )
 
-      expect(onBeforeNodeProcess).toHaveBeenNthCalledWith(
-        5,
-        input.a.b,
-        expect.objectContaining({ parentNode: input.a }),
-      )
+      expect(onBeforeNodeProcess).toHaveBeenNthCalledWith(5, input.d, expect.objectContaining({ parentNode: input }))
 
-      expect(onBeforeNodeProcess).toHaveBeenNthCalledWith(
-        6,
-        input.e.f,
-        expect.objectContaining({ parentNode: input.e }),
-      )
+      expect(onBeforeNodeProcess).toHaveBeenNthCalledWith(6, input.e, expect.objectContaining({ parentNode: input }))
 
       expect(onBeforeNodeProcess).toHaveBeenNthCalledWith(
         7,
-        input.a.b.c,
-        expect.objectContaining({ parentNode: input.a.b }),
+        input.e.f,
+        expect.objectContaining({ parentNode: input.e }),
       )
     })
 

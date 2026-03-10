@@ -12,7 +12,7 @@
   "version": "0.4.2",
   "private": true,
   "engines": {
-    "node": ">=20"
+    "node": ">=22"
   },
   "scripts": {
     "build": "vue-tsc && vite build",
@@ -32,7 +32,7 @@
     "@scalar/use-hooks": "workspace:*",
     "@scalar/workspace-store": "workspace:*",
     "@vueuse/core": "catalog:*",
-    "monaco-editor": "^0.47.0",
+    "monaco-editor": "catalog:*",
     "vue": "catalog:*",
     "vue-router": "^4.3.0"
   },

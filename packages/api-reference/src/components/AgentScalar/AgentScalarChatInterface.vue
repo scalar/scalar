@@ -24,6 +24,7 @@ const { agentScalarConfiguration, workspaceStore, prefilledMessage } =
         ? () => agentScalarConfiguration?.key ?? ''
         : undefined
     "
+    :hideAddApi="agentScalarConfiguration?.hideAddApi"
     :mode="agentScalarConfiguration?.key ? 'full' : 'preview'"
     :prefilledMessage="prefilledMessage"
     :registryDocuments="[]"

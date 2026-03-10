@@ -1,6 +1,6 @@
 # Redirects
 
-Redirects allow you to automatically redirect users from one URL to another in your Scalar Docs project. This is useful for handling URL changes, deprecated pages, migrating from other platforms, or creating shortcuts to commonly accessed content.
+Redirects allow you to automatically redirect users from one URL to another in your Docs project. This is useful for handling URL changes, deprecated pages, migrating from other platforms, or creating shortcuts to commonly accessed content.
 
 ## Configuration
 
@@ -8,7 +8,7 @@ Redirects are configured in your `scalar.config.json` file under the `siteConfig
 
 ```json
 {
-  "$schema": "https://cdn.scalar.com/schema/scalar-config-next.json",
+  "$schema": "https://registry.scalar.com/@scalar/schemas/config",
   "scalar": "2.0.0",
   "siteConfig": {
     "routing": {

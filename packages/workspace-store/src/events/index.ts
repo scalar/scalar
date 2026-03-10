@@ -9,6 +9,7 @@ export type {
   OperationEvents,
   OperationExampleMeta,
   OperationMeta,
+  ServerMeta,
 } from './definitions'
 export { onCustomEvent } from './listeners'
 export { emitCustomEvent } from './old-definitions'

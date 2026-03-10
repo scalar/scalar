@@ -11,9 +11,9 @@
     "directory": "packages/core"
   },
   "keywords": [],
-  "version": "0.3.42",
+  "version": "0.4.1",
   "engines": {
-    "node": ">=20"
+    "node": ">=22"
   },
   "scripts": {
     "build": "scalar-build-esbuild",

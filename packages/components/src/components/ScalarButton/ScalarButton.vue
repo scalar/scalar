@@ -32,9 +32,9 @@ const buttonVariants = cva({
   variants: {
     disabled: { true: 'bg-b-2 text-color-3 shadow-none' },
     size: {
-      xs: 'px-2 py-1 text-xs leading-5',
-      sm: 'px-3.5 py-2 text-sm leading-5',
-      md: 'px-5 py-3 text-sm leading-5',
+      xs: 'px-2 py-1 text-xs/4',
+      sm: 'px-3.5 py-2 text-sm/4',
+      md: 'px-5 py-3 text-sm/4',
     } satisfies Record<ButtonSize, ClassList>,
     variant: BUTTON_VARIANT_STYLES,
   },

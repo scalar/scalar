@@ -192,6 +192,51 @@ describe('ScalarCopy', () => {
     })
   })
 
+  describe('immediate prop', () => {
+    it('copies content to clipboard on mount when immediate is true', async () => {
+      const wrapper = mount(ScalarCopy, {
+        props: {
+          content: 'copy on mount',
+          immediate: true,
+        },
+      })
+
+      await flushPromises()
+
+      const button = wrapper.findComponent(ScalarCopyButton)
+      expect(button.props('copied')).toBe(true)
+    })
+
+    it('does not copy on mount when immediate is false', async () => {
+      const wrapper = mount(ScalarCopy, {
+        props: {
+          content: 'do not copy yet',
+          immediate: false,
+        },
+      })
+
+      await flushPromises()
+
+      const button = wrapper.findComponent(ScalarCopyButton)
+      expect(button.props('copied')).toBe(false)
+      expect(mockWriteText).not.toHaveBeenCalled()
+    })
+
+    it('does not copy on mount when immediate is omitted', async () => {
+      const wrapper = mount(ScalarCopy, {
+        props: {
+          content: 'do not copy yet',
+        },
+      })
+
+      await flushPromises()
+
+      const button = wrapper.findComponent(ScalarCopyButton)
+      expect(button.props('copied')).toBe(false)
+      expect(mockWriteText).not.toHaveBeenCalled()
+    })
+  })
+
   describe('slots', () => {
     it('passes copy slot to ScalarCopyButton', async () => {
       const wrapper = mount(ScalarCopy, {

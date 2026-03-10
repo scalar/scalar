@@ -10,10 +10,10 @@
     "url": "git+https://github.com/scalar/scalar.git",
     "directory": "integrations/dotnet/aspire"
   },
-  "version": "0.8.56",
+  "version": "0.9.3",
   "private": true,
   "engines": {
-    "node": ">=20"
+    "node": ">=22"
   },
   "scripts": {
     "build:docker": "docker build --no-cache -t scalarapi/aspire-api-reference:latest -f src/Scalar.Aspire.Service/Dockerfile ../",

@@ -29,7 +29,11 @@ export const filterSelectedSecurity = (
   const securityRequirements = operation?.security ?? document.security ?? []
 
   /** The selected security keys for the document */
-  const selectedSecurity = getSelectedSecurity(selectedSecurityDocument, selectedSecurityOperation)
+  const selectedSecurity = getSelectedSecurity(
+    selectedSecurityDocument,
+    selectedSecurityOperation,
+    securityRequirements,
+  )
 
   /** Build a set for O(1) lookup */
   const requirementSet = new Set(securityRequirements.map((r) => getKey(r)))
@@ -51,7 +55,7 @@ export const filterSelectedSecurity = (
    * If we are selected security on the document,
    * we should show the first requirement of the operation to show auth is required
    */
-  if (operation?.security?.length && !document?.['x-scalar-set-operation-security']) {
+  if (operation?.security?.length) {
     return getSecuritySchemes(securitySchemes, securityRequirements.slice(0, 1))
   }
 

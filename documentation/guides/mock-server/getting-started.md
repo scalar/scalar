@@ -1,4 +1,4 @@
-# Scalar Mock Server
+# Mock Server
 <div class="flex gap-2">
 <a href="https://www.npmjs.com/@scalar/mock-server" aria-label="View @scalar/mock-server on NPM"><img alt="NPM Version" src="https://img.shields.io/npm/v/@scalar/mock-server"></a>
 <a href="https://www.npmjs.com/@scalar/mock-server" aria-label="View NPM downloads for @scalar/mock-server"><img alt="NPM Downloads" src="https://img.shields.io/npm/dm/@scalar/mock-server"></a>

@@ -83,7 +83,7 @@ const handleToggle = (event: MouseEvent) => {
   <component
     v-bind="cx('group/item flex flex-col gap-px')"
     :is="is">
-    <div class="group/group-button relative flex flex-col leading-5">
+    <div class="group/group-button relative flex flex-col text-base">
       <slot
         name="before"
         :open />

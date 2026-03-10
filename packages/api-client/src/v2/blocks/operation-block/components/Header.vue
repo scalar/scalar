@@ -1,16 +1,12 @@
-<script setup lang="ts">
-import { ScalarIcon } from '@scalar/components'
-import type { HttpMethod } from '@scalar/helpers/http/http-methods'
-import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
-import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
-import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+<script lang="ts">
+/**
+  Operation block header: address bar, environment selector, and modal controls.
 
-import { OpenApiClientButton } from '@/components'
-import type { ClientLayout } from '@/hooks'
-import { AddressBar, type History } from '@/v2/blocks/scalar-address-bar-block'
-import EnvironmentSelector from '@/v2/blocks/scalar-address-bar-block/components/EnvironmentSelector.vue'
-
-const { hideClientButton = false, eventBus } = defineProps<{
+  Renders the top bar for the API client operation view: URL/method (AddressBar),
+  optional environment selector, optional "Open API Client" button in modal layout,
+  and close button for modal. Layout and visibility depend on `layout` and `source` props.
+ */
+export type HeaderProps = {
   /** Current request path */
   path: string
   /** Current request method */
@@ -39,11 +35,31 @@ const { hideClientButton = false, eventBus } = defineProps<{
   activeEnvironment?: string
   /** Environment variables */
   environment: XScalarEnvironment
-}>()
+  /** Meta information for the server */
+  serverMeta: ServerMeta
+}
+</script>
+
+<script setup lang="ts">
+import { ScalarIcon } from '@scalar/components'
+import type { HttpMethod } from '@scalar/helpers/http/http-methods'
+import type {
+  ServerMeta,
+  WorkspaceEventBus,
+} from '@scalar/workspace-store/events'
+import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
+import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+
+import { OpenApiClientButton } from '@/components'
+import type { ClientLayout } from '@/hooks'
+import { AddressBar, type History } from '@/v2/blocks/scalar-address-bar-block'
+import EnvironmentSelector from '@/v2/blocks/scalar-address-bar-block/components/EnvironmentSelector.vue'
+
+const { hideClientButton = false, eventBus } = defineProps<HeaderProps>()
 
 const emit = defineEmits<{
+  /** Execute the current operation example */
   (e: 'execute'): void
-  (e: 'update:servers'): void
   /** Select a request history item by index */
   (e: 'select:history:item', payload: { index: number }): void
   /** Add a new environment */
@@ -81,11 +97,13 @@ const handleAddEnvironment = () => {
       :method
       :path
       :server
+      :serverMeta
       :servers
       @add:environment="emit('add:environment')"
       @execute="emit('execute')"
-      @select:history:item="(payload) => emit('select:history:item', payload)"
-      @update:servers="emit('update:servers')" />
+      @select:history:item="
+        (payload) => emit('select:history:item', payload)
+      " />
 
     <div
       class="mb-2 flex w-1/2 flex-row items-center justify-end gap-2 lg:mb-0 lg:flex-1 lg:px-2.5">

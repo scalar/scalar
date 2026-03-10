@@ -1,4 +1,4 @@
-# Scalar API Reference for Go
+# API Reference for Go
 
 ## go-scalar-api-reference
 

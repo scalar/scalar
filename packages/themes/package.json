@@ -15,9 +15,9 @@
     "css-variables",
     "scalar"
   ],
-  "version": "0.14.0",
+  "version": "0.15.0",
   "engines": {
-    "node": ">=20"
+    "node": ">=22"
   },
   "scripts": {
     "build": "scalar-build-vite",

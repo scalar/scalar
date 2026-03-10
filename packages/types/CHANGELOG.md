@@ -1,5 +1,48 @@
 # @scalar/types
 
+## 0.7.1
+
+### Patch Changes
+
+- [#8381](https://github.com/scalar/scalar/pull/8381): feat: add mcp config support
+
+## 0.7.0
+
+### Minor Changes
+
+- [#8322](https://github.com/scalar/scalar/pull/8322): chore: bump required node version to >=22 (LTS)
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/helpers@0.3.0**
+  - [#8322](https://github.com/scalar/scalar/pull/8322): chore: bump required node version to >=22 (LTS)
+
+## 0.6.10
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/helpers@0.2.18**
+  - [#8314](https://github.com/scalar/scalar/pull/8314): chore: limit concurrent operations while migrating workspaces
+
+## 0.6.9
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/helpers@0.2.17**
+  - [#8310](https://github.com/scalar/scalar/pull/8310): refactor: move helpers to the helpers package to share primitive helpers
+
+## 0.6.8
+
+### Patch Changes
+
+- [#8274](https://github.com/scalar/scalar/pull/8274): feat(agent): add config to hide search api
+
 ## 0.6.7
 
 ### Patch Changes

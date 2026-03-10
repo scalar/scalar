@@ -1,6 +1,6 @@
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 
-import type { TraversedTag } from '@/schemas/navigation'
+import type { TraversedExample, TraversedTag } from '@/schemas/navigation'
 
 /**
  * Available actions that can be triggered from the command palette.
@@ -36,6 +36,14 @@ export type CommandPalettePayload = {
     documentName?: string
     /** The operation id to add the example to */
     operationId?: string
+  }
+  'edit-example': {
+    /** The example to edit */
+    example: TraversedExample
+    /** The document name to edit the example in */
+    documentName: string
+    /** The operation id to edit the example in */
+    operationId: string
   }
   /** Import a request from a cURL command string */
   'import-curl-command': {
@@ -252,6 +260,13 @@ export type UIEvents = {
         path: string
         method: HttpMethod
         exampleName: string
+      }
+    | {
+        page: 'operation'
+        path: 'overview' | 'servers' | 'authentication'
+        operationPath: string
+        method: HttpMethod
+        documentSlug?: string
       }
   )
 }

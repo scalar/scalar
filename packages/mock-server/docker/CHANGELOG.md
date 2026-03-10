@@ -1,5 +1,111 @@
 # @scalar/mock-server-docker
 
+## 0.2.3
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/hono-api-reference@0.10.1**
+
+- **@scalar/mock-server@0.9.3**
+
+## 0.2.2
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/mock-server@0.9.2**
+
+- **@scalar/hono-api-reference@0.10.0**
+
+## 0.2.1
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/mock-server@0.9.1**
+
+- **@scalar/hono-api-reference@0.10.0**
+
+## 0.2.0
+
+### Minor Changes
+
+- [#8322](https://github.com/scalar/scalar/pull/8322): chore: bump required node version to >=22 (LTS)
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/mock-server@0.9.0**
+  - [#8322](https://github.com/scalar/scalar/pull/8322): chore: bump required node version to >=22 (LTS)
+
+- **@scalar/hono-api-reference@0.10.0**
+  - [#8322](https://github.com/scalar/scalar/pull/8322): chore: bump required node version to >=22 (LTS)
+
+## 0.1.44
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/mock-server@0.8.48**
+
+- **@scalar/hono-api-reference@0.9.48**
+
+## 0.1.43
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/mock-server@0.8.47**
+
+- **@scalar/hono-api-reference@0.9.47**
+
+## 0.1.42
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/mock-server@0.8.46**
+
+- **@scalar/hono-api-reference@0.9.47**
+
+## 0.1.41
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/mock-server@0.8.45**
+
+- **@scalar/hono-api-reference@0.9.46**
+
+## 0.1.40
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/mock-server@0.8.44**
+
+- **@scalar/hono-api-reference@0.9.46**
+
+## 0.1.39
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/mock-server@0.8.43**
+
+- **@scalar/hono-api-reference@0.9.46**
+
 ## 0.1.38
 
 ### Patch Changes

@@ -107,6 +107,16 @@ export type AuthEvents = {
   }
 
   /**
+   * Clear the selected security schemes for a document or specific operation.
+   * Triggers when the user toggles the operation security toggle.
+   * - `meta` describes the target (whole document or a specific operation).
+   */
+  'auth:clear:selected-security-schemes': {
+    /** Meta information for the auth update */
+    meta: AuthMeta
+  }
+
+  /**
    * Removes a scheme from the auth store
    */
   'auth:clear:security-scheme-secrets': {

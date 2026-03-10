@@ -17,6 +17,7 @@ import type {
 import { computed, ref, watch } from 'vue'
 
 import { DataTableRow } from '@/components/DataTable'
+import { getEnvironmentVariables } from '@/v2/blocks/operation-block/helpers/get-environment-variables'
 import OAuthScopesInput from '@/v2/blocks/scalar-auth-selector-block/components/OAuthScopesInput.vue'
 import { authorizeOauth2 } from '@/v2/blocks/scalar-auth-selector-block/helpers/oauth'
 import type {
@@ -161,18 +162,24 @@ const handleAuthorize = async (): Promise<void> => {
 
   loader.start()
 
-  const [error, accessToken] = await authorizeOauth2(
+  const [error, tokens] = await authorizeOauth2(
     flows,
     type,
     selectedScopes.value,
     server,
     proxyUrl,
+    getEnvironmentVariables(environment),
   )
 
   await loader.clear()
 
-  if (accessToken) {
-    handleOauth2SecretsUpdate({ 'x-scalar-secret-token': accessToken })
+  if (tokens?.accessToken) {
+    handleOauth2SecretsUpdate({
+      'x-scalar-secret-token': tokens.accessToken,
+      ...(tokens.refreshToken
+        ? { 'x-scalar-secret-refresh-token': tokens.refreshToken }
+        : {}),
+    })
   } else {
     console.error(error)
     toast(error?.message ?? 'Failed to authorize', 'error')
@@ -211,7 +218,11 @@ const handleSecretLocationUpdate = (value: string): void =>
           size="sm"
           variant="outlined"
           @click="
-            () => handleOauth2SecretsUpdate({ 'x-scalar-secret-token': '' })
+            () =>
+              handleOauth2SecretsUpdate({
+                'x-scalar-secret-token': '',
+                'x-scalar-secret-refresh-token': '',
+              })
           ">
           Clear
         </ScalarButton>

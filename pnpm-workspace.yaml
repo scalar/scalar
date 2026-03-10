@@ -28,7 +28,7 @@ catalogs:
     '@nestjs/common': '^11.1.11'
     '@nestjs/core': '^11.1.11'
     '@nestjs/platform-express': '^11.1.11'
-    '@nestjs/platform-fastify': '^11.1.11'
+    '@nestjs/platform-fastify': '^11.1.14'
     '@nestjs/schematics': '^11.0.9'
     '@nestjs/swagger': '^7.3.1'
     '@nestjs/testing': '^11.1.11'
@@ -38,7 +38,7 @@ catalogs:
     '@tailwindcss/vite': ^4.1.18
     '@types/express': 5.0.3
     '@types/jsdom': 27.0.0
-    '@types/node': ^22.19.3
+    '@types/node': ^24.1.0
     '@types/picomatch': 4.0.2
     '@types/react-dom': ^19.2.3
     '@types/react': ^19.2.7
@@ -66,11 +66,13 @@ catalogs:
     fastify: ^5.3.3
     flatted: ^3.3.3
     fuse.js: ^7.1.0
-    hono: 4.11.10
+    hono: 4.12.4
     github-slugger: 2.0.0
     js-base64: ^3.7.8
     jsdom: 27.4.0
     microdiff: ^1.5.0
+    monaco-editor: 0.54.0
+    monaco-yaml: 5.2.3
     nanoid: ^5.1.6
     next: ^15.5.10
     neverpanic: 0.0.5
@@ -115,6 +117,7 @@ minimumReleaseAgeExclude:
   - astro
   - hono
   - next
+  - turbo
   - vite
   - vite-node
   - vitest

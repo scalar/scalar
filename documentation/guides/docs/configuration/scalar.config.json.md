@@ -1,6 +1,6 @@
 # scalar.config.json
 
-The `scalar.config.json` file is the central configuration file for Scalar Docs. It defines your project's metadata, navigation structure, site settings, and deployment options.
+The `scalar.config.json` file is the central configuration file for Docs. It defines your project's metadata, navigation structure, site settings, and deployment options.
 
 ## Creating the configuration file
 
@@ -18,7 +18,7 @@ Here is a minimal configuration to get started:
 
 ```json
 {
-  "$schema": "https://cdn.scalar.com/schema/scalar-config-next.json",
+  "$schema": "https://registry.scalar.com/@scalar/schemas/config",
   "scalar": "2.0.0",
   "info": {
     "title": "My Documentation",
@@ -44,6 +44,9 @@ To get autocomplete and validation in your editor, enable JSON schema downloads 
 // .vscode/settings.json
 {
   "json.schemaDownload.enable": true
+  "json.schemaDownload.trustedDomains": {
+    "https://registry.scalar.com/": true,
+  }
 }
 ```
 
@@ -52,7 +55,7 @@ The `$schema` property in your configuration file tells the editor where to find
 ```json
 // scalar.config.json
 {
-  "$schema": "https://cdn.scalar.com/schema/scalar-config-next.json"
+  "$schema": "https://registry.scalar.com/@scalar/schemas/config"
 }
 ```
 
@@ -133,7 +136,7 @@ Here is a more complete example showing common configuration options:
 
 ```json
 {
-  "$schema": "https://cdn.scalar.com/schema/scalar-config-next.json",
+  "$schema": "https://registry.scalar.com/@scalar/schemas/config",
   "scalar": "2.0.0",
   "info": {
     "title": "Acme API Documentation",

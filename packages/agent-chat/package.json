@@ -10,9 +10,9 @@
     "url": "git+https://github.com/scalar/scalar.git",
     "directory": "packages/agent-chat"
   },
-  "version": "0.5.17",
+  "version": "0.9.2",
   "engines": {
-    "node": ">=20"
+    "node": ">=22"
   },
   "scripts": {
     "build": "scalar-build-vite && cp package.json dist",

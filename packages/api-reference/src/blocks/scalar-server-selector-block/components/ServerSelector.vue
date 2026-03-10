@@ -37,6 +37,9 @@ const id = useId()
 const updateServer = (newServer: string) => {
   eventBus.emit('server:update:selected', {
     url: selectedServer?.url === newServer ? '' : newServer,
+    meta: {
+      type: 'document',
+    },
   })
 }
 
@@ -52,6 +55,9 @@ const updateServerVariable = (key: string, value: string) => {
     index,
     key,
     value,
+    meta: {
+      type: 'document',
+    },
   })
 }
 </script>

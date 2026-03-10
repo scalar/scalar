@@ -20,9 +20,9 @@
     "vue",
     "vue3"
   ],
-  "version": "1.44.26",
+  "version": "1.48.2",
   "engines": {
-    "node": ">=20"
+    "node": ">=22"
   },
   "scripts": {
     "build": "pnpm build:default && pnpm build:standalone && pnpm types:build",

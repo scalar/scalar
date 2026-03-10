@@ -16,6 +16,7 @@ const {
   getActiveDocumentJson,
   isLoggedIn,
   prefilledMessage,
+  hideAddApi,
 } = defineProps<{
   registryDocuments: RegistryDocument[]
   registryUrl: string
@@ -27,6 +28,7 @@ const {
   getActiveDocumentJson?: () => string
   isLoggedIn?: Ref<boolean>
   prefilledMessage?: Ref<string>
+  hideAddApi?: boolean
 }>()
 
 defineEmits<{
@@ -44,6 +46,7 @@ const state = createState({
   getAgentKey,
   isLoggedIn,
   dashboardUrl,
+  hideAddApi,
 })
 
 provide(STATE_SYMBOL, state)

@@ -30,38 +30,38 @@ const getContent = () => {
     })
   }
 
-  return ''
+  return undefined
 }
+
+/** Pre-pretty printed content string, avoids multiple pretty prints*/
+const prettyPrintedContent = computed(() => {
+  const content = getContent()
+  if (content === undefined) {
+    return undefined
+  }
+  return prettyPrintJson(content)
+})
 
 const VIRTUALIZATION_THRESHOLD = 20_000
 
 // Virtualize the code block if it's too large
-const shouldVirtualize = computed(
-  () => prettyPrintedContent.value.length > VIRTUALIZATION_THRESHOLD,
-)
-
-/** Pre-pretty printed content string, avoids multiple pretty prints*/
-const prettyPrintedContent = computed<string>(() =>
-  prettyPrintJson(getContent()),
-)
+const shouldVirtualize = computed(() => {
+  if (prettyPrintedContent.value === undefined) {
+    return false
+  }
+  return prettyPrintedContent.value.length > VIRTUALIZATION_THRESHOLD
+})
 </script>
 <template>
   <!-- Example -->
   <ScalarCodeBlock
-    v-if="example !== undefined && !shouldVirtualize"
-    class="bg-b-2"
-    lang="json"
-    :prettyPrintedContent="prettyPrintedContent" />
-
-  <!-- Schema -->
-  <ScalarCodeBlock
-    v-else-if="response?.schema && !shouldVirtualize"
+    v-if="prettyPrintedContent !== undefined && !shouldVirtualize"
     class="bg-b-2"
     lang="json"
     :prettyPrintedContent="prettyPrintedContent" />
 
   <ScalarVirtualText
-    v-else-if="(example !== undefined || response?.schema) && shouldVirtualize"
+    v-else-if="prettyPrintedContent !== undefined && shouldVirtualize"
     containerClass="custom-scroll scalar-code-block border rounded-b flex flex-1 max-h-screen"
     contentClass="language-plaintext whitespace-pre font-code text-base"
     :lineHeight="20"

@@ -1,4 +1,4 @@
-# Scalar API Reference for Next.js
+# API Reference for Next.js
 
 Next.js enables you to create high-quality web applications with the power of React components. And Scalar enables you to create high-quality API references. What a match, isn't it?
 
