@@ -1,5 +1,21 @@
 # @scalar/api-client-react
 
+## 1.4.4
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-client@2.35.0**
+  - [#8349](https://github.com/scalar/scalar/pull/8349): feat: support operation example rename
+  - [#8336](https://github.com/scalar/scalar/pull/8336): fix: layout with z-index and add support for mobile
+  - [#8269](https://github.com/scalar/scalar/pull/8269): fix: prevent requests with empty path parameters
+  - [#8262](https://github.com/scalar/scalar/pull/8262): fix: serialize array query params as repeated params
+  - [#8253](https://github.com/scalar/scalar/pull/8253): feat(api-reference): support propertyNames enum for additionalProperties
+  - [#8392](https://github.com/scalar/scalar/pull/8392): feat: support document download
+
+- **@scalar/types@0.7.2**
+
 ## 1.4.3
 
 ### Patch Changes

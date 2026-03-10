@@ -1,5 +1,54 @@
 # @scalar/api-client
 
+## 2.35.0
+
+### Minor Changes
+
+- [#8349](https://github.com/scalar/scalar/pull/8349): feat: support operation example rename
+
+### Patch Changes
+
+- [#8336](https://github.com/scalar/scalar/pull/8336): fix: layout with z-index and add support for mobile
+- [#8269](https://github.com/scalar/scalar/pull/8269): fix: prevent requests with empty path parameters
+- [#8262](https://github.com/scalar/scalar/pull/8262): fix: serialize array query params as repeated params
+- [#8253](https://github.com/scalar/scalar/pull/8253): feat(api-reference): support propertyNames enum for additionalProperties
+- [#8392](https://github.com/scalar/scalar/pull/8392): feat: support document download
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.39.0**
+  - [#8372](https://github.com/scalar/scalar/pull/8372): fix: avoid inlining $ref path parameters during path parameter sync
+  - [#8349](https://github.com/scalar/scalar/pull/8349): feat: support operation example rename
+  - [#8336](https://github.com/scalar/scalar/pull/8336): fix: sidebar title update and detect delete operaitons for proxy
+  - [#8253](https://github.com/scalar/scalar/pull/8253): feat(api-reference): support propertyNames enum for additionalProperties
+
+- **@scalar/openapi-parser@0.25.2**
+  - [#8359](https://github.com/scalar/scalar/pull/8359): fix(openapi-parser): replace $dynamicRef with $ref in v3.2 schema for AJV compatibility
+
+- **@scalar/helpers@0.4.0**
+  - [#8336](https://github.com/scalar/scalar/pull/8336): feat: support flushing any pending operations
+
+- **@scalar/oas-utils@0.10.3**
+  - [#8253](https://github.com/scalar/scalar/pull/8253): feat(api-reference): support propertyNames enum for additionalProperties
+
+- **@scalar/sidebar@0.8.4**
+
+- **@scalar/components@0.20.4**
+
+- **@scalar/import@0.5.1**
+
+- **@scalar/json-magic@0.12.2**
+
+- **@scalar/object-utils@1.3.1**
+
+- **@scalar/postman-to-openapi@0.5.1**
+
+- **@scalar/types@0.7.2**
+
+- **@scalar/use-codemirror@0.14.4**
+
+- **@scalar/snippetz@0.7.2**
+
 ## 2.34.1
 
 ### Patch Changes

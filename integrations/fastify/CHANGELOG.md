@@ -1,5 +1,16 @@
 # @scalar/fastify-api-reference
 
+## 1.48.3
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/openapi-parser@0.25.2**
+  - [#8359](https://github.com/scalar/scalar/pull/8359): fix(openapi-parser): replace $dynamicRef with $ref in v3.2 schema for AJV compatibility
+
+- **@scalar/core@0.4.2**
+
 ## 1.48.2
 
 ### Patch Changes

@@ -1,5 +1,14 @@
 # @scalar/object-utils
 
+## 1.3.1
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/helpers@0.4.0**
+  - [#8336](https://github.com/scalar/scalar/pull/8336): feat: support flushing any pending operations
+
 ## 1.3.0
 
 ### Minor Changes
