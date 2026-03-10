@@ -9,6 +9,11 @@ import 'monaco-editor/esm/vs/editor/contrib/folding/browser/folding'
 import 'monaco-editor/esm/vs/editor/contrib/folding/browser/folding.css'
 import 'monaco-editor/esm/vs/base/browser/ui/codicons/codicon/codicon.css'
 
+/**
+ * Configures the Monaco editor with custom Scala theme settings.
+ * Applies the theme whenever the theme or dark mode value changes.
+ * In development mode, ensures Monaco environment is configured (worker setup handled by Vite config).
+ */
 export const useMonacoEditorConfiguration = ({
   theme,
   darkMode,
@@ -16,13 +21,12 @@ export const useMonacoEditorConfiguration = ({
   theme: MaybeRefOrGetter<string>
   darkMode: MaybeRefOrGetter<boolean>
 }): void => {
-  // Don't configure monaco for dev environment
-  // We will reply on vite config to handle workers
-  if (import.meta.env.DEV) {
+  // Ensure Monaco environment only in production to prevent worker misconfiguration.
+  if (!import.meta.env.DEV) {
     ensureMonacoEnvironment()
   }
 
-  // Apply scalar theme
+  // Watch for changes to theme or darkMode and apply the Scalar theme immediately.
   watch([() => toValue(theme), () => toValue(darkMode)], ([theme, darkMode]) => applyScalarTheme(theme, darkMode), {
     immediate: true,
   })

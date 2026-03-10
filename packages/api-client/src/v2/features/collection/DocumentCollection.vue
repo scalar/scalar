@@ -90,6 +90,12 @@ const rebaseResult = ref<{
   ) => Promise<void>
 } | null>(null)
 
+/**
+ * Handles the synchronization flow for a document.
+ * Checks for unsaved changes, verifies the document's source URL,
+ * initiates rebasing, handles conflicts, and emits completion events.
+ * If conflicts are detected, a modal dialog is shown for user resolution.
+ */
 const handleSyncFlow = async () => {
   if (isDocumentDirty.value) {
     dirtyBeforeSyncModal.show()
@@ -118,14 +124,34 @@ const handleSyncFlow = async () => {
 
     if (rebaseResult.value.conflicts.length > 0) {
       syncModal.show()
+    } else {
+      // If there is no conflict just rebase immediately
+      await rebaseResult.value?.applyChanges({
+        resolvedDocument: rebaseResult.value.resolvedDocument,
+      })
+      props.eventBus.emit('hooks:on:rebase:document:complete', {
+        meta: {
+          documentName: props.documentSlug,
+        },
+      })
+      syncModal.hide()
     }
   } else if (result?.ok === false && result.type === 'NO_CHANGES_DETECTED') {
-    toast('No changes detected. Your document is up to date.', 'info')
+    // Emit the event either way even if there was no need to rebase the document
+    props.eventBus.emit('hooks:on:rebase:document:complete', {
+      meta: {
+        documentName: props.documentSlug,
+      },
+    })
   } else {
     toast('Failed to sync document', 'error')
   }
 }
 
+/*
+ * Handles applying changes to the current document after conflict resolution.
+ * Emits a completion event and hides the sync modal dialog.
+ */
 const handleApplyChanges = async ({
   resolvedDocument,
 }: {

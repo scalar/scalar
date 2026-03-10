@@ -12,16 +12,24 @@ type MonacoEditorAction = {
   run: () => void | Promise<void>
 }
 
+/**
+ * Creates and manages a Monaco editor instance.
+ *
+ * @param element - The HTML element to mount the editor into.
+ * @param onChange - A callback function to handle changes to the editor's value.
+ * @param actions - An array of actions to add to the editor.
+ * @param readOnly - Whether the editor should be read-only.
+ * @param model - The editor model to use.
+ * @returns An object containing the editor instance, model, and utility functions.
+ */
 export const useEditor = ({
   element,
-  value,
   onChange,
   actions,
   readOnly = false,
   model,
 }: {
   element: HTMLElement
-  value?: MaybeRefOrGetter<string>
   readOnly?: MaybeRefOrGetter<boolean>
   onChange?: (e: string) => void
   actions?: MonacoEditorAction[]
@@ -142,24 +150,6 @@ export const useEditor = ({
 
     onChange?.(newValue ?? '')
   })
-
-  //--------------------------------------------------
-  // Mirror the external value
-  watch(
-    () => toValue(value),
-    (newValue) => {
-      if (!newValue) {
-        return
-      }
-
-      // If the value is the same, do not update the editor
-      if (editor.getValue() === newValue) {
-        return
-      }
-
-      setValue(newValue, true)
-    },
-  )
 
   //--------------------------------------------------
   // Read Only

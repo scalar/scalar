@@ -5,6 +5,15 @@ import type { EditorModel, Path } from '@/v2/features/editor/helpers/model'
 
 import { configureJson } from '../configure-language-support'
 
+/**
+ * Creates a JSON Monaco editor model with enhanced language support.
+ *
+ * @param value - The initial JSON content for the model.
+ * @returns An object containing the Monaco model and a function to get a range from a JSON path.
+ *
+ * The returned `getRangeFromPath` function asynchronously finds the AST node for a JSON path,
+ * converts its offset and length to a Monaco Range, or returns null if not found.
+ */
 export const createJsonModel = (value?: string): EditorModel => {
   const model = monaco.editor.createModel(value ?? '', 'json')
 
