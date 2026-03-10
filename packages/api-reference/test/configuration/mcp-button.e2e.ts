@@ -7,7 +7,7 @@ test.describe('mcpButton', () => {
 
     await page.goto(example)
 
-    await expect(page.getByRole('link', { name: 'Generate MCP' })).toBeVisible()
+    await expect(page.getByText('Generate MCP')).toBeVisible()
   })
 
   test('set mcp config', async ({ page }) => {

@@ -1,19 +1,28 @@
 <script setup lang="ts">
+import { useLoadingState } from '@scalar/components'
 import { ScalarIconArrowUpRight } from '@scalar/icons'
-import { makeUrlAbsolute } from '@scalar/oas-utils/helpers'
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
-import { computed } from 'vue'
+import { useToasts } from '@scalar/use-toasts'
+import type { WorkspaceStore } from '@scalar/workspace-store/client'
+import { nextTick } from 'vue'
+
+import { DASHBOARD_REGISTER_URL } from '@/consts/urls'
+import { uploadTempDocument } from '@/helpers/upload-temp-document'
 
 const props = defineProps<{
   config?: {
     name?: string
     url?: string
   }
-  integration?: string | null
   url?: string
+  workspace: WorkspaceStore
 }>()
 
 const { copyToClipboard } = useClipboard()
+
+const { toast } = useToasts()
+
+const loader = useLoadingState()
 
 const hasConfig = props.config?.name || props.config?.url
 
@@ -23,51 +32,69 @@ const name = encodeURIComponent(props.config?.name ?? '')
 const cursorLink = `cursor://anysphere.cursor-deeplink/mcp/install?name=${name}&config=${encoded}`
 const vscodeLink = `vscode:mcp/install?${encodeURIComponent(JSON.stringify(props.config ?? {}))}`
 
-/** Link to import an OpenAPI document */
-const href = computed((): string | undefined => {
-  /**
-   * The URL we want to pass to client.scalar.com for the import.
-   * Might be an OpenAPI document URL, but could also just be the URL of the API reference.
-   */
-  const urlToImportFrom =
-    props.url ??
-    (typeof window !== 'undefined' ? window.location.href : undefined)
+const tempDocUrl = defineModel<string>('url')
 
-  if (!urlToImportFrom) {
-    return undefined
+/** Generate and open the registration link */
+async function generateRegisterLink() {
+  if (loader.isLoading || !props.workspace) {
+    return
   }
 
-  const absoluteUrl = makeUrlAbsolute(urlToImportFrom)
-
-  if (!absoluteUrl?.length) {
-    return undefined
+  // If we have already have a temporary document URL, use it
+  if (tempDocUrl.value) {
+    openRegisterLink(tempDocUrl.value)
+    return
   }
 
-  // Base URL
-  const link = new URL('https://dashboard.scalar.com/register')
+  loader.start()
 
-  // URL that we'd like to import
-  link.searchParams.set('url', absoluteUrl)
+  const document = props.workspace.exportActiveDocument('json')
 
-  // Integration identifier
-  if (props.integration !== null) {
-    link.searchParams.set('integration', props.integration ?? 'vue')
+  if (!document) {
+    toast('Unable to export active document', 'error')
+    await loader.invalidate()
+    return
   }
 
-  // UTM Source
-  link.searchParams.set('utm_source', 'api-reference')
-  link.searchParams.set('utm_medium', 'button')
+  try {
+    tempDocUrl.value = await uploadTempDocument(document)
+    await loader.validate()
+    openRegisterLink(tempDocUrl.value)
 
-  return link.toString()
-})
+    await nextTick()
+
+    await loader.clear()
+  } catch (error) {
+    const message =
+      error instanceof Error ? error.message : 'An unknown error occurred'
+    toast(message, 'error')
+    await loader.invalidate()
+  }
+}
+
+/** Open the registration link in a new tab */
+function openRegisterLink(docUrl: string) {
+  const url = new URL(DASHBOARD_REGISTER_URL)
+  url.searchParams.set('url', docUrl)
+
+  window.open(url.toString(), '_blank')
+}
 </script>
 
 <template>
   <div class="scalar-mcp-layer">
     <a
       class="scalar-mcp-layer-link"
-      :href="hasConfig ? vscodeLink : href"
-      target="_blank">
+      :href="hasConfig ? vscodeLink : undefined"
+      :target="hasConfig ? '_blank' : undefined"
+      @click="
+        (e) => {
+          if (!hasConfig) {
+            e.preventDefault()
+            generateRegisterLink()
+          }
+        }
+      ">
       <svg
         class="mcp-logo"
         fill="currentColor"
@@ -83,8 +110,16 @@ const href = computed((): string | undefined => {
     </a>
     <a
       class="scalar-mcp-layer-link"
-      :href="hasConfig ? cursorLink : href"
-      target="_blank">
+      :href="hasConfig ? cursorLink : undefined"
+      :target="hasConfig ? '_blank' : undefined"
+      @click="
+        (e) => {
+          if (!hasConfig) {
+            e.preventDefault()
+            generateRegisterLink()
+          }
+        }
+      ">
       <svg
         class="mcp-logo"
         viewBox="0 0 466.73 532.09"
@@ -97,11 +132,10 @@ const href = computed((): string | undefined => {
       <ScalarIconArrowUpRight class="mcp-nav ml-auto size-4" />
     </a>
     <!-- localhost + you don't have a MCP added -->
-    <a
+    <div
       v-if="!hasConfig"
       class="scalar-mcp-layer-link"
-      :href="href"
-      target="_blank">
+      @click="generateRegisterLink">
       <svg
         class="mcp-logo"
         fill="none"
@@ -127,7 +161,7 @@ const href = computed((): string | undefined => {
       </svg>
       Generate MCP
       <ScalarIconArrowUpRight class="mcp-nav ml-auto size-4" />
-    </a>
+    </div>
     <!-- you do have an MCP added -->
     <div
       v-else
@@ -174,6 +208,9 @@ const href = computed((): string | undefined => {
 }
 .scalar-mcp-layer:hover {
   height: 172px;
+}
+.scalar-mcp-layer-link:hover {
+  cursor: pointer !important;
 }
 .scalar-mcp-layer .scalar-mcp-layer-link {
   cursor: pointer;
