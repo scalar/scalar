@@ -1015,9 +1015,9 @@ const showMCPButton = computed(() => {
                   <OpenMCPButton
                     v-if="showMCPButton"
                     :config="mergedConfig.mcp"
-                    :integration="mergedConfig._integration"
                     :isDevelopment="isDevelopment"
-                    :url="documentUrl" />
+                    :url="documentUrl"
+                    :workspace="workspaceStore" />
                   <!-- Override the dark mode toggle slot to hide it -->
                   <template #toggle>
                     <ScalarColorModeToggleButton
