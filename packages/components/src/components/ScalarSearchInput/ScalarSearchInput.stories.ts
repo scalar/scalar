@@ -26,17 +26,17 @@ type Story = StoryObj<typeof meta>
 export const Base: Story = {}
 
 export const Loading: Story = {
-  render: () => ({
+  render: (args) => ({
     components: { ScalarSearchInput },
     setup() {
       const loader = useLoadingState()
       loader.start()
-      return { loader }
+      return { args, loader }
     },
-    template: `<ScalarSearchInput modelValue="My search query" :loader />`,
+    template: `<ScalarSearchInput v-bind="args" modelValue="My search query" :loader />`,
   }),
 }
 
 export const CustomClasses: Story = {
-  args: { class: 'border-red' },
+  args: { class: 'border border-red rounded' },
 }

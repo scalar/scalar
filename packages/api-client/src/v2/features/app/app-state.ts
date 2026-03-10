@@ -171,13 +171,13 @@ const DEFAULT_SIDEBAR_WIDTH = 288
 export const createAppState = async ({
   router,
   fileLoader,
-  fallbackThemeSlug = 'default',
+  fallbackThemeSlug = () => 'default',
   customThemes = () => [],
 }: {
   router: Router
   fileLoader?: LoaderPlugin
   customThemes?: MaybeRefOrGetter<Theme[]>
-  fallbackThemeSlug?: string
+  fallbackThemeSlug?: MaybeRefOrGetter<string>
 }): Promise<AppState> => {
   /** Workspace event bus for handling workspace-level events. */
   const eventBus = createWorkspaceEventBus({
@@ -979,7 +979,7 @@ export const createAppState = async ({
   })
 
   const theme = useTheme({
-    fallbackThemeSlug: () => fallbackThemeSlug,
+    fallbackThemeSlug,
     customThemes,
     store: store,
   })

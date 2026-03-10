@@ -784,15 +784,13 @@ export async function bundle(input: UnknownObject | string, config: Config) {
     // Recursively traverse all child properties of the current object to resolve nested $ref references.
     // This step ensures that any $refs located deeper within the object hierarchy are discovered and processed.
     // We explicitly skip the extension keys (x-ext and x-ext-urls) to avoid reprocessing already bundled or mapped content.
-    await Promise.all(
-      Object.entries(root).map(async ([key, value]) => {
-        if (key === config.externalDocumentsKey || key === config.externalDocumentsMappingsKey) {
-          return
-        }
+    for (const key in root) {
+      if (key === config.externalDocumentsKey || key === config.externalDocumentsMappingsKey) {
+        continue
+      }
 
-        await bundler(value, id ?? origin, isChunkParent, depth + 1, [...currentPath, key], root as UnknownObject)
-      }),
-    )
+      await bundler(root[key], id ?? origin, isChunkParent, depth + 1, [...currentPath, key], root as UnknownObject)
+    }
 
     await executeHooks('onAfterNodeProcess', root as UnknownObject, context)
   }

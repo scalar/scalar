@@ -1,4 +1,4 @@
-# Scalar API Reference for Fastify
+# API Reference for Fastify
 
 The easiest way to render a beautiful API reference with Fastify. All based on your OpenAPI/Swagger document.
 

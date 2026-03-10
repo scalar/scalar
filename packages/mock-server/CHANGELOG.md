@@ -1,5 +1,30 @@
 # @scalar/mock-server
 
+## 0.9.3
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/oas-utils@0.10.2**
+
+- **@scalar/openapi-parser@0.25.1**
+
+- **@scalar/openapi-upgrader@0.2.0**
+
+## 0.9.2
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/json-magic@0.12.1**
+  - [#8357](https://github.com/scalar/scalar/pull/8357): chore: improve performance and memory usage of bundler
+
+- **@scalar/oas-utils@0.10.1**
+
+- **@scalar/openapi-parser@0.25.1**
+
 ## 0.9.1
 
 ### Patch Changes
