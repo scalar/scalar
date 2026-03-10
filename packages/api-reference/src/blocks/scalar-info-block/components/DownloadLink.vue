@@ -4,11 +4,13 @@ import { type WorkspaceEventBus } from '@scalar/workspace-store/events'
 
 import Badge from '@/components/Badge/Badge.vue'
 
-const { eventBus, documentDownloadType } = defineProps<{
+const { eventBus, documentDownloadType, documentDownloadUrl } = defineProps<{
   /** The document download type. */
   documentDownloadType: ApiReferenceConfiguration['documentDownloadType']
   /** The event bus for the handling all events. */
   eventBus: WorkspaceEventBus
+  /** Source URL used for direct download link mode. */
+  documentDownloadUrl?: string
 }>()
 
 // The id is retrieved at the layout level.
@@ -18,26 +20,31 @@ const handleDownloadClick = (format: 'json' | 'yaml' | 'direct') => {
 </script>
 <template>
   <div
-    v-if="['yaml', 'json', 'both', 'direct'].includes(documentDownloadType)"
+    v-if="
+      ['yaml', 'json', 'both'].includes(documentDownloadType) ||
+      (documentDownloadType === 'direct' && !!documentDownloadUrl)
+    "
     class="download-container group"
     :class="{
       'download-both': documentDownloadType === 'both',
     }">
+    <!-- Direct URL -->
+    <a
+      v-if="documentDownloadType === 'direct' && documentDownloadUrl"
+      class="download-button"
+      :href="documentDownloadUrl"
+      rel="noopener noreferrer"
+      target="_blank">
+      <span> Download OpenAPI Document </span>
+      <Badge class="extension hidden group-hover:flex">json</Badge>
+    </a>
+
     <!-- JSON  -->
     <button
-      v-if="
-        documentDownloadType === 'json' ||
-        documentDownloadType === 'both' ||
-        documentDownloadType === 'direct'
-      "
+      v-if="documentDownloadType === 'json' || documentDownloadType === 'both'"
       class="download-button"
       type="button"
-      @click.prevent="
-        () =>
-          handleDownloadClick(
-            documentDownloadType === 'direct' ? 'direct' : 'json',
-          )
-      ">
+      @click.prevent="() => handleDownloadClick('json')">
       <span> Download OpenAPI Document </span>
       <Badge class="extension hidden group-hover:flex">json</Badge>
     </button>

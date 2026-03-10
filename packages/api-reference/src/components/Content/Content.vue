@@ -105,6 +105,7 @@ const securitySchemes = computed(() =>
       <InfoBlock
         :id="infoSectionId"
         :documentDownloadType="options.documentDownloadType"
+        :documentDownloadUrl="document?.['x-scalar-original-source-url']"
         :documentExtensions
         :eventBus
         :externalDocs="document?.externalDocs"

@@ -40,6 +40,7 @@ describe('DownloadLink', () => {
       props: {
         eventBus: mockEventBus,
         documentDownloadType: config.value.documentDownloadType,
+        documentDownloadUrl: 'https://example.com/openapi.json',
         ...props,
       },
     })
@@ -144,6 +145,30 @@ describe('DownloadLink', () => {
       // Click YAML button
       await buttons[1]?.trigger('click')
       expect(mockEventBus.emit).toHaveBeenCalledWith('ui:download:document', { format: 'yaml' })
+    })
+  })
+
+  describe('Direct download type', () => {
+    it('renders direct link when documentDownloadType is direct', () => {
+      const wrapper = createWrapper({ documentDownloadType: 'direct' })
+
+      const link = wrapper.find('a.download-button')
+      expect(link.exists()).toBe(true)
+      expect(link.attributes('href')).toBe('https://example.com/openapi.json')
+      expect(link.attributes('target')).toBe('_blank')
+    })
+
+    it('does not emit download event when documentDownloadType is direct', async () => {
+      const wrapper = createWrapper({ documentDownloadType: 'direct' })
+
+      await wrapper.find('a.download-button').trigger('click')
+      expect(mockEventBus.emit).not.toHaveBeenCalled()
+    })
+
+    it('does not render container for direct mode when url is missing', () => {
+      const wrapper = createWrapper({ documentDownloadType: 'direct' }, { documentDownloadUrl: undefined })
+
+      expect(wrapper.find('.download-container').exists()).toBe(false)
     })
   })
 
