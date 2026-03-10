@@ -70,7 +70,7 @@ export const syncParametersForPathChange = <T extends MinimalParameterObject>(
   const newPositions = getParameterPositions(newPath, newPathParams)
 
   // Keep a map of path parameters by name for quick lookup (references unchanged objects)
-  const pathParameters: Record<string, ReferenceType<T>> = {}
+  const pathParameters: Record<string, ReferenceType<T>> = Object.create(null)
 
   // Populate the map with the existing path parameters
   for (const param of existingParameters) {
