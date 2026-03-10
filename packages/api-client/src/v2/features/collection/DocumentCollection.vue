@@ -14,7 +14,7 @@ export default {
 
 <script setup lang="ts">
 import { ScalarButton } from '@scalar/components'
-import { ScalarIconDownload, ScalarIconFloppyDisk } from '@scalar/icons'
+import { ScalarIconFloppyDisk } from '@scalar/icons'
 import { LibraryIcon } from '@scalar/icons/library'
 import { computed } from 'vue'
 import { RouterView } from 'vue-router'
@@ -22,7 +22,6 @@ import { RouterView } from 'vue-router'
 import IconSelector from '@/components/IconSelector.vue'
 import Callout from '@/v2/components/callout/Callout.vue'
 import type { RouteProps } from '@/v2/features/app/helpers/routes'
-import { downloadAsFile } from '@/v2/helpers'
 
 import LabelInput from './components/LabelInput.vue'
 import Tabs from './components/Tabs.vue'
@@ -43,18 +42,6 @@ const undoChanges = () => {
 
 const saveChanges = () => {
   props.workspaceStore.saveDocument(props.documentSlug)
-}
-
-/** Downloads the document as a JSON file using the last saved state. */
-const downloadDocument = () => {
-  const content = props.workspaceStore.exportDocument(
-    props.documentSlug,
-    'json',
-    false,
-  )
-  if (!content) return
-  const baseName = title.value.replace(/[^\w\s-]/g, '').trim() || 'document'
-  downloadAsFile(content, `${baseName}.json`)
 }
 </script>
 
@@ -123,17 +110,6 @@ const downloadDocument = () => {
                 (title) => eventBus.emit('document:update:info', { title })
               " />
           </div>
-          <ScalarButton
-            class="text-c-2 hover:text-c-1 flex shrink-0 items-center gap-2"
-            size="xs"
-            type="button"
-            variant="ghost"
-            @click="downloadDocument">
-            <ScalarIconDownload
-              size="sm"
-              thickness="1.5" />
-            <span>Download document</span>
-          </ScalarButton>
         </div>
       </div>
 
