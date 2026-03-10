@@ -1,5 +1,15 @@
 # @scalar/agent-chat
 
+## 0.9.4
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-client@2.36.0**
+  - [#8396](https://github.com/scalar/scalar/pull/8396): feat: preselect correct authentication for document and operation
+  - [#8394](https://github.com/scalar/scalar/pull/8394): chore: rollback export document button
+
 ## 0.9.3
 
 ### Patch Changes

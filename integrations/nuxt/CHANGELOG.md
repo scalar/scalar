@@ -1,5 +1,17 @@
 # @scalar/nuxt
 
+## 0.6.5
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-client@2.36.0**
+  - [#8396](https://github.com/scalar/scalar/pull/8396): feat: preselect correct authentication for document and operation
+  - [#8394](https://github.com/scalar/scalar/pull/8394): chore: rollback export document button
+
+- **@scalar/api-reference@1.48.4**
+
 ## 0.6.4
 
 ### Patch Changes

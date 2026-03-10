@@ -1,5 +1,15 @@
 # @scalar/api-client
 
+## 2.36.0
+
+### Minor Changes
+
+- [#8396](https://github.com/scalar/scalar/pull/8396): feat: preselect correct authentication for document and operation
+
+### Patch Changes
+
+- [#8394](https://github.com/scalar/scalar/pull/8394): chore: rollback export document button
+
 ## 2.35.0
 
 ### Minor Changes
