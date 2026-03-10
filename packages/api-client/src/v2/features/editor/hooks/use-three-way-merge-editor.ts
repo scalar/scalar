@@ -6,7 +6,9 @@ import { type MaybeRefOrGetter, computed, markRaw, ref, shallowRef, toValue, wat
 
 import { rangeToWholeLine } from '@/v2/features/editor'
 import { createJsonModel } from '@/v2/features/editor/helpers/json/create-json-model'
-import type { EditorModel } from '@/v2/features/editor/helpers/model'
+import { ensureJsonPointerLinkSupport } from '@/v2/features/editor/helpers/json/json-pointer-links'
+import { parseJsonPointerPath } from '@/v2/features/editor/helpers/json/json-pointer-path'
+import type { EditorModel, Path } from '@/v2/features/editor/helpers/model'
 
 export type ConflictResolutionState = 'manual' | 'local' | 'remote' | 'ignore' | 'idle'
 
@@ -99,6 +101,7 @@ export function useThreeWayMergeEditor(options: UseThreeWayMergeEditorOptions): 
   const resultEditor = shallowRef<monaco.editor.IStandaloneDiffEditor>()
 
   let resultCodeLensProviderDisposable: monaco.IDisposable | undefined
+  let jsonPointerLinkSupportDispose: (() => void) | undefined
   const codeLensCommandDisposables: monaco.IDisposable[] = []
 
   const normalizeConflicts = computed(() => {
@@ -266,6 +269,27 @@ export function useThreeWayMergeEditor(options: UseThreeWayMergeEditorOptions): 
     })
     const resultModifiedEditor = resultDiffEditor.getModifiedEditor()
     resultModifiedEditor.updateOptions({ codeLens: true })
+
+    const focusResultPath = async (path: Path): Promise<void> => {
+      const range = await modifiedResultModel.getRangeFromPath(path)
+      if (!range) {
+        return
+      }
+      const safeRange = new monaco.Range(range.startLineNumber, range.startColumn, range.endLineNumber, range.endColumn)
+      resultModifiedEditor.setSelection(safeRange)
+      resultModifiedEditor.revealRangeNearTop(safeRange)
+    }
+
+    const navigateJsonPointer = async (pointer: string): Promise<void> => {
+      const path = parseJsonPointerPath(pointer)
+      if (!path) {
+        return
+      }
+      await focusResultPath(path)
+    }
+
+    const linkSupport = ensureJsonPointerLinkSupport(navigateJsonPointer)
+    jsonPointerLinkSupportDispose = linkSupport.dispose
 
     let resultHighlightDecorations: string[] = []
     let suppressedChangeEvents = 0
@@ -500,6 +524,8 @@ export function useThreeWayMergeEditor(options: UseThreeWayMergeEditorOptions): 
   const dispose = (): void => {
     resultCodeLensProviderDisposable?.dispose()
     resultCodeLensProviderDisposable = undefined
+    jsonPointerLinkSupportDispose?.()
+    jsonPointerLinkSupportDispose = undefined
     codeLensCommandDisposables.forEach((d) => d.dispose())
     codeLensCommandDisposables.length = 0
   }
