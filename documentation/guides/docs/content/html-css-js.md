@@ -184,7 +184,7 @@ The `scripts` array allows you to include custom JavaScript files in your docume
 ```json
 // scalar.config.json
 {
-  "$schema": "https://registry.scalar.com/@scalar/schemas/config
+  "$schema": "https://registry.scalar.com/@scalar/schemas/config",
   "scalar": "2.0.0",
   "siteConfig": {
     "head": {
@@ -221,7 +221,7 @@ The `styles` array allows you to include custom CSS files to customize the appea
 ```json
 // scalar.config.json
 {
-  "$schema": "https://registry.scalar.com/@scalar/schemas/config
+  "$schema": "https://registry.scalar.com/@scalar/schemas/config",
   "scalar": "2.0.0",
   "siteConfig": {
     "head": {
@@ -251,7 +251,7 @@ The `meta` array allows you to add meta tags for SEO, social sharing (Open Graph
 ```json
 // scalar.config.json
 {
-  "$schema": "https://registry.scalar.com/@scalar/schemas/config
+  "$schema": "https://registry.scalar.com/@scalar/schemas/config",
   "scalar": "2.0.0",
   "siteConfig": {
     "head": {
@@ -350,7 +350,7 @@ The `links` array allows you to add link elements to the `<head>`, commonly used
 ```json
 // scalar.config.json
 {
-  "$schema": "https://registry.scalar.com/@scalar/schemas/config
+  "$schema": "https://registry.scalar.com/@scalar/schemas/config",
   "scalar": "2.0.0",
   "siteConfig": {
     "head": {

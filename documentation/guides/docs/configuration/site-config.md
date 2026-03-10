@@ -27,7 +27,7 @@ The `logo` property defines your site's logo displayed in the navigation. You ca
 ```json
 // scalar.config.json
 {
-  "$schema": "https://registry.scalar.com/@scalar/schemas/config
+  "$schema": "https://registry.scalar.com/@scalar/schemas/config",
   "scalar": "2.0.0",
   "siteConfig": {
     "logo": "https://example.com/logo.svg"
@@ -42,7 +42,7 @@ For better visibility across themes, provide different logos for light and dark 
 ```json
 // scalar.config.json
 {
-  "$schema": "https://registry.scalar.com/@scalar/schemas/config
+  "$schema": "https://registry.scalar.com/@scalar/schemas/config",
   "scalar": "2.0.0",
   "siteConfig": {
     "logo": {
@@ -68,7 +68,7 @@ The `theme` property sets a platform-defined theme for your documentation site.
 ```json
 // scalar.config.json
 {
-  "$schema": "https://registry.scalar.com/@scalar/schemas/config
+  "$schema": "https://registry.scalar.com/@scalar/schemas/config",
   "scalar": "2.0.0",
   "siteConfig": {
     "theme": "purple"
@@ -89,7 +89,7 @@ The `layout` property controls global layout options that apply to all pages unl
 ```json
 // scalar.config.json
 {
-  "$schema": "https://registry.scalar.com/@scalar/schemas/config
+  "$schema": "https://registry.scalar.com/@scalar/schemas/config",
   "scalar": "2.0.0",
   "siteConfig": {
     "layout": {
@@ -116,7 +116,7 @@ The `head` property allows you to inject custom elements into the HTML `<head>` 
 ```json
 // scalar.config.json
 {
-  "$schema": "https://registry.scalar.com/@scalar/schemas/config
+  "$schema": "https://registry.scalar.com/@scalar/schemas/config",
   "scalar": "2.0.0",
   "siteConfig": {
     "head": {
@@ -257,7 +257,7 @@ The `footer` property allows you to add a custom footer to your documentation si
 ```json
 // scalar.config.json
 {
-  "$schema": "https://registry.scalar.com/@scalar/schemas/config
+  "$schema": "https://registry.scalar.com/@scalar/schemas/config",
   "scalar": "2.0.0",
   "siteConfig": {
     "footer": {
@@ -286,7 +286,7 @@ Set up redirects to handle URL changes or aliases:
 ```json
 // scalar.config.json
 {
-  "$schema": "https://registry.scalar.com/@scalar/schemas/config
+  "$schema": "https://registry.scalar.com/@scalar/schemas/config",
   "scalar": "2.0.0",
   "siteConfig": {
     "routing": {

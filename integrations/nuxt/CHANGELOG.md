@@ -1,5 +1,21 @@
 # @scalar/nuxt
 
+## 0.6.3
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.48.2**
+  - [#8381](https://github.com/scalar/scalar/pull/8381): feat: add mcp config support
+  - [#8375](https://github.com/scalar/scalar/pull/8375): feat(api-reference): export lazy bus queue helper
+  - [#8370](https://github.com/scalar/scalar/pull/8370): fix: hide the authentication panel when test requests are disabled
+
+- **@scalar/types@0.7.1**
+  - [#8381](https://github.com/scalar/scalar/pull/8381): feat: add mcp config support
+
+- **@scalar/api-client@2.34.1**
+
 ## 0.6.2
 
 ### Patch Changes

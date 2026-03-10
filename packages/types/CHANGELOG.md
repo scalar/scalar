@@ -1,5 +1,11 @@
 # @scalar/types
 
+## 0.7.1
+
+### Patch Changes
+
+- [#8381](https://github.com/scalar/scalar/pull/8381): feat: add mcp config support
+
 ## 0.7.0
 
 ### Minor Changes

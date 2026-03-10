@@ -11,6 +11,8 @@ import SchemaEnumPropertyItem from './SchemaEnumPropertyItem.vue'
 const { value } = defineProps<{
   /** The schema object containing enum values and metadata */
   value: SchemaObject | undefined
+  /** Whether to display the enum for property names */
+  propertyNames?: boolean
 }>()
 
 const ENUM_DISPLAY_THRESHOLD = 9
@@ -106,6 +108,16 @@ const toggleExpanded = () => {
   <div
     v-if="enumValues.length > 0"
     class="property-enum">
+    <div
+      v-if="propertyNames"
+      class="property-enum-property-names">
+      property names
+    </div>
+    <div
+      v-else
+      class="property-enum-property-names">
+      values
+    </div>
     <ul class="property-enum-values">
       <!-- Visible enum values -->
       <SchemaEnumPropertyItem
@@ -168,5 +180,13 @@ const toggleExpanded = () => {
 
 .enum-toggle-button:hover {
   color: var(--scalar-color-1);
+}
+
+.property-enum-property-names {
+  font-size: var(--scalar-font-size-4);
+  color: var(--scalar-color-2);
+  display: inline-block;
+  padding: 0 2px;
+  margin-top: 8px;
 }
 </style>

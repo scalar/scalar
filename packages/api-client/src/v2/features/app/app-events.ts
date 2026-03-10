@@ -25,7 +25,7 @@ export function initializeAppEventHandlers({
   rebuildSidebar: (documentName?: string) => void
   navigateToCurrentTab: () => Promise<void>
   onSelectSidebarItem: (id: string) => void
-  onAfterExampleCreation: (o: OperationExampleMeta) => void
+  onAfterExampleCreation: (o: OperationExampleMeta & { documentName?: string }) => void
   onCopyTabUrl: (tabIndex: number) => void
   onToggleSidebar: () => void
   renameWorkspace: (name: string) => Promise<void>
@@ -177,6 +177,27 @@ export function initializeAppEventHandlers({
                 method,
                 documentSlug: documentName,
                 exampleName: 'default',
+              },
+            })
+          }
+        },
+      },
+      'operation:rename:example': {
+        onAfterExecute: async ({ meta, payload, documentName }) => {
+          // Refresh sidebar
+          onAfterExampleCreation({ ...meta, exampleKey: payload.name, documentName })
+
+          // Redirect to the new example if the mutation was successful and we are currently on the example
+          if (
+            isRouteParamsMatch({ documentName, path: meta.path, method: meta.method, exampleName: meta.exampleKey })
+          ) {
+            await router.replace({
+              name: 'example',
+              params: {
+                documentSlug: documentName,
+                pathEncoded: encodeURIComponent(meta.path),
+                method: meta.method,
+                exampleName: payload.name,
               },
             })
           }

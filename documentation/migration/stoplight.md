@@ -152,7 +152,7 @@ Copy and paste that chunk of JSON out of there, and make the following changes.
 
 ```json
 {
-  "$schema": "https://registry.scalar.com/@scalar/schemas/config
+  "$schema": "https://registry.scalar.com/@scalar/schemas/config",
   "scalar": "2.0.0",
   "siteConfig": {
     "subdomain": "name-of-your-api"

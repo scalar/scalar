@@ -1,5 +1,28 @@
 # @scalar/api-client
 
+## 2.34.1
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/types@0.7.1**
+  - [#8381](https://github.com/scalar/scalar/pull/8381): feat: add mcp config support
+
+- **@scalar/oas-utils@0.10.2**
+
+- **@scalar/openapi-parser@0.25.1**
+
+- **@scalar/snippetz@0.7.1**
+
+- **@scalar/workspace-store@0.38.1**
+
+- **@scalar/components@0.20.3**
+
+- **@scalar/sidebar@0.8.3**
+
+- **@scalar/use-codemirror@0.14.3**
+
 ## 2.34.0
 
 ### Minor Changes

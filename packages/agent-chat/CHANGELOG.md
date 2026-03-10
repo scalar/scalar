@@ -1,5 +1,20 @@
 # @scalar/agent-chat
 
+## 0.9.2
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/types@0.7.1**
+  - [#8381](https://github.com/scalar/scalar/pull/8381): feat: add mcp config support
+
+- **@scalar/api-client@2.34.1**
+
+- **@scalar/workspace-store@0.38.1**
+
+- **@scalar/components@0.20.3**
+
 ## 0.9.1
 
 ### Patch Changes

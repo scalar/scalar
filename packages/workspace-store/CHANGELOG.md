@@ -1,5 +1,18 @@
 # @scalar/workspace-store
 
+## 0.38.1
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/types@0.7.1**
+  - [#8381](https://github.com/scalar/scalar/pull/8381): feat: add mcp config support
+
+- **@scalar/openapi-upgrader@0.2.0**
+
+- **@scalar/snippetz@0.7.1**
+
 ## 0.38.0
 
 ### Minor Changes
