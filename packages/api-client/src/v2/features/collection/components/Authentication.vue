@@ -148,6 +148,7 @@ const handleToggleOperationSecurity = (value: boolean) => {
     })
   }
 
+  // Clear the operation security so document level authentication is used
   return eventBus.emit('auth:clear:selected-security-schemes', {
     meta: authMeta.value,
   })
