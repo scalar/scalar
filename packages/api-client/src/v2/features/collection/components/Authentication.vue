@@ -3,11 +3,13 @@ import { ScalarToggle } from '@scalar/components'
 import { isHttpMethod } from '@scalar/helpers/http/is-http-method'
 import type { AuthMeta } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import { unpackProxyObject } from '@scalar/workspace-store/helpers/unpack-proxy'
 import { computed, ref, watchEffect } from 'vue'
 
 import { AuthSelector } from '@/v2/blocks/scalar-auth-selector-block'
 import type { CollectionProps } from '@/v2/features/app/helpers/routes'
 import { getDefaultOperationSecurityToggle } from '@/v2/features/collection/helpers/get-default-operation-security-toggle'
+import { getSelectedSecurity } from '@/v2/features/operation'
 import Section from '@/v2/features/settings/components/Section.vue'
 import { getServers } from '@/v2/helpers'
 import { getActiveProxyUrl } from '@/v2/helpers/get-active-proxy-url'
@@ -67,20 +69,26 @@ watchEffect(() => {
   })
 })
 
-/** Compute the selected security for the operation or document based on the current collection type */
+/** Resolved selected security for the current collection (operation or document), with defaults applied */
 const selectedSecurity = computed(() => {
   if (collectionType === 'operation') {
-    return workspaceStore.auth.getAuthSelectedSchemas({
+    const fromStore = workspaceStore.auth.getAuthSelectedSchemas({
       type: 'operation',
       documentName: documentSlug,
       path: path ?? '',
       method: method ?? 'get',
     })
+    return getSelectedSecurity(
+      undefined,
+      fromStore,
+      operation.value?.security ?? [],
+    )
   }
-  return workspaceStore.auth.getAuthSelectedSchemas({
+  const fromStore = workspaceStore.auth.getAuthSelectedSchemas({
     type: 'document',
     documentName: documentSlug,
   })
+  return getSelectedSecurity(fromStore, undefined, document?.security ?? [])
 })
 
 /** Compute the security requirements for the operation or document based on the current collection type */
@@ -124,19 +132,17 @@ const server = computed(() => {
  * When disabled (`value` is false), reverts to using document-level authentication instead.
  */
 const handleToggleOperationSecurity = (value: boolean) => {
-  // Only toggle for operation collections
   if (authMeta.value.type !== 'operation') {
     return
   }
 
-  // Toggle the operation security
   useOperationSecurity.value = value
 
   if (value) {
-    // Initailize with an empty array of requirements and schemes for operation-level authentication
-    // So we can read it from the operation object
+    // Use the same resolved selection as the UI; unpack so the event payload is plain objects
+    const { selectedSchemes } = selectedSecurity.value
     return eventBus.emit('auth:update:selected-security-schemes', {
-      selectedRequirements: [],
+      selectedRequirements: unpackProxyObject(selectedSchemes, { depth: 1 }),
       newSchemes: [],
       meta: authMeta.value,
     })
