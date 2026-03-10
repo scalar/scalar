@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useLoadingState } from '@scalar/components'
 import { ScalarIconArrowUpRight } from '@scalar/icons'
+import { isValidUrl } from '@scalar/oas-utils/helpers'
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
 import { useToasts } from '@scalar/use-toasts'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
@@ -32,7 +33,7 @@ const name = encodeURIComponent(props.config?.name ?? '')
 const cursorLink = `cursor://anysphere.cursor-deeplink/mcp/install?name=${name}&config=${encoded}`
 const vscodeLink = `vscode:mcp/install?${encodeURIComponent(JSON.stringify(props.config ?? {}))}`
 
-const tempDocUrl = defineModel<string>('url')
+const docUrl = defineModel<string>('url')
 
 /** Generate and open the registration link */
 async function generateRegisterLink() {
@@ -40,9 +41,9 @@ async function generateRegisterLink() {
     return
   }
 
-  // If we have already have a temporary document URL, use it
-  if (tempDocUrl.value) {
-    openRegisterLink(tempDocUrl.value)
+  // If we have already have a document URL that is valid
+  if (docUrl.value && isValidUrl(docUrl.value)) {
+    openRegisterLink(docUrl.value)
     return
   }
 
@@ -57,9 +58,9 @@ async function generateRegisterLink() {
   }
 
   try {
-    tempDocUrl.value = await uploadTempDocument(document)
+    docUrl.value = await uploadTempDocument(document)
     await loader.validate()
-    openRegisterLink(tempDocUrl.value)
+    openRegisterLink(docUrl.value)
 
     await nextTick()
 
