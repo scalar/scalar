@@ -77,6 +77,7 @@ async function generateRegisterLink() {
 function openRegisterLink(docUrl: string) {
   const url = new URL(DASHBOARD_REGISTER_URL)
   url.searchParams.set('url', docUrl)
+  url.searchParams.set('createMcp', 'true')
 
   window.open(url.toString(), '_blank')
 }
