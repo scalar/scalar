@@ -65,6 +65,10 @@ export const persistencePlugin = async ({
   initializePersistenceLifecycleListeners()
 
   const dispose = (): void => {
+    // Flush any pending writes and clear timers before removing from the set.
+    // Otherwise pending data can be lost if the workspace is torn down and a
+    // lifecycle event (e.g. pagehide) never fires or fires after the callback was removed.
+    flushAll()
     pendingFlushes.delete(flushAll)
   }
 

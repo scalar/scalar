@@ -78,6 +78,17 @@ describe('persistence-plugin', () => {
     expect(secondPluginDebounce.flushAll).toHaveBeenCalledTimes(1)
   })
 
+  it('dispose flushes pending writes and cleans up before removing from pendingFlushes', async () => {
+    const { persistencePlugin } = await import('./persistence')
+
+    const plugin = await persistencePlugin({ workspaceId: 'workspace-1' })
+    const debounced = debounceSpy.mock.results[0]?.value
+
+    plugin.dispose?.()
+
+    expect(debounced.flushAll).toHaveBeenCalledTimes(1)
+  })
+
   it('dispose removes flushAll from pendingFlushes so only remaining plugins are flushed', async () => {
     const { persistencePlugin } = await import('./persistence')
 
