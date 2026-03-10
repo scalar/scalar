@@ -6,11 +6,7 @@
  * @param filename - The name of the file to save (e.g. "my-api.json").
  * @param mimeType - Optional MIME type for the blob. Defaults to "application/json".
  */
-export function downloadAsFile(
-  content: string,
-  filename: string,
-  mimeType = 'application/json',
-): void {
+export function downloadAsFile(content: string, filename: string, mimeType = 'application/json'): void {
   const blob = new Blob([content], { type: mimeType })
   const url = URL.createObjectURL(blob)
   const link = document.createElement('a')

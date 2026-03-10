@@ -124,7 +124,7 @@ const downloadDocument = () => {
               " />
           </div>
           <ScalarButton
-            class="text-c-2 hover:text-c-1 shrink-0 flex items-center gap-2"
+            class="text-c-2 hover:text-c-1 flex shrink-0 items-center gap-2"
             size="xs"
             type="button"
             variant="ghost"
