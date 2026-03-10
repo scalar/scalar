@@ -21,8 +21,9 @@
 To first access the Registry you need to [create an account](https://dashboard.scalar.com/register) or [sign in](https://dashboard.scalar.com/login).
 
 Once authenticated you will see your dashboard, you have two options to interface with the Registry:
-- [Scalar dashboard](https://dashboard.scalar.com)
-- [Scalar CLI](cli.md)
+
+- [Dashboard](https://dashboard.scalar.com)
+- [CLI](cli.md)
 - [GitHub Actions](github-actions.md)
 
 <div class="mt-6">
