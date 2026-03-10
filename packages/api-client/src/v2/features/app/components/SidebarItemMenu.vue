@@ -208,7 +208,11 @@ const handleEditExample = () => {
       </ScalarDropdownItem>
       <ScalarDropdownDivider
         v-if="
-          (canAddExample() || canAddOperation() || canAddTag()) && canDelete()
+          (canAddExample() ||
+            canAddOperation() ||
+            canAddTag() ||
+            canEditExample()) &&
+          canDelete()
         " />
       <ScalarDropdownItem
         v-if="canDelete()"
