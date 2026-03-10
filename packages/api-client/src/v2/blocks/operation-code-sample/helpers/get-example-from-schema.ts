@@ -287,7 +287,7 @@ const handleObjectSchema = (
     const propertyNamesEnum = hasCustomName ? undefined : getPropertyNamesEnumValues(schema)
 
     const additionalName = hasCustomName
-      ? (additional as Record<string, string>)['x-additionalPropertiesName']!.trim()
+      ? (additional as unknown as Record<string, string>)['x-additionalPropertiesName']!.trim()
       : DEFAULT_ADDITIONAL_PROPERTIES_NAME
 
     const additionalValue = isAnyType
