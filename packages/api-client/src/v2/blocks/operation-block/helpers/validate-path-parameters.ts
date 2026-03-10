@@ -5,6 +5,19 @@ import { isParamDisabled } from '@/v2/blocks/request-block/helpers/is-param-disa
 
 import { getExample } from './get-example'
 
+export type ValidatePathParametersResult = { ok: true } | { ok: false; invalidParams: string[] }
+
+/** Treats undefined, null, and blank/whitespace strings as empty. */
+const isEmptyParamValue = (value: unknown): boolean => {
+  if (value === undefined || value === null) {
+    return true
+  }
+  if (typeof value === 'string') {
+    return value.trim() === ''
+  }
+  return false
+}
+
 /**
  * Validates that all required path parameters have non-empty values.
  *
@@ -14,29 +27,24 @@ import { getExample } from './get-example'
 export const validatePathParameters = (
   parameters: ReferenceType<ParameterObject>[] = [],
   exampleKey: string = 'default',
-): string[] => {
-  const emptyParams: string[] = []
+): ValidatePathParametersResult => {
+  const invalidParams: string[] = []
 
   for (const referencedParam of parameters) {
     const param = getResolvedRef(referencedParam)
-
     if (param.in !== 'path') {
       continue
     }
 
     const example = getExample(param, exampleKey, undefined)
-
-    // If disabled, skip validation
     if (isParamDisabled(param, example)) {
       continue
     }
 
-    // Check if the example value is empty
-    const value = example?.value
-    if (value === undefined || value === null || (typeof value === 'string' && value.trim() === '')) {
-      emptyParams.push(param.name)
+    if (isEmptyParamValue(example?.value)) {
+      invalidParams.push(param.name)
     }
   }
 
-  return emptyParams
+  return invalidParams.length > 0 ? { ok: false, invalidParams } : { ok: true }
 }

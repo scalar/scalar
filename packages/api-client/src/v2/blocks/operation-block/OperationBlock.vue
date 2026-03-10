@@ -182,9 +182,11 @@ const cancelRequest = () => abortController.value?.abort(ERRORS.REQUEST_ABORTED)
 
 /** Execute the current operation example */
 const handleExecute = async () => {
-  // Block request if required path parameters are empty
-  const emptyPathParams = validatePathParameters(operation.parameters ?? [], exampleKey)
-  if (emptyPathParams.length > 0) {
+  const pathValidation = validatePathParameters(
+    operation.parameters ?? [],
+    exampleKey,
+  )
+  if (pathValidation.ok === false) {
     toast('Path parameters must have values.', 'error')
     return
   }

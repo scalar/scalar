@@ -13,22 +13,22 @@ const createPathParam = (name: string, value: unknown) =>
   }) as ParameterObject
 
 describe('validatePathParameters', () => {
-  it('returns empty array when all path params have values', () => {
+  it('returns ok: true when all path params have values', () => {
     const params = [createPathParam('userId', '123')]
-    expect(validatePathParameters(params)).toEqual([])
+    expect(validatePathParameters(params)).toEqual({ ok: true })
   })
 
-  it('returns param names for empty string values', () => {
+  it('returns invalidParams for empty string values', () => {
     const params = [createPathParam('userId', '')]
-    expect(validatePathParameters(params)).toEqual(['userId'])
+    expect(validatePathParameters(params)).toEqual({ ok: false, invalidParams: ['userId'] })
   })
 
-  it('returns param names for whitespace-only values', () => {
+  it('returns invalidParams for whitespace-only values', () => {
     const params = [createPathParam('userId', '   ')]
-    expect(validatePathParameters(params)).toEqual(['userId'])
+    expect(validatePathParameters(params)).toEqual({ ok: false, invalidParams: ['userId'] })
   })
 
-  it('returns param names when no example exists', () => {
+  it('returns invalidParams when no example exists', () => {
     const params = [
       {
         name: 'userId',
@@ -36,17 +36,17 @@ describe('validatePathParameters', () => {
         required: true,
       } as ParameterObject,
     ]
-    expect(validatePathParameters(params)).toEqual(['userId'])
+    expect(validatePathParameters(params)).toEqual({ ok: false, invalidParams: ['userId'] })
   })
 
-  it('returns param names for undefined values', () => {
+  it('returns invalidParams for undefined values', () => {
     const params = [createPathParam('userId', undefined)]
-    expect(validatePathParameters(params)).toEqual(['userId'])
+    expect(validatePathParameters(params)).toEqual({ ok: false, invalidParams: ['userId'] })
   })
 
-  it('returns param names for null values', () => {
+  it('returns invalidParams for null values', () => {
     const params = [createPathParam('userId', null)]
-    expect(validatePathParameters(params)).toEqual(['userId'])
+    expect(validatePathParameters(params)).toEqual({ ok: false, invalidParams: ['userId'] })
   })
 
   it('ignores non-path parameters', () => {
@@ -58,25 +58,28 @@ describe('validatePathParameters', () => {
         example: '',
       } as ParameterObject,
     ]
-    expect(validatePathParameters(params)).toEqual([])
+    expect(validatePathParameters(params)).toEqual({ ok: true })
   })
 
-  it('returns multiple empty param names', () => {
+  it('returns multiple invalid param names', () => {
     const params = [createPathParam('orgId', ''), createPathParam('userId', '')]
-    expect(validatePathParameters(params)).toEqual(['orgId', 'userId'])
+    expect(validatePathParameters(params)).toEqual({
+      ok: false,
+      invalidParams: ['orgId', 'userId'],
+    })
   })
 
   it('only returns empty params, not filled ones', () => {
     const params = [createPathParam('orgId', 'acme'), createPathParam('userId', '')]
-    expect(validatePathParameters(params)).toEqual(['userId'])
+    expect(validatePathParameters(params)).toEqual({ ok: false, invalidParams: ['userId'] })
   })
 
-  it('returns empty array for empty parameters list', () => {
-    expect(validatePathParameters([])).toEqual([])
+  it('returns ok: true for empty parameters list', () => {
+    expect(validatePathParameters([])).toEqual({ ok: true })
   })
 
-  it('returns empty array for undefined parameters', () => {
-    expect(validatePathParameters(undefined)).toEqual([])
+  it('returns ok: true for undefined parameters', () => {
+    expect(validatePathParameters(undefined)).toEqual({ ok: true })
   })
 
   it('skips disabled path parameters', () => {
@@ -91,12 +94,12 @@ describe('validatePathParameters', () => {
         },
       } as unknown as ParameterObject,
     ]
-    expect(validatePathParameters(params)).toEqual([])
+    expect(validatePathParameters(params)).toEqual({ ok: true })
   })
 
   it('accepts numeric values', () => {
     const params = [createPathParam('userId', 42)]
-    expect(validatePathParameters(params)).toEqual([])
+    expect(validatePathParameters(params)).toEqual({ ok: true })
   })
 
   it('uses the provided exampleKey', () => {
@@ -111,9 +114,10 @@ describe('validatePathParameters', () => {
         },
       } as unknown as ParameterObject,
     ]
-    // default key → empty
-    expect(validatePathParameters(params, 'default')).toEqual(['userId'])
-    // custom key → has value
-    expect(validatePathParameters(params, 'custom')).toEqual([])
+    expect(validatePathParameters(params, 'default')).toEqual({
+      ok: false,
+      invalidParams: ['userId'],
+    })
+    expect(validatePathParameters(params, 'custom')).toEqual({ ok: true })
   })
 })
