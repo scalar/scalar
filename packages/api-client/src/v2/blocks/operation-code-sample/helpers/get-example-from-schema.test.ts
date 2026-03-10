@@ -1425,6 +1425,76 @@ describe('getExampleFromSchema', () => {
         'score': 1,
       })
     })
+
+    it('uses first propertyNames enum value as example key', () => {
+      expect(
+        getExampleFromSchema({
+          type: 'object',
+          additionalProperties: {
+            type: 'string',
+          },
+          propertyNames: {
+            type: 'string',
+            enum: ['enabled', 'disabled'],
+            title: 'DnssecStatus',
+          },
+        } as SchemaObject),
+      ).toMatchObject({
+        'enabled': '',
+      })
+    })
+
+    it('uses first propertyNames enum value with integer values', () => {
+      expect(
+        getExampleFromSchema({
+          type: 'object',
+          additionalProperties: {
+            type: 'integer',
+          },
+          propertyNames: {
+            type: 'string',
+            enum: ['cpu', 'memory', 'disk'],
+          },
+        } as SchemaObject),
+      ).toMatchObject({
+        'cpu': 1,
+      })
+    })
+
+    it('prefers x-additionalPropertiesName over propertyNames', () => {
+      expect(
+        getExampleFromSchema({
+          type: 'object',
+          additionalProperties: {
+            type: 'string',
+            'x-additionalPropertiesName': 'customName',
+          },
+          propertyNames: {
+            type: 'string',
+            enum: ['foo', 'bar'],
+          },
+        } as SchemaObject),
+      ).toMatchObject({
+        'customName': '',
+      })
+    })
+
+    it('falls back to default name when propertyNames has no enum', () => {
+      expect(
+        getExampleFromSchema({
+          type: 'object',
+          additionalProperties: {
+            type: 'string',
+          },
+          propertyNames: {
+            type: 'string',
+            minLength: 1,
+          },
+        } as SchemaObject),
+      ).toMatchObject({
+        'additionalProperty': '',
+      })
+    })
   })
 
   it('works with anyOf', () => {
