@@ -37,7 +37,6 @@ const handleDownloadClick = (format: 'json' | 'yaml' | 'direct') => {
       class="download-link download-button"
       :href="documentUrl">
       <span> Download OpenAPI Document </span>
-      <Badge class="extension hidden group-hover:flex">json</Badge>
     </a>
 
     <!-- JSON  -->
