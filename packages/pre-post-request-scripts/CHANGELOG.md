@@ -1,5 +1,16 @@
 # @scalar/scripts
 
+## 0.3.4
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/oas-utils@0.10.3**
+  - [#8253](https://github.com/scalar/scalar/pull/8253): feat(api-reference): support propertyNames enum for additionalProperties
+
+- **@scalar/components@0.20.4**
+
 ## 0.3.3
 
 ### Patch Changes

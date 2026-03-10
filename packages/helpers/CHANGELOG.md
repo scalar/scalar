@@ -1,5 +1,11 @@
 # @scalar/helpers
 
+## 0.4.0
+
+### Minor Changes
+
+- [#8336](https://github.com/scalar/scalar/pull/8336): feat: support flushing any pending operations
+
 ## 0.3.0
 
 ### Minor Changes

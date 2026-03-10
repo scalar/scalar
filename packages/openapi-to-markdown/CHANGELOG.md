@@ -1,5 +1,26 @@
 # @scalar/openapi-to-markdown
 
+## 0.4.4
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/openapi-parser@0.25.2**
+  - [#8359](https://github.com/scalar/scalar/pull/8359): fix(openapi-parser): replace $dynamicRef with $ref in v3.2 schema for AJV compatibility
+
+- **@scalar/helpers@0.4.0**
+  - [#8336](https://github.com/scalar/scalar/pull/8336): feat: support flushing any pending operations
+
+- **@scalar/oas-utils@0.10.3**
+  - [#8253](https://github.com/scalar/scalar/pull/8253): feat(api-reference): support propertyNames enum for additionalProperties
+
+- **@scalar/components@0.20.4**
+
+- **@scalar/types@0.7.2**
+
+- **@scalar/openapi-upgrader@0.2.0**
+
 ## 0.4.3
 
 ### Patch Changes

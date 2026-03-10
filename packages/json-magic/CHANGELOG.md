@@ -1,5 +1,14 @@
 # @scalar/json-magic
 
+## 0.12.2
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/helpers@0.4.0**
+  - [#8336](https://github.com/scalar/scalar/pull/8336): feat: support flushing any pending operations
+
 ## 0.12.1
 
 ### Patch Changes

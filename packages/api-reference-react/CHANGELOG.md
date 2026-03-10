@@ -1,5 +1,19 @@
 # @scalar/api-reference-react
 
+## 0.9.4
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.48.3**
+  - [#8257](https://github.com/scalar/scalar/pull/8257): fix: display the referenced name
+  - [#8253](https://github.com/scalar/scalar/pull/8253): feat(api-reference): support propertyNames enum for additionalProperties
+  - [#8385](https://github.com/scalar/scalar/pull/8385): fix: relative / invalid URLs being passed to open MCP registration flow
+  - [#8391](https://github.com/scalar/scalar/pull/8391): Create instant MCP in the dashboard in localhost
+
+- **@scalar/types@0.7.2**
+
 ## 0.9.3
 
 ### Patch Changes

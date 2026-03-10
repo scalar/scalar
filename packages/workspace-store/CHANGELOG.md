@@ -1,5 +1,32 @@
 # @scalar/workspace-store
 
+## 0.39.0
+
+### Minor Changes
+
+- [#8349](https://github.com/scalar/scalar/pull/8349): feat: support operation example rename
+
+### Patch Changes
+
+- [#8372](https://github.com/scalar/scalar/pull/8372): fix: avoid inlining $ref path parameters during path parameter sync
+- [#8336](https://github.com/scalar/scalar/pull/8336): fix: sidebar title update and detect delete operaitons for proxy
+- [#8253](https://github.com/scalar/scalar/pull/8253): feat(api-reference): support propertyNames enum for additionalProperties
+
+#### Updated Dependencies
+
+- **@scalar/helpers@0.4.0**
+  - [#8336](https://github.com/scalar/scalar/pull/8336): feat: support flushing any pending operations
+
+- **@scalar/json-magic@0.12.2**
+
+- **@scalar/object-utils@1.3.1**
+
+- **@scalar/types@0.7.2**
+
+- **@scalar/openapi-upgrader@0.2.0**
+
+- **@scalar/snippetz@0.7.2**
+
 ## 0.38.1
 
 ### Patch Changes
