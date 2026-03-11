@@ -81,9 +81,6 @@ const runLazyBus = () => {
 
   isRunning.value = true
 
-  /** Disable intersection while we run the lazy bus  */
-  const unblock = blockIntersection()
-
   /**
    * Sets all the pending elements into the ready queue
    * After waiting for Vue to update the DOM we execute the callbacks and unblock intersection
@@ -93,7 +90,6 @@ const runLazyBus = () => {
     const pendingIds = [...pendingQueue]
 
     if (priorityIds.length === 0 && pendingIds.length === 0) {
-      unblock()
       isRunning.value = false
       firstLazyLoadComplete.value = true
       return
@@ -112,7 +108,6 @@ const runLazyBus = () => {
 
     onRenderComplete.forEach((fn) => fn())
     onRenderComplete.clear()
-    unblock()
     isRunning.value = false
     firstLazyLoadComplete.value = true
   }
