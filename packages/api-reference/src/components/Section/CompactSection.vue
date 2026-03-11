@@ -62,6 +62,7 @@ const emit = defineEmits<{
   font-size: var(--scalar-font-size-3);
   z-index: 1;
   position: relative;
+  scroll-margin-top: var(--refs-viewport-offset);
 }
 .collapsible-section-trigger svg {
   color: var(--scalar-color-3);
