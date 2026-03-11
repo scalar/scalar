@@ -5,8 +5,8 @@ import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/o
 import { encode, fromUint8Array } from 'js-base64'
 
 import type { ErrorResponse } from '@/libs/errors'
-import type { OAuthFlowsObjectSecret } from '@/v2/blocks/scalar-auth-selector-block/helpers/secret-types'
 import { getServerUrl } from '@/v2/blocks/operation-block/helpers/get-server-url'
+import type { OAuthFlowsObjectSecret } from '@/v2/blocks/scalar-auth-selector-block/helpers/secret-types'
 
 /** Oauth2 security schemes which are not implicit */
 type NonImplicitFlows = Omit<OAuthFlowsObjectSecret, 'implicit'>
@@ -116,7 +116,7 @@ export const authorizeOauth2 = async (
     const state = (Math.random() + 1).toString(36).substring(2, 10)
 
     const authorizationUrl = makeUrlAbsolute(
-      flows[type]!.authorizationUrl,
+      flows[type]!['x-scalar-secret-auth-url'] ?? flows[type]!.authorizationUrl,
       getActiveServerBase(activeServer, environmentVariables),
     )
 
@@ -360,7 +360,10 @@ const authorizeServers = async (
     }
 
     // Check if we should use the proxy
-    const tokenUrl = makeUrlAbsolute(flow.tokenUrl, getActiveServerBase(activeServer, environmentVariables))
+    const tokenUrl = makeUrlAbsolute(
+      flow['x-scalar-secret-token-url'] ?? flow.tokenUrl,
+      getActiveServerBase(activeServer, environmentVariables),
+    )
     const url = shouldUseProxy(proxyUrl, tokenUrl)
       ? `${proxyUrl}?${new URLSearchParams([['scalar_url', tokenUrl]]).toString()}`
       : tokenUrl
