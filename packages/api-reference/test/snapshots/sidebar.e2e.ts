@@ -37,6 +37,8 @@ toTest.forEach((source) => {
     // Expand the tag
     const nav = page.getByRole('navigation', { name: 'Sidebar for' })
 
+    await page.goto(`${example}#${slug}/models`)
+
     // Wait for the sidebar to load
     await expect(nav.getByRole('button', { name: 'Models' })).toBeVisible()
     await expect(page).toHaveScreenshot(`${slug}-sidebar.png`, opts)
