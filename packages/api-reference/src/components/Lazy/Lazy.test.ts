@@ -12,10 +12,53 @@ const ricController = mockRequestIdleCallbackController()
 
 const LAZY_DEBOUNCE_TIME = 300
 
+/** Callback and element from the IntersectionObserver mock so tests can trigger intersection. */
+let intersectionObserverCallback: ((entries: IntersectionObserverEntry[]) => void) | null = null
+let observedElement: Element | null = null
+
+function createIntersectionObserverMock() {
+  return class MockIntersectionObserver implements IntersectionObserver {
+    callback: IntersectionObserverCallback
+    constructor(callback: IntersectionObserverCallback) {
+      this.callback = callback
+      intersectionObserverCallback = callback as (entries: IntersectionObserverEntry[]) => void
+    }
+    observe(target: Element) {
+      observedElement = target
+    }
+    disconnect = vi.fn()
+    unobserve = vi.fn()
+    takeRecords = vi.fn(() => [])
+    root = null
+    rootMargin = ''
+    thresholds = [] as number[]
+  }
+}
+
+/** Call to simulate the observed element entering the viewport so requestLazyRender runs. */
+function triggerIntersection() {
+  if (intersectionObserverCallback && observedElement) {
+    intersectionObserverCallback([
+      {
+        isIntersecting: true,
+        target: observedElement,
+        boundingClientRect: {} as DOMRectReadOnly,
+        intersectionRatio: 1,
+        intersectionRect: {} as DOMRectReadOnly,
+        rootBounds: null,
+        time: 0,
+      } as IntersectionObserverEntry,
+    ])
+  }
+}
+
 describe('lazy rendering', () => {
   beforeEach(() => {
     vi.useFakeTimers()
     vi.stubGlobal('requestIdleCallback', ricController.mock)
+    intersectionObserverCallback = null
+    observedElement = null
+    vi.stubGlobal('IntersectionObserver', createIntersectionObserverMock())
   })
   afterEach(() => {
     vi.useRealTimers()
@@ -33,13 +76,14 @@ describe('lazy rendering', () => {
 
     await nextTick()
     await nextTick()
-    // The initial run of the lazy bus is debounced for 300ms to we need to wait for it to run
-    vi.advanceTimersByTime(LAZY_DEBOUNCE_TIME + 50)
 
-    // Not rendered yet
+    // Not rendered yet (observer does not fire by default)
     expect(wrapper.html()).not.toContain('Test Content')
-    expect(wrapper.find('.lazy-placeholder').exists()).toBe(true)
+    expect(wrapper.find('[data-testid="lazy-container"]').exists()).toBe(true)
 
+    // Simulate element entering viewport so it is added to the queue
+    triggerIntersection()
+    vi.advanceTimersByTime(LAZY_DEBOUNCE_TIME + 50)
     ricController.runNext()
 
     await nextTick()
@@ -70,7 +114,6 @@ describe('lazy rendering', () => {
   })
 
   it('handles browsers without requestIdleCallback support', async () => {
-    // Remove requestIdleCallback from window
     vi.stubGlobal('requestIdleCallback', undefined)
 
     expect(window.requestIdleCallback).toBeUndefined()
@@ -84,12 +127,12 @@ describe('lazy rendering', () => {
 
     await nextTick()
 
-    // Not rendered yet
+    // Not rendered yet (observer does not fire by default)
     expect(wrapper.html()).not.toContain('Test Content')
 
-    // When requestIdleCallback is not available, it uses lazyTimeout ?? DEFAULT_LAZY_TIMEOUT
+    // Trigger intersection so item is added to queue; without requestIdleCallback, runLazyBus uses nextTick(processQueue)
+    triggerIntersection()
     vi.advanceTimersByTime(LAZY_DEBOUNCE_TIME + 50)
-
     await nextTick()
     await nextTick()
 
@@ -121,8 +164,9 @@ describe('lazy rendering', () => {
 
     await nextTick()
 
-    expect(wrapper.find('.lazy-placeholder').exists()).toBe(true)
+    expect(wrapper.find('[data-testid="lazy-container"]').exists()).toBe(true)
 
+    triggerIntersection()
     vi.advanceTimersByTime(LAZY_DEBOUNCE_TIME + 50)
     ricController.runNext()
 
