@@ -32,8 +32,6 @@ useIntersection(section, () => emit('intersecting'))
 
   /* Offset by header height to line up scroll position */
   scroll-margin-top: var(--refs-viewport-offset);
-}
-.section:has(~ div.contents) {
   border-bottom: var(--scalar-border-width) solid var(--scalar-border-color);
 }
 .references-classic .section {
@@ -45,8 +43,5 @@ useIntersection(section, () => emit('intersecting'))
   .section {
     padding: 48px 24px;
   }
-}
-.section:not(:last-of-type) {
-  border-bottom: var(--scalar-border-width) solid var(--scalar-border-color);
 }
 </style>
