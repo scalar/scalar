@@ -14,7 +14,10 @@ const { schema, isCollapsed, id, options, eventBus } = defineProps<{
   name: string
   options: Pick<
     ApiReferenceConfigurationRaw,
-    'layout' | 'orderRequiredPropertiesFirst' | 'orderSchemaPropertiesBy'
+    | 'layout'
+    | 'orderRequiredPropertiesFirst'
+    | 'orderSchemaPropertiesBy'
+    | 'hideModelExamples'
   >
   schema: SchemaObject | undefined
   isCollapsed: boolean
@@ -33,6 +36,7 @@ useIntersection(section, () => eventBus?.emit('intersecting:nav-item', { id }))
       v-if="options.layout === 'classic'"
       :id
       :eventBus
+      :hideModelExamples="options.hideModelExamples"
       :isCollapsed
       :name
       :options
@@ -41,6 +45,7 @@ useIntersection(section, () => eventBus?.emit('intersecting:nav-item', { id }))
       v-else
       :id
       :eventBus
+      :hideModelExamples="options.hideModelExamples"
       :isCollapsed
       :name
       :options

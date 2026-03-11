@@ -40,6 +40,7 @@ const { document, items, environment, eventBus, options, authStore } =
       | 'documentDownloadType'
       | 'expandAllResponses'
       | 'hiddenClients'
+      | 'hideModelExamples'
       | 'hideTestRequestButton'
       | 'layout'
       | 'orderRequiredPropertiesFirst'

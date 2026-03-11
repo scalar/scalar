@@ -45,6 +45,7 @@ const {
   options: Pick<
     ApiReferenceConfigurationRaw,
     | 'expandAllResponses'
+    | 'hideModelExamples'
     | 'hideTestRequestButton'
     | 'layout'
     | 'orderRequiredPropertiesFirst'

@@ -56,6 +56,12 @@ export const apiReferenceConfigurationSchema = baseConfigurationSchema.extend({
    */
   hideModels: z.boolean().optional().default(false).catch(false),
   /**
+   * Whether to hide auto-generated example JSON in the Models section.
+   * When false (default), each model shows an example JSON payload alongside its schema.
+   * @default false
+   */
+  hideModelExamples: z.boolean().optional().default(false).catch(false),
+  /**
    * Sets the file type of the document to download, set to `none` to hide the download button
    * @default 'both'
    */
