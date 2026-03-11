@@ -234,10 +234,10 @@ const handleSecretLocationUpdate = (value: string): void =>
   <template v-else>
     <DataTableRow>
       <RequestAuthDataTableInput
-        v-if="flow['x-scalar-secret-auth-url']"
+        v-if="'authorizationUrl' in flow"
         containerClass="border-r-0"
         :environment
-        :modelValue="flow['x-scalar-secret-auth-url']"
+        :modelValue="flow['x-scalar-secret-auth-url'] ?? ''"
         placeholder="https://galaxy.scalar.com/authorize"
         @update:modelValue="
           (v) => {
@@ -249,9 +249,9 @@ const handleSecretLocationUpdate = (value: string): void =>
       </RequestAuthDataTableInput>
 
       <RequestAuthDataTableInput
-        v-if="flow['x-scalar-secret-token-url']"
+        v-if="'tokenUrl' in flow"
         :environment
-        :modelValue="flow['x-scalar-secret-token-url']"
+        :modelValue="flow['x-scalar-secret-token-url'] ?? ''"
         placeholder="https://galaxy.scalar.com/token"
         @update:modelValue="
           (v) => {
