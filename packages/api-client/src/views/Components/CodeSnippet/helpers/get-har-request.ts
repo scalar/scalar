@@ -34,13 +34,20 @@ export const getHarRequest = ({
       ? Object.fromEntries(environment.map((v: any) => [v.key, v.value]))
       : environment || {}
 
+  const encodedPathVars = (example?.parameters?.path ?? []).reduce<Record<string, string>>((vars, param) => {
+    if (param.enabled) {
+      const substitutedValue = replaceTemplateVariables(param.value, env)
+      vars[param.key] = encodeURIComponent(substitutedValue)
+    }
+    return vars
+  }, {})
+
   const serverString = (() => {
     if (server?.url && (REGEX.VARIABLES.test(server.url) || REGEX.PATH.test(server.url))) {
       const serverParams = Object.entries(server?.variables || {}).reduce<Record<string, string>>(
         (acc, [key, variable]) => {
-          const pathParamValue = example?.parameters?.path.find((p) => p.enabled && p.key === key)?.value
-          if (pathParamValue) {
-            acc[key] = replaceTemplateVariables(pathParamValue, env)
+          if (encodedPathVars[key]) {
+            acc[key] = encodedPathVars[key]
           } else if (variable.default) {
             acc[key] = replaceTemplateVariables(variable.default, env)
           }
@@ -56,13 +63,7 @@ export const getHarRequest = ({
   const pathString = (() => {
     const path = operation?.path ?? '/'
     if (path && (REGEX.VARIABLES.test(path) || REGEX.PATH.test(path))) {
-      const pathVars = (example?.parameters?.path ?? []).reduce<Record<string, string>>((vars, param) => {
-        if (param.enabled) {
-          vars[param.key] = replaceTemplateVariables(param.value, env)
-        }
-        return vars
-      }, {})
-      return replaceTemplateVariables(replaceTemplateVariables(path, env), pathVars)
+      return replaceTemplateVariables(replaceTemplateVariables(path, env), encodedPathVars)
     }
     return path
   })()
