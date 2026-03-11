@@ -29,7 +29,7 @@ const hasChildren = computed(() => (tag?.children?.length ?? 0) > 0)
 <template>
   <SectionContainer
     :aria-labelledby="headerId"
-    class="tag-section-container"
+    class="tag-section-container divide-y"
     role="region">
     <!-- Lazy load this part -->
     <Lazy :id="tag.id">
@@ -52,7 +52,7 @@ const hasChildren = computed(() => (tag?.children?.length ?? 0) > 0)
     <!-- We cannot use v-else due to the Lazy wrapper, but its the opposite of above -->
     <div
       v-if="!(isCollapsed && moreThanOneTag)"
-      class="contents">
+      class="contents divide-y">
       <slot />
     </div>
   </SectionContainer>

@@ -34,7 +34,6 @@ const VIEWPORT_ROOT_MARGIN = `${VIEWPORT_OVERSCAN_PX}px 0px`
 
 const { isReady } = useLazyBus(id)
 const lazyContainerRef = ref<HTMLElement | null>(null)
-const lazyContentRef = ref<HTMLElement | null>(null)
 const isInViewport = ref(false)
 
 const placeholderHeight = ref(
@@ -85,8 +84,8 @@ onMounted(() => {
 watch(
   () => shouldRender.value,
   (rendered, wasRendered) => {
-    if (wasRendered && !rendered && lazyContentRef.value) {
-      const h = lazyContentRef.value.offsetHeight
+    if (wasRendered && !rendered && lazyContainerRef.value) {
+      const h = lazyContainerRef.value.offsetHeight
       if (Number.isFinite(h) && h > 0) {
         placeholderHeight.value = h
         setLazyPlaceholderHeight(id, h)
@@ -106,23 +105,23 @@ watch(
       return
     }
     void nextTick(() => {
-      if (!lazyContentRef.value || typeof ResizeObserver === 'undefined') {
+      if (!lazyContainerRef.value || typeof ResizeObserver === 'undefined') {
         return
       }
       if (!contentResizeObserver) {
         contentResizeObserver = new ResizeObserver(() => {
-          if (!lazyContentRef.value) {
+          if (!lazyContainerRef.value) {
             return
           }
-          const h = lazyContentRef.value.offsetHeight
+          const h = lazyContainerRef.value.offsetHeight
           if (Number.isFinite(h) && h > 0) {
             placeholderHeight.value = h
             setLazyPlaceholderHeight(id, h)
           }
         })
       }
-      contentResizeObserver.observe(lazyContentRef.value)
-      const h = lazyContentRef.value.offsetHeight
+      contentResizeObserver.observe(lazyContainerRef.value)
+      const h = lazyContainerRef.value.offsetHeight
       if (Number.isFinite(h) && h > 0) {
         placeholderHeight.value = h
         setLazyPlaceholderHeight(id, h)
@@ -138,24 +137,9 @@ onBeforeUnmount(() => {
 </script>
 <template>
   <div
-    :id="id"
+    :id
     ref="lazyContainerRef"
-    class="lazy-container">
-    <div
-      v-if="shouldRender"
-      ref="lazyContentRef">
-      <slot />
-    </div>
-    <div
-      v-else
-      class="lazy-placeholder"
-      :style="{ height: `${placeholderHeight}px` }" />
+    :style="{ height: shouldRender ? undefined : `${placeholderHeight}px` }">
+    <slot v-if="shouldRender" />
   </div>
 </template>
-
-<style scoped>
-.lazy-container,
-.lazy-placeholder {
-  width: 100%;
-}
-</style>
