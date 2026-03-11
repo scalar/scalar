@@ -14,6 +14,8 @@ test.describe
       await page.waitForTimeout(1000)
 
       expect(page.getByRole('heading', { name: 'Scalar Galaxy' })).toBeVisible()
+
+      await page.goto(`${url}#tag/planets`)
       expect(page.getByRole('heading', { name: 'Planets', level: 2 })).toBeVisible()
 
       shutdown()
