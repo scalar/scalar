@@ -1,7 +1,7 @@
 import type { HarRequest } from '@scalar/types/snippetz'
 import { describe, expect, it } from 'vitest'
 
-import { createSearchParams } from './http'
+import { createSearchParams, reduceQueryParams } from './http'
 
 describe('createSearchParams', () => {
   it('creates search params from empty query array', () => {
@@ -53,5 +53,30 @@ describe('createSearchParams', () => {
     const query: HarRequest['queryString'] = [{ name: 'encoded', value: 'hello%20world' }]
     const result = createSearchParams(query)
     expect(result.toString()).toBe('encoded=hello%2520world')
+  })
+})
+
+describe('reduceQueryParams', () => {
+  it('reduces unique query parameters to strings', () => {
+    const query: HarRequest['queryString'] = [
+      { name: 'foo', value: 'bar' },
+      { name: 'baz', value: 'qux' },
+    ]
+
+    expect(reduceQueryParams(query)).toEqual({
+      foo: 'bar',
+      baz: 'qux',
+    })
+  })
+
+  it('preserves repeated query parameters as arrays', () => {
+    const query: HarRequest['queryString'] = [
+      { name: 'statuses', value: 'active' },
+      { name: 'statuses', value: 'inactive' },
+    ]
+
+    expect(reduceQueryParams(query)).toEqual({
+      statuses: ['active', 'inactive'],
+    })
   })
 })
