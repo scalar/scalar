@@ -38,6 +38,8 @@ describe('OAuth2', () => {
           refreshUrl: 'https://example.com/token',
           'x-usePkce': 'no',
           scopes: { read: 'Read', write: 'Write' },
+          'x-scalar-secret-auth-url': 'test',
+          'x-scalar-secret-token-url': 'test',
         },
       } satisfies OAuthFlowsObject)
 
