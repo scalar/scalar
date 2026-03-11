@@ -29,7 +29,7 @@ const hasChildren = computed(() => (tag?.children?.length ?? 0) > 0)
 <template>
   <SectionContainer
     :aria-labelledby="headerId"
-    class="tag-section-container divide-y"
+    class="tag-section-container"
     role="region">
     <!-- Lazy load this part -->
     <Lazy :id="tag.id">
@@ -52,7 +52,7 @@ const hasChildren = computed(() => (tag?.children?.length ?? 0) > 0)
     <!-- We cannot use v-else due to the Lazy wrapper, but its the opposite of above -->
     <div
       v-if="!(isCollapsed && moreThanOneTag)"
-      class="contents divide-y">
+      class="contents">
       <slot />
     </div>
   </SectionContainer>
@@ -64,5 +64,23 @@ const hasChildren = computed(() => (tag?.children?.length ?? 0) > 0)
 }
 .section-container:has(.show-more) {
   background-color: color-mix(in srgb, var(--scalar-background-2), transparent);
+}
+
+/*
+ * Border between the tag header (inside Lazy wrapper) and operations below.
+ * Only applies when operations are visible (i.e. .contents sibling exists).
+ */
+.section-container > :first-child:has(~ .contents) {
+  border-bottom: var(--scalar-border-width) solid var(--scalar-border-color);
+}
+
+/*
+ * Borders between operations within a tag.
+ * .contents has display:contents so its children (Lazy wrappers) are
+ * layout children of .section-container, but CSS selectors still
+ * use the DOM tree.
+ */
+.contents > :not(:last-child) {
+  border-bottom: var(--scalar-border-width) solid var(--scalar-border-color);
 }
 </style>
