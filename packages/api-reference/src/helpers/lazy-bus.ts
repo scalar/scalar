@@ -21,6 +21,14 @@ const isRunning = ref(false)
 
 /** How long tryScroll keeps retrying to find the element (ms). Must exceed worst-case lazy-bus delay. */
 const SCROLL_RETRY_MS = 3000
+/** Number of non-priority lazy elements rendered per idle cycle. */
+const LAZY_BATCH_SIZE = 20
+/** Number of priority lazy elements rendered per idle cycle. */
+const PRIORITY_BATCH_SIZE = 6
+/** Keep the ready queue bounded so we do not keep all lazy sections mounted forever. */
+const MAX_READY_QUEUE_SIZE = 120
+/** Keep recently requested priority ids mounted to avoid immediate churn after navigation. */
+const RETAINED_PRIORITY_LIMIT = 48
 
 /** Tracks when the initial load is complete.
  * We will have placeholder content to allow the active item to be scrolled to the top while
@@ -32,11 +40,142 @@ export const firstLazyLoadComplete = ref(false)
 const intersectionBlockers = reactive<Set<string>>(new Set())
 
 const onRenderComplete = new Set<() => void>()
+/** Maintains insertion order for ready ids so we can evict oldest entries first. */
+const readyQueueOrder: string[] = []
+/** Maintains recency order for priority ids so we can prioritize the latest viewport target. */
+const priorityQueueOrder: string[] = []
+/** Priority ids retained from eviction for a short rolling window. */
+const retainedPriorityIds = reactive<Set<string>>(new Set())
+const retainedPriorityOrder: string[] = []
+/** Cached heights used by lazy placeholders to stabilize scroll position. */
+const lazyPlaceholderHeights = reactive<Map<string, number>>(new Map())
 
 /** Adds a one time callback to be executed when the lazy bus has finished loading */
 const addLazyCompleteCallback = (callback: (() => void) | undefined) => {
   if (callback) {
     onRenderComplete.add(callback)
+  }
+}
+
+export const getLazyPlaceholderHeight = (id: string): number | undefined =>
+  lazyPlaceholderHeights.get(id)
+
+export const setLazyPlaceholderHeight = (id: string, height: number): void => {
+  if (!Number.isFinite(height) || height <= 0) {
+    return
+  }
+
+  lazyPlaceholderHeights.set(id, Math.round(height))
+}
+
+const touchReadyOrder = (id: string) => {
+  const existingIndex = readyQueueOrder.indexOf(id)
+  if (existingIndex >= 0) {
+    readyQueueOrder.splice(existingIndex, 1)
+  }
+  readyQueueOrder.push(id)
+}
+
+const touchPriorityOrder = (id: string) => {
+  const existingIndex = priorityQueueOrder.indexOf(id)
+  if (existingIndex >= 0) {
+    priorityQueueOrder.splice(existingIndex, 1)
+  }
+  priorityQueueOrder.push(id)
+}
+
+const removePriorityOrder = (id: string) => {
+  const existingIndex = priorityQueueOrder.indexOf(id)
+  if (existingIndex >= 0) {
+    priorityQueueOrder.splice(existingIndex, 1)
+  }
+}
+
+const addToReadyQueue = (id: string) => {
+  if (!readyQueue.has(id)) {
+    readyQueue.add(id)
+  }
+
+  touchReadyOrder(id)
+}
+
+const retainPriorityId = (id: string) => {
+  retainedPriorityIds.add(id)
+
+  const existingIndex = retainedPriorityOrder.indexOf(id)
+  if (existingIndex >= 0) {
+    retainedPriorityOrder.splice(existingIndex, 1)
+  }
+  retainedPriorityOrder.push(id)
+
+  while (retainedPriorityOrder.length > RETAINED_PRIORITY_LIMIT) {
+    const oldestId = retainedPriorityOrder.shift()
+    if (oldestId) {
+      retainedPriorityIds.delete(oldestId)
+    }
+  }
+}
+
+const evictReadyQueue = () => {
+  if (readyQueue.size <= MAX_READY_QUEUE_SIZE) {
+    return
+  }
+
+  const isInViewport = (element: HTMLElement) => {
+    const rect = element.getBoundingClientRect()
+    return rect.bottom > 0 && rect.top < window.innerHeight
+  }
+
+  const isAboveViewport = (element: HTMLElement) => {
+    const rect = element.getBoundingClientRect()
+    return rect.bottom <= 0
+  }
+
+  const evictReadyEntry = (id: string) => {
+    const element = document.getElementById(id)
+
+    if (element && isInViewport(element)) {
+      return false
+    }
+
+    const shouldCompensateScroll = element ? isAboveViewport(element) : false
+    const removedHeight = shouldCompensateScroll ? element?.offsetHeight ?? 0 : 0
+
+    readyQueue.delete(id)
+    const readyIndex = readyQueueOrder.indexOf(id)
+    if (readyIndex >= 0) {
+      readyQueueOrder.splice(readyIndex, 1)
+    }
+
+    if (removedHeight > 0) {
+      // Keep the current content anchored when we evict items above the viewport.
+      window.scrollBy(0, -removedHeight)
+    }
+
+    return true
+  }
+
+  let cursor = 0
+
+  while (readyQueue.size > MAX_READY_QUEUE_SIZE && cursor < readyQueueOrder.length) {
+    const candidateId = readyQueueOrder[cursor]
+
+    if (!candidateId) {
+      cursor += 1
+      continue
+    }
+
+    const isPinned =
+      priorityQueue.has(candidateId) || retainedPriorityIds.has(candidateId)
+
+    if (isPinned) {
+      cursor += 1
+      continue
+    }
+
+    if (!evictReadyEntry(candidateId)) {
+      cursor += 1
+    }
   }
 }
 
@@ -68,42 +207,95 @@ const runLazyBus = () => {
     return
   }
 
+  if (isRunning.value) {
+    return
+  }
+
+  isRunning.value = true
+
   // Disable intersection while we run the lazy bus
   const unblock = blockIntersection()
 
   /**
-   * Sets all the pending elements into the ready queue
-   * After waiting for Vue to update the DOM we execute the callbacks and unblock intersection
+   * Moves a small batch into the ready queue so we do not mount too many sections at once.
+   * Priority entries are always rendered first.
    */
-  const processQueue = async () => {
-    if (pendingQueue.size > 0 || priorityQueue.size > 0) {
-      isRunning.value = true
+  const takeNextBatch = (): string[] => {
+    const batch: string[] = []
 
-      for (const id of [...pendingQueue, ...priorityQueue]) {
-        // Only add to readyQueue if not already there to avoid re-rendering
-        if (!readyQueue.has(id)) {
-          readyQueue.add(id)
-        }
-        pendingQueue.delete(id)
-        priorityQueue.delete(id)
+    for (let index = priorityQueueOrder.length - 1; index >= 0; index--) {
+      const id = priorityQueueOrder[index]
+      if (!id || !priorityQueue.has(id)) {
+        continue
+      }
+
+      batch.push(id)
+      if (batch.length >= PRIORITY_BATCH_SIZE) {
+        break
       }
     }
+
+    for (const id of pendingQueue) {
+      if (batch.length >= PRIORITY_BATCH_SIZE + LAZY_BATCH_SIZE) {
+        break
+      }
+
+      batch.push(id)
+    }
+
+    return batch
+  }
+
+  const scheduleNext = (runner: () => void) => {
+    if (window.requestIdleCallback) {
+      window.requestIdleCallback(runner, { timeout: 1500 })
+    } else {
+      setTimeout(runner, 0)
+    }
+  }
+
+  const processQueueBatch = async () => {
+    const batch = takeNextBatch()
+
+    if (!batch.length) {
+      unblock()
+      isRunning.value = false
+      firstLazyLoadComplete.value = true
+      return
+    }
+
+    for (const id of batch) {
+      addToReadyQueue(id)
+      pendingQueue.delete(id)
+      if (priorityQueue.delete(id)) {
+        removePriorityOrder(id)
+      }
+    }
+
+    evictReadyQueue()
 
     await nextTick()
 
     onRenderComplete.forEach((fn) => fn())
     onRenderComplete.clear()
+
+    if (pendingQueue.size > 0 || priorityQueue.size > 0) {
+      scheduleNext(() => {
+        // biome-ignore lint/nursery/noFloatingPromises: Expected floating promise
+        processQueueBatch()
+      })
+      return
+    }
+
     unblock()
     isRunning.value = false
     firstLazyLoadComplete.value = true
   }
 
-  if (window.requestIdleCallback) {
-    window.requestIdleCallback(processQueue, { timeout: 1500 })
-  } else {
+  scheduleNext(() => {
     // biome-ignore lint/nursery/noFloatingPromises: Expected floating promise
-    nextTick(processQueue)
-  }
+    processQueueBatch()
+  })
 }
 
 /**
@@ -142,13 +334,53 @@ export const addToPriorityQueue = (id: string | undefined) => {
   if (id && !priorityQueue.has(id)) {
     priorityQueue.add(id)
   }
+
+  if (id) {
+    touchPriorityOrder(id)
+    retainPriorityId(id)
+  }
+}
+
+/**
+ * Requests an item to be rendered again.
+ * Useful when an item was evicted from readyQueue and re-enters the viewport.
+ */
+export const requestLazyRender = (
+  id: string | undefined,
+  priority = false,
+): void => {
+  if (!id || readyQueue.has(id)) {
+    return
+  }
+
+  if (priority) {
+    addToPriorityQueue(id)
+  } else {
+    addToPendingQueue(id)
+  }
+
+  if (!isRunning.value) {
+    runLazyBus()
+  }
 }
 
 /** When an element is unmounted we remove it from all queues */
 const resetLazyElement = (id: string) => {
   priorityQueue.delete(id)
+  removePriorityOrder(id)
   pendingQueue.delete(id)
   readyQueue.delete(id)
+  retainedPriorityIds.delete(id)
+
+  const readyIndex = readyQueueOrder.indexOf(id)
+  if (readyIndex >= 0) {
+    readyQueueOrder.splice(readyIndex, 1)
+  }
+
+  const retainedIndex = retainedPriorityOrder.indexOf(id)
+  if (retainedIndex >= 0) {
+    retainedPriorityOrder.splice(retainedIndex, 1)
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -227,14 +459,8 @@ export const scrollToLazy = (
     }
   }
 
-  /** Scroll to the element targeted */
-  tryScroll(id, Date.now() + SCROLL_RETRY_MS, unblock, unfreeze)
-
+  /** Expand target and all parents first so their Lazy slots render and child placeholders mount. */
   setExpanded(rawId, true)
-  /**
-   * Recursively expand the parents and set them as a loading priority
-   * This ensures all parents will be immediately loaded and open
-   */
   const addParents = (currentId: string) => {
     const parent = getEntryById(currentId)?.parent
     if (parent) {
@@ -243,8 +469,12 @@ export const scrollToLazy = (
       addParents(parent.id)
     }
   }
-  /** Must use the rawId as schema params are not in the navigation tree */
   addParents(rawId)
+
+  /** Scroll after Vue has flushed so expanded parents render their slots and child placeholders mount. */
+  void nextTick(() => {
+    tryScroll(id, Date.now() + SCROLL_RETRY_MS, unblock, unfreeze)
+  })
 }
 
 /**

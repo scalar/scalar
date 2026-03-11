@@ -38,14 +38,14 @@ describe('lazy rendering', () => {
 
     // Not rendered yet
     expect(wrapper.html()).not.toContain('Test Content')
-    expect(wrapper.find('div').exists()).toBe(false)
+    expect(wrapper.find('.lazy-placeholder').exists()).toBe(true)
 
     ricController.runNext()
 
     await nextTick()
 
     expect(wrapper.html()).toContain('Test Content')
-    expect(wrapper.find('div').exists()).toBe(true)
+    expect(wrapper.find('.lazy-placeholder').exists()).toBe(false)
   })
 
   it('renders content immediately when the id is in the priority queue', async () => {
@@ -96,6 +96,21 @@ describe('lazy rendering', () => {
     expect(wrapper.html()).toContain('Test Content')
   })
 
+  it('renders slot when expanded so child placeholders mount for navigation', async () => {
+    const wrapper = mount(Lazy, {
+      props: { id: 'parent-id', expanded: true },
+      slots: {
+        default: '<div data-child>Child content</div>',
+      },
+    })
+
+    await nextTick()
+
+    // When expanded we render the slot even before isReady so child Lazy components mount.
+    expect(wrapper.html()).toContain('Child content')
+    expect(wrapper.find('[data-child]').exists()).toBe(true)
+  })
+
   it('handles empty slot content', async () => {
     const wrapper = mount(Lazy, {
       props: { id: 'test-id-4' },
@@ -106,15 +121,13 @@ describe('lazy rendering', () => {
 
     await nextTick()
 
-    // Should not crash with empty content - shows v-if comment when not rendered
-    expect(wrapper.html()).toBe('<!--v-if-->')
+    expect(wrapper.find('.lazy-placeholder').exists()).toBe(true)
 
     vi.advanceTimersByTime(LAZY_DEBOUNCE_TIME + 50)
     ricController.runNext()
 
     await nextTick()
 
-    // Should render empty content after lazy loading
-    expect(wrapper.html()).toBe('')
+    expect(wrapper.find('.lazy-placeholder').exists()).toBe(false)
   })
 })
