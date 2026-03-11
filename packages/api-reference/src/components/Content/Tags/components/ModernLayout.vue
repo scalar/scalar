@@ -52,7 +52,7 @@ const hasChildren = computed(() => (tag?.children?.length ?? 0) > 0)
     <!-- We cannot use v-else due to the Lazy wrapper, but its the opposite of above -->
     <div
       v-if="!(isCollapsed && moreThanOneTag)"
-      class="section-list contents divide-y">
+      class="section-list contents">
       <slot />
     </div>
   </SectionContainer>
