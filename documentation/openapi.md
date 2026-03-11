@@ -234,6 +234,33 @@ components:
 
 The additional properties appear in the documentation as `percentage*`.
 
+## x-order
+
+You can control the display order of schema properties with `x-order`. Properties with `x-order` are sorted by their numeric value (ascending) and displayed before properties without `x-order`.
+
+```diff
+openapi: 3.1.0
+info:
+  title: Example
+  version: 1.0
+components:
+  schemas:
+    Planet:
+      type: object
+      properties:
+        name:
+          type: string
++          x-order: 1
+        description:
+          type: string
++          x-order: 3
+        diameter:
+          type: number
++          x-order: 2
+```
+
+In this example, properties will be displayed in the order: `name`, `diameter`, `description`.
+
 ## x-scalar-stability
 
 You can show the stability of an endpoint by settings the `x-scalar-stability` to either `stable`, `experimental` or `deprecated`. The native `deprecated` property will take precedence.

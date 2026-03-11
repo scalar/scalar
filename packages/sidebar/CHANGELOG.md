@@ -1,5 +1,19 @@
 # @scalar/sidebar
 
+## 0.8.5
+
+### Patch Changes
+
+- [#8386](https://github.com/scalar/scalar/pull/8386): feat: add spacer slot to sidebar
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.39.1**
+  - [#8393](https://github.com/scalar/scalar/pull/8393): fix: correctly update active tab on tab close event
+  - [#8403](https://github.com/scalar/scalar/pull/8403): Persist auth url and token url in local storage
+
+- **@scalar/components@0.20.5**
+
 ## 0.8.4
 
 ### Patch Changes

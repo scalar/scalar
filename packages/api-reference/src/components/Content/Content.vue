@@ -105,6 +105,7 @@ const securitySchemes = computed(() =>
       :id="infoSectionId"
       :documentDownloadType="options.documentDownloadType"
       :documentExtensions
+      :documentUrl="document?.['x-scalar-original-source-url']"
       :eventBus
       :externalDocs="document?.externalDocs"
       :headingSlugGenerator

@@ -87,11 +87,18 @@ export const buildRequestBody = (
     return form
   }
 
+  const exampleValue =
+    example.value !== null && typeof example.value === 'object' ? unpackProxyObject(example.value) : example.value
+
+  if (exampleValue instanceof File) {
+    return exampleValue
+  }
+
   // Ensure we stringify the example value if it is an object
-  if (typeof example.value === 'object') {
-    return replaceEnvVariables(JSON.stringify(example.value), env)
+  if (typeof exampleValue === 'object') {
+    return replaceEnvVariables(JSON.stringify(exampleValue), env)
   }
 
   // Return binary or string values
-  return typeof example.value === 'string' ? replaceEnvVariables(example.value, env) : example.value
+  return typeof exampleValue === 'string' ? replaceEnvVariables(exampleValue, env) : exampleValue
 }

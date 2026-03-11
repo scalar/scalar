@@ -13,6 +13,12 @@ import {
   type XScalarSecurityQuery,
   XScalarSecurityQuerySchema,
 } from '@/schemas/extensions/security/x-scalar-security-query'
+import {
+  type XScalarAuthUrl,
+  XScalarAuthUrlSchema,
+  type XScalarTokenUrl,
+  XScalarTokenUrlSchema,
+} from '@/schemas/extensions/security/x-scalar-security-secrets'
 import { type XTokenName, XTokenNameSchema } from '@/schemas/extensions/security/x-tokenName'
 import { type XusePkce, XusePkceSchema } from '@/schemas/extensions/security/x-use-pkce'
 
@@ -27,6 +33,8 @@ const OAuthFlowCommonSchema = compose(
   XScalarSecurityQuerySchema,
   XScalarSecurityBodySchema,
   XTokenNameSchema,
+  XScalarAuthUrlSchema,
+  XScalarTokenUrlSchema,
 )
 
 /** Common properties used across all OAuth flows */
@@ -37,7 +45,9 @@ type OAuthFlowCommon = {
   scopes: Record<string, string>
 } & XScalarSecurityQuery &
   XScalarSecurityBody &
-  XTokenName
+  XTokenName &
+  XScalarTokenUrl &
+  XScalarAuthUrl
 
 /** Configuration for the OAuth Implicit flow */
 export const OAuthFlowImplicitSchema = compose(

@@ -98,6 +98,31 @@ describe('pythonRequests', () => {
 )`)
   })
 
+  it('preserves repeated query parameters as arrays', () => {
+    const result = pythonRequests.generate({
+      url: 'https://example.com',
+      queryString: [
+        {
+          name: 'statuses',
+          value: 'active',
+        },
+        {
+          name: 'statuses',
+          value: 'inactive',
+        },
+      ],
+    })
+
+    expect(result).toBe(`requests.get("https://example.com",
+    params={
+      "statuses": [
+        "active",
+        "inactive"
+      ]
+    }
+)`)
+  })
+
   it('has cookies', () => {
     const result = pythonRequests.generate({
       url: 'https://example.com',

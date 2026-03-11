@@ -1,5 +1,15 @@
 # @scalar/oas-utils
 
+## 0.10.4
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.39.1**
+  - [#8393](https://github.com/scalar/scalar/pull/8393): fix: correctly update active tab on tab close event
+  - [#8403](https://github.com/scalar/scalar/pull/8403): Persist auth url and token url in local storage
+
 ## 0.10.3
 
 ### Patch Changes

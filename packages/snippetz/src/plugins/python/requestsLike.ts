@@ -1,5 +1,7 @@
 import type { HarRequest, PluginConfiguration } from '@scalar/types/snippetz'
 
+import { reduceQueryParams } from '@/libs/http'
+
 const LENGTH_CONSIDERED_AS_SHORT = 40
 
 // Function to convert JavaScript boolean and null values to Python equivalents
@@ -55,7 +57,7 @@ export function requestsLikeGenerate(
 
   // Add query parameters if present
   if (normalizedRequest.queryString?.length) {
-    options.params = Object.fromEntries(normalizedRequest.queryString.map((q) => [q.name, q.value]))
+    options.params = reduceQueryParams(normalizedRequest.queryString)
   }
 
   // Add cookies if present

@@ -1,5 +1,25 @@
 # @scalar/agent-chat
 
+## 0.9.5
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.39.1**
+  - [#8393](https://github.com/scalar/scalar/pull/8393): fix: correctly update active tab on tab close event
+  - [#8403](https://github.com/scalar/scalar/pull/8403): Persist auth url and token url in local storage
+
+- **@scalar/api-client@2.36.1**
+  - [#8403](https://github.com/scalar/scalar/pull/8403): Persist auth url and token url in local storage
+  - [#8402](https://github.com/scalar/scalar/pull/8402): Fix raw binary request bodies so uploaded files are sent correctly and code samples show file references.
+  - [#8398](https://github.com/scalar/scalar/pull/8398): fix code snippet HAR request URL generation to URL-encode substituted path parameter values, matching request sending behavior.
+  - [#8386](https://github.com/scalar/scalar/pull/8386): feat: app drag region for macos
+  - [#8408](https://github.com/scalar/scalar/pull/8408): Use the secret oauth urls before the default flow urls
+  - [#8407](https://github.com/scalar/scalar/pull/8407): Fix conditional rendering for token URL
+
+- **@scalar/components@0.20.5**
+
 ## 0.9.4
 
 ### Patch Changes

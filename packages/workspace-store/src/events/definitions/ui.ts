@@ -101,10 +101,11 @@ export type UIEvents = {
   /**
    * Download the OpenAPI document from the store.
    * Supports multiple export formats for different use cases.
+   * Direct download is handled by a link to the document URL, not this event.
    */
   'ui:download:document': {
     /** Format to download the document in */
-    format: 'json' | 'yaml' | 'direct'
+    format: 'json' | 'yaml'
   }
 
   // ────────────────────────────────────────────────────────────
