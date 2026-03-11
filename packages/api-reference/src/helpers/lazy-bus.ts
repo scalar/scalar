@@ -12,6 +12,10 @@ const priorityQueue = reactive<Set<string>>(new Set())
 const pendingQueue = reactive<Set<string>>(new Set())
 /** List of items that are already loaded and stay mounted (no eviction). */
 const readyQueue = reactive<Set<string>>(new Set())
+/**
+ * Flag to indicate if the lazy bus is currently running
+ * Blocks ID changes while running
+ */
 const isRunning = ref(false)
 
 /** How long tryScroll keeps retrying to find the element (ms). */
@@ -20,7 +24,9 @@ const SCROLL_RETRY_MS = 3000
 /** Tracks when the initial load is complete. */
 export const firstLazyLoadComplete = ref(false)
 
+/** List of unique identifiers that are blocking intersection */
 const intersectionBlockers = reactive<Set<string>>(new Set())
+
 const onRenderComplete = new Set<() => void>()
 
 /** Cached content heights so placeholders can match when not rendered. */
@@ -35,6 +41,7 @@ export const setLazyPlaceholderHeight = (id: string, height: number): void => {
   lazyPlaceholderHeights.set(id, Math.round(height))
 }
 
+/** Adds a one time callback to be executed when the lazy bus has finished loading */
 const addLazyCompleteCallback = (callback: (() => void) | undefined) => {
   if (callback) {
     onRenderComplete.add(callback)
@@ -50,9 +57,12 @@ type UnblockFn = () => void
 export const blockIntersection = (): UnblockFn => {
   const blockId = nanoid()
   intersectionBlockers.add(blockId)
+
+  /** Unblock uses a small delay to ensure the scroll is complete before enabling intersection */
   return () => setTimeout(() => intersectionBlockers.delete(blockId), 100)
 }
 
+/** If there are any pending blocking operations we disable intersection */
 export const intersectionEnabled = computed(() => intersectionBlockers.size === 0)
 
 /**
@@ -60,6 +70,7 @@ export const intersectionEnabled = computed(() => intersectionBlockers.size === 
  * rendering so the viewport does not jump. No eviction — items stay in readyQueue.
  */
 const runLazyBus = () => {
+  // We always render the lazy bus when the window is undefined (see useLazyBus)
   if (typeof window === 'undefined') {
     return
   }
@@ -69,8 +80,14 @@ const runLazyBus = () => {
   }
 
   isRunning.value = true
+
+  /** Disable intersection while we run the lazy bus  */
   const unblock = blockIntersection()
 
+  /**
+   * Sets all the pending elements into the ready queue
+   * After waiting for Vue to update the DOM we execute the callbacks and unblock intersection
+   */
   const processQueue = async () => {
     const priorityIds = [...priorityQueue]
     const pendingIds = [...pendingQueue]
@@ -95,26 +112,27 @@ const runLazyBus = () => {
 
     onRenderComplete.forEach((fn) => fn())
     onRenderComplete.clear()
-
     unblock()
     isRunning.value = false
     firstLazyLoadComplete.value = true
   }
 
   if (window.requestIdleCallback) {
-    window.requestIdleCallback(
-      () => {
-        // biome-ignore lint/nursery/noFloatingPromises: Expected floating promise
-        processQueue()
-      },
-      { timeout: 1500 },
-    )
+    window.requestIdleCallback(processQueue, { timeout: 1500 })
   } else {
     // biome-ignore lint/nursery/noFloatingPromises: Expected floating promise
     nextTick(processQueue)
   }
 }
 
+/**
+ * Run the lazy bus when the queue changes and is not currently running
+ * Debounce so that multiple changes to the queue are batched together
+ *
+ * We must run when the priority queue changes because we rely on finish callbacks
+ * anytime we request potentially lazy elements. If we don't run when the priority queue changes
+ * we may not have a finish callback even though the element is set to load.
+ */
 watchDebounced(
   [() => pendingQueue.size, () => priorityQueue.size, () => isRunning.value],
   () => {
@@ -125,12 +143,20 @@ watchDebounced(
   { debounce: 300, maxWait: 1500 },
 )
 
+/**
+ * We only make elements pending if they are not already in the priority or ready queue
+ */
 const addToPendingQueue = (id: string | undefined) => {
   if (id && !readyQueue.has(id) && !priorityQueue.has(id)) {
     pendingQueue.add(id)
   }
 }
 
+/**
+ * Add elements to the priority queue for immediate rendering.
+ * We allow adding items already in readyQueue so that callbacks are still triggered,
+ * but processQueue will skip actual re-rendering for items already ready.
+ */
 export const addToPriorityQueue = (id: string | undefined) => {
   if (id && !priorityQueue.has(id)) {
     priorityQueue.add(id)
@@ -154,6 +180,7 @@ export const requestLazyRender = (id: string | undefined, priority = false): voi
   }
 }
 
+/** When an element is unmounted we remove it from all queues */
 const resetLazyElement = (id: string) => {
   priorityQueue.delete(id)
   pendingQueue.delete(id)
@@ -188,19 +215,32 @@ export const scrollToLazy = (
   getEntryById: (id: string) => { id: string; parent?: { id: string }; children?: { id: string }[] } | undefined,
 ) => {
   const item = getEntryById(id)
+
+  /**
+   * If the element is lazy we must freeze the element so that it does not move until after the next lazy bus run
+   * If the element never loads then the scroll onFailure callback will be run to unfreeze the element
+   *
+   * If the readyQueue does not have the item we must freeze it while it renders
+   * If the item has lazy children we must freeze the item while the children are (potentially) loaded
+   */
   const isLazy = !readyQueue.has(id) || item?.children?.some((child) => !readyQueue.has(child.id))
+
   const unfreeze = isLazy ? freeze(id) : undefined
   addLazyCompleteCallback(unfreeze)
 
+  // Disable intersection while we scroll to the element
   const unblock = blockIntersection()
   const { rawId } = getSchemaParamsFromId(id)
 
   addToPriorityQueue(id)
   addToPriorityQueue(rawId)
 
+  // When there are children we ensure the first 2 are loaded
   if (item?.children) {
     item.children.slice(0, 2).forEach((child) => addToPriorityQueue(child.id))
   }
+
+  // When there are sibling items we attempt to load the next 2 to better fill the viewport
   if (item?.parent) {
     const parent = getEntryById(item.parent.id)
     const elementIdx = parent?.children?.findIndex((child) => child.id === id)
@@ -210,6 +250,10 @@ export const scrollToLazy = (
   }
 
   setExpanded(rawId, true)
+  /**
+   * Recursively expand the parents and set them as a loading priority
+   * This ensures all parents will be immediately loaded and open
+   */
   const addParents = (currentId: string) => {
     const parent = getEntryById(currentId)?.parent
     if (parent) {
@@ -218,6 +262,7 @@ export const scrollToLazy = (
       addParents(parent.id)
     }
   }
+  /** Must use the rawId as schema params are not in the navigation tree */
   addParents(rawId)
 
   void nextTick(() => {
@@ -225,6 +270,13 @@ export const scrollToLazy = (
   })
 }
 
+/**
+ * Tiny wrapper around the scrollIntoView API
+ * Retries up to the stopTime in case the element is not yet rendered
+ *
+ * @param id - The id of the element to scroll to
+ * @param stopTime - The time to stop retrying in unix milliseconds
+ */
 const tryScroll = (id: string, stopTime: number, onComplete: UnblockFn, onFailure?: () => void): void => {
   const element = document.getElementById(id)
   if (element) {
@@ -233,6 +285,7 @@ const tryScroll = (id: string, stopTime: number, onComplete: UnblockFn, onFailur
   } else if (Date.now() < stopTime) {
     requestAnimationFrame(() => tryScroll(id, stopTime, onComplete, onFailure))
   } else {
+    // If the scroll has expired we enable intersection again
     onComplete()
     onFailure?.()
   }
@@ -240,6 +293,11 @@ const tryScroll = (id: string, stopTime: number, onComplete: UnblockFn, onFailur
 
 const freeze = (id: string): (() => void) => {
   let stop = false
+
+  /**
+   * Runs until the stop flag is set
+   * Executes the final frame after stop changes to true
+   */
   const runFrame = (stopAfterFrame: boolean) => {
     const element = document.getElementById(id)
     if (element) {
@@ -249,7 +307,9 @@ const freeze = (id: string): (() => void) => {
       requestAnimationFrame(() => runFrame(stop))
     }
   }
+
   runFrame(false)
+
   return () => {
     stop = true
   }
