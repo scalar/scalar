@@ -8,14 +8,7 @@
  */
 
 import { useIntersectionObserver } from '@vueuse/core'
-import {
-  computed,
-  nextTick,
-  onBeforeUnmount,
-  onMounted,
-  ref,
-  watch,
-} from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 
 import {
   getLazyPlaceholderHeight,
@@ -24,7 +17,11 @@ import {
   useLazyBus,
 } from '@/helpers/lazy-bus'
 
-const { id, persist = false, expanded = false } = defineProps<{
+const {
+  id,
+  persist = false,
+  expanded = false,
+} = defineProps<{
   // Identifier for loaded event, if no ID is passed then no event is dispatched
   id: string
   /** Keep mounted once loaded (skip viewport unmounting). */
@@ -52,6 +49,7 @@ const placeholderHeight = ref(
 
 let contentResizeObserver: ResizeObserver | null = null
 let leaveViewportTimeout: number | undefined
+let measureRafId: number | undefined
 
 const shouldRender = computed(
   () =>
@@ -62,8 +60,15 @@ const shouldRender = computed(
       expanded),
 )
 
+/** Minimum change in px before we update; avoids scroll jank from sub-pixel and no-op updates. */
+const HEIGHT_UPDATE_THRESHOLD = 1
+
 const measureContent = (): void => {
   if (!lazyContentRef.value) {
+    return
+  }
+  // Do not update height while content is visible; avoids re-renders and scroll jump.
+  if (shouldRender.value) {
     return
   }
 
@@ -72,12 +77,33 @@ const measureContent = (): void => {
     return
   }
 
+  const current = placeholderHeight.value
+  if (Math.abs(nextHeight - current) < HEIGHT_UPDATE_THRESHOLD) {
+    return
+  }
+
   placeholderHeight.value = nextHeight
   setLazyPlaceholderHeight(id, nextHeight)
 }
 
+/** Capture current content height so placeholder matches when we switch (avoids scroll jump). */
+const captureHeightBeforeHide = (): void => {
+  if (!lazyContentRef.value) {
+    return
+  }
+  const h = lazyContentRef.value.offsetHeight
+  if (Number.isFinite(h) && h > 0) {
+    placeholderHeight.value = h
+    setLazyPlaceholderHeight(id, h)
+  }
+}
+
 watch(shouldRender, (rendered) => {
   if (!rendered) {
+    if (measureRafId !== undefined) {
+      cancelAnimationFrame(measureRafId)
+      measureRafId = undefined
+    }
     contentResizeObserver?.disconnect()
     return
   }
@@ -95,7 +121,13 @@ watch(shouldRender, (rendered) => {
 
     if (!contentResizeObserver) {
       contentResizeObserver = new ResizeObserver(() => {
-        measureContent()
+        if (measureRafId !== undefined) {
+          return
+        }
+        measureRafId = requestAnimationFrame(() => {
+          measureRafId = undefined
+          measureContent()
+        })
       })
     }
 
@@ -128,8 +160,11 @@ onMounted(() => {
         return
       }
 
+      // Only capture height when we actually hide (inside timeout), not on every scroll callback.
       leaveViewportTimeout = window.setTimeout(() => {
+        captureHeightBeforeHide()
         isInViewport.value = false
+        leaveViewportTimeout = undefined
       }, VIEWPORT_LEAVE_DELAY_MS)
     },
     { rootMargin: VIEWPORT_ROOT_MARGIN },
@@ -137,6 +172,9 @@ onMounted(() => {
 })
 
 onBeforeUnmount(() => {
+  if (measureRafId !== undefined) {
+    cancelAnimationFrame(measureRafId)
+  }
   contentResizeObserver?.disconnect()
   if (leaveViewportTimeout) {
     window.clearTimeout(leaveViewportTimeout)
