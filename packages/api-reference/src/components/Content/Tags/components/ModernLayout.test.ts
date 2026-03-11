@@ -33,6 +33,7 @@ const mockProps = {
 
 beforeEach(() => {
   vi.mock('@/helpers/lazy-bus', () => ({
+    requestLazyRender: vi.fn(),
     useLazyBus: () => ({
       isReady: computed(() => true),
     }),
