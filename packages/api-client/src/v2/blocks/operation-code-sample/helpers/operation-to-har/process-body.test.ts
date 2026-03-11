@@ -1042,6 +1042,29 @@ describe('processBody', () => {
   })
 
   describe('binary files', () => {
+    it('formats raw binary file examples as file references', () => {
+      const mockFile = new File(['binary content'], 'payload.bin', { type: 'application/octet-stream' })
+      const content = {
+        'application/octet-stream': {
+          examples: {
+            default: {
+              value: mockFile,
+            },
+          },
+        },
+      }
+
+      const result = processBody({
+        requestBody: { content },
+        contentType: 'application/octet-stream',
+      })
+
+      expect(result).toEqual({
+        mimeType: 'application/octet-stream',
+        text: '@payload.bin',
+      })
+    })
+
     it('extracts binary file examples', () => {
       const content = {
         'image/png': {

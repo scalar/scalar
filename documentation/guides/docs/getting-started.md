@@ -3,13 +3,13 @@
 </div>
 <div class="flex flex-col gap-3 hero small-test">
   <scalar-heading level="2" slug="scalar-docs" class="text-balance">
-    Scalar Docs
+    Docs
   </scalar-heading>
   <p>
     Documentation that stays in sync with your API and code. Pull content from GitHub, get previews on every pull request, deploy on merge, or publish from anywhere with the CLI.
   </p>
   <p>
-    The site you're looking at was built using Scalar Docs. It's not just us, those wonderful folks use it too:
+    The site you're looking at was built using Docs. It's not just us, those wonderful folks use it too:
   </p>
 </div>
 <div class="logowall">
@@ -110,7 +110,7 @@
 Include interactive API references, for a single API or for hundreds of APIs. All based on the OpenAPI standard. And the best part: Your documentation stays in sync with your actual API.
 
 > [!TIP]
-> Just need an API Reference and that's all? Use the [Scalar API Reference](../../guides/api-references/getting-started.md). It is open-source, free, and has integrations for all REST API frameworks.
+> Just need an API Reference and that's all? Use the [API Reference](../../guides/api-references/getting-started.md). It is open-source, free, and has integrations for all REST API frameworks.
 
 ## Write anywhere
 
@@ -131,7 +131,7 @@ Put your content where you want: in your repository, any folder, or the Scalar E
 | SSO/SAML, RBAC, priority support, dedicated Slack/Teams                                          |      |     | ✓          |
 
 
-[See the full comparison](../pricing.md) for Scalar Docs and the other Scalar products.
+[See the full comparison](../pricing.md) for Docs and the other Scalar products.
 
 <div class="feature">
   <div class="cta flex flex-col gap-3 small-test">
@@ -259,13 +259,13 @@ Put your content where you want: in your repository, any folder, or the Scalar E
       <div class="expander-hover-sticker">
         <object class="sticker-clip-docs" width="113" height="143" data="https://api.scalar.com/cdn/images/LByt7m02eR-6wZrXUk5d5/HLhbFqJ4vSzo4UDEZX2dq.svg"></object>
       </div>
-      <div class="expander-hover-title">Scalar Docs</div>
+      <div class="expander-hover-title">Docs</div>
       <div class="expander">
         <div class="expander-content">
           Documentation that stays in sync with your API. Markdown, MDX, Git Sync, and stunning API references.
         </div>
       </div>
-      <a class="expander-hover-link" href="/products/docs/getting-started" aria-label="Learn more about Scalar Docs">Learn More</a>
+      <a class="expander-hover-link" href="/products/docs/getting-started" aria-label="Learn more about Docs">Learn More</a>
     </div>
   </div>
 </div>
@@ -283,7 +283,7 @@ Put your content where you want: in your repository, any folder, or the Scalar E
           <b>Products</b>
           <a class="text-c-2 hover:text-c-1 font-normal" href="/products/api-references/getting-started" target="_blank">API References</a>
           <a class="text-c-2 hover:text-c-1 font-normal" href="https://client.scalar.com/" target="_blank">API Client</a>
-          <a class="text-c-2 hover:text-c-1 font-normal" href="https://docs.scalar.com/" target="_blank">Scalar Docs</a>
+          <a class="text-c-2 hover:text-c-1 font-normal" href="https://docs.scalar.com/" target="_blank">Docs</a>
           <a class="text-c-2 hover:text-c-1 font-normal" href="https://editor.scalar.com/" target="_blank">Swagger Editor</a>
         </div>
         <div class="w-1/3 flex flex-col gap-2">

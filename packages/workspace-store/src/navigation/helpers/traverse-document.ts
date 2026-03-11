@@ -125,10 +125,12 @@ export const traverseDocument = (documentName: string, document: OpenApiDocument
   // Now update the sort order of the entries
   document['x-scalar-order'] = unpackProxyObject(entries.map((entry) => entry.id))
 
+  const documentTitle = document.info?.title?.trim() || 'Untitled Document'
+
   return {
     id: documentId,
     type: 'document',
-    title: document.info.title,
+    title: documentTitle,
     name: documentName,
     children: entries,
     icon: document['x-scalar-icon'],

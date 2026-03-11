@@ -42,7 +42,15 @@ const deSerializeSchemaExample = (example: unknown, schema: ParameterWithSchemaO
       try {
         return JSON.parse(example)
       } catch {
-        // Ignore the error and return the original example
+        // For array types, fall back to splitting comma-separated values.
+        // Users commonly enter array values as "foo,bar" or "foo, bar" in the UI
+        // text field, which is not valid JSON. Per the OpenAPI spec, the default
+        // serialization for query array parameters is style=form + explode=true,
+        // meaning each value should be sent as a separate query parameter.
+        if (type === 'array') {
+          return example.split(/,\s?/).filter((v) => v !== '')
+        }
+        // Ignore the error and return the original example for other types
       }
     }
   }

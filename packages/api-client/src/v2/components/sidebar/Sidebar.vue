@@ -102,7 +102,7 @@ const handleSelectItem = (id: string) => {
     class="flex flex-col">
     <template #default>
       <ScalarSidebar
-        class="mac:pt-10 flex w-auto flex-1 pt-2"
+        class="flex w-auto flex-1"
         :indent="20"
         :isDraggable="layout !== 'modal'"
         :isDroppable="isDroppable"
@@ -116,7 +116,11 @@ const handleSelectItem = (id: string) => {
         "
         @selectItem="handleSelectItem">
         <template #header>
-          <div class="bg-sidebar-b-1 z-1 flex flex-col gap-1.5 px-3 pb-1.5">
+          <!-- drag region (macos) -->
+          <div class="mac:h-12 mac:app-drag-region h-2"></div>
+          <div
+            class="bg-sidebar-b-1 z-1 flex flex-col gap-1.5 px-3 pb-1.5"
+            :class="{ 'max-md:pt-12': layout !== 'modal' }">
             <div class="flex items-center justify-between">
               <!-- Desktop gets the workspace menu here  -->
               <SidebarMenu
@@ -146,6 +150,11 @@ const handleSelectItem = (id: string) => {
               v-model="query"
               autofocus />
           </div>
+        </template>
+
+        <!-- drag region (macos) -->
+        <template #spacer>
+          <div class="mac:app-drag-region flex-1"></div>
         </template>
 
         <template #decorator="decoratorProps">

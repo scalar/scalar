@@ -1,6 +1,6 @@
-# Scalar Docs Starter Kit
+# Docs Starter Kit
 
-The [Scalar Docs Starter Kit](https://github.com/scalar/starter) is a ready-to-use template for building beautiful documentation with Markdown and OpenAPI. Fork or clone the repository and make it your own — everything in the template is meant to be modified, extended, or replaced to fit your project.
+The [Docs Starter Kit](https://github.com/scalar/starter) is a ready-to-use template for building beautiful documentation with Markdown and OpenAPI. Fork or clone the repository and make it your own — everything in the template is meant to be modified, extended, or replaced to fit your project.
 
 ## Project structure
 
@@ -24,7 +24,7 @@ Drop your OpenAPI files into `docs/api-reference/`, and add them to `scalar.conf
 
 The starter kit includes an example OpenAPI document to show you how it works.
 
-Read more about [scalar.config.json](configuration/scalar.config.json.md) and [Getting started](getting-started.md) with Scalar Docs.
+Read more about [scalar.config.json](configuration/scalar.config.json.md) and [Getting started](getting-started.md) with Docs.
 
 ## 3. Customize everything
 

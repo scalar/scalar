@@ -3,7 +3,7 @@ import { SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.1/strict/
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 
-import SchemaEnumValues from './SchemaEnumValues.vue'
+import SchemaEnumValues from './SchemaEnums.vue'
 
 describe('SchemaEnumValues', () => {
   describe('basic enum rendering', () => {

@@ -110,6 +110,33 @@ $response = $client->request('GET', 'https://example.com', [
 ]);`)
   })
 
+  it('preserves repeated query parameters as arrays', () => {
+    const result = phpGuzzle.generate({
+      url: 'https://example.com',
+      queryString: [
+        {
+          name: 'statuses',
+          value: 'active',
+        },
+        {
+          name: 'statuses',
+          value: 'inactive',
+        },
+      ],
+    })
+
+    expect(result).toBe(`$client = new GuzzleHttp\\Client();
+
+$response = $client->request('GET', 'https://example.com', [
+  'query' => [
+    'statuses' => [
+      'active',
+      'inactive'
+    ]
+  ]
+]);`)
+  })
+
   it('has cookies', () => {
     const result = phpGuzzle.generate({
       url: 'https://example.com',

@@ -69,6 +69,10 @@ const objectToFormParams = (obj: object | { name: string; value: string; isDisab
  */
 export const processBody = ({ requestBody, contentType, example }: ProcessBodyProps): PostData | undefined => {
   const _contentType = contentType || Object.keys(requestBody.content)[0] || ''
+  const formatBinaryFile = (file: File) => {
+    const unwrappedFile = unpackProxyObject(file)
+    return `@${unwrappedFile.name || 'filename'}`
+  }
 
   // Check if this is a form data content type
   const isFormData = _contentType === 'multipart/form-data' || _contentType === 'application/x-www-form-urlencoded'
@@ -81,23 +85,32 @@ export const processBody = ({ requestBody, contentType, example }: ProcessBodyPr
 
   // Return the provided top level example
   if (typeof _example !== 'undefined') {
-    if (isFormData && typeof _example === 'object' && _example !== null) {
+    const exampleValue = _example !== null && typeof _example === 'object' ? unpackProxyObject(_example) : _example
+
+    if (isFormData && typeof exampleValue === 'object' && exampleValue !== null) {
       return {
         mimeType: _contentType,
-        params: objectToFormParams(_example),
+        params: objectToFormParams(exampleValue),
       }
     }
 
-    if (isXml && typeof _example === 'object' && _example !== null) {
+    if (isXml && typeof exampleValue === 'object' && exampleValue !== null) {
       return {
         mimeType: _contentType,
-        text: json2xml(_example),
+        text: json2xml(exampleValue),
+      }
+    }
+
+    if (exampleValue instanceof File) {
+      return {
+        mimeType: _contentType,
+        text: formatBinaryFile(exampleValue),
       }
     }
 
     return {
       mimeType: _contentType,
-      text: typeof _example === 'string' ? _example : JSON.stringify(_example),
+      text: typeof exampleValue === 'string' ? exampleValue : JSON.stringify(exampleValue),
     }
   }
 

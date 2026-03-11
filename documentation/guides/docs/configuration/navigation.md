@@ -32,7 +32,7 @@ The `navigation.header` array defines links that appear in the top navigation ba
 ```json
 // scalar.config.json
 {
-  "$schema": "https://registry.scalar.com/@scalar/schemas/config
+  "$schema": "https://registry.scalar.com/@scalar/schemas/config",
   "scalar": "2.0.0",
   "navigation": {
     "header": [
@@ -87,7 +87,7 @@ The `navigation.sidebar` array defines links that appear at the bottom of the si
 ```json
 // scalar.config.json
 {
-  "$schema": "https://registry.scalar.com/@scalar/schemas/config
+  "$schema": "https://registry.scalar.com/@scalar/schemas/config",
   "scalar": "2.0.0",
   "navigation": {
     "sidebar": [
@@ -123,7 +123,7 @@ The `navigation.tabs` array defines tabs that appear in the navigation area. Tab
 ```json
 // scalar.config.json
 {
-  "$schema": "https://registry.scalar.com/@scalar/schemas/config
+  "$schema": "https://registry.scalar.com/@scalar/schemas/config",
   "scalar": "2.0.0",
   "navigation": {
     "tabs": [
@@ -231,7 +231,7 @@ Pages support layout configuration to customize how they are displayed:
 Scalar supports three ways to generate API references from OpenAPI documents:
 
 1. using a local file,
-2. the [Scalar Registry](../../registry/getting-started.md), or
+2. the [Registry](../../registry/getting-started.md), or
 3. remote URLs.
 
 ### 1. Files
@@ -249,9 +249,9 @@ Reference an OpenAPI file stored in your repository by specifying a relative pat
 }
 ```
 
-### 2. Scalar Registry
+### 2. Registry
 
-Upload your OpenAPI document to the [Scalar Registry](../../registry/getting-started.md), then reference it by namespace and slug:
+Upload your OpenAPI document to the [Registry](../../registry/getting-started.md), then reference it by namespace and slug:
 
 ```bash
 scalar auth login
@@ -287,6 +287,36 @@ Fetch an OpenAPI document from a remote URL. The document is fetched on each pag
 - `folder` (default): Shows a single level of links with a folder icon
 - `flat` Shows a single level of links with a section title
 - `nested` Shows a sub-sidebar with breadcrumbs for deep navigation
+
+### API Reference configuration
+
+When you add an OpenAPI route (`type: "openapi"`) in your navigation, you can pass API Reference options by adding a `config` object. The same options supported by the [API Reference configuration](../../../configuration.md) (e.g. `authentication`, `theme`) can be used here.
+
+Example:
+
+```json
+// scalar.config.json
+"/api": {
+  "type": "openapi",
+  "title": "My API",
+  "url": "https://example.com/openapi.json",
+  "mode": "nested",
+  "config": {
+    "authentication": {
+      "preferredSecurityScheme": "httpBasic",
+      "securitySchemes": {
+        "httpBasic": {
+          "type": "http",
+          "scheme": "basic",
+          "username": "my-username"
+        }
+      }
+    }
+  }
+}
+```
+
+For all available options, see [Configuration](../../../configuration.md).
 
 ## Groups
 
@@ -343,7 +373,7 @@ Groups can contain other groups to create deep navigation hierarchies:
   "children": {
     "/docs": {
       "type": "group",
-      "title": "Scalar Docs",
+      "title": "Docs",
       "mode": "nested",
       "icon": "phosphor/regular/book",
       "children": {

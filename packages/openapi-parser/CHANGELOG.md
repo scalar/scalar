@@ -1,5 +1,29 @@
 # @scalar/openapi-parser
 
+## 0.25.2
+
+### Patch Changes
+
+- [#8359](https://github.com/scalar/scalar/pull/8359): fix(openapi-parser): replace $dynamicRef with $ref in v3.2 schema for AJV compatibility
+
+#### Updated Dependencies
+
+- **@scalar/helpers@0.4.0**
+  - [#8336](https://github.com/scalar/scalar/pull/8336): feat: support flushing any pending operations
+
+- **@scalar/json-magic@0.12.2**
+
+- **@scalar/openapi-upgrader@0.2.0**
+
+## 0.25.1
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/json-magic@0.12.1**
+  - [#8357](https://github.com/scalar/scalar/pull/8357): chore: improve performance and memory usage of bundler
+
 ## 0.25.0
 
 ### Minor Changes

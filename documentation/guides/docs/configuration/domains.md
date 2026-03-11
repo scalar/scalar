@@ -4,7 +4,7 @@ Configure your documentation site's domain using either a free subdomain on `api
 
 ## Subdomain
 
-The `subdomain` property provides a free domain at `https://<subdomain>.apidocumentation.com`. This is available for all Scalar Docs projects.
+The `subdomain` property provides a free domain at `https://<subdomain>.apidocumentation.com`. This is available for all Docs projects.
 
 ```json
 // scalar.config.json
@@ -26,7 +26,7 @@ The `customDomain` property allows you to use your own domain name. This feature
 ```json
 // scalar.config.json
 {
-  "$schema": "https://registry.scalar.com/@scalar/schemas/config
+  "$schema": "https://registry.scalar.com/@scalar/schemas/config",
   "scalar": "2.0.0",
   "siteConfig": {
     "customDomain": "docs.example.com"

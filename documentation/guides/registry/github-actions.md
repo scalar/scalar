@@ -1,6 +1,6 @@
-# Push to the Scalar Registry using GitHub Actions
+# Push to the Registry using GitHub Actions
 
-You can add a [GitHub Actions workflow](https://docs.github.com/en/actions/get-started/quickstart) to your GitHub repository to automatically push your OpenAPI documents to the Scalar Registry.
+You can add a [GitHub Actions workflow](https://docs.github.com/en/actions/get-started/quickstart) to your GitHub repository to automatically push your OpenAPI documents to the Registry.
 
 ## Basic Workflow
 
@@ -8,7 +8,7 @@ Here's a simple workflow that validates and uploads an OpenAPI document to Scala
 
 ```yaml
 # .github/workflows/push-to-scalar-registry.yml
-name: Push OpenAPI document to the Scalar Registry
+name: Push OpenAPI document to the Registry
 
 on:
   push:
@@ -30,10 +30,10 @@ jobs:
       - name: Validate OpenAPI Document
         run: npx @scalar/cli document validate api/openapi.json
 
-      - name: Log in to Scalar Registry
+      - name: Log in to Registry
         run: npx @scalar/cli auth login --token ${{ secrets.SCALAR_API_KEY }}
 
-      - name: Push to Scalar Registry
+      - name: Push to Registry
         run: npx @scalar/cli registry publish --namespace your-team --slug your-api api/openapi.json
 ```
 
@@ -152,7 +152,7 @@ jobs:
       - name: Validate ${{ matrix.api.name }}
         run: npx @scalar/cli document validate "${{ matrix.api.file }}"
 
-      - name: Login to Scalar Registry
+      - name: Login to Registry
         run: npx @scalar/cli auth login --token ${{ secrets.SCALAR_API_KEY }}
 
       - name: Publish ${{ matrix.api.name }}

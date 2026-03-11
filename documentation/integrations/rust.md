@@ -1,4 +1,4 @@
-# Scalar API Reference for Rust
+# API Reference for Rust
 
 We provide an official Rust crate for rendering the Scalar API documentation in web applications.
 
@@ -117,11 +117,11 @@ The configuration object supports all standard Scalar options. Common options in
 
 See the documentation for [the complete configuration reference](../configuration.md).
 
-### Agent Scalar
+### Agent
 
-Agent Scalar adds an AI chat interface to your API reference. It is enabled by default on localhost with a limited free tier (10 messages). For production, you need an [Agent Scalar key](../guides/agent/key.md).
+Agent adds an AI chat interface to your API reference. It is enabled by default on localhost with a limited free tier (10 messages). For production, you need an [Agent key](../guides/agent/key.md).
 
-To set an Agent Scalar API key (top-level):
+To set an Agent API key (top-level):
 
 ```rust
 let configuration = json!({
@@ -132,7 +132,7 @@ let configuration = json!({
 });
 ```
 
-To disable Agent Scalar:
+To disable Agent:
 
 ```rust
 let configuration = json!({
@@ -187,5 +187,5 @@ let sources = vec![
 let config = json!({ "sources": serde_json::to_value(&sources).unwrap() });
 ```
 
-For more details, see [Agent Scalar](../configuration.md#agent-scalar) and [How to get an Agent Scalar key](../guides/agent/key.md).
+For more details, see [Agent](../configuration.md#agent) and [How to get an Agent key](../guides/agent/key.md).
 

@@ -1,6 +1,7 @@
 import type { HarRequest } from '@scalar/types/snippetz'
 
 import type { SnippetRequest } from '@/httpsnippet-lite/helpers/snippet-request'
+import { reduceQueryParams } from '@/libs/http'
 
 /**
  * Takes a httpsnippet-lite client and converts the given request to a code example with it.
@@ -40,13 +41,7 @@ export function convertWithHttpSnippetLite(
     {} as Record<string, string>,
   )
 
-  const queryObj = (harRequest.queryString ?? []).reduce(
-    (acc, param) => ({
-      ...acc,
-      [param.name]: param.value,
-    }),
-    {} as Record<string, string>,
-  )
+  const queryObj = reduceQueryParams(harRequest.queryString)
 
   const cookiesObj = (harRequest.cookies ?? []).reduce(
     (acc, cookie) => ({

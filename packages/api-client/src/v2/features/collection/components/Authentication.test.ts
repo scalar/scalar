@@ -210,8 +210,9 @@ describe('operation collection', () => {
     await toggle.vm.$emit('update:modelValue', true)
     await nextTick()
 
+    // Initializes with the operation default (first requirement: ApiKeyAuth)
     expect(fn).toHaveBeenCalledWith({
-      selectedRequirements: [],
+      selectedRequirements: [{ ApiKeyAuth: [] }],
       newSchemes: [],
       meta: {
         type: 'operation',

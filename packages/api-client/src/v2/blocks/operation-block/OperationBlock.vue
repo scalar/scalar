@@ -109,6 +109,7 @@ import { getSecuritySchemes } from '@/v2/blocks/operation-block/helpers/build-re
 import { harToFetchRequest } from '@/v2/blocks/operation-block/helpers/har-to-fetch-request'
 import { harToFetchResponse } from '@/v2/blocks/operation-block/helpers/har-to-fetch-response'
 import { sendRequest } from '@/v2/blocks/operation-block/helpers/send-request'
+import { validatePathParameters } from '@/v2/blocks/operation-block/helpers/validate-path-parameters'
 import { generateClientOptions } from '@/v2/blocks/operation-code-sample'
 import { RequestBlock } from '@/v2/blocks/request-block'
 import type { ExtendedScalarCookie } from '@/v2/blocks/request-block/RequestBlock.vue'
@@ -181,6 +182,15 @@ const cancelRequest = () => abortController.value?.abort(ERRORS.REQUEST_ABORTED)
 
 /** Execute the current operation example */
 const handleExecute = async () => {
+  const pathValidation = validatePathParameters(
+    operation.parameters ?? [],
+    exampleKey,
+  )
+  if (pathValidation.ok === false) {
+    toast('Path parameters must have values.', 'error')
+    return
+  }
+
   const [error, result] = buildRequest({
     environment,
     exampleKey,

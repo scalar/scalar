@@ -2,7 +2,7 @@
 
 ## No analytics, no tracking
 
-Scalar Docs is privacy-friendly by default:
+Docs is privacy-friendly by default:
 
 - We do not inject third-party analytics scripts.
 - We do not inject tracking scripts or cookies on custom domains.

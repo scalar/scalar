@@ -97,5 +97,20 @@ export const debounce = (options: DebounceOptions = {}) => {
     }
   }
 
-  return { execute, cleanup }
+  const flush = (key: string): void => {
+    if (!latestFunctions.has(key)) {
+      return
+    }
+
+    executeAndCleanup(key)
+  }
+
+  const flushAll = (): void => {
+    const keys = [...latestFunctions.keys()]
+    for (const key of keys) {
+      executeAndCleanup(key)
+    }
+  }
+
+  return { execute, cleanup, flush, flushAll }
 }

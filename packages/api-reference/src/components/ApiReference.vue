@@ -12,7 +12,6 @@ import {
   ScalarColorModeToggleIcon,
   ScalarSidebarFooter,
 } from '@scalar/components'
-import { redirectToProxy } from '@scalar/helpers/url/redirect-to-proxy'
 import {
   createSidebarState,
   ScalarSidebar,
@@ -49,7 +48,11 @@ import {
   watch,
 } from 'vue'
 
-import { AgentScalarButton, AgentScalarDrawer } from '@/components/AgentScalar'
+import {
+  AgentScalarButton,
+  AgentScalarDrawer,
+  OpenMCPButton,
+} from '@/components/AgentScalar'
 import { AGENT_CONTEXT_SYMBOL, useAgent } from '@/hooks/use-agent'
 
 import '@scalar/agent-chat/style.css'
@@ -715,28 +718,13 @@ eventBus.on('server:update:selected', ({ url }) =>
 
 /** Download the document from the store */
 eventBus.on('ui:download:document', async ({ format }) => {
-  if (format === 'direct') {
-    const url = configList.value[activeSlug.value]?.source?.url
-    if (!url) {
-      console.error(
-        'Direct download is not supported for documents without a URL source',
-      )
-      return
-    }
-    const result = await fetch(
-      redirectToProxy(mergedConfig.value.proxyUrl, url),
-    ).then((r) => r.text())
+  const document = await workspaceStore.exportActiveDocument(format)
 
-    downloadDocument(result, activeSlug.value ?? 'openapi')
-    // Will be handled in the ApiReference component. Only valid for integrations that rely on a configuration with a URL.
-    return
-  }
-
-  const document = workspaceStore.exportActiveDocument(format)
   if (!document) {
     console.error('No document found to download')
     return
   }
+
   downloadDocument(document, activeSlug.value ?? 'openapi', format)
 })
 
@@ -888,6 +876,22 @@ const colorMode = computed(() => {
 const bodyScrollLocked = useScrollLock(document.body)
 
 watch(agent.showAgent, () => (bodyScrollLocked.value = agent.showAgent.value))
+
+const showMCPButton = computed(() => {
+  if (mergedConfig.value.mcp?.disabled) {
+    return false
+  }
+
+  if (typeof window !== 'undefined' && isLocalUrl(window.location.href)) {
+    return true
+  }
+
+  if (mergedConfig.value.mcp) {
+    return true
+  }
+
+  return false
+})
 </script>
 
 <template>
@@ -987,11 +991,17 @@ watch(agent.showAgent, () => (bodyScrollLocked.value = agent.showAgent.value))
                 <!-- We default the sidebar footer to the standard scalar elements -->
                 <ScalarSidebarFooter class="darklight-reference">
                   <OpenApiClientButton
-                    v-if="!mergedConfig.hideClientButton"
+                    v-if="!mergedConfig.hideClientButton && !showMCPButton"
                     buttonSource="sidebar"
                     :integration="mergedConfig._integration"
                     :isDevelopment="isDevelopment"
                     :url="documentUrl" />
+                  <OpenMCPButton
+                    v-if="showMCPButton"
+                    :config="mergedConfig.mcp"
+                    :isDevelopment="isDevelopment"
+                    :url="documentUrl"
+                    :workspace="workspaceStore" />
                   <!-- Override the dark mode toggle slot to hide it -->
                   <template #toggle>
                     <ScalarColorModeToggleButton

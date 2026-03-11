@@ -3,10 +3,10 @@
 </div>
 <div class="flex flex-col gap-3 hero small-test">
   <scalar-heading level="2" slug="scalar-registry" class="text-balance">
-    Scalar Registry
+    Registry
   </scalar-heading>
   <p>
-    Get started with Scalar Registry for managing & versioning OpenAPI Documents, JSON Schema, Spectral Rules as your source of truth with a deep Git integration.
+    Get started with Registry for managing & versioning OpenAPI Documents, JSON Schema, Spectral Rules as your source of truth with a deep Git integration.
   </p>
 </div>
 
@@ -18,11 +18,12 @@
   <div class="full-container-constrained">
 
 ## Create your Scalar Account
-To first access the Scalar Registry you need to [create an account](https://dashboard.scalar.com/register) or [sign in](https://dashboard.scalar.com/login).
+To first access the Registry you need to [create an account](https://dashboard.scalar.com/register) or [sign in](https://dashboard.scalar.com/login).
 
-Once authenticated you will see your dashboard, you have two options to interface with the Scalar Registry:
-- [Scalar dashboard](https://dashboard.scalar.com)
-- [Scalar CLI](cli.md)
+Once authenticated you will see your dashboard, you have two options to interface with the Registry:
+
+- [Dashboard](https://dashboard.scalar.com)
+- [CLI](cli.md)
 - [GitHub Actions](github-actions.md)
 
 <div class="mt-6">
@@ -34,7 +35,7 @@ Managing OpenAPI can be difficult; is the source-of-truth: design, implementatio
 
 Who is going to update the docs when our API has new endpoints or examples?
 
-Scalar handles all this and makes it incredibly easy to get to the exciting stuff! Once a document is in the Scalar Registry we can:
+Scalar handles all this and makes it incredibly easy to get to the exciting stuff! Once a document is in the Registry we can:
 
 ### Create Docs
 World Class API Docs with just a few clicks, all managed by Scalars registry automagically from your OpenAPI document changes.

@@ -38,6 +38,8 @@ const SECRET_TO_INPUT_FIELD_MAP = {
   'x-scalar-secret-redirect-uri': 'x-scalar-redirect-uri',
   'x-scalar-secret-token': 'token',
   'x-scalar-secret-username': 'username',
+  'x-scalar-secret-auth-url': 'authorizationUrl',
+  'x-scalar-secret-token-url': 'tokenUrl',
 } as const
 
 const mergeFlowSecrets = <const T extends readonly (keyof typeof SECRET_TO_INPUT_FIELD_MAP)[]>(
@@ -57,6 +59,18 @@ const mergeFlowSecrets = <const T extends readonly (keyof typeof SECRET_TO_INPUT
       return [property, value]
     }),
   ) as Record<T[number], string>
+
+const extractRefreshTokenSecret = (
+  authStoreSecrets: { 'x-scalar-secret-refresh-token'?: string } = {},
+): { 'x-scalar-secret-refresh-token'?: string } => {
+  const refreshToken = authStoreSecrets['x-scalar-secret-refresh-token']
+
+  if (typeof refreshToken === 'string') {
+    return { 'x-scalar-secret-refresh-token': refreshToken }
+  }
+
+  return {}
+}
 
 /**
  * Extract flow secrets and selected scopes for OAuth-like flows.
@@ -87,10 +101,16 @@ const extractOAuthFlowSecrets = (
       acc.implicit = {
         ...(flow as OAuthFlowImplicit),
         ...mergeFlowSecrets(
-          ['x-scalar-secret-client-id', 'x-scalar-secret-redirect-uri', 'x-scalar-secret-token'],
+          [
+            'x-scalar-secret-client-id',
+            'x-scalar-secret-redirect-uri',
+            'x-scalar-secret-token',
+            'x-scalar-secret-auth-url',
+          ],
           flow,
           storeSecrets?.implicit,
         ),
+        ...extractRefreshTokenSecret(storeSecrets?.implicit),
       } satisfies OAuthFlowImplicitSecret
     }
 
@@ -105,10 +125,12 @@ const extractOAuthFlowSecrets = (
             'x-scalar-secret-username',
             'x-scalar-secret-password',
             'x-scalar-secret-token',
+            'x-scalar-secret-token-url',
           ],
           flow,
           storeSecrets?.password,
         ),
+        ...extractRefreshTokenSecret(storeSecrets?.password),
       } satisfies OAuthFlowPasswordSecret
     }
 
@@ -117,10 +139,16 @@ const extractOAuthFlowSecrets = (
       acc[key] = {
         ...(flow as OAuthFlowClientCredentials),
         ...mergeFlowSecrets(
-          ['x-scalar-secret-client-id', 'x-scalar-secret-client-secret', 'x-scalar-secret-token'],
+          [
+            'x-scalar-secret-client-id',
+            'x-scalar-secret-client-secret',
+            'x-scalar-secret-token',
+            'x-scalar-secret-token-url',
+          ],
           flow,
           storeSecrets?.clientCredentials,
         ),
+        ...extractRefreshTokenSecret(storeSecrets?.clientCredentials),
       } satisfies OAuthFlowClientCredentialsSecret
     }
 
@@ -134,10 +162,13 @@ const extractOAuthFlowSecrets = (
             'x-scalar-secret-client-secret',
             'x-scalar-secret-redirect-uri',
             'x-scalar-secret-token',
+            'x-scalar-secret-auth-url',
+            'x-scalar-secret-token-url',
           ],
           flow,
           storeSecrets?.authorizationCode,
         ),
+        ...extractRefreshTokenSecret(storeSecrets?.authorizationCode),
       } satisfies OAuthFlowAuthorizationCodeSecret
     }
 

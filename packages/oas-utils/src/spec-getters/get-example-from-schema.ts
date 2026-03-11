@@ -52,6 +52,23 @@ const genericExampleValues: Record<string, string> = {
 }
 
 /**
+ * Extract enum values from the propertyNames keyword of an object schema.
+ * JSON Schema's propertyNames constrains which keys are valid in a map/dict.
+ */
+const getPropertyNamesEnumValues = (schema: OpenAPIV3_1.SchemaObject): unknown[] | undefined => {
+  if (!('propertyNames' in schema) || !schema.propertyNames) {
+    return undefined
+  }
+
+  const resolved = getResolvedRef(schema.propertyNames as OpenAPIV3_1.SchemaObject)
+  if (resolved && 'enum' in resolved && Array.isArray(resolved.enum) && resolved.enum.length > 0) {
+    return resolved.enum
+  }
+
+  return undefined
+}
+
+/**
  * Generate example values for string types based on their format.
  * Special handling for binary format which returns a File object.
  */
@@ -241,15 +258,21 @@ const handleObjectSchema = (
       schema.additionalProperties === true ||
       (typeof schema.additionalProperties === 'object' && Object.keys(schema.additionalProperties).length === 0)
 
-    const additionalName =
+    // Check for explicit x-additionalPropertiesName first
+    const hasCustomName =
       typeof additional === 'object' &&
       'x-additionalPropertiesName' in additional &&
       typeof additional['x-additionalPropertiesName'] === 'string' &&
       additional['x-additionalPropertiesName'].trim().length > 0
-        ? additional['x-additionalPropertiesName'].trim()
-        : DEFAULT_ADDITIONAL_PROPERTIES_NAME
 
-    response[additionalName] = isAnyType
+    // Use propertyNames enum values as example keys when no custom name is set
+    const propertyNamesEnum = hasCustomName ? undefined : getPropertyNamesEnumValues(schema)
+
+    const additionalName = hasCustomName
+      ? (additional as Record<string, string>)['x-additionalPropertiesName']!.trim()
+      : DEFAULT_ADDITIONAL_PROPERTIES_NAME
+
+    const additionalValue = isAnyType
       ? 'anything'
       : typeof additional === 'object'
         ? getExampleFromSchema(additional, options, {
@@ -257,6 +280,13 @@ const handleObjectSchema = (
             seen,
           })
         : 'anything'
+
+    if (propertyNamesEnum && propertyNamesEnum.length > 0) {
+      // Use the first enum value as a realistic example key
+      response[String(propertyNamesEnum[0])] = additionalValue
+    } else {
+      response[additionalName] = additionalValue
+    }
   }
 
   // onOf

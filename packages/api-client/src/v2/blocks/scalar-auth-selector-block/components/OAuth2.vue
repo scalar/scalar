@@ -162,7 +162,7 @@ const handleAuthorize = async (): Promise<void> => {
 
   loader.start()
 
-  const [error, accessToken] = await authorizeOauth2(
+  const [error, tokens] = await authorizeOauth2(
     flows,
     type,
     selectedScopes.value,
@@ -173,8 +173,13 @@ const handleAuthorize = async (): Promise<void> => {
 
   await loader.clear()
 
-  if (accessToken) {
-    handleOauth2SecretsUpdate({ 'x-scalar-secret-token': accessToken })
+  if (tokens?.accessToken) {
+    handleOauth2SecretsUpdate({
+      'x-scalar-secret-token': tokens.accessToken,
+      ...(tokens.refreshToken
+        ? { 'x-scalar-secret-refresh-token': tokens.refreshToken }
+        : {}),
+    })
   } else {
     console.error(error)
     toast(error?.message ?? 'Failed to authorize', 'error')
@@ -213,7 +218,11 @@ const handleSecretLocationUpdate = (value: string): void =>
           size="sm"
           variant="outlined"
           @click="
-            () => handleOauth2SecretsUpdate({ 'x-scalar-secret-token': '' })
+            () =>
+              handleOauth2SecretsUpdate({
+                'x-scalar-secret-token': '',
+                'x-scalar-secret-refresh-token': '',
+              })
           ">
           Clear
         </ScalarButton>
@@ -228,18 +237,28 @@ const handleSecretLocationUpdate = (value: string): void =>
         v-if="'authorizationUrl' in flow"
         containerClass="border-r-0"
         :environment
-        :modelValue="flow.authorizationUrl"
+        :modelValue="flow['x-scalar-secret-auth-url'] ?? ''"
         placeholder="https://galaxy.scalar.com/authorize"
-        @update:modelValue="(v) => handleOauth2Update({ authorizationUrl: v })">
+        @update:modelValue="
+          (v) => {
+            handleOauth2SecretsUpdate({ 'x-scalar-secret-auth-url': v })
+            handleOauth2Update({ authorizationUrl: v })
+          }
+        ">
         Auth URL
       </RequestAuthDataTableInput>
 
       <RequestAuthDataTableInput
         v-if="'tokenUrl' in flow"
         :environment
-        :modelValue="flow.tokenUrl"
+        :modelValue="flow['x-scalar-secret-token-url'] ?? ''"
         placeholder="https://galaxy.scalar.com/token"
-        @update:modelValue="(v) => handleOauth2Update({ tokenUrl: v })">
+        @update:modelValue="
+          (v) => {
+            handleOauth2SecretsUpdate({ 'x-scalar-secret-token-url': v })
+            handleOauth2Update({ tokenUrl: v })
+          }
+        ">
         Token URL
       </RequestAuthDataTableInput>
     </DataTableRow>
@@ -250,8 +269,9 @@ const handleSecretLocationUpdate = (value: string): void =>
         :modelValue="flow['x-scalar-secret-redirect-uri']"
         placeholder="https://galaxy.scalar.com/callback"
         @update:modelValue="
-          (v) =>
+          (v) => {
             handleOauth2SecretsUpdate({ 'x-scalar-secret-redirect-uri': v })
+          }
         ">
         Redirect URL
       </RequestAuthDataTableInput>

@@ -1,4 +1,4 @@
-# Scalar API Reference for Flask
+# API Reference for Flask
 
 Flask OpenAPI3 is a web API framework based on Flask. It uses Pydantic to verify data and automatic generation of interaction documentation.
 

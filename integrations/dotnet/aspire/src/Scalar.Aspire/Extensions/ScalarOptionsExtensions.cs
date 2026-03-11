@@ -27,7 +27,7 @@ public static partial class ScalarOptionsExtensions
     /// A <see cref="ReferenceExpression"/> whose resolved value is prepended to relative OpenAPI document URLs.
     /// Use <see cref="ReferenceExpression.Empty"/> so that the <see cref="ScalarOptions.OpenApiRoutePattern"/> is
     /// used as-is (for example, when the document is served as a static file from the Scalar container).
-    /// Pass <c>null</c> to fall back to the service resource URL discovered via Aspire service discovery (the default behavior).
+    /// Pass <c>null</c> to defer to the base URL set on the annotation by <c>WithApiReference</c> (the default behavior).
     /// </param>
     /// <returns>The options instance so that additional calls can be chained.</returns>
     public static TOptions WithBaseDocumentUrl<TOptions>(this TOptions options, ReferenceExpression? baseDocumentUrl) where TOptions : ScalarOptions

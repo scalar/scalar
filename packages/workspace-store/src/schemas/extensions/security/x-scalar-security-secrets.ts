@@ -19,6 +19,60 @@ export type XScalarSecretToken = {
 }
 
 /**
+ * OAuth refresh token
+ *
+ * We should not export this when exporting the document
+ */
+export const XScalarSecretRefreshTokenSchema = Type.Object({
+  'x-scalar-secret-refresh-token': Type.Optional(Type.String()),
+})
+
+/**
+ * OAuth refresh token
+ *
+ * We should not export this when exporting the document
+ */
+export type XScalarSecretRefreshToken = {
+  'x-scalar-secret-refresh-token'?: string
+}
+
+/**
+ * OAuth auth url
+ *
+ * We should not export this when exporting the document
+ */
+export const XScalarAuthUrlSchema = Type.Object({
+  'x-scalar-secret-auth-url': Type.Optional(Type.String()),
+})
+
+/**
+ * OAuth auth url
+ *
+ * We should not export this when exporting the document
+ */
+export type XScalarAuthUrl = {
+  'x-scalar-secret-auth-url'?: string
+}
+
+/**
+ * OAuth token url
+ *
+ * We should not export this when exporting the document
+ */
+export const XScalarTokenUrlSchema = Type.Object({
+  'x-scalar-secret-token-url': Type.Optional(Type.String()),
+})
+
+/**
+ * OAuth token url
+ *
+ * We should not export this when exporting the document
+ */
+export type XScalarTokenUrl = {
+  'x-scalar-secret-token-url'?: string
+}
+
+/**
  * Username and password for HTTP authentication
  *
  * We should not export this when exporting the document

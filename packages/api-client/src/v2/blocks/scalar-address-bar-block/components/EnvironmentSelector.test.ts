@@ -57,6 +57,16 @@ describe('EnvironmentSelector', () => {
       const button = wrapper.find('button')
       expect(button.text()).toContain('production')
     })
+
+    it('displays unavailable state when selected environment is missing from options', () => {
+      const wrapper = mountWithProps({
+        environments: mockEnvironments,
+        activeEnvironment: 'document-only-env',
+      })
+
+      const button = wrapper.find('button')
+      expect(button.text()).toContain('document-only-env (Unavailable)')
+    })
   })
 
   describe('button styling', () => {
@@ -386,8 +396,9 @@ describe('EnvironmentSelector', () => {
        * This handles cases where environments might be loading or out of sync.
        */
       const button = wrapper.find('button')
-      expect(button.text()).toContain('nonexistent')
-      expect(button.classes()).toContain('text-c-accent')
+      expect(button.text()).toContain('nonexistent (Unavailable)')
+      expect(button.classes()).toContain('text-c-2')
+      expect(button.classes()).toContain('hover:bg-b-2')
     })
 
     it('always renders dropdown to handle all states', () => {
@@ -423,10 +434,10 @@ describe('EnvironmentSelector', () => {
       expect(button.text()).toContain('deleted-environment')
 
       /**
-       * Should apply active styling to indicate something is selected.
+       * Missing environment state should use muted warning styling.
        */
-      expect(button.classes()).toContain('text-c-accent')
-      expect(button.classes()).toContain('bg-c-accent/10')
+      expect(button.classes()).toContain('text-c-2')
+      expect(button.classes()).toContain('hover:bg-b-2')
 
       /**
        * User should be able to clear the invalid active environment.
@@ -559,6 +570,26 @@ describe('EnvironmentSelector', () => {
        */
       const componentInstanceEmpty = wrapperEmpty.vm as any
       expect(componentInstanceEmpty.hasEnvironments).toBe(false)
+    })
+
+    it('tracks when selected environment is missing from the current options', () => {
+      const wrapperWithMissingSelection = mountWithProps({
+        environments: mockEnvironments,
+        activeEnvironment: 'missing-env',
+      })
+
+      const missingSelectionVm = wrapperWithMissingSelection.vm as any
+      expect(missingSelectionVm.hasSelectedEnvironmentInOptions).toBe(false)
+      expect(missingSelectionVm.hasMissingActiveEnvironment).toBe(true)
+
+      const wrapperWithExistingSelection = mountWithProps({
+        environments: mockEnvironments,
+        activeEnvironment: 'production',
+      })
+
+      const existingSelectionVm = wrapperWithExistingSelection.vm as any
+      expect(existingSelectionVm.hasSelectedEnvironmentInOptions).toBe(true)
+      expect(existingSelectionVm.hasMissingActiveEnvironment).toBe(false)
     })
   })
 

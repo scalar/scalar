@@ -1,4 +1,4 @@
-# Scalar API Reference for Hono
+# API Reference for Hono
 
 This middleware provides an easy way to render a beautiful API reference based on an OpenAPI/Swagger document with Hono.
 
@@ -20,7 +20,7 @@ import { Scalar } from '@scalar/hono-api-reference'
 
 const app = new Hono()
 
-// Use the middleware to serve the Scalar API Reference at /scalar
+// Use the middleware to serve the API Reference at /scalar
 app.get('/scalar', Scalar({ url: '/doc' }))
 
 // Or with dynamic configuration

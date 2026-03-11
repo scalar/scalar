@@ -23,7 +23,7 @@ import { shouldDisplayDescription } from './helpers/should-display-description'
 import { shouldDisplayHeading } from './helpers/should-display-heading'
 import Schema from './Schema.vue'
 import SchemaComposition from './SchemaComposition.vue'
-import SchemaEnumValues from './SchemaEnumValues.vue'
+import SchemaEnums from './SchemaEnums.vue'
 import SchemaPropertyHeading from './SchemaPropertyHeading.vue'
 
 /**
@@ -46,10 +46,14 @@ const props = withDefaults(
     description?: string
     hideModelNames?: boolean
     hideHeading?: boolean
+    /** When the root schema was resolved from a $ref, pass the ref name for display (e.g. "Data"). */
+    modelName?: string | null
     variant?: 'additionalProperties' | 'patternProperties'
     breadcrumb?: string[]
     eventBus: WorkspaceEventBus | null
     options: SchemaOptions
+    /** Enum values for property names (from JSON Schema propertyNames keyword). */
+    propertyNamesEnum?: string[]
   }>(),
   {
     level: 0,
@@ -75,7 +79,7 @@ const hasComplexArrayItemsComputed = computed(() =>
   hasComplexArrayItems(optimizedValue.value),
 )
 
-/** Check if enum should be displayed */
+/** Check if enum should be displayed (from value schema or from propertyNames) */
 const hasEnum = computed(() => enumValues.value.length > 0)
 
 /** Determine if object properties should be displayed */
@@ -155,6 +159,7 @@ const isDiscriminatorProperty = computed(() =>
       :enum="hasEnum"
       :hideModelNames
       :isDiscriminator="isDiscriminatorProperty"
+      :modelName="modelName"
       :required
       :value="optimizedValue">
       <template
@@ -199,9 +204,15 @@ const isDiscriminatorProperty = computed(() =>
         :value="displayDescription || propertyDescription || ''" />
     </div>
 
-    <!-- Enum -->
-    <SchemaEnumValues
-      v-if="hasEnum"
+    <!-- Enum for property names -->
+    <SchemaEnums
+      v-if="propertyNamesEnum && propertyNamesEnum.length > 0"
+      propertyNames
+      :value="{ enum: propertyNamesEnum } as SchemaObject" />
+
+    <!-- Enum values -->
+    <SchemaEnums
+      v-if="enumValues.length > 0"
       :value="optimizedValue" />
 
     <!-- Object -->
@@ -416,7 +427,12 @@ const isDiscriminatorProperty = computed(() =>
   content: 'regex';
 }
 
-.property-name-additional-properties::before {
-  content: 'unknown property name';
+.property-name-additional-properties,
+.property-name-pattern-properties {
+  border: 1px dashed var(--scalar-border-color);
+  color: var(--scalar-color-accent);
+  display: inline-block;
+  padding: 2px;
+  border-radius: var(--scalar-radius);
 }
 </style>

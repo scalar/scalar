@@ -63,6 +63,13 @@ export const upsertEnvironment = (
   return parsed
 }
 
+/**
+ * Deletes an environment from the given collection and handles active environment state.
+ *
+ * @param workspace - The workspace object, or null if unavailable.
+ * @param collection - The workspace document or workspace object, or null if unavailable.
+ * @param environmentName - The name of the environment to delete.
+ */
 export const deleteEnvironment = (
   workspace: Workspace | null,
   collection: WorkspaceDocument | Workspace | null,
@@ -72,6 +79,7 @@ export const deleteEnvironment = (
     return
   }
 
+  // Trigegr the change event for the active environment
   delete collection['x-scalar-environments']?.[environmentName]
 }
 

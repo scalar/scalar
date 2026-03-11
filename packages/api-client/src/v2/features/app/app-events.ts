@@ -17,6 +17,7 @@ export function initializeAppEventHandlers({
   onAfterExampleCreation,
   onCopyTabUrl,
   onToggleSidebar,
+  closeSidebar,
   renameWorkspace,
 }: {
   eventBus: WorkspaceEventBus
@@ -25,9 +26,10 @@ export function initializeAppEventHandlers({
   rebuildSidebar: (documentName?: string) => void
   navigateToCurrentTab: () => Promise<void>
   onSelectSidebarItem: (id: string) => void
-  onAfterExampleCreation: (o: OperationExampleMeta) => void
+  onAfterExampleCreation: (o: OperationExampleMeta & { documentName?: string }) => void
   onCopyTabUrl: (tabIndex: number) => void
   onToggleSidebar: () => void
+  closeSidebar: () => void
   renameWorkspace: (name: string) => Promise<void>
 }) {
   const currentRoute = computed(() => router.currentRoute?.value)
@@ -182,6 +184,27 @@ export function initializeAppEventHandlers({
           }
         },
       },
+      'operation:rename:example': {
+        onAfterExecute: async ({ meta, payload, documentName }) => {
+          // Refresh sidebar
+          onAfterExampleCreation({ ...meta, exampleKey: payload.name, documentName })
+
+          // Redirect to the new example if the mutation was successful and we are currently on the example
+          if (
+            isRouteParamsMatch({ documentName, path: meta.path, method: meta.method, exampleName: meta.exampleKey })
+          ) {
+            await router.replace({
+              name: 'example',
+              params: {
+                documentSlug: documentName,
+                pathEncoded: encodeURIComponent(meta.path),
+                method: meta.method,
+                exampleName: payload.name,
+              },
+            })
+          }
+        },
+      },
       //------------------------------------------------------------------------------------
       // Operation Request Body Related Hooks
       //------------------------------------------------------------------------------------
@@ -274,6 +297,8 @@ export function initializeAppEventHandlers({
 
     const execCallback = (result: NavigationFailure | void | undefined) => {
       if (!result) {
+        // Close the sidebar if it is open
+        closeSidebar()
         return payload.callback?.('success')
       }
 
