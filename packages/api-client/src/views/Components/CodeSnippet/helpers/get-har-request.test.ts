@@ -157,4 +157,32 @@ describe('getHarRequest', () => {
     const result = getHarRequest({ operation, server, example, environment })
     expect(result.url).toBe('https://api.prod.com/v2/users/42')
   })
+
+  it('encodes path parameter values in snippet URL generation', () => {
+    const operation = operationSchema.parse({
+      method: 'get',
+      path: '/files/{{filePath}}',
+    })
+    const server = serverSchema.parse({
+      url: 'https://api.example.com/{version}',
+      variables: {
+        version: { default: 'v1' },
+      },
+    })
+    const example = requestExampleSchema.parse({
+      parameters: {
+        path: [
+          { key: 'filePath', value: 'folder/sub folder.txt', enabled: true },
+          { key: 'version', value: 'v2/beta', enabled: true },
+        ],
+        headers: [],
+        cookies: [],
+        query: [],
+      },
+    })
+
+    const result = getHarRequest({ operation, server, example })
+
+    expect(result.url).toBe('https://api.example.com/v2%2Fbeta/files/folder%2Fsub%20folder.txt')
+  })
 })

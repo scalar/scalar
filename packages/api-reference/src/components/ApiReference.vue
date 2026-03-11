@@ -12,7 +12,6 @@ import {
   ScalarColorModeToggleIcon,
   ScalarSidebarFooter,
 } from '@scalar/components'
-import { redirectToProxy } from '@scalar/helpers/url/redirect-to-proxy'
 import {
   createSidebarState,
   ScalarSidebar,
@@ -719,28 +718,13 @@ eventBus.on('server:update:selected', ({ url }) =>
 
 /** Download the document from the store */
 eventBus.on('ui:download:document', async ({ format }) => {
-  if (format === 'direct') {
-    const url = configList.value[activeSlug.value]?.source?.url
-    if (!url) {
-      console.error(
-        'Direct download is not supported for documents without a URL source',
-      )
-      return
-    }
-    const result = await fetch(
-      redirectToProxy(mergedConfig.value.proxyUrl, url),
-    ).then((r) => r.text())
+  const document = await workspaceStore.exportActiveDocument(format)
 
-    downloadDocument(result, activeSlug.value ?? 'openapi')
-    // Will be handled in the ApiReference component. Only valid for integrations that rely on a configuration with a URL.
-    return
-  }
-
-  const document = workspaceStore.exportActiveDocument(format)
   if (!document) {
     console.error('No document found to download')
     return
   }
+
   downloadDocument(document, activeSlug.value ?? 'openapi', format)
 })
 

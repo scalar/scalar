@@ -108,6 +108,71 @@ describe('closeTab', () => {
     expect(workspace['x-scalar-tabs']).toHaveLength(2)
     expect(workspace['x-scalar-active-tab']).toBe(1)
   })
+
+  it('closes the first tab and decrements active index when active was 1', () => {
+    const workspace = createWorkspace({
+      'x-scalar-tabs': [
+        createTab({ path: '/users', title: 'Users' }),
+        createTab({ path: '/posts', title: 'Posts' }),
+        createTab({ path: '/comments', title: 'Comments' }),
+      ],
+      'x-scalar-active-tab': 1,
+    })
+
+    const result = closeTab(workspace, { index: 0 })
+
+    expect(result).toBe(true)
+    expect(workspace['x-scalar-tabs']).toHaveLength(2)
+    expect(workspace['x-scalar-tabs']?.[0]).toEqual({ path: '/posts', title: 'Posts', icon: 'request' })
+    expect(workspace['x-scalar-tabs']?.[1]).toEqual({ path: '/comments', title: 'Comments', icon: 'request' })
+    expect(workspace['x-scalar-active-tab']).toBe(0)
+  })
+
+  it('closes the first tab when active was 0 and keeps active at 0', () => {
+    const workspace = createWorkspace({
+      'x-scalar-tabs': [
+        createTab({ path: '/users', title: 'Users' }),
+        createTab({ path: '/posts', title: 'Posts' }),
+        createTab({ path: '/comments', title: 'Comments' }),
+      ],
+      'x-scalar-active-tab': 0,
+    })
+
+    const result = closeTab(workspace, { index: 0 })
+
+    expect(result).toBe(true)
+    expect(workspace['x-scalar-tabs']).toHaveLength(2)
+    expect(workspace['x-scalar-active-tab']).toBe(0)
+  })
+
+  it('closes the middle tab and decrements active index when active was 2', () => {
+    const workspace = createWorkspace({
+      'x-scalar-tabs': [
+        createTab({ path: '/users', title: 'Users' }),
+        createTab({ path: '/posts', title: 'Posts' }),
+        createTab({ path: '/comments', title: 'Comments' }),
+      ],
+      'x-scalar-active-tab': 2,
+    })
+
+    const result = closeTab(workspace, { index: 1 })
+
+    expect(result).toBe(true)
+    expect(workspace['x-scalar-tabs']).toHaveLength(2)
+    expect(workspace['x-scalar-active-tab']).toBe(1)
+  })
+
+  it('sets active tab to 0 when it was undefined before close', () => {
+    const workspace = createWorkspace({
+      'x-scalar-tabs': [createTab({ path: '/users', title: 'Users' }), createTab({ path: '/posts', title: 'Posts' })],
+    })
+
+    const result = closeTab(workspace, { index: 1 })
+
+    expect(result).toBe(true)
+    expect(workspace['x-scalar-tabs']).toHaveLength(1)
+    expect(workspace['x-scalar-active-tab']).toBe(0)
+  })
 })
 
 describe('closeOtherTabs', () => {
