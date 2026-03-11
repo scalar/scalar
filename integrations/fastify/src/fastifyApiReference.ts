@@ -1,7 +1,7 @@
 import { getHtmlDocument } from '@scalar/core/libs/html-rendering'
 import { normalize, toJson, toYaml } from '@scalar/openapi-parser'
 import type { OpenAPI } from '@scalar/openapi-types'
-import type { FastifyBaseLogger, FastifyTypeProviderDefault, RawServerDefault } from 'fastify'
+import type { FastifyBaseLogger, RawServerDefault } from 'fastify'
 import fp from 'fastify-plugin'
 import { slug } from 'github-slugger'
 
@@ -20,9 +20,7 @@ const RELATIVE_JAVASCRIPT_PATH = 'js/scalar.js'
  *
  * @see https://github.com/fastify/fastify-swagger#hide-a-route
  */
-const schemaToHideRoute = {
-  hide: true,
-}
+const schemaToHideRoute = { hide: true }
 
 const getRoutePrefix = (routePrefix?: string) => {
   const prefix = routePrefix ?? '/reference'
@@ -57,7 +55,8 @@ const DEFAULT_CONFIGURATION: Partial<ApiReferenceConfiguration> = {
 const fastifyApiReference = fp<
   FastifyApiReferenceOptions,
   RawServerDefault,
-  FastifyTypeProviderDefault,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  any,
   FastifyBaseLogger
 >(
   (fastify, options, next) => {
@@ -90,10 +89,11 @@ const fastifyApiReference = fp<
       }
 
       // Even if @fastify/swagger is loaded, when the `decorator` option is set, the `swagger` function is not available.
-      if (fastify.hasPlugin('@fastify/swagger') && typeof fastify.swagger === 'function') {
+      const swaggerFn = (fastify as { swagger?: () => unknown }).swagger
+      if (fastify.hasPlugin('@fastify/swagger') && typeof swaggerFn === 'function') {
         return {
           type: 'swagger' as const,
-          get: () => fastify.swagger(),
+          get: () => swaggerFn(),
         }
       }
 
@@ -149,7 +149,7 @@ const fastifyApiReference = fp<
             .header('Access-Control-Allow-Methods', '*')
             .send(json)
         },
-      })
+      } as any)
 
       const openApiSpecUrlYaml = `${getRoutePrefix(options.routePrefix)}${getOpenApiDocumentEndpoints(options.openApiDocumentEndpoints).yaml}`
       fastify.route({
@@ -169,17 +169,18 @@ const fastifyApiReference = fp<
             .header('Access-Control-Allow-Methods', '*')
             .send(yaml)
         },
-      })
+      } as any)
     }
 
     // Redirect route without a trailing slash to force a trailing slash:
     // We need this so the request to the JS file is relative.
 
     // With ignoreTrailingSlash: true, fastify responds to both routes anyway.
+    const initialConfig = fastify.initialConfig as
+      | { routerOptions?: { ignoreTrailingSlash?: boolean }; ignoreTrailingSlash?: boolean }
+      | undefined
     const ignoreTrailingSlash =
-      // @ts-expect-error We're still on Fastify 4, this is introduced in Fastify 5
-      fastify.initialConfig?.routerOptions?.ignoreTrailingSlash === true ||
-      fastify.initialConfig?.ignoreTrailingSlash === true
+      initialConfig?.routerOptions?.ignoreTrailingSlash === true || initialConfig?.ignoreTrailingSlash === true
 
     if (!ignoreTrailingSlash && getRoutePrefix(options.routePrefix)) {
       fastify.route({
@@ -193,7 +194,7 @@ const fastifyApiReference = fp<
           const currentUrl = new URL(request.url, `${request.protocol}://${request.hostname}`)
           return reply.redirect(`${currentUrl.pathname}/`, 301)
         },
-      })
+      } as any)
     }
 
     // If no theme is passed, use the default theme.
@@ -233,7 +234,7 @@ const fastifyApiReference = fp<
           }),
         )
       },
-    })
+    } as any)
 
     fastify.route({
       method: 'GET',
@@ -245,7 +246,7 @@ const fastifyApiReference = fp<
       handler(_, reply) {
         return reply.header('Content-Type', 'application/javascript; charset=utf-8').send(fileContent)
       },
-    })
+    } as any)
 
     next()
   },
@@ -254,4 +255,5 @@ const fastifyApiReference = fp<
   },
 )
 
-export default fastifyApiReference
+import type { FastifyPluginCallback } from 'fastify'
+export default fastifyApiReference as unknown as FastifyPluginCallback<FastifyApiReferenceOptions>

@@ -1,8 +1,10 @@
 {
   "extends": "./tsconfig.json",
   "include": ["src"],
+  "exclude": ["src/**/*.test.ts", "src/**/*.spec.ts"],
   "compilerOptions": {
     "skipLibCheck": true,
+    "noImplicitAny": false,
     "declaration": true,
     "declarationMap": true,
     "noEmit": false,

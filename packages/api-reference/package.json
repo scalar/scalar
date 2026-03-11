@@ -25,7 +25,7 @@
     "node": ">=22"
   },
   "scripts": {
-    "build": "pnpm build:default && pnpm build:standalone && pnpm types:build",
+    "build": "node scripts/parallel-build.mjs && pnpm types:build",
     "build:default": "vite build",
     "build:standalone": "vite build -c vite.standalone.config.ts",
     "dev": "vite",

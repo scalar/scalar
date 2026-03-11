@@ -15,7 +15,7 @@ export default defineConfig({
     // Ensure the viewBox is preserved
     svgLoader({
       svgoConfig: {
-        multipass: true,
+        multipass: false,
         plugins: [
           {
             name: 'preset-default',

@@ -48,18 +48,9 @@ export default defineConfig({
       include: [/node_modules/],
     },
     cssCodeSplit: false,
-    minify: 'terser',
-    // With the default terserOptions, highlight.js breaks the build.
-    // * They're using terser, too.
-    // * Copying their options fixes the build.
-    // * `max_line_len: 80` is the one setting that makes the difference.
-    //
-    // Source: https://github.com/highlightjs/highlight.js/blob/b9ae5fea90514b864f2c9b2889d7d3302d6156dc/tools/build_config.js#L58-L73
-    terserOptions: {
-      format: {
-        max_line_len: 80,
-      },
-    },
+    // Use esbuild (default) instead of terser for much faster minification (~20–40x).
+    // Previously used terser with max_line_len for highlight.js; we now use @scalar/code-highlight.
+    minify: 'esbuild',
     lib: {
       entry: ['src/standalone.ts'],
       name: '@scalar/api-reference',

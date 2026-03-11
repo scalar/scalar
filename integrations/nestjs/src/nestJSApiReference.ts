@@ -1,8 +1,7 @@
-import type { ServerResponse } from 'node:http'
+import type { IncomingMessage, ServerResponse } from 'node:http'
 
 import { getHtmlDocument } from '@scalar/core/libs/html-rendering'
 import type { Request, Response } from 'express'
-import type { FastifyRequest } from 'fastify'
 
 import type { ApiReferenceOptions, NestJSReferenceConfiguration } from './types'
 
@@ -94,7 +93,7 @@ export function apiReference(givenConfiguration: NestJSReferenceConfiguration) {
   const content = () => getHtmlDocument(configuration, customThemeCSS)
 
   if (givenConfiguration.withFastify) {
-    return (_req: FastifyRequest, res: ServerResponse) => {
+    return (_req: IncomingMessage, res: ServerResponse) => {
       res.writeHead(200, { 'Content-Type': 'text/html' })
       res.write(content())
       res.end()
