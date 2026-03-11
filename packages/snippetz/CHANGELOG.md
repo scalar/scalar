@@ -1,5 +1,11 @@
 # @scalar/snippetz
 
+## 0.7.3
+
+### Patch Changes
+
+- [#8404](https://github.com/scalar/scalar/pull/8404): Preserve duplicate query parameters in generated code snippets. php/guzzle: preserve duplicate query parameters as arrays.
+
 ## 0.7.2
 
 ### Patch Changes

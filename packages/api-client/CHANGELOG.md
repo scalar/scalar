@@ -1,5 +1,34 @@
 # @scalar/api-client
 
+## 2.36.1
+
+### Patch Changes
+
+- [#8403](https://github.com/scalar/scalar/pull/8403): Persist auth url and token url in local storage
+- [#8402](https://github.com/scalar/scalar/pull/8402): Fix raw binary request bodies so uploaded files are sent correctly and code samples show file references.
+- [#8398](https://github.com/scalar/scalar/pull/8398): fix code snippet HAR request URL generation to URL-encode substituted path parameter values, matching request sending behavior.
+- [#8386](https://github.com/scalar/scalar/pull/8386): feat: app drag region for macos
+- [#8408](https://github.com/scalar/scalar/pull/8408): Use the secret oauth urls before the default flow urls
+- [#8407](https://github.com/scalar/scalar/pull/8407): Fix conditional rendering for token URL
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.39.1**
+  - [#8393](https://github.com/scalar/scalar/pull/8393): fix: correctly update active tab on tab close event
+  - [#8403](https://github.com/scalar/scalar/pull/8403): Persist auth url and token url in local storage
+
+- **@scalar/snippetz@0.7.3**
+  - [#8404](https://github.com/scalar/scalar/pull/8404): Preserve duplicate query parameters in generated code snippets. php/guzzle: preserve duplicate query parameters as arrays.
+
+- **@scalar/sidebar@0.8.5**
+  - [#8386](https://github.com/scalar/scalar/pull/8386): feat: add spacer slot to sidebar
+
+- **@scalar/oas-utils@0.10.4**
+
+- **@scalar/components@0.20.5**
+
+- **@scalar/use-codemirror@0.14.5**
+
 ## 2.36.0
 
 ### Minor Changes
