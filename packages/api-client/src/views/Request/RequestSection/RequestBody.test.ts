@@ -84,6 +84,37 @@ describe('RequestBody.vue', () => {
     expect(wrapper.findComponent({ name: 'ScalarListbox' }).text()).toContain('Multipart Form')
   })
 
+  it('uses the selected request body content type for the current example', () => {
+    mockActiveExample.name = 'Upload'
+    mockActiveExample.body = {
+      activeBody: 'raw',
+    }
+
+    mockOperation.requestBody = {
+      content: {
+        'application/json': {},
+        'multipart/form-data': {},
+      },
+      'x-scalar-selected-content-type': {
+        Upload: 'multipart/form-data',
+      },
+    } as any
+
+    const wrapper = mount(RequestBody, props)
+
+    expect(wrapper.findComponent({ name: 'ScalarListbox' }).text()).toContain('Multipart Form')
+    expect(mockRequestExampleMutators.edit).toHaveBeenCalledWith('mockExampleUid', 'body.formData', {
+      encoding: 'form-data',
+      value: [
+        {
+          enabled: false,
+          key: '',
+          value: '',
+        },
+      ],
+    })
+  })
+
   it('renders with url encoded form', () => {
     mockActiveExample.body = {
       activeBody: 'formData',

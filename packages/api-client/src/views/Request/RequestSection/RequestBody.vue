@@ -57,6 +57,46 @@ const contentTypes = {
 } as const
 type ContentType = keyof typeof contentTypes
 
+const getContentTypeOptionId = (contentType?: string | null): ContentType => {
+  if (!contentType) {
+    return 'none'
+  }
+
+  if (contentType === 'multipart/form-data') {
+    return 'multipartForm'
+  }
+
+  if (contentType === 'application/x-www-form-urlencoded') {
+    return 'formUrlEncoded'
+  }
+
+  if (contentType === 'application/octet-stream') {
+    return 'binaryFile'
+  }
+
+  if (contentType.includes('/json') || contentType.endsWith('+json')) {
+    return 'json'
+  }
+
+  if (contentType.includes('/xml') || contentType.endsWith('+xml')) {
+    return 'xml'
+  }
+
+  if (contentType.includes('/yaml') || contentType.includes('/yml')) {
+    return 'yaml'
+  }
+
+  if (contentType.includes('/edn')) {
+    return 'edn'
+  }
+
+  if (contentType.startsWith('text/') || contentType.includes('/html')) {
+    return 'other'
+  }
+
+  return 'none'
+}
+
 /** Convert content types to options for the dropdown */
 const contentTypeOptions = (
   Object.entries(contentTypes) as Entries<typeof contentTypes>
@@ -87,10 +127,11 @@ const activeExampleContentType = computed(() => {
     return raw.encoding
   }
 
-  // Set content type from request if present
-  const contentType = Object.keys(operation.requestBody?.content || {})[0]
+  const selectedContentType =
+    operation.requestBody?.['x-scalar-selected-content-type']?.[example.name] ??
+    Object.keys(operation.requestBody?.content || {})[0]
 
-  return contentType || 'none'
+  return getContentTypeOptionId(selectedContentType)
 })
 /** Selected ref from options above */
 const selectedContentType = computed({
