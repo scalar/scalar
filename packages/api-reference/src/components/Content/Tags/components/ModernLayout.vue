@@ -65,4 +65,11 @@ const hasChildren = computed(() => (tag?.children?.length ?? 0) > 0)
 .section-container:has(.show-more) {
   background-color: color-mix(in srgb, var(--scalar-background-2), transparent);
 }
+
+/* Collapsed tags render a Show More row below the section. In this state the
+   section itself should not draw a bottom separator, otherwise we get a double
+   divider (one from the section and one above the button row). */
+.section-container:has(.show-more) :deep(.section) {
+  border-bottom: none;
+}
 </style>
