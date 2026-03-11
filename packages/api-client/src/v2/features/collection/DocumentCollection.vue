@@ -52,7 +52,21 @@ const isDocumentDirty = computed(
 )
 
 const documentSourceUrl = computed(
-  () => props.document?.['x-scalar-original-source-url'],
+  () => props.document?.['x-scalar-original-source-url'] as string | undefined,
+)
+
+const documentRegistryMeta = computed(
+  () =>
+    props.document?.['x-scalar-registry-meta'] as
+      | { namespace: string; slug: string }
+      | undefined,
+)
+
+/** Show Sync when the document has a source URL or registry meta (registry can be used if fetchDocumentFromRegistry is set). */
+const canShowSyncButton = computed(
+  () =>
+    documentSourceUrl.value !== undefined ||
+    documentRegistryMeta.value !== undefined,
 )
 
 const { toast } = useToasts()
@@ -91,8 +105,32 @@ const rebaseResult = ref<{
 } | null>(null)
 
 /**
+ * Resolves the source for syncing. Registry meta has priority over x-scalar-original-source-url
+ * when fetchDocumentFromRegistry is provided. Returns either a URL or the full document object.
+ */
+const resolveSyncInput = async (): Promise<
+  { url: string } | { document: Record<string, unknown> } | null
+> => {
+  const registryMeta = documentRegistryMeta.value
+  if (registryMeta && props.fetchDocumentFromRegistry) {
+    try {
+      const document = await props.fetchDocumentFromRegistry(registryMeta)
+      return { document }
+    } catch (err) {
+      toast('Failed to resolve document from registry', 'error')
+      return null
+    }
+  }
+  const url = documentSourceUrl.value
+  if (url) {
+    return { url }
+  }
+  return null
+}
+
+/**
  * Handles the synchronization flow for a document.
- * Checks for unsaved changes, verifies the document's source URL,
+ * Checks for unsaved changes, resolves source (registry over URL),
  * initiates rebasing, handles conflicts, and emits completion events.
  * If conflicts are detected, a modal dialog is shown for user resolution.
  */
@@ -102,14 +140,15 @@ const handleSyncFlow = async () => {
     return
   }
 
-  if (!documentSourceUrl.value) {
+  const input = await resolveSyncInput()
+  if (!input) {
     toast('Document source URL is not set', 'warn')
     return
   }
 
   const result = await props.workspaceStore.rebaseDocument({
     name: props.documentSlug,
-    url: documentSourceUrl.value,
+    ...input,
   })
 
   if (result?.ok) {
@@ -236,7 +275,7 @@ const handleApplyChanges = async ({
           </div>
 
           <ScalarButton
-            v-if="document?.['x-scalar-original-source-url'] !== undefined"
+            v-if="canShowSyncButton"
             class="text-c-2 hover:text-c-1 shrink-0 gap-1.5"
             data-testid="document-sync-button"
             size="xs"

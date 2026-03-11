@@ -31,6 +31,13 @@ type CreateApiClientOptions = {
    * @default 'default'
    */
   fallbackThemeSlug?: () => string
+  /**
+   * Fetches the full document from registry by meta. When set, registry meta takes priority
+   * over x-scalar-original-source-url when syncing. Returns the document as a plain object.
+   */
+  fetchDocumentFromRegistry?: (
+    meta: { namespace: string; slug: string },
+  ) => Promise<Record<string, unknown>>
 }
 
 /**
@@ -51,11 +58,21 @@ export const createAppRouter = (layout: CreateApiClientOptions['layout']) => {
  */
 export const createApiClientApp = async (
   el: HTMLElement | null,
-  { layout = 'desktop', plugins, customThemes, fallbackThemeSlug }: CreateApiClientOptions,
+  {
+    layout = 'desktop',
+    plugins,
+    customThemes,
+    fallbackThemeSlug,
+    fetchDocumentFromRegistry,
+  }: CreateApiClientOptions,
 ) => {
   // Add the router
   const router = createAppRouter(layout)
-  const state = await createAppState({ router, customThemes, fallbackThemeSlug })
+  const state = await createAppState({
+    router,
+    customThemes,
+    fallbackThemeSlug,
+  })
   const commandPaletteState = useCommandPaletteState()
 
   // Pass in our initial props at the top level
@@ -64,6 +81,7 @@ export const createApiClientApp = async (
     plugins,
     getAppState: () => state,
     getCommandPaletteState: () => commandPaletteState,
+    fetchDocumentFromRegistry,
   })
   app.use(router)
 

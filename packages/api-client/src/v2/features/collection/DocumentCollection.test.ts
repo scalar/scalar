@@ -48,7 +48,10 @@ describe('DocumentCollection', () => {
     })
   }
 
-  const mountWithRouter = async (document: WorkspaceDocument | null) => {
+  const mountWithRouter = async (
+    document: WorkspaceDocument | null,
+    extraProps?: Record<string, unknown>,
+  ) => {
     const router = createRouterInstance()
     const workspaceStore = createMockWorkspaceStore()
 
@@ -75,6 +78,7 @@ describe('DocumentCollection', () => {
           label: 'Test Workspace',
         },
         plugins: [],
+        ...extraProps,
       },
       global: {
         plugins: [router],
@@ -169,7 +173,7 @@ describe('DocumentCollection', () => {
     expect(iconSelector.props('modelValue')).toBe('interface-content-folder')
   })
 
-  it('opens sync modal and runs document sync test when Sync is clicked', async () => {
+  it('opens sync modal and runs document sync when Sync is clicked (source URL)', async () => {
     const document = createMockDocument({
       info: { title: 'Synced API', version: '1.0.0' },
       'x-scalar-original-source-url': 'https://example.com/openapi.yaml',
@@ -186,6 +190,49 @@ describe('DocumentCollection', () => {
     expect(workspaceStore.rebaseDocument).toHaveBeenCalledWith({
       name: 'test-document',
       url: 'https://example.com/openapi.yaml',
+    })
+  })
+
+  it('shows Sync button when document has registry meta only', async () => {
+    const document = createMockDocument({
+      info: { title: 'Registry API', version: '1.0.0' },
+      'x-scalar-registry-meta': { namespace: 'team', slug: 'my-api' },
+    })
+
+    const { wrapper } = await mountWithRouter(document)
+
+    const syncButton = wrapper.find('[data-testid="document-sync-button"]')
+    expect(syncButton.exists()).toBe(true)
+  })
+
+  it('uses document from fetchDocumentFromRegistry when registry meta is present (registry over URL)', async () => {
+    const registryDocument = {
+      openapi: '3.1.0',
+      info: { title: 'Registry API', version: '1.0.0' },
+      paths: {},
+    }
+    const fetchDocumentFromRegistry = vi.fn().mockResolvedValue(registryDocument)
+    const document = createMockDocument({
+      info: { title: 'Registry API', version: '1.0.0' },
+      'x-scalar-original-source-url': 'https://example.com/openapi.yaml',
+      'x-scalar-registry-meta': { namespace: 'team', slug: 'my-api' },
+    })
+
+    const { wrapper, workspaceStore } = await mountWithRouter(document, {
+      fetchDocumentFromRegistry,
+    })
+
+    const syncButton = wrapper.find('[data-testid="document-sync-button"]')
+    await syncButton.trigger('click')
+    await flushPromises()
+
+    expect(fetchDocumentFromRegistry).toHaveBeenCalledWith({
+      namespace: 'team',
+      slug: 'my-api',
+    })
+    expect(workspaceStore.rebaseDocument).toHaveBeenCalledWith({
+      name: 'test-document',
+      document: registryDocument,
     })
   })
 })
