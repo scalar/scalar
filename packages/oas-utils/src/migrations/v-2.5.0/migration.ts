@@ -149,9 +149,7 @@ export const migrate_v_2_5_0 = (data: v_2_4_0.DataRecord): v_2_5_0['DataRecord']
         uid: workspace.uid as v_2_5_0['Workspace']['uid'],
         collections: workspace.collections.map((uid) => uid as v_2_5_0['Collection']['uid']),
         cookies: workspace.cookies.map((uid) => uid as v_2_5_0['Cookie']['uid']),
-        themeId: (['fastify', 'elysiajs'].includes(workspace.themeId)
-          ? 'default'
-          : workspace.themeId) as v_2_5_0['Workspace']['themeId'],
+        themeId: workspace.themeId as v_2_5_0['Workspace']['themeId'],
         selectedHttpClient: {
           targetKey: 'shell',
           clientKey: 'curl',

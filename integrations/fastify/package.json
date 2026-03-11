@@ -10,7 +10,13 @@
     "url": "git+https://github.com/scalar/scalar.git",
     "directory": "integrations/fastify"
   },
-  "keywords": ["api", "documentation", "fastify", "openapi", "swagger"],
+  "keywords": [
+    "api",
+    "documentation",
+    "fastify",
+    "openapi",
+    "swagger"
+  ],
   "version": "1.48.4",
   "engines": {
     "node": ">=22"
@@ -40,7 +46,10 @@
       "default": "./dist/index.js"
     }
   },
-  "files": ["./dist", "CHANGELOG.md"],
+  "files": [
+    "./dist",
+    "CHANGELOG.md"
+  ],
   "readme": {
     "title": "Scalar API Reference for Fastify",
     "badges": [
