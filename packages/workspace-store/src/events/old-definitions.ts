@@ -154,7 +154,7 @@ export type ApiReferenceEvents<T extends keyof ServerObject = keyof ServerObject
   /** Download the document from the store */
   'scalar-download-document': {
     detail: {
-      format: 'json' | 'yaml' | 'direct'
+      format: 'json' | 'yaml'
     }
   }
   /** Add a new document to the store */
