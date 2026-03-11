@@ -1,11 +1,6 @@
 <script setup lang="ts">
 import { cva, cx, ScalarButton, ScalarIcon } from '@scalar/components'
-import {
-  presets,
-  themeLabels,
-  type Theme,
-  type ThemeId,
-} from '@scalar/themes'
+import { presets, type Theme, type ThemeId } from '@scalar/themes'
 import { computed } from 'vue'
 
 import Appearance from './components/Appearance.vue'

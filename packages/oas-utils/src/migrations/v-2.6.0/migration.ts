@@ -3,7 +3,7 @@ import type { v_2_5_0 } from '@/migrations/v-2.5.0/types.generated'
 import type { v_2_6_0 } from './types.generated'
 
 /** V-2.5.0 to V-2.6.0 migration */
-export const migrate_v_2_6_0 = (data: v_2_5_0.DataRecord): v_2_6_0['DataRecord'] => {
+export const migrate_v_2_6_0 = (data: v_2_5_0['DataRecord']): v_2_6_0['DataRecord'] => {
   console.info('Performing data migration v-2.5.0 to v-2.6.0')
 
   const cookies = Object.entries(data.cookies || {}).reduce<Record<string, v_2_6_0['Cookie']>>((acc, [key, cookie]) => {
