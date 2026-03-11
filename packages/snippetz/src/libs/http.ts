@@ -36,6 +36,28 @@ export const createSearchParams = (query: HarRequest['queryString'] = []) => {
 }
 
 /**
+ * Reduces query parameters into an object while preserving repeated keys as arrays.
+ */
+export function reduceQueryParams(query: HarRequest['queryString'] = []): Record<string, string | string[]> {
+  return query.reduce(
+    (acc, { name, value }) => {
+      const existingValue = acc[name]
+
+      if (existingValue === undefined) {
+        acc[name] = value
+      } else if (Array.isArray(existingValue)) {
+        existingValue.push(value)
+      } else {
+        acc[name] = [existingValue, value]
+      }
+
+      return acc
+    },
+    {} as Record<string, string | string[]>,
+  )
+}
+
+/**
  * Builds the complete URL with query string
  */
 export function buildUrl(baseUrl: string, queryString: string): string {

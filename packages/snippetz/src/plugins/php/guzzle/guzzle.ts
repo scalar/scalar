@@ -1,5 +1,6 @@
 import type { Plugin } from '@scalar/types/snippetz'
 
+import { reduceQueryParams } from '@/libs/http'
 import { Raw, objectToString } from '@/libs/php'
 
 /**
@@ -35,11 +36,7 @@ export const phpGuzzle: Plugin = {
 
     // Handle query parameters
     if (request.queryString && request.queryString.length > 0) {
-      const query: Record<string, string> = {}
-      request.queryString.forEach((param) => {
-        query[param.name] = param.value
-      })
-      options.query = query
+      options.query = reduceQueryParams(request.queryString)
     }
 
     // Handle cookies
