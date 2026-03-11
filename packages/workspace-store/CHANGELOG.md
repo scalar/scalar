@@ -1,5 +1,17 @@
 # @scalar/workspace-store
 
+## 0.39.1
+
+### Patch Changes
+
+- [#8393](https://github.com/scalar/scalar/pull/8393): fix: correctly update active tab on tab close event
+- [#8403](https://github.com/scalar/scalar/pull/8403): Persist auth url and token url in local storage
+
+#### Updated Dependencies
+
+- **@scalar/snippetz@0.7.3**
+  - [#8404](https://github.com/scalar/scalar/pull/8404): Preserve duplicate query parameters in generated code snippets. php/guzzle: preserve duplicate query parameters as arrays.
+
 ## 0.39.0
 
 ### Minor Changes
