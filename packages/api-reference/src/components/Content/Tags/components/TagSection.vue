@@ -28,6 +28,7 @@ const { tag, headerId, isCollapsed } = defineProps<{
   <Section
     v-if="tag"
     :id="tag.id"
+    :class="{ 'section-with-separator': !isCollapsed }"
     role="none"
     @intersecting="
       () => eventBus?.emit('intersecting:nav-item', { id: tag.id })
@@ -63,3 +64,8 @@ const { tag, headerId, isCollapsed } = defineProps<{
     <SpecificationExtension :value="tag.xKeys" />
   </Section>
 </template>
+<style scoped>
+.section-with-separator {
+  border-bottom: var(--scalar-border-width) solid var(--scalar-border-color);
+}
+</style>

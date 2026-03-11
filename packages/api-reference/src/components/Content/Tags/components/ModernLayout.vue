@@ -52,7 +52,7 @@ const hasChildren = computed(() => (tag?.children?.length ?? 0) > 0)
     <!-- We cannot use v-else due to the Lazy wrapper, but its the opposite of above -->
     <div
       v-if="!(isCollapsed && moreThanOneTag)"
-      class="contents divide-y">
+      class="section-list contents divide-y">
       <slot />
     </div>
   </SectionContainer>
@@ -65,11 +65,11 @@ const hasChildren = computed(() => (tag?.children?.length ?? 0) > 0)
 .section-container:has(.show-more) {
   background-color: color-mix(in srgb, var(--scalar-background-2), transparent);
 }
-
-/* Collapsed tags render a Show More row below the section. In this state the
-   section itself should not draw a bottom separator, otherwise we get a double
-   divider (one from the section and one above the button row). */
-.section-container:has(.show-more) :deep(.section) {
-  border-bottom: none;
+.section-list
+  > :deep(
+    [data-testid='lazy-container']:has(+ [data-testid='lazy-container'])
+      > .section
+  ) {
+  border-bottom: var(--scalar-border-width) solid var(--scalar-border-color);
 }
 </style>
