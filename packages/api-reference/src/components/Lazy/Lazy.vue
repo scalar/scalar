@@ -137,7 +137,7 @@ onBeforeUnmount(() => {
 </script>
 <template>
   <div
-    :id
+    :id="!shouldRender ? id : undefined"
     ref="lazyContainerRef"
     :style="{ height: shouldRender ? undefined : `${placeholderHeight}px` }">
     <slot v-if="shouldRender" />
