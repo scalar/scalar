@@ -187,6 +187,25 @@ describe('buildRequestBody', () => {
     expect(formData.get('description')).toStrictEqual('Test file')
   })
 
+  it('returns File bodies for raw binary request examples', () => {
+    const mockFile = new File(['binary content'], 'payload.bin', { type: 'application/octet-stream' })
+    const requestBody = {
+      content: {
+        'application/octet-stream': {
+          examples: {
+            default: {
+              value: mockFile,
+            },
+          },
+        },
+      },
+    }
+
+    const result = buildRequestBody(requestBody, {}, 'default')
+
+    expect(result).toStrictEqual(mockFile)
+  })
+
   it('skips form entries with empty names and replaces environment variables in field names', () => {
     const requestBody = {
       content: {
