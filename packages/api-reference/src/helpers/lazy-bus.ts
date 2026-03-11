@@ -23,6 +23,18 @@ export const firstLazyLoadComplete = ref(false)
 const intersectionBlockers = reactive<Set<string>>(new Set())
 const onRenderComplete = new Set<() => void>()
 
+/** Cached content heights so placeholders can match when not rendered. */
+const lazyPlaceholderHeights = reactive<Map<string, number>>(new Map())
+
+export const getLazyPlaceholderHeight = (id: string): number | undefined => lazyPlaceholderHeights.get(id)
+
+export const setLazyPlaceholderHeight = (id: string, height: number): void => {
+  if (!Number.isFinite(height) || height <= 0) {
+    return
+  }
+  lazyPlaceholderHeights.set(id, Math.round(height))
+}
+
 const addLazyCompleteCallback = (callback: (() => void) | undefined) => {
   if (callback) {
     onRenderComplete.add(callback)
@@ -90,10 +102,13 @@ const runLazyBus = () => {
   }
 
   if (window.requestIdleCallback) {
-    window.requestIdleCallback(() => {
-      // biome-ignore lint/nursery/noFloatingPromises: Expected floating promise
-      processQueue()
-    }, { timeout: 1500 })
+    window.requestIdleCallback(
+      () => {
+        // biome-ignore lint/nursery/noFloatingPromises: Expected floating promise
+        processQueue()
+      },
+      { timeout: 1500 },
+    )
   } else {
     // biome-ignore lint/nursery/noFloatingPromises: Expected floating promise
     nextTick(processQueue)
@@ -125,10 +140,7 @@ export const addToPriorityQueue = (id: string | undefined) => {
 /**
  * Request an item to be rendered (e.g. when it re-enters the overscan zone).
  */
-export const requestLazyRender = (
-  id: string | undefined,
-  priority = false,
-): void => {
+export const requestLazyRender = (id: string | undefined, priority = false): void => {
   if (!id || readyQueue.has(id)) {
     return
   }
@@ -146,6 +158,7 @@ const resetLazyElement = (id: string) => {
   priorityQueue.delete(id)
   pendingQueue.delete(id)
   readyQueue.delete(id)
+  lazyPlaceholderHeights.delete(id)
 }
 
 // ---------------------------------------------------------------------------
@@ -161,12 +174,7 @@ export function useLazyBus(id: string) {
   })
 
   return {
-    isReady: computed(
-      () =>
-        typeof window === 'undefined' ||
-        priorityQueue.has(id) ||
-        readyQueue.has(id),
-    ),
+    isReady: computed(() => typeof window === 'undefined' || priorityQueue.has(id) || readyQueue.has(id)),
   }
 }
 
@@ -177,14 +185,10 @@ export function useLazyBus(id: string) {
 export const scrollToLazy = (
   id: string,
   setExpanded: (id: string, value: boolean) => void,
-  getEntryById: (id: string) =>
-    | { id: string; parent?: { id: string }; children?: { id: string }[] }
-    | undefined,
+  getEntryById: (id: string) => { id: string; parent?: { id: string }; children?: { id: string }[] } | undefined,
 ) => {
   const item = getEntryById(id)
-  const isLazy =
-    !readyQueue.has(id) ||
-    item?.children?.some((child) => !readyQueue.has(child.id))
+  const isLazy = !readyQueue.has(id) || item?.children?.some((child) => !readyQueue.has(child.id))
   const unfreeze = isLazy ? freeze(id) : undefined
   addLazyCompleteCallback(unfreeze)
 
@@ -201,9 +205,7 @@ export const scrollToLazy = (
     const parent = getEntryById(item.parent.id)
     const elementIdx = parent?.children?.findIndex((child) => child.id === id)
     if (elementIdx !== undefined && elementIdx >= 0) {
-      parent?.children
-        ?.slice(elementIdx, elementIdx + 2)
-        .forEach((child) => addToPriorityQueue(child.id))
+      parent?.children?.slice(elementIdx, elementIdx + 2).forEach((child) => addToPriorityQueue(child.id))
     }
   }
 
@@ -223,12 +225,7 @@ export const scrollToLazy = (
   })
 }
 
-const tryScroll = (
-  id: string,
-  stopTime: number,
-  onComplete: UnblockFn,
-  onFailure?: () => void,
-): void => {
+const tryScroll = (id: string, stopTime: number, onComplete: UnblockFn, onFailure?: () => void): void => {
   const element = document.getElementById(id)
   if (element) {
     element.scrollIntoView({ block: 'start' })

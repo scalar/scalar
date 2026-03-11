@@ -9,9 +9,14 @@
  */
 
 import { useIntersectionObserver } from '@vueuse/core'
-import { computed, onMounted, ref } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 
-import { requestLazyRender, useLazyBus } from '@/helpers/lazy-bus'
+import {
+  getLazyPlaceholderHeight,
+  requestLazyRender,
+  setLazyPlaceholderHeight,
+  useLazyBus,
+} from '@/helpers/lazy-bus'
 
 const { id, expanded = false } = defineProps<{
   /** Identifier for this lazy section; used for scroll-to and bus registration. */
@@ -29,7 +34,13 @@ const VIEWPORT_ROOT_MARGIN = `${VIEWPORT_OVERSCAN_PX}px 0px`
 
 const { isReady } = useLazyBus(id)
 const lazyContainerRef = ref<HTMLElement | null>(null)
+const lazyContentRef = ref<HTMLElement | null>(null)
 const isInViewport = ref(false)
+
+const placeholderHeight = ref(
+  getLazyPlaceholderHeight(id) ?? PLACEHOLDER_HEIGHT_PX,
+)
+let contentResizeObserver: ResizeObserver | null = null
 
 /** Once ready we always show (no eviction). Otherwise show when in overscan or expanded. */
 const shouldRender = computed(
@@ -66,19 +77,79 @@ onMounted(() => {
     { rootMargin: VIEWPORT_ROOT_MARGIN },
   )
 })
+
+/**
+ * Capture content height right before we switch to placeholder (pre-flush so content
+ * is still in the DOM). Ensures we never measure the container or leave the cache stale.
+ */
+watch(
+  () => shouldRender.value,
+  (rendered, wasRendered) => {
+    if (wasRendered && !rendered && lazyContentRef.value) {
+      const h = lazyContentRef.value.offsetHeight
+      if (Number.isFinite(h) && h > 0) {
+        placeholderHeight.value = h
+        setLazyPlaceholderHeight(id, h)
+      }
+    }
+  },
+  { flush: 'pre' },
+)
+
+/** When content is visible, set up ResizeObserver and measure. */
+watch(
+  () => shouldRender.value,
+  (rendered) => {
+    if (!rendered) {
+      contentResizeObserver?.disconnect()
+      contentResizeObserver = null
+      return
+    }
+    void nextTick(() => {
+      if (!lazyContentRef.value || typeof ResizeObserver === 'undefined') {
+        return
+      }
+      if (!contentResizeObserver) {
+        contentResizeObserver = new ResizeObserver(() => {
+          if (!lazyContentRef.value) {
+            return
+          }
+          const h = lazyContentRef.value.offsetHeight
+          if (Number.isFinite(h) && h > 0) {
+            placeholderHeight.value = h
+            setLazyPlaceholderHeight(id, h)
+          }
+        })
+      }
+      contentResizeObserver.observe(lazyContentRef.value)
+      const h = lazyContentRef.value.offsetHeight
+      if (Number.isFinite(h) && h > 0) {
+        placeholderHeight.value = h
+        setLazyPlaceholderHeight(id, h)
+      }
+    })
+  },
+  { immediate: true },
+)
+
+onBeforeUnmount(() => {
+  contentResizeObserver?.disconnect()
+})
 </script>
 <template>
   <div
     :id="id"
     ref="lazyContainerRef"
     class="lazy-container">
-    <div v-if="shouldRender">
+    <div
+      v-if="shouldRender"
+      ref="lazyContentRef">
       <slot />
     </div>
     <div
       v-else
       class="lazy-placeholder"
-      :style="{ height: `${PLACEHOLDER_HEIGHT_PX}px` }" />
+      :style="{ height: `${placeholderHeight}px` }" />
   </div>
 </template>
 

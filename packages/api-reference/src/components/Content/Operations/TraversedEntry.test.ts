@@ -20,7 +20,9 @@ vi.mock('@/plugins/hooks/usePluginManager', () => ({
 }))
 
 vi.mock('@/helpers/lazy-bus', () => ({
+  getLazyPlaceholderHeight: () => undefined,
   requestLazyRender: () => undefined,
+  setLazyPlaceholderHeight: () => undefined,
   useLazyBus: () => ({
     isReady: computed(() => true),
   }),
