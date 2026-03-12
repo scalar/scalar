@@ -208,7 +208,10 @@ describe('DocumentCollection', () => {
       info: { title: 'Registry API', version: '1.0.0' },
       paths: {},
     }
-    const fetchRegistryDocument = vi.fn().mockResolvedValue(registryDocument)
+    const fetchRegistryDocument = vi.fn().mockResolvedValue({
+      ok: true,
+      data: registryDocument,
+    })
     const document = createMockDocument({
       info: { title: 'Registry API', version: '1.0.0' },
       'x-scalar-original-source-url': 'https://example.com/openapi.yaml',
