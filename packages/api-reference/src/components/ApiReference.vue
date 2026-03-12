@@ -873,7 +873,9 @@ const colorMode = computed(() => {
   return mode
 })
 
-const bodyScrollLocked = useScrollLock(document.body)
+const bodyScrollLocked = useScrollLock(
+  typeof document !== 'undefined' ? document.body : null,
+)
 
 watch(agent.showAgent, () => (bodyScrollLocked.value = agent.showAgent.value))
 
