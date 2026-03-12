@@ -42,14 +42,14 @@ const {
   plugins = [],
   getAppState,
   getCommandPaletteState,
-  fetchDocumentFromRegistry,
+  fetchRegistryDocument,
 } = defineProps<{
   layout: Exclude<ClientLayout, 'modal'>
   plugins?: ClientPlugin[]
   getAppState: () => AppState
   getCommandPaletteState: () => CommandPaletteState
   /** Fetches the full document from registry by meta. Passed through to route props for sync. */
-  fetchDocumentFromRegistry?: ImportDocumentFromRegistry
+  fetchRegistryDocument?: ImportDocumentFromRegistry
 }>()
 
 defineSlots<{
@@ -147,7 +147,7 @@ const routerViewProps = computed<RouteProps>(() => {
     environment: app.environment.value,
     eventBus: app.eventBus,
     exampleName: app.activeEntities.exampleName.value,
-    fetchDocumentFromRegistry,
+    fetchRegistryDocument,
     layout,
     method: app.activeEntities.method.value,
     path: app.activeEntities.path.value,

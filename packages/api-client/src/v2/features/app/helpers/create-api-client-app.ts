@@ -6,6 +6,7 @@ import { createRouter as createVueRouter, createWebHashHistory, createWebHistory
 import App from '@/v2/features/app/App.vue'
 import { createAppState } from '@/v2/features/app/app-state'
 import { ROUTES } from '@/v2/features/app/helpers/routes'
+import type { ImportDocumentFromRegistry } from '@/v2/types/configuration'
 import type { ClientLayout } from '@/v2/types/layout'
 
 import { useCommandPaletteState } from '../../command-palette/hooks/use-command-palette-state'
@@ -35,7 +36,7 @@ type CreateApiClientOptions = {
    * Fetches the full document from registry by meta. When set, registry meta takes priority
    * over x-scalar-original-source-url when syncing. Returns the document as a plain object.
    */
-  fetchDocumentFromRegistry?: (meta: { namespace: string; slug: string }) => Promise<Record<string, unknown>>
+  fetchRegistryDocument?: ImportDocumentFromRegistry
 }
 
 /**
@@ -56,7 +57,7 @@ export const createAppRouter = (layout: CreateApiClientOptions['layout']) => {
  */
 export const createApiClientApp = async (
   el: HTMLElement | null,
-  { layout = 'desktop', plugins, customThemes, fallbackThemeSlug, fetchDocumentFromRegistry }: CreateApiClientOptions,
+  { layout = 'desktop', plugins, customThemes, fallbackThemeSlug, fetchRegistryDocument }: CreateApiClientOptions,
 ) => {
   // Add the router
   const router = createAppRouter(layout)
@@ -73,7 +74,7 @@ export const createApiClientApp = async (
     plugins,
     getAppState: () => state,
     getCommandPaletteState: () => commandPaletteState,
-    fetchDocumentFromRegistry,
+    fetchRegistryDocument,
   })
   app.use(router)
 

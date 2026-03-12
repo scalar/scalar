@@ -115,9 +115,9 @@ const resolveSyncInput = async (): Promise<
   { url: string } | { document: Record<string, unknown> } | null
 > => {
   const registryMeta = documentRegistryMeta.value
-  if (registryMeta && props.fetchDocumentFromRegistry) {
+  if (registryMeta && props.fetchRegistryDocument) {
     try {
-      const result = await props.fetchDocumentFromRegistry(registryMeta)
+      const result = await props.fetchRegistryDocument(registryMeta)
       if (!result.ok) {
         toast(result.error, 'error')
         return null
