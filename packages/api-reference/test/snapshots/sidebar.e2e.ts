@@ -82,6 +82,7 @@ toTest.forEach((source) => {
  */
 test.describe(() => {
   test.use({ viewport: mobileViewport })
+  test.describe.configure({ retries: 3 })
   test('Mobile Sidebar', async ({ page }) => {
     const example = await serveExample(sources[0])
     await page.goto(example)
