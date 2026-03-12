@@ -215,7 +215,8 @@ const html = computed(() => {
     table-layout: fixed;
     overflow-x: auto;
     position: relative;
-    width: 100%;
+    width: max-content;
+    max-width: 100%;
     margin: 1em 0;
     border: var(--scalar-border-width) solid var(--scalar-border-color);
     border-radius: var(--scalar-radius);
