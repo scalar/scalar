@@ -26,13 +26,7 @@ export const useIntersection = (el: TemplateRef<HTMLElement | undefined>, onInte
         el,
         ([entry]) => {
           if (entry?.isIntersecting) {
-            // Only trigger when the element is in the top half of the viewport.
-            // This prevents elements scrolling into the bottom of the window
-            // from stealing the active state from the element at the top.
-            const rect = entry.boundingClientRect
-            if (rect.top < window.innerHeight / 2) {
-              onIntersect()
-            }
+            onIntersect()
           }
         },
         options,

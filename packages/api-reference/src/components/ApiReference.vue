@@ -793,22 +793,67 @@ eventBus.on('select:nav-item', ({ id }) => handleSelectSidebarEntry(id))
 /** Handle a scroll to navigation item event */
 eventBus.on('scroll-to:nav-item', ({ id }) => handleSelectSidebarEntry(id))
 
-/** Handle an intersecting navigation item event */
+/**
+ * Handle an intersecting navigation item event
+ *
+ * Multiple sections can intersect simultaneously (especially small collapsed models).
+ * We debounce and pick the candidate whose top edge is closest to (but below) the
+ * viewport's scroll-margin-top area, so the hash always reflects the element at the
+ * top of the visible content rather than one further down.
+ */
+let intersectDebounce: ReturnType<typeof requestAnimationFrame> | null = null
+let intersectCandidates: string[] = []
+
 eventBus.on('intersecting:nav-item', ({ id }) => {
   if (!intersectionEnabled.value) {
     return
   }
 
-  sidebarState.setSelected(id)
-  setBreadcrumb(id)
+  intersectCandidates.push(id)
 
-  // Scroll the sidebar to keep the selected element near the top
-  scrollSidebarToTop(id)
-
-  const url = makeUrlFromId(id, basePath.value, isMultiDocument.value)
-  if (url && workspaceStore.workspace.activeDocument) {
-    window.history.replaceState({}, '', url.toString())
+  if (intersectDebounce) {
+    cancelAnimationFrame(intersectDebounce)
   }
+
+  intersectDebounce = requestAnimationFrame(() => {
+    // Find the candidate closest to the top of the viewport
+    const viewportOffset = Number.parseInt(
+      getComputedStyle(document.documentElement).getPropertyValue(
+        '--refs-viewport-offset',
+      ) || '0',
+      10,
+    )
+
+    let bestId = intersectCandidates[intersectCandidates.length - 1]!
+    let bestDistance = Number.POSITIVE_INFINITY
+
+    for (const candidateId of intersectCandidates) {
+      const el = document.getElementById(candidateId)
+      if (el) {
+        const top = el.getBoundingClientRect().top
+        // Distance from the ideal scroll-top position (just below the sticky header)
+        // Only consider elements that are at or below the header
+        const distance = Math.abs(top - viewportOffset)
+        if (distance < bestDistance) {
+          bestDistance = distance
+          bestId = candidateId
+        }
+      }
+    }
+
+    intersectCandidates = []
+
+    sidebarState.setSelected(bestId)
+    setBreadcrumb(bestId)
+
+    // Scroll the sidebar to keep the selected element near the top
+    scrollSidebarToTop(bestId)
+
+    const url = makeUrlFromId(bestId, basePath.value, isMultiDocument.value)
+    if (url && workspaceStore.workspace.activeDocument) {
+      window.history.replaceState({}, '', url.toString())
+    }
+  })
 })
 
 eventBus.on('toggle:nav-item', ({ id, open }) => {
