@@ -35192,7 +35192,8 @@ const{root:r,rootMargin:a="0px",threshold:o=0,window:i=cY,immediate:s=!0}=n,l=vY
 if(u(),!d.value)return;if(!e.length)return;const r=new IntersectionObserver(t,{
 root:pY(n),rootMargin:a,threshold:o});e.forEach((e=>e&&r.observe(e))),u=()=>{
 r.disconnect(),u=JG}}),{immediate:s,flush:"post"}):JG,h=()=>{u(),p(),d.value=!1}
-;VG(h)}(e,(([e])=>{e?.isIntersecting&&t()}),a)}var r}))},d8e=y4e(Eg({
+;VG(h)}(e,(([e])=>{if(e?.isIntersecting){
+e.boundingClientRect.top<window.innerHeight/2&&t()}}),a)}var r}))},d8e=y4e(Eg({
 __name:"Section",emits:["intersecting"],setup(e,{emit:t}){
 const n=t,r=$g("section")
 ;return u8e(r,(()=>n("intersecting"))),(e,t)=>(Ab(),$b("section",{
