@@ -175,6 +175,19 @@ export const requestLazyRender = (id: string | undefined, priority = false): voi
   }
 }
 
+/**
+ * Schedules a single run of the lazy bus so that documents with no Lazy components
+ * (e.g. no operations, tags, or models) still get firstLazyLoadComplete set and the
+ * full-viewport placeholder can be hidden. Call from content root on mount.
+ */
+export const scheduleInitialLoadComplete = (): void => {
+  if (typeof window === 'undefined') {
+    return
+  }
+  const delay = 400
+  window.setTimeout(() => runLazyBus(), delay)
+}
+
 /** When an element is unmounted we remove it from all queues */
 const resetLazyElement = (id: string) => {
   priorityQueue.delete(id)
