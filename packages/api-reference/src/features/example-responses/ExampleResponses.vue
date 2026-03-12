@@ -188,18 +188,17 @@ const showSchema = ref(false)
     <ScalarCardFooter
       v-if="currentResponse?.description || hasMultipleExamples"
       class="response-card-footer">
-      <div
-        v-if="currentResponse?.description"
-        class="response-description">
-        <ScalarMarkdown
-          class="markdown"
-          :value="currentResponse.description" />
-      </div>
       <ExamplePicker
         v-if="hasMultipleExamples"
         v-model="selectedExampleKey"
-        class="response-example-selector"
+        class="response-example-selector px-0"
         :examples="currentResponseContent?.examples" />
+      <div class="response-description">
+        <ScalarMarkdown
+          v-if="currentResponse?.description"
+          class="response-description-markdown"
+          :value="currentResponse.description" />
+      </div>
     </ScalarCardFooter>
   </ScalarCard>
 </template>
@@ -209,9 +208,6 @@ const showSchema = ref(false)
   font-size: var(--scalar-font-size-3);
 }
 
-.markdown :deep(*) {
-  margin: 0;
-}
 .code-copy {
   display: flex;
   align-items: center;
@@ -235,14 +231,15 @@ const showSchema = ref(false)
 }
 .response-card-footer {
   display: flex;
-  flex-direction: row;
-  justify-content: space-between;
+  flex-direction: row-reverse;
+  flex-wrap: wrap;
+  justify-content: start;
   flex-shrink: 0;
   padding: 7px 12px;
-  gap: 8px;
+  column-gap: 8px;
 }
 .response-example-selector {
-  align-self: flex-start;
+  flex-shrink: 0;
   margin: -4px;
 }
 .response-description {
@@ -250,9 +247,16 @@ const showSchema = ref(false)
   font-size: var(--scalar-small);
   color: var(--scalar-color--1);
 
-  display: flex;
-  align-items: center;
   box-sizing: border-box;
+
+  flex-grow: 1;
+}
+.response-description-markdown {
+  max-height: 3lh;
+}
+
+.response-description-markdown :deep(*) {
+  margin: 0;
 }
 .schema-type {
   font-size: var(--scalar-micro);
