@@ -145,6 +145,11 @@ const onSyncComplete = () => {
   })
 }
 
+const onSyncError = (error: string) => {
+  toast(error, 'error')
+  isSyncInProgress.value = false
+}
+
 /**
  * Handles the synchronization flow for a document.
  * Checks for unsaved changes, resolves source (registry over URL),
@@ -165,7 +170,7 @@ const handleSyncFlow = async () => {
 
   const input = await resolveSyncInput()
   if (!input) {
-    toast('Document source URL is not set', 'warn')
+    onSyncError('Document source URL is not set')
     return
   }
 
@@ -197,7 +202,7 @@ const handleSyncFlow = async () => {
     // Emit the event either way even if there was no need to rebase the document
     onSyncComplete()
   } else {
-    toast('Failed to sync document', 'error')
+    onSyncError('Failed to sync document')
   }
 }
 

@@ -103,6 +103,8 @@ export function useThreeWayMergeEditor(options: UseThreeWayMergeEditorOptions): 
   let resultCodeLensProviderDisposable: monaco.IDisposable | undefined
   let jsonPointerLinkSupportDispose: (() => void) | undefined
   const codeLensCommandDisposables: monaco.IDisposable[] = []
+  /** Models created in init(); disposed in dispose() to avoid leaks when the sync conflict modal closes. */
+  let modelsToDispose: monaco.editor.ITextModel[] = []
 
   const normalizeConflicts = computed(() => {
     const conflictList = toValue(conflicts)
@@ -232,6 +234,15 @@ export function useThreeWayMergeEditor(options: UseThreeWayMergeEditorOptions): 
 
     const originalResultModel = monaco.editor.createModel(JSON.stringify(base, null, 2), 'json')
     const modifiedResultModel = createJsonModel(JSON.stringify(resolved, null, 2))
+
+    modelsToDispose = [
+      originalModelLocal,
+      modifiedModelLocal.model,
+      originalModelRemote,
+      modifiedModelRemote.model,
+      originalResultModel,
+      modifiedResultModel.model,
+    ]
 
     const localDiffEditor = monaco.editor.createDiffEditor(containers.local, {
       originalEditable: false,
@@ -522,6 +533,18 @@ export function useThreeWayMergeEditor(options: UseThreeWayMergeEditorOptions): 
   }
 
   const dispose = (): void => {
+    localChangesEditor.value?.dispose()
+    localChangesEditor.value = undefined
+    remoteChangesEditor.value?.dispose()
+    remoteChangesEditor.value = undefined
+    resultEditor.value?.dispose()
+    resultEditor.value = undefined
+
+    for (const model of modelsToDispose) {
+      model.dispose()
+    }
+    modelsToDispose = []
+
     resultCodeLensProviderDisposable?.dispose()
     resultCodeLensProviderDisposable = undefined
     jsonPointerLinkSupportDispose?.()
