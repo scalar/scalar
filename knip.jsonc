@@ -149,10 +149,6 @@
         "playground/vue/src/x-custom-extension-plugin/components/CustomReactComponent.tsx"
       ]
     },
-    "packages/api-reference/playground/ssr": {
-      "entry": ["src/{main,entry-client,entry-server}.ts"],
-      "ignoreFiles": ["src/AppWithJsApi.vue"]
-    },
     "packages/api-reference-react": {
       "entry": ["playground/main.tsx"]
     },
