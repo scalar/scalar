@@ -1,6 +1,6 @@
 import { computed, ref } from 'vue'
 
-import type { MonacoEditorLanguage } from '@/v2/features/collection/components/Editor/hooks/use-editor'
+type MonacoEditorLanguage = 'json' | 'yaml'
 
 const DIAGNOSTICS_COLLAPSED_BOTTOM_PADDING = 46
 const DIAGNOSTICS_EXPANDED_BOTTOM_PADDING = 155

@@ -27,8 +27,10 @@ import type { RouteProps } from '@/v2/features/app/helpers/routes'
 import { useDocumentWatcher } from '@/v2/features/app/hooks/use-document-watcher'
 import type { CommandPaletteState } from '@/v2/features/command-palette/hooks/use-command-palette-state'
 import TheCommandPalette from '@/v2/features/command-palette/TheCommandPalette.vue'
+import { useMonacoEditorConfiguration } from '@/v2/features/editor'
 import { useColorMode } from '@/v2/hooks/use-color-mode'
 import { useGlobalHotKeys } from '@/v2/hooks/use-global-hot-keys'
+import type { ImportDocumentFromRegistry } from '@/v2/types/configuration'
 import type { ClientLayout } from '@/v2/types/layout'
 
 import { type AppState } from './app-state'
@@ -40,11 +42,14 @@ const {
   plugins = [],
   getAppState,
   getCommandPaletteState,
+  fetchRegistryDocument,
 } = defineProps<{
   layout: Exclude<ClientLayout, 'modal'>
   plugins?: ClientPlugin[]
   getAppState: () => AppState
   getCommandPaletteState: () => CommandPaletteState
+  /** Fetches the full document from registry by meta. Passed through to route props for sync. */
+  fetchRegistryDocument?: ImportDocumentFromRegistry
 }>()
 
 defineSlots<{
@@ -88,6 +93,15 @@ useDocumentWatcher({
 
 /** Color mode */
 useColorMode({ workspaceStore: app.store })
+
+const currentTheme = computed(() => app.theme.styles.value.themeStyles)
+const isDarkMode = computed(() => app.isDarkMode.value)
+
+/** Setup monaco editor configuration */
+useMonacoEditorConfiguration({
+  theme: currentTheme,
+  darkMode: isDarkMode,
+})
 
 const navigateToWorkspaceOverview = (namespace?: string, slug?: string) => {
   app.eventBus.emit('ui:navigate', {
@@ -133,6 +147,7 @@ const routerViewProps = computed<RouteProps>(() => {
     environment: app.environment.value,
     eventBus: app.eventBus,
     exampleName: app.activeEntities.exampleName.value,
+    fetchRegistryDocument,
     layout,
     method: app.activeEntities.method.value,
     path: app.activeEntities.path.value,
