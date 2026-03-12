@@ -429,6 +429,25 @@ export type WorkspaceStore = {
    */
   revertDocumentChanges(documentName: string): Promise<void>
   /**
+   * Promotes the intermediate document to the original document for the given document name.
+   *
+   * The intermediate document (last locally saved version) becomes the new baseline/original.
+   * Use this after syncing or merging when the current intermediate state should be treated
+   * as the new known source (e.g. after resolving rebase conflicts and applying changes).
+   *
+   * @param documentName - The name of the document to update.
+   * @returns boolean indicating if the intermediate document was promoted to the original document.
+   * @example
+   * // Promote the intermediate document to the original document
+   * const result = store.promoteIntermediateToOriginal('api')
+   * if (result) {
+   *   console.log('Intermediate document promoted to original document')
+   * } else {
+   *   console.log('Intermediate document does not exist')
+   * }
+   */
+  promoteIntermediateToOriginal(documentName: string): boolean
+  /**
    * Commits the specified document.
    *
    * This method is intended to finalize and persist the current state of the document,
@@ -1056,6 +1075,20 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
   }
 
   /**
+   * Promotes the intermediate document to the original document so the current
+   * intermediate becomes the new baseline. Fires workspace change for persistence.
+   */
+  const promoteIntermediateToOriginal: WorkspaceStore['promoteIntermediateToOriginal'] = (documentName) => {
+    const intermediate = intermediateDocuments[documentName]
+    if (!intermediate) {
+      return false
+    }
+    const cloned = deepClone(unpackProxyObject(intermediate, { depth: 1 }))
+    originalDocuments[documentName] = cloned
+    return true
+  }
+
+  /**
    * Retrieves an editable clone of a workspace document.
    *
    * - Unpacks the proxied document from the workspace.
@@ -1243,6 +1276,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     exportActiveDocument: (format, minify) => exportDocument(getActiveDocumentName(), format, minify),
     buildSidebar,
     saveDocument,
+    promoteIntermediateToOriginal,
     async revertDocumentChanges(documentName: string) {
       const workspaceDocument = workspace.documents[documentName]
       const intermediate = intermediateDocuments[documentName]

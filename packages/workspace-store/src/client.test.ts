@@ -2182,6 +2182,64 @@ describe('create-workspace-store', () => {
     })
   })
 
+  describe('promoteIntermediateToOriginal', () => {
+    it('copies intermediate document to original so getOriginalDocument returns promoted content', async () => {
+      const store = createWorkspaceStore()
+      await store.addDocument({
+        name: 'default',
+        document: { openapi: '3.1.0', info: { title: 'Initial', version: '1.0.0' } },
+      })
+      const doc = store.workspace.documents['default']
+      if (doc?.info) {
+        doc.info.title = 'Updated title'
+      }
+      await store.saveDocument('default')
+
+      const intermediateBefore = store.getIntermediateDocument('default') as { info?: { title?: string } } | null
+      expect(intermediateBefore?.info?.title).toBe('Updated title')
+      const originalBefore = store.getOriginalDocument('default') as { info?: { title?: string } } | null
+      expect(originalBefore?.info?.title).toBe('Initial')
+
+      const promoted = store.promoteIntermediateToOriginal('default')
+      expect(promoted).toBe(true)
+
+      const originalAfter = store.getOriginalDocument('default') as { info?: { title?: string } } | null
+      expect(originalAfter?.info?.title).toBe('Updated title')
+      const intermediateAfter = store.getIntermediateDocument('default') as { info?: { title?: string } } | null
+      expect(intermediateAfter?.info?.title).toBe('Updated title')
+    })
+
+    it('does nothing when document name has no intermediate document', () => {
+      const store = createWorkspaceStore()
+      expect(store.getOriginalDocument('missing')).toBeNull()
+      expect(store.getIntermediateDocument('missing')).toBeNull()
+      const promoted = store.promoteIntermediateToOriginal('missing')
+      expect(promoted).toBe(false)
+      expect(store.getOriginalDocument('missing')).toBeNull()
+    })
+
+    it('persists promoted original in exportWorkspace', async () => {
+      const store = createWorkspaceStore()
+      await store.addDocument({
+        name: 'api',
+        document: { openapi: '3.1.0', info: { title: 'A', version: '1.0.0' } },
+      })
+      const doc = store.workspace.documents['api']
+      if (doc?.info) {
+        doc.info.title = 'B'
+      }
+      await store.saveDocument('api')
+      const promoted = store.promoteIntermediateToOriginal('api')
+      expect(promoted).toBe(true)
+
+      const exported = store.exportWorkspace()
+      const origDoc = exported.originalDocuments?.api as { info?: { title?: string } } | undefined
+      const interDoc = exported.intermediateDocuments?.api as { info?: { title?: string } } | undefined
+      expect(origDoc?.info?.title).toBe('B')
+      expect(interDoc?.info?.title).toBe('B')
+    })
+  })
+
   describe('export', () => {
     it('should export the workspace internal state as a json document', async () => {
       const store = createWorkspaceStore({
