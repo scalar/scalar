@@ -75,23 +75,23 @@ toTest.forEach((source) => {
     await expect(page).toHaveScreenshot(`${slug}-sidebar-expanded.png`, opts)
   })
 })
-
 /**
  * Takes snapshots of the mobile sidebar
  */
+test.describe(() => {
+  test.use({ viewport: mobileViewport })
+  test('Mobile Sidebar', async ({ page }) => {
+    const example = await serveExample(sources[0])
+    await page.goto(example)
 
-test('Mobile Sidebar', async ({ page }) => {
-  const example = await serveExample(sources[0])
-  await page.goto(example)
-  await page.setViewportSize(mobileViewport)
+    const opts = getScreenshotOptions(page)
 
-  const opts = getScreenshotOptions(page)
+    await expect(page).toHaveScreenshot('mobile-sidebar-closed.png', opts)
 
-  await expect(page).toHaveScreenshot('mobile-sidebar-closed.png', opts)
+    await page.getByRole('button', { name: 'Open Menu' }).click()
 
-  await page.getByRole('button', { name: 'Open Menu' }).click()
-
-  await expect(page).toHaveScreenshot('mobile-sidebar-open.png') // We don't need to mask the open sidebar
+    await expect(page).toHaveScreenshot('mobile-sidebar-open.png') // We don't need to mask the open sidebar
+  })
 })
 
 /**
