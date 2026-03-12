@@ -15,7 +15,7 @@ import type {
   Workspace,
   WorkspaceDocument,
 } from '@scalar/workspace-store/schemas/workspace'
-import { computed } from 'vue'
+import { computed, onMounted } from 'vue'
 
 import { ClientSelector } from '@/blocks/scalar-client-selector-block'
 import { InfoBlock } from '@/blocks/scalar-info-block'
@@ -26,7 +26,10 @@ import TraversedEntry from '@/components/Content/Operations/TraversedEntry.vue'
 import { RenderPlugins } from '@/components/RenderPlugins'
 import { SectionFlare } from '@/components/SectionFlare'
 import { getXKeysFromObject } from '@/features/specification-extension'
-import { firstLazyLoadComplete } from '@/helpers/lazy-bus'
+import {
+  firstLazyLoadComplete,
+  scheduleInitialLoadComplete,
+} from '@/helpers/lazy-bus'
 
 const { document, items, environment, eventBus, options, authStore } =
   defineProps<{
@@ -92,6 +95,11 @@ const securitySchemes = computed(() =>
     document?.['x-scalar-navigation']?.name ?? '',
   ),
 )
+
+/** Ensures firstLazyLoadComplete is set for documents with no Lazy sections (e.g. no operations/tags/models). */
+onMounted(() => {
+  scheduleInitialLoadComplete()
+})
 </script>
 <template>
   <SectionFlare />
