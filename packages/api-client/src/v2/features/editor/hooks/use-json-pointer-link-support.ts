@@ -6,7 +6,7 @@ import type { EditorModel } from '@/v2/features/editor/helpers/model'
 
 const JSON_LANGUAGE_ID = 'json'
 
-export type EditorNavigationApi = {
+type EditorNavigationApi = {
   focusPath: (path: string[]) => Promise<void>
 }
 
