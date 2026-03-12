@@ -1,5 +1,19 @@
 # @scalar/sidebar
 
+## 0.8.6
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/components@0.20.6**
+  - [#8327](https://github.com/scalar/scalar/pull/8327): fix: markdown tables with specified width attributes in td/th break the layout
+
+- **@scalar/helpers@0.4.1**
+  - [#8420](https://github.com/scalar/scalar/pull/8420): fix TypeScript access to navigator.userAgentData in isMacOS without ts-expect-error
+
+- **@scalar/workspace-store@0.39.2**
+
 ## 0.8.5
 
 ### Patch Changes

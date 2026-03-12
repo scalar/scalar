@@ -1,5 +1,14 @@
 # @scalarapi/docker-api-reference
 
+## 0.5.7
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.48.6**
+  - [#8414](https://github.com/scalar/scalar/pull/8414): fix(api-reference): limit height of example response descriptions
+
 ## 0.5.6
 
 ### Patch Changes

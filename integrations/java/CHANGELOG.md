@@ -1,5 +1,14 @@
 # @scalar/java-integration
 
+## 0.6.7
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.48.6**
+  - [#8414](https://github.com/scalar/scalar/pull/8414): fix(api-reference): limit height of example response descriptions
+
 ## 0.6.6
 
 ### Patch Changes

@@ -1,5 +1,25 @@
 # @scalar/openapi-to-markdown
 
+## 0.4.6
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/components@0.20.6**
+  - [#8327](https://github.com/scalar/scalar/pull/8327): fix: markdown tables with specified width attributes in td/th break the layout
+
+- **@scalar/helpers@0.4.1**
+  - [#8420](https://github.com/scalar/scalar/pull/8420): fix TypeScript access to navigator.userAgentData in isMacOS without ts-expect-error
+
+- **@scalar/oas-utils@0.10.5**
+
+- **@scalar/openapi-parser@0.25.3**
+
+- **@scalar/types@0.7.3**
+
+- **@scalar/openapi-upgrader@0.2.0**
+
 ## 0.4.5
 
 ### Patch Changes

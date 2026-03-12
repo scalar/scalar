@@ -1,5 +1,16 @@
 # @scalar/scripts
 
+## 0.3.6
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/components@0.20.6**
+  - [#8327](https://github.com/scalar/scalar/pull/8327): fix: markdown tables with specified width attributes in td/th break the layout
+
+- **@scalar/oas-utils@0.10.5**
+
 ## 0.3.5
 
 ### Patch Changes
