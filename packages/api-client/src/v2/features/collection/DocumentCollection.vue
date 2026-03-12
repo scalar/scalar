@@ -241,6 +241,16 @@ const handleApplyChanges = async ({
   })
   syncModal.hide()
 }
+
+/**
+ * Resets sync state when the sync conflict modal is closed (dismissed or after
+ * applying changes). Ensures the Sync button is re-enabled and conflict state
+ * is cleared.
+ */
+const onSyncModalClose = () => {
+  isSyncInProgress.value = false
+  rebaseResult.value = null
+}
 </script>
 
 <template>
@@ -419,7 +429,8 @@ const handleApplyChanges = async ({
     bodyClass="sync-conflict-modal-root flex h-dvh flex-col p-4"
     maxWidth="calc(100dvw - 32px)"
     size="full"
-    :state="syncModal">
+    :state="syncModal"
+    @close="onSyncModalClose">
     <div class="flex h-full w-full flex-col gap-4 overflow-hidden">
       <SyncConflictResolutionEditor
         :baseDocument="rebaseResult.originalDocument"
