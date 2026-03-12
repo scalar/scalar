@@ -42,14 +42,7 @@ const placeholderHeight = ref(
 let contentResizeObserver: ResizeObserver | null = null
 
 /** Once ready we always show (no eviction). Otherwise show when in overscan or expanded. */
-const shouldRender = computed(
-  () =>
-    (isReady.value || expanded) &&
-    (typeof window === 'undefined' ||
-      isInViewport.value ||
-      expanded ||
-      isReady.value),
-)
+const shouldRender = computed(() => isReady.value || expanded)
 
 onMounted(() => {
   if (typeof window === 'undefined') {
