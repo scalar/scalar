@@ -36,7 +36,6 @@
     "@types/node": "catalog:*",
     "@vitejs/plugin-vue": "catalog:*",
     "cross-env": "^7.0.3",
-    "vite": "catalog:*",
-    "vue-tsc": "catalog:*"
+    "vite": "catalog:*"
   }
 }

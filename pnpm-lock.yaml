@@ -344,6 +344,9 @@ importers:
       vue-eslint-parser:
         specifier: ^9.4.3
         version: 9.4.3(eslint@9.39.2(jiti@2.6.1))
+      vue-tsc:
+        specifier: catalog:*
+        version: 3.2.4(typescript@5.9.3)
 
   examples/nestjs/nestjs-api-reference-express:
     dependencies:
@@ -725,9 +728,6 @@ importers:
       vite:
         specifier: catalog:*
         version: 7.3.1(@types/node@24.10.13)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.31.2)(tsx@4.19.1)(yaml@2.8.0)
-      vue-tsc:
-        specifier: catalog:*
-        version: 3.2.4(typescript@5.9.3)
 
   examples/web:
     dependencies:
