@@ -284,6 +284,26 @@ jobs:
       - name: Run tests for the proxy server (Go)
         run: cd projects/proxy-scalar-com && go test -v
 
+  build-vue-ssr-example:
+    needs: [build]
+    runs-on: blacksmith-2vcpu-ubuntu-2204
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - name: Build packages
+        uses: ./.github/actions/build
+        with:
+          packages: '@scalar-examples/vue-ssr...'
+      - name: Start Vue SSR server and verify it responds
+        run: pnpm --filter @scalar-examples/vue-ssr preview & pnpm script wait -p 5173
+        timeout-minutes: 1
+      - name: Verify SSR response
+        run: |
+          curl -sSf http://localhost:5173 -o /tmp/response.html
+          grep -q "<p>User account created successfully</p>" /tmp/response.html
+
   test-e2e-api-reference:
     needs: [build]
     runs-on: blacksmith-4vcpu-ubuntu-2204
@@ -1487,6 +1507,7 @@ jobs:
     needs:
       [
         build,
+        build-vue-ssr-example,
         format,
         knip,
         test-packages,
@@ -1504,7 +1525,15 @@ jobs:
     runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 1
     permissions: {}
-    needs: [build, test-packages, test-integrations, test-proxy-server, types]
+    needs:
+      [
+        build,
+        build-vue-ssr-example,
+        test-packages,
+        test-integrations,
+        test-proxy-server,
+        types,
+      ]
     steps:
       - name: Exit with error if some jobs are not successful
         run: exit 1
