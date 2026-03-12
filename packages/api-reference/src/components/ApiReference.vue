@@ -850,7 +850,11 @@ eventBus.on('intersecting:nav-item', ({ id }) => {
     scrollSidebarToTop(bestId)
 
     const url = makeUrlFromId(bestId, basePath.value, isMultiDocument.value)
-    if (url && workspaceStore.workspace.activeDocument) {
+    if (
+      url &&
+      workspaceStore.workspace.activeDocument &&
+      !mergedConfig.value.hideUrlHashOnScroll
+    ) {
       window.history.replaceState({}, '', url.toString())
     }
   })

@@ -62,6 +62,15 @@ export const apiReferenceConfigurationSchema = baseConfigurationSchema.extend({
    */
   hideModelExamples: z.boolean().optional().default(false).catch(false),
   /**
+   * Whether to prevent the URL hash from updating as the user scrolls.
+   * When true, the URL hash only changes on explicit navigation (clicking sidebar links,
+   * direct URL navigation), not on scroll-based intersection detection.
+   * Useful for large specs with many small sections where scroll-based hash updates
+   * cause the URL to flicker between sections.
+   * @default false
+   */
+  hideUrlHashOnScroll: z.boolean().optional().default(false).catch(false),
+  /**
    * Sets the file type of the document to download, set to `none` to hide the download button
    * @default 'both'
    */
