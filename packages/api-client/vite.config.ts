@@ -1,3 +1,4 @@
+import { createRequire } from 'node:module'
 import { fileURLToPath } from 'node:url'
 
 import { findEntryPoints } from '@scalar/build-tooling'
@@ -7,8 +8,25 @@ import vue from '@vitejs/plugin-vue'
 import svgLoader from 'vite-svg-loader'
 import { defineConfig } from 'vitest/config'
 
+const require = createRequire(import.meta.url)
+const monacoEditorPlugin = require('vite-plugin-monaco-editor').default
+
 export default defineConfig({
-  plugins: [vue(), tailwindcss(), svgLoader(), ViteWatchWorkspace()],
+  plugins: [
+    vue(),
+    tailwindcss(),
+    svgLoader(),
+    ViteWatchWorkspace(),
+    monacoEditorPlugin({
+      languageWorkers: ['json', 'editorWorkerService'],
+      customWorkers: [
+        {
+          label: 'yaml',
+          entry: 'monaco-yaml/yaml.worker',
+        },
+      ],
+    }),
+  ],
   define: {
     PACKAGE_VERSION: JSON.stringify(process.env.npm_package_version),
   },
@@ -17,10 +35,10 @@ export default defineConfig({
       ...alias(import.meta.url),
       '@v2': fileURLToPath(new URL('./src/v2', import.meta.url)),
     },
-    dedupe: ['vue'],
+    dedupe: ['vue', 'monaco-editor', 'monaco-yaml'],
   },
   optimizeDeps: {
-    exclude: ['@scalar/*'],
+    exclude: ['@scalar/*', 'monaco-editor', 'monaco-yaml'],
   },
   server: {
     port: 5065,

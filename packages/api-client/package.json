@@ -250,6 +250,11 @@
       "types": "./dist/v2/features/command-palette/index.d.ts",
       "default": "./dist/v2/features/command-palette/index.js"
     },
+    "./v2/features/editor": {
+      "import": "./dist/v2/features/editor/index.js",
+      "types": "./dist/v2/features/editor/index.d.ts",
+      "default": "./dist/v2/features/editor/index.js"
+    },
     "./v2/features/environments": {
       "import": "./dist/v2/features/environments/index.js",
       "types": "./dist/v2/features/environments/index.d.ts",
@@ -368,6 +373,7 @@
     "pretty-ms": "^9.3.0",
     "shell-quote": "^1.8.1",
     "type-fest": "catalog:*",
+    "vite-plugin-monaco-editor": "^1.1.0",
     "vue": "catalog:*",
     "vue-router": "catalog:*",
     "whatwg-mimetype": "catalog:*",

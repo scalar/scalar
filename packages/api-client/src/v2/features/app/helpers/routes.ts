@@ -21,6 +21,7 @@ import OperationCollection from '@/v2/features/collection/OperationCollection.vu
 import WorkspaceCollection from '@/v2/features/collection/WorkspaceCollection.vue'
 import { Operation } from '@/v2/features/operation'
 import { workspaceStorage } from '@/v2/helpers/storage'
+import type { ImportDocumentFromRegistry } from '@/v2/types/configuration'
 import type { ClientLayout } from '@/v2/types/layout'
 
 /** These props are provided at the route level */
@@ -55,6 +56,11 @@ export type RouteProps = {
   currentTheme?: string
   /** Whether the current color mode is dark */
   isDarkMode?: boolean
+  /**
+   * Fetches the full document from registry by meta. When provided, registry meta takes priority
+   * over x-scalar-original-source-url when syncing. Returns the document as a plain object.
+   */
+  fetchRegistryDocument?: ImportDocumentFromRegistry
 }
 
 /** When in the collections pages */

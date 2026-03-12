@@ -1,9 +1,6 @@
-import type { JsonPath } from './json-ast'
+import { parseJsonPointerSegments } from '@scalar/helpers/json/parse-json-pointer-segments'
 
-const decodeJsonPointerSegment = (segment: string): string => {
-  // RFC 6901: ~1 => /, ~0 => ~
-  return segment.replace(/~1/g, '/').replace(/~0/g, '~')
-}
+import type { JsonPath } from './json-ast'
 
 const extractPointer = (input: string): string | null => {
   const trimmed = input.trim()
@@ -39,5 +36,5 @@ export const parseJsonPointerPath = (pointer: string): JsonPath | null => {
     return null
   }
 
-  return extracted.split('/').slice(1).map(decodeJsonPointerSegment)
+  return parseJsonPointerSegments(extracted)
 }

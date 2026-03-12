@@ -35,4 +35,14 @@ export type HooksEvents = {
       | undefined
     meta: OperationExampleMeta
   }
+  /**
+   * Fired when a document rebase operation completes.
+   *
+   * Use this event to perform actions when a document rebase operation completes.
+   */
+  'hooks:on:rebase:document:complete': {
+    meta: {
+      documentName: string
+    }
+  }
 }

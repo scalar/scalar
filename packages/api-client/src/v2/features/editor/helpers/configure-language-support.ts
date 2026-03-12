@@ -1,16 +1,16 @@
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api.js'
 import { configureMonacoYaml } from 'monaco-yaml'
 
-import openApiJsonSchema from '@/v2/features/collection/components/Editor/schemas/openapi-3.1-schema.json'
+import openApiJsonSchema from './../schemas/openapi-3.1-schema.json'
 
 const OPENAPI_JSON_SCHEMA_URI = 'inmemory://model/scalar/openapi-json-schema'
 
 /**
  * Configures JSON language support for the given model URI
  *
- * @param modelUri - The URI of the model to configure language support for
+ * @param globPattern - The glob pattern to match the files to configure language support for
  */
-const confugureJson = (modelUri: string): void => {
+export const configureJson = (globPattern: string): void => {
   const defaults = monaco.languages.json.jsonDefaults
   const current = defaults.diagnosticsOptions
 
@@ -19,7 +19,7 @@ const confugureJson = (modelUri: string): void => {
     ...existingSchemas.filter((s) => s.uri !== OPENAPI_JSON_SCHEMA_URI),
     {
       uri: OPENAPI_JSON_SCHEMA_URI,
-      fileMatch: [modelUri],
+      fileMatch: [globPattern],
       schema: openApiJsonSchema,
     },
   ]
@@ -35,9 +35,9 @@ const confugureJson = (modelUri: string): void => {
 /**
  * Configures YAML language support for the given model URI
  *
- * @param modelUri - The URI of the model to configure language support for
+ * @param globPattern - The glob pattern to match the files to configure language support for
  */
-const configureYaml = (modelUri: string): void => {
+export const configureYaml = (globPattern: string): void => {
   configureMonacoYaml(monaco, {
     enableSchemaRequest: false,
     validate: true,
@@ -47,20 +47,10 @@ const configureYaml = (modelUri: string): void => {
     schemas: [
       {
         // If YAML file is opened matching this glob
-        fileMatch: [modelUri],
+        fileMatch: [globPattern],
         schema: openApiJsonSchema,
         uri: OPENAPI_JSON_SCHEMA_URI,
       },
     ],
   })
-}
-
-/**
- * Configures both JSON and YAML language support for the given model URI
- *
- * @param modelUri - The URI of the model to configure language support for
- */
-export const configureLanguageSupport = (modelUri: string): void => {
-  confugureJson(modelUri)
-  configureYaml(modelUri)
 }
