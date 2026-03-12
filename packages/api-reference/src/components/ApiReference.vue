@@ -37,6 +37,7 @@ import type {
 import diff from 'microdiff'
 import {
   computed,
+  nextTick,
   onBeforeMount,
   onBeforeUnmount,
   onMounted,
@@ -545,7 +546,10 @@ const changeSelectedDocument = async (
   })()
 
   // When loading to a specified element we need to freeze and scroll
+  // Wait for Vue's reactive updates to propagate (sidebar state needs to be computed
+  // from the newly loaded document before getEntryById can find the target element)
   if (elementId && elementId !== slug) {
+    await nextTick()
     scrollToLazyElement(elementId)
   }
   // If there is no child element of the document specified and defaultOpenFirstTag is enabled, we expand the first tag
