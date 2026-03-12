@@ -1,4 +1,6 @@
 import { ApiReferenceReact } from '@scalar/api-reference-react'
+import '@scalar/api-reference-react/style.css'
+
 import ScalarGalaxy from '@scalar/galaxy/3.1.json'
 import { generate } from 'random-words'
 import React, { useEffect, useState } from 'react'
