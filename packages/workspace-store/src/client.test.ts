@@ -3203,6 +3203,46 @@ describe('create-workspace-store', () => {
       expect(store.workspace.activeDocument?.info.title).toEqual('A new title which should conflict')
     })
 
+    it('applies the whole document when user passes resolvedDocument instead of resolvedConflicts', async () => {
+      const documentName = 'default'
+      const store = createWorkspaceStore()
+      await store.addDocument({
+        name: documentName,
+        document: getDocument(),
+      })
+
+      store.workspace.activeDocument!.info.title = 'local title'
+      await store.saveDocument(documentName)
+
+      const newDocumentFromSource = {
+        ...getDocument(),
+        info: { title: 'Remote title', version: '1.0.0' },
+      }
+
+      const result = await store.rebaseDocument({
+        name: documentName,
+        document: newDocumentFromSource,
+      })
+
+      assert(result.ok)
+      expect(result.conflicts.length).toBeGreaterThan(0)
+
+      const userResolvedDocument = {
+        ...getDocument(),
+        info: { title: 'User-provided full document', version: '2.0.0' },
+      }
+
+      await result.applyChanges({ resolvedDocument: userResolvedDocument })
+
+      const intermediate = store.getIntermediateDocument(documentName) as {
+        info?: { title?: string; version?: string }
+      } | null
+      expect(intermediate?.info?.title).toBe('User-provided full document')
+      expect(intermediate?.info?.version).toBe('2.0.0')
+      expect(store.workspace.activeDocument?.info.title).toBe('User-provided full document')
+      expect(store.workspace.activeDocument?.info.version).toBe('2.0.0')
+    })
+
     it('should override conflicting changes made to the active document while we are rebasing with a new origin', async () => {
       const documentName = 'default'
       const store = createWorkspaceStore()
