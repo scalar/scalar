@@ -184,7 +184,27 @@ paths:
         - $ref: '#/components/parameters/anotherExtremelySuperLongQueryParameterForTesting'
       responses:
         '200':
-          description: Really long response description that should wrap properly
+          description: |
+            Really long response description that contains extensive markdown content and should wrap properly across multiple lines in the UI.
+
+            ## Really Long Response Heading That Might Wrap To Multiple Lines
+
+            Paragraph with really long content that needs to wrap across multiple lines to test how the UI handles text wrapping in response descriptions.
+
+            ### Even Longer Subheading That Definitely Needs Wrapping
+
+            More content here to test various scenarios.
+
+            | Really Long Column Header | Another Very Long Column |
+            | --- | --- |
+            | Really long cell content that needs to wrap across multiple lines | More long content here |
+
+            - Really long list item that contains extensive text content and should wrap across multiple lines properly
+            - Another really long list item with more content to test list rendering
+            - Third item with extremely long content that definitely needs wrapping
+
+            1. Numbered list item with really long content that should wrap
+            2. Another numbered item with extensive text
           headers:
             X-Really-Extremely-Long-Header-Name-That-Definitely-Needs-Wrapping:
               $ref: '#/components/headers/X-Really-Extremely-Long-Header-Name-That-Definitely-Needs-Wrapping'
@@ -194,6 +214,25 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ReallyExtremelySuperLongSchemaNameThatComprehensivelyTestsPascalCaseNamingConventionAndUIWrapping'
+              examples:
+                reallyExtremelyLongSuccessExampleNameThatTestsWrapping:
+                  summary: Really long example summary that describes the default success case and should wrap properly
+                  value:
+                    ReallyExtremelySuperLongRequiredPropertyNameThatComprehensivelyTestsPascalCaseNamingAndWrapping: 'Really long string value that wraps across multiple lines'
+                    AnotherExtremelySuperLongRequiredPropertyNameThatDefinitelyTestsWrappingAcrossMultipleLines: 42
+                anotherExtremelySuperLongExampleNameForMinimalResponse:
+                  summary: Another really long example summary for minimal response with only required fields
+                  value:
+                    ReallyExtremelySuperLongRequiredPropertyNameThatComprehensivelyTestsPascalCaseNamingAndWrapping: 'Minimal value'
+                    AnotherExtremelySuperLongRequiredPropertyNameThatDefinitelyTestsWrappingAcrossMultipleLines: 0
+                thirdReallyExtremelyLongExampleNameWithNestedObject:
+                  summary: Third really extremely long example summary that includes optional nested object and should wrap
+                  value:
+                    ReallyExtremelySuperLongRequiredPropertyNameThatComprehensivelyTestsPascalCaseNamingAndWrapping: 'Full example with nested content'
+                    AnotherExtremelySuperLongRequiredPropertyNameThatDefinitelyTestsWrappingAcrossMultipleLines: 987654321
+                    YetAnotherExtremelySuperLongPropertyNameThatTestsWrappingAndOverflowAcrossMultipleLines: true
+                    ReallyExtremelySuperLongNestedObjectPropertyThatComprehensivelyTestsPascalCaseNaming:
+                      NestedReallyExtremelySuperLongPropertyNameThatDefinitelyWrapsAcrossMultipleLines: 'Nested value'
         '400':
           $ref: '#/components/responses/ReallyExtremelyLongBadRequestResponseThatTestsWrapping'
   '/another/really/extremely/long/path/{really_extremely_long_snake_case_parameter}/with/more/extremely/long/path/segments':
