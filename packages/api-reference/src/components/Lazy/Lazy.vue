@@ -34,14 +34,13 @@ const VIEWPORT_ROOT_MARGIN = `${VIEWPORT_OVERSCAN_PX}px 0px`
 
 const { isReady } = useLazyBus(id)
 const lazyContainerRef = ref<HTMLElement | null>(null)
-const isInViewport = ref(false)
 
 const placeholderHeight = ref(
   getLazyPlaceholderHeight(id) ?? PLACEHOLDER_HEIGHT_PX,
 )
 let contentResizeObserver: ResizeObserver | null = null
 
-/** Once ready we always show (no eviction). Otherwise show when in overscan or expanded. */
+/** Once ready we always show (no eviction). Otherwise show when expanded (e.g. so child Lazy placeholders mount). */
 const shouldRender = computed(() => isReady.value || expanded)
 
 onMounted(() => {
@@ -57,13 +56,8 @@ onMounted(() => {
   useIntersectionObserver(
     lazyContainerRef,
     ([entry]) => {
-      if (entry?.isIntersecting) {
-        isInViewport.value = true
-        if (!isReady.value) {
-          requestLazyRender(id, true)
-        }
-      } else {
-        isInViewport.value = false
+      if (entry?.isIntersecting && !isReady.value) {
+        requestLazyRender(id, true)
       }
     },
     { rootMargin: VIEWPORT_ROOT_MARGIN },
