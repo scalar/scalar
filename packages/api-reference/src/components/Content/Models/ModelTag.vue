@@ -16,7 +16,7 @@ defineProps<{
 }>()
 </script>
 <template>
-  <Lazy id="models">
+  <Lazy :id="id">
     <!-- Modern Layout Model Container -->
     <SectionContainer
       v-if="layout === 'modern'"

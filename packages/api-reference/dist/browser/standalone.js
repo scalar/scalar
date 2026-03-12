@@ -36101,8 +36101,8 @@ setup:e=>(e,t)=>(Ab(),$b("button",j5e,[t[0]||(t[0]=Ub(" Show More ",-1)),Lb(om(u
 class:"text-c-2 mt-0.25 size-3",weight:"bold"})]))
 }),[["__scopeId","data-v-d1c2b649"]]),z5e=Eg({__name:"ModelTag",props:{id:{},
 isCollapsed:{type:Boolean},eventBus:{},layout:{}},setup:e=>(t,n)=>(Ab(),Pb(B5e,{
-id:"models"},{default:Fm((()=>["modern"===e.layout?(Ab(),Pb(x8e,{key:0,
-id:"model"},{default:Fm((()=>[Lb(om(d8e),{id:e.id,"aria-label":"Models",
+id:e.id},{default:Fm((()=>["modern"===e.layout?(Ab(),Pb(x8e,{key:0,id:"model"},{
+default:Fm((()=>[Lb(om(d8e),{id:e.id,"aria-label":"Models",
 onIntersecting:n[1]||(n[1]=()=>e.eventBus?.emit("intersecting:nav-item",{id:e.id
 }))},{default:Fm((()=>[Lb(om($8e),null,{default:Fm((()=>[Lb(P8e,{level:2},{
 default:Fm((()=>[...n[3]||(n[3]=[Ub(" Models ",-1)])])),_:1})])),_:1
@@ -36114,10 +36114,10 @@ modelValue:!e.isCollapsed,
 "onUpdate:modelValue":n[2]||(n[2]=()=>e.eventBus?.emit("toggle:nav-item",{
 id:e.id,open:e.isCollapsed}))},{title:Fm((()=>[Lb(om($8e),{level:2},{
 default:Fm((()=>[...n[4]||(n[4]=[Ub("Models",-1)])])),_:1})])),
-default:Fm((()=>[cv(t.$slots,"default")])),_:3},8,["modelValue"]))])),_:3}))
-}),Z5e=y4e(Eg({__name:"ClassicLayout",props:{tag:{},isCollapsed:{type:Boolean},
-eventBus:{}},setup:e=>(t,n)=>(Ab(),Pb(om(_8e),{"aria-label":e.tag.title,
-class:"tag-section",modelValue:!e.isCollapsed,
+default:Fm((()=>[cv(t.$slots,"default")])),_:3},8,["modelValue"]))])),_:3
+},8,["id"]))}),Z5e=y4e(Eg({__name:"ClassicLayout",props:{tag:{},isCollapsed:{
+type:Boolean},eventBus:{}},setup:e=>(t,n)=>(Ab(),Pb(om(_8e),{
+"aria-label":e.tag.title,class:"tag-section",modelValue:!e.isCollapsed,
 "onUpdate:modelValue":n[1]||(n[1]=t=>e.eventBus?.emit("toggle:nav-item",{
 id:e.tag.id,open:t}))},{title:Fm((()=>[Lb(om($8e),{class:"tag-name"},{
 default:Fm((()=>[Lb(om(R8e),{
