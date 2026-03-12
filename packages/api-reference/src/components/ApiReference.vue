@@ -843,6 +843,13 @@ eventBus.on('intersecting:nav-item', ({ id }) => {
 
     intersectCandidates = []
 
+    // When hideUrlHashOnScroll is enabled, skip all scroll-based updates
+    // (sidebar selection, breadcrumb, and URL hash) so that the UI stays
+    // consistent with the URL the user navigated to.
+    if (mergedConfig.value.hideUrlHashOnScroll) {
+      return
+    }
+
     sidebarState.setSelected(bestId)
     setBreadcrumb(bestId)
 
@@ -850,11 +857,7 @@ eventBus.on('intersecting:nav-item', ({ id }) => {
     scrollSidebarToTop(bestId)
 
     const url = makeUrlFromId(bestId, basePath.value, isMultiDocument.value)
-    if (
-      url &&
-      workspaceStore.workspace.activeDocument &&
-      !mergedConfig.value.hideUrlHashOnScroll
-    ) {
+    if (url && workspaceStore.workspace.activeDocument) {
       window.history.replaceState({}, '', url.toString())
     }
   })
