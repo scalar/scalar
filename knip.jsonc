@@ -38,7 +38,8 @@
 
     // The following values needs to be re-checked once more packages are included
     "tsc-alias",
-    "tsconfig-paths"
+    "tsconfig-paths",
+    "vue-tsc"
   ],
   "ignoreBinaries": ["netlify"],
   "ignoreIssues": {
