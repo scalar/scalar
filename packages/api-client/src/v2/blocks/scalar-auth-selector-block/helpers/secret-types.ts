@@ -1,5 +1,6 @@
 import type {
   XScalarAuthUrl,
+  XScalarCredentialsLocation,
   XScalarSecretClientId,
   XScalarSecretClientSecret,
   XScalarSecretHTTP,
@@ -32,16 +33,19 @@ export type OAuthFlowImplicitSecret = OAuthFlowImplicit & OAuthFlowCommonSecret 
 export type OAuthFlowPasswordSecret = OAuthFlowPassword &
   OAuthFlowCommonSecret &
   XScalarSecretHTTP &
-  XScalarSecretClientSecret
+  XScalarSecretClientSecret &
+  XScalarCredentialsLocation
 
 export type OAuthFlowClientCredentialsSecret = OAuthFlowClientCredentials &
   OAuthFlowCommonSecret &
-  XScalarSecretClientSecret
+  XScalarSecretClientSecret &
+  XScalarCredentialsLocation
 
 export type OAuthFlowAuthorizationCodeSecret = OAuthFlowAuthorizationCode &
   OAuthFlowCommonSecret &
   XScalarSecretClientSecret &
-  XScalarSecretRedirectUri
+  XScalarSecretRedirectUri &
+  XScalarCredentialsLocation
 
 export type OAuthFlowsObjectSecret = {
   implicit?: OAuthFlowImplicitSecret

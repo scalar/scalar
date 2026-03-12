@@ -3,6 +3,7 @@ import { objectEntries } from '@scalar/helpers/object/object-entries'
 import type { SecurityScheme } from '@scalar/types/entities'
 import type { AuthStore, SecretsOAuthFlows, SecretsOpenIdConnect } from '@scalar/workspace-store/entities/auth'
 import type { DeepPartial } from '@scalar/workspace-store/helpers/overrides-proxy'
+import type { XScalarCredentialsLocation } from '@scalar/workspace-store/schemas/extensions/security/x-scalar-credentials-location'
 import type {
   OAuthFlowAuthorizationCode,
   OAuthFlowClientCredentials,
@@ -72,6 +73,19 @@ const extractRefreshTokenSecret = (
   return {}
 }
 
+const extractCredentialsLocation = (
+  configSecrets: Record<string, unknown>,
+  authStoreSecrets: {
+    'x-scalar-credentials-location'?: XScalarCredentialsLocation['x-scalar-credentials-location']
+  } = {},
+): XScalarCredentialsLocation => {
+  const credentialsLocation =
+    authStoreSecrets['x-scalar-credentials-location'] ??
+    (configSecrets['x-scalar-credentials-location'] as XScalarCredentialsLocation['x-scalar-credentials-location'])
+
+  return credentialsLocation ? { 'x-scalar-credentials-location': credentialsLocation } : {}
+}
+
 /**
  * Extract flow secrets and selected scopes for OAuth-like flows.
  * Reused by both oauth2 and openIdConnect security schemes.
@@ -130,6 +144,7 @@ const extractOAuthFlowSecrets = (
           flow,
           storeSecrets?.password,
         ),
+        ...extractCredentialsLocation(flow, storeSecrets?.password),
         ...extractRefreshTokenSecret(storeSecrets?.password),
       } satisfies OAuthFlowPasswordSecret
     }
@@ -148,6 +163,7 @@ const extractOAuthFlowSecrets = (
           flow,
           storeSecrets?.clientCredentials,
         ),
+        ...extractCredentialsLocation(flow, storeSecrets?.clientCredentials),
         ...extractRefreshTokenSecret(storeSecrets?.clientCredentials),
       } satisfies OAuthFlowClientCredentialsSecret
     }
@@ -168,6 +184,7 @@ const extractOAuthFlowSecrets = (
           flow,
           storeSecrets?.authorizationCode,
         ),
+        ...extractCredentialsLocation(flow, storeSecrets?.authorizationCode),
         ...extractRefreshTokenSecret(storeSecrets?.authorizationCode),
       } satisfies OAuthFlowAuthorizationCodeSecret
     }

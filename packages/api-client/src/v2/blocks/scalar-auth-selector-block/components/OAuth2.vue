@@ -187,10 +187,19 @@ const handleAuthorize = async (): Promise<void> => {
 }
 
 /** Updates the secret location */
-const handleSecretLocationUpdate = (value: string): void =>
-  handleOauth2Update({
-    'x-scalar-credentials-location': value === 'body' ? 'body' : 'header',
+const handleSecretLocationUpdate = (value: string): void => {
+  const credentialsLocation = value === 'body' ? 'body' : 'header'
+
+  if (scheme.type !== 'openIdConnect') {
+    handleOauth2Update({
+      'x-scalar-credentials-location': credentialsLocation,
+    })
+  }
+
+  handleOauth2SecretsUpdate({
+    'x-scalar-credentials-location': credentialsLocation,
   })
+}
 </script>
 
 <template>

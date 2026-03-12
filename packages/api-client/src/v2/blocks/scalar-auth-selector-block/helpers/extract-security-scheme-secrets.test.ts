@@ -691,6 +691,7 @@ describe('extractSecuritySchemeSecrets', () => {
           'x-scalar-secret-client-id': 'client-123',
           'x-scalar-secret-client-secret': 'secret-456',
           'x-scalar-secret-token': 'token-789',
+          'x-scalar-credentials-location': 'body',
         },
       })
 
@@ -718,6 +719,7 @@ describe('extractSecuritySchemeSecrets', () => {
             'x-scalar-secret-client-secret': 'secret-456',
             'x-scalar-secret-token': 'token-789',
             'x-scalar-secret-token-url': 'https://example.com/oauth/token',
+            'x-scalar-credentials-location': 'body',
           },
         },
         'x-default-scopes': [],
