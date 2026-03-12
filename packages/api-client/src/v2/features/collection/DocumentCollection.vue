@@ -80,14 +80,16 @@ const saveChanges = () => {
   props.workspaceStore.saveDocument(props.documentSlug)
 }
 
-const handleSaveThenCloseDirtyModal = () => {
-  saveChanges()
+const handleSaveThenCloseDirtyModal = async () => {
+  await props.workspaceStore.saveDocument(props.documentSlug)
   dirtyBeforeSyncModal.hide()
+  await handleSyncFlow()
 }
 
-const handleDiscardThenCloseDirtyModal = () => {
-  undoChanges()
+const handleDiscardThenCloseDirtyModal = async () => {
+  await props.workspaceStore.revertDocumentChanges(props.documentSlug)
   dirtyBeforeSyncModal.hide()
+  await handleSyncFlow()
 }
 
 const isSyncInProgress = ref(false)
