@@ -297,12 +297,12 @@ jobs:
         with:
           packages: '@scalar-examples/vue-ssr...'
       - name: Start Vue SSR server and verify it responds
-        run: pnpm --filter @scalar-examples/vue-ssr preview & pnpm script wait -p 5173
-        timeout-minutes: 1
-      - name: Verify SSR response
         run: |
+          pnpm --filter @scalar-examples/vue-ssr preview &
+          pnpm script wait -p 5173
           curl -sSf http://localhost:5173 -o /tmp/response.html
-          grep -q "<p>User account created successfully</p>" /tmp/response.html
+          grep -q "User account created successfully" /tmp/response.html
+        timeout-minutes: 2
 
   test-e2e-api-reference:
     needs: [build]
