@@ -17,6 +17,7 @@ import { ScalarButton, ScalarModal, useModal } from '@scalar/components'
 import {
   ScalarIconCloudArrowDown,
   ScalarIconFloppyDisk,
+  ScalarIconSpinner,
   ScalarIconWarning,
 } from '@scalar/icons'
 import { LibraryIcon } from '@scalar/icons/library'
@@ -89,6 +90,8 @@ const handleDiscardThenCloseDirtyModal = () => {
   dirtyBeforeSyncModal.hide()
 }
 
+const isSyncInProgress = ref(false)
+
 const rebaseResult = ref<{
   originalDocument: Record<string, unknown>
   resolvedDocument: Record<string, unknown>
@@ -128,6 +131,16 @@ const resolveSyncInput = async (): Promise<
   return null
 }
 
+const onSyncComplete = () => {
+  syncModal.hide()
+  isSyncInProgress.value = false
+  props.eventBus.emit('hooks:on:rebase:document:complete', {
+    meta: {
+      documentName: props.documentSlug,
+    },
+  })
+}
+
 /**
  * Handles the synchronization flow for a document.
  * Checks for unsaved changes, resolves source (registry over URL),
@@ -139,6 +152,12 @@ const handleSyncFlow = async () => {
     dirtyBeforeSyncModal.show()
     return
   }
+
+  if (isSyncInProgress.value) {
+    return
+  }
+
+  isSyncInProgress.value = true
 
   const input = await resolveSyncInput()
   if (!input) {
@@ -168,20 +187,11 @@ const handleSyncFlow = async () => {
       await rebaseResult.value?.applyChanges({
         resolvedDocument: rebaseResult.value.resolvedDocument,
       })
-      props.eventBus.emit('hooks:on:rebase:document:complete', {
-        meta: {
-          documentName: props.documentSlug,
-        },
-      })
-      syncModal.hide()
+      onSyncComplete()
     }
   } else if (result?.ok === false && result.type === 'NO_CHANGES_DETECTED') {
     // Emit the event either way even if there was no need to rebase the document
-    props.eventBus.emit('hooks:on:rebase:document:complete', {
-      meta: {
-        documentName: props.documentSlug,
-      },
-    })
+    onSyncComplete()
   } else {
     toast('Failed to sync document', 'error')
   }
@@ -278,12 +288,18 @@ const handleApplyChanges = async ({
             v-if="canShowSyncButton"
             class="text-c-2 hover:text-c-1 shrink-0 gap-1.5"
             data-testid="document-sync-button"
+            :disabled="isSyncInProgress"
             size="xs"
             :title="'Pull the latest version from the document source and merge with your local copy. Save your changes first if you have unsaved edits.'"
             type="button"
             variant="ghost"
             @click="handleSyncFlow">
+            <ScalarIconSpinner
+              v-if="isSyncInProgress"
+              class="size-3.5 animate-spin"
+              size="sm" />
             <ScalarIconCloudArrowDown
+              v-else
               class="size-3.5"
               size="sm"
               thickness="1.5" />
