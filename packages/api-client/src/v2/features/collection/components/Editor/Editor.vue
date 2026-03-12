@@ -268,6 +268,9 @@ onBeforeUnmount(() => {
     void saveNow()
   }
   editorApi.value?.dispose?.()
+  // Dispose models created at setup; useEditor only disposes the editor widget, not external models.
+  jsonModel.model.dispose()
+  yamlModel.model.dispose()
 })
 
 watch(() => documentSlug, loadDocumentIntoEditor)

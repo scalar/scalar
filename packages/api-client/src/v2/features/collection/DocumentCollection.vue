@@ -135,9 +135,20 @@ const resolveSyncInput = async (): Promise<
   return null
 }
 
+/**
+ * Handles actions to perform when synchronization is complete.
+ * Hides the sync modal, resets the sync progress flag, and emits the
+ * 'hooks:on:rebase:document:complete' event with document metadata.
+ */
 const onSyncComplete = () => {
   syncModal.hide()
   isSyncInProgress.value = false
+  // Display the toast to show that the sync is complete
+  toast(
+    'Your document has been rebased with the latest version from the source.',
+    'info',
+  )
+  // Emit the event to notify other components that the sync is complete
   props.eventBus.emit('hooks:on:rebase:document:complete', {
     meta: {
       documentName: props.documentSlug,
@@ -145,8 +156,15 @@ const onSyncComplete = () => {
   })
 }
 
-const onSyncError = (error: string) => {
-  toast(error, 'error')
+/**
+ * Handles errors that occur during synchronization.
+ * If an error string is provided, it displays the error via toast.
+ * Always resets the sync progress flag.
+ */
+const onSyncError = (error: string | null) => {
+  if (error !== null) {
+    toast(error, 'error')
+  }
   isSyncInProgress.value = false
 }
 
@@ -170,7 +188,7 @@ const handleSyncFlow = async () => {
 
   const input = await resolveSyncInput()
   if (!input) {
-    onSyncError('Document source URL is not set')
+    onSyncError(null)
     return
   }
 
