@@ -2,9 +2,8 @@
 /**
  * TODO: This works, but doesn't render anything on the server. Sooo we have some work ahead of us.
  */
+import { createApiReference } from '@scalar/api-reference'
 import { onMounted, ref } from 'vue'
-
-import { createApiReference } from '../../../src/standalone/lib/html-api'
 
 const containerRef = ref<HTMLDivElement>()
 
