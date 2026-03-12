@@ -48,9 +48,10 @@ const {
   getAppState: () => AppState
   getCommandPaletteState: () => CommandPaletteState
   /** Fetches the full document from registry by meta. Passed through to route props for sync. */
-  fetchDocumentFromRegistry?: (
-    meta: { namespace: string; slug: string },
-  ) => Promise<Record<string, unknown>>
+  fetchDocumentFromRegistry?: (meta: {
+    namespace: string
+    slug: string
+  }) => Promise<Record<string, unknown>>
 }>()
 
 defineSlots<{

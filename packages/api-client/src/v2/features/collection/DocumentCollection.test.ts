@@ -48,10 +48,7 @@ describe('DocumentCollection', () => {
     })
   }
 
-  const mountWithRouter = async (
-    document: WorkspaceDocument | null,
-    extraProps?: Record<string, unknown>,
-  ) => {
+  const mountWithRouter = async (document: WorkspaceDocument | null, extraProps?: Record<string, unknown>) => {
     const router = createRouterInstance()
     const workspaceStore = createMockWorkspaceStore()
 

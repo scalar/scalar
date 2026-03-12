@@ -2,7 +2,7 @@ import type { Ref } from 'vue'
 
 const clamp = (value: number, min: number, max: number): number => Math.min(max, Math.max(min, value))
 
-export type UseSplitResizeOptions = {
+type UseSplitResizeOptions = {
   /** Ref to the container used for horizontal resize (width + clientX). */
   horizontalContainerRef: Ref<HTMLElement | undefined>
   /** Ref to the container used for vertical resize (height + clientY). */

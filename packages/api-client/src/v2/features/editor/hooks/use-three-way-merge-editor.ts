@@ -10,11 +10,11 @@ import { ensureJsonPointerLinkSupport } from '@/v2/features/editor/helpers/json/
 import { parseJsonPointerPath } from '@/v2/features/editor/helpers/json/json-pointer-path'
 import type { EditorModel, Path } from '@/v2/features/editor/helpers/model'
 
-export type ConflictResolutionState = 'manual' | 'local' | 'remote' | 'ignore' | 'idle'
+type ConflictResolutionState = 'manual' | 'local' | 'remote' | 'ignore' | 'idle'
 
 type ConflictRange = { index: number; path: string[]; range: monaco.Range }
 
-export type UseThreeWayMergeEditorOptions = {
+type UseThreeWayMergeEditorOptions = {
   /** Base document (common ancestor). */
   baseDocument: MaybeRefOrGetter<Record<string, unknown>>
   /** Document with resolved conflicts (current result). */
@@ -27,7 +27,7 @@ export type UseThreeWayMergeEditorOptions = {
   onError?: (message: string) => void
 }
 
-export type ThreeWayMergeEditorContainers = {
+type ThreeWayMergeEditorContainers = {
   /** Container for the local (current) diff editor. */
   local: HTMLElement
   /** Container for the remote diff editor. */

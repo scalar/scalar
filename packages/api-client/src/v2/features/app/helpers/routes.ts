@@ -59,9 +59,7 @@ export type RouteProps = {
    * Fetches the full document from registry by meta. When provided, registry meta takes priority
    * over x-scalar-original-source-url when syncing. Returns the document as a plain object.
    */
-  fetchDocumentFromRegistry?: (
-    meta: { namespace: string; slug: string },
-  ) => Promise<Record<string, unknown>>
+  fetchDocumentFromRegistry?: (meta: { namespace: string; slug: string }) => Promise<Record<string, unknown>>
 }
 
 /** When in the collections pages */
