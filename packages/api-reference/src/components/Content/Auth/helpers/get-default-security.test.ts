@@ -230,6 +230,68 @@ describe('getDefaultSecurity', () => {
     expect(result).toEqual({ apiKeyAuth: [] })
   })
 
+  it('applies x-default-scopes when falling back to the first oauth2 security requirement', () => {
+    const securityRequirements: SecurityRequirementObject[] = [{ oauth2Auth: [] }]
+    const preferredSecurityScheme: AuthenticationConfiguration['preferredSecurityScheme'] = undefined
+    const securitySchemes: MergedSecuritySchemes = {
+      oauth2Auth: {
+        type: 'oauth2',
+        flows: {
+          authorizationCode: {
+            'x-usePkce': 'no',
+            'x-scalar-secret-client-id': 'test-client-id',
+            'x-scalar-secret-client-secret': 'test-client-secret',
+            'x-scalar-secret-redirect-uri': 'https://example.com/oauth/callback',
+            'x-scalar-secret-token': 'test-token',
+            refreshUrl: 'https://example.com/oauth/refresh',
+            authorizationUrl: 'https://example.com/oauth/authorize',
+            tokenUrl: 'https://example.com/oauth/token',
+            scopes: {
+              'openid': 'OpenID',
+              'email': 'Email',
+            },
+          },
+        },
+        'x-default-scopes': ['openid', 'email'],
+      } satisfies SecuritySchemeObjectSecret,
+    }
+
+    const result = getDefaultSecurity(securityRequirements, preferredSecurityScheme, securitySchemes)
+
+    expect(result).toEqual({ oauth2Auth: ['openid', 'email'] })
+  })
+
+  it('preserves explicit scopes from the first security requirement over x-default-scopes', () => {
+    const securityRequirements: SecurityRequirementObject[] = [{ oauth2Auth: ['openid'] }]
+    const preferredSecurityScheme: AuthenticationConfiguration['preferredSecurityScheme'] = undefined
+    const securitySchemes: MergedSecuritySchemes = {
+      oauth2Auth: {
+        type: 'oauth2',
+        flows: {
+          authorizationCode: {
+            'x-usePkce': 'no',
+            'x-scalar-secret-client-id': 'test-client-id',
+            'x-scalar-secret-client-secret': 'test-client-secret',
+            'x-scalar-secret-redirect-uri': 'https://example.com/oauth/callback',
+            'x-scalar-secret-token': 'test-token',
+            refreshUrl: 'https://example.com/oauth/refresh',
+            authorizationUrl: 'https://example.com/oauth/authorize',
+            tokenUrl: 'https://example.com/oauth/token',
+            scopes: {
+              'openid': 'OpenID',
+              'email': 'Email',
+            },
+          },
+        },
+        'x-default-scopes': ['openid', 'email'],
+      } satisfies SecuritySchemeObjectSecret,
+    }
+
+    const result = getDefaultSecurity(securityRequirements, preferredSecurityScheme, securitySchemes)
+
+    expect(result).toEqual({ oauth2Auth: ['openid'] })
+  })
+
   it('handles security scheme with $ref-value wrapper', () => {
     const securityRequirements: SecurityRequirementObject[] = []
     const preferredSecurityScheme: AuthenticationConfiguration['preferredSecurityScheme'] = ['oauth2Auth']

@@ -20,6 +20,29 @@ export const getDefaultScopes = (scheme: SecuritySchemeObject | undefined): stri
 }
 
 /**
+ * Hydrates an existing security requirement with configured default scopes.
+ * Explicit scopes from the OpenAPI requirement take precedence over x-default-scopes.
+ */
+const hydrateSecurityRequirement = (
+  requirement: SecurityRequirementObject,
+  securitySchemes: MergedSecuritySchemes,
+): SecurityRequirementObject => {
+  const hydratedRequirement: SecurityRequirementObject = {}
+
+  for (const [schemeName, scopes] of Object.entries(unpackProxyObject(requirement, { depth: 1 }) ?? requirement)) {
+    if (Array.isArray(scopes) && scopes.length > 0) {
+      hydratedRequirement[schemeName] = scopes
+      continue
+    }
+
+    const scheme = getResolvedRef(securitySchemes[schemeName])
+    hydratedRequirement[schemeName] = getDefaultScopes(scheme)
+  }
+
+  return hydratedRequirement
+}
+
+/**
  * Processes a single scheme name and adds it to the accumulator with its default scopes.
  */
 const addSchemeToRequirement = (
@@ -79,7 +102,7 @@ export const getDefaultSecurity = (
 
   const firstRequirement = securityRequirements[0]
   if (firstRequirement) {
-    return unpackProxyObject(firstRequirement, { depth: 1 })
+    return hydrateSecurityRequirement(firstRequirement, securitySchemes)
   }
 
   return null
