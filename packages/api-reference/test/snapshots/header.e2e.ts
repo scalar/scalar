@@ -1,4 +1,11 @@
-import { type Page, type ViewportSize, devices, expect, test } from '@playwright/test'
+import {
+  type Page,
+  type PageAssertionsToHaveScreenshotOptions as ScreenshotOptions,
+  type ViewportSize,
+  devices,
+  expect,
+  test,
+} from '@playwright/test'
 import { serveExample } from '@test/utils/serve-example'
 
 import { type Slug, sources } from '../utils/sources'
@@ -50,11 +57,20 @@ toTest.forEach((source) => {
     await page.goto(example)
     await injectHeader(page)
 
+    /** Options for the page screenshots */
+    const opts = {
+      mask: [
+        page.getByRole('region', { name: 'Introduction' }), // Hide the introduction section
+        page.locator('aside > ul'), // Hide the sidebar contents
+      ],
+      maskColor: '#eee',
+    } satisfies ScreenshotOptions
+
     await expect(page.locator('.custom-header')).toBeVisible()
-    await expect(page).toHaveScreenshot(`${slug}-header.png`)
+    await expect(page).toHaveScreenshot(`${slug}-header.png`, opts)
 
     await page.setViewportSize(mobileViewport)
     await expect(page.locator('.custom-header')).toBeVisible()
-    await expect(page).toHaveScreenshot(`${slug}-header-mobile.png`)
+    await expect(page).toHaveScreenshot(`${slug}-header-mobile.png`, opts)
   })
 })
