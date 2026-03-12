@@ -422,7 +422,7 @@ public class ScalarResourceConfiguratorTests
     // Invokes all EnvironmentCallbackAnnotation instances on the resource and resolves IValueProvider
     // values (such as EndpointReference) to strings. Replicates what Aspire's internal
     // EnvironmentVariableEvaluator does, without the dependency on Aspire's test infrastructure.
-    private static async Task<Dictionary<string, string>> GetServiceDiscoveryEnvVarsAsync(IResource resource)
+    private static async Task<Dictionary<string, string>> GetServiceDiscoveryEnvVarsAsync(ScalarResource resource)
     {
         var executionContext = new DistributedApplicationExecutionContext(
             new DistributedApplicationExecutionContextOptions(DistributedApplicationOperation.Run)
