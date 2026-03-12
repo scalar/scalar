@@ -117,8 +117,12 @@ const resolveSyncInput = async (): Promise<
   const registryMeta = documentRegistryMeta.value
   if (registryMeta && props.fetchDocumentFromRegistry) {
     try {
-      const document = await props.fetchDocumentFromRegistry(registryMeta)
-      return { document }
+      const result = await props.fetchDocumentFromRegistry(registryMeta)
+      if (!result.ok) {
+        toast(result.error, 'error')
+        return null
+      }
+      return { document: result.data }
     } catch (err) {
       toast('Failed to resolve document from registry', 'error')
       return null

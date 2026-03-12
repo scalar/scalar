@@ -30,6 +30,7 @@ import TheCommandPalette from '@/v2/features/command-palette/TheCommandPalette.v
 import { useMonacoEditorConfiguration } from '@/v2/features/editor'
 import { useColorMode } from '@/v2/hooks/use-color-mode'
 import { useGlobalHotKeys } from '@/v2/hooks/use-global-hot-keys'
+import type { ImportDocumentFromRegistry } from '@/v2/types/configuration'
 import type { ClientLayout } from '@/v2/types/layout'
 
 import { type AppState } from './app-state'
@@ -48,10 +49,7 @@ const {
   getAppState: () => AppState
   getCommandPaletteState: () => CommandPaletteState
   /** Fetches the full document from registry by meta. Passed through to route props for sync. */
-  fetchDocumentFromRegistry?: (meta: {
-    namespace: string
-    slug: string
-  }) => Promise<Record<string, unknown>>
+  fetchDocumentFromRegistry?: ImportDocumentFromRegistry
 }>()
 
 defineSlots<{
