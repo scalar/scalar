@@ -365,6 +365,25 @@ export type WorkspaceStore = {
    */
   getEditableDocument(documentName: string): Promise<WorkspaceDocument | null>
   /**
+   * Returns the original version of the specified document.
+   *
+   * The original version of the document is the version that was loaded from the source which means the original version that we know of when we started editing the document.
+   *
+   * @param documentName - The name of the document to get the original version of.
+   * @returns The original version of the document, or undefined if the document does not exist.
+   */
+  getOriginalDocument(documentName: string): Record<string, unknown> | null
+  /**
+   * Returns the intermediate version of the specified document.
+   *
+   * The intermediate version of the document is the version that was saved to the intermediate documents map.
+   * It should be used to push a new version of the document to the remote registry.
+   *
+   * @param documentName - The name of the document to get the intermediate version of.
+   * @returns The intermediate version of the document, or undefined if the document does not exist.
+   */
+  getIntermediateDocument(documentName: string): Record<string, unknown> | null
+  /**
    * Saves the current state of the specified document to the intermediate documents map.
    *
    * This function captures the latest (reactive) state of the document from the workspace and
@@ -409,6 +428,25 @@ export type WorkspaceStore = {
    * store.revertDocumentChanges('api')
    */
   revertDocumentChanges(documentName: string): Promise<void>
+  /**
+   * Promotes the intermediate document to the original document for the given document name.
+   *
+   * The intermediate document (last locally saved version) becomes the new baseline/original.
+   * Use this after syncing or merging when the current intermediate state should be treated
+   * as the new known source (e.g. after resolving rebase conflicts and applying changes).
+   *
+   * @param documentName - The name of the document to update.
+   * @returns boolean indicating if the intermediate document was promoted to the original document.
+   * @example
+   * // Promote the intermediate document to the original document
+   * const result = store.promoteIntermediateToOriginal('api')
+   * if (result) {
+   *   console.log('Intermediate document promoted to original document')
+   * } else {
+   *   console.log('Intermediate document does not exist')
+   * }
+   */
+  promoteIntermediateToOriginal(documentName: string): boolean
   /**
    * Commits the specified document.
    *
@@ -495,8 +533,17 @@ export type WorkspaceStore = {
       }
     | {
         ok: true
+        changes: ReturnType<typeof merge>['diffs']
         conflicts: ReturnType<typeof merge>['conflicts']
-        applyChanges: (resolvedConflicts: Difference<unknown>[]) => Promise<void>
+        applyChanges: (
+          applyChangesInput:
+            | {
+                resolvedConflicts: Difference<unknown>[]
+              }
+            | {
+                resolvedDocument: Record<string, unknown>
+              },
+        ) => Promise<void>
       }
   >
 }
@@ -1007,6 +1054,40 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     })
   }
 
+  const getOriginalDocument = (documentName: string) => {
+    const rawDocument = unpackProxyObject(originalDocuments[documentName], { depth: 1 })
+
+    if (!rawDocument) {
+      return null
+    }
+
+    return rawDocument
+  }
+
+  const getIntermediateDocument = (documentName: string) => {
+    const rawDocument = unpackProxyObject(intermediateDocuments[documentName], { depth: 1 })
+
+    if (!rawDocument) {
+      return null
+    }
+
+    return rawDocument
+  }
+
+  /**
+   * Promotes the intermediate document to the original document so the current
+   * intermediate becomes the new baseline. Fires workspace change for persistence.
+   */
+  const promoteIntermediateToOriginal: WorkspaceStore['promoteIntermediateToOriginal'] = (documentName) => {
+    const intermediate = intermediateDocuments[documentName]
+    if (!intermediate) {
+      return false
+    }
+    const cloned = deepClone(unpackProxyObject(intermediate, { depth: 1 }))
+    originalDocuments[documentName] = cloned
+    return true
+  }
+
   /**
    * Retrieves an editable clone of a workspace document.
    *
@@ -1090,6 +1171,8 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       Object.assign(workspace, { [key]: value })
     },
     getEditableDocument,
+    getOriginalDocument,
+    getIntermediateDocument,
     updateDocument<K extends keyof DocumentMetaExtensions>(
       name: 'active' | (string & {}),
       key: K,
@@ -1193,6 +1276,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     exportActiveDocument: (format, minify) => exportDocument(getActiveDocumentName(), format, minify),
     buildSidebar,
     saveDocument,
+    promoteIntermediateToOriginal,
     async revertDocumentChanges(documentName: string) {
       const workspaceDocument = workspace.documents[documentName]
       const intermediate = intermediateDocuments[documentName]
@@ -1266,7 +1350,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         ),
       )
     },
-    rebaseDocument: async (input: WorkspaceDocumentInput) => {
+    rebaseDocument: async (input) => {
       const { name } = input
 
       // ---- Get the current documents
@@ -1342,11 +1426,22 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       return {
         ok: true,
         conflicts: changesA.conflicts,
-        applyChanges: async (resolvedConflicts: Difference<unknown>[]) => {
-          const changesetA = changesA.diffs.concat(resolvedConflicts)
+        changes: changesA.diffs,
+        applyChanges: async (applyChangesInput) => {
+          // Helper function to compute the new intermediate document based on resolved conflicts or a resolved document
+          const getNewIntermediateDocument = () => {
+            if ('resolvedConflicts' in applyChangesInput) {
+              const changesetA = changesA.diffs.concat(applyChangesInput.resolvedConflicts)
 
-          // Apply the changes to the original document to get the new intermediate
-          const newIntermediateDocument = apply(deepClone(originalDocument), changesetA)
+              // Apply the merged changes (diffs + resolved conflicts) to the original document
+              return apply(deepClone(originalDocument), changesetA)
+            }
+
+            // If there are no resolved conflicts, use the provided resolved document
+            return applyChangesInput.resolvedDocument
+          }
+
+          const newIntermediateDocument = getNewIntermediateDocument()
           intermediateDocuments[name] = newIntermediateDocument
 
           // Update the original document

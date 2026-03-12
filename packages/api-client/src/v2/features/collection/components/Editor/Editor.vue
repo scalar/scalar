@@ -4,10 +4,21 @@ import { debounce } from '@scalar/helpers/general/debounce'
 import { isObject } from '@scalar/helpers/object/is-object'
 import { ScalarIconArrowsIn, ScalarIconArrowsOut } from '@scalar/icons'
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api.js'
-import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import {
+  computed,
+  nextTick,
+  onBeforeUnmount,
+  onMounted,
+  ref,
+  shallowRef,
+  watch,
+} from 'vue'
 
 import type { CollectionProps } from '@/v2/features/app/helpers/routes'
-import { useEditorMarkers } from '@/v2/features/collection/components/Editor/hooks/use-editor-markers'
+import { useEditor, useJsonPointerLinkSupport } from '@/v2/features/editor'
+import { createJsonModel } from '@/v2/features/editor/helpers/json/create-json-model'
+import { createYamlModel } from '@/v2/features/editor/helpers/yaml/create-yaml-model'
+import { useEditorMarkers } from '@/v2/features/editor/hooks/use-editor-markers'
 
 import EditorDiagnosticsPanel from './components/EditorDiagnosticsPanel.vue'
 import EditorSavePanel from './components/EditorSavePanel.vue'
@@ -16,24 +27,16 @@ import { getOperationContext } from './helpers/get-operation-context'
 import { getVisibleDiagnostics } from './helpers/get-visible-diagnostics'
 import { parseEditorObject } from './helpers/parse-editor-object'
 import { stringifyDocument } from './helpers/stringify-document'
-import { useEditor } from './hooks/use-editor'
 import { useEditorState } from './hooks/use-editor-state'
 
-const {
-  collectionType,
-  documentSlug,
-  method,
-  path,
-  workspaceStore,
-  currentTheme,
-  isDarkMode,
-} = defineProps<CollectionProps>()
+const { collectionType, documentSlug, method, path, workspaceStore } =
+  defineProps<CollectionProps>()
 
 const MAX_VISIBLE_DIAGNOSTICS = 6
 const EDITOR_PERSIST_DEBOUNCE_KEY = 'editor:replace-document'
 
 const monacoEditorRef = ref<HTMLElement>()
-const editor = ref<ReturnType<typeof useEditor>>()
+const editorApi = shallowRef<ReturnType<typeof useEditor>>()
 
 const saveLoader = useLoadingState()
 const {
@@ -49,11 +52,20 @@ const {
   toggleEditorMaximized,
 } = useEditorState()
 
-const monacoEditorInstance = computed(() => editor.value?.editor)
+const jsonModel = createJsonModel()
+const yamlModel = createYamlModel()
+
+const selectedLanguage = ref<'json' | 'yaml'>('json')
+
+const currentModel = computed(() => {
+  return selectedLanguage.value === 'json' ? jsonModel : yamlModel
+})
+
+const monacoEditorInstance = computed(() => editorApi.value?.editor)
 const { markers: diagnostics } = useEditorMarkers(monacoEditorInstance)
 
 const syncEditorBottomPadding = () => {
-  editor.value?.editor.updateOptions({
+  editorApi.value?.editor.updateOptions({
     padding: {
       top: 0,
       bottom: editorBottomPadding.value,
@@ -67,14 +79,33 @@ const visibleDiagnostics = computed(() =>
 )
 
 const focusDiagnostic = (marker: monaco.editor.IMarker) => {
-  editor.value?.setCursorToMarker(marker)
+  const editor = editorApi.value?.editor
+  if (!editor) {
+    return
+  }
+  editor.setSelection({
+    startLineNumber: marker.startLineNumber,
+    startColumn: marker.startColumn,
+    endLineNumber: marker.endLineNumber,
+    endColumn: marker.endColumn,
+  })
+  editor.revealPositionInCenter({
+    lineNumber: marker.startLineNumber,
+    column: marker.startColumn,
+  })
 }
 
-const getEditorValue = (): string | null => editor.value?.getValue?.() ?? null
+const getEditorValue = (): string | null => currentModel.value.model.getValue()
 
-const getDocumentValue = async (): Promise<string> => {
+/** Value from the editor for a specific language (use when switching to avoid reading the wrong model). */
+const getEditorValueForLanguage = (language: 'json' | 'yaml'): string | null =>
+  (language === 'json' ? jsonModel : yamlModel).model.getValue()
+
+const getDocumentValue = async (
+  language?: 'json' | 'yaml',
+): Promise<string> => {
   const document = await workspaceStore.getEditableDocument(documentSlug)
-  return stringifyDocument(document, editorLanguage.value)
+  return stringifyDocument(document, language ?? selectedLanguage.value)
 }
 
 const debouncedPersist = debounce({ delay: 1500 })
@@ -82,7 +113,7 @@ const debouncedPersist = debounce({ delay: 1500 })
 const applyProgrammaticEditorValue = (value: string): void => {
   // Cancel pending auto-save work so synthetic model updates do not persist stale data.
   debouncedPersist.cleanup()
-  editor.value?.setValue(value, true)
+  editorApi.value?.setValue(value, true)
 }
 
 const loadDocumentIntoEditor = async () => {
@@ -92,7 +123,7 @@ const loadDocumentIntoEditor = async () => {
 }
 
 const formatDocument = async () => {
-  await editor.value?.formatDocument()
+  await editorApi.value?.formatDocument()
 }
 
 const focusOperation = async () => {
@@ -101,7 +132,7 @@ const focusOperation = async () => {
     return
   }
 
-  await editor.value?.focusPath([
+  await editorApi.value?.focusPath([
     'paths',
     operationContext.path,
     operationContext.method,
@@ -179,8 +210,8 @@ const focusOperationServers = async () => {
   operation.servers ??= []
 
   // Update the editor value
-  editor.value?.setValue(stringifyDocument(parsed, editorLanguage.value))
-  await editor.value?.focusPath([
+  editorApi.value?.setValue(stringifyDocument(parsed, editorLanguage.value))
+  await editorApi.value?.focusPath([
     'paths',
     operationContext.path,
     operationContext.method,
@@ -188,13 +219,13 @@ const focusOperationServers = async () => {
   ])
 }
 
+useJsonPointerLinkSupport(editorApi, currentModel)
+
 onMounted(() => {
-  editor.value = useEditor({
+  editorApi.value = useEditor({
     element: monacoEditorRef.value ?? document.createElement('div'),
     onChange: handleEditorChange,
-    isDarkMode,
-    theme: currentTheme,
-    language: editorLanguage.value,
+    model: currentModel,
     actions: [
       {
         id: 'scalar.editor.focusOperation',
@@ -236,7 +267,10 @@ onBeforeUnmount(() => {
   if (isDirty.value && isAutoSaveEnabled.value) {
     void saveNow()
   }
-  editor.value?.dispose?.()
+  editorApi.value?.dispose?.()
+  // Dispose models created at setup; useEditor only disposes the editor widget, not external models.
+  jsonModel.model.dispose()
+  yamlModel.model.dispose()
 })
 
 watch(() => documentSlug, loadDocumentIntoEditor)
@@ -254,19 +288,23 @@ watch(isDiagnosticsPaneExpanded, () => {
 
 watch(editorLanguage, async (nextLanguage, previousLanguage) => {
   const wasDirty = isDirty.value
-  editor.value?.setLanguage(nextLanguage)
-
-  const value = getEditorValue()
+  // Read from the previous model before switching; getEditorValue() would use currentModel
+  // which changes with selectedLanguage, so we would read the (empty) new model otherwise.
+  const value = getEditorValueForLanguage(previousLanguage ?? 'json')
   if (!value) {
+    selectedLanguage.value = nextLanguage
+    await nextTick()
+    await focusOperation()
     return
   }
 
-  const parsed = parseEditorObject(value, previousLanguage)
+  const parsed = parseEditorObject(value, previousLanguage ?? 'json')
+  selectedLanguage.value = nextLanguage
+  await nextTick()
   if (parsed) {
     applyProgrammaticEditorValue(stringifyDocument(parsed, nextLanguage))
     isDirty.value = wasDirty
   }
-
   await focusOperation()
 })
 

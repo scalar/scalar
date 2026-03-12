@@ -171,7 +171,7 @@ export const useDocumentWatcher = ({
 
     if (result?.ok) {
       // On conflicts, prefer remote changes by automatically choosing the first option for each conflict tuple
-      await result.applyChanges(resolveConflicts(result.conflicts))
+      await result.applyChanges({ resolvedConflicts: resolveConflicts(result.conflicts) })
       handleSuccess()
     } else if (result?.ok === false && result.type === 'NO_CHANGES_DETECTED') {
       // Still a successful call, just nothing changed

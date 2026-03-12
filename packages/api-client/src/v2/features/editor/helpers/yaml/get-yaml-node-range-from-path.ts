@@ -1,6 +1,6 @@
 import { isMap, isPair, isScalar, isSeq, parseDocument } from 'yaml'
 
-import type { JsonPath } from './json-ast'
+import type { Path } from '@/v2/features/editor/helpers/model'
 
 type YamlNodeRange = {
   startOffset: number
@@ -29,7 +29,7 @@ const safeParseDocument = (yamlText: string) => {
  * @param path An array representing the path to traverse
  * @returns The byte offsets in the YAML string of the node (or null if not found)
  */
-export const getYamlNodeRangeFromPath = (yamlText: string, path: JsonPath): YamlNodeRange | null => {
+export const getYamlNodeRangeFromPath = (yamlText: string, path: Path): YamlNodeRange | null => {
   const doc = safeParseDocument(yamlText)
   if (!doc) {
     return null

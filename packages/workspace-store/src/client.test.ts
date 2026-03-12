@@ -2182,6 +2182,64 @@ describe('create-workspace-store', () => {
     })
   })
 
+  describe('promoteIntermediateToOriginal', () => {
+    it('copies intermediate document to original so getOriginalDocument returns promoted content', async () => {
+      const store = createWorkspaceStore()
+      await store.addDocument({
+        name: 'default',
+        document: { openapi: '3.1.0', info: { title: 'Initial', version: '1.0.0' } },
+      })
+      const doc = store.workspace.documents['default']
+      if (doc?.info) {
+        doc.info.title = 'Updated title'
+      }
+      await store.saveDocument('default')
+
+      const intermediateBefore = store.getIntermediateDocument('default') as { info?: { title?: string } } | null
+      expect(intermediateBefore?.info?.title).toBe('Updated title')
+      const originalBefore = store.getOriginalDocument('default') as { info?: { title?: string } } | null
+      expect(originalBefore?.info?.title).toBe('Initial')
+
+      const promoted = store.promoteIntermediateToOriginal('default')
+      expect(promoted).toBe(true)
+
+      const originalAfter = store.getOriginalDocument('default') as { info?: { title?: string } } | null
+      expect(originalAfter?.info?.title).toBe('Updated title')
+      const intermediateAfter = store.getIntermediateDocument('default') as { info?: { title?: string } } | null
+      expect(intermediateAfter?.info?.title).toBe('Updated title')
+    })
+
+    it('does nothing when document name has no intermediate document', () => {
+      const store = createWorkspaceStore()
+      expect(store.getOriginalDocument('missing')).toBeNull()
+      expect(store.getIntermediateDocument('missing')).toBeNull()
+      const promoted = store.promoteIntermediateToOriginal('missing')
+      expect(promoted).toBe(false)
+      expect(store.getOriginalDocument('missing')).toBeNull()
+    })
+
+    it('persists promoted original in exportWorkspace', async () => {
+      const store = createWorkspaceStore()
+      await store.addDocument({
+        name: 'api',
+        document: { openapi: '3.1.0', info: { title: 'A', version: '1.0.0' } },
+      })
+      const doc = store.workspace.documents['api']
+      if (doc?.info) {
+        doc.info.title = 'B'
+      }
+      await store.saveDocument('api')
+      const promoted = store.promoteIntermediateToOriginal('api')
+      expect(promoted).toBe(true)
+
+      const exported = store.exportWorkspace()
+      const origDoc = exported.originalDocuments?.api as { info?: { title?: string } } | undefined
+      const interDoc = exported.intermediateDocuments?.api as { info?: { title?: string } } | undefined
+      expect(origDoc?.info?.title).toBe('B')
+      expect(interDoc?.info?.title).toBe('B')
+    })
+  })
+
   describe('export', () => {
     it('should export the workspace internal state as a json document', async () => {
       const store = createWorkspaceStore({
@@ -3135,7 +3193,7 @@ describe('create-workspace-store', () => {
       )
 
       // Apply the resolved changes (we choose the incoming changes in this case)
-      await result.applyChanges(result.conflicts.flatMap((it) => it[0]))
+      await result.applyChanges({ resolvedConflicts: result.conflicts.flatMap((it) => it[0]) })
 
       // Check if the new intermediate document is correct
       expect(store.exportDocument(documentName, 'json', true)).toEqual(
@@ -3143,6 +3201,46 @@ describe('create-workspace-store', () => {
       )
 
       expect(store.workspace.activeDocument?.info.title).toEqual('A new title which should conflict')
+    })
+
+    it('applies the whole document when user passes resolvedDocument instead of resolvedConflicts', async () => {
+      const documentName = 'default'
+      const store = createWorkspaceStore()
+      await store.addDocument({
+        name: documentName,
+        document: getDocument(),
+      })
+
+      store.workspace.activeDocument!.info.title = 'local title'
+      await store.saveDocument(documentName)
+
+      const newDocumentFromSource = {
+        ...getDocument(),
+        info: { title: 'Remote title', version: '1.0.0' },
+      }
+
+      const result = await store.rebaseDocument({
+        name: documentName,
+        document: newDocumentFromSource,
+      })
+
+      assert(result.ok)
+      expect(result.conflicts.length).toBeGreaterThan(0)
+
+      const userResolvedDocument = {
+        ...getDocument(),
+        info: { title: 'User-provided full document', version: '2.0.0' },
+      }
+
+      await result.applyChanges({ resolvedDocument: userResolvedDocument })
+
+      const intermediate = store.getIntermediateDocument(documentName) as {
+        info?: { title?: string; version?: string }
+      } | null
+      expect(intermediate?.info?.title).toBe('User-provided full document')
+      expect(intermediate?.info?.version).toBe('2.0.0')
+      expect(store.workspace.activeDocument?.info.title).toBe('User-provided full document')
+      expect(store.workspace.activeDocument?.info.version).toBe('2.0.0')
     })
 
     it('should override conflicting changes made to the active document while we are rebasing with a new origin', async () => {
@@ -3168,7 +3266,7 @@ describe('create-workspace-store', () => {
       assert(result.ok)
 
       // Apply the resolved changes (we choose the incoming changes in this case)
-      await result.applyChanges(result.conflicts.flatMap((it) => it[1]))
+      await result.applyChanges({ resolvedConflicts: result.conflicts.flatMap((it) => it[1]) })
 
       // should override conflicts to the active document on rebase to the one from original
       expect(store.workspace.activeDocument?.info.version).toBe('1.0.1')
@@ -3218,7 +3316,7 @@ describe('create-workspace-store', () => {
 
       assert(result.ok)
 
-      await result.applyChanges([]) // No conflicts to apply
+      await result.applyChanges({ resolvedConflicts: [] }) // No conflicts to apply
 
       expect(fetchDocument).toHaveBeenCalledTimes(1)
       expect(store.workspace.documents.default?.info.title).toBe('My API')
@@ -3289,7 +3387,7 @@ describe('create-workspace-store', () => {
       })
 
       assert(result.ok)
-      await result.applyChanges([]) // No conflicts to apply
+      await result.applyChanges({ resolvedConflicts: [] }) // No conflicts to apply
 
       expect(store.workspace.activeDocument?.['x-scalar-navigation']).toEqual({
         type: 'document',
