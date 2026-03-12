@@ -190,6 +190,17 @@ export const scrollToLazy = (
 ) => {
   const item = getEntryById(id)
 
+  console.log(
+    '[scrollToLazy] id:',
+    id,
+    'item found:',
+    !!item,
+    'item parent:',
+    item?.parent?.id,
+    'item children:',
+    item?.children?.length,
+  )
+
   /**
    * If the element is lazy we must freeze the element so that it does not move until after the next lazy bus run
    * If the element never loads then the scroll onFailure callback will be run to unfreeze the element
@@ -199,12 +210,16 @@ export const scrollToLazy = (
    */
   const isLazy = !readyQueue.has(id) || item?.children?.some((child) => !readyQueue.has(child.id))
 
+  console.log('[scrollToLazy] isLazy:', isLazy, 'inReadyQueue:', readyQueue.has(id))
+
   const unfreeze = isLazy ? freeze(id) : undefined
   addLazyCompleteCallback(unfreeze)
 
   // Disable intersection while we scroll to the element
   const unblock = blockIntersection()
   const { rawId } = getSchemaParamsFromId(id)
+
+  console.log('[scrollToLazy] rawId:', rawId, 'adding to priority queue')
 
   addToPriorityQueue(id)
   addToPriorityQueue(rawId)
@@ -238,6 +253,7 @@ export const scrollToLazy = (
   const addParents = (currentId: string) => {
     const parent = getEntryById(currentId)?.parent
     if (parent) {
+      console.log('[scrollToLazy] addParent:', parent.id)
       addToPriorityQueue(parent.id)
       setExpanded(parent.id, true)
       addParents(parent.id)
@@ -257,6 +273,7 @@ export const scrollToLazy = (
 const tryScroll = (id: string, stopTime: number, onComplete: UnblockFn, onFailure?: () => void): void => {
   const element = document.getElementById(id)
   if (element) {
+    console.log('[tryScroll] FOUND element:', id, 'scrolling to it, top:', element.getBoundingClientRect().top)
     element.scrollIntoView({
       block: 'start',
     })
@@ -264,6 +281,7 @@ const tryScroll = (id: string, stopTime: number, onComplete: UnblockFn, onFailur
   } else if (Date.now() < stopTime) {
     requestAnimationFrame(() => tryScroll(id, stopTime, onComplete))
   } else {
+    console.log('[tryScroll] TIMEOUT: element not found:', id)
     // If the scroll has expired we enable intersection again
     onComplete()
     onFailure?.()

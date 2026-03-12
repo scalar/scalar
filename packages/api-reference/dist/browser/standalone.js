@@ -36078,20 +36078,25 @@ await Im(),$5e.forEach((e=>e())),$5e.clear(),e(),E5e.value=!1,T5e.value=!0}
 ;function M5e(e){return(e=>{!e||A5e.has(e)||S5e.has(e)||_5e.add(e)
 })(e),Xg((()=>{(e=>{S5e.delete(e),_5e.delete(e),A5e.delete(e)})(e)})),{
 isReady:uy((()=>"undefined"==typeof window||S5e.has(e)||A5e.has(e)))}}
-const N5e=(e,t,n)=>{
-const r=n(e),a=!A5e.has(e)||r?.children?.some((e=>!A5e.has(e.id)))?L5e(e):void 0
-;var o;(o=a)&&$5e.add(o);const i=P5e(),{rawId:s}=(e=>{
+const N5e=(e,t,n)=>{const r=n(e)
+;console.log("[scrollToLazy] id:",e,"item found:",!!r,"item parent:",r?.parent?.id,"item children:",r?.children?.length)
+;const a=!A5e.has(e)||r?.children?.some((e=>!A5e.has(e.id)))
+;console.log("[scrollToLazy] isLazy:",a,"inReadyQueue:",A5e.has(e))
+;const o=a?L5e(e):void 0;var i;(i=o)&&$5e.add(i);const s=P5e(),{rawId:l}=(e=>{
 const t=e.match(/(.*)(\.body\.|\.path\.|\.query\.|\.header\.)(.*)/)
 ;return t&&"string"==typeof t[1]&&"string"==typeof t[2]?{rawId:t[1],
 params:t[2].slice(1)+t[3]}:{rawId:e,params:""}})(e)
-;if(D5e(e),D5e(s),r?.children&&r.children.slice(0,2).forEach((e=>{D5e(e.id)
+;if(console.log("[scrollToLazy] rawId:",l,"adding to priority queue"),
+D5e(e),D5e(l),r?.children&&r.children.slice(0,2).forEach((e=>{D5e(e.id)
 })),r?.parent){const t=n(r.parent.id),a=t?.children?.findIndex((t=>t.id===e))
 ;void 0!==a&&a>=0&&t?.children?.slice(a,a+2).forEach((e=>{D5e(e.id)}))}
-R5e(e,Date.now()+3e3,i,a),t(s,!0);const l=e=>{const r=n(e)?.parent
-;r&&(D5e(r.id),t(r.id,!0),l(r.id))};l(s)},R5e=(e,t,n,r)=>{
-const a=document.getElementById(e);a?(a.scrollIntoView({block:"start"
-}),n()):Date.now()<t?requestAnimationFrame((()=>R5e(e,t,n))):(n(),r?.())
-},L5e=e=>{let t=!1;const n=r=>{const a=document.getElementById(e)
+R5e(e,Date.now()+3e3,s,o),t(l,!0);const c=e=>{const r=n(e)?.parent
+;r&&(console.log("[scrollToLazy] addParent:",r.id),D5e(r.id),t(r.id,!0),c(r.id))
+};c(l)},R5e=(e,t,n,r)=>{const a=document.getElementById(e)
+;a?(console.log("[tryScroll] FOUND element:",e,"scrolling to it, top:",a.getBoundingClientRect().top),
+a.scrollIntoView({block:"start"
+}),n()):Date.now()<t?requestAnimationFrame((()=>R5e(e,t,n))):(console.log("[tryScroll] TIMEOUT: element not found:",e),
+n(),r?.())},L5e=e=>{let t=!1;const n=r=>{const a=document.getElementById(e)
 ;a&&a.scrollIntoView({block:"start"}),r||requestAnimationFrame((()=>n(t)))}
 ;return n(!1),()=>{t=!0}},B5e=Eg({__name:"Lazy",props:{id:{}},setup(e){
 const{isReady:t}=M5e(e.id);return(e,n)=>om(t)?cv(e.$slots,"default",{key:0
