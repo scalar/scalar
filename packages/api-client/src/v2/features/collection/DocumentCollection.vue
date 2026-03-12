@@ -63,7 +63,7 @@ const documentRegistryMeta = computed(
       | undefined,
 )
 
-/** Show Sync when the document has a source URL or registry meta (registry can be used if fetchDocumentFromRegistry is set). */
+/** Show Sync when the document has a source URL or registry meta (registry can be used if fetchRegistryDocument is set). */
 const canShowSyncButton = computed(
   () =>
     documentSourceUrl.value !== undefined ||
@@ -109,7 +109,7 @@ const rebaseResult = ref<{
 
 /**
  * Resolves the source for syncing. Registry meta has priority over x-scalar-original-source-url
- * when fetchDocumentFromRegistry is provided. Returns either a URL or the full document object.
+ * when fetchRegistryDocument is provided. Returns either a URL or the full document object.
  */
 const resolveSyncInput = async (): Promise<
   { url: string } | { document: Record<string, unknown> } | null
