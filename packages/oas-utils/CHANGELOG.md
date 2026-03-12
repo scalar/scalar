@@ -1,5 +1,22 @@
 # @scalar/oas-utils
 
+## 0.10.5
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/helpers@0.4.1**
+  - [#8420](https://github.com/scalar/scalar/pull/8420): fix TypeScript access to navigator.userAgentData in isMacOS without ts-expect-error
+
+- **@scalar/json-magic@0.12.3**
+
+- **@scalar/object-utils@1.3.2**
+
+- **@scalar/types@0.7.3**
+
+- **@scalar/workspace-store@0.39.2**
+
 ## 0.10.4
 
 ### Patch Changes

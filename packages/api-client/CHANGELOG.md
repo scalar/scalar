@@ -1,5 +1,41 @@
 # @scalar/api-client
 
+## 2.36.2
+
+### Patch Changes
+
+- [#8414](https://github.com/scalar/scalar/pull/8414): fix(api-client): pass example picker attributes to button component
+
+#### Updated Dependencies
+
+- **@scalar/components@0.20.6**
+  - [#8327](https://github.com/scalar/scalar/pull/8327): fix: markdown tables with specified width attributes in td/th break the layout
+
+- **@scalar/helpers@0.4.1**
+  - [#8420](https://github.com/scalar/scalar/pull/8420): fix TypeScript access to navigator.userAgentData in isMacOS without ts-expect-error
+
+- **@scalar/sidebar@0.8.6**
+
+- **@scalar/use-codemirror@0.14.6**
+
+- **@scalar/import@0.5.2**
+
+- **@scalar/json-magic@0.12.3**
+
+- **@scalar/oas-utils@0.10.5**
+
+- **@scalar/object-utils@1.3.2**
+
+- **@scalar/openapi-parser@0.25.3**
+
+- **@scalar/postman-to-openapi@0.5.2**
+
+- **@scalar/types@0.7.3**
+
+- **@scalar/workspace-store@0.39.2**
+
+- **@scalar/snippetz@0.7.4**
+
 ## 2.36.1
 
 ### Patch Changes

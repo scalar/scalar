@@ -1,5 +1,18 @@
 # @scalar/openapi-parser
 
+## 0.25.3
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/helpers@0.4.1**
+  - [#8420](https://github.com/scalar/scalar/pull/8420): fix TypeScript access to navigator.userAgentData in isMacOS without ts-expect-error
+
+- **@scalar/json-magic@0.12.3**
+
+- **@scalar/openapi-upgrader@0.2.0**
+
 ## 0.25.2
 
 ### Patch Changes

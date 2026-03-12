@@ -1,5 +1,14 @@
 # @scalar/use-codemirror
 
+## 0.14.6
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/components@0.20.6**
+  - [#8327](https://github.com/scalar/scalar/pull/8327): fix: markdown tables with specified width attributes in td/th break the layout
+
 ## 0.14.5
 
 ### Patch Changes

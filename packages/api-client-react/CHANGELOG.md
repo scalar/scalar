@@ -1,5 +1,16 @@
 # @scalar/api-client-react
 
+## 1.4.7
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-client@2.36.2**
+  - [#8414](https://github.com/scalar/scalar/pull/8414): fix(api-client): pass example picker attributes to button component
+
+- **@scalar/types@0.7.3**
+
 ## 1.4.6
 
 ### Patch Changes

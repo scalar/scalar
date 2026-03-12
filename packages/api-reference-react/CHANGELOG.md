@@ -1,5 +1,16 @@
 # @scalar/api-reference-react
 
+## 0.9.7
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.48.6**
+  - [#8414](https://github.com/scalar/scalar/pull/8414): fix(api-reference): limit height of example response descriptions
+
+- **@scalar/types@0.7.3**
+
 ## 0.9.6
 
 ### Patch Changes

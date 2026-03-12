@@ -1,5 +1,19 @@
 # @scalar/nuxt
 
+## 0.6.7
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-client@2.36.2**
+  - [#8414](https://github.com/scalar/scalar/pull/8414): fix(api-client): pass example picker attributes to button component
+
+- **@scalar/api-reference@1.48.6**
+  - [#8414](https://github.com/scalar/scalar/pull/8414): fix(api-reference): limit height of example response descriptions
+
+- **@scalar/types@0.7.3**
+
 ## 0.6.6
 
 ### Patch Changes
