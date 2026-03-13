@@ -152,6 +152,55 @@ describe('OAuth2', () => {
     })
   })
 
+  it('emits credentials location updates to both the scheme config and auth secrets', async () => {
+    const wrapper = mountWithProps({
+      flows: {
+        authorizationCode: {
+          authorizationUrl: 'https://example.com/auth',
+          tokenUrl: 'https://example.com/token',
+          refreshUrl: '',
+          scopes: {},
+          'x-scalar-secret-client-id': '',
+          'x-scalar-secret-client-secret': '',
+        },
+      },
+    })
+
+    const schemeEmitted = vi.fn()
+    const secretsEmitted = vi.fn()
+    eventBus.on('auth:update:security-scheme', schemeEmitted)
+    eventBus.on('auth:update:security-scheme-secrets', secretsEmitted)
+
+    const credentialsLocationInput = wrapper
+      .findAllComponents(RequestAuthDataTableInput)
+      .find((input) => input.text().includes('Credentials Location'))
+
+    expect(credentialsLocationInput, 'Credentials Location input should exist').toBeTruthy()
+
+    credentialsLocationInput!.vm.$emit('update:modelValue', 'body')
+    await nextTick()
+
+    expect(schemeEmitted).toHaveBeenCalledTimes(1)
+    expect(schemeEmitted).toHaveBeenCalledWith({
+      payload: {
+        type: 'oauth2',
+        flows: {
+          authorizationCode: { 'x-scalar-credentials-location': 'body' },
+        },
+      },
+      name: 'OAuth2',
+    })
+
+    expect(secretsEmitted).toHaveBeenCalledTimes(1)
+    expect(secretsEmitted).toHaveBeenCalledWith({
+      payload: {
+        type: 'oauth2',
+        authorizationCode: { 'x-scalar-credentials-location': 'body' },
+      },
+      name: 'OAuth2',
+    })
+  })
+
   it('re-emits selected scopes from child component', async () => {
     const wrapper = mountWithProps({ selectedScopes: [] })
 
