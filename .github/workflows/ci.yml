@@ -240,9 +240,9 @@ jobs:
       - name: Run tests
         run: |
           pnpm vitest packages/* --silent \
-            --exclude packages/api-client/src/libs/send-request/create-request-operation.test.ts \
-            --exclude packages/api-client/src/libs/send-request/create-fetch-auth.test.ts \
-            --exclude packages/oas-utils/src/helpers/fetch-document.test.ts \
+            --exclude "**/create-request-operation.test.ts" \
+            --exclude "**/create-fetch-auth.test.ts" \
+            --exclude "**/fetch-document.test.ts" \
             --shard=${{ matrix.shard-index }}/${{ matrix.shard-total }}
 
   test-packages-with-test-servers:
@@ -260,10 +260,11 @@ jobs:
         timeout-minutes: 1
       - name: Run server-dependent package tests
         run: |
-          pnpm vitest --silent \
+          pnpm vitest \
             packages/api-client/src/libs/send-request/create-request-operation.test.ts \
             packages/api-client/src/libs/send-request/create-fetch-auth.test.ts \
-            packages/oas-utils/src/helpers/fetch-document.test.ts
+            packages/oas-utils/src/helpers/fetch-document.test.ts \
+            --silent
 
   test-integrations:
     needs: [build]
