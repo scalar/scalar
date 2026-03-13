@@ -113,7 +113,7 @@ export const getNavigationOptions = (documentName: string, options?: NavigationO
         })}`
       }
 
-      return `${prefixTag}model/${slug(props.name)}`
+      return `${prefixTag}model/${slug(props.name, true)}`
     }
 
     if (props.type === 'example') {

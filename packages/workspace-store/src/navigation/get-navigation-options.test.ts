@@ -242,6 +242,23 @@ describe('get-navigation-options', () => {
     expect(id).toBe('pet-store/tag/models/model/user')
   })
 
+  it('generates unique model IDs when schema names differ only by casing', () => {
+    const options = getNavigationOptions('API')
+    const idString = options.generateId({
+      type: 'model',
+      parentId: 'api',
+      name: 'String',
+    })
+    const idLower = options.generateId({
+      type: 'model',
+      parentId: 'api',
+      name: 'string',
+    })
+    expect(idString).toBe('api/model/String')
+    expect(idLower).toBe('api/model/string')
+    expect(idString).not.toBe(idLower)
+  })
+
   it('uses custom generateModelSlug when provided', () => {
     const config: NavigationOptions = {
       generateModelSlug: ({ name }) => `schema-${name?.toLowerCase()}`,
