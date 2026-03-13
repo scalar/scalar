@@ -4,15 +4,6 @@ import { renderToString } from 'vue/server-renderer'
 
 import { default as ApiReference } from '@/components/ApiReference.vue'
 
-type SsrResult = {
-  /** The rendered component HTML */
-  html: string
-  /** Default body class for dark/light mode (e.g. 'light-mode' or 'dark-mode') */
-  bodyClass: string
-  /** Inline script that detects user preference and applies the correct class before paint */
-  bodyScript: string
-}
-
 /**
  * Unwrap the configuration from an array if needed, since AnyApiReferenceConfiguration
  * can be a single config or an array of configs.
@@ -23,26 +14,11 @@ function unwrapConfig(configuration: AnyApiReferenceConfiguration): Record<strin
 }
 
 /**
- * Resolve the body class for SSR based on the configuration.
- *
- * Priority:
- * 1. forceDarkModeState → always wins
- * 2. darkMode config → explicit default
- * 3. Fallback → 'light-mode'
- */
-export function resolveBodyClass(configuration: AnyApiReferenceConfiguration): string {
-  const config = unwrapConfig(configuration)
-
-  if (config.forceDarkModeState === 'dark') return 'dark-mode'
-  if (config.forceDarkModeState === 'light') return 'light-mode'
-  if (config.darkMode === true) return 'dark-mode'
-
-  return 'light-mode'
-}
-
-/**
  * Generate an inline script that detects the user's color mode preference
  * and applies the correct class to <body> before content paints.
+ *
+ * Place this script before the app container in your HTML so it runs before
+ * the first paint without interfering with Vue hydration.
  *
  * Priority:
  * 1. forceDarkModeState → always wins (no runtime detection)
@@ -75,15 +51,12 @@ export function generateBodyScript(configuration: AnyApiReferenceConfiguration):
  * Render the Scalar API Reference to an HTML string for server-side rendering.
  * Use createApiReference on the client to hydrate the server-rendered output.
  *
- * Returns the rendered HTML along with body class and inline script for
- * flash-free dark/light mode support.
+ * Returns only the Vue-rendered HTML. Use generateBodyScript separately to get
+ * the dark/light mode script — place it outside the app container so it does not
+ * interfere with Vue hydration.
  */
-export async function renderApiReferenceToString(configuration: AnyApiReferenceConfiguration): Promise<SsrResult> {
+export async function renderApiReferenceToString(configuration: AnyApiReferenceConfiguration): Promise<string> {
   const app = createSSRApp(() => h(ApiReference, { configuration }))
 
-  const html = await renderToString(app)
-  const bodyClass = resolveBodyClass(configuration)
-  const bodyScript = generateBodyScript(configuration)
-
-  return { html, bodyClass, bodyScript }
+  return await renderToString(app)
 }
