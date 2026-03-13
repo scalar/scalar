@@ -377,4 +377,145 @@ public class ScalarResourceConfiguratorTests
         var decoded = Encoding.UTF8.GetString(Convert.FromBase64String(raw));
         JsonDocument.Parse(decoded).RootElement.ValueKind.Should().Be(JsonValueKind.Array);
     }
+
+    // ---------------------------------------------------------------------------
+    // Service-discovery environment variable tests
+    //
+    // WithApiReference forwards endpointName to Aspire's WithReference, which injects
+    // services__{resourceName}__{scheme}__{index} environment variables into the Scalar container.
+    // These tests verify the correct endpoints are exposed for a given endpointName value.
+    // ---------------------------------------------------------------------------
+
+    // ContainerResource alone does not implement IResourceWithServiceDiscovery, which is the
+    // constraint on WithApiReference. This minimal subclass satisfies that constraint without
+    // requiring project metadata or DCP infrastructure.
+    private sealed class TestApiResource(string name) : ContainerResource(name), IResourceWithServiceDiscovery;
+
+    // Minimal IResourceBuilder<T> that supports annotation mutations only. This is all that
+    // WithReference and WithApiReference need — neither accesses ApplicationBuilder during setup.
+    private sealed class MinimalResourceBuilder<T>(T resource) : IResourceBuilder<T> where T : IResource
+    {
+        public T Resource { get; } = resource;
+
+        public IDistributedApplicationBuilder ApplicationBuilder =>
+            throw new NotSupportedException("ApplicationBuilder is not available in minimal tests.");
+
+        public IResourceBuilder<T> WithAnnotation<TAnnotation>(
+            TAnnotation annotation,
+            ResourceAnnotationMutationBehavior behavior = ResourceAnnotationMutationBehavior.Append)
+            where TAnnotation : IResourceAnnotation
+        {
+            if (behavior == ResourceAnnotationMutationBehavior.Replace)
+            {
+                var toRemove = Resource.Annotations.OfType<TAnnotation>().ToList();
+                foreach (var a in toRemove)
+                {
+                    Resource.Annotations.Remove(a);
+                }
+            }
+
+            Resource.Annotations.Add(annotation);
+            return this;
+        }
+    }
+
+    // Invokes all EnvironmentCallbackAnnotation instances on the resource and resolves IValueProvider
+    // values (such as EndpointReference) to strings. Replicates what Aspire's internal
+    // EnvironmentVariableEvaluator does, without the dependency on Aspire's test infrastructure.
+    private static async Task<Dictionary<string, string>> GetServiceDiscoveryEnvVarsAsync(ScalarResource resource)
+    {
+        var executionContext = new DistributedApplicationExecutionContext(
+            new DistributedApplicationExecutionContextOptions(DistributedApplicationOperation.Run)
+            {
+                ServiceProvider = new ServiceCollection().BuildServiceProvider()
+            });
+
+        var envVars = new Dictionary<string, object>();
+        var callbackContext = new EnvironmentCallbackContext(executionContext, resource, envVars);
+
+        foreach (var annotation in resource.Annotations.OfType<EnvironmentCallbackAnnotation>())
+        {
+            await annotation.Callback(callbackContext);
+        }
+
+        var result = new Dictionary<string, string>();
+        foreach (var (key, value) in envVars)
+        {
+            result[key] = value switch
+            {
+                string s => s,
+                IValueProvider vp => await vp.GetValueAsync() ?? string.Empty,
+                _ => value.ToString() ?? string.Empty
+            };
+        }
+
+        return result;
+    }
+
+    // Creates a TestApiResource with http (port 5000) and https (port 5001) endpoints that have
+    // AllocatedEndpoints set so EndpointReference.GetValueAsync() resolves without a live runtime.
+    private static MinimalResourceBuilder<TestApiResource> BuildTestApiResource()
+    {
+        var apiResource = new TestApiResource(ApiResourceName);
+        var httpEndpoint = new EndpointAnnotation(ProtocolType.Tcp, uriScheme: "http", name: "http", targetPort: 5000) { Port = 5000 };
+        var httpsEndpoint = new EndpointAnnotation(ProtocolType.Tcp, uriScheme: "https", name: "https", targetPort: 5001) { Port = 5001 };
+        httpEndpoint.AllocatedEndpoint = new AllocatedEndpoint(httpEndpoint, "localhost", 5000);
+        httpsEndpoint.AllocatedEndpoint = new AllocatedEndpoint(httpsEndpoint, "localhost", 5001);
+        apiResource.Annotations.Add(httpEndpoint);
+        apiResource.Annotations.Add(httpsEndpoint);
+        return new MinimalResourceBuilder<TestApiResource>(apiResource);
+    }
+
+    [Fact]
+    public async Task WithApiReference_NoEndpointName_ExposesAllEndpointsForServiceDiscovery()
+    {
+        var apiBuilder = BuildTestApiResource();
+        var scalarResource = new ScalarResource(ScalarResourceName);
+        var scalarBuilder = new MinimalResourceBuilder<ScalarResource>(scalarResource);
+
+        scalarBuilder.WithApiReference(apiBuilder);
+
+        var envVars = await GetServiceDiscoveryEnvVarsAsync(scalarResource);
+
+        // Both endpoints are injected when no endpointName is specified.
+        envVars.Should().ContainKey("services__my-api__https__0")
+            .WhoseValue.Should().Be("https://localhost:5001");
+        envVars.Should().ContainKey("services__my-api__http__0")
+            .WhoseValue.Should().Be("http://localhost:5000");
+    }
+
+    [Fact]
+    public async Task WithApiReference_WithEndpointName_ExposesOnlyNamedEndpointForServiceDiscovery()
+    {
+        var apiBuilder = BuildTestApiResource();
+        var scalarResource = new ScalarResource(ScalarResourceName);
+        var scalarBuilder = new MinimalResourceBuilder<ScalarResource>(scalarResource);
+
+        // endpointName: "https" filters service-discovery to only the https endpoint.
+        scalarBuilder.WithApiReference(apiBuilder, endpointName: "https");
+
+        var envVars = await GetServiceDiscoveryEnvVarsAsync(scalarResource);
+
+        envVars.Should().ContainKey("services__my-api__https__0")
+            .WhoseValue.Should().Be("https://localhost:5001");
+        envVars.Should().NotContainKey("services__my-api__http__0");
+    }
+
+    [Fact]
+    public async Task WithApiReference_FileOverload_WithEndpointName_ExposesOnlyNamedEndpoint()
+    {
+        // The file overload also forwards endpointName to WithReference, so the same filtering applies.
+        var apiBuilder = BuildTestApiResource();
+        var scalarResource = new ScalarResource(ScalarResourceName);
+        var scalarBuilder = new MinimalResourceBuilder<ScalarResource>(scalarResource);
+
+        // FileInfo path does not need to exist — no disk I/O occurs during env var resolution.
+        scalarBuilder.WithApiReference(apiBuilder, new FileInfo("openapi.json"), endpointName: "https");
+
+        var envVars = await GetServiceDiscoveryEnvVarsAsync(scalarResource);
+
+        envVars.Should().ContainKey("services__my-api__https__0")
+            .WhoseValue.Should().Be("https://localhost:5001");
+        envVars.Should().NotContainKey("services__my-api__http__0");
+    }
 }

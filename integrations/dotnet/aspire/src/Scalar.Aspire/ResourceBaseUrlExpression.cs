@@ -54,20 +54,20 @@ internal sealed class ResourceBaseUrlExpression(IResource resource) : IValueProv
         var shouldUseHttps = (!httpAvailable || _preferHttps) && httpsAvailable;
         var scheme = shouldUseHttps ? "https" : "http";
 
-        string url;
+        string result;
         if (_defaultProxy)
         {
             // Service-discovery mode: use the resource name as the hostname.
-            url = $"{scheme}://{resource.Name}";
+            result = $"{scheme}://{resource.Name}";
         }
         else
         {
             var endpoint = endpoints.FirstOrDefault(e => e.UriScheme == scheme)
                            ?? throw new InvalidOperationException(
                                $"No endpoint found for resource '{resource.Name}' with URI scheme '{scheme}'.");
-            url = $"{scheme}://{endpoint.TargetHost}:{endpoint.TargetPort ?? endpoint.Port}";
+            result = $"{scheme}://{endpoint.TargetHost}:{endpoint.TargetPort ?? endpoint.Port}";
         }
 
-        return ValueTask.FromResult<string?>(url);
+        return ValueTask.FromResult<string?>(result);
     }
 }

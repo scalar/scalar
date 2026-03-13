@@ -152,6 +152,27 @@ scalar.WithApiReference(
     });
 ```
 
+### Scoping Service Discovery Endpoints
+
+By default, `WithApiReference` exposes **all** endpoints of a service to Aspire service discovery. This injects one `services__{resourceName}__{scheme}__{index}` environment variable per endpoint into the Scalar container (e.g., `services__book-service__http__0` and `services__book-service__https__0`).
+
+Use the optional `endpointName` parameter to restrict discovery to a single named endpoint:
+
+```csharp
+// Only expose the "https" endpoint for service discovery
+scalar.WithApiReference(bookService, endpointName: "https");
+```
+
+When `endpointName` is provided, only that endpoint is registered, so the Scalar container receives a single `services__book-service__https__0` variable and the HTTP endpoint is not injected. This is useful when a service has both HTTP and HTTPS endpoints and you want Scalar to communicate exclusively over HTTPS.
+
+The same parameter is available on the file-based overload:
+
+```csharp
+scalar.WithApiReference(bookService, new FileInfo("openapi.yaml"), endpointName: "https");
+```
+
+> **Note**: `endpointName` affects only the `services__*` environment variables injected for Aspire service discovery. It does not change the source URL of the OpenAPI document.
+
 ### Advanced: Base document URL
 
 `WithBaseDocumentUrl(ReferenceExpression?)` controls the base URL used to resolve the OpenAPI document URL. For static files, the integration sets this internally so the document is loaded from the route pattern `/openapi/{resourceName}/{filename}` (or `/openapi/{folderPath}/{filename}` when `folderPath` is specified). You can override it for custom setups—for example, use `ReferenceExpression.Empty` so the document URL is the route pattern as-is, or pass a different expression to resolve at startup when endpoints are known.
