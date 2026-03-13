@@ -237,11 +237,33 @@ jobs:
         uses: ./.github/actions/build
         with:
           packages: './packages/**'
+      - name: Run tests
+        run: |
+          pnpm vitest packages/* --silent \
+            --exclude packages/api-client/src/libs/send-request/create-request-operation.test.ts \
+            --exclude packages/api-client/src/libs/send-request/create-fetch-auth.test.ts \
+            --exclude packages/oas-utils/src/helpers/fetch-document.test.ts \
+            --shard=${{ matrix.shard-index }}/${{ matrix.shard-total }}
+
+  test-packages-with-test-servers:
+    needs: [build]
+    runs-on: blacksmith-4vcpu-ubuntu-2204
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - name: Build packages
+        uses: ./.github/actions/build
+        with:
+          packages: './packages/**'
       - name: Start test servers
         run: pnpm script run test-servers & pnpm script wait -p 5051 5052
         timeout-minutes: 1
-      - name: Run tests
-        run: pnpm vitest packages/* --silent --shard=${{ matrix.shard-index }}/${{ matrix.shard-total }}
+      - name: Run server-dependent package tests
+        run: |
+          pnpm vitest --silent \
+            packages/api-client/src/libs/send-request/create-request-operation.test.ts \
+            packages/api-client/src/libs/send-request/create-fetch-auth.test.ts \
+            packages/oas-utils/src/helpers/fetch-document.test.ts
 
   test-integrations:
     needs: [build]
@@ -1511,6 +1533,7 @@ jobs:
         format,
         knip,
         test-packages,
+        test-packages-with-test-servers,
         test-integrations,
         test-proxy-server,
         types,
@@ -1530,6 +1553,7 @@ jobs:
         build,
         build-vue-ssr-example,
         test-packages,
+        test-packages-with-test-servers,
         test-integrations,
         test-proxy-server,
         types,
