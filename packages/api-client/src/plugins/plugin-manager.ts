@@ -5,10 +5,19 @@ export type { ApiClientPlugin }
 type PluginInstance = ReturnType<ApiClientPlugin>
 type HookFunctions = NonNullable<PluginInstance['hooks']>
 type HookEvent = keyof HookFunctions
-type HookArgs<E extends HookEvent> = HookFunctions[E] extends (...args: infer Args) => unknown ? Args : never
-type HookReturn<E extends HookEvent> = HookFunctions[E] extends (...args: unknown[]) => infer Result
-  ? Result
-  : never
+type OnBeforeRequestHook = NonNullable<HookFunctions['onBeforeRequest']>
+type OnResponseReceivedHook = NonNullable<HookFunctions['onResponseReceived']>
+
+type ExecuteHook = {
+  (
+    event: 'onBeforeRequest',
+    ...args: Parameters<OnBeforeRequestHook>
+  ): Promise<Array<Awaited<ReturnType<OnBeforeRequestHook>>>>
+  (
+    event: 'onResponseReceived',
+    ...args: Parameters<OnResponseReceivedHook>
+  ): Promise<Array<Awaited<ReturnType<OnResponseReceivedHook>>>>
+}
 
 type CreatePluginManagerParams = {
   plugins?: ApiClientPlugin[]
@@ -28,6 +37,33 @@ export const createPluginManager = ({ plugins = [] }: CreatePluginManagerParams)
     registeredPlugins.set(pluginInstance.name, pluginInstance)
   })
 
+  const executeHook: ExecuteHook = (
+    event: HookEvent,
+    ...args: Parameters<OnBeforeRequestHook> | Parameters<OnResponseReceivedHook>
+  ) => {
+    const [payload] = args
+
+    if (event === 'onBeforeRequest' && payload && 'request' in payload) {
+      const hooks = Array.from(registeredPlugins.values())
+        .map((plugin) => plugin.hooks?.onBeforeRequest)
+        .filter((hook): hook is OnBeforeRequestHook => typeof hook === 'function')
+
+      // Execute each hook with the provided arguments
+      return Promise.all(hooks.map((hook) => hook({ request: payload.request })))
+    }
+
+    if (event === 'onResponseReceived' && payload && 'response' in payload && 'operation' in payload) {
+      const hooks = Array.from(registeredPlugins.values())
+        .map((plugin) => plugin.hooks?.onResponseReceived)
+        .filter((hook): hook is OnResponseReceivedHook => typeof hook === 'function')
+
+      // Execute each hook with the provided arguments
+      return Promise.all(hooks.map((hook) => hook({ response: payload.response, operation: payload.operation })))
+    }
+
+    return Promise.resolve([])
+  }
+
   return {
     /**
      * Get all components for a specific view
@@ -39,17 +75,7 @@ export const createPluginManager = ({ plugins = [] }: CreatePluginManagerParams)
     /**
      * Execute a hook for a specific event
      */
-    executeHook: <E extends HookEvent>(
-      event: E,
-      ...args: HookArgs<E>
-    ): Promise<Array<Awaited<HookReturn<E>>>> => {
-      const hooks = Array.from(registeredPlugins.values())
-        .map((plugin) => plugin.hooks?.[event])
-        .filter((hook): hook is NonNullable<HookFunctions[E]> => hook != null)
-
-      // Execute each hook with the provided arguments
-      return Promise.all(hooks.map((hook) => hook(...args)))
-    },
+    executeHook,
   }
 }
 
