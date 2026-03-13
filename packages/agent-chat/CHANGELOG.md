@@ -1,5 +1,19 @@
 # @scalar/agent-chat
 
+## 0.9.7
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.40.0**
+  - [#8426](https://github.com/scalar/scalar/pull/8426): feat: interact with the original and intermediate documents
+
+- **@scalar/api-client@2.37.0**
+  - [#8426](https://github.com/scalar/scalar/pull/8426): feat: sync with source flow with conflict resolution
+
+- **@scalar/components@0.20.7**
+
 ## 0.9.6
 
 ### Patch Changes

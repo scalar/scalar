@@ -1,5 +1,26 @@
 # @scalar/api-client
 
+## 2.37.0
+
+### Minor Changes
+
+- [#8426](https://github.com/scalar/scalar/pull/8426): feat: sync with source flow with conflict resolution
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.40.0**
+  - [#8426](https://github.com/scalar/scalar/pull/8426): feat: interact with the original and intermediate documents
+
+- **@scalar/oas-utils@0.10.6**
+
+- **@scalar/sidebar@0.8.7**
+
+- **@scalar/components@0.20.7**
+
+- **@scalar/use-codemirror@0.14.7**
+
 ## 2.36.2
 
 ### Patch Changes

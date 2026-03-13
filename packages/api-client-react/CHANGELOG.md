@@ -1,5 +1,14 @@
 # @scalar/api-client-react
 
+## 1.4.8
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-client@2.37.0**
+  - [#8426](https://github.com/scalar/scalar/pull/8426): feat: sync with source flow with conflict resolution
+
 ## 1.4.7
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @scalar/workspace-store
 
+## 0.40.0
+
+### Minor Changes
+
+- [#8426](https://github.com/scalar/scalar/pull/8426): feat: interact with the original and intermediate documents
+
 ## 0.39.2
 
 ### Patch Changes
