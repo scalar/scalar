@@ -10,6 +10,7 @@ import { ERRORS } from '@/libs/errors'
 import type { ExtendedScalarCookie } from '@/v2/blocks/request-block/RequestBlock.vue'
 
 import { buildRequest } from './helpers/build-request'
+import { responseCache } from './helpers/response-cache'
 import { type ResponseInstance, sendRequest } from './helpers/send-request'
 import OperationBlock, { type OperationBlockProps } from './OperationBlock.vue'
 
@@ -155,6 +156,7 @@ describe('OperationBlock', () => {
 
   afterEach(() => {
     vi.restoreAllMocks()
+    responseCache.clear()
   })
 
   it('renders without errors with minimal props', () => {
@@ -708,5 +710,75 @@ describe('OperationBlock', () => {
 
     expect(instance.response).toBeNull()
     expect(instance.request).toBeNull()
+  })
+
+  it('restores response from cache when navigating back to same operation', async () => {
+    const mockController = new AbortController()
+    const mockRequest = new Request('https://api.example.com/api/users')
+    const mockResponse: ResponseInstance = {
+      status: 200,
+      statusText: 'OK',
+      headers: {},
+      cookieHeaderKeys: [],
+      duration: 100,
+      method: 'get',
+      path: '/api/users',
+      data: '{"users": []}',
+      size: 14,
+      ok: true,
+      redirected: false,
+      type: 'basic',
+      url: 'https://api.example.com/api/users',
+      body: null,
+      bodyUsed: false,
+      arrayBuffer: vi.fn(),
+      blob: vi.fn(),
+      formData: vi.fn(),
+      json: vi.fn(),
+      text: vi.fn(),
+      clone: vi.fn(),
+      bytes: vi.fn(),
+    }
+
+    vi.mocked(buildRequest).mockReturnValue([
+      null,
+      {
+        controller: mockController,
+        request: mockRequest,
+        isUsingProxy: false,
+      },
+    ])
+
+    vi.mocked(sendRequest).mockResolvedValue([
+      null,
+      {
+        timestamp: Date.now(),
+        request: mockRequest,
+        response: mockResponse,
+        originalResponse: new Response(),
+      },
+    ])
+
+    const wrapper = mount(OperationBlock, {
+      props: createDefaultProps(),
+    })
+
+    const instance = wrapper.vm as any
+    await instance.handleExecute()
+
+    expect(instance.response).not.toBeNull()
+    expect(instance.response.data).toBe('{"users": []}')
+
+    await wrapper.setProps({ path: '/api/posts' })
+    await wrapper.vm.$nextTick()
+
+    expect(instance.response).toBeNull()
+
+    await wrapper.setProps({ path: '/api/users' })
+    await wrapper.vm.$nextTick()
+
+    expect(instance.response).not.toBeNull()
+    expect(instance.response.data).toBe('{"users": []}')
+    expect(instance.request).not.toBeNull()
   })
 })
