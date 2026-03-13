@@ -1,3 +1,4 @@
+export type { XScalarCredentialsLocation } from './x-scalar-credentials-location'
 export type {
   XScalarAuthUrl,
   XScalarSecretClientId,
