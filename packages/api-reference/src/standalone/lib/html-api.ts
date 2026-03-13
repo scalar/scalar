@@ -5,7 +5,7 @@ import type {
 } from '@scalar/types/api-reference'
 import { apiReferenceConfigurationWithSourceSchema } from '@scalar/types/api-reference'
 import { createHead } from '@unhead/vue/client'
-import { createApp, h, reactive } from 'vue'
+import { createApp, createSSRApp, h, reactive } from 'vue'
 
 import { default as ApiReference } from '@/components/ApiReference.vue'
 
@@ -203,6 +203,13 @@ export const createApiReference: CreateApiReference = (
         : (elementOrSelectorOrConfig as Element)
 
     if (element) {
+      // Detect server-rendered content and use createSSRApp for hydration
+      if (element.children.length > 0) {
+        app = createSSRApp(() => h(ApiReference, props))
+        app.use(createHead())
+        app.config.idPrefix = idPrefix
+      }
+
       app.mount(element)
     } else {
       console.error('Could not find a mount point for API References:', elementOrSelectorOrConfig)
