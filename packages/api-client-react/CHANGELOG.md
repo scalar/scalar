@@ -1,5 +1,15 @@
 # @scalar/api-client-react
 
+## 1.4.9
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-client@2.37.1**
+  - [#8424](https://github.com/scalar/scalar/pull/8424): fix(api-client): persist oauth credentials location
+  - [#8428](https://github.com/scalar/scalar/pull/8428): fix: overflow issues for mac app version
+
 ## 1.4.8
 
 ### Patch Changes

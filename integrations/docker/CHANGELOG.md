@@ -1,5 +1,15 @@
 # @scalarapi/docker-api-reference
 
+## 0.5.9
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.48.8**
+  - [#8425](https://github.com/scalar/scalar/pull/8425): fix auth default OAuth scope fallback
+  - [#8417](https://github.com/scalar/scalar/pull/8417): fix: document not defined in SSR environments
+
 ## 0.5.8
 
 ### Patch Changes
