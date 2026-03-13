@@ -45,7 +45,7 @@ const hasChildren = computed(() => (tag?.children?.length ?? 0) > 0)
         () => eventBus?.emit('toggle:nav-item', { id: tag.id, open: true })
       " />
 
-    <!-- We cannot use v-else due to the Lazy wrapper, but its the opposite of above -->
+    <!-- Show slot when section is expanded or single-tag (inverse of ShowMoreButton visibility). -->
     <div
       v-if="!(isCollapsed && moreThanOneTag)"
       class="contents divide-y">
