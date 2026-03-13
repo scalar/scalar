@@ -351,25 +351,7 @@ const handleSelectHistoryItem = ({ index }: { index: number }) => {
  */
 watch(
   [() => path, () => method, () => exampleKey],
-  (
-    [newPath, newMethod, newExampleKey],
-    [oldPath, oldMethod, oldExampleKey],
-  ) => {
-    // Save current response to cache before switching (do not cache streaming)
-    if (
-      oldPath !== undefined &&
-      oldMethod !== undefined &&
-      oldExampleKey !== undefined &&
-      response.value &&
-      request.value &&
-      !isStreamingResponse(response.value)
-    ) {
-      responseCache.set(
-        getOperationExampleKey(oldMethod, oldPath, oldExampleKey),
-        { response: response.value, request: request.value },
-      )
-    }
-
+  ([newPath, newMethod, newExampleKey]) => {
     const newKey = getOperationExampleKey(newMethod, newPath, newExampleKey)
     const cached = responseCache.get(newKey)
     if (cached) {
