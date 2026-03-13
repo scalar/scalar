@@ -17,7 +17,7 @@ export const useEditorState = () => {
     isDiagnosticsPaneExpanded.value ? DIAGNOSTICS_EXPANDED_BOTTOM_PADDING : DIAGNOSTICS_COLLAPSED_BOTTOM_PADDING,
   )
   const editorRootClass = computed(() =>
-    isEditorMaximized.value ? 'fixed inset-0 z-50 h-screen w-screen border bg-b-1 p-3' : '',
+    isEditorMaximized.value ? 'fixed inset-0 z-50 h-screen w-screen border bg-b-1 p-3 mac:pt-12' : '',
   )
 
   const getLanguageToggleClass = (isActive: boolean): string => {
