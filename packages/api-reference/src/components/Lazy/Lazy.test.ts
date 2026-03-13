@@ -80,6 +80,7 @@ describe('lazy rendering', () => {
     // Not rendered yet (observer does not fire by default)
     expect(wrapper.html()).not.toContain('Test Content')
     expect(wrapper.find('[data-testid="lazy-container"]').exists()).toBe(true)
+    expect(wrapper.find('[data-testid="lazy-container"]').attributes('data-placeholder')).toBe('true')
 
     // Simulate element entering viewport so it is added to the queue
     triggerIntersection()
@@ -89,7 +90,7 @@ describe('lazy rendering', () => {
     await nextTick()
 
     expect(wrapper.html()).toContain('Test Content')
-    expect(wrapper.find('.lazy-placeholder').exists()).toBe(false)
+    expect(wrapper.find('[data-testid="lazy-container"]').attributes('data-placeholder')).toBe('false')
   })
 
   it('renders content immediately when the id is in the priority queue', async () => {
@@ -172,6 +173,6 @@ describe('lazy rendering', () => {
 
     await nextTick()
 
-    expect(wrapper.find('.lazy-placeholder').exists()).toBe(false)
+    expect(wrapper.find('[data-testid="lazy-container"]').attributes('data-placeholder')).toBe('false')
   })
 })
