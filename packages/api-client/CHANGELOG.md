@@ -1,5 +1,25 @@
 # @scalar/api-client
 
+## 2.37.1
+
+### Patch Changes
+
+- [#8424](https://github.com/scalar/scalar/pull/8424): fix(api-client): persist oauth credentials location
+- [#8428](https://github.com/scalar/scalar/pull/8428): fix: overflow issues for mac app version
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.40.1**
+  - [#8424](https://github.com/scalar/scalar/pull/8424): feat: export XScalarCredentialsLocation
+
+- **@scalar/oas-utils@0.10.7**
+
+- **@scalar/sidebar@0.8.8**
+
+- **@scalar/components@0.20.8**
+
+- **@scalar/use-codemirror@0.14.8**
+
 ## 2.37.0
 
 ### Minor Changes

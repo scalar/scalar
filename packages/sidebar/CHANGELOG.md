@@ -1,5 +1,16 @@
 # @scalar/sidebar
 
+## 0.8.8
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.40.1**
+  - [#8424](https://github.com/scalar/scalar/pull/8424): feat: export XScalarCredentialsLocation
+
+- **@scalar/components@0.20.8**
+
 ## 0.8.7
 
 ### Patch Changes

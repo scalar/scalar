@@ -1,5 +1,11 @@
 # @scalar/workspace-store
 
+## 0.40.1
+
+### Patch Changes
+
+- [#8424](https://github.com/scalar/scalar/pull/8424): feat: export XScalarCredentialsLocation
+
 ## 0.40.0
 
 ### Minor Changes

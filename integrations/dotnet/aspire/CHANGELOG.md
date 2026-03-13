@@ -1,5 +1,17 @@
 # @scalar/aspire
 
+## 0.9.9
+
+### Patch Changes
+
+- [#8419](https://github.com/scalar/scalar/pull/8419): feat(aspire): add optional endpointName to WithApiReference
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.48.8**
+  - [#8425](https://github.com/scalar/scalar/pull/8425): fix auth default OAuth scope fallback
+  - [#8417](https://github.com/scalar/scalar/pull/8417): fix: document not defined in SSR environments
+
 ## 0.9.8
 
 ### Patch Changes
