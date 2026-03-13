@@ -201,4 +201,4 @@ When you discover new testing tricks, runbook steps, or environment requirements
 4. **Keep it minimal** – only include what agents need to run and test quickly.
 5. **Cross-reference** – if a step depends on another (e.g. test-servers before package tests), state it clearly.
 
-Preferred location for this skill: `.cursor/skills/cloud-agents-starter/SKILL.md`.
+Preferred location for this skill: `.agents/skills/cloud-agents-starter/SKILL.md`.
