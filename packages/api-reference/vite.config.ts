@@ -16,6 +16,7 @@ const entries = [
   'src/plugins/index.ts',
   'src/features/index.ts',
   'src/helpers/index.ts',
+  'src/ssr.ts',
 ]
 
 export default defineConfig({

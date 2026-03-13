@@ -1,5 +1,5 @@
-import { createApp } from './main'
+import { createApiReference } from '@scalar/api-reference'
 
-const { app } = createApp()
-
-app.mount('#app')
+createApiReference('#app', {
+  url: 'https://registry.scalar.com/@scalar/apis/galaxy?format=json',
+})

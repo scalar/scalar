@@ -1,30 +1,15 @@
-/* biome-ignore-all lint/performance/noBarrelFile: SSR subpath entry point for package exports */
-/**
- * SSR entry point for @scalar/api-reference.
- *
- * Re-exports the same components as the main entry. The ApiReference component
- * is SSR-compatible and works with createSSRApp and renderToString from
- * @vue/server-renderer.
- *
- * @example
- * ```ts
- * import { createSSRApp } from 'vue'
- * import { renderToString } from '@vue/server-renderer'
- * import { ApiReference } from '@scalar/api-reference/ssr'
- *
- * const app = createSSRApp({
- *   render: () => h(ApiReference, { configuration: { url: '/openapi.json' } }),
- * })
- * const html = await renderToString(app)
- * ```
- */
+import type { AnyApiReferenceConfiguration } from '@scalar/types/api-reference'
+import { createSSRApp, h } from 'vue'
+import { renderToString } from 'vue/server-renderer'
 
-export type { ApiReferenceConfiguration, ReferenceProps } from './index'
-export {
-  ApiReference,
-  GettingStarted,
-  SearchButton,
-  SearchModal,
-  createApiReference,
-  createEmptySpecification,
-} from './index'
+import { default as ApiReference } from '@/components/ApiReference.vue'
+
+/**
+ * Render the Scalar API Reference to an HTML string for server-side rendering.
+ * Use createApiReference on the client to hydrate the server-rendered output.
+ */
+export async function renderApiReferenceToString(configuration: AnyApiReferenceConfiguration): Promise<string> {
+  const app = createSSRApp(() => h(ApiReference, { configuration }))
+
+  return await renderToString(app)
+}
