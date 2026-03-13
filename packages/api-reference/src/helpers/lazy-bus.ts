@@ -90,6 +90,8 @@ const runLazyBus = () => {
     const pendingIds = [...pendingQueue]
 
     if (priorityIds.length === 0 && pendingIds.length === 0) {
+      onRenderComplete.forEach((fn) => fn())
+      onRenderComplete.clear()
       isRunning.value = false
       firstLazyLoadComplete.value = true
       return
