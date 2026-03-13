@@ -1,0 +1,1 @@
+{"version":3,"file":"filter-global-cookies.d.ts","sourceRoot":"","sources":["filter-global-cookies.ts"],"names":[],"mappings":"AAAA,OAAO,KAAK,EAAE,aAAa,EAAE,MAAM,qEAAqE,CAAA;AAIxG;;;;;;GAMG;AACH,eAAO,MAAM,kBAAkB,GAAI,yCAIhC;IACD,MAAM,EAAE,aAAa,CAAA;IACrB,GAAG,EAAE,MAAM,CAAA;IACX,qBAAqB,EAAE,MAAM,CAAC,MAAM,EAAE,OAAO,CAAC,CAAA;CAC/C,KAAG,OAqBH,CAAA"}
