@@ -15,7 +15,7 @@
     {
       "description": "Keep this in sync with package.json minimumReleaseAge",
       "matchDatasources": ["npm"],
-      "minimumReleaseAge": "7 days"
+      "minimumReleaseAge": "5 days"
     },
 
     {
