@@ -1,9 +1,14 @@
-import type { ApiClientPlugin, hooksSchema } from '@scalar/types/api-reference'
-import type { z } from 'zod'
+import type { ApiClientPlugin } from '@scalar/types/api-reference'
 
 export type { ApiClientPlugin }
 
-type HookFunctions = z.infer<typeof hooksSchema>
+type PluginInstance = ReturnType<ApiClientPlugin>
+type HookFunctions = NonNullable<PluginInstance['hooks']>
+type HookEvent = keyof HookFunctions
+type HookArgs<E extends HookEvent> = HookFunctions[E] extends (...args: infer Args) => unknown ? Args : never
+type HookReturn<E extends HookEvent> = HookFunctions[E] extends (...args: unknown[]) => infer Result
+  ? Result
+  : never
 
 type CreatePluginManagerParams = {
   plugins?: ApiClientPlugin[]
@@ -34,21 +39,16 @@ export const createPluginManager = ({ plugins = [] }: CreatePluginManagerParams)
     /**
      * Execute a hook for a specific event
      */
-    executeHook: <E extends keyof HookFunctions>(
+    executeHook: <E extends HookEvent>(
       event: E,
-      ...args: HookFunctions[E] extends z.ZodFunction<infer Args, any> ? z.infer<Args> : any
-    ) => {
-      const hooks = Array.from(registeredPlugins.values()).flatMap(
-        (plugin) => plugin.hooks?.[event as keyof typeof plugin.hooks] || [],
-      )
+      ...args: HookArgs<E>
+    ): Promise<Array<Awaited<HookReturn<E>>>> => {
+      const hooks = Array.from(registeredPlugins.values())
+        .map((plugin) => plugin.hooks?.[event])
+        .filter((hook): hook is NonNullable<HookFunctions[E]> => hook != null)
 
       // Execute each hook with the provided arguments
-      return Promise.all(
-        hooks
-          .filter((hook) => hook != null)
-          // @ts-expect-error I don't know how to properly type this
-          .map((hook) => (hook as HookFunctions[E])?.(...args)),
-      )
+      return Promise.all(hooks.map((hook) => hook(...args)))
     },
   }
 }
