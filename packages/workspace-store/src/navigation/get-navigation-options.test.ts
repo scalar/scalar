@@ -218,17 +218,17 @@ describe('get-navigation-options', () => {
     expect(id).toBe('pet-store/models')
   })
 
-  it('generates model ID with name', () => {
+  it('generates model ID with name (preserves case)', () => {
     const options = getNavigationOptions('Pet Store')
     const id = options.generateId({
       type: 'model',
       parentId: 'pet-store',
       name: 'Pet Schema',
     })
-    expect(id).toBe('pet-store/model/pet-schema')
+    expect(id).toBe('pet-store/model/Pet-Schema')
   })
 
-  it('generates model ID with parent tag prefix', () => {
+  it('generates model ID with parent tag prefix (preserves case)', () => {
     const options = getNavigationOptions('Pet Store')
     const id = options.generateId({
       type: 'model',
@@ -239,7 +239,7 @@ describe('get-navigation-options', () => {
         tag: { name: 'Models' },
       },
     })
-    expect(id).toBe('pet-store/tag/models/model/user')
+    expect(id).toBe('pet-store/tag/models/model/User')
   })
 
   it('generates unique model IDs when schema names differ only by casing', () => {
