@@ -4,8 +4,8 @@ import { PROXY_PORT, PROXY_URL, VOID_PORT, VOID_URL, createRequestPayload } from
 import { encode } from 'js-base64'
 import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest'
 
-import * as electron from '../electron'
-import { createRequestOperation } from './create-request-operation'
+import * as electron from '@/libs/electron'
+import { createRequestOperation } from '@/libs/send-request/create-request-operation'
 
 beforeAll(async () => {
   // Check whether the proxy-server is running

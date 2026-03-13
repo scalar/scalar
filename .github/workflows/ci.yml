@@ -238,12 +238,7 @@ jobs:
         with:
           packages: './packages/**'
       - name: Run tests
-        run: |
-          pnpm vitest packages/* --silent \
-            --exclude "**/create-request-operation.test.ts" \
-            --exclude "**/create-fetch-auth.test.ts" \
-            --exclude "**/fetch-document.test.ts" \
-            --shard=${{ matrix.shard-index }}/${{ matrix.shard-total }}
+        run: pnpm vitest packages/* --silent --shard=${{ matrix.shard-index }}/${{ matrix.shard-total }}
 
   test-packages-with-test-servers:
     needs: [build]
@@ -261,9 +256,12 @@ jobs:
       - name: Run server-dependent package tests
         run: |
           pnpm vitest \
-            packages/api-client/src/libs/send-request/create-request-operation.test.ts \
-            packages/api-client/src/libs/send-request/create-fetch-auth.test.ts \
-            packages/oas-utils/src/helpers/fetch-document.test.ts \
+            --config packages/api-client/vite.config.ts \
+            tests/proxy-void/api-client/create-request-operation.test.ts \
+            tests/proxy-void/api-client/create-fetch-auth.test.ts \
+            --silent && pnpm vitest \
+            --config packages/oas-utils/vitest.config.ts \
+            tests/proxy-void/oas-utils/fetch-document.test.ts \
             --silent
 
   test-integrations:

@@ -3,7 +3,7 @@ import { requestExampleSchema, securitySchemeSchema } from '@scalar/oas-utils/en
 import { VOID_URL, createRequestPayload } from '@test/helpers'
 import { describe, expect, it } from 'vitest'
 
-import { createRequestOperation } from './create-request-operation'
+import { createRequestOperation } from '@/libs/send-request/create-request-operation'
 
 describe('authentication', () => {
   it('adds apiKey auth in header', async () => {
