@@ -1,5 +1,25 @@
 # @scalar/api-reference
 
+## 1.48.7
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.40.0**
+  - [#8426](https://github.com/scalar/scalar/pull/8426): feat: interact with the original and intermediate documents
+
+- **@scalar/api-client@2.37.0**
+  - [#8426](https://github.com/scalar/scalar/pull/8426): feat: sync with source flow with conflict resolution
+
+- **@scalar/agent-chat@0.9.7**
+
+- **@scalar/oas-utils@0.10.6**
+
+- **@scalar/sidebar@0.8.7**
+
+- **@scalar/components@0.20.7**
+
 ## 1.48.6
 
 ### Patch Changes

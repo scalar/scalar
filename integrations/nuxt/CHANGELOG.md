@@ -1,5 +1,16 @@
 # @scalar/nuxt
 
+## 0.6.8
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-client@2.37.0**
+  - [#8426](https://github.com/scalar/scalar/pull/8426): feat: sync with source flow with conflict resolution
+
+- **@scalar/api-reference@1.48.7**
+
 ## 0.6.7
 
 ### Patch Changes

@@ -1,5 +1,16 @@
 # @scalar/sidebar
 
+## 0.8.7
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.40.0**
+  - [#8426](https://github.com/scalar/scalar/pull/8426): feat: interact with the original and intermediate documents
+
+- **@scalar/components@0.20.7**
+
 ## 0.8.6
 
 ### Patch Changes

@@ -1,5 +1,14 @@
 # @scalar/oas-utils
 
+## 0.10.6
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.40.0**
+  - [#8426](https://github.com/scalar/scalar/pull/8426): feat: interact with the original and intermediate documents
+
 ## 0.10.5
 
 ### Patch Changes
