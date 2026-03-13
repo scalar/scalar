@@ -102,7 +102,8 @@ function getPathValue(entry: TraversedOperation | TraversedWebhook) {
   <Lazy
     v-for="entry in entries"
     :id="entry.id"
-    :key="`${entry.id}-${options.layout}`">
+    :key="`${entry.id}-${options.layout}`"
+    :expanded="!!expandedItems[entry.id]">
     <!-- Operation or Webhook -->
     <SectionContainer
       v-if="isOperation(entry) || isWebhook(entry)"

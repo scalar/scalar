@@ -54,6 +54,9 @@ test.describe('sources', () => {
     await page.goto(`${example}/?api=galaxy`)
 
     await expect(page.getByRole('heading', { name: 'Scalar Galaxy', level: 1 })).toBeVisible()
+
+    // Content is virtualized: navigate to the tag id so it is rendered.
+    await page.goto(`${example}/#galaxy/tag/planets`)
     await expect(page.getByRole('heading', { name: 'Planets', level: 2 })).toBeVisible()
     await expect(page.getByRole('heading', { name: 'Get all planets', level: 3 })).toBeVisible()
 
