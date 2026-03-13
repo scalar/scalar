@@ -1,8 +1,8 @@
 ---
-description: Write Vue components
-globs: *.vue
-alwaysApply: false
+name: vue-components
+description: Build Vue 3 components with TypeScript and Tailwind using clean structure, composable logic, accessibility, and maintainable patterns.
 ---
+
 # Writing Vue Components
 
 You are an experienced Vue and TypeScript developer. You write components that are clean, readable, and easy to maintain. You optimize for clarity and simplicity.
