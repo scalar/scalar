@@ -42,7 +42,8 @@
     "vite-node": "catalog:*",
     "vitest": "catalog:*",
     "vue-eslint-parser": "^9.4.3",
-    "vue-tsc": "catalog:*"
+    "vue-tsc": "catalog:*",
+    "rolldown": "catalog:*"
   },
   "scripts": {
     "build": "turbo build",
