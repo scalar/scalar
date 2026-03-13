@@ -32,7 +32,6 @@
     "dev:standalone": "vite -c vite.standalone.config.ts",
     "playground:components": "vite ./playground/components -c ./playground/components/vite.config.ts",
     "playground:esm": "vite ./playground/esm -c ./playground/esm/vite.config.ts",
-    "playground:ssr": "cd ./playground/ssr && pnpm dev",
     "playground:vue": "vite ./playground/vue -c ./playground/vue/vite.config.ts",
     "preview": "vite preview",
     "test": "vitest",
@@ -86,6 +85,11 @@
       "import": "./dist/helpers/index.js",
       "types": "./dist/helpers/index.d.ts",
       "default": "./dist/helpers/index.js"
+    },
+    "./ssr": {
+      "import": "./dist/ssr.js",
+      "types": "./dist/ssr.d.ts",
+      "default": "./dist/ssr.js"
     },
     "./style.css": "./dist/style.css",
     "./browser/standalone.js": "./dist/browser/standalone.js"

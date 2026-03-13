@@ -8,6 +8,7 @@
     "examples/react/**",
     "examples/react-webpack/**",
     "examples/ssg/**",
+    "examples/vue-ssr/**",
     "examples/sveltekit/**",
     "examples/web/**",
     "projects/proxy-scalar-com/**"
@@ -37,7 +38,8 @@
 
     // The following values needs to be re-checked once more packages are included
     "tsc-alias",
-    "tsconfig-paths"
+    "tsconfig-paths",
+    "vue-tsc"
   ],
   "ignoreBinaries": ["netlify"],
   "ignoreIssues": {
@@ -146,10 +148,6 @@
         "playground/vue/src/AppWithJsApi.vue",
         "playground/vue/src/x-custom-extension-plugin/components/CustomReactComponent.tsx"
       ]
-    },
-    "packages/api-reference/playground/ssr": {
-      "entry": ["src/{main,entry-client,entry-server}.ts"],
-      "ignoreFiles": ["src/AppWithJsApi.vue"]
     },
     "packages/api-reference-react": {
       "entry": ["playground/main.tsx"]

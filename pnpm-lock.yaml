@@ -692,6 +692,43 @@ importers:
         specifier: catalog:*
         version: 7.3.1(@types/node@24.10.13)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.31.2)(tsx@4.19.1)(yaml@2.8.0)
 
+  examples/vue-ssr:
+    dependencies:
+      '@hono/node-server':
+        specifier: catalog:*
+        version: 1.19.9(hono@4.12.4)
+      '@scalar/api-reference':
+        specifier: workspace:*
+        version: link:../../packages/api-reference
+      compression:
+        specifier: ^1.8.0
+        version: 1.8.1
+      hono:
+        specifier: catalog:*
+        version: 4.12.4
+      sirv:
+        specifier: ^3.0.1
+        version: 3.0.2
+      vue:
+        specifier: catalog:*
+        version: 3.5.26(typescript@5.9.3)
+    devDependencies:
+      '@types/compression':
+        specifier: ^1.7.5
+        version: 1.7.5
+      '@types/node':
+        specifier: ^24.1.0
+        version: 24.10.13
+      '@vitejs/plugin-vue':
+        specifier: catalog:*
+        version: 6.0.3(vite@7.3.1(@types/node@24.10.13)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.31.2)(tsx@4.19.1)(yaml@2.8.0))(vue@3.5.26(typescript@5.9.3))
+      cross-env:
+        specifier: ^7.0.3
+        version: 7.0.3
+      vite:
+        specifier: catalog:*
+        version: 7.3.1(@types/node@24.10.13)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.31.2)(tsx@4.19.1)(yaml@2.8.0)
+
   examples/web:
     dependencies:
       '@scalar/api-reference':
@@ -1616,43 +1653,6 @@ importers:
       rollup-preserve-directives:
         specifier: ^1.1.1
         version: 1.1.1(rollup@4.50.2)
-      vite:
-        specifier: catalog:*
-        version: 7.3.1(@types/node@24.10.13)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.31.2)(tsx@4.19.1)(yaml@2.8.0)
-
-  packages/api-reference/playground/ssr:
-    dependencies:
-      '@hono/node-server':
-        specifier: catalog:*
-        version: 1.19.9(hono@4.12.4)
-      '@scalar/api-reference':
-        specifier: workspace:*
-        version: link:../..
-      compression:
-        specifier: ^1.8.0
-        version: 1.8.1
-      hono:
-        specifier: catalog:*
-        version: 4.12.4
-      sirv:
-        specifier: ^3.0.1
-        version: 3.0.2
-      vue:
-        specifier: catalog:*
-        version: 3.5.26(typescript@5.9.3)
-    devDependencies:
-      '@types/compression':
-        specifier: ^1.7.5
-        version: 1.7.5
-      '@types/node':
-        specifier: ^24.1.0
-        version: 24.10.13
-      '@vitejs/plugin-vue':
-        specifier: catalog:*
-        version: 6.0.3(vite@7.3.1(@types/node@24.10.13)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.31.2)(tsx@4.19.1)(yaml@2.8.0))(vue@3.5.26(typescript@5.9.3))
-      cross-env:
-        specifier: ^7.0.3
-        version: 7.0.3
       vite:
         specifier: catalog:*
         version: 7.3.1(@types/node@24.10.13)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.31.2)(tsx@4.19.1)(yaml@2.8.0)
