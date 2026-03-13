@@ -91,7 +91,30 @@ projects/           # Supporting projects (e.g. proxy-scalar-com)
 - **Branch naming**: `claude/feature-description`, `claude/fix-description`
 - **Commits**: Conventional commits, present tense, scope when relevant
 
+## PR Requirements
+
+### Semantic PR titles
+
+PR titles must follow `type(scope): subject`:
+
+```
+fix(api-client): crashes when API returns null
+^   ^            ^
+|   |            subject
+|   package scope
+type (feat, fix, docs, style, refactor, perf, test, build, ci, chore, revert)
+```
+
+### Changesets
+
+If your PR will cause a version bump for any package, add a changeset:
+
+```bash
+pnpm changeset
+```
+
 ## Further Reading
 
+- [CONTRIBUTING.md](./CONTRIBUTING.md) – PR requirements, changesets, auto-generated files
 - [CLAUDE.md](./CLAUDE.md) – Full development guide, Vue/TS conventions, testing
 - [.cursor/rules/cloud-agents-starter-skill.mdc](./.cursor/rules/cloud-agents-starter-skill.mdc) – Runbook for CI parity and test servers
