@@ -12,8 +12,8 @@ export const shouldDisplayDescription = (schema: SchemaObject | undefined, propD
     return null
   }
 
-  // Don't show description for schemas with properties or compositions
-  if ('properties' in schema || 'additionalProperties' in schema || 'patternProperties' in schema || schema.allOf) {
+  // Don't show description for schemas with compositions to avoid duplicate descriptions
+  if (schema.allOf) {
     return null
   }
 
