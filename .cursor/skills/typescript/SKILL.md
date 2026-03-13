@@ -1,8 +1,8 @@
 ---
-description: Write TypeScript code
-globs: *.ts,*.tsx,*.vue
-alwaysApply: false
+name: typescript
+description: Write clear, predictable TypeScript and Vue TypeScript code with strong typing, maintainability, and consistent documentation conventions.
 ---
+
 # Writing TypeScript
 
 You write TypeScript code that is clear, predictable, and easy to maintain. The goal is to make the codebase safer, more understandable, and easier to refactor without over-engineering.

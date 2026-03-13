@@ -1,8 +1,8 @@
 ---
-description: 
-globs: 
-alwaysApply: true
+name: openapi-glossary
+description: Use consistent OpenAPI terminology and definitions when writing documentation, educational material, and tooling guidance.
 ---
+
 # OpenAPI Glossary
 
 > Source: https://github.com/apisyouwonthate/api-glossary

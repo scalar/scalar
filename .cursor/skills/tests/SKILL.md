@@ -1,8 +1,8 @@
 ---
-description: Write awesome tests
-globs: *.test.ts,*.spec.ts,*.e2e-spec.ts,*.e2e.ts
-alwaysApply: false
+name: tests
+description: Write clear, maintainable Vitest and Playwright tests with precise assertions, consistent structure, and strong behavioral coverage.
 ---
+
 # Writing Tests
 
 You write tests that are clear, maintainable, and thorough. You optimize for readability and reliability. Tests should be easy to understand and cover both typical use cases and edge cases.
