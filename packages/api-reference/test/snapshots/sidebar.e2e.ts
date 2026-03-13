@@ -85,7 +85,8 @@ test.describe(() => {
   test.describe.configure({ retries: 3 })
   test('Mobile Sidebar', async ({ page }) => {
     const example = await serveExample(sources[0])
-    await page.goto(example)
+    // Navigate to a specific section so the breadcrumb is consistent
+    await page.goto(`${example}#description/introduction`)
 
     const opts = getScreenshotOptions(page)
 
