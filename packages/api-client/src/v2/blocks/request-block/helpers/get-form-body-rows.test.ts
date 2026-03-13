@@ -46,7 +46,7 @@ describe('getFormBodyRows', () => {
     const result = getFormBodyRows(example, 'multipart/form-data')
     expect(result).toHaveLength(3)
     expect(result[0]).toEqual({ name: 'username', value: 'john_doe', isDisabled: false })
-    expect(result[1]).toEqual({ name: 'email', value: 'john@example.com', isDisabled: false })
+    expect(result[1]).toEqual({ name: 'email', value: 'john@example.com', isDisabled: true })
     expect(result[2]).toEqual({ name: 'age', value: '30', isDisabled: false })
   })
 

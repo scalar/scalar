@@ -24,8 +24,16 @@ export const getFormBodyRows = (
   const schemaWithProperties = formBodySchema && isObjectSchema(formBodySchema) ? formBodySchema : undefined
   const requiredSet = schemaWithProperties ? new Set(schemaWithProperties.required ?? []) : undefined
 
-  const mapRow = ({ name, value }: { name: string; value: string | File }): TableRow => {
-    const row: TableRow = { name, value, isDisabled: false }
+  const mapRow = ({
+    name,
+    value,
+    isDisabled = false,
+  }: {
+    name: string
+    value: string | File
+    isDisabled?: boolean
+  }): TableRow => {
+    const row: TableRow = { name, value, isDisabled }
     if (!schemaWithProperties || !name) {
       return row
     }
@@ -36,6 +44,7 @@ export const getFormBodyRows = (
     row.schema = resolve.schema(propSchema)
     row.description = propSchema.description
     row.isRequired = requiredSet?.has(name)
+    row.isDisabled = isDisabled
     return row
   }
 
@@ -43,9 +52,10 @@ export const getFormBodyRows = (
   if (Array.isArray(example.value)) {
     return example.value.map((exampleValue) => {
       if (isObject(exampleValue)) {
-        const name = String(exampleValue.name) ?? ''
+        const name = String(exampleValue.name)
         const value = exampleValue.value instanceof File ? exampleValue.value : String(exampleValue.value)
-        return mapRow({ name, value })
+        const isDisabled = Boolean(exampleValue.isDisabled)
+        return mapRow({ name, value, isDisabled })
       }
       return { name: '', value: exampleValue, isDisabled: false }
     })
