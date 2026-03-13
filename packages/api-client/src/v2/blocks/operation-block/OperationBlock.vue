@@ -108,6 +108,11 @@ import { buildRequest } from '@/v2/blocks/operation-block/helpers/build-request'
 import { getSecuritySchemes } from '@/v2/blocks/operation-block/helpers/build-request-security'
 import { harToFetchRequest } from '@/v2/blocks/operation-block/helpers/har-to-fetch-request'
 import { harToFetchResponse } from '@/v2/blocks/operation-block/helpers/har-to-fetch-response'
+import {
+  getOperationExampleKey,
+  isStreamingResponse,
+  responseCache,
+} from '@/v2/blocks/operation-block/helpers/response-cache'
 import { sendRequest } from '@/v2/blocks/operation-block/helpers/send-request'
 import { validatePathParameters } from '@/v2/blocks/operation-block/helpers/validate-path-parameters'
 import { generateClientOptions } from '@/v2/blocks/operation-code-sample'
@@ -260,6 +265,14 @@ const handleExecute = async () => {
   // Store the response
   response.value = sendResult.response
   request.value = sendResult.request
+
+  // Cache non-streaming responses so they can be restored when navigating back
+  if (!isStreamingResponse(sendResult.response)) {
+    responseCache.set(getOperationExampleKey(method, path, exampleKey), {
+      response: sendResult.response,
+      request: sendResult.request,
+    })
+  }
 }
 
 onMounted(() => {
@@ -331,16 +344,47 @@ const handleSelectHistoryItem = ({ index }: { index: number }) => {
 }
 
 /**
- * When the path, method, or example key changes, clear the response and request
+ * When the path, method, or example key changes: save current response to
+ * cache (so it can be restored when navigating back), then restore from cache
+ * for the new operation or clear if no cached response. Response is only
+ * cleared on page refresh or when making a new request for that operation.
  */
-watch([() => path, () => method, () => exampleKey], () => {
-  // We reset the response and request
-  response.value = null
-  request.value = null
+watch(
+  [() => path, () => method, () => exampleKey],
+  (
+    [newPath, newMethod, newExampleKey],
+    [oldPath, oldMethod, oldExampleKey],
+  ) => {
+    // Save current response to cache before switching (do not cache streaming)
+    if (
+      oldPath !== undefined &&
+      oldMethod !== undefined &&
+      oldExampleKey !== undefined &&
+      response.value &&
+      request.value &&
+      !isStreamingResponse(response.value)
+    ) {
+      responseCache.set(
+        getOperationExampleKey(oldMethod, oldPath, oldExampleKey),
+        { response: response.value, request: request.value },
+      )
+    }
 
-  // We cancel the request if it is still in progress
-  cancelRequest()
-})
+    const newKey = getOperationExampleKey(newMethod, newPath, newExampleKey)
+    const cached = responseCache.get(newKey)
+    if (cached) {
+      response.value = cached.response
+      request.value = cached.request
+    } else {
+      response.value = null
+      request.value = null
+    }
+
+    // Cancel any in-flight request
+    cancelRequest()
+  },
+  { immediate: true },
+)
 
 onBeforeUnmount(() => {
   // We cancel the request if the component is unmounted
