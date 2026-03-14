@@ -327,5 +327,20 @@ describe('api-reference-configuration', () => {
 
       expect(migratedConfig.onSidebarClick?.('a')).toBeInstanceOf(Promise)
     })
+
+    it('uses custom setPageTitle', () => {
+      const config = {
+        setPageTitle: ({ title }) => `API Reference | ${title}`,
+      } satisfies Partial<ApiReferenceConfiguration>
+      const migratedConfig = apiReferenceConfigurationSchema.parse(config)
+
+      const item = { title: 'Authentication' }
+
+      const result = migratedConfig.setPageTitle?.({
+        title: item.title,
+      })
+
+      expect(result).toBe('API Reference | Authentication')
+    })
   })
 })
