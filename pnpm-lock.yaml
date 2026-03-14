@@ -146,7 +146,7 @@ catalogs:
       version: 3.3.3
     fastify:
       specifier: ^5.3.3
-      version: 5.6.2
+      version: 5.7.4
     fastify-plugin:
       specifier: ^4.5.1
       version: 4.5.1
@@ -982,6 +982,9 @@ importers:
       '@scalar/build-tooling':
         specifier: workspace:*
         version: link:../../packages/build-tooling
+      esbuild:
+        specifier: catalog:*
+        version: 0.25.6
       fastify:
         specifier: ^4.0.0
         version: 4.28.0
@@ -1065,7 +1068,7 @@ importers:
         version: 5.1.0
       fastify:
         specifier: ^5.4.0
-        version: 5.6.2
+        version: 5.7.4
       supertest:
         specifier: catalog:*
         version: 7.2.2
@@ -1436,7 +1439,7 @@ importers:
         version: 6.2.3
       fastify:
         specifier: catalog:*
-        version: 5.6.2
+        version: 5.7.4
       jsdom:
         specifier: catalog:*
         version: 27.4.0(@noble/hashes@1.8.0)
@@ -1804,7 +1807,7 @@ importers:
         version: 3.5.26(typescript@5.9.3)
       vue-component-type-helpers:
         specifier: ^3.2.2
-        version: 3.2.4
+        version: 3.2.5
     devDependencies:
       '@headlessui/tailwindcss':
         specifier: catalog:*
@@ -1993,7 +1996,7 @@ importers:
         version: link:../build-tooling
       fastify:
         specifier: catalog:*
-        version: 5.6.2
+        version: 5.7.4
       vite:
         specifier: catalog:*
         version: 7.3.1(@types/node@24.10.13)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.31.2)(tsx@4.19.1)(yaml@2.8.0)
@@ -2783,7 +2786,7 @@ importers:
         version: 6.2.3
       fastify:
         specifier: catalog:*
-        version: 5.6.2
+        version: 5.7.4
       vite:
         specifier: catalog:*
         version: 7.3.1(@types/node@24.10.13)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.31.2)(tsx@4.19.1)(yaml@2.8.0)
@@ -5020,9 +5023,6 @@ packages:
 
   '@fastify/ajv-compiler@3.5.0':
     resolution: {integrity: sha512-ebbEtlI7dxXF5ziNdr05mOY8NnDiPB1XvAlLHctRt/Rc+C3LCOVW5imUVX+mhvUhnNzmPBHewUkOFgGlCxgdAA==}
-
-  '@fastify/ajv-compiler@4.0.2':
-    resolution: {integrity: sha512-Rkiu/8wIjpsf46Rr+Fitd3HRP+VsxUFDDeag0hs9L0ksfnwx2g7SPQQTFL0E8Qv+rfXzQOxBJnjUB9ITUDjfWQ==}
 
   '@fastify/ajv-compiler@4.0.5':
     resolution: {integrity: sha512-KoWKW+MhvfTRWL4qrhUwAAZoaChluo0m0vbiJlGMt2GXvL4LVPQEjt8kSpHI3IBq5Rez8fg+XeH3cneztq+C7A==}
@@ -10224,9 +10224,6 @@ packages:
   fastify@4.28.0:
     resolution: {integrity: sha512-HhW7UHW07YlqH5qpS0af8d2Gl/o98DhJ8ZDQWHRNDnzeOhZvtreWsX8xanjGgXmkYerGbo8ax/n40Dpwqkot8Q==}
 
-  fastify@5.6.2:
-    resolution: {integrity: sha512-dPugdGnsvYkBlENLhCgX8yhyGCsCPrpA8lFWbTNU428l+YOnLgYHR69hzV8HWPC79n536EqzqQtvhtdaCE0dKg==}
-
   fastify@5.7.4:
     resolution: {integrity: sha512-e6l5NsRdaEP8rdD8VR0ErJASeyaRbzXYpmkrpr2SuvuMq6Si3lvsaVy5C+7gLanEkvjpMDzBXWE5HPeb/hgTxA==}
 
@@ -10319,10 +10316,6 @@ packages:
   find-my-way@8.2.0:
     resolution: {integrity: sha512-HdWXgFYc6b1BJcOBDBwjqWuHJj1WYiqrxSh25qtU4DabpMFdj/gSunNBQb83t+8Zt67D7CXEzJWTkxaShMTMOA==}
     engines: {node: '>=14'}
-
-  find-my-way@9.3.0:
-    resolution: {integrity: sha512-eRoFWQw+Yv2tuYlK2pjFS2jGXSxSppAs3hSQjfxVKxM5amECzIgYYc1FEI8ZmhSh/Ig+FrKEz43NLRKJjYCZVg==}
-    engines: {node: '>=20'}
 
   find-my-way@9.4.0:
     resolution: {integrity: sha512-5Ye4vHsypZRYtS01ob/iwHzGRUDELlsoCftI/OZFhcLs1M0tkGPcXldE80TAZC5yYuJMBPJQQ43UHlqbJWiX2w==}
@@ -16491,9 +16484,6 @@ packages:
   vue-component-type-helpers@2.2.10:
     resolution: {integrity: sha512-iDUO7uQK+Sab2tYuiP9D1oLujCWlhHELHMgV/cB13cuGbG4qwkLHvtfWb6FzvxrIOPDnU0oHsz2MlQjhYDeaHA==}
 
-  vue-component-type-helpers@3.2.4:
-    resolution: {integrity: sha512-05lR16HeZDcDpB23ku5b5f1fBOoHqFnMiKRr2CiEvbG5Ux4Yi0McmQBOET0dR0nxDXosxyVqv67q6CzS3AK8rw==}
-
   vue-component-type-helpers@3.2.5:
     resolution: {integrity: sha512-tkvNr+bU8+xD/onAThIe7CHFvOJ/BO6XCOrxMzeytJq40nTfpGDJuVjyCM8ccGZKfAbGk2YfuZyDMXM56qheZQ==}
 
@@ -19862,12 +19852,6 @@ snapshots:
       ajv: 8.17.1
       ajv-formats: 2.1.1(ajv@8.17.1)
       fast-uri: 2.4.0
-
-  '@fastify/ajv-compiler@4.0.2':
-    dependencies:
-      ajv: 8.17.1
-      ajv-formats: 3.0.1(ajv@8.17.1)
-      fast-uri: 3.0.1
 
   '@fastify/ajv-compiler@4.0.5':
     dependencies:
@@ -26135,24 +26119,6 @@ snapshots:
       semver: 7.7.3
       toad-cache: 3.7.0
 
-  fastify@5.6.2:
-    dependencies:
-      '@fastify/ajv-compiler': 4.0.2
-      '@fastify/error': 4.2.0
-      '@fastify/fast-json-stringify-compiler': 5.0.3
-      '@fastify/proxy-addr': 5.0.0
-      abstract-logging: 2.0.1
-      avvio: 9.1.0
-      fast-json-stringify: 6.0.1
-      find-my-way: 9.3.0
-      light-my-request: 6.6.0
-      pino: 10.1.0
-      process-warning: 5.0.0
-      rfdc: 1.4.1
-      secure-json-parse: 4.0.0
-      semver: 7.7.3
-      toad-cache: 3.7.0
-
   fastify@5.7.4:
     dependencies:
       '@fastify/ajv-compiler': 4.0.5
@@ -26283,12 +26249,6 @@ snapshots:
       fast-deep-equal: 3.1.3
       fast-querystring: 1.1.2
       safe-regex2: 3.1.0
-
-  find-my-way@9.3.0:
-    dependencies:
-      fast-deep-equal: 3.1.3
-      fast-querystring: 1.1.2
-      safe-regex2: 5.0.0
 
   find-my-way@9.4.0:
     dependencies:
@@ -33905,8 +33865,6 @@ snapshots:
   vue-component-type-helpers@2.0.21: {}
 
   vue-component-type-helpers@2.2.10: {}
-
-  vue-component-type-helpers@3.2.4: {}
 
   vue-component-type-helpers@3.2.5: {}
 
