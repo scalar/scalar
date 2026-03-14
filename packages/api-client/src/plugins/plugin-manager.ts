@@ -4,6 +4,8 @@ import type { z } from 'zod'
 export type { ApiClientPlugin }
 
 type HookFunctions = z.infer<typeof hooksSchema>
+type HookEvent = keyof HookFunctions
+type HookHandler<E extends HookEvent> = NonNullable<HookFunctions[E]>
 
 type CreatePluginManagerParams = {
   plugins?: ApiClientPlugin[]
@@ -34,21 +36,16 @@ export const createPluginManager = ({ plugins = [] }: CreatePluginManagerParams)
     /**
      * Execute a hook for a specific event
      */
-    executeHook: <E extends keyof HookFunctions>(
+    executeHook: <E extends HookEvent>(
       event: E,
-      ...args: HookFunctions[E] extends z.ZodFunction<infer Args, any> ? z.infer<Args> : any
+      ...args: Parameters<HookHandler<E>>
     ) => {
-      const hooks = Array.from(registeredPlugins.values()).flatMap(
-        (plugin) => plugin.hooks?.[event as keyof typeof plugin.hooks] || [],
-      )
+      const hooks = Array.from(registeredPlugins.values())
+        .map((plugin) => plugin.hooks?.[event])
+        .filter((hook): hook is HookHandler<E> => hook != null)
 
       // Execute each hook with the provided arguments
-      return Promise.all(
-        hooks
-          .filter((hook) => hook != null)
-          // @ts-expect-error I don't know how to properly type this
-          .map((hook) => (hook as HookFunctions[E])?.(...args)),
-      )
+      return Promise.all(hooks.map((hook) => hook(...args)))
     },
   }
 }
