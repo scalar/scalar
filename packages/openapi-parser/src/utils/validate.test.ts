@@ -85,4 +85,50 @@ paths: {}
       }),
     ).rejects.toThrowError("Can't find JSON, YAML or filename in data")
   })
+
+  it('returns an error for unused path parameters in OpenAPI 3.1 documents', async () => {
+    const result = await validate({
+      openapi: '3.1.0',
+      info: {
+        title: 'Hello World',
+        version: '1.0.0',
+      },
+      paths: {
+        '/pets/{petId}': {
+          get: {
+            parameters: [
+              {
+                name: 'petId',
+                in: 'path',
+                required: true,
+                schema: {
+                  type: 'string',
+                },
+              },
+              {
+                name: 'testId',
+                in: 'path',
+                required: true,
+                schema: {
+                  type: 'string',
+                },
+              },
+            ],
+            responses: {
+              200: {
+                description: 'OK',
+              },
+            },
+          },
+        },
+      },
+    })
+
+    expect(result.valid).toBe(false)
+    expect(result.errors).toContainEqual(
+      expect.objectContaining({
+        message: 'Path parameter "testId" must have the corresponding {testId} segment in the "/pets/{petId}" path',
+      }),
+    )
+  })
 })
