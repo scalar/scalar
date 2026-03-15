@@ -105,7 +105,7 @@ const headingId = useId()
       <!-- The collapsible content panel. -->
       <DisclosurePanel
         v-bind="$attrs"
-        class="diclosure-panel h-full max-h-fit rounded-b">
+        class="diclosure-panel min-h-0 flex-1 rounded-b">
         <slot :open="open" />
       </DisclosurePanel>
     </section>

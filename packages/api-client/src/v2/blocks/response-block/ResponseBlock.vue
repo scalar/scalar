@@ -12,7 +12,6 @@ import type { ClientLayout } from '@/hooks'
 import Headers from '@/v2/blocks/response-block/components/Headers.vue'
 import ResponseBody from '@/v2/blocks/response-block/components/ResponseBody.vue'
 import ResponseBodyStreaming from '@/v2/blocks/response-block/components/ResponseBodyStreaming.vue'
-import ResponseBodyVirtual from '@/v2/blocks/response-block/components/ResponseBodyVirtual.vue'
 import ResponseCookies from '@/v2/blocks/response-block/components/ResponseCookies.vue'
 import ResponseEmpty from '@/v2/blocks/response-block/components/ResponseEmpty.vue'
 import ResponseLoadingOverlay from '@/v2/blocks/response-block/components/ResponseLoadingOverlay.vue'
@@ -150,10 +149,7 @@ defineExpose({
     </template>
     <div
       :id="filterIds.All"
-      class="custom-scroll response-section-content relative grid h-full justify-stretch"
-      :class="{
-        'content-start': response,
-      }"
+      class="custom-scroll response-section-content relative flex h-full min-h-0 flex-col"
       :role="activeFilter === 'All' && response ? 'tabpanel' : 'none'">
       <template v-if="!response">
         <ResponseEmpty
@@ -215,21 +211,12 @@ defineExpose({
             class="response-section-content-body"
             :reader="response.reader" />
 
-          <!-- Virtualized Text for massive responses -->
-          <ResponseBodyVirtual
-            v-else-if="shouldVirtualize && typeof response?.data === 'string'"
-            :id="filterIds.Body"
-            :content="response!.data"
-            :data="response?.data"
-            :headers="responseHeaders"
-            :role="activeFilter === 'All' ? 'none' : 'tabpanel'" />
-
           <!-- Regular response body -->
           <ResponseBody
             v-else
             :id="filterIds.Body"
             :active="true"
-            class="response-section-content-body"
+            class="response-section-content-body min-h-0 flex-1"
             :data="response?.data"
             :headers="responseHeaders"
             layout="client"
