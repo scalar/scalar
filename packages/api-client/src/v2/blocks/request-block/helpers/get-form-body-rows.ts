@@ -37,12 +37,9 @@ export const getFormBodyRows = (
     if (!schemaWithProperties || !name) {
       return row
     }
-    const propSchema = schemaWithProperties.properties?.[name]
-    if (!propSchema) {
-      return row
-    }
-    row.schema = resolve.schema(propSchema)
-    row.description = propSchema.description
+    const propSchema = resolve.schema(schemaWithProperties.properties?.[name])
+    row.schema = propSchema
+    row.description = propSchema?.description
     row.isRequired = requiredSet?.has(name)
     row.isDisabled = isDisabled
     return row
