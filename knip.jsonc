@@ -4,7 +4,6 @@
     // Allows a progressive adoption
     "examples/nestjs/**",
     "examples/nextjs-api-reference/**",
-    "examples/nuxt/**",
     "examples/react/**",
     "examples/react-webpack/**",
     "examples/ssg/**",
