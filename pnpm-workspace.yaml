@@ -108,7 +108,8 @@ ignoredBuiltDependencies:
   - vue-demi
   - workerd
 
-minimumReleaseAge: 10080
+# Do not lower this value; add popular packages to minimumReleaseAgeExclude or wait before updating.
+minimumReleaseAge: 7200
 
 minimumReleaseAgeExclude:
   - '@astrojs/*'
