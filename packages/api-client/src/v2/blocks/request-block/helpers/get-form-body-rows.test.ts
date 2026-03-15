@@ -212,7 +212,7 @@ describe('getFormBodyRows', () => {
 
       expect(result[1].schema).toBeUndefined()
       expect(result[1].description).toBeUndefined()
-      expect(result[1].isRequired).toBeUndefined()
+      expect(result[1].isRequired).toBe(false)
     })
 
     it('enriches rows from object value when formBodySchema is provided', () => {
