@@ -44,11 +44,10 @@ onBeforeUnmount(() => {
 })
 </script>
 <template>
-  <div class="relative">
+  <div class="relative grid h-[60svh]">
     <div
       :id
-      ref="monacoEditorRef"
-      class="min-h-0 min-w-0 flex-1" />
+      ref="monacoEditorRef" />
     <ScalarCodeBlockCopy
       v-if="editor"
       :aria-controls="id"
