@@ -26,16 +26,27 @@ describe('should-display-description', () => {
       expect(shouldDisplayDescription(schema)).toBe('Schema description')
     })
 
-    it('returns null when schema has properties', () => {
+    it('returns schema description when schema has properties', () => {
       const schema = {
         type: 'object',
         properties: {
           name: { type: 'string' },
         },
-        description: 'Should not show',
+        description: 'Should show',
       } as SchemaObject
 
-      expect(shouldDisplayDescription(schema, 'Also should not show')).toBeNull()
+      expect(shouldDisplayDescription(schema)).toBe('Should show')
+    })
+
+    it('returns prop description when schema has additionalProperties', () => {
+      const schema = {
+        type: 'object',
+        additionalProperties: {
+          type: 'string',
+        },
+      } as SchemaObject
+
+      expect(shouldDisplayDescription(schema, 'Custom description')).toBe('Custom description')
     })
 
     it('returns null when schema has allOf composition', () => {
