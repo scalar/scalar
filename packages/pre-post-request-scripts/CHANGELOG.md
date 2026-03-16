@@ -1,5 +1,18 @@
 # @scalar/scripts
 
+## 0.3.9
+
+### Patch Changes
+
+- [#8463](https://github.com/scalar/scalar/pull/8463): chore: allow publishing package to registry
+
+#### Updated Dependencies
+
+- **@scalar/components@0.20.9**
+  - [#8453](https://github.com/scalar/scalar/pull/8453): refactor: remove @ts-expect-error from ScalarTextArea
+
+- **@scalar/oas-utils@0.10.8**
+
 ## 0.3.8
 
 ### Patch Changes

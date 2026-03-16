@@ -1,5 +1,11 @@
 # @scalar/openapi-parser
 
+## 0.25.4
+
+### Patch Changes
+
+- [#8448](https://github.com/scalar/scalar/pull/8448): fix parser validation for unused path parameters
+
 ## 0.25.3
 
 ### Patch Changes

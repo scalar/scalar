@@ -1,5 +1,15 @@
 # @scalar/mock-server-docker
 
+## 0.2.9
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/mock-server@0.9.9**
+
+- **@scalar/hono-api-reference@0.10.3**
+
 ## 0.2.8
 
 ### Patch Changes

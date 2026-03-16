@@ -1,5 +1,14 @@
 # @scalar/fastify-api-reference
 
+## 1.49.0
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/openapi-parser@0.25.4**
+  - [#8448](https://github.com/scalar/scalar/pull/8448): fix parser validation for unused path parameters
+
 ## 1.48.8
 
 ## 1.48.7

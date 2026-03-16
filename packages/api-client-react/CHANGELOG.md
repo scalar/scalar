@@ -1,5 +1,15 @@
 # @scalar/api-client-react
 
+## 1.4.10
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-client@2.38.1**
+  - [#8468](https://github.com/scalar/scalar/pull/8468): fix: example extraction, environment navigation and general UI fixes
+  - [#8451](https://github.com/scalar/scalar/pull/8451): fix(api-client): default-close auth when not required
+
 ## 1.4.9
 
 ### Patch Changes
