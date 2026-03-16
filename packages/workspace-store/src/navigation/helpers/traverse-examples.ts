@@ -42,22 +42,5 @@ export const traverseOperationExamples = (operation: OperationObject) => {
     })
   }
 
-  // Add all examples from responses
-  if (operation.responses) {
-    Object.values(operation.responses).forEach((response) => {
-      const resolvedResponse = getResolvedRef(response) ?? {}
-
-      if ('content' in resolvedResponse && resolvedResponse.content) {
-        Object.values(resolvedResponse.content ?? {}).forEach((mediaType) => {
-          Object.keys(mediaType.examples ?? {}).forEach((key) => {
-            examples.add(key)
-          })
-        })
-      }
-
-      // TODO: handle headers?
-    })
-  }
-
   return Array.from(examples)
 }

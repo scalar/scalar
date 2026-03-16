@@ -23,7 +23,7 @@ const slots = defineSlots<{
 
         <p
           v-if="slots.description"
-          class="text-c-2 mb-4 text-sm">
+          class="text-c-2 mb-4 text-sm leading-tight">
           <slot name="description" />
         </p>
       </div>
