@@ -2,4 +2,4 @@
 
 import { executeCommands } from './utils/utils.js'
 
-executeCommands(['biome format --write', 'oxfmt --ignore-path ../../.prettierignore'], 'formatting')
+executeCommands(['biome format --write', 'oxfmt'], 'formatting')
