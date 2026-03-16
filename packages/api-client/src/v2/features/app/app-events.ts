@@ -90,6 +90,9 @@ export function initializeAppEventHandlers({
         onBeforeExecute: (payload) => ({
           ...payload,
           callback: async (status) => {
+            // Rebuild the sidebar with the updated order
+            rebuildSidebar(store.value?.workspace.activeDocument?.['x-scalar-navigation']?.name)
+
             // Redirect to the new example if the mutation was successful
             if (status === 'success') {
               await router.replace({
@@ -100,9 +103,6 @@ export function initializeAppEventHandlers({
                   exampleName: currentRoute.value?.params.exampleName,
                 },
               })
-
-              // Rebuild the sidebar with the updated order
-              rebuildSidebar(store.value?.workspace.activeDocument?.['x-scalar-navigation']?.name)
             }
             payload.callback(status)
           },
