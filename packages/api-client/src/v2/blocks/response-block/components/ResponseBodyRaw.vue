@@ -56,20 +56,3 @@ onBeforeUnmount(() => {
       :content="editor?.getValue() ?? ''" />
   </div>
 </template>
-<style scoped>
-:deep(.cm-editor) {
-  background-color: transparent;
-  font-size: var(--scalar-small);
-  outline: none;
-}
-
-:deep(.cm-gutters) {
-  background-color: var(--scalar-background-1);
-  border-radius: var(--scalar-radius) 0 0 var(--scalar-radius);
-}
-
-.body-raw :deep(.cm-scroller) {
-  overflow: auto;
-  min-width: 100%;
-}
-</style>
