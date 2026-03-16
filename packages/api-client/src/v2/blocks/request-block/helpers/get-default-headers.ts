@@ -82,7 +82,8 @@ export const getDefaultHeaders = ({
   const requestBody = getResolvedRef(operation.requestBody)
 
   // Add Content-Type header only for methods that support a request body
-  if (canMethodHaveBody(method)) {
+  // and only when the operation actually defines a request body
+  if (canMethodHaveBody(method) && requestBody) {
     const contentType =
       requestBody?.['x-scalar-selected-content-type']?.[exampleKey] ??
       Object.keys(requestBody?.content ?? {})[0] ??
