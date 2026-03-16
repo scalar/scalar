@@ -167,11 +167,9 @@ jobs:
           cache-dependency-path: 'package.json'
       # Install only root dependencies
       - name: Install dev dependencies
-        run: pnpm install --filter .
-      - name: Lint code
-        run: pnpm lint:check
+        run: vp install --filter .
       - name: Check formatting
-        run: pnpm format:check
+        run: vp check
 
   lint-icons:
     if: needs.check-changes.outputs.icons_changed == 'true'
@@ -189,7 +187,7 @@ jobs:
           node-version-file: '.nvmrc'
           cache: 'pnpm'
       - name: Install dependencies
-        run: pnpm install
+        run: vp install
       - name: Lint Component Library Icons
         run: pnpm --filter components lint:icons
       - name: Lint Icon Library Icons
@@ -204,7 +202,7 @@ jobs:
       - name: Setup Node
         uses: ./.github/actions/setup-node
       - name: Install dependencies
-        run: pnpm install
+        run: vp install
       - name: Check types
         run: pnpm turbo ${{ env.TURBO_FLAGS }} types:check
 
