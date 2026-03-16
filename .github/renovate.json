@@ -1,6 +1,10 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": ["config:recommended", ":dependencyDashboardApproval", "helpers:pinGitHubActionDigests"],
+  "extends": [
+    "config:recommended",
+    ":dependencyDashboardApproval",
+    "helpers:pinGitHubActionDigests"
+  ],
   "prConcurrentLimit": 0,
   "prHourlyLimit": 0,
   "labels": ["dependencies"],
@@ -302,7 +306,10 @@
     },
     {
       "description": "Integrations - Next.js",
-      "matchFileNames": ["integrations/nextjs/**", "examples/nextjs-api-reference/**"],
+      "matchFileNames": [
+        "integrations/nextjs/**",
+        "examples/nextjs-api-reference/**"
+      ],
       "additionalBranchPrefix": "nextjs"
     },
     {
@@ -376,7 +383,10 @@
     {
       "description": "Keep these packages as low as possible for best compatibility",
       "matchFileNames": ["**/Scalar.AspNetCore.*.csproj"],
-      "matchPackageNames": ["Microsoft.AspNetCore.OpenApi", "Swashbuckle.AspNetCore.SwaggerGen"],
+      "matchPackageNames": [
+        "Microsoft.AspNetCore.OpenApi",
+        "Swashbuckle.AspNetCore.SwaggerGen"
+      ],
       "enabled": false
     },
 

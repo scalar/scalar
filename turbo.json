@@ -5,7 +5,15 @@
   "tasks": {
     "lint:fix": {},
     "build": {
-      "outputs": ["dist/**", "storybook-static/**", ".output", ".nuxt", ".next", "build", "target/**"],
+      "outputs": [
+        "dist/**",
+        "storybook-static/**",
+        ".output",
+        ".nuxt",
+        ".next",
+        "build",
+        "target/**"
+      ],
       "dependsOn": ["^build"]
     },
     "types:check": {

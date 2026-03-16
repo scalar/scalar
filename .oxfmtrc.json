@@ -9,7 +9,15 @@
   "singleAttributePerLine": true,
   "bracketSameLine": true,
   "endOfLine": "lf",
-  "importOrder": ["<BUILTIN_MODULES>", "", "<THIRD_PARTY_MODULES>", "", "^@/(.*)$", "", "^[./]"],
+  "importOrder": [
+    "<BUILTIN_MODULES>",
+    "",
+    "<THIRD_PARTY_MODULES>",
+    "",
+    "^@/(.*)$",
+    "",
+    "^[./]",
+  ],
   "importOrderParserPlugins": ["typescript"],
   "importOrderTypeScriptVersion": "5.2.2",
   "printWidth": 80,
@@ -18,9 +26,7 @@
     "*.js",
     "*.ts",
     "*.tsx",
-    "*.json",
     "!package.json",
-    "*.jsonc",
     "*.mov",
     "*.cjs",
     ".git",
@@ -29,7 +35,6 @@
     "**/.next/**",
     "**/.turbo/**",
     "**/dist/**",
-    "**/.vscode/**",
     "**/.output/**",
     "**/.docusaurus/**",
     "**/obj/**",
@@ -40,7 +45,6 @@
     "fixtures",
     "node_modules",
     "playwright-report",
-    "scalar.config.json",
     "pnpm-lock.yaml",
     "cdn",
     "cloudbuild.json",
@@ -50,6 +54,14 @@
     "integrations/docker/assets/**",
     "integrations/nuxt/src/runtime/plugins/hydrateClient.d.mts",
     "packages/components/storybook-static/**/*",
-    "packages/openapi-parser/tests/**/*.yaml"
-  ]
+    "packages/openapi-parser/tests/**/*.yaml",
+  ],
+  "overrides": [
+    {
+      "files": ["**/*.json"],
+      "options": {
+        "trailingComma": "none",
+      },
+    },
+  ],
 }

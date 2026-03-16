@@ -14,13 +14,13 @@
     "**/storybook-static": true
   },
   "[json]": {
-    "editor.defaultFormatter": "biomejs.biome",
+    "editor.defaultFormatter": "oxc.oxc-vscode",
     "editor.codeActionsOnSave": {
       "source.fixAll.biome": "always"
     }
   },
   "[jsonc]": {
-    "editor.defaultFormatter": "biomejs.biome",
+    "editor.defaultFormatter": "oxc.oxc-vscode",
     "editor.codeActionsOnSave": {
       "source.fixAll.biome": "always"
     }
@@ -29,6 +29,9 @@
     "editor.defaultFormatter": "oxc.oxc-vscode"
   },
   "[markdown]": {
+    "editor.defaultFormatter": "oxc.oxc-vscode"
+  },
+  "[mdx]": {
     "editor.defaultFormatter": "oxc.oxc-vscode"
   },
   "[css]": {

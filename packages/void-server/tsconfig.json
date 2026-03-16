@@ -6,5 +6,11 @@
       "@test/*": ["./test/*"]
     }
   },
-  "include": ["src/**/*.ts", "playground/**/*.ts", "test/**/*.ts", "esbuild.ts", "vite.config.ts"]
+  "include": [
+    "src/**/*.ts",
+    "playground/**/*.ts",
+    "test/**/*.ts",
+    "esbuild.ts",
+    "vite.config.ts"
+  ]
 }
