@@ -41,7 +41,7 @@ const mediaConfig = computed(() =>
 </script>
 <template>
   <CollapsibleSection
-    class="flex min-h-0 flex-1 flex-col overflow-hidden"
+    class="max-h-content overflow-y-hidden"
     :isStatic="layout === 'reference'">
     <template #title>{{ title }}</template>
     <template
@@ -54,7 +54,7 @@ const mediaConfig = computed(() =>
     </template>
     <div
       v-if="data"
-      class="bg-b-1 flex min-h-0 flex-1 flex-col overflow-hidden">
+      class="bg-b-1 flex max-h-[calc(100%-32px)] flex-col overflow-hidden">
       <div
         class="box-content flex min-h-8 items-center justify-between border-y px-3">
         <span class="text-xxs font-code leading-5">
@@ -67,9 +67,8 @@ const mediaConfig = computed(() =>
       <ResponseBodyRaw
         v-if="mediaConfig?.raw && showRaw"
         :key="responseBody.dataUrl"
-        class="min-h-0 flex-1"
         :content="data"
-        :language="mediaConfig?.language" />
+        :language="mediaConfig.language" />
       <ResponseBodyPreview
         v-if="mediaConfig?.preview && showPreview"
         :key="responseBody.dataUrl"

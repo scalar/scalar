@@ -149,7 +149,10 @@ defineExpose({
     </template>
     <div
       :id="filterIds.All"
-      class="custom-scroll response-section-content relative flex h-full min-h-0 flex-col"
+      class="custom-scroll response-section-content relative grid h-full justify-stretch"
+      :class="{
+        'content-start': response,
+      }"
       :role="activeFilter === 'All' && response ? 'tabpanel' : 'none'">
       <template v-if="!response">
         <ResponseEmpty
@@ -216,7 +219,7 @@ defineExpose({
             v-else
             :id="filterIds.Body"
             :active="true"
-            class="response-section-content-body min-h-0 flex-1"
+            class="response-section-content-body"
             :data="response?.data"
             :headers="responseHeaders"
             layout="client"

@@ -52,7 +52,7 @@ onBeforeUnmount(() => {
     <ScalarCodeBlockCopy
       v-if="editor"
       :aria-controls="id"
-      class="absolute top-2 right-2"
+      class="absolute top-2 right-4 opacity-100"
       :content="editor?.getValue() ?? ''" />
   </div>
 </template>
