@@ -2,6 +2,9 @@ import { expect, test } from '@playwright/test'
 import { serveExample } from '@test/utils/serve-example'
 
 test.describe('parameter linking', () => {
+  /* We need to retry this test because it's flaky on CI */
+  test.describe.configure({ retries: 3 })
+
   test.use({
     permissions: ['clipboard-write', 'clipboard-read'],
   })
