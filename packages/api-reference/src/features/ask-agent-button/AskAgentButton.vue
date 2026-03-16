@@ -23,6 +23,7 @@ function handleSubmit() {
     <input
       v-model="message"
       class="ask-agent-scalar-input"
+      :class="{ 'ask-agent-scalar-input-not-empty': message.length > 0 }"
       placeholder="Ask AI Agent"
       @keydown.enter.stop="handleSubmit()" />
     <button
@@ -37,7 +38,6 @@ function handleSubmit() {
 </template>
 <style scoped>
 .ask-agent-scalar-input {
-  all: initial;
   color: var(--scalar-color-1);
   appearance: none;
   border: none;
@@ -62,7 +62,7 @@ function handleSubmit() {
   width: 100% !important;
   max-width: calc(100% - 50px);
 }
-.ask-agent-scalar-input:not(:placeholder-shown) {
+.ask-agent-scalar-input-not-empty {
   width: 100% !important;
   height: 100%;
   field-sizing: border-box;
@@ -92,7 +92,7 @@ function handleSubmit() {
 .agent-button-container:hover:not(:focus-within) {
   background: color-mix(in srgb, var(--scalar-background-3), white 20%);
 }
-.agent-button-container:has(.ask-agent-scalar-input:not(:placeholder-shown)),
+.agent-button-container:has(.ask-agent-scalar-input-not-empty),
 .agent-button-container:focus-within {
   width: calc(100% - 4px);
   height: calc(100% - 4px);
@@ -121,7 +121,7 @@ function handleSubmit() {
     transparent 10%
   ) !important;
 }
-.agent-button-container:has(.ask-agent-scalar-input:not(:placeholder-shown))
+.agent-button-container:has(.ask-agent-scalar-input-not-empty)
   .ask-agent-scalar-send {
   display: flex;
 }
