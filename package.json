@@ -51,7 +51,7 @@
     "clean": "shx rm -rf \"**/dist\" \"**/.turbo\" \"**/.nuxt\" \"**/.next\" \"**/target\" \"**/node_modules\"",
     "clean:build": "pnpm clean && pnpm install && pnpm build:packages",
     "dev:docs": "npx @scalar/cli@latest project preview",
-    "format:check": "pnpm oxfmt --check && biome format",
+    "format:check": "oxfmt --check && biome format",
     "format": "oxfmt && biome format --write",
     "lint:check": "biome lint --diagnostic-level=error",
     "lint:vue": "pnpm eslint '**/*.vue'",
