@@ -15,8 +15,6 @@
   "printWidth": 80,
   "sortPackageJson": false,
   "ignorePatterns": [
-    "*.css",
-    "*.scss",
     "*.js",
     "*.ts",
     "*.tsx",
@@ -25,8 +23,6 @@
     "*.jsonc",
     "*.mov",
     "*.cjs",
-    "*.md",
-    "*.mdx",
     ".git",
     ".venv",
     "**/.nuxt/**",
