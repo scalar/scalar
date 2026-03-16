@@ -2,6 +2,7 @@
 import {
   ScalarMenu,
   ScalarMenuLink,
+  ScalarMenuProducts,
   ScalarMenuResources,
   ScalarMenuSection,
   ScalarMenuSupport,
@@ -41,7 +42,7 @@ defineSlots<{
   <!-- Desktop app menu -->
   <ScalarMenu>
     <template #products>
-      <!-- <AppHeaderProducts /> -->
+      <ScalarMenuProducts selected="client" />
     </template>
     <template #sections="{ close }">
       <ScalarMenuSection>
