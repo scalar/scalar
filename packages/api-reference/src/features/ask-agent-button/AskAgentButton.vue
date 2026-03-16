@@ -1,12 +1,18 @@
 <script setup lang="ts">
 import { ScalarIconArrowUp, ScalarIconSparkle } from '@scalar/icons'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 
 import { useAgentContext } from '@/hooks/use-agent'
 
 const agentContext = useAgentContext()
 
 const message = ref('')
+const isInputFocused = ref(false)
+
+const isButtonContainerActive = computed(
+  () => isInputFocused.value || message.value.length > 0,
+)
+const isSendButtonVisible = computed(() => message.value.length > 0)
 
 function handleSubmit() {
   agentContext.value?.openAgent(message.value)
@@ -16,6 +22,9 @@ function handleSubmit() {
 <template>
   <div
     v-if="agentContext?.agentEnabled.value"
+    :class="{
+      'agent-button-container--active': isButtonContainerActive,
+    }"
     class="agent-button-container flex">
     <ScalarIconSparkle
       class="size-3 shrink-0"
@@ -24,8 +33,11 @@ function handleSubmit() {
       v-model="message"
       class="ask-agent-scalar-input"
       placeholder="Ask AI Agent"
+      @blur="isInputFocused = false"
+      @focus="isInputFocused = true"
       @keydown.enter.stop="handleSubmit()" />
     <button
+      :class="{ 'ask-agent-scalar-send--visible': isSendButtonVisible }"
       class="ask-agent-scalar-send"
       type="button"
       @click="handleSubmit()">
@@ -89,11 +101,10 @@ function handleSubmit() {
   z-index: 2;
   height: 100%;
 }
-.agent-button-container:hover:not(:focus-within) {
+.agent-button-container:hover:not(.agent-button-container--active) {
   background: color-mix(in srgb, var(--scalar-background-3), white 20%);
 }
-.agent-button-container:has(.ask-agent-scalar-input:not(:placeholder-shown)),
-.agent-button-container:focus-within {
+.agent-button-container.agent-button-container--active {
   width: calc(100% - 4px);
   height: calc(100% - 4px);
   position: absolute;
@@ -121,8 +132,7 @@ function handleSubmit() {
     transparent 10%
   ) !important;
 }
-.agent-button-container:has(.ask-agent-scalar-input:not(:placeholder-shown))
-  .ask-agent-scalar-send {
+.ask-agent-scalar-send--visible {
   display: flex;
 }
 </style>
