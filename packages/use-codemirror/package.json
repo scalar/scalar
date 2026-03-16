@@ -21,13 +21,10 @@
     "node": ">=22"
   },
   "scripts": {
-    "build": "scalar-build-esbuild",
+    "build": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
     "dev": "vite .",
-    "lint:check": "scalar-lint-check",
-    "lint:fix": "scalar-lint-fix",
     "test": "vitest",
-    "types:build": "scalar-types-build",
-    "types:check": "scalar-types-check-vue"
+    "types:check": "tsc --noEmit"
   },
   "type": "module",
   "main": "dist/index.js",
@@ -67,7 +64,6 @@
     "vue": "catalog:*"
   },
   "devDependencies": {
-    "@scalar/build-tooling": "workspace:*",
     "@scalar/themes": "workspace:*",
     "@vitejs/plugin-vue": "catalog:*",
     "vite": "catalog:*",

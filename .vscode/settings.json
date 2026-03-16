@@ -20,7 +20,7 @@
     }
   },
   "[jsonc]": {
-    "editor.defaultFormatter": "biomejs.biome",
+    "editor.defaultFormatter": "vscode.json-language-features",
     "editor.codeActionsOnSave": {
       "source.fixAll.biome": "always"
     }

@@ -19,8 +19,8 @@
     "build:client": "vite build --outDir dist/client",
     "build:server": "vite build --ssr src/entry-server.ts --outDir dist/server",
     "check": "vue-tsc",
-    "dev": "vite-node server.ts",
-    "preview": "cross-env NODE_ENV=production vite-node server.ts"
+    "dev": "tsx server.ts",
+    "preview": "cross-env NODE_ENV=production tsx server.ts"
   },
   "type": "module",
   "dependencies": {

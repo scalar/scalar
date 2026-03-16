@@ -15,23 +15,19 @@
     "node": ">=22"
   },
   "scripts": {
-    "build": "pnpm typegen:icons && scalar-build-vite",
+    "build": "pnpm typegen:icons && vite build && vue-tsc -p tsconfig.build.json",
     "build:storybook": "storybook build",
     "clean:snapshots": "shx rm -rf \"**/snapshots\"",
     "dev": "storybook dev -p 5100 --ci",
-    "format": "scalar-format",
-    "format:check": "scalar-format-check",
-    "lint:check": "scalar-lint-check && pnpm lint:icons",
-    "lint:fix": "scalar-lint-fix",
+    "lint:check": "pnpm lint:icons",
     "lint:icons": "svglint src/components/ScalarIcon/icons/*.svg --config src/components/ScalarIcon/.svglintrc.js",
     "preview": "vite preview --outDir storybook-static -c test/vite.config.ts 1>&2",
     "test": "vitest",
     "test:e2e": "PW_TEST_CONNECT_WS_ENDPOINT=ws://127.0.0.1:5001/ playwright test",
     "test:e2e:ci": "CI=1 playwright test",
     "test:e2e:update": "pnpm test:e2e --update-snapshots",
-    "typegen:icons": "vite-node ./src/scripts/typegen.ts",
-    "types:build": "scalar-types-build-vue",
-    "types:check": "scalar-types-check-vue"
+    "typegen:icons": "tsx ./src/scripts/typegen.ts",
+    "types:check": "vue-tsc --noEmit"
   },
   "type": "module",
   "main": "./dist/index.cjs",
@@ -68,7 +64,6 @@
   "devDependencies": {
     "@headlessui/tailwindcss": "catalog:*",
     "@playwright/test": "catalog:*",
-    "@scalar/build-tooling": "workspace:*",
     "@storybook/addon-docs": "10.1.11",
     "@storybook/addon-links": "10.1.11",
     "@storybook/vue3-vite": "10.1.11",

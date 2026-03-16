@@ -1,4 +1,4 @@
-import { URL, fileURLToPath } from 'node:url'
+import { resolve } from 'node:path'
 
 import tailwindcss from '@tailwindcss/vite'
 import vue from '@vitejs/plugin-vue'
@@ -23,8 +23,8 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      '@': fileURLToPath(new URL('./src', import.meta.url)),
-      '@test': fileURLToPath(new URL('./test', import.meta.url)),
+      '@': resolve(import.meta.dirname, './src'),
+      '@test': resolve(import.meta.dirname, './test'),
     },
     dedupe: ['vue'],
   },
@@ -65,7 +65,7 @@ export default defineConfig({
       name: '@scalar/api-reference',
       formats: ['umd'],
     },
-    rollupOptions: {
+    rolldownOptions: {
       output: {
         entryFileNames: '[name].js',
       },
