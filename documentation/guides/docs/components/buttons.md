@@ -5,25 +5,21 @@ Buttons are interactive elements that create clickable links to external resourc
 ## Properties
 
 ### title
-
 `string` _required_
 
 The text displayed on the button. This is the primary label that users will see and click on.
 
 ### href
-
 `string` _required_
 
 The URL that the button links to. When clicked, this will open in a new tab with proper security attributes (`rel="noopener noreferrer"`).
 
 ### icon
-
 `string` _optional_
 
 An icon to display alongside the button text. Can be either a path to a local Scalar icon or a URL to an external icon. If not provided, the button will display only text.
 
 ### icon-dark
-
 `string` _optional_
 
 An icon to display alongside the button text in dark mode. If not provided, the specified `icon` will be shown in both modes.
@@ -46,7 +42,6 @@ An icon to display alongside the button text in dark mode. If not provided, the 
   href="https://docs.scalar.com">
 </scalar-button>
 ```
-
 </scalar-tab>
 
 <scalar-tab title="Directive">
@@ -56,9 +51,9 @@ An icon to display alongside the button text in dark mode. If not provided, the 
 ```markdown
 ::scalar-button{title="View Documentation" href="https://docs.scalar.com"}
 ```
-
 </scalar-tab>
 </scalar-tabs>
+
 
 ### Button with Icon
 
@@ -77,7 +72,6 @@ An icon to display alongside the button text in dark mode. If not provided, the 
   icon="phosphor/regular/house">
 </scalar-button>
 ```
-
 </scalar-tab>
 
 <scalar-tab title="Directive">
@@ -87,7 +81,6 @@ An icon to display alongside the button text in dark mode. If not provided, the 
 ```markdown
 ::scalar-button{ title="Download SDK" href="https://github.com/scalar/scalar" icon="phosphor/regular/house"}
 ```
-
 </scalar-tab>
 </scalar-tabs>
 
@@ -110,7 +103,6 @@ An icon to display alongside the button text in dark mode. If not provided, the 
   icon-dark="https://cdn.scalar.com/images/logo-dark.svg">
 </scalar-button>
 ```
-
 </scalar-tab>
 
 <scalar-tab title="Directive">
@@ -120,6 +112,5 @@ An icon to display alongside the button text in dark mode. If not provided, the 
 ```markdown
 ::scalar-button{ title="Visit Website" href="https://scalar.com" icon="https://cdn.scalar.com/images/logo-light.svg" icon-dark="https://cdn.scalar.com/images/logo-dark.svg"}
 ```
-
 </scalar-tab>
 </scalar-tabs>

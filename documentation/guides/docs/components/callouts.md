@@ -5,20 +5,20 @@ Callouts are highlighted boxes that make important information stand out. They'r
 ## Properties
 
 ### type
-
-`CalloutType` _required_
+`CalloutType` *required*
 
 The type of callout: `neutral`, `success`, `danger`, `warning` or `info`
 
-### icon
 
-`string` _optional_
+### icon
+`string` *optional*
 
 A custom icon to display in the callout. Uses Scalar icon format. If not provided, the component will use the default icon for the specified callout type.
 
 ## Examples
 
 ### Basic Callout
+
 
 <scalar-tabs>
 <scalar-tab title="Custom HTML">
@@ -28,7 +28,6 @@ A custom icon to display in the callout. Uses Scalar icon format. If not provide
 ```html
 <scalar-callout type="info"> This is an informational message. </scalar-callout>
 ```
-
 </scalar-tab>
 
 <scalar-tab title="Directive">
@@ -42,7 +41,6 @@ This is an informational message.
 This is an informational message.
 :::
 ```
-
 </scalar-tab>
 </scalar-tabs>
 
@@ -54,7 +52,7 @@ This is an informational message.
 <scalar-callout
   type="success"
   icon="check-circle">
-Operation completed successfully!
+  Operation completed successfully!
 </scalar-callout>
 
 ```html
@@ -64,7 +62,6 @@ Operation completed successfully!
   Operation completed successfully!
 </scalar-callout>
 ```
-
 </scalar-tab>
 
 <scalar-tab title="Directive">

@@ -167,6 +167,7 @@ These do not collapse when clicked.
 
 ### Nested
 
+
 <scalar-tabs>
 <scalar-tab title="Custom HTML">
 <scalar-detail title="Nested, Outer" >

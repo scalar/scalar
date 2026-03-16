@@ -4,7 +4,7 @@ Row displays its children in a horizontal layout with consistent spacing. It's u
 
 ## Properties
 
-_(None)_  
+*(None)*  
 This component does not accept any attributes.
 
 ## Examples
@@ -75,6 +75,6 @@ Card with title, body, and icon.
 :::
 ::::
 ```
-
 </scalar-tab>
 </scalar-tabs>
+

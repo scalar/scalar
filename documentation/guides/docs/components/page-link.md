@@ -5,18 +5,15 @@ Page Link creates a styled link to another guide page. It includes a title and o
 ## Properties
 
 ### filepath
-
-`string` _required_
+`string` *required*
 Relative path to the destination page. Paths a relative to the root (by default the config).
 
 ### title
-
-`string` _optional_
+`string` *optional*
 The title shown in the link. Defaults to `"Link to Page"`.
 
 ### description
-
-`string` _optional_
+`string` *optional*
 Secondary text shown below the title. Defaults to `"Link to a page in the guide"`.
 
 ## Examples
@@ -46,6 +43,7 @@ Secondary text shown below the title. Defaults to `"Link to a page in the guide"
 
 </scalar-tab>
 </scalar-tabs>
+
 
 ### Link with Path and Title
 
@@ -98,3 +96,4 @@ Secondary text shown below the title. Defaults to `"Link to a page in the guide"
 
 </scalar-tab>
 </scalar-tabs>
+

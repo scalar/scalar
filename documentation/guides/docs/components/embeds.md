@@ -5,7 +5,6 @@ Embeds allow you to include external content from various platforms directly in 
 ## Properties
 
 ### src
-
 `string` _required_
 
 The URL of the content to embed. The component automatically detects and optimizes URLs for supported platforms:
@@ -17,13 +16,11 @@ The URL of the content to embed. The component automatically detects and optimiz
 - **Other**: Generic iframe embedding with security attributes
 
 ### caption
-
 `string` _optional_
 
 A descriptive caption for the embedded content. This appears below the embed and provides context or explanation.
 
 ### alt
-
 `string` _optional_
 
 Alternative text for accessibility. This describes the embedded content for screen readers and other assistive technologies.
@@ -46,7 +43,6 @@ Alternative text for accessibility. This describes the embedded content for scre
   caption="Never Gonna Give You Up - Rick Astley">
 </scalar-embed>
 ```
-
 </scalar-tab>
 
 <scalar-tab title="Directive">
@@ -56,7 +52,6 @@ Alternative text for accessibility. This describes the embedded content for scre
 ```markdown
 ::scalar-embed{ src="https://www.youtube.com/watch?v=dQw4w9WgXcQ" caption="Never Gonna Give You Up - Rick Astley"}
 ```
-
 </scalar-tab>
 </scalar-tabs>
 
@@ -76,7 +71,6 @@ Alternative text for accessibility. This describes the embedded content for scre
   caption="Beautiful nature documentary">
 </scalar-embed>
 ```
-
 </scalar-tab>
 
 <scalar-tab title="Directive">
@@ -86,9 +80,9 @@ Alternative text for accessibility. This describes the embedded content for scre
 ```markdown
 ::scalar-embed{ src="https://www.youtube.com/watch?v=dQw4w9WgXcQ" caption="Beautiful nature documentary"}
 ```
-
 </scalar-tab>
 </scalar-tabs>
+
 
 ### Generic Iframe Content
 
@@ -108,7 +102,6 @@ Alternative text for accessibility. This describes the embedded content for scre
   alt="Interactive demonstration of the API">
 </scalar-embed>
 ```
-
 </scalar-tab>
 
 <scalar-tab title="Directive">
@@ -118,6 +111,5 @@ Alternative text for accessibility. This describes the embedded content for scre
 ```markdown
 ::scalar-embed{ src="https://en.wikipedia.org/wiki/Open_source" caption="Custom interactive content" alt="Interactive demonstration of the API"}
 ```
-
 </scalar-tab>
 </scalar-tabs>
