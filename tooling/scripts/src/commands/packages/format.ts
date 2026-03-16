@@ -3,7 +3,6 @@ import path from 'node:path'
 
 import as from 'ansis'
 import { Command } from 'commander'
-import prettier from 'prettier'
 
 import { getWorkspaceRoot } from '@/helpers'
 
@@ -29,22 +28,6 @@ export default command
 // ---------------------------------------------------------------------------
 
 type PackageType = 'packages' | 'integrations' | 'projects' | 'examples'
-
-async function formatJson(json: string) {
-  const filePath = `${getWorkspaceRoot()}/.prettierrc`
-  const options = await prettier.resolveConfig(filePath)
-
-  return prettier
-    .format(json, {
-      filepath: filePath,
-      ...options,
-      plugins: [],
-    })
-    .catch((err) => {
-      console.error(as.red('Formatting error: '), err.cause)
-      return json
-    })
-}
 
 /**
  * # Formatting script for package.json files
@@ -175,7 +158,7 @@ async function formatPackage(filepath: string) {
     return
   }
 
-  const formatted = await formatJson(JSON.stringify(formattedData, null, 2))
+  const formatted = JSON.stringify(formattedData, null, 2)
   await fs.writeFile(filepath, formatted).catch((err) => console.error(err))
 }
 
