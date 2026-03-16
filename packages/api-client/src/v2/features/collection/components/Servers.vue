@@ -76,6 +76,7 @@ const FORM_OPTIONS = [
     label: 'Description',
     key: 'description',
     placeholder: 'Production',
+    lineWrapping: true,
   },
 ]
 
