@@ -33,8 +33,8 @@ catalogs:
     '@nestjs/swagger': '^7.3.1'
     '@nestjs/testing': '^11.1.11'
     '@playwright/test': 1.56.0
-    '@scalar/typebox': 0.1.3
     '@scalar/agent-chat': 0.2.3
+    '@scalar/typebox': 0.1.3
     '@tailwindcss/vite': ^4.1.18
     '@types/express': 5.0.3
     '@types/jsdom': 27.0.0
@@ -53,6 +53,7 @@ catalogs:
     '@vueuse/integrations': 13.9.0
     'fastify-plugin': ^4.5.1
     'pretty-bytes': ^7.1.0
+    'vite-plugin-css-injected-by-js': '^4.0.1'
     ai: 6.0.33
     ansis: 4.1.0
     astro: 5.15.9
@@ -66,29 +67,29 @@ catalogs:
     fastify: ^5.3.3
     flatted: ^3.3.3
     fuse.js: ^7.1.0
-    hono: 4.12.4
     github-slugger: 2.0.0
+    hono: 4.12.4
     js-base64: ^3.7.8
     jsdom: 27.4.0
     microdiff: ^1.5.0
     monaco-editor: 0.54.0
     monaco-yaml: 5.2.3
     nanoid: ^5.1.6
-    next: ^15.5.10
     neverpanic: 0.0.5
+    next: ^15.5.10
     picomatch: ^4.0.2
     postcss: ^8.4.38
     react-dom: ^19.2.3
     react: ^19.2.3
+    rolldown: 1.0.0-rc.9
     semver: 7.7.2
     shx: ^0.4.0
     supertest: '7.2.2'
     tailwindcss: ^4.1.18
-    type-fest: ^5.3.1
     truncate-json: 3.0.1
+    type-fest: ^5.3.1
     vite-node: 5.2.0
     vite-ssg: 28.1.0
-    rolldown: 1.0.0-rc.9
     vite-svg-loader: 5.1.0
     vite: 8.0.0
     vitest: 4.0.16
