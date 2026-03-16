@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import { ScalarCodeBlockCopy } from '@scalar/components'
+import { prettyPrintJson } from '@scalar/oas-utils/helpers'
 import { type CodeMirrorLanguage } from '@scalar/use-codemirror'
 import * as monaco from 'monaco-editor'
 import { onBeforeUnmount, onMounted, ref, shallowRef, useId } from 'vue'
@@ -21,10 +22,16 @@ onMounted(() => {
   }
 
   editor.value = monaco.editor.create(monacoEditorRef.value, {
-    value: props.content,
+    value: prettyPrintJson(props.content),
     language: props.language,
     readOnly: true,
     automaticLayout: true,
+    scrollbar: {
+      useShadows: false,
+      verticalScrollbarSize: 5,
+      horizontal: 'auto',
+      horizontalSliderSize: 5,
+    },
     minimap: { enabled: false },
   })
 
