@@ -73,6 +73,7 @@ const {
   securityRequirements,
   securitySchemes,
   selectedClient,
+  selectedSecurity,
   selectedSecuritySchemes,
   server,
 } = defineProps<{
@@ -266,10 +267,19 @@ const filterIds = computed(
  * This keeps the UI clean when there are no authentication options available.
  */
 const isAuthHidden = computed(
+  () => layout === 'modal' && !Object.keys(securitySchemes ?? {}).length,
+)
+
+/**
+ * Keep auth available for unauthenticated operations, but collapse it by default
+ * in readonly modal layouts unless a requirement or manual selection exists.
+ */
+const isAuthDefaultOpen = computed(
   () =>
-    layout === 'modal' &&
-    !operation.security &&
-    !Object.keys(securitySchemes ?? {}).length,
+    layout !== 'modal' ||
+    Boolean(
+      securityRequirements?.length || selectedSecurity.selectedSchemes.length,
+    ),
 )
 
 /** Get a sensible placeholder for the request name input */
@@ -427,6 +437,7 @@ const updateOperationExtension = (
         v-show="isSectionVisible('Auth') && !isAuthHidden"
         :id="filterIds.Auth"
         :createAnySecurityScheme="layout !== 'modal'"
+        :defaultOpen="isAuthDefaultOpen"
         :environment
         :eventBus
         :meta="authMeta"

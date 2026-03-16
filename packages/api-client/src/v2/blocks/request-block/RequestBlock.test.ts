@@ -95,7 +95,35 @@ describe('RequestBlock', () => {
     expect(wrapper.attributes('aria-label')).toBe('Request: Summary')
   })
 
-  it('shows Auth section in modal layout', () => {
+  it('shows Auth section opened in modal layout when security is required', () => {
+    const wrapper = mount(RequestBlock, {
+      props: {
+        ...defaultProps,
+        layout: 'modal',
+        securityRequirements: [{ a: [] }],
+        securitySchemes: {
+          a: {
+            type: 'apiKey',
+            'x-scalar-secret-token': '',
+            name: 'X-API-Key',
+            in: 'header',
+          },
+        },
+      },
+      global: {
+        stubs: {
+          RouterLink: true,
+        },
+      },
+    })
+
+    const auth = wrapper.findComponent(AuthSelector)
+    expect(auth.exists()).toBe(true)
+    expect(auth.isVisible()).toBe(true)
+    expect(auth.findComponent({ name: 'RequestAuthDataTable' }).isVisible()).toBe(true)
+  })
+
+  it('shows Auth section collapsed in modal layout when no security requirement is configured', () => {
     const wrapper = mount(RequestBlock, {
       props: {
         ...defaultProps,
@@ -119,6 +147,7 @@ describe('RequestBlock', () => {
     const auth = wrapper.findComponent(AuthSelector)
     expect(auth.exists()).toBe(true)
     expect(auth.isVisible()).toBe(true)
+    expect(auth.findComponent({ name: 'RequestAuthDataTable' }).exists()).toBe(false)
   })
 
   it('hides Auth section in modal layout when no security is configured', () => {

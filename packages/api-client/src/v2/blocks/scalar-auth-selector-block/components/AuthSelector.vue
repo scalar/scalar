@@ -41,6 +41,7 @@ const {
   environment,
   eventBus,
   createAnySecurityScheme = false,
+  defaultOpen = true,
   isStatic = false,
   meta,
   proxyUrl,
@@ -54,6 +55,8 @@ const {
   eventBus: WorkspaceEventBus
   /** Allows adding authentication which is not in the document */
   createAnySecurityScheme?: boolean
+  /** Whether the authentication disclosure should start expanded */
+  defaultOpen?: boolean
   /** Creates a static disclosure that cannot be collapsed */
   isStatic?: boolean
   meta: AuthMeta
@@ -207,6 +210,7 @@ defineExpose({
 <template>
   <CollapsibleSection
     class="group/params relative"
+    :defaultOpen
     :isStatic="isStatic"
     :itemCount="activeSchemeOptions.length"
     @update:modelValue="(open) => (isDisclosureOpen = open)">
