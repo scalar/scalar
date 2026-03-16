@@ -63,7 +63,11 @@ import DocumentSelector from '@/features/multiple-documents/DocumentSelector.vue
 import SearchButton from '@/features/Search/components/SearchButton.vue'
 import { getSystemModePreference } from '@/helpers/color-mode'
 import { downloadDocument } from '@/helpers/download'
-import { getIdFromUrl, makeUrlFromId } from '@/helpers/id-routing'
+import {
+  getIdFromUrl,
+  makeUrlFromId,
+  matchesBasePath,
+} from '@/helpers/id-routing'
 import {
   scrollToLazy as _scrollToLazy,
   addToPriorityQueue,
@@ -198,9 +202,7 @@ if (typeof window !== 'undefined') {
 
   const initialId = getIdFromUrl(
     url,
-    basePaths.find(
-      (p) => p && url.pathname.startsWith(p.startsWith('/') ? p : `/${p}`),
-    ),
+    basePaths.find((p) => (p ? matchesBasePath(url, p) : false)),
     isMultiDocument.value ? undefined : activeSlug.value,
   )
   const documentSlug = initialId.split('/')[0]
