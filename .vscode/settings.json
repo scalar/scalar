@@ -32,10 +32,7 @@
     "editor.defaultFormatter": "oxc.oxc-vscode"
   },
   "[css]": {
-    "editor.defaultFormatter": "biomejs.biome",
-    "editor.codeActionsOnSave": {
-      "source.fixAll.biome": "always"
-    }
+    "editor.defaultFormatter": "oxc.oxc-vscode"
   },
   "[javascript]": {
     "editor.defaultFormatter": "biomejs.biome",

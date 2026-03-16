@@ -21,22 +21,31 @@
   --refs-sidebar-width: 300px;
 }
 /* basic theme */
-html[data-theme="light"] body,
-html[data-theme="light"] .scalar-card.dark-mode {
+html[data-theme='light'] body,
+html[data-theme='light'] .scalar-card.dark-mode {
   --scalar-color-1: var(--ifm-font-color-base, #1c1e21);
   --scalar-color-2: var(--ifm-color-emphasis-700, #606770);
   --scalar-color-3: var(--ifm-color-emphasis-600, #8d949e);
   --scalar-color-accent: var(--ifm-menu-color-active, #277148);
 
-  --scalar-background-1: color-mix(in srgb, var(--ifm-background-color, #fff) 0%, white);
+  --scalar-background-1: color-mix(
+    in srgb,
+    var(--ifm-background-color, #fff) 0%,
+    white
+  );
   --scalar-background-2: color-mix(in srgb, rgba(0, 0, 0, 1) 4%, white);
   --scalar-background-3: color-mix(in srgb, rgba(0, 0, 0, 1) 8%, white);
-  --scalar-background-accent: var(--ifm-menu-color-background-active, rgba(0, 0, 0, 0.05));
+  --scalar-background-accent: var(
+    --ifm-menu-color-background-active,
+    rgba(0, 0, 0, 0.05)
+  );
 
   --scalar-border-color: var(--ifm-color-emphasis-300, #ebedf0);
 
   --scalar-shadow-1: 0 1px 3px 0 rgba(0, 0, 0, 0.11);
-  --scalar-shadow-2: rgba(0, 0, 0, 0.08) 0px 13px 20px 0px, rgba(0, 0, 0, 0.08) 0px 3px 8px 0px, #eeeeed 0px 0 0 0.5px;
+  --scalar-shadow-2:
+    rgba(0, 0, 0, 0.08) 0px 13px 20px 0px, rgba(0, 0, 0, 0.08) 0px 3px 8px 0px,
+    #eeeeed 0px 0 0 0.5px;
 
   --scalar-color-green: #00a400;
   --scalar-color-red: #fa383e;
@@ -49,7 +58,7 @@ html[data-theme="light"] .scalar-card.dark-mode {
   --scalar-button-1-color: rgba(255, 255, 255, 0.9);
 }
 
-html[data-theme="dark"] body,
+html[data-theme='dark'] body,
 .scalar-card.dark-mode {
   --scalar-color-1: var(--ifm-font-color-base, rgb(227, 227, 227));
   --scalar-color-2: var(--ifm-color-emphasis-700, #dadde1);
@@ -57,15 +66,27 @@ html[data-theme="dark"] body,
   --scalar-color-accent: var(--ifm-menu-color-active, #1fa588);
 
   --scalar-background-1: var(--ifm-background-color, #1b1b1d);
-  --scalar-background-2: color-mix(in srgb, rgba(255, 255, 255, 1) 6%, var(--ifm-background-color));
-  --scalar-background-3: color-mix(in srgb, rgba(255, 255, 255, 1) 12%, var(--ifm-background-color));
-  --scalar-background-accent: var(--ifm-menu-color-background-active, hsla(0, 0%, 100%, 0.05));
+  --scalar-background-2: color-mix(
+    in srgb,
+    rgba(255, 255, 255, 1) 6%,
+    var(--ifm-background-color)
+  );
+  --scalar-background-3: color-mix(
+    in srgb,
+    rgba(255, 255, 255, 1) 12%,
+    var(--ifm-background-color)
+  );
+  --scalar-background-accent: var(
+    --ifm-menu-color-background-active,
+    hsla(0, 0%, 100%, 0.05)
+  );
 
   --scalar-border-color: var(--ifm-color-emphasis-200, #444950);
 
   --scalar-shadow-1: 0 1px 3px 0 rgb(0, 0, 0, 0.1);
   --scalar-shadow-2:
-    0 0 0 0.5px var(--scalar-border-color), rgba(15, 15, 15, 0.2) 0px 3px 6px, rgba(15, 15, 15, 0.4) 0px 9px 24px;
+    0 0 0 0.5px var(--scalar-border-color), rgba(15, 15, 15, 0.2) 0px 3px 6px,
+    rgba(15, 15, 15, 0.4) 0px 9px 24px;
 
   --scalar-color-green: #00a400;
   --scalar-color-red: #fa383e;
@@ -90,15 +111,24 @@ html[data-theme="dark"] body,
   --scalar-sidebar-color-1: var(--scalar-color-1);
   --scalar-sidebar-color-2: var(--scalar-color-2);
   --scalar-sidebar-color-active: var(--scalar-color-accent);
-  --scalar-sidebar-search-background: var(--docsearch-searchbox-background, transparent);
+  --scalar-sidebar-search-background: var(
+    --docsearch-searchbox-background,
+    transparent
+  );
   --scalar-sidebar-search-border-color: var(--scalar-border-color);
   --scalar-sidebar-search--color: var(--scalar-color-3);
 }
-html[data-theme="light"] body .t-doc__sidebar {
-  --scalar-sidebar-item-hover-background: var(--ifm-menu-color-background-hover, rgba(0, 0, 0, 0.05));
+html[data-theme='light'] body .t-doc__sidebar {
+  --scalar-sidebar-item-hover-background: var(
+    --ifm-menu-color-background-hover,
+    rgba(0, 0, 0, 0.05)
+  );
 }
-html[data-theme="dark"] body .t-doc__sidebar {
-  --scalar-sidebar-item-hover-background: var(--ifm-menu-color-background-hover, hsla(0, 0%, 100%, 0.05));
+html[data-theme='dark'] body .t-doc__sidebar {
+  --scalar-sidebar-item-hover-background: var(
+    --ifm-menu-color-background-hover,
+    hsla(0, 0%, 100%, 0.05)
+  );
 }
 .references-rendered .section-header {
   color: var(--ifm-heading-color, var(--scalar-color-1));
@@ -107,7 +137,7 @@ html[data-theme="dark"] body .t-doc__sidebar {
   border-top: none !important;
 }
 .scalar-card-checkbox .scalar-card-checkbox-checkmark:after,
-html[data-theme="light"] body .api-client-drawer {
+html[data-theme='light'] body .api-client-drawer {
   --scalar-background-1: white;
 }
 
@@ -116,7 +146,7 @@ html[data-theme="light"] body .api-client-drawer {
   position: fixed !important;
   width: 100%;
 }
-#__docusaurus[aria-hidden="true"] ~ #headlessui-portal-root {
+#__docusaurus[aria-hidden='true'] ~ #headlessui-portal-root {
   position: relative !important;
 }
 
@@ -159,7 +189,9 @@ html[data-theme="light"] body .api-client-drawer {
 }
 .scalar-card {
   --full-height: calc(100dvh - var(--ifm-navbar-height));
-  max-height: calc(((var(--full-height) - var(--refs-header-height)) - 60px) / 2);
+  max-height: calc(
+    ((var(--full-height) - var(--refs-header-height)) - 60px) / 2
+  );
 }
 .scalar-card .scalar-codeblock-pre {
   padding: 0;
@@ -190,10 +222,10 @@ html[data-theme="light"] body .api-client-drawer {
     border: none !important;
   }
   .references-mobile-breadcrumbs:empty:before {
-    content: "Menu";
+    content: 'Menu';
   }
   .references-header .scalar-icon-button:before {
-    content: "";
+    content: '';
     position: absolute;
     top: 0;
     left: 0;
@@ -212,7 +244,7 @@ html[data-theme="light"] body .api-client-drawer {
   .t-doc__sidebar .sidebar {
     border-right: none !important;
   }
-  html[data-theme="light"] body .sidebar {
+  html[data-theme='light'] body .sidebar {
     backdrop-filter: blur(50px);
   }
 }
@@ -225,7 +257,7 @@ html[data-theme="light"] body .api-client-drawer {
 
 /** Show a few dots instead */
 .credentials::after {
-  content: "·····";
+  content: '·····';
   font-size: var(--scalar-small);
   color: var(--scalar-color-3);
   user-select: none;
@@ -651,13 +683,13 @@ html[data-theme="light"] body .api-client-drawer {
     background: var(--scalar-background-2);
   }
 
-  .markdown tr > [align="left"] {
+  .markdown tr > [align='left'] {
     text-align: left;
   }
-  .markdown tr > [align="right"] {
+  .markdown tr > [align='right'] {
     text-align: right;
   }
-  .markdown tr > [align="center"] {
+  .markdown tr > [align='center'] {
     text-align: center;
   }
   /* Docusaurus specific markdown - warning do not delete */

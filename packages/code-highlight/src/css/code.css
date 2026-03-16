@@ -145,7 +145,7 @@
 
   /** Show a few dots instead */
   .credential::after {
-    content: "·····";
+    content: '·····';
     color: var(--scalar-color-3);
     user-select: none;
   }

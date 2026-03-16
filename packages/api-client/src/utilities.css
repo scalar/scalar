@@ -23,7 +23,7 @@
   &::before {
     background-color: var(--scalar-background-2);
     border-radius: var(--scalar-radius);
-    content: "";
+    content: '';
     height: calc(100% - 4px);
     left: -4px;
     opacity: 0;

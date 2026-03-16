@@ -17,7 +17,8 @@
 
   --scalar-shadow-1: 0 1px 3px 0 rgba(0, 0, 0, 0.11);
   --scalar-shadow-2:
-    rgba(0, 0, 0, 0.08) 0px 13px 20px 0px, rgba(0, 0, 0, 0.08) 0px 3px 8px 0px, var(--scalar-border-color) 0px 0 0 1px;
+    rgba(0, 0, 0, 0.08) 0px 13px 20px 0px, rgba(0, 0, 0, 0.08) 0px 3px 8px 0px,
+    var(--scalar-border-color) 0px 0 0 1px;
 
   --scalar-button-1: rgb(49 53 56);
   --scalar-button-1-color: #fff;
@@ -50,7 +51,8 @@
 
   --scalar-shadow-1: 0 1px 3px 0 rgba(0, 0, 0, 0.11);
   --scalar-shadow-2:
-    rgba(15, 15, 15, 0.2) 0px 3px 6px, rgba(15, 15, 15, 0.4) 0px 9px 24px, 0 0 0 1px rgba(255, 255, 255, 0.1);
+    rgba(15, 15, 15, 0.2) 0px 3px 6px, rgba(15, 15, 15, 0.4) 0px 9px 24px,
+    0 0 0 1px rgba(255, 255, 255, 0.1);
 
   --scalar-button-1: #f6f6f6;
   --scalar-button-1-color: #000;
@@ -83,5 +85,9 @@
   --scalar-sidebar-search-border-color: var(--scalar-border-color);
 }
 *::selection {
-  background-color: color-mix(in srgb, var(--scalar-color-accent), transparent 80%);
+  background-color: color-mix(
+    in srgb,
+    var(--scalar-color-accent),
+    transparent 80%
+  );
 }

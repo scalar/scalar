@@ -56,7 +56,7 @@
 
   ::before,
   ::after {
-    --tw-content: "";
+    --tw-content: '';
   }
 
   /** Remove the default background color. */
@@ -77,7 +77,7 @@
   }
 
   /** Bring back a basic border style and focus outline for form controls */
-  input:where(:not([type="button"], [type="reset"], [type="submit"])),
+  input:where(:not([type='button'], [type='reset'], [type='submit'])),
   select,
   textarea {
     border-radius: var(--scalar-radius);
@@ -91,8 +91,8 @@
   }
 
   /** Remove chrome search input decorations */
-  input[type="search"]::-webkit-search-cancel-button,
-  input[type="search"]::-webkit-search-decoration {
+  input[type='search']::-webkit-search-cancel-button,
+  input[type='search']::-webkit-search-decoration {
     appearance: none;
   }
 
@@ -114,13 +114,13 @@
 
   /** Set outline offset for buttons */
   button:focus-visible,
-  [role="button"]:focus-visible {
+  [role='button']:focus-visible {
     outline-offset: -1px;
   }
 
   /** Set the default cursor for buttons. */
   button,
-  [role="button"] {
+  [role='button'] {
     cursor: pointer;
   }
 

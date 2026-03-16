@@ -89,7 +89,11 @@
 .dark-mode .markdown h5,
 .dark-mode .markdown h6 {
   -webkit-text-fill-color: transparent;
-  background-image: linear-gradient(to right bottom, rgb(255, 255, 255) 30%, rgba(255, 255, 255, 0.38));
+  background-image: linear-gradient(
+    to right bottom,
+    rgb(255, 255, 255) 30%,
+    rgba(255, 255, 255, 0.38)
+  );
   -webkit-background-clip: text;
   background-clip: text;
 }
@@ -122,7 +126,11 @@
   display: none;
 }
 *::selection {
-  background-color: color-mix(in srgb, var(--scalar-color-red), transparent 75%);
+  background-color: color-mix(
+    in srgb,
+    var(--scalar-color-red),
+    transparent 75%
+  );
 }
 
 /* document layout */
