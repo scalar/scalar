@@ -23,7 +23,7 @@
   },
   "scripts": {
     "build": "scalar-build-esbuild",
-    "format": "prettier --write .",
+    "format": "oxfmt",
     "lint:check": "eslint .",
     "lint:fix": "eslint .  --fix",
     "test": "NODE_OPTIONS=--max_old_space_size=8192 vitest",
