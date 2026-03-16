@@ -1,74 +1,74 @@
-import { Value } from '@scalar/typebox/value'
-import { describe, expect, it } from 'vitest'
+import { Value } from "@scalar/typebox/value";
+import { describe, expect, it } from "vite-plus/test";
 
-import { XTagGroupsSchema } from './x-tag-groups'
+import { XTagGroupsSchema } from "./x-tag-groups";
 
-describe('XTagGroupsSchema', () => {
-  it('accepts valid tag groups array', () => {
+describe("XTagGroupsSchema", () => {
+  it("accepts valid tag groups array", () => {
     const result = Value.Parse(XTagGroupsSchema, {
-      'x-tagGroups': [
+      "x-tagGroups": [
         {
-          name: 'Core',
-          tags: ['users', 'auth'],
+          name: "Core",
+          tags: ["users", "auth"],
         },
         {
-          name: 'Products',
-          tags: ['inventory', 'orders'],
+          name: "Products",
+          tags: ["inventory", "orders"],
         },
       ],
-    })
+    });
     expect(result).toEqual({
-      'x-tagGroups': [
+      "x-tagGroups": [
         {
-          name: 'Core',
-          tags: ['users', 'auth'],
+          name: "Core",
+          tags: ["users", "auth"],
         },
         {
-          name: 'Products',
-          tags: ['inventory', 'orders'],
+          name: "Products",
+          tags: ["inventory", "orders"],
         },
       ],
-    })
-  })
+    });
+  });
 
-  it('accepts empty array', () => {
+  it("accepts empty array", () => {
     const result = Value.Parse(XTagGroupsSchema, {
-      'x-tagGroups': [],
-    })
+      "x-tagGroups": [],
+    });
     expect(result).toEqual({
-      'x-tagGroups': [],
-    })
-  })
+      "x-tagGroups": [],
+    });
+  });
 
-  it('throws when groups have no name', () => {
+  it("throws when groups have no name", () => {
     expect(() =>
       Value.Parse(XTagGroupsSchema, [
         {
           // missing name
-          tags: ['users'],
+          tags: ["users"],
         },
       ]),
-    ).toThrow()
-  })
+    ).toThrow();
+  });
 
-  it('ensures tags is an array of strings', () => {
+  it("ensures tags is an array of strings", () => {
     const result = Value.Parse(XTagGroupsSchema, {
-      'x-tagGroups': [
+      "x-tagGroups": [
         {
-          name: 'Core',
+          name: "Core",
           // invalid: number in tags array
-          tags: [123, 'users'],
+          tags: [123, "users"],
         },
       ],
-    })
+    });
 
     expect(result).toEqual({
-      'x-tagGroups': [
+      "x-tagGroups": [
         {
-          name: 'Core',
-          tags: ['123', 'users'],
+          name: "Core",
+          tags: ["123", "users"],
         },
       ],
-    })
-  })
-})
+    });
+  });
+});

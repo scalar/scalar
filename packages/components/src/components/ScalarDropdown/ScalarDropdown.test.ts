@@ -1,5 +1,5 @@
 import { enableAutoUnmount, flushPromises, mount } from '@vue/test-utils'
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vite-plus/test'
 import { h, nextTick } from 'vue'
 
 import ScalarDropdown from './ScalarDropdown.vue'
@@ -50,8 +50,16 @@ describe('ScalarDropdown', () => {
         slots: {
           default: '<button id="trigger">Open</button>',
           items: [
-            h(ScalarDropdownItem, { id: 'item-1' }, { default: () => 'Item 1' }),
-            h(ScalarDropdownItem, { id: 'item-2' }, { default: () => 'Item 2' }),
+            h(
+              ScalarDropdownItem,
+              { id: 'item-1' },
+              { default: () => 'Item 1' },
+            ),
+            h(
+              ScalarDropdownItem,
+              { id: 'item-2' },
+              { default: () => 'Item 2' },
+            ),
           ],
         },
       })
@@ -73,8 +81,16 @@ describe('ScalarDropdown', () => {
         slots: {
           default: '<button id="trigger">Open</button>',
           items: [
-            h(ScalarDropdownItem, { id: 'item-1' }, { default: () => 'Item 1' }),
-            h(ScalarDropdownItem, { id: 'item-2' }, { default: () => 'Item 2' }),
+            h(
+              ScalarDropdownItem,
+              { id: 'item-1' },
+              { default: () => 'Item 1' },
+            ),
+            h(
+              ScalarDropdownItem,
+              { id: 'item-2' },
+              { default: () => 'Item 2' },
+            ),
           ],
         },
       })
@@ -117,7 +133,11 @@ describe('ScalarDropdown', () => {
         slots: {
           default: '<button>Open</button>',
           items: [
-            h(ScalarDropdownItem, { disabled: true }, { default: () => 'Disabled' }),
+            h(
+              ScalarDropdownItem,
+              { disabled: true },
+              { default: () => 'Disabled' },
+            ),
             h(ScalarDropdownItem, null, { default: () => 'Enabled' }),
           ],
         },
@@ -141,8 +161,16 @@ describe('ScalarDropdown', () => {
         slots: {
           default: '<button id="trigger">Open</button>',
           items: [
-            h(ScalarDropdownItem, { id: 'item-1' }, { default: () => 'Item 1' }),
-            h(ScalarDropdownItem, { id: 'item-2' }, { default: () => 'Item 2' }),
+            h(
+              ScalarDropdownItem,
+              { id: 'item-1' },
+              { default: () => 'Item 1' },
+            ),
+            h(
+              ScalarDropdownItem,
+              { id: 'item-2' },
+              { default: () => 'Item 2' },
+            ),
           ],
         },
       })
@@ -163,9 +191,21 @@ describe('ScalarDropdown', () => {
         slots: {
           default: '<button id="trigger">Open</button>',
           items: [
-            h(ScalarDropdownItem, { id: 'item-1' }, { default: () => 'Item 1' }),
-            h(ScalarDropdownItem, { id: 'item-2' }, { default: () => 'Item 2' }),
-            h(ScalarDropdownItem, { id: 'item-3' }, { default: () => 'Item 3' }),
+            h(
+              ScalarDropdownItem,
+              { id: 'item-1' },
+              { default: () => 'Item 1' },
+            ),
+            h(
+              ScalarDropdownItem,
+              { id: 'item-2' },
+              { default: () => 'Item 2' },
+            ),
+            h(
+              ScalarDropdownItem,
+              { id: 'item-3' },
+              { default: () => 'Item 3' },
+            ),
           ],
         },
       })
@@ -186,8 +226,16 @@ describe('ScalarDropdown', () => {
         slots: {
           default: '<button id="trigger">Open</button>',
           items: [
-            h(ScalarDropdownItem, { id: 'item-1' }, { default: () => 'Item 1' }),
-            h(ScalarDropdownItem, { id: 'item-2' }, { default: () => 'Item 2' }),
+            h(
+              ScalarDropdownItem,
+              { id: 'item-1' },
+              { default: () => 'Item 1' },
+            ),
+            h(
+              ScalarDropdownItem,
+              { id: 'item-2' },
+              { default: () => 'Item 2' },
+            ),
           ],
         },
       })
@@ -209,8 +257,16 @@ describe('ScalarDropdown', () => {
         slots: {
           default: '<button id="trigger">Open</button>',
           items: [
-            h(ScalarDropdownItem, { id: 'item-1' }, { default: () => 'Item 1' }),
-            h(ScalarDropdownItem, { id: 'item-2' }, { default: () => 'Item 2' }),
+            h(
+              ScalarDropdownItem,
+              { id: 'item-1' },
+              { default: () => 'Item 1' },
+            ),
+            h(
+              ScalarDropdownItem,
+              { id: 'item-2' },
+              { default: () => 'Item 2' },
+            ),
           ],
         },
       })
@@ -255,8 +311,16 @@ describe('ScalarDropdown', () => {
         slots: {
           default: '<button id="enter-trigger">Open</button>',
           items: [
-            h(ScalarDropdownItem, { id: 'enter-item-1' }, { default: () => 'Item 1' }),
-            h(ScalarDropdownItem, { id: 'enter-item-2' }, { default: () => 'Item 2' }),
+            h(
+              ScalarDropdownItem,
+              { id: 'enter-item-1' },
+              { default: () => 'Item 1' },
+            ),
+            h(
+              ScalarDropdownItem,
+              { id: 'enter-item-2' },
+              { default: () => 'Item 2' },
+            ),
           ],
         },
       })
@@ -290,8 +354,16 @@ describe('ScalarDropdown', () => {
         slots: {
           default: '<button id="space-trigger">Open</button>',
           items: [
-            h(ScalarDropdownItem, { id: 'space-item-1' }, { default: () => 'Item 1' }),
-            h(ScalarDropdownItem, { id: 'space-item-2' }, { default: () => 'Item 2' }),
+            h(
+              ScalarDropdownItem,
+              { id: 'space-item-1' },
+              { default: () => 'Item 1' },
+            ),
+            h(
+              ScalarDropdownItem,
+              { id: 'space-item-2' },
+              { default: () => 'Item 2' },
+            ),
           ],
         },
       })
@@ -369,9 +441,21 @@ describe('ScalarDropdown', () => {
         slots: {
           default: '<button id="trigger">Open</button>',
           items: [
-            h(ScalarDropdownItem, { id: 'item-1' }, { default: () => 'Item 1' }),
-            h(ScalarDropdownItem, { id: 'item-2' }, { default: () => 'Item 2' }),
-            h(ScalarDropdownItem, { id: 'item-3' }, { default: () => 'Item 3' }),
+            h(
+              ScalarDropdownItem,
+              { id: 'item-1' },
+              { default: () => 'Item 1' },
+            ),
+            h(
+              ScalarDropdownItem,
+              { id: 'item-2' },
+              { default: () => 'Item 2' },
+            ),
+            h(
+              ScalarDropdownItem,
+              { id: 'item-3' },
+              { default: () => 'Item 3' },
+            ),
           ],
         },
       })
@@ -402,9 +486,21 @@ describe('ScalarDropdown', () => {
         slots: {
           default: '<button id="trigger">Open</button>',
           items: [
-            h(ScalarDropdownItem, { id: 'item-1' }, { default: () => 'Item 1' }),
-            h(ScalarDropdownItem, { id: 'item-2' }, { default: () => 'Item 2' }),
-            h(ScalarDropdownItem, { id: 'item-3' }, { default: () => 'Item 3' }),
+            h(
+              ScalarDropdownItem,
+              { id: 'item-1' },
+              { default: () => 'Item 1' },
+            ),
+            h(
+              ScalarDropdownItem,
+              { id: 'item-2' },
+              { default: () => 'Item 2' },
+            ),
+            h(
+              ScalarDropdownItem,
+              { id: 'item-3' },
+              { default: () => 'Item 3' },
+            ),
           ],
         },
       })
@@ -435,8 +531,16 @@ describe('ScalarDropdown', () => {
         slots: {
           default: '<button id="trigger">Open</button>',
           items: [
-            h(ScalarDropdownItem, { id: 'item-1' }, { default: () => 'Item 1' }),
-            h(ScalarDropdownItem, { id: 'item-2' }, { default: () => 'Item 2' }),
+            h(
+              ScalarDropdownItem,
+              { id: 'item-1' },
+              { default: () => 'Item 1' },
+            ),
+            h(
+              ScalarDropdownItem,
+              { id: 'item-2' },
+              { default: () => 'Item 2' },
+            ),
           ],
         },
       })
@@ -469,9 +573,21 @@ describe('ScalarDropdown', () => {
         slots: {
           default: '<button id="trigger">Open</button>',
           items: [
-            h(ScalarDropdownItem, { id: 'item-1' }, { default: () => 'Item 1' }),
-            h(ScalarDropdownItem, { id: 'item-2', disabled: true }, { default: () => 'Disabled' }),
-            h(ScalarDropdownItem, { id: 'item-3' }, { default: () => 'Item 3' }),
+            h(
+              ScalarDropdownItem,
+              { id: 'item-1' },
+              { default: () => 'Item 1' },
+            ),
+            h(
+              ScalarDropdownItem,
+              { id: 'item-2', disabled: true },
+              { default: () => 'Disabled' },
+            ),
+            h(
+              ScalarDropdownItem,
+              { id: 'item-3' },
+              { default: () => 'Item 3' },
+            ),
           ],
         },
       })
@@ -499,8 +615,16 @@ describe('ScalarDropdown', () => {
         slots: {
           default: '<button id="trigger">Open</button>',
           items: [
-            h(ScalarDropdownItem, { id: 'item-1' }, { default: () => 'Item 1' }),
-            h(ScalarDropdownItem, { id: 'item-2', disabled: true, onClick: onDisabled }, { default: () => 'Disabled' }),
+            h(
+              ScalarDropdownItem,
+              { id: 'item-1' },
+              { default: () => 'Item 1' },
+            ),
+            h(
+              ScalarDropdownItem,
+              { id: 'item-2', disabled: true, onClick: onDisabled },
+              { default: () => 'Disabled' },
+            ),
           ],
         },
       })
@@ -529,7 +653,13 @@ describe('ScalarDropdown', () => {
         attachTo: document.body,
         slots: {
           default: '<button id="trigger">Open</button>',
-          items: [h(ScalarDropdownItem, { id: 'item-1' }, { default: () => 'Item 1' })],
+          items: [
+            h(
+              ScalarDropdownItem,
+              { id: 'item-1' },
+              { default: () => 'Item 1' },
+            ),
+          ],
         },
       })
 
@@ -572,7 +702,10 @@ describe('ScalarDropdown', () => {
       document.body.appendChild(outsideElement)
 
       // Use a proper click event that onClickOutside can detect
-      const clickEvent = new MouseEvent('click', { bubbles: true, cancelable: true })
+      const clickEvent = new MouseEvent('click', {
+        bubbles: true,
+        cancelable: true,
+      })
       outsideElement.dispatchEvent(clickEvent)
 
       // Wait for onClickOutside handler to process and Vue to update
@@ -625,8 +758,16 @@ describe('ScalarDropdown', () => {
         slots: {
           default: '<button id="trigger">Open</button>',
           items: [
-            h(ScalarDropdownItem, { onClick: onFirst }, { default: () => 'First' }),
-            h(ScalarDropdownItem, { disabled: true }, { default: () => 'Disabled' }),
+            h(
+              ScalarDropdownItem,
+              { onClick: onFirst },
+              { default: () => 'First' },
+            ),
+            h(
+              ScalarDropdownItem,
+              { disabled: true },
+              { default: () => 'Disabled' },
+            ),
             h(ScalarDropdownDivider),
             h(ScalarDropdownItem, null, { default: () => 'Third' }),
           ],
@@ -667,7 +808,9 @@ describe('ScalarDropdownItem', () => {
       attachTo: document.body,
       slots: {
         default: '<button id="trigger">Open</button>',
-        items: () => [h(ScalarDropdownItem, { onClick }, { default: () => 'Item' })],
+        items: () => [
+          h(ScalarDropdownItem, { onClick }, { default: () => 'Item' }),
+        ],
       },
     })
 

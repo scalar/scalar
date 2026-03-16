@@ -1,27 +1,30 @@
-import { enableConsoleWarn } from '@test/vitest.setup'
-import { describe, expect, it, vi } from 'vitest'
+import { enableConsoleWarn } from "@test/vitest.setup";
+import { describe, expect, it, vi } from "vite-plus/test";
 
-import { createApiClientWeb } from './create-api-client-web'
+import { createApiClientWeb } from "./create-api-client-web";
 
-describe('createApiClientWeb', () => {
-  it('renders the client with no warnings or errors', async () => {
-    vi.unmock('@/hooks/useSidebar')
-    vi.unmock('@/hooks/useLayout')
-    enableConsoleWarn()
+describe("createApiClientWeb", () => {
+  it("renders the client with no warnings or errors", async () => {
+    vi.unmock("@/hooks/useSidebar");
+    vi.unmock("@/hooks/useLayout");
+    enableConsoleWarn();
 
-    const element = document.createElement('div')
-    element.id = 'scalar-client'
-    document.body.appendChild(element)
+    const element = document.createElement("div");
+    element.id = "scalar-client";
+    document.body.appendChild(element);
 
-    expect(element).not.toBeNull()
-    expect(element.innerHTML).not.toContain('App Navigation')
+    expect(element).not.toBeNull();
+    expect(element.innerHTML).not.toContain("App Navigation");
 
     await createApiClientWeb(element, {
-      proxyUrl: 'https://proxy.scalar.com',
-    })
-    expect(element.innerHTML).toContain('App Navigation')
+      proxyUrl: "https://proxy.scalar.com",
+    });
+    expect(element.innerHTML).toContain("App Navigation");
 
     // Make sure we wait for the client to be mounted
-    await vi.waitFor(() => expect(element.innerHTML).toContain('My First Request'), { timeout: 5000 })
-  })
-})
+    await vi.waitFor(
+      () => expect(element.innerHTML).toContain("My First Request"),
+      { timeout: 5000 },
+    );
+  });
+});

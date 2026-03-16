@@ -1,264 +1,270 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from "vite-plus/test";
 
-import type { Item, Response } from '@/types'
+import type { Item, Response } from "@/types";
 
-import { extractResponses } from './responses'
+import { extractResponses } from "./responses";
 
-describe('responses', () => {
-  it('extracts responses with status codes', () => {
+describe("responses", () => {
+  it("extracts responses with status codes", () => {
     const responses: Response[] = [
       {
         code: 200,
-        status: 'OK',
+        status: "OK",
         body: '{"message": "Success"}',
       },
       {
         code: 404,
-        status: 'Not Found',
+        status: "Not Found",
         body: '{"error": "Not found"}',
       },
-    ]
+    ];
 
-    const result = extractResponses(responses)
+    const result = extractResponses(responses);
 
-    expect(result).toBeDefined()
-    expect(result?.['200']).toBeDefined()
-    expect(result?.['404']).toBeDefined()
-    expect(result?.['200']?.description).toBe('OK')
-    expect(result?.['404']?.description).toBe('Not Found')
-  })
+    expect(result).toBeDefined();
+    expect(result?.["200"]).toBeDefined();
+    expect(result?.["404"]).toBeDefined();
+    expect(result?.["200"]?.description).toBe("OK");
+    expect(result?.["404"]?.description).toBe("Not Found");
+  });
 
-  it('uses default description when status is missing', () => {
+  it("uses default description when status is missing", () => {
     const responses: Response[] = [
       {
         code: 200,
         body: '{"message": "Success"}',
       },
-    ]
+    ];
 
-    const result = extractResponses(responses)
+    const result = extractResponses(responses);
 
-    expect(result?.['200']?.description).toBe('Successful response')
-  })
+    expect(result?.["200"]?.description).toBe("Successful response");
+  });
 
-  it('infers schema from JSON body', () => {
+  it("infers schema from JSON body", () => {
     const responses: Response[] = [
       {
         code: 200,
         body: '{"id": 1, "name": "John"}',
       },
-    ]
+    ];
 
-    const result = extractResponses(responses)
+    const result = extractResponses(responses);
 
     // The function infers schema from the string itself, not parsed JSON
-    expect(result?.['200']?.content?.['application/json']?.schema).toEqual({
-      type: 'string',
-    })
-  })
+    expect(result?.["200"]?.content?.["application/json"]?.schema).toEqual({
+      type: "string",
+    });
+  });
 
-  it('includes example from body', () => {
+  it("includes example from body", () => {
     const responses: Response[] = [
       {
         code: 200,
         body: '{"id": 1, "name": "John"}',
       },
-    ]
+    ];
 
-    const result = extractResponses(responses)
+    const result = extractResponses(responses);
 
-    expect(result?.['200']?.content?.['application/json']?.examples?.default).toEqual({
+    expect(
+      result?.["200"]?.content?.["application/json"]?.examples?.default,
+    ).toEqual({
       id: 1,
-      name: 'John',
-    })
-  })
+      name: "John",
+    });
+  });
 
-  it('handles invalid JSON body', () => {
+  it("handles invalid JSON body", () => {
     const responses: Response[] = [
       {
         code: 200,
-        body: 'invalid json',
+        body: "invalid json",
       },
-    ]
+    ];
 
-    const result = extractResponses(responses)
+    const result = extractResponses(responses);
 
-    expect(result?.['200']?.content?.['application/json']?.examples?.default).toEqual({
-      rawContent: 'invalid json',
-    })
-  })
+    expect(
+      result?.["200"]?.content?.["application/json"]?.examples?.default,
+    ).toEqual({
+      rawContent: "invalid json",
+    });
+  });
 
-  it('extracts headers from response', () => {
+  it("extracts headers from response", () => {
     const responses: Response[] = [
       {
         code: 200,
         header: [
           {
-            key: 'Content-Type',
-            value: 'application/json',
+            key: "Content-Type",
+            value: "application/json",
           },
           {
-            key: 'X-RateLimit-Limit',
-            value: '100',
+            key: "X-RateLimit-Limit",
+            value: "100",
           },
         ],
       },
-    ]
+    ];
 
-    const result = extractResponses(responses)
+    const result = extractResponses(responses);
 
-    expect(result?.['200']?.headers).toEqual({
-      'Content-Type': {
+    expect(result?.["200"]?.headers).toEqual({
+      "Content-Type": {
         schema: {
-          type: 'string',
-          examples: ['application/json'],
+          type: "string",
+          examples: ["application/json"],
         },
       },
-      'X-RateLimit-Limit': {
+      "X-RateLimit-Limit": {
         schema: {
-          type: 'string',
-          examples: ['100'],
+          type: "string",
+          examples: ["100"],
         },
       },
-    })
-  })
+    });
+  });
 
-  it('handles string header format', () => {
+  it("handles string header format", () => {
     const responses: Response[] = [
       {
         code: 200,
-        header: 'Content-Type: application/json',
+        header: "Content-Type: application/json",
       },
-    ]
+    ];
 
-    const result = extractResponses(responses)
+    const result = extractResponses(responses);
 
-    expect(result?.['200']?.headers).toBeUndefined()
-  })
+    expect(result?.["200"]?.headers).toBeUndefined();
+  });
 
-  it('handles null headers', () => {
+  it("handles null headers", () => {
     const responses: Response[] = [
       {
         code: 200,
         header: null,
       },
-    ]
+    ];
 
-    const result = extractResponses(responses)
+    const result = extractResponses(responses);
 
-    expect(result?.['200']?.headers).toBeUndefined()
-  })
+    expect(result?.["200"]?.headers).toBeUndefined();
+  });
 
-  it('adds status codes from test scripts', () => {
-    const responses: Response[] = []
+  it("adds status codes from test scripts", () => {
+    const responses: Response[] = [];
     const item: Item = {
-      name: 'Get User',
+      name: "Get User",
       request: {
-        method: 'GET',
+        method: "GET",
         url: {
-          raw: 'https://example.com/users',
+          raw: "https://example.com/users",
         },
       },
       event: [
         {
-          listen: 'test',
+          listen: "test",
           script: {
-            exec: ['pm.response.to.have.status(201);'],
+            exec: ["pm.response.to.have.status(201);"],
           },
         },
       ],
-    }
+    };
 
-    const result = extractResponses(responses, item)
+    const result = extractResponses(responses, item);
 
-    expect(result?.['201']).toBeDefined()
-    expect(result?.['201']?.description).toBe('Successful response')
-  })
+    expect(result?.["201"]).toBeDefined();
+    expect(result?.["201"]?.description).toBe("Successful response");
+  });
 
-  it('does not override existing response when adding from tests', () => {
+  it("does not override existing response when adding from tests", () => {
     const responses: Response[] = [
       {
         code: 201,
-        status: 'Created',
+        status: "Created",
         body: '{"id": 1}',
       },
-    ]
+    ];
     const item: Item = {
-      name: 'Create User',
+      name: "Create User",
       request: {
-        method: 'POST',
+        method: "POST",
         url: {
-          raw: 'https://example.com/users',
+          raw: "https://example.com/users",
         },
       },
       event: [
         {
-          listen: 'test',
+          listen: "test",
           script: {
-            exec: ['pm.response.to.have.status(201);'],
+            exec: ["pm.response.to.have.status(201);"],
           },
         },
       ],
-    }
+    };
 
-    const result = extractResponses(responses, item)
+    const result = extractResponses(responses, item);
 
-    expect(result?.['201']?.description).toBe('Created')
-    expect(result?.['201']?.content).toBeDefined()
-  })
+    expect(result?.["201"]?.description).toBe("Created");
+    expect(result?.["201"]?.content).toBeDefined();
+  });
 
-  it('handles default status code', () => {
+  it("handles default status code", () => {
     const responses: Response[] = [
       {
         code: undefined,
-        status: 'Error',
+        status: "Error",
         body: '{"error": "Something went wrong"}',
       },
-    ]
+    ];
 
-    const result = extractResponses(responses)
+    const result = extractResponses(responses);
 
-    expect(result?.['default']).toBeDefined()
-    expect(result?.['default']?.description).toBe('Error')
-  })
+    expect(result?.["default"]).toBeDefined();
+    expect(result?.["default"]?.description).toBe("Error");
+  });
 
-  it('returns undefined when no responses are present', () => {
-    const responses: Response[] = []
+  it("returns undefined when no responses are present", () => {
+    const responses: Response[] = [];
 
-    const result = extractResponses(responses)
+    const result = extractResponses(responses);
 
-    expect(result).toBeUndefined()
-  })
+    expect(result).toBeUndefined();
+  });
 
-  it('handles empty body', () => {
+  it("handles empty body", () => {
     const responses: Response[] = [
       {
         code: 204,
-        status: 'No Content',
+        status: "No Content",
         body: null,
       },
-    ]
+    ];
 
-    const result = extractResponses(responses)
+    const result = extractResponses(responses);
 
-    expect(result?.['204']?.content?.['application/json']?.examples?.default).toEqual({
-      rawContent: '',
-    })
-  })
+    expect(
+      result?.["204"]?.content?.["application/json"]?.examples?.default,
+    ).toEqual({
+      rawContent: "",
+    });
+  });
 
-  it('handles array response body', () => {
+  it("handles array response body", () => {
     const responses: Response[] = [
       {
         code: 200,
         body: '[{"id": 1}, {"id": 2}]',
       },
-    ]
+    ];
 
-    const result = extractResponses(responses)
+    const result = extractResponses(responses);
 
     // The function infers schema from the string itself, not parsed JSON
-    expect(result?.['200']?.content?.['application/json']?.schema).toEqual({
-      type: 'string',
-    })
-  })
-})
+    expect(result?.["200"]?.content?.["application/json"]?.schema).toEqual({
+      type: "string",
+    });
+  });
+});

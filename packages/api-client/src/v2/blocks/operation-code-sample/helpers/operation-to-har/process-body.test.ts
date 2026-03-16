@@ -1,75 +1,75 @@
-import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
-import { SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import { describe, expect, it } from 'vitest'
+import { coerceValue } from "@scalar/workspace-store/schemas/typebox-coerce";
+import { SchemaObjectSchema } from "@scalar/workspace-store/schemas/v3.1/strict/openapi-document";
+import { describe, expect, it } from "vite-plus/test";
 
-import { processBody } from './process-body'
+import { processBody } from "./process-body";
 
-describe('processBody', () => {
-  it('extracts example from simple object schema', () => {
+describe("processBody", () => {
+  it("extracts example from simple object schema", () => {
     const content = {
-      'application/json': {
+      "application/json": {
         schema: coerceValue(SchemaObjectSchema, {
-          type: 'object',
+          type: "object",
           properties: {
-            name: { type: 'string', example: 'John Doe' },
-            age: { type: 'number', example: 30 },
-            email: { type: 'string', example: 'john@example.com' },
+            name: { type: "string", example: "John Doe" },
+            age: { type: "number", example: 30 },
+            email: { type: "string", example: "john@example.com" },
           },
         }),
       },
-    }
+    };
 
-    const result = processBody({ requestBody: { content } })
+    const result = processBody({ requestBody: { content } });
 
     expect(result).toEqual({
-      mimeType: 'application/json',
+      mimeType: "application/json",
       text: JSON.stringify({
-        name: 'John Doe',
+        name: "John Doe",
         age: 30,
-        email: 'john@example.com',
+        email: "john@example.com",
       }),
-    })
-  })
+    });
+  });
 
-  it('extracts example from schema with examples array', () => {
+  it("extracts example from schema with examples array", () => {
     const content = {
-      'application/json': {
+      "application/json": {
         schema: coerceValue(SchemaObjectSchema, {
-          type: 'object',
+          type: "object",
           properties: {
-            status: { type: 'string', examples: ['active', 'inactive'] },
-            priority: { type: 'string', examples: ['low', 'medium', 'high'] },
+            status: { type: "string", examples: ["active", "inactive"] },
+            priority: { type: "string", examples: ["low", "medium", "high"] },
           },
         }),
       },
-    }
+    };
 
-    const result = processBody({ requestBody: { content } })
+    const result = processBody({ requestBody: { content } });
 
     expect(result).toEqual({
-      mimeType: 'application/json',
+      mimeType: "application/json",
       text: JSON.stringify({
-        status: 'active',
-        priority: 'low',
+        status: "active",
+        priority: "low",
       }),
-    })
-  })
+    });
+  });
 
-  it('extracts nested object examples', () => {
+  it("extracts nested object examples", () => {
     const content = {
-      'application/json': {
+      "application/json": {
         schema: coerceValue(SchemaObjectSchema, {
-          type: 'object',
+          type: "object",
           properties: {
             user: {
-              type: 'object',
+              type: "object",
               properties: {
-                name: { type: 'string', example: 'Jane Smith' },
+                name: { type: "string", example: "Jane Smith" },
                 profile: {
-                  type: 'object',
+                  type: "object",
                   properties: {
-                    bio: { type: 'string', example: 'Software developer' },
-                    location: { type: 'string', example: 'San Francisco' },
+                    bio: { type: "string", example: "Software developer" },
+                    location: { type: "string", example: "San Francisco" },
                   },
                 },
               },
@@ -77,157 +77,157 @@ describe('processBody', () => {
           },
         }),
       },
-    }
+    };
 
-    const result = processBody({ requestBody: { content } })
+    const result = processBody({ requestBody: { content } });
 
     expect(result).toEqual({
-      mimeType: 'application/json',
+      mimeType: "application/json",
       text: JSON.stringify({
         user: {
-          name: 'Jane Smith',
+          name: "Jane Smith",
           profile: {
-            bio: 'Software developer',
-            location: 'San Francisco',
+            bio: "Software developer",
+            location: "San Francisco",
           },
         },
       }),
-    })
-  })
+    });
+  });
 
-  it('extracts array examples', () => {
+  it("extracts array examples", () => {
     const content = {
-      'application/json': {
+      "application/json": {
         schema: coerceValue(SchemaObjectSchema, {
-          type: 'object',
+          type: "object",
           properties: {
             tags: {
-              type: 'array',
+              type: "array",
               items: {
-                type: 'string',
-                example: 'javascript',
+                type: "string",
+                example: "javascript",
               },
             },
             categories: {
-              type: 'array',
+              type: "array",
               items: {
-                type: 'object',
+                type: "object",
                 properties: {
-                  id: { type: 'number', example: 1 },
-                  name: { type: 'string', example: 'Technology' },
+                  id: { type: "number", example: 1 },
+                  name: { type: "string", example: "Technology" },
                 },
               },
             },
           },
         }),
       },
-    }
+    };
 
-    const result = processBody({ requestBody: { content } })
+    const result = processBody({ requestBody: { content } });
 
     expect(result).toEqual({
-      mimeType: 'application/json',
+      mimeType: "application/json",
       text: JSON.stringify({
-        tags: ['javascript'],
-        categories: [{ id: 1, name: 'Technology' }],
+        tags: ["javascript"],
+        categories: [{ id: 1, name: "Technology" }],
       }),
-    })
-  })
+    });
+  });
 
-  it('extracts primitive type examples', () => {
+  it("extracts primitive type examples", () => {
     const content = {
-      'application/json': {
+      "application/json": {
         schema: coerceValue(SchemaObjectSchema, {
-          type: 'string',
-          example: 'Hello, World!',
+          type: "string",
+          example: "Hello, World!",
         }),
       },
-    }
+    };
 
-    const result = processBody({ requestBody: { content } })
+    const result = processBody({ requestBody: { content } });
 
     expect(result).toEqual({
-      mimeType: 'application/json',
-      text: 'Hello, World!',
-    })
-  })
+      mimeType: "application/json",
+      text: "Hello, World!",
+    });
+  });
 
-  it('extracts number examples', () => {
+  it("extracts number examples", () => {
     const content = {
-      'application/json': {
+      "application/json": {
         schema: coerceValue(SchemaObjectSchema, {
-          type: 'number',
+          type: "number",
           example: 42,
         }),
       },
-    }
+    };
 
-    const result = processBody({ requestBody: { content } })
+    const result = processBody({ requestBody: { content } });
 
     expect(result).toEqual({
-      mimeType: 'application/json',
+      mimeType: "application/json",
       text: JSON.stringify(42),
-    })
-  })
+    });
+  });
 
-  it('extracts boolean examples', () => {
+  it("extracts boolean examples", () => {
     const content = {
-      'application/json': {
+      "application/json": {
         schema: coerceValue(SchemaObjectSchema, {
-          type: 'boolean',
+          type: "boolean",
           example: true,
         }),
       },
-    }
+    };
 
-    const result = processBody({ requestBody: { content } })
+    const result = processBody({ requestBody: { content } });
 
     expect(result).toEqual({
-      mimeType: 'application/json',
+      mimeType: "application/json",
       text: JSON.stringify(true),
-    })
-  })
+    });
+  });
 
-  it('handles mixed example types in object', () => {
+  it("handles mixed example types in object", () => {
     const content = {
-      'application/json': {
+      "application/json": {
         schema: coerceValue(SchemaObjectSchema, {
-          type: 'object',
+          type: "object",
           properties: {
-            stringField: { type: 'string', example: 'test' },
-            numberField: { type: 'number', example: 123 },
-            booleanField: { type: 'boolean', example: false },
-            nullField: { type: 'null', example: null },
+            stringField: { type: "string", example: "test" },
+            numberField: { type: "number", example: 123 },
+            booleanField: { type: "boolean", example: false },
+            nullField: { type: "null", example: null },
           },
         }),
       },
-    }
+    };
 
-    const result = processBody({ requestBody: { content } })
+    const result = processBody({ requestBody: { content } });
 
     expect(result).toEqual({
-      mimeType: 'application/json',
+      mimeType: "application/json",
       text: JSON.stringify({
-        stringField: 'test',
+        stringField: "test",
         numberField: 123,
         booleanField: false,
         nullField: null,
       }),
-    })
-  })
+    });
+  });
 
-  it('handles nested arrays with examples', () => {
+  it("handles nested arrays with examples", () => {
     const content = {
-      'application/json': {
+      "application/json": {
         schema: coerceValue(SchemaObjectSchema, {
-          type: 'object',
+          type: "object",
           properties: {
             matrix: {
-              type: 'array',
+              type: "array",
               items: {
-                type: 'array',
+                type: "array",
                 items: {
-                  type: 'number',
+                  type: "number",
                   example: 1,
                 },
               },
@@ -235,624 +235,632 @@ describe('processBody', () => {
           },
         }),
       },
-    }
+    };
 
-    const result = processBody({ requestBody: { content } })
+    const result = processBody({ requestBody: { content } });
 
     expect(result).toEqual({
-      mimeType: 'application/json',
+      mimeType: "application/json",
       text: JSON.stringify({
         matrix: [[1]],
       }),
-    })
-  })
+    });
+  });
 
-  it('handles object with some properties having examples and others not', () => {
+  it("handles object with some properties having examples and others not", () => {
     const content = {
-      'application/json': {
+      "application/json": {
         schema: coerceValue(SchemaObjectSchema, {
-          type: 'object',
+          type: "object",
           properties: {
-            name: { type: 'string', example: 'Alice' },
-            age: { type: 'number' }, // No example
-            email: { type: 'string', example: 'alice@example.com' },
-            address: { type: 'string' }, // No example
+            name: { type: "string", example: "Alice" },
+            age: { type: "number" }, // No example
+            email: { type: "string", example: "alice@example.com" },
+            address: { type: "string" }, // No example
           },
         }),
       },
-    }
+    };
 
-    const result = processBody({ requestBody: { content } })
+    const result = processBody({ requestBody: { content } });
 
     expect(result).toEqual({
-      mimeType: 'application/json',
+      mimeType: "application/json",
       text: JSON.stringify({
-        name: 'Alice',
+        name: "Alice",
         age: 1,
-        email: 'alice@example.com',
-        address: '',
+        email: "alice@example.com",
+        address: "",
       }),
-    })
-  })
+    });
+  });
 
-  it('skips readOnly properties', () => {
+  it("skips readOnly properties", () => {
     const content = {
-      'application/json': {
+      "application/json": {
         schema: coerceValue(SchemaObjectSchema, {
-          type: 'object',
+          type: "object",
           properties: {
-            name: { type: 'string', example: 'Alice' },
-            age: { type: 'number', readOnly: true },
+            name: { type: "string", example: "Alice" },
+            age: { type: "number", readOnly: true },
           },
         }),
       },
-    }
+    };
 
-    const result = processBody({ requestBody: { content } })
+    const result = processBody({ requestBody: { content } });
 
     expect(result).toEqual({
-      mimeType: 'application/json',
+      mimeType: "application/json",
       text: JSON.stringify({
-        name: 'Alice',
+        name: "Alice",
       }),
-    })
-  })
+    });
+  });
 
-  it('handles custom content type with schema examples', () => {
+  it("handles custom content type with schema examples", () => {
     const content = {
-      'application/xml': {
+      "application/xml": {
         schema: coerceValue(SchemaObjectSchema, {
-          type: 'string',
-          example: '<user><name>Bob</name></user>',
+          type: "string",
+          example: "<user><name>Bob</name></user>",
         }),
       },
-    }
+    };
 
     const result = processBody({
       requestBody: { content },
-      contentType: 'application/xml',
-    })
+      contentType: "application/xml",
+    });
 
     expect(result).toEqual({
-      mimeType: 'application/xml',
-      text: '<user><name>Bob</name></user>',
-    })
-  })
+      mimeType: "application/xml",
+      text: "<user><name>Bob</name></user>",
+    });
+  });
 
-  it('handles operation without requestBody', () => {
-    const content = {}
-    const result = processBody({ requestBody: { content } })
-    expect(result).toBeUndefined()
-  })
+  it("handles operation without requestBody", () => {
+    const content = {};
+    const result = processBody({ requestBody: { content } });
+    expect(result).toBeUndefined();
+  });
 
-  it('handles operation with empty content', () => {
-    const content = {}
-    const result = processBody({ requestBody: { content } })
-    expect(result).toBeUndefined()
-  })
+  it("handles operation with empty content", () => {
+    const content = {};
+    const result = processBody({ requestBody: { content } });
+    expect(result).toBeUndefined();
+  });
 
-  it('handles schema without examples', () => {
+  it("handles schema without examples", () => {
     const content = {
-      'application/json': {
+      "application/json": {
         schema: coerceValue(SchemaObjectSchema, {
-          type: 'object',
+          type: "object",
           properties: {
-            name: { type: 'string' },
-            age: { type: 'number' },
+            name: { type: "string" },
+            age: { type: "number" },
           },
         }),
       },
-    }
+    };
 
-    const result = processBody({ requestBody: { content } })
+    const result = processBody({ requestBody: { content } });
 
     expect(result).toEqual({
-      mimeType: 'application/json',
+      mimeType: "application/json",
       text: JSON.stringify({
-        name: '',
+        name: "",
         age: 1,
       }),
-    })
-  })
+    });
+  });
 
-  it('prioritizes external example over schema examples', () => {
+  it("prioritizes external example over schema examples", () => {
     const content = {
-      'application/json': {
+      "application/json": {
         schema: coerceValue(SchemaObjectSchema, {
-          type: 'object',
+          type: "object",
           properties: {
-            name: { type: 'string', example: 'Schema Example' },
-            age: { type: 'number', example: 25 },
+            name: { type: "string", example: "Schema Example" },
+            age: { type: "number", example: 25 },
           },
         }),
         examples: {
-          'external': {
-            value: { name: 'External Example', age: 30 },
+          external: {
+            value: { name: "External Example", age: 30 },
           },
         },
       },
-    }
+    };
 
-    const externalExample = { name: 'External Example', age: 30 }
-    const result = processBody({ requestBody: { content }, example: 'external' })
+    const externalExample = { name: "External Example", age: 30 };
+    const result = processBody({
+      requestBody: { content },
+      example: "external",
+    });
 
     expect(result).toEqual({
-      mimeType: 'application/json',
+      mimeType: "application/json",
       text: JSON.stringify(externalExample),
-    })
-  })
+    });
+  });
 
-  describe('multipart/form-data', () => {
-    it('extracts examples from form data schema', () => {
+  describe("multipart/form-data", () => {
+    it("extracts examples from form data schema", () => {
       const content = {
-        'multipart/form-data': {
+        "multipart/form-data": {
           schema: coerceValue(SchemaObjectSchema, {
-            type: 'object',
+            type: "object",
             properties: {
               file: {
-                type: 'string',
-                format: 'binary',
-                example: 'SGVsbG8gV29ybGQ=',
+                type: "string",
+                format: "binary",
+                example: "SGVsbG8gV29ybGQ=",
               },
               description: {
-                type: 'string',
-                example: 'Test file upload',
+                type: "string",
+                example: "Test file upload",
               },
               tags: {
-                type: 'array',
+                type: "array",
                 items: {
-                  type: 'string',
-                  example: 'document',
+                  type: "string",
+                  example: "document",
                 },
               },
             },
           }),
         },
-      }
+      };
 
       const result = processBody({
         requestBody: { content },
-        contentType: 'multipart/form-data',
-      })
+        contentType: "multipart/form-data",
+      });
 
       expect(result).toEqual({
-        mimeType: 'multipart/form-data',
+        mimeType: "multipart/form-data",
         params: [
-          { name: 'file', value: 'SGVsbG8gV29ybGQ=' },
-          { name: 'description', value: 'Test file upload' },
-          { name: 'tags', value: 'document' },
+          { name: "file", value: "SGVsbG8gV29ybGQ=" },
+          { name: "description", value: "Test file upload" },
+          { name: "tags", value: "document" },
         ],
-      })
-    })
+      });
+    });
 
-    it('handles file upload with fileName and contentType', () => {
+    it("handles file upload with fileName and contentType", () => {
       const content = {
-        'multipart/form-data': {
+        "multipart/form-data": {
           schema: coerceValue(SchemaObjectSchema, {
-            type: 'object',
+            type: "object",
             properties: {
               image: {
-                type: 'string',
-                format: 'binary',
+                type: "string",
+                format: "binary",
                 examples: [
-                  'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==',
+                  "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==",
                 ],
               },
-              title: { type: 'string', example: 'My Image' },
+              title: { type: "string", example: "My Image" },
             },
           }),
         },
-      }
+      };
 
       const result = processBody({
         requestBody: { content },
-        contentType: 'multipart/form-data',
-      })
+        contentType: "multipart/form-data",
+      });
 
       expect(result).toEqual({
-        mimeType: 'multipart/form-data',
+        mimeType: "multipart/form-data",
         params: [
           {
-            name: 'image',
-            value: 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==',
+            name: "image",
+            value:
+              "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==",
           },
-          { name: 'title', value: 'My Image' },
+          { name: "title", value: "My Image" },
         ],
-      })
-    })
+      });
+    });
 
-    it('handles multiple file uploads with examples', () => {
+    it("handles multiple file uploads with examples", () => {
       const content = {
-        'multipart/form-data': {
+        "multipart/form-data": {
           schema: coerceValue(SchemaObjectSchema, {
-            type: 'object',
+            type: "object",
             properties: {
               files: {
-                type: 'array',
+                type: "array",
                 items: {
-                  type: 'string',
-                  format: 'binary',
-                  example: 'SGVsbG8gV29ybGQ=',
+                  type: "string",
+                  format: "binary",
+                  example: "SGVsbG8gV29ybGQ=",
                 },
               },
               metadata: {
-                type: 'object',
+                type: "object",
                 properties: {
-                  uploadDate: { type: 'string', example: '2024-01-01' },
-                  category: { type: 'string', example: 'images' },
+                  uploadDate: { type: "string", example: "2024-01-01" },
+                  category: { type: "string", example: "images" },
                 },
               },
             },
           }),
         },
-      }
+      };
 
       const result = processBody({
         requestBody: { content },
-        contentType: 'multipart/form-data',
-      })
+        contentType: "multipart/form-data",
+      });
 
       expect(result).toEqual({
-        mimeType: 'multipart/form-data',
+        mimeType: "multipart/form-data",
         params: [
-          { name: 'files', value: 'SGVsbG8gV29ybGQ=' },
-          { name: 'metadata.uploadDate', value: '2024-01-01' },
-          { name: 'metadata.category', value: 'images' },
+          { name: "files", value: "SGVsbG8gV29ybGQ=" },
+          { name: "metadata.uploadDate", value: "2024-01-01" },
+          { name: "metadata.category", value: "images" },
         ],
-      })
-    })
+      });
+    });
 
-    it('handles multipart form data with mixed content types', () => {
+    it("handles multipart form data with mixed content types", () => {
       const content = {
-        'multipart/form-data': {
+        "multipart/form-data": {
           schema: coerceValue(SchemaObjectSchema, {
-            type: 'object',
+            type: "object",
             properties: {
               image: {
-                type: 'string',
-                format: 'binary',
+                type: "string",
+                format: "binary",
                 example:
-                  'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==',
+                  "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==",
               },
-              title: { type: 'string', example: 'My Image' },
-              description: { type: 'string', example: 'A beautiful image' },
+              title: { type: "string", example: "My Image" },
+              description: { type: "string", example: "A beautiful image" },
               tags: {
-                type: 'array',
+                type: "array",
                 items: {
-                  type: 'string',
-                  examples: ['photo', 'nature', 'landscape'],
+                  type: "string",
+                  examples: ["photo", "nature", "landscape"],
                 },
               },
               settings: {
-                type: 'object',
+                type: "object",
                 properties: {
-                  public: { type: 'boolean', example: true },
-                  quality: { type: 'string', example: 'high' },
+                  public: { type: "boolean", example: true },
+                  quality: { type: "string", example: "high" },
                 },
               },
             },
           }),
         },
-      }
+      };
 
       const result = processBody({
         requestBody: { content },
-        contentType: 'multipart/form-data',
-      })
+        contentType: "multipart/form-data",
+      });
 
       expect(result).toEqual({
-        mimeType: 'multipart/form-data',
+        mimeType: "multipart/form-data",
         params: [
           {
-            name: 'image',
-            value: 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==',
+            name: "image",
+            value:
+              "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==",
           },
-          { name: 'title', value: 'My Image' },
-          { name: 'description', value: 'A beautiful image' },
-          { name: 'tags', value: 'photo' },
-          { name: 'settings.public', value: 'true' },
-          { name: 'settings.quality', value: 'high' },
+          { name: "title", value: "My Image" },
+          { name: "description", value: "A beautiful image" },
+          { name: "tags", value: "photo" },
+          { name: "settings.public", value: "true" },
+          { name: "settings.quality", value: "high" },
         ],
-      })
-    })
+      });
+    });
 
-    it('handles multipart form data without external example', () => {
+    it("handles multipart form data without external example", () => {
       const content = {
-        'multipart/form-data': {
+        "multipart/form-data": {
           schema: coerceValue(SchemaObjectSchema, {
-            type: 'object',
+            type: "object",
             properties: {
-              file: { type: 'string', format: 'binary' },
-              name: { type: 'string' },
+              file: { type: "string", format: "binary" },
+              name: { type: "string" },
             },
           }),
         },
-      }
+      };
 
       const result = processBody({
         requestBody: { content },
-        contentType: 'multipart/form-data',
-      })
+        contentType: "multipart/form-data",
+      });
 
       expect(result).toEqual({
-        mimeType: 'multipart/form-data',
+        mimeType: "multipart/form-data",
         params: [
           {
-            name: 'file',
-            value: '@filename',
+            name: "file",
+            value: "@filename",
           },
           {
-            name: 'name',
-            value: '',
+            name: "name",
+            value: "",
           },
         ],
-      })
-    })
+      });
+    });
 
-    it('handles multipart form data with array of files', () => {
+    it("handles multipart form data with array of files", () => {
       const content = {
-        'multipart/form-data': {
+        "multipart/form-data": {
           schema: coerceValue(SchemaObjectSchema, {
-            type: 'object',
+            type: "object",
             properties: {
               file: {
-                type: 'string',
-                format: 'binary',
-                examples: ['@mars.jpg', '@jupiter.png'],
-                description: 'Mars rover photo',
+                type: "string",
+                format: "binary",
+                examples: ["@mars.jpg", "@jupiter.png"],
+                description: "Mars rover photo",
               },
-              name: { type: 'string', example: 'Mars Rover Photo' },
-              category: { type: 'string', example: 'space' },
+              name: { type: "string", example: "Mars Rover Photo" },
+              category: { type: "string", example: "space" },
               metadata: {
-                type: 'object',
+                type: "object",
                 properties: {
-                  location: { type: 'string', example: 'Mars' },
-                  date: { type: 'string', example: '2024-01-15' },
+                  location: { type: "string", example: "Mars" },
+                  date: { type: "string", example: "2024-01-15" },
                 },
               },
             },
           }),
         },
-      }
+      };
 
       const result = processBody({
         requestBody: { content },
-        contentType: 'multipart/form-data',
-      })
+        contentType: "multipart/form-data",
+      });
 
       expect(result).toEqual({
-        mimeType: 'multipart/form-data',
+        mimeType: "multipart/form-data",
         params: [
-          { name: 'file', value: '@mars.jpg' },
-          { name: 'name', value: 'Mars Rover Photo' },
-          { name: 'category', value: 'space' },
-          { name: 'metadata.location', value: 'Mars' },
-          { name: 'metadata.date', value: '2024-01-15' },
+          { name: "file", value: "@mars.jpg" },
+          { name: "name", value: "Mars Rover Photo" },
+          { name: "category", value: "space" },
+          { name: "metadata.location", value: "Mars" },
+          { name: "metadata.date", value: "2024-01-15" },
         ],
-      })
-    })
+      });
+    });
 
-    it('handles multipart form data with empty object', () => {
+    it("handles multipart form data with empty object", () => {
       const content = {
-        'multipart/form-data': {
+        "multipart/form-data": {
           schema: coerceValue(SchemaObjectSchema, {
-            type: 'object',
+            type: "object",
             properties: {},
           }),
         },
-      }
+      };
 
       const result = processBody({
         requestBody: { content },
-        contentType: 'multipart/form-data',
-      })
+        contentType: "multipart/form-data",
+      });
 
       expect(result).toEqual({
-        mimeType: 'multipart/form-data',
+        mimeType: "multipart/form-data",
         params: [],
-      })
-    })
+      });
+    });
 
-    it('handles multipart form data with primitive values', () => {
+    it("handles multipart form data with primitive values", () => {
       const content = {
-        'multipart/form-data': {
+        "multipart/form-data": {
           schema: coerceValue(SchemaObjectSchema, {
-            type: 'object',
+            type: "object",
             properties: {
-              text: { type: 'string', example: 'Simple text' },
-              number: { type: 'number', example: 42 },
-              boolean: { type: 'boolean', example: true },
+              text: { type: "string", example: "Simple text" },
+              number: { type: "number", example: 42 },
+              boolean: { type: "boolean", example: true },
             },
           }),
         },
-      }
+      };
 
       const result = processBody({
         requestBody: { content },
-        contentType: 'multipart/form-data',
-      })
+        contentType: "multipart/form-data",
+      });
 
       expect(result).toEqual({
-        mimeType: 'multipart/form-data',
+        mimeType: "multipart/form-data",
         params: [
-          { name: 'text', value: 'Simple text' },
-          { name: 'number', value: '42' },
-          { name: 'boolean', value: 'true' },
+          { name: "text", value: "Simple text" },
+          { name: "number", value: "42" },
+          { name: "boolean", value: "true" },
         ],
-      })
-    })
+      });
+    });
 
-    it('handles file upload with comment', () => {
+    it("handles file upload with comment", () => {
       const content = {
-        'multipart/form-data': {
+        "multipart/form-data": {
           schema: coerceValue(SchemaObjectSchema, {
-            type: 'object',
+            type: "object",
             properties: {
               document: {
-                type: 'string',
-                format: 'binary',
-                description: 'Quarterly financial report',
-                examples: ['base64-encoded-content'],
+                type: "string",
+                format: "binary",
+                description: "Quarterly financial report",
+                examples: ["base64-encoded-content"],
               },
-              notes: { type: 'string', example: 'Important document' },
+              notes: { type: "string", example: "Important document" },
             },
           }),
         },
-      }
+      };
 
       const result = processBody({
         requestBody: { content },
-        contentType: 'multipart/form-data',
-      })
+        contentType: "multipart/form-data",
+      });
 
       expect(result).toEqual({
-        mimeType: 'multipart/form-data',
+        mimeType: "multipart/form-data",
         params: [
           {
-            name: 'document',
-            value: 'base64-encoded-content',
+            name: "document",
+            value: "base64-encoded-content",
           },
-          { name: 'notes', value: 'Important document' },
+          { name: "notes", value: "Important document" },
         ],
-      })
-    })
-  })
+      });
+    });
+  });
 
-  describe('application/x-www-form-urlencoded', () => {
-    it('extracts examples from form data schema', () => {
+  describe("application/x-www-form-urlencoded", () => {
+    it("extracts examples from form data schema", () => {
       const content = {
-        'application/x-www-form-urlencoded': {
+        "application/x-www-form-urlencoded": {
           schema: coerceValue(SchemaObjectSchema, {
-            type: 'object',
+            type: "object",
             properties: {
-              username: { type: 'string', example: 'testuser' },
-              password: { type: 'string', example: 'secret123' },
-              remember: { type: 'boolean', example: true },
-              role: { type: 'string', examples: ['user', 'admin'] },
+              username: { type: "string", example: "testuser" },
+              password: { type: "string", example: "secret123" },
+              remember: { type: "boolean", example: true },
+              role: { type: "string", examples: ["user", "admin"] },
             },
           }),
         },
-      }
+      };
 
       const result = processBody({
         requestBody: { content },
-        contentType: 'application/x-www-form-urlencoded',
-      })
+        contentType: "application/x-www-form-urlencoded",
+      });
 
       expect(result).toEqual({
-        mimeType: 'application/x-www-form-urlencoded',
+        mimeType: "application/x-www-form-urlencoded",
         params: [
-          { name: 'username', value: 'testuser' },
-          { name: 'password', value: 'secret123' },
-          { name: 'remember', value: 'true' },
-          { name: 'role', value: 'user' },
+          { name: "username", value: "testuser" },
+          { name: "password", value: "secret123" },
+          { name: "remember", value: "true" },
+          { name: "role", value: "user" },
         ],
-      })
-    })
+      });
+    });
 
-    it('handles form data with array examples', () => {
+    it("handles form data with array examples", () => {
       const content = {
-        'application/x-www-form-urlencoded': {
+        "application/x-www-form-urlencoded": {
           schema: coerceValue(SchemaObjectSchema, {
-            type: 'object',
+            type: "object",
             properties: {
               categories: {
-                type: 'array',
+                type: "array",
                 items: {
-                  type: 'string',
-                  example: 'electronics',
+                  type: "string",
+                  example: "electronics",
                 },
               },
               preferences: {
-                type: 'object',
+                type: "object",
                 properties: {
-                  theme: { type: 'string', example: 'dark' },
-                  language: { type: 'string', example: 'en' },
+                  theme: { type: "string", example: "dark" },
+                  language: { type: "string", example: "en" },
                 },
               },
             },
           }),
         },
-      }
+      };
 
       const result = processBody({
         requestBody: { content },
-        contentType: 'application/x-www-form-urlencoded',
-      })
+        contentType: "application/x-www-form-urlencoded",
+      });
 
       expect(result).toEqual({
-        mimeType: 'application/x-www-form-urlencoded',
+        mimeType: "application/x-www-form-urlencoded",
         params: [
-          { name: 'categories', value: 'electronics' },
-          { name: 'preferences.theme', value: 'dark' },
-          { name: 'preferences.language', value: 'en' },
+          { name: "categories", value: "electronics" },
+          { name: "preferences.theme", value: "dark" },
+          { name: "preferences.language", value: "en" },
         ],
-      })
-    })
+      });
+    });
 
-    it('handles form data with multiple array items', () => {
+    it("handles form data with multiple array items", () => {
       const content = {
-        'application/x-www-form-urlencoded': {
+        "application/x-www-form-urlencoded": {
           schema: coerceValue(SchemaObjectSchema, {
-            type: 'object',
+            type: "object",
             properties: {
               tags: {
-                type: 'array',
+                type: "array",
                 items: {
-                  type: 'string',
-                  examples: ['javascript', 'typescript', 'react'],
+                  type: "string",
+                  examples: ["javascript", "typescript", "react"],
                 },
               },
               numbers: {
-                type: 'array',
+                type: "array",
                 items: {
-                  type: 'number',
+                  type: "number",
                   example: 42,
                 },
               },
             },
           }),
         },
-      }
+      };
 
       const result = processBody({
         requestBody: { content },
-        contentType: 'application/x-www-form-urlencoded',
-      })
+        contentType: "application/x-www-form-urlencoded",
+      });
 
       expect(result).toEqual({
-        mimeType: 'application/x-www-form-urlencoded',
+        mimeType: "application/x-www-form-urlencoded",
         params: [
-          { name: 'tags', value: 'javascript' },
-          { name: 'numbers', value: '42' },
+          { name: "tags", value: "javascript" },
+          { name: "numbers", value: "42" },
         ],
-      })
-    })
+      });
+    });
 
-    it('handles deeply nested objects in form data', () => {
+    it("handles deeply nested objects in form data", () => {
       const content = {
-        'application/x-www-form-urlencoded': {
+        "application/x-www-form-urlencoded": {
           schema: coerceValue(SchemaObjectSchema, {
-            type: 'object',
+            type: "object",
             properties: {
               user: {
-                type: 'object',
+                type: "object",
                 properties: {
                   profile: {
-                    type: 'object',
+                    type: "object",
                     properties: {
                       personal: {
-                        type: 'object',
+                        type: "object",
                         properties: {
-                          firstName: { type: 'string', example: 'John' },
-                          lastName: { type: 'string', example: 'Doe' },
+                          firstName: { type: "string", example: "John" },
+                          lastName: { type: "string", example: "Doe" },
                         },
                       },
                       contact: {
-                        type: 'object',
+                        type: "object",
                         properties: {
-                          email: { type: 'string', example: 'john@example.com' },
-                          phone: { type: 'string', example: '+1234567890' },
+                          email: {
+                            type: "string",
+                            example: "john@example.com",
+                          },
+                          phone: { type: "string", example: "+1234567890" },
                         },
                       },
                     },
@@ -862,284 +870,287 @@ describe('processBody', () => {
             },
           }),
         },
-      }
+      };
 
       const result = processBody({
         requestBody: { content },
-        contentType: 'application/x-www-form-urlencoded',
-      })
+        contentType: "application/x-www-form-urlencoded",
+      });
 
       expect(result).toEqual({
-        mimeType: 'application/x-www-form-urlencoded',
+        mimeType: "application/x-www-form-urlencoded",
         params: [
-          { name: 'user.profile.personal.firstName', value: 'John' },
-          { name: 'user.profile.personal.lastName', value: 'Doe' },
-          { name: 'user.profile.contact.email', value: 'john@example.com' },
-          { name: 'user.profile.contact.phone', value: '+1234567890' },
+          { name: "user.profile.personal.firstName", value: "John" },
+          { name: "user.profile.personal.lastName", value: "Doe" },
+          { name: "user.profile.contact.email", value: "john@example.com" },
+          { name: "user.profile.contact.phone", value: "+1234567890" },
         ],
-      })
-    })
+      });
+    });
 
-    it('handles form data with mixed primitive types', () => {
+    it("handles form data with mixed primitive types", () => {
       const content = {
-        'application/x-www-form-urlencoded': {
+        "application/x-www-form-urlencoded": {
           schema: coerceValue(SchemaObjectSchema, {
-            type: 'object',
+            type: "object",
             properties: {
-              stringField: { type: 'string', example: 'hello world' },
-              numberField: { type: 'number', example: 123.45 },
-              integerField: { type: 'integer', example: 42 },
-              booleanField: { type: 'boolean', example: false },
-              nullField: { type: 'null', example: null },
+              stringField: { type: "string", example: "hello world" },
+              numberField: { type: "number", example: 123.45 },
+              integerField: { type: "integer", example: 42 },
+              booleanField: { type: "boolean", example: false },
+              nullField: { type: "null", example: null },
             },
           }),
         },
-      }
+      };
 
       const result = processBody({
         requestBody: { content },
-        contentType: 'application/x-www-form-urlencoded',
-      })
+        contentType: "application/x-www-form-urlencoded",
+      });
 
       expect(result).toEqual({
-        mimeType: 'application/x-www-form-urlencoded',
+        mimeType: "application/x-www-form-urlencoded",
         params: [
-          { name: 'stringField', value: 'hello world' },
-          { name: 'numberField', value: '123.45' },
-          { name: 'integerField', value: '42' },
-          { name: 'booleanField', value: 'false' },
+          { name: "stringField", value: "hello world" },
+          { name: "numberField", value: "123.45" },
+          { name: "integerField", value: "42" },
+          { name: "booleanField", value: "false" },
         ],
-      })
-    })
+      });
+    });
 
-    it('handles form data with external example', () => {
+    it("handles form data with external example", () => {
       const externalExample = {
-        name: 'External Example',
+        name: "External Example",
         age: 30,
-        extra: 'additional field',
+        extra: "additional field",
         nested: {
-          key: 'value',
+          key: "value",
         },
-      }
+      };
 
       const content = {
-        'application/x-www-form-urlencoded': {
+        "application/x-www-form-urlencoded": {
           schema: coerceValue(SchemaObjectSchema, {
-            type: 'object',
+            type: "object",
             properties: {
-              name: { type: 'string', example: 'Schema Example' },
-              age: { type: 'number', example: 25 },
+              name: { type: "string", example: "Schema Example" },
+              age: { type: "number", example: 25 },
             },
           }),
           examples: {
-            'test': {
+            test: {
               value: externalExample,
             },
           },
         },
-      }
+      };
 
       const result = processBody({
         requestBody: { content },
-        contentType: 'application/x-www-form-urlencoded',
-        example: 'test',
-      })
+        contentType: "application/x-www-form-urlencoded",
+        example: "test",
+      });
 
       expect(result).toEqual({
-        mimeType: 'application/x-www-form-urlencoded',
+        mimeType: "application/x-www-form-urlencoded",
         params: [
-          { name: 'name', value: 'External Example' },
-          { name: 'age', value: '30' },
-          { name: 'extra', value: 'additional field' },
-          { name: 'nested.key', value: 'value' },
+          { name: "name", value: "External Example" },
+          { name: "age", value: "30" },
+          { name: "extra", value: "additional field" },
+          { name: "nested.key", value: "value" },
         ],
-      })
-    })
+      });
+    });
 
-    it('handles form data with empty object', () => {
+    it("handles form data with empty object", () => {
       const content = {
-        'application/x-www-form-urlencoded': {
+        "application/x-www-form-urlencoded": {
           schema: coerceValue(SchemaObjectSchema, {
-            type: 'object',
+            type: "object",
             properties: {},
           }),
         },
-      }
+      };
 
       const result = processBody({
         requestBody: { content },
-        contentType: 'application/x-www-form-urlencoded',
-      })
+        contentType: "application/x-www-form-urlencoded",
+      });
 
       expect(result).toEqual({
-        mimeType: 'application/x-www-form-urlencoded',
+        mimeType: "application/x-www-form-urlencoded",
         params: [],
-      })
-    })
+      });
+    });
 
-    it('handles form data with properties without examples', () => {
+    it("handles form data with properties without examples", () => {
       const content = {
-        'application/x-www-form-urlencoded': {
+        "application/x-www-form-urlencoded": {
           schema: coerceValue(SchemaObjectSchema, {
-            type: 'object',
+            type: "object",
             properties: {
-              name: { type: 'string', example: 'John' },
-              age: { type: 'number' }, // No example
-              email: { type: 'string', example: 'john@example.com' },
-              address: { type: 'string' }, // No example
+              name: { type: "string", example: "John" },
+              age: { type: "number" }, // No example
+              email: { type: "string", example: "john@example.com" },
+              address: { type: "string" }, // No example
             },
           }),
         },
-      }
+      };
 
       const result = processBody({
         requestBody: { content },
-        contentType: 'application/x-www-form-urlencoded',
-      })
+        contentType: "application/x-www-form-urlencoded",
+      });
 
       expect(result).toEqual({
-        mimeType: 'application/x-www-form-urlencoded',
+        mimeType: "application/x-www-form-urlencoded",
         params: [
-          { name: 'name', value: 'John' },
-          { name: 'age', value: '1' },
-          { name: 'email', value: 'john@example.com' },
-          { name: 'address', value: '' },
+          { name: "name", value: "John" },
+          { name: "age", value: "1" },
+          { name: "email", value: "john@example.com" },
+          { name: "address", value: "" },
         ],
-      })
-    })
+      });
+    });
 
-    it('handles nested form data', () => {
+    it("handles nested form data", () => {
       const content = {
-        'application/x-www-form-urlencoded': {
+        "application/x-www-form-urlencoded": {
           schema: coerceValue(SchemaObjectSchema, {
-            type: 'object',
+            type: "object",
             properties: {
               user: {
-                type: 'object',
+                type: "object",
                 properties: {
-                  firstName: { type: 'string', example: 'John' },
-                  lastName: { type: 'string', example: 'Doe' },
+                  firstName: { type: "string", example: "John" },
+                  lastName: { type: "string", example: "Doe" },
                 },
               },
             },
           }),
         },
-      }
+      };
 
       const result = processBody({
         requestBody: { content },
-        contentType: 'application/x-www-form-urlencoded',
-      })
+        contentType: "application/x-www-form-urlencoded",
+      });
 
       expect(result).toEqual({
-        mimeType: 'application/x-www-form-urlencoded',
+        mimeType: "application/x-www-form-urlencoded",
         params: [
-          { name: 'user.firstName', value: 'John' },
-          { name: 'user.lastName', value: 'Doe' },
+          { name: "user.firstName", value: "John" },
+          { name: "user.lastName", value: "Doe" },
         ],
-      })
-    })
-  })
+      });
+    });
+  });
 
-  describe('binary files', () => {
-    it('formats raw binary file examples as file references', () => {
-      const mockFile = new File(['binary content'], 'payload.bin', { type: 'application/octet-stream' })
+  describe("binary files", () => {
+    it("formats raw binary file examples as file references", () => {
+      const mockFile = new File(["binary content"], "payload.bin", {
+        type: "application/octet-stream",
+      });
       const content = {
-        'application/octet-stream': {
+        "application/octet-stream": {
           examples: {
             default: {
               value: mockFile,
             },
           },
         },
-      }
+      };
 
       const result = processBody({
         requestBody: { content },
-        contentType: 'application/octet-stream',
-      })
+        contentType: "application/octet-stream",
+      });
 
       expect(result).toEqual({
-        mimeType: 'application/octet-stream',
-        text: '@payload.bin',
-      })
-    })
+        mimeType: "application/octet-stream",
+        text: "@payload.bin",
+      });
+    });
 
-    it('extracts binary file examples', () => {
+    it("extracts binary file examples", () => {
       const content = {
-        'image/png': {
+        "image/png": {
           schema: coerceValue(SchemaObjectSchema, {
-            type: 'string',
-            format: 'binary',
-            example: 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==',
-          }),
-        },
-      }
-
-      const result = processBody({
-        requestBody: { content },
-        contentType: 'image/png',
-      })
-
-      expect(result).toEqual({
-        mimeType: 'image/png',
-        text: 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==',
-      })
-    })
-
-    it('handles PDF file with example', () => {
-      const content = {
-        'application/pdf': {
-          schema: coerceValue(SchemaObjectSchema, {
-            type: 'string',
-            format: 'binary',
+            type: "string",
+            format: "binary",
             example:
-              'JVBERi0xLjcKCjEgMCBvYmogICUgZW50cnkgcG9pbnQKPDwKICAvVHlwZSAvQ2F0YWxvZwogIC9QYWdlcyAyIDAgUgo+PgplbmRvYmoKCjIgMCBvYmoKPDwKICAvVHlwZSAvUGFnZXMKICAvTWVkaWFCb3ggWyAwIDAgMjAwIDIwMCBdCiAgL0NvdW50IDEKICAvS2lkcyBbIDMgMCBSIF0KPj4KZW5kb2JqCgozIDAgb2JqCjw8CiAgL1R5cGUgL1BhZ2UKICAvUGFyZW50IDIgMCBSCiAgL1Jlc291cmNlcyA8PAogICAgL0ZvbnQgPDwKICAgICAgL0YxIDQgMCBSIAogICAgPj4KICA+PgogIC9Db250ZW50cyA1IDAgUgo+PgplbmRvYmoKCjQgMCBvYmoKPDwKICAvVHlwZSAvRm9udAogIC9TdWJ0eXBlIC9UeXBlMQogIC9CYXNlRm9udCAvVGltZXMtUm9tYW4KPj4KZW5kb2Jq',
+              "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==",
           }),
         },
-      }
+      };
 
       const result = processBody({
         requestBody: { content },
-        contentType: 'application/pdf',
-      })
+        contentType: "image/png",
+      });
 
       expect(result).toEqual({
-        mimeType: 'application/pdf',
-        text: 'JVBERi0xLjcKCjEgMCBvYmogICUgZW50cnkgcG9pbnQKPDwKICAvVHlwZSAvQ2F0YWxvZwogIC9QYWdlcyAyIDAgUgo+PgplbmRvYmoKCjIgMCBvYmoKPDwKICAvVHlwZSAvUGFnZXMKICAvTWVkaWFCb3ggWyAwIDAgMjAwIDIwMCBdCiAgL0NvdW50IDEKICAvS2lkcyBbIDMgMCBSIF0KPj4KZW5kb2JqCgozIDAgb2JqCjw8CiAgL1R5cGUgL1BhZ2UKICAvUGFyZW50IDIgMCBSCiAgL1Jlc291cmNlcyA8PAogICAgL0ZvbnQgPDwKICAgICAgL0YxIDQgMCBSIAogICAgPj4KICA+PgogIC9Db250ZW50cyA1IDAgUgo+PgplbmRvYmoKCjQgMCBvYmoKPDwKICAvVHlwZSAvRm9udAogIC9TdWJ0eXBlIC9UeXBlMQogIC9CYXNlRm9udCAvVGltZXMtUm9tYW4KPj4KZW5kb2Jq',
-      })
-    })
-  })
+        mimeType: "image/png",
+        text: "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==",
+      });
+    });
 
-  describe('complex nested structures', () => {
-    it('handles deeply nested objects with examples', () => {
+    it("handles PDF file with example", () => {
       const content = {
-        'application/json': {
+        "application/pdf": {
           schema: coerceValue(SchemaObjectSchema, {
-            type: 'object',
+            type: "string",
+            format: "binary",
+            example:
+              "JVBERi0xLjcKCjEgMCBvYmogICUgZW50cnkgcG9pbnQKPDwKICAvVHlwZSAvQ2F0YWxvZwogIC9QYWdlcyAyIDAgUgo+PgplbmRvYmoKCjIgMCBvYmoKPDwKICAvVHlwZSAvUGFnZXMKICAvTWVkaWFCb3ggWyAwIDAgMjAwIDIwMCBdCiAgL0NvdW50IDEKICAvS2lkcyBbIDMgMCBSIF0KPj4KZW5kb2JqCgozIDAgb2JqCjw8CiAgL1R5cGUgL1BhZ2UKICAvUGFyZW50IDIgMCBSCiAgL1Jlc291cmNlcyA8PAogICAgL0ZvbnQgPDwKICAgICAgL0YxIDQgMCBSIAogICAgPj4KICA+PgogIC9Db250ZW50cyA1IDAgUgo+PgplbmRvYmoKCjQgMCBvYmoKPDwKICAvVHlwZSAvRm9udAogIC9TdWJ0eXBlIC9UeXBlMQogIC9CYXNlRm9udCAvVGltZXMtUm9tYW4KPj4KZW5kb2Jq",
+          }),
+        },
+      };
+
+      const result = processBody({
+        requestBody: { content },
+        contentType: "application/pdf",
+      });
+
+      expect(result).toEqual({
+        mimeType: "application/pdf",
+        text: "JVBERi0xLjcKCjEgMCBvYmogICUgZW50cnkgcG9pbnQKPDwKICAvVHlwZSAvQ2F0YWxvZwogIC9QYWdlcyAyIDAgUgo+PgplbmRvYmoKCjIgMCBvYmoKPDwKICAvVHlwZSAvUGFnZXMKICAvTWVkaWFCb3ggWyAwIDAgMjAwIDIwMCBdCiAgL0NvdW50IDEKICAvS2lkcyBbIDMgMCBSIF0KPj4KZW5kb2JqCgozIDAgb2JqCjw8CiAgL1R5cGUgL1BhZ2UKICAvUGFyZW50IDIgMCBSCiAgL1Jlc291cmNlcyA8PAogICAgL0ZvbnQgPDwKICAgICAgL0YxIDQgMCBSIAogICAgPj4KICA+PgogIC9Db250ZW50cyA1IDAgUgo+PgplbmRvYmoKCjQgMCBvYmoKPDwKICAvVHlwZSAvRm9udAogIC9TdWJ0eXBlIC9UeXBlMQogIC9CYXNlRm9udCAvVGltZXMtUm9tYW4KPj4KZW5kb2Jq",
+      });
+    });
+  });
+
+  describe("complex nested structures", () => {
+    it("handles deeply nested objects with examples", () => {
+      const content = {
+        "application/json": {
+          schema: coerceValue(SchemaObjectSchema, {
+            type: "object",
             properties: {
               company: {
-                type: 'object',
+                type: "object",
                 properties: {
-                  name: { type: 'string', example: 'Tech Corp' },
+                  name: { type: "string", example: "Tech Corp" },
                   departments: {
-                    type: 'array',
+                    type: "array",
                     items: {
-                      type: 'object',
+                      type: "object",
                       properties: {
-                        name: { type: 'string', example: 'Engineering' },
+                        name: { type: "string", example: "Engineering" },
                         employees: {
-                          type: 'array',
+                          type: "array",
                           items: {
-                            type: 'object',
+                            type: "object",
                             properties: {
-                              id: { type: 'number', example: 1 },
-                              name: { type: 'string', example: 'John Doe' },
+                              id: { type: "number", example: 1 },
+                              name: { type: "string", example: "John Doe" },
                               skills: {
-                                type: 'array',
+                                type: "array",
                                 items: {
-                                  type: 'string',
-                                  example: 'JavaScript',
+                                  type: "string",
+                                  example: "JavaScript",
                                 },
                               },
                             },
@@ -1153,48 +1164,51 @@ describe('processBody', () => {
             },
           }),
         },
-      }
+      };
 
-      const result = processBody({ requestBody: { content } })
+      const result = processBody({ requestBody: { content } });
 
       expect(result).toEqual({
-        mimeType: 'application/json',
+        mimeType: "application/json",
         text: JSON.stringify({
           company: {
-            name: 'Tech Corp',
+            name: "Tech Corp",
             departments: [
               {
-                name: 'Engineering',
+                name: "Engineering",
                 employees: [
                   {
                     id: 1,
-                    name: 'John Doe',
-                    skills: ['JavaScript'],
+                    name: "John Doe",
+                    skills: ["JavaScript"],
                   },
                 ],
               },
             ],
           },
         }),
-      })
-    })
+      });
+    });
 
-    it('handles mixed example and examples properties', () => {
+    it("handles mixed example and examples properties", () => {
       const content = {
-        'application/json': {
+        "application/json": {
           schema: coerceValue(SchemaObjectSchema, {
-            type: 'object',
+            type: "object",
             properties: {
               user: {
-                type: 'object',
+                type: "object",
                 properties: {
-                  name: { type: 'string', example: 'Alice' },
-                  status: { type: 'string', examples: ['active', 'inactive'] },
+                  name: { type: "string", example: "Alice" },
+                  status: { type: "string", examples: ["active", "inactive"] },
                   preferences: {
-                    type: 'object',
+                    type: "object",
                     properties: {
-                      theme: { type: 'string', example: 'dark' },
-                      notifications: { type: 'boolean', examples: [true, false] },
+                      theme: { type: "string", example: "dark" },
+                      notifications: {
+                        type: "boolean",
+                        examples: [true, false],
+                      },
                     },
                   },
                 },
@@ -1202,97 +1216,99 @@ describe('processBody', () => {
             },
           }),
         },
-      }
+      };
 
-      const result = processBody({ requestBody: { content } })
+      const result = processBody({ requestBody: { content } });
 
       expect(result).toEqual({
-        mimeType: 'application/json',
+        mimeType: "application/json",
         text: JSON.stringify({
           user: {
-            name: 'Alice',
-            status: 'active',
+            name: "Alice",
+            status: "active",
             preferences: {
-              theme: 'dark',
+              theme: "dark",
               notifications: true,
             },
           },
         }),
-      })
-    })
-  })
+      });
+    });
+  });
 
-  describe('form data with isDisabled flags', () => {
-    it('handles multipart/form-data with array of objects containing isDisabled flags', () => {
+  describe("form data with isDisabled flags", () => {
+    it("handles multipart/form-data with array of objects containing isDisabled flags", () => {
       const content = {
-        'application/x-www-form-urlencoded': {
+        "application/x-www-form-urlencoded": {
           examples: {
             default: {
               value: [
                 {
-                  name: 'test',
-                  value: 'me now',
+                  name: "test",
+                  value: "me now",
                   isDisabled: true,
                 },
                 {
-                  name: 'why',
-                  value: 'is that?',
+                  name: "why",
+                  value: "is that?",
                   isDisabled: false,
                 },
                 {
-                  name: 'who',
-                  value: 'is this',
+                  name: "who",
+                  value: "is this",
                   isDisabled: false,
                 },
               ],
             },
           },
         },
-        'multipart/form-data': {
+        "multipart/form-data": {
           examples: {
             default: {
               value: [
                 {
-                  name: 'scalar.jpeg',
-                  value: new File(['scalar'], 'scalar.jpeg', { type: 'text/plain' }),
+                  name: "scalar.jpeg",
+                  value: new File(["scalar"], "scalar.jpeg", {
+                    type: "text/plain",
+                  }),
                   isDisabled: false,
                 },
                 {
-                  name: 'test',
-                  value: 'me',
+                  name: "test",
+                  value: "me",
                   isDisabled: false,
                 },
                 {
-                  name: 'what',
-                  value: 'name',
+                  name: "what",
+                  value: "name",
                   isDisabled: true,
                 },
               ],
             },
           },
         },
-      }
+      };
 
       const requestBody = {
         content,
-        'x-scalar-selected-content-type': {
-          default: 'multipart/form-data',
+        "x-scalar-selected-content-type": {
+          default: "multipart/form-data",
         },
-      }
+      };
 
       const result = processBody({
         requestBody,
-        contentType: 'multipart/form-data',
-        example: 'default',
-      })
+        contentType: "multipart/form-data",
+        example: "default",
+      });
 
       expect(result).toEqual({
-        mimeType: 'multipart/form-data',
+        mimeType: "multipart/form-data",
         params: [
-          { name: 'scalar.jpeg', value: '@scalar.jpeg' },
-          { name: 'test', value: 'me' },
+          { name: "scalar.jpeg", value: "@scalar.jpeg" },
+          { name: "test", value: "me" },
         ],
-      })
-    })
-  })
-})
+      });
+    });
+  });
+});

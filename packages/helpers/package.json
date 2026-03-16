@@ -22,7 +22,7 @@
     "build": "scalar-build-esbuild",
     "lint:check": "biome lint --diagnostic-level=error",
     "lint:fix": "biome lint --write",
-    "test": "vitest",
+    "test": "vp test",
     "types:build": "scalar-types-build",
     "types:check": "scalar-types-check"
   },
@@ -108,7 +108,8 @@
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
     "jsdom": "catalog:*",
-    "vite": "catalog:*",
-    "vitest": "catalog:*"
+    "vite": "catalog:",
+    "vitest": "catalog:",
+    "vite-plus": "catalog:"
   }
 }

@@ -18,7 +18,7 @@
     "build": "scalar-build-esbuild",
     "lint:check": "scalar-lint-check",
     "lint:fix": "scalar-lint-fix",
-    "test": "vitest",
+    "test": "vp test",
     "types:build": "scalar-types-build-vue",
     "types:check": "scalar-types-check-vue"
   },
@@ -61,6 +61,7 @@
     "@scalar/build-tooling": "workspace:*",
     "@vue/test-utils": "catalog:*",
     "jsdom": "catalog:*",
-    "vite": "catalog:*"
+    "vite": "catalog:",
+    "vite-plus": "catalog:"
   }
 }

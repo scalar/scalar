@@ -1,75 +1,75 @@
-import { ScalarMarkdown } from '@scalar/components'
-import { mount } from '@vue/test-utils'
-import { describe, expect, it } from 'vitest'
+import { ScalarMarkdown } from "@scalar/components";
+import { mount } from "@vue/test-utils";
+import { describe, expect, it } from "vite-plus/test";
 
-import InfoDescription from './InfoDescription.vue'
+import InfoDescription from "./InfoDescription.vue";
 
-describe('InfoDescription', () => {
-  it('renders nothing when no description is provided', () => {
-    const wrapper = mount(InfoDescription)
-    expect(wrapper.find('.introduction-description').exists()).toBe(false)
-  })
+describe("InfoDescription", () => {
+  it("renders nothing when no description is provided", () => {
+    const wrapper = mount(InfoDescription);
+    expect(wrapper.find(".introduction-description").exists()).toBe(false);
+  });
 
-  it('renders markdown content when description is provided', () => {
+  it("renders markdown content when description is provided", () => {
     const wrapper = mount(InfoDescription, {
       props: {
         eventBus: null,
-        description: '# Hello World',
+        description: "# Hello World",
         headingSlugGenerator: (heading) => `description/${heading.slug}`,
       },
-    })
-    expect(wrapper.findComponent(ScalarMarkdown).exists()).toBe(true)
-    expect(wrapper.find('.introduction-description').exists()).toBe(true)
-  })
+    });
+    expect(wrapper.findComponent(ScalarMarkdown).exists()).toBe(true);
+    expect(wrapper.find(".introduction-description").exists()).toBe(true);
+  });
 
-  it('splits content into sections', () => {
+  it("splits content into sections", () => {
     const wrapper = mount(InfoDescription, {
       props: {
         eventBus: null,
-        description: '# Heading 1\nContent 1\n# Heading 2\nContent 2',
+        description: "# Heading 1\nContent 1\n# Heading 2\nContent 2",
         headingSlugGenerator: (heading) => `description/${heading.slug}`,
       },
-    })
-    const sections = wrapper.findAllComponents(ScalarMarkdown)
-    expect(sections).toHaveLength(4) // 2 headings + 2 content sections
-  })
+    });
+    const sections = wrapper.findAllComponents(ScalarMarkdown);
+    expect(sections).toHaveLength(4); // 2 headings + 2 content sections
+  });
 
-  it('prefixes the heading section id', () => {
+  it("prefixes the heading section id", () => {
     const wrapper = mount(InfoDescription, {
       props: {
         eventBus: null,
-        description: '# Test Heading',
+        description: "# Test Heading",
         headingSlugGenerator: (heading) => `description/${heading.slug}`,
       },
-    })
-    const observer = wrapper.find('[id="description/test-heading"]')
-    expect(observer.exists()).toBe(true)
-  })
+    });
+    const observer = wrapper.find('[id="description/test-heading"]');
+    expect(observer.exists()).toBe(true);
+  });
 
-  it('renders heading with link and assigns id from link text', () => {
+  it("renders heading with link and assigns id from link text", () => {
     const wrapper = mount(InfoDescription, {
       props: {
         eventBus: null,
-        description: '# [Click here](https://example.com)',
+        description: "# [Click here](https://example.com)",
         headingSlugGenerator: (heading) => `description/${heading.slug}`,
       },
-    })
-    const section = wrapper.find('[id="description/click-here"]')
-    expect(section.exists()).toBe(true)
-  })
+    });
+    const section = wrapper.find('[id="description/click-here"]');
+    expect(section.exists()).toBe(true);
+  });
 
-  it('assigns unique ids when two headings have the same text', () => {
+  it("assigns unique ids when two headings have the same text", () => {
     const wrapper = mount(InfoDescription, {
       props: {
         eventBus: null,
-        description: '# Foo\n\nContent one\n\n# Foo\n\nContent two',
+        description: "# Foo\n\nContent one\n\n# Foo\n\nContent two",
         headingSlugGenerator: (heading) => `description/${heading.slug}`,
       },
-    })
-    const first = wrapper.find('[id="description/foo"]')
-    const second = wrapper.find('[id="description/foo-1"]')
-    expect(first.exists()).toBe(true)
-    expect(second.exists()).toBe(true)
-    expect(first.attributes('id')).not.toBe(second.attributes('id'))
-  })
-})
+    });
+    const first = wrapper.find('[id="description/foo"]');
+    const second = wrapper.find('[id="description/foo-1"]');
+    expect(first.exists()).toBe(true);
+    expect(second.exists()).toBe(true);
+    expect(first.attributes("id")).not.toBe(second.attributes("id"));
+  });
+});

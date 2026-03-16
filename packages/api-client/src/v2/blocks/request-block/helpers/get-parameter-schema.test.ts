@@ -1,47 +1,47 @@
-import type { ParameterObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import { describe, expect, it } from 'vitest'
+import type { ParameterObject } from "@scalar/workspace-store/schemas/v3.1/strict/openapi-document";
+import { describe, expect, it } from "vite-plus/test";
 
-import { getParameterSchema } from '@/v2/blocks/request-block/helpers/get-parameter-schema'
+import { getParameterSchema } from "@/v2/blocks/request-block/helpers/get-parameter-schema";
 
-describe('getParameterSchema', () => {
-  it('return undefined when the schema does not exists', () => {
+describe("getParameterSchema", () => {
+  it("return undefined when the schema does not exists", () => {
     const parameter: ParameterObject = {
-      in: 'path',
-      name: 'some name',
-    }
+      in: "path",
+      name: "some name",
+    };
 
-    expect(getParameterSchema(parameter)).toBe(undefined)
-  })
+    expect(getParameterSchema(parameter)).toBe(undefined);
+  });
 
-  it('extract schema from parameter #1', () => {
+  it("extract schema from parameter #1", () => {
     const parameter: ParameterObject = {
-      in: 'path',
-      name: 'some name',
+      in: "path",
+      name: "some name",
       schema: {
-        type: 'string',
+        type: "string",
       },
-    }
+    };
 
     expect(getParameterSchema(parameter)).toEqual({
-      type: 'string',
-    })
-  })
+      type: "string",
+    });
+  });
 
-  it('extract example from parameter #2', () => {
+  it("extract example from parameter #2", () => {
     const parameter: ParameterObject = {
-      in: 'path',
-      name: 'some name',
+      in: "path",
+      name: "some name",
       content: {
-        'text/plain': {
+        "text/plain": {
           schema: {
-            type: 'string',
+            type: "string",
           },
         },
       },
-    }
+    };
 
     expect(getParameterSchema(parameter)).toEqual({
-      type: 'string',
-    })
-  })
-})
+      type: "string",
+    });
+  });
+});

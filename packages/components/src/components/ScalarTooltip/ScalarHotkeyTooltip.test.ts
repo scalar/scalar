@@ -1,9 +1,9 @@
 import { mount } from '@vue/test-utils'
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vite-plus/test'
 import { nextTick } from 'vue'
 
-import { ELEMENT_ID } from './constants'
 import ScalarHotkeyTooltip from './ScalarHotkeyTooltip.vue'
+import { ELEMENT_ID } from './constants'
 import { cleanupTooltipElement } from './useTooltip'
 
 describe('ScalarHotkeyTooltip', () => {
@@ -82,7 +82,9 @@ describe('ScalarHotkeyTooltip', () => {
 
     const tooltip = document.getElementById(ELEMENT_ID)
     expect(tooltip?.style.display).toBe('block')
-    expect(tooltip?.style.getPropertyValue('--scalar-tooltip-offset')).toBe('10px')
+    expect(tooltip?.style.getPropertyValue('--scalar-tooltip-offset')).toBe(
+      '10px',
+    )
   })
 
   it('updates rendered content when content prop changes', async () => {
@@ -158,7 +160,9 @@ describe('ScalarHotkeyTooltip', () => {
     const tooltip = document.getElementById(ELEMENT_ID)
     expect(tooltip?.style.display).toBe('block')
     // Content should be escaped inside the rendered HTML string
-    expect(tooltip?.innerHTML).toContain('&lt;script&gt;alert("xss")&lt;/script&gt;Safe text')
+    expect(tooltip?.innerHTML).toContain(
+      '&lt;script&gt;alert("xss")&lt;/script&gt;Safe text',
+    )
     expect(tooltip?.textContent).toContain('Safe text')
   })
 

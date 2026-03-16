@@ -1,130 +1,130 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from "vite-plus/test";
 
-import { serverSchema } from './server'
+import { serverSchema } from "./server";
 
-describe('serverSchema', () => {
-  it('validates valid server object', () => {
-    const server = { url: 'https://api.example.com' }
-    expect(serverSchema.parse(server)).toMatchObject(server)
-  })
+describe("serverSchema", () => {
+  it("validates valid server object", () => {
+    const server = { url: "https://api.example.com" };
+    expect(serverSchema.parse(server)).toMatchObject(server);
+  });
 
-  it('validates server with description', () => {
+  it("validates server with description", () => {
     const server = {
-      url: 'https://api.example.com',
-      description: 'Production API',
-    }
-    expect(serverSchema.parse(server)).toMatchObject(server)
-  })
+      url: "https://api.example.com",
+      description: "Production API",
+    };
+    expect(serverSchema.parse(server)).toMatchObject(server);
+  });
 
-  it('validates server with variables', () => {
+  it("validates server with variables", () => {
     const server = {
-      url: 'https://{username}.example.com',
+      url: "https://{username}.example.com",
       variables: {
         username: {
-          default: 'demo',
+          default: "demo",
         },
       },
-    }
-    expect(serverSchema.parse(server)).toMatchObject(server)
-  })
+    };
+    expect(serverSchema.parse(server)).toMatchObject(server);
+  });
 
-  it('validates server with enum variables', () => {
+  it("validates server with enum variables", () => {
     const server = {
-      url: 'https://{environment}.example.com',
+      url: "https://{environment}.example.com",
       variables: {
         environment: {
-          enum: ['dev', 'staging', 'prod'],
-          default: 'dev',
-          description: 'Environment selection',
+          enum: ["dev", "staging", "prod"],
+          default: "dev",
+          description: "Environment selection",
         },
         username: {
           // invalid enum
           enum: [],
-          default: 'demo',
-          description: 'Username selection',
+          default: "demo",
+          description: "Username selection",
         },
         version: {
-          enum: ['v1', 'v2'],
-          description: 'Version selection',
+          enum: ["v1", "v2"],
+          description: "Version selection",
         },
       },
-    }
+    };
 
     expect(serverSchema.parse(server)).toStrictEqual({
       uid: expect.any(String),
-      url: 'https://{environment}.example.com',
+      url: "https://{environment}.example.com",
       variables: {
         environment: {
-          enum: ['dev', 'staging', 'prod'],
+          enum: ["dev", "staging", "prod"],
           // kept
-          default: 'dev',
-          description: 'Environment selection',
+          default: "dev",
+          description: "Environment selection",
         },
         username: {
           // enum omitted
-          default: 'demo',
-          description: 'Username selection',
+          default: "demo",
+          description: "Username selection",
         },
         version: {
-          enum: ['v1', 'v2'],
+          enum: ["v1", "v2"],
           // added
-          default: 'v1',
-          description: 'Version selection',
+          default: "v1",
+          description: "Version selection",
         },
       },
-    })
-  })
+    });
+  });
 
-  it('fails when URL is missing', () => {
-    const server = {}
-    expect(() => serverSchema.parse(server)).toThrow()
-  })
+  it("fails when URL is missing", () => {
+    const server = {};
+    expect(() => serverSchema.parse(server)).toThrow();
+  });
 
-  it('fails when variable default is not in enum', () => {
+  it("fails when variable default is not in enum", () => {
     const server = {
-      url: 'https://{environment}.example.com',
+      url: "https://{environment}.example.com",
       variables: {
         environment: {
-          enum: ['dev', 'staging', 'prod'],
-          default: 'invalid',
-          description: 'Environment selection',
+          enum: ["dev", "staging", "prod"],
+          default: "invalid",
+          description: "Environment selection",
         },
       },
-    }
+    };
 
     expect(serverSchema.parse(server)).toMatchObject({
-      url: 'https://{environment}.example.com',
+      url: "https://{environment}.example.com",
       variables: {
         environment: {
-          enum: ['dev', 'staging', 'prod'],
-          default: 'dev',
-          description: 'Environment selection',
+          enum: ["dev", "staging", "prod"],
+          default: "dev",
+          description: "Environment selection",
         },
       },
-    })
-  })
+    });
+  });
 
-  it('validates server with relative URL', () => {
+  it("validates server with relative URL", () => {
     const server = {
-      url: '/api/v1',
-      description: 'Relative URL',
-    }
-    expect(serverSchema.parse(server)).toMatchObject(server)
-  })
+      url: "/api/v1",
+      description: "Relative URL",
+    };
+    expect(serverSchema.parse(server)).toMatchObject(server);
+  });
 
-  it('validates server with multiple variables', () => {
+  it("validates server with multiple variables", () => {
     const server = {
-      url: 'https://{username}.{domain}.com',
+      url: "https://{username}.{domain}.com",
       variables: {
         username: {
-          default: 'demo',
+          default: "demo",
         },
         domain: {
-          enum: ['example', 'test'],
-          default: 'example',
+          enum: ["example", "test"],
+          default: "example",
         },
       },
-    }
-    expect(serverSchema.parse(server)).toMatchObject(server)
-  })
-})
+    };
+    expect(serverSchema.parse(server)).toMatchObject(server);
+  });
+});

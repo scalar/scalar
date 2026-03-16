@@ -1,475 +1,491 @@
-import { ScalarListbox } from '@scalar/components'
-import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
-import { SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import { mount } from '@vue/test-utils'
-import { describe, expect, it } from 'vitest'
+import { ScalarListbox } from "@scalar/components";
+import { coerceValue } from "@scalar/workspace-store/schemas/typebox-coerce";
+import { SchemaObjectSchema } from "@scalar/workspace-store/schemas/v3.1/strict/openapi-document";
+import { mount } from "@vue/test-utils";
+import { describe, expect, it } from "vite-plus/test";
 
-import Schema from './Schema.vue'
-import SchemaProperty from './SchemaProperty.vue'
+import Schema from "./Schema.vue";
+import SchemaProperty from "./SchemaProperty.vue";
 
-describe('SchemaProperty', () => {
-  describe('expandable schema behavior', () => {
-    describe('object types', () => {
-      it('displays expandable sub-schema for object with additional properties', async () => {
+describe("SchemaProperty", () => {
+  describe("expandable schema behavior", () => {
+    describe("object types", () => {
+      it("displays expandable sub-schema for object with additional properties", async () => {
         const wrapper = mount(SchemaProperty, {
           props: {
             eventBus: null,
             schema: coerceValue(SchemaObjectSchema, {
-              type: 'object',
+              type: "object",
               additionalProperties: {
                 nullable: true,
               },
             }),
             options: {},
           },
-        })
+        });
 
-        const button = wrapper.find('.schema-card-title')
-        await button.trigger('click')
-        const schemas = wrapper.findAllComponents(Schema)
+        const button = wrapper.find(".schema-card-title");
+        await button.trigger("click");
+        const schemas = wrapper.findAllComponents(Schema);
 
-        expect(schemas).toHaveLength(1)
-      })
+        expect(schemas).toHaveLength(1);
+      });
 
-      it('displays expandable sub-schema for object with defined properties', async () => {
+      it("displays expandable sub-schema for object with defined properties", async () => {
         const wrapper = mount(SchemaProperty, {
           props: {
             eventBus: null,
             schema: coerceValue(SchemaObjectSchema, {
-              type: 'object',
+              type: "object",
               properties: {
                 test: {
-                  type: 'string',
+                  type: "string",
                 },
               },
             }),
             options: {},
           },
-        })
+        });
 
-        const button = wrapper.find('.schema-card-title')
-        await button.trigger('click')
-        const schemas = wrapper.findAllComponents(Schema)
+        const button = wrapper.find(".schema-card-title");
+        await button.trigger("click");
+        const schemas = wrapper.findAllComponents(Schema);
 
-        expect(schemas).toHaveLength(1)
-      })
+        expect(schemas).toHaveLength(1);
+      });
 
-      it('hides expand button for object without properties or additional properties', () => {
+      it("hides expand button for object without properties or additional properties", () => {
         const wrapper = mount(SchemaProperty, {
           props: {
             eventBus: null,
             schema: coerceValue(SchemaObjectSchema, {
-              type: 'object',
+              type: "object",
             }),
             options: {},
           },
-        })
+        });
 
-        const button = wrapper.find('.schema-card-title')
-        const schemas = wrapper.findAllComponents(Schema)
+        const button = wrapper.find(".schema-card-title");
+        const schemas = wrapper.findAllComponents(Schema);
 
-        expect(button.exists()).toBe(false)
-        expect(schemas).toHaveLength(0)
-      })
-    })
+        expect(button.exists()).toBe(false);
+        expect(schemas).toHaveLength(0);
+      });
+    });
 
-    describe('array types', () => {
-      it('displays expandable sub-schema for array with object items', async () => {
+    describe("array types", () => {
+      it("displays expandable sub-schema for array with object items", async () => {
         const wrapper = mount(SchemaProperty, {
           props: {
             eventBus: null,
             schema: coerceValue(SchemaObjectSchema, {
-              type: 'array',
+              type: "array",
               items: {
-                type: 'object',
+                type: "object",
                 properties: {
                   test: {
-                    type: 'string',
+                    type: "string",
                   },
                 },
               },
             }),
             options: {},
           },
-        })
+        });
 
-        const button = wrapper.find('.schema-card-title')
-        await button.trigger('click')
-        const schemas = wrapper.findAllComponents(Schema)
+        const button = wrapper.find(".schema-card-title");
+        await button.trigger("click");
+        const schemas = wrapper.findAllComponents(Schema);
 
-        expect(schemas).toHaveLength(1)
-      })
+        expect(schemas).toHaveLength(1);
+      });
 
-      it('hides expand button for array with primitive items', () => {
+      it("hides expand button for array with primitive items", () => {
         const wrapper = mount(SchemaProperty, {
           props: {
             eventBus: null,
             schema: coerceValue(SchemaObjectSchema, {
-              type: 'array',
+              type: "array",
               items: {
-                type: 'string',
+                type: "string",
               },
             }),
             options: {},
           },
-        })
+        });
 
-        const button = wrapper.find('.schema-card-title')
-        const schemas = wrapper.findAllComponents(Schema)
+        const button = wrapper.find(".schema-card-title");
+        const schemas = wrapper.findAllComponents(Schema);
 
-        expect(button.exists()).toBe(false)
-        expect(schemas).toHaveLength(0)
-      })
-    })
+        expect(button.exists()).toBe(false);
+        expect(schemas).toHaveLength(0);
+      });
+    });
 
-    describe('primitive types', () => {
-      it('hides expand button for string type', () => {
+    describe("primitive types", () => {
+      it("hides expand button for string type", () => {
         const wrapper = mount(SchemaProperty, {
           props: {
             eventBus: null,
             schema: coerceValue(SchemaObjectSchema, {
-              type: 'string',
+              type: "string",
             }),
             options: {},
           },
-        })
+        });
 
-        const button = wrapper.find('.schema-card-title')
-        const schemas = wrapper.findAllComponents(Schema)
+        const button = wrapper.find(".schema-card-title");
+        const schemas = wrapper.findAllComponents(Schema);
 
-        expect(button.exists()).toBe(false)
-        expect(schemas).toHaveLength(0)
-      })
+        expect(button.exists()).toBe(false);
+        expect(schemas).toHaveLength(0);
+      });
 
-      it('hides expand button for integer type', () => {
+      it("hides expand button for integer type", () => {
         const wrapper = mount(SchemaProperty, {
           props: {
             eventBus: null,
             schema: coerceValue(SchemaObjectSchema, {
-              type: 'integer',
+              type: "integer",
             }),
             options: {},
           },
-        })
+        });
 
-        const button = wrapper.find('.schema-card-title')
-        const schemas = wrapper.findAllComponents(Schema)
+        const button = wrapper.find(".schema-card-title");
+        const schemas = wrapper.findAllComponents(Schema);
 
-        expect(button.exists()).toBe(false)
-        expect(schemas).toHaveLength(0)
-      })
+        expect(button.exists()).toBe(false);
+        expect(schemas).toHaveLength(0);
+      });
 
-      it('hides expand button for number type', () => {
+      it("hides expand button for number type", () => {
         const wrapper = mount(SchemaProperty, {
           props: {
             eventBus: null,
             schema: coerceValue(SchemaObjectSchema, {
-              type: 'number',
+              type: "number",
             }),
             options: {},
           },
-        })
+        });
 
-        const button = wrapper.find('.schema-card-title')
-        const schemas = wrapper.findAllComponents(Schema)
+        const button = wrapper.find(".schema-card-title");
+        const schemas = wrapper.findAllComponents(Schema);
 
-        expect(button.exists()).toBe(false)
-        expect(schemas).toHaveLength(0)
-      })
+        expect(button.exists()).toBe(false);
+        expect(schemas).toHaveLength(0);
+      });
 
-      it('hides expand button for boolean type', () => {
+      it("hides expand button for boolean type", () => {
         const wrapper = mount(SchemaProperty, {
           props: {
             eventBus: null,
             schema: coerceValue(SchemaObjectSchema, {
-              type: 'boolean',
+              type: "boolean",
             }),
             options: {},
           },
-        })
+        });
 
-        const button = wrapper.find('.schema-card-title')
-        const schemas = wrapper.findAllComponents(Schema)
+        const button = wrapper.find(".schema-card-title");
+        const schemas = wrapper.findAllComponents(Schema);
 
-        expect(button.exists()).toBe(false)
-        expect(schemas).toHaveLength(0)
-      })
-    })
-  })
+        expect(button.exists()).toBe(false);
+        expect(schemas).toHaveLength(0);
+      });
+    });
+  });
 
-  describe('enum value display', () => {
-    describe('enum count behavior', () => {
-      it('displays all enum values when count is 9 or fewer', () => {
+  describe("enum value display", () => {
+    describe("enum count behavior", () => {
+      it("displays all enum values when count is 9 or fewer", () => {
         const wrapper = mount(SchemaProperty, {
           props: {
             eventBus: null,
             schema: coerceValue(SchemaObjectSchema, {
-              enum: ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i'],
+              enum: ["a", "b", "c", "d", "e", "f", "g", "h", "i"],
             }),
             options: {},
           },
-        })
+        });
 
-        const enumValues = wrapper.findAll('.property-enum-value')
-        const toggleButton = wrapper.find('.enum-toggle-button')
+        const enumValues = wrapper.findAll(".property-enum-value");
+        const toggleButton = wrapper.find(".enum-toggle-button");
 
-        expect(enumValues).toHaveLength(9)
-        expect(toggleButton.exists()).toBe(false)
-      })
+        expect(enumValues).toHaveLength(9);
+        expect(toggleButton.exists()).toBe(false);
+      });
 
-      it('displays first 5 enum values with toggle button when count exceeds 9', () => {
+      it("displays first 5 enum values with toggle button when count exceeds 9", () => {
         const wrapper = mount(SchemaProperty, {
           props: {
             eventBus: null,
             schema: coerceValue(SchemaObjectSchema, {
-              enum: ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j'],
+              enum: ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j"],
             }),
             options: {},
           },
-        })
+        });
 
-        const enumValues = wrapper.findAll('.property-enum-value')
-        const toggleButton = wrapper.find('.enum-toggle-button')
+        const enumValues = wrapper.findAll(".property-enum-value");
+        const toggleButton = wrapper.find(".enum-toggle-button");
 
-        expect(enumValues).toHaveLength(5)
-        expect(toggleButton.exists()).toBe(true)
-        expect(toggleButton.text()).toBe('Show all values')
-      })
+        expect(enumValues).toHaveLength(5);
+        expect(toggleButton.exists()).toBe(true);
+        expect(toggleButton.text()).toBe("Show all values");
+      });
 
-      it('expands to show all enum values when toggle button is clicked', async () => {
+      it("expands to show all enum values when toggle button is clicked", async () => {
         const wrapper = mount(SchemaProperty, {
           props: {
             eventBus: null,
             schema: coerceValue(SchemaObjectSchema, {
-              enum: ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j'],
+              enum: ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j"],
             }),
             options: {},
           },
-        })
+        });
 
-        const toggleButton = wrapper.find('.enum-toggle-button')
-        await toggleButton.trigger('click')
+        const toggleButton = wrapper.find(".enum-toggle-button");
+        await toggleButton.trigger("click");
 
-        const enumValues = wrapper.findAll('.property-enum-value')
-        expect(enumValues).toHaveLength(10)
-        expect(toggleButton.text()).toBe('Hide values')
-      })
+        const enumValues = wrapper.findAll(".property-enum-value");
+        expect(enumValues).toHaveLength(10);
+        expect(toggleButton.text()).toBe("Hide values");
+      });
 
-      it('displays single enum value correctly', () => {
+      it("displays single enum value correctly", () => {
         const wrapper = mount(SchemaProperty, {
           props: {
             eventBus: null,
             schema: coerceValue(SchemaObjectSchema, {
-              enum: ['a'],
+              enum: ["a"],
             }),
             options: {},
           },
-        })
+        });
 
-        const enumValues = wrapper.findAll('.property-enum-value')
-        expect(enumValues).toHaveLength(1)
-      })
-    })
+        const enumValues = wrapper.findAll(".property-enum-value");
+        expect(enumValues).toHaveLength(1);
+      });
+    });
 
-    describe('enum sources', () => {
-      it('displays enum values from array items property', () => {
+    describe("enum sources", () => {
+      it("displays enum values from array items property", () => {
         const wrapper = mount(SchemaProperty, {
           props: {
             eventBus: null,
             schema: coerceValue(SchemaObjectSchema, {
               items: {
-                enum: ['a', 'b', 'c'],
+                enum: ["a", "b", "c"],
               },
             }),
             options: {},
           },
-        })
+        });
 
-        const enumValues = wrapper.findAll('.property-enum-value')
-        expect(enumValues).toHaveLength(3)
-      })
+        const enumValues = wrapper.findAll(".property-enum-value");
+        expect(enumValues).toHaveLength(3);
+      });
 
-      it('displays enum values with their descriptions', () => {
+      it("displays enum values with their descriptions", () => {
         const wrapper = mount(SchemaProperty, {
           props: {
             eventBus: null,
             schema: coerceValue(SchemaObjectSchema, {
-              'type': 'string',
-              'enum': ['Ice giant', 'Dwarf', 'Gas', 'Iron'],
-              'title': 'Planet',
-              'description': 'The type of planet',
-              'x-enumDescriptions': {
-                'Ice giant': 'A planet with a thick atmosphere of water, methane, and ammonia ice',
-                'Dwarf': 'A planet that is not massive enough to clear its orbit',
-                'Gas': 'A planet with a thick atmosphere of hydrogen and helium',
-                'Iron': 'A planet made mostly of iron',
+              type: "string",
+              enum: ["Ice giant", "Dwarf", "Gas", "Iron"],
+              title: "Planet",
+              description: "The type of planet",
+              "x-enumDescriptions": {
+                "Ice giant":
+                  "A planet with a thick atmosphere of water, methane, and ammonia ice",
+                Dwarf: "A planet that is not massive enough to clear its orbit",
+                Gas: "A planet with a thick atmosphere of hydrogen and helium",
+                Iron: "A planet made mostly of iron",
               },
             }),
             options: {},
           },
-        })
+        });
 
-        const enumList = wrapper.find('.property-enum .property-enum-values')
-        const html = enumList.html()
+        const enumList = wrapper.find(".property-enum .property-enum-values");
+        const html = enumList.html();
 
-        expect(html).toContain('Ice giant')
-        expect(html).toContain('Dwarf')
-        expect(html).toContain('Gas')
-        expect(html).toContain('Iron')
-        expect(html).toContain('A planet with a thick atmosphere of water, methane, and ammonia ice')
-        expect(html).toContain('A planet that is not massive enough to clear its orbit')
-        expect(html).toContain('A planet with a thick atmosphere of hydrogen and helium')
-        expect(html).toContain('A planet made mostly of iron')
-      })
+        expect(html).toContain("Ice giant");
+        expect(html).toContain("Dwarf");
+        expect(html).toContain("Gas");
+        expect(html).toContain("Iron");
+        expect(html).toContain(
+          "A planet with a thick atmosphere of water, methane, and ammonia ice",
+        );
+        expect(html).toContain(
+          "A planet that is not massive enough to clear its orbit",
+        );
+        expect(html).toContain(
+          "A planet with a thick atmosphere of hydrogen and helium",
+        );
+        expect(html).toContain("A planet made mostly of iron");
+      });
 
-      it('displays enum values within composition schemas', () => {
+      it("displays enum values within composition schemas", () => {
         const wrapper = mount(SchemaProperty, {
           props: {
             eventBus: null,
             schema: coerceValue(SchemaObjectSchema, {
-              anyOf: [{ type: 'string', enum: ['a', 'b', 'c'] }, { type: 'null' }],
+              anyOf: [
+                { type: "string", enum: ["a", "b", "c"] },
+                { type: "null" },
+              ],
             }),
             options: {},
           },
-        })
+        });
 
-        const enumValues = wrapper.findAll('.property-enum-value')
-        expect(enumValues).toHaveLength(3)
-      })
-    })
-  })
+        const enumValues = wrapper.findAll(".property-enum-value");
+        expect(enumValues).toHaveLength(3);
+      });
+    });
+  });
 
-  describe('variant prop', () => {
-    it('displays pattern properties with variant prop', () => {
+  describe("variant prop", () => {
+    it("displays pattern properties with variant prop", () => {
       const wrapper = mount(SchemaProperty, {
         props: {
           eventBus: null,
-          variant: 'patternProperties',
-          name: '^foo-',
+          variant: "patternProperties",
+          name: "^foo-",
           schema: coerceValue(SchemaObjectSchema, {
-            type: 'string',
+            type: "string",
           }),
           options: {},
         },
-      })
+      });
 
       // Check that the pattern property name is rendered with the special styling
-      const patternName = wrapper.find('.property-name-pattern-properties')
-      expect(patternName.exists()).toBe(true)
-      expect(patternName.text()).toBe('^foo-')
-    })
+      const patternName = wrapper.find(".property-name-pattern-properties");
+      expect(patternName.exists()).toBe(true);
+      expect(patternName.text()).toBe("^foo-");
+    });
 
-    it('displays additional properties with variant prop', () => {
+    it("displays additional properties with variant prop", () => {
       const wrapper = mount(SchemaProperty, {
         props: {
-          variant: 'additionalProperties',
-          name: 'additionalProperty',
+          variant: "additionalProperties",
+          name: "additionalProperty",
           // @ts-expect-error
           schema: {
-            type: 'anything',
+            type: "anything",
           },
           options: {},
         },
-      })
+      });
 
       // Check that the additional property name is rendered with the special styling
-      const additionalName = wrapper.find('.property-name-additional-properties')
-      expect(additionalName.exists()).toBe(true)
-      expect(additionalName.text()).toBe('additionalProperty')
-    })
+      const additionalName = wrapper.find(
+        ".property-name-additional-properties",
+      );
+      expect(additionalName.exists()).toBe(true);
+      expect(additionalName.text()).toBe("additionalProperty");
+    });
 
-    it('displays regular property names without variant styling', () => {
+    it("displays regular property names without variant styling", () => {
       const wrapper = mount(SchemaProperty, {
         props: {
-          name: 'regularProperty',
+          name: "regularProperty",
           eventBus: null,
           schema: coerceValue(SchemaObjectSchema, {
-            type: 'string',
+            type: "string",
           }),
           options: {},
         },
-      })
+      });
 
       // Check that regular property names don't have special styling
-      const patternName = wrapper.find('.property-name-pattern-properties')
-      const additionalName = wrapper.find('.property-name-additional-properties')
+      const patternName = wrapper.find(".property-name-pattern-properties");
+      const additionalName = wrapper.find(
+        ".property-name-additional-properties",
+      );
 
-      expect(patternName.exists()).toBe(false)
-      expect(additionalName.exists()).toBe(false)
+      expect(patternName.exists()).toBe(false);
+      expect(additionalName.exists()).toBe(false);
 
       // The name should still be rendered in the slot
-      expect(wrapper.text()).toContain('regularProperty')
-    })
-  })
+      expect(wrapper.text()).toContain("regularProperty");
+    });
+  });
 
-  describe('composition schemas', () => {
-    describe('array compositions', () => {
-      it('renders composition schemas for array items with oneOf', async () => {
+  describe("composition schemas", () => {
+    describe("array compositions", () => {
+      it("renders composition schemas for array items with oneOf", async () => {
         const wrapper = mount(SchemaProperty, {
           props: {
             eventBus: null,
             schema: coerceValue(SchemaObjectSchema, {
-              type: 'array',
+              type: "array",
               items: {
                 oneOf: [
                   {
-                    type: 'object',
-                    description: 'foobar',
-                    properties: { test: { type: 'string' } },
+                    type: "object",
+                    description: "foobar",
+                    properties: { test: { type: "string" } },
                   },
                 ],
               },
             }),
             options: {},
           },
-        })
+        });
 
-        expect(wrapper.find('button[aria-expanded="false"]').exists()).toBe(true)
+        expect(wrapper.find('button[aria-expanded="false"]').exists()).toBe(
+          true,
+        );
 
-        await wrapper.find('.schema-card-title').trigger('click')
+        await wrapper.find(".schema-card-title").trigger("click");
 
-        const foobar = wrapper.html().match(/foobar/g)
-        expect(foobar).toHaveLength(1)
-      })
+        const foobar = wrapper.html().match(/foobar/g);
+        expect(foobar).toHaveLength(1);
+      });
 
-      it('renders array items with oneOf composition after expansion', async () => {
+      it("renders array items with oneOf composition after expansion", async () => {
         const wrapper = mount(SchemaProperty, {
           props: {
             eventBus: null,
             schema: coerceValue(SchemaObjectSchema, {
-              type: 'array',
+              type: "array",
               items: {
-                type: 'object',
+                type: "object",
                 oneOf: [
                   {
-                    description: 'foobar',
-                    properties: { test: { type: 'string' } },
+                    description: "foobar",
+                    properties: { test: { type: "string" } },
                   },
                 ],
               },
             }),
             options: {},
           },
-        })
+        });
 
         // The composition description should not be visible before expanding
-        expect(wrapper.html().match(/foobar/g)).toBeNull()
+        expect(wrapper.html().match(/foobar/g)).toBeNull();
 
         // Expand all schema cards to reveal nested content
-        const buttons = wrapper.findAll('button.schema-card-title')
+        const buttons = wrapper.findAll("button.schema-card-title");
         for (const button of buttons) {
-          await button.trigger('click')
-          await wrapper.vm.$nextTick()
+          await button.trigger("click");
+          await wrapper.vm.$nextTick();
         }
 
         // Now "foobar" should be present
-        const foobar = wrapper.html().match(/foobar/g)
-        expect(foobar).toHaveLength(1)
-      })
-    })
+        const foobar = wrapper.html().match(/foobar/g);
+        expect(foobar).toHaveLength(1);
+      });
+    });
 
-    describe('object compositions', () => {
-      it('renders object compositions with allOf with an object button', () => {
+    describe("object compositions", () => {
+      it("renders object compositions with allOf with an object button", () => {
         const wrapper = mount(SchemaProperty, {
           props: {
             eventBus: null,
@@ -477,165 +493,177 @@ describe('SchemaProperty', () => {
               allOf: [
                 {
                   properties: {
-                    testStr: { type: 'string', description: 'This is a test string' },
-                    testBool: { type: 'boolean', description: 'This is a test boolean' },
+                    testStr: {
+                      type: "string",
+                      description: "This is a test string",
+                    },
+                    testBool: {
+                      type: "boolean",
+                      description: "This is a test boolean",
+                    },
                   },
-                  required: ['testStr'],
+                  required: ["testStr"],
                 },
               ],
             }),
             options: {},
           },
-        })
+        });
 
         // For allOf compositions, properties should be displayed directly without expansion
-        const html = wrapper.html()
+        const html = wrapper.html();
 
         // Check that both properties are rendered with their descriptions
-        expect(html).toContain('button')
-        expect(html).toContain('object')
-      })
-    })
+        expect(html).toContain("button");
+        expect(html).toContain("object");
+      });
+    });
 
-    describe('nested compositions', () => {
+    describe("nested compositions", () => {
       // change the way we render compositions
-      it.todo('renders nested composition selectors with correct titles', async () => {
-        const wrapper = mount(SchemaProperty, {
-          props: {
-            eventBus: null,
-            schema: coerceValue(SchemaObjectSchema, {
-              allOf: [
-                {
-                  type: 'object',
-                  properties: {
-                    customerComment: {
-                      type: 'string',
+      it.todo(
+        "renders nested composition selectors with correct titles",
+        async () => {
+          const wrapper = mount(SchemaProperty, {
+            props: {
+              eventBus: null,
+              schema: coerceValue(SchemaObjectSchema, {
+                allOf: [
+                  {
+                    type: "object",
+                    properties: {
+                      customerComment: {
+                        type: "string",
+                      },
                     },
                   },
-                },
-                {
-                  oneOf: [
-                    {
-                      allOf: [
-                        {
-                          title: 'foo (1)',
-                          type: 'object',
-                        },
-                        {
-                          oneOf: [
-                            {
-                              title: 'bar (1)',
-                              type: 'object',
-                            },
-                          ],
-                        },
-                      ],
-                    },
-                  ],
-                },
-              ],
-            }),
-            options: {},
-          },
-        })
+                  {
+                    oneOf: [
+                      {
+                        allOf: [
+                          {
+                            title: "foo (1)",
+                            type: "object",
+                          },
+                          {
+                            oneOf: [
+                              {
+                                title: "bar (1)",
+                                type: "object",
+                              },
+                            ],
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                ],
+              }),
+              options: {},
+            },
+          });
 
-        // Check that the first level composition is rendered
-        const firstLevelSelector = wrapper.find('.composition-selector')
-        expect(firstLevelSelector.exists()).toBe(true)
-        expect(firstLevelSelector.text()).toContain('All of')
+          // Check that the first level composition is rendered
+          const firstLevelSelector = wrapper.find(".composition-selector");
+          expect(firstLevelSelector.exists()).toBe(true);
+          expect(firstLevelSelector.text()).toContain("All of");
 
-        // Select the second option
-        const dropdown = wrapper.findComponent(ScalarListbox)
-        await dropdown.vm.$emit('update:modelValue', { id: '1', label: 'One of' })
-        await wrapper.vm.$nextTick()
+          // Select the second option
+          const dropdown = wrapper.findComponent(ScalarListbox);
+          await dropdown.vm.$emit("update:modelValue", {
+            id: "1",
+            label: "One of",
+          });
+          await wrapper.vm.$nextTick();
 
-        expect(wrapper.text()).toBe('All ofOne ofAll offoo (1)')
-      })
-    })
+          expect(wrapper.text()).toBe("All ofOne ofAll offoo (1)");
+        },
+      );
+    });
 
-    describe('object properties', () => {
-      it('renders object properties with descriptions after expansion', async () => {
+    describe("object properties", () => {
+      it("renders object properties with descriptions after expansion", async () => {
         const wrapper = mount(SchemaProperty, {
           props: {
             eventBus: null,
             schema: {
-              type: ['object', 'null'],
+              type: ["object", "null"],
               properties: {
                 galaxy: {
-                  type: 'string',
-                  description: 'Galaxy where the planet is located',
+                  type: "string",
+                  description: "Galaxy where the planet is located",
                 },
                 satellites: {
-                  type: 'array',
+                  type: "array",
                   items: {
-                    type: 'string',
+                    type: "string",
                   },
-                  description: 'List of satellites orbiting the planet',
+                  description: "List of satellites orbiting the planet",
                 },
                 habitable: {
-                  type: 'boolean',
-                  description: 'Whether the planet can support life',
+                  type: "boolean",
+                  description: "Whether the planet can support life",
                 },
               },
             } as any,
             options: {},
           },
-        })
+        });
 
         // Expand all schema cards to reveal nested content
-        const buttons = wrapper.findAll('button.schema-card-title')
+        const buttons = wrapper.findAll("button.schema-card-title");
         for (const button of buttons) {
-          await button.trigger('click')
-          await wrapper.vm.$nextTick()
+          await button.trigger("click");
+          await wrapper.vm.$nextTick();
         }
 
-        const html = wrapper.html()
-        expect(html).toContain('galaxy')
-        expect(html).toContain('Galaxy where the planet is located')
-        expect(html).toContain('satellites')
-        expect(html).toContain('List of satellites orbiting the planet')
-        expect(html).toContain('habitable')
-        expect(html).toContain('Whether the planet can support life')
-      })
-    })
-  })
+        const html = wrapper.html();
+        expect(html).toContain("galaxy");
+        expect(html).toContain("Galaxy where the planet is located");
+        expect(html).toContain("satellites");
+        expect(html).toContain("List of satellites orbiting the planet");
+        expect(html).toContain("habitable");
+        expect(html).toContain("Whether the planet can support life");
+      });
+    });
+  });
 
-  describe('discriminator context isolation', () => {
-    it('isolates child properties from parent discriminator context', async () => {
+  describe("discriminator context isolation", () => {
+    it("isolates child properties from parent discriminator context", async () => {
       const childPropertySchema = coerceValue(SchemaObjectSchema, {
-        type: 'object',
+        type: "object",
         properties: {
           galaxy: {
-            type: 'string',
-            description: 'Galaxy of the planet',
+            type: "string",
+            description: "Galaxy of the planet",
           },
         },
-        required: ['galaxy'],
-      })
+        required: ["galaxy"],
+      });
 
       const wrapper = mount(SchemaProperty, {
         props: {
           eventBus: null,
           schema: childPropertySchema,
-          name: 'Satellites',
+          name: "Satellites",
           level: 1,
           options: {},
         },
-      })
+      });
 
-      const expandButton = wrapper.find('.schema-card-title')
+      const expandButton = wrapper.find(".schema-card-title");
       if (expandButton.exists()) {
-        await expandButton.trigger('click')
-        await wrapper.vm.$nextTick()
+        await expandButton.trigger("click");
+        await wrapper.vm.$nextTick();
       }
 
-      const html = wrapper.html()
+      const html = wrapper.html();
 
-      expect(html).toContain('galaxy')
-      expect(html).toContain('Galaxy of the planet')
+      expect(html).toContain("galaxy");
+      expect(html).toContain("Galaxy of the planet");
 
-      expect(html).not.toContain('satellites')
-      expect(html).not.toContain('Satellites surrounding the planet')
-    })
-  })
-})
+      expect(html).not.toContain("satellites");
+      expect(html).not.toContain("Satellites surrounding the planet");
+    });
+  });
+});

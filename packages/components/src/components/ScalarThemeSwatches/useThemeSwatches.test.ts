@@ -1,5 +1,5 @@
 import { presets } from '@scalar/themes'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vite-plus/test'
 import { ref } from 'vue'
 
 import { useThemeSwatches } from './useThemeSwatches'
@@ -40,17 +40,27 @@ function isValidCssColor(value: string): boolean {
   }
 
   // Hex colors (#fff, #ffffff, #fff0, #ffffff00)
-  if (/^#([0-9A-Fa-f]{3}|[0-9A-Fa-f]{4}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})$/.test(trimmed)) {
+  if (
+    /^#([0-9A-Fa-f]{3}|[0-9A-Fa-f]{4}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})$/.test(
+      trimmed,
+    )
+  ) {
     return true
   }
 
   // rgb/rgba colors (rgb(255, 255, 255), rgba(0, 0, 0, 0.5))
-  if (/^rgba?\(\s*\d+\s*,\s*\d+\s*,\s*\d+\s*(,\s*[\d.]+\s*)?\)$/.test(trimmed)) {
+  if (
+    /^rgba?\(\s*\d+\s*,\s*\d+\s*,\s*\d+\s*(,\s*[\d.]+\s*)?\)$/.test(trimmed)
+  ) {
     return true
   }
 
   // hsl/hsla colors (hsl(0, 0%, 100%), hsla(0, 0%, 0%, 0.5))
-  if (/^hsla?\(\s*\d+\s*,\s*[\d.%]+\s*,\s*[\d.%]+\s*(,\s*[\d.]+\s*)?\)$/.test(trimmed)) {
+  if (
+    /^hsla?\(\s*\d+\s*,\s*[\d.%]+\s*,\s*[\d.%]+\s*(,\s*[\d.]+\s*)?\)$/.test(
+      trimmed,
+    )
+  ) {
     return true
   }
 
@@ -75,7 +85,9 @@ function isValidCssColor(value: string): boolean {
 
 describe('useThemeSwatches', () => {
   // Get all theme IDs from presets (excluding 'none' if it exists)
-  const themeIds = Object.keys(presets).filter((id) => id !== 'none') as Array<keyof typeof presets>
+  const themeIds = Object.keys(presets).filter((id) => id !== 'none') as Array<
+    keyof typeof presets
+  >
 
   it.each(themeIds)('extracts colors for %s theme preset', (themeId) => {
     const themeCss = presets[themeId].theme
@@ -91,7 +103,10 @@ describe('useThemeSwatches', () => {
 
     // Verify each extracted color value is a valid CSS color
     for (const [key, value] of Object.entries(allColors)) {
-      expect(isValidCssColor(value), `Color value "${value}" for variable "${key}" is not a valid CSS color`).toBe(true)
+      expect(
+        isValidCssColor(value),
+        `Color value "${value}" for variable "${key}" is not a valid CSS color`,
+      ).toBe(true)
     }
   })
 
@@ -108,7 +123,8 @@ describe('useThemeSwatches', () => {
     expect(colors.value.light['--scalar-color-2']).toBeUndefined()
 
     // Update the ref
-    cssRef.value = '.light-mode { --scalar-color-1: #ffffff; --scalar-color-2: #111111; }'
+    cssRef.value =
+      '.light-mode { --scalar-color-1: #ffffff; --scalar-color-2: #111111; }'
 
     // Values should update reactively
     expect(colors.value.light['--scalar-color-1']).toBe('#ffffff')
@@ -133,8 +149,14 @@ describe('useThemeSwatches', () => {
     })
 
     it('validates color-mix formats', () => {
-      expect(isValidCssColor('color-mix(in srgb, #1a1a1a, transparent 10%)')).toBe(true)
-      expect(isValidCssColor('color-mix(in srgb, var(--scalar-color-1), var(--scalar-background-1) 20%)')).toBe(true)
+      expect(
+        isValidCssColor('color-mix(in srgb, #1a1a1a, transparent 10%)'),
+      ).toBe(true)
+      expect(
+        isValidCssColor(
+          'color-mix(in srgb, var(--scalar-color-1), var(--scalar-background-1) 20%)',
+        ),
+      ).toBe(true)
     })
 
     it('validates CSS variable formats', () => {
@@ -200,11 +222,14 @@ describe('useThemeSwatches', () => {
       const initialLightKeys = Object.keys(colors.value.light).length
 
       // Update CSS
-      const updatedCss = '.light-mode { --scalar-color-1: #000000; --scalar-color-2: #111111; }'
+      const updatedCss =
+        '.light-mode { --scalar-color-1: #000000; --scalar-color-2: #111111; }'
       const { colors: updatedColors } = useThemeSwatches(updatedCss)
 
       // Should extract more variables from updated CSS
-      expect(Object.keys(updatedColors.value.light).length).toBeGreaterThanOrEqual(initialLightKeys)
+      expect(
+        Object.keys(updatedColors.value.light).length,
+      ).toBeGreaterThanOrEqual(initialLightKeys)
     })
   })
 })

@@ -1,4 +1,4 @@
-import { vi } from 'vitest'
+import { vi } from "vite-plus/test";
 
 /**
  * Creates a controllable requestIdleCallback mock for testing.
@@ -15,34 +15,34 @@ import { vi } from 'vitest'
  * await nextTick()
  */
 export const mockRequestIdleCallbackController = () => {
-  type IdleDeadline = { didTimeout: boolean; timeRemaining: () => number }
-  type IdleCallback = (deadline: IdleDeadline) => void
+  type IdleDeadline = { didTimeout: boolean; timeRemaining: () => number };
+  type IdleCallback = (deadline: IdleDeadline) => void;
 
-  const queue: IdleCallback[] = []
+  const queue: IdleCallback[] = [];
 
   const mock = vi.fn((cb: IdleCallback) => {
-    queue.push(cb)
+    queue.push(cb);
     // Return a pseudo handle
-    return queue.length
-  })
+    return queue.length;
+  });
 
   const createDeadline = (): IdleDeadline => ({
     didTimeout: false,
     timeRemaining: () => 50,
-  })
+  });
 
   const runNext = () => {
-    const cb = queue.shift()
+    const cb = queue.shift();
     if (cb) {
-      cb(createDeadline())
+      cb(createDeadline());
     }
-  }
+  };
 
   const flushAll = () => {
     while (queue.length) {
-      runNext()
+      runNext();
     }
-  }
+  };
 
-  return { mock, runNext, flushAll, queue }
-}
+  return { mock, runNext, flushAll, queue };
+};

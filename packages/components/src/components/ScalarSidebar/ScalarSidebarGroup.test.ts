@@ -1,5 +1,5 @@
 import { mount } from '@vue/test-utils'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vite-plus/test'
 import { defineComponent, ref } from 'vue'
 
 import ScalarSidebarButton from './ScalarSidebarButton.vue'
@@ -185,7 +185,9 @@ describe('ScalarSidebarGroup', () => {
     expect(buttonComponents).toHaveLength(10)
 
     // Filter to get only the item buttons (they contain "Item" in their text)
-    const itemButtons = buttonComponents.filter((button) => button.element.textContent?.includes('Item'))
+    const itemButtons = buttonComponents.filter((button) =>
+      button.element.textContent?.includes('Item'),
+    )
     expect(itemButtons).toHaveLength(5)
 
     // Verify that item buttons have correct indent levels (1, 2, 3, 4, 5)
@@ -313,7 +315,9 @@ describe('ScalarSidebarGroup', () => {
 
     // Find the separate toggle button (it's positioned absolutely)
     const toggleButtons = wrapper.findAll('button[type="button"]')
-    const toggleButton = toggleButtons.find((btn) => btn.classes().includes('absolute'))
+    const toggleButton = toggleButtons.find((btn) =>
+      btn.classes().includes('absolute'),
+    )
 
     expect(toggleButton).toBeDefined()
 
@@ -342,7 +346,9 @@ describe('ScalarSidebarGroup', () => {
 
     // Find the separate toggle button
     const toggleButtons = wrapper.findAll('button[type="button"]')
-    const toggleButton = toggleButtons.find((btn) => btn.classes().includes('absolute'))
+    const toggleButton = toggleButtons.find((btn) =>
+      btn.classes().includes('absolute'),
+    )
 
     expect(toggleButton).toBeDefined()
 
@@ -378,7 +384,9 @@ describe('ScalarSidebarGroup', () => {
 
     // Find the separate toggle button
     const toggleButtons = wrapper.findAll('button[type="button"]')
-    const toggleButton = toggleButtons.find((btn) => btn.classes().includes('absolute'))
+    const toggleButton = toggleButtons.find((btn) =>
+      btn.classes().includes('absolute'),
+    )
 
     expect(toggleButton).toBeDefined()
 
@@ -417,7 +425,9 @@ describe('ScalarSidebarGroup', () => {
 
     // Find the separate toggle button
     const toggleButtons = wrapper.findAll('button[type="button"]')
-    const toggleButton = toggleButtons.find((btn) => btn.classes().includes('absolute'))
+    const toggleButton = toggleButtons.find((btn) =>
+      btn.classes().includes('absolute'),
+    )
 
     expect(toggleButton).toBeDefined()
 
@@ -453,7 +463,9 @@ describe('ScalarSidebarGroup', () => {
 
     // Find the separate toggle button
     const toggleButtons = wrapper.findAll('button[type="button"]')
-    const toggleButton = toggleButtons.find((btn) => btn.classes().includes('absolute'))
+    const toggleButton = toggleButtons.find((btn) =>
+      btn.classes().includes('absolute'),
+    )
 
     expect(toggleButton).toBeDefined()
 

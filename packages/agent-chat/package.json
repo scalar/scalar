@@ -16,8 +16,8 @@
   },
   "scripts": {
     "build": "scalar-build-vite && cp package.json dist",
-    "build:watch": "vite build --watch",
-    "playground": "cd playground && vite",
+    "build:watch": "vp build --watch",
+    "playground": "cd playground && vp dev",
     "types:build": "scalar-types-build-vue",
     "types:check": "scalar-types-check-vue"
   },
@@ -76,6 +76,7 @@
     "@vitejs/plugin-vue": "catalog:*",
     "hono": "catalog:*",
     "tailwindcss": "catalog:*",
-    "vite": "catalog:*"
+    "vite": "catalog:",
+    "vite-plus": "catalog:"
   }
 }

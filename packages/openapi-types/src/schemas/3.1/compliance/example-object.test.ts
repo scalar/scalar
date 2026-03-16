@@ -1,94 +1,96 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from "vite-plus/test";
 
-import { OperationObjectSchema } from '../unprocessed/operation-object'
+import { OperationObjectSchema } from "../unprocessed/operation-object";
 
-describe('example-object', () => {
-  describe('ExampleObject', () => {
+describe("example-object", () => {
+  describe("ExampleObject", () => {
     // https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.1.1.md#example-object-examples
-    it('Example Object Example', () => {
+    it("Example Object Example", () => {
       const result = OperationObjectSchema.parse({
         requestBody: {
           content: {
-            'application/json': {
+            "application/json": {
               schema: {
-                $ref: '#/components/schemas/Address',
+                $ref: "#/components/schemas/Address",
               },
               examples: {
                 foo: {
-                  summary: 'A foo example',
+                  summary: "A foo example",
                   value: {
-                    foo: 'bar',
+                    foo: "bar",
                   },
                 },
                 bar: {
-                  summary: 'A bar example',
+                  summary: "A bar example",
                   value: {
-                    bar: 'baz',
+                    bar: "baz",
                   },
                 },
               },
             },
-            'application/xml': {
+            "application/xml": {
               examples: {
                 xmlExample: {
-                  summary: 'This is an example in XML',
-                  externalValue: 'https://example.org/examples/address-example.xml',
+                  summary: "This is an example in XML",
+                  externalValue:
+                    "https://example.org/examples/address-example.xml",
                 },
               },
             },
-            'text/plain': {
+            "text/plain": {
               examples: {
                 textExample: {
-                  summary: 'This is a text example',
-                  externalValue: 'https://foo.bar/examples/address-example.txt',
+                  summary: "This is a text example",
+                  externalValue: "https://foo.bar/examples/address-example.txt",
                 },
               },
             },
           },
         },
-      })
+      });
 
       expect(result).toEqual({
         requestBody: {
           content: {
-            'application/json': {
+            "application/json": {
               schema: {
-                $ref: '#/components/schemas/Address',
+                $ref: "#/components/schemas/Address",
               },
               examples: {
                 foo: {
-                  summary: 'A foo example',
+                  summary: "A foo example",
                   value: {
-                    foo: 'bar',
+                    foo: "bar",
                   },
                 },
                 bar: {
-                  summary: 'A bar example',
+                  summary: "A bar example",
                   value: {
-                    bar: 'baz',
+                    bar: "baz",
                   },
                 },
               },
             },
-            'application/xml': {
+            "application/xml": {
               examples: {
                 xmlExample: {
-                  summary: 'This is an example in XML',
-                  externalValue: 'https://example.org/examples/address-example.xml',
+                  summary: "This is an example in XML",
+                  externalValue:
+                    "https://example.org/examples/address-example.xml",
                 },
               },
             },
-            'text/plain': {
+            "text/plain": {
               examples: {
                 textExample: {
-                  summary: 'This is a text example',
-                  externalValue: 'https://foo.bar/examples/address-example.txt',
+                  summary: "This is a text example",
+                  externalValue: "https://foo.bar/examples/address-example.txt",
                 },
               },
             },
           },
         },
-      })
-    })
-  })
-})
+      });
+    });
+  });
+});

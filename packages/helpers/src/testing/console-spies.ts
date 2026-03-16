@@ -1,27 +1,27 @@
-import { vi } from 'vitest'
+import { vi } from "vite-plus/test";
 
 /** Spy on console.warn */
-export const consoleWarnSpy = vi.spyOn(console, 'warn')
-export let isConsoleWarnEnabled = false
+export const consoleWarnSpy = vi.spyOn(console, "warn");
+export let isConsoleWarnEnabled = false;
 
 /** Spy on console.error */
-export const consoleErrorSpy = vi.spyOn(console, 'error')
-export let isConsoleErrorEnabled = false
+export const consoleErrorSpy = vi.spyOn(console, "error");
+export let isConsoleErrorEnabled = false;
 
 /** Reset the spies */
 export const resetConsoleSpies = () => {
-  consoleWarnSpy.mockClear()
-  consoleErrorSpy.mockClear()
-}
+  consoleWarnSpy.mockClear();
+  consoleErrorSpy.mockClear();
+};
 
 /** Helper to re-enable console warn checks */
-export const enableConsoleWarn = () => (isConsoleWarnEnabled = true)
+export const enableConsoleWarn = () => (isConsoleWarnEnabled = true);
 
 /** Helper to disable console warn checks */
-export const disableConsoleWarn = () => (isConsoleWarnEnabled = false)
+export const disableConsoleWarn = () => (isConsoleWarnEnabled = false);
 
 /** Helper to enable console error checks */
-export const enableConsoleError = () => (isConsoleErrorEnabled = true)
+export const enableConsoleError = () => (isConsoleErrorEnabled = true);
 
 /** Helper to disable console error checks */
-export const disableConsoleError = () => (isConsoleErrorEnabled = false)
+export const disableConsoleError = () => (isConsoleErrorEnabled = false);

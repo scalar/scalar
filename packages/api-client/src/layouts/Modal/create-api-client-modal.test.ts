@@ -1,30 +1,30 @@
-import { enableConsoleWarn } from '@test/vitest.setup'
-import { describe, expect, it, vi } from 'vitest'
+import { enableConsoleWarn } from "@test/vitest.setup";
+import { describe, expect, it, vi } from "vite-plus/test";
 
-import { createApiClientModal } from './create-api-client-modal'
+import { createApiClientModal } from "./create-api-client-modal";
 
 // Old modal
-describe.skip('createApiClientModal', () => {
-  it('renders something', async () => {
-    vi.unmock('@/hooks/useSidebar')
-    vi.unmock('@/hooks/useLayout')
-    enableConsoleWarn()
+describe.skip("createApiClientModal", () => {
+  it("renders something", async () => {
+    vi.unmock("@/hooks/useSidebar");
+    vi.unmock("@/hooks/useLayout");
+    enableConsoleWarn();
 
-    const element = document.createElement('div')
-    element.id = 'scalar-client'
-    document.body.appendChild(element)
+    const element = document.createElement("div");
+    element.id = "scalar-client";
+    document.body.appendChild(element);
 
-    expect(element).not.toBeNull()
-    expect(element.innerHTML).not.toContain('scalar-app')
+    expect(element).not.toBeNull();
+    expect(element.innerHTML).not.toContain("scalar-app");
 
     await createApiClientModal({
       el: element,
       configuration: {
-        proxyUrl: 'https://proxy.scalar.com',
+        proxyUrl: "https://proxy.scalar.com",
       },
-    })
+    });
 
     // Make sure we wait for the client to be mounted - this is no longer rendered
     // await vi.waitFor(() => expect(element.innerHTML).toContain('My First Request'), { timeout: 5000 })
-  })
-})
+  });
+});

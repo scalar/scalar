@@ -1,353 +1,364 @@
-import { describe, expect, it } from 'vitest'
-import { SchemaObjectSchema } from './schema-object'
+import { describe, expect, it } from "vite-plus/test";
 
-describe('schema-object', () => {
-  describe('basic validation', () => {
-    it('validates a simple string schema', () => {
+import { SchemaObjectSchema } from "./schema-object";
+
+describe("schema-object", () => {
+  describe("basic validation", () => {
+    it("validates a simple string schema", () => {
       const schema = {
-        type: 'string',
+        type: "string",
         minLength: 1,
         maxLength: 100,
-        pattern: '^[a-zA-Z]+$',
-      }
+        pattern: "^[a-zA-Z]+$",
+      };
 
-      const result = SchemaObjectSchema.safeParse(schema)
-      expect(result.success).toBe(true)
-    })
+      const result = SchemaObjectSchema.safeParse(schema);
+      expect(result.success).toBe(true);
+    });
 
-    it('validates a complex object schema', () => {
+    it("validates a complex object schema", () => {
       const schema = {
-        type: 'object',
+        type: "object",
         properties: {
           id: {
-            type: 'string',
-            format: 'uuid',
+            type: "string",
+            format: "uuid",
           },
           name: {
-            type: 'string',
+            type: "string",
             minLength: 1,
           },
           age: {
-            type: 'integer',
+            type: "integer",
             minimum: 0,
             maximum: 150,
           },
           tags: {
-            type: 'array',
+            type: "array",
             items: {
-              type: 'string',
+              type: "string",
             },
             uniqueItems: true,
           },
         },
-        required: ['id', 'name'],
+        required: ["id", "name"],
         additionalProperties: false,
-      }
+      };
 
-      const result = SchemaObjectSchema.safeParse(schema)
-      expect(result.success).toBe(true)
-    })
+      const result = SchemaObjectSchema.safeParse(schema);
+      expect(result.success).toBe(true);
+    });
 
-    it('validates array type with tuple validation', () => {
+    it("validates array type with tuple validation", () => {
       const schema = {
-        type: 'array',
+        type: "array",
         items: {
-          type: ['string', 'number'],
+          type: ["string", "number"],
         },
         minItems: 2,
         maxItems: 5,
         uniqueItems: true,
-      }
+      };
 
-      const result = SchemaObjectSchema.safeParse(schema)
-      expect(result.success).toBe(true)
-    })
+      const result = SchemaObjectSchema.safeParse(schema);
+      expect(result.success).toBe(true);
+    });
 
-    it('validates schema with null type', () => {
+    it("validates schema with null type", () => {
       const schema = {
-        type: ['string', 'null'],
-        description: 'A nullable string field',
-      }
+        type: ["string", "null"],
+        description: "A nullable string field",
+      };
 
-      const result = SchemaObjectSchema.safeParse(schema)
-      expect(result.success).toBe(true)
-    })
-  })
+      const result = SchemaObjectSchema.safeParse(schema);
+      expect(result.success).toBe(true);
+    });
+  });
 
-  describe('format compatibility', () => {
-    it('validates string formats with string type', () => {
+  describe("format compatibility", () => {
+    it("validates string formats with string type", () => {
       const stringFormats = [
-        'date',
-        'date-time',
-        'duration',
-        'password',
-        'byte',
-        'binary',
-        'email',
-        'uuid',
-        'uri',
-        'uri-reference',
-        'uri-template',
-        'hostname',
-        'ipv4',
-        'ipv6',
-      ]
+        "date",
+        "date-time",
+        "duration",
+        "password",
+        "byte",
+        "binary",
+        "email",
+        "uuid",
+        "uri",
+        "uri-reference",
+        "uri-template",
+        "hostname",
+        "ipv4",
+        "ipv6",
+      ];
 
       stringFormats.forEach((format) => {
         const schema = {
-          type: 'string',
+          type: "string",
           format,
-        }
-        const result = SchemaObjectSchema.safeParse(schema)
-        expect(result.success).toBe(true)
-      })
-    })
+        };
+        const result = SchemaObjectSchema.safeParse(schema);
+        expect(result.success).toBe(true);
+      });
+    });
 
-    it('validates number formats with numeric types', () => {
-      const numberFormats = ['float', 'double', 'int32', 'int64']
+    it("validates number formats with numeric types", () => {
+      const numberFormats = ["float", "double", "int32", "int64"];
 
       numberFormats.forEach((format) => {
         const schema = {
-          type: 'number',
+          type: "number",
           format,
-        }
-        const result = SchemaObjectSchema.safeParse(schema)
-        expect(result.success).toBe(true)
-      })
-    })
-  })
+        };
+        const result = SchemaObjectSchema.safeParse(schema);
+        expect(result.success).toBe(true);
+      });
+    });
+  });
 
-  describe('discriminator validation', () => {
-    it('validates discriminator with oneOf', () => {
+  describe("discriminator validation", () => {
+    it("validates discriminator with oneOf", () => {
       const schema = {
         oneOf: [
-          { type: 'object', properties: { type: { const: 'dog' } } },
-          { type: 'object', properties: { type: { const: 'cat' } } },
+          { type: "object", properties: { type: { const: "dog" } } },
+          { type: "object", properties: { type: { const: "cat" } } },
         ],
         discriminator: {
-          propertyName: 'type',
+          propertyName: "type",
         },
-        required: ['type'],
-      }
+        required: ["type"],
+      };
 
-      const result = SchemaObjectSchema.safeParse(schema)
-      expect(result.success).toBe(true)
-    })
+      const result = SchemaObjectSchema.safeParse(schema);
+      expect(result.success).toBe(true);
+    });
 
-    it('validates discriminator with anyOf', () => {
+    it("validates discriminator with anyOf", () => {
       const schema = {
         anyOf: [
-          { type: 'object', properties: { type: { const: 'dog' } } },
-          { type: 'object', properties: { type: { const: 'cat' } } },
+          { type: "object", properties: { type: { const: "dog" } } },
+          { type: "object", properties: { type: { const: "cat" } } },
         ],
         discriminator: {
-          propertyName: 'type',
+          propertyName: "type",
         },
-        required: ['type'],
-      }
+        required: ["type"],
+      };
 
-      const result = SchemaObjectSchema.safeParse(schema)
-      expect(result.success).toBe(true)
-    })
+      const result = SchemaObjectSchema.safeParse(schema);
+      expect(result.success).toBe(true);
+    });
 
-    it('validates discriminator with mapping', () => {
+    it("validates discriminator with mapping", () => {
       const schema = {
         oneOf: [
-          { type: 'object', properties: { type: { const: 'dog' } } },
-          { type: 'object', properties: { type: { const: 'cat' } } },
+          { type: "object", properties: { type: { const: "dog" } } },
+          { type: "object", properties: { type: { const: "cat" } } },
         ],
         discriminator: {
-          propertyName: 'type',
+          propertyName: "type",
           mapping: {
-            dog: '#/components/schemas/Dog',
-            cat: '#/components/schemas/Cat',
+            dog: "#/components/schemas/Dog",
+            cat: "#/components/schemas/Cat",
           },
         },
-        required: ['type'],
-      }
+        required: ["type"],
+      };
 
-      const result = SchemaObjectSchema.safeParse(schema)
-      expect(result.success).toBe(true)
-    })
-  })
+      const result = SchemaObjectSchema.safeParse(schema);
+      expect(result.success).toBe(true);
+    });
+  });
 
-  describe('metadata validation', () => {
-    it('validates vendor extensions', () => {
+  describe("metadata validation", () => {
+    it("validates vendor extensions", () => {
       const schema = {
-        type: 'string',
-        'x-custom-extension': true,
-        'x-another-extension': {
-          nested: 'value',
+        type: "string",
+        "x-custom-extension": true,
+        "x-another-extension": {
+          nested: "value",
         },
-      }
+      };
 
-      const result = SchemaObjectSchema.safeParse(schema)
-      expect(result.success).toBe(true)
-    })
-  })
+      const result = SchemaObjectSchema.safeParse(schema);
+      expect(result.success).toBe(true);
+    });
+  });
 
-  describe('format validation', () => {
-    it('validates date format', () => {
+  describe("format validation", () => {
+    it("validates date format", () => {
       const schema = {
-        type: 'string',
-        format: 'date',
-      }
+        type: "string",
+        format: "date",
+      };
 
-      const result = SchemaObjectSchema.safeParse(schema)
-      expect(result.success).toBe(true)
-    })
+      const result = SchemaObjectSchema.safeParse(schema);
+      expect(result.success).toBe(true);
+    });
 
-    it('validates email format', () => {
+    it("validates email format", () => {
       const schema = {
-        type: 'string',
-        format: 'email',
-      }
+        type: "string",
+        format: "email",
+      };
 
-      const result = SchemaObjectSchema.safeParse(schema)
-      expect(result.success).toBe(true)
-    })
+      const result = SchemaObjectSchema.safeParse(schema);
+      expect(result.success).toBe(true);
+    });
 
-    it('validates uuid format', () => {
+    it("validates uuid format", () => {
       const schema = {
-        type: 'string',
-        format: 'uuid',
-      }
+        type: "string",
+        format: "uuid",
+      };
 
-      const result = SchemaObjectSchema.safeParse(schema)
-      expect(result.success).toBe(true)
-    })
+      const result = SchemaObjectSchema.safeParse(schema);
+      expect(result.success).toBe(true);
+    });
 
-    it('validates int32 format', () => {
+    it("validates int32 format", () => {
       const schema = {
-        type: 'integer',
-        format: 'int32',
-      }
+        type: "integer",
+        format: "int32",
+      };
 
-      const result = SchemaObjectSchema.safeParse(schema)
-      expect(result.success).toBe(true)
-    })
-  })
+      const result = SchemaObjectSchema.safeParse(schema);
+      expect(result.success).toBe(true);
+    });
+  });
 
-  describe('OpenAPI extensions', () => {
-    it('validates xml configuration', () => {
+  describe("OpenAPI extensions", () => {
+    it("validates xml configuration", () => {
       const schema = {
-        type: 'object',
+        type: "object",
         xml: {
-          name: 'Pet',
-          namespace: 'http://example.com/schema',
-          prefix: 'p',
+          name: "Pet",
+          namespace: "http://example.com/schema",
+          prefix: "p",
           attribute: true,
           wrapped: true,
         },
-      }
+      };
 
-      const result = SchemaObjectSchema.safeParse(schema)
-      expect(result.success).toBe(true)
-    })
+      const result = SchemaObjectSchema.safeParse(schema);
+      expect(result.success).toBe(true);
+    });
 
-    it('validates external documentation', () => {
+    it("validates external documentation", () => {
       const schema = {
-        type: 'object',
+        type: "object",
         externalDocs: {
-          description: 'Find more info here',
-          url: 'https://example.com/docs',
+          description: "Find more info here",
+          url: "https://example.com/docs",
         },
-      }
+      };
 
-      const result = SchemaObjectSchema.safeParse(schema)
-      expect(result.success).toBe(true)
-    })
+      const result = SchemaObjectSchema.safeParse(schema);
+      expect(result.success).toBe(true);
+    });
 
-    it('validates custom x- extensions', () => {
+    it("validates custom x- extensions", () => {
       const schema = {
-        type: 'string',
-        'x-custom-extension': {
+        type: "string",
+        "x-custom-extension": {
           someValue: 123,
         },
-        'x-another-extension': true,
-      }
+        "x-another-extension": true,
+      };
 
-      const result = SchemaObjectSchema.safeParse(schema)
-      expect(result.success).toBe(true)
-    })
-  })
+      const result = SchemaObjectSchema.safeParse(schema);
+      expect(result.success).toBe(true);
+    });
+  });
 
-  describe('schema composition', () => {
-    it('validates allOf composition', () => {
+  describe("schema composition", () => {
+    it("validates allOf composition", () => {
       const schema = {
         allOf: [
-          { type: 'object', properties: { name: { type: 'string' } } },
-          { type: 'object', properties: { age: { type: 'integer' } } },
+          { type: "object", properties: { name: { type: "string" } } },
+          { type: "object", properties: { age: { type: "integer" } } },
         ],
-      }
+      };
 
-      const result = SchemaObjectSchema.safeParse(schema)
-      expect(result.success).toBe(true)
-    })
+      const result = SchemaObjectSchema.safeParse(schema);
+      expect(result.success).toBe(true);
+    });
 
-    it('validates oneOf with discriminator', () => {
+    it("validates oneOf with discriminator", () => {
       const schema = {
         oneOf: [
-          { type: 'object', properties: { type: { const: 'dog' }, bark: { type: 'boolean' } } },
-          { type: 'object', properties: { type: { const: 'cat' }, meow: { type: 'boolean' } } },
+          {
+            type: "object",
+            properties: { type: { const: "dog" }, bark: { type: "boolean" } },
+          },
+          {
+            type: "object",
+            properties: { type: { const: "cat" }, meow: { type: "boolean" } },
+          },
         ],
         discriminator: {
-          propertyName: 'type',
+          propertyName: "type",
         },
-        required: ['type'],
-      }
+        required: ["type"],
+      };
 
-      const result = SchemaObjectSchema.safeParse(schema)
-      expect(result.success).toBe(true)
-    })
+      const result = SchemaObjectSchema.safeParse(schema);
+      expect(result.success).toBe(true);
+    });
 
-    it('validates anyOf with multiple types', () => {
+    it("validates anyOf with multiple types", () => {
       const schema = {
-        anyOf: [{ type: 'string', format: 'email' }, { type: 'string', format: 'uri' }, { type: 'null' }],
-      }
+        anyOf: [
+          { type: "string", format: "email" },
+          { type: "string", format: "uri" },
+          { type: "null" },
+        ],
+      };
 
-      const result = SchemaObjectSchema.safeParse(schema)
-      expect(result.success).toBe(true)
-    })
+      const result = SchemaObjectSchema.safeParse(schema);
+      expect(result.success).toBe(true);
+    });
 
-    it('validates not with complex schema', () => {
+    it("validates not with complex schema", () => {
       const schema = {
         not: {
-          type: 'object',
+          type: "object",
           properties: {
-            forbidden: { type: 'boolean', const: true },
-            restricted: { type: 'string', enum: ['no', 'nope'] },
+            forbidden: { type: "boolean", const: true },
+            restricted: { type: "string", enum: ["no", "nope"] },
           },
-          required: ['forbidden'],
+          required: ["forbidden"],
         },
-      }
+      };
 
-      const result = SchemaObjectSchema.safeParse(schema)
-      expect(result.success).toBe(true)
-    })
-  })
+      const result = SchemaObjectSchema.safeParse(schema);
+      expect(result.success).toBe(true);
+    });
+  });
 
-  describe('validation errors', () => {
-    it('rejects invalid type values', () => {
-      const schema = { type: 'invalid' }
-      const result = SchemaObjectSchema.safeParse(schema)
-      expect(result.success).toBe(false)
+  describe("validation errors", () => {
+    it("rejects invalid type values", () => {
+      const schema = { type: "invalid" };
+      const result = SchemaObjectSchema.safeParse(schema);
+      expect(result.success).toBe(false);
       if (!result.success) {
-        expect(result.error.issues[0]?.path).toContain('type')
+        expect(result.error.issues[0]?.path).toContain("type");
       }
-    })
+    });
 
-    it('rejects invalid required fields', () => {
+    it("rejects invalid required fields", () => {
       const schema = {
-        type: 'object',
+        type: "object",
         properties: {
-          name: { type: 'string' },
+          name: { type: "string" },
         },
-        required: ['age'], // age is not defined in properties
-      }
+        required: ["age"], // age is not defined in properties
+      };
 
-      const result = SchemaObjectSchema.safeParse(schema)
-      expect(result.success).toBe(true) // OpenAPI allows this as properties might be defined elsewhere
-    })
-  })
-})
+      const result = SchemaObjectSchema.safeParse(schema);
+      expect(result.success).toBe(true); // OpenAPI allows this as properties might be defined elsewhere
+    });
+  });
+});

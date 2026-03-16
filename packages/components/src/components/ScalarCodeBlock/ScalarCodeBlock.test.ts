@@ -1,5 +1,5 @@
 import { type VueWrapper, flushPromises, mount } from '@vue/test-utils'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vite-plus/test'
 import { ref } from 'vue'
 
 import ScalarCopyButton from '../ScalarCopy/ScalarCopyButton.vue'
@@ -99,7 +99,8 @@ describe('ScalarCodeBlock', () => {
     expect(code.element.nodeName.toLowerCase()).toBe('code')
 
     // Confirm the syntax highlighting has been applied
-    expect(code.html()).toBe(`<code class="hljs language-json"><span class="hljs-punctuation">{</span>
+    expect(code.html())
+      .toBe(`<code class="hljs language-json"><span class="hljs-punctuation">{</span>
   <span class="hljs-attr">"description"</span><span class="hljs-punctuation">:</span> <span class="hljs-string">"successful operation"</span><span class="hljs-punctuation">,</span>
   <span class="hljs-attr">"schema"</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">{</span>
     <span class="hljs-attr">"type"</span><span class="hljs-punctuation">:</span> <span class="hljs-string">"object"</span><span class="hljs-punctuation">,</span>

@@ -1,24 +1,24 @@
-import { bench, describe, expect } from 'vitest'
+import { bench, describe, expect } from "vite-plus/test";
 
-import { resolveNew } from './utils/resolveNew'
-import { resolveOld } from './utils/resolveOld'
+import { resolveNew } from "./utils/resolveNew";
+import { resolveOld } from "./utils/resolveOld";
 
-describe('single reference', () => {
+describe("single reference", () => {
   const specification = {
-    openapi: '3.1.0',
+    openapi: "3.1.0",
     info: {
-      title: 'Hello World',
-      version: '2.0.0',
+      title: "Hello World",
+      version: "2.0.0",
     },
     paths: {
-      '/foobar': {
+      "/foobar": {
         post: {
-          description: 'Example',
+          description: "Example",
           requestBody: {
             content: {
-              'application/json': {
+              "application/json": {
                 schema: {
-                  $ref: '#/components/schemas/Foobar',
+                  $ref: "#/components/schemas/Foobar",
                 },
               },
             },
@@ -29,28 +29,33 @@ describe('single reference', () => {
     components: {
       schemas: {
         Foobar: {
-          type: 'string',
-          example: 'Hello World!',
+          type: "string",
+          example: "Hello World!",
         },
       },
     },
-  }
+  };
 
-  bench('@apidevtools/swagger-parser', async () => {
+  bench("@apidevtools/swagger-parser", async () => {
     // Action!
-    const result = await resolveOld(specification)
+    const result = await resolveOld(specification);
 
     // Check whether the reference was resolved
-    expect((result as any).paths['/foobar'].post.requestBody.content['application/json'].schema.example).toBe(
-      'Hello World!',
-    )
-  })
+    expect(
+      (result as any).paths["/foobar"].post.requestBody.content[
+        "application/json"
+      ].schema.example,
+    ).toBe("Hello World!");
+  });
 
-  bench('@scalar/openapi-parser', () => {
+  bench("@scalar/openapi-parser", () => {
     // Action!
-    const { schema } = resolveNew(specification)
+    const { schema } = resolveNew(specification);
 
     // Check whether the reference was resolved
-    expect(schema.paths['/foobar'].post.requestBody.content['application/json'].schema.example).toBe('Hello World!')
-  })
-})
+    expect(
+      schema.paths["/foobar"].post.requestBody.content["application/json"]
+        .schema.example,
+    ).toBe("Hello World!");
+  });
+});

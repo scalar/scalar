@@ -1,22 +1,22 @@
-import { defineConfig } from 'vite'
+import { defineConfig } from "vite-plus";
 
 export default defineConfig({
   plugins: [],
   ssr: {
     noExternal: true,
-    target: 'node',
+    target: "node",
   },
   build: {
     ssr: true,
     minify: true,
-    target: 'esnext',
-    outDir: 'dist',
+    target: "esnext",
+    outDir: "dist",
     rollupOptions: {
-      input: 'src/docker-entrypoint.ts',
+      input: "src/docker-entrypoint.ts",
       output: {
-        format: 'es',
-        entryFileNames: 'docker-entrypoint.js',
+        format: "es",
+        entryFileNames: "docker-entrypoint.js",
       },
     },
   },
-})
+});

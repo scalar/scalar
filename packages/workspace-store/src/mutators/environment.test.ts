@@ -1,402 +1,434 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from "vite-plus/test";
 
-import type { Workspace, WorkspaceDocument } from '@/schemas/workspace'
+import type { Workspace, WorkspaceDocument } from "@/schemas/workspace";
 
 import {
   deleteEnvironment,
   deleteEnvironmentVariable,
   upsertEnvironment,
   upsertEnvironmentVariable,
-} from './environment'
+} from "./environment";
 
-describe('environment', () => {
-  it('creates a new environment in workspace and sets it as active', () => {
+describe("environment", () => {
+  it("creates a new environment in workspace and sets it as active", () => {
     const workspace: Workspace = {
       documents: {},
       activeDocument: undefined,
-    }
+    };
 
     const result = upsertEnvironment(workspace, workspace, {
-      environmentName: 'production',
+      environmentName: "production",
       payload: {
-        color: '#ff0000',
+        color: "#ff0000",
         variables: [],
       },
-    })
+    });
 
     expect(result).toEqual({
-      color: '#ff0000',
+      color: "#ff0000",
       variables: [],
-    })
-    expect(workspace['x-scalar-environments']).toEqual({
+    });
+    expect(workspace["x-scalar-environments"]).toEqual({
       production: {
-        color: '#ff0000',
+        color: "#ff0000",
         variables: [],
       },
-    })
-    expect(workspace['x-scalar-active-environment']).toBe('production')
-  })
+    });
+    expect(workspace["x-scalar-active-environment"]).toBe("production");
+  });
 
-  it('updates an existing environment without changing active environment', () => {
+  it("updates an existing environment without changing active environment", () => {
     const workspace: Workspace = {
       documents: {},
       activeDocument: undefined,
-      'x-scalar-environments': {
+      "x-scalar-environments": {
         production: {
-          color: '#ff0000',
+          color: "#ff0000",
           variables: [
             {
-              name: 'API_KEY',
-              value: 'old-key',
+              name: "API_KEY",
+              value: "old-key",
             },
           ],
         },
         staging: {
-          color: '#00ff00',
+          color: "#00ff00",
           variables: [],
         },
       },
-      'x-scalar-active-environment': 'staging',
-    }
+      "x-scalar-active-environment": "staging",
+    };
 
     const result = upsertEnvironment(workspace, workspace, {
-      environmentName: 'production',
+      environmentName: "production",
       payload: {
-        description: 'Updated production environment',
-        color: '#0000ff',
+        description: "Updated production environment",
+        color: "#0000ff",
       },
-    })
+    });
 
     expect(result).toEqual({
-      description: 'Updated production environment',
-      color: '#0000ff',
+      description: "Updated production environment",
+      color: "#0000ff",
       variables: [
         {
-          name: 'API_KEY',
-          value: 'old-key',
+          name: "API_KEY",
+          value: "old-key",
         },
       ],
-    })
+    });
     // Active environment should remain unchanged when updating existing environment
-    expect(workspace['x-scalar-active-environment']).toBe('staging')
+    expect(workspace["x-scalar-active-environment"]).toBe("staging");
     // Variables should be preserved when updating
-    if (workspace['x-scalar-environments']) {
-      expect(workspace['x-scalar-environments'].production?.variables).toHaveLength(1)
+    if (workspace["x-scalar-environments"]) {
+      expect(
+        workspace["x-scalar-environments"].production?.variables,
+      ).toHaveLength(1);
     }
-  })
+  });
 
-  it('renames an environment and removes the old one', () => {
+  it("renames an environment and removes the old one", () => {
     const workspace: Workspace = {
       documents: {},
       activeDocument: undefined,
-      'x-scalar-environments': {
+      "x-scalar-environments": {
         dev: {
-          color: '#ff0000',
+          color: "#ff0000",
           variables: [
             {
-              name: 'BASE_URL',
-              value: 'http://localhost:3000',
+              name: "BASE_URL",
+              value: "http://localhost:3000",
             },
           ],
         },
       },
-      'x-scalar-active-environment': 'dev',
-    }
+      "x-scalar-active-environment": "dev",
+    };
 
     const result = upsertEnvironment(workspace, workspace, {
-      environmentName: 'development',
+      environmentName: "development",
       payload: {
-        description: 'Development environment',
+        description: "Development environment",
       },
-      oldEnvironmentName: 'dev',
-    })
+      oldEnvironmentName: "dev",
+    });
 
     expect(result).toEqual({
-      description: 'Development environment',
-      color: '#ff0000',
+      description: "Development environment",
+      color: "#ff0000",
       variables: [
         {
-          name: 'BASE_URL',
-          value: 'http://localhost:3000',
+          name: "BASE_URL",
+          value: "http://localhost:3000",
         },
       ],
-    })
+    });
     // Old environment should be deleted
-    if (workspace['x-scalar-environments']) {
-      expect(workspace['x-scalar-environments'].dev).toBeUndefined()
+    if (workspace["x-scalar-environments"]) {
+      expect(workspace["x-scalar-environments"].dev).toBeUndefined();
       // New environment should exist with all original data
-      expect(workspace['x-scalar-environments'].development).toBeDefined()
-      expect(workspace['x-scalar-environments'].development?.variables).toHaveLength(1)
+      expect(workspace["x-scalar-environments"].development).toBeDefined();
+      expect(
+        workspace["x-scalar-environments"].development?.variables,
+      ).toHaveLength(1);
     }
     // Active environment should be updated to the new name when renaming an active environment
-    expect(workspace['x-scalar-active-environment']).toBe('development')
-  })
+    expect(workspace["x-scalar-active-environment"]).toBe("development");
+  });
 
-  it('adds a new variable to an environment', () => {
+  it("adds a new variable to an environment", () => {
     const document: WorkspaceDocument = {
-      openapi: '3.1.0',
+      openapi: "3.1.0",
       info: {
-        title: 'Test API',
-        version: '1.0.0',
+        title: "Test API",
+        version: "1.0.0",
       },
-      'x-scalar-original-document-hash': 'test-hash',
-      'x-scalar-environments': {
+      "x-scalar-original-document-hash": "test-hash",
+      "x-scalar-environments": {
         production: {
-          color: '#ff0000',
+          color: "#ff0000",
           variables: [
             {
-              name: 'API_KEY',
-              value: 'existing-key',
+              name: "API_KEY",
+              value: "existing-key",
             },
           ],
         },
       },
-    }
+    };
 
     const result = upsertEnvironmentVariable(document, {
-      environmentName: 'production',
+      environmentName: "production",
       variable: {
-        name: 'BASE_URL',
+        name: "BASE_URL",
         value: {
-          description: 'Production API URL',
-          default: 'https://api.example.com',
+          description: "Production API URL",
+          default: "https://api.example.com",
         },
       },
-    })
+    });
 
     expect(result).toEqual({
-      name: 'BASE_URL',
+      name: "BASE_URL",
       value: {
-        description: 'Production API URL',
-        default: 'https://api.example.com',
+        description: "Production API URL",
+        default: "https://api.example.com",
       },
-    })
-    if (document['x-scalar-environments']) {
-      expect(document['x-scalar-environments'].production?.variables).toHaveLength(2)
-      expect(document['x-scalar-environments'].production?.variables[1]).toEqual({
-        name: 'BASE_URL',
+    });
+    if (document["x-scalar-environments"]) {
+      expect(
+        document["x-scalar-environments"].production?.variables,
+      ).toHaveLength(2);
+      expect(
+        document["x-scalar-environments"].production?.variables[1],
+      ).toEqual({
+        name: "BASE_URL",
         value: {
-          description: 'Production API URL',
-          default: 'https://api.example.com',
+          description: "Production API URL",
+          default: "https://api.example.com",
         },
-      })
+      });
     }
-  })
+  });
 
-  it('updates an existing variable by index and deletes if name is empty', () => {
+  it("updates an existing variable by index and deletes if name is empty", () => {
     const workspace: Workspace = {
       documents: {},
       activeDocument: undefined,
-      'x-scalar-environments': {
+      "x-scalar-environments": {
         staging: {
-          color: '#00ff00',
+          color: "#00ff00",
           variables: [
             {
-              name: 'TOKEN',
-              value: 'abc123',
+              name: "TOKEN",
+              value: "abc123",
             },
             {
-              name: 'DEBUG',
-              value: 'true',
+              name: "DEBUG",
+              value: "true",
             },
             {
-              name: 'PORT',
-              value: '8080',
+              name: "PORT",
+              value: "8080",
             },
           ],
         },
       },
-    }
+    };
 
     // Update the second variable
     const updateResult = upsertEnvironmentVariable(workspace, {
-      environmentName: 'staging',
+      environmentName: "staging",
       variable: {
-        name: 'DEBUG',
-        value: 'false',
+        name: "DEBUG",
+        value: "false",
       },
       index: 1,
-    })
+    });
 
     expect(updateResult).toEqual({
-      name: 'DEBUG',
-      value: 'false',
-    })
-    const environments = workspace['x-scalar-environments']
+      name: "DEBUG",
+      value: "false",
+    });
+    const environments = workspace["x-scalar-environments"];
     if (environments) {
-      expect(environments.staging?.variables).toHaveLength(3)
-      expect(environments.staging?.variables?.[1]?.value).toBe('false')
+      expect(environments.staging?.variables).toHaveLength(3);
+      expect(environments.staging?.variables?.[1]?.value).toBe("false");
     }
 
     // Delete a variable by setting name to empty string
     const deleteResult = upsertEnvironmentVariable(workspace, {
-      environmentName: 'staging',
+      environmentName: "staging",
       variable: {
-        name: '',
-        value: '',
+        name: "",
+        value: "",
       },
       index: 0,
-    })
+    });
 
-    expect(deleteResult).toBeUndefined()
+    expect(deleteResult).toBeUndefined();
     if (environments) {
-      expect(environments.staging?.variables).toHaveLength(2)
+      expect(environments.staging?.variables).toHaveLength(2);
       // First variable should be removed, so DEBUG should now be at index 0
-      expect(environments.staging?.variables?.[0]?.name).toBe('DEBUG')
+      expect(environments.staging?.variables?.[0]?.name).toBe("DEBUG");
     }
-  })
+  });
 
-  it('deletes environment when both workspace and collection are provided', () => {
+  it("deletes environment when both workspace and collection are provided", () => {
     const workspace: Workspace = {
       documents: {},
       activeDocument: undefined,
-      'x-scalar-environments': {
+      "x-scalar-environments": {
         production: {
-          color: '#ff0000',
+          color: "#ff0000",
           variables: [],
         },
         staging: {
-          color: '#00ff00',
+          color: "#00ff00",
           variables: [],
         },
       },
-    }
+    };
 
-    deleteEnvironment(workspace, workspace, { environmentName: 'production' })
+    deleteEnvironment(workspace, workspace, { environmentName: "production" });
 
-    expect(workspace['x-scalar-environments']?.production).toBeUndefined()
-    expect(workspace['x-scalar-environments']?.staging).toBeDefined()
-  })
+    expect(workspace["x-scalar-environments"]?.production).toBeUndefined();
+    expect(workspace["x-scalar-environments"]?.staging).toBeDefined();
+  });
 
-  it('does nothing when workspace or collection is null', () => {
-    expect(() => deleteEnvironment(null, null, { environmentName: 'production' })).not.toThrow()
-  })
+  it("does nothing when workspace or collection is null", () => {
+    expect(() =>
+      deleteEnvironment(null, null, { environmentName: "production" }),
+    ).not.toThrow();
+  });
 
-  it('does not throw when deleting a non-existent environment', () => {
+  it("does not throw when deleting a non-existent environment", () => {
     const workspace: Workspace = {
       documents: {},
       activeDocument: undefined,
-      'x-scalar-environments': {
+      "x-scalar-environments": {
         production: {
-          color: '#ff0000',
+          color: "#ff0000",
           variables: [],
         },
       },
-    }
+    };
 
-    expect(() => deleteEnvironment(workspace, workspace, { environmentName: 'non-existent' })).not.toThrow()
-    expect(workspace['x-scalar-environments']?.production).toBeDefined()
-  })
+    expect(() =>
+      deleteEnvironment(workspace, workspace, {
+        environmentName: "non-existent",
+      }),
+    ).not.toThrow();
+    expect(workspace["x-scalar-environments"]?.production).toBeDefined();
+  });
 
-  it('preserves other environments when deleting one', () => {
+  it("preserves other environments when deleting one", () => {
     const document: WorkspaceDocument = {
-      openapi: '3.1.0',
+      openapi: "3.1.0",
       info: {
-        title: 'Test API',
-        version: '1.0.0',
+        title: "Test API",
+        version: "1.0.0",
       },
-      'x-scalar-original-document-hash': 'test-hash',
-      'x-scalar-environments': {
+      "x-scalar-original-document-hash": "test-hash",
+      "x-scalar-environments": {
         production: {
-          color: '#ff0000',
-          variables: [{ name: 'API_KEY', value: 'prod-key' }],
+          color: "#ff0000",
+          variables: [{ name: "API_KEY", value: "prod-key" }],
         },
         staging: {
-          color: '#00ff00',
-          variables: [{ name: 'API_KEY', value: 'staging-key' }],
+          color: "#00ff00",
+          variables: [{ name: "API_KEY", value: "staging-key" }],
         },
         development: {
-          color: '#0000ff',
-          variables: [{ name: 'API_KEY', value: 'dev-key' }],
+          color: "#0000ff",
+          variables: [{ name: "API_KEY", value: "dev-key" }],
         },
       },
-    }
+    };
     const workspace: Workspace = {
       documents: {},
       activeDocument: undefined,
+    };
+
+    deleteEnvironment(workspace, document, { environmentName: "staging" });
+
+    expect(document["x-scalar-environments"]?.staging).toBeUndefined();
+    expect(document["x-scalar-environments"]?.production).toBeDefined();
+    expect(document["x-scalar-environments"]?.development).toBeDefined();
+    if (document["x-scalar-environments"]) {
+      expect(Object.keys(document["x-scalar-environments"])).toHaveLength(2);
     }
+  });
 
-    deleteEnvironment(workspace, document, { environmentName: 'staging' })
-
-    expect(document['x-scalar-environments']?.staging).toBeUndefined()
-    expect(document['x-scalar-environments']?.production).toBeDefined()
-    expect(document['x-scalar-environments']?.development).toBeDefined()
-    if (document['x-scalar-environments']) {
-      expect(Object.keys(document['x-scalar-environments'])).toHaveLength(2)
-    }
-  })
-
-  it('deletes environment variable at specified index', () => {
+  it("deletes environment variable at specified index", () => {
     const workspace: Workspace = {
       documents: {},
       activeDocument: undefined,
-      'x-scalar-environments': {
+      "x-scalar-environments": {
         production: {
-          color: '#ff0000',
+          color: "#ff0000",
           variables: [
-            { name: 'API_KEY', value: 'key1' },
-            { name: 'BASE_URL', value: 'url1' },
-            { name: 'DEBUG', value: 'true' },
+            { name: "API_KEY", value: "key1" },
+            { name: "BASE_URL", value: "url1" },
+            { name: "DEBUG", value: "true" },
           ],
         },
       },
-    }
+    };
 
-    deleteEnvironmentVariable(workspace, { environmentName: 'production', index: 1 })
+    deleteEnvironmentVariable(workspace, {
+      environmentName: "production",
+      index: 1,
+    });
 
-    const variables = workspace['x-scalar-environments']?.production?.variables
-    expect(variables).toHaveLength(2)
-    expect(variables?.[0]?.name).toBe('API_KEY')
-    expect(variables?.[1]?.name).toBe('DEBUG')
-  })
+    const variables = workspace["x-scalar-environments"]?.production?.variables;
+    expect(variables).toHaveLength(2);
+    expect(variables?.[0]?.name).toBe("API_KEY");
+    expect(variables?.[1]?.name).toBe("DEBUG");
+  });
 
-  it('does nothing when collection is null', () => {
-    expect(() => deleteEnvironmentVariable(null, { environmentName: 'production', index: 0 })).not.toThrow()
-  })
+  it("does nothing when collection is null", () => {
+    expect(() =>
+      deleteEnvironmentVariable(null, {
+        environmentName: "production",
+        index: 0,
+      }),
+    ).not.toThrow();
+  });
 
-  it('does nothing when environment does not exist', () => {
+  it("does nothing when environment does not exist", () => {
     const workspace: Workspace = {
       documents: {},
       activeDocument: undefined,
-      'x-scalar-environments': {
+      "x-scalar-environments": {
         production: {
-          color: '#ff0000',
-          variables: [{ name: 'API_KEY', value: 'key1' }],
+          color: "#ff0000",
+          variables: [{ name: "API_KEY", value: "key1" }],
         },
       },
-    }
+    };
 
-    expect(() => deleteEnvironmentVariable(workspace, { environmentName: 'non-existent', index: 0 })).not.toThrow()
-    expect(workspace['x-scalar-environments']?.production?.variables).toHaveLength(1)
-  })
+    expect(() =>
+      deleteEnvironmentVariable(workspace, {
+        environmentName: "non-existent",
+        index: 0,
+      }),
+    ).not.toThrow();
+    expect(
+      workspace["x-scalar-environments"]?.production?.variables,
+    ).toHaveLength(1);
+  });
 
-  it('preserves other variables when deleting one', () => {
+  it("preserves other variables when deleting one", () => {
     const document: WorkspaceDocument = {
-      openapi: '3.1.0',
+      openapi: "3.1.0",
       info: {
-        title: 'Test API',
-        version: '1.0.0',
+        title: "Test API",
+        version: "1.0.0",
       },
-      'x-scalar-original-document-hash': 'test-hash',
-      'x-scalar-environments': {
+      "x-scalar-original-document-hash": "test-hash",
+      "x-scalar-environments": {
         staging: {
-          color: '#00ff00',
+          color: "#00ff00",
           variables: [
-            { name: 'VAR1', value: 'value1' },
-            { name: 'VAR2', value: 'value2' },
-            { name: 'VAR3', value: 'value3' },
-            { name: 'VAR4', value: 'value4' },
+            { name: "VAR1", value: "value1" },
+            { name: "VAR2", value: "value2" },
+            { name: "VAR3", value: "value3" },
+            { name: "VAR4", value: "value4" },
           ],
         },
       },
-    }
+    };
 
-    deleteEnvironmentVariable(document, { environmentName: 'staging', index: 2 })
+    deleteEnvironmentVariable(document, {
+      environmentName: "staging",
+      index: 2,
+    });
 
-    const variables = document['x-scalar-environments']?.staging?.variables
-    expect(variables).toHaveLength(3)
-    expect(variables?.[0]?.name).toBe('VAR1')
-    expect(variables?.[1]?.name).toBe('VAR2')
-    expect(variables?.[2]?.name).toBe('VAR4')
-  })
-})
+    const variables = document["x-scalar-environments"]?.staging?.variables;
+    expect(variables).toHaveLength(3);
+    expect(variables?.[0]?.name).toBe("VAR1");
+    expect(variables?.[1]?.name).toBe("VAR2");
+    expect(variables?.[2]?.name).toBe("VAR4");
+  });
+});

@@ -1,5 +1,5 @@
 import { enableAutoUnmount, mount } from '@vue/test-utils'
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vite-plus/test'
 import { nextTick } from 'vue'
 
 import ScalarComboboxOption from './ScalarComboboxOption.vue'
@@ -139,15 +139,25 @@ describe('ScalarComboboxOptions', () => {
       // Check first option (should be selected)
       const firstOption = slotOptions[0]
       expect(firstOption?.find('[data-test="option-id"]').text()).toBe('1')
-      expect(firstOption?.find('[data-test="option-label"]').text()).toBe('Apple')
-      expect(firstOption?.find('[data-test="option-category"]').text()).toBe('fruit')
-      expect(firstOption?.find('[data-test="option-selected"]').text()).toBe('true')
+      expect(firstOption?.find('[data-test="option-label"]').text()).toBe(
+        'Apple',
+      )
+      expect(firstOption?.find('[data-test="option-category"]').text()).toBe(
+        'fruit',
+      )
+      expect(firstOption?.find('[data-test="option-selected"]').text()).toBe(
+        'true',
+      )
 
       // Check second option (should not be selected)
       const secondOption = slotOptions[1]
       expect(secondOption?.find('[data-test="option-id"]').text()).toBe('2')
-      expect(secondOption?.find('[data-test="option-label"]').text()).toBe('Banana')
-      expect(secondOption?.find('[data-test="option-selected"]').text()).toBe('false')
+      expect(secondOption?.find('[data-test="option-label"]').text()).toBe(
+        'Banana',
+      )
+      expect(secondOption?.find('[data-test="option-selected"]').text()).toBe(
+        'false',
+      )
     })
 
     it('passes correct props to group slot', () => {
@@ -171,15 +181,23 @@ describe('ScalarComboboxOptions', () => {
 
       // Check first group
       const firstGroup = slotGroups[0]
-      expect(firstGroup?.find('[data-test="group-label"]').text()).toBe('Fruits')
+      expect(firstGroup?.find('[data-test="group-label"]').text()).toBe(
+        'Fruits',
+      )
       expect(firstGroup?.find('[data-test="group-icon"]').text()).toBe('🍎')
-      expect(firstGroup?.find('[data-test="group-options-count"]').text()).toBe('2')
+      expect(firstGroup?.find('[data-test="group-options-count"]').text()).toBe(
+        '2',
+      )
 
       // Check second group
       const secondGroup = slotGroups[1]
-      expect(secondGroup?.find('[data-test="group-label"]').text()).toBe('Vegetables')
+      expect(secondGroup?.find('[data-test="group-label"]').text()).toBe(
+        'Vegetables',
+      )
       expect(secondGroup?.find('[data-test="group-icon"]').text()).toBe('🥕')
-      expect(secondGroup?.find('[data-test="group-options-count"]').text()).toBe('2')
+      expect(
+        secondGroup?.find('[data-test="group-options-count"]').text(),
+      ).toBe('2')
     })
 
     it('maintains slot functionality while filtering', async () => {
@@ -238,11 +256,15 @@ describe('ScalarComboboxOptions', () => {
         },
       })
 
-      const multiselectOptions = wrapper.findAll('[data-test="multiselect-slot-option"]')
+      const multiselectOptions = wrapper.findAll(
+        '[data-test="multiselect-slot-option"]',
+      )
       expect(multiselectOptions).toHaveLength(2)
 
       // Both options should be selected
-      const selectionIndicators = wrapper.findAll('[data-test="selection-indicator"]')
+      const selectionIndicators = wrapper.findAll(
+        '[data-test="selection-indicator"]',
+      )
       expect(selectionIndicators[0]?.text()).toBe('✓')
       expect(selectionIndicators[1]?.text()).toBe('✓')
     })
@@ -264,7 +286,9 @@ describe('ScalarComboboxOptions', () => {
 
       // Should emit model value update
       expect(wrapper.emitted('update:modelValue')).toBeTruthy()
-      expect(wrapper.emitted('update:modelValue')?.[0]).toEqual([[extendedOptions[0]]])
+      expect(wrapper.emitted('update:modelValue')?.[0]).toEqual([
+        [extendedOptions[0]],
+      ])
     })
   })
 

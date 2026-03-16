@@ -1,6 +1,6 @@
 import { ScalarIconAcorn } from '@scalar/icons'
 import { mount } from '@vue/test-utils'
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vite-plus/test'
 import { markRaw, nextTick } from 'vue'
 
 import { ScalarIconLegacyAdapter } from '../ScalarIcon'
@@ -63,7 +63,9 @@ describe('ScalarIconButton', () => {
       })
 
       expect(wrapper.findComponent(ScalarIconLegacyAdapter).exists()).toBe(true)
-      expect(wrapper.findComponent(ScalarIconLegacyAdapter).props('icon')).toBe('Logo')
+      expect(wrapper.findComponent(ScalarIconLegacyAdapter).props('icon')).toBe(
+        'Logo',
+      )
     })
   })
 
@@ -495,7 +497,7 @@ describe('ScalarIconButton', () => {
         },
         attrs: {
           'data-testid': 'custom-icon-button',
-          id: 'test-button',
+          'id': 'test-button',
         },
       })
 

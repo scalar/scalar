@@ -26,7 +26,7 @@
     "dev:local": "cd playground && pnpm run dev:local",
     "lint:check": "scalar-lint-check",
     "lint:fix": "scalar-lint-fix",
-    "test": "vitest",
+    "test": "vp test",
     "types:build": "scalar-types-build",
     "types:check": "scalar-types-check"
   },
@@ -73,6 +73,7 @@
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
     "@types/node": "catalog:*",
-    "vite": "catalog:*"
+    "vite": "catalog:",
+    "vite-plus": "catalog:"
   }
 }

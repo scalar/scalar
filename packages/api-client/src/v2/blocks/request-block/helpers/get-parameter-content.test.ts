@@ -1,74 +1,74 @@
-import type { ParameterObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import { describe, expect, it } from 'vitest'
+import type { ParameterObject } from "@scalar/workspace-store/schemas/v3.1/strict/openapi-document";
+import { describe, expect, it } from "vite-plus/test";
 
-import { getParameterContentValue } from '@/v2/blocks/request-block/helpers/get-parameter-content'
+import { getParameterContentValue } from "@/v2/blocks/request-block/helpers/get-parameter-content";
 
-describe('getParameterContentValue', () => {
-  it('returns undefined when there is no content key', () => {
+describe("getParameterContentValue", () => {
+  it("returns undefined when there is no content key", () => {
     const parameter: ParameterObject = {
-      in: 'header',
-      name: 'some name',
-    }
-    const result = getParameterContentValue(parameter)
-    expect(result).toBe(undefined)
-  })
+      in: "header",
+      name: "some name",
+    };
+    const result = getParameterContentValue(parameter);
+    expect(result).toBe(undefined);
+  });
 
-  it('returns undefined when there is no there is no content key', () => {
+  it("returns undefined when there is no there is no content key", () => {
     const parameter: ParameterObject = {
-      in: 'header',
-      name: 'some name',
+      in: "header",
+      name: "some name",
       content: {},
-    }
-    const result = getParameterContentValue(parameter)
-    expect(result).toBe(undefined)
-  })
+    };
+    const result = getParameterContentValue(parameter);
+    expect(result).toBe(undefined);
+  });
 
-  it('returns undefined when there are multiple content key', () => {
+  it("returns undefined when there are multiple content key", () => {
     const parameter: ParameterObject = {
-      in: 'header',
-      name: 'some name',
+      in: "header",
+      name: "some name",
       content: {
-        'application/json': {
+        "application/json": {
           examples: {
-            'exampleKey': {
-              value: 'some value',
+            exampleKey: {
+              value: "some value",
             },
           },
         },
-        'plain/text': {
+        "plain/text": {
           examples: {
-            'example1': {
-              value: 'example 1 value',
+            example1: {
+              value: "example 1 value",
             },
           },
         },
       },
-    }
-    const result = getParameterContentValue(parameter)
-    expect(result).toBe(undefined)
-  })
+    };
+    const result = getParameterContentValue(parameter);
+    expect(result).toBe(undefined);
+  });
 
-  it('the content when there is a content', () => {
+  it("the content when there is a content", () => {
     const parameter: ParameterObject = {
-      in: 'header',
-      name: 'some name',
+      in: "header",
+      name: "some name",
       content: {
-        'application/json': {
+        "application/json": {
           examples: {
-            'exampleKey': {
-              value: 'some value',
+            exampleKey: {
+              value: "some value",
             },
           },
         },
       },
-    }
-    const result = getParameterContentValue(parameter)
+    };
+    const result = getParameterContentValue(parameter);
     expect(result).toEqual({
       examples: {
-        'exampleKey': {
-          value: 'some value',
+        exampleKey: {
+          value: "some value",
         },
       },
-    })
-  })
-})
+    });
+  });
+});

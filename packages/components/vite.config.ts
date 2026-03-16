@@ -1,11 +1,10 @@
-import { URL, fileURLToPath } from 'node:url'
-
 import { createViteBuildOptions } from '@scalar/build-tooling/vite'
 import tailwindcss from '@tailwindcss/vite'
 import vue from '@vitejs/plugin-vue'
-import type { PluginOption } from 'vite'
+import { URL, fileURLToPath } from 'node:url'
+import type { PluginOption } from 'vite-plus'
+import { defineConfig } from 'vite-plus'
 import svgLoader from 'vite-svg-loader'
-import { defineConfig } from 'vitest/config'
 
 // https://vitejs.dev/config/
 export default defineConfig({

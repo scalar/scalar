@@ -1,49 +1,49 @@
-import { describe, expect, expectTypeOf, it } from 'vitest'
+import { describe, expect, expectTypeOf, it } from "vite-plus/test";
 
-import type { v_2_3_0 } from '../v-2.3.0/types.generated'
-import { migrate_v_2_4_0 } from './migration'
-import type { v_2_4_0 } from './types.generated'
+import type { v_2_3_0 } from "../v-2.3.0/types.generated";
+import { migrate_v_2_4_0 } from "./migration";
+import type { v_2_4_0 } from "./types.generated";
 
-describe('migrate_v_2_4_0', () => {
-  it('should migrate draft collection by removing servers and updating request paths', () => {
+describe("migrate_v_2_4_0", () => {
+  it("should migrate draft collection by removing servers and updating request paths", () => {
     // Setup test data
     const mockServer: v_2_3_0.Server = {
-      uid: 'server1',
-      url: 'https://api.example.com',
-      description: 'Test server',
-    }
+      uid: "server1",
+      url: "https://api.example.com",
+      description: "Test server",
+    };
 
     const mockRequest: v_2_3_0.Request = {
-      uid: 'request1',
-      type: 'request',
-      path: '/users',
-      method: 'get',
-      servers: ['server1'],
-      selectedServerUid: 'server1',
+      uid: "request1",
+      type: "request",
+      path: "/users",
+      method: "get",
+      servers: ["server1"],
+      selectedServerUid: "server1",
       examples: [],
       selectedSecuritySchemeUids: [],
-    }
+    };
 
     const mockDraftCollection: v_2_3_0.Collection = {
-      'uid': 'draft1',
-      'type': 'collection',
-      'info': {
-        title: 'Drafts',
-        version: '1.0.0',
+      uid: "draft1",
+      type: "collection",
+      info: {
+        title: "Drafts",
+        version: "1.0.0",
       },
-      'openapi': '3.0.0',
-      'security': [],
-      'servers': ['server1'],
-      'selectedServerUid': '',
-      'securitySchemes': [],
-      'selectedSecuritySchemeUids': [],
-      'requests': ['request1'],
-      'tags': [],
-      'children': [],
-      'watchMode': false,
-      'watchModeStatus': 'IDLE',
-      'x-scalar-icon': 'draft',
-    }
+      openapi: "3.0.0",
+      security: [],
+      servers: ["server1"],
+      selectedServerUid: "",
+      securitySchemes: [],
+      selectedSecuritySchemeUids: [],
+      requests: ["request1"],
+      tags: [],
+      children: [],
+      watchMode: false,
+      watchModeStatus: "IDLE",
+      "x-scalar-icon": "draft",
+    };
 
     const mockData: v_2_3_0.DataRecord = {
       collections: {
@@ -61,32 +61,34 @@ describe('migrate_v_2_4_0', () => {
       securitySchemes: {},
       tags: {},
       workspaces: {},
-    }
+    };
 
     // Perform migration
-    const result = migrate_v_2_4_0(mockData)
+    const result = migrate_v_2_4_0(mockData);
 
     // Assertions
-    expectTypeOf(result).toMatchTypeOf<v_2_4_0.DataRecord>()
-    expect(result.collections.draft1?.servers).toEqual([])
-    expect(result.requests.request1?.path).toBe('https://api.example.com/users')
-    expect(result.requests.request1?.selectedServerUid).toBe('')
-  })
+    expectTypeOf(result).toMatchTypeOf<v_2_4_0.DataRecord>();
+    expect(result.collections.draft1?.servers).toEqual([]);
+    expect(result.requests.request1?.path).toBe(
+      "https://api.example.com/users",
+    );
+    expect(result.requests.request1?.selectedServerUid).toBe("");
+  });
 
-  it('should preserve all other data properties', () => {
+  it("should preserve all other data properties", () => {
     // Setup test data with all properties
     const mockData: v_2_3_0.DataRecord = {
       collections: {},
       cookies: {
         cookie1: {
-          uid: 'cookie1',
-          name: 'test',
-          value: 'value',
-          sameSite: 'Lax',
+          uid: "cookie1",
+          name: "test",
+          value: "value",
+          sameSite: "Lax",
         },
       },
       environments: {
-        env1: { uid: 'env1', name: 'test', color: 'blue', value: 'value' },
+        env1: { uid: "env1", name: "test", color: "blue", value: "value" },
       },
       requestExamples: {},
       requests: {},
@@ -94,14 +96,14 @@ describe('migrate_v_2_4_0', () => {
       servers: {},
       tags: {},
       workspaces: {},
-    }
+    };
 
     // Perform migration
-    const result = migrate_v_2_4_0(mockData)
+    const result = migrate_v_2_4_0(mockData);
 
     // Assertions
-    expect(result.cookies).toEqual(mockData.cookies)
-    expect(result.environments).toEqual(mockData.environments)
-    expect(result.collections).toEqual(mockData.collections)
-  })
-})
+    expect(result.cookies).toEqual(mockData.cookies);
+    expect(result.environments).toEqual(mockData.environments);
+    expect(result.collections).toEqual(mockData.collections);
+  });
+});

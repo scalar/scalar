@@ -1,161 +1,161 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from "vite-plus/test";
 
-import { createMockServer } from '../../src'
-import { createOpenApiDefinition } from '../../src/utils/create-openapi-definition'
+import { createMockServer } from "../../src";
+import { createOpenApiDefinition } from "../../src/utils/create-openapi-definition";
 
-describe('OAuth 2.0 Authentication', () => {
-  describe('Authorization Code Flow', () => {
+describe("OAuth 2.0 Authentication", () => {
+  describe("Authorization Code Flow", () => {
     const document = createOpenApiDefinition({
       oauth2: {
-        type: 'oauth2',
+        type: "oauth2",
         flows: {
           authorizationCode: {
-            authorizationUrl: 'https://example.com/oauth/authorize',
-            tokenUrl: 'https://example.com/oauth/token',
-            scopes: { read: 'Read access' },
+            authorizationUrl: "https://example.com/oauth/authorize",
+            tokenUrl: "https://example.com/oauth/token",
+            scopes: { read: "Read access" },
           },
         },
       },
-    })
+    });
     document.paths = {
-      '/oauth-test': {
+      "/oauth-test": {
         get: {
-          security: [{ oauth2: ['read'] }],
-          responses: { '200': { description: 'OK' } },
+          security: [{ oauth2: ["read"] }],
+          responses: { "200": { description: "OK" } },
         },
       },
-    }
+    };
 
-    it('succeeds with valid OAuth token', async () => {
-      const server = await createMockServer({ document })
-      const response = await server.request('/oauth-test', {
-        headers: { Authorization: 'Bearer valid-token' },
-      })
+    it("succeeds with valid OAuth token", async () => {
+      const server = await createMockServer({ document });
+      const response = await server.request("/oauth-test", {
+        headers: { Authorization: "Bearer valid-token" },
+      });
 
-      expect(response.status).toBe(200)
-    })
+      expect(response.status).toBe(200);
+    });
 
-    it('fails without OAuth token', async () => {
-      const server = await createMockServer({ document })
-      const response = await server.request('/oauth-test')
+    it("fails without OAuth token", async () => {
+      const server = await createMockServer({ document });
+      const response = await server.request("/oauth-test");
 
-      expect(response.status).toBe(401)
-    })
-  })
+      expect(response.status).toBe(401);
+    });
+  });
 
-  describe('Implicit Flow', () => {
+  describe("Implicit Flow", () => {
     const document = createOpenApiDefinition({
       oauth2: {
-        type: 'oauth2',
+        type: "oauth2",
         flows: {
           implicit: {
-            authorizationUrl: 'https://example.com/oauth/authorize',
-            scopes: { read: 'Read access' },
+            authorizationUrl: "https://example.com/oauth/authorize",
+            scopes: { read: "Read access" },
           },
         },
       },
-    })
+    });
     document.paths = {
-      '/oauth-test': {
+      "/oauth-test": {
         get: {
-          security: [{ oauth2: ['read'] }],
-          responses: { '200': { description: 'OK' } },
+          security: [{ oauth2: ["read"] }],
+          responses: { "200": { description: "OK" } },
         },
       },
-    }
+    };
 
-    it('succeeds with valid OAuth token', async () => {
-      const server = await createMockServer({ document })
-      const response = await server.request('/oauth-test', {
-        headers: { Authorization: 'Bearer valid-token' },
-      })
+    it("succeeds with valid OAuth token", async () => {
+      const server = await createMockServer({ document });
+      const response = await server.request("/oauth-test", {
+        headers: { Authorization: "Bearer valid-token" },
+      });
 
-      expect(response.status).toBe(200)
-    })
+      expect(response.status).toBe(200);
+    });
 
-    it('fails without OAuth token', async () => {
-      const server = await createMockServer({ document })
-      const response = await server.request('/oauth-test')
+    it("fails without OAuth token", async () => {
+      const server = await createMockServer({ document });
+      const response = await server.request("/oauth-test");
 
-      expect(response.status).toBe(401)
-    })
-  })
+      expect(response.status).toBe(401);
+    });
+  });
 
-  describe('Client Credentials Flow', () => {
+  describe("Client Credentials Flow", () => {
     const document = createOpenApiDefinition({
       oauth2: {
-        type: 'oauth2',
+        type: "oauth2",
         flows: {
           clientCredentials: {
-            tokenUrl: 'https://example.com/oauth/token',
-            scopes: { read: 'Read access' },
+            tokenUrl: "https://example.com/oauth/token",
+            scopes: { read: "Read access" },
           },
         },
       },
-    })
+    });
     document.paths = {
-      '/oauth-test': {
+      "/oauth-test": {
         get: {
-          security: [{ oauth2: ['read'] }],
-          responses: { '200': { description: 'OK' } },
+          security: [{ oauth2: ["read"] }],
+          responses: { "200": { description: "OK" } },
         },
       },
-    }
+    };
 
-    it('succeeds with valid OAuth token', async () => {
-      const server = await createMockServer({ document })
-      const response = await server.request('/oauth-test', {
-        headers: { Authorization: 'Bearer valid-token' },
-      })
+    it("succeeds with valid OAuth token", async () => {
+      const server = await createMockServer({ document });
+      const response = await server.request("/oauth-test", {
+        headers: { Authorization: "Bearer valid-token" },
+      });
 
-      expect(response.status).toBe(200)
-    })
+      expect(response.status).toBe(200);
+    });
 
-    it('fails without OAuth token', async () => {
-      const server = await createMockServer({ document })
-      const response = await server.request('/oauth-test')
+    it("fails without OAuth token", async () => {
+      const server = await createMockServer({ document });
+      const response = await server.request("/oauth-test");
 
-      expect(response.status).toBe(401)
-    })
-  })
+      expect(response.status).toBe(401);
+    });
+  });
 
-  describe('Password Flow', () => {
+  describe("Password Flow", () => {
     const document = createOpenApiDefinition({
       oauth2: {
-        type: 'oauth2',
+        type: "oauth2",
         flows: {
           password: {
-            tokenUrl: 'https://example.com/oauth/token',
-            scopes: { read: 'Read access' },
+            tokenUrl: "https://example.com/oauth/token",
+            scopes: { read: "Read access" },
           },
         },
       },
-    })
+    });
 
     document.paths = {
-      '/oauth-test': {
+      "/oauth-test": {
         get: {
-          security: [{ oauth2: ['read'] }],
-          responses: { '200': { description: 'OK' } },
+          security: [{ oauth2: ["read"] }],
+          responses: { "200": { description: "OK" } },
         },
       },
-    }
+    };
 
-    it('succeeds with valid OAuth token', async () => {
-      const server = await createMockServer({ document })
+    it("succeeds with valid OAuth token", async () => {
+      const server = await createMockServer({ document });
 
-      const response = await server.request('/oauth-test', {
-        headers: { Authorization: 'Bearer valid-token' },
-      })
+      const response = await server.request("/oauth-test", {
+        headers: { Authorization: "Bearer valid-token" },
+      });
 
-      expect(response.status).toBe(200)
-    })
+      expect(response.status).toBe(200);
+    });
 
-    it('fails without OAuth token', async () => {
-      const server = await createMockServer({ document })
-      const response = await server.request('/oauth-test')
+    it("fails without OAuth token", async () => {
+      const server = await createMockServer({ document });
+      const response = await server.request("/oauth-test");
 
-      expect(response.status).toBe(401)
-    })
-  })
-})
+      expect(response.status).toBe(401);
+    });
+  });
+});

@@ -28,7 +28,7 @@
     "format:check": "scalar-format-check",
     "lint:check": "scalar-lint-check",
     "lint:fix": "scalar-lint-fix",
-    "test": "vitest",
+    "test": "vp test",
     "types:build": "scalar-types-build",
     "types:check": "scalar-types-check"
   },
@@ -57,6 +57,7 @@
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
     "@scalar/openapi-parser": "workspace:*",
-    "vite": "catalog:*"
+    "vite": "catalog:",
+    "vite-plus": "catalog:"
   }
 }

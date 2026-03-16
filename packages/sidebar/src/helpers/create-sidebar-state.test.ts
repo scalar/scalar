@@ -1,166 +1,166 @@
-import { describe, expect, it, vi } from 'vitest'
+import { describe, expect, it, vi } from "vite-plus/test";
 
-import { createSidebarState } from './create-sidebar-state'
+import { createSidebarState } from "./create-sidebar-state";
 
 type SidebarItem = {
-  id: string
-  title: string
-  children?: SidebarItem[]
-}
+  id: string;
+  title: string;
+  children?: SidebarItem[];
+};
 
-describe('create-sidebar-state', () => {
-  describe('initialization', () => {
-    it('creates sidebar state with empty items', () => {
-      const state = createSidebarState([])
+describe("create-sidebar-state", () => {
+  describe("initialization", () => {
+    it("creates sidebar state with empty items", () => {
+      const state = createSidebarState([]);
 
-      expect(state.items.value).toEqual([])
-      expect(state.index.value.size).toBe(0)
-      expect(state.selectedItems.value).toEqual({})
-      expect(state.expandedItems.value).toEqual({})
-    })
+      expect(state.items.value).toEqual([]);
+      expect(state.index.value.size).toBe(0);
+      expect(state.selectedItems.value).toEqual({});
+      expect(state.expandedItems.value).toEqual({});
+    });
 
-    it('creates sidebar state with flat items', () => {
+    it("creates sidebar state with flat items", () => {
       const items: SidebarItem[] = [
-        { id: 'item1', title: 'Item 1' },
-        { id: 'item2', title: 'Item 2' },
-      ]
-      const state = createSidebarState(items)
+        { id: "item1", title: "Item 1" },
+        { id: "item2", title: "Item 2" },
+      ];
+      const state = createSidebarState(items);
 
-      expect(state.items.value).toEqual(items)
-      expect(state.index.value.size).toBe(2)
-      expect(state.index.value.get('item1')).toBeDefined()
-      expect(state.index.value.get('item2')).toBeDefined()
-    })
+      expect(state.items.value).toEqual(items);
+      expect(state.index.value.size).toBe(2);
+      expect(state.index.value.get("item1")).toBeDefined();
+      expect(state.index.value.get("item2")).toBeDefined();
+    });
 
-    it('creates sidebar state with nested items', () => {
+    it("creates sidebar state with nested items", () => {
       const items: SidebarItem[] = [
         {
-          id: 'root',
-          title: 'Root',
+          id: "root",
+          title: "Root",
           children: [
-            { id: 'child1', title: 'Child 1' },
+            { id: "child1", title: "Child 1" },
             {
-              id: 'child2',
-              title: 'Child 2',
-              children: [{ id: 'grandchild', title: 'Grandchild' }],
+              id: "child2",
+              title: "Child 2",
+              children: [{ id: "grandchild", title: "Grandchild" }],
             },
           ],
         },
-      ]
-      const state = createSidebarState(items)
+      ];
+      const state = createSidebarState(items);
 
-      expect(state.items.value).toEqual(items)
-      expect(state.index.value.size).toBe(4)
-      expect(state.index.value.get('root')).toBeDefined()
-      expect(state.index.value.get('child1')).toBeDefined()
-      expect(state.index.value.get('child2')).toBeDefined()
-      expect(state.index.value.get('grandchild')).toBeDefined()
-    })
+      expect(state.items.value).toEqual(items);
+      expect(state.index.value.size).toBe(4);
+      expect(state.index.value.get("root")).toBeDefined();
+      expect(state.index.value.get("child1")).toBeDefined();
+      expect(state.index.value.get("child2")).toBeDefined();
+      expect(state.index.value.get("grandchild")).toBeDefined();
+    });
 
-    it('creates sidebar state with custom children key', () => {
+    it("creates sidebar state with custom children key", () => {
       type CustomItem = {
-        id: string
-        title: string
-        items?: CustomItem[]
-      }
+        id: string;
+        title: string;
+        items?: CustomItem[];
+      };
 
       const items: CustomItem[] = [
         {
-          id: 'root',
-          title: 'Root',
-          items: [{ id: 'child', title: 'Child' }],
+          id: "root",
+          title: "Root",
+          items: [{ id: "child", title: "Child" }],
         },
-      ]
-      const state = createSidebarState(items, { key: 'items' })
+      ];
+      const state = createSidebarState(items, { key: "items" });
 
-      expect(state.index.value.size).toBe(2)
-      expect(state.index.value.get('root')).toBeDefined()
-      expect(state.index.value.get('child')).toBeDefined()
-    })
-  })
+      expect(state.index.value.size).toBe(2);
+      expect(state.index.value.get("root")).toBeDefined();
+      expect(state.index.value.get("child")).toBeDefined();
+    });
+  });
 
-  describe('setSelected', () => {
-    it('selects a single item', () => {
-      const items: SidebarItem[] = [{ id: 'item1', title: 'Item 1' }]
-      const state = createSidebarState(items)
+  describe("setSelected", () => {
+    it("selects a single item", () => {
+      const items: SidebarItem[] = [{ id: "item1", title: "Item 1" }];
+      const state = createSidebarState(items);
 
-      state.setSelected('item1')
+      state.setSelected("item1");
 
-      expect(state.selectedItems.value).toEqual({ item1: true })
-    })
+      expect(state.selectedItems.value).toEqual({ item1: true });
+    });
 
-    it('selects a nested item and marks all parents as selected', () => {
+    it("selects a nested item and marks all parents as selected", () => {
       const items: SidebarItem[] = [
         {
-          id: 'root',
-          title: 'Root',
+          id: "root",
+          title: "Root",
           children: [
             {
-              id: 'child',
-              title: 'Child',
-              children: [{ id: 'grandchild', title: 'Grandchild' }],
+              id: "child",
+              title: "Child",
+              children: [{ id: "grandchild", title: "Grandchild" }],
             },
           ],
         },
-      ]
-      const state = createSidebarState(items)
+      ];
+      const state = createSidebarState(items);
 
-      state.setSelected('grandchild')
+      state.setSelected("grandchild");
 
       expect(state.selectedItems.value).toEqual({
         grandchild: true,
         child: true,
         root: true,
-      })
-    })
+      });
+    });
 
-    it('clears previous selection when selecting a new item', () => {
+    it("clears previous selection when selecting a new item", () => {
       const items: SidebarItem[] = [
         {
-          id: 'root',
-          title: 'Root',
+          id: "root",
+          title: "Root",
           children: [
-            { id: 'child1', title: 'Child 1' },
-            { id: 'child2', title: 'Child 2' },
+            { id: "child1", title: "Child 1" },
+            { id: "child2", title: "Child 2" },
           ],
         },
-      ]
-      const state = createSidebarState(items)
+      ];
+      const state = createSidebarState(items);
 
-      state.setSelected('child1')
-      expect(state.selectedItems.value).toEqual({ child1: true, root: true })
+      state.setSelected("child1");
+      expect(state.selectedItems.value).toEqual({ child1: true, root: true });
 
-      state.setSelected('child2')
-      expect(state.selectedItems.value).toEqual({ child2: true, root: true })
-    })
+      state.setSelected("child2");
+      expect(state.selectedItems.value).toEqual({ child2: true, root: true });
+    });
 
-    it('handles selecting non-existent item', () => {
-      const items: SidebarItem[] = [{ id: 'item1', title: 'Item 1' }]
-      const state = createSidebarState(items)
+    it("handles selecting non-existent item", () => {
+      const items: SidebarItem[] = [{ id: "item1", title: "Item 1" }];
+      const state = createSidebarState(items);
 
-      state.setSelected('non-existent')
+      state.setSelected("non-existent");
 
-      expect(state.selectedItems.value).toEqual({})
-    })
+      expect(state.selectedItems.value).toEqual({});
+    });
 
-    it('handles deeply nested item selection', () => {
+    it("handles deeply nested item selection", () => {
       const items: SidebarItem[] = [
         {
-          id: 'level1',
-          title: 'Level 1',
+          id: "level1",
+          title: "Level 1",
           children: [
             {
-              id: 'level2',
-              title: 'Level 2',
+              id: "level2",
+              title: "Level 2",
               children: [
                 {
-                  id: 'level3',
-                  title: 'Level 3',
+                  id: "level3",
+                  title: "Level 3",
                   children: [
                     {
-                      id: 'level4',
-                      title: 'Level 4',
-                      children: [{ id: 'level5', title: 'Level 5' }],
+                      id: "level4",
+                      title: "Level 4",
+                      children: [{ id: "level5", title: "Level 5" }],
                     },
                   ],
                 },
@@ -168,10 +168,10 @@ describe('create-sidebar-state', () => {
             },
           ],
         },
-      ]
-      const state = createSidebarState(items)
+      ];
+      const state = createSidebarState(items);
 
-      state.setSelected('level5')
+      state.setSelected("level5");
 
       expect(state.selectedItems.value).toEqual({
         level5: true,
@@ -179,163 +179,163 @@ describe('create-sidebar-state', () => {
         level3: true,
         level2: true,
         level1: true,
-      })
-    })
+      });
+    });
 
-    it('calls onBeforeSelect hook', () => {
-      const items: SidebarItem[] = [{ id: 'item1', title: 'Item 1' }]
-      const onBeforeSelect = vi.fn()
+    it("calls onBeforeSelect hook", () => {
+      const items: SidebarItem[] = [{ id: "item1", title: "Item 1" }];
+      const onBeforeSelect = vi.fn();
       const state = createSidebarState(items, {
         hooks: { onBeforeSelect },
-      })
+      });
 
-      state.setSelected('item1')
+      state.setSelected("item1");
 
-      expect(onBeforeSelect).toHaveBeenCalledWith('item1')
-      expect(onBeforeSelect).toHaveBeenCalledTimes(1)
-    })
+      expect(onBeforeSelect).toHaveBeenCalledWith("item1");
+      expect(onBeforeSelect).toHaveBeenCalledTimes(1);
+    });
 
-    it('calls onAfterSelect hook', () => {
-      const items: SidebarItem[] = [{ id: 'item1', title: 'Item 1' }]
-      const onAfterSelect = vi.fn()
+    it("calls onAfterSelect hook", () => {
+      const items: SidebarItem[] = [{ id: "item1", title: "Item 1" }];
+      const onAfterSelect = vi.fn();
       const state = createSidebarState(items, {
         hooks: { onAfterSelect },
-      })
+      });
 
-      state.setSelected('item1')
+      state.setSelected("item1");
 
-      expect(onAfterSelect).toHaveBeenCalledWith('item1')
-      expect(onAfterSelect).toHaveBeenCalledTimes(1)
-    })
+      expect(onAfterSelect).toHaveBeenCalledWith("item1");
+      expect(onAfterSelect).toHaveBeenCalledTimes(1);
+    });
 
-    it('calls hooks in correct order', () => {
-      const items: SidebarItem[] = [{ id: 'item1', title: 'Item 1' }]
-      const callOrder: string[] = []
+    it("calls hooks in correct order", () => {
+      const items: SidebarItem[] = [{ id: "item1", title: "Item 1" }];
+      const callOrder: string[] = [];
 
       const onBeforeSelect = vi.fn(() => {
-        callOrder.push('before')
-      })
+        callOrder.push("before");
+      });
       const onAfterSelect = vi.fn(() => {
-        callOrder.push('after')
-      })
+        callOrder.push("after");
+      });
 
       const state = createSidebarState(items, {
         hooks: { onBeforeSelect, onAfterSelect },
-      })
+      });
 
-      state.setSelected('item1')
+      state.setSelected("item1");
 
-      expect(callOrder).toEqual(['before', 'after'])
-    })
+      expect(callOrder).toEqual(["before", "after"]);
+    });
 
-    it('updates selection even if hooks are not provided', () => {
-      const items: SidebarItem[] = [{ id: 'item1', title: 'Item 1' }]
-      const state = createSidebarState(items)
+    it("updates selection even if hooks are not provided", () => {
+      const items: SidebarItem[] = [{ id: "item1", title: "Item 1" }];
+      const state = createSidebarState(items);
 
-      state.setSelected('item1')
+      state.setSelected("item1");
 
-      expect(state.selectedItems.value).toEqual({ item1: true })
-    })
-  })
+      expect(state.selectedItems.value).toEqual({ item1: true });
+    });
+  });
 
-  describe('setExpanded', () => {
-    it('expands a single item', () => {
-      const items: SidebarItem[] = [{ id: 'item1', title: 'Item 1' }]
-      const state = createSidebarState(items)
+  describe("setExpanded", () => {
+    it("expands a single item", () => {
+      const items: SidebarItem[] = [{ id: "item1", title: "Item 1" }];
+      const state = createSidebarState(items);
 
-      state.setExpanded('item1', true)
+      state.setExpanded("item1", true);
 
-      expect(state.expandedItems.value).toEqual({ item1: true })
-    })
+      expect(state.expandedItems.value).toEqual({ item1: true });
+    });
 
-    it('collapses a single item', () => {
-      const items: SidebarItem[] = [{ id: 'item1', title: 'Item 1' }]
-      const state = createSidebarState(items)
+    it("collapses a single item", () => {
+      const items: SidebarItem[] = [{ id: "item1", title: "Item 1" }];
+      const state = createSidebarState(items);
 
-      state.setExpanded('item1', true)
-      state.setExpanded('item1', false)
+      state.setExpanded("item1", true);
+      state.setExpanded("item1", false);
 
-      expect(state.expandedItems.value).toEqual({ item1: false })
-    })
+      expect(state.expandedItems.value).toEqual({ item1: false });
+    });
 
-    it('expands nested item and all parents', () => {
+    it("expands nested item and all parents", () => {
       const items: SidebarItem[] = [
         {
-          id: 'root',
-          title: 'Root',
+          id: "root",
+          title: "Root",
           children: [
             {
-              id: 'child',
-              title: 'Child',
-              children: [{ id: 'grandchild', title: 'Grandchild' }],
+              id: "child",
+              title: "Child",
+              children: [{ id: "grandchild", title: "Grandchild" }],
             },
           ],
         },
-      ]
-      const state = createSidebarState(items)
+      ];
+      const state = createSidebarState(items);
 
-      state.setExpanded('grandchild', true)
+      state.setExpanded("grandchild", true);
 
       expect(state.expandedItems.value).toEqual({
         grandchild: true,
         child: true,
         root: true,
-      })
-    })
+      });
+    });
 
-    it('collapsing an item does not collapse parents', () => {
+    it("collapsing an item does not collapse parents", () => {
       const items: SidebarItem[] = [
         {
-          id: 'root',
-          title: 'Root',
+          id: "root",
+          title: "Root",
           children: [
             {
-              id: 'child',
-              title: 'Child',
-              children: [{ id: 'grandchild', title: 'Grandchild' }],
+              id: "child",
+              title: "Child",
+              children: [{ id: "grandchild", title: "Grandchild" }],
             },
           ],
         },
-      ]
-      const state = createSidebarState(items)
+      ];
+      const state = createSidebarState(items);
 
-      state.setExpanded('grandchild', true)
-      state.setExpanded('grandchild', false)
+      state.setExpanded("grandchild", true);
+      state.setExpanded("grandchild", false);
 
       expect(state.expandedItems.value).toEqual({
         grandchild: false,
         child: true,
         root: true,
-      })
-    })
+      });
+    });
 
-    it('handles expanding non-existent item', () => {
-      const items: SidebarItem[] = [{ id: 'item1', title: 'Item 1' }]
-      const state = createSidebarState(items)
+    it("handles expanding non-existent item", () => {
+      const items: SidebarItem[] = [{ id: "item1", title: "Item 1" }];
+      const state = createSidebarState(items);
 
-      state.setExpanded('non-existent', true)
+      state.setExpanded("non-existent", true);
 
-      expect(state.expandedItems.value).toEqual({})
-    })
+      expect(state.expandedItems.value).toEqual({});
+    });
 
-    it('handles deeply nested item expansion', () => {
+    it("handles deeply nested item expansion", () => {
       const items: SidebarItem[] = [
         {
-          id: 'level1',
-          title: 'Level 1',
+          id: "level1",
+          title: "Level 1",
           children: [
             {
-              id: 'level2',
-              title: 'Level 2',
+              id: "level2",
+              title: "Level 2",
               children: [
                 {
-                  id: 'level3',
-                  title: 'Level 3',
+                  id: "level3",
+                  title: "Level 3",
                   children: [
                     {
-                      id: 'level4',
-                      title: 'Level 4',
-                      children: [{ id: 'level5', title: 'Level 5' }],
+                      id: "level4",
+                      title: "Level 4",
+                      children: [{ id: "level5", title: "Level 5" }],
                     },
                   ],
                 },
@@ -343,10 +343,10 @@ describe('create-sidebar-state', () => {
             },
           ],
         },
-      ]
-      const state = createSidebarState(items)
+      ];
+      const state = createSidebarState(items);
 
-      state.setExpanded('level5', true)
+      state.setExpanded("level5", true);
 
       expect(state.expandedItems.value).toEqual({
         level5: true,
@@ -354,256 +354,256 @@ describe('create-sidebar-state', () => {
         level3: true,
         level2: true,
         level1: true,
-      })
-    })
+      });
+    });
 
-    it('calls onBeforeExpand hook', () => {
-      const items: SidebarItem[] = [{ id: 'item1', title: 'Item 1' }]
-      const onBeforeExpand = vi.fn()
+    it("calls onBeforeExpand hook", () => {
+      const items: SidebarItem[] = [{ id: "item1", title: "Item 1" }];
+      const onBeforeExpand = vi.fn();
       const state = createSidebarState(items, {
         hooks: { onBeforeExpand },
-      })
+      });
 
-      state.setExpanded('item1', true)
+      state.setExpanded("item1", true);
 
-      expect(onBeforeExpand).toHaveBeenCalledWith('item1')
-      expect(onBeforeExpand).toHaveBeenCalledTimes(1)
-    })
+      expect(onBeforeExpand).toHaveBeenCalledWith("item1");
+      expect(onBeforeExpand).toHaveBeenCalledTimes(1);
+    });
 
-    it('calls onAfterExpand hook', () => {
-      const items: SidebarItem[] = [{ id: 'item1', title: 'Item 1' }]
-      const onAfterExpand = vi.fn()
+    it("calls onAfterExpand hook", () => {
+      const items: SidebarItem[] = [{ id: "item1", title: "Item 1" }];
+      const onAfterExpand = vi.fn();
       const state = createSidebarState(items, {
         hooks: { onAfterExpand },
-      })
+      });
 
-      state.setExpanded('item1', true)
+      state.setExpanded("item1", true);
 
-      expect(onAfterExpand).toHaveBeenCalledWith('item1')
-      expect(onAfterExpand).toHaveBeenCalledTimes(1)
-    })
+      expect(onAfterExpand).toHaveBeenCalledWith("item1");
+      expect(onAfterExpand).toHaveBeenCalledTimes(1);
+    });
 
-    it('calls hooks in correct order', () => {
-      const items: SidebarItem[] = [{ id: 'item1', title: 'Item 1' }]
-      const callOrder: string[] = []
+    it("calls hooks in correct order", () => {
+      const items: SidebarItem[] = [{ id: "item1", title: "Item 1" }];
+      const callOrder: string[] = [];
 
       const onBeforeExpand = vi.fn(() => {
-        callOrder.push('before')
-      })
+        callOrder.push("before");
+      });
       const onAfterExpand = vi.fn(() => {
-        callOrder.push('after')
-      })
+        callOrder.push("after");
+      });
 
       const state = createSidebarState(items, {
         hooks: { onBeforeExpand, onAfterExpand },
-      })
+      });
 
-      state.setExpanded('item1', true)
+      state.setExpanded("item1", true);
 
-      expect(callOrder).toEqual(['before', 'after'])
-    })
+      expect(callOrder).toEqual(["before", "after"]);
+    });
 
-    it('calls hooks when collapsing', () => {
-      const items: SidebarItem[] = [{ id: 'item1', title: 'Item 1' }]
-      const onBeforeExpand = vi.fn()
-      const onAfterExpand = vi.fn()
+    it("calls hooks when collapsing", () => {
+      const items: SidebarItem[] = [{ id: "item1", title: "Item 1" }];
+      const onBeforeExpand = vi.fn();
+      const onAfterExpand = vi.fn();
 
       const state = createSidebarState(items, {
         hooks: { onBeforeExpand, onAfterExpand },
-      })
+      });
 
-      state.setExpanded('item1', false)
+      state.setExpanded("item1", false);
 
-      expect(onBeforeExpand).toHaveBeenCalledWith('item1')
-      expect(onAfterExpand).toHaveBeenCalledWith('item1')
-    })
+      expect(onBeforeExpand).toHaveBeenCalledWith("item1");
+      expect(onAfterExpand).toHaveBeenCalledWith("item1");
+    });
 
-    it('maintains expanded state across multiple operations', () => {
+    it("maintains expanded state across multiple operations", () => {
       const items: SidebarItem[] = [
         {
-          id: 'root',
-          title: 'Root',
+          id: "root",
+          title: "Root",
           children: [
-            { id: 'child1', title: 'Child 1' },
-            { id: 'child2', title: 'Child 2' },
-            { id: 'child3', title: 'Child 3' },
+            { id: "child1", title: "Child 1" },
+            { id: "child2", title: "Child 2" },
+            { id: "child3", title: "Child 3" },
           ],
         },
-      ]
-      const state = createSidebarState(items)
+      ];
+      const state = createSidebarState(items);
 
-      state.setExpanded('child1', true)
-      state.setExpanded('child2', true)
-      state.setExpanded('child1', false)
+      state.setExpanded("child1", true);
+      state.setExpanded("child2", true);
+      state.setExpanded("child1", false);
 
       expect(state.expandedItems.value).toEqual({
         child1: false,
         child2: true,
         root: true,
-      })
-    })
-  })
+      });
+    });
+  });
 
-  describe('combined operations', () => {
-    it('handles selection and expansion independently', () => {
+  describe("combined operations", () => {
+    it("handles selection and expansion independently", () => {
       const items: SidebarItem[] = [
         {
-          id: 'root',
-          title: 'Root',
+          id: "root",
+          title: "Root",
           children: [
-            { id: 'child1', title: 'Child 1' },
-            { id: 'child2', title: 'Child 2' },
+            { id: "child1", title: "Child 1" },
+            { id: "child2", title: "Child 2" },
           ],
         },
-      ]
-      const state = createSidebarState(items)
+      ];
+      const state = createSidebarState(items);
 
-      state.setSelected('child1')
-      state.setExpanded('child2', true)
+      state.setSelected("child1");
+      state.setExpanded("child2", true);
 
-      expect(state.selectedItems.value).toEqual({ child1: true, root: true })
-      expect(state.expandedItems.value).toEqual({ child2: true, root: true })
-    })
+      expect(state.selectedItems.value).toEqual({ child1: true, root: true });
+      expect(state.expandedItems.value).toEqual({ child2: true, root: true });
+    });
 
-    it('handles multiple selections and expansions', () => {
+    it("handles multiple selections and expansions", () => {
       const items: SidebarItem[] = [
         {
-          id: 'root1',
-          title: 'Root 1',
-          children: [{ id: 'child1', title: 'Child 1' }],
+          id: "root1",
+          title: "Root 1",
+          children: [{ id: "child1", title: "Child 1" }],
         },
         {
-          id: 'root2',
-          title: 'Root 2',
-          children: [{ id: 'child2', title: 'Child 2' }],
+          id: "root2",
+          title: "Root 2",
+          children: [{ id: "child2", title: "Child 2" }],
         },
-      ]
-      const state = createSidebarState(items)
+      ];
+      const state = createSidebarState(items);
 
-      state.setExpanded('child1', true)
-      state.setExpanded('child2', true)
-      state.setSelected('child2')
+      state.setExpanded("child1", true);
+      state.setExpanded("child2", true);
+      state.setSelected("child2");
 
-      expect(state.selectedItems.value).toEqual({ child2: true, root2: true })
+      expect(state.selectedItems.value).toEqual({ child2: true, root2: true });
       expect(state.expandedItems.value).toEqual({
         child1: true,
         root1: true,
         child2: true,
         root2: true,
-      })
-    })
+      });
+    });
 
-    it('allows selecting a collapsed item', () => {
+    it("allows selecting a collapsed item", () => {
       const items: SidebarItem[] = [
         {
-          id: 'root',
-          title: 'Root',
-          children: [{ id: 'child', title: 'Child' }],
+          id: "root",
+          title: "Root",
+          children: [{ id: "child", title: "Child" }],
         },
-      ]
-      const state = createSidebarState(items)
+      ];
+      const state = createSidebarState(items);
 
-      state.setExpanded('root', false)
-      state.setSelected('child')
+      state.setExpanded("root", false);
+      state.setSelected("child");
 
-      expect(state.expandedItems.value).toEqual({ root: false })
-      expect(state.selectedItems.value).toEqual({ child: true, root: true })
-    })
-  })
+      expect(state.expandedItems.value).toEqual({ root: false });
+      expect(state.selectedItems.value).toEqual({ child: true, root: true });
+    });
+  });
 
-  describe('edge cases', () => {
-    it('handles empty string ids', () => {
-      const items: SidebarItem[] = [{ id: '', title: 'Empty ID' }]
-      const state = createSidebarState(items)
+  describe("edge cases", () => {
+    it("handles empty string ids", () => {
+      const items: SidebarItem[] = [{ id: "", title: "Empty ID" }];
+      const state = createSidebarState(items);
 
-      state.setSelected('')
+      state.setSelected("");
 
-      expect(state.selectedItems.value).toEqual({ '': true })
-    })
+      expect(state.selectedItems.value).toEqual({ "": true });
+    });
 
-    it('handles items with special characters in ids', () => {
+    it("handles items with special characters in ids", () => {
       const items: SidebarItem[] = [
-        { id: 'item-with-dashes', title: 'Item' },
-        { id: 'item_with_underscores', title: 'Item' },
-        { id: 'item.with.dots', title: 'Item' },
-        { id: 'item/with/slashes', title: 'Item' },
-      ]
-      const state = createSidebarState(items)
+        { id: "item-with-dashes", title: "Item" },
+        { id: "item_with_underscores", title: "Item" },
+        { id: "item.with.dots", title: "Item" },
+        { id: "item/with/slashes", title: "Item" },
+      ];
+      const state = createSidebarState(items);
 
-      state.setSelected('item-with-dashes')
-      expect(state.selectedItems.value['item-with-dashes']).toBe(true)
+      state.setSelected("item-with-dashes");
+      expect(state.selectedItems.value["item-with-dashes"]).toBe(true);
 
-      state.setSelected('item_with_underscores')
-      expect(state.selectedItems.value['item_with_underscores']).toBe(true)
+      state.setSelected("item_with_underscores");
+      expect(state.selectedItems.value["item_with_underscores"]).toBe(true);
 
-      state.setSelected('item.with.dots')
-      expect(state.selectedItems.value['item.with.dots']).toBe(true)
+      state.setSelected("item.with.dots");
+      expect(state.selectedItems.value["item.with.dots"]).toBe(true);
 
-      state.setSelected('item/with/slashes')
-      expect(state.selectedItems.value['item/with/slashes']).toBe(true)
-    })
+      state.setSelected("item/with/slashes");
+      expect(state.selectedItems.value["item/with/slashes"]).toBe(true);
+    });
 
-    it('handles very large tree structures', () => {
-      const items: SidebarItem[] = []
+    it("handles very large tree structures", () => {
+      const items: SidebarItem[] = [];
 
       // Create a tree with 100 parents, each with 10 children
       for (let i = 0; i < 100; i++) {
-        const children: SidebarItem[] = []
+        const children: SidebarItem[] = [];
         for (let j = 0; j < 10; j++) {
           children.push({
             id: `child-${i}-${j}`,
             title: `Child ${i}-${j}`,
-          })
+          });
         }
         items.push({
           id: `parent-${i}`,
           title: `Parent ${i}`,
           children,
-        })
+        });
       }
 
-      const state = createSidebarState(items)
+      const state = createSidebarState(items);
 
-      state.setSelected('child-50-5')
-      expect(state.selectedItems.value['child-50-5']).toBe(true)
-      expect(state.selectedItems.value['parent-50']).toBe(true)
+      state.setSelected("child-50-5");
+      expect(state.selectedItems.value["child-50-5"]).toBe(true);
+      expect(state.selectedItems.value["parent-50"]).toBe(true);
 
-      state.setExpanded('child-99-9', true)
-      expect(state.expandedItems.value['child-99-9']).toBe(true)
-      expect(state.expandedItems.value['parent-99']).toBe(true)
-    })
+      state.setExpanded("child-99-9", true);
+      expect(state.expandedItems.value["child-99-9"]).toBe(true);
+      expect(state.expandedItems.value["parent-99"]).toBe(true);
+    });
 
-    it('handles rapid consecutive operations', () => {
+    it("handles rapid consecutive operations", () => {
       const items: SidebarItem[] = [
         {
-          id: 'root',
-          title: 'Root',
+          id: "root",
+          title: "Root",
           children: [
-            { id: 'child1', title: 'Child 1' },
-            { id: 'child2', title: 'Child 2' },
-            { id: 'child3', title: 'Child 3' },
+            { id: "child1", title: "Child 1" },
+            { id: "child2", title: "Child 2" },
+            { id: "child3", title: "Child 3" },
           ],
         },
-      ]
-      const state = createSidebarState(items)
+      ];
+      const state = createSidebarState(items);
 
       // Perform rapid operations
 
-      state.setSelected('child1')
-      state.setExpanded('child2', true)
-      state.setExpanded('child3', true)
+      state.setSelected("child1");
+      state.setExpanded("child2", true);
+      state.setExpanded("child3", true);
 
       // Final state should be consistent
-      expect(state.index.value.size).toBe(4)
-      expect(state.selectedItems.value['child1']).toBe(true)
-    })
+      expect(state.index.value.size).toBe(4);
+      expect(state.selectedItems.value["child1"]).toBe(true);
+    });
 
-    it('handles all hooks provided', () => {
-      const items: SidebarItem[] = [{ id: 'item1', title: 'Item 1' }]
-      const onBeforeSelect = vi.fn()
-      const onAfterSelect = vi.fn()
-      const onBeforeExpand = vi.fn()
-      const onAfterExpand = vi.fn()
+    it("handles all hooks provided", () => {
+      const items: SidebarItem[] = [{ id: "item1", title: "Item 1" }];
+      const onBeforeSelect = vi.fn();
+      const onAfterSelect = vi.fn();
+      const onBeforeExpand = vi.fn();
+      const onAfterExpand = vi.fn();
 
       const state = createSidebarState(items, {
         hooks: {
@@ -612,29 +612,29 @@ describe('create-sidebar-state', () => {
           onBeforeExpand,
           onAfterExpand,
         },
-      })
+      });
 
-      state.setSelected('item1')
-      state.setExpanded('item1', true)
+      state.setSelected("item1");
+      state.setExpanded("item1", true);
 
-      expect(onBeforeSelect).toHaveBeenCalledTimes(1)
-      expect(onAfterSelect).toHaveBeenCalledTimes(1)
-      expect(onBeforeExpand).toHaveBeenCalledTimes(1)
-      expect(onAfterExpand).toHaveBeenCalledTimes(1)
-    })
+      expect(onBeforeSelect).toHaveBeenCalledTimes(1);
+      expect(onAfterSelect).toHaveBeenCalledTimes(1);
+      expect(onBeforeExpand).toHaveBeenCalledTimes(1);
+      expect(onAfterExpand).toHaveBeenCalledTimes(1);
+    });
 
-    it('handles partial hooks configuration', () => {
-      const items: SidebarItem[] = [{ id: 'item1', title: 'Item 1' }]
-      const onBeforeSelect = vi.fn()
+    it("handles partial hooks configuration", () => {
+      const items: SidebarItem[] = [{ id: "item1", title: "Item 1" }];
+      const onBeforeSelect = vi.fn();
 
       const state = createSidebarState(items, {
         hooks: { onBeforeSelect },
-      })
+      });
 
-      state.setSelected('item1')
+      state.setSelected("item1");
 
-      expect(onBeforeSelect).toHaveBeenCalledTimes(1)
-      expect(state.selectedItems.value).toEqual({ item1: true })
-    })
-  })
-})
+      expect(onBeforeSelect).toHaveBeenCalledTimes(1);
+      expect(state.selectedItems.value).toEqual({ item1: true });
+    });
+  });
+});

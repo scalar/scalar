@@ -1,124 +1,132 @@
-import { readFile } from 'node:fs/promises'
+import { readFile } from "node:fs/promises";
 
-import { serve } from '@hono/node-server'
-import { Scalar } from '@scalar/hono-api-reference'
-import { createMockServer } from '@scalar/mock-server'
-import type { Context, Hono } from 'hono'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { serve } from "@hono/node-server";
+import { Scalar } from "@scalar/hono-api-reference";
+import { createMockServer } from "@scalar/mock-server";
+import type { Context, Hono } from "hono";
+import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
 
-import { configureApiReference, createApp, loadDocument, main, startServer } from './galaxy-scalar-com'
+import {
+  configureApiReference,
+  createApp,
+  loadDocument,
+  main,
+  startServer,
+} from "./galaxy-scalar-com";
 
 // Mock all external dependencies
-vi.mock('node:fs/promises')
-vi.mock('@hono/node-server')
-vi.mock('@scalar/hono-api-reference')
-vi.mock('@scalar/mock-server')
+vi.mock("node:fs/promises");
+vi.mock("@hono/node-server");
+vi.mock("@scalar/hono-api-reference");
+vi.mock("@scalar/mock-server");
 
-describe('galaxy-scalar-com', () => {
+describe("galaxy-scalar-com", () => {
   const mockApp = {
     get: vi.fn(),
     fetch: vi.fn(),
-  } as Partial<Hono>
+  } as Partial<Hono>;
 
   beforeEach(() => {
-    vi.unstubAllEnvs()
+    vi.unstubAllEnvs();
 
-    vi.clearAllMocks()
+    vi.clearAllMocks();
 
     // Reset mocks
-    vi.mocked(readFile).mockReset()
-    vi.mocked(serve).mockReset()
-    vi.mocked(Scalar).mockReset()
-    vi.mocked(createMockServer).mockReset()
+    vi.mocked(readFile).mockReset();
+    vi.mocked(serve).mockReset();
+    vi.mocked(Scalar).mockReset();
+    vi.mocked(createMockServer).mockReset();
 
     // Mock console methods
-    vi.spyOn(console, 'log').mockImplementation(vi.fn())
-    vi.spyOn(console, 'error').mockImplementation(vi.fn())
+    vi.spyOn(console, "log").mockImplementation(vi.fn());
+    vi.spyOn(console, "error").mockImplementation(vi.fn());
 
     return () => {
-      vi.restoreAllMocks()
-    }
-  })
+      vi.restoreAllMocks();
+    };
+  });
 
-  describe('loadDocument', () => {
-    it('loads OpenAPI document successfully', async () => {
-      const mockDocument = 'openapi: 3.1.0\ninfo:\n  title: Test API'
-      vi.mocked(readFile).mockResolvedValue(mockDocument)
+  describe("loadDocument", () => {
+    it("loads OpenAPI document successfully", async () => {
+      const mockDocument = "openapi: 3.1.0\ninfo:\n  title: Test API";
+      vi.mocked(readFile).mockResolvedValue(mockDocument);
 
-      const result = await loadDocument()
+      const result = await loadDocument();
 
-      expect(readFile).toHaveBeenCalledWith(expect.any(URL), 'utf8')
-      expect(result).toBe(mockDocument)
-    })
+      expect(readFile).toHaveBeenCalledWith(expect.any(URL), "utf8");
+      expect(result).toBe(mockDocument);
+    });
 
-    it('handles missing OpenAPI document gracefully', async () => {
-      vi.mocked(readFile).mockRejectedValue(new Error('File not found'))
+    it("handles missing OpenAPI document gracefully", async () => {
+      vi.mocked(readFile).mockRejectedValue(new Error("File not found"));
 
-      const result = await loadDocument()
+      const result = await loadDocument();
 
       expect(console.error).toHaveBeenCalledWith(
-        '[@scalar/mock-server] Missing @scalar/galaxy. Please build it and try again.',
-      )
-      expect(result).toBe('')
-    })
-  })
+        "[@scalar/mock-server] Missing @scalar/galaxy. Please build it and try again.",
+      );
+      expect(result).toBe("");
+    });
+  });
 
-  describe('createApp', () => {
-    it('creates mock server with correct configuration', async () => {
-      const mockDocument = 'openapi: 3.1.0'
-      vi.mocked(readFile).mockResolvedValue(mockDocument)
+  describe("createApp", () => {
+    it("creates mock server with correct configuration", async () => {
+      const mockDocument = "openapi: 3.1.0";
+      vi.mocked(readFile).mockResolvedValue(mockDocument);
 
-      vi.mocked(createMockServer).mockResolvedValue(mockApp as Hono)
+      vi.mocked(createMockServer).mockResolvedValue(mockApp as Hono);
 
-      const app = await createApp()
+      const app = await createApp();
 
       expect(createMockServer).toHaveBeenCalledWith({
         document: mockDocument,
         onRequest: expect.any(Function),
-      })
-      expect(app).toBe(mockApp)
-    })
+      });
+      expect(app).toBe(mockApp);
+    });
 
-    it('logs requests in onRequest callback', async () => {
-      const mockDocument = 'openapi: 3.1.0'
-      vi.mocked(readFile).mockResolvedValue(mockDocument)
+    it("logs requests in onRequest callback", async () => {
+      const mockDocument = "openapi: 3.1.0";
+      vi.mocked(readFile).mockResolvedValue(mockDocument);
 
-      vi.mocked(createMockServer).mockResolvedValue(mockApp as Hono)
+      vi.mocked(createMockServer).mockResolvedValue(mockApp as Hono);
 
-      await createApp()
+      await createApp();
 
       // Get the onRequest callback that was passed to createMockServer
-      const createMockServerCall = vi.mocked(createMockServer).mock.calls[0]
-      const onRequestCallback = createMockServerCall?.[0]?.onRequest
+      const createMockServerCall = vi.mocked(createMockServer).mock.calls[0];
+      const onRequestCallback = createMockServerCall?.[0]?.onRequest;
 
       // Mock context
       const mockContext = {
         req: {
-          method: 'GET',
-          url: 'http://localhost:5052/api/test',
+          method: "GET",
+          url: "http://localhost:5052/api/test",
         },
-      } as Context
+      } as Context;
 
       // Call the callback
       onRequestCallback?.({
         context: mockContext,
         operation: {
-          path: '/api/test',
-          method: 'GET',
+          path: "/api/test",
+          method: "GET",
         },
-      })
+      });
 
-      expect(console.log).toHaveBeenCalledWith('GET http://localhost:5052/api/test')
-    })
-  })
+      expect(console.log).toHaveBeenCalledWith(
+        "GET http://localhost:5052/api/test",
+      );
+    });
+  });
 
-  describe('configureApiReference', () => {
-    it('configures Scalar with correct options', () => {
-      configureApiReference(mockApp as Hono, 5052, false)
+  describe("configureApiReference", () => {
+    it("configures Scalar with correct options", () => {
+      configureApiReference(mockApp as Hono, 5052, false);
 
       expect(Scalar).toHaveBeenCalledWith(
         expect.objectContaining({
-          pageTitle: 'Scalar Galaxy',
+          pageTitle: "Scalar Galaxy",
           cdn: undefined,
           sources: expect.arrayContaining([
             expect.objectContaining({
@@ -127,141 +135,155 @@ describe('galaxy-scalar-com', () => {
             }),
           ]),
           theme: expect.any(String),
-          proxyUrl: 'https://proxy.scalar.com',
-          baseServerURL: 'http://localhost:5052',
+          proxyUrl: "https://proxy.scalar.com",
+          baseServerURL: "http://localhost:5052",
           persistAuth: true,
           agent: expect.objectContaining({
             key: expect.any(String),
           }),
         }),
-      )
-    })
+      );
+    });
 
-    it('configures Scalar with local JS bundle when enabled', () => {
-      configureApiReference(mockApp as Hono, 5052, true)
+    it("configures Scalar with local JS bundle when enabled", () => {
+      configureApiReference(mockApp as Hono, 5052, true);
 
       expect(Scalar).toHaveBeenCalledWith(
         expect.objectContaining({
-          cdn: '/scalar.js',
-          baseServerURL: 'http://localhost:5052',
+          cdn: "/scalar.js",
+          baseServerURL: "http://localhost:5052",
         }),
-      )
-    })
+      );
+    });
 
-    it('adds scalar.js route when local JS bundle is enabled', () => {
-      configureApiReference(mockApp as Hono, 5052, true)
+    it("adds scalar.js route when local JS bundle is enabled", () => {
+      configureApiReference(mockApp as Hono, 5052, true);
 
-      expect(mockApp.get).toHaveBeenCalledWith('/scalar.js', expect.any(Function))
-    })
+      expect(mockApp.get).toHaveBeenCalledWith(
+        "/scalar.js",
+        expect.any(Function),
+      );
+    });
 
-    it('does not add scalar.js route when local JS bundle is disabled', () => {
-      configureApiReference(mockApp as Hono, 5052, false)
+    it("does not add scalar.js route when local JS bundle is disabled", () => {
+      configureApiReference(mockApp as Hono, 5052, false);
 
-      expect(mockApp.get).not.toHaveBeenCalledWith('/scalar.js', expect.any(Function))
-    })
-  })
+      expect(mockApp.get).not.toHaveBeenCalledWith(
+        "/scalar.js",
+        expect.any(Function),
+      );
+    });
+  });
 
-  describe('startServer', () => {
-    it('starts server with correct configuration', () => {
-      startServer(mockApp as Hono, 5052)
+  describe("startServer", () => {
+    it("starts server with correct configuration", () => {
+      startServer(mockApp as Hono, 5052);
 
       expect(serve).toHaveBeenCalledWith(
         {
           fetch: mockApp.fetch,
           port: 5052,
-          hostname: '0.0.0.0',
+          hostname: "0.0.0.0",
         },
         expect.any(Function),
-      )
-    })
+      );
+    });
 
-    it('logs server startup message', () => {
-      startServer(mockApp as Hono, 5052)
+    it("logs server startup message", () => {
+      startServer(mockApp as Hono, 5052);
 
       // Get the callback passed to serve
-      const serveCall = vi.mocked(serve).mock.calls[0]
-      const callback = serveCall?.[1]
+      const serveCall = vi.mocked(serve).mock.calls[0];
+      const callback = serveCall?.[1];
 
       // Call the callback with mock info
-      callback?.({ port: 5052, address: '0.0.0.0', family: 'IPv4' })
+      callback?.({ port: 5052, address: "0.0.0.0", family: "IPv4" });
 
-      expect(console.log).toHaveBeenCalledWith()
-      expect(console.log).toHaveBeenCalledWith('🚧 Mock Server listening on http://localhost:5052')
-      expect(console.log).toHaveBeenCalledWith()
-    })
-  })
+      expect(console.log).toHaveBeenCalledWith();
+      expect(console.log).toHaveBeenCalledWith(
+        "🚧 Mock Server listening on http://localhost:5052",
+      );
+      expect(console.log).toHaveBeenCalledWith();
+    });
+  });
 
-  describe('main', () => {
-    it('uses default port when PORT is not set', async () => {
-      const mockDocument = 'openapi: 3.1.0'
-      vi.mocked(readFile).mockResolvedValue(mockDocument)
+  describe("main", () => {
+    it("uses default port when PORT is not set", async () => {
+      const mockDocument = "openapi: 3.1.0";
+      vi.mocked(readFile).mockResolvedValue(mockDocument);
 
-      vi.mocked(createMockServer).mockResolvedValue(mockApp as Hono)
+      vi.mocked(createMockServer).mockResolvedValue(mockApp as Hono);
 
-      await main()
+      await main();
 
       expect(serve).toHaveBeenCalledWith(
         expect.objectContaining({
           port: 5052,
         }),
         expect.any(Function),
-      )
-    })
+      );
+    });
 
-    it('uses custom port when PORT is set', async () => {
-      vi.stubEnv('PORT', '8080')
+    it("uses custom port when PORT is set", async () => {
+      vi.stubEnv("PORT", "8080");
 
-      const mockDocument = 'openapi: 3.1.0'
-      vi.mocked(readFile).mockResolvedValue(mockDocument)
+      const mockDocument = "openapi: 3.1.0";
+      vi.mocked(readFile).mockResolvedValue(mockDocument);
 
-      vi.mocked(createMockServer).mockResolvedValue(mockApp as Hono)
+      vi.mocked(createMockServer).mockResolvedValue(mockApp as Hono);
 
-      await main()
+      await main();
 
       expect(serve).toHaveBeenCalledWith(
         expect.objectContaining({
           port: 8080,
         }),
         expect.any(Function),
-      )
-    })
+      );
+    });
 
-    it('uses local JS bundle when LOCAL_JS_BUNDLE is true', async () => {
-      vi.stubEnv('LOCAL_JS_BUNDLE', 'true')
+    it("uses local JS bundle when LOCAL_JS_BUNDLE is true", async () => {
+      vi.stubEnv("LOCAL_JS_BUNDLE", "true");
 
-      const mockDocument = 'openapi: 3.1.0'
-      vi.mocked(readFile).mockResolvedValue(mockDocument)
+      const mockDocument = "openapi: 3.1.0";
+      vi.mocked(readFile).mockResolvedValue(mockDocument);
 
-      vi.mocked(createMockServer).mockResolvedValue(mockApp as Hono)
+      vi.mocked(createMockServer).mockResolvedValue(mockApp as Hono);
 
-      await main()
+      await main();
 
       expect(Scalar).toHaveBeenCalledWith(
         expect.objectContaining({
-          cdn: '/scalar.js',
+          cdn: "/scalar.js",
         }),
-      )
+      );
 
-      expect(mockApp.get).toHaveBeenCalledWith('/scalar.js', expect.any(Function))
-    })
+      expect(mockApp.get).toHaveBeenCalledWith(
+        "/scalar.js",
+        expect.any(Function),
+      );
+    });
 
-    it('does not use local JS bundle when LOCAL_JS_BUNDLE is not true', async () => {
-      vi.stubEnv('LOCAL_JS_BUNDLE', 'false')
+    it("does not use local JS bundle when LOCAL_JS_BUNDLE is not true", async () => {
+      vi.stubEnv("LOCAL_JS_BUNDLE", "false");
 
-      const mockDocument = 'openapi: 3.1.0'
-      vi.mocked(readFile).mockResolvedValue(mockDocument)
+      const mockDocument = "openapi: 3.1.0";
+      vi.mocked(readFile).mockResolvedValue(mockDocument);
 
-      vi.mocked(createMockServer).mockResolvedValue(mockApp as Hono)
+      vi.mocked(createMockServer).mockResolvedValue(mockApp as Hono);
 
-      await main()
+      await main();
 
       expect(Scalar).toHaveBeenCalledWith(
         expect.objectContaining({
           cdn: undefined,
         }),
-      )
+      );
 
-      expect(mockApp.get).not.toHaveBeenCalledWith('/scalar.js', expect.any(Function))
-    })
-  })
-})
+      expect(mockApp.get).not.toHaveBeenCalledWith(
+        "/scalar.js",
+        expect.any(Function),
+      );
+    });
+  });
+});

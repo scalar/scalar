@@ -1,56 +1,64 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from "vite-plus/test";
 
-import { isJsonString, json, parseJsonOrYaml, transformToJson, yaml } from './parse'
+import {
+  isJsonString,
+  json,
+  parseJsonOrYaml,
+  transformToJson,
+  yaml,
+} from "./parse";
 
-describe('Handles yaml and json parsing', () => {
-  it('Parses basic yaml', () => {
-    expect(yaml.parse('openapi: 3.0.0')).toEqual({
-      openapi: '3.0.0',
-    })
+describe("Handles yaml and json parsing", () => {
+  it("Parses basic yaml", () => {
+    expect(yaml.parse("openapi: 3.0.0")).toEqual({
+      openapi: "3.0.0",
+    });
 
     expect(json.parse('{ "openapi": "3.0.0" }')).toEqual({
-      openapi: '3.0.0',
-    })
-  })
+      openapi: "3.0.0",
+    });
+  });
 
-  it('Fails if any type except an object is not returned', () => {
-    expect(() => yaml.parse('10')).toThrowError()
-    expect(() => json.parse('10')).toThrowError()
-  })
+  it("Fails if any type except an object is not returned", () => {
+    expect(() => yaml.parse("10")).toThrowError();
+    expect(() => json.parse("10")).toThrowError();
+  });
 
-  it('transforms Yaml to JSON', () => {
-    expect(transformToJson('openapi: 3.0.0')).toBe(JSON.stringify({ openapi: '3.0.0' }))
-  })
-})
+  it("transforms Yaml to JSON", () => {
+    expect(transformToJson("openapi: 3.0.0")).toBe(
+      JSON.stringify({ openapi: "3.0.0" }),
+    );
+  });
+});
 
-describe('isJsonString', () => {
-  it('keeps a path as is', () => {
-    expect(isJsonString('foobar')).toBe(false)
-  })
+describe("isJsonString", () => {
+  it("keeps a path as is", () => {
+    expect(isJsonString("foobar")).toBe(false);
+  });
 
-  it('removes slash', () => {
-    expect(isJsonString('{ "foo": "bar" }')).toBe(true)
-  })
+  it("removes slash", () => {
+    expect(isJsonString('{ "foo": "bar" }')).toBe(true);
+  });
 
-  it('trims whitespace', () => {
-    expect(isJsonString({ foo: 'bar' })).toBe(false)
-  })
-})
+  it("trims whitespace", () => {
+    expect(isJsonString({ foo: "bar" })).toBe(false);
+  });
+});
 
-describe('parseJsonOrYaml', () => {
-  it('Handles json', () => {
-    expect(parseJsonOrYaml('{ "a": 10 }')).toEqual({ a: 10 })
-  })
+describe("parseJsonOrYaml", () => {
+  it("Handles json", () => {
+    expect(parseJsonOrYaml('{ "a": 10 }')).toEqual({ a: 10 });
+  });
 
-  it('Handles YAML', () => {
-    expect(parseJsonOrYaml('a: 10')).toEqual({ a: 10 })
-  })
+  it("Handles YAML", () => {
+    expect(parseJsonOrYaml("a: 10")).toEqual({ a: 10 });
+  });
 
-  it('Throws for invalid json or yaml', () => {
-    expect(() => parseJsonOrYaml('asdasdad: 0---  \n--')).toThrowError()
-  })
+  it("Throws for invalid json or yaml", () => {
+    expect(() => parseJsonOrYaml("asdasdad: 0---  \n--")).toThrowError();
+  });
 
-  it('Throws if an object is not returned', () => {
-    expect(() => parseJsonOrYaml('asda')).toThrowError()
-  })
-})
+  it("Throws if an object is not returned", () => {
+    expect(() => parseJsonOrYaml("asda")).toThrowError();
+  });
+});

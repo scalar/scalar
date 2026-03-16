@@ -24,9 +24,9 @@
     "dev": "vite-node playground/index.ts",
     "format": "scalar-format",
     "format:check": "scalar-format-check",
-    "lint:check": "eslint .",
-    "lint:fix": "eslint .  --fix",
-    "test": "vitest",
+    "lint:check": "vp lint .",
+    "lint:fix": "vp lint . --fix",
+    "test": "vp test",
     "types:build": "scalar-types-build",
     "types:check": "scalar-types-check"
   },
@@ -53,6 +53,7 @@
   },
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
-    "vite": "catalog:*"
+    "vite": "catalog:",
+    "vite-plus": "catalog:"
   }
 }

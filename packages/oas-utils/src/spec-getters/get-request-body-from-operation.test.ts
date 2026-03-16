@@ -1,19 +1,19 @@
-import { describe, expect, it } from 'vitest'
-import { createMagicProxy } from '@scalar/json-magic/magic-proxy'
+import { createMagicProxy } from "@scalar/json-magic/magic-proxy";
+import { describe, expect, it } from "vite-plus/test";
 
-import { getRequestBodyFromOperation } from './get-request-body-from-operation'
+import { getRequestBodyFromOperation } from "./get-request-body-from-operation";
 
-describe('getRequestBodyFromOperation', () => {
-  it('creates a JSON body from a requestBody schema', () => {
+describe("getRequestBodyFromOperation", () => {
+  it("creates a JSON body from a requestBody schema", () => {
     const body = getRequestBodyFromOperation({
       requestBody: {
         content: {
-          'application/json': {
+          "application/json": {
             schema: {
-              type: 'object',
+              type: "object",
               properties: {
                 id: {
-                  type: 'integer',
+                  type: "integer",
                   example: 1,
                 },
               },
@@ -21,28 +21,28 @@ describe('getRequestBodyFromOperation', () => {
           },
         },
       },
-    })
+    });
 
     const expectedResult = {
       id: 1,
-    }
+    };
 
     expect(body).toMatchObject({
-      mimeType: 'application/json',
+      mimeType: "application/json",
       text: JSON.stringify(expectedResult, null, 2),
-    })
-  })
+    });
+  });
 
-  it('ignores charset in mimetypes', () => {
+  it("ignores charset in mimetypes", () => {
     const body = getRequestBodyFromOperation({
       requestBody: {
         content: {
-          'application/json; charset=utf-8': {
+          "application/json; charset=utf-8": {
             schema: {
-              type: 'object',
+              type: "object",
               properties: {
                 id: {
-                  type: 'integer',
+                  type: "integer",
                   example: 1,
                 },
               },
@@ -50,38 +50,38 @@ describe('getRequestBodyFromOperation', () => {
           },
         },
       },
-    })
+    });
 
     const expectedResult = {
       id: 1,
-    }
+    };
 
     expect(body).toMatchObject({
-      mimeType: 'application/json',
+      mimeType: "application/json",
       text: JSON.stringify(expectedResult, null, 2),
-    })
-  })
+    });
+  });
 
-  it('uses example', () => {
+  it("uses example", () => {
     const body = getRequestBodyFromOperation(
       createMagicProxy({
         requestBody: {
-          description: 'Sample request body',
+          description: "Sample request body",
           required: false,
           content: {
-            'application/json': {
+            "application/json": {
               example: {
                 someObject: {
-                  someAttribute: 'attribute1',
+                  someAttribute: "attribute1",
                 },
               },
               schema: {
-                type: 'object',
+                type: "object",
                 properties: {
                   someObject: {
-                    type: 'object',
+                    type: "object",
                     properties: {
-                      someAttribute: { type: 'string' },
+                      someAttribute: { type: "string" },
                     },
                   },
                 },
@@ -90,164 +90,164 @@ describe('getRequestBodyFromOperation', () => {
           },
         },
       }),
-    )
+    );
 
     const expectedResult = {
       someObject: {
-        someAttribute: 'attribute1',
+        someAttribute: "attribute1",
       },
-    }
+    };
 
     expect(body).toMatchObject({
-      mimeType: 'application/json',
+      mimeType: "application/json",
       text: JSON.stringify(expectedResult, null, 2),
-    })
-  })
+    });
+  });
 
-  it('uses examples', () => {
+  it("uses examples", () => {
     const body = getRequestBodyFromOperation({
       requestBody: {
-        description: 'Sample request body',
+        description: "Sample request body",
         required: false,
         content: {
-          'application/json': {
+          "application/json": {
             examples: {
-              'request-example-1': {
-                summary: 'an example of a request',
-                description: 'a longer string than the summary',
+              "request-example-1": {
+                summary: "an example of a request",
+                description: "a longer string than the summary",
                 value: {
                   someObject: {
-                    someAttribute: 'attribute1',
+                    someAttribute: "attribute1",
                   },
                 },
               },
             },
             schema: {
-              $ref: '#/components/schemas/PutDocumentRequest',
+              $ref: "#/components/schemas/PutDocumentRequest",
             },
           },
         },
       },
-    })
+    });
 
     const expectedResult = {
       someObject: {
-        someAttribute: 'attribute1',
+        someAttribute: "attribute1",
       },
-    }
+    };
 
     expect(body).toMatchObject({
-      mimeType: 'application/json',
+      mimeType: "application/json",
       text: JSON.stringify(expectedResult, null, 2),
-    })
-  })
+    });
+  });
 
-  it('creates key-value pair examples from object schema', () => {
+  it("creates key-value pair examples from object schema", () => {
     const body = getRequestBodyFromOperation({
       requestBody: {
-        description: 'Sample request body',
+        description: "Sample request body",
         content: {
-          'application/json': {
+          "application/json": {
             schema: {
-              type: 'object',
+              type: "object",
               required: [
-                'recordString',
-                'recordInteger',
-                'recordArray',
-                'recordBoolean',
-                'recordNullable',
-                'recordObject',
-                'recordWithoutAdditionalProperties',
+                "recordString",
+                "recordInteger",
+                "recordArray",
+                "recordBoolean",
+                "recordNullable",
+                "recordObject",
+                "recordWithoutAdditionalProperties",
               ],
               properties: {
                 recordString: {
-                  type: 'string',
+                  type: "string",
                 },
                 recordInteger: {
-                  type: 'integer',
+                  type: "integer",
                 },
                 recordArray: {
-                  type: 'array',
+                  type: "array",
                 },
                 recordBoolean: {
-                  type: 'boolean',
+                  type: "boolean",
                 },
                 recordNullable: {
-                  nullable: 'true',
+                  nullable: "true",
                 },
                 recordObject: {
-                  type: 'object',
+                  type: "object",
                 },
               },
             },
           },
         },
       },
-    })
+    });
 
     const expectedResult = {
-      recordString: '',
+      recordString: "",
       recordInteger: 1,
       recordArray: [],
       recordBoolean: true,
       recordNullable: null,
       recordObject: {},
-    }
+    };
 
     expect(body).toMatchObject({
-      mimeType: 'application/json',
+      mimeType: "application/json",
       text: JSON.stringify(expectedResult, null, 2),
-    })
-  })
+    });
+  });
 
-  it('adds parameters from a requestBody schema', () => {
+  it("adds parameters from a requestBody schema", () => {
     const body = getRequestBodyFromOperation({
       requestBody: {
         content: {
-          'application/x-www-form-urlencoded': {
+          "application/x-www-form-urlencoded": {
             schema: {
-              type: 'object',
+              type: "object",
               properties: {
                 id: {
-                  type: 'integer',
+                  type: "integer",
                   example: 1,
                 },
                 name: {
-                  type: 'string',
-                  example: 'foobar',
+                  type: "string",
+                  example: "foobar",
                 },
               },
             },
           },
         },
       },
-    })
+    });
 
     expect(body).toMatchObject({
-      mimeType: 'application/x-www-form-urlencoded',
+      mimeType: "application/x-www-form-urlencoded",
       params: [
         {
-          name: 'id',
+          name: "id",
           value: 1,
         },
         {
-          name: 'name',
-          value: 'foobar',
+          name: "name",
+          value: "foobar",
         },
       ],
-    })
-  })
+    });
+  });
 
-  it('handles vendor-specific MIME types', () => {
+  it("handles vendor-specific MIME types", () => {
     const body = getRequestBodyFromOperation({
       requestBody: {
         content: {
-          'application/vnd.github+json': {
+          "application/vnd.github+json": {
             schema: {
-              type: 'object',
+              type: "object",
               properties: {
                 id: {
-                  type: 'integer',
+                  type: "integer",
                   example: 1,
                 },
               },
@@ -255,15 +255,15 @@ describe('getRequestBodyFromOperation', () => {
           },
         },
       },
-    })
+    });
 
     const expectedResult = {
       id: 1,
-    }
+    };
 
     expect(body).toMatchObject({
-      mimeType: 'application/vnd.github+json',
+      mimeType: "application/vnd.github+json",
       text: JSON.stringify(expectedResult, null, 2),
-    })
-  })
-})
+    });
+  });
+});

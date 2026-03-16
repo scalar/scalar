@@ -1,26 +1,29 @@
-import { enableConsoleWarn } from '@test/vitest.setup'
-import { describe, expect, it, vi } from 'vitest'
+import { enableConsoleWarn } from "@test/vitest.setup";
+import { describe, expect, it, vi } from "vite-plus/test";
 
-import { createApiClientApp } from './create-api-client-app'
+import { createApiClientApp } from "./create-api-client-app";
 
-describe('createApiClientApp', () => {
-  it('renders something', async () => {
-    vi.unmock('@/hooks/useSidebar')
-    vi.unmock('@/hooks/useLayout')
-    enableConsoleWarn()
+describe("createApiClientApp", () => {
+  it("renders something", async () => {
+    vi.unmock("@/hooks/useSidebar");
+    vi.unmock("@/hooks/useLayout");
+    enableConsoleWarn();
 
-    const element = document.createElement('div')
-    element.id = 'scalar-client'
-    document.body.appendChild(element)
+    const element = document.createElement("div");
+    element.id = "scalar-client";
+    document.body.appendChild(element);
 
-    expect(element).not.toBeNull()
-    expect(element.innerHTML).not.toContain('Request')
+    expect(element).not.toBeNull();
+    expect(element.innerHTML).not.toContain("Request");
 
     await createApiClientApp(element, {
-      proxyUrl: 'https://proxy.scalar.com',
-    })
+      proxyUrl: "https://proxy.scalar.com",
+    });
 
     // Make sure we wait for the client to be mounted
-    await vi.waitFor(() => expect(element.innerHTML).toContain('My First Request'), { timeout: 5000 })
-  })
-})
+    await vi.waitFor(
+      () => expect(element.innerHTML).toContain("My First Request"),
+      { timeout: 5000 },
+    );
+  });
+});

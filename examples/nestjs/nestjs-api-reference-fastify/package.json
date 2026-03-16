@@ -18,9 +18,9 @@
   "scripts": {
     "build": "nest build",
     "dev": "nest start",
-    "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
-    "lint:check": "eslint .",
-    "lint:fix": "eslint .  --fix",
+    "format": "vp fmt \"src/**/*.ts\" \"test/**/*.ts\"",
+    "lint:check": "vp lint .",
+    "lint:fix": "vp lint . --fix",
     "start:debug": "nest start --debug --watch",
     "start:dev": "nest start --watch",
     "start:prod": "node dist/main",

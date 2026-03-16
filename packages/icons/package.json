@@ -22,7 +22,7 @@
     "lint:check": "scalar-lint-check && pnpm lint:icons",
     "lint:fix": "scalar-lint-fix",
     "lint:icons": "svglint src/library/icons/*.svg --config src/library/.svglintrc.js",
-    "test": "vitest",
+    "test": "vp test",
     "types:build": "scalar-types-build-vue",
     "types:check": "scalar-types-check-vue"
   },
@@ -60,8 +60,9 @@
     "@vue/test-utils": "catalog:*",
     "jsdom": "catalog:*",
     "svglint": "^4.1.2",
-    "vite": "catalog:*",
+    "vite": "catalog:",
     "vite-svg-loader": "catalog:*",
-    "vitest": "catalog:*"
+    "vitest": "catalog:",
+    "vite-plus": "catalog:"
   }
 }

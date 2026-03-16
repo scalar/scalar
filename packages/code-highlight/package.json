@@ -22,12 +22,12 @@
   },
   "scripts": {
     "build": "scalar-build-esbuild",
-    "dev": "vite",
+    "dev": "vp dev",
     "format": "scalar-format",
     "format:check": "scalar-format-check",
     "lint:check": "scalar-lint-check",
     "lint:fix": "scalar-lint-fix",
-    "test": "vitest",
+    "test": "vp test",
     "types:build": "scalar-types-build",
     "types:check": "scalar-types-check"
   },
@@ -105,6 +105,7 @@
     "@types/hast": "^3.0.4",
     "@types/mdast": "^4.0.4",
     "vfile": "^6.0.1",
-    "vite": "catalog:*"
+    "vite": "catalog:",
+    "vite-plus": "catalog:"
   }
 }

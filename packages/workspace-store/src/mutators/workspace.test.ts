@@ -1,6 +1,6 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from "vite-plus/test";
 
-import type { Workspace } from '@/schemas'
+import type { Workspace } from "@/schemas";
 
 import {
   updateActiveEnvironment,
@@ -8,305 +8,315 @@ import {
   updateColorMode,
   updateSelectedClient,
   updateTheme,
-} from './workspace'
+} from "./workspace";
 
 function createWorkspace(initial?: Partial<Workspace>): Workspace {
   return {
     documents: {},
     activeDocument: undefined,
     ...initial,
-  }
+  };
 }
 
-describe('updateActiveProxy', () => {
-  it('does nothing when workspace is null', () => {
-    updateActiveProxy(null, 'https://proxy.example.com')
+describe("updateActiveProxy", () => {
+  it("does nothing when workspace is null", () => {
+    updateActiveProxy(null, "https://proxy.example.com");
     // Should not throw
-  })
+  });
 
-  it('sets x-scalar-active-proxy to a string value', () => {
-    const workspace = createWorkspace()
+  it("sets x-scalar-active-proxy to a string value", () => {
+    const workspace = createWorkspace();
 
-    updateActiveProxy(workspace, 'https://proxy.example.com')
+    updateActiveProxy(workspace, "https://proxy.example.com");
 
-    expect(workspace['x-scalar-active-proxy']).toBe('https://proxy.example.com')
-  })
+    expect(workspace["x-scalar-active-proxy"]).toBe(
+      "https://proxy.example.com",
+    );
+  });
 
-  it('sets x-scalar-active-proxy to null when payload is null', () => {
-    const workspace = createWorkspace()
+  it("sets x-scalar-active-proxy to null when payload is null", () => {
+    const workspace = createWorkspace();
 
-    updateActiveProxy(workspace, null)
+    updateActiveProxy(workspace, null);
 
-    expect(workspace['x-scalar-active-proxy']).toBeNull()
-  })
+    expect(workspace["x-scalar-active-proxy"]).toBeNull();
+  });
 
-  it('updates existing x-scalar-active-proxy value', () => {
+  it("updates existing x-scalar-active-proxy value", () => {
     const workspace = createWorkspace({
-      'x-scalar-active-proxy': 'https://old-proxy.example.com',
-    })
+      "x-scalar-active-proxy": "https://old-proxy.example.com",
+    });
 
-    updateActiveProxy(workspace, 'https://new-proxy.example.com')
+    updateActiveProxy(workspace, "https://new-proxy.example.com");
 
-    expect(workspace['x-scalar-active-proxy']).toBe('https://new-proxy.example.com')
-  })
+    expect(workspace["x-scalar-active-proxy"]).toBe(
+      "https://new-proxy.example.com",
+    );
+  });
 
-  it('updates multiple times correctly', () => {
-    const workspace = createWorkspace()
+  it("updates multiple times correctly", () => {
+    const workspace = createWorkspace();
 
-    updateActiveProxy(workspace, 'https://proxy1.example.com')
-    expect(workspace['x-scalar-active-proxy']).toBe('https://proxy1.example.com')
+    updateActiveProxy(workspace, "https://proxy1.example.com");
+    expect(workspace["x-scalar-active-proxy"]).toBe(
+      "https://proxy1.example.com",
+    );
 
-    updateActiveProxy(workspace, 'https://proxy2.example.com')
-    expect(workspace['x-scalar-active-proxy']).toBe('https://proxy2.example.com')
+    updateActiveProxy(workspace, "https://proxy2.example.com");
+    expect(workspace["x-scalar-active-proxy"]).toBe(
+      "https://proxy2.example.com",
+    );
 
-    updateActiveProxy(workspace, null)
-    expect(workspace['x-scalar-active-proxy']).toBeNull()
+    updateActiveProxy(workspace, null);
+    expect(workspace["x-scalar-active-proxy"]).toBeNull();
 
-    updateActiveProxy(workspace, 'https://proxy3.example.com')
-    expect(workspace['x-scalar-active-proxy']).toBe('https://proxy3.example.com')
-  })
+    updateActiveProxy(workspace, "https://proxy3.example.com");
+    expect(workspace["x-scalar-active-proxy"]).toBe(
+      "https://proxy3.example.com",
+    );
+  });
 
-  it('handles empty string proxy URL', () => {
-    const workspace = createWorkspace()
+  it("handles empty string proxy URL", () => {
+    const workspace = createWorkspace();
 
-    updateActiveProxy(workspace, '')
+    updateActiveProxy(workspace, "");
 
-    expect(workspace['x-scalar-active-proxy']).toBe('')
-  })
-})
+    expect(workspace["x-scalar-active-proxy"]).toBe("");
+  });
+});
 
-describe('updateColorMode', () => {
-  it('does nothing when workspace is null', () => {
-    updateColorMode(null, 'dark')
+describe("updateColorMode", () => {
+  it("does nothing when workspace is null", () => {
+    updateColorMode(null, "dark");
     // Should not throw
-  })
+  });
 
-  it('sets x-scalar-color-mode to system', () => {
-    const workspace = createWorkspace()
+  it("sets x-scalar-color-mode to system", () => {
+    const workspace = createWorkspace();
 
-    updateColorMode(workspace, 'system')
+    updateColorMode(workspace, "system");
 
-    expect(workspace['x-scalar-color-mode']).toBe('system')
-  })
+    expect(workspace["x-scalar-color-mode"]).toBe("system");
+  });
 
-  it('sets x-scalar-color-mode to light', () => {
-    const workspace = createWorkspace()
+  it("sets x-scalar-color-mode to light", () => {
+    const workspace = createWorkspace();
 
-    updateColorMode(workspace, 'light')
+    updateColorMode(workspace, "light");
 
-    expect(workspace['x-scalar-color-mode']).toBe('light')
-  })
+    expect(workspace["x-scalar-color-mode"]).toBe("light");
+  });
 
-  it('sets x-scalar-color-mode to dark', () => {
-    const workspace = createWorkspace()
+  it("sets x-scalar-color-mode to dark", () => {
+    const workspace = createWorkspace();
 
-    updateColorMode(workspace, 'dark')
+    updateColorMode(workspace, "dark");
 
-    expect(workspace['x-scalar-color-mode']).toBe('dark')
-  })
+    expect(workspace["x-scalar-color-mode"]).toBe("dark");
+  });
 
-  it('updates existing x-scalar-color-mode value', () => {
+  it("updates existing x-scalar-color-mode value", () => {
     const workspace = createWorkspace({
-      'x-scalar-color-mode': 'light',
-    })
+      "x-scalar-color-mode": "light",
+    });
 
-    updateColorMode(workspace, 'dark')
+    updateColorMode(workspace, "dark");
 
-    expect(workspace['x-scalar-color-mode']).toBe('dark')
-  })
+    expect(workspace["x-scalar-color-mode"]).toBe("dark");
+  });
 
-  it('updates from system to light', () => {
+  it("updates from system to light", () => {
     const workspace = createWorkspace({
-      'x-scalar-color-mode': 'system',
-    })
+      "x-scalar-color-mode": "system",
+    });
 
-    updateColorMode(workspace, 'light')
+    updateColorMode(workspace, "light");
 
-    expect(workspace['x-scalar-color-mode']).toBe('light')
-  })
+    expect(workspace["x-scalar-color-mode"]).toBe("light");
+  });
 
-  it('updates from dark to system', () => {
+  it("updates from dark to system", () => {
     const workspace = createWorkspace({
-      'x-scalar-color-mode': 'dark',
-    })
+      "x-scalar-color-mode": "dark",
+    });
 
-    updateColorMode(workspace, 'system')
+    updateColorMode(workspace, "system");
 
-    expect(workspace['x-scalar-color-mode']).toBe('system')
-  })
+    expect(workspace["x-scalar-color-mode"]).toBe("system");
+  });
 
-  it('updates multiple times correctly', () => {
-    const workspace = createWorkspace()
+  it("updates multiple times correctly", () => {
+    const workspace = createWorkspace();
 
-    updateColorMode(workspace, 'system')
-    expect(workspace['x-scalar-color-mode']).toBe('system')
+    updateColorMode(workspace, "system");
+    expect(workspace["x-scalar-color-mode"]).toBe("system");
 
-    updateColorMode(workspace, 'light')
-    expect(workspace['x-scalar-color-mode']).toBe('light')
+    updateColorMode(workspace, "light");
+    expect(workspace["x-scalar-color-mode"]).toBe("light");
 
-    updateColorMode(workspace, 'dark')
-    expect(workspace['x-scalar-color-mode']).toBe('dark')
+    updateColorMode(workspace, "dark");
+    expect(workspace["x-scalar-color-mode"]).toBe("dark");
 
-    updateColorMode(workspace, 'system')
-    expect(workspace['x-scalar-color-mode']).toBe('system')
-  })
-})
+    updateColorMode(workspace, "system");
+    expect(workspace["x-scalar-color-mode"]).toBe("system");
+  });
+});
 
-describe('updateTheme', () => {
-  it('does nothing when workspace is null', () => {
-    updateTheme(null, 'default')
+describe("updateTheme", () => {
+  it("does nothing when workspace is null", () => {
+    updateTheme(null, "default");
     // Should not throw
-  })
+  });
 
-  it('sets x-scalar-theme to default', () => {
-    const workspace = createWorkspace()
+  it("sets x-scalar-theme to default", () => {
+    const workspace = createWorkspace();
 
-    updateTheme(workspace, 'default')
+    updateTheme(workspace, "default");
 
-    expect(workspace['x-scalar-theme']).toBe('default')
-  })
+    expect(workspace["x-scalar-theme"]).toBe("default");
+  });
 
-  it('sets x-scalar-theme to alternate', () => {
-    const workspace = createWorkspace()
+  it("sets x-scalar-theme to alternate", () => {
+    const workspace = createWorkspace();
 
-    updateTheme(workspace, 'alternate')
+    updateTheme(workspace, "alternate");
 
-    expect(workspace['x-scalar-theme']).toBe('alternate')
-  })
+    expect(workspace["x-scalar-theme"]).toBe("alternate");
+  });
 
-  it('sets x-scalar-theme to purple', () => {
-    const workspace = createWorkspace()
+  it("sets x-scalar-theme to purple", () => {
+    const workspace = createWorkspace();
 
-    updateTheme(workspace, 'purple')
+    updateTheme(workspace, "purple");
 
-    expect(workspace['x-scalar-theme']).toBe('purple')
-  })
+    expect(workspace["x-scalar-theme"]).toBe("purple");
+  });
 
-  it('sets x-scalar-theme to solarized', () => {
-    const workspace = createWorkspace()
+  it("sets x-scalar-theme to solarized", () => {
+    const workspace = createWorkspace();
 
-    updateTheme(workspace, 'solarized')
+    updateTheme(workspace, "solarized");
 
-    expect(workspace['x-scalar-theme']).toBe('solarized')
-  })
+    expect(workspace["x-scalar-theme"]).toBe("solarized");
+  });
 
-  it('sets x-scalar-theme to saturn', () => {
-    const workspace = createWorkspace()
+  it("sets x-scalar-theme to saturn", () => {
+    const workspace = createWorkspace();
 
-    updateTheme(workspace, 'saturn')
+    updateTheme(workspace, "saturn");
 
-    expect(workspace['x-scalar-theme']).toBe('saturn')
-  })
+    expect(workspace["x-scalar-theme"]).toBe("saturn");
+  });
 
-  it('sets x-scalar-theme to kepler', () => {
-    const workspace = createWorkspace()
+  it("sets x-scalar-theme to kepler", () => {
+    const workspace = createWorkspace();
 
-    updateTheme(workspace, 'kepler')
+    updateTheme(workspace, "kepler");
 
-    expect(workspace['x-scalar-theme']).toBe('kepler')
-  })
+    expect(workspace["x-scalar-theme"]).toBe("kepler");
+  });
 
-  it('updates existing x-scalar-theme value', () => {
+  it("updates existing x-scalar-theme value", () => {
     const workspace = createWorkspace({
-      'x-scalar-theme': 'default',
-    })
+      "x-scalar-theme": "default",
+    });
 
-    updateTheme(workspace, 'purple')
+    updateTheme(workspace, "purple");
 
-    expect(workspace['x-scalar-theme']).toBe('purple')
-  })
+    expect(workspace["x-scalar-theme"]).toBe("purple");
+  });
 
-  it('updates multiple times correctly', () => {
-    const workspace = createWorkspace()
+  it("updates multiple times correctly", () => {
+    const workspace = createWorkspace();
 
-    updateTheme(workspace, 'default')
-    expect(workspace['x-scalar-theme']).toBe('default')
+    updateTheme(workspace, "default");
+    expect(workspace["x-scalar-theme"]).toBe("default");
 
-    updateTheme(workspace, 'purple')
-    expect(workspace['x-scalar-theme']).toBe('purple')
+    updateTheme(workspace, "purple");
+    expect(workspace["x-scalar-theme"]).toBe("purple");
 
-    updateTheme(workspace, 'solarized')
-    expect(workspace['x-scalar-theme']).toBe('solarized')
+    updateTheme(workspace, "solarized");
+    expect(workspace["x-scalar-theme"]).toBe("solarized");
 
-    updateTheme(workspace, 'alternate')
-    expect(workspace['x-scalar-theme']).toBe('alternate')
-  })
+    updateTheme(workspace, "alternate");
+    expect(workspace["x-scalar-theme"]).toBe("alternate");
+  });
 
-  it('preserves other workspace properties', () => {
+  it("preserves other workspace properties", () => {
     const workspace = createWorkspace({
       documents: {
-        'doc-1': {
-          openapi: '3.1.0',
-          info: { title: 'Doc 1', version: '1.0.0' },
-          'x-scalar-original-document-hash': 'hash1',
+        "doc-1": {
+          openapi: "3.1.0",
+          info: { title: "Doc 1", version: "1.0.0" },
+          "x-scalar-original-document-hash": "hash1",
         },
       },
-      'x-scalar-color-mode': 'dark',
-      'x-scalar-theme': 'default',
-    })
+      "x-scalar-color-mode": "dark",
+      "x-scalar-theme": "default",
+    });
 
-    updateTheme(workspace, 'purple')
+    updateTheme(workspace, "purple");
 
-    expect(workspace.documents).toHaveProperty('doc-1')
-    expect(workspace['x-scalar-color-mode']).toBe('dark')
-    expect(workspace['x-scalar-theme']).toBe('purple')
-  })
-})
+    expect(workspace.documents).toHaveProperty("doc-1");
+    expect(workspace["x-scalar-color-mode"]).toBe("dark");
+    expect(workspace["x-scalar-theme"]).toBe("purple");
+  });
+});
 
-describe('updateSelectedClient', () => {
-  it('does nothing when workspace is null', () => {
-    updateSelectedClient(null, 'shell/curl')
+describe("updateSelectedClient", () => {
+  it("does nothing when workspace is null", () => {
+    updateSelectedClient(null, "shell/curl");
     // Should not throw
-  })
+  });
 
-  it('sets x-scalar-default-client to a client identifier', () => {
-    const workspace = createWorkspace()
+  it("sets x-scalar-default-client to a client identifier", () => {
+    const workspace = createWorkspace();
 
-    updateSelectedClient(workspace, 'js/fetch')
+    updateSelectedClient(workspace, "js/fetch");
 
-    expect(workspace['x-scalar-default-client']).toBe('js/fetch')
-  })
-})
+    expect(workspace["x-scalar-default-client"]).toBe("js/fetch");
+  });
+});
 
-describe('updateActiveEnvironment', () => {
-  it('does nothing when workspace is null', () => {
-    updateActiveEnvironment(null, 'production')
+describe("updateActiveEnvironment", () => {
+  it("does nothing when workspace is null", () => {
+    updateActiveEnvironment(null, "production");
     // Should not throw
-  })
+  });
 
-  it('sets x-scalar-active-environment to an environment name', () => {
-    const workspace = createWorkspace()
+  it("sets x-scalar-active-environment to an environment name", () => {
+    const workspace = createWorkspace();
 
-    updateActiveEnvironment(workspace, 'production')
+    updateActiveEnvironment(workspace, "production");
 
-    expect(workspace['x-scalar-active-environment']).toBe('production')
-  })
+    expect(workspace["x-scalar-active-environment"]).toBe("production");
+  });
 
-  it('sets x-scalar-active-environment to undefined when payload is null', () => {
-    const workspace = createWorkspace()
+  it("sets x-scalar-active-environment to undefined when payload is null", () => {
+    const workspace = createWorkspace();
 
-    updateActiveEnvironment(workspace, null)
+    updateActiveEnvironment(workspace, null);
 
-    expect(workspace['x-scalar-active-environment']).toBeUndefined()
-  })
+    expect(workspace["x-scalar-active-environment"]).toBeUndefined();
+  });
 
-  it('updates existing x-scalar-active-environment value', () => {
+  it("updates existing x-scalar-active-environment value", () => {
     const workspace = createWorkspace({
-      'x-scalar-active-environment': 'development',
-    })
+      "x-scalar-active-environment": "development",
+    });
 
-    updateActiveEnvironment(workspace, 'production')
+    updateActiveEnvironment(workspace, "production");
 
-    expect(workspace['x-scalar-active-environment']).toBe('production')
-  })
+    expect(workspace["x-scalar-active-environment"]).toBe("production");
+  });
 
-  it('clears x-scalar-active-environment when setting to null', () => {
+  it("clears x-scalar-active-environment when setting to null", () => {
     const workspace = createWorkspace({
-      'x-scalar-active-environment': 'staging',
-    })
+      "x-scalar-active-environment": "staging",
+    });
 
-    updateActiveEnvironment(workspace, null)
+    updateActiveEnvironment(workspace, null);
 
-    expect(workspace['x-scalar-active-environment']).toBeUndefined()
-  })
-})
+    expect(workspace["x-scalar-active-environment"]).toBeUndefined();
+  });
+});

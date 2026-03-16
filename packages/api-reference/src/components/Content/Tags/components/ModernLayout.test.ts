@@ -1,159 +1,174 @@
-import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
-import type { TraversedTag } from '@scalar/workspace-store/schemas/navigation'
-import { mount } from '@vue/test-utils'
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { computed } from 'vue'
+import { createWorkspaceEventBus } from "@scalar/workspace-store/events";
+import type { TraversedTag } from "@scalar/workspace-store/schemas/navigation";
+import { mount } from "@vue/test-utils";
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from "vite-plus/test";
+import { computed } from "vue";
 
-import ModernLayout from './ModernLayout.vue'
+import ModernLayout from "./ModernLayout.vue";
 
-vi.mock('vue', async () => {
-  const actual = await vi.importActual('vue')
+vi.mock("vue", async () => {
+  const actual = await vi.importActual("vue");
   return {
     ...actual,
-    useId: vi.fn(() => 'test-header-id'),
-  }
-})
+    useId: vi.fn(() => "test-header-id"),
+  };
+});
 
-const createMockTag = (overrides: Partial<TraversedTag> = {}): TraversedTag => ({
-  type: 'tag',
-  id: 'test-tag',
-  title: 'Test Tag',
+const createMockTag = (
+  overrides: Partial<TraversedTag> = {},
+): TraversedTag => ({
+  type: "tag",
+  id: "test-tag",
+  title: "Test Tag",
   children: [],
   isGroup: false,
-  name: 'test-tag',
-  description: 'Test description',
+  name: "test-tag",
+  description: "Test description",
   ...overrides,
-})
+});
 
 const mockProps = {
   isLoading: false,
   isCollapsed: false,
   eventBus: null,
-}
+};
 
 beforeEach(() => {
-  vi.mock('@/helpers/lazy-bus', () => ({
+  vi.mock("@/helpers/lazy-bus", () => ({
     getLazyPlaceholderHeight: () => undefined,
     requestLazyRender: vi.fn(),
     setLazyPlaceholderHeight: vi.fn(),
     useLazyBus: () => ({
       isReady: computed(() => true),
     }),
-  }))
-})
+  }));
+});
 
 afterEach(() => {
-  vi.clearAllMocks()
-})
+  vi.clearAllMocks();
+});
 
-describe('TagSection rendering', () => {
-  it('renders TagSection when moreThanOneTag is true', () => {
+describe("TagSection rendering", () => {
+  it("renders TagSection when moreThanOneTag is true", () => {
     const wrapper = mount(ModernLayout, {
       props: {
         ...mockProps,
         tag: createMockTag(),
         moreThanOneTag: true,
       },
-    })
+    });
 
-    expect(wrapper.findComponent({ name: 'TagSection' }).exists()).toBe(true)
-  })
+    expect(wrapper.findComponent({ name: "TagSection" }).exists()).toBe(true);
+  });
 
-  it('renders TagSection when tag title is not default', () => {
+  it("renders TagSection when tag title is not default", () => {
     const wrapper = mount(ModernLayout, {
       props: {
         ...mockProps,
-        tag: createMockTag({ title: 'custom-tag' }),
+        tag: createMockTag({ title: "custom-tag" }),
         moreThanOneTag: false,
       },
-    })
+    });
 
-    expect(wrapper.findComponent({ name: 'TagSection' }).exists()).toBe(true)
-  })
+    expect(wrapper.findComponent({ name: "TagSection" }).exists()).toBe(true);
+  });
 
-  it('renders TagSection when tag has description', () => {
-    const wrapper = mount(ModernLayout, {
-      props: {
-        ...mockProps,
-        tag: createMockTag({
-          title: 'default',
-          name: 'default',
-          description: 'Has description',
-        }),
-        moreThanOneTag: false,
-      },
-    })
-
-    expect(wrapper.findComponent({ name: 'TagSection' }).exists()).toBe(true)
-  })
-
-  it('does not render TagSection for default tag without description', () => {
+  it("renders TagSection when tag has description", () => {
     const wrapper = mount(ModernLayout, {
       props: {
         ...mockProps,
         tag: createMockTag({
-          title: 'default',
-          name: 'default',
-          description: '',
+          title: "default",
+          name: "default",
+          description: "Has description",
         }),
         moreThanOneTag: false,
       },
-    })
+    });
 
-    expect(wrapper.findComponent({ name: 'TagSection' }).exists()).toBe(false)
-  })
-})
+    expect(wrapper.findComponent({ name: "TagSection" }).exists()).toBe(true);
+  });
 
-describe('ShowMoreButton rendering', () => {
-  it('renders ShowMoreButton when tag is collapsed and moreThanOneTag is true', () => {
+  it("does not render TagSection for default tag without description", () => {
+    const wrapper = mount(ModernLayout, {
+      props: {
+        ...mockProps,
+        tag: createMockTag({
+          title: "default",
+          name: "default",
+          description: "",
+        }),
+        moreThanOneTag: false,
+      },
+    });
+
+    expect(wrapper.findComponent({ name: "TagSection" }).exists()).toBe(false);
+  });
+});
+
+describe("ShowMoreButton rendering", () => {
+  it("renders ShowMoreButton when tag is collapsed and moreThanOneTag is true", () => {
     const wrapper = mount(ModernLayout, {
       props: {
         ...mockProps,
         tag: createMockTag({
           children: [
             {
-              type: 'operation',
-              id: 'op-1',
-              title: 'Test Operation',
-              ref: '#/paths/test',
-              method: 'get',
-              path: '/test',
+              type: "operation",
+              id: "op-1",
+              title: "Test Operation",
+              ref: "#/paths/test",
+              method: "get",
+              path: "/test",
             },
           ],
         }),
         moreThanOneTag: true,
         isCollapsed: true,
       },
-    })
+    });
 
-    expect(wrapper.findComponent({ name: 'ShowMoreButton' }).exists()).toBe(true)
-  })
+    expect(wrapper.findComponent({ name: "ShowMoreButton" }).exists()).toBe(
+      true,
+    );
+  });
 
-  it('does not render ShowMoreButton when tag is not collapsed', () => {
+  it("does not render ShowMoreButton when tag is not collapsed", () => {
     const wrapper = mount(ModernLayout, {
       props: {
         ...mockProps,
         tag: createMockTag(),
         moreThanOneTag: true,
       },
-    })
+    });
 
-    expect(wrapper.findComponent({ name: 'ShowMoreButton' }).exists()).toBe(false)
-  })
+    expect(wrapper.findComponent({ name: "ShowMoreButton" }).exists()).toBe(
+      false,
+    );
+  });
 
-  it('does not render ShowMoreButton when moreThanOneTag is false', () => {
+  it("does not render ShowMoreButton when moreThanOneTag is false", () => {
     const wrapper = mount(ModernLayout, {
       props: {
         ...mockProps,
         tag: createMockTag(),
         moreThanOneTag: false,
       },
-    })
+    });
 
-    expect(wrapper.findComponent({ name: 'ShowMoreButton' }).exists()).toBe(false)
-  })
+    expect(wrapper.findComponent({ name: "ShowMoreButton" }).exists()).toBe(
+      false,
+    );
+  });
 
-  it('does not render ShowMoreButton when tag has empty children array', () => {
+  it("does not render ShowMoreButton when tag has empty children array", () => {
     const wrapper = mount(ModernLayout, {
       props: {
         ...mockProps,
@@ -161,12 +176,14 @@ describe('ShowMoreButton rendering', () => {
         moreThanOneTag: true,
         isCollapsed: true,
       },
-    })
+    });
 
-    expect(wrapper.findComponent({ name: 'ShowMoreButton' }).exists()).toBe(false)
-  })
+    expect(wrapper.findComponent({ name: "ShowMoreButton" }).exists()).toBe(
+      false,
+    );
+  });
 
-  it('does not render ShowMoreButton when tag has undefined children', () => {
+  it("does not render ShowMoreButton when tag has undefined children", () => {
     const wrapper = mount(ModernLayout, {
       props: {
         ...mockProps,
@@ -174,14 +191,16 @@ describe('ShowMoreButton rendering', () => {
         moreThanOneTag: true,
         isCollapsed: true,
       },
-    })
+    });
 
-    expect(wrapper.findComponent({ name: 'ShowMoreButton' }).exists()).toBe(false)
-  })
-})
+    expect(wrapper.findComponent({ name: "ShowMoreButton" }).exists()).toBe(
+      false,
+    );
+  });
+});
 
-describe('slot content rendering', () => {
-  it('renders slot content when ShowMoreButton is not shown', () => {
+describe("slot content rendering", () => {
+  it("renders slot content when ShowMoreButton is not shown", () => {
     const wrapper = mount(ModernLayout, {
       props: {
         ...mockProps,
@@ -191,16 +210,16 @@ describe('slot content rendering', () => {
       slots: {
         default: '<div class="slot-content">Test content</div>',
       },
-    })
+    });
 
-    expect(wrapper.find('.slot-content').exists()).toBe(true)
-    expect(wrapper.text()).toContain('Test content')
-  })
-})
+    expect(wrapper.find(".slot-content").exists()).toBe(true);
+    expect(wrapper.text()).toContain("Test content");
+  });
+});
 
-describe('component props and behavior', () => {
-  it('passes correct props to TagSection', () => {
-    const mockTag = createMockTag()
+describe("component props and behavior", () => {
+  it("passes correct props to TagSection", () => {
+    const mockTag = createMockTag();
 
     const wrapper = mount(ModernLayout, {
       props: {
@@ -208,17 +227,17 @@ describe('component props and behavior', () => {
         tag: mockTag,
         moreThanOneTag: true,
       },
-    })
+    });
 
-    const tagSection = wrapper.findComponent({ name: 'TagSection' })
-    expect(tagSection.props('headerId')).toBe('test-header-id')
-    expect(tagSection.props('tag')).toEqual(mockTag)
-  })
+    const tagSection = wrapper.findComponent({ name: "TagSection" });
+    expect(tagSection.props("headerId")).toBe("test-header-id");
+    expect(tagSection.props("tag")).toEqual(mockTag);
+  });
 
-  it('calls setCollapsedSidebarItem when ShowMoreButton is clicked', async () => {
-    const eventBus = createWorkspaceEventBus()
-    const toggleHandler = vi.fn()
-    eventBus.on('toggle:nav-item', toggleHandler)
+  it("calls setCollapsedSidebarItem when ShowMoreButton is clicked", async () => {
+    const eventBus = createWorkspaceEventBus();
+    const toggleHandler = vi.fn();
+    eventBus.on("toggle:nav-item", toggleHandler);
 
     const wrapper = mount(ModernLayout, {
       props: {
@@ -227,36 +246,36 @@ describe('component props and behavior', () => {
         tag: createMockTag({
           children: [
             {
-              type: 'operation',
-              id: 'op-1',
-              title: 'Test Operation',
-              ref: '#/paths/test',
-              method: 'get',
-              path: '/test',
+              type: "operation",
+              id: "op-1",
+              title: "Test Operation",
+              ref: "#/paths/test",
+              method: "get",
+              path: "/test",
             },
           ],
         }),
         moreThanOneTag: true,
         isCollapsed: true,
       },
-    })
+    });
 
-    const showMoreButton = wrapper.findComponent({ name: 'ShowMoreButton' })
-    await showMoreButton.find('button').trigger('click')
+    const showMoreButton = wrapper.findComponent({ name: "ShowMoreButton" });
+    await showMoreButton.find("button").trigger("click");
 
-    expect(toggleHandler).toHaveBeenCalledWith({ id: 'test-tag', open: true })
-  })
+    expect(toggleHandler).toHaveBeenCalledWith({ id: "test-tag", open: true });
+  });
 
-  it('handles tag with null tag property gracefully', () => {
+  it("handles tag with null tag property gracefully", () => {
     const wrapper = mount(ModernLayout, {
       props: {
         ...mockProps,
         tag: createMockTag(),
         moreThanOneTag: true,
       },
-    })
+    });
 
-    expect(wrapper.text()).toContain('Test Tag')
-    expect(wrapper.findComponent({ name: 'TagSection' }).exists()).toBe(true)
-  })
-})
+    expect(wrapper.text()).toContain("Test Tag");
+    expect(wrapper.findComponent({ name: "TagSection" }).exists()).toBe(true);
+  });
+});

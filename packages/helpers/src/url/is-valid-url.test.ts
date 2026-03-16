@@ -1,21 +1,21 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from "vite-plus/test";
 
-import { isValidUrl } from './is-valid-url'
+import { isValidUrl } from "./is-valid-url";
 
-describe('isValidUrl ', () => {
-  it('says false for empty string', () => {
-    expect(isValidUrl('')).toBe(false)
-  })
+describe("isValidUrl ", () => {
+  it("says false for empty string", () => {
+    expect(isValidUrl("")).toBe(false);
+  });
 
-  it('says false for a path', () => {
-    expect(isValidUrl('/some-path')).toBe(false)
-  })
+  it("says false for a path", () => {
+    expect(isValidUrl("/some-path")).toBe(false);
+  });
 
-  it('says false for a origin without a protocol', () => {
-    expect(isValidUrl('google.com')).toBe(false)
-  })
+  it("says false for a origin without a protocol", () => {
+    expect(isValidUrl("google.com")).toBe(false);
+  });
 
-  it('says true for a protocol, origin, host, path and query parameters', () => {
-    expect(isValidUrl('https://google.com/maps?some=thing')).toBe(true)
-  })
-})
+  it("says true for a protocol, origin, host, path and query parameters", () => {
+    expect(isValidUrl("https://google.com/maps?some=thing")).toBe(true);
+  });
+});

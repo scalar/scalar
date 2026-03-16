@@ -1,184 +1,190 @@
-import path from 'node:path'
+import path from "node:path";
 
-import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { stringify } from 'yaml'
+import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
+import { stringify } from "yaml";
 
-import { fetchUrls } from '@/plugins/fetch-urls/fetch-urls'
-import { readFiles } from '@/plugins/read-files/read-files'
-import { getEntrypoint } from '@/utils/get-entrypoint'
+import { fetchUrls } from "@/plugins/fetch-urls/fetch-urls";
+import { readFiles } from "@/plugins/read-files/read-files";
+import { getEntrypoint } from "@/utils/get-entrypoint";
 
-import { load } from './load'
+import { load } from "./load";
 
-const globalFetchSpy = vi.spyOn(global, 'fetch').mockImplementation(vi.fn())
+const globalFetchSpy = vi.spyOn(global, "fetch").mockImplementation(vi.fn());
 
-describe('load', () => {
+describe("load", () => {
   beforeEach(() => {
-    globalFetchSpy.mockReset()
-  })
+    globalFetchSpy.mockReset();
+  });
 
-  it('loads JS object', async () => {
+  it("loads JS object", async () => {
     const { filesystem } = await load(
       {
-        openapi: '3.1.0',
+        openapi: "3.1.0",
         info: {
-          title: 'Hello World',
-          version: '1.0.0',
+          title: "Hello World",
+          version: "1.0.0",
         },
         paths: {},
       },
       {
         plugins: [readFiles(), fetchUrls()],
       },
-    )
+    );
 
     expect(getEntrypoint(filesystem).specification).toMatchObject({
-      openapi: '3.1.0',
+      openapi: "3.1.0",
       info: {
-        title: 'Hello World',
-        version: '1.0.0',
+        title: "Hello World",
+        version: "1.0.0",
       },
       paths: {},
-    })
-  })
+    });
+  });
 
-  it('loads JSON string', async () => {
+  it("loads JSON string", async () => {
     const { filesystem } = await load(
       JSON.stringify({
-        openapi: '3.1.0',
+        openapi: "3.1.0",
         info: {
-          title: 'Hello World',
-          version: '1.0.0',
+          title: "Hello World",
+          version: "1.0.0",
         },
         paths: {},
       }),
       {
         plugins: [readFiles(), fetchUrls()],
       },
-    )
+    );
 
     expect(getEntrypoint(filesystem).specification).toMatchObject({
-      openapi: '3.1.0',
+      openapi: "3.1.0",
       info: {
-        title: 'Hello World',
-        version: '1.0.0',
+        title: "Hello World",
+        version: "1.0.0",
       },
       paths: {},
-    })
-  })
+    });
+  });
 
-  it('loads YAML string', async () => {
+  it("loads YAML string", async () => {
     const { filesystem } = await load(
       stringify({
-        openapi: '3.1.0',
+        openapi: "3.1.0",
         info: {
-          title: 'Hello World',
-          version: '1.0.0',
+          title: "Hello World",
+          version: "1.0.0",
         },
         paths: {},
       }),
       {
         plugins: [readFiles(), fetchUrls()],
       },
-    )
+    );
 
     expect(getEntrypoint(filesystem).specification).toMatchObject({
-      openapi: '3.1.0',
+      openapi: "3.1.0",
       info: {
-        title: 'Hello World',
-        version: '1.0.0',
+        title: "Hello World",
+        version: "1.0.0",
       },
       paths: {},
-    })
-  })
+    });
+  });
 
-  it('loads file', async () => {
-    const EXAMPLE_FILE = path.join(new URL(import.meta.url).pathname, '../../examples/openapi.yaml')
+  it("loads file", async () => {
+    const EXAMPLE_FILE = path.join(
+      new URL(import.meta.url).pathname,
+      "../../examples/openapi.yaml",
+    );
 
     const { filesystem } = await load(EXAMPLE_FILE, {
       plugins: [readFiles(), fetchUrls()],
-    })
+    });
 
     expect(getEntrypoint(filesystem).specification).toMatchObject({
-      openapi: '3.1.0',
+      openapi: "3.1.0",
       info: {
-        title: 'Hello World',
-        version: '1.0.0',
+        title: "Hello World",
+        version: "1.0.0",
       },
       paths: {},
-    })
-  })
+    });
+  });
 
-  it('loads referenced files in files', async () => {
-    const EXAMPLE_FILE = path.join(new URL(import.meta.url).pathname, '../../../../tests/filesystem/api/openapi.yaml')
+  it("loads referenced files in files", async () => {
+    const EXAMPLE_FILE = path.join(
+      new URL(import.meta.url).pathname,
+      "../../../../tests/filesystem/api/openapi.yaml",
+    );
 
     const { filesystem } = await load(EXAMPLE_FILE, {
       plugins: [readFiles()],
-    })
+    });
 
     // filenames
     expect(filesystem.map((entry) => entry.filename)).toStrictEqual([
       null,
-      'schemas/problem.yaml',
-      'schemas/upload.yaml',
-      './components/coordinates.yaml',
-    ])
+      "schemas/problem.yaml",
+      "schemas/upload.yaml",
+      "./components/coordinates.yaml",
+    ]);
 
     // specification
-    expect(filesystem[0].specification).toBeTypeOf('object')
+    expect(filesystem[0].specification).toBeTypeOf("object");
 
     // only one entrypoint
-    expect(filesystem.filter((entry) => entry.isEntrypoint).length).toBe(1)
-  })
+    expect(filesystem.filter((entry) => entry.isEntrypoint).length).toBe(1);
+  });
 
-  it('loads url', async () => {
+  it("loads url", async () => {
     // @ts-expect-error
     fetch.mockResolvedValue({
       text: async () =>
         stringify({
-          openapi: '3.1.0',
+          openapi: "3.1.0",
           info: {
-            title: 'Hello World',
-            version: '1.0.0',
+            title: "Hello World",
+            version: "1.0.0",
           },
           paths: {},
         }),
-    })
+    });
 
-    const { filesystem } = await load('https://example.com/openapi.yaml', {
+    const { filesystem } = await load("https://example.com/openapi.yaml", {
       plugins: [readFiles(), fetchUrls()],
-    })
+    });
 
     expect(getEntrypoint(filesystem).specification).toMatchObject({
-      openapi: '3.1.0',
+      openapi: "3.1.0",
       info: {
-        title: 'Hello World',
-        version: '1.0.0',
+        title: "Hello World",
+        version: "1.0.0",
       },
       paths: {},
-    })
-  })
+    });
+  });
 
-  it('handles failed requests', async () => {
+  it("handles failed requests", async () => {
     // Failed request
     globalFetchSpy.mockImplementation(() => {
-      throw new TypeError('[load.test.ts] fetch failed')
-    })
+      throw new TypeError("[load.test.ts] fetch failed");
+    });
 
     const { filesystem } = await load(
       {
-        openapi: '3.1.0',
+        openapi: "3.1.0",
         info: {
-          title: 'Hello World',
-          version: '1.0.0',
+          title: "Hello World",
+          version: "1.0.0",
         },
         paths: {
-          '/foobar': {
+          "/foobar": {
             post: {
               requestBody: {
                 content: {
-                  'application/json': {
+                  "application/json": {
                     schema: {
-                      $ref: 'https://DOES_NOT_EXIST',
+                      $ref: "https://DOES_NOT_EXIST",
                     },
                   },
                 },
@@ -190,38 +196,38 @@ describe('load', () => {
       {
         plugins: [readFiles(), fetchUrls()],
       },
-    )
+    );
 
     expect(getEntrypoint(filesystem).specification).toMatchObject({
-      openapi: '3.1.0',
+      openapi: "3.1.0",
       info: {
-        title: 'Hello World',
-        version: '1.0.0',
+        title: "Hello World",
+        version: "1.0.0",
       },
       paths: {},
-    })
-  })
+    });
+  });
 
-  it('limits the number of requests', async () => {
+  it("limits the number of requests", async () => {
     globalFetchSpy.mockResolvedValue({
-      text: async () => 'FOOBAR',
-    } as Response)
+      text: async () => "FOOBAR",
+    } as Response);
 
     const { filesystem } = await load(
       {
-        openapi: '3.1.0',
+        openapi: "3.1.0",
         info: {
-          title: 'Hello World',
-          version: '1.0.0',
+          title: "Hello World",
+          version: "1.0.0",
         },
         paths: {
-          '/foobar': {
+          "/foobar": {
             post: {
               requestBody: {
                 content: {
-                  'application/json': {
+                  "application/json": {
                     schema: {
-                      $ref: 'https://DOES_NOT_EXIST',
+                      $ref: "https://DOES_NOT_EXIST",
                     },
                   },
                 },
@@ -237,115 +243,115 @@ describe('load', () => {
           }),
         ],
       },
-    )
+    );
 
-    expect(filesystem.length).toBe(1)
-  })
+    expect(filesystem.length).toBe(1);
+  });
 
-  it('loads referenced urls', async () => {
+  it("loads referenced urls", async () => {
     // @ts-expect-error
     globalFetchSpy.mockImplementation((url: string) => {
-      if (url === 'https://example.com/openapi.yaml') {
+      if (url === "https://example.com/openapi.yaml") {
         return Promise.resolve({
           text: () =>
             Promise.resolve(
               stringify({
-                openapi: '3.1.0',
+                openapi: "3.1.0",
                 info: {
-                  title: 'Hello World',
-                  version: '1.0.0',
+                  title: "Hello World",
+                  version: "1.0.0",
                 },
                 paths: {
-                  '/foobar': {
+                  "/foobar": {
                     post: {
                       requestBody: {
-                        $ref: 'https://example.com/foobar.json',
+                        $ref: "https://example.com/foobar.json",
                       },
                     },
                   },
                 },
               }),
             ),
-        } as Response)
+        } as Response);
       }
 
-      if (url === 'https://example.com/foobar.json') {
+      if (url === "https://example.com/foobar.json") {
         return {
           text: async () =>
             JSON.stringify({
               content: {
-                'application/json': {
+                "application/json": {
                   schema: {
-                    type: 'string',
-                    example: 'foobar',
+                    type: "string",
+                    example: "foobar",
                   },
                 },
               },
             }),
-        } as Response
+        } as Response;
       }
-    })
+    });
 
-    const { filesystem } = await load('https://example.com/openapi.yaml', {
+    const { filesystem } = await load("https://example.com/openapi.yaml", {
       plugins: [readFiles(), fetchUrls()],
-    })
+    });
 
     expect(filesystem[0].specification).toMatchObject({
-      openapi: '3.1.0',
+      openapi: "3.1.0",
       info: {
-        title: 'Hello World',
-        version: '1.0.0',
+        title: "Hello World",
+        version: "1.0.0",
       },
       paths: {
-        '/foobar': {
+        "/foobar": {
           post: {
             requestBody: {
-              $ref: 'https://example.com/foobar.json',
+              $ref: "https://example.com/foobar.json",
             },
           },
         },
       },
-    })
+    });
 
     expect(filesystem[1].specification).toMatchObject({
       content: {
-        'application/json': {
+        "application/json": {
           schema: {
-            type: 'string',
-            example: 'foobar',
+            type: "string",
+            example: "foobar",
           },
         },
       },
-    })
-  })
+    });
+  });
 
-  it('loads string with url reference', async () => {
+  it("loads string with url reference", async () => {
     globalFetchSpy.mockResolvedValue({
       text: async () =>
         JSON.stringify({
           content: {
-            'application/json': {
+            "application/json": {
               schema: {
-                type: 'string',
-                example: 'foobar',
+                type: "string",
+                example: "foobar",
               },
             },
           },
         }),
-    } as Response)
+    } as Response);
 
     const { filesystem } = await load(
       stringify({
-        openapi: '3.1.0',
+        openapi: "3.1.0",
         info: {
-          title: 'Hello World',
-          version: '1.0.0',
+          title: "Hello World",
+          version: "1.0.0",
         },
         paths: {
-          '/foobar': {
+          "/foobar": {
             post: {
               requestBody: {
-                $ref: 'https://example.com/foobar.json',
+                $ref: "https://example.com/foobar.json",
               },
             },
           },
@@ -354,58 +360,61 @@ describe('load', () => {
       {
         plugins: [readFiles(), fetchUrls()],
       },
-    )
+    );
 
-    expect(filesystem.map((entry) => entry.filename)).toStrictEqual([null, 'https://example.com/foobar.json'])
+    expect(filesystem.map((entry) => entry.filename)).toStrictEqual([
+      null,
+      "https://example.com/foobar.json",
+    ]);
 
     expect(filesystem[0].specification).toMatchObject({
-      openapi: '3.1.0',
+      openapi: "3.1.0",
       info: {
-        title: 'Hello World',
-        version: '1.0.0',
+        title: "Hello World",
+        version: "1.0.0",
       },
       paths: {
-        '/foobar': {
+        "/foobar": {
           post: {
             requestBody: {
-              $ref: 'https://example.com/foobar.json',
+              $ref: "https://example.com/foobar.json",
             },
           },
         },
       },
-    })
+    });
 
     expect(filesystem[1].specification).toMatchObject({
       content: {
-        'application/json': {
+        "application/json": {
           schema: {
-            type: 'string',
-            example: 'foobar',
+            type: "string",
+            example: "foobar",
           },
         },
       },
-    })
-  })
+    });
+  });
 
-  it('returns an error', async () => {
-    const { errors } = await load('INVALID', {
+  it("returns an error", async () => {
+    const { errors } = await load("INVALID", {
       plugins: [readFiles(), fetchUrls()],
-    })
+    });
 
     expect(errors).toMatchObject([
       {
-        code: 'EXTERNAL_REFERENCE_NOT_FOUND',
+        code: "EXTERNAL_REFERENCE_NOT_FOUND",
         message: "Can't resolve external reference: INVALID",
       },
-    ])
-  })
+    ]);
+  });
 
-  it('throws an error', async () => {
+  it("throws an error", async () => {
     await expect(async () => {
-      await load('INVALID', {
+      await load("INVALID", {
         plugins: [readFiles(), fetchUrls()],
         throwOnError: true,
-      })
-    }).rejects.toThrowError("Can't resolve external reference: INVALID")
-  })
-})
+      });
+    }).rejects.toThrowError("Can't resolve external reference: INVALID");
+  });
+});

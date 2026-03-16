@@ -24,7 +24,7 @@
     "format:check": "scalar-format-check",
     "lint:check": "scalar-lint-check",
     "lint:fix": "scalar-lint-fix",
-    "test": "vitest",
+    "test": "vp test",
     "types:build": "scalar-types-build",
     "types:check": "scalar-types-check"
   },
@@ -69,7 +69,8 @@
     "express": "catalog:*",
     "supertest": "catalog:*",
     "swagger-jsdoc": "^6.2.8",
-    "vite": "catalog:*",
-    "vitest": "catalog:*"
+    "vite": "catalog:",
+    "vitest": "catalog:",
+    "vite-plus": "catalog:"
   }
 }

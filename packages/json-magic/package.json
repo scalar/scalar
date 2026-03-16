@@ -16,7 +16,7 @@
   },
   "scripts": {
     "build": "scalar-build-esbuild",
-    "test": "vitest",
+    "test": "vp test",
     "types:build": "scalar-types-build",
     "types:check": "scalar-types-check"
   },
@@ -90,6 +90,7 @@
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
     "fastify": "catalog:*",
-    "vite": "catalog:*"
+    "vite": "catalog:",
+    "vite-plus": "catalog:"
   }
 }

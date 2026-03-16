@@ -1,28 +1,29 @@
-import { mount } from '@vue/test-utils'
-import { describe, expect, it } from 'vitest'
+import { mount } from "@vue/test-utils";
+import { describe, expect, it } from "vite-plus/test";
 
-import RequestTableTooltip from './RequestTableTooltip.vue'
+import RequestTableTooltip from "./RequestTableTooltip.vue";
 
 const ScalarPopoverStub = {
-  name: 'ScalarPopover',
-  template: '<div><slot /><div class="popover-content"><slot name="popover" /></div></div>',
-}
+  name: "ScalarPopover",
+  template:
+    '<div><slot /><div class="popover-content"><slot name="popover" /></div></div>',
+};
 
 const ScalarIconInfoStub = {
-  name: 'ScalarIconInfo',
+  name: "ScalarIconInfo",
   template: '<span class="icon-info" />',
-}
+};
 
 const ScalarIconWarningStub = {
-  name: 'ScalarIconWarning',
+  name: "ScalarIconWarning",
   template: '<span class="icon-warning" />',
-}
+};
 
-describe('RequestTableTooltip', () => {
-  it('renders with minimal props', () => {
+describe("RequestTableTooltip", () => {
+  it("renders with minimal props", () => {
     const wrapper = mount(RequestTableTooltip, {
       props: {
-        value: '',
+        value: "",
       },
       global: {
         stubs: {
@@ -31,16 +32,16 @@ describe('RequestTableTooltip', () => {
           ScalarIconWarning: ScalarIconWarningStub,
         },
       },
-    })
+    });
 
-    expect(wrapper.exists()).toBe(true)
-  })
+    expect(wrapper.exists()).toBe(true);
+  });
 
-  it('displays info icon when value is valid', () => {
+  it("displays info icon when value is valid", () => {
     const wrapper = mount(RequestTableTooltip, {
       props: {
-        value: 'test',
-        schema: { type: 'string' },
+        value: "test",
+        schema: { type: "string" },
       },
       global: {
         stubs: {
@@ -49,17 +50,17 @@ describe('RequestTableTooltip', () => {
           ScalarIconWarning: ScalarIconWarningStub,
         },
       },
-    })
+    });
 
-    expect(wrapper.findComponent(ScalarIconInfoStub).exists()).toBe(true)
-    expect(wrapper.findComponent(ScalarIconWarningStub).exists()).toBe(false)
-  })
+    expect(wrapper.findComponent(ScalarIconInfoStub).exists()).toBe(true);
+    expect(wrapper.findComponent(ScalarIconWarningStub).exists()).toBe(false);
+  });
 
-  it('displays warning icon when value is invalid', () => {
+  it("displays warning icon when value is invalid", () => {
     const wrapper = mount(RequestTableTooltip, {
       props: {
-        value: 'not-a-number',
-        schema: { type: 'number' },
+        value: "not-a-number",
+        schema: { type: "number" },
       },
       global: {
         stubs: {
@@ -68,16 +69,16 @@ describe('RequestTableTooltip', () => {
           ScalarIconWarning: ScalarIconWarningStub,
         },
       },
-    })
+    });
 
-    expect(wrapper.findComponent(ScalarIconWarningStub).exists()).toBe(true)
-    expect(wrapper.findComponent(ScalarIconInfoStub).exists()).toBe(false)
-  })
+    expect(wrapper.findComponent(ScalarIconWarningStub).exists()).toBe(true);
+    expect(wrapper.findComponent(ScalarIconInfoStub).exists()).toBe(false);
+  });
 
-  it('sets correct aria-label for valid input', () => {
+  it("sets correct aria-label for valid input", () => {
     const wrapper = mount(RequestTableTooltip, {
       props: {
-        value: 'test',
+        value: "test",
       },
       global: {
         stubs: {
@@ -86,17 +87,17 @@ describe('RequestTableTooltip', () => {
           ScalarIconWarning: ScalarIconWarningStub,
         },
       },
-    })
+    });
 
-    const button = wrapper.find('button')
-    expect(button.attributes('aria-label')).toBe('More Information')
-  })
+    const button = wrapper.find("button");
+    expect(button.attributes("aria-label")).toBe("More Information");
+  });
 
-  it('sets correct aria-label and role for invalid input', () => {
+  it("sets correct aria-label and role for invalid input", () => {
     const wrapper = mount(RequestTableTooltip, {
       props: {
-        value: 'invalid',
-        schema: { type: 'number' },
+        value: "invalid",
+        schema: { type: "number" },
       },
       global: {
         stubs: {
@@ -105,18 +106,18 @@ describe('RequestTableTooltip', () => {
           ScalarIconWarning: ScalarIconWarningStub,
         },
       },
-    })
+    });
 
-    const button = wrapper.find('button')
-    expect(button.attributes('aria-label')).toBe('Input is invalid')
-    expect(button.attributes('role')).toBe('alert')
-  })
+    const button = wrapper.find("button");
+    expect(button.attributes("aria-label")).toBe("Input is invalid");
+    expect(button.attributes("role")).toBe("alert");
+  });
 
-  it('displays schema type information', () => {
+  it("displays schema type information", () => {
     const wrapper = mount(RequestTableTooltip, {
       props: {
-        value: '123',
-        schema: { type: 'number' },
+        value: "123",
+        schema: { type: "number" },
       },
       global: {
         stubs: {
@@ -125,16 +126,16 @@ describe('RequestTableTooltip', () => {
           ScalarIconWarning: ScalarIconWarningStub,
         },
       },
-    })
+    });
 
-    expect(wrapper.text()).toContain('number')
-  })
+    expect(wrapper.text()).toContain("number");
+  });
 
-  it('displays schema format information', () => {
+  it("displays schema format information", () => {
     const wrapper = mount(RequestTableTooltip, {
       props: {
-        value: 'test@example.com',
-        schema: { type: 'string', format: 'email' },
+        value: "test@example.com",
+        schema: { type: "string", format: "email" },
       },
       global: {
         stubs: {
@@ -143,16 +144,16 @@ describe('RequestTableTooltip', () => {
           ScalarIconWarning: ScalarIconWarningStub,
         },
       },
-    })
+    });
 
-    expect(wrapper.text()).toContain('email')
-  })
+    expect(wrapper.text()).toContain("email");
+  });
 
-  it('displays minimum and maximum constraints', () => {
+  it("displays minimum and maximum constraints", () => {
     const wrapper = mount(RequestTableTooltip, {
       props: {
-        value: '5',
-        schema: { type: 'number', minimum: 1, maximum: 10 },
+        value: "5",
+        schema: { type: "number", minimum: 1, maximum: 10 },
       },
       global: {
         stubs: {
@@ -161,17 +162,17 @@ describe('RequestTableTooltip', () => {
           ScalarIconWarning: ScalarIconWarningStub,
         },
       },
-    })
+    });
 
-    expect(wrapper.text()).toContain('min: 1')
-    expect(wrapper.text()).toContain('max: 10')
-  })
+    expect(wrapper.text()).toContain("min: 1");
+    expect(wrapper.text()).toContain("max: 10");
+  });
 
-  it('displays default value', () => {
+  it("displays default value", () => {
     const wrapper = mount(RequestTableTooltip, {
       props: {
-        value: '',
-        schema: { type: 'string', default: 'default-value' },
+        value: "",
+        schema: { type: "string", default: "default-value" },
       },
       global: {
         stubs: {
@@ -180,19 +181,19 @@ describe('RequestTableTooltip', () => {
           ScalarIconWarning: ScalarIconWarningStub,
         },
       },
-    })
+    });
 
-    expect(wrapper.text()).toContain('default: default-value')
-  })
+    expect(wrapper.text()).toContain("default: default-value");
+  });
 
-  it('does not display description when value is invalid', () => {
+  it("does not display description when value is invalid", () => {
     const wrapper = mount(RequestTableTooltip, {
       props: {
-        value: 'invalid',
+        value: "invalid",
         schema: {
-          type: 'number',
+          type: "number",
         },
-        description: 'This is a test parameter',
+        description: "This is a test parameter",
       },
       global: {
         stubs: {
@@ -201,12 +202,12 @@ describe('RequestTableTooltip', () => {
           ScalarIconWarning: ScalarIconWarningStub,
         },
       },
-    })
+    });
 
-    expect(wrapper.text()).not.toContain('This is a test parameter')
-  })
+    expect(wrapper.text()).not.toContain("This is a test parameter");
+  });
 
-  it('handles null value', () => {
+  it("handles null value", () => {
     const wrapper = mount(RequestTableTooltip, {
       props: {
         value: null,
@@ -218,14 +219,14 @@ describe('RequestTableTooltip', () => {
           ScalarIconWarning: ScalarIconWarningStub,
         },
       },
-    })
+    });
 
-    expect(wrapper.exists()).toBe(true)
-    expect(wrapper.findComponent(ScalarIconInfoStub).exists()).toBe(true)
-  })
+    expect(wrapper.exists()).toBe(true);
+    expect(wrapper.findComponent(ScalarIconInfoStub).exists()).toBe(true);
+  });
 
-  it('handles File value', () => {
-    const file = new File(['content'], 'test.txt', { type: 'text/plain' })
+  it("handles File value", () => {
+    const file = new File(["content"], "test.txt", { type: "text/plain" });
     const wrapper = mount(RequestTableTooltip, {
       props: {
         value: file,
@@ -237,18 +238,18 @@ describe('RequestTableTooltip', () => {
           ScalarIconWarning: ScalarIconWarningStub,
         },
       },
-    })
+    });
 
-    expect(wrapper.exists()).toBe(true)
-  })
+    expect(wrapper.exists()).toBe(true);
+  });
 
-  it('displays all schema properties together', () => {
+  it("displays all schema properties together", () => {
     const wrapper = mount(RequestTableTooltip, {
       props: {
-        value: '5',
+        value: "5",
         schema: {
-          type: 'number',
-          format: 'int32',
+          type: "number",
+          format: "int32",
           minimum: 1,
           maximum: 10,
           default: 5,
@@ -261,23 +262,23 @@ describe('RequestTableTooltip', () => {
           ScalarIconWarning: ScalarIconWarningStub,
         },
       },
-    })
+    });
 
-    expect(wrapper.text()).toContain('number')
-    expect(wrapper.text()).toContain('int32')
-    expect(wrapper.text()).toContain('min: 1')
-    expect(wrapper.text()).toContain('max: 10')
-    expect(wrapper.text()).toContain('default: 5')
-  })
+    expect(wrapper.text()).toContain("number");
+    expect(wrapper.text()).toContain("int32");
+    expect(wrapper.text()).toContain("min: 1");
+    expect(wrapper.text()).toContain("max: 10");
+    expect(wrapper.text()).toContain("default: 5");
+  });
 
-  it('displays the description when it is provided', () => {
+  it("displays the description when it is provided", () => {
     const wrapper = mount(RequestTableTooltip, {
       props: {
-        value: '5',
+        value: "5",
         schema: {
-          type: 'number',
+          type: "number",
         },
-        description: 'A number between 1 and 10',
+        description: "A number between 1 and 10",
       },
       global: {
         stubs: {
@@ -286,9 +287,9 @@ describe('RequestTableTooltip', () => {
           ScalarIconWarning: ScalarIconWarningStub,
         },
       },
-    })
+    });
 
-    expect(wrapper.text()).toContain('number')
-    expect(wrapper.text()).toContain('A number between 1 and 10')
-  })
-})
+    expect(wrapper.text()).toContain("number");
+    expect(wrapper.text()).toContain("A number between 1 and 10");
+  });
+});

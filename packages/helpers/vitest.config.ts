@@ -1,5 +1,5 @@
-import { alias } from '@scalar/build-tooling/vite'
-import { defineConfig } from 'vitest/config'
+import { alias } from "@scalar/build-tooling/vite";
+import { defineConfig } from "vite-plus";
 
 export default defineConfig({
   plugins: [],
@@ -10,6 +10,6 @@ export default defineConfig({
     port: 9000,
   },
   test: {
-    environment: 'jsdom',
+    environment: "jsdom",
   },
-})
+});

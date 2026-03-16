@@ -22,7 +22,7 @@
     "format:check": "scalar-format-check",
     "lint:check": "scalar-lint-check",
     "lint:fix": "scalar-lint-fix",
-    "test": "vitest"
+    "test": "vp test"
   },
   "dependencies": {
     "@scalar/api-reference": "workspace:*",

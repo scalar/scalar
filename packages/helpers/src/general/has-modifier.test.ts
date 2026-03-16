@@ -1,95 +1,95 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
 
-import { hasModifier } from './has-modifier'
-import { isMacOS } from './is-mac-os'
+import { hasModifier } from "./has-modifier";
+import { isMacOS } from "./is-mac-os";
 
 // Mock the isMacOS function
-vi.mock('./is-mac-os', () => ({
+vi.mock("./is-mac-os", () => ({
   isMacOS: vi.fn(),
-}))
+}));
 
-const mockIsMacOS = vi.mocked(isMacOS)
+const mockIsMacOS = vi.mocked(isMacOS);
 
-describe('hasModifier', () => {
+describe("hasModifier", () => {
   beforeEach(() => {
-    vi.clearAllMocks()
-  })
+    vi.clearAllMocks();
+  });
 
-  describe('on macOS', () => {
+  describe("on macOS", () => {
     beforeEach(() => {
-      mockIsMacOS.mockReturnValue(true)
-    })
+      mockIsMacOS.mockReturnValue(true);
+    });
 
-    it('should return true when metaKey is pressed', () => {
+    it("should return true when metaKey is pressed", () => {
       const mockEvent = {
         metaKey: true,
         ctrlKey: false,
-      } as KeyboardEvent
+      } as KeyboardEvent;
 
-      const result = hasModifier(mockEvent)
+      const result = hasModifier(mockEvent);
 
-      expect(result).toBe(true)
-    })
+      expect(result).toBe(true);
+    });
 
-    it('should return false when metaKey is not pressed', () => {
+    it("should return false when metaKey is not pressed", () => {
       const mockEvent = {
         metaKey: false,
         ctrlKey: true, // ctrlKey is pressed but should be ignored on macOS
-      } as KeyboardEvent
+      } as KeyboardEvent;
 
-      const result = hasModifier(mockEvent)
+      const result = hasModifier(mockEvent);
 
-      expect(result).toBe(false)
-    })
+      expect(result).toBe(false);
+    });
 
-    it('should return false when neither key is pressed', () => {
+    it("should return false when neither key is pressed", () => {
       const mockEvent = {
         metaKey: false,
         ctrlKey: false,
-      } as KeyboardEvent
+      } as KeyboardEvent;
 
-      const result = hasModifier(mockEvent)
+      const result = hasModifier(mockEvent);
 
-      expect(result).toBe(false)
-    })
-  })
+      expect(result).toBe(false);
+    });
+  });
 
-  describe('on non-macOS (Windows/Linux)', () => {
+  describe("on non-macOS (Windows/Linux)", () => {
     beforeEach(() => {
-      mockIsMacOS.mockReturnValue(false)
-    })
+      mockIsMacOS.mockReturnValue(false);
+    });
 
-    it('should return true when ctrlKey is pressed', () => {
+    it("should return true when ctrlKey is pressed", () => {
       const mockEvent = {
         metaKey: false,
         ctrlKey: true,
-      } as KeyboardEvent
+      } as KeyboardEvent;
 
-      const result = hasModifier(mockEvent)
+      const result = hasModifier(mockEvent);
 
-      expect(result).toBe(true)
-    })
+      expect(result).toBe(true);
+    });
 
-    it('should return false when ctrlKey is not pressed', () => {
+    it("should return false when ctrlKey is not pressed", () => {
       const mockEvent = {
         metaKey: true, // metaKey is pressed but should be ignored on non-macOS
         ctrlKey: false,
-      } as KeyboardEvent
+      } as KeyboardEvent;
 
-      const result = hasModifier(mockEvent)
+      const result = hasModifier(mockEvent);
 
-      expect(result).toBe(false)
-    })
+      expect(result).toBe(false);
+    });
 
-    it('should return false when neither key is pressed', () => {
+    it("should return false when neither key is pressed", () => {
       const mockEvent = {
         metaKey: false,
         ctrlKey: false,
-      } as KeyboardEvent
+      } as KeyboardEvent;
 
-      const result = hasModifier(mockEvent)
+      const result = hasModifier(mockEvent);
 
-      expect(result).toBe(false)
-    })
-  })
-})
+      expect(result).toBe(false);
+    });
+  });
+});

@@ -23,7 +23,7 @@
     "format:check": "scalar-format-check",
     "lint:check": "scalar-lint-check",
     "lint:fix": "scalar-lint-fix",
-    "test": "vitest",
+    "test": "vp test",
     "types:build": "scalar-types-build",
     "types:check": "scalar-types-check"
   },
@@ -65,8 +65,9 @@
     "@scalar/build-tooling": "workspace:*",
     "@scalar/openapi-to-markdown": "workspace:*",
     "hono": "catalog:*",
-    "vite": "catalog:*",
-    "vitest": "catalog:*"
+    "vite": "catalog:",
+    "vitest": "catalog:",
+    "vite-plus": "catalog:"
   },
   "peerDependencies": {
     "hono": "^4.12.5"

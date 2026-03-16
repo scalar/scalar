@@ -1,279 +1,332 @@
-import type { TraversedOperation, TraversedTag, TraversedWebhook } from '@scalar/workspace-store/schemas/navigation'
-import { mount } from '@vue/test-utils'
-import { describe, expect, it, vi } from 'vitest'
+import type {
+  TraversedOperation,
+  TraversedTag,
+  TraversedWebhook,
+} from "@scalar/workspace-store/schemas/navigation";
+import { mount } from "@vue/test-utils";
+import { describe, expect, it, vi } from "vite-plus/test";
 
-import OperationsList from './OperationsList.vue'
+import OperationsList from "./OperationsList.vue";
 
 // Mock Scalar components
-vi.mock('@scalar/components', () => ({
+vi.mock("@scalar/components", () => ({
   ScalarCard: {
-    name: 'ScalarCard',
+    name: "ScalarCard",
     template: '<div class="scalar-card"><slot /></div>',
   },
   ScalarCardHeader: {
-    name: 'ScalarCardHeader',
+    name: "ScalarCardHeader",
     template: '<div class="scalar-card-header"><slot /></div>',
-    props: ['muted'],
+    props: ["muted"],
   },
   ScalarCardSection: {
-    name: 'ScalarCardSection',
+    name: "ScalarCardSection",
     template: '<div class="scalar-card-section"><slot /></div>',
-    props: ['class'],
+    props: ["class"],
   },
-}))
+}));
 
-describe('OperationsList', () => {
-  const createMockOperation = (overrides: Partial<TraversedOperation> = {}): TraversedOperation => ({
-    type: 'operation',
-    id: 'test-operation-1',
-    title: 'Test Operation',
-    method: 'get',
-    path: '/test',
-    ref: 'test-operation-1',
+describe("OperationsList", () => {
+  const createMockOperation = (
+    overrides: Partial<TraversedOperation> = {},
+  ): TraversedOperation => ({
+    type: "operation",
+    id: "test-operation-1",
+    title: "Test Operation",
+    method: "get",
+    path: "/test",
+    ref: "test-operation-1",
     ...overrides,
-  })
+  });
 
-  const createMockWebhook = (overrides: Partial<TraversedWebhook> = {}): TraversedWebhook => ({
-    type: 'webhook',
-    id: 'test-webhook-1',
-    title: 'Test Webhook',
-    method: 'post',
-    name: 'test-webhook',
-    ref: 'test-webhook-1',
+  const createMockWebhook = (
+    overrides: Partial<TraversedWebhook> = {},
+  ): TraversedWebhook => ({
+    type: "webhook",
+    id: "test-webhook-1",
+    title: "Test Webhook",
+    method: "post",
+    name: "test-webhook",
+    ref: "test-webhook-1",
     ...overrides,
-  })
+  });
 
-  const createMockTag = (overrides: Partial<TraversedTag> = {}): TraversedTag => ({
-    type: 'tag',
-    id: 'test-tag',
-    title: 'Test Tag',
+  const createMockTag = (
+    overrides: Partial<TraversedTag> = {},
+  ): TraversedTag => ({
+    type: "tag",
+    id: "test-tag",
+    title: "Test Tag",
     children: [],
-    name: 'test',
-    description: 'Test tag description',
+    name: "test",
+    description: "Test tag description",
     isGroup: false,
     ...overrides,
-  })
+  });
 
-  it('renders nothing when tag has no children', () => {
-    const tag = createMockTag({ children: [] })
+  it("renders nothing when tag has no children", () => {
+    const tag = createMockTag({ children: [] });
 
     const wrapper = mount(OperationsList, {
       props: { tag, eventBus: null },
-    })
+    });
 
-    expect(wrapper.html()).toBe('<!--v-if-->')
-  })
+    expect(wrapper.html()).toBe("<!--v-if-->");
+  });
 
-  it('shows Operations header when tag has operation children', () => {
+  it("shows Operations header when tag has operation children", () => {
     const operations = [
-      createMockOperation({ id: 'op-1', title: 'Get Users', path: '/users' }),
-      createMockOperation({ id: 'op-2', title: 'Create User', method: 'post', path: '/users' }),
-    ]
-    const tag = createMockTag({ children: operations })
+      createMockOperation({ id: "op-1", title: "Get Users", path: "/users" }),
+      createMockOperation({
+        id: "op-2",
+        title: "Create User",
+        method: "post",
+        path: "/users",
+      }),
+    ];
+    const tag = createMockTag({ children: operations });
 
     const wrapper = mount(OperationsList, {
       props: { tag, eventBus: null },
-    })
+    });
 
-    expect(wrapper.text()).toContain('Operations')
-    expect(wrapper.text()).toContain('/users')
-    expect(wrapper.text()).toContain('get')
-    expect(wrapper.text()).toContain('post')
-  })
+    expect(wrapper.text()).toContain("Operations");
+    expect(wrapper.text()).toContain("/users");
+    expect(wrapper.text()).toContain("get");
+    expect(wrapper.text()).toContain("post");
+  });
 
-  it('shows Webhooks header when tag has webhook children and isWebhooks flag', () => {
+  it("shows Webhooks header when tag has webhook children and isWebhooks flag", () => {
     const webhooks = [
-      createMockWebhook({ id: 'webhook-1', title: 'User Created' }),
-      createMockWebhook({ id: 'webhook-2', title: 'User Updated', method: 'put' }),
-    ]
+      createMockWebhook({ id: "webhook-1", title: "User Created" }),
+      createMockWebhook({
+        id: "webhook-2",
+        title: "User Updated",
+        method: "put",
+      }),
+    ];
     const tag = createMockTag({
       children: webhooks,
       isWebhooks: true,
-    })
+    });
 
     const wrapper = mount(OperationsList, {
       props: { tag, eventBus: null },
-    })
+    });
 
-    expect(wrapper.text()).toContain('Webhooks')
-    expect(wrapper.text()).toContain('User Created')
-    expect(wrapper.text()).toContain('User Updated')
-  })
+    expect(wrapper.text()).toContain("Webhooks");
+    expect(wrapper.text()).toContain("User Created");
+    expect(wrapper.text()).toContain("User Updated");
+  });
 
-  it('shows Operations header for mixed content when not marked as webhooks', () => {
-    const operations = [createMockOperation({ id: 'op-1', title: 'Get Users', path: '/users' })]
-    const webhooks = [createMockWebhook({ id: 'webhook-1', title: 'User Created' })]
+  it("shows Operations header for mixed content when not marked as webhooks", () => {
+    const operations = [
+      createMockOperation({ id: "op-1", title: "Get Users", path: "/users" }),
+    ];
+    const webhooks = [
+      createMockWebhook({ id: "webhook-1", title: "User Created" }),
+    ];
     const tag = createMockTag({
       children: [...operations, ...webhooks],
-    })
+    });
 
     const wrapper = mount(OperationsList, {
       props: { tag, eventBus: null },
-    })
+    });
 
-    expect(wrapper.text()).toContain('Operations')
-    expect(wrapper.text()).toContain('/users')
-    expect(wrapper.text()).toContain('User Created')
-  })
+    expect(wrapper.text()).toContain("Operations");
+    expect(wrapper.text()).toContain("/users");
+    expect(wrapper.text()).toContain("User Created");
+  });
 
-  it('filters out non-operation and non-webhook children', () => {
-    const operations = [createMockOperation({ id: 'op-1', title: 'Get Users', path: '/users' })]
-    const webhooks = [createMockWebhook({ id: 'webhook-1', title: 'User Created' })]
+  it("filters out non-operation and non-webhook children", () => {
+    const operations = [
+      createMockOperation({ id: "op-1", title: "Get Users", path: "/users" }),
+    ];
+    const webhooks = [
+      createMockWebhook({ id: "webhook-1", title: "User Created" }),
+    ];
     // Add a non-operation/webhook child
     const otherChild = {
-      id: 'other-1',
-      title: 'Other Item',
-      type: 'other',
-    }
+      id: "other-1",
+      title: "Other Item",
+      type: "other",
+    };
     const tag = createMockTag({
       children: [...operations, ...webhooks, otherChild as any],
-    })
+    });
 
     const wrapper = mount(OperationsList, {
       props: { tag, eventBus: null },
-    })
+    });
 
-    expect(wrapper.text()).toContain('/users')
-    expect(wrapper.text()).toContain('User Created')
-    expect(wrapper.text()).not.toContain('Other Item')
-  })
+    expect(wrapper.text()).toContain("/users");
+    expect(wrapper.text()).toContain("User Created");
+    expect(wrapper.text()).not.toContain("Other Item");
+  });
 
-  it('sets correct aria-label for the endpoints list', () => {
-    const operations = [createMockOperation()]
+  it("sets correct aria-label for the endpoints list", () => {
+    const operations = [createMockOperation()];
     const tag = createMockTag({
       children: operations,
-      title: 'User Management',
-    })
+      title: "User Management",
+    });
 
     const wrapper = mount(OperationsList, {
       props: { tag, eventBus: null },
-    })
+    });
 
-    const ul = wrapper.find('ul')
-    expect(ul.attributes('aria-label')).toBe('User Management endpoints')
-  })
+    const ul = wrapper.find("ul");
+    expect(ul.attributes("aria-label")).toBe("User Management endpoints");
+  });
 
-  it('handles tag with null children gracefully', () => {
-    const tag = createMockTag({ children: null as any })
-
-    const wrapper = mount(OperationsList, {
-      props: { tag, eventBus: null },
-    })
-
-    expect(wrapper.html()).toBe('<!--v-if-->')
-  })
-
-  it('handles tag with undefined children gracefully', () => {
-    const tag = createMockTag({ children: undefined as any })
+  it("handles tag with null children gracefully", () => {
+    const tag = createMockTag({ children: null as any });
 
     const wrapper = mount(OperationsList, {
       props: { tag, eventBus: null },
-    })
+    });
 
-    expect(wrapper.html()).toBe('<!--v-if-->')
-  })
+    expect(wrapper.html()).toBe("<!--v-if-->");
+  });
 
-  it('applies correct CSS classes', () => {
-    const operations = [createMockOperation()]
-    const tag = createMockTag({ children: operations })
+  it("handles tag with undefined children gracefully", () => {
+    const tag = createMockTag({ children: undefined as any });
 
     const wrapper = mount(OperationsList, {
       props: { tag, eventBus: null },
-    })
+    });
+
+    expect(wrapper.html()).toBe("<!--v-if-->");
+  });
+
+  it("applies correct CSS classes", () => {
+    const operations = [createMockOperation()];
+    const tag = createMockTag({ children: operations });
+
+    const wrapper = mount(OperationsList, {
+      props: { tag, eventBus: null },
+    });
 
     // The custom-scroll class is applied to the ScalarCardSection component
-    const scalarCardSection = wrapper.findComponent({ name: 'ScalarCardSection' })
-    expect(scalarCardSection.exists()).toBe(true)
-    expect(scalarCardSection.props('class')).toBe('custom-scroll max-h-[60vh]')
+    const scalarCardSection = wrapper.findComponent({
+      name: "ScalarCardSection",
+    });
+    expect(scalarCardSection.exists()).toBe(true);
+    expect(scalarCardSection.props("class")).toBe("custom-scroll max-h-[60vh]");
 
-    expect(wrapper.find('.endpoints').exists()).toBe(true)
-  })
+    expect(wrapper.find(".endpoints").exists()).toBe(true);
+  });
 
-  it('renders OperationsListItem components for each operation', () => {
+  it("renders OperationsListItem components for each operation", () => {
     const operations = [
-      createMockOperation({ id: 'op-1', title: 'Get Users', path: '/users' }),
-      createMockOperation({ id: 'op-2', title: 'Create User', path: '/users' }),
-    ]
-    const tag = createMockTag({ children: operations })
+      createMockOperation({ id: "op-1", title: "Get Users", path: "/users" }),
+      createMockOperation({ id: "op-2", title: "Create User", path: "/users" }),
+    ];
+    const tag = createMockTag({ children: operations });
 
     const wrapper = mount(OperationsList, {
       props: { tag, eventBus: null },
-    })
+    });
 
-    const operationsListItems = wrapper.findAllComponents({ name: 'OperationsListItem' })
-    expect(operationsListItems).toHaveLength(2)
+    const operationsListItems = wrapper.findAllComponents({
+      name: "OperationsListItem",
+    });
+    expect(operationsListItems).toHaveLength(2);
 
-    expect(operationsListItems[0]?.props('operation')).toEqual(operations[0])
-    expect(operationsListItems[1]?.props('operation')).toEqual(operations[1])
-  })
+    expect(operationsListItems[0]?.props("operation")).toEqual(operations[0]);
+    expect(operationsListItems[1]?.props("operation")).toEqual(operations[1]);
+  });
 
-  it('renders OperationsListItem components for webhooks', () => {
-    const webhooks = [createMockWebhook({ id: 'webhook-1', title: 'User Created' })]
+  it("renders OperationsListItem components for webhooks", () => {
+    const webhooks = [
+      createMockWebhook({ id: "webhook-1", title: "User Created" }),
+    ];
     const tag = createMockTag({
       children: webhooks,
       isWebhooks: true,
-    })
+    });
 
     const wrapper = mount(OperationsList, {
       props: { tag, eventBus: null },
-    })
+    });
 
-    const operationsListItems = wrapper.findAllComponents({ name: 'OperationsListItem' })
-    expect(operationsListItems).toHaveLength(1)
-    expect(operationsListItems[0]?.props('operation')).toEqual(webhooks[0])
-  })
+    const operationsListItems = wrapper.findAllComponents({
+      name: "OperationsListItem",
+    });
+    expect(operationsListItems).toHaveLength(1);
+    expect(operationsListItems[0]?.props("operation")).toEqual(webhooks[0]);
+  });
 
-  it('renders ScreenReader component with tag title', () => {
-    const operations = [createMockOperation()]
+  it("renders ScreenReader component with tag title", () => {
+    const operations = [createMockOperation()];
     const tag = createMockTag({
       children: operations,
-      title: 'User Management',
-    })
+      title: "User Management",
+    });
 
     const wrapper = mount(OperationsList, {
       props: { tag, eventBus: null },
-    })
+    });
 
-    const screenReader = wrapper.findComponent({ name: 'ScreenReader' })
-    expect(screenReader.exists()).toBe(true)
-    expect(screenReader.text()).toBe('User Management')
-  })
+    const screenReader = wrapper.findComponent({ name: "ScreenReader" });
+    expect(screenReader.exists()).toBe(true);
+    expect(screenReader.text()).toBe("User Management");
+  });
 
-  it('renders operations with correct paths and methods', () => {
+  it("renders operations with correct paths and methods", () => {
     const operations = [
-      createMockOperation({ id: 'op-1', title: 'Get Users', path: '/api/users', method: 'get' }),
-      createMockOperation({ id: 'op-2', title: 'Create User', path: '/api/users', method: 'post' }),
-    ]
-    const tag = createMockTag({ children: operations })
+      createMockOperation({
+        id: "op-1",
+        title: "Get Users",
+        path: "/api/users",
+        method: "get",
+      }),
+      createMockOperation({
+        id: "op-2",
+        title: "Create User",
+        path: "/api/users",
+        method: "post",
+      }),
+    ];
+    const tag = createMockTag({ children: operations });
 
     const wrapper = mount(OperationsList, {
       props: { tag, eventBus: null },
-    })
+    });
 
     // Check that the operations are rendered with their paths
-    expect(wrapper.text()).toContain('/api/users')
-    expect(wrapper.text()).toContain('get')
-    expect(wrapper.text()).toContain('post')
-  })
+    expect(wrapper.text()).toContain("/api/users");
+    expect(wrapper.text()).toContain("get");
+    expect(wrapper.text()).toContain("post");
+  });
 
-  it('renders webhooks with correct titles and methods', () => {
+  it("renders webhooks with correct titles and methods", () => {
     const webhooks = [
-      createMockWebhook({ id: 'webhook-1', title: 'User Created', method: 'post' }),
-      createMockWebhook({ id: 'webhook-2', title: 'User Updated', method: 'put' }),
-    ]
+      createMockWebhook({
+        id: "webhook-1",
+        title: "User Created",
+        method: "post",
+      }),
+      createMockWebhook({
+        id: "webhook-2",
+        title: "User Updated",
+        method: "put",
+      }),
+    ];
     const tag = createMockTag({
       children: webhooks,
       isWebhooks: true,
-    })
+    });
 
     const wrapper = mount(OperationsList, {
       props: { tag, eventBus: null },
-    })
+    });
 
     // Check that the webhooks are rendered with their titles
-    expect(wrapper.text()).toContain('User Created')
-    expect(wrapper.text()).toContain('User Updated')
-    expect(wrapper.text()).toContain('post')
-    expect(wrapper.text()).toContain('put')
-  })
-})
+    expect(wrapper.text()).toContain("User Created");
+    expect(wrapper.text()).toContain("User Updated");
+    expect(wrapper.text()).toContain("post");
+    expect(wrapper.text()).toContain("put");
+  });
+});

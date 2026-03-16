@@ -1,21 +1,21 @@
-import { describe, expectTypeOf, it } from 'vitest'
+import { describe, expectTypeOf, it } from "vite-plus/test";
 
-import type { Filesystem } from '../../types/index'
-import { openapi } from './openapi'
+import type { Filesystem } from "../../types/index";
+import { openapi } from "./openapi";
 
-describe('openapi', () => {
-  it('returns the correct type for load()', async () => {
-    const result = await openapi().load({}).get()
+describe("openapi", () => {
+  it("returns the correct type for load()", async () => {
+    const result = await openapi().load({}).get();
 
-    expectTypeOf(result.filesystem).toMatchTypeOf<Filesystem>()
+    expectTypeOf(result.filesystem).toMatchTypeOf<Filesystem>();
 
     // @ts-expect-error `valid` should be undefined
-    expectTypeOf(result.valid).toMatchTypeOf<boolean>()
-  })
+    expectTypeOf(result.valid).toMatchTypeOf<boolean>();
+  });
 
-  it('returns the correct type for validate()', async () => {
-    const result = await openapi().load({}).validate().get()
+  it("returns the correct type for validate()", async () => {
+    const result = await openapi().load({}).validate().get();
 
-    expectTypeOf(result.valid).toMatchTypeOf<boolean>()
-  })
-})
+    expectTypeOf(result.valid).toMatchTypeOf<boolean>();
+  });
+});

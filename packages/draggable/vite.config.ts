@@ -1,13 +1,13 @@
-import { findEntryPoints } from '@scalar/build-tooling'
-import { alias, createViteBuildOptions } from '@scalar/build-tooling/vite'
-import vue from '@vitejs/plugin-vue'
-import { defineConfig } from 'vite'
+import { findEntryPoints } from "@scalar/build-tooling";
+import { alias, createViteBuildOptions } from "@scalar/build-tooling/vite";
+import vue from "@vitejs/plugin-vue";
+import { defineConfig } from "vite-plus";
 
 export default defineConfig({
   plugins: [vue()],
   resolve: {
     alias: alias(import.meta.url),
-    dedupe: ['vue'],
+    dedupe: ["vue"],
   },
   server: {
     port: 5064,
@@ -18,4 +18,4 @@ export default defineConfig({
       ssr: false,
     },
   }),
-})
+});

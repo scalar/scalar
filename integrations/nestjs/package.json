@@ -24,9 +24,9 @@
     "docker:build-fastify": "docker build --build-arg BASE_IMAGE=scalar-base -t nestjs-api-reference-fastify -f playground/nestjs-api-reference-fastify/Dockerfile .",
     "docker:run-express": "docker run -p 5056:5056 nestjs-api-reference-express",
     "docker:run-fastify": "docker run -p 5057:5057 nestjs-api-reference-fastify",
-    "lint:check": "eslint .",
-    "lint:fix": "eslint .  --fix",
-    "test": "vitest",
+    "lint:check": "vp lint .",
+    "lint:fix": "vp lint . --fix",
+    "test": "vp test",
     "types:check": "tsc --noEmit"
   },
   "type": "module",
@@ -78,6 +78,7 @@
     "fastify": "^5.4.0",
     "supertest": "catalog:*",
     "tsup": "^8.3.5",
-    "vitest": "catalog:*"
+    "vitest": "catalog:",
+    "vite-plus": "catalog:"
   }
 }

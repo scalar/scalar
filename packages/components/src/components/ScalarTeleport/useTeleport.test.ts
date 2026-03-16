@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest'
+import { describe, expect, it, vi } from 'vite-plus/test'
 import { inject } from 'vue'
 
 import { useProvideTeleport, useTeleport } from './useTeleport'

@@ -1,40 +1,40 @@
-import { describe, expect, it, vi } from 'vitest'
+import { describe, expect, it, vi } from "vite-plus/test";
 
-import { createMockServer } from '../src/create-mock-server'
-import type { MockServerOptions } from '../src/types'
+import { createMockServer } from "../src/create-mock-server";
+import type { MockServerOptions } from "../src/types";
 
-describe('onRequest', () => {
-  it('call custom onRequest hook', async () => {
+describe("onRequest", () => {
+  it("call custom onRequest hook", async () => {
     const document = {
-      openapi: '3.1.0',
+      openapi: "3.1.0",
       info: {
-        title: 'Hello World',
-        version: '1.0.0',
+        title: "Hello World",
+        version: "1.0.0",
       },
       paths: {
-        '/foobar': {
+        "/foobar": {
           get: {
-            operationId: 'foobar',
+            operationId: "foobar",
           },
         },
       },
-    }
+    };
 
-    const onRequestSpy = vi.fn<NonNullable<MockServerOptions['onRequest']>>()
+    const onRequestSpy = vi.fn<NonNullable<MockServerOptions["onRequest"]>>();
 
     const server = await createMockServer({
       document,
       onRequest: onRequestSpy,
-    })
+    });
 
-    await server.request('/foobar')
+    await server.request("/foobar");
 
-    expect(onRequestSpy).toHaveBeenCalledOnce()
+    expect(onRequestSpy).toHaveBeenCalledOnce();
 
-    const [{ context, operation }] = onRequestSpy.mock.lastCall!
-    expect(context.req.method).toBe('GET')
-    expect(context.req.path).toBe('/foobar')
+    const [{ context, operation }] = onRequestSpy.mock.lastCall!;
+    expect(context.req.method).toBe("GET");
+    expect(context.req.path).toBe("/foobar");
 
-    expect(operation.operationId).toBe('foobar')
-  })
-})
+    expect(operation.operationId).toBe("foobar");
+  });
+});

@@ -1,27 +1,27 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
 
-import { throttle } from './throttle'
+import { throttle } from "./throttle";
 
-describe('throttle', () => {
+describe("throttle", () => {
   beforeEach(() => {
-    vi.useRealTimers()
-  })
+    vi.useRealTimers();
+  });
 
-  it('should throttle a function', async () => {
-    vi.useFakeTimers()
+  it("should throttle a function", async () => {
+    vi.useFakeTimers();
 
-    const fn = vi.fn()
+    const fn = vi.fn();
 
-    const throttledFn = throttle(fn, 100)
+    const throttledFn = throttle(fn, 100);
 
-    throttledFn()
-    throttledFn()
-    throttledFn()
-    throttledFn()
-    throttledFn()
+    throttledFn();
+    throttledFn();
+    throttledFn();
+    throttledFn();
+    throttledFn();
 
-    await vi.advanceTimersByTimeAsync(100)
+    await vi.advanceTimersByTimeAsync(100);
 
-    expect(fn).toHaveBeenCalledTimes(1)
-  })
-})
+    expect(fn).toHaveBeenCalledTimes(1);
+  });
+});

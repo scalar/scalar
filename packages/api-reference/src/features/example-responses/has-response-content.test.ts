@@ -1,256 +1,262 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from "vite-plus/test";
 
-import { hasResponseContent } from './has-response-content'
+import { hasResponseContent } from "./has-response-content";
 
-describe('has-response-content', () => {
-  describe('hasResponseContent', () => {
-    it('returns false for undefined', () => {
-      expect(hasResponseContent(undefined)).toBe(false)
-    })
+describe("has-response-content", () => {
+  describe("hasResponseContent", () => {
+    it("returns false for undefined", () => {
+      expect(hasResponseContent(undefined)).toBe(false);
+    });
 
-    it('returns false for empty response', () => {
-      expect(hasResponseContent({ description: 'Empty response' })).toBe(false)
-    })
+    it("returns false for empty response", () => {
+      expect(hasResponseContent({ description: "Empty response" })).toBe(false);
+    });
 
-    it('returns true for explicit 204 with no body content', () => {
-      expect(hasResponseContent({ description: 'No content response' }, '204')).toBe(true)
-    })
+    it("returns true for explicit 204 with no body content", () => {
+      expect(
+        hasResponseContent({ description: "No content response" }, "204"),
+      ).toBe(true);
+    });
 
-    it('returns true for explicit default with no body content', () => {
-      expect(hasResponseContent({ description: 'Default response' }, 'default')).toBe(true)
-    })
+    it("returns true for explicit default with no body content", () => {
+      expect(
+        hasResponseContent({ description: "Default response" }, "default"),
+      ).toBe(true);
+    });
 
-    it('returns true for explicit range status code with no body content', () => {
-      expect(hasResponseContent({ description: '2XX response' }, '2XX')).toBe(true)
-    })
+    it("returns true for explicit range status code with no body content", () => {
+      expect(hasResponseContent({ description: "2XX response" }, "2XX")).toBe(
+        true,
+      );
+    });
 
-    it('returns false for non-response keys', () => {
+    it("returns false for non-response keys", () => {
       expect(
         hasResponseContent(
           {
-            description: 'Invalid response key',
+            description: "Invalid response key",
             content: {
-              'application/json': {
-                schema: { type: 'object' },
+              "application/json": {
+                schema: { type: "object" },
               },
             },
           },
-          'x-internal',
+          "x-internal",
         ),
-      ).toBe(false)
-    })
+      ).toBe(false);
+    });
 
-    it('returns false for valid response key with undefined response', () => {
-      expect(hasResponseContent(undefined, '204')).toBe(false)
-    })
+    it("returns false for valid response key with undefined response", () => {
+      expect(hasResponseContent(undefined, "204")).toBe(false);
+    });
 
-    it('returns false for response with empty content', () => {
+    it("returns false for response with empty content", () => {
       expect(
         hasResponseContent({
-          description: 'Response with empty content',
+          description: "Response with empty content",
           content: {},
         }),
-      ).toBe(false)
-    })
+      ).toBe(false);
+    });
 
-    it('returns true for application/json with schema', () => {
+    it("returns true for application/json with schema", () => {
       expect(
         hasResponseContent({
-          description: 'JSON response',
+          description: "JSON response",
           content: {
-            'application/json': {
-              schema: { type: 'object' },
+            "application/json": {
+              schema: { type: "object" },
             },
           },
         }),
-      ).toBe(true)
-    })
+      ).toBe(true);
+    });
 
-    it('returns true for application/json with example', () => {
+    it("returns true for application/json with example", () => {
       expect(
         hasResponseContent({
-          description: 'JSON response',
+          description: "JSON response",
           content: {
-            'application/json': {
-              example: { message: 'Hello' },
+            "application/json": {
+              example: { message: "Hello" },
             },
           },
         }),
-      ).toBe(true)
-    })
+      ).toBe(true);
+    });
 
-    it('returns true for application/json with examples', () => {
+    it("returns true for application/json with examples", () => {
       expect(
         hasResponseContent({
-          description: 'JSON response',
+          description: "JSON response",
           content: {
-            'application/json': {
+            "application/json": {
               examples: {
-                example1: { value: { message: 'Hello' } },
+                example1: { value: { message: "Hello" } },
               },
             },
           },
         }),
-      ).toBe(true)
-    })
+      ).toBe(true);
+    });
 
-    it('returns true for application/xml with schema', () => {
+    it("returns true for application/xml with schema", () => {
       expect(
         hasResponseContent({
-          description: 'XML response',
+          description: "XML response",
           content: {
-            'application/xml': {
-              schema: { type: 'string' },
+            "application/xml": {
+              schema: { type: "string" },
             },
           },
         }),
-      ).toBe(true)
-    })
+      ).toBe(true);
+    });
 
-    it('returns true for text/plain with example', () => {
+    it("returns true for text/plain with example", () => {
       expect(
         hasResponseContent({
-          description: 'Plain text response',
+          description: "Plain text response",
           content: {
-            'text/plain': {
-              example: 'Hello world',
+            "text/plain": {
+              example: "Hello world",
             },
           },
         }),
-      ).toBe(true)
-    })
+      ).toBe(true);
+    });
 
-    it('returns true for text/html with schema', () => {
+    it("returns true for text/html with schema", () => {
       expect(
         hasResponseContent({
-          description: 'HTML response',
+          description: "HTML response",
           content: {
-            'text/html': {
-              schema: { type: 'string' },
+            "text/html": {
+              schema: { type: "string" },
             },
           },
         }),
-      ).toBe(true)
-    })
+      ).toBe(true);
+    });
 
-    it('returns true for wildcard mimetype with examples', () => {
+    it("returns true for wildcard mimetype with examples", () => {
       expect(
         hasResponseContent({
-          description: 'Wildcard response',
+          description: "Wildcard response",
           content: {
-            '*/*': {
+            "*/*": {
               examples: {
-                example1: { value: 'anything' },
+                example1: { value: "anything" },
               },
             },
           },
         }),
-      ).toBe(true)
-    })
+      ).toBe(true);
+    });
 
-    it('returns true for custom mimetype with schema', () => {
+    it("returns true for custom mimetype with schema", () => {
       expect(
         hasResponseContent({
-          description: 'Custom mimetype response',
+          description: "Custom mimetype response",
           content: {
-            'application/vnd.api+json': {
-              schema: { type: 'object' },
+            "application/vnd.api+json": {
+              schema: { type: "object" },
             },
           },
         }),
-      ).toBe(true)
-    })
+      ).toBe(true);
+    });
 
-    it('prioritizes application/json over other mimetypes', () => {
+    it("prioritizes application/json over other mimetypes", () => {
       expect(
         hasResponseContent({
-          description: 'Multiple mimetypes',
+          description: "Multiple mimetypes",
           content: {
-            'application/json': {
-              schema: { type: 'object' },
+            "application/json": {
+              schema: { type: "object" },
             },
-            'application/xml': {},
+            "application/xml": {},
           },
         }),
-      ).toBe(true)
-    })
+      ).toBe(true);
+    });
 
-    it('falls back to first available mimetype when preferred ones have no content', () => {
+    it("falls back to first available mimetype when preferred ones have no content", () => {
       expect(
         hasResponseContent({
-          description: 'Custom mimetype only',
+          description: "Custom mimetype only",
           content: {
-            'application/custom': {
+            "application/custom": {
               example: { custom: true },
             },
           },
         }),
-      ).toBe(true)
-    })
+      ).toBe(true);
+    });
 
-    it('returns false when content exists but has no schema, example, or examples', () => {
+    it("returns false when content exists but has no schema, example, or examples", () => {
       expect(
         hasResponseContent({
-          description: 'Response with encoding only',
+          description: "Response with encoding only",
           content: {
-            'application/json': {
-              encoding: { field: { contentType: 'text/plain' } },
+            "application/json": {
+              encoding: { field: { contentType: "text/plain" } },
             },
           },
         }),
-      ).toBe(false)
-    })
+      ).toBe(false);
+    });
 
-    it('handles null example value as no content', () => {
+    it("handles null example value as no content", () => {
       expect(
         hasResponseContent({
-          description: 'Null example',
+          description: "Null example",
           content: {
-            'application/json': {
+            "application/json": {
               example: null,
             },
           },
         }),
-      ).toBe(false)
-    })
+      ).toBe(false);
+    });
 
-    it('returns true for example with falsy value 0', () => {
+    it("returns true for example with falsy value 0", () => {
       expect(
         hasResponseContent({
-          description: 'Zero count response',
+          description: "Zero count response",
           content: {
-            'application/json': {
+            "application/json": {
               example: 0,
             },
           },
         }),
-      ).toBe(true)
-    })
+      ).toBe(true);
+    });
 
-    it('returns true for example with falsy value false', () => {
+    it("returns true for example with falsy value false", () => {
       expect(
         hasResponseContent({
-          description: 'Boolean false response',
+          description: "Boolean false response",
           content: {
-            'application/json': {
+            "application/json": {
               example: false,
             },
           },
         }),
-      ).toBe(true)
-    })
+      ).toBe(true);
+    });
 
-    it('returns true for example with falsy value empty string', () => {
+    it("returns true for example with falsy value empty string", () => {
       expect(
         hasResponseContent({
-          description: 'Empty string response',
+          description: "Empty string response",
           content: {
-            'application/json': {
-              example: '',
+            "application/json": {
+              example: "",
             },
           },
         }),
-      ).toBe(true)
-    })
-  })
-})
+      ).toBe(true);
+    });
+  });
+});

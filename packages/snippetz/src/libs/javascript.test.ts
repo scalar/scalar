@@ -1,21 +1,22 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from "vite-plus/test";
 
-import { objectToString } from './javascript'
+import { objectToString } from "./javascript";
 
-describe('objectToString', () => {
-  it('formats an empty object', () => {
-    expect(objectToString({})).toBe('{}')
-  })
+describe("objectToString", () => {
+  it("formats an empty object", () => {
+    expect(objectToString({})).toBe("{}");
+  });
 
-  it('formats a simple object', () => {
-    expect(objectToString({ foo: 'bar', baz: 'qux' })).toBe(`{
+  it("formats a simple object", () => {
+    expect(objectToString({ foo: "bar", baz: "qux" })).toBe(`{
   foo: 'bar',
   baz: 'qux'
-}`)
-  })
+}`);
+  });
 
-  it('formats object with nested objects', () => {
-    expect(objectToString({ foo: { bar: 'baz', qux: [{}, { foo: 'qux' }] } })).toBe(`{
+  it("formats object with nested objects", () => {
+    expect(objectToString({ foo: { bar: "baz", qux: [{}, { foo: "qux" }] } }))
+      .toBe(`{
   foo: {
     bar: 'baz',
     qux: [
@@ -25,13 +26,13 @@ describe('objectToString', () => {
       }
     ]
   }
-}`)
-  })
+}`);
+  });
 
-  it('formats object with array values', () => {
-    expect(objectToString({ foo: [1, 2, 3], bar: ['qux', 'quux'] })).toBe(`{
+  it("formats object with array values", () => {
+    expect(objectToString({ foo: [1, 2, 3], bar: ["qux", "quux"] })).toBe(`{
   foo: [1, 2, 3],
   bar: ['qux', 'quux']
-}`)
-  })
-})
+}`);
+  });
+});

@@ -1,5 +1,5 @@
-import { alias } from '@scalar/build-tooling/vite'
-import { defineConfig } from 'vite'
+import { alias } from "@scalar/build-tooling/vite";
+import { defineConfig } from "vite-plus";
 
 export default defineConfig({
   plugins: [],
@@ -9,4 +9,4 @@ export default defineConfig({
   server: {
     port: 9000,
   },
-})
+});

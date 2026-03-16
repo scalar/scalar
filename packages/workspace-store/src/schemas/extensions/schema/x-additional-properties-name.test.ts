@@ -1,32 +1,32 @@
-import { Value } from '@scalar/typebox/value'
-import { describe, expect, it } from 'vitest'
+import { Value } from "@scalar/typebox/value";
+import { describe, expect, it } from "vite-plus/test";
 
-import { XAdditionalPropertiesNameSchema } from './x-additional-properties-name'
+import { XAdditionalPropertiesNameSchema } from "./x-additional-properties-name";
 
-describe('XAdditionalPropertiesNameSchema', () => {
-  it('accepts a valid additional properties name', () => {
+describe("XAdditionalPropertiesNameSchema", () => {
+  it("accepts a valid additional properties name", () => {
     const result = Value.Parse(XAdditionalPropertiesNameSchema, {
-      'x-additionalPropertiesName': 'customField',
-    })
+      "x-additionalPropertiesName": "customField",
+    });
 
     expect(result).toEqual({
-      'x-additionalPropertiesName': 'customField',
-    })
-  })
+      "x-additionalPropertiesName": "customField",
+    });
+  });
 
-  it('defaults to undefined when empty', () => {
-    const result = Value.Parse(XAdditionalPropertiesNameSchema, {})
+  it("defaults to undefined when empty", () => {
+    const result = Value.Parse(XAdditionalPropertiesNameSchema, {});
     expect(result).toEqual({
-      'x-additionalPropertiesName': undefined,
-    })
-  })
+      "x-additionalPropertiesName": undefined,
+    });
+  });
 
-  it('coerces to string', () => {
+  it("coerces to string", () => {
     const result = Value.Parse(XAdditionalPropertiesNameSchema, {
-      'x-additionalPropertiesName': 123,
-    })
+      "x-additionalPropertiesName": 123,
+    });
     expect(result).toEqual({
-      'x-additionalPropertiesName': '123',
-    })
-  })
-})
+      "x-additionalPropertiesName": "123",
+    });
+  });
+});

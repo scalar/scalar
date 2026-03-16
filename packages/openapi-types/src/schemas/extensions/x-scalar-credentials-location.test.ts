@@ -1,18 +1,19 @@
-import { describe, expect, it } from 'vitest'
-import { XScalarCredentialsLocationSchema } from './x-scalar-credentials-location'
+import { describe, expect, it } from "vite-plus/test";
 
-describe('XScalarCredentialsLocationSchema', () => {
-  it('allows header value', () => {
-    const result = XScalarCredentialsLocationSchema.parse({
-      'x-scalar-credentials-location': 'header',
-    })
-    expect(result).toEqual({ 'x-scalar-credentials-location': 'header' })
-  })
+import { XScalarCredentialsLocationSchema } from "./x-scalar-credentials-location";
 
-  it('allows body value', () => {
+describe("XScalarCredentialsLocationSchema", () => {
+  it("allows header value", () => {
     const result = XScalarCredentialsLocationSchema.parse({
-      'x-scalar-credentials-location': 'body',
-    })
-    expect(result).toEqual({ 'x-scalar-credentials-location': 'body' })
-  })
-})
+      "x-scalar-credentials-location": "header",
+    });
+    expect(result).toEqual({ "x-scalar-credentials-location": "header" });
+  });
+
+  it("allows body value", () => {
+    const result = XScalarCredentialsLocationSchema.parse({
+      "x-scalar-credentials-location": "body",
+    });
+    expect(result).toEqual({ "x-scalar-credentials-location": "body" });
+  });
+});

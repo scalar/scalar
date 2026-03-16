@@ -1,5 +1,5 @@
 import { mount } from '@vue/test-utils'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vite-plus/test'
 
 import ScalarMarkdown from './ScalarMarkdown.vue'
 
@@ -35,7 +35,8 @@ describe('ScalarMarkdown', () => {
     it('does not add anchors when withAnchors is false', () => {
       const wrapper = mount(ScalarMarkdown, {
         props: {
-          value: "# Physical Properties\n\nDetailed information about the planet's physical characteristics.",
+          value:
+            "# Physical Properties\n\nDetailed information about the planet's physical characteristics.",
           withAnchors: false,
         },
       })
@@ -48,7 +49,8 @@ describe('ScalarMarkdown', () => {
     it('adds anchors when withAnchors is true', () => {
       const wrapper = mount(ScalarMarkdown, {
         props: {
-          value: "# Physical Properties\n\nDetailed information about the planet's physical characteristics.",
+          value:
+            "# Physical Properties\n\nDetailed information about the planet's physical characteristics.",
           withAnchors: true,
           transformType: 'heading',
         },
@@ -62,7 +64,8 @@ describe('ScalarMarkdown', () => {
     it('adds anchors with prefix when anchorPrefix is provided', () => {
       const wrapper = mount(ScalarMarkdown, {
         props: {
-          value: '# Atmosphere Composition\n\nInformation about the atmospheric gases.',
+          value:
+            '# Atmosphere Composition\n\nInformation about the atmospheric gases.',
           withAnchors: true,
           anchorPrefix: 'tag/planets/PUT/planets/{planetId}',
           transformType: 'heading',
@@ -71,7 +74,9 @@ describe('ScalarMarkdown', () => {
 
       const heading = wrapper.find('h1')
       expect(heading.exists()).toBe(true)
-      expect(heading.attributes('id')).toBe('tag/planets/PUT/planets/{planetId}/description/atmosphere-composition')
+      expect(heading.attributes('id')).toBe(
+        'tag/planets/PUT/planets/{planetId}/description/atmosphere-composition',
+      )
     })
 
     it('handles multiple headings with anchors', () => {
@@ -117,7 +122,11 @@ describe('ScalarMarkdown', () => {
     })
 
     expect(wrapper.find('img').exists()).toBe(true)
-    expect(wrapper.find('img').attributes('alt')).toBe('Jupiter with Great Red Spot')
-    expect(wrapper.find('img').attributes('src')).toBe('https://cdn.scalar.com/photos/jupiter.jpg')
+    expect(wrapper.find('img').attributes('alt')).toBe(
+      'Jupiter with Great Red Spot',
+    )
+    expect(wrapper.find('img').attributes('src')).toBe(
+      'https://cdn.scalar.com/photos/jupiter.jpg',
+    )
   })
 })

@@ -1,13 +1,13 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from "vite-plus/test";
 
-import { validate } from '../../../../src/index'
-import nonBearerHttpSec from './nonBearerHttpSec.yaml?raw'
+import { validate } from "../../../../src/index";
+import nonBearerHttpSec from "./nonBearerHttpSec.yaml?raw";
 
-describe('nonBearerHttpSec', () => {
-  it('passes', async () => {
-    const result = await validate(nonBearerHttpSec)
+describe("nonBearerHttpSec", () => {
+  it("passes", async () => {
+    const result = await validate(nonBearerHttpSec);
 
-    expect(result.valid).toBe(true)
-    expect(result.version).toBe('3.0')
-  })
-})
+    expect(result.valid).toBe(true);
+    expect(result.version).toBe("3.0");
+  });
+});

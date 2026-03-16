@@ -1,10 +1,10 @@
-import type { OpenAPIV3_2 } from '@scalar/openapi-types'
-import { describe, expect, it } from 'vitest'
+import type { OpenAPIV3_2 } from "@scalar/openapi-types";
+import { describe, expect, it } from "vite-plus/test";
 
-import { dereference } from './dereference'
+import { dereference } from "./dereference";
 
-describe('dereference', () => {
-  it('dereferences an OpenAPI 3.2.0 file', () => {
+describe("dereference", () => {
+  it("dereferences an OpenAPI 3.2.0 file", () => {
     const result = dereference(`{
       "openapi": "3.2.0",
       "info": {
@@ -12,13 +12,13 @@ describe('dereference', () => {
           "version": "1.0.0"
       },
       "paths": {}
-    }`)
+    }`);
 
-    expect(result.errors).toStrictEqual([])
-    expect(result.schema.info.title).toBe('Hello World')
-  })
+    expect(result.errors).toStrictEqual([]);
+    expect(result.schema.info.title).toBe("Hello World");
+  });
 
-  it('dereferences an OpenAPI 3.1.0 file', () => {
+  it("dereferences an OpenAPI 3.1.0 file", () => {
     const result = dereference(`{
       "openapi": "3.1.0",
       "info": {
@@ -26,63 +26,66 @@ describe('dereference', () => {
           "version": "1.0.0"
       },
       "paths": {}
-    }`)
+    }`);
 
-    expect(result.errors).toStrictEqual([])
-    expect(result.schema.info.title).toBe('Hello World')
-  })
+    expect(result.errors).toStrictEqual([]);
+    expect(result.schema.info.title).toBe("Hello World");
+  });
 
-  it('handles circular references', () => {
+  it("handles circular references", () => {
     const DOCUMENT = {
-      openapi: '3.1.0',
+      openapi: "3.1.0",
       info: {
-        title: 'Circular Reference',
-        version: '1.0.0',
+        title: "Circular Reference",
+        version: "1.0.0",
       },
       paths: {},
       components: {
         schemas: {
           CircularReference: {
-            type: 'object',
+            type: "object",
             properties: {
-              name: { type: 'string' },
-              parent: { $ref: '#/components/schemas/CircularReference' },
+              name: { type: "string" },
+              parent: { $ref: "#/components/schemas/CircularReference" },
             },
           },
         },
       },
-    }
+    };
 
-    const result = dereference(DOCUMENT)
+    const result = dereference(DOCUMENT);
 
-    expect(result.errors).toStrictEqual([])
+    expect(result.errors).toStrictEqual([]);
 
     // Verify the circular reference is resolved without infinite loop
-    const circularReferenceSchema = result.schema.components.schemas.CircularReference
+    const circularReferenceSchema =
+      result.schema.components.schemas.CircularReference;
 
-    expect(circularReferenceSchema.properties.name.type).toBe('string')
-    expect(circularReferenceSchema.properties.parent.properties.name.type).toBe('string')
+    expect(circularReferenceSchema.properties.name.type).toBe("string");
+    expect(circularReferenceSchema.properties.parent.properties.name.type).toBe(
+      "string",
+    );
 
     // Circular references can't be JSON.stringify'd (easily)
-    expect(() => JSON.stringify(result.schema)).toThrow()
-  })
+    expect(() => JSON.stringify(result.schema)).toThrow();
+  });
 
-  it('throws an error for self-referencing schemas', () => {
+  it("throws an error for self-referencing schemas", () => {
     const DOCUMENT = {
-      openapi: '3.1.0',
+      openapi: "3.1.0",
       info: {
-        title: 'Hello World',
-        version: '1.0.0',
+        title: "Hello World",
+        version: "1.0.0",
       },
       paths: {
-        '/test': {
+        "/test": {
           get: {
             responses: {
-              '200': {
+              "200": {
                 content: {
-                  'application/json': {
+                  "application/json": {
                     schema: {
-                      $ref: '#/components/schemas/Test',
+                      $ref: "#/components/schemas/Test",
                     },
                   },
                 },
@@ -94,25 +97,25 @@ describe('dereference', () => {
       components: {
         schemas: {
           Test: {
-            $ref: '#/components/schemas/Test',
+            $ref: "#/components/schemas/Test",
           },
         },
       },
-    }
+    };
 
-    const result = dereference(DOCUMENT)
+    const result = dereference(DOCUMENT);
 
     expect(result.errors).toStrictEqual([
       {
-        code: 'SELF_REFERENCE',
+        code: "SELF_REFERENCE",
         message: "Can't resolve reference to itself: #/components/schemas/Test",
       },
-    ])
+    ]);
 
-    expect(result.schema.info.title).toBe('Hello World')
-  })
+    expect(result.schema.info.title).toBe("Hello World");
+  });
 
-  it('dereferences an OpenAPI 3.0.0 file', () => {
+  it("dereferences an OpenAPI 3.0.0 file", () => {
     const result = dereference(`{
       "openapi": "3.0.0",
       "info": {
@@ -120,13 +123,13 @@ describe('dereference', () => {
           "version": "1.0.0"
       },
       "paths": {}
-    }`)
+    }`);
 
-    expect(result.errors).toStrictEqual([])
-    expect(result.schema.info.title).toBe('Hello World')
-  })
+    expect(result.errors).toStrictEqual([]);
+    expect(result.schema.info.title).toBe("Hello World");
+  });
 
-  it('dereferences an Swagger 2.0 file', () => {
+  it("dereferences an Swagger 2.0 file", () => {
     const result = dereference(`{
       "swagger": "2.0",
       "info": {
@@ -134,13 +137,13 @@ describe('dereference', () => {
           "version": "1.0.0"
       },
       "paths": {}
-    }`)
+    }`);
 
-    expect(result.errors).toStrictEqual([])
-    expect(result.schema.info.title).toBe('Hello World')
-  })
+    expect(result.errors).toStrictEqual([]);
+    expect(result.schema.info.title).toBe("Hello World");
+  });
 
-  it('returns version 3.1', () => {
+  it("returns version 3.1", () => {
     const result = dereference(`{
       "openapi": "3.1.0",
       "info": {
@@ -148,13 +151,13 @@ describe('dereference', () => {
           "version": "1.0.0"
       },
       "paths": {}
-    }`)
+    }`);
 
-    expect(result.errors).toStrictEqual([])
-    expect(result.version).toBe('3.1')
-  })
+    expect(result.errors).toStrictEqual([]);
+    expect(result.version).toBe("3.1");
+  });
 
-  it('returns version 3.0', () => {
+  it("returns version 3.0", () => {
     const result = dereference(`{
       "openapi": "3.0.0",
       "info": {
@@ -162,13 +165,13 @@ describe('dereference', () => {
           "version": "1.0.0"
       },
       "paths": {}
-    }`)
+    }`);
 
-    expect(result.errors).toStrictEqual([])
-    expect(result.version).toBe('3.0')
-  })
+    expect(result.errors).toStrictEqual([]);
+    expect(result.version).toBe("3.0");
+  });
 
-  it('returns version 2.0', () => {
+  it("returns version 2.0", () => {
     const result = dereference(`{
       "swagger": "2.0",
       "info": {
@@ -176,11 +179,11 @@ describe('dereference', () => {
           "version": "1.0.0"
       },
       "paths": {}
-    }`)
+    }`);
 
-    expect(result.errors).toStrictEqual([])
-    expect(result.version).toBe('2.0')
-  })
+    expect(result.errors).toStrictEqual([]);
+    expect(result.version).toBe("2.0");
+  });
 
   it(`doesn't return version 4.0`, () => {
     const result = dereference(`{
@@ -190,29 +193,29 @@ describe('dereference', () => {
           "version": "1.0.0"
       },
       "paths": {}
-    }`)
+    }`);
 
-    expect(result.version).toBe(undefined)
-  })
+    expect(result.version).toBe(undefined);
+  });
 
-  it('dereferences a simple reference', () => {
+  it("dereferences a simple reference", () => {
     const openapi = {
-      openapi: '3.1.0',
+      openapi: "3.1.0",
       info: {
-        title: 'Hello World',
-        version: '1.0.0',
+        title: "Hello World",
+        version: "1.0.0",
       },
       paths: {
-        '/test': {
+        "/test": {
           get: {
             responses: {
-              '200': {
+              "200": {
                 // TODO: This is valid in @apidevtools/swagger, but not with our implementation
-                description: 'foobar',
+                description: "foobar",
                 content: {
-                  'application/json': {
+                  "application/json": {
                     schema: {
-                      $ref: '#/components/schemas/Test',
+                      $ref: "#/components/schemas/Test",
                     },
                   },
                 },
@@ -224,48 +227,56 @@ describe('dereference', () => {
       components: {
         schemas: {
           Test: {
-            type: 'object',
+            type: "object",
             properties: {
               id: {
-                type: 'string',
+                type: "string",
               },
             },
           },
         },
       },
-    }
+    };
 
-    const result = dereference(openapi)
+    const result = dereference(openapi);
 
-    expect(result.errors).toStrictEqual([])
+    expect(result.errors).toStrictEqual([]);
 
     // Original
-    expect(result.specification.paths['/test'].get.responses['200'].content['application/json'].schema).toEqual({
-      $ref: '#/components/schemas/Test',
-    })
+    expect(
+      result.specification.paths["/test"].get.responses["200"].content[
+        "application/json"
+      ].schema,
+    ).toEqual({
+      $ref: "#/components/schemas/Test",
+    });
 
     // Resolved references
-    expect(result.schema.paths['/test'].get.responses['200'].content['application/json'].schema).toEqual({
-      type: 'object',
+    expect(
+      result.schema.paths["/test"].get.responses["200"].content[
+        "application/json"
+      ].schema,
+    ).toEqual({
+      type: "object",
       properties: {
         id: {
-          type: 'string',
+          type: "string",
         },
       },
-    })
-  })
+    });
+  });
 
-  it('throws an error', () => {
+  it("throws an error", () => {
     expect(() => {
       dereference(
         {
-          openapi: '3.1.0',
+          openapi: "3.1.0",
           info: {},
           paths: {
-            '/foobar': {
+            "/foobar": {
               post: {
                 requestBody: {
-                  $ref: '#/components/requestBodies/DoesNotExist',
+                  $ref: "#/components/requestBodies/DoesNotExist",
                 },
               },
             },
@@ -274,113 +285,115 @@ describe('dereference', () => {
         {
           throwOnError: true,
         },
-      )
-    }).toThrowError("Can't resolve reference: #/components/requestBodies/DoesNotExist")
-  })
+      );
+    }).toThrowError(
+      "Can't resolve reference: #/components/requestBodies/DoesNotExist",
+    );
+  });
 
-  it('resolves external file references', () => {
+  it("resolves external file references", () => {
     const filesystem = [
       {
         isEntrypoint: true,
         specification: {
-          openapi: '3.1.0',
+          openapi: "3.1.0",
           info: {
-            title: 'File Reference',
-            version: '1.0.0',
+            title: "File Reference",
+            version: "1.0.0",
           },
           paths: {},
           components: {
             schemas: {
               ExternalSchema: {
-                $ref: 'valid.yaml#/components/schemas/ExampleSchema',
+                $ref: "valid.yaml#/components/schemas/ExampleSchema",
               },
             },
           },
         },
-        filename: 'file-reference.yaml',
-        dir: './',
-        references: ['valid.yaml'],
+        filename: "file-reference.yaml",
+        dir: "./",
+        references: ["valid.yaml"],
       },
       {
         isEntrypoint: false,
         specification: {
-          openapi: '3.1.0',
+          openapi: "3.1.0",
           info: {
-            title: 'Hello World',
-            version: '1.0.0',
+            title: "Hello World",
+            version: "1.0.0",
           },
           paths: {},
           components: {
             schemas: {
               ExampleSchema: {
-                type: 'object',
+                type: "object",
                 properties: {
                   id: {
-                    type: 'integer',
-                    description: 'Unique identifier for the example',
+                    type: "integer",
+                    description: "Unique identifier for the example",
                   },
                   name: {
-                    type: 'string',
-                    description: 'Name of the example',
+                    type: "string",
+                    description: "Name of the example",
                   },
                   description: {
-                    type: 'string',
-                    description: 'Detailed description of the example',
+                    type: "string",
+                    description: "Detailed description of the example",
                   },
                 },
-                required: ['id', 'name'],
+                required: ["id", "name"],
               },
             },
           },
         },
-        filename: 'valid.yaml',
-        dir: './',
+        filename: "valid.yaml",
+        dir: "./",
         references: [],
       },
-    ]
+    ];
 
-    const result = dereference(filesystem)
+    const result = dereference(filesystem);
 
-    expect(result.errors).toStrictEqual([])
+    expect(result.errors).toStrictEqual([]);
 
     // Check if the external reference was resolved
     expect(result.schema.components.schemas.ExternalSchema).toEqual({
-      type: 'object',
+      type: "object",
       properties: {
         id: {
-          type: 'integer',
-          description: 'Unique identifier for the example',
+          type: "integer",
+          description: "Unique identifier for the example",
         },
         name: {
-          type: 'string',
-          description: 'Name of the example',
+          type: "string",
+          description: "Name of the example",
         },
         description: {
-          type: 'string',
-          description: 'Detailed description of the example',
+          type: "string",
+          description: "Detailed description of the example",
         },
       },
-      required: ['id', 'name'],
-    })
-  })
+      required: ["id", "name"],
+    });
+  });
 
-  it('calls ondereference when resolving references', () => {
+  it("calls ondereference when resolving references", () => {
     const openapi = {
-      openapi: '3.1.0',
+      openapi: "3.1.0",
       info: {
-        title: 'Hello World',
-        version: '1.0.0',
+        title: "Hello World",
+        version: "1.0.0",
       },
       paths: {
-        '/test': {
+        "/test": {
           get: {
             responses: {
-              '200': {
-                description: 'foobar',
+              "200": {
+                description: "foobar",
                 content: {
-                  'application/json': {
+                  "application/json": {
                     schema: {
-                      $ref: '#/components/schemas/Test',
+                      $ref: "#/components/schemas/Test",
                     },
                   },
                 },
@@ -392,57 +405,57 @@ describe('dereference', () => {
       components: {
         schemas: {
           Test: {
-            type: 'object',
+            type: "object",
             properties: {
               id: {
-                type: 'string',
+                type: "string",
               },
             },
           },
         },
       },
-    }
+    };
 
-    const dereferencedSchemas: Array<{ schema: any; ref: string }> = []
+    const dereferencedSchemas: Array<{ schema: any; ref: string }> = [];
 
     const result = dereference(openapi, {
       onDereference: ({ schema, ref }) => {
         expect(schema).toEqual({
-          type: 'object',
+          type: "object",
           properties: {
             id: {
-              type: 'string',
+              type: "string",
             },
           },
-        })
+        });
 
-        expect(ref).toEqual('#/components/schemas/Test')
+        expect(ref).toEqual("#/components/schemas/Test");
 
-        dereferencedSchemas.push({ schema, ref })
+        dereferencedSchemas.push({ schema, ref });
       },
-    })
+    });
 
-    expect(result.errors).toStrictEqual([])
-    expect(dereferencedSchemas).toHaveLength(1)
-  })
+    expect(result.errors).toStrictEqual([]);
+    expect(dereferencedSchemas).toHaveLength(1);
+  });
 
-  it('dereferences operations with query operations', () => {
+  it("dereferences operations with query operations", () => {
     const openapi = {
-      openapi: '3.2.0',
+      openapi: "3.2.0",
       info: {
-        title: 'Hello World',
-        version: '1.0.0',
+        title: "Hello World",
+        version: "1.0.0",
       },
       paths: {
-        '/test': {
+        "/test": {
           query: {
             responses: {
-              '200': {
-                description: 'foobar',
+              "200": {
+                description: "foobar",
                 content: {
-                  'application/json': {
+                  "application/json": {
                     schema: {
-                      $ref: '#/components/schemas/Test',
+                      $ref: "#/components/schemas/Test",
                     },
                   },
                 },
@@ -454,48 +467,48 @@ describe('dereference', () => {
       components: {
         schemas: {
           Test: {
-            type: 'object',
+            type: "object",
             properties: {
               id: {
-                type: 'string',
+                type: "string",
               },
             },
           },
         },
       },
-    }
+    };
 
-    const result = dereference(openapi)
+    const result = dereference(openapi);
 
-    expect(result.errors).toStrictEqual([])
+    expect(result.errors).toStrictEqual([]);
 
     // Original
     expect(
-      (result.specification as OpenAPIV3_2.Document).paths['/test'].query.responses['200'].content['application/json']
-        .schema,
+      (result.specification as OpenAPIV3_2.Document).paths["/test"].query
+        .responses["200"].content["application/json"].schema,
     ).toEqual({
-      $ref: '#/components/schemas/Test',
-    })
-  })
+      $ref: "#/components/schemas/Test",
+    });
+  });
 
-  it('dereferences operations with additional operations', () => {
+  it("dereferences operations with additional operations", () => {
     const openapi = {
-      openapi: '3.2.0',
+      openapi: "3.2.0",
       info: {
-        title: 'Hello World',
-        version: '1.0.0',
+        title: "Hello World",
+        version: "1.0.0",
       },
       paths: {
-        '/test': {
+        "/test": {
           additionalOperations: {
             makeUnicorns: {
               responses: {
-                '200': {
-                  description: 'foobar',
+                "200": {
+                  description: "foobar",
                   content: {
-                    'application/json': {
+                    "application/json": {
                       schema: {
-                        $ref: '#/components/schemas/Test',
+                        $ref: "#/components/schemas/Test",
                       },
                     },
                   },
@@ -508,27 +521,29 @@ describe('dereference', () => {
       components: {
         schemas: {
           Test: {
-            type: 'object',
+            type: "object",
             properties: {
               id: {
-                type: 'string',
+                type: "string",
               },
             },
           },
         },
       },
-    }
+    };
 
-    const result = dereference(openapi)
+    const result = dereference(openapi);
 
-    expect(result.errors).toStrictEqual([])
+    expect(result.errors).toStrictEqual([]);
 
     // Original
     expect(
-      (result.specification as OpenAPIV3_2.Document).paths['/test'].additionalOperations?.makeUnicorns.responses['200']
-        .content['application/json'].schema,
+      (result.specification as OpenAPIV3_2.Document).paths["/test"]
+        .additionalOperations?.makeUnicorns.responses["200"].content[
+        "application/json"
+      ].schema,
     ).toEqual({
-      $ref: '#/components/schemas/Test',
-    })
-  })
-})
+      $ref: "#/components/schemas/Test",
+    });
+  });
+});

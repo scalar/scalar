@@ -1,5 +1,5 @@
 import { mount } from '@vue/test-utils'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vite-plus/test'
 
 import ScalarCheckboxRadioGroup from './ScalarCheckboxRadioGroup.vue'
 
@@ -31,6 +31,8 @@ describe('ScalarCheckboxRadioGroup', () => {
     expect(wrapper.emitted('update:modelValue')?.[0]?.[0]).toEqual(options[0])
 
     await radios[1]?.setValue(true)
-    expect(wrapper.emitted('update:modelValue')?.at(-1)?.[0]).toEqual(options[1])
+    expect(wrapper.emitted('update:modelValue')?.at(-1)?.[0]).toEqual(
+      options[1],
+    )
   })
 })

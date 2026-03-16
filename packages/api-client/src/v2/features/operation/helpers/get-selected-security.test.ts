@@ -1,77 +1,105 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from "vite-plus/test";
 
-import { getSelectedSecurity } from './get-selected-security'
+import { getSelectedSecurity } from "./get-selected-security";
 
-describe('getSelectedSecurity', () => {
-  it('returns operation-level selected security when set', () => {
-    const documentSelectedSecurity = undefined
+describe("getSelectedSecurity", () => {
+  it("returns operation-level selected security when set", () => {
+    const documentSelectedSecurity = undefined;
     const operationSelectedSecurity = {
       selectedIndex: 2,
       selectedSchemes: [{ oauth2: [] }],
-    }
-    const securityRequirements = [{ apiKey: [] }, { basicAuth: [] }, { oauth2: [] }]
+    };
+    const securityRequirements = [
+      { apiKey: [] },
+      { basicAuth: [] },
+      { oauth2: [] },
+    ];
 
-    const result = getSelectedSecurity(documentSelectedSecurity, operationSelectedSecurity, securityRequirements)
+    const result = getSelectedSecurity(
+      documentSelectedSecurity,
+      operationSelectedSecurity,
+      securityRequirements,
+    );
 
     expect(result).toEqual({
       selectedIndex: 2,
       selectedSchemes: [{ oauth2: [] }],
-    })
-  })
+    });
+  });
 
-  it('returns document-level selected security when operation-level security is not set', () => {
+  it("returns document-level selected security when operation-level security is not set", () => {
     const documentSelectedSecurity = {
       selectedIndex: 1,
       selectedSchemes: [{ bearerAuth: [] }],
-    }
-    const operationSelectedSecurity = undefined
-    const securityRequirements = [{ apiKey: [] }, { bearerAuth: [] }]
+    };
+    const operationSelectedSecurity = undefined;
+    const securityRequirements = [{ apiKey: [] }, { bearerAuth: [] }];
 
-    const result = getSelectedSecurity(documentSelectedSecurity, operationSelectedSecurity, securityRequirements)
+    const result = getSelectedSecurity(
+      documentSelectedSecurity,
+      operationSelectedSecurity,
+      securityRequirements,
+    );
 
     expect(result).toEqual({
       selectedIndex: 1,
       selectedSchemes: [{ bearerAuth: [] }],
-    })
-  })
+    });
+  });
 
-  it('returns no selection when authentication is optional', () => {
-    const documentSelectedSecurity = undefined
-    const operationSelectedSecurity = undefined
+  it("returns no selection when authentication is optional", () => {
+    const documentSelectedSecurity = undefined;
+    const operationSelectedSecurity = undefined;
     // Empty requirement makes auth optional
-    const securityRequirements = [{ apiKey: [] }, {}]
+    const securityRequirements = [{ apiKey: [] }, {}];
 
-    const result = getSelectedSecurity(documentSelectedSecurity, operationSelectedSecurity, securityRequirements)
+    const result = getSelectedSecurity(
+      documentSelectedSecurity,
+      operationSelectedSecurity,
+      securityRequirements,
+    );
 
     expect(result).toEqual({
       selectedIndex: -1,
       selectedSchemes: [],
-    })
-  })
+    });
+  });
 
-  it('defaults to the first security requirement when no custom selection exists', () => {
-    const documentSelectedSecurity = undefined
-    const operationSelectedSecurity = undefined
-    const securityRequirements = [{ apiKey: [] }, { oauth2: [] }, { basicAuth: [] }]
+  it("defaults to the first security requirement when no custom selection exists", () => {
+    const documentSelectedSecurity = undefined;
+    const operationSelectedSecurity = undefined;
+    const securityRequirements = [
+      { apiKey: [] },
+      { oauth2: [] },
+      { basicAuth: [] },
+    ];
 
-    const result = getSelectedSecurity(documentSelectedSecurity, operationSelectedSecurity, securityRequirements)
+    const result = getSelectedSecurity(
+      documentSelectedSecurity,
+      operationSelectedSecurity,
+      securityRequirements,
+    );
 
     expect(result).toEqual({
       selectedIndex: 0,
       selectedSchemes: [{ apiKey: [] }],
-    })
-  })
+    });
+  });
 
-  it('returns no selection when security requirements array is empty', () => {
-    const documentSelectedSecurity = undefined
-    const operationSelectedSecurity = undefined
-    const securityRequirements: Array<Record<string, string[]>> = []
+  it("returns no selection when security requirements array is empty", () => {
+    const documentSelectedSecurity = undefined;
+    const operationSelectedSecurity = undefined;
+    const securityRequirements: Array<Record<string, string[]>> = [];
 
-    const result = getSelectedSecurity(documentSelectedSecurity, operationSelectedSecurity, securityRequirements)
+    const result = getSelectedSecurity(
+      documentSelectedSecurity,
+      operationSelectedSecurity,
+      securityRequirements,
+    );
 
     expect(result).toEqual({
       selectedIndex: -1,
       selectedSchemes: [],
-    })
-  })
-})
+    });
+  });
+});

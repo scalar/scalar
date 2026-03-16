@@ -1,112 +1,112 @@
-import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
-import { SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import { mount } from '@vue/test-utils'
-import { describe, expect, it } from 'vitest'
+import { coerceValue } from "@scalar/workspace-store/schemas/typebox-coerce";
+import { SchemaObjectSchema } from "@scalar/workspace-store/schemas/v3.1/strict/openapi-document";
+import { mount } from "@vue/test-utils";
+import { describe, expect, it } from "vite-plus/test";
 
-import OperationParameters from './OperationParameters.vue'
+import OperationParameters from "./OperationParameters.vue";
 
-describe('OperationParameters', () => {
-  describe('path parameters', () => {
-    it('renders path parameters', () => {
+describe("OperationParameters", () => {
+  describe("path parameters", () => {
+    it("renders path parameters", () => {
       const wrapper = mount(OperationParameters, {
         props: {
           eventBus: null,
           options: {
             orderRequiredPropertiesFirst: false,
-            orderSchemaPropertiesBy: 'alpha',
+            orderSchemaPropertiesBy: "alpha",
           },
           parameters: [
             {
-              in: 'path',
-              name: 'userId',
+              in: "path",
+              name: "userId",
               schema: coerceValue(SchemaObjectSchema, {
-                type: 'string',
+                type: "string",
               }),
               required: true,
               deprecated: false,
             },
           ],
         },
-      })
+      });
 
-      expect(wrapper.text()).toContain('Path Parameters')
-      expect(wrapper.text()).toContain('userId')
-      expect(wrapper.text()).toContain('required')
-    })
-  })
+      expect(wrapper.text()).toContain("Path Parameters");
+      expect(wrapper.text()).toContain("userId");
+      expect(wrapper.text()).toContain("required");
+    });
+  });
 
-  describe('query parameters', () => {
-    it('renders query parameters', () => {
+  describe("query parameters", () => {
+    it("renders query parameters", () => {
       const wrapper = mount(OperationParameters, {
         props: {
           eventBus: null,
           options: {
             orderRequiredPropertiesFirst: false,
-            orderSchemaPropertiesBy: 'alpha',
+            orderSchemaPropertiesBy: "alpha",
           },
           parameters: [
             {
-              in: 'query',
-              name: 'search',
+              in: "query",
+              name: "search",
               schema: coerceValue(SchemaObjectSchema, {
-                type: 'string',
+                type: "string",
               }),
               required: false,
               deprecated: false,
             },
           ],
         },
-      })
+      });
 
-      expect(wrapper.text()).toContain('Query Parameters')
-      expect(wrapper.text()).toContain('search')
-    })
-  })
+      expect(wrapper.text()).toContain("Query Parameters");
+      expect(wrapper.text()).toContain("search");
+    });
+  });
 
-  describe('header parameters', () => {
-    it('renders header parameters', () => {
+  describe("header parameters", () => {
+    it("renders header parameters", () => {
       const wrapper = mount(OperationParameters, {
         props: {
           eventBus: null,
           options: {
             orderRequiredPropertiesFirst: false,
-            orderSchemaPropertiesBy: 'alpha',
+            orderSchemaPropertiesBy: "alpha",
           },
           parameters: [
             {
-              in: 'header',
-              name: 'Authorization',
+              in: "header",
+              name: "Authorization",
               schema: coerceValue(SchemaObjectSchema, {
-                type: 'string',
+                type: "string",
               }),
               required: true,
               deprecated: false,
             },
           ],
         },
-      })
+      });
 
-      expect(wrapper.text()).toContain('Headers')
-      expect(wrapper.text()).toContain('Authorization')
-      expect(wrapper.text()).toContain('required')
-    })
-  })
+      expect(wrapper.text()).toContain("Headers");
+      expect(wrapper.text()).toContain("Authorization");
+      expect(wrapper.text()).toContain("required");
+    });
+  });
 
-  describe('cookie parameters', () => {
-    it('renders a required cookie parameter', () => {
+  describe("cookie parameters", () => {
+    it("renders a required cookie parameter", () => {
       const wrapper = mount(OperationParameters, {
         props: {
           eventBus: null,
           options: {
             orderRequiredPropertiesFirst: false,
-            orderSchemaPropertiesBy: 'alpha',
+            orderSchemaPropertiesBy: "alpha",
           },
           parameters: [
             {
-              in: 'cookie',
-              name: 'debug',
+              in: "cookie",
+              name: "debug",
               schema: coerceValue(SchemaObjectSchema, {
-                type: 'integer',
+                type: "integer",
                 enum: [0, 1],
                 default: 0,
               }),
@@ -115,95 +115,95 @@ describe('OperationParameters', () => {
             },
           ],
         },
-      })
+      });
 
-      expect(wrapper.text()).toContain('Cookies')
-      expect(wrapper.text()).toContain('debug')
-      expect(wrapper.text()).toContain('required')
-    })
+      expect(wrapper.text()).toContain("Cookies");
+      expect(wrapper.text()).toContain("debug");
+      expect(wrapper.text()).toContain("required");
+    });
 
-    it('renders an optional cookie parameter', () => {
+    it("renders an optional cookie parameter", () => {
       const wrapper = mount(OperationParameters, {
         props: {
           eventBus: null,
           options: {
             orderRequiredPropertiesFirst: false,
-            orderSchemaPropertiesBy: 'alpha',
+            orderSchemaPropertiesBy: "alpha",
           },
           parameters: [
             {
-              in: 'cookie',
-              name: 'csrftoken',
+              in: "cookie",
+              name: "csrftoken",
               schema: coerceValue(SchemaObjectSchema, {
-                type: 'string',
-                default: 'the-example-token',
+                type: "string",
+                default: "the-example-token",
               }),
               deprecated: true,
               required: false,
             },
           ],
         },
-      })
+      });
 
-      expect(wrapper.text()).toContain('Cookies')
-      expect(wrapper.text()).toContain('csrftoken')
-      expect(wrapper.text()).toContain('the-example-token')
-    })
-  })
+      expect(wrapper.text()).toContain("Cookies");
+      expect(wrapper.text()).toContain("csrftoken");
+      expect(wrapper.text()).toContain("the-example-token");
+    });
+  });
 
-  describe('request body', () => {
-    it('renders request body', () => {
+  describe("request body", () => {
+    it("renders request body", () => {
       const wrapper = mount(OperationParameters, {
         props: {
           options: {
             orderRequiredPropertiesFirst: false,
-            orderSchemaPropertiesBy: 'alpha',
+            orderSchemaPropertiesBy: "alpha",
           },
           eventBus: null,
           requestBody: {
             content: {
-              'application/json': {
+              "application/json": {
                 schema: coerceValue(SchemaObjectSchema, {
-                  type: 'object',
+                  type: "object",
                   properties: {
-                    name: { type: 'string' },
-                    age: { type: 'integer' },
+                    name: { type: "string" },
+                    age: { type: "integer" },
                   },
                 }),
               },
             },
           },
         },
-      })
+      });
 
-      expect(wrapper.text()).toContain('Body')
-      expect(wrapper.text()).toContain('name')
-      expect(wrapper.text()).toContain('age')
-    })
+      expect(wrapper.text()).toContain("Body");
+      expect(wrapper.text()).toContain("name");
+      expect(wrapper.text()).toContain("age");
+    });
 
-    it('renders request body without readOnly properties', () => {
+    it("renders request body without readOnly properties", () => {
       const wrapper = mount(OperationParameters, {
         props: {
           eventBus: null,
           options: {
             orderRequiredPropertiesFirst: false,
-            orderSchemaPropertiesBy: 'alpha',
+            orderSchemaPropertiesBy: "alpha",
           },
           requestBody: {
             content: {
-              'application/json': {
+              "application/json": {
                 schema: coerceValue(SchemaObjectSchema, {
-                  type: 'object',
+                  type: "object",
                   properties: {
                     regularProperty: {
-                      type: 'string',
+                      type: "string",
                     },
                     readOnlyProperty: {
-                      type: 'string',
+                      type: "string",
                       readOnly: true,
                     },
                     writeOnlyProperty: {
-                      type: 'string',
+                      type: "string",
                       writeOnly: true,
                     },
                   },
@@ -212,206 +212,206 @@ describe('OperationParameters', () => {
             },
           },
         },
-      })
+      });
 
-      expect(wrapper.text()).toContain('Body')
-      expect(wrapper.text()).toContain('regularProperty')
-      expect(wrapper.text()).not.toContain('readOnlyProperty')
-      expect(wrapper.text()).toContain('writeOnlyProperty')
-    })
-  })
+      expect(wrapper.text()).toContain("Body");
+      expect(wrapper.text()).toContain("regularProperty");
+      expect(wrapper.text()).not.toContain("readOnlyProperty");
+      expect(wrapper.text()).toContain("writeOnlyProperty");
+    });
+  });
 
-  describe('form data', () => {
-    it('renders form data parameters', () => {
+  describe("form data", () => {
+    it("renders form data parameters", () => {
       const wrapper = mount(OperationParameters, {
         props: {
           eventBus: null,
           options: {
             orderRequiredPropertiesFirst: false,
-            orderSchemaPropertiesBy: 'alpha',
+            orderSchemaPropertiesBy: "alpha",
           },
           requestBody: {
             content: {
-              'application/x-www-form-urlencoded': {
+              "application/x-www-form-urlencoded": {
                 schema: coerceValue(SchemaObjectSchema, {
-                  type: 'object',
+                  type: "object",
                   properties: {
-                    username: { type: 'string' },
-                    password: { type: 'string' },
+                    username: { type: "string" },
+                    password: { type: "string" },
                   },
                 }),
               },
             },
           },
         },
-      })
+      });
 
-      expect(wrapper.text()).toContain('Body')
-      expect(wrapper.text()).toContain('username')
-      expect(wrapper.text()).toContain('password')
-    })
-  })
+      expect(wrapper.text()).toContain("Body");
+      expect(wrapper.text()).toContain("username");
+      expect(wrapper.text()).toContain("password");
+    });
+  });
 
-  describe('parameter filtering', () => {
-    it('filters out parameters with x-internal flag set to true', () => {
+  describe("parameter filtering", () => {
+    it("filters out parameters with x-internal flag set to true", () => {
       const wrapper = mount(OperationParameters, {
         props: {
           eventBus: null,
           options: {
             orderRequiredPropertiesFirst: false,
-            orderSchemaPropertiesBy: 'alpha',
+            orderSchemaPropertiesBy: "alpha",
           },
           parameters: [
             {
-              in: 'query',
-              name: 'param1',
+              in: "query",
+              name: "param1",
               schema: coerceValue(SchemaObjectSchema, {
-                type: 'string',
+                type: "string",
               }),
               required: false,
               deprecated: false,
             },
             {
-              in: 'query',
-              name: 'param2',
+              in: "query",
+              name: "param2",
               schema: coerceValue(SchemaObjectSchema, {
-                type: 'string',
+                type: "string",
               }),
               required: false,
               deprecated: false,
-              'x-internal': true,
+              "x-internal": true,
             },
             {
-              in: 'query',
-              name: 'param3',
+              in: "query",
+              name: "param3",
               schema: coerceValue(SchemaObjectSchema, {
-                type: 'string',
+                type: "string",
               }),
               required: false,
               deprecated: false,
             },
           ],
         },
-      })
+      });
 
-      expect(wrapper.text()).toContain('param1')
-      expect(wrapper.text()).not.toContain('param2')
-      expect(wrapper.text()).toContain('param3')
-    })
+      expect(wrapper.text()).toContain("param1");
+      expect(wrapper.text()).not.toContain("param2");
+      expect(wrapper.text()).toContain("param3");
+    });
 
-    it('filters out parameters with x-scalar-ignore flag set to true', () => {
+    it("filters out parameters with x-scalar-ignore flag set to true", () => {
       const wrapper = mount(OperationParameters, {
         props: {
           eventBus: null,
           options: {
             orderRequiredPropertiesFirst: false,
-            orderSchemaPropertiesBy: 'alpha',
+            orderSchemaPropertiesBy: "alpha",
           },
           parameters: [
             {
-              in: 'query',
-              name: 'param1',
+              in: "query",
+              name: "param1",
               schema: coerceValue(SchemaObjectSchema, {
-                type: 'string',
+                type: "string",
               }),
               required: false,
               deprecated: false,
             },
             {
-              in: 'query',
-              name: 'param2',
+              in: "query",
+              name: "param2",
               schema: coerceValue(SchemaObjectSchema, {
-                type: 'string',
+                type: "string",
               }),
               required: false,
               deprecated: false,
-              'x-scalar-ignore': true,
+              "x-scalar-ignore": true,
             },
             {
-              in: 'query',
-              name: 'param3',
+              in: "query",
+              name: "param3",
               schema: coerceValue(SchemaObjectSchema, {
-                type: 'string',
+                type: "string",
               }),
               required: false,
               deprecated: false,
             },
           ],
         },
-      })
+      });
 
-      expect(wrapper.text()).toContain('param1')
-      expect(wrapper.text()).not.toContain('param2')
-      expect(wrapper.text()).toContain('param3')
-    })
+      expect(wrapper.text()).toContain("param1");
+      expect(wrapper.text()).not.toContain("param2");
+      expect(wrapper.text()).toContain("param3");
+    });
 
-    it('filters out parameters with both ignore flags', () => {
+    it("filters out parameters with both ignore flags", () => {
       const wrapper = mount(OperationParameters, {
         props: {
           eventBus: null,
           options: {
             orderRequiredPropertiesFirst: false,
-            orderSchemaPropertiesBy: 'alpha',
+            orderSchemaPropertiesBy: "alpha",
           },
           parameters: [
             {
-              in: 'query',
-              name: 'param1',
+              in: "query",
+              name: "param1",
               schema: coerceValue(SchemaObjectSchema, {
-                type: 'string',
+                type: "string",
               }),
               required: false,
               deprecated: false,
             },
             {
-              in: 'query',
-              name: 'param2',
+              in: "query",
+              name: "param2",
               schema: coerceValue(SchemaObjectSchema, {
-                type: 'string',
+                type: "string",
               }),
               required: false,
               deprecated: false,
-              'x-internal': true,
-              'x-scalar-ignore': true,
+              "x-internal": true,
+              "x-scalar-ignore": true,
             },
             {
-              in: 'query',
-              name: 'param3',
+              in: "query",
+              name: "param3",
               schema: coerceValue(SchemaObjectSchema, {
-                type: 'string',
+                type: "string",
               }),
               required: false,
               deprecated: false,
-              'x-internal': true,
+              "x-internal": true,
             },
             {
-              in: 'query',
-              name: 'param4',
+              in: "query",
+              name: "param4",
               schema: coerceValue(SchemaObjectSchema, {
-                type: 'string',
+                type: "string",
               }),
               required: false,
               deprecated: false,
-              'x-scalar-ignore': true,
+              "x-scalar-ignore": true,
             },
             {
-              in: 'query',
-              name: 'param5',
+              in: "query",
+              name: "param5",
               schema: coerceValue(SchemaObjectSchema, {
-                type: 'string',
+                type: "string",
               }),
               required: false,
               deprecated: false,
             },
           ],
         },
-      })
+      });
 
-      expect(wrapper.text()).toContain('param1')
-      expect(wrapper.text()).not.toContain('param2')
-      expect(wrapper.text()).not.toContain('param3')
-      expect(wrapper.text()).not.toContain('param4')
-      expect(wrapper.text()).toContain('param5')
-    })
-  })
-})
+      expect(wrapper.text()).toContain("param1");
+      expect(wrapper.text()).not.toContain("param2");
+      expect(wrapper.text()).not.toContain("param3");
+      expect(wrapper.text()).not.toContain("param4");
+      expect(wrapper.text()).toContain("param5");
+    });
+  });
+});

@@ -1,21 +1,21 @@
-import { describe, vi } from 'vitest'
+import { describe, vi } from "vite-plus/test";
 
-import { measureAsync, measureSync } from './measure'
+import { measureAsync, measureSync } from "./measure";
 
-const asyncFunction = vi.fn<() => Promise<number>>()
+const asyncFunction = vi.fn<() => Promise<number>>();
 
-describe('measureAsync types', async () => {
+describe("measureAsync types", async () => {
   // works with async methods
-  await measureAsync('test', asyncFunction)
+  await measureAsync("test", asyncFunction);
 
   // @ts-expect-error should error because `fn` doesn't return a Promise
-  await measureAsync('test', () => 1)
-})
+  await measureAsync("test", () => 1);
+});
 
-describe('measureSync types', () => {
+describe("measureSync types", () => {
   // works with sync methods
-  measureSync('test', () => 1)
+  measureSync("test", () => 1);
 
   // @ts-expect-error should error because `fn` doesn't return a Promise
-  measureSync('test', asyncFunction)
-})
+  measureSync("test", asyncFunction);
+});

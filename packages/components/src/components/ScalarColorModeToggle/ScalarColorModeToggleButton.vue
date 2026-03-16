@@ -1,7 +1,7 @@
 <script lang="ts">
 import { useBindCx } from '@scalar/use-hooks/useBindCx'
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+// oxlint-disable-next-line @typescript-eslint/no-unused-vars
 import type ScalarColorModeToggle from './ScalarColorModeToggle.vue'
 import ScalarColorModeToggleIcon from './ScalarColorModeToggleIcon.vue'
 

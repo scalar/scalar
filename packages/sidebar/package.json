@@ -16,12 +16,12 @@
   },
   "scripts": {
     "build": "scalar-build-vite",
-    "dev": "vite ./playground -c ./vite.config.ts",
+    "dev": "vp ./playground -c ./vite.config.ts",
     "format": "scalar-format",
     "format:check": "scalar-format-check",
     "lint:check": "scalar-lint-check",
     "lint:fix": "scalar-lint-fix",
-    "test": "vitest",
+    "test": "vp test",
     "types:build": "scalar-types-build-vue",
     "types:check": "scalar-types-check-vue"
   },
@@ -58,7 +58,8 @@
     "@vue/test-utils": "catalog:*",
     "jsdom": "catalog:*",
     "tailwindcss": "catalog:*",
-    "vite": "catalog:*",
-    "vitest": "catalog:*"
+    "vite": "catalog:",
+    "vitest": "catalog:",
+    "vite-plus": "catalog:"
   }
 }

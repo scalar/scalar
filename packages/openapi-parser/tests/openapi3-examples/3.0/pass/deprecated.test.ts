@@ -1,13 +1,13 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from "vite-plus/test";
 
-import { validate } from '../../../../src/index'
-import deprecated from './deprecated.yaml?raw'
+import { validate } from "../../../../src/index";
+import deprecated from "./deprecated.yaml?raw";
 
-describe('deprecated', () => {
-  it('passes', async () => {
-    const result = await validate(deprecated)
+describe("deprecated", () => {
+  it("passes", async () => {
+    const result = await validate(deprecated);
 
-    expect(result.valid).toBe(true)
-    expect(result.version).toBe('3.0')
-  })
-})
+    expect(result.valid).toBe(true);
+    expect(result.version).toBe("3.0");
+  });
+});

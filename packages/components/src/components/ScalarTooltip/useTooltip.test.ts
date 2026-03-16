@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vite-plus/test'
 import { nextTick, ref } from 'vue'
 
 import { ELEMENT_ID } from './constants'
@@ -188,14 +188,18 @@ describe('useTooltip', () => {
 
     await nextTick()
 
-    expect(document.getElementById(ELEMENT_ID)?.textContent).toBe('Initial content')
+    expect(document.getElementById(ELEMENT_ID)?.textContent).toBe(
+      'Initial content',
+    )
 
     // Update content
     content.value = 'Updated content'
 
     await nextTick()
 
-    expect(document.getElementById(ELEMENT_ID)?.textContent).toBe('Updated content')
+    expect(document.getElementById(ELEMENT_ID)?.textContent).toBe(
+      'Updated content',
+    )
   })
 
   it('should set aria-describedby on target element', () => {
@@ -246,7 +250,9 @@ describe('useTooltip', () => {
 
     const tooltipElement = document.getElementById(ELEMENT_ID)
     expect(tooltipElement?.textContent).toBe(htmlContent)
-    expect(tooltipElement?.innerHTML).toBe('&lt;script&gt;alert("xss")&lt;/script&gt;Safe text')
+    expect(tooltipElement?.innerHTML).toBe(
+      '&lt;script&gt;alert("xss")&lt;/script&gt;Safe text',
+    )
   })
 
   it('should support html content when contentTarget is set to innerHTML', async () => {

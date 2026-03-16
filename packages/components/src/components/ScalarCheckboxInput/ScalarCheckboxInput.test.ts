@@ -1,5 +1,5 @@
 import { mount } from '@vue/test-utils'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vite-plus/test'
 
 import ScalarCheckboxInput from './ScalarCheckboxInput.vue'
 
@@ -12,7 +12,7 @@ describe('ScalarCheckboxInput', () => {
   it('binds v-model correctly', async () => {
     const wrapper = mount(ScalarCheckboxInput, {
       props: {
-        modelValue: false,
+        'modelValue': false,
         'onUpdate:modelValue': (e) => wrapper.setProps({ modelValue: e }),
       },
     })

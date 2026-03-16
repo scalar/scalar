@@ -1,14 +1,15 @@
-import { registerGlobals } from './register-globals'
-import { describe, expect, it } from 'vitest'
-import { createApiReference } from './html-api'
+import { describe, expect, it } from "vite-plus/test";
 
-describe('registerGlobals', () => {
-  it('registers the createApiReference method on the global window', () => {
-    expect(window.Scalar).toBeUndefined()
-    registerGlobals()
+import { createApiReference } from "./html-api";
+import { registerGlobals } from "./register-globals";
 
-    expect(window.Scalar).toBeDefined()
-    expect(window.Scalar.createApiReference).toStrictEqual(createApiReference)
-    expect(window.Scalar.createApiReference('#something', {})).toBeDefined()
-  })
-})
+describe("registerGlobals", () => {
+  it("registers the createApiReference method on the global window", () => {
+    expect(window.Scalar).toBeUndefined();
+    registerGlobals();
+
+    expect(window.Scalar).toBeDefined();
+    expect(window.Scalar.createApiReference).toStrictEqual(createApiReference);
+    expect(window.Scalar.createApiReference("#something", {})).toBeDefined();
+  });
+});

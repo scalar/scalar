@@ -1,8 +1,8 @@
-import { describe, expect, test } from 'vitest'
+import { describe, expect, test } from "vite-plus/test";
 
-import { isArrayEqual, isKeyCollisions, mergeObjects } from '@/diff/utils'
+import { isArrayEqual, isKeyCollisions, mergeObjects } from "@/diff/utils";
 
-describe('isKeyCollisions', () => {
+describe("isKeyCollisions", () => {
   test.each([
     [
       {
@@ -14,11 +14,11 @@ describe('isKeyCollisions', () => {
         },
       },
     ],
-    ['hello', 'hi'],
+    ["hello", "hi"],
     [{ a: { b: { c: 1 } } }, { a: { b: { c: 2 } }, c: 1 }],
-  ])('should return true', (a, b) => {
-    expect(isKeyCollisions(a, b)).toBe(true)
-  })
+  ])("should return true", (a, b) => {
+    expect(isKeyCollisions(a, b)).toBe(true);
+  });
 
   test.each([
     [
@@ -34,42 +34,42 @@ describe('isKeyCollisions', () => {
       },
     ],
     [{ a: { b: { c: 1 } } }, { a: { b: { d: 1 } }, c: 1 }],
-  ])('should return false', (a, b) => {
-    expect(isKeyCollisions(a, b)).toBe(false)
-  })
-})
+  ])("should return false", (a, b) => {
+    expect(isKeyCollisions(a, b)).toBe(false);
+  });
+});
 
-describe('mergeObjects', () => {
-  test('should merge objects that does not have any conflicting keys', () => {
+describe("mergeObjects", () => {
+  test("should merge objects that does not have any conflicting keys", () => {
     const a = {
-      a: 'Hello',
-    }
+      a: "Hello",
+    };
 
     const b = {
-      b: 'Hello',
-    }
+      b: "Hello",
+    };
 
     expect(mergeObjects(a, b)).toEqual({
       a: a.a,
       b: b.b,
-    })
-  })
+    });
+  });
 
-  test('should merge objects correctly even when they have the same key with the same value', () => {
+  test("should merge objects correctly even when they have the same key with the same value", () => {
     const a = {
-      a: 'Hello',
-    }
+      a: "Hello",
+    };
 
     const b = {
-      a: 'Hello',
-    }
+      a: "Hello",
+    };
 
     expect(mergeObjects(a, b)).toEqual({
       a: a.a,
-    })
-  })
+    });
+  });
 
-  test('should deeply merge the objects', () => {
+  test("should deeply merge the objects", () => {
     const a = {
       a: {
         b: {
@@ -78,7 +78,7 @@ describe('mergeObjects', () => {
           },
         },
       },
-    }
+    };
 
     const b = {
       a: {
@@ -88,7 +88,7 @@ describe('mergeObjects', () => {
           },
         },
       },
-    }
+    };
 
     expect(mergeObjects(a, b)).toEqual({
       a: {
@@ -101,10 +101,10 @@ describe('mergeObjects', () => {
           },
         },
       },
-    })
-  })
+    });
+  });
 
-  test('should deeply merge the objects when there is same keys', () => {
+  test("should deeply merge the objects when there is same keys", () => {
     const a = {
       a: {
         b: {
@@ -113,7 +113,7 @@ describe('mergeObjects', () => {
           },
         },
       },
-    }
+    };
 
     const b = {
       a: {
@@ -124,7 +124,7 @@ describe('mergeObjects', () => {
         },
       },
       b: 1,
-    }
+    };
 
     expect(mergeObjects(a, b)).toEqual({
       a: {
@@ -135,27 +135,27 @@ describe('mergeObjects', () => {
         },
       },
       b: 1,
-    })
-  })
-})
+    });
+  });
+});
 
-describe('isArrayEqual', () => {
+describe("isArrayEqual", () => {
   test.each([
     [
-      ['a', 'b', 'c'],
-      ['a', 'b', 'c'],
+      ["a", "b", "c"],
+      ["a", "b", "c"],
     ],
     [
       [1, 2, 3],
       [1, 2, 3],
     ],
     // @ts-expect-error
-  ])('should return true', (a, b) => expect(isArrayEqual(a, b)).toEqual(true))
+  ])("should return true", (a, b) => expect(isArrayEqual(a, b)).toEqual(true));
 
   test.each([
     [
-      ['a', 'b', 'c'],
-      ['a', 'b'],
+      ["a", "b", "c"],
+      ["a", "b"],
     ],
     [
       [1, 2, 4],
@@ -166,5 +166,7 @@ describe('isArrayEqual', () => {
       [1, 2, 3],
     ],
     // @ts-expect-error
-  ])('should return false', (a, b) => expect(isArrayEqual(a, b)).toEqual(false))
-})
+  ])("should return false", (a, b) =>
+    expect(isArrayEqual(a, b)).toEqual(false),
+  );
+});

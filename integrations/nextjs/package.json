@@ -24,12 +24,12 @@
   },
   "scripts": {
     "build": "pnpm types:check && pnpm build-only",
-    "build-only": "vite build",
+    "build-only": "vp build",
     "format": "scalar-format",
     "format:check": "scalar-format-check",
     "lint:check": "scalar-lint-check",
     "lint:fix": "scalar-lint-fix",
-    "test": "vitest",
+    "test": "vp test",
     "types:check": "tsc --noEmit --skipLibCheck"
   },
   "type": "module",
@@ -71,9 +71,10 @@
     "next": "catalog:*",
     "react": "catalog:*",
     "react-dom": "catalog:*",
-    "vite": "catalog:*",
+    "vite": "catalog:",
     "vite-plugin-dts": "^4.3.0",
-    "vitest": "catalog:*"
+    "vitest": "catalog:",
+    "vite-plus": "catalog:"
   },
   "peerDependencies": {
     "next": "^15.0.0 || ^16.0.0",

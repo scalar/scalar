@@ -1,60 +1,61 @@
-import { describe, expect, it } from 'vitest'
-import { XTagGroupsSchema } from './x-tag-groups'
+import { describe, expect, it } from "vite-plus/test";
 
-describe('XTagGroupsSchema', () => {
-  it('accepts valid tag groups array', () => {
+import { XTagGroupsSchema } from "./x-tag-groups";
+
+describe("XTagGroupsSchema", () => {
+  it("accepts valid tag groups array", () => {
     const result = XTagGroupsSchema.parse([
       {
-        name: 'Core',
-        tags: ['users', 'auth'],
+        name: "Core",
+        tags: ["users", "auth"],
       },
       {
-        name: 'Products',
-        tags: ['inventory', 'orders'],
+        name: "Products",
+        tags: ["inventory", "orders"],
       },
-    ])
+    ]);
     expect(result).toEqual([
       {
-        name: 'Core',
-        tags: ['users', 'auth'],
+        name: "Core",
+        tags: ["users", "auth"],
       },
       {
-        name: 'Products',
-        tags: ['inventory', 'orders'],
+        name: "Products",
+        tags: ["inventory", "orders"],
       },
-    ])
-  })
+    ]);
+  });
 
-  it('accepts empty array', () => {
-    const result = XTagGroupsSchema.parse([])
-    expect(result).toEqual([])
-  })
+  it("accepts empty array", () => {
+    const result = XTagGroupsSchema.parse([]);
+    expect(result).toEqual([]);
+  });
 
-  it('removes groups without name', () => {
+  it("removes groups without name", () => {
     const result = XTagGroupsSchema.parse([
       {
         // missing name
-        tags: ['users'],
+        tags: ["users"],
       },
-    ])
+    ]);
 
-    expect(result).toEqual([])
-  })
+    expect(result).toEqual([]);
+  });
 
-  it('ensures tags is an array of strings', () => {
+  it("ensures tags is an array of strings", () => {
     const result = XTagGroupsSchema.parse([
       {
-        name: 'Core',
+        name: "Core",
         // invalid: number in tags array
-        tags: [123, 'users'],
+        tags: [123, "users"],
       },
-    ])
+    ]);
 
     expect(result).toEqual([
       {
-        name: 'Core',
-        tags: ['123', 'users'],
+        name: "Core",
+        tags: ["123", "users"],
       },
-    ])
-  })
-})
+    ]);
+  });
+});

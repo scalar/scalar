@@ -6,15 +6,15 @@ import {
   isConsoleErrorEnabled,
   isConsoleWarnEnabled,
   resetConsoleSpies,
-} from '@scalar/helpers/testing/console-spies'
-import { afterEach, expect, vi } from 'vitest'
+} from "@scalar/helpers/testing/console-spies";
+import { afterEach, expect, vi } from "vite-plus/test";
 
-import { createPluginManager } from '@/plugins/plugin-manager'
+import { createPluginManager } from "@/plugins/plugin-manager";
 
 // Mock usePluginManager
-vi.mock('@/plugins/hooks/usePluginManager', () => ({
+vi.mock("@/plugins/hooks/usePluginManager", () => ({
   usePluginManager: vi.fn(() => createPluginManager({})),
-}))
+}));
 
 afterEach(() => {
   /**
@@ -30,17 +30,17 @@ afterEach(() => {
    */
 
   if (isConsoleWarnEnabled) {
-    expect(consoleWarnSpy).not.toHaveBeenCalled()
+    expect(consoleWarnSpy).not.toHaveBeenCalled();
   }
 
   if (isConsoleErrorEnabled) {
-    expect(consoleErrorSpy).not.toHaveBeenCalled()
+    expect(consoleErrorSpy).not.toHaveBeenCalled();
   }
 
   // Reset the spies
-  resetConsoleSpies()
-  disableConsoleWarn()
-  disableConsoleError()
+  resetConsoleSpies();
+  disableConsoleWarn();
+  disableConsoleError();
 
-  vi.clearAllMocks()
-})
+  vi.clearAllMocks();
+});

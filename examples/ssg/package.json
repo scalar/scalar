@@ -16,10 +16,10 @@
   },
   "scripts": {
     "build": "vue-tsc && vite-ssg build",
-    "dev": "vite",
-    "lint:check": "eslint .",
-    "lint:fix": "eslint .  --fix",
-    "preview": "vite preview",
+    "dev": "vp dev",
+    "lint:check": "vp lint .",
+    "lint:fix": "vp lint . --fix",
+    "preview": "vp preview",
     "types:check": "scalar-types-check-vue"
   },
   "type": "module",
@@ -32,7 +32,8 @@
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
     "@vitejs/plugin-vue": "catalog:*",
-    "vite": "catalog:*",
-    "vite-ssg": "catalog:*"
+    "vite": "catalog:",
+    "vite-ssg": "catalog:*",
+    "vite-plus": "catalog:"
   }
 }

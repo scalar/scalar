@@ -22,9 +22,9 @@
   },
   "scripts": {
     "build": "scalar-build-esbuild",
-    "lint:check": "eslint .",
-    "lint:fix": "eslint .  --fix",
-    "test": "vitest",
+    "lint:check": "vp lint .",
+    "lint:fix": "vp lint . --fix",
+    "test": "vp test",
     "typegen:migration": "vite-node ./src/migrations/generate-types.ts",
     "types:build": "scalar-types-build",
     "types:check": "scalar-types-check"
@@ -114,8 +114,9 @@
     "@scalar/openapi-types": "workspace:*",
     "@types/node": "catalog:*",
     "fake-indexeddb": "catalog:*",
-    "vite": "catalog:*",
-    "vitest": "catalog:*",
-    "zod-to-ts": "github:amritk/zod-to-ts#build"
+    "vite": "catalog:",
+    "vitest": "catalog:",
+    "zod-to-ts": "github:amritk/zod-to-ts#build",
+    "vite-plus": "catalog:"
   }
 }

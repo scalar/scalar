@@ -52,6 +52,7 @@
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
     "tailwindcss": "catalog:*",
-    "vite": "catalog:*"
+    "vite": "catalog:",
+    "vite-plus": "catalog:"
   }
 }

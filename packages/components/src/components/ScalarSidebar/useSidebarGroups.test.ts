@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vite-plus/test'
 import { inject, provide } from 'vue'
 
 import { SIDEBAR_GROUPS_SYMBOL, useSidebarGroups } from './useSidebarGroups'

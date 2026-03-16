@@ -1,26 +1,26 @@
-import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
-import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
-import { mount } from '@vue/test-utils'
-import { describe, expect, it, vi } from 'vitest'
+import { createWorkspaceEventBus } from "@scalar/workspace-store/events";
+import type { XScalarEnvironment } from "@scalar/workspace-store/schemas/extensions/document/x-scalar-environments";
+import { mount } from "@vue/test-utils";
+import { describe, expect, it, vi } from "vite-plus/test";
 
-import { OpenApiClientButton } from '@/components'
-import { AddressBar } from '@/v2/blocks/scalar-address-bar-block'
+import { OpenApiClientButton } from "@/components";
+import { AddressBar } from "@/v2/blocks/scalar-address-bar-block";
 
-import Header, { type HeaderProps } from './Header.vue'
+import Header, { type HeaderProps } from "./Header.vue";
 
-describe('Header', () => {
-  const eventBus = createWorkspaceEventBus()
+describe("Header", () => {
+  const eventBus = createWorkspaceEventBus();
 
   const defaultProps = {
-    path: '/pets',
-    method: 'get' as const,
-    layout: 'web' as const,
+    path: "/pets",
+    method: "get" as const,
+    layout: "web" as const,
     isSidebarOpen: true,
     showSidebar: true,
     hideClientButton: false,
     integration: null as string | null,
     documentUrl: undefined as string | undefined,
-    source: 'api-reference' as const,
+    source: "api-reference" as const,
     server: null,
     servers: [] as any[],
     history: [] as any[],
@@ -28,61 +28,69 @@ describe('Header', () => {
     eventBus,
     environment: {
       variables: [],
-      color: '#FF0000',
-      description: 'Test Environment',
+      color: "#FF0000",
+      description: "Test Environment",
     } as XScalarEnvironment,
     serverMeta: {
-      type: 'document',
+      type: "document",
     },
-  } as HeaderProps
+  } as HeaderProps;
 
   const render = (overrides: Partial<HeaderProps> = {}) => {
-    const props = { ...defaultProps, ...overrides }
-    return mount(Header, { props })
-  }
+    const props = { ...defaultProps, ...overrides };
+    return mount(Header, { props });
+  };
 
-  it('emits execute when AddressBar emits execute', () => {
-    const wrapper = render()
-    const addressBar = wrapper.getComponent(AddressBar)
-    addressBar.vm.$emit('execute')
+  it("emits execute when AddressBar emits execute", () => {
+    const wrapper = render();
+    const addressBar = wrapper.getComponent(AddressBar);
+    addressBar.vm.$emit("execute");
 
-    const emitted = wrapper.emitted().execute
-    expect(emitted?.length).toBe(1)
-  })
+    const emitted = wrapper.emitted().execute;
+    expect(emitted?.length).toBe(1);
+  });
 
-  it('renders OpenApiClientButton only in modal layout with documentUrl when not hidden', () => {
-    const modalWithUrl = render({ layout: 'modal', documentUrl: 'https://example.com/openapi.json' })
-    expect(modalWithUrl.findComponent(OpenApiClientButton).exists()).toBe(true)
+  it("renders OpenApiClientButton only in modal layout with documentUrl when not hidden", () => {
+    const modalWithUrl = render({
+      layout: "modal",
+      documentUrl: "https://example.com/openapi.json",
+    });
+    expect(modalWithUrl.findComponent(OpenApiClientButton).exists()).toBe(true);
 
-    const webLayout = render({ layout: 'web', documentUrl: 'https://example.com/openapi.json' })
-    expect(webLayout.findComponent(OpenApiClientButton).exists()).toBe(false)
+    const webLayout = render({
+      layout: "web",
+      documentUrl: "https://example.com/openapi.json",
+    });
+    expect(webLayout.findComponent(OpenApiClientButton).exists()).toBe(false);
 
     const hiddenButton = render({
-      layout: 'modal',
-      documentUrl: 'https://example.com/openapi.json',
+      layout: "modal",
+      documentUrl: "https://example.com/openapi.json",
       hideClientButton: true,
-    })
-    expect(hiddenButton.findComponent(OpenApiClientButton).exists()).toBe(false)
-  })
+    });
+    expect(hiddenButton.findComponent(OpenApiClientButton).exists()).toBe(
+      false,
+    );
+  });
 
-  it('emits ui:close:client-modal on the event bus when close buttons are clicked in modal', async () => {
-    const fn = vi.fn()
-    eventBus.on('ui:close:client-modal', fn)
+  it("emits ui:close:client-modal on the event bus when close buttons are clicked in modal", async () => {
+    const fn = vi.fn();
+    eventBus.on("ui:close:client-modal", fn);
 
-    const wrapper = render({ layout: 'modal' })
-    const buttons = wrapper.findAll('button')
+    const wrapper = render({ layout: "modal" });
+    const buttons = wrapper.findAll("button");
     for (const btn of buttons) {
-      await btn.trigger('click')
+      await btn.trigger("click");
     }
 
-    expect(fn).toHaveBeenCalled()
-  })
+    expect(fn).toHaveBeenCalled();
+  });
 
-  it('passes method and path props to AddressBar', () => {
-    const wrapper = render({ method: 'put', path: '/animals' })
-    const addressBar = wrapper.getComponent(AddressBar)
-    const props = addressBar.props() as any
-    expect(props.method).toBe('put')
-    expect(props.path).toBe('/animals')
-  })
-})
+  it("passes method and path props to AddressBar", () => {
+    const wrapper = render({ method: "put", path: "/animals" });
+    const addressBar = wrapper.getComponent(AddressBar);
+    const props = addressBar.props() as any;
+    expect(props.method).toBe("put");
+    expect(props.path).toBe("/animals");
+  });
+});

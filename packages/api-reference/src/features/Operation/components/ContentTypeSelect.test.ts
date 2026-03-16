@@ -1,35 +1,39 @@
-import { mount } from '@vue/test-utils'
-import { describe, expect, it } from 'vitest'
+import { mount } from "@vue/test-utils";
+import { describe, expect, it } from "vite-plus/test";
 
-import ContentTypeSelect from './ContentTypeSelect.vue'
+import ContentTypeSelect from "./ContentTypeSelect.vue";
 
-describe('ContentTypeSelect', () => {
-  it('renders with multiple content types as a dropdown', () => {
+describe("ContentTypeSelect", () => {
+  it("renders with multiple content types as a dropdown", () => {
     const wrapper = mount(ContentTypeSelect, {
       props: {
         content: {
-          'application/json': {},
-          'application/xml': {},
+          "application/json": {},
+          "application/xml": {},
         },
-        modelValue: 'application/json',
+        modelValue: "application/json",
       },
-    })
+    });
 
-    expect(wrapper.findComponent({ name: 'ScalarListbox' }).exists()).toBe(true)
-    expect(wrapper.text()).toContain('application/json')
-  })
+    expect(wrapper.findComponent({ name: "ScalarListbox" }).exists()).toBe(
+      true,
+    );
+    expect(wrapper.text()).toContain("application/json");
+  });
 
-  it('renders with a single content type as plain text', () => {
+  it("renders with a single content type as plain text", () => {
     const wrapper = mount(ContentTypeSelect, {
       props: {
         content: {
-          'application/json': {},
+          "application/json": {},
         },
-        modelValue: 'application/json',
+        modelValue: "application/json",
       },
-    })
+    });
 
-    expect(wrapper.findComponent({ name: 'ScalarListbox' }).exists()).toBe(false)
-    expect(wrapper.text()).toContain('application/json')
-  })
-})
+    expect(wrapper.findComponent({ name: "ScalarListbox" }).exists()).toBe(
+      false,
+    );
+    expect(wrapper.text()).toContain("application/json");
+  });
+});

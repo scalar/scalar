@@ -1,56 +1,56 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from "vite-plus/test";
 
-import { createMarkdownFromOpenApi } from './create-markdown-from-openapi'
+import { createMarkdownFromOpenApi } from "./create-markdown-from-openapi";
 
-describe('createMarkdownFromOpenApi', () => {
-  it('renders title, version and OpenAPI version', async () => {
+describe("createMarkdownFromOpenApi", () => {
+  it("renders title, version and OpenAPI version", async () => {
     const content = {
-      openapi: '3.1.1',
+      openapi: "3.1.1",
       info: {
-        title: 'Test API',
-        version: '1.0.0',
-        description: 'Test description',
+        title: "Test API",
+        version: "1.0.0",
+        description: "Test description",
       },
       paths: {},
-    }
+    };
 
     const markdown = `# Test API
 
 - **OpenAPI Version:** \`3.1.1\`
 - **API Version:** \`1.0.0\`
 
-Test description`
+Test description`;
 
-    const result = await createMarkdownFromOpenApi(content)
+    const result = await createMarkdownFromOpenApi(content);
 
-    expect(result).toContain(markdown)
-  })
+    expect(result).toContain(markdown);
+  });
 
-  it('renders servers', async () => {
+  it("renders servers", async () => {
     const content = {
-      openapi: '3.1.1',
+      openapi: "3.1.1",
       info: {
-        title: 'Test API',
-        version: '1.0.0',
+        title: "Test API",
+        version: "1.0.0",
       },
       servers: [
         {
-          url: 'https://test.com',
-          description: 'Test server',
+          url: "https://test.com",
+          description: "Test server",
         },
         {
-          url: 'https://test.com/{version}',
-          description: 'Test server v2',
+          url: "https://test.com/{version}",
+          description: "Test server v2",
           variables: {
             version: {
-              default: 'v2',
-              description: 'Test version',
+              default: "v2",
+              description: "Test version",
             },
           },
         },
       ],
       paths: {},
-    }
+    };
 
     const markdown = `# Test API
 
@@ -67,29 +67,29 @@ Test description`
   - **Description:** Test server v2
   - **Variables:**
     - \`version\` (default: \`v2\`): Test version
-`
+`;
 
-    const result = await createMarkdownFromOpenApi(content)
+    const result = await createMarkdownFromOpenApi(content);
 
-    expect(result).toContain(markdown)
-  })
+    expect(result).toContain(markdown);
+  });
 
-  it('renders operations', async () => {
+  it("renders operations", async () => {
     const content = {
-      openapi: '3.1.1',
+      openapi: "3.1.1",
       info: {
-        title: 'Test API',
-        version: '1.0.0',
+        title: "Test API",
+        version: "1.0.0",
       },
       paths: {
-        '/test': {
+        "/test": {
           get: {
-            summary: 'Test operation',
-            description: 'Test description',
+            summary: "Test operation",
+            description: "Test description",
           },
         },
       },
-    }
+    };
 
     const markdown = `# Test API
 
@@ -103,50 +103,50 @@ Test description`
 - **Method:** \`GET\`
 - **Path:** \`/test\`
 
-Test description`
+Test description`;
 
-    const result = await createMarkdownFromOpenApi(content)
+    const result = await createMarkdownFromOpenApi(content);
 
-    expect(result).toContain(markdown)
-  })
+    expect(result).toContain(markdown);
+  });
 
-  it('renders request body and response schemas', async () => {
+  it("renders request body and response schemas", async () => {
     const content = {
-      openapi: '3.1.1',
+      openapi: "3.1.1",
       info: {
-        title: 'Test API',
-        version: '1.0.0',
+        title: "Test API",
+        version: "1.0.0",
       },
       paths: {
-        '/users': {
+        "/users": {
           post: {
-            summary: 'Create user',
-            description: 'Creates a new user',
+            summary: "Create user",
+            description: "Creates a new user",
             requestBody: {
               content: {
-                'application/json': {
+                "application/json": {
                   schema: {
-                    type: 'object',
+                    type: "object",
                     properties: {
-                      name: { type: 'string', description: 'User name' },
-                      email: { type: 'string', format: 'email' },
+                      name: { type: "string", description: "User name" },
+                      email: { type: "string", format: "email" },
                     },
-                    required: ['name', 'email'],
+                    required: ["name", "email"],
                   },
                 },
               },
             },
             responses: {
-              '201': {
-                description: 'User created',
+              "201": {
+                description: "User created",
                 content: {
-                  'application/json': {
+                  "application/json": {
                     schema: {
-                      type: 'object',
+                      type: "object",
                       properties: {
-                        id: { type: 'string' },
-                        name: { type: 'string' },
-                        email: { type: 'string', format: 'email' },
+                        id: { type: "string" },
+                        name: { type: "string" },
+                        email: { type: "string", format: "email" },
                       },
                     },
                   },
@@ -156,41 +156,41 @@ Test description`
           },
         },
       },
-    }
+    };
 
-    const result = await createMarkdownFromOpenApi(content)
+    const result = await createMarkdownFromOpenApi(content);
 
-    expect(result).toContain('Request Body')
-    expect(result).toContain('name')
-    expect(result).toContain('email')
-    expect(result).toContain('Responses')
-    expect(result).toContain('201')
-    expect(result).toContain('id')
-  })
+    expect(result).toContain("Request Body");
+    expect(result).toContain("name");
+    expect(result).toContain("email");
+    expect(result).toContain("Responses");
+    expect(result).toContain("201");
+    expect(result).toContain("id");
+  });
 
-  it('renders response schemas with language identifiers (JSON and XML)', async () => {
-    const content = (contentType: 'application/json' | 'application/xml') => ({
-      openapi: '3.1.1',
+  it("renders response schemas with language identifiers (JSON and XML)", async () => {
+    const content = (contentType: "application/json" | "application/xml") => ({
+      openapi: "3.1.1",
       info: {
-        title: 'Test API',
-        version: '1.0.0',
+        title: "Test API",
+        version: "1.0.0",
       },
       paths: {
-        '/items': {
+        "/items": {
           get: {
-            summary: 'Get items',
+            summary: "Get items",
             responses: {
-              '200': {
-                description: 'Successful response',
+              "200": {
+                description: "Successful response",
                 content: {
                   [contentType]: {
                     schema: {
-                      type: 'array',
+                      type: "array",
                       items: {
-                        type: 'object',
+                        type: "object",
                         properties: {
-                          id: { type: 'string' },
-                          name: { type: 'string' },
+                          id: { type: "string" },
+                          name: { type: "string" },
                         },
                       },
                     },
@@ -201,10 +201,14 @@ Test description`
           },
         },
       },
-    })
+    });
 
-    const resultJson = await createMarkdownFromOpenApi(content('application/json'))
-    const resultXml = await createMarkdownFromOpenApi(content('application/xml'))
+    const resultJson = await createMarkdownFromOpenApi(
+      content("application/json"),
+    );
+    const resultXml = await createMarkdownFromOpenApi(
+      content("application/xml"),
+    );
 
     expect(resultJson).toMatchInlineSnapshot(`
       "# Test API
@@ -246,7 +250,7 @@ Test description`
       ]
       \`\`\`
       "
-    `)
+    `);
     expect(resultXml).toMatchInlineSnapshot(`
       "# Test API
 
@@ -286,6 +290,6 @@ Test description`
       </0>
       \`\`\`
       "
-    `)
-  })
-})
+    `);
+  });
+});

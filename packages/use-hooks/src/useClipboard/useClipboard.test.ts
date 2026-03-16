@@ -1,162 +1,177 @@
-import { useToasts } from '@scalar/use-toasts'
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { useToasts } from "@scalar/use-toasts";
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from "vite-plus/test";
 
-import { useClipboard } from './useClipboard'
+import { useClipboard } from "./useClipboard";
 
-vi.mock(import('@scalar/use-toasts'), () => ({
+vi.mock(import("@scalar/use-toasts"), () => ({
   useToasts: vi.fn().mockReturnValue({
     toast: vi.fn(),
     initializeToasts: vi.fn(),
   }),
-}))
+}));
 
-describe('useClipboard', () => {
+describe("useClipboard", () => {
   beforeEach(() => {
     // Mock clipboard API
-    Object.defineProperty(navigator, 'clipboard', {
+    Object.defineProperty(navigator, "clipboard", {
       value: {
         writeText: vi.fn().mockResolvedValue(undefined),
       },
       writable: true,
-    })
-  })
+    });
+  });
 
   afterEach(() => {
-    vi.clearAllMocks()
-    vi.unstubAllGlobals()
-  })
+    vi.clearAllMocks();
+    vi.unstubAllGlobals();
+  });
 
-  it('copies text to clipboard', async () => {
-    const { copyToClipboard } = useClipboard()
+  it("copies text to clipboard", async () => {
+    const { copyToClipboard } = useClipboard();
 
-    await copyToClipboard('test text')
+    await copyToClipboard("test text");
 
-    expect(navigator.clipboard.writeText).toHaveBeenCalledWith('test text')
-  })
+    expect(navigator.clipboard.writeText).toHaveBeenCalledWith("test text");
+  });
 
-  it('shows a toast notification when text is copied', async () => {
-    const mockToast = vi.fn()
+  it("shows a toast notification when text is copied", async () => {
+    const mockToast = vi.fn();
     vi.mocked(useToasts).mockReturnValue({
       toast: mockToast,
       initializeToasts: vi.fn(),
-    })
+    });
 
-    const { copyToClipboard } = useClipboard()
-    await copyToClipboard('test text')
+    const { copyToClipboard } = useClipboard();
+    await copyToClipboard("test text");
 
-    expect(mockToast).toHaveBeenCalledWith('Copied to the clipboard', 'info')
-  })
+    expect(mockToast).toHaveBeenCalledWith("Copied to the clipboard", "info");
+  });
 
-  it('calls custom notify function when provided', async () => {
-    const customNotify = vi.fn()
-    const { copyToClipboard } = useClipboard({ notify: customNotify })
+  it("calls custom notify function when provided", async () => {
+    const customNotify = vi.fn();
+    const { copyToClipboard } = useClipboard({ notify: customNotify });
 
-    await copyToClipboard('test text')
+    await copyToClipboard("test text");
 
-    expect(navigator.clipboard.writeText).toHaveBeenCalledWith('test text')
-    expect(customNotify).toHaveBeenCalledWith('Copied to the clipboard')
-  })
+    expect(navigator.clipboard.writeText).toHaveBeenCalledWith("test text");
+    expect(customNotify).toHaveBeenCalledWith("Copied to the clipboard");
+  });
 
-  it('handles clipboard errors gracefully', async () => {
-    const mockConsole = vi.fn()
-    vi.stubGlobal('console', { error: mockConsole })
+  it("handles clipboard errors gracefully", async () => {
+    const mockConsole = vi.fn();
+    vi.stubGlobal("console", { error: mockConsole });
 
     // Mock clipboard failure
-    Object.defineProperty(navigator, 'clipboard', {
+    Object.defineProperty(navigator, "clipboard", {
       value: {
-        writeText: vi.fn().mockRejectedValue(new Error('Clipboard error')),
+        writeText: vi.fn().mockRejectedValue(new Error("Clipboard error")),
       },
       writable: true,
-    })
+    });
 
-    const notify = vi.fn()
-    const { copyToClipboard } = useClipboard({ notify })
+    const notify = vi.fn();
+    const { copyToClipboard } = useClipboard({ notify });
 
-    await copyToClipboard('test text')
+    await copyToClipboard("test text");
 
-    expect(notify).toHaveBeenCalledWith('Failed to copy to clipboard')
-    expect(mockConsole).toHaveBeenCalledWith('Clipboard error')
-  })
+    expect(notify).toHaveBeenCalledWith("Failed to copy to clipboard");
+    expect(mockConsole).toHaveBeenCalledWith("Clipboard error");
+  });
 
-  it('works in SSG environment without navigator', async ({ onTestFinished }) => {
+  it("works in SSG environment without navigator", async ({
+    onTestFinished,
+  }) => {
     // Mock SSG environment by removing navigator
-    vi.stubGlobal('navigator', undefined)
+    vi.stubGlobal("navigator", undefined);
     onTestFinished(() => {
-      vi.unstubAllGlobals()
-    })
+      vi.unstubAllGlobals();
+    });
 
-    const notify = vi.fn()
-    const { copyToClipboard } = useClipboard({ notify })
+    const notify = vi.fn();
+    const { copyToClipboard } = useClipboard({ notify });
 
-    await copyToClipboard('test text')
+    await copyToClipboard("test text");
 
     // Should show error notification since clipboard is not available
-    expect(notify).toHaveBeenCalledWith('Failed to copy to clipboard')
-  })
+    expect(notify).toHaveBeenCalledWith("Failed to copy to clipboard");
+  });
 
-  it('handles objects by stringifying them', async () => {
-    const { copyToClipboard } = useClipboard()
-    const testObject = { name: 'John', age: 30 }
+  it("handles objects by stringifying them", async () => {
+    const { copyToClipboard } = useClipboard();
+    const testObject = { name: "John", age: 30 };
 
-    await copyToClipboard(testObject)
+    await copyToClipboard(testObject);
 
-    expect(navigator.clipboard.writeText).toHaveBeenCalledWith(JSON.stringify(testObject))
-  })
+    expect(navigator.clipboard.writeText).toHaveBeenCalledWith(
+      JSON.stringify(testObject),
+    );
+  });
 
-  it('handles arrays by stringifying them', async () => {
-    const { copyToClipboard } = useClipboard()
-    const testArray = [1, 2, 3, 'four']
+  it("handles arrays by stringifying them", async () => {
+    const { copyToClipboard } = useClipboard();
+    const testArray = [1, 2, 3, "four"];
 
-    await copyToClipboard(testArray)
+    await copyToClipboard(testArray);
 
-    expect(navigator.clipboard.writeText).toHaveBeenCalledWith(JSON.stringify(testArray))
-  })
+    expect(navigator.clipboard.writeText).toHaveBeenCalledWith(
+      JSON.stringify(testArray),
+    );
+  });
 
-  it('handles numbers by stringifying them', async () => {
-    const { copyToClipboard } = useClipboard()
+  it("handles numbers by stringifying them", async () => {
+    const { copyToClipboard } = useClipboard();
 
-    await copyToClipboard(42)
+    await copyToClipboard(42);
 
-    expect(navigator.clipboard.writeText).toHaveBeenCalledWith('42')
-  })
+    expect(navigator.clipboard.writeText).toHaveBeenCalledWith("42");
+  });
 
-  it('handles booleans by stringifying them', async () => {
-    const { copyToClipboard } = useClipboard()
+  it("handles booleans by stringifying them", async () => {
+    const { copyToClipboard } = useClipboard();
 
-    await copyToClipboard(true)
+    await copyToClipboard(true);
 
-    expect(navigator.clipboard.writeText).toHaveBeenCalledWith('true')
-  })
+    expect(navigator.clipboard.writeText).toHaveBeenCalledWith("true");
+  });
 
-  it('handles null by stringifying it', async () => {
-    const { copyToClipboard } = useClipboard()
+  it("handles null by stringifying it", async () => {
+    const { copyToClipboard } = useClipboard();
 
-    await copyToClipboard(null)
+    await copyToClipboard(null);
 
-    expect(navigator.clipboard.writeText).toHaveBeenCalledWith('null')
-  })
+    expect(navigator.clipboard.writeText).toHaveBeenCalledWith("null");
+  });
 
-  it('handles undefined by stringifying it', async () => {
-    const { copyToClipboard } = useClipboard()
-    await copyToClipboard(undefined)
-    expect(navigator.clipboard.writeText).toHaveBeenCalledWith('undefined')
-  })
+  it("handles undefined by stringifying it", async () => {
+    const { copyToClipboard } = useClipboard();
+    await copyToClipboard(undefined);
+    expect(navigator.clipboard.writeText).toHaveBeenCalledWith("undefined");
+  });
 
-  it('handles nested objects by stringifying them', async () => {
-    const { copyToClipboard } = useClipboard()
+  it("handles nested objects by stringifying them", async () => {
+    const { copyToClipboard } = useClipboard();
     const nestedObject = {
       user: {
-        name: 'Jane',
+        name: "Jane",
         preferences: {
-          theme: 'dark',
+          theme: "dark",
           notifications: true,
         },
       },
       items: [1, 2, 3],
-    }
+    };
 
-    await copyToClipboard(nestedObject)
+    await copyToClipboard(nestedObject);
 
-    expect(navigator.clipboard.writeText).toHaveBeenCalledWith(JSON.stringify(nestedObject))
-  })
-})
+    expect(navigator.clipboard.writeText).toHaveBeenCalledWith(
+      JSON.stringify(nestedObject),
+    );
+  });
+});

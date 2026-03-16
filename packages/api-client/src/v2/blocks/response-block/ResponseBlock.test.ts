@@ -1,436 +1,444 @@
-import type { ResponseInstance } from '@scalar/oas-utils/entities/spec'
-import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
-import { mount } from '@vue/test-utils'
-import { describe, expect, it, vi } from 'vitest'
-import { type DefineComponent, defineComponent, markRaw } from 'vue'
+import type { ResponseInstance } from "@scalar/oas-utils/entities/spec";
+import { createWorkspaceEventBus } from "@scalar/workspace-store/events";
+import { mount } from "@vue/test-utils";
+import { describe, expect, it, vi } from "vite-plus/test";
+import { type DefineComponent, defineComponent, markRaw } from "vue";
 
-import type { ClientLayout } from '@/hooks'
-import { createStoreEvents } from '@/store/events'
+import type { ClientLayout } from "@/hooks";
+import { createStoreEvents } from "@/store/events";
 
-import ResponseEmpty from './components/ResponseEmpty.vue'
-import ResponseMetaInformation from './components/ResponseMetaInformation.vue'
-import ResponseBlock from './ResponseBlock.vue'
+import ResponseEmpty from "./components/ResponseEmpty.vue";
+import ResponseMetaInformation from "./components/ResponseMetaInformation.vue";
+import ResponseBlock from "./ResponseBlock.vue";
 
-const events = createStoreEvents()
+const events = createStoreEvents();
 
-const getDefaultResponse = (overrides: Partial<ResponseInstance> = {}): ResponseInstance => {
+const getDefaultResponse = (
+  overrides: Partial<ResponseInstance> = {},
+): ResponseInstance => {
   return {
     ...new Response(),
     status: 200,
     headers: {},
     cookieHeaderKeys: [],
     duration: 0,
-    method: 'get' as const,
-    path: '/',
+    method: "get" as const,
+    path: "/",
     reader: new ReadableStreamDefaultReader(new ReadableStream()),
     ...overrides,
-  } as ResponseInstance
-}
+  } as ResponseInstance;
+};
 
-describe('ResponseBlock', () => {
-  const defaultLayout: ClientLayout = 'desktop'
+describe("ResponseBlock", () => {
+  const defaultLayout: ClientLayout = "desktop";
   const defaultProps = {
     response: null,
     request: null,
     layout: defaultLayout,
     totalPerformedRequests: 0,
-    appVersion: '1.0.0',
+    appVersion: "1.0.0",
     plugins: [],
     events: events,
     eventBus: createWorkspaceEventBus(),
-  }
+  };
 
-  describe('empty state', () => {
-    it('renders ResponseEmpty when no response provided', () => {
+  describe("empty state", () => {
+    it("renders ResponseEmpty when no response provided", () => {
       const wrapper = mount(ResponseBlock, {
         props: defaultProps,
-      })
+      });
 
-      const emptyComponent = wrapper.findComponent(ResponseEmpty)
-      expect(emptyComponent.exists()).toBe(true)
-    })
+      const emptyComponent = wrapper.findComponent(ResponseEmpty);
+      expect(emptyComponent.exists()).toBe(true);
+    });
 
-    it('passes correct props to ResponseEmpty', () => {
+    it("passes correct props to ResponseEmpty", () => {
       const wrapper = mount(ResponseBlock, {
         props: {
           ...defaultProps,
           totalPerformedRequests: 5,
-          appVersion: '2.0.0',
+          appVersion: "2.0.0",
         },
-      })
+      });
 
-      const emptyComponent = wrapper.findComponent(ResponseEmpty)
-      expect(emptyComponent.props('totalPerformedRequests')).toBe(5)
-      expect(emptyComponent.props('appVersion')).toBe('2.0.0')
-      expect(emptyComponent.props('layout')).toBe('desktop')
-    })
+      const emptyComponent = wrapper.findComponent(ResponseEmpty);
+      expect(emptyComponent.props("totalPerformedRequests")).toBe(5);
+      expect(emptyComponent.props("appVersion")).toBe("2.0.0");
+      expect(emptyComponent.props("layout")).toBe("desktop");
+    });
 
-    it('emits addRequest when ResponseEmpty emits it', () => {
-      const eventBus = createWorkspaceEventBus()
-      const fn = vi.fn()
-      eventBus.on('ui:open:command-palette', fn)
+    it("emits addRequest when ResponseEmpty emits it", () => {
+      const eventBus = createWorkspaceEventBus();
+      const fn = vi.fn();
+      eventBus.on("ui:open:command-palette", fn);
       const wrapper = mount(ResponseBlock, {
         props: {
           ...defaultProps,
           eventBus,
         },
-      })
+      });
 
-      const emptyComponent = wrapper.findComponent(ResponseEmpty)
-      emptyComponent.vm.$emit('addRequest')
+      const emptyComponent = wrapper.findComponent(ResponseEmpty);
+      emptyComponent.vm.$emit("addRequest");
 
-      expect(fn).toHaveBeenCalledTimes(1)
-      expect(fn).toHaveBeenCalledWith({ action: 'create-request', payload: undefined })
-    })
+      expect(fn).toHaveBeenCalledTimes(1);
+      expect(fn).toHaveBeenCalledWith({
+        action: "create-request",
+        payload: undefined,
+      });
+    });
 
-    it('emits sendRequest when ResponseEmpty emits it', () => {
-      const eventBus = createWorkspaceEventBus()
-      const fn = vi.fn()
-      eventBus.on('operation:send:request:hotkey', fn)
+    it("emits sendRequest when ResponseEmpty emits it", () => {
+      const eventBus = createWorkspaceEventBus();
+      const fn = vi.fn();
+      eventBus.on("operation:send:request:hotkey", fn);
       const wrapper = mount(ResponseBlock, {
         props: {
           ...defaultProps,
           eventBus,
         },
-      })
+      });
 
-      const emptyComponent = wrapper.findComponent(ResponseEmpty)
-      emptyComponent.vm.$emit('sendRequest')
+      const emptyComponent = wrapper.findComponent(ResponseEmpty);
+      emptyComponent.vm.$emit("sendRequest");
 
-      expect(fn).toHaveBeenCalledTimes(1)
-    })
+      expect(fn).toHaveBeenCalledTimes(1);
+    });
 
-    it('emits openCommandPalette when ResponseEmpty emits it', () => {
-      const eventBus = createWorkspaceEventBus()
-      const fn = vi.fn()
-      eventBus.on('ui:open:command-palette', fn)
+    it("emits openCommandPalette when ResponseEmpty emits it", () => {
+      const eventBus = createWorkspaceEventBus();
+      const fn = vi.fn();
+      eventBus.on("ui:open:command-palette", fn);
       const wrapper = mount(ResponseBlock, {
         props: {
           ...defaultProps,
           eventBus,
         },
-      })
+      });
 
-      const emptyComponent = wrapper.findComponent(ResponseEmpty)
-      emptyComponent.vm.$emit('openCommandPalette')
+      const emptyComponent = wrapper.findComponent(ResponseEmpty);
+      emptyComponent.vm.$emit("openCommandPalette");
 
-      expect(fn).toHaveBeenCalledTimes(1)
-    })
-  })
+      expect(fn).toHaveBeenCalledTimes(1);
+    });
+  });
 
-  describe('with response', () => {
-    it('renders ResponseMetaInformation when response exists', () => {
-      const mockResponse = getDefaultResponse()
+  describe("with response", () => {
+    it("renders ResponseMetaInformation when response exists", () => {
+      const mockResponse = getDefaultResponse();
 
       const wrapper = mount(ResponseBlock, {
         props: {
           ...defaultProps,
           response: mockResponse,
         },
-      })
+      });
 
-      const metaInfo = wrapper.findComponent(ResponseMetaInformation)
-      expect(metaInfo.exists()).toBe(true)
-    })
+      const metaInfo = wrapper.findComponent(ResponseMetaInformation);
+      expect(metaInfo.exists()).toBe(true);
+    });
 
-    it('does not render ResponseEmpty when response exists', () => {
-      const mockResponse = getDefaultResponse()
+    it("does not render ResponseEmpty when response exists", () => {
+      const mockResponse = getDefaultResponse();
 
       const wrapper = mount(ResponseBlock, {
         props: {
           ...defaultProps,
           response: mockResponse,
         },
-      })
+      });
 
-      const emptyComponent = wrapper.findComponent(ResponseEmpty)
-      expect(emptyComponent.exists()).toBe(false)
-    })
+      const emptyComponent = wrapper.findComponent(ResponseEmpty);
+      expect(emptyComponent.exists()).toBe(false);
+    });
 
-    it('passes response to ResponseMetaInformation', () => {
+    it("passes response to ResponseMetaInformation", () => {
       const mockResponse = getDefaultResponse({
-        statusText: 'OK',
-      })
+        statusText: "OK",
+      });
 
       const wrapper = mount(ResponseBlock, {
         props: {
           ...defaultProps,
           response: mockResponse,
         },
-      })
+      });
 
-      const metaInfo = wrapper.findComponent(ResponseMetaInformation)
-      expect(metaInfo.props('response')).toEqual(mockResponse)
-    })
-  })
+      const metaInfo = wrapper.findComponent(ResponseMetaInformation);
+      expect(metaInfo.props("response")).toEqual(mockResponse);
+    });
+  });
 
-  describe('title display', () => {
+  describe("title display", () => {
     it('shows "Response" text', () => {
       const wrapper = mount(ResponseBlock, {
         props: defaultProps,
-      })
+      });
 
-      expect(wrapper.text()).toContain('Response')
-    })
+      expect(wrapper.text()).toContain("Response");
+    });
 
-    it('applies animation classes when response exists', () => {
-      const mockResponse = getDefaultResponse()
-
-      const wrapper = mount(ResponseBlock, {
-        props: {
-          ...defaultProps,
-          response: mockResponse,
-        },
-      })
-
-      const heading = wrapper.find('.animate-response-heading')
-      expect(heading.exists()).toBe(true)
-    })
-
-    it('has correct CSS class for response children animation', () => {
-      const mockResponse = getDefaultResponse()
+    it("applies animation classes when response exists", () => {
+      const mockResponse = getDefaultResponse();
 
       const wrapper = mount(ResponseBlock, {
         props: {
           ...defaultProps,
           response: mockResponse,
         },
-      })
+      });
 
-      const children = wrapper.find('.animate-response-children')
-      expect(children.exists()).toBe(true)
-    })
-  })
+      const heading = wrapper.find(".animate-response-heading");
+      expect(heading.exists()).toBe(true);
+    });
 
-  describe('accessibility', () => {
-    it('has aria-label on section', () => {
+    it("has correct CSS class for response children animation", () => {
+      const mockResponse = getDefaultResponse();
+
+      const wrapper = mount(ResponseBlock, {
+        props: {
+          ...defaultProps,
+          response: mockResponse,
+        },
+      });
+
+      const children = wrapper.find(".animate-response-children");
+      expect(children.exists()).toBe(true);
+    });
+  });
+
+  describe("accessibility", () => {
+    it("has aria-label on section", () => {
       const wrapper = mount(ResponseBlock, {
         props: defaultProps,
-      })
+      });
 
-      const section = wrapper.find('[aria-label="Response"]')
-      expect(section.exists()).toBe(true)
-    })
+      const section = wrapper.find('[aria-label="Response"]');
+      expect(section.exists()).toBe(true);
+    });
 
-    it('has aria-live on response heading', () => {
-      const mockResponse = getDefaultResponse()
+    it("has aria-live on response heading", () => {
+      const mockResponse = getDefaultResponse();
 
       const wrapper = mount(ResponseBlock, {
         props: {
           ...defaultProps,
           response: mockResponse,
         },
-      })
+      });
 
-      const liveRegion = wrapper.find('[aria-live="polite"]')
-      expect(liveRegion.exists()).toBe(true)
-    })
-  })
+      const liveRegion = wrapper.find('[aria-live="polite"]');
+      expect(liveRegion.exists()).toBe(true);
+    });
+  });
 
-  describe('layout prop', () => {
-    it('accepts desktop layout', () => {
+  describe("layout prop", () => {
+    it("accepts desktop layout", () => {
       const wrapper = mount(ResponseBlock, {
         props: {
           ...defaultProps,
-          layout: 'desktop',
+          layout: "desktop",
         },
-      })
+      });
 
-      expect(wrapper.props('layout')).toBe('desktop')
-    })
+      expect(wrapper.props("layout")).toBe("desktop");
+    });
 
-    it('accepts modal layout', () => {
+    it("accepts modal layout", () => {
       const wrapper = mount(ResponseBlock, {
         props: {
           ...defaultProps,
-          layout: 'modal',
+          layout: "modal",
         },
-      })
+      });
 
-      expect(wrapper.props('layout')).toBe('modal')
-    })
+      expect(wrapper.props("layout")).toBe("modal");
+    });
 
-    it('accepts web layout', () => {
+    it("accepts web layout", () => {
       const wrapper = mount(ResponseBlock, {
         props: {
           ...defaultProps,
-          layout: 'web',
+          layout: "web",
         },
-      })
+      });
 
-      expect(wrapper.props('layout')).toBe('web')
-    })
-  })
+      expect(wrapper.props("layout")).toBe("web");
+    });
+  });
 
-  describe('filters', () => {
+  describe("filters", () => {
     it('initializes with "All" filter', () => {
       const wrapper = mount(ResponseBlock, {
         props: defaultProps,
-      })
+      });
 
-      const vm = wrapper.vm
-      expect(vm.activeFilter).toBe('All')
-    })
+      const vm = wrapper.vm;
+      expect(vm.activeFilter).toBe("All");
+    });
 
-    it('generates filters array', () => {
+    it("generates filters array", () => {
       const wrapper = mount(ResponseBlock, {
         props: defaultProps,
-      })
+      });
 
-      const vm = wrapper.vm
-      expect(vm.filters).toEqual(['All', 'Cookies', 'Headers', 'Body'])
-    })
-  })
+      const vm = wrapper.vm;
+      expect(vm.filters).toEqual(["All", "Cookies", "Headers", "Body"]);
+    });
+  });
 
-  describe('computed properties', () => {
-    it('responseHeaders returns empty array when no response', () => {
+  describe("computed properties", () => {
+    it("responseHeaders returns empty array when no response", () => {
       const wrapper = mount(ResponseBlock, {
         props: defaultProps,
-      })
+      });
 
-      const vm = wrapper.vm
-      expect(vm.responseHeaders).toEqual([])
-    })
+      const vm = wrapper.vm;
+      expect(vm.responseHeaders).toEqual([]);
+    });
 
-    it('responseHeaders transforms headers object to array', () => {
+    it("responseHeaders transforms headers object to array", () => {
       const mockResponse = getDefaultResponse({
         headers: {
-          'Content-Type': 'application/json',
-          'X-Custom': 'value',
+          "Content-Type": "application/json",
+          "X-Custom": "value",
         },
-      })
+      });
 
       const wrapper = mount(ResponseBlock, {
         props: {
           ...defaultProps,
           response: mockResponse,
         },
-      })
+      });
 
-      const vm = wrapper.vm
+      const vm = wrapper.vm;
       expect(vm.responseHeaders).toEqual([
-        { name: 'Content-Type', value: 'application/json' },
-        { name: 'X-Custom', value: 'value' },
-      ])
-    })
+        { name: "Content-Type", value: "application/json" },
+        { name: "X-Custom", value: "value" },
+      ]);
+    });
 
-    it('responseCookies returns empty array when no cookieHeaderKeys', () => {
-      const mockResponse = getDefaultResponse()
+    it("responseCookies returns empty array when no cookieHeaderKeys", () => {
+      const mockResponse = getDefaultResponse();
 
       const wrapper = mount(ResponseBlock, {
         props: {
           ...defaultProps,
           response: mockResponse,
         },
-      })
+      });
 
-      const vm = wrapper.vm
-      expect(vm.responseCookies).toEqual([])
-    })
+      const vm = wrapper.vm;
+      expect(vm.responseCookies).toEqual([]);
+    });
 
-    it('responseCookies parses Set-Cookie header values correctly', () => {
+    it("responseCookies parses Set-Cookie header values correctly", () => {
       const mockResponse = {
         ...getDefaultResponse(),
         cookieHeaderKeys: [
-          'sessionId=abc123; Path=/; HttpOnly',
-          'userId=xyz789; Path=/; Secure',
-          'theme=dark; Path=/; SameSite=Strict',
+          "sessionId=abc123; Path=/; HttpOnly",
+          "userId=xyz789; Path=/; Secure",
+          "theme=dark; Path=/; SameSite=Strict",
         ],
-      }
+      };
 
       const wrapper = mount(ResponseBlock, {
         props: {
           ...defaultProps,
           response: mockResponse,
         },
-      })
+      });
 
-      const vm = wrapper.vm
+      const vm = wrapper.vm;
       expect(vm.responseCookies).toEqual([
-        { name: 'sessionId', value: 'abc123; Path=/; HttpOnly' },
-        { name: 'userId', value: 'xyz789; Path=/; Secure' },
-        { name: 'theme', value: 'dark; Path=/; SameSite=Strict' },
-      ])
-    })
+        { name: "sessionId", value: "abc123; Path=/; HttpOnly" },
+        { name: "userId", value: "xyz789; Path=/; Secure" },
+        { name: "theme", value: "dark; Path=/; SameSite=Strict" },
+      ]);
+    });
 
-    it('responseCookies filters out invalid cookie values', () => {
+    it("responseCookies filters out invalid cookie values", () => {
       const mockResponse = {
         ...getDefaultResponse(),
         cookieHeaderKeys: [
-          'validCookie=value; Path=/',
-          'invalidcookie', // No equals sign
-          '=noname', // No name
-          'anotherValid=test; HttpOnly',
+          "validCookie=value; Path=/",
+          "invalidcookie", // No equals sign
+          "=noname", // No name
+          "anotherValid=test; HttpOnly",
         ],
-      }
+      };
 
       const wrapper = mount(ResponseBlock, {
         props: {
           ...defaultProps,
           response: mockResponse,
         },
-      })
+      });
 
-      const vm = wrapper.vm
+      const vm = wrapper.vm;
       expect(vm.responseCookies).toEqual([
-        { name: 'validCookie', value: 'value; Path=/' },
-        { name: 'anotherValid', value: 'test; HttpOnly' },
-      ])
-    })
+        { name: "validCookie", value: "value; Path=/" },
+        { name: "anotherValid", value: "test; HttpOnly" },
+      ]);
+    });
 
-    it('requestHeaders returns empty array when no request', () => {
+    it("requestHeaders returns empty array when no request", () => {
       const wrapper = mount(ResponseBlock, {
         props: defaultProps,
-      })
+      });
 
-      const vm = wrapper.vm
-      expect(vm.requestHeaders).toEqual([])
-    })
-  })
+      const vm = wrapper.vm;
+      expect(vm.requestHeaders).toEqual([]);
+    });
+  });
 
-  describe('virtualization threshold', () => {
-    it('VIRTUALIZATION_THRESHOLD constant is defined', () => {
+  describe("virtualization threshold", () => {
+    it("VIRTUALIZATION_THRESHOLD constant is defined", () => {
       const wrapper = mount(ResponseBlock, {
         props: defaultProps,
-      })
+      });
 
-      const vm = wrapper.vm
+      const vm = wrapper.vm;
       // The threshold should be accessible
-      expect(vm.shouldVirtualize).toBeDefined()
-    })
+      expect(vm.shouldVirtualize).toBeDefined();
+    });
 
-    it('shouldVirtualize returns false when no response', () => {
+    it("shouldVirtualize returns false when no response", () => {
       const wrapper = mount(ResponseBlock, {
         props: defaultProps,
-      })
+      });
 
-      const vm = wrapper.vm
-      expect(vm.shouldVirtualize).toBe(false)
-    })
-  })
+      const vm = wrapper.vm;
+      expect(vm.shouldVirtualize).toBe(false);
+    });
+  });
 
-  it('renders plugin component when provided', () => {
+  it("renders plugin component when provided", () => {
     const PluginResponseComponent = markRaw(
       defineComponent({
-        template: '<div>Plugin Response Component</div>',
+        template: "<div>Plugin Response Component</div>",
       }) as DefineComponent<{}, {}, {}, {}, {}, {}, {}, Record<string, never>>,
-    )
+    );
 
     const wrapper = mount(ResponseBlock, {
       props: {
         ...defaultProps,
-        request: new Request('https://example.com'),
+        request: new Request("https://example.com"),
         response: getDefaultResponse(),
         plugins: [
           {
             components: {
-              response: { component: PluginResponseComponent, additionalProps: {} },
+              response: {
+                component: PluginResponseComponent,
+                additionalProps: {},
+              },
             },
           },
         ],
       },
-    })
+    });
 
-    expect(wrapper.text()).toContain('Plugin Response Component')
-  })
-})
+    expect(wrapper.text()).toContain("Plugin Response Component");
+  });
+});

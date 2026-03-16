@@ -1,17 +1,17 @@
-import { URL, fileURLToPath } from 'node:url'
+import { URL, fileURLToPath } from "node:url";
 
-import { findEntryPoints } from '@scalar/build-tooling'
-import { defineConfig } from 'vite'
+import { findEntryPoints } from "@scalar/build-tooling";
+import { defineConfig } from "vite-plus";
 
-import pkg from './package.json'
+import pkg from "./package.json";
 
 export default defineConfig({
   plugins: [],
   resolve: {
     alias: {
-      '@': fileURLToPath(new URL('./src', import.meta.url)),
+      "@": fileURLToPath(new URL("./src", import.meta.url)),
     },
-    dedupe: ['vue'],
+    dedupe: ["vue"],
   },
   server: {
     port: 9000,
@@ -19,17 +19,18 @@ export default defineConfig({
   build: {
     ssr: true,
     minify: false,
-    target: 'esnext',
+    target: "esnext",
     lib: {
       entry: await findEntryPoints({ allowCss: false }),
-      formats: ['es'],
+      formats: ["es"],
     },
     rollupOptions: {
       external: [...Object.keys((pkg as any).peerDependencies || {})],
       output: {
         // Create a separate file for the dependency bundle
-        manualChunks: (id) => (id.includes('node_modules') ? 'vendor' : undefined),
+        manualChunks: (id) =>
+          id.includes("node_modules") ? "vendor" : undefined,
       },
     },
   },
-})
+});

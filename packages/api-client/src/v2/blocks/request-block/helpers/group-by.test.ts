@@ -1,83 +1,83 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from "vite-plus/test";
 
-import { groupBy } from '@/v2/blocks/request-block/helpers/group-by'
+import { groupBy } from "@/v2/blocks/request-block/helpers/group-by";
 
-describe('groupBy', () => {
-  it('groups array elements by a common key', () => {
+describe("groupBy", () => {
+  it("groups array elements by a common key", () => {
     const input = [
       {
-        discriminator: 'a',
+        discriminator: "a",
         value: 1,
       },
       {
-        discriminator: 'a',
+        discriminator: "a",
         value: 2,
       },
       {
-        discriminator: 'a',
+        discriminator: "a",
         value: 3,
       },
       {
-        discriminator: 'a',
+        discriminator: "a",
         value: 4,
       },
       {
-        discriminator: 'b',
+        discriminator: "b",
         value: 5,
       },
       {
-        discriminator: 'b',
+        discriminator: "b",
         value: 6,
       },
       {
-        discriminator: 'c',
+        discriminator: "c",
         value: 7,
       },
       {
-        discriminator: 'c',
+        discriminator: "c",
         value: 8,
       },
-    ]
+    ];
 
-    expect(groupBy(input, 'discriminator')).toEqual({
+    expect(groupBy(input, "discriminator")).toEqual({
       a: [
         {
-          discriminator: 'a',
+          discriminator: "a",
           value: 1,
         },
         {
-          discriminator: 'a',
+          discriminator: "a",
           value: 2,
         },
         {
-          discriminator: 'a',
+          discriminator: "a",
           value: 3,
         },
         {
-          discriminator: 'a',
+          discriminator: "a",
           value: 4,
         },
       ],
       b: [
         {
-          discriminator: 'b',
+          discriminator: "b",
           value: 5,
         },
         {
-          discriminator: 'b',
+          discriminator: "b",
           value: 6,
         },
       ],
       c: [
         {
-          discriminator: 'c',
+          discriminator: "c",
           value: 7,
         },
         {
-          discriminator: 'c',
+          discriminator: "c",
           value: 8,
         },
       ],
-    })
-  })
-})
+    });
+  });
+});

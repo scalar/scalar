@@ -1,19 +1,20 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from "vite-plus/test";
 
-import { getContentOfScriptTag } from './resolve'
+import { getContentOfScriptTag } from "./resolve";
 
-describe('getContentOfScriptTag', () => {
-  it('returns the content of the script tag', () => {
-    const html = '<script id="api-reference">console.log("Hello, world!");</script>'
-    expect(getContentOfScriptTag(html)).toBe('console.log("Hello, world!");')
-  })
+describe("getContentOfScriptTag", () => {
+  it("returns the content of the script tag", () => {
+    const html =
+      '<script id="api-reference">console.log("Hello, world!");</script>';
+    expect(getContentOfScriptTag(html)).toBe('console.log("Hello, world!");');
+  });
 
-  it('works with single quotes', () => {
-    const html = `<script id='api-reference'>console.log("Hello, world!");</script>`
-    expect(getContentOfScriptTag(html)).toBe('console.log("Hello, world!");')
-  })
+  it("works with single quotes", () => {
+    const html = `<script id='api-reference'>console.log("Hello, world!");</script>`;
+    expect(getContentOfScriptTag(html)).toBe('console.log("Hello, world!");');
+  });
 
-  it('ignores HTML characters inside the attributes', () => {
+  it("ignores HTML characters inside the attributes", () => {
     // HTML tags inside the attributes
     const html = `<!DOCTYPE html>
     <html>
@@ -31,8 +32,8 @@ describe('getContentOfScriptTag', () => {
         <script src="https://cdn.jsdelivr.net/npm/@scalar/api-reference"></script>
         <script id="api-reference" type="application/json" data-configuration="foo<br>bar">console.log("Hello, world!");</script>
       </body>
-    </html>`
+    </html>`;
 
-    expect(getContentOfScriptTag(html)).toBe('console.log("Hello, world!");')
-  })
-})
+    expect(getContentOfScriptTag(html)).toBe('console.log("Hello, world!");');
+  });
+});

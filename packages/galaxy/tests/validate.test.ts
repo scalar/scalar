@@ -1,12 +1,12 @@
-import { validate } from '@scalar/openapi-parser'
-import { describe, expect, it } from 'vitest'
+import { validate } from "@scalar/openapi-parser";
+import { describe, expect, it } from "vite-plus/test";
 
-import galaxy from '../src/documents/3.1.yaml?raw'
+import galaxy from "../src/documents/3.1.yaml?raw";
 
-describe('validate', () => {
-  it('is valid', async () => {
-    const result = await validate(galaxy)
+describe("validate", () => {
+  it("is valid", async () => {
+    const result = await validate(galaxy);
 
-    expect(result.valid).toBe(true)
-  })
-})
+    expect(result.valid).toBe(true);
+  });
+});

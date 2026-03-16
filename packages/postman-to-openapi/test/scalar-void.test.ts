@@ -1,29 +1,29 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from "vite-plus/test";
 
-import { convert } from '@/convert'
+import { convert } from "@/convert";
 
-import scalarVoidCollection from './scalar-void.json'
+import scalarVoidCollection from "./scalar-void.json";
 
-describe('convert', () => {
-  it('converts the Scalar Void Postman collection to an OpenAPI document', () => {
-    const result = convert(scalarVoidCollection)
+describe("convert", () => {
+  it("converts the Scalar Void Postman collection to an OpenAPI document", () => {
+    const result = convert(scalarVoidCollection);
 
     expect(result).toMatchObject({
-      'openapi': '3.1.0',
-      'info': {
-        'title': 'Scalar Void',
-        'version': '1.0.0',
+      openapi: "3.1.0",
+      info: {
+        title: "Scalar Void",
+        version: "1.0.0",
       },
-      'servers': [
+      servers: [
         {
-          'url': 'https://void.scalar.com',
+          url: "https://void.scalar.com",
         },
       ],
-      'paths': {
-        '/': {
-          'get': {
-            'summary': 'Basic GET Request',
-            'x-post-response': `pm.test("Status code is 200", function () {
+      paths: {
+        "/": {
+          get: {
+            summary: "Basic GET Request",
+            "x-post-response": `pm.test("Status code is 200", function () {
     pm.response.to.have.status(200);
 });
 
@@ -57,19 +57,19 @@ pm.test("Status code name has string", function () {
 });`,
           },
         },
-        '/404': {
-          'get': {
-            'summary': '404 Error',
+        "/404": {
+          get: {
+            summary: "404 Error",
           },
         },
-        '/download.zip': {
-          'get': {
-            'summary': 'Download a ZIP',
+        "/download.zip": {
+          get: {
+            summary: "Download a ZIP",
           },
         },
       },
-    })
+    });
 
     // console.log(JSON.stringify(result, null, 2))
-  })
-})
+  });
+});

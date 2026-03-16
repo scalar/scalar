@@ -1,5 +1,5 @@
 import { mount } from '@vue/test-utils'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vite-plus/test'
 
 import ScalarCheckboxGroup from './ScalarCheckboxGroup.vue'
 
@@ -39,7 +39,9 @@ describe('ScalarCheckboxGroup', () => {
 
     // Uncheck one and verify removal
     await checkboxes[0]?.setValue(false)
-    const after = wrapper.emitted('update:modelValue')?.at(-1)?.[0] as Array<{ value: string }>
+    const after = wrapper.emitted('update:modelValue')?.at(-1)?.[0] as Array<{
+      value: string
+    }>
     expect(after.map((o) => o.value)).toEqual(['green'])
   })
 })

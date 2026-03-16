@@ -1,38 +1,49 @@
-import { mockRequestIdleCallbackController } from '@test/utils/idle-request-controller'
-import { mount } from '@vue/test-utils'
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { nextTick } from 'vue'
+import { mockRequestIdleCallbackController } from "@test/utils/idle-request-controller";
+import { mount } from "@vue/test-utils";
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from "vite-plus/test";
+import { nextTick } from "vue";
 
-import { scrollToLazy } from '@/helpers/lazy-bus'
+import { scrollToLazy } from "@/helpers/lazy-bus";
 
-import Lazy from './Lazy.vue'
+import Lazy from "./Lazy.vue";
 
 /** Manually trigger the requestIdleCallback events */
-const ricController = mockRequestIdleCallbackController()
+const ricController = mockRequestIdleCallbackController();
 
-const LAZY_DEBOUNCE_TIME = 300
+const LAZY_DEBOUNCE_TIME = 300;
 
 /** Callback and element from the IntersectionObserver mock so tests can trigger intersection. */
-let intersectionObserverCallback: ((entries: IntersectionObserverEntry[]) => void) | null = null
-let observedElement: Element | null = null
+let intersectionObserverCallback:
+  | ((entries: IntersectionObserverEntry[]) => void)
+  | null = null;
+let observedElement: Element | null = null;
 
 function createIntersectionObserverMock() {
   return class MockIntersectionObserver implements IntersectionObserver {
-    callback: IntersectionObserverCallback
+    callback: IntersectionObserverCallback;
     constructor(callback: IntersectionObserverCallback) {
-      this.callback = callback
-      intersectionObserverCallback = callback as (entries: IntersectionObserverEntry[]) => void
+      this.callback = callback;
+      intersectionObserverCallback = callback as (
+        entries: IntersectionObserverEntry[],
+      ) => void;
     }
     observe(target: Element) {
-      observedElement = target
+      observedElement = target;
     }
-    disconnect = vi.fn()
-    unobserve = vi.fn()
-    takeRecords = vi.fn(() => [])
-    root = null
-    rootMargin = ''
-    thresholds = [] as number[]
-  }
+    disconnect = vi.fn();
+    unobserve = vi.fn();
+    takeRecords = vi.fn(() => []);
+    root = null;
+    rootMargin = "";
+    thresholds = [] as number[];
+  };
 }
 
 /** Call to simulate the observed element entering the viewport so requestLazyRender runs. */
@@ -48,131 +59,143 @@ function triggerIntersection() {
         rootBounds: null,
         time: 0,
       } as IntersectionObserverEntry,
-    ])
+    ]);
   }
 }
 
-describe('lazy rendering', () => {
+describe("lazy rendering", () => {
   beforeEach(() => {
-    vi.useFakeTimers()
-    vi.stubGlobal('requestIdleCallback', ricController.mock)
-    intersectionObserverCallback = null
-    observedElement = null
-    vi.stubGlobal('IntersectionObserver', createIntersectionObserverMock())
-  })
+    vi.useFakeTimers();
+    vi.stubGlobal("requestIdleCallback", ricController.mock);
+    intersectionObserverCallback = null;
+    observedElement = null;
+    vi.stubGlobal("IntersectionObserver", createIntersectionObserverMock());
+  });
   afterEach(() => {
-    vi.useRealTimers()
-    vi.restoreAllMocks()
-    vi.unstubAllGlobals()
-  })
+    vi.useRealTimers();
+    vi.restoreAllMocks();
+    vi.unstubAllGlobals();
+  });
 
-  it('renders content lazily when the id is not in the priority queue', async () => {
+  it("renders content lazily when the id is not in the priority queue", async () => {
     const wrapper = mount(Lazy, {
-      props: { id: 'test-id-0' },
+      props: { id: "test-id-0" },
       slots: {
-        default: '<div>Test Content</div>',
+        default: "<div>Test Content</div>",
       },
-    })
+    });
 
-    await nextTick()
-    await nextTick()
+    await nextTick();
+    await nextTick();
 
     // Not rendered yet (observer does not fire by default)
-    expect(wrapper.html()).not.toContain('Test Content')
-    expect(wrapper.find('[data-testid="lazy-container"]').exists()).toBe(true)
-    expect(wrapper.find('[data-testid="lazy-container"]').attributes('data-placeholder')).toBe('true')
+    expect(wrapper.html()).not.toContain("Test Content");
+    expect(wrapper.find('[data-testid="lazy-container"]').exists()).toBe(true);
+    expect(
+      wrapper
+        .find('[data-testid="lazy-container"]')
+        .attributes("data-placeholder"),
+    ).toBe("true");
 
     // Simulate element entering viewport so it is added to the queue
-    triggerIntersection()
-    vi.advanceTimersByTime(LAZY_DEBOUNCE_TIME + 50)
-    ricController.runNext()
+    triggerIntersection();
+    vi.advanceTimersByTime(LAZY_DEBOUNCE_TIME + 50);
+    ricController.runNext();
 
-    await nextTick()
+    await nextTick();
 
-    expect(wrapper.html()).toContain('Test Content')
-    expect(wrapper.find('[data-testid="lazy-container"]').attributes('data-placeholder')).toBe('false')
-  })
+    expect(wrapper.html()).toContain("Test Content");
+    expect(
+      wrapper
+        .find('[data-testid="lazy-container"]')
+        .attributes("data-placeholder"),
+    ).toBe("false");
+  });
 
-  it('renders content immediately when the id is in the priority queue', async () => {
+  it("renders content immediately when the id is in the priority queue", async () => {
     const wrapper = mount(Lazy, {
-      props: { id: 'test-id-1' },
+      props: { id: "test-id-1" },
       slots: {
-        default: '<div>Test Content</div>',
+        default: "<div>Test Content</div>",
       },
-    })
+    });
     // Triggers additional elements to be added to the priority queue
     scrollToLazy(
-      'test-id-1',
+      "test-id-1",
       () => true,
-      () => ({ id: 'test-id-1' }),
-    )
+      () => ({ id: "test-id-1" }),
+    );
 
-    await nextTick()
-    await nextTick()
+    await nextTick();
+    await nextTick();
 
-    expect(wrapper.html()).toContain('Test Content')
-    expect(wrapper.find('div').exists()).toBe(true)
-  })
+    expect(wrapper.html()).toContain("Test Content");
+    expect(wrapper.find("div").exists()).toBe(true);
+  });
 
-  it('handles browsers without requestIdleCallback support', async () => {
-    vi.stubGlobal('requestIdleCallback', undefined)
+  it("handles browsers without requestIdleCallback support", async () => {
+    vi.stubGlobal("requestIdleCallback", undefined);
 
-    expect(window.requestIdleCallback).toBeUndefined()
+    expect(window.requestIdleCallback).toBeUndefined();
 
     const wrapper = mount(Lazy, {
-      props: { id: 'test-id-2' },
+      props: { id: "test-id-2" },
       slots: {
-        default: '<div>Test Content</div>',
+        default: "<div>Test Content</div>",
       },
-    })
+    });
 
-    await nextTick()
+    await nextTick();
 
     // Not rendered yet (observer does not fire by default)
-    expect(wrapper.html()).not.toContain('Test Content')
+    expect(wrapper.html()).not.toContain("Test Content");
 
     // Trigger intersection so item is added to queue; without requestIdleCallback, runLazyBus uses nextTick(processQueue)
-    triggerIntersection()
-    vi.advanceTimersByTime(LAZY_DEBOUNCE_TIME + 50)
-    await nextTick()
-    await nextTick()
+    triggerIntersection();
+    vi.advanceTimersByTime(LAZY_DEBOUNCE_TIME + 50);
+    await nextTick();
+    await nextTick();
 
-    expect(wrapper.html()).toContain('Test Content')
-  })
+    expect(wrapper.html()).toContain("Test Content");
+  });
 
-  it('renders slot when expanded so child placeholders mount for navigation', async () => {
+  it("renders slot when expanded so child placeholders mount for navigation", async () => {
     const wrapper = mount(Lazy, {
-      props: { id: 'parent-id', expanded: true },
+      props: { id: "parent-id", expanded: true },
       slots: {
-        default: '<div data-child>Child content</div>',
+        default: "<div data-child>Child content</div>",
       },
-    })
+    });
 
-    await nextTick()
+    await nextTick();
 
     // When expanded we render the slot even before isReady so child Lazy components mount.
-    expect(wrapper.html()).toContain('Child content')
-    expect(wrapper.find('[data-child]').exists()).toBe(true)
-  })
+    expect(wrapper.html()).toContain("Child content");
+    expect(wrapper.find("[data-child]").exists()).toBe(true);
+  });
 
-  it('handles empty slot content', async () => {
+  it("handles empty slot content", async () => {
     const wrapper = mount(Lazy, {
-      props: { id: 'test-id-4' },
+      props: { id: "test-id-4" },
       slots: {
-        default: '',
+        default: "",
       },
-    })
+    });
 
-    await nextTick()
+    await nextTick();
 
-    expect(wrapper.find('[data-testid="lazy-container"]').exists()).toBe(true)
+    expect(wrapper.find('[data-testid="lazy-container"]').exists()).toBe(true);
 
-    triggerIntersection()
-    vi.advanceTimersByTime(LAZY_DEBOUNCE_TIME + 50)
-    ricController.runNext()
+    triggerIntersection();
+    vi.advanceTimersByTime(LAZY_DEBOUNCE_TIME + 50);
+    ricController.runNext();
 
-    await nextTick()
+    await nextTick();
 
-    expect(wrapper.find('[data-testid="lazy-container"]').attributes('data-placeholder')).toBe('false')
-  })
-})
+    expect(
+      wrapper
+        .find('[data-testid="lazy-container"]')
+        .attributes("data-placeholder"),
+    ).toBe("false");
+  });
+});

@@ -1,206 +1,215 @@
-import { createWorkspaceStore } from '@scalar/workspace-store/client'
-import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
-import { mount } from '@vue/test-utils'
-import { describe, expect, it } from 'vitest'
+import { createWorkspaceStore } from "@scalar/workspace-store/client";
+import { createWorkspaceEventBus } from "@scalar/workspace-store/events";
+import { mount } from "@vue/test-utils";
+import { describe, expect, it } from "vite-plus/test";
 
-import type { RouteProps } from '../app/helpers/routes'
-import Operation from './Operation.vue'
+import type { RouteProps } from "../app/helpers/routes";
+import Operation from "./Operation.vue";
 
-describe('Operation', () => {
-  const eventBus = createWorkspaceEventBus()
+describe("Operation", () => {
+  const eventBus = createWorkspaceEventBus();
 
   const defaultNavigation = {
-    type: 'document' as const,
-    id: 'default',
-    name: 'default',
-    title: 'Test API',
+    type: "document" as const,
+    id: "default",
+    name: "default",
+    title: "Test API",
     children: [
       {
-        id: 'default/get/pets',
-        method: 'get' as const,
-        path: '/pets',
+        id: "default/get/pets",
+        method: "get" as const,
+        path: "/pets",
         isDeprecated: false,
-        ref: '#/paths/~1pets/get',
-        title: 'listPets',
-        type: 'operation' as const,
+        ref: "#/paths/~1pets/get",
+        title: "listPets",
+        type: "operation" as const,
         children: [],
       },
     ],
-  }
+  };
 
   const defaultDocument = {
-    openapi: '3.0.0',
-    info: { title: 'Test API', version: '1.0.0' },
+    openapi: "3.0.0",
+    info: { title: "Test API", version: "1.0.0" },
     components: { securitySchemes: {} },
     paths: {
-      '/pets': {
+      "/pets": {
         get: {
-          operationId: 'listPets',
+          operationId: "listPets",
           responses: {},
         },
       },
     },
-    'x-scalar-original-document-hash': '123',
-    'x-scalar-navigation': defaultNavigation,
-  }
+    "x-scalar-original-document-hash": "123",
+    "x-scalar-navigation": defaultNavigation,
+  };
 
   const getDefaultProps = (): RouteProps => {
     return {
       document: defaultDocument as any,
-      layout: 'web',
+      layout: "web",
       eventBus,
-      path: '/pets',
-      method: 'get',
-      exampleName: 'default',
+      path: "/pets",
+      method: "get",
+      exampleName: "default",
       environment: {
-        color: 'blue',
+        color: "blue",
         variables: [],
-        description: 'Test Environment',
+        description: "Test Environment",
       },
       workspaceStore: createWorkspaceStore(),
-      documentSlug: 'test-document',
+      documentSlug: "test-document",
       securitySchemes: {},
       activeWorkspace: {
-        id: 'test-workspace',
-        label: 'Test Workspace',
+        id: "test-workspace",
+        label: "Test Workspace",
       },
       plugins: [],
-    }
-  }
+    };
+  };
 
   const render = (overrides: Partial<RouteProps> = {}) => {
-    const props = { ...getDefaultProps(), ...overrides } as RouteProps
+    const props = { ...getDefaultProps(), ...overrides } as RouteProps;
 
     return mount(Operation, {
       props,
       global: {
         stubs: {
           RouterLink: {
-            name: 'RouterLink',
-            template: '<a><slot /></a>',
+            name: "RouterLink",
+            template: "<a><slot /></a>",
           },
         },
       },
-    })
-  }
+    });
+  };
 
-  it('renders fallback message when required props are missing', () => {
-    const wrapper = render({ document: null as any })
+  it("renders fallback message when required props are missing", () => {
+    const wrapper = render({ document: null as any });
 
-    expect(wrapper.text()).toContain('Select an operation to view details')
-  })
+    expect(wrapper.text()).toContain("Select an operation to view details");
+  });
 
-  it('renders OperationBlock when path, method, exampleName and operation exist', () => {
-    const wrapper = render()
+  it("renders OperationBlock when path, method, exampleName and operation exist", () => {
+    const wrapper = render();
 
-    const oc = wrapper.findComponent({ name: 'OperationBlock' })
-    expect(oc.exists()).toBe(true)
-  })
+    const oc = wrapper.findComponent({ name: "OperationBlock" });
+    expect(oc.exists()).toBe(true);
+  });
 
-  it('passes operation security to OperationBlock when defined on operation', () => {
+  it("passes operation security to OperationBlock when defined on operation", () => {
     const document = {
       ...defaultDocument,
       security: [{ bearerAuth: [] }],
       paths: {
-        '/pets': {
+        "/pets": {
           get: {
-            operationId: 'listPets',
+            operationId: "listPets",
             security: [{ apiKeyAuth: [] }],
             responses: {},
           },
         },
       },
-    }
+    };
 
-    const defaultProps = getDefaultProps()
+    const defaultProps = getDefaultProps();
 
     defaultProps.workspaceStore.auth.setAuthSelectedSchemas(
-      { type: 'operation', documentName: defaultProps.documentSlug, path: '/pets', method: 'get' },
+      {
+        type: "operation",
+        documentName: defaultProps.documentSlug,
+        path: "/pets",
+        method: "get",
+      },
       {
         selectedIndex: 0,
         selectedSchemes: [{ apiKeyAuth: [] }],
       },
-    )
+    );
 
-    const wrapper = render({ ...defaultProps, document })
+    const wrapper = render({ ...defaultProps, document });
 
-    const oc = wrapper.getComponent({ name: 'OperationBlock' })
-    const props = oc.props() as any
-    expect(props.documentSecurity).toEqual([{ bearerAuth: [] }])
+    const oc = wrapper.getComponent({ name: "OperationBlock" });
+    const props = oc.props() as any;
+    expect(props.documentSecurity).toEqual([{ bearerAuth: [] }]);
     expect(props.operationSelectedSecurity).toEqual({
       selectedIndex: 0,
       selectedSchemes: [{ apiKeyAuth: [] }],
-    })
-    expect(props.authMeta).toEqual({ type: 'operation', path: '/pets', method: 'get' })
-  })
+    });
+    expect(props.authMeta).toEqual({
+      type: "operation",
+      path: "/pets",
+      method: "get",
+    });
+  });
 
-  it('uses document security when operation security is not defined', () => {
+  it("uses document security when operation security is not defined", () => {
     const document = {
       ...defaultDocument,
       security: [{ bearerAuth: [] }],
-      'x-scalar-selected-security': {
+      "x-scalar-selected-security": {
         selectedIndex: 0,
         selectedSchemes: [{ bearerAuth: [] }],
       },
-    }
+    };
 
-    const defaultProps = getDefaultProps()
+    const defaultProps = getDefaultProps();
 
     defaultProps.workspaceStore.auth.setAuthSelectedSchemas(
-      { type: 'document', documentName: defaultProps.documentSlug },
+      { type: "document", documentName: defaultProps.documentSlug },
       {
         selectedIndex: 0,
         selectedSchemes: [{ bearerAuth: [] }],
       },
-    )
+    );
 
-    const wrapper = render({ ...defaultProps, document })
+    const wrapper = render({ ...defaultProps, document });
 
-    const oc = wrapper.getComponent({ name: 'OperationBlock' })
-    const props = oc.props()
-    expect(props.documentSecurity).toEqual([{ bearerAuth: [] }])
+    const oc = wrapper.getComponent({ name: "OperationBlock" });
+    const props = oc.props();
+    expect(props.documentSecurity).toEqual([{ bearerAuth: [] }]);
     expect(props.documentSelectedSecurity).toEqual({
       selectedIndex: 0,
       selectedSchemes: [{ bearerAuth: [] }],
-    })
-    expect(props.authMeta).toEqual({ type: 'document' })
-  })
+    });
+    expect(props.authMeta).toEqual({ type: "document" });
+  });
 
-  it('merges document security when operation security is an empty object entry', () => {
+  it("merges document security when operation security is an empty object entry", () => {
     const document = {
       ...defaultDocument,
       security: [{ bearerAuth: [] }],
       paths: {
-        '/pets': {
+        "/pets": {
           get: {
-            operationId: 'listPets',
+            operationId: "listPets",
             security: [{}],
             responses: {},
           },
         },
       },
-    }
+    };
 
-    const defaultProps = getDefaultProps()
+    const defaultProps = getDefaultProps();
 
     // Set auth on the auth store
     defaultProps.workspaceStore.auth.setAuthSelectedSchemas(
-      { type: 'document', documentName: defaultProps.documentSlug },
+      { type: "document", documentName: defaultProps.documentSlug },
       {
         selectedIndex: 0,
         selectedSchemes: [{ bearerAuth: [] }],
       },
-    )
+    );
 
-    const wrapper = render({ ...defaultProps, document })
+    const wrapper = render({ ...defaultProps, document });
 
-    const oc = wrapper.getComponent({ name: 'OperationBlock' })
-    const props = oc.props() as any
-    expect(props.documentSecurity).toEqual([{ bearerAuth: [] }])
+    const oc = wrapper.getComponent({ name: "OperationBlock" });
+    const props = oc.props() as any;
+    expect(props.documentSecurity).toEqual([{ bearerAuth: [] }]);
     expect(props.documentSelectedSecurity).toEqual({
       selectedIndex: 0,
       selectedSchemes: [{ bearerAuth: [] }],
-    })
-    expect(props.authMeta).toEqual({ type: 'document' })
-  })
-})
+    });
+    expect(props.authMeta).toEqual({ type: "document" });
+  });
+});

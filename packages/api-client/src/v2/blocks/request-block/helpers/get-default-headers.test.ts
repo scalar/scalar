@@ -1,374 +1,410 @@
-import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import { describe, expect, it } from 'vitest'
+import type { OperationObject } from "@scalar/workspace-store/schemas/v3.1/strict/openapi-document";
+import { describe, expect, it } from "vite-plus/test";
 
-import { getDefaultHeaders } from './get-default-headers'
+import { getDefaultHeaders } from "./get-default-headers";
 
-describe('get-default-headers', () => {
-  describe('getDefaultHeaders', () => {
+describe("get-default-headers", () => {
+  describe("getDefaultHeaders", () => {
     it('does not add Content-Type header when contentType is "none"', () => {
       const operation: OperationObject = {
         requestBody: {
-          'x-scalar-selected-content-type': {
-            'example-1': 'none',
+          "x-scalar-selected-content-type": {
+            "example-1": "none",
           },
           content: {},
         },
-      }
+      };
 
       const headers = getDefaultHeaders({
-        method: 'post',
+        method: "post",
         operation,
-        exampleKey: 'example-1',
-      })
+        exampleKey: "example-1",
+      });
 
-      const contentTypeHeader = headers.find((header) => header.name.toLowerCase() === 'content-type')
+      const contentTypeHeader = headers.find(
+        (header) => header.name.toLowerCase() === "content-type",
+      );
 
-      expect(contentTypeHeader).toBeUndefined()
-    })
+      expect(contentTypeHeader).toBeUndefined();
+    });
 
-    it('adds Content-Type header for POST requests with default application/json', () => {
+    it("adds Content-Type header for POST requests with default application/json", () => {
       const operation: OperationObject = {
         requestBody: {
           content: {
-            'application/json': {},
+            "application/json": {},
           },
         },
-      }
+      };
 
       const headers = getDefaultHeaders({
-        method: 'post',
+        method: "post",
         operation,
-        exampleKey: 'example-1',
-      })
+        exampleKey: "example-1",
+      });
 
-      const contentTypeHeader = headers.find((header) => header.name.toLowerCase() === 'content-type')
+      const contentTypeHeader = headers.find(
+        (header) => header.name.toLowerCase() === "content-type",
+      );
 
-      expect(contentTypeHeader).toBeDefined()
-      expect(contentTypeHeader?.defaultValue).toBe('application/json')
-      expect(contentTypeHeader?.isOverridden).toBe(false)
-    })
+      expect(contentTypeHeader).toBeDefined();
+      expect(contentTypeHeader?.defaultValue).toBe("application/json");
+      expect(contentTypeHeader?.isOverridden).toBe(false);
+    });
 
-    it('uses selected content type from x-scalar-selected-content-type', () => {
+    it("uses selected content type from x-scalar-selected-content-type", () => {
       const operation: OperationObject = {
         requestBody: {
-          'x-scalar-selected-content-type': {
-            'example-1': 'application/xml',
+          "x-scalar-selected-content-type": {
+            "example-1": "application/xml",
           },
           content: {
-            'application/json': {},
-            'application/xml': {},
+            "application/json": {},
+            "application/xml": {},
           },
         },
-      }
+      };
 
       const headers = getDefaultHeaders({
-        method: 'post',
+        method: "post",
         operation,
-        exampleKey: 'example-1',
-      })
+        exampleKey: "example-1",
+      });
 
-      const contentTypeHeader = headers.find((header) => header.name.toLowerCase() === 'content-type')
+      const contentTypeHeader = headers.find(
+        (header) => header.name.toLowerCase() === "content-type",
+      );
 
-      expect(contentTypeHeader).toBeDefined()
-      expect(contentTypeHeader?.defaultValue).toBe('application/xml')
-    })
+      expect(contentTypeHeader).toBeDefined();
+      expect(contentTypeHeader?.defaultValue).toBe("application/xml");
+    });
 
-    it('does not add Content-Type for GET requests', () => {
-      const operation: OperationObject = {
-        requestBody: {
-          content: {
-            'application/json': {},
-          },
-        },
-      }
-
-      const headers = getDefaultHeaders({
-        method: 'get',
-        operation,
-        exampleKey: 'example-1',
-      })
-
-      const contentTypeHeader = headers.find((header) => header.name.toLowerCase() === 'content-type')
-
-      expect(contentTypeHeader).toBeUndefined()
-    })
-
-    it('adds Content-Type for PUT requests', () => {
+    it("does not add Content-Type for GET requests", () => {
       const operation: OperationObject = {
         requestBody: {
           content: {
-            'application/json': {},
+            "application/json": {},
           },
         },
-      }
+      };
 
       const headers = getDefaultHeaders({
-        method: 'put',
+        method: "get",
         operation,
-        exampleKey: 'example-1',
-      })
+        exampleKey: "example-1",
+      });
 
-      const contentTypeHeader = headers.find((header) => header.name.toLowerCase() === 'content-type')
+      const contentTypeHeader = headers.find(
+        (header) => header.name.toLowerCase() === "content-type",
+      );
 
-      expect(contentTypeHeader).toBeDefined()
-      expect(contentTypeHeader?.defaultValue).toBe('application/json')
-    })
+      expect(contentTypeHeader).toBeUndefined();
+    });
 
-    it('adds Content-Type for PATCH requests', () => {
+    it("adds Content-Type for PUT requests", () => {
       const operation: OperationObject = {
         requestBody: {
           content: {
-            'application/json': {},
+            "application/json": {},
           },
         },
-      }
+      };
 
       const headers = getDefaultHeaders({
-        method: 'patch',
+        method: "put",
         operation,
-        exampleKey: 'example-1',
-      })
+        exampleKey: "example-1",
+      });
 
-      const contentTypeHeader = headers.find((header) => header.name.toLowerCase() === 'content-type')
+      const contentTypeHeader = headers.find(
+        (header) => header.name.toLowerCase() === "content-type",
+      );
 
-      expect(contentTypeHeader).toBeDefined()
-      expect(contentTypeHeader?.defaultValue).toBe('application/json')
-    })
+      expect(contentTypeHeader).toBeDefined();
+      expect(contentTypeHeader?.defaultValue).toBe("application/json");
+    });
 
-    it('always adds Accept header, falling back to wildcard when no responses are defined', () => {
-      const operation: OperationObject = {}
+    it("adds Content-Type for PATCH requests", () => {
+      const operation: OperationObject = {
+        requestBody: {
+          content: {
+            "application/json": {},
+          },
+        },
+      };
 
       const headers = getDefaultHeaders({
-        method: 'get',
+        method: "patch",
         operation,
-        exampleKey: 'example-1',
-      })
+        exampleKey: "example-1",
+      });
 
-      const acceptHeader = headers.find((header) => header.name.toLowerCase() === 'accept')
+      const contentTypeHeader = headers.find(
+        (header) => header.name.toLowerCase() === "content-type",
+      );
 
-      expect(acceptHeader).toBeDefined()
-      expect(acceptHeader?.defaultValue).toBe('*/*')
-      expect(acceptHeader?.isOverridden).toBe(false)
-    })
+      expect(contentTypeHeader).toBeDefined();
+      expect(contentTypeHeader?.defaultValue).toBe("application/json");
+    });
 
-    it('derives Accept header from the 2xx response content type', () => {
+    it("always adds Accept header, falling back to wildcard when no responses are defined", () => {
+      const operation: OperationObject = {};
+
+      const headers = getDefaultHeaders({
+        method: "get",
+        operation,
+        exampleKey: "example-1",
+      });
+
+      const acceptHeader = headers.find(
+        (header) => header.name.toLowerCase() === "accept",
+      );
+
+      expect(acceptHeader).toBeDefined();
+      expect(acceptHeader?.defaultValue).toBe("*/*");
+      expect(acceptHeader?.isOverridden).toBe(false);
+    });
+
+    it("derives Accept header from the 2xx response content type", () => {
       const operation: OperationObject = {
         responses: {
-          '200': {
-            description: 'OK',
+          "200": {
+            description: "OK",
             content: {
-              'application/json': {},
+              "application/json": {},
             },
           },
         },
-      }
+      };
 
       const headers = getDefaultHeaders({
-        method: 'get',
+        method: "get",
         operation,
-        exampleKey: 'example-1',
-      })
+        exampleKey: "example-1",
+      });
 
-      const acceptHeader = headers.find((header) => header.name.toLowerCase() === 'accept')
+      const acceptHeader = headers.find(
+        (header) => header.name.toLowerCase() === "accept",
+      );
 
-      expect(acceptHeader).toBeDefined()
-      expect(acceptHeader?.defaultValue).toBe('application/json')
-    })
+      expect(acceptHeader).toBeDefined();
+      expect(acceptHeader?.defaultValue).toBe("application/json");
+    });
 
-    it('joins all content types of the 2xx response when multiple are defined', () => {
+    it("joins all content types of the 2xx response when multiple are defined", () => {
       const operation: OperationObject = {
         responses: {
-          '200': {
-            description: 'OK',
+          "200": {
+            description: "OK",
             content: {
-              'application/json': {},
-              'application/xml': {},
+              "application/json": {},
+              "application/xml": {},
             },
           },
         },
-      }
+      };
 
       const headers = getDefaultHeaders({
-        method: 'get',
+        method: "get",
         operation,
-        exampleKey: 'example-1',
-      })
+        exampleKey: "example-1",
+      });
 
-      const acceptHeader = headers.find((header) => header.name.toLowerCase() === 'accept')
+      const acceptHeader = headers.find(
+        (header) => header.name.toLowerCase() === "accept",
+      );
 
-      expect(acceptHeader?.defaultValue).toBe('application/json, application/xml')
-    })
+      expect(acceptHeader?.defaultValue).toBe(
+        "application/json, application/xml",
+      );
+    });
 
-    it('falls back to wildcard when the 2xx response has no content', () => {
+    it("falls back to wildcard when the 2xx response has no content", () => {
       const operation: OperationObject = {
         responses: {
-          '204': {
-            description: 'No Content',
+          "204": {
+            description: "No Content",
           },
         },
-      }
+      };
 
       const headers = getDefaultHeaders({
-        method: 'delete',
+        method: "delete",
         operation,
-        exampleKey: 'example-1',
-      })
+        exampleKey: "example-1",
+      });
 
-      const acceptHeader = headers.find((header) => header.name.toLowerCase() === 'accept')
+      const acceptHeader = headers.find(
+        (header) => header.name.toLowerCase() === "accept",
+      );
 
-      expect(acceptHeader?.defaultValue).toBe('*/*')
-    })
+      expect(acceptHeader?.defaultValue).toBe("*/*");
+    });
 
-    it('falls back to wildcard when only non-2xx responses are defined', () => {
+    it("falls back to wildcard when only non-2xx responses are defined", () => {
       const operation: OperationObject = {
         responses: {
-          '400': {
-            description: 'Bad Request',
-            content: { 'application/json': {} },
+          "400": {
+            description: "Bad Request",
+            content: { "application/json": {} },
           },
-          '500': {
-            description: 'Internal Server Error',
-            content: { 'application/json': {} },
+          "500": {
+            description: "Internal Server Error",
+            content: { "application/json": {} },
           },
         },
-      }
+      };
 
       const headers = getDefaultHeaders({
-        method: 'get',
+        method: "get",
         operation,
-        exampleKey: 'example-1',
-      })
+        exampleKey: "example-1",
+      });
 
-      const acceptHeader = headers.find((header) => header.name.toLowerCase() === 'accept')
+      const acceptHeader = headers.find(
+        (header) => header.name.toLowerCase() === "accept",
+      );
 
-      expect(acceptHeader?.defaultValue).toBe('*/*')
-    })
+      expect(acceptHeader?.defaultValue).toBe("*/*");
+    });
 
-    it('marks header as overridden when defined in operation parameters', () => {
+    it("marks header as overridden when defined in operation parameters", () => {
       const operation: OperationObject = {
         parameters: [
           {
-            name: 'Accept',
-            in: 'header',
-            schema: { type: 'string' },
+            name: "Accept",
+            in: "header",
+            schema: { type: "string" },
           },
         ],
-      }
+      };
 
       const headers = getDefaultHeaders({
-        method: 'get',
+        method: "get",
         operation,
-        exampleKey: 'example-1',
-      })
+        exampleKey: "example-1",
+      });
 
-      const acceptHeader = headers.find((header) => header.name.toLowerCase() === 'accept')
+      const acceptHeader = headers.find(
+        (header) => header.name.toLowerCase() === "accept",
+      );
 
-      expect(acceptHeader).toBeDefined()
-      expect(acceptHeader?.isOverridden).toBe(true)
-    })
+      expect(acceptHeader).toBeDefined();
+      expect(acceptHeader?.isOverridden).toBe(true);
+    });
 
-    it('filters out disabled headers when hideDisabledHeaders is true', () => {
+    it("filters out disabled headers when hideDisabledHeaders is true", () => {
       const operation: OperationObject = {
-        'x-scalar-disable-parameters': {
-          'default-headers': {
-            'example-1': {
+        "x-scalar-disable-parameters": {
+          "default-headers": {
+            "example-1": {
               accept: true,
             },
           },
         },
-      }
+      };
 
       const headers = getDefaultHeaders({
-        method: 'get',
+        method: "get",
         operation,
-        exampleKey: 'example-1',
+        exampleKey: "example-1",
         hideDisabledHeaders: true,
-      })
+      });
 
-      const acceptHeader = headers.find((header) => header.name.toLowerCase() === 'accept')
+      const acceptHeader = headers.find(
+        (header) => header.name.toLowerCase() === "accept",
+      );
 
-      expect(acceptHeader).toBeUndefined()
-    })
+      expect(acceptHeader).toBeUndefined();
+    });
 
-    it('includes disabled headers when hideDisabledHeaders is false', () => {
+    it("includes disabled headers when hideDisabledHeaders is false", () => {
       const operation: OperationObject = {
-        'x-scalar-disable-parameters': {
-          'default-headers': {
-            'example-1': {
+        "x-scalar-disable-parameters": {
+          "default-headers": {
+            "example-1": {
               accept: true,
             },
           },
         },
-      }
+      };
 
       const headers = getDefaultHeaders({
-        method: 'get',
+        method: "get",
         operation,
-        exampleKey: 'example-1',
+        exampleKey: "example-1",
         hideDisabledHeaders: false,
-      })
+      });
 
-      const acceptHeader = headers.find((header) => header.name.toLowerCase() === 'accept')
+      const acceptHeader = headers.find(
+        (header) => header.name.toLowerCase() === "accept",
+      );
 
-      expect(acceptHeader).toBeDefined()
-    })
+      expect(acceptHeader).toBeDefined();
+    });
 
-    it('handles operation with no requestBody', () => {
-      const operation: OperationObject = {}
+    it("handles operation with no requestBody", () => {
+      const operation: OperationObject = {};
 
       const headers = getDefaultHeaders({
-        method: 'post',
+        method: "post",
         operation,
-        exampleKey: 'example-1',
-      })
+        exampleKey: "example-1",
+      });
 
       // Should still have Accept header, but no Content-Type since there's no requestBody
-      expect(headers.length).toBeGreaterThan(0)
-      const acceptHeader = headers.find((header) => header.name.toLowerCase() === 'accept')
-      expect(acceptHeader).toBeDefined()
-    })
+      expect(headers.length).toBeGreaterThan(0);
+      const acceptHeader = headers.find(
+        (header) => header.name.toLowerCase() === "accept",
+      );
+      expect(acceptHeader).toBeDefined();
+    });
 
-    it('uses first content type when no selection is made', () => {
+    it("uses first content type when no selection is made", () => {
       const operation: OperationObject = {
         requestBody: {
           content: {
-            'application/xml': {},
-            'application/json': {},
+            "application/xml": {},
+            "application/json": {},
           },
         },
-      }
+      };
 
       const headers = getDefaultHeaders({
-        method: 'post',
+        method: "post",
         operation,
-        exampleKey: 'example-1',
-      })
+        exampleKey: "example-1",
+      });
 
-      const contentTypeHeader = headers.find((header) => header.name.toLowerCase() === 'content-type')
+      const contentTypeHeader = headers.find(
+        (header) => header.name.toLowerCase() === "content-type",
+      );
 
-      expect(contentTypeHeader).toBeDefined()
+      expect(contentTypeHeader).toBeDefined();
       // Should use the first key in the content object
-      expect(contentTypeHeader?.defaultValue).toBe('application/xml')
-    })
+      expect(contentTypeHeader?.defaultValue).toBe("application/xml");
+    });
 
-    it('handles empty content object', () => {
+    it("handles empty content object", () => {
       const operation: OperationObject = {
         requestBody: {
           content: {},
         },
-      }
+      };
 
       const headers = getDefaultHeaders({
-        method: 'post',
+        method: "post",
         operation,
-        exampleKey: 'example-1',
-      })
+        exampleKey: "example-1",
+      });
 
-      const contentTypeHeader = headers.find((header) => header.name.toLowerCase() === 'content-type')
+      const contentTypeHeader = headers.find(
+        (header) => header.name.toLowerCase() === "content-type",
+      );
 
       // Should fall back to default application/json
-      expect(contentTypeHeader).toBeDefined()
-      expect(contentTypeHeader?.defaultValue).toBe('application/json')
-    })
-  })
-})
+      expect(contentTypeHeader).toBeDefined();
+      expect(contentTypeHeader?.defaultValue).toBe("application/json");
+    });
+  });
+});

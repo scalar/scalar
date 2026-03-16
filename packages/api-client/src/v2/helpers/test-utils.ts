@@ -1,9 +1,9 @@
-import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
-import { vi } from 'vitest'
+import type { WorkspaceEventBus } from "@scalar/workspace-store/events";
+import { vi } from "vite-plus/test";
 
 /** Mock event bus for all your testing needs */
 export const mockEventBus = {
   on: vi.fn(),
   off: vi.fn(),
   emit: vi.fn(() => null),
-} as unknown as WorkspaceEventBus
+} as unknown as WorkspaceEventBus;

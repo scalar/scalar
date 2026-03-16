@@ -16,11 +16,11 @@
   },
   "scripts": {
     "build": "pnpm types:check && pnpm build-only",
-    "build-only": "vite build",
-    "dev": "vite",
+    "build-only": "vp build",
+    "dev": "vp dev",
     "docker:build": "build --platform=linux/amd64 -t ${image_name} --build-arg=\"BASE_IMAGE=scalar-base\" -f ./examples/react/Dockerfile .",
-    "lint:check": "eslint .",
-    "lint:fix": "eslint .  --fix",
+    "lint:check": "vp lint .",
+    "lint:fix": "vp lint . --fix",
     "types:check": "tsc --noEmit --skipLibCheck"
   },
   "type": "module",
@@ -43,6 +43,7 @@
     "eslint-plugin-react-refresh": "^0.4.3",
     "postcss": "catalog:*",
     "tailwindcss": "catalog:*",
-    "vite": "catalog:*"
+    "vite": "catalog:",
+    "vite-plus": "catalog:"
   }
 }

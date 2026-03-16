@@ -1,12 +1,12 @@
-import { mount } from '@vue/test-utils'
-import { describe, expect, it, vi } from 'vitest'
+import { mount } from "@vue/test-utils";
+import { describe, expect, it, vi } from "vite-plus/test";
 
-import { WORKSPACE_SYMBOL } from '@/store/store'
+import { WORKSPACE_SYMBOL } from "@/store/store";
 
-import ResponseSection from './ResponseSection.vue'
+import ResponseSection from "./ResponseSection.vue";
 
-describe('ResponseSection', () => {
-  it('has required classes', () => {
+describe("ResponseSection", () => {
+  it("has required classes", () => {
     // TODO: Wow, there must be a better way to test this component, but we might need to refactor the component to get rid of the mocking.
 
     // Mock the workspace store
@@ -26,7 +26,7 @@ describe('ResponseSection', () => {
           emit: vi.fn(),
         },
       },
-    }
+    };
 
     const wrapper = mount(ResponseSection, {
       global: {
@@ -38,13 +38,13 @@ describe('ResponseSection', () => {
         numWorkspaceRequests: 0,
         response: {
           status: 200,
-          statusText: 'OK',
+          statusText: "OK",
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
           // @ts-expect-error body should be ReadableStream but we don't need it for this test
           body: {},
-          data: '',
+          data: "",
           cookies: [],
           size: 0,
           time: 1000,
@@ -52,17 +52,17 @@ describe('ResponseSection', () => {
           cookieHeaderKeys: [],
         },
       },
-    })
+    });
 
     const requiredClasses = [
-      'response-section-content',
-      'response-section-content-cookies',
-      'response-section-content-headers',
-      'response-section-content-body',
-    ]
+      "response-section-content",
+      "response-section-content-cookies",
+      "response-section-content-headers",
+      "response-section-content-body",
+    ];
 
     requiredClasses.forEach((className) => {
-      expect(wrapper.find(`.${className}`).exists()).toBe(true)
-    })
-  })
-})
+      expect(wrapper.find(`.${className}`).exists()).toBe(true);
+    });
+  });
+});

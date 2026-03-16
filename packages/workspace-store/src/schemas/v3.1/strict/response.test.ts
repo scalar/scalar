@@ -1,349 +1,349 @@
-import type { Static } from '@scalar/typebox'
-import { Value } from '@scalar/typebox/value'
-import type { RequiredDeep } from 'type-fest'
-import { describe, expect, it } from 'vitest'
+import type { Static } from "@scalar/typebox";
+import { Value } from "@scalar/typebox/value";
+import type { RequiredDeep } from "type-fest";
+import { describe, expect, it } from "vite-plus/test";
 
-import { coerceValue } from '@/schemas/typebox-coerce'
+import { coerceValue } from "@/schemas/typebox-coerce";
 
-import { type ResponseObject, ResponseObjectSchema } from './openapi-document'
+import { type ResponseObject, ResponseObjectSchema } from "./openapi-document";
 
-describe('response', () => {
-  describe('strict type checking', () => {
-    it('performs deep type checking on all schemas', () => {
-      type SchemaType = RequiredDeep<Static<typeof ResponseObjectSchema>>
-      type TypescriptType = RequiredDeep<ResponseObject>
+describe("response", () => {
+  describe("strict type checking", () => {
+    it("performs deep type checking on all schemas", () => {
+      type SchemaType = RequiredDeep<Static<typeof ResponseObjectSchema>>;
+      type TypescriptType = RequiredDeep<ResponseObject>;
 
-      const _test: SchemaType = {} as TypescriptType
-      const _test2: TypescriptType = {} as SchemaType
-      expect(_test).toEqual(_test2)
-    })
-  })
+      const _test: SchemaType = {} as TypescriptType;
+      const _test2: TypescriptType = {} as SchemaType;
+      expect(_test).toEqual(_test2);
+    });
+  });
 
-  describe('value checking', () => {
-    it('parses valid response with minimal required fields correctly', () => {
+  describe("value checking", () => {
+    it("parses valid response with minimal required fields correctly", () => {
       const validInput = {
-        description: 'Success response',
-      }
+        description: "Success response",
+      };
 
-      const result = coerceValue(ResponseObjectSchema, validInput)
+      const result = coerceValue(ResponseObjectSchema, validInput);
 
       expect(result).toEqual({
-        description: 'Success response',
-      })
-    })
+        description: "Success response",
+      });
+    });
 
-    it('parses valid response with all fields correctly', () => {
+    it("parses valid response with all fields correctly", () => {
       const validInput = {
-        description: 'Success response with content',
+        description: "Success response with content",
         headers: {
-          'X-Rate-Limit': {
-            description: 'Rate limit information',
+          "X-Rate-Limit": {
+            description: "Rate limit information",
             schema: {
-              type: 'integer',
+              type: "integer",
             },
           },
-          'Content-Type': {
-            description: 'Content type header',
+          "Content-Type": {
+            description: "Content type header",
             schema: {
-              type: 'string',
+              type: "string",
             },
           },
         },
         content: {
-          'application/json': {
+          "application/json": {
             schema: {
-              type: 'object',
+              type: "object",
               properties: {
-                id: { type: 'string' },
-                name: { type: 'string' },
+                id: { type: "string" },
+                name: { type: "string" },
               },
             },
             example: {
-              id: '123',
-              name: 'Example Item',
+              id: "123",
+              name: "Example Item",
             },
           },
-          'text/plain': {
+          "text/plain": {
             schema: {
-              type: 'string',
+              type: "string",
             },
-            example: 'Plain text response',
+            example: "Plain text response",
           },
         },
         links: {
           self: {
-            operationId: 'getItem',
+            operationId: "getItem",
             parameters: {
-              itemId: '$response.body#/id',
+              itemId: "$response.body#/id",
             },
           },
           related: {
-            $ref: '#/components/links/RelatedItems',
+            $ref: "#/components/links/RelatedItems",
           },
         },
-      }
+      };
 
-      const result = coerceValue(ResponseObjectSchema, validInput)
+      const result = coerceValue(ResponseObjectSchema, validInput);
 
       expect(result).toEqual({
-        description: 'Success response with content',
+        description: "Success response with content",
         headers: {
-          'X-Rate-Limit': {
-            description: 'Rate limit information',
+          "X-Rate-Limit": {
+            description: "Rate limit information",
             schema: {
-              type: 'integer',
+              type: "integer",
             },
           },
-          'Content-Type': {
-            description: 'Content type header',
+          "Content-Type": {
+            description: "Content type header",
             schema: {
-              type: 'string',
+              type: "string",
             },
           },
         },
         content: {
-          'application/json': {
+          "application/json": {
             schema: {
-              type: 'object',
+              type: "object",
               properties: {
-                id: { type: 'string' },
-                name: { type: 'string' },
+                id: { type: "string" },
+                name: { type: "string" },
               },
             },
             example: {
-              id: '123',
-              name: 'Example Item',
+              id: "123",
+              name: "Example Item",
             },
           },
-          'text/plain': {
+          "text/plain": {
             schema: {
-              type: 'string',
+              type: "string",
             },
-            example: 'Plain text response',
+            example: "Plain text response",
           },
         },
         links: {
           self: {
-            operationId: 'getItem',
+            operationId: "getItem",
             parameters: {
-              itemId: '$response.body#/id',
+              itemId: "$response.body#/id",
             },
           },
           related: {
-            $ref: '#/components/links/RelatedItems',
+            $ref: "#/components/links/RelatedItems",
           },
         },
-      })
-    })
+      });
+    });
 
-    it('parses valid response with only headers correctly', () => {
+    it("parses valid response with only headers correctly", () => {
       const validInput = {
-        description: 'Response with headers',
+        description: "Response with headers",
         headers: {
-          'Cache-Control': {
-            description: 'Cache control directives',
+          "Cache-Control": {
+            description: "Cache control directives",
             schema: {
-              type: 'string',
+              type: "string",
             },
           },
         },
-      }
+      };
 
-      const result = coerceValue(ResponseObjectSchema, validInput)
+      const result = coerceValue(ResponseObjectSchema, validInput);
 
       expect(result).toEqual({
-        description: 'Response with headers',
+        description: "Response with headers",
         headers: {
-          'Cache-Control': {
-            description: 'Cache control directives',
+          "Cache-Control": {
+            description: "Cache control directives",
             schema: {
-              type: 'string',
+              type: "string",
             },
           },
         },
-      })
-    })
+      });
+    });
 
-    it('parses valid response with only content correctly', () => {
+    it("parses valid response with only content correctly", () => {
       const validInput = {
-        description: 'Response with content',
+        description: "Response with content",
         content: {
-          'application/xml': {
+          "application/xml": {
             schema: {
-              type: 'string',
+              type: "string",
             },
           },
         },
-      }
+      };
 
-      const result = coerceValue(ResponseObjectSchema, validInput)
+      const result = coerceValue(ResponseObjectSchema, validInput);
 
       expect(result).toEqual({
-        description: 'Response with content',
+        description: "Response with content",
         content: {
-          'application/xml': {
+          "application/xml": {
             schema: {
-              type: 'string',
+              type: "string",
             },
           },
         },
-      })
-    })
+      });
+    });
 
-    it('parses valid response with only links correctly', () => {
+    it("parses valid response with only links correctly", () => {
       const validInput = {
-        description: 'Response with links',
+        description: "Response with links",
         links: {
           next: {
-            operationId: 'getNextPage',
+            operationId: "getNextPage",
             parameters: {
-              page: '$response.body#/nextPage',
+              page: "$response.body#/nextPage",
             },
           },
         },
-      }
+      };
 
-      const result = coerceValue(ResponseObjectSchema, validInput)
+      const result = coerceValue(ResponseObjectSchema, validInput);
 
       expect(result).toEqual({
-        description: 'Response with links',
+        description: "Response with links",
         links: {
           next: {
-            operationId: 'getNextPage',
+            operationId: "getNextPage",
             parameters: {
-              page: '$response.body#/nextPage',
+              page: "$response.body#/nextPage",
             },
           },
         },
-      })
-    })
+      });
+    });
 
-    it('parses valid response with reference objects in headers correctly', () => {
+    it("parses valid response with reference objects in headers correctly", () => {
       const validInput = {
-        description: 'Response with reference headers',
+        description: "Response with reference headers",
         headers: {
-          'Authorization': {
-            $ref: '#/components/headers/Authorization',
+          Authorization: {
+            $ref: "#/components/headers/Authorization",
           },
         },
-      }
+      };
 
-      const result = coerceValue(ResponseObjectSchema, validInput)
+      const result = coerceValue(ResponseObjectSchema, validInput);
 
       expect(result).toEqual({
-        description: 'Response with reference headers',
+        description: "Response with reference headers",
         headers: {
-          'Authorization': {
-            $ref: '#/components/headers/Authorization',
+          Authorization: {
+            $ref: "#/components/headers/Authorization",
           },
         },
-      })
-    })
+      });
+    });
 
-    describe('invalid inputs', () => {
-      it('fails when given non-object input', () => {
-        const invalidInput = 'not an object'
+    describe("invalid inputs", () => {
+      it("fails when given non-object input", () => {
+        const invalidInput = "not an object";
 
-        expect(Value.Check(ResponseObjectSchema, invalidInput)).toBe(false)
-      })
+        expect(Value.Check(ResponseObjectSchema, invalidInput)).toBe(false);
+      });
 
-      it('fails when given null input', () => {
-        const invalidInput = null
+      it("fails when given null input", () => {
+        const invalidInput = null;
 
-        expect(Value.Check(ResponseObjectSchema, invalidInput)).toBe(false)
-      })
+        expect(Value.Check(ResponseObjectSchema, invalidInput)).toBe(false);
+      });
 
-      it('fails when given array input', () => {
+      it("fails when given array input", () => {
         const invalidInput = [
           {
-            description: 'Success',
+            description: "Success",
           },
-        ]
+        ];
 
-        expect(Value.Check(ResponseObjectSchema, invalidInput)).toBe(false)
-      })
+        expect(Value.Check(ResponseObjectSchema, invalidInput)).toBe(false);
+      });
 
-      it('fails when description is missing', () => {
-        const invalidInput = {}
+      it("fails when description is missing", () => {
+        const invalidInput = {};
 
-        expect(Value.Check(ResponseObjectSchema, invalidInput)).toBe(false)
-      })
+        expect(Value.Check(ResponseObjectSchema, invalidInput)).toBe(false);
+      });
 
-      it('fails when description is not a string', () => {
+      it("fails when description is not a string", () => {
         const invalidInput = {
           description: 123,
-        }
+        };
 
-        expect(Value.Check(ResponseObjectSchema, invalidInput)).toBe(false)
-      })
+        expect(Value.Check(ResponseObjectSchema, invalidInput)).toBe(false);
+      });
 
-      it('fails when description is null', () => {
+      it("fails when description is null", () => {
         const invalidInput = {
           description: null,
-        }
+        };
 
-        expect(Value.Check(ResponseObjectSchema, invalidInput)).toBe(false)
-      })
+        expect(Value.Check(ResponseObjectSchema, invalidInput)).toBe(false);
+      });
 
-      it('fails when headers is not an object', () => {
+      it("fails when headers is not an object", () => {
         const invalidInput = {
-          description: 'Success',
-          headers: 'not an object',
-        }
+          description: "Success",
+          headers: "not an object",
+        };
 
-        expect(Value.Check(ResponseObjectSchema, invalidInput)).toBe(false)
-      })
+        expect(Value.Check(ResponseObjectSchema, invalidInput)).toBe(false);
+      });
 
-      it('fails when content is not an object', () => {
+      it("fails when content is not an object", () => {
         const invalidInput = {
-          description: 'Success',
-          content: 'not an object',
-        }
+          description: "Success",
+          content: "not an object",
+        };
 
-        expect(Value.Check(ResponseObjectSchema, invalidInput)).toBe(false)
-      })
+        expect(Value.Check(ResponseObjectSchema, invalidInput)).toBe(false);
+      });
 
-      it('fails when links is not an object', () => {
+      it("fails when links is not an object", () => {
         const invalidInput = {
-          description: 'Success',
-          links: 'not an object',
-        }
+          description: "Success",
+          links: "not an object",
+        };
 
-        expect(Value.Check(ResponseObjectSchema, invalidInput)).toBe(false)
-      })
+        expect(Value.Check(ResponseObjectSchema, invalidInput)).toBe(false);
+      });
 
-      it('fails when header value is not an object', () => {
+      it("fails when header value is not an object", () => {
         const invalidInput = {
-          description: 'Success',
+          description: "Success",
           headers: {
-            'Content-Type': 'not an object',
+            "Content-Type": "not an object",
           },
-        }
+        };
 
-        expect(Value.Check(ResponseObjectSchema, invalidInput)).toBe(false)
-      })
+        expect(Value.Check(ResponseObjectSchema, invalidInput)).toBe(false);
+      });
 
-      it('fails when content value is not an object', () => {
+      it("fails when content value is not an object", () => {
         const invalidInput = {
-          description: 'Success',
+          description: "Success",
           content: {
-            'application/json': 'not an object',
+            "application/json": "not an object",
           },
-        }
+        };
 
-        expect(Value.Check(ResponseObjectSchema, invalidInput)).toBe(false)
-      })
+        expect(Value.Check(ResponseObjectSchema, invalidInput)).toBe(false);
+      });
 
-      it('fails when link value is not an object', () => {
+      it("fails when link value is not an object", () => {
         const invalidInput = {
-          description: 'Success',
+          description: "Success",
           links: {
-            self: 'not an object',
+            self: "not an object",
           },
-        }
+        };
 
-        expect(Value.Check(ResponseObjectSchema, invalidInput)).toBe(false)
-      })
-    })
-  })
-})
+        expect(Value.Check(ResponseObjectSchema, invalidInput)).toBe(false);
+      });
+    });
+  });
+});

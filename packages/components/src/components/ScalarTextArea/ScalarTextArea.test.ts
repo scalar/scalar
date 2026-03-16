@@ -1,5 +1,5 @@
 import { mount } from '@vue/test-utils'
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vite-plus/test'
 
 import ScalarTextArea from './ScalarTextArea.vue'
 
@@ -16,7 +16,7 @@ describe('ScalarTextArea', () => {
   it('binds v-model correctly', async () => {
     const wrapper = mount(ScalarTextArea, {
       props: {
-        modelValue: 'initial',
+        'modelValue': 'initial',
         'onUpdate:modelValue': (e) => wrapper.setProps({ modelValue: e }),
       },
     })
@@ -29,9 +29,9 @@ describe('ScalarTextArea', () => {
   it('passes through attributes to textarea element', () => {
     const wrapper = mount(ScalarTextArea, {
       attrs: {
-        placeholder: 'Enter text',
+        'placeholder': 'Enter text',
         'data-testid': 'test-input',
-        type: 'email',
+        'type': 'email',
       },
     })
 

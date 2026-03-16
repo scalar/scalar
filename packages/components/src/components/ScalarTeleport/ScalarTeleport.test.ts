@@ -1,5 +1,5 @@
 import { enableAutoUnmount, mount } from '@vue/test-utils'
-import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it } from 'vite-plus/test'
 
 import ScalarTeleport from './ScalarTeleport.vue'
 import ScalarTeleportRoot from './ScalarTeleportRoot.vue'
@@ -35,7 +35,9 @@ describe('ScalarTeleport', () => {
     expect(wrapper.find('.container #teleported').exists()).toBe(false)
 
     // Check that the content is in the teleport root
-    expect(wrapper.find('.scalar-teleport-root #teleported').exists()).toBeTruthy()
+    expect(
+      wrapper.find('.scalar-teleport-root #teleported').exists(),
+    ).toBeTruthy()
   })
 
   it('teleports to a body if no teleport root is found', () => {

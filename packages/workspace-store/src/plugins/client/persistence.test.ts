@@ -1,7 +1,7 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
 
-const addWindowListener = vi.fn()
-const addDocumentListener = vi.fn()
+const addWindowListener = vi.fn();
+const addDocumentListener = vi.fn();
 
 const createPersistence = () => ({
   meta: { setItem: vi.fn() },
@@ -12,104 +12,125 @@ const createPersistence = () => ({
   history: { setItem: vi.fn() },
   auth: { setItem: vi.fn() },
   workspace: { deleteDocument: vi.fn() },
-})
+});
 
 const debounceSpy = vi.fn(() => ({
   execute: vi.fn(),
   cleanup: vi.fn(),
   flush: vi.fn(),
   flushAll: vi.fn(),
-}))
+}));
 
-vi.mock('@scalar/helpers/general/debounce', () => ({
+vi.mock("@scalar/helpers/general/debounce", () => ({
   debounce: debounceSpy,
-}))
+}));
 
-vi.mock('@/persistence', () => ({
+vi.mock("@/persistence", () => ({
   createWorkspaceStorePersistence: vi.fn(async () => createPersistence()),
-}))
+}));
 
-describe('persistence-plugin', () => {
+describe("persistence-plugin", () => {
   beforeEach(() => {
-    vi.resetModules()
-    vi.clearAllMocks()
+    vi.resetModules();
+    vi.clearAllMocks();
 
-    addWindowListener.mockClear()
-    addDocumentListener.mockClear()
+    addWindowListener.mockClear();
+    addDocumentListener.mockClear();
 
-    vi.stubGlobal('window', {
+    vi.stubGlobal("window", {
       addEventListener: addWindowListener,
-    })
+    });
 
-    vi.stubGlobal('document', {
+    vi.stubGlobal("document", {
       addEventListener: addDocumentListener,
-      visibilityState: 'visible',
-    })
-  })
+      visibilityState: "visible",
+    });
+  });
 
-  it('registers lifecycle listeners once across multiple plugin instances', async () => {
-    const { persistencePlugin } = await import('./persistence')
+  it("registers lifecycle listeners once across multiple plugin instances", async () => {
+    const { persistencePlugin } = await import("./persistence");
 
-    await persistencePlugin({ workspaceId: 'workspace-1' })
-    await persistencePlugin({ workspaceId: 'workspace-2' })
+    await persistencePlugin({ workspaceId: "workspace-1" });
+    await persistencePlugin({ workspaceId: "workspace-2" });
 
-    expect(addWindowListener).toHaveBeenCalledTimes(2)
-    expect(addWindowListener).toHaveBeenNthCalledWith(1, 'pagehide', expect.any(Function))
-    expect(addWindowListener).toHaveBeenNthCalledWith(2, 'beforeunload', expect.any(Function))
-    expect(addDocumentListener).toHaveBeenCalledTimes(1)
-    expect(addDocumentListener).toHaveBeenCalledWith('visibilitychange', expect.any(Function))
-  })
+    expect(addWindowListener).toHaveBeenCalledTimes(2);
+    expect(addWindowListener).toHaveBeenNthCalledWith(
+      1,
+      "pagehide",
+      expect.any(Function),
+    );
+    expect(addWindowListener).toHaveBeenNthCalledWith(
+      2,
+      "beforeunload",
+      expect.any(Function),
+    );
+    expect(addDocumentListener).toHaveBeenCalledTimes(1);
+    expect(addDocumentListener).toHaveBeenCalledWith(
+      "visibilitychange",
+      expect.any(Function),
+    );
+  });
 
-  it('flushes all registered plugin debounces on pagehide', async () => {
-    const { persistencePlugin } = await import('./persistence')
+  it("flushes all registered plugin debounces on pagehide", async () => {
+    const { persistencePlugin } = await import("./persistence");
 
-    await persistencePlugin({ workspaceId: 'workspace-1' })
-    await persistencePlugin({ workspaceId: 'workspace-2' })
+    await persistencePlugin({ workspaceId: "workspace-1" });
+    await persistencePlugin({ workspaceId: "workspace-2" });
 
-    const pagehideHandler = addWindowListener.mock.calls.find((call) => call[0] === 'pagehide')?.[1]
-    expect(pagehideHandler).toBeTypeOf('function')
+    const pagehideHandler = addWindowListener.mock.calls.find(
+      (call) => call[0] === "pagehide",
+    )?.[1];
+    expect(pagehideHandler).toBeTypeOf("function");
 
-    pagehideHandler()
+    pagehideHandler();
 
-    const firstPluginDebounce = debounceSpy.mock.results[0]?.value
-    const secondPluginDebounce = debounceSpy.mock.results[1]?.value
+    const firstPluginDebounce = debounceSpy.mock.results[0]?.value;
+    const secondPluginDebounce = debounceSpy.mock.results[1]?.value;
 
-    expect(firstPluginDebounce.flushAll).toHaveBeenCalledTimes(1)
-    expect(secondPluginDebounce.flushAll).toHaveBeenCalledTimes(1)
-  })
+    expect(firstPluginDebounce.flushAll).toHaveBeenCalledTimes(1);
+    expect(secondPluginDebounce.flushAll).toHaveBeenCalledTimes(1);
+  });
 
-  it('dispose flushes pending writes and cleans up before removing from pendingFlushes', async () => {
-    const { persistencePlugin } = await import('./persistence')
+  it("dispose flushes pending writes and cleans up before removing from pendingFlushes", async () => {
+    const { persistencePlugin } = await import("./persistence");
 
-    const plugin = await persistencePlugin({ workspaceId: 'workspace-1' })
-    const debounced = debounceSpy.mock.results[0]?.value
+    const plugin = await persistencePlugin({ workspaceId: "workspace-1" });
+    const debounced = debounceSpy.mock.results[0]?.value;
 
-    plugin.dispose?.()
+    plugin.dispose?.();
 
-    expect(debounced.flushAll).toHaveBeenCalledTimes(1)
-  })
+    expect(debounced.flushAll).toHaveBeenCalledTimes(1);
+  });
 
-  it('dispose removes flushAll from pendingFlushes so only remaining plugins are flushed', async () => {
-    const { persistencePlugin } = await import('./persistence')
+  it("dispose removes flushAll from pendingFlushes so only remaining plugins are flushed", async () => {
+    const { persistencePlugin } = await import("./persistence");
 
-    const plugin1 = await persistencePlugin({ workspaceId: 'workspace-1' })
-    await persistencePlugin({ workspaceId: 'workspace-2' })
+    const plugin1 = await persistencePlugin({ workspaceId: "workspace-1" });
+    await persistencePlugin({ workspaceId: "workspace-2" });
 
-    const pagehideHandler = addWindowListener.mock.calls.find((call) => call[0] === 'pagehide')?.[1]
-    expect(pagehideHandler).toBeTypeOf('function')
+    const pagehideHandler = addWindowListener.mock.calls.find(
+      (call) => call[0] === "pagehide",
+    )?.[1];
+    expect(pagehideHandler).toBeTypeOf("function");
 
-    pagehideHandler()
-    expect(debounceSpy).toHaveBeenCalledTimes(2)
-    expect(debounceSpy.mock.results[0]?.value.flushAll).toHaveBeenCalledTimes(1)
-    expect(debounceSpy.mock.results[1]?.value.flushAll).toHaveBeenCalledTimes(1)
+    pagehideHandler();
+    expect(debounceSpy).toHaveBeenCalledTimes(2);
+    expect(debounceSpy.mock.results[0]?.value.flushAll).toHaveBeenCalledTimes(
+      1,
+    );
+    expect(debounceSpy.mock.results[1]?.value.flushAll).toHaveBeenCalledTimes(
+      1,
+    );
 
-    plugin1.dispose?.()
+    plugin1.dispose?.();
 
-    debounceSpy.mock.results[0]?.value.flushAll.mockClear()
-    debounceSpy.mock.results[1]?.value.flushAll.mockClear()
-    pagehideHandler()
+    debounceSpy.mock.results[0]?.value.flushAll.mockClear();
+    debounceSpy.mock.results[1]?.value.flushAll.mockClear();
+    pagehideHandler();
 
-    expect(debounceSpy.mock.results[0]?.value.flushAll).not.toHaveBeenCalled()
-    expect(debounceSpy.mock.results[1]?.value.flushAll).toHaveBeenCalledTimes(1)
-  })
-})
+    expect(debounceSpy.mock.results[0]?.value.flushAll).not.toHaveBeenCalled();
+    expect(debounceSpy.mock.results[1]?.value.flushAll).toHaveBeenCalledTimes(
+      1,
+    );
+  });
+});

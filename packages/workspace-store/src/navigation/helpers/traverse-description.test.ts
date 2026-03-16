@@ -1,57 +1,64 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from "vite-plus/test";
 
-import { traverseDescription } from './traverse-description'
+import { traverseDescription } from "./traverse-description";
 
-describe('traverseDescription', () => {
-  const getHeadingId = (heading: { value: string }) => `heading-${heading.value.toLowerCase().replace(/\s+/g, '-')}`
+describe("traverseDescription", () => {
+  const getHeadingId = (heading: { value: string }) =>
+    `heading-${heading.value.toLowerCase().replace(/\s+/g, "-")}`;
 
-  it('should return empty array for undefined description', () => {
+  it("should return empty array for undefined description", () => {
     const result = traverseDescription({
-      info: { title: 'Openapi Document', version: '1.0.0', description: undefined },
+      info: {
+        title: "Openapi Document",
+        version: "1.0.0",
+        description: undefined,
+      },
       generateId: (props) => {
-        if (props.type === 'text') {
-          return getHeadingId({ value: props.value })
+        if (props.type === "text") {
+          return getHeadingId({ value: props.value });
         }
 
-        return 'unknown-id'
+        return "unknown-id";
       },
-      parentId: 'parent-1',
-    })
-    expect(result).toEqual([])
-  })
+      parentId: "parent-1",
+    });
+    expect(result).toEqual([]);
+  });
 
-  it('should return empty array for empty description', () => {
+  it("should return empty array for empty description", () => {
     const result = traverseDescription({
-      info: { title: 'Openapi Document', version: '1.0.0', description: '' },
+      info: { title: "Openapi Document", version: "1.0.0", description: "" },
       generateId: (props) => {
-        if (props.type === 'text') {
-          return getHeadingId({ value: props.value })
+        if (props.type === "text") {
+          return getHeadingId({ value: props.value });
         }
 
-        return 'unknown-id'
+        return "unknown-id";
       },
-      parentId: 'parent-1',
-    })
-    expect(result).toEqual([])
-  })
+      parentId: "parent-1",
+    });
+    expect(result).toEqual([]);
+  });
 
-  it('should return an introduction entry for description with no headings', () => {
-    const description = 'This is a paragraph without any headings.'
+  it("should return an introduction entry for description with no headings", () => {
+    const description = "This is a paragraph without any headings.";
     const result = traverseDescription({
-      info: { title: 'Openapi Document', version: '1.0.0', description },
+      info: { title: "Openapi Document", version: "1.0.0", description },
       generateId: (props) => {
-        if (props.type === 'text') {
-          return getHeadingId({ value: props.value })
+        if (props.type === "text") {
+          return getHeadingId({ value: props.value });
         }
 
-        return 'unknown-id'
+        return "unknown-id";
       },
-      parentId: 'parent-1',
-    })
-    expect(result).toEqual([{ id: 'heading-introduction', title: 'Introduction', type: 'text' }])
-  })
+      parentId: "parent-1",
+    });
+    expect(result).toEqual([
+      { id: "heading-introduction", title: "Introduction", type: "text" },
+    ]);
+  });
 
-  it('should nest all headings under introduction when description starts with text', () => {
+  it("should nest all headings under introduction when description starts with text", () => {
     const description = `
 This is the introduction paragraph.
 
@@ -63,54 +70,54 @@ Details for subsection
 More content
 ## Another Subsection
 Final details
-    `
+    `;
     const result = traverseDescription({
-      info: { title: 'Openapi Document', version: '1.0.0', description },
+      info: { title: "Openapi Document", version: "1.0.0", description },
       generateId: (props) => {
-        if (props.type === 'text') {
-          return getHeadingId({ value: props.value })
+        if (props.type === "text") {
+          return getHeadingId({ value: props.value });
         }
 
-        return 'unknown-id'
+        return "unknown-id";
       },
-      parentId: 'parent-1',
-    })
+      parentId: "parent-1",
+    });
 
-    expect(result).toHaveLength(1)
+    expect(result).toHaveLength(1);
     expect(result[0]).toEqual({
-      id: 'heading-introduction',
-      title: 'Introduction',
-      type: 'text',
+      id: "heading-introduction",
+      title: "Introduction",
+      type: "text",
       children: [
         {
-          id: 'heading-main-section',
-          title: 'Main Section',
-          type: 'text',
+          id: "heading-main-section",
+          title: "Main Section",
+          type: "text",
           children: [
             {
-              id: 'heading-subsection-1',
-              title: 'Subsection 1',
-              type: 'text',
+              id: "heading-subsection-1",
+              title: "Subsection 1",
+              type: "text",
             },
           ],
         },
         {
-          id: 'heading-another-section',
-          title: 'Another Section',
-          type: 'text',
+          id: "heading-another-section",
+          title: "Another Section",
+          type: "text",
           children: [
             {
-              id: 'heading-another-subsection',
-              title: 'Another Subsection',
-              type: 'text',
+              id: "heading-another-subsection",
+              title: "Another Subsection",
+              type: "text",
             },
           ],
         },
       ],
-    })
-  })
+    });
+  });
 
-  it('should create single level entries for h1 headings', () => {
+  it("should create single level entries for h1 headings", () => {
     const description = `
 # First Heading
 Some content here
@@ -118,41 +125,41 @@ Some content here
 More content
 # Third Heading
 Final content
-    `
+    `;
     const result = traverseDescription({
-      info: { title: 'Openapi Document', version: '1.0.0', description },
+      info: { title: "Openapi Document", version: "1.0.0", description },
       generateId: (props) => {
-        if (props.type === 'text') {
-          return getHeadingId({ value: props.value })
+        if (props.type === "text") {
+          return getHeadingId({ value: props.value });
         }
 
-        return 'unknown-id'
+        return "unknown-id";
       },
-      parentId: 'parent-1',
-    })
+      parentId: "parent-1",
+    });
 
-    expect(result).toHaveLength(3)
+    expect(result).toHaveLength(3);
     expect(result[0]).toEqual({
-      id: 'heading-first-heading',
-      title: 'First Heading',
+      id: "heading-first-heading",
+      title: "First Heading",
       children: [],
-      type: 'text',
-    })
+      type: "text",
+    });
     expect(result[1]).toEqual({
-      id: 'heading-second-heading',
-      title: 'Second Heading',
+      id: "heading-second-heading",
+      title: "Second Heading",
       children: [],
-      type: 'text',
-    })
+      type: "text",
+    });
     expect(result[2]).toEqual({
-      id: 'heading-third-heading',
-      title: 'Third Heading',
+      id: "heading-third-heading",
+      title: "Third Heading",
       children: [],
-      type: 'text',
-    })
-  })
+      type: "text",
+    });
+  });
 
-  it('should create nested entries for h1 and h2 headings', () => {
+  it("should create nested entries for h1 and h2 headings", () => {
     const description = `
 # Main Section
 Some content
@@ -164,52 +171,52 @@ Content for subsection 2
 More content
 ## Another Subsection
 Final content
-    `
+    `;
     const result = traverseDescription({
-      info: { title: 'Openapi Document', version: '1.0.0', description },
+      info: { title: "Openapi Document", version: "1.0.0", description },
       generateId: (props) => {
-        if (props.type === 'text') {
-          return getHeadingId({ value: props.value })
+        if (props.type === "text") {
+          return getHeadingId({ value: props.value });
         }
 
-        return 'unknown-id'
+        return "unknown-id";
       },
-      parentId: 'parent-1',
-    })
+      parentId: "parent-1",
+    });
 
-    expect(result).toHaveLength(2)
+    expect(result).toHaveLength(2);
     expect(result[0]).toEqual({
-      id: 'heading-main-section',
-      title: 'Main Section',
-      type: 'text',
+      id: "heading-main-section",
+      title: "Main Section",
+      type: "text",
       children: [
         {
-          id: 'heading-subsection-1',
-          title: 'Subsection 1',
-          type: 'text',
+          id: "heading-subsection-1",
+          title: "Subsection 1",
+          type: "text",
         },
         {
-          id: 'heading-subsection-2',
-          title: 'Subsection 2',
-          type: 'text',
+          id: "heading-subsection-2",
+          title: "Subsection 2",
+          type: "text",
         },
       ],
-    })
+    });
     expect(result[1]).toEqual({
-      id: 'heading-another-section',
-      title: 'Another Section',
-      type: 'text',
+      id: "heading-another-section",
+      title: "Another Section",
+      type: "text",
       children: [
         {
-          id: 'heading-another-subsection',
-          title: 'Another Subsection',
-          type: 'text',
+          id: "heading-another-subsection",
+          title: "Another Subsection",
+          type: "text",
         },
       ],
-    })
-  })
+    });
+  });
 
-  it('should handle h2 and h3 headings when they are the lowest levels', () => {
+  it("should handle h2 and h3 headings when they are the lowest levels", () => {
     const description = `
 ## Section 1
 Content
@@ -221,116 +228,116 @@ Content
 Content
 ### Subsection 2.1
 Content
-    `
+    `;
     const result = traverseDescription({
-      info: { title: 'Openapi Document', version: '1.0.0', description },
+      info: { title: "Openapi Document", version: "1.0.0", description },
       generateId: (props) => {
-        if (props.type === 'text') {
-          return getHeadingId({ value: props.value })
+        if (props.type === "text") {
+          return getHeadingId({ value: props.value });
         }
 
-        return 'unknown-id'
+        return "unknown-id";
       },
-      parentId: 'parent-1',
-    })
+      parentId: "parent-1",
+    });
 
-    expect(result).toHaveLength(2)
+    expect(result).toHaveLength(2);
     expect(result[0]).toEqual({
-      id: 'heading-section-1',
-      title: 'Section 1',
-      type: 'text',
+      id: "heading-section-1",
+      title: "Section 1",
+      type: "text",
       children: [
         {
-          id: 'heading-subsection-1.1',
-          title: 'Subsection 1.1',
-          type: 'text',
+          id: "heading-subsection-1.1",
+          title: "Subsection 1.1",
+          type: "text",
         },
         {
-          id: 'heading-subsection-1.2',
-          title: 'Subsection 1.2',
-          type: 'text',
+          id: "heading-subsection-1.2",
+          title: "Subsection 1.2",
+          type: "text",
         },
       ],
-    })
+    });
     expect(result[1]).toEqual({
-      id: 'heading-section-2',
-      title: 'Section 2',
-      type: 'text',
+      id: "heading-section-2",
+      title: "Section 2",
+      type: "text",
       children: [
         {
-          id: 'heading-subsection-2.1',
-          title: 'Subsection 2.1',
-          type: 'text',
+          id: "heading-subsection-2.1",
+          title: "Subsection 2.1",
+          type: "text",
         },
       ],
-    })
-  })
+    });
+  });
 
-  it('should skip headings that are not at the lowest two levels', () => {
+  it("should skip headings that are not at the lowest two levels", () => {
     const description = `
 # Level 1
 ## Level 2
 ### Level 3
 #### Level 4
 ##### Level 5
-    `
+    `;
     const result = traverseDescription({
-      info: { title: 'Openapi Document', version: '1.0.0', description },
+      info: { title: "Openapi Document", version: "1.0.0", description },
       generateId: (props) => {
-        if (props.type === 'text') {
-          return getHeadingId({ value: props.value })
+        if (props.type === "text") {
+          return getHeadingId({ value: props.value });
         }
 
-        return 'unknown-id'
+        return "unknown-id";
       },
-      parentId: 'parent-1',
-    })
+      parentId: "parent-1",
+    });
 
     // Should only include Level 1 and Level 2
-    expect(result).toHaveLength(1)
+    expect(result).toHaveLength(1);
     expect(result[0]).toEqual({
-      id: 'heading-level-1',
-      title: 'Level 1',
-      type: 'text',
+      id: "heading-level-1",
+      title: "Level 1",
+      type: "text",
       children: [
         {
-          id: 'heading-level-2',
-          title: 'Level 2',
-          type: 'text',
+          id: "heading-level-2",
+          title: "Level 2",
+          type: "text",
         },
       ],
-    })
-  })
+    });
+  });
 
-  it('should handle special characters in headings', () => {
+  it("should handle special characters in headings", () => {
     const description = `
 # Section with @#$%^&*() chars
 ## Sub-section with !@#$%^&*() chars
-    `
+    `;
     const result = traverseDescription({
-      info: { title: 'Openapi Document', version: '1.0.0', description },
+      info: { title: "Openapi Document", version: "1.0.0", description },
       generateId: (props) => {
-        if (props.type === 'text') {
-          return getHeadingId({ value: props.value })
+        if (props.type === "text") {
+          return getHeadingId({ value: props.value });
         }
 
-        return 'unknown-id'
+        return "unknown-id";
       },
-      parentId: 'parent-1',
-    })
+      parentId: "parent-1",
+    });
 
-    expect(result).toHaveLength(1)
+    expect(result).toHaveLength(1);
     expect(result[0]).toEqual({
-      id: 'heading-section-with-@#$%^&*()-chars',
-      title: 'Section with @#$%^&*() chars',
+      id: "heading-section-with-@#$%^&*()-chars",
+      title: "Section with @#$%^&*() chars",
       children: [
         {
-          id: 'heading-sub-section-with-!@#$%^&*()-chars',
-          title: 'Sub-section with !@#$%^&*() chars',
-          type: 'text',
+          id: "heading-sub-section-with-!@#$%^&*()-chars",
+          title: "Sub-section with !@#$%^&*() chars",
+          type: "text",
         },
       ],
-      type: 'text',
-    })
-  })
-})
+      type: "text",
+    });
+  });
+});

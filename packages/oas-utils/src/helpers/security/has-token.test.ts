@@ -1,172 +1,172 @@
-import { securitySchemeSchema } from '@scalar/types/entities'
-import { describe, it, expect } from 'vitest'
+import { securitySchemeSchema } from "@scalar/types/entities";
+import { describe, expect, it } from "vite-plus/test";
 
-import { hasToken } from './has-token'
+import { hasToken } from "./has-token";
 
-describe('hasToken', () => {
-  describe('apiKey scheme', () => {
-    it('returns true when value is present', () => {
+describe("hasToken", () => {
+  describe("apiKey scheme", () => {
+    it("returns true when value is present", () => {
       const scheme = securitySchemeSchema.parse({
-        type: 'apiKey',
-        value: 'my-api-key',
-        in: 'header',
-        name: 'x-api-key',
-      })
-      expect(hasToken(scheme)).toBe(true)
-    })
+        type: "apiKey",
+        value: "my-api-key",
+        in: "header",
+        name: "x-api-key",
+      });
+      expect(hasToken(scheme)).toBe(true);
+    });
 
-    it('returns false when value is empty', () => {
+    it("returns false when value is empty", () => {
       const scheme = securitySchemeSchema.parse({
-        type: 'apiKey',
-        value: '',
-        in: 'header',
-        name: 'x-api-key',
-      })
-      expect(hasToken(scheme)).toBe(false)
-    })
-  })
+        type: "apiKey",
+        value: "",
+        in: "header",
+        name: "x-api-key",
+      });
+      expect(hasToken(scheme)).toBe(false);
+    });
+  });
 
-  describe('http scheme', () => {
-    describe('bearer', () => {
-      it('returns true when token is present', () => {
+  describe("http scheme", () => {
+    describe("bearer", () => {
+      it("returns true when token is present", () => {
         const scheme = securitySchemeSchema.parse({
-          type: 'http',
-          scheme: 'bearer',
-          token: 'my-bearer-token',
-        })
-        expect(hasToken(scheme)).toBe(true)
-      })
+          type: "http",
+          scheme: "bearer",
+          token: "my-bearer-token",
+        });
+        expect(hasToken(scheme)).toBe(true);
+      });
 
-      it('returns false when token is empty', () => {
+      it("returns false when token is empty", () => {
         const scheme = securitySchemeSchema.parse({
-          type: 'http',
-          scheme: 'bearer',
-          token: '',
-        })
-        expect(hasToken(scheme)).toBe(false)
-      })
-    })
+          type: "http",
+          scheme: "bearer",
+          token: "",
+        });
+        expect(hasToken(scheme)).toBe(false);
+      });
+    });
 
-    describe('basic', () => {
-      it('returns true when both username and password are present', () => {
+    describe("basic", () => {
+      it("returns true when both username and password are present", () => {
         const scheme = securitySchemeSchema.parse({
-          type: 'http',
-          scheme: 'basic',
-          username: 'user',
-          password: 'pass',
-        })
-        expect(hasToken(scheme)).toBe(true)
-      })
+          type: "http",
+          scheme: "basic",
+          username: "user",
+          password: "pass",
+        });
+        expect(hasToken(scheme)).toBe(true);
+      });
 
-      it('returns false when username is missing', () => {
+      it("returns false when username is missing", () => {
         const scheme = securitySchemeSchema.parse({
-          type: 'http',
-          scheme: 'basic',
-          username: '',
-          password: 'pass',
-        })
-        expect(hasToken(scheme)).toBe(false)
-      })
+          type: "http",
+          scheme: "basic",
+          username: "",
+          password: "pass",
+        });
+        expect(hasToken(scheme)).toBe(false);
+      });
 
-      it('returns false when password is missing', () => {
+      it("returns false when password is missing", () => {
         const scheme = securitySchemeSchema.parse({
-          type: 'http',
-          scheme: 'basic',
-          username: 'user',
-          password: '',
-        })
-        expect(hasToken(scheme)).toBe(false)
-      })
-    })
-  })
+          type: "http",
+          scheme: "basic",
+          username: "user",
+          password: "",
+        });
+        expect(hasToken(scheme)).toBe(false);
+      });
+    });
+  });
 
-  describe('oauth2 scheme', () => {
-    it('returns true when authorization code flow has token', () => {
+  describe("oauth2 scheme", () => {
+    it("returns true when authorization code flow has token", () => {
       const scheme = securitySchemeSchema.parse({
-        type: 'oauth2',
+        type: "oauth2",
         flows: {
           authorizationCode: {
-            token: 'auth-code-token',
-            authorizationUrl: 'https://auth.example.com',
-            tokenUrl: 'https://token.example.com',
+            token: "auth-code-token",
+            authorizationUrl: "https://auth.example.com",
+            tokenUrl: "https://token.example.com",
             scopes: {},
           },
         },
-      })
-      expect(hasToken(scheme)).toBe(true)
-    })
+      });
+      expect(hasToken(scheme)).toBe(true);
+    });
 
-    it('returns true when client credentials flow has token', () => {
+    it("returns true when client credentials flow has token", () => {
       const scheme = securitySchemeSchema.parse({
-        type: 'oauth2',
+        type: "oauth2",
         flows: {
           clientCredentials: {
-            token: 'client-creds-token',
-            tokenUrl: 'https://token.example.com',
+            token: "client-creds-token",
+            tokenUrl: "https://token.example.com",
             scopes: {},
           },
         },
-      })
-      expect(hasToken(scheme)).toBe(true)
-    })
+      });
+      expect(hasToken(scheme)).toBe(true);
+    });
 
-    it('returns true when password flow has token', () => {
+    it("returns true when password flow has token", () => {
       const scheme = securitySchemeSchema.parse({
-        type: 'oauth2',
+        type: "oauth2",
         flows: {
           password: {
-            token: 'password-token',
-            tokenUrl: 'https://token.example.com',
+            token: "password-token",
+            tokenUrl: "https://token.example.com",
             scopes: {},
           },
         },
-      })
-      expect(hasToken(scheme)).toBe(true)
-    })
+      });
+      expect(hasToken(scheme)).toBe(true);
+    });
 
-    it('returns true when implicit flow has token', () => {
+    it("returns true when implicit flow has token", () => {
       const scheme = securitySchemeSchema.parse({
-        type: 'oauth2',
+        type: "oauth2",
         flows: {
           implicit: {
-            token: 'implicit-token',
-            authorizationUrl: 'https://auth.example.com',
+            token: "implicit-token",
+            authorizationUrl: "https://auth.example.com",
             scopes: {},
           },
         },
-      })
-      expect(hasToken(scheme)).toBe(true)
-    })
+      });
+      expect(hasToken(scheme)).toBe(true);
+    });
 
-    it('returns false when no flows have tokens', () => {
+    it("returns false when no flows have tokens", () => {
       const scheme = securitySchemeSchema.parse({
-        type: 'oauth2',
+        type: "oauth2",
         flows: {
           authorizationCode: {
-            token: '',
-            authorizationUrl: 'https://auth.example.com',
-            tokenUrl: 'https://token.example.com',
+            token: "",
+            authorizationUrl: "https://auth.example.com",
+            tokenUrl: "https://token.example.com",
             scopes: {},
           },
           clientCredentials: {
-            token: '',
-            tokenUrl: 'https://token.example.com',
+            token: "",
+            tokenUrl: "https://token.example.com",
             scopes: {},
           },
         },
-      })
-      expect(hasToken(scheme)).toBe(false)
-    })
-  })
+      });
+      expect(hasToken(scheme)).toBe(false);
+    });
+  });
 
-  describe('unknown scheme type', () => {
-    it('returns false for unknown scheme types', () => {
+  describe("unknown scheme type", () => {
+    it("returns false for unknown scheme types", () => {
       // Note: For unknown types, we can't use parse as it would fail validation
       // This is testing the edge case of an invalid type
       const scheme = {
-        type: 'unknown',
-      } as any
-      expect(hasToken(scheme)).toBe(false)
-    })
-  })
-})
+        type: "unknown",
+      } as any;
+      expect(hasToken(scheme)).toBe(false);
+    });
+  });
+});

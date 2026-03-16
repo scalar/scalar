@@ -1,8 +1,13 @@
 import { mount } from '@vue/test-utils'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vite-plus/test'
 import { nextTick } from 'vue'
 
-import { ScalarCard, ScalarCardFooter, ScalarCardHeader, ScalarCardSection } from './index'
+import {
+  ScalarCard,
+  ScalarCardFooter,
+  ScalarCardHeader,
+  ScalarCardSection,
+} from './index'
 
 describe('ScalarCard', () => {
   it('renders properly', () => {
@@ -20,14 +25,21 @@ describe('ScalarCard', () => {
         label: 'Test card',
       },
     })
-    expect(wrapper.find('div[role="group"]').attributes('aria-label')).toBe('Test card')
-    expect(wrapper.find('div[role="group"]').attributes('aria-labelledby')).not.toBeDefined()
+    expect(wrapper.find('div[role="group"]').attributes('aria-label')).toBe(
+      'Test card',
+    )
+    expect(
+      wrapper.find('div[role="group"]').attributes('aria-labelledby'),
+    ).not.toBeDefined()
   })
 
   it('sets aria-labelledby when card header is present', async () => {
     const wrapper = mount(ScalarCard, {
       slots: {
-        default: ['<ScalarCardHeader>Header</ScalarCardHeader>', '<ScalarCardSection>Content</ScalarCardSection>'],
+        default: [
+          '<ScalarCardHeader>Header</ScalarCardHeader>',
+          '<ScalarCardSection>Content</ScalarCardSection>',
+        ],
       },
       global: {
         components: {

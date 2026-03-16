@@ -1,42 +1,42 @@
-import { Value } from '@scalar/typebox/value'
-import { describe, expect, it } from 'vitest'
+import { Value } from "@scalar/typebox/value";
+import { describe, expect, it } from "vite-plus/test";
 
-import { XTokenNameSchema } from './x-tokenName'
+import { XTokenNameSchema } from "./x-tokenName";
 
-describe('XTokenName', () => {
-  it('allows string value', () => {
+describe("XTokenName", () => {
+  it("allows string value", () => {
     const result = Value.Parse(XTokenNameSchema, {
-      'x-tokenName': 'custom_access_token',
-    })
+      "x-tokenName": "custom_access_token",
+    });
 
     expect(result).toEqual({
-      'x-tokenName': 'custom_access_token',
-    })
-  })
+      "x-tokenName": "custom_access_token",
+    });
+  });
 
-  it('allows different token names', () => {
+  it("allows different token names", () => {
     const result = Value.Parse(XTokenNameSchema, {
-      'x-tokenName': 'bearer_token',
-    })
+      "x-tokenName": "bearer_token",
+    });
 
     expect(result).toEqual({
-      'x-tokenName': 'bearer_token',
-    })
-  })
+      "x-tokenName": "bearer_token",
+    });
+  });
 
-  it('can be empty, not required', () => {
-    const result = Value.Parse(XTokenNameSchema, {})
+  it("can be empty, not required", () => {
+    const result = Value.Parse(XTokenNameSchema, {});
 
-    expect(result).toEqual({})
-  })
+    expect(result).toEqual({});
+  });
 
-  it('coerces non-string values', () => {
+  it("coerces non-string values", () => {
     const result = Value.Parse(XTokenNameSchema, {
-      'x-tokenName': 123,
-    })
+      "x-tokenName": 123,
+    });
 
     expect(result).toEqual({
-      'x-tokenName': '123',
-    })
-  })
-})
+      "x-tokenName": "123",
+    });
+  });
+});

@@ -1,62 +1,65 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from "vite-plus/test";
 
-import { getMediaTypeConfig, isTextMediaType } from './mediaTypes'
+import { getMediaTypeConfig, isTextMediaType } from "./mediaTypes";
 
-describe('mediaTypes', () => {
+describe("mediaTypes", () => {
   const cases = [
     {
-      type: 'application/json',
+      type: "application/json",
       config: {
-        extension: '.json',
+        extension: ".json",
         raw: true,
-        language: 'json',
+        language: "json",
       },
     },
     {
-      type: 'application/fhir+json',
+      type: "application/fhir+json",
       config: {
-        extension: '.json',
+        extension: ".json",
         raw: true,
-        language: 'json',
+        language: "json",
       },
     },
     {
-      type: 'application/ld+json',
+      type: "application/ld+json",
       config: {
-        extension: '.jsonld',
+        extension: ".jsonld",
         raw: true,
-        language: 'json',
+        language: "json",
       },
     },
     {
-      type: 'image/jpeg',
+      type: "image/jpeg",
       config: {
-        extension: '.jpg',
-        preview: 'image',
+        extension: ".jpg",
+        preview: "image",
       },
     },
     {
-      type: 'application/yaml',
+      type: "application/yaml",
       config: {
-        extension: '.yaml',
+        extension: ".yaml",
         raw: true,
-        language: 'yaml',
+        language: "yaml",
       },
     },
-  ]
+  ];
 
-  it.each(cases)('should return the correct config for $type', ({ type, config }) => {
-    const result = getMediaTypeConfig(type)
-    expect(result).toStrictEqual(config)
-  })
+  it.each(cases)(
+    "should return the correct config for $type",
+    ({ type, config }) => {
+      const result = getMediaTypeConfig(type);
+      expect(result).toStrictEqual(config);
+    },
+  );
 
-  it('isTextMediaType', () => {
-    expect(isTextMediaType('application/json')).toBe(true)
-    expect(isTextMediaType('application/ld+json')).toBe(true)
-    expect(isTextMediaType('application/fhir+json')).toBe(true)
-    expect(isTextMediaType('text/plain')).toBe(true)
-    expect(isTextMediaType('image/jpeg')).toBe(false)
-    expect(isTextMediaType('application/octet-stream')).toBe(false)
-    expect(isTextMediaType('application/xml')).toBe(true)
-  })
-})
+  it("isTextMediaType", () => {
+    expect(isTextMediaType("application/json")).toBe(true);
+    expect(isTextMediaType("application/ld+json")).toBe(true);
+    expect(isTextMediaType("application/fhir+json")).toBe(true);
+    expect(isTextMediaType("text/plain")).toBe(true);
+    expect(isTextMediaType("image/jpeg")).toBe(false);
+    expect(isTextMediaType("application/octet-stream")).toBe(false);
+    expect(isTextMediaType("application/xml")).toBe(true);
+  });
+});

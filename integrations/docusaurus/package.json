@@ -30,7 +30,7 @@
     "format:check": "scalar-format-check",
     "lint:check": "scalar-lint-check",
     "lint:fix": "scalar-lint-fix",
-    "test": "vitest",
+    "test": "vp test",
     "types:check": "tsc --noEmit --skipLibCheck"
   },
   "main": "./dist/index.js",
@@ -78,7 +78,8 @@
     "postcss-nesting": "^12.1.5",
     "react": "catalog:*",
     "react-dom": "catalog:*",
-    "vite": "catalog:*"
+    "vite": "catalog:",
+    "vite-plus": "catalog:"
   },
   "peerDependencies": {
     "@docusaurus/utils": "^3.9.2",

@@ -1,4 +1,4 @@
-import { defineConfig } from 'vite'
+import { defineConfig } from 'vite-plus'
 
 // Super simple vite config to serve the storybook static files for playwright
 

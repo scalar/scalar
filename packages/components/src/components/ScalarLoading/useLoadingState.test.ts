@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vite-plus/test'
 
 import { useLoadingState } from './useLoadingState'
 
@@ -195,7 +195,10 @@ describe('useLoadingState', () => {
     const loader = useLoadingState()
     const customDuration = 2500
 
-    const promise = loader.invalidate({ duration: customDuration, persist: true })
+    const promise = loader.invalidate({
+      duration: customDuration,
+      persist: true,
+    })
 
     expect(loader.isInvalid).toBe(true)
 

@@ -1,20 +1,20 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from "vite-plus/test";
 
-import { createCodeMirrorTheme } from './createCodeMirrorTheme'
+import { createCodeMirrorTheme } from "./createCodeMirrorTheme";
 
-describe('createCodeMirrorTheme', () => {
-  it('creates a theme', () => {
+describe("createCodeMirrorTheme", () => {
+  it("creates a theme", () => {
     const theme = createCodeMirrorTheme({
-      theme: 'light',
+      theme: "light",
       settings: {
-        background: '#ffffff',
-        foreground: '#000000',
-        caret: '#ff0000',
+        background: "#ffffff",
+        foreground: "#000000",
+        caret: "#ff0000",
       },
       styles: [],
-    })
+    });
 
-    expect(theme).toBeInstanceOf(Array)
-    expect(theme).toHaveLength(2)
-  })
-})
+    expect(theme).toBeInstanceOf(Array);
+    expect(theme).toHaveLength(2);
+  });
+});

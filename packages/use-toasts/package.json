@@ -23,13 +23,13 @@
   },
   "scripts": {
     "build": "scalar-build-vite",
-    "dev": "vite",
+    "dev": "vp dev",
     "format": "scalar-format",
     "format:check": "scalar-format-check",
     "lint:check": "scalar-lint-check",
     "lint:fix": "scalar-lint-fix",
-    "preview": "vite preview",
-    "test": "vitest",
+    "preview": "vp preview",
+    "test": "vp test",
     "types:build": "scalar-types-build-vue",
     "types:check": "scalar-types-check-vue"
   },
@@ -54,8 +54,9 @@
     "@scalar/build-tooling": "workspace:*",
     "@vitejs/plugin-vue": "catalog:*",
     "@vue/test-utils": "catalog:*",
-    "vite": "catalog:*",
+    "vite": "catalog:",
     "vite-plugin-css-injected-by-js": "^3.4.0",
-    "vitest": "catalog:*"
+    "vitest": "catalog:",
+    "vite-plus": "catalog:"
   }
 }

@@ -1,160 +1,167 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from "vite-plus/test";
 
-import { DEFAULT_OPENAPI_VERSION, DEFAULT_TITLE, sanitize } from './sanitize'
+import { DEFAULT_OPENAPI_VERSION, DEFAULT_TITLE, sanitize } from "./sanitize";
 
-describe('sanitize', () => {
-  describe('required properties', () => {
+describe("sanitize", () => {
+  describe("required properties", () => {
     /** @see https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.1.1.md#openapi-object */
-    it('adds required properties', () => {
-      const result = sanitize({})
+    it("adds required properties", () => {
+      const result = sanitize({});
 
       expect(result).toStrictEqual({
         openapi: DEFAULT_OPENAPI_VERSION,
         info: {
           title: DEFAULT_TITLE,
-          version: '1.0',
+          version: "1.0",
         },
-      })
-    })
+      });
+    });
 
     it(`doesn't overwrite existing properties`, () => {
       const result = sanitize({
-        openapi: '3.0.0',
+        openapi: "3.0.0",
         info: {
-          title: 'Foobar',
+          title: "Foobar",
         },
-      })
+      });
 
       expect(result).toStrictEqual({
-        openapi: '3.0.0',
+        openapi: "3.0.0",
         info: {
-          title: 'Foobar',
-          version: '1.0',
+          title: "Foobar",
+          version: "1.0",
         },
-      })
-    })
+      });
+    });
 
     it("throws an error when it's a swagger document", () => {
       expect(() =>
         sanitize({
-          swagger: '2.0',
+          swagger: "2.0",
         }),
-      ).toThrow('Swagger 2.0 documents are not supported. Please upgrade to OpenAPI 3.x.')
-    })
-  })
+      ).toThrow(
+        "Swagger 2.0 documents are not supported. Please upgrade to OpenAPI 3.x.",
+      );
+    });
+  });
 
-  describe('tags', () => {
-    it('adds missing tags', () => {
+  describe("tags", () => {
+    it("adds missing tags", () => {
       const result = sanitize({
         paths: {
-          '/pets': {
+          "/pets": {
             get: {
-              tags: ['pets'],
+              tags: ["pets"],
               responses: {},
             },
           },
-          '/stores': {
+          "/stores": {
             get: {
-              tags: ['stores'],
+              tags: ["stores"],
               responses: {},
             },
           },
         },
-      })
+      });
 
-      expect(result.tags).toStrictEqual([{ name: 'pets' }, { name: 'stores' }])
-    })
-  })
+      expect(result.tags).toStrictEqual([{ name: "pets" }, { name: "stores" }]);
+    });
+  });
 
-  describe('components.securitySchemes', () => {
-    it('normalizes security scheme types to lowercase', () => {
+  describe("components.securitySchemes", () => {
+    it("normalizes security scheme types to lowercase", () => {
       const result = sanitize({
         components: {
           securitySchemes: {
             bearerAuth: {
-              type: 'HTTP',
-              scheme: 'bearer',
+              type: "HTTP",
+              scheme: "bearer",
             },
             basicAuth: {
-              type: 'HTTP',
-              scheme: 'basic',
+              type: "HTTP",
+              scheme: "basic",
             },
             apiKeyHeader: {
-              type: 'APIKEY',
-              in: 'header',
-              name: 'X-API-Key',
+              type: "APIKEY",
+              in: "header",
+              name: "X-API-Key",
             },
             oauth2: {
-              type: 'OAUTH2',
+              type: "OAUTH2",
               flows: {
                 authorizationCode: {
-                  authorizationUrl: 'https://example.com/oauth/authorize',
-                  tokenUrl: 'https://example.com/oauth/token',
+                  authorizationUrl: "https://example.com/oauth/authorize",
+                  tokenUrl: "https://example.com/oauth/token",
                   scopes: {},
                 },
               },
             },
             openIdConnect: {
-              type: 'OPENIDCONNECT',
-              openIdConnectUrl: 'https://example.com/.well-known/openid-configuration',
+              type: "OPENIDCONNECT",
+              openIdConnectUrl:
+                "https://example.com/.well-known/openid-configuration",
             },
           },
         },
-      })
+      });
 
       expect(result.components?.securitySchemes).toStrictEqual({
         bearerAuth: {
-          type: 'http',
-          scheme: 'bearer',
+          type: "http",
+          scheme: "bearer",
         },
         basicAuth: {
-          type: 'http',
-          scheme: 'basic',
+          type: "http",
+          scheme: "basic",
         },
         apiKeyHeader: {
-          type: 'apiKey',
-          in: 'header',
-          name: 'X-API-Key',
+          type: "apiKey",
+          in: "header",
+          name: "X-API-Key",
         },
         oauth2: {
-          type: 'oauth2',
+          type: "oauth2",
           flows: {
             authorizationCode: {
-              authorizationUrl: 'https://example.com/oauth/authorize',
-              tokenUrl: 'https://example.com/oauth/token',
+              authorizationUrl: "https://example.com/oauth/authorize",
+              tokenUrl: "https://example.com/oauth/token",
               scopes: {},
             },
           },
         },
         openIdConnect: {
-          type: 'openIdConnect',
-          openIdConnectUrl: 'https://example.com/.well-known/openid-configuration',
+          type: "openIdConnect",
+          openIdConnectUrl:
+            "https://example.com/.well-known/openid-configuration",
         },
-      })
-    })
+      });
+    });
 
-    it('converts array scopes to objects', () => {
+    it("converts array scopes to objects", () => {
       const result = sanitize({
         components: {
           securitySchemes: {
             oauth2: {
-              type: 'oauth2',
+              type: "oauth2",
               flows: {
                 authorizationCode: {
-                  authorizationUrl: 'https://example.com/oauth/authorize',
-                  tokenUrl: 'https://example.com/oauth/token',
-                  scopes: ['read:data', 'write:data'],
+                  authorizationUrl: "https://example.com/oauth/authorize",
+                  tokenUrl: "https://example.com/oauth/token",
+                  scopes: ["read:data", "write:data"],
                 },
               },
             },
           },
         },
-      })
+      });
 
-      expect(result.components?.securitySchemes?.oauth2.flows.authorizationCode.scopes).toStrictEqual({
-        'read:data': '',
-        'write:data': '',
-      })
-    })
-  })
-})
+      expect(
+        result.components?.securitySchemes?.oauth2.flows.authorizationCode
+          .scopes,
+      ).toStrictEqual({
+        "read:data": "",
+        "write:data": "",
+      });
+    });
+  });
+});

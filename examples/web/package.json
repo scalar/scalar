@@ -15,11 +15,11 @@
     "node": ">=22"
   },
   "scripts": {
-    "build": "vue-tsc && vite build",
-    "dev": "vite",
-    "lint:check": "eslint .",
-    "lint:fix": "eslint .  --fix",
-    "preview": "vite preview",
+    "build": "vue-tsc && vp build",
+    "dev": "vp dev",
+    "lint:check": "vp lint .",
+    "lint:fix": "vp lint . --fix",
+    "preview": "vp preview",
     "types:check": "vue-tsc --noEmit --skipLibCheck --composite false"
   },
   "type": "module",
@@ -42,6 +42,7 @@
     "eslint-plugin-vue": "^9.31.0",
     "postcss": "catalog:*",
     "postcss-nested": "^6.0.1",
-    "vite": "catalog:*"
+    "vite": "catalog:",
+    "vite-plus": "catalog:"
   }
 }

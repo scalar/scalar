@@ -1,5 +1,5 @@
 import { mount } from '@vue/test-utils'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vite-plus/test'
 import { nextTick } from 'vue'
 
 import ScalarComboboxMultiselect from './ScalarComboboxMultiselect.vue'
@@ -43,8 +43,8 @@ describe('ScalarComboboxMultiselect', () => {
     it('allows multiple selections', async () => {
       const wrapper = mount(ScalarComboboxMultiselect, {
         props: {
-          options: singleOptions,
-          modelValue: [],
+          'options': singleOptions,
+          'modelValue': [],
           'onUpdate:modelValue': (e) => wrapper.setProps({ modelValue: e }),
         },
         slots: { default: '<button>Toggle</button>' },
@@ -67,8 +67,8 @@ describe('ScalarComboboxMultiselect', () => {
     it('allows multiple selections', async () => {
       const wrapper = mount(ScalarComboboxMultiselect, {
         props: {
-          options: groupedOptions,
-          modelValue: [],
+          'options': groupedOptions,
+          'modelValue': [],
           'onUpdate:modelValue': (e) => wrapper.setProps({ modelValue: e }),
         },
         slots: { default: '<button>Toggle</button>' },
@@ -110,7 +110,9 @@ describe('ScalarComboboxMultiselect', () => {
       await wrapper.find('button').trigger('click')
       await nextTick()
 
-      const selectedOptions = wrapper.findAll('[data-test="option-selected-state"]')
+      const selectedOptions = wrapper.findAll(
+        '[data-test="option-selected-state"]',
+      )
       expect(selectedOptions[0]?.text()).toBe('true') // First option should be selected
       expect(selectedOptions[1]?.text()).toBe('false') // Second option should not be selected
     })

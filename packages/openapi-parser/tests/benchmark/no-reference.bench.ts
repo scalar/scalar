@@ -1,25 +1,25 @@
-import { bench, describe } from 'vitest'
+import { bench, describe } from "vite-plus/test";
 
-import { resolveNew } from './utils/resolveNew'
-import { resolveOld } from './utils/resolveOld'
+import { resolveNew } from "./utils/resolveNew";
+import { resolveOld } from "./utils/resolveOld";
 
-describe('no reference', () => {
+describe("no reference", () => {
   const specification = {
-    openapi: '3.1.0',
+    openapi: "3.1.0",
     info: {
-      title: 'Hello World',
-      version: '2.0.0',
+      title: "Hello World",
+      version: "2.0.0",
     },
     paths: {},
-  }
+  };
 
-  bench('@apidevtools/swagger-parser', async () => {
+  bench("@apidevtools/swagger-parser", async () => {
     // Action!
-    await resolveOld(specification)
-  })
+    await resolveOld(specification);
+  });
 
-  bench('@scalar/openapi-parser', () => {
+  bench("@scalar/openapi-parser", () => {
     // Action!
-    resolveNew(specification)
-  })
-})
+    resolveNew(specification);
+  });
+});

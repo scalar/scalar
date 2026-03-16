@@ -1,214 +1,214 @@
-import { mount } from '@vue/test-utils'
-import { describe, expect, it } from 'vitest'
+import { mount } from "@vue/test-utils";
+import { describe, expect, it } from "vite-plus/test";
 
-import HttpMethod from './HttpMethod.vue'
+import HttpMethod from "./HttpMethod.vue";
 
-describe('HttpMethod', () => {
-  describe('rendering', () => {
-    it('renders with default span element', () => {
+describe("HttpMethod", () => {
+  describe("rendering", () => {
+    it("renders with default span element", () => {
       const wrapper = mount(HttpMethod, {
-        props: { method: 'get' },
-      })
+        props: { method: "get" },
+      });
 
-      expect(wrapper.element.tagName).toBe('SPAN')
-      expect(wrapper.classes()).toContain('uppercase')
-    })
+      expect(wrapper.element.tagName).toBe("SPAN");
+      expect(wrapper.classes()).toContain("uppercase");
+    });
 
-    it('renders with custom element type', () => {
+    it("renders with custom element type", () => {
       const wrapper = mount(HttpMethod, {
-        props: { method: 'post', as: 'div' },
-      })
+        props: { method: "post", as: "div" },
+      });
 
-      expect(wrapper.element.tagName).toBe('DIV')
-      expect(wrapper.classes()).toContain('uppercase')
-    })
+      expect(wrapper.element.tagName).toBe("DIV");
+      expect(wrapper.classes()).toContain("uppercase");
+    });
 
-    it('renders with custom component', () => {
-      const CustomComponent = { template: '<button><slot /></button>' }
+    it("renders with custom component", () => {
+      const CustomComponent = { template: "<button><slot /></button>" };
       const wrapper = mount(HttpMethod, {
-        props: { method: 'put', as: CustomComponent },
-      })
+        props: { method: "put", as: CustomComponent },
+      });
 
-      expect(wrapper.element.tagName).toBe('BUTTON')
-      expect(wrapper.classes()).toContain('uppercase')
-    })
-  })
+      expect(wrapper.element.tagName).toBe("BUTTON");
+      expect(wrapper.classes()).toContain("uppercase");
+    });
+  });
 
-  describe('HTTP method display', () => {
-    it('displays normalized method name when short is false', () => {
+  describe("HTTP method display", () => {
+    it("displays normalized method name when short is false", () => {
       const wrapper = mount(HttpMethod, {
-        props: { method: 'get' },
-      })
+        props: { method: "get" },
+      });
 
-      expect(wrapper.text()).toBe('get')
-    })
+      expect(wrapper.text()).toBe("get");
+    });
 
-    it('displays normalized method name when short is undefined', () => {
+    it("displays normalized method name when short is undefined", () => {
       const wrapper = mount(HttpMethod, {
-        props: { method: 'post' },
-      })
+        props: { method: "post" },
+      });
 
-      expect(wrapper.text()).toBe('post')
-    })
+      expect(wrapper.text()).toBe("post");
+    });
 
-    it('displays abbreviated method name when short is true', () => {
+    it("displays abbreviated method name when short is true", () => {
       const wrapper = mount(HttpMethod, {
-        props: { method: 'delete', short: true },
-      })
+        props: { method: "delete", short: true },
+      });
 
-      expect(wrapper.text()).toBe('DEL')
-    })
+      expect(wrapper.text()).toBe("DEL");
+    });
 
-    it('displays abbreviated method name for all methods when short is true', () => {
+    it("displays abbreviated method name for all methods when short is true", () => {
       const testCases = [
-        { method: 'get', expected: 'GET' },
-        { method: 'post', expected: 'POST' },
-        { method: 'put', expected: 'PUT' },
-        { method: 'patch', expected: 'PATCH' },
-        { method: 'delete', expected: 'DEL' },
-        { method: 'options', expected: 'OPTS' },
-        { method: 'head', expected: 'HEAD' },
-        { method: 'trace', expected: 'TRACE' },
-      ]
+        { method: "get", expected: "GET" },
+        { method: "post", expected: "POST" },
+        { method: "put", expected: "PUT" },
+        { method: "patch", expected: "PATCH" },
+        { method: "delete", expected: "DEL" },
+        { method: "options", expected: "OPTS" },
+        { method: "head", expected: "HEAD" },
+        { method: "trace", expected: "TRACE" },
+      ];
 
       testCases.forEach(({ method, expected }) => {
         const wrapper = mount(HttpMethod, {
           props: { method, short: true },
-        })
+        });
 
-        expect(wrapper.text()).toBe(expected)
-      })
-    })
-  })
+        expect(wrapper.text()).toBe(expected);
+      });
+    });
+  });
 
-  describe('method normalization', () => {
-    it('handles case-insensitive method names', () => {
+  describe("method normalization", () => {
+    it("handles case-insensitive method names", () => {
       const testCases = [
-        { input: 'get', expected: 'get' },
-        { input: 'POST', expected: 'post' },
-        { input: 'Put', expected: 'put' },
-        { input: 'patch', expected: 'patch' },
-        { input: 'Delete', expected: 'delete' },
-      ]
+        { input: "get", expected: "get" },
+        { input: "POST", expected: "post" },
+        { input: "Put", expected: "put" },
+        { input: "patch", expected: "patch" },
+        { input: "Delete", expected: "delete" },
+      ];
 
       testCases.forEach(({ input, expected }) => {
         const wrapper = mount(HttpMethod, {
           props: { method: input },
-        })
+        });
 
-        expect(wrapper.text()).toBe(expected)
-      })
-    })
+        expect(wrapper.text()).toBe(expected);
+      });
+    });
 
-    it('handles whitespace in method names', () => {
+    it("handles whitespace in method names", () => {
       const wrapper = mount(HttpMethod, {
-        props: { method: '  get  ' },
-      })
+        props: { method: "  get  " },
+      });
 
-      expect(wrapper.text()).toBe('get')
-    })
+      expect(wrapper.text()).toBe("get");
+    });
 
-    it('handles unknown methods gracefully', () => {
+    it("handles unknown methods gracefully", () => {
       const wrapper = mount(HttpMethod, {
-        props: { method: 'UNKNOWN' },
-      })
+        props: { method: "UNKNOWN" },
+      });
 
-      expect(wrapper.text()).toBe('get')
-    })
+      expect(wrapper.text()).toBe("get");
+    });
 
-    it('handles empty string method', () => {
+    it("handles empty string method", () => {
       const wrapper = mount(HttpMethod, {
-        props: { method: '' },
-      })
+        props: { method: "" },
+      });
 
-      expect(wrapper.text()).toBe('get')
-    })
-  })
+      expect(wrapper.text()).toBe("get");
+    });
+  });
 
-  describe('slot content', () => {
-    it('renders slot content before method text', () => {
+  describe("slot content", () => {
+    it("renders slot content before method text", () => {
       const wrapper = mount(HttpMethod, {
-        props: { method: 'get' },
-        slots: { default: 'API ' },
-      })
+        props: { method: "get" },
+        slots: { default: "API " },
+      });
 
-      expect(wrapper.text()).toBe('API get')
-    })
+      expect(wrapper.text()).toBe("API get");
+    });
 
-    it('renders slot content with abbreviated method', () => {
+    it("renders slot content with abbreviated method", () => {
       const wrapper = mount(HttpMethod, {
-        props: { method: 'delete', short: true },
-        slots: { default: 'Remove ' },
-      })
+        props: { method: "delete", short: true },
+        slots: { default: "Remove " },
+      });
 
-      expect(wrapper.text()).toBe('Remove DEL')
-    })
+      expect(wrapper.text()).toBe("Remove DEL");
+    });
 
-    it('renders empty slot content', () => {
+    it("renders empty slot content", () => {
       const wrapper = mount(HttpMethod, {
-        props: { method: 'post' },
-        slots: { default: '' },
-      })
+        props: { method: "post" },
+        slots: { default: "" },
+      });
 
-      expect(wrapper.text()).toBe('post')
-    })
-  })
+      expect(wrapper.text()).toBe("post");
+    });
+  });
 
-  describe('edge cases', () => {
-    it('handles null method gracefully', () => {
+  describe("edge cases", () => {
+    it("handles null method gracefully", () => {
       const wrapper = mount(HttpMethod, {
         props: { method: null as any },
-      })
+      });
 
-      expect(wrapper.text()).toBe('get')
-    })
+      expect(wrapper.text()).toBe("get");
+    });
 
-    it('handles undefined method gracefully', () => {
+    it("handles undefined method gracefully", () => {
       const wrapper = mount(HttpMethod, {
         props: { method: undefined as any },
-      })
+      });
 
-      expect(wrapper.text()).toBe('get')
-    })
+      expect(wrapper.text()).toBe("get");
+    });
 
-    it('handles non-string method gracefully', () => {
+    it("handles non-string method gracefully", () => {
       const wrapper = mount(HttpMethod, {
         props: { method: 123 as any },
-      })
+      });
 
-      expect(wrapper.text()).toBe('get')
-    })
+      expect(wrapper.text()).toBe("get");
+    });
 
-    it('handles whitespace-only method', () => {
+    it("handles whitespace-only method", () => {
       const wrapper = mount(HttpMethod, {
-        props: { method: '   ' },
-      })
+        props: { method: "   " },
+      });
 
-      expect(wrapper.text()).toBe('get')
-    })
-  })
+      expect(wrapper.text()).toBe("get");
+    });
+  });
 
-  describe('accessibility', () => {
-    it('maintains semantic structure with custom element', () => {
+  describe("accessibility", () => {
+    it("maintains semantic structure with custom element", () => {
       const wrapper = mount(HttpMethod, {
-        props: { method: 'get', as: 'strong' },
-      })
+        props: { method: "get", as: "strong" },
+      });
 
-      expect(wrapper.element.tagName).toBe('STRONG')
-      expect(wrapper.classes()).toContain('uppercase')
-    })
+      expect(wrapper.element.tagName).toBe("STRONG");
+      expect(wrapper.classes()).toContain("uppercase");
+    });
 
-    it('preserves all attributes when using custom component', () => {
+    it("preserves all attributes when using custom component", () => {
       const CustomComponent = {
         template: '<code class="custom-class"><slot /></code>',
-      }
+      };
       const wrapper = mount(HttpMethod, {
-        props: { method: 'post', as: CustomComponent },
-      })
+        props: { method: "post", as: CustomComponent },
+      });
 
-      expect(wrapper.element.tagName).toBe('CODE')
-      expect(wrapper.classes()).toContain('uppercase')
-      expect(wrapper.classes()).toContain('custom-class')
-    })
-  })
-})
+      expect(wrapper.element.tagName).toBe("CODE");
+      expect(wrapper.classes()).toContain("uppercase");
+      expect(wrapper.classes()).toContain("custom-class");
+    });
+  });
+});

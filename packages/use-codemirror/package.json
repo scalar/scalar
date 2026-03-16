@@ -22,10 +22,10 @@
   },
   "scripts": {
     "build": "scalar-build-esbuild",
-    "dev": "vite .",
+    "dev": "vp .",
     "lint:check": "scalar-lint-check",
     "lint:fix": "scalar-lint-fix",
-    "test": "vitest",
+    "test": "vp test",
     "types:build": "scalar-types-build",
     "types:check": "scalar-types-check-vue"
   },
@@ -70,8 +70,9 @@
     "@scalar/build-tooling": "workspace:*",
     "@scalar/themes": "workspace:*",
     "@vitejs/plugin-vue": "catalog:*",
-    "vite": "catalog:*",
-    "vitest": "catalog:*",
-    "vue": "catalog:*"
+    "vite": "catalog:",
+    "vitest": "catalog:",
+    "vue": "catalog:*",
+    "vite-plus": "catalog:"
   }
 }

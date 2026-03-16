@@ -3,18 +3,32 @@ import {
   requestSchema,
   securitySchemeSchema,
   serverSchema,
-} from '@scalar/oas-utils/entities/spec'
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+} from "@scalar/oas-utils/entities/spec";
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from "vite-plus/test";
 
-import { createSidebarState } from '@/hooks/useSidebar'
-import { loadAllResources } from '@/libs/local-storage'
-import { createActiveEntitiesStore } from '@/store/active-entities'
-import { type CreateWorkspaceStoreOptions, createWorkspaceStore } from '@/store/store'
+import { createSidebarState } from "@/hooks/useSidebar";
+import { loadAllResources } from "@/libs/local-storage";
+import { createActiveEntitiesStore } from "@/store/active-entities";
+import {
+  type CreateWorkspaceStoreOptions,
+  createWorkspaceStore,
+} from "@/store/store";
 
-import { type CreateApiClientParams, type OpenClientPayload, createApiClient } from './create-client'
+import {
+  type CreateApiClientParams,
+  type OpenClientPayload,
+  createApiClient,
+} from "./create-client";
 
 // Mock dependencies
-vi.mock('@/store/store', () => ({
+vi.mock("@/store/store", () => ({
   createWorkspaceStore: vi.fn(() => ({
     workspaceMutators: {
       add: vi.fn(),
@@ -43,199 +57,210 @@ vi.mock('@/store/store', () => ({
     securitySchemes: {},
     servers: {},
   })),
-  WORKSPACE_SYMBOL: Symbol('workspace'),
-}))
+  WORKSPACE_SYMBOL: Symbol("workspace"),
+}));
 
-vi.mock('@/store/active-entities', () => ({
+vi.mock("@/store/active-entities", () => ({
   createActiveEntitiesStore: vi.fn(() => ({
-    activeCollection: { value: { uid: 'collection-1' } },
-    activeWorkspace: { value: { uid: 'workspace-1' } },
+    activeCollection: { value: { uid: "collection-1" } },
+    activeWorkspace: { value: { uid: "workspace-1" } },
   })),
-  ACTIVE_ENTITIES_SYMBOL: Symbol('active-entities'),
-}))
+  ACTIVE_ENTITIES_SYMBOL: Symbol("active-entities"),
+}));
 
-vi.mock('@/hooks/useSidebar', () => ({
+vi.mock("@/hooks/useSidebar", () => ({
   createSidebarState: vi.fn(() => ({})),
-  SIDEBAR_SYMBOL: Symbol('sidebar'),
-}))
+  SIDEBAR_SYMBOL: Symbol("sidebar"),
+}));
 
-vi.mock('@/hooks/useLayout', () => ({
-  LAYOUT_SYMBOL: Symbol('layout'),
-}))
+vi.mock("@/hooks/useLayout", () => ({
+  LAYOUT_SYMBOL: Symbol("layout"),
+}));
 
-vi.mock('@/libs/local-storage', () => ({
+vi.mock("@/libs/local-storage", () => ({
   loadAllResources: vi.fn(),
-}))
+}));
 
-vi.mock('vue', () => ({
+vi.mock("vue", () => ({
   createApp: vi.fn(() => ({
     use: vi.fn(),
     provide: vi.fn(),
     mount: vi.fn(),
     config: {
-      idPrefix: '',
+      idPrefix: "",
     },
   })),
   ref: vi.fn((value) => ({ value })),
   watch: vi.fn((getter, callback) => {
     // Store the callback for testing
-    watchCallbacks.push({ getter, callback })
+    watchCallbacks.push({ getter, callback });
   }),
-}))
+}));
 
 // Store watch callbacks for testing
-const watchCallbacks: Array<{ getter: Function; callback: Function }> = []
+const watchCallbacks: Array<{ getter: Function; callback: Function }> = [];
 
-describe('createApiClient', () => {
+describe("createApiClient", () => {
   const mockRouter = {
     push: vi.fn(),
-  }
+  };
 
-  const mockElement = document.createElement('div')
+  const mockElement = document.createElement("div");
 
   const defaultWorkspaceOptions = {
     useLocalStorage: true,
     showSidebar: true,
-    proxyUrl: 'https://proxy.scalar.com',
-    theme: 'alternate',
+    proxyUrl: "https://proxy.scalar.com",
+    theme: "alternate",
     hideClientButton: false,
-    _integration: 'vue',
-  } satisfies CreateWorkspaceStoreOptions
+    _integration: "vue",
+  } satisfies CreateWorkspaceStoreOptions;
 
   const defaultParams: CreateApiClientParams = {
     el: mockElement,
     appComponent: {},
     router: mockRouter as any,
-  }
+  };
 
   beforeEach(() => {
-    vi.clearAllMocks()
-    watchCallbacks.length = 0
+    vi.clearAllMocks();
+    watchCallbacks.length = 0;
 
     // Mock console methods
-    vi.spyOn(console, 'error').mockImplementation(vi.fn())
-    vi.spyOn(console, 'warn').mockImplementation(vi.fn())
-    vi.spyOn(console, 'table').mockImplementation(vi.fn())
+    vi.spyOn(console, "error").mockImplementation(vi.fn());
+    vi.spyOn(console, "warn").mockImplementation(vi.fn());
+    vi.spyOn(console, "table").mockImplementation(vi.fn());
 
     // Mock localStorage
-    Object.defineProperty(window, 'localStorage', {
+    Object.defineProperty(window, "localStorage", {
       value: {
         getItem: vi.fn(),
         setItem: vi.fn(),
       },
       writable: true,
-    })
-  })
+    });
+  });
 
   afterEach(() => {
-    vi.restoreAllMocks()
-  })
+    vi.restoreAllMocks();
+  });
 
-  it('should create an API client with default parameters', () => {
-    const client = createApiClient(defaultParams)
+  it("should create an API client with default parameters", () => {
+    const client = createApiClient(defaultParams);
 
-    expect(createWorkspaceStore).toHaveBeenCalled()
-    expect(createActiveEntitiesStore).toHaveBeenCalled()
-    expect(createSidebarState).toHaveBeenCalled()
+    expect(createWorkspaceStore).toHaveBeenCalled();
+    expect(createActiveEntitiesStore).toHaveBeenCalled();
+    expect(createSidebarState).toHaveBeenCalled();
 
-    expect(client).toHaveProperty('app')
-    expect(client).toHaveProperty('updateConfig')
-    expect(client).toHaveProperty('updateServer')
-    expect(client).toHaveProperty('onUpdateServer')
-    expect(client).toHaveProperty('updateAuth')
-    expect(client).toHaveProperty('route')
-    expect(client).toHaveProperty('open')
-    expect(client).toHaveProperty('mount')
-    expect(client).toHaveProperty('modalState')
-    expect(client).toHaveProperty('store')
-    expect(client).toHaveProperty('updateExample')
-  })
+    expect(client).toHaveProperty("app");
+    expect(client).toHaveProperty("updateConfig");
+    expect(client).toHaveProperty("updateServer");
+    expect(client).toHaveProperty("onUpdateServer");
+    expect(client).toHaveProperty("updateAuth");
+    expect(client).toHaveProperty("route");
+    expect(client).toHaveProperty("open");
+    expect(client).toHaveProperty("mount");
+    expect(client).toHaveProperty("modalState");
+    expect(client).toHaveProperty("store");
+    expect(client).toHaveProperty("updateExample");
+  });
 
-  it('should use provided store if available', () => {
-    const mockStore = createWorkspaceStore(defaultWorkspaceOptions)
+  it("should use provided store if available", () => {
+    const mockStore = createWorkspaceStore(defaultWorkspaceOptions);
 
     createApiClient({
       ...defaultParams,
       store: mockStore,
-    })
+    });
 
     // Should not create a new store
-    expect(createWorkspaceStore).toHaveBeenCalledTimes(1)
-  })
+    expect(createWorkspaceStore).toHaveBeenCalledTimes(1);
+  });
 
-  it('should not mount if mountOnInitialize is false', () => {
+  it("should not mount if mountOnInitialize is false", () => {
     const client = createApiClient({
       ...defaultParams,
       mountOnInitialize: false,
-    })
+    });
 
     // Vue app's mount should not be called
-    expect(client.app.mount).not.toHaveBeenCalled()
+    expect(client.app.mount).not.toHaveBeenCalled();
 
     // But mount method should be available
-    client.mount(mockElement)
-    expect(client.app.mount).toHaveBeenCalledWith(mockElement)
-  })
+    client.mount(mockElement);
+    expect(client.app.mount).toHaveBeenCalledWith(mockElement);
+  });
 
-  it('should handle localStorage loading when available', () => {
+  it("should handle localStorage loading when available", () => {
     // Mock localStorage to have workspace data
-    window.localStorage.getItem = vi.fn().mockReturnValue('{}')
-    createApiClient(defaultParams)
-    expect(loadAllResources).toHaveBeenCalled()
-  })
+    window.localStorage.getItem = vi.fn().mockReturnValue("{}");
+    createApiClient(defaultParams);
+    expect(loadAllResources).toHaveBeenCalled();
+  });
 
-  it('should update config and reset store when spec is provided', async () => {
-    const client = createApiClient(defaultParams)
-    const mockStore = client.store
+  it("should update config and reset store when spec is provided", async () => {
+    const client = createApiClient(defaultParams);
+    const mockStore = client.store;
 
     await client.updateConfig({
-      url: 'https://example.com/openapi.json',
-    })
+      url: "https://example.com/openapi.json",
+    });
 
     // Should reset all stores
-    expect(mockStore.collectionMutators.reset).toHaveBeenCalled()
-    expect(mockStore.requestMutators.reset).toHaveBeenCalled()
-    expect(mockStore.requestExampleMutators.reset).toHaveBeenCalled()
-    expect(mockStore.securitySchemeMutators.reset).toHaveBeenCalled()
-    expect(mockStore.serverMutators.reset).toHaveBeenCalled()
-    expect(mockStore.tagMutators.reset).toHaveBeenCalled()
+    expect(mockStore.collectionMutators.reset).toHaveBeenCalled();
+    expect(mockStore.requestMutators.reset).toHaveBeenCalled();
+    expect(mockStore.requestExampleMutators.reset).toHaveBeenCalled();
+    expect(mockStore.securitySchemeMutators.reset).toHaveBeenCalled();
+    expect(mockStore.serverMutators.reset).toHaveBeenCalled();
+    expect(mockStore.tagMutators.reset).toHaveBeenCalled();
 
     // Should update workspace collections
-    expect(mockStore.workspaceMutators.edit).toHaveBeenCalledWith('workspace-1', 'collections', [])
+    expect(mockStore.workspaceMutators.edit).toHaveBeenCalledWith(
+      "workspace-1",
+      "collections",
+      [],
+    );
 
     // Should import spec from URL
     expect(mockStore.importSpecFromUrl).toHaveBeenCalledWith(
-      'https://example.com/openapi.json',
-      'workspace-1',
+      "https://example.com/openapi.json",
+      "workspace-1",
       expect.any(Object),
-    )
-  })
+    );
+  });
 
   // Setup a client with a store
-  const scheme = securitySchemeSchema.parse({ uid: 'scheme-1', nameKey: 'api_key', type: 'apiKey' })
-  const server = serverSchema.parse({ uid: 'server-1', url: 'https://api.example.com' })
+  const scheme = securitySchemeSchema.parse({
+    uid: "scheme-1",
+    nameKey: "api_key",
+    type: "apiKey",
+  });
+  const server = serverSchema.parse({
+    uid: "server-1",
+    url: "https://api.example.com",
+  });
   const request = requestSchema.parse({
-    uid: 'request-1',
-    path: '/users',
-    method: 'get',
-    operationId: 'getUsers',
+    uid: "request-1",
+    path: "/users",
+    method: "get",
+    operationId: "getUsers",
     requestBody: {
       content: {
-        'application/json': {
+        "application/json": {
           examples: {
-            'example-1': {
-              value: { name: 'John' },
+            "example-1": {
+              value: { name: "John" },
             },
           },
         },
       },
     },
-    examples: ['example-uid-1'],
-  })
+    examples: ["example-uid-1"],
+  });
   const requestExample = requestExampleSchema.parse({
-    uid: 'example-uid-1',
-    value: { name: 'John' },
-  })
+    uid: "example-uid-1",
+    value: { name: "John" },
+  });
 
   const client = createApiClient({
     ...defaultParams,
@@ -244,9 +269,9 @@ describe('createApiClient', () => {
         useLocalStorage: false,
         showSidebar: false,
         hideClientButton: true,
-        theme: 'default',
-        proxyUrl: 'https://proxy.scalar.com',
-        _integration: 'vue',
+        theme: "default",
+        proxyUrl: "https://proxy.scalar.com",
+        _integration: "vue",
       }),
       requests: {
         [request.uid]: request,
@@ -261,96 +286,106 @@ describe('createApiClient', () => {
         [server.uid]: server,
       },
     },
-  })
+  });
 
-  it('should update server correctly', () => {
-    client.updateServer('https://api.example.com')
-    expect(client.store.collectionMutators.edit).toHaveBeenCalledWith('collection-1', 'selectedServerUid', 'server-1')
-  })
+  it("should update server correctly", () => {
+    client.updateServer("https://api.example.com");
+    expect(client.store.collectionMutators.edit).toHaveBeenCalledWith(
+      "collection-1",
+      "selectedServerUid",
+      "server-1",
+    );
+  });
 
-  it('should handle onUpdateServer callback', () => {
-    const callback = vi.fn()
-    client.onUpdateServer(callback)
+  it("should handle onUpdateServer callback", () => {
+    const callback = vi.fn();
+    client.onUpdateServer(callback);
 
     // Find the watch callback and trigger it
-    const watchCallback = watchCallbacks.find((w) => w.getter.toString().includes('activeCollection'))
+    const watchCallback = watchCallbacks.find((w) =>
+      w.getter.toString().includes("activeCollection"),
+    );
     if (watchCallback) {
-      watchCallback.callback('server-1')
-      expect(callback).toHaveBeenCalledWith('https://api.example.com')
+      watchCallback.callback("server-1");
+      expect(callback).toHaveBeenCalledWith("https://api.example.com");
     }
-  })
+  });
 
-  it('should update auth values correctly', () => {
+  it("should update auth values correctly", () => {
     client.updateAuth({
-      nameKey: 'api_key',
-      propertyKey: 'value',
-      value: 'my-api-key',
-    })
+      nameKey: "api_key",
+      propertyKey: "value",
+      value: "my-api-key",
+    });
 
-    expect(client.store.securitySchemeMutators.edit).toHaveBeenCalledWith('scheme-1', 'value', 'my-api-key')
-  })
+    expect(client.store.securitySchemeMutators.edit).toHaveBeenCalledWith(
+      "scheme-1",
+      "value",
+      "my-api-key",
+    );
+  });
 
-  it('should route to a request correctly', () => {
+  it("should route to a request correctly", () => {
     const payload: OpenClientPayload = {
-      path: '/users',
-      method: 'get',
-    }
-    client.route(payload)
+      path: "/users",
+      method: "get",
+    };
+    client.route(payload);
 
     expect(mockRouter.push).toHaveBeenCalledWith({
-      name: 'request',
+      name: "request",
       query: {},
       params: {
-        workspace: 'default',
-        request: 'request-1',
+        workspace: "default",
+        request: "request-1",
       },
-    })
-  })
+    });
+  });
 
-  it('should handle source in route payload', () => {
+  it("should handle source in route payload", () => {
     const payload: OpenClientPayload = {
-      path: '/users',
-      method: 'get',
-      _source: 'api-reference',
-    }
+      path: "/users",
+      method: "get",
+      _source: "api-reference",
+    };
 
-    client.route(payload)
+    client.route(payload);
 
     expect(mockRouter.push).toHaveBeenCalledWith({
-      name: 'request',
-      query: { source: 'api-reference' },
+      name: "request",
+      query: { source: "api-reference" },
       params: {
-        workspace: 'default',
-        request: 'request-1',
+        workspace: "default",
+        request: "request-1",
       },
-    })
-  })
+    });
+  });
 
-  it('should open the modal and route to a request', () => {
+  it("should open the modal and route to a request", () => {
     const payload: OpenClientPayload = {
-      path: '/users',
-      method: 'get',
-    }
-    client.open(payload)
+      path: "/users",
+      method: "get",
+    };
+    client.open(payload);
 
     expect(mockRouter.push).toHaveBeenCalledWith({
-      name: 'request',
+      name: "request",
       query: {},
       params: {
-        workspace: 'default',
-        request: 'request-1',
+        workspace: "default",
+        request: "request-1",
       },
-    })
-    expect(client.modalState.open).toBe(true)
-  })
+    });
+    expect(client.modalState.open).toBe(true);
+  });
 
-  it('should update example correctly', () => {
-    client.updateExample('example-1', 'getUsers')
+  it("should update example correctly", () => {
+    client.updateExample("example-1", "getUsers");
 
     expect(client.store.requestExampleMutators.edit).toHaveBeenCalledWith(
-      'example-uid-1',
-      'body.raw.value',
+      "example-uid-1",
+      "body.raw.value",
       expect.any(String),
-    )
-  })
-})
+    );
+  });
+});

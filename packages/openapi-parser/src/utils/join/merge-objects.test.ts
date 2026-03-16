@@ -1,37 +1,38 @@
-import { mergeObjects } from '@/utils/join/merge-objects'
-import { expect, it, describe } from 'vitest'
+import { describe, expect, it } from "vite-plus/test";
 
-describe('mergeObjects', () => {
-  it('should merge objects that does not have any conflicting keys', () => {
+import { mergeObjects } from "@/utils/join/merge-objects";
+
+describe("mergeObjects", () => {
+  it("should merge objects that does not have any conflicting keys", () => {
     const a = {
-      a: 'Hello',
-    }
+      a: "Hello",
+    };
 
     const b = {
-      b: 'Hello',
-    }
+      b: "Hello",
+    };
 
     expect(mergeObjects(a, b)).toEqual({
       a: a.a,
       b: b.b,
-    })
-  })
+    });
+  });
 
-  it('should merge objects correctly even when they have the same key with the same value', () => {
+  it("should merge objects correctly even when they have the same key with the same value", () => {
     const a = {
-      a: 'Hello',
-    }
+      a: "Hello",
+    };
 
     const b = {
-      a: 'Hello',
-    }
+      a: "Hello",
+    };
 
     expect(mergeObjects(a, b)).toEqual({
       a: a.a,
-    })
-  })
+    });
+  });
 
-  it('should deeply merge the objects', () => {
+  it("should deeply merge the objects", () => {
     const a = {
       a: {
         b: {
@@ -40,7 +41,7 @@ describe('mergeObjects', () => {
           },
         },
       },
-    }
+    };
 
     const b = {
       a: {
@@ -50,7 +51,7 @@ describe('mergeObjects', () => {
           },
         },
       },
-    }
+    };
 
     expect(mergeObjects(a, b)).toEqual({
       a: {
@@ -63,10 +64,10 @@ describe('mergeObjects', () => {
           },
         },
       },
-    })
-  })
+    });
+  });
 
-  it('should deeply merge the objects when there is same keys', () => {
+  it("should deeply merge the objects when there is same keys", () => {
     const a = {
       a: {
         b: {
@@ -75,7 +76,7 @@ describe('mergeObjects', () => {
           },
         },
       },
-    }
+    };
 
     const b = {
       a: {
@@ -86,7 +87,7 @@ describe('mergeObjects', () => {
         },
       },
       b: 1,
-    }
+    };
 
     expect(mergeObjects(a, b)).toEqual({
       a: {
@@ -97,10 +98,10 @@ describe('mergeObjects', () => {
         },
       },
       b: 1,
-    })
-  })
+    });
+  });
 
-  it('should deeply merge the objects and rewrite the same key with the new value', () => {
+  it("should deeply merge the objects and rewrite the same key with the new value", () => {
     const a = {
       a: {
         b: {
@@ -109,7 +110,7 @@ describe('mergeObjects', () => {
           },
         },
       },
-    }
+    };
 
     const b = {
       a: {
@@ -120,7 +121,7 @@ describe('mergeObjects', () => {
         },
       },
       b: 2,
-    }
+    };
 
     expect(mergeObjects(a, b)).toEqual({
       a: {
@@ -131,6 +132,6 @@ describe('mergeObjects', () => {
         },
       },
       b: 2,
-    })
-  })
-})
+    });
+  });
+});

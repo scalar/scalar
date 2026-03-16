@@ -1,331 +1,372 @@
-import { describe, expect, it, vi } from 'vitest'
+import { describe, expect, it, vi } from "vite-plus/test";
 
 import {
   type ApiReferenceConfiguration,
   apiReferenceConfigurationSchema,
   apiReferenceConfigurationWithSourceSchema,
-} from './api-reference-configuration'
+} from "./api-reference-configuration";
 
-describe('api-reference-configuration', () => {
-  describe('schema', () => {
-    it('validates a minimal configuration', () => {
-      const minimalConfig = {}
-      expect(() => apiReferenceConfigurationSchema.parse(minimalConfig)).not.toThrow()
-    })
+describe("api-reference-configuration", () => {
+  describe("schema", () => {
+    it("validates a minimal configuration", () => {
+      const minimalConfig = {};
+      expect(() =>
+        apiReferenceConfigurationSchema.parse(minimalConfig),
+      ).not.toThrow();
+    });
 
-    it('validates a complete configuration', () => {
+    it("validates a complete configuration", () => {
       const completeConfig = {
-        theme: 'default',
-        layout: 'modern',
-        url: 'https://example.com/openapi.json',
+        theme: "default",
+        layout: "modern",
+        url: "https://example.com/openapi.json",
         content: '{"openapi": "3.1.0"}',
-        proxyUrl: 'https://proxy.example.com',
+        proxyUrl: "https://proxy.example.com",
         isEditable: true,
         showSidebar: true,
         hideModels: false,
         hideTestRequestButton: false,
-        documentDownloadType: 'both',
+        documentDownloadType: "both",
         hideSearch: false,
         darkMode: true,
-        forceDarkModeState: 'dark',
+        forceDarkModeState: "dark",
         hideDarkModeToggle: false,
-        searchHotKey: 'k',
-        favicon: '/favicon.ico',
-        hiddenClients: ['fetch', 'xhr'],
+        searchHotKey: "k",
+        favicon: "/favicon.ico",
+        hiddenClients: ["fetch", "xhr"],
         defaultHttpClient: {
-          targetKey: 'target1',
-          clientKey: 'client1',
+          targetKey: "target1",
+          clientKey: "client1",
         },
-        customCss: '.custom { color: red; }',
+        customCss: ".custom { color: red; }",
         pathRouting: {
-          basePath: '/api',
+          basePath: "/api",
         },
-        baseServerURL: 'https://api.example.com',
+        baseServerURL: "https://api.example.com",
         withDefaultFonts: true,
         defaultOpenAllTags: false,
-        tagsSorter: 'alpha',
-        operationsSorter: 'method',
-        _integration: 'nextjs',
+        tagsSorter: "alpha",
+        operationsSorter: "method",
+        _integration: "nextjs",
         hideClientButton: false,
-      }
+      };
 
-      expect(() => apiReferenceConfigurationSchema.parse(completeConfig)).not.toThrow()
-    })
+      expect(() =>
+        apiReferenceConfigurationSchema.parse(completeConfig),
+      ).not.toThrow();
+    });
 
-    it('validates hiddenClients true', () => {
-      const config = { hiddenClients: true }
+    it("validates hiddenClients true", () => {
+      const config = { hiddenClients: true };
 
-      expect(apiReferenceConfigurationSchema.parse(config)).toMatchObject({ hiddenClients: true })
-    })
+      expect(apiReferenceConfigurationSchema.parse(config)).toMatchObject({
+        hiddenClients: true,
+      });
+    });
 
-    it('validates theme enum values', () => {
-      const config = { theme: 'invalid-theme' }
+    it("validates theme enum values", () => {
+      const config = { theme: "invalid-theme" };
 
-      expect(apiReferenceConfigurationSchema.parse(config)).toMatchObject({ theme: 'default' })
+      expect(apiReferenceConfigurationSchema.parse(config)).toMatchObject({
+        theme: "default",
+      });
 
       const validThemes = [
-        'alternate',
-        'default',
-        'moon',
-        'purple',
-        'solarized',
-        'bluePlanet',
-        'deepSpace',
-        'saturn',
-        'kepler',
-        'elysiajs',
-        'fastify',
-        'mars',
-        'none',
-      ]
+        "alternate",
+        "default",
+        "moon",
+        "purple",
+        "solarized",
+        "bluePlanet",
+        "deepSpace",
+        "saturn",
+        "kepler",
+        "elysiajs",
+        "fastify",
+        "mars",
+        "none",
+      ];
 
       validThemes.forEach((theme) => {
-        expect(apiReferenceConfigurationSchema.parse({ theme })).toMatchObject({ theme })
-      })
-    })
+        expect(apiReferenceConfigurationSchema.parse({ theme })).toMatchObject({
+          theme,
+        });
+      });
+    });
 
-    it('validates layout enum values', () => {
-      const config = { layout: 'invalid-layout' }
-      expect(apiReferenceConfigurationSchema.parse(config)).toMatchObject({ layout: 'modern' })
+    it("validates layout enum values", () => {
+      const config = { layout: "invalid-layout" };
+      expect(apiReferenceConfigurationSchema.parse(config)).toMatchObject({
+        layout: "modern",
+      });
 
-      const validLayouts = ['modern', 'classic']
+      const validLayouts = ["modern", "classic"];
       validLayouts.forEach((layout) => {
-        expect(apiReferenceConfigurationSchema.parse({ layout })).toMatchObject({ layout })
-      })
-    })
+        expect(apiReferenceConfigurationSchema.parse({ layout })).toMatchObject(
+          { layout },
+        );
+      });
+    });
 
-    it('validates content and url configuration', () => {
+    it("validates content and url configuration", () => {
       const validConfigs = [
-        { url: 'https://example.com/openapi.json' },
+        { url: "https://example.com/openapi.json" },
         { content: '{"openapi": "3.1.0"}' },
-        { content: { openapi: '3.1.0' } },
-        { content: () => ({ openapi: '3.1.0' }) },
+        { content: { openapi: "3.1.0" } },
+        { content: () => ({ openapi: "3.1.0" }) },
         { content: null },
-      ]
+      ];
 
       validConfigs.forEach((config) => {
-        expect(() => apiReferenceConfigurationSchema.parse(config)).not.toThrow()
-      })
+        expect(() =>
+          apiReferenceConfigurationSchema.parse(config),
+        ).not.toThrow();
+      });
 
-      const invalidConfigs = [{ url: 999 }, { content: 123 }]
+      const invalidConfigs = [{ url: 999 }, { content: 123 }];
 
       invalidConfigs.forEach((config) => {
-        expect(() => apiReferenceConfigurationWithSourceSchema.parse(config)).toThrow()
-      })
-    })
+        expect(() =>
+          apiReferenceConfigurationWithSourceSchema.parse(config),
+        ).toThrow();
+      });
+    });
 
-    it('validates function parameters', () => {
+    it("validates function parameters", () => {
       const config = {
         generateHeadingSlug: (heading: any) => `#${heading.slug}`,
         generateModelSlug: (model: { name: string }) => `model-${model.name}`,
         generateTagSlug: (tag: any) => `tag-${tag.name}`,
-        generateOperationSlug: (operation: { path: string; method: string }) => `${operation.method}-${operation.path}`,
-        generateWebhookSlug: (webhook: { name: string }) => `webhook-${webhook.name}`,
-        onLoaded: () => console.log('loaded'),
-        onSpecUpdate: (spec: string) => console.log('spec updated', spec),
-      }
+        generateOperationSlug: (operation: { path: string; method: string }) =>
+          `${operation.method}-${operation.path}`,
+        generateWebhookSlug: (webhook: { name: string }) =>
+          `webhook-${webhook.name}`,
+        onLoaded: () => console.log("loaded"),
+        onSpecUpdate: (spec: string) => console.log("spec updated", spec),
+      };
 
-      expect(() => apiReferenceConfigurationSchema.parse(config)).not.toThrow()
-    })
+      expect(() => apiReferenceConfigurationSchema.parse(config)).not.toThrow();
+    });
 
-    it('validates integration enum values', () => {
+    it("validates integration enum values", () => {
       const validIntegrations = [
-        'adonisjs',
-        'astro',
-        'docusaurus',
-        'dotnet',
-        'elysiajs',
-        'express',
-        'fastapi',
-        'fastify',
-        'go',
-        'hono',
-        'html',
-        'laravel',
-        'litestar',
-        'nestjs',
-        'nextjs',
-        'nitro',
-        'nuxt',
-        'platformatic',
-        'react',
-        'rust',
-        'svelte',
-        'vue',
+        "adonisjs",
+        "astro",
+        "docusaurus",
+        "dotnet",
+        "elysiajs",
+        "express",
+        "fastapi",
+        "fastify",
+        "go",
+        "hono",
+        "html",
+        "laravel",
+        "litestar",
+        "nestjs",
+        "nextjs",
+        "nitro",
+        "nuxt",
+        "platformatic",
+        "react",
+        "rust",
+        "svelte",
+        "vue",
         null,
-      ]
+      ];
 
       validIntegrations.forEach((integration) => {
-        expect(() => apiReferenceConfigurationSchema.parse({ _integration: integration })).not.toThrow()
-      })
+        expect(() =>
+          apiReferenceConfigurationSchema.parse({ _integration: integration }),
+        ).not.toThrow();
+      });
 
-      expect(() => apiReferenceConfigurationSchema.parse({ _integration: 'invalid-integration' })).toThrow()
-    })
+      expect(() =>
+        apiReferenceConfigurationSchema.parse({
+          _integration: "invalid-integration",
+        }),
+      ).toThrow();
+    });
 
-    it('validates sorter configurations', () => {
+    it("validates sorter configurations", () => {
       const validConfigs = [
-        { tagsSorter: 'alpha' },
+        { tagsSorter: "alpha" },
         { tagsSorter: (a: any, b: any) => a.name.localeCompare(b.name) },
-        { operationsSorter: 'alpha' },
-        { operationsSorter: 'method' },
+        { operationsSorter: "alpha" },
+        { operationsSorter: "method" },
         { operationsSorter: (a: any, b: any) => a.path.localeCompare(b.path) },
-      ]
+      ];
 
       validConfigs.forEach((config) => {
-        expect(() => apiReferenceConfigurationSchema.parse(config)).not.toThrow()
-      })
+        expect(() =>
+          apiReferenceConfigurationSchema.parse(config),
+        ).not.toThrow();
+      });
 
-      const invalidConfigs = [{ tagsSorter: 'invalid' }, { operationsSorter: 'invalid' }]
+      const invalidConfigs = [
+        { tagsSorter: "invalid" },
+        { operationsSorter: "invalid" },
+      ];
 
       invalidConfigs.forEach((config) => {
-        expect(() => apiReferenceConfigurationSchema.parse(config)).toThrow()
-      })
-    })
-  })
+        expect(() => apiReferenceConfigurationSchema.parse(config)).toThrow();
+      });
+    });
+  });
 
-  describe('migrations', () => {
-    it('migrates proxy to proxyUrl', () => {
+  describe("migrations", () => {
+    it("migrates proxy to proxyUrl", () => {
       const config = {
-        proxy: 'https://proxy.example.com',
-      }
+        proxy: "https://proxy.example.com",
+      };
 
-      const migratedConfig = apiReferenceConfigurationWithSourceSchema.parse(config)
+      const migratedConfig =
+        apiReferenceConfigurationWithSourceSchema.parse(config);
 
-      expect(migratedConfig.proxyUrl).toBe('https://proxy.example.com')
+      expect(migratedConfig.proxyUrl).toBe("https://proxy.example.com");
       // @ts-expect-error proxy is not in the type
-      expect(migratedConfig.proxy).toBeUndefined()
-    })
+      expect(migratedConfig.proxy).toBeUndefined();
+    });
 
-    it('keeps proxyUrl if both proxy and proxyUrl are set', () => {
+    it("keeps proxyUrl if both proxy and proxyUrl are set", () => {
       const config = {
-        proxy: 'https://proxy.example.com',
-        proxyUrl: 'https://existing.example.com',
-      }
+        proxy: "https://proxy.example.com",
+        proxyUrl: "https://existing.example.com",
+      };
 
-      const migratedConfig = apiReferenceConfigurationWithSourceSchema.parse(config)
-      expect(migratedConfig.proxyUrl).toBe('https://existing.example.com')
+      const migratedConfig =
+        apiReferenceConfigurationWithSourceSchema.parse(config);
+      expect(migratedConfig.proxyUrl).toBe("https://existing.example.com");
       // @ts-expect-error proxy is not in the type
-      expect(migratedConfig.proxy).toBeUndefined()
-    })
+      expect(migratedConfig.proxy).toBeUndefined();
+    });
 
-    it('migrates the old proxy URL to the new one', () => {
+    it("migrates the old proxy URL to the new one", () => {
       const config = {
-        proxyUrl: 'https://api.scalar.com/request-proxy',
-      }
+        proxyUrl: "https://api.scalar.com/request-proxy",
+      };
 
-      const migratedConfig = apiReferenceConfigurationWithSourceSchema.parse(config)
-      expect(migratedConfig.proxyUrl).toBe('https://proxy.scalar.com')
+      const migratedConfig =
+        apiReferenceConfigurationWithSourceSchema.parse(config);
+      expect(migratedConfig.proxyUrl).toBe("https://proxy.scalar.com");
 
       // @ts-expect-error proxy is not in the type
-      expect(migratedConfig.proxy).toBeUndefined()
-    })
+      expect(migratedConfig.proxy).toBeUndefined();
+    });
 
-    it('migrates spec.url to url', () => {
+    it("migrates spec.url to url", () => {
       const config = {
         spec: {
-          url: 'https://example.com/openapi.json',
+          url: "https://example.com/openapi.json",
         },
-      }
+      };
 
-      const migratedConfig = apiReferenceConfigurationWithSourceSchema.parse(config)
+      const migratedConfig =
+        apiReferenceConfigurationWithSourceSchema.parse(config);
 
-      expect(migratedConfig.spec).toBeUndefined()
-      expect(migratedConfig.url).toBe('https://example.com/openapi.json')
-    })
+      expect(migratedConfig.spec).toBeUndefined();
+      expect(migratedConfig.url).toBe("https://example.com/openapi.json");
+    });
 
-    it('migrates spec.content to content', () => {
+    it("migrates spec.content to content", () => {
       const config = {
         spec: {
           content: '{"openapi": "3.1.0"}',
         },
-      }
+      };
 
-      const migratedConfig = apiReferenceConfigurationWithSourceSchema.parse(config)
+      const migratedConfig =
+        apiReferenceConfigurationWithSourceSchema.parse(config);
 
-      expect(migratedConfig.spec).toBeUndefined()
-      expect(migratedConfig.content).toBe('{"openapi": "3.1.0"}')
-    })
+      expect(migratedConfig.spec).toBeUndefined();
+      expect(migratedConfig.content).toBe('{"openapi": "3.1.0"}');
+    });
 
-    it('migrates showToolbar to showDeveloperTools', () => {
+    it("migrates showToolbar to showDeveloperTools", () => {
       const config = {
-        showToolbar: 'always',
-      }
+        showToolbar: "always",
+      };
 
-      const migratedConfig = apiReferenceConfigurationWithSourceSchema.parse(config)
+      const migratedConfig =
+        apiReferenceConfigurationWithSourceSchema.parse(config);
 
-      expect(migratedConfig.showDeveloperTools).toBe('always')
+      expect(migratedConfig.showDeveloperTools).toBe("always");
       // @ts-expect-error showToolbar is not in the type
-      expect(migratedConfig.showToolbar).toBeUndefined()
-    })
-  })
+      expect(migratedConfig.showToolbar).toBeUndefined();
+    });
+  });
 
-  describe('hooks', () => {
-    it('allows a function as onDocumentSelect', () => {
+  describe("hooks", () => {
+    it("allows a function as onDocumentSelect", () => {
       const config = {
         onDocumentSelect: vi.fn().mockReturnValue(undefined),
-      } satisfies Partial<ApiReferenceConfiguration>
-      const migratedConfig = apiReferenceConfigurationSchema.parse(config)
-      expect(migratedConfig.onDocumentSelect).toBeInstanceOf(Function)
-    })
+      } satisfies Partial<ApiReferenceConfiguration>;
+      const migratedConfig = apiReferenceConfigurationSchema.parse(config);
+      expect(migratedConfig.onDocumentSelect).toBeInstanceOf(Function);
+    });
 
-    it('allows an async function as onDocumentSelect', () => {
+    it("allows an async function as onDocumentSelect", () => {
       const config = {
         onDocumentSelect: vi.fn().mockResolvedValue(undefined),
-      } satisfies Partial<ApiReferenceConfiguration>
-      const migratedConfig = apiReferenceConfigurationSchema.parse(config)
+      } satisfies Partial<ApiReferenceConfiguration>;
+      const migratedConfig = apiReferenceConfigurationSchema.parse(config);
 
-      expect(migratedConfig.onDocumentSelect?.()).toBeInstanceOf(Promise)
-    })
+      expect(migratedConfig.onDocumentSelect?.()).toBeInstanceOf(Promise);
+    });
 
-    it('allows a function as onBeforeRequest', () => {
+    it("allows a function as onBeforeRequest", () => {
       const config = {
         onBeforeRequest: vi.fn().mockReturnValue(undefined),
-      } satisfies Partial<ApiReferenceConfiguration>
-      const migratedConfig = apiReferenceConfigurationSchema.parse(config)
-      expect(migratedConfig.onBeforeRequest).toBeInstanceOf(Function)
-    })
+      } satisfies Partial<ApiReferenceConfiguration>;
+      const migratedConfig = apiReferenceConfigurationSchema.parse(config);
+      expect(migratedConfig.onBeforeRequest).toBeInstanceOf(Function);
+    });
 
-    it('allows an async function as onBeforeRequest', () => {
+    it("allows an async function as onBeforeRequest", () => {
       const config = {
         onBeforeRequest: vi.fn().mockResolvedValue(undefined),
-      } satisfies Partial<ApiReferenceConfiguration>
-      const migratedConfig = apiReferenceConfigurationSchema.parse(config)
+      } satisfies Partial<ApiReferenceConfiguration>;
+      const migratedConfig = apiReferenceConfigurationSchema.parse(config);
 
-      expect(migratedConfig.onBeforeRequest?.({ request: new Request('http://example.org') })).toBeInstanceOf(Promise)
-    })
+      expect(
+        migratedConfig.onBeforeRequest?.({
+          request: new Request("http://example.org"),
+        }),
+      ).toBeInstanceOf(Promise);
+    });
 
-    it('allows a function as onShowMore', () => {
+    it("allows a function as onShowMore", () => {
       const config = {
         onShowMore: vi.fn().mockReturnValue(undefined),
-      } satisfies Partial<ApiReferenceConfiguration>
-      const migratedConfig = apiReferenceConfigurationSchema.parse(config)
-      expect(migratedConfig.onShowMore).toBeInstanceOf(Function)
-    })
+      } satisfies Partial<ApiReferenceConfiguration>;
+      const migratedConfig = apiReferenceConfigurationSchema.parse(config);
+      expect(migratedConfig.onShowMore).toBeInstanceOf(Function);
+    });
 
-    it('allows an async function as onShowMore', () => {
+    it("allows an async function as onShowMore", () => {
       const config = {
         onShowMore: vi.fn().mockResolvedValue(undefined),
-      } satisfies Partial<ApiReferenceConfiguration>
-      const migratedConfig = apiReferenceConfigurationSchema.parse(config)
+      } satisfies Partial<ApiReferenceConfiguration>;
+      const migratedConfig = apiReferenceConfigurationSchema.parse(config);
 
-      expect(migratedConfig.onShowMore?.('a')).toBeInstanceOf(Promise)
-    })
+      expect(migratedConfig.onShowMore?.("a")).toBeInstanceOf(Promise);
+    });
 
-    it('allows a function as onSidebarClick', () => {
+    it("allows a function as onSidebarClick", () => {
       const config = {
         onSidebarClick: vi.fn().mockReturnValue(undefined),
-      } satisfies Partial<ApiReferenceConfiguration>
-      const migratedConfig = apiReferenceConfigurationSchema.parse(config)
-      expect(migratedConfig.onSidebarClick).toBeInstanceOf(Function)
-    })
+      } satisfies Partial<ApiReferenceConfiguration>;
+      const migratedConfig = apiReferenceConfigurationSchema.parse(config);
+      expect(migratedConfig.onSidebarClick).toBeInstanceOf(Function);
+    });
 
-    it('allows an async function as onSidebarClick', () => {
+    it("allows an async function as onSidebarClick", () => {
       const config = {
         onSidebarClick: vi.fn().mockResolvedValue(undefined),
-      } satisfies Partial<ApiReferenceConfiguration>
-      const migratedConfig = apiReferenceConfigurationSchema.parse(config)
+      } satisfies Partial<ApiReferenceConfiguration>;
+      const migratedConfig = apiReferenceConfigurationSchema.parse(config);
 
-      expect(migratedConfig.onSidebarClick?.('a')).toBeInstanceOf(Promise)
-    })
-  })
-})
+      expect(migratedConfig.onSidebarClick?.("a")).toBeInstanceOf(Promise);
+    });
+  });
+});

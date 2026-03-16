@@ -1,70 +1,76 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from "vite-plus/test";
 
-import { getResolvedRef } from '@/helpers/get-resolved-ref'
-import type { WorkspaceDocument } from '@/schemas'
+import { getResolvedRef } from "@/helpers/get-resolved-ref";
+import type { WorkspaceDocument } from "@/schemas";
 
-import { updateOperationExtension } from './extensions'
+import { updateOperationExtension } from "./extensions";
 
-const createDocument = (initial?: Partial<WorkspaceDocument>): WorkspaceDocument => {
+const createDocument = (
+  initial?: Partial<WorkspaceDocument>,
+): WorkspaceDocument => {
   return {
-    openapi: '3.1.0',
-    info: { title: 'Test', version: '1.0.0' },
+    openapi: "3.1.0",
+    info: { title: "Test", version: "1.0.0" },
     ...initial,
-    'x-scalar-original-document-hash': '123',
-  }
-}
+    "x-scalar-original-document-hash": "123",
+  };
+};
 
-describe('updateOperationExtension', () => {
-  it('adds a new extension to an existing operation', () => {
+describe("updateOperationExtension", () => {
+  it("adds a new extension to an existing operation", () => {
     const document = createDocument({
       paths: {
-        '/users': {
+        "/users": {
           get: {
-            summary: 'Get users',
+            summary: "Get users",
           },
         },
       },
-    })
+    });
 
     updateOperationExtension(document, {
-      meta: { method: 'get', path: '/users' },
-      payload: { 'x-post-response': 'console.log(response)' },
-    })
+      meta: { method: "get", path: "/users" },
+      payload: { "x-post-response": "console.log(response)" },
+    });
 
-    const operation = document.paths?.['/users']?.get
+    const operation = document.paths?.["/users"]?.get;
     if (!operation) {
-      throw new Error('Expected operation in test setup')
+      throw new Error("Expected operation in test setup");
     }
 
-    expect(getResolvedRef(operation)['x-post-response']).toBe('console.log(response)')
-  })
+    expect(getResolvedRef(operation)["x-post-response"]).toBe(
+      "console.log(response)",
+    );
+  });
 
-  it('overwrites an existing extension value', () => {
+  it("overwrites an existing extension value", () => {
     const document = createDocument({
       paths: {
-        '/users': {
+        "/users": {
           get: {
-            'x-post-response': 'console.log(old)',
+            "x-post-response": "console.log(old)",
           },
         },
       },
-    })
+    });
 
     updateOperationExtension(document, {
-      meta: { method: 'get', path: '/users' },
-      payload: { 'x-post-response': 'console.log(new)' },
-    })
+      meta: { method: "get", path: "/users" },
+      payload: { "x-post-response": "console.log(new)" },
+    });
 
-    expect(getResolvedRef(document.paths?.['/users']?.get)?.['x-post-response']).toBe('console.log(new)')
-  })
+    expect(
+      getResolvedRef(document.paths?.["/users"]?.get)?.["x-post-response"],
+    ).toBe("console.log(new)");
+  });
 
-  it('deep merges extension objects without dropping existing nested keys', () => {
+  it("deep merges extension objects without dropping existing nested keys", () => {
     const document = createDocument({
       paths: {
-        '/users': {
+        "/users": {
           get: {
-            'x-scalar-disable-parameters': {
-              'global-headers': {
+            "x-scalar-disable-parameters": {
+              "global-headers": {
                 default: {
                   Authorization: true,
                   Accept: false,
@@ -74,83 +80,89 @@ describe('updateOperationExtension', () => {
           },
         },
       },
-    })
+    });
 
     updateOperationExtension(document, {
-      meta: { method: 'get', path: '/users' },
+      meta: { method: "get", path: "/users" },
       payload: {
-        'x-scalar-disable-parameters': {
-          'global-headers': {
+        "x-scalar-disable-parameters": {
+          "global-headers": {
             default: {
               Authorization: false,
             },
           },
         },
       },
-    })
+    });
 
-    const operation = document.paths?.['/users']?.get
+    const operation = document.paths?.["/users"]?.get;
     if (!operation) {
-      throw new Error('Expected operation in test setup')
+      throw new Error("Expected operation in test setup");
     }
 
-    expect(getResolvedRef(operation)['x-scalar-disable-parameters']).toEqual({
-      'global-headers': {
+    expect(getResolvedRef(operation)["x-scalar-disable-parameters"]).toEqual({
+      "global-headers": {
         default: {
           Authorization: false,
           Accept: false,
         },
       },
-    })
-  })
+    });
+  });
 
-  it('updates the dereferenced operation when the path method node is a $ref', () => {
+  it("updates the dereferenced operation when the path method node is a $ref", () => {
     const document = createDocument({
       paths: {
-        '/users': {
+        "/users": {
           get: {
-            $ref: '#/components/pathItems/UsersGet',
-            '$ref-value': {
-              summary: 'Get users',
+            $ref: "#/components/pathItems/UsersGet",
+            "$ref-value": {
+              summary: "Get users",
             },
           },
         },
       },
-    })
+    });
 
     updateOperationExtension(document, {
-      meta: { method: 'get', path: '/users' },
-      payload: { 'x-post-response': 'console.log(ref)' },
-    })
+      meta: { method: "get", path: "/users" },
+      payload: { "x-post-response": "console.log(ref)" },
+    });
 
-    const operationRef = document.paths?.['/users']?.get
-    if (typeof operationRef === 'object' && operationRef !== null && '$ref-value' in operationRef) {
-      expect(operationRef['$ref-value']?.['x-post-response']).toBe('console.log(ref)')
-      return
+    const operationRef = document.paths?.["/users"]?.get;
+    if (
+      typeof operationRef === "object" &&
+      operationRef !== null &&
+      "$ref-value" in operationRef
+    ) {
+      expect(operationRef["$ref-value"]?.["x-post-response"]).toBe(
+        "console.log(ref)",
+      );
+      return;
     }
 
-    throw new Error('Expected a $ref operation in test setup')
-  })
+    throw new Error("Expected a $ref operation in test setup");
+  });
 
-  it('no-ops when document is null or operation does not exist', () => {
+  it("no-ops when document is null or operation does not exist", () => {
     expect(() =>
       updateOperationExtension(null, {
-        meta: { method: 'get', path: '/users' },
-        payload: { 'x-post-response': 'console.log(response)' },
+        meta: { method: "get", path: "/users" },
+        payload: { "x-post-response": "console.log(response)" },
       }),
-    ).not.toThrow()
+    ).not.toThrow();
 
     const document = createDocument({
       paths: {
-        '/users': {},
+        "/users": {},
       },
-    })
+    });
 
     updateOperationExtension(document, {
-      meta: { method: 'get', path: '/users' },
-      payload: { 'x-post-response': 'console.log(response)' },
-    })
+      meta: { method: "get", path: "/users" },
+      payload: { "x-post-response": "console.log(response)" },
+    });
 
-    expect(document.paths?.['/users']).toEqual({})
-  })
-})
+    expect(document.paths?.["/users"]).toEqual({});
+  });
+});

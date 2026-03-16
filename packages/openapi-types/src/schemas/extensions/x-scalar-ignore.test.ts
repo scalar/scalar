@@ -1,24 +1,27 @@
-import { describe, expect, it } from 'vitest'
-import { XScalarIgnoreSchema } from './x-scalar-ignore'
+import { describe, expect, it } from "vite-plus/test";
 
-describe('XScalarIgnoreSchema', () => {
-  it('allows true', () => {
+import { XScalarIgnoreSchema } from "./x-scalar-ignore";
+
+describe("XScalarIgnoreSchema", () => {
+  it("allows true", () => {
     const result = XScalarIgnoreSchema.parse({
-      'x-scalar-ignore': true,
-    })
+      "x-scalar-ignore": true,
+    });
 
-    expect(result).toEqual({ 'x-scalar-ignore': true })
-  })
+    expect(result).toEqual({ "x-scalar-ignore": true });
+  });
 
-  it('allows false', () => {
+  it("allows false", () => {
     const result = XScalarIgnoreSchema.parse({
-      'x-scalar-ignore': false,
-    })
+      "x-scalar-ignore": false,
+    });
 
-    expect(result).toEqual({ 'x-scalar-ignore': false })
-  })
+    expect(result).toEqual({ "x-scalar-ignore": false });
+  });
 
-  it('defaults to undefined when empty', () => {
-    expect(XScalarIgnoreSchema.parse({})).toEqual({ 'x-scalar-ignore': undefined })
-  })
-})
+  it("defaults to undefined when empty", () => {
+    expect(XScalarIgnoreSchema.parse({})).toEqual({
+      "x-scalar-ignore": undefined,
+    });
+  });
+});

@@ -1,12 +1,12 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from "vite-plus/test";
 
-import { swiftNsurlsession } from './nsurlsession'
+import { swiftNsurlsession } from "./nsurlsession";
 
-describe('swiftNsurlsession', () => {
-  it('returns a basic request', () => {
+describe("swiftNsurlsession", () => {
+  it("returns a basic request", () => {
     const result = swiftNsurlsession.generate({
-      url: 'https://example.com',
-    })
+      url: "https://example.com",
+    });
 
     expect(result).toBe(
       `import Foundation
@@ -27,14 +27,14 @@ let dataTask = session.dataTask(with: request as URLRequest, completionHandler: 
 })
 
 dataTask.resume()`,
-    )
-  })
+    );
+  });
 
-  it('returns a POST request', () => {
+  it("returns a POST request", () => {
     const result = swiftNsurlsession.generate({
-      url: 'https://example.com',
-      method: 'post',
-    })
+      url: "https://example.com",
+      method: "post",
+    });
 
     expect(result).toBe(
       `import Foundation
@@ -55,19 +55,19 @@ let dataTask = session.dataTask(with: request as URLRequest, completionHandler: 
 })
 
 dataTask.resume()`,
-    )
-  })
+    );
+  });
 
-  it('has headers', () => {
+  it("has headers", () => {
     const result = swiftNsurlsession.generate({
-      url: 'https://example.com',
+      url: "https://example.com",
       headers: [
         {
-          name: 'Content-Type',
-          value: 'application/json',
+          name: "Content-Type",
+          value: "application/json",
         },
       ],
-    })
+    });
     expect(result).toBe(
       `import Foundation
 
@@ -90,27 +90,27 @@ let dataTask = session.dataTask(with: request as URLRequest, completionHandler: 
 })
 
 dataTask.resume()`,
-    )
-  })
+    );
+  });
 
-  it('handles multipart form data with files', () => {
+  it("handles multipart form data with files", () => {
     const result = swiftNsurlsession.generate({
-      url: 'https://example.com',
-      method: 'POST',
+      url: "https://example.com",
+      method: "POST",
       postData: {
-        mimeType: 'multipart/form-data',
+        mimeType: "multipart/form-data",
         params: [
           {
-            name: 'file',
-            fileName: 'test.txt',
+            name: "file",
+            fileName: "test.txt",
           },
           {
-            name: 'field',
-            value: 'value',
+            name: "field",
+            value: "value",
           },
         ],
       },
-    })
+    });
 
     expect(result).toBe(
       `import Foundation
@@ -164,23 +164,23 @@ let dataTask = session.dataTask(with: request as URLRequest, completionHandler: 
 })
 
 dataTask.resume()`,
-    )
-  })
+    );
+  });
 
-  it('handles url-encoded form data with special characters', () => {
+  it("handles url-encoded form data with special characters", () => {
     const result = swiftNsurlsession.generate({
-      url: 'https://example.com',
-      method: 'POST',
+      url: "https://example.com",
+      method: "POST",
       postData: {
-        mimeType: 'application/x-www-form-urlencoded',
+        mimeType: "application/x-www-form-urlencoded",
         params: [
           {
-            name: 'special chars!@#',
-            value: 'value',
+            name: "special chars!@#",
+            value: "value",
           },
         ],
       },
-    })
+    });
 
     expect(result).toBe(
       `import Foundation
@@ -204,18 +204,18 @@ let dataTask = session.dataTask(with: request as URLRequest, completionHandler: 
 })
 
 dataTask.resume()`,
-    )
-  })
+    );
+  });
 
-  it('handles binary data', () => {
+  it("handles binary data", () => {
     const result = swiftNsurlsession.generate({
-      url: 'https://example.com',
-      method: 'POST',
+      url: "https://example.com",
+      method: "POST",
       postData: {
-        mimeType: 'application/octet-stream',
-        text: 'binary content',
+        mimeType: "application/octet-stream",
+        text: "binary content",
       },
-    })
+    });
 
     expect(result).toBe(
       `import Foundation
@@ -239,13 +239,13 @@ let dataTask = session.dataTask(with: request as URLRequest, completionHandler: 
 })
 
 dataTask.resume()`,
-    )
-  })
+    );
+  });
 
-  it('handles special characters in URL', () => {
+  it("handles special characters in URL", () => {
     const result = swiftNsurlsession.generate({
-      url: 'https://example.com/path with spaces/[brackets]',
-    })
+      url: "https://example.com/path with spaces/[brackets]",
+    });
 
     expect(result).toBe(
       `import Foundation
@@ -266,17 +266,17 @@ let dataTask = session.dataTask(with: request as URLRequest, completionHandler: 
 })
 
 dataTask.resume()`,
-    )
-  })
+    );
+  });
 
-  it('handles multiple headers with same name', () => {
+  it("handles multiple headers with same name", () => {
     const result = swiftNsurlsession.generate({
-      url: 'https://example.com',
+      url: "https://example.com",
       headers: [
-        { name: 'X-Custom', value: 'value1' },
-        { name: 'X-Custom', value: 'value2' },
+        { name: "X-Custom", value: "value1" },
+        { name: "X-Custom", value: "value2" },
       ],
-    })
+    });
 
     expect(result).toBe(
       `import Foundation
@@ -300,14 +300,14 @@ let dataTask = session.dataTask(with: request as URLRequest, completionHandler: 
 })
 
 dataTask.resume()`,
-    )
-  })
+    );
+  });
 
-  it('handles headers with empty values', () => {
+  it("handles headers with empty values", () => {
     const result = swiftNsurlsession.generate({
-      url: 'https://example.com',
-      headers: [{ name: 'X-Empty', value: '' }],
-    })
+      url: "https://example.com",
+      headers: [{ name: "X-Empty", value: "" }],
+    });
 
     expect(result).toBe(
       `import Foundation
@@ -331,13 +331,13 @@ let dataTask = session.dataTask(with: request as URLRequest, completionHandler: 
 })
 
 dataTask.resume()`,
-    )
-  })
+    );
+  });
 
-  it('handles query string parameters', () => {
+  it("handles query string parameters", () => {
     const result = swiftNsurlsession.generate({
-      url: 'https://example.com/api?param1=value1&param2=special value&param3=123',
-    })
+      url: "https://example.com/api?param1=value1&param2=special value&param3=123",
+    });
 
     expect(result).toBe(
       `import Foundation
@@ -358,6 +358,6 @@ let dataTask = session.dataTask(with: request as URLRequest, completionHandler: 
 })
 
 dataTask.resume()`,
-    )
-  })
-})
+    );
+  });
+});

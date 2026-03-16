@@ -25,7 +25,7 @@
     "dev": "nodemon --exec \"vite-node playground/index.ts\" --ext ts,vue --quiet --watch ./",
     "format": "scalar-format",
     "format:check": "scalar-format-check",
-    "test": "vitest",
+    "test": "vp test",
     "types:build": "scalar-types-build-vue",
     "types:check": "scalar-types-check-vue"
   },
@@ -78,8 +78,9 @@
     "@vitejs/plugin-vue": "catalog:*",
     "@vue/test-utils": "catalog:*",
     "hono": "catalog:*",
-    "vite": "catalog:*",
-    "vitest": "catalog:*",
-    "vue": "catalog:*"
+    "vite": "catalog:",
+    "vitest": "catalog:",
+    "vue": "catalog:*",
+    "vite-plus": "catalog:"
   }
 }

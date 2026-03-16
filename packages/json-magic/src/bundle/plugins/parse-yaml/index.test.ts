@@ -1,26 +1,26 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from "vite-plus/test";
 
-import { parseYaml } from '@/bundle/plugins/parse-yaml'
+import { parseYaml } from "@/bundle/plugins/parse-yaml";
 
-describe('parse-yaml', () => {
+describe("parse-yaml", () => {
   it.each([
-    ['hi: hello\n', true],
-    ['- some: 1\n', true],
-    ['valid: value\nhey: hi\n', true],
+    ["hi: hello\n", true],
+    ["- some: 1\n", true],
+    ["valid: value\nhey: hi\n", true],
     ["{ 'a': 2 }", false],
-    ['{ some string', false],
-    ['{ ', false],
-    ['{}', false],
+    ["{ some string", false],
+    ["{ ", false],
+    ["{}", false],
     ['{ "json": "" }', false],
-  ])('should validate if strings are yaml valid format', (a, b) => {
-    expect(parseYaml().validate(a)).toBe(b)
-  })
+  ])("should validate if strings are yaml valid format", (a, b) => {
+    expect(parseYaml().validate(a)).toBe(b);
+  });
 
-  it('should parse yaml string', async () => {
+  it("should parse yaml string", async () => {
     expect(await parseYaml().exec('{ "message": "Hello World" }')).toEqual({
       ok: true,
-      data: { message: 'Hello World' },
-      'raw': '{ "message": "Hello World" }',
-    })
-  })
-})
+      data: { message: "Hello World" },
+      raw: '{ "message": "Hello World" }',
+    });
+  });
+});

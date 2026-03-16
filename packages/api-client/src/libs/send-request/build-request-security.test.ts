@@ -1,146 +1,153 @@
-import { type SecurityScheme, securitySchemeSchema } from '@scalar/oas-utils/entities/spec'
-import { encode } from 'js-base64'
-import { beforeEach, describe, expect, it } from 'vitest'
+import {
+  type SecurityScheme,
+  securitySchemeSchema,
+} from "@scalar/oas-utils/entities/spec";
+import { encode } from "js-base64";
+import { beforeEach, describe, expect, it } from "vite-plus/test";
 
-import { buildRequestSecurity } from './build-request-security'
+import { buildRequestSecurity } from "./build-request-security";
 
-describe('buildRequestSecurity', () => {
-  let apiKey: Extract<SecurityScheme, { type: 'apiKey' }>
-  let basic: Extract<SecurityScheme, { type: 'http' }>
-  let oauth2: Extract<SecurityScheme, { type: 'oauth2' }>
+describe("buildRequestSecurity", () => {
+  let apiKey: Extract<SecurityScheme, { type: "apiKey" }>;
+  let basic: Extract<SecurityScheme, { type: "http" }>;
+  let oauth2: Extract<SecurityScheme, { type: "oauth2" }>;
 
   beforeEach(() => {
     apiKey = securitySchemeSchema.parse({
-      type: 'apiKey',
-      nameKey: 'apiKey',
-      uid: 'apiKeyUid',
-      name: 'x-api-key',
-      in: 'header',
-      value: 'test-key',
-    }) as Extract<SecurityScheme, { type: 'apiKey' }>
+      type: "apiKey",
+      nameKey: "apiKey",
+      uid: "apiKeyUid",
+      name: "x-api-key",
+      in: "header",
+      value: "test-key",
+    }) as Extract<SecurityScheme, { type: "apiKey" }>;
 
     basic = securitySchemeSchema.parse({
-      type: 'http',
-      nameKey: 'basic',
-      uid: 'basicUid',
-      scheme: 'basic',
-      username: 'scalar',
-      password: 'user',
-    }) as Extract<SecurityScheme, { type: 'http' }>
+      type: "http",
+      nameKey: "basic",
+      uid: "basicUid",
+      scheme: "basic",
+      username: "scalar",
+      password: "user",
+    }) as Extract<SecurityScheme, { type: "http" }>;
 
     oauth2 = securitySchemeSchema.parse({
-      type: 'oauth2',
-      nameKey: 'oauth2',
-      uid: 'oauth2Uid',
-    }) as Extract<SecurityScheme, { type: 'oauth2' }>
-  })
+      type: "oauth2",
+      nameKey: "oauth2",
+      uid: "oauth2Uid",
+    }) as Extract<SecurityScheme, { type: "oauth2" }>;
+  });
 
-  it('should return empty objects when no security schemes are provided', () => {
-    const result = buildRequestSecurity()
+  it("should return empty objects when no security schemes are provided", () => {
+    const result = buildRequestSecurity();
 
-    expect(result.headers).toEqual({})
-    expect(result.cookies).toEqual([])
-    expect(result.urlParams.toString()).toBe('')
-  })
+    expect(result.headers).toEqual({});
+    expect(result.cookies).toEqual([]);
+    expect(result.urlParams.toString()).toBe("");
+  });
 
-  describe('apiKey security', () => {
-    it('should handle apiKey in header', () => {
-      const result = buildRequestSecurity([apiKey])
-      expect(result.headers['x-api-key']).toBe('test-key')
-    })
+  describe("apiKey security", () => {
+    it("should handle apiKey in header", () => {
+      const result = buildRequestSecurity([apiKey]);
+      expect(result.headers["x-api-key"]).toBe("test-key");
+    });
 
-    it('should handle apiKey in query', () => {
-      apiKey.in = 'query'
-      const result = buildRequestSecurity([apiKey])
-      expect(result.urlParams.get('x-api-key')).toBe('test-key')
-    })
+    it("should handle apiKey in query", () => {
+      apiKey.in = "query";
+      const result = buildRequestSecurity([apiKey]);
+      expect(result.urlParams.get("x-api-key")).toBe("test-key");
+    });
 
-    it('should handle apiKey in cookie', () => {
-      apiKey.in = 'cookie'
-      const result = buildRequestSecurity([apiKey])
+    it("should handle apiKey in cookie", () => {
+      apiKey.in = "cookie";
+      const result = buildRequestSecurity([apiKey]);
 
       expect(result.cookies[0]).toEqual({
-        name: 'x-api-key',
-        value: 'test-key',
-        path: '/',
-        uid: 'apiKeyUid',
-      })
-    })
-  })
+        name: "x-api-key",
+        value: "test-key",
+        path: "/",
+        uid: "apiKeyUid",
+      });
+    });
+  });
 
-  describe('http security', () => {
-    it('should handle basic auth', () => {
-      basic.scheme = 'basic'
-      const result = buildRequestSecurity([basic])
-      expect(result.headers['Authorization']).toBe(`Basic ${encode('scalar:user')}`)
-    })
+  describe("http security", () => {
+    it("should handle basic auth", () => {
+      basic.scheme = "basic";
+      const result = buildRequestSecurity([basic]);
+      expect(result.headers["Authorization"]).toBe(
+        `Basic ${encode("scalar:user")}`,
+      );
+    });
 
-    it('should handle basic auth with empty credentials', () => {
-      basic.username = ''
-      basic.password = ''
-      const result = buildRequestSecurity([basic])
-      expect(result.headers['Authorization']).toBe('Basic username:password')
-    })
+    it("should handle basic auth with empty credentials", () => {
+      basic.username = "";
+      basic.password = "";
+      const result = buildRequestSecurity([basic]);
+      expect(result.headers["Authorization"]).toBe("Basic username:password");
+    });
 
-    it('should handle basic auth with Unicode characters', () => {
-      basic.username = 'żółć'
-      basic.password = 'тест'
+    it("should handle basic auth with Unicode characters", () => {
+      basic.username = "żółć";
+      basic.password = "тест";
 
-      const result = buildRequestSecurity([basic])
+      const result = buildRequestSecurity([basic]);
 
       // The credentials should be properly encoded as base64
-      const expectedBase64 = 'xbzDs8WCxIc60YLQtdGB0YI='
-      expect(result.headers['Authorization']).toBe(`Basic ${expectedBase64}`)
-    })
+      const expectedBase64 = "xbzDs8WCxIc60YLQtdGB0YI=";
+      expect(result.headers["Authorization"]).toBe(`Basic ${expectedBase64}`);
+    });
 
-    it('should handle bearer auth', () => {
-      basic.scheme = 'bearer'
-      basic.token = 'test-token'
-      const result = buildRequestSecurity([basic])
-      expect(result.headers['Authorization']).toBe('Bearer test-token')
-    })
-  })
+    it("should handle bearer auth", () => {
+      basic.scheme = "bearer";
+      basic.token = "test-token";
+      const result = buildRequestSecurity([basic]);
+      expect(result.headers["Authorization"]).toBe("Bearer test-token");
+    });
+  });
 
-  describe('oauth2 security', () => {
-    it('should handle oauth2 with token', () => {
+  describe("oauth2 security", () => {
+    it("should handle oauth2 with token", () => {
       oauth2.flows = {
         // @ts-expect-error
         implicit: {
-          type: 'implicit',
-          token: 'test-token',
+          type: "implicit",
+          token: "test-token",
         },
-      }
-      const result = buildRequestSecurity([oauth2])
-      expect(result.headers['Authorization']).toBe('Bearer test-token')
-    })
+      };
+      const result = buildRequestSecurity([oauth2]);
+      expect(result.headers["Authorization"]).toBe("Bearer test-token");
+    });
 
-    it('should handle oauth2 without token', () => {
-      const result = buildRequestSecurity([oauth2])
-      expect(result.headers['Authorization']).toBe('Bearer ')
-    })
+    it("should handle oauth2 without token", () => {
+      const result = buildRequestSecurity([oauth2]);
+      expect(result.headers["Authorization"]).toBe("Bearer ");
+    });
 
-    it('should handle oauth2 with multiple flows with the first token being used', () => {
+    it("should handle oauth2 with multiple flows with the first token being used", () => {
       oauth2.flows = {
         // @ts-expect-error
         implicit: {
-          type: 'implicit',
-          token: 'test-token-implicit',
+          type: "implicit",
+          token: "test-token-implicit",
         },
         // @ts-expect-error
         authorizationCode: {
-          type: 'authorizationCode',
-          token: 'test-token-code',
+          type: "authorizationCode",
+          token: "test-token-code",
         },
-      }
+      };
 
-      const result = buildRequestSecurity([oauth2])
-      expect(result.headers['Authorization']).toBe('Bearer test-token-implicit')
-    })
-  })
+      const result = buildRequestSecurity([oauth2]);
+      expect(result.headers["Authorization"]).toBe(
+        "Bearer test-token-implicit",
+      );
+    });
+  });
 
-  it('should handle empty token placeholder', () => {
-    apiKey.value = ''
-    const result = buildRequestSecurity([apiKey], {}, 'NO_VALUE')
-    expect(result.headers['x-api-key']).toBe('NO_VALUE')
-  })
-})
+  it("should handle empty token placeholder", () => {
+    apiKey.value = "";
+    const result = buildRequestSecurity([apiKey], {}, "NO_VALUE");
+    expect(result.headers["x-api-key"]).toBe("NO_VALUE");
+  });
+});

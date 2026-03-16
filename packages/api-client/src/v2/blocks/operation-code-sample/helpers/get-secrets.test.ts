@@ -1,394 +1,399 @@
-import { decode } from 'js-base64'
-import { describe, expect, it } from 'vitest'
+import { decode } from "js-base64";
+import { describe, expect, it } from "vite-plus/test";
 
-import type { SecuritySchemeObjectSecret } from '@/v2/blocks/scalar-auth-selector-block'
+import type { SecuritySchemeObjectSecret } from "@/v2/blocks/scalar-auth-selector-block";
 
-import { getSecrets } from './get-secrets'
+import { getSecrets } from "./get-secrets";
 
-describe('getSecrets', () => {
-  describe('apiKey security schemes', () => {
-    it('should extract secret token from apiKey scheme', () => {
+describe("getSecrets", () => {
+  describe("apiKey security schemes", () => {
+    it("should extract secret token from apiKey scheme", () => {
       const securitySchemes: SecuritySchemeObjectSecret[] = [
         {
-          type: 'apiKey',
-          name: 'X-API-Key',
-          in: 'header',
-          'x-scalar-secret-token': 'api-key-secret-123',
+          type: "apiKey",
+          name: "X-API-Key",
+          in: "header",
+          "x-scalar-secret-token": "api-key-secret-123",
         },
-      ]
+      ];
 
-      const result = getSecrets(securitySchemes)
+      const result = getSecrets(securitySchemes);
 
-      expect(result).toEqual(['api-key-secret-123'])
-    })
+      expect(result).toEqual(["api-key-secret-123"]);
+    });
 
-    it('should handle apiKey scheme without secret token', () => {
+    it("should handle apiKey scheme without secret token", () => {
       const securitySchemes: SecuritySchemeObjectSecret[] = [
         {
-          type: 'apiKey',
-          name: 'X-API-Key',
-          in: 'header',
-          'x-scalar-secret-token': '',
+          type: "apiKey",
+          name: "X-API-Key",
+          in: "header",
+          "x-scalar-secret-token": "",
         },
-      ]
+      ];
 
-      const result = getSecrets(securitySchemes)
-      expect(result).toEqual([])
-    })
+      const result = getSecrets(securitySchemes);
+      expect(result).toEqual([]);
+    });
 
-    it('should handle multiple apiKey schemes', () => {
+    it("should handle multiple apiKey schemes", () => {
       const securitySchemes: SecuritySchemeObjectSecret[] = [
         {
-          type: 'apiKey',
-          name: 'X-API-Key',
-          in: 'header',
-          'x-scalar-secret-token': 'api-key-secret-1',
+          type: "apiKey",
+          name: "X-API-Key",
+          in: "header",
+          "x-scalar-secret-token": "api-key-secret-1",
         },
         {
-          type: 'apiKey',
-          name: 'X-Custom-Key',
-          in: 'query',
-          'x-scalar-secret-token': 'api-key-secret-2',
+          type: "apiKey",
+          name: "X-Custom-Key",
+          in: "query",
+          "x-scalar-secret-token": "api-key-secret-2",
         },
-      ]
+      ];
 
-      const result = getSecrets(securitySchemes)
+      const result = getSecrets(securitySchemes);
 
-      expect(result).toEqual(['api-key-secret-1', 'api-key-secret-2'])
-    })
-  })
+      expect(result).toEqual(["api-key-secret-1", "api-key-secret-2"]);
+    });
+  });
 
-  describe('http security schemes', () => {
-    it('should extract all secrets from http scheme with basic auth', () => {
+  describe("http security schemes", () => {
+    it("should extract all secrets from http scheme with basic auth", () => {
       const securitySchemes: SecuritySchemeObjectSecret[] = [
         {
-          type: 'http',
-          scheme: 'basic',
-          'x-scalar-secret-token': 'http-token-secret',
-          'x-scalar-secret-username': 'testuser',
-          'x-scalar-secret-password': 'testpass',
+          type: "http",
+          scheme: "basic",
+          "x-scalar-secret-token": "http-token-secret",
+          "x-scalar-secret-username": "testuser",
+          "x-scalar-secret-password": "testpass",
         },
-      ]
+      ];
 
-      const result = getSecrets(securitySchemes)
+      const result = getSecrets(securitySchemes);
 
       expect(result).toEqual([
-        'http-token-secret',
-        'testuser',
-        'testpass',
-        'dGVzdHVzZXI6dGVzdHBhc3M=', // base64 encoded "testuser:testpass"
-      ])
-    })
+        "http-token-secret",
+        "testuser",
+        "testpass",
+        "dGVzdHVzZXI6dGVzdHBhc3M=", // base64 encoded "testuser:testpass"
+      ]);
+    });
 
-    it('should extract all secrets from http scheme with bearer auth', () => {
+    it("should extract all secrets from http scheme with bearer auth", () => {
       const securitySchemes: SecuritySchemeObjectSecret[] = [
         {
-          type: 'http',
-          scheme: 'bearer',
-          bearerFormat: 'JWT',
-          'x-scalar-secret-token': 'bearer-token-secret',
-          'x-scalar-secret-username': 'beareruser',
-          'x-scalar-secret-password': 'bearerpass',
+          type: "http",
+          scheme: "bearer",
+          bearerFormat: "JWT",
+          "x-scalar-secret-token": "bearer-token-secret",
+          "x-scalar-secret-username": "beareruser",
+          "x-scalar-secret-password": "bearerpass",
         },
-      ]
+      ];
 
-      const result = getSecrets(securitySchemes)
+      const result = getSecrets(securitySchemes);
 
       expect(result).toEqual([
-        'bearer-token-secret',
-        'beareruser',
-        'bearerpass',
-        'YmVhcmVydXNlcjpiZWFyZXJwYXNz', // base64 encoded "beareruser:bearerpass"
-      ])
-    })
+        "bearer-token-secret",
+        "beareruser",
+        "bearerpass",
+        "YmVhcmVydXNlcjpiZWFyZXJwYXNz", // base64 encoded "beareruser:bearerpass"
+      ]);
+    });
 
-    it('should handle http scheme with missing secrets', () => {
+    it("should handle http scheme with missing secrets", () => {
       const securitySchemes: SecuritySchemeObjectSecret[] = [
         {
-          type: 'http',
-          scheme: 'basic',
-          'x-scalar-secret-token': '',
-          'x-scalar-secret-username': '',
-          'x-scalar-secret-password': '',
+          type: "http",
+          scheme: "basic",
+          "x-scalar-secret-token": "",
+          "x-scalar-secret-username": "",
+          "x-scalar-secret-password": "",
         },
-      ]
+      ];
 
-      const result = getSecrets(securitySchemes)
+      const result = getSecrets(securitySchemes);
 
       expect(result).toEqual([
-        'Og==', // base64 encoded ":"
-      ])
-    })
+        "Og==", // base64 encoded ":"
+      ]);
+    });
 
-    it('should handle http scheme with partial secrets', () => {
+    it("should handle http scheme with partial secrets", () => {
       const securitySchemes: SecuritySchemeObjectSecret[] = [
         {
-          type: 'http',
-          scheme: 'basic',
-          'x-scalar-secret-token': '',
-          'x-scalar-secret-username': 'partialuser',
-          'x-scalar-secret-password': '',
+          type: "http",
+          scheme: "basic",
+          "x-scalar-secret-token": "",
+          "x-scalar-secret-username": "partialuser",
+          "x-scalar-secret-password": "",
         },
-      ]
+      ];
 
-      const result = getSecrets(securitySchemes)
+      const result = getSecrets(securitySchemes);
 
       expect(result).toEqual([
-        'partialuser',
-        'cGFydGlhbHVzZXI6', // base64 encoded "partialuser:"
-      ])
-    })
-  })
+        "partialuser",
+        "cGFydGlhbHVzZXI6", // base64 encoded "partialuser:"
+      ]);
+    });
+  });
 
-  describe('oauth2 security schemes', () => {
-    it('should extract secrets from oauth2 scheme with single flow', () => {
+  describe("oauth2 security schemes", () => {
+    it("should extract secrets from oauth2 scheme with single flow", () => {
       const securitySchemes: SecuritySchemeObjectSecret[] = [
         {
-          type: 'oauth2',
+          type: "oauth2",
           flows: {
             authorizationCode: {
-              refreshUrl: '',
-              authorizationUrl: 'https://example.com/oauth/authorize',
-              tokenUrl: 'https://example.com/oauth/token',
-              scopes: { read: 'Read access' },
-              'x-scalar-secret-token': 'oauth-token-secret-1',
-              'x-scalar-secret-client-id': '',
-              'x-scalar-secret-client-secret': '',
-              'x-scalar-secret-redirect-uri': '',
-              'x-usePkce': 'no',
+              refreshUrl: "",
+              authorizationUrl: "https://example.com/oauth/authorize",
+              tokenUrl: "https://example.com/oauth/token",
+              scopes: { read: "Read access" },
+              "x-scalar-secret-token": "oauth-token-secret-1",
+              "x-scalar-secret-client-id": "",
+              "x-scalar-secret-client-secret": "",
+              "x-scalar-secret-redirect-uri": "",
+              "x-usePkce": "no",
             },
           },
         },
-      ]
+      ];
 
-      const result = getSecrets(securitySchemes)
+      const result = getSecrets(securitySchemes);
 
-      expect(result).toEqual(['oauth-token-secret-1'])
-    })
+      expect(result).toEqual(["oauth-token-secret-1"]);
+    });
 
-    it('should extract secrets from oauth2 scheme with multiple flows', () => {
+    it("should extract secrets from oauth2 scheme with multiple flows", () => {
       const securitySchemes: SecuritySchemeObjectSecret[] = [
         {
-          type: 'oauth2',
+          type: "oauth2",
           flows: {
             authorizationCode: {
-              refreshUrl: '',
-              authorizationUrl: 'https://example.com/oauth/authorize',
-              tokenUrl: 'https://example.com/oauth/token',
-              scopes: { read: 'Read access' },
-              'x-scalar-secret-token': 'oauth-token-secret-1',
-              'x-scalar-secret-client-id': '',
-              'x-scalar-secret-client-secret': '',
-              'x-scalar-secret-redirect-uri': '',
-              'x-usePkce': 'no',
+              refreshUrl: "",
+              authorizationUrl: "https://example.com/oauth/authorize",
+              tokenUrl: "https://example.com/oauth/token",
+              scopes: { read: "Read access" },
+              "x-scalar-secret-token": "oauth-token-secret-1",
+              "x-scalar-secret-client-id": "",
+              "x-scalar-secret-client-secret": "",
+              "x-scalar-secret-redirect-uri": "",
+              "x-usePkce": "no",
             },
             clientCredentials: {
-              refreshUrl: '',
-              tokenUrl: 'https://example.com/oauth/token',
-              scopes: { write: 'Write access' },
-              'x-scalar-secret-token': 'oauth-token-secret-2',
-              'x-scalar-secret-client-id': '',
-              'x-scalar-secret-client-secret': '',
+              refreshUrl: "",
+              tokenUrl: "https://example.com/oauth/token",
+              scopes: { write: "Write access" },
+              "x-scalar-secret-token": "oauth-token-secret-2",
+              "x-scalar-secret-client-id": "",
+              "x-scalar-secret-client-secret": "",
             },
             password: {
-              refreshUrl: '',
-              tokenUrl: 'https://example.com/oauth/token',
-              scopes: { admin: 'Admin access' },
-              'x-scalar-secret-token': 'oauth-token-secret-3',
-              'x-scalar-secret-client-id': '',
-              'x-scalar-secret-client-secret': '',
-              'x-scalar-secret-username': '',
-              'x-scalar-secret-password': '',
+              refreshUrl: "",
+              tokenUrl: "https://example.com/oauth/token",
+              scopes: { admin: "Admin access" },
+              "x-scalar-secret-token": "oauth-token-secret-3",
+              "x-scalar-secret-client-id": "",
+              "x-scalar-secret-client-secret": "",
+              "x-scalar-secret-username": "",
+              "x-scalar-secret-password": "",
             },
           },
         },
-      ]
+      ];
 
-      const result = getSecrets(securitySchemes)
-
-      expect(result).toEqual(['oauth-token-secret-1', 'oauth-token-secret-2', 'oauth-token-secret-3'])
-    })
-
-    it('should handle oauth2 scheme with flows without secret tokens', () => {
-      const securitySchemes: SecuritySchemeObjectSecret[] = [
-        {
-          type: 'oauth2',
-          flows: {
-            authorizationCode: {
-              refreshUrl: '',
-              authorizationUrl: 'https://example.com/oauth/authorize',
-              tokenUrl: 'https://example.com/oauth/token',
-              scopes: { read: 'Read access' },
-              'x-scalar-secret-token': '',
-              'x-scalar-secret-client-id': '',
-              'x-scalar-secret-client-secret': '',
-              'x-scalar-secret-redirect-uri': '',
-              'x-usePkce': 'no',
-            },
-          },
-        },
-      ]
-
-      const result = getSecrets(securitySchemes)
-      expect(result).toEqual([])
-    })
-
-    it('should handle oauth2 scheme with empty flows object', () => {
-      const securitySchemes: SecuritySchemeObjectSecret[] = [
-        {
-          type: 'oauth2',
-          flows: {},
-        },
-      ]
-
-      const result = getSecrets(securitySchemes)
-
-      expect(result).toEqual([])
-    })
-  })
-
-  describe('mixed security schemes', () => {
-    it('should handle combination of different security scheme types', () => {
-      const securitySchemes: SecuritySchemeObjectSecret[] = [
-        {
-          type: 'apiKey',
-          name: 'X-API-Key',
-          in: 'header',
-          'x-scalar-secret-token': 'api-key-secret',
-        },
-        {
-          type: 'http',
-          scheme: 'bearer',
-          'x-scalar-secret-token': 'http-token-secret',
-          'x-scalar-secret-username': 'httpuser',
-          'x-scalar-secret-password': 'httppass',
-        },
-        {
-          type: 'oauth2',
-          flows: {
-            authorizationCode: {
-              refreshUrl: '',
-              authorizationUrl: 'https://example.com/oauth/authorize',
-              tokenUrl: 'https://example.com/oauth/token',
-              scopes: { read: 'Read access' },
-              'x-scalar-secret-token': 'oauth-token-secret',
-              'x-scalar-secret-client-id': '',
-              'x-scalar-secret-client-secret': '',
-              'x-scalar-secret-redirect-uri': '',
-              'x-usePkce': 'no',
-            },
-          },
-        },
-      ]
-
-      const result = getSecrets(securitySchemes)
+      const result = getSecrets(securitySchemes);
 
       expect(result).toEqual([
-        'api-key-secret',
-        'http-token-secret',
-        'httpuser',
-        'httppass',
-        'aHR0cHVzZXI6aHR0cHBhc3M=', // base64 encoded "httpuser:httppass"
-        'oauth-token-secret',
-      ])
-    })
-  })
+        "oauth-token-secret-1",
+        "oauth-token-secret-2",
+        "oauth-token-secret-3",
+      ]);
+    });
 
-  describe('edge cases', () => {
-    it('should return empty array for empty input', () => {
-      const securitySchemes: SecuritySchemeObjectSecret[] = []
-
-      const result = getSecrets(securitySchemes)
-
-      expect(result).toEqual([])
-    })
-
-    it('should handle unknown security scheme type', () => {
+    it("should handle oauth2 scheme with flows without secret tokens", () => {
       const securitySchemes: SecuritySchemeObjectSecret[] = [
         {
-          type: 'openIdConnect' as any, // unknown type
-          openIdConnectUrl: 'https://example.com/.well-known/openid_configuration',
+          type: "oauth2",
+          flows: {
+            authorizationCode: {
+              refreshUrl: "",
+              authorizationUrl: "https://example.com/oauth/authorize",
+              tokenUrl: "https://example.com/oauth/token",
+              scopes: { read: "Read access" },
+              "x-scalar-secret-token": "",
+              "x-scalar-secret-client-id": "",
+              "x-scalar-secret-client-secret": "",
+              "x-scalar-secret-redirect-uri": "",
+              "x-usePkce": "no",
+            },
+          },
         },
-      ]
+      ];
 
-      const result = getSecrets(securitySchemes)
+      const result = getSecrets(securitySchemes);
+      expect(result).toEqual([]);
+    });
 
-      expect(result).toEqual([])
-    })
+    it("should handle oauth2 scheme with empty flows object", () => {
+      const securitySchemes: SecuritySchemeObjectSecret[] = [
+        {
+          type: "oauth2",
+          flows: {},
+        },
+      ];
 
-    it('should handle security scheme without type', () => {
+      const result = getSecrets(securitySchemes);
+
+      expect(result).toEqual([]);
+    });
+  });
+
+  describe("mixed security schemes", () => {
+    it("should handle combination of different security scheme types", () => {
+      const securitySchemes: SecuritySchemeObjectSecret[] = [
+        {
+          type: "apiKey",
+          name: "X-API-Key",
+          in: "header",
+          "x-scalar-secret-token": "api-key-secret",
+        },
+        {
+          type: "http",
+          scheme: "bearer",
+          "x-scalar-secret-token": "http-token-secret",
+          "x-scalar-secret-username": "httpuser",
+          "x-scalar-secret-password": "httppass",
+        },
+        {
+          type: "oauth2",
+          flows: {
+            authorizationCode: {
+              refreshUrl: "",
+              authorizationUrl: "https://example.com/oauth/authorize",
+              tokenUrl: "https://example.com/oauth/token",
+              scopes: { read: "Read access" },
+              "x-scalar-secret-token": "oauth-token-secret",
+              "x-scalar-secret-client-id": "",
+              "x-scalar-secret-client-secret": "",
+              "x-scalar-secret-redirect-uri": "",
+              "x-usePkce": "no",
+            },
+          },
+        },
+      ];
+
+      const result = getSecrets(securitySchemes);
+
+      expect(result).toEqual([
+        "api-key-secret",
+        "http-token-secret",
+        "httpuser",
+        "httppass",
+        "aHR0cHVzZXI6aHR0cHBhc3M=", // base64 encoded "httpuser:httppass"
+        "oauth-token-secret",
+      ]);
+    });
+  });
+
+  describe("edge cases", () => {
+    it("should return empty array for empty input", () => {
+      const securitySchemes: SecuritySchemeObjectSecret[] = [];
+
+      const result = getSecrets(securitySchemes);
+
+      expect(result).toEqual([]);
+    });
+
+    it("should handle unknown security scheme type", () => {
+      const securitySchemes: SecuritySchemeObjectSecret[] = [
+        {
+          type: "openIdConnect" as any, // unknown type
+          openIdConnectUrl:
+            "https://example.com/.well-known/openid_configuration",
+        },
+      ];
+
+      const result = getSecrets(securitySchemes);
+
+      expect(result).toEqual([]);
+    });
+
+    it("should handle security scheme without type", () => {
       const securitySchemes: SecuritySchemeObjectSecret[] = [
         {
           // missing type
-          name: 'Unknown',
+          name: "Unknown",
         } as SecuritySchemeObjectSecret,
-      ]
+      ];
 
-      const result = getSecrets(securitySchemes)
+      const result = getSecrets(securitySchemes);
 
-      expect(result).toEqual([])
-    })
+      expect(result).toEqual([]);
+    });
 
-    it('should handle empty string values in http scheme', () => {
+    it("should handle empty string values in http scheme", () => {
       const securitySchemes: SecuritySchemeObjectSecret[] = [
         {
-          type: 'http',
-          scheme: 'basic',
-          'x-scalar-secret-token': '',
-          'x-scalar-secret-username': '',
-          'x-scalar-secret-password': '',
+          type: "http",
+          scheme: "basic",
+          "x-scalar-secret-token": "",
+          "x-scalar-secret-username": "",
+          "x-scalar-secret-password": "",
         },
-      ]
+      ];
 
-      const result = getSecrets(securitySchemes)
+      const result = getSecrets(securitySchemes);
 
       expect(result).toEqual([
-        'Og==', // base64 encoded ":"
-      ])
-    })
-  })
+        "Og==", // base64 encoded ":"
+      ]);
+    });
+  });
 
-  describe('base64 encoding verification', () => {
-    it('should correctly encode username:password combination', () => {
+  describe("base64 encoding verification", () => {
+    it("should correctly encode username:password combination", () => {
       const securitySchemes: SecuritySchemeObjectSecret[] = [
         {
-          type: 'http',
-          scheme: 'basic',
-          'x-scalar-secret-token': '',
-          'x-scalar-secret-username': 'admin',
-          'x-scalar-secret-password': 'secret123',
+          type: "http",
+          scheme: "basic",
+          "x-scalar-secret-token": "",
+          "x-scalar-secret-username": "admin",
+          "x-scalar-secret-password": "secret123",
         },
-      ]
+      ];
 
-      const result = getSecrets(securitySchemes)
+      const result = getSecrets(securitySchemes);
 
       // Verify the base64 encoded value is correct
-      expect(result[2]).toBe('YWRtaW46c2VjcmV0MTIz') // base64 encoded "admin:secret123"
+      expect(result[2]).toBe("YWRtaW46c2VjcmV0MTIz"); // base64 encoded "admin:secret123"
 
       // Verify we can decode it back
-      const decoded = decode(result[2] || '')
-      expect(decoded).toBe('admin:secret123')
-    })
+      const decoded = decode(result[2] || "");
+      expect(decoded).toBe("admin:secret123");
+    });
 
-    it('should handle special characters in username and password', () => {
+    it("should handle special characters in username and password", () => {
       const securitySchemes: SecuritySchemeObjectSecret[] = [
         {
-          type: 'http',
-          scheme: 'basic',
-          'x-scalar-secret-token': '',
-          'x-scalar-secret-username': 'user@domain.com',
-          'x-scalar-secret-password': 'pass:word!',
+          type: "http",
+          scheme: "basic",
+          "x-scalar-secret-token": "",
+          "x-scalar-secret-username": "user@domain.com",
+          "x-scalar-secret-password": "pass:word!",
         },
-      ]
+      ];
 
-      const result = getSecrets(securitySchemes)
+      const result = getSecrets(securitySchemes);
 
       // Verify the base64 encoded value is correct
-      expect(result[2]).toBe('dXNlckBkb21haW4uY29tOnBhc3M6d29yZCE=') // base64 encoded "user@domain.com:pass:word!"
+      expect(result[2]).toBe("dXNlckBkb21haW4uY29tOnBhc3M6d29yZCE="); // base64 encoded "user@domain.com:pass:word!"
 
       // Verify we can decode it back
-      const decoded = decode(result[2] || '')
-      expect(decoded).toBe('user@domain.com:pass:word!')
-    })
-  })
-})
+      const decoded = decode(result[2] || "");
+      expect(decoded).toBe("user@domain.com:pass:word!");
+    });
+  });
+});

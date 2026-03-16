@@ -1,59 +1,63 @@
-import { describe, it, expect } from 'vitest'
-import { iterateTitle } from './iterate-title'
+import { describe, expect, it } from "vite-plus/test";
 
-describe('iterateTitle', () => {
-  it('should return the original title if it is not a duplicate', () => {
-    const checkDuplicates = (_title: string) => false
-    const title = 'My Title'
+import { iterateTitle } from "./iterate-title";
 
-    const result = iterateTitle(title, checkDuplicates)
+describe("iterateTitle", () => {
+  it("should return the original title if it is not a duplicate", () => {
+    const checkDuplicates = (_title: string) => false;
+    const title = "My Title";
 
-    expect(result).toBe(title)
-  })
+    const result = iterateTitle(title, checkDuplicates);
 
-  it('should add #2 to a duplicate title', () => {
-    const checkDuplicates = (title: string) => title === 'My Title'
-    const title = 'My Title'
+    expect(result).toBe(title);
+  });
 
-    const result = iterateTitle(title, checkDuplicates)
+  it("should add #2 to a duplicate title", () => {
+    const checkDuplicates = (title: string) => title === "My Title";
+    const title = "My Title";
 
-    expect(result).toBe('My Title #2')
-  })
+    const result = iterateTitle(title, checkDuplicates);
 
-  it('should increment the number for titles that already have a number', () => {
-    const checkDuplicates = (title: string) => ['My Title', 'My Title #2'].includes(title)
-    const title = 'My Title'
+    expect(result).toBe("My Title #2");
+  });
 
-    const result = iterateTitle(title, checkDuplicates)
+  it("should increment the number for titles that already have a number", () => {
+    const checkDuplicates = (title: string) =>
+      ["My Title", "My Title #2"].includes(title);
+    const title = "My Title";
 
-    expect(result).toBe('My Title #3')
-  })
+    const result = iterateTitle(title, checkDuplicates);
 
-  it('should handle custom separators', () => {
-    const checkDuplicates = (title: string) => ['My Title', 'My Title - 2'].includes(title)
-    const title = 'My Title'
+    expect(result).toBe("My Title #3");
+  });
 
-    const result = iterateTitle(title, checkDuplicates, ' - ')
+  it("should handle custom separators", () => {
+    const checkDuplicates = (title: string) =>
+      ["My Title", "My Title - 2"].includes(title);
+    const title = "My Title";
 
-    expect(result).toBe('My Title - 3')
-  })
+    const result = iterateTitle(title, checkDuplicates, " - ");
 
-  it('should handle multiple iterations', () => {
-    const existingTitles = ['My Title', 'My Title #2', 'My Title #3']
-    const checkDuplicates = (title: string) => existingTitles.includes(title)
-    const title = 'My Title'
+    expect(result).toBe("My Title - 3");
+  });
 
-    const result = iterateTitle(title, checkDuplicates)
+  it("should handle multiple iterations", () => {
+    const existingTitles = ["My Title", "My Title #2", "My Title #3"];
+    const checkDuplicates = (title: string) => existingTitles.includes(title);
+    const title = "My Title";
 
-    expect(result).toBe('My Title #4')
-  })
+    const result = iterateTitle(title, checkDuplicates);
 
-  it('should handle titles with numbers in them', () => {
-    const checkDuplicates = (title: string) => ['My Title 123', 'My Title 123 #2'].includes(title)
-    const title = 'My Title 123'
+    expect(result).toBe("My Title #4");
+  });
 
-    const result = iterateTitle(title, checkDuplicates)
+  it("should handle titles with numbers in them", () => {
+    const checkDuplicates = (title: string) =>
+      ["My Title 123", "My Title 123 #2"].includes(title);
+    const title = "My Title 123";
 
-    expect(result).toBe('My Title 123 #3')
-  })
-})
+    const result = iterateTitle(title, checkDuplicates);
+
+    expect(result).toBe("My Title 123 #3");
+  });
+});

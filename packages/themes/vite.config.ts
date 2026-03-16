@@ -1,10 +1,15 @@
-import { createViteBuildOptions } from '@scalar/build-tooling/vite'
-import { defineConfig } from 'vitest/config'
+import { createViteBuildOptions } from "@scalar/build-tooling/vite";
+import { defineConfig } from "vite-plus";
 
 export default defineConfig({
   build: {
     ...createViteBuildOptions({
-      entry: ['src/index.ts', 'src/tailwind.css', 'src/style.css', 'src/fonts/fonts.css'],
+      entry: [
+        "src/index.ts",
+        "src/tailwind.css",
+        "src/style.css",
+        "src/fonts/fonts.css",
+      ],
     }),
     cssCodeSplit: true,
     // We don't want to minify the CSS. We need beautiful output for our theme editor.
@@ -12,4 +17,4 @@ export default defineConfig({
     minify: false,
   },
   test: {},
-})
+});

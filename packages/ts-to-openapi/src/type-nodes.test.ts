@@ -1,202 +1,205 @@
-import path from 'node:path'
+import path from "node:path";
 
-import { isTypeAliasDeclaration } from 'typescript'
-import { describe, expect, it } from 'vitest'
+import { isTypeAliasDeclaration } from "typescript";
+import { describe, expect, it } from "vite-plus/test";
 
-import { fileNameResolver, program } from '../test/test-setup'
-import { getSchemaFromTypeNode } from './type-nodes'
+import { fileNameResolver, program } from "../test/test-setup";
+import { getSchemaFromTypeNode } from "./type-nodes";
 
-describe('getSchemaFromTypeNode', () => {
-  const sourceFilePath = path.join(import.meta.dirname, '../test/fixtures/testing-types.ts')
-  const sourceFile = program.getSourceFile(sourceFilePath)
+describe("getSchemaFromTypeNode", () => {
+  const sourceFilePath = path.join(
+    import.meta.dirname,
+    "../test/fixtures/testing-types.ts",
+  );
+  const sourceFile = program.getSourceFile(sourceFilePath);
   // Just hard coded, change this if we add/remove in the testing types file
-  const type = sourceFile?.statements[2]
+  const type = sourceFile?.statements[2];
 
   if (type && isTypeAliasDeclaration(type)) {
-    const schema = getSchemaFromTypeNode(type.type, program, fileNameResolver)
+    const schema = getSchemaFromTypeNode(type.type, program, fileNameResolver);
 
     // TODO: these need to be added still, left the unknown types to have the tests passing
 
-    it('should not handle an undefined type', () =>
-      expect(schema.properties!['Undefined']!).toEqual({
-        type: 'null',
-        description: 'TODO this type is not handled yet: UndefinedKeyword',
-      }))
+    it("should not handle an undefined type", () =>
+      expect(schema.properties!["Undefined"]!).toEqual({
+        type: "null",
+        description: "TODO this type is not handled yet: UndefinedKeyword",
+      }));
 
-    it('should handle a type query', () =>
-      expect(schema.properties!['typeQuery']).toEqual({
-        type: 'null',
-        description: 'TODO this type is not handled yet: TypeQuery',
-      }))
+    it("should handle a type query", () =>
+      expect(schema.properties!["typeQuery"]).toEqual({
+        type: "null",
+        description: "TODO this type is not handled yet: TypeQuery",
+      }));
 
     // TODO: END unknowns
 
-    it('should handle a null type', () =>
-      expect(schema.properties!['Null']!).toEqual({
-        type: 'null',
+    it("should handle a null type", () =>
+      expect(schema.properties!["Null"]!).toEqual({
+        type: "null",
         example: null,
-      }))
+      }));
 
-    it('should handle a boolean type', () =>
-      expect(schema.properties!['Boolean']!).toEqual({
-        type: 'boolean',
-      }))
+    it("should handle a boolean type", () =>
+      expect(schema.properties!["Boolean"]!).toEqual({
+        type: "boolean",
+      }));
 
-    it('should handle a boolean literal', () =>
-      expect(schema.properties!['boolLiteral']).toEqual({
-        type: 'boolean',
+    it("should handle a boolean literal", () =>
+      expect(schema.properties!["boolLiteral"]).toEqual({
+        type: "boolean",
         example: false,
-      }))
+      }));
 
-    it('should handle a number type', () =>
-      expect(schema.properties!['Number']).toEqual({
-        type: 'number',
-      }))
+    it("should handle a number type", () =>
+      expect(schema.properties!["Number"]).toEqual({
+        type: "number",
+      }));
 
-    it('should handle a number literal', () =>
-      expect(schema.properties!['numerLiteral']).toEqual({
-        type: 'number',
+    it("should handle a number literal", () =>
+      expect(schema.properties!["numerLiteral"]).toEqual({
+        type: "number",
         example: 38,
-      }))
+      }));
 
-    it('should handle a bigint type', () =>
-      expect(schema.properties!['BigInt']).toEqual({
-        type: 'integer',
-      }))
+    it("should handle a bigint type", () =>
+      expect(schema.properties!["BigInt"]).toEqual({
+        type: "integer",
+      }));
 
-    it('should handle a bigint literal', () =>
-      expect(schema.properties!['bigIntLiteral']).toEqual({
-        type: 'integer',
-        example: '546515156165156424n',
-      }))
+    it("should handle a bigint literal", () =>
+      expect(schema.properties!["bigIntLiteral"]).toEqual({
+        type: "integer",
+        example: "546515156165156424n",
+      }));
 
-    it('should handle a string type', () =>
-      expect(schema.properties!['String']).toEqual({
-        type: 'string',
-      }))
+    it("should handle a string type", () =>
+      expect(schema.properties!["String"]).toEqual({
+        type: "string",
+      }));
 
-    it('should handle a string literal', () =>
-      expect(schema.properties!['stringLiteral']).toEqual({
-        type: 'string',
-        example: 'Literally a string value',
-      }))
+    it("should handle a string literal", () =>
+      expect(schema.properties!["stringLiteral"]).toEqual({
+        type: "string",
+        example: "Literally a string value",
+      }));
 
-    it('should handle an object type', () =>
-      expect(schema.properties!['Object']).toEqual({
-        type: 'object',
-      }))
+    it("should handle an object type", () =>
+      expect(schema.properties!["Object"]).toEqual({
+        type: "object",
+      }));
 
-    it('should handle an object literal', () =>
-      expect(schema.properties!['objectLiteral']).toEqual({
-        type: 'object',
+    it("should handle an object literal", () =>
+      expect(schema.properties!["objectLiteral"]).toEqual({
+        type: "object",
         properties: {
           bool: {
-            type: 'boolean',
+            type: "boolean",
             example: true,
           },
           num: {
-            type: 'number',
+            type: "number",
             example: 123,
           },
           boolType: {
-            type: 'boolean',
+            type: "boolean",
           },
           numType: {
-            type: 'number',
+            type: "number",
           },
           stringer: {
-            type: 'string',
-            example: 'who',
+            type: "string",
+            example: "who",
           },
         },
-      }))
+      }));
 
-    it('should handle an any type', () =>
-      expect(schema.properties!['Any']).toEqual({
+    it("should handle an any type", () =>
+      expect(schema.properties!["Any"]).toEqual({
         anyOf: [
           {
-            type: 'string',
+            type: "string",
           },
           {
-            type: 'number',
+            type: "number",
           },
           {
-            type: 'integer',
+            type: "integer",
           },
           {
-            type: 'boolean',
+            type: "boolean",
           },
           {
-            type: 'object',
+            type: "object",
           },
           {
-            type: 'array',
+            type: "array",
             items: {},
           },
         ],
-      }))
+      }));
 
-    it('should handle an array of any types', () =>
-      expect(schema.properties!['ArrayAny']).toEqual({
-        type: 'array',
+    it("should handle an array of any types", () =>
+      expect(schema.properties!["ArrayAny"]).toEqual({
+        type: "array",
         items: {
           anyOf: [
             {
-              type: 'string',
+              type: "string",
             },
             {
-              type: 'number',
+              type: "number",
             },
             {
-              type: 'integer',
+              type: "integer",
             },
             {
-              type: 'boolean',
+              type: "boolean",
             },
             {
-              type: 'object',
+              type: "object",
             },
             {
-              type: 'array',
+              type: "array",
               items: {},
             },
           ],
         },
-      }))
+      }));
 
-    it('should handle an array of any type references', () =>
-      expect(schema.properties!['ArrayAnyTypeReference']).toEqual({
-        type: 'array',
+    it("should handle an array of any type references", () =>
+      expect(schema.properties!["ArrayAnyTypeReference"]).toEqual({
+        type: "array",
         items: {
           anyOf: [
             {
-              type: 'string',
+              type: "string",
             },
             {
-              type: 'number',
+              type: "number",
             },
             {
-              type: 'integer',
+              type: "integer",
             },
             {
-              type: 'boolean',
+              type: "boolean",
             },
             {
-              type: 'object',
+              type: "object",
             },
             {
-              type: 'array',
+              type: "array",
               items: {},
             },
           ],
         },
-      }))
+      }));
 
-    it('should handle an array of strings', () =>
-      expect(schema.properties!['ArrayString']).toEqual({
-        type: 'array',
-        items: { type: 'string' },
-      }))
+    it("should handle an array of strings", () =>
+      expect(schema.properties!["ArrayString"]).toEqual({
+        type: "array",
+        items: { type: "string" },
+      }));
 
     //  "RecordAny": {
     //   "type": "null",
@@ -287,97 +290,97 @@ describe('getSchemaFromTypeNode', () => {
     //   "description": "TODO this type is not handled yet: TupleType"
     // },
 
-    it('should handle a union of numeric literals', () =>
-      expect(schema.properties!['unionNumericLiteral']).toEqual({
-        type: 'number',
+    it("should handle a union of numeric literals", () =>
+      expect(schema.properties!["unionNumericLiteral"]).toEqual({
+        type: "number",
         enum: [1, 2, 3],
-      }))
+      }));
 
-    it('should handle a union of booleans', () =>
-      expect(schema.properties!['unionBoolean']).toEqual({
-        type: 'boolean',
+    it("should handle a union of booleans", () =>
+      expect(schema.properties!["unionBoolean"]).toEqual({
+        type: "boolean",
         enum: [true, false],
-      }))
+      }));
 
-    it('should handle a union of mixed types', () =>
-      expect(schema.properties!['unionMixed']).toEqual({
+    it("should handle a union of mixed types", () =>
+      expect(schema.properties!["unionMixed"]).toEqual({
         anyOf: [
           {
-            type: 'string',
+            type: "string",
           },
           {
-            type: 'number',
+            type: "number",
           },
           {
-            type: 'boolean',
+            type: "boolean",
           },
         ],
-      }))
+      }));
 
-    it('should handle an intersection type', () =>
-      expect(schema.properties!['intersection']).toEqual({
+    it("should handle an intersection type", () =>
+      expect(schema.properties!["intersection"]).toEqual({
         allOf: [
           {
-            type: 'string',
+            type: "string",
           },
           {
-            type: 'number',
+            type: "number",
           },
         ],
-      }))
+      }));
 
-    it('should handle an optional type', () =>
-      expect(schema.properties!['optional']).toEqual({
-        type: 'object',
+    it("should handle an optional type", () =>
+      expect(schema.properties!["optional"]).toEqual({
+        type: "object",
         properties: {
           a: {
-            type: 'number',
+            type: "number",
           },
           b: {
-            type: 'string',
+            type: "string",
           },
         },
-      }))
+      }));
 
-    it('should handle a deep object', () =>
-      expect(schema.properties!['deep']).toEqual({
-        type: 'object',
+    it("should handle a deep object", () =>
+      expect(schema.properties!["deep"]).toEqual({
+        type: "object",
         properties: {
           a: {
-            type: 'object',
+            type: "object",
             properties: {
               b: {
-                type: 'object',
+                type: "object",
                 properties: {
                   c: {
-                    type: 'number',
+                    type: "number",
                   },
                 },
               },
             },
           },
         },
-      }))
+      }));
 
-    it('should handle a union of mixed types', () =>
-      expect(schema.properties!['unionMixed']).toEqual({
+    it("should handle a union of mixed types", () =>
+      expect(schema.properties!["unionMixed"]).toEqual({
         anyOf: [
           {
-            type: 'string',
+            type: "string",
           },
           {
-            type: 'number',
+            type: "number",
           },
           {
-            type: 'boolean',
+            type: "boolean",
           },
         ],
-      }))
+      }));
 
-    it('should handle a never type', () =>
-      expect(schema.properties!['Never']).toEqual({
-        type: 'null',
-        description: 'TODO this type is not handled yet: NeverKeyword',
-      }))
+    it("should handle a never type", () =>
+      expect(schema.properties!["Never"]).toEqual({
+        type: "null",
+        description: "TODO this type is not handled yet: NeverKeyword",
+      }));
   }
-})
+});

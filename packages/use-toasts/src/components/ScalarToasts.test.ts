@@ -1,68 +1,68 @@
 /**
  * @vitest-environment jsdom
  */
-import { mount } from '@vue/test-utils'
-import { describe, expect, it, vi } from 'vitest'
-import { nextTick } from 'vue'
-import { toast } from 'vue-sonner'
+import { mount } from "@vue/test-utils";
+import { describe, expect, it, vi } from "vite-plus/test";
+import { nextTick } from "vue";
+import { toast } from "vue-sonner";
 
-import { useToasts } from '../hooks/useToasts'
-import ScalarToasts from './ScalarToasts.vue'
+import { useToasts } from "../hooks/useToasts";
+import ScalarToasts from "./ScalarToasts.vue";
 
-vi.mock(import('../hooks/useToasts'), () => ({
+vi.mock(import("../hooks/useToasts"), () => ({
   initializeToasts: vi.fn(),
   useToasts: vi.fn(() => ({
     initializeToasts: vi.fn(),
     toast: vi.fn(),
   })),
-}))
+}));
 
-vi.mock(import('vue-sonner'), async (importOriginal) => ({
+vi.mock(import("vue-sonner"), async (importOriginal) => ({
   ...(await importOriginal()),
   toast: vi.fn() as unknown as typeof toast,
-}))
+}));
 
-describe('ScalarToasts', () => {
-  it('should not render Toaster before mount', () => {
-    const wrapper = mount(ScalarToasts)
-    expect(wrapper.find('.scalar-toaster').exists()).toBe(false)
-  })
+describe("ScalarToasts", () => {
+  it("should not render Toaster before mount", () => {
+    const wrapper = mount(ScalarToasts);
+    expect(wrapper.find(".scalar-toaster").exists()).toBe(false);
+  });
 
-  it('should render Toaster after mount', async () => {
-    const wrapper = mount(ScalarToasts)
-    await nextTick()
-    expect(wrapper.find('.scalar-toaster').exists()).toBe(true)
-  })
+  it("should render Toaster after mount", async () => {
+    const wrapper = mount(ScalarToasts);
+    await nextTick();
+    expect(wrapper.find(".scalar-toaster").exists()).toBe(true);
+  });
 
-  it('should initialize toasts with correct parameters', () => {
-    const mockInitializeToasts = vi.fn()
+  it("should initialize toasts with correct parameters", () => {
+    const mockInitializeToasts = vi.fn();
     vi.mocked(useToasts).mockImplementation(() => ({
       initializeToasts: mockInitializeToasts,
       toast: vi.fn(),
-    }))
+    }));
 
-    mount(ScalarToasts)
+    mount(ScalarToasts);
 
-    expect(mockInitializeToasts).toHaveBeenCalledTimes(1)
+    expect(mockInitializeToasts).toHaveBeenCalledTimes(1);
 
     // Get the callback function passed to initializeToasts
-    const toastCallback = mockInitializeToasts?.mock.calls?.[0]?.[0]
+    const toastCallback = mockInitializeToasts?.mock.calls?.[0]?.[0];
 
     // Test default parameters
-    toastCallback('Test message')
-    expect(vi.mocked(toast)).toHaveBeenCalledWith('Test message', {
+    toastCallback("Test message");
+    expect(vi.mocked(toast)).toHaveBeenCalledWith("Test message", {
       duration: 3000,
       description: undefined,
-    })
+    });
 
     // Test with custom parameters
-    toastCallback('Error message', 'error', {
+    toastCallback("Error message", "error", {
       timeout: 5000,
-      description: 'Details',
-    })
-    expect(vi.mocked(toast)).toHaveBeenCalledWith('Error message', {
+      description: "Details",
+    });
+    expect(vi.mocked(toast)).toHaveBeenCalledWith("Error message", {
       duration: 5000,
-      description: 'Details',
-    })
-  })
-})
+      description: "Details",
+    });
+  });
+});

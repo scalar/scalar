@@ -1,34 +1,36 @@
-import type { WorkspaceStore } from '@scalar/workspace-store/client'
-import type { WorkspaceDocument } from '@scalar/workspace-store/schemas/workspace'
-import { flushPromises, mount } from '@vue/test-utils'
-import { describe, expect, it, vi } from 'vitest'
-import { createRouter, createWebHistory } from 'vue-router'
+import type { WorkspaceStore } from "@scalar/workspace-store/client";
+import type { WorkspaceDocument } from "@scalar/workspace-store/schemas/workspace";
+import { flushPromises, mount } from "@vue/test-utils";
+import { describe, expect, it, vi } from "vite-plus/test";
+import { createRouter, createWebHistory } from "vue-router";
 
-import { ROUTES } from '@/v2/features/app/helpers/routes'
-import { mockEventBus } from '@/v2/helpers/test-utils'
+import { ROUTES } from "@/v2/features/app/helpers/routes";
+import { mockEventBus } from "@/v2/helpers/test-utils";
 
-import DocumentCollection from './DocumentCollection.vue'
+import DocumentCollection from "./DocumentCollection.vue";
 
 /**
  * Critical tests for DocumentCollection component
  * Tests focus on document rendering, fallback states, routing integration, and prop handling
  */
-describe('DocumentCollection', () => {
-  const createMockDocument = (overrides?: Partial<WorkspaceDocument>): WorkspaceDocument =>
+describe("DocumentCollection", () => {
+  const createMockDocument = (
+    overrides?: Partial<WorkspaceDocument>,
+  ): WorkspaceDocument =>
     ({
-      uid: 'test-doc-123',
+      uid: "test-doc-123",
       info: {
-        title: 'Test API Document',
-        version: '1.0.0',
+        title: "Test API Document",
+        version: "1.0.0",
       },
-      'x-scalar-client-config-icon': 'interface-content-folder',
+      "x-scalar-client-config-icon": "interface-content-folder",
       ...overrides,
-    }) as WorkspaceDocument
+    }) as WorkspaceDocument;
 
   const createMockWorkspaceStore = (): WorkspaceStore =>
     ({
       workspace: {
-        uid: 'workspace-123',
+        uid: "workspace-123",
         documents: {},
       },
       update: vi.fn(),
@@ -36,43 +38,46 @@ describe('DocumentCollection', () => {
       saveDocument: vi.fn(),
       rebaseDocument: vi.fn().mockResolvedValue({
         ok: false,
-        type: 'NO_CHANGES_DETECTED',
-        message: 'No changes detected',
+        type: "NO_CHANGES_DETECTED",
+        message: "No changes detected",
       }),
-    }) as unknown as WorkspaceStore
+    }) as unknown as WorkspaceStore;
 
   const createRouterInstance = () => {
     return createRouter({
       history: createWebHistory(),
       routes: ROUTES,
-    })
-  }
+    });
+  };
 
-  const mountWithRouter = async (document: WorkspaceDocument | null, extraProps?: Record<string, unknown>) => {
-    const router = createRouterInstance()
-    const workspaceStore = createMockWorkspaceStore()
+  const mountWithRouter = async (
+    document: WorkspaceDocument | null,
+    extraProps?: Record<string, unknown>,
+  ) => {
+    const router = createRouterInstance();
+    const workspaceStore = createMockWorkspaceStore();
 
     await router.push({
-      name: 'document.overview',
+      name: "document.overview",
       params: {
-        namespace: 'local',
-        workspaceSlug: 'test-workspace',
-        documentSlug: 'test-document',
+        namespace: "local",
+        workspaceSlug: "test-workspace",
+        documentSlug: "test-document",
       },
-    })
+    });
 
     const wrapper = mount(DocumentCollection, {
       props: {
         document,
         securitySchemes: {},
         eventBus: mockEventBus,
-        layout: 'desktop' as any,
+        layout: "desktop" as any,
         environment: {} as any,
         workspaceStore,
-        documentSlug: 'test-document',
+        documentSlug: "test-document",
         activeWorkspace: {
-          id: 'test-workspace',
-          label: 'Test Workspace',
+          id: "test-workspace",
+          label: "Test Workspace",
         },
         plugins: [],
         ...extraProps,
@@ -80,159 +85,166 @@ describe('DocumentCollection', () => {
       global: {
         plugins: [router],
       },
-    })
+    });
 
-    await router.isReady()
+    await router.isReady();
 
-    return { wrapper, router, eventBus: mockEventBus, workspaceStore }
-  }
+    return { wrapper, router, eventBus: mockEventBus, workspaceStore };
+  };
 
-  it('renders document with title and icon when document is provided', async () => {
+  it("renders document with title and icon when document is provided", async () => {
     const document = createMockDocument({
-      info: { title: 'My API', version: '1.0.0' },
-      'x-scalar-icon': 'interface-content-book',
-    })
+      info: { title: "My API", version: "1.0.0" },
+      "x-scalar-icon": "interface-content-book",
+    });
 
-    const { wrapper } = await mountWithRouter(document)
+    const { wrapper } = await mountWithRouter(document);
 
     /** Verify the main document view is rendered */
-    expect(wrapper.find('[aria-label="title: My API"]').exists()).toBe(true)
+    expect(wrapper.find('[aria-label="title: My API"]').exists()).toBe(true);
 
     /** Verify tabs component is rendered */
-    const tabs = wrapper.findComponent({ name: 'Tabs' })
-    expect(tabs.exists()).toBe(true)
-    expect(tabs.props('type')).toBe('document')
-  })
+    const tabs = wrapper.findComponent({ name: "Tabs" });
+    expect(tabs.exists()).toBe(true);
+    expect(tabs.props("type")).toBe("document");
+  });
 
   it('displays "Document not found" message when document is null', async () => {
-    const { wrapper } = await mountWithRouter(null)
+    const { wrapper } = await mountWithRouter(null);
 
     /** Verify error message is displayed */
-    expect(wrapper.text()).toContain('Document not found')
-    expect(wrapper.text()).toContain('The document you are looking for does not exist.')
+    expect(wrapper.text()).toContain("Document not found");
+    expect(wrapper.text()).toContain(
+      "The document you are looking for does not exist.",
+    );
 
     /** Verify main document UI is not rendered */
-    expect(wrapper.find('[aria-label]').exists()).toBe(false)
-    const tabs = wrapper.findComponent({ name: 'Tabs' })
-    expect(tabs.exists()).toBe(false)
-  })
+    expect(wrapper.find("[aria-label]").exists()).toBe(false);
+    const tabs = wrapper.findComponent({ name: "Tabs" });
+    expect(tabs.exists()).toBe(false);
+  });
 
-  it('passes correct props to child components', async () => {
+  it("passes correct props to child components", async () => {
     const document = createMockDocument({
-      info: { title: 'Production API', version: '2.0.0' },
-    })
+      info: { title: "Production API", version: "2.0.0" },
+    });
 
-    const { wrapper } = await mountWithRouter(document)
+    const { wrapper } = await mountWithRouter(document);
 
     /** Verify IconSelector receives the correct icon */
-    const iconSelector = wrapper.findComponent({ name: 'IconSelector' })
-    expect(iconSelector.exists()).toBe(true)
-    expect(iconSelector.props('modelValue')).toBe('interface-content-folder')
-    expect(iconSelector.props('placement')).toBe('bottom-start')
+    const iconSelector = wrapper.findComponent({ name: "IconSelector" });
+    expect(iconSelector.exists()).toBe(true);
+    expect(iconSelector.props("modelValue")).toBe("interface-content-folder");
+    expect(iconSelector.props("placement")).toBe("bottom-start");
 
     /** Verify LabelInput receives the correct title */
-    const labelInput = wrapper.findComponent({ name: 'LabelInput' })
-    expect(labelInput.exists()).toBe(true)
-    expect(labelInput.props('modelValue')).toBe('Production API')
+    const labelInput = wrapper.findComponent({ name: "LabelInput" });
+    expect(labelInput.exists()).toBe(true);
+    expect(labelInput.props("modelValue")).toBe("Production API");
 
     /** Verify RouterView receives correct props */
-    const routerView = wrapper.findComponent({ name: 'RouterView' })
-    expect(routerView.exists()).toBe(true)
-  })
+    const routerView = wrapper.findComponent({ name: "RouterView" });
+    expect(routerView.exists()).toBe(true);
+  });
 
-  it('handles icon update events correctly', async () => {
-    const document = createMockDocument()
-    const { wrapper, eventBus } = await mountWithRouter(document)
+  it("handles icon update events correctly", async () => {
+    const document = createMockDocument();
+    const { wrapper, eventBus } = await mountWithRouter(document);
 
-    const iconSelector = wrapper.findComponent({ name: 'IconSelector' })
-    expect(iconSelector.exists()).toBe(true)
+    const iconSelector = wrapper.findComponent({ name: "IconSelector" });
+    expect(iconSelector.exists()).toBe(true);
 
     /** Simulate IconSelector emitting an update */
-    await iconSelector.vm.$emit('update:modelValue', 'interface-content-star')
+    await iconSelector.vm.$emit("update:modelValue", "interface-content-star");
 
     /** Verify the event was passed to the eventBus */
-    expect(eventBus.emit).toHaveBeenCalledWith('document:update:icon', 'interface-content-star')
-  })
+    expect(eventBus.emit).toHaveBeenCalledWith(
+      "document:update:icon",
+      "interface-content-star",
+    );
+  });
 
-  it('uses empty string values when document info is missing or incomplete', async () => {
+  it("uses empty string values when document info is missing or incomplete", async () => {
     const document = createMockDocument({
       info: undefined,
-      'x-scalar-client-config-icon': undefined,
-    } as any)
+      "x-scalar-client-config-icon": undefined,
+    } as any);
 
-    const { wrapper } = await mountWithRouter(document)
+    const { wrapper } = await mountWithRouter(document);
 
-    const labelInput = wrapper.findComponent({ name: 'LabelInput' })
-    expect(labelInput.find('input')?.element.placeholder).toBe('Untitled Document')
+    const labelInput = wrapper.findComponent({ name: "LabelInput" });
+    expect(labelInput.find("input")?.element.placeholder).toBe(
+      "Untitled Document",
+    );
 
     /** Verify default icon is used */
-    const iconSelector = wrapper.findComponent({ name: 'IconSelector' })
-    expect(iconSelector.props('modelValue')).toBe('interface-content-folder')
-  })
+    const iconSelector = wrapper.findComponent({ name: "IconSelector" });
+    expect(iconSelector.props("modelValue")).toBe("interface-content-folder");
+  });
 
-  it('opens sync modal and runs document sync when Sync is clicked (source URL)', async () => {
+  it("opens sync modal and runs document sync when Sync is clicked (source URL)", async () => {
     const document = createMockDocument({
-      info: { title: 'Synced API', version: '1.0.0' },
-      'x-scalar-original-source-url': 'https://example.com/openapi.yaml',
-    })
+      info: { title: "Synced API", version: "1.0.0" },
+      "x-scalar-original-source-url": "https://example.com/openapi.yaml",
+    });
 
-    const { wrapper, workspaceStore } = await mountWithRouter(document)
+    const { wrapper, workspaceStore } = await mountWithRouter(document);
 
-    const syncButton = wrapper.find('[data-testid="document-sync-button"]')
-    expect(syncButton.exists()).toBe(true)
+    const syncButton = wrapper.find('[data-testid="document-sync-button"]');
+    expect(syncButton.exists()).toBe(true);
 
-    await syncButton.trigger('click')
-    await flushPromises()
+    await syncButton.trigger("click");
+    await flushPromises();
 
     expect(workspaceStore.rebaseDocument).toHaveBeenCalledWith({
-      name: 'test-document',
-      url: 'https://example.com/openapi.yaml',
-    })
-  })
+      name: "test-document",
+      url: "https://example.com/openapi.yaml",
+    });
+  });
 
-  it('shows Sync button when document has registry meta only', async () => {
+  it("shows Sync button when document has registry meta only", async () => {
     const document = createMockDocument({
-      info: { title: 'Registry API', version: '1.0.0' },
-      'x-scalar-registry-meta': { namespace: 'team', slug: 'my-api' },
-    })
+      info: { title: "Registry API", version: "1.0.0" },
+      "x-scalar-registry-meta": { namespace: "team", slug: "my-api" },
+    });
 
-    const { wrapper } = await mountWithRouter(document)
+    const { wrapper } = await mountWithRouter(document);
 
-    const syncButton = wrapper.find('[data-testid="document-sync-button"]')
-    expect(syncButton.exists()).toBe(true)
-  })
+    const syncButton = wrapper.find('[data-testid="document-sync-button"]');
+    expect(syncButton.exists()).toBe(true);
+  });
 
-  it('uses document from fetchRegistryDocument when registry meta is present (registry over URL)', async () => {
+  it("uses document from fetchRegistryDocument when registry meta is present (registry over URL)", async () => {
     const registryDocument = {
-      openapi: '3.1.0',
-      info: { title: 'Registry API', version: '1.0.0' },
+      openapi: "3.1.0",
+      info: { title: "Registry API", version: "1.0.0" },
       paths: {},
-    }
+    };
     const fetchRegistryDocument = vi.fn().mockResolvedValue({
       ok: true,
       data: registryDocument,
-    })
+    });
     const document = createMockDocument({
-      info: { title: 'Registry API', version: '1.0.0' },
-      'x-scalar-original-source-url': 'https://example.com/openapi.yaml',
-      'x-scalar-registry-meta': { namespace: 'team', slug: 'my-api' },
-    })
+      info: { title: "Registry API", version: "1.0.0" },
+      "x-scalar-original-source-url": "https://example.com/openapi.yaml",
+      "x-scalar-registry-meta": { namespace: "team", slug: "my-api" },
+    });
 
     const { wrapper, workspaceStore } = await mountWithRouter(document, {
       fetchRegistryDocument,
-    })
+    });
 
-    const syncButton = wrapper.find('[data-testid="document-sync-button"]')
-    await syncButton.trigger('click')
-    await flushPromises()
+    const syncButton = wrapper.find('[data-testid="document-sync-button"]');
+    await syncButton.trigger("click");
+    await flushPromises();
 
     expect(fetchRegistryDocument).toHaveBeenCalledWith({
-      namespace: 'team',
-      slug: 'my-api',
-    })
+      namespace: "team",
+      slug: "my-api",
+    });
     expect(workspaceStore.rebaseDocument).toHaveBeenCalledWith({
-      name: 'test-document',
+      name: "test-document",
       document: registryDocument,
-    })
-  })
-})
+    });
+  });
+});

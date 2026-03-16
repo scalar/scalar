@@ -1,65 +1,65 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from "vite-plus/test";
 
-import { normalizeMimeTypeObject } from './normalize-mime-type-object'
+import { normalizeMimeTypeObject } from "./normalize-mime-type-object";
 
-describe('normalizeMimeTypeObject', () => {
-  it('removes charset', () => {
+describe("normalizeMimeTypeObject", () => {
+  it("removes charset", () => {
     const content = {
-      'application/json; charset=utf-8': {},
-    }
+      "application/json; charset=utf-8": {},
+    };
 
     expect(normalizeMimeTypeObject(content)).toMatchObject({
-      'application/json': {},
-    })
-  })
+      "application/json": {},
+    });
+  });
 
-  it('removes semicolon', () => {
+  it("removes semicolon", () => {
     const content = {
-      'application/json;': {},
-    }
+      "application/json;": {},
+    };
 
     expect(normalizeMimeTypeObject(content)).toMatchObject({
-      'application/json': {},
-    })
-  })
+      "application/json": {},
+    });
+  });
 
-  it('removes whitespace', () => {
+  it("removes whitespace", () => {
     const content = {
-      ' application/json ': {},
-    }
+      " application/json ": {},
+    };
 
     expect(normalizeMimeTypeObject(content)).toMatchObject({
-      'application/json': {},
-    })
-  })
+      "application/json": {},
+    });
+  });
 
-  it('removes mimetype variants', () => {
+  it("removes mimetype variants", () => {
     const content = {
-      'application/problem+json': {},
-    }
+      "application/problem+json": {},
+    };
 
     expect(normalizeMimeTypeObject(content)).toMatchObject({
-      'application/json': {},
-    })
-  })
+      "application/json": {},
+    });
+  });
 
-  it('removes mimetype variants with special characters', () => {
+  it("removes mimetype variants with special characters", () => {
     const content = {
-      'application/problem+json': {},
-    }
+      "application/problem+json": {},
+    };
 
     expect(normalizeMimeTypeObject(content)).toMatchObject({
-      'application/json': {},
-    })
-  })
+      "application/json": {},
+    });
+  });
 
-  it('removes all the clutter', () => {
+  it("removes all the clutter", () => {
     const content = {
-      'application/problem-foobar+json; charset=utf-8': {},
-    }
+      "application/problem-foobar+json; charset=utf-8": {},
+    };
 
     expect(normalizeMimeTypeObject(content)).toMatchObject({
-      'application/json': {},
-    })
-  })
-})
+      "application/json": {},
+    });
+  });
+});

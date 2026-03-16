@@ -1,13 +1,13 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from "vite-plus/test";
 
-import { validate } from '../../../../src/index'
-import schema from './schema.yaml?raw'
+import { validate } from "../../../../src/index";
+import schema from "./schema.yaml?raw";
 
-describe('schema', () => {
-  it('passes', async () => {
-    const result = await validate(schema)
-    expect(result.errors).toStrictEqual([])
-    expect(result.valid).toBe(true)
-    expect(result.version).toBe('3.1')
-  })
-})
+describe("schema", () => {
+  it("passes", async () => {
+    const result = await validate(schema);
+    expect(result.errors).toStrictEqual([]);
+    expect(result.valid).toBe(true);
+    expect(result.version).toBe("3.1");
+  });
+});

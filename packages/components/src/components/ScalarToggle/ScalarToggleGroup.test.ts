@@ -1,5 +1,5 @@
 import { mount } from '@vue/test-utils'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vite-plus/test'
 
 import ScalarToggleGroup from './ScalarToggleGroup.vue'
 
@@ -37,7 +37,9 @@ describe('ScalarToggleGroup', () => {
 
     // Unselect one and verify removal
     await toggles[0]?.trigger('click')
-    const after = wrapper.emitted('update:modelValue')?.at(-1)?.[0] as Array<{ value: string }>
+    const after = wrapper.emitted('update:modelValue')?.at(-1)?.[0] as Array<{
+      value: string
+    }>
     expect(after.map((o) => o.value)).toEqual(['green'])
   })
 })

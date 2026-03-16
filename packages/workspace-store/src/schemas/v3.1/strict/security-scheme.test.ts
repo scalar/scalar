@@ -1,291 +1,314 @@
-import type { Static } from '@scalar/typebox'
-import { Value } from '@scalar/typebox/value'
-import type { RequiredDeep } from 'type-fest'
-import { describe, expect, it } from 'vitest'
+import type { Static } from "@scalar/typebox";
+import { Value } from "@scalar/typebox/value";
+import type { RequiredDeep } from "type-fest";
+import { describe, expect, it } from "vite-plus/test";
 
-import { coerceValue } from '@/schemas/typebox-coerce'
+import { coerceValue } from "@/schemas/typebox-coerce";
 
-import { type SecuritySchemeObject, SecuritySchemeObjectSchema } from './openapi-document'
+import {
+  type SecuritySchemeObject,
+  SecuritySchemeObjectSchema,
+} from "./openapi-document";
 
-describe('security-scheme', () => {
-  describe('strict type checking', () => {
-    it('performs deep type checking on all schemas', () => {
-      type SchemaType = RequiredDeep<Static<typeof SecuritySchemeObjectSchema>>
-      type TypescriptType = RequiredDeep<SecuritySchemeObject>
+describe("security-scheme", () => {
+  describe("strict type checking", () => {
+    it("performs deep type checking on all schemas", () => {
+      type SchemaType = RequiredDeep<Static<typeof SecuritySchemeObjectSchema>>;
+      type TypescriptType = RequiredDeep<SecuritySchemeObject>;
 
-      const _test: SchemaType = {} as TypescriptType
-      const _test2: TypescriptType = {} as SchemaType
-      expect(_test).toEqual(_test2)
-    })
-  })
+      const _test: SchemaType = {} as TypescriptType;
+      const _test2: TypescriptType = {} as SchemaType;
+      expect(_test).toEqual(_test2);
+    });
+  });
 
-  describe('value checking', () => {
-    describe('ApiKey security scheme', () => {
-      it('parses valid apiKey security scheme with all properties correctly', () => {
+  describe("value checking", () => {
+    describe("ApiKey security scheme", () => {
+      it("parses valid apiKey security scheme with all properties correctly", () => {
         const validInput = {
-          type: 'apiKey',
-          name: 'X-API-Key',
-          in: 'header',
-          description: 'API key for authentication',
-        }
+          type: "apiKey",
+          name: "X-API-Key",
+          in: "header",
+          description: "API key for authentication",
+        };
 
-        const result = coerceValue(SecuritySchemeObjectSchema, validInput)
+        const result = coerceValue(SecuritySchemeObjectSchema, validInput);
 
         expect(result).toEqual({
-          type: 'apiKey',
-          name: 'X-API-Key',
-          in: 'header',
-          description: 'API key for authentication',
-        })
-      })
+          type: "apiKey",
+          name: "X-API-Key",
+          in: "header",
+          description: "API key for authentication",
+        });
+      });
 
-      it('parses valid apiKey security scheme with minimal properties correctly', () => {
+      it("parses valid apiKey security scheme with minimal properties correctly", () => {
         const validInput = {
-          type: 'apiKey',
-          name: 'api_key',
-          in: 'query',
-        }
+          type: "apiKey",
+          name: "api_key",
+          in: "query",
+        };
 
-        const result = coerceValue(SecuritySchemeObjectSchema, validInput)
+        const result = coerceValue(SecuritySchemeObjectSchema, validInput);
 
         expect(result).toEqual({
-          type: 'apiKey',
-          name: 'api_key',
-          in: 'query',
-        })
-      })
+          type: "apiKey",
+          name: "api_key",
+          in: "query",
+        });
+      });
 
-      it('parses valid apiKey security scheme in cookie correctly', () => {
+      it("parses valid apiKey security scheme in cookie correctly", () => {
         const validInput = {
-          type: 'apiKey',
-          name: 'session_id',
-          in: 'cookie',
-          description: 'Session cookie for authentication',
-        }
+          type: "apiKey",
+          name: "session_id",
+          in: "cookie",
+          description: "Session cookie for authentication",
+        };
 
-        const result = coerceValue(SecuritySchemeObjectSchema, validInput)
+        const result = coerceValue(SecuritySchemeObjectSchema, validInput);
 
         expect(result).toEqual({
-          type: 'apiKey',
-          name: 'session_id',
-          in: 'cookie',
-          description: 'Session cookie for authentication',
-        })
-      })
-    })
+          type: "apiKey",
+          name: "session_id",
+          in: "cookie",
+          description: "Session cookie for authentication",
+        });
+      });
+    });
 
-    describe('HTTP security scheme', () => {
-      it('parses valid http security scheme with all properties correctly', () => {
+    describe("HTTP security scheme", () => {
+      it("parses valid http security scheme with all properties correctly", () => {
         const validInput = {
-          type: 'http',
-          scheme: 'bearer',
-          bearerFormat: 'JWT',
-          description: 'Bearer token authentication',
-        }
+          type: "http",
+          scheme: "bearer",
+          bearerFormat: "JWT",
+          description: "Bearer token authentication",
+        };
 
-        const result = coerceValue(SecuritySchemeObjectSchema, validInput)
+        const result = coerceValue(SecuritySchemeObjectSchema, validInput);
 
         expect(result).toEqual({
-          type: 'http',
-          scheme: 'bearer',
-          bearerFormat: 'JWT',
-          description: 'Bearer token authentication',
-        })
-      })
+          type: "http",
+          scheme: "bearer",
+          bearerFormat: "JWT",
+          description: "Bearer token authentication",
+        });
+      });
 
-      it('parses valid http security scheme with minimal properties correctly', () => {
+      it("parses valid http security scheme with minimal properties correctly", () => {
         const validInput = {
-          type: 'http',
-          scheme: 'basic',
-        }
+          type: "http",
+          scheme: "basic",
+        };
 
-        const result = coerceValue(SecuritySchemeObjectSchema, validInput)
+        const result = coerceValue(SecuritySchemeObjectSchema, validInput);
 
         expect(result).toEqual({
-          type: 'http',
-          scheme: 'basic',
-        })
-      })
-    })
+          type: "http",
+          scheme: "basic",
+        });
+      });
+    });
 
-    describe('OAuth2 security scheme', () => {
-      it('parses valid oauth2 security scheme with all properties correctly', () => {
+    describe("OAuth2 security scheme", () => {
+      it("parses valid oauth2 security scheme with all properties correctly", () => {
         const validInput = {
-          type: 'oauth2',
-          description: 'OAuth2 authentication',
+          type: "oauth2",
+          description: "OAuth2 authentication",
           flows: {
             implicit: {
-              authorizationUrl: 'https://example.com/oauth/authorize',
+              authorizationUrl: "https://example.com/oauth/authorize",
               scopes: {
-                read: 'Read access',
-                write: 'Write access',
+                read: "Read access",
+                write: "Write access",
               },
             },
           },
-        }
+        };
 
-        const result = coerceValue(SecuritySchemeObjectSchema, validInput)
+        const result = coerceValue(SecuritySchemeObjectSchema, validInput);
 
         expect(result).toEqual({
-          type: 'oauth2',
-          description: 'OAuth2 authentication',
+          type: "oauth2",
+          description: "OAuth2 authentication",
           flows: {
             implicit: {
-              authorizationUrl: 'https://example.com/oauth/authorize',
-              refreshUrl: '',
+              authorizationUrl: "https://example.com/oauth/authorize",
+              refreshUrl: "",
               scopes: {
-                read: 'Read access',
-                write: 'Write access',
+                read: "Read access",
+                write: "Write access",
               },
             },
           },
-        })
-      })
+        });
+      });
 
-      it('parses valid oauth2 security scheme with multiple flows correctly', () => {
+      it("parses valid oauth2 security scheme with multiple flows correctly", () => {
         const validInput = {
-          type: 'oauth2',
+          type: "oauth2",
           flows: {
             authorizationCode: {
-              authorizationUrl: 'https://example.com/oauth/authorize',
-              tokenUrl: 'https://example.com/oauth/token',
+              authorizationUrl: "https://example.com/oauth/authorize",
+              tokenUrl: "https://example.com/oauth/token",
               scopes: {
-                admin: 'Admin access',
-                user: 'User access',
+                admin: "Admin access",
+                user: "User access",
               },
             },
             password: {
-              tokenUrl: 'https://example.com/oauth/token',
+              tokenUrl: "https://example.com/oauth/token",
               scopes: {
-                read: 'Read access',
+                read: "Read access",
               },
             },
           },
-        }
+        };
 
-        const result = coerceValue(SecuritySchemeObjectSchema, validInput)
+        const result = coerceValue(SecuritySchemeObjectSchema, validInput);
 
         expect(result).toEqual({
-          type: 'oauth2',
+          type: "oauth2",
           flows: {
             authorizationCode: {
-              authorizationUrl: 'https://example.com/oauth/authorize',
-              refreshUrl: '',
-              tokenUrl: 'https://example.com/oauth/token',
+              authorizationUrl: "https://example.com/oauth/authorize",
+              refreshUrl: "",
+              tokenUrl: "https://example.com/oauth/token",
               scopes: {
-                admin: 'Admin access',
-                user: 'User access',
+                admin: "Admin access",
+                user: "User access",
               },
-              'x-usePkce': 'no',
+              "x-usePkce": "no",
             },
             password: {
-              refreshUrl: '',
-              tokenUrl: 'https://example.com/oauth/token',
+              refreshUrl: "",
+              tokenUrl: "https://example.com/oauth/token",
               scopes: {
-                read: 'Read access',
+                read: "Read access",
               },
             },
           },
-        })
-      })
-    })
+        });
+      });
+    });
 
-    describe('OpenID Connect security scheme', () => {
-      it('parses valid openIdConnect security scheme with all properties correctly', () => {
+    describe("OpenID Connect security scheme", () => {
+      it("parses valid openIdConnect security scheme with all properties correctly", () => {
         const validInput = {
-          type: 'openIdConnect',
-          openIdConnectUrl: 'https://example.com/.well-known/openid-configuration',
-          description: 'OpenID Connect authentication',
-        }
+          type: "openIdConnect",
+          openIdConnectUrl:
+            "https://example.com/.well-known/openid-configuration",
+          description: "OpenID Connect authentication",
+        };
 
-        const result = coerceValue(SecuritySchemeObjectSchema, validInput)
+        const result = coerceValue(SecuritySchemeObjectSchema, validInput);
 
         expect(result).toEqual({
-          type: 'openIdConnect',
-          openIdConnectUrl: 'https://example.com/.well-known/openid-configuration',
-          description: 'OpenID Connect authentication',
-        })
-      })
+          type: "openIdConnect",
+          openIdConnectUrl:
+            "https://example.com/.well-known/openid-configuration",
+          description: "OpenID Connect authentication",
+        });
+      });
 
-      it('parses valid openIdConnect security scheme with minimal properties correctly', () => {
+      it("parses valid openIdConnect security scheme with minimal properties correctly", () => {
         const validInput = {
-          type: 'openIdConnect',
-          openIdConnectUrl: 'https://accounts.google.com/.well-known/openid-configuration',
-        }
+          type: "openIdConnect",
+          openIdConnectUrl:
+            "https://accounts.google.com/.well-known/openid-configuration",
+        };
 
-        const result = coerceValue(SecuritySchemeObjectSchema, validInput)
+        const result = coerceValue(SecuritySchemeObjectSchema, validInput);
 
         expect(result).toEqual({
-          type: 'openIdConnect',
-          openIdConnectUrl: 'https://accounts.google.com/.well-known/openid-configuration',
-        })
-      })
-    })
+          type: "openIdConnect",
+          openIdConnectUrl:
+            "https://accounts.google.com/.well-known/openid-configuration",
+        });
+      });
+    });
 
-    describe('invalid inputs', () => {
-      it('fails when given empty object', () => {
-        const invalidInput = {}
+    describe("invalid inputs", () => {
+      it("fails when given empty object", () => {
+        const invalidInput = {};
 
-        expect(Value.Check(SecuritySchemeObjectSchema, invalidInput)).toBe(false)
-      })
+        expect(Value.Check(SecuritySchemeObjectSchema, invalidInput)).toBe(
+          false,
+        );
+      });
 
-      it('fails when given invalid type', () => {
+      it("fails when given invalid type", () => {
         const invalidInput = {
-          type: 'invalid',
-          name: 'test',
-        }
+          type: "invalid",
+          name: "test",
+        };
 
-        expect(Value.Check(SecuritySchemeObjectSchema, invalidInput)).toBe(false)
-      })
+        expect(Value.Check(SecuritySchemeObjectSchema, invalidInput)).toBe(
+          false,
+        );
+      });
 
-      it('fails when apiKey is missing required fields', () => {
+      it("fails when apiKey is missing required fields", () => {
         const invalidInput = {
-          type: 'apiKey',
-          name: 'test',
+          type: "apiKey",
+          name: "test",
           // missing 'in' field
-        }
+        };
 
-        expect(Value.Check(SecuritySchemeObjectSchema, invalidInput)).toBe(false)
-      })
+        expect(Value.Check(SecuritySchemeObjectSchema, invalidInput)).toBe(
+          false,
+        );
+      });
 
-      it('fails when http is missing required fields', () => {
+      it("fails when http is missing required fields", () => {
         const invalidInput = {
-          type: 'http',
+          type: "http",
           // missing 'scheme' field
-        }
+        };
 
-        expect(Value.Check(SecuritySchemeObjectSchema, invalidInput)).toBe(false)
-      })
+        expect(Value.Check(SecuritySchemeObjectSchema, invalidInput)).toBe(
+          false,
+        );
+      });
 
-      it('fails when oauth2 is missing required fields', () => {
+      it("fails when oauth2 is missing required fields", () => {
         const invalidInput = {
-          type: 'oauth2',
+          type: "oauth2",
           // missing 'flows' field
-        }
+        };
 
-        expect(Value.Check(SecuritySchemeObjectSchema, invalidInput)).toBe(false)
-      })
+        expect(Value.Check(SecuritySchemeObjectSchema, invalidInput)).toBe(
+          false,
+        );
+      });
 
-      it('fails when openIdConnect is missing required fields', () => {
+      it("fails when openIdConnect is missing required fields", () => {
         const invalidInput = {
-          type: 'openIdConnect',
+          type: "openIdConnect",
           // missing 'openIdConnectUrl' field
-        }
+        };
 
-        expect(Value.Check(SecuritySchemeObjectSchema, invalidInput)).toBe(false)
-      })
+        expect(Value.Check(SecuritySchemeObjectSchema, invalidInput)).toBe(
+          false,
+        );
+      });
 
-      it('fails when given non-object input', () => {
-        const invalidInput = 'not an object'
+      it("fails when given non-object input", () => {
+        const invalidInput = "not an object";
 
-        expect(Value.Check(SecuritySchemeObjectSchema, invalidInput)).toBe(false)
-      })
+        expect(Value.Check(SecuritySchemeObjectSchema, invalidInput)).toBe(
+          false,
+        );
+      });
 
-      it('fails when given null input', () => {
-        const invalidInput = null
+      it("fails when given null input", () => {
+        const invalidInput = null;
 
-        expect(Value.Check(SecuritySchemeObjectSchema, invalidInput)).toBe(false)
-      })
-    })
-  })
-})
+        expect(Value.Check(SecuritySchemeObjectSchema, invalidInput)).toBe(
+          false,
+        );
+      });
+    });
+  });
+});

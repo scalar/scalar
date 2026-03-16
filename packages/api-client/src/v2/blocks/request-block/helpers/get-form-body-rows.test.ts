@@ -1,276 +1,328 @@
-import type { ExampleObject, SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import { assert, describe, expect, it } from 'vitest'
+import type {
+  ExampleObject,
+  SchemaObject,
+} from "@scalar/workspace-store/schemas/v3.1/strict/openapi-document";
+import { assert, describe, expect, it } from "vite-plus/test";
 
-import { getFormBodyRows } from './get-form-body-rows'
+import { getFormBodyRows } from "./get-form-body-rows";
 
-describe('getFormBodyRows', () => {
-  it('returns empty array when example is null, undefined, or missing value', () => {
-    expect(getFormBodyRows(null, 'multipart/form-data')).toEqual([])
-    expect(getFormBodyRows(undefined, 'multipart/form-data')).toEqual([])
+describe("getFormBodyRows", () => {
+  it("returns empty array when example is null, undefined, or missing value", () => {
+    expect(getFormBodyRows(null, "multipart/form-data")).toEqual([]);
+    expect(getFormBodyRows(undefined, "multipart/form-data")).toEqual([]);
 
-    const exampleWithoutValue: ExampleObject = {}
-    const exampleWithNullValue: ExampleObject = { value: null }
-    const exampleWithUndefinedValue: ExampleObject = { value: undefined }
-    const exampleWithFalsyValue: ExampleObject = { value: false }
+    const exampleWithoutValue: ExampleObject = {};
+    const exampleWithNullValue: ExampleObject = { value: null };
+    const exampleWithUndefinedValue: ExampleObject = { value: undefined };
+    const exampleWithFalsyValue: ExampleObject = { value: false };
 
-    expect(getFormBodyRows(exampleWithoutValue, 'multipart/form-data')).toEqual([])
-    expect(getFormBodyRows(exampleWithNullValue, 'multipart/form-data')).toEqual([])
-    expect(getFormBodyRows(exampleWithUndefinedValue, 'multipart/form-data')).toEqual([])
-    expect(getFormBodyRows(exampleWithFalsyValue, 'multipart/form-data')).toEqual([])
-  })
+    expect(getFormBodyRows(exampleWithoutValue, "multipart/form-data")).toEqual(
+      [],
+    );
+    expect(
+      getFormBodyRows(exampleWithNullValue, "multipart/form-data"),
+    ).toEqual([]);
+    expect(
+      getFormBodyRows(exampleWithUndefinedValue, "multipart/form-data"),
+    ).toEqual([]);
+    expect(
+      getFormBodyRows(exampleWithFalsyValue, "multipart/form-data"),
+    ).toEqual([]);
+  });
 
-  it('returns empty array when contentType is not multipart/form-data or application/x-www-form-urlencoded', () => {
+  it("returns empty array when contentType is not multipart/form-data or application/x-www-form-urlencoded", () => {
     const example: ExampleObject = {
       value: {
-        value: [{ name: 'test', value: 'data', isDisabled: false }],
+        value: [{ name: "test", value: "data", isDisabled: false }],
       },
-    }
+    };
 
-    expect(getFormBodyRows(example, 'application/json')).toEqual([])
-    expect(getFormBodyRows(example, 'application/xml')).toEqual([])
-    expect(getFormBodyRows(example, 'text/plain')).toEqual([])
-    expect(getFormBodyRows(example, 'application/octet-stream')).toEqual([])
-  })
+    expect(getFormBodyRows(example, "application/json")).toEqual([]);
+    expect(getFormBodyRows(example, "application/xml")).toEqual([]);
+    expect(getFormBodyRows(example, "text/plain")).toEqual([]);
+    expect(getFormBodyRows(example, "application/octet-stream")).toEqual([]);
+  });
 
-  it('returns array when example.value is already an array of form rows', () => {
+  it("returns array when example.value is already an array of form rows", () => {
     const formRows = [
-      { name: 'username', value: 'john_doe', isDisabled: false },
-      { name: 'email', value: 'john@example.com', isDisabled: true },
-      { name: 'age', value: '30', isDisabled: false },
-    ]
+      { name: "username", value: "john_doe", isDisabled: false },
+      { name: "email", value: "john@example.com", isDisabled: true },
+      { name: "age", value: "30", isDisabled: false },
+    ];
 
     const example: ExampleObject = {
       value: formRows,
-    }
+    };
 
-    const result = getFormBodyRows(example, 'multipart/form-data')
-    expect(result).toHaveLength(3)
-    expect(result[0]).toEqual({ name: 'username', value: 'john_doe', isDisabled: false })
-    expect(result[1]).toEqual({ name: 'email', value: 'john@example.com', isDisabled: true })
-    expect(result[2]).toEqual({ name: 'age', value: '30', isDisabled: false })
-  })
+    const result = getFormBodyRows(example, "multipart/form-data");
+    expect(result).toHaveLength(3);
+    expect(result[0]).toEqual({
+      name: "username",
+      value: "john_doe",
+      isDisabled: false,
+    });
+    expect(result[1]).toEqual({
+      name: "email",
+      value: "john@example.com",
+      isDisabled: true,
+    });
+    expect(result[2]).toEqual({ name: "age", value: "30", isDisabled: false });
+  });
 
-  it('converts object to array of rows when example.value.value is a plain object', () => {
+  it("converts object to array of rows when example.value.value is a plain object", () => {
     const formDataObject = {
-      username: 'jane_doe',
-      email: 'jane@example.com',
-      age: '25',
-      isActive: 'true',
-    }
+      username: "jane_doe",
+      email: "jane@example.com",
+      age: "25",
+      isActive: "true",
+    };
 
     const example: ExampleObject = {
       value: formDataObject,
-    }
+    };
 
-    const result = getFormBodyRows(example, 'application/x-www-form-urlencoded')
-    expect(result).toHaveLength(4)
+    const result = getFormBodyRows(
+      example,
+      "application/x-www-form-urlencoded",
+    );
+    expect(result).toHaveLength(4);
     expect(result).toEqual([
-      { name: 'username', value: 'jane_doe', isDisabled: false },
-      { name: 'email', value: 'jane@example.com', isDisabled: false },
-      { name: 'age', value: '25', isDisabled: false },
-      { name: 'isActive', value: 'true', isDisabled: false },
-    ])
+      { name: "username", value: "jane_doe", isDisabled: false },
+      { name: "email", value: "jane@example.com", isDisabled: false },
+      { name: "age", value: "25", isDisabled: false },
+      { name: "isActive", value: "true", isDisabled: false },
+    ]);
 
     // Verify it works with both form content types
-    const result2 = getFormBodyRows(example, 'multipart/form-data')
-    expect(result2).toHaveLength(4)
-  })
+    const result2 = getFormBodyRows(example, "multipart/form-data");
+    expect(result2).toHaveLength(4);
+  });
 
-  it('returns empty array for invalid data types: empty arrays, empty objects, primitives, and null', () => {
+  it("returns empty array for invalid data types: empty arrays, empty objects, primitives, and null", () => {
     // Empty array
     const exampleWithEmptyArray: ExampleObject = {
       value: [],
-    }
-    expect(getFormBodyRows(exampleWithEmptyArray, 'multipart/form-data')).toEqual([])
+    };
+    expect(
+      getFormBodyRows(exampleWithEmptyArray, "multipart/form-data"),
+    ).toEqual([]);
 
     // Empty object
     const exampleWithEmptyObject: ExampleObject = {
       value: {},
-    }
-    expect(getFormBodyRows(exampleWithEmptyObject, 'multipart/form-data')).toEqual([])
+    };
+    expect(
+      getFormBodyRows(exampleWithEmptyObject, "multipart/form-data"),
+    ).toEqual([]);
 
     // Non-object, non-array value (string, number, null)
     const exampleWithString: ExampleObject = {
-      value: 'not an object or array',
-    }
-    expect(getFormBodyRows(exampleWithString, 'multipart/form-data')).toEqual([])
+      value: "not an object or array",
+    };
+    expect(getFormBodyRows(exampleWithString, "multipart/form-data")).toEqual(
+      [],
+    );
 
     const exampleWithNumber: ExampleObject = {
       value: 123,
-    }
-    expect(getFormBodyRows(exampleWithNumber, 'multipart/form-data')).toEqual([])
+    };
+    expect(getFormBodyRows(exampleWithNumber, "multipart/form-data")).toEqual(
+      [],
+    );
 
     const exampleWithNullInValue: ExampleObject = {
       value: null,
-    }
-    expect(getFormBodyRows(exampleWithNullInValue, 'multipart/form-data')).toEqual([])
-  })
+    };
+    expect(
+      getFormBodyRows(exampleWithNullInValue, "multipart/form-data"),
+    ).toEqual([]);
+  });
 
-  describe('formBodySchema enrichment', () => {
-    it('attaches schema, description, and isRequired when formBodySchema is an object schema with properties', () => {
+  describe("formBodySchema enrichment", () => {
+    it("attaches schema, description, and isRequired when formBodySchema is an object schema with properties", () => {
       const example: ExampleObject = {
         value: [
-          { name: 'status', value: 'active', isDisabled: false },
-          { name: 'role', value: 'admin', isDisabled: false },
+          { name: "status", value: "active", isDisabled: false },
+          { name: "role", value: "admin", isDisabled: false },
         ],
-      }
+      };
       const formBodySchema: SchemaObject = {
-        type: 'object',
+        type: "object",
         properties: {
           status: {
-            type: 'string',
-            enum: ['active', 'inactive', 'pending'],
-            description: 'User account status',
+            type: "string",
+            enum: ["active", "inactive", "pending"],
+            description: "User account status",
           },
           role: {
-            type: 'string',
-            enum: ['admin', 'user', 'guest'],
-            description: 'User role',
+            type: "string",
+            enum: ["admin", "user", "guest"],
+            description: "User role",
           },
         },
-        required: ['status'],
-      }
+        required: ["status"],
+      };
 
-      const result = getFormBodyRows(example, 'multipart/form-data', formBodySchema)
+      const result = getFormBodyRows(
+        example,
+        "multipart/form-data",
+        formBodySchema,
+      );
 
-      expect(result).toHaveLength(2)
-      assert(result[0])
-      assert(result[1])
+      expect(result).toHaveLength(2);
+      assert(result[0]);
+      assert(result[1]);
 
-      expect(result[0].name).toBe('status')
-      expect(result[0].value).toBe('active')
-      expect(result[0].schema).toBeDefined()
-      expect(result[0].schema?.enum).toEqual(['active', 'inactive', 'pending'])
-      expect(result[0].description).toBe('User account status')
-      expect(result[0].isRequired).toBe(true)
+      expect(result[0].name).toBe("status");
+      expect(result[0].value).toBe("active");
+      expect(result[0].schema).toBeDefined();
+      expect(result[0].schema?.enum).toEqual(["active", "inactive", "pending"]);
+      expect(result[0].description).toBe("User account status");
+      expect(result[0].isRequired).toBe(true);
 
-      expect(result[1].name).toBe('role')
-      expect(result[1].value).toBe('admin')
-      expect(result[1].schema).toBeDefined()
-      expect(result[1].schema?.enum).toEqual(['admin', 'user', 'guest'])
-      expect(result[1].description).toBe('User role')
-      expect(result[1].isRequired).toBe(false)
-    })
+      expect(result[1].name).toBe("role");
+      expect(result[1].value).toBe("admin");
+      expect(result[1].schema).toBeDefined();
+      expect(result[1].schema?.enum).toEqual(["admin", "user", "guest"]);
+      expect(result[1].description).toBe("User role");
+      expect(result[1].isRequired).toBe(false);
+    });
 
-    it('does not attach schema when formBodySchema is undefined', () => {
+    it("does not attach schema when formBodySchema is undefined", () => {
       const example: ExampleObject = {
-        value: [{ name: 'status', value: 'active', isDisabled: false }],
-      }
+        value: [{ name: "status", value: "active", isDisabled: false }],
+      };
 
-      const result = getFormBodyRows(example, 'multipart/form-data')
+      const result = getFormBodyRows(example, "multipart/form-data");
 
-      expect(result).toHaveLength(1)
-      assert(result[0])
-      expect(result[0].name).toBe('status')
-      expect(result[0].value).toBe('active')
-      expect(result[0].schema).toBeUndefined()
-      expect(result[0].description).toBeUndefined()
-      expect(result[0].isRequired).toBeUndefined()
-    })
+      expect(result).toHaveLength(1);
+      assert(result[0]);
+      expect(result[0].name).toBe("status");
+      expect(result[0].value).toBe("active");
+      expect(result[0].schema).toBeUndefined();
+      expect(result[0].description).toBeUndefined();
+      expect(result[0].isRequired).toBeUndefined();
+    });
 
-    it('does not attach schema when formBodySchema is not an object schema', () => {
+    it("does not attach schema when formBodySchema is not an object schema", () => {
       const example: ExampleObject = {
-        value: [{ name: 'status', value: 'active', isDisabled: false }],
-      }
+        value: [{ name: "status", value: "active", isDisabled: false }],
+      };
       const formBodySchema: SchemaObject = {
-        type: 'string',
-        description: 'Not an object',
-      }
+        type: "string",
+        description: "Not an object",
+      };
 
-      const result = getFormBodyRows(example, 'multipart/form-data', formBodySchema)
+      const result = getFormBodyRows(
+        example,
+        "multipart/form-data",
+        formBodySchema,
+      );
 
-      expect(result).toHaveLength(1)
-      assert(result[0])
-      expect(result[0].schema).toBeUndefined()
-      expect(result[0].description).toBeUndefined()
-      expect(result[0].isRequired).toBeUndefined()
-    })
+      expect(result).toHaveLength(1);
+      assert(result[0]);
+      expect(result[0].schema).toBeUndefined();
+      expect(result[0].description).toBeUndefined();
+      expect(result[0].isRequired).toBeUndefined();
+    });
 
-    it('leaves schema undefined for row names not in schema.properties', () => {
+    it("leaves schema undefined for row names not in schema.properties", () => {
       const example: ExampleObject = {
         value: [
-          { name: 'status', value: 'active', isDisabled: false },
-          { name: 'extraField', value: 'foo', isDisabled: false },
+          { name: "status", value: "active", isDisabled: false },
+          { name: "extraField", value: "foo", isDisabled: false },
         ],
-      }
+      };
       const formBodySchema: SchemaObject = {
-        type: 'object',
+        type: "object",
         properties: {
-          status: { type: 'string', enum: ['active', 'inactive'] },
+          status: { type: "string", enum: ["active", "inactive"] },
         },
-        required: ['status'],
-      }
+        required: ["status"],
+      };
 
-      const result = getFormBodyRows(example, 'multipart/form-data', formBodySchema)
+      const result = getFormBodyRows(
+        example,
+        "multipart/form-data",
+        formBodySchema,
+      );
 
-      assert(result[0])
-      assert(result[1])
+      assert(result[0]);
+      assert(result[1]);
 
-      expect(result[0].schema).toBeDefined()
-      expect(result[0].schema?.enum).toEqual(['active', 'inactive'])
-      expect(result[0].isRequired).toBe(true)
+      expect(result[0].schema).toBeDefined();
+      expect(result[0].schema?.enum).toEqual(["active", "inactive"]);
+      expect(result[0].isRequired).toBe(true);
 
-      expect(result[1].schema).toBeUndefined()
-      expect(result[1].description).toBeUndefined()
-      expect(result[1].isRequired).toBe(false)
-    })
+      expect(result[1].schema).toBeUndefined();
+      expect(result[1].description).toBeUndefined();
+      expect(result[1].isRequired).toBe(false);
+    });
 
-    it('enriches rows from object value when formBodySchema is provided', () => {
+    it("enriches rows from object value when formBodySchema is provided", () => {
       const example: ExampleObject = {
         value: {
-          status: 'pending',
-          role: 'user',
+          status: "pending",
+          role: "user",
         },
-      }
+      };
       const formBodySchema: SchemaObject = {
-        type: 'object',
+        type: "object",
         properties: {
           status: {
-            type: 'string',
-            enum: ['active', 'inactive', 'pending'],
-            description: 'Current status',
+            type: "string",
+            enum: ["active", "inactive", "pending"],
+            description: "Current status",
           },
           role: {
-            type: 'string',
-            description: 'User role',
+            type: "string",
+            description: "User role",
           },
         },
-        required: ['status', 'role'],
-      }
+        required: ["status", "role"],
+      };
 
-      const result = getFormBodyRows(example, 'application/x-www-form-urlencoded', formBodySchema)
+      const result = getFormBodyRows(
+        example,
+        "application/x-www-form-urlencoded",
+        formBodySchema,
+      );
 
-      expect(result).toHaveLength(2)
-      assert(result[0])
-      assert(result[1])
+      expect(result).toHaveLength(2);
+      assert(result[0]);
+      assert(result[1]);
 
-      expect(result[0].name).toBe('status')
-      expect(result[0].schema?.enum).toEqual(['active', 'inactive', 'pending'])
-      expect(result[0].description).toBe('Current status')
-      expect(result[0].isRequired).toBe(true)
+      expect(result[0].name).toBe("status");
+      expect(result[0].schema?.enum).toEqual(["active", "inactive", "pending"]);
+      expect(result[0].description).toBe("Current status");
+      expect(result[0].isRequired).toBe(true);
 
-      expect(result[1].name).toBe('role')
-      expect(result[1].schema).toBeDefined()
-      expect(result[1].description).toBe('User role')
-      expect(result[1].isRequired).toBe(true)
-    })
+      expect(result[1].name).toBe("role");
+      expect(result[1].schema).toBeDefined();
+      expect(result[1].description).toBe("User role");
+      expect(result[1].isRequired).toBe(true);
+    });
 
-    it('handles empty required array', () => {
+    it("handles empty required array", () => {
       const example: ExampleObject = {
-        value: [{ name: 'optionalField', value: 'x', isDisabled: false }],
-      }
+        value: [{ name: "optionalField", value: "x", isDisabled: false }],
+      };
       const formBodySchema: SchemaObject = {
-        type: 'object',
+        type: "object",
         properties: {
-          optionalField: { type: 'string' },
+          optionalField: { type: "string" },
         },
         required: [],
-      }
+      };
 
-      const result = getFormBodyRows(example, 'multipart/form-data', formBodySchema)
+      const result = getFormBodyRows(
+        example,
+        "multipart/form-data",
+        formBodySchema,
+      );
 
-      assert(result[0])
-      expect(result[0].isRequired).toBe(false)
-    })
-  })
-})
+      assert(result[0]);
+      expect(result[0].isRequired).toBe(false);
+    });
+  });
+});

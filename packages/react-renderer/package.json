@@ -22,9 +22,9 @@
   },
   "scripts": {
     "build": "scalar-build-vite",
-    "dev": "vite",
-    "preview": "vite preview",
-    "test": "vitest",
+    "dev": "vp dev",
+    "preview": "vp preview",
+    "test": "vp test",
     "types:build": "scalar-types-build-vue",
     "types:check": "scalar-types-check-vue"
   },
@@ -66,8 +66,9 @@
     "@vue/test-utils": "catalog:*",
     "react": "catalog:*",
     "react-dom": "catalog:*",
-    "vite": "catalog:*",
-    "vue": "catalog:*"
+    "vite": "catalog:",
+    "vue": "catalog:*",
+    "vite-plus": "catalog:"
   },
   "peerDependencies": {
     "react": "^19.0.0",

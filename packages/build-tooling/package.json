@@ -17,11 +17,11 @@
   },
   "scripts": {
     "build": "node scripts/build-esbuild.js",
-    "dev": "vite",
+    "dev": "vp dev",
     "format": "node scripts/format.js",
     "lint:check": "node scripts/lint-check.js",
     "lint:fix": "node scripts/lint-fix.js",
-    "test": "vitest",
+    "test": "vp test",
     "types:build": "node scripts/types-build.js",
     "types:check": "node scripts/types-check.js"
   },
@@ -70,7 +70,8 @@
   "devDependencies": {
     "@types/node": "catalog:*",
     "@types/picomatch": "catalog:*",
-    "vite": "catalog:*"
+    "vite": "catalog:",
+    "vite-plus": "catalog:"
   },
   "peerDependencies": {
     "vite": "catalog:*"

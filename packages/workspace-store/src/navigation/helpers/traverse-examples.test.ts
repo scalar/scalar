@@ -1,61 +1,61 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from "vite-plus/test";
 
-import type { OperationObject } from '@/schemas/v3.1/strict/openapi-document'
+import type { OperationObject } from "@/schemas/v3.1/strict/openapi-document";
 
-import { traverseOperationExamples } from './traverse-examples'
+import { traverseOperationExamples } from "./traverse-examples";
 
-describe('traverseOperationExamples', () => {
-  it('returns empty array for empty operation object', () => {
+describe("traverseOperationExamples", () => {
+  it("returns empty array for empty operation object", () => {
     const operation: OperationObject = {
       responses: {},
-    }
+    };
 
-    const result = traverseOperationExamples(operation)
+    const result = traverseOperationExamples(operation);
 
-    expect(result).toEqual([])
-  })
+    expect(result).toEqual([]);
+  });
 
-  describe('draft examples extraction', () => {
-    it('extracts examples from x-draft-examples when array exists', () => {
+  describe("draft examples extraction", () => {
+    it("extracts examples from x-draft-examples when array exists", () => {
       const operation: OperationObject = {
-        'x-draft-examples': ['draft-1', 'draft-2'],
+        "x-draft-examples": ["draft-1", "draft-2"],
         responses: {},
-      }
+      };
 
-      const result = traverseOperationExamples(operation)
+      const result = traverseOperationExamples(operation);
 
-      expect(result).toHaveLength(2)
-      expect(result).toContain('draft-1')
-      expect(result).toContain('draft-2')
-    })
+      expect(result).toHaveLength(2);
+      expect(result).toContain("draft-1");
+      expect(result).toContain("draft-2");
+    });
 
-    it('returns empty array when x-draft-examples is missing', () => {
+    it("returns empty array when x-draft-examples is missing", () => {
       const operation: OperationObject = {
         responses: {},
-      }
+      };
 
-      const result = traverseOperationExamples(operation)
+      const result = traverseOperationExamples(operation);
 
-      expect(result).toEqual([])
-    })
+      expect(result).toEqual([]);
+    });
 
-    it('returns empty array when x-draft-examples is empty array', () => {
+    it("returns empty array when x-draft-examples is empty array", () => {
       const operation: OperationObject = {
-        'x-draft-examples': [],
+        "x-draft-examples": [],
         responses: {},
-      }
+      };
 
-      const result = traverseOperationExamples(operation)
+      const result = traverseOperationExamples(operation);
 
-      expect(result).toEqual([])
-    })
+      expect(result).toEqual([]);
+    });
 
-    it('merges draft examples with request body and response examples', () => {
+    it("merges draft examples with request body and response examples", () => {
       const operation: OperationObject = {
-        'x-draft-examples': ['draft-example'],
+        "x-draft-examples": ["draft-example"],
         requestBody: {
           content: {
-            'application/json': {
+            "application/json": {
               examples: {
                 requestExample: { value: { id: 1 } },
               },
@@ -63,10 +63,10 @@ describe('traverseOperationExamples', () => {
           },
         },
         responses: {
-          '200': {
-            description: 'Success',
+          "200": {
+            description: "Success",
             content: {
-              'application/json': {
+              "application/json": {
                 examples: {
                   responseExample: { value: { success: true } },
                 },
@@ -74,22 +74,22 @@ describe('traverseOperationExamples', () => {
             },
           },
         },
-      }
+      };
 
-      const result = traverseOperationExamples(operation)
+      const result = traverseOperationExamples(operation);
 
-      expect(result).toHaveLength(3)
-      expect(result).toContain('draft-example')
-      expect(result).toContain('requestExample')
-      expect(result).toContain('responseExample')
-    })
+      expect(result).toHaveLength(3);
+      expect(result).toContain("draft-example");
+      expect(result).toContain("requestExample");
+      expect(result).toContain("responseExample");
+    });
 
-    it('deduplicates draft example names with examples from other sources', () => {
+    it("deduplicates draft example names with examples from other sources", () => {
       const operation: OperationObject = {
-        'x-draft-examples': ['shared'],
+        "x-draft-examples": ["shared"],
         requestBody: {
           content: {
-            'application/json': {
+            "application/json": {
               examples: {
                 shared: { value: { id: 1 } },
               },
@@ -97,30 +97,30 @@ describe('traverseOperationExamples', () => {
           },
         },
         responses: {},
-      }
+      };
 
-      const result = traverseOperationExamples(operation)
+      const result = traverseOperationExamples(operation);
 
-      expect(result).toEqual(['shared'])
-    })
+      expect(result).toEqual(["shared"]);
+    });
 
-    it('preserves draft examples first in result when only draft examples exist', () => {
+    it("preserves draft examples first in result when only draft examples exist", () => {
       const operation: OperationObject = {
-        'x-draft-examples': ['first-draft', 'second-draft'],
+        "x-draft-examples": ["first-draft", "second-draft"],
         responses: {},
-      }
+      };
 
-      const result = traverseOperationExamples(operation)
+      const result = traverseOperationExamples(operation);
 
-      expect(result).toEqual(['first-draft', 'second-draft'])
-    })
-  })
+      expect(result).toEqual(["first-draft", "second-draft"]);
+    });
+  });
 
-  it('extracts examples from request body', () => {
+  it("extracts examples from request body", () => {
     const operation: OperationObject = {
       requestBody: {
         content: {
-          'application/json': {
+          "application/json": {
             examples: {
               example1: {
                 value: { id: 1 },
@@ -133,50 +133,50 @@ describe('traverseOperationExamples', () => {
         },
       },
       responses: {},
-    }
+    };
 
-    const result = traverseOperationExamples(operation)
+    const result = traverseOperationExamples(operation);
 
-    expect(result).toEqual(['example1', 'example2'])
-  })
+    expect(result).toEqual(["example1", "example2"]);
+  });
 
-  it('extracts examples from request body with multiple media types', () => {
+  it("extracts examples from request body with multiple media types", () => {
     const operation: OperationObject = {
       requestBody: {
         content: {
-          'application/json': {
+          "application/json": {
             examples: {
               jsonExample: {
                 value: { id: 1 },
               },
             },
           },
-          'application/xml': {
+          "application/xml": {
             examples: {
               xmlExample: {
-                value: '<root></root>',
+                value: "<root></root>",
               },
             },
           },
         },
       },
       responses: {},
-    }
+    };
 
-    const result = traverseOperationExamples(operation)
+    const result = traverseOperationExamples(operation);
 
-    expect(result).toHaveLength(2)
-    expect(result).toContain('jsonExample')
-    expect(result).toContain('xmlExample')
-  })
+    expect(result).toHaveLength(2);
+    expect(result).toContain("jsonExample");
+    expect(result).toContain("xmlExample");
+  });
 
-  it('handles request body with $ref', () => {
+  it("handles request body with $ref", () => {
     const operation: OperationObject = {
       requestBody: {
-        $ref: '#/components/requestBodies/RequestBody',
-        '$ref-value': {
+        $ref: "#/components/requestBodies/RequestBody",
+        "$ref-value": {
           content: {
-            'application/json': {
+            "application/json": {
               examples: {
                 refExample: {
                   value: { id: 1 },
@@ -187,77 +187,77 @@ describe('traverseOperationExamples', () => {
         },
       },
       responses: {},
-    }
+    };
 
-    const result = traverseOperationExamples(operation)
+    const result = traverseOperationExamples(operation);
 
-    expect(result).toEqual(['refExample'])
-  })
+    expect(result).toEqual(["refExample"]);
+  });
 
-  it('handles request body without content', () => {
+  it("handles request body without content", () => {
     const operation: OperationObject = {
       requestBody: {
         content: {},
       },
       responses: {},
-    }
+    };
 
-    const result = traverseOperationExamples(operation)
+    const result = traverseOperationExamples(operation);
 
-    expect(result).toEqual([])
-  })
+    expect(result).toEqual([]);
+  });
 
-  it('handles request body with content but no examples', () => {
+  it("handles request body with content but no examples", () => {
     const operation: OperationObject = {
       requestBody: {
         content: {
-          'application/json': {
+          "application/json": {
             schema: {
-              type: 'object',
+              type: "object",
             },
           },
         },
       },
       responses: {},
-    }
+    };
 
-    const result = traverseOperationExamples(operation)
+    const result = traverseOperationExamples(operation);
 
-    expect(result).toEqual([])
-  })
+    expect(result).toEqual([]);
+  });
 
-  it('extracts examples from parameter examples property', () => {
+  it("extracts examples from parameter examples property", () => {
     const operation: OperationObject = {
       parameters: [
         {
-          name: 'userId',
-          in: 'query',
+          name: "userId",
+          in: "query",
           examples: {
             paramExample1: {
-              value: '123',
+              value: "123",
             },
             paramExample2: {
-              value: '456',
+              value: "456",
             },
           },
         },
       ],
       responses: {},
-    }
+    };
 
-    const result = traverseOperationExamples(operation)
+    const result = traverseOperationExamples(operation);
 
-    expect(result).toEqual(['paramExample1', 'paramExample2'])
-  })
+    expect(result).toEqual(["paramExample1", "paramExample2"]);
+  });
 
-  it('extracts examples from parameter content', () => {
+  it("extracts examples from parameter content", () => {
     const operation: OperationObject = {
       parameters: [
         {
-          name: 'filter',
-          in: 'query',
+          name: "filter",
+          in: "query",
           content: {
-            'application/json': {
+            "application/json": {
               examples: {
                 contentExample: {
                   value: { active: true },
@@ -268,30 +268,30 @@ describe('traverseOperationExamples', () => {
         },
       ],
       responses: {},
-    }
+    };
 
-    const result = traverseOperationExamples(operation)
+    const result = traverseOperationExamples(operation);
 
-    expect(result).toEqual(['contentExample'])
-  })
+    expect(result).toEqual(["contentExample"]);
+  });
 
-  it('extracts examples from multiple parameters', () => {
+  it("extracts examples from multiple parameters", () => {
     const operation: OperationObject = {
       parameters: [
         {
-          name: 'userId',
-          in: 'query',
+          name: "userId",
+          in: "query",
           examples: {
             example1: {
-              value: '123',
+              value: "123",
             },
           },
         },
         {
-          name: 'filter',
-          in: 'query',
+          name: "filter",
+          in: "query",
           content: {
-            'application/json': {
+            "application/json": {
               examples: {
                 example2: {
                   value: { active: true },
@@ -302,65 +302,65 @@ describe('traverseOperationExamples', () => {
         },
       ],
       responses: {},
-    }
+    };
 
-    const result = traverseOperationExamples(operation)
+    const result = traverseOperationExamples(operation);
 
-    expect(result).toHaveLength(2)
-    expect(result).toContain('example1')
-    expect(result).toContain('example2')
-  })
+    expect(result).toHaveLength(2);
+    expect(result).toContain("example1");
+    expect(result).toContain("example2");
+  });
 
-  it('handles parameter with $ref', () => {
+  it("handles parameter with $ref", () => {
     const operation: OperationObject = {
       parameters: [
         {
-          $ref: '#/components/parameters/UserIdParam',
-          '$ref-value': {
-            name: 'userId',
-            in: 'query',
+          $ref: "#/components/parameters/UserIdParam",
+          "$ref-value": {
+            name: "userId",
+            in: "query",
             examples: {
               refParamExample: {
-                value: '123',
+                value: "123",
               },
             },
           },
         },
       ],
       responses: {},
-    }
+    };
 
-    const result = traverseOperationExamples(operation)
+    const result = traverseOperationExamples(operation);
 
-    expect(result).toEqual(['refParamExample'])
-  })
+    expect(result).toEqual(["refParamExample"]);
+  });
 
-  it('handles parameter without examples or content', () => {
+  it("handles parameter without examples or content", () => {
     const operation: OperationObject = {
       parameters: [
         {
-          name: 'userId',
-          in: 'query',
+          name: "userId",
+          in: "query",
           schema: {
-            type: 'string',
+            type: "string",
           },
         },
       ],
       responses: {},
-    }
+    };
 
-    const result = traverseOperationExamples(operation)
+    const result = traverseOperationExamples(operation);
 
-    expect(result).toEqual([])
-  })
+    expect(result).toEqual([]);
+  });
 
-  it('extracts examples from responses', () => {
+  it("extracts examples from responses", () => {
     const operation: OperationObject = {
       responses: {
-        '200': {
-          description: 'Success',
+        "200": {
+          description: "Success",
           content: {
-            'application/json': {
+            "application/json": {
               examples: {
                 responseExample1: {
                   value: { success: true },
@@ -373,20 +373,20 @@ describe('traverseOperationExamples', () => {
           },
         },
       },
-    }
+    };
 
-    const result = traverseOperationExamples(operation)
+    const result = traverseOperationExamples(operation);
 
-    expect(result).toEqual(['responseExample1', 'responseExample2'])
-  })
+    expect(result).toEqual(["responseExample1", "responseExample2"]);
+  });
 
-  it('extracts examples from multiple response codes', () => {
+  it("extracts examples from multiple response codes", () => {
     const operation: OperationObject = {
       responses: {
-        '200': {
-          description: 'Success',
+        "200": {
+          description: "Success",
           content: {
-            'application/json': {
+            "application/json": {
               examples: {
                 successExample: {
                   value: { success: true },
@@ -395,37 +395,37 @@ describe('traverseOperationExamples', () => {
             },
           },
         },
-        '404': {
-          description: 'Not Found',
+        "404": {
+          description: "Not Found",
           content: {
-            'application/json': {
+            "application/json": {
               examples: {
                 notFoundExample: {
-                  value: { error: 'Not found' },
+                  value: { error: "Not found" },
                 },
               },
             },
           },
         },
       },
-    }
+    };
 
-    const result = traverseOperationExamples(operation)
+    const result = traverseOperationExamples(operation);
 
-    expect(result).toHaveLength(2)
-    expect(result).toContain('successExample')
-    expect(result).toContain('notFoundExample')
-  })
+    expect(result).toHaveLength(2);
+    expect(result).toContain("successExample");
+    expect(result).toContain("notFoundExample");
+  });
 
-  it('handles response with $ref', () => {
+  it("handles response with $ref", () => {
     const operation: OperationObject = {
       responses: {
-        '200': {
-          $ref: '#/components/responses/SuccessResponse',
-          '$ref-value': {
-            description: 'Success',
+        "200": {
+          $ref: "#/components/responses/SuccessResponse",
+          "$ref-value": {
+            description: "Success",
             content: {
-              'application/json': {
+              "application/json": {
                 examples: {
                   refResponseExample: {
                     value: { success: true },
@@ -436,53 +436,53 @@ describe('traverseOperationExamples', () => {
           },
         },
       },
-    }
+    };
 
-    const result = traverseOperationExamples(operation)
+    const result = traverseOperationExamples(operation);
 
-    expect(result).toEqual(['refResponseExample'])
-  })
+    expect(result).toEqual(["refResponseExample"]);
+  });
 
-  it('handles response without content', () => {
+  it("handles response without content", () => {
     const operation: OperationObject = {
       responses: {
-        '204': {
-          description: 'No Content',
+        "204": {
+          description: "No Content",
         },
       },
-    }
+    };
 
-    const result = traverseOperationExamples(operation)
+    const result = traverseOperationExamples(operation);
 
-    expect(result).toEqual([])
-  })
+    expect(result).toEqual([]);
+  });
 
-  it('handles response with content but no examples', () => {
+  it("handles response with content but no examples", () => {
     const operation: OperationObject = {
       responses: {
-        '200': {
-          description: 'Success',
+        "200": {
+          description: "Success",
           content: {
-            'application/json': {
+            "application/json": {
               schema: {
-                type: 'object',
+                type: "object",
               },
             },
           },
         },
       },
-    }
+    };
 
-    const result = traverseOperationExamples(operation)
+    const result = traverseOperationExamples(operation);
 
-    expect(result).toEqual([])
-  })
+    expect(result).toEqual([]);
+  });
 
-  it('deduplicates example names across different sources', () => {
+  it("deduplicates example names across different sources", () => {
     const operation: OperationObject = {
       requestBody: {
         content: {
-          'application/json': {
+          "application/json": {
             examples: {
               sharedExample: {
                 value: { id: 1 },
@@ -493,20 +493,20 @@ describe('traverseOperationExamples', () => {
       },
       parameters: [
         {
-          name: 'userId',
-          in: 'query',
+          name: "userId",
+          in: "query",
           examples: {
             sharedExample: {
-              value: '123',
+              value: "123",
             },
           },
         },
       ],
       responses: {
-        '200': {
-          description: 'Success',
+        "200": {
+          description: "Success",
           content: {
-            'application/json': {
+            "application/json": {
               examples: {
                 sharedExample: {
                   value: { success: true },
@@ -516,18 +516,18 @@ describe('traverseOperationExamples', () => {
           },
         },
       },
-    }
+    };
 
-    const result = traverseOperationExamples(operation)
+    const result = traverseOperationExamples(operation);
 
-    expect(result).toEqual(['sharedExample'])
-  })
+    expect(result).toEqual(["sharedExample"]);
+  });
 
-  it('extracts all examples from complex operation', () => {
+  it("extracts all examples from complex operation", () => {
     const operation: OperationObject = {
       requestBody: {
         content: {
-          'application/json': {
+          "application/json": {
             examples: {
               requestExample: {
                 value: { id: 1 },
@@ -538,19 +538,19 @@ describe('traverseOperationExamples', () => {
       },
       parameters: [
         {
-          name: 'userId',
-          in: 'query',
+          name: "userId",
+          in: "query",
           examples: {
             paramExample: {
-              value: '123',
+              value: "123",
             },
           },
         },
         {
-          name: 'filter',
-          in: 'query',
+          name: "filter",
+          in: "query",
           content: {
-            'application/json': {
+            "application/json": {
               examples: {
                 paramContentExample: {
                   value: { active: true },
@@ -561,10 +561,10 @@ describe('traverseOperationExamples', () => {
         },
       ],
       responses: {
-        '200': {
-          description: 'Success',
+        "200": {
+          description: "Success",
           content: {
-            'application/json': {
+            "application/json": {
               examples: {
                 successExample: {
                   value: { success: true },
@@ -573,60 +573,60 @@ describe('traverseOperationExamples', () => {
             },
           },
         },
-        '404': {
-          description: 'Not Found',
+        "404": {
+          description: "Not Found",
           content: {
-            'application/json': {
+            "application/json": {
               examples: {
                 errorExample: {
-                  value: { error: 'Not found' },
+                  value: { error: "Not found" },
                 },
               },
             },
           },
         },
       },
-    }
+    };
 
-    const result = traverseOperationExamples(operation)
+    const result = traverseOperationExamples(operation);
 
-    expect(result).toHaveLength(5)
-    expect(result).toContain('requestExample')
-    expect(result).toContain('paramExample')
-    expect(result).toContain('paramContentExample')
-    expect(result).toContain('successExample')
-    expect(result).toContain('errorExample')
-  })
+    expect(result).toHaveLength(5);
+    expect(result).toContain("requestExample");
+    expect(result).toContain("paramExample");
+    expect(result).toContain("paramContentExample");
+    expect(result).toContain("successExample");
+    expect(result).toContain("errorExample");
+  });
 
-  it('handles operation with no requestBody, parameters, or responses', () => {
-    const operation: OperationObject = {}
+  it("handles operation with no requestBody, parameters, or responses", () => {
+    const operation: OperationObject = {};
 
-    const result = traverseOperationExamples(operation)
+    const result = traverseOperationExamples(operation);
 
-    expect(result).toEqual([])
-  })
+    expect(result).toEqual([]);
+  });
 
-  it('handles empty arrays and objects gracefully', () => {
+  it("handles empty arrays and objects gracefully", () => {
     const operation: OperationObject = {
       requestBody: {
         content: {},
       },
       parameters: [],
       responses: {},
-    }
+    };
 
-    const result = traverseOperationExamples(operation)
+    const result = traverseOperationExamples(operation);
 
-    expect(result).toEqual([])
-  })
+    expect(result).toEqual([]);
+  });
 
-  it('handles mixed $ref and regular objects', () => {
+  it("handles mixed $ref and regular objects", () => {
     const operation: OperationObject = {
       requestBody: {
-        $ref: '#/components/requestBodies/RequestBody',
-        '$ref-value': {
+        $ref: "#/components/requestBodies/RequestBody",
+        "$ref-value": {
           content: {
-            'application/json': {
+            "application/json": {
               examples: {
                 refExample: {
                   value: { id: 1 },
@@ -638,22 +638,22 @@ describe('traverseOperationExamples', () => {
       },
       parameters: [
         {
-          name: 'userId',
-          in: 'query',
+          name: "userId",
+          in: "query",
           examples: {
             regularExample: {
-              value: '123',
+              value: "123",
             },
           },
         },
       ],
       responses: {
-        '200': {
-          $ref: '#/components/responses/SuccessResponse',
-          '$ref-value': {
-            description: 'Success',
+        "200": {
+          $ref: "#/components/responses/SuccessResponse",
+          "$ref-value": {
+            description: "Success",
             content: {
-              'application/json': {
+              "application/json": {
                 examples: {
                   anotherRefExample: {
                     value: { success: true },
@@ -664,21 +664,21 @@ describe('traverseOperationExamples', () => {
           },
         },
       },
-    }
+    };
 
-    const result = traverseOperationExamples(operation)
+    const result = traverseOperationExamples(operation);
 
-    expect(result).toHaveLength(3)
-    expect(result).toContain('refExample')
-    expect(result).toContain('regularExample')
-    expect(result).toContain('anotherRefExample')
-  })
+    expect(result).toHaveLength(3);
+    expect(result).toContain("refExample");
+    expect(result).toContain("regularExample");
+    expect(result).toContain("anotherRefExample");
+  });
 
-  it('preserves insertion order of unique examples', () => {
+  it("preserves insertion order of unique examples", () => {
     const operation: OperationObject = {
       requestBody: {
         content: {
-          'application/json': {
+          "application/json": {
             examples: {
               first: { value: 1 },
               second: { value: 2 },
@@ -688,18 +688,18 @@ describe('traverseOperationExamples', () => {
       },
       parameters: [
         {
-          name: 'param',
-          in: 'query',
+          name: "param",
+          in: "query",
           examples: {
             third: { value: 3 },
           },
         },
       ],
       responses: {
-        '200': {
-          description: 'Success',
+        "200": {
+          description: "Success",
           content: {
-            'application/json': {
+            "application/json": {
               examples: {
                 fourth: { value: 4 },
               },
@@ -707,15 +707,15 @@ describe('traverseOperationExamples', () => {
           },
         },
       },
-    }
+    };
 
-    const result = traverseOperationExamples(operation)
+    const result = traverseOperationExamples(operation);
 
     // Since we are using a Set and then converting to array,
     // the order should be preserved based on insertion order
-    expect(result[0]).toBe('first')
-    expect(result[1]).toBe('second')
-    expect(result[2]).toBe('third')
-    expect(result[3]).toBe('fourth')
-  })
-})
+    expect(result[0]).toBe("first");
+    expect(result[1]).toBe("second");
+    expect(result[2]).toBe("third");
+    expect(result[3]).toBe("fourth");
+  });
+});

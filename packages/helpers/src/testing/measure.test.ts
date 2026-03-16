@@ -1,39 +1,43 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
 
-import { measureAsync, measureSync } from './measure'
+import { measureAsync, measureSync } from "./measure";
 
-describe('measure', () => {
-  const consoleInfoSpy = vi.spyOn(console, 'info').mockReturnValue(undefined)
+describe("measure", () => {
+  const consoleInfoSpy = vi.spyOn(console, "info").mockReturnValue(undefined);
   beforeEach(() => {
-    consoleInfoSpy.mockClear()
-  })
+    consoleInfoSpy.mockClear();
+  });
 
-  it('should measure and log synchronous function execution time', () => {
-    const result = measureSync('sync-test', () => 42)
-    expect(result).toBe(42)
-    expect(consoleInfoSpy).toHaveBeenCalledWith(expect.stringMatching(/sync-test: \d+ ms/))
-  })
+  it("should measure and log synchronous function execution time", () => {
+    const result = measureSync("sync-test", () => 42);
+    expect(result).toBe(42);
+    expect(consoleInfoSpy).toHaveBeenCalledWith(
+      expect.stringMatching(/sync-test: \d+ ms/),
+    );
+  });
 
-  it('should measure and log asynchronous function execution time', async () => {
-    const result = await measureAsync('async-test', async () => {
-      await new Promise((resolve) => setTimeout(resolve, 100))
-      return 42
-    })
-    expect(result).toBe(42)
-    expect(consoleInfoSpy).toHaveBeenCalledWith(expect.stringMatching(/async-test: \d+ ms/))
-  })
+  it("should measure and log asynchronous function execution time", async () => {
+    const result = await measureAsync("async-test", async () => {
+      await new Promise((resolve) => setTimeout(resolve, 100));
+      return 42;
+    });
+    expect(result).toBe(42);
+    expect(consoleInfoSpy).toHaveBeenCalledWith(
+      expect.stringMatching(/async-test: \d+ ms/),
+    );
+  });
 
-  it('should preserve the return type of the measured function', () => {
-    const stringResult = measureSync('string-test', () => 'hello')
-    expect(typeof stringResult).toBe('string')
-    expect(stringResult).toBe('hello')
+  it("should preserve the return type of the measured function", () => {
+    const stringResult = measureSync("string-test", () => "hello");
+    expect(typeof stringResult).toBe("string");
+    expect(stringResult).toBe("hello");
 
-    const numberResult = measureSync('number-test', () => 123)
-    expect(typeof numberResult).toBe('number')
-    expect(numberResult).toBe(123)
+    const numberResult = measureSync("number-test", () => 123);
+    expect(typeof numberResult).toBe("number");
+    expect(numberResult).toBe(123);
 
-    const objectResult = measureSync('object-test', () => ({ key: 'value' }))
-    expect(typeof objectResult).toBe('object')
-    expect(objectResult).toEqual({ key: 'value' })
-  })
-})
+    const objectResult = measureSync("object-test", () => ({ key: "value" }));
+    expect(typeof objectResult).toBe("object");
+    expect(objectResult).toEqual({ key: "value" });
+  });
+});

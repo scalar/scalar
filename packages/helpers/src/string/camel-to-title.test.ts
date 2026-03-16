@@ -1,35 +1,36 @@
-import { describe, it, expect } from 'vitest'
-import { camelToTitleWords } from './camel-to-title'
+import { describe, expect, it } from "vite-plus/test";
 
-describe('camelToTitleWords', () => {
-  it('converts single word camelCase to Title Case', () => {
-    expect(camelToTitleWords('hello')).toBe('Hello')
-  })
+import { camelToTitleWords } from "./camel-to-title";
 
-  it('converts multi-word camelCase to Title Words', () => {
-    expect(camelToTitleWords('helloWorld')).toBe('Hello World')
-    expect(camelToTitleWords('thisIsATest')).toBe('This Is A Test')
-  })
+describe("camelToTitleWords", () => {
+  it("converts single word camelCase to Title Case", () => {
+    expect(camelToTitleWords("hello")).toBe("Hello");
+  });
 
-  it('handles camelCase with numbers', () => {
-    expect(camelToTitleWords('user123')).toBe('User123')
-    expect(camelToTitleWords('test123Case')).toBe('Test123 Case')
-  })
+  it("converts multi-word camelCase to Title Words", () => {
+    expect(camelToTitleWords("helloWorld")).toBe("Hello World");
+    expect(camelToTitleWords("thisIsATest")).toBe("This Is A Test");
+  });
 
-  it('handles camelCase with consecutive capitals', () => {
-    expect(camelToTitleWords('userID')).toBe('User ID')
-    expect(camelToTitleWords('parseHTML')).toBe('Parse HTML')
-  })
+  it("handles camelCase with numbers", () => {
+    expect(camelToTitleWords("user123")).toBe("User123");
+    expect(camelToTitleWords("test123Case")).toBe("Test123 Case");
+  });
 
-  it('handles empty string', () => {
-    expect(camelToTitleWords('')).toBe('')
-  })
+  it("handles camelCase with consecutive capitals", () => {
+    expect(camelToTitleWords("userID")).toBe("User ID");
+    expect(camelToTitleWords("parseHTML")).toBe("Parse HTML");
+  });
 
-  it('handles single character', () => {
-    expect(camelToTitleWords('a')).toBe('A')
-  })
+  it("handles empty string", () => {
+    expect(camelToTitleWords("")).toBe("");
+  });
 
-  it('handles already capitalized words', () => {
-    expect(camelToTitleWords('HelloWorld')).toBe('Hello World')
-  })
-})
+  it("handles single character", () => {
+    expect(camelToTitleWords("a")).toBe("A");
+  });
+
+  it("handles already capitalized words", () => {
+    expect(camelToTitleWords("HelloWorld")).toBe("Hello World");
+  });
+});

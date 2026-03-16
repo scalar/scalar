@@ -1,73 +1,73 @@
-import { afterEach, beforeEach, expect, vi } from 'vitest'
-import { reactive, ref } from 'vue'
+import { afterEach, beforeEach, expect, vi } from "vite-plus/test";
+import { reactive, ref } from "vue";
 
-import { useLayout } from '@/hooks/useLayout'
-import { useSidebar } from '@/hooks/useSidebar'
+import { useLayout } from "@/hooks/useLayout";
+import { useSidebar } from "@/hooks/useSidebar";
 
 // Mock the useLayout hook
-vi.mock('@/hooks/useLayout', () => ({
+vi.mock("@/hooks/useLayout", () => ({
   useLayout: vi.fn(),
-}))
+}));
 
-vi.mock('monaco-editor', () => ({
+vi.mock("monaco-editor", () => ({
   editor: {
     create: vi.fn(),
   },
-}))
-export const mockUseLayout = useLayout
+}));
+export const mockUseLayout = useLayout;
 
 // Prevent v2 editor from loading real monaco (workers and subpath imports fail in test env).
-vi.mock('@/v2/features/editor', () => ({
+vi.mock("@/v2/features/editor", () => ({
   useMonacoEditorConfiguration: vi.fn(),
   rangeToWholeLine: vi.fn(),
   useEditor: vi.fn(() => ({
     editor: null,
     setValue: vi.fn(),
-    getValue: vi.fn(() => ''),
+    getValue: vi.fn(() => ""),
     focusPath: vi.fn(),
     formatDocument: vi.fn(),
     dispose: vi.fn(),
   })),
   useJsonPointerLinkSupport: vi.fn(),
-}))
+}));
 
 // Mock the useSidebar hook
-vi.mock('@/hooks/useSidebar', () => ({
+vi.mock("@/hooks/useSidebar", () => ({
   useSidebar: vi.fn(),
-}))
-export const mockUseSidebar = useSidebar
+}));
+export const mockUseSidebar = useSidebar;
 
 /** Spy on console.warn */
-export const consoleWarnSpy = vi.spyOn(console, 'warn')
-let isConsoleWarnEnabled = false
+export const consoleWarnSpy = vi.spyOn(console, "warn");
+let isConsoleWarnEnabled = false;
 
 /** Spy on console.error */
-export const consoleErrorSpy = vi.spyOn(console, 'error')
-let isConsoleErrorEnabled = false
+export const consoleErrorSpy = vi.spyOn(console, "error");
+let isConsoleErrorEnabled = false;
 
 /** Reset the spies */
 export const resetConsoleSpies = () => {
-  consoleWarnSpy.mockClear()
-  consoleErrorSpy.mockClear()
-}
+  consoleWarnSpy.mockClear();
+  consoleErrorSpy.mockClear();
+};
 
 /** Helper to re-enable console warn checks */
-export const enableConsoleWarn = () => (isConsoleWarnEnabled = true)
+export const enableConsoleWarn = () => (isConsoleWarnEnabled = true);
 
 /** Helper to disable console warn checks */
-export const disableConsoleWarn = () => (isConsoleWarnEnabled = false)
+export const disableConsoleWarn = () => (isConsoleWarnEnabled = false);
 
 /** Helper to enable console error checks */
-export const enableConsoleError = () => (isConsoleErrorEnabled = true)
+export const enableConsoleError = () => (isConsoleErrorEnabled = true);
 
 /** Helper to disable console error checks */
-export const disableConsoleError = () => (isConsoleErrorEnabled = false)
+export const disableConsoleError = () => (isConsoleErrorEnabled = false);
 
 // Set default values for the mocks
 beforeEach(() => {
   vi.mocked(mockUseLayout).mockReturnValue({
-    layout: 'desktop',
-  })
+    layout: "desktop",
+  });
 
   vi.mocked(mockUseSidebar).mockReturnValue({
     isSidebarOpen: ref(false),
@@ -76,7 +76,7 @@ beforeEach(() => {
     toggleSidebarFolder: vi.fn(),
     toggleSidebarOpen: vi.fn(),
     setSidebarOpen: vi.fn(),
-  })
+  });
 
   /**
    * Mock ResizeObserver which is used by @headlessui/vue Dialog component
@@ -85,10 +85,10 @@ beforeEach(() => {
    * @see https://github.com/jsdom/jsdom/issues/3368
    */
   globalThis.ResizeObserver = class {
-    disconnect = vi.fn()
-    observe = vi.fn()
-    unobserve = vi.fn()
-  }
+    disconnect = vi.fn();
+    observe = vi.fn();
+    unobserve = vi.fn();
+  };
 
   /**
    * Mock MutationObserver which is used by CodeMirror's DOMObserver
@@ -96,10 +96,10 @@ beforeEach(() => {
    */
   globalThis.MutationObserver = class {
     constructor(public callback: MutationCallback) {}
-    disconnect = vi.fn()
-    observe = vi.fn()
-    takeRecords = vi.fn(() => [])
-  }
+    disconnect = vi.fn();
+    observe = vi.fn();
+    takeRecords = vi.fn(() => []);
+  };
 
   /**
    * Mock IntersectionObserver which is used by various components
@@ -109,15 +109,15 @@ beforeEach(() => {
    */
   globalThis.IntersectionObserver = class {
     constructor(public callback: IntersectionObserverCallback) {}
-    disconnect = vi.fn()
-    observe = vi.fn()
-    unobserve = vi.fn()
-    takeRecords = vi.fn(() => [])
-    root = null
-    rootMargin = ''
-    thresholds = [] as number[]
-  }
-})
+    disconnect = vi.fn();
+    observe = vi.fn();
+    unobserve = vi.fn();
+    takeRecords = vi.fn(() => []);
+    root = null;
+    rootMargin = "";
+    thresholds = [] as number[];
+  };
+});
 
 afterEach(() => {
   /**
@@ -133,17 +133,17 @@ afterEach(() => {
    */
 
   if (isConsoleWarnEnabled) {
-    expect(consoleWarnSpy).not.toHaveBeenCalled()
+    expect(consoleWarnSpy).not.toHaveBeenCalled();
   }
 
   if (isConsoleErrorEnabled) {
-    expect(consoleErrorSpy).not.toHaveBeenCalled()
+    expect(consoleErrorSpy).not.toHaveBeenCalled();
   }
 
   // Reset the spies
-  resetConsoleSpies()
-  disableConsoleWarn()
-  disableConsoleError()
+  resetConsoleSpies();
+  disableConsoleWarn();
+  disableConsoleError();
 
-  vi.clearAllMocks()
-})
+  vi.clearAllMocks();
+});

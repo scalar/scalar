@@ -1,62 +1,71 @@
-import { vi } from 'vitest'
+import { vi } from "vite-plus/test";
 
 type MockContextOptions = {
   /** Request headers to return from c.req.header() */
-  requestHeaders?: Record<string, string>
+  requestHeaders?: Record<string, string>;
   /** Request body text to return from c.req.text() */
-  requestBody?: string
+  requestBody?: string;
   /** Parsed form data to return from c.req.parseBody() */
-  formData?: Record<string, unknown>
+  formData?: Record<string, unknown>;
   /** HTTP method */
-  method?: string
+  method?: string;
   /** Request path */
-  path?: string
+  path?: string;
   /** Query parameters (values as arrays for queries(), single values for query()) */
-  query?: Record<string, string[]>
-}
+  query?: Record<string, string[]>;
+};
 
 /** Creates a mock Hono Context for testing */
 export function createMockContext(options: MockContextOptions = {}) {
-  const { requestHeaders = {}, requestBody = '', formData = {}, method = 'GET', path = '/', query = {} } = options
+  const {
+    requestHeaders = {},
+    requestBody = "",
+    formData = {},
+    method = "GET",
+    path = "/",
+    query = {},
+  } = options;
 
-  const responseHeaders: Record<string, string> = {}
-  let htmlContent = ''
-  let jsonContent: Record<string, unknown> | null = null
-  let textContent = ''
-  let bodyContent: string | null = null
+  const responseHeaders: Record<string, string> = {};
+  let htmlContent = "";
+  let jsonContent: Record<string, unknown> | null = null;
+  let textContent = "";
+  let bodyContent: string | null = null;
 
   return {
     header: vi.fn((key: string, value: string) => {
-      responseHeaders[key] = value
+      responseHeaders[key] = value;
     }),
     html: vi.fn((content: unknown) => {
       // Handle HtmlEscapedString (nested array structure) from Hono's html tagged template
       const flatten = (val: unknown): string => {
-        if (typeof val === 'string') {
-          return val
+        if (typeof val === "string") {
+          return val;
         }
         if (Array.isArray(val)) {
-          return val.map(flatten).join('')
+          return val.map(flatten).join("");
         }
-        return String(val ?? '')
-      }
-      htmlContent = flatten(content)
-      return htmlContent
+        return String(val ?? "");
+      };
+      htmlContent = flatten(content);
+      return htmlContent;
     }),
     json: vi.fn((data: Record<string, unknown>) => {
-      jsonContent = data
-      return data
+      jsonContent = data;
+      return data;
     }),
-    text: vi.fn((content: string, _status?: number, headers?: Record<string, string>) => {
-      textContent = content
-      if (headers) {
-        Object.assign(responseHeaders, headers)
-      }
-      return content
-    }),
+    text: vi.fn(
+      (content: string, _status?: number, headers?: Record<string, string>) => {
+        textContent = content;
+        if (headers) {
+          Object.assign(responseHeaders, headers);
+        }
+        return content;
+      },
+    ),
     body: vi.fn((content: string) => {
-      bodyContent = content
-      return content
+      bodyContent = content;
+      return content;
     }),
     /** Mock request object */
     req: {
@@ -81,5 +90,5 @@ export function createMockContext(options: MockContextOptions = {}) {
     _getTextContent: () => textContent,
     /** Helper to access captured body content in tests */
     _getBodyContent: () => bodyContent,
-  }
+  };
 }

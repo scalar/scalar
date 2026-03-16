@@ -1,13 +1,13 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from "vite-plus/test";
 
-import { validate } from '../../../../src/index'
-import openapi from './openapi.yaml?raw'
+import { validate } from "../../../../src/index";
+import openapi from "./openapi.yaml?raw";
 
-describe('openapi', () => {
-  it('passes', async () => {
-    const result = await validate(openapi)
+describe("openapi", () => {
+  it("passes", async () => {
+    const result = await validate(openapi);
 
-    expect(result.valid).toBe(true)
-    expect(result.version).toBe('3.0')
-  })
-})
+    expect(result.valid).toBe(true);
+    expect(result.version).toBe("3.0");
+  });
+});

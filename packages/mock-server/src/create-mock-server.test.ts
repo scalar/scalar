@@ -1,25 +1,25 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from "vite-plus/test";
 
-import { createMockServer } from './create-mock-server'
+import { createMockServer } from "./create-mock-server";
 
-describe('createMockServer', () => {
-  it('supports deprecated specification key', async () => {
+describe("createMockServer", () => {
+  it("supports deprecated specification key", async () => {
     const specification = {
-      openapi: '3.1.0',
+      openapi: "3.1.0",
       info: {
-        title: 'Hello World',
-        version: '1.0.0',
+        title: "Hello World",
+        version: "1.0.0",
       },
       paths: {
-        '/foobar': {
+        "/foobar": {
           get: {
             responses: {
-              '200': {
-                description: 'OK',
+              "200": {
+                description: "OK",
                 content: {
-                  'application/json': {
+                  "application/json": {
                     example: {
-                      foo: 'bar',
+                      foo: "bar",
                     },
                   },
                 },
@@ -28,35 +28,35 @@ describe('createMockServer', () => {
           },
         },
       },
-    }
+    };
 
-    const server = await createMockServer({ specification })
+    const server = await createMockServer({ specification });
 
-    const response = await server.request('/foobar')
+    const response = await server.request("/foobar");
 
-    expect(response.status).toBe(200)
+    expect(response.status).toBe(200);
     expect(await response.json()).toMatchObject({
-      foo: 'bar',
-    })
-  })
+      foo: "bar",
+    });
+  });
 
-  it('GET /foobar -> example JSON', async () => {
+  it("GET /foobar -> example JSON", async () => {
     const document = {
-      openapi: '3.1.0',
+      openapi: "3.1.0",
       info: {
-        title: 'Hello World',
-        version: '1.0.0',
+        title: "Hello World",
+        version: "1.0.0",
       },
       paths: {
-        '/foobar': {
+        "/foobar": {
           get: {
             responses: {
-              '200': {
-                description: 'OK',
+              "200": {
+                description: "OK",
                 content: {
-                  'application/json': {
+                  "application/json": {
                     example: {
-                      foo: 'bar',
+                      foo: "bar",
                     },
                   },
                 },
@@ -65,48 +65,48 @@ describe('createMockServer', () => {
           },
         },
       },
-    }
+    };
 
-    const server = await createMockServer({ document })
+    const server = await createMockServer({ document });
 
-    const response = await server.request('/foobar')
+    const response = await server.request("/foobar");
 
-    expect(response.status).toBe(200)
+    expect(response.status).toBe(200);
     expect(await response.json()).toMatchObject({
-      foo: 'bar',
-    })
-  })
+      foo: "bar",
+    });
+  });
 
-  it('GET /foobar -> omits writeOnly properties in responses', async () => {
+  it("GET /foobar -> omits writeOnly properties in responses", async () => {
     const document = {
-      openapi: '3.1.0',
+      openapi: "3.1.0",
       info: {
-        title: 'Hello World',
-        version: '1.0.0',
+        title: "Hello World",
+        version: "1.0.0",
       },
       paths: {
-        '/foobar': {
+        "/foobar": {
           get: {
             responses: {
-              '200': {
-                description: 'OK',
+              "200": {
+                description: "OK",
                 content: {
-                  'application/json': {
+                  "application/json": {
                     schema: {
-                      type: 'object',
+                      type: "object",
                       properties: {
                         id: {
-                          type: 'integer',
-                          format: 'int64',
+                          type: "integer",
+                          format: "int64",
                           readOnly: true,
                           example: 1,
                         },
                         visible: {
-                          type: 'boolean',
+                          type: "boolean",
                           example: true,
                         },
                         password: {
-                          type: 'string',
+                          type: "string",
                           writeOnly: true,
                         },
                       },
@@ -118,44 +118,44 @@ describe('createMockServer', () => {
           },
         },
       },
-    }
+    };
 
-    const server = await createMockServer({ document })
+    const server = await createMockServer({ document });
 
-    const response = await server.request('/foobar')
+    const response = await server.request("/foobar");
 
-    expect(response.status).toBe(200)
+    expect(response.status).toBe(200);
 
-    const data = await response.json()
+    const data = await response.json();
 
-    expect(data).not.toHaveProperty('password')
+    expect(data).not.toHaveProperty("password");
     expect(data).toStrictEqual({
       id: 1,
       visible: true,
-    })
-  })
+    });
+  });
 
-  it('GET /foobar -> return HTML if accepted', async () => {
+  it("GET /foobar -> return HTML if accepted", async () => {
     const document = {
-      openapi: '3.1.0',
+      openapi: "3.1.0",
       info: {
-        title: 'Hello World',
-        version: '1.0.0',
+        title: "Hello World",
+        version: "1.0.0",
       },
       paths: {
-        '/foobar': {
+        "/foobar": {
           get: {
             responses: {
-              '200': {
-                description: 'OK',
+              "200": {
+                description: "OK",
                 content: {
-                  'application/json': {
+                  "application/json": {
                     example: {
-                      foo: 'bar',
+                      foo: "bar",
                     },
                   },
-                  'text/html': {
-                    example: 'foobar',
+                  "text/html": {
+                    example: "foobar",
                   },
                 },
               },
@@ -163,41 +163,41 @@ describe('createMockServer', () => {
           },
         },
       },
-    }
+    };
 
-    const server = await createMockServer({ document })
+    const server = await createMockServer({ document });
 
-    const response = await server.request('/foobar', {
+    const response = await server.request("/foobar", {
       headers: {
-        Accept: 'text/html',
+        Accept: "text/html",
       },
-    })
+    });
 
-    expect(response.status).toBe(200)
-    expect(await response.text()).toBe('foobar')
-  })
+    expect(response.status).toBe(200);
+    expect(await response.text()).toBe("foobar");
+  });
 
-  it('GET /foobar -> fall back to JSON', async () => {
+  it("GET /foobar -> fall back to JSON", async () => {
     const document = {
-      openapi: '3.1.0',
+      openapi: "3.1.0",
       info: {
-        title: 'Hello World',
-        version: '1.0.0',
+        title: "Hello World",
+        version: "1.0.0",
       },
       paths: {
-        '/foobar': {
+        "/foobar": {
           get: {
             responses: {
-              '200': {
-                description: 'OK',
+              "200": {
+                description: "OK",
                 content: {
-                  'application/json': {
+                  "application/json": {
                     example: {
-                      foo: 'bar',
+                      foo: "bar",
                     },
                   },
-                  'text/html': {
-                    example: 'foobar',
+                  "text/html": {
+                    example: "foobar",
                   },
                 },
               },
@@ -205,35 +205,35 @@ describe('createMockServer', () => {
           },
         },
       },
-    }
+    };
 
-    const server = await createMockServer({ document })
+    const server = await createMockServer({ document });
 
-    const response = await server.request('/foobar')
+    const response = await server.request("/foobar");
 
-    expect(response.status).toBe(200)
+    expect(response.status).toBe(200);
     expect(await response.json()).toMatchObject({
-      foo: 'bar',
-    })
-  })
+      foo: "bar",
+    });
+  });
 
-  it('GET /foobar -> XML', async () => {
+  it("GET /foobar -> XML", async () => {
     const document = {
-      openapi: '3.1.0',
+      openapi: "3.1.0",
       info: {
-        title: 'Hello World',
-        version: '1.0.0',
+        title: "Hello World",
+        version: "1.0.0",
       },
       paths: {
-        '/foobar': {
+        "/foobar": {
           get: {
             responses: {
-              '200': {
-                description: 'OK',
+              "200": {
+                description: "OK",
                 content: {
-                  'application/xml': {
+                  "application/xml": {
                     example: {
-                      foo: 'bar',
+                      foo: "bar",
                     },
                   },
                 },
@@ -242,37 +242,37 @@ describe('createMockServer', () => {
           },
         },
       },
-    }
+    };
 
-    const server = await createMockServer({ document })
+    const server = await createMockServer({ document });
 
-    const response = await server.request('/foobar')
+    const response = await server.request("/foobar");
 
-    expect(response.status).toBe(200)
-    expect(await response.text()).toContain('<foo>bar</foo>')
-  })
+    expect(response.status).toBe(200);
+    expect(await response.text()).toContain("<foo>bar</foo>");
+  });
 
-  it('uses http verbs only to register routes', async () => {
+  it("uses http verbs only to register routes", async () => {
     const document = {
-      openapi: '3.1.0',
+      openapi: "3.1.0",
       info: {
-        title: 'Hello World',
-        version: '1.0.0',
+        title: "Hello World",
+        version: "1.0.0",
       },
       paths: {
-        '/foobar': {
-          summary: '',
-          description: '',
+        "/foobar": {
+          summary: "",
+          description: "",
           parameters: {},
           servers: {},
           get: {
             responses: {
-              '200': {
-                description: 'OK',
+              "200": {
+                description: "OK",
                 content: {
-                  'application/json': {
+                  "application/json": {
                     example: {
-                      foo: 'bar',
+                      foo: "bar",
                     },
                   },
                 },
@@ -281,35 +281,35 @@ describe('createMockServer', () => {
           },
         },
       },
-    }
+    };
 
-    const server = await createMockServer({ document })
+    const server = await createMockServer({ document });
 
-    const response = await server.request('/foobar')
+    const response = await server.request("/foobar");
 
-    expect(response.status).toBe(200)
+    expect(response.status).toBe(200);
     expect(await response.json()).toMatchObject({
-      foo: 'bar',
-    })
-  })
+      foo: "bar",
+    });
+  });
 
-  it('POST /foobar -> example JSON', async () => {
+  it("POST /foobar -> example JSON", async () => {
     const document = {
-      openapi: '3.1.0',
+      openapi: "3.1.0",
       info: {
-        title: 'Hello World',
-        version: '1.0.0',
+        title: "Hello World",
+        version: "1.0.0",
       },
       paths: {
-        '/foobar': {
+        "/foobar": {
           post: {
             responses: {
-              '200': {
-                description: 'OK',
+              "200": {
+                description: "OK",
                 content: {
-                  'application/json': {
+                  "application/json": {
                     example: {
-                      foo: 'bar',
+                      foo: "bar",
                     },
                   },
                 },
@@ -318,37 +318,37 @@ describe('createMockServer', () => {
           },
         },
       },
-    }
+    };
 
-    const server = await createMockServer({ document })
+    const server = await createMockServer({ document });
 
-    const response = await server.request('/foobar', {
-      method: 'POST',
-    })
+    const response = await server.request("/foobar", {
+      method: "POST",
+    });
 
-    expect(response.status).toBe(200)
+    expect(response.status).toBe(200);
     expect(await response.json()).toMatchObject({
-      foo: 'bar',
-    })
-  })
+      foo: "bar",
+    });
+  });
 
-  it('POST /foobar -> return 201', async () => {
+  it("POST /foobar -> return 201", async () => {
     const document = {
-      openapi: '3.1.0',
+      openapi: "3.1.0",
       info: {
-        title: 'Hello World',
-        version: '1.0.0',
+        title: "Hello World",
+        version: "1.0.0",
       },
       paths: {
-        '/foobar': {
+        "/foobar": {
           post: {
             responses: {
-              '201': {
-                description: 'OK',
+              "201": {
+                description: "OK",
                 content: {
-                  'application/json': {
+                  "application/json": {
                     example: {
-                      foo: 'bar',
+                      foo: "bar",
                     },
                   },
                 },
@@ -357,37 +357,37 @@ describe('createMockServer', () => {
           },
         },
       },
-    }
+    };
 
-    const server = await createMockServer({ document })
+    const server = await createMockServer({ document });
 
-    const response = await server.request('/foobar', {
-      method: 'POST',
-    })
+    const response = await server.request("/foobar", {
+      method: "POST",
+    });
 
-    expect(response.status).toBe(201)
+    expect(response.status).toBe(201);
     expect(await response.json()).toMatchObject({
-      foo: 'bar',
-    })
-  })
+      foo: "bar",
+    });
+  });
 
-  it('POST /foobar/{id} -> example JSON', async () => {
+  it("POST /foobar/{id} -> example JSON", async () => {
     const document = {
-      openapi: '3.1.0',
+      openapi: "3.1.0",
       info: {
-        title: 'Hello World',
-        version: '1.0.0',
+        title: "Hello World",
+        version: "1.0.0",
       },
       paths: {
-        '/foobar/{id}': {
+        "/foobar/{id}": {
           get: {
             responses: {
-              '200': {
-                description: 'OK',
+              "200": {
+                description: "OK",
                 content: {
-                  'application/json': {
+                  "application/json": {
                     example: {
-                      foo: 'bar',
+                      foo: "bar",
                     },
                   },
                 },
@@ -396,40 +396,40 @@ describe('createMockServer', () => {
           },
         },
       },
-    }
+    };
 
-    const server = await createMockServer({ document })
+    const server = await createMockServer({ document });
 
-    const response = await server.request('/foobar/123')
+    const response = await server.request("/foobar/123");
 
-    expect(response.status).toBe(200)
+    expect(response.status).toBe(200);
     expect(await response.json()).toMatchObject({
-      foo: 'bar',
-    })
-  })
+      foo: "bar",
+    });
+  });
 
-  it('POST /foobar/{id} -> uses dynamic ID', async () => {
+  it("POST /foobar/{id} -> uses dynamic ID", async () => {
     const document = {
-      openapi: '3.1.0',
+      openapi: "3.1.0",
       info: {
-        title: 'Hello World',
-        version: '1.0.0',
+        title: "Hello World",
+        version: "1.0.0",
       },
       paths: {
-        '/foobar/{id}': {
+        "/foobar/{id}": {
           get: {
             responses: {
-              '200': {
-                description: 'OK',
+              "200": {
+                description: "OK",
                 content: {
-                  'application/json': {
+                  "application/json": {
                     schema: {
-                      type: 'object',
+                      type: "object",
                       properties: {
                         id: {
-                          'type': 'number',
-                          'example': 'bar',
-                          'x-variable': 'id',
+                          type: "number",
+                          example: "bar",
+                          "x-variable": "id",
                         },
                       },
                     },
@@ -440,39 +440,39 @@ describe('createMockServer', () => {
           },
         },
       },
-    }
+    };
 
-    const server = await createMockServer({ document })
+    const server = await createMockServer({ document });
 
-    const response = await server.request('/foobar/123')
+    const response = await server.request("/foobar/123");
 
     expect(await response.json()).toMatchObject({
       id: 123,
-    })
-    expect(response.status).toBe(200)
-  })
+    });
+    expect(response.status).toBe(200);
+  });
 
-  it('GET /foobar -> example from schema', async () => {
+  it("GET /foobar -> example from schema", async () => {
     const document = {
-      openapi: '3.1.0',
+      openapi: "3.1.0",
       info: {
-        title: 'Hello World',
-        version: '1.0.0',
+        title: "Hello World",
+        version: "1.0.0",
       },
       paths: {
-        '/foobar': {
+        "/foobar": {
           get: {
             responses: {
-              '200': {
-                description: 'OK',
+              "200": {
+                description: "OK",
                 content: {
-                  'application/json': {
+                  "application/json": {
                     schema: {
-                      type: 'object',
+                      type: "object",
                       properties: {
                         foo: {
-                          type: 'string',
-                          example: 'bar',
+                          type: "string",
+                          example: "bar",
                         },
                       },
                     },
@@ -483,39 +483,39 @@ describe('createMockServer', () => {
           },
         },
       },
-    }
+    };
 
-    const server = await createMockServer({ document })
+    const server = await createMockServer({ document });
 
-    const response = await server.request('/foobar')
+    const response = await server.request("/foobar");
 
-    expect(response.status).toBe(200)
+    expect(response.status).toBe(200);
     expect(await response.json()).toMatchObject({
-      foo: 'bar',
-    })
-  })
+      foo: "bar",
+    });
+  });
 
-  it('GET /foobar/{id} -> example from schema', async () => {
+  it("GET /foobar/{id} -> example from schema", async () => {
     const document = {
-      openapi: '3.1.0',
+      openapi: "3.1.0",
       info: {
-        title: 'Hello World',
-        version: '1.0.0',
+        title: "Hello World",
+        version: "1.0.0",
       },
       paths: {
-        '/foobar/{id}': {
+        "/foobar/{id}": {
           get: {
             responses: {
-              '200': {
-                description: 'OK',
+              "200": {
+                description: "OK",
                 content: {
-                  'application/json': {
+                  "application/json": {
                     schema: {
-                      type: 'object',
+                      type: "object",
                       properties: {
                         foo: {
-                          type: 'string',
-                          example: 'bar',
+                          type: "string",
+                          example: "bar",
                         },
                       },
                     },
@@ -526,67 +526,67 @@ describe('createMockServer', () => {
           },
         },
       },
-    }
+    };
 
-    const server = await createMockServer({ document })
+    const server = await createMockServer({ document });
 
-    const response = await server.request('/foobar/123')
+    const response = await server.request("/foobar/123");
 
-    expect(response.status).toBe(200)
+    expect(response.status).toBe(200);
     expect(await response.json()).toMatchObject({
-      foo: 'bar',
-    })
-  })
+      foo: "bar",
+    });
+  });
 
-  it('DELETE /foobar -> return 204', async () => {
+  it("DELETE /foobar -> return 204", async () => {
     const document = {
-      openapi: '3.1.0',
+      openapi: "3.1.0",
       info: {
-        title: 'Hello World',
-        version: '1.0.0',
+        title: "Hello World",
+        version: "1.0.0",
       },
       paths: {
-        '/foobar': {
+        "/foobar": {
           delete: {
             responses: {
-              '204': {
-                description: 'OK',
+              "204": {
+                description: "OK",
                 content: {
-                  'application/json': {},
+                  "application/json": {},
                 },
               },
             },
           },
         },
       },
-    }
+    };
 
-    const server = await createMockServer({ document })
+    const server = await createMockServer({ document });
 
-    const response = await server.request('/foobar', {
-      method: 'DELETE',
-    })
+    const response = await server.request("/foobar", {
+      method: "DELETE",
+    });
 
-    expect(response.status).toBe(204)
-  })
+    expect(response.status).toBe(204);
+  });
 
-  it('has CORS headers', async () => {
+  it("has CORS headers", async () => {
     const document = {
-      openapi: '3.1.0',
+      openapi: "3.1.0",
       info: {
-        title: 'Hello World',
-        version: '1.0.0',
+        title: "Hello World",
+        version: "1.0.0",
       },
       paths: {
-        '/foobar': {
+        "/foobar": {
           get: {
             responses: {
-              '200': {
-                description: 'OK',
+              "200": {
+                description: "OK",
                 content: {
-                  'application/json': {
+                  "application/json": {
                     example: {
-                      foo: 'bar',
+                      foo: "bar",
                     },
                   },
                 },
@@ -595,61 +595,63 @@ describe('createMockServer', () => {
           },
         },
       },
-    }
+    };
 
-    const server = await createMockServer({ document })
+    const server = await createMockServer({ document });
 
     // Options request
-    let response = await server.request('/foobar', {
-      method: 'OPTIONS',
+    let response = await server.request("/foobar", {
+      method: "OPTIONS",
       headers: {
-        origin: 'https://example.com',
+        origin: "https://example.com",
       },
-    })
+    });
 
-    expect(response.status).toBe(204)
+    expect(response.status).toBe(204);
 
-    expect(response.headers.get('Access-Control-Allow-Origin')).toBe('*')
+    expect(response.headers.get("Access-Control-Allow-Origin")).toBe("*");
 
-    const allowMethodsHeader = response.headers.get('Access-Control-Allow-Methods')
-    expect(allowMethodsHeader).toBeTypeOf('string')
-    expect(allowMethodsHeader?.split(',').sort()).toStrictEqual(
-      ['GET', 'HEAD', 'PUT', 'POST', 'DELETE', 'PATCH'].sort(),
-    )
+    const allowMethodsHeader = response.headers.get(
+      "Access-Control-Allow-Methods",
+    );
+    expect(allowMethodsHeader).toBeTypeOf("string");
+    expect(allowMethodsHeader?.split(",").sort()).toStrictEqual(
+      ["GET", "HEAD", "PUT", "POST", "DELETE", "PATCH"].sort(),
+    );
 
     // Get request
-    response = await server.request('/foobar', {
+    response = await server.request("/foobar", {
       headers: {
-        origin: 'https://example.com',
+        origin: "https://example.com",
       },
-    })
+    });
 
-    expect(response.status).toBe(200)
-    expect(response.headers.get('Access-Control-Allow-Origin')).toBe('*')
+    expect(response.status).toBe(200);
+    expect(response.headers.get("Access-Control-Allow-Origin")).toBe("*");
 
     expect(await response.json()).toMatchObject({
-      foo: 'bar',
-    })
-  })
+      foo: "bar",
+    });
+  });
 
-  it('adds headers', async () => {
+  it("adds headers", async () => {
     const document = {
-      openapi: '3.1.0',
+      openapi: "3.1.0",
       info: {
-        title: 'Hello World',
-        version: '1.0.0',
+        title: "Hello World",
+        version: "1.0.0",
       },
       paths: {
-        '/foobar': {
+        "/foobar": {
           get: {
             responses: {
-              '200': {
-                description: 'OK',
+              "200": {
+                description: "OK",
                 headers: {
-                  'X-Custom': {
+                  "X-Custom": {
                     schema: {
-                      type: 'string',
-                      example: 'foobar',
+                      type: "string",
+                      example: "foobar",
                     },
                   },
                 },
@@ -658,32 +660,32 @@ describe('createMockServer', () => {
           },
         },
       },
-    }
+    };
 
-    const server = await createMockServer({ document })
+    const server = await createMockServer({ document });
 
-    const response = await server.request('/foobar')
+    const response = await server.request("/foobar");
 
-    expect(response.status).toBe(200)
-    expect(response.headers.get('X-Custom')).toBe('foobar')
-  })
+    expect(response.status).toBe(200);
+    expect(response.headers.get("X-Custom")).toBe("foobar");
+  });
 
-  it('returns implicit flow redirect URL with token fragment', async () => {
+  it("returns implicit flow redirect URL with token fragment", async () => {
     const document = {
-      openapi: '3.1.0',
+      openapi: "3.1.0",
       info: {
-        title: 'Hello World',
-        version: '1.0.0',
+        title: "Hello World",
+        version: "1.0.0",
       },
       components: {
         securitySchemes: {
           oAuth2Implicit: {
-            type: 'oauth2',
+            type: "oauth2",
             flows: {
               implicit: {
-                authorizationUrl: '/oauth/authorize',
+                authorizationUrl: "/oauth/authorize",
                 scopes: {
-                  read: 'Read access',
+                  read: "Read access",
                 },
               },
             },
@@ -691,41 +693,41 @@ describe('createMockServer', () => {
         },
       },
       paths: {},
-    }
+    };
 
-    const server = await createMockServer({ document })
-    const redirectUri = 'https://example.com/callback'
+    const server = await createMockServer({ document });
+    const redirectUri = "https://example.com/callback";
     const response = await server.request(
       `/oauth/authorize?response_type=token&redirect_uri=${encodeURIComponent(redirectUri)}&scope=read&state=abc123`,
-    )
-    const html = await response.text()
+    );
+    const html = await response.text();
 
-    expect(response.status).toBe(200)
+    expect(response.status).toBe(200);
     expect(html).toContain(
       'href="https://example.com/callback#access_token=super-secret-access-token&token_type=Bearer&expires_in=3600&scope=read&state=abc123"',
-    )
+    );
     expect(html).toContain(
       'href="https://example.com/callback#error=access_denied&error_description=User+has+denied+the+authorization+request&state=abc123"',
-    )
-  })
+    );
+  });
 
-  it('returns authorization code redirect URL for auth code flow', async () => {
+  it("returns authorization code redirect URL for auth code flow", async () => {
     const document = {
-      openapi: '3.1.0',
+      openapi: "3.1.0",
       info: {
-        title: 'Hello World',
-        version: '1.0.0',
+        title: "Hello World",
+        version: "1.0.0",
       },
       components: {
         securitySchemes: {
           oAuth2AuthCode: {
-            type: 'oauth2',
+            type: "oauth2",
             flows: {
               authorizationCode: {
-                authorizationUrl: '/oauth/authorize',
-                tokenUrl: '/oauth/token',
+                authorizationUrl: "/oauth/authorize",
+                tokenUrl: "/oauth/token",
                 scopes: {
-                  read: 'Read access',
+                  read: "Read access",
                 },
               },
             },
@@ -733,40 +735,42 @@ describe('createMockServer', () => {
         },
       },
       paths: {},
-    }
+    };
 
-    const server = await createMockServer({ document })
-    const redirectUri = 'https://example.com/callback'
+    const server = await createMockServer({ document });
+    const redirectUri = "https://example.com/callback";
     const response = await server.request(
       `/oauth/authorize?redirect_uri=${encodeURIComponent(redirectUri)}&state=abc123`,
-    )
-    const html = await response.text()
+    );
+    const html = await response.text();
 
-    expect(response.status).toBe(200)
-    expect(html).toContain('href="https://example.com/callback?code=super-secret-token&state=abc123"')
+    expect(response.status).toBe(200);
+    expect(html).toContain(
+      'href="https://example.com/callback?code=super-secret-token&state=abc123"',
+    );
     expect(html).toContain(
       'href="https://example.com/callback?state=abc123&error=access_denied&error_description=User+has+denied+the+authorization+request"',
-    )
-  })
+    );
+  });
 
-  it('handles redirect headers', async () => {
+  it("handles redirect headers", async () => {
     const document = {
-      openapi: '3.1.0',
+      openapi: "3.1.0",
       info: {
-        title: 'Hello World',
-        version: '1.0.0',
+        title: "Hello World",
+        version: "1.0.0",
       },
       paths: {
-        '/redirect': {
+        "/redirect": {
           get: {
             responses: {
-              '301': {
-                description: 'Moved Permanently',
+              "301": {
+                description: "Moved Permanently",
                 headers: {
                   Location: {
                     schema: {
-                      type: 'string',
-                      example: '/new-location',
+                      type: "string",
+                      example: "/new-location",
                     },
                   },
                 },
@@ -775,13 +779,13 @@ describe('createMockServer', () => {
           },
         },
       },
-    }
+    };
 
-    const server = await createMockServer({ document })
+    const server = await createMockServer({ document });
 
-    const response = await server.request('/redirect')
+    const response = await server.request("/redirect");
 
-    expect(response.status).toBe(301)
-    expect(response.headers.get('Location')).toBe('/new-location')
-  })
-})
+    expect(response.status).toBe(301);
+    expect(response.headers.get("Location")).toBe("/new-location");
+  });
+});

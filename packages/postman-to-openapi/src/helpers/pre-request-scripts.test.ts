@@ -1,131 +1,136 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from "vite-plus/test";
 
-import type { Event } from '@/types'
+import type { Event } from "@/types";
 
-import { processPreRequestScripts } from './pre-request-scripts'
+import { processPreRequestScripts } from "./pre-request-scripts";
 
-describe('pre-request-scripts', () => {
-  it('extracts pre-request script from events', () => {
+describe("pre-request-scripts", () => {
+  it("extracts pre-request script from events", () => {
     const events: Event[] = [
       {
-        listen: 'prerequest',
+        listen: "prerequest",
         script: {
-          exec: ['console.log("pre-request");', 'pm.environment.set("token", "abc123");'],
-          type: 'text/javascript',
+          exec: [
+            'console.log("pre-request");',
+            'pm.environment.set("token", "abc123");',
+          ],
+          type: "text/javascript",
         },
       },
-    ]
+    ];
 
-    const result = processPreRequestScripts(events)
+    const result = processPreRequestScripts(events);
 
-    expect(result).toBe('console.log("pre-request");\npm.environment.set("token", "abc123");')
-  })
+    expect(result).toBe(
+      'console.log("pre-request");\npm.environment.set("token", "abc123");',
+    );
+  });
 
-  it('returns undefined when no pre-request event exists', () => {
+  it("returns undefined when no pre-request event exists", () => {
     const events: Event[] = [
       {
-        listen: 'test',
+        listen: "test",
         script: {
           exec: ['pm.test("Status is 200", function() {})'],
-          type: 'text/javascript',
+          type: "text/javascript",
         },
       },
-    ]
+    ];
 
-    const result = processPreRequestScripts(events)
+    const result = processPreRequestScripts(events);
 
-    expect(result).toBeUndefined()
-  })
+    expect(result).toBeUndefined();
+  });
 
-  it('returns undefined when events array is empty', () => {
-    const result = processPreRequestScripts([])
+  it("returns undefined when events array is empty", () => {
+    const result = processPreRequestScripts([]);
 
-    expect(result).toBeUndefined()
-  })
+    expect(result).toBeUndefined();
+  });
 
-  it('returns undefined when events is undefined', () => {
-    const result = processPreRequestScripts(undefined)
+  it("returns undefined when events is undefined", () => {
+    const result = processPreRequestScripts(undefined);
 
-    expect(result).toBeUndefined()
-  })
+    expect(result).toBeUndefined();
+  });
 
-  it('returns undefined when pre-request event has no script', () => {
+  it("returns undefined when pre-request event has no script", () => {
     const events: Event[] = [
       {
-        listen: 'prerequest',
+        listen: "prerequest",
         script: {
           exec: [],
-          type: 'text/javascript',
+          type: "text/javascript",
         },
       },
-    ]
+    ];
 
-    const result = processPreRequestScripts(events)
+    const result = processPreRequestScripts(events);
 
-    expect(result).toBeUndefined()
-  })
+    expect(result).toBeUndefined();
+  });
 
-  it('returns undefined when script exec is empty', () => {
+  it("returns undefined when script exec is empty", () => {
     const events: Event[] = [
       {
-        listen: 'prerequest',
+        listen: "prerequest",
         script: {
           exec: [],
-          type: 'text/javascript',
+          type: "text/javascript",
         },
       },
-    ]
+    ];
 
-    const result = processPreRequestScripts(events)
+    const result = processPreRequestScripts(events);
 
-    expect(result).toBeUndefined()
-  })
+    expect(result).toBeUndefined();
+  });
 
-  it('handles string exec value', () => {
+  it("handles string exec value", () => {
     const events = [
       {
-        listen: 'prerequest',
+        listen: "prerequest",
         script: {
           exec: 'pm.environment.set("key", "value");',
-          type: 'text/javascript',
+          type: "text/javascript",
         },
       },
-    ]
+    ];
 
-    const result = processPreRequestScripts(events as Event[])
+    const result = processPreRequestScripts(events as Event[]);
 
-    expect(result).toBe('pm.environment.set("key", "value");')
-  })
+    expect(result).toBe('pm.environment.set("key", "value");');
+  });
 
-  it('trims whitespace from script content', () => {
+  it("trims whitespace from script content", () => {
     const events: Event[] = [
       {
-        listen: 'prerequest',
+        listen: "prerequest",
         script: {
-          exec: ['  ', 'pm.environment.set("key", "value");', '  '],
-          type: 'text/javascript',
+          exec: ["  ", 'pm.environment.set("key", "value");', "  "],
+          type: "text/javascript",
         },
       },
-    ]
+    ];
 
-    const result = processPreRequestScripts(events)
+    const result = processPreRequestScripts(events);
 
-    expect(result).toBe('pm.environment.set("key", "value");')
-  })
+    expect(result).toBe('pm.environment.set("key", "value");');
+  });
 
-  it('returns undefined when script is only whitespace', () => {
+  it("returns undefined when script is only whitespace", () => {
     const events: Event[] = [
       {
-        listen: 'prerequest',
+        listen: "prerequest",
         script: {
-          exec: ['   ', '  '],
-          type: 'text/javascript',
+          exec: ["   ", "  "],
+          type: "text/javascript",
         },
       },
-    ]
+    ];
 
-    const result = processPreRequestScripts(events)
+    const result = processPreRequestScripts(events);
 
-    expect(result).toBeUndefined()
-  })
-})
+    expect(result).toBeUndefined();
+  });
+});

@@ -1,6 +1,6 @@
 import { ScalarIconPlus } from '@scalar/icons'
 import { mount } from '@vue/test-utils'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vite-plus/test'
 import { markRaw } from 'vue'
 
 import ScalarIcon from './ScalarIcon.vue'
@@ -82,7 +82,7 @@ describe('ScalarIconLegacyAdapter', () => {
 
     it('passes through data attributes to ScalarIcon', () => {
       const wrapper = mount(ScalarIconLegacyAdapter, {
-        props: { icon: 'Add', 'data-test': 'test-data-attribute' },
+        props: { 'icon': 'Add', 'data-test': 'test-data-attribute' },
       })
 
       const component = wrapper.findComponent(ScalarIcon)
@@ -165,7 +165,10 @@ describe('ScalarIconLegacyAdapter', () => {
 
     it('passes through data attributes to component', () => {
       const wrapper = mount(ScalarIconLegacyAdapter, {
-        props: { icon: markRaw(ScalarIconPlus), 'data-test': 'test-data-attribute' },
+        props: {
+          'icon': markRaw(ScalarIconPlus),
+          'data-test': 'test-data-attribute',
+        },
       })
 
       const component = wrapper.findComponent(ScalarIconPlus)

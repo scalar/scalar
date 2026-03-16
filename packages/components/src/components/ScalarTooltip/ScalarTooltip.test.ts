@@ -1,9 +1,9 @@
 import { mount } from '@vue/test-utils'
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vite-plus/test'
 import { nextTick } from 'vue'
 
-import { ELEMENT_ID } from './constants'
 import ScalarTooltip from './ScalarTooltip.vue'
+import { ELEMENT_ID } from './constants'
 import { cleanupTooltipElement } from './useTooltip'
 
 describe('ScalarTooltip', () => {
@@ -91,7 +91,9 @@ describe('ScalarTooltip', () => {
 
     const tooltip = document.getElementById(ELEMENT_ID)
     expect(tooltip?.style.display).toBe('block')
-    expect(tooltip?.style.getPropertyValue('--scalar-tooltip-offset')).toBe('10px')
+    expect(tooltip?.style.getPropertyValue('--scalar-tooltip-offset')).toBe(
+      '10px',
+    )
   })
 
   it('updates tooltip content when content prop changes', async () => {

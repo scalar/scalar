@@ -24,7 +24,7 @@
   },
   "scripts": {
     "build": "scalar-build-vite",
-    "dev": "vite ./playground -c ./vite.config.ts",
+    "dev": "vp ./playground -c ./vite.config.ts",
     "format": "scalar-format",
     "format:check": "scalar-format-check",
     "lint:check": "scalar-lint-check",
@@ -61,7 +61,8 @@
     "react": "catalog:*",
     "react-dom": "catalog:*",
     "rollup-preserve-directives": "^1.1.1",
-    "vite": "catalog:*"
+    "vite": "catalog:",
+    "vite-plus": "catalog:"
   },
   "peerDependencies": {
     "react": "^18.0.0 || ^19.0.0"

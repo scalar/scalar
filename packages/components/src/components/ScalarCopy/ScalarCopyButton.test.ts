@@ -1,6 +1,6 @@
 import { ScalarIconCheck, ScalarIconCopy } from '@scalar/icons'
 import { mount } from '@vue/test-utils'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vite-plus/test'
 import { nextTick } from 'vue'
 
 import ScalarCopyButton from './ScalarCopyButton.vue'

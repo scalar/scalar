@@ -1,243 +1,246 @@
-import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
-import { type SchemaObject, SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import { mount } from '@vue/test-utils'
-import { describe, expect, it, vi } from 'vitest'
+import { coerceValue } from "@scalar/workspace-store/schemas/typebox-coerce";
+import {
+  type SchemaObject,
+  SchemaObjectSchema,
+} from "@scalar/workspace-store/schemas/v3.1/strict/openapi-document";
+import { mount } from "@vue/test-utils";
+import { describe, expect, it, vi } from "vite-plus/test";
 
-import SchemaObjectProperties from './SchemaObjectProperties.vue'
+import SchemaObjectProperties from "./SchemaObjectProperties.vue";
 
 // Mock child component to avoid deep rendering
-vi.mock('./SchemaProperty.vue', () => ({
+vi.mock("./SchemaProperty.vue", () => ({
   default: {
-    name: 'SchemaProperty',
+    name: "SchemaProperty",
     template: '<div class="schema-property" :data-name="name"></div>',
     props: [
-      'name',
-      'variant',
-      'resolvedSchema',
-      'schema',
-      'level',
-      'compact',
-      'hideHeading',
-      'hideModelNames',
-      'required',
-      'schemas',
-      'discriminatorMapping',
-      'discriminatorPropertyName',
-      'isDiscriminator',
-      'modelValue',
+      "name",
+      "variant",
+      "resolvedSchema",
+      "schema",
+      "level",
+      "compact",
+      "hideHeading",
+      "hideModelNames",
+      "required",
+      "schemas",
+      "discriminatorMapping",
+      "discriminatorPropertyName",
+      "isDiscriminator",
+      "modelValue",
     ],
   },
-}))
+}));
 
-describe('SchemaObjectProperties', () => {
-  it('renders properties as SchemaProperty components', () => {
+describe("SchemaObjectProperties", () => {
+  it("renders properties as SchemaProperty components", () => {
     const schema = coerceValue(SchemaObjectSchema, {
-      type: 'object',
+      type: "object",
       properties: {
-        foo: { type: 'string' },
-        bar: { type: 'number' },
+        foo: { type: "string" },
+        bar: { type: "number" },
       },
-      required: ['foo'],
-    })
+      required: ["foo"],
+    });
 
     const wrapper = mount(SchemaObjectProperties, {
       props: { schema, options: {}, eventBus: null },
-    })
-    const props = wrapper.findAll('.schema-property')
-    expect(props[0]?.attributes('data-name')).toBe('foo')
-    expect(props[1]?.attributes('data-name')).toBe('bar')
-  })
+    });
+    const props = wrapper.findAll(".schema-property");
+    expect(props[0]?.attributes("data-name")).toBe("foo");
+    expect(props[1]?.attributes("data-name")).toBe("bar");
+  });
 
-  it('marks required properties', () => {
+  it("marks required properties", () => {
     const schema = coerceValue(SchemaObjectSchema, {
-      type: 'object',
+      type: "object",
       properties: {
-        foo: { type: 'string' },
-        bar: { type: 'number' },
+        foo: { type: "string" },
+        bar: { type: "number" },
       },
-      required: ['foo'],
-    })
+      required: ["foo"],
+    });
 
     const wrapper = mount(SchemaObjectProperties, {
       props: { schema, options: {}, eventBus: null },
-    })
+    });
     // The required prop is passed to SchemaProperty, but since we mock it, we cannot check directly.
     // Instead, check that both properties are rendered.
-    expect(wrapper.findAll('.schema-property')).toHaveLength(2)
-  })
+    expect(wrapper.findAll(".schema-property")).toHaveLength(2);
+  });
 
-  it('renders patternProperties as SchemaProperty components', () => {
+  it("renders patternProperties as SchemaProperty components", () => {
     const schema = coerceValue(SchemaObjectSchema, {
-      type: 'object',
+      type: "object",
       patternProperties: {
-        '^x-': { type: 'string' },
-        '^y-': { type: 'boolean' },
+        "^x-": { type: "string" },
+        "^y-": { type: "boolean" },
       },
-    })
+    });
 
     const wrapper = mount(SchemaObjectProperties, {
       props: { schema, options: {}, eventBus: null },
-    })
+    });
 
-    const props = wrapper.findAll('.schema-property')
-    expect(props).toHaveLength(2)
-    expect(props[0]?.attributes('data-name')).toBe('^x-')
-    expect(props[1]?.attributes('data-name')).toBe('^y-')
-  })
+    const props = wrapper.findAll(".schema-property");
+    expect(props).toHaveLength(2);
+    expect(props[0]?.attributes("data-name")).toBe("^x-");
+    expect(props[1]?.attributes("data-name")).toBe("^y-");
+  });
 
-  it('renders additionalProperties as SchemaProperty with default name', () => {
+  it("renders additionalProperties as SchemaProperty with default name", () => {
     const schema = coerceValue(SchemaObjectSchema, {
-      type: 'object',
-      additionalProperties: { type: 'string' },
-    })
+      type: "object",
+      additionalProperties: { type: "string" },
+    });
 
     const wrapper = mount(SchemaObjectProperties, {
       props: { schema, options: {}, eventBus: null },
-    })
+    });
 
-    const prop = wrapper.find('.schema-property')
-    expect(prop.exists()).toBe(true)
-    expect(prop.attributes('data-name')).toBe('propertyName')
-  })
+    const prop = wrapper.find(".schema-property");
+    expect(prop.exists()).toBe(true);
+    expect(prop.attributes("data-name")).toBe("propertyName");
+  });
 
-  it('renders additionalProperties with x-additionalPropertiesName', () => {
+  it("renders additionalProperties with x-additionalPropertiesName", () => {
     const schema = coerceValue(SchemaObjectSchema, {
-      type: 'object',
+      type: "object",
       additionalProperties: {
-        type: 'string',
-        'x-additionalPropertiesName': 'customName',
+        type: "string",
+        "x-additionalPropertiesName": "customName",
       },
-    })
+    });
 
     const wrapper = mount(SchemaObjectProperties, {
       props: { schema, options: {}, eventBus: null },
-    })
+    });
 
-    const prop = wrapper.find('.schema-property')
-    expect(prop.exists()).toBe(true)
-    expect(prop.attributes('data-name')).toBe('customName')
-  })
+    const prop = wrapper.find(".schema-property");
+    expect(prop.exists()).toBe(true);
+    expect(prop.attributes("data-name")).toBe("customName");
+  });
 
-  it('handles additionalProperties as boolean true correctly', () => {
+  it("handles additionalProperties as boolean true correctly", () => {
     const schema = coerceValue(SchemaObjectSchema, {
-      type: 'object',
+      type: "object",
       additionalProperties: true,
-    })
+    });
 
     const wrapper = mount(SchemaObjectProperties, {
       props: { schema, options: {}, eventBus: null },
-    })
+    });
 
-    const prop = wrapper.find('.schema-property')
-    expect(prop.exists()).toBe(true)
-    expect(prop.attributes('data-name')).toBe('propertyName')
-  })
+    const prop = wrapper.find(".schema-property");
+    expect(prop.exists()).toBe(true);
+    expect(prop.attributes("data-name")).toBe("propertyName");
+  });
 
-  it('handles additionalProperties as empty object correctly', () => {
+  it("handles additionalProperties as empty object correctly", () => {
     const schema = coerceValue(SchemaObjectSchema, {
-      type: 'object',
+      type: "object",
       additionalProperties: {},
-    })
+    });
 
     const wrapper = mount(SchemaObjectProperties, {
       props: { schema, options: {}, eventBus: null },
-    })
+    });
 
-    const prop = wrapper.find('.schema-property')
-    expect(prop.exists()).toBe(true)
-    expect(prop.attributes('data-name')).toBe('propertyName')
-  })
+    const prop = wrapper.find(".schema-property");
+    expect(prop.exists()).toBe(true);
+    expect(prop.attributes("data-name")).toBe("propertyName");
+  });
 
-  it('does not render anything if schema has no properties, patternProperties, or additionalProperties', () => {
+  it("does not render anything if schema has no properties, patternProperties, or additionalProperties", () => {
     const schema = coerceValue(SchemaObjectSchema, {
-      type: 'object',
-    })
+      type: "object",
+    });
 
     const wrapper = mount(SchemaObjectProperties, {
       props: { schema, options: {}, eventBus: null },
-    })
+    });
 
-    expect(wrapper.findAll('.schema-property')).toHaveLength(0)
-  })
+    expect(wrapper.findAll(".schema-property")).toHaveLength(0);
+  });
 
-  it('does not render additionalProperties when set to false', () => {
+  it("does not render additionalProperties when set to false", () => {
     const schema = coerceValue(SchemaObjectSchema, {
-      type: 'object',
+      type: "object",
       properties: {
-        name: { type: 'string' },
+        name: { type: "string" },
       },
       additionalProperties: false,
-    })
+    });
 
     const wrapper = mount(SchemaObjectProperties, {
       props: { schema, options: {}, eventBus: null },
-    })
+    });
 
-    const props = wrapper.findAll('.schema-property')
-    expect(props).toHaveLength(1)
-    expect(props[0]?.attributes('data-name')).toBe('name')
+    const props = wrapper.findAll(".schema-property");
+    expect(props).toHaveLength(1);
+    expect(props[0]?.attributes("data-name")).toBe("name");
     // Should not have any additional properties rendered
-    expect(wrapper.find('[data-name="propertyName"]').exists()).toBe(false)
-  })
+    expect(wrapper.find('[data-name="propertyName"]').exists()).toBe(false);
+  });
 
-  it('sorts properties alphabetically when all have same required status', () => {
+  it("sorts properties alphabetically when all have same required status", () => {
     const schema = coerceValue(SchemaObjectSchema, {
-      type: 'object',
+      type: "object",
       properties: {
-        zebra: { type: 'string' },
-        alpha: { type: 'number' },
-        beta: { type: 'boolean' },
+        zebra: { type: "string" },
+        alpha: { type: "number" },
+        beta: { type: "boolean" },
       },
-    })
+    });
 
     const wrapper = mount(SchemaObjectProperties, {
       props: { schema, options: {}, eventBus: null },
-    })
+    });
 
-    const props = wrapper.findAll('.schema-property')
-    expect(props).toHaveLength(3)
-    expect(props[0]?.attributes('data-name')).toBe('alpha')
-    expect(props[1]?.attributes('data-name')).toBe('beta')
-    expect(props[2]?.attributes('data-name')).toBe('zebra')
-  })
+    const props = wrapper.findAll(".schema-property");
+    expect(props).toHaveLength(3);
+    expect(props[0]?.attributes("data-name")).toBe("alpha");
+    expect(props[1]?.attributes("data-name")).toBe("beta");
+    expect(props[2]?.attributes("data-name")).toBe("zebra");
+  });
 
-  it('sorts required properties first, then alphabetically', () => {
+  it("sorts required properties first, then alphabetically", () => {
     const schema = coerceValue(SchemaObjectSchema, {
-      type: 'object',
+      type: "object",
       properties: {
-        zebra: { type: 'string' },
-        alpha: { type: 'number' },
-        beta: { type: 'boolean' },
-        gamma: { type: 'object' },
+        zebra: { type: "string" },
+        alpha: { type: "number" },
+        beta: { type: "boolean" },
+        gamma: { type: "object" },
       },
-      required: ['zebra', 'gamma'],
-    })
+      required: ["zebra", "gamma"],
+    });
 
     const wrapper = mount(SchemaObjectProperties, {
       props: { schema, options: {}, eventBus: null },
-    })
+    });
 
-    const props = wrapper.findAll('.schema-property')
-    expect(props).toHaveLength(4)
+    const props = wrapper.findAll(".schema-property");
+    expect(props).toHaveLength(4);
     // Required properties should come first, sorted alphabetically
-    expect(props[0]?.attributes('data-name')).toBe('gamma')
-    expect(props[1]?.attributes('data-name')).toBe('zebra')
+    expect(props[0]?.attributes("data-name")).toBe("gamma");
+    expect(props[1]?.attributes("data-name")).toBe("zebra");
     // Optional properties should come after, sorted alphabetically
-    expect(props[2]?.attributes('data-name')).toBe('alpha')
-    expect(props[3]?.attributes('data-name')).toBe('beta')
-  })
+    expect(props[2]?.attributes("data-name")).toBe("alpha");
+    expect(props[3]?.attributes("data-name")).toBe("beta");
+  });
 
-  it('sorts properties alphabetically when orderRequiredPropertiesFirst is false', () => {
+  it("sorts properties alphabetically when orderRequiredPropertiesFirst is false", () => {
     const schema: SchemaObject = {
-      type: 'object',
+      type: "object",
       properties: {
-        zebra: { type: 'string' },
-        alpha: { type: 'number' },
-        beta: { type: 'boolean' },
-        gamma: { type: 'object' },
+        zebra: { type: "string" },
+        alpha: { type: "number" },
+        beta: { type: "boolean" },
+        gamma: { type: "object" },
       },
-      required: ['zebra', 'gamma'],
-    }
+      required: ["zebra", "gamma"],
+    };
 
     const wrapper = mount(SchemaObjectProperties, {
       props: {
@@ -247,93 +250,93 @@ describe('SchemaObjectProperties', () => {
         },
         eventBus: null,
       },
-    })
+    });
 
-    const props = wrapper.findAll('.schema-property')
-    expect(props).toHaveLength(4)
+    const props = wrapper.findAll(".schema-property");
+    expect(props).toHaveLength(4);
     // When orderRequiredPropertiesFirst is false, all properties should be sorted alphabetically
     // regardless of required status
-    expect(props[0]?.attributes('data-name')).toBe('alpha')
-    expect(props[1]?.attributes('data-name')).toBe('beta')
-    expect(props[2]?.attributes('data-name')).toBe('gamma')
-    expect(props[3]?.attributes('data-name')).toBe('zebra')
-  })
+    expect(props[0]?.attributes("data-name")).toBe("alpha");
+    expect(props[1]?.attributes("data-name")).toBe("beta");
+    expect(props[2]?.attributes("data-name")).toBe("gamma");
+    expect(props[3]?.attributes("data-name")).toBe("zebra");
+  });
 
-  it('orders properties by x-order specification extension', () => {
+  it("orders properties by x-order specification extension", () => {
     const schema = coerceValue(SchemaObjectSchema, {
-      type: 'object',
+      type: "object",
       properties: {
-        zebra: { type: 'string', 'x-order': 3 },
-        alpha: { type: 'number', 'x-order': 1 },
-        beta: { type: 'boolean', 'x-order': 2 },
+        zebra: { type: "string", "x-order": 3 },
+        alpha: { type: "number", "x-order": 1 },
+        beta: { type: "boolean", "x-order": 2 },
       },
-    })
+    });
 
     const wrapper = mount(SchemaObjectProperties, {
       props: { schema, options: {}, eventBus: null },
-    })
+    });
 
-    const props = wrapper.findAll('.schema-property')
-    expect(props).toHaveLength(3)
+    const props = wrapper.findAll(".schema-property");
+    expect(props).toHaveLength(3);
     // Properties should be ordered by x-order value
-    expect(props[0]?.attributes('data-name')).toBe('alpha')
-    expect(props[1]?.attributes('data-name')).toBe('beta')
-    expect(props[2]?.attributes('data-name')).toBe('zebra')
-  })
+    expect(props[0]?.attributes("data-name")).toBe("alpha");
+    expect(props[1]?.attributes("data-name")).toBe("beta");
+    expect(props[2]?.attributes("data-name")).toBe("zebra");
+  });
 
-  it('falls back to default sorting for properties without x-order', () => {
+  it("falls back to default sorting for properties without x-order", () => {
     const schema = coerceValue(SchemaObjectSchema, {
-      type: 'object',
+      type: "object",
       properties: {
-        zebra: { type: 'string', 'x-order': 1 },
-        alpha: { type: 'number' },
-        beta: { type: 'boolean', 'x-order': 2 },
+        zebra: { type: "string", "x-order": 1 },
+        alpha: { type: "number" },
+        beta: { type: "boolean", "x-order": 2 },
       },
-    })
+    });
 
     const wrapper = mount(SchemaObjectProperties, {
       props: { schema, options: {}, eventBus: null },
-    })
+    });
 
-    const props = wrapper.findAll('.schema-property')
-    expect(props).toHaveLength(3)
+    const props = wrapper.findAll(".schema-property");
+    expect(props).toHaveLength(3);
     // Properties with x-order should come first (sorted by x-order),
     // then properties without x-order (sorted alphabetically)
-    expect(props[0]?.attributes('data-name')).toBe('zebra')
-    expect(props[1]?.attributes('data-name')).toBe('beta')
-    expect(props[2]?.attributes('data-name')).toBe('alpha')
-  })
+    expect(props[0]?.attributes("data-name")).toBe("zebra");
+    expect(props[1]?.attributes("data-name")).toBe("beta");
+    expect(props[2]?.attributes("data-name")).toBe("alpha");
+  });
 
-  it('preserves original property order when orderSchemaPropertiesBy is preserve', () => {
+  it("preserves original property order when orderSchemaPropertiesBy is preserve", () => {
     const schema: SchemaObject = {
-      type: 'object',
+      type: "object",
       properties: {
-        zebra: { type: 'string' },
-        alpha: { type: 'number' },
-        beta: { type: 'boolean' },
-        gamma: { type: 'object' },
+        zebra: { type: "string" },
+        alpha: { type: "number" },
+        beta: { type: "boolean" },
+        gamma: { type: "object" },
       },
-      required: ['zebra', 'gamma'],
-    }
+      required: ["zebra", "gamma"],
+    };
 
     const wrapper = mount(SchemaObjectProperties, {
       props: {
         schema,
         eventBus: null,
         options: {
-          orderSchemaPropertiesBy: 'preserve',
+          orderSchemaPropertiesBy: "preserve",
           orderRequiredPropertiesFirst: false,
         },
       },
-    })
+    });
 
-    const props = wrapper.findAll('.schema-property')
-    expect(props).toHaveLength(4)
+    const props = wrapper.findAll(".schema-property");
+    expect(props).toHaveLength(4);
     // When orderSchemaPropertiesBy is 'preserve', properties should maintain their original order
     // from the schema definition, regardless of required status or alphabetical order
-    expect(props[0]?.attributes('data-name')).toBe('zebra')
-    expect(props[1]?.attributes('data-name')).toBe('alpha')
-    expect(props[2]?.attributes('data-name')).toBe('beta')
-    expect(props[3]?.attributes('data-name')).toBe('gamma')
-  })
-})
+    expect(props[0]?.attributes("data-name")).toBe("zebra");
+    expect(props[1]?.attributes("data-name")).toBe("alpha");
+    expect(props[2]?.attributes("data-name")).toBe("beta");
+    expect(props[3]?.attributes("data-name")).toBe("gamma");
+  });
+});

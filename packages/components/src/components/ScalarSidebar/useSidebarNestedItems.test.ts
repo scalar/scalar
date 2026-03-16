@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vite-plus/test'
 import { type Ref, computed, inject, nextTick, ref } from 'vue'
 
 import { useSidebarNestedItem } from './useSidebarNestedItems'

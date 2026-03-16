@@ -1,47 +1,49 @@
-import { Value } from '@scalar/typebox/value'
-import { describe, expect, it } from 'vitest'
+import { Value } from "@scalar/typebox/value";
+import { describe, expect, it } from "vite-plus/test";
 
-import { XBadgeSchema, XBadgesSchema } from './x-badge'
+import { XBadgeSchema, XBadgesSchema } from "./x-badge";
 
-describe('x-badge', () => {
-  it('validates minimal badge with only required name', () => {
-    const result = Value.Parse(XBadgeSchema, { name: 'Deprecated' })
+describe("x-badge", () => {
+  it("validates minimal badge with only required name", () => {
+    const result = Value.Parse(XBadgeSchema, { name: "Deprecated" });
     expect(result).toEqual({
-      name: 'Deprecated',
-      position: 'after',
-    })
-  })
+      name: "Deprecated",
+      position: "after",
+    });
+  });
 
-  it('throws when badge without required name field', () => {
-    expect(() => Value.Parse(XBadgeSchema, { position: 'after', color: 'red' })).toThrow()
-  })
+  it("throws when badge without required name field", () => {
+    expect(() =>
+      Value.Parse(XBadgeSchema, { position: "after", color: "red" }),
+    ).toThrow();
+  });
 
-  it('validates badge with all optional properties', () => {
+  it("validates badge with all optional properties", () => {
     const result = Value.Parse(XBadgeSchema, {
-      name: 'Beta',
-      position: 'before',
-      color: '#ff6b6b',
-    })
+      name: "Beta",
+      position: "before",
+      color: "#ff6b6b",
+    });
     expect(result).toEqual({
-      name: 'Beta',
-      position: 'before',
-      color: '#ff6b6b',
-    })
-  })
+      name: "Beta",
+      position: "before",
+      color: "#ff6b6b",
+    });
+  });
 
-  it('validates array with single badge', () => {
+  it("validates array with single badge", () => {
     const result = Value.Parse(XBadgesSchema, {
-      'x-badges': [{ name: 'Deprecated' }],
-    })
+      "x-badges": [{ name: "Deprecated" }],
+    });
     expect(result).toEqual({
-      'x-badges': [{ name: 'Deprecated', position: 'after' }],
-    })
-  })
+      "x-badges": [{ name: "Deprecated", position: "after" }],
+    });
+  });
 
-  it('defaults to undefined when empty object', () => {
-    const result = Value.Parse(XBadgesSchema, {})
+  it("defaults to undefined when empty object", () => {
+    const result = Value.Parse(XBadgesSchema, {});
     expect(result).toEqual({
-      'x-badges': undefined,
-    })
-  })
-})
+      "x-badges": undefined,
+    });
+  });
+});

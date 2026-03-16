@@ -1,253 +1,253 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from "vite-plus/test";
 
-import type { UnknownObject } from '@/helpers/general'
+import type { UnknownObject } from "@/helpers/general";
 
-import { getResolvedRef } from './helpers'
+import { getResolvedRef } from "./helpers";
 
-describe('getResolvedRef', () => {
-  it('returns the original node when it is not a $ref', () => {
-    const node = { name: 'User', type: 'object' }
-    const context = { rootNode: {} }
+describe("getResolvedRef", () => {
+  it("returns the original node when it is not a $ref", () => {
+    const node = { name: "User", type: "object" };
+    const context = { rootNode: {} };
 
-    const result = getResolvedRef(node, context)
+    const result = getResolvedRef(node, context);
 
-    expect(result).toBe(node)
-  })
+    expect(result).toBe(node);
+  });
 
-  it('resolves a simple local $ref', () => {
+  it("resolves a simple local $ref", () => {
     const rootNode: UnknownObject = {
       components: {
         schemas: {
           User: {
-            type: 'object',
+            type: "object",
             properties: {
-              name: { type: 'string' },
+              name: { type: "string" },
             },
           },
         },
       },
-    }
+    };
 
-    const node = { $ref: '#/components/schemas/User' }
-    const context = { rootNode }
+    const node = { $ref: "#/components/schemas/User" };
+    const context = { rootNode };
 
-    const result = getResolvedRef(node, context)
+    const result = getResolvedRef(node, context);
 
     expect(result).toEqual({
-      type: 'object',
+      type: "object",
       properties: {
-        name: { type: 'string' },
+        name: { type: "string" },
       },
-    })
-  })
+    });
+  });
 
-  it('recursively resolves nested $refs', () => {
+  it("recursively resolves nested $refs", () => {
     const rootNode: UnknownObject = {
       components: {
         schemas: {
-          User: { $ref: '#/components/schemas/Person' },
+          User: { $ref: "#/components/schemas/Person" },
           Person: {
-            type: 'object',
+            type: "object",
             properties: {
-              name: { type: 'string' },
+              name: { type: "string" },
             },
           },
         },
       },
-    }
+    };
 
-    const node = { $ref: '#/components/schemas/User' }
-    const context = { rootNode }
+    const node = { $ref: "#/components/schemas/User" };
+    const context = { rootNode };
 
-    const result = getResolvedRef(node, context)
+    const result = getResolvedRef(node, context);
 
     expect(result).toEqual({
-      type: 'object',
+      type: "object",
       properties: {
-        name: { type: 'string' },
+        name: { type: "string" },
       },
-    })
-  })
+    });
+  });
 
-  it('resolves deeply nested $refs', () => {
+  it("resolves deeply nested $refs", () => {
     const rootNode: UnknownObject = {
       components: {
         schemas: {
-          A: { $ref: '#/components/schemas/B' },
-          B: { $ref: '#/components/schemas/C' },
-          C: { $ref: '#/components/schemas/D' },
+          A: { $ref: "#/components/schemas/B" },
+          B: { $ref: "#/components/schemas/C" },
+          C: { $ref: "#/components/schemas/D" },
           D: {
-            type: 'string',
+            type: "string",
           },
         },
       },
-    }
+    };
 
-    const node = { $ref: '#/components/schemas/A' }
-    const context = { rootNode }
+    const node = { $ref: "#/components/schemas/A" };
+    const context = { rootNode };
 
-    const result = getResolvedRef(node, context)
+    const result = getResolvedRef(node, context);
 
-    expect(result).toEqual({ type: 'string' })
-  })
+    expect(result).toEqual({ type: "string" });
+  });
 
-  it('returns node for external $refs', () => {
-    const rootNode: UnknownObject = {}
-    const node = { $ref: 'https://example.com/schemas/User' }
-    const context = { rootNode }
+  it("returns node for external $refs", () => {
+    const rootNode: UnknownObject = {};
+    const node = { $ref: "https://example.com/schemas/User" };
+    const context = { rootNode };
 
-    const result = getResolvedRef(node, context)
+    const result = getResolvedRef(node, context);
 
-    expect(result).toBe(node)
-  })
+    expect(result).toBe(node);
+  });
 
-  it('returns node for relative file $refs', () => {
-    const rootNode: UnknownObject = {}
-    const node = { $ref: './schemas/User.json' }
-    const context = { rootNode }
+  it("returns node for relative file $refs", () => {
+    const rootNode: UnknownObject = {};
+    const node = { $ref: "./schemas/User.json" };
+    const context = { rootNode };
 
-    const result = getResolvedRef(node, context)
+    const result = getResolvedRef(node, context);
 
-    expect(result).toBe(node)
-  })
+    expect(result).toBe(node);
+  });
 
-  it('returns node for absolute file $refs', () => {
-    const rootNode: UnknownObject = {}
-    const node = { $ref: '/schemas/User.json' }
-    const context = { rootNode }
+  it("returns node for absolute file $refs", () => {
+    const rootNode: UnknownObject = {};
+    const node = { $ref: "/schemas/User.json" };
+    const context = { rootNode };
 
-    const result = getResolvedRef(node, context)
+    const result = getResolvedRef(node, context);
 
-    expect(result).toBe(node)
-  })
+    expect(result).toBe(node);
+  });
 
-  it('returns undefined when $ref path does not exist', () => {
+  it("returns undefined when $ref path does not exist", () => {
     const rootNode: UnknownObject = {
       components: {
         schemas: {},
       },
-    }
+    };
 
-    const node = { $ref: '#/components/schemas/NonExistent' }
-    const context = { rootNode }
+    const node = { $ref: "#/components/schemas/NonExistent" };
+    const context = { rootNode };
 
-    const result = getResolvedRef(node, context)
+    const result = getResolvedRef(node, context);
 
-    expect(result).toBeUndefined()
-  })
+    expect(result).toBeUndefined();
+  });
 
-  it('returns undefined when $ref path is partially invalid', () => {
+  it("returns undefined when $ref path is partially invalid", () => {
     const rootNode: UnknownObject = {
       components: {},
-    }
+    };
 
-    const node = { $ref: '#/components/schemas/User' }
-    const context = { rootNode }
+    const node = { $ref: "#/components/schemas/User" };
+    const context = { rootNode };
 
-    const result = getResolvedRef(node, context)
+    const result = getResolvedRef(node, context);
 
-    expect(result).toBeUndefined()
-  })
+    expect(result).toBeUndefined();
+  });
 
-  it('handles primitives', () => {
-    const node = 'hello'
-    const context = { rootNode: {} }
+  it("handles primitives", () => {
+    const node = "hello";
+    const context = { rootNode: {} };
 
-    const result = getResolvedRef(node, context)
+    const result = getResolvedRef(node, context);
 
-    expect(result).toBe('hello')
-  })
+    expect(result).toBe("hello");
+  });
 
-  it('handles numbers', () => {
-    const node = 42
-    const context = { rootNode: {} }
+  it("handles numbers", () => {
+    const node = 42;
+    const context = { rootNode: {} };
 
-    const result = getResolvedRef(node, context)
+    const result = getResolvedRef(node, context);
 
-    expect(result).toBe(42)
-  })
+    expect(result).toBe(42);
+  });
 
-  it('handles booleans', () => {
-    const node = true
-    const context = { rootNode: {} }
+  it("handles booleans", () => {
+    const node = true;
+    const context = { rootNode: {} };
 
-    const result = getResolvedRef(node, context)
+    const result = getResolvedRef(node, context);
 
-    expect(result).toBe(true)
-  })
+    expect(result).toBe(true);
+  });
 
-  it('handles null', () => {
-    const node = null
-    const context = { rootNode: {} }
+  it("handles null", () => {
+    const node = null;
+    const context = { rootNode: {} };
 
-    const result = getResolvedRef(node, context)
+    const result = getResolvedRef(node, context);
 
-    expect(result).toBeNull()
-  })
+    expect(result).toBeNull();
+  });
 
-  it('handles undefined', () => {
-    const node = undefined
-    const context = { rootNode: {} }
+  it("handles undefined", () => {
+    const node = undefined;
+    const context = { rootNode: {} };
 
-    const result = getResolvedRef(node, context)
+    const result = getResolvedRef(node, context);
 
-    expect(result).toBeUndefined()
-  })
+    expect(result).toBeUndefined();
+  });
 
-  it('handles arrays', () => {
-    const node = [1, 2, 3]
-    const context = { rootNode: {} }
+  it("handles arrays", () => {
+    const node = [1, 2, 3];
+    const context = { rootNode: {} };
 
-    const result = getResolvedRef(node, context)
+    const result = getResolvedRef(node, context);
 
-    expect(result).toEqual([1, 2, 3])
-  })
+    expect(result).toEqual([1, 2, 3]);
+  });
 
-  it('handles objects with $ref but non-string value', () => {
-    const node = { $ref: 123 }
-    const context = { rootNode: {} }
+  it("handles objects with $ref but non-string value", () => {
+    const node = { $ref: 123 };
+    const context = { rootNode: {} };
 
-    const result = getResolvedRef(node, context)
+    const result = getResolvedRef(node, context);
 
-    expect(result).toEqual({ $ref: 123 })
-  })
+    expect(result).toEqual({ $ref: 123 });
+  });
 
-  it('handles objects with $ref but empty string', () => {
-    const rootNode: UnknownObject = {}
-    const node = { $ref: '' }
-    const context = { rootNode }
+  it("handles objects with $ref but empty string", () => {
+    const rootNode: UnknownObject = {};
+    const node = { $ref: "" };
+    const context = { rootNode };
 
-    const result = getResolvedRef(node, context)
+    const result = getResolvedRef(node, context);
 
-    expect(result).toBe(node)
-  })
+    expect(result).toBe(node);
+  });
 
-  it('handles $ref with only hash symbol', () => {
+  it("handles $ref with only hash symbol", () => {
     const rootNode: UnknownObject = {
-      name: 'root',
-    }
-    const node = { $ref: '#' }
-    const context = { rootNode }
+      name: "root",
+    };
+    const node = { $ref: "#" };
+    const context = { rootNode };
 
-    const result = getResolvedRef(node, context)
+    const result = getResolvedRef(node, context);
 
-    expect(result).toBe(rootNode)
-  })
+    expect(result).toBe(rootNode);
+  });
 
-  it('handles $ref pointing to root', () => {
+  it("handles $ref pointing to root", () => {
     const rootNode: UnknownObject = {
-      openapi: '3.1.0',
+      openapi: "3.1.0",
       info: {
-        title: 'API',
+        title: "API",
       },
-    }
-    const node = { $ref: '#/' }
-    const context = { rootNode }
+    };
+    const node = { $ref: "#/" };
+    const context = { rootNode };
 
-    const result = getResolvedRef(node, context)
+    const result = getResolvedRef(node, context);
 
     // When $ref is '#/', after slice(2) we get '', which splits to ['']
     // Looking up rootNode[''] returns undefined
-    expect(result).toBeUndefined()
-  })
-})
+    expect(result).toBeUndefined();
+  });
+});

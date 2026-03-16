@@ -1,5 +1,5 @@
 import { mount } from '@vue/test-utils'
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vite-plus/test'
 
 import ScalarTextInput from './ScalarTextInput.vue'
 
@@ -16,7 +16,7 @@ describe('ScalarTextInput', () => {
   it('binds v-model correctly', async () => {
     const wrapper = mount(ScalarTextInput, {
       props: {
-        modelValue: 'initial',
+        'modelValue': 'initial',
         'onUpdate:modelValue': (e) => wrapper.setProps({ modelValue: e }),
       },
     })
@@ -29,9 +29,9 @@ describe('ScalarTextInput', () => {
   it('passes through attributes to input element', () => {
     const wrapper = mount(ScalarTextInput, {
       attrs: {
-        placeholder: 'Enter text',
+        'placeholder': 'Enter text',
         'data-testid': 'test-input',
-        type: 'email',
+        'type': 'email',
       },
     })
 

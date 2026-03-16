@@ -1,26 +1,30 @@
-import path from 'node:path'
-import { describe, expect, it } from 'vitest'
+import path from "node:path";
 
-import { load, validate } from '../../../../src/index'
-import { readFiles } from '../../../../src/plugins/read-files/read-files'
+import { describe, expect, it } from "vite-plus/test";
 
-const EXAMPLE_FILE = path.join(new URL(import.meta.url).pathname, '../../pass/externalPathItemRef.yaml')
+import { load, validate } from "../../../../src/index";
+import { readFiles } from "../../../../src/plugins/read-files/read-files";
 
-describe('externalPathItemRef', () => {
-  it('passes', async () => {
+const EXAMPLE_FILE = path.join(
+  new URL(import.meta.url).pathname,
+  "../../pass/externalPathItemRef.yaml",
+);
+
+describe("externalPathItemRef", () => {
+  it("passes", async () => {
     const { filesystem } = await load(EXAMPLE_FILE, {
       plugins: [readFiles()],
-    })
+    });
 
-    const { schema } = await validate(filesystem)
+    const { schema } = await validate(filesystem);
 
-    expect(schema.paths['/test'].get).not.toBeUndefined()
-    expect(schema.paths['/test'].get).toMatchObject({
+    expect(schema.paths["/test"].get).not.toBeUndefined();
+    expect(schema.paths["/test"].get).toMatchObject({
       responses: {
-        '200': {
-          description: 'OK',
+        "200": {
+          description: "OK",
         },
       },
-    })
-  })
-})
+    });
+  });
+});

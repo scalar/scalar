@@ -1,40 +1,40 @@
-import { beforeEach, describe, expect, it } from 'vitest'
-import 'fake-indexeddb/auto'
+import { beforeEach, describe, expect, it } from "vite-plus/test";
+import "fake-indexeddb/auto";
 
-import { createWorkspaceStorePersistence } from './index'
+import { createWorkspaceStorePersistence } from "./index";
 
-describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
-  const testDbName = 'scalar-workspace-store'
-  let persistence: Awaited<ReturnType<typeof createWorkspaceStorePersistence>>
+describe("createWorkspaceStorePersistence", { concurrent: false }, () => {
+  const testDbName = "scalar-workspace-store";
+  let persistence: Awaited<ReturnType<typeof createWorkspaceStorePersistence>>;
 
   beforeEach(async () => {
-    persistence = await createWorkspaceStorePersistence()
+    persistence = await createWorkspaceStorePersistence();
 
     return async () => {
-      persistence.close()
+      persistence.close();
 
       // Clean up: delete database
-      const deleteRequest = indexedDB.deleteDatabase(testDbName)
+      const deleteRequest = indexedDB.deleteDatabase(testDbName);
       await new Promise((resolve, reject) => {
-        deleteRequest.onsuccess = () => resolve(undefined)
-        deleteRequest.onerror = () => reject(deleteRequest.error)
-      })
-    }
-  })
+        deleteRequest.onsuccess = () => resolve(undefined);
+        deleteRequest.onerror = () => reject(deleteRequest.error);
+      });
+    };
+  });
 
-  describe('workspace.getAllByTeamUid', () => {
-    it('returns empty array when no workspaces exist', async () => {
-      const workspaces = await persistence.workspace.getAllByTeamUid('team-1')
+  describe("workspace.getAllByTeamUid", () => {
+    it("returns empty array when no workspaces exist", async () => {
+      const workspaces = await persistence.workspace.getAllByTeamUid("team-1");
 
-      expect(workspaces).toEqual([])
-    })
+      expect(workspaces).toEqual([]);
+    });
 
-    it('returns all workspaces for a specific teamUid', async () => {
+    it("returns all workspaces for a specific teamUid", async () => {
       await persistence.workspace.setItem(
-        { slug: 'workspace-1' },
+        { slug: "workspace-1" },
         {
-          name: 'Team Workspace 1',
-          teamUid: 'team-1',
+          name: "Team Workspace 1",
+          teamUid: "team-1",
           workspace: {
             documents: {},
             originalDocuments: {},
@@ -45,13 +45,13 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
             auth: {},
           },
         },
-      )
+      );
 
       await persistence.workspace.setItem(
-        { slug: 'workspace-2' },
+        { slug: "workspace-2" },
         {
-          name: 'Team Workspace 2',
-          teamUid: 'team-1',
+          name: "Team Workspace 2",
+          teamUid: "team-1",
           workspace: {
             documents: {},
             originalDocuments: {},
@@ -62,23 +62,33 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
             auth: {},
           },
         },
-      )
+      );
 
-      const workspaces = await persistence.workspace.getAllByTeamUid('team-1')
+      const workspaces = await persistence.workspace.getAllByTeamUid("team-1");
 
-      expect(workspaces).toHaveLength(2)
+      expect(workspaces).toHaveLength(2);
       expect(workspaces).toEqual([
-        { name: 'Team Workspace 1', teamUid: 'team-1', namespace: 'local', slug: 'workspace-1' },
-        { name: 'Team Workspace 2', teamUid: 'team-1', namespace: 'local', slug: 'workspace-2' },
-      ])
-    })
-
-    it('returns only workspaces that match the teamUid', async () => {
-      await persistence.workspace.setItem(
-        { slug: 'team1-workspace' },
         {
-          name: 'Team 1 Workspace',
-          teamUid: 'team-1',
+          name: "Team Workspace 1",
+          teamUid: "team-1",
+          namespace: "local",
+          slug: "workspace-1",
+        },
+        {
+          name: "Team Workspace 2",
+          teamUid: "team-1",
+          namespace: "local",
+          slug: "workspace-2",
+        },
+      ]);
+    });
+
+    it("returns only workspaces that match the teamUid", async () => {
+      await persistence.workspace.setItem(
+        { slug: "team1-workspace" },
+        {
+          name: "Team 1 Workspace",
+          teamUid: "team-1",
           workspace: {
             documents: {},
             originalDocuments: {},
@@ -89,13 +99,13 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
             auth: {},
           },
         },
-      )
+      );
 
       await persistence.workspace.setItem(
-        { slug: 'team2-workspace' },
+        { slug: "team2-workspace" },
         {
-          name: 'Team 2 Workspace',
-          teamUid: 'team-2',
+          name: "Team 2 Workspace",
+          teamUid: "team-2",
           workspace: {
             documents: {},
             originalDocuments: {},
@@ -106,12 +116,12 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
             auth: {},
           },
         },
-      )
+      );
 
       await persistence.workspace.setItem(
-        { slug: 'local-workspace' },
+        { slug: "local-workspace" },
         {
-          name: 'Local Workspace',
+          name: "Local Workspace",
           workspace: {
             documents: {},
             originalDocuments: {},
@@ -122,25 +132,27 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
             auth: {},
           },
         },
-      )
+      );
 
-      const team1Workspaces = await persistence.workspace.getAllByTeamUid('team-1')
-      const team2Workspaces = await persistence.workspace.getAllByTeamUid('team-2')
+      const team1Workspaces =
+        await persistence.workspace.getAllByTeamUid("team-1");
+      const team2Workspaces =
+        await persistence.workspace.getAllByTeamUid("team-2");
 
-      expect(team1Workspaces).toHaveLength(1)
-      expect(team1Workspaces[0]?.slug).toBe('team1-workspace')
-      expect(team1Workspaces[0]?.teamUid).toBe('team-1')
+      expect(team1Workspaces).toHaveLength(1);
+      expect(team1Workspaces[0]?.slug).toBe("team1-workspace");
+      expect(team1Workspaces[0]?.teamUid).toBe("team-1");
 
-      expect(team2Workspaces).toHaveLength(1)
-      expect(team2Workspaces[0]?.slug).toBe('team2-workspace')
-      expect(team2Workspaces[0]?.teamUid).toBe('team-2')
-    })
+      expect(team2Workspaces).toHaveLength(1);
+      expect(team2Workspaces[0]?.slug).toBe("team2-workspace");
+      expect(team2Workspaces[0]?.teamUid).toBe("team-2");
+    });
 
-    it('returns local workspaces when teamUid is local', async () => {
+    it("returns local workspaces when teamUid is local", async () => {
       await persistence.workspace.setItem(
-        { slug: 'local-1' },
+        { slug: "local-1" },
         {
-          name: 'Local Workspace 1',
+          name: "Local Workspace 1",
           workspace: {
             documents: {},
             originalDocuments: {},
@@ -151,12 +163,12 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
             auth: {},
           },
         },
-      )
+      );
 
       await persistence.workspace.setItem(
-        { slug: 'local-2' },
+        { slug: "local-2" },
         {
-          name: 'Local Workspace 2',
+          name: "Local Workspace 2",
           workspace: {
             documents: {},
             originalDocuments: {},
@@ -167,20 +179,21 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
             auth: {},
           },
         },
-      )
+      );
 
-      const localWorkspaces = await persistence.workspace.getAllByTeamUid('local')
+      const localWorkspaces =
+        await persistence.workspace.getAllByTeamUid("local");
 
-      expect(localWorkspaces).toHaveLength(2)
-      expect(localWorkspaces.every((w) => w.teamUid === 'local')).toBe(true)
-    })
+      expect(localWorkspaces).toHaveLength(2);
+      expect(localWorkspaces.every((w) => w.teamUid === "local")).toBe(true);
+    });
 
-    it('returns empty array when teamUid does not exist', async () => {
+    it("returns empty array when teamUid does not exist", async () => {
       await persistence.workspace.setItem(
-        { slug: 'workspace-1' },
+        { slug: "workspace-1" },
         {
-          name: 'Workspace',
-          teamUid: 'team-1',
+          name: "Workspace",
+          teamUid: "team-1",
           workspace: {
             documents: {},
             originalDocuments: {},
@@ -191,19 +204,20 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
             auth: {},
           },
         },
-      )
+      );
 
-      const workspaces = await persistence.workspace.getAllByTeamUid('non-existent-team')
+      const workspaces =
+        await persistence.workspace.getAllByTeamUid("non-existent-team");
 
-      expect(workspaces).toEqual([])
-    })
+      expect(workspaces).toEqual([]);
+    });
 
-    it('returns remaining workspaces after deletion', async () => {
+    it("returns remaining workspaces after deletion", async () => {
       await persistence.workspace.setItem(
-        { slug: 'workspace-1' },
+        { slug: "workspace-1" },
         {
-          name: 'Workspace 1',
-          teamUid: 'team-1',
+          name: "Workspace 1",
+          teamUid: "team-1",
           workspace: {
             documents: {},
             originalDocuments: {},
@@ -214,13 +228,13 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
             auth: {},
           },
         },
-      )
+      );
 
       await persistence.workspace.setItem(
-        { slug: 'workspace-2' },
+        { slug: "workspace-2" },
         {
-          name: 'Workspace 2',
-          teamUid: 'team-1',
+          name: "Workspace 2",
+          teamUid: "team-1",
           workspace: {
             documents: {},
             originalDocuments: {},
@@ -231,13 +245,13 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
             auth: {},
           },
         },
-      )
+      );
 
       await persistence.workspace.setItem(
-        { slug: 'workspace-3' },
+        { slug: "workspace-3" },
         {
-          name: 'Workspace 3',
-          teamUid: 'team-1',
+          name: "Workspace 3",
+          teamUid: "team-1",
           workspace: {
             documents: {},
             originalDocuments: {},
@@ -248,22 +262,28 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
             auth: {},
           },
         },
-      )
+      );
 
-      await persistence.workspace.deleteItem({ namespace: 'local', slug: 'workspace-2' })
+      await persistence.workspace.deleteItem({
+        namespace: "local",
+        slug: "workspace-2",
+      });
 
-      const workspaces = await persistence.workspace.getAllByTeamUid('team-1')
+      const workspaces = await persistence.workspace.getAllByTeamUid("team-1");
 
-      expect(workspaces).toHaveLength(2)
-      expect(workspaces.map((w) => w.slug)).toEqual(['workspace-1', 'workspace-3'])
-    })
+      expect(workspaces).toHaveLength(2);
+      expect(workspaces.map((w) => w.slug)).toEqual([
+        "workspace-1",
+        "workspace-3",
+      ]);
+    });
 
-    it('returns updated workspaces when teamUid changes', async () => {
+    it("returns updated workspaces when teamUid changes", async () => {
       await persistence.workspace.setItem(
-        { slug: 'workspace-1' },
+        { slug: "workspace-1" },
         {
-          name: 'Workspace 1',
-          teamUid: 'team-1',
+          name: "Workspace 1",
+          teamUid: "team-1",
           workspace: {
             documents: {},
             originalDocuments: {},
@@ -274,16 +294,17 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
             auth: {},
           },
         },
-      )
+      );
 
-      const team1WorkspacesBefore = await persistence.workspace.getAllByTeamUid('team-1')
-      expect(team1WorkspacesBefore).toHaveLength(1)
+      const team1WorkspacesBefore =
+        await persistence.workspace.getAllByTeamUid("team-1");
+      expect(team1WorkspacesBefore).toHaveLength(1);
 
       await persistence.workspace.setItem(
-        { slug: 'workspace-1' },
+        { slug: "workspace-1" },
         {
-          name: 'Workspace 1',
-          teamUid: 'team-2',
+          name: "Workspace 1",
+          teamUid: "team-2",
           workspace: {
             documents: {},
             originalDocuments: {},
@@ -294,18 +315,20 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
             auth: {},
           },
         },
-      )
+      );
 
-      const team1WorkspacesAfter = await persistence.workspace.getAllByTeamUid('team-1')
-      const team2Workspaces = await persistence.workspace.getAllByTeamUid('team-2')
+      const team1WorkspacesAfter =
+        await persistence.workspace.getAllByTeamUid("team-1");
+      const team2Workspaces =
+        await persistence.workspace.getAllByTeamUid("team-2");
 
-      expect(team1WorkspacesAfter).toEqual([])
-      expect(team2Workspaces).toHaveLength(1)
-      expect(team2Workspaces[0]?.slug).toBe('workspace-1')
-    })
+      expect(team1WorkspacesAfter).toEqual([]);
+      expect(team2Workspaces).toHaveLength(1);
+      expect(team2Workspaces[0]?.slug).toBe("workspace-1");
+    });
 
-    it('handles multiple teams with different workspaces', async () => {
-      const teams = ['team-a', 'team-b', 'team-c']
+    it("handles multiple teams with different workspaces", async () => {
+      const teams = ["team-a", "team-b", "team-c"];
 
       for (const team of teams) {
         for (let j = 1; j <= 3; j++) {
@@ -324,36 +347,39 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
                 auth: {},
               },
             },
-          )
+          );
         }
       }
 
-      const teamAWorkspaces = await persistence.workspace.getAllByTeamUid('team-a')
-      const teamBWorkspaces = await persistence.workspace.getAllByTeamUid('team-b')
-      const teamCWorkspaces = await persistence.workspace.getAllByTeamUid('team-c')
+      const teamAWorkspaces =
+        await persistence.workspace.getAllByTeamUid("team-a");
+      const teamBWorkspaces =
+        await persistence.workspace.getAllByTeamUid("team-b");
+      const teamCWorkspaces =
+        await persistence.workspace.getAllByTeamUid("team-c");
 
-      expect(teamAWorkspaces).toHaveLength(3)
-      expect(teamBWorkspaces).toHaveLength(3)
-      expect(teamCWorkspaces).toHaveLength(3)
+      expect(teamAWorkspaces).toHaveLength(3);
+      expect(teamBWorkspaces).toHaveLength(3);
+      expect(teamCWorkspaces).toHaveLength(3);
 
-      expect(teamAWorkspaces.every((w) => w.teamUid === 'team-a')).toBe(true)
-      expect(teamBWorkspaces.every((w) => w.teamUid === 'team-b')).toBe(true)
-      expect(teamCWorkspaces.every((w) => w.teamUid === 'team-c')).toBe(true)
-    })
+      expect(teamAWorkspaces.every((w) => w.teamUid === "team-a")).toBe(true);
+      expect(teamBWorkspaces.every((w) => w.teamUid === "team-b")).toBe(true);
+      expect(teamCWorkspaces.every((w) => w.teamUid === "team-c")).toBe(true);
+    });
 
-    it('returns workspaces with complete metadata', async () => {
+    it("returns workspaces with complete metadata", async () => {
       await persistence.workspace.setItem(
-        { namespace: 'my-org', slug: 'api-workspace' },
+        { namespace: "my-org", slug: "api-workspace" },
         {
-          name: 'API Workspace',
-          teamUid: 'team-1',
+          name: "API Workspace",
+          teamUid: "team-1",
           workspace: {
             documents: {
-              'doc-1': {
-                openapi: '3.1.0',
-                info: { title: 'API', version: '1.0.0' },
+              "doc-1": {
+                openapi: "3.1.0",
+                info: { title: "API", version: "1.0.0" },
                 paths: {},
-                'x-scalar-original-document-hash': '',
+                "x-scalar-original-document-hash": "",
               },
             },
             originalDocuments: {},
@@ -364,33 +390,33 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
             auth: {},
           },
         },
-      )
+      );
 
-      const workspaces = await persistence.workspace.getAllByTeamUid('team-1')
+      const workspaces = await persistence.workspace.getAllByTeamUid("team-1");
 
-      expect(workspaces).toHaveLength(1)
+      expect(workspaces).toHaveLength(1);
       expect(workspaces[0]).toEqual({
-        name: 'API Workspace',
-        teamUid: 'team-1',
-        namespace: 'my-org',
-        slug: 'api-workspace',
-      })
-    })
-  })
+        name: "API Workspace",
+        teamUid: "team-1",
+        namespace: "my-org",
+        slug: "api-workspace",
+      });
+    });
+  });
 
-  describe('workspace.getAll', () => {
-    it('returns empty array when no workspaces exist', async () => {
-      const workspaces = await persistence.workspace.getAll()
+  describe("workspace.getAll", () => {
+    it("returns empty array when no workspaces exist", async () => {
+      const workspaces = await persistence.workspace.getAll();
 
-      expect(workspaces).toEqual([])
-    })
+      expect(workspaces).toEqual([]);
+    });
 
-    it('returns all workspace IDs and names', async () => {
+    it("returns all workspace IDs and names", async () => {
       // Add two workspaces
       await persistence.workspace.setItem(
-        { slug: 'workspace-1' },
+        { slug: "workspace-1" },
         {
-          name: 'Workspace One',
+          name: "Workspace One",
           workspace: {
             documents: {},
             originalDocuments: {},
@@ -401,12 +427,12 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
             auth: {},
           },
         },
-      )
+      );
 
       await persistence.workspace.setItem(
-        { slug: 'workspace-2' },
+        { slug: "workspace-2" },
         {
-          name: 'Workspace Two',
+          name: "Workspace Two",
           workspace: {
             documents: {},
             originalDocuments: {},
@@ -417,23 +443,33 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
             auth: {},
           },
         },
-      )
+      );
 
-      const workspaces = await persistence.workspace.getAll()
+      const workspaces = await persistence.workspace.getAll();
 
-      expect(workspaces).toHaveLength(2)
+      expect(workspaces).toHaveLength(2);
       expect(workspaces).toEqual([
-        { name: 'Workspace One', teamUid: 'local', namespace: 'local', slug: 'workspace-1' },
-        { name: 'Workspace Two', teamUid: 'local', namespace: 'local', slug: 'workspace-2' },
-      ])
-    })
+        {
+          name: "Workspace One",
+          teamUid: "local",
+          namespace: "local",
+          slug: "workspace-1",
+        },
+        {
+          name: "Workspace Two",
+          teamUid: "local",
+          namespace: "local",
+          slug: "workspace-2",
+        },
+      ]);
+    });
 
-    it('returns all workspaces with different names', async () => {
+    it("returns all workspaces with different names", async () => {
       // Add multiple workspaces with various names
       await persistence.workspace.setItem(
-        { slug: 'ws-alpha' },
+        { slug: "ws-alpha" },
         {
-          name: 'Alpha Project',
+          name: "Alpha Project",
           workspace: {
             documents: {},
             originalDocuments: {},
@@ -444,12 +480,12 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
             auth: {},
           },
         },
-      )
+      );
 
       await persistence.workspace.setItem(
-        { slug: 'ws-beta' },
+        { slug: "ws-beta" },
         {
-          name: 'Beta Testing',
+          name: "Beta Testing",
           workspace: {
             documents: {},
             originalDocuments: {},
@@ -460,12 +496,12 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
             auth: {},
           },
         },
-      )
+      );
 
       await persistence.workspace.setItem(
-        { slug: 'ws-gamma' },
+        { slug: "ws-gamma" },
         {
-          name: 'Gamma Release',
+          name: "Gamma Release",
           workspace: {
             documents: {},
             originalDocuments: {},
@@ -476,21 +512,29 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
             auth: {},
           },
         },
-      )
+      );
 
-      const workspaces = await persistence.workspace.getAll()
+      const workspaces = await persistence.workspace.getAll();
 
-      expect(workspaces).toHaveLength(3)
-      expect(workspaces.map((w) => w.name)).toEqual(['Alpha Project', 'Beta Testing', 'Gamma Release'])
-      expect(workspaces.map((w) => w.slug)).toEqual(['ws-alpha', 'ws-beta', 'ws-gamma'])
-    })
+      expect(workspaces).toHaveLength(3);
+      expect(workspaces.map((w) => w.name)).toEqual([
+        "Alpha Project",
+        "Beta Testing",
+        "Gamma Release",
+      ]);
+      expect(workspaces.map((w) => w.slug)).toEqual([
+        "ws-alpha",
+        "ws-beta",
+        "ws-gamma",
+      ]);
+    });
 
-    it('returns remaining workspaces after deletion', async () => {
+    it("returns remaining workspaces after deletion", async () => {
       // Add three workspaces
       await persistence.workspace.setItem(
-        { slug: 'workspace-1' },
+        { slug: "workspace-1" },
         {
-          name: 'Workspace One',
+          name: "Workspace One",
           workspace: {
             documents: {},
             originalDocuments: {},
@@ -501,12 +545,12 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
             auth: {},
           },
         },
-      )
+      );
 
       await persistence.workspace.setItem(
-        { slug: 'workspace-2' },
+        { slug: "workspace-2" },
         {
-          name: 'Workspace Two',
+          name: "Workspace Two",
           workspace: {
             documents: {},
             originalDocuments: {},
@@ -517,12 +561,12 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
             auth: {},
           },
         },
-      )
+      );
 
       await persistence.workspace.setItem(
-        { slug: 'workspace-3' },
+        { slug: "workspace-3" },
         {
-          name: 'Workspace Three',
+          name: "Workspace Three",
           workspace: {
             documents: {},
             originalDocuments: {},
@@ -533,26 +577,39 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
             auth: {},
           },
         },
-      )
+      );
 
       // Delete workspace-2
-      await persistence.workspace.deleteItem({ namespace: 'local', slug: 'workspace-2' })
+      await persistence.workspace.deleteItem({
+        namespace: "local",
+        slug: "workspace-2",
+      });
 
-      const workspaces = await persistence.workspace.getAll()
+      const workspaces = await persistence.workspace.getAll();
 
-      expect(workspaces).toHaveLength(2)
+      expect(workspaces).toHaveLength(2);
       expect(workspaces).toEqual([
-        { slug: 'workspace-1', name: 'Workspace One', teamUid: 'local', namespace: 'local' },
-        { slug: 'workspace-3', name: 'Workspace Three', teamUid: 'local', namespace: 'local' },
-      ])
-    })
+        {
+          slug: "workspace-1",
+          name: "Workspace One",
+          teamUid: "local",
+          namespace: "local",
+        },
+        {
+          slug: "workspace-3",
+          name: "Workspace Three",
+          teamUid: "local",
+          namespace: "local",
+        },
+      ]);
+    });
 
-    it('returns updated workspace name after update', async () => {
+    it("returns updated workspace name after update", async () => {
       // Add a workspace
       await persistence.workspace.setItem(
-        { namespace: 'local', slug: 'workspace-1' },
+        { namespace: "local", slug: "workspace-1" },
         {
-          name: 'Original Name',
+          name: "Original Name",
           workspace: {
             documents: {},
             originalDocuments: {},
@@ -563,13 +620,13 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
             auth: {},
           },
         },
-      )
+      );
 
       // Update the workspace name
       await persistence.workspace.setItem(
-        { namespace: 'local', slug: 'workspace-1' },
+        { namespace: "local", slug: "workspace-1" },
         {
-          name: 'Updated Name',
+          name: "Updated Name",
           workspace: {
             documents: {},
             originalDocuments: {},
@@ -580,24 +637,24 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
             auth: {},
           },
         },
-      )
+      );
 
-      const workspaces = await persistence.workspace.getAll()
+      const workspaces = await persistence.workspace.getAll();
 
-      expect(workspaces).toHaveLength(1)
+      expect(workspaces).toHaveLength(1);
       expect(workspaces[0]).toEqual({
-        slug: 'workspace-1',
-        name: 'Updated Name',
-        teamUid: 'local',
-        namespace: 'local',
-      })
-    })
+        slug: "workspace-1",
+        name: "Updated Name",
+        teamUid: "local",
+        namespace: "local",
+      });
+    });
 
-    it('returns workspaces after multiple deletions', async () => {
+    it("returns workspaces after multiple deletions", async () => {
       // Add five workspaces
       for (let i = 1; i <= 5; i++) {
         await persistence.workspace.setItem(
-          { namespace: 'local', slug: `workspace-${i}` },
+          { namespace: "local", slug: `workspace-${i}` },
           {
             name: `Workspace ${i}`,
             workspace: {
@@ -610,71 +667,84 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
               auth: {},
             },
           },
-        )
+        );
       }
 
       // Delete workspaces 2 and 4
-      await persistence.workspace.deleteItem({ namespace: 'local', slug: 'workspace-2' })
-      await persistence.workspace.deleteItem({ namespace: 'local', slug: 'workspace-4' })
+      await persistence.workspace.deleteItem({
+        namespace: "local",
+        slug: "workspace-2",
+      });
+      await persistence.workspace.deleteItem({
+        namespace: "local",
+        slug: "workspace-4",
+      });
 
-      const workspaces = await persistence.workspace.getAll()
+      const workspaces = await persistence.workspace.getAll();
 
-      expect(workspaces).toHaveLength(3)
-      expect(workspaces.map((w) => w.slug)).toEqual(['workspace-1', 'workspace-3', 'workspace-5'])
-    })
+      expect(workspaces).toHaveLength(3);
+      expect(workspaces.map((w) => w.slug)).toEqual([
+        "workspace-1",
+        "workspace-3",
+        "workspace-5",
+      ]);
+    });
 
-    it('handles workspace with complex data', async () => {
+    it("handles workspace with complex data", async () => {
       // Add a workspace with full data
       await persistence.workspace.setItem(
-        { namespace: 'local', slug: 'complex-workspace' },
+        { namespace: "local", slug: "complex-workspace" },
         {
-          name: 'Complex API Workspace',
+          name: "Complex API Workspace",
           workspace: {
             documents: {
-              'doc-1': {
-                openapi: '3.1.0',
-                info: { title: 'API Doc', version: '1.0.0' },
+              "doc-1": {
+                openapi: "3.1.0",
+                info: { title: "API Doc", version: "1.0.0" },
                 paths: {},
-                'x-scalar-original-document-hash': '',
+                "x-scalar-original-document-hash": "",
               },
             },
             originalDocuments: {
-              'doc-1': { openapi: '3.1.0', info: { title: 'Original', version: '1.0.0' } },
+              "doc-1": {
+                openapi: "3.1.0",
+                info: { title: "Original", version: "1.0.0" },
+              },
             },
             intermediateDocuments: {
-              'doc-1': { intermediate: true },
+              "doc-1": { intermediate: true },
             },
             overrides: {
-              'doc-1': { custom: 'value' },
+              "doc-1": { custom: "value" },
             },
             meta: {
-              'x-scalar-active-document': 'doc-1',
-              'x-scalar-color-mode': 'dark',
+              "x-scalar-active-document": "doc-1",
+              "x-scalar-color-mode": "dark",
             },
             history: {},
             auth: {},
           },
         },
-      )
+      );
 
-      const workspaces = await persistence.workspace.getAll()
+      const workspaces = await persistence.workspace.getAll();
 
       // getAll only returns id and name, not the full workspace data
-      expect(workspaces).toHaveLength(1)
+      expect(workspaces).toHaveLength(1);
       expect(workspaces[0]).toEqual({
-        slug: 'complex-workspace',
-        name: 'Complex API Workspace',
-        teamUid: 'local',
-        namespace: 'local',
-      })
-    })
+        slug: "complex-workspace",
+        name: "Complex API Workspace",
+        teamUid: "local",
+        namespace: "local",
+      });
+    });
 
-    it('returns empty array after all workspaces are deleted', async () => {
+    it("returns empty array after all workspaces are deleted", async () => {
       // Add workspaces
       await persistence.workspace.setItem(
-        { namespace: 'local', slug: 'workspace-1' },
+        { namespace: "local", slug: "workspace-1" },
         {
-          name: 'Workspace One',
+          name: "Workspace One",
           workspace: {
             documents: {},
             originalDocuments: {},
@@ -685,12 +755,12 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
             auth: {},
           },
         },
-      )
+      );
 
       await persistence.workspace.setItem(
-        { namespace: 'local', slug: 'workspace-2' },
+        { namespace: "local", slug: "workspace-2" },
         {
-          name: 'Workspace Two',
+          name: "Workspace Two",
           workspace: {
             documents: {},
             originalDocuments: {},
@@ -701,24 +771,30 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
             auth: {},
           },
         },
-      )
+      );
 
       // Delete all workspaces
-      await persistence.workspace.deleteItem({ namespace: 'local', slug: 'workspace-1' })
-      await persistence.workspace.deleteItem({ namespace: 'local', slug: 'workspace-2' })
+      await persistence.workspace.deleteItem({
+        namespace: "local",
+        slug: "workspace-1",
+      });
+      await persistence.workspace.deleteItem({
+        namespace: "local",
+        slug: "workspace-2",
+      });
 
-      const workspaces = await persistence.workspace.getAll()
+      const workspaces = await persistence.workspace.getAll();
 
-      expect(workspaces).toEqual([])
-    })
+      expect(workspaces).toEqual([]);
+    });
 
-    it('returns workspaces in consistent order', async () => {
+    it("returns workspaces in consistent order", async () => {
       // Add workspaces in specific order
-      const workspaceIds = ['workspace-c', 'workspace-a', 'workspace-b']
+      const workspaceIds = ["workspace-c", "workspace-a", "workspace-b"];
 
       for (const id of workspaceIds) {
         await persistence.workspace.setItem(
-          { namespace: 'local', slug: id },
+          { namespace: "local", slug: id },
           {
             name: `Name ${id}`,
             workspace: {
@@ -731,31 +807,34 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
               auth: {},
             },
           },
-        )
+        );
       }
 
-      const workspaces = await persistence.workspace.getAll()
+      const workspaces = await persistence.workspace.getAll();
 
-      expect(workspaces).toHaveLength(3)
+      expect(workspaces).toHaveLength(3);
       // Order should be maintained based on insertion or alphabetical
-      const slugs = workspaces.map((w) => w.slug)
-      expect(slugs).toContain('workspace-a')
-      expect(slugs).toContain('workspace-b')
-      expect(slugs).toContain('workspace-c')
-    })
-  })
+      const slugs = workspaces.map((w) => w.slug);
+      expect(slugs).toContain("workspace-a");
+      expect(slugs).toContain("workspace-b");
+      expect(slugs).toContain("workspace-c");
+    });
+  });
 
-  describe('workspace.has', () => {
-    it('returns false when the workspace does not exist', async () => {
-      const exists = await persistence.workspace.has({ namespace: 'local', slug: 'missing-workspace' })
-      expect(exists).toBe(false)
-    })
+  describe("workspace.has", () => {
+    it("returns false when the workspace does not exist", async () => {
+      const exists = await persistence.workspace.has({
+        namespace: "local",
+        slug: "missing-workspace",
+      });
+      expect(exists).toBe(false);
+    });
 
-    it('returns true when the workspace exists', async () => {
+    it("returns true when the workspace exists", async () => {
       await persistence.workspace.setItem(
-        { namespace: 'local', slug: 'workspace-1' },
+        { namespace: "local", slug: "workspace-1" },
         {
-          name: 'Exists',
+          name: "Exists",
           workspace: {
             documents: {},
             originalDocuments: {},
@@ -766,17 +845,20 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
             auth: {},
           },
         },
-      )
+      );
 
-      const exists = await persistence.workspace.has({ namespace: 'local', slug: 'workspace-1' })
-      expect(exists).toBe(true)
-    })
+      const exists = await persistence.workspace.has({
+        namespace: "local",
+        slug: "workspace-1",
+      });
+      expect(exists).toBe(true);
+    });
 
-    it('returns false after the workspace is deleted', async () => {
+    it("returns false after the workspace is deleted", async () => {
       await persistence.workspace.setItem(
-        { namespace: 'local', slug: 'workspace-2' },
+        { namespace: "local", slug: "workspace-2" },
         {
-          name: 'To Delete',
+          name: "To Delete",
           workspace: {
             documents: {},
             originalDocuments: {},
@@ -787,47 +869,69 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
             auth: {},
           },
         },
-      )
-      expect(await persistence.workspace.has({ namespace: 'local', slug: 'workspace-2' })).toBe(true)
+      );
+      expect(
+        await persistence.workspace.has({
+          namespace: "local",
+          slug: "workspace-2",
+        }),
+      ).toBe(true);
 
-      await persistence.workspace.deleteItem({ namespace: 'local', slug: 'workspace-2' })
-      expect(await persistence.workspace.has({ namespace: 'local', slug: 'workspace-2' })).toBe(false)
-    })
+      await persistence.workspace.deleteItem({
+        namespace: "local",
+        slug: "workspace-2",
+      });
+      expect(
+        await persistence.workspace.has({
+          namespace: "local",
+          slug: "workspace-2",
+        }),
+      ).toBe(false);
+    });
 
-    it('returns false if only chunks exist without a workspace record', async () => {
-      const orphanId = 'orphan-workspace'
+    it("returns false if only chunks exist without a workspace record", async () => {
+      const orphanId = "orphan-workspace";
       // Write chunks without creating the workspace record
-      await persistence.meta.setItem(orphanId, { 'x-scalar-color-mode': 'dark' })
-      await persistence.documents.setItem(orphanId, 'doc-1', {
-        openapi: '3.1.0',
-        info: { title: 'Doc', version: '1.0.0' },
+      await persistence.meta.setItem(orphanId, {
+        "x-scalar-color-mode": "dark",
+      });
+      await persistence.documents.setItem(orphanId, "doc-1", {
+        openapi: "3.1.0",
+        info: { title: "Doc", version: "1.0.0" },
         paths: {},
-        'x-scalar-original-document-hash': '',
-      })
-      await persistence.originalDocuments.setItem(orphanId, 'doc-1', { openapi: '3.1.0' })
-      await persistence.intermediateDocuments.setItem(orphanId, 'doc-1', { interim: true })
-      await persistence.overrides.setItem(orphanId, 'doc-1', { x: 1 })
+        "x-scalar-original-document-hash": "",
+      });
+      await persistence.originalDocuments.setItem(orphanId, "doc-1", {
+        openapi: "3.1.0",
+      });
+      await persistence.intermediateDocuments.setItem(orphanId, "doc-1", {
+        interim: true,
+      });
+      await persistence.overrides.setItem(orphanId, "doc-1", { x: 1 });
 
-      const exists = await persistence.workspace.has({ namespace: 'local', slug: orphanId })
-      expect(exists).toBe(false)
-    })
-  })
+      const exists = await persistence.workspace.has({
+        namespace: "local",
+        slug: orphanId,
+      });
+      expect(exists).toBe(false);
+    });
+  });
 
-  describe('workspace.updateName', () => {
-    it('returns undefined when workspace does not exist', async () => {
+  describe("workspace.updateName", () => {
+    it("returns undefined when workspace does not exist", async () => {
       const result = await persistence.workspace.updateName(
-        { namespace: 'local', slug: 'missing-workspace' },
-        'New Name',
-      )
-      expect(result).toBeUndefined()
-    })
+        { namespace: "local", slug: "missing-workspace" },
+        "New Name",
+      );
+      expect(result).toBeUndefined();
+    });
 
-    it('updates the name and returns the updated workspace', async () => {
+    it("updates the name and returns the updated workspace", async () => {
       await persistence.workspace.setItem(
-        { namespace: 'local', slug: 'workspace-1' },
+        { namespace: "local", slug: "workspace-1" },
         {
-          name: 'Original Name',
-          teamUid: 'team-1',
+          name: "Original Name",
+          teamUid: "team-1",
           workspace: {
             documents: {},
             originalDocuments: {},
@@ -838,28 +942,28 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
             auth: {},
           },
         },
-      )
+      );
 
       const result = await persistence.workspace.updateName(
-        { namespace: 'local', slug: 'workspace-1' },
-        'Renamed Workspace',
-      )
+        { namespace: "local", slug: "workspace-1" },
+        "Renamed Workspace",
+      );
 
-      expect(result).toBeDefined()
-      expect(result?.name).toBe('Renamed Workspace')
-      expect(result?.namespace).toBe('local')
-      expect(result?.slug).toBe('workspace-1')
-      expect(result?.teamUid).toBe('team-1')
-    })
+      expect(result).toBeDefined();
+      expect(result?.name).toBe("Renamed Workspace");
+      expect(result?.namespace).toBe("local");
+      expect(result?.slug).toBe("workspace-1");
+      expect(result?.teamUid).toBe("team-1");
+    });
 
-    it('leaves other workspace fields unchanged', async () => {
+    it("leaves other workspace fields unchanged", async () => {
       const workspaceData = {
         documents: {
-          'doc-1': {
-            openapi: '3.1.0',
-            info: { title: 'API', version: '1.0.0' },
+          "doc-1": {
+            openapi: "3.1.0",
+            info: { title: "API", version: "1.0.0" },
             paths: {},
-            'x-scalar-original-document-hash': '',
+            "x-scalar-original-document-hash": "",
           },
         },
         originalDocuments: {},
@@ -868,37 +972,42 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
         meta: {},
         history: {},
         auth: {},
-      }
+      };
 
       await persistence.workspace.setItem(
-        { namespace: 'my-org', slug: 'api-workspace' },
+        { namespace: "my-org", slug: "api-workspace" },
         {
-          name: 'Old Name',
-          teamUid: 'team-1',
+          name: "Old Name",
+          teamUid: "team-1",
           workspace: workspaceData,
         },
-      )
+      );
 
-      const result = await persistence.workspace.updateName({ namespace: 'my-org', slug: 'api-workspace' }, 'New Name')
+      const result = await persistence.workspace.updateName(
+        { namespace: "my-org", slug: "api-workspace" },
+        "New Name",
+      );
 
-      expect(result?.name).toBe('New Name')
-      expect(result?.teamUid).toBe('team-1')
+      expect(result?.name).toBe("New Name");
+      expect(result?.teamUid).toBe("team-1");
 
       const fullWorkspace = await persistence.workspace.getItem({
-        namespace: 'my-org',
-        slug: 'api-workspace',
-      })
-      expect(fullWorkspace?.name).toBe('New Name')
-      expect(fullWorkspace?.workspace.documents).toEqual(workspaceData.documents)
-      expect(fullWorkspace?.workspace.meta).toEqual(workspaceData.meta)
-    })
+        namespace: "my-org",
+        slug: "api-workspace",
+      });
+      expect(fullWorkspace?.name).toBe("New Name");
+      expect(fullWorkspace?.workspace.documents).toEqual(
+        workspaceData.documents,
+      );
+      expect(fullWorkspace?.workspace.meta).toEqual(workspaceData.meta);
+    });
 
-    it('works with custom namespace and slug', async () => {
+    it("works with custom namespace and slug", async () => {
       await persistence.workspace.setItem(
-        { namespace: 'acme-corp', slug: 'project-alpha' },
+        { namespace: "acme-corp", slug: "project-alpha" },
         {
-          name: 'Project Alpha',
-          teamUid: 'team-acme',
+          name: "Project Alpha",
+          teamUid: "team-acme",
           workspace: {
             documents: {},
             originalDocuments: {},
@@ -909,31 +1018,31 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
             auth: {},
           },
         },
-      )
+      );
 
       const result = await persistence.workspace.updateName(
-        { namespace: 'acme-corp', slug: 'project-alpha' },
-        'Project Alpha v2',
-      )
+        { namespace: "acme-corp", slug: "project-alpha" },
+        "Project Alpha v2",
+      );
 
-      expect(result?.name).toBe('Project Alpha v2')
-      expect(result?.namespace).toBe('acme-corp')
-      expect(result?.slug).toBe('project-alpha')
-    })
-  })
+      expect(result?.name).toBe("Project Alpha v2");
+      expect(result?.namespace).toBe("acme-corp");
+      expect(result?.slug).toBe("project-alpha");
+    });
+  });
 
-  describe('workspace chunks', () => {
-    describe('meta.setItem', () => {
-      it('sets workspace meta information', async () => {
-        const namespace = 'local'
-        const slug = 'workspace-1'
-        const workspaceId = `${namespace}/${slug}`
+  describe("workspace chunks", () => {
+    describe("meta.setItem", () => {
+      it("sets workspace meta information", async () => {
+        const namespace = "local";
+        const slug = "workspace-1";
+        const workspaceId = `${namespace}/${slug}`;
 
         // Verify by getting the full workspace
         await persistence.workspace.setItem(
           { namespace, slug },
           {
-            name: 'Test Workspace',
+            name: "Test Workspace",
             workspace: {
               documents: {},
               originalDocuments: {},
@@ -944,29 +1053,32 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
               auth: {},
             },
           },
-        )
+        );
 
         await persistence.meta.setItem(workspaceId, {
-          'x-scalar-color-mode': 'dark',
-          'x-scalar-active-document': 'api-doc',
-        })
+          "x-scalar-color-mode": "dark",
+          "x-scalar-active-document": "api-doc",
+        });
 
-        const workspace = await persistence.workspace.getItem({ namespace, slug })
+        const workspace = await persistence.workspace.getItem({
+          namespace,
+          slug,
+        });
         expect(workspace?.workspace.meta).toEqual({
-          'x-scalar-color-mode': 'dark',
-          'x-scalar-active-document': 'api-doc',
-        })
-      })
+          "x-scalar-color-mode": "dark",
+          "x-scalar-active-document": "api-doc",
+        });
+      });
 
-      it('updates existing meta information', async () => {
-        const namespace = 'local'
-        const slug = 'workspace-1'
-        const workspaceId = `${namespace}/${slug}`
+      it("updates existing meta information", async () => {
+        const namespace = "local";
+        const slug = "workspace-1";
+        const workspaceId = `${namespace}/${slug}`;
 
         await persistence.workspace.setItem(
           { namespace, slug },
           {
-            name: 'Test',
+            name: "Test",
             workspace: {
               documents: {},
               originalDocuments: {},
@@ -977,36 +1089,39 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
               auth: {},
             },
           },
-        )
+        );
 
         await persistence.meta.setItem(workspaceId, {
-          'x-scalar-color-mode': 'dark',
-        })
+          "x-scalar-color-mode": "dark",
+        });
 
         await persistence.meta.setItem(workspaceId, {
-          'x-scalar-color-mode': 'dark',
-          'x-scalar-theme': 'moon',
-        })
+          "x-scalar-color-mode": "dark",
+          "x-scalar-theme": "moon",
+        });
 
-        const workspace = await persistence.workspace.getItem({ namespace, slug })
+        const workspace = await persistence.workspace.getItem({
+          namespace,
+          slug,
+        });
         expect(workspace?.workspace.meta).toEqual({
-          'x-scalar-color-mode': 'dark',
-          'x-scalar-theme': 'moon',
-        })
-      })
-    })
+          "x-scalar-color-mode": "dark",
+          "x-scalar-theme": "moon",
+        });
+      });
+    });
 
-    describe('documents.setItem', () => {
-      it('sets a workspace document', async () => {
-        const namespace = 'local'
-        const slug = 'workspace-1'
-        const workspaceId = `${namespace}/${slug}`
-        const documentName = 'api-doc'
+    describe("documents.setItem", () => {
+      it("sets a workspace document", async () => {
+        const namespace = "local";
+        const slug = "workspace-1";
+        const workspaceId = `${namespace}/${slug}`;
+        const documentName = "api-doc";
 
         await persistence.workspace.setItem(
           { namespace, slug },
           {
-            name: 'Test Workspace',
+            name: "Test Workspace",
             workspace: {
               documents: {},
               originalDocuments: {},
@@ -1017,30 +1132,37 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
               auth: {},
             },
           },
-        )
+        );
 
         const document = {
-          openapi: '3.1.0',
-          info: { title: 'Test API', version: '1.0.0' },
+          openapi: "3.1.0",
+          info: { title: "Test API", version: "1.0.0" },
           paths: {},
-          'x-scalar-original-document-hash': '',
-        }
+          "x-scalar-original-document-hash": "",
+        };
 
-        await persistence.documents.setItem(workspaceId, documentName, document)
+        await persistence.documents.setItem(
+          workspaceId,
+          documentName,
+          document,
+        );
 
-        const workspace = await persistence.workspace.getItem({ namespace, slug })
-        expect(workspace?.workspace.documents[documentName]).toEqual(document)
-      })
+        const workspace = await persistence.workspace.getItem({
+          namespace,
+          slug,
+        });
+        expect(workspace?.workspace.documents[documentName]).toEqual(document);
+      });
 
-      it('sets multiple documents for the same workspace', async () => {
-        const namespace = 'local'
-        const slug = 'workspace-1'
-        const workspaceId = `${namespace}/${slug}`
+      it("sets multiple documents for the same workspace", async () => {
+        const namespace = "local";
+        const slug = "workspace-1";
+        const workspaceId = `${namespace}/${slug}`;
 
         await persistence.workspace.setItem(
           { namespace, slug },
           {
-            name: 'Multi-Doc Workspace',
+            name: "Multi-Doc Workspace",
             workspace: {
               documents: {},
               originalDocuments: {},
@@ -1051,43 +1173,48 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
               auth: {},
             },
           },
-        )
+        );
 
         const doc1 = {
-          openapi: '3.1.0',
-          info: { title: 'API 1', version: '1.0.0' },
+          openapi: "3.1.0",
+          info: { title: "API 1", version: "1.0.0" },
           paths: {},
-          'x-scalar-original-document-hash': '',
-        }
+          "x-scalar-original-document-hash": "",
+        };
 
         const doc2 = {
-          openapi: '3.1.0',
-          info: { title: 'API 2', version: '2.0.0' },
+          openapi: "3.1.0",
+          info: { title: "API 2", version: "2.0.0" },
           paths: {},
-          'x-scalar-original-document-hash': '',
-        }
+          "x-scalar-original-document-hash": "",
+        };
 
-        await persistence.documents.setItem(workspaceId, 'doc-1', doc1)
-        await persistence.documents.setItem(workspaceId, 'doc-2', doc2)
+        await persistence.documents.setItem(workspaceId, "doc-1", doc1);
+        await persistence.documents.setItem(workspaceId, "doc-2", doc2);
 
-        const workspace = await persistence.workspace.getItem({ namespace, slug })
-        expect(Object.keys(workspace?.workspace.documents ?? {})).toHaveLength(2)
-        expect(workspace?.workspace.documents['doc-1']).toEqual(doc1)
-        expect(workspace?.workspace.documents['doc-2']).toEqual(doc2)
-      })
-    })
+        const workspace = await persistence.workspace.getItem({
+          namespace,
+          slug,
+        });
+        expect(Object.keys(workspace?.workspace.documents ?? {})).toHaveLength(
+          2,
+        );
+        expect(workspace?.workspace.documents["doc-1"]).toEqual(doc1);
+        expect(workspace?.workspace.documents["doc-2"]).toEqual(doc2);
+      });
+    });
 
-    describe('originalDocuments.setItem', () => {
-      it('sets an original document', async () => {
-        const namespace = 'local'
-        const slug = 'workspace-1'
-        const workspaceId = `${namespace}/${slug}`
-        const documentName = 'api-doc'
+    describe("originalDocuments.setItem", () => {
+      it("sets an original document", async () => {
+        const namespace = "local";
+        const slug = "workspace-1";
+        const workspaceId = `${namespace}/${slug}`;
+        const documentName = "api-doc";
 
         await persistence.workspace.setItem(
           { namespace, slug },
           {
-            name: 'Test',
+            name: "Test",
             workspace: {
               documents: {},
               originalDocuments: {},
@@ -1098,32 +1225,41 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
               auth: {},
             },
           },
-        )
+        );
 
         const originalDoc = {
-          openapi: '3.1.0',
-          info: { title: 'Original API', version: '1.0.0' },
-          paths: { '/users': { get: {} } },
-        }
+          openapi: "3.1.0",
+          info: { title: "Original API", version: "1.0.0" },
+          paths: { "/users": { get: {} } },
+        };
 
-        await persistence.originalDocuments.setItem(workspaceId, documentName, originalDoc)
+        await persistence.originalDocuments.setItem(
+          workspaceId,
+          documentName,
+          originalDoc,
+        );
 
-        const workspace = await persistence.workspace.getItem({ namespace, slug })
-        expect(workspace?.workspace.originalDocuments[documentName]).toEqual(originalDoc)
-      })
-    })
+        const workspace = await persistence.workspace.getItem({
+          namespace,
+          slug,
+        });
+        expect(workspace?.workspace.originalDocuments[documentName]).toEqual(
+          originalDoc,
+        );
+      });
+    });
 
-    describe('intermediateDocuments.setItem', () => {
-      it('sets an intermediate document', async () => {
-        const namespace = 'local'
-        const slug = 'workspace-1'
-        const workspaceId = `${namespace}/${slug}`
-        const documentName = 'api-doc'
+    describe("intermediateDocuments.setItem", () => {
+      it("sets an intermediate document", async () => {
+        const namespace = "local";
+        const slug = "workspace-1";
+        const workspaceId = `${namespace}/${slug}`;
+        const documentName = "api-doc";
 
         await persistence.workspace.setItem(
           { namespace, slug },
           {
-            name: 'Test',
+            name: "Test",
             workspace: {
               documents: {},
               originalDocuments: {},
@@ -1134,32 +1270,41 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
               auth: {},
             },
           },
-        )
+        );
 
         const intermediateDoc = {
           version: 2,
           processed: true,
           timestamp: Date.now(),
-        }
+        };
 
-        await persistence.intermediateDocuments.setItem(workspaceId, documentName, intermediateDoc)
+        await persistence.intermediateDocuments.setItem(
+          workspaceId,
+          documentName,
+          intermediateDoc,
+        );
 
-        const workspace = await persistence.workspace.getItem({ namespace, slug })
-        expect(workspace?.workspace.intermediateDocuments[documentName]).toEqual(intermediateDoc)
-      })
-    })
+        const workspace = await persistence.workspace.getItem({
+          namespace,
+          slug,
+        });
+        expect(
+          workspace?.workspace.intermediateDocuments[documentName],
+        ).toEqual(intermediateDoc);
+      });
+    });
 
-    describe('overrides.setItem', () => {
-      it('sets document overrides', async () => {
-        const namespace = 'local'
-        const slug = 'workspace-1'
-        const workspaceId = `${namespace}/${slug}`
-        const documentName = 'api-doc'
+    describe("overrides.setItem", () => {
+      it("sets document overrides", async () => {
+        const namespace = "local";
+        const slug = "workspace-1";
+        const workspaceId = `${namespace}/${slug}`;
+        const documentName = "api-doc";
 
         await persistence.workspace.setItem(
           { namespace, slug },
           {
-            name: 'Test',
+            name: "Test",
             workspace: {
               documents: {},
               originalDocuments: {},
@@ -1170,31 +1315,38 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
               auth: {},
             },
           },
-        )
+        );
 
         const overrides = {
-          customProperty: 'custom value',
-          baseURL: 'https://api.example.com',
-        }
+          customProperty: "custom value",
+          baseURL: "https://api.example.com",
+        };
 
-        await persistence.overrides.setItem(workspaceId, documentName, overrides)
+        await persistence.overrides.setItem(
+          workspaceId,
+          documentName,
+          overrides,
+        );
 
-        const workspace = await persistence.workspace.getItem({ namespace, slug })
-        expect(workspace?.workspace.overrides[documentName]).toEqual(overrides)
-      })
-    })
+        const workspace = await persistence.workspace.getItem({
+          namespace,
+          slug,
+        });
+        expect(workspace?.workspace.overrides[documentName]).toEqual(overrides);
+      });
+    });
 
-    describe('history.setItem', () => {
-      it('sets document history', async () => {
-        const namespace = 'local'
-        const slug = 'workspace-1'
-        const workspaceId = `${namespace}/${slug}`
-        const documentName = 'api-doc'
+    describe("history.setItem", () => {
+      it("sets document history", async () => {
+        const namespace = "local";
+        const slug = "workspace-1";
+        const workspaceId = `${namespace}/${slug}`;
+        const documentName = "api-doc";
 
         await persistence.workspace.setItem(
           { namespace, slug },
           {
-            name: 'Test',
+            name: "Test",
             workspace: {
               documents: {},
               originalDocuments: {},
@@ -1205,20 +1357,20 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
               auth: {},
             },
           },
-        )
+        );
 
         const history = {
-          '/users': {
+          "/users": {
             get: [
               {
                 time: 1000,
-                meta: { example: 'default' },
+                meta: { example: "default" },
                 timestamp: Date.now(),
                 request: {
-                  url: 'https://api.example.com/users',
-                  method: 'GET',
+                  url: "https://api.example.com/users",
+                  method: "GET",
                   headers: [],
-                  httpVersion: 'HTTP/1.1',
+                  httpVersion: "HTTP/1.1",
                   cookies: [],
                   headersSize: -1,
                   queryString: [],
@@ -1226,15 +1378,15 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
                 },
                 response: {
                   status: 200,
-                  statusText: 'OK',
-                  httpVersion: 'HTTP/1.1',
+                  statusText: "OK",
+                  httpVersion: "HTTP/1.1",
                   cookies: [],
                   headers: [],
                   content: {
                     size: 0,
-                    mimeType: 'application/json',
+                    mimeType: "application/json",
                   },
-                  redirectURL: '',
+                  redirectURL: "",
                   headersSize: -1,
                   bodySize: 0,
                 },
@@ -1244,13 +1396,16 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
               },
             ],
           },
-        }
+        };
 
-        await persistence.history.setItem(workspaceId, documentName, history)
+        await persistence.history.setItem(workspaceId, documentName, history);
 
-        const workspace = await persistence.workspace.getItem({ namespace, slug })
-        expect(workspace?.workspace.history[documentName]).toEqual(history)
-      })
-    })
-  })
-})
+        const workspace = await persistence.workspace.getItem({
+          namespace,
+          slug,
+        });
+        expect(workspace?.workspace.history[documentName]).toEqual(history);
+      });
+    });
+  });
+});

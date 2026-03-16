@@ -1,343 +1,357 @@
-import { resolve } from '@scalar/workspace-store/resolve'
-import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import { describe, expect, it } from 'vitest'
+import { resolve } from "@scalar/workspace-store/resolve";
+import type { SchemaObject } from "@scalar/workspace-store/schemas/v3.1/strict/openapi-document";
+import { describe, expect, it } from "vite-plus/test";
 
-import { optimizeValueForDisplay } from './optimize-value-for-display'
+import { optimizeValueForDisplay } from "./optimize-value-for-display";
 
-describe('optimizeValueForDisplay', () => {
-  it('should return the original value if it is not an object', () => {
+describe("optimizeValueForDisplay", () => {
+  it("should return the original value if it is not an object", () => {
     // @ts-expect-error
-    expect(optimizeValueForDisplay(1)).toEqual(1)
-  })
+    expect(optimizeValueForDisplay(1)).toEqual(1);
+  });
 
-  it('should return the original value if there is no discriminator type', () => {
-    const input: SchemaObject = { type: 'string' }
-    expect(optimizeValueForDisplay(input)).toEqual(input)
-  })
+  it("should return the original value if there is no discriminator type", () => {
+    const input: SchemaObject = { type: "string" };
+    expect(optimizeValueForDisplay(input)).toEqual(input);
+  });
 
-  it('should return the original value if discriminator schemas is not an array', () => {
-    const input = { __scalar_: '', oneOf: 'not an array' }
+  it("should return the original value if discriminator schemas is not an array", () => {
+    const input = { __scalar_: "", oneOf: "not an array" };
     // @ts-expect-error a test
-    expect(optimizeValueForDisplay(input)).toEqual(input)
-  })
+    expect(optimizeValueForDisplay(input)).toEqual(input);
+  });
 
-  it('should ignore the not discriminator type', () => {
-    const input = { __scalar_: '', not: { type: 'string' } } as SchemaObject
-    expect(optimizeValueForDisplay(input)).toEqual(input)
-  })
+  it("should ignore the not discriminator type", () => {
+    const input = { __scalar_: "", not: { type: "string" } } as SchemaObject;
+    expect(optimizeValueForDisplay(input)).toEqual(input);
+  });
 
-  it('should mark as nullable if schema contains null type', () => {
+  it("should mark as nullable if schema contains null type", () => {
     const input: SchemaObject = {
-      __scalar_: '',
-      oneOf: [{ type: 'string' }, { type: 'null' }],
-    }
+      __scalar_: "",
+      oneOf: [{ type: "string" }, { type: "null" }],
+    };
     expect(optimizeValueForDisplay(input)).toEqual({
-      __scalar_: '',
-      type: 'string',
+      __scalar_: "",
+      type: "string",
       nullable: true,
-    })
-  })
+    });
+  });
 
-  it('should remove null types from schemas', () => {
+  it("should remove null types from schemas", () => {
     const input = {
-      anyOf: [{ type: 'string' }, { type: 'null' }, { type: 'number' }],
-    } as SchemaObject
+      anyOf: [{ type: "string" }, { type: "null" }, { type: "number" }],
+    } as SchemaObject;
     expect(optimizeValueForDisplay(input)).toEqual({
-      anyOf: [{ type: 'string' }, { type: 'number' }],
+      anyOf: [{ type: "string" }, { type: "number" }],
       nullable: true,
-    })
-  })
+    });
+  });
 
-  it('should merge single remaining schema after null removal', () => {
+  it("should merge single remaining schema after null removal", () => {
     const input: SchemaObject = {
-      __scalar_: '',
-      oneOf: [{ type: 'string', format: 'date-time' }, { type: 'null' }],
-    }
+      __scalar_: "",
+      oneOf: [{ type: "string", format: "date-time" }, { type: "null" }],
+    };
     expect(optimizeValueForDisplay(input)).toEqual({
-      __scalar_: '',
-      type: 'string',
-      format: 'date-time',
+      __scalar_: "",
+      type: "string",
+      format: "date-time",
       nullable: true,
-    })
-  })
+    });
+  });
 
-  it('should handle multiple remaining schemas', () => {
+  it("should handle multiple remaining schemas", () => {
     const input = {
-      anyOf: [{ type: 'string' }, { type: 'number' }, { type: 'null' }],
-    } as SchemaObject
+      anyOf: [{ type: "string" }, { type: "number" }, { type: "null" }],
+    } as SchemaObject;
     expect(optimizeValueForDisplay(input)).toEqual({
-      anyOf: [{ type: 'string' }, { type: 'number' }],
+      anyOf: [{ type: "string" }, { type: "number" }],
       nullable: true,
-    })
-  })
+    });
+  });
 
-  it('should preserve other properties when optimizing', () => {
+  it("should preserve other properties when optimizing", () => {
     const input: SchemaObject = {
-      __scalar_: '',
-      description: 'test field',
-      oneOf: [{ type: 'string' }, { type: 'null' }],
-    }
+      __scalar_: "",
+      description: "test field",
+      oneOf: [{ type: "string" }, { type: "null" }],
+    };
     expect(optimizeValueForDisplay(input)).toEqual({
-      __scalar_: '',
-      description: 'test field',
-      type: 'string',
+      __scalar_: "",
+      description: "test field",
+      type: "string",
       nullable: true,
-    })
-  })
+    });
+  });
 
-  it('should handle allOf discriminator', () => {
+  it("should handle allOf discriminator", () => {
     const input: SchemaObject = {
-      __scalar_: '',
-      allOf: [{ type: 'string' }, { type: 'null' }],
-    }
+      __scalar_: "",
+      allOf: [{ type: "string" }, { type: "null" }],
+    };
     expect(optimizeValueForDisplay(input)).toEqual({
-      __scalar_: '',
-      type: 'string',
+      __scalar_: "",
+      type: "string",
       nullable: true,
-    })
-  })
+    });
+  });
 
-  it('preserves schema properties when merging allOf schemas', () => {
+  it("preserves schema properties when merging allOf schemas", () => {
     const input: SchemaObject = {
-      __scalar_: '',
+      __scalar_: "",
       oneOf: [
         {
-          __scalar_: '',
-          title: 'Planet',
+          __scalar_: "",
+          title: "Planet",
           allOf: [
             {
-              type: 'object',
+              type: "object",
               properties: {
-                name: { type: 'string' },
+                name: { type: "string" },
               },
             },
             {
-              type: 'object',
+              type: "object",
               properties: {
-                description: { type: 'string' },
+                description: { type: "string" },
               },
             },
           ],
         },
         {
-          __scalar_: '',
-          title: 'Satellite',
+          __scalar_: "",
+          title: "Satellite",
           allOf: [
             {
-              type: 'object',
+              type: "object",
               properties: {
-                name: { type: 'string' },
+                name: { type: "string" },
               },
             },
             {
-              type: 'object',
+              type: "object",
               properties: {
-                description: { type: 'string' },
+                description: { type: "string" },
               },
             },
           ],
         },
       ],
-    }
+    };
 
-    const result = optimizeValueForDisplay(input)
+    const result = optimizeValueForDisplay(input);
 
-    expect(resolve.schema(result?.oneOf?.[0])?.title).toBe('Planet')
-    expect(resolve.schema(result?.oneOf?.[1])?.title).toBe('Satellite')
-  })
+    expect(resolve.schema(result?.oneOf?.[0])?.title).toBe("Planet");
+    expect(resolve.schema(result?.oneOf?.[1])?.title).toBe("Satellite");
+  });
 
-  it('should preserve root properties when processing oneOf schemas', () => {
+  it("should preserve root properties when processing oneOf schemas", () => {
     const input: SchemaObject = {
-      type: 'object',
+      type: "object",
       properties: {
-        id: { type: 'string' },
-        name: { type: 'string' },
+        id: { type: "string" },
+        name: { type: "string" },
       },
       oneOf: [
-        { required: ['id'], type: 'object' },
-        { required: ['name'], type: 'object' },
+        { required: ["id"], type: "object" },
+        { required: ["name"], type: "object" },
       ],
-    }
+    };
 
-    const result = optimizeValueForDisplay(input)
+    const result = optimizeValueForDisplay(input);
 
     expect(result).toEqual({
       oneOf: [
         {
-          type: 'object',
+          type: "object",
           properties: {
-            id: { type: 'string' },
-            name: { type: 'string' },
+            id: { type: "string" },
+            name: { type: "string" },
           },
-          required: ['id'],
+          required: ["id"],
         },
         {
-          type: 'object',
+          type: "object",
           properties: {
-            id: { type: 'string' },
-            name: { type: 'string' },
+            id: { type: "string" },
+            name: { type: "string" },
           },
-          required: ['name'],
+          required: ["name"],
         },
       ],
-    })
-  })
+    });
+  });
 
-  it('should merge root properties into oneOf schemas when they contain allOf', () => {
+  it("should merge root properties into oneOf schemas when they contain allOf", () => {
     const input = {
-      type: 'object',
+      type: "object",
       properties: {
-        id: { type: 'string' },
-        name: { type: 'string' },
+        id: { type: "string" },
+        name: { type: "string" },
       },
       oneOf: [
         {
-          type: 'object',
-          allOf: [{ type: 'object', required: ['id'] }],
+          type: "object",
+          allOf: [{ type: "object", required: ["id"] }],
         },
         {
-          allOf: [{ required: ['name'] }],
+          allOf: [{ required: ["name"] }],
         },
       ],
-    } as SchemaObject
+    } as SchemaObject;
 
-    const result = optimizeValueForDisplay(input)
+    const result = optimizeValueForDisplay(input);
 
     expect(result).toEqual({
       oneOf: [
         {
-          type: 'object',
+          type: "object",
           properties: {
-            id: { type: 'string' },
-            name: { type: 'string' },
+            id: { type: "string" },
+            name: { type: "string" },
           },
-          required: ['id'],
+          required: ["id"],
         },
         {
-          type: 'object',
+          type: "object",
           properties: {
-            id: { type: 'string' },
-            name: { type: 'string' },
+            id: { type: "string" },
+            name: { type: "string" },
           },
-          required: ['name'],
+          required: ["name"],
         },
       ],
-    })
-  })
+    });
+  });
 
-  it('should not merge allOf when it contains multiple items', () => {
+  it("should not merge allOf when it contains multiple items", () => {
     const input = {
-      type: 'object',
+      type: "object",
       properties: {
-        id: { type: 'string' },
+        id: { type: "string" },
       },
       oneOf: [
         {
-          type: 'object',
-          title: 'MultipleAllOf',
-          allOf: [{ required: ['id'] }, { type: 'object', properties: { name: { type: 'string' } } }],
+          type: "object",
+          title: "MultipleAllOf",
+          allOf: [
+            { required: ["id"] },
+            { type: "object", properties: { name: { type: "string" } } },
+          ],
         },
       ],
-    } as SchemaObject
+    } as SchemaObject;
 
-    const result = optimizeValueForDisplay(input)
+    const result = optimizeValueForDisplay(input);
 
     // Since there's only one schema in oneOf, it gets merged with root properties
     // but the allOf with multiple items should be preserved
     expect(result).toEqual({
-      type: 'object',
+      type: "object",
       properties: {
-        id: { type: 'string' },
+        id: { type: "string" },
       },
-      title: 'MultipleAllOf',
-      allOf: [{ required: ['id'] }, { type: 'object', properties: { name: { type: 'string' } } }],
-    })
-  })
+      title: "MultipleAllOf",
+      allOf: [
+        { required: ["id"] },
+        { type: "object", properties: { name: { type: "string" } } },
+      ],
+    });
+  });
 
-  it('should preserve allOf with multiple items in anyOf compositions', () => {
+  it("should preserve allOf with multiple items in anyOf compositions", () => {
     const input = {
-      description: 'A complex schema',
+      description: "A complex schema",
       anyOf: [
         {
-          allOf: [{ type: 'object' }, { properties: { foo: { type: 'string' } } }, { required: ['foo'] }],
+          allOf: [
+            { type: "object" },
+            { properties: { foo: { type: "string" } } },
+            { required: ["foo"] },
+          ],
         },
         {
-          type: 'string',
+          type: "string",
         },
       ],
-    } as SchemaObject
+    } as SchemaObject;
 
-    const result = optimizeValueForDisplay(input)
+    const result = optimizeValueForDisplay(input);
 
     expect(result).toEqual({
       anyOf: [
         {
-          description: 'A complex schema',
-          allOf: [{ type: 'object' }, { properties: { foo: { type: 'string' } } }, { required: ['foo'] }],
+          description: "A complex schema",
+          allOf: [
+            { type: "object" },
+            { properties: { foo: { type: "string" } } },
+            { required: ["foo"] },
+          ],
         },
         {
-          description: 'A complex schema',
-          type: 'string',
+          description: "A complex schema",
+          type: "string",
         },
       ],
-    })
-  })
+    });
+  });
 
-  it('should preserve multiple allOf items when merging root properties into multiple oneOf schemas', () => {
+  it("should preserve multiple allOf items when merging root properties into multiple oneOf schemas", () => {
     const input: SchemaObject = {
-      type: 'object',
+      type: "object",
       properties: {
-        id: { type: 'string' },
+        id: { type: "string" },
       },
       oneOf: [
         {
-          '__scalar_': '',
-          title: 'FirstSchema',
+          __scalar_: "",
+          title: "FirstSchema",
           allOf: [
-            { required: ['id'], type: 'object' },
-            { properties: { name: { type: 'string' } }, type: 'object' },
+            { required: ["id"], type: "object" },
+            { properties: { name: { type: "string" } }, type: "object" },
           ],
         },
         {
-          '__scalar_': '',
-          title: 'SecondSchema',
+          __scalar_: "",
+          title: "SecondSchema",
           allOf: [
-            { required: ['id'], type: 'object' },
-            { properties: { email: { type: 'string' } }, type: 'object' },
+            { required: ["id"], type: "object" },
+            { properties: { email: { type: "string" } }, type: "object" },
           ],
         },
       ],
-    }
+    };
 
-    const result = optimizeValueForDisplay(input)
+    const result = optimizeValueForDisplay(input);
 
     expect(result).toEqual({
       oneOf: [
         {
-          '__scalar_': '',
-          type: 'object',
+          __scalar_: "",
+          type: "object",
           properties: {
-            id: { type: 'string' },
+            id: { type: "string" },
           },
-          title: 'FirstSchema',
+          title: "FirstSchema",
           allOf: [
-            { required: ['id'], type: 'object' },
-            { properties: { name: { type: 'string' } }, 'type': 'object' },
+            { required: ["id"], type: "object" },
+            { properties: { name: { type: "string" } }, type: "object" },
           ],
         },
         {
-          type: 'object',
+          type: "object",
           properties: {
-            id: { type: 'string' },
+            id: { type: "string" },
           },
-          title: 'SecondSchema',
-          '__scalar_': '',
+          title: "SecondSchema",
+          __scalar_: "",
           allOf: [
-            { required: ['id'], 'type': 'object' },
-            { properties: { email: { type: 'string' } }, type: 'object' },
+            { required: ["id"], type: "object" },
+            { properties: { email: { type: "string" } }, type: "object" },
           ],
         },
       ],
-    })
-  })
-})
+    });
+  });
+});

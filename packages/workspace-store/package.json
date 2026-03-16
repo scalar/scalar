@@ -27,7 +27,7 @@
     "generate-json-schemas": "vite-node ./scripts/generate-json-schemas.ts",
     "lint:check": "scalar-lint-check",
     "lint:fix": "scalar-lint-fix",
-    "test": "vitest",
+    "test": "vp test",
     "types:build": "scalar-types-build",
     "types:check": "scalar-types-check"
   },
@@ -162,7 +162,8 @@
     "@scalar/build-tooling": "workspace:*",
     "fake-indexeddb": "catalog:*",
     "fastify": "catalog:*",
-    "vite": "catalog:*",
-    "vitest": "catalog:*"
+    "vite": "catalog:",
+    "vitest": "catalog:",
+    "vite-plus": "catalog:"
   }
 }

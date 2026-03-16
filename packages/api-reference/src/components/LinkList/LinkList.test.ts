@@ -1,120 +1,133 @@
-import { mount } from '@vue/test-utils'
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { nextTick } from 'vue'
+import { mount } from "@vue/test-utils";
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from "vite-plus/test";
+import { nextTick } from "vue";
 
-import LinkList from './LinkList.vue'
+import LinkList from "./LinkList.vue";
 
 // Mock MutationObserver
-const mockDisconnect = vi.fn()
-const mockObserve = vi.fn()
-let capturedCallback: (() => void) | null = null
+const mockDisconnect = vi.fn();
+const mockObserve = vi.fn();
+let capturedCallback: (() => void) | null = null;
 
 beforeEach(() => {
-  vi.clearAllMocks()
-  capturedCallback = null
+  vi.clearAllMocks();
+  capturedCallback = null;
 
   globalThis.MutationObserver = class {
     constructor(callback: MutationCallback) {
-      capturedCallback = callback as () => void
+      capturedCallback = callback as () => void;
     }
-    observe = mockObserve
-    disconnect = mockDisconnect
-    takeRecords = vi.fn(() => [])
-  }
+    observe = mockObserve;
+    disconnect = mockDisconnect;
+    takeRecords = vi.fn(() => []);
+  };
 
   global.window = {
     ...global.window,
     addEventListener: vi.fn(),
     removeEventListener: vi.fn(),
-  } as any
-})
+  } as any;
+});
 
 afterEach(() => {
-  vi.clearAllMocks()
-})
+  vi.clearAllMocks();
+});
 
-describe('LinkList', () => {
-  it('renders with default slot content', () => {
+describe("LinkList", () => {
+  it("renders with default slot content", () => {
     const wrapper = mount(LinkList, {
       slots: {
-        default: '<span>Test Link</span>',
+        default: "<span>Test Link</span>",
       },
-    })
+    });
 
-    expect(wrapper.text()).toContain('Test Link')
-    expect(wrapper.classes()).toContain('custom-scroll')
-  })
+    expect(wrapper.text()).toContain("Test Link");
+    expect(wrapper.classes()).toContain("custom-scroll");
+  });
 
-  it('applies icons-only class when scroll is needed', async () => {
+  it("applies icons-only class when scroll is needed", async () => {
     const wrapper = mount(LinkList, {
       slots: {
-        default: '<span>Very long content that will cause scrolling</span>',
+        default: "<span>Very long content that will cause scrolling</span>",
       },
-    })
+    });
 
     // Mock scrollWidth to be greater than clientWidth (scroll needed)
-    Object.defineProperty(wrapper.element, 'scrollWidth', {
+    Object.defineProperty(wrapper.element, "scrollWidth", {
       value: 300,
       writable: true,
-    })
-    Object.defineProperty(wrapper.element, 'clientWidth', {
+    });
+    Object.defineProperty(wrapper.element, "clientWidth", {
       value: 200,
       writable: true,
-    })
+    });
 
     // Trigger the checkScrollability function manually
-    capturedCallback?.()
-    await nextTick()
+    capturedCallback?.();
+    await nextTick();
 
-    expect(wrapper.classes()).toContain('icons-only')
-  })
+    expect(wrapper.classes()).toContain("icons-only");
+  });
 
-  it('does not apply icons-only class when scroll is not needed', async () => {
+  it("does not apply icons-only class when scroll is not needed", async () => {
     const wrapper = mount(LinkList, {
       slots: {
-        default: '<span>Short content</span>',
+        default: "<span>Short content</span>",
       },
-    })
+    });
 
     // Mock scrollWidth to be less than clientWidth (no scroll needed)
-    Object.defineProperty(wrapper.element, 'scrollWidth', {
+    Object.defineProperty(wrapper.element, "scrollWidth", {
       value: 100,
       writable: true,
-    })
-    Object.defineProperty(wrapper.element, 'clientWidth', {
+    });
+    Object.defineProperty(wrapper.element, "clientWidth", {
       value: 200,
       writable: true,
-    })
+    });
 
-    await nextTick()
+    await nextTick();
 
-    expect(wrapper.classes()).not.toContain('icons-only')
-  })
+    expect(wrapper.classes()).not.toContain("icons-only");
+  });
 
-  it('sets up MutationObserver and window event listeners on mount', () => {
+  it("sets up MutationObserver and window event listeners on mount", () => {
     mount(LinkList, {
       slots: {
-        default: '<span>Test</span>',
+        default: "<span>Test</span>",
       },
-    })
+    });
 
     expect(mockObserve).toHaveBeenCalledWith(expect.any(HTMLElement), {
       childList: true,
       subtree: true,
-    })
-    expect(global.window.addEventListener).toHaveBeenCalledWith('resize', expect.any(Function))
-  })
+    });
+    expect(global.window.addEventListener).toHaveBeenCalledWith(
+      "resize",
+      expect.any(Function),
+    );
+  });
 
-  it('cleans up MutationObserver and window event listeners on unmount', () => {
+  it("cleans up MutationObserver and window event listeners on unmount", () => {
     const wrapper = mount(LinkList, {
       slots: {
-        default: '<span>Test</span>',
+        default: "<span>Test</span>",
       },
-    })
+    });
 
-    wrapper.unmount()
+    wrapper.unmount();
 
-    expect(mockDisconnect).toHaveBeenCalled()
-    expect(global.window.removeEventListener).toHaveBeenCalledWith('resize', expect.any(Function))
-  })
-})
+    expect(mockDisconnect).toHaveBeenCalled();
+    expect(global.window.removeEventListener).toHaveBeenCalledWith(
+      "resize",
+      expect.any(Function),
+    );
+  });
+});

@@ -1,40 +1,41 @@
-import { describe, expect, it } from 'vitest'
-import { XScalarSecurityQuery } from './x-scalar-security-query'
+import { describe, expect, it } from "vite-plus/test";
 
-describe('XScalarSecurityQuery', () => {
-  it('allows any property', () => {
+import { XScalarSecurityQuery } from "./x-scalar-security-query";
+
+describe("XScalarSecurityQuery", () => {
+  it("allows any property", () => {
     const result = XScalarSecurityQuery.parse({
-      'x-scalar-security-query': {
-        prompt: 'consent',
+      "x-scalar-security-query": {
+        prompt: "consent",
       },
-    })
+    });
 
     expect(result).toEqual({
-      'x-scalar-security-query': {
-        prompt: 'consent',
+      "x-scalar-security-query": {
+        prompt: "consent",
       },
-    })
-  })
+    });
+  });
 
-  it('allows more than one property', () => {
+  it("allows more than one property", () => {
     const result = XScalarSecurityQuery.parse({
-      'x-scalar-security-query': {
-        prompt: 'consent',
-        audience: 'scalar',
+      "x-scalar-security-query": {
+        prompt: "consent",
+        audience: "scalar",
       },
-    })
+    });
 
     expect(result).toEqual({
-      'x-scalar-security-query': {
-        prompt: 'consent',
-        audience: 'scalar',
+      "x-scalar-security-query": {
+        prompt: "consent",
+        audience: "scalar",
       },
-    })
-  })
+    });
+  });
 
-  it('can be empty, not required', () => {
-    const result = XScalarSecurityQuery.parse({})
+  it("can be empty, not required", () => {
+    const result = XScalarSecurityQuery.parse({});
 
-    expect(result).toEqual({})
-  })
-})
+    expect(result).toEqual({});
+  });
+});

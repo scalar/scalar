@@ -1,587 +1,712 @@
-import { describe, expect, it, vi } from 'vitest'
+import { describe, expect, it, vi } from "vite-plus/test";
 
-import { createWorkspaceStore } from '@/client'
-import { getResolvedRef } from '@/helpers/get-resolved-ref'
-import type { OpenApiDocument } from '@/schemas/v3.1/strict/openapi-document'
+import { createWorkspaceStore } from "@/client";
+import { getResolvedRef } from "@/helpers/get-resolved-ref";
+import type { OpenApiDocument } from "@/schemas/v3.1/strict/openapi-document";
 
-import { createTag, deleteTag, editTag } from './tag'
+import { createTag, deleteTag, editTag } from "./tag";
 
-const createDocument = (overrides: Partial<OpenApiDocument> = {}): OpenApiDocument => {
+const createDocument = (
+  overrides: Partial<OpenApiDocument> = {},
+): OpenApiDocument => {
   return {
-    openapi: '3.1.1',
-    info: { title: 'Test', version: '1.0.0' },
+    openapi: "3.1.1",
+    info: { title: "Test", version: "1.0.0" },
     ...overrides,
-    'x-scalar-original-document-hash': '',
-  }
-}
+    "x-scalar-original-document-hash": "",
+  };
+};
 
-describe('createTag', () => {
-  it('adds a tag to a document with existing tags array', async () => {
-    const store = createWorkspaceStore()
+describe("createTag", () => {
+  it("adds a tag to a document with existing tags array", async () => {
+    const store = createWorkspaceStore();
     await store.addDocument({
-      name: 'test-doc',
+      name: "test-doc",
       document: createDocument({
-        tags: [{ name: 'existing-tag' }],
+        tags: [{ name: "existing-tag" }],
       }),
-    })
+    });
 
-    createTag(store, { documentName: 'test-doc', name: 'new-tag' })
+    createTag(store, { documentName: "test-doc", name: "new-tag" });
 
-    const document = store.workspace.documents['test-doc']
-    expect(document?.tags).toHaveLength(2)
-    expect(document?.tags?.[0]?.name).toBe('existing-tag')
-    expect(document?.tags?.[1]?.name).toBe('new-tag')
-  })
+    const document = store.workspace.documents["test-doc"];
+    expect(document?.tags).toHaveLength(2);
+    expect(document?.tags?.[0]?.name).toBe("existing-tag");
+    expect(document?.tags?.[1]?.name).toBe("new-tag");
+  });
 
-  it('initializes tags array when missing', async () => {
-    const store = createWorkspaceStore()
+  it("initializes tags array when missing", async () => {
+    const store = createWorkspaceStore();
     await store.addDocument({
-      name: 'test-doc',
+      name: "test-doc",
       document: createDocument(),
-    })
+    });
 
-    createTag(store, { documentName: 'test-doc', name: 'first-tag' })
+    createTag(store, { documentName: "test-doc", name: "first-tag" });
 
-    const document = store.workspace.documents['test-doc']
-    expect(document?.tags).toHaveLength(1)
-    expect(document?.tags?.[0]?.name).toBe('first-tag')
-  })
+    const document = store.workspace.documents["test-doc"];
+    expect(document?.tags).toHaveLength(1);
+    expect(document?.tags?.[0]?.name).toBe("first-tag");
+  });
 
-  it('no-ops when document does not exist', () => {
-    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {
-      return
-    })
-    const store = createWorkspaceStore()
+  it("no-ops when document does not exist", () => {
+    const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {
+      return;
+    });
+    const store = createWorkspaceStore();
 
-    createTag(store, { documentName: 'non-existent', name: 'tag' })
+    createTag(store, { documentName: "non-existent", name: "tag" });
 
-    expect(consoleSpy).toHaveBeenCalledWith('Document not found', expect.any(Object))
-    consoleSpy.mockRestore()
-  })
+    expect(consoleSpy).toHaveBeenCalledWith(
+      "Document not found",
+      expect.any(Object),
+    );
+    consoleSpy.mockRestore();
+  });
 
-  it('no-ops when store is null', () => {
-    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {
-      return
-    })
+  it("no-ops when store is null", () => {
+    const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {
+      return;
+    });
 
-    createTag(null, { documentName: 'test-doc', name: 'tag' })
+    createTag(null, { documentName: "test-doc", name: "tag" });
 
-    expect(consoleSpy).toHaveBeenCalledWith('Document not found', expect.any(Object))
-    consoleSpy.mockRestore()
-  })
+    expect(consoleSpy).toHaveBeenCalledWith(
+      "Document not found",
+      expect.any(Object),
+    );
+    consoleSpy.mockRestore();
+  });
 
-  it('adds multiple tags sequentially', async () => {
-    const store = createWorkspaceStore()
+  it("adds multiple tags sequentially", async () => {
+    const store = createWorkspaceStore();
     await store.addDocument({
-      name: 'test-doc',
+      name: "test-doc",
       document: createDocument(),
-    })
+    });
 
-    createTag(store, { documentName: 'test-doc', name: 'tag-1' })
-    createTag(store, { documentName: 'test-doc', name: 'tag-2' })
-    createTag(store, { documentName: 'test-doc', name: 'tag-3' })
+    createTag(store, { documentName: "test-doc", name: "tag-1" });
+    createTag(store, { documentName: "test-doc", name: "tag-2" });
+    createTag(store, { documentName: "test-doc", name: "tag-3" });
 
-    const document = store.workspace.documents['test-doc']
-    expect(document?.tags).toHaveLength(3)
-    expect(document?.tags?.map((t) => t.name)).toEqual(['tag-1', 'tag-2', 'tag-3'])
-  })
-})
+    const document = store.workspace.documents["test-doc"];
+    expect(document?.tags).toHaveLength(3);
+    expect(document?.tags?.map((t) => t.name)).toEqual([
+      "tag-1",
+      "tag-2",
+      "tag-3",
+    ]);
+  });
+});
 
-describe('deleteTag', () => {
-  it('removes a tag from the document tags array', async () => {
-    const store = createWorkspaceStore()
+describe("deleteTag", () => {
+  it("removes a tag from the document tags array", async () => {
+    const store = createWorkspaceStore();
     await store.addDocument({
-      name: 'test-doc',
+      name: "test-doc",
       document: createDocument({
-        tags: [{ name: 'tag-1' }, { name: 'tag-2' }, { name: 'tag-3' }],
+        tags: [{ name: "tag-1" }, { name: "tag-2" }, { name: "tag-3" }],
       }),
-    })
+    });
 
-    deleteTag(store, { documentName: 'test-doc', name: 'tag-2' })
+    deleteTag(store, { documentName: "test-doc", name: "tag-2" });
 
-    const document = store.workspace.documents['test-doc']
-    expect(document?.tags).toHaveLength(2)
-    expect(document?.tags?.map((t) => t.name)).toEqual(['tag-1', 'tag-3'])
-  })
+    const document = store.workspace.documents["test-doc"];
+    expect(document?.tags).toHaveLength(2);
+    expect(document?.tags?.map((t) => t.name)).toEqual(["tag-1", "tag-3"]);
+  });
 
-  it('removes tag from operations in paths', async () => {
-    const store = createWorkspaceStore()
+  it("removes tag from operations in paths", async () => {
+    const store = createWorkspaceStore();
     await store.addDocument({
-      name: 'test-doc',
+      name: "test-doc",
       document: createDocument({
-        tags: [{ name: 'users' }, { name: 'admin' }],
+        tags: [{ name: "users" }, { name: "admin" }],
         paths: {
-          '/users': {
+          "/users": {
             get: {
-              tags: ['users', 'admin'],
-              summary: 'Get users',
+              tags: ["users", "admin"],
+              summary: "Get users",
             },
             post: {
-              tags: ['users'],
-              summary: 'Create user',
+              tags: ["users"],
+              summary: "Create user",
             },
           },
         },
       }),
-    })
+    });
 
-    deleteTag(store, { documentName: 'test-doc', name: 'users' })
+    deleteTag(store, { documentName: "test-doc", name: "users" });
 
-    const document = store.workspace.documents['test-doc']
-    expect(document?.tags?.map((t) => t.name)).toEqual(['admin'])
-    expect(getResolvedRef(document?.paths?.['/users']?.get)?.tags).toEqual(['admin'])
-    expect(getResolvedRef(document?.paths?.['/users']?.post)?.tags).toEqual([])
-  })
+    const document = store.workspace.documents["test-doc"];
+    expect(document?.tags?.map((t) => t.name)).toEqual(["admin"]);
+    expect(getResolvedRef(document?.paths?.["/users"]?.get)?.tags).toEqual([
+      "admin",
+    ]);
+    expect(getResolvedRef(document?.paths?.["/users"]?.post)?.tags).toEqual([]);
+  });
 
-  it('removes tag from webhooks', async () => {
-    const store = createWorkspaceStore()
+  it("removes tag from webhooks", async () => {
+    const store = createWorkspaceStore();
     await store.addDocument({
-      name: 'test-doc',
+      name: "test-doc",
       document: createDocument({
-        tags: [{ name: 'webhook-tag' }, { name: 'other-tag' }],
+        tags: [{ name: "webhook-tag" }, { name: "other-tag" }],
         webhooks: {
           newUser: {
             post: {
-              tags: ['webhook-tag', 'other-tag'],
-              summary: 'New user webhook',
+              tags: ["webhook-tag", "other-tag"],
+              summary: "New user webhook",
             },
           },
         },
       }),
-    })
+    });
 
-    deleteTag(store, { documentName: 'test-doc', name: 'webhook-tag' })
+    deleteTag(store, { documentName: "test-doc", name: "webhook-tag" });
 
-    const document = store.workspace.documents['test-doc']
-    expect(document?.tags?.map((t) => t.name)).toEqual(['other-tag'])
-    expect(getResolvedRef(document?.webhooks?.newUser?.post)?.tags).toEqual(['other-tag'])
-  })
+    const document = store.workspace.documents["test-doc"];
+    expect(document?.tags?.map((t) => t.name)).toEqual(["other-tag"]);
+    expect(getResolvedRef(document?.webhooks?.newUser?.post)?.tags).toEqual([
+      "other-tag",
+    ]);
+  });
 
-  it('no-ops when document does not exist', () => {
-    const store = createWorkspaceStore()
+  it("no-ops when document does not exist", () => {
+    const store = createWorkspaceStore();
 
-    expect(() => deleteTag(store, { documentName: 'non-existent', name: 'tag' })).not.toThrow()
-  })
+    expect(() =>
+      deleteTag(store, { documentName: "non-existent", name: "tag" }),
+    ).not.toThrow();
+  });
 
-  it('no-ops when store is null', () => {
-    expect(() => deleteTag(null, { documentName: 'test-doc', name: 'tag' })).not.toThrow()
-  })
+  it("no-ops when store is null", () => {
+    expect(() =>
+      deleteTag(null, { documentName: "test-doc", name: "tag" }),
+    ).not.toThrow();
+  });
 
-  it('handles operations that are not objects', async () => {
-    const store = createWorkspaceStore()
+  it("handles operations that are not objects", async () => {
+    const store = createWorkspaceStore();
     await store.addDocument({
-      name: 'test-doc',
+      name: "test-doc",
       document: createDocument({
-        tags: [{ name: 'tag' }],
+        tags: [{ name: "tag" }],
         paths: {
-          '/users': {
+          "/users": {
             get: {
-              tags: ['tag'],
-              summary: 'Get users',
+              tags: ["tag"],
+              summary: "Get users",
             },
             // Non-object values that should be skipped
-            parameters: [{ name: 'param', in: 'query' }],
+            parameters: [{ name: "param", in: "query" }],
           },
         },
       }),
-    })
+    });
 
-    expect(() => deleteTag(store, { documentName: 'test-doc', name: 'tag' })).not.toThrow()
+    expect(() =>
+      deleteTag(store, { documentName: "test-doc", name: "tag" }),
+    ).not.toThrow();
 
-    const document = store.workspace.documents['test-doc']
-    expect(document?.tags).toEqual([])
-    expect(getResolvedRef(document?.paths?.['/users']?.get)?.tags).toEqual([])
-  })
+    const document = store.workspace.documents["test-doc"];
+    expect(document?.tags).toEqual([]);
+    expect(getResolvedRef(document?.paths?.["/users"]?.get)?.tags).toEqual([]);
+  });
 
-  it('handles operations without tags property', async () => {
-    const store = createWorkspaceStore()
+  it("handles operations without tags property", async () => {
+    const store = createWorkspaceStore();
     await store.addDocument({
-      name: 'test-doc',
+      name: "test-doc",
       document: createDocument({
-        tags: [{ name: 'tag' }],
+        tags: [{ name: "tag" }],
         paths: {
-          '/users': {
+          "/users": {
             get: {
-              summary: 'Get users',
+              summary: "Get users",
               // No tags property
             },
           },
         },
       }),
-    })
+    });
 
-    expect(() => deleteTag(store, { documentName: 'test-doc', name: 'tag' })).not.toThrow()
+    expect(() =>
+      deleteTag(store, { documentName: "test-doc", name: "tag" }),
+    ).not.toThrow();
 
-    const document = store.workspace.documents['test-doc']
-    expect(document?.tags).toEqual([])
-  })
+    const document = store.workspace.documents["test-doc"];
+    expect(document?.tags).toEqual([]);
+  });
 
-  it('handles document without paths', async () => {
-    const store = createWorkspaceStore()
+  it("handles document without paths", async () => {
+    const store = createWorkspaceStore();
     await store.addDocument({
-      name: 'test-doc',
+      name: "test-doc",
       document: createDocument({
-        tags: [{ name: 'tag' }],
+        tags: [{ name: "tag" }],
       }),
-    })
+    });
 
-    deleteTag(store, { documentName: 'test-doc', name: 'tag' })
+    deleteTag(store, { documentName: "test-doc", name: "tag" });
 
-    const document = store.workspace.documents['test-doc']
-    expect(document?.tags).toEqual([])
-  })
+    const document = store.workspace.documents["test-doc"];
+    expect(document?.tags).toEqual([]);
+  });
 
-  it('handles document without webhooks', async () => {
-    const store = createWorkspaceStore()
+  it("handles document without webhooks", async () => {
+    const store = createWorkspaceStore();
     await store.addDocument({
-      name: 'test-doc',
+      name: "test-doc",
       document: createDocument({
-        tags: [{ name: 'tag' }],
+        tags: [{ name: "tag" }],
         paths: {
-          '/users': {
+          "/users": {
             get: {
-              tags: ['tag'],
+              tags: ["tag"],
             },
           },
         },
       }),
-    })
+    });
 
-    deleteTag(store, { documentName: 'test-doc', name: 'tag' })
+    deleteTag(store, { documentName: "test-doc", name: "tag" });
 
-    const document = store.workspace.documents['test-doc']
-    expect(document?.tags).toEqual([])
-    expect(getResolvedRef(document?.paths?.['/users']?.get)?.tags).toEqual([])
-  })
+    const document = store.workspace.documents["test-doc"];
+    expect(document?.tags).toEqual([]);
+    expect(getResolvedRef(document?.paths?.["/users"]?.get)?.tags).toEqual([]);
+  });
 
-  it('handles document without tags array', async () => {
-    const store = createWorkspaceStore()
+  it("handles document without tags array", async () => {
+    const store = createWorkspaceStore();
     await store.addDocument({
-      name: 'test-doc',
+      name: "test-doc",
       document: createDocument({
         paths: {
-          '/users': {
+          "/users": {
             get: {
-              tags: ['tag'],
+              tags: ["tag"],
             },
           },
         },
       }),
-    })
+    });
 
-    deleteTag(store, { documentName: 'test-doc', name: 'tag' })
+    deleteTag(store, { documentName: "test-doc", name: "tag" });
 
-    const document = store.workspace.documents['test-doc']
-    expect(document?.tags).toBeUndefined()
-    expect(getResolvedRef(document?.paths?.['/users']?.get)?.tags).toEqual([])
-  })
+    const document = store.workspace.documents["test-doc"];
+    expect(document?.tags).toBeUndefined();
+    expect(getResolvedRef(document?.paths?.["/users"]?.get)?.tags).toEqual([]);
+  });
 
-  it('removes tag from multiple paths and methods', async () => {
-    const store = createWorkspaceStore()
+  it("removes tag from multiple paths and methods", async () => {
+    const store = createWorkspaceStore();
     await store.addDocument({
-      name: 'test-doc',
+      name: "test-doc",
       document: createDocument({
-        tags: [{ name: 'common' }, { name: 'specific' }],
+        tags: [{ name: "common" }, { name: "specific" }],
         paths: {
-          '/users': {
-            get: { tags: ['common'] },
-            post: { tags: ['common', 'specific'] },
-            put: { tags: ['specific'] },
+          "/users": {
+            get: { tags: ["common"] },
+            post: { tags: ["common", "specific"] },
+            put: { tags: ["specific"] },
           },
-          '/products': {
-            get: { tags: ['common'] },
-            delete: { tags: ['common', 'specific'] },
+          "/products": {
+            get: { tags: ["common"] },
+            delete: { tags: ["common", "specific"] },
           },
         },
       }),
-    })
+    });
 
-    deleteTag(store, { documentName: 'test-doc', name: 'common' })
+    deleteTag(store, { documentName: "test-doc", name: "common" });
 
-    const document = store.workspace.documents['test-doc']
-    expect(document?.tags?.map((t) => t.name)).toEqual(['specific'])
-    expect(getResolvedRef(document?.paths?.['/users']?.get)?.tags).toEqual([])
-    expect(getResolvedRef(document?.paths?.['/users']?.post)?.tags).toEqual(['specific'])
-    expect(getResolvedRef(document?.paths?.['/users']?.put)?.tags).toEqual(['specific'])
-    expect(getResolvedRef(document?.paths?.['/products']?.get)?.tags).toEqual([])
-    expect(getResolvedRef(document?.paths?.['/products']?.delete)?.tags).toEqual(['specific'])
-  })
+    const document = store.workspace.documents["test-doc"];
+    expect(document?.tags?.map((t) => t.name)).toEqual(["specific"]);
+    expect(getResolvedRef(document?.paths?.["/users"]?.get)?.tags).toEqual([]);
+    expect(getResolvedRef(document?.paths?.["/users"]?.post)?.tags).toEqual([
+      "specific",
+    ]);
+    expect(getResolvedRef(document?.paths?.["/users"]?.put)?.tags).toEqual([
+      "specific",
+    ]);
+    expect(getResolvedRef(document?.paths?.["/products"]?.get)?.tags).toEqual(
+      [],
+    );
+    expect(
+      getResolvedRef(document?.paths?.["/products"]?.delete)?.tags,
+    ).toEqual(["specific"]);
+  });
 
-  it('handles deleting a tag that does not exist', async () => {
-    const store = createWorkspaceStore()
+  it("handles deleting a tag that does not exist", async () => {
+    const store = createWorkspaceStore();
     await store.addDocument({
-      name: 'test-doc',
+      name: "test-doc",
       document: createDocument({
-        tags: [{ name: 'existing-tag' }],
+        tags: [{ name: "existing-tag" }],
         paths: {
-          '/users': {
-            get: { tags: ['existing-tag'] },
+          "/users": {
+            get: { tags: ["existing-tag"] },
           },
         },
       }),
-    })
+    });
 
-    deleteTag(store, { documentName: 'test-doc', name: 'non-existent-tag' })
+    deleteTag(store, { documentName: "test-doc", name: "non-existent-tag" });
 
     // Tags array and operation tags should remain unchanged
-    const document = store.workspace.documents['test-doc']
-    expect(document?.tags?.map((t) => t.name)).toEqual(['existing-tag'])
-    expect(getResolvedRef(document?.paths?.['/users']?.get)?.tags).toEqual(['existing-tag'])
-  })
-})
+    const document = store.workspace.documents["test-doc"];
+    expect(document?.tags?.map((t) => t.name)).toEqual(["existing-tag"]);
+    expect(getResolvedRef(document?.paths?.["/users"]?.get)?.tags).toEqual([
+      "existing-tag",
+    ]);
+  });
+});
 
-describe('editTag', () => {
-  const store = createWorkspaceStore()
-  const createTraversedTag = (name: string, children?: Parameters<typeof editTag>[1]['tag']['children']) => ({
+describe("editTag", () => {
+  const store = createWorkspaceStore();
+  const createTraversedTag = (
+    name: string,
+    children?: Parameters<typeof editTag>[1]["tag"]["children"],
+  ) => ({
     id: `tag-${name}`,
     title: name,
-    type: 'tag' as const,
+    type: "tag" as const,
     name,
     isGroup: true,
     children,
-  })
+  });
 
-  it('no-ops when editing a tag that does not exist', async () => {
+  it("no-ops when editing a tag that does not exist", async () => {
     await store.addDocument({
-      name: 'test-doc',
+      name: "test-doc",
       document: createDocument({
-        tags: [{ name: 'existing-tag' }],
+        tags: [{ name: "existing-tag" }],
         paths: {
-          '/users': {
+          "/users": {
             get: {
-              tags: ['existing-tag'],
+              tags: ["existing-tag"],
             },
           },
         },
       }),
-    })
+    });
 
     editTag(store, {
-      documentName: 'test-doc',
-      tag: createTraversedTag('non-existent-tag'),
-      newName: 'renamed-tag',
-    })
+      documentName: "test-doc",
+      tag: createTraversedTag("non-existent-tag"),
+      newName: "renamed-tag",
+    });
 
-    const document = store.workspace.documents['test-doc']
-    expect(document?.tags?.map((tag) => tag.name)).toEqual(['existing-tag'])
-    expect(getResolvedRef(document?.paths?.['/users']?.get)?.tags).toEqual(['existing-tag'])
-  })
+    const document = store.workspace.documents["test-doc"];
+    expect(document?.tags?.map((tag) => tag.name)).toEqual(["existing-tag"]);
+    expect(getResolvedRef(document?.paths?.["/users"]?.get)?.tags).toEqual([
+      "existing-tag",
+    ]);
+  });
 
-  it('updates the tag name in document tags and all associated operations', async () => {
+  it("updates the tag name in document tags and all associated operations", async () => {
     await store.addDocument({
-      name: 'test-doc',
+      name: "test-doc",
       document: createDocument({
-        tags: [{ name: 'users' }, { name: 'admin' }],
+        tags: [{ name: "users" }, { name: "admin" }],
         paths: {
-          '/users': {
+          "/users": {
             get: {
-              tags: ['users', 'admin'],
+              tags: ["users", "admin"],
             },
             post: {
-              tags: ['users'],
+              tags: ["users"],
             },
           },
-          '/admin': {
+          "/admin": {
             get: {
-              tags: ['admin'],
+              tags: ["admin"],
             },
           },
         },
         webhooks: {
           userUpdated: {
             post: {
-              tags: ['users'],
+              tags: ["users"],
             },
           },
         },
       }),
-    })
+    });
 
     editTag(store, {
-      documentName: 'test-doc',
-      tag: createTraversedTag('users', [
-        { id: 'op-get-users', title: 'Get users', type: 'operation', ref: '', method: 'get', path: '/users' },
-        { id: 'op-post-users', title: 'Create user', type: 'operation', ref: '', method: 'post', path: '/users' },
-        { id: 'wh-user-updated', title: 'User updated', type: 'webhook', ref: '', method: 'post', name: 'userUpdated' },
+      documentName: "test-doc",
+      tag: createTraversedTag("users", [
+        {
+          id: "op-get-users",
+          title: "Get users",
+          type: "operation",
+          ref: "",
+          method: "get",
+          path: "/users",
+        },
+        {
+          id: "op-post-users",
+          title: "Create user",
+          type: "operation",
+          ref: "",
+          method: "post",
+          path: "/users",
+        },
+        {
+          id: "wh-user-updated",
+          title: "User updated",
+          type: "webhook",
+          ref: "",
+          method: "post",
+          name: "userUpdated",
+        },
       ]),
-      newName: 'customers',
-    })
+      newName: "customers",
+    });
 
-    const document = store.workspace.documents['test-doc']
-    expect(document?.tags?.map((tag) => tag.name)).toEqual(['customers', 'admin'])
-    expect(getResolvedRef(document?.paths?.['/users']?.get)?.tags).toEqual(['customers', 'admin'])
-    expect(getResolvedRef(document?.paths?.['/users']?.post)?.tags).toEqual(['customers'])
-    expect(getResolvedRef(document?.paths?.['/admin']?.get)?.tags).toEqual(['admin'])
-    expect(getResolvedRef(document?.webhooks?.userUpdated?.post)?.tags).toEqual(['customers'])
-  })
+    const document = store.workspace.documents["test-doc"];
+    expect(document?.tags?.map((tag) => tag.name)).toEqual([
+      "customers",
+      "admin",
+    ]);
+    expect(getResolvedRef(document?.paths?.["/users"]?.get)?.tags).toEqual([
+      "customers",
+      "admin",
+    ]);
+    expect(getResolvedRef(document?.paths?.["/users"]?.post)?.tags).toEqual([
+      "customers",
+    ]);
+    expect(getResolvedRef(document?.paths?.["/admin"]?.get)?.tags).toEqual([
+      "admin",
+    ]);
+    expect(getResolvedRef(document?.webhooks?.userUpdated?.post)?.tags).toEqual(
+      ["customers"],
+    );
+  });
 
-  it('produces correct navigation after editTag and a subsequent sidebar rebuild', async () => {
+  it("produces correct navigation after editTag and a subsequent sidebar rebuild", async () => {
     // editTag does not rebuild the sidebar itself — that is handled externally by
     // the onAfterExecute hook in app-events.ts. This test ensures the document
     // data left by editTag is in the right shape so the next buildSidebar call
     // produces a navigation that reflects the new tag name.
-    const store = createWorkspaceStore()
+    const store = createWorkspaceStore();
     await store.addDocument({
-      name: 'test-doc',
+      name: "test-doc",
       document: createDocument({
-        tags: [{ name: 'users' }],
+        tags: [{ name: "users" }],
         paths: {
-          '/users': {
+          "/users": {
             get: {
-              tags: ['users'],
+              tags: ["users"],
             },
           },
         },
       }),
-    })
+    });
 
     editTag(store, {
-      documentName: 'test-doc',
-      tag: createTraversedTag('users', [
-        { id: 'op-get-users', title: 'Get users', type: 'operation', ref: '', method: 'get', path: '/users' },
+      documentName: "test-doc",
+      tag: createTraversedTag("users", [
+        {
+          id: "op-get-users",
+          title: "Get users",
+          type: "operation",
+          ref: "",
+          method: "get",
+          path: "/users",
+        },
       ]),
-      newName: 'customers',
-    })
+      newName: "customers",
+    });
 
     // Simulate the external rebuild triggered by onAfterExecute
-    store.buildSidebar('test-doc')
+    store.buildSidebar("test-doc");
 
-    const navigation = store.workspace.documents['test-doc']?.['x-scalar-navigation']
-    const tagEntry = navigation?.children?.find((c: { type: string; name?: string }) => c.type === 'tag') as
-      | { name?: string }
-      | undefined
-    expect(tagEntry?.name).toBe('customers')
-  })
+    const navigation =
+      store.workspace.documents["test-doc"]?.["x-scalar-navigation"];
+    const tagEntry = navigation?.children?.find(
+      (c: { type: string; name?: string }) => c.type === "tag",
+    ) as { name?: string } | undefined;
+    expect(tagEntry?.name).toBe("customers");
+  });
 
-  it('updates the tag name in webhook operations', async () => {
-    const store = createWorkspaceStore()
+  it("updates the tag name in webhook operations", async () => {
+    const store = createWorkspaceStore();
     await store.addDocument({
-      name: 'test-doc',
+      name: "test-doc",
       document: createDocument({
-        tags: [{ name: 'notifications' }, { name: 'billing' }],
+        tags: [{ name: "notifications" }, { name: "billing" }],
         webhooks: {
           newUser: {
             post: {
-              tags: ['notifications'],
-              summary: 'New user webhook',
+              tags: ["notifications"],
+              summary: "New user webhook",
             },
           },
           paymentReceived: {
             post: {
-              tags: ['notifications', 'billing'],
-              summary: 'Payment received',
+              tags: ["notifications", "billing"],
+              summary: "Payment received",
             },
           },
           invoiceCreated: {
             put: {
-              tags: ['billing'],
-              summary: 'Invoice created',
+              tags: ["billing"],
+              summary: "Invoice created",
             },
           },
         },
       }),
-    })
+    });
 
     editTag(store, {
-      documentName: 'test-doc',
-      tag: createTraversedTag('notifications', [
-        { id: 'wh-new-user', title: 'New user webhook', type: 'webhook', ref: '', method: 'post', name: 'newUser' },
+      documentName: "test-doc",
+      tag: createTraversedTag("notifications", [
         {
-          id: 'wh-payment-received',
-          title: 'Payment received',
-          type: 'webhook',
-          ref: '',
-          method: 'post',
-          name: 'paymentReceived',
+          id: "wh-new-user",
+          title: "New user webhook",
+          type: "webhook",
+          ref: "",
+          method: "post",
+          name: "newUser",
+        },
+        {
+          id: "wh-payment-received",
+          title: "Payment received",
+          type: "webhook",
+          ref: "",
+          method: "post",
+          name: "paymentReceived",
         },
       ]),
-      newName: 'alerts',
-    })
+      newName: "alerts",
+    });
 
-    const document = store.workspace.documents['test-doc']
-    expect(document?.tags?.map((tag) => tag.name)).toEqual(['alerts', 'billing'])
-    expect(getResolvedRef(document?.webhooks?.newUser?.post)?.tags).toEqual(['alerts'])
-    expect(getResolvedRef(document?.webhooks?.paymentReceived?.post)?.tags).toEqual(['alerts', 'billing'])
-    expect(getResolvedRef(document?.webhooks?.invoiceCreated?.put)?.tags).toEqual(['billing'])
-  })
+    const document = store.workspace.documents["test-doc"];
+    expect(document?.tags?.map((tag) => tag.name)).toEqual([
+      "alerts",
+      "billing",
+    ]);
+    expect(getResolvedRef(document?.webhooks?.newUser?.post)?.tags).toEqual([
+      "alerts",
+    ]);
+    expect(
+      getResolvedRef(document?.webhooks?.paymentReceived?.post)?.tags,
+    ).toEqual(["alerts", "billing"]);
+    expect(
+      getResolvedRef(document?.webhooks?.invoiceCreated?.put)?.tags,
+    ).toEqual(["billing"]);
+  });
 
-  it('updates child operation IDs in the tag x-scalar-order when renaming', async () => {
-    const store = createWorkspaceStore()
+  it("updates child operation IDs in the tag x-scalar-order when renaming", async () => {
+    const store = createWorkspaceStore();
     await store.addDocument({
-      name: 'test-doc',
+      name: "test-doc",
       document: createDocument({
-        tags: [{ name: 'users' }],
+        tags: [{ name: "users" }],
         paths: {
-          '/users': {
-            post: { tags: ['users'], summary: 'Create user' },
-            get: { tags: ['users'], summary: 'List users' },
+          "/users": {
+            post: { tags: ["users"], summary: "Create user" },
+            get: { tags: ["users"], summary: "List users" },
           },
         },
       }),
-    })
+    });
 
     // Simulate a user-defined custom ordering: POST before GET (reverse of default).
     // The IDs follow the pattern generated by getNavigationOptions for document "test-doc"
     // and tag "users": "test-doc/tag/users/METHOD/path".
-    const document = store.workspace.documents['test-doc']
-    const usersTag = document?.tags?.find((t) => t.name === 'users')
-    const oldPostId = 'test-doc/tag/users/POST/users'
-    const oldGetId = 'test-doc/tag/users/GET/users'
-    usersTag!['x-scalar-order'] = [oldPostId, oldGetId]
+    const document = store.workspace.documents["test-doc"];
+    const usersTag = document?.tags?.find((t) => t.name === "users");
+    const oldPostId = "test-doc/tag/users/POST/users";
+    const oldGetId = "test-doc/tag/users/GET/users";
+    usersTag!["x-scalar-order"] = [oldPostId, oldGetId];
 
     editTag(store, {
-      documentName: 'test-doc',
-      tag: createTraversedTag('users', [
-        { id: 'op-post-users', title: 'Create user', type: 'operation', ref: '', method: 'post', path: '/users' },
-        { id: 'op-get-users', title: 'List users', type: 'operation', ref: '', method: 'get', path: '/users' },
+      documentName: "test-doc",
+      tag: createTraversedTag("users", [
+        {
+          id: "op-post-users",
+          title: "Create user",
+          type: "operation",
+          ref: "",
+          method: "post",
+          path: "/users",
+        },
+        {
+          id: "op-get-users",
+          title: "List users",
+          type: "operation",
+          ref: "",
+          method: "get",
+          path: "/users",
+        },
       ]),
-      newName: 'customers',
-    })
+      newName: "customers",
+    });
 
     // The tag object itself should now be renamed
-    const renamedTag = store.workspace.documents['test-doc']?.tags?.find((t) => t.name === 'customers')
-    expect(renamedTag).toBeDefined()
+    const renamedTag = store.workspace.documents["test-doc"]?.tags?.find(
+      (t) => t.name === "customers",
+    );
+    expect(renamedTag).toBeDefined();
 
     // x-scalar-order must have the SAME relative ordering, but with new IDs.
     // Without the fix, it would still hold the stale "users" IDs and sortByOrder
     // in traverseTags would find no matches, silently dropping the custom order.
-    expect(renamedTag?.['x-scalar-order']).toEqual([
-      'test-doc/tag/customers/POST/users',
-      'test-doc/tag/customers/GET/users',
-    ])
-  })
+    expect(renamedTag?.["x-scalar-order"]).toEqual([
+      "test-doc/tag/customers/POST/users",
+      "test-doc/tag/customers/GET/users",
+    ]);
+  });
 
-  it('updates tag name in x-tagGroups', async () => {
-    const store = createWorkspaceStore()
+  it("updates tag name in x-tagGroups", async () => {
+    const store = createWorkspaceStore();
     await store.addDocument({
-      name: 'test-doc',
+      name: "test-doc",
       document: createDocument({
-        tags: [{ name: 'users' }, { name: 'admin' }],
+        tags: [{ name: "users" }, { name: "admin" }],
         paths: {
-          '/users': {
+          "/users": {
             get: {
-              tags: ['users'],
+              tags: ["users"],
             },
           },
         },
-        'x-tagGroups': [
-          { name: 'User Management', tags: ['users', 'admin'] },
-          { name: 'Admin Only', tags: ['admin'] },
+        "x-tagGroups": [
+          { name: "User Management", tags: ["users", "admin"] },
+          { name: "Admin Only", tags: ["admin"] },
         ],
       }),
-    })
+    });
 
     editTag(store, {
-      documentName: 'test-doc',
-      tag: createTraversedTag('users', [
-        { id: 'op-get-users', title: 'Get users', type: 'operation', ref: '', method: 'get', path: '/users' },
+      documentName: "test-doc",
+      tag: createTraversedTag("users", [
+        {
+          id: "op-get-users",
+          title: "Get users",
+          type: "operation",
+          ref: "",
+          method: "get",
+          path: "/users",
+        },
       ]),
-      newName: 'customers',
-    })
+      newName: "customers",
+    });
 
-    const document = store.workspace.documents['test-doc']
-    expect(document?.tags?.map((tag) => tag.name)).toEqual(['customers', 'admin'])
-    expect(document?.['x-tagGroups']?.[0]?.tags).toEqual(['customers', 'admin'])
-    expect(document?.['x-tagGroups']?.[1]?.tags).toEqual(['admin'])
-  })
-})
+    const document = store.workspace.documents["test-doc"];
+    expect(document?.tags?.map((tag) => tag.name)).toEqual([
+      "customers",
+      "admin",
+    ]);
+    expect(document?.["x-tagGroups"]?.[0]?.tags).toEqual([
+      "customers",
+      "admin",
+    ]);
+    expect(document?.["x-tagGroups"]?.[1]?.tags).toEqual(["admin"]);
+  });
+});

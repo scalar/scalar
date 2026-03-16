@@ -1,13 +1,15 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from "vite-plus/test";
 
-import { escapeJsonPointer } from './escape-json-pointer'
+import { escapeJsonPointer } from "./escape-json-pointer";
 
-describe('escapeJsonPointer', () => {
-  it('should escape a slash', () => {
-    expect(escapeJsonPointer('application/json')).toBe('application~1json')
-  })
+describe("escapeJsonPointer", () => {
+  it("should escape a slash", () => {
+    expect(escapeJsonPointer("application/json")).toBe("application~1json");
+  });
 
-  it('should escape multiple slashes', () => {
-    expect(escapeJsonPointer('/api/users/{id}/reports')).toBe('~1api~1users~1{id}~1reports')
-  })
-})
+  it("should escape multiple slashes", () => {
+    expect(escapeJsonPointer("/api/users/{id}/reports")).toBe(
+      "~1api~1users~1{id}~1reports",
+    );
+  });
+});

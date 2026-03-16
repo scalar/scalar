@@ -1,5 +1,5 @@
 import { flushPromises, mount } from '@vue/test-utils'
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vite-plus/test'
 import { nextTick } from 'vue'
 
 import ScalarCopy from './ScalarCopy.vue'
@@ -163,7 +163,9 @@ describe('ScalarCopy', () => {
       // Advance to default duration
       vi.advanceTimersByTime(1)
       await nextTick()
-      expect(wrapper.findComponent(ScalarCopyButton).props('copied')).toBe(false)
+      expect(wrapper.findComponent(ScalarCopyButton).props('copied')).toBe(
+        false,
+      )
     })
 
     it('uses custom duration', async () => {
@@ -188,7 +190,9 @@ describe('ScalarCopy', () => {
       // Advance to custom duration
       vi.advanceTimersByTime(1)
       await nextTick()
-      expect(wrapper.findComponent(ScalarCopyButton).props('copied')).toBe(false)
+      expect(wrapper.findComponent(ScalarCopyButton).props('copied')).toBe(
+        false,
+      )
     })
   })
 

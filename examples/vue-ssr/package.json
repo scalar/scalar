@@ -16,8 +16,8 @@
   },
   "scripts": {
     "build": "npm run build:client && npm run build:server",
-    "build:client": "vite build --outDir dist/client",
-    "build:server": "vite build --ssr src/entry-server.ts --outDir dist/server",
+    "build:client": "vp build --outDir dist/client",
+    "build:server": "vp build --ssr src/entry-server.ts --outDir dist/server",
     "check": "vue-tsc",
     "dev": "vite-node server.ts",
     "preview": "cross-env NODE_ENV=production vite-node server.ts"
@@ -36,6 +36,7 @@
     "@types/node": "catalog:*",
     "@vitejs/plugin-vue": "catalog:*",
     "cross-env": "^7.0.3",
-    "vite": "catalog:*"
+    "vite": "catalog:",
+    "vite-plus": "catalog:"
   }
 }

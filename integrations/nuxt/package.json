@@ -29,7 +29,7 @@
     "dev": "pnpm dev:prepare && nuxi dev playground",
     "dev:build": "nuxi build playground",
     "dev:prepare": "nuxi prepare && nuxt-module-build build --stub && nuxt-module-build prepare && nuxi prepare playground",
-    "test": "vitest",
+    "test": "vp test",
     "test:e2e": "playwright test",
     "types:check": "NUXT_TELEMETRY_DISABLED=true nuxi typecheck"
   },
@@ -73,6 +73,7 @@
     "@types/node": "catalog:*",
     "cross-env": "^7.0.3",
     "nuxt": "^4.1.0",
-    "vitest": "catalog:*"
+    "vitest": "catalog:",
+    "vite-plus": "catalog:"
   }
 }

@@ -1,16 +1,16 @@
-import { describe, expect, test, vi } from 'vitest'
+import { describe, expect, test, vi } from "vite-plus/test";
 
-import { Trie } from '@/diff/trie'
+import { Trie } from "@/diff/trie";
 
-describe('trie', () => {
-  test('should correctly find matched', () => {
-    const trie = new Trie<number>()
+describe("trie", () => {
+  test("should correctly find matched", () => {
+    const trie = new Trie<number>();
 
-    trie.addPath(['a', 'b', 'c'], 1)
-    trie.addPath(['a', 'b', 'd'], 2)
-    trie.addPath(['a', 'b', 'c', 'd'], 3)
-    trie.addPath(['a', 'b', 'c', 'd', 'e', 'f'], 4)
-    trie.addPath(['a', 'b'], 5)
+    trie.addPath(["a", "b", "c"], 1);
+    trie.addPath(["a", "b", "d"], 2);
+    trie.addPath(["a", "b", "c", "d"], 3);
+    trie.addPath(["a", "b", "c", "d", "e", "f"], 4);
+    trie.addPath(["a", "b"], 5);
 
     /**
      * created trie:
@@ -19,13 +19,13 @@ describe('trie', () => {
      *          \-> (d, 2)
      */
 
-    const fn = vi.fn()
-    trie.findMatch(['a', 'b', 'c'], fn)
+    const fn = vi.fn();
+    trie.findMatch(["a", "b", "c"], fn);
 
-    expect(fn).toHaveBeenCalledTimes(4)
-    expect(fn).toHaveBeenNthCalledWith(1, 5)
-    expect(fn).toHaveBeenNthCalledWith(2, 4)
-    expect(fn).toHaveBeenNthCalledWith(3, 3)
-    expect(fn).toHaveBeenNthCalledWith(4, 1)
-  })
-})
+    expect(fn).toHaveBeenCalledTimes(4);
+    expect(fn).toHaveBeenNthCalledWith(1, 5);
+    expect(fn).toHaveBeenNthCalledWith(2, 4);
+    expect(fn).toHaveBeenNthCalledWith(3, 3);
+    expect(fn).toHaveBeenNthCalledWith(4, 1);
+  });
+});

@@ -1,22 +1,22 @@
-import Fastify from 'fastify'
-import { describe, expect, it } from 'vitest'
+import Fastify from "fastify";
+import { describe, expect, it } from "vite-plus/test";
 
-describe('exports', () => {
-  it('ESM export', async () => {
+describe("exports", () => {
+  it("ESM export", async () => {
     const fastify = Fastify({
       logger: false,
-    })
+    });
 
-    fastify.register(import('../dist/index.js'), {
-      routePrefix: '/foobar',
+    fastify.register(import("../dist/index.js"), {
+      routePrefix: "/foobar",
       configuration: {
-        url: '/openapi.json',
+        url: "/openapi.json",
       },
-    })
+    });
 
-    const address = await fastify.listen({ port: 0 })
+    const address = await fastify.listen({ port: 0 });
 
-    const response = await fetch(`${address}/foobar`)
-    expect(response.status).toBe(200)
-  })
-})
+    const response = await fetch(`${address}/foobar`);
+    expect(response.status).toBe(200);
+  });
+});

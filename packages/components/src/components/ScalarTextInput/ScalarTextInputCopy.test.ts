@@ -1,5 +1,5 @@
 import { flushPromises, mount } from '@vue/test-utils'
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vite-plus/test'
 
 import ScalarCopyButton from '../ScalarCopy/ScalarCopyButton.vue'
 import ScalarTextInput from './ScalarTextInput.vue'
@@ -57,8 +57,12 @@ describe('ScalarTextInputCopy', () => {
       },
     })
 
-    expect(wrapperEditable.findComponent(ScalarTextInput).props('readonly')).toBe(false)
-    expect(wrapperReadonly.findComponent(ScalarTextInput).props('readonly')).toBe(true)
+    expect(
+      wrapperEditable.findComponent(ScalarTextInput).props('readonly'),
+    ).toBe(false)
+    expect(
+      wrapperReadonly.findComponent(ScalarTextInput).props('readonly'),
+    ).toBe(true)
   })
 
   it('copies on mount when immediate is true and model has value', async () => {
@@ -107,6 +111,8 @@ describe('ScalarTextInputCopy', () => {
       slots: { copy: 'Copy label' },
     })
 
-    expect(wrapper.findComponent(ScalarCopyButton).text()).toContain('Copy label')
+    expect(wrapper.findComponent(ScalarCopyButton).text()).toContain(
+      'Copy label',
+    )
   })
 })

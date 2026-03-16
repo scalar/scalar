@@ -1,6 +1,6 @@
 import { ScalarIconAcorn } from '@scalar/icons'
 import { mount } from '@vue/test-utils'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vite-plus/test'
 import { markRaw, nextTick } from 'vue'
 
 import { useLoadingState } from '../ScalarLoading'
@@ -26,13 +26,16 @@ describe('ScalarButton', () => {
       expect(wrapper.attributes('href')).toBe('https://scalar.com')
     })
 
-    it.each(['button', 'submit', 'reset'])('allows buttons of type %s', (type) => {
-      const wrapper = mount(ScalarButton, {
-        props: { type },
-        slots: { default: `${type} button` },
-      })
-      expect(wrapper.attributes('type')).toBe(type)
-    })
+    it.each(['button', 'submit', 'reset'])(
+      'allows buttons of type %s',
+      (type) => {
+        const wrapper = mount(ScalarButton, {
+          props: { type },
+          slots: { default: `${type} button` },
+        })
+        expect(wrapper.attributes('type')).toBe(type)
+      },
+    )
   })
 
   it('applies disabled state correctly', () => {

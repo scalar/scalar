@@ -1,348 +1,357 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from "vite-plus/test";
 
-import type { RequestBody } from '@/types'
+import type { RequestBody } from "@/types";
 
-import { extractRequestBody } from './request-body'
+import { extractRequestBody } from "./request-body";
 
-describe('request-body', () => {
-  it('extracts raw JSON body', () => {
+describe("request-body", () => {
+  it("extracts raw JSON body", () => {
     const body: RequestBody = {
-      mode: 'raw',
+      mode: "raw",
       raw: '{"name": "John", "age": 30}',
-    }
+    };
 
-    const result = extractRequestBody(body)
+    const result = extractRequestBody(body);
 
     expect(result).toEqual({
       content: {
-        'application/json': {
+        "application/json": {
           schema: {
-            type: 'object',
+            type: "object",
             example: {
-              name: 'John',
+              name: "John",
               age: 30,
             },
           },
         },
       },
-    })
-  })
+    });
+  });
 
-  it('handles invalid JSON as text/plain', () => {
+  it("handles invalid JSON as text/plain", () => {
     const body: RequestBody = {
-      mode: 'raw',
-      raw: 'invalid json {',
-    }
+      mode: "raw",
+      raw: "invalid json {",
+    };
 
-    const result = extractRequestBody(body)
+    const result = extractRequestBody(body);
 
     expect(result).toEqual({
       content: {
-        'text/plain': {
+        "text/plain": {
           schema: {
-            type: 'string',
-            examples: ['invalid json {'],
+            type: "string",
+            examples: ["invalid json {"],
           },
         },
       },
-    })
-  })
+    });
+  });
 
-  it('handles empty raw body', () => {
+  it("handles empty raw body", () => {
     const body: RequestBody = {
-      mode: 'raw',
-      raw: '',
-    }
+      mode: "raw",
+      raw: "",
+    };
 
-    const result = extractRequestBody(body)
+    const result = extractRequestBody(body);
 
     expect(result).toEqual({
       content: {
-        'text/plain': {
+        "text/plain": {
           schema: {
-            type: 'string',
+            type: "string",
             examples: undefined,
           },
         },
       },
-    })
-  })
+    });
+  });
 
-  it('extracts form-data body', () => {
+  it("extracts form-data body", () => {
     const body: RequestBody = {
-      mode: 'formdata',
+      mode: "formdata",
       formdata: [
         {
-          key: 'name',
-          value: 'John',
-          type: 'text',
+          key: "name",
+          value: "John",
+          type: "text",
         },
         {
-          key: 'file',
-          type: 'file',
+          key: "file",
+          type: "file",
           src: null,
         },
       ],
-    }
+    };
 
-    const result = extractRequestBody(body)
+    const result = extractRequestBody(body);
 
-    expect(result.content?.['multipart/form-data']).toBeDefined()
-    expect(result.content?.['multipart/form-data']?.schema).toEqual({
-      type: 'object',
+    expect(result.content?.["multipart/form-data"]).toBeDefined();
+    expect(result.content?.["multipart/form-data"]?.schema).toEqual({
+      type: "object",
       properties: {
         name: {
-          type: 'string',
-          example: 'John',
+          type: "string",
+          example: "John",
         },
         file: {
-          type: 'string',
-          format: 'binary',
+          type: "string",
+          format: "binary",
         },
       },
-    })
-  })
+    });
+  });
 
-  it('extracts urlencoded body', () => {
+  it("extracts urlencoded body", () => {
     const body: RequestBody = {
-      mode: 'urlencoded',
+      mode: "urlencoded",
       urlencoded: [
         {
-          key: 'name',
-          value: 'John',
+          key: "name",
+          value: "John",
         },
         {
-          key: 'email',
-          value: 'john@example.com',
+          key: "email",
+          value: "john@example.com",
         },
       ],
-    }
+    };
 
-    const result = extractRequestBody(body)
+    const result = extractRequestBody(body);
 
-    expect(result.content?.['application/x-www-form-urlencoded']).toBeDefined()
-    expect(result.content?.['application/x-www-form-urlencoded']?.schema).toEqual({
-      type: 'object',
+    expect(result.content?.["application/x-www-form-urlencoded"]).toBeDefined();
+    expect(
+      result.content?.["application/x-www-form-urlencoded"]?.schema,
+    ).toEqual({
+      type: "object",
       properties: {
         name: {
-          type: 'string',
-          examples: ['John'],
+          type: "string",
+          examples: ["John"],
         },
         email: {
-          type: 'string',
-          examples: ['john@example.com'],
+          type: "string",
+          examples: ["john@example.com"],
         },
       },
       required: [],
-    })
-  })
+    });
+  });
 
-  it('handles urlencoded body with required fields', () => {
+  it("handles urlencoded body with required fields", () => {
     const body: RequestBody = {
-      mode: 'urlencoded',
+      mode: "urlencoded",
       urlencoded: [
         {
-          key: 'name',
-          value: 'John',
-          description: 'User name [required]',
+          key: "name",
+          value: "John",
+          description: "User name [required]",
         },
         {
-          key: 'email',
-          value: 'john@example.com',
+          key: "email",
+          value: "john@example.com",
         },
       ],
-    }
+    };
 
-    const result = extractRequestBody(body)
+    const result = extractRequestBody(body);
 
-    expect(result.content?.['application/x-www-form-urlencoded']?.schema?.required).toEqual(['name'])
-  })
+    expect(
+      result.content?.["application/x-www-form-urlencoded"]?.schema?.required,
+    ).toEqual(["name"]);
+  });
 
-  it('returns empty content for unsupported mode', () => {
+  it("returns empty content for unsupported mode", () => {
     const body: RequestBody = {
-      mode: 'file',
+      mode: "file",
       file: {
         src: null,
       },
-    }
+    };
 
-    const result = extractRequestBody(body)
-
-    expect(result).toEqual({
-      content: {},
-    })
-  })
-
-  it('handles formdata mode without formdata array', () => {
-    const body: RequestBody = {
-      mode: 'formdata',
-    }
-
-    const result = extractRequestBody(body)
+    const result = extractRequestBody(body);
 
     expect(result).toEqual({
       content: {},
-    })
-  })
+    });
+  });
 
-  it('handles urlencoded mode without urlencoded array', () => {
+  it("handles formdata mode without formdata array", () => {
     const body: RequestBody = {
-      mode: 'urlencoded',
-    }
+      mode: "formdata",
+    };
 
-    const result = extractRequestBody(body)
+    const result = extractRequestBody(body);
 
     expect(result).toEqual({
       content: {},
-    })
-  })
+    });
+  });
 
-  it('handles complex nested JSON', () => {
+  it("handles urlencoded mode without urlencoded array", () => {
     const body: RequestBody = {
-      mode: 'raw',
+      mode: "urlencoded",
+    };
+
+    const result = extractRequestBody(body);
+
+    expect(result).toEqual({
+      content: {},
+    });
+  });
+
+  it("handles complex nested JSON", () => {
+    const body: RequestBody = {
+      mode: "raw",
       raw: JSON.stringify({
         user: {
-          name: 'John',
+          name: "John",
           address: {
-            street: '123 Main St',
-            city: 'New York',
+            street: "123 Main St",
+            city: "New York",
           },
         },
-        tags: ['admin', 'user'],
+        tags: ["admin", "user"],
       }),
-    }
+    };
 
-    const result = extractRequestBody(body)
+    const result = extractRequestBody(body);
 
-    expect(result.content?.['application/json']?.schema?.example).toEqual({
+    expect(result.content?.["application/json"]?.schema?.example).toEqual({
       user: {
-        name: 'John',
+        name: "John",
         address: {
-          street: '123 Main St',
-          city: 'New York',
+          street: "123 Main St",
+          city: "New York",
         },
       },
-      tags: ['admin', 'user'],
-    })
-  })
+      tags: ["admin", "user"],
+    });
+  });
 
-  it('creates JSON schema placeholder when body has variables with JSON language', () => {
+  it("creates JSON schema placeholder when body has variables with JSON language", () => {
     const body: RequestBody = {
-      mode: 'raw',
-      raw: '{{bodyData}}',
+      mode: "raw",
+      raw: "{{bodyData}}",
       options: {
         raw: {
-          language: 'json',
+          language: "json",
         },
       },
-    }
+    };
 
-    const result = extractRequestBody(body)
+    const result = extractRequestBody(body);
 
-    expect(result.content?.['application/json']).toBeDefined()
-    expect(result.content?.['application/json']?.schema?.type).toBe('object')
-    expect(result.content?.['application/json']?.schema?.description).toBe('Body data set via pre-request script')
-  })
+    expect(result.content?.["application/json"]).toBeDefined();
+    expect(result.content?.["application/json"]?.schema?.type).toBe("object");
+    expect(result.content?.["application/json"]?.schema?.description).toBe(
+      "Body data set via pre-request script",
+    );
+  });
 
-  it('handles body with variables but non-JSON language', () => {
+  it("handles body with variables but non-JSON language", () => {
     const body: RequestBody = {
-      mode: 'raw',
-      raw: '{{bodyData}}',
+      mode: "raw",
+      raw: "{{bodyData}}",
       options: {
         raw: {
-          language: 'text',
+          language: "text",
         },
       },
-    }
+    };
 
-    const result = extractRequestBody(body)
+    const result = extractRequestBody(body);
 
-    expect(result.content?.['text/plain']).toBeDefined()
-  })
+    expect(result.content?.["text/plain"]).toBeDefined();
+  });
 
-  it('adds x-scalar-disabled extension for disabled urlencoded parameters', () => {
+  it("adds x-scalar-disabled extension for disabled urlencoded parameters", () => {
     const body: RequestBody = {
-      mode: 'urlencoded',
+      mode: "urlencoded",
       urlencoded: [
         {
-          key: 'name',
-          value: 'John',
+          key: "name",
+          value: "John",
           disabled: true,
         },
         {
-          key: 'email',
-          value: 'john@example.com',
+          key: "email",
+          value: "john@example.com",
         },
       ],
-    }
+    };
 
-    const result = extractRequestBody(body)
+    const result = extractRequestBody(body);
 
-    const schema = result.content?.['application/x-www-form-urlencoded']?.schema
-    expect(schema?.properties?.name?.['x-scalar-disabled']).toBe(true)
-    expect(schema?.properties?.email?.['x-scalar-disabled']).toBeUndefined()
-  })
+    const schema =
+      result.content?.["application/x-www-form-urlencoded"]?.schema;
+    expect(schema?.properties?.name?.["x-scalar-disabled"]).toBe(true);
+    expect(schema?.properties?.email?.["x-scalar-disabled"]).toBeUndefined();
+  });
 
-  it('includes disabled urlencoded parameters in schema properties', () => {
+  it("includes disabled urlencoded parameters in schema properties", () => {
     const body: RequestBody = {
-      mode: 'urlencoded',
+      mode: "urlencoded",
       urlencoded: [
         {
-          key: 'disabledField',
-          value: 'value',
+          key: "disabledField",
+          value: "value",
           disabled: true,
         },
       ],
-    }
+    };
 
-    const result = extractRequestBody(body)
+    const result = extractRequestBody(body);
 
-    const schema = result.content?.['application/x-www-form-urlencoded']?.schema
-    expect(schema?.properties?.disabledField).toBeDefined()
-    expect(schema?.properties?.disabledField?.['x-scalar-disabled']).toBe(true)
-    expect(schema?.properties?.disabledField?.type).toBe('string')
-  })
+    const schema =
+      result.content?.["application/x-www-form-urlencoded"]?.schema;
+    expect(schema?.properties?.disabledField).toBeDefined();
+    expect(schema?.properties?.disabledField?.["x-scalar-disabled"]).toBe(true);
+    expect(schema?.properties?.disabledField?.type).toBe("string");
+  });
 
-  it('preserves other properties when urlencoded parameter is disabled', () => {
+  it("preserves other properties when urlencoded parameter is disabled", () => {
     const body: RequestBody = {
-      mode: 'urlencoded',
+      mode: "urlencoded",
       urlencoded: [
         {
-          key: 'name',
-          value: 'John',
+          key: "name",
+          value: "John",
           disabled: true,
-          description: 'User name',
+          description: "User name",
         },
       ],
-    }
+    };
 
-    const result = extractRequestBody(body)
+    const result = extractRequestBody(body);
 
-    const schema = result.content?.['application/x-www-form-urlencoded']?.schema
-    const property = schema?.properties?.name
-    expect(property?.['x-scalar-disabled']).toBe(true)
-    expect(property?.type).toBe('string')
-    expect(property?.examples).toEqual(['John'])
-    expect(property?.description).toBe('User name')
-  })
+    const schema =
+      result.content?.["application/x-www-form-urlencoded"]?.schema;
+    const property = schema?.properties?.name;
+    expect(property?.["x-scalar-disabled"]).toBe(true);
+    expect(property?.type).toBe("string");
+    expect(property?.examples).toEqual(["John"]);
+    expect(property?.description).toBe("User name");
+  });
 
-  it('handles JSON null as valid JSON body', () => {
+  it("handles JSON null as valid JSON body", () => {
     const body: RequestBody = {
-      mode: 'raw',
-      raw: 'null',
-    }
+      mode: "raw",
+      raw: "null",
+    };
 
-    const result = extractRequestBody(body)
+    const result = extractRequestBody(body);
 
     expect(result).toEqual({
       content: {
-        'application/json': {
+        "application/json": {
           schema: {
-            type: 'object',
+            type: "object",
             example: null,
           },
         },
       },
-    })
-  })
-})
+    });
+  });
+});

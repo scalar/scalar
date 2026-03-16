@@ -21,7 +21,7 @@
     "lint:check": "scalar-lint-check",
     "lint:fix": "scalar-lint-fix",
     "postbuild": "pnpm generate:dotnet-enums && pnpm generate:java-enums && pnpm generate:markdown-docs",
-    "test": "vitest",
+    "test": "vp test",
     "types:build": "scalar-types-build",
     "types:check": "scalar-types-check"
   },
@@ -247,6 +247,7 @@
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
     "@types/stringify-object": "^4.0.5",
-    "vite": "catalog:*"
+    "vite": "catalog:",
+    "vite-plus": "catalog:"
   }
 }

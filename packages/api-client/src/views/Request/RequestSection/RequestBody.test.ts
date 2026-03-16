@@ -1,46 +1,58 @@
-import { environmentSchema } from '@scalar/oas-utils/entities/environment'
-import { operationSchema, requestExampleSchema } from '@scalar/oas-utils/entities/spec'
-import { workspaceSchema } from '@scalar/oas-utils/entities/workspace'
-import { enableAutoUnmount, mount } from '@vue/test-utils'
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { environmentSchema } from "@scalar/oas-utils/entities/environment";
+import {
+  operationSchema,
+  requestExampleSchema,
+} from "@scalar/oas-utils/entities/spec";
+import { workspaceSchema } from "@scalar/oas-utils/entities/workspace";
+import { enableAutoUnmount, mount } from "@vue/test-utils";
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from "vite-plus/test";
 
-import { useWorkspace } from '@/store'
-import { createStoreEvents } from '@/store/events'
+import { useWorkspace } from "@/store";
+import { createStoreEvents } from "@/store/events";
 
-import RequestBody from './RequestBody.vue'
+import RequestBody from "./RequestBody.vue";
 
-enableAutoUnmount(afterEach)
+enableAutoUnmount(afterEach);
 
 // Mock the useWorkspace hook
-vi.mock('@/store', () => ({
+vi.mock("@/store", () => ({
   useWorkspace: vi.fn(),
-}))
+}));
 
-vi.mock('@/store/active-entities', () => ({
+vi.mock("@/store/active-entities", () => ({
   useActiveEntities: vi.fn(),
-}))
+}));
 
-describe('RequestBody.vue', () => {
-  const mockOperation = operationSchema.parse({ uid: 'mockRequestUid' })
+describe("RequestBody.vue", () => {
+  const mockOperation = operationSchema.parse({ uid: "mockRequestUid" });
   const mockActiveExample = requestExampleSchema.parse({
-    uid: 'mockExampleUid',
+    uid: "mockExampleUid",
     body: {
-      activeBody: 'raw',
+      activeBody: "raw",
     },
-  })
+  });
   const mockActiveEnvironment = environmentSchema.parse({
-    uid: 'mockEnvironmentUid',
-  })
+    uid: "mockEnvironmentUid",
+  });
   const mockActiveWorkspace = workspaceSchema.parse({
-    uid: 'mockWorkspaceUid',
-  })
+    uid: "mockWorkspaceUid",
+  });
   const mockRequestExampleMutators = {
-    edit: vi.fn<ReturnType<typeof useWorkspace>['requestExampleMutators']['edit']>(),
-  }
+    edit: vi.fn<
+      ReturnType<typeof useWorkspace>["requestExampleMutators"]["edit"]
+    >(),
+  };
 
   const props = {
     props: {
-      title: 'Body',
+      title: "Body",
       example: mockActiveExample,
       operation: mockOperation,
       environment: mockActiveEnvironment,
@@ -52,299 +64,357 @@ describe('RequestBody.vue', () => {
         RouterLink: true,
       },
     },
-  }
+  };
 
   // Mock our request + example
   beforeEach(() => {
     vi.mocked(useWorkspace).mockReturnValue({
       events: createStoreEvents(),
       requestExampleMutators: mockRequestExampleMutators,
-    } as unknown as ReturnType<typeof useWorkspace>)
+    } as unknown as ReturnType<typeof useWorkspace>);
 
     return () => {
-      vi.clearAllMocks()
-    }
-  })
+      vi.clearAllMocks();
+    };
+  });
 
-  it('renders correctly with no body', () => {
-    const wrapper = mount(RequestBody, props)
-    expect(wrapper.findComponent({ name: 'ScalarListbox' }).text()).toContain('None')
-  })
+  it("renders correctly with no body", () => {
+    const wrapper = mount(RequestBody, props);
+    expect(wrapper.findComponent({ name: "ScalarListbox" }).text()).toContain(
+      "None",
+    );
+  });
 
-  it('renders with multipart form', () => {
+  it("renders with multipart form", () => {
     mockActiveExample.body = {
-      activeBody: 'formData',
+      activeBody: "formData",
       formData: {
-        encoding: 'form-data',
+        encoding: "form-data",
         value: [],
       },
-    }
+    };
 
-    const wrapper = mount(RequestBody, props)
-    expect(wrapper.findComponent({ name: 'ScalarListbox' }).text()).toContain('Multipart Form')
-  })
+    const wrapper = mount(RequestBody, props);
+    expect(wrapper.findComponent({ name: "ScalarListbox" }).text()).toContain(
+      "Multipart Form",
+    );
+  });
 
-  it('renders with url encoded form', () => {
+  it("renders with url encoded form", () => {
     mockActiveExample.body = {
-      activeBody: 'formData',
+      activeBody: "formData",
       formData: {
-        encoding: 'urlencoded',
+        encoding: "urlencoded",
         value: [],
       },
-    }
-    const wrapper = mount(RequestBody, props)
+    };
+    const wrapper = mount(RequestBody, props);
 
-    expect(wrapper.findComponent({ name: 'ScalarListbox' }).text()).toContain('Form URL Encoded')
-  })
+    expect(wrapper.findComponent({ name: "ScalarListbox" }).text()).toContain(
+      "Form URL Encoded",
+    );
+  });
 
-  it('renders with binary file', () => {
+  it("renders with binary file", () => {
     mockActiveExample.body = {
-      activeBody: 'binary',
-    }
-    const wrapper = mount(RequestBody, props)
+      activeBody: "binary",
+    };
+    const wrapper = mount(RequestBody, props);
 
-    expect(wrapper.findComponent({ name: 'ScalarListbox' }).text()).toContain('Binary File')
-  })
+    expect(wrapper.findComponent({ name: "ScalarListbox" }).text()).toContain(
+      "Binary File",
+    );
+  });
 
-  it('renders with json', async () => {
+  it("renders with json", async () => {
     mockActiveExample.body = {
-      activeBody: 'raw',
+      activeBody: "raw",
       raw: {
-        encoding: 'json',
-        value: '',
+        encoding: "json",
+        value: "",
       },
-    }
-    const wrapper = mount(RequestBody, props)
+    };
+    const wrapper = mount(RequestBody, props);
 
-    await new Promise((resolve) => setTimeout(resolve, 750))
+    await new Promise((resolve) => setTimeout(resolve, 750));
 
-    expect(wrapper.findComponent({ name: 'ScalarListbox' }).text()).toContain('JSON')
-  })
+    expect(wrapper.findComponent({ name: "ScalarListbox" }).text()).toContain(
+      "JSON",
+    );
+  });
 
-  it('renders with xml', () => {
+  it("renders with xml", () => {
     mockActiveExample.body = {
-      activeBody: 'raw',
+      activeBody: "raw",
       raw: {
-        encoding: 'xml',
-        value: '',
+        encoding: "xml",
+        value: "",
       },
-    }
-    const wrapper = mount(RequestBody, props)
+    };
+    const wrapper = mount(RequestBody, props);
 
-    expect(wrapper.findComponent({ name: 'ScalarListbox' }).text()).toContain('XML')
-  })
+    expect(wrapper.findComponent({ name: "ScalarListbox" }).text()).toContain(
+      "XML",
+    );
+  });
 
-  it('renders with yaml', () => {
+  it("renders with yaml", () => {
     mockActiveExample.body = {
-      activeBody: 'raw',
+      activeBody: "raw",
       raw: {
-        encoding: 'yaml',
-        value: '',
+        encoding: "yaml",
+        value: "",
       },
-    }
-    const wrapper = mount(RequestBody, props)
+    };
+    const wrapper = mount(RequestBody, props);
 
-    expect(wrapper.findComponent({ name: 'ScalarListbox' }).text()).toContain('YAML')
-  })
+    expect(wrapper.findComponent({ name: "ScalarListbox" }).text()).toContain(
+      "YAML",
+    );
+  });
 
-  it('renders with edn', () => {
+  it("renders with edn", () => {
     mockActiveExample.body = {
-      activeBody: 'raw',
+      activeBody: "raw",
       raw: {
-        encoding: 'edn',
-        value: '',
+        encoding: "edn",
+        value: "",
       },
-    }
-    const wrapper = mount(RequestBody, props)
+    };
+    const wrapper = mount(RequestBody, props);
 
-    expect(wrapper.findComponent({ name: 'ScalarListbox' }).text()).toContain('EDN')
-  })
+    expect(wrapper.findComponent({ name: "ScalarListbox" }).text()).toContain(
+      "EDN",
+    );
+  });
 
-  it('renders with other', () => {
+  it("renders with other", () => {
     mockActiveExample.body = {
-      activeBody: 'raw',
+      activeBody: "raw",
       raw: {
-        encoding: 'html',
-        value: '',
+        encoding: "html",
+        value: "",
       },
-    }
-    const wrapper = mount(RequestBody, props)
+    };
+    const wrapper = mount(RequestBody, props);
 
-    expect(wrapper.findComponent({ name: 'ScalarListbox' }).text()).toContain('Other')
-  })
+    expect(wrapper.findComponent({ name: "ScalarListbox" }).text()).toContain(
+      "Other",
+    );
+  });
 
-  it('keeps Content-Type header when switching to raw body type', async () => {
+  it("keeps Content-Type header when switching to raw body type", async () => {
     mockActiveExample.body = {
-      activeBody: 'formData',
+      activeBody: "formData",
       formData: {
-        encoding: 'form-data',
+        encoding: "form-data",
         value: [],
       },
-    }
+    };
 
     mockActiveExample.parameters = {
-      headers: [{ key: 'Content-Type', value: 'multipart/form-data', enabled: true }],
+      headers: [
+        { key: "Content-Type", value: "multipart/form-data", enabled: true },
+      ],
       path: [],
       cookies: [],
       query: [],
-    }
+    };
 
-    const wrapper = mount(RequestBody, props)
+    const wrapper = mount(RequestBody, props);
 
-    const listbox = wrapper.findComponent({ name: 'ScalarListbox' })
-    await listbox.vm.$emit('update:modelValue', { id: 'json', label: 'JSON' })
+    const listbox = wrapper.findComponent({ name: "ScalarListbox" });
+    await listbox.vm.$emit("update:modelValue", { id: "json", label: "JSON" });
 
-    expect(mockRequestExampleMutators.edit).toHaveBeenCalledWith('mockExampleUid', 'parameters.headers', [
-      { key: 'Content-Type', value: 'application/json', enabled: true },
-    ])
-  })
+    expect(mockRequestExampleMutators.edit).toHaveBeenCalledWith(
+      "mockExampleUid",
+      "parameters.headers",
+      [{ key: "Content-Type", value: "application/json", enabled: true }],
+    );
+  });
 
-  it('removes Content-Type header when switching to none body type', async () => {
+  it("removes Content-Type header when switching to none body type", async () => {
     mockActiveExample.body = {
-      activeBody: 'raw',
+      activeBody: "raw",
       raw: {
-        encoding: 'json',
-        value: '',
+        encoding: "json",
+        value: "",
       },
-    }
+    };
 
     mockActiveExample.parameters = {
-      headers: [{ key: 'Content-Type', value: 'application/json', enabled: true }],
+      headers: [
+        { key: "Content-Type", value: "application/json", enabled: true },
+      ],
       path: [],
       cookies: [],
       query: [],
-    }
+    };
 
-    const wrapper = mount(RequestBody, props)
+    const wrapper = mount(RequestBody, props);
 
-    const listbox = wrapper.findComponent({ name: 'ScalarListbox' })
-    await listbox.vm.$emit('update:modelValue', { id: 'none', label: 'None' })
+    const listbox = wrapper.findComponent({ name: "ScalarListbox" });
+    await listbox.vm.$emit("update:modelValue", { id: "none", label: "None" });
 
-    expect(mockRequestExampleMutators.edit).toHaveBeenCalledWith('mockExampleUid', 'parameters.headers', [])
-  })
+    expect(mockRequestExampleMutators.edit).toHaveBeenCalledWith(
+      "mockExampleUid",
+      "parameters.headers",
+      [],
+    );
+  });
 
-  it('uses vendor-specific JSON content type when available', async () => {
+  it("uses vendor-specific JSON content type when available", async () => {
     mockOperation.requestBody = {
       content: {
-        'application/vnd.api+json': {},
+        "application/vnd.api+json": {},
       },
-    }
+    };
 
     mockActiveExample.body = {
-      activeBody: 'formData',
+      activeBody: "formData",
       formData: {
-        encoding: 'form-data',
+        encoding: "form-data",
         value: [],
       },
-    }
+    };
 
     mockActiveExample.parameters = {
-      headers: [{ key: 'Content-Type', value: 'multipart/form-data', enabled: true }],
+      headers: [
+        { key: "Content-Type", value: "multipart/form-data", enabled: true },
+      ],
       path: [],
       cookies: [],
       query: [],
-    }
+    };
 
-    const wrapper = mount(RequestBody, props)
+    const wrapper = mount(RequestBody, props);
 
-    const listbox = wrapper.findComponent({ name: 'ScalarListbox' })
-    await listbox.vm.$emit('update:modelValue', { id: 'json', label: 'JSON' })
+    const listbox = wrapper.findComponent({ name: "ScalarListbox" });
+    await listbox.vm.$emit("update:modelValue", { id: "json", label: "JSON" });
 
-    expect(mockRequestExampleMutators.edit).toHaveBeenCalledWith('mockExampleUid', 'parameters.headers', [
-      { key: 'Content-Type', value: 'application/vnd.api+json', enabled: true },
-    ])
-  })
+    expect(mockRequestExampleMutators.edit).toHaveBeenCalledWith(
+      "mockExampleUid",
+      "parameters.headers",
+      [
+        {
+          key: "Content-Type",
+          value: "application/vnd.api+json",
+          enabled: true,
+        },
+      ],
+    );
+  });
 
-  describe('delete row from form-data and urlencoded', () => {
-    it('deletes a row from form-data', async () => {
+  describe("delete row from form-data and urlencoded", () => {
+    it("deletes a row from form-data", async () => {
       mockActiveExample.body = {
-        activeBody: 'formData',
+        activeBody: "formData",
         formData: {
-          encoding: 'form-data',
+          encoding: "form-data",
           value: [
-            { key: 'field1', value: 'value1', enabled: true },
-            { key: 'field2', value: 'value2', enabled: true },
-            { key: '', value: '', enabled: false },
+            { key: "field1", value: "value1", enabled: true },
+            { key: "field2", value: "value2", enabled: true },
+            { key: "", value: "", enabled: false },
           ],
         },
-      }
+      };
 
-      const wrapper = mount(RequestBody, props)
+      const wrapper = mount(RequestBody, props);
 
-      const requestTable = wrapper.findComponent({ name: 'RequestTable' })
-      await requestTable.vm.$emit('deleteRow', 1) // Delete the second row (index 1)
+      const requestTable = wrapper.findComponent({ name: "RequestTable" });
+      await requestTable.vm.$emit("deleteRow", 1); // Delete the second row (index 1)
 
-      expect(mockRequestExampleMutators.edit).toHaveBeenCalledWith('mockExampleUid', 'body.formData.value', [
-        { key: 'field1', value: 'value1', enabled: true },
-        { key: '', value: '', enabled: false },
-      ])
-    })
+      expect(mockRequestExampleMutators.edit).toHaveBeenCalledWith(
+        "mockExampleUid",
+        "body.formData.value",
+        [
+          { key: "field1", value: "value1", enabled: true },
+          { key: "", value: "", enabled: false },
+        ],
+      );
+    });
 
-    it('does not delete row with invalid index', async () => {
+    it("does not delete row with invalid index", async () => {
       mockActiveExample.body = {
-        activeBody: 'formData',
+        activeBody: "formData",
         formData: {
-          encoding: 'form-data',
-          value: [{ key: 'field1', value: 'value1', enabled: true }],
+          encoding: "form-data",
+          value: [{ key: "field1", value: "value1", enabled: true }],
         },
-      }
+      };
 
-      const wrapper = mount(RequestBody, props)
-      const initialCallCount = vi.mocked(mockRequestExampleMutators.edit).mock.calls.length
+      const wrapper = mount(RequestBody, props);
+      const initialCallCount = vi.mocked(mockRequestExampleMutators.edit).mock
+        .calls.length;
 
-      const requestTable = wrapper.findComponent({ name: 'RequestTable' })
-      await requestTable.vm.$emit('deleteRow', 5) // Invalid index
+      const requestTable = wrapper.findComponent({ name: "RequestTable" });
+      await requestTable.vm.$emit("deleteRow", 5); // Invalid index
 
       // Verify that edit was not called for the invalid deletion
-      expect(vi.mocked(mockRequestExampleMutators.edit).mock.calls.length).toBe(initialCallCount)
-    })
+      expect(vi.mocked(mockRequestExampleMutators.edit).mock.calls.length).toBe(
+        initialCallCount,
+      );
+    });
 
-    it('deletes a row from form urlencoded', async () => {
+    it("deletes a row from form urlencoded", async () => {
       mockActiveExample.body = {
-        activeBody: 'formData',
+        activeBody: "formData",
         formData: {
-          encoding: 'urlencoded',
+          encoding: "urlencoded",
           value: [
-            { key: 'field1', value: 'value1', enabled: true },
-            { key: '', value: '', enabled: false },
+            { key: "field1", value: "value1", enabled: true },
+            { key: "", value: "", enabled: false },
           ],
         },
-      }
+      };
 
-      const wrapper = mount(RequestBody, props)
+      const wrapper = mount(RequestBody, props);
 
-      const requestTable = wrapper.findComponent({ name: 'RequestTable' })
-      await requestTable.vm.$emit('deleteRow', 0)
+      const requestTable = wrapper.findComponent({ name: "RequestTable" });
+      await requestTable.vm.$emit("deleteRow", 0);
 
-      expect(mockRequestExampleMutators.edit).toHaveBeenCalledWith('mockExampleUid', 'body.formData.value', [
-        { key: '', value: '', enabled: false },
-      ])
-    })
+      expect(mockRequestExampleMutators.edit).toHaveBeenCalledWith(
+        "mockExampleUid",
+        "body.formData.value",
+        [{ key: "", value: "", enabled: false }],
+      );
+    });
 
-    it('deletes row with file attachment', async () => {
-      const mockFile = new File(['test content'], 'test.txt', { type: 'text/plain' })
+    it("deletes row with file attachment", async () => {
+      const mockFile = new File(["test content"], "test.txt", {
+        type: "text/plain",
+      });
 
       mockActiveExample.body = {
-        activeBody: 'formData',
+        activeBody: "formData",
         formData: {
-          encoding: 'form-data',
+          encoding: "form-data",
           value: [
-            { key: 'field1', value: 'value1', enabled: true },
-            { key: 'file_field', value: 'test.txt', enabled: true, file: mockFile },
-            { key: 'field3', value: 'value3', enabled: true },
+            { key: "field1", value: "value1", enabled: true },
+            {
+              key: "file_field",
+              value: "test.txt",
+              enabled: true,
+              file: mockFile,
+            },
+            { key: "field3", value: "value3", enabled: true },
           ],
         },
-      }
+      };
 
-      const wrapper = mount(RequestBody, props)
+      const wrapper = mount(RequestBody, props);
 
-      const requestTable = wrapper.findComponent({ name: 'RequestTable' })
-      await requestTable.vm.$emit('deleteRow', 1)
+      const requestTable = wrapper.findComponent({ name: "RequestTable" });
+      await requestTable.vm.$emit("deleteRow", 1);
 
-      expect(mockRequestExampleMutators.edit).toHaveBeenCalledWith('mockExampleUid', 'body.formData.value', [
-        { key: 'field1', value: 'value1', enabled: true },
-        { key: 'field3', value: 'value3', enabled: true },
-      ])
-    })
-  })
-})
+      expect(mockRequestExampleMutators.edit).toHaveBeenCalledWith(
+        "mockExampleUid",
+        "body.formData.value",
+        [
+          { key: "field1", value: "value1", enabled: true },
+          { key: "field3", value: "value3", enabled: true },
+        ],
+      );
+    });
+  });
+});

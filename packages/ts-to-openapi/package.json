@@ -24,7 +24,7 @@
     "build": "scalar-build-esbuild",
     "lint:check": "scalar-lint-check",
     "lint:fix": "scalar-lint-fix",
-    "test": "vitest",
+    "test": "vp test",
     "types:build": "scalar-types-build",
     "types:check": "scalar-types-check"
   },
@@ -47,7 +47,8 @@
     "@scalar/build-tooling": "workspace:*",
     "fast-glob": "catalog:*",
     "typescript": "^5.6.2",
-    "vitest": "catalog:*"
+    "vitest": "catalog:",
+    "vite-plus": "catalog:"
   },
   "peerDependencies": {
     "typescript": "^5.6.0"

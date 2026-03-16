@@ -1,5 +1,5 @@
 import { type VueWrapper, enableAutoUnmount, mount } from '@vue/test-utils'
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vite-plus/test'
 import { nextTick } from 'vue'
 
 import ScalarFloating from './ScalarFloating.vue'
@@ -41,7 +41,9 @@ describe('ScalarFloating', () => {
         // @ts-expect-error wrapperRef is not exposed
         wrapper.vm.wrapperRef,
       )
-      expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('non-existent-id'))
+      expect(consoleSpy).toHaveBeenCalledWith(
+        expect.stringContaining('non-existent-id'),
+      )
 
       consoleSpy.mockRestore()
     })

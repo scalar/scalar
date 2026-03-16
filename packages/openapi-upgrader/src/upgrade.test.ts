@@ -1,61 +1,61 @@
-import type { UnknownObject } from '@scalar/types/utils'
-import { describe, expect, it } from 'vitest'
+import type { UnknownObject } from "@scalar/types/utils";
+import { describe, expect, it } from "vite-plus/test";
 
-import { upgrade } from './upgrade'
+import { upgrade } from "./upgrade";
 
-describe('upgrade', () => {
-  it('upgrades documents from Swagger 2.0 to OpenAPI 3.1', () => {
+describe("upgrade", () => {
+  it("upgrades documents from Swagger 2.0 to OpenAPI 3.1", () => {
     const document = upgrade(
       {
-        swagger: '2.0',
+        swagger: "2.0",
         info: {
-          title: 'Hello World',
-          version: '1.0.0',
+          title: "Hello World",
+          version: "1.0.0",
         },
         paths: {},
       },
-      '3.1',
-    )
+      "3.1",
+    );
 
-    expect(document?.swagger).toBeUndefined()
-    expect(document?.openapi).toBe('3.1.1')
-  })
+    expect(document?.swagger).toBeUndefined();
+    expect(document?.openapi).toBe("3.1.1");
+  });
 
-  it('changes the version to from 3.0.0 to 3.1.0', () => {
+  it("changes the version to from 3.0.0 to 3.1.0", () => {
     const document = upgrade(
       {
-        openapi: '3.0.0',
+        openapi: "3.0.0",
         info: {
-          title: 'Hello World',
-          version: '1.0.0',
+          title: "Hello World",
+          version: "1.0.0",
         },
         paths: {},
       },
-      '3.1',
-    )
+      "3.1",
+    );
 
-    expect(document?.openapi).toBe('3.1.1')
-  })
+    expect(document?.openapi).toBe("3.1.1");
+  });
 
-  it('changes the version to 3.0.3 to 3.1.0', () => {
+  it("changes the version to 3.0.3 to 3.1.0", () => {
     const document = upgrade(
       {
-        openapi: '3.0.3',
+        openapi: "3.0.3",
         info: {
-          title: 'Hello World',
-          version: '1.0.0',
+          title: "Hello World",
+          version: "1.0.0",
         },
         paths: {},
       },
-      '3.1',
-    )
+      "3.1",
+    );
 
-    expect(document?.openapi).toBe('3.1.1')
-  })
+    expect(document?.openapi).toBe("3.1.1");
+  });
 
-  it('deals with null', () => {
-    const document = upgrade(null as unknown as UnknownObject, '3.1')
+  it("deals with null", () => {
+    const document = upgrade(null as unknown as UnknownObject, "3.1");
 
-    expect(document).toStrictEqual(null)
-  })
-})
+    expect(document).toStrictEqual(null);
+  });
+});

@@ -1,305 +1,315 @@
-import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
-import type { OAuthFlowsObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import { mount } from '@vue/test-utils'
-import { describe, expect, it, vi } from 'vitest'
-import { nextTick } from 'vue'
+import { createWorkspaceEventBus } from "@scalar/workspace-store/events";
+import type { OAuthFlowsObject } from "@scalar/workspace-store/schemas/v3.1/strict/openapi-document";
+import { mount } from "@vue/test-utils";
+import { describe, expect, it, vi } from "vite-plus/test";
+import { nextTick } from "vue";
 
-import OAuth2 from '@/v2/blocks/scalar-auth-selector-block/components/OAuth2.vue'
-import OAuthScopesInput from '@/v2/blocks/scalar-auth-selector-block/components/OAuthScopesInput.vue'
-import RequestAuthDataTableInput from '@/v2/blocks/scalar-auth-selector-block/components/RequestAuthDataTableInput.vue'
+import OAuth2 from "@/v2/blocks/scalar-auth-selector-block/components/OAuth2.vue";
+import OAuthScopesInput from "@/v2/blocks/scalar-auth-selector-block/components/OAuthScopesInput.vue";
+import RequestAuthDataTableInput from "@/v2/blocks/scalar-auth-selector-block/components/RequestAuthDataTableInput.vue";
 
-describe('OAuth2', () => {
+describe("OAuth2", () => {
   const baseEnv = {
-    uid: 'env-1',
-    name: 'Default',
-    color: '#FFFFFF',
-    value: '',
+    uid: "env-1",
+    name: "Default",
+    color: "#FFFFFF",
+    value: "",
     isDefault: true,
-  }
+  };
 
-  const eventBus = createWorkspaceEventBus()
+  const eventBus = createWorkspaceEventBus();
 
   const mountWithProps = (
     custom: Partial<{
-      flows: any
-      type: string
-      selectedScopes: string[]
-      server: any
-      proxyUrl: string
-      scheme: any
+      flows: any;
+      type: string;
+      selectedScopes: string[];
+      server: any;
+      proxyUrl: string;
+      scheme: any;
     }> = {},
   ) => {
     const flows =
       custom.flows ??
       ({
         authorizationCode: {
-          authorizationUrl: 'https://example.com/auth',
-          tokenUrl: 'https://example.com/token',
-          refreshUrl: 'https://example.com/token',
-          'x-usePkce': 'no',
-          scopes: { read: 'Read', write: 'Write' },
+          authorizationUrl: "https://example.com/auth",
+          tokenUrl: "https://example.com/token",
+          refreshUrl: "https://example.com/token",
+          "x-usePkce": "no",
+          scopes: { read: "Read", write: "Write" },
         },
-      } satisfies OAuthFlowsObject)
+      } satisfies OAuthFlowsObject);
 
     return mount(OAuth2, {
       attachTo: document.body,
       props: {
         environment: baseEnv as any,
         flows,
-        type: (custom.type ?? 'authorizationCode') as any,
+        type: (custom.type ?? "authorizationCode") as any,
         selectedScopes: custom.selectedScopes ?? [],
         server: custom.server ?? null,
-        proxyUrl: custom.proxyUrl ?? '',
-        scheme: custom.scheme ?? { type: 'oauth2' },
+        proxyUrl: custom.proxyUrl ?? "",
+        scheme: custom.scheme ?? { type: "oauth2" },
         eventBus,
-        name: 'OAuth2',
+        name: "OAuth2",
       },
-    })
-  }
+    });
+  };
 
-  it('renders Access Token view when token is present and supports clearing', async () => {
+  it("renders Access Token view when token is present and supports clearing", async () => {
     const wrapper = mountWithProps({
       flows: {
         authorizationCode: {
-          'x-scalar-secret-token': 'abc123',
+          "x-scalar-secret-token": "abc123",
           scopes: {},
-          'x-scalar-client-id': '',
+          "x-scalar-client-id": "",
         },
       },
-    })
+    });
 
-    expect(wrapper.text()).toContain('Access Token')
-    expect(wrapper.text()).not.toContain('Authorize')
+    expect(wrapper.text()).toContain("Access Token");
+    expect(wrapper.text()).not.toContain("Authorize");
 
     // Clear button emits auth:update:security-scheme-secrets with empty token
-    const emitted = vi.fn()
-    eventBus.on('auth:update:security-scheme-secrets', emitted)
+    const emitted = vi.fn();
+    eventBus.on("auth:update:security-scheme-secrets", emitted);
 
-    const clearBtn = wrapper.findAll('button').find((b) => b.text() === 'Clear')
-    expect(clearBtn, 'Clear button should exist').toBeTruthy()
-    await clearBtn!.trigger('click')
+    const clearBtn = wrapper
+      .findAll("button")
+      .find((b) => b.text() === "Clear");
+    expect(clearBtn, "Clear button should exist").toBeTruthy();
+    await clearBtn!.trigger("click");
 
-    expect(emitted).toHaveBeenCalledTimes(1)
+    expect(emitted).toHaveBeenCalledTimes(1);
     expect(emitted).toHaveBeenCalledWith({
       payload: {
-        type: 'oauth2',
+        type: "oauth2",
         authorizationCode: {
-          'x-scalar-secret-token': '',
-          'x-scalar-secret-refresh-token': '',
+          "x-scalar-secret-token": "",
+          "x-scalar-secret-refresh-token": "",
         },
       },
-      name: 'OAuth2',
-    })
+      name: "OAuth2",
+    });
 
     // Updating the token input propagates via update:modelValue
-    const tokenInput = wrapper.findComponent(RequestAuthDataTableInput)
-    expect(tokenInput.exists()).toBe(true)
-    tokenInput.vm.$emit('update:modelValue', 'xyz')
-    await nextTick()
+    const tokenInput = wrapper.findComponent(RequestAuthDataTableInput);
+    expect(tokenInput.exists()).toBe(true);
+    tokenInput.vm.$emit("update:modelValue", "xyz");
+    await nextTick();
 
-    expect(emitted).toHaveBeenCalledTimes(2)
+    expect(emitted).toHaveBeenCalledTimes(2);
     expect(emitted).toHaveBeenLastCalledWith({
       payload: {
-        type: 'oauth2',
-        authorizationCode: { 'x-scalar-secret-token': 'xyz' },
+        type: "oauth2",
+        authorizationCode: { "x-scalar-secret-token": "xyz" },
       },
-      name: 'OAuth2',
-    })
-  })
+      name: "OAuth2",
+    });
+  });
 
-  it('renders configuration inputs without token and shows Authorize button', async () => {
-    const wrapper = mountWithProps()
+  it("renders configuration inputs without token and shows Authorize button", async () => {
+    const wrapper = mountWithProps();
 
     // Should render the Authorize action when no token present
-    const authorizeBtn = wrapper.findAll('button').find((b) => b.text() === 'Authorize')
-    expect(authorizeBtn, 'Authorize button should exist').toBeTruthy()
+    const authorizeBtn = wrapper
+      .findAll("button")
+      .find((b) => b.text() === "Authorize");
+    expect(authorizeBtn, "Authorize button should exist").toBeTruthy();
 
     // Emits for Auth URL
-    const emitted = vi.fn()
-    eventBus.on('auth:update:security-scheme', emitted)
+    const emitted = vi.fn();
+    eventBus.on("auth:update:security-scheme", emitted);
 
-    const inputs = wrapper.findAllComponents(RequestAuthDataTableInput)
-    expect(inputs.length).toBeGreaterThan(0)
+    const inputs = wrapper.findAllComponents(RequestAuthDataTableInput);
+    expect(inputs.length).toBeGreaterThan(0);
 
     // First input corresponds to Auth URL in this configuration
-    inputs[0]!.vm.$emit('update:modelValue', 'https://new-auth.test')
-    await nextTick()
+    inputs[0]!.vm.$emit("update:modelValue", "https://new-auth.test");
+    await nextTick();
 
-    expect(emitted).toHaveBeenCalledTimes(1)
+    expect(emitted).toHaveBeenCalledTimes(1);
     expect(emitted).toHaveBeenCalledWith({
       payload: {
-        type: 'oauth2',
+        type: "oauth2",
         flows: {
-          authorizationCode: { authorizationUrl: 'https://new-auth.test' },
+          authorizationCode: { authorizationUrl: "https://new-auth.test" },
         },
       },
-      name: 'OAuth2',
-    })
+      name: "OAuth2",
+    });
 
     // Second input corresponds to Token URL
-    inputs[1]!.vm.$emit('update:modelValue', 'https://new-token.test')
-    await nextTick()
+    inputs[1]!.vm.$emit("update:modelValue", "https://new-token.test");
+    await nextTick();
 
-    expect(emitted).toHaveBeenCalledTimes(2)
+    expect(emitted).toHaveBeenCalledTimes(2);
     expect(emitted).toHaveBeenLastCalledWith({
       payload: {
-        type: 'oauth2',
+        type: "oauth2",
         flows: {
-          authorizationCode: { tokenUrl: 'https://new-token.test' },
+          authorizationCode: { tokenUrl: "https://new-token.test" },
         },
       },
-      name: 'OAuth2',
-    })
-  })
+      name: "OAuth2",
+    });
+  });
 
-  it('emits credentials location updates to both the scheme config and auth secrets', async () => {
+  it("emits credentials location updates to both the scheme config and auth secrets", async () => {
     const wrapper = mountWithProps({
       flows: {
         authorizationCode: {
-          authorizationUrl: 'https://example.com/auth',
-          tokenUrl: 'https://example.com/token',
-          refreshUrl: '',
+          authorizationUrl: "https://example.com/auth",
+          tokenUrl: "https://example.com/token",
+          refreshUrl: "",
           scopes: {},
-          'x-scalar-secret-client-id': '',
-          'x-scalar-secret-client-secret': '',
+          "x-scalar-secret-client-id": "",
+          "x-scalar-secret-client-secret": "",
         },
       },
-    })
+    });
 
-    const schemeEmitted = vi.fn()
-    const secretsEmitted = vi.fn()
-    eventBus.on('auth:update:security-scheme', schemeEmitted)
-    eventBus.on('auth:update:security-scheme-secrets', secretsEmitted)
+    const schemeEmitted = vi.fn();
+    const secretsEmitted = vi.fn();
+    eventBus.on("auth:update:security-scheme", schemeEmitted);
+    eventBus.on("auth:update:security-scheme-secrets", secretsEmitted);
 
     const credentialsLocationInput = wrapper
       .findAllComponents(RequestAuthDataTableInput)
-      .find((input) => input.text().includes('Credentials Location'))
+      .find((input) => input.text().includes("Credentials Location"));
 
-    expect(credentialsLocationInput, 'Credentials Location input should exist').toBeTruthy()
+    expect(
+      credentialsLocationInput,
+      "Credentials Location input should exist",
+    ).toBeTruthy();
 
-    credentialsLocationInput!.vm.$emit('update:modelValue', 'body')
-    await nextTick()
+    credentialsLocationInput!.vm.$emit("update:modelValue", "body");
+    await nextTick();
 
-    expect(schemeEmitted).toHaveBeenCalledTimes(1)
+    expect(schemeEmitted).toHaveBeenCalledTimes(1);
     expect(schemeEmitted).toHaveBeenCalledWith({
       payload: {
-        type: 'oauth2',
+        type: "oauth2",
         flows: {
-          authorizationCode: { 'x-scalar-credentials-location': 'body' },
+          authorizationCode: { "x-scalar-credentials-location": "body" },
         },
       },
-      name: 'OAuth2',
-    })
+      name: "OAuth2",
+    });
 
-    expect(secretsEmitted).toHaveBeenCalledTimes(1)
+    expect(secretsEmitted).toHaveBeenCalledTimes(1);
     expect(secretsEmitted).toHaveBeenCalledWith({
       payload: {
-        type: 'oauth2',
-        authorizationCode: { 'x-scalar-credentials-location': 'body' },
+        type: "oauth2",
+        authorizationCode: { "x-scalar-credentials-location": "body" },
       },
-      name: 'OAuth2',
-    })
-  })
+      name: "OAuth2",
+    });
+  });
 
-  it('re-emits selected scopes from child component', async () => {
-    const wrapper = mountWithProps({ selectedScopes: [] })
+  it("re-emits selected scopes from child component", async () => {
+    const wrapper = mountWithProps({ selectedScopes: [] });
 
-    const scopes = wrapper.findComponent(OAuthScopesInput)
-    expect(scopes.exists()).toBe(true)
+    const scopes = wrapper.findComponent(OAuthScopesInput);
+    expect(scopes.exists()).toBe(true);
 
-    scopes.vm.$emit('update:selectedScopes', { scopes: ['read'] })
-    await nextTick()
+    scopes.vm.$emit("update:selectedScopes", { scopes: ["read"] });
+    await nextTick();
 
-    const emit = wrapper.emitted('update:selectedScopes')?.at(-1)?.[0] as any
-    expect(emit).toEqual({ scopes: ['read'] })
-  })
+    const emit = wrapper.emitted("update:selectedScopes")?.at(-1)?.[0] as any;
+    expect(emit).toEqual({ scopes: ["read"] });
+  });
 
-  it('defaults x-scalar-secret-redirect-uri to window.location.origin + pathname', async () => {
-    const expectedRedirectUri = window.location.origin + window.location.pathname
+  it("defaults x-scalar-secret-redirect-uri to window.location.origin + pathname", async () => {
+    const expectedRedirectUri =
+      window.location.origin + window.location.pathname;
 
-    const emitted = vi.fn()
-    eventBus.on('auth:update:security-scheme-secrets', emitted)
+    const emitted = vi.fn();
+    eventBus.on("auth:update:security-scheme-secrets", emitted);
 
     mountWithProps({
       flows: {
         authorizationCode: {
-          authorizationUrl: 'https://example.com/auth',
-          tokenUrl: 'https://example.com/token',
-          'x-scalar-secret-token': '',
-          'x-usePkce': 'no',
-          'x-scalar-secret-redirect-uri': '',
+          authorizationUrl: "https://example.com/auth",
+          tokenUrl: "https://example.com/token",
+          "x-scalar-secret-token": "",
+          "x-usePkce": "no",
+          "x-scalar-secret-redirect-uri": "",
           scopes: {},
-          'x-scalar-secret-client-id': '',
-          'x-scalar-secret-client-secret': '',
+          "x-scalar-secret-client-id": "",
+          "x-scalar-secret-client-secret": "",
         },
       },
-    })
+    });
 
-    await nextTick()
+    await nextTick();
 
-    expect(emitted).toHaveBeenCalledTimes(1)
+    expect(emitted).toHaveBeenCalledTimes(1);
     expect(emitted).toHaveBeenCalledWith({
       payload: {
-        type: 'oauth2',
+        type: "oauth2",
         authorizationCode: {
-          'x-scalar-secret-redirect-uri': expectedRedirectUri,
+          "x-scalar-secret-redirect-uri": expectedRedirectUri,
         },
       },
-      name: 'OAuth2',
-    })
-  })
+      name: "OAuth2",
+    });
+  });
 
-  it('does not overwrite an existing x-scalar-secret-redirect-uri on mount', async () => {
-    const emitted = vi.fn()
-    eventBus.on('auth:update:security-scheme-secrets', emitted)
+  it("does not overwrite an existing x-scalar-secret-redirect-uri on mount", async () => {
+    const emitted = vi.fn();
+    eventBus.on("auth:update:security-scheme-secrets", emitted);
 
     mountWithProps({
       flows: {
         authorizationCode: {
-          authorizationUrl: 'https://example.com/auth',
-          tokenUrl: 'https://example.com/token',
-          'x-scalar-secret-token': '',
-          'x-usePkce': 'no',
-          'x-scalar-secret-redirect-uri': 'https://myapp.com/callback',
+          authorizationUrl: "https://example.com/auth",
+          tokenUrl: "https://example.com/token",
+          "x-scalar-secret-token": "",
+          "x-usePkce": "no",
+          "x-scalar-secret-redirect-uri": "https://myapp.com/callback",
           scopes: {},
-          'x-scalar-secret-client-id': '',
-          'x-scalar-secret-client-secret': '',
+          "x-scalar-secret-client-id": "",
+          "x-scalar-secret-client-secret": "",
         },
       },
-    })
+    });
 
-    await nextTick()
+    await nextTick();
 
-    expect(emitted).not.toHaveBeenCalled()
-  })
+    expect(emitted).not.toHaveBeenCalled();
+  });
 
-  it('emits clear security scheme secrets for openIdConnect flow', async () => {
+  it("emits clear security scheme secrets for openIdConnect flow", async () => {
     const wrapper = mountWithProps({
-      scheme: { type: 'openIdConnect' },
+      scheme: { type: "openIdConnect" },
       flows: {
         authorizationCode: {
-          authorizationUrl: 'https://example.com/auth',
-          tokenUrl: 'https://example.com/token',
-          refreshUrl: 'https://example.com/token',
-          'x-usePkce': 'no',
-          scopes: { openid: 'OpenID' },
-          'x-scalar-secret-client-id': '',
-          'x-scalar-secret-client-secret': '',
-          'x-scalar-secret-redirect-uri': '',
+          authorizationUrl: "https://example.com/auth",
+          tokenUrl: "https://example.com/token",
+          refreshUrl: "https://example.com/token",
+          "x-usePkce": "no",
+          scopes: { openid: "OpenID" },
+          "x-scalar-secret-client-id": "",
+          "x-scalar-secret-client-secret": "",
+          "x-scalar-secret-redirect-uri": "",
         },
       },
-    })
+    });
 
-    const emitted = vi.fn()
-    eventBus.on('auth:clear:security-scheme-secrets', emitted)
+    const emitted = vi.fn();
+    eventBus.on("auth:clear:security-scheme-secrets", emitted);
 
-    const clearBtn = wrapper.findAll('button').find((b) => b.text() === 'Clear')
-    expect(clearBtn, 'Clear button should exist').toBeTruthy()
-    await clearBtn!.trigger('click')
+    const clearBtn = wrapper
+      .findAll("button")
+      .find((b) => b.text() === "Clear");
+    expect(clearBtn, "Clear button should exist").toBeTruthy();
+    await clearBtn!.trigger("click");
 
-    expect(emitted).toHaveBeenCalledTimes(1)
+    expect(emitted).toHaveBeenCalledTimes(1);
     expect(emitted).toHaveBeenCalledWith({
-      name: 'OAuth2',
-    })
-  })
-})
+      name: "OAuth2",
+    });
+  });
+});

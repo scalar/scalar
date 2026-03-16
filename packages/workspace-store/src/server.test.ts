@@ -1,426 +1,457 @@
-import { randomUUID } from 'node:crypto'
-import fs from 'node:fs/promises'
-import { cwd } from 'node:process'
+import { randomUUID } from "node:crypto";
+import fs from "node:fs/promises";
+import { cwd } from "node:process";
 
-import { type FastifyInstance, fastify } from 'fastify'
-import { beforeEach, describe, expect, it } from 'vitest'
+import { type FastifyInstance, fastify } from "fastify";
+import { beforeEach, describe, expect, it } from "vite-plus/test";
 
-import { coerceValue } from '@/schemas/typebox-coerce'
-import { SchemaObjectSchema } from '@/schemas/v3.1/strict/openapi-document'
+import { coerceValue } from "@/schemas/typebox-coerce";
+import { SchemaObjectSchema } from "@/schemas/v3.1/strict/openapi-document";
 
-import { allFilesMatch } from '../test/helpers'
+import { allFilesMatch } from "../test/helpers";
 import {
   createServerWorkspaceStore,
   escapePaths,
   externalizeComponentReferences,
   externalizePathReferences,
   filterHttpMethodsOnly,
-} from './server'
+} from "./server";
 
-describe('create-server-store', () => {
+describe("create-server-store", () => {
   const exampleDocument = () => ({
-    'openapi': '3.1.1',
-    'info': {
-      'title': 'Scalar Galaxy',
-      'version': '0.3.2',
+    openapi: "3.1.1",
+    info: {
+      title: "Scalar Galaxy",
+      version: "0.3.2",
     },
-    'paths': {
-      '/planets': {
-        get: { summary: 'List planets' },
+    paths: {
+      "/planets": {
+        get: { summary: "List planets" },
       },
     },
-    'components': {
-      'parameters': {
-        'planetId': {
-          'name': 'planetId',
-          'description': 'The ID of the planet to get',
-          'in': 'path',
-          'required': true,
-          'schema': {
-            'type': 'integer',
-            'format': 'int64',
-            'examples': [1],
+    components: {
+      parameters: {
+        planetId: {
+          name: "planetId",
+          description: "The ID of the planet to get",
+          in: "path",
+          required: true,
+          schema: {
+            type: "integer",
+            format: "int64",
+            examples: [1],
           },
         },
       },
     },
-  })
+  });
 
-  describe('ssr', () => {
-    it('should be able to pass a list of documents and get the workspace', async () => {
+  describe("ssr", () => {
+    it("should be able to pass a list of documents and get the workspace", async () => {
       const store = await createServerWorkspaceStore({
-        mode: 'ssr',
-        baseUrl: 'https://example.com',
+        mode: "ssr",
+        baseUrl: "https://example.com",
         documents: [
           {
-            name: 'api-1',
+            name: "api-1",
             document: exampleDocument(),
           },
           {
-            name: 'api-2',
+            name: "api-2",
             document: exampleDocument(),
           },
         ],
         meta: {
-          'x-scalar-active-document': 'api-1',
-          'x-scalar-color-mode': 'dark',
+          "x-scalar-active-document": "api-1",
+          "x-scalar-color-mode": "dark",
         },
-      })
+      });
 
       const workspaceDocument = (name: string) => ({
-        'openapi': '3.1.1',
-        'info': {
-          'title': 'Scalar Galaxy',
-          'version': '0.3.2',
+        openapi: "3.1.1",
+        info: {
+          title: "Scalar Galaxy",
+          version: "0.3.2",
         },
-        'paths': {
-          '/planets': {
+        paths: {
+          "/planets": {
             get: {
-              '$ref': `https://example.com/${name}/operations/~1planets/get#`,
+              $ref: `https://example.com/${name}/operations/~1planets/get#`,
               $global: true,
             },
           },
         },
-        'components': {
+        components: {
           parameters: {
             planetId: {
-              '$ref': `https://example.com/${name}/components/parameters/planetId#`,
+              $ref: `https://example.com/${name}/components/parameters/planetId#`,
               $global: true,
             },
           },
         },
-        'x-scalar-navigation': {
-          type: 'document',
+        "x-scalar-navigation": {
+          type: "document",
           id: name,
           name: name,
-          title: 'Scalar Galaxy',
+          title: "Scalar Galaxy",
           children: [
             {
-              'id': `${name}/GET/planets`,
-              method: 'get',
-              type: 'operation',
+              id: `${name}/GET/planets`,
+              method: "get",
+              type: "operation",
               isDeprecated: false,
-              'ref': '#/paths/~1planets/get',
-              path: '/planets',
-              title: 'List planets',
+              ref: "#/paths/~1planets/get",
+              path: "/planets",
+              title: "List planets",
             },
           ],
         },
-        'x-scalar-order': [`${name}/GET/planets`],
-        'x-scalar-original-document-hash': '',
-      })
+        "x-scalar-order": [`${name}/GET/planets`],
+        "x-scalar-original-document-hash": "",
+      });
 
       expect(store.getWorkspace()).toEqual({
-        'x-scalar-active-document': 'api-1',
-        'x-scalar-color-mode': 'dark',
+        "x-scalar-active-document": "api-1",
+        "x-scalar-color-mode": "dark",
         documents: {
-          'api-1': workspaceDocument('api-1'),
-          'api-2': workspaceDocument('api-2'),
+          "api-1": workspaceDocument("api-1"),
+          "api-2": workspaceDocument("api-2"),
         },
-      })
-    })
+      });
+    });
 
-    it('should be able to get the document chunks', async () => {
+    it("should be able to get the document chunks", async () => {
       const store = await createServerWorkspaceStore({
-        mode: 'ssr',
-        baseUrl: 'https://example.com',
+        mode: "ssr",
+        baseUrl: "https://example.com",
         documents: [
           {
-            name: 'doc-1',
+            name: "doc-1",
             document: exampleDocument(),
           },
         ],
-      })
+      });
 
-      expect(store.get('#/doc-1/operations/~1planets/get')).toEqual({ summary: 'List planets' })
-      expect(store.get('#/doc-1/components/parameters/planetId')).toEqual({
-        'name': 'planetId',
-        'description': 'The ID of the planet to get',
-        'in': 'path',
-        'required': true,
-        'schema': {
-          'type': 'integer',
-          'format': 'int64',
-          'examples': [1],
+      expect(store.get("#/doc-1/operations/~1planets/get")).toEqual({
+        summary: "List planets",
+      });
+      expect(store.get("#/doc-1/components/parameters/planetId")).toEqual({
+        name: "planetId",
+        description: "The ID of the planet to get",
+        in: "path",
+        required: true,
+        schema: {
+          type: "integer",
+          format: "int64",
+          examples: [1],
         },
-      })
-    })
+      });
+    });
 
-    it('should be able to add more documents on the workspace', async () => {
+    it("should be able to add more documents on the workspace", async () => {
       const store = await createServerWorkspaceStore({
-        mode: 'ssr',
-        baseUrl: 'https://example.com',
+        mode: "ssr",
+        baseUrl: "https://example.com",
         documents: [
           {
-            name: 'doc-1',
+            name: "doc-1",
             document: exampleDocument(),
             meta: {
-              'x-scalar-selected-server': 'test',
+              "x-scalar-selected-server": "test",
             },
           },
           {
-            name: 'doc-2',
+            name: "doc-2",
             document: exampleDocument(),
           },
         ],
-      })
+      });
 
       await store.addDocument({
-        name: 'doc-3',
-        meta: { 'x-scalar-selected-server': 'test' },
+        name: "doc-3",
+        meta: { "x-scalar-selected-server": "test" },
         document: exampleDocument(),
-      })
-      const workspace = store.getWorkspace()
+      });
+      const workspace = store.getWorkspace();
 
-      expect(workspace.documents['doc-1']).toEqual({
-        'openapi': '3.1.1',
-        'info': {
-          'title': 'Scalar Galaxy',
-          'version': '0.3.2',
+      expect(workspace.documents["doc-1"]).toEqual({
+        openapi: "3.1.1",
+        info: {
+          title: "Scalar Galaxy",
+          version: "0.3.2",
         },
-        'paths': {
-          '/planets': {
-            get: { '$ref': 'https://example.com/doc-1/operations/~1planets/get#', $global: true },
-          },
-        },
-        'components': {
-          'parameters': {
-            planetId: {
-              '$ref': 'https://example.com/doc-1/components/parameters/planetId#',
+        paths: {
+          "/planets": {
+            get: {
+              $ref: "https://example.com/doc-1/operations/~1planets/get#",
               $global: true,
             },
           },
         },
-        'x-scalar-selected-server': 'test',
-        'x-scalar-navigation': {
-          type: 'document',
-          id: 'doc-1',
-          name: 'doc-1',
-          title: 'Scalar Galaxy',
-          children: [
-            {
-              'id': 'doc-1/GET/planets',
-              isDeprecated: false,
-              method: 'get',
-              type: 'operation',
-              'ref': '#/paths/~1planets/get',
-              path: '/planets',
-              title: 'List planets',
-            },
-          ],
-        },
-        'x-scalar-order': ['doc-1/GET/planets'],
-        'x-scalar-original-document-hash': '',
-      })
-
-      expect(workspace.documents['doc-3']).toEqual({
-        'openapi': '3.1.1',
-        'info': {
-          'title': 'Scalar Galaxy',
-          'version': '0.3.2',
-        },
-        'paths': {
-          '/planets': {
-            get: { '$ref': 'https://example.com/doc-3/operations/~1planets/get#', $global: true },
-          },
-        },
-        'components': {
-          'parameters': {
+        components: {
+          parameters: {
             planetId: {
-              '$ref': 'https://example.com/doc-3/components/parameters/planetId#',
+              $ref: "https://example.com/doc-1/components/parameters/planetId#",
               $global: true,
             },
           },
         },
-        'x-scalar-navigation': {
-          type: 'document',
-          id: 'doc-3',
-          name: 'doc-3',
-          title: 'Scalar Galaxy',
+        "x-scalar-selected-server": "test",
+        "x-scalar-navigation": {
+          type: "document",
+          id: "doc-1",
+          name: "doc-1",
+          title: "Scalar Galaxy",
           children: [
             {
-              'id': 'doc-3/GET/planets',
+              id: "doc-1/GET/planets",
               isDeprecated: false,
-              method: 'get',
-              type: 'operation',
-              'ref': '#/paths/~1planets/get',
-              path: '/planets',
-              title: 'List planets',
+              method: "get",
+              type: "operation",
+              ref: "#/paths/~1planets/get",
+              path: "/planets",
+              title: "List planets",
             },
           ],
         },
-        'x-scalar-order': ['doc-3/GET/planets'],
-        'x-scalar-original-document-hash': '',
-        'x-scalar-selected-server': 'test',
-      })
-    })
+        "x-scalar-order": ["doc-1/GET/planets"],
+        "x-scalar-original-document-hash": "",
+      });
 
-    it('applies workspace navigationOptions when building initial documents', async () => {
+      expect(workspace.documents["doc-3"]).toEqual({
+        openapi: "3.1.1",
+        info: {
+          title: "Scalar Galaxy",
+          version: "0.3.2",
+        },
+        paths: {
+          "/planets": {
+            get: {
+              $ref: "https://example.com/doc-3/operations/~1planets/get#",
+              $global: true,
+            },
+          },
+        },
+        components: {
+          parameters: {
+            planetId: {
+              $ref: "https://example.com/doc-3/components/parameters/planetId#",
+              $global: true,
+            },
+          },
+        },
+        "x-scalar-navigation": {
+          type: "document",
+          id: "doc-3",
+          name: "doc-3",
+          title: "Scalar Galaxy",
+          children: [
+            {
+              id: "doc-3/GET/planets",
+              isDeprecated: false,
+              method: "get",
+              type: "operation",
+              ref: "#/paths/~1planets/get",
+              path: "/planets",
+              title: "List planets",
+            },
+          ],
+        },
+        "x-scalar-order": ["doc-3/GET/planets"],
+        "x-scalar-original-document-hash": "",
+        "x-scalar-selected-server": "test",
+      });
+    });
+
+    it("applies workspace navigationOptions when building initial documents", async () => {
       const store = await createServerWorkspaceStore({
-        mode: 'ssr',
-        baseUrl: 'https://example.com',
+        mode: "ssr",
+        baseUrl: "https://example.com",
         navigationOptions: {
-          generateOperationSlug: () => 'workspace-operation',
+          generateOperationSlug: () => "workspace-operation",
         },
         documents: [
           {
-            name: 'doc-1',
+            name: "doc-1",
             document: exampleDocument(),
           },
         ],
-      })
+      });
 
-      const document = store.getWorkspace().documents['doc-1']
-      expect(document?.['x-scalar-order']).toEqual(['doc-1/workspace-operation'])
-      expect(document?.['x-scalar-navigation']?.children?.[0]?.id).toBe('doc-1/workspace-operation')
-    })
+      const document = store.getWorkspace().documents["doc-1"];
+      expect(document?.["x-scalar-order"]).toEqual([
+        "doc-1/workspace-operation",
+      ]);
+      expect(document?.["x-scalar-navigation"]?.children?.[0]?.id).toBe(
+        "doc-1/workspace-operation",
+      );
+    });
 
-    it('applies addDocument navigationOptions over workspace defaults', async () => {
+    it("applies addDocument navigationOptions over workspace defaults", async () => {
       const store = await createServerWorkspaceStore({
-        mode: 'ssr',
-        baseUrl: 'https://example.com',
+        mode: "ssr",
+        baseUrl: "https://example.com",
         navigationOptions: {
-          generateOperationSlug: () => 'workspace-operation',
+          generateOperationSlug: () => "workspace-operation",
         },
         documents: [],
-      })
+      });
 
       await store.addDocument(
         {
-          name: 'doc-2',
+          name: "doc-2",
           document: exampleDocument(),
         },
         {
-          generateOperationSlug: () => 'add-document-operation',
+          generateOperationSlug: () => "add-document-operation",
         },
-      )
+      );
 
-      const document = store.getWorkspace().documents['doc-2']
-      expect(document?.['x-scalar-order']).toEqual(['doc-2/add-document-operation'])
-      expect(document?.['x-scalar-navigation']?.children?.[0]?.id).toBe('doc-2/add-document-operation')
-    })
-  })
+      const document = store.getWorkspace().documents["doc-2"];
+      expect(document?.["x-scalar-order"]).toEqual([
+        "doc-2/add-document-operation",
+      ]);
+      expect(document?.["x-scalar-navigation"]?.children?.[0]?.id).toBe(
+        "doc-2/add-document-operation",
+      );
+    });
+  });
 
-  describe('ssg', () => {
-    it('should generate the workspace file and also all the related chunks', async () => {
-      const dir = 'temp'
+  describe("ssg", () => {
+    it("should generate the workspace file and also all the related chunks", async () => {
+      const dir = "temp";
 
       const store = await createServerWorkspaceStore({
-        mode: 'static',
+        mode: "static",
         directory: dir,
         documents: [
           {
             document: exampleDocument(),
-            name: 'doc-1',
+            name: "doc-1",
             meta: {
-              'x-scalar-selected-server': 'test',
+              "x-scalar-selected-server": "test",
             },
           },
         ],
         meta: {
-          'x-scalar-active-document': 'test',
-          'x-scalar-color-mode': 'dark',
-          'x-scalar-default-client': 'node/fetch',
-          'x-scalar-theme': 'default',
+          "x-scalar-active-document": "test",
+          "x-scalar-color-mode": "dark",
+          "x-scalar-default-client": "node/fetch",
+          "x-scalar-theme": "default",
         },
-      })
+      });
 
       await store.addDocument({
         document: exampleDocument(),
-        name: 'doc-2',
+        name: "doc-2",
         meta: {
-          'x-scalar-selected-server': 'test',
+          "x-scalar-selected-server": "test",
         },
-      })
-      await store.generateWorkspaceChunks()
+      });
+      await store.generateWorkspaceChunks();
 
-      const basePath = `${cwd()}/${dir}`
+      const basePath = `${cwd()}/${dir}`;
 
-      const sparseWorkspace = await fs.readFile(`${basePath}/scalar-workspace.json`, { encoding: 'utf-8' })
+      const sparseWorkspace = await fs.readFile(
+        `${basePath}/scalar-workspace.json`,
+        { encoding: "utf-8" },
+      );
 
       // check the workspace is the correct format
       expect(JSON.parse(sparseWorkspace)).toEqual({
         documents: {
-          'doc-1': {
-            'x-scalar-selected-server': 'test',
-            'openapi': '3.1.1',
-            'info': {
-              'title': 'Scalar Galaxy',
-              'version': '0.3.2',
+          "doc-1": {
+            "x-scalar-selected-server": "test",
+            openapi: "3.1.1",
+            info: {
+              title: "Scalar Galaxy",
+              version: "0.3.2",
             },
-            'paths': {
-              '/planets': {
-                get: { '$ref': './chunks/doc-1/operations/~1planets/get.json#', $global: true },
+            paths: {
+              "/planets": {
+                get: {
+                  $ref: "./chunks/doc-1/operations/~1planets/get.json#",
+                  $global: true,
+                },
               },
             },
-            'components': {
-              'parameters': {
-                planetId: { '$ref': './chunks/doc-1/components/parameters/planetId.json#', $global: true },
+            components: {
+              parameters: {
+                planetId: {
+                  $ref: "./chunks/doc-1/components/parameters/planetId.json#",
+                  $global: true,
+                },
               },
             },
-            'x-scalar-navigation': {
-              type: 'document',
-              id: 'doc-1',
-              name: 'doc-1',
-              title: 'Scalar Galaxy',
+            "x-scalar-navigation": {
+              type: "document",
+              id: "doc-1",
+              name: "doc-1",
+              title: "Scalar Galaxy",
               children: [
                 {
-                  'id': 'doc-1/GET/planets',
+                  id: "doc-1/GET/planets",
                   isDeprecated: false,
-                  method: 'get',
-                  path: '/planets',
-                  title: 'List planets',
-                  type: 'operation',
-                  'ref': '#/paths/~1planets/get',
+                  method: "get",
+                  path: "/planets",
+                  title: "List planets",
+                  type: "operation",
+                  ref: "#/paths/~1planets/get",
                 },
               ],
             },
-            'x-scalar-order': ['doc-1/GET/planets'],
-            'x-scalar-original-document-hash': '',
+            "x-scalar-order": ["doc-1/GET/planets"],
+            "x-scalar-original-document-hash": "",
           },
-          'doc-2': {
-            'x-scalar-selected-server': 'test',
-            'openapi': '3.1.1',
-            'info': {
-              'title': 'Scalar Galaxy',
-              'version': '0.3.2',
+          "doc-2": {
+            "x-scalar-selected-server": "test",
+            openapi: "3.1.1",
+            info: {
+              title: "Scalar Galaxy",
+              version: "0.3.2",
             },
-            'paths': {
-              '/planets': {
-                get: { '$ref': './chunks/doc-2/operations/~1planets/get.json#', $global: true },
+            paths: {
+              "/planets": {
+                get: {
+                  $ref: "./chunks/doc-2/operations/~1planets/get.json#",
+                  $global: true,
+                },
               },
             },
-            'components': {
-              'parameters': {
-                planetId: { '$ref': './chunks/doc-2/components/parameters/planetId.json#', $global: true },
+            components: {
+              parameters: {
+                planetId: {
+                  $ref: "./chunks/doc-2/components/parameters/planetId.json#",
+                  $global: true,
+                },
               },
             },
-            'x-scalar-order': ['doc-2/GET/planets'],
-            'x-scalar-navigation': {
-              type: 'document',
-              id: 'doc-2',
-              name: 'doc-2',
-              title: 'Scalar Galaxy',
+            "x-scalar-order": ["doc-2/GET/planets"],
+            "x-scalar-navigation": {
+              type: "document",
+              id: "doc-2",
+              name: "doc-2",
+              title: "Scalar Galaxy",
               children: [
                 {
-                  'id': 'doc-2/GET/planets',
+                  id: "doc-2/GET/planets",
                   isDeprecated: false,
-                  method: 'get',
-                  type: 'operation',
-                  'ref': '#/paths/~1planets/get',
-                  path: '/planets',
-                  title: 'List planets',
+                  method: "get",
+                  type: "operation",
+                  ref: "#/paths/~1planets/get",
+                  path: "/planets",
+                  title: "List planets",
                 },
               ],
             },
-            'x-scalar-original-document-hash': '',
+            "x-scalar-original-document-hash": "",
           },
         },
-        'x-scalar-active-document': 'test',
-        'x-scalar-color-mode': 'dark',
-        'x-scalar-default-client': 'node/fetch',
-        'x-scalar-theme': 'default',
-      })
+        "x-scalar-active-document": "test",
+        "x-scalar-color-mode": "dark",
+        "x-scalar-default-client": "node/fetch",
+        "x-scalar-theme": "default",
+      });
 
       // check the generated chucks
       expect(
@@ -433,320 +464,351 @@ describe('create-server-store', () => {
           },
           {
             content: JSON.stringify({
-              ...exampleDocument().paths['/planets'].get,
+              ...exampleDocument().paths["/planets"].get,
             }),
             path: `${basePath}/chunks/doc-1/operations/~1planets/get.json`,
           },
         ]),
-      ).toBe(true)
+      ).toBe(true);
 
-      await fs.rmdir(basePath, { recursive: true })
-    })
-  })
+      await fs.rmdir(basePath, { recursive: true });
+    });
+  });
 
-  describe('load document on the workspace', () => {
-    describe('load from external urls', () => {
-      let server: FastifyInstance
-      const port = 6287
-      const url = `http://localhost:${port}`
+  describe("load document on the workspace", () => {
+    describe("load from external urls", () => {
+      let server: FastifyInstance;
+      const port = 6287;
+      const url = `http://localhost:${port}`;
 
       beforeEach(() => {
-        server = fastify({ logger: false })
+        server = fastify({ logger: false });
 
         return async () => {
-          await server.close()
-        }
-      })
+          await server.close();
+        };
+      });
 
-      it('should load a document on the workspace from an external url', async () => {
-        server.get('/', () => {
-          return exampleDocument()
-        })
-        await server.listen({ port })
+      it("should load a document on the workspace from an external url", async () => {
+        server.get("/", () => {
+          return exampleDocument();
+        });
+        await server.listen({ port });
 
         const store = await createServerWorkspaceStore({
           baseUrl: url,
           documents: [
             {
-              name: 'default',
+              name: "default",
               url: url,
             },
           ],
-          mode: 'ssr',
-        })
+          mode: "ssr",
+        });
 
-        expect(Object.keys(store.getWorkspace().documents).length).toBe(1)
-        expect(Object.keys(store.getWorkspace().documents)[0]).toBe('default')
-      })
+        expect(Object.keys(store.getWorkspace().documents).length).toBe(1);
+        expect(Object.keys(store.getWorkspace().documents)[0]).toBe("default");
+      });
 
-      it('should be able to add a document from an external url', async () => {
-        server.get('/', () => {
-          return exampleDocument()
-        })
-        await server.listen({ port })
+      it("should be able to add a document from an external url", async () => {
+        server.get("/", () => {
+          return exampleDocument();
+        });
+        await server.listen({ port });
 
         const store = await createServerWorkspaceStore({
-          mode: 'ssr',
+          mode: "ssr",
           baseUrl: url,
           documents: [],
-        })
+        });
 
-        expect(Object.keys(store.getWorkspace().documents).length).toBe(0)
+        expect(Object.keys(store.getWorkspace().documents).length).toBe(0);
 
         await store.addDocument({
-          name: 'default',
+          name: "default",
           url,
-        })
+        });
 
-        expect(Object.keys(store.getWorkspace().documents).length).toBe(1)
-        expect(Object.keys(store.getWorkspace().documents)[0]).toBe('default')
-      })
-    })
+        expect(Object.keys(store.getWorkspace().documents).length).toBe(1);
+        expect(Object.keys(store.getWorkspace().documents)[0]).toBe("default");
+      });
+    });
 
-    describe('load from file system', () => {
-      it('should load a document on the workspace from the file path', async () => {
-        const fileName = randomUUID()
-        await fs.writeFile(fileName, JSON.stringify(exampleDocument()))
+    describe("load from file system", () => {
+      it("should load a document on the workspace from the file path", async () => {
+        const fileName = randomUUID();
+        await fs.writeFile(fileName, JSON.stringify(exampleDocument()));
 
         const store = await createServerWorkspaceStore({
-          baseUrl: 'example.com',
+          baseUrl: "example.com",
           documents: [
             {
               path: fileName,
-              name: 'default',
+              name: "default",
             },
           ],
-          mode: 'ssr',
-        })
+          mode: "ssr",
+        });
 
-        expect(Object.keys(store.getWorkspace().documents).length).toBe(1)
-        expect(Object.keys(store.getWorkspace().documents)[0]).toBe('default')
+        expect(Object.keys(store.getWorkspace().documents).length).toBe(1);
+        expect(Object.keys(store.getWorkspace().documents)[0]).toBe("default");
 
-        await fs.rm(fileName)
-      })
+        await fs.rm(fileName);
+      });
 
-      it('should add a document to the store from a file path', async () => {
-        const fileName = randomUUID()
-        await fs.writeFile(fileName, JSON.stringify(exampleDocument()))
+      it("should add a document to the store from a file path", async () => {
+        const fileName = randomUUID();
+        await fs.writeFile(fileName, JSON.stringify(exampleDocument()));
 
         const store = await createServerWorkspaceStore({
-          baseUrl: 'example.com',
+          baseUrl: "example.com",
           documents: [],
-          mode: 'ssr',
-        })
+          mode: "ssr",
+        });
 
-        expect(Object.keys(store.getWorkspace().documents).length).toBe(0)
+        expect(Object.keys(store.getWorkspace().documents).length).toBe(0);
 
         await store.addDocument({
           path: fileName,
-          name: 'default',
-        })
-        await fs.rm(fileName)
+          name: "default",
+        });
+        await fs.rm(fileName);
 
-        expect(Object.keys(store.getWorkspace().documents).length).toBe(1)
-        expect(Object.keys(store.getWorkspace().documents)[0]).toBe('default')
-      })
-    })
-  })
-})
+        expect(Object.keys(store.getWorkspace().documents).length).toBe(1);
+        expect(Object.keys(store.getWorkspace().documents)[0]).toBe("default");
+      });
+    });
+  });
+});
 
-describe('filter-http-methods-only', () => {
-  it('should only keep the http methods', () => {
+describe("filter-http-methods-only", () => {
+  it("should only keep the http methods", () => {
     const result = filterHttpMethodsOnly({
-      '/path': {
-        get: { description: 'some description' },
+      "/path": {
+        get: { description: "some description" },
         // @ts-expect-error - this is a test
-        'x-scalar-test': 'test',
+        "x-scalar-test": "test",
         servers: [],
-        parameters: [{ name: 'name', in: 'path' }],
+        parameters: [{ name: "name", in: "path" }],
       },
-    })
+    });
 
     // check that all the other keys are filtered
-    expect(Object.keys(result['/path'] ?? {})).toEqual(['get'])
+    expect(Object.keys(result["/path"] ?? {})).toEqual(["get"]);
 
     // check the contents of the operation
-    expect(result['/path']?.get).toEqual({ description: 'some description' })
-  })
-})
+    expect(result["/path"]?.get).toEqual({ description: "some description" });
+  });
+});
 
-describe('escape-paths', () => {
-  it('should correctly escape / paths', () => {
-    const result = escapePaths({ '/hello/users': { get: { description: 'some description' } } })
-    expect(Object.keys(result)).toEqual(['~1hello~1users'])
-    expect(result['~1hello~1users']).toEqual({ get: { description: 'some description' } })
-  })
+describe("escape-paths", () => {
+  it("should correctly escape / paths", () => {
+    const result = escapePaths({
+      "/hello/users": { get: { description: "some description" } },
+    });
+    expect(Object.keys(result)).toEqual(["~1hello~1users"]);
+    expect(result["~1hello~1users"]).toEqual({
+      get: { description: "some description" },
+    });
+  });
 
-  it('should correctly escape ~ paths', () => {
-    const result = escapePaths({ '/hello~world/users': { get: { description: 'some description' } } })
-    expect(Object.keys(result)).toEqual(['~1hello~0world~1users'])
+  it("should correctly escape ~ paths", () => {
+    const result = escapePaths({
+      "/hello~world/users": { get: { description: "some description" } },
+    });
+    expect(Object.keys(result)).toEqual(["~1hello~0world~1users"]);
 
-    expect(result['~1hello~0world~1users']).toEqual({ get: { description: 'some description' } })
-  })
-})
+    expect(result["~1hello~0world~1users"]).toEqual({
+      get: { description: "some description" },
+    });
+  });
+});
 
-describe('externalize-component-references', () => {
-  it('should convert the components with refs correctly for ssr mode', () => {
+describe("externalize-component-references", () => {
+  it("should convert the components with refs correctly for ssr mode", () => {
     const result = externalizeComponentReferences(
       {
         info: {
-          title: '',
-          version: '',
+          title: "",
+          version: "",
         },
-        openapi: '',
+        openapi: "",
         components: {
           schemas: {
-            'User': coerceValue(SchemaObjectSchema, {
-              'type': 'object',
-              'required': ['id', 'name', 'email'],
-              'properties': {
-                'id': {
-                  'type': 'string',
-                  'format': 'uuid',
-                  'example': '123e4567-e89b-12d3-a456-426614174000',
+            User: coerceValue(SchemaObjectSchema, {
+              type: "object",
+              required: ["id", "name", "email"],
+              properties: {
+                id: {
+                  type: "string",
+                  format: "uuid",
+                  example: "123e4567-e89b-12d3-a456-426614174000",
                 },
               },
             }),
           },
         },
-        'x-scalar-original-document-hash': '',
+        "x-scalar-original-document-hash": "",
       },
       {
-        mode: 'ssr',
-        name: 'name',
-        baseUrl: 'https://example.com',
+        mode: "ssr",
+        name: "name",
+        baseUrl: "https://example.com",
       },
-    )
+    );
 
     expect(result).toEqual({
-      schemas: { User: { '$ref': 'https://example.com/name/components/schemas/User#', $global: true } },
-    })
-  })
+      schemas: {
+        User: {
+          $ref: "https://example.com/name/components/schemas/User#",
+          $global: true,
+        },
+      },
+    });
+  });
 
-  it('should convert the components with refs correctly for ssg mode', () => {
+  it("should convert the components with refs correctly for ssg mode", () => {
     const result = externalizeComponentReferences(
       {
         info: {
-          title: '',
-          version: '',
+          title: "",
+          version: "",
         },
-        openapi: '',
+        openapi: "",
         components: {
           schemas: {
-            'User': coerceValue(SchemaObjectSchema, {
-              'type': 'object',
-              'required': ['id', 'name', 'email'],
-              'properties': {
-                'id': {
-                  'type': 'string',
-                  'format': 'uuid',
-                  'example': '123e4567-e89b-12d3-a456-426614174000',
+            User: coerceValue(SchemaObjectSchema, {
+              type: "object",
+              required: ["id", "name", "email"],
+              properties: {
+                id: {
+                  type: "string",
+                  format: "uuid",
+                  example: "123e4567-e89b-12d3-a456-426614174000",
                 },
               },
             }),
           },
         },
-        'x-scalar-original-document-hash': '',
+        "x-scalar-original-document-hash": "",
       },
       {
-        mode: 'static',
-        name: 'name',
-        directory: 'assets',
+        mode: "static",
+        name: "name",
+        directory: "assets",
       },
-    )
+    );
 
     expect(result).toEqual({
-      schemas: { User: { '$ref': './chunks/name/components/schemas/User.json#', $global: true } },
-    })
-  })
-})
+      schemas: {
+        User: {
+          $ref: "./chunks/name/components/schemas/User.json#",
+          $global: true,
+        },
+      },
+    });
+  });
+});
 
-describe('externalize-path-references', () => {
-  it('should correctly replace the contents with a ref for ssr mode', () => {
+describe("externalize-path-references", () => {
+  it("should correctly replace the contents with a ref for ssr mode", () => {
     const result = externalizePathReferences(
       {
         info: {
-          title: '',
-          version: '',
+          title: "",
+          version: "",
         },
-        openapi: '',
+        openapi: "",
         paths: {
-          '/test': {
+          "/test": {
             get: {
-              description: 'string',
+              description: "string",
             },
           },
         },
-        'x-scalar-original-document-hash': '',
+        "x-scalar-original-document-hash": "",
       },
       {
-        mode: 'ssr',
-        baseUrl: 'https://example.com',
-        name: 'name',
+        mode: "ssr",
+        baseUrl: "https://example.com",
+        name: "name",
       },
-    )
+    );
 
     expect(result).toEqual({
-      '/test': { get: { '$ref': 'https://example.com/name/operations/~1test/get#', $global: true } },
-    })
-  })
+      "/test": {
+        get: {
+          $ref: "https://example.com/name/operations/~1test/get#",
+          $global: true,
+        },
+      },
+    });
+  });
 
-  it('should replace the http methods with the reference while preserving other properties', () => {
+  it("should replace the http methods with the reference while preserving other properties", () => {
     const result = externalizePathReferences(
       {
         paths: {
-          '/test': {
+          "/test": {
             get: {
-              description: 'string',
+              description: "string",
             },
             // @ts-expect-error
             otherProperty: {
-              description: 'I should still be in the output',
+              description: "I should still be in the output",
             },
           },
         },
       },
       {
-        mode: 'ssr',
-        baseUrl: 'https://example.com',
-        name: 'name',
+        mode: "ssr",
+        baseUrl: "https://example.com",
+        name: "name",
       },
-    )
+    );
 
     expect(result).toEqual({
-      '/test': {
-        get: { '$ref': 'https://example.com/name/operations/~1test/get#', $global: true },
-        otherProperty: { description: 'I should still be in the output' },
+      "/test": {
+        get: {
+          $ref: "https://example.com/name/operations/~1test/get#",
+          $global: true,
+        },
+        otherProperty: { description: "I should still be in the output" },
       },
-    })
-  })
+    });
+  });
 
-  it('should correctly replace the contents with a ref for ssg mode', () => {
+  it("should correctly replace the contents with a ref for ssg mode", () => {
     const result = externalizePathReferences(
       {
         info: {
-          title: '',
-          version: '',
+          title: "",
+          version: "",
         },
-        openapi: '',
+        openapi: "",
         paths: {
-          '/test': {
+          "/test": {
             get: {
-              description: 'string',
+              description: "string",
             },
           },
         },
-        'x-scalar-original-document-hash': '',
+        "x-scalar-original-document-hash": "",
       },
       {
-        mode: 'static',
-        directory: 'assets',
-        name: 'name',
+        mode: "static",
+        directory: "assets",
+        name: "name",
       },
-    )
+    );
 
     expect(result).toEqual({
-      '/test': { get: { '$ref': './chunks/name/operations/~1test/get.json#', $global: true } },
-    })
-  })
-})
+      "/test": {
+        get: {
+          $ref: "./chunks/name/operations/~1test/get.json#",
+          $global: true,
+        },
+      },
+    });
+  });
+});

@@ -1,386 +1,387 @@
 import type {
   ParameterObject,
   ParameterWithSchemaObject,
-} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import { describe, expect, it } from 'vitest'
+} from "@scalar/workspace-store/schemas/v3.1/strict/openapi-document";
+import { describe, expect, it } from "vite-plus/test";
 
-import { deSerializeParameter } from './de-serialize-parameter'
+import { deSerializeParameter } from "./de-serialize-parameter";
 
-describe('de-serialize-parameter', () => {
-  describe('deSerializeParameter', () => {
-    it('parses JSON string to object when content type includes json', () => {
+describe("de-serialize-parameter", () => {
+  describe("deSerializeParameter", () => {
+    it("parses JSON string to object when content type includes json", () => {
       const param: ParameterObject = {
-        name: 'test',
-        in: 'query',
+        name: "test",
+        in: "query",
         content: {
-          'application/json': {
-            schema: { type: 'object' },
+          "application/json": {
+            schema: { type: "object" },
           },
         },
-      }
-      const example = '{"key":"value","nested":{"prop":123}}'
+      };
+      const example = '{"key":"value","nested":{"prop":123}}';
 
-      const result = deSerializeParameter(example, param)
+      const result = deSerializeParameter(example, param);
 
-      expect(result).toEqual({ key: 'value', nested: { prop: 123 } })
-    })
+      expect(result).toEqual({ key: "value", nested: { prop: 123 } });
+    });
 
-    it('parses JSON string to array when schema type is array', () => {
+    it("parses JSON string to array when schema type is array", () => {
       const param: ParameterWithSchemaObject = {
-        name: 'test',
-        in: 'query',
+        name: "test",
+        in: "query",
         schema: {
-          type: 'array',
-          items: { type: 'string' },
+          type: "array",
+          items: { type: "string" },
         },
-      }
-      const example = '["item1","item2","item3"]'
+      };
+      const example = '["item1","item2","item3"]';
 
-      const result = deSerializeParameter(example, param)
+      const result = deSerializeParameter(example, param);
 
-      expect(result).toEqual(['item1', 'item2', 'item3'])
-    })
+      expect(result).toEqual(["item1", "item2", "item3"]);
+    });
 
-    it('returns original string when JSON parsing fails for content type', () => {
+    it("returns original string when JSON parsing fails for content type", () => {
       const param: ParameterObject = {
-        name: 'test',
-        in: 'query',
+        name: "test",
+        in: "query",
         content: {
-          'application/json': {
-            schema: { type: 'object' },
+          "application/json": {
+            schema: { type: "object" },
           },
         },
-      }
-      const example = '{invalid json string'
+      };
+      const example = "{invalid json string";
 
-      const result = deSerializeParameter(example, param)
+      const result = deSerializeParameter(example, param);
 
-      expect(result).toBe('{invalid json string')
-    })
+      expect(result).toBe("{invalid json string");
+    });
 
-    it('returns original string when JSON parsing fails for schema type', () => {
+    it("returns original string when JSON parsing fails for schema type", () => {
       const param: ParameterWithSchemaObject = {
-        name: 'test',
-        in: 'query',
+        name: "test",
+        in: "query",
         schema: {
-          type: 'object',
+          type: "object",
         },
-      }
-      const example = '{"incomplete": '
+      };
+      const example = '{"incomplete": ';
 
-      const result = deSerializeParameter(example, param)
+      const result = deSerializeParameter(example, param);
 
-      expect(result).toBe('{"incomplete": ')
-    })
+      expect(result).toBe('{"incomplete": ');
+    });
 
-    it('handles schema with array of types and uses first type', () => {
+    it("handles schema with array of types and uses first type", () => {
       const param: ParameterWithSchemaObject = {
-        name: 'test',
-        in: 'query',
+        name: "test",
+        in: "query",
         schema: {
-          type: ['object', 'null'],
+          type: ["object", "null"],
         },
-      }
-      const example = '{"data":"value"}'
+      };
+      const example = '{"data":"value"}';
 
-      const result = deSerializeParameter(example, param)
+      const result = deSerializeParameter(example, param);
 
-      expect(result).toEqual({ data: 'value' })
-    })
+      expect(result).toEqual({ data: "value" });
+    });
 
-    it('parses boolean string when schema type is boolean', () => {
+    it("parses boolean string when schema type is boolean", () => {
       const param: ParameterWithSchemaObject = {
-        name: 'test',
-        in: 'query',
+        name: "test",
+        in: "query",
         schema: {
-          type: 'boolean',
+          type: "boolean",
         },
-      }
-      const example = 'true'
+      };
+      const example = "true";
 
-      const result = deSerializeParameter(example, param)
+      const result = deSerializeParameter(example, param);
 
-      expect(result).toBe(true)
-    })
+      expect(result).toBe(true);
+    });
 
-    it('parses number string when schema type is number', () => {
+    it("parses number string when schema type is number", () => {
       const param: ParameterWithSchemaObject = {
-        name: 'test',
-        in: 'query',
+        name: "test",
+        in: "query",
         schema: {
-          type: 'number',
+          type: "number",
         },
-      }
-      const example = '42.5'
+      };
+      const example = "42.5";
 
-      const result = deSerializeParameter(example, param)
+      const result = deSerializeParameter(example, param);
 
-      expect(result).toBe(42.5)
-    })
+      expect(result).toBe(42.5);
+    });
 
-    it('parses integer string when schema type is integer', () => {
+    it("parses integer string when schema type is integer", () => {
       const param: ParameterWithSchemaObject = {
-        name: 'test',
-        in: 'query',
+        name: "test",
+        in: "query",
         schema: {
-          type: 'integer',
+          type: "integer",
         },
-      }
-      const example = '123'
+      };
+      const example = "123";
 
-      const result = deSerializeParameter(example, param)
+      const result = deSerializeParameter(example, param);
 
-      expect(result).toBe(123)
-    })
+      expect(result).toBe(123);
+    });
 
-    it('parses null string when schema type is null', () => {
+    it("parses null string when schema type is null", () => {
       const param: ParameterWithSchemaObject = {
-        name: 'test',
-        in: 'query',
+        name: "test",
+        in: "query",
         schema: {
-          type: 'null',
+          type: "null",
         },
-      }
-      const example = 'null'
+      };
+      const example = "null";
 
-      const result = deSerializeParameter(example, param)
+      const result = deSerializeParameter(example, param);
 
-      expect(result).toBe(null)
-    })
+      expect(result).toBe(null);
+    });
 
-    it('does not parse string when schema type is string', () => {
+    it("does not parse string when schema type is string", () => {
       const param: ParameterWithSchemaObject = {
-        name: 'test',
-        in: 'query',
+        name: "test",
+        in: "query",
         schema: {
-          type: 'string',
+          type: "string",
         },
-      }
-      const example = 'just a string'
+      };
+      const example = "just a string";
 
-      const result = deSerializeParameter(example, param)
+      const result = deSerializeParameter(example, param);
 
-      expect(result).toBe('just a string')
-    })
+      expect(result).toBe("just a string");
+    });
 
-    it('returns example unchanged when parameter has neither content nor schema', () => {
+    it("returns example unchanged when parameter has neither content nor schema", () => {
       const param: ParameterObject = {
-        name: 'test',
-        in: 'query',
-      }
-      const example = 'some value'
+        name: "test",
+        in: "query",
+      };
+      const example = "some value";
 
-      const result = deSerializeParameter(example, param)
+      const result = deSerializeParameter(example, param);
 
-      expect(result).toBe('some value')
-    })
+      expect(result).toBe("some value");
+    });
 
-    it('returns non-string example unchanged for content type', () => {
+    it("returns non-string example unchanged for content type", () => {
       const param: ParameterObject = {
-        name: 'test',
-        in: 'query',
+        name: "test",
+        in: "query",
         content: {
-          'application/json': {
-            schema: { type: 'object' },
+          "application/json": {
+            schema: { type: "object" },
           },
         },
-      }
-      const example = { already: 'parsed' }
+      };
+      const example = { already: "parsed" };
 
-      const result = deSerializeParameter(example, param)
+      const result = deSerializeParameter(example, param);
 
-      expect(result).toEqual({ already: 'parsed' })
-    })
+      expect(result).toEqual({ already: "parsed" });
+    });
 
-    it('returns non-string example unchanged for schema type', () => {
+    it("returns non-string example unchanged for schema type", () => {
       const param: ParameterWithSchemaObject = {
-        name: 'test',
-        in: 'query',
+        name: "test",
+        in: "query",
         schema: {
-          type: 'object',
+          type: "object",
         },
-      }
-      const example = { already: 'parsed' }
+      };
+      const example = { already: "parsed" };
 
-      const result = deSerializeParameter(example, param)
+      const result = deSerializeParameter(example, param);
 
-      expect(result).toEqual({ already: 'parsed' })
-    })
+      expect(result).toEqual({ already: "parsed" });
+    });
 
-    it('handles content type without json in name', () => {
+    it("handles content type without json in name", () => {
       const param: ParameterObject = {
-        name: 'test',
-        in: 'query',
+        name: "test",
+        in: "query",
         content: {
-          'text/plain': {
-            schema: { type: 'string' },
+          "text/plain": {
+            schema: { type: "string" },
           },
         },
-      }
-      const example = '{"key":"value"}'
+      };
+      const example = '{"key":"value"}';
 
-      const result = deSerializeParameter(example, param)
+      const result = deSerializeParameter(example, param);
 
-      expect(result).toBe('{"key":"value"}')
-    })
+      expect(result).toBe('{"key":"value"}');
+    });
 
-    it('handles empty content object', () => {
+    it("handles empty content object", () => {
       const param: ParameterObject = {
-        name: 'test',
-        in: 'query',
+        name: "test",
+        in: "query",
         content: {},
-      }
-      const example = '{"key":"value"}'
+      };
+      const example = '{"key":"value"}';
 
-      const result = deSerializeParameter(example, param)
+      const result = deSerializeParameter(example, param);
 
-      expect(result).toBe('{"key":"value"}')
-    })
+      expect(result).toBe('{"key":"value"}');
+    });
 
-    it('handles undefined content', () => {
+    it("handles undefined content", () => {
       const param: ParameterObject = {
-        name: 'test',
-        in: 'query',
+        name: "test",
+        in: "query",
         content: undefined,
-      }
-      const example = '{"key":"value"}'
+      };
+      const example = '{"key":"value"}';
 
-      const result = deSerializeParameter(example, param)
+      const result = deSerializeParameter(example, param);
 
-      expect(result).toBe('{"key":"value"}')
-    })
+      expect(result).toBe('{"key":"value"}');
+    });
 
-    it('handles schema without type property', () => {
+    it("handles schema without type property", () => {
       const param: ParameterWithSchemaObject = {
-        name: 'test',
-        in: 'query',
+        name: "test",
+        in: "query",
         // @ts-expect-error - just for testing
         schema: {
           properties: {
-            key: { type: 'string' },
+            key: { type: "string" },
           },
         },
-      }
-      const example = '{"key":"value"}'
+      };
+      const example = '{"key":"value"}';
 
-      const result = deSerializeParameter(example, param)
+      const result = deSerializeParameter(example, param);
 
-      expect(result).toBe('{"key":"value"}')
-    })
+      expect(result).toBe('{"key":"value"}');
+    });
 
-    it('handles empty array type', () => {
+    it("handles empty array type", () => {
       const param: ParameterWithSchemaObject = {
-        name: 'test',
-        in: 'query',
+        name: "test",
+        in: "query",
         schema: {
           type: [],
         },
-      }
-      const example = '{"key":"value"}'
+      };
+      const example = '{"key":"value"}';
 
-      const result = deSerializeParameter(example, param)
+      const result = deSerializeParameter(example, param);
 
-      expect(result).toBe('{"key":"value"}')
-    })
+      expect(result).toBe('{"key":"value"}');
+    });
 
-    it('handles null and undefined examples', () => {
+    it("handles null and undefined examples", () => {
       const param: ParameterWithSchemaObject = {
-        name: 'test',
-        in: 'query',
+        name: "test",
+        in: "query",
         schema: {
-          type: 'object',
+          type: "object",
         },
-      }
+      };
 
-      expect(deSerializeParameter(null, param)).toBe(null)
-      expect(deSerializeParameter(undefined, param)).toBe(undefined)
-    })
+      expect(deSerializeParameter(null, param)).toBe(null);
+      expect(deSerializeParameter(undefined, param)).toBe(undefined);
+    });
 
-    it('splits comma-separated string into array when schema type is array and JSON parse fails', () => {
+    it("splits comma-separated string into array when schema type is array and JSON parse fails", () => {
       const param: ParameterWithSchemaObject = {
-        name: 'actionType',
-        in: 'query',
+        name: "actionType",
+        in: "query",
         schema: {
-          type: 'array',
-          items: { type: 'string' },
+          type: "array",
+          items: { type: "string" },
         },
-      }
-      const example = 'foo,bar'
+      };
+      const example = "foo,bar";
 
-      const result = deSerializeParameter(example, param)
+      const result = deSerializeParameter(example, param);
 
-      expect(result).toEqual(['foo', 'bar'])
-    })
+      expect(result).toEqual(["foo", "bar"]);
+    });
 
-    it('splits comma-separated string with spaces into array when schema type is array', () => {
+    it("splits comma-separated string with spaces into array when schema type is array", () => {
       const param: ParameterWithSchemaObject = {
-        name: 'tags',
-        in: 'query',
+        name: "tags",
+        in: "query",
         schema: {
-          type: 'array',
-          items: { type: 'string' },
+          type: "array",
+          items: { type: "string" },
         },
-      }
-      const example = 'alpha, beta, gamma'
+      };
+      const example = "alpha, beta, gamma";
 
-      const result = deSerializeParameter(example, param)
+      const result = deSerializeParameter(example, param);
 
-      expect(result).toEqual(['alpha', 'beta', 'gamma'])
-    })
+      expect(result).toEqual(["alpha", "beta", "gamma"]);
+    });
 
-    it('handles single value for array schema type that is not valid JSON', () => {
+    it("handles single value for array schema type that is not valid JSON", () => {
       const param: ParameterWithSchemaObject = {
-        name: 'ids',
-        in: 'query',
+        name: "ids",
+        in: "query",
         schema: {
-          type: 'array',
-          items: { type: 'string' },
+          type: "array",
+          items: { type: "string" },
         },
-      }
-      const example = 'single'
+      };
+      const example = "single";
 
-      const result = deSerializeParameter(example, param)
+      const result = deSerializeParameter(example, param);
 
-      expect(result).toEqual(['single'])
-    })
+      expect(result).toEqual(["single"]);
+    });
 
-    it('still parses valid JSON arrays for array schema type', () => {
+    it("still parses valid JSON arrays for array schema type", () => {
       const param: ParameterWithSchemaObject = {
-        name: 'ids',
-        in: 'query',
+        name: "ids",
+        in: "query",
         schema: {
-          type: 'array',
-          items: { type: 'string' },
+          type: "array",
+          items: { type: "string" },
         },
-      }
-      const example = '["item1","item2"]'
+      };
+      const example = '["item1","item2"]';
 
-      const result = deSerializeParameter(example, param)
+      const result = deSerializeParameter(example, param);
 
-      expect(result).toEqual(['item1', 'item2'])
-    })
+      expect(result).toEqual(["item1", "item2"]);
+    });
 
-    it('handles complex nested JSON with content type', () => {
+    it("handles complex nested JSON with content type", () => {
       const param: ParameterObject = {
-        name: 'test',
-        in: 'query',
+        name: "test",
+        in: "query",
         content: {
-          'application/json': {
-            schema: { type: 'object' },
+          "application/json": {
+            schema: { type: "object" },
           },
         },
-      }
-      const example = '{"user":{"name":"John","age":30,"tags":["admin","user"]}}'
+      };
+      const example =
+        '{"user":{"name":"John","age":30,"tags":["admin","user"]}}';
 
-      const result = deSerializeParameter(example, param)
+      const result = deSerializeParameter(example, param);
 
       expect(result).toEqual({
         user: {
-          name: 'John',
+          name: "John",
           age: 30,
-          tags: ['admin', 'user'],
+          tags: ["admin", "user"],
         },
-      })
-    })
-  })
-})
+      });
+    });
+  });
+});

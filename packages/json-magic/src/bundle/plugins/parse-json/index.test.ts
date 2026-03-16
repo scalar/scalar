@@ -1,24 +1,24 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from "vite-plus/test";
 
-import { parseJson } from '@/bundle/plugins/parse-json'
+import { parseJson } from "@/bundle/plugins/parse-json";
 
-describe('parse-json', () => {
+describe("parse-json", () => {
   it.each([
-    ['{}', true],
+    ["{}", true],
     ['{ "a": "b" }', true],
     ['{ "a": 2 }', true],
     ["{ 'a': 2 }", false],
-    ['{ some string', false],
-    ['{ ', false],
-  ])('should validate if strings are json valid format', (a, b) => {
-    expect(parseJson().validate(a)).toBe(b)
-  })
+    ["{ some string", false],
+    ["{ ", false],
+  ])("should validate if strings are json valid format", (a, b) => {
+    expect(parseJson().validate(a)).toBe(b);
+  });
 
-  it('should parse json string', async () => {
+  it("should parse json string", async () => {
     expect(await parseJson().exec('{ "message": "Hello World" }')).toEqual({
       ok: true,
-      data: { message: 'Hello World' },
-      'raw': '{ "message": "Hello World" }',
-    })
-  })
-})
+      data: { message: "Hello World" },
+      raw: '{ "message": "Hello World" }',
+    });
+  });
+});

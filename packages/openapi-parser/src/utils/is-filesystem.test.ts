@@ -1,18 +1,18 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from "vite-plus/test";
 
-import { isFilesystem } from './is-filesystem'
-import { makeFilesystem } from './make-filesystem'
+import { isFilesystem } from "./is-filesystem";
+import { makeFilesystem } from "./make-filesystem";
 
-describe('isFilesystem', () => {
-  it('transforms an object to a filesystem', () => {
+describe("isFilesystem", () => {
+  it("transforms an object to a filesystem", () => {
     const result = makeFilesystem({
-      foo: 'bar',
-    })
+      foo: "bar",
+    });
 
     expect(result).not.toBe({
-      foo: 'bar',
-    })
+      foo: "bar",
+    });
 
-    expect(isFilesystem(result)).toBe(true)
-  })
-})
+    expect(isFilesystem(result)).toBe(true);
+  });
+});

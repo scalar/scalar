@@ -23,10 +23,10 @@
   },
   "scripts": {
     "build": "scalar-build-esbuild",
-    "format": "prettier --write .",
-    "lint:check": "eslint .",
-    "lint:fix": "eslint .  --fix",
-    "test": "NODE_OPTIONS=--max_old_space_size=8192 vitest",
+    "format": "vp fmt .",
+    "lint:check": "vp lint .",
+    "lint:fix": "vp lint . --fix",
+    "test": "NODE_OPTIONS=--max_old_space_size=8192 vp test",
     "types:build": "scalar-types-build",
     "types:check": "scalar-types-check"
   },
@@ -74,6 +74,7 @@
     "@scalar/types": "workspace:*",
     "@types/node": "catalog:*",
     "just-diff": "^6.0.2",
-    "vite": "catalog:*"
+    "vite": "catalog:",
+    "vite-plus": "catalog:"
   }
 }

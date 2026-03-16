@@ -1,5 +1,5 @@
 import { mount } from '@vue/test-utils'
-import { describe, expect, it, vi } from 'vitest'
+import { describe, expect, it, vi } from 'vite-plus/test'
 
 import ScalarFormInput from './ScalarFormInput.vue'
 
@@ -45,7 +45,7 @@ describe('ScalarFormInput', () => {
   it('renders as a div and forwards arbitrary attributes and slot content', () => {
     const wrapper = mount(ScalarFormInput, {
       props: { is: 'div' },
-      attrs: { 'data-testid': 'container', class: 'custom-class' },
+      attrs: { 'data-testid': 'container', 'class': 'custom-class' },
       slots: { default: '<span>Content</span>' },
     })
 

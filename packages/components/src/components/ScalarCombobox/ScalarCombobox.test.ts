@@ -1,5 +1,5 @@
 import { enableAutoUnmount, mount } from '@vue/test-utils'
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vite-plus/test'
 import { nextTick } from 'vue'
 
 import ScalarCombobox from './ScalarCombobox.vue'
@@ -76,7 +76,9 @@ describe('ScalarCombobox', () => {
       await option.trigger('click')
 
       expect(wrapper.emitted('update:modelValue')).toBeTruthy()
-      expect(wrapper.emitted('update:modelValue')?.[0]).toEqual([singleOptions[0]])
+      expect(wrapper.emitted('update:modelValue')?.[0]).toEqual([
+        singleOptions[0],
+      ])
     })
 
     it('focuses the input when combobox is opened', async () => {
@@ -98,7 +100,9 @@ describe('ScalarCombobox', () => {
       vi.useRealTimers()
     })
 
-    it('closes combobox when tabbing out of the input', async ({ onTestFinished }) => {
+    it('closes combobox when tabbing out of the input', async ({
+      onTestFinished,
+    }) => {
       // Create a container with the combobox and another focusable element
       const container = document.createElement('div')
       container.innerHTML = '<button id="after-button">After Button</button>'
@@ -119,7 +123,9 @@ describe('ScalarCombobox', () => {
       expect(input.isVisible()).toBe(true)
 
       // Move focus to the button outside the combobox to simulate tabbing out
-      const afterButton = document.getElementById('after-button') as HTMLButtonElement
+      const afterButton = document.getElementById(
+        'after-button',
+      ) as HTMLButtonElement
       afterButton.focus()
       await nextTick()
 
@@ -151,7 +157,9 @@ describe('ScalarCombobox', () => {
       await option.trigger('click')
 
       expect(wrapper.emitted('update:modelValue')).toBeTruthy()
-      expect(wrapper.emitted('update:modelValue')?.[0]).toEqual([groupedOptions[0]?.options?.[0]])
+      expect(wrapper.emitted('update:modelValue')?.[0]).toEqual([
+        groupedOptions[0]?.options?.[0],
+      ])
     })
   })
 

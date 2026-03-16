@@ -1,5 +1,5 @@
 import { mount } from '@vue/test-utils'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vite-plus/test'
 import { nextTick } from 'vue'
 
 import ScalarSidebarSearchInput from './ScalarSidebarSearchInput.vue'
@@ -9,7 +9,9 @@ describe('ScalarSidebarSearchInput', () => {
     const wrapper = mount(ScalarSidebarSearchInput)
     expect(wrapper.find('input').exists()).toBe(true)
     expect(wrapper.find('input').attributes('placeholder')).toBe('Search...')
-    expect(wrapper.find('input').attributes('aria-label')).toBe('Enter search query')
+    expect(wrapper.find('input').attributes('aria-label')).toBe(
+      'Enter search query',
+    )
   })
 
   it('renders with custom label', () => {
@@ -93,7 +95,7 @@ describe('ScalarSidebarSearchInput', () => {
     const wrapper = mount(ScalarSidebarSearchInput, {
       attrs: {
         'data-test': 'search-input',
-        disabled: true,
+        'disabled': true,
       },
     })
 

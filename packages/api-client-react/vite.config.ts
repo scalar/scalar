@@ -1,11 +1,11 @@
-import { createViteBuildOptions } from '@scalar/build-tooling/vite'
-import react from '@vitejs/plugin-react'
-import { preserveDirective } from 'rollup-preserve-directives'
-import { defineConfig } from 'vite'
+import { createViteBuildOptions } from "@scalar/build-tooling/vite";
+import react from "@vitejs/plugin-react";
+import { preserveDirective } from "rollup-preserve-directives";
+import { defineConfig } from "vite-plus";
 
 export default defineConfig({
   build: createViteBuildOptions({
-    entry: ['src/index.ts'],
+    entry: ["src/index.ts"],
   }),
   plugins: [react(), preserveDirective()],
-})
+});
