@@ -1,2 +1,2 @@
-export { alias, createViteBuildOptions } from './options'
+export { alias, createViteBuildOptions, sanitizeVirtualModules } from './options'
 export { ViteWatchWorkspace } from './plugins/workspace-reload'
