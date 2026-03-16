@@ -3,4 +3,4 @@
 import { executeCommands } from './utils/utils.js'
 
 // Check formatting without making changes
-executeCommands(['pnpm biome format', 'oxfmt --check --ignore-path ../../.prettierignore'], 'format check')
+executeCommands(['pnpm biome format', 'oxfmt --check'], 'format check')
