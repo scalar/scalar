@@ -65,7 +65,7 @@ export default defineConfig({
       name: '@scalar/api-reference',
       formats: ['umd'],
     },
-    rollupOptions: {
+    rolldownOptions: {
       output: {
         entryFileNames: '[name].js',
       },

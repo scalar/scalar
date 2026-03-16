@@ -18,14 +18,14 @@ import type { BuildEnvironmentOptions, LibraryOptions } from 'vite'
 export function createViteBuildOptions<
   T extends {
     lib?: Record<string, any> | undefined | false
-    rollupOptions?: Record<string, any> | undefined
+    rolldownOptions?: Record<string, any> | undefined
   } = BuildEnvironmentOptions,
 >(props: {
   entry: LibraryOptions['entry']
   pkgFile?: Record<string, any>
-  options?: Partial<Omit<T, 'lib' | 'rollupOptions'>> & {
+  options?: Partial<Omit<T, 'lib' | 'rolldownOptions'>> & {
     lib?: Partial<T['lib']>
-    rollupOptions?: T['rollupOptions']
+    rolldownOptions?: T['rolldownOptions']
   }
 }): {
   outDir: string
@@ -33,7 +33,7 @@ export function createViteBuildOptions<
     formats: ['es']
     cssFileName: 'style'
   } & T['lib']
-  rollupOptions: T['rollupOptions'] & {
+  rolldownOptions: T['rolldownOptions'] & {
     external: string | RegExp[]
     output: {
       format: 'esm'
@@ -51,7 +51,7 @@ export function createViteBuildOptions<
   /** Load the pkg file if not provided */
   const pkgFile = props.pkgFile ?? JSON.parse(readFileSync('./package.json', 'utf-8'))
 
-  const external = Array.isArray(props.options?.rollupOptions?.external) ? props.options.rollupOptions.external : []
+  const external = Array.isArray(props.options?.rolldownOptions?.external) ? props.options.rolldownOptions.external : []
 
   if ('dependencies' in pkgFile) {
     external.push(...Object.keys(pkgFile.dependencies))
@@ -76,8 +76,8 @@ export function createViteBuildOptions<
       ...props?.options?.lib,
       entry: props.entry,
     },
-    rollupOptions: {
-      ...props.options?.rollupOptions,
+    rolldownOptions: {
+      ...props.options?.rolldownOptions,
       treeshake: {
         annotations: true,
         preset: 'recommended',

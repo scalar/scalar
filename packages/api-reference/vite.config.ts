@@ -43,7 +43,7 @@ export default defineConfig({
       minify: false,
       emptyOutDir: true,
       cssCodeSplit: false,
-      rollupOptions: {
+      rolldownOptions: {
         plugins: [],
       },
     },

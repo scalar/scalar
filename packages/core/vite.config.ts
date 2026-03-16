@@ -24,7 +24,7 @@ export default defineConfig({
       entry: await findEntryPoints({ allowCss: false }),
       formats: ['es'],
     },
-    rollupOptions: {
+    rolldownOptions: {
       external: [...Object.keys((pkg as any).peerDependencies || {})],
       output: {
         // Create a separate file for the dependency bundle
