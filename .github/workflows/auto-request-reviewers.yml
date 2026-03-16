@@ -1,0 +1,84 @@
+name: Auto Request Reviewers
+
+on:
+  pull_request_target:
+    types:
+      - opened
+      - reopened
+      - ready_for_review
+      - synchronize
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  auto-request:
+    name: Request and validate reviewers
+    runs-on: blacksmith-2vcpu-ubuntu-2204
+    timeout-minutes: 15
+    if: ${{ github.event.pull_request.draft == false }}
+    steps:
+      - uses: actions/github-script@v8
+        env:
+          DEFAULT_PR_REVIEWERS: ${{ vars.DEFAULT_PR_REVIEWERS }}
+          DEFAULT_PR_REVIEWER_TEAMS: ${{ vars.DEFAULT_PR_REVIEWER_TEAMS }}
+        with:
+          script: |
+            const pr = context.payload.pull_request
+            const owner = context.repo.owner
+            const repo = context.repo.repo
+
+            const parseCsv = (value) =>
+              (value ?? '')
+                .split(',')
+                .map((entry) => entry.trim())
+                .filter(Boolean)
+
+            const requestedUsers = (pr.requested_reviewers ?? []).map((reviewer) => reviewer.login)
+            const requestedTeams = (pr.requested_teams ?? []).map((team) => team.slug)
+            const alreadyRequested = requestedUsers.length + requestedTeams.length > 0
+
+            if (alreadyRequested) {
+              core.info('Reviewers are already requested. Nothing to do.')
+              return
+            }
+
+            const configuredUsers = parseCsv(process.env.DEFAULT_PR_REVIEWERS)
+            const configuredTeams = parseCsv(process.env.DEFAULT_PR_REVIEWER_TEAMS)
+            const author = pr.user.login
+
+            const reviewersToRequest = configuredUsers.filter((login) => login !== author)
+            const teamsToRequest = configuredTeams
+
+            if (reviewersToRequest.length + teamsToRequest.length > 0) {
+              try {
+                await github.rest.pulls.requestReviewers({
+                  owner,
+                  repo,
+                  pull_number: pr.number,
+                  reviewers: reviewersToRequest,
+                  team_reviewers: teamsToRequest,
+                })
+                core.info('Requested default reviewers from repository variables.')
+              } catch (error) {
+                core.warning(`Failed to auto-request configured reviewers: ${error.message}`)
+              }
+            } else {
+              core.info('No default reviewers configured in repository variables.')
+            }
+
+            const refreshedPr = await github.rest.pulls.get({
+              owner,
+              repo,
+              pull_number: pr.number,
+            })
+            const finalRequestedCount =
+              (refreshedPr.data.requested_reviewers ?? []).length +
+              (refreshedPr.data.requested_teams ?? []).length
+
+            if (finalRequestedCount === 0) {
+              core.setFailed(
+                'No reviewers are requested. Request at least one reviewer manually or configure repository variables `DEFAULT_PR_REVIEWERS` and/or `DEFAULT_PR_REVIEWER_TEAMS`.',
+              )
+            }

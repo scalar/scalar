@@ -108,6 +108,17 @@ Here are all the prefixes you need to know:
 
 If your PR will cause a version bump for any package, you will need to include a [changeset](https://github.com/changesets/changesets/blob/main/docs/adding-a-changeset.md) by running `pnpm changeset`.
 
+If a PR touches `packages/*` or `integrations/*`, CI expects a changeset by default. In exceptional cases, maintainers can apply the `no-changeset-needed` label to bypass the check.
+
+### Reviewers
+
+PRs are expected to have at least one requested reviewer.
+
+The repository can auto-request reviewers using these repository variables:
+
+- `DEFAULT_PR_REVIEWERS` — comma-separated GitHub usernames
+- `DEFAULT_PR_REVIEWER_TEAMS` — comma-separated team slugs
+
 ## Styles and CSS Layers
 
 The Scalar packages use CSS cascade layers extensively to manage the priority of exported styles and to make it easy to override themes and component styles in projects consuming those packages.

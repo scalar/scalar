@@ -1,0 +1,114 @@
+name: PR Guardrails
+
+on:
+  pull_request_target:
+    types:
+      - opened
+      - edited
+      - reopened
+      - synchronize
+      - ready_for_review
+      - labeled
+      - unlabeled
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  pr-body:
+    name: Validate PR body
+    runs-on: blacksmith-2vcpu-ubuntu-2204
+    timeout-minutes: 15
+    steps:
+      - uses: actions/github-script@v8
+        with:
+          script: |
+            const pr = context.payload.pull_request
+            const body = pr.body ?? ''
+
+            const files = await github.paginate(github.rest.pulls.listFiles, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: pr.number,
+              per_page: 100,
+            })
+
+            const getSection = (heading) => {
+              const regex = new RegExp(`##\\s*${heading}\\s*\\n([\\s\\S]*?)(?=\\n##\\s|$)`, 'i')
+              const match = body.match(regex)
+              return match?.[1] ?? ''
+            }
+
+            const normalize = (value) =>
+              value
+                .replace(/<!--[\s\S]*?-->/g, '')
+                .replace(/\s+/g, ' ')
+                .trim()
+
+            const requiredSections = ['Problem', 'Solution', 'Reviewers']
+            const missingSections = requiredSections.filter(
+              (section) => normalize(getSection(section)).length === 0,
+            )
+
+            const errors = []
+            if (missingSections.length > 0) {
+              errors.push(
+                `Missing required PR section content: ${missingSections.join(', ')}.`,
+              )
+            }
+
+            const uiFilePattern = /\.(vue|tsx|jsx|css|scss|less|styl|html)$/
+            const hasUiChanges = files.some((file) => uiFilePattern.test(file.filename))
+
+            if (hasUiChanges) {
+              const uiEvidenceSection = normalize(getSection('UI Evidence'))
+              const hasVisualReference =
+                /!\[.*\]\(.*\)|<img\s|<video\s|https?:\/\/\S+\.(png|jpe?g|gif|webp|mp4|webm)/i.test(
+                  uiEvidenceSection,
+                )
+              const isNotApplicable = /^n\/?a$/i.test(uiEvidenceSection)
+
+              if (uiEvidenceSection.length === 0 || isNotApplicable || !hasVisualReference) {
+                errors.push(
+                  'UI-related file changes detected. Add screenshot and/or video links under `## UI Evidence`.',
+                )
+              }
+            }
+
+            if (errors.length > 0) {
+              core.setFailed(errors.join('\n'))
+            }
+
+  changeset:
+    name: Validate changeset
+    runs-on: blacksmith-2vcpu-ubuntu-2204
+    timeout-minutes: 15
+    steps:
+      - uses: actions/github-script@v8
+        with:
+          script: |
+            const pr = context.payload.pull_request
+            const labels = pr.labels.map((label) => label.name)
+            const skipChangesetLabels = ['no-changeset-needed', 'skip-changeset']
+
+            const files = await github.paginate(github.rest.pulls.listFiles, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: pr.number,
+              per_page: 100,
+            })
+
+            const touchesPublishablePackages = files.some((file) =>
+              /^(packages|integrations)\//.test(file.filename),
+            )
+            const hasChangeset = files.some((file) =>
+              /^\.changeset\/[^/]+\.md$/.test(file.filename),
+            )
+            const hasSkipLabel = labels.some((label) => skipChangesetLabels.includes(label))
+
+            if (touchesPublishablePackages && !hasChangeset && !hasSkipLabel) {
+              core.setFailed(
+                'Changes in `packages/*` or `integrations/*` require a changeset. Add one with `pnpm changeset` or apply `no-changeset-needed`.',
+              )
+            }

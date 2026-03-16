@@ -93,6 +93,21 @@ projects/           # Supporting projects (e.g. proxy-scalar-com)
 
 ## PR Requirements
 
+### Cursor agent PR completion contract
+
+Before an AI agent considers a PR complete, it must do all of the following:
+
+1. **Use a semantic PR title** in the format `type(scope): subject`.
+2. **Use the PR template** in `.github/pull_request_template.md` and fill in all required sections with useful, non-placeholder content.
+3. **Attach UI evidence** (screenshots and a short video link) in the PR description when UI behavior or styling changed.
+4. **Add a changeset** for publishable package changes (`packages/*` and `integrations/*`). Use a `patch` bump by default unless product requirements call for `minor` or `major`.
+5. **Ensure reviewers are requested**. If reviewers cannot be requested automatically, the agent must call this out explicitly in its final status message.
+
+Repository automation can request reviewers from repository variables:
+
+- `DEFAULT_PR_REVIEWERS` — comma-separated GitHub usernames.
+- `DEFAULT_PR_REVIEWER_TEAMS` — comma-separated team slugs.
+
 ### Semantic PR titles
 
 PR titles must follow `type(scope): subject`:
