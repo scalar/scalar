@@ -4,7 +4,6 @@
     // Allows a progressive adoption
     "examples/nestjs/**",
     "examples/nextjs-api-reference/**",
-    "examples/nuxt/**",
     "examples/react/**",
     "examples/react-webpack/**",
     "examples/ssg/**",
@@ -39,7 +38,8 @@
     // The following values needs to be re-checked once more packages are included
     "tsc-alias",
     "tsconfig-paths",
-    "vue-tsc"
+    "vue-tsc",
+    "typescript-language-server"
   ],
   "ignoreBinaries": ["netlify"],
   "ignoreIssues": {

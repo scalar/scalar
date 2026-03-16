@@ -1,5 +1,22 @@
 # @scalar/nuxt
 
+## 0.6.9
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-client@2.38.0**
+  - [#8444](https://github.com/scalar/scalar/pull/8444): feat: cache last response for an example
+  - [#8424](https://github.com/scalar/scalar/pull/8424): fix(api-client): persist oauth credentials location
+  - [#8428](https://github.com/scalar/scalar/pull/8428): fix: overflow issues for mac app version
+  - [#8447](https://github.com/scalar/scalar/pull/8447): fix: propagate schema to request body form-data table
+
+- **@scalar/api-reference@1.48.8**
+  - [#8425](https://github.com/scalar/scalar/pull/8425): fix auth default OAuth scope fallback
+  - [#8416](https://github.com/scalar/scalar/pull/8416): fix: direct css import breaks build in react, vitepress and others
+  - [#8417](https://github.com/scalar/scalar/pull/8417): fix: document not defined in SSR environments
+
 ## 0.6.8
 
 ### Patch Changes

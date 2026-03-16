@@ -4,8 +4,12 @@ import { CONTENT_TYPES } from '@scalar/helpers/consts/content-types'
 import { objectEntries } from '@scalar/helpers/object/object-entries'
 import type { ApiReferenceEvents } from '@scalar/workspace-store/events'
 import { unpackProxyObject } from '@scalar/workspace-store/helpers/unpack-proxy'
+import { resolve } from '@scalar/workspace-store/resolve'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
-import type { RequestBodyObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type {
+  RequestBodyObject,
+  SchemaObject,
+} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed } from 'vue'
 
 import { useFileDialog } from '@/hooks'
@@ -116,6 +120,13 @@ const bodyValue = computed(() => {
 
   return JSON.stringify(value, null, 2)
 })
+
+/** Resolved schema for the request body */
+const bodySchema = computed<SchemaObject | undefined>(() => {
+  return resolve.schema(
+    requestBody?.content?.[selectedContentType.value]?.schema,
+  )
+})
 </script>
 <template>
   <CollapsibleSection>
@@ -211,6 +222,7 @@ const bodyValue = computed(() => {
             selectedContentType === 'application/x-www-form-urlencoded'
           ">
           <RequestBodyForm
+            :bodySchema
             :environment
             :example
             :selectedContentType

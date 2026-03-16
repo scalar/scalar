@@ -12,6 +12,7 @@ import {
   ScalarColorModeToggleIcon,
   ScalarSidebarFooter,
 } from '@scalar/components'
+import { isLocalUrl } from '@scalar/helpers/url/is-local-url'
 import {
   createSidebarState,
   ScalarSidebar,
@@ -34,6 +35,7 @@ import type {
   TraversedEntry,
   TraversedTag,
 } from '@scalar/workspace-store/schemas/navigation'
+import { useScrollLock } from '@vueuse/core'
 import diff from 'microdiff'
 import {
   computed,
@@ -53,13 +55,6 @@ import {
   AgentScalarDrawer,
   OpenMCPButton,
 } from '@/components/AgentScalar'
-import { AGENT_CONTEXT_SYMBOL, useAgent } from '@/hooks/use-agent'
-
-import '@scalar/agent-chat/style.css'
-
-import { isLocalUrl } from '@scalar/helpers/url/is-local-url'
-import { useScrollLock } from '@vueuse/core'
-
 import ClassicHeader from '@/components/ClassicHeader.vue'
 import Content from '@/components/Content/Content.vue'
 import MobileHeader from '@/components/MobileHeader.vue'
@@ -68,7 +63,11 @@ import DocumentSelector from '@/features/multiple-documents/DocumentSelector.vue
 import SearchButton from '@/features/Search/components/SearchButton.vue'
 import { getSystemModePreference } from '@/helpers/color-mode'
 import { downloadDocument } from '@/helpers/download'
-import { getIdFromUrl, makeUrlFromId } from '@/helpers/id-routing'
+import {
+  getIdFromUrl,
+  makeUrlFromId,
+  matchesBasePath,
+} from '@/helpers/id-routing'
 import {
   scrollToLazy as _scrollToLazy,
   addToPriorityQueue,
@@ -85,6 +84,7 @@ import {
   normalizeConfigurations,
   type NormalizedConfiguration,
 } from '@/helpers/normalize-configurations'
+import { AGENT_CONTEXT_SYMBOL, useAgent } from '@/hooks/use-agent'
 import { useIntersection } from '@/hooks/use-intersection'
 import { createPluginManager, PLUGIN_MANAGER_SYMBOL } from '@/plugins'
 import { persistencePlugin } from '@/plugins/persistance-plugin'
@@ -202,9 +202,7 @@ if (typeof window !== 'undefined') {
 
   const initialId = getIdFromUrl(
     url,
-    basePaths.find(
-      (p) => p && url.pathname.startsWith(p.startsWith('/') ? p : `/${p}`),
-    ),
+    basePaths.find((p) => (p ? matchesBasePath(url, p) : false)),
     isMultiDocument.value ? undefined : activeSlug.value,
   )
   const documentSlug = initialId.split('/')[0]

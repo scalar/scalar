@@ -1,8 +1,8 @@
 ---
-description: Minimal starter skill for Cloud agents - run, test, and navigate the Scalar codebase
-globs: 
-alwaysApply: true
+name: cloud-agents-starter
+description: Minimal starter runbook for cloud agents to install dependencies, run packages, execute tests, and troubleshoot the Scalar monorepo quickly.
 ---
+
 # Cloud Agents Starter Skill - Scalar Codebase
 
 Practical setup and execution instructions for running and testing this codebase. Use this as the first reference when starting the app, running tests, or debugging workflows.
@@ -201,4 +201,4 @@ When you discover new testing tricks, runbook steps, or environment requirements
 4. **Keep it minimal** – only include what agents need to run and test quickly.
 5. **Cross-reference** – if a step depends on another (e.g. test-servers before package tests), state it clearly.
 
-Preferred location for this skill: `.cursor/rules/cloud-agents-starter-skill.mdc`.
+Preferred location for this skill: `.agents/skills/cloud-agents-starter/SKILL.md`.

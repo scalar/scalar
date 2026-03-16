@@ -33,6 +33,9 @@ const mockProps = {
 
 beforeEach(() => {
   vi.mock('@/helpers/lazy-bus', () => ({
+    getLazyPlaceholderHeight: () => undefined,
+    requestLazyRender: vi.fn(),
+    setLazyPlaceholderHeight: vi.fn(),
     useLazyBus: () => ({
       isReady: computed(() => true),
     }),

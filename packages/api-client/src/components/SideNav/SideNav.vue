@@ -47,8 +47,8 @@ const { activeWorkspace } = useActiveEntities()
           :active="
             Boolean(
               currentRoute.name === displayName.toLowerCase() ||
-                (displayName.toLowerCase() === 'environment' &&
-                  currentRoute.name === 'environment.collection'),
+              (displayName.toLowerCase() === 'environment' &&
+                currentRoute.name === 'environment.collection'),
             )
           "
           :icon="icon"

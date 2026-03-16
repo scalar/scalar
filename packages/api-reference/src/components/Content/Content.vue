@@ -15,7 +15,7 @@ import type {
   Workspace,
   WorkspaceDocument,
 } from '@scalar/workspace-store/schemas/workspace'
-import { computed } from 'vue'
+import { computed, onMounted } from 'vue'
 
 import { ClientSelector } from '@/blocks/scalar-client-selector-block'
 import { InfoBlock } from '@/blocks/scalar-info-block'
@@ -23,11 +23,13 @@ import { IntroductionCardItem } from '@/blocks/scalar-info-block/'
 import { ServerSelector } from '@/blocks/scalar-server-selector-block'
 import { Auth } from '@/components/Content/Auth'
 import TraversedEntry from '@/components/Content/Operations/TraversedEntry.vue'
-import Lazy from '@/components/Lazy/Lazy.vue'
 import { RenderPlugins } from '@/components/RenderPlugins'
 import { SectionFlare } from '@/components/SectionFlare'
 import { getXKeysFromObject } from '@/features/specification-extension'
-import { firstLazyLoadComplete } from '@/helpers/lazy-bus'
+import {
+  firstLazyLoadComplete,
+  scheduleInitialLoadComplete,
+} from '@/helpers/lazy-bus'
 
 const { document, items, environment, eventBus, options, authStore } =
   defineProps<{
@@ -93,6 +95,11 @@ const securitySchemes = computed(() =>
     document?.['x-scalar-navigation']?.name ?? '',
   ),
 )
+
+/** Ensures firstLazyLoadComplete is set for documents with no Lazy sections (e.g. no operations/tags/models). */
+onMounted(() => {
+  scheduleInitialLoadComplete()
+})
 </script>
 <template>
   <SectionFlare />
@@ -101,70 +108,65 @@ const securitySchemes = computed(() =>
     <slot name="start" />
 
     <!-- Introduction -->
-    <Lazy :id="infoSectionId">
-      <InfoBlock
-        :id="infoSectionId"
-        :documentDownloadType="options.documentDownloadType"
-        :documentExtensions
-        :documentUrl="document?.['x-scalar-original-source-url']"
-        :eventBus
-        :externalDocs="document?.externalDocs"
-        :headingSlugGenerator
-        :info="document?.info"
-        :infoExtensions
-        :layout="options.layout"
-        :oasVersion="document?.['x-original-oas-version']">
-        <template #selectors>
-          <!-- Server Selector -->
-          <ScalarErrorBoundary>
-            <IntroductionCardItem
-              v-if="servers?.length"
-              class="scalar-reference-intro-server scalar-client introduction-card-item text-base leading-normal [--scalar-address-bar-height:0px]">
-              <ServerSelector
-                :eventBus
-                :selectedServer
-                :servers />
-            </IntroductionCardItem>
-          </ScalarErrorBoundary>
 
-          <!-- Auth selector -->
-          <ScalarErrorBoundary>
-            <IntroductionCardItem
-              v-if="document && !options.hideTestRequestButton"
-              class="scalar-reference-intro-auth scalar-client introduction-card-item leading-normal">
-              <Auth
-                :authStore
-                :document
-                :environment
-                :eventBus
-                :options
-                :securitySchemes
-                :selectedServer />
-            </IntroductionCardItem>
-          </ScalarErrorBoundary>
+    <InfoBlock
+      :id="infoSectionId"
+      :documentDownloadType="options.documentDownloadType"
+      :documentExtensions
+      :documentUrl="document?.['x-scalar-original-source-url']"
+      :eventBus
+      :externalDocs="document?.externalDocs"
+      :headingSlugGenerator
+      :info="document?.info"
+      :infoExtensions
+      :layout="options.layout"
+      :oasVersion="document?.['x-original-oas-version']">
+      <template #selectors>
+        <!-- Server Selector -->
+        <ScalarErrorBoundary>
+          <IntroductionCardItem
+            v-if="servers?.length"
+            class="scalar-reference-intro-server scalar-client introduction-card-item text-base leading-normal [--scalar-address-bar-height:0px]">
+            <ServerSelector
+              :eventBus
+              :selectedServer
+              :servers />
+          </IntroductionCardItem>
+        </ScalarErrorBoundary>
 
-          <!-- Client selector -->
-          <ScalarErrorBoundary>
-            <IntroductionCardItem
-              v-if="clientOptions.length"
-              class="introduction-card-item scalar-reference-intro-clients">
-              <ClientSelector
-                class="introduction-card-item scalar-reference-intro-clients"
-                :clientOptions
-                :eventBus
-                :selectedClient="xScalarDefaultClient"
-                :xScalarSdkInstallation="
-                  document?.info?.['x-scalar-sdk-installation']
-                " />
-            </IntroductionCardItem>
-          </ScalarErrorBoundary>
-        </template>
-      </InfoBlock>
+        <!-- Auth selector -->
+        <ScalarErrorBoundary>
+          <IntroductionCardItem
+            v-if="document && !options.hideTestRequestButton"
+            class="scalar-reference-intro-auth scalar-client introduction-card-item leading-normal">
+            <Auth
+              :authStore
+              :document
+              :environment
+              :eventBus
+              :options
+              :securitySchemes
+              :selectedServer />
+          </IntroductionCardItem>
+        </ScalarErrorBoundary>
 
-      <template #empty-state>
-        <slot name="empty-state" />
+        <!-- Client selector -->
+        <ScalarErrorBoundary>
+          <IntroductionCardItem
+            v-if="clientOptions.length"
+            class="introduction-card-item scalar-reference-intro-clients">
+            <ClientSelector
+              class="introduction-card-item scalar-reference-intro-clients"
+              :clientOptions
+              :eventBus
+              :selectedClient="xScalarDefaultClient"
+              :xScalarSdkInstallation="
+                document?.info?.['x-scalar-sdk-installation']
+              " />
+          </IntroductionCardItem>
+        </ScalarErrorBoundary>
       </template>
-    </Lazy>
+    </InfoBlock>
 
     <!-- Render traversed operations and webhooks -->
     <!-- Use recursive component for cleaner rendering -->

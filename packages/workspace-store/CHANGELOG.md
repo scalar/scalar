@@ -1,5 +1,12 @@
 # @scalar/workspace-store
 
+## 0.40.1
+
+### Patch Changes
+
+- [#8424](https://github.com/scalar/scalar/pull/8424): feat: export XScalarCredentialsLocation
+- [#8445](https://github.com/scalar/scalar/pull/8445): fix: generate unique id for models
+
 ## 0.40.0
 
 ### Minor Changes

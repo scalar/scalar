@@ -16,10 +16,9 @@ import { onMounted } from 'vue'
 
 import { ScalarFormInput } from '../ScalarForm'
 
-const model = defineModel<string>()
+const model = defineModel<string>({ default: '' })
 
 const { textarea } = useTextareaAutosize({
-  // @ts-expect-error - unexpected type mismatch
   input: model,
   styleProp: 'minHeight',
 })

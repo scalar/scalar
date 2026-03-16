@@ -1,5 +1,17 @@
 # @scalar/api-client-react
 
+## 1.4.9
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-client@2.38.0**
+  - [#8444](https://github.com/scalar/scalar/pull/8444): feat: cache last response for an example
+  - [#8424](https://github.com/scalar/scalar/pull/8424): fix(api-client): persist oauth credentials location
+  - [#8428](https://github.com/scalar/scalar/pull/8428): fix: overflow issues for mac app version
+  - [#8447](https://github.com/scalar/scalar/pull/8447): fix: propagate schema to request body form-data table
+
 ## 1.4.8
 
 ### Patch Changes

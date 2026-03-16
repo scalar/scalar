@@ -32,3 +32,4 @@ rollup.config-*.mjs
 .venv
 
 .idea
+**/.claude/settings.local.json

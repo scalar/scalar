@@ -118,6 +118,19 @@ const displayDescription = computed(() =>
   shouldDisplayDescription(optimizedValue.value, props.description),
 )
 
+/**
+ * When the property already renders the description, avoid repeating it in the nested object schema card.
+ */
+const objectSchemaForChildren = computed(() => {
+  const value = optimizedValue.value
+  if (!value || !displayDescription.value || !('description' in value)) {
+    return value
+  }
+
+  const { description: _description, ...schemaWithoutDescription } = value
+  return schemaWithoutDescription as SchemaObject
+})
+
 /** Determine if property heading should be displayed */
 const shouldDisplayHeadingComputed = computed(() =>
   shouldDisplayHeading(optimizedValue.value, props.name, props.required),
@@ -227,7 +240,7 @@ const isDiscriminatorProperty = computed(() =>
         :name="name"
         :noncollapsible="noncollapsible"
         :options="options"
-        :schema="optimizedValue" />
+        :schema="objectSchemaForChildren" />
     </div>
 
     <!-- Array of objects or nested arrays -->
