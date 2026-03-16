@@ -5,7 +5,7 @@ pre-commit:
       run: pnpm script packages format; git add \*package.json pnpm-lock.yaml;
     oxfmt:
       glob: '*.{js,ts,jsx,tsx,vue,md,json,css,scss,html,yml,yaml}'
-      run: 'pnpm oxfmt --no-error-on-unmatched-pattern'
+      run: 'pnpm oxfmt --no-error-on-unmatched-pattern {staged_files}'
       stage_fixed: true
     biome:
       glob: '*.{js,ts,cjs,mjs,d.ts,d.cts,d.mts,jsx,tsx,json,jsonc,vue,svelte,astro}'
