@@ -55,6 +55,7 @@
     "integrations/nuxt/src/runtime/plugins/hydrateClient.d.mts",
     "packages/components/storybook-static/**/*",
     "packages/openapi-parser/tests/**/*.yaml",
+    "documentation/guides/docs/**/*.md",
   ],
   "overrides": [
     {
