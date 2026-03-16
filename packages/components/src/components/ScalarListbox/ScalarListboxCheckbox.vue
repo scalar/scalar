@@ -10,7 +10,7 @@ defineProps<{
   <div
     class="flex size-4 items-center justify-center p-0.75"
     :class="[
-      selected ? 'bg-c-accent text-b-1' : 'text-transparent shadow-border',
+      selected ? 'bg-c-accent text-b-1' : 'shadow-border text-transparent',
       multiselect ? 'rounded' : 'rounded-full',
     ]">
     <ScalarIconCheck

@@ -91,10 +91,10 @@ const { cx } = useBindCx()
     ">
     <div
       tabindex="0"
-      class="custom-scroll overflow-x-auto p-2 -outline-offset-2 min-h-0 min-w-0 flex-1">
+      class="custom-scroll min-h-0 min-w-0 flex-1 overflow-x-auto p-2 -outline-offset-2">
       <pre
         :id="id"
-        class="m-0 bg-transparent text-nowrap whitespace-pre w-fit"
+        class="m-0 w-fit bg-transparent text-nowrap whitespace-pre"
         v-html="highlightedCode" />
     </div>
     <ScalarCodeBlockCopy
@@ -102,7 +102,7 @@ const { cx } = useBindCx()
       class="scalar-code-copy absolute"
       :class="[
         isOneLine
-          ? 'top-[calc(10px+0.5lh)] -translate-y-1/2 m-0 right-1'
+          ? 'top-[calc(10px+0.5lh)] right-1 m-0 -translate-y-1/2'
           : 'top-2.5 right-2.5',
         { 'opacity-100': copy === 'always' },
       ]"
@@ -115,8 +115,8 @@ const { cx } = useBindCx()
           class="scalar-code-copy-backdrop"
           :class="[
             isOneLine
-              ? '-inset-y-0.75 -right-1 group-hocus-within/code-block:-left-0.5 left-3'
-              : '-right-1.5 -top-1',
+              ? 'group-hocus-within/code-block:-left-0.5 -inset-y-0.75 -right-1 left-3'
+              : '-top-1 -right-1.5',
           ]" />
       </template>
     </ScalarCodeBlockCopy>

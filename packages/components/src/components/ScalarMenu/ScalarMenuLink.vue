@@ -25,7 +25,7 @@ defineOptions({ inheritAttrs: false })
       v-if="icon"
       :class="[
         strong ? 'text-c-1' : 'text-c-2',
-        typeof icon === 'string' ? 'size-3' : 'size-3.5 -mx-0.25',
+        typeof icon === 'string' ? 'size-3' : '-mx-0.25 size-3.5',
       ]"
       :icon="icon"
       :thickness="strong ? '2.5' : '2'"
@@ -34,7 +34,7 @@ defineOptions({ inheritAttrs: false })
       v-else
       class="size-3" />
     <div
-      class="flex items-center flex-1 min-w-0 truncate"
+      class="flex min-w-0 flex-1 items-center truncate"
       :class="strong ? 'font-medium' : 'font-normal'">
       <slot />
     </div>

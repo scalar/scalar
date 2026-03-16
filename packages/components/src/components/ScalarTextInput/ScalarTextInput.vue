@@ -66,10 +66,10 @@ function handleClick(event: MouseEvent) {
       )
     "
     @click="handleClick">
-    <div class="flex items-center flex-1 relative">
+    <div class="relative flex flex-1 items-center">
       <div
         v-if="$slots.prefix"
-        class="select-none whitespace-nowrap text-transparent">
+        class="whitespace-nowrap text-transparent select-none">
         <slot name="prefix" />
       </div>
       <input
@@ -81,7 +81,7 @@ function handleClick(event: MouseEvent) {
         v-bind="otherAttrs" />
       <div
         v-if="$slots.prefix || $slots.suffix"
-        class="absolute flex items-center inset-0 select-none overflow-hidden whitespace-nowrap">
+        class="absolute inset-0 flex items-center overflow-hidden whitespace-nowrap select-none">
         <span
           v-if="$slots.prefix"
           class="text-c-2">

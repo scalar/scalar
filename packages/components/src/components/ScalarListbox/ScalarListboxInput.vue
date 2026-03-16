@@ -20,9 +20,9 @@ defineProps<{ open?: boolean }>()
 </script>
 <template>
   <ScalarFormInput>
-    <div class="flex-1 text-left min-w-0 truncate"><slot /></div>
+    <div class="min-w-0 flex-1 truncate text-left"><slot /></div>
     <ScalarIconCaretDown
-      class="transition-transform size-3.5"
+      class="size-3.5 transition-transform"
       :class="{ 'rotate-180': open }" />
   </ScalarFormInput>
 </template>

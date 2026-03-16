@@ -102,7 +102,7 @@ const handleToggle = (event: MouseEvent) => {
           @click="handleClick">
           <template #indent>
             <ScalarSidebarIndent
-              class="mr-0 -my-2"
+              class="-my-2 mr-0"
               :indent="level"
               :selected />
           </template>
@@ -136,7 +136,7 @@ const handleToggle = (event: MouseEvent) => {
         <button
           v-if="discrete"
           :aria-expanded="open"
-          class="absolute top-[1lh] -translate-y-1/2 p-0.75 rounded right-1.25 text-sidebar-c-2"
+          class="text-sidebar-c-2 absolute top-[1lh] right-1.25 -translate-y-1/2 rounded p-0.75"
           :class="
             selected
               ? 'hover:bg-sidebar-b-1 hover:text-sidebar-c-1'

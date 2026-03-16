@@ -26,7 +26,7 @@ const { cx } = useBindCx()
     <!-- Icon -->
     <div
       v-if="icon"
-      class="flex h-fit items-center text-sm font-medium text-c-3 group-hover:text-c-1">
+      class="text-c-3 group-hover:text-c-1 flex h-fit items-center text-sm font-medium">
       <slot name="icon">
         <ScalarIconLegacyAdapter
           v-if="icon"
@@ -39,18 +39,18 @@ const { cx } = useBindCx()
     <div class="flex min-w-0 flex-1 flex-col gap-0.5">
       <div class="flex items-center gap-1">
         <div
-          class="flex-1 truncate zoomed:whitespace-normal! wrap-break-word font-medium">
+          class="zoomed:whitespace-normal! flex-1 truncate font-medium wrap-break-word">
           <slot />
         </div>
         <div
           v-if="$slots.addon"
-          class="text-base text-c-2">
+          class="text-c-2 text-base">
           <slot name="addon" />
         </div>
       </div>
       <div
         v-if="$slots.description"
-        class="truncate zoomed:whitespace-normal! wrap-break-word text-c-2">
+        class="zoomed:whitespace-normal! text-c-2 truncate wrap-break-word">
         <slot name="description" />
       </div>
     </div>

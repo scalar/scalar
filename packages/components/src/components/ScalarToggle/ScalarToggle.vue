@@ -32,7 +32,7 @@ const variants = cva({
     type="button"
     @click="toggle">
     <div
-      class="absolute left-px top-px flex h-3 w-3 items-center justify-center rounded-full bg-b-1 text-c-accent transition-transform duration-300"
+      class="bg-b-1 text-c-accent absolute top-px left-px flex h-3 w-3 items-center justify-center rounded-full transition-transform duration-300"
       :class="{ 'translate-x-2.5': model }" />
     <span
       v-if="label"

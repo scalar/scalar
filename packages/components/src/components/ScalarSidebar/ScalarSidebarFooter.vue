@@ -39,7 +39,7 @@ const { cx } = useBindCx()
   <div v-bind="cx('flex flex-col gap-3 p-3 pt-0 border-sidebar-border')">
     <slot />
     <div class="flex items-center">
-      <div class="flex-1 min-w-0 flex items-center text-sm text-sidebar-c-2">
+      <div class="text-sidebar-c-2 flex min-w-0 flex-1 items-center text-sm">
         <slot name="description">
           <a
             class="no-underline hover:underline"

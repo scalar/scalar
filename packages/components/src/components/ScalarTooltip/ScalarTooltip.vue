@@ -53,12 +53,12 @@ useTooltip({
 
   padding: calc(var(--scalar-tooltip-padding) + var(--scalar-tooltip-offset));
 
-  @apply z-tooltip text-c-tooltip text-xs/4 font-medium break-words max-w-xs;
+  @apply z-tooltip text-c-tooltip max-w-xs text-xs/4 font-medium break-words;
 }
 :where(body) > .scalar-tooltip:before {
   content: '';
   inset: var(--scalar-tooltip-offset);
-  @apply absolute rounded bg-b-tooltip -z-1 backdrop-blur;
+  @apply bg-b-tooltip absolute -z-1 rounded backdrop-blur;
 }
 :where(body.dark-mode) > .scalar-tooltip:before {
   @apply shadow-border;

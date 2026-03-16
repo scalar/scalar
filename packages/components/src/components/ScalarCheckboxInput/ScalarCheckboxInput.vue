@@ -37,7 +37,7 @@ const { stylingAttrsCx, otherAttrs } = useBindCx()
       class="shrink-0"
       :selected="model"
       :type />
-    <div class="flex-1 text-left min-w-0 truncate"><slot /></div>
+    <div class="min-w-0 flex-1 truncate text-left"><slot /></div>
     <input
       v-model="model"
       class="sr-only"

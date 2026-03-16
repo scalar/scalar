@@ -49,7 +49,7 @@ defineOptions({ inheritAttrs: false })
       v-bind="$attrs">
       <div>Change team</div>
       <ScalarIconCaretRight
-        class="ml-auto text-c-2 -mr-0.25 size-3"
+        class="text-c-2 -mr-0.25 ml-auto size-3"
         weight="bold" />
     </ScalarMenuLink>
     <DropdownMenu.Portal>
@@ -67,7 +67,7 @@ defineOptions({ inheritAttrs: false })
             class="group/item flex items-center"
             :value="t.id">
             <ScalarMenuTeamProfile
-              class="-ml-0.75 flex-1 min-w-0"
+              class="-ml-0.75 min-w-0 flex-1"
               :label="t.label"
               :src="t.src" />
             <ScalarListboxCheckbox
@@ -80,7 +80,7 @@ defineOptions({ inheritAttrs: false })
           class="flex items-center"
           @click="emit('add')">
           <ScalarIconPlus
-            class="bg-b-3 -ml-0.75 rounded p-1 size-5 text-c-3"
+            class="bg-b-3 text-c-3 -ml-0.75 size-5 rounded p-1"
             weight="bold" />
           Create new team
         </DropdownMenu.Item>

@@ -48,7 +48,7 @@ const { cx } = useBindCx()
     <template
       v-if="lang"
       #copy>
-      <span class="hidden group-hocus-within/code-block:inline">
+      <span class="group-hocus-within/code-block:inline hidden">
         <span
           v-if="showLang"
           class="group-hocus/copy-button:sr-only"

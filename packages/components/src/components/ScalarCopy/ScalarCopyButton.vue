@@ -65,16 +65,16 @@ const icon = computed<ScalarIconComponent>(() => {
         :is="icon"
         class="size-full" />
     </Transition>
-    <div class="bg-inherit rounded-[inherit] absolute inset-0 -z-1" />
+    <div class="absolute inset-0 -z-1 rounded-[inherit] bg-inherit" />
     <div
-      class="group/copy-label absolute flex items-center -inset-y-0.5 rounded"
+      class="group/copy-label absolute -inset-y-0.5 flex items-center rounded"
       :class="{
         'left-0 pl-[100%]': placement === 'right',
         'right-0 pr-[100%]': placement === 'left',
       }">
       <div
         aria-hidden="true"
-        class="flex items-center py-1.5 mask-y-from-[calc(100%-8px)] mask-y-to-100%">
+        class="flex items-center mask-y-from-[calc(100%-8px)] mask-y-to-100% py-1.5">
         <Transition
           enterActiveClass="transition-transform ease-out"
           enterFromClass="translate-y-1.5"
@@ -85,12 +85,12 @@ const icon = computed<ScalarIconComponent>(() => {
           mode="out-in">
           <div
             v-if="copied"
-            class="whitespace-nowrap px-1.5">
+            class="px-1.5 whitespace-nowrap">
             <slot name="copied">Copied</slot>
           </div>
           <div
             v-else
-            class="whitespace-nowrap px-1.5"
+            class="px-1.5 whitespace-nowrap"
             :class="{
               'group-hocus/copy-button:block hidden': !showLabel && !copied,
             }">

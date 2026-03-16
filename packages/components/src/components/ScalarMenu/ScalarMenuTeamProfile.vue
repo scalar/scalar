@@ -20,7 +20,7 @@ const { cx } = useBindCx()
     <div
       v-else
       aria-hidden="true"
-      class="flex items-center justify-center text-3xs font-medium text-c-3 size-5 bg-b-3 rounded">
+      class="text-3xs text-c-3 bg-b-3 flex size-5 items-center justify-center rounded font-medium">
       <template v-if="label && label.length > 0">
         {{ label[0] }}
       </template>

@@ -91,9 +91,9 @@ export function useModal() {
       :class="
         cx(
           size === 'full' ? 'scalar-modal-layout-full' : 'scalar-modal-layout',
-          'fixed left-0 top-0 flex items-start justify-center',
+          'fixed top-0 left-0 flex items-start justify-center',
           'z-overlay h-dvh w-dvw',
-          'bg-backdrop opacity-0 dark:bg-backdrop-dark',
+          'bg-backdrop dark:bg-backdrop-dark opacity-0',
           size === 'full' && 'flex',
         )
       ">
@@ -102,7 +102,7 @@ export function useModal() {
         :style="{ maxWidth }">
         <DialogTitle
           v-if="title"
-          class="scalar-modal-header m-0 -mb-1 rounded-lg pt-3 px-3 text-left text-sm font-medium text-c-1">
+          class="scalar-modal-header text-c-1 m-0 -mb-1 rounded-lg px-3 pt-3 text-left text-sm font-medium">
           {{ title }}
         </DialogTitle>
         <div
@@ -118,7 +118,7 @@ export function useModal() {
       </DialogPanel>
       <div
         v-if="size === 'full'"
-        class="close-button z-10 fixed right-2 top-2">
+        class="close-button fixed top-2 right-2 z-10">
         <ScalarIconButton
           class="hover:bg-b-3 focus:outline-none"
           :icon="ScalarIconX"

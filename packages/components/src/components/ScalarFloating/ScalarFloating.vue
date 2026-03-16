@@ -121,7 +121,7 @@ defineExpose({
     :to="typeof teleport === 'string' ? teleport : undefined">
     <div
       ref="floatingRef"
-      class="relative z-context"
+      class="z-context relative"
       :style="floatingStyles">
       <slot
         :data="middlewareData"

@@ -17,7 +17,7 @@ const { cx } = useBindCx()
       name="noResults">
       <div class="flex flex-col items-center gap-2 px-3 py-4">
         <div
-          class="text-base font-medium text-c-2"
+          class="text-c-2 text-base font-medium"
           role="alert">
           No results found
         </div>

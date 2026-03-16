@@ -19,11 +19,11 @@ onErrorCaptured((err, _, info) => {
   <slot v-if="!hasError" />
   <div
     v-else
-    class="rounded border bg-b-2 p-3 text-sm">
+    class="bg-b-2 rounded border p-3 text-sm">
     <div class="p-2">Oops, something went wrong here.</div>
     <div
       v-if="error"
-      class="mt-2 rounded border bg-b-1 p-2 font-code text-c-2">
+      class="bg-b-1 font-code text-c-2 mt-2 rounded border p-2">
       {{ error?.name }}: {{ error?.message }}
     </div>
   </div>

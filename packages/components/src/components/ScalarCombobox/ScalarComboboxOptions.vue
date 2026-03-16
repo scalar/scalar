@@ -179,14 +179,14 @@ onMounted(() => setTimeout(() => input.value?.focus(), 0))
 <template>
   <div class="relative flex">
     <ScalarIconMagnifyingGlass
-      class="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-c-3 size-4" />
+      class="text-c-3 pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2" />
     <input
       ref="input"
       v-model="query"
       :aria-activedescendant="activeRef ? getOptionId(activeRef) : undefined"
       aria-autocomplete="list"
       :aria-controls="id"
-      class="min-w-0 flex-1 rounded border-0 py-2.5 pl-8 pr-3 leading-none text-c-1 -outline-offset-1"
+      class="text-c-1 min-w-0 flex-1 rounded border-0 py-2.5 pr-3 pl-8 leading-none -outline-offset-1"
       data-1p-ignore
       :placeholder="placeholder"
       role="combobox"
@@ -200,7 +200,7 @@ onMounted(() => setTimeout(() => input.value?.focus(), 0))
     v-show="filtered.length || slots.add"
     :id="id"
     :aria-multiselectable="multiselect"
-    class="border-t p-0.75 custom-scroll overscroll-contain flex-1 min-h-0"
+    class="custom-scroll min-h-0 flex-1 overscroll-contain border-t p-0.75"
     role="listbox"
     tabindex="-1">
     <ComboboxOptionGroup
@@ -244,7 +244,7 @@ onMounted(() => setTimeout(() => input.value?.focus(), 0))
             <ScalarListboxCheckbox
               :multiselect
               :selected="model.some((o) => o.id === option.id)" />
-            <span class="inline-block min-w-0 flex-1 truncate text-c-1">
+            <span class="text-c-1 inline-block min-w-0 flex-1 truncate">
               {{ option.label }}
             </span>
           </template>

@@ -20,7 +20,7 @@ const selected = ref('')
 const copied = ref(false)
 </script>
 <template>
-  <div class="flex flex-col divide-y rounded border bg-b-1">
+  <div class="bg-b-1 flex flex-col divide-y rounded border">
     <div class="flex flex-wrap gap-2 p-0.5">
       <ScalarIconButton
         v-for="icon in ICONS"
@@ -33,7 +33,7 @@ const copied = ref(false)
         @click="copyToClipboard(icon)"
         @mouseenter="selected = icon" />
     </div>
-    <div class="flex justify-between p-2 text-xs text-c-2">
+    <div class="text-c-2 flex justify-between p-2 text-xs">
       <span v-if="copied">Copied to clipboard!</span>
       <span v-else>Select an icon to copy</span>
       <code class="font-code">

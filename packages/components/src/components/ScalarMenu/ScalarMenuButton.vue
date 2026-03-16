@@ -20,7 +20,7 @@ defineSlots<ScalarMenuButtonSlots>()
       <slot name="label">{{ open ? 'Close Menu' : 'Open Menu' }}</slot>
     </span>
     <ScalarIconCaretDown
-      class="shrink-0 text-c-3 group-hover/button:text-c-1 size-3.5"
+      class="text-c-3 group-hover/button:text-c-1 size-3.5 shrink-0"
       :class="open ? 'rotate-180' : ''"
       weight="bold" />
   </ScalarHeaderButton>

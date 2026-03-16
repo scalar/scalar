@@ -28,7 +28,7 @@ const { type = 'checkbox' } = defineProps<{
   <div
     class="flex size-4 items-center justify-center p-0.75"
     :class="[
-      selected ? 'bg-c-accent text-b-1' : 'text-transparent shadow-border',
+      selected ? 'bg-c-accent text-b-1' : 'shadow-border text-transparent',
       type === 'checkbox' ? 'rounded' : 'rounded-full',
     ]">
     <ScalarIconCheck

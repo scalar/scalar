@@ -103,7 +103,7 @@ defineSlots<{
   'sidebar-start'?(): { breadcrumb: string }
   'sidebar-end'?(): { breadcrumb: string }
   'editor-placeholder'?(): { breadcrumb: string }
-  footer?(): { breadcrumb: string }
+  'footer'?(): { breadcrumb: string }
 }>()
 
 const { mediaQueries } = useBreakpoints()

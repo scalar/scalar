@@ -37,10 +37,10 @@ const model = defineModel<boolean>()
     @click="model = !model">
     <!-- Background -->
     <div
-      class="h-3 w-full bg-border mx-px rounded-xl group-focus-visible/toggle:outline -outline-offset-1" />
+      class="bg-border mx-px h-3 w-full rounded-xl -outline-offset-1 group-focus-visible/toggle:outline" />
     <!-- Slider -->
     <div
-      class="size-[23px] left-border absolute border rounded-full flex items-center justify-center bg-b-1 group-focus-visible/toggle:outline -outline-offset-1 transition-transform duration-300 ease-in-out"
+      class="left-border bg-b-1 absolute flex size-[23px] items-center justify-center rounded-full border -outline-offset-1 transition-transform duration-300 ease-in-out group-focus-visible/toggle:outline"
       :class="{ 'translate-x-[14px]': model }">
       <!-- Icon -->
       <ScalarColorModeToggleIcon

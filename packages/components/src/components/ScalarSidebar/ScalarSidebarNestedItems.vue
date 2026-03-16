@@ -134,7 +134,7 @@ const handleBack = (event: MouseEvent) => {
         <slot />
         <template #aside>
           <slot name="aside">
-            <ScalarIconArrowRight class="size-4 text-sidebar-c-2" />
+            <ScalarIconArrowRight class="text-sidebar-c-2 size-4" />
           </slot>
         </template>
       </ScalarSidebarButton>
@@ -156,7 +156,7 @@ const handleBack = (event: MouseEvent) => {
               class="text-sidebar-c-1 font-sidebar-active hover:text-sidebar-c-1"
               @click="handleBack">
               <template #icon>
-                <ScalarIconCaretLeft class="size-4 -m-px text-sidebar-c-2" />
+                <ScalarIconCaretLeft class="text-sidebar-c-2 -m-px size-4" />
               </template>
               <slot name="back-label">Back</slot>
             </ScalarSidebarButton>
