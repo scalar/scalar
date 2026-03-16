@@ -63,6 +63,61 @@ describe('buildRequestBody', () => {
     expect(formData.get('email')).toBe('test@example.com')
   })
 
+  it('applies encoding.contentType to multipart string parts', () => {
+    const requestBody = {
+      content: {
+        'multipart/form-data': {
+          encoding: {
+            user: {
+              contentType: 'application/json;charset=utf-8',
+            },
+          },
+          examples: {
+            default: {
+              value: [{ name: 'user', value: '{"name":"{{username}}"}' }],
+            },
+          },
+        },
+      },
+    }
+
+    const result = buildRequestBody(requestBody, { username: 'scalar' }, 'default')
+
+    expect(result).toBeInstanceOf(FormData)
+    const value = (result as FormData).get('user')
+    expect(value).toBeInstanceOf(File)
+    expect((value as File).type).toBe('application/json;charset=utf-8')
+  })
+
+  it('applies encoding.contentType overrides to multipart files', () => {
+    const mockFile = new File(['file content'], 'test.txt', { type: 'text/plain', lastModified: 123 })
+    const requestBody = {
+      content: {
+        'multipart/form-data': {
+          encoding: {
+            file: {
+              contentType: 'application/json',
+            },
+          },
+          examples: {
+            default: {
+              value: [{ name: 'file', value: mockFile }],
+            },
+          },
+        },
+      },
+    }
+
+    const result = buildRequestBody(requestBody, {}, 'default')
+
+    expect(result).toBeInstanceOf(FormData)
+    const value = (result as FormData).get('file')
+    expect(value).toBeInstanceOf(File)
+    expect((value as File).name).toBe('test.txt')
+    expect((value as File).type).toBe('application/json')
+    expect((value as File).lastModified).toBe(123)
+  })
+
   it('builds URLSearchParams for application/x-www-form-urlencoded content type', () => {
     const requestBody = {
       content: {

@@ -5,6 +5,26 @@ import type { RequestBodyObject } from '@scalar/workspace-store/schemas/v3.1/str
 import { getSelectedBodyContentType } from '@/v2/blocks/operation-block/helpers/get-selected-body-content-type'
 import { getExampleFromBody } from '@/v2/blocks/request-block/helpers/get-request-body-example'
 
+const getMultipartEncodingContentType = (
+  requestBody: RequestBodyObject,
+  bodyContentType: string,
+  fieldName: string,
+  replacedFieldName: string,
+) =>
+  requestBody.content[bodyContentType]?.encoding?.[fieldName]?.contentType ??
+  requestBody.content[bodyContentType]?.encoding?.[replacedFieldName]?.contentType
+
+const serializeMultipartValue = (value: unknown, env: Record<string, string>) => {
+  if (typeof value === 'string') {
+    return replaceEnvVariables(value, env)
+  }
+
+  const serializedValue =
+    typeof value === 'object' && value !== null ? JSON.stringify(unpackProxyObject(value)) : String(value)
+
+  return replaceEnvVariables(serializedValue, env)
+}
+
 /**
  * Create the fetch request body
  */
@@ -36,7 +56,7 @@ export const buildRequestBody = (
     (bodyContentType === 'multipart/form-data' || bodyContentType === 'application/x-www-form-urlencoded') &&
     Array.isArray(example.value)
   ) {
-    const exampleValue = example.value.filter((item) => !item.isDisabled) as { name: string; value: string | File }[]
+    const exampleValue = example.value.filter((item) => !item.isDisabled) as { name: string; value: unknown }[]
     const form = bodyContentType === 'multipart/form-data' ? new FormData() : new URLSearchParams()
 
     // Loop over all entries and add them to the form
@@ -45,6 +65,10 @@ export const buildRequestBody = (
         return
       }
       const replacedName = replaceEnvVariables(name, env)
+      const partContentType =
+        form instanceof FormData
+          ? getMultipartEncodingContentType(requestBody, bodyContentType, name, replacedName)
+          : undefined
 
       // Handle file uploads
       if (value instanceof File && form instanceof FormData) {
@@ -53,11 +77,25 @@ export const buildRequestBody = (
          * "this" context in the proxy causing an illegal invocation error
          */
         const unwrappedValue = unpackProxyObject(value)
-        form.append(replacedName, unwrappedValue, unwrappedValue.name)
+        const encodedValue =
+          partContentType && partContentType !== unwrappedValue.type
+            ? new File([unwrappedValue], unwrappedValue.name, {
+                type: partContentType,
+                lastModified: unwrappedValue.lastModified,
+              })
+            : unwrappedValue
+
+        form.append(replacedName, encodedValue, encodedValue.name)
       }
-      // Text input
-      else if (typeof value === 'string') {
-        form.append(replacedName, replaceEnvVariables(value, env))
+      // Text and structured inputs
+      else if (value !== undefined && value !== null) {
+        const serializedValue = serializeMultipartValue(value, env)
+
+        if (form instanceof FormData && partContentType) {
+          form.append(replacedName, new Blob([serializedValue], { type: partContentType }))
+        } else {
+          form.append(replacedName, serializedValue)
+        }
       }
     })
 
