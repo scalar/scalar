@@ -7,6 +7,7 @@ import { useAgentContext } from '@/hooks/use-agent'
 const agentContext = useAgentContext()
 
 const message = ref('')
+const inputRef = ref<HTMLInputElement>()
 
 function handleSubmit() {
   agentContext.value?.openAgent(message.value)
@@ -14,27 +15,28 @@ function handleSubmit() {
 }
 </script>
 <template>
-  <div
+  <form
     v-if="agentContext?.agentEnabled.value"
-    class="agent-button-container flex">
+    class="agent-button-container flex"
+    @click="inputRef?.focus()"
+    @submit.prevent="handleSubmit()">
     <ScalarIconSparkle
       class="size-3 shrink-0"
       weight="fill" />
     <input
+      ref="inputRef"
       v-model="message"
       class="ask-agent-scalar-input"
       :class="{ 'ask-agent-scalar-input-not-empty': message.length > 0 }"
-      placeholder="Ask AI Agent"
-      @keydown.enter.stop="handleSubmit()" />
+      placeholder="Ask AI Agent" />
     <button
       class="ask-agent-scalar-send"
-      type="button"
-      @click="handleSubmit()">
+      type="submit">
       <ScalarIconArrowUp
         class="size-3"
         weight="bold" />
     </button>
-  </div>
+  </form>
 </template>
 <style scoped>
 .ask-agent-scalar-input {
@@ -82,6 +84,7 @@ function handleSubmit() {
   background: color-mix(in srgb, var(--scalar-background-3), white 15%);
   display: flex;
   align-items: center;
+  cursor: pointer;
   padding: 1px 6px;
   margin-right: 4px;
   border-radius: var(--scalar-radius);
