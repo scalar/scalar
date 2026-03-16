@@ -18,7 +18,8 @@
     "semver": "catalog:*",
     "yaml": "catalog:*",
     "zod": "catalog:*",
-    "concurrently": "catalog:*"
+    "concurrently": "catalog:*",
+    "prettier": "^3.8.1"
   },
   "devDependencies": {
     "@types/picomatch": "catalog:*",
