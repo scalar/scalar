@@ -19,12 +19,14 @@
     "scope": "css, scss, vue, pcss",
     "prefix": "/*-",
     "body": "/* ----------------------------------------------------- */",
-    "description": "CSS section break comment"
+    "description": "CSS section break comment",
   },
   "ts-break": {
     "scope": "javascript, typescript",
     "prefix": "//",
-    "body": ["// ---------------------------------------------------------------------------"],
-    "description": "Javascript section break comment"
-  }
+    "body": [
+      "// ---------------------------------------------------------------------------",
+    ],
+    "description": "Javascript section break comment",
+  },
 }

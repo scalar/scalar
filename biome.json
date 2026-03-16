@@ -10,6 +10,7 @@
       "!**/.nuxt",
       "!**/.vite",
       "!**/.output",
+      "!**/.vscode",
       "!**/.vite-ssg-temp",
       "!**/vite.config.ts.timestamp-*",
       "!**/package.json",
@@ -39,7 +40,8 @@
       "!integrations/**/standalone.js",
       "!**/target/**",
       "!**/*.css",
-      "!**/*.json"
+      "!**/*.json",
+      "!**/*.jsonc"
     ]
   },
   "assist": {

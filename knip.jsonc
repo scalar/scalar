@@ -10,7 +10,7 @@
     "examples/vue-ssr/**",
     "examples/sveltekit/**",
     "examples/web/**",
-    "projects/proxy-scalar-com/**"
+    "projects/proxy-scalar-com/**",
   ],
   "ignoreFiles": [
     // test types files are marked as unused
@@ -20,11 +20,11 @@
 
     // Referenced in scalar.config.json
     "documentation/assets/landing.js",
-    "documentation/assets/fathom.js"
+    "documentation/assets/fathom.js",
   ],
   "ignore": [
     // We will use this in the future, just removed it from the workspace store for now
-    "packages/workspace-store/src/schemas/reference-config/index.ts"
+    "packages/workspace-store/src/schemas/reference-config/index.ts",
   ],
   "ignoreDependencies": [
     // Used by `ci.yml` `npm-publish` job
@@ -39,11 +39,11 @@
     "tsc-alias",
     "tsconfig-paths",
     "vue-tsc",
-    "typescript-language-server"
+    "typescript-language-server",
   ],
   "ignoreBinaries": ["netlify"],
   "ignoreIssues": {
-    "integrations/docusaurus/src/ScalarDocusaurus.tsx": ["duplicates"]
+    "integrations/docusaurus/src/ScalarDocusaurus.tsx": ["duplicates"],
   },
   "workspaces": {
     "packages/api-client": {
@@ -102,21 +102,21 @@
         "src/v2/features/command-palette/index.ts",
         //
         "playground/{app,modal,web}/main.ts",
-        "playground/v2/{app,modal,web}/main.ts"
+        "playground/v2/{app,modal,web}/main.ts",
       ],
       "ignoreDependencies": [
-        "@headlessui/tailwindcss" // used by style.css
+        "@headlessui/tailwindcss", // used by style.css
       ],
       "ignoreFiles": [
-        "src/views/Cookies/CookieRaw.vue" // Untested and disabled for now.
-      ]
+        "src/views/Cookies/CookieRaw.vue", // Untested and disabled for now.
+      ],
     },
     "packages/api-client-react": {
-      "entry": ["playground/main.tsx"]
+      "entry": ["playground/main.tsx"],
     },
     "packages/agent-chat": {
       "ignore": ["playground/**", "src/entities/**"],
-      "ignoreDependencies": ["@scalar/themes", "hono"]
+      "ignoreDependencies": ["@scalar/themes", "hono"],
     },
     "packages/api-reference": {
       "entry": [
@@ -137,23 +137,23 @@
         "playground/esm/vite.config.ts",
 
         "playground/vue/vite.config.ts",
-        "playground/vue/src/main.ts"
+        "playground/vue/src/main.ts",
       ],
       "ignoreDependencies": [
         // Used by my-custom-plugin inside playground/vue but code is commented
         "react",
-        "@scalar/react-renderer"
+        "@scalar/react-renderer",
       ],
       "ignoreFiles": [
         "playground/vue/src/AppWithJsApi.vue",
-        "playground/vue/src/x-custom-extension-plugin/components/CustomReactComponent.tsx"
-      ]
+        "playground/vue/src/x-custom-extension-plugin/components/CustomReactComponent.tsx",
+      ],
     },
     "packages/api-reference-react": {
-      "entry": ["playground/main.tsx"]
+      "entry": ["playground/main.tsx"],
     },
     "packages/build-tooling": {
-      "entry": ["src/index.ts", "src/esbuild/index.ts", "src/vite/index.ts"]
+      "entry": ["src/index.ts", "src/esbuild/index.ts", "src/vite/index.ts"],
     },
     "packages/code-highlight": {
       "entry": [
@@ -164,36 +164,36 @@
         "src/rehype-alert/index.ts",
         "src/rehype-highlight/index.ts",
         //
-        "playground/main.ts"
-      ]
+        "playground/main.ts",
+      ],
     },
     "packages/components": {
       "entry": [
         // Not sure why test files are marked as unused here
         "test/**/*",
-        "src/**/*.test.ts"
+        "src/**/*.test.ts",
       ],
       "ignoreDependencies": [
-        "@headlessui/tailwindcss" // Used by src/styles.css
+        "@headlessui/tailwindcss", // Used by src/styles.css
       ],
-      "ignoreFiles": ["src/components/ScalarIcon/.svglintrc.js"]
+      "ignoreFiles": ["src/components/ScalarIcon/.svglintrc.js"],
     },
     "packages/core": {
-      "entry": ["src/libs/html-rendering/index.ts"]
+      "entry": ["src/libs/html-rendering/index.ts"],
     },
     "packages/draggable": {
       "entry": [
         "src/index.ts",
         //
-        "playground/main.ts"
-      ]
+        "playground/main.ts",
+      ],
     },
     "packages/helpers": {
-      "entry": ["src/*/*.ts", "!src/*/*.test.ts"]
+      "entry": ["src/*/*.ts", "!src/*/*.test.ts"],
     },
     "packages/icons": {
       "ignoreFiles": ["src/library/.svglintrc.js"],
-      "entry": ["src/index.ts", "src/types.ts", "src/library/index.ts"]
+      "entry": ["src/index.ts", "src/types.ts", "src/library/index.ts"],
     },
     "packages/json-magic": {
       "entry": [
@@ -203,12 +203,12 @@
         "src/dereference/index.ts",
         "src/bundle/plugins/node.ts",
         "src/bundle/plugins/browser.ts",
-        "src/helpers/escape-json-pointer.ts"
-      ]
+        "src/helpers/escape-json-pointer.ts",
+      ],
     },
     "packages/nextjs-openapi": {
       "entry": ["src/index.ts", "playground/app/api/**/*.ts"],
-      "ignoreFiles": ["playground/next.config.js"]
+      "ignoreFiles": ["playground/next.config.js"],
     },
     "packages/oas-utils": {
       "entry": [
@@ -217,19 +217,19 @@
         "src/helpers/security/index.ts",
         "src/migrations/index.ts",
         "src/spec-getters/index.ts",
-        "src/transforms/index.ts"
-      ]
+        "src/transforms/index.ts",
+      ],
     },
     "packages/object-utils": {
-      "entry": ["src/*/index.ts"]
+      "entry": ["src/*/index.ts"],
     },
     "packages/openapi-parser": {
       "entry": [
         //
         "src/index.ts",
         "src/plugins/fetch-urls/index.ts",
-        "src/plugins/read-files/index.ts"
-      ]
+        "src/plugins/read-files/index.ts",
+      ],
     },
     "packages/openapi-types": {
       "entry": [
@@ -237,25 +237,30 @@
         "src/index.ts",
         "src/helpers/index.ts",
         "src/schemas/extensions/index.ts",
-        "src/schemas/3.1/*/index.ts"
-      ]
+        "src/schemas/3.1/*/index.ts",
+      ],
     },
     "packages/sidebar": {
       "entry": [
         "src/index.ts",
         //
-        "playground/main.ts"
+        "playground/main.ts",
       ],
       "ignoreDependencies": [
-        "@scalar/themes" // Used by src/style.css
-      ]
+        "@scalar/themes", // Used by src/style.css
+      ],
     },
     "packages/snippetz": {
-      "entry": ["src/index.ts", "src/clients/index.ts", "src/plugins/*/*/index.ts", "src/utils/index.ts"]
+      "entry": [
+        "src/index.ts",
+        "src/clients/index.ts",
+        "src/plugins/*/*/index.ts",
+        "src/utils/index.ts",
+      ],
     },
     "packages/ts-to-openapi": {
       "entry": ["src/index.ts"],
-      "ignoreFiles": ["test/fixtures/*"]
+      "ignoreFiles": ["test/fixtures/*"],
     },
     "packages/types": {
       "entry": [
@@ -264,24 +269,24 @@
         "src/entities/index.ts",
         "src/legacy/index.ts",
         "src/snippetz/index.ts",
-        "src/utils/index.ts"
-      ]
+        "src/utils/index.ts",
+      ],
     },
     "packages/use-codemirror": {
       "entry": [
         "src/index.ts",
         "src/themes/index.ts",
         //
-        "playground/main.ts"
-      ]
+        "playground/main.ts",
+      ],
     },
     "packages/use-hooks": {
       "entry": [
         "src/useBindCx/index.ts",
         "src/useBreakpoints/index.ts",
         "src/useClipboard/index.ts",
-        "src/useColorMode/index.ts"
-      ]
+        "src/useColorMode/index.ts",
+      ],
     },
     "packages/workspace-store": {
       "entry": [
@@ -303,16 +308,16 @@
         "./src/schemas/v3.1/strict/openapi-document.ts",
         "./src/schemas/v3.1/strict/type-guards.ts",
         "./src/server.ts",
-        "./src/resolve.ts"
-      ]
+        "./src/resolve.ts",
+      ],
     },
     "integrations/django-ninja": {
-      "ignoreBinaries": ["python"]
+      "ignoreBinaries": ["python"],
     },
     "integrations/docker": {
       "ignoreDependencies": [
-        "@scalar/api-reference" // uses standalone.js during docker build
-      ]
+        "@scalar/api-reference", // uses standalone.js during docker build
+      ],
     },
     "integrations/docusaurus": {
       "docusaurus": {
@@ -324,11 +329,15 @@
           "playground/versioned_docs/**/*.{mdx,jsx,tsx}",
 
           // Referenced by src/index.ts `addRoute`
-          "src/ScalarDocusaurus.tsx"
-        ]
+          "src/ScalarDocusaurus.tsx",
+        ],
       },
       "typescript": {
-        "config": ["tsconfig.json", "tsconfig.build.json", "playground/tsconfig.json"]
+        "config": [
+          "tsconfig.json",
+          "tsconfig.build.json",
+          "playground/tsconfig.json",
+        ],
       },
       "ignoreFiles": ["playground/.docusaurus/**"],
       "ignoreDependencies": [
@@ -337,39 +346,41 @@
 
         // Docusaurus aliases
         "@theme/*",
-        "@site/*"
-      ]
+        "@site/*",
+      ],
     },
     "integrations/dotnet/aspire": {
       "ignoreDependencies": [
         // Included to increment the version in alignment with the packages listed below
         "@scalar/api-reference",
-        "@scalar/dotnet-shared"
-      ]
+        "@scalar/dotnet-shared",
+      ],
     },
     "integrations/dotnet/aspnetcore": {
-      "entry": ["playground/Scalar.AspNetCore.Playground/wwwroot/scalar/config.js"],
+      "entry": [
+        "playground/Scalar.AspNetCore.Playground/wwwroot/scalar/config.js",
+      ],
       "ignoreDependencies": [
         // Included to increment the version in alignment with the packages listed below.
         "@scalar/api-reference",
-        "@scalar/dotnet-shared"
-      ]
+        "@scalar/dotnet-shared",
+      ],
     },
     "integrations/dotnet/shared": {
       "ignoreDependencies": [
         // Included for convenience.
         // Java enums are dynamically generated from the snippetz package.
         // Having snippetz as a dependency ensures they are regenerated whenever clients or targets change.
-        "@scalar/snippetz"
-      ]
+        "@scalar/snippetz",
+      ],
     },
     "integrations/fastapi": {
-      "ignoreBinaries": ["python", "uvicorn"]
+      "ignoreBinaries": ["python", "uvicorn"],
     },
     "integrations/fastify": {
       "ignoreDependencies": [
-        "@scalar/api-reference" // build step copy standalone file from this package
-      ]
+        "@scalar/api-reference", // build step copy standalone file from this package
+      ],
     },
     "integrations/java": {
       "ignoreDependencies": [
@@ -378,9 +389,9 @@
         // Included for convenience.
         // Java enums are dynamically generated from the snippetz package.
         // Having snippetz as a dependency ensures they are regenerated whenever clients or targets change.
-        "@scalar/snippetz"
+        "@scalar/snippetz",
       ],
-      "ignoreBinaries": ["mvn"]
+      "ignoreBinaries": ["mvn"],
     },
     "integrations/nestjs": {},
     "integrations/nextjs": {},
@@ -392,18 +403,18 @@
 
         "playground/nuxt.config.ts",
         "playground/layouts/default.vue",
-        "playground/pages/index.vue"
+        "playground/pages/index.vue",
       ],
       "ignoreDependencies": [
-        "@scalar/api-client" // referenced in /src/runtime/components/nuxt-theme.css
-      ]
+        "@scalar/api-client", // referenced in /src/runtime/components/nuxt-theme.css
+      ],
     },
     "integrations/sveltekit": {
       "ignoreDependencies": [
         // Automatically added to devDependencies by `pnpm script packages format`
         // because it's a peer dependency but not used directly.
-        "@sveltejs/kit"
-      ]
-    }
-  }
+        "@sveltejs/kit",
+      ],
+    },
+  },
 }
