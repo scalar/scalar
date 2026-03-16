@@ -35,7 +35,7 @@ cd packages/api-reference && pnpm test:e2e
 cd packages/components && pnpm test:e2e
 
 # Code quality
-pnpm format                     # Prettier (vue/md/json) + Biome (ts)
+pnpm format                     # oxfmt (vue/md/json/css/html/yml) + Biome (ts)
 pnpm lint:check                 # Biome lint
 pnpm lint:fix                   # Biome + ESLint auto-fix
 pnpm types:check                # TypeScript checking via Turbo
@@ -80,8 +80,8 @@ All workspace packages use `workspace:*` for internal deps. Shared third-party v
 
 - **Biome**: Linting and formatting for `.ts` files
 - **ESLint**: Linting for `.vue` files
-- **Prettier**: Formatting for `.vue`, `.md`, `.json`, `.css`, `.html`, `.yml` files
-- **Lefthook**: Pre-commit hooks running Prettier + Biome on staged files
+- **oxfmt**: Formatting for `.vue`, `.md`, `.json`, `.css`, `.html`, `.yml` files
+- **Lefthook**: Pre-commit hooks running oxfmt + Biome on staged files
 
 ## Code Standards
 
