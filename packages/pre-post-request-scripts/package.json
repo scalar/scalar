@@ -20,7 +20,6 @@
     "api client"
   ],
   "version": "0.3.8",
-  "private": true,
   "engines": {
     "node": ">=22"
   },
