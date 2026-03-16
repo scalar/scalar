@@ -16,7 +16,7 @@
     "",
     "^@/(.*)$",
     "",
-    "^[./]",
+    "^[./]"
   ],
   "importOrderParserPlugins": ["typescript"],
   "importOrderTypeScriptVersion": "5.2.2",
@@ -55,14 +55,14 @@
     "integrations/nuxt/src/runtime/plugins/hydrateClient.d.mts",
     "packages/components/storybook-static/**/*",
     "packages/openapi-parser/tests/**/*.yaml",
-    "documentation/guides/docs/**/*.md",
+    "documentation/guides/docs/**/*.md"
   ],
   "overrides": [
     {
       "files": ["**/*.json"],
       "options": {
-        "trailingComma": "none",
-      },
-    },
-  ],
+        "trailingComma": "none"
+      }
+    }
+  ]
 }
