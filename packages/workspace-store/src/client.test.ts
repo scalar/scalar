@@ -926,14 +926,6 @@ describe('create-workspace-store', () => {
             ref: '#/paths/~1users/get',
             title: 'Get all users',
             type: 'operation',
-            children: [
-              {
-                id: 'default/GET/users/example/someexample',
-                name: 'someExample',
-                title: 'someExample',
-                type: 'example',
-              },
-            ],
           },
           {
             children: [
