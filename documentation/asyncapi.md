@@ -6,7 +6,7 @@ You can already load AsyncAPI documents. The rendering is very limited, though:
 
 ```javascript
 Scalar.createApiReference('#app', {
-  url: '/asyncapi.json'
+  url: '/asyncapi.json',
 })
 ```
 

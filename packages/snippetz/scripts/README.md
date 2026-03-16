@@ -15,7 +15,7 @@ Generates C# enums for the .NET integration packages.
 #### Generated Files (.NET)
 
 - `ScalarTarget.Generated.cs` - Programming language targets (C#, JavaScript, etc.)
-- `ScalarClient.Generated.cs` - HTTP clients (HttpClient, Fetch, etc.) 
+- `ScalarClient.Generated.cs` - HTTP clients (HttpClient, Fetch, etc.)
 - `ScalarOptionsMapper.Generated.cs` - Target → Client mappings
 
 Generated in: `integrations/dotnet/shared/src/Scalar.Shared/`
@@ -46,6 +46,7 @@ Automatically updates the `hiddenClients` property documentation in `configurati
 #### Generated Content
 
 Updates the `hiddenClients` section in `documentation/configuration.md` with:
+
 - All available clients grouped by target/language
 - Comments indicating which language each target represents
 - Automatically kept in sync with the TypeScript source

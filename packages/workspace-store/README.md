@@ -7,6 +7,7 @@ A powerful data store for managing OpenAPI documents. This package provides a fl
 Server side data store which enables document chunking to reduce initial loading time specially when working with large openapi documents
 
 #### Usage
+
 Create a new store in SSR mode
 
 ```ts
@@ -44,29 +45,32 @@ const store = await createServerWorkspaceStore({
 })
 
 // Add a new document to the store
-await store.addDocument({
-  openapi: '3.1.1',
-  info: {
-    title: 'Hello World',
-    version: '1.0.0',
-  },
-  components: {
-    schemas: {
-      Person: {
-        type: 'object',
-        properties: {
-          name: { type: 'string' },
+await store.addDocument(
+  {
+    openapi: '3.1.1',
+    info: {
+      title: 'Hello World',
+      version: '1.0.0',
+    },
+    components: {
+      schemas: {
+        Person: {
+          type: 'object',
+          properties: {
+            name: { type: 'string' },
+          },
         },
-      },
-      User: {
-        $ref: '#/components/schemas/Person',
+        User: {
+          $ref: '#/components/schemas/Person',
+        },
       },
     },
   },
-}, {
-  name: 'document-2',
-  "x-scalar-selected-server": "server1"
-})
+  {
+    'name': 'document-2',
+    'x-scalar-selected-server': 'server1',
+  },
+)
 
 // Get the workspace
 // Workspace is going to keep all the sparse documents
@@ -74,9 +78,7 @@ const workspace = store.getWorkspace()
 
 // Get chucks using json pointers
 const chunk = store.get('#/document-name/components/schemas/Person')
-
 ```
-
 
 Create a new store in static mode
 
@@ -115,29 +117,32 @@ const store = await createServerWorkspaceStore({
 })
 
 // Add a new document to the store
-await store.addDocument({
-  openapi: '3.1.1',
-  info: {
-    title: 'Hello World',
-    version: '1.0.0',
-  },
-  components: {
-    schemas: {
-      Person: {
-        type: 'object',
-        properties: {
-          name: { type: 'string' },
+await store.addDocument(
+  {
+    openapi: '3.1.1',
+    info: {
+      title: 'Hello World',
+      version: '1.0.0',
+    },
+    components: {
+      schemas: {
+        Person: {
+          type: 'object',
+          properties: {
+            name: { type: 'string' },
+          },
         },
-      },
-      User: {
-        $ref: '#/components/schemas/Person',
+        User: {
+          $ref: '#/components/schemas/Person',
+        },
       },
     },
   },
-}, {
-  name: 'document-2',
-  "x-scalar-selected-server": "server1"
-})
+  {
+    'name': 'document-2',
+    'x-scalar-selected-server': 'server1',
+  },
+)
 
 // Generate the workspace file system
 // This will write in the filesystem the workspace and all the chucks
@@ -146,6 +151,7 @@ const workspace = await store.generateWorkspaceChunks()
 ```
 
 ### Load documents from external sources
+
 ```ts
 // Initialize the store with documents from external sources
 const store = await createServerWorkspaceStore({
@@ -153,13 +159,13 @@ const store = await createServerWorkspaceStore({
   documents: [
     {
       name: 'remoteFile',
-      url: 'http://localhost/document.json'
+      url: 'http://localhost/document.json',
     },
     {
       name: 'fsFile',
-      path: './document.json'
-    }
-  ]
+      path: './document.json',
+    },
+  ],
 })
 
 // Output: { openapi: 'x.x.x', ... }
@@ -176,7 +182,6 @@ A reactive workspace store for managing OpenAPI documents with automatic referen
 #### Usage
 
 ```ts
-
 // Initialize a new workspace store with default document
 const store = createWorkspaceStore({
   documents: [
@@ -216,7 +221,7 @@ store.workspace.documents['document']
 store.update('x-scalar-color-mode', true)
 
 // Update settings for the active document
-store.updateDocument('active', "x-scalar-watch-mode", '<value>')
+store.updateDocument('active', 'x-scalar-watch-mode', '<value>')
 
 // Resolve and load document chunks including any $ref references
 await store.resolve(['paths', '/users', 'get'])
@@ -232,7 +237,7 @@ const store = createWorkspaceStore()
 // Load a document into the store from a remote url
 await store.addDocument({
   name: 'default',
-  url: 'http://localhost/document.json'
+  url: 'http://localhost/document.json',
 })
 
 // Output: { openapi: 'x.x.x', ... }
@@ -370,13 +375,13 @@ Create the workspace from a specification object
 
 ```ts
 await store.importWorkspaceFromSpecification({
-  workspace: 'draft',
-  info: { title: 'My Workspace' },
-  documents: {
+  'workspace': 'draft',
+  'info': { title: 'My Workspace' },
+  'documents': {
     api: { $ref: '/examples/api.yaml' },
     petstore: { $ref: '/examples/petstore.yaml' },
   },
-  overrides: {
+  'overrides': {
     api: {
       servers: [
         {
@@ -414,10 +419,10 @@ await store.addDocument({
     servers: [
       {
         url: 'http://localhost:8080',
-        description: 'Default dev server'
-      }
-    ]
-  }
+        description: 'Default dev server',
+      },
+    ],
+  },
 })
 ```
 

@@ -68,8 +68,8 @@ To use the themes package with Tailwind, you first need to import the base style
 Then you can use the [tailwind config](https://tailwindcss.com/docs/theme#sharing-across-projects) in your Tailwind CSS to expose the [theme colors and variables](./src/tailwind/theme.css). The Scalar Tailwind config already contains a [preflight](https://tailwindcss.com/docs/preflight) and copy of the base [Tailwind theme](https://tailwindcss.com/docs/theme#extending-the-default-theme) so all you need to import from Tailwind is `tailwindcss/utilities.css`.
 
 ```css
-@import "@scalar/themes/style.css"; /* Theme Base Styles and Reset */
-@import "@scalar/themes/tailwind.css"; /* Tailwind Theme + Config */
+@import '@scalar/themes/style.css'; /* Theme Base Styles and Reset */
+@import '@scalar/themes/tailwind.css'; /* Tailwind Theme + Config */
 
-@import "tailwindcss/utilities.css"; /* Generate the Tailwind classes */
+@import 'tailwindcss/utilities.css'; /* Generate the Tailwind classes */
 ```

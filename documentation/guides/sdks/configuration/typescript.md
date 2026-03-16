@@ -7,8 +7,8 @@ This section details the available configuration options for the TypeScript SDK.
 ```yml
 typescript:
   version: 1.2.3
-  author: "Author Name"
-  packageName: "custom-sdk"
+  author: 'Author Name'
+  packageName: 'custom-sdk'
 ```
 
 | Name        | Required | Default Value | Description                                                                                                                                                            |
@@ -22,7 +22,7 @@ typescript:
 ```yml
 typescript:
   additionalPackageJSON:
-    license: "MIT"
+    license: 'MIT'
 ```
 
 | Name                  | Required | Default Value | Description                                                                              |
@@ -35,11 +35,11 @@ typescript:
 typescript:
   additionalDependencies:
     dependencies:
-      axios: "^0.21.0"
+      axios: '^0.21.0'
     devDependencies:
-      typescript: "^4.0.0"
+      typescript: '^4.0.0'
     peerDependencies:
-      react: "^16.0.0"
+      react: '^16.0.0'
 ```
 
 | Name             | Required | Default Value | Description                                                           |
@@ -53,7 +53,7 @@ typescript:
 ```yml
 typescript:
   maxMethodParams: 3
-  methodArguments: "require-security-and-request"
+  methodArguments: 'require-security-and-request'
 ```
 
 | Name            | Required | Default Value                  | Description                                                                                              |
@@ -79,7 +79,7 @@ typescript:
 
 ```yml
 typescript:
-  moduleFormat: "dual"
+  moduleFormat: 'dual'
   useIndexModules: true
 ```
 
@@ -99,7 +99,7 @@ typescript:
 ```yml
 typescript:
   imports:
-    option: "openapi"
+    option: 'openapi'
     paths:
       callbacks: models/callbacks
       errors: models/errors
@@ -128,8 +128,8 @@ typescript:
 ```yml
 typescript:
   clientServerStatusCodesAsErrors: false
-  responseFormat: "envelope-http"
-  enumFormat: "union"
+  responseFormat: 'envelope-http'
+  enumFormat: 'union'
 ```
 
 | Property                        | Description                                                                                      | Type    | Default       |

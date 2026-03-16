@@ -15,23 +15,23 @@ You can specify predefined environment variables for the API Client/References t
 ```yaml
 x-scalar-environments:
   production:
-    description: "Production environment"
-    color: "#0082D0"
+    description: 'Production environment'
+    color: '#0082D0'
     # Variables are saved directly to the specification
     variables:
       userId:
-        description: "User ID"
-        default: "1234567890"
+        description: 'User ID'
+        default: '1234567890'
       apiUrl:
-        description: "API URL"
-        default: "https://api.production.example.com"
+        description: 'API URL'
+        default: 'https://api.production.example.com'
   staging:
-    description: "Staging environment"
+    description: 'Staging environment'
     variables:
-      userId: "1234567890"
+      userId: '1234567890'
       apiUrl:
-        description: "API URL"
-        default: "https://api.staging.example.com"
+        description: 'API URL'
+        default: 'https://api.staging.example.com'
 ```
 
 ## x-scalar-active-environment

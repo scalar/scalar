@@ -23,7 +23,7 @@ If you're not running the dev server Playwright will automatically run `pnpm dev
 
 ### Local Development
 
-The Playwright browser is run in a Docker container to have consistent results with CI. In order to run the test locally you **must** have Docker set up on your system. 
+The Playwright browser is run in a Docker container to have consistent results with CI. In order to run the test locally you **must** have Docker set up on your system.
 
 ```bash
 # Run snapshot diff (starts Docker container automatically)
@@ -33,6 +33,7 @@ pnpm test:e2e:snapshots
 ### CI/CD
 
 Tests run automatically in CI using the same Docker container for consistency. The CI environment:
+
 - Uses the containerized Playwright setup
 - Compares snapshots of the CDN to the current branch
 

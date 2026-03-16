@@ -172,12 +172,12 @@ validate_apis:
   image: node:20
   parallel:
     matrix:
-      - API_NAME: "user-api"
-        API_FILE: "apis/user-api/openapi.json"
-      - API_NAME: "product-api"
-        API_FILE: "apis/product-api/openapi.json"
-      - API_NAME: "order-api"
-        API_FILE: "apis/order-api/openapi.json"
+      - API_NAME: 'user-api'
+        API_FILE: 'apis/user-api/openapi.json'
+      - API_NAME: 'product-api'
+        API_FILE: 'apis/product-api/openapi.json'
+      - API_NAME: 'order-api'
+        API_FILE: 'apis/order-api/openapi.json'
   script:
     - npx @scalar/cli document validate "$API_FILE"
   rules:
@@ -190,15 +190,15 @@ deploy_apis:
   image: node:20
   parallel:
     matrix:
-      - API_NAME: "user-api"
-        API_FILE: "apis/user-api/openapi.json"
-        API_SLUG: "user-api"
-      - API_NAME: "product-api"
-        API_FILE: "apis/product-api/openapi.json"
-        API_SLUG: "product-api"
-      - API_NAME: "order-api"
-        API_FILE: "apis/order-api/openapi.json"
-        API_SLUG: "order-api"
+      - API_NAME: 'user-api'
+        API_FILE: 'apis/user-api/openapi.json'
+        API_SLUG: 'user-api'
+      - API_NAME: 'product-api'
+        API_FILE: 'apis/product-api/openapi.json'
+        API_SLUG: 'product-api'
+      - API_NAME: 'order-api'
+        API_FILE: 'apis/order-api/openapi.json'
+        API_SLUG: 'order-api'
   script:
     - npx @scalar/cli auth login --token $SCALAR_API_KEY
     - npx @scalar/cli registry publish --namespace $SCALAR_NAMESPACE --slug $API_SLUG "$API_FILE"

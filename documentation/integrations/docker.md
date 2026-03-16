@@ -46,11 +46,13 @@ docker run \
 ```
 
 The container automatically:
+
 - Scans for OpenAPI documents (`.json`, `.yaml`, `.yml` files)
 - Serves documents at `/openapi/{filename}`
 - Generates titles from directory structure
 
 **Directory structure example:**
+
 ```
 /docs/
 ├── api-v1.json
@@ -77,7 +79,7 @@ services:
   api-reference:
     image: scalarapi/api-reference:latest
     ports:
-      - "8080:8080"
+      - '8080:8080'
     volumes:
       # Mount your OpenAPI documents directory
       - ./docs:/docs
@@ -92,10 +94,10 @@ services:
 
 ## Environment Variables
 
-| Variable               | Description                                     | Default     |
-| ---------------------- | ----------------------------------------------- | ----------- |
+| Variable               | Description                              | Default     |
+| ---------------------- | ---------------------------------------- | ----------- |
 | `API_REFERENCE_CONFIG` | JSON configuration for the API Reference | -           |
-| `CDN_URL`              | URL for the API Reference CDN                   | `scalar.js` |
+| `CDN_URL`              | URL for the API Reference CDN            | `scalar.js` |
 
 **Note:** Either `API_REFERENCE_CONFIG` must be set OR documents must be mounted to `/docs`
 

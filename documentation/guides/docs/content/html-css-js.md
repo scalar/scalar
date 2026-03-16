@@ -15,22 +15,26 @@ Create a Markdown file with HTML content:
 <div class="hero">
   <h1>Welcome to My API</h1>
   <p>The best API for developers</p>
-  <a href="/getting-started" class="button">Get Started</a>
+  <a
+    href="/getting-started"
+    class="button"
+    >Get Started</a
+  >
 </div>
 
 <style>
-.hero {
-  text-align: center;
-  padding: 80px 20px;
-}
-.button {
-  display: inline-block;
-  padding: 12px 24px;
-  background: var(--scalar-color-accent);
-  color: white;
-  border-radius: 8px;
-  text-decoration: none;
-}
+  .hero {
+    text-align: center;
+    padding: 80px 20px;
+  }
+  .button {
+    display: inline-block;
+    padding: 12px 24px;
+    background: var(--scalar-color-accent);
+    color: white;
+    border-radius: 8px;
+    text-decoration: none;
+  }
 </style>
 ```
 
@@ -85,7 +89,11 @@ You can use Scalar's built-in components in your HTML:
 
 ```html
 <!-- Headings with automatic anchor links -->
-<scalar-heading level="2" slug="my-section">My Section Title</scalar-heading>
+<scalar-heading
+  level="2"
+  slug="my-section"
+  >My Section Title</scalar-heading
+>
 
 <!-- Icons from the Phosphor icon library -->
 <scalar-icon src="phosphor/regular/rocket"></scalar-icon>
@@ -99,16 +107,22 @@ You can use Scalar's built-in components in your HTML:
 Use CSS classes to show different content based on the color mode:
 
 ```html
-<img alt="Screenshot in light mode" class="light-image" src="/screenshot-light.png" />
-<img alt="Screenshot in dark mode" class="dark-image" src="/screenshot-dark.png" />
+<img
+  alt="Screenshot in light mode"
+  class="light-image"
+  src="/screenshot-light.png" />
+<img
+  alt="Screenshot in dark mode"
+  class="dark-image"
+  src="/screenshot-dark.png" />
 
 <style>
-.light-mode .dark-image {
-  display: none;
-}
-.dark-mode .light-image {
-  display: none;
-}
+  .light-mode .dark-image {
+    display: none;
+  }
+  .dark-mode .light-image {
+    display: none;
+  }
 </style>
 ```
 

@@ -10,4 +10,3 @@ pip install -U flask-openapi3-scalar
 ```
 
 [Read more about flask_openapi3](https://luolingchun.github.io/flask-openapi3/latest/Usage/UI_Templates/)
-

@@ -12,7 +12,7 @@ When we met Chad Whitacre at the Open-Source Summit in Seattle earlier this year
 
 > [@getsentry](https://x.com/getsentry) & [@scalar](https://x.com/scalar) love open-source!
 >
-> w [@__chadwhitacre](https://x.com/__chadwhitacre) [@linuxfoundation](https://x.com/linuxfoundation) #OSSummit
+> w [@\_\_chadwhitacre](https://x.com/__chadwhitacre) [@linuxfoundation](https://x.com/linuxfoundation) #OSSummit
 
 [@marclaventure on X](https://x.com/MarcLaventure/status/1782403644387922189/)
 
@@ -20,20 +20,20 @@ When we met Chad Whitacre at the Open-Source Summit in Seattle earlier this year
 
 We have donated $25,569.34 USD so far in 2024, which equates to $3,652.76 USD per Scalar Employee. Here is a list of who we donate to on a monthly basis and single donations for open-source foundations:
 
-* litestar-org $250/month [(LiteStar)](https://litestar.dev/)
-* SaltyAom $300/month [(ElysiaJS)](https://elysiajs.com/)
-* colinhacks $99/month [(Zod)](https://zod.dev/)
-* tiangolo $500/month [(FastAPI)](https://fastapi.tiangolo.com/)
-* yusukebe $100/month [(Hono)](https://hono.dev/)
-* marijnh $5/month [(CodeMirror/ProseMirror)](https://github.com/marijnh)
-* daveshanley $100/month [(libopenapi)](https://github.com/pb33f/libopenapi)
-* LinusBorg $5/month [(Vue.js Maintainer)](https://github.com/LinusBorg)
-* pi0 $31/month [(Nuxt/UnJS)](https://github.com/pi0)
-* dmonad $10/month [(YJS)](https://github.com/dmonad)
-* thibaultleouay $10/month [(OpenStatus)](https://www.openstatus.dev/)
-* fuma-nama $10/month [(FumaDocs)](https://github.com/fuma-nama)
-* litestar + python (3,529.34)
-* algoria OSS Bounty TypeScript Challenge + Daniel Roe (5,000)
+- litestar-org $250/month [(LiteStar)](https://litestar.dev/)
+- SaltyAom $300/month [(ElysiaJS)](https://elysiajs.com/)
+- colinhacks $99/month [(Zod)](https://zod.dev/)
+- tiangolo $500/month [(FastAPI)](https://fastapi.tiangolo.com/)
+- yusukebe $100/month [(Hono)](https://hono.dev/)
+- marijnh $5/month [(CodeMirror/ProseMirror)](https://github.com/marijnh)
+- daveshanley $100/month [(libopenapi)](https://github.com/pb33f/libopenapi)
+- LinusBorg $5/month [(Vue.js Maintainer)](https://github.com/LinusBorg)
+- pi0 $31/month [(Nuxt/UnJS)](https://github.com/pi0)
+- dmonad $10/month [(YJS)](https://github.com/dmonad)
+- thibaultleouay $10/month [(OpenStatus)](https://www.openstatus.dev/)
+- fuma-nama $10/month [(FumaDocs)](https://github.com/fuma-nama)
+- litestar + python (3,529.34)
+- algoria OSS Bounty TypeScript Challenge + Daniel Roe (5,000)
 
 Thank You OSS
 

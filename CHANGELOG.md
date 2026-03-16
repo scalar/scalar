@@ -10,4 +10,3 @@ This project uses [Changesets](https://github.com/changesets/changesets) to mana
 - **Integrations**: See `integrations/*/CHANGELOG.md` for individual integration changelogs
 
 These changelogs are automatically generated from changesets when releases are published.
-

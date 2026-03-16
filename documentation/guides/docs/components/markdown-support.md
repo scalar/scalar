@@ -6,10 +6,15 @@ We support all standard Markdown features (actually, we're using GitHub-flavored
 
 ```markdown
 # Heading 1
+
 ## Heading 2
+
 ### Heading 3
+
 #### Heading 4
+
 ##### Heading 5
+
 ###### Heading 6
 ```
 
@@ -17,17 +22,16 @@ We support all standard Markdown features (actually, we're using GitHub-flavored
 
 **Bold text**
 
-*Italic text*
+_Italic text_
 
 ~~Strikethrough text~~
 
 `Inline code`
 
-
 ```markdown
 **Bold text**
 
-*Italic text*
+_Italic text_
 
 ~~Strikethrough text~~
 
@@ -73,14 +77,14 @@ We support all standard Markdown features (actually, we're using GitHub-flavored
 ````markdown
 ```javascript
 function example() {
-  return "Hello, World!";
+  return 'Hello, World!'
 }
 ```
 ````
 
 ```javascript
 function example() {
-  return "Hello, World!";
+  return 'Hello, World!'
 }
 ```
 
@@ -97,6 +101,7 @@ function example() {
 ```
 
 ## Tables
+
 | Header 1 | Header 2 | Header 3 |
 | -------- | -------- | -------- |
 | Cell 1   | Cell 2   | Cell 3   |
@@ -152,4 +157,3 @@ We support GitHub-style alerts for highlighting important information:
 > [!CAUTION]
 > Advises about risks or negative outcomes of certain actions.
 ```
-

@@ -180,9 +180,9 @@ const file: OpenAPI.Document = {
 You can reference other files, too. To do that, the parser needs to know what files are available.
 
 ```ts
-import { bundle } from "@scalar/json-magic/bundle"
-import { fetchUrls } from "@scalar/json-magic/bundle/plugins/browser"
-import { readFiles } from "@scalar/json-magic/bundle/plugins/node"
+import { bundle } from '@scalar/json-magic/bundle'
+import { fetchUrls } from '@scalar/json-magic/bundle/plugins/browser'
+import { readFiles } from '@scalar/json-magic/bundle/plugins/node'
 import { dereference } from '@scalar/openapi-parser'
 
 // Load a file and all referenced files
@@ -206,9 +206,13 @@ As you see, `bundle()` supports plugins. You can write your own plugin, if you'd
 Once the `fetchUrls` plugin is loaded, you can also just pass an URL:
 
 ```ts
-import { bundle } from "@scalar/json-magic/bundle"
-import { fetchUrls, parseJson, parseYaml } from "@scalar/json-magic/bundle/plugins/browser"
-import { readFiles } from "@scalar/json-magic/bundle/plugins/node"
+import { bundle } from '@scalar/json-magic/bundle'
+import {
+  fetchUrls,
+  parseJson,
+  parseYaml,
+} from '@scalar/json-magic/bundle/plugins/browser'
+import { readFiles } from '@scalar/json-magic/bundle/plugins/node'
 import { dereference } from '@scalar/openapi-parser'
 
 // Load a file and all referenced files
@@ -225,9 +229,13 @@ const data = await bundle(
 If you're using the package in a browser environment, you may run into CORS issues when fetching from URLs. You can intercept the requests, for example to use a proxy, though:
 
 ```ts
-import { bundle } from "@scalar/json-magic/bundle"
-import { fetchUrls, parseJson, parseYaml } from "@scalar/json-magic/bundle/plugins/browser"
-import { readFiles } from "@scalar/json-magic/bundle/plugins/node"
+import { bundle } from '@scalar/json-magic/bundle'
+import {
+  fetchUrls,
+  parseJson,
+  parseYaml,
+} from '@scalar/json-magic/bundle/plugins/browser'
+import { readFiles } from '@scalar/json-magic/bundle/plugins/node'
 import { dereference } from '@scalar/openapi-parser'
 
 // Load a file and all referenced files

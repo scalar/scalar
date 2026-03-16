@@ -1,7 +1,10 @@
 import { Meta, Canvas, Controls, Story } from '@storybook/addon-docs/blocks'
-import * as Stories from './useBindCx.stories';
+import * as Stories from './useBindCx.stories'
 
-<Meta title="Playgrounds / useBindCx" of={Stories} />
+<Meta
+  title="Playgrounds / useBindCx"
+  of={Stories}
+/>
 
 # Scalar useBindCx Hook
 
@@ -15,19 +18,19 @@ This mock component uses the `useBindCx` hook to merge the component's class att
 
 ```html
 <script setup>
-import { useBindCx, cva } from '@scalar/components'
+  import { useBindCx, cva } from '@scalar/components'
 
-defineProps<{ active?: boolean }>()
+  defineProps<{ active?: boolean }>()
 
-// Important: disable inheritance of attributes
-defineOptions({ inheritAttrs: false })
+  // Important: disable inheritance of attributes
+  defineOptions({ inheritAttrs: false })
 
-const { cx } = useBindCx()
+  const { cx } = useBindCx()
 
-const variants = cva({
-  base: 'border rounded p-2 bg-b-1',
-  variants: { active: { true: 'bg-b-2' } },
-})
+  const variants = cva({
+    base: 'border rounded p-2 bg-b-1',
+    variants: { active: { true: 'bg-b-2' } },
+  })
 </script>
 <template>
   <div v-bind="cx(variants({ active }))">MockComponent</div>
@@ -45,27 +48,28 @@ Sometimes you may want to apply the merged classes and style attributes to a wra
 
 This mock component uses the `useBindCx` hook to merge the component's classes and apply the style attribute to a outer `div` while passing through other attributes to an inner `div`.
 
-
 ```html
 <script setup>
-import { useBindCx, cva } from '@scalar/components'
+  import { useBindCx, cva } from '@scalar/components'
 
-defineProps<{ active?: boolean }>()
+  defineProps<{ active?: boolean }>()
 
-// Important: disable inheritance of attributes
-defineOptions({ inheritAttrs: false })
+  // Important: disable inheritance of attributes
+  defineOptions({ inheritAttrs: false })
 
-const { stylingAttrsCx, otherAttrs } = useBindCx()
+  const { stylingAttrsCx, otherAttrs } = useBindCx()
 
-const variants = cva({
-  base: 'border rounded p-2 bg-b-1',
-  variants: { active: { true: 'bg-b-2' } },
-})
+  const variants = cva({
+    base: 'border rounded p-2 bg-b-1',
+    variants: { active: { true: 'bg-b-2' } },
+  })
 </script>
 <template>
   <div v-bind="stylingAttrsCx(variants({ active }))">
     Outer
-    <div class="border rounded p-1 mt-1" v-bind="otherAttrs">
+    <div
+      class="border rounded p-1 mt-1"
+      v-bind="otherAttrs">
       Inner
     </div>
   </div>
@@ -74,5 +78,3 @@ const variants = cva({
 
 <Controls of={Stories.Complex} />
 <Canvas of={Stories.Complex} />
-
-

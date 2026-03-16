@@ -23,7 +23,6 @@ dotnet add package Microsoft.Extensions.ApiDescription.Server
 
 The `Microsoft.Extensions.ApiDescription.Server` package automatically generates OpenAPI documents during build. By default, the OpenAPI document will be generated in your project's output directory as `{ProjectName}.json`.
 
-
 ### Change Output File Name
 
 To generate the file as `openapi.json`, customize the generated file name:

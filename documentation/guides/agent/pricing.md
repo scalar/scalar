@@ -20,8 +20,8 @@ For production deployments, Agent requires a [Scalar Pro](../pricing.md) subscri
 
 When you use Agent in API References or Docs, usage is billed by message count.
 
-| Plan       | Price              | Messages Included | Additional Messages |
-| ---------- | ------------------ | ----------------- | ------------------- |
+| Plan       | Price                         | Messages Included | Additional Messages |
+| ---------- | ----------------------------- | ----------------- | ------------------- |
 | Scalar Pro | Starts at $72/mo (3-seat min) | 250 messages      | $0.02 per message   |
 
 #### Pricing Example
@@ -38,8 +38,8 @@ Here is what you would pay for different message levels under the Scalar Pro pla
 
 [agent.scalar.com](https://agent.scalar.com) is billed by token usage (input and output tokens combined across your requests).
 
-| Plan       | Price              | Tokens Included | Additional Input | Additional Output |
-| ---------- | ------------------ | --------------- | ---------------- | ----------------- |
+| Plan       | Price                         | Tokens Included | Additional Input | Additional Output |
+| ---------- | ----------------------------- | --------------- | ---------------- | ----------------- |
 | Scalar Pro | Starts at $72/mo (3-seat min) | 2,000,000       | $2 / Million     | $10 / Million     |
 
 - **Included:** 2,000,000 tokens per billing period.

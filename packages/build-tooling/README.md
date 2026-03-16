@@ -60,7 +60,9 @@ await build({
     // other entries
   ],
   platform: 'shared', // 'node' or 'browser'
-  options: { /* esbuild options */ },
+  options: {
+    /* esbuild options */
+  },
 })
 ```
 

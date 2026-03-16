@@ -8,19 +8,19 @@ This allows you to override tailwind classes from the parent component and `cx` 
 
 ```html
 <script setup>
-import { useBindCx, cva } from '@scalar/components'
+  import { useBindCx, cva } from '@scalar/components'
 
-defineProps<{ active?: boolean }>()
+  defineProps<{ active?: boolean }>()
 
-// Important: disable inheritance of attributes
-defineOptions({ inheritAttrs: false })
+  // Important: disable inheritance of attributes
+  defineOptions({ inheritAttrs: false })
 
-const { cx } = useBindCx()
+  const { cx } = useBindCx()
 
-const variants = cva({
-  base: 'border rounded p-2 bg-b-1',
-  variants: { active: { true: 'bg-b-2' } },
-})
+  const variants = cva({
+    base: 'border rounded p-2 bg-b-1',
+    variants: { active: { true: 'bg-b-2' } },
+  })
 </script>
 <template>
   <div v-bind="cx(variants({ active }))">MockComponent</div>

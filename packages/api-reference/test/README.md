@@ -28,7 +28,7 @@ pnpm test:e2e:playwright
 
 ### Local Development
 
-The Playwright browser is run in a Docker container to have consistent results with CI. In order to run the test locally or update snapshots you **must** have Docker set up on your system. 
+The Playwright browser is run in a Docker container to have consistent results with CI. In order to run the test locally or update snapshots you **must** have Docker set up on your system.
 
 ```bash
 # Run tests (starts Docker container automatically)
@@ -49,6 +49,7 @@ pnpm test:e2e:ui
 ### CI/CD
 
 Tests run automatically in CI using the same Docker container for consistency. The CI environment:
+
 - Uses the containerized Playwright setup
 - Compares snapshots against committed baseline images
 - Fails the build if visual regressions are detected

@@ -81,7 +81,7 @@ Whichever approach you pick, once you've got the OpenAPI/Markdown content into a
 
 ## Step 3: Scalar Config
 
-Once the project is hooked up to Scalar, the next step is to set up the Scalar config file.  By creating a `scalar.config.json` file we can add the details on where the OpenAPI documents live, and where the guides are sitting.
+Once the project is hooked up to Scalar, the next step is to set up the Scalar config file. By creating a `scalar.config.json` file we can add the details on where the OpenAPI documents live, and where the guides are sitting.
 
 ```json
 {
@@ -257,10 +257,12 @@ If you were using a custom domain with Stoplight hosted documentation then the p
 {
   "siteConfig": {
     "routing": {
-      "redirects": [{
-        "from": "/docs/<stoplight-project>/10a1321b3-:wildcard",
-        "to": "/scalar/scalar-registry/github-actions"
-      }]
+      "redirects": [
+        {
+          "from": "/docs/<stoplight-project>/10a1321b3-:wildcard",
+          "to": "/scalar/scalar-registry/github-actions"
+        }
+      ]
     }
   }
   // ...

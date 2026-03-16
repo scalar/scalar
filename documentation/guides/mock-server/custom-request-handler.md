@@ -5,6 +5,7 @@ The `x-handler` extension allows you to write custom JavaScript code directly in
 ## When to Use x-handler
 
 Use `x-handler` when you need:
+
 - **Persistent data** across requests (CRUD operations)
 - **Dynamic responses** based on request data
 - **Custom business logic** in your mock server
@@ -37,8 +38,8 @@ store.update('Post', 'post-id-123', { title: 'Updated Title' })
 store.delete('Post', 'post-id-123')
 
 // Clear a collection or all data
-store.clear('Post')  // Clear specific collection
-store.clear()        // Clear all collections
+store.clear('Post') // Clear specific collection
+store.clear() // Clear all collections
 ```
 
 ### `faker` - Data Generation
@@ -46,12 +47,12 @@ store.clear()        // Clear all collections
 The `faker` helper provides access to [Faker.js](https://fakerjs.dev/) for generating realistic fake data.
 
 ```javascript
-faker.string.uuid()           // Generate UUIDs
-faker.lorem.sentence()         // Generate sentences
-faker.lorem.paragraphs(3)     // Generate paragraphs
-faker.person.fullName()       // Generate names
-faker.date.past()             // Generate dates
-faker.internet.email()        // Generate emails
+faker.string.uuid() // Generate UUIDs
+faker.lorem.sentence() // Generate sentences
+faker.lorem.paragraphs(3) // Generate paragraphs
+faker.person.fullName() // Generate names
+faker.date.past() // Generate dates
+faker.internet.email() // Generate emails
 // ... and many more
 ```
 
@@ -60,10 +61,10 @@ faker.internet.email()        // Generate emails
 Access request data through the `req` object:
 
 ```javascript
-req.body      // Parsed request body (JSON, form data, etc.)
-req.params    // Path parameters (e.g., { id: '123' })
-req.query     // Query string parameters (e.g., { page: '1' })
-req.headers   // Request headers
+req.body // Parsed request body (JSON, form data, etc.)
+req.params // Path parameters (e.g., { id: '123' })
+req.query // Query string parameters (e.g., { page: '1' })
+req.headers // Request headers
 ```
 
 ### `res` - Response Examples
@@ -71,9 +72,9 @@ req.headers   // Request headers
 The `res` object contains example responses for each status code defined in your OpenAPI spec:
 
 ```javascript
-res['200']  // Example for 200 status
-res['201']  // Example for 201 status
-res['404']  // Example for 404 status
+res['200'] // Example for 200 status
+res['201'] // Example for 201 status
+res['404'] // Example for 404 status
 ```
 
 ## Example: Blog Posts API
@@ -280,4 +281,3 @@ The error response will be:
 2. Generate IDs: Use `faker.string.uuid()` for consistent ID generation
 3. Handle missing data: Check for `null` or `undefined` when using `store.get()`
 4. Use Faker for realistic data: Generate realistic test data instead of hardcoding values
-

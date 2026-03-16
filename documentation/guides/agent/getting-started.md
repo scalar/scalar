@@ -93,8 +93,8 @@ The `agent` configuration accepts:
 
 | Property     | Type      | Default     | Description                                                               |
 | ------------ | --------- | ----------- | ------------------------------------------------------------------------- |
-| `key`        | `string`  | `undefined` | Your Agent key                                                     |
-| `disabled`   | `boolean` | `false`     | Enable or disable Agent                                            |
+| `key`        | `string`  | `undefined` | Your Agent key                                                            |
+| `disabled`   | `boolean` | `false`     | Enable or disable Agent                                                   |
 | `hideAddApi` | `boolean` | `false`     | Hide the control to add more APIs; only preloaded/registry APIs are shown |
 
 ### Per-Source Configuration
@@ -129,9 +129,6 @@ Scalar.createApiReference('#app', {
   agent: {
     disabled: true,
   },
-  sources: [
-    { url: '/api/v1/openapi.json' },
-    { url: '/api/v2/openapi.json' },
-  ],
+  sources: [{ url: '/api/v1/openapi.json' }, { url: '/api/v2/openapi.json' }],
 })
 ```

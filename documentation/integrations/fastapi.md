@@ -225,3 +225,4 @@ from scalar_fastapi import Theme
 # Available options:
 Theme.DEFAULT # Default theme
 Theme.NONE    # No theme
+```

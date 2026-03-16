@@ -124,7 +124,9 @@ Defaults to `actual`.
 ::scalar-image{ src="https://avatars.githubusercontent.com/u/6176314?v=4" alt="System architecture diagram" caption="High-level system architecture showing data flow" }
 
 ```html
-::scalar-image{ src="https://avatars.githubusercontent.com/u/6176314?v=4" alt="System architecture diagram" caption="High-level system architecture showing data flow" }
+::scalar-image{ src="https://avatars.githubusercontent.com/u/6176314?v=4"
+alt="System architecture diagram" caption="High-level system architecture
+showing data flow" }
 ```
 
 </scalar-tab>
@@ -288,6 +290,7 @@ Defaults to `actual`.
   caption="Relative path Full-width hero image">
 </scalar-image>
 ```
+
 </scalar-tab>
 
 <scalar-tab title="Directive">
@@ -301,7 +304,7 @@ Defaults to `actual`.
 </scalar-tab>
 </scalar-tabs>
 
-<scalar-callout type="info"> The path is relative based on the configured  `assetsDir`. </scalar-callout>
+<scalar-callout type="info"> The path is relative based on the configured `assetsDir`. </scalar-callout>
 
 ```json
 // scalar.config.json
@@ -309,5 +312,3 @@ Defaults to `actual`.
   "assetsDir": "documentation/assets"
 }
 ```
-
-

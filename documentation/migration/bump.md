@@ -13,12 +13,12 @@ However, if API change detection or AsyncAPI support are critical needs for your
 
 Scalar offers a free tier and transparent pricing compared to Bump.sh.
 
-| Plan       |        Scalar         |      Bump.sh      |
-| ---------- | :-------------------: | :---------------: |
-| Free       |           ✓           |         ✗         |
-| Starter    | $72/mo (Pro, 3-seat min)  | $50/month (Basic) |
+| Plan       |           Scalar           |      Bump.sh      |
+| ---------- | :------------------------: | :---------------: |
+| Free       |             ✓              |         ✗         |
+| Starter    |  $72/mo (Pro, 3-seat min)  | $50/month (Basic) |
 | Team       | $72/mo + fees (3-seat min) | $250/month (Pro)  |
-| Enterprise |    Custom pricing     |  Custom pricing   |
+| Enterprise |       Custom pricing       |  Custom pricing   |
 
 - Scalar offers a free plan, Bump.sh does not
 - Scalar Pro starts at $72/mo (3-seat min) vs Bump.sh Basic at $50/month
@@ -184,4 +184,3 @@ These commands have no Bump equivalent but may be useful:
 | `scalar document bundle [file]`  | Resolve all `$ref` references |
 | `scalar document format [file]`  | Format OpenAPI document       |
 | `scalar document upgrade [file]` | Upgrade to OpenAPI 3.1        |
-

@@ -6,7 +6,6 @@ This guide explains how to integrate API Reference into .NET Framework and .NET 
 
 - An ASP.NET or ASP.NET Core application with OpenAPI support (using `Swashbuckle.AspNetCore.SwaggerGen` or `NSwag.AspNetCore`)
 
-
 ## Step 1: Enable OpenAPI support in your project
 
 ```csharp
@@ -59,17 +58,19 @@ Create `index.html` in the `wwwroot/scalar` directory with:
 ```html
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0" />
     <title>API Reference</title>
-</head>
-<body>
+  </head>
+  <body>
     <div id="app"></div>
 
     <script src="https://cdn.jsdelivr.net/npm/@scalar/api-reference"></script>
     <script src="./scalar.config.js"></script>
-</body>
+  </body>
 </html>
 ```
 
@@ -79,10 +80,10 @@ Create `scalar.config.js` in the same directory:
 
 ```javascript
 Scalar.initialize({
-    selector: "#app",
-    url: "/swagger/v1/swagger.json", // Adjust this URL to match your OpenAPI document path
-    theme: "moon" // Other configuration
-});
+  selector: '#app',
+  url: '/swagger/v1/swagger.json', // Adjust this URL to match your OpenAPI document path
+  theme: 'moon', // Other configuration
+})
 ```
 
 ## Step 5: Accessing your API Reference

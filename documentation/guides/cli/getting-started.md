@@ -1,4 +1,5 @@
 # Getting Started
+
 <div class="flex gap-2">
 <a href="https://www.npmjs.com/@scalar/cli" aria-label="View @scalar/cli on NPM"><img alt="NPM Version" src="https://img.shields.io/npm/v/@scalar/cli"></a>
 <a href="https://www.npmjs.com/@scalar/cli" aria-label="View NPM downloads for @scalar/cli"><img alt="NPM Downloads" src="https://img.shields.io/npm/dm/@scalar/cli"></a>
@@ -8,6 +9,7 @@
 Reading this guide helps you to get started with our CLI. We have dozens of commands around API Docs rendering (Markdown + MDX), OpenAPI bundling & linting, pushing to our cloud for governance+hosting & much more!
 
 ## Quick Start
+
 ```
 npx @scalar/cli help
 ```
@@ -49,9 +51,11 @@ pnpm dlx @scalar/cli help
 - [team](commands.md#team) Manage user teams
 
 ## Authentication
+
 To authenticate with the Scalar platform you can do the following:
 
 ### Web Login
+
 This opens a web portal which will authenticate, typical for local dev machine workflows
 
 ```bash
@@ -63,6 +67,7 @@ Now you can interact with all the wonderful authorization endpoints
 ### Token/Machine Based
 
 Typical if you want to use in CI workflows or programatically you need to:
+
 1. Visit https://dashboard.scalar.com
 2. Create an account or Login
 3. Navigate to User -> API Keys https://dashboard.scalar.com/user/api-keys
@@ -74,8 +79,6 @@ scalar auth login --token 1234secrettoken5678
 ```
 
 Now you can interact with all the wonderful authorization endpoints with just a token! Perfect for GitHub actions or scripts.
-
-
 
 ## GitHub Actions
 

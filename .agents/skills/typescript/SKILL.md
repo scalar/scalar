@@ -8,38 +8,44 @@ description: Write clear, predictable TypeScript and Vue TypeScript code with st
 You write TypeScript code that is clear, predictable, and easy to maintain. The goal is to make the codebase safer, more understandable, and easier to refactor without over-engineering.
 
 ## Principles
-* Type safety over flexibility.
-* Clarity over cleverness.
-* Type inference where it makes sense.
+
+- Type safety over flexibility.
+- Clarity over cleverness.
+- Type inference where it makes sense.
 
 ## General Guidelines
-* Prefer type over interface.
-* Explicit return types for functions.
-* Avoid any. Use unknown when the type is unclear.
-* Prefer primitive types over complex ones unless necessary.
-* Use readonly when possible.
-* Avoid enums. Use string literal unions instead.
-* Always use const instead of let.
-* Use satisfies instead of as
-* Always use arrow functions when possible
+
+- Prefer type over interface.
+- Explicit return types for functions.
+- Avoid any. Use unknown when the type is unclear.
+- Prefer primitive types over complex ones unless necessary.
+- Use readonly when possible.
+- Avoid enums. Use string literal unions instead.
+- Always use const instead of let.
+- Use satisfies instead of as
+- Always use arrow functions when possible
 
 ## Naming Conventions
-* Be descriptive.
-* Use suffixes appropriately.
+
+- Be descriptive.
+- Use suffixes appropriately.
 
 ## Working with Vue + TypeScript
-* Explicitly type defineProps and defineEmits.
-* Explicit return types for composables.
-* Explicitly type Ref and ComputedRef.
+
+- Explicitly type defineProps and defineEmits.
+- Explicit return types for composables.
+- Explicitly type Ref and ComputedRef.
 
 ## Testing
-* Write all tests using vitest.
-* Ensure you cover all main cases as well as edge cases, try to break the code with the tests.
-* Create the test file alongside the file being tested, call it `name.test.ts`.
+
+- Write all tests using vitest.
+- Ensure you cover all main cases as well as edge cases, try to break the code with the tests.
+- Create the test file alongside the file being tested, call it `name.test.ts`.
 
 # Great Comments for All Types
-* Use comments to explain why, not what. Most of the time, the code explains what is happening. Comments should clarify why a type or function exists, why you made specific decisions, or why a workaround is necessary.
-* Write friendly comments that sound human. Comments should be clear and helpful, not robotic or overly formal. Aim for a tone that's friendly and supportive, like you're helping a teammate understand the code later.
+
+- Use comments to explain why, not what. Most of the time, the code explains what is happening. Comments should clarify why a type or function exists, why you made specific decisions, or why a workaround is necessary.
+- Write friendly comments that sound human. Comments should be clear and helpful, not robotic or overly formal. Aim for a tone that's friendly and supportive, like you're helping a teammate understand the code later.
 
 Good:
 
@@ -58,13 +64,13 @@ Bad:
  */
 ```
 
-* Avoid contractions in comments. Use do not instead of don't, it is instead of it's, etc. This makes comments easier to read, especially for non-native speakers.
+- Avoid contractions in comments. Use do not instead of don't, it is instead of it's, etc. This makes comments easier to read, especially for non-native speakers.
 
-* If you use contractions, make sure they have proper apostrophes. Sometimes contractions can make a comment more approachable. If you choose to use them, use proper punctuation.
+- If you use contractions, make sure they have proper apostrophes. Sometimes contractions can make a comment more approachable. If you choose to use them, use proper punctuation.
 
-* Comment on types when their purpose isn't obvious. If a type models an external API, or has a non-obvious constraint, explain it.
+- Comment on types when their purpose isn't obvious. If a type models an external API, or has a non-obvious constraint, explain it.
 
-* Explain relationships between types when they're not clear.
+- Explain relationships between types when they're not clear.
 
 Example:
 
@@ -79,7 +85,7 @@ export type StatusColorMap = {
 }
 ```
 
-* Document the intent of utility types or generic types.
+- Document the intent of utility types or generic types.
 
 Example:
 
@@ -93,7 +99,7 @@ export type AtLeastOne<T> = {
 }[keyof T]
 ```
 
-* For complex function signatures or composables, describe the behavior and usage.
+- For complex function signatures or composables, describe the behavior and usage.
 
 Example:
 
@@ -110,7 +116,7 @@ Example:
 export function useUser() { ... }
 ```
 
-* If the type is temporary or will change later, leave a TODO comment.
+- If the type is temporary or will change later, leave a TODO comment.
 
 Example:
 
@@ -121,7 +127,7 @@ Example:
 export type Permissions = 'read' | 'write' | 'admin'
 ```
 
-* Use JSDoc style consistently for types and functions that are exported or public. This improves editor support (tooltips, autocompletion) and helps other developers understand your code faster.
+- Use JSDoc style consistently for types and functions that are exported or public. This improves editor support (tooltips, autocompletion) and helps other developers understand your code faster.
 
 ## Example
 

@@ -77,7 +77,9 @@ Migration is straightforward. In most cases, you can swap out Swagger UI for Sca
 <html>
   <head>
     <title>Swagger UI</title>
-    <link rel="stylesheet" href="https://unpkg.com/swagger-ui-dist/swagger-ui.css" />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/swagger-ui-dist/swagger-ui.css" />
   </head>
   <body>
     <div id="swagger-ui"></div>
@@ -100,7 +102,9 @@ Migration is straightforward. In most cases, you can swap out Swagger UI for Sca
   <head>
     <title>API Reference</title>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1" />
   </head>
   <body>
     <div id="app"></div>

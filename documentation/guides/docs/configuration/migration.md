@@ -8,16 +8,16 @@ Migrate your scalar.config.json with: `npx @scalar/cli project upgrade`
 
 ## New Features in Docs 2.0
 
-* MDX support with custom components
-* `[relative Markdown paths](../your-other-file.md)`
-* Per-operation page rendering for API references (huge performance boost for large OpenAPI documents)
-* Configurable navigation structures: nested, grouped, or flattened
-* Full `<head>` customization (meta tags, scripts, stylesheets)
-* Local file imports for CSS, scripts, and static assets
-* Local OpenAPI file references with `$ref` resolution
-* Subpath deployment with unified cross-project search
-* "Copy as Markdown"
-* … and so much more, it's crazy.
+- MDX support with custom components
+- `[relative Markdown paths](../your-other-file.md)`
+- Per-operation page rendering for API references (huge performance boost for large OpenAPI documents)
+- Configurable navigation structures: nested, grouped, or flattened
+- Full `<head>` customization (meta tags, scripts, stylesheets)
+- Local file imports for CSS, scripts, and static assets
+- Local OpenAPI file references with `$ref` resolution
+- Subpath deployment with unified cross-project search
+- "Copy as Markdown"
+- … and so much more, it's crazy.
 
 ## How do I know whether I use Docs 1.0?
 
@@ -35,7 +35,7 @@ If you created a project before February 2026, you probably use Docs 1.0:
   ],
   "references": [
     // …
-  ],
+  ]
 }
 ```
 
@@ -77,4 +77,3 @@ npx @scalar/cli project preview
 ```
 
 If it's good, commit and push the upgraded configuration to your repository – done!
-

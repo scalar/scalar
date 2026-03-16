@@ -39,7 +39,7 @@ It's recommend to run the tests against the built Storybook files rather than th
 
 ### Local Development
 
-The Playwright browser is run in a Docker container to have consistent results with CI. In order to run the test locally or update snapshots you **must** have Docker set up on your system. 
+The Playwright browser is run in a Docker container to have consistent results with CI. In order to run the test locally or update snapshots you **must** have Docker set up on your system.
 
 ```bash
 # Run tests (starts Docker container automatically)
@@ -63,6 +63,7 @@ pnpm test:e2e:ui
 ### CI/CD
 
 Tests run automatically in CI using the same Docker container for consistency. The CI environment:
+
 - Uses the containerized Playwright setup
 - Compares snapshots against committed baseline images
 - Fails the build if visual regressions are detected
@@ -86,11 +87,10 @@ To capture a basic snapshots of your stories create an `.e2e.ts` file next to yo
 ```ts
 import { takeSnapshot, test } from '@test/helpers'
 
-test.describe('ScalarCard', 
-  () => ['Base', 'With Actions', 'Minimal']
-  // takeSnapshot is a simple test function that just take a single snapshot
-  .forEach((story) => test(story, takeSnapshot))
-)
+test.describe('ScalarCard', () =>
+  ['Base', 'With Actions', 'Minimal']
+    // takeSnapshot is a simple test function that just take a single snapshot
+    .forEach((story) => test(story, takeSnapshot)))
 ```
 
 ### Advanced Component Test with Interactions
@@ -125,12 +125,8 @@ Fixtures are accessible via the test context.
 
 Options can be configured using [`test.use`](https://playwright.dev/docs/test-use-options#configuration-scopes).
 
-
 - **`component: string`**: The component name in Storybook, _inferred from the nearest `test.describe` title if not provided explicitly_.
 - **`story: string`**: The story name in Storybook, _inferred from the `test` title if not provided explicitly_.
 - **`scale: number`**: Device scale factor for crisp screenshots (default 2).
 - **`background: boolean`**: Render with background (default false).
 - **`crop: boolean`**: Crop to `#storybook-root > *` instead of full page (default false).
-
-
-

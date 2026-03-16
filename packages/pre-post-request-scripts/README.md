@@ -24,16 +24,11 @@ import { createApiClientWeb } from '@scalar/api-client/layouts/Web'
 import { postResponseScriptsPlugin } from '@scalar/pre-post-request-scripts'
 import '@scalar/api-client/style.css'
 
-createApiClientWeb(
-  document.getElementById('app'),
-  {
-    proxyUrl: 'https://proxy.scalar.com',
-    // Load the plugin
-    plugins: [
-      postResponseScriptsPlugin()
-    ],
-  },
-)
+createApiClientWeb(document.getElementById('app'), {
+  proxyUrl: 'https://proxy.scalar.com',
+  // Load the plugin
+  plugins: [postResponseScriptsPlugin()],
+})
 ```
 
 ## Script Runtime

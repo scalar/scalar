@@ -1,8 +1,18 @@
-import { Meta, Canvas, Controls, IconGallery, IconItem, Story } from '@storybook/addon-docs/blocks'
-import * as Stories from './ScalarIcons.stories';
+import {
+  Meta,
+  Canvas,
+  Controls,
+  IconGallery,
+  IconItem,
+  Story,
+} from '@storybook/addon-docs/blocks'
+import * as Stories from './ScalarIcons.stories'
 import * as icons from '@scalar/icons'
 
-<Meta title="Playgrounds / Icons" of={Stories} />
+<Meta
+  title="Playgrounds / Icons"
+  of={Stories}
+/>
 
 # Scalar Icons
 
@@ -12,4 +22,3 @@ The [`@scalar/icons`](https://github.com/scalar/scalar/tree/main/packages/icons)
 
 <Controls />
 <Canvas of={Stories.Playground} />
-

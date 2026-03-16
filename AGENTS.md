@@ -25,17 +25,17 @@ pnpm build:packages
 
 ## Key Commands
 
-| Task | Command |
-|------|---------|
-| Build all packages | `pnpm build:packages` |
-| Build integrations | `pnpm build:integrations` |
-| Clean build | `pnpm clean:build` |
-| Run unit tests | `pnpm test` |
+| Task                       | Command                                 |
+| -------------------------- | --------------------------------------- |
+| Build all packages         | `pnpm build:packages`                   |
+| Build integrations         | `pnpm build:integrations`               |
+| Clean build                | `pnpm clean:build`                      |
+| Run unit tests             | `pnpm test`                             |
 | Run tests (single package) | `pnpm vitest packages/api-client --run` |
-| Lint check | `pnpm lint:check` |
-| Lint fix | `pnpm lint:fix` |
-| Format | `pnpm format` |
-| Type check | `pnpm types:check` |
+| Lint check                 | `pnpm lint:check`                       |
+| Lint fix                   | `pnpm lint:fix`                         |
+| Format                     | `pnpm format`                           |
+| Type check                 | `pnpm types:check`                      |
 
 ## Development Servers
 
@@ -47,12 +47,12 @@ pnpm --filter api-reference dev
 pnpm --filter components dev
 ```
 
-| Package | Purpose |
-|---------|---------|
-| `api-client` | API testing client playground |
-| `api-reference` | Main API reference playground |
-| `components` | Storybook (port 5100) |
-| `void-server` | HTTP mirror server (port 5052) |
+| Package         | Purpose                        |
+| --------------- | ------------------------------ |
+| `api-client`    | API testing client playground  |
+| `api-reference` | Main API reference playground  |
+| `components`    | Storybook (port 5100)          |
+| `void-server`   | HTTP mirror server (port 5052) |
 
 ## Test Servers
 

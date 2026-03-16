@@ -6,7 +6,6 @@ You can pass a - what we call universal - configuration object to fine-tune your
 >
 > This is NOT the `scalar.config.json` (used for the [Docs](guides/docs/configuration/scalar.config.json.md)).
 
-
 ## Universal Configuration
 
 It is universal, because it works in all environments. You can pass it to the JS API directly, or you can use it in one of our integrations.
@@ -16,7 +15,7 @@ Let's say you are working with just an HTML file, that's how you pass the config
 ```javascript
 Scalar.createApiReference('#app', {
   // Your configuration goes here…
-  url: '…'
+  url: '…',
 })
 ```
 
@@ -27,7 +26,7 @@ app.get(
   '/doc',
   Scalar({
     // Your configuration goes here…
-    url: '…'
+    url: '…',
   }),
 )
 ```
@@ -44,7 +43,7 @@ Pass an absolute or relative URL to your OpenAPI document.
 
 ```javascript
 Scalar.createApiReference('#app', {
-  url: '/openapi.json'
+  url: '/openapi.json',
 })
 ```
 
@@ -71,7 +70,7 @@ Scalar.createApiReference('#app', {
     "paths": {
       // …
     }
-  }`
+  }`,
 })
 ```
 
@@ -95,8 +94,8 @@ Scalar.createApiReference('#app', {
     // API #3
     {
       content: '{ "openapi": "3.1.1", … }',
-    }
-  ]
+    },
+  ],
 })
 ```
 
@@ -114,8 +113,8 @@ Scalar.createApiReference('#app', {
       url: 'https://example.com/openapi.json',
       // This will make it the default OpenAPI document:
       default: true,
-    }
-  ]
+    },
+  ],
 })
 ```
 
@@ -132,18 +131,18 @@ Scalar.createApiReference('#app', [
     title: 'Scalar Galaxy', // optional, would fallback to 'API #1'
     slug: 'scalar-galaxy', // optional, would be auto-generated from the title or the index
     url: 'https://registry.scalar.com/@scalar/apis/galaxy?format=json',
-    customCss: `body { background-color: #BADA55}`
+    customCss: `body { background-color: #BADA55}`,
   },
   // Configuration #2
   {
     url: 'https://example.com/openapi.json',
-    customCss: `body { background-color: #c0ffee}`
+    customCss: `body { background-color: #c0ffee}`,
   },
   // Configuration #3
   {
     content: '{ "openapi": "3.1.1", … }',
-    customCss: `body { background-color: #facade}`
-  }
+    customCss: `body { background-color: #facade}`,
+  },
 ])
 ```
 
@@ -161,7 +160,7 @@ Scalar.createApiReference('#app', [
     // Make this the default configuration:
     default: true,
     content: '{ "openapi": "3.1.1", … }',
-  }
+  },
 ])
 ```
 
@@ -184,8 +183,8 @@ Scalar.createApiReference('#app', [
         url: 'https://example.com/openapi.json',
         // This will make it the default OpenAPI document:
         default: true,
-      }
-    ]
+      },
+    ],
   },
   // Configuration #2
   {
@@ -196,9 +195,9 @@ Scalar.createApiReference('#app', [
     sources: [
       {
         content: '{ "openapi": "3.1.1", … }',
-      }
-    ]
-  }
+      },
+    ],
+  },
 ])
 ```
 
@@ -206,11 +205,11 @@ Scalar.createApiReference('#app', [
 
 It is completely up to you whether you want to pass JSON or YAML. None of the differences make really a big difference, but here is a short overview:
 
-* JSON is faster to parse for the browser
-* JSON is supported natively in basically any environment
-* YAML is easier to write, especially if you want multiline text (for example for descriptions)
-* YAML is easier to read for humans
-* YAML documents tend to be a little bit smaller
+- JSON is faster to parse for the browser
+- JSON is supported natively in basically any environment
+- YAML is easier to write, especially if you want multiline text (for example for descriptions)
+- YAML is easier to read for humans
+- YAML documents tend to be a little bit smaller
 
 ## Agent
 
@@ -740,9 +739,9 @@ But you can also pass `true` to **hide all** HTTP clients. If you have any custo
 You can also provide an `object` where each **key** corresponds to a language,
 and each **value** specifies the visibility behavior for the clients of that language.
 
-* `true` — hides all clients for the specified language
-* `false` — shows all clients for the specified language
-* `['client1', 'client2']` — hides only the listed clients for the specified language
+- `true` — hides all clients for the specified language
+- `false` — shows all clients for the specified language
+- `['client1', 'client2']` — hides only the listed clients for the specified language
 
 ```typescript
 {
@@ -918,9 +917,9 @@ Whether to persist authentication credentials in local storage. This allows the 
 
 Whether to enable telemetry.
 
-Wait, did I say telemetry? We do track one thing, and only thing, and that’s *whether* a request was sent through the API client. This gives us a tiny, tiny insight into whether people use the API client and confirms whether we’re on the right track building a good experience for everyone. You can search the codebase for `analytics?.capture` to see what we capture, it’s all open-source. :)
+Wait, did I say telemetry? We do track one thing, and only thing, and that’s _whether_ a request was sent through the API client. This gives us a tiny, tiny insight into whether people use the API client and confirms whether we’re on the right track building a good experience for everyone. You can search the codebase for `analytics?.capture` to see what we capture, it’s all open-source. :)
 
-To be clear: *We don’t track who sends a request, we don’t track what request was sent and we don't track where a request was sent to.*
+To be clear: _We don’t track who sends a request, we don’t track what request was sent and we don't track where a request was sent to._
 
 Anyway, totally makes sense to disable it in some environments, so feel free to add `telemetry: false`, we will still be thankful you are using Scalar.
 
@@ -1003,8 +1002,8 @@ Pass a list of servers to override the servers in your OpenAPI document.
       variables: {
         port: {
           default: '8080',
-        }
-      }
+        },
+      },
     },
   ]
 }
@@ -1252,6 +1251,7 @@ Or specify a custom function to sort the operations:
 **Type:** `(path: string) => string | null | undefined`
 
 Function to handle redirects in the API reference. Receives either:
+
 - The current path with hash if pathRouting is enabled
 - The current hash if using hashRouting (default)
 
@@ -1265,7 +1265,10 @@ Function to handle redirects in the API reference. Receives either:
 {
   redirect: (pathWithHash) => {
     if (pathWithHash.includes('#')) {
-      return pathWithHash.replace('/v1/tags/user#operation/get-user', '/v1/tags/user/operation/get-user')
+      return pathWithHash.replace(
+        '/v1/tags/user#operation/get-user',
+        '/v1/tags/user/operation/get-user',
+      )
     }
     return null
   }

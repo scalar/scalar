@@ -22,9 +22,10 @@ import { MyReactComponent } from './components/MyReactComponent'
 </script>
 
 <template>
-  <ReactRenderer :component="MyReactComponent" my-custom-prop="foobar" />
+  <ReactRenderer
+    :component="MyReactComponent"
+    my-custom-prop="foobar" />
 </template>
-
 ```
 
 ## Community

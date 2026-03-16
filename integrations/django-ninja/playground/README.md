@@ -16,4 +16,3 @@ python manage.py runserver
 
 View the api reference example at the following URL
 `http://127.0.0.1:8000/api/docs`
-

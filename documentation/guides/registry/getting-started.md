@@ -18,6 +18,7 @@
   <div class="full-container-constrained">
 
 ## Create your Scalar Account
+
 To first access the Registry you need to [create an account](https://dashboard.scalar.com/register) or [sign in](https://dashboard.scalar.com/login).
 
 Once authenticated you will see your dashboard, you have two options to interface with the Registry:
@@ -31,6 +32,7 @@ Once authenticated you will see your dashboard, you have two options to interfac
 </div>
 
 ## So... Why a Registry?
+
 Managing OpenAPI can be difficult; is the source-of-truth: design, implementation, Git, cloud? How do you manage versions and access, also how do downstream consumers of your API interact with it? Does it need to be private?
 
 Who is going to update the docs when our API has new endpoints or examples?
@@ -38,14 +40,15 @@ Who is going to update the docs when our API has new endpoints or examples?
 Scalar handles all this and makes it incredibly easy to get to the exciting stuff! Once a document is in the Registry we can:
 
 ### Create Docs
+
 World Class API Docs with just a few clicks, all managed by Scalars registry automagically from your OpenAPI document changes.
 
 <div class="mt-6">
   <scalar-image src="/api-docs-static-zoom.svg" src-dark="/api-docs-static-zoom-dark.svg"></scalar-image>
 </div>
 
-
 ### Create SDKs
+
 World Class SDKs with just a few clicks, all managed by Scalars registry automagically from your OpenAPI document changes.
 
 and so much more!

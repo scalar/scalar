@@ -267,7 +267,6 @@ For more details, see [Agent](../../configuration.md#agent) and [How to get an A
 
 Scalar allows you to pre-configure authentication details for your API, making it easier for developers to test your endpoints. Scalar supports API Key, OAuth2, and HTTP authentication schemes.
 
-
 :::scalar-callout{ type=warning }
 **Before you start**: Your OpenAPI document must already include authentication security schemes for Scalar to work with them. Scalar can only pre-fill authentication details for schemes that are already defined in your OpenAPI specification.
 
@@ -277,7 +276,6 @@ The security schemes are added by your OpenAPI generator (`NSwag.AspNetCore`, `S
 :::scalar-callout{ type=danger }
 **Security Notice**: Pre-filled authentication details are visible in the browser and should **never** be used in production environments. Only use this feature for development and testing.
 :::
-
 
 #### API Key Authentication
 
@@ -500,7 +498,8 @@ Create a JavaScript module in your static files directory (e.g. `wwwroot/scalar/
 // wwwroot/scalar/config.js
 export default {
   // Custom slug generation for operations
-  generateOperationSlug: (operation) => `custom-${operation.method.toLowerCase()}${operation.path}`,
+  generateOperationSlug: (operation) =>
+    `custom-${operation.method.toLowerCase()}${operation.path}`,
 
   // Hook into document selection events
   onDocumentSelect: () => console.log('Document changed'),

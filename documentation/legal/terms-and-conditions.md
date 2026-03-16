@@ -1,5 +1,4 @@
-Terms and Conditions
-====================
+# Terms and Conditions
 
 Last updated: March 5, 2026
 
@@ -13,43 +12,26 @@ The words of which the initial letter is capitalized have meanings defined under
 
 ### 1.2 Definitions
 
-
 The words of which the initial letter is capitalized have meanings defined under the following conditions. The following definitions shall have the same meaning regardless of whether they appear in singular or in plural.
 
 For the purposes of these Terms and Conditions:
 
-*   **Affiliate** means an entity that controls, is controlled by or is under common control with a party, where "control" means ownership of 50% or more of the shares, equity interest or other securities entitled to vote for election of directors or other managing authority.
-    
-*   **Account** means a unique account created for You to access our Service or parts of our Service.
-    
-*   **Country** refers to: United States of America
-    
-*   **Company** (referred to as either "the Company", "We", "Us" or "Our" in this Agreement) refers to API Documentation Inc., (dba, Scalar).
-    
-*   **Content** refers to content such as text, images, or other information that can be posted, uploaded, linked to or otherwise made available by You, regardless of the form of that content.
-    
-*   **Device** means any device that can access the Service such as a computer, a cellphone or a digital tablet.
-    
-*   **Feedback** means feedback, innovations or suggestions sent by You regarding the attributes, performance or features of our Service.
-    
-*   **Free Trial** refers to a limited period of time that may be free when purchasing a Subscription.
-    
-*   **Privacy Policy** refers to Scalar's privacy practices document, incorporated into these Terms by reference, which outlines how We handle Your personal information.
-    
-*   **Promotions** refer to contests, sweepstakes or other promotions offered through the Service.
-    
-*   **Service** refers to the Website.
-    
-*   **Subscriptions** refer to the services or access to the Service offered on a subscription basis by the Company to You.
-    
-*   **Terms and Conditions** (also referred as "Terms") mean these Terms and Conditions that form the entire agreement between You and the Company regarding the use of the Service.
-    
-*   **Third-party Social Media Service** means any services or content (including data, information, products or services) provided by a third-party that may be displayed, included or made available by the Service.
-    
-*   **Website/ Site** refers to Scalar, accessible from [https://scalar.com](https://scalar.com/)
-    
-*   **You** means the individual accessing or using the Service, or the company, or other legal entity on behalf of which such individual is accessing or using the Service, as applicable.
-    
+- **Affiliate** means an entity that controls, is controlled by or is under common control with a party, where "control" means ownership of 50% or more of the shares, equity interest or other securities entitled to vote for election of directors or other managing authority.
+- **Account** means a unique account created for You to access our Service or parts of our Service.
+- **Country** refers to: United States of America
+- **Company** (referred to as either "the Company", "We", "Us" or "Our" in this Agreement) refers to API Documentation Inc., (dba, Scalar).
+- **Content** refers to content such as text, images, or other information that can be posted, uploaded, linked to or otherwise made available by You, regardless of the form of that content.
+- **Device** means any device that can access the Service such as a computer, a cellphone or a digital tablet.
+- **Feedback** means feedback, innovations or suggestions sent by You regarding the attributes, performance or features of our Service.
+- **Free Trial** refers to a limited period of time that may be free when purchasing a Subscription.
+- **Privacy Policy** refers to Scalar's privacy practices document, incorporated into these Terms by reference, which outlines how We handle Your personal information.
+- **Promotions** refer to contests, sweepstakes or other promotions offered through the Service.
+- **Service** refers to the Website.
+- **Subscriptions** refer to the services or access to the Service offered on a subscription basis by the Company to You.
+- **Terms and Conditions** (also referred as "Terms") mean these Terms and Conditions that form the entire agreement between You and the Company regarding the use of the Service.
+- **Third-party Social Media Service** means any services or content (including data, information, products or services) provided by a third-party that may be displayed, included or made available by the Service.
+- **Website/ Site** refers to Scalar, accessible from [https://scalar.com](https://scalar.com/)
+- **You** means the individual accessing or using the Service, or the company, or other legal entity on behalf of which such individual is accessing or using the Service, as applicable.
 
 ## 2. Acknowledgment
 
@@ -143,22 +125,14 @@ The Company is not responsible for the content of the Service's users. You expre
 
 You may not transmit any Content that is unlawful, offensive, upsetting, intended to disgust, threatening, libelous, defamatory, obscene or otherwise objectionable. Examples of such objectionable Content include, but are not limited to, the following:
 
-*   Unlawful or promoting unlawful activity.
-    
-*   Defamatory, discriminatory, or mean-spirited content, including references or commentary about religion, race, sexual orientation, gender, national/ethnic origin, or other targeted groups.
-    
-*   Spam, machine – or randomly – generated, constituting unauthorized or unsolicited advertising, chain letters, any other form of unauthorized solicitation, or any form of lottery or gambling.
-    
-*   Containing or installing any viruses, worms, malware, trojan horses, or other content that is designed or intended to disrupt, damage, or limit the functioning of any software, hardware or telecommunications equipment or to damage or obtain unauthorized access to any data or other information of a third person.
-    
-*   Infringing on any proprietary rights of any party, including patent, trademark, trade secret, copyright, right of publicity or other rights.
-    
-*   Impersonating any person or entity including the Company and its employees or representatives.
-    
-*   Violating the privacy of any third person.
-    
-*   False information and features.
-    
+- Unlawful or promoting unlawful activity.
+- Defamatory, discriminatory, or mean-spirited content, including references or commentary about religion, race, sexual orientation, gender, national/ethnic origin, or other targeted groups.
+- Spam, machine – or randomly – generated, constituting unauthorized or unsolicited advertising, chain letters, any other form of unauthorized solicitation, or any form of lottery or gambling.
+- Containing or installing any viruses, worms, malware, trojan horses, or other content that is designed or intended to disrupt, damage, or limit the functioning of any software, hardware or telecommunications equipment or to damage or obtain unauthorized access to any data or other information of a third person.
+- Infringing on any proprietary rights of any party, including patent, trademark, trade secret, copyright, right of publicity or other rights.
+- Impersonating any person or entity including the Company and its employees or representatives.
+- Violating the privacy of any third person.
+- False information and features.
 
 The Company reserves the right, but not the obligation, to, in its sole discretion, determine whether or not any Content is appropriate and complies with these Terms, refuse or remove this Content. The Company further reserves the right to make formatting and edits and change the manner of any Content. The Company can also limit or revoke the use of the Service if You post such objectionable Content. As the Company cannot control all content posted by users and/or third parties on the Service, you agree to use the Service at your own risk. You understand that by using the Service You may be exposed to content that You may find offensive, indecent, incorrect or objectionable, and You agree that under no circumstances will the Company be liable in any way for any content, including any errors or omissions in any content, or any loss or damage of any kind incurred as a result of your use of any content.
 
@@ -178,42 +152,24 @@ You may not access or use the Site for any purpose other than that for which We 
 
 As a user of the Site, You agree not to:
 
-*   Systematically or repeatedly retrieve data or other content from the Site to create or compile, directly or indirectly, a collection, compilation, database, or directory without prior written permission from Us.
-    
-*   Trick, defraud, or mislead Us and other users, especially in any attempt to learn sensitive account information such as user passwords.
-    
-*   Circumvent, disable, or otherwise interfere with security-related features of the Site, including features that prevent or restrict the use or copying of any Content or enforce limitations on the use of the Site and/or the Content contained therein.
-    
-*   Use the Site in a manner inconsistent with any applicable laws or regulations.
-    
-*   Engage in unauthorized framing of or linking to the Site.
-    
-*   Engage in any automated use of the system, such as using scripts to send comments or messages, or using any data mining, robots, or similar data gathering and extraction tools.
-    
-*   Attempt to impersonate another user or person or use the username of another user.
-    
-*   Upload or transmit (or attempt to upload or to transmit) any material that acts as a passive or active information collection or transmission mechanism, including without limitation, clear graphics interchange formats ("gifs"), 1×1 pixels, web bugs, cookies, or other similar devices (sometimes referred to as "spyware" or "passive collection mechanisms" or "pcms").
-    
-*   Interfere with, disrupt, or create an undue burden on the Site or the networks or services connected to the Site.
-    
-*   Harass, annoy, intimidate, or threaten any of Our employees or agents engaged in providing any portion of the Site to You.
-    
-*   Attempt to bypass any measures of the Site designed to prevent or restrict access to the Site, or any portion of the Site.
-    
-*   Copy or adapt the Site's software, including but not limited to Flash, PHP, HTML, JavaScript, or other code.
-    
-*   Except as permitted by applicable law, decipher, decompile, disassemble, or reverse engineer any of the software comprising or in any way making up a part of the Site.
-    
-*   Except as may be the result of standard search engine or Internet browser usage, use, launch, develop, or distribute any automated system, including without limitation, any spider, robot, cheat utility, scraper, or offline reader that accesses the Site, or using or launching any unauthorized script or other software.
-    
-*   Make any unauthorized use of the Site, including collecting usernames and/or email addresses of users by electronic or other means for the purpose of sending unsolicited email, or creating user accounts by automated means or under false pretenses.
-    
-*   Use the Site as part of any effort to compete with us or otherwise use the Site and/or the Content for any revenue-generating endeavor or commercial enterprise.
-    
-*   Using AI tools or generative technologies to scrape, copy, or replicate site content or services, especially where output is redistributed, resold, or used to create derivative works that compete with Scalar.
-    
-*   Training AI models on Our proprietary content without explicit permission.
-    
+- Systematically or repeatedly retrieve data or other content from the Site to create or compile, directly or indirectly, a collection, compilation, database, or directory without prior written permission from Us.
+- Trick, defraud, or mislead Us and other users, especially in any attempt to learn sensitive account information such as user passwords.
+- Circumvent, disable, or otherwise interfere with security-related features of the Site, including features that prevent or restrict the use or copying of any Content or enforce limitations on the use of the Site and/or the Content contained therein.
+- Use the Site in a manner inconsistent with any applicable laws or regulations.
+- Engage in unauthorized framing of or linking to the Site.
+- Engage in any automated use of the system, such as using scripts to send comments or messages, or using any data mining, robots, or similar data gathering and extraction tools.
+- Attempt to impersonate another user or person or use the username of another user.
+- Upload or transmit (or attempt to upload or to transmit) any material that acts as a passive or active information collection or transmission mechanism, including without limitation, clear graphics interchange formats ("gifs"), 1×1 pixels, web bugs, cookies, or other similar devices (sometimes referred to as "spyware" or "passive collection mechanisms" or "pcms").
+- Interfere with, disrupt, or create an undue burden on the Site or the networks or services connected to the Site.
+- Harass, annoy, intimidate, or threaten any of Our employees or agents engaged in providing any portion of the Site to You.
+- Attempt to bypass any measures of the Site designed to prevent or restrict access to the Site, or any portion of the Site.
+- Copy or adapt the Site's software, including but not limited to Flash, PHP, HTML, JavaScript, or other code.
+- Except as permitted by applicable law, decipher, decompile, disassemble, or reverse engineer any of the software comprising or in any way making up a part of the Site.
+- Except as may be the result of standard search engine or Internet browser usage, use, launch, develop, or distribute any automated system, including without limitation, any spider, robot, cheat utility, scraper, or offline reader that accesses the Site, or using or launching any unauthorized script or other software.
+- Make any unauthorized use of the Site, including collecting usernames and/or email addresses of users by electronic or other means for the purpose of sending unsolicited email, or creating user accounts by automated means or under false pretenses.
+- Use the Site as part of any effort to compete with us or otherwise use the Site and/or the Content for any revenue-generating endeavor or commercial enterprise.
+- Using AI tools or generative technologies to scrape, copy, or replicate site content or services, especially where output is redistributed, resold, or used to create derivative works that compete with Scalar.
+- Training AI models on Our proprietary content without explicit permission.
 
 ## 9. Copyright Policy
 
@@ -229,18 +185,12 @@ You may be held accountable for damages (including costs and attorneys' fees) fo
 
 You may submit a notification pursuant to the Digital Millennium Copyright Act (DMCA) by providing our Copyright Agent with the following information in writing (see 17 U.S.C 512(c)(3) for further detail):
 
-*   An electronic or physical signature of the person authorized to act on behalf of the owner of the copyright's interest.
-    
-*   A description of the copyrighted work that You claim has been infringed, including the URL (i.e., web page address) of the location where the copyrighted work exists or a copy of the copyrighted work.
-    
-*   Identification of the URL or other specific location on the Service where the material that You claim is infringing is located.
-    
-*   Your address, telephone number, and email address.
-    
-*   A statement by You that You have a good faith belief that the disputed use is not authorized by the copyright owner, its agent, or the law.
-    
-*   A statement by You, made under penalty of perjury, that the above information in Your notice is accurate and that You are the copyright owner or authorized to act on the copyright owner's behalf.
-    
+- An electronic or physical signature of the person authorized to act on behalf of the owner of the copyright's interest.
+- A description of the copyrighted work that You claim has been infringed, including the URL (i.e., web page address) of the location where the copyrighted work exists or a copy of the copyrighted work.
+- Identification of the URL or other specific location on the Service where the material that You claim is infringing is located.
+- Your address, telephone number, and email address.
+- A statement by You that You have a good faith belief that the disputed use is not authorized by the copyright owner, its agent, or the law.
+- A statement by You, made under penalty of perjury, that the above information in Your notice is accurate and that You are the copyright owner or authorized to act on the copyright owner's behalf.
 
 You can contact our copyright agent via email at [support@scalar.com](mailto:support@scalar.com). Upon receipt of a notification, the Company will take whatever action, in its sole discretion, it deems appropriate, including removal of the challenged content from the Service.
 

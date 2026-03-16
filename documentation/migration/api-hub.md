@@ -7,7 +7,7 @@ Scalar includes many of the same features as API Hub including:
 1. A centralized location to edit and collaborate on OpenAPI and Swagger documents.
 2. An interactive, customizable, and publishable API reference builder.
 3. Custom domains, theming, and logos.
-4. A built-in, local-first API client to help developers and end users call endpoints and test  APIs.
+4. A built-in, local-first API client to help developers and end users call endpoints and test APIs.
 
 Beyond having a simpler name, Scalar is also [free to use forever](../guides/pricing.md) with fewer limits than API Hub. If you want custom domains, GitHub sync, and a few other features, our Pro plan starts at $72/mo (3-seat min).
 
@@ -17,7 +17,7 @@ As a bonus, Scalar is also open source, meaning you can self-host it and view al
 
 Migrating is as simple as exporting your API doc from API Hub Design and uploading it to Scalar.
 
-To start, go into API Hub Design and find the API you want to export. On the editor page, click **Export** in the top right and choose **JSON Unresolved**  to keep `$ref` values to other docs or **JSON Resolved** to include everything inline.
+To start, go into API Hub Design and find the API you want to export. On the editor page, click **Export** in the top right and choose **JSON Unresolved** to keep `$ref` values to other docs or **JSON Resolved** to include everything inline.
 
 ![API Hub Design](../assets/migration/ah-design.png)
 

@@ -23,6 +23,7 @@ Commands:
 ```
 
 ## readme
+
 ```
 Usage: scalar readme [options] [command]
 
@@ -36,6 +37,7 @@ Commands:
 ```
 
 ### generate
+
 ```
 Usage: scalar readme generate [options]
 
@@ -47,6 +49,7 @@ Options:
 ```
 
 ## upgrade
+
 ```
 Usage: scalar upgrade [options]
 
@@ -57,6 +60,7 @@ Options:
 ```
 
 ## auth
+
 ```
 Usage: scalar auth [options] [command]
 
@@ -73,6 +77,7 @@ Commands:
 ```
 
 ### login
+
 ```
 Usage: scalar auth login [options]
 
@@ -86,6 +91,7 @@ Options:
 ```
 
 ### whoami
+
 ```
 Usage: scalar auth whoami [options]
 
@@ -96,6 +102,7 @@ Options:
 ```
 
 ### logout
+
 ```
 Usage: scalar auth logout [options]
 
@@ -106,6 +113,7 @@ Options:
 ```
 
 ## document
+
 ```
 Usage: scalar document [options] [command]
 
@@ -132,6 +140,7 @@ Commands:
 ```
 
 ### bundle
+
 ```
 Usage: scalar document bundle [options] [file|url]
 
@@ -151,6 +160,7 @@ Options:
 ```
 
 ### split
+
 ```
 Usage: scalar document split [options] [file|url]
 
@@ -165,6 +175,7 @@ Options:
 ```
 
 ### join
+
 ```
 Usage: scalar document join [options] <files...>
 
@@ -180,6 +191,7 @@ Options:
 ```
 
 ### format
+
 ```
 Usage: scalar document format [options] [file|url]
 
@@ -194,6 +206,7 @@ Options:
 ```
 
 ### mock
+
 ```
 Usage: scalar document mock [options] [file|url]
 
@@ -210,6 +223,7 @@ Options:
 ```
 
 ### serve
+
 ```
 Usage: scalar document serve [options] [file|url]
 
@@ -226,6 +240,7 @@ Options:
 ```
 
 ### share
+
 ```
 Usage: scalar document share [options] [file]
 
@@ -240,6 +255,7 @@ Options:
 ```
 
 ### validate
+
 ```
 Usage: scalar document validate [options] [file|url]
 
@@ -253,6 +269,7 @@ Options:
 ```
 
 ### void
+
 ```
 Usage: scalar document void [options]
 
@@ -265,6 +282,7 @@ Options:
 ```
 
 ### lint
+
 ```
 Usage: scalar document lint [options] [file|url]
 
@@ -279,6 +297,7 @@ Options:
 ```
 
 ### upgrade
+
 ```
 Usage: scalar document upgrade [options] [file|url]
 
@@ -293,6 +312,7 @@ Options:
 ```
 
 ## project
+
 ```
 Usage: scalar project [options] [command]
 
@@ -314,6 +334,7 @@ Commands:
 ```
 
 ### init
+
 ```
 Usage: scalar project init [options]
 
@@ -326,6 +347,7 @@ Options:
 ```
 
 ### check-config
+
 ```
 Usage: scalar project check-config [options] [file]
 
@@ -339,6 +361,7 @@ Options:
 ```
 
 ### create
+
 ```
 Usage: scalar project create [options]
 
@@ -351,6 +374,7 @@ Options:
 ```
 
 ### preview
+
 ```
 Usage: scalar project preview [options] [config]
 
@@ -377,6 +401,7 @@ Options:
 ```
 
 ### publish
+
 ```
 Usage: scalar project publish [options]
 
@@ -391,6 +416,7 @@ Options:
 ```
 
 ### upgrade
+
 ```
 Usage: scalar project upgrade [options] [config]
 
@@ -405,6 +431,7 @@ Options:
 ```
 
 ## registry
+
 ```
 Usage: scalar registry [options] [command]
 
@@ -425,6 +452,7 @@ Commands:
 ```
 
 ### publish
+
 ```
 Usage: scalar registry publish [options] [file]
 
@@ -451,6 +479,7 @@ Options:
 ```
 
 ### update
+
 ```
 Usage: scalar registry update [options] [namespace] [slug]
 
@@ -467,6 +496,7 @@ Options:
 ```
 
 ### delete
+
 ```
 Usage: scalar registry delete [options] [namespace] [slug]
 
@@ -481,6 +511,7 @@ Options:
 ```
 
 ### list
+
 ```
 Usage: scalar registry list [options]
 
@@ -492,6 +523,7 @@ Options:
 ```
 
 ## team
+
 ```
 Usage: scalar team [options] [command]
 
@@ -507,6 +539,7 @@ Commands:
 ```
 
 ### list
+
 ```
 Usage: scalar team list [options]
 
@@ -517,6 +550,7 @@ Options:
 ```
 
 ### set
+
 ```
 Usage: scalar team set [options]
 
@@ -528,6 +562,7 @@ Options:
 ```
 
 ## sdk
+
 ```
 Usage: scalar sdk [options] [command]
 
@@ -546,6 +581,7 @@ Commands:
 ```
 
 ### list
+
 ```
 Usage: scalar sdk list [options]
 
@@ -557,6 +593,7 @@ Options:
 ```
 
 ### create
+
 ```
 Usage: scalar sdk create [options]
 
@@ -571,6 +608,7 @@ Options:
 ```
 
 ### update
+
 ```
 Usage: scalar sdk update [options]
 
@@ -585,6 +623,7 @@ Options:
 ```
 
 ### delete
+
 ```
 Usage: scalar sdk delete [options]
 
@@ -597,6 +636,7 @@ Options:
 ```
 
 ### build
+
 ```
 Usage: scalar sdk build [options]
 
@@ -610,6 +650,7 @@ Options:
 ```
 
 ## schema
+
 ```
 Usage: scalar schema [options] [command]
 
@@ -627,6 +668,7 @@ Commands:
 ```
 
 ### delete
+
 ```
 Usage: scalar schema delete [options]
 
@@ -639,6 +681,7 @@ Options:
 ```
 
 ### update
+
 ```
 Usage: scalar schema update [options]
 
@@ -654,6 +697,7 @@ Options:
 ```
 
 ### list
+
 ```
 Usage: scalar schema list [options]
 
@@ -665,6 +709,7 @@ Options:
 ```
 
 ### publish
+
 ```
 Usage: scalar schema publish [options] [file]
 
@@ -688,5 +733,3 @@ Options:
                            bundling the document
   -h, --help               display help for command
 ```
-
-

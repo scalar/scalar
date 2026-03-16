@@ -7,7 +7,6 @@
 
 Shared libraries for our packages, specifically [@scalar/api-reference](https://www.npmjs.com/pacupdatekage/@scalar/api-reference) and [@scalar/api-client](https://www.npmjs.com/package/@scalar/api-client).
 
-
 ## Installation
 
 ```bash

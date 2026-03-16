@@ -237,3 +237,4 @@ from scalar_ninja import Theme
 # Available options:
 Theme.DEFAULT   # Default theme
 Theme.NONE      # No theme
+```

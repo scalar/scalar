@@ -7,11 +7,13 @@ Scalar provides extension methods and attributes to enhance your OpenAPI documen
 You must install and configure one of the companion packages to enable extensions:
 
 **For `Microsoft.AspNetCore.OpenApi`:**
+
 ```shell
 dotnet add package Scalar.AspNetCore.Microsoft
 ```
 
 **For `Swashbuckle.AspNetCore.SwaggerGen`:**
+
 ```shell
 dotnet add package Scalar.AspNetCore.Swashbuckle
 ```
@@ -37,7 +39,7 @@ Mark endpoints with their stability status to help developers understand product
 ```csharp
 // Minimal APIs
 app.MapGet("/products", GetProducts).Stable();
-app.MapGet("/beta-features", GetBetaFeatures).Experimental(); 
+app.MapGet("/beta-features", GetBetaFeatures).Experimental();
 app.MapGet("/legacy-endpoint", GetLegacyData).Deprecated();
 
 // Controllers
@@ -47,8 +49,9 @@ public IActionResult GetProducts() => Ok();
 ```
 
 **Stability Levels:**
+
 - `Stable`: Production-ready API
-- `Experimental`: API likely to change, not recommended for production  
+- `Experimental`: API likely to change, not recommended for production
 - `Deprecated`: API will be removed in a future release
 
 ### Exclude From API Reference
@@ -76,12 +79,12 @@ Add custom code examples to help developers understand how to use your endpoints
 ```csharp
 // Minimal APIs
 app.MapPost("/orders", CreateOrder)
-    .CodeSample("fetch('/orders', { method: 'POST', body: JSON.stringify(order) })", 
+    .CodeSample("fetch('/orders', { method: 'POST', body: JSON.stringify(order) })",
                 ScalarTarget.JavaScript, "Create Order")
-    .CodeSample("curl -X POST /orders -d @order.json", 
+    .CodeSample("curl -X POST /orders -d @order.json",
                 ScalarTarget.Shell, "Create with cURL");
 
-// Controllers  
+// Controllers
 [HttpGet]
 [CodeSample("fetch('/products').then(r => r.json())", ScalarTarget.JavaScript)]
 public IActionResult GetProducts() => Ok();
@@ -110,6 +113,7 @@ public IActionResult GetExperimentalFeature() => Ok();
 ```
 
 **Badge Options:**
+
 - `name`: The text displayed in the badge (required)
 - `position`: Where the badge appears relative to the operation header
 - `color`: Badge color in any CSS format (hex, rgb, keywords, etc.)

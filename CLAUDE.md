@@ -86,6 +86,7 @@ All workspace packages use `workspace:*` for internal deps. Shared third-party v
 ## Code Standards
 
 ### TypeScript
+
 - Prefer `type` over `interface`
 - Explicit return types for functions
 - Avoid `any`; use `unknown` when the type is unclear
@@ -96,6 +97,7 @@ All workspace packages use `workspace:*` for internal deps. Shared third-party v
 - Single quotes, trailing commas, semicolons only as needed
 
 ### Vue Components
+
 - Composition API with `<script setup lang="ts">`
 - Use Tailwind CSS utility classes for styling
 - Destructure props: `const { prop1, prop2 = 'default' } = defineProps<Props>()`
@@ -104,6 +106,7 @@ All workspace packages use `workspace:*` for internal deps. Shared third-party v
 - `<script setup>` order: imports, props/emits, state/computed/methods, lifecycle hooks
 
 ### Comments
+
 - Explain **why**, not what
 - Friendly, human tone
 - Avoid contractions (use "do not" instead of "don't")
@@ -111,6 +114,7 @@ All workspace packages use `workspace:*` for internal deps. Shared third-party v
 - Leave TODO comments for temporary solutions
 
 ### Testing
+
 - Vitest for unit tests, Playwright for E2E
 - Always import `describe`, `it`, `expect` explicitly from `vitest` (no globals)
 - Test files: `name.test.ts` alongside the source file
@@ -120,6 +124,7 @@ All workspace packages use `workspace:*` for internal deps. Shared third-party v
 - Vue component tests: test behavior, not DOM structure or Tailwind classes
 
 ### Biome Lint Rules to Know
+
 - `noBarrelFile: error` — No barrel files (except `index.ts` entry points)
 - `noReExportAll: warn` — Avoid `export * from` (error in api-reference and openapi-parser)
 - `noTsIgnore: error` — No `@ts-ignore` (use `@ts-expect-error` with explanation if needed)
@@ -130,17 +135,20 @@ All workspace packages use `workspace:*` for internal deps. Shared third-party v
 ## Git Workflow
 
 ### Branch Naming
+
 - `claude/feature-description` — New features
 - `claude/fix-description` — Bug fixes
 - `claude/chore-description` — Maintenance
 
 ### Commit Messages
+
 - Conventional commits: `feat(api-client): add new endpoint`
 - Present tense ("add" not "added")
 
 ## OpenAPI Terminology
 
 Use correct terminology when working with OpenAPI-related code:
+
 - **OpenAPI** (not "Swagger") — The specification format
 - **API description** (not "API spec" or "API definition") — The metadata document
 - **Schema** — Data model describing request/response shapes

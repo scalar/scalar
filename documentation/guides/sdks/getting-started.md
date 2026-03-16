@@ -14,7 +14,6 @@
   <scalar-image src="/sdks-animated.svg" src-dark="/sdks-animated-dark.svg"></scalar-image>
 </div>
 
-
 <div class="flex">
   <div class="full-container-constrained">
 
@@ -53,7 +52,6 @@ Once created, you will get redirected to the SDK Overview page where you can:
 </scalar-steps>
 
 <scalar-image src="/sdk-dashboard-static.svg" src-dark="/sdk-dashboard-static-dark.svg"></scalar-image>
-
 
 <div class="feature">
   <h2>Features</h2>

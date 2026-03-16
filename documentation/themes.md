@@ -2,17 +2,17 @@
 
 You don't like the color scheme? We've prepared some themes for you:
 
-* `alternate`
-* `default`
-* `moon`
-* `purple`
-* `solarized`
-* `bluePlanet`
-* `saturn`
-* `kepler`
-* `mars`
-* `deepSpace`
-* `laserwave`
+- `alternate`
+- `default`
+- `moon`
+- `purple`
+- `solarized`
+- `bluePlanet`
+- `saturn`
+- `kepler`
+- `mars`
+- `deepSpace`
+- `laserwave`
 
 Just pass the theme name to your [API Reference configuration](configuration.md):
 
@@ -167,4 +167,3 @@ We recommend updating your theme variables as soon as possible:
 
 - `--theme-*` → `--scalar-*`
 - `--sidebar-*` → `--scalar-sidebar-*`
-

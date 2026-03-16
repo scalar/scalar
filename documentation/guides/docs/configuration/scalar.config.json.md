@@ -108,9 +108,7 @@ Configure your site's domain, appearance, and custom assets:
       "links": [{ "rel": "icon", "href": "/favicon.png" }]
     },
     "routing": {
-      "redirects": [
-        { "from": "/old-path", "to": "/new-path" }
-      ]
+      "redirects": [{ "from": "/old-path", "to": "/new-path" }]
     }
   }
 }
@@ -152,11 +150,12 @@ Here is a more complete example showing common configuration options:
     },
     "head": {
       "meta": [
-        { "name": "description", "content": "Acme API documentation and guides" }
+        {
+          "name": "description",
+          "content": "Acme API documentation and guides"
+        }
       ],
-      "links": [
-        { "rel": "icon", "href": "/favicon.png" }
-      ]
+      "links": [{ "rel": "icon", "href": "/favicon.png" }]
     }
   },
   "navigation": {

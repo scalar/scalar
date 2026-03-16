@@ -5,15 +5,18 @@ Cards display content inside a bordered box, optionally with a title and icon. T
 ## Properties
 
 ### title
-`string` *optional*
+
+`string` _optional_
 Adds a title to the top of the card.
 
 ### icon
-`string` *optional*
+
+`string` _optional_
 Displays an icon in the title area. Uses the Scalar icon format. If both `title` and `icon` are provided, the icon appears before the title.
 
 ### leftIcon
-`string` *optional*
+
+`string` _optional_
 Displays a large icon to the left of the card content.
 
 ## Examples

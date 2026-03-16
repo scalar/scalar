@@ -18,11 +18,11 @@ Zuplo and Scalar serve different purposes and can be used together. Keep Zuplo a
 
 Scalar offers a more accessible entry point with a free tier and simpler pricing compared to Zuplo.
 
-| Plan       |     Scalar     |      Zuplo       |
-| ---------- | :------------: | :--------------: |
-| Free       |       ✓        | limited requests |
+| Plan       |       Scalar        |      Zuplo       |
+| ---------- | :-----------------: | :--------------: |
+| Free       |          ✓          | limited requests |
 | Paid       | $72/mo (3-seat min) |   usage-based    |
-| Enterprise | custom pricing |  custom pricing  |
+| Enterprise |   custom pricing    |  custom pricing  |
 
 - Scalar pricing is user-based (documentation platform), while Zuplo pricing is request-based (gateway usage)
 - Scalar has a generous free tier for documentation that doesn't depend on API traffic
@@ -206,6 +206,7 @@ If you've customized your Zuplo developer portal with CSS, you can just pass thi
 ```
 
 Scalar also includes 11 built-in themes that you can use as a starting point:
+
 - `default`, `alternate`, `moon`, `purple`, `solarized`, `bluePlanet`, `saturn`, `kepler`, `mars`, `deepSpace`, `laserwave`
 
 ### Step 6: (Optional) Migrate Markdown Guides
@@ -276,10 +277,12 @@ If you had traffic going to your Zuplo developer portal, you might want to set u
 {
   "siteConfig": {
     "routing": {
-      "redirects": [{
-        "from": "/old-path/:wildcard",
-        "to": "/new-path/:wildcard"
-      }]
+      "redirects": [
+        {
+          "from": "/old-path/:wildcard",
+          "to": "/new-path/:wildcard"
+        }
+      ]
     }
   }
 }
@@ -317,5 +320,3 @@ This way, your documentation stays in sync with your gateway configuration autom
 The biggest advantage in this migration is that both tools are fundamentally OpenAPI-based, which means your core specifications will transfer cleanly.
 
 Scalar's team is happy to offer migration assistance and consultation to help streamline this process, particularly for teams with complex Zuplo implementations.
-
-

@@ -15,7 +15,6 @@ When enabled in the Dashboard, Scalar posts a comment on each pull request with 
 
 ![PR Comment](../../../assets/docs/pr-comment.png)
 
-
 ## CLI
 
 If your Docs project is not connected to your GitHub repository, use the CLI publish in preview mode (e.g. for pull requests) without going live:

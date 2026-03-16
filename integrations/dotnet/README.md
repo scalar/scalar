@@ -9,6 +9,7 @@ This folder contains the .NET packages for Scalar API documentation.
 - **`aspire/`** - Contains `Scalar.Aspire` package for .NET Aspire applications
 
 Each project has its own solution file (`.slnx`):
+
 - `Scalar.Shared.slnx` - For working with shared code
 - `Scalar.AspNetCore.slnx` - For working with ASP.NET Core package
 - `Scalar.Aspire.slnx` - For working with Aspire package

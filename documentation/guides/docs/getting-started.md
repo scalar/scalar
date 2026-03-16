@@ -130,7 +130,6 @@ Put your content where you want: in your repository, any folder, or the Scalar E
 | Custom domains, Guides, versions, Git Sync, Markdown + MDX, landing pages, full developer portal |      | ✓   | ✓          |
 | SSO/SAML, RBAC, priority support, dedicated Slack/Teams                                          |      |     | ✓          |
 
-
 [See the full comparison](../pricing.md) for Docs and the other Scalar products.
 
 <div class="feature">

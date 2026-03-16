@@ -1,4 +1,5 @@
 # Getting Started
+
 <div class="flex gap-2">
 <a href="https://www.npmjs.com/@scalar/api-reference" aria-label="View @scalar/api-reference on NPM"><img alt="NPM Version" src="https://img.shields.io/npm/v/@scalar/api-reference"></a>
 <a href="https://www.npmjs.com/@scalar/api-reference" aria-label="View NPM downloads for @scalar/api-reference"><img alt="NPM Downloads" src="https://img.shields.io/npm/dm/@scalar/api-reference"></a>

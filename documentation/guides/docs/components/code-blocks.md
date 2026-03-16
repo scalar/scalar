@@ -5,10 +5,10 @@ Code blocks are syntax-highlighted containers for displaying code snippets. They
 ## Properties
 
 ### lang
+
 `string` _required_
 
 The programming language for syntax highlighting. Common values include `javascript`, `typescript`, `python`, `html`, `css`, `json`, etc. If not specified, defaults to `plaintext`.
-
 
 ## Examples
 

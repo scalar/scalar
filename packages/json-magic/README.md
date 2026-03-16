@@ -5,7 +5,6 @@
 [![License](https://img.shields.io/npm/l/%40scalar%2Fjson-magic)](https://www.npmjs.com/package/@scalar/json-magic)
 [![Discord](https://img.shields.io/discord/1135330207960678410?style=flat&color=5865F2)](https://discord.gg/scalar)
 
-
 A collection of utilities for working with JSON objects, including diffing, conflict resolution, bundling and more.
 
 ## bundle
@@ -18,12 +17,15 @@ Bundle external references in a json object
 import { bundle } from '@scalar/json-magic/bundle'
 import { fetchUrls } from '@scalar/json-magic/bundle/plugins/browser'
 
-const result = await bundle({
- $ref: 'http://example.com/document.json' 
-}, {
-  plugins: [fetchUrls()],
-  treeShake: false,
-})
+const result = await bundle(
+  {
+    $ref: 'http://example.com/document.json',
+  },
+  {
+    plugins: [fetchUrls()],
+    treeShake: false,
+  },
+)
 
 // get the bundled json object
 console.log(result)
@@ -34,6 +36,7 @@ console.log(result)
 If you are on a browser environment import plugins from `@scalar/json-magic/bundle/plugins/browser` while if you are on a node environment you can import from `@scalar/json-magic/bundle/plugins/node`
 
 ##### fetchUrls
+
 This plugins handles all external urls. It works for both node.js and browser environment
 
 ```ts
@@ -46,15 +49,15 @@ const document = {
   paths: {},
   components: {
     schemas: {
-      User: { $ref: 'https://example.com/user-schema.json#' }
-    }
-  }
+      User: { $ref: 'https://example.com/user-schema.json#' },
+    },
+  },
 }
 
 // This will bundle all external documents and turn all references from external into internal
 await bundle(document, {
   plugins: [fetchUrls()],
-  treeShake: true  // <------  This flag will try to remove any unused part of the external document
+  treeShake: true, // <------  This flag will try to remove any unused part of the external document
 })
 
 console.log(document)
@@ -69,39 +72,37 @@ await bundle(document, {
       limit: 10, // it should run at most 10 requests at the same time
     }),
   ],
-  treeShake: false
+  treeShake: false,
 })
-
 ```
 
 ###### Custom headers
+
 To pass custom headers to requests for specific domains you can configure the fetch plugin like the example
 
 ```ts
-await bundle(
-  document,
-  {
-    plugins: [
-      fetchUrls({
-        // Pass custom headers
-        // The header will only be attached to the list of domains
-        headers: [
-          {
-            domains: ['example.com'],
-            headers: {
-              'Authorization': 'Bearer <TOKEN>'
-            }
-          }
-        ]
-      }),
-      readFiles(),
-    ],
-    treeShake: false
-  },
-)
+await bundle(document, {
+  plugins: [
+    fetchUrls({
+      // Pass custom headers
+      // The header will only be attached to the list of domains
+      headers: [
+        {
+          domains: ['example.com'],
+          headers: {
+            Authorization: 'Bearer <TOKEN>',
+          },
+        },
+      ],
+    }),
+    readFiles(),
+  ],
+  treeShake: false,
+})
 ```
 
 ###### Custom fetch function
+
 For advanced use cases like proxying requests or implementing custom network logic, you can provide your own fetch implementation. This allows you to handle things like CORS restrictions, custom authentication flows, or request/response transformations.
 
 ```ts
@@ -126,21 +127,17 @@ await bundle(
 ###### Bundle from remote url
 
 ```ts
-const result = await bundle(
-  'https://example.com/openapi.json',
-  {
-    plugins: [
-      fetchUrls(),
-    ],
-    treeShake: false
-  },
-)
+const result = await bundle('https://example.com/openapi.json', {
+  plugins: [fetchUrls()],
+  treeShake: false,
+})
 
 // Bundled document
 console.log(result)
 ```
 
 ##### readFiles
+
 This plugins handles local files. Only works on node.js environment
 
 ```ts
@@ -153,33 +150,29 @@ const document = {
   paths: {},
   components: {
     schemas: {
-      User: { $ref: './user-schema.json#' }
-    }
-  }
+      User: { $ref: './user-schema.json#' },
+    },
+  },
 }
 
 // This will bundle all external documents and turn all references from external into internal
 await bundle(document, {
   plugins: [readFiles()],
-  treeShake: false
+  treeShake: false,
 })
 
 console.log(document)
 ```
 
 ###### Bundle from local file
+
 You can pass the file path directly but make sure to have the correct plugins to handle reading from the local files
 
 ```ts
-const result = await bundle(
-  './input.json',
-  {
-    plugins: [
-      readFiles(),
-    ],
-    treeShake: false
-  },
-)
+const result = await bundle('./input.json', {
+  plugins: [readFiles()],
+  treeShake: false,
+})
 
 // Bundled document
 console.log(result)
@@ -188,19 +181,15 @@ console.log(result)
 ##### parseJson
 
 You can pass raw json string as input
+
 ```ts
 import { bundle } from '@scalar/json-magic/bundle'
 import { parseJson } from '@scalar/json-magic/bundle/plugins/browser'
 
-const result = await bundle(
-  '{ "openapi": "3.1.1" }',
-  {
-    plugins: [
-      parseJson(),
-    ],
-    treeShake: false
-  },
-)
+const result = await bundle('{ "openapi": "3.1.1" }', {
+  plugins: [parseJson()],
+  treeShake: false,
+})
 
 // Bundled document
 console.log(result)
@@ -209,19 +198,15 @@ console.log(result)
 ##### parseYaml
 
 You can pass raw yaml string as input
+
 ```ts
 import { bundle } from '@scalar/json-magic/bundle'
 import { parseYaml } from '@scalar/json-magic/bundle/plugins/browser'
 
-const result = await bundle(
-  'openapi: "3.1.1"\n',
-  {
-    plugins: [
-      parseYaml(),
-    ],
-    treeShake: false
-  },
-)
+const result = await bundle('openapi: "3.1.1"\n', {
+  plugins: [parseYaml()],
+  treeShake: false,
+})
 
 // Bundled document
 console.log(result)
@@ -288,7 +273,7 @@ The `dereference` function can operate in two modes:
 
 ### Options
 
-- `sync` (`boolean`):  
+- `sync` (`boolean`):
   - If `true`, resolves only internal references synchronously.
   - If `false` (default), resolves both internal and external references asynchronously and returns a Promise.
 
@@ -308,7 +293,10 @@ To resolve also external references you need to set `sync: false`
 ```ts
 import { dereference } from '@scalar/json-magic/dereference'
 
-const result = await dereference({ a: 'hello', b: { $ref: 'http://example.com/document.json#/somepath' } }, { sync: false })
+const result = await dereference(
+  { a: 'hello', b: { $ref: 'http://example.com/document.json#/somepath' } },
+  { sync: false },
+)
 
 // Result with all internal and external references resolved
 console.log(result)
@@ -319,7 +307,6 @@ console.log(result)
 This package provides a way to compare two json objects and get the differences, resolve conflicts and return conflicts that need to be resolved manually.
 
 ### Quickstart
-
 
 ```ts
 import { apply, diff, merge } from '@scalar/json-magic/diff'
@@ -362,7 +349,6 @@ const { diffs, conflicts } = merge(
 const finalDocument = apply(baseObject, diffs)
 ```
 
-
 ## magic-proxy
 
 A javascript proxy which resolves internal references when accessing a property
@@ -375,8 +361,8 @@ import { createMagicProxy, getRaw } from '@scalar/json-magic/magic-proxy'
 const result = createMagicProxy({
   a: 'hello',
   b: {
-    $ref: '#/a'
-  }
+    $ref: '#/a',
+  },
 })
 
 /**

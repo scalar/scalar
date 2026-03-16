@@ -7,7 +7,6 @@
   </p>
 </div>
 
-
 <div class="mobiletabs">
   <div class="mobiletabs-container">
     <label for="tab1"><input type="radio" name="mobiletabs" id="tab1" aria-controls="marzen" checked>Free</label>

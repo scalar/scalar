@@ -1,4 +1,3 @@
-
 # Your API? 0.2% of your context window
 
 ![ASCII-style image of a headset](../assets/blog/agent-scalar.jpg)
@@ -72,7 +71,7 @@ Token counting was done with [tiktoken](https://github.com/openai/tiktoken).
 | Raw OpenAPI Spec in prompt        | --    | 295656     | 0             | 295656        | 147.8%                                                            |
 | Native MCP (full schemas)         | 183   | 89281      | 89530         | 178811        | 89.4%                                                             |
 | Native MCP (required params only) | 183   | 5504       | 89530         | 95034         | 47.5%                                                             |
-| Agent (MCP tools)          | 3     | 412        | 412           | 412           | <span style="background-color: yellow; color: black;">0.2%</span> |
+| Agent (MCP tools)                 | 3     | 412        | 412           | 412           | <span style="background-color: yellow; color: black;">0.2%</span> |
 
 ### Notion
 
@@ -97,7 +96,7 @@ Token counting was done with [tiktoken](https://github.com/openai/tiktoken).
 | Raw OpenAPI Spec in prompt        | --    | 69114      | 0             | 69114         | 34.6%                                                             |
 | Native MCP (full schemas)         | 26    | 2104       | 12803         | 14907         | 7.5%                                                              |
 | Native MCP (required params only) | 26    | 829        | 12803         | 13632         | 6.8%                                                              |
-| Agent (MCP tools)          | 3     | 400        | 400           | 400           | <span style="background-color: yellow; color: black;">0.2%</span> |
+| Agent (MCP tools)                 | 3     | 400        | 400           | 400           | <span style="background-color: yellow; color: black;">0.2%</span> |
 
 ## The Results
 
@@ -114,9 +113,9 @@ Guess who's the clear winner with just 0.2% of your context window: Agent. Why i
 1. Upload your OpenAPI document to Scalar.
 2. Scalar augments it for search and execution.
 3. Agents connect via MCP with three tools:
-   * `summarize-openapi-specs` (short summary of specs and available endpoints)
-   * `search-openapi-operations` (minified OpenAPI documents for the endpoints matching the user's search), and
-   * `execute-request`
+   - `summarize-openapi-specs` (short summary of specs and available endpoints)
+   - `search-openapi-operations` (minified OpenAPI documents for the endpoints matching the user's search), and
+   - `execute-request`
 
 ## Try it
 
@@ -145,7 +144,10 @@ const agent = new Agent({
   mcpServers: servers,
 })
 
-const result = await run(agent, 'pls list available endpoints in the zoom api thanks')
+const result = await run(
+  agent,
+  'pls list available endpoints in the zoom api thanks',
+)
 
 await Promise.all(servers.map((s) => s.close()))
 ```

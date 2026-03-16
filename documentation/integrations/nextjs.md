@@ -102,7 +102,6 @@ const config = {
 export const GET = ApiReference(config)
 ```
 
-
 ## Guide
 
 ### Create a new Next.js project (optional)

@@ -83,6 +83,7 @@ docker run -p 3000:3000 \
 ```
 
 The container automatically:
+
 - Scans the `/docs` directory recursively
 - Finds OpenAPI documents (`.json`, `.yaml`, `.yml` files)
 - Uses the first valid document found
@@ -134,7 +135,7 @@ services:
   mock-server:
     image: scalarapi/mock-server:latest
     ports:
-      - "3000:3000"
+      - '3000:3000'
     volumes:
       # Mount your OpenAPI documents directory
       - ./documents:/docs:ro
@@ -154,11 +155,10 @@ services:
 
 | Variable               | Description                                    | Required | Default |
 | ---------------------- | ---------------------------------------------- | -------- | ------- |
-| `OPENAPI_DOCUMENT`     | OpenAPI document content (JSON or YAML string) | No*      | -       |
-| `OPENAPI_DOCUMENT_URL` | URL to fetch OpenAPI document from             | No*      | -       |
+| `OPENAPI_DOCUMENT`     | OpenAPI document content (JSON or YAML string) | No\*     | -       |
+| `OPENAPI_DOCUMENT_URL` | URL to fetch OpenAPI document from             | No\*     | -       |
 
 \* At least one method (command-line argument, environment variable, or volume mount) must be provided.
-
 
 ## Port Configuration
 
