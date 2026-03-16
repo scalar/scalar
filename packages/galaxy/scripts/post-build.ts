@@ -1,6 +1,6 @@
 import fs from 'node:fs'
 
-import { normalize, toJson } from '@scalar/openapi-parser'
+import { parse } from 'yaml'
 
 const packageFile = JSON.parse(fs.readFileSync('./package.json', 'utf-8'))
 const base = fs.readFileSync('src/documents/3.1.yaml', 'utf-8')
@@ -21,15 +21,13 @@ const latest = fs.readFileSync('dist/latest.yaml', 'utf-8')
 const asyncapiVersion = fs.readFileSync('dist/asyncapi/3.0.yaml', 'utf-8')
 const asyncapiLatest = fs.readFileSync('dist/asyncapi/latest.yaml', 'utf-8')
 
-const versionOut = toJson(normalize(version))
-const latestOut = toJson(normalize(latest))
-const asyncapiVersionOut = toJson(normalize(asyncapiVersion))
-const asyncapiLatestOut = toJson(normalize(asyncapiLatest))
+const toJson = (yamlContent: string) =>
+  JSON.stringify(parse(yamlContent, { maxAliasCount: 10000, merge: true }), null, 2)
 
-fs.writeFileSync('./dist/3.1.json', versionOut)
-fs.writeFileSync('./dist/latest.json', latestOut)
-fs.writeFileSync('./dist/asyncapi/3.0.json', asyncapiVersionOut)
-fs.writeFileSync('./dist/asyncapi/latest.json', asyncapiLatestOut)
+fs.writeFileSync('./dist/3.1.json', toJson(version))
+fs.writeFileSync('./dist/latest.json', toJson(latest))
+fs.writeFileSync('./dist/asyncapi/3.0.json', toJson(asyncapiVersion))
+fs.writeFileSync('./dist/asyncapi/latest.json', toJson(asyncapiLatest))
 
 packageFile.exports = {
   ...packageFile.exports,

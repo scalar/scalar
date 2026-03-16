@@ -60,7 +60,6 @@
     "@lezer/common": "^1.2.3",
     "@lezer/highlight": "^1.2.1",
     "@replit/codemirror-css-color-picker": "^6.3.0",
-    "@scalar/components": "workspace:*",
     "vue": "catalog:*"
   },
   "devDependencies": {

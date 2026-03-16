@@ -1,24 +1,3 @@
-import { isJsonString } from '@scalar/oas-utils/helpers'
-import { isDefined } from '@scalar/oas-utils/helpers'
-import { normalize, toJson, toYaml } from '@scalar/openapi-parser'
-
-/**
- * Format content based on desired format and current content type
- */
-function formatContent(content: string, isJson: boolean) {
-  if (isJson && !isJsonString(content)) {
-    // Convert YAML to JSON if JSON is requested but content is YAML
-    return toJson(normalize(content))
-  }
-
-  if (!isJson && isJsonString(content)) {
-    // Convert JSON to YAML if YAML is requested but content is JSON
-    return toYaml(normalize(content))
-  }
-
-  return content
-}
-
 /**
  * Create a click event that works in both browser and test environments
  */
@@ -39,16 +18,39 @@ function createClickEvent() {
 }
 
 /**
+ * Parse YAML or JSON content into a JavaScript object
+ */
+async function parseContent(content: string) {
+  try {
+    return JSON.parse(content)
+  } catch {
+    const { parse } = await import('yaml')
+    return parse(content, {
+      maxAliasCount: 10000,
+      merge: true,
+    })
+  }
+}
+
+function createJSONBlob(content: Record<string, unknown>) {
+  return new Blob([JSON.stringify(content, null, 2)], { type: 'application/json' })
+}
+
+async function createYAMLBlob(content: Record<string, unknown>) {
+  const { stringify } = await import('yaml')
+  return new Blob([stringify(content)], { type: 'application/yaml' })
+}
+
+/**
  * Trigger the download of the OpenAPI document
  */
-export function downloadDocument(content: string, filename?: string, format?: 'json' | 'yaml') {
-  const isJson = format === 'json' || (!isDefined(format) && isJsonString(content))
-  const formattedContent = formatContent(content, isJson)
-  const extension = isJson ? '.json' : '.yaml'
-  const mimeType = isJson ? 'application/json' : 'application/x-yaml'
-  const contentFilename = filename ? filename + extension : 'openapi' + extension
+export async function downloadDocument(content: string, filename?: string, format?: 'json' | 'yaml') {
+  const parsed = await parseContent(content)
 
-  const blob = new Blob([formattedContent], { type: mimeType })
+  const contentFilename = `${filename ?? 'openapi'}${format === 'json' ? '.json' : '.yaml'}`
+
+  const blob = format === 'json' ? createJSONBlob(parsed) : await createYAMLBlob(parsed)
+
   const data = URL.createObjectURL(blob)
   const link = document.createElement('a')
 

@@ -1461,9 +1461,6 @@ importers:
       '@scalar/oas-utils':
         specifier: workspace:*
         version: link:../oas-utils
-      '@scalar/openapi-parser':
-        specifier: workspace:*
-        version: link:../openapi-parser
       '@scalar/openapi-types':
         specifier: workspace:*
         version: link:../openapi-types
@@ -1509,6 +1506,9 @@ importers:
       vue:
         specifier: catalog:*
         version: 3.5.26(typescript@5.9.3)
+      yaml:
+        specifier: catalog:*
+        version: 2.8.0
     devDependencies:
       '@hono/node-server':
         specifier: catalog:*
@@ -1686,9 +1686,6 @@ importers:
       '@scalar/icons':
         specifier: workspace:*
         version: link:../icons
-      '@scalar/oas-utils':
-        specifier: workspace:*
-        version: link:../oas-utils
       '@scalar/themes':
         specifier: workspace:*
         version: link:../themes
@@ -1797,12 +1794,12 @@ importers:
 
   packages/galaxy:
     devDependencies:
-      '@scalar/openapi-parser':
-        specifier: workspace:*
-        version: link:../openapi-parser
       vite:
         specifier: catalog:*
         version: 8.0.0(@types/node@24.10.13)(esbuild@0.27.2)(jiti@2.6.1)(terser@5.31.2)(tsx@4.21.0)(yaml@2.8.0)
+      yaml:
+        specifier: catalog:*
+        version: 2.8.0
 
   packages/helpers:
     devDependencies:
@@ -2462,9 +2459,6 @@ importers:
       '@replit/codemirror-css-color-picker':
         specifier: ^6.3.0
         version: 6.3.0(@codemirror/language@6.10.7)(@codemirror/state@6.5.0)(@codemirror/view@6.35.3)
-      '@scalar/components':
-        specifier: workspace:*
-        version: link:../components
       vue:
         specifier: catalog:*
         version: 3.5.26(typescript@5.9.3)

@@ -25,7 +25,8 @@
     "dev": "pnpx @scalar/cli document serve ./src/documents/3.1.yaml --watch",
     "dev:live": "cd src/documents && pnpx http-server --cors",
     "test": "vitest",
-    "types:check": "tsc --noEmit"
+    "types:check": "tsc --noEmit",
+    "validate": "bash scripts/validate.sh"
   },
   "type": "module",
   "main": "./dist/index.js",
@@ -50,7 +51,7 @@
     "CHANGELOG.md"
   ],
   "devDependencies": {
-    "@scalar/openapi-parser": "workspace:*",
-    "vite": "catalog:*"
+    "vite": "catalog:*",
+    "yaml": "catalog:*"
   }
 }

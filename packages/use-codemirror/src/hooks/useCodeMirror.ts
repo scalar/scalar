@@ -24,8 +24,12 @@ import {
   lineNumbers as lineNumbersExtension,
   placeholder as placeholderExtension,
 } from '@codemirror/view'
-import { ScalarIcon } from '@scalar/components'
-import { type MaybeRefOrGetter, type Ref, computed, h, onBeforeUnmount, ref, render, toValue, watch } from 'vue'
+import { type MaybeRefOrGetter, type Ref, computed, onBeforeUnmount, ref, toValue, watch } from 'vue'
+
+const CHEVRON_DOWN =
+  '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="m18 10-6 6-6-6" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+const CHEVRON_RIGHT =
+  '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="m9 18 6-6-6-6" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/></svg>'
 
 import { customTheme } from '../themes'
 import type { CodeMirrorLanguage } from '../types'
@@ -395,11 +399,7 @@ function getCodeMirrorExtensions({
         markerDOM: (open) => {
           const icon = document.createElement('div')
           icon.classList.add('cm-foldMarker')
-          const vnode = h(ScalarIcon, {
-            icon: open ? 'ChevronDown' : 'ChevronRight',
-            size: 'md',
-          })
-          render(vnode, icon)
+          icon.innerHTML = open ? CHEVRON_DOWN : CHEVRON_RIGHT
           return icon
         },
       }),
@@ -415,11 +415,7 @@ function getCodeMirrorExtensions({
           markerDOM: (open) => {
             const icon = document.createElement('div')
             icon.classList.add('cm-foldMarker')
-            const vnode = h(ScalarIcon, {
-              icon: open ? 'ChevronDown' : 'ChevronRight',
-              size: 'md',
-            })
-            render(vnode, icon)
+            icon.innerHTML = open ? CHEVRON_DOWN : CHEVRON_RIGHT
             return icon
           },
         }),

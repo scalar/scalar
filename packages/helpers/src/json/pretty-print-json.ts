@@ -1,20 +1,22 @@
-import { isJsonString } from './parse'
-
 /**
  * Takes JSON and formats it.
  */
 export const prettyPrintJson = (value: string | number | any[] | Record<any, any>): string => {
+  // When the values is already a string it should be parsable
   if (typeof value === 'string') {
-    // JSON string
-    if (isJsonString(value)) {
-      return JSON.stringify(JSON.parse(value), null, 2)
-    }
+    try {
+      const parsed = JSON.parse(value)
 
-    // Regular string
-    return value
+      if (typeof parsed === 'object' && parsed !== null) {
+        return JSON.stringify(parsed, null, 2)
+      }
+
+      return value
+    } catch {
+      return value
+    }
   }
 
-  // Object
   if (typeof value === 'object') {
     try {
       return JSON.stringify(value, null, 2)

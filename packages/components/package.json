@@ -50,7 +50,6 @@
     "@scalar/code-highlight": "workspace:*",
     "@scalar/helpers": "workspace:*",
     "@scalar/icons": "workspace:*",
-    "@scalar/oas-utils": "workspace:*",
     "@scalar/themes": "workspace:*",
     "@scalar/use-hooks": "workspace:*",
     "@vueuse/core": "catalog:*",

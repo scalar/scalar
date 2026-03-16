@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { getResolvedRefDeep } from '@scalar/api-client/v2/blocks/operation-code-sample'
 import { ScalarCodeBlock, ScalarVirtualText } from '@scalar/components'
-import { prettyPrintJson } from '@scalar/oas-utils/helpers'
+import { prettyPrintJson } from '@scalar/helpers/json/pretty-print-json'
 import type { ReferenceType } from '@scalar/workspace-store/schemas/v3.1/strict/reference'
 import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/schema'
 import { computed } from 'vue'

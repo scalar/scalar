@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { isJsonString, json, parseJsonOrYaml, transformToJson, yaml } from './parse'
+import { json, parseJsonOrYaml, transformToJson, yaml } from './parse'
 
 describe('Handles yaml and json parsing', () => {
   it('Parses basic yaml', () => {
@@ -20,20 +20,6 @@ describe('Handles yaml and json parsing', () => {
 
   it('transforms Yaml to JSON', () => {
     expect(transformToJson('openapi: 3.0.0')).toBe(JSON.stringify({ openapi: '3.0.0' }))
-  })
-})
-
-describe('isJsonString', () => {
-  it('keeps a path as is', () => {
-    expect(isJsonString('foobar')).toBe(false)
-  })
-
-  it('removes slash', () => {
-    expect(isJsonString('{ "foo": "bar" }')).toBe(true)
-  })
-
-  it('trims whitespace', () => {
-    expect(isJsonString({ foo: 'bar' })).toBe(false)
   })
 })
 
