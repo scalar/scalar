@@ -28,7 +28,7 @@ type RequestUidPayload = {
 
 export type OpenClientPayload = RoutePayload | RequestUidPayload
 
-export type ApiClient = Omit<V2ApiClientModal, 'open' | 'route'> & {
+type ApiClient = Omit<V2ApiClientModal, 'open' | 'route'> & {
   open: (payload?: OpenClientPayload) => void
   route: (payload: OpenClientPayload) => void
 }
@@ -45,27 +45,19 @@ type Props = PropsWithChildren<{
 /** Hack: this is strictly to prevent creation of extra clients as the store lags a bit */
 const clientDict: Record<string, ApiClient> = {}
 
-const HTTP_METHODS = new Set<HttpMethod>([
-  'get',
-  'post',
-  'put',
-  'delete',
-  'patch',
-  'head',
-  'options',
-  'trace',
-])
+const HTTP_METHODS = new Set<HttpMethod>(['get', 'post', 'put', 'delete', 'patch', 'head', 'options', 'trace'])
 
 const isHttpMethod = (value: string): value is HttpMethod => HTTP_METHODS.has(value as HttpMethod)
 
-type ResolvedDocumentInput = {
-  url: string
-} | {
-  document: Record<string, unknown>
-}
+type ResolvedDocumentInput =
+  | {
+      url: string
+    }
+  | {
+      document: Record<string, unknown>
+    }
 
-const isRecord = (value: unknown): value is Record<string, unknown> =>
-  typeof value === 'object' && value !== null
+const isRecord = (value: unknown): value is Record<string, unknown> => typeof value === 'object' && value !== null
 
 const resolveDocumentInput = (configuration: Partial<ApiClientConfiguration>): ResolvedDocumentInput | null => {
   const url = configuration.url ?? configuration.spec?.url
