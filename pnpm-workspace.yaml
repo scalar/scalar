@@ -109,9 +109,6 @@ ignoredBuiltDependencies:
 minimumReleaseAge: 7200
 
 minimumReleaseAgeExclude:
-  - '@astrojs/*'
-  - '@next/*'
-  - '@nestjs/*'
   - '@storybook/addon-docs'
   - '@storybook/addon-links'
   - '@storybook/builder-vite'
@@ -120,21 +117,15 @@ minimumReleaseAgeExclude:
   - '@storybook/vue3'
   - '@storybook/vue3-vite'
   - '@sveltejs/kit'
-  - '@sveltejs/vite-plugin-svelte'
-  - astro
-  - hono
+  - '@vitejs/plugin-react'
   - knip
   - next
   - nuxt
   - storybook
   - turbo
   - undici
-  - '@vitejs/plugin-react'
   - vite
   - vitest
-  - vue
-  # Renovate security update: @modelcontextprotocol/sdk@1.26.0
-  - '@modelcontextprotocol/sdk@1.26.0'
 
 onlyBuiltDependencies:
   - '@nestjs/core'
