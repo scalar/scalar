@@ -77,6 +77,7 @@
     "@headlessui/vue": "catalog:*",
     "@scalar/components": "workspace:*",
     "@scalar/oas-utils": "workspace:*",
+    "@scalar/workspace-store": "workspace:*",
     "@types/postman-collection": "^3.5.11",
     "postman-collection": "^5.2.0",
     "postman-sandbox": "^6.5.0",

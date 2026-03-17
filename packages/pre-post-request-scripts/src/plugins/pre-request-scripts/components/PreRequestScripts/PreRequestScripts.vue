@@ -5,21 +5,19 @@ import { computed } from 'vue'
 import ScriptEditor from '@/components/ScriptEditor.vue'
 import { ViewLayoutCollapse } from '@/components/ViewLayout'
 
-import ExampleScripts from './ExampleScripts.vue'
-
 const { operation } = defineProps<{
-  operation?: Pick<OperationObject, 'x-post-response'>
+  operation?: Pick<OperationObject, 'x-pre-request'>
 }>()
 
 const emit = defineEmits<{
   (e: 'operation:update:extension', payload: any): void
 }>()
 
-const script = computed(() => (operation?.['x-post-response'] as string) ?? '')
+const script = computed(() => (operation?.['x-pre-request'] as string) ?? '')
 
-const updatePostResponseScript = (value: string) => {
+const updatePreRequestScript = (value: string) => {
   emit('operation:update:extension', {
-    'x-post-response': value,
+    'x-pre-request': value,
   })
 }
 </script>
@@ -29,9 +27,8 @@ const updatePostResponseScript = (value: string) => {
     <ViewLayoutCollapse
       class="w-full"
       :defaultOpen="true">
-      <template #title>Scripts</template>
+      <template #title>Pre-Request</template>
       <template #suffix>
-        <!-- Show an indicator whether we have a script -->
         <div class="mr-2">
           <div
             v-if="script.length > 0"
@@ -40,18 +37,13 @@ const updatePostResponseScript = (value: string) => {
       </template>
 
       <div class="text-c-3 flex h-8 items-center border-y px-3 text-sm">
-        Post-Response
+        Pre-request scripts run before the request is sent. Use them to set
+        variables or modify the request.
       </div>
 
       <ScriptEditor
         :modelValue="script"
-        @update:modelValue="updatePostResponseScript" />
-
-      <div class="border-y p-3">
-        <ExampleScripts
-          :modelValue="script"
-          @update:modelValue="updatePostResponseScript" />
-      </div>
+        @update:modelValue="updatePreRequestScript" />
     </ViewLayoutCollapse>
   </div>
 </template>

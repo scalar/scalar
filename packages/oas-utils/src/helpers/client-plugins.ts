@@ -59,6 +59,7 @@ type ClientPluginHooks = {
     request: Request
     document: OpenApiDocument
     operation: OperationObject
+    variablesStore?: VariablesStore
   }) => { request: Request } | void | Promise<{ request: Request } | void>
   responseReceived: (payload: {
     response: Response
@@ -81,7 +82,7 @@ type ClientPluginComponent<
 type ClientPluginComponents = {
   request: ClientPluginComponent<
     {
-      operation: OperationObject
+      operation?: OperationObject
       // We could pre-build the js request and pass it here in the future if needed
       // request: Request
     },
@@ -92,7 +93,7 @@ type ClientPluginComponents = {
   response: ClientPluginComponent<{
     // response: Response
     // request: Request
-    // operation: OperationObject
+    operation?: OperationObject
   }>
 }
 
