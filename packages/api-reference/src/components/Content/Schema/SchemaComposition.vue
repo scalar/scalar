@@ -11,6 +11,7 @@ import type {
 import { computed, inject, ref, watch, type Ref } from 'vue'
 
 import type { SchemaOptions } from '@/components/Content/Schema/types'
+import { REQUEST_BODY_COMPOSITION_INDEX_SYMBOL } from '@/features/Operation/request-body-composition-index'
 
 import { getSchemaType } from './helpers/get-schema-type'
 import { mergeAllOfSchemas } from './helpers/merge-all-of-schemas'
@@ -100,7 +101,8 @@ const showNestedSchema = ref(false)
 
 /** When this composition is the request body root, sync selection with the example snippet */
 const requestBodyCompositionIndexRef = inject<Ref<number>>(
-  'requestBodyCompositionIndex',
+  REQUEST_BODY_COMPOSITION_INDEX_SYMBOL,
+  undefined,
 )
 if (
   requestBodyCompositionIndexRef &&

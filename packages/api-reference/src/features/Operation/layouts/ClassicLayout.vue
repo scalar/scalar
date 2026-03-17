@@ -36,6 +36,7 @@ import Callbacks from '@/features/Operation/components/callbacks/Callbacks.vue'
 import OperationParameters from '@/features/Operation/components/OperationParameters.vue'
 import OperationResponses from '@/features/Operation/components/OperationResponses.vue'
 import type { OperationProps } from '@/features/Operation/Operation.vue'
+import { REQUEST_BODY_COMPOSITION_INDEX_SYMBOL } from '@/features/Operation/request-body-composition-index'
 import { getXKeysFromObject } from '@/features/specification-extension'
 import SpecificationExtension from '@/features/specification-extension/SpecificationExtension.vue'
 import { TestRequestButton } from '@/features/test-request-button'
@@ -75,7 +76,7 @@ const selectedExampleKey = ref<string>('')
 /** Selected index for request body oneOf/anyOf; synced with schema dropdown and code sample */
 const requestBodyCompositionIndex = ref(0)
 
-provide('requestBodyCompositionIndex', requestBodyCompositionIndex)
+provide(REQUEST_BODY_COMPOSITION_INDEX_SYMBOL, requestBodyCompositionIndex)
 
 const { copyToClipboard } = useClipboard()
 </script>
