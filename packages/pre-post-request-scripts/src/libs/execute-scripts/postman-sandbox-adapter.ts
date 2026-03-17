@@ -76,12 +76,14 @@ const upsertTestResult = (testResults: TestResult[], assertion: AssertionEvent, 
 
 export const executeInPostmanSandbox = async ({
   script,
+  request,
   response,
   onTestResultsUpdate,
   scriptConsole,
   variablesStore,
 }: {
   script: string
+  request: Request
   response?: Response
   onTestResultsUpdate?: ((results: TestResult[]) => void) | undefined
   scriptConsole: ConsoleContext
@@ -119,6 +121,7 @@ export const executeInPostmanSandbox = async ({
 
     const context: { response: typeof postmanResponse; [key: string]: unknown } = {
       response: postmanResponse,
+      request,
     }
 
     if (varibalesContext) {
@@ -143,10 +146,7 @@ export const executeInPostmanSandbox = async ({
               applyExecutionLocalVariables(variablesStore, execution._variables.values)
             }
             if (execution.collectionVariables?.values) {
-              applyExecutionCollectionVariables(
-                variablesStore,
-                execution.collectionVariables.values,
-              )
+              applyExecutionCollectionVariables(variablesStore, execution.collectionVariables.values)
             }
             if (execution.globals?.values) {
               applyExecutionGlobals(variablesStore, execution.globals.values)

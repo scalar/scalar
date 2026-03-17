@@ -1,13 +1,19 @@
 import type { ApiReferenceEvents } from '@scalar/workspace-store/events'
+import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/operation'
 import type { DefineComponent } from 'vue'
 
 /** A type representing the hooks that a client plugin can define */
 type ClientPluginHooks = {
-  beforeRequest: (payload: { request: Request }) => { request: Request } | void | Promise<{ request: Request } | void>
+  beforeRequest: (payload: {
+    request: Request
+    document: OpenApiDocument
+    operation: OperationObject
+  }) => { request: Request } | void | Promise<{ request: Request } | void>
   responseReceived: (payload: {
     response: Response
     request: Request
+    document: OpenApiDocument
     operation: OperationObject
   }) => void | Promise<void>
 }
