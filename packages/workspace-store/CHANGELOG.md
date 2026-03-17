@@ -1,5 +1,11 @@
 # @scalar/workspace-store
 
+## 0.40.2
+
+### Patch Changes
+
+- [#8468](https://github.com/scalar/scalar/pull/8468): fix: ignore response examples when generating navigation
+
 ## 0.40.1
 
 ### Patch Changes

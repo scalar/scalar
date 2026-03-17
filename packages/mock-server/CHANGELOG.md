@@ -1,5 +1,16 @@
 # @scalar/mock-server
 
+## 0.9.9
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/openapi-parser@0.25.4**
+  - [#8448](https://github.com/scalar/scalar/pull/8448): fix parser validation for unused path parameters
+
+- **@scalar/oas-utils@0.10.8**
+
 ## 0.9.8
 
 ### Patch Changes

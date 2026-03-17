@@ -1,5 +1,15 @@
 # @scalar/components
 
+## 0.20.9
+
+### Patch Changes
+
+- [#8453](https://github.com/scalar/scalar/pull/8453): refactor: remove @ts-expect-error from ScalarTextArea
+
+#### Updated Dependencies
+
+- **@scalar/oas-utils@0.10.8**
+
 ## 0.20.8
 
 ### Patch Changes

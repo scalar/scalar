@@ -1,5 +1,19 @@
 # @scalar/openapi-to-markdown
 
+## 0.4.9
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/openapi-parser@0.25.4**
+  - [#8448](https://github.com/scalar/scalar/pull/8448): fix parser validation for unused path parameters
+
+- **@scalar/components@0.20.9**
+  - [#8453](https://github.com/scalar/scalar/pull/8453): refactor: remove @ts-expect-error from ScalarTextArea
+
+- **@scalar/oas-utils@0.10.8**
+
 ## 0.4.8
 
 ### Patch Changes

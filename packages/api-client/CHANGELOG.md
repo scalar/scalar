@@ -1,5 +1,29 @@
 # @scalar/api-client
 
+## 2.38.1
+
+### Patch Changes
+
+- [#8468](https://github.com/scalar/scalar/pull/8468): fix: example extraction, environment navigation and general UI fixes
+- [#8451](https://github.com/scalar/scalar/pull/8451): fix(api-client): default-close auth when not required
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.40.2**
+  - [#8468](https://github.com/scalar/scalar/pull/8468): fix: ignore response examples when generating navigation
+
+- **@scalar/openapi-parser@0.25.4**
+  - [#8448](https://github.com/scalar/scalar/pull/8448): fix parser validation for unused path parameters
+
+- **@scalar/components@0.20.9**
+  - [#8453](https://github.com/scalar/scalar/pull/8453): refactor: remove @ts-expect-error from ScalarTextArea
+
+- **@scalar/oas-utils@0.10.8**
+
+- **@scalar/sidebar@0.8.9**
+
+- **@scalar/use-codemirror@0.14.9**
+
 ## 2.38.0
 
 ### Minor Changes
