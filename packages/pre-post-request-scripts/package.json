@@ -47,25 +47,10 @@
       "require": "./dist/*.css",
       "default": "./dist/*.css"
     },
-    "./libs/execute-scripts": {
-      "import": "./dist/libs/execute-scripts/index.js",
-      "types": "./dist/libs/execute-scripts/index.d.ts",
-      "default": "./dist/libs/execute-scripts/index.js"
-    },
-    "./plugins/post-response-scripts": {
-      "import": "./dist/plugins/post-response-scripts/index.js",
-      "types": "./dist/plugins/post-response-scripts/index.d.ts",
-      "default": "./dist/plugins/post-response-scripts/index.js"
-    },
-    "./plugins/post-response-scripts/components/PostResponseScripts": {
-      "import": "./dist/plugins/post-response-scripts/components/PostResponseScripts/index.js",
-      "types": "./dist/plugins/post-response-scripts/components/PostResponseScripts/index.d.ts",
-      "default": "./dist/plugins/post-response-scripts/components/PostResponseScripts/index.js"
-    },
-    "./plugins/post-response-scripts/components/TestResults": {
-      "import": "./dist/plugins/post-response-scripts/components/TestResults/index.js",
-      "types": "./dist/plugins/post-response-scripts/components/TestResults/index.d.ts",
-      "default": "./dist/plugins/post-response-scripts/components/TestResults/index.js"
+    "./plugins": {
+      "import": "./dist/plugins/index.js",
+      "types": "./dist/plugins/index.d.ts",
+      "default": "./dist/plugins/index.js"
     }
   },
   "files": [

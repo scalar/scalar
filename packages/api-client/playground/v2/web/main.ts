@@ -1,6 +1,6 @@
 import '@/style.css'
 
-import { requestScriptsPlugin } from '@scalar/pre-post-request-scripts'
+import { requestScriptsPlugin } from '@scalar/pre-post-request-scripts/plugins'
 
 import { createApiClientApp } from '@/v2/features/app'
 

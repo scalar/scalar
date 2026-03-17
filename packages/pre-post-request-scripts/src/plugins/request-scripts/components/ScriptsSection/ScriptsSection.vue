@@ -1,16 +1,13 @@
 <script setup lang="ts">
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/operation'
-import { computed, type Ref } from 'vue'
+import { computed } from 'vue'
 
 import ScriptEditor from '@/components/ScriptEditor.vue'
 import { ViewLayoutCollapse } from '@/components/ViewLayout'
-import type { TestResult } from '@/libs/execute-scripts'
-import ExampleScripts from '@/plugins/post-response-scripts/components/PostResponseScripts/ExampleScripts.vue'
-import TestResultIndicator from '@/plugins/post-response-scripts/components/TestResults/TestResultIndicator.vue'
+import ExampleScripts from '@/plugins/request-scripts/components/PostResponseScripts/ExampleScripts.vue'
 
-const { operation, results } = defineProps<{
+const { operation } = defineProps<{
   operation?: Pick<OperationObject, 'x-pre-request' | 'x-post-response'>
-  results?: Ref<TestResult[]>
 }>()
 
 const emit = defineEmits<{
@@ -35,31 +32,6 @@ const updatePreRequestScript = (value: string) => {
 const updatePostResponseScript = (value: string) => {
   emit('operation:update:extension', { 'x-post-response': value })
 }
-
-const passedTests = computed(
-  () => results?.value?.filter((r) => r.status === 'passed') ?? [],
-)
-const pendingTests = computed(
-  () => results?.value?.filter((r) => r.status === 'pending') ?? [],
-)
-const failedTests = computed(
-  () => results?.value?.filter((r) => r.status === 'failed') ?? [],
-)
-const allTestsPassed = computed(
-  () =>
-    (results?.value?.length ?? 0) > 0 &&
-    passedTests.value.length === results?.value?.length,
-)
-const currentState = computed(() => {
-  if (allTestsPassed.value) {
-    return 'passed'
-  }
-  if (pendingTests.value.length) {
-    return 'pending'
-  }
-  return 'failed'
-})
-const hasResults = computed(() => (results?.value?.length ?? 0) > 0)
 </script>
 
 <template>
@@ -69,18 +41,11 @@ const hasResults = computed(() => (results?.value?.length ?? 0) > 0)
       :defaultOpen="true">
       <template #title>Scripts</template>
       <template #suffix>
-        <div class="mr-2 flex items-center gap-2">
+        <!-- Show an indicator whether we have a script -->
+        <div class="mr-2">
           <div
             v-if="hasAnyScript"
             class="bg-green h-2 w-2 rounded-full" />
-          <TestResultIndicator
-            v-if="hasResults"
-            :failedTestsCount="failedTests.length"
-            inline
-            :passedTestsCount="passedTests.length"
-            :pendingTestsCount="pendingTests.length"
-            :state="currentState"
-            :totalTestsCount="results?.value?.length" />
         </div>
       </template>
 

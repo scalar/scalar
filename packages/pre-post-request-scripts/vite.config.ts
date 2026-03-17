@@ -12,13 +12,7 @@ export default defineConfig({
     port: 9000,
   },
   build: createViteBuildOptions<BuildEnvironmentOptions>({
-    entry: [
-      'src/index.ts',
-      'src/libs/execute-scripts/index.ts',
-      'src/plugins/post-response-scripts/index.ts',
-      'src/plugins/post-response-scripts/components/PostResponseScripts/index.ts',
-      'src/plugins/post-response-scripts/components/TestResults/index.ts',
-    ],
+    entry: ['src/index.ts', 'src/plugins/index.ts'],
     options: {
       ssr: false,
     },

@@ -2,7 +2,7 @@ import type { ClientPlugin } from '@scalar/oas-utils/helpers'
 import { ref } from 'vue'
 
 import { type TestResult, executePostResponseScript, executePreRequestScript } from '@/libs/execute-scripts'
-import TestResults from '@/plugins/post-response-scripts/components/TestResults/TestResults.vue'
+import TestResults from '@/plugins/request-scripts/components/TestResults/TestResults.vue'
 
 import { ScriptsSection } from './components/ScriptsSection'
 
@@ -44,7 +44,7 @@ export const requestScriptsPlugin = (): ClientPlugin => {
       },
 
       responseReceived: async ({ request, response, operation, document, variablesStore }) => {
-        const postResponseScript = `${document['x-post-response'] ?? ''}\n${operation['x-post-response'] ?? ''}`.trim()
+        const postResponseScript = `${document['x-post-response'] ?? ''};\n${operation['x-post-response'] ?? ''}`.trim()
         await executePostResponseScript(postResponseScript, {
           request,
           response,

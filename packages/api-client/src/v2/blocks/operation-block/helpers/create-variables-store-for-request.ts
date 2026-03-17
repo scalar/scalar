@@ -93,20 +93,24 @@ export function createVariablesStoreForRequest({
 }: CreateVariablesStoreForRequestParams): VariablesStore {
   const envEntries = envVarsToEntries(environment)
 
+  const localVariables: VariableEntry[] = []
+
   return {
     getEnvironment: () => envEntries,
     getGlobals: () => envEntries,
     getCollectionVariables: () => envEntries,
     getData: () => ({}),
-    getLocalVariables: () => [],
+    getLocalVariables: () => {
+      return localVariables
+    },
 
     setLocalVariables: (variables) => {
-      // Reserved for chaining requests; no-op for now
-      console.log('setLocalVariables', variables)
+      localVariables.length = 0
+      localVariables.push(...variables)
     },
 
     setCollectionVariables: (variables) => {
-      console.log('setCollectionVariables', variables)
+      // console.log('setCollectionVariables', variables)
       if (!activeEnvironmentName || !document) {
         return
       }
@@ -114,7 +118,7 @@ export function createVariablesStoreForRequest({
     },
 
     setGlobals: (variables) => {
-      console.log('setGlobals', variables)
+      // console.log('setGlobals', variables)
       if (!activeEnvironmentName || !workspace) {
         return
       }
