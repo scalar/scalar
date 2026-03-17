@@ -143,6 +143,12 @@ export const buildRequest = ({
     const controller = new AbortController()
     const acceptHeader = headers.get('Accept')
     const isSseAcceptHeader = acceptHeader?.toLowerCase().includes('text/event-stream') ?? false
+    const requestCacheMode: RequestCache = isSseAcceptHeader ? 'no-store' : 'default'
+
+    if (isSseAcceptHeader) {
+      headers.set('Cache-Control', 'no-cache')
+      headers.set('Pragma', 'no-cache')
+    }
 
     // #region agent log
     appendAgentDebugLog({
@@ -154,7 +160,7 @@ export const buildRequest = ({
         url: proxiedUrl,
         acceptHeader,
         isSseAcceptHeader,
-        cacheMode: 'default',
+        cacheMode: requestCacheMode,
       },
     })
     // #endregion
@@ -170,6 +176,7 @@ export const buildRequest = ({
       headers,
       signal: controller.signal,
       body,
+      cache: requestCacheMode,
     })
 
     // #region agent log

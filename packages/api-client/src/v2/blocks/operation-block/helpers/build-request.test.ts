@@ -653,7 +653,7 @@ describe('buildRequest', () => {
     expect(result?.request.headers.get('X-Custom-Header')).toBe('custom-value')
   })
 
-  it('uses default cache mode for SSE requests', () => {
+  it('disables cache mode for SSE requests', () => {
     const [error, result] = buildRequest({
       environment: mockEnvironment,
       exampleKey: 'default',
@@ -682,6 +682,27 @@ describe('buildRequest', () => {
 
     expect(error).toBe(null)
     expect(result?.request.headers.get('Accept')).toBe('text/event-stream')
+    expect(result?.request.headers.get('Cache-Control')).toBe('no-cache')
+    expect(result?.request.headers.get('Pragma')).toBe('no-cache')
+    expect(result?.request.cache).toBe('no-store')
+  })
+
+  it('keeps default cache mode for non-SSE requests', () => {
+    const [error, result] = buildRequest({
+      environment: mockEnvironment,
+      exampleKey: 'default',
+      globalCookies: [],
+      method: 'get',
+      operation: {},
+      path: '/users',
+      proxyUrl: '',
+      selectedSecuritySchemes: [],
+      server: mockServer,
+    })
+
+    expect(error).toBe(null)
+    expect(result?.request.headers.get('Cache-Control')).toBe(null)
+    expect(result?.request.headers.get('Pragma')).toBe(null)
     expect(result?.request.cache).toBe('default')
   })
 
