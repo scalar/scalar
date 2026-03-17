@@ -50,7 +50,8 @@
   ],
   "dependencies": {
     "@scalar/api-client": "workspace:*",
-    "@scalar/types": "workspace:*"
+    "@scalar/types": "workspace:*",
+    "@scalar/workspace-store": "workspace:*"
   },
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
