@@ -1,19 +1,38 @@
 <script setup lang="ts">
 import { ScalarIcon } from '@scalar/components'
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
+import { computed } from 'vue'
 
 import { formatExample } from './helpers/format-example'
 
-defineProps<{
+const props = defineProps<{
   examples?: unknown
   example?: unknown
 }>()
 
 const { copyToClipboard } = useClipboard()
+
+const hasSingleExample = computed(() => props.example !== undefined)
+
+const normalizedExamples = computed<Record<string, unknown>>(() => {
+  if (props.examples && typeof props.examples === 'object') {
+    return props.examples as Record<string, unknown>
+  }
+
+  return {}
+})
+
+const hasMultipleExamples = computed(
+  () => Object.keys(normalizedExamples.value).length > 0,
+)
+
+const multipleExamplesLabel = computed(() =>
+  Object.keys(normalizedExamples.value).length === 1 ? 'Example' : 'Examples',
+)
 </script>
 <template>
   <!-- single example (deprecated) -->
-  <template v-if="example">
+  <template v-if="hasSingleExample">
     <div class="property-example">
       <button
         class="property-example-label"
@@ -24,9 +43,9 @@ const { copyToClipboard } = useClipboard()
         <button
           class="property-example-value group"
           type="button"
-          @click="copyToClipboard(formatExample(example))">
+          @click="copyToClipboard(formatExample(props.example))">
           <span>
-            {{ formatExample(example) }}
+            {{ formatExample(props.example) }}
           </span>
           <ScalarIcon
             class="group-hover:text-c-1 text-c-3 ml-auto min-h-3 min-w-3"
@@ -38,23 +57,18 @@ const { copyToClipboard } = useClipboard()
   </template>
 
   <!-- multiple examples -->
-  <template
-    v-if="
-      examples &&
-      typeof examples === 'object' &&
-      Object.keys(examples).length > 0
-    ">
+  <template v-if="hasMultipleExamples">
     <div class="property-example">
       <button
         class="property-example-label"
         type="button">
         <span>
-          {{ Object.keys(examples).length === 1 ? 'Example' : 'Examples' }}
+          {{ multipleExamplesLabel }}
         </span>
       </button>
       <div class="property-example-value-list">
         <button
-          v-for="(ex, key) in examples"
+          v-for="(ex, key) in normalizedExamples"
           :key="key"
           class="property-example-value group"
           type="button"
