@@ -55,6 +55,7 @@
     "lint:fix": "cargo clippy --fix --allow-dirty && cargo fmt",
     "publish:check": "cargo publish --dry-run",
     "test": "command -v cargo >/dev/null 2>&1 && cargo test || echo 'cargo not found, skipping test'",
+    "test:package-assets": "cargo package --allow-dirty --no-verify --list | rg '^ui/scalar\\.js$'",
     "test:actix-web": "cargo test --features actix-web",
     "test:all": "cargo test --features axum && cargo test --features actix-web && cargo test --features warp",
     "test:axum": "cargo test --features axum",
