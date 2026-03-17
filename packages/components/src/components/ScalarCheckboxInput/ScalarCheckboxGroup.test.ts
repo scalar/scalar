@@ -1,5 +1,6 @@
 import { mount } from '@vue/test-utils'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
+import { nextTick } from 'vue'
 
 import ScalarCheckboxGroup from './ScalarCheckboxGroup.vue'
 
@@ -20,26 +21,40 @@ describe('ScalarCheckboxGroup', () => {
   })
 
   it('binds v-model to multiple selected options', async () => {
+    const onUpdate = vi.fn()
     const wrapper = mount(ScalarCheckboxGroup, {
-      props: { options: [...options] },
+      props: {
+        options: [...options],
+        'onUpdate:modelValue': onUpdate,
+      },
     })
 
     const checkboxes = wrapper.findAll('input[type="checkbox"]')
 
-    await checkboxes[0]?.setValue(true)
-    await checkboxes[2]?.setValue(true)
+    // Check first checkbox
+    const checkbox0 = checkboxes[0]?.element as HTMLInputElement
+    checkbox0.checked = true
+    await checkboxes[0]?.trigger('change')
+    await nextTick()
+
+    // Check third checkbox
+    const checkbox2 = checkboxes[2]?.element as HTMLInputElement
+    checkbox2.checked = true
+    await checkboxes[2]?.trigger('change')
+    await nextTick()
 
     // Expect model updates to contain the selected option objects
-    const updates = wrapper.emitted('update:modelValue')
-    expect(updates).toBeTruthy()
-    const last = updates?.at(-1)?.[0] as unknown
-    expect(Array.isArray(last)).toBe(true)
-    const selected = last as Array<{ label: string; value: string }>
-    expect(selected.map((o) => o.value)).toEqual(['red', 'green'])
+    expect(onUpdate).toHaveBeenCalled()
+    const lastCall = onUpdate.mock.calls.at(-1)?.[0] as Array<{ label: string; value: string }>
+    expect(Array.isArray(lastCall)).toBe(true)
+    expect(lastCall.map((o) => o.value)).toEqual(['red', 'green'])
 
     // Uncheck one and verify removal
-    await checkboxes[0]?.setValue(false)
-    const after = wrapper.emitted('update:modelValue')?.at(-1)?.[0] as Array<{ value: string }>
-    expect(after.map((o) => o.value)).toEqual(['green'])
+    checkbox0.checked = false
+    await checkboxes[0]?.trigger('change')
+    await nextTick()
+
+    const afterCall = onUpdate.mock.calls.at(-1)?.[0] as Array<{ value: string }>
+    expect(afterCall.map((o) => o.value)).toEqual(['green'])
   })
 })
