@@ -9,7 +9,8 @@
   "packageManager": "pnpm@10.16.1",
   "pnpm": {
     "overrides": {
-      "@types/node": "catalog:*"
+      "@types/node": "catalog:*",
+      "undici": "7.24.4"
     }
   },
   "devDependencies": {

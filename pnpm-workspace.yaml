@@ -119,6 +119,7 @@ minimumReleaseAgeExclude:
   - hono
   - next
   - turbo
+  - undici
   - vite
   - vitest
   - vue
