@@ -813,7 +813,8 @@ jobs:
   # Integration builds, tests, and publishes
 
   docker-build-scan:
-    if: needs.check-changes.outputs.docker_changed == 'true'
+    # TODO: Enable before merge
+    # if: needs.check-changes.outputs.docker_changed == 'true'
     runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 10
     needs: [build, check-changes]
