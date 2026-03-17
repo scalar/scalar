@@ -11,7 +11,7 @@ For a long time Stoplight was the scrappy underdog, taking on confusing unafford
 
 On top of this, Scalar provides added benefits like:
 
-- **Flexible SaaS pricing.** Most of the features of Scalar can be used for free, and the Pro plan starts at $72/mo (3-seat min).
+- **Flexible SaaS pricing.** Scalar has a free tier to get started, and the Pro plan starts at $72/mo (3-seat min).
 - **Open Source.** Scalar is fully open source and can be self-hosted, something Stoplight phased out years ago.
 - **Built-in API client.** Scalar has also built an API client into the API reference, enabling users to send test requests straight from the docs.
 
@@ -45,7 +45,7 @@ With that in mind, let's look at how you can switch to a cheaper and better Open
 
 ## Step 1: Create a free Scalar account
 
-Scalar has a free tier, and you can get quite a lot done with it. No credit card needed or gimmick trials that are hard to cancel, just [register over here](https://dashboard.scalar.com/register).
+Scalar has a free tier, and you can get quite a lot done with it. No credit card needed, just [register over here](https://dashboard.scalar.com/register).
 
 ## Step 2: Introduce your OpenAPI to Scalar
 
