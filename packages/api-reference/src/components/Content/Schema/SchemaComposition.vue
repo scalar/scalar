@@ -8,7 +8,7 @@ import type {
   DiscriminatorObject,
   SchemaObject,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import { computed, inject, ref, watch, type Ref } from 'vue'
+import { computed, inject, ref, watch } from 'vue'
 
 import type { SchemaOptions } from '@/components/Content/Schema/types'
 import { REQUEST_BODY_COMPOSITION_INDEX_SYMBOL } from '@/features/Operation/request-body-composition-index'
@@ -100,7 +100,7 @@ const selectedComposition = computed(
 const showNestedSchema = ref(false)
 
 /** When this composition is the request body root, sync selection with the example snippet */
-const requestBodyCompositionIndexRef = inject<Ref<number>>(
+const requestBodyCompositionIndexRef = inject(
   REQUEST_BODY_COMPOSITION_INDEX_SYMBOL,
   undefined,
 )
