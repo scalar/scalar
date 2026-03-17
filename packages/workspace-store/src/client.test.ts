@@ -1,6 +1,6 @@
 import { cwd } from 'node:process'
 
-import { consoleErrorSpy, resetConsoleSpies } from '@scalar/helpers/testing/console-spies'
+import { consoleErrorSpy, consoleWarnSpy, resetConsoleSpies } from '@scalar/helpers/testing/console-spies'
 import { getRaw } from '@scalar/json-magic/magic-proxy'
 import fastify, { type FastifyInstance } from 'fastify'
 import { assert, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -334,6 +334,46 @@ describe('create-workspace-store', () => {
       type: 'string',
       description: 'The user name',
     })
+  })
+
+  it('does not warn for nullable enum references encoded with oneOf', async () => {
+    resetConsoleSpies()
+    const store = createWorkspaceStore()
+
+    await store.addDocument({
+      name: 'nullable-enum',
+      document: {
+        openapi: '3.1.0',
+        info: { title: 'Nullable Enum API', version: '1.0.0' },
+        'x-scalar-order': [],
+        'x-scalar-navigation': {
+          type: 'document',
+          id: 'nullable-enum',
+          name: 'nullable-enum',
+          title: 'Nullable Enum API',
+          children: [],
+        },
+        paths: {},
+        components: {
+          schemas: {
+            StatusEnum: {
+              type: 'string',
+              enum: ['active', 'inactive'],
+            },
+            ExampleModel: {
+              type: 'object',
+              properties: {
+                status: {
+                  oneOf: [{ type: 'null' }, { $ref: '#/components/schemas/StatusEnum' }],
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+
+    expect(consoleWarnSpy).not.toHaveBeenCalled()
   })
 
   // TODO: See (1*) note

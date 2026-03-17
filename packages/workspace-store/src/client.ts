@@ -941,13 +941,15 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
             origin: input.documentSource, // use the document origin (if provided) as the base URL for resolution
           }),
       )
-
-      // We coerce the values only when the document is not preprocessed by the server-side-store
-      const coerced = withMeasurementSync('coerceValue', () =>
-        coerceValue(OpenAPIDocumentSchemaStrict, deepClone(strictDocument)),
-      )
-      withMeasurementSync('mergeObjects', () => mergeObjects(strictDocument, coerced))
     }
+
+    // Coerce before validation for both locally bundled and server-preprocessed documents.
+    // Preprocessed documents can still contain composition-only schemas (for example oneOf)
+    // that need internal defaults injected to satisfy strict schema validation.
+    const coerced = withMeasurementSync('coerceValue', () =>
+      coerceValue(OpenAPIDocumentSchemaStrict, deepClone(strictDocument)),
+    )
+    withMeasurementSync('mergeObjects', () => mergeObjects(strictDocument, coerced))
 
     const isValid = Value.Check(OpenAPIDocumentSchemaStrict, strictDocument)
 
