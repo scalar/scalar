@@ -3,10 +3,11 @@ import { Type } from '@scalar/typebox'
 import { compose } from '@/schemas/compose'
 import { type XInternal, XInternalSchema } from '@/schemas/extensions/document/x-internal'
 import { type XScalarIgnore, XScalarIgnoreSchema } from '@/schemas/extensions/document/x-scalar-ignore'
+import { type XPostResponse, XPostResponseSchema } from '@/schemas/extensions/general/x-post-response'
+import { type XPreRequest, XPreRequestSchema } from '@/schemas/extensions/general/x-pre-request'
 import { type XBadges, XBadgesSchema } from '@/schemas/extensions/operation/x-badge'
 import { type XCodeSamples, XCodeSamplesSchema } from '@/schemas/extensions/operation/x-code-samples'
 import { type XDraftExamples, XDraftExamplesSchema } from '@/schemas/extensions/operation/x-draft-examples'
-import { type XPostResponse, XPostResponseSchema } from '@/schemas/extensions/operation/x-post-response'
 import {
   type XScalarDisableParameters,
   XScalarDisableParametersSchema,
@@ -68,6 +69,7 @@ export const OperationObjectSchemaDefinition = compose(
   XCodeSamplesSchema,
   XScalarStabilitySchema,
   XScalarDisableParametersSchema,
+  XPreRequestSchema,
   XPostResponseSchema,
   XDraftExamplesSchema,
   XScalarSelectedServerSchema,
@@ -104,6 +106,7 @@ export type OperationObject = {
   XCodeSamples &
   XScalarStability &
   XScalarDisableParameters &
+  XPreRequest &
   XPostResponse &
   XDraftExamples &
   XScalarSelectedServer
