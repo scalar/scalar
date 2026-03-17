@@ -56,7 +56,7 @@ toTest.forEach((source) => {
     await page.goto(`${example}#${slug}/model/celestialbody`)
     await models.getByRole('button', { name: 'CelestialBody' }).click()
     const celestialBodyModel = await models.getByRole('region', { name: 'CelestialBody' })
-    await celestialBodyModel.getByRole('button', { name: 'One of' }).click()
+    await celestialBodyModel.getByRole('button', { name: 'One of' }).first().click()
     await celestialBodyModel.getByRole('option', { name: 'Satellite' }).click()
     await expect(celestialBodyModel).toHaveScreenshot(`${slug}-model-discriminator.png`)
   })
