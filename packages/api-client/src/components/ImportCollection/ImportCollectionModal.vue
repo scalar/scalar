@@ -1,9 +1,7 @@
 <script setup lang="ts">
 import { ScalarIcon, ScalarModal, useModal } from '@scalar/components'
-import { isObject } from '@scalar/helpers/object/is-object'
 import { normalize } from '@scalar/json-magic/helpers/normalize'
 import { isLocalUrl } from '@scalar/oas-utils/helpers'
-import type { OpenAPI } from '@scalar/openapi-types'
 import {
   getThemeStyles,
   themeIds,
@@ -47,19 +45,9 @@ const watchMode = ref<boolean>(true)
 /** Close modal when a keyboard shortcut is pressed */
 events.hotKeys.on(() => modalState.hide())
 
-/** Try to make the retrieved content an OpenAPI document */
-const normalizeOpenApiDocument = (
-  source: string,
-): OpenAPI.Document | undefined => {
-  const parsed = normalize(source)
-  return isObject(parsed) ? (parsed as OpenAPI.Document) : undefined
-}
-
 const openApiDocument = computed(() => {
   try {
-    return normalizeOpenApiDocument(
-      prefetchResult.content || props.source || '',
-    )
+    return normalize(prefetchResult.content || props.source || '')
   } catch {
     return undefined
   }
