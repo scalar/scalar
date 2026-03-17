@@ -9,7 +9,7 @@ import cssInjectedByJsPlugin from 'vite-plugin-css-injected-by-js'
 
 import { name, version } from './package.json'
 
-const licenseBannerTemplate = `/**
+const licenseBannerTemplate = String.raw`/**
  *    _____ _________    __    ___    ____
  *   / ___// ____/   |  / /   /   |  / __ \
  *   \__ \/ /   / /| | / /   / /| | / /_/ /
