@@ -7,11 +7,13 @@ namespace Scalar.Aspire.Service.Endpoints;
 internal static class ProxyEndpoint
 {
     private static HttpMessageInvoker _client = null!;
+    private static bool _forwardOriginalHostHeader;
 
     internal static void MapScalarProxy(this IEndpointRouteBuilder endpoints)
     {
         var configuration = endpoints.ServiceProvider.GetRequiredService<IConfiguration>();
         var shouldAllowAllCertificates = configuration.GetValue<bool>(AllowSelfSignedCertificates);
+        _forwardOriginalHostHeader = configuration.GetValue<bool>(ForwardOriginalHostHeader);
         var factory = endpoints.ServiceProvider.GetRequiredService<IForwarderHttpClientFactory>();
         _client = factory.CreateClient(new ForwarderHttpClientContext
         {
@@ -23,7 +25,7 @@ internal static class ProxyEndpoint
         endpoints.Map(RouteDefaults.ProxyEndpoint, HandleProxy);
     }
 
-    private static async Task HandleProxy(HttpContext context, ILogger logger, IHttpForwarder forwarder, IForwarderHttpClientFactory factory, [FromQuery(Name = "scalar_url")] string targetUrl)
+    private static async Task HandleProxy(HttpContext context, ILogger logger, IHttpForwarder forwarder, [FromQuery(Name = "scalar_url")] string targetUrl)
     {
         try
         {
@@ -44,6 +46,10 @@ internal static class ProxyEndpoint
             var error = await forwarder.SendAsync(context, targetHost, _client, (_, proxyRequest) =>
             {
                 proxyRequest.RequestUri = targetUri;
+                if (!_forwardOriginalHostHeader)
+                {
+                    proxyRequest.Headers.Host = targetUri.Authority;
+                }
                 return ValueTask.CompletedTask;
             });
 

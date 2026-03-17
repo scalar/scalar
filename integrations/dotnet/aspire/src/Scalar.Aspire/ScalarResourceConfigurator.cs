@@ -1,4 +1,4 @@
-﻿using System.Runtime.CompilerServices;
+using System.Runtime.CompilerServices;
 using System.Text;
 using Aspire.Hosting.ApplicationModel;
 using Microsoft.Extensions.DependencyInjection;
@@ -31,6 +31,7 @@ internal static class ScalarResourceConfigurator
         environmentVariables.Add(ApiReferenceConfig, configurations);
         environmentVariables.Add(CdnUrl, scalarAspireOptions.BundleUrl);
         environmentVariables.Add(AllowSelfSignedCertificates, scalarAspireOptions.AllowSelfSignedCertificates);
+        environmentVariables.Add(ForwardOriginalHostHeader, scalarAspireOptions.ForwardOriginalHostHeader);
         environmentVariables.Add(DefaultProxy, scalarAspireOptions.DefaultProxy);
     }
 
