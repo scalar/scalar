@@ -258,7 +258,11 @@ const dereferenceNode = (node: unknown, cache: WeakMap<object, unknown>): unknow
   }
 
   if ('$ref' in rawNode && '$ref-value' in rawNode) {
-    const { '$ref-value': refValue, $ref: _ref, ...siblings } = rawNode as {
+    const {
+      '$ref-value': refValue,
+      $ref: _ref,
+      ...siblings
+    } = rawNode as {
       $ref: string
       '$ref-value': unknown
       [key: string]: unknown
@@ -266,7 +270,12 @@ const dereferenceNode = (node: unknown, cache: WeakMap<object, unknown>): unknow
     const resolvedRef = dereferenceNode(refValue, cache)
     const siblingKeys = Object.keys(siblings)
 
-    if (siblingKeys.length === 0 || typeof resolvedRef !== 'object' || resolvedRef === null || Array.isArray(resolvedRef)) {
+    if (
+      siblingKeys.length === 0 ||
+      typeof resolvedRef !== 'object' ||
+      resolvedRef === null ||
+      Array.isArray(resolvedRef)
+    ) {
       return resolvedRef
     }
 
