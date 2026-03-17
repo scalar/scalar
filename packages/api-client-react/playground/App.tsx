@@ -1,4 +1,4 @@
-import type { OpenClientPayload } from '@scalar/api-client/libs'
+import type { OpenClientPayload } from '../src'
 
 import { useApiClientModal } from '../src/ApiClientModalProvider'
 import '../src/style.css'
