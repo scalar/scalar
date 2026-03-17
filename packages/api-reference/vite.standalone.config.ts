@@ -44,9 +44,6 @@ export default defineConfig({
   build: {
     emptyOutDir: false,
     outDir: 'dist/browser',
-    commonjsOptions: {
-      include: [/node_modules/],
-    },
     cssCodeSplit: false,
     minify: 'terser',
     // With the default terserOptions, highlight.js breaks the build.
