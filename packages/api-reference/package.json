@@ -148,6 +148,7 @@
     "vite": "catalog:*",
     "vite-plugin-banner": "^0.8.1",
     "vite-plugin-css-injected-by-js": "^3.5.2",
-    "vitest": "catalog:*"
+    "vitest": "catalog:*",
+    "monaco-editor": "catalog:*"
   }
 }
