@@ -340,5 +340,42 @@ describe('is-type-object', () => {
 
       expect(isTypeObject(schema)).toBe(false)
     })
+
+    it('returns false for schema with discriminator mapping and no explicit oneOf', () => {
+      const schema: OpenAPIV3_1.SchemaObject = {
+        type: 'object',
+        properties: {
+          shapeType: {
+            type: 'string',
+          },
+        },
+        discriminator: {
+          propertyName: 'shapeType',
+          mapping: {
+            circle: '#/components/schemas/Circle',
+            rectangle: '#/components/schemas/Rectangle',
+          },
+        },
+      }
+
+      expect(isTypeObject(schema)).toBe(false)
+    })
+
+    it('returns true for schema with discriminator and empty mapping', () => {
+      const schema: OpenAPIV3_1.SchemaObject = {
+        type: 'object',
+        properties: {
+          shapeType: {
+            type: 'string',
+          },
+        },
+        discriminator: {
+          propertyName: 'shapeType',
+          mapping: {},
+        },
+      }
+
+      expect(isTypeObject(schema)).toBe(true)
+    })
   })
 })
