@@ -60,9 +60,7 @@ export const getCompositionsToRender = (value: SchemaObject | undefined): Compos
 
       // Check for property-level composition
       const hasPropertyLevelComposition =
-        composition === 'oneOf'
-          ? Boolean(value.oneOf || inferredOneOf)
-          : Boolean(value[composition])
+        composition === 'oneOf' ? Boolean(value.oneOf || inferredOneOf) : Boolean(value[composition])
 
       if (hasPropertyLevelComposition) {
         // Skip if array items have this composition (even if complex/not rendered)
