@@ -141,7 +141,4 @@ onlyBuiltDependencies:
   - '@parcel/watcher'
   - '@swc/core'
   - '@tailwindcss/oxide'
-  - '@todesktop/cli'
-  - electron
-  - esbuild
   - lefthook
