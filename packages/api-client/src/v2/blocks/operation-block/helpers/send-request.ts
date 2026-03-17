@@ -1,7 +1,7 @@
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { httpStatusCodes } from '@scalar/helpers/http/http-status-codes'
 import { type ClientPlugin, executeHook } from '@scalar/oas-utils/helpers'
-import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { OpenApiDocument, OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
 import { ERRORS, type ErrorResponse, normalizeError } from '@/libs/errors'
 import { normalizeHeaders } from '@/libs/normalize-headers'
@@ -59,11 +59,13 @@ export const sendRequest = async ({
   operation,
   request,
   plugins,
+  document,
 }: {
   isUsingProxy: boolean
   operation: OperationObject
   plugins: ClientPlugin[]
   request: Request
+  document: OpenApiDocument
 }): Promise<
   ErrorResponse<{
     response: ResponseInstance
@@ -74,7 +76,7 @@ export const sendRequest = async ({
 > => {
   try {
     // Apply any beforeRequest hooks from the plugins
-    const { request: modifiedRequest } = await executeHook({ request }, 'beforeRequest', plugins)
+    const { request: modifiedRequest } = await executeHook({ request, document, operation }, 'beforeRequest', plugins)
 
     // Execute the request and measure duration
     const startTime = Date.now()
@@ -100,6 +102,7 @@ export const sendRequest = async ({
       return buildStreamingResponse({
         response,
         modifiedRequest,
+        document,
         operation,
         plugins,
         endTime,
@@ -114,6 +117,7 @@ export const sendRequest = async ({
     return buildStandardResponse({
       response,
       modifiedRequest,
+      document,
       operation,
       plugins,
       endTime,
@@ -135,6 +139,7 @@ export const sendRequest = async ({
  * Streaming responses use a reader instead of buffering the entire body.
  */
 const buildStreamingResponse = async ({
+  document,
   response,
   modifiedRequest,
   operation,
@@ -146,6 +151,7 @@ const buildStreamingResponse = async ({
   method,
   fullPath,
 }: {
+  document: OpenApiDocument
   response: Response
   modifiedRequest: Request
   operation: OperationObject
@@ -170,7 +176,11 @@ const buildStreamingResponse = async ({
     headers: response.headers,
   })
 
-  await executeHook({ response: normalizedResponse, request: modifiedRequest, operation }, 'responseReceived', plugins)
+  await executeHook(
+    { response: normalizedResponse, request: modifiedRequest, operation, document },
+    'responseReceived',
+    plugins,
+  )
   const cookieHeaderKeys = getCookieHeaderKeys(normalizedResponse.headers)
 
   return [
@@ -197,6 +207,7 @@ const buildStreamingResponse = async ({
  * This handles all non-streaming responses including JSON, text, and binary data.
  */
 const buildStandardResponse = async ({
+  document,
   response,
   modifiedRequest,
   operation,
@@ -210,6 +221,7 @@ const buildStandardResponse = async ({
   contentType,
   shouldSkipBody,
 }: {
+  document: OpenApiDocument
   response: Response
   modifiedRequest: Request
   operation: OperationObject
@@ -249,7 +261,11 @@ const buildStandardResponse = async ({
     headers: response.headers,
   })
 
-  await executeHook({ response: normalizedResponse, request: modifiedRequest, operation }, 'responseReceived', plugins)
+  await executeHook(
+    { response: normalizedResponse, request: modifiedRequest, operation, document },
+    'responseReceived',
+    plugins,
+  )
   const cookieHeaderKeys = getCookieHeaderKeys(normalizedResponse.headers)
 
   return [

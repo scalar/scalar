@@ -83,7 +83,7 @@ export const executeInPostmanSandbox = async ({
   variablesStore,
 }: {
   script: string
-  request: Request
+  request?: Request
   response?: Response
   onTestResultsUpdate?: ((results: TestResult[]) => void) | undefined
   scriptConsole: ConsoleContext

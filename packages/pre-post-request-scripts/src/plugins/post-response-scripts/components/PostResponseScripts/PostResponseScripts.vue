@@ -15,7 +15,7 @@ const emit = defineEmits<{
   (e: 'operation:update:extension', payload: any): void
 }>()
 
-const script = computed(() => (operation['x-post-response'] as string) || '')
+const script = computed(() => (operation['x-post-response'] as string) ?? '')
 
 const updatePostResponseScript = (value: string) => {
   emit('operation:update:extension', {

@@ -17,6 +17,8 @@ export default {
 }
 
 export type OperationBlockProps = {
+  /** Openapi document */
+  document: OpenApiDocument
   /** Event bus */
   eventBus: WorkspaceEventBus
   /** Document defined security */
@@ -151,6 +153,7 @@ const {
   environments,
   activeEnvironment,
   serverMeta,
+  document,
 } = defineProps<OperationBlockProps>()
 
 /** Hoist up client generation so it doesn't get re-generated on every operation */
@@ -231,10 +234,16 @@ const handleExecute = async () => {
     },
   })
 
-  /** Execute the request */
+  /**
+   * Execute the request and also execute the plugins hooks
+   *
+   * - beforeRequest
+   * - responseReceived
+   */
   const [sendError, sendResult] = await sendRequest({
     isUsingProxy: result.isUsingProxy,
     operation,
+    document,
     plugins,
     request: result.request,
   })

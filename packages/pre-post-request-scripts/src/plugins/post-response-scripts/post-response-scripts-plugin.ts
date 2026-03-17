@@ -61,10 +61,13 @@ export const postResponseScriptsPluginV2 = (): ClientPlugin => {
         results.value = []
       },
       // Execute post-response scripts when a response is received
-      responseReceived: async ({ response, operation }) => {
-        await executePostResponseScript(operation['x-post-response'], {
+      responseReceived: async ({ request, response, operation, document, variablesStore }) => {
+        const script = `${document['x-post-response']}\n${operation['x-post-response']}`
+        await executePostResponseScript(script, {
+          request,
           response,
           onTestResultsUpdate: (newResults) => (results.value = [...newResults]),
+          variablesStore,
         })
       },
     },
