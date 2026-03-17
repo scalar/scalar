@@ -3,7 +3,7 @@ import { OpenAPIHono, createRoute, z } from '@hono/zod-openapi'
 import { createMarkdownFromOpenApi } from '@scalar/openapi-to-markdown'
 import { cors } from 'hono/cors'
 
-import { Scalar } from '../src/index'
+import { Scalar, ScalarSSR } from '../src/index'
 
 const PORT = Number(process.env.PORT) || 5054
 const HOST = process.env.HOST || '0.0.0.0'
@@ -176,24 +176,37 @@ app.doc('/doc', {
   },
 })
 
-// Load the middleware
+const scalarConfiguration = {
+  onLoaded: () => {
+    console.log('ready')
+  },
+  sources: [
+    {
+      title: 'Hono',
+      url: '/doc',
+    },
+    {
+      title: 'Scalar Galaxy',
+      url: 'https://registry.scalar.com/@scalar/apis/galaxy?format=json',
+    },
+  ],
+}
+
+// Load the middleware (static HTML document)
 app.get(
   '/',
   Scalar({
-    onLoaded: () => {
-      console.log('ready')
-    },
-    sources: [
-      {
-        title: 'Hono',
-        url: '/doc',
-      },
-      {
-        title: 'Scalar Galaxy',
-        url: 'https://registry.scalar.com/@scalar/apis/galaxy?format=json',
-      },
-    ],
+    ...scalarConfiguration,
     pageTitle: 'Hono API Reference Demo',
+  }),
+)
+
+// Load the middleware (server-side rendered HTML document)
+app.get(
+  '/ssr',
+  ScalarSSR({
+    ...scalarConfiguration,
+    pageTitle: 'Hono API Reference SSR Demo',
   }),
 )
 
