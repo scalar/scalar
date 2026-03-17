@@ -352,3 +352,27 @@ export const syncPathParameters = (): LifecyclePlugin => {
     },
   }
 }
+
+// A list of nested internal keys that should be removed from nodes at any level.
+const NESTED_INTERNAL_KEYS = ['__scalar_', '$status']
+
+/**
+ * Lifecycle plugin to remove extra Scalar internal keys from nodes.
+ *
+ * This plugin is used to remove extra Scalar internal keys from nodes during the bundling process.
+ * These keys are used for internal purposes and are not needed in the final bundled document.
+ */
+export const removeExtraScalarKeys = (): LifecyclePlugin => {
+  return {
+    type: 'lifecycle',
+    onBeforeNodeProcess: (node) => {
+      if (isObject(node)) {
+        for (const key of NESTED_INTERNAL_KEYS) {
+          if (key in node) {
+            delete node[key]
+          }
+        }
+      }
+    },
+  }
+}
