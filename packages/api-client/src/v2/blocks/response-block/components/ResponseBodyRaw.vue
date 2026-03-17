@@ -44,7 +44,7 @@ onBeforeUnmount(() => {
 })
 </script>
 <template>
-  <div class="relative grid h-[60svh]">
+  <div class="relative grid h-[80svh]">
     <div
       :id
       ref="monacoEditorRef" />
