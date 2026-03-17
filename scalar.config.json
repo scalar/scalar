@@ -1996,6 +1996,16 @@
             "mode": "nested",
             "icon": "phosphor/regular/books",
             "children": {
+              "/": {
+                "type": "page",
+                "title": "Blog",
+                "filepath": "documentation/blog/index.md"
+              },
+              "/agent-scalar-mcp": {
+                "type": "page",
+                "title": "Use your API in Cursor",
+                "filepath": "documentation/blog/agent-scalar-mcp.md"
+              },
               "/agent-scalar": {
                 "type": "page",
                 "title": "Introducing Agent",
