@@ -2,7 +2,7 @@ import { resolve } from 'node:path'
 
 import { defineConfig } from 'vitest/config'
 
-import { createExternalsFromPackageJson } from '../../scripts/vite-lib-config'
+import { createExternalsFromPackageJson } from '../../tooling/scripts/vite-lib-config'
 
 const external = createExternalsFromPackageJson(resolve(import.meta.dirname, 'package.json'))
 

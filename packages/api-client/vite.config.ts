@@ -6,7 +6,7 @@ import vue from '@vitejs/plugin-vue'
 import svgLoader from 'vite-svg-loader'
 import { defineConfig } from 'vitest/config'
 
-import { createExternalsFromPackageJson, createLibEntry, findEntryPoints } from '../../scripts/vite-lib-config'
+import { createExternalsFromPackageJson, createLibEntry, findEntryPoints } from '../../tooling/scripts/vite-lib-config'
 
 const require = createRequire(import.meta.url)
 const monacoEditorPlugin = require('vite-plugin-monaco-editor').default

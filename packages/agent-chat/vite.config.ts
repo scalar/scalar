@@ -4,7 +4,7 @@ import tailwindcss from '@tailwindcss/vite'
 import vue from '@vitejs/plugin-vue'
 import { defineConfig } from 'vitest/config'
 
-import { createExternalsFromPackageJson, createLibEntry, findEntryPoints } from '../../scripts/vite-lib-config'
+import { createExternalsFromPackageJson, createLibEntry, findEntryPoints } from '../../tooling/scripts/vite-lib-config'
 
 const external = createExternalsFromPackageJson(resolve(import.meta.dirname, 'package.json'))
 const entryPaths = await findEntryPoints()

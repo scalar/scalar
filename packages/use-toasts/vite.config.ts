@@ -2,7 +2,7 @@ import vue from '@vitejs/plugin-vue'
 import { defineConfig } from 'vite'
 import cssInjectedByJsPlugin from 'vite-plugin-css-injected-by-js'
 
-import { createExternalsFromPackageJson, createLibEntry } from '../../scripts/vite-lib-config'
+import { createExternalsFromPackageJson, createLibEntry } from '../../tooling/scripts/vite-lib-config'
 
 const external = createExternalsFromPackageJson()
 const entry = createLibEntry(['./src/index.ts'], import.meta.dirname)
