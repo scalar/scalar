@@ -23,6 +23,7 @@
   "devDependencies": {
     "@types/picomatch": "catalog:*",
     "@types/semver": "catalog:*",
-    "vite": "catalog:*"
+    "vite": "catalog:*",
+    "vitest": "catalog:*"
   }
 }
