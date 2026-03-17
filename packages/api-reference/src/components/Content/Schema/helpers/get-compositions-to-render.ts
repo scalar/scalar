@@ -1,6 +1,6 @@
 import { isDefined } from '@scalar/helpers/array/is-defined'
 import { resolve } from '@scalar/workspace-store/resolve'
-import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { SchemaObject, SchemaReferenceType } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { isArraySchema } from '@scalar/workspace-store/schemas/v3.1/strict/type-guards'
 
 import { type CompositionKeyword, compositions } from './schema-composition'
@@ -12,7 +12,8 @@ type CompositionToRender = {
 }
 
 const inferOneOfFromDiscriminatorMapping = (value: SchemaObject): SchemaObject['oneOf'] => {
-  if (value.oneOf) {
+  // If composition is already explicit, do not synthesize a second composition selector.
+  if (value.oneOf || value.anyOf || value.allOf || value.not) {
     return undefined
   }
 
@@ -23,7 +24,12 @@ const inferOneOfFromDiscriminatorMapping = (value: SchemaObject): SchemaObject['
 
   const inferredOneOf = Object.values(mapping)
     .filter((mappingValue) => Boolean(mappingValue))
-    .map((mappingValue) => ({ $ref: mappingValue }))
+    .map(
+      (mappingValue): SchemaReferenceType<SchemaObject> => ({
+        $ref: mappingValue,
+        '$ref-value': { $ref: mappingValue },
+      }),
+    )
 
   return inferredOneOf.length > 0 ? inferredOneOf : undefined
 }
