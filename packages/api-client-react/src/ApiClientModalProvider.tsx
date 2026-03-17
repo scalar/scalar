@@ -67,9 +67,7 @@ type ResolvedDocumentInput = {
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null
 
-const resolveDocumentInput = async (
-  configuration: Partial<ApiClientConfiguration>,
-): Promise<ResolvedDocumentInput | null> => {
+const resolveDocumentInput = (configuration: Partial<ApiClientConfiguration>): ResolvedDocumentInput | null => {
   const url = configuration.url ?? configuration.spec?.url
   if (url) {
     return { url }
@@ -119,12 +117,25 @@ const toRoutePayload = (payload?: OpenClientPayload) => {
     return undefined
   }
 
-  return {
+  const routePayload: {
+    path: string
+    method: HttpMethod
+    example?: string
+    documentSlug?: string
+  } = {
     path: payload.path,
     method,
-    example: payload.example,
-    documentSlug: payload.documentSlug,
   }
+
+  if (payload.example) {
+    routePayload.example = payload.example
+  }
+
+  if (payload.documentSlug) {
+    routePayload.documentSlug = payload.documentSlug
+  }
+
+  return routePayload
 }
 
 /**
@@ -169,7 +180,7 @@ export const ApiClientModalProvider = ({ children, initialRequest, configuration
         },
       })
 
-      const resolvedDocumentInput = await resolveDocumentInput(currentConfiguration)
+      const resolvedDocumentInput = resolveDocumentInput(currentConfiguration)
       if (!resolvedDocumentInput) {
         console.error(
           '[@scalar/api-client-react] Please provide an OpenAPI source through configuration.url or configuration.content.',
