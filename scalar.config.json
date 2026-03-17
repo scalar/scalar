@@ -1718,6 +1718,11 @@
                     "title": "Data Seeding",
                     "filepath": "documentation/guides/mock-server/data-seeding.md",
                     "type": "page"
+                  },
+                  "changelog": {
+                    "title": "Changelog",
+                    "filepath": "packages/mock-server/CHANGELOG.md",
+                    "type": "page"
                   }
                 }
               }
@@ -1808,6 +1813,11 @@
                         }
                       ]
                     }
+                  },
+                  "changelog": {
+                    "title": "Changelog",
+                    "filepath": "packages/openapi-upgrader/CHANGELOG.md",
+                    "type": "page"
                   }
                 }
               },
