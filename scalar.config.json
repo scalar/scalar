@@ -1315,16 +1315,6 @@
                         "filepath": "documentation/integrations/astro.md",
                         "type": "page"
                       },
-                      "django": {
-                        "title": "Django",
-                        "filepath": "documentation/integrations/django.md",
-                        "type": "page"
-                      },
-                      "django-ninja": {
-                        "title": "Django Ninja",
-                        "filepath": "documentation/integrations/django-ninja.md",
-                        "type": "page"
-                      },
                       "docker": {
                         "title": "Docker",
                         "filepath": "documentation/integrations/docker.md",
@@ -1372,36 +1362,9 @@
                           ]
                         }
                       },
-                      "fastapi": {
-                        "title": "FastAPI",
-                        "filepath": "documentation/integrations/fastapi.md",
-                        "type": "page",
-                        "description": "Replace Swagger UI with Scalar in your FastAPI application for modern, beautiful API documentation.",
-                        "head": {
-                          "links": [{
-                            "rel": "canonical",
-                            "href": "https://scalar.com/products/api-references/integrations/fastapi"
-                          }],
-                          "meta": [
-                            {
-                              "name": "description",
-                              "content": "Replace Swagger UI with Scalar in your FastAPI application for modern, beautiful API documentation."
-                            },
-                            {
-                              "name": "robots",
-                              "content": "index, follow"
-                            }
-                          ]
-                        }
-                      },
                       "fastify": {
                         "title": "Fastify",
                         "filepath": "documentation/integrations/fastify.md",
-                        "type": "page"
-                      },
-                      "flask": {
-                        "title": "Flask",
-                        "filepath": "documentation/integrations/flask.md",
                         "type": "page"
                       },
                       "go": {
@@ -1483,8 +1446,52 @@
                       },
                       "python": {
                         "title": "Python",
-                        "filepath": "documentation/integrations/python.md",
-                        "type": "page"
+                        "type": "group",
+                        "mode": "folder",
+                        "children": {
+                          "": {
+                            "title": "Python",
+                            "filepath": "documentation/integrations/python.md",
+                            "type": "page"
+                          },
+                          "fastapi": {
+                            "title": "FastAPI",
+                            "filepath": "documentation/integrations/fastapi.md",
+                            "type": "page",
+                            "description": "Replace Swagger UI with Scalar in your FastAPI application for modern, beautiful API documentation.",
+                            "head": {
+                              "links": [{
+                                "rel": "canonical",
+                                "href": "https://scalar.com/products/api-references/integrations/fastapi"
+                              }],
+                              "meta": [
+                                {
+                                  "name": "description",
+                                  "content": "Replace Swagger UI with Scalar in your FastAPI application for modern, beautiful API documentation."
+                                },
+                                {
+                                  "name": "robots",
+                                  "content": "index, follow"
+                                }
+                              ]
+                            }
+                          },
+                          "django-ninja": {
+                            "title": "Django Ninja",
+                            "filepath": "documentation/integrations/django-ninja.md",
+                            "type": "page"
+                          },
+                          "django": {
+                            "title": "Django",
+                            "filepath": "documentation/integrations/django.md",
+                            "type": "page"
+                          },
+                          "flask": {
+                            "title": "Flask",
+                            "filepath": "documentation/integrations/flask.md",
+                            "type": "page"
+                          }
+                        }
                       },
                       "react": {
                         "title": "React",

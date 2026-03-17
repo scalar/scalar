@@ -34,8 +34,8 @@ from scalar_ninja import (
     ScalarViewer,
     SearchHotKey,
     Theme,
+    get_scalar_api_reference,
 )
-from scalar_ninja.scalar_ninja import get_scalar_api_reference
 
 
 class TestLayout:
@@ -87,7 +87,7 @@ class TestTheme:
         """Test that all theme values are unique and valid"""
         theme_values = [theme.value for theme in Theme]
         assert len(theme_values) == len(set(theme_values))  # All values are unique
-        assert len(theme_values) == 12  # Total number of themes
+        assert len(theme_values) == 14  # Total number of themes
 
         # Check that all values are strings
         for value in theme_values:
@@ -206,7 +206,7 @@ class TestScalarConfig:
             config.scalar_js_url == "https://cdn.jsdelivr.net/npm/@scalar/api-reference"
         )
         assert config.scalar_proxy_url == ""
-        assert config.scalar_favicon_url == "https://django-ninja.dev/img/favicon.png"
+        assert config.scalar_favicon_url == ""
         assert config.layout == Layout.MODERN
         assert config.show_sidebar is True
         assert config.hide_download_button is False
@@ -636,12 +636,11 @@ class TestGetScalarApiReference:
 
     def test_favicon(self):
         """Test favicon configuration"""
+        # ScalarConfig with no favicon renders no favicon link
         config = ScalarConfig(openapi_url="/openapi.json")
         response = get_scalar_api_reference(config)
         html_content = response.content.decode()
-
-        # Default favicon
-        assert 'href="https://django-ninja.dev/img/favicon.png"' in html_content
+        assert "shortcut icon" not in html_content
 
         # Custom favicon
         config = ScalarConfig(

@@ -1,19 +1,26 @@
-from .scalar_fastapi import (
+from scalar_api_reference import (
+    AgentConfig,
     DocumentDownloadType,
-    get_scalar_api_reference,
     Layout,
     OpenAPISource,
-    AgentScalarConfig,
+    ScalarConfig,
     SearchHotKey,
     Theme,
 )
 
+from .scalar_fastapi import (
+    AgentScalarConfig,
+    get_scalar_api_reference,
+)
+
 __all__ = [
+    "AgentConfig",
+    "AgentScalarConfig",
     "DocumentDownloadType",
-    "get_scalar_api_reference",
     "Layout",
     "OpenAPISource",
-    "AgentScalarConfig",
+    "ScalarConfig",
     "SearchHotKey",
     "Theme",
+    "get_scalar_api_reference",
 ]

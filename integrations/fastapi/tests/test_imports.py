@@ -94,8 +94,8 @@ def test_theme_enum_completeness():
     # Check that all expected themes are present
     expected_themes = [
         "default", "alternate", "moon", "purple", "solarized",
-        "bluePlanet", "saturn", "kepler", "mars", "deepSpace",
-        "laserwave", "none"
+        "bluePlanet", "deepSpace", "saturn", "kepler", "elysiajs",
+        "fastify", "mars", "laserwave", "none"
     ]
 
     actual_themes = [theme.value for theme in Theme]

@@ -114,10 +114,12 @@ def test_theme_enum_completeness():
         "purple",
         "solarized",
         "bluePlanet",
+        "deepSpace",
         "saturn",
         "kepler",
+        "elysiajs",
+        "fastify",
         "mars",
-        "deepSpace",
         "laserwave",
         "none",
     ]

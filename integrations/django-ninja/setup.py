@@ -13,7 +13,9 @@ setup(
     name="scalar_ninja",
     version=get_version(),
     packages=find_packages(exclude=["tests"]),
-    install_requires=[],
+    install_requires=[
+        "scalar-api-reference>=1.0.0",
+    ],
     author="Scalar",
     author_email="support@scalar.com",
     description="This plugin provides an easy way to render a beautiful API reference based on a OpenAPI/Swagger file with Django Ninja.",

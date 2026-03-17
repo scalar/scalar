@@ -1,0 +1,3 @@
+include package.json
+include requirements.txt
+recursive-include scalar_api_reference *.py

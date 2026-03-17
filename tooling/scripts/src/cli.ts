@@ -1,6 +1,7 @@
 import { Command } from 'commander'
 
 import { cat } from '@/commands/cat'
+import { generatePythonConfig } from '@/commands/generate-python-config'
 import { generateReadme } from '@/commands/generate-readme'
 import { packages } from '@/commands/packages'
 import { updatePlaywrightDocker } from '@/commands/playwright-docker/push-container'
@@ -23,5 +24,6 @@ program.addCommand(updateTestSnapshots)
 program.addCommand(cat)
 program.addCommand(run)
 program.addCommand(updatePlaywrightDocker)
+program.addCommand(generatePythonConfig)
 program.addCommand(generateReadme)
 program.parse()

@@ -51,7 +51,7 @@ class TestTheme:
         """Test that all theme values are unique and valid"""
         theme_values = [theme.value for theme in Theme]
         assert len(theme_values) == len(set(theme_values))  # All values are unique
-        assert len(theme_values) == 12  # Total number of themes
+        assert len(theme_values) == 14  # Total number of themes
 
         # Check that all values are strings
         for value in theme_values:

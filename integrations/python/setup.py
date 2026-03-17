@@ -10,16 +10,16 @@ def get_version():
     return package_data['version']
 
 setup(
-    name='scalar_fastapi',
+    name='scalar-api-reference',
     version=get_version(),
     packages=find_packages(exclude=["tests"]),
     install_requires=[
-        "scalar-api-reference>=1.0.0",
+        "pydantic>=2.0",
     ],
     author='Scalar',
     author_email='support@scalar.com',
-    description='This plugin provides an easy way to render a beautiful API reference based on a OpenAPI/Swagger file with FastAPI.',
-    long_description=open('README.md').read(),
+    description='Shared Python library for rendering Scalar API Reference documentation from OpenAPI files.',
+    long_description=open('README.md').read() if os.path.exists('README.md') else '',
     long_description_content_type='text/markdown',
     url='https://github.com/scalar/scalar',
 )
