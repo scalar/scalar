@@ -13,7 +13,7 @@ import type {
   TraversedOperation,
   TraversedTag,
 } from '@scalar/workspace-store/schemas/navigation'
-import type { OpenApiDocument, TagObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { TagObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/operation'
 import { type MaybeRefOrGetter, toValue } from 'vue'
 
@@ -307,7 +307,7 @@ const getDereferencedOperation = (
     return undefined
   }
 
-  const dereferencedOperation = dereferenceNode(operation, new WeakMap()) as OpenApiDocument['paths'][string][HttpMethod]
+  const dereferencedOperation = dereferenceNode(operation, new WeakMap()) as OperationObject
 
   return toJsonCompatible(dereferencedOperation, { prefix: `#/paths/${escapeJsonPointer(path)}/${method}` }) as
     | OperationObject
