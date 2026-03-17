@@ -1,4 +1,5 @@
-import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
+import { SchemaObjectSchema, type SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { describe, expect, it } from 'vitest'
 
 import { getCompositionsToRender } from './get-compositions-to-render'
@@ -68,7 +69,7 @@ describe('get-compositions-to-render', () => {
     })
 
     it('does not infer oneOf when anyOf is already present', () => {
-      const schema = {
+      const schema = coerceValue(SchemaObjectSchema, {
         type: 'object',
         anyOf: [{ $ref: '#/components/schemas/Circle' }, { $ref: '#/components/schemas/Rectangle' }],
         discriminator: {
@@ -78,7 +79,7 @@ describe('get-compositions-to-render', () => {
             rectangle: '#/components/schemas/Rectangle',
           },
         },
-      } as SchemaObject
+      })
 
       const result = getCompositionsToRender(schema)
 
