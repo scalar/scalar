@@ -1,10 +1,10 @@
+import type { VariablesStore } from '@scalar/oas-utils/helpers'
 import type { ExecutionResult, SandboxContext } from 'postman-sandbox'
 import Sandbox from 'postman-sandbox'
 
 import { buildSandboxContextFromStore } from './build-sandbox-context'
 import type { ConsoleContext } from './context/console'
 import type { TestResult } from './execute-post-response-script'
-import type { VariablesStore } from './variables-store'
 import {
   applyExecutionCollectionVariables,
   applyExecutionGlobals,

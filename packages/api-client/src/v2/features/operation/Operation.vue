@@ -181,13 +181,14 @@ const APP_VERSION = PACKAGE_VERSION
 
 <template>
   <!-- Operation exists -->
-  <template v-if="path && method && exampleName && operation">
+  <template v-if="path && method && exampleName && operation && document">
     <OperationBlock
       :activeEnvironment="
         workspaceStore.workspace['x-scalar-active-environment']
       "
       :appVersion="APP_VERSION"
       :authMeta
+      :document
       :documentSecurity="document?.security ?? []"
       :documentSelectedSecurity="documentSelectedSecurity"
       :documentUrl="document?.['x-scalar-original-source-url']"
@@ -215,7 +216,8 @@ const APP_VERSION = PACKAGE_VERSION
       :selectedClient="workspaceStore.workspace['x-scalar-default-client']"
       :server="selectedServer"
       :serverMeta
-      :servers />
+      :servers
+      :workspaceStore="workspaceStore" />
   </template>
 
   <!-- Empty state -->

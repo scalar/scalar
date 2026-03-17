@@ -75,6 +75,8 @@ export type OperationBlockProps = {
   environment: XScalarEnvironment
   /** The proxy URL for sending requests */
   proxyUrl: string
+  /** Workspace store (for syncing script-set variables to document/workspace env) */
+  workspaceStore?: WorkspaceStore | null
 }
 </script>
 <script setup lang="ts">
@@ -108,6 +110,7 @@ import type { ClientLayout } from '@/hooks'
 import { ERRORS } from '@/libs/errors'
 import { buildRequest } from '@/v2/blocks/operation-block/helpers/build-request'
 import { getSecuritySchemes } from '@/v2/blocks/operation-block/helpers/build-request-security'
+import { createVariablesStoreForRequest } from '@/v2/blocks/operation-block/helpers/create-variables-store-for-request'
 import { harToFetchRequest } from '@/v2/blocks/operation-block/helpers/har-to-fetch-request'
 import { harToFetchResponse } from '@/v2/blocks/operation-block/helpers/har-to-fetch-response'
 import {
@@ -154,6 +157,7 @@ const {
   activeEnvironment,
   serverMeta,
   document,
+  workspaceStore,
 } = defineProps<OperationBlockProps>()
 
 /** Hoist up client generation so it doesn't get re-generated on every operation */
@@ -234,6 +238,17 @@ const handleExecute = async () => {
     },
   })
 
+  const variablesStore =
+    workspaceStore && activeEnvironment
+      ? createVariablesStoreForRequest({
+          environment,
+          activeEnvironmentName: activeEnvironment,
+          eventBus,
+          workspace: workspaceStore.workspace ?? null,
+          document,
+        })
+      : undefined
+
   /**
    * Execute the request and also execute the plugins hooks
    *
@@ -246,6 +261,7 @@ const handleExecute = async () => {
     document,
     plugins,
     request: result.request,
+    variablesStore,
   })
 
   // Execute the hooks

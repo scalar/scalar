@@ -1,6 +1,6 @@
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { httpStatusCodes } from '@scalar/helpers/http/http-status-codes'
-import { type ClientPlugin, executeHook } from '@scalar/oas-utils/helpers'
+import { type ClientPlugin, type VariablesStore, executeHook } from '@scalar/oas-utils/helpers'
 import type { OpenApiDocument, OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
 import { ERRORS, type ErrorResponse, normalizeError } from '@/libs/errors'
@@ -60,12 +60,14 @@ export const sendRequest = async ({
   request,
   plugins,
   document,
+  variablesStore,
 }: {
   isUsingProxy: boolean
   operation: OperationObject
   plugins: ClientPlugin[]
   request: Request
   document: OpenApiDocument
+  variablesStore?: VariablesStore
 }): Promise<
   ErrorResponse<{
     response: ResponseInstance
@@ -105,6 +107,7 @@ export const sendRequest = async ({
         document,
         operation,
         plugins,
+        variablesStore,
         endTime,
         duration,
         responseHeaders,
@@ -120,6 +123,7 @@ export const sendRequest = async ({
       document,
       operation,
       plugins,
+      variablesStore,
       endTime,
       duration,
       responseHeaders,
@@ -144,6 +148,7 @@ const buildStreamingResponse = async ({
   modifiedRequest,
   operation,
   plugins,
+  variablesStore,
   endTime,
   duration,
   responseHeaders,
@@ -156,6 +161,7 @@ const buildStreamingResponse = async ({
   modifiedRequest: Request
   operation: OperationObject
   plugins: ClientPlugin[]
+  variablesStore?: VariablesStore
   endTime: number
   duration: number
   responseHeaders: Record<string, string>
@@ -177,7 +183,13 @@ const buildStreamingResponse = async ({
   })
 
   await executeHook(
-    { response: normalizedResponse, request: modifiedRequest, operation, document },
+    {
+      response: normalizedResponse,
+      request: modifiedRequest,
+      operation,
+      document,
+      variablesStore,
+    },
     'responseReceived',
     plugins,
   )
@@ -212,6 +224,7 @@ const buildStandardResponse = async ({
   modifiedRequest,
   operation,
   plugins,
+  variablesStore,
   endTime,
   duration,
   responseHeaders,
@@ -226,6 +239,7 @@ const buildStandardResponse = async ({
   modifiedRequest: Request
   operation: OperationObject
   plugins: ClientPlugin[]
+  variablesStore?: VariablesStore
   endTime: number
   duration: number
   responseHeaders: Record<string, string>
@@ -262,7 +276,13 @@ const buildStandardResponse = async ({
   })
 
   await executeHook(
-    { response: normalizedResponse, request: modifiedRequest, operation, document },
+    {
+      response: normalizedResponse,
+      request: modifiedRequest,
+      operation,
+      document,
+      variablesStore,
+    },
     'responseReceived',
     plugins,
   )

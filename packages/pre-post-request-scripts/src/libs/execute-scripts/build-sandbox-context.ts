@@ -1,6 +1,6 @@
+import type { VariableEntry, VariablesStore } from '@scalar/oas-utils/helpers'
 import { VariableList, VariableScope } from 'postman-collection'
 
-import type { VariableEntry, VariablesStore } from './variables-store'
 import { getVariableScopesFromStore } from './variables-store'
 
 function toVariableList(entries: VariableEntry[]): VariableList {

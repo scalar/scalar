@@ -1,4 +1,4 @@
-import type { VariablesStore } from '@/libs/execute-scripts/variables-store'
+import type { VariablesStore } from '@scalar/oas-utils/helpers'
 
 import { createConsoleContext } from './context/console'
 import { executeInPostmanSandbox } from './postman-sandbox-adapter'
