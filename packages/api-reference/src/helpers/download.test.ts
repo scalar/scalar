@@ -118,4 +118,30 @@ info:
     await downloadDocument('{"test": true}')
     expect(mockLink.download).toBe('openapi.json')
   })
+
+  it('preserves YAML content verbatim when output format matches input format', async () => {
+    const yamlWithComments = `# My API description
+openapi: 3.0.0
+info:
+  title: Scalar Galaxy # inline comment
+  version: 1.0.0
+`
+    await downloadDocument(yamlWithComments, 'scalar-galaxy', 'yaml')
+
+    const blob = createObjectURL.mock.calls[0]![0] as Blob
+    const text = await blob.text()
+
+    expect(text).toBe(yamlWithComments)
+  })
+
+  it('preserves JSON content verbatim when output format matches input format', async () => {
+    const jsonContent = '{\n    "openapi":"3.0.0",\n    "info":{"title":"Test"}\n}'
+
+    await downloadDocument(jsonContent, 'test')
+
+    const blob = createObjectURL.mock.calls[0]![0] as Blob
+    const text = await blob.text()
+
+    expect(text).toBe(jsonContent)
+  })
 })

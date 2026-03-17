@@ -32,15 +32,6 @@ async function parseContent(content: string) {
   }
 }
 
-function createJSONBlob(content: Record<string, unknown>) {
-  return new Blob([JSON.stringify(content, null, 2)], { type: 'application/json' })
-}
-
-async function createYAMLBlob(content: Record<string, unknown>) {
-  const { stringify } = await import('yaml')
-  return new Blob([stringify(content)], { type: 'application/x-yaml' })
-}
-
 /**
  * Detect if content is JSON or YAML using lightweight string heuristics
  * to avoid the cost of a full JSON.parse call.
@@ -54,15 +45,40 @@ function detectFormat(content: string): 'json' | 'yaml' {
 }
 
 /**
+ * Convert content to the target format, returning the original string when
+ * no conversion is needed so that YAML comments, custom formatting, and key
+ * ordering are preserved.
+ */
+async function formatContent(
+  content: string,
+  inputFormat: 'json' | 'yaml',
+  outputFormat: 'json' | 'yaml',
+): Promise<string> {
+  if (inputFormat === outputFormat) {
+    return content
+  }
+
+  const parsed = await parseContent(content)
+
+  if (outputFormat === 'json') {
+    return JSON.stringify(parsed, null, 2)
+  }
+
+  const { stringify } = await import('yaml')
+  return stringify(parsed)
+}
+
+/**
  * Trigger the download of the OpenAPI document
  */
 export async function downloadDocument(content: string, filename?: string, format?: 'json' | 'yaml') {
-  const parsed = await parseContent(content)
+  const inputFormat = detectFormat(content)
+  const outputFormat = format ?? inputFormat
+  const contentFilename = `${filename ?? 'openapi'}.${outputFormat}`
+  const mimeType = outputFormat === 'json' ? 'application/json' : 'application/x-yaml'
 
-  const resolvedFormat = format ?? detectFormat(content)
-  const contentFilename = `${filename ?? 'openapi'}.${resolvedFormat}`
-
-  const blob = resolvedFormat === 'json' ? createJSONBlob(parsed) : await createYAMLBlob(parsed)
+  const formattedContent = await formatContent(content, inputFormat, outputFormat)
+  const blob = new Blob([formattedContent], { type: mimeType })
 
   const data = URL.createObjectURL(blob)
   const link = document.createElement('a')
