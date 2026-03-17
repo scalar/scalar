@@ -48,7 +48,9 @@ const watchMode = ref<boolean>(true)
 events.hotKeys.on(() => modalState.hide())
 
 /** Try to make the retrieved content an OpenAPI document */
-const normalizeOpenApiDocument = (source: string): OpenAPI.Document | undefined => {
+const normalizeOpenApiDocument = (
+  source: string,
+): OpenAPI.Document | undefined => {
   if (source.trim() === '') {
     return undefined
   }
@@ -73,7 +75,9 @@ const normalizeOpenApiDocument = (source: string): OpenAPI.Document | undefined 
 
 const openApiDocument = computed(() => {
   try {
-    return normalizeOpenApiDocument(prefetchResult.content || props.source || '')
+    return normalizeOpenApiDocument(
+      prefetchResult.content || props.source || '',
+    )
   } catch {
     return undefined
   }
