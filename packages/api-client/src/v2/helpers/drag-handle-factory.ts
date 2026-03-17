@@ -4,6 +4,7 @@ import { toJsonCompatible } from '@scalar/helpers/object/to-json-compatible'
 import { escapeJsonPointer } from '@scalar/json-magic/helpers/escape-json-pointer'
 import type { DragOffset, DraggingItem, HoveredItem, SidebarState } from '@scalar/sidebar'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
+import { type RefNode, getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { unpackProxyObject } from '@scalar/workspace-store/helpers/unpack-proxy'
 import { getOpenapiObject, getParentEntry } from '@scalar/workspace-store/navigation'
 import type { WorkspaceDocument } from '@scalar/workspace-store/schemas'
@@ -230,12 +231,26 @@ const moveOperationBetweenDocuments = (
   }
 }
 
-const dereferenceNode = (node: unknown, cache: WeakMap<object, unknown>): unknown => {
-  if (typeof node !== 'object' || node === null) {
-    return node
+const mergeSiblingReferences = <Node>(node: RefNode<Node>) => {
+  const { '$ref-value': value, $ref: _ref, ...siblings } = node as RefNode<Node> & Record<string, unknown>
+
+  if (typeof value !== 'object' || value === null || Array.isArray(value)) {
+    return value
   }
 
-  const rawNode = unpackProxyObject(node, { depth: 1 })
+  return {
+    ...(value as Record<string, unknown>),
+    ...siblings,
+  }
+}
+
+const dereferenceNode = (node: unknown, cache: WeakMap<object, unknown>): unknown => {
+  const resolvedNode = getResolvedRef(node, mergeSiblingReferences as <T>(node: RefNode<T>) => T)
+  const rawNode = unpackProxyObject(resolvedNode, { depth: 1 })
+
+  if (typeof rawNode !== 'object' || rawNode === null) {
+    return rawNode
+  }
 
   if (Array.isArray(rawNode)) {
     const existingArray = cache.get(rawNode)
@@ -251,39 +266,6 @@ const dereferenceNode = (node: unknown, cache: WeakMap<object, unknown>): unknow
     })
 
     return result
-  }
-
-  if (typeof rawNode !== 'object' || rawNode === null) {
-    return rawNode
-  }
-
-  if ('$ref' in rawNode && '$ref-value' in rawNode) {
-    const {
-      '$ref-value': refValue,
-      $ref: _ref,
-      ...siblings
-    } = rawNode as {
-      $ref: string
-      '$ref-value': unknown
-      [key: string]: unknown
-    }
-    const resolvedRef = dereferenceNode(refValue, cache)
-    const siblingKeys = Object.keys(siblings)
-
-    if (
-      siblingKeys.length === 0 ||
-      typeof resolvedRef !== 'object' ||
-      resolvedRef === null ||
-      Array.isArray(resolvedRef)
-    ) {
-      return resolvedRef
-    }
-
-    const resolvedSiblings = dereferenceNode(siblings, cache)
-    return {
-      ...(resolvedRef as Record<string, unknown>),
-      ...(resolvedSiblings as Record<string, unknown>),
-    }
   }
 
   const existingObject = cache.get(rawNode)
