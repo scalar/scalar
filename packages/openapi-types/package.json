@@ -62,7 +62,5 @@
   "dependencies": {
     "zod": "catalog:*"
   },
-  "devDependencies": {
-    "vite": "catalog:*"
-  }
+  "devDependencies": {}
 }

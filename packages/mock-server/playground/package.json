@@ -40,7 +40,6 @@
     "@hono/node-server": "catalog:*",
     "@scalar/hono-api-reference": "workspace:*",
     "@scalar/mock-server": "workspace:*",
-    "vite": "catalog:*",
     "@types/node": "catalog:*"
   },
   "exports": {

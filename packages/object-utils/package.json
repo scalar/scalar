@@ -70,7 +70,5 @@
     "just-clone": "^6.2.0",
     "ts-deepmerge": "^7.0.3"
   },
-  "devDependencies": {
-    "vite": "catalog:*"
-  }
+  "devDependencies": {}
 }
