@@ -4,17 +4,17 @@ import tailwindcss from '@tailwindcss/vite'
 import vue from '@vitejs/plugin-vue'
 import { webpackStats } from 'rollup-plugin-webpack-stats'
 import { defineConfig } from 'vite'
-import banner from 'vite-plugin-banner'
+// import banner from 'vite-plugin-banner'
 import cssInjectedByJsPlugin from 'vite-plugin-css-injected-by-js'
 
-import licenseBannerTemplate from './license-banner-template.txt'
-import { name, version } from './package.json'
+// import licenseBannerTemplate from './license-banner-template.txt'
+import { /*name,*/ version } from './package.json'
 
-function replaceVariables(template: string, variables: Record<string, string>) {
-  return Object.entries(variables).reduce((content, [key, value]) => {
-    return content.replace(new RegExp(`\\{\\{ ${key} \\}\\}`, 'g'), value)
-  }, template)
-}
+// function replaceVariables(template: string, variables: Record<string, string>) {
+//   return Object.entries(variables).reduce((content, [key, value]) => {
+//     return content.replace(new RegExp(`\\{\\{ ${key} \\}\\}`, 'g'), value)
+//   }, template)
+// }
 
 export default defineConfig({
   define: {
@@ -33,13 +33,13 @@ export default defineConfig({
     tailwindcss(),
     cssInjectedByJsPlugin(),
     webpackStats(),
-    banner({
-      outDir: 'dist/browser',
-      content: replaceVariables(licenseBannerTemplate, {
-        packageName: name,
-        version: version,
-      }),
-    }),
+    // banner({
+    //   outDir: 'dist/browser',
+    //   content: replaceVariables(licenseBannerTemplate, {
+    //     packageName: name,
+    //     version: version,
+    //   }),
+    // }),
   ],
   build: {
     emptyOutDir: false,
