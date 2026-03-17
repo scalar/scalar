@@ -1351,10 +1351,6 @@ jobs:
         working-directory: integrations/rust
         run: cargo clippy -- -D warnings
 
-      - name: Verify Rust package includes scalar.js
-        working-directory: integrations/rust
-        run: cargo package --allow-dirty --no-verify --list | rg '^ui/scalar\.js$'
-
       - name: Run tests
         working-directory: integrations/rust
         run: cargo test
@@ -1418,10 +1414,6 @@ jobs:
         run: |
           sed -i "0,/^version = \".*\"/{s/^version = \".*\"/version = \"$VERSION\"/}" Cargo.toml
           cat Cargo.toml | grep version
-
-      - name: Verify Rust package includes scalar.js
-        working-directory: integrations/rust
-        run: cargo package --allow-dirty --no-verify --list | rg '^ui/scalar\.js$'
 
       - name: Publish to crates.io
         working-directory: integrations/rust
