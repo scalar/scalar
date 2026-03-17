@@ -528,6 +528,7 @@ describe('ScalarSidebar', () => {
       ]
 
       const state = createSidebarState(items)
+      const onReorder = vi.fn()
 
       const wrapper = mount(ScalarSidebarComponent, {
         props: {
@@ -535,6 +536,7 @@ describe('ScalarSidebar', () => {
           items: state.items.value,
           isSelected: state.isSelected,
           isExpanded: state.isExpanded,
+          onReorder,
         },
       })
 
@@ -545,8 +547,8 @@ describe('ScalarSidebar', () => {
       expect(sidebarItem.exists()).toBe(true)
       sidebarItem.vm.$emit('onDragEnd', draggingItem, hoveredItem)
 
-      expect(wrapper.emitted('reorder')).toBeTruthy()
-      expect(wrapper.emitted('reorder')?.[0]).toEqual([draggingItem, hoveredItem])
+      expect(onReorder).toHaveBeenCalled()
+      expect(onReorder).toHaveBeenCalledWith(draggingItem, hoveredItem)
     })
 
     it('passes drag event data correctly to parent', () => {
@@ -570,6 +572,7 @@ describe('ScalarSidebar', () => {
       ]
 
       const state = createSidebarState(items)
+      const onReorder = vi.fn()
 
       const wrapper = mount(ScalarSidebarComponent, {
         props: {
@@ -577,6 +580,7 @@ describe('ScalarSidebar', () => {
           items: state.items.value,
           isSelected: state.isSelected,
           isExpanded: state.isExpanded,
+          onReorder,
         },
       })
 
@@ -586,10 +590,8 @@ describe('ScalarSidebar', () => {
       const sidebarItems = wrapper.findAllComponents(SidebarItem)
       sidebarItems[0]?.vm.$emit('onDragEnd', draggingItem, hoveredItem)
 
-      const emitted = wrapper.emitted('reorder')
-      expect(emitted).toBeTruthy()
-      expect(emitted?.[0]?.[0]).toEqual(draggingItem)
-      expect(emitted?.[0]?.[1]).toEqual(hoveredItem)
+      expect(onReorder).toHaveBeenCalled()
+      expect(onReorder).toHaveBeenCalledWith(draggingItem, hoveredItem)
     })
   })
 

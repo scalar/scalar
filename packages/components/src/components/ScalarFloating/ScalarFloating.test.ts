@@ -37,10 +37,9 @@ describe('ScalarFloating', () => {
 
       await nextTick()
 
-      expect(wrapper.vm.targetRef).toBe(
-        // @ts-expect-error wrapperRef is not exposed
-        wrapper.vm.wrapperRef,
-      )
+      // Should fallback to the wrapper div (the first child div)
+      const wrapperDiv = wrapper.find('div').element
+      expect(wrapper.vm.targetRef).toBe(wrapperDiv)
       expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('non-existent-id'))
 
       consoleSpy.mockRestore()
@@ -78,10 +77,9 @@ describe('ScalarFloating', () => {
 
       await nextTick()
 
-      expect(wrapper.vm.targetRef).toBe(
-        // @ts-expect-error wrapperRef is not exposed
-        wrapper.vm.wrapperRef,
-      )
+      // Should fallback to the wrapper div (the first child div)
+      const wrapperDiv = wrapper.find('div').element
+      expect(wrapper.vm.targetRef).toBe(wrapperDiv)
     })
   })
 })

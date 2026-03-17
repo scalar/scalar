@@ -229,8 +229,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        shard-index: [1, 2]
-        shard-total: [2]
+        shard-index: [1, 2, 3]
+        shard-total: [3]
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
       - name: Build packages

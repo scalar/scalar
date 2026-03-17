@@ -22,7 +22,6 @@ describe('prettyPrintJson', () => {
   it('deals with circular references', () => {
     const foo: Record<string, any> = { foo: 'bar' }
 
-    // Add a circular reference
     foo.foo = foo
 
     expect(prettyPrintJson(foo)).toMatch(`{\n  "foo": "[Circular]"\n}`)

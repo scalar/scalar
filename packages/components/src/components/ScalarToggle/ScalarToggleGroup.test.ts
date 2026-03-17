@@ -1,5 +1,6 @@
 import { mount } from '@vue/test-utils'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
+import { nextTick } from 'vue'
 
 import ScalarToggleGroup from './ScalarToggleGroup.vue'
 
@@ -20,24 +21,30 @@ describe('ScalarToggleGroup', () => {
   })
 
   it('binds v-model to multiple selected options', async () => {
+    const onUpdate = vi.fn()
     const wrapper = mount(ScalarToggleGroup, {
-      props: { options: [...options] },
+      props: {
+        options: [...options],
+        'onUpdate:modelValue': onUpdate,
+      },
     })
 
     const toggles = wrapper.findAll('button[role="switch"]')
 
     await toggles[0]?.trigger('click')
+    await nextTick()
     await toggles[2]?.trigger('click')
+    await nextTick()
 
     // Expect model updates to contain the selected option objects
-    const updates = wrapper.emitted('update:modelValue')
-    expect(updates).toBeTruthy()
-    const last = updates?.at(-1)?.[0] as Array<{ label: string; value: string }>
-    expect(last.map((o) => o.value)).toEqual(['red', 'green'])
+    expect(onUpdate).toHaveBeenCalled()
+    const lastCall = onUpdate.mock.calls.at(-1)?.[0] as Array<{ label: string; value: string }>
+    expect(lastCall.map((o) => o.value)).toEqual(['red', 'green'])
 
     // Unselect one and verify removal
     await toggles[0]?.trigger('click')
-    const after = wrapper.emitted('update:modelValue')?.at(-1)?.[0] as Array<{ value: string }>
-    expect(after.map((o) => o.value)).toEqual(['green'])
+    await nextTick()
+    const afterCall = onUpdate.mock.calls.at(-1)?.[0] as Array<{ value: string }>
+    expect(afterCall.map((o) => o.value)).toEqual(['green'])
   })
 })

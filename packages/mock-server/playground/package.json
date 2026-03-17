@@ -22,17 +22,12 @@
     "node": ">=22"
   },
   "scripts": {
-    "build": "scalar-build-esbuild",
-    "dev": "nodemon --exec \"vite-node src/index.ts\" --ext ts --quiet",
-    "dev:local": "pnpm copy:standalone && export LOCAL_JS_BUNDLE=true && nodemon --exec \"vite-node src/index.ts\" --ext ts --quiet",
+    "build": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
+    "dev": "tsx watch src/index.ts",
+    "dev:local": "pnpm copy:standalone && LOCAL_JS_BUNDLE=true tsx watch src/index.ts",
     "test": "vitest",
-    "copy:standalone": "export LOCAL_JS_BUNDLE=true && shx cp ../../../packages/api-reference/dist/browser/standalone.js ./src/scalar.js",
-    "format": "scalar-format",
-    "format:check": "scalar-format-check",
-    "lint:check": "scalar-lint-check",
-    "lint:fix": "scalar-lint-fix",
-    "types:build": "scalar-types-build",
-    "types:check": "scalar-types-check"
+    "copy:standalone": "LOCAL_JS_BUNDLE=true shx cp ../../../packages/api-reference/dist/browser/standalone.js ./src/scalar.js",
+    "types:check": "tsc --noEmit"
   },
   "type": "module",
   "main": "./dist/index.js",
@@ -43,10 +38,8 @@
   "module": "./dist/index.js",
   "devDependencies": {
     "@hono/node-server": "catalog:*",
-    "@scalar/build-tooling": "workspace:*",
     "@scalar/hono-api-reference": "workspace:*",
     "@scalar/mock-server": "workspace:*",
-    "vite": "catalog:*",
     "@types/node": "catalog:*"
   },
   "exports": {

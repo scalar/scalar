@@ -6,7 +6,6 @@
     "declaration": true,
     "declarationMap": true,
     "noEmit": false,
-    "emitDeclarationOnly": true,
     "outDir": "dist/"
   }
 }

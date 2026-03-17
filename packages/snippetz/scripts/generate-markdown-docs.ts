@@ -9,7 +9,7 @@ import { clients } from '@scalar/snippetz/clients'
  * with the current list of available clients from the TypeScript source.
  */
 
-const CONFIG_MD_PATH = resolve(__dirname, '../../../documentation/configuration.md')
+const CONFIG_MD_PATH = resolve(import.meta.dirname, '../../../documentation/configuration.md')
 const START_MARKER = '<!-- AUTO-GENERATED:CLIENTS START -->'
 const END_MARKER = '<!-- AUTO-GENERATED:CLIENTS END -->'
 

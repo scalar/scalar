@@ -23,10 +23,8 @@
     "node": ">=22"
   },
   "scripts": {
-    "build": "scalar-build-vite",
+    "build": "vite build && vue-tsc -p tsconfig.build.json",
     "dev": "pnpm playground:v2:web",
-    "lint:check": "eslint .",
-    "lint:fix": "eslint .  --fix",
     "playground:app": "vite ./playground/app -c ./vite.config.ts",
     "playground:modal": "vite ./playground/modal -c ./vite.config.ts",
     "playground:v2:app": "vite ./playground/v2/app -c ./vite.config.ts",
@@ -38,8 +36,7 @@
     "test:benchmark": "vitest bench",
     "test:benchmark:compare": "vitest bench --compare test-results/test-benchmark.json",
     "test:benchmark:save": "vitest bench --outputJson test-results/test-benchmark.json",
-    "types:build": "scalar-types-build-vue",
-    "types:check": "scalar-types-check-vue"
+    "types:check": "vue-tsc --noEmit"
   },
   "type": "module",
   "main": "dist/index.js",
@@ -381,7 +378,6 @@
     "zod": "catalog:*"
   },
   "devDependencies": {
-    "@scalar/build-tooling": "workspace:*",
     "@scalar/galaxy": "workspace:*",
     "@scalar/pre-post-request-scripts": "workspace:*",
     "@tailwindcss/vite": "catalog:*",
