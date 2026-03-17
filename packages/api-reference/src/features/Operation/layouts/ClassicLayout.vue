@@ -22,7 +22,7 @@ import type {
   OperationObject,
   ServerObject,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import { computed, ref } from 'vue'
+import { computed, provide, ref } from 'vue'
 
 import { Anchor } from '@/components/Anchor'
 import { Badge } from '@/components/Badge'
@@ -71,6 +71,11 @@ const operationExtensions = computed(() => getXKeysFromObject(operation))
 
 /** Track the currently selected example for passing to the modal */
 const selectedExampleKey = ref<string>('')
+
+/** Selected index for request body oneOf/anyOf; synced with schema dropdown and code sample */
+const requestBodyCompositionIndex = ref(0)
+
+provide('requestBodyCompositionIndex', requestBodyCompositionIndex)
 
 const { copyToClipboard } = useClipboard()
 </script>
@@ -225,6 +230,7 @@ const { copyToClipboard } = useClipboard()
             :method
             :operation
             :path
+            :requestBodyCompositionIndex="requestBodyCompositionIndex"
             :securitySchemes="selectedSecuritySchemes"
             :selectedClient
             :selectedServer />

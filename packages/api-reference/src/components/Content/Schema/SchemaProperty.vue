@@ -54,6 +54,8 @@ const props = withDefaults(
     options: SchemaOptions
     /** Enum values for property names (from JSON Schema propertyNames keyword). */
     propertyNamesEnum?: string[]
+    /** When "requestBody", composition selection is synced with the example snippet */
+    schemaContext?: string
   }>(),
   {
     level: 0,
@@ -271,7 +273,8 @@ const isDiscriminatorProperty = computed(() =>
       :name="name"
       :noncollapsible="noncollapsible"
       :options="options"
-      :schema="compositionData.value" />
+      :schema="compositionData.value"
+      :schemaContext="schemaContext" />
     <SpecificationExtension :value="optimizedValue" />
   </component>
 </template>

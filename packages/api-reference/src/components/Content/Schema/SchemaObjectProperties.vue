@@ -13,7 +13,7 @@ import type { SchemaOptions } from '@/components/Content/Schema/types'
 
 import SchemaProperty from './SchemaProperty.vue'
 
-const { schema, discriminator, options } = defineProps<{
+const { schema, discriminator, options, schemaContext } = defineProps<{
   schema: SchemaObject
   discriminator?: DiscriminatorObject
   compact?: boolean
@@ -23,6 +23,7 @@ const { schema, discriminator, options } = defineProps<{
   breadcrumb?: string[]
   eventBus: WorkspaceEventBus | null
   options: SchemaOptions
+  schemaContext?: string
 }>()
 
 /**
@@ -150,7 +151,8 @@ const getAdditionalPropertiesValue = (
       :name="property"
       :options="options"
       :required="schema.required?.includes(property)"
-      :schema="resolve.schema(schema.properties[property])" />
+      :schema="resolve.schema(schema.properties[property])"
+      :schemaContext="schemaContext" />
   </template>
 
   <!-- patternProperties -->
@@ -167,7 +169,8 @@ const getAdditionalPropertiesValue = (
       :level
       :name="key"
       :options="options"
-      :schema="resolve.schema(property)" />
+      :schema="resolve.schema(property)"
+      :schemaContext="schemaContext" />
   </template>
 
   <!-- additionalProperties -->
@@ -188,6 +191,7 @@ const getAdditionalPropertiesValue = (
       "
       noncollapsible
       :options="options"
+      :schemaContext="schemaContext"
       :propertyNamesEnum="additionalPropertiesEnum"
       :schema="getAdditionalPropertiesValue(schema.additionalProperties)"
       variant="additionalProperties" />

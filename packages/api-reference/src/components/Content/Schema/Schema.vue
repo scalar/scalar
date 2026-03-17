@@ -53,6 +53,8 @@ const {
   eventBus: WorkspaceEventBus | null
   /** Move the options into a single prop so they are easy to pass around */
   options: SchemaOptions
+  /** When "requestBody", composition dropdown selection is synced with the example snippet */
+  schemaContext?: string
 }>()
 
 /**
@@ -198,7 +200,8 @@ const handleClick = (e: MouseEvent) => noncollapsible && e.stopPropagation()
             :hideModelNames
             :level="level + 1"
             :options
-            :schema />
+            :schema
+            :schemaContext="schemaContext" />
           <!-- Not an object -->
           <template v-else>
             <SchemaProperty
@@ -210,7 +213,8 @@ const handleClick = (e: MouseEvent) => noncollapsible && e.stopPropagation()
               :hideModelNames
               :level
               :options
-              :schema />
+              :schema
+              :schemaContext="schemaContext" />
           </template>
         </DisclosurePanel>
       </div>

@@ -423,6 +423,31 @@ describe('getExampleFromSchema', () => {
     ).toMatchObject({ foo: 1 })
   })
 
+  it('uses compositionIndex to pick second anyOf variant for example', () => {
+    const schema = coerceValue(SchemaObjectSchema, {
+      anyOf: [
+        { type: 'object', properties: { foo: { type: 'number' } } },
+        { type: 'object', properties: { bar: { type: 'string' } } },
+      ],
+    })
+    expect(getExampleFromSchema(schema, undefined, { compositionIndex: 0 })).toMatchObject({
+      foo: 1,
+    })
+    expect(getExampleFromSchema(schema, undefined, { compositionIndex: 1 })).toMatchObject({
+      bar: '',
+    })
+  })
+
+  it('uses compositionIndex for root-level oneOf/anyOf in example', () => {
+    const schema = coerceValue(SchemaObjectSchema, {
+      anyOf: [{ type: 'string' }, { type: 'object', properties: { id: { type: 'integer' } } }],
+    })
+    expect(getExampleFromSchema(schema, undefined, { compositionIndex: 0 })).toBe('')
+    expect(getExampleFromSchema(schema, undefined, { compositionIndex: 1 })).toMatchObject({
+      id: 1,
+    })
+  })
+
   it('uses the first example in object oneOf when type is not defined', () => {
     expect(
       getExampleFromSchema(

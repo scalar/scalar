@@ -8,7 +8,7 @@ import type {
   DiscriminatorObject,
   SchemaObject,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import { computed, ref } from 'vue'
+import { computed, inject, ref, watch, type Ref } from 'vue'
 
 import type { SchemaOptions } from '@/components/Content/Schema/types'
 
@@ -40,6 +40,8 @@ const props = withDefaults(
     eventBus: WorkspaceEventBus | null
     /** Move the options into  single prop so they are easy to pass around */
     options: SchemaOptions
+    /** When "requestBody", sync selected index with the example snippet */
+    schemaContext?: string
   }>(),
   {
     compact: false,
@@ -95,6 +97,27 @@ const selectedComposition = computed(
 
 /** Controls whether the nested schema is displayed */
 const showNestedSchema = ref(false)
+
+/** When this composition is the request body root, sync selection with the example snippet */
+const requestBodyCompositionIndexRef = inject<Ref<number>>(
+  'requestBodyCompositionIndex',
+)
+if (
+  requestBodyCompositionIndexRef &&
+  props.schemaContext === 'requestBody' &&
+  props.level === 0
+) {
+  watch(
+    selectedOption,
+    (option) => {
+      const index = option ? Number(option.id) : 0
+      if (!Number.isNaN(index)) {
+        requestBodyCompositionIndexRef.value = index
+      }
+    },
+    { immediate: true },
+  )
+}
 </script>
 
 <template>

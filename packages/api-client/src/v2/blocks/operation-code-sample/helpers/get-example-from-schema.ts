@@ -224,6 +224,7 @@ const handleObjectSchema = (
   level: number,
   seen: WeakSet<object>,
   cacheKey: string,
+  compositionIndex?: number,
 ): unknown => {
   const response: Record<string, unknown> = {}
 
@@ -307,25 +308,21 @@ const handleObjectSchema = (
     }
   }
 
-  // onOf
-  if (schema.oneOf?.[0]) {
-    Object.assign(
-      response,
-      getExampleFromSchema(resolve.schema(schema.oneOf[0]), options, {
-        level: level + 1,
-        seen,
-      }),
-    )
-  }
-  // anyOf
-  else if (schema.anyOf?.[0]) {
-    Object.assign(
-      response,
-      getExampleFromSchema(resolve.schema(schema.anyOf[0]), options, {
-        level: level + 1,
-        seen,
-      }),
-    )
+  // oneOf
+  const oneOfAnyOf = schema.oneOf ?? schema.anyOf
+  if (oneOfAnyOf?.length) {
+    const index =
+      level === 0 && compositionIndex !== undefined ? Math.max(0, Math.min(compositionIndex, oneOfAnyOf.length - 1)) : 0
+    const chosen = resolve.schema(oneOfAnyOf[index])
+    if (chosen) {
+      Object.assign(
+        response,
+        getExampleFromSchema(chosen, options, {
+          level: level + 1,
+          seen,
+        }),
+      )
+    }
   }
   // allOf
   else if (Array.isArray(schema.allOf) && schema.allOf.length > 0) {
@@ -522,11 +519,14 @@ export const getExampleFromSchema = (
     parentSchema,
     name,
     seen = new WeakSet(),
+    compositionIndex,
   }: Partial<{
     level: number
     parentSchema: SchemaObject
     name: string
     seen: WeakSet<object>
+    /** When level is 0, use this index for oneOf/anyOf instead of the first non-null. */
+    compositionIndex: number
   }> = {},
 ): unknown => {
   // Resolve any $ref references to get the actual schema
@@ -542,8 +542,9 @@ export const getExampleFromSchema = (
   }
   seen.add(targetValue)
 
-  /** Make the cache key unique per options */
-  const cacheKey = createOptionsCacheKey(options)
+  /** Make the cache key unique per options and composition index (at root) */
+  const cacheKey =
+    createOptionsCacheKey(options) + (level === 0 && compositionIndex !== undefined ? `:comp:${compositionIndex}` : '')
 
   // Check cache first for performance - avoid recomputing the same schema
   const cached = resultCache.get(targetValue)?.get(cacheKey)
@@ -605,7 +606,7 @@ export const getExampleFromSchema = (
 
   // Handle object types - check for properties to identify objects
   if ('properties' in _schema || ('type' in _schema && _schema.type === 'object')) {
-    const result = handleObjectSchema(_schema, options, level, seen, cacheKey)
+    const result = handleObjectSchema(_schema, options, level, seen, cacheKey, compositionIndex)
     seen.delete(targetValue)
     return result
   }
@@ -627,10 +628,20 @@ export const getExampleFromSchema = (
   // Handle composition schemas (oneOf, anyOf) at root level
   const discriminate = _schema.oneOf || _schema.anyOf
   if (Array.isArray(discriminate) && discriminate.length > 0) {
-    // Find the first non-null type without allocating intermediate arrays
-    for (const item of discriminate) {
-      const resolved = resolve.schema(item)
-      if (resolved && (!('type' in resolved) || resolved.type !== 'null')) {
+    const index =
+      level === 0 && compositionIndex !== undefined
+        ? Math.max(0, Math.min(compositionIndex, discriminate.length - 1))
+        : undefined
+    const candidate =
+      index !== undefined
+        ? discriminate[index]
+        : discriminate.find((item) => {
+            const resolved = resolve.schema(item)
+            return resolved && (!('type' in resolved) || resolved.type !== 'null')
+          })
+    if (candidate) {
+      const resolved = resolve.schema(candidate)
+      if (resolved) {
         seen.delete(targetValue)
         return cache(
           _schema,

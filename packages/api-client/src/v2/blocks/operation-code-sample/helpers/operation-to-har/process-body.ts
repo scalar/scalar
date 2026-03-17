@@ -9,7 +9,7 @@ import { getExample } from '@/v2/blocks/operation-block/helpers/get-example'
 
 import type { OperationToHarProps } from './operation-to-har'
 
-type ProcessBodyProps = Pick<OperationToHarProps, 'contentType' | 'example'> & {
+type ProcessBodyProps = Pick<OperationToHarProps, 'contentType' | 'example' | 'requestBodyCompositionIndex'> & {
   requestBody: RequestBodyObject
 }
 
@@ -83,7 +83,12 @@ const objectToFormParams = (
  * Processes the request body and returns the processed data
  * Returns undefined if no example is found
  */
-export const processBody = ({ requestBody, contentType, example }: ProcessBodyProps): PostData | undefined => {
+export const processBody = ({
+  requestBody,
+  contentType,
+  example,
+  requestBodyCompositionIndex,
+}: ProcessBodyProps): PostData | undefined => {
   const _contentType = contentType || Object.keys(requestBody.content)[0] || ''
   const formatBinaryFile = (file: File) => {
     const unwrappedFile = unpackProxyObject(file)
@@ -134,10 +139,14 @@ export const processBody = ({ requestBody, contentType, example }: ProcessBodyPr
   // Try to extract examples from the schema
   const contentSchema = getResolvedRef(requestBody.content[_contentType]?.schema)
   if (typeof contentSchema !== 'undefined') {
-    const extractedExample = getExampleFromSchema(contentSchema, {
-      mode: 'write',
-      xml: isXml,
-    })
+    const extractedExample = getExampleFromSchema(
+      contentSchema,
+      {
+        mode: 'write',
+        xml: isXml,
+      },
+      { compositionIndex: requestBodyCompositionIndex },
+    )
 
     if (extractedExample !== undefined) {
       if (isFormData && typeof extractedExample === 'object' && extractedExample !== null) {

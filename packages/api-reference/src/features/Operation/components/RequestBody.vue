@@ -150,6 +150,7 @@ const shouldRenderRequestBody = computed(
           orderRequiredPropertiesFirst: options.orderRequiredPropertiesFirst,
           orderSchemaPropertiesBy: options.orderSchemaPropertiesBy,
         }"
+        schemaContext="requestBody"
         :schema="partitionedSchema.visibleProperties" />
 
       <Schema
@@ -163,6 +164,7 @@ const shouldRenderRequestBody = computed(
           orderRequiredPropertiesFirst: options.orderRequiredPropertiesFirst,
           orderSchemaPropertiesBy: options.orderSchemaPropertiesBy,
         }"
+        schemaContext="requestBody"
         :schema="partitionedSchema.collapsedProperties" />
     </div>
 
@@ -182,6 +184,7 @@ const shouldRenderRequestBody = computed(
           orderRequiredPropertiesFirst: options.orderRequiredPropertiesFirst,
           orderSchemaPropertiesBy: options.orderSchemaPropertiesBy,
         }"
+        schemaContext="requestBody"
         :schema="schema" />
     </div>
   </div>

@@ -13,7 +13,7 @@ import type {
   OperationObject,
   ServerObject,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import { computed, useId } from 'vue'
+import { computed, provide, ref, useId } from 'vue'
 
 import { Anchor } from '@/components/Anchor'
 import { Badge } from '@/components/Badge'
@@ -74,6 +74,11 @@ const operationTitle = computed(() => operation.summary || path || '')
 const labelId = useId()
 
 const operationExtensions = computed(() => getXKeysFromObject(operation))
+
+/** Selected index for request body oneOf/anyOf; synced with schema dropdown and code sample */
+const requestBodyCompositionIndex = ref(0)
+
+provide('requestBodyCompositionIndex', requestBodyCompositionIndex)
 </script>
 
 <template>
@@ -183,6 +188,7 @@ const operationExtensions = computed(() => getXKeysFromObject(operation))
                 :method
                 :operation
                 :path
+                :requestBodyCompositionIndex="requestBodyCompositionIndex"
                 :securitySchemes="selectedSecuritySchemes"
                 :selectedClient
                 :selectedServer>

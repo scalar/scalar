@@ -91,6 +91,11 @@ export type OperationCodeSampleProps = {
    * Workspace + document cookies
    */
   globalCookies?: XScalarCookie[]
+  /**
+   * When the request body schema is oneOf/anyOf, use this index for the example snippet
+   * (e.g. from the schema dropdown in the API reference).
+   */
+  requestBodyCompositionIndex?: number
 }
 
 /**
@@ -167,6 +172,7 @@ const {
   isWebhook,
   generateLabel,
   globalCookies,
+  requestBodyCompositionIndex,
 } = defineProps<OperationCodeSampleProps>()
 
 defineSlots<{
@@ -229,6 +235,7 @@ const webhookHar = computed(() => {
       method,
       path,
       example: selectedExampleKey.value,
+      requestBodyCompositionIndex,
     })
   } catch (error) {
     console.error('[webhookHar]', error)
@@ -254,6 +261,7 @@ const generatedCode = computed<string>(() => {
     securitySchemes,
     example: selectedExampleKey.value,
     globalCookies,
+    requestBodyCompositionIndex,
   })
 })
 
