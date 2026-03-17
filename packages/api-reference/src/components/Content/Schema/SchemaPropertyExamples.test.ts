@@ -38,4 +38,14 @@ describe('SchemaPropertyExamples', () => {
     expect(wrapper.find('.property-example').exists()).toBe(true)
     expect(wrapper.find('.property-example-value span').text()).toBe('')
   })
+
+  it('does not render a single example when the value is null', () => {
+    const wrapper = mount(SchemaPropertyExamples, {
+      props: {
+        example: null,
+      },
+    })
+
+    expect(wrapper.find('.property-example').exists()).toBe(false)
+  })
 })

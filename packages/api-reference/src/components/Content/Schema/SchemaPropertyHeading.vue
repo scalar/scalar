@@ -244,7 +244,8 @@ const exampleValue = computed(() => {
   }
 
   if (props.value && isArraySchema(props.value)) {
-    return resolve.schema(props.value.items)?.example
+    const itemsExample = resolve.schema(props.value.items)?.example
+    return isDefined(itemsExample) ? itemsExample : undefined
   }
 
   return undefined

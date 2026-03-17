@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ScalarIcon } from '@scalar/components'
+import { isDefined } from '@scalar/helpers/array/is-defined'
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
 import { computed } from 'vue'
 
@@ -12,7 +13,7 @@ const { examples, example } = defineProps<{
 
 const { copyToClipboard } = useClipboard()
 
-const hasSingleExample = computed(() => example !== undefined)
+const hasSingleExample = computed(() => isDefined(example))
 
 const normalizedExamples = computed<Record<string, unknown>>(() => {
   if (examples && typeof examples === 'object') {

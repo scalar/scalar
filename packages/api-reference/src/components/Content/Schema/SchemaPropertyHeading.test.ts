@@ -893,6 +893,21 @@ describe('SchemaPropertyHeading', () => {
       const examplesElement = wrapper.findComponent({ name: 'SchemaPropertyExamples' })
       expect(examplesElement.props('example')).toBe(false)
     })
+
+    it('does not pass null from items.example when value.example is not available', () => {
+      const wrapper = mount(SchemaPropertyHeading, {
+        props: {
+          value: coerceValue(SchemaObjectSchema, {
+            type: 'array',
+            items: { type: 'string', example: null },
+          }),
+          withExamples: true,
+        },
+      })
+
+      const examplesElement = wrapper.findComponent({ name: 'SchemaPropertyExamples' })
+      expect(examplesElement.props('example')).toBeUndefined()
+    })
   })
 
   describe('edge cases', () => {
