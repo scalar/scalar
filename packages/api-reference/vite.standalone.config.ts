@@ -80,7 +80,7 @@ export default defineConfig({
       // Externalize radix-vue — no radix-vue component (ScalarMenu, ScalarContextMenu)
       // is ever rendered in the standalone API reference. They leak in through the
       // @scalar/components barrel via @scalar/api-client but are never mounted.
-      external: [/^radix-vue/],
+      external: [/^radix-vue/, /^@scalar\/openapi-parser/],
       output: {
         entryFileNames: '[name].js',
         globals: {
