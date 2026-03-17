@@ -19,17 +19,6 @@ import { buildRequestCookieHeader } from './build-request-cookie-header'
 import { buildRequestParameters } from './build-request-parameters'
 import { buildRequestSecurity } from './build-request-security'
 
-const appendAgentDebugLog = (payload: Record<string, unknown>): void => {
-  void import('node:fs')
-    .then((fs) => {
-      fs.appendFileSync(
-        '/opt/cursor/logs/debug.log',
-        `${JSON.stringify({ ...payload, timestamp: Date.now() })}\n`,
-      )
-    })
-    .catch(() => {})
-}
-
 /**
  * Builds a fully configured Request object ready for execution.
  *
@@ -150,21 +139,6 @@ export const buildRequest = ({
       headers.set('Pragma', 'no-cache')
     }
 
-    // #region agent log
-    appendAgentDebugLog({
-      hypothesisId: 'H1',
-      location: 'build-request.ts:before-new-request',
-      message: 'Build request init',
-      data: {
-        method: method.toUpperCase(),
-        url: proxiedUrl,
-        acceptHeader,
-        isSseAcceptHeader,
-        cacheMode: requestCacheMode,
-      },
-    })
-    // #endregion
-
     /** Build the js request object */
     const request = new Request(proxiedUrl, {
       /**
@@ -178,19 +152,6 @@ export const buildRequest = ({
       body,
       cache: requestCacheMode,
     })
-
-    // #region agent log
-    appendAgentDebugLog({
-      hypothesisId: 'H1',
-      location: 'build-request.ts:after-new-request',
-      message: 'Built request instance',
-      data: {
-        url: request.url,
-        method: request.method,
-        cache: request.cache,
-      },
-    })
-    // #endregion
 
     return [
       null,
