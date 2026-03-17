@@ -653,6 +653,38 @@ describe('buildRequest', () => {
     expect(result?.request.headers.get('X-Custom-Header')).toBe('custom-value')
   })
 
+  it('uses default cache mode for SSE requests', () => {
+    const [error, result] = buildRequest({
+      environment: mockEnvironment,
+      exampleKey: 'default',
+      globalCookies: [],
+      method: 'get',
+      operation: {
+        parameters: [
+          {
+            in: 'header',
+            name: 'Accept',
+            schema: { type: 'string' },
+            examples: {
+              default: {
+                value: 'text/event-stream',
+                'x-disabled': false,
+              },
+            },
+          },
+        ],
+      },
+      path: '/stream',
+      proxyUrl: '',
+      selectedSecuritySchemes: [],
+      server: mockServer,
+    })
+
+    expect(error).toBe(null)
+    expect(result?.request.headers.get('Accept')).toBe('text/event-stream')
+    expect(result?.request.cache).toBe('default')
+  })
+
   it('adds User-Agent header in Electron', () => {
     const spy = vi.spyOn(electron, 'isElectron').mockReturnValue(true)
 

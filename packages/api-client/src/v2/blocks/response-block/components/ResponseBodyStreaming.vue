@@ -8,6 +8,21 @@ import { nextTick, onBeforeUnmount, ref, watch } from 'vue'
 
 import { CollapsibleSection } from '@/v2/components/layout'
 
+const appendAgentDebugLog = (payload: Record<string, unknown>): void => {
+  if (!import.meta.vitest) {
+    return
+  }
+
+  void import('node:fs')
+    .then((fs) => {
+      fs.appendFileSync(
+        '/opt/cursor/logs/debug.log',
+        `${JSON.stringify({ ...payload, timestamp: Date.now() })}\n`,
+      )
+    })
+    .catch(() => {})
+}
+
 const { reader } = defineProps<{
   reader: ReadableStreamDefaultReader<Uint8Array>
 }>()
@@ -81,6 +96,18 @@ async function readStream(
 }
 
 const startStreaming = () => {
+  // #region agent log
+  appendAgentDebugLog({
+    hypothesisId: 'H4',
+    location: 'ResponseBodyStreaming.vue:startStreaming',
+    message: 'Start streaming invoked',
+    data: {
+      hasCurrentReader: Boolean(currentReader.value),
+      isSameReaderReference: currentReader.value === reader,
+    },
+  })
+  // #endregion
+
   // Cancel the old reader if it exists
   if (currentReader.value) {
     currentReader.value.cancel()
@@ -107,7 +134,24 @@ const stopStreaming = () => {
 }
 
 // Start streaming when the reader changes
-watch(() => reader, startStreaming, { immediate: true })
+watch(
+  () => reader,
+  () => {
+    // #region agent log
+    appendAgentDebugLog({
+      hypothesisId: 'H4',
+      location: 'ResponseBodyStreaming.vue:reader-watch',
+      message: 'Reader prop watch triggered',
+      data: {
+        textLengthBeforeReset: textContent.value.length,
+      },
+    })
+    // #endregion
+
+    startStreaming()
+  },
+  { immediate: true },
+)
 
 onBeforeUnmount(stopStreaming)
 </script>

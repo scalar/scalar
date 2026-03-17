@@ -19,6 +19,21 @@ import { buildRequestCookieHeader } from './build-request-cookie-header'
 import { buildRequestParameters } from './build-request-parameters'
 import { buildRequestSecurity } from './build-request-security'
 
+const appendAgentDebugLog = (payload: Record<string, unknown>): void => {
+  if (!import.meta.vitest) {
+    return
+  }
+
+  void import('node:fs')
+    .then((fs) => {
+      fs.appendFileSync(
+        '/opt/cursor/logs/debug.log',
+        `${JSON.stringify({ ...payload, timestamp: Date.now() })}\n`,
+      )
+    })
+    .catch(() => {})
+}
+
 /**
  * Builds a fully configured Request object ready for execution.
  *
@@ -130,6 +145,23 @@ export const buildRequest = ({
 
     /** Controller to allow aborting the request */
     const controller = new AbortController()
+    const acceptHeader = headers.get('Accept')
+    const isSseAcceptHeader = acceptHeader?.toLowerCase().includes('text/event-stream') ?? false
+
+    // #region agent log
+    appendAgentDebugLog({
+      hypothesisId: 'H1',
+      location: 'build-request.ts:before-new-request',
+      message: 'Build request init',
+      data: {
+        method: method.toUpperCase(),
+        url: proxiedUrl,
+        acceptHeader,
+        isSseAcceptHeader,
+        cacheMode: 'default',
+      },
+    })
+    // #endregion
 
     /** Build the js request object */
     const request = new Request(proxiedUrl, {
@@ -143,6 +175,19 @@ export const buildRequest = ({
       signal: controller.signal,
       body,
     })
+
+    // #region agent log
+    appendAgentDebugLog({
+      hypothesisId: 'H1',
+      location: 'build-request.ts:after-new-request',
+      message: 'Built request instance',
+      data: {
+        url: request.url,
+        method: request.method,
+        cache: request.cache,
+      },
+    })
+    // #endregion
 
     return [
       null,

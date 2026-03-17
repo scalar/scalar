@@ -9,6 +9,21 @@ import { normalizeHeaders } from '@/libs/normalize-headers'
 import { decodeBuffer } from './decode-buffer'
 import { getCookieHeaderKeys } from './get-cookie-header-keys'
 
+const appendAgentDebugLog = (payload: Record<string, unknown>): void => {
+  if (!import.meta.vitest) {
+    return
+  }
+
+  void import('node:fs')
+    .then((fs) => {
+      fs.appendFileSync(
+        '/opt/cursor/logs/debug.log',
+        `${JSON.stringify({ ...payload, timestamp: Date.now() })}\n`,
+      )
+    })
+    .catch(() => {})
+}
+
 /** A single set of populated values for a sent request */
 export type ResponseInstance = Omit<Response, 'headers'> & {
   /** Store headers as an object to match what we had with axios */
@@ -73,6 +88,20 @@ export const sendRequest = async ({
   }>
 > => {
   try {
+    // #region agent log
+    appendAgentDebugLog({
+      hypothesisId: 'H2',
+      location: 'send-request.ts:entry',
+      message: 'sendRequest called',
+      data: {
+        url: request.url,
+        method: request.method,
+        cache: request.cache,
+        acceptHeader: request.headers.get('Accept'),
+      },
+    })
+    // #endregion
+
     // Apply any beforeRequest hooks from the plugins
     const { request: modifiedRequest } = await executeHook({ request }, 'beforeRequest', plugins)
 
@@ -91,12 +120,38 @@ export const sendRequest = async ({
     const method = modifiedRequest.method as HttpMethod
     const shouldSkipBody = NO_BODY_STATUS_CODES.includes(response.status)
 
+    // #region agent log
+    appendAgentDebugLog({
+      hypothesisId: 'H2',
+      location: 'send-request.ts:after-fetch',
+      message: 'Fetch completed',
+      data: {
+        status: response.status,
+        contentType,
+        etag: response.headers.get('etag'),
+        streamId: response.headers.get('x-stream-id'),
+        requestTime: response.headers.get('x-request-time'),
+      },
+    })
+    // #endregion
+
     /**
      * Handle server-sent event streams separately.
      * These responses need a reader instead of buffered data.
      * We check this early to avoid unnecessary body reading.
      */
     if (contentType?.startsWith('text/event-stream') && response.body) {
+      // #region agent log
+      appendAgentDebugLog({
+        hypothesisId: 'H3',
+        location: 'send-request.ts:stream-branch',
+        message: 'Streaming response branch selected',
+        data: {
+          hasBody: Boolean(response.body),
+          status: response.status,
+        },
+      })
+      // #endregion
       return buildStreamingResponse({
         response,
         modifiedRequest,
