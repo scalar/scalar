@@ -1,7 +1,7 @@
 import { sortByOrder } from '@scalar/helpers/array/sort-by-order'
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { toJsonCompatible } from '@scalar/helpers/object/to-json-compatible'
-import { dereference, escapeJsonPointer } from '@scalar/openapi-parser'
+import { escapeJsonPointer } from '@scalar/json-magic/helpers/escape-json-pointer'
 import type { DragOffset, DraggingItem, HoveredItem, SidebarState } from '@scalar/sidebar'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { unpackProxyObject } from '@scalar/workspace-store/helpers/unpack-proxy'
@@ -230,6 +230,68 @@ const moveOperationBetweenDocuments = (
   }
 }
 
+const dereferenceNode = (node: unknown, cache: WeakMap<object, unknown>): unknown => {
+  if (typeof node !== 'object' || node === null) {
+    return node
+  }
+
+  const rawNode = unpackProxyObject(node, { depth: 1 })
+
+  if (Array.isArray(rawNode)) {
+    const existingArray = cache.get(rawNode)
+    if (existingArray) {
+      return existingArray
+    }
+
+    const result: unknown[] = []
+    cache.set(rawNode, result)
+
+    rawNode.forEach((item, index) => {
+      result[index] = dereferenceNode(item, cache)
+    })
+
+    return result
+  }
+
+  if (typeof rawNode !== 'object' || rawNode === null) {
+    return rawNode
+  }
+
+  if ('$ref' in rawNode && '$ref-value' in rawNode) {
+    const { '$ref-value': refValue, $ref: _ref, ...siblings } = rawNode as {
+      $ref: string
+      '$ref-value': unknown
+      [key: string]: unknown
+    }
+    const resolvedRef = dereferenceNode(refValue, cache)
+    const siblingKeys = Object.keys(siblings)
+
+    if (siblingKeys.length === 0 || typeof resolvedRef !== 'object' || resolvedRef === null || Array.isArray(resolvedRef)) {
+      return resolvedRef
+    }
+
+    const resolvedSiblings = dereferenceNode(siblings, cache)
+    return {
+      ...(resolvedRef as Record<string, unknown>),
+      ...(resolvedSiblings as Record<string, unknown>),
+    }
+  }
+
+  const existingObject = cache.get(rawNode)
+  if (existingObject) {
+    return existingObject
+  }
+
+  const result: Record<string, unknown> = {}
+  cache.set(rawNode, result)
+
+  Object.entries(rawNode).forEach(([key, value]) => {
+    result[key] = dereferenceNode(value, cache)
+  })
+
+  return result
+}
+
 /**
  * Retrieves the dereferenced operation object for a given path and method.
  * This resolves all $ref references so you always get the full, dereferenced operation.
@@ -239,10 +301,15 @@ const getDereferencedOperation = (
   path: string,
   method: HttpMethod,
 ): OperationObject | undefined => {
-  const result = dereference(document).schema as OpenApiDocument
-  const operation = result.paths?.[path]?.[method]
+  const operation = document.paths?.[path]?.[method]
 
-  return toJsonCompatible(operation, { prefix: `#/paths/${escapeJsonPointer(path)}/${method}` }) as
+  if (!operation) {
+    return undefined
+  }
+
+  const dereferencedOperation = dereferenceNode(operation, new WeakMap()) as OpenApiDocument['paths'][string][HttpMethod]
+
+  return toJsonCompatible(dereferencedOperation, { prefix: `#/paths/${escapeJsonPointer(path)}/${method}` }) as
     | OperationObject
     | undefined
 }

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ScalarIcon, ScalarModal, useModal } from '@scalar/components'
+import { isObject } from '@scalar/helpers/object/is-object'
 import { isLocalUrl } from '@scalar/oas-utils/helpers'
-import { normalize } from '@scalar/openapi-parser'
 import type { OpenAPI } from '@scalar/openapi-types'
 import {
   getThemeStyles,
@@ -11,6 +11,7 @@ import {
 import { useColorMode } from '@scalar/use-hooks/useColorMode'
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
+import { parse as parseYaml } from 'yaml'
 
 import WatchModeToggle from '@/components/CommandPalette/WatchModeToggle.vue'
 import { useUrlPrefetcher } from '@/components/ImportCollection/hooks/useUrlPrefetcher'
@@ -47,11 +48,32 @@ const watchMode = ref<boolean>(true)
 events.hotKeys.on(() => modalState.hide())
 
 /** Try to make the retrieved content an OpenAPI document */
+const normalizeOpenApiDocument = (source: string): OpenAPI.Document | undefined => {
+  if (source.trim() === '') {
+    return undefined
+  }
+
+  try {
+    const parsed = JSON.parse(source)
+    return isObject(parsed) ? (parsed as OpenAPI.Document) : undefined
+  } catch {
+    // Try YAML parsing if JSON parsing fails.
+  }
+
+  try {
+    const parsed = parseYaml(source, {
+      maxAliasCount: 10000,
+      merge: true,
+    })
+    return isObject(parsed) ? (parsed as OpenAPI.Document) : undefined
+  } catch {
+    return undefined
+  }
+}
+
 const openApiDocument = computed(() => {
   try {
-    return normalize(
-      prefetchResult.content || props.source || '',
-    ) as OpenAPI.Document
+    return normalizeOpenApiDocument(prefetchResult.content || props.source || '')
   } catch {
     return undefined
   }
