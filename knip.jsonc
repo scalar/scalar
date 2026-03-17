@@ -17,7 +17,6 @@
   "ignoreFiles": [
     // CSS files imported via @import or Vue components — knip cannot trace CSS imports
     "**/*.css",
-
     // Referenced in scalar.config.json
     "documentation/assets/landing.js",
     "documentation/assets/fathom.js"
@@ -33,13 +32,10 @@
     "@changesets/cli",
     // Used by `.changeset/config.json`
     "@scalar-internal/changelog-generator",
-
     // Required on root to have proper format with prettier
     "tailwindcss",
-
     // Used as vitest environment in test files via @vitest-environment jsdom
     "jsdom",
-
     // The following values needs to be re-checked once more packages are included
     "tsconfig-paths",
     "typescript-language-server"
@@ -136,24 +132,18 @@
         "src/features/index.ts",
         "src/helpers/index.ts",
         "src/esm.ts",
-
         "src/standalone.bench.ts",
         "src/vitest.setup.ts",
-
         // Not sure why test files are marked as unused here
         "test/**/*",
         "src/**/*.test.ts",
-
         "playground/components/src/main.ts",
-
         "playground/vue/src/main.ts"
       ],
       "ignoreDependencies": [
         // Used by my-custom-plugin inside playground/vue but code is commented
         "react",
-        "@scalar/react-renderer",
-        // Temporarily commented out in vite.standalone.config.ts
-        "vite-plugin-banner"
+        "@scalar/react-renderer"
       ],
       "ignoreFiles": ["playground/vue/src/x-custom-extension-plugin/components/CustomReactComponent.tsx"]
     },
@@ -317,7 +307,6 @@
           "playground/src/{pages,components}/**/*.tsx",
           "playground/{blog,docs}/**/*.mdx",
           "playground/versioned_docs/**/*.{mdx,jsx,tsx}",
-
           // Referenced by src/index.ts `addRoute`
           "src/ScalarDocusaurus.tsx"
         ]
@@ -329,7 +318,6 @@
       "ignoreDependencies": [
         // Used by webpack
         "path",
-
         // Docusaurus aliases
         "@theme/*",
         "@site/*"
@@ -369,7 +357,6 @@
     "integrations/java": {
       "ignoreDependencies": [
         "@scalar/api-reference", // build step copy standalone file from this package
-
         // Included for convenience.
         // Java enums are dynamically generated from the snippetz package.
         // Having snippetz as a dependency ensures they are regenerated whenever clients or targets change.
@@ -384,7 +371,6 @@
         "src/module.ts",
         "src/runtime/components/ScalarApiReference.vue",
         "src/runtime/pages/ScalarPage.vue",
-
         "playground/nuxt.config.ts",
         "playground/layouts/default.vue",
         "playground/pages/index.vue"
