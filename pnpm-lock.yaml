@@ -2475,6 +2475,9 @@ importers:
       vitest:
         specifier: catalog:*
         version: 4.1.0(@opentelemetry/api@1.9.0)(@types/node@24.10.13)(jsdom@28.1.0(@noble/hashes@1.8.0))(vite@8.0.0(@types/node@24.10.13)(esbuild@0.27.2)(jiti@2.6.1)(terser@5.31.2)(tsx@4.21.0)(yaml@2.8.0))
+      vue-tsc:
+        specifier: catalog:*
+        version: 3.2.4(typescript@5.9.3)
 
   packages/use-hooks:
     dependencies:

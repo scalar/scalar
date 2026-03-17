@@ -38,7 +38,19 @@ function createJSONBlob(content: Record<string, unknown>) {
 
 async function createYAMLBlob(content: Record<string, unknown>) {
   const { stringify } = await import('yaml')
-  return new Blob([stringify(content)], { type: 'application/yaml' })
+  return new Blob([stringify(content)], { type: 'application/x-yaml' })
+}
+
+/**
+ * Detect if content is JSON or YAML using lightweight string heuristics
+ * to avoid the cost of a full JSON.parse call.
+ */
+function detectFormat(content: string): 'json' | 'yaml' {
+  const trimmed = content.trimStart()
+  if (trimmed.startsWith('{') || trimmed.startsWith('[')) {
+    return 'json'
+  }
+  return 'yaml'
 }
 
 /**
@@ -47,9 +59,10 @@ async function createYAMLBlob(content: Record<string, unknown>) {
 export async function downloadDocument(content: string, filename?: string, format?: 'json' | 'yaml') {
   const parsed = await parseContent(content)
 
-  const contentFilename = `${filename ?? 'openapi'}${format === 'json' ? '.json' : '.yaml'}`
+  const resolvedFormat = format ?? detectFormat(content)
+  const contentFilename = `${filename ?? 'openapi'}.${resolvedFormat}`
 
-  const blob = format === 'json' ? createJSONBlob(parsed) : await createYAMLBlob(parsed)
+  const blob = resolvedFormat === 'json' ? createJSONBlob(parsed) : await createYAMLBlob(parsed)
 
   const data = URL.createObjectURL(blob)
   const link = document.createElement('a')

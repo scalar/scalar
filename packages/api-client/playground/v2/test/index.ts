@@ -16,7 +16,7 @@ const operation = workspaceStore?.workspace?.documents?.['galaxy']?.paths?.['/pl
 
 if (!operation) throw new Error('Operation not found')
 
-const request = buildRequest({
+const [error, built] = buildRequest({
   'environment': {
     color: 'red',
     description: '',
@@ -35,4 +35,6 @@ const request = buildRequest({
   selectedSecuritySchemes: [],
 })
 
-const result = sendRequest({ request, operation, isUsingProxy: false, plugins: [] })
+if (error) throw error
+
+void sendRequest({ request: built.request, operation, isUsingProxy: built.isUsingProxy, plugins: [] })

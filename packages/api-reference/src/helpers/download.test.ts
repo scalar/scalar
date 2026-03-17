@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+
 import { downloadDocument } from './download'
 
 describe('downloadDocument', () => {
@@ -31,14 +32,14 @@ describe('downloadDocument', () => {
     vi.clearAllMocks()
   })
 
-  it('downloads JSON when format is explicitly set to json', () => {
+  it('downloads JSON when format is explicitly set to json', async () => {
     const yamlContent = `
 openapi: 3.0.0
 info:
   title: Scalar Galaxy
   version: 1.0.0
     `
-    downloadDocument(yamlContent, 'scalar-galaxy', 'json')
+    await downloadDocument(yamlContent, 'scalar-galaxy', 'json')
 
     // Should create a JSON blob
     expect(createObjectURL).toHaveBeenCalledWith(
@@ -63,7 +64,7 @@ info:
     expect(mockLink.remove).toHaveBeenCalled()
   })
 
-  it('downloads YAML when format is explicitly set to yaml', () => {
+  it('downloads YAML when format is explicitly set to yaml', async () => {
     const jsonContent = JSON.stringify({
       openapi: '3.0.0',
       info: {
@@ -72,7 +73,7 @@ info:
       },
     })
 
-    downloadDocument(jsonContent, 'scalar-galaxy', 'yaml')
+    await downloadDocument(jsonContent, 'scalar-galaxy', 'yaml')
 
     // Should create a YAML blob
     expect(createObjectURL).toHaveBeenCalledWith(
@@ -85,12 +86,12 @@ info:
     expect(mockLink.download).toBe('scalar-galaxy.yaml')
   })
 
-  it('defaults to JSON when no format is specified and content is JSON', () => {
+  it('defaults to JSON when no format is specified and content is JSON', async () => {
     const jsonContent = JSON.stringify({
       openapi: '3.0.0',
     })
 
-    downloadDocument(jsonContent, 'scalar-galaxy')
+    await downloadDocument(jsonContent, 'scalar-galaxy')
 
     expect(createObjectURL).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -100,10 +101,10 @@ info:
     expect(mockLink.download).toBe('scalar-galaxy.json')
   })
 
-  it('defaults to YAML when no format is specified and content is YAML', () => {
+  it('defaults to YAML when no format is specified and content is YAML', async () => {
     const yamlContent = 'openapi: 3.0.0'
 
-    downloadDocument(yamlContent, 'scalar-galaxy')
+    await downloadDocument(yamlContent, 'scalar-galaxy')
 
     expect(createObjectURL).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -113,8 +114,8 @@ info:
     expect(mockLink.download).toBe('scalar-galaxy.yaml')
   })
 
-  it('uses default filename when none is provided', () => {
-    downloadDocument('{"test": true}')
+  it('uses default filename when none is provided', async () => {
+    await downloadDocument('{"test": true}')
     expect(mockLink.download).toBe('openapi.json')
   })
 })

@@ -37,6 +37,7 @@ export default defineConfig({
     alias: {
       '@': resolve(import.meta.dirname, './src'),
       '@v2': resolve(import.meta.dirname, './src/v2'),
+      '@test': resolve(import.meta.dirname, './test'),
     },
     dedupe: ['vue', 'monaco-editor', 'monaco-yaml'],
   },
