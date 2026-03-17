@@ -9,10 +9,6 @@ import { nextTick, onBeforeUnmount, ref, watch } from 'vue'
 import { CollapsibleSection } from '@/v2/components/layout'
 
 const appendAgentDebugLog = (payload: Record<string, unknown>): void => {
-  if (!import.meta.vitest) {
-    return
-  }
-
   void import('node:fs')
     .then((fs) => {
       fs.appendFileSync(

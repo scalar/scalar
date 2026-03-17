@@ -20,10 +20,6 @@ import { buildRequestParameters } from './build-request-parameters'
 import { buildRequestSecurity } from './build-request-security'
 
 const appendAgentDebugLog = (payload: Record<string, unknown>): void => {
-  if (!import.meta.vitest) {
-    return
-  }
-
   void import('node:fs')
     .then((fs) => {
       fs.appendFileSync(

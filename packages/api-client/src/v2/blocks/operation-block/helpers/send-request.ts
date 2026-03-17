@@ -10,10 +10,6 @@ import { decodeBuffer } from './decode-buffer'
 import { getCookieHeaderKeys } from './get-cookie-header-keys'
 
 const appendAgentDebugLog = (payload: Record<string, unknown>): void => {
-  if (!import.meta.vitest) {
-    return
-  }
-
   void import('node:fs')
     .then((fs) => {
       fs.appendFileSync(
