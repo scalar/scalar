@@ -5,18 +5,18 @@ import { computed } from 'vue'
 
 import { formatExample } from './helpers/format-example'
 
-const props = defineProps<{
+const { examples, example } = defineProps<{
   examples?: unknown
   example?: unknown
 }>()
 
 const { copyToClipboard } = useClipboard()
 
-const hasSingleExample = computed(() => props.example !== undefined)
+const hasSingleExample = computed(() => example !== undefined)
 
 const normalizedExamples = computed<Record<string, unknown>>(() => {
-  if (props.examples && typeof props.examples === 'object') {
-    return props.examples as Record<string, unknown>
+  if (examples && typeof examples === 'object') {
+    return examples as Record<string, unknown>
   }
 
   return {}
@@ -43,9 +43,9 @@ const multipleExamplesLabel = computed(() =>
         <button
           class="property-example-value group"
           type="button"
-          @click="copyToClipboard(formatExample(props.example))">
+          @click="copyToClipboard(formatExample(example))">
           <span>
-            {{ formatExample(props.example) }}
+            {{ formatExample(example) }}
           </span>
           <ScalarIcon
             class="group-hover:text-c-1 text-c-3 ml-auto min-h-3 min-w-3"
