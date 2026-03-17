@@ -1,7 +1,7 @@
 import { getInfo } from '@changesets/get-github-info'
 import type { ChangelogFunctions } from '@changesets/types'
 
-import { formatDependencyChange, formatDependencyHeader, formatReleaseLine } from './formatter'
+import { formatReleaseLine } from './formatter'
 
 type Options = Partial<{ repo?: string }> | null
 
@@ -63,49 +63,9 @@ const changelogFunctions: ChangelogFunctions = {
     return formatReleaseLine(changeset, githubInfoWithPR)
   },
 
-  getDependencyReleaseLine: async (changesets, dependenciesUpdated, options: Options) => {
-    const repo = options?.repo
-    if (!repo) {
-      throw new Error('Please provide a `repo` option. It should be a string like "user/repo".')
-    }
-
-    if (dependenciesUpdated.length === 0) {
-      return ''
-    }
-
-    const lines: string[] = []
-    lines.push('#### Updated Dependencies')
-    lines.push('')
-
-    // Group dependencies by package name
-    for (const dependency of dependenciesUpdated) {
-      const packageName = dependency.name
-      const version = dependency.newVersion
-
-      lines.push(formatDependencyHeader(packageName, version))
-
-      // Find all changesets that affected this dependency
-      const relevantChangesets = changesets.filter((changeset) =>
-        changeset.releases.some((release) => release.name === packageName),
-      )
-
-      // Get GitHub info for each changeset and format the changes
-      for (const changeset of relevantChangesets) {
-        const githubInfo = changeset.commit
-          ? await getInfo({
-              repo,
-              commit: changeset.commit,
-            })
-          : null
-
-        const changeLine = formatDependencyChange(githubInfo, changeset.summary)
-        lines.push(changeLine)
-      }
-
-      lines.push('')
-    }
-
-    return lines.join('\n')
+  getDependencyReleaseLine: async (_changesets, _dependenciesUpdated, _options: Options) => {
+    // Skip dependency updates in changelog — they are noise
+    return await Promise.resolve('')
   },
 }
 
