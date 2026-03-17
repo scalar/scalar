@@ -1,12 +1,7 @@
 <script setup lang="ts">
 import { cva, cx, ScalarButton, ScalarIcon } from '@scalar/components'
-import {
-  themeLabels,
-  type IntegrationThemeId,
-  type ThemeId,
-} from '@scalar/themes'
+import { themeLabels, type ThemeId } from '@scalar/themes'
 
-import IntegrationLogo from '@/components/ImportCollection/IntegrationLogo.vue'
 import { useWorkspace } from '@/store'
 import { useActiveEntities } from '@/store/active-entities'
 
@@ -18,7 +13,7 @@ const { proxyUrl, workspaceMutators } = useWorkspace()
 
 const DEFAULT_PROXY_URL = 'https://proxy.scalar.com'
 
-const themeIds: Exclude<ThemeId, IntegrationThemeId>[] = [
+const themeIds: ThemeId[] = [
   'default',
   'alternate',
   // 'moon',
@@ -32,13 +27,11 @@ const themeIds: Exclude<ThemeId, IntegrationThemeId>[] = [
   // 'laserwave',
 ]
 
-const integrationThemeIds: IntegrationThemeId[] = ['elysiajs', 'fastify']
-
 const getThemeColors = (
-  themeId: Exclude<ThemeId, IntegrationThemeId>,
+  themeId: ThemeId,
 ): { light: string; dark: string; accent: string } => {
   const colors: Record<
-    Exclude<ThemeId, IntegrationThemeId>,
+    ThemeId,
     { light: string; dark: string; accent: string }
   > = {
     default: { light: '#fff', dark: '#0f0f0f', accent: '#0099ff' },
@@ -233,50 +226,6 @@ const setProxy = (newProxy: string | undefined) =>
                 </div>
               </ScalarButton>
             </div>
-          </div>
-        </SettingsSection>
-
-        <!-- Frameworks -->
-        <SettingsSection>
-          <template #title> Framework Themes </template>
-          <template #description>
-            Are you a real fan? Show your support by using your favorite
-            framework's theme!
-          </template>
-
-          <div class="grid grid-cols-2 gap-2">
-            <ScalarButton
-              v-for="themeId in integrationThemeIds"
-              :key="themeId"
-              :class="
-                cx(
-                  buttonStyles({
-                    active: activeWorkspace?.themeId === themeId,
-                  }),
-                )
-              "
-              @click="changeTheme(themeId)">
-              <div class="flex items-center gap-2">
-                <div
-                  class="flex h-5 w-5 items-center justify-center rounded-full border-[1.5px] p-1"
-                  :class="{
-                    'bg-c-accent text-b-1 border-transparent':
-                      activeWorkspace?.themeId === themeId,
-                  }">
-                  <ScalarIcon
-                    v-if="activeWorkspace?.themeId === themeId"
-                    icon="Checkmark"
-                    size="xs"
-                    thickness="3.5" />
-                </div>
-                {{ themeLabels[themeId] }}
-              </div>
-              <div class="flex items-center gap-1">
-                <div class="size-7 rounded-xl">
-                  <IntegrationLogo :integration="themeId" />
-                </div>
-              </div>
-            </ScalarButton>
           </div>
         </SettingsSection>
 

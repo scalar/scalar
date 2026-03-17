@@ -1,15 +1,7 @@
 <script setup lang="ts">
 import { cva, cx, ScalarButton, ScalarIcon } from '@scalar/components'
-import {
-  presets,
-  themeLabels,
-  type IntegrationThemeId,
-  type Theme,
-  type ThemeId,
-} from '@scalar/themes'
+import { presets, type Theme, type ThemeId } from '@scalar/themes'
 import { computed } from 'vue'
-
-import IntegrationLogo from '@/components/ImportCollection/IntegrationLogo.vue'
 
 import Appearance from './components/Appearance.vue'
 import Section from './components/Section.vue'
@@ -41,7 +33,7 @@ const emit = defineEmits<{
 
 const DEFAULT_PROXY_URL = 'https://proxy.scalar.com'
 
-const THEME_IDS: Exclude<ThemeId, IntegrationThemeId>[] = [
+const THEME_IDS: ThemeId[] = [
   'none',
   'default',
   'alternate',
@@ -50,8 +42,6 @@ const THEME_IDS: Exclude<ThemeId, IntegrationThemeId>[] = [
   'saturn',
   'kepler',
 ]
-
-const INTEGRATION_THEME_IDS: IntegrationThemeId[] = ['elysiajs', 'fastify']
 
 const defaultThemes = THEME_IDS.map((themeId) => {
   if (themeId === 'none') {
@@ -64,13 +54,6 @@ const defaultThemes = THEME_IDS.map((themeId) => {
   }
   return presets[themeId]
 })
-
-const integrationThemes = INTEGRATION_THEME_IDS.map((themeId) => ({
-  slug: themeId,
-  name: themeLabels[themeId],
-  description: themeLabels[themeId],
-  theme: '',
-}))
 
 const customThemeSlugs = computed(
   () => new Set(customThemes.map((theme) => theme.slug)),
@@ -97,8 +80,7 @@ const isNoneThemeSelected = computed(() => {
 
   const isValidTheme =
     customThemeSlugs.value.has(activeThemeSlug) ||
-    defaultThemes.some((theme) => theme.slug === activeThemeSlug) ||
-    integrationThemes.some((theme) => theme.slug === activeThemeSlug)
+    defaultThemes.some((theme) => theme.slug === activeThemeSlug)
 
   return !isValidTheme
 })
@@ -221,39 +203,6 @@ const checkmarkClasses = (isActive: boolean) =>
               :style="{
                 backgroundColor: getThemeColors(theme.slug).accent,
               }" />
-          </div>
-        </ScalarButton>
-      </div>
-    </Section>
-
-    <!-- Frameworks -->
-    <Section>
-      <template #title>Framework Themes</template>
-      <template #description>
-        Are you a real fan? Show your support by using your favorite framework's
-        theme!
-      </template>
-
-      <div class="grid grid-cols-2 gap-2">
-        <ScalarButton
-          v-for="theme in integrationThemes"
-          :key="theme.slug"
-          :class="cx(buttonStyles({ active: activeThemeSlug === theme.slug }))"
-          @click="emit('update:themeSlug', theme.slug)">
-          <div class="flex items-center gap-2">
-            <div :class="checkmarkClasses(activeThemeSlug === theme.slug)">
-              <ScalarIcon
-                v-if="activeThemeSlug === theme.slug"
-                icon="Checkmark"
-                size="xs"
-                thickness="3.5" />
-            </div>
-            {{ theme.name }}
-          </div>
-          <div class="flex items-center gap-1">
-            <div class="size-7 rounded-xl">
-              <IntegrationLogo :integration="theme.slug" />
-            </div>
           </div>
         </ScalarButton>
       </div>

@@ -73,8 +73,6 @@ describe('api-reference-configuration', () => {
         'deepSpace',
         'saturn',
         'kepler',
-        'elysiajs',
-        'fastify',
         'mars',
         'none',
       ]
@@ -256,6 +254,48 @@ describe('api-reference-configuration', () => {
       expect(migratedConfig.showDeveloperTools).toBe('always')
       // @ts-expect-error showToolbar is not in the type
       expect(migratedConfig.showToolbar).toBeUndefined()
+    })
+
+    it('migrates fastify theme to default', () => {
+      const config = {
+        theme: 'fastify',
+      }
+
+      const migratedConfig = apiReferenceConfigurationWithSourceSchema.parse(config)
+
+      expect(migratedConfig.theme).toBe('default')
+    })
+
+    it('migrates elysiajs theme to default', () => {
+      const config = {
+        theme: 'elysiajs',
+      }
+
+      const migratedConfig = apiReferenceConfigurationWithSourceSchema.parse(config)
+
+      expect(migratedConfig.theme).toBe('default')
+    })
+
+    it('logs deprecation warning when theme is fastify', () => {
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(vi.fn())
+
+      apiReferenceConfigurationWithSourceSchema.parse({ theme: 'fastify' })
+
+      expect(warnSpy).toHaveBeenCalledWith(
+        "[DEPRECATED] You're using the deprecated 'fastify' theme. It has been replaced with 'default'.",
+      )
+      warnSpy.mockRestore()
+    })
+
+    it('logs deprecation warning when theme is elysiajs', () => {
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(vi.fn())
+
+      apiReferenceConfigurationWithSourceSchema.parse({ theme: 'elysiajs' })
+
+      expect(warnSpy).toHaveBeenCalledWith(
+        "[DEPRECATED] You're using the deprecated 'elysiajs' theme. It has been replaced with 'default'.",
+      )
+      warnSpy.mockRestore()
     })
   })
 

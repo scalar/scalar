@@ -9,7 +9,7 @@ import type { Server } from '@/entities/spec/server'
 import type { Tag } from '@/entities/spec/spec-objects'
 import type { Workspace } from '@/entities/workspace/workspace'
 
-export type v_2_5_0 = {
+export type v_2_6_0 = {
   Cookie: Cookie
   Environment: Environment
   Collection: Collection
