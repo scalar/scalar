@@ -3,16 +3,14 @@ import type { ClientPlugin } from '@scalar/oas-utils/helpers'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { generateClientMutators } from '@scalar/workspace-store/mutators'
-import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
-import type { XScalarCookie } from '@scalar/workspace-store/schemas/extensions/general/x-scalar-cookies'
-import type { OpenApiDocument, ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/operation'
-
-import type { SecuritySchemeObjectSecret } from '@/v2/blocks/scalar-auth-selector-block/helpers/secret-types'
 
 import { createVariablesStoreForRequest } from './create-variables-store-for-request'
 import { executeOperationRequest } from './execute-operation-request'
+import { getOperationRequestParams } from './get-operation-request-params'
 import type { ResponseInstance } from './send-request'
+import type { ClientLayout } from '@/v2/types/layout'
 
 /** One item in the list of operation examples to run in sequence */
 export type OperationExampleRunItem = {
@@ -21,20 +19,16 @@ export type OperationExampleRunItem = {
   path: string
   method: HttpMethod
   exampleKey: string
-  /** Selected security schemes for this operation */
-  selectedSecuritySchemes: SecuritySchemeObjectSecret[]
+  /** Document slug for auth and env (same as useOperationRequestContext documentSlug) */
+  documentSlug: string
 }
 
-/** Shared context for all runs in the sequence (document, server, env, etc.) */
+/** Shared context for the runner; per-operation context is derived via getOperationRequestParams (same as Operation). */
 export type RunOperationExamplesContext = {
-  environment: XScalarEnvironment
-  server: ServerObject | null
-  proxyUrl: string
-  globalCookies: XScalarCookie[]
+  workspaceStore: WorkspaceStore | null
+  layout: ClientLayout
   plugins: ClientPlugin[]
   eventBus?: WorkspaceEventBus
-  workspaceStore: WorkspaceStore | null
-  activeEnvironmentName: string | undefined
 }
 
 /** Result for a single run in the sequence */
@@ -50,12 +44,13 @@ export type OperationExampleRunResult = {
 }
 
 /**
- * Runs a list of operation examples sequentially. Uses a single shared variables
- * store so that pre-request and post-response scripts can set local variables
- * (pm.variables.set) and the next request in the sequence sees them.
+ * Runs a list of operation examples sequentially. Uses the same per-operation
+ * context logic as useOperationRequestContext (getOperationRequestParams) so
+ * each item gets the correct environment, server, auth, etc. for that operation.
+ * Uses a single shared variables store so script-set variables propagate to the next request.
  *
- * @param items List of operation examples to run in order
- * @param context Shared context (env, server, plugins, etc.)
+ * @param items List of operation examples to run in order (each must include documentSlug)
+ * @param context Shared context (workspaceStore, layout, plugins, eventBus)
  * @param onStep Optional callback after each run (e.g. for progress UI)
  * @returns Array of results in the same order as items
  */
@@ -64,33 +59,34 @@ export async function runOperationExamplesRunner(
   context: RunOperationExamplesContext,
   onStep?: (result: OperationExampleRunResult, index: number) => void,
 ): Promise<OperationExampleRunResult[]> {
-  const {
-    environment,
-    server,
-    proxyUrl,
-    globalCookies,
-    plugins,
-    eventBus,
-    workspaceStore,
-    activeEnvironmentName,
-  } = context
+  const { workspaceStore, layout, plugins, eventBus } = context
 
   if (items.length === 0) {
     return []
   }
 
+  const firstItem = items[0]!
+  const firstParams = getOperationRequestParams({
+    workspaceStore,
+    document: firstItem.document,
+    path: firstItem.path,
+    method: firstItem.method,
+    documentSlug: firstItem.documentSlug,
+    layout,
+  })
+
   const variablesStore =
-    workspaceStore && activeEnvironmentName
+    workspaceStore && firstParams.activeEnvironment
       ? (() => {
           const mutators = generateClientMutators(workspaceStore)
           const documentEnv = mutators.active().environment
           const workspaceEnv = mutators.workspace().environment
           return createVariablesStoreForRequest({
-            environment,
-            activeEnvironmentName,
+            environment: firstParams.environment,
+            activeEnvironmentName: firstParams.activeEnvironment,
             documentEnvironmentMutators: documentEnv,
             workspaceEnvironmentMutators: workspaceEnv,
-            document: items[0]!.document,
+            document: firstItem.document,
             workspace: workspaceStore.workspace ?? null,
           })
         })()
@@ -100,17 +96,26 @@ export async function runOperationExamplesRunner(
 
   for (let i = 0; i < items.length; i++) {
     const item = items[i]!
+    const params = getOperationRequestParams({
+      workspaceStore,
+      document: item.document,
+      path: item.path,
+      method: item.method,
+      documentSlug: item.documentSlug,
+      layout,
+    })
+
     const { error, result } = await executeOperationRequest({
       document: item.document,
       operation: item.operation,
       path: item.path,
       method: item.method,
       exampleKey: item.exampleKey,
-      environment,
-      server,
-      proxyUrl,
-      globalCookies,
-      selectedSecuritySchemes: item.selectedSecuritySchemes,
+      environment: params.environment,
+      server: params.server,
+      proxyUrl: params.proxyUrl,
+      globalCookies: params.globalCookies,
+      selectedSecuritySchemes: params.selectedSecuritySchemes,
       plugins,
       eventBus,
       variablesStore,
