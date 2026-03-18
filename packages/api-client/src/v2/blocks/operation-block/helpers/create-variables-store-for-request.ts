@@ -1,5 +1,4 @@
 import type { VariableEntry, VariablesStore } from '@scalar/oas-utils/helpers'
-import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { WorkspaceDocument } from '@scalar/workspace-store/schemas'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type { Workspace } from '@scalar/workspace-store/schemas/workspace'
@@ -11,14 +10,26 @@ function envVarsToEntries(environment: XScalarEnvironment): VariableEntry[] {
   }))
 }
 
+/** Minimal environment mutators used to sync script-set variables synchronously */
+export type EnvironmentMutators = {
+  upsertEnvironment: (payload: {
+    environmentName: string
+    payload: Partial<XScalarEnvironment>
+  }) => void
+  upsertEnvironmentVariable: (payload: {
+    environmentName: string
+    variable: { name: string; value: string }
+    index?: number
+  }) => void
+}
+
 /**
- * Emits environment:upsert:environment so the selected environment exists on the
- * collection (document or workspace) before we upsert variables.
+ * Ensures the selected environment exists on the collection by calling the
+ * mutator directly (synchronous).
  */
 function ensureEnvironmentExists(
-  eventBus: WorkspaceEventBus,
+  mutators: EnvironmentMutators,
   collection: WorkspaceDocument | Workspace | null,
-  collectionType: 'document' | 'workspace',
   environmentName: string,
 ): void {
   if (!collection || !environmentName) {
@@ -28,36 +39,32 @@ function ensureEnvironmentExists(
   if (envs?.[environmentName]) {
     return
   }
-  eventBus.emit('environment:upsert:environment', {
-    collectionType,
+  mutators.upsertEnvironment({
     environmentName,
     payload: { color: '#FFFFFF', variables: [] },
   })
 }
 
 /**
- * Syncs script-set variables into the document or workspace environment by emitting
- * environment:upsert:environment-variable events. Ensures the target environment
- * exists before upserting variables.
+ * Syncs script-set variables into the document or workspace environment by
+ * calling the mutators directly (synchronous).
  */
 function syncVariablesToCollection(
-  eventBus: WorkspaceEventBus,
+  mutators: EnvironmentMutators,
   collection: WorkspaceDocument | Workspace | null,
-  collectionType: 'document' | 'workspace',
   environmentName: string,
   entries: VariableEntry[],
 ): void {
   if (!collection || !environmentName || entries.length === 0) {
     return
   }
-  ensureEnvironmentExists(eventBus, collection, collectionType, environmentName)
+  ensureEnvironmentExists(mutators, collection, environmentName)
   const variables = collection['x-scalar-environments']?.[environmentName]?.variables ?? []
 
   for (const entry of entries) {
     const index = variables.findIndex((v) => v.name === entry.key)
     const variable = { name: entry.key, value: entry.value }
-    eventBus.emit('environment:upsert:environment-variable', {
-      collectionType,
+    mutators.upsertEnvironmentVariable({
       environmentName,
       variable,
       ...(index >= 0 ? { index } : {}),
@@ -70,26 +77,29 @@ export type CreateVariablesStoreForRequestParams = {
   environment: XScalarEnvironment
   /** Name of the currently selected environment */
   activeEnvironmentName: string | undefined
-  /** Event bus to emit environment variable updates */
-  eventBus: WorkspaceEventBus
-  /** Workspace object (for setGlobals → workspace env vars) */
-  workspace: Workspace | null
+  /** Mutators for document environment (used by setCollectionVariables). Call mutators synchronously. */
+  documentEnvironmentMutators: EnvironmentMutators
+  /** Mutators for workspace environment (used by setGlobals). Call mutators synchronously. */
+  workspaceEnvironmentMutators: EnvironmentMutators
   /** Active document (for setCollectionVariables → document env vars) */
   document: WorkspaceDocument | null
+  /** Workspace object (for setGlobals → workspace env vars) */
+  workspace: Workspace | null
 }
 
 /**
  * Creates a VariablesStore for the request lifecycle. Scripts read from the merged
  * environment; when they call setCollectionVariables or setGlobals, we sync those
- * values back to the document or workspace selected environment so both stores stay
- * in sync. setLocalVariables is a no-op (reserved for chaining requests).
+ * values back to the document or workspace selected environment via the mutators
+ * (synchronous). setLocalVariables is for chaining requests (runner).
  */
 export function createVariablesStoreForRequest({
   environment,
   activeEnvironmentName,
-  eventBus,
-  workspace,
+  documentEnvironmentMutators,
+  workspaceEnvironmentMutators,
   document,
+  workspace,
 }: CreateVariablesStoreForRequestParams): VariablesStore {
   const envEntries = envVarsToEntries(environment)
 
@@ -110,19 +120,27 @@ export function createVariablesStoreForRequest({
     },
 
     setCollectionVariables: (variables) => {
-      // console.log('setCollectionVariables', variables)
       if (!activeEnvironmentName || !document) {
         return
       }
-      syncVariablesToCollection(eventBus, document, 'document', activeEnvironmentName, variables)
+      syncVariablesToCollection(
+        documentEnvironmentMutators,
+        document,
+        activeEnvironmentName,
+        variables,
+      )
     },
 
     setGlobals: (variables) => {
-      // console.log('setGlobals', variables)
       if (!activeEnvironmentName || !workspace) {
         return
       }
-      syncVariablesToCollection(eventBus, workspace, 'workspace', activeEnvironmentName, variables)
+      syncVariablesToCollection(
+        workspaceEnvironmentMutators,
+        workspace,
+        activeEnvironmentName,
+        variables,
+      )
     },
   }
 }

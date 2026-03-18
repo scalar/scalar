@@ -61,6 +61,8 @@ export const sendRequest = async ({
   plugins,
   document,
   variablesStore,
+  /** When true, beforeRequest hook is skipped (caller already ran it before building the request). */
+  skipBeforeRequest = false,
 }: {
   isUsingProxy: boolean
   operation: OperationObject
@@ -68,6 +70,7 @@ export const sendRequest = async ({
   request: Request
   document: OpenApiDocument
   variablesStore?: VariablesStore
+  skipBeforeRequest?: boolean
 }): Promise<
   ErrorResponse<{
     response: ResponseInstance
@@ -77,12 +80,15 @@ export const sendRequest = async ({
   }>
 > => {
   try {
-    // Apply any beforeRequest hooks from the plugins
-    const { request: modifiedRequest } = await executeHook(
-      { request, document, operation, variablesStore },
-      'beforeRequest',
-      plugins,
-    )
+    const modifiedRequest = skipBeforeRequest
+      ? request
+      : (
+          await executeHook(
+            { request, document, operation, variablesStore },
+            'beforeRequest',
+            plugins,
+          )
+        ).request
 
     // Execute the request and measure duration
     const startTime = Date.now()

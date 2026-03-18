@@ -108,9 +108,8 @@ import ViewLayout from '@/components/ViewLayout/ViewLayout.vue'
 import ViewLayoutContent from '@/components/ViewLayout/ViewLayoutContent.vue'
 import type { ClientLayout } from '@/hooks'
 import { ERRORS } from '@/libs/errors'
-import { buildRequest } from '@/v2/blocks/operation-block/helpers/build-request'
+import { executeOperationRequest } from '@/v2/blocks/operation-block/helpers/execute-operation-request'
 import { getSecuritySchemes } from '@/v2/blocks/operation-block/helpers/build-request-security'
-import { createVariablesStoreForRequest } from '@/v2/blocks/operation-block/helpers/create-variables-store-for-request'
 import { harToFetchRequest } from '@/v2/blocks/operation-block/helpers/har-to-fetch-request'
 import { harToFetchResponse } from '@/v2/blocks/operation-block/helpers/har-to-fetch-response'
 import {
@@ -118,8 +117,6 @@ import {
   isStreamingResponse,
   responseCache,
 } from '@/v2/blocks/operation-block/helpers/response-cache'
-import { sendRequest } from '@/v2/blocks/operation-block/helpers/send-request'
-import { validatePathParameters } from '@/v2/blocks/operation-block/helpers/validate-path-parameters'
 import { generateClientOptions } from '@/v2/blocks/operation-code-sample'
 import { RequestBlock } from '@/v2/blocks/request-block'
 import type { ExtendedScalarCookie } from '@/v2/blocks/request-block/RequestBlock.vue'
@@ -192,110 +189,48 @@ const request = ref<Request | null>(null)
 /** Cancel the request */
 const cancelRequest = () => abortController.value?.abort(ERRORS.REQUEST_ABORTED)
 
-/** Execute the current operation example */
+/** Execute the current operation example (build request, pre-request scripts, send, post-response scripts) */
 const handleExecute = async () => {
-  const pathValidation = validatePathParameters(
-    operation.parameters ?? [],
-    exampleKey,
-  )
-  if (pathValidation.ok === false) {
-    toast('Path parameters must have values.', 'error')
-    return
-  }
-
-  const [error, result] = buildRequest({
-    environment,
-    exampleKey,
-    globalCookies,
-    method,
-    operation,
-    path,
-    selectedSecuritySchemes: selectedSecuritySchemes.value,
-    server,
-    proxyUrl,
-  })
-
-  // Toast the error
-  if (error) {
-    toast(error.message, 'error')
-    return
-  }
-
-  // Store the abort controller for cancellation
-  abortController.value = result.controller
-
   // Stop any previous streaming response
   if (response.value && 'reader' in response.value) {
     response.value.reader.cancel()
   }
 
-  // Execute the hooks
-  eventBus.emit('hooks:on:request:sent', {
-    meta: {
-      method,
-      path,
-      exampleKey,
-    },
-  })
-
-  const variablesStore =
-    workspaceStore && activeEnvironment
-      ? createVariablesStoreForRequest({
-          environment,
-          activeEnvironmentName: activeEnvironment,
-          eventBus,
-          workspace: workspaceStore.workspace ?? null,
-          document,
-        })
-      : undefined
-
-  /**
-   * Execute the request and also execute the plugins hooks
-   *
-   * - beforeRequest
-   * - responseReceived
-   */
-  const [sendError, sendResult] = await sendRequest({
-    isUsingProxy: result.isUsingProxy,
-    operation,
+  const { error, result, controller } = await executeOperationRequest({
     document,
+    operation,
+    path,
+    method,
+    exampleKey,
+    environment,
+    server,
+    proxyUrl,
+    globalCookies,
+    selectedSecuritySchemes: selectedSecuritySchemes.value,
     plugins,
-    request: result.request,
-    variablesStore,
+    eventBus,
+    workspaceStore,
+    activeEnvironmentName: activeEnvironment,
   })
 
-  // Execute the hooks
-  eventBus.emit('hooks:on:request:complete', {
-    payload: sendResult
-      ? {
-          response: sendResult.originalResponse,
-          request: sendResult.request.clone(),
-          duration: sendResult.response.duration,
-          timestamp: sendResult.timestamp,
-        }
-      : undefined,
-    meta: {
-      method,
-      path,
-      exampleKey,
-    },
-  })
+  abortController.value = controller
 
-  // Toast the execute error
-  if (sendError) {
-    toast(sendError.message, 'error')
+  if (error) {
+    toast(error.message, 'error')
     return
   }
 
-  // Store the response
-  response.value = sendResult.response
-  request.value = sendResult.request
+  if (!result) {
+    return
+  }
 
-  // Cache non-streaming responses so they can be restored when navigating back
-  if (!isStreamingResponse(sendResult.response)) {
+  response.value = result.response
+  request.value = result.request
+
+  if (!isStreamingResponse(result.response)) {
     responseCache.set(getOperationExampleKey(method, path, exampleKey), {
-      response: sendResult.response,
-      request: sendResult.request,
+      response: result.response,
+      request: result.request,
     })
   }
 }
