@@ -1,4 +1,6 @@
 <script lang="ts">
+import type { ExecuteOperationRequestResult } from '@/v2/blocks/operation-block/helpers/execute-operation-request'
+
 /**
  * OperationBlock
  *
@@ -17,8 +19,6 @@ export default {
 }
 
 export type OperationBlockProps = {
-  /** Openapi document */
-  document: OpenApiDocument
   /** Event bus */
   eventBus: WorkspaceEventBus
   /** Document defined security */
@@ -75,8 +75,8 @@ export type OperationBlockProps = {
   environment: XScalarEnvironment
   /** The proxy URL for sending requests */
   proxyUrl: string
-  /** Workspace store (for syncing script-set variables to document/workspace env) */
-  workspaceStore?: WorkspaceStore | null
+  /** Executes the request using the current context (from useOperationRequestContext). */
+  executeRequest: () => Promise<ExecuteOperationRequestResult>
 }
 </script>
 <script setup lang="ts">
@@ -108,7 +108,6 @@ import ViewLayout from '@/components/ViewLayout/ViewLayout.vue'
 import ViewLayoutContent from '@/components/ViewLayout/ViewLayoutContent.vue'
 import type { ClientLayout } from '@/hooks'
 import { ERRORS } from '@/libs/errors'
-import { executeOperationRequest } from '@/v2/blocks/operation-block/helpers/execute-operation-request'
 import { getSecuritySchemes } from '@/v2/blocks/operation-block/helpers/build-request-security'
 import { harToFetchRequest } from '@/v2/blocks/operation-block/helpers/har-to-fetch-request'
 import { harToFetchResponse } from '@/v2/blocks/operation-block/helpers/har-to-fetch-response'
@@ -137,6 +136,7 @@ const {
   documentSelectedSecurity,
   eventBus,
   exampleKey,
+  executeRequest,
   globalCookies = [],
   hideClientButton,
   httpClients = AVAILABLE_CLIENTS,
@@ -153,8 +153,6 @@ const {
   environments,
   activeEnvironment,
   serverMeta,
-  document,
-  workspaceStore,
 } = defineProps<OperationBlockProps>()
 
 /** Hoist up client generation so it doesn't get re-generated on every operation */
@@ -189,29 +187,14 @@ const request = ref<Request | null>(null)
 /** Cancel the request */
 const cancelRequest = () => abortController.value?.abort(ERRORS.REQUEST_ABORTED)
 
-/** Execute the current operation example (build request, pre-request scripts, send, post-response scripts) */
+/** Execute the current operation example via the context's executeRequest (build, pre-request, send, post-response). */
 const handleExecute = async () => {
   // Stop any previous streaming response
   if (response.value && 'reader' in response.value) {
     response.value.reader.cancel()
   }
 
-  const { error, result, controller } = await executeOperationRequest({
-    document,
-    operation,
-    path,
-    method,
-    exampleKey,
-    environment,
-    server,
-    proxyUrl,
-    globalCookies,
-    selectedSecuritySchemes: selectedSecuritySchemes.value,
-    plugins,
-    eventBus,
-    workspaceStore,
-    activeEnvironmentName: activeEnvironment,
-  })
+  const { error, result, controller } = await executeRequest()
 
   abortController.value = controller
 

@@ -121,6 +121,45 @@ const createMockOriginalResponse = (): Response =>
  * Creates default props for mounting the OperationBlock component.
  * These props represent the minimum required to render the component.
  */
+const createMockExecuteRequestResult = () => {
+  const controller = new AbortController()
+  const request = new Request('https://api.example.com/api/users')
+  const response = {
+    status: 200,
+    statusText: 'OK',
+    headers: {},
+    cookieHeaderKeys: [],
+    duration: 100,
+    method: 'get',
+    path: '/api/users',
+    data: '{}',
+    size: 0,
+    ok: true,
+    redirected: false,
+    type: 'basic' as const,
+    url: 'https://api.example.com/api/users',
+    body: null,
+    bodyUsed: false,
+    arrayBuffer: vi.fn(),
+    blob: vi.fn(),
+    formData: vi.fn(),
+    json: vi.fn(),
+    text: vi.fn(),
+    clone: vi.fn(),
+  } as unknown as ResponseInstance
+  return {
+    error: null,
+    result: {
+      response,
+      request,
+      timestamp: Date.now(),
+      originalResponse: new Response(),
+    },
+    controller,
+    variablesStore: undefined,
+  }
+}
+
 const createDefaultProps = (): OperationBlockProps => ({
   eventBus: createMockEventBus(),
   appVersion: '1.0.0',
@@ -146,6 +185,7 @@ const createDefaultProps = (): OperationBlockProps => ({
   serverMeta: {
     type: 'document',
   },
+  executeRequest: vi.fn().mockResolvedValue(createMockExecuteRequestResult()),
 })
 
 describe('OperationBlock', () => {
@@ -184,103 +224,49 @@ describe('OperationBlock', () => {
   })
 
   it('executes request when handleExecute is called', async () => {
-    const mockController = new AbortController()
-    const mockRequest = new Request('https://api.example.com/api/users')
-
-    vi.mocked(buildRequest).mockReturnValue([
-      null,
-      {
-        controller: mockController,
-        request: mockRequest,
-        isUsingProxy: false,
-      },
-    ])
-
-    const mockResponse: ResponseInstance = {
-      status: 200,
-      statusText: 'OK',
-      headers: {},
-      cookieHeaderKeys: [],
-      duration: 100,
-      method: 'get',
-      path: '/api/users',
-      data: '{"success": true}',
-      size: 20,
-      ok: true,
-      redirected: false,
-      type: 'basic',
-      url: 'https://api.example.com/api/users',
-      body: null,
-      bodyUsed: false,
-      arrayBuffer: vi.fn(),
-      blob: vi.fn(),
-      formData: vi.fn(),
-      json: vi.fn(),
-      text: vi.fn(),
-      clone: vi.fn(),
-      bytes: vi.fn(),
-    }
-
-    const mockOriginalResponse = new Response(mockResponse.body, {
-      status: mockResponse.status,
-      statusText: mockResponse.statusText,
-      headers: mockResponse.headers,
-    })
-
-    vi.mocked(sendRequest).mockResolvedValue([
-      null,
-      {
-        timestamp: Date.now(),
-        request: mockRequest,
-        response: mockResponse,
-        originalResponse: mockOriginalResponse,
-      },
-    ])
-
+    const props = createDefaultProps()
     const wrapper = mount(OperationBlock, {
-      props: createDefaultProps(),
+      props,
     })
 
     const instance = wrapper.vm as any
     await instance.handleExecute()
 
-    expect(buildRequest).toHaveBeenCalledOnce()
-    expect(sendRequest).toHaveBeenCalledOnce()
+    expect(props.executeRequest).toHaveBeenCalledOnce()
   })
 
-  it('displays toast error when buildRequest fails', async () => {
+  it('displays toast error when executeRequest returns error', async () => {
     const mockError = new Error('Invalid URL')
-    vi.mocked(buildRequest).mockReturnValue([mockError, null])
+    const props = createDefaultProps()
+    props.executeRequest = vi.fn().mockResolvedValue({
+      error: mockError,
+      result: null,
+      controller: new AbortController(),
+      variablesStore: undefined,
+    })
 
     const wrapper = mount(OperationBlock, {
-      props: createDefaultProps(),
+      props,
     })
 
     const instance = wrapper.vm as any
     await instance.handleExecute()
 
     expect(mockToast).toHaveBeenCalledWith('Invalid URL', 'error')
-    expect(sendRequest).not.toHaveBeenCalled()
   })
 
-  it('displays toast error when sendRequest fails', async () => {
-    const mockController = new AbortController()
-    const mockRequest = new Request('https://api.example.com/api/users')
-
-    vi.mocked(buildRequest).mockReturnValue([
-      null,
-      {
-        controller: mockController,
-        request: mockRequest,
-        isUsingProxy: false,
-      },
-    ])
-
+  it('displays toast error when executeRequest returns send error', async () => {
     const mockError = new Error(ERRORS.REQUEST_FAILED)
-    vi.mocked(sendRequest).mockResolvedValue([mockError, null])
+    const props = createDefaultProps()
+    props.executeRequest = vi.fn().mockResolvedValue({
+      error: mockError,
+      result: null,
+      controller: new AbortController(),
+      variablesStore: undefined,
+    })
 
     const wrapper = mount(OperationBlock, {
-      props: createDefaultProps(),
+      props,
     })
 
     const instance = wrapper.vm as any
@@ -291,29 +277,13 @@ describe('OperationBlock', () => {
 
   it('stores abort controller when request is initiated', async () => {
     const mockController = new AbortController()
-    const mockRequest = new Request('https://api.example.com/api/users')
-
-    vi.mocked(buildRequest).mockReturnValue([
-      null,
-      {
-        controller: mockController,
-        request: mockRequest,
-        isUsingProxy: false,
-      },
-    ])
-
-    vi.mocked(sendRequest).mockResolvedValue([
-      null,
-      {
-        timestamp: Date.now(),
-        request: mockRequest,
-        response: {} as ResponseInstance,
-        originalResponse: createMockOriginalResponse(),
-      },
-    ])
+    const mockResult = createMockExecuteRequestResult()
+    mockResult.controller = mockController
+    const props = createDefaultProps()
+    props.executeRequest = vi.fn().mockResolvedValue(mockResult)
 
     const wrapper = mount(OperationBlock, {
-      props: createDefaultProps(),
+      props,
     })
 
     const instance = wrapper.vm as any
@@ -327,6 +297,10 @@ describe('OperationBlock', () => {
     const mockController = new AbortController()
     const abortSpy = vi.spyOn(mockController, 'abort')
     const mockRequest = new Request('https://api.example.com/api/users')
+    const mockResult = createMockExecuteRequestResult()
+    mockResult.controller = mockController
+    const props = createDefaultProps()
+    props.executeRequest = vi.fn().mockResolvedValue(mockResult)
 
     vi.mocked(buildRequest).mockReturnValue([
       null,
