@@ -1,11 +1,6 @@
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { type ApiReferenceEvents, createWorkspaceEventBus } from '@scalar/workspace-store/events'
-import {
-  disableConsoleError,
-  disableConsoleWarn,
-  enableConsoleError,
-  enableConsoleWarn,
-} from '@test/vitest.setup'
+import { disableConsoleError, disableConsoleWarn, enableConsoleError, enableConsoleWarn } from '@test/vitest.setup'
 import { mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { nextTick } from 'vue'

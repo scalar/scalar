@@ -119,7 +119,7 @@ const allAvailableServers = computed(() => {
   })
 
   // Combine and deduplicate servers by URL
-  const serverMap = new Map<string, typeof documentServers[number]>()
+  const serverMap = new Map<string, (typeof documentServers)[number]>()
   for (const s of [...documentServers, ...operationServers]) {
     if (s.url && !serverMap.has(s.url)) {
       serverMap.set(s.url, s)

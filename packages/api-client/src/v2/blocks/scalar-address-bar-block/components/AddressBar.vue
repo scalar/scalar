@@ -130,9 +130,7 @@ const parseFullUrl = (
 /**
  * Find a matching server from available servers by origin
  */
-const findMatchingServer = (
-  origin: string,
-): ServerObject | null => {
+const findMatchingServer = (origin: string): ServerObject | null => {
   // First check if origin matches any of the all available servers
   for (const s of allAvailableServers) {
     try {
