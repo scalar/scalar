@@ -25,6 +25,8 @@ export type HeaderProps = {
   server: ServerObject | null
   /** Server list available for operation/document */
   servers: ServerObject[]
+  /** All available servers (collection + request) for matching pasted URLs */
+  allAvailableServers: ServerObject[]
   /** List of request history */
   history: History[]
   /** Event bus */
@@ -89,6 +91,7 @@ const handleAddEnvironment = () => {
     </div>
     <AddressBar
       :activeEnvironment
+      :allAvailableServers
       :environment
       :environments
       :eventBus

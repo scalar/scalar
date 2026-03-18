@@ -16,6 +16,8 @@ export type AddressBarProps = {
   server: ServerObject | null
   /** Server list available for operation/document */
   servers: ServerObject[]
+  /** All available servers (collection + request) for matching pasted URLs */
+  allAvailableServers: ServerObject[]
   /** List of request history */
   history: History[]
   /** Client layout */
@@ -47,6 +49,7 @@ import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensi
 import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import {
   computed,
+  nextTick,
   onBeforeUnmount,
   onMounted,
   ref,
@@ -71,6 +74,7 @@ const {
   history,
   server,
   servers,
+  allAvailableServers,
   environment,
   serverMeta,
 } = defineProps<AddressBarProps>()
@@ -97,6 +101,157 @@ const methodConflict = ref<HttpMethodType | null>(null)
 
 /** Whether there is a path or method conflict */
 const hasConflict = computed(() => methodConflict.value || pathConflict.value)
+
+/**
+ * Check if a string looks like a full URL with protocol
+ */
+const isFullUrl = (value: string): boolean => {
+  const trimmed = value.trim()
+  return /^https?:\/\//i.test(trimmed)
+}
+
+/**
+ * Parse a full URL and extract the origin and path
+ */
+const parseFullUrl = (
+  value: string,
+): { origin: string; path: string } | null => {
+  try {
+    const url = new URL(value.trim())
+    return {
+      origin: url.origin,
+      path: url.pathname + url.search + url.hash,
+    }
+  } catch {
+    return null
+  }
+}
+
+/**
+ * Find a matching server from available servers by origin
+ */
+const findMatchingServer = (
+  origin: string,
+): ServerObject | null => {
+  // First check if origin matches any of the all available servers
+  for (const s of allAvailableServers) {
+    try {
+      // Handle server URLs that might have trailing slashes or variables
+      const serverUrl = s.url?.replace(/\/$/, '') ?? ''
+      // Check if the server URL matches the origin exactly or starts with it
+      if (serverUrl === origin || serverUrl.startsWith(origin)) {
+        return s
+      }
+      // Also try parsing the server URL to compare origins
+      const serverOrigin = new URL(serverUrl).origin
+      if (serverOrigin === origin) {
+        return s
+      }
+    } catch {
+      // Server URL might have variables, try direct comparison
+      if (s.url === origin) {
+        return s
+      }
+    }
+  }
+  return null
+}
+
+/**
+ * Handle a full URL being entered - match or add server, update path
+ */
+const handleFullUrlInput = async (fullUrl: string): Promise<void> => {
+  const parsed = parseFullUrl(fullUrl)
+  if (!parsed) {
+    return
+  }
+
+  const { origin, path: urlPath } = parsed
+  const matchingServer = findMatchingServer(origin)
+
+  if (matchingServer) {
+    // Server exists - select it and update path
+    eventBus.emit('server:update:selected', {
+      url: matchingServer.url,
+      meta: serverMeta,
+    })
+  } else {
+    // No matching server - add a new operation-level server
+    const operationMeta: ServerMeta =
+      serverMeta.type === 'operation'
+        ? serverMeta
+        : { type: 'operation', path, method }
+
+    // Get the index where the new server will be added
+    const newServerIndex = servers.length
+
+    // First add a blank server
+    eventBus.emit('server:add:server', { meta: operationMeta })
+
+    // Wait for Vue to process the event and update reactivity
+    await nextTick()
+
+    // Update the newly added server with the origin URL
+    eventBus.emit('server:update:server', {
+      index: newServerIndex,
+      server: { url: origin },
+      meta: operationMeta,
+    })
+
+    // Wait for the update to be processed
+    await nextTick()
+
+    // Select the newly added server
+    eventBus.emit('server:update:selected', {
+      url: origin,
+      meta: operationMeta,
+    })
+  }
+
+  // Update the path
+  const normalizedPath = urlPath.startsWith('/') ? urlPath : `/${urlPath}`
+  emitPathMethodUpdate(methodConflict.value ?? method, normalizedPath, {
+    debounceKey: `operation:update:pathMethod-${path}-${method}`,
+  })
+}
+
+/**
+ * Handle clearing/unsetting the server selection
+ */
+const handleClearServer = (): void => {
+  eventBus.emit('server:update:selected', {
+    url: '',
+    meta: serverMeta,
+  })
+}
+
+/**
+ * Handle backspace at position 0 to clear the server
+ * Returns true if the event was handled, false otherwise
+ */
+const handleBackspaceAtStart = (): boolean => {
+  if (!server) {
+    return false
+  }
+
+  const cursorPos = addressBarRef.value?.cursorPosition() ?? 0
+  if (cursorPos === 0) {
+    handleClearServer()
+    return true
+  }
+  return false
+}
+
+/**
+ * Handle keydown event for backspace key
+ */
+const handleBackspaceKeydown = (event: KeyboardEvent): void => {
+  // Check if backspace is at position 0 with a server selected
+  if (handleBackspaceAtStart()) {
+    event.preventDefault()
+    event.stopPropagation()
+  }
+}
 
 /** Emit the path/method update event with conflict handling */
 const emitPathMethodUpdate = (
@@ -139,8 +294,20 @@ const emitPathMethodUpdate = (
 const handleMethodChange = (newMethod: HttpMethodType): void =>
   emitPathMethodUpdate(newMethod, pathConflict.value ?? path)
 
-/** Update the operation's path, handling conflicts */
+/** Update the operation's path, handling conflicts and full URL pasting */
 const handlePathChange = (newPath: string): void => {
+  // Check if this is a full URL being pasted/entered
+  if (isFullUrl(newPath)) {
+    handleFullUrlInput(newPath)
+    return
+  }
+
+  // Check if the entire content was cleared (ctrl+a+delete or select all + backspace)
+  if (newPath === '' && server) {
+    handleClearServer()
+    return
+  }
+
   const normalizedPath = newPath.startsWith('/') ? newPath : `/${newPath}`
   emitPathMethodUpdate(methodConflict.value ?? method, normalizedPath, {
     debounceKey: `operation:update:pathMethod-${path}-${method}`,
@@ -252,7 +419,8 @@ defineExpose({
       </div>
 
       <div
-        class="scroll-timeline-x scroll-timeline-x-hidden relative flex w-full bg-blend-normal">
+        class="scroll-timeline-x scroll-timeline-x-hidden relative flex w-full bg-blend-normal"
+        @keydown.backspace.capture="handleBackspaceKeydown">
         <!-- Servers -->
         <ServerDropdown
           v-if="servers.length"

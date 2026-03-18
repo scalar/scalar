@@ -1,5 +1,4 @@
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
-import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
 
@@ -11,30 +10,28 @@ import Header, { type HeaderProps } from './Header.vue'
 describe('Header', () => {
   const eventBus = createWorkspaceEventBus()
 
-  const defaultProps = {
+  const defaultProps: HeaderProps = {
     path: '/pets',
     method: 'get' as const,
     layout: 'web' as const,
-    isSidebarOpen: true,
-    showSidebar: true,
     hideClientButton: false,
     integration: null as string | null,
     documentUrl: undefined as string | undefined,
     source: 'api-reference' as const,
     server: null,
-    servers: [] as any[],
-    history: [] as any[],
-    requestLoadingPercentage: undefined as number | undefined,
+    servers: [],
+    allAvailableServers: [],
+    history: [],
     eventBus,
     environment: {
       variables: [],
       color: '#FF0000',
       description: 'Test Environment',
-    } as XScalarEnvironment,
+    },
     serverMeta: {
       type: 'document',
     },
-  } as HeaderProps
+  }
 
   const render = (overrides: Partial<HeaderProps> = {}) => {
     const props = { ...defaultProps, ...overrides }
