@@ -2110,7 +2110,7 @@ describe('upgradeFromTwoToThree', () => {
   it('transforms x-examples keyed by example name with mixed object and string values (pos-original shape)', () => {
     const result: OpenAPIV3.Document = upgradeFromTwoToThree({
       swagger: '2.0',
-      info: { title: 'x-examples pos-original shape', version: '1.0' },
+      info: { title: 'x-examples', version: '1.0' },
       paths: {
         '/test': {
           post: {
