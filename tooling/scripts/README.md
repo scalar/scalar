@@ -155,6 +155,17 @@ pnpm --filter @scalar-internal/build-scripts start update-playwright-docker
 
 **Note:** This command requires Docker to be installed and configured, and you must have push access to the `scalarapi` Docker Hub organization.
 
+### `generate-blog-index`
+
+Generate blog index cards in `documentation/blog/index.md` from post files in that directory.
+
+Scans for markdown files matching `YYYY-MM-DD-slug.md` (excluding `index.md`), extracts the title from the first `#` heading and a short description from the first paragraph, and rewrites the cards section of the index. The date in each card comes from the filename. The existing `# Posts` header and `<style>` block are preserved.
+
+**Usage:**
+```bash
+pnpm --filter @scalar-internal/build-scripts start generate-blog-index
+```
+
 ### `generate-readme`
 
 Generate README.md files for packages with readme metadata.
