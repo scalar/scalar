@@ -252,6 +252,37 @@ describe('createApiClientModal', () => {
     })
   })
 
+  it('stops modal watchers when app is unmounted', async () => {
+    const workspaceStore = await setupWorkspaceStore()
+
+    const modal = createApiClientModal({
+      el: mountElement,
+      workspaceStore,
+      mountOnInitialize: true,
+    })
+    createdApps.push(modal.app)
+
+    modal.open({
+      path: '/users',
+      method: 'get',
+      example: 'default',
+    })
+
+    await nextTick()
+
+    const documentSlug = workspaceStore.workspace['x-scalar-active-document']
+    const document = workspaceStore.workspace.documents[documentSlug || '']
+    expect(document).toBeDefined()
+
+    document!.info.title = 'Changed while open'
+
+    modal.app.unmount()
+    modal.modalState.open = false
+    await nextTick()
+
+    expect(workspaceStore.workspace.documents[documentSlug || '']?.info.title).toBe('Changed while open')
+  })
+
   it('drops document changes when modal closes, but preserves servers', async () => {
     const workspaceStore = await setupWorkspaceStore()
 

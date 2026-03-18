@@ -508,6 +508,52 @@ describe('use-modal-sidebar', () => {
     expect(state.isSelected(initialEntry!.id)).toBe(false)
   })
 
+  it('stops route synchronization when disposed', async () => {
+    const store = await createTestStore()
+    const documentSlug = computed<string | undefined>(() => 'test-doc')
+    const path = ref<string | undefined>('/users')
+    const method = ref<'get' | 'post' | undefined>('get')
+    const exampleName = ref<string | undefined>('default')
+
+    const { state, getEntryByLocation, dispose } = useModalSidebar({
+      workspaceStore: store,
+      documentSlug,
+      path: computed(() => path.value),
+      method: computed(() => method.value),
+      exampleName: computed(() => exampleName.value),
+      route: vi.fn(),
+    })
+
+    await waitForUpdates()
+
+    const initialEntry = getEntryByLocation({
+      document: 'test-doc',
+      path: '/users',
+      method: 'get',
+      example: 'default',
+    })
+
+    expect(initialEntry).toBeDefined()
+    expect(state.isSelected(initialEntry!.id)).toBe(true)
+
+    dispose()
+
+    path.value = '/pets'
+    method.value = 'get'
+    exampleName.value = undefined
+    await waitForUpdates()
+
+    const nextEntry = getEntryByLocation({
+      document: 'test-doc',
+      path: '/pets',
+      method: 'get',
+    })
+
+    expect(nextEntry).toBeDefined()
+    expect(state.isSelected(initialEntry!.id)).toBe(true)
+    expect(state.isSelected(nextEntry!.id)).toBe(false)
+  })
+
   it('resets selection when document is cleared', async () => {
     const store = await createTestStore()
     const documentSlug = ref<string | undefined>('test-doc')

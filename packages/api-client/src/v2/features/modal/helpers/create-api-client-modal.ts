@@ -130,13 +130,24 @@ export const createApiClientModal = ({
     return
   }
 
-  watch(
+  const stopModalOpenWatch = watch(
     () => modalState.open,
     (open) => (open ? handleModalOpen() : handleModalClose()),
   )
 
+  const dispose = (): void => {
+    stopModalOpenWatch()
+    sidebarState.dispose()
+  }
+
   // Use a unique id prefix to prevent collisions with other Vue apps on the page
   app.config.idPrefix = 'scalar-client'
+
+  const unmount = app.unmount.bind(app)
+  app.unmount = (): void => {
+    dispose()
+    unmount()
+  }
 
   /** Mount the modal to a given element. */
   const mount = (mountingEl: HTMLElement | null = el): void => {

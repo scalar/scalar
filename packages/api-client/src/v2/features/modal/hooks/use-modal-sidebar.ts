@@ -17,6 +17,8 @@ export type UseModalSidebarReturn = {
     method?: HttpMethod
     example?: string
   }) => TraversedEntry | undefined
+  /** Stops reactive syncing created by this composable. */
+  dispose: () => void
 }
 
 /**
@@ -171,7 +173,7 @@ export const useModalSidebar = ({
   }
 
   /** Keep the sidebar state in sync with the modal parameters */
-  watch(
+  const stopRouteSyncWatch = watch(
     [documentSlug, path, method, exampleName],
     ([newDocument, newPath, newMethod, newExample]) => {
       if (!newDocument) {
@@ -201,5 +203,6 @@ export const useModalSidebar = ({
     handleSelectItem,
     state,
     getEntryByLocation,
+    dispose: stopRouteSyncWatch,
   }
 }
