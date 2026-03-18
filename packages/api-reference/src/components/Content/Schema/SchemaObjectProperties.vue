@@ -13,18 +13,20 @@ import type { SchemaOptions } from '@/components/Content/Schema/types'
 
 import SchemaProperty from './SchemaProperty.vue'
 
-const { schema, discriminator, options, schemaContext } = defineProps<{
-  schema: SchemaObject
-  discriminator?: DiscriminatorObject
-  compact?: boolean
-  hideHeading?: boolean
-  level?: number
-  hideModelNames?: boolean
-  breadcrumb?: string[]
-  eventBus: WorkspaceEventBus | null
-  options: SchemaOptions
-  schemaContext?: string
-}>()
+const { schema, discriminator, options, schemaContext, compositionPath } =
+  defineProps<{
+    schema: SchemaObject
+    discriminator?: DiscriminatorObject
+    compact?: boolean
+    hideHeading?: boolean
+    level?: number
+    hideModelNames?: boolean
+    breadcrumb?: string[]
+    eventBus: WorkspaceEventBus | null
+    options: SchemaOptions
+    schemaContext?: string
+    compositionPath?: string[]
+  }>()
 
 /**
  * Sorts properties by required status first, then alphabetically.
@@ -150,6 +152,8 @@ const getAdditionalPropertiesValue = (
       :level
       :name="property"
       :options="options"
+      :compositionPathSegment="property"
+      :compositionPath="compositionPath"
       :required="schema.required?.includes(property)"
       :schema="resolve.schema(schema.properties[property])"
       :schemaContext="schemaContext" />
@@ -169,6 +173,8 @@ const getAdditionalPropertiesValue = (
       :level
       :name="key"
       :options="options"
+      :compositionPathSegment="key"
+      :compositionPath="compositionPath"
       :schema="resolve.schema(property)"
       :schemaContext="schemaContext" />
   </template>
@@ -191,6 +197,13 @@ const getAdditionalPropertiesValue = (
       "
       noncollapsible
       :options="options"
+      :compositionPathSegment="
+        getAdditionalPropertiesName(
+          schema.additionalProperties,
+          schema.propertyNames,
+        )
+      "
+      :compositionPath="compositionPath"
       :schemaContext="schemaContext"
       :propertyNamesEnum="additionalPropertiesEnum"
       :schema="getAdditionalPropertiesValue(schema.additionalProperties)"

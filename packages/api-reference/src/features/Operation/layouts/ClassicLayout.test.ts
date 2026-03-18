@@ -7,6 +7,8 @@ import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 import { nextTick } from 'vue'
 
+import { REQUEST_BODY_COMPOSITION_INDEX_SYMBOL } from '@/features/Operation/request-body-composition-index'
+
 import ClassicLayout from './ClassicLayout.vue'
 
 type ExtractComponentProps<TComponent> = TComponent extends new () => { $props: infer Props } ? Props : never
@@ -52,6 +54,47 @@ const operation: OperationObject = {
   },
 }
 
+const nestedOperation: OperationObject = {
+  summary: 'Create nested widget',
+  requestBody: {
+    required: true,
+    content: {
+      'application/json': {
+        schema: coerceValue(SchemaObjectSchema, {
+          type: 'object',
+          properties: {
+            payload: {
+              anyOf: [
+                {
+                  title: 'Nested Primary',
+                  type: 'object',
+                  properties: {
+                    nestedPrimaryOnlyField: {
+                      type: 'string',
+                    },
+                  },
+                  required: ['nestedPrimaryOnlyField'],
+                },
+                {
+                  title: 'Nested Secondary',
+                  type: 'object',
+                  properties: {
+                    nestedSecondaryOnlyField: {
+                      type: 'integer',
+                    },
+                  },
+                  required: ['nestedSecondaryOnlyField'],
+                },
+              ],
+            },
+          },
+          required: ['payload'],
+        }),
+      },
+    },
+  },
+}
+
 const props: ExtractComponentProps<typeof ClassicLayout> = {
   id: 'create-widget',
   clientOptions: [
@@ -89,8 +132,25 @@ const props: ExtractComponentProps<typeof ClassicLayout> = {
   selectedServer,
 }
 
+const nestedProps: ExtractComponentProps<typeof ClassicLayout> = {
+  ...props,
+  id: 'create-nested-widget',
+  operation: nestedOperation,
+}
+
+const getRequestBodyCompositionSelection = (wrapper: ReturnType<typeof mount>) =>
+  (
+    wrapper.vm.$ as unknown as {
+      provides: Record<PropertyKey, unknown>
+    }
+  ).provides[REQUEST_BODY_COMPOSITION_INDEX_SYMBOL] as
+    | {
+        value: Record<string, number>
+      }
+    | undefined
+
 describe('ClassicLayout', () => {
-  it('updates the code sample when the request body composition selection changes', async () => {
+  it('updates shared request body composition state when the root selection changes', async () => {
     const wrapper = mount(ClassicLayout, {
       props,
       global: {
@@ -103,13 +163,7 @@ describe('ClassicLayout', () => {
       },
     })
 
-    const codeBlock = wrapper.findComponent({ name: 'ScalarCodeBlock' })
-    const initialContent = codeBlock.props('content')
-
-    expect(codeBlock.exists()).toBe(true)
-    expect(typeof initialContent).toBe('string')
-    expect(initialContent.includes('primaryOnlyField')).toBe(true)
-    expect(initialContent.includes('secondaryOnlyField')).toBe(false)
+    expect(wrapper.findComponent({ name: 'ScalarCodeBlock' }).exists()).toBe(true)
 
     const compositionSelector = wrapper.findComponent(ScalarListbox)
     const listboxOptions = compositionSelector.props('options')
@@ -117,9 +171,34 @@ describe('ClassicLayout', () => {
     await nextTick()
     await nextTick()
 
-    const updatedContent = wrapper.findComponent({ name: 'ScalarCodeBlock' }).props('content')
+    expect(getRequestBodyCompositionSelection(wrapper)?.value).toStrictEqual({
+      'requestBody.anyOf': 1,
+    })
+  })
 
-    expect(updatedContent.includes('primaryOnlyField')).toBe(false)
-    expect(updatedContent.includes('secondaryOnlyField')).toBe(true)
+  it('updates shared request body composition state when a nested selection changes', async () => {
+    const wrapper = mount(ClassicLayout, {
+      props: nestedProps,
+      global: {
+        stubs: {
+          RouterLink: {
+            name: 'RouterLink',
+            template: '<a><slot /></a>',
+          },
+        },
+      },
+    })
+
+    expect(wrapper.findComponent({ name: 'ScalarCodeBlock' }).exists()).toBe(true)
+
+    const compositionSelector = wrapper.findComponent(ScalarListbox)
+    const listboxOptions = compositionSelector.props('options')
+    await compositionSelector.vm.$emit('update:modelValue', listboxOptions[1])
+    await nextTick()
+    await nextTick()
+
+    expect(getRequestBodyCompositionSelection(wrapper)?.value).toStrictEqual({
+      'requestBody.payload.anyOf': 1,
+    })
   })
 })

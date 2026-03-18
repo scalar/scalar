@@ -36,7 +36,10 @@ import Callbacks from '@/features/Operation/components/callbacks/Callbacks.vue'
 import OperationParameters from '@/features/Operation/components/OperationParameters.vue'
 import OperationResponses from '@/features/Operation/components/OperationResponses.vue'
 import type { OperationProps } from '@/features/Operation/Operation.vue'
-import { REQUEST_BODY_COMPOSITION_INDEX_SYMBOL } from '@/features/Operation/request-body-composition-index'
+import {
+  REQUEST_BODY_COMPOSITION_INDEX_SYMBOL,
+  type RequestBodyCompositionSelection,
+} from '@/features/Operation/request-body-composition-index'
 import { getXKeysFromObject } from '@/features/specification-extension'
 import SpecificationExtension from '@/features/specification-extension/SpecificationExtension.vue'
 import { TestRequestButton } from '@/features/test-request-button'
@@ -73,10 +76,20 @@ const operationExtensions = computed(() => getXKeysFromObject(operation))
 /** Track the currently selected example for passing to the modal */
 const selectedExampleKey = ref<string>('')
 
-/** Selected index for request body oneOf/anyOf; synced with schema dropdown and code sample */
-const requestBodyCompositionIndex = ref(0)
+/** Selected request body oneOf/anyOf variants; synced with schema dropdowns and code sample */
+const requestBodyCompositionSelection = ref<RequestBodyCompositionSelection>({})
 
-provide(REQUEST_BODY_COMPOSITION_INDEX_SYMBOL, requestBodyCompositionIndex)
+const requestBodyCompositionSelectionForCodeSample = computed(
+  (): RequestBodyCompositionSelection => ({
+    ...requestBodyCompositionSelection.value,
+  }),
+)
+
+const requestBodyCompositionSelectionKey = computed(() =>
+  JSON.stringify(requestBodyCompositionSelectionForCodeSample.value),
+)
+
+provide(REQUEST_BODY_COMPOSITION_INDEX_SYMBOL, requestBodyCompositionSelection)
 
 const { copyToClipboard } = useClipboard()
 </script>
@@ -223,6 +236,7 @@ const { copyToClipboard } = useClipboard()
         <ScalarErrorBoundary>
           <OperationCodeSample
             v-model:selectedExample="selectedExampleKey"
+            :key="requestBodyCompositionSelectionKey"
             class="operation-example-card"
             :clientOptions
             :eventBus
@@ -231,7 +245,9 @@ const { copyToClipboard } = useClipboard()
             :method
             :operation
             :path
-            :requestBodyCompositionIndex="requestBodyCompositionIndex"
+            :requestBodyCompositionSelection="
+              requestBodyCompositionSelectionForCodeSample
+            "
             :securitySchemes="selectedSecuritySchemes"
             :selectedClient
             :selectedServer />

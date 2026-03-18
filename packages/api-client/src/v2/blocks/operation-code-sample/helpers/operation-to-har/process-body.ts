@@ -1,15 +1,16 @@
 import { json2xml } from '@scalar/helpers/file/json2xml'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { unpackProxyObject } from '@scalar/workspace-store/helpers/unpack-proxy'
-import type { MediaTypeObject, RequestBodyObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { MediaTypeObject, RequestBodyObject, SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { getExampleFromSchema } from '@v2/blocks/operation-code-sample/helpers/get-example-from-schema'
+import { getResolvedRefDeep } from '@v2/blocks/operation-code-sample/helpers/get-resolved-ref-deep'
 import type { Param, PostData } from 'har-format'
 
 import { getExample } from '@/v2/blocks/operation-block/helpers/get-example'
 
 import type { OperationToHarProps } from './operation-to-har'
 
-type ProcessBodyProps = Pick<OperationToHarProps, 'contentType' | 'example' | 'requestBodyCompositionIndex'> & {
+type ProcessBodyProps = Pick<OperationToHarProps, 'contentType' | 'example' | 'requestBodyCompositionSelection'> & {
   requestBody: RequestBodyObject
 }
 
@@ -87,7 +88,7 @@ export const processBody = ({
   requestBody,
   contentType,
   example,
-  requestBodyCompositionIndex,
+  requestBodyCompositionSelection,
 }: ProcessBodyProps): PostData | undefined => {
   const _contentType = contentType || Object.keys(requestBody.content)[0] || ''
   const formatBinaryFile = (file: File) => {
@@ -139,13 +140,17 @@ export const processBody = ({
   // Try to extract examples from the schema
   const contentSchema = getResolvedRef(requestBody.content[_contentType]?.schema)
   if (typeof contentSchema !== 'undefined') {
+    const resolvedContentSchema = getResolvedRefDeep(contentSchema) as SchemaObject
     const extractedExample = getExampleFromSchema(
-      contentSchema,
+      resolvedContentSchema,
       {
+        compositionSelection: requestBodyCompositionSelection,
         mode: 'write',
         xml: isXml,
       },
-      { compositionIndex: requestBodyCompositionIndex },
+      {
+        schemaPath: ['requestBody'],
+      },
     )
 
     if (extractedExample !== undefined) {
