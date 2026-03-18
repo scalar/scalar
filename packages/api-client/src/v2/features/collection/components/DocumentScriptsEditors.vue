@@ -2,6 +2,7 @@
 import * as monaco from 'monaco-editor'
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 
+import { ScalarIconArrowRight, ScalarIconCheckCircle } from '@scalar/icons'
 import type { WorkspaceDocument } from '@scalar/workspace-store/schemas'
 
 const { document } = defineProps<{
@@ -142,69 +143,87 @@ watch(
 </script>
 
 <template>
-  <div class="document-scripts-editors flex flex-col gap-4">
-    <!-- Toggle tabs with content indicators -->
+  <div class="document-scripts-editors flex flex-col gap-5">
+    <!-- Tabs with icons and content indicators -->
     <div
       aria-label="Script type"
-      class="flex shrink-0 gap-1 rounded-lg border border-[var(--scalar-border-color)] bg-[var(--scalar-background-2)] p-1"
+      class="document-scripts-editors__tabs flex shrink-0 gap-0.5 rounded-xl border border-[var(--scalar-border-color)] bg-[var(--scalar-background-2)] p-1"
       role="tablist">
       <button
         :aria-selected="activeTab === 'pre'"
         :class="[
-          'flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors',
+          'document-scripts-editors__tab flex min-w-0 flex-1 items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-all duration-150',
           activeTab === 'pre'
-            ? 'bg-[var(--scalar-background-1)] text-c-1 shadow-sm'
+            ? 'bg-[var(--scalar-background-1)] text-c-1 shadow-[var(--scalar-shadow-1)]'
             : 'text-c-2 hover:bg-[var(--scalar-background-3)] hover:text-c-1',
         ]"
         role="tab"
         type="button"
         @click="switchTo('pre')">
-        <span>Pre-request</span>
+        <ScalarIconArrowRight
+          aria-hidden="true"
+          class="size-4 shrink-0 opacity-80" />
+        <span class="truncate">Pre-request</span>
         <span
           v-if="hasPreContent"
           aria-hidden="true"
-          class="bg-green h-2 w-2 shrink-0 rounded-full"
-          title="Has content" />
+          class="document-scripts-editors__badge flex items-center gap-1 rounded-full bg-[var(--scalar-color-green)]/15 px-2 py-0.5 text-xs font-medium text-[var(--scalar-color-green)]"
+          title="Script has content">
+          Script
+        </span>
       </button>
       <button
         :aria-selected="activeTab === 'post'"
         :class="[
-          'flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors',
+          'document-scripts-editors__tab flex min-w-0 flex-1 items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-all duration-150',
           activeTab === 'post'
-            ? 'bg-[var(--scalar-background-1)] text-c-1 shadow-sm'
+            ? 'bg-[var(--scalar-background-1)] text-c-1 shadow-[var(--scalar-shadow-1)]'
             : 'text-c-2 hover:bg-[var(--scalar-background-3)] hover:text-c-1',
         ]"
         role="tab"
         type="button"
         @click="switchTo('post')">
-        <span>Post-response</span>
+        <ScalarIconCheckCircle
+          aria-hidden="true"
+          class="size-4 shrink-0 opacity-80" />
+        <span class="truncate">Post-response</span>
         <span
           v-if="hasPostContent"
           aria-hidden="true"
-          class="bg-green h-2 w-2 shrink-0 rounded-full"
-          title="Has content" />
+          class="document-scripts-editors__badge flex items-center gap-1 rounded-full bg-[var(--scalar-color-green)]/15 px-2 py-0.5 text-xs font-medium text-[var(--scalar-color-green)]"
+          title="Script has content">
+          Script
+        </span>
       </button>
     </div>
 
-    <!-- Description for active tab -->
-    <p class="text-c-3 text-sm">
-      <template v-if="activeTab === 'pre'">
-        Runs before each request in this document (e.g. set variables, headers).
-      </template>
-      <template v-else>
-        Runs after each response (e.g. tests, assertions).
-      </template>
-    </p>
-
-    <!-- Single editor container -->
+    <!-- Description and editor card -->
     <div
-      ref="editorContainerRef"
-      class="document-scripts-editors__container min-h-[280px] flex-1 rounded-lg border border-[var(--scalar-border-color)] overflow-hidden bg-[var(--scalar-background-1)]" />
+      class="document-scripts-editors__card flex flex-col overflow-hidden rounded-xl border border-[var(--scalar-border-color)] bg-[var(--scalar-background-1)] shadow-[var(--scalar-shadow-1)]">
+      <div class="document-scripts-editors__card-header flex shrink-0 items-center justify-between border-b border-[var(--scalar-border-color)] bg-[var(--scalar-background-2)] px-4 py-3">
+        <p class="text-c-2 text-sm leading-snug">
+          <template v-if="activeTab === 'pre'">
+            Runs before each request in this document. Use it to set variables, headers, or modify the request.
+          </template>
+          <template v-else>
+            Runs after each response. Use it for tests, assertions, or saving data from the response.
+          </template>
+        </p>
+        <span
+          aria-hidden="true"
+          class="rounded bg-[var(--scalar-background-3)] px-2 py-1 font-mono text-xs text-c-2">
+          JavaScript
+        </span>
+      </div>
+      <div
+        ref="editorContainerRef"
+        class="document-scripts-editors__container min-h-[300px] flex-1" />
+    </div>
   </div>
 </template>
 
 <style scoped>
 .document-scripts-editors__container {
-  min-height: 280px;
+  min-height: 300px;
 }
 </style>
