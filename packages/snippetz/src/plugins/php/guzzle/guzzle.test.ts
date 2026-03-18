@@ -315,6 +315,49 @@ $response = $client->request('POST', 'https://example.com', [
 ]);`)
   })
 
+  it('handles multipart form data with per-part content types', () => {
+    const result = phpGuzzle.generate({
+      url: 'https://example.com',
+      method: 'POST',
+      postData: {
+        mimeType: 'multipart/form-data',
+        params: [
+          {
+            name: 'file',
+            fileName: 'test.txt',
+            contentType: 'text/plain',
+          },
+          {
+            name: 'metadata',
+            value: '{"foo":"bar"}',
+            contentType: 'application/json',
+          },
+        ],
+      },
+    })
+
+    expect(result).toBe(`$client = new GuzzleHttp\\Client();
+
+$response = $client->request('POST', 'https://example.com', [
+  'multipart' => [
+    [
+      'name' => 'file',
+      'contents' => fopen('test.txt', 'r'),
+      'headers' => [
+        'Content-Type' => 'text/plain'
+      ]
+    ],
+    [
+      'name' => 'metadata',
+      'contents' => '{"foo":"bar"}',
+      'headers' => [
+        'Content-Type' => 'application/json'
+      ]
+    ]
+  ]
+]);`)
+  })
+
   it('handles multipart form data with JSON payload', () => {
     const result = phpGuzzle.generate({
       url: 'https://example.com',

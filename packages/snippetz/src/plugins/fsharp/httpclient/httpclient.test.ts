@@ -180,6 +180,22 @@ describe('fsharpHttpclient.generate - postData', () => {
     expect(result).toContain('httpRequestMessage.Content <- content')
   })
 
+  it('adds string param content types to MultipartFormDataContent', () => {
+    const request = {
+      url: 'https://api.com/',
+      method: 'POST',
+      postData: {
+        mimeType: 'multipart/form-data',
+        params: [{ name: 'metadata', value: '{"foo":"bar"}', contentType: 'application/json' }],
+      },
+    } as any
+    const result = fsharpHttpclient.generate(request, {})
+    expect(result).toContain('let stringContent_0 = new StringContent("{\\"foo\\":\\"bar\\"}")')
+    expect(result).toContain('stringContent_0.Headers.ContentType <- MediaTypeHeaderValue("application/json")')
+    expect(result).toContain('content.Add(stringContent_0, "metadata")')
+    expect(result).toContain('httpRequestMessage.Content <- content')
+  })
+
   it('adds multiple string and file params to MultipartFormDataContent', () => {
     const request = {
       url: 'https://api.com/',
