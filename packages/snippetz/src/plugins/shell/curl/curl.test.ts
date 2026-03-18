@@ -229,6 +229,48 @@ describe('shellCurl', () => {
   --form 'field=value'`)
   })
 
+  it('handles multipart form data content types on string parts', () => {
+    const result = shellCurl.generate({
+      url: 'https://example.com',
+      method: 'POST',
+      postData: {
+        mimeType: 'multipart/form-data',
+        params: [
+          {
+            name: 'user',
+            value: '{"name":"scalar"}',
+            contentType: 'application/json;charset=utf-8',
+          },
+        ],
+      },
+    })
+
+    expect(result).toBe(`curl https://example.com \\
+  --request POST \\
+  --form 'user={"name":"scalar"};type=application/json;charset=utf-8'`)
+  })
+
+  it('handles multipart form data content types on files', () => {
+    const result = shellCurl.generate({
+      url: 'https://example.com',
+      method: 'POST',
+      postData: {
+        mimeType: 'multipart/form-data',
+        params: [
+          {
+            name: 'file',
+            fileName: 'test.txt',
+            contentType: 'text/plain',
+          },
+        ],
+      },
+    })
+
+    expect(result).toBe(`curl https://example.com \\
+  --request POST \\
+  --form 'file=@test.txt;type=text/plain'`)
+  })
+
   it('handles multipart form data with single quotes in parameter name', () => {
     const result = shellCurl.generate({
       url: 'https://example.com',

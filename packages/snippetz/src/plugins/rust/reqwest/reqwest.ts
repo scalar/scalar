@@ -51,11 +51,35 @@ export const rustReqwest: Plugin = {
 /**
  * Helper function to create multipart form parts with proper indentation
  */
-const createMultipartPart = (param: { name: string; value?: string; fileName?: string }): string => {
+const createMultipartPart = (param: {
+  name: string
+  value?: string
+  fileName?: string
+  contentType?: string
+}): string => {
   if (param.fileName) {
+    const part = [
+      indent(2, `let part = reqwest::multipart::Part::text(${wrapInDoubleQuotes(param.value || '')})`),
+      indent(3, `.file_name(${wrapInDoubleQuotes(param.fileName)})`),
+    ]
+
+    if (param.contentType) {
+      part.push(indent(3, `.mime_str(${wrapInDoubleQuotes(param.contentType)})`))
+      part.push(indent(3, '.unwrap();'))
+    } else {
+      part[part.length - 1] += ';'
+    }
+
+    part.push(indent(2, `form = form.part(${wrapInDoubleQuotes(param.name)}, part);`))
+
+    return part.join('\n')
+  }
+
+  if (param.contentType) {
     return [
       indent(2, `let part = reqwest::multipart::Part::text(${wrapInDoubleQuotes(param.value || '')})`),
-      indent(3, `.file_name(${wrapInDoubleQuotes(param.fileName)});`),
+      indent(3, `.mime_str(${wrapInDoubleQuotes(param.contentType)})`),
+      indent(3, '.unwrap();'),
       indent(2, `form = form.part(${wrapInDoubleQuotes(param.name)}, part);`),
     ].join('\n')
   }

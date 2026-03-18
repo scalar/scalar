@@ -204,6 +204,35 @@ describe('pythonHttpxSync', () => {
 )`)
   })
 
+  it('handles multipart form data with per-part content types', () => {
+    const result = pythonHttpxSync.generate({
+      url: 'https://example.com',
+      method: 'POST',
+      postData: {
+        mimeType: 'multipart/form-data',
+        params: [
+          {
+            name: 'file',
+            fileName: 'test.txt',
+            contentType: 'text/plain',
+          },
+          {
+            name: 'metadata',
+            value: '{"foo":"bar"}',
+            contentType: 'application/json',
+          },
+        ],
+      },
+    })
+
+    expect(result).toBe(`httpx.post("https://example.com",
+    files=[
+      ("file", ("test.txt", open("test.txt", "rb"), "text/plain")),
+      ("metadata", (None, "{\\"foo\\":\\"bar\\"}", "application/json"))
+    ]
+)`)
+  })
+
   it('handles url-encoded form data', () => {
     const result = pythonHttpxSync.generate({
       url: 'https://example.com',

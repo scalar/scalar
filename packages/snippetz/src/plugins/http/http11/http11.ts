@@ -100,10 +100,12 @@ export const httpHttp11: Plugin = {
         body =
           normalizedRequest.postData.params
             .map((param) => {
+              const contentTypeHeader = param.contentType ? `Content-Type: ${param.contentType}\r\n` : ''
+
               if (param.fileName) {
-                return `--${boundary}\r\nContent-Disposition: form-data; name="${param.name}"; filename="${param.fileName}"\r\n\r\n`
+                return `--${boundary}\r\nContent-Disposition: form-data; name="${param.name}"; filename="${param.fileName}"\r\n${contentTypeHeader}\r\n`
               }
-              return `--${boundary}\r\nContent-Disposition: form-data; name="${param.name}"\r\n\r\n${param.value}\r\n`
+              return `--${boundary}\r\nContent-Disposition: form-data; name="${param.name}"\r\n${contentTypeHeader}\r\n${param.value ?? ''}\r\n`
             })
             .join('') + `--${boundary}--\r\n`
       }

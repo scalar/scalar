@@ -229,6 +229,35 @@ describe('pythonRequests', () => {
 )`)
   })
 
+  it('handles multipart form data with per-part content types', () => {
+    const result = pythonRequests.generate({
+      url: 'https://example.com',
+      method: 'POST',
+      postData: {
+        mimeType: 'multipart/form-data',
+        params: [
+          {
+            name: 'file',
+            fileName: 'test.txt',
+            contentType: 'text/plain',
+          },
+          {
+            name: 'metadata',
+            value: '{"foo":"bar"}',
+            contentType: 'application/json',
+          },
+        ],
+      },
+    })
+
+    expect(result).toBe(`requests.post("https://example.com",
+    files=[
+      ("file", ("test.txt", open("test.txt", "rb"), "text/plain")),
+      ("metadata", (None, "{\\"foo\\":\\"bar\\"}", "application/json"))
+    ]
+)`)
+  })
+
   it('handles url-encoded form data', () => {
     const result = pythonRequests.generate({
       url: 'https://example.com',

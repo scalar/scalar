@@ -215,6 +215,36 @@ describe('pythonHttpxAsync', () => {
     )`)
   })
 
+  it('handles multipart form data with per-part content types', () => {
+    const result = pythonHttpxAsync.generate({
+      url: 'https://example.com',
+      method: 'POST',
+      postData: {
+        mimeType: 'multipart/form-data',
+        params: [
+          {
+            name: 'file',
+            fileName: 'test.txt',
+            contentType: 'text/plain',
+          },
+          {
+            name: 'metadata',
+            value: '{"foo":"bar"}',
+            contentType: 'application/json',
+          },
+        ],
+      },
+    })
+
+    expect(result).toBe(`async with httpx.AsyncClient() as client:
+    await client.post("https://example.com",
+        files=[
+          ("file", ("test.txt", open("test.txt", "rb"), "text/plain")),
+          ("metadata", (None, "{\\"foo\\":\\"bar\\"}", "application/json"))
+        ]
+    )`)
+  })
+
   it('handles url-encoded form data', () => {
     const result = pythonHttpxAsync.generate({
       url: 'https://example.com',
