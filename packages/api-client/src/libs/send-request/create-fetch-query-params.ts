@@ -35,7 +35,7 @@ export function createFetchQueryParams(
     }
 
     const schema = parameterSchemaMap[p.key]
-    const isAllowReserved = schema?.allowReserved === true
+    const isAllowReserved = !!schema && 'allowReserved' in schema && schema.allowReserved === true
 
     const appendQueryParam = (key: string, value: string) => {
       params.append(key, value)

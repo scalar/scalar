@@ -170,7 +170,7 @@ const processQueryParameter = (
 ): void => {
   /** If the parameter should be exploded, defaults to true for form style */
   const explodeParam = 'explode' in param && param.explode !== undefined ? param.explode : true
-  const allowReserved = param.allowReserved === true
+  const allowReserved = 'allowReserved' in param && param.allowReserved === true
 
   /** Style of the parameter, defaults to form */
   const style = getStyle(param, replacedValue)

@@ -135,7 +135,7 @@ describe('createFetchQueryParams', () => {
           },
         },
       ],
-    } satisfies RequestPayload
+    } as unknown as RequestPayload
 
     const allowReservedQueryParameters = new Set<string>()
     const result = createFetchQueryParams(requestExample, {}, request, allowReservedQueryParameters)
