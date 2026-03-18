@@ -1,5 +1,14 @@
 # @scalar/api-client
 
+## 2.38.2
+
+### Patch Changes
+
+- [#8437](https://github.com/scalar/scalar/pull/8437): refactor: better types for the api-client plugin manager
+- [#8485](https://github.com/scalar/scalar/pull/8485): fix: prevent stale SSE response bodies on repeated sends by disabling request caching for SSE requests
+- [#8466](https://github.com/scalar/scalar/pull/8466): chore: new build pipeline
+- [#8470](https://github.com/scalar/scalar/pull/8470): fix default content type headers for operations without request bodies
+
 ## 2.38.1
 
 ### Patch Changes

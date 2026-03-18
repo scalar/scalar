@@ -1,5 +1,11 @@
 # @scalar/openapi-parser
 
+## 0.25.5
+
+### Patch Changes
+
+- [#8466](https://github.com/scalar/scalar/pull/8466): chore: new build pipeline
+
 ## 0.25.4
 
 ### Patch Changes
