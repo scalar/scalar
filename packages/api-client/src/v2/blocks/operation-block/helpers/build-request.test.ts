@@ -451,6 +451,70 @@ describe('buildRequest', () => {
     expect(result?.request.url).toBe('https://api.example.com/search?foo=bar')
   })
 
+  it('keeps reserved characters in query values when allowReserved is true', () => {
+    const [error, result] = buildRequest({
+      environment: mockEnvironment,
+      exampleKey: 'default',
+      globalCookies: [],
+      method: 'get',
+      operation: {
+        parameters: [
+          {
+            in: 'query',
+            name: 'sort',
+            allowReserved: true,
+            schema: { type: 'string' },
+            examples: {
+              default: {
+                value: 'name:asc',
+                'x-disabled': false,
+              },
+            },
+          },
+        ],
+      },
+      path: '/search',
+      proxyUrl: '',
+      selectedSecuritySchemes: [],
+      server: mockServer,
+    })
+
+    expect(error).toBe(null)
+    expect(result?.request.url).toBe('https://api.example.com/search?sort=name:asc')
+  })
+
+  it('encodes reserved characters in query values when allowReserved is false', () => {
+    const [error, result] = buildRequest({
+      environment: mockEnvironment,
+      exampleKey: 'default',
+      globalCookies: [],
+      method: 'get',
+      operation: {
+        parameters: [
+          {
+            in: 'query',
+            name: 'sort',
+            allowReserved: false,
+            schema: { type: 'string' },
+            examples: {
+              default: {
+                value: 'name:asc',
+                'x-disabled': false,
+              },
+            },
+          },
+        ],
+      },
+      path: '/search',
+      proxyUrl: '',
+      selectedSecuritySchemes: [],
+      server: mockServer,
+    })
+
+    expect(error).toBe(null)
+    expect(result?.request.url).toBe('https://api.example.com/search?sort=name%3Aasc')
+  })
+
   it('sends query parameters as arrays', () => {
     const [error, result] = buildRequest({
       environment: mockEnvironment,

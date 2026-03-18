@@ -1,6 +1,7 @@
 import type { RequestExample, RequestPayload } from '@scalar/oas-utils/entities/spec'
 import { describe, expect, it } from 'vitest'
 
+import { applyAllowReservedToUrl } from './apply-allow-reserved-to-url'
 import { createFetchQueryParams } from './create-fetch-query-params'
 
 describe('createFetchQueryParams', () => {
@@ -107,5 +108,42 @@ describe('createFetchQueryParams', () => {
     const result = createFetchQueryParams(requestExample, {}, request)
 
     expect(result.toString()).toEqual('key=one%2Ctwo%2Cthree')
+  })
+
+  it('tracks allowReserved query params so reserved characters stay unescaped', () => {
+    const requestExample: Pick<RequestExample, 'parameters'> = {
+      parameters: {
+        headers: [],
+        path: [],
+        cookies: [],
+        query: [{ key: 'sort', value: 'name:asc', enabled: true }],
+      },
+    }
+
+    const request = {
+      type: 'request',
+      parameters: [
+        {
+          in: 'query',
+          name: 'sort',
+          style: 'form',
+          required: false,
+          deprecated: false,
+          allowReserved: true,
+          schema: {
+            type: 'string',
+          },
+        },
+      ],
+    } satisfies RequestPayload
+
+    const allowReservedQueryParameters = new Set<string>()
+    const result = createFetchQueryParams(requestExample, {}, request, allowReservedQueryParameters)
+    const url = applyAllowReservedToUrl(
+      `https://api.example.com/policies?${result.toString()}`,
+      allowReservedQueryParameters,
+    )
+
+    expect(url).toBe('https://api.example.com/policies?sort=name:asc')
   })
 })

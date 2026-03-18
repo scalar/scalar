@@ -96,7 +96,14 @@ export const buildRequest = ({
     }
 
     /** Combine the server url, path and url params into a single url */
-    const url = getResolvedUrl({ environment, server, path, pathVariables: params.pathVariables, urlParams })
+    const url = getResolvedUrl({
+      environment,
+      server,
+      path,
+      pathVariables: params.pathVariables,
+      allowReservedQueryParameters: params.allowReservedQueryParameters,
+      urlParams,
+    })
 
     // Throw for no server or path
     if (!url) {

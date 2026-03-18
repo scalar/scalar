@@ -15,6 +15,7 @@ export function createFetchQueryParams(
   env: object,
   // TODO: remove this when example.parameters contains query parameters schema
   request?: RequestPayload,
+  allowReservedQueryParameters: Set<string> = new Set(),
 ): URLSearchParams {
   const params = new URLSearchParams()
 
@@ -34,6 +35,14 @@ export function createFetchQueryParams(
     }
 
     const schema = parameterSchemaMap[p.key]
+    const isAllowReserved = schema?.allowReserved === true
+
+    const appendQueryParam = (key: string, value: string) => {
+      params.append(key, value)
+      if (isAllowReserved) {
+        allowReservedQueryParameters.add(key)
+      }
+    }
 
     switch (p.type) {
       case 'array': {
@@ -41,17 +50,17 @@ export function createFetchQueryParams(
         // NOTE: we explicitly check for `false` here because the property is optional and the default serialization behavior is exploded.
         if (schema?.explode === false) {
           const csv = values.join(',')
-          params.append(p.key, csv)
+          appendQueryParam(p.key, csv)
         } else {
           values.forEach((value) => {
-            params.append(p.key, value.trim())
+            appendQueryParam(p.key, value.trim())
           })
         }
         break
       }
       default: {
         const value = replaceTemplateVariables(p.value ?? '', env)
-        params.append(p.key, value.trim())
+        appendQueryParam(p.key, value.trim())
         break
       }
     }

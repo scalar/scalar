@@ -15,6 +15,7 @@ import { isElectron } from '@/libs/electron'
 import { ERRORS, type ErrorResponse, normalizeError } from '@/libs/errors'
 import type { EventBus } from '@/libs/event-bus'
 import { normalizeHeaders } from '@/libs/normalize-headers'
+import { applyAllowReservedToUrl } from '@/libs/send-request/apply-allow-reserved-to-url'
 import { createFetchBody } from '@/libs/send-request/create-fetch-body'
 import { createFetchHeaders } from '@/libs/send-request/create-fetch-headers'
 import { createFetchQueryParams } from '@/libs/send-request/create-fetch-query-params'
@@ -102,7 +103,8 @@ export const createRequestOperation = ({
       })
     })
 
-    const _urlParams = createFetchQueryParams(example, env, request)
+    const allowReservedQueryParameters = new Set<string>()
+    const _urlParams = createFetchQueryParams(example, env, request, allowReservedQueryParameters)
     const _headers = createFetchHeaders(example, env)
     const { body } = createFetchBody(request.method, example, env)
     const { cookieParams: _cookieParams } = setRequestCookies({
@@ -141,7 +143,7 @@ export const createRequestOperation = ({
     }
 
     // Combine the url with the path and server + query params
-    url = mergeUrls(url, pathString, urlParams)
+    url = applyAllowReservedToUrl(mergeUrls(url, pathString, urlParams), allowReservedQueryParameters)
 
     /** Cookie header */
     const cookieHeader = replaceTemplateVariables(getCookieHeader(cookieParams, headers['Cookie']), env)
