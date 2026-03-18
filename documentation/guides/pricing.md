@@ -71,7 +71,7 @@
             </div>
             <div class="pricing-table-row">
               <div class="pricing-table-column">Email Domain Access Control</div>
-              <div class="pricing-table-column"><scalar-icon src="phosphor/bold/check"></scalar-icon></div>
+              <div class="pricing-table-column"></div>
               <div class="pricing-table-column"><scalar-icon src="phosphor/bold/check"></scalar-icon></div>
               <div class="pricing-table-column"><scalar-icon src="phosphor/bold/check"></scalar-icon></div>
             </div>
