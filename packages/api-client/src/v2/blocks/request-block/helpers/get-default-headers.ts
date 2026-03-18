@@ -4,9 +4,7 @@ import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
 import { isElectron } from '@/libs/electron'
-
-// eslint-disable-next-line no-undef
-const APP_VERSION = PACKAGE_VERSION
+import { APP_VERSION } from '@/v2/constants'
 
 /** Default Accept header value to accept all response types. */
 const DEFAULT_ACCEPT = '*/*'
