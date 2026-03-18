@@ -1,5 +1,11 @@
 # scalar_api_reference
 
+## 0.2.1
+
+### Patch Changes
+
+- [#8476](https://github.com/scalar/scalar/pull/8476): fix rust publish packaging so `ui/scalar.js` is included in the crate
+
 ## 0.2.0
 
 ### Minor Changes

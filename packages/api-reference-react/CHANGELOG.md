@@ -1,5 +1,11 @@
 # @scalar/api-reference-react
 
+## 0.9.11
+
+### Patch Changes
+
+- [#8466](https://github.com/scalar/scalar/pull/8466): chore: new build pipeline
+
 ## 0.9.10
 
 ### Patch Changes

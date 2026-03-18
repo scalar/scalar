@@ -1,5 +1,11 @@
 # @scalar/openapi-to-markdown
 
+## 0.4.10
+
+### Patch Changes
+
+- [#8466](https://github.com/scalar/scalar/pull/8466): chore: new build pipeline
+
 ## 0.4.9
 
 ### Patch Changes

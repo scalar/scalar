@@ -1,5 +1,11 @@
 # @scalar/mock-server-docker
 
+## 0.2.10
+
+### Patch Changes
+
+- [#8466](https://github.com/scalar/scalar/pull/8466): chore: new build pipeline
+
 ## 0.2.9
 
 ### Patch Changes

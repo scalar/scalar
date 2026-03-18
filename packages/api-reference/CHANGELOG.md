@@ -1,5 +1,12 @@
 # @scalar/api-reference
 
+## 1.49.1
+
+### Patch Changes
+
+- [#8466](https://github.com/scalar/scalar/pull/8466): chore: new build pipeline
+- [#8479](https://github.com/scalar/scalar/pull/8479): fix: render schema property examples when values are falsy
+
 ## 1.49.0
 
 ### Minor Changes

@@ -1,5 +1,11 @@
 # @scalar/fastify-api-reference
 
+## 1.49.1
+
+### Patch Changes
+
+- [#8466](https://github.com/scalar/scalar/pull/8466): chore: new build pipeline
+
 ## 1.49.0
 
 ### Patch Changes

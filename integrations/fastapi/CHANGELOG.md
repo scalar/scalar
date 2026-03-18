@@ -1,5 +1,11 @@
 # scalar-fastapi
 
+## 1.8.1
+
+### Patch Changes
+
+- [#8460](https://github.com/scalar/scalar/pull/8460): add support for `order_schema_properties_by` to pass through Scalar's `orderSchemaPropertiesBy` option (`"alpha"` or `"preserve"`)
+
 ## 1.8.0
 
 ### Minor Changes

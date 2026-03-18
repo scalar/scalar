@@ -1,5 +1,11 @@
 # @scalar/api-client-react
 
+## 1.4.11
+
+### Patch Changes
+
+- [#8466](https://github.com/scalar/scalar/pull/8466): chore: new build pipeline
+
 ## 1.4.10
 
 ### Patch Changes
