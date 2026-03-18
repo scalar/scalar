@@ -4,7 +4,6 @@ import { toJsonCompatible } from '@scalar/helpers/object/to-json-compatible'
 import { escapeJsonPointer } from '@scalar/json-magic/helpers/escape-json-pointer'
 import type { DragOffset, DraggingItem, HoveredItem, SidebarState } from '@scalar/sidebar'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
-import { type RefNode, getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { unpackProxyObject } from '@scalar/workspace-store/helpers/unpack-proxy'
 import { getOpenapiObject, getParentEntry } from '@scalar/workspace-store/navigation'
 import type { WorkspaceDocument } from '@scalar/workspace-store/schemas'
@@ -17,6 +16,8 @@ import type {
 import type { TagObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/operation'
 import { type MaybeRefOrGetter, toValue } from 'vue'
+
+import { getResolvedRefDeep } from '@/v2/blocks/operation-code-sample/helpers/get-resolved-ref-deep'
 
 /**
  * Reorders items in an array by moving an item from one index to another,
@@ -231,58 +232,6 @@ const moveOperationBetweenDocuments = (
   }
 }
 
-const mergeSiblingReferences = <Node>(node: RefNode<Node>) => {
-  const { '$ref-value': value, $ref: _ref, ...siblings } = node as RefNode<Node> & Record<string, unknown>
-
-  if (typeof value !== 'object' || value === null || Array.isArray(value)) {
-    return value
-  }
-
-  return {
-    ...(value as Record<string, unknown>),
-    ...siblings,
-  }
-}
-
-const dereferenceNode = (node: unknown, cache: WeakMap<object, unknown>): unknown => {
-  const resolvedNode = getResolvedRef(node, mergeSiblingReferences as <T>(node: RefNode<T>) => T)
-  const rawNode = unpackProxyObject(resolvedNode, { depth: 1 })
-
-  if (typeof rawNode !== 'object' || rawNode === null) {
-    return rawNode
-  }
-
-  if (Array.isArray(rawNode)) {
-    const existingArray = cache.get(rawNode)
-    if (existingArray) {
-      return existingArray
-    }
-
-    const result: unknown[] = []
-    cache.set(rawNode, result)
-
-    rawNode.forEach((item, index) => {
-      result[index] = dereferenceNode(item, cache)
-    })
-
-    return result
-  }
-
-  const existingObject = cache.get(rawNode)
-  if (existingObject) {
-    return existingObject
-  }
-
-  const result: Record<string, unknown> = {}
-  cache.set(rawNode, result)
-
-  Object.entries(rawNode).forEach(([key, value]) => {
-    result[key] = dereferenceNode(value, cache)
-  })
-
-  return result
-}
-
 /**
  * Retrieves the dereferenced operation object for a given path and method.
  * This resolves all $ref references so you always get the full, dereferenced operation.
@@ -298,7 +247,7 @@ const getDereferencedOperation = (
     return undefined
   }
 
-  const dereferencedOperation = dereferenceNode(operation, new WeakMap()) as OperationObject
+  const dereferencedOperation = getResolvedRefDeep(operation) as OperationObject
 
   return toJsonCompatible(dereferencedOperation, { prefix: `#/paths/${escapeJsonPointer(path)}/${method}` }) as
     | OperationObject
