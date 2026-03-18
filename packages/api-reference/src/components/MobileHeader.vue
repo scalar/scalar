@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { cva, ScalarIconButton } from '@scalar/components'
 import { ScalarIconList, ScalarIconX } from '@scalar/icons'
-import { useBreakpoints } from '@scalar/use-hooks/useBreakpoints'
 
 defineProps<{
   breadcrumb: string
@@ -19,33 +18,28 @@ defineSlots<{
   search?(): never
 }>()
 
-const { mediaQueries } = useBreakpoints()
-
 const variants = cva({
-  base: 'items-center bg-b-1 sticky top-(--scalar-custom-header-height,0) z-10',
+  base: 'mobile-header-mobile-container items-center bg-b-1 sticky top-(--scalar-custom-header-height,0) z-10 [grid-area:header]',
   variants: {
     open: {
       true: 'h-(--refs-sidebar-height) custom-scrollbar flex flex-col',
-    },
-    lg: {
-      true: 'hidden [grid-area:header]',
     },
   },
 })
 </script>
 <template>
-  <!-- In desktop layout, just render the default slot for the sidebar -->
-  <slot
-    v-if="mediaQueries.lg.value"
-    v-bind="{
-      sidebarClasses:
-        'sticky top-(--refs-header-height) h-(--refs-sidebar-height) w-(--refs-sidebar-width) [grid-area:navigation]',
-    }"
-    name="sidebar" />
+  <!-- Always render the desktop sidebar slot and let CSS handle breakpoints -->
+  <div class="mobile-header-desktop-sidebar">
+    <slot
+      v-bind="{
+        sidebarClasses:
+          'sticky top-(--refs-header-height) h-(--refs-sidebar-height) w-(--refs-sidebar-width) [grid-area:navigation]',
+      }"
+      name="sidebar" />
+  </div>
   <div
-    v-else
     class="t-doc__header"
-    :class="variants({ open: isSidebarOpen, lg: mediaQueries.lg.value })">
+    :class="variants({ open: isSidebarOpen })">
     <header
       class="flex h-(--scalar-header-height) w-full items-center border-b bg-inherit px-2">
       <ScalarIconButton
@@ -78,3 +72,19 @@ const variants = cva({
       name="sidebar" />
   </div>
 </template>
+
+<style scoped>
+.mobile-header-desktop-sidebar {
+  display: none;
+}
+
+@media (min-width: 1001px) {
+  .mobile-header-desktop-sidebar {
+    display: contents;
+  }
+
+  .mobile-header-mobile-container {
+    display: none;
+  }
+}
+</style>
