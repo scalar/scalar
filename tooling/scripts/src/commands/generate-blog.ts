@@ -10,28 +10,31 @@ import { getWorkspaceRoot } from '@/helpers'
 
 const BLOG_DIR = 'documentation/blog'
 const INDEX_FILENAME = 'index.md'
+const CONFIG_FILENAME = 'scalar.config.json'
 const DESCRIPTION_LINES = 5
 
 const MONTH_NAMES = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'] as const
 
 type BlogPost = {
   filename: string
+  slug: string
   title: string
   date: Date
   dateLabel: string
   description: string
 }
 
-export const generateBlogIndex = new Command('generate-blog-index')
-  .description('Generate blog index cards in documentation/blog/index.md from post files')
+export const generateBlog = new Command('generate-blog')
+  .description('Generate blog index cards and update scalar.config.json from post files')
   .action(async () => {
-    await generateBlogIndexFile()
+    await generateBlogFiles()
   })
 
-async function generateBlogIndexFile(): Promise<void> {
+async function generateBlogFiles(): Promise<void> {
   const root = getWorkspaceRoot()
   const blogDir = path.join(root, BLOG_DIR)
   const indexPath = path.join(blogDir, INDEX_FILENAME)
+  const configPath = path.join(root, CONFIG_FILENAME)
 
   console.log(as.cyan('Scanning blog posts...\n'))
 
@@ -65,22 +68,65 @@ async function generateBlogIndexFile(): Promise<void> {
 
   posts.sort((a, b) => b.date.getTime() - a.date.getTime())
 
+  await updateIndex(root, indexPath, posts)
+  await updateConfig(root, configPath, posts)
+}
+
+// ---------------------------------------------------------------------------
+// Blog index (documentation/blog/index.md)
+// ---------------------------------------------------------------------------
+
+async function updateIndex(root: string, indexPath: string, posts: BlogPost[]): Promise<void> {
   const indexContent = await fs.readFile(indexPath, 'utf-8')
   const existingDescriptions = parseExistingDescriptions(indexContent)
 
-  for (const post of posts) {
+  const postsWithDescriptions = posts.map((post) => {
     const custom = existingDescriptions.get(post.filename)
-    if (custom !== undefined) {
-      post.description = custom
-    }
-  }
+    return custom !== undefined ? { ...post, description: custom } : post
+  })
 
-  const cardsMarkdown = posts.map((post) => formatCard(post)).join('\n\n')
+  const cardsMarkdown = postsWithDescriptions.map((post) => formatCard(post)).join('\n\n')
   const newContent = replaceCardsSection(indexContent, cardsMarkdown)
 
   await fs.writeFile(indexPath, newContent)
   console.log(as.green(`✔ Updated ${path.relative(root, indexPath)} with ${posts.length} post(s).`))
 }
+
+// ---------------------------------------------------------------------------
+// Config (scalar.config.json)
+// ---------------------------------------------------------------------------
+
+async function updateConfig(root: string, configPath: string, posts: BlogPost[]): Promise<void> {
+  const raw = await fs.readFile(configPath, 'utf-8')
+  const config = JSON.parse(raw)
+
+  const blog = config?.navigation?.routes?.['/']?.children?.['/blog']
+  if (!blog?.children?.['/posts']) {
+    console.warn(as.yellow('⚠ Could not find /blog /posts in scalar.config.json — skipping config update.'))
+    return
+  }
+
+  const existingChildren: Record<string, { title?: string }> = blog.children['/posts'].children ?? {}
+
+  const children: Record<string, { type: string; title: string; filepath: string }> = {}
+  for (const post of posts) {
+    const key = `/${post.slug}`
+    children[key] = {
+      type: 'page',
+      title: existingChildren[key]?.title ?? post.title,
+      filepath: `${BLOG_DIR}/${post.filename}`,
+    }
+  }
+
+  blog.children['/posts'].children = children
+
+  await fs.writeFile(configPath, JSON.stringify(config, null, 2) + '\n')
+  console.log(as.green(`✔ Updated ${path.relative(root, configPath)} /blog /posts with ${posts.length} post(s).`))
+}
+
+// ---------------------------------------------------------------------------
+// Parsing
+// ---------------------------------------------------------------------------
 
 async function parseBlogPost(blogDir: string, filename: string): Promise<BlogPost> {
   const filePath = path.join(blogDir, filename)
@@ -94,16 +140,11 @@ async function parseBlogPost(blogDir: string, filename: string): Promise<BlogPos
   const date = new Date(Number.parseInt(year, 10), Number.parseInt(month, 10) - 1, Number.parseInt(day, 10))
   const dateLabel = formatDateLabel(date)
 
+  const slug = filename.replace(/\.md$/, '')
   const title = extractTitle(raw)
   const description = extractDescription(raw)
 
-  return {
-    filename,
-    title,
-    date,
-    dateLabel,
-    description,
-  }
+  return { filename, slug, title, date, dateLabel, description }
 }
 
 function extractTitle(raw: string): string {
@@ -123,6 +164,10 @@ function extractDescription(raw: string): string {
     .join('\n')
     .trim()
 }
+
+// ---------------------------------------------------------------------------
+// Formatting
+// ---------------------------------------------------------------------------
 
 function formatDateLabel(date: Date): string {
   const month = MONTH_NAMES[date.getMonth()]
@@ -160,7 +205,7 @@ function parseExistingDescriptions(indexContent: string): Map<string, string> {
 }
 
 const GENERATED_START = `<!-- generated
-  Auto-generated by: pnpm --filter @scalar-internal/build-scripts start generate-blog-index
+  Auto-generated by: pnpm --filter @scalar-internal/build-scripts start generate-blog
   Cards are built from YYYY-MM-DD-slug.md files in documentation/blog/.
   Descriptions are preserved between runs — new posts get auto-extracted text.
 -->`

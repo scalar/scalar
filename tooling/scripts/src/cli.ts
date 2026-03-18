@@ -1,7 +1,7 @@
 import { Command } from 'commander'
 
 import { cat } from '@/commands/cat'
-import { generateBlogIndex } from '@/commands/generate-blog-index'
+import { generateBlog } from '@/commands/generate-blog'
 import { generateReadme } from '@/commands/generate-readme'
 import { packages } from '@/commands/packages'
 import { updatePlaywrightDocker } from '@/commands/playwright-docker/push-container'
@@ -25,5 +25,5 @@ program.addCommand(cat)
 program.addCommand(run)
 program.addCommand(updatePlaywrightDocker)
 program.addCommand(generateReadme)
-program.addCommand(generateBlogIndex)
+program.addCommand(generateBlog)
 program.parse()
