@@ -103,7 +103,7 @@ describe('createFetchQueryParams', () => {
           },
         },
       ],
-    } satisfies RequestPayload
+    } as unknown as RequestPayload
 
     const result = createFetchQueryParams(requestExample, {}, request)
 

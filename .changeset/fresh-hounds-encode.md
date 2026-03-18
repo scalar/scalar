@@ -1,5 +1,7 @@
 ---
 '@scalar/api-client': patch
+'@scalar/oas-utils': patch
+'@scalar/workspace-store': patch
 ---
 
-fix query parameter allowReserved handling so reserved characters like colons stay unescaped in test requests
+fix allowReserved query parameter support so reserved characters like colons stay unescaped and parameter typings include allowReserved

@@ -3,7 +3,6 @@
  * TODO: we need to remove this when we upgrade to vitest
  */
 
-import type { ParameterObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { describe, expect, it, vi } from 'vitest'
 
 import * as electron from '@/libs/electron'
@@ -471,7 +470,7 @@ describe('buildRequest', () => {
                 'x-disabled': false,
               },
             },
-          } as ParameterObject,
+          } as any,
         ],
       },
       path: '/search',
@@ -503,7 +502,7 @@ describe('buildRequest', () => {
                 'x-disabled': false,
               },
             },
-          } as ParameterObject,
+          } as any,
         ],
       },
       path: '/search',

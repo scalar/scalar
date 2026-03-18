@@ -27,6 +27,8 @@ const ParameterObjectBaseSchema = compose(
     deprecated: Type.Optional(Type.Boolean()),
     /** If true, clients MAY pass a zero-length string value in place of parameters that would otherwise be omitted entirely, which the server SHOULD interpret as the parameter being unused. Default value is false. If style is used, and if behavior is n/a (cannot be serialized), the value of allowEmptyValue SHALL be ignored. Interactions between this field and the parameter's Schema Object are implementation-defined. This field is valid only for query parameters. Use of this field is NOT RECOMMENDED, and it is likely to be removed in a later revision. */
     allowEmptyValue: Type.Optional(Type.Boolean()),
+    /** Determines whether the parameter value SHOULD allow reserved characters without percent-encoding. This field is valid only for query parameters. Default value is false. */
+    allowReserved: Type.Optional(Type.Boolean()),
   }),
   XGlobal,
   XInternalSchema,
@@ -49,6 +51,8 @@ type ParameterObjectBase = {
   deprecated?: boolean
   /** If true, clients MAY pass a zero-length string value in place of parameters that would otherwise be omitted entirely, which the server SHOULD interpret as the parameter being unused. Default value is false. If style is used, and if behavior is n/a (cannot be serialized), the value of allowEmptyValue SHALL be ignored. Interactions between this field and the parameter's Schema Object are implementation-defined. This field is valid only for query parameters. Use of this field is NOT RECOMMENDED, and it is likely to be removed in a later revision. */
   allowEmptyValue?: boolean
+  /** Determines whether the parameter value SHOULD allow reserved characters without percent-encoding. This field is valid only for query parameters. Default value is false. */
+  allowReserved?: boolean
   /**
    * OpenAPI extension used by the api-client application to determine if a parameter is considered global in scope
    * for the entire workspace. When set, this parameter will be injected into every request automatically.
