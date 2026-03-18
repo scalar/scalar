@@ -173,6 +173,7 @@ DocumentDownloadType.NONE    # Hide download button
 - `expand_all_model_sections` (default `False`) - Whether to expand all model sections by default
 - `expand_all_responses` (default `False`) - Whether to expand all response sections by default
 - `order_required_properties_first` (default `True`) - Whether to order required properties first in schema objects
+- `order_schema_properties_by` (default `"alpha"`) - Sets schema property ordering. Options: `"alpha"`, `"preserve"`
 
 ### Server Configuration
 

@@ -1,4 +1,7 @@
 using System.Net;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.Configuration;
 
@@ -129,5 +132,74 @@ public class EndpointTests(WebApplicationFactory<Program> factory) : IClassFixtu
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+    }
+
+    [Fact]
+    public async Task MapScalarProxy_ShouldUseTargetAuthorityForHostHeader_ByDefault()
+    {
+        // Arrange
+        var (targetServerApp, targetServer) = await StartHostEchoServerAsync();
+        await using var _ = targetServerApp;
+        var localFactory = CreateProxyFactory();
+        var client = localFactory.CreateClient();
+        var targetUrl = new Uri(targetServer, "/host");
+        var request = new HttpRequestMessage(HttpMethod.Get, $"/scalar-proxy?scalar_url={Uri.EscapeDataString(targetUrl.ToString())}");
+        request.Headers.Host = "incoming.example";
+
+        // Act
+        var response = await client.SendAsync(request, TestContext.Current.CancellationToken);
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var hostHeader = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+        hostHeader.Should().Be(targetServer.Authority);
+    }
+
+    [Fact]
+    public async Task MapScalarProxy_ShouldForwardIncomingHostHeader_WhenConfigured()
+    {
+        // Arrange
+        var (targetServerApp, targetServer) = await StartHostEchoServerAsync();
+        await using var _ = targetServerApp;
+        var localFactory = CreateProxyFactory(forwardOriginalHostHeader: true);
+        var client = localFactory.CreateClient();
+        var targetUrl = new Uri(targetServer, "/host");
+        var request = new HttpRequestMessage(HttpMethod.Get, $"/scalar-proxy?scalar_url={Uri.EscapeDataString(targetUrl.ToString())}");
+        request.Headers.Host = "incoming.example";
+
+        // Act
+        var response = await client.SendAsync(request, TestContext.Current.CancellationToken);
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var hostHeader = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+        hostHeader.Should().Be("incoming.example");
+    }
+
+    private static WebApplicationFactory<Program> CreateProxyFactory(bool forwardOriginalHostHeader = false) =>
+        new WebApplicationFactory<Program>()
+            .WithWebHostBuilder(builder =>
+            {
+                builder.ConfigureAppConfiguration((_, config) =>
+                {
+                    config.AddInMemoryCollection(new Dictionary<string, string?>
+                    {
+                        { EnvironmentVariables.DefaultProxy, "true" },
+                        { EnvironmentVariables.ForwardOriginalHostHeader, forwardOriginalHostHeader.ToString() }
+                    });
+                });
+            });
+
+    private static async Task<(WebApplication App, Uri BaseAddress)> StartHostEchoServerAsync()
+    {
+        var appBuilder = WebApplication.CreateBuilder();
+        appBuilder.WebHost.UseUrls("http://127.0.0.1:0");
+        var app = appBuilder.Build();
+        app.MapGet("/host", (HttpRequest request) => request.Host.Value);
+
+        await app.StartAsync(TestContext.Current.CancellationToken);
+        var address = app.Urls.Single();
+
+        return (app, new Uri(address));
     }
 }

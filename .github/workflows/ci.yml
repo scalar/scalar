@@ -229,8 +229,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        shard-index: [1, 2]
-        shard-total: [2]
+        shard-index: [1, 2, 3]
+        shard-total: [3]
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
       - name: Build packages
@@ -846,7 +846,7 @@ jobs:
           tags: scalarapi/api-reference:latest
 
       - name: Scan for vulnerabilities
-        uses: aquasecurity/trivy-action@b6643a29fecd7f34b3597bc6acb0a98b03d33ff8 # 0.33.1
+        uses: aquasecurity/trivy-action@57a97c7e7821a5776cebc9bb87c984fa69cba8f1 # 0.35.0
         with:
           scan-type: 'image'
           image-ref: 'scalarapi/api-reference:latest'

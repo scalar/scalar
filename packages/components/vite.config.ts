@@ -1,18 +1,23 @@
-import { URL, fileURLToPath } from 'node:url'
+import { resolve } from 'node:path'
 
-import { createViteBuildOptions } from '@scalar/build-tooling/vite'
 import tailwindcss from '@tailwindcss/vite'
 import vue from '@vitejs/plugin-vue'
 import type { PluginOption } from 'vite'
 import svgLoader from 'vite-svg-loader'
 import { defineConfig } from 'vitest/config'
 
+import { createExternalsFromPackageJson, createLibEntry, findEntryPoints } from '../../tooling/scripts/vite-lib-config'
+
+const external = createExternalsFromPackageJson()
+const entryPaths = await findEntryPoints()
+const entry = createLibEntry(entryPaths, import.meta.dirname)
+
 // https://vitejs.dev/config/
 export default defineConfig({
   resolve: {
     alias: {
-      '@': fileURLToPath(new URL('./src', import.meta.url)),
-      '@test': fileURLToPath(new URL('./test', import.meta.url)),
+      '@': resolve(import.meta.dirname, './src'),
+      '@test': resolve(import.meta.dirname, './test'),
     },
   },
   plugins: [
@@ -36,7 +41,20 @@ export default defineConfig({
       },
     }) as PluginOption,
   ],
-  build: createViteBuildOptions({
-    entry: ['src/index.ts'],
-  }),
+  build: {
+    outDir: './dist',
+    minify: false,
+    sourcemap: true,
+    lib: {
+      formats: ['es'],
+      cssFileName: 'style',
+      entry,
+    },
+    rolldownOptions: {
+      treeshake: {
+        moduleSideEffects: (id) => id.includes('.css'),
+      },
+      external,
+    },
+  },
 })

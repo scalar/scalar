@@ -1,5 +1,6 @@
 import { mount } from '@vue/test-utils'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
+import { nextTick } from 'vue'
 
 import ScalarCheckboxRadioGroup from './ScalarCheckboxRadioGroup.vue'
 
@@ -19,18 +20,32 @@ describe('ScalarCheckboxRadioGroup', () => {
   })
 
   it('binds v-model to selected option', async () => {
+    const onUpdate = vi.fn()
     const wrapper = mount(ScalarCheckboxRadioGroup, {
-      props: { options: [...options] },
+      props: {
+        options: [...options],
+        'onUpdate:modelValue': onUpdate,
+      },
     })
 
     const radios = wrapper.findAll('input[type="radio"]')
-    await radios[0]?.setValue(true)
+
+    // Select first radio
+    const radio0 = radios[0]?.element as HTMLInputElement
+    radio0.checked = true
+    await radios[0]?.trigger('change')
+    await nextTick()
 
     // Emits the selected option object
-    expect(wrapper.emitted('update:modelValue')).toBeTruthy()
-    expect(wrapper.emitted('update:modelValue')?.[0]?.[0]).toEqual(options[0])
+    expect(onUpdate).toHaveBeenCalled()
+    expect(onUpdate.mock.calls[0]?.[0]).toEqual(options[0])
 
-    await radios[1]?.setValue(true)
-    expect(wrapper.emitted('update:modelValue')?.at(-1)?.[0]).toEqual(options[1])
+    // Select second radio
+    const radio1 = radios[1]?.element as HTMLInputElement
+    radio1.checked = true
+    await radios[1]?.trigger('change')
+    await nextTick()
+
+    expect(onUpdate.mock.calls.at(-1)?.[0]).toEqual(options[1])
   })
 })

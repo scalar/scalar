@@ -1,18 +1,15 @@
 #!/usr/bin/env node
 import fs from 'node:fs'
 import path from 'node:path'
-import * as url from 'node:url'
 
 import { icons } from '@phosphor-icons/core'
 import chalk from 'chalk'
 
-const __dirname = url.fileURLToPath(new URL('.', import.meta.url))
-
 const prefix = 'ScalarIcon'
 
-const ASSETS_PATH = path.join(__dirname, '../node_modules/@phosphor-icons/core/assets')
-const COMPONENTS_PATH = path.join(__dirname, '../src/components')
-const INDEX_PATH = path.join(__dirname, '../src/index.ts')
+const ASSETS_PATH = path.join(import.meta.dirname, '../node_modules/@phosphor-icons/core/assets')
+const COMPONENTS_PATH = path.join(import.meta.dirname, '../src/components')
+const INDEX_PATH = path.join(import.meta.dirname, '../src/index.ts')
 
 if (!fs.existsSync(ASSETS_PATH)) {
   console.error(

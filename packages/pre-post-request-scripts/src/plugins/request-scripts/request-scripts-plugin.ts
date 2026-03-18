@@ -11,7 +11,7 @@ import { ScriptsSection } from './components/ScriptsSection'
  * section with:
  * - Pre-request script editor (x-pre-request) — runs before each request
  * - Post-response script editor (x-post-response) — runs after each response
- * - Test results from post-response assertions, shown in the same section
+ * - Test results from post-response assertions, shown in the response section
  *
  * Hooks: beforeRequest runs pre-request scripts and resets results;
  * responseReceived runs post-response scripts and updates test results.

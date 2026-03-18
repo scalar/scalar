@@ -1,4 +1,8 @@
 import { writeFile } from 'node:fs'
+
+import { securitySchemeSchema } from '@scalar/types/entities'
+import { createTypeAlias, printNode, zodToTs } from 'zod-to-ts'
+
 import { cookieSchema } from '@/entities/cookie/cookie'
 import { environmentSchema } from '@/entities/environment/environment'
 import { collectionSchema } from '@/entities/spec/collection'
@@ -8,8 +12,6 @@ import { serverSchema } from '@/entities/spec/server'
 import { tagSchema } from '@/entities/spec/spec-objects'
 import { workspaceSchema } from '@/entities/workspace/workspace'
 import { DATA_VERSION } from '@/migrations/data-version'
-import { securitySchemeSchema } from '@scalar/types/entities'
-import { createTypeAlias, printNode, zodToTs } from 'zod-to-ts'
 
 console.warn('Make sure the generate types file is updated for the current version')
 console.info('Generating...')
@@ -58,6 +60,6 @@ typeString += `
 `
 
 // Write to file
-writeFile(__dirname + `/v-${DATA_VERSION}/types.generated.ts`, typeString, { flag: 'w' }, (err) =>
+writeFile(import.meta.dirname + `/v-${DATA_VERSION}/types.generated.ts`, typeString, { flag: 'w' }, (err) =>
   err ? console.error(err) : console.log('Generation complete!'),
 )

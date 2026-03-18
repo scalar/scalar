@@ -15,14 +15,9 @@
     "node": ">=22"
   },
   "scripts": {
-    "format": "scalar-format",
-    "format:check": "scalar-format-check",
-    "lint:check": "scalar-lint-check",
-    "lint:fix": "scalar-lint-fix",
     "test": "vitest"
   },
   "devDependencies": {
-    "@scalar/build-tooling": "workspace:*",
     "@scalar/snippetz": "workspace:*"
   }
 }

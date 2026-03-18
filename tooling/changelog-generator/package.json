@@ -16,17 +16,15 @@
     "dist"
   ],
   "scripts": {
-    "build": "scalar-build-esbuild",
+    "build": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
     "test": "vitest",
-    "types:build": "scalar-types-build",
-    "types:check": "scalar-types-check"
+    "types:check": "tsc --noEmit"
   },
   "dependencies": {
     "@changesets/get-github-info": "^0.7.0",
     "@changesets/types": "^6.1.0"
   },
   "devDependencies": {
-    "@scalar/build-tooling": "workspace:*",
     "vite": "catalog:*"
   },
   "private": true,

@@ -1,9 +1,23 @@
-import type { ApiClientPlugin, hooksSchema } from '@scalar/types/api-reference'
-import type { z } from 'zod'
+import type { ApiClientPlugin } from '@scalar/types/api-reference'
 
 export type { ApiClientPlugin }
 
-type HookFunctions = z.infer<typeof hooksSchema>
+type PluginInstance = ReturnType<ApiClientPlugin>
+type HookFunctions = NonNullable<PluginInstance['hooks']>
+type HookEvent = keyof HookFunctions
+type OnBeforeRequestHook = NonNullable<HookFunctions['onBeforeRequest']>
+type OnResponseReceivedHook = NonNullable<HookFunctions['onResponseReceived']>
+
+type ExecuteHook = {
+  (
+    event: 'onBeforeRequest',
+    ...args: Parameters<OnBeforeRequestHook>
+  ): Promise<Array<Awaited<ReturnType<OnBeforeRequestHook>>>>
+  (
+    event: 'onResponseReceived',
+    ...args: Parameters<OnResponseReceivedHook>
+  ): Promise<Array<Awaited<ReturnType<OnResponseReceivedHook>>>>
+}
 
 type CreatePluginManagerParams = {
   plugins?: ApiClientPlugin[]
@@ -23,6 +37,33 @@ export const createPluginManager = ({ plugins = [] }: CreatePluginManagerParams)
     registeredPlugins.set(pluginInstance.name, pluginInstance)
   })
 
+  const executeHook: ExecuteHook = (
+    event: HookEvent,
+    ...args: Parameters<OnBeforeRequestHook> | Parameters<OnResponseReceivedHook>
+  ) => {
+    const [payload] = args
+
+    if (event === 'onBeforeRequest' && payload && 'request' in payload) {
+      const hooks = Array.from(registeredPlugins.values())
+        .map((plugin) => plugin.hooks?.onBeforeRequest)
+        .filter((hook): hook is OnBeforeRequestHook => typeof hook === 'function')
+
+      // Execute each hook with the provided arguments
+      return Promise.all(hooks.map((hook) => hook({ request: payload.request })))
+    }
+
+    if (event === 'onResponseReceived' && payload && 'response' in payload && 'operation' in payload) {
+      const hooks = Array.from(registeredPlugins.values())
+        .map((plugin) => plugin.hooks?.onResponseReceived)
+        .filter((hook): hook is OnResponseReceivedHook => typeof hook === 'function')
+
+      // Execute each hook with the provided arguments
+      return Promise.all(hooks.map((hook) => hook({ response: payload.response, operation: payload.operation })))
+    }
+
+    return Promise.resolve([])
+  }
+
   return {
     /**
      * Get all components for a specific view
@@ -34,22 +75,7 @@ export const createPluginManager = ({ plugins = [] }: CreatePluginManagerParams)
     /**
      * Execute a hook for a specific event
      */
-    executeHook: <E extends keyof HookFunctions>(
-      event: E,
-      ...args: HookFunctions[E] extends z.ZodFunction<infer Args, any> ? z.infer<Args> : any
-    ) => {
-      const hooks = Array.from(registeredPlugins.values()).flatMap(
-        (plugin) => plugin.hooks?.[event as keyof typeof plugin.hooks] || [],
-      )
-
-      // Execute each hook with the provided arguments
-      return Promise.all(
-        hooks
-          .filter((hook) => hook != null)
-          // @ts-expect-error I don't know how to properly type this
-          .map((hook) => (hook as HookFunctions[E])?.(...args)),
-      )
-    },
+    executeHook,
   }
 }
 

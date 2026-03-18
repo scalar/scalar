@@ -248,8 +248,12 @@ describe('ScalarComboboxOptions', () => {
     })
 
     it('handles option click events with custom slots', async () => {
+      const onUpdate = vi.fn()
       const wrapper = mount(ScalarComboboxOptions, {
-        props: { options: extendedOptions },
+        props: {
+          options: extendedOptions,
+          'onUpdate:modelValue': onUpdate,
+        },
         slots: {
           option: `
             <template #option="{ option }">
@@ -263,8 +267,8 @@ describe('ScalarComboboxOptions', () => {
       await clickableOption.trigger('click')
 
       // Should emit model value update
-      expect(wrapper.emitted('update:modelValue')).toBeTruthy()
-      expect(wrapper.emitted('update:modelValue')?.[0]).toEqual([[extendedOptions[0]]])
+      expect(onUpdate).toHaveBeenCalled()
+      expect(onUpdate).toHaveBeenCalledWith([extendedOptions[0]])
     })
   })
 
@@ -295,8 +299,9 @@ describe('ScalarComboboxOptions', () => {
     })
 
     it('includes add option in arrow key navigation and Enter triggers add', async () => {
+      const onAdd = vi.fn()
       const wrapper = mount(ScalarComboboxOptions, {
-        props: { options: singleOptions },
+        props: { options: singleOptions, onAdd },
         slots: {
           add: `
             <template #add>
@@ -323,12 +328,13 @@ describe('ScalarComboboxOptions', () => {
 
       // Press Enter to activate the add option
       await input.trigger('keydown.enter')
-      expect(wrapper.emitted('add')).toBeTruthy()
+      expect(onAdd).toHaveBeenCalled()
     })
 
     it('emits add and clears query when add option is clicked', async () => {
+      const onAdd = vi.fn()
       const wrapper = mount(ScalarComboboxOptions, {
-        props: { options: singleOptions },
+        props: { options: singleOptions, onAdd },
         slots: {
           add: `
             <template #add>
@@ -344,7 +350,7 @@ describe('ScalarComboboxOptions', () => {
 
       await wrapper.getComponent(ScalarComboboxOption).trigger('click')
 
-      expect(wrapper.emitted('add')).toBeTruthy()
+      expect(onAdd).toHaveBeenCalled()
       // Query should be cleared after clicking add
       expect((input.element as HTMLInputElement).value).toBe('')
     })
@@ -423,8 +429,12 @@ describe('ScalarComboboxOptions', () => {
     })
 
     it('handles slot content with complex event handlers', async () => {
+      const onUpdate = vi.fn()
       const wrapper = mount(ScalarComboboxOptions, {
-        props: { options: singleOptions },
+        props: {
+          options: singleOptions,
+          'onUpdate:modelValue': onUpdate,
+        },
         slots: {
           option: `
             <template #option="{ option }">
@@ -444,7 +454,7 @@ describe('ScalarComboboxOptions', () => {
       await optionComponent.trigger('click')
 
       // Should not cause errors and should emit the update
-      expect(wrapper.emitted('update:modelValue')).toBeTruthy()
+      expect(onUpdate).toHaveBeenCalled()
     })
   })
 })

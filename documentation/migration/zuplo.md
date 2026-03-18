@@ -25,7 +25,7 @@ Scalar offers a more accessible entry point with a free tier and simpler pricing
 | Enterprise | custom pricing |  custom pricing  |
 
 - Scalar pricing is user-based (documentation platform), while Zuplo pricing is request-based (gateway usage)
-- Scalar has a generous free tier for documentation that doesn't depend on API traffic
+- Scalar has a free tier for getting started that doesn't depend on API traffic
 - For teams focused on documentation, Scalar provides predictable and often lower costs
 
 For detailed pricing information, visit [Scalar Pricing](../guides/pricing.md) and [Zuplo Pricing](https://zuplo.com/pricing).
@@ -143,7 +143,7 @@ If you have multiple OpenAPI files in Zuplo (split across different files), you'
 
 ### Step 2: Create a Scalar Account
 
-Scalar has a free tier, and you can get quite a lot done with it. No credit card needed or gimmick trials that are hard to cancel, just [register over here](https://dashboard.scalar.com/register).
+Scalar has a free tier, and you can get quite a lot done with it. No credit card needed, just [register over here](https://dashboard.scalar.com/register).
 
 ### Step 3: Upload OpenAPI Document
 

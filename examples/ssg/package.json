@@ -17,10 +17,8 @@
   "scripts": {
     "build": "vue-tsc && vite-ssg build",
     "dev": "vite",
-    "lint:check": "eslint .",
-    "lint:fix": "eslint .  --fix",
     "preview": "vite preview",
-    "types:check": "scalar-types-check-vue"
+    "types:check": "vue-tsc --noEmit"
   },
   "type": "module",
   "dependencies": {
@@ -30,7 +28,6 @@
     "vue": "catalog:*"
   },
   "devDependencies": {
-    "@scalar/build-tooling": "workspace:*",
     "@vitejs/plugin-vue": "catalog:*",
     "vite": "catalog:*",
     "vite-ssg": "catalog:*"

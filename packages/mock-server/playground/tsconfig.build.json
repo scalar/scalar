@@ -5,7 +5,6 @@
     "skipLibCheck": true,
     "declaration": true,
     "declarationMap": true,
-    "emitDeclarationOnly": true,
     "outDir": "dist/",
     "allowSyntheticDefaultImports": true
   }

@@ -16,7 +16,6 @@ import YAML from 'yaml'
 
 import { type AuthStore, createAuthStore } from '@/entities/auth'
 import { type HistoryStore, createHistoryStore } from '@/entities/history'
-import { EXCLUDE_KEYS, applySelectiveUpdates } from '@/helpers/apply-selective-updates'
 import { deepClone } from '@/helpers/deep-clone'
 import { createDetectChangesProxy } from '@/helpers/detect-changes-proxy'
 import { type UnknownObject, safeAssign } from '@/helpers/general'
@@ -32,6 +31,7 @@ import {
   normalizeAuthSchemes,
   normalizeRefs,
   refsEverywhere,
+  removeExtraScalarKeys,
   restoreOriginalRefs,
   syncPathParameters,
 } from '@/plugins/bundler'
@@ -40,6 +40,7 @@ import type { InMemoryWorkspace } from '@/schemas/inmemory-workspace'
 import { coerceValue } from '@/schemas/typebox-coerce'
 import {
   OpenAPIDocumentSchema as OpenAPIDocumentSchemaStrict,
+  type OpenAPIExtensions,
   type OpenApiDocument,
 } from '@/schemas/v3.1/strict/openapi-document'
 import type {
@@ -400,9 +401,14 @@ export type WorkspaceStore = {
    *
    * @example
    * // Save the current state of the document named 'api'
-   * const excludedDiffs = store.saveDocument('api')
+   * const isSuccess = store.saveDocument('api')
+   * if (isSuccess) {
+   *   console.log('Document saved successfully')
+   * } else {
+   *   console.log('Failed to save document')
+   * }
    */
-  saveDocument(documentName: string): Promise<unknown[] | undefined>
+  saveDocument(documentName: string): Promise<boolean>
   /**
    * Builds the sidebar for the specified document.
    *
@@ -845,37 +851,20 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
   // applies its changes to the corresponding entry in the `intermediateDocuments` map.
   // The `intermediateDocuments` map represents the most recently "saved" local version of the document,
   // which may include edits not yet synced to the remote registry.
-  async function saveDocument(documentName: string) {
-    const intermediateDocument = intermediateDocuments[documentName]
-    const workspaceDocument = workspace.documents[documentName]
+  const saveDocument: WorkspaceStore['saveDocument'] = async (documentName) => {
+    const activeDocument = workspace.documents[documentName]
+    const newDocument = await getEditableDocument(documentName)
 
-    if (!workspaceDocument) {
-      return
+    if (!activeDocument || !newDocument) {
+      console.warn('Failed to save document, active document is missing')
+      return false
     }
 
-    // Obtain the raw state of the current document to ensure accurate diffing
-    const activeDocumentRaw = unpackProxyObject(workspaceDocument)
-
-    // If either the intermediate or updated document is missing, do nothing
-    if (!intermediateDocument || !activeDocumentRaw) {
-      console.warn('Failed to save document, intermediate document and/or active document is missing')
-      return
-    }
-
-    // Traverse the document and convert refs back to the original shape
-    const updatedWithOriginalRefs = await bundle(deepClone(activeDocumentRaw), {
-      plugins: [restoreOriginalRefs()],
-      treeShake: false,
-      urlMap: true,
-    })
-
-    // Apply changes from the current document to the intermediate document in place
-    const excludedDiffs = applySelectiveUpdates(intermediateDocument, updatedWithOriginalRefs as UnknownObject)
-
+    // Store the new document in the intermediate documents map
+    intermediateDocuments[documentName] = newDocument
     // Mark the document as not dirty since we are saving it
-    workspaceDocument['x-scalar-is-dirty'] = false
-
-    return excludedDiffs
+    activeDocument['x-scalar-is-dirty'] = false
+    return true
   }
 
   // Add a document to the store synchronously from an in-memory OpenAPI document
@@ -1108,12 +1097,28 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
 
     // Reverse all external references and restore original $refs
     const original = (await bundle(deepClone(rawDocument), {
-      plugins: [restoreOriginalRefs()],
+      plugins: [restoreOriginalRefs(), removeExtraScalarKeys()],
       treeShake: false,
       urlMap: true,
     })) as WorkspaceDocument & { 'x-ext-urls'?: unknown; 'x-ext'?: unknown }
 
-    // Remove properties that should only exist in memory for the original document
+    type BundlerKeys = 'x-ext' | 'x-ext-urls'
+    // Top level keys that need to be excluded from the original document
+    // Nested keys are removed buring the previous step of the bundler process
+    const EXCLUDE_KEYS = [
+      // Bundler metadata fields added temporarily during document processing
+      'x-ext',
+      'x-ext-urls',
+      // Scalar internal/external metadata fields
+      'x-scalar-navigation',
+      'x-scalar-is-dirty',
+      'x-original-oas-version',
+      'x-scalar-original-document-hash',
+      'x-scalar-original-source-url',
+    ] satisfies (keyof OpenAPIExtensions | BundlerKeys)[] as string[]
+
+    // Remove top level properties that should only exist in memory for the original document
+    // These properties are used for internal purposes and are not needed in the final bundled document
     for (const property of EXCLUDE_KEYS) {
       delete original[property as keyof WorkspaceDocument]
     }

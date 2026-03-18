@@ -236,6 +236,21 @@ When the proxy is disabled:
 - **Direct Service Communication**: OpenAPI documents and servers point directly to the actual service endpoints
 - **CORS Configuration Required**: You'll need to configure CORS on your services to allow requests from the Scalar interface
 
+### Host Header Forwarding
+
+By default, the Scalar proxy rewrites the outgoing `Host` header to the target authority (for example, an external OpenID Connect provider). This avoids authentication failures with providers that validate the `Host` header.
+
+If your upstream requires the original incoming host value, you can opt in to forwarding it:
+
+```csharp
+var scalar = builder.AddScalarApiReference(options =>
+{
+    options.ForwardOriginalHostHeader();
+});
+```
+
+Use `ForwardOriginalHostHeader()` only when the upstream explicitly requires the original host.
+
 ## Authentication
 
 Configure authentication globally or per service to secure your API documentation.

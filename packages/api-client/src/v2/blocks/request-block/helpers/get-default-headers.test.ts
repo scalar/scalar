@@ -26,7 +26,7 @@ describe('get-default-headers', () => {
       expect(contentTypeHeader).toBeUndefined()
     })
 
-    it('adds Content-Type header for POST requests with default application/json', () => {
+    it('adds Content-Type header for POST requests when the request body defines one', () => {
       const operation: OperationObject = {
         requestBody: {
           content: {
@@ -325,7 +325,9 @@ describe('get-default-headers', () => {
       // Should still have Accept header, but no Content-Type since there's no requestBody
       expect(headers.length).toBeGreaterThan(0)
       const acceptHeader = headers.find((header) => header.name.toLowerCase() === 'accept')
+      const contentTypeHeader = headers.find((header) => header.name.toLowerCase() === 'content-type')
       expect(acceptHeader).toBeDefined()
+      expect(contentTypeHeader).toBeUndefined()
     })
 
     it('uses first content type when no selection is made', () => {
@@ -351,7 +353,7 @@ describe('get-default-headers', () => {
       expect(contentTypeHeader?.defaultValue).toBe('application/xml')
     })
 
-    it('handles empty content object', () => {
+    it('does not add Content-Type when the requestBody has no content types', () => {
       const operation: OperationObject = {
         requestBody: {
           content: {},
@@ -366,9 +368,30 @@ describe('get-default-headers', () => {
 
       const contentTypeHeader = headers.find((header) => header.name.toLowerCase() === 'content-type')
 
-      // Should fall back to default application/json
-      expect(contentTypeHeader).toBeDefined()
-      expect(contentTypeHeader?.defaultValue).toBe('application/json')
+      expect(contentTypeHeader).toBeUndefined()
+    })
+
+    it('does not add Content-Type for DELETE requests without a request body', () => {
+      const operation: OperationObject = {
+        responses: {
+          '200': {
+            description: 'Delete Success',
+            content: {
+              'application/json': {},
+            },
+          },
+        },
+      }
+
+      const headers = getDefaultHeaders({
+        method: 'delete',
+        operation,
+        exampleKey: 'example-1',
+      })
+
+      const contentTypeHeader = headers.find((header) => header.name.toLowerCase() === 'content-type')
+
+      expect(contentTypeHeader).toBeUndefined()
     })
   })
 })

@@ -15,8 +15,8 @@ import SidebarItem from './SidebarItem.vue'
 
 describe('SidebarItem', () => {
   const baseProps = {
-    isSelected: vi.fn(),
-    isExpanded: vi.fn(),
+    isSelected: vi.fn(() => false),
+    isExpanded: vi.fn(() => false),
     layout: 'reference' as const,
     options: undefined,
   }
@@ -64,7 +64,7 @@ describe('SidebarItem', () => {
       expect(sidebarItem.props('is')).toBe('button')
     })
 
-    it('emits click event when item is clicked', () => {
+    it('emits click event when item is clicked', async () => {
       const item: Item = {
         id: '1',
         title: 'Test Item',
@@ -74,18 +74,20 @@ describe('SidebarItem', () => {
         path: '/test',
       }
 
+      const onSelectItem = vi.fn()
       const wrapper = mount(SidebarItem, {
         props: {
           ...baseProps,
           item,
+          onSelectItem,
         },
       })
 
       const sidebarItem = wrapper.findComponent(ScalarSidebarItem)
-      sidebarItem.vm.$emit('click')
+      await sidebarItem.trigger('click')
 
-      expect(wrapper.emitted('selectItem')).toBeTruthy()
-      expect(wrapper.emitted('selectItem')?.[0]).toEqual(['1'])
+      expect(onSelectItem).toHaveBeenCalled()
+      expect(onSelectItem).toHaveBeenCalledWith('1')
     })
 
     it('shows selected state when item is in selectedItems', () => {
@@ -664,11 +666,13 @@ describe('SidebarItem', () => {
         children: [{ id: '2', title: 'Child', type: 'operation', ref: 'ref-2', method: 'get', path: '/child' }],
       }
 
+      const onDragEnd = vi.fn()
       const wrapper = mount(SidebarItem, {
         props: {
           ...baseProps,
           layout: 'client',
           item,
+          onOnDragEnd: onDragEnd,
         },
       })
 
@@ -680,8 +684,8 @@ describe('SidebarItem', () => {
 
       await childComponent?.vm.$emit('onDragEnd', draggingItem, hoveredItem)
 
-      expect(wrapper.emitted('onDragEnd')).toBeTruthy()
-      expect(wrapper.emitted('onDragEnd')?.[0]).toEqual([draggingItem, hoveredItem])
+      expect(onDragEnd).toHaveBeenCalled()
+      expect(onDragEnd).toHaveBeenCalledWith(draggingItem, hoveredItem)
     })
 
     it('inherits isDraggable prop from parent to child items when false', () => {
@@ -813,7 +817,7 @@ describe('SidebarItem', () => {
       expect(group.props('open')).toBe(false)
     })
 
-    it('emits click event when group is toggled', () => {
+    it('emits click event when group is toggled', async () => {
       const item: Item = {
         id: 'group-1',
         title: 'Expandable',
@@ -831,19 +835,24 @@ describe('SidebarItem', () => {
         ],
       }
 
+      const onSelectItem = vi.fn()
       const wrapper = mount(SidebarItem, {
         props: {
           ...baseProps,
           item,
+          onSelectItem,
         },
       })
 
       const group = wrapper.findComponent(ScalarSidebarGroup)
       expect(group.exists()).toBe(true)
-      group.vm.$emit('click')
+      // Click on the button inside the ScalarSidebarGroup
+      const button = group.find('button')
+      expect(button.exists()).toBe(true)
+      await button.trigger('click')
 
-      expect(wrapper.emitted('selectItem')).toBeTruthy()
-      expect(wrapper.emitted('selectItem')?.[0]).toEqual(['group-1'])
+      expect(onSelectItem).toHaveBeenCalled()
+      expect(onSelectItem).toHaveBeenCalledWith('group-1')
     })
   })
 
