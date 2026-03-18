@@ -189,6 +189,12 @@ export const ROUTES = [
                 path: 'scripts',
                 component: () => import('@/v2/features/collection/components/Scripts.vue'),
               },
+              // Document runner (run selected operations in sequence)
+              {
+                name: 'document.runner',
+                path: 'runner',
+                component: () => import('@/v2/features/collection/components/Runner.vue'),
+              },
             ],
           },
         ],
