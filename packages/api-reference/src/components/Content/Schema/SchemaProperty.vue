@@ -202,7 +202,7 @@ const isDiscriminatorProperty = computed(() =>
         </WithBreadcrumb>
       </template>
       <template
-        v-if="optimizedValue?.example"
+        v-if="optimizedValue?.example !== undefined"
         #example>
         Example:
         {{ optimizedValue.example }}
