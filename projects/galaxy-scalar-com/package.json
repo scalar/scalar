@@ -1,5 +1,5 @@
 {
-  "name": "@scalar-examples/galaxy",
+  "name": "galaxy-scalar-com",
   "description": "Playground for Scalar Galaxy",
   "license": "MIT",
   "author": "Scalar (https://github.com/scalar)",
@@ -9,7 +9,7 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/scalar/scalar.git",
-    "directory": "packages/galaxy"
+    "directory": "projects/galaxy-scalar-com"
   },
   "keywords": [
     "openapi",
@@ -26,7 +26,7 @@
     "dev": "tsx watch src/index.ts",
     "dev:local": "pnpm copy:standalone && LOCAL_JS_BUNDLE=true tsx watch src/index.ts",
     "test": "vitest",
-    "copy:standalone": "LOCAL_JS_BUNDLE=true shx cp ../../../packages/api-reference/dist/browser/standalone.js ./src/scalar.js",
+    "copy:standalone": "LOCAL_JS_BUNDLE=true shx cp ../../packages/api-reference/dist/browser/standalone.js ./src/scalar.js",
     "types:check": "tsc --noEmit"
   },
   "type": "module",
