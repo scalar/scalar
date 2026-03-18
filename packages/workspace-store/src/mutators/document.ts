@@ -4,6 +4,20 @@ import { mergeObjects } from '@/helpers/merge-object'
 import type { WorkspaceDocument } from '@/schemas'
 
 /**
+ * Updates extension fields on the document (e.g. x-pre-request, x-post-response).
+ * Merges the payload into the document root.
+ */
+export const updateDocumentExtension = (
+  document: WorkspaceDocument | null,
+  payload: DocumentEvents['document:update:extension'],
+) => {
+  if (!document) {
+    return
+  }
+  mergeObjects(document as unknown as Record<string, unknown>, payload)
+}
+
+/**
  * Updates the "watch mode" state of the given document.
  *
  * @param document WorkspaceDocument or null – The document to modify.
@@ -133,6 +147,8 @@ export const documentMutatorsFactory = ({
     updateDocumentInfo: (payload: DocumentEvents['document:update:info']) => updateDocumentInfo(document, payload),
     updateWatchMode: (payload: DocumentEvents['document:update:watch-mode']) => updateWatchMode(document, payload),
     updateDocumentIcon: (payload: DocumentEvents['document:update:icon']) => updateDocumentIcon(document, payload),
+    updateDocumentExtension: (payload: DocumentEvents['document:update:extension']) =>
+      updateDocumentExtension(document, payload),
     createEmptyDocument: (payload: DocumentEvents['document:create:empty-document']) =>
       createEmptyDocument(store, payload),
     deleteDocument: (payload: DocumentEvents['document:delete:document']) => deleteDocument(store, payload),

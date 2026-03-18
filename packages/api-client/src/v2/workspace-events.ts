@@ -112,6 +112,9 @@ export function initializeWorkspaceEventHandlers({
   eventBus.on('document:update:watch-mode', (payload) =>
     withHook('document:update:watch-mode', mutators.value.active().document.updateWatchMode, hooks)(payload),
   )
+  eventBus.on('document:update:extension', (payload) =>
+    withHook('document:update:extension', mutators.value.active().document.updateDocumentExtension, hooks)(payload),
+  )
   eventBus.on('document:create:empty-document', (payload) =>
     withHook('document:create:empty-document', mutators.value.active().document.createEmptyDocument, hooks)(payload),
   )

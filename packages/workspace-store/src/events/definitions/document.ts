@@ -36,4 +36,9 @@ export type DocumentEvents = {
     /** The name of the document to delete */
     name: string
   }
+  /**
+   * Update extension fields on the document (e.g. x-pre-request, x-post-response).
+   * Merged into the document root.
+   */
+  'document:update:extension': Record<string, unknown>
 }
