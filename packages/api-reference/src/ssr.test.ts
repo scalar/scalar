@@ -55,6 +55,15 @@ describe('ssr', () => {
       expect(html).toBeTruthy()
       expect(html.length).toBeGreaterThan(0)
     })
+
+    it('renders both responsive navigation containers for CSS media queries', async () => {
+      const html = await renderApiReferenceToString({
+        showSidebar: true,
+      })
+
+      expect(html).toContain('mobile-header-desktop-sidebar')
+      expect(html).toContain('mobile-header-mobile-container')
+    })
   })
 
   describe('generateBodyScript', () => {
