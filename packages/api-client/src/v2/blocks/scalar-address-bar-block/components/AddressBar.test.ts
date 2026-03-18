@@ -652,14 +652,14 @@ describe('AddressBar', () => {
       })
 
       /**
-       * Should update the path.
+       * Should update the path immediately without debouncing.
        */
       expect(emitSpy).toHaveBeenCalledWith(
         'operation:update:pathMethod',
         expect.objectContaining({
           payload: { method: 'get', path: '/users/123' },
         }),
-        { debounceKey: 'operation:update:pathMethod-/api/test-get' },
+        undefined,
       )
     })
 

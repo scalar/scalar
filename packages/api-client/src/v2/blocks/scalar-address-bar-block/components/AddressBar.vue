@@ -156,7 +156,9 @@ const findMatchingServer = (origin: string): ServerObject | null => {
 }
 
 /**
- * Handle a full URL being entered - match or add server, update path
+ * Handle a full URL being entered - match or add server, update path.
+ * This is called when a full URL (with protocol) is pasted into the omnibar.
+ * We handle this immediately without debouncing to ensure clean UX.
  */
 const handleFullUrlInput = async (fullUrl: string): Promise<void> => {
   const parsed = parseFullUrl(fullUrl)
@@ -165,10 +167,11 @@ const handleFullUrlInput = async (fullUrl: string): Promise<void> => {
   }
 
   const { origin, path: urlPath } = parsed
+  const normalizedPath = urlPath.startsWith('/') ? urlPath : `/${urlPath}`
   const matchingServer = findMatchingServer(origin)
 
   if (matchingServer) {
-    // Server exists - select it and update path
+    // Server exists - select it as active
     eventBus.emit('server:update:selected', {
       url: matchingServer.url,
       meta: serverMeta,
@@ -199,18 +202,19 @@ const handleFullUrlInput = async (fullUrl: string): Promise<void> => {
     // Wait for the update to be processed
     await nextTick()
 
-    // Select the newly added server
+    // Select the newly added server as active
     eventBus.emit('server:update:selected', {
       url: origin,
       meta: operationMeta,
     })
   }
 
-  // Update the path
-  const normalizedPath = urlPath.startsWith('/') ? urlPath : `/${urlPath}`
-  emitPathMethodUpdate(methodConflict.value ?? method, normalizedPath, {
-    debounceKey: `operation:update:pathMethod-${path}-${method}`,
-  })
+  // Wait for the server selection to be processed before updating the path
+  await nextTick()
+
+  // Update the path immediately without debouncing
+  // This ensures clean UX when pasting a full URL
+  emitPathMethodUpdate(methodConflict.value ?? method, normalizedPath)
 }
 
 /**
