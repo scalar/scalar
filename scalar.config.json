@@ -2091,10 +2091,10 @@
                     "title": "Introducing Agent",
                     "filepath": "documentation/blog/2026-03-05-agent-scalar.md"
                   },
-                  "/2024-09-21-oss-pledge": {
+                  "/2024-09-01-oss-pledge": {
                     "type": "page",
                     "title": "Scalar Joins the Open-Source Pledge",
-                    "filepath": "documentation/blog/2024-09-21-oss-pledge.md"
+                    "filepath": "documentation/blog/2024-09-01-oss-pledge.md"
                   }
                 }
               }

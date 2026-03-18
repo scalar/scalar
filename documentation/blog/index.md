@@ -12,7 +12,7 @@ Agent MCP servers expose your OpenAPI via MCP with all the performance benefits 
 :::scalar-card{title="Your API? 0.2% of your context window" href="./2026-03-05-agent-scalar.md"}
 
 <!-- description:2026-03-05-agent-scalar.md -->
-Agent MCP servers expose your OpenAPI via MCP with all the performance benefits of Agent. Use your API in Cursor or any LLM in minutes, with preconfigured authentication and restricted access by default.
+Big APIs blow past context limits with raw OpenAPI and still cost a lot with native MCP. Agent uses three fixed tools and fetches just-in-time details – so your agent uses 0.2% of the context window, fewer steps, and better routing. Benchmarks on Zoom and Notion included.
 <!-- /description -->
 
 ::scalar-fineprint[Mar 5, 2026]{}
