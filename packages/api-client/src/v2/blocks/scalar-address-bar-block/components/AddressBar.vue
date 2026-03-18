@@ -99,6 +99,9 @@ const style = computed(() => ({
 const pathConflict = ref<string | null>(null)
 const methodConflict = ref<HttpMethodType | null>(null)
 
+/** Track the previous path value to detect paste operations */
+const previousPathValue = ref<string>(path)
+
 /** Whether there is a path or method conflict */
 const hasConflict = computed(() => methodConflict.value || pathConflict.value)
 
@@ -108,6 +111,17 @@ const hasConflict = computed(() => methodConflict.value || pathConflict.value)
 const isFullUrl = (value: string): boolean => {
   const trimmed = value.trim()
   return /^https?:\/\//i.test(trimmed)
+}
+
+/**
+ * Detect if a change is likely from a paste operation (many characters at once)
+ * vs typing character by character
+ */
+const isPasteOperation = (oldValue: string, newValue: string): boolean => {
+  // If the new value is significantly longer, it's likely a paste
+  const lengthDiff = newValue.length - oldValue.length
+  // Pasting a URL typically adds many characters at once (threshold: 5+)
+  return lengthDiff >= 5
 }
 
 /**
@@ -298,8 +312,12 @@ const handleMethodChange = (newMethod: HttpMethodType): void =>
 
 /** Update the operation's path, handling conflicts and full URL pasting */
 const handlePathChange = (newPath: string): void => {
-  // Check if this is a full URL being pasted/entered
-  if (isFullUrl(newPath)) {
+  const oldPath = previousPathValue.value
+  previousPathValue.value = newPath
+
+  // Check if this is a full URL being PASTED (not typed character by character)
+  // We only handle full URLs when they're pasted to avoid awkward interactions
+  if (isFullUrl(newPath) && isPasteOperation(oldPath, newPath)) {
     handleFullUrlInput(newPath)
     return
   }
