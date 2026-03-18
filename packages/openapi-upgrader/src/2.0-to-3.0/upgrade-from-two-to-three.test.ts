@@ -2107,6 +2107,56 @@ describe('upgradeFromTwoToThree', () => {
     expect(requestBody.content?.['application/json']?.examples).toBeUndefined()
   })
 
+  it('transforms x-examples keyed by example name with mixed object and string values (pos-original shape)', () => {
+    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+      swagger: '2.0',
+      info: { title: 'x-examples pos-original shape', version: '1.0' },
+      paths: {
+        '/test': {
+          post: {
+            consumes: ['application/json'],
+            produces: ['application/json'],
+            parameters: [
+              {
+                name: 'body',
+                in: 'body',
+                required: true,
+                schema: {
+                  type: 'object',
+                },
+                'x-examples': {
+                  Subscription: {
+                    discount_type: 'subscription',
+                    subscription_id: '1111111',
+                    receipt_amount: 10.72,
+                  },
+                  Reward: '{"discount_type":"reward","reward_id":"1399335","receipt_amount":10.72}',
+                },
+              },
+            ],
+            responses: {
+              '200': { description: 'OK' },
+            },
+          },
+        },
+      },
+    })
+
+    const requestBody = result.paths?.['/test']?.post?.requestBody as OpenAPIV3.RequestBodyObject
+    expect(requestBody?.content?.['application/json']?.examples).toStrictEqual({
+      Subscription: {
+        value: {
+          discount_type: 'subscription',
+          subscription_id: '1111111',
+          receipt_amount: 10.72,
+        },
+      },
+      Reward: {
+        value: '{"discount_type":"reward","reward_id":"1399335","receipt_amount":10.72}',
+      },
+    })
+  })
+
   it('transforms response examples from Swagger 2.0 to OpenAPI 3.0 format', () => {
     const result: OpenAPIV3.Document = upgradeFromTwoToThree({
       swagger: '2.0',
