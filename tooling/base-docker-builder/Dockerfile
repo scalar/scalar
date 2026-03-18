@@ -20,6 +20,7 @@ COPY turbo.json .
 COPY packages ./packages
 COPY integrations ./integrations
 COPY documentation ./documentation
+COPY tooling ./tooling
 RUN pnpm install
 RUN pnpm turbo \
   run build \
