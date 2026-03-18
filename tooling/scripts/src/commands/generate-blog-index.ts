@@ -132,7 +132,7 @@ function formatDateLabel(date: Date): string {
 }
 
 function formatCard(post: BlogPost): string {
-  const escapedTitle = post.title.replace(/"/g, '\\"')
+  const escapedTitle = post.title.replace(/\\/g, '\\\\').replace(/"/g, '\\"')
   return `:::scalar-card{title="${escapedTitle}" href="./${post.filename}"}
 
 <!-- description:${post.filename} -->
