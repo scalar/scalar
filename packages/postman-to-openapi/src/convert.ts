@@ -12,6 +12,28 @@ import { normalizePath } from '@/helpers/urls'
 
 import type { Description, Item, ItemGroup, PostmanCollection } from './types'
 
+/**
+ * Scalar example body schema for x-scalar-examples
+ */
+type XScalarExampleBody = {
+  encoding: string
+  content: string | Record<string, unknown>
+}
+
+/**
+ * Scalar example schema for x-scalar-examples
+ */
+type XScalarExample = {
+  name?: string
+  body?: XScalarExampleBody
+  parameters: {
+    path?: Record<string, string>
+    query?: Record<string, string>
+    headers?: Record<string, string>
+    cookies?: Record<string, string>
+  }
+}
+
 const OPERATION_KEYS: readonly (keyof OpenAPIV3_1.PathItemObject)[] = [
   'get',
   'put',
@@ -125,6 +147,69 @@ const mergeSecuritySchemes = (
   }
 }
 
+/**
+ * Extracts example data from an OpenAPI operation for use in x-scalar-examples.
+ * This captures the parameter values and request body content.
+ */
+const extractExampleFromOperation = (operation: OpenAPIV3_1.OperationObject, exampleName: string): XScalarExample => {
+  const example: XScalarExample = {
+    name: exampleName,
+    parameters: {},
+  }
+
+  // Extract parameter values
+  if (operation.parameters && Array.isArray(operation.parameters)) {
+    for (const param of operation.parameters) {
+      if ('name' in param && 'in' in param && 'example' in param) {
+        const paramType = param.in as 'path' | 'query' | 'header'
+        const targetKey = paramType === 'header' ? 'headers' : paramType
+
+        if (!example.parameters[targetKey]) {
+          example.parameters[targetKey] = {}
+        }
+
+        if (param.example !== undefined) {
+          example.parameters[targetKey]![param.name] = String(param.example)
+        }
+      }
+    }
+  }
+
+  // Extract request body content
+  if (operation.requestBody && 'content' in operation.requestBody) {
+    const content = operation.requestBody.content
+    for (const [mimeType, mediaType] of Object.entries(content) as [string, OpenAPIV3_1.MediaTypeObject][]) {
+      const schema = mediaType?.schema as OpenAPIV3_1.SchemaObject | undefined
+      if (schema && 'example' in schema) {
+        example.body = {
+          encoding: mimeType,
+          content: schema.example as string | Record<string, unknown>,
+        }
+        break
+      }
+      // Try to extract from schema examples array
+      if (schema && 'examples' in schema && Array.isArray(schema.examples)) {
+        const firstExample = schema.examples[0]
+        if (firstExample !== undefined) {
+          example.body = {
+            encoding: mimeType,
+            content: String(firstExample),
+          }
+          break
+        }
+      }
+    }
+  }
+
+  return example
+}
+
+/**
+ * Merges duplicate operations into examples using x-scalar-examples.
+ * When a duplicate is detected (same method + path), instead of overwriting:
+ * 1. The tags are merged (operations can belong to multiple tags)
+ * 2. The duplicate's data is stored as an example in x-scalar-examples
+ */
 const mergePathItem = (
   paths: OpenAPIV3_1.PathsObject,
   normalizedPathKey: string,
@@ -141,18 +226,69 @@ const mergePathItem = (
     }
 
     const isOperationKey = OPERATION_KEYS.includes(key)
+    const existingOperation = targetPath[key] as OpenAPIV3_1.OperationObject | undefined
+    const newOperation = value as OpenAPIV3_1.OperationObject
 
-    if (isOperationKey && targetPath[key]) {
+    if (isOperationKey && existingOperation) {
+      // Merge duplicate operations into examples instead of overwriting
       const operationName = typeof key === 'string' ? key.toUpperCase() : String(key)
-      console.warn(
-        `Duplicate operation detected for ${operationName} ${normalizedPathKey}. Last operation will overwrite previous.`,
-      )
+      console.info(`Merging duplicate operation ${operationName} ${normalizedPathKey} as example.`)
+
+      // Merge tags from the duplicate operation
+      if (newOperation.tags && Array.isArray(newOperation.tags)) {
+        const existingTags = new Set(existingOperation.tags || [])
+        for (const tag of newOperation.tags) {
+          existingTags.add(tag)
+        }
+        existingOperation.tags = Array.from(existingTags)
+      }
+
+      // Initialize x-scalar-examples if not present
+      if (!existingOperation['x-scalar-examples']) {
+        // Add the first operation as the default example
+        const firstExampleName = existingOperation.summary || 'Default'
+        const firstExample = extractExampleFromOperation(existingOperation, firstExampleName)
+        existingOperation['x-scalar-examples'] = {
+          [generateExampleKey(firstExampleName)]: firstExample,
+        }
+      }
+
+      // Add the duplicate operation as a new example
+      const exampleName =
+        newOperation.summary || `Example ${Object.keys(existingOperation['x-scalar-examples']).length + 1}`
+      const duplicateExample = extractExampleFromOperation(newOperation, exampleName)
+      const exampleKey = generateExampleKey(exampleName)
+      existingOperation['x-scalar-examples'][exampleKey] = duplicateExample
+
+      // Merge responses from the duplicate if they have different status codes
+      if (newOperation.responses) {
+        existingOperation.responses = existingOperation.responses || {}
+        for (const [statusCode, response] of Object.entries(newOperation.responses)) {
+          if (!existingOperation.responses[statusCode]) {
+            existingOperation.responses[statusCode] = response
+          }
+        }
+      }
+
+      continue
     }
 
     targetPath[key] = value
   }
 
   paths[normalizedPathKey] = targetPath
+}
+
+/**
+ * Generates a URL-safe key from an example name
+ */
+const generateExampleKey = (name: string): string => {
+  return (
+    name
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-|-$/g, '') || 'example'
+  )
 }
 
 const cleanupOperations = (paths: OpenAPIV3_1.PathsObject): void => {

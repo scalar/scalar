@@ -138,7 +138,7 @@ describe('convert', () => {
     })
   })
 
-  it('overwrites duplicate operations with last-write-wins policy', () => {
+  it('merges duplicate operations into x-scalar-examples', () => {
     const collection: PostmanCollection = {
       info: {
         name: 'Duplicate operations',
@@ -166,7 +166,112 @@ describe('convert', () => {
     const operation = result.paths?.['/users']?.get
 
     expect(operation).toBeDefined()
-    expect(operation?.summary).toBe('Second')
+    // First operation's summary should be preserved
+    expect(operation?.summary).toBe('First')
+    // Both operations should be stored as examples
+    expect(operation?.['x-scalar-examples']).toBeDefined()
+    expect(Object.keys(operation?.['x-scalar-examples'] || {})).toHaveLength(2)
+    expect(operation?.['x-scalar-examples']?.['first']).toBeDefined()
+    expect(operation?.['x-scalar-examples']?.['second']).toBeDefined()
+  })
+
+  it('merges tags from duplicate operations in different folders', () => {
+    const collection: PostmanCollection = {
+      info: {
+        name: 'Duplicate operations with tags',
+        schema: 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
+      },
+      item: [
+        {
+          name: 'Folder A',
+          item: [
+            {
+              name: 'Get Users',
+              request: {
+                method: 'GET',
+                url: 'https://api.scalar.com/users',
+              },
+            },
+          ],
+        },
+        {
+          name: 'Folder B',
+          item: [
+            {
+              name: 'List Users',
+              request: {
+                method: 'GET',
+                url: 'https://api.scalar.com/users',
+              },
+            },
+          ],
+        },
+      ],
+    }
+
+    const result = convert(collection)
+    const operation = result.paths?.['/users']?.get
+
+    expect(operation).toBeDefined()
+    // Operation should have tags from both folders
+    expect(operation?.tags).toContain('Folder A')
+    expect(operation?.tags).toContain('Folder B')
+    expect(operation?.tags).toHaveLength(2)
+    // Both operations should be stored as examples
+    expect(operation?.['x-scalar-examples']).toBeDefined()
+    expect(Object.keys(operation?.['x-scalar-examples'] || {})).toHaveLength(2)
+  })
+
+  it('preserves parameter examples when merging duplicates', () => {
+    const collection: PostmanCollection = {
+      info: {
+        name: 'Duplicate operations with parameters',
+        schema: 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
+      },
+      item: [
+        {
+          name: 'Get User by ID',
+          request: {
+            method: 'GET',
+            url: {
+              raw: 'https://api.scalar.com/users/:userId?active=true',
+              variable: [{ key: 'userId', value: '123' }],
+              query: [{ key: 'active', value: 'true' }],
+            },
+          },
+        },
+        {
+          name: 'Get User by Name',
+          request: {
+            method: 'GET',
+            url: {
+              raw: 'https://api.scalar.com/users/:userId?active=false',
+              variable: [{ key: 'userId', value: '456' }],
+              query: [{ key: 'active', value: 'false' }],
+            },
+          },
+        },
+      ],
+    }
+
+    const result = convert(collection)
+    const operation = result.paths?.['/users/{userId}']?.get
+
+    expect(operation).toBeDefined()
+    expect(operation?.['x-scalar-examples']).toBeDefined()
+
+    const examples = operation?.['x-scalar-examples'] || {}
+    const exampleKeys = Object.keys(examples)
+    expect(exampleKeys).toHaveLength(2)
+
+    // Check that parameter values are preserved in examples
+    const firstExample = examples[exampleKeys[0] as keyof typeof examples]
+    const secondExample = examples[exampleKeys[1] as keyof typeof examples]
+
+    expect(firstExample?.parameters?.path?.userId).toBe('123')
+    expect(firstExample?.parameters?.query?.active).toBe('true')
+    expect(secondExample?.parameters?.path?.userId).toBe('456')
+    expect(secondExample?.parameters?.query?.active).toBe('false')
   })
 
   it('handles collections without items', () => {
@@ -507,5 +612,106 @@ describe('convert', () => {
         url: 'https://api.example.com',
       },
     ])
+  })
+
+  it('preserves request body examples when merging duplicates', () => {
+    const collection: PostmanCollection = {
+      info: {
+        name: 'Duplicate operations with body',
+        schema: 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
+      },
+      item: [
+        {
+          name: 'Create User Admin',
+          request: {
+            method: 'POST',
+            url: 'https://api.scalar.com/users',
+            body: {
+              mode: 'raw',
+              raw: '{"name": "Admin User", "role": "admin"}',
+              options: { raw: { language: 'json' } },
+            },
+          },
+        },
+        {
+          name: 'Create User Regular',
+          request: {
+            method: 'POST',
+            url: 'https://api.scalar.com/users',
+            body: {
+              mode: 'raw',
+              raw: '{"name": "Regular User", "role": "user"}',
+              options: { raw: { language: 'json' } },
+            },
+          },
+        },
+      ],
+    }
+
+    const result = convert(collection)
+    const operation = result.paths?.['/users']?.post
+
+    expect(operation).toBeDefined()
+    expect(operation?.['x-scalar-examples']).toBeDefined()
+
+    const examples = operation?.['x-scalar-examples'] || {}
+    const exampleKeys = Object.keys(examples)
+    expect(exampleKeys).toHaveLength(2)
+
+    // Check that body content is preserved in examples
+    const firstExample = examples[exampleKeys[0] as keyof typeof examples]
+    const secondExample = examples[exampleKeys[1] as keyof typeof examples]
+
+    expect(firstExample?.body?.encoding).toBe('application/json')
+    expect(firstExample?.body?.content).toEqual({ name: 'Admin User', role: 'admin' })
+    expect(secondExample?.body?.encoding).toBe('application/json')
+    expect(secondExample?.body?.content).toEqual({ name: 'Regular User', role: 'user' })
+  })
+
+  it('merges responses from duplicate operations with different status codes', () => {
+    const collection: PostmanCollection = {
+      info: {
+        name: 'Duplicate operations with responses',
+        schema: 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
+      },
+      item: [
+        {
+          name: 'Get User Success',
+          request: {
+            method: 'GET',
+            url: 'https://api.scalar.com/users',
+          },
+          response: [
+            {
+              code: 200,
+              status: 'OK',
+              body: '{"id": 1, "name": "John"}',
+            },
+          ],
+        },
+        {
+          name: 'Get User Error',
+          request: {
+            method: 'GET',
+            url: 'https://api.scalar.com/users',
+          },
+          response: [
+            {
+              code: 404,
+              status: 'Not Found',
+              body: '{"error": "User not found"}',
+            },
+          ],
+        },
+      ],
+    }
+
+    const result = convert(collection)
+    const operation = result.paths?.['/users']?.get
+
+    expect(operation).toBeDefined()
+    // Both response codes should be present
+    expect(operation?.responses?.['200']).toBeDefined()
+    expect(operation?.responses?.['404']).toBeDefined()
   })
 })
