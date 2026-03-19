@@ -1,2 +1,2 @@
-export { getRequestFromBuilder, requestFactoryBuilder } from './builder'
+export { buildRequest, requestFactory } from './builder'
 export { getRequestExampleContext } from './context'
