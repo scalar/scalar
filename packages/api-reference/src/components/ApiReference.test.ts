@@ -7,15 +7,6 @@ import ApiReference from '@/components/ApiReference.vue'
 
 enableAutoUnmount(afterEach)
 
-vi.mock(import('@scalar/use-hooks/useBreakpoints'), (importOriginal) => ({
-  ...importOriginal(),
-  useBreakpoints: () => ({
-    mediaQueries: {
-      lg: { value: true },
-    },
-  }),
-}))
-
 beforeEach(() => {
   vi.resetAllMocks()
   vi.unstubAllGlobals()
