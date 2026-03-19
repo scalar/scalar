@@ -150,7 +150,8 @@
     "github-slugger": "catalog:*",
     "type-fest": "catalog:*",
     "vue": "catalog:*",
-    "yaml": "catalog:*"
+    "yaml": "catalog:*",
+    "js-base64": "catalog:*"
   },
   "devDependencies": {
     "@google-cloud/storage": "catalog:*",

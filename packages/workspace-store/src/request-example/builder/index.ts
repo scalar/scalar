@@ -7,7 +7,13 @@ import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensi
 import type { XScalarCookie } from '@scalar/workspace-store/schemas/extensions/general/x-scalar-cookies'
 import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/operation'
+import { encode } from 'js-base64'
 
+import {
+  type BuildRequestSecurityResult,
+  buildRequestSecurity,
+} from '@/request-example/builder/security/build-request-security'
+import type { SecuritySchemeObjectSecret } from '@/request-example/builder/security/secret-types'
 import type { RequestExampleMeta, Result } from '@/request-example/types'
 
 import { type RequestBody, buildRequestBody } from './body/build-request-body'
@@ -23,8 +29,9 @@ type RequestFactory = {
   }
   headers: Headers
   body: RequestBody | null
-  cookies: { name: string; value: string } | null
+  cookies: { name: string; value: string }[] | null
   cache: RequestCache
+  security: BuildRequestSecurityResult[]
 }
 
 /**
@@ -41,7 +48,7 @@ export const requestFactoryBuilder = ({
   server,
   defaultHeaders,
   isElectron,
-  // selectedSecuritySchemes,
+  selectedSecuritySchemes,
 }: RequestExampleMeta & {
   /** The operation object */
   operation: OperationObject
@@ -58,7 +65,7 @@ export const requestFactoryBuilder = ({
   /** Whether the request is being made from an Electron environment */
   isElectron: boolean
   // /** The selected security schemes for the current operation */
-  // selectedSecuritySchemes: SecuritySchemeObjectSecret[]
+  selectedSecuritySchemes: SecuritySchemeObjectSecret[]
 }): Result<{
   request: RequestFactory
 }> => {
@@ -66,10 +73,9 @@ export const requestFactoryBuilder = ({
 
   /** Build out the request parameters */
   const params = buildRequestParameters(operation.parameters ?? [], exampleName)
-  // const security = buildRequestSecurity(selectedSecuritySchemes, env)
+  const security = buildRequestSecurity(selectedSecuritySchemes)
 
   const headers = new Headers({ ...defaultHeaders, ...params.headers }) // ...security.headers
-  const urlParams = new URLSearchParams([...params.urlParams]) // ...security.urlParams
 
   // If the method can have a body, build the request body, otherwise set it to null
   const body = canMethodHaveBody(method) ? buildRequestBody(requestBody, exampleName) : null
@@ -82,7 +88,7 @@ export const requestFactoryBuilder = ({
   /** Combine the server url, path and url params into a single url */
   // const url = getResolvedUrl({ environment, server, path, pathVariables: params.pathVariables, urlParams })
 
-  const url = mergeUrls(server?.url ?? '', path, urlParams)
+  const url = mergeUrls(server?.url ?? '', path, params.urlParams)
 
   // Return error for no url
   if (!url) {
@@ -101,14 +107,16 @@ export const requestFactoryBuilder = ({
 
   /** Build out the cookies header */
   const cookiesHeader = buildRequestCookieHeader({
-    paramCookies: [...params.cookies], // , ...security.cookies
+    paramCookies: [
+      ...params.cookies,
+      ...security.filter((s) => s.in === 'cookie').map((s) => ({ name: s.name, value: s.value })),
+    ],
     globalCookies,
     originalCookieHeader: headers.get('Cookie'),
     url,
     useCustomCookieHeader: isElectron || isUsingProxy,
     disabledGlobalCookies: operation['x-scalar-disable-parameters']?.['global-cookies']?.[exampleName] ?? {},
   })
-
   if (cookiesHeader) {
     headers.set(cookiesHeader.name, cookiesHeader.value)
   }
@@ -131,8 +139,9 @@ export const requestFactoryBuilder = ({
     method: method.toUpperCase(),
     headers,
     body,
-    cookies: cookiesHeader,
+    cookies: cookiesHeader ? [cookiesHeader] : null,
     cache: requestCacheMode,
+    security,
   }
 
   return {
@@ -204,6 +213,40 @@ export const getRequestFromBuilder = (
 
     return null
   })()
+
+  const urlParams = new URLSearchParams()
+
+  // Build the request security
+  request.security.forEach((security) => {
+    if (security.in === 'header') {
+      // Build the value for the header
+      const value = (() => {
+        if (security.type === 'basic') {
+          return `Basic ${encode(security.value)}`
+        }
+
+        if (security.type === 'bearer') {
+          return `Bearer ${security.value}`
+        }
+
+        return security.value
+      })()
+
+      // Set the header
+      headers.set(security.name, value)
+      return
+    }
+
+    if (security.in === 'query') {
+      urlParams.append(security.name, security.value)
+      return
+    }
+
+    if (security.in === 'cookie') {
+      // Skip the cookie header, should already be set in the request object header
+      return
+    }
+  })
 
   return new Request(requestUrl, {
     /**
