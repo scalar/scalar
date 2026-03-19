@@ -1,3 +1,4 @@
+import type { SecuritySchemeObjectSecret } from '@scalar/core/libs/secret-types'
 import { isDefined } from '@scalar/helpers/array/is-defined'
 import { objectKeys } from '@scalar/helpers/object/object-keys'
 import { replaceEnvVariables } from '@scalar/helpers/regex/replace-variables'
@@ -11,7 +12,6 @@ import type { SecurityRequirementObject } from '@scalar/workspace-store/schemas/
 import { encode } from 'js-base64'
 
 import type { MergedSecuritySchemes } from '@/v2/blocks/scalar-auth-selector-block/helpers/merge-security'
-import type { SecuritySchemeObjectSecret } from '@/v2/blocks/scalar-auth-selector-block/helpers/secret-types'
 
 /**
  * Get the selected security schemes from security requirements.

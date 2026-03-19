@@ -26,6 +26,51 @@
       "import": "./dist/libs/html-rendering/index.js",
       "types": "./dist/libs/html-rendering/index.d.ts",
       "default": "./dist/libs/html-rendering/index.js"
+    },
+    "./libs/de-serialize-parameter": {
+      "import": "./dist/libs/de-serialize-parameter/index.js",
+      "types": "./dist/libs/de-serialize-parameter/index.d.ts",
+      "default": "./dist/libs/de-serialize-parameter/index.js"
+    },
+    "./libs/serialize-parameter": {
+      "import": "./dist/libs/serialize-parameter/index.js",
+      "types": "./dist/libs/serialize-parameter/index.d.ts",
+      "default": "./dist/libs/serialize-parameter/index.js"
+    },
+    "./libs/get-example": {
+      "import": "./dist/libs/get-example/index.js",
+      "types": "./dist/libs/get-example/index.d.ts",
+      "default": "./dist/libs/get-example/index.js"
+    },
+    "./libs/get-resolved-ref-deep": {
+      "import": "./dist/libs/get-resolved-ref-deep/index.js",
+      "types": "./dist/libs/get-resolved-ref-deep/index.d.ts",
+      "default": "./dist/libs/get-resolved-ref-deep/index.js"
+    },
+    "./libs/filter-global-cookies": {
+      "import": "./dist/libs/filter-global-cookies/index.js",
+      "types": "./dist/libs/filter-global-cookies/index.d.ts",
+      "default": "./dist/libs/filter-global-cookies/index.js"
+    },
+    "./libs/get-default-headers": {
+      "import": "./dist/libs/get-default-headers/index.js",
+      "types": "./dist/libs/get-default-headers/index.d.ts",
+      "default": "./dist/libs/get-default-headers/index.js"
+    },
+    "./libs/is-param-disabled": {
+      "import": "./dist/libs/is-param-disabled/index.js",
+      "types": "./dist/libs/is-param-disabled/index.d.ts",
+      "default": "./dist/libs/is-param-disabled/index.js"
+    },
+    "./libs/secret-types": {
+      "import": "./dist/libs/secret-types/index.js",
+      "types": "./dist/libs/secret-types/index.d.ts",
+      "default": "./dist/libs/secret-types/index.js"
+    },
+    "./libs/get-snippet": {
+      "import": "./dist/libs/get-snippet/index.js",
+      "types": "./dist/libs/get-snippet/index.d.ts",
+      "default": "./dist/libs/get-snippet/index.js"
     }
   },
   "files": [
@@ -33,9 +78,14 @@
     "CHANGELOG.md"
   ],
   "dependencies": {
-    "@scalar/types": "workspace:*"
+    "@scalar/helpers": "workspace:*",
+    "@scalar/snippetz": "workspace:*",
+    "@scalar/types": "workspace:*",
+    "@scalar/workspace-store": "workspace:*",
+    "@types/har-format": "^1.2.16"
   },
   "devDependencies": {
-    "vite": "catalog:*"
+    "vite": "catalog:*",
+    "vitest": "catalog:*"
   }
 }

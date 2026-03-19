@@ -1,3 +1,4 @@
+import type { SecuritySchemeObjectSecret } from '@scalar/core/libs/secret-types'
 import { objectEntries } from '@scalar/helpers/object/object-entries'
 import type { AuthenticationConfiguration } from '@scalar/types/api-reference'
 import type { AuthStore } from '@scalar/workspace-store/entities/auth'
@@ -12,7 +13,6 @@ import {
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
 import { extractSecuritySchemeSecrets } from './extract-security-scheme-secrets'
-import type { SecuritySchemeObjectSecret } from './secret-types'
 
 /** Document security merged with the config security schemes */
 export type MergedSecuritySchemes = Record<string, SecuritySchemeObjectSecret>

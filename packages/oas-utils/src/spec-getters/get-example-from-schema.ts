@@ -479,7 +479,7 @@ const getUnionPrimitiveValue = (
  * @param name - The name of the property being processed.
  * @returns An example value for the given schema.
  *
- * @deprecated Use the one from `@scalar/api-client/v2/blocks/operation-code-sample` instead.
+ * @deprecated Use the one from `@scalar/blocks/operation-code-sample` instead.
  */
 export const getExampleFromSchema = (
   schema: OpenAPIV3_1.SchemaObject,

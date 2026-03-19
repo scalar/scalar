@@ -23,6 +23,7 @@ export default {
 </script>
 
 <script setup lang="ts">
+import { HttpMethod as HttpMethodBadge } from '@scalar/blocks/operation-code-sample'
 import {
   ScalarButton,
   ScalarDropdown,
@@ -38,8 +39,6 @@ import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { computed, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
-
-import HttpMethodBadge from '@/v2/blocks/operation-code-sample/components/HttpMethod.vue'
 
 import CommandActionForm from './CommandActionForm.vue'
 import CommandActionInput from './CommandActionInput.vue'

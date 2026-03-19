@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { getExample } from '@scalar/api-client/v2/blocks/operation-block'
-import { ExamplePicker } from '@scalar/api-client/v2/blocks/operation-code-sample'
+import { ExamplePicker } from '@scalar/blocks/operation-code-sample'
 import {
   ScalarCard,
   ScalarCardFooter,

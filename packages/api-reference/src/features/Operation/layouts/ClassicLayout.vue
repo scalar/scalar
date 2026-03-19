@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { OperationCodeSample } from '@scalar/api-client/v2/blocks/operation-code-sample'
 import type { SecuritySchemeObjectSecret } from '@scalar/api-client/v2/blocks/scalar-auth-selector-block'
+import { OperationCodeSample } from '@scalar/blocks/operation-code-sample'
 import {
   ScalarErrorBoundary,
   ScalarIconButton,

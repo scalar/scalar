@@ -43,9 +43,9 @@ export type OperationProps = {
 </script>
 
 <script lang="ts" setup>
-import type { ClientOptionGroup } from '@scalar/api-client/v2/blocks/operation-code-sample'
 import type { MergedSecuritySchemes } from '@scalar/api-client/v2/blocks/scalar-auth-selector-block'
 import { combineParams } from '@scalar/api-client/v2/features/operation'
+import type { ClientOptionGroup } from '@scalar/blocks/operation-code-sample'
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import type { ApiReferenceConfigurationRaw } from '@scalar/types/api-reference'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'

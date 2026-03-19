@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { generateClientOptions } from '@scalar/api-client/v2/blocks/operation-code-sample'
 import { mergeSecurity } from '@scalar/api-client/v2/blocks/scalar-auth-selector-block'
 import { mapHiddenClientsConfig } from '@scalar/api-client/v2/features/modal'
 import { getSelectedServer } from '@scalar/api-client/v2/features/operation'
 import { getServers } from '@scalar/api-client/v2/helpers'
+import { generateClientOptions } from '@scalar/blocks/operation-code-sample'
 import { ScalarErrorBoundary } from '@scalar/components'
 import type { ApiReferenceConfigurationRaw } from '@scalar/types/api-reference'
 import type { Heading } from '@scalar/types/legacy'

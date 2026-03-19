@@ -1,11 +1,10 @@
+import { filterGlobalCookie } from '@scalar/core/libs/filter-global-cookies'
 import { replaceEnvVariables } from '@scalar/helpers/regex/replace-variables'
 import {
   type XScalarCookie,
   xScalarCookieSchema,
 } from '@scalar/workspace-store/schemas/extensions/general/x-scalar-cookies'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
-
-import { filterGlobalCookie } from '@/v2/blocks/operation-block/helpers/filter-global-cookies'
 
 const CUSTOM_COOKIE_HEADER_WARNING =
   "We're using a `X-Scalar-Cookie` custom header to the request. The proxy will forward this as a `Cookie` header. We do this to avoid the browser omitting the `Cookie` header for cross-origin requests for security reasons."

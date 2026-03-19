@@ -162,11 +162,6 @@
       "types": "./dist/v2/blocks/operation-block/index.d.ts",
       "default": "./dist/v2/blocks/operation-block/index.js"
     },
-    "./v2/blocks/operation-code-sample": {
-      "import": "./dist/v2/blocks/operation-code-sample/index.js",
-      "types": "./dist/v2/blocks/operation-code-sample/index.d.ts",
-      "default": "./dist/v2/blocks/operation-code-sample/index.js"
-    },
     "./v2/blocks/request-block": {
       "import": "./dist/v2/blocks/request-block/index.js",
       "types": "./dist/v2/blocks/request-block/index.d.ts",
@@ -336,7 +331,9 @@
     "@headlessui/tailwindcss": "catalog:*",
     "@headlessui/vue": "catalog:*",
     "@scalar/analytics-client": "workspace:*",
+    "@scalar/blocks": "workspace:*",
     "@scalar/components": "workspace:*",
+    "@scalar/core": "workspace:*",
     "@scalar/draggable": "workspace:*",
     "@scalar/helpers": "workspace:*",
     "@scalar/icons": "workspace:*",

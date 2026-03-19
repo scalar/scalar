@@ -19,17 +19,13 @@
   ],
   "version": "0.0.0",
   "engines": {
-    "node": ">=18"
+    "node": ">=22"
   },
   "scripts": {
-    "build": "scalar-build-vite",
-    "format": "scalar-format",
-    "format:check": "scalar-format-check",
-    "lint:check": "scalar-lint-check",
-    "lint:fix": "scalar-lint-fix",
+    "build": "vite build && vue-tsc -p tsconfig.build.json",
+    "dev": "vite",
     "test": "vitest",
-    "types:build": "scalar-types-build",
-    "types:check": "scalar-types-check"
+    "types:check": "vue-tsc --noEmit"
   },
   "type": "module",
   "exports": {
@@ -54,18 +50,25 @@
     "CHANGELOG.md"
   ],
   "dependencies": {
+    "@scalar/components": "workspace:*",
+    "@scalar/core": "workspace:*",
+    "@scalar/helpers": "workspace:*",
+    "@scalar/icons": "workspace:*",
     "@scalar/snippetz": "workspace:*",
-    "vue": "catalog:*",
-    "@scalar/workspace-store": "workspace:*"
+    "@scalar/types": "workspace:*",
+    "@scalar/workspace-store": "workspace:*",
+    "@types/har-format": "^1.2.16",
+    "js-base64": "catalog:*",
+    "vue": "catalog:*"
   },
   "devDependencies": {
-    "@vitejs/plugin-vue": "catalog:*",
-    "@scalar/helpers": "workspace:*",
     "@scalar/json-magic": "workspace:*",
-    "@scalar/components": "workspace:*",
-    "@scalar/icons": "workspace:*",
+    "@scalar/openapi-types": "workspace:*",
     "@tailwindcss/vite": "catalog:*",
-    "@scalar/build-tooling": "workspace:*",
+    "@vitejs/plugin-vue": "catalog:*",
+    "@vue/test-utils": "catalog:*",
+    "jsdom": "catalog:*",
+    "tailwindcss": "catalog:*",
     "vite": "catalog:*",
     "vitest": "catalog:*"
   }
