@@ -1,31 +1,14 @@
-import type { HttpMethod } from '@scalar/helpers/http/http-methods'
-
 import type { WorkspaceStore } from '@/client'
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
 import { getActiveEnvironment } from '@/request-example/environment'
 import { type DefaultHeader, getDefaultHeaders } from '@/request-example/headers'
 import { type Layout, getActiveProxyUrl } from '@/request-example/proxy'
 import { getSelectedServer, getServers } from '@/request-example/servers'
+import type { RequestExampleMeta, Result } from '@/request-example/types'
 import type { XScalarEnvironment } from '@/schemas/extensions/document/x-scalar-environments'
 import type { XScalarCookie } from '@/schemas/extensions/general/x-scalar-cookies'
 import type { OperationObject } from '@/schemas/v3.1/strict/operation'
 import type { ServerObject } from '@/schemas/v3.1/strict/server'
-
-export type RequestExampleMeta = {
-  path: string
-  method: HttpMethod
-  exampleName: string
-}
-
-type Result<T> =
-  | {
-      ok: true
-      data: T
-    }
-  | {
-      ok: false
-      error: string
-    }
 
 type BuildRequestExampleContext = {
   operation: OperationObject
@@ -49,7 +32,7 @@ type BuildRequestExampleContext = {
   }
 }
 
-export const buildRequestExample = (
+export const getRequestExampleContext = (
   workspaceStore: WorkspaceStore,
   documentName: string,
   requestExampleMeta: RequestExampleMeta,
