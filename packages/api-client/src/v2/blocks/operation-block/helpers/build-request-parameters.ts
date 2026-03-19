@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { isDefined } from '@scalar/helpers/array/is-defined'
 import { isObject } from '@scalar/helpers/object/is-object'
 import { replaceEnvVariables } from '@scalar/helpers/regex/replace-variables'
@@ -158,6 +157,30 @@ const getStyle = (param: ParameterObject, replacedValue: unknown): string => {
   return param.style
 }
 
+/** Whether the parameter allows reserved characters (from param or schema). */
+const isAllowReserved = (param: ParameterObject): boolean => {
+  if ('allowReserved' in param && param.allowReserved === true) {
+    return true
+  }
+  if ('schema' in param && param.schema && typeof param.schema === 'object' && 'allowReserved' in param.schema) {
+    return (param.schema as { allowReserved?: boolean }).allowReserved === true
+  }
+  return false
+}
+
+/** When allowReserved is true, add keys to the set so reserved chars stay unescaped in the URL. */
+const trackReservedKeys = (
+  allowReservedQueryParameters: Set<string>,
+  allowReserved: boolean,
+  ...keys: string[]
+): void => {
+  if (allowReserved) {
+    for (const key of keys) {
+      allowReservedQueryParameters.add(key)
+    }
+  }
+}
+
 /**
  * Helper function to process query parameters.
  * Extracted to reduce complexity in main function.
@@ -171,12 +194,7 @@ const processQueryParameter = (
 ): void => {
   /** If the parameter should be exploded, defaults to true for form style */
   const explodeParam = 'explode' in param && param.explode !== undefined ? param.explode : true
-  const paramAllowReserved = 'allowReserved' in param && param.allowReserved === true
-  const schemaAllowReserved =
-    param.schema && typeof param.schema === 'object' && 'allowReserved' in param.schema
-      ? (param.schema as { allowReserved?: boolean }).allowReserved === true
-      : false
-  const allowReserved = paramAllowReserved || schemaAllowReserved
+  const allowReserved = isAllowReserved(param)
 
   /** Style of the parameter, defaults to form */
   const style = getStyle(param, replacedValue)
@@ -187,9 +205,7 @@ const processQueryParameter = (
     const paramContentType = Object.keys(param.content)[0] ?? 'application/json'
     const serializedValue = serializeContentValue(replacedValue, paramContentType)
     urlParams.set(paramName, serializedValue)
-    if (allowReserved) {
-      allowReservedQueryParameters.add(paramName)
-    }
+    trackReservedKeys(allowReservedQueryParameters, allowReserved, paramName)
     return
   }
 
@@ -198,9 +214,7 @@ const processQueryParameter = (
     const entries = serializeDeepObjectStyle(paramName, replacedValue)
     for (const entry of entries) {
       urlParams.append(entry.key, entry.value)
-      if (allowReserved) {
-        allowReservedQueryParameters.add(entry.key)
-      }
+      trackReservedKeys(allowReservedQueryParameters, allowReserved, entry.key)
     }
     return
   }
@@ -210,9 +224,7 @@ const processQueryParameter = (
     const serialized = serializeSpaceDelimitedStyle(replacedValue)
     const existingValue = urlParams.get(paramName)
     urlParams.set(paramName, existingValue ? `${existingValue} ${serialized}` : serialized)
-    if (allowReserved) {
-      allowReservedQueryParameters.add(paramName)
-    }
+    trackReservedKeys(allowReservedQueryParameters, allowReserved, paramName)
     return
   }
 
@@ -221,9 +233,7 @@ const processQueryParameter = (
     const serialized = serializePipeDelimitedStyle(replacedValue)
     const existingValue = urlParams.get(paramName)
     urlParams.set(paramName, existingValue ? `${existingValue}|${serialized}` : serialized)
-    if (allowReserved) {
-      allowReservedQueryParameters.add(paramName)
-    }
+    trackReservedKeys(allowReservedQueryParameters, allowReserved, paramName)
     return
   }
 
@@ -236,16 +246,12 @@ const processQueryParameter = (
       // If key is empty, use paramName (for arrays)
       const key = entry.key || paramName
       urlParams.append(key, String(entry.value))
-      if (allowReserved) {
-        allowReservedQueryParameters.add(key)
-      }
+      trackReservedKeys(allowReservedQueryParameters, allowReserved, key)
     }
   } else {
     // Otherwise, convert to string for URLSearchParams
     urlParams.append(paramName, String(serialized))
-    if (allowReserved) {
-      allowReservedQueryParameters.add(paramName)
-    }
+    trackReservedKeys(allowReservedQueryParameters, allowReserved, paramName)
   }
 }
 
