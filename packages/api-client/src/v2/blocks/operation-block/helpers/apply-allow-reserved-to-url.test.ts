@@ -17,6 +17,13 @@ describe('applyAllowReservedToUrl', () => {
     expect(result).toBe('https://api.example.com/users?sort=name:asc&filter=status%3Aactive')
   })
 
+  it('keeps structural query characters percent-encoded for allowReserved keys', () => {
+    const url = 'https://api.example.com/users?sort=name%3Aasc%23x%26y%3Dz%2Bv%3Fq%5B0%5D'
+    const result = applyAllowReservedToUrl(url, new Set(['sort']))
+
+    expect(result).toBe('https://api.example.com/users?sort=name:asc%23x%26y%3Dz%2Bv%3Fq%5B0%5D')
+  })
+
   it('keeps non-reserved encodings unchanged for allowReserved keys', () => {
     const url = 'https://api.example.com/users?sort=name%3Aasc%20latest%25'
     const result = applyAllowReservedToUrl(url, new Set(['sort']))

@@ -483,6 +483,38 @@ describe('buildRequest', () => {
     expect(result?.request.url).toBe('https://api.example.com/search?sort=name:asc')
   })
 
+  it('keeps structural query characters encoded when allowReserved is true', () => {
+    const [error, result] = buildRequest({
+      environment: mockEnvironment,
+      exampleKey: 'default',
+      globalCookies: [],
+      method: 'get',
+      operation: {
+        parameters: [
+          {
+            in: 'query',
+            name: 'sort',
+            allowReserved: true,
+            schema: { type: 'string' },
+            examples: {
+              default: {
+                value: 'name:asc#x&y=z+v?q[0]',
+                'x-disabled': false,
+              },
+            },
+          } as any,
+        ],
+      },
+      path: '/search',
+      proxyUrl: '',
+      selectedSecuritySchemes: [],
+      server: mockServer,
+    })
+
+    expect(error).toBe(null)
+    expect(result?.request.url).toBe('https://api.example.com/search?sort=name:asc%23x%26y%3Dz%2Bv%3Fq%5B0%5D')
+  })
+
   it('encodes reserved characters in query values when allowReserved is false', () => {
     const [error, result] = buildRequest({
       environment: mockEnvironment,

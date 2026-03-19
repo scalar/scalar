@@ -1,33 +1,31 @@
 /**
- * RFC3986's reserved character set
+ * Reserved characters we can safely decode in query values when OpenAPI
+ * `allowReserved` is enabled.
  *
- * @see https://datatracker.ietf.org/doc/html/rfc3986#section-2.2
+ * We intentionally keep percent-encodings for characters that can break query
+ * parsing (`#`, `&`, `=`, `?`, `[`, `]`) or change x-www-form-urlencoded
+ * semantics (`+`).
+ *
+ * @see https://spec.openapis.org/oas/v3.1.0.html#fixed-fields-10
  */
-const RESERVED_CHARACTERS_BY_PERCENT_ENCODING: Record<string, string> = {
+const DECODABLE_RESERVED_CHARACTERS_BY_PERCENT_ENCODING: Record<string, string> = {
   '21': '!',
-  '23': '#',
   '24': '$',
-  '26': '&',
   '27': "'",
   '28': '(',
   '29': ')',
   '2A': '*',
-  '2B': '+',
   '2C': ',',
   '2F': '/',
   '3A': ':',
   '3B': ';',
-  '3D': '=',
-  '3F': '?',
   '40': '@',
-  '5B': '[',
-  '5D': ']',
 }
 
 const decodeReservedCharacters = (value: string): string =>
   value.replace(
     /%([0-9A-Fa-f]{2})/g,
-    (match, code: string) => RESERVED_CHARACTERS_BY_PERCENT_ENCODING[code.toUpperCase()] ?? match,
+    (match, code: string) => DECODABLE_RESERVED_CHARACTERS_BY_PERCENT_ENCODING[code.toUpperCase()] ?? match,
   )
 
 const decodeQueryKey = (key: string): string => {
