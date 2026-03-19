@@ -2,7 +2,7 @@ ARG BASE_IMAGE
 FROM ${BASE_IMAGE} AS builder
 WORKDIR /app
 
-RUN pnpm --filter @scalar-examples/galaxy build
+RUN pnpm --filter galaxy-scalar-com build
 
 FROM node:20-bullseye-slim AS runner
 COPY --from=builder /usr/bin/dumb-init /usr/bin/dumb-init
@@ -18,7 +18,8 @@ RUN chown node:node /app
 COPY --from=builder /app/node_modules /app/node_modules
 COPY --from=builder /app/integrations/hono /app/integrations/hono
 COPY --from=builder /app/packages /app/packages
+COPY --from=builder /app/projects/galaxy-scalar-com /app/projects/galaxy-scalar-com
 
-WORKDIR /app/packages/mock-server
+WORKDIR /app/projects/galaxy-scalar-com
 
-CMD ["dumb-init", "node", "playground/dist/index.js"]
+CMD ["dumb-init", "node", "dist/index.js"]

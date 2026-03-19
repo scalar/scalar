@@ -22,8 +22,6 @@
   },
   "scripts": {
     "build": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
-    "dev": "cd playground && pnpm run dev",
-    "dev:local": "cd playground && pnpm run dev:local",
     "test": "vitest",
     "types:check": "tsc --noEmit"
   },
