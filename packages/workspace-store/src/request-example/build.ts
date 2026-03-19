@@ -2,8 +2,9 @@ import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 
 import type { WorkspaceStore } from '@/client'
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
-// import { type ExtendedScalarCookie, getGlobalCookies } from '@/request-example/cookies'
 import { getActiveEnvironment } from '@/request-example/environment'
+import { type DefaultHeader, getDefaultHeaders } from '@/request-example/headers'
+import { type Layout, getActiveProxyUrl } from '@/request-example/proxy'
 import { getSelectedServer, getServers } from '@/request-example/servers'
 import type { XScalarEnvironment } from '@/schemas/extensions/document/x-scalar-environments'
 import type { XScalarCookie } from '@/schemas/extensions/general/x-scalar-cookies'
@@ -40,6 +41,12 @@ type BuildRequestExampleContext = {
     list: ServerObject[]
     selected: ServerObject | null
   }
+  proxy: {
+    url: string | null
+  }
+  headers: {
+    default: DefaultHeader[]
+  }
 }
 
 export const buildRequestExample = (
@@ -49,9 +56,12 @@ export const buildRequestExample = (
   options: Partial<{
     servers: ServerObject[]
     baseServerUrl: string
+    layout: Layout
+    appVersion: string
+    isElectron: boolean
   }> = {},
 ): Result<BuildRequestExampleContext> => {
-  const { path, method, exampleName: _ } = requestExampleMeta
+  const { path, method, exampleName } = requestExampleMeta
   const document = workspaceStore.workspace.documents[documentName]
   if (!document) {
     return {
@@ -116,7 +126,14 @@ export const buildRequestExample = (
   //                                 PROXY URL
   //------------------------------------------------------------------------------------------------
   // Get proxy url for the request example
-  // const proxyUrl = getProxyUrl(workspaceStore, document)
+  const proxyUrl = getActiveProxyUrl(workspaceStore.workspace['x-scalar-active-proxy'], options.layout ?? 'other')
+
+  const defaultHeaders = getDefaultHeaders({
+    method,
+    operation,
+    exampleName,
+    options: { appVersion: options.appVersion ?? '0.0.0', isElectron: options.isElectron ?? false },
+  })
 
   return {
     ok: true,
@@ -127,9 +144,15 @@ export const buildRequestExample = (
         workspace: workspaceStore.workspace['x-scalar-cookies'] ?? [],
         document: document['x-scalar-cookies'] ?? [],
       },
+      headers: {
+        default: defaultHeaders,
+      },
       servers: {
         list: serverList,
         selected: selectedServer,
+      },
+      proxy: {
+        url: proxyUrl,
       },
     },
   }
