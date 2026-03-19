@@ -8,6 +8,7 @@ import type { ViteDevServer } from 'vite'
 type RenderedOutput = {
   head?: string
   html?: string
+  bodyScript?: string
 }
 
 type ServerRender = (url: string) => Promise<RenderedOutput>
@@ -94,6 +95,7 @@ app.get('*', async (c: Context) => {
 
     const html = template
       .replace('<!--app-head-->', rendered.head ?? '')
+      .replace('<!--app-body-script-->', rendered.bodyScript ?? '')
       .replace('<!--app-html-->', rendered.html ?? '')
 
     return c.html(html)
