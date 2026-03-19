@@ -3,7 +3,7 @@ import { mergeUrls } from '@scalar/helpers/url/merge-urls'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/server'
 
-import { applyAllowReservedToUrl } from '@/libs/send-request/apply-allow-reserved-to-url'
+import { applyAllowReservedToUrl } from '@/v2/blocks/operation-block/helpers/apply-allow-reserved-to-url'
 import { getEnvironmentVariables } from '@/v2/blocks/operation-block/helpers/get-environment-variables'
 import { getServerUrl } from '@/v2/blocks/operation-block/helpers/get-server-url'
 
