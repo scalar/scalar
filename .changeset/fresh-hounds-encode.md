@@ -1,6 +1,5 @@
 ---
 '@scalar/api-client': patch
-'@scalar/oas-utils': patch
 '@scalar/workspace-store': patch
 ---
 

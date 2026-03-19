@@ -311,11 +311,12 @@ describe('buildRequestParameters', () => {
             name: 'sort',
             in: 'query',
             required: true,
+            // Legacy/non-standard fallback: schema-level allowReserved.
             schema: { type: 'string', allowReserved: true },
             examples: {
               default: { value: 'run_time:desc', 'x-disabled': false },
             },
-          },
+          } as unknown as ParameterObject,
         ]
 
         const result = buildRequestParameters(params)
@@ -350,11 +351,12 @@ describe('buildRequestParameters', () => {
             in: 'query',
             required: true,
             allowReserved: false,
+            // Legacy/non-standard fallback: schema-level allowReserved.
             schema: { type: 'string', allowReserved: true },
             examples: {
               default: { value: 'run_time:desc', 'x-disabled': false },
             },
-          },
+          } as unknown as ParameterObject,
         ]
 
         const result = buildRequestParameters(params)
