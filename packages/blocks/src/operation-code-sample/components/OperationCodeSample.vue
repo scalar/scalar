@@ -328,11 +328,6 @@ const id = useId()
       <span
         v-if="generateLabel"
         v-html="generateLabel()" />
-      <span
-        v-else
-        class="operation-path font-code text-c-2 [&_em]:text-c-1 [&_em]:not-italic"
-        >{{ path }}</span
-      >
       <slot name="header" />
       <!-- Client picker -->
       <template
