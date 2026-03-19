@@ -1032,8 +1032,8 @@ const showMCPButton = computed(() => {
           <template #start>
             <DeveloperTools
               v-if="workspaceStore.workspace.activeDocument"
-              class="references-developer-tools"
               v-model:overrides="configurationOverrides"
+              class="references-developer-tools"
               :configuration="mergedConfig"
               :workspace="workspaceStore" />
 
@@ -1217,7 +1217,7 @@ const showMCPButton = computed(() => {
 @media (max-width: 1000px) {
   /* Keep toolbar hidden on mobile without forcing desktop display mode. */
   .references-developer-tools {
-    display: none !important;
+    display: none;
   }
 
   /* Stack view on mobile */
