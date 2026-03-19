@@ -44,25 +44,8 @@ type Raw = {
 
 export type RequestBody = FormData | UrlEncoded | Raw
 
-const getMultipartEncodingContentType = (
-  requestBody: RequestBodyObject,
-  bodyContentType: string,
-  fieldName: string,
-  replacedFieldName: string,
-) =>
-  requestBody.content[bodyContentType]?.encoding?.[fieldName]?.contentType ??
-  requestBody.content[bodyContentType]?.encoding?.[replacedFieldName]?.contentType
-
-// const serializeMultipartValue = (value: unknown, env: Record<string, string>) => {
-//   if (typeof value === 'string') {
-//     return replaceEnvVariables(value, env)
-//   }
-
-//   const serializedValue =
-//     typeof value === 'object' && value !== null ? JSON.stringify(unpackProxyObject(value)) : String(value)
-
-//   return replaceEnvVariables(serializedValue, env)
-// }
+const getMultipartEncodingContentType = (requestBody: RequestBodyObject, bodyContentType: string, fieldName: string) =>
+  requestBody.content[bodyContentType]?.encoding?.[fieldName]?.contentType
 
 /**
  * Create the fetch request body
@@ -108,7 +91,7 @@ export const buildRequestBody = (
         return
       }
       const partContentType =
-        form instanceof FormData ? getMultipartEncodingContentType(requestBody, bodyContentType, name, name) : undefined
+        form instanceof FormData ? getMultipartEncodingContentType(requestBody, bodyContentType, name) : undefined
 
       // Handle file uploads
       if (value instanceof File && form instanceof FormData) {
@@ -135,7 +118,6 @@ export const buildRequestBody = (
       }
       // Text and structured inputs
       else if (value !== undefined && value !== null) {
-        // const serializedValue = serializeMultipartValue(value, env)
         const serializedValue =
           typeof value === 'object' && value !== null ? JSON.stringify(unpackProxyObject(value)) : String(value)
 

@@ -1,6 +1,6 @@
 import type { XScalarCookie } from '@scalar/workspace-store/schemas/extensions/general/x-scalar-cookies'
 
-import { matchesDomain } from '@/libs/send-request/set-request-cookies'
+import { matchesDomain } from './matches-domain'
 
 /**
  * Filter a global cookie to determine if it should be included with a request to the given URL.

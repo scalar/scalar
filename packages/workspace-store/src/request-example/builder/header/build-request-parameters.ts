@@ -8,8 +8,8 @@ import {
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import type { ParameterObject, ReferenceType } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
+import { getExample } from '../helpers/get-example'
 import { deSerializeParameter } from './de-serialize-parameter'
-import { getExample } from './get-example'
 import { isParamDisabled } from './is-param-disabled'
 import {
   serializeContentValue,

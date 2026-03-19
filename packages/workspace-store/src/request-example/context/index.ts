@@ -1,9 +1,9 @@
 import type { WorkspaceStore } from '@/client'
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
-import { getActiveEnvironment } from '@/request-example/environment'
-import { type DefaultHeader, getDefaultHeaders } from '@/request-example/headers'
-import { type Layout, getActiveProxyUrl } from '@/request-example/proxy'
-import { getSelectedServer, getServers } from '@/request-example/servers'
+import { getActiveEnvironment } from '@/request-example/context/environment'
+import { type DefaultHeader, getDefaultHeaders } from '@/request-example/context/headers'
+import { type Layout, getActiveProxyUrl } from '@/request-example/context/proxy'
+import { getSelectedServer, getServers } from '@/request-example/context/servers'
 import type { RequestExampleMeta, Result } from '@/request-example/types'
 import type { XScalarEnvironment } from '@/schemas/extensions/document/x-scalar-environments'
 import type { XScalarCookie } from '@/schemas/extensions/general/x-scalar-cookies'
@@ -75,11 +75,6 @@ export const getRequestExampleContext = (
   const environment = getActiveEnvironment(workspaceStore, document)
 
   //------------------------------------------------------------------------------------------------
-  //                                 COOKIES CONTEXT
-  //------------------------------------------------------------------------------------------------
-  // TODO: Think about this again based on the context
-
-  //------------------------------------------------------------------------------------------------
   //                                 SERVER CONTEXT
   //------------------------------------------------------------------------------------------------
   // Get server context for the request example
@@ -88,7 +83,6 @@ export const getRequestExampleContext = (
     documentUrl: document['x-scalar-original-source-url'],
   })
   const selectedServer = getSelectedServer(document, operation, options.servers ?? null, serverList)
-  // const activeServer =
 
   //------------------------------------------------------------------------------------------------
   //                                 SECURITY CONTEXT

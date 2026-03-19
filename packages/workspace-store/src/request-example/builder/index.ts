@@ -10,15 +10,15 @@ import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/stric
 
 import type { RequestExampleMeta, Result } from '@/request-example/types'
 
-import { type RequestBody, buildRequestBody } from './build-request-body'
-import { buildRequestCookieHeader } from './build-request-cookie-header'
-import { buildRequestParameters } from './build-request-parameters'
+import { type RequestBody, buildRequestBody } from './body/build-request-body'
+import { buildRequestCookieHeader } from './header/build-request-cookie-header'
+import { buildRequestParameters } from './header/build-request-parameters'
 
 type RequestFactory = {
   url: string
   method: string
   proxy: {
-    url: string
+    proxiedUrl: string
     isUsingProxy: boolean
   }
   headers: Headers
@@ -31,7 +31,7 @@ type RequestFactory = {
  * Builds a request object fastory which can be used to build a request object.
  * @returns A request object factory
  */
-export const requestFactory = ({
+export const requestFactoryBuilder = ({
   exampleName,
   globalCookies,
   method,
@@ -74,14 +74,10 @@ export const requestFactory = ({
   // If the method can have a body, build the request body, otherwise set it to null
   const body = canMethodHaveBody(method) ? buildRequestBody(requestBody, exampleName) : null
 
+  // Delete the Content-Type header so the browser will set it automatically based on the request body
   if (body?.mode === 'formdata' || body?.mode === 'urlencoded') {
     headers.delete('Content-Type')
   }
-
-  // if (body && (body instanceof FormData || body instanceof URLSearchParams)) {
-  //   // Delete the Content-Type header so the browser will set it automatically based on the request body
-  //   headers.delete('Content-Type')
-  // }
 
   /** Combine the server url, path and url params into a single url */
   // const url = getResolvedUrl({ environment, server, path, pathVariables: params.pathVariables, urlParams })
@@ -129,7 +125,7 @@ export const requestFactory = ({
   const request: RequestFactory = {
     url,
     proxy: {
-      url: proxiedUrl,
+      proxiedUrl,
       isUsingProxy,
     },
     method: method.toUpperCase(),
@@ -145,7 +141,7 @@ export const requestFactory = ({
   }
 }
 
-export const buildRequest = (
+export const getRequestFromBuilder = (
   request: RequestFactory,
   options: {
     envVariables: Record<string, string>
@@ -157,7 +153,7 @@ export const buildRequest = (
   const requestUrl = (() => {
     const variables = { ...options.envVariables, ...options.serverVariables }
     if (request.proxy.isUsingProxy) {
-      return replaceEnvVariables(request.proxy.url, variables)
+      return replaceEnvVariables(request.proxy.proxiedUrl, variables)
     }
     return replaceEnvVariables(request.url, variables)
   })()
