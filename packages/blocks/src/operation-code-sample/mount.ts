@@ -45,6 +45,7 @@ export const createCodeExample = (el: HTMLElement | string, options: createCodeE
     selectedServer: options.selectedServer ?? null,
   })
 
+  // @ts-expect-error TODO Needs proper typing
   const app = createApp(() => h('div', { class: 'scalar-app dark-mode' }, h(OperationCodeSample, props)))
 
   app.mount(element)
