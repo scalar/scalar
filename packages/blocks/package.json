@@ -23,7 +23,7 @@
   },
   "scripts": {
     "build": "vite build && vue-tsc -p tsconfig.build.json",
-    "dev": "vite",
+    "dev": "vite --config playground/vite.config.ts",
     "test": "vitest",
     "types:check": "vue-tsc --noEmit"
   },
