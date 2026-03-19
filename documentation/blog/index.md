@@ -111,11 +111,16 @@ Scalar joined the OSS Pledge: paying open-source maintainers ($2,000+ per develo
 .t-editor__card .card-content {
   position: relative;
 }
+.t-editor__card .card-title {
+  /* Leave some room for the date */
+  margin-right: 90px;
+}
 .t-editor__card .t-editor__fine-print {
   position: absolute;
-  top: 0;
+  top: 9px;
   right: 0;
   margin: 0;
+  translate: 0 -50%;
 }
 .t-editor__card .t-editor__paragraph {
    margin-top: 8px;
