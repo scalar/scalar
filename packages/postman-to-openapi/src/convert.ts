@@ -3,27 +3,15 @@ import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { processAuth } from '@/helpers/auth'
 import { processContact } from '@/helpers/contact'
 import { processExternalDocs } from '@/helpers/external-docs'
-import { generateUniqueValue } from '@/helpers/generate-unique-value'
 import { processLicense } from '@/helpers/license'
 import { processLogo } from '@/helpers/logo'
-import { getExampleNames, renameOperationExamples } from '@/helpers/operation-examples'
+import { OPERATION_KEYS, mergePathItem } from '@/helpers/merge-path-item'
 import { processItem } from '@/helpers/path-items'
 import { pruneDocument } from '@/helpers/prune-document'
 import { analyzeServerDistribution } from '@/helpers/servers'
 import { normalizePath } from '@/helpers/urls'
 
 import type { Description, Item, ItemGroup, PostmanCollection } from './types'
-
-const OPERATION_KEYS: readonly (keyof OpenAPIV3_1.PathItemObject)[] = [
-  'get',
-  'put',
-  'post',
-  'delete',
-  'options',
-  'head',
-  'patch',
-  'trace',
-]
 
 const normalizeDescription = (description?: Description): string | undefined => {
   if (typeof description === 'string') {
@@ -127,124 +115,6 @@ const mergeSecuritySchemes = (
     ...(openapi.components.securitySchemes ?? {}),
     ...securitySchemes,
   }
-}
-
-// Merge operation by knowing that examples keys are unique
-export const mergeOperations = (
-  operation1: OpenAPIV3_1.OperationObject,
-  operation2: OpenAPIV3_1.OperationObject,
-): OpenAPIV3_1.OperationObject => {
-  const operation = { ...operation2 }
-
-  // Merge tags
-  if (operation1.tags || operation.tags) {
-    operation.tags = Array.from(new Set([...(operation1.tags ?? []), ...(operation.tags ?? [])]))
-  }
-
-  const parameters = new Map<string, OpenAPIV3_1.ParameterObject>()
-
-  const generateParameterId = (param: OpenAPIV3_1.ParameterObject) => `${param.name}/${param.in}`
-
-  // Seed from operation2 (base)
-  if (operation.parameters) {
-    for (const parameter of operation.parameters) {
-      const id = generateParameterId(parameter)
-      parameters.set(id, parameter)
-    }
-  }
-
-  // Merge parameters from operation1 into operation
-  if (operation1.parameters) {
-    for (const parameter of operation1.parameters) {
-      const id = generateParameterId(parameter)
-      if (parameters.has(id)) {
-        const existingParameter = parameters.get(id)
-        if (existingParameter) {
-          existingParameter.examples = {
-            ...existingParameter.examples,
-            ...parameter.examples,
-          }
-        }
-      } else {
-        parameters.set(id, parameter)
-      }
-    }
-  }
-
-  if (parameters.size > 0) {
-    operation.parameters = Array.from(parameters.values())
-  }
-
-  const contentMediaTypeMap = new Map<string, OpenAPIV3_1.MediaTypeObject>()
-
-  // Seed from operation2 (base)
-  if (operation.requestBody?.content) {
-    for (const [contentType, mediaType] of Object.entries(operation.requestBody.content)) {
-      contentMediaTypeMap.set(contentType, mediaType as OpenAPIV3_1.MediaTypeObject)
-    }
-  }
-
-  // Merge requestBody from operation1 into operation
-  if (operation1.requestBody?.content) {
-    for (const [contentType, mediaType] of Object.entries(operation1.requestBody.content)) {
-      const mediaTypeObj = mediaType as OpenAPIV3_1.MediaTypeObject
-      if (contentMediaTypeMap.has(contentType)) {
-        const existingMediaType = contentMediaTypeMap.get(contentType)
-        if (existingMediaType && (existingMediaType.examples || mediaTypeObj.examples)) {
-          existingMediaType.examples = {
-            ...existingMediaType.examples,
-            ...mediaTypeObj.examples,
-          }
-        }
-      } else {
-        contentMediaTypeMap.set(contentType, mediaTypeObj)
-      }
-    }
-  }
-
-  if (contentMediaTypeMap.size > 0) {
-    operation.requestBody = {
-      ...operation.requestBody,
-      content: Object.fromEntries(contentMediaTypeMap) as OpenAPIV3_1.RequestBodyObject['content'],
-    }
-  }
-
-  return operation
-}
-
-const mergePathItem = (
-  paths: OpenAPIV3_1.PathsObject,
-  normalizedPathKey: string,
-  pathItem: OpenAPIV3_1.PathItemObject,
-): void => {
-  const targetPath = (paths[normalizedPathKey] ?? {}) as OpenAPIV3_1.PathItemObject
-
-  for (const [key, value] of Object.entries(pathItem) as [
-    keyof OpenAPIV3_1.PathItemObject,
-    OpenAPIV3_1.PathItemObject[keyof OpenAPIV3_1.PathItemObject],
-  ][]) {
-    if (value === undefined) {
-      continue
-    }
-
-    const isOperationKey = OPERATION_KEYS.includes(key)
-
-    if (isOperationKey && targetPath[key]) {
-      // Get all example names from the target path
-      const exampleNames = getExampleNames(targetPath)
-      // Generate a unique example name
-      const newExampleName = generateUniqueValue(DEFAULT_EXAMPLE_NAME, (value) => !exampleNames.has(value), '#')
-      // Rename operation examples from the new path item (we know it's gonna have only the default example)
-      renameOperationExamples(pathItem[key], DEFAULT_EXAMPLE_NAME, newExampleName)
-      // Merge the operations
-      targetPath[key] = mergeOperations(targetPath[key], pathItem[key])
-      continue
-    }
-
-    targetPath[key] = value
-  }
-
-  paths[normalizedPathKey] = targetPath
 }
 
 const cleanupOperations = (paths: OpenAPIV3_1.PathsObject): void => {
