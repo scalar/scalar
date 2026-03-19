@@ -61,8 +61,8 @@ describe('ssr', () => {
         showSidebar: true,
       })
 
-      expect(html).toContain('mobile-header-desktop-sidebar')
-      expect(html).toContain('mobile-header-mobile-container')
+      expect(html).toContain('data-responsive-container="desktop-sidebar"')
+      expect(html).toContain('data-responsive-container="mobile-header"')
     })
   })
 

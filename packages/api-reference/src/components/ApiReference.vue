@@ -1032,7 +1032,7 @@ const showMCPButton = computed(() => {
           <template #start>
             <DeveloperTools
               v-if="workspaceStore.workspace.activeDocument"
-              class="references-developer-tools"
+              class="max-[1000px]:!hidden"
               v-model:overrides="configurationOverrides"
               :configuration="mergedConfig"
               :workspace="workspaceStore" />
@@ -1211,18 +1211,10 @@ const showMCPButton = computed(() => {
 .references-footer {
   grid-area: footer;
 }
-
-.references-developer-tools {
-  display: block;
-}
 /* ----------------------------------------------------- */
 /* Responsive / Mobile Layout */
 
 @media (max-width: 1000px) {
-  .references-developer-tools {
-    display: none;
-  }
-
   /* Stack view on mobile */
   .references-layout {
     /* Adjust the sidebar height to the viewport height minus the header height */
