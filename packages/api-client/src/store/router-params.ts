@@ -1,33 +1,43 @@
-import type { Cookie } from '@scalar/oas-utils/entities/cookie'
-import type { Environment } from '@scalar/oas-utils/entities/environment'
-import type { Collection, Request, RequestExample, Server } from '@scalar/oas-utils/entities/spec'
-import type { Workspace } from '@scalar/oas-utils/entities/workspace'
 import type { Router } from 'vue-router'
 
 import { PathId } from '@/routes'
 
+type RouteParams = Record<PathId, string>
+
+const routeParamKeys: PathId[] = [
+  PathId.Collection,
+  PathId.Environment,
+  PathId.Request,
+  PathId.Examples,
+  PathId.Schema,
+  PathId.Cookies,
+  PathId.Servers,
+  PathId.Workspace,
+  PathId.Settings,
+]
+
 /** Getter function for router parameters */
 export function getRouterParams(router?: Router) {
   return () => {
-    const pathParams = {
-      [PathId.Collection]: 'default' as Collection['uid'],
-      [PathId.Environment]: 'default' as Environment['uid'],
-      [PathId.Request]: 'default' as Request['uid'],
-      [PathId.Examples]: 'default' as RequestExample['uid'],
-      [PathId.Schema]: 'default' as string,
-      [PathId.Cookies]: 'default' as Cookie['uid'],
-      [PathId.Servers]: 'default' as Server['uid'],
-      [PathId.Workspace]: 'default' as Workspace['uid'],
-      [PathId.Settings]: 'default' as string,
-    } as const
+    const pathParams: RouteParams = {
+      [PathId.Collection]: 'default',
+      [PathId.Environment]: 'default',
+      [PathId.Request]: 'default',
+      [PathId.Examples]: 'default',
+      [PathId.Schema]: 'default',
+      [PathId.Cookies]: 'default',
+      [PathId.Servers]: 'default',
+      [PathId.Workspace]: 'default',
+      [PathId.Settings]: 'default',
+    }
 
     const currentRoute = router?.currentRoute.value
 
     if (currentRoute) {
-      ;(Object.keys(pathParams) as (keyof typeof pathParams)[]).forEach((k) => {
-        if (currentRoute.params[k]) {
-          // @ts-expect-error this gives us good types without redoing PathId :)
-          pathParams[k] = currentRoute.params[k]
+      routeParamKeys.forEach((key) => {
+        const routeParam = currentRoute.params[key]
+        if (typeof routeParam === 'string') {
+          pathParams[key] = routeParam
         }
       })
     }
