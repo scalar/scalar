@@ -158,7 +158,10 @@ const { copyToClipboard } = useClipboard()
           :eventBus
           :exampleName="selectedExampleKey"
           :method
-          :path />
+          :path
+          :requestBodyCompositionSelection="
+            requestBodyCompositionSelectionForCodeSample
+          " />
         <ScalarIconPlay
           v-else
           class="endpoint-try-hint size-4.5" />

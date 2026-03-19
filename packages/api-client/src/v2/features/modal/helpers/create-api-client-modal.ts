@@ -56,6 +56,8 @@ export const createApiClientModal = ({
   workspaceStore,
   options = {},
 }: CreateApiClientModalOptions): ApiClientModal => {
+  const requestBodyCompositionSelection = ref<Record<string, number>>({})
+
   const defaultEntities: DefaultEntities = {
     path: 'default',
     method: 'default',
@@ -101,6 +103,7 @@ export const createApiClientModal = ({
     modalState,
     path,
     plugins,
+    requestBodyCompositionSelection,
     sidebarState,
     workspaceStore,
     options,
@@ -113,6 +116,8 @@ export const createApiClientModal = ({
 
   /** Restore the workspace store when the modal is closed. */
   const handleModalClose = () => {
+    requestBodyCompositionSelection.value = {}
+
     if (!workspaceStoreSnapshot.value) {
       console.warn('No workspace store snapshot to restore')
       return

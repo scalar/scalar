@@ -149,6 +149,44 @@ describe('createApiClientModal', () => {
     expect(operationBlock.props('exampleKey')).toBe('default')
   })
 
+  it('applies request body composition selection from the open-client-modal event', async () => {
+    const workspaceStore = await setupWorkspaceStore()
+    const eventBus = createWorkspaceEventBus()
+
+    const modal = createApiClientModal({
+      el: mountElement,
+      eventBus,
+      workspaceStore,
+      mountOnInitialize: true,
+    })
+
+    await nextTick()
+
+    eventBus.emit('ui:open:client-modal', {
+      method: 'post',
+      path: '/users',
+      requestBodyCompositionSelection: {
+        anyOf: 1,
+        'payload.transform.oneOf': 0,
+      },
+    } as never)
+
+    await nextTick()
+    await new Promise((resolve) => setTimeout(resolve, 100))
+
+    const wrapper = mount(Modal, {
+      attachTo: mountElement,
+      props: modal.app._instance?.props as ModalProps,
+    })
+
+    const operationBlock = wrapper.findComponent({ name: 'OperationBlock' })
+    expect(operationBlock.exists()).toBe(true)
+    expect(operationBlock.props('requestBodyCompositionSelection')).toEqual({
+      anyOf: 1,
+      'payload.transform.oneOf': 0,
+    })
+  })
+
   it('reacts to changes in options.authentication', async () => {
     const store = createWorkspaceStore()
     await store.addDocument({

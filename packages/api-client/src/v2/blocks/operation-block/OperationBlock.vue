@@ -73,6 +73,8 @@ export type OperationBlockProps = {
   environment: XScalarEnvironment
   /** The proxy URL for sending requests */
   proxyUrl: string
+  /** Selected anyOf/oneOf request-body variants keyed by schema path */
+  requestBodyCompositionSelection?: Record<string, number>
 }
 </script>
 <script setup lang="ts">
@@ -145,6 +147,7 @@ const {
   path,
   plugins = [],
   proxyUrl,
+  requestBodyCompositionSelection,
   securitySchemes,
   selectedClient,
   server,
@@ -207,6 +210,7 @@ const handleExecute = async () => {
     selectedSecuritySchemes: selectedSecuritySchemes.value,
     server,
     proxyUrl,
+    requestBodyCompositionSelection,
   })
 
   // Toast the error
@@ -415,6 +419,7 @@ onBeforeUnmount(() => {
           :path
           :plugins
           :proxyUrl
+          :requestBodyCompositionSelection
           :securityRequirements
           :securitySchemes
           :selectedClient

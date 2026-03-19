@@ -226,7 +226,10 @@ provide(REQUEST_BODY_COMPOSITION_INDEX_SYMBOL, requestBodyCompositionSelection)
                       :eventBus
                       :exampleName
                       :method
-                      :path />
+                      :path
+                      :requestBodyCompositionSelection="
+                        requestBodyCompositionSelectionForCodeSample
+                      " />
                   </div>
                 </template>
               </OperationCodeSample>
