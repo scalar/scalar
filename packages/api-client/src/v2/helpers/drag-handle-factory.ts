@@ -276,11 +276,7 @@ const handleMoveOperation = (
     return false
   }
 
-  const currentOperation = getDereferencedOperation(
-    unpackProxyObject(draggingDocument),
-    draggingItem.path,
-    draggingItem.method,
-  )
+  const currentOperation = getDereferencedOperation(draggingDocument, draggingItem.path, draggingItem.method)
 
   if (!currentOperation) {
     return false
