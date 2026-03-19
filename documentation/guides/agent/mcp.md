@@ -56,6 +56,19 @@ Tools are the individual capabilities your MCP exposes. Each tool maps to an ope
 | Search  | Exposes the endpoint for lookup only (no requests are sent to your AP) |
 | Execute | Makes real, authenticated requests to your API                         |
 
+### Configure Tools shows an empty list
+
+If the Configure Tools table is empty, the selected API version usually does not have indexed operations yet.
+
+Try these steps:
+
+1. Verify you selected the expected API version in the version picker.
+2. Confirm the API description for that version includes operations (`paths`) and is valid OpenAPI.
+3. Wait a moment and refresh the page if you uploaded or updated the API description recently.
+4. Re-publish or re-upload the API description if the list remains empty.
+
+When operations are available and indexed, the table will show rows under **Method** and **Path** so you can configure **Search** and **Execute** modes.
+
 ## API Authentication
 
 Authentication is configured per installation in the [Scalar Dashboard](https://dashboard.scalar.com). This lets your MCP Server make authenticated requests to your API without exposing credentials to the client.
