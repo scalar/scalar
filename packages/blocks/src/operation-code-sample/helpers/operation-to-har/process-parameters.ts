@@ -1,5 +1,6 @@
 import { deSerializeParameter } from '@scalar/core/libs/de-serialize-parameter'
 import { getExample } from '@scalar/core/libs/get-example'
+import { getExampleFromSchema } from '@scalar/core/libs/get-example-from-schema'
 import { isParamDisabled } from '@scalar/core/libs/is-param-disabled'
 import {
   serializeContentValue,
@@ -13,8 +14,6 @@ import {
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { OperationObject, ParameterObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import type { Request as HarRequest } from 'har-format'
-
-import { getExampleFromSchema } from '../get-example-from-schema'
 
 type ProcessedParameters = {
   url: string

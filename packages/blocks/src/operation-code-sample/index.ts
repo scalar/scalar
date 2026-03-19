@@ -1,3 +1,4 @@
+export { getExampleFromSchema } from '@scalar/core/libs/get-example-from-schema'
 export { getResolvedRefDeep } from '@scalar/core/libs/get-resolved-ref-deep'
 
 export { default as ExamplePicker } from './components/ExamplePicker.vue'
@@ -9,7 +10,6 @@ export { generateClientOptions } from './helpers/generate-client-options'
 export { generateCodeSnippet } from './helpers/generate-code-snippet'
 export { getClients } from './helpers/get-clients'
 export { getCustomCodeSamples } from './helpers/get-custom-code-samples'
-export { getExampleFromSchema } from './helpers/get-example-from-schema'
 export { getSecrets } from './helpers/get-secrets'
 export type { OperationToHarProps } from './helpers/operation-to-har/operation-to-har'
 export { operationToHar } from './helpers/operation-to-har/operation-to-har'

@@ -1,7 +1,7 @@
+import { getExampleFromSchema } from '@scalar/core/libs/get-example-from-schema'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 
 import type { Operation } from '@/entities/spec'
-import { getExampleFromSchema } from './get-example-from-schema'
 
 /**
  * Get the query parameters from an operation.

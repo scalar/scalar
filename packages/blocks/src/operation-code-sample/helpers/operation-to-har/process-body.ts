@@ -1,11 +1,11 @@
 import { getExample } from '@scalar/core/libs/get-example'
+import { getExampleFromSchema } from '@scalar/core/libs/get-example-from-schema'
 import { json2xml } from '@scalar/helpers/file/json2xml'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { unpackProxyObject } from '@scalar/workspace-store/helpers/unpack-proxy'
 import type { MediaTypeObject, RequestBodyObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import type { Param, PostData } from 'har-format'
 
-import { getExampleFromSchema } from '../get-example-from-schema'
 import type { OperationToHarProps } from './operation-to-har'
 
 type ProcessBodyProps = Pick<OperationToHarProps, 'contentType' | 'example'> & {

@@ -594,8 +594,8 @@ describe('createExampleFromRequest', () => {
         formData: {
           encoding: 'form-data',
           value: [
-            { key: 'image', value: 'BINARY', file: expect.any(File), enabled: true },
-            { key: 'additionalImages', value: 'BINARY', file: expect.any(File), enabled: true },
+            { key: 'image', value: '@filename', enabled: true },
+            { key: 'additionalImages', value: '@filename', enabled: true },
             { key: 'metadata', value: '{"caption":"","tags":[""]}', enabled: true },
           ],
         },

@@ -2047,6 +2047,9 @@ importers:
 
   packages/oas-utils:
     dependencies:
+      '@scalar/core':
+        specifier: workspace:*
+        version: link:../core
       '@scalar/helpers':
         specifier: workspace:*
         version: link:../helpers

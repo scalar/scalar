@@ -486,11 +486,10 @@ export function createExampleFromRequest(request: Request, name: string, server?
       body.formData = {
         encoding: contentType === 'application/x-www-form-urlencoded' ? 'urlencoded' : 'form-data',
         value: (requestBody?.params || []).map((param) => {
-          if (param.value instanceof File) {
+          if (param.value instanceof File || param.value === '@filename') {
             return {
               key: param.name,
-              value: 'BINARY',
-              file: param.value,
+              value: '@filename',
               enabled: true,
             }
           }

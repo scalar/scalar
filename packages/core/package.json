@@ -71,6 +71,11 @@
       "import": "./dist/libs/get-snippet/index.js",
       "types": "./dist/libs/get-snippet/index.d.ts",
       "default": "./dist/libs/get-snippet/index.js"
+    },
+    "./libs/get-example-from-schema": {
+      "import": "./dist/libs/get-example-from-schema/index.js",
+      "types": "./dist/libs/get-example-from-schema/index.d.ts",
+      "default": "./dist/libs/get-example-from-schema/index.js"
     }
   },
   "files": [
