@@ -21,77 +21,77 @@ Big APIs blow past context limits with raw OpenAPI and still cost a lot with nat
 
 :::scalar-card{title="How to set up an OpenAPI mock server" href="./2025-08-19-how-to-set-up-an-openapi-mock-server.md"}
 
-How the Scalar creates APIs you can’t believe aren’t real
+Learn how to spin up a spec-driven OpenAPI mock server with the Scalar CLI in seconds. We cover the key commands, practical workflows, and how the mock server helps teams build, test, and prototype in parallel.
 
 ::scalar-fineprint[Aug 19, 2025]{}
 :::
 
 :::scalar-card{title="How to do OpenAPI validation (and why it matters)" href="./2025-07-07-how-to-do-openapi-validation-and.md"}
 
-How OpenAPI validation works with Scalar
+Validate your OpenAPI document with the Scalar CLI before it breaks downstream tooling. This guide explains why validation matters, what errors to look for, and how Scalar handles validation under the hood.
 
 ::scalar-fineprint[Jul 7, 2025]{}
 :::
 
 :::scalar-card{title="How we created an animated, responsive README" href="./2025-05-28-how-we-created-an-animated-responsive.md"}
 
-For an open source project, your README is your landing page.
+A plain README can be good, but a dynamic one stands out. This post breaks down how we used SVG, `foreignObject`, CSS, and animation techniques to build a responsive, interactive GitHub README.
 
 ::scalar-fineprint[May 28, 2025]{}
 :::
 
 :::scalar-card{title="How Scalar themes work" href="./2025-05-07-how-scalar-themes-work.md"}
 
-Every product can be thought of as a combination of three things: data, functionality, and display.
+See how Scalar themes separate data, functionality, and presentation so teams can fully customize API documentation without rebuilding core behavior. We walk through the architecture and implementation details behind theming.
 
 ::scalar-fineprint[May 7, 2025]{}
 :::
 
 :::scalar-card{title="How Cloudinary’s API docs create a great developer experience" href="./2025-04-28-how-cloudinarys-api-docs-create-a.md"}
 
-And how Scalar helps...
+Cloudinary’s API-first strategy is a strong example of developer experience done right. We analyze what makes their API documentation effective and show how Scalar helps teams deliver a similar experience.
 
 ::scalar-fineprint[Apr 28, 2025]{}
 :::
 
 :::scalar-card{title="An introduction to OpenAPI variables" href="./2025-04-23-an-introduction-to-openapi-variables.md"}
 
-Everything you need to know...
+OpenAPI variables are powerful, but easy to confuse in practice. This introduction clarifies server variables vs parameters, when to use each, and how they shape a cleaner API description.
 
 ::scalar-fineprint[Apr 23, 2025]{}
 :::
 
 :::scalar-card{title="How we extended the OpenAPI specification" href="./2025-04-06-how-we-extended-the-openapi-specification.md"}
 
-Environments, code samples, internal endpoints, and more.
+OpenAPI gives you a strong base, but product teams often need more. We share the Scalar-specific extensions we added (environments, code samples, internal endpoints, and more) and how we implemented them.
 
 ::scalar-fineprint[Apr 6, 2025]{}
 :::
 
 :::scalar-card{title="A guide to OpenAPI security (and how we handle it in Scalar)" href="./2025-03-26-a-guide-to-openapi-security-and-how.md"}
 
-Keeping your APIs safe, one OpenAPI doc at a time
+Security in OpenAPI can be confusing when multiple auth flows meet real-world API usage. This guide explains core security schemes, how they work in documentation, and how Scalar helps users authenticate correctly.
 
 ::scalar-fineprint[Mar 26, 2025]{}
 :::
 
 :::scalar-card{title="The hidden complexity of building drag and drop" href="./2025-03-19-the-hidden-complexity-of-building.md"}
 
-What we learned building our own slick drag and drop package at Scalar
+Drag and drop looks simple, but implementation details quickly get complex. We unpack the UX and engineering challenges we hit while building our own package, plus lessons learned along the way.
 
 ::scalar-fineprint[Mar 19, 2025]{}
 :::
 
 :::scalar-card{title="How we sped up our API docs 25x" href="./2025-03-12-how-we-sped-up-our-api-docs-25x.md"}
 
-Finding and fixing our shockingly slow sidebar
+Our API docs sidebar became a major performance bottleneck at scale. This deep dive shows how we profiled the issue, redesigned the rendering approach, and achieved a 25x speedup.
 
 ::scalar-fineprint[Mar 12, 2025]{}
 :::
 
 :::scalar-card{title="How .NET 9 and Scalar solve the problem of under-documented APIs" href="./2025-03-05-how-net-9-and-scalar-solve-the-problem.md"}
 
-.NET 9 🤝 Scalar
+.NET 9 introduces a new path for OpenAPI document generation, and Scalar completes the workflow with interactive API docs and testing. Learn how this pairing reduces documentation drift and improves API developer experience.
 
 ::scalar-fineprint[Mar 5, 2025]{}
 :::
