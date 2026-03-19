@@ -546,6 +546,18 @@
         {
           "from": "/products/docs/redirects",
           "to": "/products/docs/configuration/redirects"
+        },
+        {
+          "from": "/blog/agent-scalar-mcp",
+          "to": "/blog/posts/2026-03-17-agent-mcp"
+        },
+        {
+          "from": "/blog/agent-scalar",
+          "to": "/blog/posts/2026-03-05-agent-scalar"
+        },
+        {
+          "from": "/blog/oss-pledge-2024",
+          "to": "/blog/posts/2024-09-21-oss-pledge"
         }
       ]
     }
@@ -2061,23 +2073,30 @@
             "children": {
               "/": {
                 "type": "page",
-                "title": "Blog",
+                "title": "Overview",
                 "filepath": "documentation/blog/index.md"
               },
-              "/agent-scalar-mcp": {
-                "type": "page",
-                "title": "Use your API in Cursor",
-                "filepath": "documentation/blog/agent-scalar-mcp.md"
-              },
-              "/agent-scalar": {
-                "type": "page",
-                "title": "Introducing Agent",
-                "filepath": "documentation/blog/agent-scalar.md"
-              },
-              "/oss-pledge-2024": {
-                "type": "page",
-                "title": "Scalar Joins the Open-Source Pledge",
-                "filepath": "documentation/blog/oss-pledge-2024.md"
+              "/posts": {
+                "type": "group",
+                "mode": "flat",
+                "title": "Posts",
+                "children": {
+                  "/2026-03-17-agent-mcp": {
+                    "type": "page",
+                    "title": "Use your API in Cursor",
+                    "filepath": "documentation/blog/2026-03-17-agent-mcp.md"
+                  },
+                  "/2026-03-05-agent-scalar": {
+                    "type": "page",
+                    "title": "Introducing Agent",
+                    "filepath": "documentation/blog/2026-03-05-agent-scalar.md"
+                  },
+                  "/2024-09-01-oss-pledge": {
+                    "type": "page",
+                    "title": "Scalar Joins the Open-Source Pledge",
+                    "filepath": "documentation/blog/2024-09-01-oss-pledge.md"
+                  }
+                }
               }
             }
           }
