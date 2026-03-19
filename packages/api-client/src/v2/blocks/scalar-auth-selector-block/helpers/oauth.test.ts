@@ -122,6 +122,49 @@ describe('oauth', () => {
       })
     })
 
+    it('sends client_id in token body for authorization code public clients', async () => {
+      const flows = {
+        authorizationCode: {
+          ...scheme.authorizationCode,
+          'x-scalar-secret-client-secret': '',
+        },
+      } satisfies OAuthFlowsObjectSecret
+
+      const promise = authorizeOauth2(flows, 'authorizationCode', selectedScopes, mockServer, '')
+      const code = 'auth_code_public_123'
+      const accessToken = 'access_token_public_123'
+
+      mockWindow.location.href = `${flows.authorizationCode['x-scalar-secret-redirect-uri']}?code=${code}&state=${state}`
+
+      global.fetch = vi.fn().mockResolvedValueOnce({
+        json: () => Promise.resolve({ access_token: accessToken }),
+      })
+
+      vi.advanceTimersByTime(200)
+
+      const [error, result] = await promise
+      expect(error).toBe(null)
+      expect(result).toEqual({ accessToken })
+
+      expect(global.fetch).toHaveBeenCalledWith(tokenUrl, {
+        method: 'POST',
+        body: expect.any(URLSearchParams),
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+      })
+
+      const callArgs = vi.mocked(global.fetch).mock.calls[0]
+      expect(callArgs).toBeDefined()
+      const body = callArgs![1]?.body as URLSearchParams
+      const expectedParams = new URLSearchParams()
+      expectedParams.set('client_id', flows.authorizationCode['x-scalar-secret-client-id'])
+      expectedParams.set('redirect_uri', flows.authorizationCode['x-scalar-secret-redirect-uri'])
+      expectedParams.set('code', code)
+      expectedParams.set('grant_type', 'authorization_code')
+      expect(body.toString()).toBe(expectedParams.toString())
+    })
+
     // PKCE
     it('should generate valid PKCE code verifier and challenge using SHA-256 encryption', async () => {
       const flows = {

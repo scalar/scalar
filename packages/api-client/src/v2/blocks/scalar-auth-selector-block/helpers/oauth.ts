@@ -309,9 +309,17 @@ const authorizeServers = async (
 
   /** Where to add the credentials */
   const addCredentialsToBody = flow['x-scalar-credentials-location'] === 'body'
+  const hasClientSecret = Boolean(flow['x-scalar-secret-client-secret'])
+  /**
+   * Public authorization-code clients still need client_id in the token body.
+   * We only send it implicitly for that case to avoid conflicting with Basic auth.
+   */
+  const shouldSendClientIdInBody = addCredentialsToBody || (type === 'authorizationCode' && !hasClientSecret)
 
-  if (addCredentialsToBody) {
+  if (shouldSendClientIdInBody) {
     formData.set('client_id', flow['x-scalar-secret-client-id'])
+  }
+  if (addCredentialsToBody && hasClientSecret) {
     formData.set('client_secret', flow['x-scalar-secret-client-secret'])
   }
   if ('x-scalar-secret-redirect-uri' in flow && flow['x-scalar-secret-redirect-uri']) {
@@ -354,8 +362,8 @@ const authorizeServers = async (
       'Content-Type': 'application/x-www-form-urlencoded',
     }
 
-    // Add client id + secret to headers
-    if (!addCredentialsToBody) {
+    // Add client id + secret to headers for confidential clients.
+    if (!addCredentialsToBody && hasClientSecret) {
       headers.Authorization = `Basic ${encode(`${flow['x-scalar-secret-client-id']}:${flow['x-scalar-secret-client-secret']}`)}`
     }
 
