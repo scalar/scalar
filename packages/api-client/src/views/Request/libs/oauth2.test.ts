@@ -476,6 +476,30 @@ describe('oauth2', () => {
       })
     })
 
+    it('should keep empty x-scalar-security-body values in token request', async () => {
+      const customFlow = {
+        ...flow,
+        'x-scalar-security-body': {
+          audience: '',
+          resource: 'https://api.example.com',
+        },
+      } as const
+
+      global.fetch = vi.fn().mockResolvedValueOnce({
+        json: () => Promise.resolve({ access_token: 'access_token_123' }),
+      })
+
+      const [error, result] = await authorizeOauth2(customFlow, mockServer)
+      expect(error).toBe(null)
+      expect(result).toBe('access_token_123')
+
+      const callArgs = vi.mocked(global.fetch).mock.calls[0]
+      expect(callArgs).toBeDefined()
+      const body = callArgs![1]?.body as URLSearchParams
+      expect(body.get('audience')).toBe('')
+      expect(body.get('resource')).toBe('https://api.example.com')
+    })
+
     it('should handle client credentials flow with header-only credentials location', async () => {
       const _flow = {
         ...flow,
