@@ -1,7 +1,8 @@
-import { Scalar } from './scalar'
+import { Scalar, ScalarSSR } from './scalar'
 
 export {
   Scalar,
+  ScalarSSR,
   /**
    * @deprecated Use `Scalar` instead.
    */
