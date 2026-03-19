@@ -9,30 +9,30 @@ import { createParameterObject } from './parameters'
  * Extracts and converts the request body from a Postman request to an OpenAPI RequestBodyObject.
  * Handles raw JSON, form-data, and URL-encoded body types, creating appropriate schemas and content types.
  */
-export function extractRequestBody(body: RequestBody): OpenAPIV3_1.RequestBodyObject {
+export function extractRequestBody(body: RequestBody, exampleName: string): OpenAPIV3_1.RequestBodyObject {
   const requestBody: OpenAPIV3_1.RequestBodyObject = {
     content: {},
   }
 
   if (body.mode === 'raw') {
-    handleRawBody(body, requestBody)
+    handleRawBody(body, requestBody, exampleName)
     return requestBody
   }
 
   if (body.mode === 'formdata' && body.formdata) {
-    handleFormDataBody(body.formdata, requestBody)
+    handleFormDataBody(body.formdata, requestBody, exampleName)
     return requestBody
   }
 
   if (body.mode === 'urlencoded' && body.urlencoded) {
-    handleUrlEncodedBody(body.urlencoded, requestBody)
+    handleUrlEncodedBody(body.urlencoded, requestBody, exampleName)
     return requestBody
   }
 
   return requestBody
 }
 
-function handleRawBody(body: RequestBody, requestBody: OpenAPIV3_1.RequestBodyObject): void {
+function handleRawBody(body: RequestBody, requestBody: OpenAPIV3_1.RequestBodyObject, exampleName: string): void {
   const rawBody = body.raw || ''
   const isJsonLanguage = body.options?.raw?.language === 'json'
 
@@ -56,7 +56,11 @@ function handleRawBody(body: RequestBody, requestBody: OpenAPIV3_1.RequestBodyOb
       'application/json': {
         schema: {
           type: 'object',
-          example: jsonBody,
+        },
+        examples: {
+          [exampleName]: {
+            value: jsonBody,
+          },
         },
       },
     }
@@ -88,15 +92,28 @@ function handleRawBody(body: RequestBody, requestBody: OpenAPIV3_1.RequestBodyOb
   }
 }
 
-function handleFormDataBody(formdata: FormParameter[], requestBody: OpenAPIV3_1.RequestBodyObject): void {
+function handleFormDataBody(
+  formdata: FormParameter[],
+  requestBody: OpenAPIV3_1.RequestBodyObject,
+  exampleName: string,
+): void {
   requestBody.content = {
     'multipart/form-data': {
       schema: processFormDataSchema(formdata),
+      examples: {
+        [exampleName]: {
+          value: formdata,
+        },
+      },
     },
   }
 }
 
-function handleUrlEncodedBody(urlencoded: UrlEncodedParameter[], requestBody: OpenAPIV3_1.RequestBodyObject): void {
+function handleUrlEncodedBody(
+  urlencoded: UrlEncodedParameter[],
+  requestBody: OpenAPIV3_1.RequestBodyObject,
+  exampleName: string,
+): void {
   const schema: OpenAPIV3_1.SchemaObject = {
     type: 'object',
     properties: {},
@@ -104,7 +121,7 @@ function handleUrlEncodedBody(urlencoded: UrlEncodedParameter[], requestBody: Op
   }
   urlencoded.forEach((item: UrlEncodedParameter) => {
     if (schema.properties) {
-      const paramObject = createParameterObject(item, 'query')
+      const paramObject = createParameterObject(item, 'query', exampleName)
       const property: OpenAPIV3_1.SchemaObject = {
         type: 'string',
         examples: [item.value],
@@ -123,6 +140,11 @@ function handleUrlEncodedBody(urlencoded: UrlEncodedParameter[], requestBody: Op
   requestBody.content = {
     'application/x-www-form-urlencoded': {
       schema,
+      examples: {
+        [exampleName]: {
+          value: urlencoded,
+        },
+      },
     },
   }
 }

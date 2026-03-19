@@ -11,16 +11,20 @@ describe('request-body', () => {
       raw: '{"name": "John", "age": 30}',
     }
 
-    const result = extractRequestBody(body)
+    const result = extractRequestBody(body, 'default')
 
     expect(result).toEqual({
       content: {
         'application/json': {
           schema: {
             type: 'object',
-            example: {
-              name: 'John',
-              age: 30,
+          },
+          examples: {
+            default: {
+              value: {
+                name: 'John',
+                age: 30,
+              },
             },
           },
         },
@@ -34,7 +38,7 @@ describe('request-body', () => {
       raw: 'invalid json {',
     }
 
-    const result = extractRequestBody(body)
+    const result = extractRequestBody(body, 'default')
 
     expect(result).toEqual({
       content: {
@@ -54,7 +58,7 @@ describe('request-body', () => {
       raw: '',
     }
 
-    const result = extractRequestBody(body)
+    const result = extractRequestBody(body, 'default')
 
     expect(result).toEqual({
       content: {
@@ -85,7 +89,7 @@ describe('request-body', () => {
       ],
     }
 
-    const result = extractRequestBody(body)
+    const result = extractRequestBody(body, 'default')
 
     expect(result.content?.['multipart/form-data']).toBeDefined()
     expect(result.content?.['multipart/form-data']?.schema).toEqual({
@@ -118,7 +122,7 @@ describe('request-body', () => {
       ],
     }
 
-    const result = extractRequestBody(body)
+    const result = extractRequestBody(body, 'default')
 
     expect(result.content?.['application/x-www-form-urlencoded']).toBeDefined()
     expect(result.content?.['application/x-www-form-urlencoded']?.schema).toEqual({
@@ -153,7 +157,7 @@ describe('request-body', () => {
       ],
     }
 
-    const result = extractRequestBody(body)
+    const result = extractRequestBody(body, 'default')
 
     expect(result.content?.['application/x-www-form-urlencoded']?.schema?.required).toEqual(['name'])
   })
@@ -166,7 +170,7 @@ describe('request-body', () => {
       },
     }
 
-    const result = extractRequestBody(body)
+    const result = extractRequestBody(body, 'default')
 
     expect(result).toEqual({
       content: {},
@@ -178,7 +182,7 @@ describe('request-body', () => {
       mode: 'formdata',
     }
 
-    const result = extractRequestBody(body)
+    const result = extractRequestBody(body, 'default')
 
     expect(result).toEqual({
       content: {},
@@ -190,7 +194,7 @@ describe('request-body', () => {
       mode: 'urlencoded',
     }
 
-    const result = extractRequestBody(body)
+    const result = extractRequestBody(body, 'default')
 
     expect(result).toEqual({
       content: {},
@@ -212,9 +216,9 @@ describe('request-body', () => {
       }),
     }
 
-    const result = extractRequestBody(body)
+    const result = extractRequestBody(body, 'default')
 
-    expect(result.content?.['application/json']?.schema?.example).toEqual({
+    expect(result.content?.['application/json']?.examples?.default?.value).toEqual({
       user: {
         name: 'John',
         address: {
@@ -237,7 +241,7 @@ describe('request-body', () => {
       },
     }
 
-    const result = extractRequestBody(body)
+    const result = extractRequestBody(body, 'default')
 
     expect(result.content?.['application/json']).toBeDefined()
     expect(result.content?.['application/json']?.schema?.type).toBe('object')
@@ -255,7 +259,7 @@ describe('request-body', () => {
       },
     }
 
-    const result = extractRequestBody(body)
+    const result = extractRequestBody(body, 'default')
 
     expect(result.content?.['text/plain']).toBeDefined()
   })
@@ -276,7 +280,7 @@ describe('request-body', () => {
       ],
     }
 
-    const result = extractRequestBody(body)
+    const result = extractRequestBody(body, 'default')
 
     const schema = result.content?.['application/x-www-form-urlencoded']?.schema
     expect(schema?.properties?.name?.['x-scalar-disabled']).toBe(true)
@@ -295,7 +299,7 @@ describe('request-body', () => {
       ],
     }
 
-    const result = extractRequestBody(body)
+    const result = extractRequestBody(body, 'default')
 
     const schema = result.content?.['application/x-www-form-urlencoded']?.schema
     expect(schema?.properties?.disabledField).toBeDefined()
@@ -316,7 +320,7 @@ describe('request-body', () => {
       ],
     }
 
-    const result = extractRequestBody(body)
+    const result = extractRequestBody(body, 'default')
 
     const schema = result.content?.['application/x-www-form-urlencoded']?.schema
     const property = schema?.properties?.name
@@ -332,14 +336,18 @@ describe('request-body', () => {
       raw: 'null',
     }
 
-    const result = extractRequestBody(body)
+    const result = extractRequestBody(body, 'default')
 
     expect(result).toEqual({
       content: {
         'application/json': {
           schema: {
             type: 'object',
-            example: null,
+          },
+          examples: {
+            default: {
+              value: null,
+            },
           },
         },
       },
