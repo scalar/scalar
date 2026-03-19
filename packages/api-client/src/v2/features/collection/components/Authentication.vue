@@ -89,7 +89,12 @@ const selectedSecurity = computed(() => {
     type: 'document',
     documentName: documentSlug,
   })
-  return getSelectedSecurity(fromStore, undefined, document?.security ?? [], securitySchemes)
+  return getSelectedSecurity(
+    fromStore,
+    undefined,
+    document?.security ?? [],
+    securitySchemes,
+  )
 })
 
 /** Compute the security requirements for the operation or document based on the current collection type */
