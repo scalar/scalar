@@ -964,6 +964,9 @@ importers:
 
   integrations/hono:
     dependencies:
+      '@scalar/api-reference':
+        specifier: workspace:*
+        version: link:../../packages/api-reference
       '@scalar/core':
         specifier: workspace:*
         version: link:../../packages/core
