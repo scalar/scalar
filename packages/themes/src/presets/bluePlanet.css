@@ -168,7 +168,7 @@
   mask-image: radial-gradient(ellipse at 100% 0%, black 40%, transparent 70%);
 }
 .section-flare {
-  top: -150px !important;
+  top: -150px;
   height: 100vh;
   background: linear-gradient(#000, var(--scalar-background-1));
   width: 100vw;

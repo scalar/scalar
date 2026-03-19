@@ -1,5 +1,5 @@
 /** Hide the background for screenshots */
 html,
 body {
-  background: transparent !important;
+  background: transparent;
 }

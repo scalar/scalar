@@ -11,5 +11,5 @@
 
 /* For the radix context menu, this can be adjusted as long as its >= 1 */
 [data-radix-popper-content-wrapper] {
-  z-index: 1 !important;
+  z-index: 1;
 }

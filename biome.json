@@ -105,7 +105,8 @@
         "useArrowFunction": "warn",
         "useOptionalChain": "warn",
         "noAdjacentSpacesInRegex": "warn",
-        "noArguments": "warn"
+        "noArguments": "warn",
+        "noImportantStyles": "error"
       },
       "correctness": {
         "noConstAssign": "warn",

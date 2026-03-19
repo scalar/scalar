@@ -110,20 +110,20 @@
   }
 }
 .dark-mode .scalar-card {
-  background: rgba(255, 255, 255, 0.05) !important;
+  background: rgba(255, 255, 255, 0.05);
 }
 .dark-mode .scalar-card * {
-  --scalar-background-2: transparent !important;
-  --scalar-background-1: transparent !important;
+  --scalar-background-2: transparent;
+  --scalar-background-1: transparent;
 }
 .light-mode .dark-mode.scalar-card *,
 .light-mode .dark-mode.scalar-card {
-  --scalar-background-1: #0d0f1e !important;
-  --scalar-background-2: #0d0f1e !important;
-  --scalar-background-3: #191b29 !important;
+  --scalar-background-1: #0d0f1e;
+  --scalar-background-2: #0d0f1e;
+  --scalar-background-3: #191b29;
 }
 .light-mode .dark-mode.scalar-card {
-  background: #191b29 !important;
+  background: #191b29;
 }
 .badge {
   box-shadow: 0 0 0 1px var(--scalar-border-color);

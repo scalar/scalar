@@ -103,7 +103,7 @@
 
   /** Remove yellow/blue autofill indicator */
   input:-webkit-autofill {
-    background-clip: text !important;
+    background-clip: text;
   }
 
   /** Add outline for focus visible */

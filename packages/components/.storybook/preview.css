@@ -96,7 +96,7 @@ body.sb-show-main,
 }
 
 #storybook-docs tr[title] > * {
-  background: var(--scalar-background-3) !important;
+  background: var(--scalar-background-3);
   color: var(--scalar-color-2);
 }
 

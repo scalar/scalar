@@ -93,7 +93,7 @@
 }
 /* On some browsers, the light color scheme takes precedence when the light mode is active */
 .light-mode .dark-mode {
-  color-scheme: dark !important;
+  color-scheme: dark;
 }
 @media (max-width: 460px) {
   :root {
