@@ -1,10 +1,16 @@
-import { generateBodyScript, renderApiReferenceToString } from '@scalar/api-reference/ssr'
-import styles from '@scalar/api-reference/style.css?inline'
+import { renderToString } from 'vue/server-renderer'
+
+import { createApp } from './main'
 
 export async function render(_url: string) {
-  const config = { url: 'https://registry.scalar.com/@scalar/apis/galaxy?format=json' }
-  const html = await renderApiReferenceToString(config)
-  const bodyScript = generateBodyScript(config)
+  const { app } = createApp()
 
-  return { html, bodyScript, head: `<style>${styles}</style>` }
+  // passing SSR context object which will be available via useSSRContext()
+  // @vitejs/plugin-vue injects code into a component's setup() that registers
+  // itself on ctx.modules. After the render, ctx.modules would contain all the
+  // components that have been instantiated during this render call.
+  const ctx = {}
+  const html = await renderToString(app, ctx)
+
+  return { html }
 }
