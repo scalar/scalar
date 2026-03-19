@@ -342,6 +342,26 @@ describe('buildRequestParameters', () => {
         expect(result.allowReservedQueryParameters.has('sort')).toBe(false)
         expect(result.urlParams.get('sort')).toBe('name:asc')
       })
+
+      it('does not add param to set when allowReserved is false on parameter and true on schema', () => {
+        const params: ParameterObject[] = [
+          {
+            name: 'sort',
+            in: 'query',
+            required: true,
+            allowReserved: false,
+            schema: { type: 'string', allowReserved: true },
+            examples: {
+              default: { value: 'run_time:desc', 'x-disabled': false },
+            },
+          },
+        ]
+
+        const result = buildRequestParameters(params)
+
+        expect(result.allowReservedQueryParameters.has('sort')).toBe(false)
+        expect(result.urlParams.get('sort')).toBe('run_time:desc')
+      })
     })
 
     it('handles query parameter with object value', () => {

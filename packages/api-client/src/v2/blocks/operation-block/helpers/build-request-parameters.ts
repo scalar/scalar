@@ -159,8 +159,8 @@ const getStyle = (param: ParameterObject, replacedValue: unknown): string => {
 
 /** Whether the parameter allows reserved characters (from param or schema). */
 const isAllowReserved = (param: ParameterObject): boolean => {
-  if ('allowReserved' in param && param.allowReserved === true) {
-    return true
+  if ('allowReserved' in param && param.allowReserved !== undefined) {
+    return param.allowReserved
   }
   if ('schema' in param && param.schema && typeof param.schema === 'object' && 'allowReserved' in param.schema) {
     return (param.schema as { allowReserved?: boolean }).allowReserved === true
