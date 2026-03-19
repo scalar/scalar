@@ -19,7 +19,7 @@ defineSlots<{
 }>()
 
 const variants = cva({
-  base: 'items-center bg-b-1 sticky top-(--scalar-custom-header-height,0) z-10 [grid-area:header] min-[1001px]:hidden',
+  base: 'items-center bg-b-1 sticky top-(--scalar-custom-header-height,0) z-10 [grid-area:header]',
   variants: {
     open: {
       true: 'h-(--refs-sidebar-height) custom-scrollbar flex flex-col',
@@ -30,7 +30,7 @@ const variants = cva({
 <template>
   <!-- Always render the desktop sidebar slot and let CSS handle breakpoints -->
   <div
-    class="hidden min-[1001px]:contents"
+    class="contents max-[1000px]:hidden"
     data-responsive-container="desktop-sidebar">
     <slot
       v-bind="{
