@@ -19,7 +19,7 @@ defineSlots<{
 }>()
 
 const variants = cva({
-  base: 'items-center bg-b-1 sticky top-(--scalar-custom-header-height,0) z-10 [grid-area:header]',
+  base: 'mobile-header-mobile-container items-center bg-b-1 sticky top-(--scalar-custom-header-height,0) z-10 [grid-area:header]',
   variants: {
     open: {
       true: 'h-(--refs-sidebar-height) custom-scrollbar flex flex-col',
@@ -30,7 +30,7 @@ const variants = cva({
 <template>
   <!-- Always render the desktop sidebar slot and let CSS handle breakpoints -->
   <div
-    class="contents max-[1000px]:hidden"
+    class="mobile-header-desktop-sidebar"
     data-responsive-container="desktop-sidebar">
     <slot
       v-bind="{
@@ -75,3 +75,19 @@ const variants = cva({
       name="sidebar" />
   </div>
 </template>
+
+<style scoped>
+.mobile-header-desktop-sidebar {
+  display: none;
+}
+
+@media (min-width: 1001px) {
+  .mobile-header-desktop-sidebar {
+    display: contents;
+  }
+
+  .mobile-header-mobile-container {
+    display: none;
+  }
+}
+</style>
