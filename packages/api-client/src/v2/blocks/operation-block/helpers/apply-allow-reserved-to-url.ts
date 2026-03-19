@@ -1,3 +1,8 @@
+/**
+ * RFC3986's reserved character set
+ *
+ * @see https://datatracker.ietf.org/doc/html/rfc3986#section-2.2
+ */
 const RESERVED_CHARACTERS_BY_PERCENT_ENCODING: Record<string, string> = {
   '21': '!',
   '23': '#',
