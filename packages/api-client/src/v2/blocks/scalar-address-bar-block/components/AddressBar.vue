@@ -118,9 +118,15 @@ const isFullUrl = (value: string): boolean => {
  * vs typing character by character
  */
 const isPasteOperation = (oldValue: string, newValue: string): boolean => {
-  // If the new value is significantly longer, it's likely a paste
-  const lengthDiff = newValue.length - oldValue.length
-  // Pasting a URL typically adds many characters at once (threshold: 5+)
+  // If the old value was not a full URL but the new value is, it's definitely a paste
+  // This handles cases where user selects all and pastes a shorter URL
+  if (!isFullUrl(oldValue) && isFullUrl(newValue)) {
+    return true
+  }
+
+  // If both are URLs but significantly different in length, it's a paste
+  // This handles pasting a different URL over an existing one
+  const lengthDiff = Math.abs(newValue.length - oldValue.length)
   return lengthDiff >= 5
 }
 
@@ -142,30 +148,45 @@ const parseFullUrl = (
 }
 
 /**
- * Find a matching server from available servers by origin
+ * Find a matching server from available servers by origin.
+ * First checks the current level's servers, then falls back to all available servers.
+ * Returns both the server and whether it was found in the current level.
  */
-const findMatchingServer = (origin: string): ServerObject | null => {
-  // First check if origin matches any of the all available servers
-  for (const s of allAvailableServers) {
-    try {
-      // Handle server URLs that might have trailing slashes or variables
-      const serverUrl = s.url?.replace(/\/$/, '') ?? ''
-      // Check if the server URL matches the origin exactly or starts with it
-      if (serverUrl === origin || serverUrl.startsWith(origin)) {
-        return s
-      }
-      // Also try parsing the server URL to compare origins
-      const serverOrigin = new URL(serverUrl).origin
-      if (serverOrigin === origin) {
-        return s
-      }
-    } catch {
-      // Server URL might have variables, try direct comparison
-      if (s.url === origin) {
-        return s
+const findMatchingServer = (
+  origin: string,
+): { server: ServerObject; inCurrentLevel: boolean } | null => {
+  const matchOrigin = (serverList: ServerObject[]): ServerObject | null => {
+    for (const s of serverList) {
+      try {
+        // Handle server URLs that might have trailing slashes
+        const serverUrl = s.url?.replace(/\/$/, '') ?? ''
+        // Parse the server URL to compare origins exactly
+        const serverOrigin = new URL(serverUrl).origin
+        if (serverOrigin === origin) {
+          return s
+        }
+      } catch {
+        // Server URL might have variables, try direct comparison
+        if (s.url === origin) {
+          return s
+        }
       }
     }
+    return null
   }
+
+  // First check the current level's servers
+  const currentLevelMatch = matchOrigin(servers)
+  if (currentLevelMatch) {
+    return { server: currentLevelMatch, inCurrentLevel: true }
+  }
+
+  // Fall back to all available servers (includes servers from other levels)
+  const allLevelMatch = matchOrigin(allAvailableServers)
+  if (allLevelMatch) {
+    return { server: allLevelMatch, inCurrentLevel: false }
+  }
+
   return null
 }
 
@@ -182,23 +203,25 @@ const handleFullUrlInput = async (fullUrl: string): Promise<void> => {
 
   const { origin, path: urlPath } = parsed
   const normalizedPath = urlPath.startsWith('/') ? urlPath : `/${urlPath}`
-  const matchingServer = findMatchingServer(origin)
+  const match = findMatchingServer(origin)
 
-  if (matchingServer) {
-    // Server exists - select it as active
+  if (match?.inCurrentLevel) {
+    // Server exists in current level - select it directly
     eventBus.emit('server:update:selected', {
-      url: matchingServer.url,
+      url: match.server.url,
       meta: serverMeta,
     })
   } else {
-    // No matching server - add a new operation-level server
+    // Either no matching server, or server is in a different level
+    // Add the server to operation level and select it there
     const operationMeta: ServerMeta =
       serverMeta.type === 'operation'
         ? serverMeta
         : { type: 'operation', path, method }
 
-    // Get the index where the new server will be added
-    const newServerIndex = servers.length
+    // When adding to operation level from document level, the new server will be at index 0
+    // When already at operation level, it will be at servers.length
+    const newServerIndex = serverMeta.type === 'operation' ? servers.length : 0
 
     // First add a blank server
     eventBus.emit('server:add:server', { meta: operationMeta })

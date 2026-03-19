@@ -690,9 +690,11 @@ describe('AddressBar', () => {
 
       /**
        * Should update the new server with the origin URL.
+       * When adding from document level to operation level, the new server is at index 0
+       * because it's the first operation-level server.
        */
       expect(emitSpy).toHaveBeenCalledWith('server:update:server', {
-        index: 1,
+        index: 0,
         server: { url: 'https://other-api.example.com' },
         meta: { type: 'operation', path: '/api/test', method: 'get' },
       })
