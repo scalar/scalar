@@ -55,6 +55,7 @@ import {
   ref,
   useId,
   useTemplateRef,
+  watch,
 } from 'vue'
 
 import { HttpMethod } from '@/components/HttpMethod'
@@ -101,6 +102,14 @@ const methodConflict = ref<HttpMethodType | null>(null)
 
 /** Track the previous path value to detect paste operations */
 const previousPathValue = ref<string>(path)
+
+/** Sync previousPathValue when path prop changes externally (e.g., after URL parsing) */
+watch(
+  () => path,
+  (newPath) => {
+    previousPathValue.value = newPath
+  },
+)
 
 /** Whether there is a path or method conflict */
 const hasConflict = computed(() => methodConflict.value || pathConflict.value)
