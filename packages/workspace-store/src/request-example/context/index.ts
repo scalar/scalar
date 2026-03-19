@@ -1,13 +1,21 @@
 import type { WorkspaceStore } from '@/client'
+import type { SelectedSecurity } from '@/entities/auth'
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
+import type { SecuritySchemeObjectSecret } from '@/request-example/builder/security/secret-types'
 import { getActiveEnvironment } from '@/request-example/context/environment'
 import { type DefaultHeader, getDefaultHeaders } from '@/request-example/context/headers'
+import { combineParams } from '@/request-example/context/helpers/combine-params'
 import { type Layout, getActiveProxyUrl } from '@/request-example/context/proxy'
+import { getSecurityRequirements } from '@/request-example/context/security/get-security-requirements'
+import { getSecuritySchemes } from '@/request-example/context/security/get-security-schemes'
+import { getSelectedSecurity } from '@/request-example/context/security/get-selected-security'
+import { type MergedSecuritySchemes, mergeSecurity } from '@/request-example/context/security/merge-security'
 import { getSelectedServer, getServers } from '@/request-example/context/servers'
 import type { RequestExampleMeta, Result } from '@/request-example/types'
 import type { XScalarEnvironment } from '@/schemas/extensions/document/x-scalar-environments'
 import type { XScalarCookie } from '@/schemas/extensions/general/x-scalar-cookies'
 import type { OperationObject } from '@/schemas/v3.1/strict/operation'
+import type { SecurityRequirementObject } from '@/schemas/v3.1/strict/security-requirement'
 import type { ServerObject } from '@/schemas/v3.1/strict/server'
 
 type BuildRequestExampleContext = {
@@ -29,6 +37,12 @@ type BuildRequestExampleContext = {
   }
   headers: {
     default: DefaultHeader[]
+  }
+  security: {
+    schemes: MergedSecuritySchemes
+    requirements: SecurityRequirementObject[]
+    selected: SelectedSecurity
+    selectedSchemes: SecuritySchemeObjectSecret[]
   }
 }
 
@@ -60,7 +74,15 @@ export const getRequestExampleContext = (
       error: `Path ${path} not found`,
     }
   }
-  const operation = getResolvedRef(pathItem[method])
+
+  const resolvedOperation = getResolvedRef(pathItem[method])
+
+  // Combine the path item and operation parameters
+  const operation = {
+    ...resolvedOperation,
+    parameters: combineParams(pathItem.parameters, resolvedOperation?.parameters ?? []),
+  }
+
   if (!operation) {
     return {
       ok: false,
@@ -87,17 +109,34 @@ export const getRequestExampleContext = (
   //------------------------------------------------------------------------------------------------
   //                                 SECURITY CONTEXT
   //------------------------------------------------------------------------------------------------
-  // Get security schemes for the request example
-  // const securitySchemes = getSecuritySchemes(securitySchemes, selectedSecuritySchemes)
+  const documentSelectedSecurity = workspaceStore.auth.getAuthSelectedSchemas({
+    type: 'document',
+    documentName,
+  })
 
-  // Get selected security schemes for the request example
-  // const selectedSecuritySchemes = getSelectedSecuritySchemes(securitySchemes, selectedSecuritySchemes)
+  const operationSelectedSecurity = workspaceStore.auth.getAuthSelectedSchemas({
+    type: 'operation',
+    documentName,
+    path: path ?? '',
+    method: method ?? 'get',
+  })
 
-  // Get selected security for the request example
-  // const selectedSecurity = getSelectedSecurity(selectedSecuritySchemes, selectedSecuritySchemes)
+  const securitySchemes = mergeSecurity(
+    document.components?.securitySchemes ?? {},
+    {},
+    workspaceStore.auth,
+    documentName,
+  )
 
-  // Get selected security requirements for the request example
-  // const selectedSecurityRequirements = getSelectedSecurityRequirements(selectedSecuritySchemes, selectedSecuritySchemes)
+  const securityRequirements = getSecurityRequirements(document.security, operation.security)
+  const selectedSecurity = getSelectedSecurity(
+    documentSelectedSecurity,
+    operationSelectedSecurity,
+    securityRequirements,
+  )
+
+  /** The above selected requirements in scheme form */
+  const selectedSecuritySchemes = getSecuritySchemes(securitySchemes, selectedSecurity.selectedSchemes)
 
   //------------------------------------------------------------------------------------------------
   //                                 PROXY URL
@@ -130,6 +169,12 @@ export const getRequestExampleContext = (
       },
       proxy: {
         url: proxyUrl,
+      },
+      security: {
+        schemes: securitySchemes,
+        requirements: securityRequirements,
+        selected: selectedSecurity,
+        selectedSchemes: selectedSecuritySchemes,
       },
     },
   }
