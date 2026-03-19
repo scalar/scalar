@@ -148,7 +148,7 @@ const shouldCollapse = computed<boolean>(() =>
       </DisclosureButton>
       <div
         v-if="shouldCollapse && content"
-        class="absolute top-[calc(9px+0.5lh)] right-0 z-0 flex -translate-y-1/2 items-center"
+        class="absolute top-[calc(10px+0.5lh)] right-0 z-0 flex -translate-y-1/2 items-center text-base"
         :class="{
           'opacity-0 group-focus-within/parameter-item:opacity-100 group-hover/parameter-item:opacity-100':
             !open,
