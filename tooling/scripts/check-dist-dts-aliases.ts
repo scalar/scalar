@@ -1,4 +1,4 @@
-#!/usr/bin/env node
+import type { Dirent } from 'node:fs'
 import { promises as fs } from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
@@ -7,7 +7,7 @@ const ROOT_DIR = process.cwd()
 const PACKAGES_DIR = path.join(ROOT_DIR, 'packages')
 const ALIAS_IMPORT_REGEX = /\bfrom\s+['"]@\/|import\(\s*['"]@\//
 
-const readDirSafe = async (dirPath) => {
+const readDirSafe = async (dirPath: string): Promise<Dirent[]> => {
   try {
     return await fs.readdir(dirPath, { withFileTypes: true })
   } catch {
@@ -15,7 +15,7 @@ const readDirSafe = async (dirPath) => {
   }
 }
 
-const collectDtsFiles = async (dirPath) => {
+const collectDtsFiles = async (dirPath: string): Promise<string[]> => {
   const entries = await readDirSafe(dirPath)
   const files = await Promise.all(
     entries.map((entry) => {
@@ -32,7 +32,9 @@ const collectDtsFiles = async (dirPath) => {
   return files.flat()
 }
 
-const stripComments = (line, state) => {
+type CommentState = { inBlockComment: boolean }
+
+const stripComments = (line: string, state: CommentState): string => {
   let index = 0
   let output = ''
 
@@ -70,9 +72,11 @@ const stripComments = (line, state) => {
   return output
 }
 
-const getAliasImportMatches = (fileContent) => {
-  const matches = []
-  const state = { inBlockComment: false }
+type AliasMatch = { line: number; content: string }
+
+const getAliasImportMatches = (fileContent: string): AliasMatch[] => {
+  const matches: AliasMatch[] = []
+  const state: CommentState = { inBlockComment: false }
   const lines = fileContent.split('\n')
 
   lines.forEach((line, idx) => {
@@ -89,9 +93,11 @@ const getAliasImportMatches = (fileContent) => {
   return matches
 }
 
-const run = async () => {
+type LeakedImport = { file: string; line: number; content: string }
+
+const run = async (): Promise<void> => {
   const packageEntries = await readDirSafe(PACKAGES_DIR)
-  const leakedImports = []
+  const leakedImports: LeakedImport[] = []
 
   for (const packageEntry of packageEntries) {
     if (!packageEntry.isDirectory()) {
