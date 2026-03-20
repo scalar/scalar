@@ -1,5 +1,11 @@
 # @scalar/icons
 
+## 0.6.2
+
+### Patch Changes
+
+- [#8508](https://github.com/scalar/scalar/pull/8508): fix: add sideEffects: false to enable tree-shaking for Webpack consumers
+
 ## 0.6.1
 
 ### Patch Changes

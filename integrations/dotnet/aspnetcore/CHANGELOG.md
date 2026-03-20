@@ -1,5 +1,7 @@
 # @scalar/aspnetcore
 
+## 2.13.12
+
 ## 2.13.11
 
 ### Patch Changes
