@@ -1,5 +1,4 @@
-import { encode } from 'js-base64'
-import { beforeEach, describe, expect, it } from 'vitest'
+import { assert, beforeEach, describe, expect, it } from 'vitest'
 
 import type {
   ApiKeyObjectSecret,
@@ -7,9 +6,9 @@ import type {
   OAuth2ObjectSecret,
   OAuthFlowAuthorizationCodeSecret,
   OAuthFlowImplicitSecret,
-} from '@/v2/blocks/scalar-auth-selector-block/helpers/secret-types'
+} from '@/request-example/builder/security/secret-types'
 
-import { buildRequestSecurity, getSecuritySchemes } from './build-request-security'
+import { buildRequestSecurity } from './build-request-security'
 
 describe('buildRequestSecurity', () => {
   let apiKey: ApiKeyObjectSecret
@@ -39,32 +38,41 @@ describe('buildRequestSecurity', () => {
   it('returns empty objects when no security schemes are provided', () => {
     const result = buildRequestSecurity([])
 
-    expect(result.headers).toEqual({})
-    expect(result.cookies).toEqual([])
-    expect(result.urlParams.toString()).toBe('')
+    expect(result).toEqual([])
   })
 
   describe('apiKey security', () => {
     it('handles apiKey in header', () => {
       const result = buildRequestSecurity([apiKey])
-      expect(result.headers['x-api-key']).toBe('test-key')
+      expect(result).toHaveLength(1)
+      assert(result[0])
+      expect(result[0].name).toBe('x-api-key')
+      expect(result[0].value).toBe('test-key')
+      expect(result[0].type).toBe('simple')
+      expect(result[0].in).toBe('header')
     })
 
     it('handles apiKey in query', () => {
       apiKey.in = 'query'
       const result = buildRequestSecurity([apiKey])
-      expect(result.urlParams.get('x-api-key')).toBe('test-key')
+      expect(result).toHaveLength(1)
+      assert(result[0])
+      expect(result[0].name).toBe('x-api-key')
+      expect(result[0].value).toBe('test-key')
+      expect(result[0].type).toBe('simple')
+      expect(result[0].in).toBe('query')
     })
 
     it('handles apiKey in cookie', () => {
       apiKey.in = 'cookie'
       const result = buildRequestSecurity([apiKey])
 
-      expect(result.cookies[0]).toEqual({
-        name: 'x-api-key',
-        value: 'test-key',
-        path: '/',
-      })
+      expect(result).toHaveLength(1)
+      assert(result[0])
+      expect(result[0].name).toBe('x-api-key')
+      expect(result[0].value).toBe('test-key')
+      expect(result[0].type).toBe('simple')
+      expect(result[0].in).toBe('cookie')
     })
   })
 
@@ -72,14 +80,24 @@ describe('buildRequestSecurity', () => {
     it('handles basic auth', () => {
       basic.scheme = 'basic'
       const result = buildRequestSecurity([basic])
-      expect(result.headers['Authorization']).toBe(`Basic ${encode('scalar:user')}`)
+      expect(result).toHaveLength(1)
+      assert(result[0])
+      expect(result[0].name).toBe('Authorization')
+      expect(result[0].value).toBe('scalar:user')
+      expect(result[0].type).toBe('basic')
+      expect(result[0].in).toBe('header')
     })
 
     it('handles basic auth with empty credentials', () => {
       basic['x-scalar-secret-username'] = ''
       basic['x-scalar-secret-password'] = ''
       const result = buildRequestSecurity([basic])
-      expect(result.headers['Authorization']).toBe('Basic username:password')
+      expect(result).toHaveLength(1)
+      assert(result[0])
+      expect(result[0].name).toBe('Authorization')
+      expect(result[0].value).toBe('username:password')
+      expect(result[0].type).toBe('basic')
+      expect(result[0].in).toBe('header')
     })
 
     it('handles basic auth with Unicode characters', () => {
@@ -88,16 +106,24 @@ describe('buildRequestSecurity', () => {
 
       const result = buildRequestSecurity([basic])
 
-      // The credentials are properly encoded as base64
-      const expectedBase64 = 'xbzDs8WCxIc60YLQtdGB0YI='
-      expect(result.headers['Authorization']).toBe(`Basic ${expectedBase64}`)
+      expect(result).toHaveLength(1)
+      assert(result[0])
+      expect(result[0].name).toBe('Authorization')
+      expect(result[0].value).toBe('żółć:тест')
+      expect(result[0].type).toBe('basic')
+      expect(result[0].in).toBe('header')
     })
 
     it('handles bearer auth', () => {
       basic.scheme = 'bearer'
       basic['x-scalar-secret-token'] = 'test-token'
       const result = buildRequestSecurity([basic])
-      expect(result.headers['Authorization']).toBe('Bearer test-token')
+      expect(result).toHaveLength(1)
+      assert(result[0])
+      expect(result[0].name).toBe('Authorization')
+      expect(result[0].value).toBe('test-token')
+      expect(result[0].type).toBe('bearer')
+      expect(result[0].in).toBe('header')
     })
   })
 
@@ -109,12 +135,22 @@ describe('buildRequestSecurity', () => {
         } as OAuthFlowImplicitSecret,
       }
       const result = buildRequestSecurity([oauth2])
-      expect(result.headers['Authorization']).toBe('Bearer test-token')
+      expect(result).toHaveLength(1)
+      assert(result[0])
+      expect(result[0].name).toBe('Authorization')
+      expect(result[0].value).toBe('test-token')
+      expect(result[0].type).toBe('bearer')
+      expect(result[0].in).toBe('header')
     })
 
     it('handles oauth2 without token', () => {
       const result = buildRequestSecurity([oauth2])
-      expect(result.headers['Authorization']).toBe('Bearer ')
+      expect(result).toHaveLength(1)
+      assert(result[0])
+      expect(result[0].name).toBe('Authorization')
+      expect(result[0].value).toBe('')
+      expect(result[0].type).toBe('bearer')
+      expect(result[0].in).toBe('header')
     })
 
     it('handles oauth2 with multiple flows with the first token being used', () => {
@@ -128,35 +164,24 @@ describe('buildRequestSecurity', () => {
       }
 
       const result = buildRequestSecurity([oauth2])
-      expect(result.headers['Authorization']).toBe('Bearer test-token-implicit')
+      expect(result).toHaveLength(1)
+      assert(result[0])
+      expect(result[0].name).toBe('Authorization')
+      expect(result[0].value).toBe('test-token-implicit')
+      expect(result[0].type).toBe('bearer')
+      expect(result[0].in).toBe('header')
     })
   })
 
   it('handles empty token placeholder', () => {
     apiKey['x-scalar-secret-token'] = ''
-    const result = buildRequestSecurity([apiKey], {}, 'NO_VALUE')
-    expect(result.headers['x-api-key']).toBe('NO_VALUE')
-  })
-
-  describe('environment variable replacement', () => {
-    it('replaces environment variables in apiKey token', () => {
-      apiKey['x-scalar-secret-token'] = '{{API_KEY}}'
-      const env = { API_KEY: 'my-secret-key-123' }
-
-      const result = buildRequestSecurity([apiKey], env)
-
-      expect(result.headers['x-api-key']).toBe('my-secret-key-123')
-    })
-
-    it('replaces environment variables in basic auth credentials', () => {
-      basic['x-scalar-secret-username'] = '{{USERNAME}}'
-      basic['x-scalar-secret-password'] = '{{PASSWORD}}'
-      const env = { USERNAME: 'admin', PASSWORD: 'super-secret' }
-
-      const result = buildRequestSecurity([basic], env)
-
-      expect(result.headers['Authorization']).toBe(`Basic ${encode('admin:super-secret')}`)
-    })
+    const result = buildRequestSecurity([apiKey], 'NO_VALUE')
+    expect(result).toHaveLength(1)
+    assert(result[0])
+    expect(result[0].name).toBe('x-api-key')
+    expect(result[0].value).toBe('NO_VALUE')
+    expect(result[0].type).toBe('simple')
+    expect(result[0].in).toBe('header')
   })
 
   describe('complex security with multiple schemes', () => {
@@ -172,16 +197,34 @@ describe('buildRequestSecurity', () => {
       const result = buildRequestSecurity([apiKey, apiKey2])
 
       // Both headers should be present
-      expect(result.headers['x-api-key']).toBe('test-key')
-      expect(result.headers['x-client-id']).toBe('client-123')
+      expect(result).toHaveLength(2)
+      assert(result[0])
+      assert(result[1])
+      expect(result[0].name).toBe('x-api-key')
+      expect(result[0].value).toBe('test-key')
+      expect(result[0].type).toBe('simple')
+      expect(result[0].in).toBe('header')
+      expect(result[1].name).toBe('x-client-id')
+      expect(result[1].value).toBe('client-123')
+      expect(result[1].type).toBe('simple')
+      expect(result[1].in).toBe('header')
     })
 
     it('handles apiKey and basic auth together', () => {
       const result = buildRequestSecurity([apiKey, basic])
 
       // Both apiKey header and Authorization header should be present
-      expect(result.headers['x-api-key']).toBe('test-key')
-      expect(result.headers['Authorization']).toBe(`Basic ${encode('scalar:user')}`)
+      expect(result).toHaveLength(2)
+      assert(result[0])
+      assert(result[1])
+      expect(result[0].name).toBe('x-api-key')
+      expect(result[0].value).toBe('test-key')
+      expect(result[0].type).toBe('simple')
+      expect(result[0].in).toBe('header')
+      expect(result[1].name).toBe('Authorization')
+      expect(result[1].value).toBe('scalar:user')
+      expect(result[1].type).toBe('basic')
+      expect(result[1].in).toBe('header')
     })
 
     it('handles multiple schemes across different locations', () => {
@@ -212,59 +255,28 @@ describe('buildRequestSecurity', () => {
       const result = buildRequestSecurity([headerKey, queryKey, cookieKey])
 
       // All three locations should have their respective values
-      expect(result.headers['x-api-key']).toBe('header-key')
-      expect(result.urlParams.get('api_key')).toBe('query-key')
-      expect(result.cookies[0]).toEqual({
-        name: 'session',
-        value: 'cookie-value',
-        path: '/',
-      })
+      expect(result).toHaveLength(3)
+      assert(result[0])
+      assert(result[1])
+      assert(result[2])
+
+      // Header key
+      expect(result[0].name).toBe('x-api-key')
+      expect(result[0].value).toBe('header-key')
+      expect(result[0].type).toBe('simple')
+      expect(result[0].in).toBe('header')
+
+      // Query key
+      expect(result[1].name).toBe('api_key')
+      expect(result[1].value).toBe('query-key')
+      expect(result[1].type).toBe('simple')
+      expect(result[1].in).toBe('query')
+
+      // Cookie key
+      expect(result[2].name).toBe('session')
+      expect(result[2].value).toBe('cookie-value')
+      expect(result[2].type).toBe('simple')
+      expect(result[2].in).toBe('cookie')
     })
-  })
-})
-
-describe('getSecuritySchemes', () => {
-  it('returns an empty array when no security is selected', () => {
-    const securitySchemes = {
-      apiKey: {
-        type: 'apiKey',
-        name: 'x-api-key',
-        in: 'header',
-        'x-scalar-secret-token': 'test-key',
-      } as ApiKeyObjectSecret,
-    }
-
-    const result = getSecuritySchemes(securitySchemes, [])
-
-    expect(result).toEqual([])
-  })
-
-  it('returns the correct security schemes when multiple schemes are selected', () => {
-    const apiKey = {
-      type: 'apiKey',
-      name: 'x-api-key',
-      in: 'header',
-      'x-scalar-secret-token': 'test-key',
-    } as ApiKeyObjectSecret
-
-    const basic = {
-      type: 'http',
-      scheme: 'basic',
-      'x-scalar-secret-username': 'user',
-      'x-scalar-secret-password': 'pass',
-    } as HttpObjectSecret
-
-    const securitySchemes = {
-      apiKeyScheme: apiKey,
-      basicScheme: basic,
-    }
-
-    const selectedSecurity = [{ apiKeyScheme: [], basicScheme: [] }]
-
-    const result = getSecuritySchemes(securitySchemes, selectedSecurity)
-
-    expect(result).toHaveLength(2)
-    expect(result[0]).toEqual(apiKey)
-    expect(result[1]).toEqual(basic)
   })
 })

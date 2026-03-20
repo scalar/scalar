@@ -69,7 +69,6 @@ describe('buildRequestCookieHeader', () => {
       const result = buildRequestCookieHeader({
         paramCookies: [],
         globalCookies: [],
-        env: {},
         originalCookieHeader: undefined,
         url: 'https://example.com',
         useCustomCookieHeader: false,
@@ -83,7 +82,6 @@ describe('buildRequestCookieHeader', () => {
       const result = buildRequestCookieHeader({
         paramCookies: [createCookie('localCookie', 'foo', { domain: undefined })],
         globalCookies: [],
-        env: {},
         disabledGlobalCookies: {},
         originalCookieHeader: undefined,
         url: 'https://example.com',
@@ -100,8 +98,6 @@ describe('buildRequestCookieHeader', () => {
       const result = buildRequestCookieHeader({
         paramCookies: [],
         globalCookies: [createCookie('globalCookie', 'bar', { domain: 'example.com' })],
-        env: {},
-
         disabledGlobalCookies: {},
         originalCookieHeader: undefined,
         url: 'https://example.com',
@@ -118,8 +114,6 @@ describe('buildRequestCookieHeader', () => {
       const result = buildRequestCookieHeader({
         paramCookies: [createCookie('localCookie', 'foo', { domain: undefined })],
         globalCookies: [createCookie('globalCookie', 'bar', { domain: 'example.com' })],
-        env: {},
-
         disabledGlobalCookies: {},
         originalCookieHeader: undefined,
         url: 'https://example.com',
@@ -136,8 +130,6 @@ describe('buildRequestCookieHeader', () => {
       const result = buildRequestCookieHeader({
         paramCookies: [createCookie('localCookie', 'foo', { domain: undefined })],
         globalCookies: [],
-        env: {},
-
         disabledGlobalCookies: {},
         originalCookieHeader: 'existing=value',
         url: 'https://example.com',
@@ -156,8 +148,6 @@ describe('buildRequestCookieHeader', () => {
       const result = buildRequestCookieHeader({
         paramCookies: [createCookie('localCookie', 'foo', { domain: undefined })],
         globalCookies: [],
-        env: {},
-
         disabledGlobalCookies: {},
         originalCookieHeader: undefined,
         url: 'https://example.com',
@@ -174,7 +164,6 @@ describe('buildRequestCookieHeader', () => {
       const result = buildRequestCookieHeader({
         paramCookies: [createCookie('localCookie', 'foo', { domain: undefined })],
         globalCookies: [],
-        env: {},
         disabledGlobalCookies: {},
         originalCookieHeader: undefined,
         url: 'https://example.com',
@@ -196,7 +185,6 @@ describe('buildRequestCookieHeader', () => {
           createCookie('exampleCookie', 'foo', { domain: 'example.com' }),
           createCookie('scalarCookie', 'bar', { domain: 'scalar.com' }),
         ],
-        env: {},
         disabledGlobalCookies: {},
         originalCookieHeader: undefined,
         url: 'https://example.com',
@@ -213,7 +201,6 @@ describe('buildRequestCookieHeader', () => {
       const result = buildRequestCookieHeader({
         paramCookies: [],
         globalCookies: [createCookie('wildcardCookie', 'foo', { domain: '.scalar.com' })],
-        env: {},
         disabledGlobalCookies: {},
         originalCookieHeader: undefined,
         url: 'https://void.scalar.com',
@@ -230,7 +217,6 @@ describe('buildRequestCookieHeader', () => {
       const result = buildRequestCookieHeader({
         paramCookies: [],
         globalCookies: [createCookie('nonWildcardCookie', 'foo', { domain: 'scalar.com' })],
-        env: {},
         disabledGlobalCookies: {},
         originalCookieHeader: undefined,
         url: 'https://void.scalar.com',
@@ -244,7 +230,6 @@ describe('buildRequestCookieHeader', () => {
       const result = buildRequestCookieHeader({
         paramCookies: [],
         globalCookies: [createCookie('noDomainCookie', 'foo', { domain: undefined })],
-        env: {},
         disabledGlobalCookies: {},
         originalCookieHeader: undefined,
         url: 'https://example.com',
@@ -266,7 +251,6 @@ describe('buildRequestCookieHeader', () => {
           createCookie('enabledCookie', 'foo', { domain: 'example.com', isDisabled: false }),
           createCookie('disabledCookie', 'bar', { domain: 'example.com', isDisabled: true }),
         ],
-        env: {},
         disabledGlobalCookies: {},
         originalCookieHeader: undefined,
         url: 'https://example.com',
@@ -285,7 +269,6 @@ describe('buildRequestCookieHeader', () => {
         globalCookies: [
           createCookie('undefinedDisabledCookie', 'foo', { domain: 'example.com', isDisabled: undefined }),
         ],
-        env: {},
         disabledGlobalCookies: {},
         originalCookieHeader: undefined,
         url: 'https://example.com',
@@ -299,59 +282,6 @@ describe('buildRequestCookieHeader', () => {
     })
   })
 
-  describe('environment variable replacement', () => {
-    it('replaces environment variables in both name and value of global cookies', () => {
-      const result = buildRequestCookieHeader({
-        paramCookies: [],
-        globalCookies: [createCookie('{{cookieName}}', '{{cookieValue}}', { domain: 'example.com' })],
-        env: { cookieName: 'auth', cookieValue: 'token123' },
-        disabledGlobalCookies: {},
-        originalCookieHeader: undefined,
-        url: 'https://example.com',
-        useCustomCookieHeader: false,
-      })
-
-      expect(result).toMatchObject({
-        name: 'Cookie',
-        value: 'auth=token123',
-      })
-    })
-
-    it('handles multiple environment variables in a single value', () => {
-      const result = buildRequestCookieHeader({
-        paramCookies: [],
-        globalCookies: [createCookie('session', '{{userId}}-{{timestamp}}', { domain: 'example.com' })],
-        env: { userId: 'user123', timestamp: '1234567890' },
-        disabledGlobalCookies: {},
-        originalCookieHeader: undefined,
-        url: 'https://example.com',
-        useCustomCookieHeader: false,
-      })
-
-      expect(result).toMatchObject({
-        name: 'Cookie',
-        value: 'session=user123-1234567890',
-      })
-    })
-
-    it('leaves unreplaced variables when env is missing', () => {
-      const result = buildRequestCookieHeader({
-        paramCookies: [],
-        globalCookies: [createCookie('token', '{{missingVar}}', { domain: 'example.com' })],
-        env: {},
-        disabledGlobalCookies: {},
-        originalCookieHeader: undefined,
-        url: 'https://example.com',
-        useCustomCookieHeader: false,
-      })
-
-      expect(result).toMatchObject({
-        name: 'Cookie',
-        value: 'token={{missingVar}}',
-      })
-    })
-  })
-
   describe('empty cookie names', () => {
     it('excludes global cookies with empty names', () => {
       const result = buildRequestCookieHeader({
@@ -360,7 +290,6 @@ describe('buildRequestCookieHeader', () => {
           createCookie('validCookie', 'foo', { domain: 'example.com' }),
           createCookie('', 'bar', { domain: 'example.com' }),
         ],
-        env: {},
         disabledGlobalCookies: {},
         originalCookieHeader: undefined,
         url: 'https://example.com',
@@ -382,7 +311,6 @@ describe('buildRequestCookieHeader', () => {
           createCookie('complex', '{"key": "value"}', { domain: undefined }),
         ],
         globalCookies: [],
-        env: {},
         disabledGlobalCookies: {},
         originalCookieHeader: undefined,
         url: 'https://example.com',
@@ -402,7 +330,6 @@ describe('buildRequestCookieHeader', () => {
           createCookie('normal', 'value', { domain: undefined }),
         ],
         globalCookies: [],
-        env: {},
         disabledGlobalCookies: {},
         originalCookieHeader: undefined,
         url: 'https://example.com',
@@ -421,7 +348,6 @@ describe('buildRequestCookieHeader', () => {
       const result = buildRequestCookieHeader({
         paramCookies: [createCookie('localCookie', 'local', { domain: undefined })],
         globalCookies: [createCookie('globalCookie', 'global', { domain: 'example.com' })],
-        env: {},
         disabledGlobalCookies: {},
         originalCookieHeader: 'existing=value',
         url: 'https://example.com',
@@ -443,7 +369,6 @@ describe('buildRequestCookieHeader', () => {
           createCookie('cookie3', 'value3', { domain: 'scalar.com' }),
           createCookie('cookie4', 'value4', { domain: undefined }),
         ],
-        env: {},
         disabledGlobalCookies: {},
         originalCookieHeader: undefined,
         url: 'https://example.com',
@@ -463,12 +388,6 @@ describe('buildRequestCookieHeader', () => {
           createCookie('{{cookieName1}}', '{{cookieValue1}}', { domain: 'example.com' }),
           createCookie('{{cookieName2}}', '{{cookieValue2}}', { domain: 'scalar.com' }),
         ],
-        env: {
-          cookieName1: 'auth',
-          cookieValue1: 'token123',
-          cookieName2: 'session',
-          cookieValue2: 'session456',
-        },
 
         disabledGlobalCookies: {},
         originalCookieHeader: undefined,
@@ -478,7 +397,7 @@ describe('buildRequestCookieHeader', () => {
 
       expect(result).toMatchObject({
         name: 'Cookie',
-        value: 'auth=token123',
+        value: '{{cookieName1}}={{cookieValue1}}',
       })
     })
 
@@ -492,7 +411,6 @@ describe('buildRequestCookieHeader', () => {
           createCookie('', 'empty', { domain: 'example.com', isDisabled: false }),
           createCookie('{{envCookie}}', '{{envValue}}', { domain: 'example.com', isDisabled: false }),
         ],
-        env: { envCookie: 'envName', envValue: 'envVal' },
         disabledGlobalCookies: {},
         originalCookieHeader: 'original=header',
         url: 'https://example.com',
@@ -501,7 +419,7 @@ describe('buildRequestCookieHeader', () => {
 
       expect(result).toMatchObject({
         name: 'X-Scalar-Cookie',
-        value: 'original=header; validCookie=valid; envName=envVal; paramCookie=param',
+        value: 'original=header; validCookie=valid; {{envCookie}}={{envValue}}; paramCookie=param',
       })
     })
   })
@@ -511,7 +429,6 @@ describe('buildRequestCookieHeader', () => {
       const result = buildRequestCookieHeader({
         paramCookies: [],
         globalCookies: [createCookie('localCookie', 'value', { domain: 'localhost' })],
-        env: {},
         disabledGlobalCookies: {},
         originalCookieHeader: undefined,
         url: 'http://localhost:3000',
@@ -528,7 +445,6 @@ describe('buildRequestCookieHeader', () => {
       const result = buildRequestCookieHeader({
         paramCookies: [],
         globalCookies: [createCookie('ipCookie', 'value', { domain: '127.0.0.1' })],
-        env: {},
         disabledGlobalCookies: {},
         originalCookieHeader: undefined,
         url: 'http://127.0.0.1:5052',
@@ -547,7 +463,6 @@ describe('buildRequestCookieHeader', () => {
       const result = buildRequestCookieHeader({
         paramCookies: [],
         globalCookies: [createCookie('parentPath', 'value', { domain: 'example.com', path: '/api' })],
-        env: {},
         disabledGlobalCookies: {},
         originalCookieHeader: undefined,
         url: 'https://example.com/api/users',
@@ -564,7 +479,6 @@ describe('buildRequestCookieHeader', () => {
       const result = buildRequestCookieHeader({
         paramCookies: [],
         globalCookies: [createCookie('wrongPath', 'value', { domain: 'example.com', path: '/admin' })],
-        env: {},
         disabledGlobalCookies: {},
         originalCookieHeader: undefined,
         url: 'https://example.com/api/users',
@@ -578,7 +492,6 @@ describe('buildRequestCookieHeader', () => {
       const result = buildRequestCookieHeader({
         paramCookies: [],
         globalCookies: [createCookie('noPath', 'value', { domain: 'example.com', path: undefined })],
-        env: {},
         disabledGlobalCookies: {},
         originalCookieHeader: undefined,
         url: 'https://example.com/api/users',
@@ -600,7 +513,6 @@ describe('buildRequestCookieHeader', () => {
           createCookie('adminCookie', 'admin', { domain: 'example.com', path: '/admin' }),
           createCookie('apiUsersCookie', 'apiusers', { domain: 'example.com', path: '/api/users' }),
         ],
-        env: {},
         disabledGlobalCookies: {},
         originalCookieHeader: undefined,
         url: 'https://example.com/api/users',
@@ -625,7 +537,6 @@ describe('buildRequestCookieHeader', () => {
           createCookie('global1', 'gvalue1', { domain: 'example.com' }),
           createCookie('global2', 'gvalue2', { domain: 'example.com' }),
         ],
-        env: {},
         disabledGlobalCookies: {},
         originalCookieHeader: undefined,
         url: 'https://example.com',
@@ -642,7 +553,6 @@ describe('buildRequestCookieHeader', () => {
       const result = buildRequestCookieHeader({
         paramCookies: [createCookie('param', 'pvalue', { domain: undefined })],
         globalCookies: [createCookie('global', 'gvalue', { domain: 'example.com' })],
-        env: {},
         disabledGlobalCookies: {},
         originalCookieHeader: 'original1=value1; original2=value2',
         url: 'https://example.com',
@@ -665,7 +575,6 @@ describe('buildRequestCookieHeader', () => {
       const result = buildRequestCookieHeader({
         paramCookies,
         globalCookies: [],
-        env: {},
         disabledGlobalCookies: {},
         originalCookieHeader: undefined,
         url: 'https://example.com',

@@ -1,12 +1,12 @@
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import { RequestBodyObjectSchema } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import { describe, expect, it } from 'vitest'
+import { assert, describe, expect, it } from 'vitest'
 
 import { buildRequestBody } from './build-request-body'
 
 describe('buildRequestBody', () => {
   it('returns null when requestBody is undefined', () => {
-    const result = buildRequestBody(undefined, {}, 'default')
+    const result = buildRequestBody(undefined, 'default')
     expect(result).toBe(null)
   })
 
@@ -18,7 +18,7 @@ describe('buildRequestBody', () => {
         },
       },
     })
-    const result = buildRequestBody(requestBody, {}, 'default')
+    const result = buildRequestBody(requestBody, 'default')
     expect(result).toBe(null)
   })
 
@@ -34,9 +34,11 @@ describe('buildRequestBody', () => {
         },
       },
     }
-    const env = { username: 'john_doe', userId: '12345' }
-    const result = buildRequestBody(requestBody, env, 'default')
-    expect(result).toBe('{"name": "john_doe", "id": "12345"}')
+    const result = buildRequestBody(requestBody, 'default')
+    expect(result).toEqual({
+      mode: 'raw',
+      value: '{"name": "{{username}}", "id": "{{userId}}"}',
+    })
   })
 
   it('builds FormData for multipart/form-data content type', () => {
@@ -54,13 +56,15 @@ describe('buildRequestBody', () => {
         },
       },
     }
-    const env = { user: 'john_doe' }
-    const result = buildRequestBody(requestBody, env, 'default')
+    const result = buildRequestBody(requestBody, 'default')
 
-    expect(result).toBeInstanceOf(FormData)
-    const formData = result as FormData
-    expect(formData.get('username')).toBe('john_doe')
-    expect(formData.get('email')).toBe('test@example.com')
+    expect(result).toEqual({
+      mode: 'formdata',
+      value: [
+        { type: 'text', key: 'username', value: '{{user}}' },
+        { type: 'text', key: 'email', value: 'test@example.com' },
+      ],
+    })
   })
 
   it('applies encoding.contentType to multipart string parts', () => {
@@ -81,12 +85,16 @@ describe('buildRequestBody', () => {
       },
     }
 
-    const result = buildRequestBody(requestBody, { username: 'scalar' }, 'default')
+    const result = buildRequestBody(requestBody, 'default')
 
-    expect(result).toBeInstanceOf(FormData)
-    const value = (result as FormData).get('user')
-    expect(value).toBeInstanceOf(File)
-    expect((value as File).type).toBe('application/json;charset=utf-8')
+    expect(result?.mode).toBe('formdata')
+    assert(result?.mode === 'formdata')
+
+    expect(result?.value?.[0]).toBeDefined()
+    assert(result?.value?.[0])
+    expect(result.value[0].value).toBeInstanceOf(Blob)
+    assert(result.value[0].value instanceof Blob)
+    expect(result.value[0].value.type).toBe('application/json;charset=utf-8')
   })
 
   it('applies encoding.contentType overrides to multipart files', () => {
@@ -108,14 +116,16 @@ describe('buildRequestBody', () => {
       },
     }
 
-    const result = buildRequestBody(requestBody, {}, 'default')
+    const result = buildRequestBody(requestBody, 'default')
 
-    expect(result).toBeInstanceOf(FormData)
-    const value = (result as FormData).get('file')
-    expect(value).toBeInstanceOf(File)
-    expect((value as File).name).toBe('test.txt')
-    expect((value as File).type).toBe('application/json')
-    expect((value as File).lastModified).toBe(123)
+    expect(result?.mode).toBe('formdata')
+    assert(result?.mode === 'formdata')
+
+    expect(result?.value?.[0]).toBeDefined()
+    assert(result?.value?.[0])
+    expect(result.value[0].value).toBeInstanceOf(File)
+    assert(result.value[0].value instanceof File)
+    expect(result.value[0].value.type).toBe('application/json')
   })
 
   it('builds URLSearchParams for application/x-www-form-urlencoded content type', () => {
@@ -133,13 +143,18 @@ describe('buildRequestBody', () => {
         },
       },
     }
-    const env = { var1: 'dynamic_value' }
-    const result = buildRequestBody(requestBody, env, 'default')
+    const result = buildRequestBody(requestBody, 'default')
 
-    expect(result).toBeInstanceOf(URLSearchParams)
-    const params = result as URLSearchParams
-    expect(params.get('field1')).toBe('dynamic_value')
-    expect(params.get('field2')).toBe('static_value')
+    expect(result?.mode).toBe('urlencoded')
+    assert(result?.mode === 'urlencoded')
+
+    expect(result?.value?.[0]).toBeDefined()
+    assert(result?.value?.[0])
+    expect(result.value[0].key).toBe('field1')
+    expect(result.value[0].value).toBe('{{var1}}')
+    assert(result.value[1])
+    expect(result.value[1].key).toBe('field2')
+    expect(result.value[1].value).toBe('static_value')
   })
 
   it('builds URLSearchParams for application/x-www-form-urlencoded with object example value', () => {
@@ -159,13 +174,18 @@ describe('buildRequestBody', () => {
         },
       },
     }
-    const env = { productId: '8' }
-    const result = buildRequestBody(requestBody, env, 'default')
+    const result = buildRequestBody(requestBody, 'default')
 
-    expect(result).toBeInstanceOf(URLSearchParams)
-    const params = result as URLSearchParams
-    expect(params.get('ac')).toBe('4')
-    expect(params.get('product_id')).toBe('8')
+    expect(result?.mode).toBe('urlencoded')
+    assert(result?.mode === 'urlencoded')
+
+    expect(result?.value?.[0]).toBeDefined()
+    assert(result?.value?.[0])
+    expect(result.value[0].key).toBe('ac')
+    expect(result.value[0].value).toBe('4')
+    assert(result.value[1])
+    expect(result.value[1].key).toBe('product_id')
+    expect(result.value[1].value).toBe('{{productId}}')
   })
 
   it('converts non-string values to strings in form-urlencoded object format', () => {
@@ -184,13 +204,21 @@ describe('buildRequestBody', () => {
         },
       },
     }
-    const result = buildRequestBody(requestBody, {}, 'default')
+    const result = buildRequestBody(requestBody, 'default')
 
-    expect(result).toBeInstanceOf(URLSearchParams)
-    const params = result as URLSearchParams
-    expect(params.get('count')).toBe('42')
-    expect(params.get('active')).toBe('true')
-    expect(params.get('name')).toBe('test')
+    expect(result?.mode).toBe('urlencoded')
+    assert(result?.mode === 'urlencoded')
+
+    expect(result?.value?.[0]).toBeDefined()
+    assert(result?.value?.[0])
+    expect(result.value[0].key).toBe('count')
+    expect(result.value[0].value).toBe('42')
+    assert(result.value[1])
+    expect(result.value[1].key).toBe('active')
+    expect(result.value[1].value).toBe('true')
+    assert(result.value[2])
+    expect(result.value[2].key).toBe('name')
+    expect(result.value[2].value).toBe('test')
   })
 
   it('skips null and undefined values in form-urlencoded object format', () => {
@@ -209,13 +237,16 @@ describe('buildRequestBody', () => {
         },
       },
     }
-    const result = buildRequestBody(requestBody, {}, 'default')
+    const result = buildRequestBody(requestBody, 'default')
 
-    expect(result).toBeInstanceOf(URLSearchParams)
-    const params = result as URLSearchParams
-    expect(params.get('valid')).toBe('value')
-    expect(params.has('nullField')).toBe(false)
-    expect(params.has('undefinedField')).toBe(false)
+    expect(result?.mode).toBe('urlencoded')
+    assert(result?.mode === 'urlencoded')
+
+    expect(result.value.length).toBe(1)
+    expect(result?.value?.[0]).toBeDefined()
+    assert(result?.value?.[0])
+    expect(result.value[0].key).toBe('valid')
+    expect(result.value[0].value).toBe('value')
   })
 
   it('handles File objects in FormData for multipart/form-data', () => {
@@ -234,12 +265,18 @@ describe('buildRequestBody', () => {
         },
       },
     }
-    const result = buildRequestBody(requestBody, {}, 'default')
+    const result = buildRequestBody(requestBody, 'default')
 
-    expect(result).toBeInstanceOf(FormData)
-    const formData = result as FormData
-    expect(formData.get('file')).toStrictEqual(mockFile)
-    expect(formData.get('description')).toStrictEqual('Test file')
+    expect(result?.mode).toBe('formdata')
+    assert(result?.mode === 'formdata')
+
+    expect(result?.value?.[0]).toBeDefined()
+    assert(result?.value?.[0])
+    expect(result.value[0].key).toBe('file')
+    expect(result.value[0].value).toBe(mockFile)
+    assert(result.value[1])
+    expect(result.value[1].key).toBe('description')
+    expect(result.value[1].value).toBe('Test file')
   })
 
   it('returns File bodies for raw binary request examples', () => {
@@ -256,12 +293,16 @@ describe('buildRequestBody', () => {
       },
     }
 
-    const result = buildRequestBody(requestBody, {}, 'default')
+    const result = buildRequestBody(requestBody, 'default')
 
-    expect(result).toStrictEqual(mockFile)
+    expect(result?.mode).toBe('raw')
+    assert(result?.mode === 'raw')
+
+    expect(result?.value).toBe(mockFile)
+    assert(result?.value === mockFile)
   })
 
-  it('skips form entries with empty names and replaces environment variables in field names', () => {
+  it('skips form entries with empty names', () => {
     const requestBody = {
       content: {
         'multipart/form-data': {
@@ -277,17 +318,19 @@ describe('buildRequestBody', () => {
         },
       },
     }
-    const env = { fieldName: 'dynamic_field', envValue: 'replaced_value' }
-    const result = buildRequestBody(requestBody, env, 'default')
+    const result = buildRequestBody(requestBody, 'default')
 
-    expect(result).toBeInstanceOf(FormData)
-    const formData = result as FormData
-    // Empty name should be skipped
-    expect(formData.has('')).toBe(false)
-    // Environment variable in field name should be replaced
-    expect(formData.get('dynamic_field')).toBe('test_value')
-    // Environment variable in value should be replaced
-    expect(formData.get('normal_field')).toBe('replaced_value')
+    expect(result?.mode).toBe('formdata')
+    assert(result?.mode === 'formdata')
+
+    expect(result?.value.length).toBe(2)
+    expect(result?.value?.[0]).toBeDefined()
+    assert(result?.value?.[0])
+    expect(result.value[0].key).toBe('{{fieldName}}')
+    expect(result.value[0].value).toBe('test_value')
+    assert(result.value[1])
+    expect(result.value[1].key).toBe('normal_field')
+    expect(result.value[1].value).toBe('{{envValue}}')
   })
 
   it('returns nested object body as-is when example value is a complex object', () => {
@@ -316,8 +359,11 @@ describe('buildRequestBody', () => {
         },
       },
     }
-    const result = buildRequestBody(requestBody, {}, 'default')
-    expect(result).toBe(JSON.stringify(exampleValue))
+    const result = buildRequestBody(requestBody, 'default')
+    expect(result?.mode).toBe('raw')
+    assert(result?.mode === 'raw')
+    expect(result?.value).toBe(JSON.stringify(exampleValue))
+    assert(result?.value === JSON.stringify(exampleValue))
   })
 
   it('returns array of objects stringified when example value is an array', () => {
@@ -337,8 +383,11 @@ describe('buildRequestBody', () => {
         },
       },
     }
-    const result = buildRequestBody(requestBody, {}, 'default')
-    expect(result).toBe(JSON.stringify(exampleValue))
+    const result = buildRequestBody(requestBody, 'default')
+    expect(result?.mode).toBe('raw')
+    assert(result?.mode === 'raw')
+    expect(result?.value).toBe(JSON.stringify(exampleValue))
+    assert(result?.value === JSON.stringify(exampleValue))
   })
 
   it('uses x-scalar-selected-content-type when specified', () => {
@@ -363,8 +412,11 @@ describe('buildRequestBody', () => {
         },
       },
     }
-    const result = buildRequestBody(requestBody, {}, 'default')
-    expect(result).toBe('<name>xml</name>')
+    const result = buildRequestBody(requestBody, 'default')
+    expect(result?.mode).toBe('raw')
+    assert(result?.mode === 'raw')
+    expect(result?.value).toBe('<name>xml</name>')
+    assert(result?.value === '<name>xml</name>')
   })
 
   it('falls back to first content type when x-scalar-selected-content-type is not set', () => {
@@ -386,8 +438,11 @@ describe('buildRequestBody', () => {
         },
       },
     }
-    const result = buildRequestBody(requestBody, {}, 'default')
-    expect(result).toBe('<name>xml</name>')
+    const result = buildRequestBody(requestBody, 'default')
+    expect(result?.mode).toBe('raw')
+    assert(result?.mode === 'raw')
+    expect(result?.value).toBe('<name>xml</name>')
+    assert(result?.value === '<name>xml</name>')
   })
 
   it('handles primitive number JSON values correctly', () => {
@@ -402,9 +457,12 @@ describe('buildRequestBody', () => {
         },
       },
     }
-    const result = buildRequestBody(requestBody, {}, 'default')
-    expect(result).toBe('42')
-    expect(typeof result).toBe('string')
+    const result = buildRequestBody(requestBody, 'default')
+    expect(result?.mode).toBe('raw')
+    assert(result?.mode === 'raw')
+    expect(result?.value).toBe('42')
+    assert(result?.value === '42')
+    expect(typeof result?.value).toBe('string')
   })
 
   it('handles primitive boolean JSON values correctly', () => {
@@ -419,9 +477,12 @@ describe('buildRequestBody', () => {
         },
       },
     }
-    const result = buildRequestBody(requestBody, {}, 'default')
-    expect(result).toBe('true')
-    expect(typeof result).toBe('string')
+    const result = buildRequestBody(requestBody, 'default')
+    expect(result?.mode).toBe('raw')
+    assert(result?.mode === 'raw')
+    expect(result?.value).toBe('true')
+    assert(result?.value === 'true')
+    expect(typeof result?.value).toBe('string')
   })
 
   it('handles primitive null JSON values correctly', () => {
@@ -436,8 +497,11 @@ describe('buildRequestBody', () => {
         },
       },
     }
-    const result = buildRequestBody(requestBody, {}, 'default')
-    expect(result).toBe('null')
-    expect(typeof result).toBe('string')
+    const result = buildRequestBody(requestBody, 'default')
+    expect(result?.mode).toBe('raw')
+    assert(result?.mode === 'raw')
+    expect(result?.value).toBe('null')
+    assert(result?.value === 'null')
+    expect(typeof result?.value).toBe('string')
   })
 })

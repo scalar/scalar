@@ -105,7 +105,7 @@ export const requestFactory = ({
   const cookiesHeader = buildRequestCookieHeader({
     paramCookies: [
       ...params.cookies,
-      ...security.filter((s) => s.in === 'cookie').map((s) => ({ name: s.name, value: s.value })),
+      ...security.filter((s) => s.in === 'cookie').map((s) => ({ name: s.name, value: s.value, path: '/' })),
     ],
     globalCookies,
     originalCookieHeader: headers.get('Cookie'),
