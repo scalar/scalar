@@ -96,13 +96,41 @@ watch(
 )
 
 /** The filtered list of options */
-const filtered = computed<O[]>(() =>
-  query.value === ''
-    ? options.value
-    : options.value.filter((option) => {
-        return option.label.toLowerCase().includes(query.value.toLowerCase())
-      }),
-)
+const filtered = computed<O[]>(() => {
+  if (query.value === '') {
+    return options.value
+  }
+
+  const q = query.value.toLowerCase()
+
+  // When dealing with multiple groups, include all options from a group if the
+  // group label itself matches — so searching "JavaScript" shows all JS clients.
+  // Only activate when more than one group is actually visible (has a label and options).
+  const visibleGroupCount = isGroups(props.options)
+    ? (props.options as G[]).filter((g) => g.label && g.options.length > 0)
+        .length
+    : 0
+
+  if (isGroups(props.options) && visibleGroupCount > 1) {
+    const result: O[] = []
+    for (const group of props.options as G[]) {
+      if (group.label?.toLowerCase().includes(q)) {
+        result.push(...(group.options as O[]))
+      } else {
+        result.push(
+          ...(group.options as O[]).filter((o) =>
+            o.label.toLowerCase().includes(q),
+          ),
+        )
+      }
+    }
+    return result
+  }
+
+  return options.value.filter((option) =>
+    option.label.toLowerCase().includes(q),
+  )
+})
 
 /** The list of filtered options with the "Add a new option" option */
 const withAdd = computed<Option[]>(() =>
