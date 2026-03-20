@@ -4,6 +4,8 @@ import type { LoadContext, Plugin } from '@docusaurus/types'
 import { normalizeUrl } from '@docusaurus/utils'
 import type { AnyApiReferenceConfiguration } from '@scalar/types'
 
+import { serializeConfigurationModule } from './serialize-configuration'
+
 export type ScalarOptions = {
   label?: string
   route?: string
@@ -63,7 +65,7 @@ const ScalarDocusaurus = (
       return defaultOptions
     },
 
-    contentLoaded({ content, actions }) {
+    async contentLoaded({ content, actions }) {
       const { addRoute } = actions
 
       // If showNavLink is true, add a link to the navbar
@@ -79,12 +81,34 @@ const ScalarDocusaurus = (
         })
       }
 
-      // Add the appropriate route based on the module system
+      const { configuration, ...restContent } = content
+      const routePath = normalizeUrl([baseUrl, defaultOptions.route ?? '/scalar'])
+
+      if (!actions.createData) {
+        addRoute({
+          path: routePath,
+          component: path.resolve(__dirname, './ScalarDocusaurus'),
+          exact: true,
+          ...content,
+        })
+        return
+      }
+
+      const configurationModulePath = await actions.createData(
+        'scalar-docusaurus-configuration.js',
+        serializeConfigurationModule(configuration),
+      )
+
+      // Docusaurus serializes route attributes using JSON and strips functions.
+      // Route modules are imported as JS, so callback hooks remain executable.
       addRoute({
-        path: normalizeUrl([baseUrl, defaultOptions.route ?? '/scalar']),
+        path: routePath,
         component: path.resolve(__dirname, './ScalarDocusaurus'),
         exact: true,
-        ...content,
+        ...restContent,
+        modules: {
+          configuration: configurationModulePath,
+        },
       })
     },
   }

@@ -5,8 +5,9 @@ import React, { useEffect, useRef } from 'react'
 import './theme.css'
 
 type Props = {
+  configuration?: AnyApiReferenceConfiguration
   route: {
-    configuration: AnyApiReferenceConfiguration
+    configuration?: AnyApiReferenceConfiguration
     /** Not sure where the route type is for docusaurus, couldn't find one with an ID, TODO: replace with that */
     id: string
   }
@@ -21,17 +22,18 @@ declare global {
   }
 }
 
-export const ScalarDocusaurus = ({ route }: Props) => {
+export const ScalarDocusaurus = ({ configuration, route }: Props) => {
   const ref = useRef<HTMLDivElement>(null)
+  const resolvedConfiguration = configuration ?? route.configuration
 
   useEffect(() => {
-    if (!window.Scalar || !ref.current) {
+    if (!window.Scalar || !ref.current || !resolvedConfiguration) {
       return
     }
 
     // Create a new Scalar API Reference
-    window.Scalar.createApiReference(ref.current, { ...route.configuration, hideDarkModeToggle: true })
-  }, [ref])
+    window.Scalar.createApiReference(ref.current, { ...resolvedConfiguration, hideDarkModeToggle: true })
+  }, [resolvedConfiguration])
 
   return (
     <Layout>

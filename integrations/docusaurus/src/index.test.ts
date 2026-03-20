@@ -188,6 +188,54 @@ describe('ScalarDocusaurus', () => {
   })
 
   describe('contentLoaded', () => {
+    it('stores function hooks in a generated route module', async () => {
+      const mockContext = {
+        siteConfig: {
+          baseUrl: '/',
+          themeConfig: {
+            navbar: {
+              items: [],
+            },
+          },
+        },
+      } as any
+
+      const mockActions = {
+        addRoute: vi.fn(),
+        createData: vi.fn().mockResolvedValue('@generated/scalar-docusaurus-configuration.js'),
+      } as any
+
+      const onBeforeRequest = ({ request }: { request: Request }) => {
+        request.headers.set('X-Request-Source', 'docusaurus')
+      }
+
+      const plugin = ScalarDocusaurus(mockContext, {
+        label: 'Scalar',
+        route: '/scalar',
+        configuration: {
+          url: 'https://example.com/openapi.json',
+          onBeforeRequest,
+        },
+      })
+
+      await plugin.contentLoaded?.({
+        content: await plugin.loadContent?.(),
+        actions: mockActions,
+      })
+
+      expect(mockActions.createData).toHaveBeenCalledWith(
+        'scalar-docusaurus-configuration.js',
+        expect.stringContaining('"onBeforeRequest": ({ request }) => {\n  request.headers.set("X-Request-Source", "docusaurus")\n}'),
+      )
+      expect(mockActions.addRoute).toHaveBeenCalledWith(
+        expect.objectContaining({
+          modules: {
+            configuration: '@generated/scalar-docusaurus-configuration.js',
+          },
+        }),
+      )
+    })
+
     it('adds navbar link with baseUrl when showNavLink is true', () => {
       const mockContext = {
         siteConfig: {
