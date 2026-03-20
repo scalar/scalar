@@ -2548,6 +2548,9 @@ importers:
       github-slugger:
         specifier: catalog:*
         version: 2.0.0
+      js-base64:
+        specifier: catalog:*
+        version: 3.7.8
       type-fest:
         specifier: catalog:*
         version: 5.3.1
