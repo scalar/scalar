@@ -1,5 +1,13 @@
 # @scalar/api-client
 
+## 2.38.3
+
+### Patch Changes
+
+- [#8465](https://github.com/scalar/scalar/pull/8465): fix multipart encoding.contentType request handling and curl snippets
+- [#8501](https://github.com/scalar/scalar/pull/8501): fix allowReserved query parameter support so reserved characters like colons stay unescaped and parameter typings include allowReserved
+- [#8517](https://github.com/scalar/scalar/pull/8517): Fix OAuth2 authorization code auth behavior in v2 by including `client_id` in token exchange for public clients, preventing duplicate scheme entries when selected scopes change, and applying configured default scopes to initial auth selection.
+
 ## 2.38.2
 
 ### Patch Changes

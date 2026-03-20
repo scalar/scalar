@@ -1,5 +1,12 @@
 # @scalar/api-reference
 
+## 1.49.2
+
+### Patch Changes
+
+- [#8509](https://github.com/scalar/scalar/pull/8509): fix: show falsy example values (false, 0) in schema property headings
+- [#8514](https://github.com/scalar/scalar/pull/8514): fix: invalid markup breaks ssr
+
 ## 1.49.1
 
 ### Patch Changes
