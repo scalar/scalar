@@ -237,6 +237,9 @@ jobs:
         uses: ./.github/actions/build
         with:
           packages: './packages/**'
+      - name: Check built declaration alias imports
+        if: matrix.shard-index == 1
+        run: pnpm lint:check:dist-dts-aliases
       - name: Start test servers
         run: pnpm script run test-servers & pnpm script wait -p 5051 5052
         timeout-minutes: 1
