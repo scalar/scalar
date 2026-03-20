@@ -1,5 +1,11 @@
 # @scalar/icons
 
+## 0.6.3
+
+### Patch Changes
+
+- [#8529](https://github.com/scalar/scalar/pull/8529): rewrite declaration aliases in built type files
+
 ## 0.6.2
 
 ### Patch Changes
