@@ -1,5 +1,6 @@
 import type { WorkspaceStore } from '@/client'
 import type { SelectedSecurity } from '@/entities/auth'
+import type { AuthMeta, ServerMeta } from '@/events'
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
 import type { SecuritySchemeObjectSecret } from '@/request-example/builder/security/secret-types'
 import { getActiveEnvironment } from '@/request-example/context/environment'
@@ -17,6 +18,7 @@ import type { XScalarCookie } from '@/schemas/extensions/general/x-scalar-cookie
 import type { OperationObject } from '@/schemas/v3.1/strict/operation'
 import type { SecurityRequirementObject } from '@/schemas/v3.1/strict/security-requirement'
 import type { ServerObject } from '@/schemas/v3.1/strict/server'
+import type { WorkspaceDocument } from '@/schemas/workspace'
 
 type BuildRequestExampleContext = {
   operation: OperationObject
@@ -31,6 +33,7 @@ type BuildRequestExampleContext = {
   servers: {
     list: ServerObject[]
     selected: ServerObject | null
+    meta: ServerMeta
   }
   proxy: {
     url: string | null
@@ -43,6 +46,7 @@ type BuildRequestExampleContext = {
     requirements: SecurityRequirementObject[]
     selected: SelectedSecurity
     selectedSchemes: SecuritySchemeObjectSecret[]
+    meta: AuthMeta
   }
 }
 
@@ -56,10 +60,16 @@ export const getRequestExampleContext = (
     layout: Layout
     appVersion: string
     isElectron: boolean
+    /**
+     * When the document is not in `workspace.documents[documentName]` yet, use this copy (same shape as the
+     * workspace entry). Callers that already hold the resolved document should pass it so behavior matches
+     * reading from props.
+     */
+    fallbackDocument: WorkspaceDocument | null
   }> = {},
 ): Result<BuildRequestExampleContext> => {
   const { path, method, exampleName } = requestExampleMeta
-  const document = workspaceStore.workspace.documents[documentName]
+  const document = workspaceStore.workspace.documents[documentName] ?? options.fallbackDocument ?? undefined
   if (!document) {
     return {
       ok: false,
@@ -76,18 +86,17 @@ export const getRequestExampleContext = (
   }
 
   const resolvedOperation = getResolvedRef(pathItem[method])
-
-  // Combine the path item and operation parameters
-  const operation = {
-    ...resolvedOperation,
-    parameters: combineParams(pathItem.parameters, resolvedOperation?.parameters ?? []),
-  }
-
-  if (!operation) {
+  if (!resolvedOperation) {
     return {
       ok: false,
       error: `Method ${method} not found on path ${path}`,
     }
+  }
+
+  // Combine the path item and operation parameters
+  const operation = {
+    ...resolvedOperation,
+    parameters: combineParams(pathItem.parameters, resolvedOperation.parameters ?? []),
   }
 
   //------------------------------------------------------------------------------------------------
@@ -138,6 +147,14 @@ export const getRequestExampleContext = (
   /** The above selected requirements in scheme form */
   const selectedSecuritySchemes = getSecuritySchemes(securitySchemes, selectedSecurity.selectedSchemes)
 
+  const serverMeta: ServerMeta =
+    operation.servers != null ? { type: 'operation', path: path ?? '', method: method ?? 'get' } : { type: 'document' }
+
+  const authMeta: AuthMeta =
+    operationSelectedSecurity !== undefined
+      ? { type: 'operation', path: path ?? '', method: method ?? 'get' }
+      : { type: 'document' }
+
   //------------------------------------------------------------------------------------------------
   //                                 PROXY URL
   //------------------------------------------------------------------------------------------------
@@ -166,6 +183,7 @@ export const getRequestExampleContext = (
       servers: {
         list: serverList,
         selected: selectedServer,
+        meta: serverMeta,
       },
       proxy: {
         url: proxyUrl,
@@ -175,6 +193,7 @@ export const getRequestExampleContext = (
         requirements: securityRequirements,
         selected: selectedSecurity,
         selectedSchemes: selectedSecuritySchemes,
+        meta: authMeta,
       },
     },
   }

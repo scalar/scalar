@@ -19,10 +19,6 @@ export default {
 export type OperationBlockProps = {
   /** Event bus */
   eventBus: WorkspaceEventBus
-  /** Document defined security */
-  documentSecurity: OpenApiDocument['security']
-  /** Document selected security */
-  documentSelectedSecurity: SelectedSecurity | undefined
   /** Application version */
   appVersion: string
   /** Workspace/document cookies */
@@ -56,7 +52,7 @@ export type OperationBlockProps = {
   /** Operation object */
   operation: OperationObject
   /** Operation selected security */
-  operationSelectedSecurity: SelectedSecurity | undefined
+  // operationSelectedSecurity: SelectedSecurity | undefined
   /** Currently selected example key for the current operation */
   exampleKey: string
   /** Meta information for the auth update */
@@ -73,12 +69,15 @@ export type OperationBlockProps = {
   environment: XScalarEnvironment
   /** The proxy URL for sending requests */
   proxyUrl: string
+  selectedSecurity: SelectedSecurity
+  selectedSecuritySchemes: SecuritySchemeObjectSecret[]
+  securityRequirements: OpenApiDocument['security']
 }
 </script>
 <script setup lang="ts">
 import type { HttpMethod as HttpMethodType } from '@scalar/helpers/http/http-methods'
 import type { ResponseInstance } from '@scalar/oas-utils/entities/spec'
-import { type ClientPlugin } from '@scalar/oas-utils/helpers'
+import { executeHook, type ClientPlugin } from '@scalar/oas-utils/helpers'
 import {
   AVAILABLE_CLIENTS,
   type AvailableClients,
@@ -105,7 +104,6 @@ import ViewLayoutContent from '@/components/ViewLayout/ViewLayoutContent.vue'
 import type { ClientLayout } from '@/hooks'
 import { ERRORS } from '@/libs/errors'
 import { buildRequest } from '@/v2/blocks/operation-block/helpers/build-request'
-import { getSecuritySchemes } from '@/v2/blocks/operation-block/helpers/build-request-security'
 import { harToFetchRequest } from '@/v2/blocks/operation-block/helpers/har-to-fetch-request'
 import { harToFetchResponse } from '@/v2/blocks/operation-block/helpers/har-to-fetch-response'
 import {
@@ -120,19 +118,14 @@ import { RequestBlock } from '@/v2/blocks/request-block'
 import type { ExtendedScalarCookie } from '@/v2/blocks/request-block/RequestBlock.vue'
 import { ResponseBlock } from '@/v2/blocks/response-block'
 import { type History } from '@/v2/blocks/scalar-address-bar-block'
+import type { SecuritySchemeObjectSecret } from '@/v2/blocks/scalar-auth-selector-block'
 import type { MergedSecuritySchemes } from '@/v2/blocks/scalar-auth-selector-block/helpers/merge-security'
-import {
-  getSecurityRequirements,
-  getSelectedSecurity,
-} from '@/v2/features/operation'
 
 import Header from './components/Header.vue'
 
 const {
   authMeta,
   environment,
-  documentSecurity,
-  documentSelectedSecurity,
   eventBus,
   exampleKey,
   globalCookies = [],
@@ -141,7 +134,6 @@ const {
   history = [],
   method,
   operation,
-  operationSelectedSecurity,
   path,
   plugins = [],
   proxyUrl,
@@ -151,29 +143,13 @@ const {
   environments,
   activeEnvironment,
   serverMeta,
+  selectedSecurity,
+  selectedSecuritySchemes,
+  securityRequirements,
 } = defineProps<OperationBlockProps>()
 
 /** Hoist up client generation so it doesn't get re-generated on every operation */
 const clientOptions = computed(() => generateClientOptions(httpClients))
-
-/** Compute what the security requirements should be for an operation */
-const securityRequirements = computed(() =>
-  getSecurityRequirements(documentSecurity, operation.security),
-)
-
-/** The selected security for the operation or document */
-const selectedSecurity = computed(() =>
-  getSelectedSecurity(
-    documentSelectedSecurity,
-    operationSelectedSecurity,
-    securityRequirements.value,
-  ),
-)
-
-/** The above selected requirements in scheme form */
-const selectedSecuritySchemes = computed(() =>
-  getSecuritySchemes(securitySchemes, selectedSecurity.value.selectedSchemes),
-)
 
 const { toast } = useToasts()
 
@@ -203,7 +179,7 @@ const handleExecute = async () => {
     method,
     operation,
     path,
-    selectedSecuritySchemes: selectedSecuritySchemes.value,
+    selectedSecuritySchemes,
     server,
     proxyUrl,
   })
@@ -231,13 +207,33 @@ const handleExecute = async () => {
     },
   })
 
+  // Execute the beforeRequest hook
+  const { request: modifiedRequest } = await executeHook(
+    { request: result.request.clone() },
+    'beforeRequest',
+    plugins,
+  )
+
   /** Execute the request */
   const [sendError, sendResult] = await sendRequest({
     isUsingProxy: result.isUsingProxy,
     operation,
     plugins,
-    request: result.request,
+    request: modifiedRequest,
   })
+
+  if (sendResult) {
+    // Execute the responseReceived hook
+    await executeHook(
+      {
+        response: sendResult.originalResponse,
+        request: sendResult.request,
+        operation,
+      },
+      'responseReceived',
+      plugins,
+    )
+  }
 
   // Execute the hooks
   eventBus.emit('hooks:on:request:complete', {
@@ -256,8 +252,12 @@ const handleExecute = async () => {
     },
   })
 
-  // Toast the execute error
   if (sendError) {
+    // clean up the response and request
+    response.value = null
+    request.value = null
+    abortController.value = null
+
     toast(sendError.message, 'error')
     return
   }
