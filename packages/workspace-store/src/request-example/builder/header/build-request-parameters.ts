@@ -8,8 +8,9 @@ import {
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import type { ParameterObject, ReferenceType } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
+import { deSerializeParameter } from '@/request-example/builder/header/de-serialize-parameter'
+
 import { getExample } from '../helpers/get-example'
-import { deSerializeParameter } from './de-serialize-parameter'
 import { isParamDisabled } from './is-param-disabled'
 import {
   serializeContentValue,
@@ -32,7 +33,6 @@ const getExplode = (param: ParameterObject, defaultValue: boolean): boolean =>
  * Also handles both content based and schema based parameters.
  *
  * @param parameters - Unfiltered parameters
- * @param env - Environment variables flattened into a key-value object
  * @param exampleName - The key of the current example
  * @returns A set of headers, cookies and url params
  */
@@ -69,18 +69,19 @@ export const buildRequestParameters = (
       continue
     }
 
-    const name = param.name
+    /** Replace environment variables in the key and value */
     const value = example.value
 
     /** De-serialize the example value if it is a string and matches the schema type */
     const deSerializedValue = deSerializeParameter(value, param)
+    const paramName = param.name
 
     // Handle by parameter location
     switch (param.in) {
       case 'header': {
         // Filter out Content-Type header when it is multipart/form-data
         // The browser will automatically set this header with the proper boundary
-        const lowerParamName = name.toLowerCase()
+        const lowerParamName = paramName.toLowerCase()
         if (lowerParamName === 'content-type' && deSerializedValue === 'multipart/form-data') {
           break
         }
@@ -97,10 +98,10 @@ export const buildRequestParameters = (
         const serializedString = String(serialized)
 
         // If the header already exists, append with comma
-        if (result.headers[lowerParamName]) {
-          result.headers[lowerParamName] = `${result.headers[lowerParamName]},${serializedString}`
+        if (result.headers[paramName]) {
+          result.headers[paramName] = `${result.headers[paramName]},${serializedString}`
         } else {
-          result.headers[lowerParamName] = serializedString
+          result.headers[paramName] = serializedString
         }
         break
       }
@@ -108,17 +109,17 @@ export const buildRequestParameters = (
       case 'path': {
         // Path parameters use simple style by default
         const serialized = serializeSimpleStyle(deSerializedValue, getExplode(param, false))
-        result.pathVariables[name] = encodeURIComponent(String(serialized))
+        result.pathVariables[paramName] = encodeURIComponent(String(serialized))
         break
       }
 
       case 'query': {
-        processQueryParameter(param, name, deSerializedValue, result.urlParams)
+        processQueryParameter(param, paramName, deSerializedValue, result.urlParams)
         break
       }
 
       case 'cookie': {
-        processCookieParameter(name, deSerializedValue, getExplode(param, true), result.cookies)
+        processCookieParameter(paramName, deSerializedValue, getExplode(param, true), result.cookies)
         break
       }
     }

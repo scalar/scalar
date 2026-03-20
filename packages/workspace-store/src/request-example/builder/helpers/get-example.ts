@@ -5,6 +5,8 @@ import type {
   RequestBodyObject,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
+import { getResolvedRef } from '@/helpers/get-resolved-ref'
+
 /**
  * Resolve an example value for a parameter or requestBody from either `examples` or `content.*.examples`.
  * Or the [deprecated] `example` field.
@@ -27,7 +29,7 @@ export const getExample = (
 
     const result = content?.examples?.[exampleName]
     if (result !== undefined) {
-      return result
+      return getResolvedRef(result)
     }
   }
 
@@ -35,7 +37,7 @@ export const getExample = (
   if ('examples' in param) {
     const result = param.examples?.[exampleName]
     if (result !== undefined) {
-      return result
+      return getResolvedRef(result)
     }
   }
 

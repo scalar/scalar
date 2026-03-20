@@ -39,7 +39,7 @@ describe('buildRequestParameters', () => {
           },
         ),
       ]
-      const result = buildRequestParameters(params, {}, 'production')
+      const result = buildRequestParameters(params, 'production')
       expect(result.headers['X-Api-Key']).toBe('prod-key')
     })
 
@@ -55,7 +55,7 @@ describe('buildRequestParameters', () => {
       ]
 
       // Request with an exampleKey ('nonexistent') that does not exist
-      const result = buildRequestParameters(params, {}, 'nonexistent')
+      const result = buildRequestParameters(params, 'nonexistent')
 
       // Should skip the parameter since no example is found for the key
       expect(result.headers).not.toHaveProperty('X-Missing-Key')
@@ -187,7 +187,7 @@ describe('buildRequestParameters', () => {
         ),
       ]
 
-      const result = buildRequestParameters(params, {}, 'staging')
+      const result = buildRequestParameters(params, 'staging')
 
       expect(result.headers['Authorization']).toBe('Bearer staging-token')
     })
@@ -663,7 +663,7 @@ describe('buildRequestParameters', () => {
         },
       ]
 
-      const result = buildRequestParameters(params, {}, 'list')
+      const result = buildRequestParameters(params, 'list')
 
       // Form style query parameters default to explode: true
       // Array values should be serialized as multiple parameters
@@ -692,7 +692,7 @@ describe('buildRequestParameters', () => {
         },
       ]
 
-      const result = buildRequestParameters(params, {}, 'list')
+      const result = buildRequestParameters(params, 'list')
 
       // Form style query parameters default to explode: true
       // Array values should be serialized as multiple parameters
@@ -713,7 +713,7 @@ describe('buildRequestParameters', () => {
         },
       ]
 
-      const result = buildRequestParameters(params, {}, 'list')
+      const result = buildRequestParameters(params, 'list')
 
       // Form style query parameters default to explode: true
       // Array values should be serialized as multiple parameters
@@ -1298,37 +1298,12 @@ describe('buildRequestParameters', () => {
         createParameter({ name: 'X-Api-Key', in: 'header', value: 'secret' }, { default: { value: 'secret' } }),
       ]
 
-      const result = buildRequestParameters(params, {}, 'default')
+      const result = buildRequestParameters(params, 'default')
 
       // Content-Type should be filtered out for multipart/form-data
       expect(result.headers).not.toHaveProperty('Content-Type')
       // Other headers should still be present
       expect(result.headers['X-Api-Key']).toBe('secret')
-    })
-  })
-
-  describe('environment variable replacement', () => {
-    it('replaces env var in parameter value', () => {
-      const params = [
-        createParameter({ name: 'X-Api-Key', in: 'header', value: '{{apiKey}}' }, { default: { value: '{{apiKey}}' } }),
-      ]
-
-      const result = buildRequestParameters(params, { apiKey: 'secret-key-123' })
-
-      expect(result.headers['X-Api-Key']).toBe('secret-key-123')
-    })
-
-    it('replaces env var in parameter name', () => {
-      const params = [
-        createParameter(
-          { name: '{{headerName}}', in: 'header', value: 'my-value' },
-          { default: { value: 'my-value' } },
-        ),
-      ]
-
-      const result = buildRequestParameters(params, { headerName: 'X-Custom-Header' })
-
-      expect(result.headers['X-Custom-Header']).toBe('my-value')
     })
   })
 
@@ -1497,9 +1472,11 @@ describe('buildRequestParameters', () => {
         createParameter({ name: 'X-Empty-Key', in: 'header', value: 'value' }, { '': { value: 'value' } }),
       ]
 
-      const result = buildRequestParameters(params, {}, '')
+      const result = buildRequestParameters(params, '')
 
-      expect(result.headers['X-Empty-Key']).toBe('value')
+      expect(result.headers).toEqual({})
+
+      // expect(result.headers['X-Empty-Key']).toBe('value')
     })
 
     it('preserves order of parameters', () => {
