@@ -1,4 +1,4 @@
-import { replaceEnvVariables } from '@scalar/helpers/regex/replace-variables'
+import { replaceEnvVariables, replacePathVariables } from '@scalar/helpers/regex/replace-variables'
 import { encode as encodeBase64 } from 'js-base64'
 
 import type { RequestFactory } from '@/request-example/builder/request-factory'
@@ -13,15 +13,17 @@ export const buildRequest = (
   const controller = new AbortController()
 
   const requestUrl = (() => {
-    const variables = { ...options.envVariables, ...options.serverVariables }
     if (request.proxy.isUsingProxy) {
-      return replaceEnvVariables(request.proxy.proxiedUrl, variables)
+      return replacePathVariables(
+        replaceEnvVariables(request.proxy.proxiedUrl, options.envVariables),
+        options.serverVariables,
+      )
     }
-    return replaceEnvVariables(request.url, variables)
+    return replacePathVariables(replaceEnvVariables(request.url, options.envVariables), options.serverVariables)
   })()
 
   const headers = (() => {
-    const variables = { ...options.envVariables }
+    const variables = options.envVariables
 
     const headersObject = Object.fromEntries(
       Object.entries(request.headers).map(([key, value]) => [
@@ -34,7 +36,7 @@ export const buildRequest = (
   })()
 
   const body: BodyInit | null = (() => {
-    const variables = { ...options.envVariables }
+    const variables = options.envVariables
     if (request.body?.mode === 'raw') {
       if (typeof request.body.value === 'string') {
         return replaceEnvVariables(request.body.value, variables)
