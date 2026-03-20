@@ -82,13 +82,19 @@ const selectedSecurity = computed(() => {
       undefined,
       fromStore,
       operation.value?.security ?? [],
+      securitySchemes,
     )
   }
   const fromStore = workspaceStore.auth.getAuthSelectedSchemas({
     type: 'document',
     documentName: documentSlug,
   })
-  return getSelectedSecurity(fromStore, undefined, document?.security ?? [])
+  return getSelectedSecurity(
+    fromStore,
+    undefined,
+    document?.security ?? [],
+    securitySchemes,
+  )
 })
 
 /** Compute the security requirements for the operation or document based on the current collection type */
