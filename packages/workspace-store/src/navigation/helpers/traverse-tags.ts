@@ -1,5 +1,3 @@
-import { sortByOrder } from '@scalar/object-utils/arrays'
-
 import { unpackProxyObject } from '@/helpers/unpack-proxy'
 import { getXKeysFromObject } from '@/navigation/helpers/get-x-keys'
 import type { TagsMap, TraverseSpecOptions } from '@/navigation/types'
@@ -239,4 +237,29 @@ export const traverseTags = ({
   })
 
   return tags
+}
+
+/**
+ * Immutably sorts an array by a custom order specified in a separate list.
+ *
+ * Copied from @scalar/object-utils/arrays/sort.ts to reduce dependencies.
+ */
+function sortByOrder<T extends Record<K, string>, K extends keyof T>(arr: T[], order: string[], idKey: K): T[] {
+  // Map the order to keep a single lookup table
+  const orderMap: Record<string, number> = {}
+  order.forEach((e, idx) => (orderMap[e] = idx))
+
+  const sorted: T[] = []
+  const untagged: T[] = []
+
+  arr.forEach((e) => {
+    const sortedIdx = orderMap[e[idKey]] ?? -1
+    if (sortedIdx >= 0) {
+      sorted[sortedIdx] = e
+    } else {
+      untagged.push(e)
+    }
+  })
+
+  return sorted.filter(Boolean).concat(...untagged)
 }
