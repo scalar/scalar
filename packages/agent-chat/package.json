@@ -15,38 +15,24 @@
     "node": ">=22"
   },
   "scripts": {
-    "build": "vite build && vue-tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json && cp package.json dist",
-    "build:watch": "vite build --watch",
-    "playground": "cd playground && vite",
-    "types:check": "vue-tsc --noEmit"
+    "build": "tsdown",
+    "build:watch": "tsdown --watch",
+    "types:check": "vue-tsc --build --noEmit"
   },
   "type": "module",
   "types": "./dist/index.d.ts",
   "exports": {
-    ".": {
-      "import": "./dist/index.js",
-      "types": "./dist/index.d.ts",
-      "default": "./dist/index.js"
-    },
-    "./*.css": {
-      "import": "./dist/*.css",
-      "require": "./dist/*.css",
-      "default": "./dist/*.css"
-    },
-    "./css/*.css": {
-      "import": "./dist/css/*.css",
-      "require": "./dist/css/*.css",
-      "default": "./dist/css/*.css"
-    },
-    "./entities": {
-      "import": "./dist/entities/index.js",
-      "types": "./dist/entities/index.d.ts",
-      "default": "./dist/entities/index.js"
-    }
+    ".": "./dist/index.js",
+    "./entities": "./dist/entities/index.js",
+    "./package.json": "./package.json",
+    "./style.css": "./dist/style.css"
   },
   "files": [
     "dist"
   ],
+  "inlinedDependencies": {
+    "@modelcontextprotocol/sdk": "1.26.0"
+  },
   "dependencies": {
     "@ai-sdk/vue": "catalog:*",
     "@scalar/api-client": "workspace:*",
@@ -70,10 +56,13 @@
   "devDependencies": {
     "@modelcontextprotocol/sdk": "catalog:*",
     "@tailwindcss/vite": "catalog:*",
+    "@tsdown/css": "0.21.4",
     "@types/whatwg-mimetype": "catalog:*",
     "@vitejs/plugin-vue": "catalog:*",
     "hono": "catalog:*",
     "tailwindcss": "catalog:*",
+    "tsdown": "0.21.4",
+    "unplugin-vue": "7.1.1",
     "vite": "catalog:*"
   }
 }
