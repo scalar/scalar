@@ -2,4 +2,4 @@
 '@scalar/components': minor
 ---
 
-chore: include group labels in combobox search
+feat: add support for custom combobox filter functions
