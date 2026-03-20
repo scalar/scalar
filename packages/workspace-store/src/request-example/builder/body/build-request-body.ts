@@ -78,12 +78,17 @@ export const buildRequestBody = (
   ) {
     const value = Array.isArray(example.value) ? example.value : []
     const exampleValue = value.filter((item) => !item.isDisabled) as { name: string; value: unknown }[]
-    const form = bodyContentType === 'multipart/form-data' ? new FormData() : new URLSearchParams()
 
-    const result: FormData = {
-      mode: 'formdata',
-      value: [],
-    }
+    const result: FormData | UrlEncoded =
+      bodyContentType === 'multipart/form-data'
+        ? {
+            mode: 'formdata',
+            value: [],
+          }
+        : {
+            mode: 'urlencoded',
+            value: [],
+          }
 
     // Loop over all entries and add them to the form
     exampleValue.forEach(({ name, value }) => {
@@ -91,10 +96,10 @@ export const buildRequestBody = (
         return
       }
       const partContentType =
-        form instanceof FormData ? getMultipartEncodingContentType(requestBody, bodyContentType, name) : undefined
+        result.mode === 'formdata' ? getMultipartEncodingContentType(requestBody, bodyContentType, name) : undefined
 
       // Handle file uploads
-      if (value instanceof File && form instanceof FormData) {
+      if (value instanceof File && result.mode === 'formdata') {
         /**
          * We need to unwrap the proxies to get the file name due to the
          * "this" context in the proxy causing an illegal invocation error
@@ -108,41 +113,36 @@ export const buildRequestBody = (
               })
             : unwrappedValue
 
-        result.value.push({
+        return result.value.push({
           type: 'file',
           key: name,
           value: encodedValue,
           contentType: partContentType,
         })
-        form.append(name, encodedValue, encodedValue.name)
       }
+
       // Text and structured inputs
-      else if (value !== undefined && value !== null) {
+      if (value !== undefined && value !== null) {
         const serializedValue =
           typeof value === 'object' && value !== null ? JSON.stringify(unpackProxyObject(value)) : String(value)
 
-        if (form instanceof FormData && partContentType) {
-          result.value.push({
-            type: 'text',
-            key: name,
-            value: serializedValue,
-          })
-          form.append(name, new Blob([serializedValue], { type: partContentType }))
-          result.value.push({
+        if (result.mode === 'formdata' && partContentType) {
+          return result.value.push({
             type: 'blob',
             key: name,
             value: new Blob([serializedValue], { type: partContentType }),
             contentType: partContentType,
           })
-        } else {
-          form.append(name, serializedValue)
-          result.value.push({
-            type: 'text',
-            key: name,
-            value: serializedValue,
-          })
         }
+
+        return result.value.push({
+          type: 'text',
+          key: name,
+          value: serializedValue,
+        })
       }
+
+      return
     })
 
     return result
@@ -157,7 +157,6 @@ export const buildRequestBody = (
     typeof example.value === 'object' &&
     !Array.isArray(example.value)
   ) {
-    const form = new URLSearchParams()
     const result: UrlEncoded = {
       mode: 'urlencoded',
       value: [],
@@ -167,7 +166,6 @@ export const buildRequestBody = (
     for (const [key, value] of Object.entries(example.value)) {
       if (key && value !== undefined && value !== null) {
         const stringValue = typeof value === 'string' ? value : String(value)
-        form.append(key, stringValue)
         result.value.push({
           key,
           value: stringValue,
@@ -178,9 +176,11 @@ export const buildRequestBody = (
     return result
   }
 
+  // Any other type
   const exampleValue =
     example.value !== null && typeof example.value === 'object' ? unpackProxyObject(example.value) : example.value
 
+  // File type
   if (exampleValue instanceof File) {
     return {
       mode: 'raw',
@@ -189,7 +189,7 @@ export const buildRequestBody = (
     }
   }
 
-  // Ensure we stringify the example value if it is an object
+  // Object type
   if (typeof exampleValue === 'object') {
     return {
       mode: 'raw',

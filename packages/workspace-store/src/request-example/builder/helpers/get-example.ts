@@ -5,7 +5,6 @@ import type {
   RequestBodyObject,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
-// TODO: use the get-resolved-ref-deep from the workspace-store
 /**
  * Resolve an example value for a parameter or requestBody from either `examples` or `content.*.examples`.
  * Or the [deprecated] `example` field.

@@ -33,14 +33,14 @@ const getExplode = (param: ParameterObject, defaultValue: boolean): boolean =>
  *
  * @param parameters - Unfiltered parameters
  * @param env - Environment variables flattened into a key-value object
- * @param exampleKey - The key of the current example
+ * @param exampleName - The key of the current example
  * @returns A set of headers, cookies and url params
  */
 export const buildRequestParameters = (
   /** All parameters */
   parameters: ReferenceType<ParameterObject>[] = [],
   /** The key of the current example */
-  exampleKey: string = 'default',
+  exampleName: string = 'default',
 ): {
   cookies: XScalarCookie[]
   headers: Record<string, string>
@@ -62,7 +62,7 @@ export const buildRequestParameters = (
   // Second pass: process all parameters
   for (const referencedParam of parameters) {
     const param = getResolvedRef(referencedParam)
-    const example = getExample(param, exampleKey, undefined)
+    const example = getExample(param, exampleName, undefined)
 
     // Skip disabled examples
     if (!example || isParamDisabled(param, example)) {

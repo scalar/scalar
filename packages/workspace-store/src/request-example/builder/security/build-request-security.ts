@@ -1,19 +1,18 @@
 import { isDefined } from '@scalar/helpers/array/is-defined'
 
-// import {
-//   type XScalarCookie,
-//   xScalarCookieSchema,
-// } from '@scalar/workspace-store/schemas/extensions/general/x-scalar-cookies'
-// import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
-// import { encode } from 'js-base64'
-
 import type { SecuritySchemeObjectSecret } from '@/request-example/builder/security/secret-types'
 
 export type BuildRequestSecurityResult = {
+  /** The location of the security scheme */
   in: 'header' | 'query' | 'cookie'
+  /** The name of the security scheme */
   name: string
+  /** The type of security scheme */
   type: 'simple' | 'basic' | 'bearer'
-  // For basic auth we need to base64 encode the value when we build the request
+  /**
+   * The value of the security scheme
+   * For basic auth we need to base64 encode the value when we build the request
+   */
   value: string
 }
 
@@ -27,17 +26,13 @@ export const buildRequestSecurity = (
   /** Include this parameter to set the placeholder for empty tokens */
   emptyTokenPlaceholder = '',
 ): BuildRequestSecurityResult[] => {
-  // const headers: Record<string, string> = {}
-  // const cookies: XScalarCookie[] = []
-  // const urlParams = new URLSearchParams()
-
   const result: BuildRequestSecurityResult[] = []
 
   selectedSecuritySchemes.forEach((scheme) => {
     // Api key
     if (scheme.type === 'apiKey') {
       const name = scheme.name
-      const value = scheme['x-scalar-secret-token']
+      const value = scheme['x-scalar-secret-token'] || emptyTokenPlaceholder
 
       if (scheme.in === 'header') {
         return result.push({
@@ -75,11 +70,12 @@ export const buildRequestSecurity = (
         return result.push({
           in: 'header',
           name: 'Authorization',
-          // todo: handle encoded values? when we build the request
+          // We encode the value when we build the request since we want to be able to replace the variables in the value
           value: value === ':' ? 'username:password' : value,
           type: 'basic',
         })
       }
+      // Bearer auth
       const value = scheme['x-scalar-secret-token']
       return result.push({
         in: 'header',

@@ -73,7 +73,7 @@ export const requestFactory = ({
   const params = buildRequestParameters(operation.parameters ?? [], exampleName)
   const security = buildRequestSecurity(selectedSecuritySchemes)
 
-  const headers = new Headers({ ...defaultHeaders, ...params.headers }) // ...security.headers
+  const headers = new Headers({ ...defaultHeaders, ...params.headers })
 
   // If the method can have a body, build the request body, otherwise set it to null
   const body = canMethodHaveBody(method) ? buildRequestBody(requestBody, exampleName) : null
@@ -84,8 +84,6 @@ export const requestFactory = ({
   }
 
   /** Combine the server url, path and url params into a single url */
-  // const url = getResolvedUrl({ environment, server, path, pathVariables: params.pathVariables, urlParams })
-
   const url = mergeUrls(server?.url ?? '', path, params.urlParams)
 
   // Return error for no url
@@ -115,6 +113,7 @@ export const requestFactory = ({
     useCustomCookieHeader: isElectron || isUsingProxy,
     disabledGlobalCookies: operation['x-scalar-disable-parameters']?.['global-cookies']?.[exampleName] ?? {},
   })
+
   if (cookiesHeader) {
     headers.set(cookiesHeader.name, cookiesHeader.value)
   }
