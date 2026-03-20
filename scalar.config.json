@@ -575,6 +575,11 @@
         "to": "https://agent.scalar.com"
       },
       {
+        "type": "link",
+        "title": "Enterprise",
+        "to": "/enterprise"
+      },
+      {
         "type": "spacer"
       },
       {
@@ -620,6 +625,15 @@
                   "content": "index, follow, max-image-preview:large"
                 }
               ]
+            }
+          },
+          "/enterprise": {
+            "title": "Enterprise",
+            "type": "page",
+            "filepath": "documentation/guides/enterprise/enterprise.md",
+            "showInSidebar": false,
+            "layout": {
+              "toc": false
             }
           },
           "/pricing": {
