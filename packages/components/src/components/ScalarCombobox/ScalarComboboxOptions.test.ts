@@ -77,6 +77,22 @@ describe('ScalarComboboxOptions', () => {
       expect(filteredOptions[0]?.text()).toBe('Option 2')
     })
 
+    it('uses a custom filter function', async () => {
+      const filterFn = (query: string, flat: Option[], _groups: OptionGroup<Option>[]): Option[] =>
+        query === '' ? flat : flat.filter((o) => o.id === '3')
+
+      const wrapper = mount(ScalarComboboxOptions, {
+        props: { options: singleOptions, filterFn },
+      })
+
+      const input = wrapper.find('input[type="text"]')
+      await input.setValue('Option 1')
+
+      const filteredOptions = wrapper.findAllComponents(ScalarComboboxOption)
+      expect(filteredOptions).toHaveLength(1)
+      expect(filteredOptions[0]?.text()).toBe('Option 3')
+    })
+
     it('focuses the input when component is mounted', ({ onTestFinished }) => {
       vi.useFakeTimers()
 
