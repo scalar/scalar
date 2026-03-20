@@ -22,6 +22,7 @@ export const mergePathItem = (
   paths: OpenAPIV3_1.PathsObject,
   normalizedPathKey: string,
   pathItem: OpenAPIV3_1.PathItemObject,
+  mergeOperation: boolean = false,
 ): void => {
   const targetPath = (paths[normalizedPathKey] ?? {}) as OpenAPIV3_1.PathItemObject
 
@@ -35,7 +36,7 @@ export const mergePathItem = (
 
     const isOperationKey = OPERATION_KEYS.includes(key)
 
-    if (isOperationKey && targetPath[key]) {
+    if (isOperationKey && targetPath[key] && mergeOperation) {
       // Get all example names from the target path
       const exampleNames = getOperationExamples(targetPath)
 

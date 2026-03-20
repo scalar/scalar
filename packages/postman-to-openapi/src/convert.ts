@@ -150,12 +150,25 @@ const cleanupOperations = (paths: OpenAPIV3_1.PathsObject): void => {
   })
 }
 
+type ConvertOptions = {
+  /**
+   * Whether to merge operations with the same path and method.
+   * If true, the operations will be merged into a single operation.
+   * If false, the operations will be kept as separate operations.
+   * Default is true.
+   */
+  mergeOperation?: boolean
+}
+
 /**
  * Converts a Postman Collection to an OpenAPI 3.1.0 document.
  * This function processes the collection's information, servers, authentication,
  * and items to create a corresponding OpenAPI structure.
  */
-export function convert(postmanCollection: PostmanCollection | string): OpenAPIV3_1.Document {
+export function convert(
+  postmanCollection: PostmanCollection | string,
+  options: ConvertOptions = { mergeOperation: false },
+): OpenAPIV3_1.Document {
   const collection = validateCollectionShape(parseCollectionInput(postmanCollection))
 
   // Extract title from collection info, fallback to 'API' if not provided
@@ -231,7 +244,9 @@ export function convert(postmanCollection: PostmanCollection | string): OpenAPIV
           continue
         }
 
-        mergePathItem(openapi.paths, normalizedPathKey, pathItem)
+        // Merge path item
+        // /users/{id} This will merge all the HttpMethods (GET, POST, PUT, DELETE, etc.) into the same path item.
+        mergePathItem(openapi.paths, normalizedPathKey, pathItem, options.mergeOperation)
       }
 
       // Merge security schemes from the current item
