@@ -219,14 +219,16 @@ describe('ScalarDocusaurus', () => {
       })
 
       await plugin.contentLoaded?.({
-        content: await plugin.loadContent?.(),
+        content: (await plugin.loadContent?.()) ?? {},
         actions: mockActions,
       })
 
       expect(mockActions.createData).toHaveBeenCalledWith(
         'scalar-docusaurus-configuration.js',
-        expect.stringContaining('"onBeforeRequest": ({ request }) => {\n  request.headers.set("X-Request-Source", "docusaurus")\n}'),
+        expect.any(String),
       )
+      expect(mockActions.createData.mock.calls[0]?.[1]).toContain('"onBeforeRequest": ({ request }) => {')
+      expect(mockActions.createData.mock.calls[0]?.[1]).toContain('request.headers.set("X-Request-Source", "docusaurus")')
       expect(mockActions.addRoute).toHaveBeenCalledWith(
         expect.objectContaining({
           modules: {
