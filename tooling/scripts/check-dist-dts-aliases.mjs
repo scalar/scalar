@@ -1,5 +1,4 @@
 #!/usr/bin/env node
-
 import { promises as fs } from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
@@ -19,7 +18,7 @@ const readDirSafe = async (dirPath) => {
 const collectDtsFiles = async (dirPath) => {
   const entries = await readDirSafe(dirPath)
   const files = await Promise.all(
-    entries.map(async (entry) => {
+    entries.map((entry) => {
       const fullPath = path.join(dirPath, entry.name)
 
       if (entry.isDirectory()) {
