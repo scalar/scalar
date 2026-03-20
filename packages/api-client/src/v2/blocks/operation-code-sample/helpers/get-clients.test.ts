@@ -51,6 +51,7 @@ describe('getClients', () => {
     // First group should be the custom code examples
     expect(result[0]).toEqual({
       label: 'Code Examples',
+      key: 'custom',
       options: [
         {
           id: 'custom/python',
