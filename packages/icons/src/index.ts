@@ -1,3048 +1,1533 @@
 /* GENERATED FILE */
 /* biome-ignore-all assist/source/organizeImports: generated file */
 
-import ScalarIconAcorn from './components/ScalarIconAcorn.vue'
-import ScalarIconAddressBook from './components/ScalarIconAddressBook.vue'
-import ScalarIconAddressBookTabs from './components/ScalarIconAddressBookTabs.vue'
-import ScalarIconAirTrafficControl from './components/ScalarIconAirTrafficControl.vue'
-import ScalarIconAirplane from './components/ScalarIconAirplane.vue'
-import ScalarIconAirplaneInFlight from './components/ScalarIconAirplaneInFlight.vue'
-import ScalarIconAirplaneLanding from './components/ScalarIconAirplaneLanding.vue'
-import ScalarIconAirplaneTakeoff from './components/ScalarIconAirplaneTakeoff.vue'
-import ScalarIconAirplaneTaxiing from './components/ScalarIconAirplaneTaxiing.vue'
-import ScalarIconAirplaneTilt from './components/ScalarIconAirplaneTilt.vue'
-import ScalarIconAirplay from './components/ScalarIconAirplay.vue'
-import ScalarIconAlarm from './components/ScalarIconAlarm.vue'
-import ScalarIconAlien from './components/ScalarIconAlien.vue'
-import ScalarIconAlignBottom from './components/ScalarIconAlignBottom.vue'
-import ScalarIconAlignBottomSimple from './components/ScalarIconAlignBottomSimple.vue'
-import ScalarIconAlignCenterHorizontal from './components/ScalarIconAlignCenterHorizontal.vue'
-import ScalarIconAlignCenterHorizontalSimple from './components/ScalarIconAlignCenterHorizontalSimple.vue'
-import ScalarIconAlignCenterVertical from './components/ScalarIconAlignCenterVertical.vue'
-import ScalarIconAlignCenterVerticalSimple from './components/ScalarIconAlignCenterVerticalSimple.vue'
-import ScalarIconAlignLeft from './components/ScalarIconAlignLeft.vue'
-import ScalarIconAlignLeftSimple from './components/ScalarIconAlignLeftSimple.vue'
-import ScalarIconAlignRight from './components/ScalarIconAlignRight.vue'
-import ScalarIconAlignRightSimple from './components/ScalarIconAlignRightSimple.vue'
-import ScalarIconAlignTop from './components/ScalarIconAlignTop.vue'
-import ScalarIconAlignTopSimple from './components/ScalarIconAlignTopSimple.vue'
-import ScalarIconAmazonLogo from './components/ScalarIconAmazonLogo.vue'
-import ScalarIconAmbulance from './components/ScalarIconAmbulance.vue'
-import ScalarIconAnchor from './components/ScalarIconAnchor.vue'
-import ScalarIconAnchorSimple from './components/ScalarIconAnchorSimple.vue'
-import ScalarIconAndroidLogo from './components/ScalarIconAndroidLogo.vue'
-import ScalarIconAngle from './components/ScalarIconAngle.vue'
-import ScalarIconAngularLogo from './components/ScalarIconAngularLogo.vue'
-import ScalarIconAperture from './components/ScalarIconAperture.vue'
-import ScalarIconAppStoreLogo from './components/ScalarIconAppStoreLogo.vue'
-import ScalarIconAppWindow from './components/ScalarIconAppWindow.vue'
-import ScalarIconAppleLogo from './components/ScalarIconAppleLogo.vue'
-import ScalarIconApplePodcastsLogo from './components/ScalarIconApplePodcastsLogo.vue'
-import ScalarIconApproximateEquals from './components/ScalarIconApproximateEquals.vue'
-import ScalarIconArchive from './components/ScalarIconArchive.vue'
-import ScalarIconArmchair from './components/ScalarIconArmchair.vue'
-import ScalarIconArrowArcLeft from './components/ScalarIconArrowArcLeft.vue'
-import ScalarIconArrowArcRight from './components/ScalarIconArrowArcRight.vue'
-import ScalarIconArrowBendDoubleUpLeft from './components/ScalarIconArrowBendDoubleUpLeft.vue'
-import ScalarIconArrowBendDoubleUpRight from './components/ScalarIconArrowBendDoubleUpRight.vue'
-import ScalarIconArrowBendDownLeft from './components/ScalarIconArrowBendDownLeft.vue'
-import ScalarIconArrowBendDownRight from './components/ScalarIconArrowBendDownRight.vue'
-import ScalarIconArrowBendLeftDown from './components/ScalarIconArrowBendLeftDown.vue'
-import ScalarIconArrowBendLeftUp from './components/ScalarIconArrowBendLeftUp.vue'
-import ScalarIconArrowBendRightDown from './components/ScalarIconArrowBendRightDown.vue'
-import ScalarIconArrowBendRightUp from './components/ScalarIconArrowBendRightUp.vue'
-import ScalarIconArrowBendUpLeft from './components/ScalarIconArrowBendUpLeft.vue'
-import ScalarIconArrowBendUpRight from './components/ScalarIconArrowBendUpRight.vue'
-import ScalarIconArrowCircleDown from './components/ScalarIconArrowCircleDown.vue'
-import ScalarIconArrowCircleDownLeft from './components/ScalarIconArrowCircleDownLeft.vue'
-import ScalarIconArrowCircleDownRight from './components/ScalarIconArrowCircleDownRight.vue'
-import ScalarIconArrowCircleLeft from './components/ScalarIconArrowCircleLeft.vue'
-import ScalarIconArrowCircleRight from './components/ScalarIconArrowCircleRight.vue'
-import ScalarIconArrowCircleUp from './components/ScalarIconArrowCircleUp.vue'
-import ScalarIconArrowCircleUpLeft from './components/ScalarIconArrowCircleUpLeft.vue'
-import ScalarIconArrowCircleUpRight from './components/ScalarIconArrowCircleUpRight.vue'
-import ScalarIconArrowClockwise from './components/ScalarIconArrowClockwise.vue'
-import ScalarIconArrowCounterClockwise from './components/ScalarIconArrowCounterClockwise.vue'
-import ScalarIconArrowDown from './components/ScalarIconArrowDown.vue'
-import ScalarIconArrowDownLeft from './components/ScalarIconArrowDownLeft.vue'
-import ScalarIconArrowDownRight from './components/ScalarIconArrowDownRight.vue'
-import ScalarIconArrowElbowDownLeft from './components/ScalarIconArrowElbowDownLeft.vue'
-import ScalarIconArrowElbowDownRight from './components/ScalarIconArrowElbowDownRight.vue'
-import ScalarIconArrowElbowLeft from './components/ScalarIconArrowElbowLeft.vue'
-import ScalarIconArrowElbowLeftDown from './components/ScalarIconArrowElbowLeftDown.vue'
-import ScalarIconArrowElbowLeftUp from './components/ScalarIconArrowElbowLeftUp.vue'
-import ScalarIconArrowElbowRight from './components/ScalarIconArrowElbowRight.vue'
-import ScalarIconArrowElbowRightDown from './components/ScalarIconArrowElbowRightDown.vue'
-import ScalarIconArrowElbowRightUp from './components/ScalarIconArrowElbowRightUp.vue'
-import ScalarIconArrowElbowUpLeft from './components/ScalarIconArrowElbowUpLeft.vue'
-import ScalarIconArrowElbowUpRight from './components/ScalarIconArrowElbowUpRight.vue'
-import ScalarIconArrowFatDown from './components/ScalarIconArrowFatDown.vue'
-import ScalarIconArrowFatLeft from './components/ScalarIconArrowFatLeft.vue'
-import ScalarIconArrowFatLineDown from './components/ScalarIconArrowFatLineDown.vue'
-import ScalarIconArrowFatLineLeft from './components/ScalarIconArrowFatLineLeft.vue'
-import ScalarIconArrowFatLineRight from './components/ScalarIconArrowFatLineRight.vue'
-import ScalarIconArrowFatLineUp from './components/ScalarIconArrowFatLineUp.vue'
-import ScalarIconArrowFatLinesDown from './components/ScalarIconArrowFatLinesDown.vue'
-import ScalarIconArrowFatLinesLeft from './components/ScalarIconArrowFatLinesLeft.vue'
-import ScalarIconArrowFatLinesRight from './components/ScalarIconArrowFatLinesRight.vue'
-import ScalarIconArrowFatLinesUp from './components/ScalarIconArrowFatLinesUp.vue'
-import ScalarIconArrowFatRight from './components/ScalarIconArrowFatRight.vue'
-import ScalarIconArrowFatUp from './components/ScalarIconArrowFatUp.vue'
-import ScalarIconArrowLeft from './components/ScalarIconArrowLeft.vue'
-import ScalarIconArrowLineDown from './components/ScalarIconArrowLineDown.vue'
-import ScalarIconArrowLineDownLeft from './components/ScalarIconArrowLineDownLeft.vue'
-import ScalarIconArrowLineDownRight from './components/ScalarIconArrowLineDownRight.vue'
-import ScalarIconArrowLineLeft from './components/ScalarIconArrowLineLeft.vue'
-import ScalarIconArrowLineRight from './components/ScalarIconArrowLineRight.vue'
-import ScalarIconArrowLineUp from './components/ScalarIconArrowLineUp.vue'
-import ScalarIconArrowLineUpLeft from './components/ScalarIconArrowLineUpLeft.vue'
-import ScalarIconArrowLineUpRight from './components/ScalarIconArrowLineUpRight.vue'
-import ScalarIconArrowRight from './components/ScalarIconArrowRight.vue'
-import ScalarIconArrowSquareDown from './components/ScalarIconArrowSquareDown.vue'
-import ScalarIconArrowSquareDownLeft from './components/ScalarIconArrowSquareDownLeft.vue'
-import ScalarIconArrowSquareDownRight from './components/ScalarIconArrowSquareDownRight.vue'
-import ScalarIconArrowSquareIn from './components/ScalarIconArrowSquareIn.vue'
-import ScalarIconArrowSquareLeft from './components/ScalarIconArrowSquareLeft.vue'
-import ScalarIconArrowSquareOut from './components/ScalarIconArrowSquareOut.vue'
-import ScalarIconArrowSquareRight from './components/ScalarIconArrowSquareRight.vue'
-import ScalarIconArrowSquareUp from './components/ScalarIconArrowSquareUp.vue'
-import ScalarIconArrowSquareUpLeft from './components/ScalarIconArrowSquareUpLeft.vue'
-import ScalarIconArrowSquareUpRight from './components/ScalarIconArrowSquareUpRight.vue'
-import ScalarIconArrowUDownLeft from './components/ScalarIconArrowUDownLeft.vue'
-import ScalarIconArrowUDownRight from './components/ScalarIconArrowUDownRight.vue'
-import ScalarIconArrowULeftDown from './components/ScalarIconArrowULeftDown.vue'
-import ScalarIconArrowULeftUp from './components/ScalarIconArrowULeftUp.vue'
-import ScalarIconArrowURightDown from './components/ScalarIconArrowURightDown.vue'
-import ScalarIconArrowURightUp from './components/ScalarIconArrowURightUp.vue'
-import ScalarIconArrowUUpLeft from './components/ScalarIconArrowUUpLeft.vue'
-import ScalarIconArrowUUpRight from './components/ScalarIconArrowUUpRight.vue'
-import ScalarIconArrowUp from './components/ScalarIconArrowUp.vue'
-import ScalarIconArrowUpLeft from './components/ScalarIconArrowUpLeft.vue'
-import ScalarIconArrowUpRight from './components/ScalarIconArrowUpRight.vue'
-import ScalarIconArrowsClockwise from './components/ScalarIconArrowsClockwise.vue'
-import ScalarIconArrowsCounterClockwise from './components/ScalarIconArrowsCounterClockwise.vue'
-import ScalarIconArrowsDownUp from './components/ScalarIconArrowsDownUp.vue'
-import ScalarIconArrowsHorizontal from './components/ScalarIconArrowsHorizontal.vue'
-import ScalarIconArrowsIn from './components/ScalarIconArrowsIn.vue'
-import ScalarIconArrowsInCardinal from './components/ScalarIconArrowsInCardinal.vue'
-import ScalarIconArrowsInLineHorizontal from './components/ScalarIconArrowsInLineHorizontal.vue'
-import ScalarIconArrowsInLineVertical from './components/ScalarIconArrowsInLineVertical.vue'
-import ScalarIconArrowsInSimple from './components/ScalarIconArrowsInSimple.vue'
-import ScalarIconArrowsLeftRight from './components/ScalarIconArrowsLeftRight.vue'
-import ScalarIconArrowsMerge from './components/ScalarIconArrowsMerge.vue'
-import ScalarIconArrowsOut from './components/ScalarIconArrowsOut.vue'
-import ScalarIconArrowsOutCardinal from './components/ScalarIconArrowsOutCardinal.vue'
-import ScalarIconArrowsOutLineHorizontal from './components/ScalarIconArrowsOutLineHorizontal.vue'
-import ScalarIconArrowsOutLineVertical from './components/ScalarIconArrowsOutLineVertical.vue'
-import ScalarIconArrowsOutSimple from './components/ScalarIconArrowsOutSimple.vue'
-import ScalarIconArrowsSplit from './components/ScalarIconArrowsSplit.vue'
-import ScalarIconArrowsVertical from './components/ScalarIconArrowsVertical.vue'
-import ScalarIconArticle from './components/ScalarIconArticle.vue'
-import ScalarIconArticleMedium from './components/ScalarIconArticleMedium.vue'
-import ScalarIconArticleNyTimes from './components/ScalarIconArticleNyTimes.vue'
-import ScalarIconAsclepius from './components/ScalarIconAsclepius.vue'
-import ScalarIconAsterisk from './components/ScalarIconAsterisk.vue'
-import ScalarIconAsteriskSimple from './components/ScalarIconAsteriskSimple.vue'
-import ScalarIconAt from './components/ScalarIconAt.vue'
-import ScalarIconAtom from './components/ScalarIconAtom.vue'
-import ScalarIconAvocado from './components/ScalarIconAvocado.vue'
-import ScalarIconAxe from './components/ScalarIconAxe.vue'
-import ScalarIconBaby from './components/ScalarIconBaby.vue'
-import ScalarIconBabyCarriage from './components/ScalarIconBabyCarriage.vue'
-import ScalarIconBackpack from './components/ScalarIconBackpack.vue'
-import ScalarIconBackspace from './components/ScalarIconBackspace.vue'
-import ScalarIconBag from './components/ScalarIconBag.vue'
-import ScalarIconBagSimple from './components/ScalarIconBagSimple.vue'
-import ScalarIconBalloon from './components/ScalarIconBalloon.vue'
-import ScalarIconBandaids from './components/ScalarIconBandaids.vue'
-import ScalarIconBank from './components/ScalarIconBank.vue'
-import ScalarIconBarbell from './components/ScalarIconBarbell.vue'
-import ScalarIconBarcode from './components/ScalarIconBarcode.vue'
-import ScalarIconBarn from './components/ScalarIconBarn.vue'
-import ScalarIconBarricade from './components/ScalarIconBarricade.vue'
-import ScalarIconBaseball from './components/ScalarIconBaseball.vue'
-import ScalarIconBaseballCap from './components/ScalarIconBaseballCap.vue'
-import ScalarIconBaseballHelmet from './components/ScalarIconBaseballHelmet.vue'
-import ScalarIconBasket from './components/ScalarIconBasket.vue'
-import ScalarIconBasketball from './components/ScalarIconBasketball.vue'
-import ScalarIconBathtub from './components/ScalarIconBathtub.vue'
-import ScalarIconBatteryCharging from './components/ScalarIconBatteryCharging.vue'
-import ScalarIconBatteryChargingVertical from './components/ScalarIconBatteryChargingVertical.vue'
-import ScalarIconBatteryEmpty from './components/ScalarIconBatteryEmpty.vue'
-import ScalarIconBatteryFull from './components/ScalarIconBatteryFull.vue'
-import ScalarIconBatteryHigh from './components/ScalarIconBatteryHigh.vue'
-import ScalarIconBatteryLow from './components/ScalarIconBatteryLow.vue'
-import ScalarIconBatteryMedium from './components/ScalarIconBatteryMedium.vue'
-import ScalarIconBatteryPlus from './components/ScalarIconBatteryPlus.vue'
-import ScalarIconBatteryPlusVertical from './components/ScalarIconBatteryPlusVertical.vue'
-import ScalarIconBatteryVerticalEmpty from './components/ScalarIconBatteryVerticalEmpty.vue'
-import ScalarIconBatteryVerticalFull from './components/ScalarIconBatteryVerticalFull.vue'
-import ScalarIconBatteryVerticalHigh from './components/ScalarIconBatteryVerticalHigh.vue'
-import ScalarIconBatteryVerticalLow from './components/ScalarIconBatteryVerticalLow.vue'
-import ScalarIconBatteryVerticalMedium from './components/ScalarIconBatteryVerticalMedium.vue'
-import ScalarIconBatteryWarning from './components/ScalarIconBatteryWarning.vue'
-import ScalarIconBatteryWarningVertical from './components/ScalarIconBatteryWarningVertical.vue'
-import ScalarIconBeachBall from './components/ScalarIconBeachBall.vue'
-import ScalarIconBeanie from './components/ScalarIconBeanie.vue'
-import ScalarIconBed from './components/ScalarIconBed.vue'
-import ScalarIconBeerBottle from './components/ScalarIconBeerBottle.vue'
-import ScalarIconBeerStein from './components/ScalarIconBeerStein.vue'
-import ScalarIconBehanceLogo from './components/ScalarIconBehanceLogo.vue'
-import ScalarIconBell from './components/ScalarIconBell.vue'
-import ScalarIconBellRinging from './components/ScalarIconBellRinging.vue'
-import ScalarIconBellSimple from './components/ScalarIconBellSimple.vue'
-import ScalarIconBellSimpleRinging from './components/ScalarIconBellSimpleRinging.vue'
-import ScalarIconBellSimpleSlash from './components/ScalarIconBellSimpleSlash.vue'
-import ScalarIconBellSimpleZ from './components/ScalarIconBellSimpleZ.vue'
-import ScalarIconBellSlash from './components/ScalarIconBellSlash.vue'
-import ScalarIconBellZ from './components/ScalarIconBellZ.vue'
-import ScalarIconBelt from './components/ScalarIconBelt.vue'
-import ScalarIconBezierCurve from './components/ScalarIconBezierCurve.vue'
-import ScalarIconBicycle from './components/ScalarIconBicycle.vue'
-import ScalarIconBinary from './components/ScalarIconBinary.vue'
-import ScalarIconBinoculars from './components/ScalarIconBinoculars.vue'
-import ScalarIconBiohazard from './components/ScalarIconBiohazard.vue'
-import ScalarIconBird from './components/ScalarIconBird.vue'
-import ScalarIconBlueprint from './components/ScalarIconBlueprint.vue'
-import ScalarIconBluetooth from './components/ScalarIconBluetooth.vue'
-import ScalarIconBluetoothConnected from './components/ScalarIconBluetoothConnected.vue'
-import ScalarIconBluetoothSlash from './components/ScalarIconBluetoothSlash.vue'
-import ScalarIconBluetoothX from './components/ScalarIconBluetoothX.vue'
-import ScalarIconBoat from './components/ScalarIconBoat.vue'
-import ScalarIconBomb from './components/ScalarIconBomb.vue'
-import ScalarIconBone from './components/ScalarIconBone.vue'
-import ScalarIconBook from './components/ScalarIconBook.vue'
-import ScalarIconBookBookmark from './components/ScalarIconBookBookmark.vue'
-import ScalarIconBookOpen from './components/ScalarIconBookOpen.vue'
-import ScalarIconBookOpenText from './components/ScalarIconBookOpenText.vue'
-import ScalarIconBookOpenUser from './components/ScalarIconBookOpenUser.vue'
-import ScalarIconBookmark from './components/ScalarIconBookmark.vue'
-import ScalarIconBookmarkSimple from './components/ScalarIconBookmarkSimple.vue'
-import ScalarIconBookmarks from './components/ScalarIconBookmarks.vue'
-import ScalarIconBookmarksSimple from './components/ScalarIconBookmarksSimple.vue'
-import ScalarIconBooks from './components/ScalarIconBooks.vue'
-import ScalarIconBoot from './components/ScalarIconBoot.vue'
-import ScalarIconBoules from './components/ScalarIconBoules.vue'
-import ScalarIconBoundingBox from './components/ScalarIconBoundingBox.vue'
-import ScalarIconBowlFood from './components/ScalarIconBowlFood.vue'
-import ScalarIconBowlSteam from './components/ScalarIconBowlSteam.vue'
-import ScalarIconBowlingBall from './components/ScalarIconBowlingBall.vue'
-import ScalarIconBoxArrowDown from './components/ScalarIconBoxArrowDown.vue'
-import ScalarIconBoxArrowUp from './components/ScalarIconBoxArrowUp.vue'
-import ScalarIconBoxingGlove from './components/ScalarIconBoxingGlove.vue'
-import ScalarIconBracketsAngle from './components/ScalarIconBracketsAngle.vue'
-import ScalarIconBracketsCurly from './components/ScalarIconBracketsCurly.vue'
-import ScalarIconBracketsRound from './components/ScalarIconBracketsRound.vue'
-import ScalarIconBracketsSquare from './components/ScalarIconBracketsSquare.vue'
-import ScalarIconBrain from './components/ScalarIconBrain.vue'
-import ScalarIconBrandy from './components/ScalarIconBrandy.vue'
-import ScalarIconBread from './components/ScalarIconBread.vue'
-import ScalarIconBridge from './components/ScalarIconBridge.vue'
-import ScalarIconBriefcase from './components/ScalarIconBriefcase.vue'
-import ScalarIconBriefcaseMetal from './components/ScalarIconBriefcaseMetal.vue'
-import ScalarIconBroadcast from './components/ScalarIconBroadcast.vue'
-import ScalarIconBroom from './components/ScalarIconBroom.vue'
-import ScalarIconBrowser from './components/ScalarIconBrowser.vue'
-import ScalarIconBrowsers from './components/ScalarIconBrowsers.vue'
-import ScalarIconBugBeetle from './components/ScalarIconBugBeetle.vue'
-import ScalarIconBug from './components/ScalarIconBug.vue'
-import ScalarIconBugDroid from './components/ScalarIconBugDroid.vue'
-import ScalarIconBuildingApartment from './components/ScalarIconBuildingApartment.vue'
-import ScalarIconBuilding from './components/ScalarIconBuilding.vue'
-import ScalarIconBuildingOffice from './components/ScalarIconBuildingOffice.vue'
-import ScalarIconBuildings from './components/ScalarIconBuildings.vue'
-import ScalarIconBulldozer from './components/ScalarIconBulldozer.vue'
-import ScalarIconBus from './components/ScalarIconBus.vue'
-import ScalarIconButterfly from './components/ScalarIconButterfly.vue'
-import ScalarIconCableCar from './components/ScalarIconCableCar.vue'
-import ScalarIconCactus from './components/ScalarIconCactus.vue'
-import ScalarIconCake from './components/ScalarIconCake.vue'
-import ScalarIconCalculator from './components/ScalarIconCalculator.vue'
-import ScalarIconCalendarBlank from './components/ScalarIconCalendarBlank.vue'
-import ScalarIconCalendar from './components/ScalarIconCalendar.vue'
-import ScalarIconCalendarCheck from './components/ScalarIconCalendarCheck.vue'
-import ScalarIconCalendarDot from './components/ScalarIconCalendarDot.vue'
-import ScalarIconCalendarDots from './components/ScalarIconCalendarDots.vue'
-import ScalarIconCalendarHeart from './components/ScalarIconCalendarHeart.vue'
-import ScalarIconCalendarMinus from './components/ScalarIconCalendarMinus.vue'
-import ScalarIconCalendarPlus from './components/ScalarIconCalendarPlus.vue'
-import ScalarIconCalendarSlash from './components/ScalarIconCalendarSlash.vue'
-import ScalarIconCalendarStar from './components/ScalarIconCalendarStar.vue'
-import ScalarIconCalendarX from './components/ScalarIconCalendarX.vue'
-import ScalarIconCallBell from './components/ScalarIconCallBell.vue'
-import ScalarIconCamera from './components/ScalarIconCamera.vue'
-import ScalarIconCameraPlus from './components/ScalarIconCameraPlus.vue'
-import ScalarIconCameraRotate from './components/ScalarIconCameraRotate.vue'
-import ScalarIconCameraSlash from './components/ScalarIconCameraSlash.vue'
-import ScalarIconCampfire from './components/ScalarIconCampfire.vue'
-import ScalarIconCarBattery from './components/ScalarIconCarBattery.vue'
-import ScalarIconCar from './components/ScalarIconCar.vue'
-import ScalarIconCarProfile from './components/ScalarIconCarProfile.vue'
-import ScalarIconCarSimple from './components/ScalarIconCarSimple.vue'
-import ScalarIconCardholder from './components/ScalarIconCardholder.vue'
-import ScalarIconCards from './components/ScalarIconCards.vue'
-import ScalarIconCardsThree from './components/ScalarIconCardsThree.vue'
-import ScalarIconCaretCircleDoubleDown from './components/ScalarIconCaretCircleDoubleDown.vue'
-import ScalarIconCaretCircleDoubleLeft from './components/ScalarIconCaretCircleDoubleLeft.vue'
-import ScalarIconCaretCircleDoubleRight from './components/ScalarIconCaretCircleDoubleRight.vue'
-import ScalarIconCaretCircleDoubleUp from './components/ScalarIconCaretCircleDoubleUp.vue'
-import ScalarIconCaretCircleDown from './components/ScalarIconCaretCircleDown.vue'
-import ScalarIconCaretCircleLeft from './components/ScalarIconCaretCircleLeft.vue'
-import ScalarIconCaretCircleRight from './components/ScalarIconCaretCircleRight.vue'
-import ScalarIconCaretCircleUp from './components/ScalarIconCaretCircleUp.vue'
-import ScalarIconCaretCircleUpDown from './components/ScalarIconCaretCircleUpDown.vue'
-import ScalarIconCaretDoubleDown from './components/ScalarIconCaretDoubleDown.vue'
-import ScalarIconCaretDoubleLeft from './components/ScalarIconCaretDoubleLeft.vue'
-import ScalarIconCaretDoubleRight from './components/ScalarIconCaretDoubleRight.vue'
-import ScalarIconCaretDoubleUp from './components/ScalarIconCaretDoubleUp.vue'
-import ScalarIconCaretDown from './components/ScalarIconCaretDown.vue'
-import ScalarIconCaretLeft from './components/ScalarIconCaretLeft.vue'
-import ScalarIconCaretLineDown from './components/ScalarIconCaretLineDown.vue'
-import ScalarIconCaretLineLeft from './components/ScalarIconCaretLineLeft.vue'
-import ScalarIconCaretLineRight from './components/ScalarIconCaretLineRight.vue'
-import ScalarIconCaretLineUp from './components/ScalarIconCaretLineUp.vue'
-import ScalarIconCaretRight from './components/ScalarIconCaretRight.vue'
-import ScalarIconCaretUp from './components/ScalarIconCaretUp.vue'
-import ScalarIconCaretUpDown from './components/ScalarIconCaretUpDown.vue'
-import ScalarIconCarrot from './components/ScalarIconCarrot.vue'
-import ScalarIconCashRegister from './components/ScalarIconCashRegister.vue'
-import ScalarIconCassetteTape from './components/ScalarIconCassetteTape.vue'
-import ScalarIconCastleTurret from './components/ScalarIconCastleTurret.vue'
-import ScalarIconCat from './components/ScalarIconCat.vue'
-import ScalarIconCellSignalFull from './components/ScalarIconCellSignalFull.vue'
-import ScalarIconCellSignalHigh from './components/ScalarIconCellSignalHigh.vue'
-import ScalarIconCellSignalLow from './components/ScalarIconCellSignalLow.vue'
-import ScalarIconCellSignalMedium from './components/ScalarIconCellSignalMedium.vue'
-import ScalarIconCellSignalNone from './components/ScalarIconCellSignalNone.vue'
-import ScalarIconCellSignalSlash from './components/ScalarIconCellSignalSlash.vue'
-import ScalarIconCellSignalX from './components/ScalarIconCellSignalX.vue'
-import ScalarIconCellTower from './components/ScalarIconCellTower.vue'
-import ScalarIconCertificate from './components/ScalarIconCertificate.vue'
-import ScalarIconChair from './components/ScalarIconChair.vue'
-import ScalarIconChalkboard from './components/ScalarIconChalkboard.vue'
-import ScalarIconChalkboardSimple from './components/ScalarIconChalkboardSimple.vue'
-import ScalarIconChalkboardTeacher from './components/ScalarIconChalkboardTeacher.vue'
-import ScalarIconChampagne from './components/ScalarIconChampagne.vue'
-import ScalarIconChargingStation from './components/ScalarIconChargingStation.vue'
-import ScalarIconChartBar from './components/ScalarIconChartBar.vue'
-import ScalarIconChartBarHorizontal from './components/ScalarIconChartBarHorizontal.vue'
-import ScalarIconChartDonut from './components/ScalarIconChartDonut.vue'
-import ScalarIconChartLine from './components/ScalarIconChartLine.vue'
-import ScalarIconChartLineDown from './components/ScalarIconChartLineDown.vue'
-import ScalarIconChartLineUp from './components/ScalarIconChartLineUp.vue'
-import ScalarIconChartPie from './components/ScalarIconChartPie.vue'
-import ScalarIconChartPieSlice from './components/ScalarIconChartPieSlice.vue'
-import ScalarIconChartPolar from './components/ScalarIconChartPolar.vue'
-import ScalarIconChartScatter from './components/ScalarIconChartScatter.vue'
-import ScalarIconChat from './components/ScalarIconChat.vue'
-import ScalarIconChatCentered from './components/ScalarIconChatCentered.vue'
-import ScalarIconChatCenteredDots from './components/ScalarIconChatCenteredDots.vue'
-import ScalarIconChatCenteredSlash from './components/ScalarIconChatCenteredSlash.vue'
-import ScalarIconChatCenteredText from './components/ScalarIconChatCenteredText.vue'
-import ScalarIconChatCircle from './components/ScalarIconChatCircle.vue'
-import ScalarIconChatCircleDots from './components/ScalarIconChatCircleDots.vue'
-import ScalarIconChatCircleSlash from './components/ScalarIconChatCircleSlash.vue'
-import ScalarIconChatCircleText from './components/ScalarIconChatCircleText.vue'
-import ScalarIconChatDots from './components/ScalarIconChatDots.vue'
-import ScalarIconChatSlash from './components/ScalarIconChatSlash.vue'
-import ScalarIconChatTeardrop from './components/ScalarIconChatTeardrop.vue'
-import ScalarIconChatTeardropDots from './components/ScalarIconChatTeardropDots.vue'
-import ScalarIconChatTeardropSlash from './components/ScalarIconChatTeardropSlash.vue'
-import ScalarIconChatTeardropText from './components/ScalarIconChatTeardropText.vue'
-import ScalarIconChatText from './components/ScalarIconChatText.vue'
-import ScalarIconChats from './components/ScalarIconChats.vue'
-import ScalarIconChatsCircle from './components/ScalarIconChatsCircle.vue'
-import ScalarIconChatsTeardrop from './components/ScalarIconChatsTeardrop.vue'
-import ScalarIconCheck from './components/ScalarIconCheck.vue'
-import ScalarIconCheckCircle from './components/ScalarIconCheckCircle.vue'
-import ScalarIconCheckFat from './components/ScalarIconCheckFat.vue'
-import ScalarIconCheckSquare from './components/ScalarIconCheckSquare.vue'
-import ScalarIconCheckSquareOffset from './components/ScalarIconCheckSquareOffset.vue'
-import ScalarIconCheckerboard from './components/ScalarIconCheckerboard.vue'
-import ScalarIconChecks from './components/ScalarIconChecks.vue'
-import ScalarIconCheers from './components/ScalarIconCheers.vue'
-import ScalarIconCheese from './components/ScalarIconCheese.vue'
-import ScalarIconChefHat from './components/ScalarIconChefHat.vue'
-import ScalarIconCherries from './components/ScalarIconCherries.vue'
-import ScalarIconChurch from './components/ScalarIconChurch.vue'
-import ScalarIconCigarette from './components/ScalarIconCigarette.vue'
-import ScalarIconCigaretteSlash from './components/ScalarIconCigaretteSlash.vue'
-import ScalarIconCircle from './components/ScalarIconCircle.vue'
-import ScalarIconCircleDashed from './components/ScalarIconCircleDashed.vue'
-import ScalarIconCircleHalf from './components/ScalarIconCircleHalf.vue'
-import ScalarIconCircleHalfTilt from './components/ScalarIconCircleHalfTilt.vue'
-import ScalarIconCircleNotch from './components/ScalarIconCircleNotch.vue'
-import ScalarIconCirclesFour from './components/ScalarIconCirclesFour.vue'
-import ScalarIconCirclesThree from './components/ScalarIconCirclesThree.vue'
-import ScalarIconCirclesThreePlus from './components/ScalarIconCirclesThreePlus.vue'
-import ScalarIconCircuitry from './components/ScalarIconCircuitry.vue'
-import ScalarIconCity from './components/ScalarIconCity.vue'
-import ScalarIconClipboard from './components/ScalarIconClipboard.vue'
-import ScalarIconClipboardText from './components/ScalarIconClipboardText.vue'
-import ScalarIconClockAfternoon from './components/ScalarIconClockAfternoon.vue'
-import ScalarIconClock from './components/ScalarIconClock.vue'
-import ScalarIconClockClockwise from './components/ScalarIconClockClockwise.vue'
-import ScalarIconClockCountdown from './components/ScalarIconClockCountdown.vue'
-import ScalarIconClockCounterClockwise from './components/ScalarIconClockCounterClockwise.vue'
-import ScalarIconClockUser from './components/ScalarIconClockUser.vue'
-import ScalarIconClosedCaptioning from './components/ScalarIconClosedCaptioning.vue'
-import ScalarIconCloudArrowDown from './components/ScalarIconCloudArrowDown.vue'
-import ScalarIconCloudArrowUp from './components/ScalarIconCloudArrowUp.vue'
-import ScalarIconCloud from './components/ScalarIconCloud.vue'
-import ScalarIconCloudCheck from './components/ScalarIconCloudCheck.vue'
-import ScalarIconCloudFog from './components/ScalarIconCloudFog.vue'
-import ScalarIconCloudLightning from './components/ScalarIconCloudLightning.vue'
-import ScalarIconCloudMoon from './components/ScalarIconCloudMoon.vue'
-import ScalarIconCloudRain from './components/ScalarIconCloudRain.vue'
-import ScalarIconCloudSlash from './components/ScalarIconCloudSlash.vue'
-import ScalarIconCloudSnow from './components/ScalarIconCloudSnow.vue'
-import ScalarIconCloudSun from './components/ScalarIconCloudSun.vue'
-import ScalarIconCloudWarning from './components/ScalarIconCloudWarning.vue'
-import ScalarIconCloudX from './components/ScalarIconCloudX.vue'
-import ScalarIconClover from './components/ScalarIconClover.vue'
-import ScalarIconClub from './components/ScalarIconClub.vue'
-import ScalarIconCoatHanger from './components/ScalarIconCoatHanger.vue'
-import ScalarIconCodaLogo from './components/ScalarIconCodaLogo.vue'
-import ScalarIconCodeBlock from './components/ScalarIconCodeBlock.vue'
-import ScalarIconCode from './components/ScalarIconCode.vue'
-import ScalarIconCodeSimple from './components/ScalarIconCodeSimple.vue'
-import ScalarIconCodepenLogo from './components/ScalarIconCodepenLogo.vue'
-import ScalarIconCodesandboxLogo from './components/ScalarIconCodesandboxLogo.vue'
-import ScalarIconCoffeeBean from './components/ScalarIconCoffeeBean.vue'
-import ScalarIconCoffee from './components/ScalarIconCoffee.vue'
-import ScalarIconCoin from './components/ScalarIconCoin.vue'
-import ScalarIconCoinVertical from './components/ScalarIconCoinVertical.vue'
-import ScalarIconCoins from './components/ScalarIconCoins.vue'
-import ScalarIconColumns from './components/ScalarIconColumns.vue'
-import ScalarIconColumnsPlusLeft from './components/ScalarIconColumnsPlusLeft.vue'
-import ScalarIconColumnsPlusRight from './components/ScalarIconColumnsPlusRight.vue'
-import ScalarIconCommand from './components/ScalarIconCommand.vue'
-import ScalarIconCompass from './components/ScalarIconCompass.vue'
-import ScalarIconCompassRose from './components/ScalarIconCompassRose.vue'
-import ScalarIconCompassTool from './components/ScalarIconCompassTool.vue'
-import ScalarIconComputerTower from './components/ScalarIconComputerTower.vue'
-import ScalarIconConfetti from './components/ScalarIconConfetti.vue'
-import ScalarIconContactlessPayment from './components/ScalarIconContactlessPayment.vue'
-import ScalarIconControl from './components/ScalarIconControl.vue'
-import ScalarIconCookie from './components/ScalarIconCookie.vue'
-import ScalarIconCookingPot from './components/ScalarIconCookingPot.vue'
-import ScalarIconCopy from './components/ScalarIconCopy.vue'
-import ScalarIconCopySimple from './components/ScalarIconCopySimple.vue'
-import ScalarIconCopyleft from './components/ScalarIconCopyleft.vue'
-import ScalarIconCopyright from './components/ScalarIconCopyright.vue'
-import ScalarIconCornersIn from './components/ScalarIconCornersIn.vue'
-import ScalarIconCornersOut from './components/ScalarIconCornersOut.vue'
-import ScalarIconCouch from './components/ScalarIconCouch.vue'
-import ScalarIconCourtBasketball from './components/ScalarIconCourtBasketball.vue'
-import ScalarIconCow from './components/ScalarIconCow.vue'
-import ScalarIconCowboyHat from './components/ScalarIconCowboyHat.vue'
-import ScalarIconCpu from './components/ScalarIconCpu.vue'
-import ScalarIconCrane from './components/ScalarIconCrane.vue'
-import ScalarIconCraneTower from './components/ScalarIconCraneTower.vue'
-import ScalarIconCreditCard from './components/ScalarIconCreditCard.vue'
-import ScalarIconCricket from './components/ScalarIconCricket.vue'
-import ScalarIconCrop from './components/ScalarIconCrop.vue'
-import ScalarIconCross from './components/ScalarIconCross.vue'
-import ScalarIconCrosshair from './components/ScalarIconCrosshair.vue'
-import ScalarIconCrosshairSimple from './components/ScalarIconCrosshairSimple.vue'
-import ScalarIconCrown from './components/ScalarIconCrown.vue'
-import ScalarIconCrownCross from './components/ScalarIconCrownCross.vue'
-import ScalarIconCrownSimple from './components/ScalarIconCrownSimple.vue'
-import ScalarIconCube from './components/ScalarIconCube.vue'
-import ScalarIconCubeFocus from './components/ScalarIconCubeFocus.vue'
-import ScalarIconCubeTransparent from './components/ScalarIconCubeTransparent.vue'
-import ScalarIconCurrencyBtc from './components/ScalarIconCurrencyBtc.vue'
-import ScalarIconCurrencyCircleDollar from './components/ScalarIconCurrencyCircleDollar.vue'
-import ScalarIconCurrencyCny from './components/ScalarIconCurrencyCny.vue'
-import ScalarIconCurrencyDollar from './components/ScalarIconCurrencyDollar.vue'
-import ScalarIconCurrencyDollarSimple from './components/ScalarIconCurrencyDollarSimple.vue'
-import ScalarIconCurrencyEth from './components/ScalarIconCurrencyEth.vue'
-import ScalarIconCurrencyEur from './components/ScalarIconCurrencyEur.vue'
-import ScalarIconCurrencyGbp from './components/ScalarIconCurrencyGbp.vue'
-import ScalarIconCurrencyInr from './components/ScalarIconCurrencyInr.vue'
-import ScalarIconCurrencyJpy from './components/ScalarIconCurrencyJpy.vue'
-import ScalarIconCurrencyKrw from './components/ScalarIconCurrencyKrw.vue'
-import ScalarIconCurrencyKzt from './components/ScalarIconCurrencyKzt.vue'
-import ScalarIconCurrencyNgn from './components/ScalarIconCurrencyNgn.vue'
-import ScalarIconCurrencyRub from './components/ScalarIconCurrencyRub.vue'
-import ScalarIconCursor from './components/ScalarIconCursor.vue'
-import ScalarIconCursorClick from './components/ScalarIconCursorClick.vue'
-import ScalarIconCursorText from './components/ScalarIconCursorText.vue'
-import ScalarIconCylinder from './components/ScalarIconCylinder.vue'
-import ScalarIconDatabase from './components/ScalarIconDatabase.vue'
-import ScalarIconDesk from './components/ScalarIconDesk.vue'
-import ScalarIconDesktop from './components/ScalarIconDesktop.vue'
-import ScalarIconDesktopTower from './components/ScalarIconDesktopTower.vue'
-import ScalarIconDetective from './components/ScalarIconDetective.vue'
-import ScalarIconDevToLogo from './components/ScalarIconDevToLogo.vue'
-import ScalarIconDeviceMobile from './components/ScalarIconDeviceMobile.vue'
-import ScalarIconDeviceMobileCamera from './components/ScalarIconDeviceMobileCamera.vue'
-import ScalarIconDeviceMobileSlash from './components/ScalarIconDeviceMobileSlash.vue'
-import ScalarIconDeviceMobileSpeaker from './components/ScalarIconDeviceMobileSpeaker.vue'
-import ScalarIconDeviceRotate from './components/ScalarIconDeviceRotate.vue'
-import ScalarIconDeviceTablet from './components/ScalarIconDeviceTablet.vue'
-import ScalarIconDeviceTabletCamera from './components/ScalarIconDeviceTabletCamera.vue'
-import ScalarIconDeviceTabletSpeaker from './components/ScalarIconDeviceTabletSpeaker.vue'
-import ScalarIconDevices from './components/ScalarIconDevices.vue'
-import ScalarIconDiamond from './components/ScalarIconDiamond.vue'
-import ScalarIconDiamondsFour from './components/ScalarIconDiamondsFour.vue'
-import ScalarIconDiceFive from './components/ScalarIconDiceFive.vue'
-import ScalarIconDiceFour from './components/ScalarIconDiceFour.vue'
-import ScalarIconDiceOne from './components/ScalarIconDiceOne.vue'
-import ScalarIconDiceSix from './components/ScalarIconDiceSix.vue'
-import ScalarIconDiceThree from './components/ScalarIconDiceThree.vue'
-import ScalarIconDiceTwo from './components/ScalarIconDiceTwo.vue'
-import ScalarIconDisc from './components/ScalarIconDisc.vue'
-import ScalarIconDiscoBall from './components/ScalarIconDiscoBall.vue'
-import ScalarIconDiscordLogo from './components/ScalarIconDiscordLogo.vue'
-import ScalarIconDivide from './components/ScalarIconDivide.vue'
-import ScalarIconDna from './components/ScalarIconDna.vue'
-import ScalarIconDog from './components/ScalarIconDog.vue'
-import ScalarIconDoor from './components/ScalarIconDoor.vue'
-import ScalarIconDoorOpen from './components/ScalarIconDoorOpen.vue'
-import ScalarIconDot from './components/ScalarIconDot.vue'
-import ScalarIconDotOutline from './components/ScalarIconDotOutline.vue'
-import ScalarIconDotsNine from './components/ScalarIconDotsNine.vue'
-import ScalarIconDotsSix from './components/ScalarIconDotsSix.vue'
-import ScalarIconDotsSixVertical from './components/ScalarIconDotsSixVertical.vue'
-import ScalarIconDotsThree from './components/ScalarIconDotsThree.vue'
-import ScalarIconDotsThreeCircle from './components/ScalarIconDotsThreeCircle.vue'
-import ScalarIconDotsThreeCircleVertical from './components/ScalarIconDotsThreeCircleVertical.vue'
-import ScalarIconDotsThreeOutline from './components/ScalarIconDotsThreeOutline.vue'
-import ScalarIconDotsThreeOutlineVertical from './components/ScalarIconDotsThreeOutlineVertical.vue'
-import ScalarIconDotsThreeVertical from './components/ScalarIconDotsThreeVertical.vue'
-import ScalarIconDownload from './components/ScalarIconDownload.vue'
-import ScalarIconDownloadSimple from './components/ScalarIconDownloadSimple.vue'
-import ScalarIconDress from './components/ScalarIconDress.vue'
-import ScalarIconDresser from './components/ScalarIconDresser.vue'
-import ScalarIconDribbbleLogo from './components/ScalarIconDribbbleLogo.vue'
-import ScalarIconDrone from './components/ScalarIconDrone.vue'
-import ScalarIconDrop from './components/ScalarIconDrop.vue'
-import ScalarIconDropHalf from './components/ScalarIconDropHalf.vue'
-import ScalarIconDropHalfBottom from './components/ScalarIconDropHalfBottom.vue'
-import ScalarIconDropSimple from './components/ScalarIconDropSimple.vue'
-import ScalarIconDropSlash from './components/ScalarIconDropSlash.vue'
-import ScalarIconDropboxLogo from './components/ScalarIconDropboxLogo.vue'
-import ScalarIconEar from './components/ScalarIconEar.vue'
-import ScalarIconEarSlash from './components/ScalarIconEarSlash.vue'
-import ScalarIconEgg from './components/ScalarIconEgg.vue'
-import ScalarIconEggCrack from './components/ScalarIconEggCrack.vue'
-import ScalarIconEject from './components/ScalarIconEject.vue'
-import ScalarIconEjectSimple from './components/ScalarIconEjectSimple.vue'
-import ScalarIconElevator from './components/ScalarIconElevator.vue'
-import ScalarIconEmpty from './components/ScalarIconEmpty.vue'
-import ScalarIconEngine from './components/ScalarIconEngine.vue'
-import ScalarIconEnvelope from './components/ScalarIconEnvelope.vue'
-import ScalarIconEnvelopeOpen from './components/ScalarIconEnvelopeOpen.vue'
-import ScalarIconEnvelopeSimple from './components/ScalarIconEnvelopeSimple.vue'
-import ScalarIconEnvelopeSimpleOpen from './components/ScalarIconEnvelopeSimpleOpen.vue'
-import ScalarIconEqualizer from './components/ScalarIconEqualizer.vue'
-import ScalarIconEquals from './components/ScalarIconEquals.vue'
-import ScalarIconEraser from './components/ScalarIconEraser.vue'
-import ScalarIconEscalatorDown from './components/ScalarIconEscalatorDown.vue'
-import ScalarIconEscalatorUp from './components/ScalarIconEscalatorUp.vue'
-import ScalarIconExam from './components/ScalarIconExam.vue'
-import ScalarIconExclamationMark from './components/ScalarIconExclamationMark.vue'
-import ScalarIconExclude from './components/ScalarIconExclude.vue'
-import ScalarIconExcludeSquare from './components/ScalarIconExcludeSquare.vue'
-import ScalarIconExport from './components/ScalarIconExport.vue'
-import ScalarIconEye from './components/ScalarIconEye.vue'
-import ScalarIconEyeClosed from './components/ScalarIconEyeClosed.vue'
-import ScalarIconEyeSlash from './components/ScalarIconEyeSlash.vue'
-import ScalarIconEyedropper from './components/ScalarIconEyedropper.vue'
-import ScalarIconEyedropperSample from './components/ScalarIconEyedropperSample.vue'
-import ScalarIconEyeglasses from './components/ScalarIconEyeglasses.vue'
-import ScalarIconEyes from './components/ScalarIconEyes.vue'
-import ScalarIconFaceMask from './components/ScalarIconFaceMask.vue'
-import ScalarIconFacebookLogo from './components/ScalarIconFacebookLogo.vue'
-import ScalarIconFactory from './components/ScalarIconFactory.vue'
-import ScalarIconFaders from './components/ScalarIconFaders.vue'
-import ScalarIconFadersHorizontal from './components/ScalarIconFadersHorizontal.vue'
-import ScalarIconFalloutShelter from './components/ScalarIconFalloutShelter.vue'
-import ScalarIconFan from './components/ScalarIconFan.vue'
-import ScalarIconFarm from './components/ScalarIconFarm.vue'
-import ScalarIconFastForward from './components/ScalarIconFastForward.vue'
-import ScalarIconFastForwardCircle from './components/ScalarIconFastForwardCircle.vue'
-import ScalarIconFeather from './components/ScalarIconFeather.vue'
-import ScalarIconFediverseLogo from './components/ScalarIconFediverseLogo.vue'
-import ScalarIconFigmaLogo from './components/ScalarIconFigmaLogo.vue'
-import ScalarIconFileArchive from './components/ScalarIconFileArchive.vue'
-import ScalarIconFileArrowDown from './components/ScalarIconFileArrowDown.vue'
-import ScalarIconFileArrowUp from './components/ScalarIconFileArrowUp.vue'
-import ScalarIconFileAudio from './components/ScalarIconFileAudio.vue'
-import ScalarIconFile from './components/ScalarIconFile.vue'
-import ScalarIconFileC from './components/ScalarIconFileC.vue'
-import ScalarIconFileCSharp from './components/ScalarIconFileCSharp.vue'
-import ScalarIconFileCloud from './components/ScalarIconFileCloud.vue'
-import ScalarIconFileCode from './components/ScalarIconFileCode.vue'
-import ScalarIconFileCpp from './components/ScalarIconFileCpp.vue'
-import ScalarIconFileCss from './components/ScalarIconFileCss.vue'
-import ScalarIconFileCsv from './components/ScalarIconFileCsv.vue'
-import ScalarIconFileDashed from './components/ScalarIconFileDashed.vue'
-import ScalarIconFileDoc from './components/ScalarIconFileDoc.vue'
-import ScalarIconFileHtml from './components/ScalarIconFileHtml.vue'
-import ScalarIconFileImage from './components/ScalarIconFileImage.vue'
-import ScalarIconFileIni from './components/ScalarIconFileIni.vue'
-import ScalarIconFileJpg from './components/ScalarIconFileJpg.vue'
-import ScalarIconFileJs from './components/ScalarIconFileJs.vue'
-import ScalarIconFileJsx from './components/ScalarIconFileJsx.vue'
-import ScalarIconFileLock from './components/ScalarIconFileLock.vue'
-import ScalarIconFileMagnifyingGlass from './components/ScalarIconFileMagnifyingGlass.vue'
-import ScalarIconFileMd from './components/ScalarIconFileMd.vue'
-import ScalarIconFileMinus from './components/ScalarIconFileMinus.vue'
-import ScalarIconFilePdf from './components/ScalarIconFilePdf.vue'
-import ScalarIconFilePlus from './components/ScalarIconFilePlus.vue'
-import ScalarIconFilePng from './components/ScalarIconFilePng.vue'
-import ScalarIconFilePpt from './components/ScalarIconFilePpt.vue'
-import ScalarIconFilePy from './components/ScalarIconFilePy.vue'
-import ScalarIconFileRs from './components/ScalarIconFileRs.vue'
-import ScalarIconFileSql from './components/ScalarIconFileSql.vue'
-import ScalarIconFileSvg from './components/ScalarIconFileSvg.vue'
-import ScalarIconFileText from './components/ScalarIconFileText.vue'
-import ScalarIconFileTs from './components/ScalarIconFileTs.vue'
-import ScalarIconFileTsx from './components/ScalarIconFileTsx.vue'
-import ScalarIconFileTxt from './components/ScalarIconFileTxt.vue'
-import ScalarIconFileVideo from './components/ScalarIconFileVideo.vue'
-import ScalarIconFileVue from './components/ScalarIconFileVue.vue'
-import ScalarIconFileX from './components/ScalarIconFileX.vue'
-import ScalarIconFileXls from './components/ScalarIconFileXls.vue'
-import ScalarIconFileZip from './components/ScalarIconFileZip.vue'
-import ScalarIconFiles from './components/ScalarIconFiles.vue'
-import ScalarIconFilmReel from './components/ScalarIconFilmReel.vue'
-import ScalarIconFilmScript from './components/ScalarIconFilmScript.vue'
-import ScalarIconFilmSlate from './components/ScalarIconFilmSlate.vue'
-import ScalarIconFilmStrip from './components/ScalarIconFilmStrip.vue'
-import ScalarIconFingerprint from './components/ScalarIconFingerprint.vue'
-import ScalarIconFingerprintSimple from './components/ScalarIconFingerprintSimple.vue'
-import ScalarIconFinnTheHuman from './components/ScalarIconFinnTheHuman.vue'
-import ScalarIconFire from './components/ScalarIconFire.vue'
-import ScalarIconFireExtinguisher from './components/ScalarIconFireExtinguisher.vue'
-import ScalarIconFireSimple from './components/ScalarIconFireSimple.vue'
-import ScalarIconFireTruck from './components/ScalarIconFireTruck.vue'
-import ScalarIconFirstAid from './components/ScalarIconFirstAid.vue'
-import ScalarIconFirstAidKit from './components/ScalarIconFirstAidKit.vue'
-import ScalarIconFish from './components/ScalarIconFish.vue'
-import ScalarIconFishSimple from './components/ScalarIconFishSimple.vue'
-import ScalarIconFlagBanner from './components/ScalarIconFlagBanner.vue'
-import ScalarIconFlagBannerFold from './components/ScalarIconFlagBannerFold.vue'
-import ScalarIconFlag from './components/ScalarIconFlag.vue'
-import ScalarIconFlagCheckered from './components/ScalarIconFlagCheckered.vue'
-import ScalarIconFlagPennant from './components/ScalarIconFlagPennant.vue'
-import ScalarIconFlame from './components/ScalarIconFlame.vue'
-import ScalarIconFlashlight from './components/ScalarIconFlashlight.vue'
-import ScalarIconFlask from './components/ScalarIconFlask.vue'
-import ScalarIconFlipHorizontal from './components/ScalarIconFlipHorizontal.vue'
-import ScalarIconFlipVertical from './components/ScalarIconFlipVertical.vue'
-import ScalarIconFloppyDiskBack from './components/ScalarIconFloppyDiskBack.vue'
-import ScalarIconFloppyDisk from './components/ScalarIconFloppyDisk.vue'
-import ScalarIconFlowArrow from './components/ScalarIconFlowArrow.vue'
-import ScalarIconFlower from './components/ScalarIconFlower.vue'
-import ScalarIconFlowerLotus from './components/ScalarIconFlowerLotus.vue'
-import ScalarIconFlowerTulip from './components/ScalarIconFlowerTulip.vue'
-import ScalarIconFlyingSaucer from './components/ScalarIconFlyingSaucer.vue'
-import ScalarIconFolder from './components/ScalarIconFolder.vue'
-import ScalarIconFolderDashed from './components/ScalarIconFolderDashed.vue'
-import ScalarIconFolderLock from './components/ScalarIconFolderLock.vue'
-import ScalarIconFolderMinus from './components/ScalarIconFolderMinus.vue'
-import ScalarIconFolderOpen from './components/ScalarIconFolderOpen.vue'
-import ScalarIconFolderPlus from './components/ScalarIconFolderPlus.vue'
-import ScalarIconFolderSimple from './components/ScalarIconFolderSimple.vue'
-import ScalarIconFolderSimpleDashed from './components/ScalarIconFolderSimpleDashed.vue'
-import ScalarIconFolderSimpleLock from './components/ScalarIconFolderSimpleLock.vue'
-import ScalarIconFolderSimpleMinus from './components/ScalarIconFolderSimpleMinus.vue'
-import ScalarIconFolderSimplePlus from './components/ScalarIconFolderSimplePlus.vue'
-import ScalarIconFolderSimpleStar from './components/ScalarIconFolderSimpleStar.vue'
-import ScalarIconFolderSimpleUser from './components/ScalarIconFolderSimpleUser.vue'
-import ScalarIconFolderStar from './components/ScalarIconFolderStar.vue'
-import ScalarIconFolderUser from './components/ScalarIconFolderUser.vue'
-import ScalarIconFolders from './components/ScalarIconFolders.vue'
-import ScalarIconFootball from './components/ScalarIconFootball.vue'
-import ScalarIconFootballHelmet from './components/ScalarIconFootballHelmet.vue'
-import ScalarIconFootprints from './components/ScalarIconFootprints.vue'
-import ScalarIconForkKnife from './components/ScalarIconForkKnife.vue'
-import ScalarIconFourK from './components/ScalarIconFourK.vue'
-import ScalarIconFrameCorners from './components/ScalarIconFrameCorners.vue'
-import ScalarIconFramerLogo from './components/ScalarIconFramerLogo.vue'
-import ScalarIconFunction from './components/ScalarIconFunction.vue'
-import ScalarIconFunnel from './components/ScalarIconFunnel.vue'
-import ScalarIconFunnelSimple from './components/ScalarIconFunnelSimple.vue'
-import ScalarIconFunnelSimpleX from './components/ScalarIconFunnelSimpleX.vue'
-import ScalarIconFunnelX from './components/ScalarIconFunnelX.vue'
-import ScalarIconGameController from './components/ScalarIconGameController.vue'
-import ScalarIconGarage from './components/ScalarIconGarage.vue'
-import ScalarIconGasCan from './components/ScalarIconGasCan.vue'
-import ScalarIconGasPump from './components/ScalarIconGasPump.vue'
-import ScalarIconGauge from './components/ScalarIconGauge.vue'
-import ScalarIconGavel from './components/ScalarIconGavel.vue'
-import ScalarIconGear from './components/ScalarIconGear.vue'
-import ScalarIconGearFine from './components/ScalarIconGearFine.vue'
-import ScalarIconGearSix from './components/ScalarIconGearSix.vue'
-import ScalarIconGenderFemale from './components/ScalarIconGenderFemale.vue'
-import ScalarIconGenderIntersex from './components/ScalarIconGenderIntersex.vue'
-import ScalarIconGenderMale from './components/ScalarIconGenderMale.vue'
-import ScalarIconGenderNeuter from './components/ScalarIconGenderNeuter.vue'
-import ScalarIconGenderNonbinary from './components/ScalarIconGenderNonbinary.vue'
-import ScalarIconGenderTransgender from './components/ScalarIconGenderTransgender.vue'
-import ScalarIconGhost from './components/ScalarIconGhost.vue'
-import ScalarIconGif from './components/ScalarIconGif.vue'
-import ScalarIconGift from './components/ScalarIconGift.vue'
-import ScalarIconGitBranch from './components/ScalarIconGitBranch.vue'
-import ScalarIconGitCommit from './components/ScalarIconGitCommit.vue'
-import ScalarIconGitDiff from './components/ScalarIconGitDiff.vue'
-import ScalarIconGitFork from './components/ScalarIconGitFork.vue'
-import ScalarIconGitMerge from './components/ScalarIconGitMerge.vue'
-import ScalarIconGitPullRequest from './components/ScalarIconGitPullRequest.vue'
-import ScalarIconGithubLogo from './components/ScalarIconGithubLogo.vue'
-import ScalarIconGitlabLogo from './components/ScalarIconGitlabLogo.vue'
-import ScalarIconGitlabLogoSimple from './components/ScalarIconGitlabLogoSimple.vue'
-import ScalarIconGlobe from './components/ScalarIconGlobe.vue'
-import ScalarIconGlobeHemisphereEast from './components/ScalarIconGlobeHemisphereEast.vue'
-import ScalarIconGlobeHemisphereWest from './components/ScalarIconGlobeHemisphereWest.vue'
-import ScalarIconGlobeSimple from './components/ScalarIconGlobeSimple.vue'
-import ScalarIconGlobeSimpleX from './components/ScalarIconGlobeSimpleX.vue'
-import ScalarIconGlobeStand from './components/ScalarIconGlobeStand.vue'
-import ScalarIconGlobeX from './components/ScalarIconGlobeX.vue'
-import ScalarIconGoggles from './components/ScalarIconGoggles.vue'
-import ScalarIconGolf from './components/ScalarIconGolf.vue'
-import ScalarIconGoodreadsLogo from './components/ScalarIconGoodreadsLogo.vue'
-import ScalarIconGoogleCardboardLogo from './components/ScalarIconGoogleCardboardLogo.vue'
-import ScalarIconGoogleChromeLogo from './components/ScalarIconGoogleChromeLogo.vue'
-import ScalarIconGoogleDriveLogo from './components/ScalarIconGoogleDriveLogo.vue'
-import ScalarIconGoogleLogo from './components/ScalarIconGoogleLogo.vue'
-import ScalarIconGooglePhotosLogo from './components/ScalarIconGooglePhotosLogo.vue'
-import ScalarIconGooglePlayLogo from './components/ScalarIconGooglePlayLogo.vue'
-import ScalarIconGooglePodcastsLogo from './components/ScalarIconGooglePodcastsLogo.vue'
-import ScalarIconGps from './components/ScalarIconGps.vue'
-import ScalarIconGpsFix from './components/ScalarIconGpsFix.vue'
-import ScalarIconGpsSlash from './components/ScalarIconGpsSlash.vue'
-import ScalarIconGradient from './components/ScalarIconGradient.vue'
-import ScalarIconGraduationCap from './components/ScalarIconGraduationCap.vue'
-import ScalarIconGrains from './components/ScalarIconGrains.vue'
-import ScalarIconGrainsSlash from './components/ScalarIconGrainsSlash.vue'
-import ScalarIconGraph from './components/ScalarIconGraph.vue'
-import ScalarIconGraphicsCard from './components/ScalarIconGraphicsCard.vue'
-import ScalarIconGreaterThan from './components/ScalarIconGreaterThan.vue'
-import ScalarIconGreaterThanOrEqual from './components/ScalarIconGreaterThanOrEqual.vue'
-import ScalarIconGridFour from './components/ScalarIconGridFour.vue'
-import ScalarIconGridNine from './components/ScalarIconGridNine.vue'
-import ScalarIconGuitar from './components/ScalarIconGuitar.vue'
-import ScalarIconHairDryer from './components/ScalarIconHairDryer.vue'
-import ScalarIconHamburger from './components/ScalarIconHamburger.vue'
-import ScalarIconHammer from './components/ScalarIconHammer.vue'
-import ScalarIconHandArrowDown from './components/ScalarIconHandArrowDown.vue'
-import ScalarIconHandArrowUp from './components/ScalarIconHandArrowUp.vue'
-import ScalarIconHand from './components/ScalarIconHand.vue'
-import ScalarIconHandCoins from './components/ScalarIconHandCoins.vue'
-import ScalarIconHandDeposit from './components/ScalarIconHandDeposit.vue'
-import ScalarIconHandEye from './components/ScalarIconHandEye.vue'
-import ScalarIconHandFist from './components/ScalarIconHandFist.vue'
-import ScalarIconHandGrabbing from './components/ScalarIconHandGrabbing.vue'
-import ScalarIconHandHeart from './components/ScalarIconHandHeart.vue'
-import ScalarIconHandPalm from './components/ScalarIconHandPalm.vue'
-import ScalarIconHandPeace from './components/ScalarIconHandPeace.vue'
-import ScalarIconHandPointing from './components/ScalarIconHandPointing.vue'
-import ScalarIconHandSoap from './components/ScalarIconHandSoap.vue'
-import ScalarIconHandSwipeLeft from './components/ScalarIconHandSwipeLeft.vue'
-import ScalarIconHandSwipeRight from './components/ScalarIconHandSwipeRight.vue'
-import ScalarIconHandTap from './components/ScalarIconHandTap.vue'
-import ScalarIconHandWaving from './components/ScalarIconHandWaving.vue'
-import ScalarIconHandWithdraw from './components/ScalarIconHandWithdraw.vue'
-import ScalarIconHandbag from './components/ScalarIconHandbag.vue'
-import ScalarIconHandbagSimple from './components/ScalarIconHandbagSimple.vue'
-import ScalarIconHandsClapping from './components/ScalarIconHandsClapping.vue'
-import ScalarIconHandsPraying from './components/ScalarIconHandsPraying.vue'
-import ScalarIconHandshake from './components/ScalarIconHandshake.vue'
-import ScalarIconHardDrive from './components/ScalarIconHardDrive.vue'
-import ScalarIconHardDrives from './components/ScalarIconHardDrives.vue'
-import ScalarIconHardHat from './components/ScalarIconHardHat.vue'
-import ScalarIconHash from './components/ScalarIconHash.vue'
-import ScalarIconHashStraight from './components/ScalarIconHashStraight.vue'
-import ScalarIconHeadCircuit from './components/ScalarIconHeadCircuit.vue'
-import ScalarIconHeadlights from './components/ScalarIconHeadlights.vue'
-import ScalarIconHeadphones from './components/ScalarIconHeadphones.vue'
-import ScalarIconHeadset from './components/ScalarIconHeadset.vue'
-import ScalarIconHeart from './components/ScalarIconHeart.vue'
-import ScalarIconHeartBreak from './components/ScalarIconHeartBreak.vue'
-import ScalarIconHeartHalf from './components/ScalarIconHeartHalf.vue'
-import ScalarIconHeartStraight from './components/ScalarIconHeartStraight.vue'
-import ScalarIconHeartStraightBreak from './components/ScalarIconHeartStraightBreak.vue'
-import ScalarIconHeartbeat from './components/ScalarIconHeartbeat.vue'
-import ScalarIconHexagon from './components/ScalarIconHexagon.vue'
-import ScalarIconHighDefinition from './components/ScalarIconHighDefinition.vue'
-import ScalarIconHighHeel from './components/ScalarIconHighHeel.vue'
-import ScalarIconHighlighter from './components/ScalarIconHighlighter.vue'
-import ScalarIconHighlighterCircle from './components/ScalarIconHighlighterCircle.vue'
-import ScalarIconHockey from './components/ScalarIconHockey.vue'
-import ScalarIconHoodie from './components/ScalarIconHoodie.vue'
-import ScalarIconHorse from './components/ScalarIconHorse.vue'
-import ScalarIconHospital from './components/ScalarIconHospital.vue'
-import ScalarIconHourglass from './components/ScalarIconHourglass.vue'
-import ScalarIconHourglassHigh from './components/ScalarIconHourglassHigh.vue'
-import ScalarIconHourglassLow from './components/ScalarIconHourglassLow.vue'
-import ScalarIconHourglassMedium from './components/ScalarIconHourglassMedium.vue'
-import ScalarIconHourglassSimple from './components/ScalarIconHourglassSimple.vue'
-import ScalarIconHourglassSimpleHigh from './components/ScalarIconHourglassSimpleHigh.vue'
-import ScalarIconHourglassSimpleLow from './components/ScalarIconHourglassSimpleLow.vue'
-import ScalarIconHourglassSimpleMedium from './components/ScalarIconHourglassSimpleMedium.vue'
-import ScalarIconHouse from './components/ScalarIconHouse.vue'
-import ScalarIconHouseLine from './components/ScalarIconHouseLine.vue'
-import ScalarIconHouseSimple from './components/ScalarIconHouseSimple.vue'
-import ScalarIconHurricane from './components/ScalarIconHurricane.vue'
-import ScalarIconIceCream from './components/ScalarIconIceCream.vue'
-import ScalarIconIdentificationBadge from './components/ScalarIconIdentificationBadge.vue'
-import ScalarIconIdentificationCard from './components/ScalarIconIdentificationCard.vue'
-import ScalarIconImage from './components/ScalarIconImage.vue'
-import ScalarIconImageBroken from './components/ScalarIconImageBroken.vue'
-import ScalarIconImageSquare from './components/ScalarIconImageSquare.vue'
-import ScalarIconImages from './components/ScalarIconImages.vue'
-import ScalarIconImagesSquare from './components/ScalarIconImagesSquare.vue'
-import ScalarIconInfinity from './components/ScalarIconInfinity.vue'
-import ScalarIconInfo from './components/ScalarIconInfo.vue'
-import ScalarIconInstagramLogo from './components/ScalarIconInstagramLogo.vue'
-import ScalarIconIntersect from './components/ScalarIconIntersect.vue'
-import ScalarIconIntersectSquare from './components/ScalarIconIntersectSquare.vue'
-import ScalarIconIntersectThree from './components/ScalarIconIntersectThree.vue'
-import ScalarIconIntersection from './components/ScalarIconIntersection.vue'
-import ScalarIconInvoice from './components/ScalarIconInvoice.vue'
-import ScalarIconIsland from './components/ScalarIconIsland.vue'
-import ScalarIconJar from './components/ScalarIconJar.vue'
-import ScalarIconJarLabel from './components/ScalarIconJarLabel.vue'
-import ScalarIconJeep from './components/ScalarIconJeep.vue'
-import ScalarIconJoystick from './components/ScalarIconJoystick.vue'
-import ScalarIconKanban from './components/ScalarIconKanban.vue'
-import ScalarIconKey from './components/ScalarIconKey.vue'
-import ScalarIconKeyReturn from './components/ScalarIconKeyReturn.vue'
-import ScalarIconKeyboard from './components/ScalarIconKeyboard.vue'
-import ScalarIconKeyhole from './components/ScalarIconKeyhole.vue'
-import ScalarIconKnife from './components/ScalarIconKnife.vue'
-import ScalarIconLadder from './components/ScalarIconLadder.vue'
-import ScalarIconLadderSimple from './components/ScalarIconLadderSimple.vue'
-import ScalarIconLamp from './components/ScalarIconLamp.vue'
-import ScalarIconLampPendant from './components/ScalarIconLampPendant.vue'
-import ScalarIconLaptop from './components/ScalarIconLaptop.vue'
-import ScalarIconLasso from './components/ScalarIconLasso.vue'
-import ScalarIconLastfmLogo from './components/ScalarIconLastfmLogo.vue'
-import ScalarIconLayout from './components/ScalarIconLayout.vue'
-import ScalarIconLeaf from './components/ScalarIconLeaf.vue'
-import ScalarIconLectern from './components/ScalarIconLectern.vue'
-import ScalarIconLego from './components/ScalarIconLego.vue'
-import ScalarIconLegoSmiley from './components/ScalarIconLegoSmiley.vue'
-import ScalarIconLessThan from './components/ScalarIconLessThan.vue'
-import ScalarIconLessThanOrEqual from './components/ScalarIconLessThanOrEqual.vue'
-import ScalarIconLetterCircleH from './components/ScalarIconLetterCircleH.vue'
-import ScalarIconLetterCircleP from './components/ScalarIconLetterCircleP.vue'
-import ScalarIconLetterCircleV from './components/ScalarIconLetterCircleV.vue'
-import ScalarIconLifebuoy from './components/ScalarIconLifebuoy.vue'
-import ScalarIconLightbulb from './components/ScalarIconLightbulb.vue'
-import ScalarIconLightbulbFilament from './components/ScalarIconLightbulbFilament.vue'
-import ScalarIconLighthouse from './components/ScalarIconLighthouse.vue'
-import ScalarIconLightningA from './components/ScalarIconLightningA.vue'
-import ScalarIconLightning from './components/ScalarIconLightning.vue'
-import ScalarIconLightningSlash from './components/ScalarIconLightningSlash.vue'
-import ScalarIconLineSegment from './components/ScalarIconLineSegment.vue'
-import ScalarIconLineSegments from './components/ScalarIconLineSegments.vue'
-import ScalarIconLineVertical from './components/ScalarIconLineVertical.vue'
-import ScalarIconLink from './components/ScalarIconLink.vue'
-import ScalarIconLinkBreak from './components/ScalarIconLinkBreak.vue'
-import ScalarIconLinkSimple from './components/ScalarIconLinkSimple.vue'
-import ScalarIconLinkSimpleBreak from './components/ScalarIconLinkSimpleBreak.vue'
-import ScalarIconLinkSimpleHorizontal from './components/ScalarIconLinkSimpleHorizontal.vue'
-import ScalarIconLinkSimpleHorizontalBreak from './components/ScalarIconLinkSimpleHorizontalBreak.vue'
-import ScalarIconLinkedinLogo from './components/ScalarIconLinkedinLogo.vue'
-import ScalarIconLinktreeLogo from './components/ScalarIconLinktreeLogo.vue'
-import ScalarIconLinuxLogo from './components/ScalarIconLinuxLogo.vue'
-import ScalarIconList from './components/ScalarIconList.vue'
-import ScalarIconListBullets from './components/ScalarIconListBullets.vue'
-import ScalarIconListChecks from './components/ScalarIconListChecks.vue'
-import ScalarIconListDashes from './components/ScalarIconListDashes.vue'
-import ScalarIconListHeart from './components/ScalarIconListHeart.vue'
-import ScalarIconListMagnifyingGlass from './components/ScalarIconListMagnifyingGlass.vue'
-import ScalarIconListNumbers from './components/ScalarIconListNumbers.vue'
-import ScalarIconListPlus from './components/ScalarIconListPlus.vue'
-import ScalarIconListStar from './components/ScalarIconListStar.vue'
-import ScalarIconLock from './components/ScalarIconLock.vue'
-import ScalarIconLockKey from './components/ScalarIconLockKey.vue'
-import ScalarIconLockKeyOpen from './components/ScalarIconLockKeyOpen.vue'
-import ScalarIconLockLaminated from './components/ScalarIconLockLaminated.vue'
-import ScalarIconLockLaminatedOpen from './components/ScalarIconLockLaminatedOpen.vue'
-import ScalarIconLockOpen from './components/ScalarIconLockOpen.vue'
-import ScalarIconLockSimple from './components/ScalarIconLockSimple.vue'
-import ScalarIconLockSimpleOpen from './components/ScalarIconLockSimpleOpen.vue'
-import ScalarIconLockers from './components/ScalarIconLockers.vue'
-import ScalarIconLog from './components/ScalarIconLog.vue'
-import ScalarIconMagicWand from './components/ScalarIconMagicWand.vue'
-import ScalarIconMagnet from './components/ScalarIconMagnet.vue'
-import ScalarIconMagnetStraight from './components/ScalarIconMagnetStraight.vue'
-import ScalarIconMagnifyingGlass from './components/ScalarIconMagnifyingGlass.vue'
-import ScalarIconMagnifyingGlassMinus from './components/ScalarIconMagnifyingGlassMinus.vue'
-import ScalarIconMagnifyingGlassPlus from './components/ScalarIconMagnifyingGlassPlus.vue'
-import ScalarIconMailbox from './components/ScalarIconMailbox.vue'
-import ScalarIconMapPinArea from './components/ScalarIconMapPinArea.vue'
-import ScalarIconMapPin from './components/ScalarIconMapPin.vue'
-import ScalarIconMapPinLine from './components/ScalarIconMapPinLine.vue'
-import ScalarIconMapPinPlus from './components/ScalarIconMapPinPlus.vue'
-import ScalarIconMapPinSimpleArea from './components/ScalarIconMapPinSimpleArea.vue'
-import ScalarIconMapPinSimple from './components/ScalarIconMapPinSimple.vue'
-import ScalarIconMapPinSimpleLine from './components/ScalarIconMapPinSimpleLine.vue'
-import ScalarIconMapTrifold from './components/ScalarIconMapTrifold.vue'
-import ScalarIconMarkdownLogo from './components/ScalarIconMarkdownLogo.vue'
-import ScalarIconMarkerCircle from './components/ScalarIconMarkerCircle.vue'
-import ScalarIconMartini from './components/ScalarIconMartini.vue'
-import ScalarIconMaskHappy from './components/ScalarIconMaskHappy.vue'
-import ScalarIconMaskSad from './components/ScalarIconMaskSad.vue'
-import ScalarIconMastodonLogo from './components/ScalarIconMastodonLogo.vue'
-import ScalarIconMathOperations from './components/ScalarIconMathOperations.vue'
-import ScalarIconMatrixLogo from './components/ScalarIconMatrixLogo.vue'
-import ScalarIconMedal from './components/ScalarIconMedal.vue'
-import ScalarIconMedalMilitary from './components/ScalarIconMedalMilitary.vue'
-import ScalarIconMediumLogo from './components/ScalarIconMediumLogo.vue'
-import ScalarIconMegaphone from './components/ScalarIconMegaphone.vue'
-import ScalarIconMegaphoneSimple from './components/ScalarIconMegaphoneSimple.vue'
-import ScalarIconMemberOf from './components/ScalarIconMemberOf.vue'
-import ScalarIconMemory from './components/ScalarIconMemory.vue'
-import ScalarIconMessengerLogo from './components/ScalarIconMessengerLogo.vue'
-import ScalarIconMetaLogo from './components/ScalarIconMetaLogo.vue'
-import ScalarIconMeteor from './components/ScalarIconMeteor.vue'
-import ScalarIconMetronome from './components/ScalarIconMetronome.vue'
-import ScalarIconMicrophone from './components/ScalarIconMicrophone.vue'
-import ScalarIconMicrophoneSlash from './components/ScalarIconMicrophoneSlash.vue'
-import ScalarIconMicrophoneStage from './components/ScalarIconMicrophoneStage.vue'
-import ScalarIconMicroscope from './components/ScalarIconMicroscope.vue'
-import ScalarIconMicrosoftExcelLogo from './components/ScalarIconMicrosoftExcelLogo.vue'
-import ScalarIconMicrosoftOutlookLogo from './components/ScalarIconMicrosoftOutlookLogo.vue'
-import ScalarIconMicrosoftPowerpointLogo from './components/ScalarIconMicrosoftPowerpointLogo.vue'
-import ScalarIconMicrosoftTeamsLogo from './components/ScalarIconMicrosoftTeamsLogo.vue'
-import ScalarIconMicrosoftWordLogo from './components/ScalarIconMicrosoftWordLogo.vue'
-import ScalarIconMinus from './components/ScalarIconMinus.vue'
-import ScalarIconMinusCircle from './components/ScalarIconMinusCircle.vue'
-import ScalarIconMinusSquare from './components/ScalarIconMinusSquare.vue'
-import ScalarIconMoney from './components/ScalarIconMoney.vue'
-import ScalarIconMoneyWavy from './components/ScalarIconMoneyWavy.vue'
-import ScalarIconMonitorArrowUp from './components/ScalarIconMonitorArrowUp.vue'
-import ScalarIconMonitor from './components/ScalarIconMonitor.vue'
-import ScalarIconMonitorPlay from './components/ScalarIconMonitorPlay.vue'
-import ScalarIconMoon from './components/ScalarIconMoon.vue'
-import ScalarIconMoonStars from './components/ScalarIconMoonStars.vue'
-import ScalarIconMoped from './components/ScalarIconMoped.vue'
-import ScalarIconMopedFront from './components/ScalarIconMopedFront.vue'
-import ScalarIconMosque from './components/ScalarIconMosque.vue'
-import ScalarIconMotorcycle from './components/ScalarIconMotorcycle.vue'
-import ScalarIconMountains from './components/ScalarIconMountains.vue'
-import ScalarIconMouse from './components/ScalarIconMouse.vue'
-import ScalarIconMouseLeftClick from './components/ScalarIconMouseLeftClick.vue'
-import ScalarIconMouseMiddleClick from './components/ScalarIconMouseMiddleClick.vue'
-import ScalarIconMouseRightClick from './components/ScalarIconMouseRightClick.vue'
-import ScalarIconMouseScroll from './components/ScalarIconMouseScroll.vue'
-import ScalarIconMouseSimple from './components/ScalarIconMouseSimple.vue'
-import ScalarIconMusicNote from './components/ScalarIconMusicNote.vue'
-import ScalarIconMusicNoteSimple from './components/ScalarIconMusicNoteSimple.vue'
-import ScalarIconMusicNotes from './components/ScalarIconMusicNotes.vue'
-import ScalarIconMusicNotesMinus from './components/ScalarIconMusicNotesMinus.vue'
-import ScalarIconMusicNotesPlus from './components/ScalarIconMusicNotesPlus.vue'
-import ScalarIconMusicNotesSimple from './components/ScalarIconMusicNotesSimple.vue'
-import ScalarIconNavigationArrow from './components/ScalarIconNavigationArrow.vue'
-import ScalarIconNeedle from './components/ScalarIconNeedle.vue'
-import ScalarIconNetwork from './components/ScalarIconNetwork.vue'
-import ScalarIconNetworkSlash from './components/ScalarIconNetworkSlash.vue'
-import ScalarIconNetworkX from './components/ScalarIconNetworkX.vue'
-import ScalarIconNewspaper from './components/ScalarIconNewspaper.vue'
-import ScalarIconNewspaperClipping from './components/ScalarIconNewspaperClipping.vue'
-import ScalarIconNotEquals from './components/ScalarIconNotEquals.vue'
-import ScalarIconNotMemberOf from './components/ScalarIconNotMemberOf.vue'
-import ScalarIconNotSubsetOf from './components/ScalarIconNotSubsetOf.vue'
-import ScalarIconNotSupersetOf from './components/ScalarIconNotSupersetOf.vue'
-import ScalarIconNotches from './components/ScalarIconNotches.vue'
-import ScalarIconNoteBlank from './components/ScalarIconNoteBlank.vue'
-import ScalarIconNote from './components/ScalarIconNote.vue'
-import ScalarIconNotePencil from './components/ScalarIconNotePencil.vue'
-import ScalarIconNotebook from './components/ScalarIconNotebook.vue'
-import ScalarIconNotepad from './components/ScalarIconNotepad.vue'
-import ScalarIconNotification from './components/ScalarIconNotification.vue'
-import ScalarIconNotionLogo from './components/ScalarIconNotionLogo.vue'
-import ScalarIconNuclearPlant from './components/ScalarIconNuclearPlant.vue'
-import ScalarIconNumberCircleEight from './components/ScalarIconNumberCircleEight.vue'
-import ScalarIconNumberCircleFive from './components/ScalarIconNumberCircleFive.vue'
-import ScalarIconNumberCircleFour from './components/ScalarIconNumberCircleFour.vue'
-import ScalarIconNumberCircleNine from './components/ScalarIconNumberCircleNine.vue'
-import ScalarIconNumberCircleOne from './components/ScalarIconNumberCircleOne.vue'
-import ScalarIconNumberCircleSeven from './components/ScalarIconNumberCircleSeven.vue'
-import ScalarIconNumberCircleSix from './components/ScalarIconNumberCircleSix.vue'
-import ScalarIconNumberCircleThree from './components/ScalarIconNumberCircleThree.vue'
-import ScalarIconNumberCircleTwo from './components/ScalarIconNumberCircleTwo.vue'
-import ScalarIconNumberCircleZero from './components/ScalarIconNumberCircleZero.vue'
-import ScalarIconNumberEight from './components/ScalarIconNumberEight.vue'
-import ScalarIconNumberFive from './components/ScalarIconNumberFive.vue'
-import ScalarIconNumberFour from './components/ScalarIconNumberFour.vue'
-import ScalarIconNumberNine from './components/ScalarIconNumberNine.vue'
-import ScalarIconNumberOne from './components/ScalarIconNumberOne.vue'
-import ScalarIconNumberSeven from './components/ScalarIconNumberSeven.vue'
-import ScalarIconNumberSix from './components/ScalarIconNumberSix.vue'
-import ScalarIconNumberSquareEight from './components/ScalarIconNumberSquareEight.vue'
-import ScalarIconNumberSquareFive from './components/ScalarIconNumberSquareFive.vue'
-import ScalarIconNumberSquareFour from './components/ScalarIconNumberSquareFour.vue'
-import ScalarIconNumberSquareNine from './components/ScalarIconNumberSquareNine.vue'
-import ScalarIconNumberSquareOne from './components/ScalarIconNumberSquareOne.vue'
-import ScalarIconNumberSquareSeven from './components/ScalarIconNumberSquareSeven.vue'
-import ScalarIconNumberSquareSix from './components/ScalarIconNumberSquareSix.vue'
-import ScalarIconNumberSquareThree from './components/ScalarIconNumberSquareThree.vue'
-import ScalarIconNumberSquareTwo from './components/ScalarIconNumberSquareTwo.vue'
-import ScalarIconNumberSquareZero from './components/ScalarIconNumberSquareZero.vue'
-import ScalarIconNumberThree from './components/ScalarIconNumberThree.vue'
-import ScalarIconNumberTwo from './components/ScalarIconNumberTwo.vue'
-import ScalarIconNumberZero from './components/ScalarIconNumberZero.vue'
-import ScalarIconNumpad from './components/ScalarIconNumpad.vue'
-import ScalarIconNut from './components/ScalarIconNut.vue'
-import ScalarIconNyTimesLogo from './components/ScalarIconNyTimesLogo.vue'
-import ScalarIconOctagon from './components/ScalarIconOctagon.vue'
-import ScalarIconOfficeChair from './components/ScalarIconOfficeChair.vue'
-import ScalarIconOnigiri from './components/ScalarIconOnigiri.vue'
-import ScalarIconOpenAiLogo from './components/ScalarIconOpenAiLogo.vue'
-import ScalarIconOption from './components/ScalarIconOption.vue'
-import ScalarIconOrange from './components/ScalarIconOrange.vue'
-import ScalarIconOrangeSlice from './components/ScalarIconOrangeSlice.vue'
-import ScalarIconOven from './components/ScalarIconOven.vue'
-import ScalarIconPackage from './components/ScalarIconPackage.vue'
-import ScalarIconPaintBrush from './components/ScalarIconPaintBrush.vue'
-import ScalarIconPaintBrushBroad from './components/ScalarIconPaintBrushBroad.vue'
-import ScalarIconPaintBrushHousehold from './components/ScalarIconPaintBrushHousehold.vue'
-import ScalarIconPaintBucket from './components/ScalarIconPaintBucket.vue'
-import ScalarIconPaintRoller from './components/ScalarIconPaintRoller.vue'
-import ScalarIconPalette from './components/ScalarIconPalette.vue'
-import ScalarIconPanorama from './components/ScalarIconPanorama.vue'
-import ScalarIconPants from './components/ScalarIconPants.vue'
-import ScalarIconPaperPlane from './components/ScalarIconPaperPlane.vue'
-import ScalarIconPaperPlaneRight from './components/ScalarIconPaperPlaneRight.vue'
-import ScalarIconPaperPlaneTilt from './components/ScalarIconPaperPlaneTilt.vue'
-import ScalarIconPaperclip from './components/ScalarIconPaperclip.vue'
-import ScalarIconPaperclipHorizontal from './components/ScalarIconPaperclipHorizontal.vue'
-import ScalarIconParachute from './components/ScalarIconParachute.vue'
-import ScalarIconParagraph from './components/ScalarIconParagraph.vue'
-import ScalarIconParallelogram from './components/ScalarIconParallelogram.vue'
-import ScalarIconPark from './components/ScalarIconPark.vue'
-import ScalarIconPassword from './components/ScalarIconPassword.vue'
-import ScalarIconPath from './components/ScalarIconPath.vue'
-import ScalarIconPatreonLogo from './components/ScalarIconPatreonLogo.vue'
-import ScalarIconPause from './components/ScalarIconPause.vue'
-import ScalarIconPauseCircle from './components/ScalarIconPauseCircle.vue'
-import ScalarIconPawPrint from './components/ScalarIconPawPrint.vue'
-import ScalarIconPaypalLogo from './components/ScalarIconPaypalLogo.vue'
-import ScalarIconPeace from './components/ScalarIconPeace.vue'
-import ScalarIconPen from './components/ScalarIconPen.vue'
-import ScalarIconPenNib from './components/ScalarIconPenNib.vue'
-import ScalarIconPenNibStraight from './components/ScalarIconPenNibStraight.vue'
-import ScalarIconPencil from './components/ScalarIconPencil.vue'
-import ScalarIconPencilCircle from './components/ScalarIconPencilCircle.vue'
-import ScalarIconPencilLine from './components/ScalarIconPencilLine.vue'
-import ScalarIconPencilRuler from './components/ScalarIconPencilRuler.vue'
-import ScalarIconPencilSimple from './components/ScalarIconPencilSimple.vue'
-import ScalarIconPencilSimpleLine from './components/ScalarIconPencilSimpleLine.vue'
-import ScalarIconPencilSimpleSlash from './components/ScalarIconPencilSimpleSlash.vue'
-import ScalarIconPencilSlash from './components/ScalarIconPencilSlash.vue'
-import ScalarIconPentagon from './components/ScalarIconPentagon.vue'
-import ScalarIconPentagram from './components/ScalarIconPentagram.vue'
-import ScalarIconPepper from './components/ScalarIconPepper.vue'
-import ScalarIconPercent from './components/ScalarIconPercent.vue'
-import ScalarIconPersonArmsSpread from './components/ScalarIconPersonArmsSpread.vue'
-import ScalarIconPerson from './components/ScalarIconPerson.vue'
-import ScalarIconPersonSimpleBike from './components/ScalarIconPersonSimpleBike.vue'
-import ScalarIconPersonSimple from './components/ScalarIconPersonSimple.vue'
-import ScalarIconPersonSimpleCircle from './components/ScalarIconPersonSimpleCircle.vue'
-import ScalarIconPersonSimpleHike from './components/ScalarIconPersonSimpleHike.vue'
-import ScalarIconPersonSimpleRun from './components/ScalarIconPersonSimpleRun.vue'
-import ScalarIconPersonSimpleSki from './components/ScalarIconPersonSimpleSki.vue'
-import ScalarIconPersonSimpleSnowboard from './components/ScalarIconPersonSimpleSnowboard.vue'
-import ScalarIconPersonSimpleSwim from './components/ScalarIconPersonSimpleSwim.vue'
-import ScalarIconPersonSimpleTaiChi from './components/ScalarIconPersonSimpleTaiChi.vue'
-import ScalarIconPersonSimpleThrow from './components/ScalarIconPersonSimpleThrow.vue'
-import ScalarIconPersonSimpleWalk from './components/ScalarIconPersonSimpleWalk.vue'
-import ScalarIconPerspective from './components/ScalarIconPerspective.vue'
-import ScalarIconPhone from './components/ScalarIconPhone.vue'
-import ScalarIconPhoneCall from './components/ScalarIconPhoneCall.vue'
-import ScalarIconPhoneDisconnect from './components/ScalarIconPhoneDisconnect.vue'
-import ScalarIconPhoneIncoming from './components/ScalarIconPhoneIncoming.vue'
-import ScalarIconPhoneList from './components/ScalarIconPhoneList.vue'
-import ScalarIconPhoneOutgoing from './components/ScalarIconPhoneOutgoing.vue'
-import ScalarIconPhonePause from './components/ScalarIconPhonePause.vue'
-import ScalarIconPhonePlus from './components/ScalarIconPhonePlus.vue'
-import ScalarIconPhoneSlash from './components/ScalarIconPhoneSlash.vue'
-import ScalarIconPhoneTransfer from './components/ScalarIconPhoneTransfer.vue'
-import ScalarIconPhoneX from './components/ScalarIconPhoneX.vue'
-import ScalarIconPhosphorLogo from './components/ScalarIconPhosphorLogo.vue'
-import ScalarIconPi from './components/ScalarIconPi.vue'
-import ScalarIconPianoKeys from './components/ScalarIconPianoKeys.vue'
-import ScalarIconPicnicTable from './components/ScalarIconPicnicTable.vue'
-import ScalarIconPictureInPicture from './components/ScalarIconPictureInPicture.vue'
-import ScalarIconPiggyBank from './components/ScalarIconPiggyBank.vue'
-import ScalarIconPill from './components/ScalarIconPill.vue'
-import ScalarIconPingPong from './components/ScalarIconPingPong.vue'
-import ScalarIconPintGlass from './components/ScalarIconPintGlass.vue'
-import ScalarIconPinterestLogo from './components/ScalarIconPinterestLogo.vue'
-import ScalarIconPinwheel from './components/ScalarIconPinwheel.vue'
-import ScalarIconPipe from './components/ScalarIconPipe.vue'
-import ScalarIconPipeWrench from './components/ScalarIconPipeWrench.vue'
-import ScalarIconPixLogo from './components/ScalarIconPixLogo.vue'
-import ScalarIconPizza from './components/ScalarIconPizza.vue'
-import ScalarIconPlaceholder from './components/ScalarIconPlaceholder.vue'
-import ScalarIconPlanet from './components/ScalarIconPlanet.vue'
-import ScalarIconPlant from './components/ScalarIconPlant.vue'
-import ScalarIconPlay from './components/ScalarIconPlay.vue'
-import ScalarIconPlayCircle from './components/ScalarIconPlayCircle.vue'
-import ScalarIconPlayPause from './components/ScalarIconPlayPause.vue'
-import ScalarIconPlaylist from './components/ScalarIconPlaylist.vue'
-import ScalarIconPlug from './components/ScalarIconPlug.vue'
-import ScalarIconPlugCharging from './components/ScalarIconPlugCharging.vue'
-import ScalarIconPlugs from './components/ScalarIconPlugs.vue'
-import ScalarIconPlugsConnected from './components/ScalarIconPlugsConnected.vue'
-import ScalarIconPlus from './components/ScalarIconPlus.vue'
-import ScalarIconPlusCircle from './components/ScalarIconPlusCircle.vue'
-import ScalarIconPlusMinus from './components/ScalarIconPlusMinus.vue'
-import ScalarIconPlusSquare from './components/ScalarIconPlusSquare.vue'
-import ScalarIconPokerChip from './components/ScalarIconPokerChip.vue'
-import ScalarIconPoliceCar from './components/ScalarIconPoliceCar.vue'
-import ScalarIconPolygon from './components/ScalarIconPolygon.vue'
-import ScalarIconPopcorn from './components/ScalarIconPopcorn.vue'
-import ScalarIconPopsicle from './components/ScalarIconPopsicle.vue'
-import ScalarIconPottedPlant from './components/ScalarIconPottedPlant.vue'
-import ScalarIconPower from './components/ScalarIconPower.vue'
-import ScalarIconPrescription from './components/ScalarIconPrescription.vue'
-import ScalarIconPresentation from './components/ScalarIconPresentation.vue'
-import ScalarIconPresentationChart from './components/ScalarIconPresentationChart.vue'
-import ScalarIconPrinter from './components/ScalarIconPrinter.vue'
-import ScalarIconProhibit from './components/ScalarIconProhibit.vue'
-import ScalarIconProhibitInset from './components/ScalarIconProhibitInset.vue'
-import ScalarIconProjectorScreen from './components/ScalarIconProjectorScreen.vue'
-import ScalarIconProjectorScreenChart from './components/ScalarIconProjectorScreenChart.vue'
-import ScalarIconPulse from './components/ScalarIconPulse.vue'
-import ScalarIconPushPin from './components/ScalarIconPushPin.vue'
-import ScalarIconPushPinSimple from './components/ScalarIconPushPinSimple.vue'
-import ScalarIconPushPinSimpleSlash from './components/ScalarIconPushPinSimpleSlash.vue'
-import ScalarIconPushPinSlash from './components/ScalarIconPushPinSlash.vue'
-import ScalarIconPuzzlePiece from './components/ScalarIconPuzzlePiece.vue'
-import ScalarIconQrCode from './components/ScalarIconQrCode.vue'
-import ScalarIconQuestion from './components/ScalarIconQuestion.vue'
-import ScalarIconQuestionMark from './components/ScalarIconQuestionMark.vue'
-import ScalarIconQueue from './components/ScalarIconQueue.vue'
-import ScalarIconQuotes from './components/ScalarIconQuotes.vue'
-import ScalarIconRabbit from './components/ScalarIconRabbit.vue'
-import ScalarIconRacquet from './components/ScalarIconRacquet.vue'
-import ScalarIconRadical from './components/ScalarIconRadical.vue'
-import ScalarIconRadio from './components/ScalarIconRadio.vue'
-import ScalarIconRadioButton from './components/ScalarIconRadioButton.vue'
-import ScalarIconRadioactive from './components/ScalarIconRadioactive.vue'
-import ScalarIconRainbow from './components/ScalarIconRainbow.vue'
-import ScalarIconRainbowCloud from './components/ScalarIconRainbowCloud.vue'
-import ScalarIconRanking from './components/ScalarIconRanking.vue'
-import ScalarIconReadCvLogo from './components/ScalarIconReadCvLogo.vue'
-import ScalarIconReceipt from './components/ScalarIconReceipt.vue'
-import ScalarIconReceiptX from './components/ScalarIconReceiptX.vue'
-import ScalarIconRecord from './components/ScalarIconRecord.vue'
-import ScalarIconRectangle from './components/ScalarIconRectangle.vue'
-import ScalarIconRectangleDashed from './components/ScalarIconRectangleDashed.vue'
-import ScalarIconRecycle from './components/ScalarIconRecycle.vue'
-import ScalarIconRedditLogo from './components/ScalarIconRedditLogo.vue'
-import ScalarIconRepeat from './components/ScalarIconRepeat.vue'
-import ScalarIconRepeatOnce from './components/ScalarIconRepeatOnce.vue'
-import ScalarIconReplitLogo from './components/ScalarIconReplitLogo.vue'
-import ScalarIconResize from './components/ScalarIconResize.vue'
-import ScalarIconRewind from './components/ScalarIconRewind.vue'
-import ScalarIconRewindCircle from './components/ScalarIconRewindCircle.vue'
-import ScalarIconRoadHorizon from './components/ScalarIconRoadHorizon.vue'
-import ScalarIconRobot from './components/ScalarIconRobot.vue'
-import ScalarIconRocket from './components/ScalarIconRocket.vue'
-import ScalarIconRocketLaunch from './components/ScalarIconRocketLaunch.vue'
-import ScalarIconRows from './components/ScalarIconRows.vue'
-import ScalarIconRowsPlusBottom from './components/ScalarIconRowsPlusBottom.vue'
-import ScalarIconRowsPlusTop from './components/ScalarIconRowsPlusTop.vue'
-import ScalarIconRss from './components/ScalarIconRss.vue'
-import ScalarIconRssSimple from './components/ScalarIconRssSimple.vue'
-import ScalarIconRug from './components/ScalarIconRug.vue'
-import ScalarIconRuler from './components/ScalarIconRuler.vue'
-import ScalarIconSailboat from './components/ScalarIconSailboat.vue'
-import ScalarIconScales from './components/ScalarIconScales.vue'
-import ScalarIconScan from './components/ScalarIconScan.vue'
-import ScalarIconScanSmiley from './components/ScalarIconScanSmiley.vue'
-import ScalarIconScissors from './components/ScalarIconScissors.vue'
-import ScalarIconScooter from './components/ScalarIconScooter.vue'
-import ScalarIconScreencast from './components/ScalarIconScreencast.vue'
-import ScalarIconScrewdriver from './components/ScalarIconScrewdriver.vue'
-import ScalarIconScribble from './components/ScalarIconScribble.vue'
-import ScalarIconScribbleLoop from './components/ScalarIconScribbleLoop.vue'
-import ScalarIconScroll from './components/ScalarIconScroll.vue'
-import ScalarIconSeal from './components/ScalarIconSeal.vue'
-import ScalarIconSealCheck from './components/ScalarIconSealCheck.vue'
-import ScalarIconSealPercent from './components/ScalarIconSealPercent.vue'
-import ScalarIconSealQuestion from './components/ScalarIconSealQuestion.vue'
-import ScalarIconSealWarning from './components/ScalarIconSealWarning.vue'
-import ScalarIconSeat from './components/ScalarIconSeat.vue'
-import ScalarIconSeatbelt from './components/ScalarIconSeatbelt.vue'
-import ScalarIconSecurityCamera from './components/ScalarIconSecurityCamera.vue'
-import ScalarIconSelectionAll from './components/ScalarIconSelectionAll.vue'
-import ScalarIconSelectionBackground from './components/ScalarIconSelectionBackground.vue'
-import ScalarIconSelection from './components/ScalarIconSelection.vue'
-import ScalarIconSelectionForeground from './components/ScalarIconSelectionForeground.vue'
-import ScalarIconSelectionInverse from './components/ScalarIconSelectionInverse.vue'
-import ScalarIconSelectionPlus from './components/ScalarIconSelectionPlus.vue'
-import ScalarIconSelectionSlash from './components/ScalarIconSelectionSlash.vue'
-import ScalarIconShapes from './components/ScalarIconShapes.vue'
-import ScalarIconShare from './components/ScalarIconShare.vue'
-import ScalarIconShareFat from './components/ScalarIconShareFat.vue'
-import ScalarIconShareNetwork from './components/ScalarIconShareNetwork.vue'
-import ScalarIconShield from './components/ScalarIconShield.vue'
-import ScalarIconShieldCheck from './components/ScalarIconShieldCheck.vue'
-import ScalarIconShieldCheckered from './components/ScalarIconShieldCheckered.vue'
-import ScalarIconShieldChevron from './components/ScalarIconShieldChevron.vue'
-import ScalarIconShieldPlus from './components/ScalarIconShieldPlus.vue'
-import ScalarIconShieldSlash from './components/ScalarIconShieldSlash.vue'
-import ScalarIconShieldStar from './components/ScalarIconShieldStar.vue'
-import ScalarIconShieldWarning from './components/ScalarIconShieldWarning.vue'
-import ScalarIconShippingContainer from './components/ScalarIconShippingContainer.vue'
-import ScalarIconShirtFolded from './components/ScalarIconShirtFolded.vue'
-import ScalarIconShootingStar from './components/ScalarIconShootingStar.vue'
-import ScalarIconShoppingBag from './components/ScalarIconShoppingBag.vue'
-import ScalarIconShoppingBagOpen from './components/ScalarIconShoppingBagOpen.vue'
-import ScalarIconShoppingCart from './components/ScalarIconShoppingCart.vue'
-import ScalarIconShoppingCartSimple from './components/ScalarIconShoppingCartSimple.vue'
-import ScalarIconShovel from './components/ScalarIconShovel.vue'
-import ScalarIconShower from './components/ScalarIconShower.vue'
-import ScalarIconShrimp from './components/ScalarIconShrimp.vue'
-import ScalarIconShuffleAngular from './components/ScalarIconShuffleAngular.vue'
-import ScalarIconShuffle from './components/ScalarIconShuffle.vue'
-import ScalarIconShuffleSimple from './components/ScalarIconShuffleSimple.vue'
-import ScalarIconSidebar from './components/ScalarIconSidebar.vue'
-import ScalarIconSidebarSimple from './components/ScalarIconSidebarSimple.vue'
-import ScalarIconSigma from './components/ScalarIconSigma.vue'
-import ScalarIconSignIn from './components/ScalarIconSignIn.vue'
-import ScalarIconSignOut from './components/ScalarIconSignOut.vue'
-import ScalarIconSignature from './components/ScalarIconSignature.vue'
-import ScalarIconSignpost from './components/ScalarIconSignpost.vue'
-import ScalarIconSimCard from './components/ScalarIconSimCard.vue'
-import ScalarIconSiren from './components/ScalarIconSiren.vue'
-import ScalarIconSketchLogo from './components/ScalarIconSketchLogo.vue'
-import ScalarIconSkipBack from './components/ScalarIconSkipBack.vue'
-import ScalarIconSkipBackCircle from './components/ScalarIconSkipBackCircle.vue'
-import ScalarIconSkipForward from './components/ScalarIconSkipForward.vue'
-import ScalarIconSkipForwardCircle from './components/ScalarIconSkipForwardCircle.vue'
-import ScalarIconSkull from './components/ScalarIconSkull.vue'
-import ScalarIconSkypeLogo from './components/ScalarIconSkypeLogo.vue'
-import ScalarIconSlackLogo from './components/ScalarIconSlackLogo.vue'
-import ScalarIconSliders from './components/ScalarIconSliders.vue'
-import ScalarIconSlidersHorizontal from './components/ScalarIconSlidersHorizontal.vue'
-import ScalarIconSlideshow from './components/ScalarIconSlideshow.vue'
-import ScalarIconSmileyAngry from './components/ScalarIconSmileyAngry.vue'
-import ScalarIconSmileyBlank from './components/ScalarIconSmileyBlank.vue'
-import ScalarIconSmiley from './components/ScalarIconSmiley.vue'
-import ScalarIconSmileyMeh from './components/ScalarIconSmileyMeh.vue'
-import ScalarIconSmileyMelting from './components/ScalarIconSmileyMelting.vue'
-import ScalarIconSmileyNervous from './components/ScalarIconSmileyNervous.vue'
-import ScalarIconSmileySad from './components/ScalarIconSmileySad.vue'
-import ScalarIconSmileySticker from './components/ScalarIconSmileySticker.vue'
-import ScalarIconSmileyWink from './components/ScalarIconSmileyWink.vue'
-import ScalarIconSmileyXEyes from './components/ScalarIconSmileyXEyes.vue'
-import ScalarIconSnapchatLogo from './components/ScalarIconSnapchatLogo.vue'
-import ScalarIconSneaker from './components/ScalarIconSneaker.vue'
-import ScalarIconSneakerMove from './components/ScalarIconSneakerMove.vue'
-import ScalarIconSnowflake from './components/ScalarIconSnowflake.vue'
-import ScalarIconSoccerBall from './components/ScalarIconSoccerBall.vue'
-import ScalarIconSock from './components/ScalarIconSock.vue'
-import ScalarIconSolarPanel from './components/ScalarIconSolarPanel.vue'
-import ScalarIconSolarRoof from './components/ScalarIconSolarRoof.vue'
-import ScalarIconSortAscending from './components/ScalarIconSortAscending.vue'
-import ScalarIconSortDescending from './components/ScalarIconSortDescending.vue'
-import ScalarIconSoundcloudLogo from './components/ScalarIconSoundcloudLogo.vue'
-import ScalarIconSpade from './components/ScalarIconSpade.vue'
-import ScalarIconSparkle from './components/ScalarIconSparkle.vue'
-import ScalarIconSpeakerHifi from './components/ScalarIconSpeakerHifi.vue'
-import ScalarIconSpeakerHigh from './components/ScalarIconSpeakerHigh.vue'
-import ScalarIconSpeakerLow from './components/ScalarIconSpeakerLow.vue'
-import ScalarIconSpeakerNone from './components/ScalarIconSpeakerNone.vue'
-import ScalarIconSpeakerSimpleHigh from './components/ScalarIconSpeakerSimpleHigh.vue'
-import ScalarIconSpeakerSimpleLow from './components/ScalarIconSpeakerSimpleLow.vue'
-import ScalarIconSpeakerSimpleNone from './components/ScalarIconSpeakerSimpleNone.vue'
-import ScalarIconSpeakerSimpleSlash from './components/ScalarIconSpeakerSimpleSlash.vue'
-import ScalarIconSpeakerSimpleX from './components/ScalarIconSpeakerSimpleX.vue'
-import ScalarIconSpeakerSlash from './components/ScalarIconSpeakerSlash.vue'
-import ScalarIconSpeakerX from './components/ScalarIconSpeakerX.vue'
-import ScalarIconSpeedometer from './components/ScalarIconSpeedometer.vue'
-import ScalarIconSphere from './components/ScalarIconSphere.vue'
-import ScalarIconSpinnerBall from './components/ScalarIconSpinnerBall.vue'
-import ScalarIconSpinner from './components/ScalarIconSpinner.vue'
-import ScalarIconSpinnerGap from './components/ScalarIconSpinnerGap.vue'
-import ScalarIconSpiral from './components/ScalarIconSpiral.vue'
-import ScalarIconSplitHorizontal from './components/ScalarIconSplitHorizontal.vue'
-import ScalarIconSplitVertical from './components/ScalarIconSplitVertical.vue'
-import ScalarIconSpotifyLogo from './components/ScalarIconSpotifyLogo.vue'
-import ScalarIconSprayBottle from './components/ScalarIconSprayBottle.vue'
-import ScalarIconSquare from './components/ScalarIconSquare.vue'
-import ScalarIconSquareHalf from './components/ScalarIconSquareHalf.vue'
-import ScalarIconSquareHalfBottom from './components/ScalarIconSquareHalfBottom.vue'
-import ScalarIconSquareLogo from './components/ScalarIconSquareLogo.vue'
-import ScalarIconSquareSplitHorizontal from './components/ScalarIconSquareSplitHorizontal.vue'
-import ScalarIconSquareSplitVertical from './components/ScalarIconSquareSplitVertical.vue'
-import ScalarIconSquaresFour from './components/ScalarIconSquaresFour.vue'
-import ScalarIconStack from './components/ScalarIconStack.vue'
-import ScalarIconStackMinus from './components/ScalarIconStackMinus.vue'
-import ScalarIconStackOverflowLogo from './components/ScalarIconStackOverflowLogo.vue'
-import ScalarIconStackPlus from './components/ScalarIconStackPlus.vue'
-import ScalarIconStackSimple from './components/ScalarIconStackSimple.vue'
-import ScalarIconStairs from './components/ScalarIconStairs.vue'
-import ScalarIconStamp from './components/ScalarIconStamp.vue'
-import ScalarIconStandardDefinition from './components/ScalarIconStandardDefinition.vue'
-import ScalarIconStarAndCrescent from './components/ScalarIconStarAndCrescent.vue'
-import ScalarIconStar from './components/ScalarIconStar.vue'
-import ScalarIconStarFour from './components/ScalarIconStarFour.vue'
-import ScalarIconStarHalf from './components/ScalarIconStarHalf.vue'
-import ScalarIconStarOfDavid from './components/ScalarIconStarOfDavid.vue'
-import ScalarIconSteamLogo from './components/ScalarIconSteamLogo.vue'
-import ScalarIconSteeringWheel from './components/ScalarIconSteeringWheel.vue'
-import ScalarIconSteps from './components/ScalarIconSteps.vue'
-import ScalarIconStethoscope from './components/ScalarIconStethoscope.vue'
-import ScalarIconSticker from './components/ScalarIconSticker.vue'
-import ScalarIconStool from './components/ScalarIconStool.vue'
-import ScalarIconStop from './components/ScalarIconStop.vue'
-import ScalarIconStopCircle from './components/ScalarIconStopCircle.vue'
-import ScalarIconStorefront from './components/ScalarIconStorefront.vue'
-import ScalarIconStrategy from './components/ScalarIconStrategy.vue'
-import ScalarIconStripeLogo from './components/ScalarIconStripeLogo.vue'
-import ScalarIconStudent from './components/ScalarIconStudent.vue'
-import ScalarIconSubsetOf from './components/ScalarIconSubsetOf.vue'
-import ScalarIconSubsetProperOf from './components/ScalarIconSubsetProperOf.vue'
-import ScalarIconSubtitles from './components/ScalarIconSubtitles.vue'
-import ScalarIconSubtitlesSlash from './components/ScalarIconSubtitlesSlash.vue'
-import ScalarIconSubtract from './components/ScalarIconSubtract.vue'
-import ScalarIconSubtractSquare from './components/ScalarIconSubtractSquare.vue'
-import ScalarIconSubway from './components/ScalarIconSubway.vue'
-import ScalarIconSuitcase from './components/ScalarIconSuitcase.vue'
-import ScalarIconSuitcaseRolling from './components/ScalarIconSuitcaseRolling.vue'
-import ScalarIconSuitcaseSimple from './components/ScalarIconSuitcaseSimple.vue'
-import ScalarIconSun from './components/ScalarIconSun.vue'
-import ScalarIconSunDim from './components/ScalarIconSunDim.vue'
-import ScalarIconSunHorizon from './components/ScalarIconSunHorizon.vue'
-import ScalarIconSunglasses from './components/ScalarIconSunglasses.vue'
-import ScalarIconSupersetOf from './components/ScalarIconSupersetOf.vue'
-import ScalarIconSupersetProperOf from './components/ScalarIconSupersetProperOf.vue'
-import ScalarIconSwap from './components/ScalarIconSwap.vue'
-import ScalarIconSwatches from './components/ScalarIconSwatches.vue'
-import ScalarIconSwimmingPool from './components/ScalarIconSwimmingPool.vue'
-import ScalarIconSword from './components/ScalarIconSword.vue'
-import ScalarIconSynagogue from './components/ScalarIconSynagogue.vue'
-import ScalarIconSyringe from './components/ScalarIconSyringe.vue'
-import ScalarIconTShirt from './components/ScalarIconTShirt.vue'
-import ScalarIconTable from './components/ScalarIconTable.vue'
-import ScalarIconTabs from './components/ScalarIconTabs.vue'
-import ScalarIconTag from './components/ScalarIconTag.vue'
-import ScalarIconTagChevron from './components/ScalarIconTagChevron.vue'
-import ScalarIconTagSimple from './components/ScalarIconTagSimple.vue'
-import ScalarIconTarget from './components/ScalarIconTarget.vue'
-import ScalarIconTaxi from './components/ScalarIconTaxi.vue'
-import ScalarIconTeaBag from './components/ScalarIconTeaBag.vue'
-import ScalarIconTelegramLogo from './components/ScalarIconTelegramLogo.vue'
-import ScalarIconTelevision from './components/ScalarIconTelevision.vue'
-import ScalarIconTelevisionSimple from './components/ScalarIconTelevisionSimple.vue'
-import ScalarIconTennisBall from './components/ScalarIconTennisBall.vue'
-import ScalarIconTent from './components/ScalarIconTent.vue'
-import ScalarIconTerminal from './components/ScalarIconTerminal.vue'
-import ScalarIconTerminalWindow from './components/ScalarIconTerminalWindow.vue'
-import ScalarIconTestTube from './components/ScalarIconTestTube.vue'
-import ScalarIconTextAUnderline from './components/ScalarIconTextAUnderline.vue'
-import ScalarIconTextAa from './components/ScalarIconTextAa.vue'
-import ScalarIconTextAlignCenter from './components/ScalarIconTextAlignCenter.vue'
-import ScalarIconTextAlignJustify from './components/ScalarIconTextAlignJustify.vue'
-import ScalarIconTextAlignLeft from './components/ScalarIconTextAlignLeft.vue'
-import ScalarIconTextAlignRight from './components/ScalarIconTextAlignRight.vue'
-import ScalarIconTextB from './components/ScalarIconTextB.vue'
-import ScalarIconTextColumns from './components/ScalarIconTextColumns.vue'
-import ScalarIconTextH from './components/ScalarIconTextH.vue'
-import ScalarIconTextHFive from './components/ScalarIconTextHFive.vue'
-import ScalarIconTextHFour from './components/ScalarIconTextHFour.vue'
-import ScalarIconTextHOne from './components/ScalarIconTextHOne.vue'
-import ScalarIconTextHSix from './components/ScalarIconTextHSix.vue'
-import ScalarIconTextHThree from './components/ScalarIconTextHThree.vue'
-import ScalarIconTextHTwo from './components/ScalarIconTextHTwo.vue'
-import ScalarIconTextIndent from './components/ScalarIconTextIndent.vue'
-import ScalarIconTextItalic from './components/ScalarIconTextItalic.vue'
-import ScalarIconTextOutdent from './components/ScalarIconTextOutdent.vue'
-import ScalarIconTextStrikethrough from './components/ScalarIconTextStrikethrough.vue'
-import ScalarIconTextSubscript from './components/ScalarIconTextSubscript.vue'
-import ScalarIconTextSuperscript from './components/ScalarIconTextSuperscript.vue'
-import ScalarIconTextT from './components/ScalarIconTextT.vue'
-import ScalarIconTextTSlash from './components/ScalarIconTextTSlash.vue'
-import ScalarIconTextUnderline from './components/ScalarIconTextUnderline.vue'
-import ScalarIconTextbox from './components/ScalarIconTextbox.vue'
-import ScalarIconThermometer from './components/ScalarIconThermometer.vue'
-import ScalarIconThermometerCold from './components/ScalarIconThermometerCold.vue'
-import ScalarIconThermometerHot from './components/ScalarIconThermometerHot.vue'
-import ScalarIconThermometerSimple from './components/ScalarIconThermometerSimple.vue'
-import ScalarIconThreadsLogo from './components/ScalarIconThreadsLogo.vue'
-import ScalarIconThreeD from './components/ScalarIconThreeD.vue'
-import ScalarIconThumbsDown from './components/ScalarIconThumbsDown.vue'
-import ScalarIconThumbsUp from './components/ScalarIconThumbsUp.vue'
-import ScalarIconTicket from './components/ScalarIconTicket.vue'
-import ScalarIconTidalLogo from './components/ScalarIconTidalLogo.vue'
-import ScalarIconTiktokLogo from './components/ScalarIconTiktokLogo.vue'
-import ScalarIconTilde from './components/ScalarIconTilde.vue'
-import ScalarIconTimer from './components/ScalarIconTimer.vue'
-import ScalarIconTipJar from './components/ScalarIconTipJar.vue'
-import ScalarIconTipi from './components/ScalarIconTipi.vue'
-import ScalarIconTire from './components/ScalarIconTire.vue'
-import ScalarIconToggleLeft from './components/ScalarIconToggleLeft.vue'
-import ScalarIconToggleRight from './components/ScalarIconToggleRight.vue'
-import ScalarIconToilet from './components/ScalarIconToilet.vue'
-import ScalarIconToiletPaper from './components/ScalarIconToiletPaper.vue'
-import ScalarIconToolbox from './components/ScalarIconToolbox.vue'
-import ScalarIconTooth from './components/ScalarIconTooth.vue'
-import ScalarIconTornado from './components/ScalarIconTornado.vue'
-import ScalarIconTote from './components/ScalarIconTote.vue'
-import ScalarIconToteSimple from './components/ScalarIconToteSimple.vue'
-import ScalarIconTowel from './components/ScalarIconTowel.vue'
-import ScalarIconTractor from './components/ScalarIconTractor.vue'
-import ScalarIconTrademark from './components/ScalarIconTrademark.vue'
-import ScalarIconTrademarkRegistered from './components/ScalarIconTrademarkRegistered.vue'
-import ScalarIconTrafficCone from './components/ScalarIconTrafficCone.vue'
-import ScalarIconTrafficSign from './components/ScalarIconTrafficSign.vue'
-import ScalarIconTrafficSignal from './components/ScalarIconTrafficSignal.vue'
-import ScalarIconTrain from './components/ScalarIconTrain.vue'
-import ScalarIconTrainRegional from './components/ScalarIconTrainRegional.vue'
-import ScalarIconTrainSimple from './components/ScalarIconTrainSimple.vue'
-import ScalarIconTram from './components/ScalarIconTram.vue'
-import ScalarIconTranslate from './components/ScalarIconTranslate.vue'
-import ScalarIconTrash from './components/ScalarIconTrash.vue'
-import ScalarIconTrashSimple from './components/ScalarIconTrashSimple.vue'
-import ScalarIconTrayArrowDown from './components/ScalarIconTrayArrowDown.vue'
-import ScalarIconTrayArrowUp from './components/ScalarIconTrayArrowUp.vue'
-import ScalarIconTray from './components/ScalarIconTray.vue'
-import ScalarIconTreasureChest from './components/ScalarIconTreasureChest.vue'
-import ScalarIconTree from './components/ScalarIconTree.vue'
-import ScalarIconTreeEvergreen from './components/ScalarIconTreeEvergreen.vue'
-import ScalarIconTreePalm from './components/ScalarIconTreePalm.vue'
-import ScalarIconTreeStructure from './components/ScalarIconTreeStructure.vue'
-import ScalarIconTreeView from './components/ScalarIconTreeView.vue'
-import ScalarIconTrendDown from './components/ScalarIconTrendDown.vue'
-import ScalarIconTrendUp from './components/ScalarIconTrendUp.vue'
-import ScalarIconTriangle from './components/ScalarIconTriangle.vue'
-import ScalarIconTriangleDashed from './components/ScalarIconTriangleDashed.vue'
-import ScalarIconTrolley from './components/ScalarIconTrolley.vue'
-import ScalarIconTrolleySuitcase from './components/ScalarIconTrolleySuitcase.vue'
-import ScalarIconTrophy from './components/ScalarIconTrophy.vue'
-import ScalarIconTruck from './components/ScalarIconTruck.vue'
-import ScalarIconTruckTrailer from './components/ScalarIconTruckTrailer.vue'
-import ScalarIconTumblrLogo from './components/ScalarIconTumblrLogo.vue'
-import ScalarIconTwitchLogo from './components/ScalarIconTwitchLogo.vue'
-import ScalarIconTwitterLogo from './components/ScalarIconTwitterLogo.vue'
-import ScalarIconUmbrella from './components/ScalarIconUmbrella.vue'
-import ScalarIconUmbrellaSimple from './components/ScalarIconUmbrellaSimple.vue'
-import ScalarIconUnion from './components/ScalarIconUnion.vue'
-import ScalarIconUnite from './components/ScalarIconUnite.vue'
-import ScalarIconUniteSquare from './components/ScalarIconUniteSquare.vue'
-import ScalarIconUpload from './components/ScalarIconUpload.vue'
-import ScalarIconUploadSimple from './components/ScalarIconUploadSimple.vue'
-import ScalarIconUsb from './components/ScalarIconUsb.vue'
-import ScalarIconUser from './components/ScalarIconUser.vue'
-import ScalarIconUserCheck from './components/ScalarIconUserCheck.vue'
-import ScalarIconUserCircle from './components/ScalarIconUserCircle.vue'
-import ScalarIconUserCircleCheck from './components/ScalarIconUserCircleCheck.vue'
-import ScalarIconUserCircleDashed from './components/ScalarIconUserCircleDashed.vue'
-import ScalarIconUserCircleGear from './components/ScalarIconUserCircleGear.vue'
-import ScalarIconUserCircleMinus from './components/ScalarIconUserCircleMinus.vue'
-import ScalarIconUserCirclePlus from './components/ScalarIconUserCirclePlus.vue'
-import ScalarIconUserFocus from './components/ScalarIconUserFocus.vue'
-import ScalarIconUserGear from './components/ScalarIconUserGear.vue'
-import ScalarIconUserList from './components/ScalarIconUserList.vue'
-import ScalarIconUserMinus from './components/ScalarIconUserMinus.vue'
-import ScalarIconUserPlus from './components/ScalarIconUserPlus.vue'
-import ScalarIconUserRectangle from './components/ScalarIconUserRectangle.vue'
-import ScalarIconUserSound from './components/ScalarIconUserSound.vue'
-import ScalarIconUserSquare from './components/ScalarIconUserSquare.vue'
-import ScalarIconUserSwitch from './components/ScalarIconUserSwitch.vue'
-import ScalarIconUsers from './components/ScalarIconUsers.vue'
-import ScalarIconUsersFour from './components/ScalarIconUsersFour.vue'
-import ScalarIconUsersThree from './components/ScalarIconUsersThree.vue'
-import ScalarIconVan from './components/ScalarIconVan.vue'
-import ScalarIconVault from './components/ScalarIconVault.vue'
-import ScalarIconVectorThree from './components/ScalarIconVectorThree.vue'
-import ScalarIconVectorTwo from './components/ScalarIconVectorTwo.vue'
-import ScalarIconVibrate from './components/ScalarIconVibrate.vue'
-import ScalarIconVideo from './components/ScalarIconVideo.vue'
-import ScalarIconVideoCamera from './components/ScalarIconVideoCamera.vue'
-import ScalarIconVideoCameraSlash from './components/ScalarIconVideoCameraSlash.vue'
-import ScalarIconVideoConference from './components/ScalarIconVideoConference.vue'
-import ScalarIconVignette from './components/ScalarIconVignette.vue'
-import ScalarIconVinylRecord from './components/ScalarIconVinylRecord.vue'
-import ScalarIconVirtualReality from './components/ScalarIconVirtualReality.vue'
-import ScalarIconVirus from './components/ScalarIconVirus.vue'
-import ScalarIconVisor from './components/ScalarIconVisor.vue'
-import ScalarIconVoicemail from './components/ScalarIconVoicemail.vue'
-import ScalarIconVolleyball from './components/ScalarIconVolleyball.vue'
-import ScalarIconWall from './components/ScalarIconWall.vue'
-import ScalarIconWallet from './components/ScalarIconWallet.vue'
-import ScalarIconWarehouse from './components/ScalarIconWarehouse.vue'
-import ScalarIconWarning from './components/ScalarIconWarning.vue'
-import ScalarIconWarningCircle from './components/ScalarIconWarningCircle.vue'
-import ScalarIconWarningDiamond from './components/ScalarIconWarningDiamond.vue'
-import ScalarIconWarningOctagon from './components/ScalarIconWarningOctagon.vue'
-import ScalarIconWashingMachine from './components/ScalarIconWashingMachine.vue'
-import ScalarIconWatch from './components/ScalarIconWatch.vue'
-import ScalarIconWaveSawtooth from './components/ScalarIconWaveSawtooth.vue'
-import ScalarIconWaveSine from './components/ScalarIconWaveSine.vue'
-import ScalarIconWaveSquare from './components/ScalarIconWaveSquare.vue'
-import ScalarIconWaveTriangle from './components/ScalarIconWaveTriangle.vue'
-import ScalarIconWaveform from './components/ScalarIconWaveform.vue'
-import ScalarIconWaveformSlash from './components/ScalarIconWaveformSlash.vue'
-import ScalarIconWaves from './components/ScalarIconWaves.vue'
-import ScalarIconWebcam from './components/ScalarIconWebcam.vue'
-import ScalarIconWebcamSlash from './components/ScalarIconWebcamSlash.vue'
-import ScalarIconWebhooksLogo from './components/ScalarIconWebhooksLogo.vue'
-import ScalarIconWechatLogo from './components/ScalarIconWechatLogo.vue'
-import ScalarIconWhatsappLogo from './components/ScalarIconWhatsappLogo.vue'
-import ScalarIconWheelchair from './components/ScalarIconWheelchair.vue'
-import ScalarIconWheelchairMotion from './components/ScalarIconWheelchairMotion.vue'
-import ScalarIconWifiHigh from './components/ScalarIconWifiHigh.vue'
-import ScalarIconWifiLow from './components/ScalarIconWifiLow.vue'
-import ScalarIconWifiMedium from './components/ScalarIconWifiMedium.vue'
-import ScalarIconWifiNone from './components/ScalarIconWifiNone.vue'
-import ScalarIconWifiSlash from './components/ScalarIconWifiSlash.vue'
-import ScalarIconWifiX from './components/ScalarIconWifiX.vue'
-import ScalarIconWind from './components/ScalarIconWind.vue'
-import ScalarIconWindmill from './components/ScalarIconWindmill.vue'
-import ScalarIconWindowsLogo from './components/ScalarIconWindowsLogo.vue'
-import ScalarIconWine from './components/ScalarIconWine.vue'
-import ScalarIconWrench from './components/ScalarIconWrench.vue'
-import ScalarIconX from './components/ScalarIconX.vue'
-import ScalarIconXCircle from './components/ScalarIconXCircle.vue'
-import ScalarIconXLogo from './components/ScalarIconXLogo.vue'
-import ScalarIconXSquare from './components/ScalarIconXSquare.vue'
-import ScalarIconYarn from './components/ScalarIconYarn.vue'
-import ScalarIconYinYang from './components/ScalarIconYinYang.vue'
-import ScalarIconYoutubeLogo from './components/ScalarIconYoutubeLogo.vue'
-
-export {
-  ScalarIconAcorn,
-  ScalarIconAddressBook,
-  ScalarIconAddressBookTabs,
-  ScalarIconAirTrafficControl,
-  ScalarIconAirplane,
-  ScalarIconAirplaneInFlight,
-  ScalarIconAirplaneLanding,
-  ScalarIconAirplaneTakeoff,
-  ScalarIconAirplaneTaxiing,
-  ScalarIconAirplaneTilt,
-  ScalarIconAirplay,
-  ScalarIconAlarm,
-  ScalarIconAlien,
-  ScalarIconAlignBottom,
-  ScalarIconAlignBottomSimple,
-  ScalarIconAlignCenterHorizontal,
-  ScalarIconAlignCenterHorizontalSimple,
-  ScalarIconAlignCenterVertical,
-  ScalarIconAlignCenterVerticalSimple,
-  ScalarIconAlignLeft,
-  ScalarIconAlignLeftSimple,
-  ScalarIconAlignRight,
-  ScalarIconAlignRightSimple,
-  ScalarIconAlignTop,
-  ScalarIconAlignTopSimple,
-  ScalarIconAmazonLogo,
-  ScalarIconAmbulance,
-  ScalarIconAnchor,
-  ScalarIconAnchorSimple,
-  ScalarIconAndroidLogo,
-  ScalarIconAngle,
-  ScalarIconAngularLogo,
-  ScalarIconAperture,
-  ScalarIconAppStoreLogo,
-  ScalarIconAppWindow,
-  ScalarIconAppleLogo,
-  ScalarIconApplePodcastsLogo,
-  ScalarIconApproximateEquals,
-  ScalarIconArchive,
-  ScalarIconArmchair,
-  ScalarIconArrowArcLeft,
-  ScalarIconArrowArcRight,
-  ScalarIconArrowBendDoubleUpLeft,
-  ScalarIconArrowBendDoubleUpRight,
-  ScalarIconArrowBendDownLeft,
-  ScalarIconArrowBendDownRight,
-  ScalarIconArrowBendLeftDown,
-  ScalarIconArrowBendLeftUp,
-  ScalarIconArrowBendRightDown,
-  ScalarIconArrowBendRightUp,
-  ScalarIconArrowBendUpLeft,
-  ScalarIconArrowBendUpRight,
-  ScalarIconArrowCircleDown,
-  ScalarIconArrowCircleDownLeft,
-  ScalarIconArrowCircleDownRight,
-  ScalarIconArrowCircleLeft,
-  ScalarIconArrowCircleRight,
-  ScalarIconArrowCircleUp,
-  ScalarIconArrowCircleUpLeft,
-  ScalarIconArrowCircleUpRight,
-  ScalarIconArrowClockwise,
-  ScalarIconArrowCounterClockwise,
-  ScalarIconArrowDown,
-  ScalarIconArrowDownLeft,
-  ScalarIconArrowDownRight,
-  ScalarIconArrowElbowDownLeft,
-  ScalarIconArrowElbowDownRight,
-  ScalarIconArrowElbowLeft,
-  ScalarIconArrowElbowLeftDown,
-  ScalarIconArrowElbowLeftUp,
-  ScalarIconArrowElbowRight,
-  ScalarIconArrowElbowRightDown,
-  ScalarIconArrowElbowRightUp,
-  ScalarIconArrowElbowUpLeft,
-  ScalarIconArrowElbowUpRight,
-  ScalarIconArrowFatDown,
-  ScalarIconArrowFatLeft,
-  ScalarIconArrowFatLineDown,
-  ScalarIconArrowFatLineLeft,
-  ScalarIconArrowFatLineRight,
-  ScalarIconArrowFatLineUp,
-  ScalarIconArrowFatLinesDown,
-  ScalarIconArrowFatLinesLeft,
-  ScalarIconArrowFatLinesRight,
-  ScalarIconArrowFatLinesUp,
-  ScalarIconArrowFatRight,
-  ScalarIconArrowFatUp,
-  ScalarIconArrowLeft,
-  ScalarIconArrowLineDown,
-  ScalarIconArrowLineDownLeft,
-  ScalarIconArrowLineDownRight,
-  ScalarIconArrowLineLeft,
-  ScalarIconArrowLineRight,
-  ScalarIconArrowLineUp,
-  ScalarIconArrowLineUpLeft,
-  ScalarIconArrowLineUpRight,
-  ScalarIconArrowRight,
-  ScalarIconArrowSquareDown,
-  ScalarIconArrowSquareDownLeft,
-  ScalarIconArrowSquareDownRight,
-  ScalarIconArrowSquareIn,
-  ScalarIconArrowSquareLeft,
-  ScalarIconArrowSquareOut,
-  ScalarIconArrowSquareRight,
-  ScalarIconArrowSquareUp,
-  ScalarIconArrowSquareUpLeft,
-  ScalarIconArrowSquareUpRight,
-  ScalarIconArrowUDownLeft,
-  ScalarIconArrowUDownRight,
-  ScalarIconArrowULeftDown,
-  ScalarIconArrowULeftUp,
-  ScalarIconArrowURightDown,
-  ScalarIconArrowURightUp,
-  ScalarIconArrowUUpLeft,
-  ScalarIconArrowUUpRight,
-  ScalarIconArrowUp,
-  ScalarIconArrowUpLeft,
-  ScalarIconArrowUpRight,
-  ScalarIconArrowsClockwise,
-  ScalarIconArrowsCounterClockwise,
-  ScalarIconArrowsDownUp,
-  ScalarIconArrowsHorizontal,
-  ScalarIconArrowsIn,
-  ScalarIconArrowsInCardinal,
-  ScalarIconArrowsInLineHorizontal,
-  ScalarIconArrowsInLineVertical,
-  ScalarIconArrowsInSimple,
-  ScalarIconArrowsLeftRight,
-  ScalarIconArrowsMerge,
-  ScalarIconArrowsOut,
-  ScalarIconArrowsOutCardinal,
-  ScalarIconArrowsOutLineHorizontal,
-  ScalarIconArrowsOutLineVertical,
-  ScalarIconArrowsOutSimple,
-  ScalarIconArrowsSplit,
-  ScalarIconArrowsVertical,
-  ScalarIconArticle,
-  ScalarIconArticleMedium,
-  ScalarIconArticleNyTimes,
-  ScalarIconAsclepius,
-  ScalarIconAsclepius as ScalarIconCaduceus,
-  ScalarIconAsterisk,
-  ScalarIconAsteriskSimple,
-  ScalarIconAt,
-  ScalarIconAtom,
-  ScalarIconAvocado,
-  ScalarIconAxe,
-  ScalarIconBaby,
-  ScalarIconBabyCarriage,
-  ScalarIconBackpack,
-  ScalarIconBackspace,
-  ScalarIconBag,
-  ScalarIconBagSimple,
-  ScalarIconBalloon,
-  ScalarIconBandaids,
-  ScalarIconBank,
-  ScalarIconBarbell,
-  ScalarIconBarcode,
-  ScalarIconBarn,
-  ScalarIconBarricade,
-  ScalarIconBaseball,
-  ScalarIconBaseballCap,
-  ScalarIconBaseballHelmet,
-  ScalarIconBasket,
-  ScalarIconBasketball,
-  ScalarIconBathtub,
-  ScalarIconBatteryCharging,
-  ScalarIconBatteryChargingVertical,
-  ScalarIconBatteryEmpty,
-  ScalarIconBatteryFull,
-  ScalarIconBatteryHigh,
-  ScalarIconBatteryLow,
-  ScalarIconBatteryMedium,
-  ScalarIconBatteryPlus,
-  ScalarIconBatteryPlusVertical,
-  ScalarIconBatteryVerticalEmpty,
-  ScalarIconBatteryVerticalFull,
-  ScalarIconBatteryVerticalHigh,
-  ScalarIconBatteryVerticalLow,
-  ScalarIconBatteryVerticalMedium,
-  ScalarIconBatteryWarning,
-  ScalarIconBatteryWarningVertical,
-  ScalarIconBeachBall,
-  ScalarIconBeanie,
-  ScalarIconBed,
-  ScalarIconBeerBottle,
-  ScalarIconBeerStein,
-  ScalarIconBehanceLogo,
-  ScalarIconBell,
-  ScalarIconBellRinging,
-  ScalarIconBellSimple,
-  ScalarIconBellSimpleRinging,
-  ScalarIconBellSimpleSlash,
-  ScalarIconBellSimpleZ,
-  ScalarIconBellSlash,
-  ScalarIconBellZ,
-  ScalarIconBelt,
-  ScalarIconBezierCurve,
-  ScalarIconBicycle,
-  ScalarIconBinary,
-  ScalarIconBinoculars,
-  ScalarIconBiohazard,
-  ScalarIconBird,
-  ScalarIconBlueprint,
-  ScalarIconBluetooth,
-  ScalarIconBluetoothConnected,
-  ScalarIconBluetoothSlash,
-  ScalarIconBluetoothX,
-  ScalarIconBoat,
-  ScalarIconBomb,
-  ScalarIconBone,
-  ScalarIconBook,
-  ScalarIconBookBookmark,
-  ScalarIconBookOpen,
-  ScalarIconBookOpenText,
-  ScalarIconBookOpenUser,
-  ScalarIconBookmark,
-  ScalarIconBookmarkSimple,
-  ScalarIconBookmarks,
-  ScalarIconBookmarksSimple,
-  ScalarIconBooks,
-  ScalarIconBoot,
-  ScalarIconBoules,
-  ScalarIconBoundingBox,
-  ScalarIconBowlFood,
-  ScalarIconBowlSteam,
-  ScalarIconBowlingBall,
-  ScalarIconBoxArrowDown,
-  ScalarIconBoxArrowDown as ScalarIconArchiveBox,
-  ScalarIconBoxArrowUp,
-  ScalarIconBoxingGlove,
-  ScalarIconBracketsAngle,
-  ScalarIconBracketsCurly,
-  ScalarIconBracketsRound,
-  ScalarIconBracketsSquare,
-  ScalarIconBrain,
-  ScalarIconBrandy,
-  ScalarIconBread,
-  ScalarIconBridge,
-  ScalarIconBriefcase,
-  ScalarIconBriefcaseMetal,
-  ScalarIconBroadcast,
-  ScalarIconBroom,
-  ScalarIconBrowser,
-  ScalarIconBrowsers,
-  ScalarIconBugBeetle,
-  ScalarIconBug,
-  ScalarIconBugDroid,
-  ScalarIconBuildingApartment,
-  ScalarIconBuilding,
-  ScalarIconBuildingOffice,
-  ScalarIconBuildings,
-  ScalarIconBulldozer,
-  ScalarIconBus,
-  ScalarIconButterfly,
-  ScalarIconCableCar,
-  ScalarIconCactus,
-  ScalarIconCake,
-  ScalarIconCalculator,
-  ScalarIconCalendarBlank,
-  ScalarIconCalendar,
-  ScalarIconCalendarCheck,
-  ScalarIconCalendarDot,
-  ScalarIconCalendarDots,
-  ScalarIconCalendarHeart,
-  ScalarIconCalendarMinus,
-  ScalarIconCalendarPlus,
-  ScalarIconCalendarSlash,
-  ScalarIconCalendarStar,
-  ScalarIconCalendarX,
-  ScalarIconCallBell,
-  ScalarIconCamera,
-  ScalarIconCameraPlus,
-  ScalarIconCameraRotate,
-  ScalarIconCameraSlash,
-  ScalarIconCampfire,
-  ScalarIconCarBattery,
-  ScalarIconCar,
-  ScalarIconCarProfile,
-  ScalarIconCarSimple,
-  ScalarIconCardholder,
-  ScalarIconCards,
-  ScalarIconCardsThree,
-  ScalarIconCaretCircleDoubleDown,
-  ScalarIconCaretCircleDoubleLeft,
-  ScalarIconCaretCircleDoubleRight,
-  ScalarIconCaretCircleDoubleUp,
-  ScalarIconCaretCircleDown,
-  ScalarIconCaretCircleLeft,
-  ScalarIconCaretCircleRight,
-  ScalarIconCaretCircleUp,
-  ScalarIconCaretCircleUpDown,
-  ScalarIconCaretDoubleDown,
-  ScalarIconCaretDoubleLeft,
-  ScalarIconCaretDoubleRight,
-  ScalarIconCaretDoubleUp,
-  ScalarIconCaretDown,
-  ScalarIconCaretLeft,
-  ScalarIconCaretLineDown,
-  ScalarIconCaretLineLeft,
-  ScalarIconCaretLineRight,
-  ScalarIconCaretLineUp,
-  ScalarIconCaretRight,
-  ScalarIconCaretUp,
-  ScalarIconCaretUpDown,
-  ScalarIconCarrot,
-  ScalarIconCashRegister,
-  ScalarIconCassetteTape,
-  ScalarIconCastleTurret,
-  ScalarIconCat,
-  ScalarIconCellSignalFull,
-  ScalarIconCellSignalHigh,
-  ScalarIconCellSignalLow,
-  ScalarIconCellSignalMedium,
-  ScalarIconCellSignalNone,
-  ScalarIconCellSignalSlash,
-  ScalarIconCellSignalX,
-  ScalarIconCellTower,
-  ScalarIconCertificate,
-  ScalarIconChair,
-  ScalarIconChalkboard,
-  ScalarIconChalkboardSimple,
-  ScalarIconChalkboardTeacher,
-  ScalarIconChampagne,
-  ScalarIconChargingStation,
-  ScalarIconChartBar,
-  ScalarIconChartBarHorizontal,
-  ScalarIconChartDonut,
-  ScalarIconChartLine,
-  ScalarIconChartLineDown,
-  ScalarIconChartLineUp,
-  ScalarIconChartPie,
-  ScalarIconChartPieSlice,
-  ScalarIconChartPolar,
-  ScalarIconChartScatter,
-  ScalarIconChat,
-  ScalarIconChatCentered,
-  ScalarIconChatCenteredDots,
-  ScalarIconChatCenteredSlash,
-  ScalarIconChatCenteredText,
-  ScalarIconChatCircle,
-  ScalarIconChatCircleDots,
-  ScalarIconChatCircleSlash,
-  ScalarIconChatCircleText,
-  ScalarIconChatDots,
-  ScalarIconChatSlash,
-  ScalarIconChatTeardrop,
-  ScalarIconChatTeardropDots,
-  ScalarIconChatTeardropSlash,
-  ScalarIconChatTeardropText,
-  ScalarIconChatText,
-  ScalarIconChats,
-  ScalarIconChatsCircle,
-  ScalarIconChatsTeardrop,
-  ScalarIconCheck,
-  ScalarIconCheckCircle,
-  ScalarIconCheckFat,
-  ScalarIconCheckSquare,
-  ScalarIconCheckSquareOffset,
-  ScalarIconCheckerboard,
-  ScalarIconChecks,
-  ScalarIconCheers,
-  ScalarIconCheese,
-  ScalarIconChefHat,
-  ScalarIconCherries,
-  ScalarIconChurch,
-  ScalarIconCigarette,
-  ScalarIconCigaretteSlash,
-  ScalarIconCircle,
-  ScalarIconCircleDashed,
-  ScalarIconCircleHalf,
-  ScalarIconCircleHalfTilt,
-  ScalarIconCircleNotch,
-  ScalarIconCirclesFour,
-  ScalarIconCirclesThree,
-  ScalarIconCirclesThreePlus,
-  ScalarIconCircuitry,
-  ScalarIconCity,
-  ScalarIconClipboard,
-  ScalarIconClipboardText,
-  ScalarIconClockAfternoon,
-  ScalarIconClock,
-  ScalarIconClockClockwise,
-  ScalarIconClockCountdown,
-  ScalarIconClockCounterClockwise,
-  ScalarIconClockUser,
-  ScalarIconClosedCaptioning,
-  ScalarIconCloudArrowDown,
-  ScalarIconCloudArrowUp,
-  ScalarIconCloud,
-  ScalarIconCloudCheck,
-  ScalarIconCloudFog,
-  ScalarIconCloudLightning,
-  ScalarIconCloudMoon,
-  ScalarIconCloudRain,
-  ScalarIconCloudSlash,
-  ScalarIconCloudSnow,
-  ScalarIconCloudSun,
-  ScalarIconCloudWarning,
-  ScalarIconCloudX,
-  ScalarIconClover,
-  ScalarIconClub,
-  ScalarIconCoatHanger,
-  ScalarIconCodaLogo,
-  ScalarIconCodeBlock,
-  ScalarIconCode,
-  ScalarIconCodeSimple,
-  ScalarIconCodepenLogo,
-  ScalarIconCodesandboxLogo,
-  ScalarIconCoffeeBean,
-  ScalarIconCoffee,
-  ScalarIconCoin,
-  ScalarIconCoinVertical,
-  ScalarIconCoins,
-  ScalarIconColumns,
-  ScalarIconColumnsPlusLeft,
-  ScalarIconColumnsPlusRight,
-  ScalarIconCommand,
-  ScalarIconCompass,
-  ScalarIconCompassRose,
-  ScalarIconCompassTool,
-  ScalarIconComputerTower,
-  ScalarIconConfetti,
-  ScalarIconContactlessPayment,
-  ScalarIconControl,
-  ScalarIconCookie,
-  ScalarIconCookingPot,
-  ScalarIconCopy,
-  ScalarIconCopySimple,
-  ScalarIconCopyleft,
-  ScalarIconCopyright,
-  ScalarIconCornersIn,
-  ScalarIconCornersOut,
-  ScalarIconCouch,
-  ScalarIconCourtBasketball,
-  ScalarIconCow,
-  ScalarIconCowboyHat,
-  ScalarIconCpu,
-  ScalarIconCrane,
-  ScalarIconCraneTower,
-  ScalarIconCreditCard,
-  ScalarIconCricket,
-  ScalarIconCrop,
-  ScalarIconCross,
-  ScalarIconCrosshair,
-  ScalarIconCrosshairSimple,
-  ScalarIconCrown,
-  ScalarIconCrownCross,
-  ScalarIconCrownSimple,
-  ScalarIconCube,
-  ScalarIconCubeFocus,
-  ScalarIconCubeTransparent,
-  ScalarIconCurrencyBtc,
-  ScalarIconCurrencyCircleDollar,
-  ScalarIconCurrencyCny,
-  ScalarIconCurrencyDollar,
-  ScalarIconCurrencyDollarSimple,
-  ScalarIconCurrencyEth,
-  ScalarIconCurrencyEur,
-  ScalarIconCurrencyGbp,
-  ScalarIconCurrencyInr,
-  ScalarIconCurrencyJpy,
-  ScalarIconCurrencyKrw,
-  ScalarIconCurrencyKzt,
-  ScalarIconCurrencyNgn,
-  ScalarIconCurrencyRub,
-  ScalarIconCursor,
-  ScalarIconCursorClick,
-  ScalarIconCursorText,
-  ScalarIconCylinder,
-  ScalarIconDatabase,
-  ScalarIconDesk,
-  ScalarIconDesktop,
-  ScalarIconDesktopTower,
-  ScalarIconDetective,
-  ScalarIconDevToLogo,
-  ScalarIconDeviceMobile,
-  ScalarIconDeviceMobileCamera,
-  ScalarIconDeviceMobileSlash,
-  ScalarIconDeviceMobileSpeaker,
-  ScalarIconDeviceRotate,
-  ScalarIconDeviceTablet,
-  ScalarIconDeviceTabletCamera,
-  ScalarIconDeviceTabletSpeaker,
-  ScalarIconDevices,
-  ScalarIconDiamond,
-  ScalarIconDiamondsFour,
-  ScalarIconDiceFive,
-  ScalarIconDiceFour,
-  ScalarIconDiceOne,
-  ScalarIconDiceSix,
-  ScalarIconDiceThree,
-  ScalarIconDiceTwo,
-  ScalarIconDisc,
-  ScalarIconDiscoBall,
-  ScalarIconDiscordLogo,
-  ScalarIconDivide,
-  ScalarIconDna,
-  ScalarIconDog,
-  ScalarIconDoor,
-  ScalarIconDoorOpen,
-  ScalarIconDot,
-  ScalarIconDotOutline,
-  ScalarIconDotsNine,
-  ScalarIconDotsSix,
-  ScalarIconDotsSixVertical,
-  ScalarIconDotsThree,
-  ScalarIconDotsThreeCircle,
-  ScalarIconDotsThreeCircleVertical,
-  ScalarIconDotsThreeOutline,
-  ScalarIconDotsThreeOutlineVertical,
-  ScalarIconDotsThreeVertical,
-  ScalarIconDownload,
-  ScalarIconDownloadSimple,
-  ScalarIconDress,
-  ScalarIconDresser,
-  ScalarIconDribbbleLogo,
-  ScalarIconDrone,
-  ScalarIconDrop,
-  ScalarIconDropHalf,
-  ScalarIconDropHalfBottom,
-  ScalarIconDropSimple,
-  ScalarIconDropSlash,
-  ScalarIconDropboxLogo,
-  ScalarIconEar,
-  ScalarIconEarSlash,
-  ScalarIconEgg,
-  ScalarIconEggCrack,
-  ScalarIconEject,
-  ScalarIconEjectSimple,
-  ScalarIconElevator,
-  ScalarIconEmpty,
-  ScalarIconEngine,
-  ScalarIconEnvelope,
-  ScalarIconEnvelopeOpen,
-  ScalarIconEnvelopeSimple,
-  ScalarIconEnvelopeSimpleOpen,
-  ScalarIconEqualizer,
-  ScalarIconEquals,
-  ScalarIconEraser,
-  ScalarIconEscalatorDown,
-  ScalarIconEscalatorUp,
-  ScalarIconExam,
-  ScalarIconExclamationMark,
-  ScalarIconExclude,
-  ScalarIconExcludeSquare,
-  ScalarIconExport,
-  ScalarIconEye,
-  ScalarIconEyeClosed,
-  ScalarIconEyeSlash,
-  ScalarIconEyedropper,
-  ScalarIconEyedropperSample,
-  ScalarIconEyeglasses,
-  ScalarIconEyes,
-  ScalarIconFaceMask,
-  ScalarIconFacebookLogo,
-  ScalarIconFactory,
-  ScalarIconFaders,
-  ScalarIconFadersHorizontal,
-  ScalarIconFalloutShelter,
-  ScalarIconFan,
-  ScalarIconFarm,
-  ScalarIconFastForward,
-  ScalarIconFastForwardCircle,
-  ScalarIconFeather,
-  ScalarIconFediverseLogo,
-  ScalarIconFigmaLogo,
-  ScalarIconFileArchive,
-  ScalarIconFileArrowDown,
-  ScalarIconFileArrowUp,
-  ScalarIconFileAudio,
-  ScalarIconFile,
-  ScalarIconFileC,
-  ScalarIconFileCSharp,
-  ScalarIconFileCloud,
-  ScalarIconFileCode,
-  ScalarIconFileCpp,
-  ScalarIconFileCss,
-  ScalarIconFileCsv,
-  ScalarIconFileDashed,
-  ScalarIconFileDashed as ScalarIconFileDotted,
-  ScalarIconFileDoc,
-  ScalarIconFileHtml,
-  ScalarIconFileImage,
-  ScalarIconFileIni,
-  ScalarIconFileJpg,
-  ScalarIconFileJs,
-  ScalarIconFileJsx,
-  ScalarIconFileLock,
-  ScalarIconFileMagnifyingGlass,
-  ScalarIconFileMagnifyingGlass as ScalarIconFileSearch,
-  ScalarIconFileMd,
-  ScalarIconFileMinus,
-  ScalarIconFilePdf,
-  ScalarIconFilePlus,
-  ScalarIconFilePng,
-  ScalarIconFilePpt,
-  ScalarIconFilePy,
-  ScalarIconFileRs,
-  ScalarIconFileSql,
-  ScalarIconFileSvg,
-  ScalarIconFileText,
-  ScalarIconFileTs,
-  ScalarIconFileTsx,
-  ScalarIconFileTxt,
-  ScalarIconFileVideo,
-  ScalarIconFileVue,
-  ScalarIconFileX,
-  ScalarIconFileXls,
-  ScalarIconFileZip,
-  ScalarIconFiles,
-  ScalarIconFilmReel,
-  ScalarIconFilmScript,
-  ScalarIconFilmSlate,
-  ScalarIconFilmStrip,
-  ScalarIconFingerprint,
-  ScalarIconFingerprintSimple,
-  ScalarIconFinnTheHuman,
-  ScalarIconFire,
-  ScalarIconFireExtinguisher,
-  ScalarIconFireSimple,
-  ScalarIconFireTruck,
-  ScalarIconFirstAid,
-  ScalarIconFirstAidKit,
-  ScalarIconFish,
-  ScalarIconFishSimple,
-  ScalarIconFlagBanner,
-  ScalarIconFlagBannerFold,
-  ScalarIconFlag,
-  ScalarIconFlagCheckered,
-  ScalarIconFlagPennant,
-  ScalarIconFlame,
-  ScalarIconFlashlight,
-  ScalarIconFlask,
-  ScalarIconFlipHorizontal,
-  ScalarIconFlipVertical,
-  ScalarIconFloppyDiskBack,
-  ScalarIconFloppyDisk,
-  ScalarIconFlowArrow,
-  ScalarIconFlower,
-  ScalarIconFlowerLotus,
-  ScalarIconFlowerTulip,
-  ScalarIconFlyingSaucer,
-  ScalarIconFolder,
-  ScalarIconFolder as ScalarIconFolderNotch,
-  ScalarIconFolderDashed,
-  ScalarIconFolderDashed as ScalarIconFolderDotted,
-  ScalarIconFolderLock,
-  ScalarIconFolderMinus,
-  ScalarIconFolderMinus as ScalarIconFolderNotchMinus,
-  ScalarIconFolderOpen,
-  ScalarIconFolderOpen as ScalarIconFolderNotchOpen,
-  ScalarIconFolderPlus,
-  ScalarIconFolderPlus as ScalarIconFolderNotchPlus,
-  ScalarIconFolderSimple,
-  ScalarIconFolderSimpleDashed,
-  ScalarIconFolderSimpleDashed as ScalarIconFolderSimpleDotted,
-  ScalarIconFolderSimpleLock,
-  ScalarIconFolderSimpleMinus,
-  ScalarIconFolderSimplePlus,
-  ScalarIconFolderSimpleStar,
-  ScalarIconFolderSimpleUser,
-  ScalarIconFolderStar,
-  ScalarIconFolderUser,
-  ScalarIconFolders,
-  ScalarIconFootball,
-  ScalarIconFootballHelmet,
-  ScalarIconFootprints,
-  ScalarIconForkKnife,
-  ScalarIconFourK,
-  ScalarIconFrameCorners,
-  ScalarIconFramerLogo,
-  ScalarIconFunction,
-  ScalarIconFunnel,
-  ScalarIconFunnelSimple,
-  ScalarIconFunnelSimpleX,
-  ScalarIconFunnelX,
-  ScalarIconGameController,
-  ScalarIconGarage,
-  ScalarIconGasCan,
-  ScalarIconGasPump,
-  ScalarIconGauge,
-  ScalarIconGavel,
-  ScalarIconGear,
-  ScalarIconGearFine,
-  ScalarIconGearSix,
-  ScalarIconGenderFemale,
-  ScalarIconGenderIntersex,
-  ScalarIconGenderMale,
-  ScalarIconGenderNeuter,
-  ScalarIconGenderNonbinary,
-  ScalarIconGenderTransgender,
-  ScalarIconGhost,
-  ScalarIconGif,
-  ScalarIconGift,
-  ScalarIconGitBranch,
-  ScalarIconGitCommit,
-  ScalarIconGitDiff,
-  ScalarIconGitFork,
-  ScalarIconGitMerge,
-  ScalarIconGitPullRequest,
-  ScalarIconGithubLogo,
-  ScalarIconGitlabLogo,
-  ScalarIconGitlabLogoSimple,
-  ScalarIconGlobe,
-  ScalarIconGlobeHemisphereEast,
-  ScalarIconGlobeHemisphereWest,
-  ScalarIconGlobeSimple,
-  ScalarIconGlobeSimpleX,
-  ScalarIconGlobeStand,
-  ScalarIconGlobeX,
-  ScalarIconGoggles,
-  ScalarIconGolf,
-  ScalarIconGoodreadsLogo,
-  ScalarIconGoogleCardboardLogo,
-  ScalarIconGoogleChromeLogo,
-  ScalarIconGoogleDriveLogo,
-  ScalarIconGoogleLogo,
-  ScalarIconGooglePhotosLogo,
-  ScalarIconGooglePlayLogo,
-  ScalarIconGooglePodcastsLogo,
-  ScalarIconGps,
-  ScalarIconGpsFix,
-  ScalarIconGpsSlash,
-  ScalarIconGradient,
-  ScalarIconGraduationCap,
-  ScalarIconGrains,
-  ScalarIconGrainsSlash,
-  ScalarIconGraph,
-  ScalarIconGraphicsCard,
-  ScalarIconGreaterThan,
-  ScalarIconGreaterThanOrEqual,
-  ScalarIconGridFour,
-  ScalarIconGridNine,
-  ScalarIconGuitar,
-  ScalarIconHairDryer,
-  ScalarIconHamburger,
-  ScalarIconHammer,
-  ScalarIconHandArrowDown,
-  ScalarIconHandArrowUp,
-  ScalarIconHand,
-  ScalarIconHandCoins,
-  ScalarIconHandDeposit,
-  ScalarIconHandEye,
-  ScalarIconHandFist,
-  ScalarIconHandGrabbing,
-  ScalarIconHandHeart,
-  ScalarIconHandPalm,
-  ScalarIconHandPeace,
-  ScalarIconHandPointing,
-  ScalarIconHandSoap,
-  ScalarIconHandSwipeLeft,
-  ScalarIconHandSwipeRight,
-  ScalarIconHandTap,
-  ScalarIconHandWaving,
-  ScalarIconHandWithdraw,
-  ScalarIconHandbag,
-  ScalarIconHandbagSimple,
-  ScalarIconHandsClapping,
-  ScalarIconHandsPraying,
-  ScalarIconHandshake,
-  ScalarIconHardDrive,
-  ScalarIconHardDrives,
-  ScalarIconHardHat,
-  ScalarIconHash,
-  ScalarIconHashStraight,
-  ScalarIconHeadCircuit,
-  ScalarIconHeadlights,
-  ScalarIconHeadphones,
-  ScalarIconHeadset,
-  ScalarIconHeart,
-  ScalarIconHeartBreak,
-  ScalarIconHeartHalf,
-  ScalarIconHeartStraight,
-  ScalarIconHeartStraightBreak,
-  ScalarIconHeartbeat,
-  ScalarIconHexagon,
-  ScalarIconHighDefinition,
-  ScalarIconHighHeel,
-  ScalarIconHighlighter,
-  ScalarIconHighlighterCircle,
-  ScalarIconHockey,
-  ScalarIconHoodie,
-  ScalarIconHorse,
-  ScalarIconHospital,
-  ScalarIconHourglass,
-  ScalarIconHourglassHigh,
-  ScalarIconHourglassLow,
-  ScalarIconHourglassMedium,
-  ScalarIconHourglassSimple,
-  ScalarIconHourglassSimpleHigh,
-  ScalarIconHourglassSimpleLow,
-  ScalarIconHourglassSimpleMedium,
-  ScalarIconHouse,
-  ScalarIconHouseLine,
-  ScalarIconHouseSimple,
-  ScalarIconHurricane,
-  ScalarIconIceCream,
-  ScalarIconIdentificationBadge,
-  ScalarIconIdentificationCard,
-  ScalarIconImage,
-  ScalarIconImageBroken,
-  ScalarIconImageSquare,
-  ScalarIconImages,
-  ScalarIconImagesSquare,
-  ScalarIconInfinity,
-  ScalarIconInfinity as ScalarIconLemniscate,
-  ScalarIconInfo,
-  ScalarIconInstagramLogo,
-  ScalarIconIntersect,
-  ScalarIconIntersectSquare,
-  ScalarIconIntersectThree,
-  ScalarIconIntersection,
-  ScalarIconInvoice,
-  ScalarIconIsland,
-  ScalarIconJar,
-  ScalarIconJarLabel,
-  ScalarIconJeep,
-  ScalarIconJoystick,
-  ScalarIconKanban,
-  ScalarIconKey,
-  ScalarIconKeyReturn,
-  ScalarIconKeyboard,
-  ScalarIconKeyhole,
-  ScalarIconKnife,
-  ScalarIconLadder,
-  ScalarIconLadderSimple,
-  ScalarIconLamp,
-  ScalarIconLampPendant,
-  ScalarIconLaptop,
-  ScalarIconLasso,
-  ScalarIconLastfmLogo,
-  ScalarIconLayout,
-  ScalarIconLeaf,
-  ScalarIconLectern,
-  ScalarIconLego,
-  ScalarIconLegoSmiley,
-  ScalarIconLessThan,
-  ScalarIconLessThanOrEqual,
-  ScalarIconLetterCircleH,
-  ScalarIconLetterCircleP,
-  ScalarIconLetterCircleV,
-  ScalarIconLifebuoy,
-  ScalarIconLightbulb,
-  ScalarIconLightbulbFilament,
-  ScalarIconLighthouse,
-  ScalarIconLightningA,
-  ScalarIconLightning,
-  ScalarIconLightningSlash,
-  ScalarIconLineSegment,
-  ScalarIconLineSegments,
-  ScalarIconLineVertical,
-  ScalarIconLink,
-  ScalarIconLinkBreak,
-  ScalarIconLinkSimple,
-  ScalarIconLinkSimpleBreak,
-  ScalarIconLinkSimpleHorizontal,
-  ScalarIconLinkSimpleHorizontalBreak,
-  ScalarIconLinkedinLogo,
-  ScalarIconLinktreeLogo,
-  ScalarIconLinuxLogo,
-  ScalarIconList,
-  ScalarIconListBullets,
-  ScalarIconListChecks,
-  ScalarIconListDashes,
-  ScalarIconListHeart,
-  ScalarIconListMagnifyingGlass,
-  ScalarIconListNumbers,
-  ScalarIconListPlus,
-  ScalarIconListStar,
-  ScalarIconLock,
-  ScalarIconLockKey,
-  ScalarIconLockKeyOpen,
-  ScalarIconLockLaminated,
-  ScalarIconLockLaminatedOpen,
-  ScalarIconLockOpen,
-  ScalarIconLockSimple,
-  ScalarIconLockSimpleOpen,
-  ScalarIconLockers,
-  ScalarIconLog,
-  ScalarIconMagicWand,
-  ScalarIconMagnet,
-  ScalarIconMagnetStraight,
-  ScalarIconMagnifyingGlass,
-  ScalarIconMagnifyingGlassMinus,
-  ScalarIconMagnifyingGlassPlus,
-  ScalarIconMailbox,
-  ScalarIconMapPinArea,
-  ScalarIconMapPin,
-  ScalarIconMapPinLine,
-  ScalarIconMapPinPlus,
-  ScalarIconMapPinSimpleArea,
-  ScalarIconMapPinSimple,
-  ScalarIconMapPinSimpleLine,
-  ScalarIconMapTrifold,
-  ScalarIconMarkdownLogo,
-  ScalarIconMarkerCircle,
-  ScalarIconMartini,
-  ScalarIconMaskHappy,
-  ScalarIconMaskSad,
-  ScalarIconMastodonLogo,
-  ScalarIconMathOperations,
-  ScalarIconMatrixLogo,
-  ScalarIconMedal,
-  ScalarIconMedalMilitary,
-  ScalarIconMediumLogo,
-  ScalarIconMegaphone,
-  ScalarIconMegaphoneSimple,
-  ScalarIconMemberOf,
-  ScalarIconMemory,
-  ScalarIconMessengerLogo,
-  ScalarIconMetaLogo,
-  ScalarIconMeteor,
-  ScalarIconMetronome,
-  ScalarIconMicrophone,
-  ScalarIconMicrophoneSlash,
-  ScalarIconMicrophoneStage,
-  ScalarIconMicroscope,
-  ScalarIconMicrosoftExcelLogo,
-  ScalarIconMicrosoftOutlookLogo,
-  ScalarIconMicrosoftPowerpointLogo,
-  ScalarIconMicrosoftTeamsLogo,
-  ScalarIconMicrosoftWordLogo,
-  ScalarIconMinus,
-  ScalarIconMinusCircle,
-  ScalarIconMinusSquare,
-  ScalarIconMoney,
-  ScalarIconMoneyWavy,
-  ScalarIconMonitorArrowUp,
-  ScalarIconMonitor,
-  ScalarIconMonitorPlay,
-  ScalarIconMoon,
-  ScalarIconMoonStars,
-  ScalarIconMoped,
-  ScalarIconMopedFront,
-  ScalarIconMosque,
-  ScalarIconMotorcycle,
-  ScalarIconMountains,
-  ScalarIconMouse,
-  ScalarIconMouseLeftClick,
-  ScalarIconMouseMiddleClick,
-  ScalarIconMouseRightClick,
-  ScalarIconMouseScroll,
-  ScalarIconMouseSimple,
-  ScalarIconMusicNote,
-  ScalarIconMusicNoteSimple,
-  ScalarIconMusicNotes,
-  ScalarIconMusicNotesMinus,
-  ScalarIconMusicNotesPlus,
-  ScalarIconMusicNotesSimple,
-  ScalarIconNavigationArrow,
-  ScalarIconNeedle,
-  ScalarIconNetwork,
-  ScalarIconNetworkSlash,
-  ScalarIconNetworkX,
-  ScalarIconNewspaper,
-  ScalarIconNewspaperClipping,
-  ScalarIconNotEquals,
-  ScalarIconNotMemberOf,
-  ScalarIconNotSubsetOf,
-  ScalarIconNotSupersetOf,
-  ScalarIconNotches,
-  ScalarIconNoteBlank,
-  ScalarIconNote,
-  ScalarIconNotePencil,
-  ScalarIconNotebook,
-  ScalarIconNotepad,
-  ScalarIconNotification,
-  ScalarIconNotionLogo,
-  ScalarIconNuclearPlant,
-  ScalarIconNumberCircleEight,
-  ScalarIconNumberCircleFive,
-  ScalarIconNumberCircleFour,
-  ScalarIconNumberCircleNine,
-  ScalarIconNumberCircleOne,
-  ScalarIconNumberCircleSeven,
-  ScalarIconNumberCircleSix,
-  ScalarIconNumberCircleThree,
-  ScalarIconNumberCircleTwo,
-  ScalarIconNumberCircleZero,
-  ScalarIconNumberEight,
-  ScalarIconNumberFive,
-  ScalarIconNumberFour,
-  ScalarIconNumberNine,
-  ScalarIconNumberOne,
-  ScalarIconNumberSeven,
-  ScalarIconNumberSix,
-  ScalarIconNumberSquareEight,
-  ScalarIconNumberSquareFive,
-  ScalarIconNumberSquareFour,
-  ScalarIconNumberSquareNine,
-  ScalarIconNumberSquareOne,
-  ScalarIconNumberSquareSeven,
-  ScalarIconNumberSquareSix,
-  ScalarIconNumberSquareThree,
-  ScalarIconNumberSquareTwo,
-  ScalarIconNumberSquareZero,
-  ScalarIconNumberThree,
-  ScalarIconNumberTwo,
-  ScalarIconNumberZero,
-  ScalarIconNumpad,
-  ScalarIconNut,
-  ScalarIconNyTimesLogo,
-  ScalarIconOctagon,
-  ScalarIconOfficeChair,
-  ScalarIconOnigiri,
-  ScalarIconOpenAiLogo,
-  ScalarIconOption,
-  ScalarIconOrange,
-  ScalarIconOrangeSlice,
-  ScalarIconOven,
-  ScalarIconPackage,
-  ScalarIconPaintBrush,
-  ScalarIconPaintBrushBroad,
-  ScalarIconPaintBrushHousehold,
-  ScalarIconPaintBucket,
-  ScalarIconPaintRoller,
-  ScalarIconPalette,
-  ScalarIconPanorama,
-  ScalarIconPants,
-  ScalarIconPaperPlane,
-  ScalarIconPaperPlaneRight,
-  ScalarIconPaperPlaneTilt,
-  ScalarIconPaperclip,
-  ScalarIconPaperclipHorizontal,
-  ScalarIconParachute,
-  ScalarIconParagraph,
-  ScalarIconParallelogram,
-  ScalarIconPark,
-  ScalarIconPassword,
-  ScalarIconPath,
-  ScalarIconPatreonLogo,
-  ScalarIconPause,
-  ScalarIconPauseCircle,
-  ScalarIconPawPrint,
-  ScalarIconPaypalLogo,
-  ScalarIconPeace,
-  ScalarIconPen,
-  ScalarIconPenNib,
-  ScalarIconPenNibStraight,
-  ScalarIconPencil,
-  ScalarIconPencilCircle,
-  ScalarIconPencilLine,
-  ScalarIconPencilRuler,
-  ScalarIconPencilSimple,
-  ScalarIconPencilSimpleLine,
-  ScalarIconPencilSimpleSlash,
-  ScalarIconPencilSlash,
-  ScalarIconPentagon,
-  ScalarIconPentagram,
-  ScalarIconPepper,
-  ScalarIconPercent,
-  ScalarIconPersonArmsSpread,
-  ScalarIconPerson,
-  ScalarIconPersonSimpleBike,
-  ScalarIconPersonSimple,
-  ScalarIconPersonSimpleCircle,
-  ScalarIconPersonSimpleHike,
-  ScalarIconPersonSimpleRun,
-  ScalarIconPersonSimpleSki,
-  ScalarIconPersonSimpleSnowboard,
-  ScalarIconPersonSimpleSwim,
-  ScalarIconPersonSimpleTaiChi,
-  ScalarIconPersonSimpleThrow,
-  ScalarIconPersonSimpleWalk,
-  ScalarIconPerspective,
-  ScalarIconPhone,
-  ScalarIconPhoneCall,
-  ScalarIconPhoneDisconnect,
-  ScalarIconPhoneIncoming,
-  ScalarIconPhoneList,
-  ScalarIconPhoneOutgoing,
-  ScalarIconPhonePause,
-  ScalarIconPhonePlus,
-  ScalarIconPhoneSlash,
-  ScalarIconPhoneTransfer,
-  ScalarIconPhoneX,
-  ScalarIconPhosphorLogo,
-  ScalarIconPi,
-  ScalarIconPianoKeys,
-  ScalarIconPicnicTable,
-  ScalarIconPictureInPicture,
-  ScalarIconPiggyBank,
-  ScalarIconPill,
-  ScalarIconPingPong,
-  ScalarIconPintGlass,
-  ScalarIconPinterestLogo,
-  ScalarIconPinwheel,
-  ScalarIconPipe,
-  ScalarIconPipeWrench,
-  ScalarIconPixLogo,
-  ScalarIconPizza,
-  ScalarIconPlaceholder,
-  ScalarIconPlanet,
-  ScalarIconPlant,
-  ScalarIconPlay,
-  ScalarIconPlayCircle,
-  ScalarIconPlayPause,
-  ScalarIconPlaylist,
-  ScalarIconPlug,
-  ScalarIconPlugCharging,
-  ScalarIconPlugs,
-  ScalarIconPlugsConnected,
-  ScalarIconPlus,
-  ScalarIconPlusCircle,
-  ScalarIconPlusMinus,
-  ScalarIconPlusSquare,
-  ScalarIconPokerChip,
-  ScalarIconPoliceCar,
-  ScalarIconPolygon,
-  ScalarIconPopcorn,
-  ScalarIconPopsicle,
-  ScalarIconPottedPlant,
-  ScalarIconPower,
-  ScalarIconPrescription,
-  ScalarIconPresentation,
-  ScalarIconPresentationChart,
-  ScalarIconPrinter,
-  ScalarIconProhibit,
-  ScalarIconProhibitInset,
-  ScalarIconProjectorScreen,
-  ScalarIconProjectorScreenChart,
-  ScalarIconPulse,
-  ScalarIconPulse as ScalarIconActivity,
-  ScalarIconPushPin,
-  ScalarIconPushPinSimple,
-  ScalarIconPushPinSimpleSlash,
-  ScalarIconPushPinSlash,
-  ScalarIconPuzzlePiece,
-  ScalarIconQrCode,
-  ScalarIconQuestion,
-  ScalarIconQuestionMark,
-  ScalarIconQueue,
-  ScalarIconQuotes,
-  ScalarIconRabbit,
-  ScalarIconRacquet,
-  ScalarIconRadical,
-  ScalarIconRadio,
-  ScalarIconRadioButton,
-  ScalarIconRadioactive,
-  ScalarIconRainbow,
-  ScalarIconRainbowCloud,
-  ScalarIconRanking,
-  ScalarIconReadCvLogo,
-  ScalarIconReceipt,
-  ScalarIconReceiptX,
-  ScalarIconRecord,
-  ScalarIconRectangle,
-  ScalarIconRectangleDashed,
-  ScalarIconRecycle,
-  ScalarIconRedditLogo,
-  ScalarIconRepeat,
-  ScalarIconRepeatOnce,
-  ScalarIconReplitLogo,
-  ScalarIconResize,
-  ScalarIconRewind,
-  ScalarIconRewindCircle,
-  ScalarIconRoadHorizon,
-  ScalarIconRobot,
-  ScalarIconRocket,
-  ScalarIconRocketLaunch,
-  ScalarIconRows,
-  ScalarIconRowsPlusBottom,
-  ScalarIconRowsPlusTop,
-  ScalarIconRss,
-  ScalarIconRssSimple,
-  ScalarIconRug,
-  ScalarIconRuler,
-  ScalarIconSailboat,
-  ScalarIconScales,
-  ScalarIconScan,
-  ScalarIconScanSmiley,
-  ScalarIconScissors,
-  ScalarIconScooter,
-  ScalarIconScreencast,
-  ScalarIconScrewdriver,
-  ScalarIconScribble,
-  ScalarIconScribbleLoop,
-  ScalarIconScroll,
-  ScalarIconSeal,
-  ScalarIconSeal as ScalarIconCircleWavy,
-  ScalarIconSealCheck,
-  ScalarIconSealCheck as ScalarIconCircleWavyCheck,
-  ScalarIconSealPercent,
-  ScalarIconSealQuestion,
-  ScalarIconSealQuestion as ScalarIconCircleWavyQuestion,
-  ScalarIconSealWarning,
-  ScalarIconSealWarning as ScalarIconCircleWavyWarning,
-  ScalarIconSeat,
-  ScalarIconSeatbelt,
-  ScalarIconSecurityCamera,
-  ScalarIconSelectionAll,
-  ScalarIconSelectionBackground,
-  ScalarIconSelection,
-  ScalarIconSelectionForeground,
-  ScalarIconSelectionInverse,
-  ScalarIconSelectionPlus,
-  ScalarIconSelectionSlash,
-  ScalarIconShapes,
-  ScalarIconShare,
-  ScalarIconShareFat,
-  ScalarIconShareNetwork,
-  ScalarIconShield,
-  ScalarIconShieldCheck,
-  ScalarIconShieldCheckered,
-  ScalarIconShieldChevron,
-  ScalarIconShieldPlus,
-  ScalarIconShieldSlash,
-  ScalarIconShieldStar,
-  ScalarIconShieldWarning,
-  ScalarIconShippingContainer,
-  ScalarIconShirtFolded,
-  ScalarIconShootingStar,
-  ScalarIconShoppingBag,
-  ScalarIconShoppingBagOpen,
-  ScalarIconShoppingCart,
-  ScalarIconShoppingCartSimple,
-  ScalarIconShovel,
-  ScalarIconShower,
-  ScalarIconShrimp,
-  ScalarIconShuffleAngular,
-  ScalarIconShuffle,
-  ScalarIconShuffleSimple,
-  ScalarIconSidebar,
-  ScalarIconSidebarSimple,
-  ScalarIconSigma,
-  ScalarIconSignIn,
-  ScalarIconSignOut,
-  ScalarIconSignature,
-  ScalarIconSignpost,
-  ScalarIconSimCard,
-  ScalarIconSiren,
-  ScalarIconSketchLogo,
-  ScalarIconSkipBack,
-  ScalarIconSkipBackCircle,
-  ScalarIconSkipForward,
-  ScalarIconSkipForwardCircle,
-  ScalarIconSkull,
-  ScalarIconSkypeLogo,
-  ScalarIconSlackLogo,
-  ScalarIconSliders,
-  ScalarIconSlidersHorizontal,
-  ScalarIconSlideshow,
-  ScalarIconSmileyAngry,
-  ScalarIconSmileyBlank,
-  ScalarIconSmiley,
-  ScalarIconSmileyMeh,
-  ScalarIconSmileyMelting,
-  ScalarIconSmileyNervous,
-  ScalarIconSmileySad,
-  ScalarIconSmileySticker,
-  ScalarIconSmileyWink,
-  ScalarIconSmileyXEyes,
-  ScalarIconSnapchatLogo,
-  ScalarIconSneaker,
-  ScalarIconSneakerMove,
-  ScalarIconSnowflake,
-  ScalarIconSoccerBall,
-  ScalarIconSock,
-  ScalarIconSolarPanel,
-  ScalarIconSolarRoof,
-  ScalarIconSortAscending,
-  ScalarIconSortDescending,
-  ScalarIconSoundcloudLogo,
-  ScalarIconSpade,
-  ScalarIconSparkle,
-  ScalarIconSpeakerHifi,
-  ScalarIconSpeakerHigh,
-  ScalarIconSpeakerLow,
-  ScalarIconSpeakerNone,
-  ScalarIconSpeakerSimpleHigh,
-  ScalarIconSpeakerSimpleLow,
-  ScalarIconSpeakerSimpleNone,
-  ScalarIconSpeakerSimpleSlash,
-  ScalarIconSpeakerSimpleX,
-  ScalarIconSpeakerSlash,
-  ScalarIconSpeakerX,
-  ScalarIconSpeedometer,
-  ScalarIconSphere,
-  ScalarIconSpinnerBall,
-  ScalarIconSpinner,
-  ScalarIconSpinnerGap,
-  ScalarIconSpiral,
-  ScalarIconSplitHorizontal,
-  ScalarIconSplitVertical,
-  ScalarIconSpotifyLogo,
-  ScalarIconSprayBottle,
-  ScalarIconSquare,
-  ScalarIconSquareHalf,
-  ScalarIconSquareHalfBottom,
-  ScalarIconSquareLogo,
-  ScalarIconSquareSplitHorizontal,
-  ScalarIconSquareSplitVertical,
-  ScalarIconSquaresFour,
-  ScalarIconStack,
-  ScalarIconStackMinus,
-  ScalarIconStackOverflowLogo,
-  ScalarIconStackPlus,
-  ScalarIconStackSimple,
-  ScalarIconStairs,
-  ScalarIconStamp,
-  ScalarIconStandardDefinition,
-  ScalarIconStarAndCrescent,
-  ScalarIconStar,
-  ScalarIconStarFour,
-  ScalarIconStarHalf,
-  ScalarIconStarOfDavid,
-  ScalarIconSteamLogo,
-  ScalarIconSteeringWheel,
-  ScalarIconSteps,
-  ScalarIconStethoscope,
-  ScalarIconSticker,
-  ScalarIconStool,
-  ScalarIconStop,
-  ScalarIconStopCircle,
-  ScalarIconStorefront,
-  ScalarIconStrategy,
-  ScalarIconStripeLogo,
-  ScalarIconStudent,
-  ScalarIconSubsetOf,
-  ScalarIconSubsetProperOf,
-  ScalarIconSubtitles,
-  ScalarIconSubtitlesSlash,
-  ScalarIconSubtract,
-  ScalarIconSubtractSquare,
-  ScalarIconSubway,
-  ScalarIconSuitcase,
-  ScalarIconSuitcaseRolling,
-  ScalarIconSuitcaseSimple,
-  ScalarIconSun,
-  ScalarIconSunDim,
-  ScalarIconSunHorizon,
-  ScalarIconSunglasses,
-  ScalarIconSupersetOf,
-  ScalarIconSupersetProperOf,
-  ScalarIconSwap,
-  ScalarIconSwatches,
-  ScalarIconSwimmingPool,
-  ScalarIconSword,
-  ScalarIconSynagogue,
-  ScalarIconSyringe,
-  ScalarIconTShirt,
-  ScalarIconTable,
-  ScalarIconTabs,
-  ScalarIconTag,
-  ScalarIconTagChevron,
-  ScalarIconTagSimple,
-  ScalarIconTarget,
-  ScalarIconTaxi,
-  ScalarIconTeaBag,
-  ScalarIconTelegramLogo,
-  ScalarIconTelevision,
-  ScalarIconTelevisionSimple,
-  ScalarIconTennisBall,
-  ScalarIconTent,
-  ScalarIconTerminal,
-  ScalarIconTerminalWindow,
-  ScalarIconTestTube,
-  ScalarIconTextAUnderline,
-  ScalarIconTextAa,
-  ScalarIconTextAlignCenter,
-  ScalarIconTextAlignJustify,
-  ScalarIconTextAlignLeft,
-  ScalarIconTextAlignRight,
-  ScalarIconTextB,
-  ScalarIconTextB as ScalarIconTextBolder,
-  ScalarIconTextColumns,
-  ScalarIconTextH,
-  ScalarIconTextHFive,
-  ScalarIconTextHFour,
-  ScalarIconTextHOne,
-  ScalarIconTextHSix,
-  ScalarIconTextHThree,
-  ScalarIconTextHTwo,
-  ScalarIconTextIndent,
-  ScalarIconTextItalic,
-  ScalarIconTextOutdent,
-  ScalarIconTextStrikethrough,
-  ScalarIconTextSubscript,
-  ScalarIconTextSuperscript,
-  ScalarIconTextT,
-  ScalarIconTextTSlash,
-  ScalarIconTextUnderline,
-  ScalarIconTextbox,
-  ScalarIconThermometer,
-  ScalarIconThermometerCold,
-  ScalarIconThermometerHot,
-  ScalarIconThermometerSimple,
-  ScalarIconThreadsLogo,
-  ScalarIconThreeD,
-  ScalarIconThumbsDown,
-  ScalarIconThumbsUp,
-  ScalarIconTicket,
-  ScalarIconTidalLogo,
-  ScalarIconTiktokLogo,
-  ScalarIconTilde,
-  ScalarIconTimer,
-  ScalarIconTipJar,
-  ScalarIconTipi,
-  ScalarIconTire,
-  ScalarIconToggleLeft,
-  ScalarIconToggleRight,
-  ScalarIconToilet,
-  ScalarIconToiletPaper,
-  ScalarIconToolbox,
-  ScalarIconTooth,
-  ScalarIconTornado,
-  ScalarIconTote,
-  ScalarIconToteSimple,
-  ScalarIconTowel,
-  ScalarIconTractor,
-  ScalarIconTrademark,
-  ScalarIconTrademarkRegistered,
-  ScalarIconTrafficCone,
-  ScalarIconTrafficSign,
-  ScalarIconTrafficSignal,
-  ScalarIconTrain,
-  ScalarIconTrainRegional,
-  ScalarIconTrainSimple,
-  ScalarIconTram,
-  ScalarIconTranslate,
-  ScalarIconTrash,
-  ScalarIconTrashSimple,
-  ScalarIconTrayArrowDown,
-  ScalarIconTrayArrowDown as ScalarIconArchiveTray,
-  ScalarIconTrayArrowUp,
-  ScalarIconTray,
-  ScalarIconTreasureChest,
-  ScalarIconTree,
-  ScalarIconTreeEvergreen,
-  ScalarIconTreePalm,
-  ScalarIconTreeStructure,
-  ScalarIconTreeView,
-  ScalarIconTrendDown,
-  ScalarIconTrendUp,
-  ScalarIconTriangle,
-  ScalarIconTriangleDashed,
-  ScalarIconTrolley,
-  ScalarIconTrolleySuitcase,
-  ScalarIconTrophy,
-  ScalarIconTruck,
-  ScalarIconTruckTrailer,
-  ScalarIconTumblrLogo,
-  ScalarIconTwitchLogo,
-  ScalarIconTwitterLogo,
-  ScalarIconUmbrella,
-  ScalarIconUmbrellaSimple,
-  ScalarIconUnion,
-  ScalarIconUnite,
-  ScalarIconUniteSquare,
-  ScalarIconUpload,
-  ScalarIconUploadSimple,
-  ScalarIconUsb,
-  ScalarIconUser,
-  ScalarIconUserCheck,
-  ScalarIconUserCircle,
-  ScalarIconUserCircleCheck,
-  ScalarIconUserCircleDashed,
-  ScalarIconUserCircleGear,
-  ScalarIconUserCircleMinus,
-  ScalarIconUserCirclePlus,
-  ScalarIconUserFocus,
-  ScalarIconUserGear,
-  ScalarIconUserList,
-  ScalarIconUserMinus,
-  ScalarIconUserPlus,
-  ScalarIconUserRectangle,
-  ScalarIconUserSound,
-  ScalarIconUserSquare,
-  ScalarIconUserSwitch,
-  ScalarIconUsers,
-  ScalarIconUsersFour,
-  ScalarIconUsersThree,
-  ScalarIconVan,
-  ScalarIconVault,
-  ScalarIconVectorThree,
-  ScalarIconVectorTwo,
-  ScalarIconVibrate,
-  ScalarIconVideo,
-  ScalarIconVideoCamera,
-  ScalarIconVideoCameraSlash,
-  ScalarIconVideoConference,
-  ScalarIconVignette,
-  ScalarIconVinylRecord,
-  ScalarIconVirtualReality,
-  ScalarIconVirus,
-  ScalarIconVisor,
-  ScalarIconVoicemail,
-  ScalarIconVolleyball,
-  ScalarIconWall,
-  ScalarIconWallet,
-  ScalarIconWarehouse,
-  ScalarIconWarning,
-  ScalarIconWarningCircle,
-  ScalarIconWarningDiamond,
-  ScalarIconWarningOctagon,
-  ScalarIconWashingMachine,
-  ScalarIconWatch,
-  ScalarIconWaveSawtooth,
-  ScalarIconWaveSine,
-  ScalarIconWaveSquare,
-  ScalarIconWaveTriangle,
-  ScalarIconWaveform,
-  ScalarIconWaveformSlash,
-  ScalarIconWaves,
-  ScalarIconWebcam,
-  ScalarIconWebcamSlash,
-  ScalarIconWebhooksLogo,
-  ScalarIconWechatLogo,
-  ScalarIconWhatsappLogo,
-  ScalarIconWheelchair,
-  ScalarIconWheelchairMotion,
-  ScalarIconWifiHigh,
-  ScalarIconWifiLow,
-  ScalarIconWifiMedium,
-  ScalarIconWifiNone,
-  ScalarIconWifiSlash,
-  ScalarIconWifiX,
-  ScalarIconWind,
-  ScalarIconWindmill,
-  ScalarIconWindowsLogo,
-  ScalarIconWine,
-  ScalarIconWrench,
-  ScalarIconX,
-  ScalarIconXCircle,
-  ScalarIconXLogo,
-  ScalarIconXSquare,
-  ScalarIconYarn,
-  ScalarIconYinYang,
-  ScalarIconYoutubeLogo,
-}
+export { default as ScalarIconAcorn } from './components/ScalarIconAcorn.vue'
+export { default as ScalarIconAddressBook } from './components/ScalarIconAddressBook.vue'
+export { default as ScalarIconAddressBookTabs } from './components/ScalarIconAddressBookTabs.vue'
+export { default as ScalarIconAirTrafficControl } from './components/ScalarIconAirTrafficControl.vue'
+export { default as ScalarIconAirplane } from './components/ScalarIconAirplane.vue'
+export { default as ScalarIconAirplaneInFlight } from './components/ScalarIconAirplaneInFlight.vue'
+export { default as ScalarIconAirplaneLanding } from './components/ScalarIconAirplaneLanding.vue'
+export { default as ScalarIconAirplaneTakeoff } from './components/ScalarIconAirplaneTakeoff.vue'
+export { default as ScalarIconAirplaneTaxiing } from './components/ScalarIconAirplaneTaxiing.vue'
+export { default as ScalarIconAirplaneTilt } from './components/ScalarIconAirplaneTilt.vue'
+export { default as ScalarIconAirplay } from './components/ScalarIconAirplay.vue'
+export { default as ScalarIconAlarm } from './components/ScalarIconAlarm.vue'
+export { default as ScalarIconAlien } from './components/ScalarIconAlien.vue'
+export { default as ScalarIconAlignBottom } from './components/ScalarIconAlignBottom.vue'
+export { default as ScalarIconAlignBottomSimple } from './components/ScalarIconAlignBottomSimple.vue'
+export { default as ScalarIconAlignCenterHorizontal } from './components/ScalarIconAlignCenterHorizontal.vue'
+export { default as ScalarIconAlignCenterHorizontalSimple } from './components/ScalarIconAlignCenterHorizontalSimple.vue'
+export { default as ScalarIconAlignCenterVertical } from './components/ScalarIconAlignCenterVertical.vue'
+export { default as ScalarIconAlignCenterVerticalSimple } from './components/ScalarIconAlignCenterVerticalSimple.vue'
+export { default as ScalarIconAlignLeft } from './components/ScalarIconAlignLeft.vue'
+export { default as ScalarIconAlignLeftSimple } from './components/ScalarIconAlignLeftSimple.vue'
+export { default as ScalarIconAlignRight } from './components/ScalarIconAlignRight.vue'
+export { default as ScalarIconAlignRightSimple } from './components/ScalarIconAlignRightSimple.vue'
+export { default as ScalarIconAlignTop } from './components/ScalarIconAlignTop.vue'
+export { default as ScalarIconAlignTopSimple } from './components/ScalarIconAlignTopSimple.vue'
+export { default as ScalarIconAmazonLogo } from './components/ScalarIconAmazonLogo.vue'
+export { default as ScalarIconAmbulance } from './components/ScalarIconAmbulance.vue'
+export { default as ScalarIconAnchor } from './components/ScalarIconAnchor.vue'
+export { default as ScalarIconAnchorSimple } from './components/ScalarIconAnchorSimple.vue'
+export { default as ScalarIconAndroidLogo } from './components/ScalarIconAndroidLogo.vue'
+export { default as ScalarIconAngle } from './components/ScalarIconAngle.vue'
+export { default as ScalarIconAngularLogo } from './components/ScalarIconAngularLogo.vue'
+export { default as ScalarIconAperture } from './components/ScalarIconAperture.vue'
+export { default as ScalarIconAppStoreLogo } from './components/ScalarIconAppStoreLogo.vue'
+export { default as ScalarIconAppWindow } from './components/ScalarIconAppWindow.vue'
+export { default as ScalarIconAppleLogo } from './components/ScalarIconAppleLogo.vue'
+export { default as ScalarIconApplePodcastsLogo } from './components/ScalarIconApplePodcastsLogo.vue'
+export { default as ScalarIconApproximateEquals } from './components/ScalarIconApproximateEquals.vue'
+export { default as ScalarIconArchive } from './components/ScalarIconArchive.vue'
+export { default as ScalarIconArmchair } from './components/ScalarIconArmchair.vue'
+export { default as ScalarIconArrowArcLeft } from './components/ScalarIconArrowArcLeft.vue'
+export { default as ScalarIconArrowArcRight } from './components/ScalarIconArrowArcRight.vue'
+export { default as ScalarIconArrowBendDoubleUpLeft } from './components/ScalarIconArrowBendDoubleUpLeft.vue'
+export { default as ScalarIconArrowBendDoubleUpRight } from './components/ScalarIconArrowBendDoubleUpRight.vue'
+export { default as ScalarIconArrowBendDownLeft } from './components/ScalarIconArrowBendDownLeft.vue'
+export { default as ScalarIconArrowBendDownRight } from './components/ScalarIconArrowBendDownRight.vue'
+export { default as ScalarIconArrowBendLeftDown } from './components/ScalarIconArrowBendLeftDown.vue'
+export { default as ScalarIconArrowBendLeftUp } from './components/ScalarIconArrowBendLeftUp.vue'
+export { default as ScalarIconArrowBendRightDown } from './components/ScalarIconArrowBendRightDown.vue'
+export { default as ScalarIconArrowBendRightUp } from './components/ScalarIconArrowBendRightUp.vue'
+export { default as ScalarIconArrowBendUpLeft } from './components/ScalarIconArrowBendUpLeft.vue'
+export { default as ScalarIconArrowBendUpRight } from './components/ScalarIconArrowBendUpRight.vue'
+export { default as ScalarIconArrowCircleDown } from './components/ScalarIconArrowCircleDown.vue'
+export { default as ScalarIconArrowCircleDownLeft } from './components/ScalarIconArrowCircleDownLeft.vue'
+export { default as ScalarIconArrowCircleDownRight } from './components/ScalarIconArrowCircleDownRight.vue'
+export { default as ScalarIconArrowCircleLeft } from './components/ScalarIconArrowCircleLeft.vue'
+export { default as ScalarIconArrowCircleRight } from './components/ScalarIconArrowCircleRight.vue'
+export { default as ScalarIconArrowCircleUp } from './components/ScalarIconArrowCircleUp.vue'
+export { default as ScalarIconArrowCircleUpLeft } from './components/ScalarIconArrowCircleUpLeft.vue'
+export { default as ScalarIconArrowCircleUpRight } from './components/ScalarIconArrowCircleUpRight.vue'
+export { default as ScalarIconArrowClockwise } from './components/ScalarIconArrowClockwise.vue'
+export { default as ScalarIconArrowCounterClockwise } from './components/ScalarIconArrowCounterClockwise.vue'
+export { default as ScalarIconArrowDown } from './components/ScalarIconArrowDown.vue'
+export { default as ScalarIconArrowDownLeft } from './components/ScalarIconArrowDownLeft.vue'
+export { default as ScalarIconArrowDownRight } from './components/ScalarIconArrowDownRight.vue'
+export { default as ScalarIconArrowElbowDownLeft } from './components/ScalarIconArrowElbowDownLeft.vue'
+export { default as ScalarIconArrowElbowDownRight } from './components/ScalarIconArrowElbowDownRight.vue'
+export { default as ScalarIconArrowElbowLeft } from './components/ScalarIconArrowElbowLeft.vue'
+export { default as ScalarIconArrowElbowLeftDown } from './components/ScalarIconArrowElbowLeftDown.vue'
+export { default as ScalarIconArrowElbowLeftUp } from './components/ScalarIconArrowElbowLeftUp.vue'
+export { default as ScalarIconArrowElbowRight } from './components/ScalarIconArrowElbowRight.vue'
+export { default as ScalarIconArrowElbowRightDown } from './components/ScalarIconArrowElbowRightDown.vue'
+export { default as ScalarIconArrowElbowRightUp } from './components/ScalarIconArrowElbowRightUp.vue'
+export { default as ScalarIconArrowElbowUpLeft } from './components/ScalarIconArrowElbowUpLeft.vue'
+export { default as ScalarIconArrowElbowUpRight } from './components/ScalarIconArrowElbowUpRight.vue'
+export { default as ScalarIconArrowFatDown } from './components/ScalarIconArrowFatDown.vue'
+export { default as ScalarIconArrowFatLeft } from './components/ScalarIconArrowFatLeft.vue'
+export { default as ScalarIconArrowFatLineDown } from './components/ScalarIconArrowFatLineDown.vue'
+export { default as ScalarIconArrowFatLineLeft } from './components/ScalarIconArrowFatLineLeft.vue'
+export { default as ScalarIconArrowFatLineRight } from './components/ScalarIconArrowFatLineRight.vue'
+export { default as ScalarIconArrowFatLineUp } from './components/ScalarIconArrowFatLineUp.vue'
+export { default as ScalarIconArrowFatLinesDown } from './components/ScalarIconArrowFatLinesDown.vue'
+export { default as ScalarIconArrowFatLinesLeft } from './components/ScalarIconArrowFatLinesLeft.vue'
+export { default as ScalarIconArrowFatLinesRight } from './components/ScalarIconArrowFatLinesRight.vue'
+export { default as ScalarIconArrowFatLinesUp } from './components/ScalarIconArrowFatLinesUp.vue'
+export { default as ScalarIconArrowFatRight } from './components/ScalarIconArrowFatRight.vue'
+export { default as ScalarIconArrowFatUp } from './components/ScalarIconArrowFatUp.vue'
+export { default as ScalarIconArrowLeft } from './components/ScalarIconArrowLeft.vue'
+export { default as ScalarIconArrowLineDown } from './components/ScalarIconArrowLineDown.vue'
+export { default as ScalarIconArrowLineDownLeft } from './components/ScalarIconArrowLineDownLeft.vue'
+export { default as ScalarIconArrowLineDownRight } from './components/ScalarIconArrowLineDownRight.vue'
+export { default as ScalarIconArrowLineLeft } from './components/ScalarIconArrowLineLeft.vue'
+export { default as ScalarIconArrowLineRight } from './components/ScalarIconArrowLineRight.vue'
+export { default as ScalarIconArrowLineUp } from './components/ScalarIconArrowLineUp.vue'
+export { default as ScalarIconArrowLineUpLeft } from './components/ScalarIconArrowLineUpLeft.vue'
+export { default as ScalarIconArrowLineUpRight } from './components/ScalarIconArrowLineUpRight.vue'
+export { default as ScalarIconArrowRight } from './components/ScalarIconArrowRight.vue'
+export { default as ScalarIconArrowSquareDown } from './components/ScalarIconArrowSquareDown.vue'
+export { default as ScalarIconArrowSquareDownLeft } from './components/ScalarIconArrowSquareDownLeft.vue'
+export { default as ScalarIconArrowSquareDownRight } from './components/ScalarIconArrowSquareDownRight.vue'
+export { default as ScalarIconArrowSquareIn } from './components/ScalarIconArrowSquareIn.vue'
+export { default as ScalarIconArrowSquareLeft } from './components/ScalarIconArrowSquareLeft.vue'
+export { default as ScalarIconArrowSquareOut } from './components/ScalarIconArrowSquareOut.vue'
+export { default as ScalarIconArrowSquareRight } from './components/ScalarIconArrowSquareRight.vue'
+export { default as ScalarIconArrowSquareUp } from './components/ScalarIconArrowSquareUp.vue'
+export { default as ScalarIconArrowSquareUpLeft } from './components/ScalarIconArrowSquareUpLeft.vue'
+export { default as ScalarIconArrowSquareUpRight } from './components/ScalarIconArrowSquareUpRight.vue'
+export { default as ScalarIconArrowUDownLeft } from './components/ScalarIconArrowUDownLeft.vue'
+export { default as ScalarIconArrowUDownRight } from './components/ScalarIconArrowUDownRight.vue'
+export { default as ScalarIconArrowULeftDown } from './components/ScalarIconArrowULeftDown.vue'
+export { default as ScalarIconArrowULeftUp } from './components/ScalarIconArrowULeftUp.vue'
+export { default as ScalarIconArrowURightDown } from './components/ScalarIconArrowURightDown.vue'
+export { default as ScalarIconArrowURightUp } from './components/ScalarIconArrowURightUp.vue'
+export { default as ScalarIconArrowUUpLeft } from './components/ScalarIconArrowUUpLeft.vue'
+export { default as ScalarIconArrowUUpRight } from './components/ScalarIconArrowUUpRight.vue'
+export { default as ScalarIconArrowUp } from './components/ScalarIconArrowUp.vue'
+export { default as ScalarIconArrowUpLeft } from './components/ScalarIconArrowUpLeft.vue'
+export { default as ScalarIconArrowUpRight } from './components/ScalarIconArrowUpRight.vue'
+export { default as ScalarIconArrowsClockwise } from './components/ScalarIconArrowsClockwise.vue'
+export { default as ScalarIconArrowsCounterClockwise } from './components/ScalarIconArrowsCounterClockwise.vue'
+export { default as ScalarIconArrowsDownUp } from './components/ScalarIconArrowsDownUp.vue'
+export { default as ScalarIconArrowsHorizontal } from './components/ScalarIconArrowsHorizontal.vue'
+export { default as ScalarIconArrowsIn } from './components/ScalarIconArrowsIn.vue'
+export { default as ScalarIconArrowsInCardinal } from './components/ScalarIconArrowsInCardinal.vue'
+export { default as ScalarIconArrowsInLineHorizontal } from './components/ScalarIconArrowsInLineHorizontal.vue'
+export { default as ScalarIconArrowsInLineVertical } from './components/ScalarIconArrowsInLineVertical.vue'
+export { default as ScalarIconArrowsInSimple } from './components/ScalarIconArrowsInSimple.vue'
+export { default as ScalarIconArrowsLeftRight } from './components/ScalarIconArrowsLeftRight.vue'
+export { default as ScalarIconArrowsMerge } from './components/ScalarIconArrowsMerge.vue'
+export { default as ScalarIconArrowsOut } from './components/ScalarIconArrowsOut.vue'
+export { default as ScalarIconArrowsOutCardinal } from './components/ScalarIconArrowsOutCardinal.vue'
+export { default as ScalarIconArrowsOutLineHorizontal } from './components/ScalarIconArrowsOutLineHorizontal.vue'
+export { default as ScalarIconArrowsOutLineVertical } from './components/ScalarIconArrowsOutLineVertical.vue'
+export { default as ScalarIconArrowsOutSimple } from './components/ScalarIconArrowsOutSimple.vue'
+export { default as ScalarIconArrowsSplit } from './components/ScalarIconArrowsSplit.vue'
+export { default as ScalarIconArrowsVertical } from './components/ScalarIconArrowsVertical.vue'
+export { default as ScalarIconArticle } from './components/ScalarIconArticle.vue'
+export { default as ScalarIconArticleMedium } from './components/ScalarIconArticleMedium.vue'
+export { default as ScalarIconArticleNyTimes } from './components/ScalarIconArticleNyTimes.vue'
+export { default as ScalarIconAsclepius } from './components/ScalarIconAsclepius.vue'
+export { default as ScalarIconCaduceus } from './components/ScalarIconAsclepius.vue'
+export { default as ScalarIconAsterisk } from './components/ScalarIconAsterisk.vue'
+export { default as ScalarIconAsteriskSimple } from './components/ScalarIconAsteriskSimple.vue'
+export { default as ScalarIconAt } from './components/ScalarIconAt.vue'
+export { default as ScalarIconAtom } from './components/ScalarIconAtom.vue'
+export { default as ScalarIconAvocado } from './components/ScalarIconAvocado.vue'
+export { default as ScalarIconAxe } from './components/ScalarIconAxe.vue'
+export { default as ScalarIconBaby } from './components/ScalarIconBaby.vue'
+export { default as ScalarIconBabyCarriage } from './components/ScalarIconBabyCarriage.vue'
+export { default as ScalarIconBackpack } from './components/ScalarIconBackpack.vue'
+export { default as ScalarIconBackspace } from './components/ScalarIconBackspace.vue'
+export { default as ScalarIconBag } from './components/ScalarIconBag.vue'
+export { default as ScalarIconBagSimple } from './components/ScalarIconBagSimple.vue'
+export { default as ScalarIconBalloon } from './components/ScalarIconBalloon.vue'
+export { default as ScalarIconBandaids } from './components/ScalarIconBandaids.vue'
+export { default as ScalarIconBank } from './components/ScalarIconBank.vue'
+export { default as ScalarIconBarbell } from './components/ScalarIconBarbell.vue'
+export { default as ScalarIconBarcode } from './components/ScalarIconBarcode.vue'
+export { default as ScalarIconBarn } from './components/ScalarIconBarn.vue'
+export { default as ScalarIconBarricade } from './components/ScalarIconBarricade.vue'
+export { default as ScalarIconBaseball } from './components/ScalarIconBaseball.vue'
+export { default as ScalarIconBaseballCap } from './components/ScalarIconBaseballCap.vue'
+export { default as ScalarIconBaseballHelmet } from './components/ScalarIconBaseballHelmet.vue'
+export { default as ScalarIconBasket } from './components/ScalarIconBasket.vue'
+export { default as ScalarIconBasketball } from './components/ScalarIconBasketball.vue'
+export { default as ScalarIconBathtub } from './components/ScalarIconBathtub.vue'
+export { default as ScalarIconBatteryCharging } from './components/ScalarIconBatteryCharging.vue'
+export { default as ScalarIconBatteryChargingVertical } from './components/ScalarIconBatteryChargingVertical.vue'
+export { default as ScalarIconBatteryEmpty } from './components/ScalarIconBatteryEmpty.vue'
+export { default as ScalarIconBatteryFull } from './components/ScalarIconBatteryFull.vue'
+export { default as ScalarIconBatteryHigh } from './components/ScalarIconBatteryHigh.vue'
+export { default as ScalarIconBatteryLow } from './components/ScalarIconBatteryLow.vue'
+export { default as ScalarIconBatteryMedium } from './components/ScalarIconBatteryMedium.vue'
+export { default as ScalarIconBatteryPlus } from './components/ScalarIconBatteryPlus.vue'
+export { default as ScalarIconBatteryPlusVertical } from './components/ScalarIconBatteryPlusVertical.vue'
+export { default as ScalarIconBatteryVerticalEmpty } from './components/ScalarIconBatteryVerticalEmpty.vue'
+export { default as ScalarIconBatteryVerticalFull } from './components/ScalarIconBatteryVerticalFull.vue'
+export { default as ScalarIconBatteryVerticalHigh } from './components/ScalarIconBatteryVerticalHigh.vue'
+export { default as ScalarIconBatteryVerticalLow } from './components/ScalarIconBatteryVerticalLow.vue'
+export { default as ScalarIconBatteryVerticalMedium } from './components/ScalarIconBatteryVerticalMedium.vue'
+export { default as ScalarIconBatteryWarning } from './components/ScalarIconBatteryWarning.vue'
+export { default as ScalarIconBatteryWarningVertical } from './components/ScalarIconBatteryWarningVertical.vue'
+export { default as ScalarIconBeachBall } from './components/ScalarIconBeachBall.vue'
+export { default as ScalarIconBeanie } from './components/ScalarIconBeanie.vue'
+export { default as ScalarIconBed } from './components/ScalarIconBed.vue'
+export { default as ScalarIconBeerBottle } from './components/ScalarIconBeerBottle.vue'
+export { default as ScalarIconBeerStein } from './components/ScalarIconBeerStein.vue'
+export { default as ScalarIconBehanceLogo } from './components/ScalarIconBehanceLogo.vue'
+export { default as ScalarIconBell } from './components/ScalarIconBell.vue'
+export { default as ScalarIconBellRinging } from './components/ScalarIconBellRinging.vue'
+export { default as ScalarIconBellSimple } from './components/ScalarIconBellSimple.vue'
+export { default as ScalarIconBellSimpleRinging } from './components/ScalarIconBellSimpleRinging.vue'
+export { default as ScalarIconBellSimpleSlash } from './components/ScalarIconBellSimpleSlash.vue'
+export { default as ScalarIconBellSimpleZ } from './components/ScalarIconBellSimpleZ.vue'
+export { default as ScalarIconBellSlash } from './components/ScalarIconBellSlash.vue'
+export { default as ScalarIconBellZ } from './components/ScalarIconBellZ.vue'
+export { default as ScalarIconBelt } from './components/ScalarIconBelt.vue'
+export { default as ScalarIconBezierCurve } from './components/ScalarIconBezierCurve.vue'
+export { default as ScalarIconBicycle } from './components/ScalarIconBicycle.vue'
+export { default as ScalarIconBinary } from './components/ScalarIconBinary.vue'
+export { default as ScalarIconBinoculars } from './components/ScalarIconBinoculars.vue'
+export { default as ScalarIconBiohazard } from './components/ScalarIconBiohazard.vue'
+export { default as ScalarIconBird } from './components/ScalarIconBird.vue'
+export { default as ScalarIconBlueprint } from './components/ScalarIconBlueprint.vue'
+export { default as ScalarIconBluetooth } from './components/ScalarIconBluetooth.vue'
+export { default as ScalarIconBluetoothConnected } from './components/ScalarIconBluetoothConnected.vue'
+export { default as ScalarIconBluetoothSlash } from './components/ScalarIconBluetoothSlash.vue'
+export { default as ScalarIconBluetoothX } from './components/ScalarIconBluetoothX.vue'
+export { default as ScalarIconBoat } from './components/ScalarIconBoat.vue'
+export { default as ScalarIconBomb } from './components/ScalarIconBomb.vue'
+export { default as ScalarIconBone } from './components/ScalarIconBone.vue'
+export { default as ScalarIconBook } from './components/ScalarIconBook.vue'
+export { default as ScalarIconBookBookmark } from './components/ScalarIconBookBookmark.vue'
+export { default as ScalarIconBookOpen } from './components/ScalarIconBookOpen.vue'
+export { default as ScalarIconBookOpenText } from './components/ScalarIconBookOpenText.vue'
+export { default as ScalarIconBookOpenUser } from './components/ScalarIconBookOpenUser.vue'
+export { default as ScalarIconBookmark } from './components/ScalarIconBookmark.vue'
+export { default as ScalarIconBookmarkSimple } from './components/ScalarIconBookmarkSimple.vue'
+export { default as ScalarIconBookmarks } from './components/ScalarIconBookmarks.vue'
+export { default as ScalarIconBookmarksSimple } from './components/ScalarIconBookmarksSimple.vue'
+export { default as ScalarIconBooks } from './components/ScalarIconBooks.vue'
+export { default as ScalarIconBoot } from './components/ScalarIconBoot.vue'
+export { default as ScalarIconBoules } from './components/ScalarIconBoules.vue'
+export { default as ScalarIconBoundingBox } from './components/ScalarIconBoundingBox.vue'
+export { default as ScalarIconBowlFood } from './components/ScalarIconBowlFood.vue'
+export { default as ScalarIconBowlSteam } from './components/ScalarIconBowlSteam.vue'
+export { default as ScalarIconBowlingBall } from './components/ScalarIconBowlingBall.vue'
+export { default as ScalarIconBoxArrowDown } from './components/ScalarIconBoxArrowDown.vue'
+export { default as ScalarIconArchiveBox } from './components/ScalarIconBoxArrowDown.vue'
+export { default as ScalarIconBoxArrowUp } from './components/ScalarIconBoxArrowUp.vue'
+export { default as ScalarIconBoxingGlove } from './components/ScalarIconBoxingGlove.vue'
+export { default as ScalarIconBracketsAngle } from './components/ScalarIconBracketsAngle.vue'
+export { default as ScalarIconBracketsCurly } from './components/ScalarIconBracketsCurly.vue'
+export { default as ScalarIconBracketsRound } from './components/ScalarIconBracketsRound.vue'
+export { default as ScalarIconBracketsSquare } from './components/ScalarIconBracketsSquare.vue'
+export { default as ScalarIconBrain } from './components/ScalarIconBrain.vue'
+export { default as ScalarIconBrandy } from './components/ScalarIconBrandy.vue'
+export { default as ScalarIconBread } from './components/ScalarIconBread.vue'
+export { default as ScalarIconBridge } from './components/ScalarIconBridge.vue'
+export { default as ScalarIconBriefcase } from './components/ScalarIconBriefcase.vue'
+export { default as ScalarIconBriefcaseMetal } from './components/ScalarIconBriefcaseMetal.vue'
+export { default as ScalarIconBroadcast } from './components/ScalarIconBroadcast.vue'
+export { default as ScalarIconBroom } from './components/ScalarIconBroom.vue'
+export { default as ScalarIconBrowser } from './components/ScalarIconBrowser.vue'
+export { default as ScalarIconBrowsers } from './components/ScalarIconBrowsers.vue'
+export { default as ScalarIconBugBeetle } from './components/ScalarIconBugBeetle.vue'
+export { default as ScalarIconBug } from './components/ScalarIconBug.vue'
+export { default as ScalarIconBugDroid } from './components/ScalarIconBugDroid.vue'
+export { default as ScalarIconBuildingApartment } from './components/ScalarIconBuildingApartment.vue'
+export { default as ScalarIconBuilding } from './components/ScalarIconBuilding.vue'
+export { default as ScalarIconBuildingOffice } from './components/ScalarIconBuildingOffice.vue'
+export { default as ScalarIconBuildings } from './components/ScalarIconBuildings.vue'
+export { default as ScalarIconBulldozer } from './components/ScalarIconBulldozer.vue'
+export { default as ScalarIconBus } from './components/ScalarIconBus.vue'
+export { default as ScalarIconButterfly } from './components/ScalarIconButterfly.vue'
+export { default as ScalarIconCableCar } from './components/ScalarIconCableCar.vue'
+export { default as ScalarIconCactus } from './components/ScalarIconCactus.vue'
+export { default as ScalarIconCake } from './components/ScalarIconCake.vue'
+export { default as ScalarIconCalculator } from './components/ScalarIconCalculator.vue'
+export { default as ScalarIconCalendarBlank } from './components/ScalarIconCalendarBlank.vue'
+export { default as ScalarIconCalendar } from './components/ScalarIconCalendar.vue'
+export { default as ScalarIconCalendarCheck } from './components/ScalarIconCalendarCheck.vue'
+export { default as ScalarIconCalendarDot } from './components/ScalarIconCalendarDot.vue'
+export { default as ScalarIconCalendarDots } from './components/ScalarIconCalendarDots.vue'
+export { default as ScalarIconCalendarHeart } from './components/ScalarIconCalendarHeart.vue'
+export { default as ScalarIconCalendarMinus } from './components/ScalarIconCalendarMinus.vue'
+export { default as ScalarIconCalendarPlus } from './components/ScalarIconCalendarPlus.vue'
+export { default as ScalarIconCalendarSlash } from './components/ScalarIconCalendarSlash.vue'
+export { default as ScalarIconCalendarStar } from './components/ScalarIconCalendarStar.vue'
+export { default as ScalarIconCalendarX } from './components/ScalarIconCalendarX.vue'
+export { default as ScalarIconCallBell } from './components/ScalarIconCallBell.vue'
+export { default as ScalarIconCamera } from './components/ScalarIconCamera.vue'
+export { default as ScalarIconCameraPlus } from './components/ScalarIconCameraPlus.vue'
+export { default as ScalarIconCameraRotate } from './components/ScalarIconCameraRotate.vue'
+export { default as ScalarIconCameraSlash } from './components/ScalarIconCameraSlash.vue'
+export { default as ScalarIconCampfire } from './components/ScalarIconCampfire.vue'
+export { default as ScalarIconCarBattery } from './components/ScalarIconCarBattery.vue'
+export { default as ScalarIconCar } from './components/ScalarIconCar.vue'
+export { default as ScalarIconCarProfile } from './components/ScalarIconCarProfile.vue'
+export { default as ScalarIconCarSimple } from './components/ScalarIconCarSimple.vue'
+export { default as ScalarIconCardholder } from './components/ScalarIconCardholder.vue'
+export { default as ScalarIconCards } from './components/ScalarIconCards.vue'
+export { default as ScalarIconCardsThree } from './components/ScalarIconCardsThree.vue'
+export { default as ScalarIconCaretCircleDoubleDown } from './components/ScalarIconCaretCircleDoubleDown.vue'
+export { default as ScalarIconCaretCircleDoubleLeft } from './components/ScalarIconCaretCircleDoubleLeft.vue'
+export { default as ScalarIconCaretCircleDoubleRight } from './components/ScalarIconCaretCircleDoubleRight.vue'
+export { default as ScalarIconCaretCircleDoubleUp } from './components/ScalarIconCaretCircleDoubleUp.vue'
+export { default as ScalarIconCaretCircleDown } from './components/ScalarIconCaretCircleDown.vue'
+export { default as ScalarIconCaretCircleLeft } from './components/ScalarIconCaretCircleLeft.vue'
+export { default as ScalarIconCaretCircleRight } from './components/ScalarIconCaretCircleRight.vue'
+export { default as ScalarIconCaretCircleUp } from './components/ScalarIconCaretCircleUp.vue'
+export { default as ScalarIconCaretCircleUpDown } from './components/ScalarIconCaretCircleUpDown.vue'
+export { default as ScalarIconCaretDoubleDown } from './components/ScalarIconCaretDoubleDown.vue'
+export { default as ScalarIconCaretDoubleLeft } from './components/ScalarIconCaretDoubleLeft.vue'
+export { default as ScalarIconCaretDoubleRight } from './components/ScalarIconCaretDoubleRight.vue'
+export { default as ScalarIconCaretDoubleUp } from './components/ScalarIconCaretDoubleUp.vue'
+export { default as ScalarIconCaretDown } from './components/ScalarIconCaretDown.vue'
+export { default as ScalarIconCaretLeft } from './components/ScalarIconCaretLeft.vue'
+export { default as ScalarIconCaretLineDown } from './components/ScalarIconCaretLineDown.vue'
+export { default as ScalarIconCaretLineLeft } from './components/ScalarIconCaretLineLeft.vue'
+export { default as ScalarIconCaretLineRight } from './components/ScalarIconCaretLineRight.vue'
+export { default as ScalarIconCaretLineUp } from './components/ScalarIconCaretLineUp.vue'
+export { default as ScalarIconCaretRight } from './components/ScalarIconCaretRight.vue'
+export { default as ScalarIconCaretUp } from './components/ScalarIconCaretUp.vue'
+export { default as ScalarIconCaretUpDown } from './components/ScalarIconCaretUpDown.vue'
+export { default as ScalarIconCarrot } from './components/ScalarIconCarrot.vue'
+export { default as ScalarIconCashRegister } from './components/ScalarIconCashRegister.vue'
+export { default as ScalarIconCassetteTape } from './components/ScalarIconCassetteTape.vue'
+export { default as ScalarIconCastleTurret } from './components/ScalarIconCastleTurret.vue'
+export { default as ScalarIconCat } from './components/ScalarIconCat.vue'
+export { default as ScalarIconCellSignalFull } from './components/ScalarIconCellSignalFull.vue'
+export { default as ScalarIconCellSignalHigh } from './components/ScalarIconCellSignalHigh.vue'
+export { default as ScalarIconCellSignalLow } from './components/ScalarIconCellSignalLow.vue'
+export { default as ScalarIconCellSignalMedium } from './components/ScalarIconCellSignalMedium.vue'
+export { default as ScalarIconCellSignalNone } from './components/ScalarIconCellSignalNone.vue'
+export { default as ScalarIconCellSignalSlash } from './components/ScalarIconCellSignalSlash.vue'
+export { default as ScalarIconCellSignalX } from './components/ScalarIconCellSignalX.vue'
+export { default as ScalarIconCellTower } from './components/ScalarIconCellTower.vue'
+export { default as ScalarIconCertificate } from './components/ScalarIconCertificate.vue'
+export { default as ScalarIconChair } from './components/ScalarIconChair.vue'
+export { default as ScalarIconChalkboard } from './components/ScalarIconChalkboard.vue'
+export { default as ScalarIconChalkboardSimple } from './components/ScalarIconChalkboardSimple.vue'
+export { default as ScalarIconChalkboardTeacher } from './components/ScalarIconChalkboardTeacher.vue'
+export { default as ScalarIconChampagne } from './components/ScalarIconChampagne.vue'
+export { default as ScalarIconChargingStation } from './components/ScalarIconChargingStation.vue'
+export { default as ScalarIconChartBar } from './components/ScalarIconChartBar.vue'
+export { default as ScalarIconChartBarHorizontal } from './components/ScalarIconChartBarHorizontal.vue'
+export { default as ScalarIconChartDonut } from './components/ScalarIconChartDonut.vue'
+export { default as ScalarIconChartLine } from './components/ScalarIconChartLine.vue'
+export { default as ScalarIconChartLineDown } from './components/ScalarIconChartLineDown.vue'
+export { default as ScalarIconChartLineUp } from './components/ScalarIconChartLineUp.vue'
+export { default as ScalarIconChartPie } from './components/ScalarIconChartPie.vue'
+export { default as ScalarIconChartPieSlice } from './components/ScalarIconChartPieSlice.vue'
+export { default as ScalarIconChartPolar } from './components/ScalarIconChartPolar.vue'
+export { default as ScalarIconChartScatter } from './components/ScalarIconChartScatter.vue'
+export { default as ScalarIconChat } from './components/ScalarIconChat.vue'
+export { default as ScalarIconChatCentered } from './components/ScalarIconChatCentered.vue'
+export { default as ScalarIconChatCenteredDots } from './components/ScalarIconChatCenteredDots.vue'
+export { default as ScalarIconChatCenteredSlash } from './components/ScalarIconChatCenteredSlash.vue'
+export { default as ScalarIconChatCenteredText } from './components/ScalarIconChatCenteredText.vue'
+export { default as ScalarIconChatCircle } from './components/ScalarIconChatCircle.vue'
+export { default as ScalarIconChatCircleDots } from './components/ScalarIconChatCircleDots.vue'
+export { default as ScalarIconChatCircleSlash } from './components/ScalarIconChatCircleSlash.vue'
+export { default as ScalarIconChatCircleText } from './components/ScalarIconChatCircleText.vue'
+export { default as ScalarIconChatDots } from './components/ScalarIconChatDots.vue'
+export { default as ScalarIconChatSlash } from './components/ScalarIconChatSlash.vue'
+export { default as ScalarIconChatTeardrop } from './components/ScalarIconChatTeardrop.vue'
+export { default as ScalarIconChatTeardropDots } from './components/ScalarIconChatTeardropDots.vue'
+export { default as ScalarIconChatTeardropSlash } from './components/ScalarIconChatTeardropSlash.vue'
+export { default as ScalarIconChatTeardropText } from './components/ScalarIconChatTeardropText.vue'
+export { default as ScalarIconChatText } from './components/ScalarIconChatText.vue'
+export { default as ScalarIconChats } from './components/ScalarIconChats.vue'
+export { default as ScalarIconChatsCircle } from './components/ScalarIconChatsCircle.vue'
+export { default as ScalarIconChatsTeardrop } from './components/ScalarIconChatsTeardrop.vue'
+export { default as ScalarIconCheck } from './components/ScalarIconCheck.vue'
+export { default as ScalarIconCheckCircle } from './components/ScalarIconCheckCircle.vue'
+export { default as ScalarIconCheckFat } from './components/ScalarIconCheckFat.vue'
+export { default as ScalarIconCheckSquare } from './components/ScalarIconCheckSquare.vue'
+export { default as ScalarIconCheckSquareOffset } from './components/ScalarIconCheckSquareOffset.vue'
+export { default as ScalarIconCheckerboard } from './components/ScalarIconCheckerboard.vue'
+export { default as ScalarIconChecks } from './components/ScalarIconChecks.vue'
+export { default as ScalarIconCheers } from './components/ScalarIconCheers.vue'
+export { default as ScalarIconCheese } from './components/ScalarIconCheese.vue'
+export { default as ScalarIconChefHat } from './components/ScalarIconChefHat.vue'
+export { default as ScalarIconCherries } from './components/ScalarIconCherries.vue'
+export { default as ScalarIconChurch } from './components/ScalarIconChurch.vue'
+export { default as ScalarIconCigarette } from './components/ScalarIconCigarette.vue'
+export { default as ScalarIconCigaretteSlash } from './components/ScalarIconCigaretteSlash.vue'
+export { default as ScalarIconCircle } from './components/ScalarIconCircle.vue'
+export { default as ScalarIconCircleDashed } from './components/ScalarIconCircleDashed.vue'
+export { default as ScalarIconCircleHalf } from './components/ScalarIconCircleHalf.vue'
+export { default as ScalarIconCircleHalfTilt } from './components/ScalarIconCircleHalfTilt.vue'
+export { default as ScalarIconCircleNotch } from './components/ScalarIconCircleNotch.vue'
+export { default as ScalarIconCirclesFour } from './components/ScalarIconCirclesFour.vue'
+export { default as ScalarIconCirclesThree } from './components/ScalarIconCirclesThree.vue'
+export { default as ScalarIconCirclesThreePlus } from './components/ScalarIconCirclesThreePlus.vue'
+export { default as ScalarIconCircuitry } from './components/ScalarIconCircuitry.vue'
+export { default as ScalarIconCity } from './components/ScalarIconCity.vue'
+export { default as ScalarIconClipboard } from './components/ScalarIconClipboard.vue'
+export { default as ScalarIconClipboardText } from './components/ScalarIconClipboardText.vue'
+export { default as ScalarIconClockAfternoon } from './components/ScalarIconClockAfternoon.vue'
+export { default as ScalarIconClock } from './components/ScalarIconClock.vue'
+export { default as ScalarIconClockClockwise } from './components/ScalarIconClockClockwise.vue'
+export { default as ScalarIconClockCountdown } from './components/ScalarIconClockCountdown.vue'
+export { default as ScalarIconClockCounterClockwise } from './components/ScalarIconClockCounterClockwise.vue'
+export { default as ScalarIconClockUser } from './components/ScalarIconClockUser.vue'
+export { default as ScalarIconClosedCaptioning } from './components/ScalarIconClosedCaptioning.vue'
+export { default as ScalarIconCloudArrowDown } from './components/ScalarIconCloudArrowDown.vue'
+export { default as ScalarIconCloudArrowUp } from './components/ScalarIconCloudArrowUp.vue'
+export { default as ScalarIconCloud } from './components/ScalarIconCloud.vue'
+export { default as ScalarIconCloudCheck } from './components/ScalarIconCloudCheck.vue'
+export { default as ScalarIconCloudFog } from './components/ScalarIconCloudFog.vue'
+export { default as ScalarIconCloudLightning } from './components/ScalarIconCloudLightning.vue'
+export { default as ScalarIconCloudMoon } from './components/ScalarIconCloudMoon.vue'
+export { default as ScalarIconCloudRain } from './components/ScalarIconCloudRain.vue'
+export { default as ScalarIconCloudSlash } from './components/ScalarIconCloudSlash.vue'
+export { default as ScalarIconCloudSnow } from './components/ScalarIconCloudSnow.vue'
+export { default as ScalarIconCloudSun } from './components/ScalarIconCloudSun.vue'
+export { default as ScalarIconCloudWarning } from './components/ScalarIconCloudWarning.vue'
+export { default as ScalarIconCloudX } from './components/ScalarIconCloudX.vue'
+export { default as ScalarIconClover } from './components/ScalarIconClover.vue'
+export { default as ScalarIconClub } from './components/ScalarIconClub.vue'
+export { default as ScalarIconCoatHanger } from './components/ScalarIconCoatHanger.vue'
+export { default as ScalarIconCodaLogo } from './components/ScalarIconCodaLogo.vue'
+export { default as ScalarIconCodeBlock } from './components/ScalarIconCodeBlock.vue'
+export { default as ScalarIconCode } from './components/ScalarIconCode.vue'
+export { default as ScalarIconCodeSimple } from './components/ScalarIconCodeSimple.vue'
+export { default as ScalarIconCodepenLogo } from './components/ScalarIconCodepenLogo.vue'
+export { default as ScalarIconCodesandboxLogo } from './components/ScalarIconCodesandboxLogo.vue'
+export { default as ScalarIconCoffeeBean } from './components/ScalarIconCoffeeBean.vue'
+export { default as ScalarIconCoffee } from './components/ScalarIconCoffee.vue'
+export { default as ScalarIconCoin } from './components/ScalarIconCoin.vue'
+export { default as ScalarIconCoinVertical } from './components/ScalarIconCoinVertical.vue'
+export { default as ScalarIconCoins } from './components/ScalarIconCoins.vue'
+export { default as ScalarIconColumns } from './components/ScalarIconColumns.vue'
+export { default as ScalarIconColumnsPlusLeft } from './components/ScalarIconColumnsPlusLeft.vue'
+export { default as ScalarIconColumnsPlusRight } from './components/ScalarIconColumnsPlusRight.vue'
+export { default as ScalarIconCommand } from './components/ScalarIconCommand.vue'
+export { default as ScalarIconCompass } from './components/ScalarIconCompass.vue'
+export { default as ScalarIconCompassRose } from './components/ScalarIconCompassRose.vue'
+export { default as ScalarIconCompassTool } from './components/ScalarIconCompassTool.vue'
+export { default as ScalarIconComputerTower } from './components/ScalarIconComputerTower.vue'
+export { default as ScalarIconConfetti } from './components/ScalarIconConfetti.vue'
+export { default as ScalarIconContactlessPayment } from './components/ScalarIconContactlessPayment.vue'
+export { default as ScalarIconControl } from './components/ScalarIconControl.vue'
+export { default as ScalarIconCookie } from './components/ScalarIconCookie.vue'
+export { default as ScalarIconCookingPot } from './components/ScalarIconCookingPot.vue'
+export { default as ScalarIconCopy } from './components/ScalarIconCopy.vue'
+export { default as ScalarIconCopySimple } from './components/ScalarIconCopySimple.vue'
+export { default as ScalarIconCopyleft } from './components/ScalarIconCopyleft.vue'
+export { default as ScalarIconCopyright } from './components/ScalarIconCopyright.vue'
+export { default as ScalarIconCornersIn } from './components/ScalarIconCornersIn.vue'
+export { default as ScalarIconCornersOut } from './components/ScalarIconCornersOut.vue'
+export { default as ScalarIconCouch } from './components/ScalarIconCouch.vue'
+export { default as ScalarIconCourtBasketball } from './components/ScalarIconCourtBasketball.vue'
+export { default as ScalarIconCow } from './components/ScalarIconCow.vue'
+export { default as ScalarIconCowboyHat } from './components/ScalarIconCowboyHat.vue'
+export { default as ScalarIconCpu } from './components/ScalarIconCpu.vue'
+export { default as ScalarIconCrane } from './components/ScalarIconCrane.vue'
+export { default as ScalarIconCraneTower } from './components/ScalarIconCraneTower.vue'
+export { default as ScalarIconCreditCard } from './components/ScalarIconCreditCard.vue'
+export { default as ScalarIconCricket } from './components/ScalarIconCricket.vue'
+export { default as ScalarIconCrop } from './components/ScalarIconCrop.vue'
+export { default as ScalarIconCross } from './components/ScalarIconCross.vue'
+export { default as ScalarIconCrosshair } from './components/ScalarIconCrosshair.vue'
+export { default as ScalarIconCrosshairSimple } from './components/ScalarIconCrosshairSimple.vue'
+export { default as ScalarIconCrown } from './components/ScalarIconCrown.vue'
+export { default as ScalarIconCrownCross } from './components/ScalarIconCrownCross.vue'
+export { default as ScalarIconCrownSimple } from './components/ScalarIconCrownSimple.vue'
+export { default as ScalarIconCube } from './components/ScalarIconCube.vue'
+export { default as ScalarIconCubeFocus } from './components/ScalarIconCubeFocus.vue'
+export { default as ScalarIconCubeTransparent } from './components/ScalarIconCubeTransparent.vue'
+export { default as ScalarIconCurrencyBtc } from './components/ScalarIconCurrencyBtc.vue'
+export { default as ScalarIconCurrencyCircleDollar } from './components/ScalarIconCurrencyCircleDollar.vue'
+export { default as ScalarIconCurrencyCny } from './components/ScalarIconCurrencyCny.vue'
+export { default as ScalarIconCurrencyDollar } from './components/ScalarIconCurrencyDollar.vue'
+export { default as ScalarIconCurrencyDollarSimple } from './components/ScalarIconCurrencyDollarSimple.vue'
+export { default as ScalarIconCurrencyEth } from './components/ScalarIconCurrencyEth.vue'
+export { default as ScalarIconCurrencyEur } from './components/ScalarIconCurrencyEur.vue'
+export { default as ScalarIconCurrencyGbp } from './components/ScalarIconCurrencyGbp.vue'
+export { default as ScalarIconCurrencyInr } from './components/ScalarIconCurrencyInr.vue'
+export { default as ScalarIconCurrencyJpy } from './components/ScalarIconCurrencyJpy.vue'
+export { default as ScalarIconCurrencyKrw } from './components/ScalarIconCurrencyKrw.vue'
+export { default as ScalarIconCurrencyKzt } from './components/ScalarIconCurrencyKzt.vue'
+export { default as ScalarIconCurrencyNgn } from './components/ScalarIconCurrencyNgn.vue'
+export { default as ScalarIconCurrencyRub } from './components/ScalarIconCurrencyRub.vue'
+export { default as ScalarIconCursor } from './components/ScalarIconCursor.vue'
+export { default as ScalarIconCursorClick } from './components/ScalarIconCursorClick.vue'
+export { default as ScalarIconCursorText } from './components/ScalarIconCursorText.vue'
+export { default as ScalarIconCylinder } from './components/ScalarIconCylinder.vue'
+export { default as ScalarIconDatabase } from './components/ScalarIconDatabase.vue'
+export { default as ScalarIconDesk } from './components/ScalarIconDesk.vue'
+export { default as ScalarIconDesktop } from './components/ScalarIconDesktop.vue'
+export { default as ScalarIconDesktopTower } from './components/ScalarIconDesktopTower.vue'
+export { default as ScalarIconDetective } from './components/ScalarIconDetective.vue'
+export { default as ScalarIconDevToLogo } from './components/ScalarIconDevToLogo.vue'
+export { default as ScalarIconDeviceMobile } from './components/ScalarIconDeviceMobile.vue'
+export { default as ScalarIconDeviceMobileCamera } from './components/ScalarIconDeviceMobileCamera.vue'
+export { default as ScalarIconDeviceMobileSlash } from './components/ScalarIconDeviceMobileSlash.vue'
+export { default as ScalarIconDeviceMobileSpeaker } from './components/ScalarIconDeviceMobileSpeaker.vue'
+export { default as ScalarIconDeviceRotate } from './components/ScalarIconDeviceRotate.vue'
+export { default as ScalarIconDeviceTablet } from './components/ScalarIconDeviceTablet.vue'
+export { default as ScalarIconDeviceTabletCamera } from './components/ScalarIconDeviceTabletCamera.vue'
+export { default as ScalarIconDeviceTabletSpeaker } from './components/ScalarIconDeviceTabletSpeaker.vue'
+export { default as ScalarIconDevices } from './components/ScalarIconDevices.vue'
+export { default as ScalarIconDiamond } from './components/ScalarIconDiamond.vue'
+export { default as ScalarIconDiamondsFour } from './components/ScalarIconDiamondsFour.vue'
+export { default as ScalarIconDiceFive } from './components/ScalarIconDiceFive.vue'
+export { default as ScalarIconDiceFour } from './components/ScalarIconDiceFour.vue'
+export { default as ScalarIconDiceOne } from './components/ScalarIconDiceOne.vue'
+export { default as ScalarIconDiceSix } from './components/ScalarIconDiceSix.vue'
+export { default as ScalarIconDiceThree } from './components/ScalarIconDiceThree.vue'
+export { default as ScalarIconDiceTwo } from './components/ScalarIconDiceTwo.vue'
+export { default as ScalarIconDisc } from './components/ScalarIconDisc.vue'
+export { default as ScalarIconDiscoBall } from './components/ScalarIconDiscoBall.vue'
+export { default as ScalarIconDiscordLogo } from './components/ScalarIconDiscordLogo.vue'
+export { default as ScalarIconDivide } from './components/ScalarIconDivide.vue'
+export { default as ScalarIconDna } from './components/ScalarIconDna.vue'
+export { default as ScalarIconDog } from './components/ScalarIconDog.vue'
+export { default as ScalarIconDoor } from './components/ScalarIconDoor.vue'
+export { default as ScalarIconDoorOpen } from './components/ScalarIconDoorOpen.vue'
+export { default as ScalarIconDot } from './components/ScalarIconDot.vue'
+export { default as ScalarIconDotOutline } from './components/ScalarIconDotOutline.vue'
+export { default as ScalarIconDotsNine } from './components/ScalarIconDotsNine.vue'
+export { default as ScalarIconDotsSix } from './components/ScalarIconDotsSix.vue'
+export { default as ScalarIconDotsSixVertical } from './components/ScalarIconDotsSixVertical.vue'
+export { default as ScalarIconDotsThree } from './components/ScalarIconDotsThree.vue'
+export { default as ScalarIconDotsThreeCircle } from './components/ScalarIconDotsThreeCircle.vue'
+export { default as ScalarIconDotsThreeCircleVertical } from './components/ScalarIconDotsThreeCircleVertical.vue'
+export { default as ScalarIconDotsThreeOutline } from './components/ScalarIconDotsThreeOutline.vue'
+export { default as ScalarIconDotsThreeOutlineVertical } from './components/ScalarIconDotsThreeOutlineVertical.vue'
+export { default as ScalarIconDotsThreeVertical } from './components/ScalarIconDotsThreeVertical.vue'
+export { default as ScalarIconDownload } from './components/ScalarIconDownload.vue'
+export { default as ScalarIconDownloadSimple } from './components/ScalarIconDownloadSimple.vue'
+export { default as ScalarIconDress } from './components/ScalarIconDress.vue'
+export { default as ScalarIconDresser } from './components/ScalarIconDresser.vue'
+export { default as ScalarIconDribbbleLogo } from './components/ScalarIconDribbbleLogo.vue'
+export { default as ScalarIconDrone } from './components/ScalarIconDrone.vue'
+export { default as ScalarIconDrop } from './components/ScalarIconDrop.vue'
+export { default as ScalarIconDropHalf } from './components/ScalarIconDropHalf.vue'
+export { default as ScalarIconDropHalfBottom } from './components/ScalarIconDropHalfBottom.vue'
+export { default as ScalarIconDropSimple } from './components/ScalarIconDropSimple.vue'
+export { default as ScalarIconDropSlash } from './components/ScalarIconDropSlash.vue'
+export { default as ScalarIconDropboxLogo } from './components/ScalarIconDropboxLogo.vue'
+export { default as ScalarIconEar } from './components/ScalarIconEar.vue'
+export { default as ScalarIconEarSlash } from './components/ScalarIconEarSlash.vue'
+export { default as ScalarIconEgg } from './components/ScalarIconEgg.vue'
+export { default as ScalarIconEggCrack } from './components/ScalarIconEggCrack.vue'
+export { default as ScalarIconEject } from './components/ScalarIconEject.vue'
+export { default as ScalarIconEjectSimple } from './components/ScalarIconEjectSimple.vue'
+export { default as ScalarIconElevator } from './components/ScalarIconElevator.vue'
+export { default as ScalarIconEmpty } from './components/ScalarIconEmpty.vue'
+export { default as ScalarIconEngine } from './components/ScalarIconEngine.vue'
+export { default as ScalarIconEnvelope } from './components/ScalarIconEnvelope.vue'
+export { default as ScalarIconEnvelopeOpen } from './components/ScalarIconEnvelopeOpen.vue'
+export { default as ScalarIconEnvelopeSimple } from './components/ScalarIconEnvelopeSimple.vue'
+export { default as ScalarIconEnvelopeSimpleOpen } from './components/ScalarIconEnvelopeSimpleOpen.vue'
+export { default as ScalarIconEqualizer } from './components/ScalarIconEqualizer.vue'
+export { default as ScalarIconEquals } from './components/ScalarIconEquals.vue'
+export { default as ScalarIconEraser } from './components/ScalarIconEraser.vue'
+export { default as ScalarIconEscalatorDown } from './components/ScalarIconEscalatorDown.vue'
+export { default as ScalarIconEscalatorUp } from './components/ScalarIconEscalatorUp.vue'
+export { default as ScalarIconExam } from './components/ScalarIconExam.vue'
+export { default as ScalarIconExclamationMark } from './components/ScalarIconExclamationMark.vue'
+export { default as ScalarIconExclude } from './components/ScalarIconExclude.vue'
+export { default as ScalarIconExcludeSquare } from './components/ScalarIconExcludeSquare.vue'
+export { default as ScalarIconExport } from './components/ScalarIconExport.vue'
+export { default as ScalarIconEye } from './components/ScalarIconEye.vue'
+export { default as ScalarIconEyeClosed } from './components/ScalarIconEyeClosed.vue'
+export { default as ScalarIconEyeSlash } from './components/ScalarIconEyeSlash.vue'
+export { default as ScalarIconEyedropper } from './components/ScalarIconEyedropper.vue'
+export { default as ScalarIconEyedropperSample } from './components/ScalarIconEyedropperSample.vue'
+export { default as ScalarIconEyeglasses } from './components/ScalarIconEyeglasses.vue'
+export { default as ScalarIconEyes } from './components/ScalarIconEyes.vue'
+export { default as ScalarIconFaceMask } from './components/ScalarIconFaceMask.vue'
+export { default as ScalarIconFacebookLogo } from './components/ScalarIconFacebookLogo.vue'
+export { default as ScalarIconFactory } from './components/ScalarIconFactory.vue'
+export { default as ScalarIconFaders } from './components/ScalarIconFaders.vue'
+export { default as ScalarIconFadersHorizontal } from './components/ScalarIconFadersHorizontal.vue'
+export { default as ScalarIconFalloutShelter } from './components/ScalarIconFalloutShelter.vue'
+export { default as ScalarIconFan } from './components/ScalarIconFan.vue'
+export { default as ScalarIconFarm } from './components/ScalarIconFarm.vue'
+export { default as ScalarIconFastForward } from './components/ScalarIconFastForward.vue'
+export { default as ScalarIconFastForwardCircle } from './components/ScalarIconFastForwardCircle.vue'
+export { default as ScalarIconFeather } from './components/ScalarIconFeather.vue'
+export { default as ScalarIconFediverseLogo } from './components/ScalarIconFediverseLogo.vue'
+export { default as ScalarIconFigmaLogo } from './components/ScalarIconFigmaLogo.vue'
+export { default as ScalarIconFileArchive } from './components/ScalarIconFileArchive.vue'
+export { default as ScalarIconFileArrowDown } from './components/ScalarIconFileArrowDown.vue'
+export { default as ScalarIconFileArrowUp } from './components/ScalarIconFileArrowUp.vue'
+export { default as ScalarIconFileAudio } from './components/ScalarIconFileAudio.vue'
+export { default as ScalarIconFile } from './components/ScalarIconFile.vue'
+export { default as ScalarIconFileC } from './components/ScalarIconFileC.vue'
+export { default as ScalarIconFileCSharp } from './components/ScalarIconFileCSharp.vue'
+export { default as ScalarIconFileCloud } from './components/ScalarIconFileCloud.vue'
+export { default as ScalarIconFileCode } from './components/ScalarIconFileCode.vue'
+export { default as ScalarIconFileCpp } from './components/ScalarIconFileCpp.vue'
+export { default as ScalarIconFileCss } from './components/ScalarIconFileCss.vue'
+export { default as ScalarIconFileCsv } from './components/ScalarIconFileCsv.vue'
+export { default as ScalarIconFileDashed } from './components/ScalarIconFileDashed.vue'
+export { default as ScalarIconFileDotted } from './components/ScalarIconFileDashed.vue'
+export { default as ScalarIconFileDoc } from './components/ScalarIconFileDoc.vue'
+export { default as ScalarIconFileHtml } from './components/ScalarIconFileHtml.vue'
+export { default as ScalarIconFileImage } from './components/ScalarIconFileImage.vue'
+export { default as ScalarIconFileIni } from './components/ScalarIconFileIni.vue'
+export { default as ScalarIconFileJpg } from './components/ScalarIconFileJpg.vue'
+export { default as ScalarIconFileJs } from './components/ScalarIconFileJs.vue'
+export { default as ScalarIconFileJsx } from './components/ScalarIconFileJsx.vue'
+export { default as ScalarIconFileLock } from './components/ScalarIconFileLock.vue'
+export { default as ScalarIconFileMagnifyingGlass } from './components/ScalarIconFileMagnifyingGlass.vue'
+export { default as ScalarIconFileSearch } from './components/ScalarIconFileMagnifyingGlass.vue'
+export { default as ScalarIconFileMd } from './components/ScalarIconFileMd.vue'
+export { default as ScalarIconFileMinus } from './components/ScalarIconFileMinus.vue'
+export { default as ScalarIconFilePdf } from './components/ScalarIconFilePdf.vue'
+export { default as ScalarIconFilePlus } from './components/ScalarIconFilePlus.vue'
+export { default as ScalarIconFilePng } from './components/ScalarIconFilePng.vue'
+export { default as ScalarIconFilePpt } from './components/ScalarIconFilePpt.vue'
+export { default as ScalarIconFilePy } from './components/ScalarIconFilePy.vue'
+export { default as ScalarIconFileRs } from './components/ScalarIconFileRs.vue'
+export { default as ScalarIconFileSql } from './components/ScalarIconFileSql.vue'
+export { default as ScalarIconFileSvg } from './components/ScalarIconFileSvg.vue'
+export { default as ScalarIconFileText } from './components/ScalarIconFileText.vue'
+export { default as ScalarIconFileTs } from './components/ScalarIconFileTs.vue'
+export { default as ScalarIconFileTsx } from './components/ScalarIconFileTsx.vue'
+export { default as ScalarIconFileTxt } from './components/ScalarIconFileTxt.vue'
+export { default as ScalarIconFileVideo } from './components/ScalarIconFileVideo.vue'
+export { default as ScalarIconFileVue } from './components/ScalarIconFileVue.vue'
+export { default as ScalarIconFileX } from './components/ScalarIconFileX.vue'
+export { default as ScalarIconFileXls } from './components/ScalarIconFileXls.vue'
+export { default as ScalarIconFileZip } from './components/ScalarIconFileZip.vue'
+export { default as ScalarIconFiles } from './components/ScalarIconFiles.vue'
+export { default as ScalarIconFilmReel } from './components/ScalarIconFilmReel.vue'
+export { default as ScalarIconFilmScript } from './components/ScalarIconFilmScript.vue'
+export { default as ScalarIconFilmSlate } from './components/ScalarIconFilmSlate.vue'
+export { default as ScalarIconFilmStrip } from './components/ScalarIconFilmStrip.vue'
+export { default as ScalarIconFingerprint } from './components/ScalarIconFingerprint.vue'
+export { default as ScalarIconFingerprintSimple } from './components/ScalarIconFingerprintSimple.vue'
+export { default as ScalarIconFinnTheHuman } from './components/ScalarIconFinnTheHuman.vue'
+export { default as ScalarIconFire } from './components/ScalarIconFire.vue'
+export { default as ScalarIconFireExtinguisher } from './components/ScalarIconFireExtinguisher.vue'
+export { default as ScalarIconFireSimple } from './components/ScalarIconFireSimple.vue'
+export { default as ScalarIconFireTruck } from './components/ScalarIconFireTruck.vue'
+export { default as ScalarIconFirstAid } from './components/ScalarIconFirstAid.vue'
+export { default as ScalarIconFirstAidKit } from './components/ScalarIconFirstAidKit.vue'
+export { default as ScalarIconFish } from './components/ScalarIconFish.vue'
+export { default as ScalarIconFishSimple } from './components/ScalarIconFishSimple.vue'
+export { default as ScalarIconFlagBanner } from './components/ScalarIconFlagBanner.vue'
+export { default as ScalarIconFlagBannerFold } from './components/ScalarIconFlagBannerFold.vue'
+export { default as ScalarIconFlag } from './components/ScalarIconFlag.vue'
+export { default as ScalarIconFlagCheckered } from './components/ScalarIconFlagCheckered.vue'
+export { default as ScalarIconFlagPennant } from './components/ScalarIconFlagPennant.vue'
+export { default as ScalarIconFlame } from './components/ScalarIconFlame.vue'
+export { default as ScalarIconFlashlight } from './components/ScalarIconFlashlight.vue'
+export { default as ScalarIconFlask } from './components/ScalarIconFlask.vue'
+export { default as ScalarIconFlipHorizontal } from './components/ScalarIconFlipHorizontal.vue'
+export { default as ScalarIconFlipVertical } from './components/ScalarIconFlipVertical.vue'
+export { default as ScalarIconFloppyDiskBack } from './components/ScalarIconFloppyDiskBack.vue'
+export { default as ScalarIconFloppyDisk } from './components/ScalarIconFloppyDisk.vue'
+export { default as ScalarIconFlowArrow } from './components/ScalarIconFlowArrow.vue'
+export { default as ScalarIconFlower } from './components/ScalarIconFlower.vue'
+export { default as ScalarIconFlowerLotus } from './components/ScalarIconFlowerLotus.vue'
+export { default as ScalarIconFlowerTulip } from './components/ScalarIconFlowerTulip.vue'
+export { default as ScalarIconFlyingSaucer } from './components/ScalarIconFlyingSaucer.vue'
+export { default as ScalarIconFolder } from './components/ScalarIconFolder.vue'
+export { default as ScalarIconFolderNotch } from './components/ScalarIconFolder.vue'
+export { default as ScalarIconFolderDashed } from './components/ScalarIconFolderDashed.vue'
+export { default as ScalarIconFolderDotted } from './components/ScalarIconFolderDashed.vue'
+export { default as ScalarIconFolderLock } from './components/ScalarIconFolderLock.vue'
+export { default as ScalarIconFolderMinus } from './components/ScalarIconFolderMinus.vue'
+export { default as ScalarIconFolderNotchMinus } from './components/ScalarIconFolderMinus.vue'
+export { default as ScalarIconFolderOpen } from './components/ScalarIconFolderOpen.vue'
+export { default as ScalarIconFolderNotchOpen } from './components/ScalarIconFolderOpen.vue'
+export { default as ScalarIconFolderPlus } from './components/ScalarIconFolderPlus.vue'
+export { default as ScalarIconFolderNotchPlus } from './components/ScalarIconFolderPlus.vue'
+export { default as ScalarIconFolderSimple } from './components/ScalarIconFolderSimple.vue'
+export { default as ScalarIconFolderSimpleDashed } from './components/ScalarIconFolderSimpleDashed.vue'
+export { default as ScalarIconFolderSimpleDotted } from './components/ScalarIconFolderSimpleDashed.vue'
+export { default as ScalarIconFolderSimpleLock } from './components/ScalarIconFolderSimpleLock.vue'
+export { default as ScalarIconFolderSimpleMinus } from './components/ScalarIconFolderSimpleMinus.vue'
+export { default as ScalarIconFolderSimplePlus } from './components/ScalarIconFolderSimplePlus.vue'
+export { default as ScalarIconFolderSimpleStar } from './components/ScalarIconFolderSimpleStar.vue'
+export { default as ScalarIconFolderSimpleUser } from './components/ScalarIconFolderSimpleUser.vue'
+export { default as ScalarIconFolderStar } from './components/ScalarIconFolderStar.vue'
+export { default as ScalarIconFolderUser } from './components/ScalarIconFolderUser.vue'
+export { default as ScalarIconFolders } from './components/ScalarIconFolders.vue'
+export { default as ScalarIconFootball } from './components/ScalarIconFootball.vue'
+export { default as ScalarIconFootballHelmet } from './components/ScalarIconFootballHelmet.vue'
+export { default as ScalarIconFootprints } from './components/ScalarIconFootprints.vue'
+export { default as ScalarIconForkKnife } from './components/ScalarIconForkKnife.vue'
+export { default as ScalarIconFourK } from './components/ScalarIconFourK.vue'
+export { default as ScalarIconFrameCorners } from './components/ScalarIconFrameCorners.vue'
+export { default as ScalarIconFramerLogo } from './components/ScalarIconFramerLogo.vue'
+export { default as ScalarIconFunction } from './components/ScalarIconFunction.vue'
+export { default as ScalarIconFunnel } from './components/ScalarIconFunnel.vue'
+export { default as ScalarIconFunnelSimple } from './components/ScalarIconFunnelSimple.vue'
+export { default as ScalarIconFunnelSimpleX } from './components/ScalarIconFunnelSimpleX.vue'
+export { default as ScalarIconFunnelX } from './components/ScalarIconFunnelX.vue'
+export { default as ScalarIconGameController } from './components/ScalarIconGameController.vue'
+export { default as ScalarIconGarage } from './components/ScalarIconGarage.vue'
+export { default as ScalarIconGasCan } from './components/ScalarIconGasCan.vue'
+export { default as ScalarIconGasPump } from './components/ScalarIconGasPump.vue'
+export { default as ScalarIconGauge } from './components/ScalarIconGauge.vue'
+export { default as ScalarIconGavel } from './components/ScalarIconGavel.vue'
+export { default as ScalarIconGear } from './components/ScalarIconGear.vue'
+export { default as ScalarIconGearFine } from './components/ScalarIconGearFine.vue'
+export { default as ScalarIconGearSix } from './components/ScalarIconGearSix.vue'
+export { default as ScalarIconGenderFemale } from './components/ScalarIconGenderFemale.vue'
+export { default as ScalarIconGenderIntersex } from './components/ScalarIconGenderIntersex.vue'
+export { default as ScalarIconGenderMale } from './components/ScalarIconGenderMale.vue'
+export { default as ScalarIconGenderNeuter } from './components/ScalarIconGenderNeuter.vue'
+export { default as ScalarIconGenderNonbinary } from './components/ScalarIconGenderNonbinary.vue'
+export { default as ScalarIconGenderTransgender } from './components/ScalarIconGenderTransgender.vue'
+export { default as ScalarIconGhost } from './components/ScalarIconGhost.vue'
+export { default as ScalarIconGif } from './components/ScalarIconGif.vue'
+export { default as ScalarIconGift } from './components/ScalarIconGift.vue'
+export { default as ScalarIconGitBranch } from './components/ScalarIconGitBranch.vue'
+export { default as ScalarIconGitCommit } from './components/ScalarIconGitCommit.vue'
+export { default as ScalarIconGitDiff } from './components/ScalarIconGitDiff.vue'
+export { default as ScalarIconGitFork } from './components/ScalarIconGitFork.vue'
+export { default as ScalarIconGitMerge } from './components/ScalarIconGitMerge.vue'
+export { default as ScalarIconGitPullRequest } from './components/ScalarIconGitPullRequest.vue'
+export { default as ScalarIconGithubLogo } from './components/ScalarIconGithubLogo.vue'
+export { default as ScalarIconGitlabLogo } from './components/ScalarIconGitlabLogo.vue'
+export { default as ScalarIconGitlabLogoSimple } from './components/ScalarIconGitlabLogoSimple.vue'
+export { default as ScalarIconGlobe } from './components/ScalarIconGlobe.vue'
+export { default as ScalarIconGlobeHemisphereEast } from './components/ScalarIconGlobeHemisphereEast.vue'
+export { default as ScalarIconGlobeHemisphereWest } from './components/ScalarIconGlobeHemisphereWest.vue'
+export { default as ScalarIconGlobeSimple } from './components/ScalarIconGlobeSimple.vue'
+export { default as ScalarIconGlobeSimpleX } from './components/ScalarIconGlobeSimpleX.vue'
+export { default as ScalarIconGlobeStand } from './components/ScalarIconGlobeStand.vue'
+export { default as ScalarIconGlobeX } from './components/ScalarIconGlobeX.vue'
+export { default as ScalarIconGoggles } from './components/ScalarIconGoggles.vue'
+export { default as ScalarIconGolf } from './components/ScalarIconGolf.vue'
+export { default as ScalarIconGoodreadsLogo } from './components/ScalarIconGoodreadsLogo.vue'
+export { default as ScalarIconGoogleCardboardLogo } from './components/ScalarIconGoogleCardboardLogo.vue'
+export { default as ScalarIconGoogleChromeLogo } from './components/ScalarIconGoogleChromeLogo.vue'
+export { default as ScalarIconGoogleDriveLogo } from './components/ScalarIconGoogleDriveLogo.vue'
+export { default as ScalarIconGoogleLogo } from './components/ScalarIconGoogleLogo.vue'
+export { default as ScalarIconGooglePhotosLogo } from './components/ScalarIconGooglePhotosLogo.vue'
+export { default as ScalarIconGooglePlayLogo } from './components/ScalarIconGooglePlayLogo.vue'
+export { default as ScalarIconGooglePodcastsLogo } from './components/ScalarIconGooglePodcastsLogo.vue'
+export { default as ScalarIconGps } from './components/ScalarIconGps.vue'
+export { default as ScalarIconGpsFix } from './components/ScalarIconGpsFix.vue'
+export { default as ScalarIconGpsSlash } from './components/ScalarIconGpsSlash.vue'
+export { default as ScalarIconGradient } from './components/ScalarIconGradient.vue'
+export { default as ScalarIconGraduationCap } from './components/ScalarIconGraduationCap.vue'
+export { default as ScalarIconGrains } from './components/ScalarIconGrains.vue'
+export { default as ScalarIconGrainsSlash } from './components/ScalarIconGrainsSlash.vue'
+export { default as ScalarIconGraph } from './components/ScalarIconGraph.vue'
+export { default as ScalarIconGraphicsCard } from './components/ScalarIconGraphicsCard.vue'
+export { default as ScalarIconGreaterThan } from './components/ScalarIconGreaterThan.vue'
+export { default as ScalarIconGreaterThanOrEqual } from './components/ScalarIconGreaterThanOrEqual.vue'
+export { default as ScalarIconGridFour } from './components/ScalarIconGridFour.vue'
+export { default as ScalarIconGridNine } from './components/ScalarIconGridNine.vue'
+export { default as ScalarIconGuitar } from './components/ScalarIconGuitar.vue'
+export { default as ScalarIconHairDryer } from './components/ScalarIconHairDryer.vue'
+export { default as ScalarIconHamburger } from './components/ScalarIconHamburger.vue'
+export { default as ScalarIconHammer } from './components/ScalarIconHammer.vue'
+export { default as ScalarIconHandArrowDown } from './components/ScalarIconHandArrowDown.vue'
+export { default as ScalarIconHandArrowUp } from './components/ScalarIconHandArrowUp.vue'
+export { default as ScalarIconHand } from './components/ScalarIconHand.vue'
+export { default as ScalarIconHandCoins } from './components/ScalarIconHandCoins.vue'
+export { default as ScalarIconHandDeposit } from './components/ScalarIconHandDeposit.vue'
+export { default as ScalarIconHandEye } from './components/ScalarIconHandEye.vue'
+export { default as ScalarIconHandFist } from './components/ScalarIconHandFist.vue'
+export { default as ScalarIconHandGrabbing } from './components/ScalarIconHandGrabbing.vue'
+export { default as ScalarIconHandHeart } from './components/ScalarIconHandHeart.vue'
+export { default as ScalarIconHandPalm } from './components/ScalarIconHandPalm.vue'
+export { default as ScalarIconHandPeace } from './components/ScalarIconHandPeace.vue'
+export { default as ScalarIconHandPointing } from './components/ScalarIconHandPointing.vue'
+export { default as ScalarIconHandSoap } from './components/ScalarIconHandSoap.vue'
+export { default as ScalarIconHandSwipeLeft } from './components/ScalarIconHandSwipeLeft.vue'
+export { default as ScalarIconHandSwipeRight } from './components/ScalarIconHandSwipeRight.vue'
+export { default as ScalarIconHandTap } from './components/ScalarIconHandTap.vue'
+export { default as ScalarIconHandWaving } from './components/ScalarIconHandWaving.vue'
+export { default as ScalarIconHandWithdraw } from './components/ScalarIconHandWithdraw.vue'
+export { default as ScalarIconHandbag } from './components/ScalarIconHandbag.vue'
+export { default as ScalarIconHandbagSimple } from './components/ScalarIconHandbagSimple.vue'
+export { default as ScalarIconHandsClapping } from './components/ScalarIconHandsClapping.vue'
+export { default as ScalarIconHandsPraying } from './components/ScalarIconHandsPraying.vue'
+export { default as ScalarIconHandshake } from './components/ScalarIconHandshake.vue'
+export { default as ScalarIconHardDrive } from './components/ScalarIconHardDrive.vue'
+export { default as ScalarIconHardDrives } from './components/ScalarIconHardDrives.vue'
+export { default as ScalarIconHardHat } from './components/ScalarIconHardHat.vue'
+export { default as ScalarIconHash } from './components/ScalarIconHash.vue'
+export { default as ScalarIconHashStraight } from './components/ScalarIconHashStraight.vue'
+export { default as ScalarIconHeadCircuit } from './components/ScalarIconHeadCircuit.vue'
+export { default as ScalarIconHeadlights } from './components/ScalarIconHeadlights.vue'
+export { default as ScalarIconHeadphones } from './components/ScalarIconHeadphones.vue'
+export { default as ScalarIconHeadset } from './components/ScalarIconHeadset.vue'
+export { default as ScalarIconHeart } from './components/ScalarIconHeart.vue'
+export { default as ScalarIconHeartBreak } from './components/ScalarIconHeartBreak.vue'
+export { default as ScalarIconHeartHalf } from './components/ScalarIconHeartHalf.vue'
+export { default as ScalarIconHeartStraight } from './components/ScalarIconHeartStraight.vue'
+export { default as ScalarIconHeartStraightBreak } from './components/ScalarIconHeartStraightBreak.vue'
+export { default as ScalarIconHeartbeat } from './components/ScalarIconHeartbeat.vue'
+export { default as ScalarIconHexagon } from './components/ScalarIconHexagon.vue'
+export { default as ScalarIconHighDefinition } from './components/ScalarIconHighDefinition.vue'
+export { default as ScalarIconHighHeel } from './components/ScalarIconHighHeel.vue'
+export { default as ScalarIconHighlighter } from './components/ScalarIconHighlighter.vue'
+export { default as ScalarIconHighlighterCircle } from './components/ScalarIconHighlighterCircle.vue'
+export { default as ScalarIconHockey } from './components/ScalarIconHockey.vue'
+export { default as ScalarIconHoodie } from './components/ScalarIconHoodie.vue'
+export { default as ScalarIconHorse } from './components/ScalarIconHorse.vue'
+export { default as ScalarIconHospital } from './components/ScalarIconHospital.vue'
+export { default as ScalarIconHourglass } from './components/ScalarIconHourglass.vue'
+export { default as ScalarIconHourglassHigh } from './components/ScalarIconHourglassHigh.vue'
+export { default as ScalarIconHourglassLow } from './components/ScalarIconHourglassLow.vue'
+export { default as ScalarIconHourglassMedium } from './components/ScalarIconHourglassMedium.vue'
+export { default as ScalarIconHourglassSimple } from './components/ScalarIconHourglassSimple.vue'
+export { default as ScalarIconHourglassSimpleHigh } from './components/ScalarIconHourglassSimpleHigh.vue'
+export { default as ScalarIconHourglassSimpleLow } from './components/ScalarIconHourglassSimpleLow.vue'
+export { default as ScalarIconHourglassSimpleMedium } from './components/ScalarIconHourglassSimpleMedium.vue'
+export { default as ScalarIconHouse } from './components/ScalarIconHouse.vue'
+export { default as ScalarIconHouseLine } from './components/ScalarIconHouseLine.vue'
+export { default as ScalarIconHouseSimple } from './components/ScalarIconHouseSimple.vue'
+export { default as ScalarIconHurricane } from './components/ScalarIconHurricane.vue'
+export { default as ScalarIconIceCream } from './components/ScalarIconIceCream.vue'
+export { default as ScalarIconIdentificationBadge } from './components/ScalarIconIdentificationBadge.vue'
+export { default as ScalarIconIdentificationCard } from './components/ScalarIconIdentificationCard.vue'
+export { default as ScalarIconImage } from './components/ScalarIconImage.vue'
+export { default as ScalarIconImageBroken } from './components/ScalarIconImageBroken.vue'
+export { default as ScalarIconImageSquare } from './components/ScalarIconImageSquare.vue'
+export { default as ScalarIconImages } from './components/ScalarIconImages.vue'
+export { default as ScalarIconImagesSquare } from './components/ScalarIconImagesSquare.vue'
+export { default as ScalarIconInfinity } from './components/ScalarIconInfinity.vue'
+export { default as ScalarIconLemniscate } from './components/ScalarIconInfinity.vue'
+export { default as ScalarIconInfo } from './components/ScalarIconInfo.vue'
+export { default as ScalarIconInstagramLogo } from './components/ScalarIconInstagramLogo.vue'
+export { default as ScalarIconIntersect } from './components/ScalarIconIntersect.vue'
+export { default as ScalarIconIntersectSquare } from './components/ScalarIconIntersectSquare.vue'
+export { default as ScalarIconIntersectThree } from './components/ScalarIconIntersectThree.vue'
+export { default as ScalarIconIntersection } from './components/ScalarIconIntersection.vue'
+export { default as ScalarIconInvoice } from './components/ScalarIconInvoice.vue'
+export { default as ScalarIconIsland } from './components/ScalarIconIsland.vue'
+export { default as ScalarIconJar } from './components/ScalarIconJar.vue'
+export { default as ScalarIconJarLabel } from './components/ScalarIconJarLabel.vue'
+export { default as ScalarIconJeep } from './components/ScalarIconJeep.vue'
+export { default as ScalarIconJoystick } from './components/ScalarIconJoystick.vue'
+export { default as ScalarIconKanban } from './components/ScalarIconKanban.vue'
+export { default as ScalarIconKey } from './components/ScalarIconKey.vue'
+export { default as ScalarIconKeyReturn } from './components/ScalarIconKeyReturn.vue'
+export { default as ScalarIconKeyboard } from './components/ScalarIconKeyboard.vue'
+export { default as ScalarIconKeyhole } from './components/ScalarIconKeyhole.vue'
+export { default as ScalarIconKnife } from './components/ScalarIconKnife.vue'
+export { default as ScalarIconLadder } from './components/ScalarIconLadder.vue'
+export { default as ScalarIconLadderSimple } from './components/ScalarIconLadderSimple.vue'
+export { default as ScalarIconLamp } from './components/ScalarIconLamp.vue'
+export { default as ScalarIconLampPendant } from './components/ScalarIconLampPendant.vue'
+export { default as ScalarIconLaptop } from './components/ScalarIconLaptop.vue'
+export { default as ScalarIconLasso } from './components/ScalarIconLasso.vue'
+export { default as ScalarIconLastfmLogo } from './components/ScalarIconLastfmLogo.vue'
+export { default as ScalarIconLayout } from './components/ScalarIconLayout.vue'
+export { default as ScalarIconLeaf } from './components/ScalarIconLeaf.vue'
+export { default as ScalarIconLectern } from './components/ScalarIconLectern.vue'
+export { default as ScalarIconLego } from './components/ScalarIconLego.vue'
+export { default as ScalarIconLegoSmiley } from './components/ScalarIconLegoSmiley.vue'
+export { default as ScalarIconLessThan } from './components/ScalarIconLessThan.vue'
+export { default as ScalarIconLessThanOrEqual } from './components/ScalarIconLessThanOrEqual.vue'
+export { default as ScalarIconLetterCircleH } from './components/ScalarIconLetterCircleH.vue'
+export { default as ScalarIconLetterCircleP } from './components/ScalarIconLetterCircleP.vue'
+export { default as ScalarIconLetterCircleV } from './components/ScalarIconLetterCircleV.vue'
+export { default as ScalarIconLifebuoy } from './components/ScalarIconLifebuoy.vue'
+export { default as ScalarIconLightbulb } from './components/ScalarIconLightbulb.vue'
+export { default as ScalarIconLightbulbFilament } from './components/ScalarIconLightbulbFilament.vue'
+export { default as ScalarIconLighthouse } from './components/ScalarIconLighthouse.vue'
+export { default as ScalarIconLightningA } from './components/ScalarIconLightningA.vue'
+export { default as ScalarIconLightning } from './components/ScalarIconLightning.vue'
+export { default as ScalarIconLightningSlash } from './components/ScalarIconLightningSlash.vue'
+export { default as ScalarIconLineSegment } from './components/ScalarIconLineSegment.vue'
+export { default as ScalarIconLineSegments } from './components/ScalarIconLineSegments.vue'
+export { default as ScalarIconLineVertical } from './components/ScalarIconLineVertical.vue'
+export { default as ScalarIconLink } from './components/ScalarIconLink.vue'
+export { default as ScalarIconLinkBreak } from './components/ScalarIconLinkBreak.vue'
+export { default as ScalarIconLinkSimple } from './components/ScalarIconLinkSimple.vue'
+export { default as ScalarIconLinkSimpleBreak } from './components/ScalarIconLinkSimpleBreak.vue'
+export { default as ScalarIconLinkSimpleHorizontal } from './components/ScalarIconLinkSimpleHorizontal.vue'
+export { default as ScalarIconLinkSimpleHorizontalBreak } from './components/ScalarIconLinkSimpleHorizontalBreak.vue'
+export { default as ScalarIconLinkedinLogo } from './components/ScalarIconLinkedinLogo.vue'
+export { default as ScalarIconLinktreeLogo } from './components/ScalarIconLinktreeLogo.vue'
+export { default as ScalarIconLinuxLogo } from './components/ScalarIconLinuxLogo.vue'
+export { default as ScalarIconList } from './components/ScalarIconList.vue'
+export { default as ScalarIconListBullets } from './components/ScalarIconListBullets.vue'
+export { default as ScalarIconListChecks } from './components/ScalarIconListChecks.vue'
+export { default as ScalarIconListDashes } from './components/ScalarIconListDashes.vue'
+export { default as ScalarIconListHeart } from './components/ScalarIconListHeart.vue'
+export { default as ScalarIconListMagnifyingGlass } from './components/ScalarIconListMagnifyingGlass.vue'
+export { default as ScalarIconListNumbers } from './components/ScalarIconListNumbers.vue'
+export { default as ScalarIconListPlus } from './components/ScalarIconListPlus.vue'
+export { default as ScalarIconListStar } from './components/ScalarIconListStar.vue'
+export { default as ScalarIconLock } from './components/ScalarIconLock.vue'
+export { default as ScalarIconLockKey } from './components/ScalarIconLockKey.vue'
+export { default as ScalarIconLockKeyOpen } from './components/ScalarIconLockKeyOpen.vue'
+export { default as ScalarIconLockLaminated } from './components/ScalarIconLockLaminated.vue'
+export { default as ScalarIconLockLaminatedOpen } from './components/ScalarIconLockLaminatedOpen.vue'
+export { default as ScalarIconLockOpen } from './components/ScalarIconLockOpen.vue'
+export { default as ScalarIconLockSimple } from './components/ScalarIconLockSimple.vue'
+export { default as ScalarIconLockSimpleOpen } from './components/ScalarIconLockSimpleOpen.vue'
+export { default as ScalarIconLockers } from './components/ScalarIconLockers.vue'
+export { default as ScalarIconLog } from './components/ScalarIconLog.vue'
+export { default as ScalarIconMagicWand } from './components/ScalarIconMagicWand.vue'
+export { default as ScalarIconMagnet } from './components/ScalarIconMagnet.vue'
+export { default as ScalarIconMagnetStraight } from './components/ScalarIconMagnetStraight.vue'
+export { default as ScalarIconMagnifyingGlass } from './components/ScalarIconMagnifyingGlass.vue'
+export { default as ScalarIconMagnifyingGlassMinus } from './components/ScalarIconMagnifyingGlassMinus.vue'
+export { default as ScalarIconMagnifyingGlassPlus } from './components/ScalarIconMagnifyingGlassPlus.vue'
+export { default as ScalarIconMailbox } from './components/ScalarIconMailbox.vue'
+export { default as ScalarIconMapPinArea } from './components/ScalarIconMapPinArea.vue'
+export { default as ScalarIconMapPin } from './components/ScalarIconMapPin.vue'
+export { default as ScalarIconMapPinLine } from './components/ScalarIconMapPinLine.vue'
+export { default as ScalarIconMapPinPlus } from './components/ScalarIconMapPinPlus.vue'
+export { default as ScalarIconMapPinSimpleArea } from './components/ScalarIconMapPinSimpleArea.vue'
+export { default as ScalarIconMapPinSimple } from './components/ScalarIconMapPinSimple.vue'
+export { default as ScalarIconMapPinSimpleLine } from './components/ScalarIconMapPinSimpleLine.vue'
+export { default as ScalarIconMapTrifold } from './components/ScalarIconMapTrifold.vue'
+export { default as ScalarIconMarkdownLogo } from './components/ScalarIconMarkdownLogo.vue'
+export { default as ScalarIconMarkerCircle } from './components/ScalarIconMarkerCircle.vue'
+export { default as ScalarIconMartini } from './components/ScalarIconMartini.vue'
+export { default as ScalarIconMaskHappy } from './components/ScalarIconMaskHappy.vue'
+export { default as ScalarIconMaskSad } from './components/ScalarIconMaskSad.vue'
+export { default as ScalarIconMastodonLogo } from './components/ScalarIconMastodonLogo.vue'
+export { default as ScalarIconMathOperations } from './components/ScalarIconMathOperations.vue'
+export { default as ScalarIconMatrixLogo } from './components/ScalarIconMatrixLogo.vue'
+export { default as ScalarIconMedal } from './components/ScalarIconMedal.vue'
+export { default as ScalarIconMedalMilitary } from './components/ScalarIconMedalMilitary.vue'
+export { default as ScalarIconMediumLogo } from './components/ScalarIconMediumLogo.vue'
+export { default as ScalarIconMegaphone } from './components/ScalarIconMegaphone.vue'
+export { default as ScalarIconMegaphoneSimple } from './components/ScalarIconMegaphoneSimple.vue'
+export { default as ScalarIconMemberOf } from './components/ScalarIconMemberOf.vue'
+export { default as ScalarIconMemory } from './components/ScalarIconMemory.vue'
+export { default as ScalarIconMessengerLogo } from './components/ScalarIconMessengerLogo.vue'
+export { default as ScalarIconMetaLogo } from './components/ScalarIconMetaLogo.vue'
+export { default as ScalarIconMeteor } from './components/ScalarIconMeteor.vue'
+export { default as ScalarIconMetronome } from './components/ScalarIconMetronome.vue'
+export { default as ScalarIconMicrophone } from './components/ScalarIconMicrophone.vue'
+export { default as ScalarIconMicrophoneSlash } from './components/ScalarIconMicrophoneSlash.vue'
+export { default as ScalarIconMicrophoneStage } from './components/ScalarIconMicrophoneStage.vue'
+export { default as ScalarIconMicroscope } from './components/ScalarIconMicroscope.vue'
+export { default as ScalarIconMicrosoftExcelLogo } from './components/ScalarIconMicrosoftExcelLogo.vue'
+export { default as ScalarIconMicrosoftOutlookLogo } from './components/ScalarIconMicrosoftOutlookLogo.vue'
+export { default as ScalarIconMicrosoftPowerpointLogo } from './components/ScalarIconMicrosoftPowerpointLogo.vue'
+export { default as ScalarIconMicrosoftTeamsLogo } from './components/ScalarIconMicrosoftTeamsLogo.vue'
+export { default as ScalarIconMicrosoftWordLogo } from './components/ScalarIconMicrosoftWordLogo.vue'
+export { default as ScalarIconMinus } from './components/ScalarIconMinus.vue'
+export { default as ScalarIconMinusCircle } from './components/ScalarIconMinusCircle.vue'
+export { default as ScalarIconMinusSquare } from './components/ScalarIconMinusSquare.vue'
+export { default as ScalarIconMoney } from './components/ScalarIconMoney.vue'
+export { default as ScalarIconMoneyWavy } from './components/ScalarIconMoneyWavy.vue'
+export { default as ScalarIconMonitorArrowUp } from './components/ScalarIconMonitorArrowUp.vue'
+export { default as ScalarIconMonitor } from './components/ScalarIconMonitor.vue'
+export { default as ScalarIconMonitorPlay } from './components/ScalarIconMonitorPlay.vue'
+export { default as ScalarIconMoon } from './components/ScalarIconMoon.vue'
+export { default as ScalarIconMoonStars } from './components/ScalarIconMoonStars.vue'
+export { default as ScalarIconMoped } from './components/ScalarIconMoped.vue'
+export { default as ScalarIconMopedFront } from './components/ScalarIconMopedFront.vue'
+export { default as ScalarIconMosque } from './components/ScalarIconMosque.vue'
+export { default as ScalarIconMotorcycle } from './components/ScalarIconMotorcycle.vue'
+export { default as ScalarIconMountains } from './components/ScalarIconMountains.vue'
+export { default as ScalarIconMouse } from './components/ScalarIconMouse.vue'
+export { default as ScalarIconMouseLeftClick } from './components/ScalarIconMouseLeftClick.vue'
+export { default as ScalarIconMouseMiddleClick } from './components/ScalarIconMouseMiddleClick.vue'
+export { default as ScalarIconMouseRightClick } from './components/ScalarIconMouseRightClick.vue'
+export { default as ScalarIconMouseScroll } from './components/ScalarIconMouseScroll.vue'
+export { default as ScalarIconMouseSimple } from './components/ScalarIconMouseSimple.vue'
+export { default as ScalarIconMusicNote } from './components/ScalarIconMusicNote.vue'
+export { default as ScalarIconMusicNoteSimple } from './components/ScalarIconMusicNoteSimple.vue'
+export { default as ScalarIconMusicNotes } from './components/ScalarIconMusicNotes.vue'
+export { default as ScalarIconMusicNotesMinus } from './components/ScalarIconMusicNotesMinus.vue'
+export { default as ScalarIconMusicNotesPlus } from './components/ScalarIconMusicNotesPlus.vue'
+export { default as ScalarIconMusicNotesSimple } from './components/ScalarIconMusicNotesSimple.vue'
+export { default as ScalarIconNavigationArrow } from './components/ScalarIconNavigationArrow.vue'
+export { default as ScalarIconNeedle } from './components/ScalarIconNeedle.vue'
+export { default as ScalarIconNetwork } from './components/ScalarIconNetwork.vue'
+export { default as ScalarIconNetworkSlash } from './components/ScalarIconNetworkSlash.vue'
+export { default as ScalarIconNetworkX } from './components/ScalarIconNetworkX.vue'
+export { default as ScalarIconNewspaper } from './components/ScalarIconNewspaper.vue'
+export { default as ScalarIconNewspaperClipping } from './components/ScalarIconNewspaperClipping.vue'
+export { default as ScalarIconNotEquals } from './components/ScalarIconNotEquals.vue'
+export { default as ScalarIconNotMemberOf } from './components/ScalarIconNotMemberOf.vue'
+export { default as ScalarIconNotSubsetOf } from './components/ScalarIconNotSubsetOf.vue'
+export { default as ScalarIconNotSupersetOf } from './components/ScalarIconNotSupersetOf.vue'
+export { default as ScalarIconNotches } from './components/ScalarIconNotches.vue'
+export { default as ScalarIconNoteBlank } from './components/ScalarIconNoteBlank.vue'
+export { default as ScalarIconNote } from './components/ScalarIconNote.vue'
+export { default as ScalarIconNotePencil } from './components/ScalarIconNotePencil.vue'
+export { default as ScalarIconNotebook } from './components/ScalarIconNotebook.vue'
+export { default as ScalarIconNotepad } from './components/ScalarIconNotepad.vue'
+export { default as ScalarIconNotification } from './components/ScalarIconNotification.vue'
+export { default as ScalarIconNotionLogo } from './components/ScalarIconNotionLogo.vue'
+export { default as ScalarIconNuclearPlant } from './components/ScalarIconNuclearPlant.vue'
+export { default as ScalarIconNumberCircleEight } from './components/ScalarIconNumberCircleEight.vue'
+export { default as ScalarIconNumberCircleFive } from './components/ScalarIconNumberCircleFive.vue'
+export { default as ScalarIconNumberCircleFour } from './components/ScalarIconNumberCircleFour.vue'
+export { default as ScalarIconNumberCircleNine } from './components/ScalarIconNumberCircleNine.vue'
+export { default as ScalarIconNumberCircleOne } from './components/ScalarIconNumberCircleOne.vue'
+export { default as ScalarIconNumberCircleSeven } from './components/ScalarIconNumberCircleSeven.vue'
+export { default as ScalarIconNumberCircleSix } from './components/ScalarIconNumberCircleSix.vue'
+export { default as ScalarIconNumberCircleThree } from './components/ScalarIconNumberCircleThree.vue'
+export { default as ScalarIconNumberCircleTwo } from './components/ScalarIconNumberCircleTwo.vue'
+export { default as ScalarIconNumberCircleZero } from './components/ScalarIconNumberCircleZero.vue'
+export { default as ScalarIconNumberEight } from './components/ScalarIconNumberEight.vue'
+export { default as ScalarIconNumberFive } from './components/ScalarIconNumberFive.vue'
+export { default as ScalarIconNumberFour } from './components/ScalarIconNumberFour.vue'
+export { default as ScalarIconNumberNine } from './components/ScalarIconNumberNine.vue'
+export { default as ScalarIconNumberOne } from './components/ScalarIconNumberOne.vue'
+export { default as ScalarIconNumberSeven } from './components/ScalarIconNumberSeven.vue'
+export { default as ScalarIconNumberSix } from './components/ScalarIconNumberSix.vue'
+export { default as ScalarIconNumberSquareEight } from './components/ScalarIconNumberSquareEight.vue'
+export { default as ScalarIconNumberSquareFive } from './components/ScalarIconNumberSquareFive.vue'
+export { default as ScalarIconNumberSquareFour } from './components/ScalarIconNumberSquareFour.vue'
+export { default as ScalarIconNumberSquareNine } from './components/ScalarIconNumberSquareNine.vue'
+export { default as ScalarIconNumberSquareOne } from './components/ScalarIconNumberSquareOne.vue'
+export { default as ScalarIconNumberSquareSeven } from './components/ScalarIconNumberSquareSeven.vue'
+export { default as ScalarIconNumberSquareSix } from './components/ScalarIconNumberSquareSix.vue'
+export { default as ScalarIconNumberSquareThree } from './components/ScalarIconNumberSquareThree.vue'
+export { default as ScalarIconNumberSquareTwo } from './components/ScalarIconNumberSquareTwo.vue'
+export { default as ScalarIconNumberSquareZero } from './components/ScalarIconNumberSquareZero.vue'
+export { default as ScalarIconNumberThree } from './components/ScalarIconNumberThree.vue'
+export { default as ScalarIconNumberTwo } from './components/ScalarIconNumberTwo.vue'
+export { default as ScalarIconNumberZero } from './components/ScalarIconNumberZero.vue'
+export { default as ScalarIconNumpad } from './components/ScalarIconNumpad.vue'
+export { default as ScalarIconNut } from './components/ScalarIconNut.vue'
+export { default as ScalarIconNyTimesLogo } from './components/ScalarIconNyTimesLogo.vue'
+export { default as ScalarIconOctagon } from './components/ScalarIconOctagon.vue'
+export { default as ScalarIconOfficeChair } from './components/ScalarIconOfficeChair.vue'
+export { default as ScalarIconOnigiri } from './components/ScalarIconOnigiri.vue'
+export { default as ScalarIconOpenAiLogo } from './components/ScalarIconOpenAiLogo.vue'
+export { default as ScalarIconOption } from './components/ScalarIconOption.vue'
+export { default as ScalarIconOrange } from './components/ScalarIconOrange.vue'
+export { default as ScalarIconOrangeSlice } from './components/ScalarIconOrangeSlice.vue'
+export { default as ScalarIconOven } from './components/ScalarIconOven.vue'
+export { default as ScalarIconPackage } from './components/ScalarIconPackage.vue'
+export { default as ScalarIconPaintBrush } from './components/ScalarIconPaintBrush.vue'
+export { default as ScalarIconPaintBrushBroad } from './components/ScalarIconPaintBrushBroad.vue'
+export { default as ScalarIconPaintBrushHousehold } from './components/ScalarIconPaintBrushHousehold.vue'
+export { default as ScalarIconPaintBucket } from './components/ScalarIconPaintBucket.vue'
+export { default as ScalarIconPaintRoller } from './components/ScalarIconPaintRoller.vue'
+export { default as ScalarIconPalette } from './components/ScalarIconPalette.vue'
+export { default as ScalarIconPanorama } from './components/ScalarIconPanorama.vue'
+export { default as ScalarIconPants } from './components/ScalarIconPants.vue'
+export { default as ScalarIconPaperPlane } from './components/ScalarIconPaperPlane.vue'
+export { default as ScalarIconPaperPlaneRight } from './components/ScalarIconPaperPlaneRight.vue'
+export { default as ScalarIconPaperPlaneTilt } from './components/ScalarIconPaperPlaneTilt.vue'
+export { default as ScalarIconPaperclip } from './components/ScalarIconPaperclip.vue'
+export { default as ScalarIconPaperclipHorizontal } from './components/ScalarIconPaperclipHorizontal.vue'
+export { default as ScalarIconParachute } from './components/ScalarIconParachute.vue'
+export { default as ScalarIconParagraph } from './components/ScalarIconParagraph.vue'
+export { default as ScalarIconParallelogram } from './components/ScalarIconParallelogram.vue'
+export { default as ScalarIconPark } from './components/ScalarIconPark.vue'
+export { default as ScalarIconPassword } from './components/ScalarIconPassword.vue'
+export { default as ScalarIconPath } from './components/ScalarIconPath.vue'
+export { default as ScalarIconPatreonLogo } from './components/ScalarIconPatreonLogo.vue'
+export { default as ScalarIconPause } from './components/ScalarIconPause.vue'
+export { default as ScalarIconPauseCircle } from './components/ScalarIconPauseCircle.vue'
+export { default as ScalarIconPawPrint } from './components/ScalarIconPawPrint.vue'
+export { default as ScalarIconPaypalLogo } from './components/ScalarIconPaypalLogo.vue'
+export { default as ScalarIconPeace } from './components/ScalarIconPeace.vue'
+export { default as ScalarIconPen } from './components/ScalarIconPen.vue'
+export { default as ScalarIconPenNib } from './components/ScalarIconPenNib.vue'
+export { default as ScalarIconPenNibStraight } from './components/ScalarIconPenNibStraight.vue'
+export { default as ScalarIconPencil } from './components/ScalarIconPencil.vue'
+export { default as ScalarIconPencilCircle } from './components/ScalarIconPencilCircle.vue'
+export { default as ScalarIconPencilLine } from './components/ScalarIconPencilLine.vue'
+export { default as ScalarIconPencilRuler } from './components/ScalarIconPencilRuler.vue'
+export { default as ScalarIconPencilSimple } from './components/ScalarIconPencilSimple.vue'
+export { default as ScalarIconPencilSimpleLine } from './components/ScalarIconPencilSimpleLine.vue'
+export { default as ScalarIconPencilSimpleSlash } from './components/ScalarIconPencilSimpleSlash.vue'
+export { default as ScalarIconPencilSlash } from './components/ScalarIconPencilSlash.vue'
+export { default as ScalarIconPentagon } from './components/ScalarIconPentagon.vue'
+export { default as ScalarIconPentagram } from './components/ScalarIconPentagram.vue'
+export { default as ScalarIconPepper } from './components/ScalarIconPepper.vue'
+export { default as ScalarIconPercent } from './components/ScalarIconPercent.vue'
+export { default as ScalarIconPersonArmsSpread } from './components/ScalarIconPersonArmsSpread.vue'
+export { default as ScalarIconPerson } from './components/ScalarIconPerson.vue'
+export { default as ScalarIconPersonSimpleBike } from './components/ScalarIconPersonSimpleBike.vue'
+export { default as ScalarIconPersonSimple } from './components/ScalarIconPersonSimple.vue'
+export { default as ScalarIconPersonSimpleCircle } from './components/ScalarIconPersonSimpleCircle.vue'
+export { default as ScalarIconPersonSimpleHike } from './components/ScalarIconPersonSimpleHike.vue'
+export { default as ScalarIconPersonSimpleRun } from './components/ScalarIconPersonSimpleRun.vue'
+export { default as ScalarIconPersonSimpleSki } from './components/ScalarIconPersonSimpleSki.vue'
+export { default as ScalarIconPersonSimpleSnowboard } from './components/ScalarIconPersonSimpleSnowboard.vue'
+export { default as ScalarIconPersonSimpleSwim } from './components/ScalarIconPersonSimpleSwim.vue'
+export { default as ScalarIconPersonSimpleTaiChi } from './components/ScalarIconPersonSimpleTaiChi.vue'
+export { default as ScalarIconPersonSimpleThrow } from './components/ScalarIconPersonSimpleThrow.vue'
+export { default as ScalarIconPersonSimpleWalk } from './components/ScalarIconPersonSimpleWalk.vue'
+export { default as ScalarIconPerspective } from './components/ScalarIconPerspective.vue'
+export { default as ScalarIconPhone } from './components/ScalarIconPhone.vue'
+export { default as ScalarIconPhoneCall } from './components/ScalarIconPhoneCall.vue'
+export { default as ScalarIconPhoneDisconnect } from './components/ScalarIconPhoneDisconnect.vue'
+export { default as ScalarIconPhoneIncoming } from './components/ScalarIconPhoneIncoming.vue'
+export { default as ScalarIconPhoneList } from './components/ScalarIconPhoneList.vue'
+export { default as ScalarIconPhoneOutgoing } from './components/ScalarIconPhoneOutgoing.vue'
+export { default as ScalarIconPhonePause } from './components/ScalarIconPhonePause.vue'
+export { default as ScalarIconPhonePlus } from './components/ScalarIconPhonePlus.vue'
+export { default as ScalarIconPhoneSlash } from './components/ScalarIconPhoneSlash.vue'
+export { default as ScalarIconPhoneTransfer } from './components/ScalarIconPhoneTransfer.vue'
+export { default as ScalarIconPhoneX } from './components/ScalarIconPhoneX.vue'
+export { default as ScalarIconPhosphorLogo } from './components/ScalarIconPhosphorLogo.vue'
+export { default as ScalarIconPi } from './components/ScalarIconPi.vue'
+export { default as ScalarIconPianoKeys } from './components/ScalarIconPianoKeys.vue'
+export { default as ScalarIconPicnicTable } from './components/ScalarIconPicnicTable.vue'
+export { default as ScalarIconPictureInPicture } from './components/ScalarIconPictureInPicture.vue'
+export { default as ScalarIconPiggyBank } from './components/ScalarIconPiggyBank.vue'
+export { default as ScalarIconPill } from './components/ScalarIconPill.vue'
+export { default as ScalarIconPingPong } from './components/ScalarIconPingPong.vue'
+export { default as ScalarIconPintGlass } from './components/ScalarIconPintGlass.vue'
+export { default as ScalarIconPinterestLogo } from './components/ScalarIconPinterestLogo.vue'
+export { default as ScalarIconPinwheel } from './components/ScalarIconPinwheel.vue'
+export { default as ScalarIconPipe } from './components/ScalarIconPipe.vue'
+export { default as ScalarIconPipeWrench } from './components/ScalarIconPipeWrench.vue'
+export { default as ScalarIconPixLogo } from './components/ScalarIconPixLogo.vue'
+export { default as ScalarIconPizza } from './components/ScalarIconPizza.vue'
+export { default as ScalarIconPlaceholder } from './components/ScalarIconPlaceholder.vue'
+export { default as ScalarIconPlanet } from './components/ScalarIconPlanet.vue'
+export { default as ScalarIconPlant } from './components/ScalarIconPlant.vue'
+export { default as ScalarIconPlay } from './components/ScalarIconPlay.vue'
+export { default as ScalarIconPlayCircle } from './components/ScalarIconPlayCircle.vue'
+export { default as ScalarIconPlayPause } from './components/ScalarIconPlayPause.vue'
+export { default as ScalarIconPlaylist } from './components/ScalarIconPlaylist.vue'
+export { default as ScalarIconPlug } from './components/ScalarIconPlug.vue'
+export { default as ScalarIconPlugCharging } from './components/ScalarIconPlugCharging.vue'
+export { default as ScalarIconPlugs } from './components/ScalarIconPlugs.vue'
+export { default as ScalarIconPlugsConnected } from './components/ScalarIconPlugsConnected.vue'
+export { default as ScalarIconPlus } from './components/ScalarIconPlus.vue'
+export { default as ScalarIconPlusCircle } from './components/ScalarIconPlusCircle.vue'
+export { default as ScalarIconPlusMinus } from './components/ScalarIconPlusMinus.vue'
+export { default as ScalarIconPlusSquare } from './components/ScalarIconPlusSquare.vue'
+export { default as ScalarIconPokerChip } from './components/ScalarIconPokerChip.vue'
+export { default as ScalarIconPoliceCar } from './components/ScalarIconPoliceCar.vue'
+export { default as ScalarIconPolygon } from './components/ScalarIconPolygon.vue'
+export { default as ScalarIconPopcorn } from './components/ScalarIconPopcorn.vue'
+export { default as ScalarIconPopsicle } from './components/ScalarIconPopsicle.vue'
+export { default as ScalarIconPottedPlant } from './components/ScalarIconPottedPlant.vue'
+export { default as ScalarIconPower } from './components/ScalarIconPower.vue'
+export { default as ScalarIconPrescription } from './components/ScalarIconPrescription.vue'
+export { default as ScalarIconPresentation } from './components/ScalarIconPresentation.vue'
+export { default as ScalarIconPresentationChart } from './components/ScalarIconPresentationChart.vue'
+export { default as ScalarIconPrinter } from './components/ScalarIconPrinter.vue'
+export { default as ScalarIconProhibit } from './components/ScalarIconProhibit.vue'
+export { default as ScalarIconProhibitInset } from './components/ScalarIconProhibitInset.vue'
+export { default as ScalarIconProjectorScreen } from './components/ScalarIconProjectorScreen.vue'
+export { default as ScalarIconProjectorScreenChart } from './components/ScalarIconProjectorScreenChart.vue'
+export { default as ScalarIconPulse } from './components/ScalarIconPulse.vue'
+export { default as ScalarIconActivity } from './components/ScalarIconPulse.vue'
+export { default as ScalarIconPushPin } from './components/ScalarIconPushPin.vue'
+export { default as ScalarIconPushPinSimple } from './components/ScalarIconPushPinSimple.vue'
+export { default as ScalarIconPushPinSimpleSlash } from './components/ScalarIconPushPinSimpleSlash.vue'
+export { default as ScalarIconPushPinSlash } from './components/ScalarIconPushPinSlash.vue'
+export { default as ScalarIconPuzzlePiece } from './components/ScalarIconPuzzlePiece.vue'
+export { default as ScalarIconQrCode } from './components/ScalarIconQrCode.vue'
+export { default as ScalarIconQuestion } from './components/ScalarIconQuestion.vue'
+export { default as ScalarIconQuestionMark } from './components/ScalarIconQuestionMark.vue'
+export { default as ScalarIconQueue } from './components/ScalarIconQueue.vue'
+export { default as ScalarIconQuotes } from './components/ScalarIconQuotes.vue'
+export { default as ScalarIconRabbit } from './components/ScalarIconRabbit.vue'
+export { default as ScalarIconRacquet } from './components/ScalarIconRacquet.vue'
+export { default as ScalarIconRadical } from './components/ScalarIconRadical.vue'
+export { default as ScalarIconRadio } from './components/ScalarIconRadio.vue'
+export { default as ScalarIconRadioButton } from './components/ScalarIconRadioButton.vue'
+export { default as ScalarIconRadioactive } from './components/ScalarIconRadioactive.vue'
+export { default as ScalarIconRainbow } from './components/ScalarIconRainbow.vue'
+export { default as ScalarIconRainbowCloud } from './components/ScalarIconRainbowCloud.vue'
+export { default as ScalarIconRanking } from './components/ScalarIconRanking.vue'
+export { default as ScalarIconReadCvLogo } from './components/ScalarIconReadCvLogo.vue'
+export { default as ScalarIconReceipt } from './components/ScalarIconReceipt.vue'
+export { default as ScalarIconReceiptX } from './components/ScalarIconReceiptX.vue'
+export { default as ScalarIconRecord } from './components/ScalarIconRecord.vue'
+export { default as ScalarIconRectangle } from './components/ScalarIconRectangle.vue'
+export { default as ScalarIconRectangleDashed } from './components/ScalarIconRectangleDashed.vue'
+export { default as ScalarIconRecycle } from './components/ScalarIconRecycle.vue'
+export { default as ScalarIconRedditLogo } from './components/ScalarIconRedditLogo.vue'
+export { default as ScalarIconRepeat } from './components/ScalarIconRepeat.vue'
+export { default as ScalarIconRepeatOnce } from './components/ScalarIconRepeatOnce.vue'
+export { default as ScalarIconReplitLogo } from './components/ScalarIconReplitLogo.vue'
+export { default as ScalarIconResize } from './components/ScalarIconResize.vue'
+export { default as ScalarIconRewind } from './components/ScalarIconRewind.vue'
+export { default as ScalarIconRewindCircle } from './components/ScalarIconRewindCircle.vue'
+export { default as ScalarIconRoadHorizon } from './components/ScalarIconRoadHorizon.vue'
+export { default as ScalarIconRobot } from './components/ScalarIconRobot.vue'
+export { default as ScalarIconRocket } from './components/ScalarIconRocket.vue'
+export { default as ScalarIconRocketLaunch } from './components/ScalarIconRocketLaunch.vue'
+export { default as ScalarIconRows } from './components/ScalarIconRows.vue'
+export { default as ScalarIconRowsPlusBottom } from './components/ScalarIconRowsPlusBottom.vue'
+export { default as ScalarIconRowsPlusTop } from './components/ScalarIconRowsPlusTop.vue'
+export { default as ScalarIconRss } from './components/ScalarIconRss.vue'
+export { default as ScalarIconRssSimple } from './components/ScalarIconRssSimple.vue'
+export { default as ScalarIconRug } from './components/ScalarIconRug.vue'
+export { default as ScalarIconRuler } from './components/ScalarIconRuler.vue'
+export { default as ScalarIconSailboat } from './components/ScalarIconSailboat.vue'
+export { default as ScalarIconScales } from './components/ScalarIconScales.vue'
+export { default as ScalarIconScan } from './components/ScalarIconScan.vue'
+export { default as ScalarIconScanSmiley } from './components/ScalarIconScanSmiley.vue'
+export { default as ScalarIconScissors } from './components/ScalarIconScissors.vue'
+export { default as ScalarIconScooter } from './components/ScalarIconScooter.vue'
+export { default as ScalarIconScreencast } from './components/ScalarIconScreencast.vue'
+export { default as ScalarIconScrewdriver } from './components/ScalarIconScrewdriver.vue'
+export { default as ScalarIconScribble } from './components/ScalarIconScribble.vue'
+export { default as ScalarIconScribbleLoop } from './components/ScalarIconScribbleLoop.vue'
+export { default as ScalarIconScroll } from './components/ScalarIconScroll.vue'
+export { default as ScalarIconSeal } from './components/ScalarIconSeal.vue'
+export { default as ScalarIconCircleWavy } from './components/ScalarIconSeal.vue'
+export { default as ScalarIconSealCheck } from './components/ScalarIconSealCheck.vue'
+export { default as ScalarIconCircleWavyCheck } from './components/ScalarIconSealCheck.vue'
+export { default as ScalarIconSealPercent } from './components/ScalarIconSealPercent.vue'
+export { default as ScalarIconSealQuestion } from './components/ScalarIconSealQuestion.vue'
+export { default as ScalarIconCircleWavyQuestion } from './components/ScalarIconSealQuestion.vue'
+export { default as ScalarIconSealWarning } from './components/ScalarIconSealWarning.vue'
+export { default as ScalarIconCircleWavyWarning } from './components/ScalarIconSealWarning.vue'
+export { default as ScalarIconSeat } from './components/ScalarIconSeat.vue'
+export { default as ScalarIconSeatbelt } from './components/ScalarIconSeatbelt.vue'
+export { default as ScalarIconSecurityCamera } from './components/ScalarIconSecurityCamera.vue'
+export { default as ScalarIconSelectionAll } from './components/ScalarIconSelectionAll.vue'
+export { default as ScalarIconSelectionBackground } from './components/ScalarIconSelectionBackground.vue'
+export { default as ScalarIconSelection } from './components/ScalarIconSelection.vue'
+export { default as ScalarIconSelectionForeground } from './components/ScalarIconSelectionForeground.vue'
+export { default as ScalarIconSelectionInverse } from './components/ScalarIconSelectionInverse.vue'
+export { default as ScalarIconSelectionPlus } from './components/ScalarIconSelectionPlus.vue'
+export { default as ScalarIconSelectionSlash } from './components/ScalarIconSelectionSlash.vue'
+export { default as ScalarIconShapes } from './components/ScalarIconShapes.vue'
+export { default as ScalarIconShare } from './components/ScalarIconShare.vue'
+export { default as ScalarIconShareFat } from './components/ScalarIconShareFat.vue'
+export { default as ScalarIconShareNetwork } from './components/ScalarIconShareNetwork.vue'
+export { default as ScalarIconShield } from './components/ScalarIconShield.vue'
+export { default as ScalarIconShieldCheck } from './components/ScalarIconShieldCheck.vue'
+export { default as ScalarIconShieldCheckered } from './components/ScalarIconShieldCheckered.vue'
+export { default as ScalarIconShieldChevron } from './components/ScalarIconShieldChevron.vue'
+export { default as ScalarIconShieldPlus } from './components/ScalarIconShieldPlus.vue'
+export { default as ScalarIconShieldSlash } from './components/ScalarIconShieldSlash.vue'
+export { default as ScalarIconShieldStar } from './components/ScalarIconShieldStar.vue'
+export { default as ScalarIconShieldWarning } from './components/ScalarIconShieldWarning.vue'
+export { default as ScalarIconShippingContainer } from './components/ScalarIconShippingContainer.vue'
+export { default as ScalarIconShirtFolded } from './components/ScalarIconShirtFolded.vue'
+export { default as ScalarIconShootingStar } from './components/ScalarIconShootingStar.vue'
+export { default as ScalarIconShoppingBag } from './components/ScalarIconShoppingBag.vue'
+export { default as ScalarIconShoppingBagOpen } from './components/ScalarIconShoppingBagOpen.vue'
+export { default as ScalarIconShoppingCart } from './components/ScalarIconShoppingCart.vue'
+export { default as ScalarIconShoppingCartSimple } from './components/ScalarIconShoppingCartSimple.vue'
+export { default as ScalarIconShovel } from './components/ScalarIconShovel.vue'
+export { default as ScalarIconShower } from './components/ScalarIconShower.vue'
+export { default as ScalarIconShrimp } from './components/ScalarIconShrimp.vue'
+export { default as ScalarIconShuffleAngular } from './components/ScalarIconShuffleAngular.vue'
+export { default as ScalarIconShuffle } from './components/ScalarIconShuffle.vue'
+export { default as ScalarIconShuffleSimple } from './components/ScalarIconShuffleSimple.vue'
+export { default as ScalarIconSidebar } from './components/ScalarIconSidebar.vue'
+export { default as ScalarIconSidebarSimple } from './components/ScalarIconSidebarSimple.vue'
+export { default as ScalarIconSigma } from './components/ScalarIconSigma.vue'
+export { default as ScalarIconSignIn } from './components/ScalarIconSignIn.vue'
+export { default as ScalarIconSignOut } from './components/ScalarIconSignOut.vue'
+export { default as ScalarIconSignature } from './components/ScalarIconSignature.vue'
+export { default as ScalarIconSignpost } from './components/ScalarIconSignpost.vue'
+export { default as ScalarIconSimCard } from './components/ScalarIconSimCard.vue'
+export { default as ScalarIconSiren } from './components/ScalarIconSiren.vue'
+export { default as ScalarIconSketchLogo } from './components/ScalarIconSketchLogo.vue'
+export { default as ScalarIconSkipBack } from './components/ScalarIconSkipBack.vue'
+export { default as ScalarIconSkipBackCircle } from './components/ScalarIconSkipBackCircle.vue'
+export { default as ScalarIconSkipForward } from './components/ScalarIconSkipForward.vue'
+export { default as ScalarIconSkipForwardCircle } from './components/ScalarIconSkipForwardCircle.vue'
+export { default as ScalarIconSkull } from './components/ScalarIconSkull.vue'
+export { default as ScalarIconSkypeLogo } from './components/ScalarIconSkypeLogo.vue'
+export { default as ScalarIconSlackLogo } from './components/ScalarIconSlackLogo.vue'
+export { default as ScalarIconSliders } from './components/ScalarIconSliders.vue'
+export { default as ScalarIconSlidersHorizontal } from './components/ScalarIconSlidersHorizontal.vue'
+export { default as ScalarIconSlideshow } from './components/ScalarIconSlideshow.vue'
+export { default as ScalarIconSmileyAngry } from './components/ScalarIconSmileyAngry.vue'
+export { default as ScalarIconSmileyBlank } from './components/ScalarIconSmileyBlank.vue'
+export { default as ScalarIconSmiley } from './components/ScalarIconSmiley.vue'
+export { default as ScalarIconSmileyMeh } from './components/ScalarIconSmileyMeh.vue'
+export { default as ScalarIconSmileyMelting } from './components/ScalarIconSmileyMelting.vue'
+export { default as ScalarIconSmileyNervous } from './components/ScalarIconSmileyNervous.vue'
+export { default as ScalarIconSmileySad } from './components/ScalarIconSmileySad.vue'
+export { default as ScalarIconSmileySticker } from './components/ScalarIconSmileySticker.vue'
+export { default as ScalarIconSmileyWink } from './components/ScalarIconSmileyWink.vue'
+export { default as ScalarIconSmileyXEyes } from './components/ScalarIconSmileyXEyes.vue'
+export { default as ScalarIconSnapchatLogo } from './components/ScalarIconSnapchatLogo.vue'
+export { default as ScalarIconSneaker } from './components/ScalarIconSneaker.vue'
+export { default as ScalarIconSneakerMove } from './components/ScalarIconSneakerMove.vue'
+export { default as ScalarIconSnowflake } from './components/ScalarIconSnowflake.vue'
+export { default as ScalarIconSoccerBall } from './components/ScalarIconSoccerBall.vue'
+export { default as ScalarIconSock } from './components/ScalarIconSock.vue'
+export { default as ScalarIconSolarPanel } from './components/ScalarIconSolarPanel.vue'
+export { default as ScalarIconSolarRoof } from './components/ScalarIconSolarRoof.vue'
+export { default as ScalarIconSortAscending } from './components/ScalarIconSortAscending.vue'
+export { default as ScalarIconSortDescending } from './components/ScalarIconSortDescending.vue'
+export { default as ScalarIconSoundcloudLogo } from './components/ScalarIconSoundcloudLogo.vue'
+export { default as ScalarIconSpade } from './components/ScalarIconSpade.vue'
+export { default as ScalarIconSparkle } from './components/ScalarIconSparkle.vue'
+export { default as ScalarIconSpeakerHifi } from './components/ScalarIconSpeakerHifi.vue'
+export { default as ScalarIconSpeakerHigh } from './components/ScalarIconSpeakerHigh.vue'
+export { default as ScalarIconSpeakerLow } from './components/ScalarIconSpeakerLow.vue'
+export { default as ScalarIconSpeakerNone } from './components/ScalarIconSpeakerNone.vue'
+export { default as ScalarIconSpeakerSimpleHigh } from './components/ScalarIconSpeakerSimpleHigh.vue'
+export { default as ScalarIconSpeakerSimpleLow } from './components/ScalarIconSpeakerSimpleLow.vue'
+export { default as ScalarIconSpeakerSimpleNone } from './components/ScalarIconSpeakerSimpleNone.vue'
+export { default as ScalarIconSpeakerSimpleSlash } from './components/ScalarIconSpeakerSimpleSlash.vue'
+export { default as ScalarIconSpeakerSimpleX } from './components/ScalarIconSpeakerSimpleX.vue'
+export { default as ScalarIconSpeakerSlash } from './components/ScalarIconSpeakerSlash.vue'
+export { default as ScalarIconSpeakerX } from './components/ScalarIconSpeakerX.vue'
+export { default as ScalarIconSpeedometer } from './components/ScalarIconSpeedometer.vue'
+export { default as ScalarIconSphere } from './components/ScalarIconSphere.vue'
+export { default as ScalarIconSpinnerBall } from './components/ScalarIconSpinnerBall.vue'
+export { default as ScalarIconSpinner } from './components/ScalarIconSpinner.vue'
+export { default as ScalarIconSpinnerGap } from './components/ScalarIconSpinnerGap.vue'
+export { default as ScalarIconSpiral } from './components/ScalarIconSpiral.vue'
+export { default as ScalarIconSplitHorizontal } from './components/ScalarIconSplitHorizontal.vue'
+export { default as ScalarIconSplitVertical } from './components/ScalarIconSplitVertical.vue'
+export { default as ScalarIconSpotifyLogo } from './components/ScalarIconSpotifyLogo.vue'
+export { default as ScalarIconSprayBottle } from './components/ScalarIconSprayBottle.vue'
+export { default as ScalarIconSquare } from './components/ScalarIconSquare.vue'
+export { default as ScalarIconSquareHalf } from './components/ScalarIconSquareHalf.vue'
+export { default as ScalarIconSquareHalfBottom } from './components/ScalarIconSquareHalfBottom.vue'
+export { default as ScalarIconSquareLogo } from './components/ScalarIconSquareLogo.vue'
+export { default as ScalarIconSquareSplitHorizontal } from './components/ScalarIconSquareSplitHorizontal.vue'
+export { default as ScalarIconSquareSplitVertical } from './components/ScalarIconSquareSplitVertical.vue'
+export { default as ScalarIconSquaresFour } from './components/ScalarIconSquaresFour.vue'
+export { default as ScalarIconStack } from './components/ScalarIconStack.vue'
+export { default as ScalarIconStackMinus } from './components/ScalarIconStackMinus.vue'
+export { default as ScalarIconStackOverflowLogo } from './components/ScalarIconStackOverflowLogo.vue'
+export { default as ScalarIconStackPlus } from './components/ScalarIconStackPlus.vue'
+export { default as ScalarIconStackSimple } from './components/ScalarIconStackSimple.vue'
+export { default as ScalarIconStairs } from './components/ScalarIconStairs.vue'
+export { default as ScalarIconStamp } from './components/ScalarIconStamp.vue'
+export { default as ScalarIconStandardDefinition } from './components/ScalarIconStandardDefinition.vue'
+export { default as ScalarIconStarAndCrescent } from './components/ScalarIconStarAndCrescent.vue'
+export { default as ScalarIconStar } from './components/ScalarIconStar.vue'
+export { default as ScalarIconStarFour } from './components/ScalarIconStarFour.vue'
+export { default as ScalarIconStarHalf } from './components/ScalarIconStarHalf.vue'
+export { default as ScalarIconStarOfDavid } from './components/ScalarIconStarOfDavid.vue'
+export { default as ScalarIconSteamLogo } from './components/ScalarIconSteamLogo.vue'
+export { default as ScalarIconSteeringWheel } from './components/ScalarIconSteeringWheel.vue'
+export { default as ScalarIconSteps } from './components/ScalarIconSteps.vue'
+export { default as ScalarIconStethoscope } from './components/ScalarIconStethoscope.vue'
+export { default as ScalarIconSticker } from './components/ScalarIconSticker.vue'
+export { default as ScalarIconStool } from './components/ScalarIconStool.vue'
+export { default as ScalarIconStop } from './components/ScalarIconStop.vue'
+export { default as ScalarIconStopCircle } from './components/ScalarIconStopCircle.vue'
+export { default as ScalarIconStorefront } from './components/ScalarIconStorefront.vue'
+export { default as ScalarIconStrategy } from './components/ScalarIconStrategy.vue'
+export { default as ScalarIconStripeLogo } from './components/ScalarIconStripeLogo.vue'
+export { default as ScalarIconStudent } from './components/ScalarIconStudent.vue'
+export { default as ScalarIconSubsetOf } from './components/ScalarIconSubsetOf.vue'
+export { default as ScalarIconSubsetProperOf } from './components/ScalarIconSubsetProperOf.vue'
+export { default as ScalarIconSubtitles } from './components/ScalarIconSubtitles.vue'
+export { default as ScalarIconSubtitlesSlash } from './components/ScalarIconSubtitlesSlash.vue'
+export { default as ScalarIconSubtract } from './components/ScalarIconSubtract.vue'
+export { default as ScalarIconSubtractSquare } from './components/ScalarIconSubtractSquare.vue'
+export { default as ScalarIconSubway } from './components/ScalarIconSubway.vue'
+export { default as ScalarIconSuitcase } from './components/ScalarIconSuitcase.vue'
+export { default as ScalarIconSuitcaseRolling } from './components/ScalarIconSuitcaseRolling.vue'
+export { default as ScalarIconSuitcaseSimple } from './components/ScalarIconSuitcaseSimple.vue'
+export { default as ScalarIconSun } from './components/ScalarIconSun.vue'
+export { default as ScalarIconSunDim } from './components/ScalarIconSunDim.vue'
+export { default as ScalarIconSunHorizon } from './components/ScalarIconSunHorizon.vue'
+export { default as ScalarIconSunglasses } from './components/ScalarIconSunglasses.vue'
+export { default as ScalarIconSupersetOf } from './components/ScalarIconSupersetOf.vue'
+export { default as ScalarIconSupersetProperOf } from './components/ScalarIconSupersetProperOf.vue'
+export { default as ScalarIconSwap } from './components/ScalarIconSwap.vue'
+export { default as ScalarIconSwatches } from './components/ScalarIconSwatches.vue'
+export { default as ScalarIconSwimmingPool } from './components/ScalarIconSwimmingPool.vue'
+export { default as ScalarIconSword } from './components/ScalarIconSword.vue'
+export { default as ScalarIconSynagogue } from './components/ScalarIconSynagogue.vue'
+export { default as ScalarIconSyringe } from './components/ScalarIconSyringe.vue'
+export { default as ScalarIconTShirt } from './components/ScalarIconTShirt.vue'
+export { default as ScalarIconTable } from './components/ScalarIconTable.vue'
+export { default as ScalarIconTabs } from './components/ScalarIconTabs.vue'
+export { default as ScalarIconTag } from './components/ScalarIconTag.vue'
+export { default as ScalarIconTagChevron } from './components/ScalarIconTagChevron.vue'
+export { default as ScalarIconTagSimple } from './components/ScalarIconTagSimple.vue'
+export { default as ScalarIconTarget } from './components/ScalarIconTarget.vue'
+export { default as ScalarIconTaxi } from './components/ScalarIconTaxi.vue'
+export { default as ScalarIconTeaBag } from './components/ScalarIconTeaBag.vue'
+export { default as ScalarIconTelegramLogo } from './components/ScalarIconTelegramLogo.vue'
+export { default as ScalarIconTelevision } from './components/ScalarIconTelevision.vue'
+export { default as ScalarIconTelevisionSimple } from './components/ScalarIconTelevisionSimple.vue'
+export { default as ScalarIconTennisBall } from './components/ScalarIconTennisBall.vue'
+export { default as ScalarIconTent } from './components/ScalarIconTent.vue'
+export { default as ScalarIconTerminal } from './components/ScalarIconTerminal.vue'
+export { default as ScalarIconTerminalWindow } from './components/ScalarIconTerminalWindow.vue'
+export { default as ScalarIconTestTube } from './components/ScalarIconTestTube.vue'
+export { default as ScalarIconTextAUnderline } from './components/ScalarIconTextAUnderline.vue'
+export { default as ScalarIconTextAa } from './components/ScalarIconTextAa.vue'
+export { default as ScalarIconTextAlignCenter } from './components/ScalarIconTextAlignCenter.vue'
+export { default as ScalarIconTextAlignJustify } from './components/ScalarIconTextAlignJustify.vue'
+export { default as ScalarIconTextAlignLeft } from './components/ScalarIconTextAlignLeft.vue'
+export { default as ScalarIconTextAlignRight } from './components/ScalarIconTextAlignRight.vue'
+export { default as ScalarIconTextB } from './components/ScalarIconTextB.vue'
+export { default as ScalarIconTextBolder } from './components/ScalarIconTextB.vue'
+export { default as ScalarIconTextColumns } from './components/ScalarIconTextColumns.vue'
+export { default as ScalarIconTextH } from './components/ScalarIconTextH.vue'
+export { default as ScalarIconTextHFive } from './components/ScalarIconTextHFive.vue'
+export { default as ScalarIconTextHFour } from './components/ScalarIconTextHFour.vue'
+export { default as ScalarIconTextHOne } from './components/ScalarIconTextHOne.vue'
+export { default as ScalarIconTextHSix } from './components/ScalarIconTextHSix.vue'
+export { default as ScalarIconTextHThree } from './components/ScalarIconTextHThree.vue'
+export { default as ScalarIconTextHTwo } from './components/ScalarIconTextHTwo.vue'
+export { default as ScalarIconTextIndent } from './components/ScalarIconTextIndent.vue'
+export { default as ScalarIconTextItalic } from './components/ScalarIconTextItalic.vue'
+export { default as ScalarIconTextOutdent } from './components/ScalarIconTextOutdent.vue'
+export { default as ScalarIconTextStrikethrough } from './components/ScalarIconTextStrikethrough.vue'
+export { default as ScalarIconTextSubscript } from './components/ScalarIconTextSubscript.vue'
+export { default as ScalarIconTextSuperscript } from './components/ScalarIconTextSuperscript.vue'
+export { default as ScalarIconTextT } from './components/ScalarIconTextT.vue'
+export { default as ScalarIconTextTSlash } from './components/ScalarIconTextTSlash.vue'
+export { default as ScalarIconTextUnderline } from './components/ScalarIconTextUnderline.vue'
+export { default as ScalarIconTextbox } from './components/ScalarIconTextbox.vue'
+export { default as ScalarIconThermometer } from './components/ScalarIconThermometer.vue'
+export { default as ScalarIconThermometerCold } from './components/ScalarIconThermometerCold.vue'
+export { default as ScalarIconThermometerHot } from './components/ScalarIconThermometerHot.vue'
+export { default as ScalarIconThermometerSimple } from './components/ScalarIconThermometerSimple.vue'
+export { default as ScalarIconThreadsLogo } from './components/ScalarIconThreadsLogo.vue'
+export { default as ScalarIconThreeD } from './components/ScalarIconThreeD.vue'
+export { default as ScalarIconThumbsDown } from './components/ScalarIconThumbsDown.vue'
+export { default as ScalarIconThumbsUp } from './components/ScalarIconThumbsUp.vue'
+export { default as ScalarIconTicket } from './components/ScalarIconTicket.vue'
+export { default as ScalarIconTidalLogo } from './components/ScalarIconTidalLogo.vue'
+export { default as ScalarIconTiktokLogo } from './components/ScalarIconTiktokLogo.vue'
+export { default as ScalarIconTilde } from './components/ScalarIconTilde.vue'
+export { default as ScalarIconTimer } from './components/ScalarIconTimer.vue'
+export { default as ScalarIconTipJar } from './components/ScalarIconTipJar.vue'
+export { default as ScalarIconTipi } from './components/ScalarIconTipi.vue'
+export { default as ScalarIconTire } from './components/ScalarIconTire.vue'
+export { default as ScalarIconToggleLeft } from './components/ScalarIconToggleLeft.vue'
+export { default as ScalarIconToggleRight } from './components/ScalarIconToggleRight.vue'
+export { default as ScalarIconToilet } from './components/ScalarIconToilet.vue'
+export { default as ScalarIconToiletPaper } from './components/ScalarIconToiletPaper.vue'
+export { default as ScalarIconToolbox } from './components/ScalarIconToolbox.vue'
+export { default as ScalarIconTooth } from './components/ScalarIconTooth.vue'
+export { default as ScalarIconTornado } from './components/ScalarIconTornado.vue'
+export { default as ScalarIconTote } from './components/ScalarIconTote.vue'
+export { default as ScalarIconToteSimple } from './components/ScalarIconToteSimple.vue'
+export { default as ScalarIconTowel } from './components/ScalarIconTowel.vue'
+export { default as ScalarIconTractor } from './components/ScalarIconTractor.vue'
+export { default as ScalarIconTrademark } from './components/ScalarIconTrademark.vue'
+export { default as ScalarIconTrademarkRegistered } from './components/ScalarIconTrademarkRegistered.vue'
+export { default as ScalarIconTrafficCone } from './components/ScalarIconTrafficCone.vue'
+export { default as ScalarIconTrafficSign } from './components/ScalarIconTrafficSign.vue'
+export { default as ScalarIconTrafficSignal } from './components/ScalarIconTrafficSignal.vue'
+export { default as ScalarIconTrain } from './components/ScalarIconTrain.vue'
+export { default as ScalarIconTrainRegional } from './components/ScalarIconTrainRegional.vue'
+export { default as ScalarIconTrainSimple } from './components/ScalarIconTrainSimple.vue'
+export { default as ScalarIconTram } from './components/ScalarIconTram.vue'
+export { default as ScalarIconTranslate } from './components/ScalarIconTranslate.vue'
+export { default as ScalarIconTrash } from './components/ScalarIconTrash.vue'
+export { default as ScalarIconTrashSimple } from './components/ScalarIconTrashSimple.vue'
+export { default as ScalarIconTrayArrowDown } from './components/ScalarIconTrayArrowDown.vue'
+export { default as ScalarIconArchiveTray } from './components/ScalarIconTrayArrowDown.vue'
+export { default as ScalarIconTrayArrowUp } from './components/ScalarIconTrayArrowUp.vue'
+export { default as ScalarIconTray } from './components/ScalarIconTray.vue'
+export { default as ScalarIconTreasureChest } from './components/ScalarIconTreasureChest.vue'
+export { default as ScalarIconTree } from './components/ScalarIconTree.vue'
+export { default as ScalarIconTreeEvergreen } from './components/ScalarIconTreeEvergreen.vue'
+export { default as ScalarIconTreePalm } from './components/ScalarIconTreePalm.vue'
+export { default as ScalarIconTreeStructure } from './components/ScalarIconTreeStructure.vue'
+export { default as ScalarIconTreeView } from './components/ScalarIconTreeView.vue'
+export { default as ScalarIconTrendDown } from './components/ScalarIconTrendDown.vue'
+export { default as ScalarIconTrendUp } from './components/ScalarIconTrendUp.vue'
+export { default as ScalarIconTriangle } from './components/ScalarIconTriangle.vue'
+export { default as ScalarIconTriangleDashed } from './components/ScalarIconTriangleDashed.vue'
+export { default as ScalarIconTrolley } from './components/ScalarIconTrolley.vue'
+export { default as ScalarIconTrolleySuitcase } from './components/ScalarIconTrolleySuitcase.vue'
+export { default as ScalarIconTrophy } from './components/ScalarIconTrophy.vue'
+export { default as ScalarIconTruck } from './components/ScalarIconTruck.vue'
+export { default as ScalarIconTruckTrailer } from './components/ScalarIconTruckTrailer.vue'
+export { default as ScalarIconTumblrLogo } from './components/ScalarIconTumblrLogo.vue'
+export { default as ScalarIconTwitchLogo } from './components/ScalarIconTwitchLogo.vue'
+export { default as ScalarIconTwitterLogo } from './components/ScalarIconTwitterLogo.vue'
+export { default as ScalarIconUmbrella } from './components/ScalarIconUmbrella.vue'
+export { default as ScalarIconUmbrellaSimple } from './components/ScalarIconUmbrellaSimple.vue'
+export { default as ScalarIconUnion } from './components/ScalarIconUnion.vue'
+export { default as ScalarIconUnite } from './components/ScalarIconUnite.vue'
+export { default as ScalarIconUniteSquare } from './components/ScalarIconUniteSquare.vue'
+export { default as ScalarIconUpload } from './components/ScalarIconUpload.vue'
+export { default as ScalarIconUploadSimple } from './components/ScalarIconUploadSimple.vue'
+export { default as ScalarIconUsb } from './components/ScalarIconUsb.vue'
+export { default as ScalarIconUser } from './components/ScalarIconUser.vue'
+export { default as ScalarIconUserCheck } from './components/ScalarIconUserCheck.vue'
+export { default as ScalarIconUserCircle } from './components/ScalarIconUserCircle.vue'
+export { default as ScalarIconUserCircleCheck } from './components/ScalarIconUserCircleCheck.vue'
+export { default as ScalarIconUserCircleDashed } from './components/ScalarIconUserCircleDashed.vue'
+export { default as ScalarIconUserCircleGear } from './components/ScalarIconUserCircleGear.vue'
+export { default as ScalarIconUserCircleMinus } from './components/ScalarIconUserCircleMinus.vue'
+export { default as ScalarIconUserCirclePlus } from './components/ScalarIconUserCirclePlus.vue'
+export { default as ScalarIconUserFocus } from './components/ScalarIconUserFocus.vue'
+export { default as ScalarIconUserGear } from './components/ScalarIconUserGear.vue'
+export { default as ScalarIconUserList } from './components/ScalarIconUserList.vue'
+export { default as ScalarIconUserMinus } from './components/ScalarIconUserMinus.vue'
+export { default as ScalarIconUserPlus } from './components/ScalarIconUserPlus.vue'
+export { default as ScalarIconUserRectangle } from './components/ScalarIconUserRectangle.vue'
+export { default as ScalarIconUserSound } from './components/ScalarIconUserSound.vue'
+export { default as ScalarIconUserSquare } from './components/ScalarIconUserSquare.vue'
+export { default as ScalarIconUserSwitch } from './components/ScalarIconUserSwitch.vue'
+export { default as ScalarIconUsers } from './components/ScalarIconUsers.vue'
+export { default as ScalarIconUsersFour } from './components/ScalarIconUsersFour.vue'
+export { default as ScalarIconUsersThree } from './components/ScalarIconUsersThree.vue'
+export { default as ScalarIconVan } from './components/ScalarIconVan.vue'
+export { default as ScalarIconVault } from './components/ScalarIconVault.vue'
+export { default as ScalarIconVectorThree } from './components/ScalarIconVectorThree.vue'
+export { default as ScalarIconVectorTwo } from './components/ScalarIconVectorTwo.vue'
+export { default as ScalarIconVibrate } from './components/ScalarIconVibrate.vue'
+export { default as ScalarIconVideo } from './components/ScalarIconVideo.vue'
+export { default as ScalarIconVideoCamera } from './components/ScalarIconVideoCamera.vue'
+export { default as ScalarIconVideoCameraSlash } from './components/ScalarIconVideoCameraSlash.vue'
+export { default as ScalarIconVideoConference } from './components/ScalarIconVideoConference.vue'
+export { default as ScalarIconVignette } from './components/ScalarIconVignette.vue'
+export { default as ScalarIconVinylRecord } from './components/ScalarIconVinylRecord.vue'
+export { default as ScalarIconVirtualReality } from './components/ScalarIconVirtualReality.vue'
+export { default as ScalarIconVirus } from './components/ScalarIconVirus.vue'
+export { default as ScalarIconVisor } from './components/ScalarIconVisor.vue'
+export { default as ScalarIconVoicemail } from './components/ScalarIconVoicemail.vue'
+export { default as ScalarIconVolleyball } from './components/ScalarIconVolleyball.vue'
+export { default as ScalarIconWall } from './components/ScalarIconWall.vue'
+export { default as ScalarIconWallet } from './components/ScalarIconWallet.vue'
+export { default as ScalarIconWarehouse } from './components/ScalarIconWarehouse.vue'
+export { default as ScalarIconWarning } from './components/ScalarIconWarning.vue'
+export { default as ScalarIconWarningCircle } from './components/ScalarIconWarningCircle.vue'
+export { default as ScalarIconWarningDiamond } from './components/ScalarIconWarningDiamond.vue'
+export { default as ScalarIconWarningOctagon } from './components/ScalarIconWarningOctagon.vue'
+export { default as ScalarIconWashingMachine } from './components/ScalarIconWashingMachine.vue'
+export { default as ScalarIconWatch } from './components/ScalarIconWatch.vue'
+export { default as ScalarIconWaveSawtooth } from './components/ScalarIconWaveSawtooth.vue'
+export { default as ScalarIconWaveSine } from './components/ScalarIconWaveSine.vue'
+export { default as ScalarIconWaveSquare } from './components/ScalarIconWaveSquare.vue'
+export { default as ScalarIconWaveTriangle } from './components/ScalarIconWaveTriangle.vue'
+export { default as ScalarIconWaveform } from './components/ScalarIconWaveform.vue'
+export { default as ScalarIconWaveformSlash } from './components/ScalarIconWaveformSlash.vue'
+export { default as ScalarIconWaves } from './components/ScalarIconWaves.vue'
+export { default as ScalarIconWebcam } from './components/ScalarIconWebcam.vue'
+export { default as ScalarIconWebcamSlash } from './components/ScalarIconWebcamSlash.vue'
+export { default as ScalarIconWebhooksLogo } from './components/ScalarIconWebhooksLogo.vue'
+export { default as ScalarIconWechatLogo } from './components/ScalarIconWechatLogo.vue'
+export { default as ScalarIconWhatsappLogo } from './components/ScalarIconWhatsappLogo.vue'
+export { default as ScalarIconWheelchair } from './components/ScalarIconWheelchair.vue'
+export { default as ScalarIconWheelchairMotion } from './components/ScalarIconWheelchairMotion.vue'
+export { default as ScalarIconWifiHigh } from './components/ScalarIconWifiHigh.vue'
+export { default as ScalarIconWifiLow } from './components/ScalarIconWifiLow.vue'
+export { default as ScalarIconWifiMedium } from './components/ScalarIconWifiMedium.vue'
+export { default as ScalarIconWifiNone } from './components/ScalarIconWifiNone.vue'
+export { default as ScalarIconWifiSlash } from './components/ScalarIconWifiSlash.vue'
+export { default as ScalarIconWifiX } from './components/ScalarIconWifiX.vue'
+export { default as ScalarIconWind } from './components/ScalarIconWind.vue'
+export { default as ScalarIconWindmill } from './components/ScalarIconWindmill.vue'
+export { default as ScalarIconWindowsLogo } from './components/ScalarIconWindowsLogo.vue'
+export { default as ScalarIconWine } from './components/ScalarIconWine.vue'
+export { default as ScalarIconWrench } from './components/ScalarIconWrench.vue'
+export { default as ScalarIconX } from './components/ScalarIconX.vue'
+export { default as ScalarIconXCircle } from './components/ScalarIconXCircle.vue'
+export { default as ScalarIconXLogo } from './components/ScalarIconXLogo.vue'
+export { default as ScalarIconXSquare } from './components/ScalarIconXSquare.vue'
+export { default as ScalarIconYarn } from './components/ScalarIconYarn.vue'
+export { default as ScalarIconYinYang } from './components/ScalarIconYinYang.vue'
+export { default as ScalarIconYoutubeLogo } from './components/ScalarIconYoutubeLogo.vue'
