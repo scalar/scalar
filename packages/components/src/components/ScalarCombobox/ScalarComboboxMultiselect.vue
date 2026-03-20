@@ -28,7 +28,7 @@ defineProps<
      *
      * @see {@link FilterFunction} for more information
      */
-    filterFn?: FilterFunction<O>
+    filterFn?: FilterFunction<O, G>
   } & ScalarFloatingOptions
 >()
 

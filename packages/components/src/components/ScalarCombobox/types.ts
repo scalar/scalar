@@ -24,12 +24,12 @@ export type OptionsOrGroups<O extends Option = Option, G extends OptionGroup<O> 
  * ) satisfies FilterFunction
  * ```
  */
-export type FilterFunction<O extends Option = Option> = (
+export type FilterFunction<O extends Option = Option, G extends OptionGroup<O> = OptionGroup<O>> = (
   query: string,
   /* All of the (flattened) options, if there are groups this will be all of the options from all of the groups */
   options: O[],
   /* If there are no groups this array will be empty, if there are groups this will be all of the groups including their options */
-  groups: OptionGroup<O>[],
+  groups: G[],
 ) => O[]
 
 /** Type guard to check if an option is a group */

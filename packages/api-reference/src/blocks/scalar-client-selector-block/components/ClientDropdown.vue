@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Tab } from '@headlessui/vue'
 import {
+  filterClientsByQuery,
   findClient,
   type ClientOption,
   type ClientOptionGroup,
@@ -81,6 +82,7 @@ const selectedTargetKey = computed(
 
     <!-- Client Dropdown -->
     <ScalarCombobox
+      :filterFn="filterClientsByQuery"
       :modelValue="findClient(clientOptions, selectedClient)"
       :options="clientOptions"
       placement="bottom-end"

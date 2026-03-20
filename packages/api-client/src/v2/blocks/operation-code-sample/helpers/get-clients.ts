@@ -35,6 +35,7 @@ export const getClients = (
     return [
       {
         label: 'Code Examples',
+        key: 'custom',
         options: customClients,
       },
       ...clientOptions,

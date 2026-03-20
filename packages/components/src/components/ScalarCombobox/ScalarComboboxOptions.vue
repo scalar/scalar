@@ -36,7 +36,7 @@ const {
    *
    * @see {@link FilterFunction} for more information
    */
-  filterFn?: FilterFunction<O>
+  filterFn?: FilterFunction<O, G>
   /** Whether the combobox is in multiselect mode, defaults to false */
   multiselect?: boolean
 }>()

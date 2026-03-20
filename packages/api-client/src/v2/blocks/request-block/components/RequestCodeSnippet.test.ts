@@ -37,6 +37,7 @@ describe('RequestCodeSnippet', () => {
       const clientOptions: ClientOptionGroup[] = [
         {
           label: 'Shell',
+          key: 'shell',
           options: [
             {
               id: 'shell/curl',

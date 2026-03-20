@@ -28,6 +28,7 @@ describe('getClients', () => {
     const clientOptions: ClientOptionGroup[] = [
       {
         label: 'Shell',
+        key: 'shell',
         options: [
           {
             id: 'shell/curl',
@@ -144,6 +145,7 @@ describe('getClients', () => {
     const clientOptions: ClientOptionGroup[] = [
       {
         label: 'JavaScript',
+        key: 'js',
         options: [
           {
             id: 'js/fetch',
@@ -167,6 +169,7 @@ describe('getClients', () => {
       },
       {
         label: 'Python',
+        key: 'python',
         options: [
           {
             id: 'python/requests',
@@ -221,6 +224,7 @@ describe('getClients', () => {
     const clientOptions: ClientOptionGroup[] = [
       {
         label: 'Shell',
+        key: 'shell',
         options: [
           {
             id: 'shell/curl',
