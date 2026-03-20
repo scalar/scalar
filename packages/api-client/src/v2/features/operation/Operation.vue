@@ -111,6 +111,10 @@ const authMeta = computed(
   () => requestExample.value?.security.meta ?? { type: 'document' as const },
 )
 
+const defaultHeaders = computed(
+  () => requestExample.value?.headers.default ?? {},
+)
+
 /** Combine environments from document and workspace into a unique array of environment names */
 const environments = computed(() => {
   return Array.from(
@@ -138,6 +142,7 @@ const httpClients = computed(() =>
       "
       :appVersion="APP_VERSION"
       :authMeta
+      :defaultHeaders
       :documentSecurity="document?.security ?? []"
       :documentUrl="document?.['x-scalar-original-source-url']"
       :environment

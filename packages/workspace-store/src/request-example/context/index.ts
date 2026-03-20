@@ -4,7 +4,7 @@ import type { AuthMeta, ServerMeta } from '@/events'
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
 import type { SecuritySchemeObjectSecret } from '@/request-example/builder/security/secret-types'
 import { getActiveEnvironment } from '@/request-example/context/environment'
-import { type DefaultHeader, getDefaultHeaders } from '@/request-example/context/headers'
+import { getDefaultHeaders } from '@/request-example/context/headers'
 import { combineParams } from '@/request-example/context/helpers/combine-params'
 import { type Layout, getActiveProxyUrl } from '@/request-example/context/proxy'
 import { getSecurityRequirements } from '@/request-example/context/security/get-security-requirements'
@@ -39,7 +39,7 @@ type BuildRequestExampleContext = {
     url: string | null
   }
   headers: {
-    default: DefaultHeader[]
+    default: Record<string, string>
   }
   security: {
     schemes: MergedSecuritySchemes

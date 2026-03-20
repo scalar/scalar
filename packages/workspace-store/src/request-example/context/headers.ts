@@ -7,33 +7,6 @@ import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/stric
 const DEFAULT_ACCEPT = '*/*'
 
 /**
- * Represents a default header with its value and override status.
- * Used to track headers that are automatically added to requests.
- */
-export type DefaultHeader = {
-  /** The header name (e.g., "Content-Type", "Accept"). */
-  name: string
-  /** The default value for this header. */
-  defaultValue: string
-  /** Whether this header is explicitly defined in the OpenAPI operation parameters. */
-  isOverridden: boolean
-}
-
-/**
- * Creates a default header object with the override status determined by existing headers.
- *
- * @param name The header name
- * @param defaultValue The header value
- * @param existingHeaders Set of existing header names (lowercase) from the operation
- * @returns A DefaultHeader object
- */
-const createDefaultHeader = (name: string, defaultValue: string, existingHeaders: Set<string>): DefaultHeader => ({
-  name,
-  defaultValue,
-  isOverridden: existingHeaders.has(name.toLowerCase()),
-})
-
-/**
  * Generates a list of default headers for an OpenAPI operation and HTTP method.
  *
  * This function intelligently adds standard HTTP headers based on the request context:
@@ -71,15 +44,9 @@ export const getDefaultHeaders = ({
     appVersion: string
     isElectron: boolean
   }
-}): DefaultHeader[] => {
-  const existingHeaders = new Set(
-    operation.parameters
-      ?.filter((param) => getResolvedRef(param).in === 'header')
-      .map((param) => getResolvedRef(param).name.toLowerCase()) ?? [],
-  )
-
+}): Record<string, string> => {
   const disabledHeaders = operation['x-scalar-disable-parameters']?.['default-headers']?.[exampleName] ?? {}
-  const headers: DefaultHeader[] = []
+  const headers = new Headers()
   const requestBody = getResolvedRef(operation.requestBody)
 
   // Add Content-Type header only for methods that support a request body
@@ -89,7 +56,7 @@ export const getDefaultHeaders = ({
 
     // We never want to add a content type of 'none' or invent one when the schema defines no body.
     if (contentType && contentType !== 'none') {
-      headers.push(createDefaultHeader('Content-Type', contentType, existingHeaders))
+      headers.set('Content-Type', contentType)
     }
   }
 
@@ -98,17 +65,19 @@ export const getDefaultHeaders = ({
   const successResponse = successResponseKey ? getResolvedRef(operation.responses![successResponseKey]) : null
   const acceptValue = Object.keys(successResponse?.content ?? {}).join(', ') || DEFAULT_ACCEPT
 
-  headers.push(createDefaultHeader('Accept', acceptValue, existingHeaders))
+  headers.set('Accept', acceptValue)
 
   // Add User-Agent in Electron environments for client identification
   if (options.isElectron && options.appVersion) {
-    headers.push(createDefaultHeader('User-Agent', `Scalar/${options.appVersion}`, existingHeaders))
+    headers.set('User-Agent', `Scalar/${options.appVersion}`)
   }
 
   // Filter out disabled headers if requested
   if (hideDisabledHeaders) {
-    return headers.filter((header) => disabledHeaders[header.name.toLowerCase()] !== true)
+    return Object.fromEntries(
+      Array.from(headers.entries()).filter(([headerName]) => disabledHeaders[headerName.toLowerCase()] !== true),
+    )
   }
 
-  return headers
+  return Object.fromEntries(headers.entries())
 }

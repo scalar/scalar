@@ -69,9 +69,14 @@ export type OperationBlockProps = {
   environment: XScalarEnvironment
   /** The proxy URL for sending requests */
   proxyUrl: string
+  /** Currently selected security */
   selectedSecurity: SelectedSecurity
+  /** Currently selected security schemes */
   selectedSecuritySchemes: SecuritySchemeObjectSecret[]
+  /** Security requirements */
   securityRequirements: OpenApiDocument['security']
+  /** Default headers */
+  defaultHeaders: Record<string, string>
 }
 </script>
 <script setup lang="ts">
@@ -123,6 +128,8 @@ import type { MergedSecuritySchemes } from '@/v2/blocks/scalar-auth-selector-blo
 
 import Header from './components/Header.vue'
 
+// import { requestFactory } from '@scalar/workspace-store/request-example'
+
 const {
   authMeta,
   environment,
@@ -146,6 +153,7 @@ const {
   selectedSecurity,
   selectedSecuritySchemes,
   securityRequirements,
+  defaultHeaders,
 } = defineProps<OperationBlockProps>()
 
 /** Hoist up client generation so it doesn't get re-generated on every operation */
@@ -171,6 +179,10 @@ const handleExecute = async () => {
     toast('Path parameters must have values.', 'error')
     return
   }
+
+  // const requestBulder = requestFactory({
+
+  // })
 
   const [error, result] = buildRequest({
     environment,
@@ -404,6 +416,7 @@ onBeforeUnmount(() => {
         <RequestBlock
           :authMeta
           :clientOptions
+          :defaultHeaders
           :environment
           :eventBus
           :exampleKey
