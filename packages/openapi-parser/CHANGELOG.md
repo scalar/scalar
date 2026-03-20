@@ -1,5 +1,11 @@
 # @scalar/openapi-parser
 
+## 0.25.6
+
+### Patch Changes
+
+- [#8520](https://github.com/scalar/scalar/pull/8520): Normalize trailing `+` in path template parameter names during path-parameter validation so `{name+}` matches a declared `name` path parameter.
+
 ## 0.25.5
 
 ### Patch Changes

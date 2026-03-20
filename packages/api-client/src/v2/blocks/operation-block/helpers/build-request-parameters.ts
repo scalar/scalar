@@ -49,12 +49,14 @@ export const buildRequestParameters = (
   cookies: XScalarCookie[]
   headers: Record<string, string>
   pathVariables: Record<string, string>
+  allowReservedQueryParameters: Set<string>
   urlParams: URLSearchParams
 } => {
   const result = {
     cookies: [] as XScalarCookie[],
     headers: {} as Record<string, string>,
     pathVariables: {} as Record<string, string>,
+    allowReservedQueryParameters: new Set<string>(),
     urlParams: new URLSearchParams(),
   }
 
@@ -118,7 +120,13 @@ export const buildRequestParameters = (
       }
 
       case 'query': {
-        processQueryParameter(param, paramName, deSerializedValue, result.urlParams)
+        processQueryParameter(
+          param,
+          paramName,
+          deSerializedValue,
+          result.urlParams,
+          result.allowReservedQueryParameters,
+        )
         break
       }
 
@@ -149,6 +157,30 @@ const getStyle = (param: ParameterObject, replacedValue: unknown): string => {
   return param.style
 }
 
+/** Whether the parameter allows reserved characters (from param or schema). */
+const isAllowReserved = (param: ParameterObject): boolean => {
+  if ('allowReserved' in param && param.allowReserved !== undefined) {
+    return param.allowReserved
+  }
+  if ('schema' in param && param.schema && typeof param.schema === 'object' && 'allowReserved' in param.schema) {
+    return (param.schema as { allowReserved?: boolean }).allowReserved === true
+  }
+  return false
+}
+
+/** When allowReserved is true, add keys to the set so reserved chars stay unescaped in the URL. */
+const trackReservedKeys = (
+  allowReservedQueryParameters: Set<string>,
+  allowReserved: boolean,
+  ...keys: string[]
+): void => {
+  if (allowReserved) {
+    for (const key of keys) {
+      allowReservedQueryParameters.add(key)
+    }
+  }
+}
+
 /**
  * Helper function to process query parameters.
  * Extracted to reduce complexity in main function.
@@ -158,9 +190,11 @@ const processQueryParameter = (
   paramName: string,
   replacedValue: unknown,
   urlParams: URLSearchParams,
+  allowReservedQueryParameters: Set<string>,
 ): void => {
   /** If the parameter should be exploded, defaults to true for form style */
   const explodeParam = 'explode' in param && param.explode !== undefined ? param.explode : true
+  const allowReserved = isAllowReserved(param)
 
   /** Style of the parameter, defaults to form */
   const style = getStyle(param, replacedValue)
@@ -171,6 +205,7 @@ const processQueryParameter = (
     const paramContentType = Object.keys(param.content)[0] ?? 'application/json'
     const serializedValue = serializeContentValue(replacedValue, paramContentType)
     urlParams.set(paramName, serializedValue)
+    trackReservedKeys(allowReservedQueryParameters, allowReserved, paramName)
     return
   }
 
@@ -179,6 +214,7 @@ const processQueryParameter = (
     const entries = serializeDeepObjectStyle(paramName, replacedValue)
     for (const entry of entries) {
       urlParams.append(entry.key, entry.value)
+      trackReservedKeys(allowReservedQueryParameters, allowReserved, entry.key)
     }
     return
   }
@@ -188,6 +224,7 @@ const processQueryParameter = (
     const serialized = serializeSpaceDelimitedStyle(replacedValue)
     const existingValue = urlParams.get(paramName)
     urlParams.set(paramName, existingValue ? `${existingValue} ${serialized}` : serialized)
+    trackReservedKeys(allowReservedQueryParameters, allowReserved, paramName)
     return
   }
 
@@ -196,6 +233,7 @@ const processQueryParameter = (
     const serialized = serializePipeDelimitedStyle(replacedValue)
     const existingValue = urlParams.get(paramName)
     urlParams.set(paramName, existingValue ? `${existingValue}|${serialized}` : serialized)
+    trackReservedKeys(allowReservedQueryParameters, allowReserved, paramName)
     return
   }
 
@@ -208,10 +246,12 @@ const processQueryParameter = (
       // If key is empty, use paramName (for arrays)
       const key = entry.key || paramName
       urlParams.append(key, String(entry.value))
+      trackReservedKeys(allowReservedQueryParameters, allowReserved, key)
     }
   } else {
     // Otherwise, convert to string for URLSearchParams
     urlParams.append(paramName, String(serialized))
+    trackReservedKeys(allowReservedQueryParameters, allowReserved, paramName)
   }
 }
 

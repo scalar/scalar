@@ -10,12 +10,12 @@
     "url": "git+https://github.com/scalar/scalar.git",
     "directory": "packages/icons"
   },
-  "version": "0.6.1",
+  "version": "0.6.3",
   "engines": {
     "node": ">=22"
   },
   "scripts": {
-    "build": "vite build && vue-tsc -p tsconfig.build.json",
+    "build": "vite build && vue-tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
     "generate:icons": "tsx ./scripts/generate-icons.ts",
     "lint:check": "pnpm lint:icons",
     "lint:icons": "svglint src/library/icons/*.svg --config src/library/.svglintrc.js",

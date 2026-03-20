@@ -86,6 +86,21 @@ describe('parameter', () => {
       expect(result).toEqual(validInput)
     })
 
+    it('parses query parameters with allowReserved', () => {
+      const validInput = {
+        name: 'sort',
+        in: 'query',
+        allowReserved: true,
+        schema: {
+          type: 'string',
+        },
+      }
+
+      const result = coerceValue(ParameterObjectSchema, validInput)
+
+      expect(result).toEqual(validInput)
+    })
+
     it('fails when given non-object input', () => {
       const invalidInput = 'not an object'
 
