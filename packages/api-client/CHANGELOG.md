@@ -1,5 +1,11 @@
 # @scalar/api-client
 
+## 2.38.4
+
+### Patch Changes
+
+- [#8529](https://github.com/scalar/scalar/pull/8529): rewrite declaration aliases in built type files
+
 ## 2.38.3
 
 ### Patch Changes
