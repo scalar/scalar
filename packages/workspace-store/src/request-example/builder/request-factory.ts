@@ -83,6 +83,8 @@ export const requestFactory = ({
     headers.delete('Content-Type')
   }
 
+  // TODO: handle url params differently
+
   /** Combine the server url, path and url params into a single url */
   const url = mergeUrls(server?.url ?? '', path, params.urlParams)
 

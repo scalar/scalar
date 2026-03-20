@@ -101,6 +101,8 @@ export const buildRequest = (
     }
   })
 
+  // TODO: handle url params diffrently here so we can update the final url with the resolved url params
+
   return {
     request: new Request(requestUrl, {
       /**

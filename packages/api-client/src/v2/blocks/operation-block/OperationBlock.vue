@@ -81,6 +81,7 @@ export type OperationBlockProps = {
 </script>
 <script setup lang="ts">
 import type { HttpMethod as HttpMethodType } from '@scalar/helpers/http/http-methods'
+import { objectEntries } from '@scalar/helpers/object/object-entries'
 import type { ResponseInstance } from '@scalar/oas-utils/entities/spec'
 import { executeHook, type ClientPlugin } from '@scalar/oas-utils/helpers'
 import {
@@ -96,6 +97,10 @@ import type {
   ServerMeta,
   WorkspaceEventBus,
 } from '@scalar/workspace-store/events'
+import {
+  buildRequest,
+  requestFactory,
+} from '@scalar/workspace-store/request-example'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type {
   OpenApiDocument,
@@ -107,8 +112,10 @@ import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import ViewLayout from '@/components/ViewLayout/ViewLayout.vue'
 import ViewLayoutContent from '@/components/ViewLayout/ViewLayoutContent.vue'
 import type { ClientLayout } from '@/hooks'
+import { isElectron } from '@/libs/electron'
 import { ERRORS } from '@/libs/errors'
-import { buildRequest } from '@/v2/blocks/operation-block/helpers/build-request'
+import { getEnvironmentVariables } from '@/v2/blocks/operation-block/helpers/get-environment-variables'
+// import { buildRequest } from '@/v2/blocks/operation-block/helpers/build-request'
 import { harToFetchRequest } from '@/v2/blocks/operation-block/helpers/har-to-fetch-request'
 import { harToFetchResponse } from '@/v2/blocks/operation-block/helpers/har-to-fetch-response'
 import {
@@ -127,8 +134,6 @@ import type { SecuritySchemeObjectSecret } from '@/v2/blocks/scalar-auth-selecto
 import type { MergedSecuritySchemes } from '@/v2/blocks/scalar-auth-selector-block/helpers/merge-security'
 
 import Header from './components/Header.vue'
-
-// import { requestFactory } from '@scalar/workspace-store/request-example'
 
 const {
   authMeta,
@@ -161,6 +166,18 @@ const clientOptions = computed(() => generateClientOptions(httpClients))
 
 const { toast } = useToasts()
 
+const serverVariables = computed(() =>
+  objectEntries(server?.variables ?? {}).reduce(
+    (acc, [name, variable]) => {
+      if (variable.default) {
+        acc[name] = variable.default
+      }
+      return acc
+    },
+    {} as Record<string, string>,
+  ),
+)
+
 // Refs
 const abortController = ref<AbortController | null>(null)
 const response = ref<ResponseInstance | null>(null)
@@ -180,30 +197,24 @@ const handleExecute = async () => {
     return
   }
 
-  // const requestBulder = requestFactory({
-
-  // })
-
-  const [error, result] = buildRequest({
+  const requestBulder = requestFactory({
+    defaultHeaders,
     environment,
-    exampleKey,
+    exampleName: exampleKey,
     globalCookies,
     method,
     operation,
     path,
-    selectedSecuritySchemes,
-    server,
     proxyUrl,
+    server,
+    selectedSecuritySchemes,
+    isElectron: isElectron(),
   })
 
-  // Toast the error
-  if (error) {
-    toast(error.message, 'error')
+  if (requestBulder.ok === false) {
+    toast(requestBulder.error, 'error')
     return
   }
-
-  // Store the abort controller for cancellation
-  abortController.value = result.controller
 
   // Stop any previous streaming response
   if (response.value && 'reader' in response.value) {
@@ -220,26 +231,36 @@ const handleExecute = async () => {
   })
 
   // Execute the beforeRequest hook
-  const { request: modifiedRequest } = await executeHook(
-    { request: result.request.clone() },
+  await executeHook(
+    // @ts-expect-error - TODO: fix this update to use the new request factory
+    { request: requestBulder.data.request },
     'beforeRequest',
     plugins,
   )
 
+  // Build the actual request we will send
+  const requestResult = buildRequest(requestBulder.data.request, {
+    envVariables: getEnvironmentVariables(environment),
+    serverVariables: serverVariables.value,
+  })
+
+  // Store the abort controller for cancellation
+  abortController.value = requestResult.controller
+
   /** Execute the request */
   const [sendError, sendResult] = await sendRequest({
-    isUsingProxy: result.isUsingProxy,
+    isUsingProxy: requestBulder.data.request.proxy.isUsingProxy,
     operation,
     plugins,
-    request: modifiedRequest,
+    request: requestResult.request.clone(),
   })
 
   if (sendResult) {
     // Execute the responseReceived hook
     await executeHook(
       {
-        response: sendResult.originalResponse,
-        request: sendResult.request,
+        response: sendResult.originalResponse.clone(),
+        request: sendResult.request.clone(),
         operation,
       },
       'responseReceived',
@@ -251,7 +272,7 @@ const handleExecute = async () => {
   eventBus.emit('hooks:on:request:complete', {
     payload: sendResult
       ? {
-          response: sendResult.originalResponse,
+          response: sendResult.originalResponse.clone(),
           request: sendResult.request.clone(),
           duration: sendResult.response.duration,
           timestamp: sendResult.timestamp,
