@@ -44,7 +44,7 @@ export {
 export type {
   PostResponseScript,
   PostResponseScripts,
-} from './requests.ts'
+} from './requests'
 export { type Server, type ServerPayload, serverSchema } from './server'
 export {
   type Tag,

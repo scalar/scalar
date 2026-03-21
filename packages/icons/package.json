@@ -15,7 +15,7 @@
     "node": ">=22"
   },
   "scripts": {
-    "build": "vite build && vue-tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
+    "build": "vite build && vue-tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json && ts-add-js-extension --dir=dist",
     "generate:icons": "tsx ./scripts/generate-icons.ts",
     "lint:check": "pnpm lint:icons",
     "lint:icons": "svglint src/library/icons/*.svg --config src/library/.svglintrc.js",

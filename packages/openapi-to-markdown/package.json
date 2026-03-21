@@ -21,7 +21,7 @@
     "node": ">=22"
   },
   "scripts": {
-    "build": "vite build && vue-tsc -p tsconfig.build.json",
+    "build": "vite build && vue-tsc -p tsconfig.build.json && ts-add-js-extension --dir=dist",
     "dev": "tsx watch playground/index.ts",
     "test": "vitest",
     "types:check": "vue-tsc --noEmit"

@@ -22,7 +22,7 @@
     "node": ">=22"
   },
   "scripts": {
-    "build": "vite build && vue-tsc -p tsconfig.build.json",
+    "build": "vite build && vue-tsc -p tsconfig.build.json && ts-add-js-extension --dir=dist",
     "dev": "vite",
     "preview": "vite preview",
     "test": "vitest",

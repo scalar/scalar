@@ -20,7 +20,7 @@
     "node": ">=22"
   },
   "scripts": {
-    "build": "vite build && tsc -p tsconfig.build.json",
+    "build": "vite build && tsc -p tsconfig.build.json && ts-add-js-extension --dir=dist",
     "types:check": "tsc --noEmit"
   },
   "type": "module",

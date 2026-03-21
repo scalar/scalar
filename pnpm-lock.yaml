@@ -312,6 +312,9 @@ importers:
       tailwindcss:
         specifier: catalog:*
         version: 4.2.1
+      ts-add-js-extension:
+        specifier: ^1.6.6
+        version: 1.6.6
       tsc-alias:
         specifier: ^1.8.10
         version: 1.8.10
@@ -16305,6 +16308,10 @@ packages:
   truncate-json@3.0.1:
     resolution: {integrity: sha512-QVsbr1WhGLq2F0oDyYbqtOXcf3gcnL8C9H5EX8bBwAr8ZWvWGJzukpPrDrWgJMrNtgDbo74BIjI4kJu3q2xQWw==}
     engines: {node: '>=18.18.0'}
+
+  ts-add-js-extension@1.6.6:
+    resolution: {integrity: sha512-rPOBNrOULi/CjVHraGrDa0vuWDmuMszmIXGNaGe2UGfrBH0/bZWTTsh82uQ+INKp9cJYziKNTCG2knzBlWvW4A==}
+    hasBin: true
 
   ts-api-utils@2.4.0:
     resolution: {integrity: sha512-3TaVTaAv2gTiMB35i3FiGJaRfwb3Pyn/j3m/bfAvGe8FB7CF6u+LMYqYlDh7reQf7UNvoTvdfAqHGmPGOSsPmA==}
@@ -35161,6 +35168,10 @@ snapshots:
       guess-json-indent: 3.0.1
       string-byte-length: 3.0.1
       string-byte-slice: 3.0.1
+
+  ts-add-js-extension@1.6.6:
+    dependencies:
+      typescript: 5.9.3
 
   ts-api-utils@2.4.0(typescript@5.9.3):
     dependencies:
