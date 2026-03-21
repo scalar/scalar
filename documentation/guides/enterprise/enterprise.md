@@ -2,21 +2,23 @@
   <scalar-icon src="https://api.scalar.com/cdn/images/LByt7m02eR-6wZrXUk5d5/v1Pu6_BCmly6VhPAuotVZ.svg"></scalar-icon>
 </div>
 <div class="flex flex-col gap-3 hero small-test">
-  <scalar-heading level="2" slug="scalar-docs" class="text-balance">
-    The API platform your developers already love.<br>Built for the governance your enterprise needs.
+  <scalar-heading level="1" slug="enterprise" class="text-balance">
+    Build APIs that lead. Deliver business impact.
   </scalar-heading>
   <p>
-    Build your APIs on an OpenAPI-native platform with modern design workflows, customizable reference documentation and developer portals, hands-on exploration and SDK generation, and governance in Git and CI. Turn those same descriptions into <strong>Model Context Protocol (MCP)</strong> servers so AI agents and copilots call your APIs through a standard, controllable interface — with full visibility and enterprise controls to streamline how your teams ship and keep API quality high.
+    Scalar is an OpenAPI-native platform for reference documentation, a centralized API registry, SDK generation, exploration, and governance in Git and CI — plus MCP servers so AI agents use your APIs through a standard, controlled surface. One hub for design, docs, quality, and visibility at enterprise scale.
   </p>
 </div>
 
 <div class="flex gap-2">
-  <a class="t-editor__button" href="https://dashboard.scalar.com/register">Get Started</a>
-  <a class="t-editor__button" href="https://scalar.cal.com/scalar/chat-with-scalar" target="_blank">Book a Demo</a>
+  <a class="t-editor__button" href="#contact">Contact sales</a>
+  <a class="t-editor__button" href="https://dashboard.scalar.com/register">Get started</a>
 </div>
 
 <br>
-Powering the world's best API teams
+
+**Trusted by teams shipping serious APIs**
+
 <div class="logowall">
   <div class="logowall-item">
     <scalar-icon src="https://cdn.scalar.com/marketing/landing/logo-tr.svg"></scalar-icon>
@@ -40,163 +42,185 @@ Powering the world's best API teams
 
 ---
 
-## By the numbers
+## Built for developers. Scaled for enterprise.
+
+### One platform from description to delivery
+
+Consolidate API descriptions, interactive documentation, SDKs, the API client, and registry workflows in one place. Scalar is the system of record for OpenAPI across teams — easier discovery, less duplication, faster onboarding for internal and partner developers.
+
+### Git-native, AI-ready, standards-first
+
+Meet developers in Git and CI with the tools they already use. Ship linting and breaking-change checks before production. Extend the same descriptions to MCP so agents and copilots call only the operations you expose, with authentication and tool modes you control.
+
+### Governance without gridlock
+
+Enforce style guides and access boundaries without turning platform teams into bottlenecks. Central visibility into what ships, who can publish, and how descriptions evolve — fewer surprises in production and less time lost to inconsistent contracts.
+
+---
+
+## Outcomes that compound
 
 | | |
 | --- | --- |
-| **14.3k+** | GitHub stars on [scalar/scalar](https://github.com/scalar/scalar) |
-| **40+** | Framework and platform integration guides |
-| **$0** | Free tier — upgrade when you need SSO, scale, and Enterprise support |
+| **1** | **Source of truth** — Descriptions, docs, SDKs, and MCP tools stay aligned so engineering and partner teams are not reconciling five versions of the same API. |
+| **Shift left** | **Fewer breaking changes** — Spectral and CI catch contract and style problems before release, cutting rework and customer-facing incidents. |
+| **40+** | **Ecosystem coverage** — Official framework and platform integrations so Scalar fits the languages and stacks you already run. |
+| **14.3k+** | **Community proof** — Open source on GitHub; audit, self-host, or run on Scalar Cloud with Enterprise controls. |
 
 ---
 
-## API documentation and developer experience
+## Govern and scale APIs across the organization
 
-### API references developers actually want to read.
+### API governance and registry
 
-Your APIs deserve reference documentation people open on purpose. Scalar renders OpenAPI description documents as fast, interactive references: search, navigation, try-it-out, and branding that matches your product. Publish from Git to custom domains or embed in your own apps — internal and external developers get an experience that feels like your stack, not a dated generic portal.
+Standardize how APIs are authored, reviewed, and published. Centralize OpenAPI in a searchable registry, connect Git for branches and reviews, and enforce rules with Spectral in CI. Multi-team governance, version clarity, and permissions — without forcing everyone through a single manual gate.
 
-The same `@scalar/api-reference` package ships in major frameworks and powers Scalar Cloud, so grassroots adoption and central standards stay aligned.
+### Reference documentation and developer experience
 
----
+Automatically keep consumer-facing documentation in sync as descriptions change. Interactive references, try-it-out, and branding that match your product reduce time-to-first-call and support load. The same experience ships through [official framework integrations](../../integrations/html-js.md) and embeds cleanly in your portals.
 
-## API governance and registry
+### Design, exploration, and quality
 
-### Enforce standards across every team without slowing anyone down.
+Validate contracts early: exploration and testing stay tied to the description your consumers see. Align design and implementation so documentation, generated SDKs, and runtime behavior stay honest — higher software quality and less integration debt over time.
 
-Centralize OpenAPI descriptions in one registry. Connect Git so versions, branches, and reviews live where engineers already work. Enforce design rules with Spectral and catch issues in CI before production. Surface breaking changes, align style guides, and give platform teams visibility without turning API quality into a ticket queue.
+### Enterprise security, access, and operations
 
-Built for organizations that outgrew scattered files, wikis, and “the OpenAPI file somewhere in the repo.”
-
----
-
-## AI-native APIs on open standards
-
-### Your OpenAPI descriptions are the contract for humans, agents, and MCP.
-
-Agents, copilots, and generated clients all need a machine-readable contract: operations, schemas, examples, and security. When descriptions drift or live in silos, people waste time and automation breaks first. Scalar keeps descriptions authoritative, linted, and published so documentation, SDKs, and AI tooling share one source of truth.
-
-**MCP is becoming the default wire between LLMs and your systems.** The [Model Context Protocol](https://modelcontextprotocol.io/) lets assistants discover and invoke tools in a consistent way across Claude, Cursor, and the rest of the ecosystem. For enterprises, that shift matters as much as REST or OpenAPI did for the last era: without a governed path from description to agent-accessible tools, you get shadow integrations, over-privileged agents, and no audit trail. Scalar generates MCP servers from your OpenAPI descriptions so you choose **which** operations become tools, how they behave (lookup vs execute), and how authentication is handled per installation — the same governance story as your docs and registry, extended to agent workloads.
-
-[Spin up MCP servers from OpenAPI →](../agent/mcp.md)
-
-Open standards are how you scale safe API use — including AI-native workflows — without proprietary lock-in.
+**SSO / SAML** for corporate identity. **Role-based access** across workspaces and APIs. **Auditability** alongside Git history. **Self-hosting** with an MIT-licensed core when data must stay in your perimeter. **Privacy-conscious docs hosting** — no third-party analytics on your custom domains, no visitor tracking cookies for docs traffic, no IP logging for request traffic ([Docs privacy](../docs/privacy.md)). **MCP guardrails** — choose which endpoints become agent tools; search vs execute modes; API auth per installation ([MCP →](../agent/mcp.md)).
 
 ---
 
-## Security, access, and deployment
+<div id="contact" class="cta enterprise-contact-wrap">
 
-**Single sign-on** — SAML SSO with your identity provider. Enterprise onboarding includes SSO setup support. [Configure SSO →](../sso/getting-started.md)
+<div class="enterprise-contact-section">
 
-**Role-based access** — Control who can view, edit, and publish descriptions and documentation across products and environments.
+<div class="enterprise-contact-grid">
 
-**Auditability** — Activity and change history for reviews and incident response, alongside Git as your system of record.
-
-**Self-hosting** — MIT-licensed core you can run on your own infrastructure when residency or policy requires it. Read and audit the code; deploy on your terms.
-
-**Git-native workflows** — OpenAPI and Markdown beside application code. Branch, review, and release descriptions like any other artifact.
-
-**Privacy-conscious hosting** — No third-party analytics on your custom domains, no visitor tracking cookies for docs traffic, and no IP logging for request traffic. [Docs privacy →](../docs/privacy.md) · [Privacy policy →](../../legal/privacy-policy.md)
-
-**MCP with guardrails** — Expose only the endpoints you want as MCP tools; separate search vs execute modes; configure API authentication per installation so credentials stay off client devices. [MCP setup →](../agent/mcp.md)
-
----
-
-## From open source to org-wide standard
-
-Teams often start with the npm package in a single service, then expand when they need SSO, a registry, and shared governance. Scalar does not force a proprietary description format — your OpenAPI documents stay portable. Enterprise adds organization controls, SLAs, and migration support on top of the same primitives developers already chose.
-
-Migrating from Stoplight, SwaggerHub, or similar tools typically means moving OpenAPI into Git (or keeping it there), connecting the registry, and recreating lint rules in Spectral. [Stoplight migration guide →](../../migration/stoplight.md)
-
----
-
-## Open source by conviction
-
-Scalar’s reference and client stack is MIT-licensed and developed in public on GitHub. Fork it, audit it, or self-host it. Enterprise adds operations and procurement-friendly controls — not a different description format.
-
-- **14.3k+** stars and an active contributor community  
-- **40+** documented integrations across languages and frameworks  
-- Ongoing support for upstream projects the ecosystem relies on  
-
-```html
-<script src="https://cdn.jsdelivr.net/npm/@scalar/api-reference"></script>
-<script>
-  Scalar.createApiReference('#app', {
-    url: 'https://registry.scalar.com/@scalar/apis/galaxy?format=json',
-    proxyUrl: 'https://proxy.scalar.com',
-  })
-</script>
-```
-
-[Full HTML/JS example →](../../integrations/html-js.md)
-
----
-
-## Talk to us about Enterprise
-
-### Open standards. Enterprise scale.
-
-Tell us about reference documentation, registry, governance, SDKs, MCP and agent access patterns, and how you want to deploy. We will follow up with security materials, pricing, and next steps.
-
-<div class="flex gap-2">
-  <a class="t-editor__button" href="https://dashboard.scalar.com/register">Talk to sales</a>
-  <a class="t-editor__button" href="https://scalar.cal.com/scalar/chat-with-scalar" target="_blank">Book a Demo</a>
+<div class="enterprise-contact-aside">
+  <p class="enterprise-contact-eyebrow">Scalar Enterprise</p>
+  <h2 class="enterprise-contact-headline">OpenAPI documentation, registry, and governance at org scale</h2>
+  <ul class="enterprise-contact-bullets">
+    <li>Reference documentation and SDKs from the same descriptions your teams already maintain</li>
+    <li>Registry plus Spectral and CI — catch drift and breaking changes before production</li>
+    <li>SSO, roles, and reviews that fit procurement without blocking developers</li>
+    <li>MCP from OpenAPI — agent-ready APIs with tool scoping you control</li>
+    <li>Migration help from Stoplight, SwaggerHub, and similar workflows</li>
+  </ul>
+  <p class="enterprise-contact-trusted-label">Teams shipping on Scalar</p>
+  <div class="enterprise-contact-logos">
+    <scalar-icon src="https://cdn.scalar.com/marketing/landing/logo-tr.svg"></scalar-icon>
+    <scalar-icon src="https://cdn.scalar.com/marketing/landing/logo-maersk.svg"></scalar-icon>
+    <scalar-icon src="https://cdn.scalar.com/marketing/landing/logo-tailscale.svg"></scalar-icon>
+    <scalar-icon src="https://cdn.scalar.com/marketing/landing/logo-supabase.svg"></scalar-icon>
+  </div>
 </div>
 
-Prefer email? [support@scalar.com](mailto:support@scalar.com)
+<div class="enterprise-contact-card">
+  <h3 class="enterprise-demo-form-title">Contact us</h3>
+  <p class="enterprise-demo-form-lead">We will follow up with security materials, pricing, and next steps.</p>
+  <form
+    class="enterprise-demo-form"
+    action="https://formsubmit.co/support@scalar.com"
+    method="POST"
+  >
+    <input type="hidden" name="_subject" value="Enterprise demo request (docs)" />
+    <input type="hidden" name="_template" value="table" />
+    <input type="text" name="_honey" style="display:none" tabindex="-1" autocomplete="off" aria-hidden="true" />
+    <div class="enterprise-demo-form-row">
+      <div class="enterprise-demo-field">
+        <label for="ec-first">First name<span class="enterprise-req" aria-hidden="true">*</span></label>
+        <input id="ec-first" name="first_name" type="text" required autocomplete="given-name" placeholder="Jane" />
+      </div>
+      <div class="enterprise-demo-field">
+        <label for="ec-last">Last name<span class="enterprise-req" aria-hidden="true">*</span></label>
+        <input id="ec-last" name="last_name" type="text" required autocomplete="family-name" placeholder="Doe" />
+      </div>
+    </div>
+    <div class="enterprise-demo-form-row">
+      <div class="enterprise-demo-field">
+        <label for="ec-email">Email address<span class="enterprise-req" aria-hidden="true">*</span></label>
+        <input id="ec-email" name="email" type="email" required autocomplete="email" placeholder="you@company.com" />
+      </div>
+      <div class="enterprise-demo-field">
+        <label for="ec-title">Job title<span class="enterprise-req" aria-hidden="true">*</span></label>
+        <input id="ec-title" name="job_title" type="text" required autocomplete="organization-title" placeholder="Director of Platform" />
+      </div>
+    </div>
+    <div class="enterprise-demo-field enterprise-demo-field-full">
+      <label for="ec-company">Company name<span class="enterprise-req" aria-hidden="true">*</span></label>
+      <input id="ec-company" name="company" type="text" required autocomplete="organization" placeholder="Acme Inc." />
+    </div>
+    <div class="enterprise-demo-field enterprise-demo-field-full">
+      <label for="ec-help">How can we help?<span class="enterprise-req" aria-hidden="true">*</span></label>
+      <select id="ec-help" name="how_can_we_help" required>
+        <option value="" disabled selected>Select…</option>
+        <option value="Enterprise pricing &amp; procurement">Enterprise pricing &amp; procurement</option>
+        <option value="SSO / security review">SSO / security review</option>
+        <option value="Migration from another tool">Migration from another tool</option>
+        <option value="MCP &amp; AI agents">MCP &amp; AI agents</option>
+        <option value="Self-hosting">Self-hosting</option>
+        <option value="Other">Other</option>
+      </select>
+    </div>
+    <div class="enterprise-demo-field enterprise-demo-field-full">
+      <label for="ec-context">Additional context<span class="enterprise-req" aria-hidden="true">*</span></label>
+      <textarea id="ec-context" name="additional_context" required rows="4" placeholder="Tell us how we can help you"></textarea>
+    </div>
+    <p class="enterprise-demo-support">
+      Have a support question? <a href="mailto:support@scalar.com">Contact support</a>.
+    </p>
+    <p class="enterprise-demo-legal">
+      By submitting this form, you agree to our <a href="/legal/privacy-policy">Privacy Policy</a>. This form is delivered by a third-party form service; use <a href="https://scalar.cal.com/scalar/chat-with-scalar" target="_blank" rel="noopener noreferrer">book a call</a> if you prefer not to submit here.
+    </p>
+    <button type="submit" class="enterprise-demo-submit">Submit request</button>
+  </form>
+  <p class="enterprise-demo-alt">
+    Prefer to pick a time? <a href="https://scalar.cal.com/scalar/chat-with-scalar" target="_blank" rel="noopener noreferrer">Book a demo</a> · <a href="https://dashboard.scalar.com/register">Get started</a>
+  </p>
+</div>
 
-**What Enterprise includes**
+</div>
 
-- Onboarding and migration support  
-- SAML SSO setup assistance  
-- Priority support and dedicated channels (per agreement)  
-- Uptime and SLA options (per agreement)  
-- Security questionnaires and architecture reviews  
-- MCP strategy: tool scoping, auth, and rollout for AI agents  
+</div>
 
-**Default OpenAPI reference documentation for:** FastAPI · ASP.NET Core · Hono · Laravel · NestJS · Next.js · Nuxt · Express · Fastify · Spring Boot
+</div>
 
----
-
-## FAQ
-
-### Can we self-host?
-
-Yes. Scalar is open source under the MIT License. You can deploy and operate it in your environment when policy requires it. Many teams combine Scalar Cloud with embedded or self-hosted components by product or region. Sales can help you choose a deployment model.
-
-### Does Scalar fit our existing OpenAPI workflow?
-
-Yes. Connect repositories if descriptions already live in Git, or sync from your existing authoring flow. Scalar supports code-first and design-first teams, generated or hand-written OpenAPI, and typical CI patterns. You do not need to replace Git to get a registry and published reference documentation.
-
-### What happens to our API descriptions?
-
-You keep them. They remain standard OpenAPI (YAML or JSON). Scalar does not require a proprietary format for documentation or SDK generation, so export and portability stay under your control.
-
-### How does Enterprise pricing work?
-
-Enterprise is priced for your seats, usage, and deployment needs. Compare tiers on the [Pricing](../pricing.md) page, or contact sales for a quote and contract terms.
-
-### Can we migrate from Stoplight, SwaggerHub, or similar tools?
-
-Yes. Scalar centers on OpenAPI with a modern reference UI, integrated API client, registry, and Git-centric workflows. Export existing work, connect GitHub, and port Spectral rules where you used custom linting. See the [Stoplight migration guide](../../migration/stoplight.md); we help with other sources on a call.
-
-### What security and compliance materials do you provide?
-
-Enterprise buyers receive security documentation, data processing information, and subprocessors as described in our [Privacy policy](../../legal/privacy-policy.md). For self-hosting, SSO, and data location, solutions engineering maps Scalar to your requirements. Contact sales for the current security pack and compliance roadmap.
-
-### How does this relate to AI and our APIs?
-
-Accurate OpenAPI is what tools and agents use to discover operations, parameters, and schemas. Scalar helps keep that contract current in the registry, enforce rules before merge, and publish reference documentation that both people and automation can rely on.
-
-**MCP** is the piece that lets assistants use your API as first-class tools: Scalar can host MCP servers generated from your descriptions, with per-tool configuration (including read-only “search” vs real “execute” modes) and per-installation authentication so enterprise security teams can reason about agent access the same way they reason about API keys and OAuth. See [MCP servers](../agent/mcp.md).
-
-### Why does MCP matter for Enterprise?
-
-The agent ecosystem is standardizing on MCP for tool discovery and invocation. If your APIs are only documented for humans, teams will wire agents ad hoc — with inconsistent auth, no inventory of which operations agents can call, and weak accountability. Treating OpenAPI as the source of truth and MCP as the controlled surface to agents keeps **governance, observability, and least privilege** in one place — the same expectations you have for enterprise AI infrastructure, applied to **your** APIs through standards you already own.
-
-### Who is Enterprise for?
-
-Organizations that need SSO, stronger access control, priority support, SLAs, or tailored onboarding — and want one platform for reference documentation, registry, SDKs, API exploration, and **MCP-backed agent access** without leaving OpenAPI and Git behind.
+<div class="getting-started footer container-full">
+  <div class="footer-content">
+      <div>
+        <span class="text-c-1">
+          <scalar-icon src="https://api.scalar.com/cdn/images/LByt7m02eR-6wZrXUk5d5/qlPkhjY7Ec6E5g3SHMjEp.svg"></scalar-icon>
+        </span>
+        <p class="mt-10 text-c-3 text-sm text-balance">The OpenAPI company.</p>
+        <p class="mt-5 text-c-3 text-sm text-balance">© API Documentation, Inc.</p>
+      </div>
+      <div class="flex text-sm">
+        <div class="w-1/3 flex flex-col gap-2">
+          <b>Products</b>
+          <a class="text-c-2 hover:text-c-1 font-normal" href="/products/api-references/getting-started" target="_blank">API References</a>
+          <a class="text-c-2 hover:text-c-1 font-normal" href="https://client.scalar.com/" target="_blank">API Client</a>
+          <a class="text-c-2 hover:text-c-1 font-normal" href="https://docs.scalar.com/" target="_blank">Docs</a>
+          <a class="text-c-2 hover:text-c-1 font-normal" href="https://editor.scalar.com/" target="_blank">Swagger Editor</a>
+        </div>
+        <div class="w-1/3 flex flex-col gap-2">
+          <b>Company</b>
+          <a class="text-c-2 hover:text-c-1 font-normal" href="mailto:support@scalar.com" target="_blank">Support</a>
+          <a class="text-c-2 hover:text-c-1 font-normal" href="/legal/terms-and-conditions">Terms of Service</a>
+          <a class="text-c-2 hover:text-c-1 font-normal" href="/legal/privacy-policy">Privacy Policy</a>
+          <button class="cky-banner-element text-c-2 hover:text-c-1 font-normal">Cookie Preferences</button>
+        </div>
+        <div class="w-1/3 flex flex-col gap-2">
+          <b>Socials</b>
+          <a class="text-c-2 hover:text-c-1 font-normal" href="https://twitter.com/scalar" target="_blank">x (formerly Twitter)</a>
+          <a class="text-c-2 hover:text-c-1 font-normal" href="https://github.com/scalar/scalar" target="_blank">GitHub</a>
+          <a class="text-c-2 hover:text-c-1 font-normal" href="https://discord.gg/scalar" target="_blank">Discord</a>
+          <a class="text-c-2 hover:text-c-1 font-normal" href="https://www.linkedin.com/company/scalar-org" target="_blank">Linkedin</a>
+        </div>
+      </div>
+  </div>
+  <div class="footer-animation">
+    <scalar-icon src="https://api.scalar.com/cdn/images/LByt7m02eR-6wZrXUk5d5/v1Pu6_BCmly6VhPAuotVZ.svg"></scalar-icon>
+  </div>
+</div>
 
 <style>
     .resources-cta-container {
@@ -221,6 +245,203 @@ Organizations that need SSO, stronger access control, priority support, SLAs, or
   }
   .full-container-constrained > .t-editor__paragraph {
     margin-top: 12px;
+  }
+  #contact {
+    scroll-margin-top: 120px;
+  }
+  .enterprise-contact-wrap {
+    padding-left: 0;
+    padding-right: 0;
+  }
+  .enterprise-contact-section {
+    background: var(--scalar-background-2);
+    border: var(--scalar-border-width) solid var(--scalar-border-color);
+    border-radius: var(--scalar-radius-lg);
+    padding: clamp(32px, 5vw, 56px) clamp(24px, 4vw, 48px);
+    max-width: var(--scalar-container-width);
+    margin: 0 auto;
+    box-sizing: border-box;
+  }
+  .enterprise-contact-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: clamp(32px, 4vw, 56px);
+    align-items: start;
+  }
+  .enterprise-contact-aside {
+    color: var(--scalar-color-2);
+  }
+  .enterprise-contact-eyebrow {
+    font-size: var(--scalar-font-size-4);
+    font-weight: var(--scalar-semibold);
+    color: var(--scalar-color-3);
+    margin: 0 0 8px;
+    letter-spacing: 0.02em;
+  }
+  .enterprise-contact-headline {
+    font-size: clamp(1.35rem, 2.2vw, 1.75rem);
+    font-weight: var(--scalar-semibold);
+    line-height: 1.25;
+    margin: 0 0 20px;
+    color: var(--scalar-color-1);
+    letter-spacing: -0.02em;
+  }
+  .enterprise-contact-bullets {
+    margin: 0 0 28px;
+    padding-left: 1.15rem;
+    line-height: 1.55;
+    font-size: var(--scalar-font-size-3);
+    color: var(--scalar-color-2);
+  }
+  .enterprise-contact-bullets li {
+    margin-bottom: 10px;
+  }
+  .enterprise-contact-trusted-label {
+    font-size: var(--scalar-font-size-4);
+    font-weight: var(--scalar-semibold);
+    color: var(--scalar-color-3);
+    margin: 0 0 14px;
+  }
+  .enterprise-contact-logos {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 28px 32px;
+  }
+  .enterprise-contact-logos svg {
+    height: 22px;
+    width: auto;
+    max-width: 100px;
+  }
+  .enterprise-contact-card {
+    background: var(--scalar-background-1);
+    color: var(--scalar-color-1);
+    border: var(--scalar-border-width) solid var(--scalar-border-color);
+    border-radius: var(--scalar-radius-lg);
+    padding: clamp(24px, 3vw, 36px) clamp(22px, 3vw, 36px);
+  }
+  .enterprise-demo-form-title {
+    font-size: 1.25rem;
+    font-weight: var(--scalar-semibold);
+    margin: 0 0 8px;
+    color: var(--scalar-color-1);
+  }
+  .enterprise-demo-form-lead {
+    font-size: var(--scalar-font-size-3);
+    color: var(--scalar-color-2);
+    line-height: 1.45;
+    margin: 0 0 22px;
+  }
+  .enterprise-demo-form {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+  .enterprise-demo-form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px 16px;
+    margin-bottom: 14px;
+  }
+  .enterprise-demo-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .enterprise-demo-field-full {
+    margin-bottom: 14px;
+  }
+  .enterprise-demo-field label {
+    font-size: var(--scalar-font-size-4);
+    font-weight: var(--scalar-semibold);
+    color: var(--scalar-color-1);
+  }
+  .enterprise-req {
+    color: var(--scalar-color-red, #c62828);
+    margin-left: 2px;
+  }
+  .enterprise-demo-field input,
+  .enterprise-demo-field select,
+  .enterprise-demo-field textarea {
+    font: inherit;
+    font-size: var(--scalar-font-size-3);
+    padding: 10px 12px;
+    border: var(--scalar-border-width) solid var(--scalar-border-color);
+    border-radius: var(--scalar-radius);
+    background: var(--scalar-background-2);
+    color: var(--scalar-color-1);
+    width: 100%;
+    box-sizing: border-box;
+  }
+  .enterprise-demo-field input:focus,
+  .enterprise-demo-field select:focus,
+  .enterprise-demo-field textarea:focus {
+    outline: 2px solid color-mix(in srgb, var(--scalar-color-1) 22%, transparent);
+    outline-offset: 1px;
+    border-color: var(--scalar-color-1);
+  }
+  .enterprise-demo-field textarea {
+    resize: vertical;
+    min-height: 100px;
+  }
+  .enterprise-demo-support {
+    font-size: var(--scalar-font-size-4);
+    margin: 8px 0 0;
+    color: var(--scalar-color-2);
+  }
+  .enterprise-demo-support a {
+    color: var(--scalar-color-1);
+    font-weight: var(--scalar-semibold);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+  .enterprise-demo-legal {
+    font-size: 11px;
+    line-height: 1.45;
+    color: var(--scalar-color-3);
+    margin: 12px 0 18px;
+  }
+  .enterprise-demo-legal a {
+    color: var(--scalar-color-2);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+  .enterprise-demo-submit {
+    appearance: none;
+    border: var(--scalar-border-width) solid transparent;
+    border-radius: var(--scalar-radius-lg);
+    background: var(--scalar-button-1);
+    color: var(--scalar-button-1-color);
+    font-size: var(--scalar-font-size-3);
+    font-weight: var(--scalar-font-medium);
+    padding: 10px 20px;
+    cursor: pointer;
+    width: fit-content;
+    transition: filter 0.15s ease, transform 0.1s ease;
+  }
+  .enterprise-demo-submit:hover {
+    filter: brightness(1.05);
+  }
+  .enterprise-demo-submit:active {
+    transform: scale(0.99);
+  }
+  .enterprise-demo-alt {
+    font-size: var(--scalar-font-size-4);
+    margin: 20px 0 0;
+    color: var(--scalar-color-2);
+    line-height: 1.5;
+  }
+  .enterprise-demo-alt a {
+    color: var(--scalar-color-1);
+    font-weight: var(--scalar-semibold);
+  }
+  @media screen and (max-width: 900px) {
+    .enterprise-contact-grid {
+      grid-template-columns: 1fr;
+    }
+    .enterprise-demo-form-row {
+      grid-template-columns: 1fr;
+    }
   }
   .hero-animation  {
     position: absolute;
