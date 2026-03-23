@@ -10,6 +10,7 @@ describe('ClientLibraries', () => {
   const mockClientOptions: ClientOptionGroup[] = [
     {
       label: 'Shell',
+      key: 'shell',
       options: [
         {
           id: 'shell/curl',
@@ -33,6 +34,7 @@ describe('ClientLibraries', () => {
     },
     {
       label: 'Node.js',
+      key: 'node',
       options: [
         {
           id: 'node/undici',
