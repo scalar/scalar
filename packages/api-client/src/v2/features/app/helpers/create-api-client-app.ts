@@ -37,6 +37,10 @@ type CreateApiClientOptions = {
    * over x-scalar-original-source-url when syncing. Returns the document as a plain object.
    */
   fetchRegistryDocument?: ImportDocumentFromRegistry
+  /**
+   * Whether or not to send telemetry events.
+   */
+  telemetry?: boolean
 }
 
 /**
@@ -57,7 +61,14 @@ export const createAppRouter = (layout: CreateApiClientOptions['layout']) => {
  */
 export const createApiClientApp = async (
   el: HTMLElement | null,
-  { layout = 'desktop', plugins, customThemes, fallbackThemeSlug, fetchRegistryDocument }: CreateApiClientOptions,
+  {
+    layout = 'desktop',
+    plugins,
+    customThemes,
+    fallbackThemeSlug,
+    fetchRegistryDocument,
+    telemetry = true,
+  }: CreateApiClientOptions,
 ) => {
   // Add the router
   const router = createAppRouter(layout)
@@ -65,6 +76,7 @@ export const createApiClientApp = async (
     router,
     customThemes,
     fallbackThemeSlug,
+    telemetryDefault: telemetry,
   })
   const commandPaletteState = useCommandPaletteState()
 

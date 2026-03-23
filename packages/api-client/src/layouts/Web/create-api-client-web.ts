@@ -37,10 +37,6 @@ export const createApiClientWeb = async (
   const { importSpecFile, importSpecFromUrl } = client.store
 
   router.afterEach((to) => {
-    if (configuration.telemetry) {
-      // TODO: add posthog
-    }
-
     saveActiveWorkspace(to)
   })
 
