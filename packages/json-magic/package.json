@@ -66,6 +66,11 @@
       "types": "./dist/helpers/is-http-url.d.ts",
       "default": "./dist/helpers/is-http-url.js"
     },
+    "./helpers/normalize": {
+      "import": "./dist/helpers/normalize.js",
+      "types": "./dist/helpers/normalize.d.ts",
+      "default": "./dist/helpers/normalize.js"
+    },
     "./helpers/unescape-json-pointer": {
       "import": "./dist/helpers/unescape-json-pointer.js",
       "types": "./dist/helpers/unescape-json-pointer.d.ts",
