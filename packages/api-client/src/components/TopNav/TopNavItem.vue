@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import {
-  ScalarContextMenu,
   ScalarDropdownButton,
   ScalarDropdownDivider,
   ScalarDropdownMenu,
@@ -12,6 +11,8 @@ import {
 } from '@scalar/components'
 import { isMacOS } from '@scalar/helpers/general/is-mac-os'
 import { LibraryIcon } from '@scalar/icons/library'
+
+import { ContextMenu } from '@/v2/components/context-menu'
 
 defineProps<{
   hotkey?: string
@@ -31,7 +32,7 @@ defineEmits<{
 </script>
 
 <template>
-  <ScalarContextMenu triggerClass="overflow-hidden w-full">
+  <ContextMenu triggerClass="overflow-hidden w-full">
     <template #trigger>
       <ScalarTooltip
         :content="`${isMacOS() ? '⌘' : '^'} ${hotkey}`"
@@ -115,7 +116,7 @@ defineEmits<{
         </template>
       </ScalarFloating>
     </template>
-  </ScalarContextMenu>
+  </ContextMenu>
 </template>
 
 <style scoped>

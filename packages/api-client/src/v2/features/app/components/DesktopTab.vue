@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import {
-  ScalarContextMenu,
   ScalarDropdownButton,
   ScalarDropdownDivider,
   ScalarDropdownMenu,
@@ -21,6 +20,8 @@ import {
 import type { ScalarIconComponent } from '@scalar/icons/types'
 import type { Tab } from '@scalar/workspace-store/schemas/extensions/workspace'
 import { computed } from 'vue'
+
+import { ContextMenu } from '@/v2/components/context-menu'
 
 const {
   hotkey,
@@ -76,7 +77,7 @@ const handleClose = (event: MouseEvent): void => {
 
 <template>
   <!-- Context menu wrapper provides right-click menu functionality -->
-  <ScalarContextMenu
+  <ContextMenu
     triggerClass="overflow-hidden w-full flex-1 select-none
 ">
     <!-- Tab button trigger with tooltip showing keyboard shortcut -->
@@ -178,7 +179,7 @@ const handleClose = (event: MouseEvent): void => {
         </template>
       </ScalarFloating>
     </template>
-  </ScalarContextMenu>
+  </ContextMenu>
 </template>
 
 <style scoped>

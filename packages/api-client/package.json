@@ -192,6 +192,11 @@
       "types": "./dist/v2/components/code-input/index.d.ts",
       "default": "./dist/v2/components/code-input/index.js"
     },
+    "./v2/components/context-menu": {
+      "import": "./dist/v2/components/context-menu/index.js",
+      "types": "./dist/v2/components/context-menu/index.d.ts",
+      "default": "./dist/v2/components/context-menu/index.js"
+    },
     "./v2/components/data-table": {
       "import": "./dist/v2/components/data-table/index.js",
       "types": "./dist/v2/components/data-table/index.d.ts",
@@ -367,6 +372,7 @@
     "nanoid": "catalog:*",
     "pretty-bytes": "catalog:*",
     "pretty-ms": "^9.3.0",
+    "radix-vue": "catalog:*",
     "shell-quote": "^1.8.1",
     "type-fest": "catalog:*",
     "vite-plugin-monaco-editor": "^1.1.0",
