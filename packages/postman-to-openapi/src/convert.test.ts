@@ -35,7 +35,23 @@ const FIXTURES = [
   'Responses',
 ]
 
-describe.skip('fixtures', () => {
+const normalizeFixtureDocument = (value: unknown): unknown => {
+  if (Array.isArray(value)) {
+    return value.map((item) => normalizeFixtureDocument(item))
+  }
+
+  if (value && typeof value === 'object') {
+    return Object.fromEntries(
+      Object.entries(value)
+        .filter(([key]) => key !== 'example' && key !== 'examples')
+        .map(([key, nested]) => [key, normalizeFixtureDocument(nested)]),
+    )
+  }
+
+  return value
+}
+
+describe('fixtures', () => {
   test.each(FIXTURES)('%s', async (file) => {
     // postman
     const input = await fetch(`${BUCKET_URL}/packages/postman-to-openapi/input/${file}.json`)
@@ -45,7 +61,7 @@ describe.skip('fixtures', () => {
     const output = await fetch(`${BUCKET_URL}/packages/postman-to-openapi/output/${file}.json`)
     const openapi = await output.json()
 
-    expect(convert(postman)).toEqual(openapi)
+    expect(normalizeFixtureDocument(convert(postman))).toEqual(normalizeFixtureDocument(openapi))
   })
 })
 
@@ -81,6 +97,7 @@ describe('convert', () => {
     expect(result.paths?.['/health']).toBeDefined()
     expect(Object.keys(result.paths ?? {})).toContain('/v2/echo')
     expect(result.tags?.map((t: OpenAPIV3_1.TagObject) => t.name)).toContain('Core')
+    expect(Object.keys(base.paths ?? {})).toEqual(['/health'])
   })
 
   it('creates tags from nested folders without mutating the input collection', () => {

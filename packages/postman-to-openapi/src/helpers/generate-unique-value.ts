@@ -10,7 +10,7 @@
  *
  * @example
  * // Case 1: Simple unused value
- * generateUniqueValue('example', v => v !== 'example') // → "example 2"
+ * generateUniqueValue('example', v => v !== 'example') // → "example 1"
  *
  * // Case 2: Avoids taken values in a set
  * const taken = new Set(['foo', 'foo 1', 'foo 2']);
@@ -27,7 +27,8 @@ export const generateUniqueValue = (
   let i = 1
   let value = defaultValue
   while (!validation(value)) {
-    value = `${defaultValue} ${prefix}${++i}`
+    value = `${defaultValue} ${prefix}${i}`
+    i += 1
   }
   return value
 }

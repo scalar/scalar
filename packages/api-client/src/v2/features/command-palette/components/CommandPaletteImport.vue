@@ -212,8 +212,6 @@ const { open: openSpecFileDialog } = useFileDialog({
       return
     }
 
-    loader.start()
-
     const onLoad = async (event: ProgressEvent<FileReader>): Promise<void> => {
       const text = event.target?.result as string
       if (isPostmanCollection(text)) {

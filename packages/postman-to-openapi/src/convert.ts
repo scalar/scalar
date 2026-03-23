@@ -372,19 +372,21 @@ export function convert(
   // Process logo information
   const logo = processLogo(collection)
 
-  // Initialize the OpenAPI document with required fields (or clone a base document to merge into)
-  const openapi: OpenAPIV3_1.Document = baseDocument ?? {
-    openapi: '3.1.0',
-    info: {
-      title,
-      version,
-      ...(description && { description }),
-      ...(license && { license }),
-      ...(contact && { contact }),
-      ...(logo && { 'x-logo': logo }),
-    },
-    paths: {},
-  }
+  // Initialize the OpenAPI document with required fields (or deep-clone a base document to merge into)
+  const openapi: OpenAPIV3_1.Document = baseDocument
+    ? structuredClone(baseDocument)
+    : {
+        openapi: '3.1.0',
+        info: {
+          title,
+          version,
+          ...(description && { description }),
+          ...(license && { license }),
+          ...(contact && { contact }),
+          ...(logo && { 'x-logo': logo }),
+        },
+        paths: {},
+      }
 
   openapi.paths = openapi.paths ?? {}
 
