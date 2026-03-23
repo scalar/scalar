@@ -102,7 +102,7 @@ export function createParameterObject(
     examples: {
       [exampleName]: {
         value: param.value,
-        'x-disabled': param.disabled,
+        'x-disabled': !!param.disabled,
       },
     },
   }

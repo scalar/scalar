@@ -1,4 +1,4 @@
-import { convert } from '@scalar/postman-to-openapi'
+import { type ConvertOptions, convert } from '@scalar/postman-to-openapi'
 
 /**
  * Converts a Postman collection JSON string to an OpenAPI specification document.
@@ -9,10 +9,9 @@ import { convert } from '@scalar/postman-to-openapi'
  *
  * Returns null if the conversion fails due to invalid Postman collection structure
  */
-export const getOpenApiFromPostman = (postmanJson: string) => {
+export const getOpenApiFromPostman = (postmanJson: string, convertOptions?: ConvertOptions) => {
   try {
-    // The convert function accepts a string and handles parsing internally
-    return convert(postmanJson)
+    return convert(postmanJson, convertOptions)
   } catch {
     return null
   }

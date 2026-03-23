@@ -18,9 +18,17 @@ import { ScalarFormInput } from '../ScalarForm'
 import ScalarCheckbox from './ScalarCheckbox.vue'
 import type { ScalarCheckboxType } from './types'
 
-const { type = 'checkbox' } = defineProps<{
-  type?: ScalarCheckboxType
-}>()
+const props = withDefaults(
+  defineProps<{
+    type?: ScalarCheckboxType
+    /** When true and the control is unchecked, the native checkbox is indeterminate (partial selection). */
+    indeterminate?: boolean
+  }>(),
+  {
+    type: 'checkbox',
+    indeterminate: false,
+  },
+)
 
 const model = defineModel<boolean>()
 
@@ -35,13 +43,15 @@ const { stylingAttrsCx, otherAttrs } = useBindCx()
     ">
     <ScalarCheckbox
       class="shrink-0"
+      :indeterminate="props.indeterminate && props.type === 'checkbox'"
       :selected="model"
-      :type />
+      :type="props.type" />
     <div class="flex-1 text-left min-w-0 truncate"><slot /></div>
     <input
+      ref="inputEl"
       v-model="model"
       class="sr-only"
-      :type
+      :type="props.type"
       v-bind="otherAttrs" />
   </ScalarFormInput>
 </template>

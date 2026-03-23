@@ -66,6 +66,7 @@ describe('getPostmanDocumentDetails', () => {
       type: 'json',
       title: 'My API Collection',
       version: '2.1.0',
+      schemaLabel: 'v2.1.0',
     })
   })
 
@@ -85,6 +86,7 @@ describe('getPostmanDocumentDetails', () => {
       type: 'json',
       title: 'Legacy Collection',
       version: '2.0.0',
+      schemaLabel: 'v2.0.0',
     })
   })
 
@@ -103,6 +105,7 @@ describe('getPostmanDocumentDetails', () => {
       type: 'json',
       title: 'Postman Collection',
       version: '1.5.0',
+      schemaLabel: 'v2.1.0',
     })
   })
 
@@ -121,6 +124,7 @@ describe('getPostmanDocumentDetails', () => {
       type: 'json',
       title: 'Test Collection',
       version: '1.0',
+      schemaLabel: 'v2.1.0',
     })
   })
 
@@ -138,6 +142,7 @@ describe('getPostmanDocumentDetails', () => {
       type: 'json',
       title: 'Postman Collection',
       version: '1.0',
+      schemaLabel: 'v2.1.0',
     })
   })
 
@@ -157,6 +162,7 @@ describe('getPostmanDocumentDetails', () => {
       type: 'json',
       title: 'Postman Collection',
       version: '1.0.0',
+      schemaLabel: 'v2.1.0',
     })
   })
 
@@ -176,6 +182,7 @@ describe('getPostmanDocumentDetails', () => {
       type: 'json',
       title: 'Test Collection',
       version: '1.0',
+      schemaLabel: 'v2.1.0',
     })
   })
 
@@ -195,6 +202,7 @@ describe('getPostmanDocumentDetails', () => {
       type: 'json',
       title: 'My API™ Collection 🚀',
       version: '1.0.0',
+      schemaLabel: 'v2.1.0',
     })
   })
 
@@ -214,6 +222,7 @@ describe('getPostmanDocumentDetails', () => {
       type: 'json',
       title: 'Test Collection',
       version: 2.5,
+      schemaLabel: 'v2.1.0',
     })
   })
 
@@ -233,6 +242,7 @@ describe('getPostmanDocumentDetails', () => {
       type: 'json',
       title: '  Test Collection  ',
       version: '1.0.0',
+      schemaLabel: 'v2.1.0',
     })
   })
 
@@ -260,6 +270,7 @@ describe('getPostmanDocumentDetails', () => {
       type: 'json',
       title: longName,
       version: '1.0.0',
+      schemaLabel: 'v2.1.0',
     })
   })
 
@@ -290,6 +301,7 @@ describe('getPostmanDocumentDetails', () => {
       type: 'json',
       title: 'Complex Collection',
       version: '3.0.0',
+      schemaLabel: 'v2.1.0',
     })
   })
 
@@ -324,6 +336,7 @@ describe('getPostmanDocumentDetails', () => {
       type: 'json',
       title: 'Postman Collection',
       version: '1.0',
+      schemaLabel: 'v2.1.0',
     })
   })
 

@@ -7,7 +7,7 @@ import type { TraversedExample, TraversedTag } from '@/schemas/navigation'
  * Each action may have an associated payload type.
  */
 export type CommandPalettePayload = {
-  /** Trigger the import flow for OpenAPI, Swagger, Postman, or cURL */
+  /** Trigger the import flow for OpenAPI, Swagger, or cURL (Postman uses import-postman-collection) */
   'import-from-openapi-swagger-postman-curl': undefined
   /** Create a new document in the workspace */
   'create-openapi-document': undefined
@@ -50,6 +50,11 @@ export type CommandPalettePayload = {
     /** The cURL command string to parse and import */
     inputValue: string
   }
+  /** Import a Postman collection from URL, file, or pasted JSON */
+  'import-postman-collection': {
+    /** Pre-filled collection JSON when opened from file or redirected paste */
+    inputValue?: string
+  }
 }
 
 /**
@@ -58,7 +63,7 @@ export type CommandPalettePayload = {
  *
  * Example:
  * - { action: 'create-openapi-document', payload: undefined }
- * - { action: 'import-curl-command', payload: { curl: 'curl ...' } }
+ * - { action: 'import-curl-command', payload: { inputValue: 'curl ...' } }
  */
 export type CommandPaletteAction<K extends keyof CommandPalettePayload = keyof CommandPalettePayload> = {
   /** The action to perform */
