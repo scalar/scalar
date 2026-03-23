@@ -22,6 +22,11 @@ function stripInlineMarkdown(text: string): string {
       .replace(/`([^`]+)`/g, '$1')
       // HTML tags
       .replace(/<[^>]+>/g, '')
+<<<<<<< cursor/package-benchmark-exclusion-5ab5
+=======
+      // Remove any remaining angle brackets to avoid partial/malformed HTML fragments
+      .replace(/[<>]/g, '')
+>>>>>>> geoff/reduce-bundle
       .trim()
   )
 }
