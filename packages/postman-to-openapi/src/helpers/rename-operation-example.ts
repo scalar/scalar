@@ -45,7 +45,7 @@ export const renameOperationExamples = (
   // Rename in parameter examples (if present)
   if ('parameters' in operation) {
     operation.parameters?.forEach((parameter) => {
-      if (parameter.examples?.[exampleName]) {
+      if (parameter.examples?.[exampleName] && exampleName !== newExampleName) {
         parameter.examples[newExampleName] = parameter.examples[exampleName]
         delete parameter.examples[exampleName]
       }
@@ -60,7 +60,7 @@ export const renameOperationExamples = (
         typeof (mediaTypeObject as OpenAPIV3_1.MediaTypeObject).examples === 'object'
       ) {
         const mediaCasted = mediaTypeObject as OpenAPIV3_1.MediaTypeObject
-        if (mediaCasted.examples?.[exampleName]) {
+        if (mediaCasted.examples?.[exampleName] && exampleName !== newExampleName) {
           mediaCasted.examples[newExampleName] = mediaCasted.examples[exampleName]
           delete mediaCasted.examples[exampleName]
         }
