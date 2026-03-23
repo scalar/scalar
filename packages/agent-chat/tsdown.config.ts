@@ -8,7 +8,4 @@ export default defineConfig({
   dts: { vue: true },
   exports: true,
   tsconfig: 'tsconfig.app.json',
-  loader: {
-    '.svg': 'asset',
-  },
 })
