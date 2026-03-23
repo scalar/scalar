@@ -2,6 +2,40 @@ import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 
 /**
+ * Sanitizes a chunk name for use in output filenames.
+ *
+ * With preserveModules, Vue SFC files produce chunk names containing `.vue`
+ * and query strings (e.g. `Foo.vue?vue&type=script&setup=true&lang`).
+ * These cause problems when downstream packages resolve the output files
+ * and the Vue plugin tries to re-parse them as SFCs.
+ *
+ * This strips `.vue` extensions and replaces non-URL-safe characters.
+ */
+const sanitizeChunkName = (name: string): string =>
+  name
+    .replace(/\.vue\?.*$/, '')
+    .replace(/\.vue$/, '')
+    .replace(/[?&=]/g, '_')
+
+/**
+ * Creates rolldownOptions.output config for preserveModules builds.
+ *
+ * preserveModules emits individual .js files for each source module,
+ * which is required for tsc-alias resolveFullPaths to add .js extensions
+ * to relative imports in .d.ts files.
+ */
+export function createPreserveModulesOutput() {
+  return {
+    preserveModules: true,
+    preserveModulesRoot: './src',
+    entryFileNames: (chunk: { name: string }): string => {
+      const sanitized = sanitizeChunkName(chunk.name)
+      return `${sanitized}.js`
+    },
+  }
+}
+
+/**
  * Creates external regex patterns from package.json dependencies.
  * This ensures that all npm dependencies are externalized in the build.
  */

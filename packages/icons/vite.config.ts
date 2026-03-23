@@ -4,7 +4,11 @@ import vue from '@vitejs/plugin-vue'
 import svgLoader from 'vite-svg-loader'
 import { type Plugin, defineConfig } from 'vitest/config'
 
-import { createExternalsFromPackageJson, createLibEntry } from '../../tooling/scripts/vite-lib-config'
+import {
+  createExternalsFromPackageJson,
+  createLibEntry,
+  createPreserveModulesOutput,
+} from '../../tooling/scripts/vite-lib-config'
 
 const external = createExternalsFromPackageJson()
 const entry = createLibEntry(['./src/index.ts', './src/library/index.ts', './src/types.ts'], import.meta.dirname)
@@ -48,6 +52,7 @@ export default defineConfig({
         moduleSideEffects: (id) => id.includes('.css'),
       },
       external,
+      output: createPreserveModulesOutput(),
     },
   },
   test: {
