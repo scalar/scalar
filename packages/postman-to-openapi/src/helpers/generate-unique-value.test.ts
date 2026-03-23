@@ -18,7 +18,7 @@ describe('generateUniqueValue', () => {
   it('returns "defaultValue 1" when defaultValue fails validation', () => {
     const validation = (value: string) => value !== 'default'
     const result = generateUniqueValue('default', validation)
-    expect(result).toBe('default 2')
+    expect(result).toBe('default 1')
   })
 
   it('returns first value that passes validation when several fail', () => {
@@ -42,6 +42,6 @@ describe('generateUniqueValue', () => {
     }
     const result = generateUniqueValue('baz', validation)
     expect(result).toBe('baz 3')
-    expect(seen).toEqual(['baz', 'baz 2', 'baz 3'])
+    expect(seen).toEqual(['baz', 'baz 1', 'baz 2', 'baz 3'])
   })
 })

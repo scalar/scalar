@@ -181,3 +181,24 @@ it('collects from multiple media types in requestBody', () => {
   expect(result.has('json')).toBe(true)
   expect(result.has('xml')).toBe(true)
 })
+
+it('does not throw when path item has summary, description, servers, or parameters', () => {
+  const path: OpenAPIV3_1.PathItemObject = {
+    summary: 'Path summary',
+    description: 'Path description',
+    servers: [{ url: 'https://api.example.com' }],
+    parameters: [
+      {
+        name: 'id',
+        in: 'path',
+        required: true,
+        schema: { type: 'string' },
+      },
+    ],
+    get: {
+      responses: {},
+    },
+  }
+  const result = getOperationExamples(path)
+  expect(result.size).toBe(0)
+})

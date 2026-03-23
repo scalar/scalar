@@ -1,3 +1,4 @@
+import { HTTP_METHODS } from '@scalar/helpers/http/http-methods'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 
 /**
@@ -40,10 +41,16 @@ import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 export const getOperationExamples = (path: OpenAPIV3_1.PathItemObject) => {
   const exampleNames = new Set<string>()
 
-  Object.values(path).forEach((operation: OpenAPIV3_1.OperationObject) => {
-    // Collect from parameter examples
-    if ('parameters' in operation) {
-      operation.parameters?.forEach((parameter) => {
+  for (const key of HTTP_METHODS) {
+    const operation = path[key]
+    if (operation === undefined || typeof operation !== 'object') {
+      continue
+    }
+
+    const op = operation as OpenAPIV3_1.OperationObject
+
+    if ('parameters' in op) {
+      op.parameters?.forEach((parameter) => {
         if (parameter.examples) {
           for (const exampleName of Object.keys(parameter.examples)) {
             exampleNames.add(exampleName)
@@ -52,9 +59,8 @@ export const getOperationExamples = (path: OpenAPIV3_1.PathItemObject) => {
       })
     }
 
-    // Collect from requestBody examples
-    if ('requestBody' in operation) {
-      const requestBody = operation.requestBody
+    if ('requestBody' in op) {
+      const requestBody = op.requestBody
       if (requestBody?.content) {
         for (const mediaTypeObject of Object.values(requestBody.content)) {
           const examples =
@@ -72,7 +78,7 @@ export const getOperationExamples = (path: OpenAPIV3_1.PathItemObject) => {
         }
       }
     }
-  })
+  }
 
   return exampleNames
 }

@@ -336,8 +336,8 @@ export type ConvertOptions = {
    */
   requestIndexPaths?: readonly PostmanRequestIndexPath[]
   /**
-   * Existing OpenAPI document to merge into. The input is not mutated; a deep clone
-   * is updated with Postman paths, tags (union by name), security schemes, and servers.
+   * Existing OpenAPI document to merge into. The input is is updated with Postman paths,
+   * tags (union by name), security schemes, and servers.
    * Root `info` and existing paths are preserved unless Postman adds or merges operations.
    */
   document?: OpenAPIV3_1.Document

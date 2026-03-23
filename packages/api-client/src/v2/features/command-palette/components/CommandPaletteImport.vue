@@ -223,6 +223,7 @@ const { open: openSpecFileDialog } = useFileDialog({
             inputValue: text,
           },
         })
+        await loader.clear()
         return
       }
       await handleImport(text, 'raw')
