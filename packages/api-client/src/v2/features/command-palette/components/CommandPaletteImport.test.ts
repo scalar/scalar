@@ -89,7 +89,7 @@ describe('CommandPaletteImport', () => {
     })
 
     const input = wrapper.findComponent({ name: 'CommandActionInput' })
-    expect(input.props('placeholder')).toBe('OpenAPI/Swagger/Postman/URL or cURL')
+    expect(input.props('placeholder')).toBe('OpenAPI/Swagger/Postman URL or cURL')
   })
 
   it('disables form when input is empty', () => {

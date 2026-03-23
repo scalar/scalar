@@ -279,7 +279,7 @@ const handleBack = (event: KeyboardEvent): void => {
     <template v-if="!documentDetails || isUrlInput">
       <CommandActionInput
         :modelValue="inputContent"
-        placeholder="OpenAPI/Swagger/Postman/URL or cURL"
+        placeholder="OpenAPI/Swagger/Postman URL or cURL"
         @delete="handleBack"
         @update:modelValue="handleInput" />
     </template>
