@@ -9,6 +9,7 @@ describe('featured-clients', () => {
   const mockClientOptions: ClientOptionGroup[] = [
     {
       label: 'Shell',
+      key: 'shell',
       options: [
         {
           id: 'shell/curl',
@@ -32,6 +33,7 @@ describe('featured-clients', () => {
     },
     {
       label: 'Ruby',
+      key: 'ruby',
       options: [
         {
           id: 'ruby/native',
@@ -46,6 +48,7 @@ describe('featured-clients', () => {
     },
     {
       label: 'Node.js',
+      key: 'node',
       options: [
         {
           id: 'node/undici',
@@ -69,6 +72,7 @@ describe('featured-clients', () => {
     },
     {
       label: 'PHP',
+      key: 'php',
       options: [
         {
           id: 'php/guzzle',
@@ -92,6 +96,7 @@ describe('featured-clients', () => {
     },
     {
       label: 'Python',
+      key: 'python',
       options: [
         {
           id: 'python/python3',
@@ -265,6 +270,7 @@ describe('featured-clients', () => {
         const nonFeaturedOptions: ClientOptionGroup[] = [
           {
             label: 'JavaScript',
+            key: 'js',
             options: [
               {
                 id: 'js/fetch',
@@ -292,10 +298,12 @@ describe('featured-clients', () => {
         const emptyGroups: ClientOptionGroup[] = [
           {
             label: 'Empty Group',
+            key: 'js',
             options: [],
           },
           {
             label: 'Valid Group',
+            key: 'shell',
             options: [
               {
                 id: 'shell/curl',

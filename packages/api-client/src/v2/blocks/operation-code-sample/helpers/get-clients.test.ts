@@ -28,6 +28,7 @@ describe('getClients', () => {
     const clientOptions: ClientOptionGroup[] = [
       {
         label: 'Shell',
+        key: 'shell',
         options: [
           {
             id: 'shell/curl',
@@ -50,6 +51,7 @@ describe('getClients', () => {
     // First group should be the custom code examples
     expect(result[0]).toEqual({
       label: 'Code Examples',
+      key: 'custom',
       options: [
         {
           id: 'custom/python',
@@ -144,6 +146,7 @@ describe('getClients', () => {
     const clientOptions: ClientOptionGroup[] = [
       {
         label: 'JavaScript',
+        key: 'js',
         options: [
           {
             id: 'js/fetch',
@@ -167,6 +170,7 @@ describe('getClients', () => {
       },
       {
         label: 'Python',
+        key: 'python',
         options: [
           {
             id: 'python/requests',
@@ -221,6 +225,7 @@ describe('getClients', () => {
     const clientOptions: ClientOptionGroup[] = [
       {
         label: 'Shell',
+        key: 'shell',
         options: [
           {
             id: 'shell/curl',

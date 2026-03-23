@@ -23,7 +23,6 @@
     "types:check": "vue-tsc --noEmit"
   },
   "type": "module",
-  "sideEffects": false,
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -45,6 +44,7 @@
   "files": [
     "dist"
   ],
+  "sideEffects": false,
   "dependencies": {
     "@phosphor-icons/core": "^2.1.1",
     "@types/node": "catalog:*",

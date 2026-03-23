@@ -62,6 +62,10 @@
           "content": "website"
         },
         {
+          "name": "twitter:card",
+          "content": "summary"
+        },
+        {
           "name": "twitter:title",
           "content": "Scalar - The OpenAPI Company"
         },
@@ -2084,7 +2088,10 @@
                   "/2026-03-17-agent-mcp": {
                     "type": "page",
                     "title": "Use your API in Cursor",
-                    "filepath": "documentation/blog/2026-03-17-agent-mcp.md"
+                    "filepath": "documentation/blog/2026-03-17-agent-mcp.md",
+                    "head": {
+                      "scripts": [{ "url": "https://cdn.jsdelivr.net/npm/@mux/mux-player" }]
+                    }
                   },
                   "/2026-03-05-agent-scalar": {
                     "type": "page",

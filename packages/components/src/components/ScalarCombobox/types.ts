@@ -10,6 +10,28 @@ export type OptionGroup<O extends Option = Option> = {
 
 export type OptionsOrGroups<O extends Option = Option, G extends OptionGroup<O> = OptionGroup<O>> = O[] | G[]
 
+/**
+ * Filters which options appear while searching. The combobox passes the
+ * current query, a flat list of every option (including those inside groups),
+ * and the group objects when the list is grouped (otherwise an empty array).
+ *
+ * @example Match option labels, case-insensitive (similar to the default combobox filter):
+ * ```ts
+ * const filterByLabel = ((query, options) =>
+ *   query === ''
+ *     ? options
+ *     : options.filter((o) => o.label.toLowerCase().includes(query.toLowerCase()))
+ * ) satisfies FilterFunction
+ * ```
+ */
+export type FilterFunction<O extends Option = Option, G extends OptionGroup<O> = OptionGroup<O>> = (
+  query: string,
+  /* All of the (flattened) options, if there are groups this will be all of the options from all of the groups */
+  options: O[],
+  /* If there are no groups this array will be empty, if there are groups this will be all of the groups including their options */
+  groups: G[],
+) => O[]
+
 /** Type guard to check if an option is a group */
 function isGroup(option: Option | OptionGroup | undefined): option is OptionGroup {
   return (option as OptionGroup | undefined)?.options !== undefined
