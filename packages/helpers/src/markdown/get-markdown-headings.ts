@@ -22,6 +22,8 @@ function stripInlineMarkdown(text: string): string {
       .replace(/`([^`]+)`/g, '$1')
       // HTML tags
       .replace(/<[^>]+>/g, '')
+      // Remove any remaining angle brackets to avoid partial/malformed HTML fragments
+      .replace(/[<>]/g, '')
       .trim()
   )
 }
