@@ -83,17 +83,17 @@ export const getPostmanItemAtIndexPath = (itemRoot: unknown, path: readonly numb
   return node
 }
 
-const extractRequestMethod = (request: unknown): string => {
+export const extractRequestMethod = (request: unknown): string => {
   if (typeof request === 'string') {
     return 'GET'
   }
   if (request && typeof request === 'object' && 'method' in request) {
     const method = (request as { method?: string }).method
     if (typeof method === 'string' && method.length > 0) {
-      return method.toUpperCase()
+      return method.toLowerCase()
     }
   }
-  return 'GET'
+  return 'get'.toLowerCase()
 }
 
 /**

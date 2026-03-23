@@ -2,10 +2,11 @@ import { HTTP_METHODS } from '@scalar/helpers/http/http-methods'
 import { extractPathFromUrl, normalizePath } from '@scalar/postman-to-openapi'
 import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
+import { extractRequestMethod } from '@/v2/features/command-palette/helpers/postman-request-tree'
+
 /**
  * Extracts all path + method merge keys from an OpenAPI document.
- * Returns a Set of merge keys in the format: `${method}\0${normalizedPath}`
- * (same format as {@link postmanRequestToOpenapiMergeKey}).
+ * Returns a Set of merge keys in the format: `${method}\0${path}`
  */
 export const getOpenApiMergeKeys = (document: OpenApiDocument): Set<string> => {
   const keys = new Set<string>()
@@ -32,7 +33,6 @@ export const getOpenApiMergeKeys = (document: OpenApiDocument): Set<string> => {
 
 /**
  * Resolves merge key and server usage for a Postman collection item that has a `request` field.
- * Mirrors request handling in `processItem` (postman-to-openapi path-items).
  */
 export const getPostmanMergeKeys = (item: unknown) => {
   if (!item || typeof item !== 'object' || !('request' in item)) {
@@ -40,7 +40,7 @@ export const getPostmanMergeKeys = (item: unknown) => {
   }
 
   const request = item.request
-  const method = (typeof request === 'string' ? 'get' : (request as { method?: string }).method || 'get').toLowerCase()
+  const method = extractRequestMethod(request).toLowerCase()
 
   const requestUrl =
     typeof request === 'string'

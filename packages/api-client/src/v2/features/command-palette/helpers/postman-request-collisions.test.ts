@@ -1,10 +1,7 @@
-import type { OpenAPIV3_1 } from '@scalar/openapi-types'
+import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { describe, expect, it } from 'vitest'
 
-import {
-  buildPostmanRequestTree,
-  pathKey,
-} from '@/v2/features/command-palette/helpers/postman-request-tree'
+import { buildPostmanRequestTree, pathKey } from '@/v2/features/command-palette/helpers/postman-request-tree'
 
 import { getCollidingPostmanRequestPathKeys } from './postman-request-collisions'
 
@@ -78,9 +75,9 @@ describe('getCollidingPostmanRequestPathKeys', () => {
           get: { responses: { '200': { description: 'ok' } } },
         },
       },
-    }
+    } as unknown as OpenApiDocument
     const selected = [pathKey([0])]
-    const keys = getCollidingPostmanRequestPathKeys(items, selected, base as OpenAPIV3_1.Document)
+    const keys = getCollidingPostmanRequestPathKeys(items, selected, base)
     expect(keys).toContain(pathKey([0]))
   })
 })

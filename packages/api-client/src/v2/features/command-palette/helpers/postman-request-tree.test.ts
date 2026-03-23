@@ -47,7 +47,7 @@ describe('postman-request-tree', () => {
     expect(tree[0]?.isFolder).toBe(true)
     expect(tree[0]?.children?.[0]).toMatchObject({
       isFolder: false,
-      method: 'GET',
+      method: 'get',
       path: [0, 0],
     })
     expect(tree[1]).toMatchObject({
