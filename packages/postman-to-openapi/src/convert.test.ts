@@ -35,7 +35,7 @@ const FIXTURES = [
   'Responses',
 ]
 
-describe.skip('fixtures', () => {
+describe('fixtures', () => {
   test.each(FIXTURES)('%s', async (file) => {
     // postman
     const input = await fetch(`${BUCKET_URL}/packages/postman-to-openapi/input/${file}.json`)

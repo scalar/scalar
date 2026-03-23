@@ -9,6 +9,7 @@ import { ScalarCheckboxInput } from '@scalar/components'
 import { ScalarIconCaretRight, ScalarIconWarning } from '@scalar/icons'
 import { computed, ref } from 'vue'
 
+import { HttpMethod } from '@/components/HttpMethod'
 import {
   collectRequestPathKeysUnderFolder,
   folderFullySelected,
@@ -113,7 +114,7 @@ const collisionRowTitle = computed(() => {
 <template>
   <div class="select-none">
     <div
-      class="postman-tree-row flex items-center gap-px py-0.5"
+      class="postman-tree-row flex min-h-7 items-center gap-1.5 py-px pr-2"
       :class="{ 'postman-tree-row--collision': isCollidingRequest }"
       :title="collisionRowTitle">
       <button
@@ -135,19 +136,29 @@ const collisionRowTitle = computed(() => {
         aria-hidden="true"
         class="size-6 shrink-0" />
 
-      <!-- ScalarFormInput (inside ScalarCheckboxInput) adds bg-b-1.5, p-3, shadow — reset fully -->
-      <div
-        class="postman-tree-row__checkbox flex min-w-0 flex-1 items-center gap-1.5 pr-0.5">
+      <!-- ScalarFormInput -->
+      <div class="postman-tree-row__checkbox flex flex-1 items-center gap-2">
         <ScalarCheckboxInput
           :indeterminate="rowIndeterminate"
           :modelValue="rowChecked"
           type="checkbox"
           @update:modelValue="onCheckboxUpdate">
-          <span
-            class="text-c-1 truncate text-[11px] leading-tight font-normal"
-            :title="props.node.name">
-            {{ props.node.name }}
-          </span>
+          <div class="flex flex-row gap-1">
+            <div
+              v-if="!props.node.isFolder && props.node.method"
+              class="postman-tree-row__method flex w-6 items-center pr-4">
+              <HttpMethod
+                class="postman-tree-row__http-method text-[10px] leading-none font-semibold"
+                :method="props.node.method" />
+            </div>
+            <span
+              class="text-c-1 min-w-0 truncate text-xs leading-snug font-normal"
+              :class="{ 'font-medium': hasChildren }"
+              :title="props.node.name">
+              {{ props.node.name }}
+            </span>
+          </div>
+          <!-- Trailing method (same width as address-bar history) so names stay primary on the left -->
         </ScalarCheckboxInput>
 
         <span
@@ -155,24 +166,21 @@ const collisionRowTitle = computed(() => {
           class="text-c-3 shrink-0 text-[10px] font-normal tabular-nums opacity-80">
           {{ folderSelectionFraction }}
         </span>
-        <span
-          v-else-if="!props.node.isFolder && props.node.method"
-          class="text-c-3 flex min-w-0 shrink-0 items-center gap-1 font-mono text-[10px] font-medium tracking-wide uppercase opacity-90">
-          <span class="truncate">{{ props.node.method }}</span>
-          <span
-            v-if="isCollidingRequest"
-            :aria-label="
-              collisionRowTitle ?? 'Request conflicts with another selection'
-            "
-            class="postman-tree-row__collision-icon inline-flex size-5 shrink-0 items-center justify-center rounded"
-            role="img">
-            <ScalarIconWarning
-              aria-hidden="true"
-              class="size-3.5 shrink-0 text-[var(--scalar-color-red)]"
-              weight="bold" />
-          </span>
-        </span>
       </div>
+
+      <span
+        v-if="isCollidingRequest"
+        :aria-label="
+          collisionRowTitle ?? 'Request conflicts with another selection'
+        "
+        class="postman-tree-row__collision-icon text-c-3 inline-flex size-5 shrink-0 items-center justify-center"
+        role="img"
+        :title="collisionRowTitle">
+        <ScalarIconWarning
+          aria-hidden="true"
+          class="size-3.5 shrink-0 text-[var(--scalar-color-red)]"
+          weight="bold" />
+      </span>
     </div>
 
     <div
@@ -214,23 +222,17 @@ const collisionRowTitle = computed(() => {
 }
 
 .postman-tree-row--collision {
-  margin: 1px 0;
-  padding-left: 2px;
-  padding-right: 2px;
-  border-radius: 6px;
-  border: 1px solid var(--scalar-color-red);
-  background-color: color-mix(
-    in srgb,
-    var(--scalar-color-red) 12%,
-    transparent
-  );
+  border-radius: var(--scalar-radius-md, 4px);
+  /* Same surface as `.postman-import-path-conflict-callout` — no extra stroke (avoids layout shift and harsh edges in the tree) */
+  background-color: var(--scalar-background-danger);
 }
 
-.postman-tree-row__collision-icon {
-  background-color: color-mix(
-    in srgb,
-    var(--scalar-color-red) 14%,
-    var(--scalar-background-2)
-  );
+/* Display-only HttpMethod defaults to centered pill; keep it a compact trailing label */
+.postman-tree-row__http-method :deep(> div) {
+  justify-content: flex-end;
+  border-radius: 0;
+  padding: 0;
+  min-height: 0;
+  background: none !important;
 }
 </style>

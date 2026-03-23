@@ -71,10 +71,10 @@ const onImportDestinationChange = (option: ScalarListboxOption): void => {
 </script>
 
 <template>
-  <div class="flex min-h-0 min-w-0 flex-1 flex-col gap-1.5 overflow-hidden">
-    <div class="flex min-h-0 min-w-0 flex-1 flex-col gap-1.5 overflow-hidden">
+  <div class="flex flex-1 flex-col gap-1.5 overflow-hidden">
+    <div class="flex flex-1 flex-col gap-1.5 overflow-hidden">
       <div
-        class="border-border bg-b-2 text-c-2 min-w-0 shrink-0 rounded border px-2.5 py-1.5 text-[11px] leading-tight">
+        class="border-border bg-b-2 text-c-2 shrink-0 rounded border px-2.5 py-1.5 text-xs leading-tight">
         <div class="text-c-1 truncate font-medium">
           {{ title }}
         </div>
@@ -104,8 +104,8 @@ const onImportDestinationChange = (option: ScalarListboxOption): void => {
       </div>
       <div
         v-if="hasCollisionPathKeys"
-        class="postman-import-path-conflict-callout w-full max-w-full min-w-0 shrink-0 rounded-md border px-2.5 py-1.5 text-[10px] leading-snug">
-        <div class="min-w-0 [overflow-wrap:anywhere] [word-break:break-word]">
+        class="postman-import-path-conflict-callout w-full max-w-full rounded-md border px-2.5 py-1.5 text-xs leading-snug">
+        <div class="[overflow-wrap:anywhere] [word-break:break-word]">
           <span class="font-semibold text-[var(--scalar-color-red)]">
             Conflict
           </span>
@@ -140,14 +140,14 @@ const onImportDestinationChange = (option: ScalarListboxOption): void => {
       class="border-border bg-b-2 flex shrink-0 flex-col gap-3 rounded-md border px-2.5 py-2.5">
       <div
         v-if="availableTargetDocuments.length > 0"
-        class="border-border flex min-w-0 flex-col gap-2 border-b border-dashed pb-3">
-        <div class="min-w-0">
-          <p class="text-c-1 text-[11px] font-semibold tracking-tight">
+        class="border-border flex flex-col gap-2 border-b border-dashed pb-3">
+        <div>
+          <p class="text-c-1 text-xs font-semibold tracking-tight">
             Import destination
           </p>
-          <p class="text-c-3 mt-1 text-[10px] leading-snug">
-            Put converted operations into an existing API description, or create
-            a new document in this workspace.
+          <p class="text-c-3 mt-1 text-xs leading-snug">
+            Put operations into an existing API description, or create a new
+            document in this workspace.
           </p>
         </div>
         <ScalarListbox
@@ -159,9 +159,9 @@ const onImportDestinationChange = (option: ScalarListboxOption): void => {
           resize
           @update:modelValue="onImportDestinationChange">
           <ScalarButton
-            class="hover:bg-b-2 h-9 w-full min-w-0 justify-between gap-2 px-2.5 py-2 text-left text-[11px]"
+            class="hover:bg-b-2 h-9 w-full justify-between gap-2 px-2.5 py-2 text-left text-xs"
             variant="outlined">
-            <span class="text-c-1 min-w-0 truncate font-medium">
+            <span class="text-c-1 truncate font-medium">
               {{ resolvedImportDestinationOption.label }}
             </span>
             <ScalarIcon
@@ -177,7 +177,7 @@ const onImportDestinationChange = (option: ScalarListboxOption): void => {
         <div
           class="[&>label]:bg-transparent [&>label]:p-0 [&>label]:shadow-none [&>label]:hover:bg-transparent">
           <ScalarCheckboxInput v-model="mergeSamePathAndMethod">
-            <span class="text-c-1 text-[11px] leading-snug font-medium">
+            <span class="text-c-1 text-xs leading-snug font-medium">
               Merge same path &amp; method
             </span>
           </ScalarCheckboxInput>
