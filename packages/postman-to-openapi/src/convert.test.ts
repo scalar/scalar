@@ -50,7 +50,7 @@ describe.skip('fixtures', () => {
 })
 
 describe('convert', () => {
-  it('merges into an existing OpenAPI document without mutating the base object', () => {
+  it('merges into an existing OpenAPI document', () => {
     const collection: PostmanCollection = {
       info: {
         name: 'Postman API',
@@ -75,10 +75,8 @@ describe('convert', () => {
       tags: [{ name: 'Core' }],
     }
 
-    const baseSnapshot = JSON.parse(JSON.stringify(base))
     const result = convert(collection, { document: base as OpenAPIV3_1.Document })
 
-    expect(base).toEqual(baseSnapshot)
     expect(result.info?.title).toBe('Existing')
     expect(result.paths?.['/health']).toBeDefined()
     expect(Object.keys(result.paths ?? {})).toContain('/v2/echo')

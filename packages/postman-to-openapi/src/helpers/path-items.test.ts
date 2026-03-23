@@ -209,6 +209,7 @@ describe('path-items', () => {
       examples: {
         default: {
           value: '123',
+          'x-disabled': false,
         },
       },
       schema: {

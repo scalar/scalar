@@ -34,6 +34,7 @@ describe('parameters', () => {
         examples: {
           default: {
             value: '1',
+            'x-disabled': false,
           },
         },
         schema: {
@@ -47,6 +48,7 @@ describe('parameters', () => {
         examples: {
           default: {
             value: '10',
+            'x-disabled': false,
           },
         },
         schema: {
@@ -80,6 +82,7 @@ describe('parameters', () => {
         examples: {
           default: {
             value: 'testId',
+            'x-disabled': false,
           },
         },
         schema: {
@@ -179,6 +182,7 @@ describe('parameters', () => {
         examples: {
           default: {
             value: 'Bearer token',
+            'x-disabled': false,
           },
         },
         schema: {
@@ -192,6 +196,7 @@ describe('parameters', () => {
         examples: {
           default: {
             value: '12345',
+            'x-disabled': false,
           },
         },
         schema: {
@@ -257,6 +262,7 @@ describe('parameters', () => {
         examples: {
           default: {
             value: '1',
+            'x-disabled': false,
           },
         },
         schema: {
@@ -281,6 +287,7 @@ describe('parameters', () => {
         examples: {
           default: {
             value: 'testId',
+            'x-disabled': false,
           },
         },
         schema: {
@@ -330,6 +337,7 @@ describe('parameters', () => {
         examples: {
           default: {
             value: 'Bearer token',
+            'x-disabled': false,
           },
         },
       })
