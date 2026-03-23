@@ -15,7 +15,7 @@
     "node": ">=22"
   },
   "scripts": {
-    "build": "pnpm typegen:icons && vite build && vue-tsc -p tsconfig.build.json",
+    "build": "pnpm typegen:icons && vite build && vue-tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
     "build:storybook": "storybook build",
     "clean:snapshots": "shx rm -rf \"**/snapshots\"",
     "dev": "storybook dev -p 5100 --ci",
