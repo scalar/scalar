@@ -41,7 +41,9 @@
       "require": "./dist/library/index.cjs"
     }
   },
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "sideEffects": false,
   "dependencies": {
     "@phosphor-icons/core": "^2.1.1",
