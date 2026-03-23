@@ -1,5 +1,4 @@
-import { sortByOrder } from '@scalar/object-utils/arrays'
-
+import { sortByOrder } from '@/helpers/sort-by-order'
 import { unpackProxyObject } from '@/helpers/unpack-proxy'
 import { getXKeysFromObject } from '@/navigation/helpers/get-x-keys'
 import type { TagsMap, TraverseSpecOptions } from '@/navigation/types'
