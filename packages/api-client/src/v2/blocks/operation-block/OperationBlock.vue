@@ -76,6 +76,7 @@ export type OperationBlockProps = {
 }
 </script>
 <script setup lang="ts">
+import { generateClientOptions } from '@scalar/blocks/operation-code-sample'
 import type { HttpMethod as HttpMethodType } from '@scalar/helpers/http/http-methods'
 import type { ResponseInstance } from '@scalar/oas-utils/entities/spec'
 import { type ClientPlugin } from '@scalar/oas-utils/helpers'
@@ -115,7 +116,6 @@ import {
 } from '@/v2/blocks/operation-block/helpers/response-cache'
 import { sendRequest } from '@/v2/blocks/operation-block/helpers/send-request'
 import { validatePathParameters } from '@/v2/blocks/operation-block/helpers/validate-path-parameters'
-import { generateClientOptions } from '@/v2/blocks/operation-code-sample'
 import { RequestBlock } from '@/v2/blocks/request-block'
 import type { ExtendedScalarCookie } from '@/v2/blocks/request-block/RequestBlock.vue'
 import { ResponseBlock } from '@/v2/blocks/response-block'

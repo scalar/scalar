@@ -1,13 +1,12 @@
-import { encode } from 'js-base64'
-import { beforeEach, describe, expect, it } from 'vitest'
-
 import type {
   ApiKeyObjectSecret,
   HttpObjectSecret,
   OAuth2ObjectSecret,
   OAuthFlowAuthorizationCodeSecret,
   OAuthFlowImplicitSecret,
-} from '@/v2/blocks/scalar-auth-selector-block/helpers/secret-types'
+} from '@scalar/core/libs/secret-types'
+import { encode } from 'js-base64'
+import { beforeEach, describe, expect, it } from 'vitest'
 
 import { buildRequestSecurity, getSecuritySchemes } from './build-request-security'
 

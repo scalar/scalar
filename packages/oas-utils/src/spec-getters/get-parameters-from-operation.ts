@@ -1,7 +1,8 @@
+import { getExampleFromSchema } from '@scalar/core/libs/get-example-from-schema'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
+import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
 import type { Operation } from '@/entities/spec'
-import { getExampleFromSchema } from './get-example-from-schema'
 
 /**
  * Get the query parameters from an operation.
@@ -30,7 +31,7 @@ export function getParametersFromOperation(
       value: parameter.example
         ? parameter.example
         : parameter.schema
-          ? getExampleFromSchema(parameter.schema, { mode: 'write' })
+          ? getExampleFromSchema(parameter.schema as SchemaObject, { mode: 'write' })
           : '',
       required: parameter.required ?? false,
       enabled: parameter.required ?? false,

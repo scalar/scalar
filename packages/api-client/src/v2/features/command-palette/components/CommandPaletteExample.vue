@@ -19,6 +19,7 @@ export default {
 </script>
 
 <script setup lang="ts">
+import { HttpMethod as HttpMethodBadge } from '@scalar/blocks/operation-code-sample'
 import {
   ScalarButton,
   ScalarDropdown,
@@ -35,8 +36,6 @@ import type {
   TraversedOperation,
 } from '@scalar/workspace-store/schemas/navigation'
 import { computed, ref, watch } from 'vue'
-
-import HttpMethodBadge from '@/v2/blocks/operation-code-sample/components/HttpMethod.vue'
 
 import CommandActionForm from './CommandActionForm.vue'
 import CommandActionInput from './CommandActionInput.vue'

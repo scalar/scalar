@@ -91,6 +91,7 @@
     "CHANGELOG.md"
   ],
   "dependencies": {
+    "@scalar/core": "workspace:*",
     "@scalar/helpers": "workspace:*",
     "@scalar/json-magic": "workspace:*",
     "@scalar/object-utils": "workspace:*",

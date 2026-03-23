@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ScalarCodeBlock } from '@scalar/components'
+import { getSnippet } from '@scalar/core/libs/get-snippet'
 import type {
   Operation,
   RequestExample,
@@ -12,7 +13,7 @@ import { encode } from 'js-base64'
 import { computed } from 'vue'
 
 import type { EnvVariables } from '@/libs/env-helpers'
-import { getHarRequest, getSnippet } from '@/views/Components/CodeSnippet'
+import { getHarRequest } from '@/views/Components/CodeSnippet'
 
 const {
   target,

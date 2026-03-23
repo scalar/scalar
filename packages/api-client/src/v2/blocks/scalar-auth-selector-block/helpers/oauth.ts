@@ -1,3 +1,4 @@
+import type { OAuthFlowsObjectSecret } from '@scalar/core/libs/secret-types'
 import { isRelativePath } from '@scalar/helpers/url/is-relative-path'
 import { makeUrlAbsolute } from '@scalar/helpers/url/make-url-absolute'
 import { shouldUseProxy } from '@scalar/helpers/url/redirect-to-proxy'
@@ -6,7 +7,6 @@ import { encode, fromUint8Array } from 'js-base64'
 
 import type { ErrorResponse } from '@/libs/errors'
 import { getServerUrl } from '@/v2/blocks/operation-block/helpers/get-server-url'
-import type { OAuthFlowsObjectSecret } from '@/v2/blocks/scalar-auth-selector-block/helpers/secret-types'
 
 /** Oauth2 security schemes which are not implicit */
 type NonImplicitFlows = Omit<OAuthFlowsObjectSecret, 'implicit'>

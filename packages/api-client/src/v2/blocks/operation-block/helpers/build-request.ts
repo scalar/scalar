@@ -1,3 +1,4 @@
+import type { SecuritySchemeObjectSecret } from '@scalar/core/libs/secret-types'
 import { canMethodHaveBody } from '@scalar/helpers/http/can-method-have-body'
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { redirectToProxy, shouldUseProxy } from '@scalar/helpers/url/redirect-to-proxy'
@@ -12,7 +13,6 @@ import { ERRORS, type ErrorResponse, normalizeError } from '@/libs/errors'
 import { getEnvironmentVariables } from '@/v2/blocks/operation-block/helpers/get-environment-variables'
 import { getResolvedUrl } from '@/v2/blocks/operation-block/helpers/get-resolved-url'
 import { getDefaultHeaders } from '@/v2/blocks/request-block/helpers/get-default-headers'
-import type { SecuritySchemeObjectSecret } from '@/v2/blocks/scalar-auth-selector-block/helpers/secret-types'
 
 import { buildRequestBody } from './build-request-body'
 import { buildRequestCookieHeader } from './build-request-cookie-header'

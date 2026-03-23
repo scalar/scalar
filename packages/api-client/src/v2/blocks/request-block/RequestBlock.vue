@@ -1,5 +1,10 @@
 <script setup lang="ts">
+import type { ClientOptionGroup } from '@scalar/blocks/operation-code-sample'
 import { ScalarErrorBoundary } from '@scalar/components'
+import { filterGlobalCookie } from '@scalar/core/libs/filter-global-cookies'
+import { getExample } from '@scalar/core/libs/get-example'
+import { isParamDisabled } from '@scalar/core/libs/is-param-disabled'
+import type { SecuritySchemeObjectSecret } from '@scalar/core/libs/secret-types'
 import { canMethodHaveBody } from '@scalar/helpers/http/can-method-have-body'
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { REGEX } from '@scalar/helpers/regex/regex-helpers'
@@ -25,10 +30,7 @@ import { computed, ref, useId, watch } from 'vue'
 import SectionFilter from '@/components/SectionFilter.vue'
 import ViewLayoutSection from '@/components/ViewLayout/ViewLayoutSection.vue'
 import type { ClientLayout } from '@/hooks'
-import { filterGlobalCookie } from '@/v2/blocks/operation-block/helpers/filter-global-cookies'
-import { getExample } from '@/v2/blocks/operation-block/helpers/get-example'
 import { getResolvedUrl } from '@/v2/blocks/operation-block/helpers/get-resolved-url'
-import type { ClientOptionGroup } from '@/v2/blocks/operation-code-sample'
 import RequestBody from '@/v2/blocks/request-block/components/RequestBody.vue'
 import RequestCodeSnippet from '@/v2/blocks/request-block/components/RequestCodeSnippet.vue'
 import RequestParams from '@/v2/blocks/request-block/components/RequestParams.vue'
@@ -37,12 +39,10 @@ import { createParameterHandlers } from '@/v2/blocks/request-block/helpers/creat
 import { getDefaultHeaders } from '@/v2/blocks/request-block/helpers/get-default-headers'
 import { getParameterSchema } from '@/v2/blocks/request-block/helpers/get-parameter-schema'
 import { groupBy } from '@/v2/blocks/request-block/helpers/group-by'
-import { isParamDisabled } from '@/v2/blocks/request-block/helpers/is-param-disabled'
 import {
   AuthSelector,
   type MergedSecuritySchemes,
 } from '@/v2/blocks/scalar-auth-selector-block'
-import type { SecuritySchemeObjectSecret } from '@/v2/blocks/scalar-auth-selector-block/helpers/secret-types'
 
 type Filter =
   | 'All'

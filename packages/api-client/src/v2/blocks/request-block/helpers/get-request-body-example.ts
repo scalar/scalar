@@ -1,8 +1,7 @@
+import { getExampleFromSchema } from '@scalar/blocks/operation-code-sample'
+import { getExample } from '@scalar/core/libs/get-example'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { ExampleObject, RequestBodyObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-
-import { getExample } from '@/v2/blocks/operation-block/helpers/get-example'
-import { getExampleFromSchema } from '@/v2/blocks/operation-code-sample/helpers/get-example-from-schema'
 
 /**
  * Basically getExample + we generate an example from the schema if no example is found

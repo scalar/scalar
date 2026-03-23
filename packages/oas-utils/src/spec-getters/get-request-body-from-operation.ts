@@ -1,12 +1,13 @@
+import { getExampleFromSchema } from '@scalar/core/libs/get-example-from-schema'
 import { json2xml } from '@scalar/helpers/file/json2xml'
 import { prettyPrintJson } from '@scalar/helpers/json/pretty-print-json'
 import type { ContentType } from '@scalar/types/legacy'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
 import type { Operation } from '@/entities/spec'
 import { normalizeMimeTypeObject } from '@/helpers/normalize-mime-type-object'
 
-import { getExampleFromSchema } from './get-example-from-schema'
 import { getParametersFromOperation } from './get-parameters-from-operation'
 
 type AnyObject = Record<string, any>
@@ -165,7 +166,7 @@ export function getRequestBodyFromOperation(
   // Update the JSON handling section
   if (isJsonLike) {
     const exampleFromSchema = requestBodyObject?.schema
-      ? getExampleFromSchema(getResolvedRef(requestBodyObject?.schema), {
+      ? getExampleFromSchema(getResolvedRef(requestBodyObject?.schema) as SchemaObject, {
           mode: 'write',
           omitEmptyAndOptionalProperties: omitEmptyAndOptionalProperties ?? false,
         })
@@ -182,7 +183,7 @@ export function getRequestBodyFromOperation(
   // XML
   if (mimeType === 'application/xml') {
     const exampleFromSchema = requestBodyObject?.schema
-      ? getExampleFromSchema(getResolvedRef(requestBodyObject?.schema), {
+      ? getExampleFromSchema(getResolvedRef(requestBodyObject?.schema) as SchemaObject, {
           xml: true,
           mode: 'write',
         })
@@ -190,7 +191,7 @@ export function getRequestBodyFromOperation(
 
     return {
       mimeType,
-      text: example ?? json2xml(exampleFromSchema),
+      text: example ?? json2xml(exampleFromSchema as Record<string, any>),
     }
   }
 
@@ -205,7 +206,7 @@ export function getRequestBodyFromOperation(
   // Plain text
   if (mimeType === 'text/plain') {
     const exampleFromSchema = requestBodyObject?.schema
-      ? getExampleFromSchema(getResolvedRef(requestBodyObject?.schema), {
+      ? getExampleFromSchema(getResolvedRef(requestBodyObject?.schema) as SchemaObject, {
           xml: true,
           mode: 'write',
         })
@@ -220,7 +221,7 @@ export function getRequestBodyFromOperation(
   // URL encoded data
   if (mimeType === 'multipart/form-data' || mimeType === 'application/x-www-form-urlencoded') {
     const exampleFromSchema = requestBodyObject?.schema
-      ? getExampleFromSchema(getResolvedRef(requestBodyObject?.schema), {
+      ? getExampleFromSchema(getResolvedRef(requestBodyObject?.schema) as SchemaObject, {
           xml: true,
           mode: 'write',
         })

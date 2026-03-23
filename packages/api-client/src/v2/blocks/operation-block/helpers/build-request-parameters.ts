@@ -1,3 +1,15 @@
+import { deSerializeParameter } from '@scalar/core/libs/de-serialize-parameter'
+import { getExample } from '@scalar/core/libs/get-example'
+import { isParamDisabled } from '@scalar/core/libs/is-param-disabled'
+import {
+  serializeContentValue,
+  serializeDeepObjectStyle,
+  serializeFormStyle,
+  serializeFormStyleForCookies,
+  serializePipeDelimitedStyle,
+  serializeSimpleStyle,
+  serializeSpaceDelimitedStyle,
+} from '@scalar/core/libs/serialize-parameter'
 import { isDefined } from '@scalar/helpers/array/is-defined'
 import { isObject } from '@scalar/helpers/object/is-object'
 import { replaceEnvVariables } from '@scalar/helpers/regex/replace-variables'
@@ -8,20 +20,6 @@ import {
 } from '@scalar/workspace-store/schemas/extensions/general/x-scalar-cookies'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import type { ParameterObject, ReferenceType } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-
-import { deSerializeParameter } from '@/v2/blocks/operation-block/helpers/de-serialize-parameter'
-import { isParamDisabled } from '@/v2/blocks/request-block/helpers/is-param-disabled'
-
-import { getExample } from './get-example'
-import {
-  serializeContentValue,
-  serializeDeepObjectStyle,
-  serializeFormStyle,
-  serializeFormStyleForCookies,
-  serializePipeDelimitedStyle,
-  serializeSimpleStyle,
-  serializeSpaceDelimitedStyle,
-} from './serialize-parameter'
 
 /** Helper to get explode value with default */
 const getExplode = (param: ParameterObject, defaultValue: boolean): boolean =>

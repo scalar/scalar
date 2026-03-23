@@ -1,5 +1,12 @@
 <script setup lang="ts">
 import { ScalarButton, useLoadingState } from '@scalar/components'
+import type {
+  OAuthFlowAuthorizationCodeSecret,
+  OAuthFlowClientCredentialsSecret,
+  OAuthFlowPasswordSecret,
+  OAuthFlowsObjectSecret,
+  SecuritySchemeObjectSecret,
+} from '@scalar/core/libs/secret-types'
 import { pkceOptions } from '@scalar/oas-utils/entities/spec'
 import { useToasts } from '@scalar/use-toasts'
 import type { SecretsOAuthFlows } from '@scalar/workspace-store/entities/auth'
@@ -20,13 +27,6 @@ import { DataTableRow } from '@/components/DataTable'
 import { getEnvironmentVariables } from '@/v2/blocks/operation-block/helpers/get-environment-variables'
 import OAuthScopesInput from '@/v2/blocks/scalar-auth-selector-block/components/OAuthScopesInput.vue'
 import { authorizeOauth2 } from '@/v2/blocks/scalar-auth-selector-block/helpers/oauth'
-import type {
-  OAuthFlowAuthorizationCodeSecret,
-  OAuthFlowClientCredentialsSecret,
-  OAuthFlowPasswordSecret,
-  OAuthFlowsObjectSecret,
-  SecuritySchemeObjectSecret,
-} from '@/v2/blocks/scalar-auth-selector-block/helpers/secret-types'
 
 import RequestAuthDataTableInput from './RequestAuthDataTableInput.vue'
 

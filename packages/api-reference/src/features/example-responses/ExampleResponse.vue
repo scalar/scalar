@@ -2,7 +2,7 @@
 import {
   getExampleFromSchema,
   getResolvedRefDeep,
-} from '@scalar/api-client/v2/blocks/operation-code-sample'
+} from '@scalar/blocks/operation-code-sample'
 import { ScalarCodeBlock, ScalarVirtualText } from '@scalar/components'
 import { prettyPrintJson } from '@scalar/helpers/json/pretty-print-json'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'

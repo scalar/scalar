@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ScalarMarkdownSummary } from '@scalar/components'
+import type { SecuritySchemeObjectSecret } from '@scalar/core/libs/secret-types'
 import type {
   SecretsApiKey,
   SecretsHttp,
@@ -18,7 +19,6 @@ import type {
 import { capitalize, computed, ref } from 'vue'
 
 import type { MergedSecuritySchemes } from '@/v2/blocks/scalar-auth-selector-block'
-import type { SecuritySchemeObjectSecret } from '@/v2/blocks/scalar-auth-selector-block/helpers/secret-types'
 import { DataTableCell, DataTableRow } from '@/v2/components/data-table'
 
 import OAuth2 from './OAuth2.vue'
