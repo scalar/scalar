@@ -1,7 +1,7 @@
 import type { AvailableClients } from '@scalar/snippetz'
 import { describe, expect, it } from 'vitest'
 
-import type { ClientOption, ClientOptionGroup } from '../types'
+import type { ClientOption, ClientOptionGroup, CustomClientOptionGroup } from '../types'
 import { findClient } from './find-client'
 
 describe('findClient', () => {
@@ -9,6 +9,7 @@ describe('findClient', () => {
   const mockClientGroups: ClientOptionGroup[] = [
     {
       label: 'JavaScript',
+      key: 'js',
       options: [
         {
           id: 'js/fetch',
@@ -41,6 +42,7 @@ describe('findClient', () => {
     },
     {
       label: 'Python',
+      key: 'python',
       options: [
         {
           id: 'python/requests',
@@ -64,6 +66,7 @@ describe('findClient', () => {
     },
     {
       label: 'Shell',
+      key: 'shell',
       options: [
         {
           id: 'shell/curl',
@@ -118,6 +121,7 @@ describe('findClient', () => {
       const singleGroup: ClientOptionGroup[] = [
         {
           label: 'Test',
+          key: 'js',
           options: [
             {
               id: 'js/fetch',
@@ -141,6 +145,7 @@ describe('findClient', () => {
       const singleGroup: ClientOptionGroup[] = [
         {
           label: 'Test',
+          key: 'js',
           options: [
             {
               id: 'js/fetch',
@@ -164,10 +169,12 @@ describe('findClient', () => {
       const groupsWithEmpty: ClientOptionGroup[] = [
         {
           label: 'Empty Group',
+          key: 'js',
           options: [],
         },
         {
           label: 'Valid Group',
+          key: 'js',
           options: [
             {
               id: 'js/fetch',
@@ -191,10 +198,12 @@ describe('findClient', () => {
       const groupsWithEmpty: ClientOptionGroup[] = [
         {
           label: 'Empty Group',
+          key: 'js',
           options: [],
         },
         {
           label: 'Valid Group',
+          key: 'js',
           options: [
             {
               id: 'js/fetch',
@@ -217,9 +226,10 @@ describe('findClient', () => {
 
   describe('custom client handling', () => {
     it('returns first option when first option is custom', () => {
-      const customGroups: ClientOptionGroup[] = [
+      const customGroups: CustomClientOptionGroup[] = [
         {
           label: 'Custom',
+          key: 'custom',
           options: [
             {
               id: 'custom/example',
@@ -254,6 +264,7 @@ describe('findClient', () => {
       const nonCustomGroups: ClientOptionGroup[] = [
         {
           label: 'JavaScript',
+          key: 'js',
           options: [
             {
               id: 'js/fetch',
@@ -277,6 +288,7 @@ describe('findClient', () => {
         },
         {
           label: 'Shell',
+          key: 'shell',
           options: [
             {
               id: 'shell/curl',
@@ -308,6 +320,7 @@ describe('findClient', () => {
       const groupsWithoutDefault: ClientOptionGroup[] = [
         {
           label: 'JavaScript',
+          key: 'js',
           options: [
             {
               id: 'js/fetch',

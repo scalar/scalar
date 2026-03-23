@@ -3,6 +3,7 @@
   setup
   lang="ts"
   generic="O extends Option = Option, G extends OptionGroup<O> = OptionGroup<O>">
+import { filterByOptionLabel } from '@/components/ScalarCombobox/filter-by-option-label'
 import { ScalarIconMagnifyingGlass, ScalarIconPlus } from '@scalar/icons'
 import { computed, onMounted, ref, useId, watch } from 'vue'
 
@@ -12,15 +13,31 @@ import ComboboxOptionGroup from './ScalarComboboxOptionGroup.vue'
 import {
   type ComboboxEmits,
   type ComboboxSlots,
+  type FilterFunction,
   type Option,
   type OptionGroup,
   type OptionsOrGroups,
   isGroups,
 } from './types'
 
-const props = defineProps<{
+const {
+  options: optionsOrGroups,
+  placeholder,
+  filterFn = filterByOptionLabel,
+  multiselect,
+} = defineProps<{
+  /** The options to display in the combobox */
   options: OptionsOrGroups<O, G>
+  /** The placeholder text to display in the combobox */
   placeholder?: string
+  /**
+   * A function to filter the options based on a query,
+   * if not provided, the options will be filtered by option label
+   *
+   * @see {@link FilterFunction} for more information
+   */
+  filterFn?: FilterFunction<O, G>
+  /** Whether the combobox is in multiselect mode, defaults to false */
   multiselect?: boolean
 }>()
 
@@ -45,21 +62,21 @@ function getOptionId(option: Option) {
 
 /** A flat list of all options */
 const options = computed<O[]>(() =>
-  isGroups(props.options)
-    ? props.options.flatMap((group) => group.options)
-    : props.options,
+  isGroups(optionsOrGroups)
+    ? optionsOrGroups.flatMap((group) => group.options)
+    : optionsOrGroups,
 )
 
 /** An list of all groups */
 const groups = computed<G[]>(
   () =>
-    isGroups(props.options)
-      ? props.options // G extends OptionGroup<O>
+    isGroups(optionsOrGroups)
+      ? optionsOrGroups // G extends OptionGroup<O>
       : /*
           We know G is an unextended OptionGroup<O> here because of the
           structure of the component props so we can cast it to G
         */
-        [{ label: '', options: props.options } as G], // G is OptionGroup<O>
+        [{ label: '', options: optionsOrGroups } as G], // G is OptionGroup<O>
 )
 
 const query = ref<string>('')
@@ -97,11 +114,7 @@ watch(
 
 /** The filtered list of options */
 const filtered = computed<O[]>(() =>
-  query.value === ''
-    ? options.value
-    : options.value.filter((option) => {
-        return option.label.toLowerCase().includes(query.value.toLowerCase())
-      }),
+  filterFn(query.value, options.value, groups.value),
 )
 
 /** The list of filtered options with the "Add a new option" option */
@@ -119,7 +132,7 @@ function toggleSelected(option: Option | undefined) {
     return
   }
 
-  if (props.multiselect) {
+  if (multiselect) {
     // Remove from selection list
     if (model.value.some((o) => o.id === option.id)) {
       model.value = model.value.filter((o) => o.id !== option.id)
@@ -188,7 +201,7 @@ onMounted(() => setTimeout(() => input.value?.focus(), 0))
       :aria-controls="id"
       class="min-w-0 flex-1 rounded border-0 py-2.5 pl-8 pr-3 leading-none text-c-1 -outline-offset-1"
       data-1p-ignore
-      :placeholder="placeholder"
+      :placeholder
       role="combobox"
       tabindex="0"
       type="text"

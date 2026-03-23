@@ -49,6 +49,7 @@ export const generateClientOptions = (allowedClients: AvailableClients = AVAILAB
 
       return {
         label: group.title,
+        key: group.key,
         options,
       }
     })

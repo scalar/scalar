@@ -103,6 +103,7 @@ describe('RequestExample', () => {
   const mockClientOptions: ClientOptionGroup[] = [
     {
       label: 'JavaScript',
+      key: 'js',
       options: [
         {
           id: 'js/fetch',
@@ -126,6 +127,7 @@ describe('RequestExample', () => {
     },
     {
       label: 'Python',
+      key: 'python',
       options: [
         {
           id: 'python/requests',
@@ -140,6 +142,7 @@ describe('RequestExample', () => {
     },
     {
       label: 'Shell',
+      key: 'shell',
       options: [
         {
           id: 'shell/curl',
@@ -180,6 +183,7 @@ describe('RequestExample', () => {
       const customClientOptions: ClientOptionGroup[] = [
         {
           label: 'JavaScript',
+          key: 'js',
           options: [
             {
               id: 'js/fetch',
@@ -194,6 +198,7 @@ describe('RequestExample', () => {
         },
         {
           label: 'Python',
+          key: 'python',
           options: [
             {
               id: 'python/requests',
