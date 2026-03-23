@@ -1,4 +1,4 @@
-import { sortByOrder } from '@/helpers/sort-by-order'
+import { sortByOrder } from '@scalar/helpers/array/sort-by-order'
 import { unpackProxyObject } from '@/helpers/unpack-proxy'
 import { getXKeysFromObject } from '@/navigation/helpers/get-x-keys'
 import type { TagsMap, TraverseSpecOptions } from '@/navigation/types'
@@ -137,7 +137,7 @@ const getSortedTagEntries = ({
     return createTagEntry({
       tag,
       generateId,
-      children: sortOrder ? sortByOrder(entries, sortOrder, 'id') : entries,
+      children: sortOrder ? sortByOrder(entries, sortOrder, (item) => item.id) : entries,
       parentId: documentId,
       isGroup: false,
     })
@@ -145,7 +145,7 @@ const getSortedTagEntries = ({
 
   // If a custom 'x-scalar-order' is specified in the tag, sort the entries by this order using sortByOrder
   if (sortOrder) {
-    return sortByOrder(entries, sortOrder, 'id')
+    return sortByOrder(entries, sortOrder, (item) => item.id)
   }
 
   // Alpha sort
