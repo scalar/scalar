@@ -7,15 +7,6 @@ import ApiReference from './ApiReference.vue'
 
 enableAutoUnmount(afterEach)
 
-vi.mock(import('@scalar/use-hooks/useBreakpoints'), (importOriginal) => ({
-  ...importOriginal(),
-  useBreakpoints: () => ({
-    mediaQueries: {
-      lg: { value: true },
-    },
-  }),
-}))
-
 /** Track all mounted wrappers so we can unmount them after each test */
 const locationMock = {
   href: 'http://localhost:3000/',
