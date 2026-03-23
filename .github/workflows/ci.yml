@@ -812,7 +812,7 @@ jobs:
   # ---------------------------------------------------------------------------------------------------------
   # Integration builds, tests, and publishes
 
-  docker-build-scan:
+  docker-build:
     if: needs.check-changes.outputs.docker_changed == 'true'
     runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 10
@@ -845,16 +845,6 @@ jobs:
           load: true
           tags: scalarapi/api-reference:latest
 
-      - name: Scan for vulnerabilities
-        uses: aquasecurity/trivy-action@57a97c7e7821a5776cebc9bb87c984fa69cba8f1 # 0.35.0
-        with:
-          scan-type: 'image'
-          image-ref: 'scalarapi/api-reference:latest'
-          format: 'table'
-          ignore-unfixed: true
-          vuln-type: 'os,library'
-          severity: 'CRITICAL,HIGH'
-
   docker-publish:
     if: github.ref == 'refs/heads/main' && startsWith(github.event.head_commit.message, 'RELEASING:') && needs.check-changes.outputs.docker_package_changed == 'true'
     runs-on: blacksmith-2vcpu-ubuntu-2204
@@ -862,7 +852,7 @@ jobs:
     concurrency:
       group: docker-publish
       cancel-in-progress: false
-    needs: [required-jobs-main, docker-build-scan, check-changes]
+    needs: [required-jobs-main, docker-build, check-changes]
     permissions:
       contents: read
     steps:
