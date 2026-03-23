@@ -1,6 +1,37 @@
 import { isObject } from './helpers/is-object'
 import type { Schema } from './schema'
 
+/**
+ * Validates that a given value matches the specified schema.
+ *
+ * The schema describes the expected structure/type of data.
+ * Supported schema types include:
+ * - 'any':         Accepts any value.
+ * - 'number':      Only numbers are valid.
+ * - 'string':      Only strings are valid.
+ * - 'boolean':     Only booleans are valid.
+ * - 'nullable':    Only `null` is valid.
+ * - 'notDefined':  Only `undefined` is valid.
+ * - 'array':       Array with all items validated recursively.
+ * - 'record':      Object with string/number keys and values, checked recursively.
+ * - 'object':      Object with fixed property keys, each validated recursively.
+ * - 'union':       Accepts if value matches any of the listed schemas.
+ * - 'literal':     Exact match with a literal value.
+ * - 'recursive':   Schema referring to itself for nested validation (e.g. trees).
+ * - 'evaluate':    Transforms value then validates against an inner schema.
+ *
+ * @example
+ * ```ts
+ * import { number, object, string, validate } from '@scalar/validation'
+ *
+ * const schema = object({ id: number(), name: string() })
+ * validate(schema, { id: 1, name: 'Ada' }) // true
+ * validate(schema, { id: 1, name: 2 }) // false
+ * ```
+ *
+ * If schema is `undefined`, validation fails.
+ * Returns true if the value matches the schema, false otherwise.
+ */
 export const validate = (schema: Schema | undefined, value: unknown): boolean => {
   if (!schema) {
     return false

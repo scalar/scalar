@@ -37,6 +37,24 @@ const scoreUnion = (schema: Schema, value: unknown): number => {
   return validate(schema, value) ? 1 : 0
 }
 
+/**
+ * Coerces an unknown value toward the static type implied by `schema`. Values that
+ * pass {@link validate} for that branch are kept; otherwise primitives default to
+ * `0`, `''`, or `false`, and arrays, records, and objects are built recursively.
+ * Unions pick the best-matching branch; `evaluate` runs `expression` before the inner schema.
+ *
+ * @example
+ * ```ts
+ * import { coerce, number, object, string } from '@scalar/validation'
+ *
+ * coerce(number(), 42) // 42
+ * coerce(number(), 'nope') // 0 — invalid number uses default
+ * coerce(object({ id: number(), name: string() }), { id: '1', name: 'Ada' }) // { id: 0, name: 'Ada' }
+ * ```
+ *
+ * The optional `cache` argument tracks visited object–schema pairs to stop infinite recursion
+ * on cyclic graphs; callers normally omit it.
+ */
 export const coerce = <S extends Schema>(
   schema: S,
   value: unknown,
