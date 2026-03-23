@@ -148,7 +148,7 @@ const collisionRowTitle = computed(() => {
               v-if="!props.node.isFolder && props.node.method"
               class="postman-tree-row__method flex w-6 items-center pr-4">
               <HttpMethod
-                class="postman-tree-row__http-method text-[10px] leading-none font-semibold"
+                class="text-[10px] leading-none font-semibold"
                 :method="props.node.method" />
             </div>
             <span
@@ -225,14 +225,5 @@ const collisionRowTitle = computed(() => {
   border-radius: var(--scalar-radius-md, 4px);
   /* Same surface as `.postman-import-path-conflict-callout` — no extra stroke (avoids layout shift and harsh edges in the tree) */
   background-color: var(--scalar-background-danger);
-}
-
-/* Display-only HttpMethod defaults to centered pill; keep it a compact trailing label */
-.postman-tree-row__http-method :deep(> div) {
-  justify-content: flex-end;
-  border-radius: 0;
-  padding: 0;
-  min-height: 0;
-  background: none !important;
 }
 </style>
