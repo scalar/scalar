@@ -52,5 +52,8 @@ export const validate = (schema: Schema | undefined, value: unknown): boolean =>
   if (schema.type === 'evaluate') {
     return validate(schema.schema, schema.expression(value))
   }
+  // We need to assert here that schema has the type never so we know we handle all cases
+  const _exhaustive: never = schema
+  console.warn('Unknown schema type:', _exhaustive)
   return false
 }

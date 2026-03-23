@@ -126,5 +126,9 @@ export const coerce = <S extends Schema>(
   if (schema.type === 'evaluate') {
     return coerce(schema.schema, schema.expression(value), cache)
   }
+
+  // We need to assert here that schema has the type never so we know we handle all cases
+  const _exhaustive: never = schema
+  console.warn('Unknown schema type:', _exhaustive)
   return value as unknown as Static<S>
 }
