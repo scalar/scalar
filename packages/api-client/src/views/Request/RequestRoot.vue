@@ -7,7 +7,6 @@ import { RouterView } from 'vue-router'
 
 import SidebarToggle from '@/components/Sidebar/SidebarToggle.vue'
 import { useLayout } from '@/hooks'
-import { useAnalytics } from '@/hooks/useAnalytics'
 import { useClientConfig } from '@/hooks/useClientConfig'
 import { useSidebar } from '@/hooks/useSidebar'
 import { ERRORS } from '@/libs'
@@ -30,7 +29,6 @@ const { toast } = useToasts()
 const { layout } = useLayout()
 const config = useClientConfig()
 const { isSidebarOpen } = useSidebar()
-const analytics = useAnalytics()
 
 const {
   activeCollection,
@@ -53,7 +51,7 @@ const pluginManager = usePluginManager()
 
 /** Root element (bound in template via ref="_element") */
 const _element = ref<HTMLDivElement>()
-void _element
+void _element.value
 
 const requestAbortController = ref<AbortController>()
 /** Computed Validation State Update on Example Change */
@@ -155,9 +153,7 @@ const cancelRequest = async () =>
   requestAbortController.value?.abort(ERRORS.REQUEST_ABORTED)
 
 /** Subscribed to executeRequest, used for logging / analytics. */
-function logRequest() {
-  analytics?.capture('client-send-request')
-}
+function logRequest() {}
 
 /**
  * Cancel request when closing the modal

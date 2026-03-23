@@ -212,11 +212,6 @@
       "additionalBranchPrefix": "workspace-store"
     },
     {
-      "description": "Packages - Analytics Client",
-      "matchFileNames": ["packages/analytics-client/**"],
-      "additionalBranchPrefix": "analytics-client"
-    },
-    {
       "description": "Packages - OpenAPI Upgrader",
       "matchFileNames": ["packages/openapi-upgrader/**"],
       "additionalBranchPrefix": "openapi-upgrader"

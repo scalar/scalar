@@ -1217,19 +1217,6 @@ importers:
         specifier: catalog:*
         version: 8.0.0(@types/node@24.10.13)(esbuild@0.27.2)(jiti@2.6.1)(terser@5.31.2)(tsx@4.21.0)(yaml@2.8.2)
 
-  packages/analytics-client:
-    dependencies:
-      zod:
-        specifier: catalog:*
-        version: 4.3.5
-    devDependencies:
-      '@types/node':
-        specifier: ^24.1.0
-        version: 24.10.13
-      vite:
-        specifier: catalog:*
-        version: 8.0.0(@types/node@24.10.13)(esbuild@0.27.2)(jiti@2.6.1)(terser@5.31.2)(tsx@4.21.0)(yaml@2.8.2)
-
   packages/api-client:
     dependencies:
       '@headlessui/tailwindcss':
@@ -1238,9 +1225,6 @@ importers:
       '@headlessui/vue':
         specifier: catalog:*
         version: 1.7.23(vue@3.5.26(typescript@5.9.3))
-      '@scalar/analytics-client':
-        specifier: workspace:*
-        version: link:../analytics-client
       '@scalar/components':
         specifier: workspace:*
         version: link:../components
