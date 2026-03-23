@@ -2,12 +2,14 @@ import type {
   AnySchema,
   ArraySchema,
   BooleanSchema,
+  EvaluateSchema,
   LiteralSchema,
   NotDefinedSchema,
   NullableSchema,
   NumberSchema,
   ObjectSchema,
   RecordSchema,
+  RecursiveSchema,
   StringSchema,
   UnionSchema,
 } from './schema'
@@ -40,7 +42,11 @@ type _Static<T, Depth extends number = 10> = Depth extends 0
                       ? { [K in keyof Properties]: _Static<Properties[K], Prev<Depth>> }
                       : T extends UnionSchema<infer Schemas>
                         ? _Static<Schemas[number], Prev<Depth>>
-                        : never
+                        : T extends EvaluateSchema<infer S>
+                          ? _Static<S, Prev<Depth>>
+                          : T extends RecursiveSchema<infer S>
+                            ? _Static<ReturnType<S>, Prev<Depth>>
+                            : never
 
 // Helper type to decrement depth counter
 type Prev<T extends number> = T extends 10

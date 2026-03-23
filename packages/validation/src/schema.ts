@@ -71,7 +71,7 @@ export type RecursiveSchema<S extends () => Schema> = {
  * Schema that runs a coercion or transform (`expression`) on the input, then validates with the inner schema.
  * Use when parsing needs a preprocessing step before the usual rules apply.
  */
-export type EvaluateSchema<S extends () => Schema> = {
+export type EvaluateSchema<S extends Schema> = {
   type: 'evaluate'
   expression: (value: unknown) => unknown
   schema: S
@@ -152,7 +152,7 @@ const recursive = <S extends () => Schema>(schema: S): RecursiveSchema<S> => ({
   schema,
 })
 
-const evaluate = <S extends () => Schema>(expression: (value: unknown) => unknown, schema: S): EvaluateSchema<S> => ({
+const evaluate = <S extends Schema>(expression: (value: unknown) => unknown, schema: S): EvaluateSchema<S> => ({
   type: 'evaluate',
   expression,
   schema,

@@ -1,8 +1,7 @@
 {
   "name": "@scalar/validation",
   "version": "0.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Validation library for Scalar",
   "scripts": {
     "build": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
     "dev": "tsx playground/index.ts",
