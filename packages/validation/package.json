@@ -1,0 +1,19 @@
+{
+  "name": "@scalar/validation",
+  "version": "0.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
+    "dev": "tsx playground/index.ts",
+    "test": "vitest",
+    "types:check": "tsc --noEmit"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "vite": "catalog:*"
+  },
+  "packageManager": "pnpm@10.16.1"
+}
