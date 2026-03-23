@@ -5,7 +5,7 @@ import { getOperationExamples } from '@/helpers/get-operation-examples'
 import { mergeOperations } from '@/helpers/merge-operation'
 import { renameOperationExamples } from '@/helpers/rename-operation-example'
 
-const DEFAULT_EXAMPLE_NAME = 'Default example'
+export const DEFAULT_EXAMPLE_NAME = 'Default example'
 
 export const OPERATION_KEYS: readonly (keyof OpenAPIV3_1.PathItemObject)[] = [
   'get',

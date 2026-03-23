@@ -5,7 +5,7 @@ import { processContact } from '@/helpers/contact'
 import { processExternalDocs } from '@/helpers/external-docs'
 import { processLicense } from '@/helpers/license'
 import { processLogo } from '@/helpers/logo'
-import { OPERATION_KEYS, mergePathItem } from '@/helpers/merge-path-item'
+import { DEFAULT_EXAMPLE_NAME, OPERATION_KEYS, mergePathItem } from '@/helpers/merge-path-item'
 import { processItem } from '@/helpers/path-items'
 import { pruneDocument } from '@/helpers/prune-document'
 import { analyzeServerDistribution } from '@/helpers/servers'
@@ -75,8 +75,6 @@ const validateCollectionShape = (collection: unknown): PostmanCollection => {
 
   return candidate as PostmanCollection
 }
-
-const DEFAULT_EXAMPLE_NAME = 'Default example'
 
 /**
  * Extracts tags from Postman collection folders.

@@ -33,7 +33,7 @@ describe('postman-request-tree', () => {
         item: [
           {
             name: 'Get user',
-            request: { method: 'GET', url: 'https://api.example.com/user' },
+            request: { method: 'get', url: 'https://api.example.com/user' },
           },
         ],
       },
@@ -52,7 +52,7 @@ describe('postman-request-tree', () => {
     })
     expect(tree[1]).toMatchObject({
       isFolder: false,
-      method: 'GET',
+      method: 'get',
       path: [1],
     })
   })
@@ -64,14 +64,14 @@ describe('postman-request-tree', () => {
         item: [
           {
             name: 'Nested',
-            request: { method: 'POST', url: { raw: 'https://x.test/v1/a' } },
+            request: { method: 'post', url: { raw: 'https://x.test/v1/a' } },
           },
         ],
       },
     ]
     expect(getPostmanItemAtIndexPath(items, [0, 0])).toMatchObject({
       name: 'Nested',
-      request: { method: 'POST' },
+      request: { method: 'post' },
     })
     expect(getPostmanItemAtIndexPath(items, [0])).toMatchObject({ name: 'Folder', item: expect.any(Array) })
   })
