@@ -8,13 +8,17 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { ScalarCheckboxInput, ScalarTooltip } from '@scalar/components'
+import {
+  ScalarButton,
+  ScalarCheckboxInput,
+  ScalarIcon,
+  ScalarListbox,
+  ScalarTooltip,
+  type ScalarListboxOption,
+} from '@scalar/components'
+import { computed } from 'vue'
 
-// import type { PostmanImportPreviewState } from '@/v2/features/command-palette/helpers/use-postman-import-preview'
-
-// import PostmanCollectionRequestPicker from './PostmanCollectionRequestPicker.vue'
-
-const { title, version, schema } = defineProps<{
+const props = defineProps<{
   title: string
   version: string
   schema?: string
@@ -32,13 +36,45 @@ const selectedTargetDocument = defineModel<{
   label: string
 } | null>('selectedTargetDocument')
 const mergeSamePathAndMethod = defineModel<boolean>('mergeSamePathAndMethod')
+
+/** Listbox id for "create a new document" — parent model stays `null`. */
+const NEW_DOCUMENT_LISTBOX_ID = '__postman_import_new__'
+
+const importDestinationOptions = computed<ScalarListboxOption[]>(() => [
+  { id: NEW_DOCUMENT_LISTBOX_ID, label: 'New document' },
+  ...props.availableTargetDocuments.map((d) => ({
+    id: d.slug,
+    label: d.label,
+  })),
+])
+
+const resolvedImportDestinationOption = computed((): ScalarListboxOption => {
+  const options = importDestinationOptions.value
+  const fallback = options[0]!
+  const sel = selectedTargetDocument.value
+  if (!sel) {
+    return fallback
+  }
+  return options.find((o) => o.id === sel.slug) ?? fallback
+})
+
+const onImportDestinationChange = (option: ScalarListboxOption): void => {
+  if (option.id === NEW_DOCUMENT_LISTBOX_ID) {
+    selectedTargetDocument.value = null
+    return
+  }
+  selectedTargetDocument.value = {
+    slug: option.id,
+    label: option.label,
+  }
+}
 </script>
 
 <template>
   <div class="flex min-h-0 min-w-0 flex-1 flex-col gap-1.5 overflow-hidden">
     <div class="flex min-h-0 min-w-0 flex-1 flex-col gap-1.5 overflow-hidden">
       <div
-        class="border-border bg-b-2 text-c-2 shrink-0 rounded border px-2.5 py-1.5 text-[11px] leading-tight">
+        class="border-border bg-b-2 text-c-2 min-w-0 shrink-0 rounded border px-2.5 py-1.5 text-[11px] leading-tight">
         <div class="text-c-1 truncate font-medium">
           {{ title }}
         </div>
@@ -68,30 +104,32 @@ const mergeSamePathAndMethod = defineModel<boolean>('mergeSamePathAndMethod')
       </div>
       <div
         v-if="hasCollisionPathKeys"
-        class="postman-import-path-conflict-callout shrink-0 rounded-md border px-2.5 py-1.5 text-[10px] leading-snug break-words">
-        <span class="font-semibold text-[var(--scalar-color-red)]">
-          Conflict
-        </span>
-        <template v-if="selectedTargetDocument">
-          — Same OpenAPI path + method as existing operations in
-          <span class="font-medium">
-            {{ selectedTargetDocument.label }}
+        class="postman-import-path-conflict-callout w-full max-w-full min-w-0 shrink-0 rounded-md border px-2.5 py-1.5 text-[10px] leading-snug">
+        <div class="min-w-0 [overflow-wrap:anywhere] [word-break:break-word]">
+          <span class="font-semibold text-[var(--scalar-color-red)]">
+            Conflict
           </span>
-          .
-          <template v-if="!mergeSamePathAndMethod">
-            These will overwrite existing operations unless
-            <span class="font-medium">Merge same path &amp; method</span>
-            is enabled.
+          <template v-if="selectedTargetDocument">
+            — Same OpenAPI path + method as existing operations in
+            <span class="font-medium">
+              {{ selectedTargetDocument.label }}
+            </span>
+            .
+            <template v-if="!mergeSamePathAndMethod">
+              These will overwrite existing operations unless
+              <span class="font-medium">Merge same path &amp; method</span>
+              is enabled.
+            </template>
+            <template v-else>
+              These will be merged with existing operations.
+            </template>
           </template>
           <template v-else>
-            These will be merged with existing operations.
+            — Same OpenAPI path + method for multiple selected requests. Turn on
+            <span class="font-medium">Merge same path &amp; method</span>
+            to combine them; otherwise the last one wins.
           </template>
-        </template>
-        <template v-else>
-          — Same OpenAPI path + method for multiple selected requests. Turn on
-          <span class="font-medium">Merge same path &amp; method</span>
-          to combine them; otherwise the last one wins.
-        </template>
+        </div>
       </div>
     </div>
     <div class="max-h-[300px] overflow-y-auto">
@@ -99,27 +137,39 @@ const mergeSamePathAndMethod = defineModel<boolean>('mergeSamePathAndMethod')
     </div>
 
     <section
-      class="border-border bg-b-2 flex shrink-0 flex-col gap-2 rounded-md border px-2.5 py-2">
+      class="border-border bg-b-2 flex shrink-0 flex-col gap-3 rounded-md border px-2.5 py-2.5">
       <div
         v-if="availableTargetDocuments.length > 0"
-        class="flex min-w-0 flex-col gap-1">
-        <label
-          class="text-c-2 text-[10px] font-medium tracking-wide uppercase"
-          for="postman-import-target">
-          Import into
-        </label>
-        <select
+        class="border-border flex min-w-0 flex-col gap-2 border-b border-dashed pb-3">
+        <div class="min-w-0">
+          <p class="text-c-1 text-[11px] font-semibold tracking-tight">
+            Import destination
+          </p>
+          <p class="text-c-3 mt-1 text-[10px] leading-snug">
+            Put converted operations into an existing API description, or create
+            a new document in this workspace.
+          </p>
+        </div>
+        <ScalarListbox
           id="postman-import-target"
-          v-model="selectedTargetDocument"
-          class="border-border bg-b-1 text-c-1 focus:ring-c-accent w-full min-w-0 rounded border px-2 py-1.5 text-[11px] outline-none focus:ring-1">
-          <option :value="null">New document</option>
-          <option
-            v-for="row in availableTargetDocuments"
-            :key="row.slug"
-            :value="row">
-            {{ row.label }}
-          </option>
-        </select>
+          label="Import destination"
+          :modelValue="resolvedImportDestinationOption"
+          :options="importDestinationOptions"
+          placement="bottom-start"
+          resize
+          @update:modelValue="onImportDestinationChange">
+          <ScalarButton
+            class="hover:bg-b-2 h-9 w-full min-w-0 justify-between gap-2 px-2.5 py-2 text-left text-[11px]"
+            variant="outlined">
+            <span class="text-c-1 min-w-0 truncate font-medium">
+              {{ resolvedImportDestinationOption.label }}
+            </span>
+            <ScalarIcon
+              class="text-c-3 shrink-0"
+              icon="ChevronDown"
+              size="md" />
+          </ScalarButton>
+        </ScalarListbox>
       </div>
       <ScalarTooltip
         content="When several Postman requests map to the same OpenAPI path and HTTP method, merge them into one operation instead of keeping duplicate operations."

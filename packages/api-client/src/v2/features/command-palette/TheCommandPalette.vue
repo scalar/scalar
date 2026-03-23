@@ -312,7 +312,7 @@ onBeforeUnmount(() => eventBus.off('ui:open:command-palette', onOpen))
   box-shadow: var(--scalar-shadow-2);
   border-radius: var(--scalar-radius-lg);
   background-color: var(--scalar-background-1);
-  max-height: 60dvh;
+  max-height: 80dvh;
   width: 100%;
   max-width: 580px;
   margin: 12px;

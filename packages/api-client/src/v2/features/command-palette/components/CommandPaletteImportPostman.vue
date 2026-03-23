@@ -233,6 +233,6 @@ const handleImport = async (): Promise<void> => {
         </template>
       </PostmanImportPreview>
     </div>
-    <template #submit> Import postman collection </template>
+    <template #submit> Import Postman Collection </template>
   </CommandActionForm>
 </template>
