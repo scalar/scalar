@@ -4,6 +4,8 @@ import {
   any,
   array,
   boolean,
+  evaluate,
+  lazy,
   literal,
   notDefined,
   nullable,
@@ -11,7 +13,6 @@ import {
   object,
   optional,
   record,
-  // recursive,
   string,
   union,
 } from '@/schema'
@@ -680,6 +681,89 @@ describe('notDefined', () => {
   })
   it('Should fail object', () => {
     const value = { a: 1 }
+    const result = validate(T, value)
+    expect(result).toBe(false)
+  })
+  it('Should fail array', () => {
+    const value = [1, 2]
+    const result = validate(T, value)
+    expect(result).toBe(false)
+  })
+  it('Should fail Date', () => {
+    const value = new Date()
+    const result = validate(T, value)
+    expect(result).toBe(false)
+  })
+})
+
+describe('evaluate', () => {
+  const T = evaluate((value) => value, number())
+  it('Should pass number', () => {
+    const value = 1
+    const result = validate(T, value)
+    expect(result).toBe(true)
+  })
+  it('Should fail string', () => {
+    const value = 'hello'
+    const result = validate(T, value)
+    expect(result).toBe(false)
+  })
+  it('Should fail boolean', () => {
+    const value = true
+    const result = validate(T, value)
+    expect(result).toBe(false)
+  })
+  it('Should fail null', () => {
+    const value = null
+    const result = validate(T, value)
+    expect(result).toBe(false)
+  })
+  it('Should fail undefined', () => {
+    const value = undefined
+    const result = validate(T, value)
+    expect(result).toBe(false)
+  })
+  it('Should fail object', () => {
+    const value = { a: 1 }
+    const result = validate(T, value)
+    expect(result).toBe(false)
+  })
+  it('Should fail array', () => {
+    const value = [1, 2]
+    const result = validate(T, value)
+    expect(result).toBe(false)
+  })
+  it('Should fail Date', () => {
+    const value = new Date()
+    const result = validate(T, value)
+    expect(result).toBe(false)
+  })
+})
+
+describe('lazy', () => {
+  const T = lazy(() => object({ x: number() }))
+  it('Should pass object', () => {
+    const value = { x: 1 }
+    const result = validate(T, value)
+    expect(result).toBe(true)
+  })
+  it('Should fail string', () => {
+    const value = 'hello'
+    const result = validate(T, value)
+    expect(result).toBe(false)
+  })
+  it('Should fail boolean', () => {
+    const value = true
+    const result = validate(T, value)
+    expect(result).toBe(false)
+  })
+  it('Should fail null', () => {
+    const value = null
+    const result = validate(T, value)
+    expect(result).toBe(false)
+  })
+  it('Should fail undefined', () => {
+    const value = undefined
     const result = validate(T, value)
     expect(result).toBe(false)
   })
