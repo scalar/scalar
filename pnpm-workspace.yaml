@@ -75,6 +75,7 @@ catalogs:
     neverpanic: 0.0.7
     picomatch: ^4.0.2
     postcss: ^8.4.38
+    radix-vue: ^1.9.17
     react-dom: ^19.2.3
     react: ^19.2.3
     semver: 7.7.2
