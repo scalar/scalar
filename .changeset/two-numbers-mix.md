@@ -8,4 +8,4 @@
 '@scalar/icons': patch
 ---
 
-fix: nested path rewrites.
+fix: type declarations don't use the full path for imports
