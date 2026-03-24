@@ -1,13 +1,10 @@
 <script setup lang="ts">
-import { ScalarIconX } from '@scalar/icons'
-import { defineAsyncComponent } from 'vue'
-
-import '@scalar/agent-chat/style.css'
-
 import { ScalarIconButton } from '@scalar/components'
+import { ScalarIconX } from '@scalar/icons'
 import type { ApiReferenceConfigurationWithSource } from '@scalar/types/api-reference'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
+import { defineAsyncComponent } from 'vue'
 
 import { useAgentContext } from '@/hooks/use-agent'
 
