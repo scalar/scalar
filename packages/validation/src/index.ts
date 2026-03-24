@@ -5,6 +5,7 @@ export {
   array,
   boolean,
   evaluate,
+  lazy as recursive,
   literal,
   notDefined,
   nullable,
@@ -12,7 +13,6 @@ export {
   object,
   optional,
   record,
-  recursive,
   string,
   union,
 } from './schema'

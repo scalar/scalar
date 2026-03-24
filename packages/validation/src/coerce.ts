@@ -29,7 +29,7 @@ const scoreUnion = (schema: Schema, value: unknown): number => {
     return Math.max(...schema.schemas.map((schema) => scoreUnion(schema, value)))
   }
 
-  if (schema.type === 'recursive') {
+  if (schema.type === 'lazy') {
     return scoreUnion(schema.schema(), value)
   }
 
@@ -138,7 +138,7 @@ export const coerce = <S extends Schema>(
   if (schema.type === 'literal') {
     return schema.value
   }
-  if (schema.type === 'recursive') {
+  if (schema.type === 'lazy') {
     return coerce(schema.schema(), value, cache)
   }
   if (schema.type === 'evaluate') {

@@ -35,7 +35,7 @@ export type ArraySchema<Item extends Schema> = {
 }
 
 /** Schema for key-value maps with uniform value shape. Keys are constrained to string or number schemas. */
-export type RecordSchema<Key extends StringSchema | NumberSchema, Value extends Schema> = {
+export type RecordSchema<Key extends StringSchema | NumberSchema | AnySchema, Value extends Schema> = {
   type: 'record'
   key: Key
   value: Value
@@ -60,10 +60,12 @@ export type LiteralSchema<T extends string | number | boolean | bigint> = {
 }
 
 /**
- * Schema for self-referential shapes (trees, linked structures). The factory defers evaluation so recursion is well-founded.
+ * Schema for self-referential or recursive types (such as trees or linked lists).
+ * The `schema` property is a factory function returning a schema instance, allowing
+ * references to itself without causing circular definition errors at type-level.
  */
-export type RecursiveSchema<S extends () => Schema> = {
-  type: 'recursive'
+export type LazySchema<S extends () => Schema> = {
+  type: 'lazy'
   schema: S
 }
 
@@ -89,7 +91,7 @@ export type Schema =
   | ObjectSchema<Record<string, any>>
   | UnionSchema<any[]>
   | LiteralSchema<any>
-  | RecursiveSchema<any>
+  | LazySchema<any>
   | EvaluateSchema<any>
 
 const number = (): NumberSchema => ({
@@ -121,7 +123,7 @@ const array = <Item extends Schema>(items: Item): ArraySchema<Item> => ({
   items,
 })
 
-const record = <Key extends StringSchema | NumberSchema, Value extends Schema>(
+const record = <Key extends StringSchema | AnySchema, Value extends Schema>(
   key: Key,
   value: Value,
 ): RecordSchema<Key, Value> => ({
@@ -147,8 +149,8 @@ const literal = <Value extends string | number | boolean | bigint>(value: Value)
   value,
 })
 
-const recursive = <S extends () => Schema>(schema: S): RecursiveSchema<S> => ({
-  type: 'recursive',
+const lazy = <S extends () => Schema>(schema: S): LazySchema<S> => ({
+  type: 'lazy',
   schema,
 })
 
@@ -171,6 +173,6 @@ export {
   union,
   optional,
   literal,
-  recursive,
+  lazy,
   evaluate,
 }

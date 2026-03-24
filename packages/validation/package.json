@@ -12,7 +12,8 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "vite": "catalog:*"
+    "vite": "catalog:*",
+    "vitest": "catalog:*"
   },
   "packageManager": "pnpm@10.16.1"
 }

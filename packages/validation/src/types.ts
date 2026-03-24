@@ -3,13 +3,13 @@ import type {
   ArraySchema,
   BooleanSchema,
   EvaluateSchema,
+  LazySchema,
   LiteralSchema,
   NotDefinedSchema,
   NullableSchema,
   NumberSchema,
   ObjectSchema,
   RecordSchema,
-  RecursiveSchema,
   StringSchema,
   UnionSchema,
 } from './schema'
@@ -44,7 +44,7 @@ type _Static<T, Depth extends number = 10> = Depth extends 0
                         ? _Static<Schemas[number], Prev<Depth>>
                         : T extends EvaluateSchema<infer S>
                           ? _Static<S, Prev<Depth>>
-                          : T extends RecursiveSchema<infer S>
+                          : T extends LazySchema<infer S>
                             ? _Static<ReturnType<S>, Prev<Depth>>
                             : never
 

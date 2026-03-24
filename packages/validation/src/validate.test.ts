@@ -1,0 +1,696 @@
+import { describe, expect, it } from 'vitest'
+
+import {
+  any,
+  array,
+  boolean,
+  literal,
+  notDefined,
+  nullable,
+  number,
+  object,
+  optional,
+  record,
+  // recursive,
+  string,
+  union,
+} from '@/schema'
+import { validate } from '@/validate'
+
+describe('any', () => {
+  const T = any()
+  it('Should pass string', () => {
+    const value = 'hello'
+    const result = validate(T, value)
+    expect(result).toBe(true)
+  })
+  it('Should pass number', () => {
+    const value = 1
+    const result = validate(T, value)
+    expect(result).toBe(true)
+  })
+  it('Should pass boolean', () => {
+    const value = true
+    const result = validate(T, value)
+    expect(result).toBe(true)
+  })
+  it('Should pass null', () => {
+    const value = null
+    const result = validate(T, value)
+    expect(result).toBe(true)
+  })
+  it('Should pass undefined', () => {
+    const value = undefined
+    const result = validate(T, value)
+    expect(result).toBe(true)
+  })
+  it('Should pass object', () => {
+    const value = { a: 1 }
+    const result = validate(T, value)
+    expect(result).toBe(true)
+  })
+  it('Should pass array', () => {
+    const value = [1, 2]
+    const result = validate(T, value)
+    expect(result).toBe(true)
+  })
+  it('Should pass Date', () => {
+    const value = new Date()
+    const result = validate(T, value)
+    expect(result).toBe(true)
+  })
+})
+
+describe('array', () => {
+  it('Should pass number array', () => {
+    const T = array(number())
+    const value = [1, 2, 3]
+    const result = validate(T, value)
+    expect(result).toBe(true)
+  })
+  it('Should fail number array', () => {
+    const T = array(number())
+    const value = ['a', 'b', 'c']
+    const result = validate(T, value)
+    expect(result).toBe(false)
+  })
+  it('Should pass object array', () => {
+    const T = array(object({ x: number() }))
+    const value = [{ x: 1 }, { x: 1 }, { x: 1 }]
+    const result = validate(T, value)
+    expect(result).toBe(true)
+  })
+  it('Should fail object array', () => {
+    const T = array(object({ x: number() }))
+    const value = [{ x: 1 }, { x: 1 }, 1]
+    const result = validate(T, value)
+    expect(result).toBe(false)
+  })
+  it('Should fail Date', () => {
+    const value = new Date()
+    const result = validate(array(any()), value)
+    expect(result).toBe(false)
+  })
+})
+
+describe('boolean', () => {
+  const T = boolean()
+  it('Should fail string', () => {
+    const value = 'hello'
+    const result = validate(T, value)
+    expect(result).toBe(false)
+  })
+  it('Should fail number', () => {
+    const value = 1
+    const result = validate(T, value)
+    expect(result).toBe(false)
+  })
+  it('Should pass boolean', () => {
+    const value = true
+    const result = validate(T, value)
+    expect(result).toBe(true)
+  })
+  it('Should fail null', () => {
+    const value = null
+    const result = validate(T, value)
+    expect(result).toBe(false)
+  })
+  it('Should fail undefined', () => {
+    const value = undefined
+    const result = validate(T, value)
+    expect(result).toBe(false)
+  })
+  it('Should fail object', () => {
+    const value = { a: 1 }
+    const result = validate(T, value)
+    expect(result).toBe(false)
+  })
+  it('Should fail array', () => {
+    const value = [1, 2]
+    const result = validate(T, value)
+    expect(result).toBe(false)
+  })
+  it('Should fail Date', () => {
+    const value = new Date()
+    const result = validate(T, value)
+    expect(result).toBe(false)
+  })
+})
+
+describe('literal', () => {
+  const T = literal('hello')
+  it('Should pass literal', () => {
+    const value = 'hello'
+    const result = validate(T, value)
+    expect(result).toBe(true)
+  })
+  it('Should fail literal', () => {
+    const value = 1
+    const result = validate(T, value)
+    expect(result).toBe(false)
+  })
+  it('Should fail literal with undefined', () => {
+    const value = undefined
+    const result = validate(T, value)
+    expect(result).toBe(false)
+  })
+  it('Should fail literal with null', () => {
+    const value = null
+    const result = validate(T, value)
+    expect(result).toBe(false)
+  })
+})
+
+describe('null', () => {
+  const T = nullable()
+  it('Should fail string', () => {
+    const value = 'hello'
+    const result = validate(T, value)
+    expect(result).toBe(false)
+  })
+  it('Should fail number', () => {
+    const value = 1
+    const result = validate(T, value)
+    expect(result).toBe(false)
+  })
+  it('Should fail boolean', () => {
+    const value = true
+    const result = validate(T, value)
+    expect(result).toBe(false)
+  })
+  it('Should pass null', () => {
+    const value = null
+    const result = validate(T, value)
+    expect(result).toBe(true)
+  })
+  it('Should fail undefined', () => {
+    const value = undefined
+    const result = validate(T, value)
+    expect(result).toBe(false)
+  })
+  it('Should fail object', () => {
+    const value = { a: 1 }
+    const result = validate(T, value)
+    expect(result).toBe(false)
+  })
+  it('Should fail array', () => {
+    const value = [1, 2]
+    const result = validate(T, value)
+    expect(result).toBe(false)
+  })
+  it('Should fail Date', () => {
+    const value = new Date()
+    const result = validate(T, value)
+    expect(result).toBe(false)
+  })
+})
+
+describe('number', () => {
+  const T = number()
+  it('Should not validate NaN', () => {
+    const result = validate(T, Number.NaN)
+    expect(result).toBe(false)
+  })
+  it('Should not validate +Infinity', () => {
+    const result = validate(T, Number.POSITIVE_INFINITY)
+    expect(result).toBe(false)
+  })
+  it('Should not validate -Infinity', () => {
+    const result = validate(T, Number.NEGATIVE_INFINITY)
+    expect(result).toBe(false)
+  })
+  it('Should fail string', () => {
+    const value = 'hello'
+    const result = validate(T, value)
+    expect(result).toBe(false)
+  })
+  it('Should pass number', () => {
+    const value = 1
+    const result = validate(T, value)
+    expect(result).toBe(true)
+  })
+  it('Should fail boolean', () => {
+    const value = true
+    const result = validate(T, value)
+    expect(result).toBe(false)
+  })
+  it('Should fail null', () => {
+    const value = null
+    const result = validate(T, value)
+    expect(result).toBe(false)
+  })
+  it('Should fail undefined', () => {
+    const value = undefined
+    const result = validate(T, value)
+    expect(result).toBe(false)
+  })
+  it('Should fail object', () => {
+    const value = { a: 1 }
+    const result = validate(T, value)
+    expect(result).toBe(false)
+  })
+  it('Should fail array', () => {
+    const value = [1, 2]
+    const result = validate(T, value)
+    expect(result).toBe(false)
+  })
+  it('Should fail Date', () => {
+    const value = new Date()
+    const result = validate(T, value)
+    expect(result).toBe(false)
+  })
+
+  it('Should fail NaN', () => {
+    const result = validate(T, Number.NaN)
+    expect(result).toBe(false)
+  })
+})
+
+describe('object', () => {
+  const T = object({
+    x: number(),
+    y: number(),
+    z: number(),
+    a: string(),
+    b: string(),
+    c: string(),
+  })
+  it('Should pass object', () => {
+    const value = {
+      x: 1,
+      y: 1,
+      z: 1,
+      a: '1',
+      b: '1',
+      c: '1',
+    }
+    const result = validate(T, value)
+    expect(result).toBe(true)
+  })
+
+  it('Should fail object with invalid property', () => {
+    const value = {
+      x: true,
+      y: 1,
+      z: 1,
+      a: '1',
+      b: '1',
+      c: '1',
+    }
+    const result = validate(T, value)
+    expect(result).toBe(false)
+  })
+  it('Should fail object with missing property', () => {
+    const value = {
+      y: 1,
+      z: 1,
+      a: '1',
+      b: '1',
+      c: '1',
+    }
+    const result = validate(T, value)
+    expect(result).toBe(false)
+  })
+  it('Should pass object with optional properties', () => {
+    const T = object({
+      x: optional(number()),
+      y: optional(number()),
+      z: optional(number()),
+      a: string(),
+      b: string(),
+      c: string(),
+    })
+    const value = {
+      a: '1',
+      b: '1',
+      c: '1',
+    }
+    const result = validate(T, value)
+    expect(result).toBe(true)
+  })
+  it('Should fail object with null', () => {
+    const value = null
+    const result = validate(T, value)
+    expect(result).toBe(false)
+  })
+  it('Should fail object with undefined', () => {
+    const value = undefined
+    const result = validate(T, value)
+    expect(result).toBe(false)
+  })
+
+  it('Should check for property key if property type is undefined', () => {
+    const T = object({ x: notDefined() })
+    expect(validate(T, { x: undefined })).toBe(true)
+    expect(validate(T, {})).toBe(true)
+  })
+  it('Should check for property key if property type extends undefined', () => {
+    const T = object({ x: union([number(), notDefined()]) })
+    expect(validate(T, { x: 1 })).toBe(true)
+    expect(validate(T, { x: undefined })).toBe(true)
+    expect(validate(T, {})).toBe(true)
+  })
+  it('Should not check for property key if property type is undefined and optional', () => {
+    const T = object({ x: optional(notDefined()) })
+    expect(validate(T, { x: undefined })).toBe(true)
+    expect(validate(T, {})).toBe(true)
+  })
+  it('Should not check for property key if property type extends undefined and optional', () => {
+    const T = object({ x: optional(union([number(), notDefined()])) })
+    expect(validate(T, { x: 1 })).toBe(true)
+    expect(validate(T, { x: undefined })).toBe(true)
+    expect(validate(T, {})).toBe(true)
+  })
+  it('Should check undefined for optional property of number', () => {
+    const T = object({ x: optional(number()) })
+    expect(validate(T, { x: 1 })).toBe(true)
+    expect(validate(T, { x: undefined })).toBe(true) // allowed by default
+    expect(validate(T, {})).toBe(true)
+  })
+  it('Should check undefined for optional property of undefined', () => {
+    const T = object({ x: optional(notDefined()) })
+    expect(validate(T, { x: 1 })).toBe(false)
+    expect(validate(T, {})).toBe(true)
+    expect(validate(T, { x: undefined })).toBe(true)
+  })
+})
+
+describe('record', () => {
+  it('Should pass record', () => {
+    const T = record(
+      string(),
+      object({
+        x: number(),
+        y: number(),
+        z: number(),
+      }),
+    )
+    const value = {
+      position: {
+        x: 1,
+        y: 2,
+        z: 3,
+      },
+    }
+    const result = validate(T, value)
+    expect(result).toBe(true)
+  })
+  it('Should fail record with Date', () => {
+    const T = record(string(), string())
+    const result = validate(T, new Date())
+    expect(result).toBe(false)
+  })
+  it('Should fail record with Uint8Array', () => {
+    const T = record(string(), string())
+    const result = validate(T, new Uint8Array())
+    expect(result).toBe(false)
+  })
+  it('Should fail record with missing property', () => {
+    const T = record(
+      string(),
+      object({
+        x: number(),
+        y: number(),
+        z: number(),
+      }),
+    )
+    const value = {
+      position: {
+        x: 1,
+        y: 2,
+      },
+    }
+    const result = validate(T, value)
+    expect(result).toBe(false)
+  })
+  it('Should fail record with invalid property', () => {
+    const T = record(
+      string(),
+      object({
+        x: number(),
+        y: number(),
+        z: number(),
+      }),
+    )
+    const value = {
+      position: {
+        x: 1,
+        y: 2,
+        z: '3',
+      },
+    }
+    const result = validate(T, value)
+    expect(result).toBe(false)
+  })
+  it('Should pass record with optional property', () => {
+    const T = record(
+      string(),
+      object({
+        x: number(),
+        y: number(),
+        z: optional(number()),
+      }),
+    )
+    const value = {
+      position: {
+        x: 1,
+        y: 2,
+      },
+    }
+    const result = validate(T, value)
+    expect(result).toBe(true)
+  })
+  it('Should pass record with optional property', () => {
+    const T = record(
+      string(),
+      object({
+        x: number(),
+        y: number(),
+        z: optional(number()),
+      }),
+    )
+    const value = {
+      position: {
+        x: 1,
+        y: 2,
+      },
+    }
+    const result = validate(T, value)
+    expect(result).toBe(true)
+  })
+
+  it('Should validate for any keys', () => {
+    const T = record(any(), nullable())
+    const R = validate(T, {
+      a: null,
+      b: null,
+      0: null,
+      1: null,
+    })
+    expect(R).toBe(true)
+  })
+
+  // TODO: implement this
+  it.skip('Should pass record with number key', () => {
+    // @ts-expect-error - number key is not supported yet
+    const T = record(number(), string())
+    const value = {
+      0: 'a',
+      1: 'a',
+      2: 'a',
+    }
+    const result = validate(T, value)
+    expect(result).toBe(true)
+  })
+
+  it.skip('Should not pass record with invalid number key', () => {
+    // @ts-expect-error - number key is not supported yet
+    const T = record(number(), string())
+    const value = {
+      a: 'a',
+      1: 'a',
+      2: 'a',
+    }
+    const result = validate(T, value)
+    expect(result).toBe(false)
+  })
+
+  it.skip('Should validate for number keys', () => {
+    // @ts-expect-error - number key is not supported yet
+    const T = record(number(), nullable())
+    const R1 = validate(T, {
+      a: null,
+      b: null,
+      0: null,
+      1: null,
+    })
+    const R2 = validate(T, {
+      0: null,
+      1: null,
+    })
+    expect(R1).toBe(false)
+    expect(R2).toBe(true)
+  })
+})
+
+describe('string', () => {
+  const T = string()
+  it('Should pass string', () => {
+    const value = 'hello'
+    const result = validate(T, value)
+    expect(result).toBe(true)
+  })
+  it('Should fail number', () => {
+    const value = 1
+    const result = validate(T, value)
+    expect(result).toBe(false)
+  })
+  it('Should fail boolean', () => {
+    const value = true
+    const result = validate(T, value)
+    expect(result).toBe(false)
+  })
+  it('Should fail null', () => {
+    const value = null
+    const result = validate(T, value)
+    expect(result).toBe(false)
+  })
+  it('Should fail undefined', () => {
+    const value = undefined
+    const result = validate(T, value)
+    expect(result).toBe(false)
+  })
+  it('Should fail object', () => {
+    const value = { a: 1 }
+    const result = validate(T, value)
+    expect(result).toBe(false)
+  })
+  it('Should fail array', () => {
+    const value = [1, 2]
+    const result = validate(T, value)
+    expect(result).toBe(false)
+  })
+  it('Should fail Date', () => {
+    const value = new Date()
+    const result = validate(T, value)
+    expect(result).toBe(false)
+  })
+})
+
+describe('union', () => {
+  const A = object({
+    type: literal('A'),
+    x: number(),
+    y: number(),
+  })
+
+  const B = object({
+    type: literal('B'),
+    x: boolean(),
+    y: boolean(),
+  })
+
+  const T = union([A, B])
+
+  it('Should pass union A', () => {
+    const value = { type: 'A', x: 1, y: 1 }
+    const result = validate(T, value)
+    expect(result).toBe(true)
+  })
+
+  it('Should pass union B', () => {
+    const value = { type: 'B', x: true, y: false }
+    const result = validate(T, value)
+    expect(result).toBe(true)
+  })
+
+  it('Should fail union A', () => {
+    const value = { type: 'A', x: true, y: false }
+    const result = validate(T, value)
+    expect(result).toBe(false)
+  })
+
+  it('Should fail union B', () => {
+    const value = { type: 'B', x: 1, y: 1 }
+    const result = validate(T, value)
+    expect(result).toBe(false)
+  })
+
+  it('Should pass union A with optional properties', () => {
+    const A = object({
+      type: literal('A'),
+      x: optional(number()),
+      y: optional(number()),
+    })
+    const B = object({
+      type: literal('B'),
+      x: boolean(),
+      y: boolean(),
+    })
+    const T = union([A, B])
+    const value = { type: 'A' }
+    const result = validate(T, value)
+    expect(result).toBe(true)
+  })
+
+  it('Should fail union A with invalid optional properties', () => {
+    const A = object({
+      type: literal('A'),
+      x: optional(number()),
+      y: optional(number()),
+    })
+    const B = object({
+      type: literal('B'),
+      x: boolean(),
+      y: boolean(),
+    })
+    const T = union([A, B])
+    const value = { type: 'A', x: true, y: false }
+    const result = validate(T, value)
+    expect(result).toBe(false)
+  })
+})
+
+describe('notDefined', () => {
+  const T = notDefined()
+  it('Should fail string', () => {
+    const value = 'hello'
+    const result = validate(T, value)
+    expect(result).toBe(false)
+  })
+  it('Should fail number', () => {
+    const value = 1
+    const result = validate(T, value)
+    expect(result).toBe(false)
+  })
+  it('Should fail boolean', () => {
+    const value = true
+    const result = validate(T, value)
+    expect(result).toBe(false)
+  })
+  it('Should fail null', () => {
+    const value = null
+    const result = validate(T, value)
+    expect(result).toBe(false)
+  })
+  it('Should pass undefined', () => {
+    const value = undefined
+    const result = validate(T, value)
+    expect(result).toBe(true)
+  })
+  it('Should fail object', () => {
+    const value = { a: 1 }
+    const result = validate(T, value)
+    expect(result).toBe(false)
+  })
+  it('Should fail array', () => {
+    const value = [1, 2]
+    const result = validate(T, value)
+    expect(result).toBe(false)
+  })
+  it('Should fail Date', () => {
+    const value = new Date()
+    const result = validate(T, value)
+    expect(result).toBe(false)
+  })
+})

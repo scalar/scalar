@@ -40,7 +40,7 @@ export const validate = (schema: Schema | undefined, value: unknown): boolean =>
     return true
   }
   if (schema.type === 'number') {
-    return typeof value === 'number'
+    return typeof value === 'number' && !Number.isNaN(value) && Number.isFinite(value)
   }
   if (schema.type === 'string') {
     return typeof value === 'string'
@@ -61,6 +61,7 @@ export const validate = (schema: Schema | undefined, value: unknown): boolean =>
     if (!isObject(value)) {
       return false
     }
+
     const keys = Object.keys(value)
     return keys.every((key) => validate(schema.key, key) && validate(schema.value, value[key]))
   }
@@ -77,7 +78,7 @@ export const validate = (schema: Schema | undefined, value: unknown): boolean =>
   if (schema.type === 'literal') {
     return value === schema.value
   }
-  if (schema.type === 'recursive') {
+  if (schema.type === 'lazy') {
     return validate(schema.schema(), value)
   }
   if (schema.type === 'evaluate') {
