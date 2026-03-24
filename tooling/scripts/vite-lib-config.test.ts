@@ -50,6 +50,18 @@ describe('createPreserveModulesOutput', () => {
   it('handles query strings without a type parameter', () => {
     expect(getEntryFileName('Foo.vue?vue&lang')).toBe('Foo_vue-virtual.js')
   })
+
+  it('produces distinct names for multiple style blocks', () => {
+    const style0 = getEntryFileName('Foo.vue?vue&type=style&index=0&lang.css')
+    const style1 = getEntryFileName('Foo.vue?vue&type=style&index=1&lang.css')
+    expect(style0).toBe('Foo_vue-style.js')
+    expect(style1).toBe('Foo_vue-style1.js')
+    expect(style0).not.toBe(style1)
+  })
+
+  it('omits index suffix for index=0 to keep names stable', () => {
+    expect(getEntryFileName('Foo.vue?vue&type=script&setup=true&index=0&lang')).toBe('Foo_vue-script.js')
+  })
 })
 
 describe('createExternalsFromPackageJson', () => {
