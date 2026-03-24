@@ -199,31 +199,9 @@ export default tslint.config(
     },
   },
   {
-    files: ['services/helios/**'],
-    languageOptions: {
-      globals: {
-        useFetch: 'readonly',
-        useRoute: 'readonly',
-        useRouter: 'readonly',
-        useState: 'readonly',
-        defineNuxtConfig: 'readonly',
-        definePageMeta: 'readonly',
-        useRuntimeConfig: 'readonly',
-        $fetch: 'readonly',
-        useAsyncData: 'readonly',
-      },
-    },
+    files: ['packages/api-client/src/v2/features/settings/CollectionSettings.vue'],
     rules: {
-      'vue/no-undef-components': 'off',
+      'vue/html-closing-bracket-newline': 'off',
     },
   },
-  {
-    files: ['projects/static-docs/**'],
-    languageOptions: {
-      globals: {
-        __STATIC_DATA__: 'readonly',
-      },
-    },
-  },
-  // prettier,
 )
