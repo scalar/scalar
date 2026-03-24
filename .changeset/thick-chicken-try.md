@@ -2,4 +2,4 @@
 '@scalar/api-client': patch
 ---
 
-Add telemetry option
+feat: add telemetry toggle
