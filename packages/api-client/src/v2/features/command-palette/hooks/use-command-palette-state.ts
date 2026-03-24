@@ -28,6 +28,7 @@ import type { RouteLocationRaw } from 'vue-router'
 import CommandPaletteExample from '../components/CommandPaletteExample.vue'
 import CommandPaletteImport from '../components/CommandPaletteImport.vue'
 import CommandPaletteImportCurl from '../components/CommandPaletteImportCurl.vue'
+import CommandPaletteImportPostman from '../components/CommandPaletteImportPostman.vue'
 import CommandPaletteOpenApiDocument from '../components/CommandPaletteOpenApiDocument.vue'
 import CommandPaletteRequest from '../components/CommandPaletteRequest.vue'
 import CommandPaletteTag from '../components/CommandPaletteTag.vue'
@@ -131,7 +132,7 @@ export type CommandPaletteState = {
  * palette.open('create-openapi-document')
  *
  * // Open with command props
- * palette.open('import-curl-command', { curl: 'curl https://api.example.com' })
+ * palette.open('import-curl-command', { inputValue: 'curl https://api.example.com' })
  *
  * // Update filter query (automatically filters commands)
  * palette.setFilterQuery('import')
@@ -290,9 +291,16 @@ export const baseRoutes: CommandPaletteRoute[] = [
 export const baseClientActions = [
   {
     id: 'import-from-openapi-swagger-postman-curl',
-    name: 'Import from OpenAPI/Swagger/Postman/cURL',
+    name: 'Import from OpenAPI/Swagger/cURL',
     component: CommandPaletteImport,
     icon: ScalarIconArrowSquareIn,
+  },
+  {
+    id: 'import-postman-collection',
+    name: 'Import Postman Collection',
+    component: CommandPaletteImportPostman,
+    icon: ScalarIconArrowSquareIn,
+    hidden: true,
   },
   {
     id: 'create-openapi-document',

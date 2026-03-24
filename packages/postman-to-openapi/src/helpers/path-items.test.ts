@@ -16,7 +16,7 @@ describe('path-items', () => {
       },
     }
 
-    const result = processItem(item)
+    const result = processItem(item, 'default')
 
     expect(result.paths['/users/123']).toBeDefined()
     expect(result.paths['/users/123']?.get).toBeDefined()
@@ -195,7 +195,7 @@ describe('path-items', () => {
       },
     }
 
-    const result = processItem(item)
+    const result = processItem(item, 'default')
 
     // The path key uses the non-normalized path
     const pathKey = Object.keys(result.paths)[0]
@@ -206,7 +206,12 @@ describe('path-items', () => {
       in: 'path',
       required: true,
       description: undefined,
-      example: '123',
+      examples: {
+        default: {
+          value: '123',
+          'x-disabled': false,
+        },
+      },
       schema: {
         type: 'string',
       },
@@ -461,11 +466,12 @@ describe('path-items', () => {
       },
     }
 
-    const result = processItem(item)
+    const result = processItem(item, 'default')
 
     expect(result.paths['/bedrock']?.get?.requestBody).toBeDefined()
     expect(result.paths['/bedrock']?.get?.requestBody?.content?.['application/json']).toBeDefined()
-    const example = result.paths['/bedrock']?.get?.requestBody?.content?.['application/json']?.schema?.example as any
+    const example = result.paths['/bedrock']?.get?.requestBody?.content?.['application/json']?.examples?.default
+      ?.value as any
     expect(example?.data?.modelId).toBe('mistral.mistral-7b-instruct-v0:2')
   })
 

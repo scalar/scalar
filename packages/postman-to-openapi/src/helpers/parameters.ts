@@ -8,7 +8,7 @@ import { inferSchemaType } from './schemas'
  * Extracts parameters from a Postman request and converts them to OpenAPI parameter objects.
  * Processes query, path, and header parameters from the request URL and headers.
  */
-export function extractParameters(request: Request): OpenAPIV3_1.ParameterObject[] {
+export function extractParameters(request: Request, exampleName: string): OpenAPIV3_1.ParameterObject[] {
   const parameters: OpenAPIV3_1.ParameterObject[] = []
   const parameterMap: Map<string, OpenAPIV3_1.ParameterObject> = new Map()
 
@@ -21,7 +21,7 @@ export function extractParameters(request: Request): OpenAPIV3_1.ParameterObject
   // Process query parameters
   if (url.query) {
     url.query.forEach((param) => {
-      const paramObj = createParameterObject(param, 'query')
+      const paramObj = createParameterObject(param, 'query', exampleName)
       if (paramObj.name) {
         parameterMap.set(paramObj.name, paramObj)
       }
@@ -31,7 +31,7 @@ export function extractParameters(request: Request): OpenAPIV3_1.ParameterObject
   // Process path parameters
   if (url.variable) {
     url.variable.forEach((param) => {
-      const paramObj = createParameterObject(param, 'path')
+      const paramObj = createParameterObject(param, 'path', exampleName)
       if (paramObj.name) {
         parameterMap.set(paramObj.name, paramObj)
       }
@@ -59,7 +59,7 @@ export function extractParameters(request: Request): OpenAPIV3_1.ParameterObject
   // Process header parameters
   if (request.header && Array.isArray(request.header)) {
     request.header.forEach((header: Header) => {
-      const paramObj = createParameterObject(header, 'header')
+      const paramObj = createParameterObject(header, 'header', exampleName)
       if (paramObj.name) {
         parameterMap.set(paramObj.name, paramObj)
       }
@@ -90,11 +90,21 @@ function extractPathVariablesFromPathArray(pathArray: (string | { type: string; 
 /**
  * Creates an OpenAPI parameter object from a Postman parameter.
  */
-export function createParameterObject(param: any, paramIn: 'query' | 'path' | 'header'): OpenAPIV3_1.ParameterObject {
+export function createParameterObject(
+  param: any,
+  paramIn: 'query' | 'path' | 'header',
+  exampleName: string,
+): OpenAPIV3_1.ParameterObject {
   const parameter: OpenAPIV3_1.ParameterObject = {
     name: param.key || '',
     in: paramIn,
     description: param.description,
+    examples: {
+      [exampleName]: {
+        value: param.value,
+        'x-disabled': !!param.disabled,
+      },
+    },
   }
 
   // Path parameters are always required in OpenAPI
@@ -115,7 +125,6 @@ export function createParameterObject(param: any, paramIn: 'query' | 'path' | 'h
   }
 
   if (param.value !== undefined) {
-    parameter.example = param.value
     // For path parameters, prefer string type unless value is explicitly a number type
     // This prevents converting string IDs like "testId" to integers
     if (paramIn === 'path') {
