@@ -16,7 +16,7 @@ const { agentScalarConfiguration, workspaceStore, prefilledMessage } =
 
 <template>
   <Chat
-    :baseUrl="API_BASE_URL"
+    :baseUrl="agentScalarConfiguration?.apiBaseUrl ?? API_BASE_URL"
     :dashboardUrl="DASHBOARD_URL"
     :getActiveDocumentJson="() => workspaceStore.exportActiveDocument('json')!"
     :getAgentKey="
