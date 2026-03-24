@@ -1,5 +1,15 @@
 # @scalar/workspace-store
 
+## 0.41.0
+
+### Minor Changes
+
+- [#8511](https://github.com/scalar/scalar/pull/8511): feat: import postman collection custom ui
+
+### Patch Changes
+
+- [#8556](https://github.com/scalar/scalar/pull/8556): feat: inline sortByOrder and remove @scalar/object-utils dep
+
 ## 0.40.4
 
 ### Patch Changes

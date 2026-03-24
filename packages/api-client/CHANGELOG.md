@@ -1,5 +1,19 @@
 # @scalar/api-client
 
+## 2.39.0
+
+### Minor Changes
+
+- [#8511](https://github.com/scalar/scalar/pull/8511): feat: import postman collection custom ui
+
+### Patch Changes
+
+- [#8564](https://github.com/scalar/scalar/pull/8564): refactor: move context menu to api client
+- [#8480](https://github.com/scalar/scalar/pull/8480): remove the direct `@scalar/openapi-parser` dependency from `@scalar/api-client` and reuse existing shared normalization and ref-resolution helpers
+- [#8526](https://github.com/scalar/scalar/pull/8526): feat: improve filtering of client selector
+- [#8554](https://github.com/scalar/scalar/pull/8554): feat: add telemetry toggle
+- [#8563](https://github.com/scalar/scalar/pull/8563): fix: type declarations don't use the full path for imports
+
 ## 2.38.4
 
 ### Patch Changes

@@ -1,5 +1,14 @@
 # @scalar/api-reference
 
+## 1.49.4
+
+### Patch Changes
+
+- [#8513](https://github.com/scalar/scalar/pull/8513): fix(api-reference): make responsive header rendering SSR-safe
+- [#8526](https://github.com/scalar/scalar/pull/8526): feat: improve filtering of client selector
+- [#8571](https://github.com/scalar/scalar/pull/8571): fix: [ERR_UNKNOWN_FILE_EXTENSION]: Unknown file extension ".css" for
+- [#8563](https://github.com/scalar/scalar/pull/8563): fix: type declarations don't use the full path for imports
+
 ## 1.49.3
 
 ### Patch Changes
