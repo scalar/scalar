@@ -28,6 +28,8 @@
 **/.vite-ssg-temp/**
 **/vite.config.ts.timestamp-*.mjs
 
+*.mjs
+
 fixtures
 node_modules
 playwright-report
