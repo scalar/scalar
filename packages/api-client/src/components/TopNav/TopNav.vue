@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import {
-  ScalarContextMenu,
   ScalarDropdownButton,
   ScalarDropdownMenu,
   ScalarFloating,
@@ -18,6 +17,7 @@ import { ROUTES } from '@/constants'
 import type { HotKeyEvent } from '@/libs'
 import { useWorkspace } from '@/store'
 import { useActiveEntities } from '@/store/active-entities'
+import { ContextMenu } from '@/v2/components/context-menu'
 
 import TopNavItem from './TopNavItem.vue'
 
@@ -216,7 +216,7 @@ onBeforeUnmount(() => events.hotKeys.off(handleHotKey))
       class="relative flex h-10 flex-1 items-center gap-1.5 overflow-hidden pr-2.5 text-base font-medium">
       <template v-if="topNavItems.length === 1">
         <div class="h-full w-full overflow-hidden">
-          <ScalarContextMenu
+          <ContextMenu
             triggerClass="flex custom-scroll gap-1.5 h-full items-center justify-center w-full whitespace-nowrap">
             <template #trigger>
               <LibraryIcon
@@ -259,7 +259,7 @@ onBeforeUnmount(() => events.hotKeys.off(handleHotKey))
                 </template>
               </ScalarFloating>
             </template>
-          </ScalarContextMenu>
+          </ContextMenu>
         </div>
       </template>
       <template v-else>

@@ -10,7 +10,7 @@
     "url": "git+https://github.com/scalar/scalar.git",
     "directory": "packages/components"
   },
-  "version": "0.20.12",
+  "version": "0.21.0",
   "engines": {
     "node": ">=22"
   },
@@ -56,7 +56,7 @@
     "cva": "1.0.0-beta.4",
     "nanoid": "catalog:*",
     "pretty-bytes": "catalog:*",
-    "radix-vue": "^1.9.17",
+    "radix-vue": "catalog:*",
     "vue": "catalog:*",
     "vue-component-type-helpers": "^3.2.2"
   },

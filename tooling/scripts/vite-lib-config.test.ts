@@ -3,7 +3,12 @@ import { resolve } from 'node:path'
 
 import { type Mock, afterEach, describe, expect, it, vi } from 'vitest'
 
-import { createExternalsFromPackageJson, createLibEntry, findEntryPoints } from './vite-lib-config'
+import {
+  createExternalsFromPackageJson,
+  createLibEntry,
+  createPreserveModulesOutput,
+  findEntryPoints,
+} from './vite-lib-config'
 
 vi.mock('node:fs', () => ({
   readFileSync: vi.fn(),
@@ -13,6 +18,69 @@ const mockReadFileSync = readFileSync as Mock
 
 afterEach(() => {
   vi.restoreAllMocks()
+})
+
+describe('createPreserveModulesOutput', () => {
+  const getEntryFileName = (name: string): string => {
+    const output = createPreserveModulesOutput()
+    return output.entryFileNames({ name })
+  }
+
+  it('passes through plain module names unchanged', () => {
+    expect(getEntryFileName('index')).toBe('index.js')
+    expect(getEntryFileName('utils/helpers')).toBe('utils/helpers.js')
+  })
+
+  it('preserves .vue extension for SFC facade modules', () => {
+    expect(getEntryFileName('Foo.vue')).toBe('Foo.vue.js')
+    expect(getEntryFileName('components/Bar.vue')).toBe('components/Bar.vue.js')
+  })
+
+  it('produces distinct names for SFC virtual modules with query strings', () => {
+    expect(getEntryFileName('Foo.vue?vue&type=script&setup=true&lang.ts')).toBe('Foo.vue.script.ts.js')
+    expect(getEntryFileName('Foo.vue?vue&type=style&index=0&lang.css')).toBe('Foo.vue.style.css.js')
+  })
+
+  it('does not collide facade and script virtual module names', () => {
+    const facade = getEntryFileName('Foo.vue')
+    const script = getEntryFileName('Foo.vue?vue&type=script&setup=true&lang.ts')
+    expect(facade).not.toBe(script)
+  })
+
+  it('handles query strings without a type parameter', () => {
+    expect(getEntryFileName('Foo.vue?vue&lang')).toBe('Foo.vue.virtual.js')
+  })
+
+  it('produces distinct names for multiple style blocks', () => {
+    const style0 = getEntryFileName('Foo.vue?vue&type=style&index=0&lang.css')
+    const style1 = getEntryFileName('Foo.vue?vue&type=style&index=1&lang.css')
+    expect(style0).toBe('Foo.vue.style.css.js')
+    expect(style1).toBe('Foo.vue.style.1.css.js')
+    expect(style0).not.toBe(style1)
+  })
+
+  it('omits index suffix for index=0 to keep names stable', () => {
+    expect(getEntryFileName('Foo.vue?vue&type=script&setup=true&index=0&lang.ts')).toBe('Foo.vue.script.ts.js')
+  })
+
+  it('preserves directory prefixes for nested virtual modules', () => {
+    expect(getEntryFileName('components/nested/Bar.vue')).toBe('components/nested/Bar.vue.js')
+    expect(getEntryFileName('components/nested/Bar.vue?vue&type=script&setup=true&lang.ts')).toBe(
+      'components/nested/Bar.vue.script.ts.js',
+    )
+  })
+
+  it('includes lang suffix to distinguish different languages', () => {
+    const styleCSS = getEntryFileName('Foo.vue?vue&type=style&index=0&lang.css')
+    const styleSCSS = getEntryFileName('Foo.vue?vue&type=style&index=0&lang.scss')
+    expect(styleCSS).toBe('Foo.vue.style.css.js')
+    expect(styleSCSS).toBe('Foo.vue.style.scss.js')
+    expect(styleCSS).not.toBe(styleSCSS)
+  })
+
+  it('handles query strings without lang suffix', () => {
+    expect(getEntryFileName('Foo.vue?vue&type=script&setup=true')).toBe('Foo.vue.script.js')
+  })
 })
 
 describe('createExternalsFromPackageJson', () => {

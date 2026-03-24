@@ -32,7 +32,7 @@ describe('getOpenApiFromPostman', () => {
 
     const result = getOpenApiFromPostman(postmanJson)
 
-    expect(convert).toHaveBeenCalledWith(postmanJson)
+    expect(convert).toHaveBeenCalledWith(postmanJson, undefined)
     expect(result).toEqual(expectedOpenAPI)
   })
 
@@ -49,8 +49,25 @@ describe('getOpenApiFromPostman', () => {
 
     getOpenApiFromPostman(postmanJson)
 
-    expect(convert).toHaveBeenCalledWith(postmanJson)
+    expect(convert).toHaveBeenCalledWith(postmanJson, undefined)
     expect(convert).toHaveBeenCalledTimes(1)
+  })
+
+  it('forwards convert options to convert', () => {
+    const postmanJson = '{"info":{"name":"API"}}'
+
+    const mockOpenAPI: OpenAPIV3_1.Document = {
+      openapi: '3.1.0',
+      info: { title: 'API', version: '1.0' },
+      paths: {},
+    }
+
+    vi.mocked(convert).mockReturnValue(mockOpenAPI)
+
+    const options = { requestIndexPaths: [[0]] as [number[]] }
+    getOpenApiFromPostman(postmanJson, options)
+
+    expect(convert).toHaveBeenCalledWith(postmanJson, options)
   })
 
   it('returns null when conversion fails', () => {

@@ -19,12 +19,13 @@
     "export",
     "scalar"
   ],
-  "version": "0.5.3",
+  "version": "0.6.0",
   "engines": {
     "node": ">=22"
   },
   "scripts": {
     "build": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
+    "generate:textures": "tsx ./scripts/generate-textures.ts",
     "test": "vitest",
     "types:check": "tsc --noEmit"
   },

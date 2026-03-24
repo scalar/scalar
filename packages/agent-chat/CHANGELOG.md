@@ -1,5 +1,12 @@
 # @scalar/agent-chat
 
+## 0.9.13
+
+### Patch Changes
+
+- [#8551](https://github.com/scalar/scalar/pull/8551): Bump neverpanic dependency
+- [#8563](https://github.com/scalar/scalar/pull/8563): fix: type declarations don't use the full path for imports
+
 ## 0.9.12
 
 ### Patch Changes

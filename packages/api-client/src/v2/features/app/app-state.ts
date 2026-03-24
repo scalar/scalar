@@ -30,6 +30,7 @@ import {
   readonly,
   ref,
   shallowRef,
+  watch,
 } from 'vue'
 import type { RouteLocationNormalizedGeneric, RouteLocationRaw, Router } from 'vue-router'
 
@@ -155,6 +156,7 @@ export type AppState = {
     /** The custom themes to use */
     customThemes: MaybeRefOrGetter<Theme[]>
   }
+  telemetry: Ref<boolean>
 }
 
 // ---------------------------------------------------------------------------
@@ -173,11 +175,13 @@ export const createAppState = async ({
   fileLoader,
   fallbackThemeSlug = () => 'default',
   customThemes = () => [],
+  telemetryDefault,
 }: {
   router: Router
   fileLoader?: LoaderPlugin
   customThemes?: MaybeRefOrGetter<Theme[]>
   fallbackThemeSlug?: MaybeRefOrGetter<string>
+  telemetryDefault?: boolean
 }): Promise<AppState> => {
   /** Workspace event bus for handling workspace-level events. */
   const eventBus = createWorkspaceEventBus({
@@ -219,6 +223,11 @@ export const createAppState = async ({
   const filteredWorkspaces = computed(() => filterWorkspacesByTeam(workspaces.value, teamUid.value))
   const workspaceGroups = computed(() => groupWorkspacesByTeam(filteredWorkspaces.value, teamUid.value))
   const store = shallowRef<WorkspaceStore | null>(null)
+
+  // Load persisted telemetry preference, falling back to the provided default
+  const persistedTelemetry = workspaceStorage.getTelemetry()
+  const telemetry = ref(persistedTelemetry !== null ? persistedTelemetry : Boolean(telemetryDefault))
+  watch(telemetry, (value) => workspaceStorage.setTelemetry(value))
 
   const activeDocument = computed(() => {
     return store.value?.workspace.documents[documentSlug.value ?? ''] || null
@@ -1041,5 +1050,6 @@ export const createAppState = async ({
       themeStyleTag: theme.themeStyleTag,
       customThemes,
     },
+    telemetry,
   }
 }

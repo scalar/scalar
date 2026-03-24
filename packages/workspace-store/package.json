@@ -16,7 +16,7 @@
     "openapi",
     "scalar"
   ],
-  "version": "0.40.4",
+  "version": "0.41.0",
   "engines": {
     "node": ">=22"
   },
@@ -147,7 +147,6 @@
     "@scalar/code-highlight": "workspace:*",
     "@scalar/helpers": "workspace:*",
     "@scalar/json-magic": "workspace:*",
-    "@scalar/object-utils": "workspace:*",
     "@scalar/openapi-upgrader": "workspace:*",
     "@scalar/snippetz": "workspace:*",
     "@scalar/typebox": "catalog:*",

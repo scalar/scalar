@@ -4,7 +4,12 @@ import tailwindcss from '@tailwindcss/vite'
 import vue from '@vitejs/plugin-vue'
 import { defineConfig } from 'vitest/config'
 
-import { createExternalsFromPackageJson, createLibEntry, findEntryPoints } from '../../tooling/scripts/vite-lib-config'
+import {
+  createExternalsFromPackageJson,
+  createLibEntry,
+  createPreserveModulesOutput,
+  findEntryPoints,
+} from '../../tooling/scripts/vite-lib-config'
 
 const external = createExternalsFromPackageJson(resolve(import.meta.dirname, 'package.json'))
 const entryPaths = await findEntryPoints()
@@ -32,6 +37,7 @@ export default defineConfig({
         moduleSideEffects: (id) => id.includes('.css'),
       },
       external,
+      output: createPreserveModulesOutput(),
     },
   },
   test: {},
