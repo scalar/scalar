@@ -110,7 +110,7 @@ export const coerce = <S extends Schema>(
     return value.map((item) => coerce(schema.items, item, cache)) as unknown as Static<S>
   }
   if (schema.type === 'record') {
-    if (typeof value !== 'object' || value === null) {
+    if (!isObject(value)) {
       return {} as unknown as Static<S>
     }
     return Object.fromEntries(
@@ -121,7 +121,7 @@ export const coerce = <S extends Schema>(
     const keys = Object.keys(schema.properties)
     const target = isObject(value) ? value : null
     return Object.fromEntries(
-      keys.map((key) => [key, coerce(schema.properties[key], target, cache)]),
+      keys.map((key) => [key, coerce(schema.properties[key], target?.[key], cache)]),
     ) as unknown as Static<S>
   }
   if (schema.type === 'union') {
