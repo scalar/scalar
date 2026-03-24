@@ -1,5 +1,19 @@
 # @scalar/components
 
+## 0.21.0
+
+### Minor Changes
+
+- [#8511](https://github.com/scalar/scalar/pull/8511): feat: support intermediate state for checkbox
+- [#8526](https://github.com/scalar/scalar/pull/8526): feat: add support for custom combobox filter functions
+
+### Patch Changes
+
+- [#8564](https://github.com/scalar/scalar/pull/8564): fix: remove global radix override
+- [#8565](https://github.com/scalar/scalar/pull/8565): fix(components): align sidebar to top after opening
+- [#8564](https://github.com/scalar/scalar/pull/8564): refactor: move context menu to api client
+- [#8563](https://github.com/scalar/scalar/pull/8563): fix: type declarations don't use the full path for imports
+
 ## 0.20.12
 
 ## 0.20.11

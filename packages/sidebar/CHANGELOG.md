@@ -1,5 +1,11 @@
 # @scalar/sidebar
 
+## 0.8.13
+
+### Patch Changes
+
+- [#8563](https://github.com/scalar/scalar/pull/8563): fix: type declarations don't use the full path for imports
+
 ## 0.8.12
 
 ### Patch Changes
