@@ -9,8 +9,9 @@ import { resolve } from 'node:path'
  * These cause problems when downstream packages resolve the output files
  * and the Vue plugin tries to re-parse them as SFCs.
  *
- * Virtual modules (with query strings) get a `_vue-<type>` suffix so they
- * do not collide with the SFC facade module that shares the same base name.
+ * Facade modules (no query string) drop the `.vue` extension: `Foo.vue` → `Foo`.
+ * Virtual modules (with query strings) keep `.vue` and get a dot-separated type
+ * suffix to avoid collisions: `Foo.vue?vue&type=script&…` → `Foo.vue.script`.
  *
  * @see https://github.com/rolldown/rolldown/pull/8817
  */
