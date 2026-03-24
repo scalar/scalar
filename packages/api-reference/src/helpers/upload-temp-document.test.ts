@@ -1,11 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
-// Mock the URL constant used by the module under test
-vi.mock('@/consts/urls', () => ({
-  PROXY_URL: 'https://proxy.example.test',
-  UPLOAD_TEMP_API_URL: 'https://example.test/share/upload/apis',
-}))
-
 import { uploadTempDocument } from './upload-temp-document'
 
 type MockFetchResponse = {
@@ -19,6 +13,11 @@ const mockFetch = (response: MockFetchResponse): void => {
     'fetch',
     vi.fn(async () => response as unknown as Response),
   )
+}
+
+const testUrls = {
+  proxyUrl: 'https://proxy.example.test',
+  apiBaseUrl: 'https://example.test',
 }
 
 afterEach(() => {
@@ -36,12 +35,12 @@ describe('uploadTempDocument', () => {
       json: async () => ({ url }),
     })
 
-    const result = await uploadTempDocument(document)
+    const result = await uploadTempDocument(document, testUrls)
     expect(result).toBe(url)
 
     expect(globalThis.fetch).toHaveBeenCalledTimes(1)
     expect(globalThis.fetch).toHaveBeenCalledWith(
-      'https://proxy.example.test/?scalar_url=https%3A%2F%2Fexample.test%2Fshare%2Fupload%2Fapis',
+      'https://proxy.example.test/?scalar_url=https%3A%2F%2Fexample.test%2Fcore%2Fshare%2Fupload%2Fapis',
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -57,7 +56,7 @@ describe('uploadTempDocument', () => {
       json: async () => ({ message: 'Bad request' }),
     })
 
-    await expect(uploadTempDocument('doc')).rejects.toThrow(
+    await expect(uploadTempDocument('doc', testUrls)).rejects.toThrow(
       /Failed to generate temporary link, server responded with 400/,
     )
   })
@@ -69,7 +68,7 @@ describe('uploadTempDocument', () => {
       json: async () => ({}),
     })
 
-    await expect(uploadTempDocument('doc')).rejects.toThrow(
+    await expect(uploadTempDocument('doc', testUrls)).rejects.toThrow(
       'Failed to generate temporary link, invalid response from server',
     )
   })

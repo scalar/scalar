@@ -1,23 +1,29 @@
 <script setup lang="ts">
 import { Chat } from '@scalar/agent-chat'
-import { type ApiReferenceConfigurationWithSource } from '@scalar/types/api-reference'
+import type {
+  ApiReferenceConfigurationWithSource,
+  ExternalUrls,
+} from '@scalar/types/api-reference'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { Ref } from 'vue'
 
-import { API_BASE_URL, DASHBOARD_URL, REGISTRY_URL } from '@/consts/urls'
-
-const { agentScalarConfiguration, workspaceStore, prefilledMessage } =
-  defineProps<{
-    agentScalarConfiguration: ApiReferenceConfigurationWithSource['agent']
-    workspaceStore: WorkspaceStore
-    prefilledMessage?: Ref<string>
-  }>()
+const {
+  agentScalarConfiguration,
+  externalUrls,
+  workspaceStore,
+  prefilledMessage,
+} = defineProps<{
+  agentScalarConfiguration: ApiReferenceConfigurationWithSource['agent']
+  externalUrls: ExternalUrls
+  workspaceStore: WorkspaceStore
+  prefilledMessage?: Ref<string>
+}>()
 </script>
 
 <template>
   <Chat
-    :baseUrl="agentScalarConfiguration?.apiBaseUrl ?? API_BASE_URL"
-    :dashboardUrl="DASHBOARD_URL"
+    :baseUrl="externalUrls.apiBaseUrl"
+    :dashboardUrl="externalUrls.dashboardUrl"
     :getActiveDocumentJson="() => workspaceStore.exportActiveDocument('json')!"
     :getAgentKey="
       agentScalarConfiguration?.key
@@ -28,5 +34,5 @@ const { agentScalarConfiguration, workspaceStore, prefilledMessage } =
     :mode="agentScalarConfiguration?.key ? 'full' : 'preview'"
     :prefilledMessage="prefilledMessage"
     :registryDocuments="[]"
-    :registryUrl="REGISTRY_URL" />
+    :registryUrl="externalUrls.registryUrl" />
 </template>

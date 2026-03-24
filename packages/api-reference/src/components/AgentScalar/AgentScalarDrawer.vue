@@ -1,17 +1,19 @@
 <script setup lang="ts">
 import { ScalarIconButton } from '@scalar/components'
 import { ScalarIconX } from '@scalar/icons'
-import type { ApiReferenceConfigurationWithSource } from '@scalar/types/api-reference'
+import type {
+  ApiReferenceConfigurationWithSource,
+  ExternalUrls,
+} from '@scalar/types/api-reference'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
-import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { defineAsyncComponent } from 'vue'
 
 import { useAgentContext } from '@/hooks/use-agent'
 
 defineProps<{
   agentScalarConfiguration: ApiReferenceConfigurationWithSource['agent']
+  externalUrls: ExternalUrls
   workspaceStore: WorkspaceStore
-  eventBus: WorkspaceEventBus
 }>()
 
 const agentContext = useAgentContext()
@@ -49,6 +51,7 @@ const AgentScalarChatInterface = defineAsyncComponent(
         class="agent-scalar-container custom-scroll custom-scroll-self-contain-overflow overflow-auto px-6">
         <AgentScalarChatInterface
           :agentScalarConfiguration
+          :externalUrls
           :prefilledMessage="agentContext?.prefilledMessage"
           :workspaceStore />
       </div>

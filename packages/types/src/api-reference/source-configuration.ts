@@ -105,11 +105,6 @@ export const sourceConfigurationSchema = z.object({
        * Only preloaded/registry documents are shown; the public API list is not offered.
        */
       hideAddApi: z.boolean().optional(),
-      /**
-       * Base URL for the Scalar API. Used for Agent Chat to get embeddings
-       * @default 'https://api.scalar.com'
-       */
-      apiBaseUrl: z.string().optional(),
     })
     .optional(),
 })
