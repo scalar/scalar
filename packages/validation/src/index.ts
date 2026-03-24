@@ -5,7 +5,7 @@ export {
   array,
   boolean,
   evaluate,
-  lazy as recursive,
+  lazy,
   literal,
   notDefined,
   nullable,
