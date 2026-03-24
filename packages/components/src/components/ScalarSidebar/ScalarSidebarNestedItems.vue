@@ -81,6 +81,10 @@ function onOpen() {
       ?.focus({ preventScroll: true }),
   )
 }
+function onOpened() {
+  /** Reset the scroll position of the scroll container after opening */
+  findScrollContainer(el.value).scrollTop = 0
+}
 function onClose() {
   nextTick(() => {
     el.value?.querySelector('button')?.focus({ preventScroll: true })
@@ -142,8 +146,9 @@ const handleBack = (event: MouseEvent) => {
     <!-- Make sure the div is around for the entire transition -->
     <Transition
       :duration="300"
-      enterActiveClass="top-(--nested-items-offset)"
-      leaveActiveClass="top-(--nested-items-offset)"
+      enterActiveClass="top-(--nested-items-offset)!"
+      leaveActiveClass="top-(--nested-items-offset)!"
+      @afterEnter="onOpened"
       @enter="onOpen"
       @leave="onClose">
       <div
