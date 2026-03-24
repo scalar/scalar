@@ -21,16 +21,15 @@ const sanitizeChunkName = (name: string): string => {
     return name.replace(/\.vue$/, '')
   }
 
-  const base = name.slice(0, queryIndex).replace(/\.vue$/, '')
+  const base = name.slice(0, queryIndex)
   const query = name.slice(queryIndex + 1)
 
   const typeMatch = query.match(/(?:^|&)type=([^&]+)/)
   const indexMatch = query.match(/(?:^|&)index=(\d+)/)
-  const suffix = typeMatch
-    ? `_vue-${typeMatch[1]}${indexMatch && indexMatch[1] !== '0' ? indexMatch[1] : ''}`
-    : '_vue-virtual'
+  const typeSuffix = typeMatch ? typeMatch[1] : 'virtual'
+  const indexSuffix = indexMatch && indexMatch[1] !== '0' ? `.${indexMatch[1]}` : ''
 
-  return `${base}${suffix}`
+  return `${base}.${typeSuffix}${indexSuffix}`
 }
 
 /**
