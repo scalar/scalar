@@ -1,7 +1,22 @@
 import { describe, expect, it } from 'vitest'
 
 import { coerce } from '@/coerce'
-import { any, array, boolean, literal, nullable, number, object, optional, record, string, union } from '@/schema'
+import {
+  any,
+  array,
+  boolean,
+  evaluate,
+  lazy,
+  literal,
+  notDefined,
+  nullable,
+  number,
+  object,
+  optional,
+  record,
+  string,
+  union,
+} from '@/schema'
 
 describe('any', () => {
   const T = any()
@@ -881,5 +896,155 @@ describe('union', () => {
       prop9: '',
       prop10: '',
     })
+  })
+})
+
+describe('notDefined', () => {
+  const T = notDefined()
+  const E = undefined
+  it('Should upcast from string', () => {
+    const value = 'hello'
+    const result = coerce(T, value)
+    expect(result).toBe(E)
+  })
+  it('Should upcast from number', () => {
+    const value = 1
+    const result = coerce(T, value)
+    expect(result).toBe(E)
+  })
+  it('Should upcast from boolean', () => {
+    const value = true
+    const result = coerce(T, value)
+    expect(result).toBe(E)
+  })
+  it('Should upcast from object', () => {
+    const value = {}
+    const result = coerce(T, value)
+    expect(result).toBe(E)
+  })
+  it('Should upcast from array', () => {
+    const value = [1]
+    const result = coerce(T, value)
+    expect(result).toBe(E)
+  })
+  it('Should upcast from undefined', () => {
+    const value = undefined
+    const result = coerce(T, value)
+    expect(result).toBe(E)
+  })
+  it('Should upcast from null', () => {
+    const value = null
+    const result = coerce(T, value)
+    expect(result).toBe(E)
+  })
+  it('Should upcast from date', () => {
+    const value = new Date(100)
+    const result = coerce(T, value)
+    expect(result).toBe(E)
+  })
+  it('Should preserve', () => {
+    const value = undefined
+    const result = coerce(T, value)
+    expect(result).toBe(undefined)
+  })
+})
+
+describe('lazy', () => {
+  const T = lazy(() => object({ x: number() }))
+  const E = { x: 0 }
+  it('Should upcast from string', () => {
+    const value = 'hello'
+    const result = coerce(T, value)
+    expect(result).toEqual(E)
+  })
+  it('Should upcast from number', () => {
+    const value = 1
+    const result = coerce(T, value)
+    expect(result).toEqual(E)
+  })
+  it('Should upcast from boolean', () => {
+    const value = true
+    const result = coerce(T, value)
+    expect(result).toEqual(E)
+  })
+  it('Should upcast from object', () => {
+    const value = {}
+    const result = coerce(T, value)
+    expect(result).toEqual(E)
+  })
+  it('Should upcast from array', () => {
+    const value = [1]
+    const result = coerce(T, value)
+    expect(result).toEqual(E)
+  })
+  it('Should upcast from undefined', () => {
+    const value = undefined
+    const result = coerce(T, value)
+    expect(result).toEqual(E)
+  })
+  it('Should upcast from null', () => {
+    const value = null
+    const result = coerce(T, value)
+    expect(result).toEqual(E)
+  })
+  it('Should upcast from date', () => {
+    const value = new Date(100)
+    const result = coerce(T, value)
+    expect(result).toEqual(E)
+  })
+  it('Should preserve', () => {
+    const value = { x: 1 }
+    const result = coerce(T, value)
+    expect(result).toEqual(value)
+  })
+})
+
+describe('evaluate', () => {
+  const T = evaluate((value) => value, object({ x: number() }))
+  const E = { x: 0 }
+  it('Should upcast from string', () => {
+    const value = 'hello'
+    const result = coerce(T, value)
+    expect(result).toEqual(E)
+  })
+  it('Should upcast from number', () => {
+    const value = 1
+    const result = coerce(T, value)
+    expect(result).toEqual(E)
+  })
+  it('Should upcast from boolean', () => {
+    const value = true
+    const result = coerce(T, value)
+    expect(result).toEqual(E)
+  })
+  it('Should upcast from object', () => {
+    const value = {}
+    const result = coerce(T, value)
+    expect(result).toEqual(E)
+  })
+  it('Should upcast from array', () => {
+    const value = [1]
+    const result = coerce(T, value)
+    expect(result).toEqual(E)
+  })
+  it('Should upcast from undefined', () => {
+    const value = undefined
+    const result = coerce(T, value)
+    expect(result).toEqual(E)
+  })
+  it('Should upcast from null', () => {
+    const value = null
+    const result = coerce(T, value)
+    expect(result).toEqual(E)
+  })
+  it('Should upcast from date', () => {
+    const value = new Date(100)
+    const result = coerce(T, value)
+    expect(result).toEqual(E)
+  })
+  it('Should preserve', () => {
+    const value = { x: 1 }
+    const result = coerce(T, value)
+    expect(result).toEqual(value)
   })
 })
