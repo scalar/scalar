@@ -897,6 +897,27 @@ describe('union', () => {
       prop10: '',
     })
   })
+
+  it('should correctly score object union for objects with all optional properties', () => {
+    const A = union([
+      object({
+        prop1: optional(string()),
+        prop2: optional(string()),
+        prop3: optional(string()),
+      }),
+      object({
+        $ref: string(),
+      }),
+    ])
+
+    expect(
+      coerce(A, {
+        $ref: 'https://example.com/schema',
+      }),
+    ).toEqual({
+      $ref: 'https://example.com/schema',
+    })
+  })
 })
 
 describe('notDefined', () => {
