@@ -100,6 +100,7 @@ const props: ExtractComponentProps<typeof ClassicLayout> = {
   clientOptions: [
     {
       label: 'Shell',
+      key: 'shell',
       options: [
         {
           clientKey: 'curl',
