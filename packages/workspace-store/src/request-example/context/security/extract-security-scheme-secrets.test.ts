@@ -1111,7 +1111,6 @@ describe('extractSecuritySchemeSecrets', () => {
     })
   })
 
-
   it('preserves scheme-level x-default-scopes when no flow selectedScopes are set', () => {
     const authStore = createAuthStore()
     const scheme: ConfigAuthScheme = {

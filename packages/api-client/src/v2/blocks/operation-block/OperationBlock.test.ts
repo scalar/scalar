@@ -1,9 +1,6 @@
 import { AVAILABLE_CLIENTS } from '@scalar/types/snippetz'
 import type { AuthMeta, WorkspaceEventBus } from '@scalar/workspace-store/events'
-import {
-  buildRequest,
-  requestFactory,
-} from '@scalar/workspace-store/request-example'
+import { buildRequest, requestFactory } from '@scalar/workspace-store/request-example'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type { XScalarCookie } from '@scalar/workspace-store/schemas/extensions/general/x-scalar-cookies'
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/operation'
@@ -64,15 +61,7 @@ vi.mock('@/v2/blocks/request-block', () => ({
 vi.mock('@/v2/blocks/response-block', () => ({
   ResponseBlock: {
     name: 'ResponseBlock',
-    props: [
-      'appVersion',
-      'eventBus',
-      'layout',
-      'plugins',
-      'request',
-      'response',
-      'totalPerformedRequests',
-    ],
+    props: ['appVersion', 'eventBus', 'layout', 'plugins', 'request', 'response', 'totalPerformedRequests'],
     template: '<div data-test="response-block"></div>',
   },
 }))
@@ -144,9 +133,7 @@ const createMockOriginalResponse = (): Response =>
 
 type RequestFactoryPayload = Parameters<typeof buildRequest>[0]
 
-const createDefaultRequestFactoryPayload = (
-  overrides: Partial<RequestFactoryPayload> = {},
-): RequestFactoryPayload => {
+const createDefaultRequestFactoryPayload = (overrides: Partial<RequestFactoryPayload> = {}): RequestFactoryPayload => {
   const { proxy: proxyOverrides, ...rest } = overrides
   return {
     url: 'https://api.example.com/api/users',
@@ -181,10 +168,7 @@ const getResponseBlockProps = (wrapper: ReturnType<typeof mount<typeof Operation
     request: Request | null | undefined
   }
 
-const getEventBusHandler = (
-  mockBus: WorkspaceEventBus,
-  event: string,
-): (() => void) | undefined => {
+const getEventBusHandler = (mockBus: WorkspaceEventBus, event: string): (() => void) | undefined => {
   const call = vi.mocked(mockBus.on).mock.calls.find((c) => c[0] === event)
   return call?.[1] as (() => void) | undefined
 }
@@ -780,9 +764,7 @@ describe('OperationBlock', () => {
 
     const stateAfterExecute = getResponseBlockProps(wrapper).response
     expect(stateAfterExecute).not.toBeNull()
-    expect(stateAfterExecute && 'data' in stateAfterExecute ? stateAfterExecute.data : undefined).toBe(
-      '{"users": []}',
-    )
+    expect(stateAfterExecute && 'data' in stateAfterExecute ? stateAfterExecute.data : undefined).toBe('{"users": []}')
 
     await wrapper.setProps({ path: '/api/posts' })
     await wrapper.vm.$nextTick()

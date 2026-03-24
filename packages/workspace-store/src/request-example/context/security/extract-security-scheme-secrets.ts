@@ -229,7 +229,9 @@ export const extractSecuritySchemeSecrets = (
   if (scheme.type === 'oauth2') {
     const storeSecrets = secrets?.type === 'oauth2' ? secrets : undefined
     const extracted = extractOAuthFlowSecrets(scheme.flows, storeSecrets)
-    const configuredDefaultScopes = Array.isArray(scheme['x-default-scopes']) ? scheme['x-default-scopes'].filter((scope): scope is string => typeof scope === 'string') : []
+    const configuredDefaultScopes = Array.isArray(scheme['x-default-scopes'])
+      ? scheme['x-default-scopes'].filter((scope): scope is string => typeof scope === 'string')
+      : []
     const mergedDefaultScopes = Array.from(new Set([...configuredDefaultScopes, ...extracted.selectedScopes]))
 
     return {

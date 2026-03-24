@@ -116,7 +116,13 @@ export const buildRequestParameters = (
       }
 
       case 'query': {
-        processQueryParameter(param, paramName, deSerializedValue, result.urlParams, result.allowReservedQueryParameters)
+        processQueryParameter(
+          param,
+          paramName,
+          deSerializedValue,
+          result.urlParams,
+          result.allowReservedQueryParameters,
+        )
         break
       }
 
