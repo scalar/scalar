@@ -189,6 +189,9 @@ catalogs:
     pretty-bytes:
       specifier: ^7.1.0
       version: 7.1.0
+    radix-vue:
+      specifier: ^1.9.17
+      version: 1.9.17
     react:
       specifier: ^19.2.3
       version: 19.2.3
@@ -1331,6 +1334,9 @@ importers:
       pretty-ms:
         specifier: ^9.3.0
         version: 9.3.0
+      radix-vue:
+        specifier: catalog:*
+        version: 1.9.17(vue@3.5.26(typescript@5.9.3))
       shell-quote:
         specifier: ^1.8.1
         version: 1.8.3
@@ -1700,7 +1706,7 @@ importers:
         specifier: catalog:*
         version: 7.1.0
       radix-vue:
-        specifier: ^1.9.17
+        specifier: catalog:*
         version: 1.9.17(vue@3.5.26(typescript@5.9.3))
       vue:
         specifier: catalog:*
