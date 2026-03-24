@@ -284,6 +284,88 @@ describe('buildRequestParameters', () => {
       expect(result.urlParams.get('filter')).toBe('name=John&age=30')
     })
 
+    describe('allowReservedQueryParameters', () => {
+      it('adds param to set when allowReserved is on the parameter', () => {
+        const params: ParameterObject[] = [
+          {
+            name: 'sort',
+            in: 'query',
+            required: true,
+            allowReserved: true,
+            schema: { type: 'string' },
+            examples: {
+              default: { value: 'name:asc', 'x-disabled': false },
+            },
+          },
+        ]
+
+        const result = buildRequestParameters(params)
+
+        expect(result.allowReservedQueryParameters.has('sort')).toBe(true)
+        expect(result.urlParams.get('sort')).toBe('name:asc')
+      })
+
+      it('adds param to set when allowReserved is on the schema only', () => {
+        const params: ParameterObject[] = [
+          {
+            name: 'sort',
+            in: 'query',
+            required: true,
+            // Legacy/non-standard fallback: schema-level allowReserved.
+            schema: { type: 'string', allowReserved: true },
+            examples: {
+              default: { value: 'run_time:desc', 'x-disabled': false },
+            },
+          } as unknown as ParameterObject,
+        ]
+
+        const result = buildRequestParameters(params)
+
+        expect(result.allowReservedQueryParameters.has('sort')).toBe(true)
+        expect(result.urlParams.get('sort')).toBe('run_time:desc')
+      })
+
+      it('does not add param to set when allowReserved is neither on param nor schema', () => {
+        const params: ParameterObject[] = [
+          {
+            name: 'sort',
+            in: 'query',
+            required: true,
+            schema: { type: 'string' },
+            examples: {
+              default: { value: 'name:asc', 'x-disabled': false },
+            },
+          },
+        ]
+
+        const result = buildRequestParameters(params)
+
+        expect(result.allowReservedQueryParameters.has('sort')).toBe(false)
+        expect(result.urlParams.get('sort')).toBe('name:asc')
+      })
+
+      it('does not add param to set when allowReserved is false on parameter and true on schema', () => {
+        const params: ParameterObject[] = [
+          {
+            name: 'sort',
+            in: 'query',
+            required: true,
+            allowReserved: false,
+            // Legacy/non-standard fallback: schema-level allowReserved.
+            schema: { type: 'string', allowReserved: true },
+            examples: {
+              default: { value: 'run_time:desc', 'x-disabled': false },
+            },
+          } as unknown as ParameterObject,
+        ]
+
+        const result = buildRequestParameters(params)
+
+        expect(result.allowReservedQueryParameters.has('sort')).toBe(false)
+        expect(result.urlParams.get('sort')).toBe('run_time:desc')
+      })
+    })
+
     it('handles query parameter with object value', () => {
       const params: ParameterObject[] = [
         {

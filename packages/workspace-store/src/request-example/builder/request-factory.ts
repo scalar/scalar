@@ -17,6 +17,7 @@ import type { RequestExampleMeta, Result } from '@/request-example/types'
 import { type RequestBody, buildRequestBody } from './body/build-request-body'
 import { buildRequestCookieHeader } from './header/build-request-cookie-header'
 import { buildRequestParameters } from './header/build-request-parameters'
+import { applyAllowReservedToUrl } from '@/request-example/builder/helpers/apply-allow-reserved-to-url'
 
 export type RequestFactory = {
   url: string
@@ -86,7 +87,8 @@ export const requestFactory = ({
   // TODO: handle url params differently
 
   /** Combine the server url, path and url params into a single url */
-  const url = mergeUrls(server?.url ?? '', path, params.urlParams)
+  const mergedUrl = mergeUrls(server?.url ?? '', path, params.urlParams)
+  const url = applyAllowReservedToUrl(mergedUrl, params.allowReservedQueryParameters)
 
   // Return error for no url
   if (!url) {

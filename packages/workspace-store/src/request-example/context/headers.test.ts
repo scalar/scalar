@@ -20,8 +20,7 @@ describe('getDefaultHeaders', () => {
       exampleName: 'example-1',
     })
 
-    const contentTypeHeader = headers.find((header) => header.name.toLowerCase() === 'content-type')
-
+    const contentTypeHeader = headers['content-type']
     expect(contentTypeHeader).toBeUndefined()
   })
 
@@ -40,11 +39,9 @@ describe('getDefaultHeaders', () => {
       exampleName: 'example-1',
     })
 
-    const contentTypeHeader = headers.find((header) => header.name.toLowerCase() === 'content-type')
-
+    const contentTypeHeader = headers['content-type']
     expect(contentTypeHeader).toBeDefined()
-    expect(contentTypeHeader?.defaultValue).toBe('application/json')
-    expect(contentTypeHeader?.isOverridden).toBe(false)
+    expect(contentTypeHeader).toBe('application/json')
   })
 
   it('uses selected content type from x-scalar-selected-content-type', () => {
@@ -66,10 +63,9 @@ describe('getDefaultHeaders', () => {
       exampleName: 'example-1',
     })
 
-    const contentTypeHeader = headers.find((header) => header.name.toLowerCase() === 'content-type')
-
+    const contentTypeHeader = headers['content-type']
     expect(contentTypeHeader).toBeDefined()
-    expect(contentTypeHeader?.defaultValue).toBe('application/xml')
+    expect(contentTypeHeader).toBe('application/xml')
   })
 
   it('does not add Content-Type for GET requests', () => {
@@ -87,8 +83,7 @@ describe('getDefaultHeaders', () => {
       exampleName: 'example-1',
     })
 
-    const contentTypeHeader = headers.find((header) => header.name.toLowerCase() === 'content-type')
-
+    const contentTypeHeader = headers['content-type']
     expect(contentTypeHeader).toBeUndefined()
   })
 
@@ -107,10 +102,10 @@ describe('getDefaultHeaders', () => {
       exampleName: 'example-1',
     })
 
-    const contentTypeHeader = headers.find((header) => header.name.toLowerCase() === 'content-type')
+    const contentTypeHeader = headers['content-type']
 
     expect(contentTypeHeader).toBeDefined()
-    expect(contentTypeHeader?.defaultValue).toBe('application/json')
+    expect(contentTypeHeader).toBe('application/json')
   })
 
   it('adds Content-Type for PATCH requests', () => {
@@ -128,10 +123,9 @@ describe('getDefaultHeaders', () => {
       exampleName: 'example-1',
     })
 
-    const contentTypeHeader = headers.find((header) => header.name.toLowerCase() === 'content-type')
-
+    const contentTypeHeader = headers['content-type']
     expect(contentTypeHeader).toBeDefined()
-    expect(contentTypeHeader?.defaultValue).toBe('application/json')
+    expect(contentTypeHeader).toBe('application/json')
   })
 
   it('always adds Accept header, falling back to wildcard when no responses are defined', () => {
@@ -143,11 +137,9 @@ describe('getDefaultHeaders', () => {
       exampleName: 'example-1',
     })
 
-    const acceptHeader = headers.find((header) => header.name.toLowerCase() === 'accept')
-
+    const acceptHeader = headers['accept']
     expect(acceptHeader).toBeDefined()
-    expect(acceptHeader?.defaultValue).toBe('*/*')
-    expect(acceptHeader?.isOverridden).toBe(false)
+    expect(acceptHeader).toBe('*/*')
   })
 
   it('derives Accept header from the 2xx response content type', () => {
@@ -168,10 +160,8 @@ describe('getDefaultHeaders', () => {
       exampleName: 'example-1',
     })
 
-    const acceptHeader = headers.find((header) => header.name.toLowerCase() === 'accept')
-
-    expect(acceptHeader).toBeDefined()
-    expect(acceptHeader?.defaultValue).toBe('application/json')
+    const acceptHeader = headers['accept']
+    expect(acceptHeader).toBe('application/json')
   })
 
   it('joins all content types of the 2xx response when multiple are defined', () => {
@@ -193,9 +183,8 @@ describe('getDefaultHeaders', () => {
       exampleName: 'example-1',
     })
 
-    const acceptHeader = headers.find((header) => header.name.toLowerCase() === 'accept')
-
-    expect(acceptHeader?.defaultValue).toBe('application/json, application/xml')
+    const acceptHeader = headers['accept']
+    expect(acceptHeader).toBe('application/json, application/xml')
   })
 
   it('falls back to wildcard when the 2xx response has no content', () => {
@@ -213,9 +202,8 @@ describe('getDefaultHeaders', () => {
       exampleName: 'example-1',
     })
 
-    const acceptHeader = headers.find((header) => header.name.toLowerCase() === 'accept')
-
-    expect(acceptHeader?.defaultValue).toBe('*/*')
+    const acceptHeader = headers['accept']
+    expect(acceptHeader).toBe('*/*')
   })
 
   it('falls back to wildcard when only non-2xx responses are defined', () => {
@@ -238,32 +226,8 @@ describe('getDefaultHeaders', () => {
       exampleName: 'example-1',
     })
 
-    const acceptHeader = headers.find((header) => header.name.toLowerCase() === 'accept')
-
-    expect(acceptHeader?.defaultValue).toBe('*/*')
-  })
-
-  it('marks header as overridden when defined in operation parameters', () => {
-    const operation: OperationObject = {
-      parameters: [
-        {
-          name: 'Accept',
-          in: 'header',
-          schema: { type: 'string' },
-        },
-      ],
-    }
-
-    const headers = getDefaultHeaders({
-      method: 'get',
-      operation,
-      exampleName: 'example-1',
-    })
-
-    const acceptHeader = headers.find((header) => header.name.toLowerCase() === 'accept')
-
-    expect(acceptHeader).toBeDefined()
-    expect(acceptHeader?.isOverridden).toBe(true)
+    const acceptHeader = headers['accept']
+    expect(acceptHeader).toBe('*/*')
   })
 
   it('filters out disabled headers when hideDisabledHeaders is true', () => {
@@ -284,7 +248,7 @@ describe('getDefaultHeaders', () => {
       hideDisabledHeaders: true,
     })
 
-    const acceptHeader = headers.find((header) => header.name.toLowerCase() === 'accept')
+    const acceptHeader = headers['accept']
 
     expect(acceptHeader).toBeUndefined()
   })
@@ -307,8 +271,7 @@ describe('getDefaultHeaders', () => {
       hideDisabledHeaders: false,
     })
 
-    const acceptHeader = headers.find((header) => header.name.toLowerCase() === 'accept')
-
+    const acceptHeader = headers['accept']
     expect(acceptHeader).toBeDefined()
   })
 
@@ -322,9 +285,9 @@ describe('getDefaultHeaders', () => {
     })
 
     // Should still have Accept header, but no Content-Type since there's no requestBody
-    expect(headers.length).toBeGreaterThan(0)
-    const acceptHeader = headers.find((header) => header.name.toLowerCase() === 'accept')
-    const contentTypeHeader = headers.find((header) => header.name.toLowerCase() === 'content-type')
+    expect(Object.keys(headers).length).toBeGreaterThan(0)
+    const acceptHeader = headers['accept']
+    const contentTypeHeader = headers['content-type']
     expect(acceptHeader).toBeDefined()
     expect(contentTypeHeader).toBeUndefined()
   })
@@ -345,11 +308,11 @@ describe('getDefaultHeaders', () => {
       exampleName: 'example-1',
     })
 
-    const contentTypeHeader = headers.find((header) => header.name.toLowerCase() === 'content-type')
+    const contentTypeHeader = headers['content-type']
 
     expect(contentTypeHeader).toBeDefined()
     // Should use the first key in the content object
-    expect(contentTypeHeader?.defaultValue).toBe('application/xml')
+    expect(contentTypeHeader).toBe('application/xml')
   })
 
   it('does not add Content-Type when the requestBody has no content types', () => {
@@ -365,7 +328,7 @@ describe('getDefaultHeaders', () => {
       exampleName: 'example-1',
     })
 
-    const contentTypeHeader = headers.find((header) => header.name.toLowerCase() === 'content-type')
+    const contentTypeHeader = headers['content-type']
 
     expect(contentTypeHeader).toBeUndefined()
   })
@@ -388,7 +351,7 @@ describe('getDefaultHeaders', () => {
       exampleName: 'example-1',
     })
 
-    const contentTypeHeader = headers.find((header) => header.name.toLowerCase() === 'content-type')
+    const contentTypeHeader = headers['content-type']
 
     expect(contentTypeHeader).toBeUndefined()
   })

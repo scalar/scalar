@@ -142,6 +142,7 @@ export const getRequestExampleContext = (
     documentSelectedSecurity,
     operationSelectedSecurity,
     securityRequirements,
+    securitySchemes,
   )
 
   /** The above selected requirements in scheme form */
