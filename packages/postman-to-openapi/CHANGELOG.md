@@ -1,5 +1,11 @@
 # @scalar/postman-to-openapi
 
+## 0.6.0
+
+### Minor Changes
+
+- [#8511](https://github.com/scalar/scalar/pull/8511): feat: support duplicate operations
+
 ## 0.5.3
 
 ### Patch Changes
