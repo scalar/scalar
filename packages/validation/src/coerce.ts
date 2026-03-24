@@ -3,12 +3,23 @@ import type { Schema } from './schema'
 import type { Static } from './types'
 import { validate } from './validate'
 
+/**
+ * Computes a "score" indicating how well a value matches a schema,
+ * used for picking the best branch in union coercion.
+ *
+ * Higher score means a closer match. Literals and matching object shapes
+ * are weighted more heavily. Objects are scored by shape/literals;
+ * arrays/records by structural type; primitives by validation; unions try all branches.
+ */
 const scoreUnion = (schema: Schema, value: unknown): number => {
   if (schema.type === 'object') {
     if (!isObject(value)) {
       return 0
     }
 
+    // For each key in the schema's properties:
+    // - +10 if the value matches an explicit literal for the key.
+    // - +1 if the property exists (not literal match).
     return Object.keys(schema.properties).reduce<number>((acc, key) => {
       const exists = key in value
       const isLiteralMatch = schema.properties[key].type === 'literal' && value[key] === schema.properties[key].value
@@ -19,21 +30,24 @@ const scoreUnion = (schema: Schema, value: unknown): number => {
     }, 0)
   }
   if (schema.type === 'array') {
+    // Score 1 if value is an array, otherwise 0
     return Array.isArray(value) ? 1 : 0
   }
   if (schema.type === 'record') {
-    // TODO: implement smarter scoring for records
+    // TODO: implement smarter scoring for records (just a placeholder for now)
     return isObject(value) ? 1 : 0
   }
   if (schema.type === 'union') {
+    // For a union, use the highest score among all sub-schemas
     return Math.max(...schema.schemas.map((schema) => scoreUnion(schema, value)))
   }
 
   if (schema.type === 'lazy') {
+    // For a lazy schema, evaluate the inner schema and recurse
     return scoreUnion(schema.schema(), value)
   }
 
-  // Primitive types
+  // For primitives and any other type, return 1 if valid, otherwise 0
   return validate(schema, value) ? 1 : 0
 }
 
