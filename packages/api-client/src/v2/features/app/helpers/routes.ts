@@ -61,6 +61,10 @@ export type RouteProps = {
    * over x-scalar-original-source-url when syncing. Returns the document as a plain object.
    */
   fetchRegistryDocument?: ImportDocumentFromRegistry
+  /** Whether telemetry is enabled */
+  telemetry?: boolean
+  /** Updates the telemetry enabled state */
+  onUpdateTelemetry?: (value: boolean) => void
 }
 
 /** When in the collections pages */

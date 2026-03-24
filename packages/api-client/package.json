@@ -340,7 +340,6 @@
   "dependencies": {
     "@headlessui/tailwindcss": "catalog:*",
     "@headlessui/vue": "catalog:*",
-    "@scalar/analytics-client": "workspace:*",
     "@scalar/components": "workspace:*",
     "@scalar/draggable": "workspace:*",
     "@scalar/helpers": "workspace:*",
@@ -370,6 +369,7 @@
     "monaco-editor": "catalog:*",
     "monaco-yaml": "catalog:*",
     "nanoid": "catalog:*",
+    "posthog-js": "catalog:*",
     "pretty-bytes": "catalog:*",
     "pretty-ms": "^9.3.0",
     "radix-vue": "catalog:*",
