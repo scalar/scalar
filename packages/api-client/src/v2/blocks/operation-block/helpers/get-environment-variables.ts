@@ -7,11 +7,8 @@ import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensi
  * @returns An object mapping variable names to their resolved values.
  */
 export const getEnvironmentVariables = (environment: XScalarEnvironment) => {
-  return environment.variables.reduce(
-    (acc, curr) => {
-      acc[curr.name] = typeof curr.value === 'string' ? curr.value : curr.value.default
-      return acc
-    },
-    {} as Record<string, string>,
-  )
+  return environment.variables.reduce<Record<string, string>>((acc, curr) => {
+    acc[curr.name] = typeof curr.value === 'string' ? curr.value : curr.value.default
+    return acc
+  }, {})
 }

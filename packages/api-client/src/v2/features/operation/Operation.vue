@@ -16,7 +16,6 @@ import { computed, toValue } from 'vue'
 
 import { isElectron } from '@/libs/electron'
 import { OperationBlock } from '@/v2/blocks/operation-block'
-import type { ExtendedScalarCookie } from '@/v2/blocks/request-block/RequestBlock.vue'
 import { APP_VERSION } from '@/v2/constants'
 import type { RouteProps } from '@/v2/features/app/helpers/routes'
 import { mapHiddenClientsConfig } from '@/v2/features/modal/helpers/map-hidden-clients-config'
@@ -70,22 +69,12 @@ const requestExample = computed(() => {
 })
 
 const operation = computed(() => requestExample.value?.operation ?? null)
-const globalCookies = computed((): ExtendedScalarCookie[] => {
-  const ctx = requestExample.value
-  if (!ctx) {
-    return []
-  }
-  return [
-    ...(ctx.cookies.workspace.map((it) => ({
-      ...it,
-      location: 'workspace',
-    })) satisfies ExtendedScalarCookie[]),
-    ...(ctx.cookies.document.map((it) => ({
-      ...it,
-      location: 'document',
-    })) satisfies ExtendedScalarCookie[]),
-  ]
-})
+const workspaceCookies = computed(
+  () => requestExample.value?.cookies.workspace ?? [],
+)
+const documentCookies = computed(
+  () => requestExample.value?.cookies.document ?? [],
+)
 const servers = computed(() => requestExample.value?.servers.list ?? [])
 const selectedServer = computed(
   () => requestExample.value?.servers.selected ?? null,
@@ -143,13 +132,13 @@ const httpClients = computed(() =>
       :appVersion="APP_VERSION"
       :authMeta
       :defaultHeaders
+      :documentCookies
       :documentSecurity="document?.security ?? []"
       :documentUrl="document?.['x-scalar-original-source-url']"
       :environment
       :environments
       :eventBus
       :exampleKey="exampleName"
-      :globalCookies
       :hideClientButton="toValue(options)?.hideClientButton ?? false"
       :history="workspaceStore.history.getHistory(documentSlug, path, method)"
       :httpClients
@@ -171,7 +160,8 @@ const httpClients = computed(() =>
       :selectedSecuritySchemes="selectedSecuritySchemes"
       :server="selectedServer"
       :serverMeta
-      :servers />
+      :servers
+      :workspaceCookies />
   </template>
 
   <!-- Empty state -->

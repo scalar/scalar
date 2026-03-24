@@ -21,8 +21,10 @@ export type OperationBlockProps = {
   eventBus: WorkspaceEventBus
   /** Application version */
   appVersion: string
-  /** Workspace/document cookies */
-  globalCookies: ExtendedScalarCookie[]
+  /** Workspace cookies */
+  workspaceCookies: XScalarCookie[]
+  /** Document cookies */
+  documentCookies: XScalarCookie[]
   /** Current request path */
   path: string
   /** Current request method */
@@ -51,8 +53,6 @@ export type OperationBlockProps = {
   source?: 'gitbook' | 'api-reference'
   /** Operation object */
   operation: OperationObject
-  /** Operation selected security */
-  // operationSelectedSecurity: SelectedSecurity | undefined
   /** Currently selected example key for the current operation */
   exampleKey: string
   /** Meta information for the auth update */
@@ -102,6 +102,7 @@ import {
   requestFactory,
 } from '@scalar/workspace-store/request-example'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
+import type { XScalarCookie } from '@scalar/workspace-store/schemas/extensions/general/x-scalar-cookies'
 import type {
   OpenApiDocument,
   ServerObject,
@@ -127,7 +128,6 @@ import { sendRequest } from '@/v2/blocks/operation-block/helpers/send-request'
 import { validatePathParameters } from '@/v2/blocks/operation-block/helpers/validate-path-parameters'
 import { generateClientOptions } from '@/v2/blocks/operation-code-sample'
 import { RequestBlock } from '@/v2/blocks/request-block'
-import type { ExtendedScalarCookie } from '@/v2/blocks/request-block/RequestBlock.vue'
 import { ResponseBlock } from '@/v2/blocks/response-block'
 import { type History } from '@/v2/blocks/scalar-address-bar-block'
 import type { SecuritySchemeObjectSecret } from '@/v2/blocks/scalar-auth-selector-block'
@@ -140,7 +140,8 @@ const {
   environment,
   eventBus,
   exampleKey,
-  globalCookies = [],
+  workspaceCookies = [],
+  documentCookies = [],
   hideClientButton,
   httpClients = AVAILABLE_CLIENTS,
   history = [],
@@ -197,7 +198,9 @@ const handleExecute = async () => {
     return
   }
 
-  const requestBulder = requestFactory({
+  const globalCookies = [...workspaceCookies, ...documentCookies]
+
+  const requestBuilder = requestFactory({
     defaultHeaders,
     environment,
     exampleName: exampleKey,
@@ -211,8 +214,8 @@ const handleExecute = async () => {
     isElectron: isElectron(),
   })
 
-  if (requestBulder.ok === false) {
-    toast(requestBulder.error, 'error')
+  if (requestBuilder.ok === false) {
+    toast(requestBuilder.error, 'error')
     return
   }
 
@@ -233,13 +236,13 @@ const handleExecute = async () => {
   // Execute the beforeRequest hook
   await executeHook(
     // @ts-expect-error - TODO: fix this update to use the new request factory
-    { request: requestBulder.data.request },
+    { request: requestBuilder.data.request },
     'beforeRequest',
     plugins,
   )
 
   // Build the actual request we will send
-  const requestResult = buildRequest(requestBulder.data.request, {
+  const requestResult = buildRequest(requestBuilder.data.request, {
     envVariables: getEnvironmentVariables(environment),
     serverVariables: serverVariables.value,
   })
@@ -249,7 +252,7 @@ const handleExecute = async () => {
 
   /** Execute the request */
   const [sendError, sendResult] = await sendRequest({
-    isUsingProxy: requestBulder.data.request.proxy.isUsingProxy,
+    isUsingProxy: requestBuilder.data.request.proxy.isUsingProxy,
     operation,
     plugins,
     request: requestResult.request.clone(),
@@ -438,10 +441,10 @@ onBeforeUnmount(() => {
           :authMeta
           :clientOptions
           :defaultHeaders
+          :documentCookies
           :environment
           :eventBus
           :exampleKey
-          :globalCookies
           :layout
           :method
           :operation
@@ -453,7 +456,8 @@ onBeforeUnmount(() => {
           :selectedClient
           :selectedSecurity
           :selectedSecuritySchemes
-          :server />
+          :server
+          :workspaceCookies />
 
         <!-- Response Section -->
         <ResponseBlock

@@ -71,13 +71,10 @@ export const sendRequest = async ({
   }>
 > => {
   try {
-    // // Apply any beforeRequest hooks from the plugins
-    // const { request: modifiedRequest } = await executeHook({ request }, 'beforeRequest', plugins)
-
     // Execute the request and measure duration
-    const startTime = Date.now()
+    const startTime = performance.now()
     const response = await fetch(request.clone())
-    const endTime = Date.now()
+    const endTime = performance.now()
     const duration = endTime - startTime
 
     // Extract response metadata early for reuse
