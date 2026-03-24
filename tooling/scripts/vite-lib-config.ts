@@ -14,24 +14,35 @@ import { resolve } from 'node:path'
  * type, index, and lang suffixes to avoid collisions:
  * `Foo.vue?vue&type=style&index=1&lang.css` → `Foo.vue.style.1.css`.
  *
+ * `type` and `index` use `URLSearchParams`. Vue encodes language as
+ * `lang.<ext>` in the query string (not `lang=<ext>`), so we match that
+ * token with a small regex instead of `get('lang')`.
+ *
  * @see https://github.com/rolldown/rolldown/pull/8817
  */
 const sanitizeChunkName = (name: string): string => {
-  const queryIndex = name.indexOf('?')
+  // Look for a query string in the chunk name (e.g., 'Foo.vue?vue&type=...')
+  const queryStart = name.indexOf('?')
 
-  if (queryIndex === -1) {
+  // If there is no query string, this is a facade module; return as-is
+  if (queryStart === -1) {
     return name
   }
 
-  const base = name.slice(0, queryIndex)
-  const query = name.slice(queryIndex + 1)
+  // Separate base filename and query string
+  const base = name.substring(0, queryStart)
+  const queryString = name.substring(queryStart + 1)
 
-  const typeMatch = query.match(/(?:^|&)type=([^&]+)/)
-  const indexMatch = query.match(/(?:^|&)index=(\d+)/)
-  const langMatch = query.match(/(?:^|&)lang\.([^&]+)/)
+  // Parse out standard params from the query string for further handling
+  const params = new URLSearchParams(queryString)
 
-  const typeSuffix = typeMatch ? typeMatch[1] : 'virtual'
-  const indexSuffix = indexMatch && indexMatch[1] !== '0' ? `.${indexMatch[1]}` : ''
+  const typeRaw = params.get('type')
+  const typeSuffix = typeRaw && typeRaw.length > 0 ? typeRaw : 'virtual'
+
+  const indexRaw = params.get('index')
+  const indexSuffix = indexRaw && indexRaw !== '0' ? `.${indexRaw}` : ''
+
+  const langMatch = queryString.match(/(?:^|&)lang\.([^&]+)/)
   const langSuffix = langMatch ? `.${langMatch[1]}` : ''
 
   return `${base}.${typeSuffix}${indexSuffix}${langSuffix}`
