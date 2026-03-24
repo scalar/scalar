@@ -11,6 +11,8 @@ import { resolve } from 'node:path'
  *
  * Virtual modules (with query strings) get a `_vue-<type>` suffix so they
  * do not collide with the SFC facade module that shares the same base name.
+ *
+ * @see https://github.com/rolldown/rolldown/pull/8817
  */
 const sanitizeChunkName = (name: string): string => {
   const queryIndex = name.indexOf('?')
