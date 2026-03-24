@@ -1,7 +1,6 @@
 import type { ApiClientConfiguration } from '@scalar/types/api-reference'
 import { createRouter, createWebHistory } from 'vue-router'
 
-import { analytics } from '@/analytics'
 import { createApiClient } from '@/libs'
 import { routes, saveActiveWorkspace } from '@/routes'
 
@@ -37,15 +36,7 @@ export const createApiClientWeb = async (
 
   const { importSpecFile, importSpecFromUrl } = client.store
 
-  router.afterEach((to, from) => {
-    if (configuration.telemetry) {
-      analytics?.capture('page-view', {
-        hostname: window.location.hostname,
-        to: to.path, // capture path excluding query params
-        from: from.path,
-      })
-    }
-
+  router.afterEach((to) => {
     saveActiveWorkspace(to)
   })
 

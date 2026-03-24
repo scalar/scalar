@@ -95,6 +95,7 @@ catalogs:
     whatwg-mimetype: 4.0.0
     yaml: ^2.8.0
     zod: ^4.3.5
+    posthog-js: 1.363.2
 ignoredBuiltDependencies:
   - '@firebase/util'
   - core-js
