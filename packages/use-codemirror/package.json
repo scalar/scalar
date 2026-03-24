@@ -16,18 +16,15 @@
     "vue",
     "vue3"
   ],
-  "version": "0.14.8",
+  "version": "0.14.10",
   "engines": {
     "node": ">=22"
   },
   "scripts": {
-    "build": "scalar-build-esbuild",
+    "build": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
     "dev": "vite .",
-    "lint:check": "scalar-lint-check",
-    "lint:fix": "scalar-lint-fix",
     "test": "vitest",
-    "types:build": "scalar-types-build",
-    "types:check": "scalar-types-check-vue"
+    "types:check": "vue-tsc --noEmit"
   },
   "type": "module",
   "main": "dist/index.js",
@@ -63,15 +60,14 @@
     "@lezer/common": "^1.2.3",
     "@lezer/highlight": "^1.2.1",
     "@replit/codemirror-css-color-picker": "^6.3.0",
-    "@scalar/components": "workspace:*",
     "vue": "catalog:*"
   },
   "devDependencies": {
-    "@scalar/build-tooling": "workspace:*",
     "@scalar/themes": "workspace:*",
     "@vitejs/plugin-vue": "catalog:*",
     "vite": "catalog:*",
     "vitest": "catalog:*",
-    "vue": "catalog:*"
+    "vue": "catalog:*",
+    "vue-tsc": "catalog:*"
   }
 }

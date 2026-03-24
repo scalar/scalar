@@ -18,19 +18,14 @@
     "testing",
     "react"
   ],
-  "version": "0.9.9",
+  "version": "0.9.13",
   "engines": {
     "node": ">=22"
   },
   "scripts": {
-    "build": "scalar-build-vite",
+    "build": "vite build && tsc -p tsconfig.build.json",
     "dev": "vite ./playground -c ./vite.config.ts",
-    "format": "scalar-format",
-    "format:check": "scalar-format-check",
-    "lint:check": "scalar-lint-check",
-    "lint:fix": "scalar-lint-fix",
-    "types:build": "scalar-types-build",
-    "types:check": "scalar-types-check"
+    "types:check": "tsc --noEmit"
   },
   "type": "module",
   "main": "./dist/index.js",
@@ -53,7 +48,6 @@
     "@scalar/types": "workspace:*"
   },
   "devDependencies": {
-    "@scalar/build-tooling": "workspace:*",
     "@types/react": "catalog:*",
     "@types/react-dom": "catalog:*",
     "@vitejs/plugin-react": "catalog:*",

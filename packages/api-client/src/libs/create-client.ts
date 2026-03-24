@@ -1,7 +1,7 @@
+import { prettyPrintJson } from '@scalar/helpers/json/pretty-print-json'
 import { LS_KEYS } from '@scalar/helpers/object/local-storage'
 import type { SecurityScheme } from '@scalar/oas-utils/entities/spec'
 import { type Workspace, workspaceSchema } from '@scalar/oas-utils/entities/workspace'
-import { prettyPrintJson } from '@scalar/oas-utils/helpers'
 import { DATA_VERSION, DATA_VERSION_LS_LEY } from '@scalar/oas-utils/migrations'
 import type { Path, PathValue } from '@scalar/object-utils/nested'
 import type { OpenAPI } from '@scalar/openapi-types'

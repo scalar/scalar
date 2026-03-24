@@ -478,12 +478,12 @@ const html = computed(() => {
 
   /* Blockquotes */
   .markdown blockquote {
-    border-left: 1px solid var(--scalar-color-1);
-    padding-left: var(--markdown-spacing-md);
-    margin: 0;
-    display: block;
-    font-weight: var(--scalar-bold);
-    font-size: var(--scalar-font-size-2);
+    border-left: 2px solid var(--scalar-border-color);
+    padding-left: var(--markdown-spacing-sm);
+  }
+
+  .markdown blockquote > * {
+    margin-bottom: var(--markdown-spacing-sm);
   }
 
   /* Markdown Checklist */

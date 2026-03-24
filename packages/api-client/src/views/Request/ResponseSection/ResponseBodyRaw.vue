@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { ScalarCodeBlockCopy } from '@scalar/components'
-import { prettyPrintJson } from '@scalar/oas-utils/helpers'
+import { prettyPrintJson } from '@scalar/helpers/json/pretty-print-json'
 import { useCodeMirror, type CodeMirrorLanguage } from '@scalar/use-codemirror'
 import { ref, toRef, useId } from 'vue'
 

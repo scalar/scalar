@@ -1,5 +1,5 @@
 import { mount } from '@vue/test-utils'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { nextTick } from 'vue'
 
 import ScalarComboboxMultiselect from './ScalarComboboxMultiselect.vue'
@@ -41,11 +41,14 @@ const extendedOptions = [
 describe('ScalarComboboxMultiselect', () => {
   describe('with single options', () => {
     it('allows multiple selections', async () => {
+      const onUpdate = vi.fn((value) => {
+        wrapper.setProps({ modelValue: value })
+      })
       const wrapper = mount(ScalarComboboxMultiselect, {
         props: {
           options: singleOptions,
           modelValue: [],
-          'onUpdate:modelValue': (e) => wrapper.setProps({ modelValue: e }),
+          'onUpdate:modelValue': onUpdate,
         },
         slots: { default: '<button>Toggle</button>' },
       })
@@ -57,19 +60,22 @@ describe('ScalarComboboxMultiselect', () => {
       await optionElements[0]?.trigger('click')
       await optionElements[1]?.trigger('click')
 
-      const emitted = wrapper.emitted('update:modelValue')
-      expect(emitted).toBeTruthy()
-      expect(emitted?.[emitted.length - 1]?.[0]).toHaveLength(2)
+      expect(onUpdate).toHaveBeenCalled()
+      const lastCall = onUpdate.mock.calls[onUpdate.mock.calls.length - 1]
+      expect(lastCall?.[0]).toHaveLength(2)
     })
   })
 
   describe('with grouped options', () => {
     it('allows multiple selections', async () => {
+      const onUpdate = vi.fn((value) => {
+        wrapper.setProps({ modelValue: value })
+      })
       const wrapper = mount(ScalarComboboxMultiselect, {
         props: {
           options: groupedOptions,
           modelValue: [],
-          'onUpdate:modelValue': (e) => wrapper.setProps({ modelValue: e }),
+          'onUpdate:modelValue': onUpdate,
         },
         slots: { default: '<button>Toggle</button>' },
       })
@@ -81,9 +87,9 @@ describe('ScalarComboboxMultiselect', () => {
       await optionElements[0]?.trigger('click')
       await optionElements[1]?.trigger('click')
 
-      const emitted = wrapper.emitted('update:modelValue')
-      expect(emitted).toBeTruthy()
-      expect(emitted?.[emitted.length - 1]?.[0]).toHaveLength(2)
+      expect(onUpdate).toHaveBeenCalled()
+      const lastCall = onUpdate.mock.calls[onUpdate.mock.calls.length - 1]
+      expect(lastCall?.[0]).toHaveLength(2)
     })
   })
 
@@ -136,8 +142,9 @@ describe('ScalarComboboxMultiselect', () => {
     })
 
     it('focuses add option when no results and keeps popover open on add', async () => {
+      const onAdd = vi.fn()
       const wrapper = mount(ScalarComboboxMultiselect, {
-        props: { options: singleOptions, modelValue: [] },
+        props: { options: singleOptions, modelValue: [], onAdd },
         slots: {
           default: '<button>Toggle</button>',
           add: `
@@ -163,13 +170,14 @@ describe('ScalarComboboxMultiselect', () => {
 
       // Clicking add should emit add but the popover stays open in multiselect
       await wrapper.get('[data-test="add-slot"]').trigger('click')
-      expect(wrapper.emitted('add')).toBeTruthy()
+      expect(onAdd).toHaveBeenCalled()
       expect(wrapper.find('ul[role="listbox"]').exists()).toBe(true)
     })
 
     it('navigates to add via arrow keys and Enter emits add (open remains)', async () => {
+      const onAdd = vi.fn()
       const wrapper = mount(ScalarComboboxMultiselect, {
-        props: { options: singleOptions, modelValue: [] },
+        props: { options: singleOptions, modelValue: [], onAdd },
         slots: {
           default: '<button>Toggle</button>',
           add: `
@@ -196,7 +204,7 @@ describe('ScalarComboboxMultiselect', () => {
       expect(ariaId).toBe(addLi?.id)
 
       await input.trigger('keydown.enter')
-      expect(wrapper.emitted('add')).toBeTruthy()
+      expect(onAdd).toHaveBeenCalled()
       // Multiselect does not close on add
       expect(wrapper.find('ul[role="listbox"]').exists()).toBe(true)
     })

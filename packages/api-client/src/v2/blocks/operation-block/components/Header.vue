@@ -71,7 +71,7 @@ const handleSelectEnvironment = (environmentName: string) => {
 }
 
 const handleAddEnvironment = () => {
-  eventBus.emit('ui:navigate', { page: 'workspace', path: 'environment' })
+  eventBus.emit('ui:navigate', { page: 'document', path: 'environment' })
 }
 </script>
 

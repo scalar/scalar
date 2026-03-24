@@ -167,6 +167,7 @@ const selectedSecurity = computed(() =>
     documentSelectedSecurity,
     operationSelectedSecurity,
     securityRequirements.value,
+    securitySchemes,
   ),
 )
 

@@ -1,5 +1,27 @@
 # @scalar/nuxt
 
+## 0.6.13
+
+## 0.6.12
+
+## 0.6.11
+
+## 0.6.10
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-client@2.38.1**
+  - [#8468](https://github.com/scalar/scalar/pull/8468): fix: example extraction, environment navigation and general UI fixes
+  - [#8451](https://github.com/scalar/scalar/pull/8451): fix(api-client): default-close auth when not required
+
+- **@scalar/api-reference@1.49.0**
+  - [#8443](https://github.com/scalar/scalar/pull/8443): fix hash-prefixed basePath routing
+  - [#8467](https://github.com/scalar/scalar/pull/8467): feat(api-reference): improve Ask AI button consistency and a11y
+  - [#8409](https://github.com/scalar/scalar/pull/8409): feat: lazy rendering
+  - [#8442](https://github.com/scalar/scalar/pull/8442): fix object schema descriptions in parameter rendering
+
 ## 0.6.9
 
 ### Patch Changes

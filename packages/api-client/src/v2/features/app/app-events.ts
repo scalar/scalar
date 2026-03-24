@@ -92,6 +92,9 @@ export function initializeAppEventHandlers({
           callback: async (status) => {
             // Redirect to the new example if the mutation was successful
             if (status === 'success') {
+              // Rebuild the sidebar with the updated order
+              rebuildSidebar(store.value?.workspace.activeDocument?.['x-scalar-navigation']?.name)
+
               await router.replace({
                 name: 'example',
                 params: {
@@ -100,9 +103,6 @@ export function initializeAppEventHandlers({
                   exampleName: currentRoute.value?.params.exampleName,
                 },
               })
-
-              // Rebuild the sidebar with the updated order
-              rebuildSidebar(store.value?.workspace.activeDocument?.['x-scalar-navigation']?.name)
             }
             payload.callback(status)
           },

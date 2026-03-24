@@ -13,20 +13,15 @@
   "keywords": [
     "vue drag and drop draggable html"
   ],
-  "version": "0.4.0",
+  "version": "0.4.1",
   "engines": {
     "node": ">=22"
   },
   "scripts": {
-    "build": "scalar-build-vite",
+    "build": "vite build && vue-tsc -p tsconfig.build.json",
     "dev": "vite ./playground -c ./vite.config.ts",
-    "format": "scalar-format",
-    "format:check": "scalar-format-check",
-    "lint:check": "scalar-lint-check",
-    "lint:fix": "scalar-lint-fix",
     "test": "vitest",
-    "types:build": "scalar-types-build-vue",
-    "types:check": "scalar-types-check-vue"
+    "types:check": "vue-tsc --noEmit"
   },
   "type": "module",
   "main": "dist/index.js",
@@ -56,7 +51,6 @@
     "vue": "catalog:*"
   },
   "devDependencies": {
-    "@scalar/build-tooling": "workspace:*",
     "@vitejs/plugin-vue": "catalog:*",
     "vite": "catalog:*",
     "vue": "catalog:*"

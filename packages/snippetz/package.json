@@ -9,21 +9,18 @@
     "url": "git+https://github.com/scalar/scalar.git",
     "directory": "packages/snippetz"
   },
-  "version": "0.7.4",
+  "version": "0.7.6",
   "engines": {
     "node": ">=22"
   },
   "scripts": {
-    "build": "scalar-build-esbuild",
-    "generate:dotnet-enums": "vite-node scripts/generate-dotnet-enums.ts",
-    "generate:java-enums": "vite-node scripts/generate-java-enums.ts",
-    "generate:markdown-docs": "vite-node scripts/generate-markdown-docs.ts",
-    "lint:check": "scalar-lint-check",
-    "lint:fix": "scalar-lint-fix",
+    "build": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
+    "generate:dotnet-enums": "tsx scripts/generate-dotnet-enums.ts",
+    "generate:java-enums": "tsx scripts/generate-java-enums.ts",
+    "generate:markdown-docs": "tsx scripts/generate-markdown-docs.ts",
     "postbuild": "pnpm generate:dotnet-enums && pnpm generate:java-enums && pnpm generate:markdown-docs",
     "test": "vitest",
-    "types:build": "scalar-types-build",
-    "types:check": "scalar-types-check"
+    "types:check": "tsc --noEmit"
   },
   "type": "module",
   "module": "./dist/index.js",
@@ -245,7 +242,6 @@
     "stringify-object": "^6.0.0"
   },
   "devDependencies": {
-    "@scalar/build-tooling": "workspace:*",
     "@types/stringify-object": "^4.0.5",
     "vite": "catalog:*"
   }

@@ -145,21 +145,20 @@ const shouldCollapse = computed<boolean>(() =>
         <div
           v-else
           class="flex-1" />
-
-        <div
-          class="absolute top-[calc(9px+0.5lh)] right-0 z-0 flex -translate-y-1/2 items-center"
-          :class="{
-            'opacity-0 group-focus-within/parameter-item:opacity-100 group-hover/parameter-item:opacity-100':
-              !open,
-          }">
-          <div
-            class="from-b-1 absolute inset-y-0 -left-6 -z-1 w-8 bg-linear-to-l from-40% to-transparent" />
-          <ContentTypeSelect
-            v-if="shouldCollapse && content"
-            v-model="selectedContentType"
-            :content="content" />
-        </div>
       </DisclosureButton>
+      <div
+        v-if="shouldCollapse && content"
+        class="absolute top-[calc(10px+0.5lh)] right-0 z-0 flex -translate-y-1/2 items-center text-base"
+        :class="{
+          'opacity-0 group-focus-within/parameter-item:opacity-100 group-hover/parameter-item:opacity-100':
+            !open,
+        }">
+        <div
+          class="from-b-1 absolute inset-y-0 -left-6 -z-1 w-8 bg-linear-to-l from-40% to-transparent" />
+        <ContentTypeSelect
+          v-model="selectedContentType"
+          :content="content" />
+      </div>
       <DisclosurePanel
         class="parameter-item-container parameter-item-container-markdown"
         :static="!shouldCollapse">
@@ -240,7 +239,7 @@ const shouldCollapse = computed<boolean>(() =>
 
 /* Match font size of markdown for property-detail-value since first child within accordian is displayed as if it were in the markdown section */
 .parameter-item-trigger
-  + .parameter-item-container
+  ~ .parameter-item-container
   :deep(.property--level-0 > .property-heading .property-detail-value) {
   font-size: var(--scalar-micro);
 }

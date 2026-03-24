@@ -1,5 +1,5 @@
 import { mount } from '@vue/test-utils'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { defineComponent, ref } from 'vue'
 
 import ScalarSidebarButton from './ScalarSidebarButton.vue'
@@ -241,10 +241,14 @@ describe('ScalarSidebarGroup', () => {
   })
 
   it('emits click event when main button is clicked in discrete mode', async () => {
+    const onClick = vi.fn()
     const TestComponent = defineComponent({
       components: { ScalarSidebarGroup, ScalarSidebarItem },
+      setup() {
+        return { onClick }
+      },
       template: `
-        <ScalarSidebarGroup discrete>
+        <ScalarSidebarGroup discrete @click="onClick">
           Group 1
           <template #items>
             <ScalarSidebarItem>Items</ScalarSidebarItem>
@@ -260,8 +264,8 @@ describe('ScalarSidebarGroup', () => {
     await mainButton.trigger('click')
 
     // Click event should be emitted
-    expect(groupComponent.emitted('click')).toBeTruthy()
-    expect(groupComponent.emitted('click')).toHaveLength(1)
+    expect(onClick).toHaveBeenCalled()
+    expect(onClick).toHaveBeenCalledTimes(1)
   })
 
   it('does not toggle when main button is clicked in discrete mode', async () => {
@@ -325,10 +329,14 @@ describe('ScalarSidebarGroup', () => {
   })
 
   it('emits toggle event when separate toggle button is clicked in discrete mode', async () => {
+    const onToggle = vi.fn()
     const TestComponent = defineComponent({
       components: { ScalarSidebarGroup, ScalarSidebarItem },
+      setup() {
+        return { onToggle }
+      },
       template: `
-        <ScalarSidebarGroup discrete>
+        <ScalarSidebarGroup discrete @toggle="onToggle">
           Group 1
           <template #items>
             <ScalarSidebarItem>Items</ScalarSidebarItem>
@@ -338,7 +346,6 @@ describe('ScalarSidebarGroup', () => {
     })
 
     const wrapper = mount(TestComponent)
-    const groupComponent = wrapper.findComponent(ScalarSidebarGroup)
 
     // Find the separate toggle button
     const toggleButtons = wrapper.findAll('button[type="button"]')
@@ -349,8 +356,8 @@ describe('ScalarSidebarGroup', () => {
     await toggleButton?.trigger('click')
 
     // Toggle event should be emitted
-    expect(groupComponent.emitted('toggle')).toBeTruthy()
-    expect(groupComponent.emitted('toggle')).toHaveLength(1)
+    expect(onToggle).toHaveBeenCalled()
+    expect(onToggle).toHaveBeenCalledTimes(1)
   })
 
   it('does not toggle when separate toggle button is clicked in discrete controlled mode', async () => {
@@ -435,10 +442,15 @@ describe('ScalarSidebarGroup', () => {
   })
 
   it('allows main button click and toggle button click to work independently in discrete mode', async () => {
+    const onClick = vi.fn()
+    const onToggle = vi.fn()
     const TestComponent = defineComponent({
       components: { ScalarSidebarGroup, ScalarSidebarItem },
+      setup() {
+        return { onClick, onToggle }
+      },
       template: `
-        <ScalarSidebarGroup discrete>
+        <ScalarSidebarGroup discrete @click="onClick" @toggle="onToggle">
           Group 1
           <template #items>
             <ScalarSidebarItem>Items</ScalarSidebarItem>
@@ -461,23 +473,21 @@ describe('ScalarSidebarGroup', () => {
     await mainButton.trigger('click')
 
     // Click event should be emitted, but group should not toggle
-    expect(groupComponent.emitted('click')).toBeTruthy()
-    expect(groupComponent.emitted('click')).toHaveLength(1)
+    expect(onClick).toHaveBeenCalledTimes(1)
     expect(mainButton.attributes('aria-expanded')).toBe('false')
 
     // Click the toggle button
     await toggleButton?.trigger('click')
 
     // Toggle event should be emitted, and group should toggle
-    expect(groupComponent.emitted('toggle')).toBeTruthy()
-    expect(groupComponent.emitted('toggle')).toHaveLength(1)
+    expect(onToggle).toHaveBeenCalledTimes(1)
     expect(mainButton.attributes('aria-expanded')).toBe('true')
 
     // Click the main button again
     await mainButton.trigger('click')
 
     // Click event should be emitted again, but group should remain open
-    expect(groupComponent.emitted('click')).toHaveLength(2)
+    expect(onClick).toHaveBeenCalledTimes(2)
     expect(mainButton.attributes('aria-expanded')).toBe('true')
   })
 })

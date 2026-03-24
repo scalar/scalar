@@ -1,5 +1,11 @@
 # @scalar/core
 
+## 0.4.4
+
+### Patch Changes
+
+- [#8466](https://github.com/scalar/scalar/pull/8466): chore: new build pipeline
+
 ## 0.4.3
 
 ### Patch Changes

@@ -1,5 +1,23 @@
 # @scalar/icons
 
+## 0.6.3
+
+### Patch Changes
+
+- [#8529](https://github.com/scalar/scalar/pull/8529): rewrite declaration aliases in built type files
+
+## 0.6.2
+
+### Patch Changes
+
+- [#8508](https://github.com/scalar/scalar/pull/8508): fix: add sideEffects: false to enable tree-shaking for Webpack consumers
+
+## 0.6.1
+
+### Patch Changes
+
+- [#8466](https://github.com/scalar/scalar/pull/8466): chore: new build pipeline
+
 ## 0.6.0
 
 ### Minor Changes

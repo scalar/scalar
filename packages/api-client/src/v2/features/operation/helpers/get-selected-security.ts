@@ -1,7 +1,39 @@
 import type { SelectedSecurity } from '@scalar/workspace-store/entities/auth'
+import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
 import { isAuthOptional } from '@/v2/blocks/scalar-auth-selector-block/helpers/is-auth-optional'
+
+type DefaultScopeScheme = {
+  type?: string
+  'x-default-scopes'?: string[]
+}
+
+const applyDefaultScopes = (
+  requirement: NonNullable<OpenApiDocument['security']>[number],
+  securitySchemes: Record<string, DefaultScopeScheme | undefined>,
+): NonNullable<OpenApiDocument['security']>[number] => {
+  let didApplyDefaultScopes = false
+
+  const hydratedRequirement = Object.fromEntries(
+    Object.entries(requirement).map(([name, scopes]) => {
+      if (Array.isArray(scopes) && scopes.length > 0) {
+        return [name, scopes]
+      }
+
+      const scheme = getResolvedRef(securitySchemes[name])
+      const defaultScopes = scheme?.type === 'oauth2' ? scheme['x-default-scopes'] : undefined
+      if (Array.isArray(defaultScopes) && defaultScopes.length > 0) {
+        didApplyDefaultScopes = true
+        return [name, [...defaultScopes]]
+      }
+
+      return [name, scopes]
+    }),
+  )
+
+  return didApplyDefaultScopes ? hydratedRequirement : requirement
+}
 
 /**
  * Resolves which security selection to use for an operation.
@@ -13,6 +45,7 @@ export const getSelectedSecurity = (
   documentSelectedSecurity: SelectedSecurity | undefined,
   operationSelectedSecurity: SelectedSecurity | undefined,
   securityRequirements: NonNullable<OpenApiDocument['security']> = [],
+  securitySchemes: Record<string, DefaultScopeScheme | undefined> = {},
 ): SelectedSecurity => {
   // Operation level security
   if (operationSelectedSecurity) {
@@ -35,8 +68,10 @@ export const getSelectedSecurity = (
   }
 
   // Default to the first requirement
+  const hydratedRequirement = applyDefaultScopes(firstRequirement, securitySchemes)
+
   return {
     selectedIndex: 0,
-    selectedSchemes: [firstRequirement],
+    selectedSchemes: [hydratedRequirement],
   }
 }

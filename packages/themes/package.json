@@ -15,18 +15,13 @@
     "css-variables",
     "scalar"
   ],
-  "version": "0.15.0",
+  "version": "0.15.1",
   "engines": {
     "node": ">=22"
   },
   "scripts": {
-    "build": "scalar-build-vite",
-    "format": "scalar-format",
-    "format:check": "scalar-format-check",
-    "lint:check": "scalar-lint-check",
-    "lint:fix": "scalar-lint-fix",
-    "types:build": "scalar-types-build",
-    "types:check": "scalar-types-check"
+    "build": "vite build && tsc -p tsconfig.build.json",
+    "types:check": "tsc --noEmit"
   },
   "type": "module",
   "main": "./dist/index.js",
@@ -50,7 +45,6 @@
     "nanoid": "catalog:*"
   },
   "devDependencies": {
-    "@scalar/build-tooling": "workspace:*",
     "tailwindcss": "catalog:*",
     "vite": "catalog:*"
   }

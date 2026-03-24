@@ -16,20 +16,15 @@
     "openapi",
     "scalar"
   ],
-  "version": "0.40.1",
+  "version": "0.40.4",
   "engines": {
     "node": ">=22"
   },
   "scripts": {
-    "build": "scalar-build-esbuild",
-    "format": "scalar-format",
-    "format:check": "scalar-format-check",
-    "generate-json-schemas": "vite-node ./scripts/generate-json-schemas.ts",
-    "lint:check": "scalar-lint-check",
-    "lint:fix": "scalar-lint-fix",
+    "build": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
+    "generate-json-schemas": "tsx ./scripts/generate-json-schemas.ts",
     "test": "vitest",
-    "types:build": "scalar-types-build",
-    "types:check": "scalar-types-check"
+    "types:check": "tsc --noEmit"
   },
   "type": "module",
   "exports": {
@@ -159,7 +154,6 @@
   },
   "devDependencies": {
     "@google-cloud/storage": "catalog:*",
-    "@scalar/build-tooling": "workspace:*",
     "fake-indexeddb": "catalog:*",
     "fastify": "catalog:*",
     "vite": "catalog:*",

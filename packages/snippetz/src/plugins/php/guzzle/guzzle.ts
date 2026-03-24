@@ -64,10 +64,18 @@ export const phpGuzzle: Plugin = {
         }
       } else if (request.postData.mimeType === 'multipart/form-data') {
         if (request.postData.params) {
-          options.multipart = request.postData.params.map((param) => ({
-            name: param.name,
-            contents: param.fileName ? new Raw(`fopen('${param.fileName}', 'r')`) : param.value || '',
-          }))
+          options.multipart = request.postData.params.map((param) => {
+            const part: Record<string, any> = {
+              name: param.name,
+              contents: param.fileName ? new Raw(`fopen('${param.fileName}', 'r')`) : param.value || '',
+            }
+
+            if (param.contentType) {
+              part.headers = { 'Content-Type': param.contentType }
+            }
+
+            return part
+          })
         } else if (request.postData.text) {
           try {
             options.form_params = JSON.parse(request.postData.text)

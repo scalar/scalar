@@ -155,6 +155,19 @@ pnpm --filter @scalar-internal/build-scripts start update-playwright-docker
 
 **Note:** This command requires Docker to be installed and configured, and you must have push access to the `scalarapi` Docker Hub organization.
 
+### `generate-blog`
+
+Generate blog index cards and update `scalar.config.json` from post files.
+
+Scans `documentation/blog/` for markdown files matching `YYYY-MM-DD-slug.md`, then:
+- Rewrites the auto-generated cards section (between `<!-- generated -->` / `<!-- /generated -->` markers) in `documentation/blog/index.md`. Descriptions between `:::scalar-card` and `::scalar-fineprint` are preserved across runs.
+- Updates the `/blog/posts` children in `scalar.config.json`. Custom titles in the config are preserved.
+
+**Usage:**
+```bash
+pnpm --filter @scalar-internal/build-scripts start generate-blog
+```
+
 ### `generate-readme`
 
 Generate README.md files for packages with readme metadata.

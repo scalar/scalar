@@ -11,6 +11,7 @@ import {
   normalizeAuthSchemes,
   normalizeRefs,
   refsEverywhere,
+  removeExtraScalarKeys,
   restoreOriginalRefs,
   syncPathParameters,
 } from '@/plugins/bundler'
@@ -1965,5 +1966,106 @@ describe('syncPathParameters', () => {
     const refParams = params.filter((p: any) => p.$ref === '#/components/parameters/IdParam')
 
     expect(refParams).toHaveLength(1)
+  })
+})
+
+describe('removeExtraScalarKeys', () => {
+  it('removes __scalar_ from nodes during bundle', async () => {
+    const input = {
+      openapi: '3.0.0',
+      info: { title: 'API', __scalar_: { some: 'internal' } },
+      paths: {},
+    }
+
+    await bundle(input, {
+      treeShake: false,
+      plugins: [removeExtraScalarKeys()],
+    })
+
+    expect(input.info).not.toHaveProperty('__scalar_')
+    expect(input.info).toEqual({ title: 'API' })
+  })
+
+  it('removes $status from nodes during bundle', async () => {
+    const input = {
+      responses: {
+        200: {
+          $ref: '#/components/responses/Ok',
+          $status: 'loading',
+        },
+      },
+    }
+
+    await bundle(input, {
+      treeShake: false,
+      plugins: [removeExtraScalarKeys()],
+    })
+
+    expect(input.responses['200']).not.toHaveProperty('$status')
+    expect(input.responses['200']).toEqual({ $ref: '#/components/responses/Ok' })
+  })
+
+  it('removes both __scalar_ and $status when present on the same node', async () => {
+    const input = {
+      schema: {
+        $ref: '#/components/schemas/User',
+        __scalar_: {},
+        $status: 'error',
+        type: 'object',
+      },
+    }
+
+    await bundle(input, {
+      treeShake: false,
+      plugins: [removeExtraScalarKeys()],
+    })
+
+    expect(input.schema).not.toHaveProperty('__scalar_')
+    expect(input.schema).not.toHaveProperty('$status')
+    expect(input.schema).toEqual({
+      $ref: '#/components/schemas/User',
+      type: 'object',
+    })
+  })
+
+  it('removes internal keys from nested nodes at any level', async () => {
+    const input = {
+      a: {
+        b: {
+          __scalar_: 'nested',
+          name: 'inner',
+        },
+        $status: 'loading',
+        title: 'mid',
+      },
+    }
+
+    await bundle(input, {
+      treeShake: false,
+      plugins: [removeExtraScalarKeys()],
+    })
+
+    expect(input.a).not.toHaveProperty('$status')
+    expect(input.a.b).not.toHaveProperty('__scalar_')
+    expect(input.a).toEqual({ title: 'mid', b: { name: 'inner' } })
+  })
+
+  it('leaves nodes unchanged when internal keys are absent', async () => {
+    const input = {
+      openapi: '3.0.0',
+      info: { title: 'API', version: '1.0.0' },
+      paths: { '/users': { get: { summary: 'List users' } } },
+    }
+
+    await bundle(input, {
+      treeShake: false,
+      plugins: [removeExtraScalarKeys()],
+    })
+
+    expect(input).toEqual({
+      openapi: '3.0.0',
+      info: { title: 'API', version: '1.0.0' },
+      paths: { '/users': { get: { summary: 'List users' } } },
+    })
   })
 })

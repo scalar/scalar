@@ -1,5 +1,27 @@
 # @scalar/aspnetcore
 
+## 2.13.13
+
+## 2.13.12
+
+## 2.13.11
+
+### Patch Changes
+
+- [#8466](https://github.com/scalar/scalar/pull/8466): chore: new build pipeline
+
+## 2.13.10
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.49.0**
+  - [#8443](https://github.com/scalar/scalar/pull/8443): fix hash-prefixed basePath routing
+  - [#8467](https://github.com/scalar/scalar/pull/8467): feat(api-reference): improve Ask AI button consistency and a11y
+  - [#8409](https://github.com/scalar/scalar/pull/8409): feat: lazy rendering
+  - [#8442](https://github.com/scalar/scalar/pull/8442): fix object schema descriptions in parameter rendering
+
 ## 2.13.9
 
 ### Patch Changes

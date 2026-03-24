@@ -10,21 +10,17 @@
     "url": "git+https://github.com/scalar/scalar.git",
     "directory": "packages/icons"
   },
-  "version": "0.6.0",
+  "version": "0.6.3",
   "engines": {
     "node": ">=22"
   },
   "scripts": {
-    "build": "scalar-build-vite",
-    "format": "scalar-format",
-    "format:check": "scalar-format-check",
-    "generate:icons": "vite-node ./scripts/generate-icons.ts && pnpm format",
-    "lint:check": "scalar-lint-check && pnpm lint:icons",
-    "lint:fix": "scalar-lint-fix",
+    "build": "vite build && vue-tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
+    "generate:icons": "tsx ./scripts/generate-icons.ts",
+    "lint:check": "pnpm lint:icons",
     "lint:icons": "svglint src/library/icons/*.svg --config src/library/.svglintrc.js",
     "test": "vitest",
-    "types:build": "scalar-types-build-vue",
-    "types:check": "scalar-types-check-vue"
+    "types:check": "vue-tsc --noEmit"
   },
   "type": "module",
   "main": "./dist/index.cjs",
@@ -48,6 +44,7 @@
   "files": [
     "dist"
   ],
+  "sideEffects": false,
   "dependencies": {
     "@phosphor-icons/core": "^2.1.1",
     "@types/node": "catalog:*",
@@ -55,7 +52,6 @@
     "vue": "catalog:*"
   },
   "devDependencies": {
-    "@scalar/build-tooling": "workspace:*",
     "@vitejs/plugin-vue": "catalog:*",
     "@vue/test-utils": "catalog:*",
     "jsdom": "catalog:*",

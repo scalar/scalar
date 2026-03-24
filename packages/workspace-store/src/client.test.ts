@@ -926,14 +926,6 @@ describe('create-workspace-store', () => {
             ref: '#/paths/~1users/get',
             title: 'Get all users',
             type: 'operation',
-            children: [
-              {
-                id: 'default/GET/users/example/someexample',
-                name: 'someExample',
-                title: 'someExample',
-                type: 'example',
-              },
-            ],
           },
           {
             children: [
@@ -2179,6 +2171,79 @@ describe('create-workspace-store', () => {
       expect(store.exportDocument('api-3', 'json', true)).toEqual(
         '{"openapi":"3.0.0","info":{"title":"My API","version":"1.0.0"},"components":{"schemas":{"User":{"type":"object","properties":{"id":{"type":"string","description":"The user ID"},"name":{"type":"string","description":"The user name"},"email":{"type":"string","format":"email","description":"The user email"}}}}},"paths":{"/users":{"get":{"summary":"Get all users","responses":{"200":{"description":"Successful response","content":{"application/json":{"schema":{"type":"array","items":{"$ref":"#/components/schemas/User"}}}}}}}}}}',
       )
+    })
+  })
+
+  describe('getEditableDocument', () => {
+    it('returns null when document name does not exist', async () => {
+      const store = createWorkspaceStore()
+      const result = await store.getEditableDocument('non-existent')
+      expect(result).toBeNull()
+    })
+
+    it('returns editable document with openapi structure preserved', async () => {
+      const store = createWorkspaceStore()
+      const doc = getDocument()
+      await store.addDocument({ name: 'default', document: doc })
+
+      const result = await store.getEditableDocument('default')
+
+      expect(result).not.toBeNull()
+      // Store upgrades OpenAPI to 3.1.x when adding document
+      expect(result?.openapi).toBe('3.1.1')
+      expect(result?.info).toStrictEqual({ title: 'My API', version: '1.0.0' })
+      expect(result?.paths).toBeDefined()
+      expect(result?.components?.schemas?.User).toBeDefined()
+    })
+
+    it('strips internal and bundler metadata keys from result', async () => {
+      const store = createWorkspaceStore()
+      await store.addDocument({
+        name: 'default',
+        document: {
+          ...getDocument(),
+          components: {
+            ...getDocument().components,
+            schemas: {
+              ...getDocument().components?.schemas,
+              oneOfExample: {
+                oneOf: [
+                  {
+                    type: 'string',
+                  },
+                  {
+                    type: 'number',
+                  },
+                ],
+              },
+            },
+          },
+        },
+      })
+
+      const result = await store.getEditableDocument('default')
+
+      expect(JSON.stringify(result)).toBe(
+        '{"openapi":"3.1.1","info":{"title":"My API","version":"1.0.0"},"components":{"schemas":{"User":{"type":"object","properties":{"id":{"type":"string","description":"The user ID"},"name":{"type":"string","description":"The user name"},"email":{"type":"string","format":"email","description":"The user email"}}},"oneOfExample":{"oneOf":[{"type":"string"},{"type":"number"}]}}},"paths":{"/users":{"get":{"summary":"Get all users","responses":{"200":{"description":"Successful response","content":{"application/json":{"schema":{"type":"array","items":{"$ref":"#/components/schemas/User"}}}}}}}}},"x-scalar-order":["default/GET/users","default/models"]}',
+      )
+    })
+
+    it('returns an independent clone so mutations do not affect workspace document', async () => {
+      const store = createWorkspaceStore()
+      await store.addDocument({
+        name: 'default',
+        document: getDocument(),
+      })
+
+      const result = await store.getEditableDocument('default')
+      expect(result).not.toBeNull()
+      if (result?.info) {
+        result.info.title = 'Mutated title'
+      }
+
+      const workspaceDoc = store.workspace.documents['default']
+      const rawDoc = getRaw(workspaceDoc as object) as { info?: { title?: string } }
+      expect(rawDoc?.info?.title).not.toBe('Mutated title')
     })
   })
 

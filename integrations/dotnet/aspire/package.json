@@ -10,7 +10,7 @@
     "url": "git+https://github.com/scalar/scalar.git",
     "directory": "integrations/dotnet/aspire"
   },
-  "version": "0.9.9",
+  "version": "0.9.13",
   "private": true,
   "engines": {
     "node": ">=22"
@@ -18,18 +18,11 @@
   "scripts": {
     "build:docker": "docker build --no-cache -t scalarapi/aspire-api-reference:latest -f src/Scalar.Aspire.Service/Dockerfile ../",
     "copy:standalone": "shx cp ../../../packages/api-reference/dist/browser/standalone.js ./src/Scalar.Aspire.Service/wwwroot/scalar.js",
-    "format": "scalar-format",
-    "format:check": "scalar-format-check",
-    "lint:check": "scalar-lint-check",
-    "lint:fix": "scalar-lint-fix",
     "test": "vitest"
   },
   "dependencies": {
     "@scalar/api-reference": "workspace:*",
     "@scalar/dotnet-shared": "workspace:*"
-  },
-  "devDependencies": {
-    "@scalar/build-tooling": "workspace:*"
   },
   "readme": {
     "title": "Scalar API Reference for Aspire",

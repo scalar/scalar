@@ -770,14 +770,10 @@ function migrateBodyParameter(
         schema: schema,
       }
 
-      // Handle x-example (singular) - Redocly extension for Swagger 2.0
-      // Transforms to OpenAPI 3.x `example` field
-      if (isNonEmptyObject(xExample) && type in xExample) {
-        requestBodyObject.content[type].example = xExample[type]
-      }
-
-      // Handle x-examples (plural) - Redocly extension for Swagger 2.0
-      // Transforms to OpenAPI 3.x `examples` field (named examples with summary/value)
+      // Handle x-examples (plural) first - Redocly extension for Swagger 2.0
+      // Transforms to OpenAPI 3.x `examples` field (named examples with summary/value).
+      // When both x-example and x-examples exist, we prefer x-examples so each media type
+      // has only one of `example` or `examples` (OpenAPI 3 does not use both on the same type).
       if (isNonEmptyObject(xExamples) && type in xExamples) {
         const examples = xExamples[type]
 
@@ -808,19 +804,19 @@ function migrateBodyParameter(
       // Fallback: x-examples keyed by example name instead of media type
       // e.g. x-examples: { Request: { email: "test@example.com" } }
       else if (isNonEmptyObject(xExamples) && !Object.keys(xExamples).some(isMediaTypeKey)) {
-        if (isNamedExamplesCollection(xExamples)) {
-          requestBodyObject.content[type].examples = Object.entries(xExamples).reduce(
-            (acc, [key, exampleValue]) => {
-              acc[key] = wrapAsExampleObject(exampleValue)
-              return acc
-            },
-            {} as Record<string, OpenAPIV3.ExampleObject>,
-          )
-        } else {
-          requestBodyObject.content[type].examples = {
-            default: wrapAsExampleObject(xExamples),
-          }
-        }
+        requestBodyObject.content[type].examples = Object.entries(xExamples).reduce(
+          (acc, [key, exampleValue]) => {
+            acc[key] = wrapAsExampleObject(exampleValue)
+            return acc
+          },
+          {} as Record<string, OpenAPIV3.ExampleObject>,
+        )
+      }
+
+      // Handle x-example (singular) only when we did not set examples for this type
+      // (avoids having both example and examples on the same media type)
+      if (!requestBodyObject.content[type].examples && isNonEmptyObject(xExample) && type in xExample) {
+        requestBodyObject.content[type].example = xExample[type]
       }
     }
   }

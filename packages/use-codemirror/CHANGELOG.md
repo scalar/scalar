@@ -1,5 +1,20 @@
 # @scalar/use-codemirror
 
+## 0.14.10
+
+### Patch Changes
+
+- [#8466](https://github.com/scalar/scalar/pull/8466): chore: new build pipeline
+
+## 0.14.9
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/components@0.20.9**
+  - [#8453](https://github.com/scalar/scalar/pull/8453): refactor: remove @ts-expect-error from ScalarTextArea
+
 ## 0.14.8
 
 ### Patch Changes

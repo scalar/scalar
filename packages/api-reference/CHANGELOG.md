@@ -1,5 +1,58 @@
 # @scalar/api-reference
 
+## 1.49.3
+
+### Patch Changes
+
+- [#8529](https://github.com/scalar/scalar/pull/8529): rewrite declaration aliases in built type files
+
+## 1.49.2
+
+### Patch Changes
+
+- [#8509](https://github.com/scalar/scalar/pull/8509): fix: show falsy example values (false, 0) in schema property headings
+- [#8514](https://github.com/scalar/scalar/pull/8514): fix: invalid markup breaks ssr
+
+## 1.49.1
+
+### Patch Changes
+
+- [#8466](https://github.com/scalar/scalar/pull/8466): chore: new build pipeline
+- [#8479](https://github.com/scalar/scalar/pull/8479): fix: render schema property examples when values are falsy
+
+## 1.49.0
+
+### Minor Changes
+
+- [#8409](https://github.com/scalar/scalar/pull/8409): feat: lazy rendering
+
+### Patch Changes
+
+- [#8443](https://github.com/scalar/scalar/pull/8443): fix hash-prefixed basePath routing
+- [#8467](https://github.com/scalar/scalar/pull/8467): feat(api-reference): improve Ask AI button consistency and a11y
+- [#8442](https://github.com/scalar/scalar/pull/8442): fix object schema descriptions in parameter rendering
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.40.2**
+  - [#8468](https://github.com/scalar/scalar/pull/8468): fix: ignore response examples when generating navigation
+
+- **@scalar/api-client@2.38.1**
+  - [#8468](https://github.com/scalar/scalar/pull/8468): fix: example extraction, environment navigation and general UI fixes
+  - [#8451](https://github.com/scalar/scalar/pull/8451): fix(api-client): default-close auth when not required
+
+- **@scalar/openapi-parser@0.25.4**
+  - [#8448](https://github.com/scalar/scalar/pull/8448): fix parser validation for unused path parameters
+
+- **@scalar/components@0.20.9**
+  - [#8453](https://github.com/scalar/scalar/pull/8453): refactor: remove @ts-expect-error from ScalarTextArea
+
+- **@scalar/agent-chat@0.9.9**
+
+- **@scalar/oas-utils@0.10.8**
+
+- **@scalar/sidebar@0.8.9**
+
 ## 1.48.8
 
 ### Patch Changes

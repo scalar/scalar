@@ -16,17 +16,14 @@
     "scalar",
     "references"
   ],
-  "version": "0.3.3",
+  "version": "0.3.4",
   "engines": {
     "node": ">=22"
   },
   "scripts": {
-    "build": "scalar-build-esbuild",
+    "build": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
     "dev": "next dev playground -p 5066",
-    "lint:check": "scalar-lint-check",
-    "lint:fix": "scalar-lint-fix",
-    "types:build": "scalar-types-build",
-    "types:check": "scalar-types-check"
+    "types:check": "tsc --noEmit"
   },
   "type": "module",
   "exports": {
@@ -47,7 +44,6 @@
     "fast-glob": "^3.3.3"
   },
   "devDependencies": {
-    "@scalar/build-tooling": "workspace:*",
     "@types/node": "catalog:*",
     "@types/react": "catalog:*",
     "@types/react-dom": "catalog:*",

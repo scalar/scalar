@@ -10,22 +10,17 @@
     "url": "git+https://github.com/scalar/scalar.git",
     "directory": "integrations/hono"
   },
-  "version": "0.10.3",
+  "version": "0.10.4",
   "engines": {
     "node": ">=22"
   },
   "scripts": {
-    "build": "scalar-build-esbuild",
-    "dev": "nodemon --exec \"vite-node playground/index.ts\" --ext ts --quiet --watch ./",
+    "build": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
+    "dev": "tsx watch playground/index.ts",
     "docker:build": "docker buildx build --platform=linux/amd64 -t scalar-hono-reference --build-arg=\"BASE_IMAGE=scalar-base\" .",
     "docker:run": "docker run -t scalar-hono-reference",
-    "format": "scalar-format",
-    "format:check": "scalar-format-check",
-    "lint:check": "scalar-lint-check",
-    "lint:fix": "scalar-lint-fix",
     "test": "vitest",
-    "types:build": "scalar-types-build",
-    "types:check": "scalar-types-check"
+    "types:check": "tsc --noEmit"
   },
   "type": "module",
   "main": "dist/index.js",
@@ -62,7 +57,6 @@
   "devDependencies": {
     "@hono/node-server": "catalog:*",
     "@hono/zod-openapi": "^1.2.0",
-    "@scalar/build-tooling": "workspace:*",
     "@scalar/openapi-to-markdown": "workspace:*",
     "hono": "catalog:*",
     "vite": "catalog:*",

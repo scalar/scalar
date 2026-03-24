@@ -1,5 +1,11 @@
 # @scalar/openapi-types
 
+## 0.6.1
+
+### Patch Changes
+
+- [#8466](https://github.com/scalar/scalar/pull/8466): chore: new build pipeline
+
 ## 0.6.0
 
 ### Minor Changes

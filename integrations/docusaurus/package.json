@@ -19,17 +19,13 @@
     "testing",
     "react"
   ],
-  "version": "0.8.3",
+  "version": "0.8.4",
   "engines": {
     "node": ">=22"
   },
   "scripts": {
     "build": "shx rm -Rf ./dist ./tsconfig.build.tsbuildinfo && tsc -p tsconfig.build.json && postcss src/theme.css -o dist/theme.css",
     "dev": "docusaurus start playground --port=5063 --no-open",
-    "format": "scalar-format",
-    "format:check": "scalar-format-check",
-    "lint:check": "scalar-lint-check",
-    "lint:fix": "scalar-lint-fix",
     "test": "vitest",
     "types:check": "tsc --noEmit --skipLibCheck"
   },
@@ -68,7 +64,6 @@
     "@docusaurus/types": "^3.9.2",
     "@docusaurus/utils": "^3.9.2",
     "@mdx-js/react": "^3.1.1",
-    "@scalar/build-tooling": "workspace:*",
     "@types/react": "catalog:*",
     "@types/react-dom": "catalog:*",
     "clsx": "^2.1.1",

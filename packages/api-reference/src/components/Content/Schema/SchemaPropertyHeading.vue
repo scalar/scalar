@@ -237,6 +237,19 @@ const displayType = computed(() => {
   }
   return getSchemaType(props.value)
 })
+
+const exampleValue = computed(() => {
+  if (isDefined(props.value?.example)) {
+    return props.value.example
+  }
+
+  if (props.value && isArraySchema(props.value)) {
+    const itemsExample = resolve.schema(props.value.items)?.example
+    return isDefined(itemsExample) ? itemsExample : undefined
+  }
+
+  return undefined
+})
 </script>
 <template>
   <div class="property-heading">
@@ -327,12 +340,7 @@ const displayType = computed(() => {
     <SchemaPropertyDefault :value="props.value?.default" />
     <SchemaPropertyExamples
       v-if="props.withExamples"
-      :example="
-        props.value?.example ||
-        (props.value &&
-          isArraySchema(props.value) &&
-          resolve.schema(props.value?.items)?.example)
-      "
+      :example="exampleValue"
       :examples="props.value?.examples" />
   </div>
 </template>

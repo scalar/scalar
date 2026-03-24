@@ -1,5 +1,7 @@
 {
   "$schema": "./node_modules/knip/schema.json",
+  // Catalog entries from ignored workspaces are falsely reported as unused
+  "exclude": ["catalog"],
   "ignoreWorkspaces": [
     // Allows a progressive adoption
     "examples/nestjs/**",
@@ -13,37 +15,40 @@
     "projects/proxy-scalar-com/**"
   ],
   "ignoreFiles": [
-    // test types files are marked as unused
-    "**/*.test-d.ts",
-
-    "**/esbuild.ts",
-
+    // CSS files imported via @import or Vue components — knip cannot trace CSS imports
+    "**/*.css",
     // Referenced in scalar.config.json
     "documentation/assets/landing.js",
     "documentation/assets/fathom.js"
   ],
   "ignore": [
     // We will use this in the future, just removed it from the workspace store for now
-    "packages/workspace-store/src/schemas/reference-config/index.ts"
+    "packages/workspace-store/src/schemas/reference-config/index.ts",
+    // Generated migration types — exports are used by downstream consumers
+    "packages/oas-utils/src/migrations/*/types.generated.ts"
   ],
   "ignoreDependencies": [
     // Used by `ci.yml` `npm-publish` job
     "@changesets/cli",
     // Used by `.changeset/config.json`
     "@scalar-internal/changelog-generator",
-
     // Required on root to have proper format with prettier
     "tailwindcss",
-
+    // Used as vitest environment in test files via @vitest-environment jsdom
+    "jsdom",
     // The following values needs to be re-checked once more packages are included
-    "tsc-alias",
     "tsconfig-paths",
-    "vue-tsc",
     "typescript-language-server"
   ],
   "ignoreBinaries": ["netlify"],
   "ignoreIssues": {
-    "integrations/docusaurus/src/ScalarDocusaurus.tsx": ["duplicates"]
+    "integrations/docusaurus/src/ScalarDocusaurus.tsx": ["duplicates"],
+    // TrieNode is exported for potential external use
+    "packages/json-magic/src/diff/trie.ts": ["exports"],
+    // Astro component Props interface is used by the framework
+    "integrations/astro/src/ScalarComponent.astro": ["types"],
+    // setupFiles string path cannot be resolved by knip
+    "packages/api-reference/vitest.config.ts": ["unresolved"]
   },
   "workspaces": {
     "packages/api-client": {
@@ -102,17 +107,15 @@
         "src/v2/features/command-palette/index.ts",
         //
         "playground/{app,modal,web}/main.ts",
-        "playground/v2/{app,modal,web}/main.ts"
-      ],
-      "ignoreDependencies": [
-        "@headlessui/tailwindcss" // used by style.css
+        "playground/v2/{app,modal,web}/main.ts",
+        "playground/v2/test/index.ts"
       ],
       "ignoreFiles": [
         "src/views/Cookies/CookieRaw.vue" // Untested and disabled for now.
       ]
     },
     "packages/api-client-react": {
-      "entry": ["playground/main.tsx"]
+      "entry": ["src/index.ts", "playground/main.tsx"]
     },
     "packages/agent-chat": {
       "ignore": ["playground/**", "src/entities/**"],
@@ -120,23 +123,21 @@
     },
     "packages/api-reference": {
       "entry": [
-        // "src/index.ts", used by playground
+        "src/index.ts",
+        "src/ssr.ts",
+        "src/components/index.ts",
+        "src/blocks/index.ts",
+        "src/hooks/index.ts",
+        "src/plugins/index.ts",
+        "src/features/index.ts",
+        "src/helpers/index.ts",
         "src/esm.ts",
-        "src/standalone.ts",
-
         "src/standalone.bench.ts",
-        "vite.standalone.config.ts",
-
+        "src/vitest.setup.ts",
         // Not sure why test files are marked as unused here
         "test/**/*",
         "src/**/*.test.ts",
-
         "playground/components/src/main.ts",
-        "playground/components/vite.config.ts",
-
-        "playground/esm/vite.config.ts",
-
-        "playground/vue/vite.config.ts",
         "playground/vue/src/main.ts"
       ],
       "ignoreDependencies": [
@@ -144,13 +145,13 @@
         "react",
         "@scalar/react-renderer"
       ],
-      "ignoreFiles": [
-        "playground/vue/src/AppWithJsApi.vue",
-        "playground/vue/src/x-custom-extension-plugin/components/CustomReactComponent.tsx"
-      ]
+      "ignoreFiles": ["playground/vue/src/x-custom-extension-plugin/components/CustomReactComponent.tsx"]
     },
     "packages/api-reference-react": {
-      "entry": ["playground/main.tsx"]
+      "entry": ["src/index.ts", "playground/main.tsx"],
+      "ignoreDependencies": [
+        "vue" // peer dep referenced in shims.d.ts
+      ]
     },
     "packages/build-tooling": {
       "entry": ["src/index.ts", "src/esbuild/index.ts", "src/vite/index.ts"]
@@ -162,19 +163,15 @@
         "src/languages/index.ts",
         "src/markdown/index.ts",
         "src/rehype-alert/index.ts",
-        "src/rehype-highlight/index.ts",
-        //
-        "playground/main.ts"
+        "src/rehype-highlight/index.ts"
       ]
     },
     "packages/components": {
       "entry": [
+        "src/index.ts",
         // Not sure why test files are marked as unused here
         "test/**/*",
         "src/**/*.test.ts"
-      ],
-      "ignoreDependencies": [
-        "@headlessui/tailwindcss" // Used by src/styles.css
       ],
       "ignoreFiles": ["src/components/ScalarIcon/.svglintrc.js"]
     },
@@ -182,11 +179,7 @@
       "entry": ["src/libs/html-rendering/index.ts"]
     },
     "packages/draggable": {
-      "entry": [
-        "src/index.ts",
-        //
-        "playground/main.ts"
-      ]
+      "entry": ["src/index.ts"]
     },
     "packages/helpers": {
       "entry": ["src/*/*.ts", "!src/*/*.test.ts"]
@@ -245,9 +238,6 @@
         "src/index.ts",
         //
         "playground/main.ts"
-      ],
-      "ignoreDependencies": [
-        "@scalar/themes" // Used by src/style.css
       ]
     },
     "packages/snippetz": {
@@ -268,12 +258,7 @@
       ]
     },
     "packages/use-codemirror": {
-      "entry": [
-        "src/index.ts",
-        "src/themes/index.ts",
-        //
-        "playground/main.ts"
-      ]
+      "entry": ["src/index.ts", "src/themes/index.ts"]
     },
     "packages/use-hooks": {
       "entry": [
@@ -322,7 +307,6 @@
           "playground/src/{pages,components}/**/*.tsx",
           "playground/{blog,docs}/**/*.mdx",
           "playground/versioned_docs/**/*.{mdx,jsx,tsx}",
-
           // Referenced by src/index.ts `addRoute`
           "src/ScalarDocusaurus.tsx"
         ]
@@ -334,7 +318,6 @@
       "ignoreDependencies": [
         // Used by webpack
         "path",
-
         // Docusaurus aliases
         "@theme/*",
         "@site/*"
@@ -374,7 +357,6 @@
     "integrations/java": {
       "ignoreDependencies": [
         "@scalar/api-reference", // build step copy standalone file from this package
-
         // Included for convenience.
         // Java enums are dynamically generated from the snippetz package.
         // Having snippetz as a dependency ensures they are regenerated whenever clients or targets change.
@@ -389,7 +371,6 @@
         "src/module.ts",
         "src/runtime/components/ScalarApiReference.vue",
         "src/runtime/pages/ScalarPage.vue",
-
         "playground/nuxt.config.ts",
         "playground/layouts/default.vue",
         "playground/pages/index.vue"

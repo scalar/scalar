@@ -1,5 +1,5 @@
 import { enableAutoUnmount, mount } from '@vue/test-utils'
-import { afterEach, describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import ScalarForm from './ScalarForm.vue'
 
@@ -12,16 +12,18 @@ describe('ScalarForm', () => {
   })
 
   it('emits the submit event', async () => {
+    const onSubmit = vi.fn()
     const wrapper = mount(ScalarForm, {
       slots: { default: '<button type="submit">Submit</button>' },
-      // Needs to be attached to document.body to trigger the submit event
+      attrs: { onSubmit },
       attachTo: document.body,
     })
 
-    expect(wrapper.emitted()).not.toHaveProperty('submit')
+    expect(onSubmit).not.toHaveBeenCalled()
 
-    await wrapper.find('button').trigger('click')
+    const form = wrapper.find('form')
+    await form.trigger('submit')
 
-    expect(wrapper.emitted()).toHaveProperty('submit')
+    expect(onSubmit).toHaveBeenCalled()
   })
 })

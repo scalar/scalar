@@ -16,20 +16,15 @@
     "lowlight",
     "highlightjs"
   ],
-  "version": "0.3.0",
+  "version": "0.3.1",
   "engines": {
     "node": ">=22"
   },
   "scripts": {
-    "build": "scalar-build-esbuild",
+    "build": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json && cp -r src/css dist/css",
     "dev": "vite",
-    "format": "scalar-format",
-    "format:check": "scalar-format-check",
-    "lint:check": "scalar-lint-check",
-    "lint:fix": "scalar-lint-fix",
     "test": "vitest",
-    "types:build": "scalar-types-build",
-    "types:check": "scalar-types-check"
+    "types:check": "tsc --noEmit"
   },
   "type": "module",
   "main": "dist/index.js",
@@ -100,7 +95,6 @@
     "unist-util-visit": "^5.0.0"
   },
   "devDependencies": {
-    "@scalar/build-tooling": "workspace:*",
     "@scalar/themes": "workspace:*",
     "@types/hast": "^3.0.4",
     "@types/mdast": "^4.0.4",

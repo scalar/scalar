@@ -20,12 +20,12 @@
     "vue",
     "vue3"
   ],
-  "version": "1.48.8",
+  "version": "1.49.3",
   "engines": {
     "node": ">=22"
   },
   "scripts": {
-    "build": "pnpm build:default && pnpm build:standalone && pnpm types:build",
+    "build": "pnpm build:default && pnpm build:standalone && vue-tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
     "build:default": "vite build",
     "build:standalone": "vite build -c vite.standalone.config.ts",
     "dev": "vite",
@@ -43,8 +43,7 @@
     "test:e2e:cdn:ci": "TEST_MODE=CDN playwright test",
     "test:e2e:ci": "playwright test",
     "test:e2e:update-snapshots": "pnpm test:e2e --update-snapshots",
-    "types:build": "scalar-types-build-vue",
-    "types:check": "scalar-types-check-vue"
+    "types:check": "vue-tsc --noEmit"
   },
   "type": "module",
   "main": "./dist/index.js",
@@ -112,7 +111,6 @@
     "@scalar/helpers": "workspace:*",
     "@scalar/icons": "workspace:*",
     "@scalar/oas-utils": "workspace:*",
-    "@scalar/openapi-parser": "workspace:*",
     "@scalar/openapi-types": "workspace:*",
     "@scalar/sidebar": "workspace:*",
     "@scalar/snippetz": "workspace:*",
@@ -127,12 +125,12 @@
     "github-slugger": "catalog:*",
     "microdiff": "catalog:*",
     "nanoid": "catalog:*",
-    "vue": "catalog:*"
+    "vue": "catalog:*",
+    "yaml": "catalog:*"
   },
   "devDependencies": {
     "@hono/node-server": "catalog:*",
     "@playwright/test": "catalog:*",
-    "@scalar/build-tooling": "workspace:*",
     "@scalar/core": "workspace:*",
     "@scalar/galaxy": "workspace:*",
     "@scalar/react-renderer": "workspace:*",
@@ -142,13 +140,13 @@
     "@vue/test-utils": "catalog:*",
     "hono": "catalog:*",
     "jsdom": "catalog:*",
+    "monaco-editor": "catalog:*",
     "react": "catalog:*",
     "rollup-plugin-webpack-stats": "^0.2.5",
     "tailwindcss": "catalog:*",
     "vite": "catalog:*",
     "vite-plugin-banner": "^0.8.1",
     "vite-plugin-css-injected-by-js": "^3.5.2",
-    "vitest": "catalog:*",
-    "monaco-editor": "catalog:*"
+    "vitest": "catalog:*"
   }
 }

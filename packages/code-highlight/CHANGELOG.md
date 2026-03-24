@@ -1,5 +1,11 @@
 # @scalar/code-highlight
 
+## 0.3.1
+
+### Patch Changes
+
+- [#8466](https://github.com/scalar/scalar/pull/8466): chore: new build pipeline
+
 ## 0.3.0
 
 ### Minor Changes

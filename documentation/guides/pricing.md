@@ -47,13 +47,13 @@
             <header class="pricing-table-group-heading">Docs</header>
             <div class="pricing-table-row">
               <div class="pricing-table-column">Subdomains</div>
-              <div class="pricing-table-column"><scalar-icon src="phosphor/bold/check"></scalar-icon></div>
+              <div class="pricing-table-column"></div>
               <div class="pricing-table-column"><scalar-icon src="phosphor/bold/check"></scalar-icon></div>
               <div class="pricing-table-column"><scalar-icon src="phosphor/bold/check"></scalar-icon></div>
             </div>
             <div class="pricing-table-row">
               <div class="pricing-table-column">API References (OpenAPI)</div>
-              <div class="pricing-table-column"><scalar-icon src="phosphor/bold/check"></scalar-icon></div>
+              <div class="pricing-table-column"></div>
               <div class="pricing-table-column"><scalar-icon src="phosphor/bold/check"></scalar-icon></div>
               <div class="pricing-table-column"><scalar-icon src="phosphor/bold/check"></scalar-icon></div>
             </div>
@@ -65,13 +65,13 @@
             </div>
             <div class="pricing-table-row">
               <div class="pricing-table-column">Custom HTML/CSS/JS</div>
-              <div class="pricing-table-column"><scalar-icon src="phosphor/bold/check"></scalar-icon></div>
+              <div class="pricing-table-column"></div>
               <div class="pricing-table-column"><scalar-icon src="phosphor/bold/check"></scalar-icon></div>
               <div class="pricing-table-column"><scalar-icon src="phosphor/bold/check"></scalar-icon></div>
             </div>
             <div class="pricing-table-row">
               <div class="pricing-table-column">Email Domain Access Control</div>
-              <div class="pricing-table-column"><scalar-icon src="phosphor/bold/check"></scalar-icon></div>
+              <div class="pricing-table-column"></div>
               <div class="pricing-table-column"><scalar-icon src="phosphor/bold/check"></scalar-icon></div>
               <div class="pricing-table-column"><scalar-icon src="phosphor/bold/check"></scalar-icon></div>
             </div>
@@ -490,6 +490,12 @@
               <div class="pricing-table-column">Dedicated Slack channel</div>
               <div class="pricing-table-column"></div>
               <div class="pricing-table-column"></div>
+              <div class="pricing-table-column"><scalar-icon src="phosphor/bold/check"></scalar-icon></div>
+            </div>
+            <div class="pricing-table-row">
+              <div class="pricing-table-column">Max APIs</div>
+              <div class="pricing-table-column">3</div>
+              <div class="pricing-table-column"><scalar-icon src="phosphor/bold/check"></scalar-icon></div>
               <div class="pricing-table-column"><scalar-icon src="phosphor/bold/check"></scalar-icon></div>
             </div>
           </div>

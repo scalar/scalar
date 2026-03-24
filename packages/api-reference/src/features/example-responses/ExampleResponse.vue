@@ -4,7 +4,7 @@ import {
   getResolvedRefDeep,
 } from '@scalar/api-client/v2/blocks/operation-code-sample'
 import { ScalarCodeBlock, ScalarVirtualText } from '@scalar/components'
-import { prettyPrintJson } from '@scalar/oas-utils/helpers'
+import { prettyPrintJson } from '@scalar/helpers/json/pretty-print-json'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type {
   ExampleObject,

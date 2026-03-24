@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import ScalarCopyBackdrop from '@/components/ScalarCopy/ScalarCopyBackdrop.vue'
 import { standardLanguages, syntaxHighlight } from '@scalar/code-highlight'
-import { prettyPrintJson } from '@scalar/oas-utils/helpers'
+import { prettyPrintJson } from '@scalar/helpers/json/pretty-print-json'
 import { useBindCx } from '@scalar/use-hooks/useBindCx'
 import { computed, useId } from 'vue'
 

@@ -16,17 +16,14 @@
     "swagger",
     "typescript"
   ],
-  "version": "0.6.0",
+  "version": "0.6.1",
   "engines": {
     "node": ">=22"
   },
   "scripts": {
-    "build": "scalar-build-esbuild",
-    "lint:check": "eslint .",
-    "lint:fix": "eslint .  --fix",
+    "build": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
     "test": "vitest",
-    "types:build": "scalar-types-build",
-    "types:check": "scalar-types-check"
+    "types:check": "tsc --noEmit"
   },
   "type": "module",
   "exports": {
@@ -65,7 +62,5 @@
   "dependencies": {
     "zod": "catalog:*"
   },
-  "devDependencies": {
-    "@scalar/build-tooling": "workspace:*"
-  }
+  "devDependencies": {}
 }

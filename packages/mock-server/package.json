@@ -16,19 +16,14 @@
     "swagger",
     "cli"
   ],
-  "version": "0.9.8",
+  "version": "0.9.11",
   "engines": {
     "node": ">=22"
   },
   "scripts": {
-    "build": "scalar-build-esbuild",
-    "dev": "cd playground && pnpm run dev",
-    "dev:local": "cd playground && pnpm run dev:local",
-    "lint:check": "scalar-lint-check",
-    "lint:fix": "scalar-lint-fix",
+    "build": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
     "test": "vitest",
-    "types:build": "scalar-types-build",
-    "types:check": "scalar-types-check"
+    "types:check": "tsc --noEmit"
   },
   "type": "module",
   "main": "dist/index.js",
@@ -71,7 +66,6 @@
     "hono": "catalog:*"
   },
   "devDependencies": {
-    "@scalar/build-tooling": "workspace:*",
     "@types/node": "catalog:*",
     "vite": "catalog:*"
   }

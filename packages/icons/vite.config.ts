@@ -1,14 +1,18 @@
-import { fileURLToPath } from 'node:url'
+import { resolve } from 'node:path'
 
-import { alias, createViteBuildOptions } from '@scalar/build-tooling/vite'
 import vue from '@vitejs/plugin-vue'
 import svgLoader from 'vite-svg-loader'
 import { type Plugin, defineConfig } from 'vitest/config'
 
+import { createExternalsFromPackageJson, createLibEntry } from '../../tooling/scripts/vite-lib-config'
+
+const external = createExternalsFromPackageJson()
+const entry = createLibEntry(['./src/index.ts', './src/library/index.ts', './src/types.ts'], import.meta.dirname)
+
 // https://vitejs.dev/config/
 export default defineConfig({
   resolve: {
-    alias: alias(import.meta.url),
+    alias: { '@': resolve(import.meta.dirname, './src') },
   },
   plugins: [
     vue(),
@@ -30,11 +34,24 @@ export default defineConfig({
       },
     }) as Plugin,
   ],
-  build: createViteBuildOptions({
-    entry: ['src/index.ts', 'src/library/index.ts', 'src/types.ts'],
-  }),
+  build: {
+    outDir: './dist',
+    minify: false,
+    sourcemap: true,
+    lib: {
+      formats: ['es'],
+      cssFileName: 'style',
+      entry,
+    },
+    rolldownOptions: {
+      treeshake: {
+        moduleSideEffects: (id) => id.includes('.css'),
+      },
+      external,
+    },
+  },
   test: {
     environment: 'jsdom',
-    root: fileURLToPath(new URL('./', import.meta.url)),
+    root: resolve(import.meta.dirname, '.'),
   },
 })

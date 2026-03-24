@@ -64,8 +64,12 @@ const extendedGroups = [
 describe('ScalarCombobox', () => {
   describe('with single options', () => {
     it('emits update:modelValue when option is selected', async () => {
+      const onUpdate = vi.fn()
       const wrapper = mount(ScalarCombobox, {
-        props: { options: singleOptions },
+        props: {
+          options: singleOptions,
+          'onUpdate:modelValue': onUpdate,
+        },
         slots: { default: '<button>Toggle</button>' },
       })
 
@@ -75,8 +79,8 @@ describe('ScalarCombobox', () => {
       const option = wrapper.findComponent(ScalarComboboxOption)
       await option.trigger('click')
 
-      expect(wrapper.emitted('update:modelValue')).toBeTruthy()
-      expect(wrapper.emitted('update:modelValue')?.[0]).toEqual([singleOptions[0]])
+      expect(onUpdate).toHaveBeenCalled()
+      expect(onUpdate).toHaveBeenCalledWith(singleOptions[0])
     })
 
     it('focuses the input when combobox is opened', async () => {
@@ -139,8 +143,12 @@ describe('ScalarCombobox', () => {
 
   describe('with grouped options', () => {
     it('emits update:modelValue when option is selected', async () => {
+      const onUpdate = vi.fn()
       const wrapper = mount(ScalarCombobox, {
-        props: { options: groupedOptions },
+        props: {
+          options: groupedOptions,
+          'onUpdate:modelValue': onUpdate,
+        },
         slots: { default: '<button>Toggle</button>' },
       })
 
@@ -150,8 +158,8 @@ describe('ScalarCombobox', () => {
       const option = wrapper.findComponent(ScalarComboboxOption)
       await option.trigger('click')
 
-      expect(wrapper.emitted('update:modelValue')).toBeTruthy()
-      expect(wrapper.emitted('update:modelValue')?.[0]).toEqual([groupedOptions[0]?.options?.[0]])
+      expect(onUpdate).toHaveBeenCalled()
+      expect(onUpdate).toHaveBeenCalledWith(groupedOptions[0]?.options?.[0])
     })
   })
 
@@ -265,8 +273,12 @@ describe('ScalarCombobox', () => {
 
   describe('add slot', () => {
     it('renders add slot when provided', async () => {
+      const onAdd = vi.fn()
       const wrapper = mount(ScalarCombobox, {
-        props: { options: singleOptions },
+        props: {
+          options: singleOptions,
+          onAdd,
+        },
         slots: {
           default: '<button>Toggle</button>',
           add: `
@@ -284,7 +296,7 @@ describe('ScalarCombobox', () => {
 
       // Click the add option
       await wrapper.get('[data-test="add-slot"]').trigger('click')
-      expect(wrapper.emitted('add')).toBeTruthy()
+      expect(onAdd).toHaveBeenCalled()
 
       // Popover should be closed after add (single-select closes on add)
       await nextTick()
@@ -320,8 +332,12 @@ describe('ScalarCombobox', () => {
     })
 
     it('includes add in arrow key navigation and Enter triggers add', async () => {
+      const onAdd = vi.fn()
       const wrapper = mount(ScalarCombobox, {
-        props: { options: singleOptions },
+        props: {
+          options: singleOptions,
+          onAdd,
+        },
         slots: {
           default: '<button>Toggle</button>',
           add: `
@@ -348,7 +364,7 @@ describe('ScalarCombobox', () => {
       expect(ariaId).toBe(addLi?.id)
 
       await input.trigger('keydown.enter')
-      expect(wrapper.emitted('add')).toBeTruthy()
+      expect(onAdd).toHaveBeenCalled()
       await nextTick()
       expect(wrapper.find('ul[role="listbox"]').exists()).toBe(false)
     })

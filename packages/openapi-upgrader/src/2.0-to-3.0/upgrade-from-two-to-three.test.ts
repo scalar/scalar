@@ -1788,6 +1788,51 @@ describe('upgradeFromTwoToThree', () => {
     })
   })
 
+  it('prefers x-examples over x-example when both exist on same body parameter', () => {
+    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+      swagger: '2.0',
+      info: { title: 'both x-example and x-examples on body', version: '1.0' },
+      paths: {
+        '/test': {
+          post: {
+            consumes: ['application/json'],
+            produces: ['application/json'],
+            parameters: [
+              {
+                name: 'body',
+                in: 'body',
+                required: true,
+                schema: { type: 'object' },
+                'x-example': {
+                  'application/json': { single: 'value' },
+                },
+                'x-examples': {
+                  'application/json': {
+                    named: {
+                      summary: 'Named example',
+                      value: { message: 'OK' },
+                    },
+                  },
+                },
+              },
+            ],
+            responses: { '200': { description: 'OK' } },
+          },
+        },
+      },
+    })
+
+    const requestBody = result.paths?.['/test']?.post?.requestBody as OpenAPIV3.RequestBodyObject
+    const media = requestBody?.content?.['application/json']
+    expect(media?.examples).toStrictEqual({
+      named: {
+        summary: 'Named example',
+        value: { message: 'OK' },
+      },
+    })
+    expect(media?.example).toBeUndefined()
+  })
+
   it('ignores x-example when it contains a non-object value like a string', () => {
     const result: OpenAPIV3.Document = upgradeFromTwoToThree({
       swagger: '2.0',
@@ -2105,6 +2150,56 @@ describe('upgradeFromTwoToThree', () => {
     const requestBody = result.paths?.['/test']?.post?.requestBody as OpenAPIV3.RequestBodyObject
     // Should not have examples since x-examples was an array, not a valid object
     expect(requestBody.content?.['application/json']?.examples).toBeUndefined()
+  })
+
+  it('transforms x-examples keyed by example name with mixed object and string values (pos-original shape)', () => {
+    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+      swagger: '2.0',
+      info: { title: 'x-examples', version: '1.0' },
+      paths: {
+        '/test': {
+          post: {
+            consumes: ['application/json'],
+            produces: ['application/json'],
+            parameters: [
+              {
+                name: 'body',
+                in: 'body',
+                required: true,
+                schema: {
+                  type: 'object',
+                },
+                'x-examples': {
+                  Subscription: {
+                    discount_type: 'subscription',
+                    subscription_id: '1111111',
+                    receipt_amount: 10.72,
+                  },
+                  Reward: '{"discount_type":"reward","reward_id":"1399335","receipt_amount":10.72}',
+                },
+              },
+            ],
+            responses: {
+              '200': { description: 'OK' },
+            },
+          },
+        },
+      },
+    })
+
+    const requestBody = result.paths?.['/test']?.post?.requestBody as OpenAPIV3.RequestBodyObject
+    expect(requestBody?.content?.['application/json']?.examples).toStrictEqual({
+      Subscription: {
+        value: {
+          discount_type: 'subscription',
+          subscription_id: '1111111',
+          receipt_amount: 10.72,
+        },
+      },
+      Reward: {
+        value: '{"discount_type":"reward","reward_id":"1399335","receipt_amount":10.72}',
+      },
+    })
   })
 
   it('transforms response examples from Swagger 2.0 to OpenAPI 3.0 format', () => {

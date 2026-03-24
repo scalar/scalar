@@ -96,7 +96,14 @@ export const buildRequest = ({
     }
 
     /** Combine the server url, path and url params into a single url */
-    const url = getResolvedUrl({ environment, server, path, pathVariables: params.pathVariables, urlParams })
+    const url = getResolvedUrl({
+      environment,
+      server,
+      path,
+      pathVariables: params.pathVariables,
+      allowReservedQueryParameters: params.allowReservedQueryParameters,
+      urlParams,
+    })
 
     // Throw for no server or path
     if (!url) {
@@ -130,6 +137,14 @@ export const buildRequest = ({
 
     /** Controller to allow aborting the request */
     const controller = new AbortController()
+    const acceptHeader = headers.get('Accept')
+    const isSseAcceptHeader = acceptHeader?.toLowerCase().includes('text/event-stream') ?? false
+    const requestCacheMode: RequestCache = isSseAcceptHeader ? 'no-store' : 'default'
+
+    if (isSseAcceptHeader) {
+      headers.set('Cache-Control', 'no-cache')
+      headers.set('Pragma', 'no-cache')
+    }
 
     /** Build the js request object */
     const request = new Request(proxiedUrl, {
@@ -142,6 +157,7 @@ export const buildRequest = ({
       headers,
       signal: controller.signal,
       body,
+      cache: requestCacheMode,
     })
 
     return [

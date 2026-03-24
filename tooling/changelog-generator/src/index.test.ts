@@ -38,17 +38,7 @@ describe('changelog functions', () => {
     expect(line).toBe('- [#42](https://github.com/scalar/scalar/pull/42): Add feature X')
   })
 
-  it('getDependencyReleaseLine groups dependency changes', async () => {
-    mockGetInfo.mockResolvedValue({
-      pull: 10,
-      user: null,
-      links: {
-        commit: '',
-        pull: 'https://github.com/scalar/scalar/pull/10',
-        user: null,
-      },
-    })
-
+  it('getDependencyReleaseLine always returns empty string', async () => {
     const changesets: Array<NewChangesetWithCommit> = [
       {
         id: '123',
@@ -67,13 +57,6 @@ describe('changelog functions', () => {
 
     const output = await changelogFunctions.getDependencyReleaseLine(changesets, deps, { repo: 'scalar/scalar' })
 
-    expect(output.trim()).toBe(
-      [
-        '#### Updated Dependencies',
-        '',
-        '- **@scalar/api-reference@1.0.1**',
-        '  - [#10](https://github.com/scalar/scalar/pull/10): Fix api ref',
-      ].join('\n'),
-    )
+    expect(output).toBe('')
   })
 })

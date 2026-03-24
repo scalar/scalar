@@ -41,4 +41,14 @@ public sealed class ScalarAspireOptions : ScalarOptions
     /// This should only be used in development environments and never in production.
     /// </remarks>
     public bool AllowSelfSignedCertificates { get; set; }
+
+    /// <summary>
+    /// Gets or sets whether to forward the original incoming <c>Host</c> header when proxying requests.
+    /// </summary>
+    /// <value>The default value is <c>false</c>.</value>
+    /// <remarks>
+    /// When disabled, the proxy sets the outgoing <c>Host</c> header to the target authority.
+    /// Enable this only when upstream services require the original incoming host.
+    /// </remarks>
+    public bool ForwardOriginalHostHeader { get; set; }
 }

@@ -10,16 +10,15 @@
     "url": "git+https://github.com/scalar/scalar.git",
     "directory": "packages/agent-chat"
   },
-  "version": "0.9.8",
+  "version": "0.9.12",
   "engines": {
     "node": ">=22"
   },
   "scripts": {
-    "build": "scalar-build-vite && cp package.json dist",
+    "build": "vite build && vue-tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json && cp package.json dist",
     "build:watch": "vite build --watch",
     "playground": "cd playground && vite",
-    "types:build": "scalar-types-build-vue",
-    "types:check": "scalar-types-check-vue"
+    "types:check": "vue-tsc --noEmit"
   },
   "type": "module",
   "types": "./dist/index.d.ts",
@@ -70,7 +69,6 @@
   },
   "devDependencies": {
     "@modelcontextprotocol/sdk": "catalog:*",
-    "@scalar/build-tooling": "workspace:*",
     "@tailwindcss/vite": "catalog:*",
     "@types/whatwg-mimetype": "catalog:*",
     "@vitejs/plugin-vue": "catalog:*",

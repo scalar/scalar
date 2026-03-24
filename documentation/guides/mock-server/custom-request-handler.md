@@ -60,11 +60,21 @@ faker.internet.email()        // Generate emails
 Access request data through the `req` object:
 
 ```javascript
-req.body      // Parsed request body (JSON, form data, etc.)
+req.body      // Parsed request body (see below)
 req.params    // Path parameters (e.g., { id: '123' })
 req.query     // Query string parameters (e.g., { page: '1' })
 req.headers   // Request headers
 ```
+
+#### Body Parsing
+
+`req.body` is automatically parsed based on the request's `Content-Type`:
+
+| Content-Type | `req.body` value |
+|---|---|
+| `application/json` | Parsed JavaScript object. Malformed JSON yields `undefined`. |
+| `application/x-www-form-urlencoded` | Parsed key-value object (e.g., `{ name: 'Ada', role: 'dev' }`). |
+| `text/*` (e.g., `text/plain`, `text/csv`) | Raw string. |
 
 ### `res` - Response Examples
 
@@ -238,6 +248,54 @@ The mock server automatically determines HTTP status codes based on the store op
 - **`store.delete()`**: Returns `204` (No Content) if deleted, `404` if not found
 - **`store.list()`**: Always returns `200`
 
+### Null and Undefined Results
+
+If a handler returns `null` or `undefined`, the mock server treats this as a "not found" scenario. It looks for a `404` response definition on the operation and returns a `404` status code. If the `404` response includes an `example` or `schema`, the server uses it as the response body (see [404 with Example Response](#404-with-example-response) below). If no `404` response is defined, an empty body is returned.
+
+### Operation Priority
+
+When a handler performs multiple store operations (for example, a `store.get()` followed by a `store.create()` for logging), the status code is determined by the **highest-priority** operation. The priority order is:
+
+`get` > `update` > `delete` > `create` > `list`
+
+For example, a handler that reads a post and then creates an audit log entry will use the `get` operation to determine the status code — returning `200` if found or `404` if not — regardless of the `create` that follows.
+
+```yaml
+x-handler: |
+  const post = store.get('Post', req.params.id)
+  store.create('AuditLog', { action: 'viewed', postId: req.params.id })
+  return post
+```
+
+In this case `store.get()` has higher priority than `store.create()`, so the response status is `200` (found) or `404` (not found).
+
+### 404 with Example Response
+
+When a `404` is triggered (either by returning `null`/`undefined` or by a store miss), the mock server checks the operation's `responses.404` for an `example` or `schema`. If one is found, it is used as the response body instead of returning an empty response.
+
+```yaml
+get:
+  summary: Get a post
+  x-handler: |
+    return store.get('Post', req.params.id)
+  responses:
+    '200':
+      description: Post found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Post'
+    '404':
+      description: Post not found
+      content:
+        application/json:
+          example:
+            error: 'not_found'
+            message: 'The requested post does not exist'
+```
+
+When `store.get()` returns `null`, the response will be `404` with the example body `{ "error": "not_found", "message": "The requested post does not exist" }`.
+
 ## Custom Responses
 
 You can return any value from your handler. The mock server will serialize it as JSON:
@@ -272,6 +330,15 @@ The error response will be:
   "error": "Handler execution failed",
   "message": "Title is required"
 }
+```
+
+## Async Handlers
+
+Handlers can return Promises and they are properly awaited. This is useful when you need to perform asynchronous operations:
+
+```yaml
+x-handler: |
+  return Promise.resolve({ message: 'async result' })
 ```
 
 ## Best Practices

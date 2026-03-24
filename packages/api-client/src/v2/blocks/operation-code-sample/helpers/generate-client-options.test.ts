@@ -40,6 +40,7 @@ describe('generateClientOptions', () => {
 
       expect(result[0]).toEqual({
         label: 'C',
+        key: 'c',
         options: [
           {
             id: 'c/libcurl',

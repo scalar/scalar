@@ -451,6 +451,16 @@ def get_scalar_api_reference(
             """
         ),
     ] = True,
+    order_schema_properties_by: Annotated[
+        Literal["alpha", "preserve"],
+        Doc(
+            """
+            The order to use for schema properties.
+            Use 'alpha' to sort alphabetically, or 'preserve' to keep the original order.
+            Default is 'alpha'.
+            """
+        ),
+    ] = "alpha",
     authentication: Annotated[
         dict,
         Doc(
@@ -637,6 +647,9 @@ def get_scalar_api_reference(
 
     if not order_required_properties_first:  # Default is True
         config["orderRequiredPropertiesFirst"] = order_required_properties_first
+
+    if order_schema_properties_by != "alpha":  # Default is alpha
+        config["orderSchemaPropertiesBy"] = order_schema_properties_by
 
     if authentication:  # Default is {}
         config["authentication"] = authentication

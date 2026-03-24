@@ -1745,7 +1745,7 @@ describe('bundle', () => {
       const chunk1 = { a: 'a', b: 'b' }
       const chunk1Path = randomUUID()
 
-      await fs.writeFile(path.join(__dirname, chunk1Path), JSON.stringify(chunk1))
+      await fs.writeFile(path.join(import.meta.dirname, chunk1Path), JSON.stringify(chunk1))
 
       const input = {
         a: {
@@ -1753,9 +1753,9 @@ describe('bundle', () => {
         },
       }
 
-      await bundle(input, { origin: __filename, plugins: [fetchUrls(), readFiles()], treeShake: false })
+      await bundle(input, { origin: import.meta.filename, plugins: [fetchUrls(), readFiles()], treeShake: false })
 
-      await fs.rm(path.join(__dirname, chunk1Path))
+      await fs.rm(path.join(import.meta.dirname, chunk1Path))
 
       expect(input).toEqual({
         'x-ext': {
@@ -1776,8 +1776,8 @@ describe('bundle', () => {
       const chunk2 = { a: { '$ref': `./${chunk1Path}#` } }
       const chunk2Path = randomUUID()
 
-      await fs.writeFile(path.join(__dirname, chunk1Path), JSON.stringify(chunk1))
-      await fs.writeFile(path.join(__dirname, chunk2Path), JSON.stringify(chunk2))
+      await fs.writeFile(path.join(import.meta.dirname, chunk1Path), JSON.stringify(chunk1))
+      await fs.writeFile(path.join(import.meta.dirname, chunk2Path), JSON.stringify(chunk2))
 
       const input = {
         a: {
@@ -1785,10 +1785,10 @@ describe('bundle', () => {
         },
       }
 
-      await bundle(input, { origin: __filename, plugins: [fetchUrls(), readFiles()], treeShake: false })
+      await bundle(input, { origin: import.meta.filename, plugins: [fetchUrls(), readFiles()], treeShake: false })
 
-      await fs.rm(path.join(__dirname, chunk1Path))
-      await fs.rm(path.join(__dirname, chunk2Path))
+      await fs.rm(path.join(import.meta.dirname, chunk1Path))
+      await fs.rm(path.join(import.meta.dirname, chunk2Path))
 
       expect(input).toEqual({
         'x-ext': {
@@ -1818,11 +1818,11 @@ describe('bundle', () => {
       }
       const bName = randomUUID()
 
-      await fs.mkdir(path.join(__dirname, 'nested')).catch(() => {
+      await fs.mkdir(path.join(import.meta.dirname, 'nested')).catch(() => {
         return
       })
-      await fs.writeFile(path.join(__dirname, `nested/${bName}`), JSON.stringify(b))
-      await fs.writeFile(path.join(__dirname, `nested/${cName}`), JSON.stringify(c))
+      await fs.writeFile(path.join(import.meta.dirname, `nested/${bName}`), JSON.stringify(b))
+      await fs.writeFile(path.join(import.meta.dirname, `nested/${cName}`), JSON.stringify(c))
 
       const input = {
         a: {
@@ -1830,11 +1830,11 @@ describe('bundle', () => {
         },
       }
 
-      await bundle(input, { origin: __filename, plugins: [fetchUrls(), readFiles()], treeShake: false })
+      await bundle(input, { origin: import.meta.filename, plugins: [fetchUrls(), readFiles()], treeShake: false })
 
-      await fs.rm(path.join(__dirname, `./nested/${bName}`))
-      await fs.rm(path.join(__dirname, `./nested/${cName}`))
-      await fs.rmdir(path.join(__dirname, 'nested'))
+      await fs.rm(path.join(import.meta.dirname, `./nested/${bName}`))
+      await fs.rm(path.join(import.meta.dirname, `./nested/${cName}`))
+      await fs.rmdir(path.join(import.meta.dirname, 'nested'))
 
       expect(input).toEqual({
         'x-ext': {
@@ -1901,7 +1901,7 @@ describe('bundle', () => {
       const chunk1 = { a: 'a', b: 'b' }
       const chunk1Path = randomUUID()
 
-      await fs.writeFile(path.join(__dirname, chunk1Path), JSON.stringify(chunk1))
+      await fs.writeFile(path.join(import.meta.dirname, chunk1Path), JSON.stringify(chunk1))
 
       const input = {
         a: {
@@ -1909,9 +1909,14 @@ describe('bundle', () => {
         },
       }
 
-      await bundle(input, { origin: __filename, plugins: [fetchUrls(), readFiles()], treeShake: false, urlMap: true })
+      await bundle(input, {
+        origin: import.meta.filename,
+        plugins: [fetchUrls(), readFiles()],
+        treeShake: false,
+        urlMap: true,
+      })
 
-      await fs.rm(path.join(__dirname, chunk1Path))
+      await fs.rm(path.join(import.meta.dirname, chunk1Path))
 
       expect(input).toEqual({
         'a': {
@@ -1950,7 +1955,7 @@ describe('bundle', () => {
       const chunk1 = { a: 'a', b: 'b' }
       const chunk1Path = randomUUID()
 
-      await fs.writeFile(path.join(__dirname, chunk1Path), JSON.stringify(chunk1))
+      await fs.writeFile(path.join(import.meta.dirname, chunk1Path), JSON.stringify(chunk1))
 
       const input = JSON.stringify({
         a: {
@@ -1958,9 +1963,13 @@ describe('bundle', () => {
         },
       })
 
-      const result = await bundle(input, { origin: __filename, plugins: [readFiles(), parseJson()], treeShake: false })
+      const result = await bundle(input, {
+        origin: import.meta.filename,
+        plugins: [readFiles(), parseJson()],
+        treeShake: false,
+      })
 
-      await fs.rm(path.join(__dirname, chunk1Path))
+      await fs.rm(path.join(import.meta.dirname, chunk1Path))
 
       expect(result).toEqual({
         'x-ext': {
@@ -2007,7 +2016,7 @@ describe('bundle', () => {
       const chunk1 = { a: 'a', b: 'b' }
       const chunk1Path = randomUUID()
 
-      await fs.writeFile(path.join(__dirname, chunk1Path), YAML.stringify(chunk1))
+      await fs.writeFile(path.join(import.meta.dirname, chunk1Path), YAML.stringify(chunk1))
 
       const input = YAML.stringify({
         a: {
@@ -2015,9 +2024,13 @@ describe('bundle', () => {
         },
       })
 
-      const result = await bundle(input, { origin: __filename, plugins: [parseYaml(), readFiles()], treeShake: false })
+      const result = await bundle(input, {
+        origin: import.meta.filename,
+        plugins: [parseYaml(), readFiles()],
+        treeShake: false,
+      })
 
-      await fs.rm(path.join(__dirname, chunk1Path))
+      await fs.rm(path.join(import.meta.dirname, chunk1Path))
 
       expect(result).toEqual({
         'x-ext': {

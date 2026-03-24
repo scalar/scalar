@@ -10,7 +10,7 @@
     "url": "git+https://github.com/scalar/scalar.git",
     "directory": "integrations/docker"
   },
-  "version": "0.5.9",
+  "version": "0.5.13",
   "private": true,
   "engines": {
     "node": ">=22"
@@ -18,11 +18,7 @@
   "scripts": {
     "build": "command -v docker >/dev/null 2>&1 && docker build -t scalarapi/api-reference:latest . || echo '⚠️ Docker is not available, skipping the build.'",
     "compress": "cd ./assets && gzip --keep --verbose --force scalar.js",
-    "copy:standalone": "shx cp ../../packages/api-reference/dist/browser/standalone.js ./assets/scalar.js",
-    "format": "scalar-format",
-    "format:check": "scalar-format-check",
-    "lint:check": "scalar-lint-check",
-    "lint:fix": "scalar-lint-fix"
+    "copy:standalone": "shx cp ../../packages/api-reference/dist/browser/standalone.js ./assets/scalar.js"
   },
   "readme": {
     "title": "Scalar API Reference for Docker",
@@ -36,8 +32,5 @@
   },
   "dependencies": {
     "@scalar/api-reference": "workspace:*"
-  },
-  "devDependencies": {
-    "@scalar/build-tooling": "workspace:*"
   }
 }

@@ -14,17 +14,14 @@
     "helpers",
     "js"
   ],
-  "version": "0.4.1",
+  "version": "0.4.2",
   "engines": {
     "node": ">=22"
   },
   "scripts": {
-    "build": "scalar-build-esbuild",
-    "lint:check": "biome lint --diagnostic-level=error",
-    "lint:fix": "biome lint --write",
+    "build": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
     "test": "vitest",
-    "types:build": "scalar-types-build",
-    "types:check": "scalar-types-check"
+    "types:check": "tsc --noEmit"
   },
   "type": "module",
   "main": "dist/index.js",
@@ -106,7 +103,6 @@
     "CHANGELOG.md"
   ],
   "devDependencies": {
-    "@scalar/build-tooling": "workspace:*",
     "jsdom": "catalog:*",
     "vite": "catalog:*",
     "vitest": "catalog:*"

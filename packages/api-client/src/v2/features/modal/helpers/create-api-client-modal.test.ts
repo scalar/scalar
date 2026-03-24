@@ -1,7 +1,9 @@
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
+import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { enableAutoUnmount, mount } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import type { App } from 'vue'
 import { nextTick, ref } from 'vue'
 
 import 'fake-indexeddb/auto'
@@ -37,6 +39,9 @@ const createTestDocument = (overrides: Partial<OpenApiDocument> = {}): OpenApiDo
   ...overrides,
 })
 
+/** Creates an event bus with debug disabled to prevent pending setTimeout in tests */
+const createTestEventBus = () => createWorkspaceEventBus({ debug: false })
+
 /** Sets up a workspace store with a test document */
 const setupWorkspaceStore = async () => {
   const store = createWorkspaceStore()
@@ -50,6 +55,8 @@ const setupWorkspaceStore = async () => {
 
 describe('createApiClientModal', () => {
   let mountElement: HTMLElement
+  /** Track Vue apps created in tests to ensure proper cleanup */
+  const createdApps: App[] = []
 
   beforeEach(() => {
     // Create a DOM element for mounting.
@@ -59,6 +66,16 @@ describe('createApiClientModal', () => {
   })
 
   afterEach(() => {
+    // Unmount any Vue apps created during tests to prevent pending async operations
+    for (const app of createdApps) {
+      try {
+        app.unmount()
+      } catch {
+        // Ignore unmount errors - app may already be unmounted
+      }
+    }
+    createdApps.length = 0
+
     // Clean up DOM
     document.body.innerHTML = ''
   })
@@ -70,7 +87,9 @@ describe('createApiClientModal', () => {
       el: mountElement,
       workspaceStore,
       mountOnInitialize: true,
+      eventBus: createTestEventBus(),
     })
+    createdApps.push(modal.app)
 
     // The modal should be mounted immediately when mountOnInitialize is true.
     expect(modal.app).toBeDefined()
@@ -85,7 +104,9 @@ describe('createApiClientModal', () => {
       el: mountElement,
       workspaceStore,
       mountOnInitialize: false,
+      eventBus: createTestEventBus(),
     })
+    createdApps.push(modal.app)
 
     // When mountOnInitialize is false, the modal should be created but not mounted.
     expect(modal.app).toBeDefined()
@@ -100,7 +121,9 @@ describe('createApiClientModal', () => {
       el: mountElement,
       workspaceStore,
       mountOnInitialize: true,
+      eventBus: createTestEventBus(),
     })
+    createdApps.push(modal.app)
 
     await nextTick()
 
@@ -173,7 +196,9 @@ describe('createApiClientModal', () => {
       workspaceStore: store,
       mountOnInitialize: true,
       options,
+      eventBus: createTestEventBus(),
     })
+    createdApps.push(modal.app)
 
     modal.open({
       path: '/users',
@@ -242,7 +267,9 @@ describe('createApiClientModal', () => {
       el: mountElement,
       workspaceStore,
       mountOnInitialize: true,
+      eventBus: createTestEventBus(),
     })
+    createdApps.push(modal.app)
 
     modal.open({
       path: '/users',
@@ -289,7 +316,9 @@ describe('createApiClientModal', () => {
       el: mountElement,
       workspaceStore,
       mountOnInitialize: true,
+      eventBus: createTestEventBus(),
     })
+    createdApps.push(modal.app)
 
     modal.open({
       path: '/users',
@@ -354,7 +383,9 @@ describe('createApiClientModal', () => {
       el: mountElement,
       workspaceStore,
       mountOnInitialize: true,
+      eventBus: createTestEventBus(),
     })
+    createdApps.push(modal.app)
 
     modal.open({
       path: '/users',
@@ -399,7 +430,9 @@ describe('createApiClientModal', () => {
       el: mountElement,
       workspaceStore,
       mountOnInitialize: true,
+      eventBus: createTestEventBus(),
     })
+    createdApps.push(modal.app)
 
     modal.open({
       path: '/users',

@@ -1,5 +1,52 @@
 # @scalar/api-client
 
+## 2.38.4
+
+### Patch Changes
+
+- [#8529](https://github.com/scalar/scalar/pull/8529): rewrite declaration aliases in built type files
+
+## 2.38.3
+
+### Patch Changes
+
+- [#8465](https://github.com/scalar/scalar/pull/8465): fix multipart encoding.contentType request handling and curl snippets
+- [#8501](https://github.com/scalar/scalar/pull/8501): fix allowReserved query parameter support so reserved characters like colons stay unescaped and parameter typings include allowReserved
+- [#8517](https://github.com/scalar/scalar/pull/8517): Fix OAuth2 authorization code auth behavior in v2 by including `client_id` in token exchange for public clients, preventing duplicate scheme entries when selected scopes change, and applying configured default scopes to initial auth selection.
+
+## 2.38.2
+
+### Patch Changes
+
+- [#8437](https://github.com/scalar/scalar/pull/8437): refactor: better types for the api-client plugin manager
+- [#8485](https://github.com/scalar/scalar/pull/8485): fix: prevent stale SSE response bodies on repeated sends by disabling request caching for SSE requests
+- [#8466](https://github.com/scalar/scalar/pull/8466): chore: new build pipeline
+- [#8470](https://github.com/scalar/scalar/pull/8470): fix default content type headers for operations without request bodies
+
+## 2.38.1
+
+### Patch Changes
+
+- [#8468](https://github.com/scalar/scalar/pull/8468): fix: example extraction, environment navigation and general UI fixes
+- [#8451](https://github.com/scalar/scalar/pull/8451): fix(api-client): default-close auth when not required
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.40.2**
+  - [#8468](https://github.com/scalar/scalar/pull/8468): fix: ignore response examples when generating navigation
+
+- **@scalar/openapi-parser@0.25.4**
+  - [#8448](https://github.com/scalar/scalar/pull/8448): fix parser validation for unused path parameters
+
+- **@scalar/components@0.20.9**
+  - [#8453](https://github.com/scalar/scalar/pull/8453): refactor: remove @ts-expect-error from ScalarTextArea
+
+- **@scalar/oas-utils@0.10.8**
+
+- **@scalar/sidebar@0.8.9**
+
+- **@scalar/use-codemirror@0.14.9**
+
 ## 2.38.0
 
 ### Minor Changes

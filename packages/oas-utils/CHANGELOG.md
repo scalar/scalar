@@ -1,5 +1,22 @@
 # @scalar/oas-utils
 
+## 0.10.10
+
+## 0.10.9
+
+### Patch Changes
+
+- [#8466](https://github.com/scalar/scalar/pull/8466): chore: new build pipeline
+
+## 0.10.8
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.40.2**
+  - [#8468](https://github.com/scalar/scalar/pull/8468): fix: ignore response examples when generating navigation
+
 ## 0.10.7
 
 ### Patch Changes

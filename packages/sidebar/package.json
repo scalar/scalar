@@ -10,20 +10,15 @@
     "url": "git+https://github.com/scalar/scalar.git",
     "directory": "packages/sidebar"
   },
-  "version": "0.8.8",
+  "version": "0.8.12",
   "engines": {
     "node": ">=22"
   },
   "scripts": {
-    "build": "scalar-build-vite",
+    "build": "vite build && vue-tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
     "dev": "vite ./playground -c ./vite.config.ts",
-    "format": "scalar-format",
-    "format:check": "scalar-format-check",
-    "lint:check": "scalar-lint-check",
-    "lint:fix": "scalar-lint-fix",
     "test": "vitest",
-    "types:build": "scalar-types-build-vue",
-    "types:check": "scalar-types-check-vue"
+    "types:check": "vue-tsc --noEmit"
   },
   "type": "module",
   "main": "./dist/index.cjs",
@@ -50,7 +45,6 @@
     "vue": "catalog:*"
   },
   "devDependencies": {
-    "@scalar/build-tooling": "workspace:*",
     "@tailwindcss/vite": "catalog:*",
     "@types/jsdom": "catalog:*",
     "@types/node": "catalog:*",

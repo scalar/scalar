@@ -1637,6 +1637,215 @@ describe('x-handler', () => {
       expect(data.name).toBe('Updated Name')
     })
 
+    it('handler can access request headers via req.headers', async () => {
+      const document = {
+        openapi: '3.1.0',
+        info: {
+          title: 'Test API',
+          version: '1.0.0',
+        },
+        paths: {
+          '/echo-header': {
+            get: {
+              'x-handler': "return { value: req.headers['x-custom-header'] };",
+              responses: {
+                '200': {
+                  description: 'OK',
+                },
+              },
+            },
+          },
+        },
+      }
+
+      const server = await createMockServer({ document })
+
+      const response = await server.request('/echo-header', {
+        headers: {
+          'X-Custom-Header': 'hello-from-header',
+        },
+      })
+
+      expect(response.status).toBe(200)
+      const data = await response.json()
+      expect(data.value).toBe('hello-from-header')
+    })
+
+    it('handler parses application/x-www-form-urlencoded body', async () => {
+      const document = {
+        openapi: '3.1.0',
+        info: {
+          title: 'Test API',
+          version: '1.0.0',
+        },
+        paths: {
+          '/form': {
+            post: {
+              'x-handler': 'return req.body;',
+              responses: {
+                '200': {
+                  description: 'OK',
+                },
+              },
+            },
+          },
+        },
+      }
+
+      const server = await createMockServer({ document })
+
+      const response = await server.request('/form', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: 'name=Alice&age=30',
+      })
+
+      expect(response.status).toBe(200)
+      const data = await response.json()
+      expect(data.name).toBe('Alice')
+      expect(data.age).toBe('30')
+    })
+
+    it('handler parses text/plain body as string', async () => {
+      const document = {
+        openapi: '3.1.0',
+        info: {
+          title: 'Test API',
+          version: '1.0.0',
+        },
+        paths: {
+          '/text': {
+            post: {
+              'x-handler': 'return { text: req.body, type: typeof req.body };',
+              responses: {
+                '200': {
+                  description: 'OK',
+                },
+              },
+            },
+          },
+        },
+      }
+
+      const server = await createMockServer({ document })
+
+      const response = await server.request('/text', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'text/plain',
+        },
+        body: 'Hello, world!',
+      })
+
+      expect(response.status).toBe(200)
+      const data = await response.json()
+      expect(data.text).toBe('Hello, world!')
+      expect(data.type).toBe('string')
+    })
+
+    it('async handler is awaited', async () => {
+      const document = {
+        openapi: '3.1.0',
+        info: {
+          title: 'Test API',
+          version: '1.0.0',
+        },
+        paths: {
+          '/async': {
+            get: {
+              'x-handler': "return Promise.resolve({ message: 'async result' });",
+              responses: {
+                '200': {
+                  description: 'OK',
+                },
+              },
+            },
+          },
+        },
+      }
+
+      const server = await createMockServer({ document })
+
+      const response = await server.request('/async')
+
+      expect(response.status).toBe(200)
+      const data = await response.json()
+      expect(data.message).toBe('async result')
+    })
+
+    it('malformed JSON body yields undefined req.body', async () => {
+      const document = {
+        openapi: '3.1.0',
+        info: {
+          title: 'Test API',
+          version: '1.0.0',
+        },
+        paths: {
+          '/body-check': {
+            post: {
+              'x-handler': 'return { hasBody: req.body !== undefined, bodyValue: req.body };',
+              responses: {
+                '200': {
+                  description: 'OK',
+                },
+              },
+            },
+          },
+        },
+      }
+
+      const server = await createMockServer({ document })
+
+      const response = await server.request('/body-check', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: '{not valid json!!!',
+      })
+
+      expect(response.status).toBe(200)
+      const data = await response.json()
+      expect(data.hasBody).toBe(false)
+      expect(data.bodyValue).toBeUndefined()
+    })
+
+    it('handler with syntax error returns 500', async () => {
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
+
+      const document = {
+        openapi: '3.1.0',
+        info: {
+          title: 'Test API',
+          version: '1.0.0',
+        },
+        paths: {
+          '/broken': {
+            get: {
+              'x-handler': 'return {{{;',
+              responses: {
+                '200': {
+                  description: 'OK',
+                },
+              },
+            },
+          },
+        },
+      }
+
+      const server = await createMockServer({ document })
+
+      const response = await server.request('/broken')
+
+      expect(response.status).toBe(500)
+      const data = await response.json()
+      expect(data).toHaveProperty('error')
+
+      consoleErrorSpy.mockRestore()
+    })
+
     it('status code prioritizes delete over list when both operations are performed', async () => {
       const document = {
         openapi: '3.1.0',

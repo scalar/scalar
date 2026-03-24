@@ -104,6 +104,7 @@ class TestGetScalarApiReference:
         assert 'hiddenClients' not in config_section
         assert 'servers' not in config_section
         assert 'defaultOpenAllTags' not in config_section
+        assert 'orderSchemaPropertiesBy' not in config_section
         assert 'authentication' not in config_section
         assert 'hideClientButton' not in config_section
         assert '_integration' in config_section
@@ -131,6 +132,7 @@ class TestGetScalarApiReference:
             hidden_clients=["client1", "client2"],
             servers=[{"url": "https://api.example.com", "description": "Production"}],
             default_open_all_tags=True,
+            order_schema_properties_by="preserve",
             authentication={"apiKey": "test-key"},
             hide_client_button=True,
             integration="custom",
@@ -151,6 +153,7 @@ class TestGetScalarApiReference:
         assert '"hiddenClients": ["client1", "client2"]' in html_content
         assert '"servers": [{"url": "https://api.example.com", "description": "Production"}]' in html_content
         assert '"defaultOpenAllTags": true' in html_content
+        assert '"orderSchemaPropertiesBy": "preserve"' in html_content
         assert '"authentication": {"apiKey": "test-key"}' in html_content
         assert '"hideClientButton": true' in html_content
         assert '"_integration": "custom"' in html_content
@@ -392,6 +395,14 @@ class TestGetScalarApiReference:
         html_content = response.body.decode()
         assert '"showDeveloperTools": "never"' in html_content
 
+    def test_order_schema_properties_by_preserve(self):
+        response = get_scalar_api_reference(
+            openapi_url="/openapi.json",
+            title="Test API",
+            order_schema_properties_by="preserve",
+        )
+        html_content = response.body.decode()
+        assert '"orderSchemaPropertiesBy": "preserve"' in html_content
 
 
 class TestFastAPIIntegration:

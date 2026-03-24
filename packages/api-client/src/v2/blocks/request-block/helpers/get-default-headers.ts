@@ -4,12 +4,7 @@ import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
 import { isElectron } from '@/libs/electron'
-
-// eslint-disable-next-line no-undef
-const APP_VERSION = PACKAGE_VERSION
-
-/** Default Content-Type header value for requests with a body. */
-const DEFAULT_CONTENT_TYPE = 'application/json'
+import { APP_VERSION } from '@/v2/constants'
 
 /** Default Accept header value to accept all response types. */
 const DEFAULT_ACCEPT = '*/*'
@@ -45,8 +40,9 @@ const createDefaultHeader = (name: string, defaultValue: string, existingHeaders
  * Generates a list of default headers for an OpenAPI operation and HTTP method.
  *
  * This function intelligently adds standard HTTP headers based on the request context:
- * - Content-Type: Added only if the HTTP method supports a request body (POST, PUT, PATCH, etc.).
- *   Uses the selected content type from the operation or defaults to "application/json".
+ * - Content-Type: Added only if the HTTP method supports a request body and the OpenAPI operation
+ *   defines a request body content type. Uses the selected content type from the operation or the
+ *   first defined request body content type.
  * - Accept: Derived from the 2xx response content types in the spec (joined as a comma-separated list), falling back to a wildcard.
  * - User-Agent: Added in Electron environments (desktop app or proxy) to identify the client.
  *
@@ -82,14 +78,12 @@ export const getDefaultHeaders = ({
   const requestBody = getResolvedRef(operation.requestBody)
 
   // Add Content-Type header only for methods that support a request body
-  if (canMethodHaveBody(method)) {
+  if (canMethodHaveBody(method) && requestBody) {
     const contentType =
-      requestBody?.['x-scalar-selected-content-type']?.[exampleKey] ??
-      Object.keys(requestBody?.content ?? {})[0] ??
-      DEFAULT_CONTENT_TYPE
+      requestBody['x-scalar-selected-content-type']?.[exampleKey] ?? Object.keys(requestBody.content ?? {})[0]
 
-    // We never want to add a content type of 'none'
-    if (contentType !== 'none') {
+    // We never want to add a content type of 'none' or invent one when the schema defines no body.
+    if (contentType && contentType !== 'none') {
       headers.push(createDefaultHeader('Content-Type', contentType, existingHeaders))
     }
   }

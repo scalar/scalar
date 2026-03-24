@@ -72,6 +72,7 @@ describe('ScalarSidebarNestedItems', () => {
   })
 
   it('emits click event when button is clicked', async () => {
+    const handleClick = vi.fn()
     const TestComponent = defineComponent({
       components: { ScalarSidebarItems, ScalarSidebarNestedItems },
       template: `
@@ -82,10 +83,6 @@ describe('ScalarSidebarNestedItems', () => {
         </ScalarSidebarItems>
       `,
       setup() {
-        // Handler for click event - no action needed in test
-        const handleClick = () => {
-          // Intentionally empty - just testing event emission
-        }
         return { handleClick }
       },
     })
@@ -96,8 +93,8 @@ describe('ScalarSidebarNestedItems', () => {
 
     await button.trigger('click')
 
-    expect(nestedComponent.emitted('click')).toBeTruthy()
-    expect(nestedComponent.emitted('click')).toHaveLength(1)
+    expect(handleClick).toHaveBeenCalled()
+    expect(handleClick).toHaveBeenCalledTimes(1)
   })
 
   it('opens when button is clicked in uncontrolled mode', async () => {
@@ -289,6 +286,7 @@ describe('ScalarSidebarNestedItems', () => {
   })
 
   it('emits back event when back button is clicked', async () => {
+    const handleBack = vi.fn()
     const TestComponent = defineComponent({
       components: {
         ScalarSidebarItems,
@@ -306,10 +304,6 @@ describe('ScalarSidebarNestedItems', () => {
         </ScalarSidebarItems>
       `,
       setup() {
-        // Handler for back event - no action needed in test
-        const handleBack = () => {
-          // Intentionally empty - just testing event emission
-        }
         return { handleBack }
       },
     })
@@ -331,8 +325,8 @@ describe('ScalarSidebarNestedItems', () => {
 
     await backButton?.trigger('click')
 
-    expect(nestedComponent.emitted('back')).toBeTruthy()
-    expect(nestedComponent.emitted('back')).toHaveLength(1)
+    expect(handleBack).toHaveBeenCalled()
+    expect(handleBack).toHaveBeenCalledTimes(1)
   })
 
   it('closes when back button is clicked in uncontrolled mode', async () => {

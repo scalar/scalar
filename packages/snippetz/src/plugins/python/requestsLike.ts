@@ -83,18 +83,35 @@ export function requestsLikeGenerate(
     } else if (mimeType === 'application/octet-stream' && text) {
       options.data = text // Store raw text, we'll handle the b"..." formatting later
     } else if (mimeType === 'multipart/form-data' && params) {
-      const files: { key: string; file: string }[] = []
+      const files: string[] = []
       const formData: Record<string, string> = {}
 
       params.forEach((param) => {
         if (param.fileName !== undefined) {
-          files.push({ key: param.name, file: `open("${param.fileName}", "rb")` })
+          const name = JSON.stringify(param.name)
+          const fileName = JSON.stringify(param.fileName)
+          const file = `open(${fileName}, "rb")`
+
+          if (param.contentType) {
+            const contentType = JSON.stringify(param.contentType)
+            files.push(`(${name}, (${fileName}, ${file}, ${contentType}))`)
+          } else {
+            files.push(`(${name}, ${file})`)
+          }
         } else if (param.value !== undefined) {
-          formData[param.name] = param.value
+          if (param.contentType) {
+            const name = JSON.stringify(param.name)
+            const value = JSON.stringify(param.value)
+            const contentType = JSON.stringify(param.contentType)
+
+            files.push(`(${name}, (None, ${value}, ${contentType}))`)
+          } else {
+            formData[param.name] = param.value
+          }
         }
       })
 
-      if (Object.keys(files).length) {
+      if (files.length) {
         options.files = files
       }
       if (Object.keys(formData).length) {
@@ -124,7 +141,7 @@ export function requestsLikeGenerate(
         `${key}=(${convertToPythonSyntax(JSON.stringify(value[0]))}, ${convertToPythonSyntax(JSON.stringify(value[1]))})`,
       )
     } else if (key === 'files') {
-      const filesTuples = value.map(({ key, file }: { key: string; file: string }) => `      ("${key}", ${file})`)
+      const filesTuples = value.map((tuple: string) => `      ${tuple}`)
       const filesStr = '[\n' + filesTuples.join(',\n') + '\n    ]'
       formattedParams.push(`${key}=${filesStr}`)
     } else if (key === 'json') {

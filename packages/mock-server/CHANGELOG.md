@@ -1,5 +1,24 @@
 # @scalar/mock-server
 
+## 0.9.11
+
+## 0.9.10
+
+### Patch Changes
+
+- [#8466](https://github.com/scalar/scalar/pull/8466): chore: new build pipeline
+
+## 0.9.9
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/openapi-parser@0.25.4**
+  - [#8448](https://github.com/scalar/scalar/pull/8448): fix parser validation for unused path parameters
+
+- **@scalar/oas-utils@0.10.8**
+
 ## 0.9.8
 
 ### Patch Changes

@@ -1,5 +1,24 @@
 # @scalar/workspace-store
 
+## 0.40.4
+
+### Patch Changes
+
+- [#8501](https://github.com/scalar/scalar/pull/8501): fix allowReserved query parameter support so reserved characters like colons stay unescaped and parameter typings include allowReserved
+
+## 0.40.3
+
+### Patch Changes
+
+- [#8471](https://github.com/scalar/scalar/pull/8471): chore: clean up the save document and getEditableDocument flows
+- [#8466](https://github.com/scalar/scalar/pull/8466): chore: new build pipeline
+
+## 0.40.2
+
+### Patch Changes
+
+- [#8468](https://github.com/scalar/scalar/pull/8468): fix: ignore response examples when generating navigation
+
 ## 0.40.1
 
 ### Patch Changes

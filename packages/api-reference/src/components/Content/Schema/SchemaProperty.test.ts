@@ -665,4 +665,54 @@ describe('SchemaProperty', () => {
       expect(html).not.toContain('Satellites surrounding the planet')
     })
   })
+
+  describe('example values', () => {
+    it('renders a truthy boolean example', () => {
+      const wrapper = mount(SchemaProperty, {
+        props: {
+          eventBus: null,
+          schema: coerceValue(SchemaObjectSchema, {
+            type: 'boolean',
+            example: true,
+          }),
+          options: {},
+        },
+      })
+
+      expect(wrapper.text()).toContain('Example')
+      expect(wrapper.text()).toContain('true')
+    })
+
+    it('renders a falsy boolean example', () => {
+      const wrapper = mount(SchemaProperty, {
+        props: {
+          eventBus: null,
+          schema: coerceValue(SchemaObjectSchema, {
+            type: 'boolean',
+            example: false,
+          }),
+          options: {},
+        },
+      })
+
+      expect(wrapper.text()).toContain('Example')
+      expect(wrapper.text()).toContain('false')
+    })
+
+    it('renders a zero numeric example', () => {
+      const wrapper = mount(SchemaProperty, {
+        props: {
+          eventBus: null,
+          schema: coerceValue(SchemaObjectSchema, {
+            type: 'integer',
+            example: 0,
+          }),
+          options: {},
+        },
+      })
+
+      expect(wrapper.text()).toContain('Example')
+      expect(wrapper.text()).toContain('0')
+    })
+  })
 })

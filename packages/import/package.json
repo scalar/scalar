@@ -16,18 +16,15 @@
     "postman",
     "scalar"
   ],
-  "version": "0.5.2",
+  "version": "0.5.3",
   "engines": {
     "node": ">=22"
   },
   "scripts": {
-    "build": "scalar-build-esbuild",
-    "dev": "nodemon --exec \"vite-node playground/index.ts\" --ext ts --quiet",
-    "lint:check": "eslint .",
-    "lint:fix": "eslint .  --fix",
+    "build": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
+    "dev": "tsx watch playground/index.ts",
     "test": "vitest",
-    "types:build": "scalar-types-build",
-    "types:check": "scalar-types-check"
+    "types:check": "tsc --noEmit"
   },
   "type": "module",
   "main": "dist/index.js",
@@ -47,8 +44,5 @@
     "@scalar/helpers": "workspace:*",
     "yaml": "catalog:*"
   },
-  "devDependencies": {
-    "@scalar/build-tooling": "workspace:*",
-    "vite": "catalog:*"
-  }
+  "devDependencies": {}
 }

@@ -1108,6 +1108,49 @@ describe('extractSecuritySchemeSecrets', () => {
       // Set should deduplicate the 'read' scope
       expect((result as OAuth2ObjectSecret)['x-default-scopes']).toEqual(['read', 'write'])
     })
+
+    it('preserves scheme-level x-default-scopes when no flow selectedScopes are set', () => {
+      const authStore = createAuthStore()
+      const scheme: ConfigAuthScheme = {
+        type: 'oauth2',
+        'x-default-scopes': ['api://client/access_as_user'],
+        flows: {
+          authorizationCode: {
+            authorizationUrl: 'https://example.com/oauth/authorize',
+            tokenUrl: 'https://example.com/oauth/token',
+            scopes: { 'api://client/access_as_user': 'Access API as user' },
+            refreshUrl: '',
+            'x-usePkce': 'SHA-256',
+          },
+        },
+      }
+
+      const result = extractSecuritySchemeSecrets(scheme, authStore, schemeName, documentSlug)
+
+      expect((result as OAuth2ObjectSecret)['x-default-scopes']).toEqual(['api://client/access_as_user'])
+    })
+
+    it('merges scheme-level x-default-scopes with flow selectedScopes', () => {
+      const authStore = createAuthStore()
+      const scheme: ConfigAuthScheme = {
+        type: 'oauth2',
+        'x-default-scopes': ['profile', 'email'],
+        flows: {
+          authorizationCode: {
+            authorizationUrl: 'https://example.com/oauth/authorize',
+            tokenUrl: 'https://example.com/oauth/token',
+            scopes: { openid: 'OpenID', profile: 'Profile', email: 'Email' },
+            refreshUrl: '',
+            'x-usePkce': 'SHA-256',
+            selectedScopes: ['openid', 'profile'],
+          },
+        },
+      }
+
+      const result = extractSecuritySchemeSecrets(scheme, authStore, schemeName, documentSlug)
+
+      expect((result as OAuth2ObjectSecret)['x-default-scopes']).toEqual(['profile', 'email', 'openid'])
+    })
   })
 
   describe('oauth2 security scheme - edge cases', () => {
