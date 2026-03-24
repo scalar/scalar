@@ -11,7 +11,10 @@ export default {}
 </script>
 
 <script setup lang="ts">
-import { getRequestExampleContext } from '@scalar/workspace-store/request-example'
+import {
+  getActiveProxyUrl,
+  getRequestExampleContext,
+} from '@scalar/workspace-store/request-example'
 import { computed, toValue } from 'vue'
 
 import { isElectron } from '@/libs/electron'
@@ -20,7 +23,6 @@ import { APP_VERSION } from '@/v2/constants'
 import type { RouteProps } from '@/v2/features/app/helpers/routes'
 import { mapHiddenClientsConfig } from '@/v2/features/modal/helpers/map-hidden-clients-config'
 import type { ModalProps } from '@/v2/features/modal/Modal.vue'
-import { getActiveProxyUrl } from '@/v2/helpers/get-active-proxy-url'
 
 const {
   document,
@@ -153,7 +155,7 @@ const httpClients = computed(() =>
       :proxyUrl="
         getActiveProxyUrl(
           workspaceStore.workspace['x-scalar-active-proxy'],
-          layout,
+          layout === 'web' ? 'web' : 'other',
         ) ?? ''
       "
       :securityRequirements="securityRequirements"

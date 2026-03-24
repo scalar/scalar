@@ -5,7 +5,6 @@ import {
   createApiClientModal,
   type ApiClientModal,
 } from '@scalar/api-client/v2/features/modal'
-import { getActiveEnvironment, getServers } from '@scalar/api-client/v2/helpers'
 import {
   addScalarClassesToHeadless,
   ScalarColorModeToggleButton,
@@ -30,6 +29,10 @@ import { useColorMode } from '@scalar/use-hooks/useColorMode'
 import { ScalarToasts } from '@scalar/use-toasts'
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
+import {
+  getActiveEnvironment,
+  getServers,
+} from '@scalar/workspace-store/request-example'
 import type {
   TraversedEntry,
   TraversedTag,
@@ -414,11 +417,12 @@ mapConfigToWorkspaceStore({
 })
 
 /** Merged environment variables from workspace and document levels */
-const environment = computed(() =>
-  getActiveEnvironment(
-    workspaceStore,
-    workspaceStore.workspace.activeDocument ?? null,
-  ),
+const environment = computed(
+  () =>
+    getActiveEnvironment(
+      workspaceStore,
+      workspaceStore.workspace.activeDocument ?? null,
+    ).environment,
 )
 
 if (typeof window !== 'undefined') {

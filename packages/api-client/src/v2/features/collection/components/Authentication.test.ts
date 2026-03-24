@@ -1,13 +1,13 @@
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
+import type { MergedSecuritySchemes } from '@scalar/workspace-store/request-example'
 import type { WorkspaceDocument } from '@scalar/workspace-store/schemas'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
 import { nextTick } from 'vue'
 
-import type { MergedSecuritySchemes } from '@/v2/blocks/scalar-auth-selector-block'
 import { AuthSelector } from '@/v2/blocks/scalar-auth-selector-block'
 
 import Authentication from './Authentication.vue'

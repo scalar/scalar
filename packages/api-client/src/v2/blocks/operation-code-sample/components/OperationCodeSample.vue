@@ -122,6 +122,7 @@ import { ScalarIconCaretDown } from '@scalar/icons'
 import { type AvailableClients } from '@scalar/snippetz'
 import { type WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import type { SecuritySchemeObjectSecret } from '@scalar/workspace-store/request-example'
 import type { XScalarCookie } from '@scalar/workspace-store/schemas/extensions/general/x-scalar-cookies'
 import type {
   OperationObject,
@@ -148,7 +149,6 @@ import type {
   ClientOptionGroup,
   CustomClientOption,
 } from '@/v2/blocks/operation-code-sample/types'
-import type { SecuritySchemeObjectSecret } from '@/v2/blocks/scalar-auth-selector-block/helpers/secret-types'
 
 import { generateCodeSnippet } from '../helpers/generate-code-snippet'
 import ExamplePicker from './ExamplePicker.vue'

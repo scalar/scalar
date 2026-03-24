@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { OperationCodeSample } from '@scalar/api-client/v2/blocks/operation-code-sample'
-import type { SecuritySchemeObjectSecret } from '@scalar/api-client/v2/blocks/scalar-auth-selector-block'
 import {
   ScalarErrorBoundary,
   ScalarIconButton,
@@ -18,6 +17,7 @@ import {
 } from '@scalar/oas-utils/helpers'
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import type { SecuritySchemeObjectSecret } from '@scalar/workspace-store/request-example'
 import type {
   OperationObject,
   ServerObject,

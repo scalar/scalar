@@ -5,7 +5,9 @@ import type { AuthMeta } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { unpackProxyObject } from '@scalar/workspace-store/helpers/unpack-proxy'
 import {
+  getActiveProxyUrl,
   getSelectedSecurity,
+  getServers,
   mergeSecurity,
 } from '@scalar/workspace-store/request-example'
 import { computed, ref, watchEffect } from 'vue'
@@ -14,8 +16,6 @@ import { AuthSelector } from '@/v2/blocks/scalar-auth-selector-block'
 import type { CollectionProps } from '@/v2/features/app/helpers/routes'
 import { getDefaultOperationSecurityToggle } from '@/v2/features/collection/helpers/get-default-operation-security-toggle'
 import Section from '@/v2/features/settings/components/Section.vue'
-import { getServers } from '@/v2/helpers'
-import { getActiveProxyUrl } from '@/v2/helpers/get-active-proxy-url'
 
 const {
   document,
@@ -121,7 +121,7 @@ const proxyUrl = computed(
   () =>
     getActiveProxyUrl(
       workspaceStore.workspace['x-scalar-active-proxy'],
-      layout,
+      layout === 'web' ? 'web' : 'other',
     ) ?? '',
 )
 

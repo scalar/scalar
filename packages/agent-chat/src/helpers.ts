@@ -1,11 +1,10 @@
-import { mergeSecurity } from '@scalar/api-client/v2/blocks/scalar-auth-selector-block'
-import { getSelectedServer } from '@scalar/api-client/v2/features/operation'
-import { getServers } from '@scalar/api-client/v2/helpers'
 import { REFERENCE_LS_KEYS, safeLocalStorage } from '@scalar/helpers/object/local-storage'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { AuthStore } from '@scalar/workspace-store/entities/auth'
 import { type Auth, AuthSchema } from '@scalar/workspace-store/entities/auth'
+import type { SecuritySchemeObjectSecret } from '@scalar/workspace-store/request-example'
+import { getSelectedServer, getServers, mergeSecurity } from '@scalar/workspace-store/request-example'
 import type { WorkspaceDocument } from '@scalar/workspace-store/schemas'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
@@ -15,7 +14,11 @@ export function getOperations(doc: Partial<OpenAPIV3_1.Document>) {
 }
 
 /** Flattens all security requirements from a document */
-function getSecurityFromDocument(documentName: string, document: WorkspaceDocument, authStore: AuthStore) {
+function getSecurityFromDocument(
+  documentName: string,
+  document: WorkspaceDocument,
+  authStore: AuthStore,
+): SecuritySchemeObjectSecret[] {
   return Object.values(mergeSecurity(document?.components?.securitySchemes, {}, authStore, documentName))
 }
 
@@ -30,7 +33,7 @@ export function createDocumentSettings(workspaceStore: WorkspaceStore) {
       return [
         key,
         {
-          activeServer: getSelectedServer(servers, document['x-scalar-selected-server']),
+          activeServer: getSelectedServer(document, null, null, servers),
           securitySchemes: getSecurityFromDocument(key, document, workspaceStore.auth),
         },
       ]

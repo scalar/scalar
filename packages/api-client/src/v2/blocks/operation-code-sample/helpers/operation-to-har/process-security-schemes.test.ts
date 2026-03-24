@@ -1,6 +1,5 @@
+import type { SecuritySchemeObjectSecret } from '@scalar/workspace-store/request-example'
 import { describe, expect, it } from 'vitest'
-
-import type { SecuritySchemeObjectSecret } from '@/v2/blocks/scalar-auth-selector-block'
 
 import { processSecuritySchemes } from './process-security-schemes'
 

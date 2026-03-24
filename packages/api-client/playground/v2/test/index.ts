@@ -53,7 +53,5 @@ const { request } = buildRequest(requestBuilder.data.request, {
 
 void sendRequest({
   request,
-  operation: context.data.operation,
   isUsingProxy: requestBuilder.data.request.proxy.isUsingProxy,
-  plugins: [],
 })

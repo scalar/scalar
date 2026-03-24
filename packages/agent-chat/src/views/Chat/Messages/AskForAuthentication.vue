@@ -1,8 +1,11 @@
 <script setup lang="ts">
-import { getSelectedServer } from '@scalar/api-client/v2/features/operation'
-import { getActiveEnvironment, getServers } from '@scalar/api-client/v2/helpers'
 import { ScalarButton } from '@scalar/components'
 import { ScalarIconArrowRight } from '@scalar/icons'
+import {
+  getActiveEnvironment,
+  getSelectedServer,
+  getServers,
+} from '@scalar/workspace-store/request-example'
 import type { ToolUIPart } from 'ai'
 import { computed, type Ref } from 'vue'
 
@@ -53,7 +56,7 @@ const environment = computed(() => {
     return
   }
 
-  return getActiveEnvironment(workspaceStore, document.value)
+  return getActiveEnvironment(workspaceStore, document.value).environment
 })
 
 const selectedServer = computed(() => {
@@ -65,7 +68,7 @@ const selectedServer = computed(() => {
     documentUrl: document.value['x-scalar-original-source-url'],
   })
 
-  return getSelectedServer(servers, document.value['x-scalar-selected-server'])
+  return getSelectedServer(document.value, null, null, servers)
 })
 
 const isAuthenticationExpanded = computed(

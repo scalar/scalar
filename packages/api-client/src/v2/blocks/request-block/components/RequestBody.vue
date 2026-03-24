@@ -4,6 +4,7 @@ import { CONTENT_TYPES } from '@scalar/helpers/consts/content-types'
 import { objectEntries } from '@scalar/helpers/object/object-entries'
 import type { ApiReferenceEvents } from '@scalar/workspace-store/events'
 import { unpackProxyObject } from '@scalar/workspace-store/helpers/unpack-proxy'
+import { getSelectedBodyContentType } from '@scalar/workspace-store/request-example'
 import { resolve } from '@scalar/workspace-store/resolve'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type {
@@ -13,7 +14,6 @@ import type {
 import { computed } from 'vue'
 
 import { useFileDialog } from '@/hooks'
-import { getSelectedBodyContentType } from '@/v2/blocks/operation-block/helpers/get-selected-body-content-type'
 import RequestBodyForm from '@/v2/blocks/request-block/components/RequestBodyForm.vue'
 import { getFileName } from '@/v2/blocks/request-block/helpers/files'
 import { getExampleFromBody } from '@/v2/blocks/request-block/helpers/get-request-body-example'

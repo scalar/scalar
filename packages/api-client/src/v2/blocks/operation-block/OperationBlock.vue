@@ -101,6 +101,8 @@ import {
   getEnvironmentVariables,
   getServerVariables,
   requestFactory,
+  type MergedSecuritySchemes,
+  type SecuritySchemeObjectSecret,
 } from '@scalar/workspace-store/request-example'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type { XScalarCookie } from '@scalar/workspace-store/schemas/extensions/general/x-scalar-cookies'
@@ -129,8 +131,6 @@ import { generateClientOptions } from '@/v2/blocks/operation-code-sample'
 import { RequestBlock } from '@/v2/blocks/request-block'
 import { ResponseBlock } from '@/v2/blocks/response-block'
 import { type History } from '@/v2/blocks/scalar-address-bar-block'
-import type { SecuritySchemeObjectSecret } from '@/v2/blocks/scalar-auth-selector-block'
-import type { MergedSecuritySchemes } from '@/v2/blocks/scalar-auth-selector-block/helpers/merge-security'
 
 import Header from './components/Header.vue'
 

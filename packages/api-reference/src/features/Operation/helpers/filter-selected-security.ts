@@ -1,10 +1,10 @@
-import { getSecuritySchemes } from '@scalar/api-client/v2/blocks/operation-block'
-import type {
-  MergedSecuritySchemes,
-  SecuritySchemeObjectSecret,
-} from '@scalar/api-client/v2/blocks/scalar-auth-selector-block'
-import { getSelectedSecurity } from '@scalar/api-client/v2/features/operation'
 import type { SelectedSecurity } from '@scalar/workspace-store/entities/auth'
+import type { SecuritySchemeObjectSecret } from '@scalar/workspace-store/request-example'
+import {
+  type MergedSecuritySchemes,
+  getSecuritySchemes,
+  getSelectedSecurity,
+} from '@scalar/workspace-store/request-example'
 import type {
   OpenApiDocument,
   OperationObject,

@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { OperationCodeSample } from '@scalar/api-client/v2/blocks/operation-code-sample'
-import type { SecuritySchemeObjectSecret } from '@scalar/api-client/v2/blocks/scalar-auth-selector-block'
 import { ScalarErrorBoundary, ScalarMarkdown } from '@scalar/components'
 import { ScalarIconWebhooksLogo } from '@scalar/icons'
 import {
@@ -9,6 +8,7 @@ import {
   isOperationDeprecated,
 } from '@scalar/oas-utils/helpers'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import type { SecuritySchemeObjectSecret } from '@scalar/workspace-store/request-example'
 import type {
   OperationObject,
   ServerObject,

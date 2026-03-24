@@ -1,8 +1,5 @@
-import type {
-  MergedSecuritySchemes,
-  SecuritySchemeObjectSecret,
-} from '@scalar/api-client/v2/blocks/scalar-auth-selector-block'
 import type { AuthenticationConfiguration } from '@scalar/types/api-reference'
+import type { MergedSecuritySchemes, SecuritySchemeObjectSecret } from '@scalar/workspace-store/request-example'
 import type {
   SecurityRequirementObject,
   SecuritySchemeObject,

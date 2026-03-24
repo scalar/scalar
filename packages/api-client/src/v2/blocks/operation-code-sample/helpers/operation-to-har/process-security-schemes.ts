@@ -1,7 +1,6 @@
+import type { SecuritySchemeObjectSecret } from '@scalar/workspace-store/request-example'
 import type { Request as HarRequest } from 'har-format'
 import { encode } from 'js-base64'
-
-import type { SecuritySchemeObjectSecret } from '@/v2/blocks/scalar-auth-selector-block/helpers/secret-types'
 
 type ProcessedSecuritySchemesReturn = {
   headers: HarRequest['headers']

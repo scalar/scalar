@@ -1,14 +1,16 @@
 <script setup lang="ts">
 import { generateClientOptions } from '@scalar/api-client/v2/blocks/operation-code-sample'
-import { mergeSecurity } from '@scalar/api-client/v2/blocks/scalar-auth-selector-block'
 import { mapHiddenClientsConfig } from '@scalar/api-client/v2/features/modal'
-import { getSelectedServer } from '@scalar/api-client/v2/features/operation'
-import { getServers } from '@scalar/api-client/v2/helpers'
 import { ScalarErrorBoundary } from '@scalar/components'
 import type { ApiReferenceConfigurationRaw } from '@scalar/types/api-reference'
 import type { Heading } from '@scalar/types/legacy'
 import type { AuthStore } from '@scalar/workspace-store/entities/auth'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
+import {
+  getSelectedServer,
+  getServers,
+  mergeSecurity,
+} from '@scalar/workspace-store/request-example'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type { TraversedEntry as TraversedEntryType } from '@scalar/workspace-store/schemas/navigation'
 import type {
@@ -83,7 +85,7 @@ const servers = computed(() =>
 
 /** Compute the selected server for the document only (for now) */
 const selectedServer = computed(() =>
-  getSelectedServer(servers.value, document?.['x-scalar-selected-server']),
+  getSelectedServer(document ?? null, null, null, servers.value),
 )
 
 /** Merge authentication config with the document security schemes */

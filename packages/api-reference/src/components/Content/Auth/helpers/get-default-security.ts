@@ -1,7 +1,7 @@
-import type { MergedSecuritySchemes } from '@scalar/api-client/v2/blocks/scalar-auth-selector-block'
 import type { AuthenticationConfiguration } from '@scalar/types/api-reference'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { unpackProxyObject } from '@scalar/workspace-store/helpers/unpack-proxy'
+import type { MergedSecuritySchemes } from '@scalar/workspace-store/request-example'
 import type {
   SecurityRequirementObject,
   SecuritySchemeObject,
