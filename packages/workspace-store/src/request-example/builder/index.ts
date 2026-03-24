@@ -1,2 +1,6 @@
 export { buildRequest } from './build-request'
+export { deSerializeParameter } from './header/de-serialize-parameter'
+export { getEnvironmentVariables } from './helpers/get-environment-variables'
+export { getResolvedUrl } from './helpers/get-resolved-url'
+export { getServerVariables } from './helpers/get-server-variables'
 export { requestFactory } from './request-factory'

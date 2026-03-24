@@ -31,7 +31,6 @@ const {
   environment,
   exampleName,
   options,
-  securitySchemes,
   workspaceStore,
   plugins,
   documentSlug,
@@ -81,6 +80,10 @@ const selectedServer = computed(
 )
 const serverMeta = computed(
   () => requestExample.value?.servers.meta ?? { type: 'document' as const },
+)
+
+const securitySchemes = computed(
+  () => requestExample.value?.security.schemes ?? {},
 )
 
 const selectedSecurity = computed(

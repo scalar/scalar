@@ -36,6 +36,7 @@ import {
 } from '@scalar/components'
 import { REQUEST_METHODS } from '@scalar/helpers/http/http-info'
 import type { HttpMethod as HttpMethodType } from '@scalar/helpers/http/http-methods'
+import { replaceEnvVariables } from '@scalar/helpers/regex/replace-variables'
 import { ScalarIconCopy, ScalarIconWarningCircle } from '@scalar/icons'
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
 import type {
@@ -43,6 +44,10 @@ import type {
   ServerMeta,
   WorkspaceEventBus,
 } from '@scalar/workspace-store/events'
+import {
+  getEnvironmentVariables,
+  getResolvedUrl,
+} from '@scalar/workspace-store/request-example'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import {
@@ -56,7 +61,6 @@ import {
 
 import { HttpMethod } from '@/components/HttpMethod'
 import { type ClientLayout } from '@/hooks'
-import { getResolvedUrl } from '@/v2/blocks/operation-block/helpers/get-resolved-url'
 import { useLoadingAnimation } from '@/v2/blocks/scalar-address-bar-block/hooks/use-loading-animation'
 import { CodeInput } from '@/v2/components/code-input'
 import { ServerDropdown } from '@/v2/components/server'
@@ -189,9 +193,17 @@ onBeforeUnmount(() => {
 const { copyToClipboard } = useClipboard()
 
 const copyUrl = async () => {
-  await copyToClipboard(
-    getResolvedUrl({ environment, server, path, pathVariables: {} }),
+  // Resolve the URL with the server and path
+  const resolvedUrl = getResolvedUrl({ server, path })
+  // Get the environment variables
+  const environmentVariables = getEnvironmentVariables(environment)
+  // Replace the environment variables in the resolved URL
+  const resolvedUrlWithEnvVars = replaceEnvVariables(
+    resolvedUrl,
+    environmentVariables,
   )
+  // Copy the resolved URL with the environment variables to the clipboard
+  await copyToClipboard(resolvedUrlWithEnvVars)
 }
 
 const isServerDropdownOpen = ref(false)

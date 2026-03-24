@@ -3,6 +3,7 @@ import { ScalarErrorBoundary } from '@scalar/components'
 import { canMethodHaveBody } from '@scalar/helpers/http/can-method-have-body'
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { REGEX } from '@scalar/helpers/regex/regex-helpers'
+import { replaceEnvVariables } from '@scalar/helpers/regex/replace-variables'
 import type { ClientPlugin } from '@scalar/oas-utils/helpers'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { SelectedSecurity } from '@scalar/workspace-store/entities/auth'
@@ -13,6 +14,10 @@ import type {
 } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { unpackProxyObject } from '@scalar/workspace-store/helpers/unpack-proxy'
+import {
+  getEnvironmentVariables,
+  getResolvedUrl,
+} from '@scalar/workspace-store/request-example'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type { XScalarCookie } from '@scalar/workspace-store/schemas/extensions/general/x-scalar-cookies'
 import type {
@@ -27,7 +32,6 @@ import ViewLayoutSection from '@/components/ViewLayout/ViewLayoutSection.vue'
 import type { ClientLayout } from '@/hooks'
 import { filterGlobalCookie } from '@/v2/blocks/operation-block/helpers/filter-global-cookies'
 import { getExample } from '@/v2/blocks/operation-block/helpers/get-example'
-import { getResolvedUrl } from '@/v2/blocks/operation-block/helpers/get-resolved-url'
 import type { ClientOptionGroup } from '@/v2/blocks/operation-code-sample'
 import RequestBody from '@/v2/blocks/request-block/components/RequestBody.vue'
 import RequestCodeSnippet from '@/v2/blocks/request-block/components/RequestCodeSnippet.vue'
@@ -171,12 +175,12 @@ const headers = computed(() => [
 ])
 
 const defaultCookies = computed(() => {
+  const environmentVariables = getEnvironmentVariables(environment)
   const resolvedUrl = getResolvedUrl({
-    environment,
     server,
     path,
-    pathVariables: {},
   })
+  const url = replaceEnvVariables(resolvedUrl, environmentVariables)
 
   const disabledGlobalCookies =
     operation['x-scalar-disable-parameters']?.['global-cookies']?.[
@@ -212,7 +216,7 @@ const defaultCookies = computed(() => {
       .filter((cookie) =>
         filterGlobalCookie({
           cookie,
-          url: resolvedUrl,
+          url,
           disabledGlobalCookies: {},
         }),
       )

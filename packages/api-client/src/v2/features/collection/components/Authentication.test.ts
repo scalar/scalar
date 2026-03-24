@@ -135,7 +135,21 @@ describe('document collection', () => {
     expect(props.isStatic).toBe(true)
     expect(props.meta).toEqual({ type: 'document' })
     expect(props.securityRequirements).toEqual([{ BearerAuth: [] }])
-    expect(props.securitySchemes).toEqual(baseDocument.components?.securitySchemes)
+    expect(props.securitySchemes).toEqual({
+      BearerAuth: {
+        type: 'http',
+        scheme: 'bearer',
+        'x-scalar-secret-password': '',
+        'x-scalar-secret-username': '',
+        'x-scalar-secret-token': '',
+      },
+      ApiKeyAuth: {
+        type: 'apiKey',
+        in: 'header',
+        name: 'X-API-Key',
+        'x-scalar-secret-token': '',
+      },
+    })
     expect(props.selectedSecurity).toEqual({
       selectedIndex: 0,
       selectedSchemes: [{ BearerAuth: [] }],

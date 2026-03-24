@@ -7,6 +7,7 @@ import type {
   ApiReferenceEvents,
   WorkspaceEventBus,
 } from '@scalar/workspace-store/events'
+import { getEnvironmentVariables } from '@scalar/workspace-store/request-example'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type { XScalarCredentialsLocation } from '@scalar/workspace-store/schemas/extensions/security/x-scalar-credentials-location'
 import type { XusePkce } from '@scalar/workspace-store/schemas/extensions/security/x-use-pkce'
@@ -17,7 +18,6 @@ import type {
 import { computed, ref, watch } from 'vue'
 
 import { DataTableRow } from '@/components/DataTable'
-import { getEnvironmentVariables } from '@/v2/blocks/operation-block/helpers/get-environment-variables'
 import OAuthScopesInput from '@/v2/blocks/scalar-auth-selector-block/components/OAuthScopesInput.vue'
 import { authorizeOauth2 } from '@/v2/blocks/scalar-auth-selector-block/helpers/oauth'
 import type {

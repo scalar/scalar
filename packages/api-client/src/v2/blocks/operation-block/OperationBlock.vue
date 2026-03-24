@@ -81,7 +81,6 @@ export type OperationBlockProps = {
 </script>
 <script setup lang="ts">
 import type { HttpMethod as HttpMethodType } from '@scalar/helpers/http/http-methods'
-import { objectEntries } from '@scalar/helpers/object/object-entries'
 import type { ResponseInstance } from '@scalar/oas-utils/entities/spec'
 import { executeHook, type ClientPlugin } from '@scalar/oas-utils/helpers'
 import {
@@ -99,6 +98,8 @@ import type {
 } from '@scalar/workspace-store/events'
 import {
   buildRequest,
+  getEnvironmentVariables,
+  getServerVariables,
   requestFactory,
 } from '@scalar/workspace-store/request-example'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
@@ -115,8 +116,6 @@ import ViewLayoutContent from '@/components/ViewLayout/ViewLayoutContent.vue'
 import type { ClientLayout } from '@/hooks'
 import { isElectron } from '@/libs/electron'
 import { ERRORS } from '@/libs/errors'
-import { getEnvironmentVariables } from '@/v2/blocks/operation-block/helpers/get-environment-variables'
-// import { buildRequest } from '@/v2/blocks/operation-block/helpers/build-request'
 import { harToFetchRequest } from '@/v2/blocks/operation-block/helpers/har-to-fetch-request'
 import { harToFetchResponse } from '@/v2/blocks/operation-block/helpers/har-to-fetch-response'
 import {
@@ -166,18 +165,6 @@ const {
 const clientOptions = computed(() => generateClientOptions(httpClients))
 
 const { toast } = useToasts()
-
-const serverVariables = computed(() =>
-  objectEntries(server?.variables ?? {}).reduce(
-    (acc, [name, variable]) => {
-      if (variable.default) {
-        acc[name] = variable.default
-      }
-      return acc
-    },
-    {} as Record<string, string>,
-  ),
-)
 
 // Refs
 const abortController = ref<AbortController | null>(null)
@@ -244,7 +231,7 @@ const handleExecute = async () => {
   // Build the actual request we will send
   const requestResult = buildRequest(requestBuilder.data.request, {
     envVariables: getEnvironmentVariables(environment),
-    serverVariables: serverVariables.value,
+    serverVariables: getServerVariables(server),
   })
 
   // Store the abort controller for cancellation
@@ -253,8 +240,6 @@ const handleExecute = async () => {
   /** Execute the request */
   const [sendError, sendResult] = await sendRequest({
     isUsingProxy: requestBuilder.data.request.proxy.isUsingProxy,
-    operation,
-    plugins,
     request: requestResult.request.clone(),
   })
 

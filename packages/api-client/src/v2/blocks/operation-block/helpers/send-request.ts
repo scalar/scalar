@@ -1,7 +1,5 @@
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { httpStatusCodes } from '@scalar/helpers/http/http-status-codes'
-import type { ClientPlugin } from '@scalar/oas-utils/helpers'
-import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
 import { ERRORS, type ErrorResponse, normalizeError } from '@/libs/errors'
 import { normalizeHeaders } from '@/libs/normalize-headers'
@@ -59,8 +57,6 @@ export const sendRequest = async ({
   request,
 }: {
   isUsingProxy: boolean
-  operation: OperationObject
-  plugins: ClientPlugin[]
   request: Request
 }): Promise<
   ErrorResponse<{
@@ -75,6 +71,7 @@ export const sendRequest = async ({
     const startTime = performance.now()
     const response = await fetch(request.clone())
     const endTime = performance.now()
+    const timestamp = Date.now()
     const duration = endTime - startTime
 
     // Extract response metadata early for reuse
@@ -95,7 +92,7 @@ export const sendRequest = async ({
       return buildStreamingResponse({
         response,
         request,
-        endTime,
+        timestamp,
         duration,
         responseHeaders,
         statusText,
@@ -107,7 +104,7 @@ export const sendRequest = async ({
     return buildStandardResponse({
       response,
       request,
-      endTime,
+      timestamp,
       duration,
       responseHeaders,
       statusText,
@@ -128,7 +125,7 @@ export const sendRequest = async ({
 const buildStreamingResponse = ({
   response,
   request,
-  endTime,
+  timestamp,
   duration,
   responseHeaders,
   statusText,
@@ -137,7 +134,7 @@ const buildStreamingResponse = ({
 }: {
   response: Response
   request: Request
-  endTime: number
+  timestamp: number
   duration: number
   responseHeaders: Record<string, string>
   statusText: string
@@ -161,7 +158,7 @@ const buildStreamingResponse = ({
   return [
     null,
     {
-      timestamp: endTime,
+      timestamp,
       request: request,
       response: {
         ...normalizedResponse,
@@ -184,7 +181,7 @@ const buildStreamingResponse = ({
 const buildStandardResponse = async ({
   response,
   request,
-  endTime,
+  timestamp,
   duration,
   responseHeaders,
   statusText,
@@ -195,7 +192,7 @@ const buildStandardResponse = async ({
 }: {
   response: Response
   request: Request
-  endTime: number
+  timestamp: number
   duration: number
   responseHeaders: Record<string, string>
   statusText: string
@@ -236,7 +233,7 @@ const buildStandardResponse = async ({
   return [
     null,
     {
-      timestamp: endTime,
+      timestamp,
       request: request,
       response: {
         ...normalizedResponse,

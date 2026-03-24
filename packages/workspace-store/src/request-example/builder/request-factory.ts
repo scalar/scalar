@@ -1,5 +1,4 @@
 import { canMethodHaveBody } from '@scalar/helpers/http/can-method-have-body'
-import { mergeUrls } from '@scalar/helpers/url/merge-urls'
 import { redirectToProxy, shouldUseProxy } from '@scalar/helpers/url/redirect-to-proxy'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
@@ -17,7 +16,7 @@ import type { RequestExampleMeta, Result } from '@/request-example/types'
 import { type RequestBody, buildRequestBody } from './body/build-request-body'
 import { buildRequestCookieHeader } from './header/build-request-cookie-header'
 import { buildRequestParameters } from './header/build-request-parameters'
-import { applyAllowReservedToUrl } from '@/request-example/builder/helpers/apply-allow-reserved-to-url'
+import { getResolvedUrl } from './helpers/get-resolved-url'
 
 export type RequestFactory = {
   url: string
@@ -87,8 +86,14 @@ export const requestFactory = ({
   // TODO: handle url params differently
 
   /** Combine the server url, path and url params into a single url */
-  const mergedUrl = mergeUrls(server?.url ?? '', path, params.urlParams)
-  const url = applyAllowReservedToUrl(mergedUrl, params.allowReservedQueryParameters)
+  // const mergedUrl = mergeUrls(server?.url ?? '', path, params.urlParams)/
+  // const url = applyAllowReservedToUrl(mergedUrl, params.allowReservedQueryParameters)
+  const url = getResolvedUrl({
+    server,
+    path,
+    urlParams: params.urlParams,
+    allowReservedQueryParameters: params.allowReservedQueryParameters,
+  })
 
   // Return error for no url
   if (!url) {
