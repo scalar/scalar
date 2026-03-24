@@ -5,13 +5,14 @@ import { resolve } from 'node:path'
  * Sanitizes a chunk name for use in output filenames.
  *
  * With preserveModules, Vue SFC files produce chunk names containing `.vue`
- * and query strings (e.g. `Foo.vue?vue&type=script&setup=true&lang`).
+ * and query strings (e.g. `Foo.vue?vue&type=script&setup=true&lang.ts`).
  * These cause problems when downstream packages resolve the output files
  * and the Vue plugin tries to re-parse them as SFCs.
  *
- * Facade modules (no query string) drop the `.vue` extension: `Foo.vue` → `Foo`.
- * Virtual modules (with query strings) keep `.vue` and get a dot-separated type
- * suffix to avoid collisions: `Foo.vue?vue&type=script&…` → `Foo.vue.script`.
+ * Facade modules (no query string) are passed through unchanged.
+ * Virtual modules (with query strings) keep `.vue` and get dot-separated
+ * type, index, and lang suffixes to avoid collisions:
+ * `Foo.vue?vue&type=style&index=1&lang.css` → `Foo.vue.style.1.css`.
  *
  * @see https://github.com/rolldown/rolldown/pull/8817
  */
@@ -19,7 +20,7 @@ const sanitizeChunkName = (name: string): string => {
   const queryIndex = name.indexOf('?')
 
   if (queryIndex === -1) {
-    return name.replace(/\.vue$/, '')
+    return name
   }
 
   const base = name.slice(0, queryIndex)
@@ -27,10 +28,13 @@ const sanitizeChunkName = (name: string): string => {
 
   const typeMatch = query.match(/(?:^|&)type=([^&]+)/)
   const indexMatch = query.match(/(?:^|&)index=(\d+)/)
+  const langMatch = query.match(/(?:^|&)lang\.([^&]+)/)
+
   const typeSuffix = typeMatch ? typeMatch[1] : 'virtual'
   const indexSuffix = indexMatch && indexMatch[1] !== '0' ? `.${indexMatch[1]}` : ''
+  const langSuffix = langMatch ? `.${langMatch[1]}` : ''
 
-  return `${base}.${typeSuffix}${indexSuffix}`
+  return `${base}.${typeSuffix}${indexSuffix}${langSuffix}`
 }
 
 /**
