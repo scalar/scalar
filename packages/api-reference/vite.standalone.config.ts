@@ -59,7 +59,6 @@ export default defineConfig({
     emptyOutDir: false,
     outDir: 'dist/browser',
     cssCodeSplit: false,
-    minify: 'oxc',
     lib: {
       entry: ['src/standalone.ts'],
       name: '@scalar/api-reference',
