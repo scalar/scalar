@@ -2,6 +2,7 @@
   "name": "@scalar/validation",
   "version": "0.0.0",
   "description": "A lightweight, schema-first validation library for Scalar",
+  "type": "module",
   "license": "MIT",
   "author": "Scalar (https://github.com/scalar)",
   "homepage": "https://github.com/scalar/scalar",
@@ -21,6 +22,13 @@
     "dev": "tsx playground/index.ts",
     "test": "vitest",
     "types:check": "tsc --noEmit"
+  },
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
   },
   "devDependencies": {
     "vite": "catalog:*",
