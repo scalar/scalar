@@ -47,6 +47,11 @@ const scoreUnion = (schema: Schema, value: unknown): number => {
     return scoreUnion(schema.schema(), value)
   }
 
+  if (schema.type === 'evaluate') {
+    // For an evaluate schema, evaluate the expression and recurse
+    return scoreUnion(schema.schema, schema.expression(value))
+  }
+
   // For primitives and any other type, return 1 if valid, otherwise 0
   return validate(schema, value) ? 1 : 0
 }
