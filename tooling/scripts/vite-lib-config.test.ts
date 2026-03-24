@@ -62,6 +62,13 @@ describe('createPreserveModulesOutput', () => {
   it('omits index suffix for index=0 to keep names stable', () => {
     expect(getEntryFileName('Foo.vue?vue&type=script&setup=true&index=0&lang')).toBe('Foo.vue.script.js')
   })
+
+  it('preserves directory prefixes for nested virtual modules', () => {
+    expect(getEntryFileName('components/nested/Bar.vue')).toBe('components/nested/Bar.js')
+    expect(getEntryFileName('components/nested/Bar.vue?vue&type=script&setup=true&lang')).toBe(
+      'components/nested/Bar.vue.script.js',
+    )
+  })
 })
 
 describe('createExternalsFromPackageJson', () => {
