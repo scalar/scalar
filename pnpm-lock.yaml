@@ -175,8 +175,8 @@ catalogs:
       specifier: ^5.1.6
       version: 5.1.6
     neverpanic:
-      specifier: 0.0.5
-      version: 0.0.5
+      specifier: 0.0.7
+      version: 0.0.7
     next:
       specifier: ^15.5.10
       version: 15.5.10
@@ -1178,7 +1178,7 @@ importers:
         version: 6.0.33(zod@4.3.5)
       neverpanic:
         specifier: catalog:*
-        version: 0.0.5(typescript@5.9.3)
+        version: 0.0.7(typescript@5.9.3)
       truncate-json:
         specifier: catalog:*
         version: 3.0.1
@@ -1262,9 +1262,6 @@ importers:
       '@scalar/object-utils':
         specifier: workspace:*
         version: link:../object-utils
-      '@scalar/openapi-parser':
-        specifier: workspace:*
-        version: link:../openapi-parser
       '@scalar/openapi-types':
         specifier: workspace:*
         version: link:../openapi-types
@@ -13232,8 +13229,8 @@ packages:
     resolution: {integrity: sha512-Nc3loyVASW59W+8fLDZT1lncpG7llffyZ2o0UQLx/Fr20i7P8oP+lE7+TEcFvXj9IUWU6LjB9P3BH+iFGyp+mg==}
     engines: {node: ^14.16.0 || >=16.0.0}
 
-  neverpanic@0.0.5:
-    resolution: {integrity: sha512-daO+ijOQG8g2BXaAwpETa0GUvlIAfqC+1/CUdLp2Ga8qwDaUyHIieX/SM0yZoPBf7k92deq4DO7tZOWWeL063Q==}
+  neverpanic@0.0.7:
+    resolution: {integrity: sha512-GFRTSX2JAEATOCQYlyFkR+9FJPl0pD24toE1foqYAsL6aPLlRKn6L0UFOtJhZCxEbDv+SUsiW4AcPs9cIFwkFw==}
     peerDependencies:
       typescript: '5'
 
@@ -17377,6 +17374,9 @@ packages:
 
   vue-component-type-helpers@3.2.5:
     resolution: {integrity: sha512-tkvNr+bU8+xD/onAThIe7CHFvOJ/BO6XCOrxMzeytJq40nTfpGDJuVjyCM8ccGZKfAbGk2YfuZyDMXM56qheZQ==}
+
+  vue-component-type-helpers@3.2.6:
+    resolution: {integrity: sha512-O02tnvIfOQVmnvoWwuSydwRoHjZVt8UEBR+2p4rT35p8GAy5VTlWP8o5qXfJR/GWCN0nVZoYWsVUvx2jwgdBmQ==}
 
   vue-demi@0.14.10:
     resolution: {integrity: sha512-nMZBOwuzabUO0nLgIcc6rycZEebF6eeUfaiQx9+WSk8e29IbLvPU9feI6tqW4kTo3hvoYAJkMh8n8D0fuISphg==}
@@ -23840,7 +23840,7 @@ snapshots:
       storybook: 10.2.19(@testing-library/dom@9.3.4)(prettier@3.8.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       type-fest: 2.19.0
       vue: 3.5.26(typescript@5.9.3)
-      vue-component-type-helpers: 3.2.5
+      vue-component-type-helpers: 3.2.6
 
   '@sveltejs/acorn-typescript@1.0.5(acorn@8.15.0)':
     dependencies:
@@ -31209,7 +31209,7 @@ snapshots:
       qs: 6.14.1
     optional: true
 
-  neverpanic@0.0.5(typescript@5.9.3):
+  neverpanic@0.0.7(typescript@5.9.3):
     dependencies:
       typescript: 5.9.3
 
@@ -36388,6 +36388,8 @@ snapshots:
   vue-component-type-helpers@2.2.10: {}
 
   vue-component-type-helpers@3.2.5: {}
+
+  vue-component-type-helpers@3.2.6: {}
 
   vue-demi@0.14.10(vue@3.5.26(typescript@5.9.3)):
     dependencies:

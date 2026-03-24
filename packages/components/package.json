@@ -10,12 +10,12 @@
     "url": "git+https://github.com/scalar/scalar.git",
     "directory": "packages/components"
   },
-  "version": "0.20.10",
+  "version": "0.20.12",
   "engines": {
     "node": ">=22"
   },
   "scripts": {
-    "build": "pnpm typegen:icons && vite build && vue-tsc -p tsconfig.build.json",
+    "build": "pnpm typegen:icons && vite build && vue-tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
     "build:storybook": "storybook build",
     "clean:snapshots": "shx rm -rf \"**/snapshots\"",
     "dev": "storybook dev -p 5100 --ci",

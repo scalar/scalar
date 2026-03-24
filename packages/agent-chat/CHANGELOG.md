@@ -1,5 +1,13 @@
 # @scalar/agent-chat
 
+## 0.9.12
+
+### Patch Changes
+
+- [#8529](https://github.com/scalar/scalar/pull/8529): rewrite declaration aliases in built type files
+
+## 0.9.11
+
 ## 0.9.10
 
 ### Patch Changes

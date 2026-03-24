@@ -18,12 +18,12 @@
     "rest",
     "testing"
   ],
-  "version": "2.38.2",
+  "version": "2.38.4",
   "engines": {
     "node": ">=22"
   },
   "scripts": {
-    "build": "vite build && vue-tsc -p tsconfig.build.json",
+    "build": "vite build && vue-tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
     "dev": "pnpm playground:v2:web",
     "playground:app": "vite ./playground/app -c ./vite.config.ts",
     "playground:modal": "vite ./playground/modal -c ./vite.config.ts",
@@ -344,7 +344,6 @@
     "@scalar/json-magic": "workspace:*",
     "@scalar/oas-utils": "workspace:*",
     "@scalar/object-utils": "workspace:*",
-    "@scalar/openapi-parser": "workspace:*",
     "@scalar/openapi-types": "workspace:*",
     "@scalar/postman-to-openapi": "workspace:*",
     "@scalar/sidebar": "workspace:*",

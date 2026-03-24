@@ -24,6 +24,9 @@ export type SecuritySchemeGroup = {
   options: SecuritySchemeOption[]
 }
 
+const requirementSignature = (requirement: SecurityRequirementObject): string =>
+  JSON.stringify(Object.keys(requirement))
+
 /**
  * Format a scheme object into a display object
  *
@@ -84,6 +87,10 @@ export const getSecuritySchemeOptions = (
   /** Allows adding authentication which is not in the document */
   canAddNewAuth = false,
 ): SecuritySchemeOption[] | SecuritySchemeGroup[] => {
+  const selectedByRequirement = new Map(
+    selectedSchemes.map((selectedScheme) => [requirementSignature(selectedScheme), selectedScheme]),
+  )
+
   /**
    * Build required schemes formatted as options and track scheme names in a single pass.
    * We use names (not full IDs) because we want to exclude any scheme that is already
@@ -91,7 +98,10 @@ export const getSecuritySchemeOptions = (
    */
   const { requiredFormatted, requiredSchemeNames, existingIds } = security.reduce(
     (acc, requirement) => {
-      const formatted = formatSecurityRequirement(requirement, securitySchemes)
+      // If a required requirement is selected with scopes, use that selected value to
+      // keep a single option entry and avoid a phantom duplicate.
+      const requirementValue = selectedByRequirement.get(requirementSignature(requirement)) ?? requirement
+      const formatted = formatSecurityRequirement(requirementValue, securitySchemes)
       if (formatted) {
         acc.requiredFormatted.push(formatted)
         acc.existingIds.add(formatted.id)

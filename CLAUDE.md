@@ -53,20 +53,19 @@ pnpm types:check                # TypeScript checking via Turbo
 
 ### Build System
 
-Two build strategies, both provided by `@scalar/build-tooling`:
+Two build strategies using standard tools directly (no custom build CLI):
 
-1. **`scalar-build-esbuild`** — For pure TypeScript packages (helpers, types, openapi-parser, integrations). Fast, targets Node20+/ES2022, auto-discovers entry points, auto-generates `package.json#exports`.
+1. **`tsc` + `tsc-alias`** — For pure TypeScript packages (helpers, types, openapi-parser, integrations). Uses `tsconfig.build.json` per package.
 
-2. **`scalar-build-vite`** — For Vue component packages (components, api-reference, api-client). Uses Vite + Rollup, extracts CSS, preserves modules.
+2. **`vite build`** — For Vue component packages (components, api-reference, api-client). Uses Vite 8 + Rolldown, extracts CSS, preserves modules. Shared build helpers in `tooling/scripts/vite-lib-config.ts`.
 
 Both externalize all dependencies (nothing is bundled into library output). `api-reference` is special: it has both a default build and a standalone build (`vite.standalone.config.ts`) that bundles everything for CDN usage.
 
-Type checking uses `scalar-types-check` (pure TS) or `scalar-types-check-vue` (Vue packages with vue-tsc).
+Type checking uses `tsc --noEmit` (pure TS) or `vue-tsc --noEmit` (Vue packages).
 
 ### Key Package Relationships
 
 - `@scalar/core` — Shared rendering logic consumed by api-reference and integrations
-- `@scalar/build-tooling` — Must build first; all other packages depend on its CLI tools
 - `@scalar/themes` — CSS variables and design tokens used across all UI packages
 - `@scalar/components` — Vue component library (with Storybook)
 - `@scalar/oas-utils` — OpenAPI spec utilities shared across api-reference and api-client

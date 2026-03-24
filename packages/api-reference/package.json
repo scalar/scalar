@@ -20,12 +20,12 @@
     "vue",
     "vue3"
   ],
-  "version": "1.49.1",
+  "version": "1.49.3",
   "engines": {
     "node": ">=22"
   },
   "scripts": {
-    "build": "pnpm build:default && pnpm build:standalone && vue-tsc -p tsconfig.build.json",
+    "build": "pnpm build:default && pnpm build:standalone && vue-tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
     "build:default": "vite build",
     "build:standalone": "vite build -c vite.standalone.config.ts",
     "dev": "vite",

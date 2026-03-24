@@ -1,5 +1,11 @@
 # @scalar/workspace-store
 
+## 0.40.4
+
+### Patch Changes
+
+- [#8501](https://github.com/scalar/scalar/pull/8501): fix allowReserved query parameter support so reserved characters like colons stay unescaped and parameter typings include allowReserved
+
 ## 0.40.3
 
 ### Patch Changes

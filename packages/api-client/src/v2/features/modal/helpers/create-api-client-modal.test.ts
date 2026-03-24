@@ -1,4 +1,5 @@
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
+import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { enableAutoUnmount, mount } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -37,6 +38,9 @@ const createTestDocument = (overrides: Partial<OpenApiDocument> = {}): OpenApiDo
   },
   ...overrides,
 })
+
+/** Creates an event bus with debug disabled to prevent pending setTimeout in tests */
+const createTestEventBus = () => createWorkspaceEventBus({ debug: false })
 
 /** Sets up a workspace store with a test document */
 const setupWorkspaceStore = async () => {
@@ -83,6 +87,7 @@ describe('createApiClientModal', () => {
       el: mountElement,
       workspaceStore,
       mountOnInitialize: true,
+      eventBus: createTestEventBus(),
     })
     createdApps.push(modal.app)
 
@@ -99,6 +104,7 @@ describe('createApiClientModal', () => {
       el: mountElement,
       workspaceStore,
       mountOnInitialize: false,
+      eventBus: createTestEventBus(),
     })
     createdApps.push(modal.app)
 
@@ -115,6 +121,7 @@ describe('createApiClientModal', () => {
       el: mountElement,
       workspaceStore,
       mountOnInitialize: true,
+      eventBus: createTestEventBus(),
     })
     createdApps.push(modal.app)
 
@@ -189,6 +196,7 @@ describe('createApiClientModal', () => {
       workspaceStore: store,
       mountOnInitialize: true,
       options,
+      eventBus: createTestEventBus(),
     })
     createdApps.push(modal.app)
 
@@ -259,6 +267,7 @@ describe('createApiClientModal', () => {
       el: mountElement,
       workspaceStore,
       mountOnInitialize: true,
+      eventBus: createTestEventBus(),
     })
     createdApps.push(modal.app)
 
@@ -307,6 +316,7 @@ describe('createApiClientModal', () => {
       el: mountElement,
       workspaceStore,
       mountOnInitialize: true,
+      eventBus: createTestEventBus(),
     })
     createdApps.push(modal.app)
 
@@ -373,6 +383,7 @@ describe('createApiClientModal', () => {
       el: mountElement,
       workspaceStore,
       mountOnInitialize: true,
+      eventBus: createTestEventBus(),
     })
     createdApps.push(modal.app)
 
@@ -419,6 +430,7 @@ describe('createApiClientModal', () => {
       el: mountElement,
       workspaceStore,
       mountOnInitialize: true,
+      eventBus: createTestEventBus(),
     })
     createdApps.push(modal.app)
 

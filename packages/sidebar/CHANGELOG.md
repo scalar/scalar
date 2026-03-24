@@ -1,5 +1,13 @@
 # @scalar/sidebar
 
+## 0.8.12
+
+### Patch Changes
+
+- [#8529](https://github.com/scalar/scalar/pull/8529): rewrite declaration aliases in built type files
+
+## 0.8.11
+
 ## 0.8.10
 
 ### Patch Changes

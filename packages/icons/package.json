@@ -10,12 +10,12 @@
     "url": "git+https://github.com/scalar/scalar.git",
     "directory": "packages/icons"
   },
-  "version": "0.6.1",
+  "version": "0.6.3",
   "engines": {
     "node": ">=22"
   },
   "scripts": {
-    "build": "vite build && vue-tsc -p tsconfig.build.json",
+    "build": "vite build && vue-tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
     "generate:icons": "tsx ./scripts/generate-icons.ts",
     "lint:check": "pnpm lint:icons",
     "lint:icons": "svglint src/library/icons/*.svg --config src/library/.svglintrc.js",
@@ -23,7 +23,6 @@
     "types:check": "vue-tsc --noEmit"
   },
   "type": "module",
-  "sideEffects": false,
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -45,6 +44,7 @@
   "files": [
     "dist"
   ],
+  "sideEffects": false,
   "dependencies": {
     "@phosphor-icons/core": "^2.1.1",
     "@types/node": "catalog:*",

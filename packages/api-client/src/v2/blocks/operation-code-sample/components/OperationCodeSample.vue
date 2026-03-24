@@ -138,6 +138,7 @@ import {
 } from 'vue'
 
 import HttpMethod from '@/v2/blocks/operation-code-sample/components/HttpMethod.vue'
+import { filterClientsByQuery } from '@/v2/blocks/operation-code-sample/helpers/filter-clients-by-query'
 import { findClient } from '@/v2/blocks/operation-code-sample/helpers/find-client'
 import { getClients } from '@/v2/blocks/operation-code-sample/helpers/get-clients'
 import { getCustomCodeSamples } from '@/v2/blocks/operation-code-sample/helpers/get-custom-code-samples'
@@ -336,6 +337,7 @@ const id = useId()
         #actions>
         <ScalarCombobox
           class="max-h-80"
+          :filterFn="filterClientsByQuery"
           :modelValue="localSelectedClient"
           :options="clients"
           placement="bottom-end"
@@ -347,7 +349,7 @@ const id = useId()
             variant="ghost">
             {{ localSelectedClient?.title }}
             <ScalarIconCaretDown
-              class="ui-open:rotate-180 mt-0.25 size-3 transition-transform duration-100"
+              class="ui-open:rotate-180 mt-px size-3 transition-transform duration-100"
               weight="bold" />
           </ScalarButton>
         </ScalarCombobox>

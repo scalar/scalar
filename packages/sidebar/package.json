@@ -10,12 +10,12 @@
     "url": "git+https://github.com/scalar/scalar.git",
     "directory": "packages/sidebar"
   },
-  "version": "0.8.10",
+  "version": "0.8.12",
   "engines": {
     "node": ">=22"
   },
   "scripts": {
-    "build": "vite build && vue-tsc -p tsconfig.build.json",
+    "build": "vite build && vue-tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
     "dev": "vite ./playground -c ./vite.config.ts",
     "test": "vitest",
     "types:check": "vue-tsc --noEmit"

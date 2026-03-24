@@ -84,4 +84,28 @@ describe('validatePathParameters', () => {
 
     expect(errors).toEqual([])
   })
+
+  it('accepts template parameters with a trailing plus when the registered path parameter omits the plus', () => {
+    const errors = validatePathParameters({
+      openapi: '3.1.0',
+      info: {
+        title: 'Test',
+        version: '1.0.0',
+      },
+      paths: {
+        '/pets/{petId+}': {
+          get: {
+            parameters: [{ name: 'petId', in: 'path', required: true, schema: { type: 'string' } }],
+            responses: {
+              200: {
+                description: 'OK',
+              },
+            },
+          },
+        },
+      },
+    })
+
+    expect(errors).toEqual([])
+  })
 })

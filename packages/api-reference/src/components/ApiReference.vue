@@ -25,7 +25,6 @@ import {
   type ApiReferenceConfiguration,
   type ApiReferenceConfigurationRaw,
 } from '@scalar/types/api-reference'
-import { useBreakpoints } from '@scalar/use-hooks/useBreakpoints'
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
 import { useColorMode } from '@scalar/use-hooks/useColorMode'
 import { ScalarToasts } from '@scalar/use-toasts'
@@ -106,7 +105,6 @@ defineSlots<{
   footer?(): { breadcrumb: string }
 }>()
 
-const { mediaQueries } = useBreakpoints()
 const { copyToClipboard } = useClipboard()
 
 /**
@@ -120,16 +118,6 @@ const obtrusiveScrollbars = computed(hasObtrusiveScrollbars)
 
 const eventBus = createWorkspaceEventBus({ debug: isDevelopment })
 const isSidebarOpen = ref(false)
-
-watch(
-  () => mediaQueries?.lg?.value,
-  (newValue, oldValue) => {
-    // Close the drawer when we go from desktop to mobile
-    if (oldValue && !newValue) {
-      isSidebarOpen.value = false
-    }
-  },
-)
 
 /**
  * Due to a bug in headless UI, we need to set an ID here that can be shared across server/client
@@ -1043,10 +1031,9 @@ const showMCPButton = computed(() => {
           ">
           <template #start>
             <DeveloperTools
-              v-if="
-                workspaceStore.workspace.activeDocument && mediaQueries.lg.value
-              "
+              v-if="workspaceStore.workspace.activeDocument"
               v-model:overrides="configurationOverrides"
+              class="references-developer-tools"
               :configuration="mergedConfig"
               :workspace="workspaceStore" />
 
@@ -1228,6 +1215,11 @@ const showMCPButton = computed(() => {
 /* Responsive / Mobile Layout */
 
 @media (max-width: 1000px) {
+  /* Keep toolbar hidden on mobile without forcing desktop display mode. */
+  .references-developer-tools {
+    display: none;
+  }
+
   /* Stack view on mobile */
   .references-layout {
     /* Adjust the sidebar height to the viewport height minus the header height */

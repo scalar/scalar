@@ -2,3 +2,11 @@
   /* Match the Dashboard header height */
   --scalar-header-height: 48px;
 }
+
+.light-mode .dark-only {
+  display: none;
+}
+
+.dark-mode .light-only {
+  display: none;
+}

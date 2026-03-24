@@ -1,5 +1,11 @@
 # scalar_api_reference
 
+## 0.2.2
+
+### Patch Changes
+
+- [#8497](https://github.com/scalar/scalar/pull/8497): fix rust crates.io publish in CI by allowing the workflow's intentional pre-publish file updates.
+
 ## 0.2.1
 
 ### Patch Changes

@@ -82,7 +82,11 @@ export function validatePathParameters(specification: AnyObject): ErrorObject[] 
 }
 
 function getTemplateParameterNames(pathName: string) {
-  return [...pathName.matchAll(PATH_PARAMETER_PATTERN)].map((match) => match[1])
+  return [...pathName.matchAll(PATH_PARAMETER_PATTERN)].map((match) => normalizeTemplateParameterName(match[1]))
+}
+
+function normalizeTemplateParameterName(name: string) {
+  return name.endsWith('+') ? name.slice(0, -1) : name
 }
 
 function getPathParameters(parameters: unknown, pathPrefix: string[]): PathParameter[] {

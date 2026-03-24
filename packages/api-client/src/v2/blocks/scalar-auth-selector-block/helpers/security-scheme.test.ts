@@ -699,5 +699,39 @@ describe('security-scheme', () => {
         },
       ])
     })
+
+    it('hydrates required oauth2 options with selected scopes without adding a duplicate option', () => {
+      const security: NonNullable<OpenApiDocument['security']> = [{ OAuth2: [] }]
+      const securitySchemes: NonNullable<ComponentsObject['securitySchemes']> = {
+        OAuth2: {
+          type: 'oauth2',
+          flows: {
+            authorizationCode: {
+              authorizationUrl: 'https://scalar.com/oauth/authorize',
+              tokenUrl: 'https://scalar.com/oauth/token',
+              scopes: {
+                read: 'Read',
+              },
+              refreshUrl: '',
+              'x-usePkce': 'no',
+            },
+          },
+        },
+        ApiKey: {
+          type: 'apiKey',
+          in: 'header',
+          name: 'X-API-Key',
+        },
+      }
+      const selectedSchemes = [{ OAuth2: ['read'] }]
+
+      const result = getSecuritySchemeOptions(security, securitySchemes, selectedSchemes, true)
+      const groups = result as SecuritySchemeGroup[]
+
+      expect(groups[0]?.options).toHaveLength(1)
+      expect(groups[0]?.options[0]?.label).toBe('OAuth2')
+      expect(groups[0]?.options[0]?.value).toEqual({ OAuth2: ['read'] })
+      expect(groups[1]?.options.some((option) => option.label === 'OAuth2')).toBe(false)
+    })
   })
 })

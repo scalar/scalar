@@ -3,6 +3,7 @@ import { mergeUrls } from '@scalar/helpers/url/merge-urls'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/server'
 
+import { applyAllowReservedToUrl } from '@/v2/blocks/operation-block/helpers/apply-allow-reserved-to-url'
 import { getEnvironmentVariables } from '@/v2/blocks/operation-block/helpers/get-environment-variables'
 import { getServerUrl } from '@/v2/blocks/operation-block/helpers/get-server-url'
 
@@ -26,16 +27,19 @@ export const getResolvedUrl = ({
   server,
   path,
   pathVariables,
+  allowReservedQueryParameters,
   urlParams,
 }: {
   environment: XScalarEnvironment
   server: ServerObject | null
   path: string
   pathVariables: Record<string, string>
+  allowReservedQueryParameters?: Set<string>
   urlParams?: URLSearchParams
 }) => {
   const environmentVariables = getEnvironmentVariables(environment)
   const serverUrl = getServerUrl(server, environmentVariables)
   const pathWithVariables = replaceVariables(path, { ...environmentVariables, ...pathVariables })
-  return mergeUrls(serverUrl, pathWithVariables, urlParams)
+  const mergedUrl = mergeUrls(serverUrl, pathWithVariables, urlParams)
+  return applyAllowReservedToUrl(mergedUrl, allowReservedQueryParameters ?? new Set())
 }

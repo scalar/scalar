@@ -1,5 +1,11 @@
 # @scalar/snippetz
 
+## 0.7.6
+
+### Patch Changes
+
+- [#8465](https://github.com/scalar/scalar/pull/8465): fix multipart encoding.contentType request handling and curl snippets
+
 ## 0.7.5
 
 ### Patch Changes

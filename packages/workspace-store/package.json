@@ -16,7 +16,7 @@
     "openapi",
     "scalar"
   ],
-  "version": "0.40.3",
+  "version": "0.40.4",
   "engines": {
     "node": ">=22"
   },
@@ -153,10 +153,10 @@
     "@scalar/typebox": "catalog:*",
     "@scalar/types": "workspace:*",
     "github-slugger": "catalog:*",
+    "js-base64": "catalog:*",
     "type-fest": "catalog:*",
     "vue": "catalog:*",
-    "yaml": "catalog:*",
-    "js-base64": "catalog:*"
+    "yaml": "catalog:*"
   },
   "devDependencies": {
     "@google-cloud/storage": "catalog:*",

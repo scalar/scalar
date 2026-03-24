@@ -62,6 +62,54 @@ describe('getSelectedSecurity', () => {
     })
   })
 
+  it('applies oauth2 x-default-scopes when defaulting to the first requirement', () => {
+    const documentSelectedSecurity = undefined
+    const operationSelectedSecurity = undefined
+    const securityRequirements = [{ OAuth2: [] }]
+    const securitySchemes = {
+      OAuth2: {
+        type: 'oauth2',
+        'x-default-scopes': ['api://client/access_as_user'],
+      },
+    }
+
+    const result = getSelectedSecurity(
+      documentSelectedSecurity,
+      operationSelectedSecurity,
+      securityRequirements,
+      securitySchemes,
+    )
+
+    expect(result).toEqual({
+      selectedIndex: 0,
+      selectedSchemes: [{ OAuth2: ['api://client/access_as_user'] }],
+    })
+  })
+
+  it('keeps explicit requirement scopes when they are already present', () => {
+    const documentSelectedSecurity = undefined
+    const operationSelectedSecurity = undefined
+    const securityRequirements = [{ OAuth2: ['read:data'] }]
+    const securitySchemes = {
+      OAuth2: {
+        type: 'oauth2',
+        'x-default-scopes': ['api://client/access_as_user'],
+      },
+    }
+
+    const result = getSelectedSecurity(
+      documentSelectedSecurity,
+      operationSelectedSecurity,
+      securityRequirements,
+      securitySchemes,
+    )
+
+    expect(result).toEqual({
+      selectedIndex: 0,
+      selectedSchemes: [{ OAuth2: ['read:data'] }],
+    })
+  })
+
   it('returns no selection when security requirements array is empty', () => {
     const documentSelectedSecurity = undefined
     const operationSelectedSecurity = undefined
