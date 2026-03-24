@@ -9,13 +9,24 @@ import { resolve } from 'node:path'
  * These cause problems when downstream packages resolve the output files
  * and the Vue plugin tries to re-parse them as SFCs.
  *
- * This strips `.vue` extensions and replaces non-URL-safe characters.
+ * Virtual modules (with query strings) get a `_vue-<type>` suffix so they
+ * do not collide with the SFC facade module that shares the same base name.
  */
-const sanitizeChunkName = (name: string): string =>
-  name
-    .replace(/\.vue\?.*$/, '')
-    .replace(/\.vue$/, '')
-    .replace(/[?&=]/g, '_')
+const sanitizeChunkName = (name: string): string => {
+  const queryIndex = name.indexOf('?')
+
+  if (queryIndex === -1) {
+    return name.replace(/\.vue$/, '')
+  }
+
+  const base = name.slice(0, queryIndex).replace(/\.vue$/, '')
+  const query = name.slice(queryIndex + 1)
+
+  const typeMatch = query.match(/(?:^|&)type=([^&]+)/)
+  const suffix = typeMatch ? `_vue-${typeMatch[1]}` : '_vue-virtual'
+
+  return `${base}${suffix}`
+}
 
 /**
  * Creates rolldownOptions.output config for preserveModules builds.
