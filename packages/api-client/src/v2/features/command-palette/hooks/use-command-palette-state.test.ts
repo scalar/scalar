@@ -124,7 +124,7 @@ describe('useCommandPaletteState', () => {
     const state = useCommandPaletteState()
 
     expect(state.filteredCommands.value).toHaveLength(2)
-    /** Filter excludes hidden commands, so 5 visible actions out of 6 total */
+    /** Filter excludes hidden commands, so 5 visible actions out of 9 total */
     expect(state.filteredCommands.value[0]?.commands).toHaveLength(5)
     expect(state.filteredCommands.value[1]?.commands).toHaveLength(3)
   })
@@ -140,7 +140,7 @@ describe('useCommandPaletteState', () => {
 
     const allCommands = state.filteredCommands.value.flatMap((group) => group.commands)
     expect(allCommands).toHaveLength(1)
-    expect(allCommands.some((cmd) => cmd.name.toLowerCase().includes('import'))).toBe(true)
+    expect(allCommands.every((cmd) => cmd.name.toLowerCase().includes('import'))).toBe(true)
   })
 
   it('filters commands with lowercase query', async () => {

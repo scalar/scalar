@@ -15,24 +15,41 @@
 export default {}
 </script>
 <script setup lang="ts">
-import { ScalarIconCheck } from '@scalar/icons'
+import { ScalarIconCheck, ScalarIconMinus } from '@scalar/icons'
 
 import type { ScalarCheckboxType } from './types'
 
-const { type = 'checkbox' } = defineProps<{
-  selected?: boolean
-  type?: ScalarCheckboxType
-}>()
+const props = withDefaults(
+  defineProps<{
+    selected?: boolean
+    /** Checkbox only: shows a minus icon when true and `selected` is false (partial selection). */
+    indeterminate?: boolean
+    type?: ScalarCheckboxType
+  }>(),
+  {
+    type: 'checkbox',
+    indeterminate: false,
+  },
+)
 </script>
 <template>
   <div
     class="flex size-4 items-center justify-center p-0.75"
     :class="[
-      selected ? 'bg-c-accent text-b-1' : 'text-transparent shadow-border',
-      type === 'checkbox' ? 'rounded' : 'rounded-full',
+      props.selected
+        ? 'bg-c-accent text-b-1'
+        : props.indeterminate && props.type === 'checkbox'
+          ? 'bg-c-accent text-b-1'
+          : 'text-transparent shadow-border',
+      props.type === 'checkbox' ? 'rounded' : 'rounded-full',
     ]">
     <ScalarIconCheck
-      v-if="selected"
+      v-if="props.selected"
+      class="size-3"
+      weight="bold" />
+    <ScalarIconMinus
+      v-else-if="props.indeterminate && props.type === 'checkbox'"
+      aria-hidden="true"
       class="size-3"
       weight="bold" />
   </div>

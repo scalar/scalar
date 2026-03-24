@@ -29,7 +29,7 @@ describe('CommandPaletteImport', () => {
   })
 
   afterEach(() => {
-    vi.restoreAllMocks()
+    vi.clearAllMocks()
   })
 
   it('renders with required props', () => {
@@ -161,6 +161,40 @@ describe('CommandPaletteImport', () => {
     await nextTick()
 
     expect(input.props('modelValue')).toBe('https://api.example.com/spec.json')
+  })
+
+  const minimalPostmanCollectionJson = JSON.stringify({
+    info: {
+      _postman_id: 'test-id',
+      schema: 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
+      name: 'Test',
+    },
+    item: [],
+  })
+
+  it('opens Postman import when pasted content is a Postman collection', async () => {
+    const workspaceStore = createWorkspaceStore()
+    const eventBus = createWorkspaceEventBus()
+    const emitSpy = vi.fn()
+    eventBus.emit = emitSpy
+
+    const wrapper = mount(CommandPaletteImport, {
+      props: {
+        workspaceStore,
+        eventBus,
+      },
+    })
+
+    const input = wrapper.findComponent({ name: 'CommandActionInput' })
+    await input.vm.$emit('update:modelValue', minimalPostmanCollectionJson)
+    await nextTick()
+
+    expect(emitSpy).toHaveBeenCalledWith('ui:open:command-palette', {
+      action: 'import-postman-collection',
+      payload: {
+        inputValue: minimalPostmanCollectionJson,
+      },
+    })
   })
 
   it('emits open-command event when cURL is detected', async () => {

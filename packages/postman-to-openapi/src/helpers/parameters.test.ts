@@ -24,14 +24,19 @@ describe('parameters', () => {
         },
       }
 
-      const result = extractParameters(request)
+      const result = extractParameters(request, 'default')
 
       expect(result).toHaveLength(2)
       expect(result.find((p: any) => p.name === 'page')).toEqual({
         name: 'page',
         in: 'query',
         description: undefined,
-        example: '1',
+        examples: {
+          default: {
+            value: '1',
+            'x-disabled': false,
+          },
+        },
         schema: {
           type: 'integer',
         },
@@ -40,7 +45,12 @@ describe('parameters', () => {
         name: 'limit',
         in: 'query',
         description: undefined,
-        example: '10',
+        examples: {
+          default: {
+            value: '10',
+            'x-disabled': false,
+          },
+        },
         schema: {
           type: 'integer',
         },
@@ -61,7 +71,7 @@ describe('parameters', () => {
         },
       }
 
-      const result = extractParameters(request)
+      const result = extractParameters(request, 'default')
 
       expect(result).toHaveLength(1)
       expect(result[0]).toEqual({
@@ -69,7 +79,12 @@ describe('parameters', () => {
         in: 'path',
         required: true,
         description: undefined,
-        example: 'testId',
+        examples: {
+          default: {
+            value: 'testId',
+            'x-disabled': false,
+          },
+        },
         schema: {
           type: 'string',
         },
@@ -90,11 +105,11 @@ describe('parameters', () => {
         },
       }
 
-      const result = extractParameters(request)
+      const result = extractParameters(request, 'default')
 
       expect(result).toHaveLength(1)
       expect(result[0]?.schema?.type).toBe('string')
-      expect(result[0]?.example).toBe('123')
+      expect(result[0]?.examples?.default?.value).toBe('123')
     })
 
     it('keeps path parameters as strings for empty values', () => {
@@ -111,11 +126,11 @@ describe('parameters', () => {
         },
       }
 
-      const result = extractParameters(request)
+      const result = extractParameters(request, 'default')
 
       expect(result).toHaveLength(1)
       expect(result[0]?.schema?.type).toBe('string')
-      expect(result[0]?.example).toBe('')
+      expect(result[0]?.examples?.default?.value).toBe('')
     })
 
     it('extracts path parameters from path array', () => {
@@ -127,7 +142,7 @@ describe('parameters', () => {
         },
       }
 
-      const result = extractParameters(request)
+      const result = extractParameters(request, 'default')
 
       expect(result).toHaveLength(1)
       expect(result[0]).toEqual({
@@ -158,13 +173,18 @@ describe('parameters', () => {
         ],
       }
 
-      const result = extractParameters(request)
+      const result = extractParameters(request, 'default')
 
       expect(result).toHaveLength(2)
       expect(result.find((p: any) => p.name === 'Authorization')).toEqual({
         name: 'Authorization',
         in: 'header',
-        example: 'Bearer token',
+        examples: {
+          default: {
+            value: 'Bearer token',
+            'x-disabled': false,
+          },
+        },
         schema: {
           type: 'string',
         },
@@ -173,7 +193,12 @@ describe('parameters', () => {
         name: 'X-Request-ID',
         in: 'header',
         description: undefined,
-        example: '12345',
+        examples: {
+          default: {
+            value: '12345',
+            'x-disabled': false,
+          },
+        },
         schema: {
           type: 'integer',
         },
@@ -183,7 +208,7 @@ describe('parameters', () => {
     it('returns empty array for string request', () => {
       const request: Request = 'https://example.com/users'
 
-      const result = extractParameters(request)
+      const result = extractParameters(request, 'default')
 
       expect(result).toEqual([])
     })
@@ -193,7 +218,7 @@ describe('parameters', () => {
         method: 'GET',
       }
 
-      const result = extractParameters(request)
+      const result = extractParameters(request, 'default')
 
       expect(result).toEqual([])
     })
@@ -213,7 +238,7 @@ describe('parameters', () => {
         },
       }
 
-      const result = extractParameters(request)
+      const result = extractParameters(request, 'default')
 
       expect(result).toHaveLength(1)
       expect(result[0]?.name).toBe('userId')
@@ -228,13 +253,18 @@ describe('parameters', () => {
         description: 'Page number',
       }
 
-      const result = createParameterObject(param, 'query')
+      const result = createParameterObject(param, 'query', 'default')
 
       expect(result).toEqual({
         name: 'page',
         in: 'query',
         description: 'Page number',
-        example: '1',
+        examples: {
+          default: {
+            value: '1',
+            'x-disabled': false,
+          },
+        },
         schema: {
           type: 'integer',
         },
@@ -247,14 +277,19 @@ describe('parameters', () => {
         value: 'testId',
       }
 
-      const result = createParameterObject(param, 'path')
+      const result = createParameterObject(param, 'path', 'default')
 
       expect(result).toEqual({
         name: 'userId',
         in: 'path',
         required: true,
         description: undefined,
-        example: 'testId',
+        examples: {
+          default: {
+            value: 'testId',
+            'x-disabled': false,
+          },
+        },
         schema: {
           type: 'string',
         },
@@ -267,10 +302,10 @@ describe('parameters', () => {
         value: '123',
       }
 
-      const result = createParameterObject(param, 'path')
+      const result = createParameterObject(param, 'path', 'default')
 
       expect(result.schema?.type).toBe('string')
-      expect(result.example).toBe('123')
+      expect(result.examples?.default?.value).toBe('123')
     })
 
     it('uses number type for path parameters only when value is explicitly numeric', () => {
@@ -279,10 +314,10 @@ describe('parameters', () => {
         value: 123,
       }
 
-      const result = createParameterObject(param, 'path')
+      const result = createParameterObject(param, 'path', 'default')
 
       expect(result.schema?.type).toBe('integer')
-      expect(result.example).toBe(123)
+      expect(result.examples?.default?.value).toBe(123)
     })
 
     it('creates header parameter object', () => {
@@ -291,14 +326,19 @@ describe('parameters', () => {
         value: 'Bearer token',
       }
 
-      const result = createParameterObject(param, 'header')
+      const result = createParameterObject(param, 'header', 'default')
 
       expect(result).toEqual({
         name: 'Authorization',
         in: 'header',
-        example: 'Bearer token',
         schema: {
           type: 'string',
+        },
+        examples: {
+          default: {
+            value: 'Bearer token',
+            'x-disabled': false,
+          },
         },
       })
     })
@@ -310,7 +350,7 @@ describe('parameters', () => {
         description: 'Page number [required]',
       }
 
-      const result = createParameterObject(param, 'query')
+      const result = createParameterObject(param, 'query', 'default')
 
       expect(result.required).toBe(true)
       expect(result.description).toBe('Page number')
@@ -322,7 +362,7 @@ describe('parameters', () => {
         value: 'true',
       }
 
-      const result = createParameterObject(param, 'query')
+      const result = createParameterObject(param, 'query', 'default')
 
       expect(result.required).toBe(true)
     })
@@ -334,7 +374,7 @@ describe('parameters', () => {
         description: 'Page number [required]',
       }
 
-      const result = createParameterObject(param, 'query')
+      const result = createParameterObject(param, 'query', 'default')
 
       expect(result.description).toBe('Page number')
       expect(result.description).not.toContain('[required]')
@@ -346,7 +386,7 @@ describe('parameters', () => {
         value: '42',
       }
 
-      const result = createParameterObject(param, 'query')
+      const result = createParameterObject(param, 'query', 'default')
 
       expect(result.schema).toEqual({
         type: 'integer',
@@ -359,7 +399,7 @@ describe('parameters', () => {
         value: '3.14',
       }
 
-      const result = createParameterObject(param, 'query')
+      const result = createParameterObject(param, 'query', 'default')
 
       expect(result.schema).toEqual({
         type: 'number',
@@ -372,7 +412,7 @@ describe('parameters', () => {
         value: 'true',
       }
 
-      const result = createParameterObject(param, 'query')
+      const result = createParameterObject(param, 'query', 'default')
 
       expect(result.schema).toEqual({
         type: 'boolean',
@@ -384,7 +424,7 @@ describe('parameters', () => {
         key: 'name',
       }
 
-      const result = createParameterObject(param, 'query')
+      const result = createParameterObject(param, 'query', 'default')
 
       expect(result.schema).toEqual({
         type: 'string',
@@ -397,7 +437,7 @@ describe('parameters', () => {
         value: 'test',
       }
 
-      const result = createParameterObject(param, 'query')
+      const result = createParameterObject(param, 'query', 'default')
 
       expect(result.name).toBe('')
     })
@@ -409,12 +449,12 @@ describe('parameters', () => {
         disabled: true,
       }
 
-      const result = createParameterObject(param, 'query')
+      const result = createParameterObject(param, 'query', 'default')
 
       // @ts-expect-error @scalar/openapi-types does not allow extensions here
       expect(result['x-scalar-disabled']).toBe(true)
       expect(result.name).toBe('page')
-      expect(result?.example).toBe('1')
+      expect(result?.examples?.default?.value).toBe('1')
     })
 
     it('adds x-scalar-disabled extension for disabled path parameter', () => {
@@ -424,7 +464,7 @@ describe('parameters', () => {
         disabled: true,
       }
 
-      const result = createParameterObject(param, 'path')
+      const result = createParameterObject(param, 'path', 'default')
 
       // @ts-expect-error @scalar/openapi-types does not allow extensions here
       expect(result['x-scalar-disabled']).toBe(true)
@@ -439,12 +479,12 @@ describe('parameters', () => {
         disabled: true,
       }
 
-      const result = createParameterObject(param, 'header')
+      const result = createParameterObject(param, 'header', 'default')
 
       // @ts-expect-error @scalar/openapi-types does not allow extensions here
       expect(result?.['x-scalar-disabled']).toBe(true)
       expect(result.name).toBe('X-Custom-Header')
-      expect(result?.example).toBe('value')
+      expect(result?.examples?.default?.value).toBe('value')
     })
 
     it('does not add x-scalar-disabled extension when disabled is false', () => {
@@ -454,7 +494,7 @@ describe('parameters', () => {
         disabled: false,
       }
 
-      const result = createParameterObject(param, 'query')
+      const result = createParameterObject(param, 'query', 'default')
 
       // @ts-expect-error @scalar/openapi-types does not allow extensions here
       expect(result['x-scalar-disabled']).toBeUndefined()
@@ -466,7 +506,7 @@ describe('parameters', () => {
         value: '1',
       }
 
-      const result = createParameterObject(param, 'query')
+      const result = createParameterObject(param, 'query', 'default')
 
       // @ts-expect-error @scalar/openapi-types does not allow extensions here
       expect(result['x-scalar-disabled']).toBeUndefined()
@@ -493,7 +533,7 @@ describe('parameters', () => {
         },
       }
 
-      const result = extractParameters(request)
+      const result = extractParameters(request, 'default')
 
       expect(result).toHaveLength(2)
       const pageParam = result.find((p: any) => p.name === 'page')
@@ -525,7 +565,7 @@ describe('parameters', () => {
         ],
       }
 
-      const result = extractParameters(request)
+      const result = extractParameters(request, 'default')
 
       expect(result).toHaveLength(2)
       const authParam = result.find((p: any) => p.name === 'Authorization')
@@ -553,7 +593,7 @@ describe('parameters', () => {
         },
       }
 
-      const result = extractParameters(request)
+      const result = extractParameters(request, 'default')
 
       expect(result).toHaveLength(1)
       // @ts-expect-error @scalar/openapi-types does not allow extensions here
