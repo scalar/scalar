@@ -270,6 +270,8 @@ scalar registry publish ./openapi.yaml \
 }
 ```
 
+When someone updates that OpenAPI document in the Registry, Scalar republishes any connected Docs project that references it. This keeps your API documentation up to date automatically.
+
 ### 3. URL
 
 Fetch an OpenAPI document from a remote URL. The document is fetched on each page load, keeping your documentation in sync with your live API:
