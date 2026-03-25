@@ -95,6 +95,28 @@ describe('typegen', () => {
     expect(generateTypes(t)).toBe('/** \n * Line 1\n * Line 2\n */\nexport type T = {}')
   })
 
+  it('includes typeComment as JSDoc on object properties', () => {
+    const t = object({
+      id: number({ typeComment: 'Unique id.' }),
+      name: string({ typeComment: 'Display name.' }),
+    })
+    expect(generateTypes(t)).toBe(
+      '{\n  /** Unique id. */\n  id: number;\n  /** Display name. */\n  name: string;\n}',
+    )
+  })
+
+  it('indents multi-line property typeComment in nested objects', () => {
+    const t = object({
+      outer: string({ typeComment: 'A\nB' }),
+      inner: object({
+        x: number({ typeComment: 'Nested.' }),
+      }),
+    })
+    expect(generateTypes(t)).toBe(
+      '{\n  /** \n   * A\n   * B\n   */\n  outer: string;\n  inner: {\n    /** Nested. */\n    x: number;\n  };\n}',
+    )
+  })
+
   it('ignores invalid typeName and keeps inline shape', () => {
     const bad = object({ x: number() }, { typeName: 'not-valid' })
     expect(generateTypes(bad)).toBe('{\n  x: number;\n}')

@@ -74,6 +74,15 @@ const formatTypeCommentAsJsDoc = (comment: string): string => {
   return `/** \n${body}\n */`
 }
 
+/** Prefixes each line of a JSDoc block with `indent` for object property comments. */
+const formatTypeCommentAsIndentedJsDoc = (indent: string, comment: string): string => {
+  const doc = formatTypeCommentAsJsDoc(comment)
+  if (!doc) {
+    return ''
+  }
+  return doc.split('\n').map((line) => `${indent}${line}`).join('\n')
+}
+
 const getTypeName = (schema: Schema): string | undefined => {
   if (schema.type === 'lazy' || schema.type === 'evaluate') {
     return undefined
@@ -156,7 +165,10 @@ const structuralEmit = (schema: Schema, depth: number, ctx: TypeGenContext, brac
       const props = entries.map(([key, child]) => {
         const tsKey = /^[$_a-zA-Z][$_\w]*$/.test(key) ? key : JSON.stringify(key)
         const value = emitSchema(child, next, ctx, keyIndent)
-        return `${keyIndent}${tsKey}: ${value};`
+        const propComment = getTypeComment(child)
+        const docBlock = propComment ? formatTypeCommentAsIndentedJsDoc(keyIndent, propComment) : ''
+        const propLine = `${keyIndent}${tsKey}: ${value};`
+        return docBlock ? `${docBlock}\n${propLine}` : propLine
       })
       return `{\n${props.join('\n')}\n${braceIndent}}`
     }
