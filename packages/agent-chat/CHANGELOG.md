@@ -1,5 +1,11 @@
 # @scalar/agent-chat
 
+## 0.9.14
+
+### Patch Changes
+
+- [#8574](https://github.com/scalar/scalar/pull/8574): feat: make external urls configurable
+
 ## 0.9.13
 
 ### Patch Changes

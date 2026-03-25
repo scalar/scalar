@@ -1,5 +1,12 @@
 # @scalar/api-client
 
+## 2.39.1
+
+### Patch Changes
+
+- [#8577](https://github.com/scalar/scalar/pull/8577): feat: support document download
+- [#8473](https://github.com/scalar/scalar/pull/8473): fix: request body code samples when switching anyOf or oneOf schemas
+
 ## 2.39.0
 
 ### Minor Changes

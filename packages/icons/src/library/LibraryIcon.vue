@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { ref, watchEffect, type Component } from 'vue'
 
 import { getLibraryIcon } from './icons'
 
@@ -7,7 +7,11 @@ const props = defineProps<{
   src: string
 }>()
 
-const data = computed(() => getLibraryIcon(props.src))
+const data = ref<Component>()
+
+watchEffect(async () => {
+  data.value = await getLibraryIcon(props.src)
+})
 </script>
 <template>
   <component
