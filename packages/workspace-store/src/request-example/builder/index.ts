@@ -1,3 +1,4 @@
+export { getExampleFromBody } from './body/get-request-body-example'
 export { getSelectedBodyContentType } from './body/get-selected-body-content-type'
 export { buildRequest } from './build-request'
 export { deSerializeParameter } from './header/de-serialize-parameter'
@@ -12,6 +13,8 @@ export {
   serializeSpaceDelimitedStyle,
 } from './header/serialize-parameter'
 export { getEnvironmentVariables } from './helpers/get-environment-variables'
+export { getExample } from './helpers/get-example'
+export { getExampleFromSchema } from './helpers/get-example-from-schema'
 export { getResolvedUrl } from './helpers/get-resolved-url'
 export { getServerVariables } from './helpers/get-server-variables'
 export { requestFactory } from './request-factory'

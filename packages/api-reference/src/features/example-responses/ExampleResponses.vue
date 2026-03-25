@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-import { getExample } from '@scalar/api-client/v2/blocks/operation-block'
 import { ExamplePicker } from '@scalar/api-client/v2/blocks/operation-code-sample'
 import {
   ScalarCard,
@@ -14,6 +13,7 @@ import {
 } from '@scalar/oas-utils/helpers'
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import { getExample } from '@scalar/workspace-store/request-example'
 import type {
   MediaTypeObject,
   ResponsesObject,

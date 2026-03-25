@@ -17,6 +17,7 @@ import { unpackProxyObject } from '@scalar/workspace-store/helpers/unpack-proxy'
 import {
   filterGlobalCookie,
   getEnvironmentVariables,
+  getExample,
   getResolvedUrl,
   type MergedSecuritySchemes,
   type SecuritySchemeObjectSecret,
@@ -33,7 +34,6 @@ import { computed, ref, useId, watch } from 'vue'
 import SectionFilter from '@/components/SectionFilter.vue'
 import ViewLayoutSection from '@/components/ViewLayout/ViewLayoutSection.vue'
 import type { ClientLayout } from '@/hooks'
-import { getExample } from '@/v2/blocks/operation-block/helpers/get-example'
 import type { ClientOptionGroup } from '@/v2/blocks/operation-code-sample'
 import RequestBody from '@/v2/blocks/request-block/components/RequestBody.vue'
 import RequestCodeSnippet from '@/v2/blocks/request-block/components/RequestCodeSnippet.vue'

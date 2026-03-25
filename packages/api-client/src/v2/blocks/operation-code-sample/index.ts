@@ -3,6 +3,5 @@ export { default as OperationCodeSample } from './components/OperationCodeSample
 export { filterClientsByQuery } from './helpers/filter-clients-by-query'
 export { DEFAULT_CLIENT, findClient, isClient } from './helpers/find-client'
 export { generateClientOptions } from './helpers/generate-client-options'
-export { getExampleFromSchema } from './helpers/get-example-from-schema'
 export { getResolvedRefDeep } from './helpers/get-resolved-ref-deep'
 export type { ClientOption, ClientOptionGroup, CustomClientOption, CustomClientOptionGroup } from './types'
