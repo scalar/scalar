@@ -214,6 +214,26 @@ const mergeExamples = (baseValue: unknown, newValue: unknown): unknown => {
   return newValue
 }
 
+type CompositionKeyword = 'anyOf' | 'oneOf'
+
+const getCompositionSelectionKey = (schemaPath: string[], composition: CompositionKeyword): string =>
+  [...schemaPath, composition].join('.')
+
+const getCompositionSelectionIndex = (
+  schemaPath: string[],
+  composition: CompositionKeyword,
+  options: GetExampleFromSchemaOptions | undefined,
+  length: number,
+): number | undefined => {
+  const rawIndex = options?.compositionSelection?.[getCompositionSelectionKey(schemaPath, composition)]
+
+  if (typeof rawIndex !== 'number' || Number.isNaN(rawIndex)) {
+    return undefined
+  }
+
+  return Math.max(0, Math.min(rawIndex, length - 1))
+}
+
 /**
  * Build an example for an object schema, including properties, patternProperties,
  * additionalProperties, and composition (allOf/oneOf/anyOf) merging.
@@ -224,6 +244,7 @@ const handleObjectSchema = (
   level: number,
   seen: WeakSet<object>,
   cacheKey: string,
+  schemaPath: string[],
 ): unknown => {
   const response: Record<string, unknown> = {}
 
@@ -243,6 +264,7 @@ const handleObjectSchema = (
         level: level + 1,
         parentSchema: schema,
         name: propertyName,
+        schemaPath: [...schemaPath, propertyName],
         seen,
       })
 
@@ -262,6 +284,7 @@ const handleObjectSchema = (
         level: level + 1,
         parentSchema: schema,
         name: pattern,
+        schemaPath: [...schemaPath, pattern],
         seen,
       })
     }
@@ -295,6 +318,7 @@ const handleObjectSchema = (
       : typeof additional === 'object'
         ? getExampleFromSchema(additional, options, {
             level: level + 1,
+            schemaPath: [...schemaPath, additionalName],
             seen,
           })
         : 'anything'
@@ -307,25 +331,21 @@ const handleObjectSchema = (
     }
   }
 
-  // onOf
-  if (schema.oneOf?.[0]) {
-    Object.assign(
-      response,
-      getExampleFromSchema(resolve.schema(schema.oneOf[0]), options, {
-        level: level + 1,
-        seen,
-      }),
-    )
-  }
-  // anyOf
-  else if (schema.anyOf?.[0]) {
-    Object.assign(
-      response,
-      getExampleFromSchema(resolve.schema(schema.anyOf[0]), options, {
-        level: level + 1,
-        seen,
-      }),
-    )
+  const compositionKeyword = schema.oneOf ? 'oneOf' : schema.anyOf ? 'anyOf' : undefined
+  const oneOfAnyOf = compositionKeyword ? schema[compositionKeyword] : undefined
+  if (compositionKeyword && oneOfAnyOf?.length) {
+    const index = getCompositionSelectionIndex(schemaPath, compositionKeyword, options, oneOfAnyOf.length) ?? 0
+    const chosen = resolve.schema(oneOfAnyOf[index])
+    if (chosen) {
+      Object.assign(
+        response,
+        getExampleFromSchema(chosen, options, {
+          level: level + 1,
+          schemaPath,
+          seen,
+        }),
+      )
+    }
   }
   // allOf
   else if (Array.isArray(schema.allOf) && schema.allOf.length > 0) {
@@ -359,8 +379,10 @@ const handleArraySchema = (
   level: number,
   seen: WeakSet<object>,
   cacheKey: string,
+  schemaPath: string[],
 ) => {
   const items = 'items' in schema ? resolve.schema(schema.items) : undefined
+  const itemsSchemaPath = [...schemaPath, 'items']
   const itemsXmlTagName = items && typeof items === 'object' && 'xml' in items ? items.xml?.name : undefined
   const wrapItems = !!(options?.xml && 'xml' in schema && schema.xml?.wrapped && itemsXmlTagName)
 
@@ -378,6 +400,7 @@ const handleArraySchema = (
         const merged = getExampleFromSchema(combined, options, {
           level: level + 1,
           parentSchema: schema,
+          schemaPath: itemsSchemaPath,
           seen,
         })
         return cache(schema, wrapItems ? [{ [itemsXmlTagName as string]: merged }] : [merged], cacheKey)
@@ -388,6 +411,7 @@ const handleArraySchema = (
           getExampleFromSchema(resolve.schema(s), options, {
             level: level + 1,
             parentSchema: schema,
+            schemaPath: itemsSchemaPath,
             seen,
           }),
         )
@@ -399,12 +423,16 @@ const handleArraySchema = (
       )
     }
 
-    const union = items.anyOf || items.oneOf
-    if (union && union.length > 0) {
-      const first = union[0]!
-      const ex = getExampleFromSchema(resolve.schema(first), options, {
+    const compositionKeyword = items.oneOf ? 'oneOf' : items.anyOf ? 'anyOf' : undefined
+    const union = compositionKeyword ? items[compositionKeyword] : undefined
+    if (compositionKeyword && union && union.length > 0) {
+      const selectedIndex =
+        getCompositionSelectionIndex(itemsSchemaPath, compositionKeyword, options, union.length) ?? 0
+      const selected = union[selectedIndex]!
+      const ex = getExampleFromSchema(resolve.schema(selected), options, {
         level: level + 1,
         parentSchema: schema,
+        schemaPath: itemsSchemaPath,
         seen,
       })
       return cache(schema, wrapItems ? [{ [itemsXmlTagName as string]: ex }] : [ex], cacheKey)
@@ -419,6 +447,7 @@ const handleArraySchema = (
   if (items && typeof items === 'object' && (('type' in items && items.type) || isObject || isArray)) {
     const ex = getExampleFromSchema(items as SchemaObject, options, {
       level: level + 1,
+      schemaPath: itemsSchemaPath,
       seen,
     })
     return cache(schema, wrapItems ? [{ [itemsXmlTagName as string]: ex }] : [ex], cacheKey)
@@ -487,6 +516,8 @@ type GetExampleFromSchemaOptions = {
   variables?: Record<string, unknown>
   /** Whether to omit empty and optional properties. */
   omitEmptyAndOptionalProperties?: boolean
+  /** Selected oneOf/anyOf variants keyed by schema path. */
+  compositionSelection?: Record<string, number>
 }
 
 /** Create stable cache key from the options object */
@@ -497,6 +528,9 @@ const createOptionsCacheKey = (options: GetExampleFromSchemaOptions | undefined)
     mode: options?.mode,
     variables: options?.variables,
     omitEmptyAndOptionalProperties: options?.omitEmptyAndOptionalProperties,
+    compositionSelection: options?.compositionSelection
+      ? Object.entries(options.compositionSelection).sort(([a], [b]) => a.localeCompare(b))
+      : undefined,
   })
 
 /**
@@ -522,11 +556,14 @@ export const getExampleFromSchema = (
     parentSchema,
     name,
     seen = new WeakSet(),
+    schemaPath = [],
   }: Partial<{
     level: number
     parentSchema: SchemaObject
     name: string
     seen: WeakSet<object>
+    /** Internal traversal path used to resolve nested composition selections. */
+    schemaPath: string[]
   }> = {},
 ): unknown => {
   // Resolve any $ref references to get the actual schema
@@ -542,8 +579,8 @@ export const getExampleFromSchema = (
   }
   seen.add(targetValue)
 
-  /** Make the cache key unique per options */
-  const cacheKey = createOptionsCacheKey(options)
+  /** Make the cache key unique per options and schema path */
+  const cacheKey = createOptionsCacheKey(options) + (schemaPath.length > 0 ? `:path:${schemaPath.join('.')}` : '')
 
   // Check cache first for performance - avoid recomputing the same schema
   const cached = resultCache.get(targetValue)?.get(cacheKey)
@@ -605,14 +642,14 @@ export const getExampleFromSchema = (
 
   // Handle object types - check for properties to identify objects
   if ('properties' in _schema || ('type' in _schema && _schema.type === 'object')) {
-    const result = handleObjectSchema(_schema, options, level, seen, cacheKey)
+    const result = handleObjectSchema(_schema, options, level, seen, cacheKey, schemaPath)
     seen.delete(targetValue)
     return result
   }
 
   // Handle array types
   if (('type' in _schema && _schema.type === 'array') || 'items' in _schema) {
-    const result = handleArraySchema(_schema, options, level, seen, cacheKey)
+    const result = handleArraySchema(_schema, options, level, seen, cacheKey, schemaPath)
     seen.delete(targetValue)
     return result
   }
@@ -624,18 +661,27 @@ export const getExampleFromSchema = (
     return cache(_schema, primitive, cacheKey)
   }
 
-  // Handle composition schemas (oneOf, anyOf) at root level
-  const discriminate = _schema.oneOf || _schema.anyOf
-  if (Array.isArray(discriminate) && discriminate.length > 0) {
-    // Find the first non-null type without allocating intermediate arrays
-    for (const item of discriminate) {
-      const resolved = resolve.schema(item)
-      if (resolved && (!('type' in resolved) || resolved.type !== 'null')) {
+  // Handle composition schemas (oneOf, anyOf)
+  const compositionKeyword = _schema.oneOf ? 'oneOf' : _schema.anyOf ? 'anyOf' : undefined
+  const discriminate = compositionKeyword ? _schema[compositionKeyword] : undefined
+  if (compositionKeyword && Array.isArray(discriminate) && discriminate.length > 0) {
+    const index = getCompositionSelectionIndex(schemaPath, compositionKeyword, options, discriminate.length)
+    const candidate =
+      index !== undefined
+        ? discriminate[index]
+        : discriminate.find((item) => {
+            const resolved = resolve.schema(item)
+            return resolved && (!('type' in resolved) || resolved.type !== 'null')
+          })
+    if (candidate) {
+      const resolved = resolve.schema(candidate)
+      if (resolved) {
         seen.delete(targetValue)
         return cache(
           _schema,
           getExampleFromSchema(resolved, options, {
             level: level + 1,
+            schemaPath,
             seen,
           }),
           cacheKey,
@@ -654,6 +700,7 @@ export const getExampleFromSchema = (
       const ex = getExampleFromSchema(item as SchemaObject, options, {
         level: level + 1,
         parentSchema: _schema,
+        schemaPath,
         seen,
       })
       if (merged === undefined) {

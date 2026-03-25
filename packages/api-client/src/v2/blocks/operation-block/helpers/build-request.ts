@@ -39,6 +39,7 @@ export const buildRequest = ({
   operation,
   path,
   proxyUrl,
+  requestBodyCompositionSelection,
   server,
   selectedSecuritySchemes,
 }: {
@@ -56,6 +57,8 @@ export const buildRequest = ({
   path: string
   /** The proxy URL for cookie domain determination */
   proxyUrl: string
+  /** Selected anyOf/oneOf request-body variants keyed by schema path */
+  requestBodyCompositionSelection?: Record<string, number>
   /** The server object */
   server: ServerObject | null
   /** The selected security schemes for the current operation */
@@ -88,7 +91,9 @@ export const buildRequest = ({
     const urlParams = new URLSearchParams([...params.urlParams, ...security.urlParams])
 
     // If the method can have a body, build the request body, otherwise set it to null
-    const body = canMethodHaveBody(method) ? buildRequestBody(requestBody, env, exampleKey) : null
+    const body = canMethodHaveBody(method)
+      ? buildRequestBody(requestBody, env, exampleKey, requestBodyCompositionSelection)
+      : null
 
     if (body && (body instanceof FormData || body instanceof URLSearchParams)) {
       // Delete the Content-Type header so the browser will set it automatically based on the request body

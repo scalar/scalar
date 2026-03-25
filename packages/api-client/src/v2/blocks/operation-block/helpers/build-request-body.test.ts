@@ -39,6 +39,37 @@ describe('buildRequestBody', () => {
     expect(result).toBe('{"name": "john_doe", "id": "12345"}')
   })
 
+  it('uses requestBodyCompositionSelection when building a generated JSON body', () => {
+    const requestBody = coerceValue(RequestBodyObjectSchema, {
+      content: {
+        'application/json': {
+          schema: {
+            anyOf: [
+              {
+                type: 'object',
+                properties: {
+                  source: { type: 'string', default: 'file' },
+                },
+              },
+              {
+                type: 'object',
+                properties: {
+                  source: { type: 'string', default: 'service' },
+                },
+              },
+            ],
+          },
+        },
+      },
+    })
+
+    const result = buildRequestBody(requestBody, {}, 'default', {
+      'requestBody.anyOf': 1,
+    })
+
+    expect(result).toBe('{"source":"service"}')
+  })
+
   it('builds FormData for multipart/form-data content type', () => {
     const requestBody = {
       content: {

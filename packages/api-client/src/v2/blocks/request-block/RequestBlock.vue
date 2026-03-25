@@ -70,6 +70,7 @@ const {
   path,
   plugins,
   proxyUrl,
+  requestBodyCompositionSelection,
   securityRequirements,
   securitySchemes,
   selectedClient,
@@ -89,6 +90,7 @@ const {
   path: string
   plugins: ClientPlugin[]
   proxyUrl: string
+  requestBodyCompositionSelection?: Record<string, number>
   securityRequirements: OpenApiDocument['security']
   securitySchemes: MergedSecuritySchemes
   selectedClient: WorkspaceStore['workspace']['x-scalar-default-client']
@@ -502,6 +504,7 @@ const updateOperationExtension = (
         :environment
         :exampleKey
         :requestBody="getResolvedRef(operation.requestBody)"
+        :requestBodyCompositionSelection
         title="Request Body"
         @update:contentType="handleUpdateContentType"
         @update:formValue="handleUpdateBodyFormValue"
