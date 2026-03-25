@@ -1,5 +1,11 @@
 # @scalar/icons
 
+## 0.7.0
+
+### Minor Changes
+
+- [#8559](https://github.com/scalar/scalar/pull/8559): feat(icons): improve icon generation with direct re-exports and lazy-load library icons with caching
+
 ## 0.6.4
 
 ### Patch Changes
