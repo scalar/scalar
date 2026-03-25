@@ -58,7 +58,7 @@ onBeforeUnmount(() => {
   <Transition name="scalar-client-fade">
     <div
       v-show="modalState.open"
-      class="scalar scalar-app z-overlay relative">
+      class="scalar scalar-app z-overlay fixed inset-0">
       <div class="scalar-container">
         <div
           :id="id"
