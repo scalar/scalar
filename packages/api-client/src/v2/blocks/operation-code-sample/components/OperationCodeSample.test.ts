@@ -466,10 +466,7 @@ describe('RequestExample', () => {
                           type: 'object',
                           properties: {
                             name: {
-                              $ref: '#/components/properties/name',
-                              '$ref-value': {
-                                default: 'The greatest name of all',
-                              },
+                              default: 'The greatest name of all',
                             },
                           },
                         },
