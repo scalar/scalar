@@ -1,6 +1,3 @@
-<div class="hero-animation container-full">
-  <scalar-icon src="https://api.scalar.com/cdn/images/LByt7m02eR-6wZrXUk5d5/v1Pu6_BCmly6VhPAuotVZ.svg"></scalar-icon>
-</div>
 <div class="flex flex-col gap-3 hero small-test">
   <scalar-heading level="1" slug="enterprise" class="text-balance">
     Build APIs that lead. Deliver business impact.
@@ -17,7 +14,7 @@
 
 <br>
 
-**Trusted by teams shipping serious APIs**
+<h4 class="text-c-2 mt-10">Trusted by teams shibping serious APIs</h4>
 
 <div class="logowall">
   <div class="logowall-item">
@@ -40,25 +37,52 @@
   </div>
 </div>
 
----
+<div class="enterprise-image-shift">
+  <img alt="API Client" class="enterprise-image-shift-one light-image" src="/api-client-static.svg"/>
+  <img alt="API Client" class="enterprise-image-shift-one dark-image" src="/api-client-static-dark.svg"/>
+  <img alt="API Registry Preview" class="enterprise-image-shift-two light-image" src="/registry-static.svg" />
+  <img alt="API Registry Preview" class="enterprise-image-shift-two dark-image" src="/registry-static-dark.svg" />
+  <img alt="Docs" class="enterprise-image-shift-three light-image" src="/api-docs-static-zoom.svg"/>
+  <img alt="Docs" class="enterprise-image-shift-three dark-image" src="/api-docs-static-zoom-dark.svg"/>
+</div>
+
+<div class="enterprise-features border-t flex">
+<div class="enterprise-features-copy">
 
 ## Built for developers. Scaled for enterprise.
 
-### One platform from description to delivery
+<h4 class="flex items-center icon-text gap-2 font-bold min-h-8 mt-6"><scalar-icon src="phosphor/bold/arrows-merge"></scalar-icon>One platform from description to delivery</h4>
 
 Consolidate API descriptions, interactive documentation, SDKs, the API client, and registry workflows in one place. Scalar is the system of record for OpenAPI across teams — easier discovery, less duplication, faster onboarding for internal and partner developers.
 
-### Git-native, AI-ready, standards-first
+<h3 class="flex items-center icon-text gap-2 font-bold min-h-8 mt-6"><scalar-icon src="phosphor/bold/git-branch"></scalar-icon>Git-native, AI-ready, standards-first</h3>
 
 Meet developers in Git and CI with the tools they already use. Ship linting and breaking-change checks before production. Extend the same descriptions to MCP so agents and copilots call only the operations you expose, with authentication and tool modes you control.
 
-### Governance without gridlock
+<h3 class="flex items-center icon-text gap-2 font-bold min-h-8 mt-6"><scalar-icon src="phosphor/bold/scales"></scalar-icon>Governance without gridlock</h3>
 
 Enforce style guides and access boundaries without turning platform teams into bottlenecks. Central visibility into what ships, who can publish, and how descriptions evolve — fewer surprises in production and less time lost to inconsistent contracts.
 
----
 
-## Outcomes that compound
+<h2 class="mt-10 t-editor__heading"> Govern and scale APIs across the organization</h2>
+
+<h3 class="flex items-center icon-text gap-2 font-bold min-h-8 mt-6"><scalar-icon src="phosphor/bold/database"></scalar-icon>API governance and registry</h3>
+
+Standardize how APIs are authored, reviewed, and published. Centralize OpenAPI in a searchable registry, connect Git for branches and reviews, and enforce rules with Spectral in CI. Multi-team governance, version clarity, and permissions — without forcing everyone through a single manual gate.
+
+<h3 class="flex items-center icon-text gap-2 font-bold min-h-8 mt-6"><scalar-icon src="phosphor/bold/book-open-text"></scalar-icon>Reference documentation and developer experience</h3>
+
+Automatically keep consumer-facing documentation in sync as descriptions change. Interactive references, try-it-out, and branding that match your product reduce time-to-first-call and support load. The same experience ships through [official framework integrations](../../integrations/html-js.md) and embeds cleanly in your portals.
+
+<h3 class="flex items-center icon-text gap-2 font-bold min-h-8 mt-6"><scalar-icon src="phosphor/bold/compass"></scalar-icon>Design, exploration, and quality</h3>
+
+Validate contracts early: exploration and testing stay tied to the description your consumers see. Align design and implementation so documentation, generated SDKs, and runtime behavior stay honest — higher software quality and less integration debt over time.
+
+<h3 class="flex items-center icon-text gap-2 font-bold min-h-8 mt-6"><scalar-icon src="phosphor/bold/shield-check"></scalar-icon>Enterprise security, access, and operations</h3>
+
+**SSO / SAML** for corporate identity. **Role-based access** across workspaces and APIs. **Auditability** alongside Git history. **Self-hosting** with an MIT-licensed core when data must stay in your perimeter. **Privacy-conscious docs hosting** — no third-party analytics on your custom domains, no visitor tracking cookies for docs traffic, no IP logging for request traffic ([Docs privacy](../docs/privacy.md)). **MCP guardrails** — choose which endpoints become agent tools; search vs execute modes; API auth per installation ([MCP →](../agent/mcp.md)).
+</div>
+<div class="enterprise-stats border-l sticky h-fit">
 
 | | |
 | --- | --- |
@@ -67,54 +91,13 @@ Enforce style guides and access boundaries without turning platform teams into b
 | **40+** | **Ecosystem coverage** — Official framework and platform integrations so Scalar fits the languages and stacks you already run. |
 | **14.3k+** | **Community proof** — Open source on GitHub; audit, self-host, or run on Scalar Cloud with Enterprise controls. |
 
----
-
-## Govern and scale APIs across the organization
-
-### API governance and registry
-
-Standardize how APIs are authored, reviewed, and published. Centralize OpenAPI in a searchable registry, connect Git for branches and reviews, and enforce rules with Spectral in CI. Multi-team governance, version clarity, and permissions — without forcing everyone through a single manual gate.
-
-### Reference documentation and developer experience
-
-Automatically keep consumer-facing documentation in sync as descriptions change. Interactive references, try-it-out, and branding that match your product reduce time-to-first-call and support load. The same experience ships through [official framework integrations](../../integrations/html-js.md) and embeds cleanly in your portals.
-
-### Design, exploration, and quality
-
-Validate contracts early: exploration and testing stay tied to the description your consumers see. Align design and implementation so documentation, generated SDKs, and runtime behavior stay honest — higher software quality and less integration debt over time.
-
-### Enterprise security, access, and operations
-
-**SSO / SAML** for corporate identity. **Role-based access** across workspaces and APIs. **Auditability** alongside Git history. **Self-hosting** with an MIT-licensed core when data must stay in your perimeter. **Privacy-conscious docs hosting** — no third-party analytics on your custom domains, no visitor tracking cookies for docs traffic, no IP logging for request traffic ([Docs privacy](../docs/privacy.md)). **MCP guardrails** — choose which endpoints become agent tools; search vs execute modes; API auth per installation ([MCP →](../agent/mcp.md)).
-
----
+</div>
+</div>
 
 <div id="contact" class="cta enterprise-contact-wrap">
 
 <div class="enterprise-contact-section">
 
-<div class="enterprise-contact-grid">
-
-<div class="enterprise-contact-aside">
-  <p class="enterprise-contact-eyebrow">Scalar Enterprise</p>
-  <h2 class="enterprise-contact-headline">OpenAPI documentation, registry, and governance at org scale</h2>
-  <ul class="enterprise-contact-bullets">
-    <li>Reference documentation and SDKs from the same descriptions your teams already maintain</li>
-    <li>Registry plus Spectral and CI — catch drift and breaking changes before production</li>
-    <li>SSO, roles, and reviews that fit procurement without blocking developers</li>
-    <li>MCP from OpenAPI — agent-ready APIs with tool scoping you control</li>
-    <li>Migration help from Stoplight, SwaggerHub, and similar workflows</li>
-  </ul>
-  <p class="enterprise-contact-trusted-label">Teams shipping on Scalar</p>
-  <div class="enterprise-contact-logos">
-    <scalar-icon src="https://cdn.scalar.com/marketing/landing/logo-tr.svg"></scalar-icon>
-    <scalar-icon src="https://cdn.scalar.com/marketing/landing/logo-maersk.svg"></scalar-icon>
-    <scalar-icon src="https://cdn.scalar.com/marketing/landing/logo-tailscale.svg"></scalar-icon>
-    <scalar-icon src="https://cdn.scalar.com/marketing/landing/logo-supabase.svg"></scalar-icon>
-  </div>
-</div>
-
-<div class="enterprise-contact-card">
   <h3 class="enterprise-demo-form-title">Contact us</h3>
   <p class="enterprise-demo-form-lead">We will follow up with security materials, pricing, and next steps.</p>
   <form
@@ -176,9 +159,6 @@ Validate contracts early: exploration and testing stay tied to the description y
   <p class="enterprise-demo-alt">
     Prefer to pick a time? <a href="https://scalar.cal.com/scalar/chat-with-scalar" target="_blank" rel="noopener noreferrer">Book a demo</a> · <a href="https://dashboard.scalar.com/register">Get started</a>
   </p>
-</div>
-
-</div>
 
 </div>
 
@@ -223,6 +203,58 @@ Validate contracts early: exploration and testing stay tied to the description y
 </div>
 
 <style>
+  .enterprise-features-copy {
+    max-width: 680px;
+  }
+  .enterprise-stats {
+    padding-left: 20px;
+    margin-left: 20px;
+    top: 60px;
+  }
+  .enterprise-features {
+    padding: 100px 0;
+  }
+  .enterprise-image-shift {
+    position: relative;
+    perspective: 3500px;
+    perspective-origin: 0% 50%;
+    overflow: hidden;
+    mask-image: linear-gradient(to bottom, black 65%, transparent 100%);
+  }
+  .enterprise-image-shift img {
+    width: 100%;
+    height: auto;
+  }
+  .dark-mode .enterprise-image-shift img {
+    filter: brightness(1.2);
+  }
+  .enterprise-image-shift-one {
+    position: absolute;
+    top: 0;
+    left: 0;
+    transform: scaleX(1) scaleY(1) scaleZ(1) rotateX(0deg) rotateY(45deg) rotateZ(0deg) translateX(-196px) translateY(60px) translateZ(0px) skewX(0deg) skewY(0deg);
+  }
+  .enterprise-image-shift-two {
+    position: absolute;
+    top: 0;
+    left: 0;
+    transform: scaleX(1) scaleY(1) scaleZ(1) rotateX(0deg) rotateY(45deg) rotateZ(0deg) translateX(120px) translateY(47px) translateZ(0px) skewX(0deg) skewY(0deg);
+  }
+  .enterprise-image-shift-three {
+    transform: scaleX(1) scaleY(1) scaleZ(1) rotateX(0deg) rotateY(45deg) rotateZ(0deg) translateX(452px) translateY(28px) translateZ(0px) skewX(0deg) skewY(0deg);
+    margin-bottom: -60px;
+  }
+  @media screen and (max-width: 1280px) {
+    .enterprise-image-shift-three,
+    .enterprise-image-shift-two,
+    .enterprise-image-shift-one {
+      transform: none;
+    }
+    .enterprise-image-shift-one,
+    .enterprise-image-shift-two {
+      display: none;
+    }
+  }
     .resources-cta-container {
       border-radius: var(--scalar-radius-lg);
       border: var(--scalar-border-width) solid var(--scalar-border-color);
@@ -250,23 +282,15 @@ Validate contracts early: exploration and testing stay tied to the description y
     scroll-margin-top: 120px;
   }
   .enterprise-contact-wrap {
-    padding-left: 0;
-    padding-right: 0;
-  }
-  .enterprise-contact-section {
-    background: var(--scalar-background-2);
-    border: var(--scalar-border-width) solid var(--scalar-border-color);
+    background: color-mix(in srgb, var(--scalar-background-2), transparent);
     border-radius: var(--scalar-radius-lg);
     padding: clamp(32px, 5vw, 56px) clamp(24px, 4vw, 48px);
     max-width: var(--scalar-container-width);
     margin: 0 auto;
-    box-sizing: border-box;
   }
-  .enterprise-contact-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: clamp(32px, 4vw, 56px);
-    align-items: start;
+  .enterprise-contact-section {
+    max-width: 480px;
+    margin: auto;
   }
   .enterprise-contact-aside {
     color: var(--scalar-color-2);
@@ -312,13 +336,6 @@ Validate contracts early: exploration and testing stay tied to the description y
     height: 22px;
     width: auto;
     max-width: 100px;
-  }
-  .enterprise-contact-card {
-    background: var(--scalar-background-1);
-    color: var(--scalar-color-1);
-    border: var(--scalar-border-width) solid var(--scalar-border-color);
-    border-radius: var(--scalar-radius-lg);
-    padding: clamp(24px, 3vw, 36px) clamp(22px, 3vw, 36px);
   }
   .enterprise-demo-form-title {
     font-size: 1.25rem;
@@ -436,9 +453,6 @@ Validate contracts early: exploration and testing stay tied to the description y
     font-weight: var(--scalar-semibold);
   }
   @media screen and (max-width: 900px) {
-    .enterprise-contact-grid {
-      grid-template-columns: 1fr;
-    }
     .enterprise-demo-form-row {
       grid-template-columns: 1fr;
     }
@@ -488,7 +502,6 @@ Validate contracts early: exploration and testing stay tied to the description y
   .t-editor {
     padding-bottom: 0;
   }
-  h3.t-editor__heading,
   h2.t-editor__heading {
     --font-size: var(--scalar-heading-1);
       margin-top: 0;
@@ -539,7 +552,7 @@ Validate contracts early: exploration and testing stay tied to the description y
   }
   /* logos */
   .logowall.logowall {
-    margin-top: 48px;
+    margin-top: 24px;
     display: grid;
     grid-template-columns: repeat(6, 1fr);
     align-items: center;
@@ -721,19 +734,6 @@ Validate contracts early: exploration and testing stay tied to the description y
   }
   .dark-mode .light-image {
     display: none;
-  }
-  .sticker-clip-client {
-    clip-path: path("M158 91.9102C158 95.8908 154.773 99.1172 150.792 99.1172L147.269 99.1172L147.269 105.78C147.268 107.948 145.511 109.705 143.343 109.705L86.2051 109.705C84.0373 109.705 82.2795 107.948 82.2793 105.78L82.2793 99.1172L7.208 99.1172C3.22741 99.1172 1.10673e-05 95.8908 -4.01752e-06 91.9101L-3.50643e-06 80.2178C-3.47119e-06 79.4117 0.135571 78.6109 0.400387 77.8496L25.7949 4.83984C26.8028 1.94219 29.5346 -5.6154e-06 32.6025 -5.4813e-06L150.792 -3.15072e-07C154.773 -1.41078e-07 158 3.22654 158 7.20703L158 91.9102Z")
-  }
-  .sticker-clip-sdk {
-    clip-path: path("M60.0562 8.61129C65.9233 -1.83053 81.0294 -1.61478 86.5955 8.99068L142.416 115.353C144.543 119.406 141.567 124.259 136.991 124.201L114.679 123.918L114.138 135.797C113.962 139.654 110.761 142.678 106.9 142.634L32.9393 141.782C29.1212 141.738 26.0084 138.707 25.864 134.891L25.406 122.787L6.28841 122.544C1.70363 122.486 -1.1476 117.543 1.09835 113.545L60.0562 8.61129Z")
-  }
-  .sticker-clip-registry {
-    clip-path: path("M71.0986 1.13334C75.8537 -0.596969 81.1116 1.85514 82.8428 6.6099L90.3037 27.1079H98.5059C104.199 27.108 108.814 31.7235 108.814 37.4165V77.9663L121.32 112.329C119.703 112.128 118.003 112.298 116.351 112.899C110.96 114.861 108.12 120.659 110.009 125.848C111.898 131.038 117.8 133.654 123.191 131.692C124.844 131.091 126.254 130.127 127.364 128.933L134.608 148.835C136.339 153.591 133.887 158.849 129.132 160.58L73.3945 180.866C68.6393 182.596 63.3816 180.145 61.6504 175.39L58.958 167.994H2.29102C1.02582 167.994 0 166.968 0 165.703V29.398C0.000538247 28.1333 1.02616 27.1079 2.29102 27.1079H9.8125C10.6721 24.5603 12.6383 22.4116 15.3613 21.4204L71.0986 1.13334Z")
-  }
-  .sticker-clip-docs {
-    overflow: hidden;
-    border-radius: 20px;
   }
   @media screen and (max-width: 1280px) {
       .resources-cta {
