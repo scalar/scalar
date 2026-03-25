@@ -204,6 +204,7 @@ const handleExecute = async () => {
     toast(requestBuilder.error, 'error')
     return
   }
+  console.log(requestBuilder.data.request)
 
   // Stop any previous streaming response
   if (response.value && 'reader' in response.value) {

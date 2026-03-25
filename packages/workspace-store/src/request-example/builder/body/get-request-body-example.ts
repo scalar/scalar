@@ -1,23 +1,35 @@
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
-import type { RequestBodyObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { ExampleObject, RequestBodyObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+
+import { getExample } from '@/request-example/builder/helpers/get-example'
+import { getExampleFromSchema } from '@/request-example/builder/helpers/get-example-from-schema'
 
 /**
- * Retrieve a specific example value from a request body by content type and example name.
- *
- * This looks up the example object using the provided content type and example name,
- * then resolves any $ref using getResolvedRef. If not found, returns null.
- *
- * @param requestBody - The OpenAPI RequestBodyObject
- * @param contentType - The media type for which to find the example (e.g., 'application/json')
- * @param exampleName - The key of the example to retrieve
- * @returns The resolved example value, or null if not found
+ * Basically getExample + we generate an example from the schema if no example is found
  */
-export const getExampleFromBody = (requestBody: RequestBodyObject, contentType: string, exampleName: string) => {
+export const getExampleFromBody = (
+  requestBody: RequestBodyObject,
+  contentType: string,
+  exampleKey: string,
+): ExampleObject | null => {
   const content = requestBody.content?.[contentType]
 
-  if (!content) {
+  // Return existing example value if we have one
+  const example = getExample(requestBody, exampleKey, contentType)
+  if (example) {
+    return example
+  }
+
+  const schema = getResolvedRef(content?.schema)
+  if (!schema) {
     return null
   }
 
-  return getResolvedRef(content.examples?.[exampleName]) ?? null
+  // Generate an example from the schema
+  const schemaExample = getExampleFromSchema(schema, { mode: 'write' })
+  if (!schemaExample) {
+    return null
+  }
+
+  return { value: schemaExample }
 }

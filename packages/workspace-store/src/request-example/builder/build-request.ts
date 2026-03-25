@@ -12,28 +12,6 @@ export const buildRequest = (
 ) => {
   const controller = new AbortController()
 
-  const requestUrl = (() => {
-    // Replace the path variables with the environment variables and server variables
-    const url = new URL(
-      replacePathVariables(replaceEnvVariables(request.url, options.envVariables), request.path.variables),
-      window.location.origin ?? 'http://localhost:3000',
-    )
-
-    // Replace the query params with the environment variables
-    for (const [key, value] of request.query.params.entries()) {
-      console.log('key', key)
-      console.log('value', value)
-      url.searchParams.set(
-        replaceEnvVariables(key, options.envVariables),
-        replaceEnvVariables(value, options.envVariables),
-      )
-    }
-    if (!request.proxy.isUsingProxy) {
-      return url.toString()
-    }
-    return redirectToProxy(request.proxy.proxyUrl, url.toString())
-  })()
-
   const headers = (() => {
     const variables = options.envVariables
     const headers = new Headers()
@@ -79,7 +57,7 @@ export const buildRequest = (
     return null
   })()
 
-  const urlParams = new URLSearchParams()
+  const securityUrlParams = new URLSearchParams()
 
   // Build the request security
   request.security.forEach((security) => {
@@ -103,7 +81,7 @@ export const buildRequest = (
     }
 
     if (security.in === 'query') {
-      urlParams.append(security.name, security.value)
+      securityUrlParams.append(security.name, security.value)
       return
     }
 
@@ -113,7 +91,32 @@ export const buildRequest = (
     }
   })
 
-  // TODO: handle url params diffrently here so we can update the final url with the resolved url params
+  const requestUrl = (() => {
+    // Replace the path variables with the environment variables and server variables
+    const url = new URL(
+      replacePathVariables(replaceEnvVariables(request.url, options.envVariables), request.path.variables),
+      window.location.origin ?? 'http://localhost:3000',
+    )
+
+    // Merge security query params
+    request.security.forEach((security) => {
+      if (security.in === 'query') {
+        url.searchParams.set(security.name, security.value)
+      }
+    })
+
+    // Replace the query params with the environment variables
+    for (const [key, value] of request.query.params.entries()) {
+      url.searchParams.set(
+        replaceEnvVariables(key, options.envVariables),
+        replaceEnvVariables(value, options.envVariables),
+      )
+    }
+    if (!request.proxy.isUsingProxy) {
+      return url.toString()
+    }
+    return redirectToProxy(request.proxy.proxyUrl, url.toString())
+  })()
 
   return {
     request: new Request(requestUrl, {

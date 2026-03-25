@@ -1556,9 +1556,7 @@ describe('buildRequestParameters', () => {
 
       const result = buildRequestParameters(params, '')
 
-      expect(result.headers).toEqual({})
-
-      // expect(result.headers['X-Empty-Key']).toBe('value')
+      expect(result.headers['X-Empty-Key']).toBe('value')
     })
 
     it('preserves order of parameters', () => {
