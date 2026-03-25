@@ -7,6 +7,7 @@ import { type ChatMode } from '@/types'
 
 const {
   dashboardUrl,
+  platformProxyUrl,
   registryDocuments,
   registryUrl,
   baseUrl,
@@ -21,6 +22,7 @@ const {
   registryDocuments: RegistryDocument[]
   registryUrl: string
   dashboardUrl: string
+  platformProxyUrl: string
   baseUrl: string
   mode?: ChatMode
   getAccessToken?: () => string
@@ -39,6 +41,7 @@ const state = createState({
   getActiveDocumentJson,
   initialRegistryDocuments: registryDocuments,
   prefilledMessageRef: prefilledMessage,
+  platformProxyUrl,
   registryUrl,
   baseUrl,
   mode,
