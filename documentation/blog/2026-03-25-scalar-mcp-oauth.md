@@ -1,6 +1,6 @@
 # Too Long; Didn't Read; Used MCP
 
-Hey, it's 2026, who does even **read** the documentation for your API anymore. Just boot up a MCP based on your OpenAPI document (using Scalar), and share it with your users or your team[1].
+It's 2026, who does even READ the documentation for your API. Just boot up a MCP based on your OpenAPI document (using Scalar), and share it with your users or your team (agents).
 
 And then enhance any trillion dollar frontier model with your MCP server, that has all the context of how your API is defined. We show exactly how in the UI.
 
@@ -41,7 +41,7 @@ The only required field is name — everything else is optional.
 
 (You can stop reading here, the following part is for all the great companies and enterprises using Scalar. Just open the dashboard and spin up your MCP in less than 60 seconds: https://dashboard.scalar.com, that's fine.)
 
-But sometimes, you don't want to share the docs publicly, no matter if it's in the browser or the MCP server. Your internal APIs, the new APIs you're about to release, the staging APIs… No worries, we got you.
+Sometimes, you don't want to share the docs publicly, no matter if it's in the browser or it's the MCP server. Your internal APIs, the new APIs you're about to release, the staging APIs… They are not for anyone. No worries, we got you.
 
 Set your MCP to "private" and share the URL with your team. They'll be able to authenticate using OAuth. Means their LLM will open a browser, where they can authenticate with Scalar to access your secret API (if they are on your team). Here's a video how easy this is:
 
