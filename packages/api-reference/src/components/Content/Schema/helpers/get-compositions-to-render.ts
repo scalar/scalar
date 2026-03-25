@@ -11,28 +11,6 @@ type CompositionToRender = {
   value: SchemaObject
 }
 
-const normalizeDiscriminatorMappingRef = (value: string) =>
-  value.startsWith('#/') || value.includes('/') ? value : `#/components/schemas/${value}`
-
-const inferDiscriminatorMappingComposition = (value: SchemaObject): SchemaObject | null => {
-  if (value.oneOf || value.anyOf) {
-    return null
-  }
-
-  const mappingValues = Object.values(value.discriminator?.mapping ?? {})
-
-  if (mappingValues.length === 0) {
-    return null
-  }
-
-  return {
-    ...resolve.schema(value),
-    oneOf: mappingValues.map((mappingValue) => ({
-      $ref: normalizeDiscriminatorMappingRef(mappingValue),
-    })),
-  }
-}
-
 /**
  * Computes which compositions should be rendered and with which values
  *
@@ -44,17 +22,8 @@ export const getCompositionsToRender = (value: SchemaObject | undefined): Compos
     return []
   }
 
-  const inferredDiscriminatorComposition = inferDiscriminatorMappingComposition(value)
-
   return compositions
     .map((composition) => {
-      if (composition === 'oneOf' && inferredDiscriminatorComposition) {
-        return {
-          composition,
-          value: inferredDiscriminatorComposition,
-        }
-      }
-
       // Check for array item-level composition first (more specific case)
       if (shouldRenderArrayItemComposition(value, composition) && isArraySchema(value) && value.items) {
         return {
