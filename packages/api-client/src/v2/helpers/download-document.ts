@@ -6,6 +6,15 @@
  * @param filename - The name of the file to save (e.g. "my-api.json").
  * @param mimeType - Optional MIME type for the blob. Defaults to "application/json".
  */
+function createClickEvent(): MouseEvent {
+  try {
+    return new MouseEvent('click', { bubbles: true, cancelable: true, view: window })
+  } catch {
+    // Fallback for test environments where `view` is not a valid Window.
+    return new MouseEvent('click', { bubbles: true, cancelable: true })
+  }
+}
+
 export function downloadAsFile(content: string, filename: string, mimeType = 'application/json'): void {
   const blob = new Blob([content], { type: mimeType })
   const url = URL.createObjectURL(blob)
@@ -17,7 +26,7 @@ export function downloadAsFile(content: string, filename: string, mimeType = 'ap
   document.body.appendChild(link)
 
   // This is necessary as link.click() does not work on the latest Firefox.
-  link.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, view: window }))
+  link.dispatchEvent(createClickEvent())
 
   // For Firefox it is necessary to delay revoking the ObjectURL.
   setTimeout(() => {
