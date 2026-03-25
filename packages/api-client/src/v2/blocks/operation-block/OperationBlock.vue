@@ -99,7 +99,6 @@ import type {
 import {
   buildRequest,
   getEnvironmentVariables,
-  getServerVariables,
   requestFactory,
   type MergedSecuritySchemes,
   type SecuritySchemeObjectSecret,
@@ -231,7 +230,6 @@ const handleExecute = async () => {
   // Build the actual request we will send
   const requestResult = buildRequest(requestBuilder.data.request, {
     envVariables: getEnvironmentVariables(environment),
-    serverVariables: getServerVariables(server),
   })
 
   // Store the abort controller for cancellation

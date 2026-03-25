@@ -3,7 +3,6 @@ import {
   buildRequest,
   getEnvironmentVariables,
   getRequestExampleContext,
-  getServerVariables,
   requestFactory,
 } from '@scalar/workspace-store/request-example'
 
@@ -48,7 +47,6 @@ if (requestBuilder.ok === false) {
 
 const { request } = buildRequest(requestBuilder.data.request, {
   envVariables: getEnvironmentVariables(context.data.environment.environment),
-  serverVariables: getServerVariables(context.data.servers.selected),
 })
 
 void sendRequest({

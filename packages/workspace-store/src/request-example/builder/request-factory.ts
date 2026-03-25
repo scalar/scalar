@@ -1,5 +1,5 @@
 import { canMethodHaveBody } from '@scalar/helpers/http/can-method-have-body'
-import { redirectToProxy, shouldUseProxy } from '@scalar/helpers/url/redirect-to-proxy'
+import { shouldUseProxy } from '@scalar/helpers/url/redirect-to-proxy'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type { XScalarCookie } from '@scalar/workspace-store/schemas/extensions/general/x-scalar-cookies'
@@ -22,8 +22,15 @@ export type RequestFactory = {
   url: string
   method: string
   proxy: {
-    proxiedUrl: string
+    proxyUrl: string
     isUsingProxy: boolean
+  }
+  path: {
+    variables: Record<string, string>
+    raw: string
+  }
+  query: {
+    params: URLSearchParams
   }
   headers: Headers
   body: RequestBody | null
@@ -86,12 +93,9 @@ export const requestFactory = ({
   // TODO: handle url params differently
 
   /** Combine the server url, path and url params into a single url */
-  // const mergedUrl = mergeUrls(server?.url ?? '', path, params.urlParams)/
-  // const url = applyAllowReservedToUrl(mergedUrl, params.allowReservedQueryParameters)
   const url = getResolvedUrl({
     server,
     path,
-    urlParams: params.urlParams,
     allowReservedQueryParameters: params.allowReservedQueryParameters,
   })
 
@@ -101,7 +105,6 @@ export const requestFactory = ({
   }
 
   const isUsingProxy = shouldUseProxy(proxyUrl, url)
-  const proxiedUrl = redirectToProxy(proxyUrl, url)
 
   // If we are running in Electron, we need to add a custom header
   // that's then forwarded as a `User-Agent` header.
@@ -139,8 +142,15 @@ export const requestFactory = ({
   const request: RequestFactory = {
     url,
     proxy: {
-      proxiedUrl,
+      proxyUrl,
       isUsingProxy,
+    },
+    path: {
+      variables: params.pathVariables,
+      raw: path,
+    },
+    query: {
+      params: params.urlParams,
     },
     method: method.toUpperCase(),
     headers,

@@ -144,9 +144,16 @@ const createDefaultRequestFactoryPayload = (overrides: Partial<RequestFactoryPay
     cache: 'default',
     security: [],
     proxy: {
-      proxiedUrl: 'https://api.example.com/api/users',
+      proxyUrl: 'https://api.example.com/api/users',
       isUsingProxy: false,
       ...proxyOverrides,
+    },
+    path: {
+      variables: {},
+      raw: '/api/users',
+    },
+    query: {
+      params: new URLSearchParams(),
     },
     ...rest,
   }
@@ -435,7 +442,6 @@ describe('OperationBlock', () => {
       }),
       {
         envVariables: {},
-        serverVariables: {},
       },
     )
   })
@@ -448,7 +454,7 @@ describe('OperationBlock', () => {
       ok: true,
       data: {
         request: createDefaultRequestFactoryPayload({
-          proxy: { proxiedUrl: 'https://proxy.example.com/r', isUsingProxy: true },
+          proxy: { proxyUrl: 'https://proxy.example.com', isUsingProxy: true },
         }),
       },
     })

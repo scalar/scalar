@@ -1,4 +1,5 @@
 import { replaceEnvVariables, replacePathVariables } from '@scalar/helpers/regex/replace-variables'
+import { redirectToProxy } from '@scalar/helpers/url/redirect-to-proxy'
 import { encode as encodeBase64 } from 'js-base64'
 
 import type { RequestFactory } from '@/request-example/builder/request-factory'
@@ -7,19 +8,30 @@ export const buildRequest = (
   request: RequestFactory,
   options: {
     envVariables: Record<string, string>
-    serverVariables: Record<string, string>
   },
 ) => {
   const controller = new AbortController()
 
   const requestUrl = (() => {
-    if (request.proxy.isUsingProxy) {
-      return replacePathVariables(
-        replaceEnvVariables(request.proxy.proxiedUrl, options.envVariables),
-        options.serverVariables,
+    // Replace the path variables with the environment variables and server variables
+    const url = new URL(
+      replacePathVariables(replaceEnvVariables(request.url, options.envVariables), request.path.variables),
+      window.location.origin ?? 'http://localhost:3000',
+    )
+
+    // Replace the query params with the environment variables
+    for (const [key, value] of request.query.params.entries()) {
+      console.log('key', key)
+      console.log('value', value)
+      url.searchParams.set(
+        replaceEnvVariables(key, options.envVariables),
+        replaceEnvVariables(value, options.envVariables),
       )
     }
-    return replacePathVariables(replaceEnvVariables(request.url, options.envVariables), options.serverVariables)
+    if (!request.proxy.isUsingProxy) {
+      return url.toString()
+    }
+    return redirectToProxy(request.proxy.proxyUrl, url.toString())
   })()
 
   const headers = (() => {
