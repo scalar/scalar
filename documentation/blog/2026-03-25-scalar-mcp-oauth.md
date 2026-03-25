@@ -35,10 +35,10 @@ Let it do its work…
 
 (You can stop reading here, the following part is for all the great companies and enterprises using Scalar. Just open the dashboard and spin up your MCP in less than 60 seconds: https://dashboard.scalar.com, that's fine.)
 
-But sometimes, you don't want to share this publicly. Your internal APIs, the new APIs you're about to release, the staging APIs… No worries, we got you.
+But sometimes, you don't want to share the docs publicly, no matter if it's in the browser or the MCP server. Your internal APIs, the new APIs you're about to release, the staging APIs… No worries, we got you.
 
-Make your MCP private and share the URL with your team. They'll be able to authenticate using OAuth, means their LLM will open a browser, where they can authenticate with Scalar to access your secret API (if they are on your team). Here's video how easy this is:
+Set your MCP to "private" and share the URL with your team. They'll be able to authenticate using OAuth. Means their LLM will open a browser, where they can authenticate with Scalar to access your secret API (if they are on your team). Here's a video how easy this is:
 
 <!-- Insert Video Here -->
 
-
+This is how documentation works for everyone (agents).
