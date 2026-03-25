@@ -3,4 +3,4 @@
 '@scalar/api-reference': patch
 ---
 
-fix request body code samples when switching anyOf or oneOf schemas
+fix: request body code samples when switching anyOf or oneOf schemas
