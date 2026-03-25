@@ -32,6 +32,7 @@ const {
     "
     :hideAddApi="agentScalarConfiguration?.hideAddApi"
     :mode="agentScalarConfiguration?.key ? 'full' : 'preview'"
+    :platformProxyUrl="externalUrls.proxyUrl"
     :prefilledMessage="prefilledMessage"
     :registryDocuments="[]"
     :registryUrl="externalUrls.registryUrl" />

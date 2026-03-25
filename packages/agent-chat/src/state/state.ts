@@ -1,6 +1,5 @@
 import { Chat } from '@ai-sdk/vue'
 import { type ModalState, useModal } from '@scalar/components'
-import { redirectToProxy } from '@scalar/helpers/url/redirect-to-proxy'
 import { type ApiReferenceConfigurationRaw, apiReferenceConfigurationSchema } from '@scalar/types/api-reference'
 import { useToasts } from '@scalar/use-toasts'
 import { type WorkspaceStore, createWorkspaceStore } from '@scalar/workspace-store/client'
@@ -82,6 +81,7 @@ type State = {
   registryUrl: string
   dashboardUrl: string
   baseUrl: string
+  platformProxyUrl: string
   isLoggedIn?: Ref<boolean>
   registryDocuments: Ref<ApiMetadata[]>
   pendingDocuments: Record<string, boolean>
@@ -117,7 +117,7 @@ function createChat({
   const chat = new Chat<UIMessage<unknown, UIDataTypes, Tools>>({
     sendAutomaticallyWhen: lastAssistantMessageIsCompleteWithToolCalls,
     transport: new DefaultChatTransport({
-      api: redirectToProxy(proxyUrl.value, `${baseUrl}/vector/openapi/chat`),
+      api: `${baseUrl}/vector/openapi/chat`,
       headers: () => createAuthorizationHeaders({ getAccessToken, getAgentKey }),
       body: () => ({
         registryDocuments: registryDocuments.value,
@@ -151,6 +151,7 @@ export function createState({
   initialRegistryDocuments,
   registryUrl,
   dashboardUrl,
+  platformProxyUrl,
   baseUrl,
   mode,
   isLoggedIn,
@@ -163,6 +164,7 @@ export function createState({
   initialRegistryDocuments: { namespace: string; slug: string }[]
   registryUrl: string
   dashboardUrl: string
+  platformProxyUrl: string
   baseUrl: string
   mode: ChatMode
   isLoggedIn?: Ref<boolean>
@@ -208,7 +210,6 @@ export function createState({
 
   const api = createApi({
     baseUrl,
-    proxyUrl,
     getAccessToken,
     getAgentKey,
   })
@@ -316,7 +317,7 @@ export function createState({
 
     const embeddingStatusResponse = await n.fromUnsafe(
       () =>
-        fetch(redirectToProxy(proxyUrl.value, `${baseUrl}/vector/registry/embeddings/${namespace}/${slug}`), {
+        fetch(`${baseUrl}/vector/registry/embeddings/${namespace}/${slug}`, {
           method: 'GET',
         }),
       (originalError) => createError('FAILED_TO_GET_EMBEDDING_STATUS', originalError),
@@ -366,6 +367,7 @@ export function createState({
     config,
     registryUrl,
     dashboardUrl,
+    platformProxyUrl,
     baseUrl,
     registryDocuments,
     pendingDocuments,
