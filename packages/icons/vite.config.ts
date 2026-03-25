@@ -1,17 +1,27 @@
+import { readdirSync } from 'node:fs'
 import { resolve } from 'node:path'
 
 import vue from '@vitejs/plugin-vue'
 import svgLoader from 'vite-svg-loader'
 import { type Plugin, defineConfig } from 'vitest/config'
 
-import {
-  createExternalsFromPackageJson,
-  createLibEntry,
-  createPreserveModulesOutput,
-} from '../../tooling/scripts/vite-lib-config'
+import { createExternalsFromPackageJson, createPreserveModulesOutput } from '../../tooling/scripts/vite-lib-config'
 
 const external = createExternalsFromPackageJson()
-const entry = createLibEntry(['./src/index.ts', './src/library/index.ts', './src/types.ts'], import.meta.dirname)
+
+const componentsDir = resolve(import.meta.dirname, './src/components')
+const componentEntries = Object.fromEntries(
+  readdirSync(componentsDir)
+    .filter((f) => f.endsWith('.vue'))
+    .map((f) => [`components/${f.replace('.vue', '')}`, resolve(componentsDir, f)]),
+)
+
+const entry: Record<string, string> = {
+  index: resolve(import.meta.dirname, './src/index.ts'),
+  types: resolve(import.meta.dirname, './src/types.ts'),
+  'library/index': resolve(import.meta.dirname, './src/library/index.ts'),
+  ...componentEntries,
+}
 
 // https://vitejs.dev/config/
 export default defineConfig({
