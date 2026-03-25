@@ -12,26 +12,32 @@ npx add-mcp https://mcp.scalar.com/mcp/67f954ca-123c-423b-b601-7284cfac3aff
 
 That's it? That's it. Open your thing and ask it something related to the API.
 
-> claude, give me the curl for creating a new planet, buddy
-> make no mistakes
+```
+claude, give me the curl for creating a new planet, buddy
+make no mistakes
+```
 
 Let it do its work…
 
-> ⏺ Let me search the available APIs for a planet creation endpoint.
->
-> ⏺ scalar-galaxy-mcp - search-openapi-operations (MCP)(question: "create a new planet")
+```
+⏺ Let me search the available APIs for a planet creation endpoint.
+
+⏺ scalar-galaxy-mcp - search-openapi-operations (MCP)(question: "create a new planet")
+```
 
 … and you'll be amazed how accurate (and token-efficient and fast) it'll reply:
 
-> Here's your curl:
->
->  curl -X POST https://galaxy.scalar.com/planets \
->    -H "Content-Type: application/json" \
->    -d '{ … }'
->
->  Expects: 201 Created with the planet object (including a server-assigned id).
->
->  The only required field is name — everything else is optional.
+```
+Here's your curl:
+
+curl -X POST https://galaxy.scalar.com/planets \
+  -H "Content-Type: application/json" \
+  -d '{ … }'
+
+Expects: 201 Created with the planet object (including a server-assigned id).
+
+The only required field is name — everything else is optional.
+```
 
 (You can stop reading here, the following part is for all the great companies and enterprises using Scalar. Just open the dashboard and spin up your MCP in less than 60 seconds: https://dashboard.scalar.com, that's fine.)
 
