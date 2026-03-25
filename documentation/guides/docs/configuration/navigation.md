@@ -449,7 +449,7 @@ Here is an example of a group containing multiple links:
     "/demo": {
       "title": "Book a Demo",
       "icon": "phosphor/regular/monitor",
-      "url": "https://scalar.cal.com/scalar/chat-with-scalar",
+      "url": "https://scalar.cal.com/forms/142d1e65-97d2-4d03-94c3-96f98ddef95a",
       "type": "link"
     }
   }
