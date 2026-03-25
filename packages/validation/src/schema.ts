@@ -1,5 +1,12 @@
+/**
+ * Optional metadata for type generation and documentation.
+ * - typeName: Used as the exported TypeScript type name if valid.
+ * - typeComment: Adds a JSDoc comment to the generated type declaration.
+ */
 type Documentation = Partial<{
+  /** Adds a JSDoc comment to the generated type declaration. */
   typeComment: string
+  /** Used as the exported TypeScript type name if valid. */
   typeName: string
 }>
 

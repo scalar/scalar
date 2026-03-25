@@ -1,6 +1,6 @@
 import type { Schema } from './schema'
 
-const DEFAULT_MAX_DEPTH = 30
+const DEFAULT_MAX_DEPTH = 10
 
 export type GenerateTypesOptions = {
   maxDepth?: number
