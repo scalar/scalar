@@ -15,7 +15,13 @@ export function downloadAsFile(content: string, filename: string, mimeType = 'ap
   link.style.display = 'none'
   link.setAttribute('aria-hidden', 'true')
   document.body.appendChild(link)
-  link.click()
-  document.body.removeChild(link)
-  URL.revokeObjectURL(url)
+
+  // This is necessary as link.click() does not work on the latest Firefox.
+  link.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, view: window }))
+
+  // For Firefox it is necessary to delay revoking the ObjectURL.
+  setTimeout(() => {
+    URL.revokeObjectURL(url)
+    document.body.removeChild(link)
+  }, 100)
 }
