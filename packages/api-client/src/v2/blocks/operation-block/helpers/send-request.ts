@@ -152,7 +152,6 @@ const buildStreamingResponse = ({
     headers: response.headers,
   })
 
-  // await executeHook({ response: normalizedResponse, request, operation }, 'responseReceived', plugins)
   const cookieHeaderKeys = getCookieHeaderKeys(normalizedResponse.headers)
 
   return [
@@ -227,7 +226,6 @@ const buildStandardResponse = async ({
     headers: response.headers,
   })
 
-  // await executeHook({ response: normalizedResponse, request, operation }, 'responseReceived', plugins)
   const cookieHeaderKeys = getCookieHeaderKeys(normalizedResponse.headers)
 
   return [

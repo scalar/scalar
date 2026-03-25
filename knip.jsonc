@@ -1,7 +1,9 @@
 {
   "$schema": "./node_modules/knip/schema.json",
   // Catalog entries from ignored workspaces are falsely reported as unused
-  "exclude": ["catalog"],
+  "exclude": [
+    "catalog"
+  ],
   "ignoreWorkspaces": [
     // Allows a progressive adoption
     "examples/nestjs/**",
@@ -40,15 +42,25 @@
     "tsconfig-paths",
     "typescript-language-server"
   ],
-  "ignoreBinaries": ["netlify"],
+  "ignoreBinaries": [
+    "netlify"
+  ],
   "ignoreIssues": {
-    "integrations/docusaurus/src/ScalarDocusaurus.tsx": ["duplicates"],
+    "integrations/docusaurus/src/ScalarDocusaurus.tsx": [
+      "duplicates"
+    ],
     // TrieNode is exported for potential external use
-    "packages/json-magic/src/diff/trie.ts": ["exports"],
+    "packages/json-magic/src/diff/trie.ts": [
+      "exports"
+    ],
     // Astro component Props interface is used by the framework
-    "integrations/astro/src/ScalarComponent.astro": ["types"],
+    "integrations/astro/src/ScalarComponent.astro": [
+      "types"
+    ],
     // setupFiles string path cannot be resolved by knip
-    "packages/api-reference/vitest.config.ts": ["unresolved"]
+    "packages/api-reference/vitest.config.ts": [
+      "unresolved"
+    ]
   },
   "workspaces": {
     "packages/api-client": {
@@ -115,11 +127,20 @@
       ]
     },
     "packages/api-client-react": {
-      "entry": ["src/index.ts", "playground/main.tsx"]
+      "entry": [
+        "src/index.ts",
+        "playground/main.tsx"
+      ]
     },
     "packages/agent-chat": {
-      "ignore": ["playground/**", "src/entities/**"],
-      "ignoreDependencies": ["@scalar/themes", "hono"]
+      "ignore": [
+        "playground/**",
+        "src/entities/**"
+      ],
+      "ignoreDependencies": [
+        "@scalar/themes",
+        "hono"
+      ]
     },
     "packages/api-reference": {
       "entry": [
@@ -145,16 +166,25 @@
         "react",
         "@scalar/react-renderer"
       ],
-      "ignoreFiles": ["playground/vue/src/x-custom-extension-plugin/components/CustomReactComponent.tsx"]
+      "ignoreFiles": [
+        "playground/vue/src/x-custom-extension-plugin/components/CustomReactComponent.tsx"
+      ]
     },
     "packages/api-reference-react": {
-      "entry": ["src/index.ts", "playground/main.tsx"],
+      "entry": [
+        "src/index.ts",
+        "playground/main.tsx"
+      ],
       "ignoreDependencies": [
         "vue" // peer dep referenced in shims.d.ts
       ]
     },
     "packages/build-tooling": {
-      "entry": ["src/index.ts", "src/esbuild/index.ts", "src/vite/index.ts"]
+      "entry": [
+        "src/index.ts",
+        "src/esbuild/index.ts",
+        "src/vite/index.ts"
+      ]
     },
     "packages/code-highlight": {
       "entry": [
@@ -173,20 +203,35 @@
         "test/**/*",
         "src/**/*.test.ts"
       ],
-      "ignoreFiles": ["src/components/ScalarIcon/.svglintrc.js"]
+      "ignoreFiles": [
+        "src/components/ScalarIcon/.svglintrc.js"
+      ]
     },
     "packages/core": {
-      "entry": ["src/libs/html-rendering/index.ts"]
+      "entry": [
+        "src/libs/html-rendering/index.ts"
+      ]
     },
     "packages/draggable": {
-      "entry": ["src/index.ts"]
+      "entry": [
+        "src/index.ts"
+      ]
     },
     "packages/helpers": {
-      "entry": ["src/*/*.ts", "!src/*/*.test.ts"]
+      "entry": [
+        "src/*/*.ts",
+        "!src/*/*.test.ts"
+      ]
     },
     "packages/icons": {
-      "ignoreFiles": ["src/library/.svglintrc.js"],
-      "entry": ["src/index.ts", "src/types.ts", "src/library/index.ts"]
+      "ignoreFiles": [
+        "src/library/.svglintrc.js"
+      ],
+      "entry": [
+        "src/index.ts",
+        "src/types.ts",
+        "src/library/index.ts"
+      ]
     },
     "packages/json-magic": {
       "entry": [
@@ -200,8 +245,13 @@
       ]
     },
     "packages/nextjs-openapi": {
-      "entry": ["src/index.ts", "playground/app/api/**/*.ts"],
-      "ignoreFiles": ["playground/next.config.js"]
+      "entry": [
+        "src/index.ts",
+        "playground/app/api/**/*.ts"
+      ],
+      "ignoreFiles": [
+        "playground/next.config.js"
+      ]
     },
     "packages/oas-utils": {
       "entry": [
@@ -214,7 +264,9 @@
       ]
     },
     "packages/object-utils": {
-      "entry": ["src/*/index.ts"]
+      "entry": [
+        "src/*/index.ts"
+      ]
     },
     "packages/openapi-parser": {
       "entry": [
@@ -241,11 +293,20 @@
       ]
     },
     "packages/snippetz": {
-      "entry": ["src/index.ts", "src/clients/index.ts", "src/plugins/*/*/index.ts", "src/utils/index.ts"]
+      "entry": [
+        "src/index.ts",
+        "src/clients/index.ts",
+        "src/plugins/*/*/index.ts",
+        "src/utils/index.ts"
+      ]
     },
     "packages/ts-to-openapi": {
-      "entry": ["src/index.ts"],
-      "ignoreFiles": ["test/fixtures/*"]
+      "entry": [
+        "src/index.ts"
+      ],
+      "ignoreFiles": [
+        "test/fixtures/*"
+      ]
     },
     "packages/types": {
       "entry": [
@@ -258,7 +319,10 @@
       ]
     },
     "packages/use-codemirror": {
-      "entry": ["src/index.ts", "src/themes/index.ts"]
+      "entry": [
+        "src/index.ts",
+        "src/themes/index.ts"
+      ]
     },
     "packages/use-hooks": {
       "entry": [
@@ -279,6 +343,7 @@
         "./src/persistence/index.ts",
         "./src/plugins/bundler/index.ts",
         "./src/plugins/client/index.ts",
+        "./src/request-example/index.ts",
         "./src/schemas.ts",
         "./src/schemas/*.ts",
         "./src/schemas/extensions/operation/index.ts",
@@ -292,7 +357,9 @@
       ]
     },
     "integrations/django-ninja": {
-      "ignoreBinaries": ["python"]
+      "ignoreBinaries": [
+        "python"
+      ]
     },
     "integrations/docker": {
       "ignoreDependencies": [
@@ -301,7 +368,9 @@
     },
     "integrations/docusaurus": {
       "docusaurus": {
-        "config": ["playground/docusaurus.config.ts"],
+        "config": [
+          "playground/docusaurus.config.ts"
+        ],
         "entry": [
           "playground/sidebars.ts",
           "playground/src/{pages,components}/**/*.tsx",
@@ -312,9 +381,15 @@
         ]
       },
       "typescript": {
-        "config": ["tsconfig.json", "tsconfig.build.json", "playground/tsconfig.json"]
+        "config": [
+          "tsconfig.json",
+          "tsconfig.build.json",
+          "playground/tsconfig.json"
+        ]
       },
-      "ignoreFiles": ["playground/.docusaurus/**"],
+      "ignoreFiles": [
+        "playground/.docusaurus/**"
+      ],
       "ignoreDependencies": [
         // Used by webpack
         "path",
@@ -331,7 +406,9 @@
       ]
     },
     "integrations/dotnet/aspnetcore": {
-      "entry": ["playground/Scalar.AspNetCore.Playground/wwwroot/scalar/config.js"],
+      "entry": [
+        "playground/Scalar.AspNetCore.Playground/wwwroot/scalar/config.js"
+      ],
       "ignoreDependencies": [
         // Included to increment the version in alignment with the packages listed below.
         "@scalar/api-reference",
@@ -347,7 +424,10 @@
       ]
     },
     "integrations/fastapi": {
-      "ignoreBinaries": ["python", "uvicorn"]
+      "ignoreBinaries": [
+        "python",
+        "uvicorn"
+      ]
     },
     "integrations/fastify": {
       "ignoreDependencies": [
@@ -362,7 +442,9 @@
         // Having snippetz as a dependency ensures they are regenerated whenever clients or targets change.
         "@scalar/snippetz"
       ],
-      "ignoreBinaries": ["mvn"]
+      "ignoreBinaries": [
+        "mvn"
+      ]
     },
     "integrations/nestjs": {},
     "integrations/nextjs": {},
