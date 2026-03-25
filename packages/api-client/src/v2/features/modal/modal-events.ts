@@ -7,15 +7,19 @@ import { type Ref, ref } from 'vue'
 import type { UseModalSidebarReturn } from '@/v2/features/modal/hooks/use-modal-sidebar'
 import { initializeWorkspaceEventHandlers } from '@/v2/workspace-events'
 
+const EMPTY_REQUEST_BODY_COMPOSITION_SELECTION = {} as Record<string, number>
+
 export function initializeModalEvents({
   eventBus,
   isSidebarOpen,
+  requestBodyCompositionSelection,
   sidebarState,
   modalState,
   store,
 }: {
   eventBus: WorkspaceEventBus
   isSidebarOpen: Ref<boolean>
+  requestBodyCompositionSelection: Ref<Record<string, number>>
   sidebarState: UseModalSidebarReturn
   modalState: ModalState
   store: WorkspaceStore
@@ -38,6 +42,14 @@ export function initializeModalEvents({
   eventBus.on('ui:toggle:sidebar', () => (isSidebarOpen.value = !isSidebarOpen.value))
   eventBus.on('ui:close:client-modal', () => modalState.hide())
   eventBus.on('ui:open:client-modal', (payload) => {
+    const nextRequestBodyCompositionSelection = (
+      payload && 'requestBodyCompositionSelection' in payload && payload.requestBodyCompositionSelection
+        ? payload.requestBodyCompositionSelection
+        : EMPTY_REQUEST_BODY_COMPOSITION_SELECTION
+    ) as Record<string, number>
+
+    requestBodyCompositionSelection.value = nextRequestBodyCompositionSelection
+
     // Just open the modal
     if (!payload) {
       modalState.show()

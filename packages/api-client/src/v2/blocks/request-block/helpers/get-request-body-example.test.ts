@@ -1,4 +1,8 @@
-import type { RequestBodyObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
+import {
+  type RequestBodyObject,
+  RequestBodyObjectSchema,
+} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { describe, expect, it } from 'vitest'
 
 import { getExampleFromBody } from './get-request-body-example'
@@ -23,7 +27,7 @@ describe('get-request-body-example', () => {
   })
 
   it('generates example from schema when no example exists', () => {
-    const requestBody = {
+    const requestBody = coerceValue(RequestBodyObjectSchema, {
       content: {
         'application/json': {
           schema: {
@@ -35,7 +39,7 @@ describe('get-request-body-example', () => {
           },
         },
       },
-    } satisfies RequestBodyObject
+    })
 
     const result = getExampleFromBody(requestBody, 'application/json', 'default')
     expect(result).toEqual({ value: { id: 1, name: '' } })
@@ -111,5 +115,118 @@ describe('get-request-body-example', () => {
     expect(result).toEqual({ value: { id: 1, name: '' } })
     expect(result?.value).not.toHaveProperty('createdAt')
     expect(result?.value).not.toHaveProperty('updatedAt')
+  })
+
+  it('uses requestBodyCompositionSelection when generating an example from schema', () => {
+    const requestBody = coerceValue(RequestBodyObjectSchema, {
+      content: {
+        'application/json': {
+          schema: {
+            anyOf: [
+              {
+                type: 'object',
+                properties: {
+                  source: { type: 'string', default: 'file' },
+                },
+              },
+              {
+                type: 'object',
+                properties: {
+                  source: { type: 'string', default: 'service' },
+                },
+              },
+            ],
+          },
+        },
+      },
+    })
+
+    const result = getExampleFromBody(requestBody, 'application/json', 'default', { 'requestBody.anyOf': 1 })
+
+    expect(result).toEqual({ value: { source: 'service' } })
+  })
+
+  it('deep resolves nested refs when generating selected nested composition examples', () => {
+    const requestBody = coerceValue(RequestBodyObjectSchema, {
+      content: {
+        'application/json': {
+          schema: {
+            type: 'object',
+            properties: {
+              payload: {
+                anyOf: [
+                  {
+                    $ref: '#/components/schemas/NestedFilePayload',
+                    '$ref-value': {
+                      type: 'object',
+                      properties: {
+                        payloadType: { type: 'string', const: 'file' },
+                        fileName: { type: 'string', example: 'buildings.geojson' },
+                        transform: {
+                          oneOf: [
+                            {
+                              $ref: '#/components/schemas/ReprojectTransform',
+                              '$ref-value': {
+                                type: 'object',
+                                properties: {
+                                  mode: { type: 'string', const: 'reproject' },
+                                  epsg: { type: 'integer', example: 4326 },
+                                },
+                              },
+                            },
+                          ],
+                        },
+                      },
+                    },
+                  },
+                  {
+                    $ref: '#/components/schemas/NestedServicePayload',
+                    '$ref-value': {
+                      type: 'object',
+                      properties: {
+                        payloadType: { type: 'string', const: 'service' },
+                        layerName: { type: 'string', example: 'zoning' },
+                        transform: {
+                          oneOf: [
+                            {
+                              $ref: '#/components/schemas/BufferTransform',
+                              '$ref-value': {
+                                type: 'object',
+                                properties: {
+                                  mode: { type: 'string', const: 'buffer' },
+                                  distanceMeters: { type: 'integer', example: 25 },
+                                },
+                              },
+                            },
+                          ],
+                        },
+                      },
+                    },
+                  },
+                ],
+              },
+            },
+          },
+        },
+      },
+    })
+
+    const result = getExampleFromBody(requestBody, 'application/json', 'default', {
+      'requestBody.payload.anyOf': 1,
+      'requestBody.payload.transform.oneOf': 0,
+    })
+
+    expect(result).toEqual({
+      value: {
+        payload: {
+          payloadType: 'service',
+          layerName: 'zoning',
+          transform: {
+            mode: 'buffer',
+            distanceMeters: 25,
+          },
+        },
+      },
+    })
   })
 })

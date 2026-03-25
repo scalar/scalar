@@ -423,6 +423,121 @@ describe('getExampleFromSchema', () => {
     ).toMatchObject({ foo: 1 })
   })
 
+  it('uses compositionSelection to pick second anyOf variant for example', () => {
+    const schema = coerceValue(SchemaObjectSchema, {
+      anyOf: [
+        { type: 'object', properties: { foo: { type: 'number' } } },
+        { type: 'object', properties: { bar: { type: 'string' } } },
+      ],
+    })
+    expect(
+      getExampleFromSchema(
+        schema,
+        {
+          compositionSelection: {
+            'requestBody.anyOf': 0,
+          },
+        },
+        {
+          schemaPath: ['requestBody'],
+        },
+      ),
+    ).toMatchObject({
+      foo: 1,
+    })
+    expect(
+      getExampleFromSchema(
+        schema,
+        {
+          compositionSelection: {
+            'requestBody.anyOf': 1,
+          },
+        },
+        {
+          schemaPath: ['requestBody'],
+        },
+      ),
+    ).toMatchObject({
+      bar: '',
+    })
+  })
+
+  it('uses compositionSelection for root-level oneOf/anyOf in example', () => {
+    const schema = coerceValue(SchemaObjectSchema, {
+      anyOf: [{ type: 'string' }, { type: 'object', properties: { id: { type: 'integer' } } }],
+    })
+    expect(
+      getExampleFromSchema(
+        schema,
+        {
+          compositionSelection: {
+            'requestBody.anyOf': 0,
+          },
+        },
+        {
+          schemaPath: ['requestBody'],
+        },
+      ),
+    ).toBe('')
+    expect(
+      getExampleFromSchema(
+        schema,
+        {
+          compositionSelection: {
+            'requestBody.anyOf': 1,
+          },
+        },
+        {
+          schemaPath: ['requestBody'],
+        },
+      ),
+    ).toMatchObject({
+      id: 1,
+    })
+  })
+
+  it('uses compositionSelection for nested anyOf schemas in objects', () => {
+    const schema = coerceValue(SchemaObjectSchema, {
+      type: 'object',
+      properties: {
+        payload: {
+          anyOf: [
+            {
+              type: 'object',
+              properties: {
+                firstNestedField: { type: 'string' },
+              },
+            },
+            {
+              type: 'object',
+              properties: {
+                secondNestedField: { type: 'integer' },
+              },
+            },
+          ],
+        },
+      },
+    })
+
+    expect(
+      getExampleFromSchema(
+        schema,
+        {
+          compositionSelection: {
+            'requestBody.payload.anyOf': 1,
+          },
+        },
+        {
+          schemaPath: ['requestBody'],
+        },
+      ),
+    ).toMatchObject({
+      payload: {
+        secondNestedField: 1,
+      },
+    })
+  })
+
   it('uses the first example in object oneOf when type is not defined', () => {
     expect(
       getExampleFromSchema(
