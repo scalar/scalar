@@ -1,6 +1,7 @@
 ---
 '@scalar/api-reference': patch
 '@scalar/types': patch
+'@scalar/agent-chat': patch
 ---
 
-feat(api-reference): Add configurable API url for agent chat
+feat: make external urls configurable
