@@ -16,12 +16,13 @@ import {
   AdditionalPropValidationError,
   DefaultValidationError,
   EnumValidationError,
+  FormatValidationError,
   PatternValidationError,
   RequiredValidationError,
   UnevaluatedPropValidationError,
 } from './validation-errors'
 
-const JSON_POINTERS_REGEX = /\/[\w_-]+(\/\d+)?/g
+const JSON_POINTERS_REGEX = /\/[\w$_-]+(\/\d+)?/g
 
 // Make a tree of errors from ajv errors array
 function makeTree(ajvErrors = []) {
@@ -166,6 +167,8 @@ function createErrorInstances(root, options): Array<EnumValidationError> {
           return ret.concat(new AdditionalPropValidationError(error, options))
         case 'pattern':
           return ret.concat(new PatternValidationError(error, options))
+        case 'format':
+          return ret.concat(new FormatValidationError(error, options))
         case 'required':
           return ret.concat(new RequiredValidationError(error, options))
         case 'unevaluatedProperties':
