@@ -57,6 +57,7 @@ import {
 import ClassicHeader from '@/components/ClassicHeader.vue'
 import Content from '@/components/Content/Content.vue'
 import MobileHeader from '@/components/MobileHeader.vue'
+import DocumentModificationsBanner from '@/features/document-modifications/DocumentModificationsBanner.vue'
 import { DeveloperTools } from '@/features/developer-tools'
 import DocumentSelector from '@/features/multiple-documents/DocumentSelector.vue'
 import SearchButton from '@/features/Search/components/SearchButton.vue'
@@ -974,6 +975,11 @@ const showMCPButton = computed(() => {
                 v-bind="slotProps" />
             </template>
             <template #footer>
+              <div
+                v-if="mergedConfig.showSidebar && mergedConfig.layout === 'modern'"
+                class="px-3 pb-2">
+                <DocumentModificationsBanner :workspaceStore="workspaceStore" />
+              </div>
               <slot
                 name="sidebar-end"
                 v-bind="slotProps">
@@ -1071,6 +1077,11 @@ const showMCPButton = computed(() => {
                   @click="() => toggleColorMode()" />
               </template>
             </ClassicHeader>
+            <div
+              v-if="!mergedConfig.showSidebar || mergedConfig.layout === 'classic'"
+              class="px-3 pt-3">
+              <DocumentModificationsBanner :workspaceStore="workspaceStore" />
+            </div>
             <slot
               name="content-start"
               v-bind="slotProps" />
