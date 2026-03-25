@@ -50,6 +50,26 @@ describe('fixtures', () => {
 })
 
 describe('convert', () => {
+  it('maps Postman info.name to OpenAPI info.title', () => {
+    const collection: PostmanCollection = {
+      info: {
+        _postman_id: '5ffe9376-4f10-4ae3-8a47-f7da1a6a02e6',
+        name: 'Hello World',
+        description: '## An Introduction To Our API',
+        schema: 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
+        _exporter_id: '24620900',
+        _collection_link:
+          'https://go.postman.co/collection/24621026-5ffe9376-4f10-4ae3-8a47-f7da1a6a02e6?source=collection_link',
+        version: '1.0.0',
+      },
+      item: [],
+    }
+
+    const result = convert(collection)
+
+    expect(result.info.title).toBe('Hello World')
+  })
+
   it('merges into an existing OpenAPI document', () => {
     const collection: PostmanCollection = {
       info: {
