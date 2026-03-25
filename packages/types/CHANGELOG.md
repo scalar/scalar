@@ -1,5 +1,11 @@
 # @scalar/types
 
+## 0.7.5
+
+### Patch Changes
+
+- [#8574](https://github.com/scalar/scalar/pull/8574): feat: make external urls configurable
+
 ## 0.7.4
 
 ### Patch Changes

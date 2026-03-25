@@ -1,5 +1,11 @@
 # @scalar/oas-utils
 
+## 0.10.12
+
+### Patch Changes
+
+- [#8578](https://github.com/scalar/scalar/pull/8578): fix: correctly add openapi-parser as a dependency
+
 ## 0.10.11
 
 ## 0.10.10
