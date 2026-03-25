@@ -1,14 +1,19 @@
 <script lang="ts" setup>
 import { ScalarButton, useLoadingState } from '@scalar/components'
+import type { ExternalUrls } from '@scalar/types/api-reference'
 import { useToasts } from '@scalar/use-toasts'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { nextTick } from 'vue'
 
-import { DASHBOARD_REGISTER_URL } from '@/consts/urls'
 import { uploadTempDocument } from '@/helpers/upload-temp-document'
 
-const { sdks = [], workspace } = defineProps<{
+const {
+  sdks = [],
+  workspace,
+  externalUrls,
+} = defineProps<{
   workspace: WorkspaceStore
+  externalUrls: ExternalUrls
   sdks?: string[]
 }>()
 
@@ -19,7 +24,7 @@ const loader = useLoadingState()
 
 /** Open the registration link in a new tab */
 function openRegisterLink(docUrl: string) {
-  const url = new URL(DASHBOARD_REGISTER_URL)
+  const url = new URL(`${externalUrls.dashboardUrl}/register`)
   url.searchParams.set('url', docUrl)
   sdks.forEach((sdk) => url.searchParams.append('sdk', sdk))
 
@@ -49,7 +54,7 @@ async function generateRegisterLink() {
   }
 
   try {
-    tempDocUrl.value = await uploadTempDocument(document)
+    tempDocUrl.value = await uploadTempDocument(document, externalUrls)
     await loader.validate()
     openRegisterLink(tempDocUrl.value)
 

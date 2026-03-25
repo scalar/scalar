@@ -2,6 +2,16 @@ import z from 'zod'
 
 import { apiClientPluginSchema } from './api-client-plugin'
 
+const externalUrlsSchema = z.object({
+  dashboardUrl: z.string().prefault('https://dashboard.scalar.com'),
+  registryUrl: z.string().prefault('https://registry.scalar.com'),
+  proxyUrl: z.string().prefault('https://proxy.scalar.com'),
+  apiBaseUrl: z.string().prefault('https://api.scalar.com'),
+})
+
+/** External service URLs used by Scalar packages */
+export type ExternalUrls = z.output<typeof externalUrlsSchema>
+
 export const OLD_PROXY_URL = 'https://api.scalar.com/request-proxy'
 export const NEW_PROXY_URL = 'https://proxy.scalar.com'
 
@@ -151,4 +161,6 @@ export const baseConfigurationSchema = z.object({
   plugins: z.array(apiClientPluginSchema).optional(),
   /** Enables / disables telemetry*/
   telemetry: z.boolean().optional().default(true),
+  /** A bunch of external URLs to Scalar's services. */
+  externalUrls: externalUrlsSchema.prefault({}),
 })

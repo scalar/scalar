@@ -1,6 +1,9 @@
 <script lang="ts" setup>
 import { isLocalUrl } from '@scalar/helpers/url/is-local-url'
-import type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
+import type {
+  ApiReferenceConfiguration,
+  ExternalUrls,
+} from '@scalar/types/api-reference'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { computed } from 'vue'
 
@@ -9,9 +12,10 @@ import DeployApiReference from './components/DeployApiReference.vue'
 import ModifyConfiguration from './components/ModifyConfiguration.vue'
 import ShareApiReference from './components/ShareApiReference.vue'
 
-const { configuration } = defineProps<{
+const { configuration, externalUrls } = defineProps<{
   workspace?: WorkspaceStore
   configuration?: Partial<ApiReferenceConfiguration>
+  externalUrls: ExternalUrls
 }>()
 
 const overrides = defineModel<Partial<ApiReferenceConfiguration>>('overrides')
@@ -46,8 +50,12 @@ const showDeveloperTools = computed<boolean>(() => {
         v-model:overrides="overrides"
         :configuration />
       <template v-if="workspace">
-        <ShareApiReference :workspace />
-        <DeployApiReference :workspace />
+        <ShareApiReference
+          :externalUrls
+          :workspace />
+        <DeployApiReference
+          :externalUrls
+          :workspace />
       </template>
     </div>
   </header>

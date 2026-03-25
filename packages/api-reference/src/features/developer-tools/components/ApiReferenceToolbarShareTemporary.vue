@@ -4,16 +4,17 @@ import {
   ScalarTextInputCopy,
   useLoadingState,
 } from '@scalar/components'
+import type { ExternalUrls } from '@scalar/types/api-reference'
 import { useToasts } from '@scalar/use-toasts'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 
-import { REGISTRY_SHARE_URL } from '@/consts/urls'
 import { uploadTempDocument } from '@/helpers/upload-temp-document'
 
 import ApiReferenceToolbarBlurb from './ApiReferenceToolbarBlurb.vue'
 
-const { workspace } = defineProps<{
+const { workspace, externalUrls } = defineProps<{
   workspace: WorkspaceStore
+  externalUrls: ExternalUrls
 }>()
 
 const { toast } = useToasts()
@@ -37,7 +38,7 @@ async function generateTemporaryLink() {
   }
 
   try {
-    const url = await uploadTempDocument(document)
+    const url = await uploadTempDocument(document, externalUrls)
     await loader.validate({ duration: 900, persist: true }) // Wait to show the success state
     tempDocUrl.value = url
   } catch (error) {
@@ -54,7 +55,7 @@ async function generateTemporaryLink() {
       immediate
       :modelValue="tempDocUrl"
       name="temporary-link"
-      :placeholder="`${REGISTRY_SHARE_URL}/apis/…`">
+      :placeholder="`${externalUrls.registryUrl}/share/apis/…`">
     </ScalarTextInputCopy>
   </template>
   <template v-else>
