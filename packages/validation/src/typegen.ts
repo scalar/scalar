@@ -212,8 +212,14 @@ const structuralEmit = (schema: Schema, depth: number, ctx: TypeGenContext, brac
       return `${wrapUnionMember(inner)} | undefined`
     }
     case 'union':
+      if (schema.schemas.length === 0) {
+        return 'never'
+      }
       return schema.schemas.map((s) => wrapUnionMember(emitSchema(s, next, ctx, braceIndent))).join(' | ')
     case 'intersection':
+      if (schema.schemas.length === 0) {
+        return 'unknown'
+      }
       return schema.schemas.map((s) => wrapIntersectionMember(emitSchema(s, next, ctx, braceIndent))).join(' & ')
     case 'literal':
       return literalToTs(schema.value)

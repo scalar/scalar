@@ -179,6 +179,11 @@ describe('typegen', () => {
     expect(generateTypes(optional(number()))).toBe('number | undefined')
   })
 
+  it('emits never for an empty union and unknown for an empty intersection', () => {
+    expect(generateTypes(union([]))).toBe('never')
+    expect(generateTypes(intersection([]))).toBe('unknown')
+  })
+
   it('emits optional object properties with ? instead of | undefined', () => {
     expect(
       generateTypes(
