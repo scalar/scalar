@@ -1,8 +1,8 @@
 # Too Long; Didn't Read; Used MCP
 
-It's 2026, who does even READ the documentation for your API. Just boot up a MCP based on your OpenAPI document (using Scalar), and share it with your users or your team (agents).
+It's 2026, who even READS the documentation for your API. Just boot up an MCP based on your OpenAPI document (using Scalar), and share it with your users or your team (agents).
 
-And then enhance any trillion dollar frontier model with your MCP server, that has all the context of how your API is defined. We show exactly how in the UI.
+And then enhance any trillion dollar frontier model with your MCP server, that has all the context of how your API is defined. We'll show exactly how in the UI.
 
 If you want to add our Scalar Galaxy example, hack this into your terminal:
 
@@ -25,7 +25,7 @@ Let it do its work…
 ⏺ scalar-galaxy-mcp - search-openapi-operations (MCP)(question: "create a new planet")
 ```
 
-… and you'll be amazed how accurate (and token-efficient and fast) it'll reply:
+… and you'll be amazed how accurate (and token-efficient and fast) it will reply:
 
 ```
 Here's your curl:
@@ -43,8 +43,8 @@ The only required field is name — everything else is optional.
 
 Sometimes, you don't want to share the docs publicly, no matter if it's in the browser or it's the MCP server. Your internal APIs, the new APIs you're about to release, the staging APIs… They are not for anyone. No worries, we got you.
 
-Set your MCP to "private" and share the URL with your team. They'll be able to authenticate using OAuth. Means their LLM will open a browser, where they can authenticate with Scalar to access your secret API (if they are on your team). Here's a video how easy this is:
+Set your MCP to "private" and share the URL with your team. They'll be able to authenticate using OAuth. This means their LLM will open a browser, where they can authenticate with Scalar to access your secret API (if they are on your team). Here's a video how easy it is:
 
-<!-- Insert Video Here -->
+<mux-player playback-id="uHr9CeCk7zhKVbFKf3LiPvpzUvRtmyPZbMO4nMHPY14" metadata-video-title="Dashboard MCP Oauth" class="overflow-hidden rounded-xl" style="aspect-ratio: 4 / 3;"></mux-player>
 
 This is how documentation works for everyone (agents).
