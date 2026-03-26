@@ -5,6 +5,7 @@ export {
   array,
   boolean,
   evaluate,
+  intersection,
   lazy,
   literal,
   notDefined,
