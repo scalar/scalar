@@ -22,7 +22,9 @@ const scoreUnion = (schema: Schema, value: unknown): number => {
     // - +1 if the property exists (not literal match).
     return Object.keys(schema.properties).reduce<number>((acc, key) => {
       const exists = key in value
-      const isLiteralMatch = schema.properties[key].type === 'literal' && value[key] === schema.properties[key].value
+      const propSchema = schema.properties[key]
+      const inner = propSchema.type === 'optional' ? propSchema.schema : propSchema
+      const isLiteralMatch = inner.type === 'literal' && value[key] === inner.value
       if (isLiteralMatch) {
         return acc + 10
       }
@@ -36,6 +38,9 @@ const scoreUnion = (schema: Schema, value: unknown): number => {
   if (schema.type === 'record') {
     // TODO: implement smarter scoring for records (just a placeholder for now)
     return isObject(value) ? 1 : 0
+  }
+  if (schema.type === 'optional') {
+    return value === undefined ? 1 : scoreUnion(schema.schema, value)
   }
   if (schema.type === 'union') {
     // For a union, use the highest score among all sub-schemas
@@ -132,6 +137,12 @@ export const coerce = <S extends Schema>(
   }
   if (schema.type === 'notDefined') {
     return undefined as unknown as Static<S>
+  }
+  if (schema.type === 'optional') {
+    if (value === undefined) {
+      return undefined as unknown as Static<S>
+    }
+    return coerce(schema.schema, value, cache)
   }
   if (schema.type === 'array') {
     if (!Array.isArray(value)) {

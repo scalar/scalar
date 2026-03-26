@@ -70,7 +70,7 @@ Use **`validate`** when you need a yes/no. Use **`coerce`** when you want a stab
 | `record(key, value)` | Plain object; keys and values match | `Record<…, …>` |
 | `object(props)` | Plain object; each key in `props` | Object of static fields |
 | `union([a, b, …])` | Matches any member | Union of branches |
-| `optional(s)` | Shorthand for `union([s, notDefined()])` | `Static<s> \| undefined` |
+| `optional(s)` | `undefined` or matches `s` | `Static<s> \| undefined`; in `object({ … })`, property becomes `key?: Static<s>` |
 | `lazy(() => schema)` | Defers schema (recursion) | Inferred from inner schema |
 | `evaluate(fn, schema)` | Runs `fn(value)` then validates `schema` | `Static<schema>` |
 

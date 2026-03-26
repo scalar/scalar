@@ -107,7 +107,10 @@ const formatTypeCommentAsIndentedJsDoc = (indent: string, comment: string): stri
   if (!doc) {
     return ''
   }
-  return doc.split('\n').map((line) => `${indent}${line}`).join('\n')
+  return doc
+    .split('\n')
+    .map((line) => `${indent}${line}`)
+    .join('\n')
 }
 
 const getTypeName = (schema: Schema): string | undefined => {
@@ -124,6 +127,9 @@ const getTypeName = (schema: Schema): string | undefined => {
 const getTypeComment = (schema: Schema): string | undefined => {
   if (schema.type === 'lazy' || schema.type === 'evaluate') {
     return undefined
+  }
+  if (schema.type === 'optional') {
+    return schema.typeComment ?? getTypeComment(schema.schema)
   }
   return schema.typeComment
 }
@@ -191,13 +197,19 @@ const structuralEmit = (schema: Schema, depth: number, ctx: TypeGenContext, brac
       const keyIndent = `${braceIndent}  `
       const props = entries.map(([key, child]) => {
         const tsKey = /^[$_a-zA-Z][$_\w]*$/.test(key) ? key : JSON.stringify(key)
-        const value = emitSchema(child, next, ctx, keyIndent)
+        const optionalProp = child.type === 'optional'
+        const valueSchema = optionalProp ? child.schema : child
+        const value = emitSchema(valueSchema, next, ctx, keyIndent)
         const propComment = getTypeComment(child)
         const docBlock = propComment ? formatTypeCommentAsIndentedJsDoc(keyIndent, propComment) : ''
-        const propLine = `${keyIndent}${tsKey}: ${value};`
+        const propLine = optionalProp ? `${keyIndent}${tsKey}?: ${value};` : `${keyIndent}${tsKey}: ${value};`
         return docBlock ? `${docBlock}\n${propLine}` : propLine
       })
       return `{\n${props.join('\n')}\n${braceIndent}}`
+    }
+    case 'optional': {
+      const inner = emitSchema(schema.schema, next, ctx, braceIndent)
+      return `${wrapUnionMember(inner)} | undefined`
     }
     case 'union':
       return schema.schemas.map((s) => wrapUnionMember(emitSchema(s, next, ctx, braceIndent))).join(' | ')

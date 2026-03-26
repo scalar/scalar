@@ -1,5 +1,6 @@
 export { coerce } from './coerce'
 export {
+  type OptionalSchema,
   type Schema,
   any,
   array,

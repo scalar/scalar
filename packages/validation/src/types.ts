@@ -10,6 +10,7 @@ import type {
   NullableSchema,
   NumberSchema,
   ObjectSchema,
+  OptionalSchema,
   RecordSchema,
   StringSchema,
   UnionSchema,
@@ -25,6 +26,26 @@ type IntersectObjectStatics<
 > = Schemas extends readonly [infer First extends ObjectSchema<any>, ...infer Rest extends readonly ObjectSchema<any>[]]
   ? _Static<First, Depth> & IntersectObjectStatics<Rest, Depth>
   : {}
+
+type OptionalPropertyKeys<P> = {
+  [K in keyof P]: P[K] extends OptionalSchema<any> ? K : never
+}[keyof P]
+
+type RequiredPropertyKeys<P> = {
+  [K in keyof P]: P[K] extends OptionalSchema<any> ? never : K
+}[keyof P]
+
+type OptionalSchemaInner<S> = S extends OptionalSchema<infer Inner> ? Inner : never
+
+type ObjectStatics<Properties, Depth extends number> = [keyof Properties] extends [never]
+  ? {}
+  : OptionalPropertyKeys<Properties> extends never
+    ? { [K in keyof Properties]: _Static<Properties[K], Prev<Depth>> }
+    : RequiredPropertyKeys<Properties> extends never
+      ? { [K in OptionalPropertyKeys<Properties>]?: _Static<OptionalSchemaInner<Properties[K]>, Prev<Depth>> }
+      : { [K in RequiredPropertyKeys<Properties>]: _Static<Properties[K], Prev<Depth>> } & {
+          [K in OptionalPropertyKeys<Properties>]?: _Static<OptionalSchemaInner<Properties[K]>, Prev<Depth>>
+        }
 
 // Internal type with depth counter
 type _Static<T, Depth extends number = 10> = Depth extends 0
@@ -48,16 +69,18 @@ type _Static<T, Depth extends number = 10> = Depth extends 0
                   : T extends RecordSchema<infer Key, infer Value>
                     ? Record<_Static<Key, Prev<Depth>> & PropertyKey, _Static<Value, Prev<Depth>>>
                     : T extends ObjectSchema<infer Properties>
-                      ? { [K in keyof Properties]: _Static<Properties[K], Prev<Depth>> }
-                      : T extends IntersectionSchema<infer Schemas extends readonly ObjectSchema<any>[]>
-                        ? IntersectObjectStatics<Schemas, Prev<Depth>>
-                        : T extends UnionSchema<infer Schemas>
-                          ? _Static<Schemas[number], Prev<Depth>>
-                          : T extends EvaluateSchema<infer S>
-                            ? _Static<S, Prev<Depth>>
-                            : T extends LazySchema<infer S>
-                              ? _Static<ReturnType<S>, Prev<Depth>>
-                              : never
+                      ? ObjectStatics<Properties, Depth>
+                      : T extends OptionalSchema<infer S>
+                        ? _Static<S, Prev<Depth>> | undefined
+                        : T extends IntersectionSchema<infer Schemas extends readonly ObjectSchema<any>[]>
+                          ? IntersectObjectStatics<Schemas, Prev<Depth>>
+                          : T extends UnionSchema<infer Schemas>
+                            ? _Static<Schemas[number], Prev<Depth>>
+                            : T extends EvaluateSchema<infer S>
+                              ? _Static<S, Prev<Depth>>
+                              : T extends LazySchema<infer S>
+                                ? _Static<ReturnType<S>, Prev<Depth>>
+                                : never
 
 // Helper type to decrement depth counter
 type Prev<T extends number> = T extends 10

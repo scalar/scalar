@@ -65,6 +65,15 @@ export type UnionSchema<Schemas extends Schema[]> = {
   schemas: Schemas
 } & Documentation
 
+/**
+ * Schema that accepts `undefined` or a value matching the inner schema.
+ * In {@link Static} and type generation, object properties use `key?:` instead of `T | undefined`.
+ */
+export type OptionalSchema<S extends Schema> = {
+  type: 'optional'
+  schema: S
+} & Documentation
+
 export type IntersectionSchema<Schemas extends readonly ObjectSchema<any>[]> = {
   type: 'intersection'
   schemas: Schemas
@@ -107,6 +116,7 @@ export type Schema =
   | RecordSchema<any, any>
   | ObjectSchema<Record<string, any>>
   | UnionSchema<any[]>
+  | OptionalSchema<any>
   | IntersectionSchema<readonly ObjectSchema<any>[]>
   | LiteralSchema<any>
   | LazySchema<any>
@@ -194,7 +204,12 @@ const intersection = <Schemas extends readonly ObjectSchema<any>[]>(
   typeComment: options?.typeComment,
 })
 
-const optional = <S extends Schema>(schema: S) => union([schema, notDefined()])
+const optional = <S extends Schema>(schema: S, options?: Documentation): OptionalSchema<S> => ({
+  type: 'optional',
+  schema,
+  typeName: options?.typeName,
+  typeComment: options?.typeComment,
+})
 
 const literal = <Value extends string | number | boolean | bigint>(value: Value): LiteralSchema<Value> => ({
   type: 'literal',

@@ -16,6 +16,7 @@ import type { Schema } from './schema'
  * - 'record':      Object with string/number keys and values, checked recursively.
  * - 'object':      Plain object with fixed property keys, each validated recursively.
  * - 'union':       Accepts if value matches any of the listed schemas.
+ * - 'optional':    Accepts `undefined` or a value matching the inner schema.
  * - 'intersection': Accepts if value matches every member schema (members are object schemas; value must be a plain object).
  * - 'literal':     Exact match with a literal value.
  * - 'lazy':        Delegates to the schema returned by the factory.
@@ -72,6 +73,9 @@ export const validate = (schema: Schema | undefined, value: unknown): boolean =>
     }
     const schemaKeys = Object.keys(schema.properties)
     return schemaKeys.every((key) => validate(schema.properties[key], value[key]))
+  }
+  if (schema.type === 'optional') {
+    return value === undefined || validate(schema.schema, value)
   }
   if (schema.type === 'union') {
     return schema.schemas.some((schema) => validate(schema, value))
