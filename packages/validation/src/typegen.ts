@@ -23,7 +23,6 @@ type NamedDeclaration = {
 }
 
 type TypeGenContext = {
-  maxDepth: number
   definitions: Map<string, string>
   declarations: NamedDeclaration[]
   inProgress: Set<string>
@@ -41,7 +40,6 @@ type TypeGenContext = {
 export const generateTypes = (schema: Schema, options?: GenerateTypesOptions): string => {
   const maxDepth = options?.maxDepth ?? DEFAULT_MAX_DEPTH
   const ctx: TypeGenContext = {
-    maxDepth,
     definitions: new Map(),
     declarations: [],
     inProgress: new Set(),
