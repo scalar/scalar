@@ -4,6 +4,7 @@ import type { SecuritySchemeObjectSecret } from '@scalar/workspace-store/request
 import { buildRequestSecurity, getResolvedUrl } from '@scalar/workspace-store/request-example'
 import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import type { UIDataTypes, UIMessage } from 'ai'
+import { encode as encodeBase64 } from 'js-base64'
 import { n } from 'neverpanic'
 import truncateJson from 'truncate-json'
 
@@ -136,6 +137,8 @@ export const executeRequestTool = n.safeFn(
 
     const requestSecurityOptions = buildRequestSecurity(settings.securitySchemes)
 
+    console.log(requestSecurityOptions)
+
     const requestSecurity = requestSecurityOptions.reduce<{
       headers: Record<string, string>
       queryParams: URLSearchParams
@@ -143,13 +146,18 @@ export const executeRequestTool = n.safeFn(
     }>(
       (acc, securityOption) => {
         if (securityOption.in === 'header') {
+          console.log(securityOption)
+
           const prefix = securityOption.type === 'basic' ? 'Basic ' : securityOption.type === 'bearer' ? 'Bearer ' : ''
-          acc.headers[securityOption.name] = `${prefix}${securityOption.value}`
+
+          acc.headers[securityOption.name] =
+            `${prefix}${securityOption.type === 'basic' ? encodeBase64(securityOption.value) : securityOption.value}`
         } else if (securityOption.in === 'query') {
           acc.queryParams.set(securityOption.name, securityOption.value)
         } else if (securityOption.in === 'cookie') {
           acc.cookies[securityOption.name] = securityOption.value
         }
+
         return acc
       },
       {

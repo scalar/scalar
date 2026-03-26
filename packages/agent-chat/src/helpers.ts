@@ -4,7 +4,14 @@ import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { AuthStore } from '@scalar/workspace-store/entities/auth'
 import { type Auth, AuthSchema } from '@scalar/workspace-store/entities/auth'
 import type { SecuritySchemeObjectSecret } from '@scalar/workspace-store/request-example'
-import { getSelectedServer, getServers, mergeSecurity } from '@scalar/workspace-store/request-example'
+import {
+  getSecurityRequirements,
+  getSecuritySchemes,
+  getSelectedSecurity,
+  getSelectedServer,
+  getServers,
+  mergeSecurity,
+} from '@scalar/workspace-store/request-example'
 import type { WorkspaceDocument } from '@scalar/workspace-store/schemas'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
@@ -19,7 +26,20 @@ function getSecurityFromDocument(
   document: WorkspaceDocument,
   authStore: AuthStore,
 ): SecuritySchemeObjectSecret[] {
-  return Object.values(mergeSecurity(document?.components?.securitySchemes, {}, authStore, documentName))
+  const mergedSecurity = mergeSecurity(document?.components?.securitySchemes, {}, authStore, documentName)
+
+  const securityRequirements = getSecurityRequirements(document.security)
+
+  const selectedSecurity = getSelectedSecurity(
+    authStore.getAuthSelectedSchemas({
+      type: 'document',
+      documentName,
+    }),
+    undefined,
+    securityRequirements,
+  )
+
+  return getSecuritySchemes(mergedSecurity, selectedSecurity.selectedSchemes)
 }
 
 /** Generate document settings from workspace store */
