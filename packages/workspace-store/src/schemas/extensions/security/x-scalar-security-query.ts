@@ -1,4 +1,5 @@
 import { Type } from '@scalar/typebox'
+import { object, optional, record, string } from '@scalar/validation'
 
 /**
  * An OpenAPI extension set any query parameters for the OAuth authorize request
@@ -29,3 +30,13 @@ export const XScalarSecurityQuerySchema = Type.Object({
 export type XScalarSecurityQuery = {
   'x-scalar-security-query'?: Record<string, string>
 }
+
+export const XScalarSecurityQuery = object(
+  {
+    'x-scalar-security-query': optional(record(string(), string())),
+  },
+  {
+    typeName: 'XScalarSecurityQuery',
+    typeComment: 'Additional OAuth authorize query parameters',
+  },
+)

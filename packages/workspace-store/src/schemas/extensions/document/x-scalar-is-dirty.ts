@@ -1,4 +1,5 @@
 import { Type } from '@scalar/typebox'
+import { boolean, object, optional } from '@scalar/validation'
 
 /**
  * Schema for the "x-scalar-is-dirty" OpenAPI extension.
@@ -43,3 +44,18 @@ export type XScalarIsDirty = {
   /** Whether the document state is dirty, this is used to track if the document has been modified since it was last saved */
   'x-scalar-is-dirty'?: boolean
 }
+
+export const XScalarIsDirty = object(
+  {
+    'x-scalar-is-dirty': optional(
+      boolean({
+        typeComment:
+          'Whether the document state is dirty, this is used to track if the document has been modified since it was last saved',
+      }),
+    ),
+  },
+  {
+    typeName: 'XScalarIsDirty',
+    typeComment: 'Tracks whether the document has been modified since it was last saved',
+  },
+)

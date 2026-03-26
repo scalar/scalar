@@ -1,4 +1,5 @@
 import { Type } from '@scalar/typebox'
+import { array, object, optional, string } from '@scalar/validation'
 
 /**
  * Schema for the "x-scalar-order" OpenAPI extension.
@@ -12,3 +13,13 @@ export const XScalarOrderSchema = Type.Object({
 export type XScalarOrder = {
   'x-scalar-order'?: string[]
 }
+
+export const XScalarOrder = object(
+  {
+    'x-scalar-order': optional(array(string())),
+  },
+  {
+    typeName: 'XScalarOrder',
+    typeComment: 'Custom order for elements in the Scalar UI',
+  },
+)

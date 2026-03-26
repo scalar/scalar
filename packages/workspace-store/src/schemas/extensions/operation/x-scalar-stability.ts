@@ -1,4 +1,5 @@
 import { Type } from '@scalar/typebox'
+import { literal, object, optional, union } from '@scalar/validation'
 
 export const XScalarStabilityValues = {
   Deprecated: 'deprecated',
@@ -33,3 +34,17 @@ export type XScalarStability = {
    */
   'x-scalar-stability'?: XScalarStabilityValues
 }
+
+export const XScalarStability = object(
+  {
+    'x-scalar-stability': optional(
+      union([literal('deprecated'), literal('experimental'), literal('stable')], {
+        typeComment: 'Stability level of the operation',
+      }),
+    ),
+  },
+  {
+    typeName: 'XScalarStability',
+    typeComment: 'Stability of the operation in the Scalar UI',
+  },
+)

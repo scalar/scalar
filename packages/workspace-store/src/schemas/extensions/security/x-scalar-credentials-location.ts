@@ -1,4 +1,5 @@
 import { Type } from '@scalar/typebox'
+import { literal, object, optional, union } from '@scalar/validation'
 
 /**
  * An OpenAPI extension to specify where OAuth2 credentials should be sent
@@ -33,3 +34,13 @@ export const XScalarCredentialsLocationSchema = Type.Object({
 export type XScalarCredentialsLocation = {
   'x-scalar-credentials-location'?: 'header' | 'body'
 }
+
+export const XScalarCredentialsLocation = object(
+  {
+    'x-scalar-credentials-location': optional(union([literal('header'), literal('body')])),
+  },
+  {
+    typeName: 'XScalarCredentialsLocation',
+    typeComment: 'Where OAuth2 credentials are sent',
+  },
+)

@@ -1,4 +1,5 @@
 import { Type } from '@scalar/typebox'
+import { object, optional, record, string } from '@scalar/validation'
 
 /**
  * Schema for the x-scalar-selected-content-type extension on an OpenAPI operation.
@@ -21,3 +22,17 @@ export type XScalarSelectedContentType = {
     [key: string]: string
   }
 }
+
+export const XScalarSelectedContentType = object(
+  {
+    'x-scalar-selected-content-type': optional(
+      record(string(), string(), {
+        typeComment: 'Selected content type per example name',
+      }),
+    ),
+  },
+  {
+    typeName: 'XScalarSelectedContentType',
+    typeComment: 'Selected content type per example for request or response bodies',
+  },
+)

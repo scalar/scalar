@@ -2544,6 +2544,9 @@ importers:
       '@scalar/types':
         specifier: workspace:*
         version: link:../types
+      '@scalar/validation':
+        specifier: workspace:*
+        version: link:../validation
       github-slugger:
         specifier: catalog:*
         version: 2.0.0

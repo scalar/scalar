@@ -1,4 +1,5 @@
 import { Type } from '@scalar/typebox'
+import { object, optional, string } from '@scalar/validation'
 
 /**
  * x-additionalPropertiesName
@@ -21,3 +22,13 @@ export type XAdditionalPropertiesName = {
    */
   'x-additionalPropertiesName'?: string
 }
+
+export const XAdditionalPropertiesName = object(
+  {
+    'x-additionalPropertiesName': optional(string()),
+  },
+  {
+    typeName: 'XAdditionalPropertiesName',
+    typeComment: 'Display name for additional properties on a schema',
+  },
+)

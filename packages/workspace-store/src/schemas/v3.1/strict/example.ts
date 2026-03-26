@@ -1,7 +1,7 @@
 import { Type } from '@scalar/typebox'
 
 import { compose } from '@/schemas/compose'
-import { XDisabled } from '@/schemas/extensions/example/x-disabled'
+import { XDisabledSchema } from '@/schemas/extensions/example/x-disabled'
 
 /**
  * An object grouping an internal or external example value with basic summary and description metadata. This object is typically used in fields named examples (plural), and is a referenceable alternative to older example (singular) fields that do not support referencing or metadata.
@@ -19,7 +19,7 @@ export const ExampleObjectSchemaDefinition = compose(
     /** A URI that identifies the literal example. This provides the capability to reference examples that cannot easily be included in JSON or YAML documents. The value field and externalValue field are mutually exclusive. See the rules for resolving Relative References. */
     externalValue: Type.Optional(Type.String()),
   }),
-  XDisabled,
+  XDisabledSchema,
 )
 
 /**
