@@ -161,9 +161,16 @@ export const coerce = <S extends Schema>(
   if (schema.type === 'object') {
     const keys = Object.keys(schema.properties)
     const target = isObject(value) ? value : null
-    return Object.fromEntries(
-      keys.map((key) => [key, coerce(schema.properties[key], target?.[key], cache)]),
-    ) as unknown as Static<S>
+    const entries: [string, unknown][] = []
+    for (const key of keys) {
+      const propSchema = schema.properties[key]
+      const raw = target?.[key as keyof typeof target]
+      if (propSchema.type === 'optional' && raw === undefined) {
+        continue
+      }
+      entries.push([key, coerce(propSchema, raw, cache)])
+    }
+    return Object.fromEntries(entries) as unknown as Static<S>
   }
   if (schema.type === 'union') {
     const branch = schema.schemas.reduce(

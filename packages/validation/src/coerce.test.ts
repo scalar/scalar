@@ -418,6 +418,15 @@ describe('object', () => {
       y: 2,
     })
   })
+  it('omits optional properties when the value is undefined', () => {
+    const T = object({
+      id: number(),
+      name: optional(string()),
+    })
+    expect(coerce(T, { id: 1 })).toEqual({ id: 1 })
+    expect(coerce(T, { id: 1, name: undefined })).toEqual({ id: 1 })
+    expect(coerce(T, { id: 1, name: 'x' })).toEqual({ id: 1, name: 'x' })
+  })
 })
 
 describe('record', () => {
