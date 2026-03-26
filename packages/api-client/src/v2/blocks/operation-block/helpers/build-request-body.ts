@@ -34,6 +34,8 @@ export const buildRequestBody = (
   env: Record<string, string> = {},
   /** The key of the current example */
   exampleKey = 'default',
+  /** Selected anyOf/oneOf request-body variants keyed by schema path */
+  requestBodyCompositionSelection?: Record<string, number>,
 ): BodyInit | null => {
   if (!requestBody) {
     return null
@@ -46,7 +48,7 @@ export const buildRequestBody = (
   }
 
   /** An example value or generated example from the schema */
-  const example = getExampleFromBody(requestBody, bodyContentType, exampleKey)
+  const example = getExampleFromBody(requestBody, bodyContentType, exampleKey, requestBodyCompositionSelection)
   if (!example) {
     return null
   }

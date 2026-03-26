@@ -54,6 +54,12 @@ const props = withDefaults(
     options: SchemaOptions
     /** Enum values for property names (from JSON Schema propertyNames keyword). */
     propertyNamesEnum?: string[]
+    /** When "requestBody", composition selection is synced with the example snippet */
+    schemaContext?: string
+    /** Internal path used to sync nested request body compositions with the code sample */
+    compositionPath?: string[]
+    /** Internal path segment for this property when building nested composition keys */
+    compositionPathSegment?: string
   }>(),
   {
     level: 0,
@@ -71,6 +77,17 @@ const childBreadcrumb = computed<string[] | undefined>(() =>
     ? [...props.breadcrumb, props.name]
     : undefined,
 )
+
+const currentCompositionPath = computed<string[]>(() =>
+  props.compositionPathSegment
+    ? [...(props.compositionPath ?? []), props.compositionPathSegment]
+    : (props.compositionPath ?? []),
+)
+
+const arrayItemsCompositionPath = computed<string[]>(() => [
+  ...currentCompositionPath.value,
+  'items',
+])
 
 const shouldHaveLink = computed(() => props.level <= 1)
 
@@ -235,11 +252,13 @@ const isDiscriminatorProperty = computed(() =>
       <Schema
         :breadcrumb="childBreadcrumb"
         :compact="compact"
+        :compositionPath="currentCompositionPath"
         :eventBus="eventBus"
         :level="level + 1"
         :name="name"
         :noncollapsible="noncollapsible"
         :options="options"
+        :schemaContext="schemaContext"
         :schema="objectSchemaForChildren" />
     </div>
 
@@ -249,11 +268,13 @@ const isDiscriminatorProperty = computed(() =>
       class="children">
       <Schema
         :compact="compact"
+        :compositionPath="arrayItemsCompositionPath"
         :eventBus="eventBus"
         :level="level + 1"
         :name="name"
         :noncollapsible="noncollapsible"
         :options="options"
+        :schemaContext="schemaContext"
         :schema="resolve.schema(resolvedArrayItems)" />
     </div>
 
@@ -271,7 +292,9 @@ const isDiscriminatorProperty = computed(() =>
       :name="name"
       :noncollapsible="noncollapsible"
       :options="options"
-      :schema="compositionData.value" />
+      :compositionPath="currentCompositionPath"
+      :schema="compositionData.value"
+      :schemaContext="schemaContext" />
     <SpecificationExtension :value="optimizedValue" />
   </component>
 </template>

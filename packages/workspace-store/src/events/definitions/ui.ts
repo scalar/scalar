@@ -164,6 +164,8 @@ export type UIEvents = {
         id: string
         /** Optional example name to load for this operation */
         exampleName?: string
+        /** Optional selected anyOf/oneOf request-body variants keyed by schema path */
+        requestBodyCompositionSelection?: Record<string, number>
       }
     | {
         /** The HTTP method of the operation to load (e.g., GET, POST) */
@@ -172,6 +174,8 @@ export type UIEvents = {
         path: string
         /** Optional example name to load for this operation */
         exampleName?: string
+        /** Optional selected anyOf/oneOf request-body variants keyed by schema path */
+        requestBodyCompositionSelection?: Record<string, number>
       }
 
   /**

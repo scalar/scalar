@@ -413,6 +413,52 @@ describe('RequestExample', () => {
       expect(codeBlock.props('content')).toBeTruthy()
     })
 
+    it('uses requestBodyCompositionSelection to generate a non-default request body example', () => {
+      const wrapper = mount(RequestExample, {
+        props: {
+          ...defaultProps,
+          method: 'post' as HttpMethodType,
+          operation: {
+            summary: 'Composed request body',
+            requestBody: {
+              content: {
+                'application/json': {
+                  schema: coerceValue(SchemaObjectSchema, {
+                    anyOf: [
+                      {
+                        type: 'object',
+                        properties: {
+                          primaryOnlyField: { type: 'string' },
+                        },
+                      },
+                      {
+                        type: 'object',
+                        properties: {
+                          secondaryOnlyField: { type: 'integer' },
+                        },
+                      },
+                    ],
+                  }),
+                },
+              },
+            },
+          },
+          requestBodyCompositionSelection: {
+            'requestBody.anyOf': 1,
+          },
+          selectedClient: 'shell/curl' as AvailableClient,
+          selectedContentType: 'application/json',
+        },
+      })
+
+      const codeBlock = wrapper.findComponent({ name: 'ScalarCodeBlock' })
+      const content = codeBlock.props('content')
+
+      expect(codeBlock.exists()).toBe(true)
+      expect(content.includes('primaryOnlyField')).toBe(false)
+      expect(content.includes('secondaryOnlyField')).toBe(true)
+    })
+
     it('generates code snippet for custom examples', () => {
       const wrapper = mount(RequestExample, {
         props: {

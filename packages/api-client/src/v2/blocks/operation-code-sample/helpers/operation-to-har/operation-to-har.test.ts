@@ -356,6 +356,215 @@ describe('operationToHar', () => {
       expect(result.postData?.text).toBe(JSON.stringify({ name: '', age: 1, isActive: true }))
       expect(result.postData?.mimeType).toBe('application/json')
     })
+
+    it('uses selected root request body compositions when generating examples', () => {
+      const operation: OperationObject = {
+        requestBody: {
+          content: {
+            'application/json': {
+              schema: coerceValue(SchemaObjectSchema, {
+                anyOf: [
+                  {
+                    type: 'object',
+                    properties: {
+                      primaryOnlyField: { type: 'string' },
+                    },
+                  },
+                  {
+                    type: 'object',
+                    properties: {
+                      secondaryOnlyField: { type: 'integer' },
+                    },
+                  },
+                ],
+              }),
+            },
+          },
+        },
+      }
+
+      const result = operationToHar({
+        operation,
+        method: 'post',
+        path: '/widgets',
+        requestBodyCompositionSelection: {
+          'requestBody.anyOf': 1,
+        },
+      })
+
+      expect(result.postData?.text).toBe(JSON.stringify({ secondaryOnlyField: 1 }))
+    })
+
+    it('uses selected nested request body compositions when generating examples', () => {
+      const operation: OperationObject = {
+        requestBody: {
+          content: {
+            'application/json': {
+              schema: coerceValue(SchemaObjectSchema, {
+                type: 'object',
+                properties: {
+                  payload: {
+                    anyOf: [
+                      {
+                        type: 'object',
+                        properties: {
+                          nestedPrimaryOnlyField: { type: 'string' },
+                        },
+                      },
+                      {
+                        type: 'object',
+                        properties: {
+                          nestedSecondaryOnlyField: { type: 'integer' },
+                        },
+                      },
+                    ],
+                  },
+                },
+              }),
+            },
+          },
+        },
+      }
+
+      const result = operationToHar({
+        operation,
+        method: 'post',
+        path: '/widgets',
+        requestBodyCompositionSelection: {
+          'requestBody.payload.anyOf': 1,
+        },
+      })
+
+      expect(result.postData?.text).toBe(JSON.stringify({ payload: { nestedSecondaryOnlyField: 1 } }))
+    })
+
+    it('uses selected nested request body compositions when nested branches contain refs', () => {
+      const reprojectTransform = {
+        type: 'object',
+        properties: {
+          mode: { type: 'string', const: 'reproject' },
+          epsg: { type: 'integer', example: 4326 },
+        },
+      }
+
+      const clipTransform = {
+        type: 'object',
+        properties: {
+          mode: { type: 'string', const: 'clip' },
+          bbox: {
+            type: 'array',
+            example: [34.8, 31.9, 35.1, 32.1],
+            items: { type: 'number' },
+          },
+        },
+      }
+
+      const bufferTransform = {
+        type: 'object',
+        properties: {
+          mode: { type: 'string', const: 'buffer' },
+          distanceMeters: { type: 'integer', example: 25 },
+        },
+      }
+
+      const simplifyTransform = {
+        type: 'object',
+        properties: {
+          mode: { type: 'string', const: 'simplify' },
+          tolerance: { type: 'number', example: 0.5 },
+        },
+      }
+
+      const operation: OperationObject = {
+        requestBody: {
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  jobName: { type: 'string', example: 'nightly-import' },
+                  payload: {
+                    anyOf: [
+                      {
+                        $ref: '#/components/schemas/NestedFilePayload',
+                        '$ref-value': {
+                          type: 'object',
+                          properties: {
+                            payloadType: { type: 'string', const: 'file' },
+                            fileName: {
+                              type: 'string',
+                              example: 'buildings.geojson',
+                            },
+                            transform: {
+                              oneOf: [
+                                {
+                                  $ref: '#/components/schemas/ReprojectTransform',
+                                  '$ref-value': reprojectTransform,
+                                },
+                                {
+                                  $ref: '#/components/schemas/ClipTransform',
+                                  '$ref-value': clipTransform,
+                                },
+                              ],
+                            },
+                          },
+                        },
+                      },
+                      {
+                        $ref: '#/components/schemas/NestedServicePayload',
+                        '$ref-value': {
+                          type: 'object',
+                          properties: {
+                            payloadType: { type: 'string', const: 'service' },
+                            layerName: { type: 'string', example: 'zoning' },
+                            transform: {
+                              oneOf: [
+                                {
+                                  $ref: '#/components/schemas/BufferTransform',
+                                  '$ref-value': bufferTransform,
+                                },
+                                {
+                                  $ref: '#/components/schemas/SimplifyTransform',
+                                  '$ref-value': simplifyTransform,
+                                },
+                              ],
+                            },
+                          },
+                        },
+                      },
+                    ],
+                  },
+                },
+              } as any,
+            },
+          },
+        },
+      }
+
+      const result = operationToHar({
+        operation,
+        method: 'post',
+        path: '/nested',
+        requestBodyCompositionSelection: {
+          'requestBody.payload.anyOf': 1,
+          'requestBody.payload.transform.oneOf': 1,
+        },
+      })
+
+      expect(result.postData?.text).toBe(
+        JSON.stringify({
+          jobName: 'nightly-import',
+          payload: {
+            payloadType: 'service',
+            layerName: 'zoning',
+            transform: {
+              mode: 'simplify',
+              tolerance: 0.5,
+            },
+          },
+        }),
+      )
+    })
   })
 
   describe('security handling', () => {

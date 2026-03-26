@@ -10,13 +10,15 @@ import {
   ScalarIconWarningOctagon,
 } from '@scalar/icons'
 import { type ScalarIconComponent } from '@scalar/icons/types'
+import type { ExternalUrls } from '@scalar/types/api-reference'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 
 import ApiReferenceToolbarBlurb from './ApiReferenceToolbarBlurb.vue'
 import ApiReferenceToolbarRegisterButton from './ApiReferenceToolbarRegisterButton.vue'
 
-const { workspace } = defineProps<{
+const { workspace, externalUrls } = defineProps<{
   workspace: WorkspaceStore
+  externalUrls: ExternalUrls
 }>()
 
 const FEATURES = [
@@ -46,7 +48,9 @@ const FEATURES = [
       {{ feature.label }}
     </li>
   </ul>
-  <ApiReferenceToolbarRegisterButton :workspace>
+  <ApiReferenceToolbarRegisterButton
+    :externalUrls
+    :workspace>
     Deploy on Scalar
   </ApiReferenceToolbarRegisterButton>
   <ApiReferenceToolbarBlurb>

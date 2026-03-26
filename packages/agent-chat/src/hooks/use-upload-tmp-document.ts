@@ -51,7 +51,7 @@ export function useUploadTmpDocument() {
 
   function createUrl(path: string) {
     const fullUrl = `${state.baseUrl}${path}`
-    return redirectToProxy(state.proxyUrl.value, fullUrl)
+    return redirectToProxy(state.platformProxyUrl, fullUrl)
   }
 
   async function uploadTempDocument(document: string, isAgent = false) {

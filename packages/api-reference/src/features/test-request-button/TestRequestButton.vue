@@ -5,12 +5,20 @@ import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 
 import ScreenReader from '@/components/ScreenReader.vue'
 
-const { id, method, path, eventBus, exampleName } = defineProps<{
+const {
+  id,
+  method,
+  path,
+  eventBus,
+  exampleName,
+  requestBodyCompositionSelection,
+} = defineProps<{
   id: string
   method: HttpMethod
   path: string
   eventBus: WorkspaceEventBus
   exampleName?: string
+  requestBodyCompositionSelection?: Record<string, number>
 }>()
 
 /** Route via ID and optionally with example name */
@@ -19,6 +27,10 @@ const handleClick = () => {
   const payload = {
     id,
     ...(exampleName && { exampleName }),
+    ...(requestBodyCompositionSelection &&
+      Object.keys(requestBodyCompositionSelection).length > 0 && {
+        requestBodyCompositionSelection,
+      }),
   }
   eventBus.emit('ui:open:client-modal', payload)
 }

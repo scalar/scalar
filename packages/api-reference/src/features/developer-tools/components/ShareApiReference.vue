@@ -1,12 +1,14 @@
 <script lang="ts" setup>
 import { ScalarFormSection } from '@scalar/components'
+import type { ExternalUrls } from '@scalar/types/api-reference'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 
 import ApiReferenceToolbarPopover from './ApiReferenceToolbarPopover.vue'
 import ApiReferenceToolbarShareTemporary from './ApiReferenceToolbarShareTemporary.vue'
 
-const { workspace } = defineProps<{
+const { workspace, externalUrls } = defineProps<{
   workspace: WorkspaceStore
+  externalUrls: ExternalUrls
 }>()
 </script>
 <template>
@@ -18,7 +20,9 @@ const { workspace } = defineProps<{
         Upload your OpenAPI document to share your API Reference with others. As
         easy as pressing a button.
       </p>
-      <ApiReferenceToolbarShareTemporary :workspace />
+      <ApiReferenceToolbarShareTemporary
+        :externalUrls
+        :workspace />
     </ScalarFormSection>
   </ApiReferenceToolbarPopover>
 </template>

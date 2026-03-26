@@ -29,6 +29,8 @@ const {
   breadcrumb,
   hideModelNames = false,
   options,
+  schemaContext,
+  compositionPath,
 } = defineProps<{
   schema?: SchemaObject
   /** Track how deep we've gone */
@@ -53,6 +55,10 @@ const {
   eventBus: WorkspaceEventBus | null
   /** Move the options into a single prop so they are easy to pass around */
   options: SchemaOptions
+  /** When "requestBody", composition dropdown selection is synced with the example snippet */
+  schemaContext?: string
+  /** Internal path used to sync nested request body compositions with the code sample */
+  compositionPath?: string[]
 }>()
 
 /**
@@ -198,7 +204,9 @@ const handleClick = (e: MouseEvent) => noncollapsible && e.stopPropagation()
             :hideModelNames
             :level="level + 1"
             :options
-            :schema />
+            :schema
+            :compositionPath="compositionPath"
+            :schemaContext="schemaContext" />
           <!-- Not an object -->
           <template v-else>
             <SchemaProperty
@@ -210,7 +218,9 @@ const handleClick = (e: MouseEvent) => noncollapsible && e.stopPropagation()
               :hideModelNames
               :level
               :options
-              :schema />
+              :schema
+              :compositionPath="compositionPath"
+              :schemaContext="schemaContext" />
           </template>
         </DisclosurePanel>
       </div>
