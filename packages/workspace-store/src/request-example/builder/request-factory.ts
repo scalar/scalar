@@ -74,7 +74,7 @@ export const requestFactory = ({
   defaultHeaders: Record<string, string>
   /** Whether the request is being made from an Electron environment */
   isElectron: boolean
-  // /** The selected security schemes for the current operation */
+  /** The selected security schemes for the current operation */
   selectedSecuritySchemes: SecuritySchemeObjectSecret[]
 }): Result<{
   request: RequestFactory

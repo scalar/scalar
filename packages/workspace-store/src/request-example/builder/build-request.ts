@@ -65,34 +65,37 @@ export const buildRequest = (
 
   // Build the request security
   request.security.forEach((security) => {
+    const name = replaceEnvVariables(security.name, options.envVariables)
+    const securityValue = replaceEnvVariables(security.value, options.envVariables)
+
     if (security.in === 'header') {
       // Build the value for the header
-      const value = (() => {
+      const buildValue = (() => {
         if (security.type === 'basic') {
-          return `Basic ${encodeBase64(security.value)}`
+          return `Basic ${encodeBase64(securityValue)}`
         }
 
         if (security.type === 'bearer') {
-          return `Bearer ${security.value}`
+          return `Bearer ${securityValue}`
         }
 
-        return security.value
+        return securityValue
       })()
 
       // Set the header
-      headers.set(security.name, value)
+      headers.set(security.name, buildValue)
       return
     }
 
     if (security.in === 'query') {
-      securityUrlParams.append(security.name, security.value)
+      securityUrlParams.append(name, securityValue)
       return
     }
 
     if (security.in === 'cookie') {
       securityCookies.push({
-        name: security.name,
-        value: security.value,
+        name: name,
+        value: securityValue,
         isDisabled: false,
       })
       return
