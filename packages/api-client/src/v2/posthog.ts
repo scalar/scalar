@@ -8,6 +8,10 @@ const posthog = ph.init('phc_3elIjSOvGOo5aEwg6krzIY9IcQiRubsBtglOXsQ4Uu4', {
   opt_out_capturing_by_default: true,
 })
 
+posthog.register({
+  product: 'api-client',
+})
+
 export const usePosthog = (enabled: Ref<boolean>) => {
   watch(
     enabled,
