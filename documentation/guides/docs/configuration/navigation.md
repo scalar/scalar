@@ -72,7 +72,7 @@ The `navigation.header` array defines links that appear in the top navigation ba
 | `title`  | `string`               | Yes      | The display text for the header link     |
 | `type`   | `"link"` \| `"spacer"` | Yes      | Must be `"link"` or `"spacer"`           |
 | `to`     | `string`               | Yes      | The route path or URL the link points to |
-| `style`  | `"button" \| "link"`   | No       | Display style (defaults to `"link"`)     |
+| `style`  | `"text" \| "button"`   | No       | Display style (defaults to `"text"`)     |
 | `icon`   | `string`               | No       | An icon to display next to the link      |
 | `newTab` | `boolean`              | No       | Whether to open the link in a new tab    |
 
@@ -107,12 +107,25 @@ The `navigation.sidebar` array defines links that appear at the bottom of the si
 
 ### Properties
 
-| Property | Type                 | Required | Description                           |
-| -------- | -------------------- | -------- | ------------------------------------- |
-| `title`  | `string`             | Yes      | The display text for the sidebar link |
-| `url`    | `string`             | Yes      | The URL the link points to            |
-| `style`  | `"button" \| "link"` | No       | Display style (defaults to `"link"`)  |
-| `newTab` | `boolean`            | No       | Whether to open the link in a new tab |
+Sidebar links come in two forms: internal links (using `path`) and external links (using `url`).
+
+**Internal sidebar links** navigate to another docs page:
+
+| Property | Type     | Required | Description                           |
+| -------- | -------- | -------- | ------------------------------------- |
+| `title`  | `string` | Yes      | The display text for the sidebar link |
+| `path`   | `string` | Yes      | The route path to a docs page         |
+| `icon`   | `string` | No       | An icon to display next to the link   |
+
+**External sidebar links** open an external URL:
+
+| Property | Type                 | Required | Description                                  |
+| -------- | -------------------- | -------- | -------------------------------------------- |
+| `title`  | `string`             | Yes      | The display text for the sidebar link        |
+| `url`    | `string`             | Yes      | The external URL the link points to          |
+| `icon`   | `string`             | No       | An icon to display next to the link          |
+| `style`  | `"text" \| "button"` | No       | Display style (defaults to `"text"`)         |
+| `newTab` | `boolean`            | No       | Whether to open the link in a new tab (defaults to `true`) |
 
 ## Tabs
 
@@ -181,14 +194,17 @@ Pages render markdown content from files in your repository. They are the most c
 
 ### Properties
 
-| Property      | Type     | Required | Description                         |
-| ------------- | -------- | -------- | ----------------------------------- |
-| `type`        | `"page"` | Yes      | Must be `"page"`                    |
-| `title`       | `string` | Yes      | The display text in the navigation  |
-| `filepath`    | `string` | Yes      | Relative path to the markdown file  |
-| `description` | `string` | No       | A description for SEO and metadata  |
-| `icon`        | `string` | No       | An icon to display next to the page |
-| `layout`      | `object` | No       | Layout configuration options        |
+| Property        | Type      | Required | Description                                            |
+| --------------- | --------- | -------- | ------------------------------------------------------ |
+| `type`          | `"page"`  | Yes      | Must be `"page"`                                       |
+| `filepath`      | `string`  | Yes      | Relative path to the markdown file                     |
+| `title`         | `string`  | No       | The display text in the navigation                     |
+| `description`   | `string`  | No       | A description for SEO and metadata                     |
+| `icon`          | `string`  | No       | An icon to display next to the page                    |
+| `tag`           | `string`  | No       | A tag to show in the sidebar for the page              |
+| `layout`        | `object`  | No       | Layout configuration options                           |
+| `head`          | `object`  | No       | Page-level head overrides (scripts, styles, meta, etc) |
+| `showInSidebar` | `boolean` | No       | Whether to show the page in the sidebar (defaults to `true`) |
 
 ### Layout Options
 
@@ -206,10 +222,15 @@ Pages support layout configuration to customize how they are displayed:
 }
 ```
 
-| Option    | Type      | Default | Description                            |
-| --------- | --------- | ------- | -------------------------------------- |
-| `toc`     | `boolean` | `true`  | Whether to show the table of contents  |
-| `sidebar` | `boolean` | `true`  | Whether to show the sidebar navigation |
+| Option        | Type      | Default | Description                            |
+| ------------- | --------- | ------- | -------------------------------------- |
+| `toc`         | `boolean` | `true`  | Whether to show the table of contents  |
+| `header`      | `boolean` | `true`  | Whether to show the header             |
+| `sidebar`     | `boolean` | `true`  | Whether to show the sidebar navigation |
+| `tabs`        | `boolean` | `true`  | Whether to show the tabs               |
+| `pageTitle`   | `boolean` | `true`  | Whether to show the page title         |
+| `pageActions` | `boolean` | `true`  | Whether to show page actions           |
+| `search`      | `object`  | —       | Search bar configuration for this page |
 
 ### Example with All Options
 
@@ -284,11 +305,31 @@ Fetch an OpenAPI document from a remote URL. The document is fetched on each pag
 }
 ```
 
+### Properties
+
+| Property        | Type                             | Required | Description                                                          |
+| --------------- | -------------------------------- | -------- | -------------------------------------------------------------------- |
+| `type`          | `"openapi"`                      | Yes      | Must be `"openapi"`                                                  |
+| `filepath`      | `string`                         | *        | Relative path to the OpenAPI file                                    |
+| `url`           | `string`                         | *        | Remote URL to fetch the OpenAPI document from                        |
+| `slug`          | `string`                         | *        | Registry slug (used with `namespace` and `version`)                  |
+| `namespace`     | `string`                         | *        | Registry namespace (used with `slug` and `version`)                  |
+| `version`       | `string`                         | *        | Registry version (used with `slug` and `namespace`)                  |
+| `title`         | `string`                         | No       | The display text in the navigation                                   |
+| `description`   | `string`                         | No       | A description of the API reference                                   |
+| `icon`          | `string`                         | No       | An icon to display next to the reference                             |
+| `mode`          | `"nested" \| "flat" \| "folder"` | No       | Display mode (defaults to `"folder"`)                                |
+| `config`        | `object`                         | No       | Scalar API Reference configuration options                           |
+| `singlePage`    | `boolean`                        | No       | Render the reference in a single scrollable page (defaults to `false`) |
+| `showInSidebar` | `boolean`                        | No       | Whether to show in the sidebar (defaults to `true`)                  |
+
+\* One source is required: `filepath` for a local file, `url` for a remote URL, or `slug` + `namespace` + `version` for the Registry.
+
 ### Display Modes
 
 - `folder` (default): Shows a single level of links with a folder icon
-- `flat` Shows a single level of links with a section title
-- `nested` Shows a sub-sidebar with breadcrumbs for deep navigation
+- `flat`: Shows a single level of links with a section title
+- `nested`: Shows a sub-sidebar with breadcrumbs for deep navigation
 
 ### API Reference configuration
 
@@ -347,13 +388,16 @@ Groups allow you to organize related pages, API references, and links into colla
 
 ### Properties
 
-| Property   | Type                             | Required | Description                          |
-| ---------- | -------------------------------- | -------- | ------------------------------------ |
-| `type`     | `"group"`                        | Yes      | Must be `"group"`                    |
-| `title`    | `string`                         | Yes      | The display text in the navigation   |
-| `children` | `object`                         | Yes      | An object containing nested routes   |
-| `mode`     | `"flat" \| "nested" \| "folder"` | No       | How the group is displayed           |
-| `icon`     | `string`                         | No       | An icon to display next to the group |
+| Property   | Type                             | Required | Description                                                  |
+| ---------- | -------------------------------- | -------- | ------------------------------------------------------------ |
+| `type`     | `"group"`                        | Yes      | Must be `"group"`                                            |
+| `title`    | `string`                         | Yes      | The display text in the navigation                           |
+| `children` | `object`                         | Yes      | An object containing nested routes                           |
+| `mode`     | `"flat" \| "nested" \| "folder"` | No       | How the group is displayed (defaults to `"folder"`)          |
+| `icon`     | `string`                         | No       | An icon to display next to the group                         |
+| `tag`      | `string`                         | No       | A tag to show in the sidebar for the group                   |
+| `open`     | `boolean`                        | No       | Whether the group is open by default in the sidebar          |
+| `page`     | `object`                         | No       | An optional page to render at the group path (folder mode only) |
 
 ### Display Modes
 
@@ -417,12 +461,13 @@ Links allow you to add external URLs to your navigation. Unlike pages that rende
 
 ### Properties
 
-| Property | Type     | Required | Description                         |
-| -------- | -------- | -------- | ----------------------------------- |
-| `type`   | `"link"` | Yes      | Must be `"link"`                    |
-| `title`  | `string` | Yes      | The display text in the navigation  |
-| `url`    | `string` | Yes      | The external URL to link to         |
-| `icon`   | `string` | No       | An icon to display next to the link |
+| Property | Type      | Required | Description                            |
+| -------- | --------- | -------- | -------------------------------------- |
+| `type`   | `"link"`  | Yes      | Must be `"link"`                       |
+| `url`    | `string`  | Yes      | The external URL to link to            |
+| `title`  | `string`  | No       | The display text in the navigation     |
+| `icon`   | `string`  | No       | An icon to display next to the link    |
+| `newTab` | `boolean` | No       | Whether to open the link in a new tab  |
 
 ### Example
 

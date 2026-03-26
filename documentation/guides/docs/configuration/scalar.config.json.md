@@ -65,14 +65,19 @@ Your editor will now provide autocomplete suggestions and highlight invalid prop
 
 ### Root properties
 
-| Property     | Type     | Description                                                                                                |
-| ------------ | -------- | ---------------------------------------------------------------------------------------------------------- |
-| `$schema`    | `string` | JSON Schema URL for editor autocomplete and validation                                                     |
-| `scalar`     | `string` | Configuration version. Use `"2.0.0"` for the latest format                                                 |
-| `info`       | `object` | Project metadata (title, description)                                                                      |
-| `navigation` | `object` | Navigation structure (header links, routes, sidebar, tabs). See [navigation.md](navigation.md) for details |
-| `siteConfig` | `object` | Site-level configuration (domain, theme, head, logo)                                                       |
-| `assetsDir`  | `string` | Path to the assets directory (relative to repository root)                                                 |
+| Property              | Type      | Description                                                                                                |
+| --------------------- | --------- | ---------------------------------------------------------------------------------------------------------- |
+| `$schema`             | `string`  | JSON Schema URL for editor autocomplete and validation                                                     |
+| `scalar`              | `string`  | Configuration version. Must be `"2.0.0"`                                                                   |
+| `info`                | `object`  | Project metadata (title, description, version)                                                             |
+| `navigation`          | `object`  | Navigation structure (header links, routes, sidebar, tabs). See [navigation.md](navigation.md) for details |
+| `siteConfig`          | `object`  | Site-level configuration (domain, theme, head, logo). See [site-config.md](site-config.md) for details     |
+| `assetsDir`           | `string`  | Path to the assets directory (relative to the config file)                                                 |
+| `root`                | `string`  | Root directory specification relative to the config file                                                   |
+| `publishOnMerge`      | `boolean` | Whether to publish the site on merge to the configured git branch                                          |
+| `publishPreviews`     | `boolean` | Whether to enable preview deployments for docs changes in any git branch                                   |
+| `pullRequestComments` | `boolean` | Whether to enable PR comments for publishing updates, such as publish previews                              |
+| `insertPageTitles`    | `boolean` | Whether to insert an H1 with Title and Description at the top of each guide page (deprecated)              |
 
 ### info
 
@@ -82,10 +87,17 @@ Project metadata displayed in various places:
 {
   "info": {
     "title": "My Documentation",
-    "description": "Comprehensive guides for our API"
+    "description": "Comprehensive guides for our API",
+    "version": "1.0.0"
   }
 }
 ```
+
+| Property      | Type     | Description                          |
+| ------------- | -------- | ------------------------------------ |
+| `title`       | `string` | The title of the documentation       |
+| `description` | `string` | A description of the documentation   |
+| `version`     | `string` | The version of the documentation     |
 
 ### siteConfig
 
@@ -118,17 +130,48 @@ Configure your site's domain, appearance, and custom assets:
 
 #### siteConfig properties
 
-| Property  | Type     | Description                                                                                                                 |
-| --------- | -------- | --------------------------------------------------------------------------------------------------------------------------- |
-| `theme`   | `string` | Visual theme (`default`, `alternate`, `moon`, `purple`, `solarized`, `bluePlanet`, `deepSpace`, `saturn`, `kepler`, `mars`) |
-| `logo`    | `object` | Logo URLs for dark and light modes                                                                                          |
-| `head`    | `object` | Custom scripts, styles, meta tags, and links                                                                                |
-| `routing` | `object` | URL redirects configuration                                                                                                 |
-| `subpath` | `string` | URL subpath for multi-project deployments (e.g., `/guides`, `/api`)                                                         |
+| Property       | Type              | Description                                                                                  |
+| -------------- | ----------------- | -------------------------------------------------------------------------------------------- |
+| `subdomain`    | `string`          | Subdomain prefix for `*.apidocumentation.com`                                                |
+| `customDomain` | `string`          | Custom domain for the site                                                                   |
+| `subpath`      | `string`          | URL subpath for multi-project deployments (e.g., `/guides`, `/api`). Must start with `/`     |
+| `loginPortal`  | `string`          | Slug for a login portal                                                                      |
+| `theme`        | `string`          | Slug for a platform-defined theme                                                            |
+| `logo`         | `string \| object`| Single logo URL, or an object with `darkMode` and `lightMode` URLs                           |
+| `layout`       | `object`          | Global layout options to hide/show elements (toc, header, search, etc.)                      |
+| `head`         | `object`          | Custom scripts, styles, meta tags, and links                                                 |
+| `footer`       | `object`          | Custom HTML footer configuration                                                             |
+| `routing`      | `object`          | URL redirects and path pattern configuration                                                 |
+| `colorScheme`  | `object`          | Light/dark mode color scheme and toggle preferences                                          |
 
 ### navigation
 
 For detailed navigation configuration, see [Navigation](navigation.md).
+
+### versions
+
+As an alternative to `navigation`, you can use `versions` to define multiple versions of your documentation. Each key in the `versions` object is a version identifier and its value follows the same structure as `navigation` (with `routes`, `header`, `sidebar`, and `tabs`).
+
+```json
+{
+  "versions": {
+    "v2": {
+      "title": "Version 2.0",
+      "routes": {
+        "/": { "type": "page", "filepath": "docs/v2/intro.md" }
+      }
+    },
+    "v1": {
+      "title": "Version 1.0",
+      "routes": {
+        "/": { "type": "page", "filepath": "docs/v1/intro.md" }
+      }
+    }
+  }
+}
+```
+
+The configuration requires either `navigation` or `versions` at the top level (not both).
 
 ## Full example
 
@@ -161,7 +204,7 @@ Here is a more complete example showing common configuration options:
   },
   "navigation": {
     "header": [
-      { "title": "Dashboard", "url": "https://dashboard.example.com" }
+      { "type": "link", "title": "Dashboard", "to": "https://dashboard.example.com" }
     ],
     "routes": {
       "/": {

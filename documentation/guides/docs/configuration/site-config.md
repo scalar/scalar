@@ -55,11 +55,18 @@ For better visibility across themes, provide different logos for light and dark 
 
 ### Properties
 
+The `logo` property accepts either a `string` (single URL for all themes) or an `object` with mode-specific logos:
+
 | Property    | Type     | Required | Description                             |
 | ----------- | -------- | -------- | --------------------------------------- |
-| `logo`      | `string` | No       | URL to a single logo for all themes     |
-| `darkMode`  | `string` | No       | URL to the logo displayed in dark mode  |
-| `lightMode` | `string` | No       | URL to the logo displayed in light mode |
+| `logo`      | `string \| object` | No       | URL to a single logo, or an object with mode-specific URLs |
+
+When using the object form:
+
+| Property    | Type     | Required | Description                             |
+| ----------- | -------- | -------- | --------------------------------------- |
+| `darkMode`  | `string` | Yes      | URL to the logo displayed in dark mode  |
+| `lightMode` | `string` | Yes      | URL to the logo displayed in light mode |
 
 ## Theme
 
@@ -102,10 +109,20 @@ The `layout` property controls global layout options that apply to all pages unl
 
 ### Properties
 
-| Property | Type      | Default | Description                                    |
-| -------- | --------- | ------- | ---------------------------------------------- |
-| `toc`    | `boolean` | `true`  | Whether to show the table of contents globally |
-| `header` | `boolean` | `true`  | Whether to show the header globally            |
+| Property      | Type      | Default | Description                                    |
+| ------------- | --------- | ------- | ---------------------------------------------- |
+| `toc`         | `boolean` | `true`  | Whether to show the table of contents globally |
+| `header`      | `boolean` | `true`  | Whether to show the header globally            |
+| `pageTitle`   | `boolean` | `true`  | Whether to show page titles globally           |
+| `pageActions` | `boolean` | `true`  | Whether to show page actions globally          |
+| `search`      | `object`  | —       | Search bar configuration                       |
+
+The `search` object supports:
+
+| Property   | Type                        | Description                             |
+| ---------- | --------------------------- | --------------------------------------- |
+| `position` | `"header" \| "sidebar"`     | The global position of the search bar   |
+| `enabled`  | `boolean`                   | Enable or disable search globally       |
 
 ## Head
 
@@ -203,10 +220,15 @@ Include custom CSS files in your documentation:
 ]
 ```
 
-| Property      | Type                  | Required | Description                   |
-| ------------- | --------------------- | -------- | ----------------------------- |
-| `path`        | `string`              | Yes      | Relative path to the CSS file |
-| `tagPosition` | `"head" \| "bodyEnd"` | No       | Where to inject the style tag |
+Styles can reference either a local file path or a remote URL:
+
+| Property      | Type                                       | Required | Description                                |
+| ------------- | ------------------------------------------ | -------- | ------------------------------------------ |
+| `path`        | `string`                                   | *        | Relative path to the CSS file              |
+| `url`         | `string`                                   | *        | Remote URL to a CSS file                   |
+| `tagPosition` | `"head" \| "bodyClose" \| "bodyOpen"` | No       | Where to inject the style tag (defaults to `"head"`) |
+
+\* Either `path` or `url` is required (not both).
 
 ### Scripts
 
@@ -216,15 +238,20 @@ Include custom JavaScript files:
 "scripts": [
   {
     "path": "assets/analytics.js",
-    "tagPosition": "bodyEnd"
+    "tagPosition": "bodyClose"
   }
 ]
 ```
 
-| Property      | Type                  | Required | Description                          |
-| ------------- | --------------------- | -------- | ------------------------------------ |
-| `path`        | `string`              | Yes      | Relative path to the JavaScript file |
-| `tagPosition` | `"head" \| "bodyEnd"` | No       | Where to inject the script tag       |
+Scripts can reference either a local file path or a remote URL:
+
+| Property      | Type                                       | Required | Description                                   |
+| ------------- | ------------------------------------------ | -------- | --------------------------------------------- |
+| `path`        | `string`                                   | *        | Relative path to the JavaScript file          |
+| `url`         | `string`                                   | *        | Remote URL to a JavaScript file               |
+| `tagPosition` | `"head" \| "bodyClose" \| "bodyOpen"` | No       | Where to inject the script tag (defaults to `"head"`) |
+
+\* Either `path` or `url` is required (not both).
 
 ### Links
 
@@ -246,8 +273,8 @@ Add link elements for favicons, preloading resources, or other purposes:
 
 | Property | Type     | Required | Description                           |
 | -------- | -------- | -------- | ------------------------------------- |
-| `rel`    | `string` | Yes      | The relationship type (icon, preload) |
-| `href`   | `string` | Yes      | The URL or path to the resource       |
+| `rel`    | `string` | No       | The relationship type (icon, preload) |
+| `href`   | `string` | No       | The URL or path to the resource       |
 | `type`   | `string` | No       | The MIME type of the resource         |
 
 ## Footer
@@ -270,10 +297,10 @@ The `footer` property allows you to add a custom footer to your documentation si
 
 ### Properties
 
-| Property       | Type      | Default | Description                                      |
-| -------------- | --------- | ------- | ------------------------------------------------ |
-| `filepath`     | `string`  | —       | Relative path to a custom HTML footer file       |
-| `belowSidebar` | `boolean` | `false` | Position the footer below the sidebar navigation |
+| Property       | Type      | Required | Description                                      |
+| -------------- | --------- | -------- | ------------------------------------------------ |
+| `filepath`     | `string`  | Yes      | Relative path to a custom HTML footer file (must end in `.html`) |
+| `belowSidebar` | `boolean` | No       | Position the footer below the sidebar navigation |
 
 ## Routing
 
@@ -330,3 +357,28 @@ Customize the URL structure for guides and API references:
   "referencePathPattern": "/api/:slug"
 }
 ```
+
+## Color Scheme
+
+The `colorScheme` property lets you customize light/dark mode behavior and toggle visibility.
+
+```json
+// scalar.config.json
+{
+  "$schema": "https://registry.scalar.com/@scalar/schemas/config",
+  "scalar": "2.0.0",
+  "siteConfig": {
+    "colorScheme": {
+      "default": "system",
+      "showToggle": true
+    }
+  }
+}
+```
+
+### Properties
+
+| Property     | Type                              | Default    | Description                         |
+| ------------ | --------------------------------- | ---------- | ----------------------------------- |
+| `default`    | `"light" \| "dark" \| "system"`  | —          | Default color scheme on page load   |
+| `showToggle` | `boolean`                         | —          | Show the color scheme toggle switch |
