@@ -299,7 +299,7 @@ paths:
   '/really/extremely/long/multipart/form/data/path/with/long/object/default/values':
     post:
       tags:
-        - Really Extremely Long Tag Name That Definitely Tests Wrapping Across Multiple Lines
+        - Another Extremely Super Long Tag Name That Needs Wrapping For UI Testing
       summary: Multipart form with a required object part whose default value has extremely long property keys
       description: |
         Stress-tests the request body UI for multipart form fields where a part is typed as an object and the schema
