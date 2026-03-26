@@ -82,6 +82,87 @@ The `theme` property sets a platform-defined theme for your documentation site.
 | -------- | -------- | -------- | --------------------------------- |
 | `theme`  | `string` | No       | Slug for a platform-defined theme |
 
+## Color Scheme
+
+The `colorScheme` property controls the light/dark mode appearance and toggle behavior for your documentation site.
+
+```json
+// scalar.config.json
+{
+  "$schema": "https://registry.scalar.com/@scalar/schemas/config",
+  "scalar": "2.0.0",
+  "siteConfig": {
+    "colorScheme": {
+      "default": "system",
+      "showToggle": true
+    }
+  }
+}
+```
+
+### Properties
+
+| Property     | Type                             | Default    | Description                                |
+| ------------ | -------------------------------- | ---------- | ------------------------------------------ |
+| `default`    | `"light" \| "dark" \| "system"` | `"system"` | Default color scheme on page load          |
+| `showToggle` | `boolean`                        | `true`     | Whether to show the color scheme toggle    |
+
+### Examples
+
+#### Force Light Mode
+
+Force your documentation to always display in light mode without a toggle:
+
+```json
+// scalar.config.json
+{
+  "$schema": "https://registry.scalar.com/@scalar/schemas/config",
+  "scalar": "2.0.0",
+  "siteConfig": {
+    "colorScheme": {
+      "default": "light",
+      "showToggle": false
+    }
+  }
+}
+```
+
+#### Force Dark Mode
+
+Force your documentation to always display in dark mode without a toggle:
+
+```json
+// scalar.config.json
+{
+  "$schema": "https://registry.scalar.com/@scalar/schemas/config",
+  "scalar": "2.0.0",
+  "siteConfig": {
+    "colorScheme": {
+      "default": "dark",
+      "showToggle": false
+    }
+  }
+}
+```
+
+#### System Preference with Toggle
+
+Respect the user's system preference while allowing them to override it:
+
+```json
+// scalar.config.json
+{
+  "$schema": "https://registry.scalar.com/@scalar/schemas/config",
+  "scalar": "2.0.0",
+  "siteConfig": {
+    "colorScheme": {
+      "default": "system",
+      "showToggle": true
+    }
+  }
+}
+```
+
 ## Layout
 
 The `layout` property controls global layout options that apply to all pages unless overridden at the page level.
@@ -94,7 +175,13 @@ The `layout` property controls global layout options that apply to all pages unl
   "siteConfig": {
     "layout": {
       "toc": true,
-      "header": true
+      "header": true,
+      "pageTitle": true,
+      "pageActions": true,
+      "search": {
+        "enabled": true,
+        "position": "header"
+      }
     }
   }
 }
@@ -102,10 +189,56 @@ The `layout` property controls global layout options that apply to all pages unl
 
 ### Properties
 
-| Property | Type      | Default | Description                                    |
-| -------- | --------- | ------- | ---------------------------------------------- |
-| `toc`    | `boolean` | `true`  | Whether to show the table of contents globally |
-| `header` | `boolean` | `true`  | Whether to show the header globally            |
+| Property      | Type      | Default  | Description                                    |
+| ------------- | --------- | -------- | ---------------------------------------------- |
+| `toc`         | `boolean` | `true`   | Whether to show the table of contents globally |
+| `header`      | `boolean` | `true`   | Whether to show the header globally            |
+| `pageTitle`   | `boolean` | `true`   | Whether to show page titles globally           |
+| `pageActions` | `boolean` | `true`   | Whether to show page actions globally          |
+| `search`      | `object`  | —        | Search bar configuration                       |
+
+### Search Configuration
+
+The `search` object within `layout` controls the global search behavior.
+
+| Property   | Type                        | Default    | Description                           |
+| ---------- | --------------------------- | ---------- | ------------------------------------- |
+| `enabled`  | `boolean`                   | `true`     | Enable or disable search globally     |
+| `position` | `"header" \| "sidebar"`    | `"header"` | Where to display the search bar       |
+
+#### Disable Search
+
+```json
+// scalar.config.json
+{
+  "$schema": "https://registry.scalar.com/@scalar/schemas/config",
+  "scalar": "2.0.0",
+  "siteConfig": {
+    "layout": {
+      "search": {
+        "enabled": false
+      }
+    }
+  }
+}
+```
+
+#### Move Search to Sidebar
+
+```json
+// scalar.config.json
+{
+  "$schema": "https://registry.scalar.com/@scalar/schemas/config",
+  "scalar": "2.0.0",
+  "siteConfig": {
+    "layout": {
+      "search": {
+        "position": "sidebar"
+      }
+    }
+  }
+}
+```
 
 ## Head
 

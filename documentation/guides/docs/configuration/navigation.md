@@ -206,10 +206,38 @@ Pages support layout configuration to customize how they are displayed:
 }
 ```
 
-| Option    | Type      | Default | Description                            |
-| --------- | --------- | ------- | -------------------------------------- |
-| `toc`     | `boolean` | `true`  | Whether to show the table of contents  |
-| `sidebar` | `boolean` | `true`  | Whether to show the sidebar navigation |
+| Option        | Type      | Default | Description                              |
+| ------------- | --------- | ------- | ---------------------------------------- |
+| `toc`         | `boolean` | `true`  | Whether to show the table of contents    |
+| `sidebar`     | `boolean` | `true`  | Whether to show the sidebar navigation   |
+| `tabs`        | `boolean` | `true`  | Whether to show the navigation tabs      |
+| `header`      | `boolean` | `true`  | Whether to show the header               |
+| `pageTitle`   | `boolean` | `true`  | Whether to show the page title           |
+| `pageActions` | `boolean` | `true`  | Whether to show page actions             |
+| `search`      | `object`  | —       | Search configuration for this page       |
+
+### Search Options
+
+You can configure the search behavior on a per-page basis:
+
+```json
+"/api-reference": {
+  "type": "page",
+  "title": "API Reference",
+  "filepath": "docs/api-reference.md",
+  "layout": {
+    "search": {
+      "enabled": true,
+      "position": "sidebar"
+    }
+  }
+}
+```
+
+| Option     | Type                      | Default    | Description                             |
+| ---------- | ------------------------- | ---------- | --------------------------------------- |
+| `enabled`  | `boolean`                 | `true`     | Enable or disable search for this page  |
+| `position` | `"header" \| "sidebar"`  | `"header"` | The position of the search bar          |
 
 ### Example with All Options
 
