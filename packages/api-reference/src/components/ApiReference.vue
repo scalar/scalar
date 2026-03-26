@@ -57,8 +57,8 @@ import {
 import ClassicHeader from '@/components/ClassicHeader.vue'
 import Content from '@/components/Content/Content.vue'
 import MobileHeader from '@/components/MobileHeader.vue'
-import DocumentModificationsBanner from '@/features/document-modifications/DocumentModificationsBanner.vue'
 import { DeveloperTools } from '@/features/developer-tools'
+import DocumentModificationsBanner from '@/features/document-modifications/DocumentModificationsBanner.vue'
 import DocumentSelector from '@/features/multiple-documents/DocumentSelector.vue'
 import SearchButton from '@/features/Search/components/SearchButton.vue'
 import { getSystemModePreference } from '@/helpers/color-mode'
@@ -513,6 +513,9 @@ const changeSelectedDocument = async (
           'x-scalar-selected-server',
           servers[0]!.url,
         )
+
+        // Remove the dirty flag from the document
+        await workspaceStore.saveDocument(slug)
       }
     }
   }
@@ -705,14 +708,14 @@ eventBus.on('server:update:selected', ({ url }) =>
 
 /** Download the document from the store */
 eventBus.on('ui:download:document', async ({ format }) => {
-  const document = await workspaceStore.exportActiveDocument(format)
+  const document = workspaceStore.exportActiveDocument(format)
 
   if (!document) {
     console.error('No document found to download')
     return
   }
 
-  downloadDocument(document, activeSlug.value ?? 'openapi', format)
+  await downloadDocument(document, activeSlug.value ?? 'openapi', format)
 })
 
 // ---------------------------------------------------------------------------
@@ -976,7 +979,9 @@ const showMCPButton = computed(() => {
             </template>
             <template #footer>
               <div
-                v-if="mergedConfig.showSidebar && mergedConfig.layout === 'modern'"
+                v-if="
+                  mergedConfig.showSidebar && mergedConfig.layout === 'modern'
+                "
                 class="px-3 pb-2">
                 <DocumentModificationsBanner :workspaceStore="workspaceStore" />
               </div>
@@ -1078,7 +1083,9 @@ const showMCPButton = computed(() => {
               </template>
             </ClassicHeader>
             <div
-              v-if="!mergedConfig.showSidebar || mergedConfig.layout === 'classic'"
+              v-if="
+                !mergedConfig.showSidebar || mergedConfig.layout === 'classic'
+              "
               class="px-3 pt-3">
               <DocumentModificationsBanner :workspaceStore="workspaceStore" />
             </div>
