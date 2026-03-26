@@ -1079,7 +1079,6 @@ export const generateSchema = (maybeRef: (inner: Schema) => Schema) => {
         array(tag, {
           typeComment:
             'A list of tags used by the OpenAPI Description with additional metadata. The order of the tags can be used to reflect on their order by the parsing tools.',
-          typeName: 'OpenApiTags',
         }),
       ),
       externalDocs: optional(externalDocs),

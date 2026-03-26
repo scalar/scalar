@@ -6,6 +6,7 @@ import {
   boolean,
   evaluate,
   lazy,
+  intersection,
   literal,
   notDefined,
   nullable,
@@ -32,9 +33,19 @@ describe('typegen', () => {
     expect(generateTypes(any())).toBe('any')
   })
 
-  it('emits arrays with parentheses when the item is a union', () => {
+  it('emits arrays with parentheses when the item is a union or intersection', () => {
     expect(generateTypes(array(number()))).toBe('number[]')
     expect(generateTypes(array(union([number(), string()])))).toBe('(number | string)[]')
+    expect(
+      generateTypes(
+        array(
+          intersection([
+            object({ a: number() }),
+            object({ b: string() }),
+          ]),
+        ),
+      ),
+    ).toBe('({\n  a: number;\n} & {\n  b: string;\n})[]')
   })
 
   it('emits records and objects', () => {

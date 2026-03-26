@@ -239,7 +239,8 @@ const needsArrayItemParen = (t: string): boolean => {
   if (t === 'number' || t === 'string' || t === 'boolean' || t === 'null' || t === 'undefined' || t === 'any') {
     return false
   }
-  return t.includes(' | ')
+  // Union: `A | B[]` is `A | (B[])`; intersection: `A & B[]` is `A & (B[])`. Wrap the whole item type.
+  return t.includes(' | ') || t.includes(' & ')
 }
 
 const wrapUnionMember = (t: string): string => {
