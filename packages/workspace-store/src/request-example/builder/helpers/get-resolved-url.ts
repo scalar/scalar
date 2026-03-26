@@ -1,7 +1,6 @@
 import { replaceVariables } from '@scalar/helpers/regex/replace-variables'
 import { mergeUrls } from '@scalar/helpers/url/merge-urls'
 
-import { applyAllowReservedToUrl } from '@/request-example/builder/helpers/apply-allow-reserved-to-url'
 import { getServerVariables } from '@/request-example/builder/helpers/get-server-variables'
 import type { ServerObject } from '@/schemas/v3.1/strict/server'
 
@@ -21,7 +20,6 @@ export const getResolvedUrl = ({
   server,
   path,
   urlParams,
-  allowReservedQueryParameters = new Set(),
 }: {
   server: ServerObject | null
   path: string
@@ -29,6 +27,5 @@ export const getResolvedUrl = ({
   allowReservedQueryParameters?: Set<string>
 }) => {
   const serverVariables = getServerVariables(server)
-  const mergedUrl = mergeUrls(replaceVariables(server?.url ?? '', serverVariables), path, urlParams)
-  return applyAllowReservedToUrl(mergedUrl, allowReservedQueryParameters)
+  return mergeUrls(replaceVariables(server?.url ?? '', serverVariables), path, urlParams)
 }

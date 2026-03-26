@@ -14,7 +14,6 @@ import type { SecuritySchemeObjectSecret } from '@/request-example/builder/secur
 import type { RequestExampleMeta, Result } from '@/request-example/types'
 
 import { type RequestBody, buildRequestBody } from './body/build-request-body'
-import { buildRequestCookieHeader } from './header/build-request-cookie-header'
 import { buildRequestParameters } from './header/build-request-parameters'
 import { getResolvedUrl } from './helpers/get-resolved-url'
 
@@ -34,9 +33,15 @@ export type RequestFactory = {
   }
   headers: Headers
   body: RequestBody | null
-  cookies: { name: string; value: string }[] | null
+  cookies: {
+    list: XScalarCookie[]
+  }
   cache: RequestCache
   security: BuildRequestSecurityResult[]
+  allowedReservedQueryParameters?: Set<string>
+  options?: {
+    isElectron?: boolean
+  }
 }
 
 /**
@@ -90,13 +95,10 @@ export const requestFactory = ({
     headers.delete('Content-Type')
   }
 
-  // TODO: handle url params differently
-
   /** Combine the server url, path and url params into a single url */
   const url = getResolvedUrl({
     server,
     path,
-    allowReservedQueryParameters: params.allowReservedQueryParameters,
   })
 
   // Return error for no url
@@ -113,22 +115,15 @@ export const requestFactory = ({
     headers.set('X-Scalar-User-Agent', userAgentHeader)
   }
 
-  /** Build out the cookies header */
-  const cookiesHeader = buildRequestCookieHeader({
-    paramCookies: [
-      ...params.cookies,
-      ...security.filter((s) => s.in === 'cookie').map((s) => ({ name: s.name, value: s.value, path: '/' })),
-    ],
-    globalCookies,
-    originalCookieHeader: headers.get('Cookie'),
-    url,
-    useCustomCookieHeader: isElectron || isUsingProxy,
-    disabledGlobalCookies: operation['x-scalar-disable-parameters']?.['global-cookies']?.[exampleName] ?? {},
-  })
+  const globalCookieFilter = operation['x-scalar-disable-parameters']?.['global-cookies']?.[exampleName] ?? {}
 
-  if (cookiesHeader) {
-    headers.set(cookiesHeader.name, cookiesHeader.value)
-  }
+  const cookiesList = [
+    ...globalCookies.map((c) => ({
+      ...c,
+      isDisabled: (c.isDisabled || globalCookieFilter[c.name.toLowerCase()]) ?? false,
+    })),
+    ...params.cookies,
+  ]
 
   const acceptHeader = headers.get('Accept')
   const isSseAcceptHeader = acceptHeader?.toLowerCase().includes('text/event-stream') ?? false
@@ -155,9 +150,15 @@ export const requestFactory = ({
     method: method.toUpperCase(),
     headers,
     body,
-    cookies: cookiesHeader ? [cookiesHeader] : null,
+    cookies: {
+      list: cookiesList,
+    },
     cache: requestCacheMode,
     security,
+    options: {
+      isElectron,
+    },
+    allowedReservedQueryParameters: params.allowReservedQueryParameters,
   }
 
   return {

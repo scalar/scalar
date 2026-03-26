@@ -2,7 +2,10 @@ import { replaceEnvVariables, replacePathVariables } from '@scalar/helpers/regex
 import { redirectToProxy } from '@scalar/helpers/url/redirect-to-proxy'
 import { encode as encodeBase64 } from 'js-base64'
 
+import { buildRequestCookieHeader } from '@/request-example/builder/header/build-request-cookie-header'
+import { applyAllowReservedToUrl } from '@/request-example/builder/helpers/apply-allow-reserved-to-url'
 import type { RequestFactory } from '@/request-example/builder/request-factory'
+import type { XScalarCookie } from '@/schemas/extensions/general/x-scalar-cookies'
 
 export const buildRequest = (
   request: RequestFactory,
@@ -58,6 +61,7 @@ export const buildRequest = (
   })()
 
   const securityUrlParams = new URLSearchParams()
+  const securityCookies: XScalarCookie[] = []
 
   // Build the request security
   request.security.forEach((security) => {
@@ -86,15 +90,27 @@ export const buildRequest = (
     }
 
     if (security.in === 'cookie') {
-      // Skip the cookie header, should already be set in the request object header
+      securityCookies.push({
+        name: security.name,
+        value: security.value,
+        isDisabled: false,
+      })
       return
     }
   })
 
   const requestUrl = (() => {
+    // construct replaced path variables
+    const substitutedPathVariables = Object.fromEntries(
+      Object.entries(request.path.variables).map(([key, value]) => [
+        key,
+        encodeURIComponent(replaceEnvVariables(value, options.envVariables)),
+      ]),
+    )
+
     // Replace the path variables with the environment variables and server variables
     const url = new URL(
-      replacePathVariables(replaceEnvVariables(request.url, options.envVariables), request.path.variables),
+      replaceEnvVariables(replacePathVariables(request.url, substitutedPathVariables), options.envVariables),
       window.location.origin ?? 'http://localhost:3000',
     )
 
@@ -112,14 +128,37 @@ export const buildRequest = (
         replaceEnvVariables(value, options.envVariables),
       )
     }
-    if (!request.proxy.isUsingProxy) {
-      return url.toString()
-    }
-    return redirectToProxy(request.proxy.proxyUrl, url.toString())
+    return url.toString()
   })()
 
+  const cookies: XScalarCookie[] = [...request.cookies.list, ...securityCookies]
+    .map((c) => ({
+      name: replaceEnvVariables(c.name, options.envVariables),
+      value: replaceEnvVariables(c.value, options.envVariables),
+      isDisabled: c.isDisabled,
+    }))
+    .filter((c) => !c.isDisabled)
+
+  const cookieHeader = buildRequestCookieHeader({
+    paramCookies: cookies,
+    disabledGlobalCookies: {},
+    globalCookies: [],
+    originalCookieHeader: headers.get('cookie'),
+    url: requestUrl,
+    useCustomCookieHeader: (request.proxy.isUsingProxy || request.options?.isElectron) ?? false,
+  })
+
+  // Add the cookie header to the headers
+  if (cookieHeader) {
+    headers.set(cookieHeader.name, cookieHeader.value)
+  }
+
+  // final url
+  const encodedUrl = applyAllowReservedToUrl(requestUrl, request.allowedReservedQueryParameters ?? new Set())
+  const finalUrl = request.proxy.isUsingProxy ? redirectToProxy(request.proxy.proxyUrl, encodedUrl) : encodedUrl
+
   return {
-    request: new Request(requestUrl, {
+    request: new Request(finalUrl, {
       /**
        * Ensure that all methods are uppercased (though only needed for patch)
        *

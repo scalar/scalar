@@ -111,7 +111,7 @@ export const buildRequestParameters = (
       case 'path': {
         // Path parameters use simple style by default
         const serialized = serializeSimpleStyle(deSerializedValue, getExplode(param, false))
-        result.pathVariables[paramName] = encodeURIComponent(String(serialized))
+        result.pathVariables[paramName] = String(serialized)
         break
       }
 
