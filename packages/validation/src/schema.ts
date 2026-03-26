@@ -65,6 +65,11 @@ export type UnionSchema<Schemas extends Schema[]> = {
   schemas: Schemas
 } & Documentation
 
+export type IntersectionSchema<Schemas extends readonly ObjectSchema<any>[]> = {
+  type: 'intersection'
+  schemas: Schemas
+} & Documentation
+
 /** Schema for a single exact constant (string, number, boolean, or bigint). {@link Static} is that literal type. */
 export type LiteralSchema<T extends string | number | boolean | bigint> = {
   type: 'literal'
@@ -102,6 +107,7 @@ export type Schema =
   | RecordSchema<any, any>
   | ObjectSchema<Record<string, any>>
   | UnionSchema<any[]>
+  | IntersectionSchema<readonly ObjectSchema<any>[]>
   | LiteralSchema<any>
   | LazySchema<any>
   | EvaluateSchema<any>
@@ -178,6 +184,16 @@ const union = <Schemas extends Schema[]>(schemas: Schemas, options?: Documentati
   typeComment: options?.typeComment,
 })
 
+const intersection = <Schemas extends readonly ObjectSchema<any>[]>(
+  schemas: Schemas,
+  options?: Documentation,
+): IntersectionSchema<Schemas> => ({
+  type: 'intersection',
+  schemas,
+  typeName: options?.typeName,
+  typeComment: options?.typeComment,
+})
+
 const optional = <S extends Schema>(schema: S) => union([schema, notDefined()])
 
 const literal = <Value extends string | number | boolean | bigint>(value: Value): LiteralSchema<Value> => ({
@@ -207,6 +223,7 @@ export {
   record,
   object,
   union,
+  intersection,
   optional,
   literal,
   lazy,

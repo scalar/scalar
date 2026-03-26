@@ -14,10 +14,11 @@ import type { Schema } from './schema'
  * - 'notDefined':  Only `undefined` is valid.
  * - 'array':       Array with all items validated recursively.
  * - 'record':      Object with string/number keys and values, checked recursively.
- * - 'object':      Object with fixed property keys, each validated recursively.
+ * - 'object':      Plain object with fixed property keys, each validated recursively.
  * - 'union':       Accepts if value matches any of the listed schemas.
+ * - 'intersection': Accepts if value matches every member schema (members are object schemas; value must be a plain object).
  * - 'literal':     Exact match with a literal value.
- * - 'recursive':   Schema referring to itself for nested validation (e.g. trees).
+ * - 'lazy':        Delegates to the schema returned by the factory.
  * - 'evaluate':    Transforms value then validates against an inner schema.
  *
  * @example
@@ -74,6 +75,16 @@ export const validate = (schema: Schema | undefined, value: unknown): boolean =>
   }
   if (schema.type === 'union') {
     return schema.schemas.some((schema) => validate(schema, value))
+  }
+  if (schema.type === 'intersection') {
+    if (schema.schemas.length === 0) {
+      // Vacuous: no constraints (matches `Array.prototype.every` on an empty list).
+      return true
+    }
+    if (!isObject(value)) {
+      return false
+    }
+    return schema.schemas.every((subSchema) => validate(subSchema, value))
   }
   if (schema.type === 'literal') {
     return value === schema.value

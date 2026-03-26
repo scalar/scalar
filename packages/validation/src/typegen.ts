@@ -201,6 +201,8 @@ const structuralEmit = (schema: Schema, depth: number, ctx: TypeGenContext, brac
     }
     case 'union':
       return schema.schemas.map((s) => wrapUnionMember(emitSchema(s, next, ctx, braceIndent))).join(' | ')
+    case 'intersection':
+      return schema.schemas.map((s) => wrapIntersectionMember(emitSchema(s, next, ctx, braceIndent))).join(' & ')
     case 'literal':
       return literalToTs(schema.value)
     case 'lazy':
@@ -239,4 +241,11 @@ const wrapUnionMember = (t: string): string => {
     return t
   }
   return `(${t})`
+}
+
+const wrapIntersectionMember = (t: string): string => {
+  if (t.includes(' | ') || t.includes(' & ')) {
+    return `(${t})`
+  }
+  return t
 }

@@ -41,6 +41,17 @@ const scoreUnion = (schema: Schema, value: unknown): number => {
     // For a union, use the highest score among all sub-schemas
     return Math.max(...schema.schemas.map((schema) => scoreUnion(schema, value)))
   }
+  if (schema.type === 'intersection') {
+    if (schema.schemas.length === 0) {
+      return 1
+    }
+    // Only score when every member validates; sum sub-scores so a satisfied intersection
+    // can beat a narrower union member that matches fewer total constraints.
+    if (!schema.schemas.every((sub) => validate(sub, value))) {
+      return 0
+    }
+    return schema.schemas.reduce((acc, sub) => acc + scoreUnion(sub, value), 0)
+  }
 
   if (schema.type === 'lazy') {
     // For a lazy schema, evaluate the inner schema and recurse
@@ -153,6 +164,12 @@ export const coerce = <S extends Schema>(
     )
     // We need some way to pick one of the union values
     return coerce(branch.schema, value, cache)
+  }
+  if (schema.type === 'intersection') {
+    return schema.schemas.reduce<Record<string, unknown>>(
+      (acc, subSchema) => Object.assign(acc, coerce(subSchema, value, cache) as Record<string, unknown>),
+      {},
+    ) as unknown as Static<S>
   }
   if (schema.type === 'literal') {
     return schema.value

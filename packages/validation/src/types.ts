@@ -3,6 +3,7 @@ import type {
   ArraySchema,
   BooleanSchema,
   EvaluateSchema,
+  IntersectionSchema,
   LazySchema,
   LiteralSchema,
   NotDefinedSchema,
@@ -16,6 +17,14 @@ import type {
 
 // Export Static type with depth limit to prevent infinite recursion
 export type Static<T> = _Static<T, 10>
+
+/** Folds a tuple of object schemas into an intersection of their static object types. */
+type IntersectObjectStatics<
+  Schemas extends readonly ObjectSchema<any>[],
+  Depth extends number,
+> = Schemas extends readonly [infer First extends ObjectSchema<any>, ...infer Rest extends readonly ObjectSchema<any>[]]
+  ? _Static<First, Depth> & IntersectObjectStatics<Rest, Depth>
+  : {}
 
 // Internal type with depth counter
 type _Static<T, Depth extends number = 10> = Depth extends 0
@@ -40,13 +49,15 @@ type _Static<T, Depth extends number = 10> = Depth extends 0
                     ? Record<_Static<Key, Prev<Depth>> & PropertyKey, _Static<Value, Prev<Depth>>>
                     : T extends ObjectSchema<infer Properties>
                       ? { [K in keyof Properties]: _Static<Properties[K], Prev<Depth>> }
-                      : T extends UnionSchema<infer Schemas>
-                        ? _Static<Schemas[number], Prev<Depth>>
-                        : T extends EvaluateSchema<infer S>
-                          ? _Static<S, Prev<Depth>>
-                          : T extends LazySchema<infer S>
-                            ? _Static<ReturnType<S>, Prev<Depth>>
-                            : never
+                      : T extends IntersectionSchema<infer Schemas extends readonly ObjectSchema<any>[]>
+                        ? IntersectObjectStatics<Schemas, Prev<Depth>>
+                        : T extends UnionSchema<infer Schemas>
+                          ? _Static<Schemas[number], Prev<Depth>>
+                          : T extends EvaluateSchema<infer S>
+                            ? _Static<S, Prev<Depth>>
+                            : T extends LazySchema<infer S>
+                              ? _Static<ReturnType<S>, Prev<Depth>>
+                              : never
 
 // Helper type to decrement depth counter
 type Prev<T extends number> = T extends 10
