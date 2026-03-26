@@ -941,10 +941,7 @@ describe('intersection', () => {
     expect(result).toEqual({ a: 0, b: 0, c: '', d: '' })
   })
   it('later branch wins on overlapping keys', () => {
-    const overlap = intersection([
-      object({ x: number() }),
-      object({ x: string() }),
-    ])
+    const overlap = intersection([object({ x: number() }), object({ x: string() })])
     const result = coerce(overlap, { x: 1 })
     expect(result).toEqual({ x: '' })
   })

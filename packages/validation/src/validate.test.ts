@@ -655,18 +655,12 @@ describe('union', () => {
 
 describe('intersection', () => {
   it('passes when the value satisfies every member object schema', () => {
-    const T = intersection([
-      object({ a: number(), b: number() }),
-      object({ c: string(), d: string() }),
-    ])
+    const T = intersection([object({ a: number(), b: number() }), object({ c: string(), d: string() })])
     expect(validate(T, { a: 1, b: 2, c: 'x', d: 'y' })).toBe(true)
   })
 
   it('fails when one member object schema fails', () => {
-    const T = intersection([
-      object({ a: number(), b: number() }),
-      object({ c: string(), d: string() }),
-    ])
+    const T = intersection([object({ a: number(), b: number() }), object({ c: string(), d: string() })])
     expect(validate(T, { a: 1, b: 2, c: 'x', d: 3 })).toBe(false)
   })
 
@@ -705,10 +699,7 @@ describe('intersection', () => {
   })
 
   it('validates members that use lazy schemas', () => {
-    const T = intersection([
-      object({ a: number() }),
-      object({ nested: lazy(() => object({ z: string() })) }),
-    ])
+    const T = intersection([object({ a: number() }), object({ nested: lazy(() => object({ z: string() })) })])
     expect(validate(T, { a: 1, nested: { z: 'ok' } })).toBe(true)
     expect(validate(T, { a: 1, nested: { z: 1 } })).toBe(false)
   })
