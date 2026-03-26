@@ -6,13 +6,11 @@ import cpp from 'highlight.js/lib/languages/cpp'
 import csharp from 'highlight.js/lib/languages/csharp'
 import css from 'highlight.js/lib/languages/css'
 import dart from 'highlight.js/lib/languages/dart'
-import diff from 'highlight.js/lib/languages/diff'
 import dockerfile from 'highlight.js/lib/languages/dockerfile'
 import elixir from 'highlight.js/lib/languages/elixir'
 import fsharp from 'highlight.js/lib/languages/fsharp'
 import go from 'highlight.js/lib/languages/go'
 import graphql from 'highlight.js/lib/languages/graphql'
-import haskell from 'highlight.js/lib/languages/haskell'
 import http from 'highlight.js/lib/languages/http'
 import ini from 'highlight.js/lib/languages/ini'
 import java from 'highlight.js/lib/languages/java'
@@ -20,18 +18,12 @@ import javascript from 'highlight.js/lib/languages/javascript'
 import json from 'highlight.js/lib/languages/json'
 import kotlin from 'highlight.js/lib/languages/kotlin'
 import less from 'highlight.js/lib/languages/less'
-import lua from 'highlight.js/lib/languages/lua'
-import makefile from 'highlight.js/lib/languages/makefile'
 import markdown from 'highlight.js/lib/languages/markdown'
-import matlab from 'highlight.js/lib/languages/matlab'
-import nginx from 'highlight.js/lib/languages/nginx'
 import objectivec from 'highlight.js/lib/languages/objectivec'
 import ocaml from 'highlight.js/lib/languages/ocaml'
-import perl from 'highlight.js/lib/languages/perl'
 import php from 'highlight.js/lib/languages/php'
 import plaintext from 'highlight.js/lib/languages/plaintext'
 import powershell from 'highlight.js/lib/languages/powershell'
-import properties from 'highlight.js/lib/languages/properties'
 import python from 'highlight.js/lib/languages/python'
 import r from 'highlight.js/lib/languages/r'
 import ruby from 'highlight.js/lib/languages/ruby'
@@ -48,19 +40,11 @@ import yaml from 'highlight.js/lib/languages/yaml'
 import curl from 'highlightjs-curl'
 
 /**
- * We group languages into three categories based on their popularity and usage.
- * This helps in optimizing the bundle size by allowing users to include only
- * the languages they need.
- *
- * 1. Standard Languages: These are the most popular languages that cover the
- *    majority of use cases.
- * 2. Medium Languages: These languages are not as popular as the ones in
- *    `standardLanguages`, but still have a decent amount of users.
- * 3. Specialized Languages: These languages are more specialized and have a
- *    smaller user base.
- *
- * Each category is represented as a separate object, making it easy to import
- * only the languages you need.
+ * Languages included here are those with active code-generation support in
+ * @scalar/snippetz or with clear relevance to API documentation. Languages
+ * removed from a previous larger set (diff, haskell, lua, makefile, matlab,
+ * nginx, perl, properties) have no snippetz plugin and are rarely used in
+ * API code samples, so carrying them in every bundle is unnecessary weight.
  */
 
 /**
@@ -75,14 +59,12 @@ export const standardLanguages = {
   css,
   curl,
   dart,
-  diff,
   docker: dockerfile,
   dockerfile,
   elixir,
   fsharp,
   go,
   graphql,
-  haskell,
   html: xml,
   http,
   ini,
@@ -91,18 +73,12 @@ export const standardLanguages = {
   json,
   kotlin,
   less,
-  lua,
-  makefile,
   markdown,
-  matlab,
-  nginx,
   objectivec,
   ocaml,
-  perl,
   php,
   plaintext,
   powershell,
-  properties,
   python,
   r,
   ruby,

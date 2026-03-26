@@ -10,7 +10,8 @@
   "pnpm": {
     "overrides": {
       "@types/node": "catalog:*",
-      "undici": "7.24.4"
+      "undici": "7.24.4",
+      "property-information": "^7.0.0"
     }
   },
   "devDependencies": {

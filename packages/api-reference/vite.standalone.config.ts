@@ -39,6 +39,11 @@ export default defineConfig({
     alias: {
       '@': resolve(import.meta.dirname, './src'),
       '@test': resolve(import.meta.dirname, './test'),
+      // Replace the full zod/v3 compat layer (~106 KB) with a minimal stub.
+      // @ai-sdk/provider-utils only imports ZodFirstPartyTypeKind from zod/v3 to
+      // detect whether a schema is a Zod v3 schema. We only pass Zod 4 schemas to
+      // the AI SDK, so the v3 converter code path is never reached at runtime.
+      'zod/v3': resolve(import.meta.dirname, './src/stubs/zod-v3-stub.ts'),
     },
     dedupe: ['vue'],
   },
