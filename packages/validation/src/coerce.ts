@@ -52,7 +52,7 @@ const scoreUnion = (schema: Schema, value: unknown): number => {
     }
     // Only score when every member validates; sum sub-scores so a satisfied intersection
     // can beat a narrower union member that matches fewer total constraints.
-    if (!schema.schemas.every((sub) => validate(sub, value))) {
+    if (!schema.schemas.every((sub) => scoreUnion(sub, value) > 0)) {
       return 0
     }
     return schema.schemas.reduce((acc, sub) => acc + scoreUnion(sub, value), 0)
