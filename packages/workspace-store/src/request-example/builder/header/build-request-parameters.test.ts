@@ -1155,8 +1155,8 @@ describe('buildRequestParameters', () => {
 
           const result = buildRequestParameters(params)
 
-          // Simple style with explode: false -> role,admin,firstName,Alex (URL encoded)
-          expect(result.pathVariables.id).toBe('role%2Cadmin%2CfirstName%2CAlex')
+          // Simple style with explode: false -> role,admin,firstName,Alex
+          expect(result.pathVariables.id).toBe('role,admin,firstName,Alex')
         })
       })
 

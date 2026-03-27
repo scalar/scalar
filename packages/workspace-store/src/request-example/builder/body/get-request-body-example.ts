@@ -15,13 +15,13 @@ import { getExampleFromSchema } from '@/request-example/builder/helpers/get-exam
 export const getExampleFromBody = (
   requestBody: RequestBodyObject,
   contentType: string,
-  exampleKey: string,
+  exampleName: string,
   requestBodyCompositionSelection?: Record<string, number>,
 ): ExampleObject | null => {
   const content = requestBody.content?.[contentType]
 
   // Return existing example value if we have one
-  const example = getExample(requestBody, exampleKey, contentType)
+  const example = getExample(requestBody, exampleName, contentType)
   if (example) {
     return example
   }

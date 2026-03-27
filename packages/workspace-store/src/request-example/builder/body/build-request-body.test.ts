@@ -65,11 +65,15 @@ describe('buildRequestBody', () => {
       },
     })
 
-    const result = buildRequestBody(requestBody, {}, 'default', {
+    const result = buildRequestBody(requestBody, 'default', {
       'requestBody.anyOf': 1,
     })
 
-    expect(result).toBe('{"source":"service"}')
+    expect(result).toEqual({
+      contentType: 'application/json',
+      mode: 'raw',
+      value: '{\"source\":\"service\"}',
+    })
   })
 
   it('builds FormData for multipart/form-data content type', () => {

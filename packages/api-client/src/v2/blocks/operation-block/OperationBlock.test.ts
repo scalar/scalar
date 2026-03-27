@@ -140,7 +140,9 @@ const createDefaultRequestFactoryPayload = (overrides: Partial<RequestFactoryPay
     method: 'GET',
     headers: new Headers(),
     body: null,
-    cookies: null,
+    cookies: {
+      list: [],
+    },
     cache: 'default',
     security: [],
     proxy: {
