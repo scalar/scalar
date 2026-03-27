@@ -141,9 +141,9 @@ export const buildRequest = (
 
   const cookies: XScalarCookie[] = [...request.cookies.list, ...securityCookies]
     .map((c) => ({
+      ...c,
       name: replaceEnvVariables(c.name, options.envVariables),
       value: replaceEnvVariables(c.value, options.envVariables),
-      isDisabled: c.isDisabled,
     }))
     .filter((c) => !c.isDisabled)
 
