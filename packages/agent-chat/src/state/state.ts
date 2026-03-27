@@ -121,7 +121,6 @@ function createChat({
       headers: () => createAuthorizationHeaders({ getAccessToken, getAgentKey }),
       body: () => ({
         registryDocuments: registryDocuments.value,
-        documentSettings: createDocumentSettings(workspaceStore),
       }),
     }),
     async onToolCall({ toolCall }): Promise<any> {
