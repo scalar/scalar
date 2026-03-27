@@ -34,7 +34,7 @@ const isInvalid = computed(() => invalidParameterMessage.value.ok === false)
     </button>
     <template #popover>
       <div
-        class="w-content text-xxs text-c-1 grid min-w-48 gap-1.5 rounded px-1.5 pt-2 pb-1.5 leading-none">
+        class="w-content text-xxs text-c-1 grid min-w-48 gap-1.5 rounded px-1.5 pt-2 pb-1.5 leading-none *:max-w-64">
         <div
           v-if="invalidParameterMessage.ok === false"
           class="text-error-1">
@@ -49,7 +49,7 @@ const isInvalid = computed(() => invalidParameterMessage.value.ok === false)
               'maximum' in schema ||
               'default' in schema)
           "
-          class="schema text-c-2 flex items-center">
+          class="schema text-c-2 truncate *:not-first:before:content-['_·_']">
           <span v-if="'type' in schema">{{ schema.type }}</span>
           <span v-if="'format' in schema">{{ schema.format }}</span>
           <span v-if="'minimum' in schema">min: {{ schema.minimum }}</span>
@@ -58,21 +58,8 @@ const isInvalid = computed(() => invalidParameterMessage.value.ok === false)
         </div>
         <ScalarMarkdown
           v-if="description && !isInvalid"
-          class="max-w-[16rem]"
           :value="description" />
       </div>
     </template>
   </ScalarPopover>
 </template>
-<style scoped>
-.schema > span:not(:first-child)::before {
-  content: '·';
-  display: block;
-  margin: 0 0.5ch;
-}
-
-.schema > span {
-  display: flex;
-  white-space: nowrap;
-}
-</style>
