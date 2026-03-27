@@ -6,6 +6,16 @@ import { isObjectSchema } from '@scalar/workspace-store/schemas/v3.1/strict/type
 
 import type { TableRow } from '@/v2/blocks/request-block/components/RequestTableRow.vue'
 
+const stringifyValue = (value: unknown) => {
+  if (value instanceof File) {
+    return value.name
+  }
+  if (typeof value === 'object' && value !== null) {
+    return JSON.stringify(value)
+  }
+  return String(value)
+}
+
 /** Build the table rows for the form data, optionally enriched with schema (e.g. enum) per property */
 export const getFormBodyRows = (
   example: ExampleObject | undefined | null,
@@ -60,7 +70,9 @@ export const getFormBodyRows = (
 
   // We got an object try to convert it to an array of rows
   if (typeof example.value === 'object' && example.value) {
-    return objectEntries(example.value).map(([key, value]) => mapRow({ name: String(key), value }))
+    return objectEntries(example.value).map(([key, value]) =>
+      mapRow({ name: String(key), value: stringifyValue(value) }),
+    )
   }
 
   return []
