@@ -2356,9 +2356,6 @@ importers:
       nanoid:
         specifier: catalog:*
         version: 5.1.6
-      type-fest:
-        specifier: catalog:*
-        version: 5.3.1
       zod:
         specifier: catalog:*
         version: 4.3.5
@@ -2366,6 +2363,9 @@ importers:
       '@types/har-format':
         specifier: ^1.2.16
         version: 1.2.16
+      type-fest:
+        specifier: catalog:*
+        version: 5.3.1
       vite:
         specifier: catalog:*
         version: 8.0.0(@types/node@24.10.13)(esbuild@0.27.2)(jiti@2.6.1)(terser@5.31.2)(tsx@4.21.0)(yaml@2.8.2)
@@ -2517,9 +2517,6 @@ importers:
 
   packages/workspace-store:
     dependencies:
-      '@scalar/code-highlight':
-        specifier: workspace:*
-        version: link:../code-highlight
       '@scalar/helpers':
         specifier: workspace:*
         version: link:../helpers
@@ -2529,9 +2526,6 @@ importers:
       '@scalar/openapi-upgrader':
         specifier: workspace:*
         version: link:../openapi-upgrader
-      '@scalar/snippetz':
-        specifier: workspace:*
-        version: link:../snippetz
       '@scalar/typebox':
         specifier: catalog:*
         version: 0.1.3
@@ -2541,9 +2535,6 @@ importers:
       github-slugger:
         specifier: catalog:*
         version: 2.0.0
-      type-fest:
-        specifier: catalog:*
-        version: 5.3.1
       vue:
         specifier: catalog:*
         version: 3.5.26(typescript@5.9.3)
@@ -2554,12 +2545,18 @@ importers:
       '@google-cloud/storage':
         specifier: catalog:*
         version: 7.16.0(encoding@0.1.13)
+      '@scalar/snippetz':
+        specifier: workspace:*
+        version: link:../snippetz
       fake-indexeddb:
         specifier: catalog:*
         version: 6.2.3
       fastify:
         specifier: catalog:*
         version: 5.7.4
+      type-fest:
+        specifier: catalog:*
+        version: 5.3.1
       vite:
         specifier: catalog:*
         version: 8.0.0(@types/node@24.10.13)(esbuild@0.27.2)(jiti@2.6.1)(terser@5.31.2)(tsx@4.21.0)(yaml@2.8.2)
