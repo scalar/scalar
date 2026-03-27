@@ -72,7 +72,7 @@ The `navigation.header` array defines links that appear in the top navigation ba
 | `title`  | `string`               | Yes      | The display text for the header link     |
 | `type`   | `"link"` \| `"spacer"` | Yes      | Must be `"link"` or `"spacer"`           |
 | `to`     | `string`               | Yes      | The route path or URL the link points to |
-| `style`  | `"button" \| "link"`   | No       | Display style (defaults to `"link"`)     |
+| `style`  | `"button" \| "text"`   | No       | Display style (defaults to `"text"`)     |
 | `icon`   | `string`               | No       | An icon to display next to the link      |
 | `newTab` | `boolean`              | No       | Whether to open the link in a new tab    |
 
@@ -80,7 +80,7 @@ For `type: "spacer"`, no other properties are used; only `type` is required.
 
 ## Sidebar
 
-The `navigation.sidebar` array defines links that appear at the bottom of the sidebar navigation. These are useful for adding authentication links, support resources, or other important links that should be easily accessible from any page.
+The `navigation.sidebar` array defines links that appear in the footer of the sidebar navigation. These are useful for adding authentication links, support resources, or other important links that should be easily accessible from any page.
 
 ### Example
 
@@ -94,8 +94,7 @@ The `navigation.sidebar` array defines links that appear at the bottom of the si
       {
         "title": "Log in",
         "url": "https://dashboard.scalar.com/login",
-        "style": "button",
-        "newTab": true
+        "icon": "phosphor/regular/sign-in"
       }
     ],
     "routes": {
@@ -111,7 +110,7 @@ The `navigation.sidebar` array defines links that appear at the bottom of the si
 | -------- | -------------------- | -------- | ------------------------------------- |
 | `title`  | `string`             | Yes      | The display text for the sidebar link |
 | `url`    | `string`             | Yes      | The URL the link points to            |
-| `style`  | `"button" \| "link"` | No       | Display style (defaults to `"link"`)  |
+| `icon`   | `string`             | No       | An icon to display next to the link   |
 | `newTab` | `boolean`            | No       | Whether to open the link in a new tab |
 
 ## Tabs
@@ -184,7 +183,7 @@ Pages render markdown content from files in your repository. They are the most c
 | Property      | Type     | Required | Description                         |
 | ------------- | -------- | -------- | ----------------------------------- |
 | `type`        | `"page"` | Yes      | Must be `"page"`                    |
-| `title`       | `string` | Yes      | The display text in the navigation  |
+| `title`       | `string` | No       | The display text in the navigation  |
 | `filepath`    | `string` | Yes      | Relative path to the markdown file  |
 | `description` | `string` | No       | A description for SEO and metadata  |
 | `icon`        | `string` | No       | An icon to display next to the page |
@@ -350,7 +349,7 @@ Groups allow you to organize related pages, API references, and links into colla
 | Property   | Type                             | Required | Description                          |
 | ---------- | -------------------------------- | -------- | ------------------------------------ |
 | `type`     | `"group"`                        | Yes      | Must be `"group"`                    |
-| `title`    | `string`                         | Yes      | The display text in the navigation   |
+| `title`    | `string`                         | No       | The display text in the navigation   |
 | `children` | `object`                         | Yes      | An object containing nested routes   |
 | `mode`     | `"flat" \| "nested" \| "folder"` | No       | How the group is displayed           |
 | `icon`     | `string`                         | No       | An icon to display next to the group |
@@ -361,7 +360,7 @@ Groups support three display modes:
 
 - **`flat`**: Shows a section title with child links directly beneath it. Ideal for top-level categories.
 - **`nested`**: Shows a sub-sidebar with breadcrumbs for deep navigation. Good for complex documentation structures.
-- **`folder`** (default): Shows a single level of links with a folder icon. Suitable for simple groupings.
+- **`folder`**: (default): Shows a single level of links with a folder icon. Suitable for simple groupings.
 
 ### Nesting Groups
 
@@ -420,7 +419,7 @@ Links allow you to add external URLs to your navigation. Unlike pages that rende
 | Property | Type     | Required | Description                         |
 | -------- | -------- | -------- | ----------------------------------- |
 | `type`   | `"link"` | Yes      | Must be `"link"`                    |
-| `title`  | `string` | Yes      | The display text in the navigation  |
+| `title`  | `string` | No       | The display text in the navigation  |
 | `url`    | `string` | Yes      | The external URL to link to         |
 | `icon`   | `string` | No       | An icon to display next to the link |
 
@@ -449,7 +448,7 @@ Here is an example of a group containing multiple links:
     "/demo": {
       "title": "Book a Demo",
       "icon": "phosphor/regular/monitor",
-      "url": "https://scalar.cal.com/scalar/chat-with-scalar",
+      "url": "https://scalar.cal.com/forms/142d1e65-97d2-4d03-94c3-96f98ddef95a",
       "type": "link"
     }
   }

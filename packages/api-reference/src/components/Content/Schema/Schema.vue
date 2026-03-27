@@ -198,6 +198,7 @@ const handleClick = (e: MouseEvent) => noncollapsible && e.stopPropagation()
             v-if="isTypeObject(schema)"
             :breadcrumb
             :compact
+            :compositionPath="compositionPath"
             :discriminator
             :eventBus="eventBus"
             :hideHeading
@@ -205,7 +206,6 @@ const handleClick = (e: MouseEvent) => noncollapsible && e.stopPropagation()
             :level="level + 1"
             :options
             :schema
-            :compositionPath="compositionPath"
             :schemaContext="schemaContext" />
           <!-- Not an object -->
           <template v-else>
@@ -213,13 +213,13 @@ const handleClick = (e: MouseEvent) => noncollapsible && e.stopPropagation()
               v-if="schema"
               :breadcrumb
               :compact
+              :compositionPath="compositionPath"
               :eventBus="eventBus"
               :hideHeading
               :hideModelNames
               :level
               :options
               :schema
-              :compositionPath="compositionPath"
               :schemaContext="schemaContext" />
           </template>
         </DisclosurePanel>

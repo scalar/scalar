@@ -160,6 +160,17 @@ export const GET = ApiReference(config)
 
 Open <http://localhost:3000/reference> and there it is: Your new API reference. :)
 
+### Using with Tailwind CSS
+
+If your Next.js project uses Tailwind CSS v4, you need to set the CSS layer order so that Tailwind's utility classes take priority over Scalar's styles. Add this to the top of your global CSS file (for example, `app/globals.css`):
+
+```css
+@layer scalar-base, scalar-theme, scalar-config, theme, base, components, utilities;
+@import "tailwindcss";
+```
+
+For full details, see [Embedding with CSS Frameworks](../themes.md#embedding-with-css-frameworks).
+
 #### Alternative: Pages router
 
 But you can also just use our React integration and add a page route:

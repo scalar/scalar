@@ -145,6 +145,8 @@ const getAdditionalPropertiesValue = (
       :key="property"
       :breadcrumb
       :compact
+      :compositionPath="compositionPath"
+      :compositionPathSegment="property"
       :discriminator
       :eventBus="eventBus"
       :hideHeading
@@ -152,8 +154,6 @@ const getAdditionalPropertiesValue = (
       :level
       :name="property"
       :options="options"
-      :compositionPathSegment="property"
-      :compositionPath="compositionPath"
       :required="schema.required?.includes(property)"
       :schema="resolve.schema(schema.properties[property])"
       :schemaContext="schemaContext" />
@@ -166,6 +166,8 @@ const getAdditionalPropertiesValue = (
       :key="key"
       :breadcrumb
       :compact
+      :compositionPath="compositionPath"
+      :compositionPathSegment="key"
       :discriminator
       :eventBus="eventBus"
       :hideHeading
@@ -173,8 +175,6 @@ const getAdditionalPropertiesValue = (
       :level
       :name="key"
       :options="options"
-      :compositionPathSegment="key"
-      :compositionPath="compositionPath"
       :schema="resolve.schema(property)"
       :schemaContext="schemaContext" />
   </template>
@@ -184,6 +184,13 @@ const getAdditionalPropertiesValue = (
     <SchemaProperty
       :breadcrumb
       :compact
+      :compositionPath="compositionPath"
+      :compositionPathSegment="
+        getAdditionalPropertiesName(
+          schema.additionalProperties,
+          schema.propertyNames,
+        )
+      "
       :discriminator
       :eventBus="eventBus"
       :hideHeading
@@ -197,16 +204,9 @@ const getAdditionalPropertiesValue = (
       "
       noncollapsible
       :options="options"
-      :compositionPathSegment="
-        getAdditionalPropertiesName(
-          schema.additionalProperties,
-          schema.propertyNames,
-        )
-      "
-      :compositionPath="compositionPath"
-      :schemaContext="schemaContext"
       :propertyNamesEnum="additionalPropertiesEnum"
       :schema="getAdditionalPropertiesValue(schema.additionalProperties)"
+      :schemaContext="schemaContext"
       variant="additionalProperties" />
   </template>
 </template>

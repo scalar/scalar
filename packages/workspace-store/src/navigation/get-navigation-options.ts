@@ -44,11 +44,14 @@ export const getNavigationOptions = (documentName: string, options?: NavigationO
 
     // -------- Default tag id generation logic --------
     if (props.type === 'tag') {
+      // x-tagGroups wrapper nodes use `tag-group/{index}/…` IDs so they
+      // never share an ID with a real tag that has the same display name.
+      const tagPrefix = props.isGroup ? 'tag-group' : 'tag'
       if (options?.generateTagSlug) {
-        return `${documentId}/tag/${options.generateTagSlug(props.tag)}`
+        return `${documentId}/${tagPrefix}/${options.generateTagSlug(props.tag)}`
       }
 
-      return `${documentId}/tag/${slug(props.tag.name ?? '')}`
+      return `${documentId}/${tagPrefix}/${slug(props.tag.name ?? '')}`
     }
 
     // -------- Default operation id generation logic --------

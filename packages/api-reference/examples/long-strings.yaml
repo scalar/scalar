@@ -296,6 +296,37 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/MixedExtremelySuperLongNamingConventionSchemaThatComprehensivelyTestsAllCasesAndUIWrapping'
+  '/really/extremely/long/multipart/form/data/path/with/long/object/default/values':
+    post:
+      tags:
+        - Another Extremely Super Long Tag Name That Needs Wrapping For UI Testing
+      summary: Multipart form with a required object part whose default value has extremely long property keys
+      description: |
+        Stress-tests the request body UI for multipart form fields where a part is typed as an object and the schema
+        default is a JSON object with very long key names (often truncated with an ellipsis in narrow layouts).
+      operationId: postReallyExtremelyLongMultipartFormWithLongObjectDefault
+      requestBody:
+        description: |
+          Multipart body with a single required JSON object field. The object default uses long snake_case keys and
+          boolean values so the default line wraps or truncates similarly to complex form configuration UIs.
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - input
+              properties:
+                input:
+                  $ref: '#/components/schemas/ReallyExtremelyLongMultipartFormInputObjectWithVeryLongBooleanPropertyKeysAndDefault'
+            encoding:
+              input:
+                contentType: application/json
+      responses:
+        '200':
+          description: Long success response for multipart upload
+        '400':
+          $ref: '#/components/responses/ReallyExtremelyLongBadRequestResponseThatTestsWrapping'
 webhooks:
   reallyExtremelyLongWebhookNameThatTestsCamelCaseNamingConvention:
     post:
@@ -659,3 +690,34 @@ components:
         ReallyExtremelySuperLongMixedPascalCase_with_extremely_super_long_snake_that_tests_wrapping:
           type: string
           description: Another really long mixed naming property description
+    ReallyExtremelyLongMultipartFormInputObjectWithVeryLongBooleanPropertyKeysAndDefault:
+      type: object
+      description: |
+        Object part for multipart forms: boolean flags with intentionally long property names so the serialized
+        default value string overflows a single line in the API client request body UI.
+      default:
+        option_with_a_very_very_long_name: false
+        another_option_with_a_very_very_long_name_that_definitely_wraps_in_the_request_body_ui: false
+        third_super_extremely_long_boolean_option_key_for_truncation_and_overflow_testing: true
+        fourth_really_extremely_super_long_option_name_that_keeps_the_default_json_string_very_wide: false
+        fifth_another_extremely_super_long_snake_case_key_that_tests_multiline_wrapping_behavior: true
+        sixth_comprehensive_really_extremely_long_option_identifier_for_boolean_schema_defaults: false
+      properties:
+        option_with_a_very_very_long_name:
+          type: boolean
+          default: false
+        another_option_with_a_very_very_long_name_that_definitely_wraps_in_the_request_body_ui:
+          type: boolean
+          default: false
+        third_super_extremely_long_boolean_option_key_for_truncation_and_overflow_testing:
+          type: boolean
+          default: true
+        fourth_really_extremely_super_long_option_name_that_keeps_the_default_json_string_very_wide:
+          type: boolean
+          default: false
+        fifth_another_extremely_super_long_snake_case_key_that_tests_multiline_wrapping_behavior:
+          type: boolean
+          default: true
+        sixth_comprehensive_really_extremely_long_option_identifier_for_boolean_schema_defaults:
+          type: boolean
+          default: false

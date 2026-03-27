@@ -1,4 +1,5 @@
 import { sortByOrder } from '@scalar/helpers/array/sort-by-order'
+
 import { unpackProxyObject } from '@/helpers/unpack-proxy'
 import { getXKeysFromObject } from '@/navigation/helpers/get-x-keys'
 import type { TagsMap, TraverseSpecOptions } from '@/navigation/types'
@@ -35,6 +36,7 @@ const createTagEntry = ({
     type: 'tag',
     tag,
     parentId,
+    isGroup,
   })
   const title = tag['x-displayName'] ?? tag.name ?? 'Untitled Tag'
 
