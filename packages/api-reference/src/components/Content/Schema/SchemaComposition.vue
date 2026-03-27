@@ -174,6 +174,7 @@ if (
       v-if="props.composition === 'allOf'"
       :breadcrumb="breadcrumb"
       :compact="compact"
+      :compositionPath="compositionPath"
       :discriminator="discriminator"
       :eventBus="eventBus"
       :hideHeading="hideHeading"
@@ -181,9 +182,8 @@ if (
       :name="name"
       :noncollapsible="true"
       :options="options"
-      :compositionPath="compositionPath"
-      :schemaContext="schemaContext"
-      :schema="mergeAllOfSchemas(schema)" />
+      :schema="mergeAllOfSchemas(schema)"
+      :schemaContext="schemaContext" />
 
     <template v-else>
       <!-- Composition selector and panel for nested compositions -->
@@ -227,6 +227,7 @@ if (
           v-else
           :breadcrumb="breadcrumb"
           :compact="compact"
+          :compositionPath="compositionPath"
           :discriminator="discriminator"
           :eventBus="eventBus"
           :hideHeading="hideHeading"
@@ -234,9 +235,8 @@ if (
           :name="name"
           :noncollapsible="true"
           :options="options"
-          :compositionPath="compositionPath"
-          :schemaContext="schemaContext"
-          :schema="selectedComposition" />
+          :schema="selectedComposition"
+          :schemaContext="schemaContext" />
       </div>
     </template>
   </div>

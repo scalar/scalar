@@ -5,10 +5,10 @@ import {
 } from '@scalar/api-client/v2/blocks/operation-code-sample'
 import { ScalarCodeBlock, ScalarVirtualText } from '@scalar/components'
 import { prettyPrintJson } from '@scalar/helpers/json/pretty-print-json'
-import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type {
   ExampleObject,
   MediaTypeObject,
+  SchemaObject,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed } from 'vue'
 
@@ -24,10 +24,14 @@ const getContent = () => {
   }
 
   if (response?.schema) {
-    return getExampleFromSchema(getResolvedRef(response.schema), {
-      emptyString: 'string',
-      mode: 'read',
-    })
+    return getExampleFromSchema(
+      // Should be safe to deep resolve the schema here because we don't have to do any sibling resolution for example generation
+      getResolvedRefDeep(response.schema) as SchemaObject,
+      {
+        emptyString: 'string',
+        mode: 'read',
+      },
+    )
   }
 
   return undefined
