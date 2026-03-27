@@ -146,7 +146,7 @@ const createDefaultRequestFactoryPayload = (overrides: Partial<RequestFactoryPay
     cache: 'default',
     security: [],
     proxy: {
-      proxyUrl: 'https://api.example.com/api/users',
+      proxyUrl: '',
       ...proxyOverrides,
     },
     path: {
@@ -222,7 +222,11 @@ describe('OperationBlock', () => {
     const mockController = new AbortController()
     const mockFetchRequest = new Request('https://api.example.com/api/users')
 
-    vi.mocked(requestFactory).mockReturnValue({ request: createDefaultRequestFactoryPayload() })
+    vi.mocked(requestFactory).mockImplementation((args) => ({
+      request: createDefaultRequestFactoryPayload({
+        proxy: { proxyUrl: args.proxyUrl },
+      }),
+    }))
 
     vi.mocked(buildRequest).mockReturnValue({
       controller: mockController,
@@ -426,8 +430,10 @@ describe('OperationBlock', () => {
 
     expect(buildRequest).toHaveBeenCalledWith(
       expect.objectContaining({
-        url: 'https://api.example.com/api/users',
-        proxy: expect.objectContaining({ isUsingProxy: false }),
+        baseUrl: 'https://api.example.com',
+        proxy: {
+          proxyUrl: 'https://proxy.example.com',
+        },
       }),
       {
         envVariables: {},
