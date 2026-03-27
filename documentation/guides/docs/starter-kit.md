@@ -62,4 +62,4 @@ We are here to help:
 
 - [Email support@scalar.com](mailto:support@scalar.com)
 - [Chat with us on Discord](https://discord.gg/scalar)
-- [Schedule a call](https://scalar.cal.com/scalar/chat-with-scalar)
+- [Schedule a call](https://scalar.cal.com/forms/142d1e65-97d2-4d03-94c3-96f98ddef95a)

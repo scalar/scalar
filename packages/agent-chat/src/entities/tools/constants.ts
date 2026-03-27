@@ -1,1 +1,0 @@
-export const TOOL_NAMESPACE_SLUG_DELIMITER = '---'

@@ -8,9 +8,8 @@ import { encode as encodeBase64 } from 'js-base64'
 import { n } from 'neverpanic'
 import truncateJson from 'truncate-json'
 
-import { EXECUTE_CLIENT_SIDE_REQUEST_TOOL_NAME, TOOL_NAMESPACE_SLUG_DELIMITER } from '@/entities'
+import { EXECUTE_CLIENT_SIDE_REQUEST_TOOL_NAME } from '@/entities'
 import { createError } from '@/entities/error/helpers'
-import { createDocumentName } from '@/registry/create-document-name'
 import type { Tools } from '@/state/state'
 
 // The maximum number of bytes the requests response can be.
@@ -96,7 +95,7 @@ export const executeRequestTool = n.safeFn(
     toolCallId,
     chat,
     proxyUrl,
-    input: { method, path, body, headers, documentIdentifier },
+    input: { method, path, body, headers, documentName },
   }: {
     documentSettings: Record<
       string,
@@ -110,18 +109,9 @@ export const executeRequestTool = n.safeFn(
       path: string
       headers?: Record<string, string>
       body?: string
-      documentIdentifier: string
+      documentName: string
     }
   }) => {
-    const [namespace, slug] = documentIdentifier.split(TOOL_NAMESPACE_SLUG_DELIMITER)
-    if (!namespace || !slug) {
-      return {
-        success: false,
-        error: createError('FAILED_TO_DETERMINE_DOCUMENT', { namespace, slug, documentIdentifier }),
-      }
-    }
-
-    const documentName = createDocumentName(namespace, slug)
     const settings = documentSettings[documentName]
 
     if (!settings) {
@@ -129,8 +119,6 @@ export const executeRequestTool = n.safeFn(
         success: false,
         error: createError('DOCUMENT_SETTINGS_COULD_NOT_BE_DETERMINED', {
           documentName,
-          namespace,
-          slug,
         }),
       }
     }

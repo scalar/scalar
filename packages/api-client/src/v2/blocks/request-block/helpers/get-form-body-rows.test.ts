@@ -76,6 +76,53 @@ describe('getFormBodyRows', () => {
     expect(result2).toHaveLength(4)
   })
 
+  it('stringifies nested object and array property values when example.value is a plain object', () => {
+    const example: ExampleObject = {
+      value: {
+        metadata: { role: 'admin', id: 42 },
+        tags: ['a', 'b'],
+        plain: 'unchanged',
+      },
+    }
+
+    const result = getFormBodyRows(example, 'multipart/form-data')
+
+    expect(result).toHaveLength(3)
+
+    const metadata = result.find((row) => row.name === 'metadata')
+    const tags = result.find((row) => row.name === 'tags')
+    const plain = result.find((row) => row.name === 'plain')
+
+    assert(metadata)
+    assert(tags)
+    assert(plain)
+
+    expect(metadata.value).toBe(JSON.stringify({ role: 'admin', id: 42 }))
+    expect(typeof metadata.value).toBe('string')
+
+    expect(tags.value).toBe(JSON.stringify(['a', 'b']))
+    expect(typeof tags.value).toBe('string')
+
+    expect(plain.value).toBe('unchanged')
+  })
+
+  it('uses the file name as the string value when a plain-object field value is a File', () => {
+    const file = new File([''], 'upload.png', { type: 'image/png' })
+    const example: ExampleObject = {
+      value: {
+        avatar: file,
+      },
+    }
+
+    const result = getFormBodyRows(example, 'application/x-www-form-urlencoded')
+
+    expect(result).toHaveLength(1)
+    assert(result[0])
+    expect(result[0].name).toBe('avatar')
+    expect(result[0].value).toBe('upload.png')
+    expect(typeof result[0].value).toBe('string')
+  })
+
   it('returns empty array for invalid data types: empty arrays, empty objects, primitives, and null', () => {
     // Empty array
     const exampleWithEmptyArray: ExampleObject = {

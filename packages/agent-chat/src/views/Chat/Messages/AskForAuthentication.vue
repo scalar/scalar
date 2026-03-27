@@ -12,8 +12,6 @@ import { computed, type Ref } from 'vue'
 import AuthenticationProvided from '@/components/AuthenticationProvided.vue'
 import AuthenticationRequired from '@/components/AuthenticationRequired.vue'
 import { ASK_FOR_AUTHENTICATION_TOOL_NAME } from '@/entities/tools/ask-for-authentication'
-import { TOOL_NAMESPACE_SLUG_DELIMITER } from '@/entities/tools/constants'
-import { createDocumentName } from '@/registry/create-document-name'
 import { useState, type Tools } from '@/state/state'
 import Auth from '@/views/Settings/Auth.vue'
 
@@ -25,23 +23,7 @@ const { messagePart } = defineProps<{
 
 const { workspaceStore, eventBus, config, chat } = useState()
 
-const documentName = computed(() => {
-  if (
-    !messagePart.value.input?.uniqueIdentifier ||
-    messagePart.value.state !== 'input-available'
-  ) {
-    return
-  }
-
-  const [namespace, slug] = messagePart.value.input.uniqueIdentifier.split(
-    TOOL_NAMESPACE_SLUG_DELIMITER,
-  )
-  if (!namespace || !slug) {
-    return
-  }
-
-  return createDocumentName(namespace, slug)
-})
+const documentName = computed(() => messagePart.value.input?.documentName)
 
 const document = computed(() => {
   if (!documentName.value) {

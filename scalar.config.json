@@ -19,6 +19,9 @@
           "path": "documentation/assets/fathom.js"
         },
         {
+          "path": "documentation/assets/apollo.js"
+        },
+        {
           "url": "https://cdn-cookieyes.com/client_data/3515bc1505967122c1cef7c0f2247082/script.js"
         }
       ],
@@ -2063,7 +2066,7 @@
               "/demo": {
                 "title": "Book a Demo",
                 "icon": "phosphor/regular/monitor",
-                "url": "https://scalar.cal.com/scalar/chat-with-scalar",
+                "url": "https://scalar.cal.com/forms/142d1e65-97d2-4d03-94c3-96f98ddef95a",
                 "type": "link"
               }
             }
