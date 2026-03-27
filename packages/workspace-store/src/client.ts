@@ -704,6 +704,8 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     ),
   )
 
+  const openapiSchema = generateSchema(recursiveRef)
+
   /**
    * An object containing all the workspace state, wrapped in a detect changes proxy.
    *
@@ -946,9 +948,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       )
 
       // We coerce the values only when the document is not preprocessed by the server-side-store
-      const coerced = withMeasurementSync('coerceValue', () =>
-        coerce(generateSchema(recursiveRef), deepClone(strictDocument)),
-      )
+      const coerced = withMeasurementSync('coerceValue', () => coerce(openapiSchema, deepClone(strictDocument)))
       withMeasurementSync('mergeObjects', () => mergeObjects(strictDocument, coerced))
     }
 
