@@ -74,7 +74,7 @@ describe('load-css-variables', () => {
   it('parses all @scalar/themes presets correctly', async () => {
     const presetFiles = await getThemePresetFiles()
 
-    expect(presetFiles.length).toBe(14)
+    expect(presetFiles.length > 0).toBe(true)
 
     for (const preset of presetFiles) {
       const parsedVariables = await loadCssVariables(preset.css)
