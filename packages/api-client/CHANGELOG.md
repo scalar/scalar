@@ -1,5 +1,13 @@
 # @scalar/api-client
 
+## 2.39.2
+
+### Patch Changes
+
+- [#8599](https://github.com/scalar/scalar/pull/8599): fix(api-client): truncate long table tooltip content
+- [#8590](https://github.com/scalar/scalar/pull/8590): Group analytic events by api-client product
+- [#8601](https://github.com/scalar/scalar/pull/8601): fix: stringify nested form body example values for table rows
+
 ## 2.39.1
 
 ### Patch Changes
