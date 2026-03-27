@@ -352,6 +352,50 @@ describe('traverseDocument', () => {
     })
   })
 
+  it('uses distinct navigation ids for x-tagGroups wrappers vs same-named tags', () => {
+    const doc: OpenApiDocument = {
+      openapi: '3.1.0',
+      info: {
+        title: 'Test API',
+        version: '1.0.0',
+      },
+      paths: {
+        '/pets': {
+          get: {
+            tags: ['pets'],
+            summary: 'List pets',
+            responses: {
+              '200': {
+                description: 'OK',
+              },
+            },
+          },
+        },
+      },
+      tags: [
+        {
+          name: 'pets',
+          description: 'Tag pets',
+        },
+      ],
+      'x-tagGroups': [
+        {
+          name: 'pets',
+          tags: ['pets'],
+        },
+      ],
+      'x-scalar-original-document-hash': '',
+    }
+
+    const result = traverseDocument('doc-1', doc, mockOptions)
+    const group = result.children.find((c) => c.type === 'tag') as TraversedTag | undefined
+    expect(group?.isGroup).toBe(true)
+    expect(group?.id).toBe('doc-1/tag-group/pets')
+    const tagEntry = group?.children?.[0] as TraversedTag | undefined
+    expect(tagEntry?.id).toBe('doc-1/tag/pets')
+    expect(tagEntry?.children?.[0]?.id).toBe('doc-1/tag/pets/GET/pets')
+  })
+
   it('should respect tag sorting configuration', () => {
     const doc: OpenApiDocument = {
       openapi: '3.1.0',
