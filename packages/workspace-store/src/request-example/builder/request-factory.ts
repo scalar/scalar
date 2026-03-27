@@ -59,6 +59,7 @@ export const requestFactory = ({
   defaultHeaders,
   isElectron,
   selectedSecuritySchemes,
+  requestBodyCompositionSelection,
 }: RequestExampleMeta & {
   /** The operation object */
   operation: OperationObject
@@ -76,6 +77,8 @@ export const requestFactory = ({
   isElectron: boolean
   /** The selected security schemes for the current operation */
   selectedSecuritySchemes: SecuritySchemeObjectSecret[]
+  /** Selected anyOf/oneOf request-body variants keyed by schema path */
+  requestBodyCompositionSelection?: Record<string, number>
 }): Result<{
   request: RequestFactory
 }> => {
@@ -88,7 +91,9 @@ export const requestFactory = ({
   const headers = new Headers({ ...defaultHeaders, ...params.headers })
 
   // If the method can have a body, build the request body, otherwise set it to null
-  const body = canMethodHaveBody(method) ? buildRequestBody(requestBody, exampleName) : null
+  const body = canMethodHaveBody(method)
+    ? buildRequestBody(requestBody, exampleName, requestBodyCompositionSelection)
+    : null
 
   // Delete the Content-Type header so the browser will set it automatically based on the request body
   if (body?.mode === 'formdata' || body?.mode === 'urlencoded') {

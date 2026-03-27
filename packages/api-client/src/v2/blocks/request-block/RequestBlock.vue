@@ -70,6 +70,7 @@ export type RequestBlockProps = {
   proxyUrl: string
   securityRequirements: OpenApiDocument['security']
   securitySchemes: MergedSecuritySchemes
+  requestBodyCompositionSelection?: Record<string, number>
   selectedClient: WorkspaceStore['workspace']['x-scalar-default-client']
   selectedSecurity: SelectedSecurity
   selectedSecuritySchemes: SecuritySchemeObjectSecret[]
@@ -91,6 +92,7 @@ const {
   path,
   plugins,
   proxyUrl,
+  requestBodyCompositionSelection,
   securityRequirements,
   securitySchemes,
   selectedClient,
@@ -524,6 +526,7 @@ const updateOperationExtension = (
         :environment
         :exampleKey
         :requestBody="getResolvedRef(operation.requestBody)"
+        :requestBodyCompositionSelection
         title="Request Body"
         @update:contentType="handleUpdateContentType"
         @update:formValue="handleUpdateBodyFormValue"

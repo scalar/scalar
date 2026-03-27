@@ -1,5 +1,13 @@
 # @scalar/api-reference
 
+## 1.49.5
+
+### Patch Changes
+
+- [#8574](https://github.com/scalar/scalar/pull/8574): feat: make external urls configurable
+- [#8557](https://github.com/scalar/scalar/pull/8557): feat(api-reference): switch standalone build from terser to OXC minifier for faster builds
+- [#8473](https://github.com/scalar/scalar/pull/8473): fix: request body code samples when switching anyOf or oneOf schemas
+
 ## 1.49.4
 
 ### Patch Changes

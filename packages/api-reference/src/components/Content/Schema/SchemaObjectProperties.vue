@@ -13,17 +13,20 @@ import type { SchemaOptions } from '@/components/Content/Schema/types'
 
 import SchemaProperty from './SchemaProperty.vue'
 
-const { schema, discriminator, options } = defineProps<{
-  schema: SchemaObject
-  discriminator?: DiscriminatorObject
-  compact?: boolean
-  hideHeading?: boolean
-  level?: number
-  hideModelNames?: boolean
-  breadcrumb?: string[]
-  eventBus: WorkspaceEventBus | null
-  options: SchemaOptions
-}>()
+const { schema, discriminator, options, schemaContext, compositionPath } =
+  defineProps<{
+    schema: SchemaObject
+    discriminator?: DiscriminatorObject
+    compact?: boolean
+    hideHeading?: boolean
+    level?: number
+    hideModelNames?: boolean
+    breadcrumb?: string[]
+    eventBus: WorkspaceEventBus | null
+    options: SchemaOptions
+    schemaContext?: string
+    compositionPath?: string[]
+  }>()
 
 /**
  * Sorts properties by required status first, then alphabetically.
@@ -149,8 +152,11 @@ const getAdditionalPropertiesValue = (
       :level
       :name="property"
       :options="options"
+      :compositionPathSegment="property"
+      :compositionPath="compositionPath"
       :required="schema.required?.includes(property)"
-      :schema="resolve.schema(schema.properties[property])" />
+      :schema="resolve.schema(schema.properties[property])"
+      :schemaContext="schemaContext" />
   </template>
 
   <!-- patternProperties -->
@@ -167,7 +173,10 @@ const getAdditionalPropertiesValue = (
       :level
       :name="key"
       :options="options"
-      :schema="resolve.schema(property)" />
+      :compositionPathSegment="key"
+      :compositionPath="compositionPath"
+      :schema="resolve.schema(property)"
+      :schemaContext="schemaContext" />
   </template>
 
   <!-- additionalProperties -->
@@ -188,6 +197,14 @@ const getAdditionalPropertiesValue = (
       "
       noncollapsible
       :options="options"
+      :compositionPathSegment="
+        getAdditionalPropertiesName(
+          schema.additionalProperties,
+          schema.propertyNames,
+        )
+      "
+      :compositionPath="compositionPath"
+      :schemaContext="schemaContext"
       :propertyNamesEnum="additionalPropertiesEnum"
       :schema="getAdditionalPropertiesValue(schema.additionalProperties)"
       variant="additionalProperties" />

@@ -93,4 +93,29 @@ describe('TestRequestButton', () => {
       exampleName: 'create-user-example',
     })
   })
+
+  it('emits ui:open:client-modal event with request body composition selection when provided', async () => {
+    const wrapper = mount(TestRequestButton, {
+      props: {
+        id: 'test-operation-5',
+        method: 'post',
+        path: '/users',
+        eventBus: mockEventBus,
+        requestBodyCompositionSelection: {
+          anyOf: 1,
+          'payload.transform.oneOf': 0,
+        },
+      },
+    })
+
+    await wrapper.find('button').trigger('click')
+
+    expect(mockEventBus.emit).toHaveBeenCalledWith('ui:open:client-modal', {
+      id: 'test-operation-5',
+      requestBodyCompositionSelection: {
+        anyOf: 1,
+        'payload.transform.oneOf': 0,
+      },
+    })
+  })
 })

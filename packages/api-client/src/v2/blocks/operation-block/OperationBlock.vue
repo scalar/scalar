@@ -77,6 +77,8 @@ export type OperationBlockProps = {
   securityRequirements: OpenApiDocument['security']
   /** Default headers */
   defaultHeaders: Record<string, string>
+  /** Selected anyOf/oneOf request-body variants keyed by schema path */
+  requestBodyCompositionSelection?: Record<string, number>
 }
 </script>
 <script setup lang="ts">
@@ -148,6 +150,7 @@ const {
   path,
   plugins = [],
   proxyUrl,
+  requestBodyCompositionSelection,
   securitySchemes,
   selectedClient,
   server,
@@ -198,6 +201,7 @@ const handleExecute = async () => {
     server,
     selectedSecuritySchemes,
     isElectron: isElectron(),
+    requestBodyCompositionSelection,
   })
 
   if (requestBuilder.ok === false) {
@@ -435,6 +439,7 @@ onBeforeUnmount(() => {
           :path
           :plugins
           :proxyUrl
+          :requestBodyCompositionSelection
           :securityRequirements
           :securitySchemes
           :selectedClient

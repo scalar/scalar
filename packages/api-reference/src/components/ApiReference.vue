@@ -913,6 +913,7 @@ const showMCPButton = computed(() => {
         v-if="agent.agentEnabled.value"
         :agentScalarConfiguration="configList[activeSlug]?.agent"
         :eventBus
+        :externalUrls="mergedConfig.externalUrls"
         :workspaceStore />
 
       <!-- Mobile Header and Sidebar when in modern layout -->
@@ -991,6 +992,7 @@ const showMCPButton = computed(() => {
                   <OpenMCPButton
                     v-if="showMCPButton"
                     :config="mergedConfig.mcp"
+                    :externalUrls="mergedConfig.externalUrls"
                     :isDevelopment="isDevelopment"
                     :url="documentUrl"
                     :workspace="workspaceStore" />
@@ -1039,6 +1041,7 @@ const showMCPButton = computed(() => {
               v-model:overrides="configurationOverrides"
               class="references-developer-tools"
               :configuration="mergedConfig"
+              :externalUrls="mergedConfig.externalUrls"
               :workspace="workspaceStore" />
 
             <!-- Placeholder intersection observer that emits an empty string to clear the hash when scrolled to the top -->

@@ -13,7 +13,7 @@ import type {
   OperationObject,
   ServerObject,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import { computed, useId } from 'vue'
+import { computed, provide, ref, useId } from 'vue'
 
 import { Anchor } from '@/components/Anchor'
 import { Badge } from '@/components/Badge'
@@ -34,6 +34,10 @@ import Callbacks from '@/features/Operation/components/callbacks/Callbacks.vue'
 import OperationParameters from '@/features/Operation/components/OperationParameters.vue'
 import OperationResponses from '@/features/Operation/components/OperationResponses.vue'
 import type { OperationProps } from '@/features/Operation/Operation.vue'
+import {
+  REQUEST_BODY_COMPOSITION_INDEX_SYMBOL,
+  type RequestBodyCompositionSelection,
+} from '@/features/Operation/request-body-composition-index'
 import { getXKeysFromObject } from '@/features/specification-extension'
 import SpecificationExtension from '@/features/specification-extension/SpecificationExtension.vue'
 import { TestRequestButton } from '@/features/test-request-button'
@@ -74,6 +78,21 @@ const operationTitle = computed(() => operation.summary || path || '')
 const labelId = useId()
 
 const operationExtensions = computed(() => getXKeysFromObject(operation))
+
+/** Selected request body oneOf/anyOf variants; synced with schema dropdowns and code sample */
+const requestBodyCompositionSelection = ref<RequestBodyCompositionSelection>({})
+
+const requestBodyCompositionSelectionForCodeSample = computed(
+  (): RequestBodyCompositionSelection => ({
+    ...requestBodyCompositionSelection.value,
+  }),
+)
+
+const requestBodyCompositionSelectionKey = computed(() =>
+  JSON.stringify(requestBodyCompositionSelectionForCodeSample.value),
+)
+
+provide(REQUEST_BODY_COMPOSITION_INDEX_SYMBOL, requestBodyCompositionSelection)
 </script>
 
 <template>
@@ -176,6 +195,7 @@ const operationExtensions = computed(() => getXKeysFromObject(operation))
             <!-- New Example Request -->
             <ScalarErrorBoundary>
               <OperationCodeSample
+                :key="requestBodyCompositionSelectionKey"
                 :clientOptions
                 :eventBus
                 fallback
@@ -183,6 +203,9 @@ const operationExtensions = computed(() => getXKeysFromObject(operation))
                 :method
                 :operation
                 :path
+                :requestBodyCompositionSelection="
+                  requestBodyCompositionSelectionForCodeSample
+                "
                 :securitySchemes="selectedSecuritySchemes"
                 :selectedClient
                 :selectedServer>
@@ -203,7 +226,10 @@ const operationExtensions = computed(() => getXKeysFromObject(operation))
                       :eventBus
                       :exampleName
                       :method
-                      :path />
+                      :path
+                      :requestBodyCompositionSelection="
+                        requestBodyCompositionSelectionForCodeSample
+                      " />
                   </div>
                 </template>
               </OperationCodeSample>

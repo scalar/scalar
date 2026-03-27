@@ -8,9 +8,13 @@ import type {
   DiscriminatorObject,
   SchemaObject,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import { computed, ref } from 'vue'
+import { computed, inject, ref, watch } from 'vue'
 
 import type { SchemaOptions } from '@/components/Content/Schema/types'
+import {
+  REQUEST_BODY_COMPOSITION_INDEX_SYMBOL,
+  type RequestBodyCompositionSelection,
+} from '@/features/Operation/request-body-composition-index'
 
 import { getSchemaType } from './helpers/get-schema-type'
 import { mergeAllOfSchemas } from './helpers/merge-all-of-schemas'
@@ -40,6 +44,10 @@ const props = withDefaults(
     eventBus: WorkspaceEventBus | null
     /** Move the options into  single prop so they are easy to pass around */
     options: SchemaOptions
+    /** When "requestBody", sync selected index with the example snippet */
+    schemaContext?: string
+    /** Internal path used to sync nested request body compositions with the code sample */
+    compositionPath?: string[]
   }>(),
   {
     compact: false,
@@ -69,12 +77,54 @@ const listboxOptions = computed((): ScalarListboxOption[] =>
   }),
 )
 
+const compositionSelectionKey = computed(() =>
+  props.compositionPath?.length
+    ? [...props.compositionPath, props.composition].join('.')
+    : '',
+)
+
+/** When this composition is in the request body, sync selection with the example snippet */
+const requestBodyCompositionSelectionRef = inject(
+  REQUEST_BODY_COMPOSITION_INDEX_SYMBOL,
+  undefined,
+)
+
+const initialSelectedIndex = computed(() => {
+  if (
+    props.schemaContext !== 'requestBody' ||
+    !requestBodyCompositionSelectionRef?.value ||
+    !compositionSelectionKey.value
+  ) {
+    return 0
+  }
+
+  const selectedIndex =
+    requestBodyCompositionSelectionRef.value[compositionSelectionKey.value]
+
+  if (typeof selectedIndex !== 'number' || Number.isNaN(selectedIndex)) {
+    return 0
+  }
+
+  return Math.max(0, Math.min(selectedIndex, listboxOptions.value.length - 1))
+})
+
 /**
  * Two-way computed property for the selected option.
  * Handles conversion between the selected index and the listbox option format.
  */
-const selectedOption = ref<ScalarListboxOption | undefined>(
-  listboxOptions.value[0],
+const selectedOption = ref<ScalarListboxOption | undefined>()
+
+watch(
+  [listboxOptions, initialSelectedIndex],
+  ([options, selectedIndex]) => {
+    if (
+      !selectedOption.value ||
+      !options.some((option) => option.id === selectedOption.value?.id)
+    ) {
+      selectedOption.value = options[selectedIndex] ?? options[0]
+    }
+  },
+  { immediate: true },
 )
 
 /**
@@ -95,6 +145,26 @@ const selectedComposition = computed(
 
 /** Controls whether the nested schema is displayed */
 const showNestedSchema = ref(false)
+
+if (
+  requestBodyCompositionSelectionRef &&
+  props.schemaContext === 'requestBody' &&
+  compositionSelectionKey.value
+) {
+  watch(
+    selectedOption,
+    (option) => {
+      const index = option ? Number(option.id) : 0
+      if (!Number.isNaN(index)) {
+        requestBodyCompositionSelectionRef.value = {
+          ...requestBodyCompositionSelectionRef.value,
+          [compositionSelectionKey.value]: index,
+        } satisfies RequestBodyCompositionSelection
+      }
+    },
+    { immediate: true },
+  )
+}
 </script>
 
 <template>
@@ -111,6 +181,8 @@ const showNestedSchema = ref(false)
       :name="name"
       :noncollapsible="true"
       :options="options"
+      :compositionPath="compositionPath"
+      :schemaContext="schemaContext"
       :schema="mergeAllOfSchemas(schema)" />
 
     <template v-else>
@@ -162,6 +234,8 @@ const showNestedSchema = ref(false)
           :name="name"
           :noncollapsible="true"
           :options="options"
+          :compositionPath="compositionPath"
+          :schemaContext="schemaContext"
           :schema="selectedComposition" />
       </div>
     </template>

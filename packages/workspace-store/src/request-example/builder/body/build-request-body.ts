@@ -54,6 +54,8 @@ export const buildRequestBody = (
   requestBody: RequestBodyObject | undefined,
   /** The key of the current example */
   exampleName = 'default',
+  /** Selected anyOf/oneOf request-body variants keyed by schema path */
+  requestBodyCompositionSelection?: Record<string, number>,
 ): RequestBody | null => {
   if (!requestBody) {
     return null
@@ -66,7 +68,7 @@ export const buildRequestBody = (
   }
 
   /** An example value */
-  const example = getExampleFromBody(requestBody, bodyContentType, exampleName)
+  const example = getExampleFromBody(requestBody, bodyContentType, exampleName, requestBodyCompositionSelection)
   if (!example) {
     return null
   }

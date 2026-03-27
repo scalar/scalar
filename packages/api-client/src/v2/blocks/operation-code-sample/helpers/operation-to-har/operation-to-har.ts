@@ -45,6 +45,11 @@ export type OperationToHarProps = {
    * @default true
    */
   includeDefaultHeaders?: boolean
+  /**
+   * Selected oneOf/anyOf variants for nested request body example generation
+   * (e.g. from the schema dropdowns in the API reference).
+   */
+  requestBodyCompositionSelection?: Record<string, number>
 }
 
 /**
@@ -79,6 +84,7 @@ export const operationToHar = ({
   example,
   securitySchemes,
   globalCookies,
+  requestBodyCompositionSelection,
 }: OperationToHarProps): HarRequest => {
   const defaultHeaders = includeDefaultHeaders
     ? getDefaultHeaders({
@@ -131,7 +137,12 @@ export const operationToHar = ({
 
   // Handle request body
   if (body?.content) {
-    const postData = processBody({ requestBody: body, contentType, example })
+    const postData = processBody({
+      requestBody: body,
+      contentType,
+      example,
+      requestBodyCompositionSelection,
+    })
 
     if (postData) {
       harRequest.postData = postData

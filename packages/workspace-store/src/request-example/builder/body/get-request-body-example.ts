@@ -1,6 +1,11 @@
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
-import type { ExampleObject, RequestBodyObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type {
+  ExampleObject,
+  RequestBodyObject,
+  SchemaObject,
+} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
+import { getResolvedRefDeep } from '@/helpers/get-resolved-ref-deep'
 import { getExample } from '@/request-example/builder/helpers/get-example'
 import { getExampleFromSchema } from '@/request-example/builder/helpers/get-example-from-schema'
 
@@ -11,6 +16,7 @@ export const getExampleFromBody = (
   requestBody: RequestBodyObject,
   contentType: string,
   exampleKey: string,
+  requestBodyCompositionSelection?: Record<string, number>,
 ): ExampleObject | null => {
   const content = requestBody.content?.[contentType]
 
@@ -25,8 +31,19 @@ export const getExampleFromBody = (
     return null
   }
 
+  const resolvedSchema = getResolvedRefDeep(schema) as SchemaObject
+
   // Generate an example from the schema
-  const schemaExample = getExampleFromSchema(schema, { mode: 'write' })
+  const schemaExample = getExampleFromSchema(
+    resolvedSchema,
+    {
+      mode: 'write',
+      compositionSelection: requestBodyCompositionSelection,
+    },
+    {
+      schemaPath: ['requestBody'],
+    },
+  )
   if (!schemaExample) {
     return null
   }

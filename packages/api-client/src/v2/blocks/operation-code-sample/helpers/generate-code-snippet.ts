@@ -33,6 +33,8 @@ type GenerateCodeSnippetProps = {
   globalCookies?: XScalarCookie[]
   /** Whether to include default headers (e.g., Accept, Content-Type) automatically. */
   includeDefaultHeaders?: boolean
+  /** Selected oneOf/anyOf variants for nested request body example generation. */
+  requestBodyCompositionSelection?: Record<string, number>
 }
 
 /** Generate the code snippet for the selected example OR operation */
@@ -48,6 +50,7 @@ export const generateCodeSnippet = ({
   server,
   securitySchemes,
   globalCookies,
+  requestBodyCompositionSelection,
 }: GenerateCodeSnippetProps): string => {
   try {
     if (!clientId) {
@@ -72,6 +75,7 @@ export const generateCodeSnippet = ({
       example,
       globalCookies,
       includeDefaultHeaders,
+      requestBodyCompositionSelection,
     })
 
     const [targetKey, clientKey] = clientId.split('/') as [TargetId, ClientId<TargetId>]

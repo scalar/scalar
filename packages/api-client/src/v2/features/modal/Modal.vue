@@ -12,6 +12,8 @@ export type ModalProps = {
   method: ComputedRef<HttpMethod | undefined>
   /** The example name must be initialized and passed in */
   exampleName: ComputedRef<string | undefined>
+  /** Selected anyOf/oneOf request-body variants keyed by schema path */
+  requestBodyCompositionSelection: Ref<Record<string, number>>
   /** Controls the visibility of the modal */
   modalState: ModalState
   /** The sidebar state must be initialized and passed in */
@@ -62,6 +64,7 @@ import {
   watch,
   type ComputedRef,
   type MaybeRefOrGetter,
+  type Ref,
 } from 'vue'
 
 import ModalClientContainer from '@/v2/components/modals/ModalClientContainer.vue'
@@ -78,6 +81,7 @@ const {
   modalState,
   options,
   plugins,
+  requestBodyCompositionSelection,
   sidebarState,
   workspaceStore,
 } = defineProps<ModalProps>()
@@ -94,6 +98,7 @@ const isSidebarOpen = ref(false)
 initializeModalEvents({
   eventBus,
   isSidebarOpen,
+  requestBodyCompositionSelection,
   sidebarState,
   modalState,
   store: workspaceStore,
@@ -206,6 +211,7 @@ defineExpose({
         :options
         :path="path?.value"
         :plugins
+        :requestBodyCompositionSelection="requestBodyCompositionSelection.value"
         :securitySchemes
         :workspaceStore />
     </main>

@@ -10,8 +10,12 @@
     "url": "git+https://github.com/scalar/scalar.git",
     "directory": "packages/validation"
   },
-  "keywords": ["validation", "coerce", "scalar"],
-  "version": "0.0.0",
+  "keywords": [
+    "validation",
+    "coerce",
+    "scalar"
+  ],
+  "version": "0.1.0",
   "engines": {
     "node": ">=20"
   },

@@ -16,7 +16,7 @@
     "specification",
     "yaml"
   ],
-  "version": "0.10.11",
+  "version": "0.10.12",
   "engines": {
     "node": ">=22"
   },
@@ -94,6 +94,7 @@
     "@scalar/helpers": "workspace:*",
     "@scalar/json-magic": "workspace:*",
     "@scalar/object-utils": "workspace:*",
+    "@scalar/openapi-parser": "workspace:*",
     "@scalar/openapi-types": "workspace:*",
     "@scalar/themes": "workspace:*",
     "@scalar/types": "workspace:*",
@@ -106,7 +107,6 @@
     "zod": "catalog:*"
   },
   "devDependencies": {
-    "@scalar/openapi-parser": "workspace:*",
     "@scalar/openapi-types": "workspace:*",
     "@types/node": "catalog:*",
     "fake-indexeddb": "catalog:*",

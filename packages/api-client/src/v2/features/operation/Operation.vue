@@ -40,6 +40,8 @@ const {
   RouteProps & {
     /** Subset of config options for the modal */
     options?: ModalProps['options']
+    /** Selected anyOf/oneOf request-body variants keyed by schema path */
+    requestBodyCompositionSelection?: Record<string, number>
   }
 >()
 
@@ -158,6 +160,7 @@ const httpClients = computed(() =>
           layout === 'web' ? 'web' : 'other',
         ) ?? ''
       "
+      :requestBodyCompositionSelection
       :securityRequirements="securityRequirements"
       :securitySchemes
       :selectedClient="workspaceStore.workspace['x-scalar-default-client']"
