@@ -928,6 +928,22 @@ describe('union', () => {
       $ref: 'https://example.com/schema',
     })
   })
+
+  it('picks the branch whose type discriminator matches a union of literals', () => {
+    const T = union([
+      object({
+        type: literal('a'),
+        a: string(),
+      }),
+      object({
+        type: union([literal('b'), literal('c')]),
+        b: string(),
+      }),
+    ])
+    expect(coerce(T, { type: 'a' })).toEqual({ type: 'a', a: '' })
+    expect(coerce(T, { type: 'b' })).toEqual({ type: 'b', b: '' })
+    expect(coerce(T, { type: 'c' })).toEqual({ type: 'c', b: '' })
+  })
 })
 
 describe('intersection', () => {

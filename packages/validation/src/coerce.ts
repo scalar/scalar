@@ -4,6 +4,24 @@ import type { Static } from './types'
 import { validate } from './validate'
 
 /**
+ * True when this property schema is only used to discriminate union branches
+ * (single literal, or a union of literals). No presence bonus when the value
+ * does not match — avoids ties like `type: literal('a')` vs `type: union([lit('b'), lit('c')])`.
+ */
+const isDiscriminatorProperty = (schema: Schema): boolean => {
+  if (schema.type === 'optional') {
+    return isDiscriminatorProperty(schema.schema)
+  }
+  if (schema.type === 'literal') {
+    return true
+  }
+  if (schema.type === 'union') {
+    return schema.schemas.length > 0 && schema.schemas.every(isDiscriminatorProperty)
+  }
+  return false
+}
+
+/**
  * Computes a "score" indicating how well a value matches a schema,
  * used for picking the best branch in union coercion.
  *
@@ -17,18 +35,23 @@ const scoreUnion = (schema: Schema, value: unknown): number => {
       return 0
     }
 
-    // For each key in the schema's properties:
-    // - +10 if the value matches an explicit literal for the key.
-    // - +1 if the property exists (not literal match).
+    // Missing keys contribute 0 (including optional keys — matches prior union heuristics).
+    // Discriminator properties (`literal` or `union` of literals): recurse with scoreUnion;
+    // matching values get a high weight (×10) so `type: literal('A')` beats unrelated fields
+    // on another branch; mismatches score 0 (no "key present" tie-break).
+    // Other properties: scoreUnion plus +1 when the value fails validation so `{ a: null }`
+    // can still prefer the branch that declares `a`.
     return Object.keys(schema.properties).reduce<number>((acc, key) => {
-      const exists = key in value
-      const propSchema = schema.properties[key]
-      const inner = propSchema.type === 'optional' ? propSchema.schema : propSchema
-      const isLiteralMatch = inner.type === 'literal' && value[key] === inner.value
-      if (isLiteralMatch) {
-        return acc + 10
+      if (!(key in value)) {
+        return acc
       }
-      return acc + (exists ? 1 : 0)
+      const propSchema = schema.properties[key]
+      const raw = value[key as keyof typeof value]
+      const base = scoreUnion(propSchema, raw)
+      if (isDiscriminatorProperty(propSchema)) {
+        return acc + (base > 0 ? base * 10 : 0)
+      }
+      return acc + (base > 0 ? base : 1)
     }, 0)
   }
   if (schema.type === 'array') {
