@@ -1,6 +1,4 @@
-import { readdir, readFile } from 'node:fs/promises'
-import { dirname, resolve } from 'node:path'
-import { fileURLToPath } from 'node:url'
+import { getStarterTheme, presets } from '@scalar/themes'
 
 import { describe, expect, it } from 'vitest'
 
@@ -11,78 +9,491 @@ type CssVariablesByMode = {
   dark: Record<string, string>
 }
 
-const HEX_COLOR_REGEX = /^(?:#(?:[0-9A-F]{6}|[0-9A-F]{8}))$/i
+const themeStylesheets = {
+  ...Object.fromEntries(Object.entries(presets).map(([id, preset]) => [id, preset.theme])),
+  'custom-theme-starter': getStarterTheme('Custom').theme,
+} as const
 
-const getThemePresetFiles = async (): Promise<Array<{ fileName: string; css: string }>> => {
-  const currentDirectory = dirname(fileURLToPath(import.meta.url))
-  const presetsDirectory = resolve(currentDirectory, '../../../../../../../themes/src/presets')
-
-  const files = await readdir(presetsDirectory)
-  const presetFileNames = files.filter((file) => file.endsWith('.css')).sort()
-
-  const cssFiles = await Promise.all(
-    presetFileNames.map(async (fileName) => ({
-      fileName,
-      css: await readFile(resolve(presetsDirectory, fileName), 'utf-8'),
-    })),
-  )
-
-  return cssFiles
-}
-
-const extractExpectedCssVariables = async (css: string): Promise<CssVariablesByMode> => {
-  const sheet = new CSSStyleSheet()
-  await sheet.replace(css)
-
-  return Array.from(sheet.cssRules).reduce<CssVariablesByMode>(
-    (result, rule) => {
-      if (!(rule instanceof CSSStyleRule)) {
-        return result
-      }
-
-      const variables = Array.from(rule.style).reduce<Record<string, string>>((styles, name) => {
-        if (!name.startsWith('--')) {
-          return styles
-        }
-
-        const value = rule.style.getPropertyValue(name).trim().toUpperCase()
-
-        if (!HEX_COLOR_REGEX.test(value)) {
-          return styles
-        }
-
-        styles[name] = value
-
-        return styles
-      }, {})
-
-      if (rule.selectorText.includes('.light-mode')) {
-        result.light = { ...result.light, ...variables }
-      }
-
-      if (rule.selectorText.includes('.dark-mode')) {
-        result.dark = { ...result.dark, ...variables }
-      }
-
-      return result
+const expectedPresetVariables: Record<string, CssVariablesByMode> = {
+  default: {
+    light: {
+      '--scalar-background-2': '#F6F6F6',
+      '--scalar-background-3': '#E7E7E7',
+      '--scalar-background-accent': '#8AB4F81F',
+      '--scalar-color-1': '#1B1B1B',
+      '--scalar-color-2': '#757575',
+      '--scalar-color-3': '#8E8E8E',
+      '--scalar-color-accent': '#0099FF',
+      '--scalar-border-color': '#DFDFDF',
+      '--scalar-color-green': '#069061',
+      '--scalar-color-red': '#EF0006',
+      '--scalar-color-yellow': '#EDBE20',
+      '--scalar-color-blue': '#0082D0',
+      '--scalar-color-orange': '#FF5800',
+      '--scalar-color-purple': '#5203D1',
     },
-    { light: {}, dark: {} },
-  )
+    dark: {
+      '--scalar-background-1': '#0F0F0F',
+      '--scalar-background-2': '#1A1A1A',
+      '--scalar-background-3': '#272727',
+      '--scalar-color-1': '#E7E7E7',
+      '--scalar-color-2': '#A4A4A4',
+      '--scalar-color-3': '#797979',
+      '--scalar-color-accent': '#00AEFF',
+      '--scalar-background-accent': '#3EA6FF1F',
+      '--scalar-border-color': '#2D2D2D',
+      '--scalar-color-green': '#00B648',
+      '--scalar-color-red': '#DC1B19',
+      '--scalar-color-yellow': '#FFC90D',
+      '--scalar-color-blue': '#4EB3EC',
+      '--scalar-color-orange': '#FF8D4D',
+      '--scalar-color-purple': '#B191F9',
+    },
+  },
+  alternate: {
+    light: {
+      '--scalar-background-1': '#F9F9F9',
+      '--scalar-background-2': '#F1F1F1',
+      '--scalar-background-3': '#E7E7E7',
+      '--scalar-color-1': '#1B1B1B',
+      '--scalar-color-2': '#757575',
+      '--scalar-color-3': '#8E8E8E',
+      '--scalar-color-green': '#069061',
+      '--scalar-color-red': '#EF0006',
+      '--scalar-color-yellow': '#EDBE20',
+      '--scalar-color-blue': '#0082D0',
+      '--scalar-color-orange': '#FB892C',
+      '--scalar-color-purple': '#5203D1',
+    },
+    dark: {
+      '--scalar-background-1': '#F9F9F9',
+      '--scalar-background-2': '#F1F1F1',
+      '--scalar-background-3': '#E7E7E7',
+      '--scalar-background-card': '#1D1D1D',
+      '--scalar-border-color': '#2A2B2A',
+      '--scalar-color-1': '#1B1B1B',
+      '--scalar-color-2': '#757575',
+      '--scalar-color-3': '#8E8E8E',
+      '--scalar-color-green': '#00B648',
+      '--scalar-color-red': '#DD2F2C',
+      '--scalar-color-yellow': '#FFC90D',
+      '--scalar-color-blue': '#4EB3EC',
+      '--scalar-color-orange': '#FF8D4D',
+      '--scalar-color-purple': '#B191F9',
+    },
+  },
+  moon: {
+    light: {
+      '--scalar-color-1': '#000000',
+      '--scalar-color-2': '#000000',
+      '--scalar-color-3': '#000000',
+      '--scalar-color-accent': '#645B0F',
+      '--scalar-background-1': '#CCC9B3',
+      '--scalar-background-2': '#C2BFAA',
+      '--scalar-background-3': '#B8B5A1',
+      '--scalar-background-accent': '#000000',
+      '--scalar-color-red': '#B91C1C',
+      '--scalar-color-orange': '#C2410C',
+      '--scalar-color-green': '#047857',
+      '--scalar-color-blue': '#1D4ED8',
+      '--scalar-color-purple': '#6D28D9',
+    },
+    dark: {
+      '--scalar-color-1': '#FFFEF3',
+      '--scalar-color-2': '#FFFEF3',
+      '--scalar-color-3': '#FFFEF3',
+      '--scalar-color-accent': '#C3B531',
+      '--scalar-background-1': '#313332',
+      '--scalar-background-2': '#393B3A',
+      '--scalar-background-3': '#414342',
+      '--scalar-background-accent': '#FFFEF3',
+      '--scalar-border-color': '#505452',
+      '--scalar-button-1': '#F6F6F6',
+      '--scalar-button-1-hover': '#E7E7E7',
+      '--scalar-color-green': '#00B648',
+      '--scalar-color-red': '#DC1B19',
+      '--scalar-color-yellow': '#FFC90D',
+      '--scalar-color-blue': '#4EB3EC',
+      '--scalar-color-orange': '#FF8D4D',
+      '--scalar-color-purple': '#B191F9',
+    },
+  },
+  purple: {
+    light: {
+      '--scalar-background-2': '#F5F6F8',
+      '--scalar-background-3': '#ECEEF1',
+      '--scalar-color-1': '#1B1B1B',
+      '--scalar-color-2': '#757575',
+      '--scalar-color-3': '#8E8E8E',
+      '--scalar-color-accent': '#5469D4',
+      '--scalar-background-accent': '#5469D41F',
+      '--scalar-color-green': '#17803D',
+      '--scalar-color-red': '#E10909',
+      '--scalar-color-yellow': '#EDBE20',
+      '--scalar-color-blue': '#1763A6',
+      '--scalar-color-orange': '#E25B09',
+      '--scalar-color-purple': '#5C3993',
+    },
+    dark: {
+      '--scalar-background-1': '#15171C',
+      '--scalar-background-2': '#1C1E24',
+      '--scalar-background-3': '#22252B',
+      '--scalar-color-1': '#FAFAFA',
+      '--scalar-color-2': '#C9CED8',
+      '--scalar-color-3': '#8C99AD',
+      '--scalar-color-accent': '#5469D4',
+      '--scalar-background-accent': '#5469D41F',
+      '--scalar-border-color': '#3F4145',
+      '--scalar-color-green': '#30A159',
+      '--scalar-color-red': '#DC1B19',
+      '--scalar-color-yellow': '#EEC644',
+      '--scalar-color-blue': '#2B7ABF',
+      '--scalar-color-orange': '#F07528',
+      '--scalar-color-purple': '#7A59B1',
+    },
+  },
+  solarized: {
+    light: {
+      '--scalar-color-1': '#584C27',
+      '--scalar-color-2': '#616161',
+      '--scalar-color-3': '#A89F84',
+      '--scalar-color-accent': '#B58900',
+      '--scalar-background-1': '#FDF6E3',
+      '--scalar-background-2': '#EEE8D5',
+      '--scalar-background-3': '#DDD6C1',
+      '--scalar-background-accent': '#B589001F',
+      '--scalar-border-color': '#DED8C8',
+      '--scalar-color-red': '#B91C1C',
+      '--scalar-color-orange': '#C2410C',
+      '--scalar-color-green': '#047857',
+      '--scalar-color-blue': '#1D4ED8',
+      '--scalar-color-purple': '#6D28D9',
+    },
+    dark: {
+      '--scalar-color-2': '#CCCCCC',
+      '--scalar-color-3': '#6D8890',
+      '--scalar-color-accent': '#007ACC',
+      '--scalar-background-1': '#00212B',
+      '--scalar-background-2': '#012B36',
+      '--scalar-background-3': '#004052',
+      '--scalar-background-accent': '#015A6F',
+      '--scalar-border-color': '#2F4851',
+      '--scalar-button-1': '#F6F6F6',
+      '--scalar-button-1-hover': '#E7E7E7',
+      '--scalar-color-green': '#00B648',
+      '--scalar-color-red': '#DC1B19',
+      '--scalar-color-yellow': '#FFC90D',
+      '--scalar-color-blue': '#4EB3EC',
+      '--scalar-color-orange': '#FF8D4D',
+      '--scalar-color-purple': '#B191F9',
+    },
+  },
+  bluePlanet: {
+    light: {
+      '--scalar-background-1': '#000E23',
+      '--scalar-background-2': '#01132E',
+      '--scalar-background-3': '#03193B',
+      '--scalar-background-accent': '#8AB4F81F',
+      '--scalar-border-color': '#2E394C',
+      '--scalar-color-1': '#FAFAFA',
+      '--scalar-color-green': '#069061',
+      '--scalar-color-red': '#EF0006',
+      '--scalar-color-yellow': '#EDBE20',
+      '--scalar-color-blue': '#0082D0',
+      '--scalar-color-orange': '#FB892C',
+      '--scalar-color-purple': '#5203D1',
+    },
+    dark: {
+      '--scalar-background-1': '#000E23',
+      '--scalar-background-2': '#01132E',
+      '--scalar-background-3': '#03193B',
+      '--scalar-border-color': '#2E394C',
+      '--scalar-color-1': '#FAFAFA',
+      '--scalar-background-accent': '#8AB4F81F',
+      '--scalar-color-red': '#FF8589',
+      '--scalar-color-yellow': '#FFCC4D',
+      '--scalar-color-blue': '#6BC1FE',
+      '--scalar-color-orange': '#F98943',
+      '--scalar-color-purple': '#B191F9',
+    },
+  },
+  deepSpace: {
+    light: {
+      '--scalar-background-2': '#F4F4F5',
+      '--scalar-background-3': '#E3E3E6',
+      '--scalar-background-accent': '#8AB4F81F',
+      '--scalar-color-green': '#069061',
+      '--scalar-color-red': '#EF0006',
+      '--scalar-color-yellow': '#EDBE20',
+      '--scalar-color-blue': '#0082D0',
+      '--scalar-color-orange': '#FB892C',
+      '--scalar-color-purple': '#5203D1',
+    },
+    dark: {
+      '--scalar-color-1': '#FAFAFA',
+      '--scalar-background-1': '#09090B',
+      '--scalar-background-2': '#18181B',
+      '--scalar-background-3': '#2C2C30',
+      '--scalar-background-accent': '#8AB4F81F',
+      '--scalar-color-red': '#FF8589',
+      '--scalar-color-yellow': '#FFCC4D',
+      '--scalar-color-blue': '#6BC1FE',
+      '--scalar-color-orange': '#F98943',
+      '--scalar-color-purple': '#B191F9',
+    },
+  },
+  saturn: {
+    light: {
+      '--scalar-background-1': '#F3F3EE',
+      '--scalar-background-2': '#E8E8E3',
+      '--scalar-background-3': '#E4E4DF',
+      '--scalar-color-1': '#1B1B1B',
+      '--scalar-color-2': '#757575',
+      '--scalar-color-3': '#8E8E8E',
+      '--scalar-color-accent': '#1763A6',
+      '--scalar-background-accent': '#1F648E1F',
+      '--scalar-color-green': '#17803D',
+      '--scalar-color-red': '#E10909',
+      '--scalar-color-yellow': '#EDBE20',
+      '--scalar-color-blue': '#1763A6',
+      '--scalar-color-orange': '#E25B09',
+      '--scalar-color-purple': '#5C3993',
+    },
+    dark: {
+      '--scalar-background-1': '#09090B',
+      '--scalar-background-2': '#18181B',
+      '--scalar-background-3': '#2C2C30',
+      '--scalar-color-1': '#FAFAFA',
+      '--scalar-color-accent': '#4EB3EC',
+      '--scalar-background-accent': '#8AB4F81F',
+      '--scalar-color-green': '#30A159',
+      '--scalar-color-red': '#DC1B19',
+      '--scalar-color-yellow': '#EEC644',
+      '--scalar-color-blue': '#2B7ABF',
+      '--scalar-color-orange': '#F07528',
+      '--scalar-color-purple': '#7A59B1',
+    },
+  },
+  kepler: {
+    light: {
+      '--scalar-color-1': '#1B1B1B',
+      '--scalar-color-2': '#757575',
+      '--scalar-color-3': '#8E8E8E',
+      '--scalar-color-accent': '#7070FF',
+      '--scalar-background-2': '#0D0F1E',
+      '--scalar-background-3': '#191B29',
+      '--scalar-background-accent': '#7070FF1F',
+      '--scalar-color-green': '#069061',
+      '--scalar-color-red': '#EF0006',
+      '--scalar-color-yellow': '#EDBE20',
+      '--scalar-color-blue': '#0082D0',
+      '--scalar-color-orange': '#FB892C',
+      '--scalar-color-purple': '#5203D1',
+      '--scalar-background-1': '#0D0F1E',
+    },
+    dark: {
+      '--scalar-color-1': '#F7F8F8',
+      '--scalar-color-3': '#B4BCD099',
+      '--scalar-color-accent': '#828FFF',
+      '--scalar-background-1': '#0D0F1E',
+      '--scalar-background-2': '#0D0F1E',
+      '--scalar-background-3': '#191B29',
+      '--scalar-background-accent': '#8AB4F81F',
+      '--scalar-border-color': '#313245',
+      '--scalar-color-green': '#00B648',
+      '--scalar-color-red': '#DC1B19',
+      '--scalar-color-yellow': '#FFC90D',
+      '--scalar-color-blue': '#4EB3EC',
+      '--scalar-color-orange': '#FF8D4D',
+      '--scalar-color-purple': '#B191F9',
+    },
+  },
+  mars: {
+    light: {
+      '--scalar-background-1': '#F9F6F0',
+      '--scalar-background-2': '#F2EFE8',
+      '--scalar-background-3': '#E9E7E2',
+      '--scalar-color-1': '#C75549',
+      '--scalar-color-2': '#C75549',
+      '--scalar-color-3': '#C75549',
+      '--scalar-color-accent': '#C75549',
+      '--scalar-background-accent': '#DCBFA81F',
+      '--scalar-color-green': '#09533A',
+      '--scalar-color-red': '#AA181D',
+      '--scalar-color-yellow': '#AB8D2B',
+      '--scalar-color-blue': '#19689A',
+      '--scalar-color-orange': '#B26C34',
+      '--scalar-color-purple': '#4C2191',
+    },
+    dark: {
+      '--scalar-background-1': '#140507',
+      '--scalar-background-2': '#20090C',
+      '--scalar-background-3': '#321116',
+      '--scalar-border-color': '#3C3031',
+      '--scalar-background-accent': '#441313',
+      '--scalar-color-red': '#FF8589',
+      '--scalar-color-yellow': '#FFCC4D',
+      '--scalar-color-blue': '#6BC1FE',
+      '--scalar-color-orange': '#F98943',
+      '--scalar-color-purple': '#B191F9',
+    },
+  },
+  laserwave: {
+    light: {
+      '--scalar-color-1': '#322B3B',
+      '--scalar-color-2': '#645676',
+      '--scalar-color-3': '#9789A9',
+      '--scalar-color-accent': '#40B4C4',
+      '--scalar-background-2': '#F4F2F7',
+      '--scalar-background-3': '#CFC7DC',
+      '--scalar-background-accent': '#F3FAFB',
+      '--scalar-border-color': '#E4E0EB',
+      '--scalar-color-green': '#74DFC4',
+      '--scalar-color-red': '#D887F5',
+      '--scalar-color-yellow': '#FFE261',
+      '--scalar-color-blue': '#40B4C4',
+      '--scalar-color-orange': '#FF52BF',
+      '--scalar-color-purple': '#91889B',
+    },
+    dark: {
+      '--scalar-color-2': '#B8B6BA',
+      '--scalar-color-3': '#706C74',
+      '--scalar-color-accent': '#ED78C2',
+      '--scalar-background-1': '#27212E',
+      '--scalar-background-2': '#322C39',
+      '--scalar-background-3': '#4C4059',
+      '--scalar-background-accent': '#EB64B91F',
+      '--scalar-sidebar-search-border-color': '#514C56',
+      '--scalar-button-1': '#F6F6F6',
+      '--scalar-button-1-color': '#27212E',
+      '--scalar-button-1-hover': '#E7E7E7',
+      '--scalar-color-green': '#74DFC4',
+      '--scalar-color-red': '#D887F5',
+      '--scalar-color-yellow': '#FFE261',
+      '--scalar-color-blue': '#40B4C4',
+      '--scalar-color-orange': '#FF52BF',
+      '--scalar-color-purple': '#91889B',
+    },
+  },
+  elysiajs: {
+    light: {
+      '--scalar-color-1': '#1B1B1B',
+      '--scalar-color-2': '#757575',
+      '--scalar-color-3': '#8E8E8E',
+      '--scalar-color-accent': '#F06292',
+      '--scalar-background-2': '#F6F6F6',
+      '--scalar-background-3': '#E7E7E7',
+      '--scalar-sidebar-item-active-background': '#F062921F',
+      '--scalar-color-green': '#069061',
+      '--scalar-color-red': '#EF0006',
+      '--scalar-color-yellow': '#EDBE20',
+      '--scalar-color-blue': '#0082D0',
+      '--scalar-color-orange': '#FB892C',
+      '--scalar-color-purple': '#5203D1',
+    },
+    dark: {
+      '--scalar-color-accent': '#F06292',
+      '--scalar-background-1': '#111728',
+      '--scalar-background-2': '#1E293B',
+      '--scalar-background-3': '#334155',
+      '--scalar-background-accent': '#F062921F',
+      '--scalar-sidebar-item-active-background': '#F062921F',
+      '--scalar-button-1': '#F6F6F6',
+      '--scalar-button-1-hover': '#E7E7E7',
+      '--scalar-color-green': '#A3FFA9',
+      '--scalar-color-red': '#FFA3A3',
+      '--scalar-color-yellow': '#FFFCA3',
+      '--scalar-color-blue': '#A5D6FF',
+      '--scalar-color-orange': '#E2AE83',
+      '--scalar-color-purple': '#D2A8FF',
+    },
+  },
+  fastify: {
+    light: {
+      '--scalar-color-1': '#1C1E21',
+      '--scalar-color-2': '#757575',
+      '--scalar-color-3': '#8E8E8E',
+      '--scalar-color-disabled': '#B4B1B1',
+      '--scalar-color-ghost': '#A7A7A7',
+      '--scalar-color-accent': '#2F8555',
+      '--scalar-background-2': '#F5F5F5',
+      '--scalar-background-3': '#EDEDED',
+      '--scalar-background-accent': '#2F85551F',
+      '--scalar-color-green': '#007300',
+      '--scalar-color-red': '#AF272B',
+      '--scalar-color-yellow': '#B38200',
+      '--scalar-color-blue': '#3B8BA5',
+      '--scalar-color-orange': '#FB892C',
+      '--scalar-color-purple': '#5203D1',
+    },
+    dark: {
+      '--scalar-color-accent': '#27C2A0',
+      '--scalar-background-1': '#1B1B1D',
+      '--scalar-background-2': '#242526',
+      '--scalar-background-3': '#3B3B3B',
+      '--scalar-background-accent': '#27C2A01F',
+      '--scalar-button-1': '#F6F6F6',
+      '--scalar-button-1-hover': '#E7E7E7',
+      '--scalar-color-green': '#26B226',
+      '--scalar-color-red': '#FB565B',
+      '--scalar-color-yellow': '#FFC426',
+      '--scalar-color-blue': '#6ECFEF',
+      '--scalar-color-orange': '#FF8D4D',
+      '--scalar-color-purple': '#B191F9',
+    },
+  },
+  'custom-theme-starter': {
+    light: {
+      '--scalar-color-1': '#1B1B1B',
+      '--scalar-color-2': '#757575',
+      '--scalar-color-3': '#8E8E8E',
+      '--scalar-color-disabled': '#B4B1B1',
+      '--scalar-color-ghost': '#A7A7A7',
+      '--scalar-color-accent': '#0099FF',
+      '--scalar-background-2': '#F6F6F6',
+      '--scalar-background-3': '#E7E7E7',
+      '--scalar-background-accent': '#8AB4F81F',
+      '--scalar-color-green': '#059669',
+      '--scalar-color-red': '#DC2626',
+      '--scalar-color-yellow': '#CA8A04',
+      '--scalar-color-blue': '#2563EB',
+      '--scalar-color-orange': '#EA580C',
+      '--scalar-color-purple': '#7C3AED',
+      '--callout-success-primary': '#5DCE89',
+      '--callout-danger-primary': '#DA615D',
+      '--callout-warning-primary': '#FFBB5C',
+      '--callout-info-primary': '#586EE0',
+    },
+    dark: {
+      '--scalar-color-accent': '#8AB4F8',
+      '--scalar-background-1': '#1A1A1A',
+      '--scalar-background-2': '#252525',
+      '--scalar-background-3': '#323232',
+      '--scalar-background-accent': '#8AB4F81F',
+      '--scalar-button-1': '#F6F6F6',
+      '--scalar-button-1-hover': '#E7E7E7',
+      '--scalar-color-green': '#00B648',
+      '--scalar-color-red': '#DC1B19',
+      '--scalar-color-yellow': '#FFC90D',
+      '--scalar-color-blue': '#4EB3EC',
+      '--scalar-color-orange': '#FF8D4D',
+      '--scalar-color-purple': '#B191F9',
+      '--callout-success-primary': '#5DCE89',
+      '--callout-danger-primary': '#DA615D',
+      '--callout-warning-primary': '#FFBB5C',
+      '--callout-info-primary': '#586EE0',
+    },
+  },
 }
 
 describe('load-css-variables', () => {
   it('parses all @scalar/themes presets correctly', async () => {
-    const presetFiles = await getThemePresetFiles()
+    expect(Object.keys(themeStylesheets).sort()).toStrictEqual(Object.keys(expectedPresetVariables).sort())
 
-    expect(presetFiles.length > 0).toBe(true)
+    for (const [presetName, css] of Object.entries(themeStylesheets)) {
+      const parsedVariables = await loadCssVariables(css)
 
-    for (const preset of presetFiles) {
-      const parsedVariables = await loadCssVariables(preset.css)
-      const expectedVariables = await extractExpectedCssVariables(preset.css)
-
-      expect(parsedVariables).toStrictEqual(expectedVariables)
-      expect(Object.keys(parsedVariables.light).length).toBeGreaterThan(0)
-      expect(Object.keys(parsedVariables.dark).length).toBeGreaterThan(0)
+      expect(parsedVariables).toStrictEqual(expectedPresetVariables[presetName])
     }
   })
 })
