@@ -68,7 +68,6 @@
     "zod": "catalog:*"
   },
   "devDependencies": {
-    "@modelcontextprotocol/sdk": "catalog:*",
     "@tailwindcss/vite": "catalog:*",
     "@types/whatwg-mimetype": "catalog:*",
     "@vitejs/plugin-vue": "catalog:*",
