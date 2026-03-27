@@ -9,8 +9,23 @@ export const isTypeObject = (schema: unknown): schema is Extract<SchemaObject, {
     return false
   }
 
+  const hasDiscriminatorMappingWithoutOneOf =
+    'discriminator' in schema &&
+    typeof schema.discriminator === 'object' &&
+    schema.discriminator !== null &&
+    'mapping' in schema.discriminator &&
+    typeof schema.discriminator.mapping === 'object' &&
+    schema.discriminator.mapping !== null &&
+    Object.keys(schema.discriminator.mapping).length > 0 &&
+    !('oneOf' in schema)
+
   // Check for composition keywords - if present, this should be handled by composition logic
-  const hasComposition = 'oneOf' in schema || 'anyOf' in schema || 'allOf' in schema || 'not' in schema
+  const hasComposition =
+    'oneOf' in schema ||
+    'anyOf' in schema ||
+    'allOf' in schema ||
+    'not' in schema ||
+    hasDiscriminatorMappingWithoutOneOf
 
   // If it has composition keywords, it should not be treated as a simple object schema
   if (hasComposition) {

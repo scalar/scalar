@@ -1,6 +1,6 @@
 import { isDefined } from '@scalar/helpers/array/is-defined'
 import { resolve } from '@scalar/workspace-store/resolve'
-import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { SchemaObject, SchemaReferenceType } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { isArraySchema } from '@scalar/workspace-store/schemas/v3.1/strict/type-guards'
 
 import { type CompositionKeyword, compositions } from './schema-composition'
@@ -9,6 +9,29 @@ import { shouldRenderArrayItemComposition } from './should-render-array-item-com
 type CompositionToRender = {
   composition: CompositionKeyword
   value: SchemaObject
+}
+
+const inferOneOfFromDiscriminatorMapping = (value: SchemaObject): SchemaObject['oneOf'] => {
+  // If composition is already explicit, do not synthesize a second composition selector.
+  if (value.oneOf || value.anyOf || value.allOf || value.not) {
+    return undefined
+  }
+
+  const mapping = value.discriminator?.mapping
+  if (!mapping) {
+    return undefined
+  }
+
+  const inferredOneOf = Object.values(mapping)
+    .filter((mappingValue) => Boolean(mappingValue))
+    .map(
+      (mappingValue): SchemaReferenceType<SchemaObject> => ({
+        $ref: mappingValue,
+        '$ref-value': { $ref: mappingValue },
+      }),
+    )
+
+  return inferredOneOf.length > 0 ? inferredOneOf : undefined
 }
 
 /**
@@ -22,6 +45,9 @@ export const getCompositionsToRender = (value: SchemaObject | undefined): Compos
     return []
   }
 
+  const inferredOneOf = inferOneOfFromDiscriminatorMapping(value)
+  const resolvedSchema = inferredOneOf ? resolve.schema({ ...value, oneOf: inferredOneOf }) : resolve.schema(value)
+
   return compositions
     .map((composition) => {
       // Check for array item-level composition first (more specific case)
@@ -33,7 +59,10 @@ export const getCompositionsToRender = (value: SchemaObject | undefined): Compos
       }
 
       // Check for property-level composition
-      if (value[composition]) {
+      const hasPropertyLevelComposition =
+        composition === 'oneOf' ? Boolean(value.oneOf || inferredOneOf) : Boolean(value[composition])
+
+      if (hasPropertyLevelComposition) {
         // Skip if array items have this composition (even if complex/not rendered)
         const hasArrayItemComposition =
           isArraySchema(value) && value.items && typeof value.items === 'object' && composition in value.items
@@ -41,7 +70,7 @@ export const getCompositionsToRender = (value: SchemaObject | undefined): Compos
         if (!hasArrayItemComposition) {
           return {
             composition,
-            value: resolve.schema(value),
+            value: resolvedSchema,
           }
         }
       }

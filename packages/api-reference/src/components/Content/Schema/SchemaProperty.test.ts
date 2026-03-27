@@ -430,6 +430,42 @@ describe('SchemaProperty', () => {
   })
 
   describe('composition schemas', () => {
+    describe('discriminator mapping inference', () => {
+      it('renders variant selector for discriminator mapping without explicit oneOf', () => {
+        const wrapper = mount(SchemaProperty, {
+          props: {
+            eventBus: null,
+            schema: coerceValue(SchemaObjectSchema, {
+              type: 'object',
+              required: ['shapeType'],
+              properties: {
+                shapeType: {
+                  type: 'string',
+                },
+              },
+              discriminator: {
+                propertyName: 'shapeType',
+                mapping: {
+                  circle: '#/components/schemas/Circle',
+                  rectangle: '#/components/schemas/Rectangle',
+                },
+              },
+            }),
+            options: {},
+          },
+        })
+
+        const selector = wrapper.find('.composition-selector')
+        expect(selector.exists()).toBe(true)
+
+        const listbox = wrapper.findComponent(ScalarListbox)
+        expect(listbox.props('options')).toStrictEqual([
+          { id: '0', label: 'Circle' },
+          { id: '1', label: 'Rectangle' },
+        ])
+      })
+    })
+
     describe('array compositions', () => {
       it('renders composition schemas for array items with oneOf', async () => {
         const wrapper = mount(SchemaProperty, {

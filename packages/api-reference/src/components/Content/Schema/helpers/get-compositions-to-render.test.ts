@@ -1,4 +1,5 @@
-import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
+import { SchemaObjectSchema, type SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { describe, expect, it } from 'vitest'
 
 import { getCompositionsToRender } from './get-compositions-to-render'
@@ -43,6 +44,61 @@ describe('get-compositions-to-render', () => {
       const result = getCompositionsToRender(schema)
       expect(result).toHaveLength(2)
       expect(result.map((r) => r.composition)).toEqual(['oneOf', 'anyOf'])
+    })
+
+    it('infers oneOf from discriminator mapping when explicit oneOf is missing', () => {
+      const schema = {
+        type: 'object',
+        discriminator: {
+          propertyName: 'shapeType',
+          mapping: {
+            circle: '#/components/schemas/Circle',
+            rectangle: '#/components/schemas/Rectangle',
+          },
+        },
+      } as SchemaObject
+
+      const result = getCompositionsToRender(schema)
+
+      expect(result).toHaveLength(1)
+      expect(result[0]?.composition).toBe('oneOf')
+      expect(result[0]?.value.oneOf?.map((entry) => ('$ref' in entry ? entry.$ref : undefined))).toStrictEqual([
+        '#/components/schemas/Circle',
+        '#/components/schemas/Rectangle',
+      ])
+    })
+
+    it('does not infer oneOf when anyOf is already present', () => {
+      const schema = coerceValue(SchemaObjectSchema, {
+        type: 'object',
+        anyOf: [{ $ref: '#/components/schemas/Circle' }, { $ref: '#/components/schemas/Rectangle' }],
+        discriminator: {
+          propertyName: 'shapeType',
+          mapping: {
+            circle: '#/components/schemas/Circle',
+            rectangle: '#/components/schemas/Rectangle',
+          },
+        },
+      })
+
+      const result = getCompositionsToRender(schema)
+
+      expect(result).toHaveLength(1)
+      expect(result[0]?.composition).toBe('anyOf')
+    })
+
+    it('does not infer oneOf from an empty discriminator mapping', () => {
+      const schema = {
+        type: 'object',
+        discriminator: {
+          propertyName: 'shapeType',
+          mapping: {},
+        },
+      } as SchemaObject
+
+      const result = getCompositionsToRender(schema)
+
+      expect(result).toStrictEqual([])
     })
 
     it('returns empty array when schema has no compositions', () => {
