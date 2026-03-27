@@ -40,13 +40,13 @@ export const loadCssVariables = async (css: string) => {
 
         return style
       }, {})
-
+      console.log(cur.selectorText)
       // Merge variables into the correct theme object based on selector
-      if (cur.selectorText.includes('.light-mode')) {
+      if (cur.selectorText.startsWith('.light-mode')) {
         acc.light = { ...acc.light, ...styles }
       }
 
-      if (cur.selectorText.includes('.dark-mode')) {
+      if (cur.selectorText.startsWith('.dark-mode')) {
         acc.dark = { ...acc.dark, ...styles }
       }
 
