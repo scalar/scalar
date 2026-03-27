@@ -24,14 +24,14 @@ import {
   type ExecuteClientSideRequestToolOutput,
 } from '@/entities/tools/execute-request'
 import type {
-  GET_MINI_OPENAPI_SPEC_TOOL_NAME,
-  GetMiniOpenAPIDocToolInput,
-  GetMiniOpenAPIDocToolOutput,
-} from '@/entities/tools/get-mini-openapi-spec'
-import type {
-  GET_OPENAPI_SPECS_SUMMARY_TOOL_NAME,
   GetOpenAPISpecsSummaryToolOutput,
-} from '@/entities/tools/get-openapi-spec-summary'
+  SUMMARIZE_OPENAPI_SPECS_TOOL_NAME,
+} from '@/entities/tools/get-openapi-specs-summary'
+import type {
+  SEARCH_OPENAPI_OPERATIONS_TOOL_NAME,
+  SearchOpenAPIOperationsToolInput,
+  SearchOpenAPIOperationsToolOutput,
+} from '@/entities/tools/search-openapi-operations'
 import { createDocumentSettings } from '@/helpers'
 import { useTermsAndConditions } from '@/hooks/use-term-and-conditions'
 import { removeTmpDocFromLocalStorage } from '@/hooks/use-upload-tmp-document'
@@ -46,15 +46,15 @@ export type RegistryDocument = {
 }
 
 export type Tools = {
-  [GET_MINI_OPENAPI_SPEC_TOOL_NAME]: {
-    input: GetMiniOpenAPIDocToolInput
-    output: GetMiniOpenAPIDocToolOutput
+  [SEARCH_OPENAPI_OPERATIONS_TOOL_NAME]: {
+    input: SearchOpenAPIOperationsToolInput
+    output: SearchOpenAPIOperationsToolOutput
   }
   [EXECUTE_CLIENT_SIDE_REQUEST_TOOL_NAME]: {
     input: ExecuteClientSideRequestToolInput
     output: ExecuteClientSideRequestToolOutput
   }
-  [GET_OPENAPI_SPECS_SUMMARY_TOOL_NAME]: {
+  [SUMMARIZE_OPENAPI_SPECS_TOOL_NAME]: {
     input: object
     output: GetOpenAPISpecsSummaryToolOutput
   }

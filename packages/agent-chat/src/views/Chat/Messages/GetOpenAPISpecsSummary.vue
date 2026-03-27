@@ -3,12 +3,12 @@ import type { ToolUIPart, UIMessage } from 'ai'
 import { ref, watch, type Reactive, type Ref } from 'vue'
 
 import LoadingOpenAPISpecsSummary from '@/components/LoadingOpenAPISpecsSummary.vue'
-import type { GET_OPENAPI_SPECS_SUMMARY_TOOL_NAME } from '@/entities/tools/get-openapi-spec-summary'
+import type { SUMMARIZE_OPENAPI_SPECS_TOOL_NAME } from '@/entities/tools/get-openapi-specs-summary'
 import { type Tools } from '@/state/state'
 
 const { messagePart, message } = defineProps<{
   messagePart: Ref<
-    ToolUIPart<Pick<Tools, typeof GET_OPENAPI_SPECS_SUMMARY_TOOL_NAME>>
+    ToolUIPart<Pick<Tools, typeof SUMMARIZE_OPENAPI_SPECS_TOOL_NAME>>
   >
   message: Reactive<UIMessage>
 }>()

@@ -1,16 +1,15 @@
 <script setup lang="ts">
-import type { ToolUIPart } from 'ai'
 import { reactive, toRef } from 'vue'
 
 import { ASK_FOR_AUTHENTICATION_TOOL_NAME } from '@/entities/tools/ask-for-authentication'
 import { EXECUTE_CLIENT_SIDE_REQUEST_TOOL_NAME } from '@/entities/tools/execute-request'
-import { GET_MINI_OPENAPI_SPEC_TOOL_NAME } from '@/entities/tools/get-mini-openapi-spec'
-import { GET_OPENAPI_SPECS_SUMMARY_TOOL_NAME } from '@/entities/tools/get-openapi-spec-summary'
-import { useState, type Tools } from '@/state/state'
+import { SUMMARIZE_OPENAPI_SPECS_TOOL_NAME } from '@/entities/tools/get-openapi-specs-summary'
+import { SEARCH_OPENAPI_OPERATIONS_TOOL_NAME } from '@/entities/tools/search-openapi-operations'
+import { useState } from '@/state/state'
 import AskForAuthentication from '@/views/Chat/Messages/AskForAuthentication.vue'
 import ExecuteRequestTool from '@/views/Chat/Messages/ExecuteRequestTool.vue'
-import GetMiniOpenAPIDocTool from '@/views/Chat/Messages/GetMiniOpenAPIDocTool.vue'
 import GetOpenAPISpecsSummary from '@/views/Chat/Messages/GetOpenAPISpecsSummary.vue'
+import SearchOpenAPIOperationsTool from '@/views/Chat/Messages/SearchOpenAPIOperationsTool.vue'
 import Text from '@/views/Chat/Messages/Text.vue'
 import PromptForm from '@/views/PromptForm.vue'
 
@@ -43,44 +42,32 @@ const state = useState()
             v-if="part.type === 'text'"
             :messagePart="toRef(part)" />
           <ExecuteRequestTool
-            v-if="part.type.endsWith(EXECUTE_CLIENT_SIDE_REQUEST_TOOL_NAME)"
-            :messagePart="
-              toRef(
-                part as ToolUIPart<
-                  Pick<Tools, typeof EXECUTE_CLIENT_SIDE_REQUEST_TOOL_NAME>
-                >,
-              )
-            " />
-          <GetMiniOpenAPIDocTool
-            v-if="part.type.endsWith(GET_MINI_OPENAPI_SPEC_TOOL_NAME)"
+            v-if="
+              part.type ===
+              (`tool-${EXECUTE_CLIENT_SIDE_REQUEST_TOOL_NAME}` as const)
+            "
+            :messagePart="toRef(part)" />
+          <SearchOpenAPIOperationsTool
+            v-if="
+              part.type ===
+              (`tool-${SEARCH_OPENAPI_OPERATIONS_TOOL_NAME}` as const)
+            "
             :message="reactive(message)"
-            :messagePart="
-              toRef(
-                part as ToolUIPart<
-                  Pick<Tools, typeof GET_MINI_OPENAPI_SPEC_TOOL_NAME>
-                >,
-              )
-            " />
+            :messagePart="toRef(part)" />
           <GetOpenAPISpecsSummary
-            v-if="part.type.endsWith(GET_OPENAPI_SPECS_SUMMARY_TOOL_NAME)"
+            v-if="
+              part.type ===
+              (`tool-${SUMMARIZE_OPENAPI_SPECS_TOOL_NAME}` as const)
+            "
             :message="reactive(message)"
-            :messagePart="
-              toRef(
-                part as ToolUIPart<
-                  Pick<Tools, typeof GET_OPENAPI_SPECS_SUMMARY_TOOL_NAME>
-                >,
-              )
-            " />
+            :messagePart="toRef(part)" />
           <AskForAuthentication
-            v-if="part.type.endsWith(ASK_FOR_AUTHENTICATION_TOOL_NAME)"
+            v-if="
+              part.type ===
+              (`tool-${ASK_FOR_AUTHENTICATION_TOOL_NAME}` as const)
+            "
             :message="reactive(message)"
-            :messagePart="
-              toRef(
-                part as ToolUIPart<
-                  Pick<Tools, typeof ASK_FOR_AUTHENTICATION_TOOL_NAME>
-                >,
-              )
-            " />
+            :messagePart="toRef(part)" />
         </div>
       </template>
     </template>

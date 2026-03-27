@@ -1,3 +1,5 @@
+export { createDocumentName } from '@/registry/create-document-name'
+
 export {
   type AgentChatError,
   AgentErrorCodes,
@@ -15,7 +17,6 @@ export {
   type AskForAuthenticationInput,
   askForAuthenticationInputSchema,
 } from './tools/ask-for-authentication'
-export { TOOL_NAMESPACE_SLUG_DELIMITER } from './tools/constants'
 export {
   EXECUTE_CLIENT_SIDE_REQUEST_TOOL_NAME,
   type ExecuteClientSideRequestToolInput,
@@ -23,12 +24,12 @@ export {
   executeClientSideRequestToolInputSchema,
 } from './tools/execute-request'
 export {
-  GET_MINI_OPENAPI_SPEC_TOOL_NAME,
-  type GetMiniOpenAPIDocToolInput,
-  type GetMiniOpenAPIDocToolOutput,
-  getMiniOpenAPIDocToolInputSchema,
-} from './tools/get-mini-openapi-spec'
-export {
-  GET_OPENAPI_SPECS_SUMMARY_TOOL_NAME,
   type GetOpenAPISpecsSummaryToolOutput,
-} from './tools/get-openapi-spec-summary'
+  SUMMARIZE_OPENAPI_SPECS_TOOL_NAME,
+} from './tools/get-openapi-specs-summary'
+export {
+  SEARCH_OPENAPI_OPERATIONS_TOOL_NAME,
+  type SearchOpenAPIOperationsToolInput,
+  type SearchOpenAPIOperationsToolOutput,
+  searchOpenAPIOperationsInputSchema,
+} from './tools/search-openapi-operations'

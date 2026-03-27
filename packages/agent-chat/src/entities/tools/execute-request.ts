@@ -10,7 +10,8 @@ export const executeClientSideRequestToolInputSchema = z.object({
   path: z.string(),
   headers: z.record(z.string(), z.string()).optional(),
   body: z.string().optional(),
-  documentIdentifier: z.string(),
+  documentName: z.string(),
+  documentIdentifier: z.string().describe('Needed for legacy support for old clients'),
 })
 
 export type ExecuteClientSideRequestToolInput = z.input<typeof executeClientSideRequestToolInputSchema>
