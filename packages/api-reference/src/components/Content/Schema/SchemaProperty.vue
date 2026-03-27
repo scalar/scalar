@@ -7,12 +7,13 @@ import type {
   SchemaObject,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { isArraySchema } from '@scalar/workspace-store/schemas/v3.1/strict/type-guards'
-import { computed, type Component } from 'vue'
+import { computed, inject, type Component } from 'vue'
 
 import { WithBreadcrumb } from '@/components/Anchor'
 import { isTypeObject } from '@/components/Content/Schema/helpers/is-type-object'
 import type { SchemaOptions } from '@/components/Content/Schema/types'
 import { SpecificationExtension } from '@/features/specification-extension'
+import { ACTIVE_DOCUMENT_SYMBOL } from '@/helpers/active-document'
 
 import { getCompositionsToRender } from './helpers/get-compositions-to-render'
 import { getEnumValues } from './helpers/get-enum-values'
@@ -68,6 +69,8 @@ const props = withDefaults(
     hideModelNames: false,
   },
 )
+
+const activeDocument = inject(ACTIVE_DOCUMENT_SYMBOL, undefined)
 
 /** Simplified composition with `null` type. */
 const optimizedValue = computed(() => optimizeValueForDisplay(props.schema))
@@ -155,7 +158,10 @@ const shouldDisplayHeadingComputed = computed(() =>
 
 /** Computes which compositions should be rendered and with which values */
 const compositionsToRender = computed(() =>
-  getCompositionsToRender(optimizedValue.value),
+  getCompositionsToRender(
+    optimizedValue.value,
+    activeDocument?.value ?? undefined,
+  ),
 )
 
 /** Get resolved array items for rendering */

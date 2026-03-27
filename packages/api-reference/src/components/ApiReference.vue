@@ -63,6 +63,7 @@ import MobileHeader from '@/components/MobileHeader.vue'
 import { DeveloperTools } from '@/features/developer-tools'
 import DocumentSelector from '@/features/multiple-documents/DocumentSelector.vue'
 import SearchButton from '@/features/Search/components/SearchButton.vue'
+import { ACTIVE_DOCUMENT_SYMBOL } from '@/helpers/active-document'
 import { getSystemModePreference } from '@/helpers/color-mode'
 import { downloadDocument } from '@/helpers/download'
 import {
@@ -307,6 +308,10 @@ const clientStore = createWorkspaceStore({
     }),
   ],
 })
+provide(
+  ACTIVE_DOCUMENT_SYMBOL,
+  computed(() => workspaceStore.workspace.activeDocument ?? null),
+)
 
 // TODO: persistence should be hoisted into standalone
 // Client side integrations will want to handle dark mode externally
