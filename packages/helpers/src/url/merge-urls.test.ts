@@ -3,7 +3,47 @@
  */
 import { describe, expect, it } from 'vitest'
 
-import { combineUrlAndPath, mergeSearchParams, mergeUrls } from './merge-urls'
+import { combineUrlAndPath, mergeSearchParams, mergeUrls, searchParamsToString } from './merge-urls'
+
+describe('searchParamsToString', () => {
+  it('preserves colons in values', () => {
+    const params = new URLSearchParams('sort=name:asc')
+    expect(searchParamsToString(params)).toBe('sort=name:asc')
+  })
+
+  it('preserves special characters like @ and #', () => {
+    const params = new URLSearchParams('email=user@example.com&hash=test#123')
+    expect(searchParamsToString(params)).toBe('email=user@example.com&hash=test#123')
+  })
+
+  it('encodes ampersands and equals signs', () => {
+    const params = new URLSearchParams('filter=a=b&test=c&d')
+    expect(searchParamsToString(params)).toBe('filter=a%3Db&test=c%26d')
+  })
+
+  it('encodes spaces as plus signs', () => {
+    const params = new URLSearchParams('q=hello world')
+    expect(searchParamsToString(params)).toBe('q=hello+world')
+  })
+
+  it('encodes percent signs to prevent double-encoding', () => {
+    const params = new URLSearchParams('value=100%')
+    expect(searchParamsToString(params)).toBe('value=100%25')
+  })
+
+  it('handles multiple values for same key', () => {
+    const params = new URLSearchParams([
+      ['tag', 'a:b'],
+      ['tag', 'c:d'],
+    ])
+    expect(searchParamsToString(params)).toBe('tag=a:b&tag=c:d')
+  })
+
+  it('handles empty params', () => {
+    const params = new URLSearchParams()
+    expect(searchParamsToString(params)).toBe('')
+  })
+})
 
 describe('mergeSearchParams', () => {
   it('merges basic params from different sources', () => {
@@ -220,6 +260,18 @@ describe('mergeUrls', () => {
       ])
       const result = mergeUrls('https://api.example.com?a=1', '/users?b=2', params)
       expect(result).toBe('https://api.example.com/users?a=1&b=2&c=3&d=4')
+    })
+
+    it('preserves colons in query parameters', () => {
+      const params = new URLSearchParams('sort=name:asc')
+      const result = mergeUrls('https://api.example.com', '/users', params)
+      expect(result).toBe('https://api.example.com/users?sort=name:asc')
+    })
+
+    it('preserves special characters like @ in query parameters', () => {
+      const params = new URLSearchParams('email=user@example.com')
+      const result = mergeUrls('https://api.example.com', '/users', params)
+      expect(result).toBe('https://api.example.com/users?email=user@example.com')
     })
 
     it('handles special characters in parameters', () => {
