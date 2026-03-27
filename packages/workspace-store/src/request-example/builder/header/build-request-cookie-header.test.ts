@@ -67,22 +67,18 @@ describe('buildRequestCookieHeader', () => {
   describe('basic functionality', () => {
     it('returns null when no cookies are provided', () => {
       const result = buildRequestCookieHeader({
-        paramCookies: [],
-        globalCookies: [],
+        cookies: [],
         originalCookieHeader: undefined,
         url: 'https://example.com',
         useCustomCookieHeader: false,
-        disabledGlobalCookies: {},
       })
 
       expect(result).toBe(null)
     })
 
-    it('builds a cookie header from param cookies only', () => {
+    it('builds a cookie header from cookies', () => {
       const result = buildRequestCookieHeader({
-        paramCookies: [createCookie('localCookie', 'foo', { domain: undefined })],
-        globalCookies: [],
-        disabledGlobalCookies: {},
+        cookies: [createCookie('localCookie', 'foo', { domain: undefined })],
         originalCookieHeader: undefined,
         url: 'https://example.com',
         useCustomCookieHeader: false,
@@ -94,43 +90,9 @@ describe('buildRequestCookieHeader', () => {
       })
     })
 
-    it('builds a cookie header from global cookies only', () => {
-      const result = buildRequestCookieHeader({
-        paramCookies: [],
-        globalCookies: [createCookie('globalCookie', 'bar', { domain: 'example.com' })],
-        disabledGlobalCookies: {},
-        originalCookieHeader: undefined,
-        url: 'https://example.com',
-        useCustomCookieHeader: false,
-      })
-
-      expect(result).toMatchObject({
-        name: 'Cookie',
-        value: 'globalCookie=bar',
-      })
-    })
-
-    it('combines param and global cookies', () => {
-      const result = buildRequestCookieHeader({
-        paramCookies: [createCookie('localCookie', 'foo', { domain: undefined })],
-        globalCookies: [createCookie('globalCookie', 'bar', { domain: 'example.com' })],
-        disabledGlobalCookies: {},
-        originalCookieHeader: undefined,
-        url: 'https://example.com',
-        useCustomCookieHeader: false,
-      })
-
-      expect(result).toMatchObject({
-        name: 'Cookie',
-        value: 'globalCookie=bar; localCookie=foo',
-      })
-    })
-
     it('merges with original cookie header', () => {
       const result = buildRequestCookieHeader({
-        paramCookies: [createCookie('localCookie', 'foo', { domain: undefined })],
-        globalCookies: [],
-        disabledGlobalCookies: {},
+        cookies: [createCookie('localCookie', 'foo', { domain: undefined })],
         originalCookieHeader: 'existing=value',
         url: 'https://example.com',
         useCustomCookieHeader: false,
@@ -146,9 +108,7 @@ describe('buildRequestCookieHeader', () => {
   describe('custom cookie header', () => {
     it('uses X-Scalar-Cookie header when useCustomCookieHeader is true', () => {
       const result = buildRequestCookieHeader({
-        paramCookies: [createCookie('localCookie', 'foo', { domain: undefined })],
-        globalCookies: [],
-        disabledGlobalCookies: {},
+        cookies: [createCookie('localCookie', 'foo', { domain: undefined })],
         originalCookieHeader: undefined,
         url: 'https://example.com',
         useCustomCookieHeader: true,
@@ -162,9 +122,7 @@ describe('buildRequestCookieHeader', () => {
 
     it('uses Cookie header when useCustomCookieHeader is false', () => {
       const result = buildRequestCookieHeader({
-        paramCookies: [createCookie('localCookie', 'foo', { domain: undefined })],
-        globalCookies: [],
-        disabledGlobalCookies: {},
+        cookies: [createCookie('localCookie', 'foo', { domain: undefined })],
         originalCookieHeader: undefined,
         url: 'https://example.com',
         useCustomCookieHeader: false,
@@ -178,14 +136,12 @@ describe('buildRequestCookieHeader', () => {
   })
 
   describe('domain filtering', () => {
-    it('filters global cookies by domain match', () => {
+    it('filters cookies by domain match', () => {
       const result = buildRequestCookieHeader({
-        paramCookies: [],
-        globalCookies: [
+        cookies: [
           createCookie('exampleCookie', 'foo', { domain: 'example.com' }),
           createCookie('scalarCookie', 'bar', { domain: 'scalar.com' }),
         ],
-        disabledGlobalCookies: {},
         originalCookieHeader: undefined,
         url: 'https://example.com',
         useCustomCookieHeader: false,
@@ -199,9 +155,7 @@ describe('buildRequestCookieHeader', () => {
 
     it('includes cookies with wildcard domain for subdomains', () => {
       const result = buildRequestCookieHeader({
-        paramCookies: [],
-        globalCookies: [createCookie('wildcardCookie', 'foo', { domain: '.scalar.com' })],
-        disabledGlobalCookies: {},
+        cookies: [createCookie('wildcardCookie', 'foo', { domain: '.scalar.com' })],
         originalCookieHeader: undefined,
         url: 'https://void.scalar.com',
         useCustomCookieHeader: false,
@@ -215,9 +169,7 @@ describe('buildRequestCookieHeader', () => {
 
     it('excludes cookies without wildcard for subdomains', () => {
       const result = buildRequestCookieHeader({
-        paramCookies: [],
-        globalCookies: [createCookie('nonWildcardCookie', 'foo', { domain: 'scalar.com' })],
-        disabledGlobalCookies: {},
+        cookies: [createCookie('nonWildcardCookie', 'foo', { domain: 'scalar.com' })],
         originalCookieHeader: undefined,
         url: 'https://void.scalar.com',
         useCustomCookieHeader: false,
@@ -228,9 +180,7 @@ describe('buildRequestCookieHeader', () => {
 
     it('includes cookies without domain specified', () => {
       const result = buildRequestCookieHeader({
-        paramCookies: [],
-        globalCookies: [createCookie('noDomainCookie', 'foo', { domain: undefined })],
-        disabledGlobalCookies: {},
+        cookies: [createCookie('noDomainCookie', 'foo', { domain: undefined })],
         originalCookieHeader: undefined,
         url: 'https://example.com',
         useCustomCookieHeader: false,
@@ -244,14 +194,12 @@ describe('buildRequestCookieHeader', () => {
   })
 
   describe('disabled cookies', () => {
-    it('excludes disabled global cookies', () => {
+    it('excludes disabled cookies', () => {
       const result = buildRequestCookieHeader({
-        paramCookies: [],
-        globalCookies: [
+        cookies: [
           createCookie('enabledCookie', 'foo', { domain: 'example.com', isDisabled: false }),
           createCookie('disabledCookie', 'bar', { domain: 'example.com', isDisabled: true }),
         ],
-        disabledGlobalCookies: {},
         originalCookieHeader: undefined,
         url: 'https://example.com',
         useCustomCookieHeader: false,
@@ -265,11 +213,7 @@ describe('buildRequestCookieHeader', () => {
 
     it('includes cookies with isDisabled undefined', () => {
       const result = buildRequestCookieHeader({
-        paramCookies: [],
-        globalCookies: [
-          createCookie('undefinedDisabledCookie', 'foo', { domain: 'example.com', isDisabled: undefined }),
-        ],
-        disabledGlobalCookies: {},
+        cookies: [createCookie('undefinedDisabledCookie', 'foo', { domain: 'example.com', isDisabled: undefined })],
         originalCookieHeader: undefined,
         url: 'https://example.com',
         useCustomCookieHeader: false,
@@ -285,12 +229,10 @@ describe('buildRequestCookieHeader', () => {
   describe('empty cookie names', () => {
     it('excludes global cookies with empty names', () => {
       const result = buildRequestCookieHeader({
-        paramCookies: [],
-        globalCookies: [
+        cookies: [
           createCookie('validCookie', 'foo', { domain: 'example.com' }),
           createCookie('', 'bar', { domain: 'example.com' }),
         ],
-        disabledGlobalCookies: {},
         originalCookieHeader: undefined,
         url: 'https://example.com',
         useCustomCookieHeader: false,
@@ -306,12 +248,10 @@ describe('buildRequestCookieHeader', () => {
   describe('special characters', () => {
     it('handles cookies with special characters in values', () => {
       const result = buildRequestCookieHeader({
-        paramCookies: [
+        cookies: [
           createCookie('test', 'hello world!@#$%^&*()', { domain: undefined }),
           createCookie('complex', '{"key": "value"}', { domain: undefined }),
         ],
-        globalCookies: [],
-        disabledGlobalCookies: {},
         originalCookieHeader: undefined,
         url: 'https://example.com',
         useCustomCookieHeader: false,
@@ -325,12 +265,10 @@ describe('buildRequestCookieHeader', () => {
 
     it('handles cookies with empty values', () => {
       const result = buildRequestCookieHeader({
-        paramCookies: [
+        cookies: [
           createCookie('empty', '', { domain: undefined }),
           createCookie('normal', 'value', { domain: undefined }),
         ],
-        globalCookies: [],
-        disabledGlobalCookies: {},
         originalCookieHeader: undefined,
         url: 'https://example.com',
         useCustomCookieHeader: false,
@@ -344,32 +282,14 @@ describe('buildRequestCookieHeader', () => {
   })
 
   describe('complex scenarios', () => {
-    it('combines param cookies, global cookies, and original header', () => {
+    it('handles multiple cookies with different domains', () => {
       const result = buildRequestCookieHeader({
-        paramCookies: [createCookie('localCookie', 'local', { domain: undefined })],
-        globalCookies: [createCookie('globalCookie', 'global', { domain: 'example.com' })],
-        disabledGlobalCookies: {},
-        originalCookieHeader: 'existing=value',
-        url: 'https://example.com',
-        useCustomCookieHeader: false,
-      })
-
-      expect(result).toMatchObject({
-        name: 'Cookie',
-        value: 'existing=value; globalCookie=global; localCookie=local',
-      })
-    })
-
-    it('handles multiple global cookies with different domains', () => {
-      const result = buildRequestCookieHeader({
-        paramCookies: [],
-        globalCookies: [
+        cookies: [
           createCookie('cookie1', 'value1', { domain: 'example.com' }),
           createCookie('cookie2', 'value2', { domain: '.example.com' }),
           createCookie('cookie3', 'value3', { domain: 'scalar.com' }),
           createCookie('cookie4', 'value4', { domain: undefined }),
         ],
-        disabledGlobalCookies: {},
         originalCookieHeader: undefined,
         url: 'https://example.com',
         useCustomCookieHeader: false,
@@ -383,13 +303,11 @@ describe('buildRequestCookieHeader', () => {
 
     it('handles environment variables with domain filtering', () => {
       const result = buildRequestCookieHeader({
-        paramCookies: [],
-        globalCookies: [
+        cookies: [
           createCookie('{{cookieName1}}', '{{cookieValue1}}', { domain: 'example.com' }),
           createCookie('{{cookieName2}}', '{{cookieValue2}}', { domain: 'scalar.com' }),
         ],
 
-        disabledGlobalCookies: {},
         originalCookieHeader: undefined,
         url: 'https://example.com/test/path?query=scalar.com',
         useCustomCookieHeader: false,
@@ -400,36 +318,12 @@ describe('buildRequestCookieHeader', () => {
         value: '{{cookieName1}}={{cookieValue1}}',
       })
     })
-
-    it('handles all filtering conditions together', () => {
-      const result = buildRequestCookieHeader({
-        paramCookies: [createCookie('paramCookie', 'param', { domain: undefined })],
-        globalCookies: [
-          createCookie('validCookie', 'valid', { domain: 'example.com', isDisabled: false }),
-          createCookie('disabledCookie', 'disabled', { domain: 'example.com', isDisabled: true }),
-          createCookie('wrongDomainCookie', 'wrong', { domain: 'scalar.com', isDisabled: false }),
-          createCookie('', 'empty', { domain: 'example.com', isDisabled: false }),
-          createCookie('{{envCookie}}', '{{envValue}}', { domain: 'example.com', isDisabled: false }),
-        ],
-        disabledGlobalCookies: {},
-        originalCookieHeader: 'original=header',
-        url: 'https://example.com',
-        useCustomCookieHeader: true,
-      })
-
-      expect(result).toMatchObject({
-        name: 'X-Scalar-Cookie',
-        value: 'original=header; validCookie=valid; {{envCookie}}={{envValue}}; paramCookie=param',
-      })
-    })
   })
 
   describe('URL variations', () => {
     it('handles localhost URLs', () => {
       const result = buildRequestCookieHeader({
-        paramCookies: [],
-        globalCookies: [createCookie('localCookie', 'value', { domain: 'localhost' })],
-        disabledGlobalCookies: {},
+        cookies: [createCookie('localCookie', 'value', { domain: 'localhost' })],
         originalCookieHeader: undefined,
         url: 'http://localhost:3000',
         useCustomCookieHeader: false,
@@ -443,9 +337,7 @@ describe('buildRequestCookieHeader', () => {
 
     it('handles IP address URLs', () => {
       const result = buildRequestCookieHeader({
-        paramCookies: [],
-        globalCookies: [createCookie('ipCookie', 'value', { domain: '127.0.0.1' })],
-        disabledGlobalCookies: {},
+        cookies: [createCookie('ipCookie', 'value', { domain: '127.0.0.1' })],
         originalCookieHeader: undefined,
         url: 'http://127.0.0.1:5052',
         useCustomCookieHeader: false,
@@ -461,9 +353,7 @@ describe('buildRequestCookieHeader', () => {
   describe('path filtering', () => {
     it('includes cookies when request path starts with cookie path', () => {
       const result = buildRequestCookieHeader({
-        paramCookies: [],
-        globalCookies: [createCookie('parentPath', 'value', { domain: 'example.com', path: '/api' })],
-        disabledGlobalCookies: {},
+        cookies: [createCookie('parentPath', 'value', { domain: 'example.com', path: '/api' })],
         originalCookieHeader: undefined,
         url: 'https://example.com/api/users',
         useCustomCookieHeader: false,
@@ -477,9 +367,7 @@ describe('buildRequestCookieHeader', () => {
 
     it('excludes cookies when request path does not start with cookie path', () => {
       const result = buildRequestCookieHeader({
-        paramCookies: [],
-        globalCookies: [createCookie('wrongPath', 'value', { domain: 'example.com', path: '/admin' })],
-        disabledGlobalCookies: {},
+        cookies: [createCookie('wrongPath', 'value', { domain: 'example.com', path: '/admin' })],
         originalCookieHeader: undefined,
         url: 'https://example.com/api/users',
         useCustomCookieHeader: false,
@@ -490,9 +378,7 @@ describe('buildRequestCookieHeader', () => {
 
     it('includes cookies without path specified for all requests', () => {
       const result = buildRequestCookieHeader({
-        paramCookies: [],
-        globalCookies: [createCookie('noPath', 'value', { domain: 'example.com', path: undefined })],
-        disabledGlobalCookies: {},
+        cookies: [createCookie('noPath', 'value', { domain: 'example.com', path: undefined })],
         originalCookieHeader: undefined,
         url: 'https://example.com/api/users',
         useCustomCookieHeader: false,
@@ -506,14 +392,12 @@ describe('buildRequestCookieHeader', () => {
 
     it('filters multiple cookies by path correctly', () => {
       const result = buildRequestCookieHeader({
-        paramCookies: [],
-        globalCookies: [
+        cookies: [
           createCookie('rootCookie', 'root', { domain: 'example.com', path: '/' }),
           createCookie('apiCookie', 'api', { domain: 'example.com', path: '/api' }),
           createCookie('adminCookie', 'admin', { domain: 'example.com', path: '/admin' }),
           createCookie('apiUsersCookie', 'apiusers', { domain: 'example.com', path: '/api/users' }),
         ],
-        disabledGlobalCookies: {},
         originalCookieHeader: undefined,
         url: 'https://example.com/api/users',
         useCustomCookieHeader: false,
@@ -527,33 +411,9 @@ describe('buildRequestCookieHeader', () => {
   })
 
   describe('ordering', () => {
-    it('places global cookies before param cookies', () => {
-      const result = buildRequestCookieHeader({
-        paramCookies: [
-          createCookie('param1', 'pvalue1', { domain: undefined }),
-          createCookie('param2', 'pvalue2', { domain: undefined }),
-        ],
-        globalCookies: [
-          createCookie('global1', 'gvalue1', { domain: 'example.com' }),
-          createCookie('global2', 'gvalue2', { domain: 'example.com' }),
-        ],
-        disabledGlobalCookies: {},
-        originalCookieHeader: undefined,
-        url: 'https://example.com',
-        useCustomCookieHeader: false,
-      })
-
-      expect(result).toMatchObject({
-        name: 'Cookie',
-        value: 'global1=gvalue1; global2=gvalue2; param1=pvalue1; param2=pvalue2',
-      })
-    })
-
     it('places original header first', () => {
       const result = buildRequestCookieHeader({
-        paramCookies: [createCookie('param', 'pvalue', { domain: undefined })],
-        globalCookies: [createCookie('global', 'gvalue', { domain: 'example.com' })],
-        disabledGlobalCookies: {},
+        cookies: [createCookie('param', 'pvalue', { domain: undefined })],
         originalCookieHeader: 'original1=value1; original2=value2',
         url: 'https://example.com',
         useCustomCookieHeader: false,
@@ -561,21 +421,19 @@ describe('buildRequestCookieHeader', () => {
 
       expect(result).toMatchObject({
         name: 'Cookie',
-        value: 'original1=value1; original2=value2; global=gvalue; param=pvalue',
+        value: 'original1=value1; original2=value2; param=pvalue',
       })
     })
   })
 
   describe('edge cases', () => {
     it('handles many cookies', () => {
-      const paramCookies = Array.from({ length: 50 }, (_, i) =>
+      const cookies = Array.from({ length: 50 }, (_, i) =>
         createCookie(`param${i}`, `value${i}`, { domain: undefined }),
       )
 
       const result = buildRequestCookieHeader({
-        paramCookies,
-        globalCookies: [],
-        disabledGlobalCookies: {},
+        cookies,
         originalCookieHeader: undefined,
         url: 'https://example.com',
         useCustomCookieHeader: false,

@@ -113,7 +113,6 @@ export const requestFactory = ({
   const globalCookieFilter = operation['x-scalar-disable-parameters']?.['global-cookies']?.[exampleName] ?? {}
 
   const cookiesList = [
-    // Filter out disabled global cookies
     ...globalCookies.map((c) => ({
       ...c,
       isDisabled: (c.isDisabled || globalCookieFilter[c.name.toLowerCase()]) ?? false,

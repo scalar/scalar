@@ -61,7 +61,7 @@ export const buildRequest = (
     return null
   })()
 
-  const securityUrlParams = new URLSearchParams()
+  const securityQueryParams = new URLSearchParams()
   const securityCookies: XScalarCookie[] = []
 
   // Build the request security
@@ -83,13 +83,13 @@ export const buildRequest = (
         return securityValue
       })()
 
-      // Set the header
-      headers.set(security.name, buildValue)
+      // Set the header (use replaced header name so {{ env }} placeholders work)
+      headers.set(name, buildValue)
       return
     }
 
     if (security.in === 'query') {
-      securityUrlParams.append(name, securityValue)
+      securityQueryParams.set(name, securityValue)
       return
     }
 
@@ -117,15 +117,18 @@ export const buildRequest = (
 
     const mergedUrl = mergeUrls(baseUrl, path)
 
+    const urlBase = globalThis.window?.location?.origin ?? 'http://localhost:3000'
+
     // Replace the path variables with the environment variables and server variables
-    const url = new URL(mergedUrl, window.location.origin ?? 'http://localhost:3000')
+    const url = new URL(mergedUrl, urlBase)
 
     // Merge security query params
-    request.security.forEach((security) => {
-      if (security.in === 'query') {
-        url.searchParams.set(security.name, security.value)
-      }
-    })
+    for (const [key, value] of securityQueryParams.entries()) {
+      url.searchParams.set(
+        replaceEnvVariables(key, options.envVariables),
+        replaceEnvVariables(value, options.envVariables),
+      )
+    }
 
     // Replace the query params with the environment variables
     for (const [key, value] of request.query.params.entries()) {
@@ -139,13 +142,11 @@ export const buildRequest = (
 
   const isUsingProxy = shouldUseProxy(request.proxy.proxyUrl, requestUrl)
 
-  const cookies: XScalarCookie[] = [...request.cookies.list, ...securityCookies]
-    .map((c) => ({
-      ...c,
-      name: replaceEnvVariables(c.name, options.envVariables),
-      value: replaceEnvVariables(c.value, options.envVariables),
-    }))
-    .filter((c) => !c.isDisabled)
+  const cookies: XScalarCookie[] = [...request.cookies.list, ...securityCookies].map((c) => ({
+    ...c,
+    name: replaceEnvVariables(c.name, options.envVariables),
+    value: replaceEnvVariables(c.value, options.envVariables),
+  }))
 
   const cookieHeader = buildRequestCookieHeader({
     cookies,
