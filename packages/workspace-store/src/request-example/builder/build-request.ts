@@ -177,5 +177,6 @@ export const buildRequest = (
       signal: controller.signal,
     }),
     controller,
+    isUsingProxy,
   }
 }

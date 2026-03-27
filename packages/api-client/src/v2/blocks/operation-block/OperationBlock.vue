@@ -189,7 +189,7 @@ const handleExecute = async () => {
 
   const globalCookies = [...workspaceCookies, ...documentCookies]
 
-  const requestBuilder = requestFactory({
+  const { request: requestBuilder } = requestFactory({
     defaultHeaders,
     environment,
     exampleName: exampleKey,
@@ -203,12 +203,6 @@ const handleExecute = async () => {
     isElectron: isElectron(),
     requestBodyCompositionSelection,
   })
-
-  if (requestBuilder.ok === false) {
-    toast(requestBuilder.error, 'error')
-    return
-  }
-  console.log(requestBuilder.data.request)
 
   // Stop any previous streaming response
   if (response.value && 'reader' in response.value) {
@@ -227,13 +221,13 @@ const handleExecute = async () => {
   // Execute the beforeRequest hook
   await executeHook(
     // @ts-expect-error - TODO: fix this update to use the new request factory
-    { request: requestBuilder.data.request },
+    { request: requestBuilder },
     'beforeRequest',
     plugins,
   )
 
   // Build the actual request we will send
-  const requestResult = buildRequest(requestBuilder.data.request, {
+  const requestResult = buildRequest(requestBuilder, {
     envVariables: getEnvironmentVariables(environment),
   })
 
@@ -242,7 +236,7 @@ const handleExecute = async () => {
 
   /** Execute the request */
   const [sendError, sendResult] = await sendRequest({
-    isUsingProxy: requestBuilder.data.request.proxy.isUsingProxy,
+    isUsingProxy: requestResult.isUsingProxy,
     request: requestResult.request.clone(),
   })
 

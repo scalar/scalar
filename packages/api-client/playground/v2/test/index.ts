@@ -27,7 +27,7 @@ if (context.ok === false) {
   throw new Error(context.error)
 }
 
-const requestBuilder = requestFactory({
+const { request: requestBuilder } = requestFactory({
   isElectron: false,
   defaultHeaders: context.data.headers.default,
   environment: context.data.environment.environment,
@@ -41,15 +41,11 @@ const requestBuilder = requestFactory({
   selectedSecuritySchemes: [],
 })
 
-if (requestBuilder.ok === false) {
-  throw new Error(requestBuilder.error)
-}
-
-const { request } = buildRequest(requestBuilder.data.request, {
+const { request, isUsingProxy } = buildRequest(requestBuilder, {
   envVariables: getEnvironmentVariables(context.data.environment.environment),
 })
 
 void sendRequest({
   request,
-  isUsingProxy: requestBuilder.data.request.proxy.isUsingProxy,
+  isUsingProxy,
 })

@@ -136,7 +136,7 @@ type RequestFactoryPayload = Parameters<typeof buildRequest>[0]
 const createDefaultRequestFactoryPayload = (overrides: Partial<RequestFactoryPayload> = {}): RequestFactoryPayload => {
   const { proxy: proxyOverrides, ...rest } = overrides
   return {
-    url: 'https://api.example.com/api/users',
+    baseUrl: 'https://api.example.com',
     method: 'GET',
     headers: new Headers(),
     body: null,
@@ -147,7 +147,6 @@ const createDefaultRequestFactoryPayload = (overrides: Partial<RequestFactoryPay
     security: [],
     proxy: {
       proxyUrl: 'https://api.example.com/api/users',
-      isUsingProxy: false,
       ...proxyOverrides,
     },
     path: {
@@ -223,14 +222,12 @@ describe('OperationBlock', () => {
     const mockController = new AbortController()
     const mockFetchRequest = new Request('https://api.example.com/api/users')
 
-    vi.mocked(requestFactory).mockReturnValue({
-      ok: true,
-      data: { request: createDefaultRequestFactoryPayload() },
-    })
+    vi.mocked(requestFactory).mockReturnValue({ request: createDefaultRequestFactoryPayload() })
 
     vi.mocked(buildRequest).mockReturnValue({
       controller: mockController,
       request: mockFetchRequest,
+      isUsingProxy: false,
     })
   })
 
@@ -319,19 +316,6 @@ describe('OperationBlock', () => {
     })
   })
 
-  it('displays toast error when requestFactory fails', async () => {
-    vi.mocked(requestFactory).mockReturnValue({ ok: false, error: 'Invalid URL' })
-
-    const wrapper = mount(OperationBlock, {
-      props: createDefaultProps(),
-    })
-
-    await triggerExecute(wrapper)
-
-    expect(mockToast).toHaveBeenCalledWith('Invalid URL', 'error')
-    expect(sendRequest).not.toHaveBeenCalled()
-  })
-
   it('displays toast error when sendRequest fails', async () => {
     const mockController = new AbortController()
     const mockRequest = new Request('https://api.example.com/api/users')
@@ -339,6 +323,7 @@ describe('OperationBlock', () => {
     vi.mocked(buildRequest).mockReturnValue({
       controller: mockController,
       request: mockRequest,
+      isUsingProxy: false,
     })
 
     const mockError = new Error(ERRORS.REQUEST_FAILED)
@@ -362,6 +347,7 @@ describe('OperationBlock', () => {
     vi.mocked(buildRequest).mockReturnValue({
       controller: mockController,
       request: mockRequest,
+      isUsingProxy: false,
     })
 
     vi.mocked(sendRequest).mockResolvedValue([
@@ -395,6 +381,7 @@ describe('OperationBlock', () => {
     vi.mocked(buildRequest).mockReturnValue({
       controller: mockController,
       request: mockRequest,
+      isUsingProxy: false,
     })
 
     vi.mocked(sendRequest).mockResolvedValue([
@@ -453,17 +440,15 @@ describe('OperationBlock', () => {
     const mockRequest = new Request('https://api.example.com/api/users')
 
     vi.mocked(requestFactory).mockReturnValue({
-      ok: true,
-      data: {
-        request: createDefaultRequestFactoryPayload({
-          proxy: { proxyUrl: 'https://proxy.example.com', isUsingProxy: true },
-        }),
-      },
+      request: createDefaultRequestFactoryPayload({
+        proxy: { proxyUrl: 'https://proxy.example.com' },
+      }),
     })
 
     vi.mocked(buildRequest).mockReturnValue({
       controller: mockController,
       request: mockRequest,
+      isUsingProxy: true,
     })
 
     vi.mocked(sendRequest).mockResolvedValue([
@@ -495,6 +480,7 @@ describe('OperationBlock', () => {
     vi.mocked(buildRequest).mockReturnValue({
       controller: mockController,
       request: mockRequest,
+      isUsingProxy: false,
     })
 
     const mockResponse: ResponseInstance = {
@@ -575,6 +561,7 @@ describe('OperationBlock', () => {
     vi.mocked(buildRequest).mockReturnValue({
       controller: mockController,
       request: mockRequest,
+      isUsingProxy: false,
     })
 
     vi.mocked(sendRequest).mockResolvedValue([
@@ -634,6 +621,7 @@ describe('OperationBlock', () => {
     vi.mocked(buildRequest).mockReturnValue({
       controller: mockController,
       request: mockRequest,
+      isUsingProxy: false,
     })
 
     vi.mocked(sendRequest).mockResolvedValue([
@@ -693,6 +681,7 @@ describe('OperationBlock', () => {
     vi.mocked(buildRequest).mockReturnValue({
       controller: mockController,
       request: mockRequest,
+      isUsingProxy: false,
     })
 
     vi.mocked(sendRequest).mockResolvedValue([
@@ -752,6 +741,7 @@ describe('OperationBlock', () => {
     vi.mocked(buildRequest).mockReturnValue({
       controller: mockController,
       request: mockRequest,
+      isUsingProxy: false,
     })
 
     vi.mocked(sendRequest).mockResolvedValue([

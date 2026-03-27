@@ -12,7 +12,7 @@ import {
   buildRequestSecurity,
 } from '@/request-example/builder/security/build-request-security'
 import type { SecuritySchemeObjectSecret } from '@/request-example/builder/security/secret-types'
-import type { RequestExampleMeta, Result } from '@/request-example/types'
+import type { RequestExampleMeta } from '@/request-example/types'
 
 import { type RequestBody, buildRequestBody } from './body/build-request-body'
 import { buildRequestParameters } from './header/build-request-parameters'
@@ -78,9 +78,9 @@ export const requestFactory = ({
   selectedSecuritySchemes: SecuritySchemeObjectSecret[]
   /** Selected anyOf/oneOf request-body variants keyed by schema path */
   requestBodyCompositionSelection?: Record<string, number>
-}): Result<{
+}): {
   request: RequestFactory
-}> => {
+} => {
   const requestBody = getResolvedRef(operation.requestBody)
 
   /** Build out the request parameters */
@@ -157,7 +157,6 @@ export const requestFactory = ({
   }
 
   return {
-    ok: true,
-    data: { request },
+    request,
   }
 }
