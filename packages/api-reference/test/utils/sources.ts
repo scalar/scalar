@@ -22,6 +22,99 @@ export const sources = [
     layout: 'classic',
   },
   {
+    title: 'Classic layout with tag groups',
+    slug: 'classic-tag-groups',
+    layout: 'classic',
+    content: {
+      openapi: '3.1.0',
+      info: {
+        title: 'Tag Groups API',
+        version: '1.0.0',
+      },
+      tags: [
+        {
+          name: 'Planets',
+          description: 'Planet operations',
+        },
+        {
+          name: 'Moons',
+          description: 'Natural satellites',
+        },
+        {
+          name: 'Stars',
+          description: 'Stellar objects',
+        },
+        {
+          name: 'Stations',
+          description: 'Orbital platforms',
+        },
+      ],
+      paths: {
+        '/planets': {
+          get: {
+            tags: ['Planets'],
+            summary: 'List planets',
+            responses: {
+              '200': {
+                description: 'OK',
+              },
+            },
+          },
+        },
+        '/moons': {
+          get: {
+            tags: ['Moons'],
+            summary: 'List moons',
+            responses: {
+              '200': {
+                description: 'OK',
+              },
+            },
+          },
+        },
+        '/stars': {
+          get: {
+            tags: ['Stars'],
+            summary: 'List stars',
+            responses: {
+              '200': {
+                description: 'OK',
+              },
+            },
+          },
+        },
+        '/stations': {
+          get: {
+            tags: ['Stations'],
+            summary: 'List stations',
+            responses: {
+              '200': {
+                description: 'OK',
+              },
+            },
+          },
+        },
+      },
+      'x-tagGroups': [
+        {
+          name: 'Galaxy',
+          description: 'Bodies and satellites in the local galaxy',
+          tags: ['Planets', 'Moons'],
+        },
+        {
+          name: 'Deep space',
+          description: 'Objects beyond the planetary plane',
+          tags: ['Stars'],
+        },
+        {
+          name: 'Infrastructure',
+          description: 'Built structures and platforms',
+          tags: ['Stations'],
+        },
+      ],
+    },
+  },
+  {
     title: 'Scalar Galaxy Registry',
     slug: 'scalar-galaxy-registry',
     url: 'https://registry.scalar.com/@scalar/apis/galaxy?format=json',
