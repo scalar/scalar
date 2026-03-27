@@ -104,6 +104,17 @@ export default defineNuxtConfig({
 })
 ```
 
+## Using with Tailwind CSS
+
+If your Nuxt project uses Tailwind CSS v4, you need to set the CSS layer order so that Tailwind's utility classes take priority over Scalar's styles. Add this to the top of your main CSS file (for example, `assets/css/main.css`):
+
+```css
+@layer scalar-base, scalar-theme, scalar-config, theme, base, components, utilities;
+@import "tailwindcss";
+```
+
+For full details, see [Embedding with CSS Frameworks](../themes.md#embedding-with-css-frameworks).
+
 ## Troubleshooting
 
 If you come across any `**** not default export` errors, it's likely you are using `pnpm`.

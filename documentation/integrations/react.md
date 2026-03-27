@@ -124,3 +124,27 @@ createRoot(document.getElementById('root')).render(
 ```
 
 Open <http://localhost:5173/> and you should see your API reference. Done!
+
+## Using with Tailwind CSS
+
+If your React project uses Tailwind CSS v4, Scalar's CSS layers may conflict with Tailwind's layer ordering. To fix this, declare the layer order in your main CSS file *before* importing Tailwind:
+
+```css
+/* src/index.css */
+@layer scalar-base, scalar-theme, scalar-config, theme, base, components, utilities;
+@import "tailwindcss";
+```
+
+This ensures Tailwind's utility classes always take priority over Scalar's styles.
+
+You can also map Scalar's CSS variables to your Tailwind theme to make the API Reference match the rest of your app:
+
+```css
+:root {
+  --scalar-background-1: var(--color-background);
+  --scalar-color-1: var(--color-foreground);
+  --scalar-color-accent: var(--color-primary);
+}
+```
+
+For full details, see [Embedding with CSS Frameworks](../themes.md#embedding-with-css-frameworks).
