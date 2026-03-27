@@ -1,5 +1,11 @@
 # @scalar/workspace-store
 
+## 0.41.2
+
+### Patch Changes
+
+- [#8596](https://github.com/scalar/scalar/pull/8596): fix: tag group id generation to prevent recursion issues
+
 ## 0.41.1
 
 ## 0.41.0

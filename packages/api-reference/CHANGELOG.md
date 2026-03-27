@@ -1,5 +1,12 @@
 # @scalar/api-reference
 
+## 1.49.6
+
+### Patch Changes
+
+- [#8599](https://github.com/scalar/scalar/pull/8599): fix(api-client): truncate long table tooltip content
+- [#8595](https://github.com/scalar/scalar/pull/8595): fix: deep resolve when generating examples from schema
+
 ## 1.49.5
 
 ### Patch Changes
