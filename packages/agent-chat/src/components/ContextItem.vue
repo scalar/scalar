@@ -8,12 +8,15 @@ const { loading } = defineProps<{ loading: boolean }>()
     :class="{
       shimmer: loading,
     }">
-    <slot />
+    <span class="contextItemText">
+      <slot />
+    </span>
   </div>
 </template>
 
 <style scoped>
 .contextItem {
+  white-space: nowrap;
   font-size: 10px;
   display: inline-block;
   color: var(--scalar-color-2);
@@ -29,6 +32,13 @@ const { loading } = defineProps<{ loading: boolean }>()
     var(--scalar-background-2),
     var(--scalar-background-1)
   );
+  max-width: 200px;
+}
+
+.contextItemText {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .shimmer {
