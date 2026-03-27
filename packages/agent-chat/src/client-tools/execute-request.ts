@@ -137,8 +137,6 @@ export const executeRequestTool = n.safeFn(
 
     const requestSecurityOptions = buildRequestSecurity(settings.securitySchemes)
 
-    console.log(requestSecurityOptions)
-
     const requestSecurity = requestSecurityOptions.reduce<{
       headers: Record<string, string>
       queryParams: URLSearchParams
@@ -146,8 +144,6 @@ export const executeRequestTool = n.safeFn(
     }>(
       (acc, securityOption) => {
         if (securityOption.in === 'header') {
-          console.log(securityOption)
-
           const prefix = securityOption.type === 'basic' ? 'Basic ' : securityOption.type === 'bearer' ? 'Bearer ' : ''
 
           acc.headers[securityOption.name] =
