@@ -61,48 +61,6 @@ type ExtraDocumentConfigurations = Record<
   }
 >
 
-const normalizeDiscriminatorMappingRef = (value: string) =>
-  value.startsWith('#/') || value.includes('/') ? value : `#/components/schemas/${value}`
-
-/**
- * Infer variant compositions from discriminator.mapping before refs are proxied.
- *
- * This runs on the raw upgraded document so plain local $refs can later be turned
- * into real `$ref-value` nodes by the magic proxy / bundler pipeline.
- */
-const inferDiscriminatorMappingVariants = (input: unknown, seen = new WeakSet<object>()) => {
-  if (!isObject(input)) {
-    return
-  }
-
-  if (seen.has(input)) {
-    return
-  }
-  seen.add(input)
-
-  const discriminator = 'discriminator' in input && isObject(input.discriminator) ? input.discriminator : undefined
-  const mapping =
-    discriminator && 'mapping' in discriminator && isObject(discriminator.mapping) ? discriminator.mapping : undefined
-
-  if (!('oneOf' in input) && !('anyOf' in input) && mapping) {
-    const refs = Object.values(mapping)
-      .filter((value): value is string => typeof value === 'string')
-      .map((value) => ({ $ref: normalizeDiscriminatorMappingRef(value) }))
-
-    if (refs.length > 0) {
-      input.anyOf = refs
-    }
-  }
-
-  for (const value of Object.values(input)) {
-    if (Array.isArray(value)) {
-      value.forEach((item) => inferDiscriminatorMappingVariants(item, seen))
-    } else if (isObject(value)) {
-      inferDiscriminatorMappingVariants(value, seen)
-    }
-  }
-}
-
 /**
  * Input type for workspace document metadata and configuration.
  * This type defines the required and optional fields for initializing a document in the workspace.
@@ -938,7 +896,6 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     })
 
     const inputDocument = withMeasurementSync('upgrade', () => upgrade(deepClone(clonedRawInputDocument), '3.1'))
-    withMeasurementSync('inferDiscriminatorMappingVariants', () => inferDiscriminatorMappingVariants(inputDocument))
 
     const strictDocument: UnknownObject = createMagicProxy(
       {
