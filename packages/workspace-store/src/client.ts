@@ -557,6 +557,8 @@ export type WorkspaceStore = {
   >
 }
 
+const openapiSchema = generateSchema(recursiveRef)
+
 /**
  * Creates a reactive workspace store that manages documents and their metadata.
  * The store provides functionality for accessing, updating, and resolving document references.
@@ -703,8 +705,6 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       },
     ),
   )
-
-  const openapiSchema = generateSchema(recursiveRef)
 
   /**
    * An object containing all the workspace state, wrapped in a detect changes proxy.
