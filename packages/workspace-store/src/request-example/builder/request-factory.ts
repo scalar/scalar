@@ -1,11 +1,12 @@
 import { canMethodHaveBody } from '@scalar/helpers/http/can-method-have-body'
-import { shouldUseProxy } from '@scalar/helpers/url/redirect-to-proxy'
+import { replacePathVariables } from '@scalar/helpers/regex/replace-variables'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type { XScalarCookie } from '@scalar/workspace-store/schemas/extensions/general/x-scalar-cookies'
 import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/operation'
 
+import { getServerVariables } from '@/request-example/builder/helpers/get-server-variables'
 import {
   type BuildRequestSecurityResult,
   buildRequestSecurity,
@@ -15,18 +16,16 @@ import type { RequestExampleMeta, Result } from '@/request-example/types'
 
 import { type RequestBody, buildRequestBody } from './body/build-request-body'
 import { buildRequestParameters } from './header/build-request-parameters'
-import { getResolvedUrl } from './helpers/get-resolved-url'
 
 export type RequestFactory = {
-  url: string
-  method: string
-  proxy: {
-    proxyUrl: string
-    isUsingProxy: boolean
-  }
+  baseUrl: string
   path: {
     variables: Record<string, string>
     raw: string
+  }
+  method: string
+  proxy: {
+    proxyUrl: string
   }
   query: {
     params: URLSearchParams
@@ -101,17 +100,8 @@ export const requestFactory = ({
   }
 
   /** Combine the server url, path and url params into a single url */
-  const url = getResolvedUrl({
-    server,
-    path,
-  })
-
-  // Return error for no url
-  if (!url) {
-    return { ok: false, error: 'URL is empty' }
-  }
-
-  const isUsingProxy = shouldUseProxy(proxyUrl, url)
+  const serverVariables = getServerVariables(server)
+  const baseUrl = replacePathVariables(server?.url ?? '', serverVariables)
 
   // If we are running in Electron, we need to add a custom header
   // that's then forwarded as a `User-Agent` header.
@@ -123,6 +113,7 @@ export const requestFactory = ({
   const globalCookieFilter = operation['x-scalar-disable-parameters']?.['global-cookies']?.[exampleName] ?? {}
 
   const cookiesList = [
+    // Filter out disabled global cookies
     ...globalCookies.map((c) => ({
       ...c,
       isDisabled: (c.isDisabled || globalCookieFilter[c.name.toLowerCase()]) ?? false,
@@ -140,10 +131,9 @@ export const requestFactory = ({
   }
 
   const request: RequestFactory = {
-    url,
+    baseUrl,
     proxy: {
       proxyUrl,
-      isUsingProxy,
     },
     path: {
       variables: params.pathVariables,

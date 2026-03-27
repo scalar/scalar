@@ -1,5 +1,6 @@
 import { replaceEnvVariables, replacePathVariables } from '@scalar/helpers/regex/replace-variables'
-import { redirectToProxy } from '@scalar/helpers/url/redirect-to-proxy'
+import { mergeUrls } from '@scalar/helpers/url/merge-urls'
+import { redirectToProxy, shouldUseProxy } from '@scalar/helpers/url/redirect-to-proxy'
 import { encode as encodeBase64 } from 'js-base64'
 
 import { buildRequestCookieHeader } from '@/request-example/builder/header/build-request-cookie-header'
@@ -104,18 +105,20 @@ export const buildRequest = (
 
   const requestUrl = (() => {
     // construct replaced path variables
-    const substitutedPathVariables = Object.fromEntries(
+    const pathVariables = Object.fromEntries(
       Object.entries(request.path.variables).map(([key, value]) => [
         key,
         encodeURIComponent(replaceEnvVariables(value, options.envVariables)),
       ]),
     )
 
+    const baseUrl = replaceEnvVariables(request.baseUrl, options.envVariables)
+    const path = replacePathVariables(request.path.raw, pathVariables)
+
+    const mergedUrl = mergeUrls(baseUrl, path)
+
     // Replace the path variables with the environment variables and server variables
-    const url = new URL(
-      replaceEnvVariables(replacePathVariables(request.url, substitutedPathVariables), options.envVariables),
-      window.location.origin ?? 'http://localhost:3000',
-    )
+    const url = new URL(mergedUrl, window.location.origin ?? 'http://localhost:3000')
 
     // Merge security query params
     request.security.forEach((security) => {
@@ -134,6 +137,8 @@ export const buildRequest = (
     return url.toString()
   })()
 
+  const isUsingProxy = shouldUseProxy(request.proxy.proxyUrl, requestUrl)
+
   const cookies: XScalarCookie[] = [...request.cookies.list, ...securityCookies]
     .map((c) => ({
       name: replaceEnvVariables(c.name, options.envVariables),
@@ -143,12 +148,10 @@ export const buildRequest = (
     .filter((c) => !c.isDisabled)
 
   const cookieHeader = buildRequestCookieHeader({
-    paramCookies: cookies,
-    disabledGlobalCookies: {},
-    globalCookies: [],
+    cookies,
     originalCookieHeader: headers.get('cookie'),
     url: requestUrl,
-    useCustomCookieHeader: (request.proxy.isUsingProxy || request.options?.isElectron) ?? false,
+    useCustomCookieHeader: (isUsingProxy || request.options?.isElectron) ?? false,
   })
 
   // Add the cookie header to the headers
@@ -158,7 +161,7 @@ export const buildRequest = (
 
   // final url
   const encodedUrl = applyAllowReservedToUrl(requestUrl, request.allowedReservedQueryParameters ?? new Set())
-  const finalUrl = request.proxy.isUsingProxy ? redirectToProxy(request.proxy.proxyUrl, encodedUrl) : encodedUrl
+  const finalUrl = isUsingProxy ? redirectToProxy(request.proxy.proxyUrl, encodedUrl) : encodedUrl
 
   return {
     request: new Request(finalUrl, {

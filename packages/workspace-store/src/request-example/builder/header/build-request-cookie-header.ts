@@ -1,8 +1,4 @@
-import {
-  type XScalarCookie,
-  xScalarCookieSchema,
-} from '@scalar/workspace-store/schemas/extensions/general/x-scalar-cookies'
-import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
+import type { XScalarCookie } from '@scalar/workspace-store/schemas/extensions/general/x-scalar-cookies'
 
 import { filterGlobalCookie } from './filter-global-cookies'
 
@@ -34,17 +30,13 @@ export const getCookieHeader = (cookieParams: XScalarCookie[], originalCookieHea
  * Build out the cookies header taking in global, param and security scheme cookies
  */
 export const buildRequestCookieHeader = ({
-  paramCookies,
-  globalCookies,
+  cookies,
   originalCookieHeader,
   url,
   useCustomCookieHeader,
-  disabledGlobalCookies,
 }: {
   /** Parsed/replaced cookies from the parameters and security schemes */
-  paramCookies: XScalarCookie[]
-  /** Raw global cookies from the workspace/document */
-  globalCookies: XScalarCookie[]
+  cookies: XScalarCookie[]
   /** Cookie header that previously exists from the spec OR from the user */
   originalCookieHeader: string | undefined | null
   /** The url of the request used to filter global cookies by domain */
@@ -54,22 +46,14 @@ export const buildRequestCookieHeader = ({
    * that's then forwarded as a `Cookie` header.
    */
   useCustomCookieHeader: boolean
-  /** The disabled global cookies for the current example */
-  disabledGlobalCookies: Record<string, boolean>
 }): null | { name: string; value: string } => {
   /** Filter the global cookies by domain + parse */
-  const filteredGlobalCookies = globalCookies
-    .filter((cookie) => filterGlobalCookie({ cookie, url, disabledGlobalCookies }))
-    .map((cookie) => {
-      return coerceValue(xScalarCookieSchema, {
-        ...cookie,
-        name: cookie.name,
-        value: cookie.value,
-      })
-    })
 
   /** Generate the cookie header */
-  const cookieHeader = getCookieHeader([...filteredGlobalCookies, ...paramCookies], originalCookieHeader ?? undefined)
+  const cookieHeader = getCookieHeader(
+    cookies.filter((cookie) => filterGlobalCookie({ url, cookie, disabledGlobalCookies: {} })),
+    originalCookieHeader ?? undefined,
+  )
 
   if (cookieHeader) {
     // Add a custom header for the proxy (that's then forwarded as `Cookie`)
