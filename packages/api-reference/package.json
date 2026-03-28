@@ -140,6 +140,7 @@
     "@vue/test-utils": "catalog:*",
     "hono": "catalog:*",
     "jsdom": "catalog:*",
+    "monaco-editor": "catalog:*",
     "react": "catalog:*",
     "rollup-plugin-webpack-stats": "^0.2.5",
     "tailwindcss": "catalog:*",

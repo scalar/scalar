@@ -12,7 +12,6 @@ import type { ClientLayout } from '@/hooks'
 import Headers from '@/v2/blocks/response-block/components/Headers.vue'
 import ResponseBody from '@/v2/blocks/response-block/components/ResponseBody.vue'
 import ResponseBodyStreaming from '@/v2/blocks/response-block/components/ResponseBodyStreaming.vue'
-import ResponseBodyVirtual from '@/v2/blocks/response-block/components/ResponseBodyVirtual.vue'
 import ResponseCookies from '@/v2/blocks/response-block/components/ResponseCookies.vue'
 import ResponseEmpty from '@/v2/blocks/response-block/components/ResponseEmpty.vue'
 import ResponseLoadingOverlay from '@/v2/blocks/response-block/components/ResponseLoadingOverlay.vue'
@@ -214,15 +213,6 @@ defineExpose({
             :id="filterIds.Body"
             class="response-section-content-body"
             :reader="response.reader" />
-
-          <!-- Virtualized Text for massive responses -->
-          <ResponseBodyVirtual
-            v-else-if="shouldVirtualize && typeof response?.data === 'string'"
-            :id="filterIds.Body"
-            :content="response!.data"
-            :data="response?.data"
-            :headers="responseHeaders"
-            :role="activeFilter === 'All' ? 'none' : 'tabpanel'" />
 
           <!-- Regular response body -->
           <ResponseBody

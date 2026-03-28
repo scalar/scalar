@@ -1528,6 +1528,9 @@ importers:
       jsdom:
         specifier: catalog:*
         version: 27.4.0(@noble/hashes@1.8.0)
+      monaco-editor:
+        specifier: catalog:*
+        version: 0.54.0
       react:
         specifier: catalog:*
         version: 19.2.3
