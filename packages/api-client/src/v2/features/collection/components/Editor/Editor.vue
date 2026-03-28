@@ -434,7 +434,7 @@ watch(
     <div class="flex min-h-0 w-full min-w-0 flex-1 rounded-lg border">
       <div
         class="relative w-full min-w-0 flex-1"
-        :class="isEditorMaximized ? 'h-full min-h-0' : 'h-[500px]'">
+        :class="isEditorMaximized ? 'h-full min-h-0' : 'h-125'">
         <div class="pointer-events-none absolute top-2 right-2 z-10">
           <EditorSavePanel
             :isAutoSaveEnabled="isAutoSaveEnabled"
@@ -453,7 +453,7 @@ watch(
 
         <div
           ref="monacoEditorRef"
-          class="h-full w-full min-w-0 flex-1" />
+          class="h-full w-full min-w-0 flex-1 [&_.monaco-editor]:rounded-lg [&_.overflow-guard]:rounded-lg" />
       </div>
     </div>
   </div>
