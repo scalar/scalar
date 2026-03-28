@@ -5,6 +5,15 @@
   Cards are built from YYYY-MM-DD-slug.md files in documentation/blog/.
   Descriptions are preserved between runs — new posts get auto-extracted text.
 -->
+:::scalar-card{title="Too Long; Didn't Read; Used MCP" href="./2026-03-25-scalar-mcp-oauth.md"}
+
+Hey, it's 2026, who does even **read** the documentation for your API anymore. Just boot up a MCP based on your OpenAPI document (using Scalar), and share it with your users or your team[1].
+
+And then enhance any trillion dollar frontier model with your MCP server, that has all the context of how your API is defined. We show exactly how in the UI.
+
+::scalar-fineprint[Mar 25, 2026]{}
+:::
+
 :::scalar-card{title="Use your API in Cursor (or your favorite LLM)" href="./2026-03-17-agent-mcp.md"}
 
 Agent MCP servers expose your OpenAPI via MCP with all the performance benefits of Agent. Use your API in Cursor or any LLM in minutes, with preconfigured authentication and restricted access by default.
