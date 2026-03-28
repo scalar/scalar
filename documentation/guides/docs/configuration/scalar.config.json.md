@@ -118,13 +118,15 @@ Configure your site's domain, appearance, and custom assets:
 
 #### siteConfig properties
 
-| Property  | Type     | Description                                                                                                                 |
-| --------- | -------- | --------------------------------------------------------------------------------------------------------------------------- |
-| `theme`   | `string` | Visual theme (`default`, `alternate`, `moon`, `purple`, `solarized`, `bluePlanet`, `deepSpace`, `saturn`, `kepler`, `mars`) |
-| `logo`    | `object` | Logo URLs for dark and light modes                                                                                          |
-| `head`    | `object` | Custom scripts, styles, meta tags, and links                                                                                |
-| `routing` | `object` | URL redirects configuration                                                                                                 |
-| `subpath` | `string` | URL subpath for multi-project deployments (e.g., `/guides`, `/api`)                                                         |
+| Property      | Type     | Description                                                                                                                 |
+| ------------- | -------- | --------------------------------------------------------------------------------------------------------------------------- |
+| `theme`       | `string` | Visual theme (`default`, `alternate`, `moon`, `purple`, `solarized`, `bluePlanet`, `deepSpace`, `saturn`, `kepler`, `mars`) |
+| `logo`        | `object` | Logo URLs for dark and light modes                                                                                          |
+| `head`        | `object` | Custom scripts, styles, meta tags, and links                                                                                |
+| `routing`     | `object` | URL redirects configuration                                                                                                 |
+| `subpath`     | `string` | URL subpath for multi-project deployments (e.g., `/guides`, `/api`)                                                         |
+| `colorScheme` | `object` | Light/dark mode appearance settings. See [Site](site-config.md#color-scheme)                                                |
+| `layout`      | `object` | Global layout options including search configuration. See [Site](site-config.md#layout)                                     |
 
 ### navigation
 
