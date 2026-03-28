@@ -703,15 +703,15 @@ eventBus.on('server:update:selected', ({ url }) =>
 )
 
 /** Download the document from the store */
-eventBus.on('ui:download:document', async ({ format }) => {
-  const document = await workspaceStore.exportActiveDocument(format)
+eventBus.on('ui:download:document', ({ format }) => {
+  const document = workspaceStore.exportActiveDocument(format)
 
   if (!document) {
     console.error('No document found to download')
     return
   }
 
-  downloadDocument(document, activeSlug.value ?? 'openapi', format)
+  void downloadDocument(document, activeSlug.value ?? 'openapi', format)
 })
 
 // ---------------------------------------------------------------------------
