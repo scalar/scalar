@@ -21,7 +21,7 @@ export const loadCssVariables = async (css: string) => {
       }
 
       // Collect valid CSS variable declarations from the rule's style
-      const styles = Object.values(cur.style).reduce<Record<string, string>>((style, name) => {
+      const styles = Array.from(cur.style).reduce<Record<string, string>>((style, name) => {
         if (!name.startsWith('--')) {
           return style
         }
