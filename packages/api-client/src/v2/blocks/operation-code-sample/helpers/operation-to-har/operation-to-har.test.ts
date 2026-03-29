@@ -1,10 +1,9 @@
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
+import type { SecuritySchemeObjectSecret } from '@scalar/workspace-store/request-example'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import type { OperationObject, ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { describe, expect, it } from 'vitest'
-
-import type { SecuritySchemeObjectSecret } from '@/v2/blocks/scalar-auth-selector-block'
 
 import { operationToHar } from './operation-to-har'
 

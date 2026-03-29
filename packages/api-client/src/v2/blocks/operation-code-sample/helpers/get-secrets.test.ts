@@ -1,7 +1,6 @@
+import type { SecuritySchemeObjectSecret } from '@scalar/workspace-store/request-example'
 import { decode } from 'js-base64'
 import { describe, expect, it } from 'vitest'
-
-import type { SecuritySchemeObjectSecret } from '@/v2/blocks/scalar-auth-selector-block'
 
 import { getSecrets } from './get-secrets'
 

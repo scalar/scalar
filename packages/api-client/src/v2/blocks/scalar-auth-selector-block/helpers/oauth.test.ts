@@ -1,9 +1,8 @@
+import type { OAuthFlowsObjectSecret } from '@scalar/workspace-store/request-example'
 import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { flushPromises } from '@vue/test-utils'
 import { encode } from 'js-base64'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-
-import type { OAuthFlowsObjectSecret } from '@/v2/blocks/scalar-auth-selector-block/helpers/secret-types'
 
 import { authorizeOauth2 } from './oauth'
 
@@ -1350,14 +1349,13 @@ describe('oauth', () => {
 
       const server: ServerObject = {
         url: '{protocol}://void.scalar.com/{path}',
+        variables: { protocol: { default: 'https' }, path: { default: '' } },
       }
-      const envVars = { protocol: 'https', path: '' }
-
       global.fetch = vi.fn().mockResolvedValueOnce({
         json: () => Promise.resolve({ access_token: 'token_env' }),
       })
 
-      const [error, result] = await authorizeOauth2(flows, 'clientCredentials', ['read'], server, '', envVars)
+      const [error, result] = await authorizeOauth2(flows, 'clientCredentials', ['read'], server, '', {})
       expect(error).toBe(null)
       expect(result).toEqual({ accessToken: 'token_env' })
 

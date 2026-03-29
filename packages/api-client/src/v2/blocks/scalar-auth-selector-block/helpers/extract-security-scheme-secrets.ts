@@ -3,15 +3,6 @@ import { objectEntries } from '@scalar/helpers/object/object-entries'
 import type { SecurityScheme } from '@scalar/types/entities'
 import type { AuthStore, SecretsOAuthFlows, SecretsOpenIdConnect } from '@scalar/workspace-store/entities/auth'
 import type { DeepPartial } from '@scalar/workspace-store/helpers/overrides-proxy'
-import type { XScalarCredentialsLocation } from '@scalar/workspace-store/schemas/extensions/security/x-scalar-credentials-location'
-import type {
-  OAuthFlowAuthorizationCode,
-  OAuthFlowClientCredentials,
-  OAuthFlowImplicit,
-  OAuthFlowPassword,
-} from '@scalar/workspace-store/schemas/v3.1/strict/oauth-flow'
-import type { SecuritySchemeObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-
 import type {
   ApiKeyObjectSecret,
   HttpObjectSecret,
@@ -23,7 +14,15 @@ import type {
   OAuthFlowsObjectSecret,
   OpenIdConnectObjectSecret,
   SecuritySchemeObjectSecret,
-} from './secret-types'
+} from '@scalar/workspace-store/request-example'
+import type { XScalarCredentialsLocation } from '@scalar/workspace-store/schemas/extensions/security/x-scalar-credentials-location'
+import type {
+  OAuthFlowAuthorizationCode,
+  OAuthFlowClientCredentials,
+  OAuthFlowImplicit,
+  OAuthFlowPassword,
+} from '@scalar/workspace-store/schemas/v3.1/strict/oauth-flow'
+import type { SecuritySchemeObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
 /** A combined scheme that includes both the auth store secrets and a deep partial of the config auth */
 export type ConfigAuthScheme = SecuritySchemeObject & DeepPartial<SecurityScheme>

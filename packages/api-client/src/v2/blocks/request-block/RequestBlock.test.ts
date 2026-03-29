@@ -7,7 +7,7 @@ import { type DefineComponent, defineComponent, markRaw } from 'vue'
 import RequestBody from '@/v2/blocks/request-block/components/RequestBody.vue'
 import { AuthSelector } from '@/v2/blocks/scalar-auth-selector-block'
 
-import RequestBlock from './RequestBlock.vue'
+import RequestBlock, { type RequestBlockProps } from './RequestBlock.vue'
 
 const defaultProps = {
   method: 'get' as const,
@@ -33,8 +33,10 @@ const defaultProps = {
   eventBus: createWorkspaceEventBus(),
   clientOptions: [],
   selectedClient: 'shell/curl' as const,
-  globalCookies: [],
-}
+  workspaceCookies: [],
+  documentCookies: [],
+  defaultHeaders: {},
+} satisfies RequestBlockProps
 
 describe('RequestBlock', () => {
   it('renders request name input and emits on change for non-modal layout', async () => {

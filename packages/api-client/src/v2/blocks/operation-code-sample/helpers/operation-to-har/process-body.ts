@@ -1,16 +1,14 @@
 import { json2xml } from '@scalar/helpers/file/json2xml'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { unpackProxyObject } from '@scalar/workspace-store/helpers/unpack-proxy'
+import { getExample, getExampleFromSchema } from '@scalar/workspace-store/request-example'
 import type {
   MediaTypeObject,
   RequestBodyObject,
   SchemaObject,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import { getExampleFromSchema } from '@v2/blocks/operation-code-sample/helpers/get-example-from-schema'
 import { getResolvedRefDeep } from '@v2/blocks/operation-code-sample/helpers/get-resolved-ref-deep'
 import type { Param, PostData } from 'har-format'
-
-import { getExample } from '@/v2/blocks/operation-block/helpers/get-example'
 
 import type { OperationToHarProps } from './operation-to-har'
 

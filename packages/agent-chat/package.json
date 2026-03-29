@@ -61,6 +61,7 @@
     "@scalar/workspace-store": "workspace:*",
     "@vueuse/core": "catalog:*",
     "ai": "catalog:*",
+    "js-base64": "catalog:*",
     "neverpanic": "catalog:*",
     "truncate-json": "catalog:*",
     "vue": "catalog:*",

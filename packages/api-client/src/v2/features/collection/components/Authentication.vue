@@ -4,21 +4,23 @@ import { isHttpMethod } from '@scalar/helpers/http/is-http-method'
 import type { AuthMeta } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { unpackProxyObject } from '@scalar/workspace-store/helpers/unpack-proxy'
+import {
+  getActiveProxyUrl,
+  getSelectedSecurity,
+  getServers,
+  mergeSecurity,
+} from '@scalar/workspace-store/request-example'
 import { computed, ref, watchEffect } from 'vue'
 
 import { AuthSelector } from '@/v2/blocks/scalar-auth-selector-block'
 import type { CollectionProps } from '@/v2/features/app/helpers/routes'
 import { getDefaultOperationSecurityToggle } from '@/v2/features/collection/helpers/get-default-operation-security-toggle'
-import { getSelectedSecurity } from '@/v2/features/operation'
 import Section from '@/v2/features/settings/components/Section.vue'
-import { getServers } from '@/v2/helpers'
-import { getActiveProxyUrl } from '@/v2/helpers/get-active-proxy-url'
 
 const {
   document,
   eventBus,
   environment,
-  securitySchemes,
   workspaceStore,
   documentSlug,
   path,
@@ -69,6 +71,15 @@ watchEffect(() => {
   })
 })
 
+const securitySchemes = computed(() =>
+  mergeSecurity(
+    document?.components?.securitySchemes ?? {},
+    {},
+    workspaceStore.auth,
+    documentSlug,
+  ),
+)
+
 /** Resolved selected security for the current collection (operation or document), with defaults applied */
 const selectedSecurity = computed(() => {
   if (collectionType === 'operation') {
@@ -82,7 +93,7 @@ const selectedSecurity = computed(() => {
       undefined,
       fromStore,
       operation.value?.security ?? [],
-      securitySchemes,
+      securitySchemes.value,
     )
   }
   const fromStore = workspaceStore.auth.getAuthSelectedSchemas({
@@ -93,7 +104,7 @@ const selectedSecurity = computed(() => {
     fromStore,
     undefined,
     document?.security ?? [],
-    securitySchemes,
+    securitySchemes.value,
   )
 })
 
@@ -110,7 +121,7 @@ const proxyUrl = computed(
   () =>
     getActiveProxyUrl(
       workspaceStore.workspace['x-scalar-active-proxy'],
-      layout,
+      layout === 'web' ? 'web' : 'other',
     ) ?? '',
 )
 
