@@ -1,4 +1,5 @@
 import { Type } from '@scalar/typebox'
+import { object, optional, string } from '@scalar/validation'
 
 /**
  * Post response scripts allow to execute arbitrary code after a response is received
@@ -37,3 +38,17 @@ export type XPostResponse = {
    */
   'x-post-response'?: string
 }
+
+export const XPostResponse = object(
+  {
+    'x-post-response': optional(
+      string({
+        typeComment: 'Script to run after a response is received',
+      }),
+    ),
+  },
+  {
+    typeName: 'XPostResponse',
+    typeComment: 'Post-response script for an operation',
+  },
+)

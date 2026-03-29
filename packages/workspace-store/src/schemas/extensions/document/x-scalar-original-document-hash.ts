@@ -1,4 +1,6 @@
 import { Type } from '@scalar/typebox'
+import { object, string } from '@scalar/validation'
+
 /**
  * Schema for the "x-scalar-original-document-hash" OpenAPI extension.
  * This extension allows specifying an optional string value,
@@ -21,3 +23,13 @@ export type XScalarOriginalDocumentHash = {
   /** Original input document hash */
   'x-scalar-original-document-hash': string
 }
+
+export const XScalarOriginalDocumentHash = object(
+  {
+    'x-scalar-original-document-hash': string({ typeComment: 'Original input document hash' }),
+  },
+  {
+    typeName: 'XScalarOriginalDocumentHash',
+    typeComment: 'Original input document hash',
+  },
+)

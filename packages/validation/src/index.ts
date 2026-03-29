@@ -1,10 +1,26 @@
 export { coerce } from './coerce'
 export {
+  type AnySchema,
+  type ArraySchema,
+  type BooleanSchema,
+  type EvaluateSchema,
+  type IntersectionSchema,
+  type LazySchema,
+  type LiteralSchema,
+  type NotDefinedSchema,
+  type NullableSchema,
+  type NumberSchema,
+  type ObjectSchema,
+  type OptionalSchema,
+  type RecordSchema,
   type Schema,
+  type StringSchema,
+  type UnionSchema,
   any,
   array,
   boolean,
   evaluate,
+  intersection,
   lazy,
   literal,
   notDefined,
@@ -16,5 +32,6 @@ export {
   string,
   union,
 } from './schema'
+export { type GenerateTypesOptions, generateTypes } from './typegen'
 export type { Static } from './types'
 export { validate } from './validate'

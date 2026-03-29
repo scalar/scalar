@@ -5,6 +5,7 @@ import {
   array,
   boolean,
   evaluate,
+  intersection,
   lazy,
   literal,
   notDefined,
@@ -649,6 +650,58 @@ describe('union', () => {
     const value = { type: 'A', x: true, y: false }
     const result = validate(T, value)
     expect(result).toBe(false)
+  })
+})
+
+describe('intersection', () => {
+  it('passes when the value satisfies every member object schema', () => {
+    const T = intersection([object({ a: number(), b: number() }), object({ c: string(), d: string() })])
+    expect(validate(T, { a: 1, b: 2, c: 'x', d: 'y' })).toBe(true)
+  })
+
+  it('fails when one member object schema fails', () => {
+    const T = intersection([object({ a: number(), b: number() }), object({ c: string(), d: string() })])
+    expect(validate(T, { a: 1, b: 2, c: 'x', d: 3 })).toBe(false)
+  })
+
+  it('fails when the first member fails even if later members would pass', () => {
+    const T = intersection([object({ x: literal(1) }), object({ y: string() })])
+    expect(validate(T, { x: 2, y: 'ok' })).toBe(false)
+  })
+
+  it('requires overlapping keys to satisfy every arm that declares them', () => {
+    const T = intersection([object({ id: number() }), object({ id: string() })])
+    expect(validate(T, { id: 1 })).toBe(false)
+    expect(validate(T, { id: '1' })).toBe(false)
+  })
+
+  it('rejects non-plain objects before member checks', () => {
+    const T = intersection([object({ x: number() }), object({ y: number() })])
+    expect(validate(T, null)).toBe(false)
+    expect(validate(T, undefined)).toBe(false)
+    expect(validate(T, 0)).toBe(false)
+    expect(validate(T, [])).toBe(false)
+    expect(validate(T, new Date())).toBe(false)
+  })
+
+  it('treats an empty intersection as vacuously valid', () => {
+    const T = intersection([])
+    expect(validate(T, null)).toBe(true)
+    expect(validate(T, { a: 1 })).toBe(true)
+  })
+
+  it('matches a single member the same as that object schema alone', () => {
+    const O = object({ x: number() })
+    const T = intersection([O])
+    expect(validate(T, { x: 1 })).toBe(true)
+    expect(validate(T, {})).toBe(false)
+    expect(validate(O, { x: 1 })).toBe(validate(T, { x: 1 }))
+  })
+
+  it('validates members that use lazy schemas', () => {
+    const T = intersection([object({ a: number() }), object({ nested: lazy(() => object({ z: string() })) })])
+    expect(validate(T, { a: 1, nested: { z: 'ok' } })).toBe(true)
+    expect(validate(T, { a: 1, nested: { z: 1 } })).toBe(false)
   })
 })
 
