@@ -43,6 +43,8 @@ export type OperationBlockProps = {
   selectedClient: WorkspaceStore['workspace']['x-scalar-default-client']
   /** Server list available for operation/document */
   servers: ServerObject[]
+  /** All available servers (collection + request) for matching pasted URLs */
+  allAvailableServers: ServerObject[]
   /** Meta information for the server */
   serverMeta: ServerMeta
   /** Hides the client button on the header */
@@ -131,6 +133,7 @@ import {
 import Header from './components/Header.vue'
 
 const {
+  allAvailableServers,
   authMeta,
   environment,
   documentSecurity,
@@ -385,6 +388,7 @@ onBeforeUnmount(() => {
       <!-- Address Bar -->
       <Header
         :activeEnvironment
+        :allAvailableServers
         :documentUrl
         :environment
         :environments

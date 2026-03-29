@@ -109,6 +109,27 @@ const servers = computed(() => {
   })
 })
 
+/** All available servers (collection + operation) for URL matching */
+const allAvailableServers = computed(() => {
+  const documentServers = getServers(document?.servers, {
+    baseServerUrl: toValue(options)?.baseServerURL,
+    documentUrl: document?.['x-scalar-original-source-url'],
+  })
+  const operationServers = getServers(operation.value?.servers, {
+    baseServerUrl: toValue(options)?.baseServerURL,
+    documentUrl: document?.['x-scalar-original-source-url'],
+  })
+
+  // Combine and deduplicate servers by URL
+  const serverMap = new Map<string, (typeof documentServers)[number]>()
+  for (const s of [...documentServers, ...operationServers]) {
+    if (s.url && !serverMap.has(s.url)) {
+      serverMap.set(s.url, s)
+    }
+  }
+  return Array.from(serverMap.values())
+})
+
 /** Selected server URL from the same source as servers: operation, then document (config has no stored selection so use document selection) */
 const selectedServerUrl = computed(() => {
   if (toValue(options)?.servers != null) {
@@ -216,7 +237,8 @@ const httpClients = computed(() =>
       :selectedClient="workspaceStore.workspace['x-scalar-default-client']"
       :server="selectedServer"
       :serverMeta
-      :servers />
+      :servers
+      :allAvailableServers />
   </template>
 
   <!-- Empty state -->

@@ -133,6 +133,7 @@ const createDefaultProps = (): OperationBlockProps => ({
   server: { url: 'https://api.example.com' },
   selectedClient: 'js/fetch' as const,
   servers: [{ url: 'https://api.example.com' }],
+  allAvailableServers: [{ url: 'https://api.example.com' }],
   history: [],
   operation: createMockOperation(),
   exampleKey: 'default',

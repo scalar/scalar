@@ -1,6 +1,6 @@
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { type ApiReferenceEvents, createWorkspaceEventBus } from '@scalar/workspace-store/events'
-import { enableConsoleError, enableConsoleWarn } from '@test/vitest.setup'
+import { disableConsoleError, disableConsoleWarn, enableConsoleError, enableConsoleWarn } from '@test/vitest.setup'
 import { mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { nextTick } from 'vue'
@@ -35,8 +35,9 @@ describe('AddressBar', () => {
       props: {
         path: custom.path ?? '/api/test',
         method: (custom.method ?? 'get') as HttpMethod,
-        server: custom.server ?? baseServer,
+        server: 'server' in custom ? (custom.server ?? null) : baseServer,
         servers: custom.servers ?? [baseServer],
+        allAvailableServers: custom.allAvailableServers ?? [baseServer],
         history: custom.history ?? [],
         layout: (custom.layout ?? 'web') as ClientLayout,
         eventBus,
@@ -495,10 +496,15 @@ describe('AddressBar', () => {
       )
     })
 
-    it('handles empty path by normalizing to slash', async () => {
+    it('handles empty path by clearing server when server is selected', async () => {
+      // Disable console checks for this test as the event bus triggers a proxy warning in test env
+      disableConsoleWarn()
+      disableConsoleError()
+
       const { wrapper, eventBus } = mountWithProps({
         path: '/api/test',
         method: 'get',
+        server: baseServer,
       })
 
       const emitSpy = vi.spyOn(eventBus, 'emit')
@@ -508,7 +514,32 @@ describe('AddressBar', () => {
       await nextTick()
 
       /**
-       * Empty path should be normalized to slash.
+       * Empty path with server selected should clear the server (ctrl+a+delete behavior).
+       */
+      expect(emitSpy).toHaveBeenCalledWith('server:update:selected', {
+        url: '',
+        meta: { type: 'document' },
+      })
+
+      const componentInstance = wrapper.vm as any
+      expect(componentInstance.pathConflict).toBeNull()
+    })
+
+    it('handles empty path by normalizing to slash when no server is selected', async () => {
+      const { wrapper, eventBus } = mountWithProps({
+        path: '/api/test',
+        method: 'get',
+        server: null,
+      })
+
+      const emitSpy = vi.spyOn(eventBus, 'emit')
+
+      const codeInput = wrapper.findComponent({ name: 'CodeInput' })
+      await codeInput.vm.$emit('update:modelValue', '')
+      await nextTick()
+
+      /**
+       * Empty path without server should be normalized to slash.
        */
       expect(emitSpy).toHaveBeenCalledWith(
         'operation:update:pathMethod',
@@ -591,6 +622,82 @@ describe('AddressBar', () => {
         }),
         { debounceKey: 'operation:update:pathMethod-/api/test-get' },
       )
+    })
+  })
+
+  describe('full URL pasting', () => {
+    it('selects matching server when pasting a full URL with matching origin', async () => {
+      // Disable console checks for this test as the event bus triggers a proxy warning in test env
+      disableConsoleWarn()
+      disableConsoleError()
+
+      const { wrapper, eventBus } = mountWithProps({
+        path: '/api/test',
+        method: 'get',
+        allAvailableServers: [baseServer],
+      })
+
+      const emitSpy = vi.spyOn(eventBus, 'emit')
+
+      const codeInput = wrapper.findComponent({ name: 'CodeInput' })
+      await codeInput.vm.$emit('update:modelValue', 'https://api.example.com/users/123')
+      await nextTick()
+
+      /**
+       * Should select the matching server.
+       */
+      expect(emitSpy).toHaveBeenCalledWith('server:update:selected', {
+        url: 'https://api.example.com',
+        meta: { type: 'document' },
+      })
+
+      /**
+       * Should update the path immediately without debouncing.
+       */
+      expect(emitSpy).toHaveBeenCalledWith(
+        'operation:update:pathMethod',
+        expect.objectContaining({
+          payload: { method: 'get', path: '/users/123' },
+        }),
+        undefined,
+      )
+    })
+
+    it('adds a new server when pasting a full URL with non-matching origin', async () => {
+      // Disable console checks for this test as the event bus triggers a proxy warning in test env
+      disableConsoleWarn()
+      disableConsoleError()
+
+      const { wrapper, eventBus } = mountWithProps({
+        path: '/api/test',
+        method: 'get',
+        allAvailableServers: [baseServer],
+        servers: [baseServer],
+      })
+
+      const emitSpy = vi.spyOn(eventBus, 'emit')
+
+      const codeInput = wrapper.findComponent({ name: 'CodeInput' })
+      await codeInput.vm.$emit('update:modelValue', 'https://other-api.example.com/users/123')
+      await nextTick()
+
+      /**
+       * Should add a new server.
+       */
+      expect(emitSpy).toHaveBeenCalledWith('server:add:server', {
+        meta: { type: 'operation', path: '/api/test', method: 'get' },
+      })
+
+      /**
+       * Should update the new server with the origin URL.
+       * When adding from document level to operation level, the new server is at index 0
+       * because it's the first operation-level server.
+       */
+      expect(emitSpy).toHaveBeenCalledWith('server:update:server', {
+        index: 0,
+        server: { url: 'https://other-api.example.com' },
+        meta: { type: 'operation', path: '/api/test', method: 'get' },
+      })
     })
   })
 })

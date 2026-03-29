@@ -16,6 +16,8 @@ export type AddressBarProps = {
   server: ServerObject | null
   /** Server list available for operation/document */
   servers: ServerObject[]
+  /** All available servers (collection + request) for matching pasted URLs */
+  allAvailableServers: ServerObject[]
   /** List of request history */
   history: History[]
   /** Client layout */
@@ -47,11 +49,13 @@ import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensi
 import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import {
   computed,
+  nextTick,
   onBeforeUnmount,
   onMounted,
   ref,
   useId,
   useTemplateRef,
+  watch,
 } from 'vue'
 
 import { HttpMethod } from '@/components/HttpMethod'
@@ -71,6 +75,7 @@ const {
   history,
   server,
   servers,
+  allAvailableServers,
   environment,
   serverMeta,
 } = defineProps<AddressBarProps>()
@@ -95,8 +100,206 @@ const style = computed(() => ({
 const pathConflict = ref<string | null>(null)
 const methodConflict = ref<HttpMethodType | null>(null)
 
+/** Track the previous path value to detect paste operations */
+const previousPathValue = ref<string>(path)
+
+/** Sync previousPathValue when path prop changes externally (e.g., after URL parsing) */
+watch(
+  () => path,
+  (newPath) => {
+    previousPathValue.value = newPath
+  },
+)
+
 /** Whether there is a path or method conflict */
 const hasConflict = computed(() => methodConflict.value || pathConflict.value)
+
+/**
+ * Check if a string looks like a full URL with protocol
+ */
+const isFullUrl = (value: string): boolean => {
+  const trimmed = value.trim()
+  return /^https?:\/\//i.test(trimmed)
+}
+
+/**
+ * Detect if a change is likely from a paste operation (many characters at once)
+ * vs typing character by character
+ */
+const isPasteOperation = (oldValue: string, newValue: string): boolean => {
+  // If the old value was not a full URL but the new value is, it's definitely a paste
+  // This handles cases where user selects all and pastes a shorter URL
+  if (!isFullUrl(oldValue) && isFullUrl(newValue)) {
+    return true
+  }
+
+  // If both are URLs but significantly different in length, it's a paste
+  // This handles pasting a different URL over an existing one
+  const lengthDiff = Math.abs(newValue.length - oldValue.length)
+  return lengthDiff >= 5
+}
+
+/**
+ * Parse a full URL and extract the origin and path
+ */
+const parseFullUrl = (
+  value: string,
+): { origin: string; path: string } | null => {
+  try {
+    const url = new URL(value.trim())
+    return {
+      origin: url.origin,
+      path: url.pathname + url.search + url.hash,
+    }
+  } catch {
+    return null
+  }
+}
+
+/**
+ * Find a matching server from available servers by origin.
+ * First checks the current level's servers, then falls back to all available servers.
+ * Returns both the server and whether it was found in the current level.
+ */
+const findMatchingServer = (
+  origin: string,
+): { server: ServerObject; inCurrentLevel: boolean } | null => {
+  const matchOrigin = (serverList: ServerObject[]): ServerObject | null => {
+    for (const s of serverList) {
+      try {
+        // Handle server URLs that might have trailing slashes
+        const serverUrl = s.url?.replace(/\/$/, '') ?? ''
+        // Parse the server URL to compare origins exactly
+        const serverOrigin = new URL(serverUrl).origin
+        if (serverOrigin === origin) {
+          return s
+        }
+      } catch {
+        // Server URL might have variables, try direct comparison
+        if (s.url === origin) {
+          return s
+        }
+      }
+    }
+    return null
+  }
+
+  // First check the current level's servers
+  const currentLevelMatch = matchOrigin(servers)
+  if (currentLevelMatch) {
+    return { server: currentLevelMatch, inCurrentLevel: true }
+  }
+
+  // Fall back to all available servers (includes servers from other levels)
+  const allLevelMatch = matchOrigin(allAvailableServers)
+  if (allLevelMatch) {
+    return { server: allLevelMatch, inCurrentLevel: false }
+  }
+
+  return null
+}
+
+/**
+ * Handle a full URL being entered - match or add server, update path.
+ * This is called when a full URL (with protocol) is pasted into the omnibar.
+ * We handle this immediately without debouncing to ensure clean UX.
+ */
+const handleFullUrlInput = async (fullUrl: string): Promise<void> => {
+  const parsed = parseFullUrl(fullUrl)
+  if (!parsed) {
+    return
+  }
+
+  const { origin, path: urlPath } = parsed
+  const normalizedPath = urlPath.startsWith('/') ? urlPath : `/${urlPath}`
+  const match = findMatchingServer(origin)
+
+  if (match?.inCurrentLevel) {
+    // Server exists in current level - select it directly
+    eventBus.emit('server:update:selected', {
+      url: match.server.url,
+      meta: serverMeta,
+    })
+  } else {
+    // Either no matching server, or server is in a different level
+    // Add the server to operation level and select it there
+    const operationMeta: ServerMeta =
+      serverMeta.type === 'operation'
+        ? serverMeta
+        : { type: 'operation', path, method }
+
+    // When adding to operation level from document level, the new server will be at index 0
+    // When already at operation level, it will be at servers.length
+    const newServerIndex = serverMeta.type === 'operation' ? servers.length : 0
+
+    // First add a blank server
+    eventBus.emit('server:add:server', { meta: operationMeta })
+
+    // Wait for Vue to process the event and update reactivity
+    await nextTick()
+
+    // Update the newly added server with the origin URL
+    eventBus.emit('server:update:server', {
+      index: newServerIndex,
+      server: { url: origin },
+      meta: operationMeta,
+    })
+
+    // Wait for the update to be processed
+    await nextTick()
+
+    // Select the newly added server as active
+    eventBus.emit('server:update:selected', {
+      url: origin,
+      meta: operationMeta,
+    })
+  }
+
+  // Wait for the server selection to be processed before updating the path
+  await nextTick()
+
+  // Update the path immediately without debouncing
+  // This ensures clean UX when pasting a full URL
+  emitPathMethodUpdate(methodConflict.value ?? method, normalizedPath)
+}
+
+/**
+ * Handle clearing/unsetting the server selection
+ */
+const handleClearServer = (): void => {
+  eventBus.emit('server:update:selected', {
+    url: '',
+    meta: serverMeta,
+  })
+}
+
+/**
+ * Handle backspace at position 0 to clear the server
+ * Returns true if the event was handled, false otherwise
+ */
+const handleBackspaceAtStart = (): boolean => {
+  if (!server) {
+    return false
+  }
+
+  const cursorPos = addressBarRef.value?.cursorPosition() ?? 0
+  if (cursorPos === 0) {
+    handleClearServer()
+    return true
+  }
+  return false
+}
+
+/**
+ * Handle keydown event for backspace key
+ */
+const handleBackspaceKeydown = (event: KeyboardEvent): void => {
+  // Check if backspace is at position 0 with a server selected
+  if (handleBackspaceAtStart()) {
+    event.preventDefault()
+    event.stopPropagation()
+  }
+}
 
 /** Emit the path/method update event with conflict handling */
 const emitPathMethodUpdate = (
@@ -139,8 +342,24 @@ const emitPathMethodUpdate = (
 const handleMethodChange = (newMethod: HttpMethodType): void =>
   emitPathMethodUpdate(newMethod, pathConflict.value ?? path)
 
-/** Update the operation's path, handling conflicts */
+/** Update the operation's path, handling conflicts and full URL pasting */
 const handlePathChange = (newPath: string): void => {
+  const oldPath = previousPathValue.value
+  previousPathValue.value = newPath
+
+  // Check if this is a full URL being PASTED (not typed character by character)
+  // We only handle full URLs when they're pasted to avoid awkward interactions
+  if (isFullUrl(newPath) && isPasteOperation(oldPath, newPath)) {
+    handleFullUrlInput(newPath)
+    return
+  }
+
+  // Check if the entire content was cleared (ctrl+a+delete or select all + backspace)
+  if (newPath === '' && server) {
+    handleClearServer()
+    return
+  }
+
   const normalizedPath = newPath.startsWith('/') ? newPath : `/${newPath}`
   emitPathMethodUpdate(methodConflict.value ?? method, normalizedPath, {
     debounceKey: `operation:update:pathMethod-${path}-${method}`,
@@ -252,7 +471,8 @@ defineExpose({
       </div>
 
       <div
-        class="scroll-timeline-x scroll-timeline-x-hidden relative flex w-full bg-blend-normal">
+        class="scroll-timeline-x scroll-timeline-x-hidden relative flex w-full bg-blend-normal"
+        @keydown.backspace.capture="handleBackspaceKeydown">
         <!-- Servers -->
         <ServerDropdown
           v-if="servers.length"
