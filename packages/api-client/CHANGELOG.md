@@ -1,5 +1,11 @@
 # @scalar/api-client
 
+## 2.39.3
+
+### Patch Changes
+
+- [#8610](https://github.com/scalar/scalar/pull/8610): fix(api-client): improve editor background color handling
+
 ## 2.39.2
 
 ### Patch Changes

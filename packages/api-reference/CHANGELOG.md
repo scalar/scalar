@@ -1,5 +1,11 @@
 # @scalar/api-reference
 
+## 1.49.7
+
+### Patch Changes
+
+- [#8612](https://github.com/scalar/scalar/pull/8612): fix: intersection observer for scroll-spy and tall sections
+
 ## 1.49.6
 
 ### Patch Changes
