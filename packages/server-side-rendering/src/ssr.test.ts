@@ -16,7 +16,7 @@ describe('ssr', () => {
     it('does not contain an inline script tag', async () => {
       const html = await renderApiReferenceToString({})
 
-      expect(html).not.toMatch(/^<script>/)
+      expect(html).not.toMatch(/^<script\b[^>]*>/i)
       expect(html).not.toContain('<script>')
     })
 
