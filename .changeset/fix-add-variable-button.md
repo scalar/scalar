@@ -2,4 +2,4 @@
 '@scalar/api-client': patch
 ---
 
-fix: wire up Add Variable button to navigate to environment tab
+fix: Add Variable button now navigates to environment tab using existing @navigate event pattern
