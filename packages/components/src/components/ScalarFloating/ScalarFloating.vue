@@ -1,3 +1,19 @@
+<script lang="ts">
+/**
+ * Scalar Floating component
+ *
+ * Positions a floating element relative to a reference element
+ * using Floating UI. Handles placement, offset, flipping, and resizing.
+ *
+ * @example
+ * <ScalarFloating placement="bottom">
+ *   <button>Reference</button>
+ *   <template #floating>Floating content</template>
+ * </ScalarFloating>
+ */
+export default {}
+
+</script>
 <script setup lang="ts">
 import { getSideAxis } from '@floating-ui/utils'
 import {

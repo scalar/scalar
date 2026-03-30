@@ -1,3 +1,16 @@
+<script lang="ts">
+/**
+ * Scalar Code Block Copy button
+ *
+ * Displays a copy-to-clipboard button with an optional language label.
+ * Used internally by ScalarCodeBlock.
+ *
+ * @example
+ * <ScalarCodeBlockCopy content="const x = 1" lang="javascript" />
+ */
+export default {}
+
+</script>
 <script setup lang="ts">
 import { ScalarCopy } from '@/components/ScalarCopy'
 import { useBindCx } from '@scalar/use-hooks/useBindCx'

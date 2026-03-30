@@ -1,3 +1,17 @@
+<script lang="ts">
+/**
+ * Icon List component
+ *
+ * Displays all available icons in a grid for browsing and selection.
+ * Clicking an icon copies its name to the clipboard.
+ * Used internally in Storybook for icon discovery.
+ *
+ * @example
+ * <IconList />
+ */
+export default {}
+
+</script>
 <script setup lang="ts">
 import { ref } from 'vue'
 

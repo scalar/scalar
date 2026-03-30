@@ -1,3 +1,15 @@
+<script lang="ts">
+/**
+ * Scalar Hotkey component
+ *
+ * Displays a keyboard shortcut as styled key caps.
+ *
+ * @example
+ * <ScalarHotkey hotkey="k" :modifier="['Meta']" />
+ */
+export default {}
+
+</script>
 <script setup lang="ts">
 import { useBindCx } from '@scalar/use-hooks/useBindCx'
 import { computed } from 'vue'

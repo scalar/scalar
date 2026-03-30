@@ -1,3 +1,18 @@
+<script lang="ts">
+/**
+ * Scalar Error Boundary component
+ *
+ * Catches errors thrown by child components and displays
+ * a fallback error message instead of crashing the entire app.
+ *
+ * @example
+ * <ScalarErrorBoundary>
+ *   <SomeComponent />
+ * </ScalarErrorBoundary>
+ */
+export default {}
+
+</script>
 <script setup lang="ts">
 import { onErrorCaptured, ref } from 'vue'
 

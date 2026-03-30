@@ -1,3 +1,15 @@
+<script lang="ts">
+/**
+ * Scalar Form Error component
+ *
+ * Displays an error or warning message with an icon.
+ *
+ * @example
+ * <ScalarFormError variant="error">Something went wrong</ScalarFormError>
+ */
+export default {}
+
+</script>
 <script setup lang="ts">
 import { ScalarIconWarning, ScalarIconWarningCircle } from '@scalar/icons'
 import { cva, useBindCx } from '@scalar/use-hooks/useBindCx'
