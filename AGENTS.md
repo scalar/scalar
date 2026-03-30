@@ -146,7 +146,7 @@ The `api-client` has multiple layouts (web, app, modal) — see its package `AGE
 |-------------|-------------------|-----------|
 | Base components (buttons, inputs, modals) | `components` Storybook | `api-reference`, `api-client` |
 | Themes, CSS variables, design tokens | `api-reference` | `api-client`, `components` |
-| Sidebar, search, OpenAPI rendering | `api-reference` | — |
+| Sidebar, search, OpenAPI rendering | `api-reference` | `api-client` |
 | Request editor, response viewer, auth | `api-client` (web + app) | `api-reference` (modal via "Test Request") |
 | Code highlighting, snippets | `api-reference` | `api-client` |
 | Icons | `components` Storybook | `api-reference` |
