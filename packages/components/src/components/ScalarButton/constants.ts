@@ -7,7 +7,7 @@ export const BUTTON_VARIANT_STYLES = {
     'bg-b-btn text-c-btn focus-visible:border-c-btn active:bg-b-btn hover:bg-h-btn outline-offset-1',
   ],
   outlined: ['scalar-button-outlined', 'active:bg-btn-1 shadow-border bg-b-1 text-c-1 hover:bg-b-2'],
-  ghost: ['scalar-button-ghost', 'bg-transparent text-c-3 active:text-c-1 hover:text-c-1'],
+  ghost: ['scalar-button-ghost', 'bg-transparent text-c-2 active:text-c-1 hover:text-c-1'],
   gradient: [
     'scalar-button-gradient',
     'shadow-border bg-b-1.5 bg-linear-to-b from-b-1 to-b-2 hover:bg-linear-to-t',
