@@ -683,25 +683,6 @@ importers:
         specifier: catalog:*
         version: 8.0.0(@types/node@24.10.13)(esbuild@0.27.2)(jiti@2.6.1)(terser@5.31.2)(tsx@4.21.0)(yaml@2.8.2)
 
-  examples/vue-ssr:
-    dependencies:
-      '@hono/node-server':
-        specifier: catalog:*
-        version: 1.19.9(hono@4.12.4)
-      '@scalar/server-side-rendering':
-        specifier: workspace:*
-        version: link:../../packages/server-side-rendering
-      hono:
-        specifier: catalog:*
-        version: 4.12.4
-    devDependencies:
-      '@types/node':
-        specifier: ^24.1.0
-        version: 24.10.13
-      tsx:
-        specifier: catalog:*
-        version: 4.19.4
-
   examples/web:
     dependencies:
       '@scalar/api-reference':
@@ -1575,9 +1556,6 @@ importers:
         specifier: workspace:*
         version: link:../types
     devDependencies:
-      '@vitejs/plugin-vue':
-        specifier: catalog:*
-        version: 6.0.3(vite@8.0.0(@types/node@24.10.13)(esbuild@0.27.2)(jiti@2.6.1)(terser@5.31.2)(tsx@4.21.0)(yaml@2.8.2))(vue@3.5.30(typescript@5.9.3))
       vite:
         specifier: catalog:*
         version: 8.0.0(@types/node@24.10.13)(esbuild@0.27.2)(jiti@2.6.1)(terser@5.31.2)(tsx@4.21.0)(yaml@2.8.2)
@@ -2264,12 +2242,21 @@ importers:
         specifier: catalog:*
         version: 4.6.2(vue@3.5.26(typescript@5.9.3))
     devDependencies:
+      '@hono/node-server':
+        specifier: catalog:*
+        version: 1.19.9(hono@4.12.4)
       '@vitejs/plugin-vue':
         specifier: catalog:*
-        version: 6.0.3(vite@8.0.0(@types/node@24.10.13)(esbuild@0.27.2)(jiti@2.6.1)(terser@5.31.2)(tsx@4.21.0)(yaml@2.8.2))(vue@3.5.26(typescript@5.9.3))
+        version: 6.0.3(vite@8.0.0(@types/node@24.10.13)(esbuild@0.27.2)(jiti@2.6.1)(terser@5.31.2)(tsx@4.19.4)(yaml@2.8.2))(vue@3.5.26(typescript@5.9.3))
+      hono:
+        specifier: catalog:*
+        version: 4.12.4
+      tsx:
+        specifier: catalog:*
+        version: 4.19.4
       vite:
         specifier: catalog:*
-        version: 8.0.0(@types/node@24.10.13)(esbuild@0.27.2)(jiti@2.6.1)(terser@5.31.2)(tsx@4.21.0)(yaml@2.8.2)
+        version: 8.0.0(@types/node@24.10.13)(esbuild@0.27.2)(jiti@2.6.1)(terser@5.31.2)(tsx@4.19.4)(yaml@2.8.2)
 
   packages/sidebar:
     dependencies:
@@ -24914,6 +24901,12 @@ snapshots:
       vue: 3.5.30(typescript@5.9.3)
     transitivePeerDependencies:
       - supports-color
+
+  '@vitejs/plugin-vue@6.0.3(vite@8.0.0(@types/node@24.10.13)(esbuild@0.27.2)(jiti@2.6.1)(terser@5.31.2)(tsx@4.19.4)(yaml@2.8.2))(vue@3.5.26(typescript@5.9.3))':
+    dependencies:
+      '@rolldown/pluginutils': 1.0.0-beta.53
+      vite: 8.0.0(@types/node@24.10.13)(esbuild@0.27.2)(jiti@2.6.1)(terser@5.31.2)(tsx@4.19.4)(yaml@2.8.2)
+      vue: 3.5.26(typescript@5.9.3)
 
   '@vitejs/plugin-vue@6.0.3(vite@8.0.0(@types/node@24.10.13)(esbuild@0.27.2)(jiti@2.6.1)(terser@5.31.2)(tsx@4.21.0)(yaml@2.8.2))(vue@3.5.26(typescript@5.9.3))':
     dependencies:

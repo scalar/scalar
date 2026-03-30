@@ -19,10 +19,10 @@ npm install @scalar/client-side-rendering
 import { renderApiReference } from '@scalar/client-side-rendering'
 
 const html = renderApiReference({
+  pageTitle: 'My API Reference',
   config: {
     url: 'https://registry.scalar.com/@scalar/apis/galaxy?format=json',
   },
-  pageTitle: 'My API Reference',
 })
 ```
 

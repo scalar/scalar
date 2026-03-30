@@ -30,10 +30,10 @@ app.get('/scalar/scalar.js', (c) => {
 // Serve the server-rendered API Reference
 app.get('/scalar', async (c) => {
   const html = await renderApiReference({
+    pageTitle: 'My API Reference',
     config: {
       url: 'https://registry.scalar.com/@scalar/apis/galaxy?format=json',
     },
-    pageTitle: 'My API Reference',
   })
 
   return c.html(html)

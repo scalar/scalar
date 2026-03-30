@@ -17,6 +17,7 @@
   },
   "scripts": {
     "build": "vite build",
+    "dev": "tsx playground/server.ts",
     "test": "vitest",
     "types:check": "tsc --noEmit"
   },
@@ -39,7 +40,10 @@
     "vue-router": "catalog:*"
   },
   "devDependencies": {
+    "@hono/node-server": "catalog:*",
     "@vitejs/plugin-vue": "catalog:*",
+    "hono": "catalog:*",
+    "tsx": "catalog:*",
     "vite": "catalog:*"
   }
 }
