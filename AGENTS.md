@@ -113,6 +113,103 @@ If your PR will cause a version bump for any package, add a changeset:
 pnpm changeset
 ```
 
+## Visual Testing
+
+When making changes that affect the UI, **PRs must include screenshots** (ideally before and after) demonstrating the visual impact. Most package dependencies trickle up into three main visual surfaces: `api-reference`, `api-client`, and `components`. Test your changes in whichever playground is relevant.
+
+### Prerequisites
+
+Build all packages before running any playground (dependencies must be compiled first):
+
+```bash
+pnpm install
+pnpm build:packages
+```
+
+Alternatively, `pnpm turbo dev` or `pnpm turbo build` in a package directory will automatically build upstream dependencies via Turbo.
+
+### Playgrounds
+
+#### `packages/api-reference`
+
+The API reference renderer. Changes to themes, layout, sidebar, code highlighting, and OpenAPI rendering are tested here.
+
+| Playground | Command | Description |
+|------------|---------|-------------|
+| Vue (default) | `cd packages/api-reference && pnpm dev` | Main playground — full API reference with sidebar, search, and embedded API client |
+| Vue | `cd packages/api-reference && pnpm playground:vue` | Same as `dev` |
+| Components | `cd packages/api-reference && pnpm playground:components` | Isolated component playground |
+| ESM | `cd packages/api-reference && pnpm playground:esm` | ESM import playground |
+
+The default `dev` / `playground:vue` is the primary visual testing target. It loads the Galaxy OpenAPI spec and renders the full reference UI.
+
+Using Turbo (builds dependencies automatically):
+
+```bash
+pnpm turbo --filter @scalar/api-reference dev
+```
+
+See [`packages/api-reference/AGENTS.md`](./packages/api-reference/AGENTS.md) for package-specific instructions.
+
+#### `packages/api-client`
+
+The API testing client. Changes to request editors, response viewers, sidebar navigation, auth forms, and environment management are tested here.
+
+The `v2` playgrounds are the current active version. Legacy (non-v2) playgrounds exist but are not the primary target.
+
+| Playground | Command | Description |
+|------------|---------|-------------|
+| Web (default) | `cd packages/api-client && pnpm dev` | Web layout — standalone client in browser |
+| Web | `cd packages/api-client && pnpm playground:v2:web` | Same as `dev` |
+| App | `cd packages/api-client && pnpm playground:v2:app` | App layout — desktop-style with full sidebar and workspace features |
+| Modal | `cd packages/api-client && pnpm playground:v2:modal` | Modal layout — opens as an overlay; also testable via the api-reference "Try it" button |
+
+**Web vs App**: The **web** playground renders the client as a standalone browser page. The **app** playground renders the full desktop-style layout with workspace management, collections, and environments. Both should be checked when making broad client changes. The **modal** playground can also be tested through the api-reference playground by clicking "Test Request" on any operation.
+
+Using Turbo:
+
+```bash
+pnpm turbo --filter @scalar/api-client dev
+```
+
+See [`packages/api-client/AGENTS.md`](./packages/api-client/AGENTS.md) for package-specific instructions.
+
+#### `packages/components`
+
+The shared component library, powered by Storybook. Changes to buttons, inputs, modals, dropdowns, icons, and other base components are tested here.
+
+```bash
+cd packages/components && pnpm dev      # Starts Storybook on port 5100
+```
+
+Using Turbo:
+
+```bash
+pnpm turbo --filter @scalar/components dev
+```
+
+Storybook runs on **http://localhost:5100** and renders all component stories. Use the sidebar to navigate to the component you changed.
+
+See [`packages/components/AGENTS.md`](./packages/components/AGENTS.md) for package-specific instructions.
+
+### Which playground to use
+
+| Change area | Primary playground | Secondary |
+|-------------|-------------------|-----------|
+| Base components (buttons, inputs, modals) | `components` Storybook | `api-reference`, `api-client` |
+| Themes, CSS variables, design tokens | `api-reference` | `api-client`, `components` |
+| Sidebar, search, OpenAPI rendering | `api-reference` | — |
+| Request editor, response viewer, auth | `api-client` (web + app) | `api-reference` (modal via "Test Request") |
+| Code highlighting, snippets | `api-reference` | `api-client` |
+| Icons | `components` Storybook | `api-reference` |
+
+### Screenshot guidelines for PRs
+
+- Include **before and after** screenshots when modifying existing UI.
+- For new features, include screenshots showing the feature in context.
+- Use the playground that best demonstrates the change.
+- If the change affects multiple playgrounds, include screenshots from each.
+
 ## Further Reading
 
 - [CONTRIBUTING.md](./CONTRIBUTING.md) – PR requirements, changesets, auto-generated files
