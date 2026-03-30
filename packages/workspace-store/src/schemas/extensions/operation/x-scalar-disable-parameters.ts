@@ -1,4 +1,5 @@
 import { Type } from '@scalar/typebox'
+import { boolean, object, optional, record, string } from '@scalar/validation'
 
 /**
  * The name of a parameter (like "Content-Type" or "Authorization").
@@ -129,3 +130,29 @@ export const XScalarDisableParametersSchema = Type.Object({
 export type XScalarDisableParameters = {
   'x-scalar-disable-parameters'?: DisableParametersConfig
 }
+
+const ExampleParameterState = record(string(), boolean())
+
+const ExamplesParameterStates = record(string(), ExampleParameterState)
+
+const DisableParametersInner = object(
+  {
+    'global-cookies': optional(ExamplesParameterStates),
+    'global-headers': optional(ExamplesParameterStates),
+    'default-headers': optional(ExamplesParameterStates),
+  },
+  {
+    typeName: 'DisableParametersConfig',
+    typeComment: 'Disabled parameter state by category and example',
+  },
+)
+
+export const XScalarDisableParameters = object(
+  {
+    'x-scalar-disable-parameters': optional(DisableParametersInner),
+  },
+  {
+    typeName: 'XScalarDisableParameters',
+    typeComment: 'Tracks which parameters are disabled across examples',
+  },
+)
