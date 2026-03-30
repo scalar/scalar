@@ -11,7 +11,7 @@ import {
 
 const external = createExternalsFromPackageJson()
 
-const entries = ['./src/client/index.ts', './src/server/index.ts']
+const entries = ['./src/index.ts']
 
 const entry = createLibEntry(entries, import.meta.dirname)
 
