@@ -137,16 +137,9 @@
         "src/vitest.setup.ts",
         // Not sure why test files are marked as unused here
         "test/**/*",
-        "src/**/*.test.ts",
-        "playground/components/src/main.ts",
-        "playground/vue/src/main.ts"
+        "src/**/*.test.ts"
       ],
-      "ignoreDependencies": [
-        // Used by my-custom-plugin inside playground/vue but code is commented
-        "react",
-        "@scalar/react-renderer"
-      ],
-      "ignoreFiles": ["playground/vue/src/x-custom-extension-plugin/components/CustomReactComponent.tsx"]
+      "ignoreDependencies": []
     },
     "packages/api-reference-react": {
       "entry": ["src/index.ts", "playground/main.tsx"],
