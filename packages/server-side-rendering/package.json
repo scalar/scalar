@@ -36,8 +36,7 @@
   "dependencies": {
     "@scalar/api-reference": "workspace:*",
     "@scalar/types": "workspace:*",
-    "vue": "catalog:*",
-    "vue-router": "catalog:*"
+    "vue": "catalog:*"
   },
   "devDependencies": {
     "@hono/node-server": "catalog:*",

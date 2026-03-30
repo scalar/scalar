@@ -9,7 +9,6 @@
     "examples/react/**",
     "examples/react-webpack/**",
     "examples/ssg/**",
-    "examples/vue-ssr/**",
     "examples/sveltekit/**",
     "examples/web/**",
     "projects/proxy-scalar-com/**"
