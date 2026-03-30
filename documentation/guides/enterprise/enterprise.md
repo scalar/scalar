@@ -14,7 +14,7 @@
 
 <br>
 
-<h4 class="text-c-2 mt-10">Trusted by teams shibping serious APIs</h4>
+<h4 class="text-c-2 mt-10">Trusted by teams shiping serious APIs</h4>
 
 <div class="logowall">
   <div class="logowall-item">
@@ -24,16 +24,16 @@
     <scalar-icon src="https://cdn.scalar.com/marketing/landing/logo-maersk.svg"></scalar-icon>
   </div>
   <div class="logowall-item">
-    <scalar-icon src="https://cdn.scalar.com/marketing/landing/logo-tailscale.svg"></scalar-icon>
+    <scalar-icon src="https://cdn.scalar.com/marketing/landing/logo-bobcat.svg"></scalar-icon>
   </div>
   <div class="logowall-item">
-    <scalar-icon src="https://cdn.scalar.com/marketing/landing/logo-supabase.svg"></scalar-icon>
+    <scalar-icon src="https://cdn.scalar.com/marketing/landing/logo-clerk.svg?v=2"></scalar-icon>
   </div>
   <div class="logowall-item">
-    <scalar-icon src="https://cdn.scalar.com/marketing/landing/logo-flyio.svg"></scalar-icon>
+    <scalar-icon src="https://cdn.scalar.com/marketing/landing/logo-lufthansa.svg"></scalar-icon>
   </div>
   <div class="logowall-item">
-    <scalar-icon src="https://cdn.scalar.com/marketing/landing/logo-sfcompute.svg"></scalar-icon>
+    <scalar-icon src="https://cdn.scalar.com/marketing/landing/logo-partech.svg"></scalar-icon>
   </div>
 </div>
 
@@ -82,14 +82,21 @@ Validate contracts early: exploration and testing stay tied to the description y
 
 **SSO / SAML** for corporate identity. **Role-based access** across workspaces and APIs. **Auditability** alongside Git history. **Self-hosting** with an MIT-licensed core when data must stay in your perimeter. **Privacy-conscious docs hosting** — no third-party analytics on your custom domains, no visitor tracking cookies for docs traffic, no IP logging for request traffic ([Docs privacy](../docs/privacy.md)). **MCP guardrails** — choose which endpoints become agent tools; search vs execute modes; API auth per installation ([MCP →](../agent/mcp.md)).
 </div>
-<div class="enterprise-stats border-l sticky h-fit">
+<div class="enterprise-stats border-l sticky h-fit flex flex-col gap-3">
 
-| | |
-| --- | --- |
-| **1** | **Source of truth** — Descriptions, docs, SDKs, and MCP tools stay aligned so engineering and partner teams are not reconciling five versions of the same API. |
-| **Shift left** | **Fewer breaking changes** — Spectral and CI catch contract and style problems before release, cutting rework and customer-facing incidents. |
-| **40+** | **Ecosystem coverage** — Official framework and platform integrations so Scalar fits the languages and stacks you already run. |
-| **14.3k+** | **Community proof** — Open source on GitHub; audit, self-host, or run on Scalar Cloud with Enterprise controls. |
+<div class="bg-b-2 p-3 rounded-lg"> 
+  <b class="text-xl font-bold">15,000+</b>
+  <p class="text-c-2 mt-2">Github Stars</p>
+</div>
+<div class="bg-b-2 p-3 rounded-lg">
+
+  <b class="text-xl font-bold">10m+</b>
+  <p class="text-c-2 mt-2">Downloads per month</p>
+</div>
+<div class="bg-b-2 p-3 rounded-lg">
+  <b class="text-xl font-bold">10k+</b>
+  <p class="text-c-2 mt-2">Clossed PR's</p>
+</div>
 
 </div>
 </div>
@@ -98,8 +105,8 @@ Validate contracts early: exploration and testing stay tied to the description y
 
 <div class="enterprise-contact-section">
 
-  <h3 class="enterprise-demo-form-title">Contact us</h3>
-  <p class="enterprise-demo-form-lead">We will follow up with security materials, pricing, and next steps.</p>
+  <h3 class="enterprise-demo-form-title text-xl text-center font-bold">Contact us</h3>
+  <p class="enterprise-demo-form-lead text-center">We will follow up with security materials, pricing, and next steps.</p>
   <form
     class="enterprise-demo-form"
     action="https://formsubmit.co/support@scalar.com"
@@ -296,7 +303,7 @@ Validate contracts early: exploration and testing stay tied to the description y
     color: var(--scalar-color-2);
   }
   .enterprise-contact-eyebrow {
-    font-size: var(--scalar-font-size-4);
+    font-size: var(--scalar-font-size-3);
     font-weight: var(--scalar-semibold);
     color: var(--scalar-color-3);
     margin: 0 0 8px;
@@ -321,7 +328,7 @@ Validate contracts early: exploration and testing stay tied to the description y
     margin-bottom: 10px;
   }
   .enterprise-contact-trusted-label {
-    font-size: var(--scalar-font-size-4);
+    font-size: var(--scalar-font-size-3);
     font-weight: var(--scalar-semibold);
     color: var(--scalar-color-3);
     margin: 0 0 14px;
@@ -369,7 +376,7 @@ Validate contracts early: exploration and testing stay tied to the description y
     margin-bottom: 14px;
   }
   .enterprise-demo-field label {
-    font-size: var(--scalar-font-size-4);
+    font-size: var(--scalar-font-size-3);
     font-weight: var(--scalar-semibold);
     color: var(--scalar-color-1);
   }
@@ -385,24 +392,27 @@ Validate contracts early: exploration and testing stay tied to the description y
     padding: 10px 12px;
     border: var(--scalar-border-width) solid var(--scalar-border-color);
     border-radius: var(--scalar-radius);
-    background: var(--scalar-background-2);
+    background: var(--scalar-background-1);
     color: var(--scalar-color-1);
     width: 100%;
     box-sizing: border-box;
   }
+  .dark-mode .enterprise-demo-field input,
+  .dark-mode .enterprise-demo-field select,
+  .dark-mode .enterprise-demo-field textarea {
+    background: var(--scalar-background-2);
+  }
   .enterprise-demo-field input:focus,
   .enterprise-demo-field select:focus,
   .enterprise-demo-field textarea:focus {
-    outline: 2px solid color-mix(in srgb, var(--scalar-color-1) 22%, transparent);
-    outline-offset: 1px;
-    border-color: var(--scalar-color-1);
+    border-color: var(--scalar-color-blue);
   }
   .enterprise-demo-field textarea {
     resize: vertical;
     min-height: 100px;
   }
   .enterprise-demo-support {
-    font-size: var(--scalar-font-size-4);
+    font-size: var(--scalar-font-size-3);
     margin: 8px 0 0;
     color: var(--scalar-color-2);
   }
@@ -413,7 +423,7 @@ Validate contracts early: exploration and testing stay tied to the description y
     text-underline-offset: 2px;
   }
   .enterprise-demo-legal {
-    font-size: 11px;
+    font-size: var(--scalar-font-size-3);
     line-height: 1.45;
     color: var(--scalar-color-3);
     margin: 12px 0 18px;
@@ -443,7 +453,7 @@ Validate contracts early: exploration and testing stay tied to the description y
     transform: scale(0.99);
   }
   .enterprise-demo-alt {
-    font-size: var(--scalar-font-size-4);
+    font-size: var(--scalar-font-size-3);
     margin: 20px 0 0;
     color: var(--scalar-color-2);
     line-height: 1.5;
