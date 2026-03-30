@@ -87,6 +87,25 @@ describe('get-compositions-to-render', () => {
       expect(result[0]?.composition).toBe('anyOf')
     })
 
+    it('does not infer oneOf when allOf is already present', () => {
+      const schema = coerceValue(SchemaObjectSchema, {
+        type: 'object',
+        allOf: [{ $ref: '#/components/schemas/Circle' }, { $ref: '#/components/schemas/Rectangle' }],
+        discriminator: {
+          propertyName: 'shapeType',
+          mapping: {
+            circle: '#/components/schemas/Circle',
+            rectangle: '#/components/schemas/Rectangle',
+          },
+        },
+      })
+
+      const result = getCompositionsToRender(schema)
+
+      expect(result).toHaveLength(1)
+      expect(result[0]?.composition).toBe('allOf')
+    })
+
     it('does not infer oneOf from an empty discriminator mapping', () => {
       const schema = {
         type: 'object',
