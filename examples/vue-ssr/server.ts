@@ -72,25 +72,31 @@ if (!isProduction) {
   })
 }
 
+// Pre-render in production (render once, serve many)
+let cachedHtml: string | undefined
+
+if (isProduction) {
+  const render: ServerRender = (await import('./dist/server/entry-server.js')).render
+  const rendered = await render('/')
+
+  cachedHtml = templateHtml
+    .replace('<!--app-head-->', rendered.head ?? '')
+    .replace('<!--app-body-script-->', rendered.bodyScript ?? '')
+    .replace('<!--app-html-->', rendered.html ?? '')
+}
+
 // Main route handler
 app.get('*', async (c: Context) => {
   try {
-    const url = c.req.path.replace(base, '')
-
-    let template: string
-    let render: ServerRender
-
-    if (!isProduction) {
-      // Always read fresh template in development
-      template = await fs.readFile('./index.html', 'utf-8')
-      template = (await vite?.transformIndexHtml(url, template)) ?? ''
-      render =
-        (await vite?.ssrLoadModule('/src/entry-server.ts'))?.render ?? (() => Promise.resolve({ head: '', html: '' }))
-    } else {
-      template = templateHtml
-      render = (await import('./dist/server/entry-server.js')).render
+    if (cachedHtml) {
+      return c.html(cachedHtml)
     }
 
+    // Dev: re-render each request for HMR
+    const url = c.req.path.replace(base, '')
+    const template = (await vite?.transformIndexHtml(url, await fs.readFile('./index.html', 'utf-8'))) ?? ''
+    const render: ServerRender =
+      (await vite?.ssrLoadModule('/src/entry-server.ts'))?.render ?? (() => Promise.resolve({ head: '', html: '' }))
     const rendered = await render(url)
 
     const html = template
