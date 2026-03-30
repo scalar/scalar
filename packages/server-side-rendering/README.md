@@ -15,29 +15,30 @@ npm install @scalar/server-side-rendering
 
 ## Usage
 
-Register two routes: one for the rendered HTML page and one for the JavaScript bundle.
+Render the HTML and JS once at startup, then serve from memory.
 
 ```ts
 import { renderApiReference, getJsAsset } from '@scalar/server-side-rendering'
 
-// Serve the standalone JS bundle for client-side hydration
+// Render once at startup
+const html = await renderApiReference({
+  config: {
+    url: 'https://registry.scalar.com/@scalar/apis/galaxy?format=json',
+  },
+  pageTitle: 'My API Reference',
+})
+
+const js = getJsAsset()
+
+// Serve the JS bundle for client-side hydration
 app.get('/scalar/scalar.js', (c) => {
-  return c.body(getJsAsset(), {
+  return c.body(js, {
     headers: { 'content-type': 'application/javascript' },
   })
 })
 
-// Serve the server-rendered API Reference
-app.get('/scalar', async (c) => {
-  const html = await renderApiReference({
-    pageTitle: 'My API Reference',
-    config: {
-      url: 'https://registry.scalar.com/@scalar/apis/galaxy?format=json',
-    },
-  })
-
-  return c.html(html)
-})
+// Serve the pre-rendered HTML
+app.get('/scalar', (c) => c.html(html))
 ```
 
 ## Community
