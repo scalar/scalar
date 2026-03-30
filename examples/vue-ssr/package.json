@@ -15,27 +15,16 @@
     "node": ">=20"
   },
   "scripts": {
-    "build": "npm run build:client && npm run build:server",
-    "build:client": "vite build --outDir dist/client",
-    "build:server": "vite build --ssr src/entry-server.ts --outDir dist/server",
-    "check": "vue-tsc",
-    "dev": "tsx server.ts",
-    "preview": "cross-env NODE_ENV=production tsx server.ts"
+    "dev": "tsx server.ts"
   },
   "type": "module",
   "dependencies": {
     "@hono/node-server": "catalog:*",
-    "@scalar/api-reference": "workspace:*",
-    "compression": "^1.8.0",
-    "hono": "catalog:*",
-    "sirv": "^3.0.1",
-    "vue": "catalog:*"
+    "@scalar/html-rendering": "workspace:*",
+    "hono": "catalog:*"
   },
   "devDependencies": {
-    "@types/compression": "^1.7.5",
     "@types/node": "catalog:*",
-    "@vitejs/plugin-vue": "catalog:*",
-    "cross-env": "^7.0.3",
-    "vite": "catalog:*"
+    "tsx": "catalog:*"
   }
 }

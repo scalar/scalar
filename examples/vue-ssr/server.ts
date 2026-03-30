@@ -1,120 +1,30 @@
-import fs from 'node:fs/promises'
-
 import { serve } from '@hono/node-server'
-import { type Context, Hono } from 'hono'
-import type { ViteDevServer } from 'vite'
+import { getJsAsset, renderApiReference } from '@scalar/html-rendering/server'
+import { Hono } from 'hono'
 
-// Types
-type RenderedOutput = {
-  head?: string
-  html?: string
-  bodyScript?: string
-}
-
-type ServerRender = (url: string) => Promise<RenderedOutput>
-
-// Constants
-const isProduction = process.env.NODE_ENV === 'production'
 const port = Number(process.env.PORT) || 5173
-const base = process.env.BASE || '/'
-
-// Cached production assets
-const templateHtml = isProduction ? await fs.readFile('./dist/client/index.html', 'utf-8') : ''
 
 const app = new Hono()
 
-// Add Vite or respective production middlewares
-let vite: ViteDevServer | undefined
-
-if (!isProduction) {
-  const { createServer } = await import('vite')
-  vite = await createServer({
-    server: { middlewareMode: true },
-    appType: 'custom',
-    base,
+// Serve the standalone JS bundle for client-side hydration
+app.get('/scalar/scalar.js', (c) => {
+  return c.body(getJsAsset(), {
+    headers: {
+      'content-type': 'application/javascript',
+      'cache-control': 'public, max-age=31536000, immutable',
+    },
   })
-
-  // Fixed middleware handling
-  app.use('*', async (c: Context, next) => {
-    try {
-      // Create a middleware promise that resolves when Vite is done
-      await new Promise((resolve) => {
-        vite?.middlewares(c.env.incoming, c.env.outgoing, resolve)
-      })
-
-      // If the response has already been handled by Vite, return
-      if (c.env.outgoing.writableEnded) {
-        return c.body(null)
-      }
-
-      // If Vite didn't handle the request, continue to next middleware
-      return next()
-    } catch (error) {
-      console.error('Vite middleware error:', error)
-      return next()
-    }
-  })
-} else {
-  const compression = (await import('compression')).default
-  const sirv = (await import('sirv')).default
-
-  // Adapt compression middleware for Hono
-  app.use('*', async (c: Context, next) => {
-    await compression()(c.env.incoming, c.env.outgoing, () => {})
-    await next()
-  })
-
-  // Serve static files using Hono's built-in static file serving
-  app.use(base, async (c: Context, next) => {
-    const handler = sirv('./dist/client', { extensions: [] })
-    await handler(c.env.incoming, c.env.outgoing, () => {})
-    await next()
-  })
-}
-
-// Pre-render in production (render once, serve many)
-let cachedHtml: string | undefined
-
-if (isProduction) {
-  const render: ServerRender = (await import('./dist/server/entry-server.js')).render
-  const rendered = await render('/')
-
-  cachedHtml = templateHtml
-    .replace('<!--app-head-->', rendered.head ?? '')
-    .replace('<!--app-body-script-->', rendered.bodyScript ?? '')
-    .replace('<!--app-html-->', rendered.html ?? '')
-}
-
-// Main route handler
-app.get('*', async (c: Context) => {
-  try {
-    if (cachedHtml) {
-      return c.html(cachedHtml)
-    }
-
-    // Dev: re-render each request for HMR
-    const url = c.req.path.replace(base, '')
-    const template = (await vite?.transformIndexHtml(url, await fs.readFile('./index.html', 'utf-8'))) ?? ''
-    const render: ServerRender =
-      (await vite?.ssrLoadModule('/src/entry-server.ts'))?.render ?? (() => Promise.resolve({ head: '', html: '' }))
-    const rendered = await render(url)
-
-    const html = template
-      .replace('<!--app-head-->', rendered.head ?? '')
-      .replace('<!--app-body-script-->', rendered.bodyScript ?? '')
-      .replace('<!--app-html-->', rendered.html ?? '')
-
-    return c.html(html)
-  } catch (e: unknown) {
-    if (vite) {
-      vite.ssrFixStacktrace(e as Error)
-    }
-    console.log((e as Error).stack)
-    return c.text((e as Error).stack ?? 'Internal Server Error', 500)
-  }
 })
 
-// Start the server
+// Serve the server-rendered API Reference
+app.get('/scalar', async (c) => {
+  const html = await renderApiReference({
+    url: 'https://registry.scalar.com/@scalar/apis/galaxy?format=json',
+  })
+
+  return c.html(html)
+})
+
 serve(
   {
     fetch: app.fetch,

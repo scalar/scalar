@@ -1,0 +1,50 @@
+{
+  "name": "@scalar/html-rendering",
+  "description": "Client-side and server-side HTML rendering for Scalar API Reference",
+  "license": "MIT",
+  "author": "Scalar (https://github.com/scalar)",
+  "homepage": "https://github.com/scalar/scalar",
+  "bugs": "https://github.com/scalar/scalar/issues/new/choose",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/scalar/scalar.git",
+    "directory": "packages/html-rendering"
+  },
+  "keywords": [],
+  "version": "0.0.0",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "vite build",
+    "test": "vitest",
+    "types:check": "tsc --noEmit"
+  },
+  "type": "module",
+  "exports": {
+    "./libs/html-rendering": {
+      "import": "./dist/client/index.js",
+      "types": "./dist/client/index.d.ts",
+      "default": "./dist/client/index.js"
+    },
+    "./server": {
+      "import": "./dist/server/index.js",
+      "types": "./dist/server/index.d.ts",
+      "default": "./dist/server/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "CHANGELOG.md"
+  ],
+  "dependencies": {
+    "@scalar/api-reference": "workspace:*",
+    "@scalar/types": "workspace:*",
+    "vue": "catalog:*",
+    "vue-router": "catalog:*"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "catalog:*",
+    "vite": "catalog:*"
+  }
+}
