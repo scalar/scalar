@@ -22,7 +22,7 @@ When you use Agent in API References or Docs, usage is billed by message count.
 
 | Plan       | Price              | Messages Included | Additional Messages |
 | ---------- | ------------------ | ----------------- | ------------------- |
-| Scalar Pro | $72/seat/month (3-seat minimum, $216/month base) | 250 messages      | $0.02 per message   |
+| Scalar Pro | $24/seat/month (3-seat minimum, $72/month base) | 250 messages      | $0.02 per message   |
 
 #### Pricing Example
 
@@ -40,7 +40,7 @@ Here is what you would pay for different message levels under the Scalar Pro pla
 
 | Plan       | Price              | Tokens Included | Additional Input | Additional Output |
 | ---------- | ------------------ | --------------- | ---------------- | ----------------- |
-| Scalar Pro | $72/seat/month (3-seat minimum, $216/month base) | 2,000,000       | $2 / Million     | $10 / Million     |
+| Scalar Pro | $24/seat/month (3-seat minimum, $72/month base) | 2,000,000       | $2 / Million     | $10 / Million     |
 
 - **Included:** 2,000,000 tokens per billing period.
 - **Overage:** $0.000002 per additional input token ($2 / Million input tokens), $0.00001 per additional output token ($10 / Million output tokens).
