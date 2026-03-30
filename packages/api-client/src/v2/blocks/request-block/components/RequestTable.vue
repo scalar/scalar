@@ -52,6 +52,7 @@ const emit = defineEmits<{
   (e: 'uploadFile', index: number): void
   (e: 'removeFile', index: number): void
   (e: 'navigate', route: NonNullable<TableRow['globalRoute']>): void
+  (e: 'redirectToEnvironment'): void
 }>()
 
 const columns = computed(() => {
@@ -97,6 +98,7 @@ const displayData = computed(() => {
       :showUploadButton="showUploadButton"
       @deleteRow="emit('deleteRow', index)"
       @navigate="(route) => emit('navigate', route)"
+      @redirectToEnvironment="emit('redirectToEnvironment')"
       @removeFile="emit('removeFile', index)"
       @uploadFile="emit('uploadFile', index)"
       @upsertRow="(payload) => emit('upsertRow', index, payload)" />

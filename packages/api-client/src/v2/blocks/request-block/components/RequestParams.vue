@@ -40,6 +40,7 @@ const emit = defineEmits<{
   ): void
   (e: 'delete', payload: { index: number }): void
   (e: 'deleteAll'): void
+  (e: 'redirectToEnvironment'): void
 }>()
 
 const showTooltip = computed(() => rows.length > 1)
@@ -98,6 +99,7 @@ const handleUpserRow = (
       :showAddRowPlaceholder="showAddRowPlaceholder"
       @deleteRow="(index) => emit('delete', { index })"
       @navigate="(route) => eventBus.emit('ui:navigate', route)"
+      @redirectToEnvironment="emit('redirectToEnvironment')"
       @upsertRow="handleUpserRow" />
   </CollapsibleSection>
 </template>
