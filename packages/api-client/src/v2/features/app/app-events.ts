@@ -95,6 +95,17 @@ export function initializeAppEventHandlers({
               // Rebuild the sidebar with the updated order
               rebuildSidebar(store.value?.workspace.activeDocument?.['x-scalar-navigation']?.name)
 
+              /** Tracks if the user is still on the same operation */
+              const isStillOnSameOperation =
+                currentRoute.value?.name === 'example' &&
+                currentRoute.value?.params.pathEncoded === encodeURIComponent(payload.meta.path) &&
+                currentRoute.value?.params.method === payload.meta.method
+
+              // No need to proceed any further if we have navigated away from the operation
+              if (!isStillOnSameOperation) {
+                return
+              }
+
               await router.replace({
                 name: 'example',
                 params: {
@@ -104,6 +115,7 @@ export function initializeAppEventHandlers({
                 },
               })
             }
+
             payload.callback(status)
           },
         }),

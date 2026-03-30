@@ -109,7 +109,6 @@ const emitPathMethodUpdate = (
   /** We only want to debounce when the path changes */
   emitOptions?: { debounceKey?: string },
 ): void => {
-  const position = addressBarRef.value?.cursorPosition()
   eventBus.emit(
     'operation:update:pathMethod',
     {
@@ -121,11 +120,9 @@ const emitPathMethodUpdate = (
           methodConflict.value = null
           pathConflict.value = null
         }
-        if (status === 'success') {
-          eventBus.emit('ui:focus:address-bar', { position })
-        }
+
         // Otherwise set the conflict if needed
-        else if (status === 'conflict') {
+        if (status === 'conflict') {
           if (targetMethod !== method) {
             methodConflict.value = targetMethod
           }
@@ -163,9 +160,6 @@ const handleFocusAddressBar = (
   if (addressBarRef.value?.isFocused && layout !== 'desktop') {
     return
   }
-
-  const position = payload && 'position' in payload ? payload.position : 'end'
-  addressBarRef.value?.focus(position)
 
   if (payload && 'event' in payload) {
     payload.event.preventDefault()
@@ -300,8 +294,8 @@ defineExpose({
           :modelValue="path"
           :placeholder="server ? '' : 'Enter a URL'"
           server
-          @submit="emit('execute')"
-          @update:modelValue="handlePathChange" />
+          @blur="handlePathChange"
+          @submit="emit('execute')" />
         <div class="fade-right" />
       </div>
 
