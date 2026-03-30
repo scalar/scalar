@@ -1,3 +1,17 @@
+<script lang="ts">
+/**
+ * Scalar Combobox Multiselect component
+ *
+ * A searchable select input that supports selecting multiple options.
+ *
+ * @example
+ * <ScalarComboboxMultiselect v-model="selected" :options="options">
+ *   <ScalarButton>Select items</ScalarButton>
+ * </ScalarComboboxMultiselect>
+ */
+export default {}
+</script>
+
 <!-- prettier-ignore-attribute generic -->
 <script
   setup

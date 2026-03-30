@@ -1,3 +1,18 @@
+<script lang="ts">
+/**
+ * Scalar Listbox component
+ *
+ * A dropdown select component built on HeadlessUI Listbox.
+ * Supports single and multiple selection modes.
+ *
+ * @example
+ * <ScalarListbox v-model="selected" :options="options">
+ *   <ScalarButton>{{ selected?.label ?? 'Select' }}</ScalarButton>
+ * </ScalarListbox>
+ */
+export default {}
+</script>
+
 <script setup lang="ts">
 import {
   Listbox,

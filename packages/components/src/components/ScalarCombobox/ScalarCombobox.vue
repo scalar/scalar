@@ -1,3 +1,18 @@
+<script lang="ts">
+/**
+ * Scalar Combobox component
+ *
+ * A searchable select input with support for filtering, option groups,
+ * and custom option rendering.
+ *
+ * @example
+ * <ScalarCombobox v-model="selected" :options="options">
+ *   <ScalarButton>{{ selected?.label ?? 'Select' }}</ScalarButton>
+ * </ScalarCombobox>
+ */
+export default {}
+</script>
+
 <!-- prettier-ignore-attribute generic -->
 <script
   setup
