@@ -225,6 +225,17 @@ describe('html-rendering', () => {
       expect(tags).toContain('"onLoaded": () => console.log("loaded")')
     })
 
+    it('serializes function-only configuration without invalid leading comma', () => {
+      const config = {
+        onLoaded: () => console.log('loaded'),
+      }
+
+      const tags = getScriptTags(config, 'https://example.com/script.js')
+
+      expect(tags).toContain('"onLoaded": () => console.log("loaded")')
+      expect(tags).not.toContain('{,')
+    })
+
     it('preserves plugins array containing functions', () => {
       const mockPlugin = () => ({
         name: 'test-plugin',

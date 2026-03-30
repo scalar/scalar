@@ -124,7 +124,10 @@ export function getScriptTags(configuration: Record<string, unknown>, cdn?: stri
     .join('\n')
     .replace(/\s*}$/, '') // Remove the closing brace and any whitespace before it
 
-  const functionPropsString = functionProps.length ? `,\n        ${functionProps.join(',\n        ')}\n      }` : '}'
+  const hasJsonProps = Object.keys(restConfig).length > 0
+  const functionPropsString = functionProps.length
+    ? `${hasJsonProps ? ',' : ''}\n        ${functionProps.join(',\n        ')}\n      }`
+    : '}'
 
   return `
     <!-- Load the Script -->

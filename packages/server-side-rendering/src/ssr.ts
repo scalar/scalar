@@ -126,6 +126,10 @@ function serializeConfigToJs(config: Record<string, unknown>): string {
     return jsonString
   }
 
+  if (jsonString === '{}') {
+    return `{${functionProps.join(', ')}}`
+  }
+
   // Merge: remove trailing } from JSON, append function props
   return `${jsonString.slice(0, -1)}, ${functionProps.join(', ')}}`
 }

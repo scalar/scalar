@@ -187,6 +187,18 @@ describe('ssr', () => {
       expect(html).toContain('"onLoaded": () => console.log')
       expect(html).toContain('"url":"https://example.com/api.json"')
     })
+
+    it('serializes function-only configuration without invalid leading comma', async () => {
+      const html = await renderApiReference({
+        config: {
+          onLoaded: () => console.log('loaded'),
+        },
+        css: '',
+      })
+
+      expect(html).toContain('"onLoaded": () => console.log')
+      expect(html).not.toContain('{,')
+    })
   })
 
   describe('getJsAsset', () => {
