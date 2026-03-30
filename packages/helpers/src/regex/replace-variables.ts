@@ -30,8 +30,8 @@ export const replacePathVariables = (path: string, variables: Record<string, str
 /** Replace {{env}} variables with their values */
 export const replaceEnvVariables = (
   path: string,
-  variables: Record<string, string> | ((match: string) => string) = {},
+  variables: Record<string, string> | ((match: string) => string | null) = {},
 ) =>
   path.replace(REGEX.VARIABLES, (match, key) =>
-    typeof variables === 'function' ? variables(match) : (variables[key] ?? match),
+    typeof variables === 'function' ? (variables(key) ?? match) : (variables[key] ?? match),
   )

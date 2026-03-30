@@ -15,11 +15,11 @@ export const buildRequest = (
     envVariables: Record<string, string>
   },
 ) => {
-  const replace = (value: string): string => {
+  const replace = (value: string): string | null => {
     if (value in contextFunctions) {
-      return contextFunctions[value as keyof typeof contextFunctions]()
+      return contextFunctions[value as keyof typeof contextFunctions]() ?? null
     }
-    return replaceEnvVariables(value, options.envVariables)
+    return options.envVariables[value] ?? null
   }
 
   const controller = new AbortController()
