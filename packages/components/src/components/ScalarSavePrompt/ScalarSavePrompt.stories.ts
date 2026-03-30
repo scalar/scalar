@@ -29,16 +29,4 @@ const meta = {
 export default meta
 type Story = StoryObj<typeof meta>
 
-export const Base: Story = {
-  args: {} as any,
-}
-
-export const CustomCopy: Story = {
-  args: {
-    title: 'Leave editor?',
-    message: 'Your draft will be lost unless you save.',
-    saveLabel: 'Save draft',
-    discardLabel: 'Leave anyway',
-    cancelLabel: 'Keep editing',
-  } as any,
-}
+export const Base: Story = {}

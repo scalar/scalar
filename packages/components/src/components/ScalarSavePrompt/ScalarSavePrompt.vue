@@ -14,6 +14,11 @@ import {
 import { useBindCx } from '@scalar/use-hooks/useBindCx'
 
 import { ScalarButton } from '../ScalarButton'
+import type { LoadingState } from '../ScalarLoading'
+
+defineProps<{
+  loader?: LoadingState
+}>()
 
 const emit = defineEmits<{
   (e: 'save'): void
@@ -26,37 +31,47 @@ defineOptions({ inheritAttrs: false })
 const { cx } = useBindCx()
 </script>
 <template>
-  <div
-    v-if="dirty"
-    v-bind="
-      cx(
-        'flex items-center gap-2',
-        'w-full max-w-content  z-context',
-        'fixed left-1/2 -translate-x-1/2 bottom-4',
-        'dark-mode bg-b-1 p-4 shadow-lg rounded-xl',
-      )
-    ">
-    <div class="min-w-0 flex-1 text-c-1 font-medium">
-      <slot>You have unsaved changes</slot>
+  <Transition
+    enterActiveClass="transition-transform ease-spring duration-400"
+    enterFromClass="translate-y-[200%]"
+    enterToClass="translate-y-0"
+    leaveActiveClass="transition-transform ease-in duration-100"
+    leaveFromClass="translate-y-0"
+    leaveToClass="translate-y-[200%]">
+    <div
+      v-if="dirty"
+      aria-live="polite"
+      v-bind="
+        cx(
+          'flex items-center gap-2',
+          'w-full max-w-content  z-context',
+          'fixed left-1/2 -translate-x-1/2 bottom-4',
+          'dark-mode bg-b-1 p-4 shadow-lg rounded-xl',
+        )
+      ">
+      <div class="min-w-0 flex-1 text-c-1 font-medium">
+        <slot>You have unsaved changes</slot>
+      </div>
+      <div class="flex -m-2">
+        <ScalarButton
+          size="sm"
+          variant="ghost"
+          @click="emit('discard')">
+          <ScalarIconArrowCounterClockwise
+            class="size-3.5 mr-1"
+            weight="bold" />
+          <slot name="discard">Undo</slot>
+        </ScalarButton>
+        <ScalarButton
+          :loader
+          size="sm"
+          @click="emit('save')">
+          <ScalarIconFloppyDisk
+            class="size-3.5 mr-1"
+            weight="bold" />
+          <slot name="save">Save</slot>
+        </ScalarButton>
+      </div>
     </div>
-    <div class="flex -m-2">
-      <ScalarButton
-        size="sm"
-        variant="ghost"
-        @click="emit('discard')">
-        <ScalarIconArrowCounterClockwise
-          class="size-3.5 mr-1"
-          weight="bold" />
-        <slot name="discard">Undo</slot>
-      </ScalarButton>
-      <ScalarButton
-        size="sm"
-        @click="emit('save')">
-        <ScalarIconFloppyDisk
-          class="size-3.5 mr-1"
-          weight="bold" />
-        <slot name="save">Save</slot>
-      </ScalarButton>
-    </div>
-  </div>
+  </Transition>
 </template>
