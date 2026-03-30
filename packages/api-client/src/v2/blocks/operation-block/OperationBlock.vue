@@ -219,23 +219,41 @@ const handleExecute = async () => {
   })
 
   // Build the actual request we will send
-  const requestResult = buildRequest(requestBuilder, {
-    envVariables: getEnvironmentVariables(environment),
-  })
+  const requestResult = (() => {
+    try {
+      return {
+        ok: true,
+        result: buildRequest(requestBuilder, {
+          envVariables: getEnvironmentVariables(environment),
+        }),
+      } as const
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error)
+      return {
+        ok: false,
+        error: message,
+      } as const
+    }
+  })()
+
+  if (requestResult.ok === false) {
+    toast(requestResult.error, 'error')
+    return
+  }
 
   // Store the abort controller for cancellation
-  abortController.value = requestResult.controller
+  abortController.value = requestResult.result.controller
 
   // Execute the beforeRequest hook
   const { request: finalRequest } = await executeHook(
-    { request: requestResult.request },
+    { request: requestResult.result.request },
     'beforeRequest',
     plugins,
   )
 
   /** Execute the request */
   const [sendError, sendResult] = await sendRequest({
-    isUsingProxy: requestResult.isUsingProxy,
+    isUsingProxy: requestResult.result.isUsingProxy,
     request: finalRequest,
   })
 

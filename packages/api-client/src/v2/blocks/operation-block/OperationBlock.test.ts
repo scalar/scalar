@@ -320,6 +320,22 @@ describe('OperationBlock', () => {
     })
   })
 
+  it('displays toast error when buildRequest fails', async () => {
+    const mockError = new Error('Invalid URL')
+    vi.mocked(buildRequest).mockImplementation(() => {
+      throw mockError
+    })
+
+    const wrapper = mount(OperationBlock, {
+      props: createDefaultProps(),
+    })
+
+    await triggerExecute(wrapper)
+
+    expect(mockToast).toHaveBeenCalledWith('Invalid URL', 'error')
+    expect(sendRequest).not.toHaveBeenCalled()
+  })
+
   it('displays toast error when sendRequest fails', async () => {
     const mockController = new AbortController()
     const mockRequest = new Request('https://api.example.com/api/users')
