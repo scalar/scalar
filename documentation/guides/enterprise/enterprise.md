@@ -218,6 +218,11 @@ Validate contracts early: exploration and testing stay tied to the description y
     margin-left: 20px;
     top: 60px;
   }
+  @media screen and (max-width: 1280px) {
+    .enterprise-features .enterprise-stats {
+      display: none;
+    }
+  }
   .enterprise-features {
     padding: 100px 0;
   }
@@ -784,7 +789,6 @@ Validate contracts early: exploration and testing stay tied to the description y
       justify-content: start;
     }
     .logowall-item svg {
-      width: auto;
       max-width: 100%;
       height: 100%;
       max-height: 20px;
