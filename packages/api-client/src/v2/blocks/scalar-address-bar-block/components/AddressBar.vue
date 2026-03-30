@@ -106,34 +106,28 @@ const hasConflict = computed(() => methodConflict.value || pathConflict.value)
 const emitPathMethodUpdate = (
   targetMethod: HttpMethodType,
   targetPath: string,
-  /** We only want to debounce when the path changes */
-  emitOptions?: { debounceKey?: string },
 ): void => {
-  eventBus.emit(
-    'operation:update:pathMethod',
-    {
-      meta: { method, path },
-      payload: { method: targetMethod, path: targetPath },
-      callback: (status) => {
-        // Clear conflicts if the operation was successful or no change was made
-        if (status === 'success' || status === 'no-change') {
-          methodConflict.value = null
-          pathConflict.value = null
-        }
+  eventBus.emit('operation:update:pathMethod', {
+    meta: { method, path },
+    payload: { method: targetMethod, path: targetPath },
+    callback: (status) => {
+      // Clear conflicts if the operation was successful or no change was made
+      if (status === 'success' || status === 'no-change') {
+        methodConflict.value = null
+        pathConflict.value = null
+      }
 
-        // Otherwise set the conflict if needed
-        if (status === 'conflict') {
-          if (targetMethod !== method) {
-            methodConflict.value = targetMethod
-          }
-          if (targetPath !== path) {
-            pathConflict.value = targetPath
-          }
+      // Otherwise set the conflict if needed
+      if (status === 'conflict') {
+        if (targetMethod !== method) {
+          methodConflict.value = targetMethod
         }
-      },
+        if (targetPath !== path) {
+          pathConflict.value = targetPath
+        }
+      }
     },
-    emitOptions,
-  )
+  })
 }
 
 /** Update the operation's HTTP method, handling conflicts */
@@ -143,9 +137,7 @@ const handleMethodChange = (newMethod: HttpMethodType): void =>
 /** Update the operation's path, handling conflicts */
 const handlePathChange = (newPath: string): void => {
   const normalizedPath = newPath.startsWith('/') ? newPath : `/${newPath}`
-  emitPathMethodUpdate(methodConflict.value ?? method, normalizedPath, {
-    debounceKey: `operation:update:pathMethod-${path}-${method}`,
-  })
+  emitPathMethodUpdate(methodConflict.value ?? method, normalizedPath)
 }
 
 /** Handle focus events */
