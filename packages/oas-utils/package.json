@@ -94,7 +94,6 @@
     "@scalar/helpers": "workspace:*",
     "@scalar/json-magic": "workspace:*",
     "@scalar/object-utils": "workspace:*",
-    "@scalar/openapi-parser": "workspace:*",
     "@scalar/openapi-types": "workspace:*",
     "@scalar/themes": "workspace:*",
     "@scalar/types": "workspace:*",

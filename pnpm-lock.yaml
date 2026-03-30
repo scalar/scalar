@@ -1958,9 +1958,6 @@ importers:
       '@scalar/object-utils':
         specifier: workspace:*
         version: link:../object-utils
-      '@scalar/openapi-parser':
-        specifier: workspace:*
-        version: link:../openapi-parser
       '@scalar/openapi-types':
         specifier: workspace:*
         version: link:../openapi-types

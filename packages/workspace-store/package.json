@@ -10,12 +10,7 @@
     "url": "git+https://github.com/scalar/scalar.git",
     "directory": "packages/workspace-store"
   },
-  "keywords": [
-    "workspace",
-    "store",
-    "openapi",
-    "scalar"
-  ],
+  "keywords": ["workspace", "store", "openapi", "scalar"],
   "version": "0.41.2",
   "engines": {
     "node": ">=22"
@@ -135,10 +130,7 @@
       "default": "./dist/workspace-plugin.js"
     }
   },
-  "files": [
-    "dist",
-    "CHANGELOG.md"
-  ],
+  "files": ["dist", "CHANGELOG.md"],
   "dependencies": {
     "@scalar/code-highlight": "workspace:*",
     "@scalar/helpers": "workspace:*",
@@ -147,11 +139,11 @@
     "@scalar/snippetz": "workspace:*",
     "@scalar/typebox": "catalog:*",
     "@scalar/types": "workspace:*",
+    "@scalar/validation": "workspace:*",
     "github-slugger": "catalog:*",
     "type-fest": "catalog:*",
     "vue": "catalog:*",
-    "yaml": "catalog:*",
-    "@scalar/validation": "workspace:*"
+    "yaml": "catalog:*"
   },
   "devDependencies": {
     "@google-cloud/storage": "catalog:*",
