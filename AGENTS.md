@@ -134,14 +134,11 @@ Alternatively, `pnpm turbo dev` or `pnpm turbo build` in a package directory wil
 
 The API reference renderer. Changes to themes, layout, sidebar, code highlighting, and OpenAPI rendering are tested here.
 
-| Playground | Command | Description |
-|------------|---------|-------------|
-| Vue (default) | `cd packages/api-reference && pnpm dev` | Main playground — full API reference with sidebar, search, and embedded API client |
-| Vue | `cd packages/api-reference && pnpm playground:vue` | Same as `dev` |
-| Components | `cd packages/api-reference && pnpm playground:components` | Isolated component playground |
-| ESM | `cd packages/api-reference && pnpm playground:esm` | ESM import playground |
+```bash
+cd packages/api-reference && pnpm dev
+```
 
-The default `dev` / `playground:vue` is the primary visual testing target. It loads the Galaxy OpenAPI spec and renders the full reference UI.
+The default `dev` playground loads the Galaxy OpenAPI spec and renders the full reference UI.
 
 Using Turbo (builds dependencies automatically):
 
