@@ -2493,4 +2493,46 @@ describe('upgradeFromTwoToThree', () => {
     // Ensure the old responses property is removed from document root
     expect((result as Record<string, unknown>).responses).toBeUndefined()
   })
+
+  it('transforms response examples when example media type differs from produces', () => {
+    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+      swagger: '2.0',
+      info: { title: 'Forgot Passcode test', version: '1.0' },
+      produces: ['application/json'],
+      paths: {
+        '/api2/mobile/passcodes/forgot_passcode': {
+          post: {
+            responses: {
+              '200': {
+                description: '',
+                schema: {
+                  type: 'object',
+                  properties: {},
+                },
+                examples: {
+                  'text/plain':
+                    '[\n  "An email has been sent to your registered email address to reset your Passcode."\n]',
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+
+    const response200 = result.paths?.['/api2/mobile/passcodes/forgot_passcode']?.post?.responses?.[
+      '200'
+    ] as OpenAPIV3.ResponseObject
+
+    // The empty application/json schema-only entry should be removed
+    expect(response200.content?.['application/json']).toBeUndefined()
+
+    // The text/plain example should be placed under content['text/plain'].example
+    expect(response200.content?.['text/plain']?.example).toBe(
+      '[\n  "An email has been sent to your registered email address to reset your Passcode."\n]',
+    )
+
+    // Old examples property should be removed
+    expect((response200 as Record<string, unknown>).examples).toBeUndefined()
+  })
 })
