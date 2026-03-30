@@ -1,3 +1,18 @@
+<script lang="ts">
+/**
+ * Scalar Menu Link component
+ *
+ * A menu item that renders as a link with an optional icon.
+ * Used within ScalarMenu sections.
+ *
+ * @example
+ * <ScalarMenuLink href="https://example.com" :icon="ScalarIconBook">
+ *   Documentation
+ * </ScalarMenuLink>
+ */
+export default {}
+</script>
+
 <script setup lang="ts">
 import type { ScalarIconComponent } from '@scalar/icons/types'
 import { useBindCx } from '@scalar/use-hooks/useBindCx'

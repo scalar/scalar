@@ -1,3 +1,18 @@
+<script lang="ts">
+/**
+ * Scalar Menu Product component
+ *
+ * A selectable product entry within the ScalarMenu products list.
+ * Highlights the currently active product.
+ *
+ * @example
+ * <ScalarMenuProduct :icon="ScalarIconHouse" :selected="true">
+ *   Dashboard
+ * </ScalarMenuProduct>
+ */
+export default {}
+</script>
+
 <script setup lang="ts">
 import type { ScalarIconComponent } from '@scalar/icons/types'
 import { cva, useBindCx } from '@scalar/use-hooks/useBindCx'

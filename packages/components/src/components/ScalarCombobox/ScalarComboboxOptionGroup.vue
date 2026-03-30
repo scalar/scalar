@@ -1,3 +1,18 @@
+<script lang="ts">
+/**
+ * Scalar Combobox Option Group component
+ *
+ * Groups related options under an optional label within a combobox.
+ *
+ * @example
+ * <ScalarComboboxOptionGroup>
+ *   <template #label>Group Name</template>
+ *   <!-- options -->
+ * </ScalarComboboxOptionGroup>
+ */
+export default {}
+</script>
+
 <script setup lang="ts">
 import { useId } from 'vue'
 

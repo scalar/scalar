@@ -1,3 +1,16 @@
+<script lang="ts">
+/**
+ * Scalar Menu Products component
+ *
+ * Displays the list of Scalar product links (Dashboard, Docs, Editor, Client)
+ * inside the ScalarMenu dropdown.
+ *
+ * @example
+ * <ScalarMenuProducts selected="dashboard" />
+ */
+export default {}
+</script>
+
 <script setup lang="ts">
 import {
   ScalarIconArrowUpRight,

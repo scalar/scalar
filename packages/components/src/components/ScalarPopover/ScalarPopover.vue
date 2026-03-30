@@ -1,3 +1,18 @@
+<script lang="ts">
+/**
+ * Scalar Popover component
+ *
+ * A floating panel that appears when a trigger element is clicked.
+ * Built on HeadlessUI Popover with Floating UI positioning.
+ *
+ * @example
+ * <ScalarPopover>
+ *   <button>Open</button>
+ *   <template #popover="{ close }">Popover content</template>
+ * </ScalarPopover>
+ */
+export default {}
+</script>
 <script setup lang="ts">
 import { Popover, PopoverButton, PopoverPanel } from '@headlessui/vue'
 import { useBindCx } from '@scalar/use-hooks/useBindCx'

@@ -1,3 +1,15 @@
+<script lang="ts">
+/**
+ * Scalar Menu Support component
+ *
+ * Displays community and social links (Discord, GitHub) inside the ScalarMenu dropdown.
+ *
+ * @example
+ * <ScalarMenuSupport />
+ */
+export default {}
+</script>
+
 <script setup lang="ts">
 import { ScalarIconDiscordLogo, ScalarIconGithubLogo } from '@scalar/icons'
 

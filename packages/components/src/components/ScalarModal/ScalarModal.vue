@@ -65,6 +65,19 @@ const body = cva({
 })
 </script>
 <script lang="ts">
+/**
+ * Scalar Modal component
+ *
+ * A dialog overlay with configurable size and variant.
+ * Use the {@link useModal} hook to control the open state.
+ *
+ * @example
+ * <ScalarModal :state="modal" title="My Modal">
+ *   Modal content
+ * </ScalarModal>
+ */
+export default {}
+
 /** Hook for creating a reactive modal state */
 export function useModal() {
   return reactive({

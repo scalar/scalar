@@ -1,3 +1,18 @@
+<script lang="ts">
+/**
+ * Scalar Combobox Option component
+ *
+ * A single selectable option within a combobox list.
+ * Handles active and selected states.
+ *
+ * @example
+ * <ScalarComboboxOption :active="true" :selected="false">
+ *   Option Label
+ * </ScalarComboboxOption>
+ */
+export default {}
+</script>
+
 <script setup lang="ts">
 import { cva, cx } from '@scalar/use-hooks/useBindCx'
 

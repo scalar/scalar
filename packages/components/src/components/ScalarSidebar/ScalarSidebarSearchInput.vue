@@ -1,3 +1,15 @@
+<script lang="ts">
+/**
+ * Scalar Sidebar Search Input component
+ *
+ * An inline search input for the sidebar with a clear button
+ * and optional loading indicator.
+ *
+ * @example
+ * <ScalarSidebarSearchInput v-model="query" />
+ */
+export default {}
+</script>
 <script setup lang="ts">
 import { ScalarIconMagnifyingGlass, ScalarIconX } from '@scalar/icons'
 import { useBindCx } from '@scalar/use-hooks/useBindCx'

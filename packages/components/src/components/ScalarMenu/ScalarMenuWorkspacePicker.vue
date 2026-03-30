@@ -1,3 +1,15 @@
+<script lang="ts">
+/**
+ * Scalar Menu Workspace Picker component
+ *
+ * A sub-menu within ScalarMenu that lets users switch between
+ * workspaces or create a new one.
+ *
+ * @example
+ * <ScalarMenuWorkspacePicker v-model="workspaceId" :workspaceOptions="groups" />
+ */
+export default {}
+</script>
 <script setup lang="ts">
 import {
   ScalarIconCaretRight,

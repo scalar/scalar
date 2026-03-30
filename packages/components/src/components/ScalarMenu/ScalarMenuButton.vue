@@ -1,3 +1,16 @@
+<script lang="ts">
+/**
+ * Scalar Menu Button component
+ *
+ * The trigger button for the ScalarMenu dropdown.
+ * Displays a logo icon and a caret indicator.
+ *
+ * @example
+ * <ScalarMenuButton :open="false" />
+ */
+export default {}
+</script>
+
 <script setup lang="ts">
 import { ScalarIconCaretDown } from '@scalar/icons'
 

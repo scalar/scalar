@@ -1,3 +1,16 @@
+<script lang="ts">
+/**
+ * Scalar Combobox Options component
+ *
+ * Renders the searchable option list for a combobox, including
+ * filtering, keyboard navigation, and an optional "add new" action.
+ *
+ * @example
+ * <ScalarComboboxOptions v-model="selected" :options="options" />
+ */
+export default {}
+</script>
+
 <!-- prettier-ignore-attribute generic -->
 <script
   setup
