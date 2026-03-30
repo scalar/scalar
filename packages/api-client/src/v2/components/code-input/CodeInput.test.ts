@@ -743,4 +743,67 @@ describe('CodeInput', () => {
     const serialized = componentInstance.serializeValue('123')
     expect(serialized).toBe('123')
   })
+
+  /** Environment variable dropdown redirect */
+  it('has navigate event defined in emits', () => {
+    const wrapper = mount(CodeInput, {
+      props: {
+        modelValue: 'test',
+        withVariables: true,
+        layout: 'desktop',
+        environment: mockEnvironment,
+      },
+    })
+
+    expect(wrapper.vm.$options.emits).toBeDefined()
+    expect(wrapper.vm.$options.emits).toContain('navigate')
+  })
+
+  it('does not display environment dropdown in modal layout', () => {
+    const wrapper = mount(CodeInput, {
+      props: {
+        modelValue: 'test',
+        withVariables: true,
+        layout: 'modal',
+        environment: mockEnvironment,
+      },
+    })
+
+    const componentInstance = wrapper.vm as any
+    componentInstance.showDropdown = true
+
+    expect(componentInstance.displayVariablesDropdown).toBe(false)
+  })
+
+  it('does not display environment dropdown when withVariables is false', () => {
+    const wrapper = mount(CodeInput, {
+      props: {
+        modelValue: 'test',
+        withVariables: false,
+        layout: 'desktop',
+        environment: mockEnvironment,
+      },
+    })
+
+    const componentInstance = wrapper.vm as any
+    componentInstance.showDropdown = true
+
+    expect(componentInstance.displayVariablesDropdown).toBe(false)
+  })
+
+  it('does not display environment dropdown when environment is undefined', () => {
+    const wrapper = mount(CodeInput, {
+      props: {
+        modelValue: 'test',
+        withVariables: true,
+        layout: 'desktop',
+        environment: undefined,
+      },
+    })
+
+    const componentInstance = wrapper.vm as any
+    componentInstance.showDropdown = true
+
+    expect(componentInstance.displayVariablesDropdown).toBe(false)
+  })
 })

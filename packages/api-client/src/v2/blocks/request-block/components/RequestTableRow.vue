@@ -72,7 +72,6 @@ const emit = defineEmits<{
   (e: 'uploadFile'): void
   (e: 'removeFile'): void
   (e: 'navigate', route: NonNullable<TableRow['globalRoute']>): void
-  (e: 'redirectToEnvironment'): void
 }>()
 
 /**
@@ -200,7 +199,7 @@ const handleUpdateRow = (
         :modelValue="name"
         placeholder="Key"
         :required="Boolean(data.isRequired)"
-        @redirectToEnvironment="emit('redirectToEnvironment')"
+        @navigate="(route) => emit('navigate', route)"
         @selectVariable="(v: string) => handleUpdateRow({ name: v })"
         @update:modelValue="(v) => handleUpdateRow({ name: v })" />
     </DataTableCell>
@@ -227,7 +226,7 @@ const handleUpdateRow = (
         :modelValue="displayValue"
         placeholder="Value"
         :type="typeValue"
-        @redirectToEnvironment="emit('redirectToEnvironment')"
+        @navigate="(route) => emit('navigate', route)"
         @update:modelValue="(v) => handleUpdateRow({ value: v })">
         <template #icon>
           <ScalarButton

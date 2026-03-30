@@ -461,10 +461,7 @@ const updateOperationExtension = (
         :rows="sections.path ?? []"
         :showAddRowPlaceholder="false"
         title="Variables"
-        v-on="parameterHandlers.path"
-        @redirectToEnvironment="
-          eventBus.emit('ui:navigate', { page: 'document', path: 'environment' })
-        " />
+        v-on="parameterHandlers.path" />
 
       <!-- Cookies -->
       <RequestParams
@@ -476,10 +473,7 @@ const updateOperationExtension = (
         :rows="cookies ?? []"
         :showAddRowPlaceholder="true"
         title="Cookies"
-        v-on="parameterHandlers.cookie"
-        @redirectToEnvironment="
-          eventBus.emit('ui:navigate', { page: 'document', path: 'environment' })
-        " />
+        v-on="parameterHandlers.cookie" />
 
       <!-- Headers -->
       <RequestParams
@@ -490,10 +484,7 @@ const updateOperationExtension = (
         :exampleKey
         :rows="headers ?? []"
         title="Headers"
-        v-on="parameterHandlers.header"
-        @redirectToEnvironment="
-          eventBus.emit('ui:navigate', { page: 'document', path: 'environment' })
-        " />
+        v-on="parameterHandlers.header" />
 
       <!-- Query Parameters -->
       <RequestParams
@@ -504,10 +495,7 @@ const updateOperationExtension = (
         :exampleKey
         :rows="sections.query ?? []"
         title="Query Parameters"
-        v-on="parameterHandlers.query"
-        @redirectToEnvironment="
-          eventBus.emit('ui:navigate', { page: 'document', path: 'environment' })
-        " />
+        v-on="parameterHandlers.query" />
 
       <!-- Request Body -->
       <RequestBody
