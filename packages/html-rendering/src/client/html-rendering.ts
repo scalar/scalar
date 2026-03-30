@@ -1,7 +1,6 @@
-import type { ApiReferenceConfigurationWithSource, HtmlRenderingConfiguration } from '@scalar/types/api-reference'
+import type { AnyApiReferenceConfiguration } from '@scalar/types/api-reference'
 
-// Re-export the type for convenience
-export type { HtmlRenderingConfiguration }
+const DEFAULT_CDN = 'https://cdn.jsdelivr.net/npm/@scalar/api-reference'
 
 /**
  * Helper function to add consistent indentation to multiline strings
@@ -25,12 +24,12 @@ const addIndent = (str: string, spaces: number = 2, initialIndent: boolean = fal
 /**
  * Generate the style tag with custom theme if needed
  */
-const getStyles = (configuration: Partial<HtmlRenderingConfiguration>, customTheme: string): string => {
+const getStyles = (configuration: Record<string, unknown>, customTheme: string): string => {
   const styles: string[] = []
 
   if (configuration.customCss) {
     styles.push('/* Custom CSS */')
-    styles.push(configuration.customCss)
+    styles.push(configuration.customCss as string)
   }
 
   if (!configuration.theme && customTheme) {
@@ -49,35 +48,48 @@ const getStyles = (configuration: Partial<HtmlRenderingConfiguration>, customThe
 }
 
 /**
- * The HTML document to render the Scalar API reference.
+ * Render the Scalar API Reference as a complete HTML document using the CDN.
  *
- * We must check the passed in configuration and not the configuration for the theme as the configuration will have it
- * defaulted to 'default'
+ * Generates static HTML that loads the @scalar/api-reference standalone bundle
+ * from a CDN and renders client-side. No server-side dependencies required.
+ *
+ * For server-side rendering with hydration, use the server module instead.
  */
-export const getHtmlDocument = (givenConfiguration: Partial<HtmlRenderingConfiguration>, customTheme = '') => {
-  const { cdn, pageTitle, customCss, theme, ...rest } = givenConfiguration
+export function renderApiReference(
+  options: {
+    /** The API reference configuration. */
+    config: AnyApiReferenceConfiguration
+    /** Page title. Defaults to "Scalar API Reference". */
+    pageTitle?: string
+    /** CDN URL for the standalone bundle. Defaults to jsDelivr. */
+    cdn?: string
+  },
+  customTheme = '',
+): string {
+  const { config: givenConfig, pageTitle, cdn } = options
+
+  const unwrapped = Array.isArray(givenConfig) ? givenConfig[0] : givenConfig
+  const { customCss, theme, ...rest } = (unwrapped ?? {}) as Record<string, unknown>
 
   const configuration = getConfiguration({
     ...rest,
     ...(theme ? { theme } : {}),
     customCss,
-  })
+  } as Record<string, unknown>)
 
-  const content = `<!doctype html>
+  return `<!doctype html>
 <html>
   <head>
     <title>${pageTitle ?? 'Scalar API Reference'}</title>
     <meta charset="utf-8" />
     <meta
       name="viewport"
-      content="width=device-width, initial-scale=1" />${getStyles(configuration, customTheme)}
+      content="width=device-width, initial-scale=1" />${getStyles(configuration as Record<string, unknown>, customTheme)}
   </head>
   <body>
     <div id="app"></div>${getScriptTags(configuration, cdn)}
   </body>
 </html>`
-
-  return content
 }
 
 /**
@@ -90,17 +102,16 @@ const serializeArrayWithFunctions = (arr: unknown[]): string => {
 /**
  * The script tags to load the @scalar/api-reference package from the CDN.
  */
-export function getScriptTags(configuration: Partial<ApiReferenceConfigurationWithSource>, cdn?: string) {
+export function getScriptTags(configuration: Record<string, unknown>, cdn?: string): string {
   const restConfig = { ...configuration }
 
   const functionProps: string[] = []
 
-  for (const [key, value] of Object.entries(configuration) as [keyof typeof configuration, unknown][]) {
+  for (const [key, value] of Object.entries(configuration)) {
     if (typeof value === 'function') {
       functionProps.push(`"${key}": ${value.toString()}`)
       delete restConfig[key]
     } else if (Array.isArray(value) && value.some((item) => typeof item === 'function')) {
-      // Handle arrays that contain functions (like plugins)
       functionProps.push(`"${key}": ${serializeArrayWithFunctions(value)}`)
       delete restConfig[key]
     }
@@ -117,7 +128,7 @@ export function getScriptTags(configuration: Partial<ApiReferenceConfigurationWi
 
   return `
     <!-- Load the Script -->
-    <script src="${cdn ?? 'https://cdn.jsdelivr.net/npm/@scalar/api-reference'}"></script>
+    <script src="${cdn ?? DEFAULT_CDN}"></script>
 
     <!-- Initialize the Scalar API Reference -->
     <script type="text/javascript">
@@ -128,17 +139,12 @@ export function getScriptTags(configuration: Partial<ApiReferenceConfigurationWi
 /**
  * The configuration to pass to the @scalar/api-reference package.
  */
-export const getConfiguration = (
-  givenConfiguration: Partial<ApiReferenceConfigurationWithSource>,
-): Partial<ApiReferenceConfigurationWithSource> => {
-  // Clone the given configuration
-  const configuration = {
-    ...givenConfiguration,
-  }
+export const getConfiguration = (givenConfiguration: Record<string, unknown>): Record<string, unknown> => {
+  const configuration = { ...givenConfiguration }
 
   // Execute content if it's a function
   if (typeof configuration.content === 'function') {
-    configuration.content = configuration.content()
+    configuration.content = (configuration.content as () => unknown)()
   }
 
   // Only remove content if url is provided
@@ -146,6 +152,5 @@ export const getConfiguration = (
     delete configuration.content
   }
 
-  // Just return regular JSON string, no HTML escaping needed
   return configuration
 }

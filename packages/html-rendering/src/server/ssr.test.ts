@@ -104,7 +104,7 @@ describe('ssr', () => {
 
   describe('renderApiReference', () => {
     it('returns a complete HTML document', async () => {
-      const html = await renderApiReference({}, { css: '' })
+      const html = await renderApiReference({ config: {}, css: '' })
 
       expect(html).toContain('<!doctype html>')
       expect(html).toContain('<html')
@@ -113,25 +113,25 @@ describe('ssr', () => {
     })
 
     it('includes the color mode detection script', async () => {
-      const html = await renderApiReference({}, { css: '' })
+      const html = await renderApiReference({ config: {}, css: '' })
 
       expect(html).toContain('document.body.classList')
     })
 
     it('defaults to Scalar API Reference title', async () => {
-      const html = await renderApiReference({}, { css: '' })
+      const html = await renderApiReference({ config: {}, css: '' })
 
       expect(html).toContain('<title>Scalar API Reference</title>')
     })
 
     it('accepts a custom page title', async () => {
-      const html = await renderApiReference({}, { pageTitle: 'My API', css: '' })
+      const html = await renderApiReference({ config: {}, pageTitle: 'My API', css: '' })
 
       expect(html).toContain('<title>My API</title>')
     })
 
     it('escapes HTML in page title', async () => {
-      const html = await renderApiReference({}, { pageTitle: '<script>alert("xss")</script>', css: '' })
+      const html = await renderApiReference({ config: {}, pageTitle: '<script>alert("xss")</script>', css: '' })
 
       expect(html).not.toContain('<script>alert')
       expect(html).toContain('&lt;script&gt;')
@@ -139,38 +139,38 @@ describe('ssr', () => {
 
     it('uses custom CSS when provided', async () => {
       const customCss = 'body { background: red; }'
-      const html = await renderApiReference({}, { css: customCss })
+      const html = await renderApiReference({ config: {}, css: customCss })
 
       expect(html).toContain(customCss)
     })
 
     it('contains rendered HTML inside the app div', async () => {
-      const html = await renderApiReference({}, { css: '' })
+      const html = await renderApiReference({ config: {}, css: '' })
 
       expect(html).toMatch(/<div id="app">.+<\/div>/s)
     })
 
     it('includes hydration script tags', async () => {
-      const html = await renderApiReference({}, { css: '' })
+      const html = await renderApiReference({ config: {}, css: '' })
 
       expect(html).toContain('<script src="/scalar/scalar.js"></script>')
       expect(html).toContain('Scalar.createApiReference')
     })
 
     it('uses default cdn path', async () => {
-      const html = await renderApiReference({}, { css: '' })
+      const html = await renderApiReference({ config: {}, css: '' })
 
       expect(html).toContain('src="/scalar/scalar.js"')
     })
 
     it('accepts a custom cdn path', async () => {
-      const html = await renderApiReference({}, { css: '', cdn: '/custom/path.js' })
+      const html = await renderApiReference({ config: {}, css: '', cdn: '/custom/path.js' })
 
       expect(html).toContain('src="/custom/path.js"')
     })
 
     it('serializes configuration into the hydration script', async () => {
-      const html = await renderApiReference({ url: 'https://example.com/api.json' }, { css: '' })
+      const html = await renderApiReference({ config: { url: 'https://example.com/api.json' }, css: '' })
 
       expect(html).toContain('"url":"https://example.com/api.json"')
     })

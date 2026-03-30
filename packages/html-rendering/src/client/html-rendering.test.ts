@@ -5,12 +5,12 @@ import {
 } from '@scalar/types/api-reference'
 import { describe, expect, it } from 'vitest'
 
-import { getConfiguration, getHtmlDocument, getScriptTags } from './html-rendering'
+import { getConfiguration, getScriptTags, renderApiReference } from './html-rendering'
 
 describe('html-rendering', () => {
-  describe('getHtmlDocument', () => {
+  describe('renderApiReference', () => {
     it('returns HTML document with default CDN and custom theme', () => {
-      const html = getHtmlDocument({ customCss: 'body { color: red }' })
+      const html = renderApiReference({ config: { customCss: 'body { color: red }' } })
       expect(html).toContain('<!doctype html>')
       expect(html).toContain('<title>Scalar API Reference</title>')
       expect(html).toContain('body { color: red }')
@@ -20,7 +20,7 @@ describe('html-rendering', () => {
     })
 
     it('handles custom page title correctly', () => {
-      const html = getHtmlDocument({ pageTitle: 'Custom API Doc' })
+      const html = renderApiReference({ config: {}, pageTitle: 'Custom API Doc' })
       expect(html).toContain('<title>Custom API Doc</title>')
     })
 
@@ -36,7 +36,7 @@ describe('html-rendering', () => {
       }`
         .replace(/\s+/g, ' ')
         .trim()
-      const html = getHtmlDocument({ customCss }, customTheme)
+      const html = renderApiReference({ config: { customCss } }, customTheme)
       expect(html).toContain(customCss)
       expect(html).toContain(customTheme.replace(/\s+/g, ' ').trim())
       expect(html).toContain('<style type="text/css">')
@@ -44,7 +44,7 @@ describe('html-rendering', () => {
 
     it('includes only custom CSS when provided alone', () => {
       const customCss = 'body { color: blue; }'
-      const html = getHtmlDocument({ customCss })
+      const html = renderApiReference({ config: { customCss } })
       expect(html).toContain(customCss)
       expect(html).toContain('<style type="text/css">')
     })
@@ -56,7 +56,7 @@ describe('html-rendering', () => {
         }`
         .replace(/\s+/g, ' ')
         .trim()
-      const html = getHtmlDocument({}, customTheme)
+      const html = renderApiReference({ config: {} }, customTheme)
       expect(html).toContain(customTheme)
       expect(html).toContain('<style type="text/css">')
     })
@@ -69,30 +69,37 @@ describe('html-rendering', () => {
       }`
         .replace(/\s+/g, ' ')
         .trim()
-      const html = getHtmlDocument({ theme: 'kepler', customCss }, customTheme)
+      const html = renderApiReference({ config: { theme: 'kepler', customCss } }, customTheme)
       expect(html).toContain('<style type="text/css">')
       expect(html).toContain(customCss)
       expect(html).not.toContain(customTheme.replace(/\s+/g, ' ').trim())
     })
 
     it('handles configuration with theme property', () => {
-      const html = getHtmlDocument({ theme: 'kepler' })
+      const html = renderApiReference({ config: { theme: 'kepler' } })
       expect(html).not.toContain('<style type="text/css">')
     })
 
     it('handles empty configuration', () => {
-      const html = getHtmlDocument({})
+      const html = renderApiReference({ config: {} })
       expect(html).toContain('<!doctype html>')
       expect(html).toContain('<title>Scalar API Reference</title>')
     })
 
     it('removes content when url is provided', () => {
-      const html = getHtmlDocument({
-        url: 'https://api.example.com/spec',
-        content: { foo: 'bar' },
+      const html = renderApiReference({
+        config: {
+          url: 'https://api.example.com/spec',
+          content: { foo: 'bar' },
+        },
       })
       expect(html).toContain('"url": "https://api.example.com/spec"')
       expect(html).not.toContain('"content"')
+    })
+
+    it('uses custom cdn when provided', () => {
+      const html = renderApiReference({ config: {}, cdn: 'https://example.com/scalar.js' })
+      expect(html).toContain('https://example.com/scalar.js')
     })
   })
 
@@ -171,13 +178,15 @@ describe('html-rendering', () => {
         onLoaded: () => {
           console.log('loaded')
         },
-        pageTitle: 'Foobar',
         customCss: '.sidebar { background: blue }',
         favicon: '/favicon.ico',
-        cdn: 'https://example.com/script.js',
       }
 
-      const html = getHtmlDocument(getConfiguration(config))
+      const html = renderApiReference({
+        config: getConfiguration(config),
+        pageTitle: 'Foobar',
+        cdn: 'https://example.com/script.js',
+      })
 
       // Check that HTML structure is correct
       expect(html).toContain('<!doctype html>')
@@ -245,7 +254,7 @@ describe('html-rendering', () => {
 
   describe('getConfiguration', () => {
     it('returns configuration object', () => {
-      const config = getConfiguration({ theme: 'kepler' } as ApiReferenceConfigurationWithSource)
+      const config = getConfiguration({ theme: 'kepler' } as Record<string, unknown>)
       expect(config).toEqual({ theme: 'kepler' })
     })
 

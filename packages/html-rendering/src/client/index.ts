@@ -1,6 +1,1 @@
-export {
-  type HtmlRenderingConfiguration,
-  getConfiguration,
-  getHtmlDocument,
-  getScriptTags,
-} from './html-rendering'
+export { getConfiguration, getScriptTags, renderApiReference } from './html-rendering'

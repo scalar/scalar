@@ -110,23 +110,22 @@ function escapeHtml(str: string): string {
  * Serve the standalone JS bundle via `getJsAsset()` at the route matching
  * the `cdn` option (defaults to `/scalar/scalar.js`).
  */
-export async function renderApiReference(
-  configuration: AnyApiReferenceConfiguration,
-  options?: {
-    /** Page title. Defaults to "Scalar API Reference". */
-    pageTitle?: string
-    /** Override the built-in CSS. */
-    css?: string
-    /** URL path to the standalone JS bundle. Defaults to "/scalar/scalar.js". */
-    cdn?: string
-  },
-): Promise<string> {
-  const title = escapeHtml(options?.pageTitle ?? 'Scalar API Reference')
-  const css = options?.css ?? getDefaultCss()
-  const cdn = options?.cdn ?? '/scalar/scalar.js'
-  const html = await renderApiReferenceToString(configuration)
-  const bodyScript = generateBodyScript(configuration)
-  const configJson = JSON.stringify(unwrapConfig(configuration))
+export async function renderApiReference(options: {
+  /** The API reference configuration. */
+  config: AnyApiReferenceConfiguration
+  /** Page title. Defaults to "Scalar API Reference". */
+  pageTitle?: string
+  /** Override the built-in CSS. */
+  css?: string
+  /** URL path to the standalone JS bundle. Defaults to "/scalar/scalar.js". */
+  cdn?: string
+}): Promise<string> {
+  const title = escapeHtml(options.pageTitle ?? 'Scalar API Reference')
+  const css = options.css ?? getDefaultCss()
+  const cdn = options.cdn ?? '/scalar/scalar.js'
+  const html = await renderApiReferenceToString(options.config)
+  const bodyScript = generateBodyScript(options.config)
+  const configJson = JSON.stringify(unwrapConfig(options.config))
 
   return `<!doctype html>
 <html lang="en">
