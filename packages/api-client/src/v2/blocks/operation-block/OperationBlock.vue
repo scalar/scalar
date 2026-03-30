@@ -218,14 +218,6 @@ const handleExecute = async () => {
     },
   })
 
-  // Execute the beforeRequest hook
-  await executeHook(
-    // @ts-expect-error - TODO: fix this update to use the new request factory
-    { request: requestBuilder },
-    'beforeRequest',
-    plugins,
-  )
-
   // Build the actual request we will send
   const requestResult = buildRequest(requestBuilder, {
     envVariables: getEnvironmentVariables(environment),
@@ -234,10 +226,17 @@ const handleExecute = async () => {
   // Store the abort controller for cancellation
   abortController.value = requestResult.controller
 
+  // Execute the beforeRequest hook
+  const { request: finalRequest } = await executeHook(
+    { request: requestResult.request },
+    'beforeRequest',
+    plugins,
+  )
+
   /** Execute the request */
   const [sendError, sendResult] = await sendRequest({
     isUsingProxy: requestResult.isUsingProxy,
-    request: requestResult.request.clone(),
+    request: finalRequest,
   })
 
   if (sendResult) {
