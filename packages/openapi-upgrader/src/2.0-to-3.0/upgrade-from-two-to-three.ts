@@ -46,9 +46,37 @@ function isEmptySchema(schema: unknown): boolean {
   }
 
   const s = schema as Record<string, unknown>
+  const substantiveValidationKeywords = [
+    'enum',
+    'const',
+    'not',
+    'format',
+    'multipleOf',
+    'maximum',
+    'exclusiveMaximum',
+    'minimum',
+    'exclusiveMinimum',
+    'maxLength',
+    'minLength',
+    'pattern',
+    'maxItems',
+    'minItems',
+    'uniqueItems',
+    'maxProperties',
+    'minProperties',
+    'required',
+  ]
 
   // Has substantive schema keywords — not empty
-  if (s.allOf || s.oneOf || s.anyOf || s.items || s.$ref || 'additionalProperties' in s) {
+  if (
+    s.allOf ||
+    s.oneOf ||
+    s.anyOf ||
+    s.items ||
+    s.$ref ||
+    'additionalProperties' in s ||
+    substantiveValidationKeywords.some((key) => key in s)
+  ) {
     return false
   }
 

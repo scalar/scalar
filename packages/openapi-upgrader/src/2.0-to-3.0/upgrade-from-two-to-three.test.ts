@@ -2570,4 +2570,45 @@ describe('upgradeFromTwoToThree', () => {
     expect(response200.content?.['text/plain']?.example).toBe('ok')
     expect((response200 as Record<string, unknown>).examples).toBeUndefined()
   })
+
+  it('keeps schema-only content entries when schema contains enum and validation keywords', () => {
+    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+      swagger: '2.0',
+      info: { title: 'Schema with enum and validation keywords', version: '1.0' },
+      produces: ['application/json'],
+      paths: {
+        '/status': {
+          get: {
+            responses: {
+              '200': {
+                description: '',
+                schema: {
+                  type: 'string',
+                  enum: ['active', 'inactive'],
+                  minLength: 6,
+                  maxLength: 8,
+                  pattern: '^[a-z]+$',
+                },
+                examples: {
+                  'text/plain': 'active',
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+
+    const response200 = result.paths?.['/status']?.get?.responses?.['200'] as OpenAPIV3.ResponseObject
+
+    expect(response200.content?.['application/json']?.schema).toStrictEqual({
+      type: 'string',
+      enum: ['active', 'inactive'],
+      minLength: 6,
+      maxLength: 8,
+      pattern: '^[a-z]+$',
+    })
+    expect(response200.content?.['text/plain']?.example).toBe('active')
+    expect((response200 as Record<string, unknown>).examples).toBeUndefined()
+  })
 })
