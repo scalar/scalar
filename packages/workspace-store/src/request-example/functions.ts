@@ -301,3 +301,21 @@ export const contextFunctions = {
   // 1 to 5 random lines of lorem ipsum
   $randomLoremLines: () => faker.lorem.lines({ min: 1, max: 5 }),
 } satisfies Record<string, () => string>
+
+export type ContextFunctionName = keyof typeof contextFunctions
+
+/** Keys surfaced first in empty-query autocomplete (common request placeholders). */
+export const POPULAR_CONTEXT_FUNCTION_KEYS: readonly ContextFunctionName[] = [
+  '$guid',
+  '$timestamp',
+  '$isoTimestamp',
+  '$randomUUID',
+  '$randomEmail',
+  '$randomInt',
+  '$randomFirstName',
+  '$randomLastName',
+]
+
+export const CONTEXT_FUNCTION_NAMES = Object.keys(contextFunctions) as ContextFunctionName[]
+export const isContextFunctionName = (name: string): name is ContextFunctionName =>
+  Object.hasOwn(contextFunctions, name)

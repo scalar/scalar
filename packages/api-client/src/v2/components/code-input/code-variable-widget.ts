@@ -12,23 +12,37 @@ import {
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import { createApp, defineComponent, h } from 'vue'
 
+type PillVariant = 'environment' | 'contextFunction'
+
 /**
- * Displays the value of a variable of the active environment in a pill.
- * Uses Vue for tooltip functionality.
+ * Displays `{{name}}` as a pill: environment variables show the resolved value;
+ * context functions (e.g. `{{$guid}}`) show that the value is generated at send time.
  */
 class PillWidget extends WidgetType {
   private app: any
   private readonly pillColor: string
   private readonly variableInfo: { value: string; hasValue: boolean }
+  private readonly variant: PillVariant
 
   constructor(
     private readonly variableName: string,
     environment: XScalarEnvironment | undefined,
+    variant: PillVariant,
   ) {
     super()
+    this.variant = variant
+
+    if (variant === 'contextFunction') {
+      this.pillColor = 'var(--scalar-color-3)'
+      this.variableInfo = {
+        value: 'Generated when you send the request.',
+        hasValue: true,
+      }
+      return
+    }
+
     this.pillColor = environment?.color || 'var(--scalar-color-1)'
 
-    // Look up the variable value directly from the environment
     const variable = environment?.variables?.find((v) => v.name === variableName)
     const value = variable ? (typeof variable.value === 'string' ? variable.value : variable.value?.default) : undefined
     this.variableInfo = {
@@ -39,14 +53,12 @@ class PillWidget extends WidgetType {
 
   toDOM(): HTMLElement {
     const span = document.createElement('span')
-    span.className = 'cm-pill'
+    span.className = this.variant === 'contextFunction' ? 'cm-pill cm-pill--context-fn' : 'cm-pill'
     span.textContent = this.variableName
 
-    // Set styles once during creation instead of on every render
     span.style.setProperty('--tw-bg-base', this.pillColor)
-    span.style.opacity = this.variableInfo.hasValue ? '1' : '0.5'
+    span.style.opacity = this.variant === 'contextFunction' ? '1' : this.variableInfo.hasValue ? '1' : '0.5'
 
-    // Create tooltip component with pre-computed values
     const tooltipComponent = defineComponent({
       render: () => {
         const tooltipTrigger = h('div', { class: 'flex items-center gap-1 whitespace-nowrap' }, [
@@ -82,14 +94,13 @@ class PillWidget extends WidgetType {
   }
 
   override eq(other: WidgetType): boolean {
-    // Two widgets are equal if they represent the same variable.
-    // This allows CodeMirror to reuse widgets instead of recreating them.
     return (
       other instanceof PillWidget &&
       other.variableName === this.variableName &&
       other.pillColor === this.pillColor &&
       other.variableInfo.value === this.variableInfo.value &&
-      other.variableInfo.hasValue === this.variableInfo.hasValue
+      other.variableInfo.hasValue === this.variableInfo.hasValue &&
+      other.variant === this.variant
     )
   }
 
@@ -102,7 +113,11 @@ class PillWidget extends WidgetType {
  * Styles the active environment variable pill.
  * This plugin creates decorations for environment variables in the editor.
  */
-export const pillPlugin = (props: { environment: XScalarEnvironment | undefined; isReadOnly: boolean | undefined }) =>
+export const pillPlugin = (props: {
+  environment: XScalarEnvironment | undefined
+  isReadOnly: boolean | undefined
+  isContextFunctionName?: (name: string) => boolean
+}) =>
   ViewPlugin.fromClass(
     class {
       decorations: DecorationSet
@@ -129,6 +144,7 @@ export const pillPlugin = (props: { environment: XScalarEnvironment | undefined;
 
       buildDecorations(view: EditorView): DecorationSet {
         const builder = new RangeSetBuilder<Decoration>()
+        const isContextFn = props.isContextFunctionName ?? (() => false)
 
         for (const { from, to } of view.visibleRanges) {
           const text = view.state.doc.sliceString(from, to)
@@ -148,11 +164,13 @@ export const pillPlugin = (props: { environment: XScalarEnvironment | undefined;
               continue
             }
 
+            const variant: PillVariant = isContextFn(variableName) ? 'contextFunction' : 'environment'
+
             builder.add(
               start,
               end,
               Decoration.widget({
-                widget: new PillWidget(variableName, props.environment),
+                widget: new PillWidget(variableName, props.environment, variant),
                 side: 1,
               }),
             )

@@ -6,7 +6,7 @@ import { encode as encodeBase64 } from 'js-base64'
 import { buildRequestCookieHeader } from '@/request-example/builder/header/build-request-cookie-header'
 import { applyAllowReservedToUrl } from '@/request-example/builder/helpers/apply-allow-reserved-to-url'
 import type { RequestFactory } from '@/request-example/builder/request-factory'
-import { contextFunctions } from '@/request-example/functions'
+import { contextFunctions, isContextFunctionName } from '@/request-example/functions'
 import type { XScalarCookie } from '@/schemas/extensions/general/x-scalar-cookies'
 
 export const buildRequest = (
@@ -16,8 +16,8 @@ export const buildRequest = (
   },
 ) => {
   const replace = (value: string): string | null => {
-    if (value in contextFunctions) {
-      return contextFunctions[value as keyof typeof contextFunctions]() ?? null
+    if (isContextFunctionName(value)) {
+      return contextFunctions[value]() ?? null
     }
     return options.envVariables[value] ?? null
   }
