@@ -66,11 +66,11 @@
   "dependencies": {
     "@scalar/helpers": "workspace:*",
     "nanoid": "catalog:*",
+    "type-fest": "catalog:*",
     "zod": "catalog:*"
   },
   "devDependencies": {
     "@types/har-format": "^1.2.16",
-    "type-fest": "catalog:*",
     "vite": "catalog:*"
   }
 }
