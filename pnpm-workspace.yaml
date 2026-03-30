@@ -19,6 +19,7 @@ catalogs:
     '@fastify/swagger': ^8.10.1
     '@floating-ui/utils': 0.2.10
     '@floating-ui/vue': 1.1.9
+    '@faker-js/faker': 10.4.0
     '@google-cloud/storage': 7.16.0
     '@headlessui/tailwindcss': ^0.2.2
     '@headlessui/vue': 1.7.23

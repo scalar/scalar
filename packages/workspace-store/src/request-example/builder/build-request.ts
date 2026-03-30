@@ -6,6 +6,7 @@ import { encode as encodeBase64 } from 'js-base64'
 import { buildRequestCookieHeader } from '@/request-example/builder/header/build-request-cookie-header'
 import { applyAllowReservedToUrl } from '@/request-example/builder/helpers/apply-allow-reserved-to-url'
 import type { RequestFactory } from '@/request-example/builder/request-factory'
+import { contextFunctions } from '@/request-example/functions'
 import type { XScalarCookie } from '@/schemas/extensions/general/x-scalar-cookies'
 
 export const buildRequest = (
@@ -14,24 +15,29 @@ export const buildRequest = (
     envVariables: Record<string, string>
   },
 ) => {
+  const replace = (value: string): string => {
+    if (value in contextFunctions) {
+      return contextFunctions[value as keyof typeof contextFunctions]()
+    }
+    return replaceEnvVariables(value, options.envVariables)
+  }
+
   const controller = new AbortController()
 
   const headers = (() => {
-    const variables = options.envVariables
     const headers = new Headers()
 
     request.headers.forEach((value, key) => {
-      headers.set(replaceEnvVariables(key, variables), replaceEnvVariables(value, variables))
+      headers.set(replaceEnvVariables(key, replace), replaceEnvVariables(value, replace))
     })
 
     return headers
   })()
 
   const body: BodyInit | null = (() => {
-    const variables = options.envVariables
     if (request.body?.mode === 'raw') {
       if (typeof request.body.value === 'string') {
-        return replaceEnvVariables(request.body.value, variables)
+        return replaceEnvVariables(request.body.value, replace)
       }
       return request.body.value
     }
@@ -41,10 +47,10 @@ export const buildRequest = (
 
       request.body.value.forEach((item) => {
         if (item.type === 'text') {
-          form.append(replaceEnvVariables(item.key, variables), replaceEnvVariables(item.value, variables))
+          form.append(replaceEnvVariables(item.key, replace), replaceEnvVariables(item.value, replace))
           return
         }
-        form.append(replaceEnvVariables(item.key, variables), item.value)
+        form.append(replaceEnvVariables(item.key, replace), item.value)
       })
       return form
     }
@@ -52,8 +58,8 @@ export const buildRequest = (
     if (request.body?.mode === 'urlencoded') {
       return new URLSearchParams(
         request.body.value.map((item) => [
-          replaceEnvVariables(item.key, variables),
-          replaceEnvVariables(item.value, variables),
+          replaceEnvVariables(item.key, replace),
+          replaceEnvVariables(item.value, replace),
         ]),
       )
     }
@@ -66,8 +72,8 @@ export const buildRequest = (
 
   // Build the request security
   request.security.forEach((security) => {
-    const name = replaceEnvVariables(security.name, options.envVariables)
-    const securityValue = replaceEnvVariables(security.value, options.envVariables)
+    const name = replaceEnvVariables(security.name, replace)
+    const securityValue = replaceEnvVariables(security.value, replace)
 
     if (security.in === 'header') {
       // Build the value for the header
@@ -108,11 +114,11 @@ export const buildRequest = (
     const pathVariables = Object.fromEntries(
       Object.entries(request.path.variables).map(([key, value]) => [
         key,
-        encodeURIComponent(replaceEnvVariables(value, options.envVariables)),
+        encodeURIComponent(replaceEnvVariables(value, replace)),
       ]),
     )
 
-    const baseUrl = replaceEnvVariables(request.baseUrl, options.envVariables)
+    const baseUrl = replaceEnvVariables(request.baseUrl, replace)
     const path = replacePathVariables(request.path.raw, pathVariables)
 
     const mergedUrl = mergeUrls(baseUrl, path)
@@ -124,18 +130,12 @@ export const buildRequest = (
 
     // Merge security query params
     for (const [key, value] of securityQueryParams.entries()) {
-      url.searchParams.set(
-        replaceEnvVariables(key, options.envVariables),
-        replaceEnvVariables(value, options.envVariables),
-      )
+      url.searchParams.set(replaceEnvVariables(key, replace), replaceEnvVariables(value, replace))
     }
 
     // Replace the query params with the environment variables
     for (const [key, value] of request.query.params.entries()) {
-      url.searchParams.set(
-        replaceEnvVariables(key, options.envVariables),
-        replaceEnvVariables(value, options.envVariables),
-      )
+      url.searchParams.set(replaceEnvVariables(key, replace), replaceEnvVariables(value, replace))
     }
     return url.toString()
   })()
@@ -144,8 +144,8 @@ export const buildRequest = (
 
   const cookies: XScalarCookie[] = [...request.cookies.list, ...securityCookies].map((c) => ({
     ...c,
-    name: replaceEnvVariables(c.name, options.envVariables),
-    value: replaceEnvVariables(c.value, options.envVariables),
+    name: replaceEnvVariables(c.name, replace),
+    value: replaceEnvVariables(c.value, replace),
   }))
 
   const cookieHeader = buildRequestCookieHeader({

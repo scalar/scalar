@@ -9,6 +9,9 @@ catalogs:
     '@ai-sdk/vue':
       specifier: 3.0.33
       version: 3.0.33
+    '@faker-js/faker':
+      specifier: 10.4.0
+      version: 10.4.0
     '@fastify/basic-auth':
       specifier: ^5.1.1
       version: 5.1.1
@@ -1869,8 +1872,8 @@ importers:
   packages/mock-server:
     dependencies:
       '@faker-js/faker':
-        specifier: ^10.2.0
-        version: 10.2.0
+        specifier: catalog:*
+        version: 10.4.0
       '@scalar/helpers':
         specifier: workspace:*
         version: link:../helpers
@@ -2520,6 +2523,9 @@ importers:
 
   packages/workspace-store:
     dependencies:
+      '@faker-js/faker':
+        specifier: catalog:*
+        version: 10.4.0
       '@scalar/code-highlight':
         specifier: workspace:*
         version: link:../code-highlight
@@ -4577,8 +4583,8 @@ packages:
       '@noble/hashes':
         optional: true
 
-  '@faker-js/faker@10.2.0':
-    resolution: {integrity: sha512-rTXwAsIxpCqzUnZvrxVh3L0QA0NzToqWBLAhV+zDV3MIIwiQhAZHMdPCIaj5n/yADu/tyk12wIPgL6YHGXJP+g==}
+  '@faker-js/faker@10.4.0':
+    resolution: {integrity: sha512-sDBWI3yLy8EcDzgobvJTWq1MJYzAkQdpjXuPukga9wXonhpMRvd1Izuo2Qgwey2OiEoRIBr35RMU9HJRoOHzpw==}
     engines: {node: ^20.19.0 || ^22.13.0 || ^23.5.0 || >=24.0.0, npm: '>=10'}
 
   '@faker-js/faker@5.5.3':
@@ -21051,7 +21057,7 @@ snapshots:
     optionalDependencies:
       '@noble/hashes': 1.8.0
 
-  '@faker-js/faker@10.2.0': {}
+  '@faker-js/faker@10.4.0': {}
 
   '@faker-js/faker@5.5.3': {}
 
