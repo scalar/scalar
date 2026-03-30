@@ -225,7 +225,7 @@ test.describe('ScalarExample', () => {
 })
 ```
 
-Add `colorModes: ['light', 'dark']` in `test.use()` to capture both themes. Use `page.getByRole(...)` to interact with the component before taking additional snapshots (e.g., hover states).
+Add `colorModes: ['light', 'dark']` in `test.use()` when the component has theme-dependent styling that warrants separate snapshots. Use `page.getByRole(...)` to interact with the component before taking additional snapshots (e.g., hover states).
 
 ### 9. Define types (`types.ts`) — when needed
 
