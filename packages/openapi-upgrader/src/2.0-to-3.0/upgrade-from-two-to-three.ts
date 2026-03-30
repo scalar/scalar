@@ -48,7 +48,7 @@ function isEmptySchema(schema: unknown): boolean {
   const s = schema as Record<string, unknown>
 
   // Has substantive schema keywords — not empty
-  if (s.allOf || s.oneOf || s.anyOf || s.items || s.$ref || s.additionalProperties) {
+  if (s.allOf || s.oneOf || s.anyOf || s.items || s.$ref || 'additionalProperties' in s) {
     return false
   }
 

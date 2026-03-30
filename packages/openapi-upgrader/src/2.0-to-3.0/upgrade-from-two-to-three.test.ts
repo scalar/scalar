@@ -2535,4 +2535,39 @@ describe('upgradeFromTwoToThree', () => {
     // Old examples property should be removed
     expect((response200 as Record<string, unknown>).examples).toBeUndefined()
   })
+
+  it('keeps schema-only content entries when schema sets additionalProperties to false', () => {
+    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+      swagger: '2.0',
+      info: { title: 'Schema with additionalProperties false', version: '1.0' },
+      produces: ['application/json'],
+      paths: {
+        '/strict-object': {
+          get: {
+            responses: {
+              '200': {
+                description: '',
+                schema: {
+                  type: 'object',
+                  additionalProperties: false,
+                },
+                examples: {
+                  'text/plain': 'ok',
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+
+    const response200 = result.paths?.['/strict-object']?.get?.responses?.['200'] as OpenAPIV3.ResponseObject
+
+    expect(response200.content?.['application/json']?.schema).toStrictEqual({
+      type: 'object',
+      additionalProperties: false,
+    })
+    expect(response200.content?.['text/plain']?.example).toBe('ok')
+    expect((response200 as Record<string, unknown>).examples).toBeUndefined()
+  })
 })
