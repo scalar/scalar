@@ -11,7 +11,6 @@
  * </ScalarErrorBoundary>
  */
 export default {}
-
 </script>
 <script setup lang="ts">
 import { onErrorCaptured, ref } from 'vue'

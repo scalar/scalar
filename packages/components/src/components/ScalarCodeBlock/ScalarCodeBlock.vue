@@ -9,7 +9,6 @@
  * <ScalarCodeBlock content="const x = 1" lang="javascript" />
  */
 export default {}
-
 </script>
 <script lang="ts" setup>
 import ScalarCopyBackdrop from '@/components/ScalarCopy/ScalarCopyBackdrop.vue'

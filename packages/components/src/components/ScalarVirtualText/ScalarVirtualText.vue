@@ -9,7 +9,6 @@
  * <ScalarVirtualText text="line1\nline2\nline3" :lineHeight="20" />
  */
 export default {}
-
 </script>
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref, watchEffect } from 'vue'

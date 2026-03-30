@@ -9,7 +9,6 @@
  * <ScalarCodeBlockCopy content="const x = 1" lang="javascript" />
  */
 export default {}
-
 </script>
 <script setup lang="ts">
 import { ScalarCopy } from '@/components/ScalarCopy'

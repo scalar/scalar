@@ -8,7 +8,6 @@
  * <ScalarHotkey hotkey="k" :modifier="['Meta']" />
  */
 export default {}
-
 </script>
 <script setup lang="ts">
 import { useBindCx } from '@scalar/use-hooks/useBindCx'

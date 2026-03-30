@@ -12,7 +12,6 @@
  * </ScalarFloating>
  */
 export default {}
-
 </script>
 <script setup lang="ts">
 import { getSideAxis } from '@floating-ui/utils'

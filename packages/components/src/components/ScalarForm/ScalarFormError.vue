@@ -8,7 +8,6 @@
  * <ScalarFormError variant="error">Something went wrong</ScalarFormError>
  */
 export default {}
-
 </script>
 <script setup lang="ts">
 import { ScalarIconWarning, ScalarIconWarningCircle } from '@scalar/icons'
