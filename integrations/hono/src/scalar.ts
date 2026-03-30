@@ -1,4 +1,3 @@
-import { generateBodyScript, renderApiReferenceToString } from '@scalar/api-reference/ssr'
 import { getHtmlDocument } from '@scalar/core/libs/html-rendering'
 import type { Context, Env, MiddlewareHandler } from 'hono'
 
@@ -70,49 +69,26 @@ type Configuration<E extends Env> =
   | Partial<ApiReferenceConfiguration>
   | ((c: Context<E>) => Partial<ApiReferenceConfiguration> | Promise<Partial<ApiReferenceConfiguration>>)
 
-const resolveConfiguration = async <E extends Env>(
-  c: Context<E>,
-  configOrResolver: Configuration<E>,
-): Promise<Partial<ApiReferenceConfiguration>> => {
-  const resolvedConfig = typeof configOrResolver === 'function' ? await configOrResolver(c) : configOrResolver
-
-  return {
-    ...DEFAULT_CONFIGURATION,
-    ...resolvedConfig,
-  }
-}
-
-const getHtmlDocumentWithSsr = async (configuration: Partial<ApiReferenceConfiguration>): Promise<string> => {
-  const [ssrHtml, bodyScript] = await Promise.all([
-    renderApiReferenceToString(configuration),
-    Promise.resolve(generateBodyScript(configuration)),
-  ])
-
-  return getHtmlDocument(configuration, customTheme)
-    .replace('<body>', `<body>\n    ${bodyScript}`)
-    .replace('<div id="app"></div>', `<div id="app">${ssrHtml}</div>`)
-}
-
 /**
  * The Hono middleware for the Scalar API Reference.
  */
 export const Scalar = <E extends Env>(configOrResolver: Configuration<E>): MiddlewareHandler<E> => {
   return async (c) => {
-    const configuration = await resolveConfiguration(c, configOrResolver)
+    let resolvedConfig: Partial<ApiReferenceConfiguration> = {}
+
+    if (typeof configOrResolver === 'function') {
+      resolvedConfig = await configOrResolver(c)
+    } else {
+      resolvedConfig = configOrResolver
+    }
+
+    // Merge the defaults
+    const configuration = {
+      ...DEFAULT_CONFIGURATION,
+      ...resolvedConfig,
+    }
 
     // Respond with the HTML document
     return c.html(getHtmlDocument(configuration, customTheme))
-  }
-}
-
-/**
- * The Hono middleware for the Scalar API Reference with server-side rendering.
- */
-export const ScalarSSR = <E extends Env>(configOrResolver: Configuration<E>): MiddlewareHandler<E> => {
-  return async (c) => {
-    const configuration = await resolveConfiguration(c, configOrResolver)
-
-    // Respond with the server-side rendered HTML document
-    return c.html(await getHtmlDocumentWithSsr(configuration))
   }
 }

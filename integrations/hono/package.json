@@ -52,7 +52,6 @@
     "documentation": "https://scalar.com/products/api-references/integrations/hono"
   },
   "dependencies": {
-    "@scalar/api-reference": "workspace:*",
     "@scalar/core": "workspace:*"
   },
   "devDependencies": {

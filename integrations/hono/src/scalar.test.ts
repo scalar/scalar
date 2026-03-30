@@ -1,7 +1,7 @@
 import { Hono } from 'hono'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
-import { Scalar, ScalarSSR } from './scalar'
+import { Scalar } from './scalar'
 
 type Bindings = {
   SOME_VAR: string
@@ -271,62 +271,5 @@ describe('Scalar', () => {
     expect(text).toContain('<title>Scalar API Reference</title>')
     expect(text).toContain('Test API')
     expect(text).toContain('deepSpace')
-  })
-
-  it('renders server-side markup with ScalarSSR', async () => {
-    const app = new Hono()
-    app.get(
-      '/',
-      ScalarSSR({
-        content: { info: { title: 'SSR API' } },
-      }),
-    )
-
-    const response = await app.request('/')
-    expect(response.status).toBe(200)
-    expect(response.headers.get('content-type')).toContain('text/html')
-    const text = await response.text()
-
-    expect(text).toContain('<div id="app"><div')
-    expect(text).toContain('SSR API')
-    expect(text).toContain('prefers-color-scheme:dark')
-    expect(text).toContain('_integration": "hono"')
-  })
-
-  it('supports async config resolver with ScalarSSR', async () => {
-    vi.useFakeTimers()
-
-    const app = new Hono<{ Bindings: Bindings }>()
-    app.use('*', (c, next) => {
-      c.env = { SOME_VAR: 'SOME_VAR', ENVIRONMENT: 'production' }
-      return next()
-    })
-
-    app.get(
-      '/',
-      ScalarSSR<{ Bindings: Bindings }>(async (c) => {
-        expect(c.env.SOME_VAR).toBe('SOME_VAR')
-
-        const forceDarkModeState = await new Promise<'dark'>((resolve) => {
-          setTimeout(() => resolve('dark'), 100)
-        })
-
-        return {
-          content: { info: { title: 'SSR Resolver API' } },
-          forceDarkModeState,
-        }
-      }),
-    )
-
-    const req = app.request('/')
-    vi.advanceTimersByTime(100)
-    const response = await req
-    const text = await response.text()
-
-    expect(response.status).toBe(200)
-    expect(text).toContain('SSR Resolver API')
-    expect(text).toContain('dark-mode')
-    expect(text).not.toContain('matchMedia')
-    expect(text).not.toContain('localStorage')
   })
 })
