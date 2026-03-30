@@ -26,7 +26,7 @@ vi.mock('@scalar/workspace-store/request-example', async (importOriginal) => {
 vi.mock('./helpers/send-request')
 
 vi.mock('@scalar/oas-utils/helpers', () => ({
-  executeHook: vi.fn().mockResolvedValue(undefined),
+  executeHook: vi.fn(async (payload: unknown) => payload),
 }))
 
 /**
