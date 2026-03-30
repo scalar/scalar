@@ -130,64 +130,15 @@ Alternatively, `pnpm turbo dev` or `pnpm turbo build` in a package directory wil
 
 ### Playgrounds
 
-#### `packages/api-reference`
+Each playground can be started with `pnpm dev` inside its package directory, or from the repo root using Turbo (which auto-builds dependencies):
 
-The API reference renderer. Changes to themes, layout, sidebar, code highlighting, and OpenAPI rendering are tested here.
+| Package | Quick start | Turbo | Details |
+|---------|------------|-------|---------|
+| `api-reference` | `cd packages/api-reference && pnpm dev` | `pnpm turbo --filter @scalar/api-reference dev` | [`AGENTS.md`](./packages/api-reference/AGENTS.md) |
+| `api-client` | `cd packages/api-client && pnpm dev` | `pnpm turbo --filter @scalar/api-client dev` | [`AGENTS.md`](./packages/api-client/AGENTS.md) |
+| `components` | `cd packages/components && pnpm dev` | `pnpm turbo --filter @scalar/components dev` | [`AGENTS.md`](./packages/components/AGENTS.md) |
 
-```bash
-cd packages/api-reference && pnpm dev
-```
-
-The default `dev` playground loads the Galaxy OpenAPI spec and renders the full reference UI.
-
-Using Turbo (builds dependencies automatically):
-
-```bash
-pnpm turbo --filter @scalar/api-reference dev
-```
-
-See [`packages/api-reference/AGENTS.md`](./packages/api-reference/AGENTS.md) for package-specific instructions.
-
-#### `packages/api-client`
-
-The API testing client. Changes to request editors, response viewers, sidebar navigation, auth forms, and environment management are tested here.
-
-The `v2` playgrounds are the current active version. Legacy (non-v2) playgrounds exist but are not the primary target.
-
-| Playground | Command | Description |
-|------------|---------|-------------|
-| Web (default) | `cd packages/api-client && pnpm dev` | Web layout — standalone client in browser |
-| Web | `cd packages/api-client && pnpm playground:v2:web` | Same as `dev` |
-| App | `cd packages/api-client && pnpm playground:v2:app` | App layout — desktop-style with full sidebar and workspace features |
-| Modal | `cd packages/api-client && pnpm playground:v2:modal` | Modal layout — opens as an overlay; also testable via the api-reference "Try it" button |
-
-**Web vs App**: The **web** playground renders the client as a standalone browser page. The **app** playground renders the full desktop-style layout with workspace management, collections, and environments. Both should be checked when making broad client changes. The **modal** playground can also be tested through the api-reference playground by clicking "Test Request" on any operation.
-
-Using Turbo:
-
-```bash
-pnpm turbo --filter @scalar/api-client dev
-```
-
-See [`packages/api-client/AGENTS.md`](./packages/api-client/AGENTS.md) for package-specific instructions.
-
-#### `packages/components`
-
-The shared component library, powered by Storybook. Changes to buttons, inputs, modals, dropdowns, icons, and other base components are tested here.
-
-```bash
-cd packages/components && pnpm dev      # Starts Storybook on port 5100
-```
-
-Using Turbo:
-
-```bash
-pnpm turbo --filter @scalar/components dev
-```
-
-Storybook runs on **http://localhost:5100** and renders all component stories. Use the sidebar to navigate to the component you changed.
-
-See [`packages/components/AGENTS.md`](./packages/components/AGENTS.md) for package-specific instructions.
+The `api-client` has multiple layouts (web, app, modal) — see its package `AGENTS.md` for details.
 
 ### Which playground to use
 
