@@ -1,3 +1,15 @@
+<script lang="ts">
+/**
+ * Scalar Menu Team Picker component
+ *
+ * A sub-menu within ScalarMenu that lets users switch between teams
+ * or create a new team.
+ *
+ * @example
+ * <ScalarMenuTeamPicker :teams="teams" :team="currentTeam" @update:team="setTeam" />
+ */
+export default {}
+</script>
 <script setup lang="ts">
 import {
   ScalarIconCaretRight,

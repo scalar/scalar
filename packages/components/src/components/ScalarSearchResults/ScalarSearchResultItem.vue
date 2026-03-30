@@ -1,3 +1,17 @@
+<script lang="ts">
+/**
+ * Scalar Search Result Item component
+ *
+ * A single search result entry with an optional icon, description, and addon slot.
+ *
+ * @example
+ * <ScalarSearchResultItem :icon="ScalarIconFile">
+ *   Result Title
+ *   <template #description>Result description</template>
+ * </ScalarSearchResultItem>
+ */
+export default {}
+</script>
 <script setup lang="ts">
 import type { ScalarIconComponent } from '@scalar/icons/types'
 import { useBindCx } from '@scalar/use-hooks/useBindCx'

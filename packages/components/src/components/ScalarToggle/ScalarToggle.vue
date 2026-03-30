@@ -1,3 +1,15 @@
+<script lang="ts">
+/**
+ * Scalar Toggle component
+ *
+ * A switch-style toggle control with support for
+ * disabled state and accessible labeling.
+ *
+ * @example
+ * <ScalarToggle v-model="enabled" label="Enable feature" />
+ */
+export default {}
+</script>
 <script setup lang="ts">
 import { cva, cx } from '@scalar/use-hooks/useBindCx'
 
