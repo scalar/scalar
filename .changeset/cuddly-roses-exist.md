@@ -2,4 +2,4 @@
 '@scalar/api-reference': patch
 ---
 
-feat: SSR helper
+fix: SSR breaks

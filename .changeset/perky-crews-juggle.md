@@ -1,6 +1,6 @@
 ---
-'@scalar/client-side-rendering': patch
-'@scalar/server-side-rendering': patch
+'@scalar/client-side-rendering': minor
+'@scalar/server-side-rendering': minor
 ---
 
 feat: init :)

@@ -22,7 +22,6 @@ const entries = [
   './src/plugins/index.ts',
   './src/features/index.ts',
   './src/helpers/index.ts',
-  './src/ssr.ts',
 ]
 
 const entry = createLibEntry(entries, import.meta.dirname)
