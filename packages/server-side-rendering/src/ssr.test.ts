@@ -174,6 +174,19 @@ describe('ssr', () => {
 
       expect(html).toContain('"url":"https://example.com/api.json"')
     })
+
+    it('preserves function properties in the hydration script', async () => {
+      const html = await renderApiReference({
+        config: {
+          url: 'https://example.com/api.json',
+          onLoaded: () => console.log('loaded'),
+        },
+        css: '',
+      })
+
+      expect(html).toContain('"onLoaded": () => console.log')
+      expect(html).toContain('"url":"https://example.com/api.json"')
+    })
   })
 
   describe('getJsAsset', () => {

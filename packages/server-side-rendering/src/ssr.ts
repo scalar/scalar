@@ -97,6 +97,39 @@ function escapeHtml(str: string): string {
   return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
 }
 
+/** Serialize an array that may contain functions. */
+function serializeArrayWithFunctions(arr: unknown[]): string {
+  return `[${arr.map((item) => (typeof item === 'function' ? item.toString() : JSON.stringify(item))).join(', ')}]`
+}
+
+/**
+ * Serialize a configuration object to a JavaScript expression string,
+ * preserving function values (which JSON.stringify would silently drop).
+ */
+function serializeConfigToJs(config: Record<string, unknown>): string {
+  const jsonProps: Record<string, unknown> = {}
+  const functionProps: string[] = []
+
+  for (const [key, value] of Object.entries(config)) {
+    if (typeof value === 'function') {
+      functionProps.push(`"${key}": ${value.toString()}`)
+    } else if (Array.isArray(value) && value.some((item) => typeof item === 'function')) {
+      functionProps.push(`"${key}": ${serializeArrayWithFunctions(value)}`)
+    } else {
+      jsonProps[key] = value
+    }
+  }
+
+  const jsonString = JSON.stringify(jsonProps)
+
+  if (functionProps.length === 0) {
+    return jsonString
+  }
+
+  // Merge: remove trailing } from JSON, append function props
+  return `${jsonString.slice(0, -1)}, ${functionProps.join(', ')}}`
+}
+
 /**
  * Render the Scalar API Reference as a complete HTML document with client-side
  * hydration.
@@ -125,7 +158,7 @@ export async function renderApiReference(options: {
   const cdn = options.cdn ?? '/scalar/scalar.js'
   const html = await renderApiReferenceToString(options.config)
   const bodyScript = generateBodyScript(options.config)
-  const configJson = JSON.stringify(unwrapConfig(options.config))
+  const configJs = serializeConfigToJs(unwrapConfig(options.config))
 
   return `<!doctype html>
 <html lang="en">
@@ -139,7 +172,7 @@ export async function renderApiReference(options: {
     ${bodyScript}
     <div id="app">${html}</div>
     <script src="${cdn}"></script>
-    <script>Scalar.createApiReference('#app', ${configJson})</script>
+    <script>Scalar.createApiReference('#app', ${configJs})</script>
   </body>
 </html>`
 }
