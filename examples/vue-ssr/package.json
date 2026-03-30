@@ -20,7 +20,7 @@
   "type": "module",
   "dependencies": {
     "@hono/node-server": "catalog:*",
-    "@scalar/html-rendering": "workspace:*",
+    "@scalar/server-side-rendering": "workspace:*",
     "hono": "catalog:*"
   },
   "devDependencies": {

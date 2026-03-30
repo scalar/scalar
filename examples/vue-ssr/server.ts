@@ -1,5 +1,5 @@
 import { serve } from '@hono/node-server'
-import { getJsAsset, renderApiReference } from '@scalar/html-rendering/server'
+import { getJsAsset, renderApiReference } from '@scalar/server-side-rendering'
 import { Hono } from 'hono'
 
 const port = Number(process.env.PORT) || 5173

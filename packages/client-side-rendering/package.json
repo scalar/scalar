@@ -1,6 +1,6 @@
 {
-  "name": "@scalar/core",
-  "description": "Shared libraries for our packages",
+  "name": "@scalar/client-side-rendering",
+  "description": "Client-side rendering for the Scalar API Reference using the CDN",
   "license": "MIT",
   "author": "Scalar (https://github.com/scalar)",
   "homepage": "https://github.com/scalar/scalar",
@@ -8,10 +8,10 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/scalar/scalar.git",
-    "directory": "packages/core"
+    "directory": "packages/client-side-rendering"
   },
   "keywords": [],
-  "version": "0.4.5",
+  "version": "0.0.0",
   "engines": {
     "node": ">=22"
   },
@@ -22,10 +22,10 @@
   },
   "type": "module",
   "exports": {
-    "./libs/html-rendering": {
-      "import": "./dist/libs/html-rendering/index.js",
-      "types": "./dist/libs/html-rendering/index.d.ts",
-      "default": "./dist/libs/html-rendering/index.js"
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
     }
   },
   "files": [
@@ -33,7 +33,6 @@
     "CHANGELOG.md"
   ],
   "dependencies": {
-    "@scalar/client-side-rendering": "workspace:*",
     "@scalar/types": "workspace:*"
   },
   "devDependencies": {
