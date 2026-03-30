@@ -1,4 +1,5 @@
 import { Type } from '@scalar/typebox'
+import { array, number, object, optional, string } from '@scalar/validation'
 
 type TabIcon = 'request' | 'document'
 
@@ -13,6 +14,18 @@ export type Tab = {
   title: string
   icon?: TabIcon
 }
+
+export const Tab = object(
+  {
+    path: string(),
+    title: string(),
+    icon: optional(string()),
+  },
+  {
+    typeName: 'Tab',
+    typeComment: 'An open tab in the workspace',
+  },
+)
 
 /**
  * Schema for workspace tab configuration.
@@ -39,3 +52,22 @@ export type XScalarTabs = {
   /** The identifier of the currently active/focused tab */
   'x-scalar-active-tab'?: number
 }
+
+export const XScalarTabs = object(
+  {
+    'x-scalar-tabs': optional(
+      array(Tab, {
+        typeComment: 'Tabs that are open in the workspace',
+      }),
+    ),
+    'x-scalar-active-tab': optional(
+      number({
+        typeComment: 'The currently active or focused tab',
+      }),
+    ),
+  },
+  {
+    typeName: 'XScalarTabs',
+    typeComment: 'Workspace tab configuration',
+  },
+)

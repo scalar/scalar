@@ -3,7 +3,7 @@ import { Type } from '@scalar/typebox'
 import { compose } from '@/schemas/compose'
 import { type XInternal, XInternalSchema } from '@/schemas/extensions/document/x-internal'
 import { type XScalarIgnore, XScalarIgnoreSchema } from '@/schemas/extensions/document/x-scalar-ignore'
-import { XGlobal } from '@/schemas/extensions/parameter/x-global'
+import { XGlobalSchema } from '@/schemas/extensions/parameter/x-global'
 import type { ExampleObject } from '@/schemas/v3.1/strict/example'
 import type { MediaTypeObject } from '@/schemas/v3.1/strict/media-type'
 import { ExampleObjectRef, MediaTypeObjectRef, SchemaObjectRef } from '@/schemas/v3.1/strict/ref-definitions'
@@ -30,7 +30,7 @@ const ParameterObjectBaseSchema = compose(
     /** When this is true, parameter values are serialized using reserved expansion, as defined by RFC6570, which allows RFC3986's reserved character set, as well as percent-encoded triples, to pass through unchanged, while still percent-encoding all other disallowed characters (including % outside of percent-encoded triples). Applications are still responsible for percent-encoding reserved characters that are not allowed in the query string ([, ], #), or have a special meaning in application/x-www-form-urlencoded (-, &, +); see Appendices C and E for details. This field only applies to parameters with an in value of query. The default value is false. */
     allowReserved: Type.Optional(Type.Boolean()),
   }),
-  XGlobal,
+  XGlobalSchema,
   XInternalSchema,
   XScalarIgnoreSchema,
 )

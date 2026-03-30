@@ -6,6 +6,7 @@ import {
   array,
   boolean,
   evaluate,
+  intersection,
   lazy,
   literal,
   notDefined,
@@ -416,6 +417,15 @@ describe('object', () => {
       x: 1,
       y: 2,
     })
+  })
+  it('omits optional properties when the value is undefined', () => {
+    const T = object({
+      id: number(),
+      name: optional(string()),
+    })
+    expect(coerce(T, { id: 1 })).toEqual({ id: 1 })
+    expect(coerce(T, { id: 1, name: undefined })).toEqual({ id: 1 })
+    expect(coerce(T, { id: 1, name: 'x' })).toEqual({ id: 1, name: 'x' })
   })
 })
 
@@ -916,6 +926,63 @@ describe('union', () => {
       }),
     ).toEqual({
       $ref: 'https://example.com/schema',
+    })
+  })
+
+  it('picks the branch whose type discriminator matches a union of literals', () => {
+    const T = union([
+      object({
+        type: literal('a'),
+        a: string(),
+      }),
+      object({
+        type: union([literal('b'), literal('c')]),
+        b: string(),
+      }),
+    ])
+    expect(coerce(T, { type: 'a' })).toEqual({ type: 'a', a: '' })
+    expect(coerce(T, { type: 'b' })).toEqual({ type: 'b', b: '' })
+    expect(coerce(T, { type: 'c' })).toEqual({ type: 'c', b: '' })
+  })
+})
+
+describe('intersection', () => {
+  const T = intersection([
+    object({
+      a: number(),
+      b: number(),
+    }),
+    object({
+      c: string(),
+      d: string(),
+    }),
+  ])
+  it('merges coerced properties from each object schema', () => {
+    const result = coerce(T, { a: 1, b: 2, c: 'x', d: 'y' })
+    expect(result).toEqual({ a: 1, b: 2, c: 'x', d: 'y' })
+  })
+  it('fills missing keys per branch from the same input value', () => {
+    const result = coerce(T, { a: 'nope', c: 123 })
+    expect(result).toEqual({ a: 0, b: 0, c: '', d: '' })
+  })
+  it('later branch wins on overlapping keys', () => {
+    const overlap = intersection([object({ x: number() }), object({ x: string() })])
+    const result = coerce(overlap, { x: 1 })
+    expect(result).toEqual({ x: '' })
+  })
+  it('wins in a union when every member validates and summed score beats narrower members', () => {
+    const A = object({ type: literal('A'), onlyA: number() })
+    const B = object({ type: literal('B'), onlyB: string() })
+    const both = intersection([
+      object({ type: literal('A'), shared: number() }),
+      object({ shared: number(), extra: string() }),
+    ])
+    const T = union([A, B, both])
+    // Intersection merges only its declared keys; it outscores A here because both sub-objects validate.
+    expect(coerce(T, { type: 'A', onlyA: 1, shared: 2, extra: 'ok' })).toEqual({
+      type: 'A',
+      shared: 2,
+      extra: 'ok',
     })
   })
 })

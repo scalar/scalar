@@ -10,6 +10,7 @@ import { createMagicProxy, getRaw } from '@scalar/json-magic/magic-proxy'
 import { upgrade } from '@scalar/openapi-upgrader'
 import type { Record } from '@scalar/typebox'
 import { Value } from '@scalar/typebox/value'
+import { coerce } from '@scalar/validation'
 import type { PartialDeep } from 'type-fest'
 import { reactive } from 'vue'
 import YAML from 'yaml'
@@ -38,6 +39,8 @@ import {
 import { extensions } from '@/schemas/extensions'
 import type { InMemoryWorkspace } from '@/schemas/inmemory-workspace'
 import { coerceValue } from '@/schemas/typebox-coerce'
+import { generateSchema } from '@/schemas/v3.1/openapi'
+import { recursiveRef } from '@/schemas/v3.1/openapi/reference'
 import {
   OpenAPIDocumentSchema as OpenAPIDocumentSchemaStrict,
   type OpenAPIExtensions,
@@ -554,6 +557,8 @@ export type WorkspaceStore = {
   >
 }
 
+const openapiSchema = generateSchema(recursiveRef)
+
 /**
  * Creates a reactive workspace store that manages documents and their metadata.
  * The store provides functionality for accessing, updating, and resolving document references.
@@ -943,9 +948,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       )
 
       // We coerce the values only when the document is not preprocessed by the server-side-store
-      const coerced = withMeasurementSync('coerceValue', () =>
-        coerceValue(OpenAPIDocumentSchemaStrict, deepClone(strictDocument)),
-      )
+      const coerced = withMeasurementSync('coerceValue', () => coerce(openapiSchema, deepClone(strictDocument)))
       withMeasurementSync('mergeObjects', () => mergeObjects(strictDocument, coerced))
     }
 
