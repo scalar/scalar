@@ -68,11 +68,11 @@
     "github-slugger": "catalog:*"
   },
   "devDependencies": {
-    "@fastify/basic-auth": "catalog:*",
-    "@fastify/http-proxy": "catalog:*",
-    "@fastify/swagger": "catalog:*",
+    "@fastify/basic-auth": "5.1.1",
+    "@fastify/http-proxy": "9.5.0",
+    "@fastify/swagger": "8.10.1",
     "@scalar/api-reference": "workspace:*",
-    "fastify": "4.0.0",
+    "fastify": "4.28.1",
     "vite": "catalog:*",
     "vitest": "catalog:*",
     "yaml": "catalog:*"
