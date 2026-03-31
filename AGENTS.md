@@ -111,7 +111,7 @@ When a **Linear ticket** ID (e.g. `DOC-5102`, `ENG-123`) or a **GitHub issue** n
 
 #### Linear tickets
 
-Include the Linear issue ID in the **PR branch name**, **PR title**, or **PR description** using a magic word. Linear's GitHub integration detects these and links the PR to the issue.
+Include the Linear issue ID in the **PR branch name** or **PR description** using a magic word. Linear's GitHub integration detects these and links the PR to the issue. Do **not** put the issue ID in the PR title — titles must follow the conventional commit format (e.g. `feat(api-reference): add my new feature`).
 
 **Closing magic words** (move the issue to Done when the PR merges):
 `close`, `closes`, `closed`, `fix`, `fixes`, `fixed`, `resolve`, `resolves`, `resolved`
@@ -145,7 +145,7 @@ Use GitHub's closing keywords in the PR description to link and auto-close GitHu
 
 #### Where to place the link
 
-Add a `## Ticket` section near the top of the PR description:
+Add a `## Ticket` section at the bottom of the PR description:
 
 ```markdown
 ## Ticket
