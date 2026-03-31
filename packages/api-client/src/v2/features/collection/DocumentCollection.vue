@@ -289,7 +289,7 @@ const onSyncModalClose = () => {
         class="md:max-w-content mx-auto flex h-fit w-full flex-col gap-2 pt-14 pb-3 md:pt-6">
         <ScalarSavePrompt
           v-model="isDocumentDirty"
-          class="w-content absolute max-w-[calc(100%-32px)]"
+          class="w-content-padded-4 max-w-full-padded-4 absolute"
           :loader="saveLoader"
           @discard="undoChanges"
           @save="saveChanges" />
@@ -362,7 +362,7 @@ const onSyncModalClose = () => {
       <Tabs type="document" />
 
       <!-- Router views -->
-      <div class="px-1.5 py-8">
+      <div class="px-1.5 pt-8 pb-20">
         <RouterView v-slot="{ Component }">
           <component
             :is="Component"
