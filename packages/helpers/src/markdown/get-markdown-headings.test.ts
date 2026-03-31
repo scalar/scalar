@@ -26,6 +26,17 @@ describe('getMarkdownHeadings', () => {
     ])
   })
 
+  it('parses ATX headings with Windows line endings', () => {
+    const markdown = '# First Heading\r\n## Second Heading\r\n'
+
+    const headings = getMarkdownHeadings(markdown)
+
+    expect(headings).toStrictEqual([
+      { depth: 1, value: 'First Heading' },
+      { depth: 2, value: 'Second Heading' },
+    ])
+  })
+
   it('ignores Markdown in code blocks', () => {
     const markdown = `
 # Example Heading

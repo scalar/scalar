@@ -38,7 +38,7 @@ export function getMarkdownHeadings(markdown: string): {
   depth: number
   value: string
 }[] {
-  const lines = markdown.split('\n')
+  const lines = markdown.split(/\r?\n/)
   const headings: { depth: number; value: string }[] = []
 
   let inFencedBlock = false
