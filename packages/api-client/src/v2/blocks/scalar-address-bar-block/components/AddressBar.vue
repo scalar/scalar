@@ -136,10 +136,7 @@ const handleMethodChange = (newMethod: HttpMethodType): void =>
   emitPathMethodUpdate(newMethod, pathConflict.value ?? path)
 
 /** Update the operation's path, handling conflicts also we extract the blur targets */
-const handlePathBlur = (
-  newPath: string,
-  event: MouseEvent | FocusEvent,
-): void => {
+const handlePathBlur = (newPath: string, event: FocusEvent): void => {
   const relatedTarget = event.relatedTarget as Element | null
 
   const sidebarItemId = relatedTarget
@@ -171,6 +168,8 @@ const handleFocusAddressBar = (
   if (addressBarRef.value?.isFocused && layout !== 'desktop') {
     return
   }
+
+  addressBarRef.value?.focus('end')
 
   if (payload && 'event' in payload) {
     payload.event.preventDefault()

@@ -143,7 +143,7 @@ const emit = defineEmits<{
   'update:modelValue': [value: string]
   'submit': [value: string]
   'navigate': [route: { page: 'document'; path: 'environment' }]
-  'blur': [value: string, event: MouseEvent | FocusEvent]
+  'blur': [value: string, event: FocusEvent]
 }>()
 
 // ---------------------------------------------------------------------------
