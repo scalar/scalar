@@ -3,6 +3,9 @@ pre-commit:
     packages-format:
       glob: 'pnpm-lock.yaml'
       run: pnpm script packages format; git add \*package.json pnpm-lock.yaml;
+    pin-versions:
+      glob: '{package.json,pnpm-workspace.yaml}'
+      run: pnpm script pin-versions; git add \*package.json pnpm-workspace.yaml;
     prettier:
       glob: '*.{js,ts,jsx,tsx,vue,md,json,css,scss,html,yml,yaml}'
       run: 'pnpm prettier --write {staged_files}'

@@ -20,9 +20,7 @@
     // Referenced in scalar.config.json
     "documentation/assets/landing.js",
     "documentation/assets/fathom.js",
-    "documentation/assets/apollo.js",
-    // Utility script for pinning dependencies
-    "pin-versions.js"
+    "documentation/assets/apollo.js"
   ],
   "ignore": [
     // We will use this in the future, just removed it from the workspace store for now

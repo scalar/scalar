@@ -4,6 +4,7 @@ import { cat } from '@/commands/cat'
 import { generateBlog } from '@/commands/generate-blog'
 import { generateReadme } from '@/commands/generate-readme'
 import { packages } from '@/commands/packages'
+import pinVersions from '@/commands/pin-versions'
 import { updatePlaywrightDocker } from '@/commands/playwright-docker/push-container'
 import { run } from '@/commands/run'
 import { updateTestSnapshots } from '@/commands/update-snapshots'
@@ -26,4 +27,5 @@ program.addCommand(run)
 program.addCommand(updatePlaywrightDocker)
 program.addCommand(generateReadme)
 program.addCommand(generateBlog)
+program.addCommand(pinVersions)
 program.parse()
