@@ -43,7 +43,7 @@
   ],
   "dependencies": {
     "vue": "catalog:*",
-    "vue-sonner": "1.0.3"
+    "vue-sonner": "1.1.2"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "catalog:*",
