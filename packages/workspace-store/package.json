@@ -140,7 +140,10 @@
       "default": "./dist/workspace-plugin.js"
     }
   },
-  "files": ["dist", "CHANGELOG.md"],
+  "files": [
+    "dist",
+    "CHANGELOG.md"
+  ],
   "dependencies": {
     "@scalar/code-highlight": "workspace:*",
     "@scalar/helpers": "workspace:*",
@@ -149,12 +152,12 @@
     "@scalar/snippetz": "workspace:*",
     "@scalar/typebox": "catalog:*",
     "@scalar/types": "workspace:*",
-    "@scalar/validation": "workspace:*",
     "github-slugger": "catalog:*",
     "js-base64": "catalog:*",
     "type-fest": "catalog:*",
     "vue": "catalog:*",
-    "yaml": "catalog:*"
+    "yaml": "catalog:*",
+    "@scalar/validation": "workspace:*"
   },
   "devDependencies": {
     "@google-cloud/storage": "catalog:*",
