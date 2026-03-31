@@ -1,5 +1,11 @@
 # @scalar/api-client
 
+## 2.39.4
+
+### Patch Changes
+
+- [#8625](https://github.com/scalar/scalar/pull/8625): fix: Add Variable button now navigates to environment tab using existing @navigate event pattern
+
 ## 2.39.3
 
 ### Patch Changes

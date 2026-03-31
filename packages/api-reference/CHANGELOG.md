@@ -1,5 +1,11 @@
 # @scalar/api-reference
 
+## 1.49.8
+
+### Patch Changes
+
+- [#8628](https://github.com/scalar/scalar/pull/8628): chore: remove unused playgrounds
+
 ## 1.49.7
 
 ### Patch Changes

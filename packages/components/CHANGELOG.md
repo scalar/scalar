@@ -1,5 +1,11 @@
 # @scalar/components
 
+## 0.21.2
+
+### Patch Changes
+
+- [#8630](https://github.com/scalar/scalar/pull/8630): docs: add JSDoc blocks to all components
+
 ## 0.21.1
 
 ## 0.21.0

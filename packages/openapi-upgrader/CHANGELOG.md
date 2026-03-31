@@ -1,5 +1,11 @@
 # @scalar/openapi-upgrader
 
+## 0.2.3
+
+### Patch Changes
+
+- [#8622](https://github.com/scalar/scalar/pull/8622): fix: swagger 2.0 mixed media types for produces & examples
+
 ## 0.2.2
 
 ### Patch Changes
