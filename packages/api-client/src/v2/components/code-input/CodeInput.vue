@@ -142,8 +142,8 @@ const {
 const emit = defineEmits<{
   'update:modelValue': [value: string]
   'submit': [value: string]
-  'blur': [value: string]
   'navigate': [route: { page: 'document'; path: 'environment' }]
+  'blur': [value: string, event: MouseEvent | FocusEvent]
 }>()
 
 // ---------------------------------------------------------------------------
@@ -217,14 +217,14 @@ const handleSubmit = (value: string): void => {
 /**
  * Handles input blur event.
  */
-const handleBlur = (value: string): void => {
+const handleBlur = (value: string, event: MouseEvent | FocusEvent): void => {
   isFocused.value = false
 
   if (emitOnBlur && modelValue) {
     handleSubmit(value)
   }
 
-  emit('blur', value)
+  emit('blur', value, event)
 }
 
 /**

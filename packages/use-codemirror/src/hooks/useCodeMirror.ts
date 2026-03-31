@@ -58,8 +58,8 @@ type BaseParameters = {
   disableCloseBrackets?: MaybeRefOrGetter<boolean | undefined>
   /** Option to lint and show error in the editor */
   lint?: MaybeRefOrGetter<boolean | undefined>
-  onBlur?: (v: string) => void
-  onFocus?: (v: string) => void
+  onBlur?: (v: string, event: FocusEvent) => void
+  onFocus?: (v: string, event: FocusEvent) => void
   placeholder?: MaybeRefOrGetter<string | undefined>
 }
 
@@ -284,8 +284,8 @@ function getCodeMirrorExtensions({
   disableEnter?: boolean
   forceFoldGutter?: boolean
   onChange?: (val: string) => void
-  onFocus?: (val: string) => void
-  onBlur?: (val: string) => void
+  onFocus?: (val: string, event: FocusEvent) => void
+  onBlur?: (val: string, event: FocusEvent) => void
   withoutTheme?: boolean
   provider: Extension | null
   lint?: boolean
@@ -330,11 +330,11 @@ function getCodeMirrorExtensions({
       onChange?.(v.state.doc.toString())
     }),
     EditorView.domEventHandlers({
-      blur: (_event, view) => {
-        onBlur?.(view.state.doc.toString())
+      blur: (event, view) => {
+        onBlur?.(view.state.doc.toString(), event)
       },
-      focus: (_event, view) => {
-        onFocus?.(view.state.doc.toString())
+      focus: (event, view) => {
+        onFocus?.(view.state.doc.toString(), event)
       },
     }),
     // Add Classes

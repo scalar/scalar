@@ -97,6 +97,8 @@ export type OperationEvents = {
     }
     /** Identifies the target operation by original method and path */
     meta: OperationMeta
+    /** The ID of the sidebar item that triggered the blur event */
+    targetSidebarItemId?: string | null
     /** Callback, on completion */
     callback: (status: 'conflict' | 'no-change' | 'success') => void
   }

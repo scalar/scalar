@@ -106,9 +106,11 @@ const hasConflict = computed(() => methodConflict.value || pathConflict.value)
 const emitPathMethodUpdate = (
   targetMethod: HttpMethodType,
   targetPath: string,
+  sidebarItemId?: string | null,
 ): void => {
   eventBus.emit('operation:update:pathMethod', {
     meta: { method, path },
+    sidebarItemId,
     payload: { method: targetMethod, path: targetPath },
     callback: (status) => {
       // Clear conflicts if the operation was successful or no change was made
@@ -134,10 +136,21 @@ const emitPathMethodUpdate = (
 const handleMethodChange = (newMethod: HttpMethodType): void =>
   emitPathMethodUpdate(newMethod, pathConflict.value ?? path)
 
-/** Update the operation's path, handling conflicts */
-const handlePathChange = (newPath: string): void => {
+/** Update the operation's path, handling conflicts also we extract the sidebar item ID from the blur event*/
+const handlePathBlur = (
+  newPath: string,
+  event: MouseEvent | FocusEvent,
+): void => {
+  const relatedTarget = event.relatedTarget as Element | null
+  const sidebarItem = relatedTarget?.closest('[data-sidebar-id]')
+  const sidebarItemId = sidebarItem?.getAttribute('data-sidebar-id')
+
   const normalizedPath = newPath.startsWith('/') ? newPath : `/${newPath}`
-  emitPathMethodUpdate(methodConflict.value ?? method, normalizedPath)
+  emitPathMethodUpdate(
+    methodConflict.value ?? method,
+    normalizedPath,
+    sidebarItemId,
+  )
 }
 
 /** Handle focus events */
@@ -286,7 +299,7 @@ defineExpose({
           :modelValue="path"
           :placeholder="server ? '' : 'Enter a URL'"
           server
-          @blur="handlePathChange"
+          @blur="handlePathBlur"
           @submit="emit('execute')" />
         <div class="fade-right" />
       </div>

@@ -1,6 +1,7 @@
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { OperationExampleMeta, WorkspaceEventBus } from '@scalar/workspace-store/events'
+import type { TraversedEntry } from '@scalar/workspace-store/schemas/navigation'
 import { type ShallowRef, computed } from 'vue'
 import { type NavigationFailure, NavigationFailureType, type Router } from 'vue-router'
 
@@ -13,6 +14,7 @@ export function initializeAppEventHandlers({
   router,
   rebuildSidebar,
   navigateToCurrentTab,
+  getEntryById,
   onSelectSidebarItem,
   onAfterExampleCreation,
   onCopyTabUrl,
@@ -25,6 +27,7 @@ export function initializeAppEventHandlers({
   router: Router
   rebuildSidebar: (documentName?: string) => void
   navigateToCurrentTab: () => Promise<void>
+  getEntryById: (id: string) => TraversedEntry | undefined
   onSelectSidebarItem: (id: string) => void
   onAfterExampleCreation: (o: OperationExampleMeta & { documentName?: string }) => void
   onCopyTabUrl: (tabIndex: number) => void
@@ -92,19 +95,12 @@ export function initializeAppEventHandlers({
           callback: async (status) => {
             // Redirect to the new example if the mutation was successful
             if (status === 'success') {
+              /** If the blur event clicked on a sidebar item we need to handle it */
+              const blurTarget = getEntryById(payload.targetSidebarItemId ?? '')
+              console.log('oldEntry', oldEntry)
+
               // Rebuild the sidebar with the updated order
               rebuildSidebar(store.value?.workspace.activeDocument?.['x-scalar-navigation']?.name)
-
-              /** Tracks if the user is still on the same operation */
-              const isStillOnSameOperation =
-                currentRoute.value?.name === 'example' &&
-                currentRoute.value?.params.pathEncoded === encodeURIComponent(payload.meta.path) &&
-                currentRoute.value?.params.method === payload.meta.method
-
-              // No need to proceed any further if we have navigated away from the operation
-              if (!isStillOnSameOperation) {
-                return
-              }
 
               await router.replace({
                 name: 'example',
