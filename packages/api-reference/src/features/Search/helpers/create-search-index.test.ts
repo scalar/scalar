@@ -4,6 +4,20 @@ import { describe, expect, it } from 'vitest'
 
 import { createSearchIndex } from './create-search-index'
 
+/** Navigation always includes a default Introduction text entry (see workspace-store). */
+const introductionSearchEntry = {
+  type: 'heading',
+  title: 'Introduction',
+  description: 'Heading',
+  body: '',
+  id: 'test/description/introduction',
+  entry: {
+    id: 'test/description/introduction',
+    title: 'Introduction',
+    type: 'text',
+  },
+} as const
+
 function createMockDocument(document: Partial<OpenApiDocument>) {
   const doc = {
     info: {
@@ -33,13 +47,9 @@ describe('createSearchIndex', () => {
 
       const index = createSearchIndex(createMockDocument(document))
 
-      expect(index.length).toEqual(1)
+      expect(index.length).toEqual(2)
 
-      expect(index).toMatchObject([
-        {
-          title: 'Get Users',
-        },
-      ])
+      expect(index).toMatchObject([introductionSearchEntry, { title: 'Get Users' }])
     })
 
     it('adds operation with description and operationId', () => {
@@ -58,6 +68,7 @@ describe('createSearchIndex', () => {
       const index = createSearchIndex(createMockDocument(document))
 
       expect(index).toMatchObject([
+        introductionSearchEntry,
         {
           type: 'operation',
           title: 'Create User',
@@ -83,6 +94,7 @@ describe('createSearchIndex', () => {
       const index = createSearchIndex(createMockDocument(document))
 
       expect(index).toMatchObject([
+        introductionSearchEntry,
         {
           type: 'operation',
           title: 'Delete User',
@@ -114,8 +126,8 @@ describe('createSearchIndex', () => {
 
       const index = createSearchIndex(createMockDocument(document))
 
-      expect(index.length).toEqual(3)
-      expect(index.map((item) => item.title)).toEqual(['Get Users', 'Create User', 'Get Posts'])
+      expect(index.length).toEqual(4)
+      expect(index.map((item) => item.title)).toEqual(['Introduction', 'Get Users', 'Create User', 'Get Posts'])
     })
   })
 
@@ -136,6 +148,7 @@ describe('createSearchIndex', () => {
       )
 
       expect(index).toMatchObject([
+        introductionSearchEntry,
         {
           type: 'heading',
           title: 'Models',
@@ -148,7 +161,7 @@ describe('createSearchIndex', () => {
         },
       ])
 
-      expect(index.length).toEqual(2)
+      expect(index.length).toEqual(3)
     })
 
     it('adds schema without description', () => {
@@ -166,6 +179,7 @@ describe('createSearchIndex', () => {
       )
 
       expect(index).toMatchObject([
+        introductionSearchEntry,
         {
           type: 'heading',
           title: 'Models',
@@ -199,10 +213,11 @@ describe('createSearchIndex', () => {
         }),
       )
 
-      expect(index.length).toEqual(3) // 1 heading + 2 schemas
-      expect(index[0]).toMatchObject({ type: 'heading', title: 'Models' })
-      expect(index[1]).toMatchObject({ title: 'User Model', body: 'A user object' })
-      expect(index[2]).toMatchObject({ title: 'Post Model', body: 'A post object' })
+      expect(index.length).toEqual(4) // Introduction + models heading + 2 schemas
+      expect(index[0]).toMatchObject({ type: 'heading', title: 'Introduction' })
+      expect(index[1]).toMatchObject({ type: 'heading', title: 'Models' })
+      expect(index[2]).toMatchObject({ title: 'User Model', body: 'A user object' })
+      expect(index[3]).toMatchObject({ title: 'Post Model', body: 'A post object' })
     })
   })
 
@@ -221,6 +236,7 @@ describe('createSearchIndex', () => {
       const index = createSearchIndex(document)
 
       expect(index).toMatchObject([
+        introductionSearchEntry,
         {
           type: 'heading',
           title: 'Webhooks',
@@ -234,7 +250,7 @@ describe('createSearchIndex', () => {
         },
       ])
 
-      expect(index.length).toEqual(2)
+      expect(index.length).toEqual(3)
     })
 
     it('adds webhook with description', () => {
@@ -252,6 +268,7 @@ describe('createSearchIndex', () => {
       const index = createSearchIndex(createMockDocument(document))
 
       expect(index).toMatchObject([
+        introductionSearchEntry,
         {
           type: 'heading',
           title: 'Webhooks',
@@ -281,6 +298,7 @@ describe('createSearchIndex', () => {
       const index = createSearchIndex(createMockDocument(document))
 
       expect(index).toMatchObject([
+        introductionSearchEntry,
         {
           type: 'heading',
           title: 'Webhooks',
@@ -490,8 +508,8 @@ describe('createSearchIndex', () => {
       expect(schemaEntry).toBeDefined()
       expect(webhookEntry).toBeDefined()
 
-      // 1 operation + 1 schema + 1 webhook + 1 models heading + 1 webhooks heading
-      expect(index.length).toEqual(5)
+      // Introduction + 1 operation + 1 schema + 1 webhook + models heading + webhooks heading
+      expect(index.length).toEqual(6)
     })
   })
 
@@ -532,9 +550,10 @@ describe('createSearchIndex', () => {
   })
 
   describe('edge cases', () => {
-    it('handles empty entries array', () => {
+    it('indexes default Introduction when the document has no operations or models', () => {
       const index = createSearchIndex(createMockDocument({}))
-      expect(index).toEqual([])
+      expect(index).toHaveLength(1)
+      expect(index[0]).toMatchObject(introductionSearchEntry)
     })
 
     it('handles entries with missing properties', () => {
@@ -549,8 +568,8 @@ describe('createSearchIndex', () => {
       })
 
       const index = createSearchIndex(document)
-      expect(index.length).toEqual(1)
-      expect(index[0]).toMatchObject({
+      expect(index.length).toEqual(2)
+      expect(index[1]).toMatchObject({
         type: 'operation',
         title: '/test',
         description: '',
