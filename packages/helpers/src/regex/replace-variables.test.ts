@@ -52,9 +52,7 @@ describe('replaceEnvVariables', () => {
     const replace = (key: string): string | null =>
       key === '$guid' ? '550e8400-e29b-41d4-a716-446655440000' : key === 'name' ? 'Ada' : null
 
-    expect(replaceEnvVariables(path, replace)).toBe(
-      '550e8400-e29b-41d4-a716-446655440000/Ada',
-    )
+    expect(replaceEnvVariables(path, replace)).toBe('550e8400-e29b-41d4-a716-446655440000/Ada')
   })
 
   it('leaves the original placeholder when the callback returns null', () => {
