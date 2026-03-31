@@ -1,8 +1,7 @@
-import type { OpenAPI } from '@scalar/openapi-types'
-import { isDereferenced } from '@scalar/openapi-types/helpers'
 import { type NodeInput, getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { MediaTypeObject } from '@scalar/workspace-store/schemas/v3.1/strict/media-type'
 import type {
+  OpenApiDocument,
   OperationObject,
   ParameterObject,
   SchemaObject,
@@ -122,11 +121,18 @@ export function deepMerge(source: Record<any, any>, target: Record<any, any>) {
 }
 
 /**
+ * Type guard to check whether a node is a dereferenced OpenAPI reference.
+ */
+const isDereferenced = <T>(obj: T | { $ref: string }): obj is T =>
+  typeof obj === 'object' && obj !== null && !('$ref' in obj && typeof obj.$ref === 'string')
+
+/**
  * Creates an empty specification object.
  * The returning object has the same structure as a valid OpenAPI specification, but everything is empty.
  */
-export function createEmptySpecification(partialSpecification?: Partial<OpenAPI.Document>) {
+export function createEmptySpecification(partialSpecification?: Partial<OpenApiDocument>) {
   return deepMerge(partialSpecification ?? {}, {
+    openapi: '3.1.0',
     info: {
       title: '',
       description: '',
@@ -142,7 +148,7 @@ export function createEmptySpecification(partialSpecification?: Partial<OpenAPI.
     },
     servers: [],
     tags: [],
-  }) as OpenAPI.Document
+  }) as OpenApiDocument
 }
 
 export type ParameterMap = {
@@ -209,9 +215,9 @@ export function createParameterMap(operation: OperationObject) {
         map.header.push(parameter)
       } else if (parameter.in === 'cookie') {
         map.cookie.push(parameter)
-      } else if (parameter.in === 'body') {
+      } else if ((parameter as { in?: string }).in === 'body') {
         map.body.push(parameter)
-      } else if (parameter.in === 'formData') {
+      } else if ((parameter as { in?: string }).in === 'formData') {
         map.formData.push(parameter)
       }
     })

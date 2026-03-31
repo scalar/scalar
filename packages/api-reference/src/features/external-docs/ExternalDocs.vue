@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { ScalarIconBook } from '@scalar/icons'
-import { type OpenAPIV3_1 } from '@scalar/openapi-types'
+import type { ExternalDocumentationObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
 defineProps<{
-  value?: OpenAPIV3_1.ExternalDocumentationObject
+  value?: ExternalDocumentationObject
 }>()
 </script>
 

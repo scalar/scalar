@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { cva } from '@scalar/components'
 import { ScalarIconEnvelopeSimple } from '@scalar/icons'
-import { type OpenAPIV3_1 } from '@scalar/openapi-types'
+import type { ContactObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
 const variants = cva({
   base: 'text-c-1 mr-2 flex min-h-7 min-w-7 items-center rounded-lg border px-2 py-1 group-last:mr-0 xl:border-none',
@@ -13,7 +13,7 @@ const variants = cva({
 })
 
 defineProps<{
-  value?: OpenAPIV3_1.ContactObject
+  value?: ContactObject
 }>()
 </script>
 
