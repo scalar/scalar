@@ -1,5 +1,11 @@
 # @scalar/aspire
 
+## 0.9.18
+
+### Patch Changes
+
+- [#8621](https://github.com/scalar/scalar/pull/8621): fix(aspire): respect document routePattern overrides for custom OpenAPI paths in WithApiReference configurations
+
 ## 0.9.17
 
 ## 0.9.16
