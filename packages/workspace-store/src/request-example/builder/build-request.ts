@@ -17,7 +17,7 @@ export const buildRequest = (
 ) => {
   const replace = (value: string): string | null => {
     if (isContextFunctionName(value)) {
-      return contextFunctions[value]() ?? null
+      return contextFunctions[value].fn() ?? null
     }
     return options.envVariables[value] ?? null
   }

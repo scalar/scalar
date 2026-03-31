@@ -47,6 +47,7 @@ import {
 } from '@scalar/use-codemirror'
 import {
   CONTEXT_FUNCTION_NAMES,
+  getContextFunctionComment,
   isContextFunctionName,
 } from '@scalar/workspace-store/request-example'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
@@ -258,12 +259,10 @@ const buildExtensions = (): Extension[] => {
 /**
  * Reactive pill plugin for environment variable visualization.
  */
-const CONTEXT_FUNCTION_DROPDOWN_HINT = 'Generated when you send the request'
-
 const contextFunctionDropdownItems = computed(() =>
   CONTEXT_FUNCTION_NAMES.map((key) => ({
     key,
-    description: CONTEXT_FUNCTION_DROPDOWN_HINT,
+    description: getContextFunctionComment(key),
   })),
 )
 
