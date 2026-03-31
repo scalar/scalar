@@ -240,5 +240,44 @@ catalogs:
         await fs.rm(tmpDir, { recursive: true, force: true })
       }
     })
+
+    it('skips pnpm engine version', async () => {
+      const tmpDir = await fs.mkdtemp(path.join('/tmp', 'pin-versions-test-'))
+
+      try {
+        const pkgPath = path.join(tmpDir, 'package.json')
+        await fs.writeFile(
+          pkgPath,
+          JSON.stringify(
+            {
+              name: 'test-package',
+              version: '1.0.0',
+              engines: {
+                pnpm: '^10.0.0',
+                node: '^20.0.0',
+              },
+              dependencies: {
+                foo: '^1.0.0',
+              },
+            },
+            null,
+            2,
+          ) + '\n',
+        )
+
+        const result = await pinAllVersions(tmpDir, false)
+
+        // Should change foo and node, but not pnpm
+        expect(result.totalChanges).toBe(2)
+
+        const content = await fs.readFile(pkgPath, 'utf8')
+        const pkg = JSON.parse(content)
+        expect(pkg.engines.pnpm).toBe('^10.0.0')
+        expect(pkg.engines.node).toBe('20.0.0')
+        expect(pkg.dependencies.foo).toBe('1.0.0')
+      } finally {
+        await fs.rm(tmpDir, { recursive: true, force: true })
+      }
+    })
   })
 })

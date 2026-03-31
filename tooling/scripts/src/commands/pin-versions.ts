@@ -6,9 +6,9 @@ import { Command } from 'commander'
 
 import { getWorkspaceRoot } from '@/helpers'
 
-const command = new Command('pin-versions')
+export const pinVersions = new Command('pin-versions')
 
-command
+pinVersions
   .description('Pin all dependencies to exact versions (remove ^ and ~)')
   .option('--check', 'Check if any version ranges exist without modifying files')
   .action(async (options) => {
@@ -29,8 +29,6 @@ command
       }
     }
   })
-
-export default command
 
 // ---------------------------------------------------------------------------
 
@@ -158,9 +156,12 @@ async function processPackageJson(filePath: string, checkOnly: boolean): Promise
     }
   })
 
-  // Also check engines
+  // Also check engines (but skip pnpm - we want to allow pnpm version ranges)
   if (pkg.engines) {
     Object.keys(pkg.engines).forEach((engine) => {
+      // Skip pnpm engine version
+      if (engine === 'pnpm') return
+
       const oldValue = pkg.engines[engine]
       const newValue = pinVersion(oldValue)
 

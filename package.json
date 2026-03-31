@@ -4,7 +4,7 @@
   "version": "1.0.0",
   "private": true,
   "engines": {
-    "pnpm": "10.16.1"
+    "pnpm": "^10.16.1"
   },
   "packageManager": "pnpm@10.16.1",
   "pnpm": {
