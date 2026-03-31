@@ -1,11 +1,8 @@
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
-import type { OperationObject, ParameterObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import { getExampleFromSchema } from '@v2/blocks/operation-code-sample/helpers/get-example-from-schema'
-import type { Request as HarRequest } from 'har-format'
-
-import { deSerializeParameter } from '@/v2/blocks/operation-block/helpers/de-serialize-parameter'
-import { getExample } from '@/v2/blocks/operation-block/helpers/get-example'
 import {
+  deSerializeParameter,
+  getExample,
+  getExampleFromSchema,
   serializeContentValue,
   serializeDeepObjectStyle,
   serializeFormStyle,
@@ -13,7 +10,10 @@ import {
   serializePipeDelimitedStyle,
   serializeSimpleStyle,
   serializeSpaceDelimitedStyle,
-} from '@/v2/blocks/operation-block/helpers/serialize-parameter'
+} from '@scalar/workspace-store/request-example'
+import type { OperationObject, ParameterObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { Request as HarRequest } from 'har-format'
+
 import { isParamDisabled } from '@/v2/blocks/request-block/helpers/is-param-disabled'
 
 type ProcessedParameters = {

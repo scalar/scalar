@@ -1,15 +1,15 @@
 import type { SecurityScheme } from '@scalar/types/entities'
 import { createAuthStore } from '@scalar/workspace-store/entities/auth'
-import type { SecuritySchemeObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import { describe, expect, it } from 'vitest'
-
-import { type ConfigAuthScheme, extractSecuritySchemeSecrets } from './extract-security-scheme-secrets'
 import type {
   ApiKeyObjectSecret,
   HttpObjectSecret,
   OAuth2ObjectSecret,
   OpenIdConnectObjectSecret,
-} from './secret-types'
+} from '@scalar/workspace-store/request-example'
+import type { SecuritySchemeObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import { describe, expect, it } from 'vitest'
+
+import { type ConfigAuthScheme, extractSecuritySchemeSecrets } from './extract-security-scheme-secrets'
 
 describe('extractSecuritySchemeSecrets', () => {
   const documentSlug = 'test-document'

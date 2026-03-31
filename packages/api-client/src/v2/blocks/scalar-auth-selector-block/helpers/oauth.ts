@@ -1,12 +1,13 @@
+import { replaceEnvVariables, replacePathVariables } from '@scalar/helpers/regex/replace-variables'
 import { isRelativePath } from '@scalar/helpers/url/is-relative-path'
 import { makeUrlAbsolute } from '@scalar/helpers/url/make-url-absolute'
 import { shouldUseProxy } from '@scalar/helpers/url/redirect-to-proxy'
+import type { OAuthFlowsObjectSecret } from '@scalar/workspace-store/request-example'
+import { getServerVariables } from '@scalar/workspace-store/request-example'
 import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { encode, fromUint8Array } from 'js-base64'
 
 import type { ErrorResponse } from '@/libs/errors'
-import { getServerUrl } from '@/v2/blocks/operation-block/helpers/get-server-url'
-import type { OAuthFlowsObjectSecret } from '@/v2/blocks/scalar-auth-selector-block/helpers/secret-types'
 
 /** Oauth2 security schemes which are not implicit */
 type NonImplicitFlows = Omit<OAuthFlowsObjectSecret, 'implicit'>
@@ -20,6 +21,13 @@ type PKCEState = {
 export type OAuth2Tokens = {
   accessToken: string
   refreshToken?: string
+}
+
+const getServerUrl = (activeServer: ServerObject | null, environmentVariables: Record<string, string> = {}) => {
+  return replaceEnvVariables(
+    replacePathVariables(activeServer?.url ?? '', getServerVariables(activeServer)),
+    environmentVariables,
+  )
 }
 
 const getActiveServerBase = (activeServer: ServerObject | null, environmentVariables: Record<string, string> = {}) => {

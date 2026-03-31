@@ -1,5 +1,6 @@
 import type { HttpMethod as HttpMethodType } from '@scalar/helpers/http/http-methods'
 import type { AvailableClient } from '@scalar/types/snippetz'
+import type { SecuritySchemeObjectSecret } from '@scalar/workspace-store/request-example'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import type { OperationObject, ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
@@ -7,7 +8,6 @@ import { enableAutoUnmount, mount } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { nextTick, ref } from 'vue'
 
-import type { SecuritySchemeObjectSecret } from '@/v2/blocks/scalar-auth-selector-block'
 import { mockEventBus } from '@/v2/helpers/test-utils'
 
 import type { ClientOptionGroup } from '../types'
@@ -512,10 +512,7 @@ describe('RequestExample', () => {
                           type: 'object',
                           properties: {
                             name: {
-                              $ref: '#/components/properties/name',
-                              '$ref-value': {
-                                default: 'The greatest name of all',
-                              },
+                              default: 'The greatest name of all',
                             },
                           },
                         },

@@ -1,40 +1,51 @@
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
+import {
+  buildRequest,
+  getEnvironmentVariables,
+  getRequestExampleContext,
+  requestFactory,
+} from '@scalar/workspace-store/request-example'
 
-import { buildRequest } from '@/v2/blocks/operation-block/helpers/build-request'
 import { sendRequest } from '@/v2/blocks/operation-block/helpers/send-request'
 
 const workspaceStore = createWorkspaceStore({
   plugins: [],
 })
 
-workspaceStore.addDocument({
+void workspaceStore.addDocument({
   name: 'galaxy',
   url: 'https://galaxy.scalar.com/openapi.json',
 })
 
-const operation = workspaceStore?.workspace?.documents?.['galaxy']?.paths?.['/planets']?.['get']
+const context = getRequestExampleContext(workspaceStore, 'galaxy', {
+  path: '/planets',
+  method: 'get',
+  exampleName: 'example',
+})
 
-if (!operation) throw new Error('Operation not found')
+if (context.ok === false) {
+  throw new Error(context.error)
+}
 
-const [error, built] = buildRequest({
-  'environment': {
-    color: 'red',
-    description: '',
-    'variables': [] as any,
-  },
-  'method': 'get',
-  'path': '/planets',
-  'operation': operation,
-  'globalCookies': [],
-  /** The proxy URL for cookie domain determination */
+const { request: requestBuilder } = requestFactory({
+  isElectron: false,
+  defaultHeaders: context.data.headers.default,
+  environment: context.data.environment.environment,
+  exampleName: 'example',
+  globalCookies: [],
+  method: 'get',
+  operation: context.data.operation,
+  path: '/planets',
   proxyUrl: 'https://proxy.scalar.com',
-  /** The server object */
   server: null,
-  exampleKey: 'example',
-  /** The selected security schemes for the current operation */
   selectedSecuritySchemes: [],
 })
 
-if (error) throw error
+const { request, isUsingProxy } = buildRequest(requestBuilder, {
+  envVariables: getEnvironmentVariables(context.data.environment.environment),
+})
 
-void sendRequest({ request: built.request, operation, isUsingProxy: built.isUsingProxy, plugins: [] })
+void sendRequest({
+  request,
+  isUsingProxy,
+})

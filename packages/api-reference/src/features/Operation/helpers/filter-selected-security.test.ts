@@ -1,4 +1,4 @@
-import type { MergedSecuritySchemes } from '@scalar/api-client/v2/blocks/scalar-auth-selector-block'
+import type { MergedSecuritySchemes } from '@scalar/workspace-store/request-example'
 import type {
   OpenApiDocument,
   OperationObject,

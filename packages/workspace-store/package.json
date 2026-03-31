@@ -79,6 +79,11 @@
       "types": "./dist/plugins/client/index.d.ts",
       "default": "./dist/plugins/client/index.js"
     },
+    "./request-example": {
+      "import": "./dist/request-example/index.js",
+      "types": "./dist/request-example/index.d.ts",
+      "default": "./dist/request-example/index.js"
+    },
     "./resolve": {
       "import": "./dist/resolve.js",
       "types": "./dist/resolve.d.ts",
@@ -148,6 +153,7 @@
     "@scalar/typebox": "catalog:*",
     "@scalar/types": "workspace:*",
     "github-slugger": "catalog:*",
+    "js-base64": "catalog:*",
     "type-fest": "catalog:*",
     "vue": "catalog:*",
     "yaml": "catalog:*",

@@ -19,14 +19,12 @@ export default {
 export type OperationBlockProps = {
   /** Event bus */
   eventBus: WorkspaceEventBus
-  /** Document defined security */
-  documentSecurity: OpenApiDocument['security']
-  /** Document selected security */
-  documentSelectedSecurity: SelectedSecurity | undefined
   /** Application version */
   appVersion: string
-  /** Workspace/document cookies */
-  globalCookies: ExtendedScalarCookie[]
+  /** Workspace cookies */
+  workspaceCookies: XScalarCookie[]
+  /** Document cookies */
+  documentCookies: XScalarCookie[]
   /** Current request path */
   path: string
   /** Current request method */
@@ -55,8 +53,6 @@ export type OperationBlockProps = {
   source?: 'gitbook' | 'api-reference'
   /** Operation object */
   operation: OperationObject
-  /** Operation selected security */
-  operationSelectedSecurity: SelectedSecurity | undefined
   /** Currently selected example key for the current operation */
   exampleKey: string
   /** Meta information for the auth update */
@@ -73,6 +69,14 @@ export type OperationBlockProps = {
   environment: XScalarEnvironment
   /** The proxy URL for sending requests */
   proxyUrl: string
+  /** Currently selected security */
+  selectedSecurity: SelectedSecurity
+  /** Currently selected security schemes */
+  selectedSecuritySchemes: SecuritySchemeObjectSecret[]
+  /** Security requirements */
+  securityRequirements: OpenApiDocument['security']
+  /** Default headers */
+  defaultHeaders: Record<string, string>
   /** Selected anyOf/oneOf request-body variants keyed by schema path */
   requestBodyCompositionSelection?: Record<string, number>
 }
@@ -80,7 +84,7 @@ export type OperationBlockProps = {
 <script setup lang="ts">
 import type { HttpMethod as HttpMethodType } from '@scalar/helpers/http/http-methods'
 import type { ResponseInstance } from '@scalar/oas-utils/entities/spec'
-import { type ClientPlugin } from '@scalar/oas-utils/helpers'
+import { executeHook, type ClientPlugin } from '@scalar/oas-utils/helpers'
 import {
   AVAILABLE_CLIENTS,
   type AvailableClients,
@@ -94,7 +98,15 @@ import type {
   ServerMeta,
   WorkspaceEventBus,
 } from '@scalar/workspace-store/events'
+import {
+  buildRequest,
+  getEnvironmentVariables,
+  requestFactory,
+  type MergedSecuritySchemes,
+  type SecuritySchemeObjectSecret,
+} from '@scalar/workspace-store/request-example'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
+import type { XScalarCookie } from '@scalar/workspace-store/schemas/extensions/general/x-scalar-cookies'
 import type {
   OpenApiDocument,
   ServerObject,
@@ -105,9 +117,8 @@ import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import ViewLayout from '@/components/ViewLayout/ViewLayout.vue'
 import ViewLayoutContent from '@/components/ViewLayout/ViewLayoutContent.vue'
 import type { ClientLayout } from '@/hooks'
+import { isElectron } from '@/libs/electron'
 import { ERRORS } from '@/libs/errors'
-import { buildRequest } from '@/v2/blocks/operation-block/helpers/build-request'
-import { getSecuritySchemes } from '@/v2/blocks/operation-block/helpers/build-request-security'
 import { harToFetchRequest } from '@/v2/blocks/operation-block/helpers/har-to-fetch-request'
 import { harToFetchResponse } from '@/v2/blocks/operation-block/helpers/har-to-fetch-response'
 import {
@@ -119,31 +130,23 @@ import { sendRequest } from '@/v2/blocks/operation-block/helpers/send-request'
 import { validatePathParameters } from '@/v2/blocks/operation-block/helpers/validate-path-parameters'
 import { generateClientOptions } from '@/v2/blocks/operation-code-sample'
 import { RequestBlock } from '@/v2/blocks/request-block'
-import type { ExtendedScalarCookie } from '@/v2/blocks/request-block/RequestBlock.vue'
 import { ResponseBlock } from '@/v2/blocks/response-block'
 import { type History } from '@/v2/blocks/scalar-address-bar-block'
-import type { MergedSecuritySchemes } from '@/v2/blocks/scalar-auth-selector-block/helpers/merge-security'
-import {
-  getSecurityRequirements,
-  getSelectedSecurity,
-} from '@/v2/features/operation'
 
 import Header from './components/Header.vue'
 
 const {
   authMeta,
   environment,
-  documentSecurity,
-  documentSelectedSecurity,
   eventBus,
   exampleKey,
-  globalCookies = [],
+  workspaceCookies = [],
+  documentCookies = [],
   hideClientButton,
   httpClients = AVAILABLE_CLIENTS,
   history = [],
   method,
   operation,
-  operationSelectedSecurity,
   path,
   plugins = [],
   proxyUrl,
@@ -154,30 +157,14 @@ const {
   environments,
   activeEnvironment,
   serverMeta,
+  selectedSecurity,
+  selectedSecuritySchemes,
+  securityRequirements,
+  defaultHeaders,
 } = defineProps<OperationBlockProps>()
 
 /** Hoist up client generation so it doesn't get re-generated on every operation */
 const clientOptions = computed(() => generateClientOptions(httpClients))
-
-/** Compute what the security requirements should be for an operation */
-const securityRequirements = computed(() =>
-  getSecurityRequirements(documentSecurity, operation.security),
-)
-
-/** The selected security for the operation or document */
-const selectedSecurity = computed(() =>
-  getSelectedSecurity(
-    documentSelectedSecurity,
-    operationSelectedSecurity,
-    securityRequirements.value,
-    securitySchemes,
-  ),
-)
-
-/** The above selected requirements in scheme form */
-const selectedSecuritySchemes = computed(() =>
-  getSecuritySchemes(securitySchemes, selectedSecurity.value.selectedSchemes),
-)
 
 const { toast } = useToasts()
 
@@ -200,32 +187,53 @@ const handleExecute = async () => {
     return
   }
 
-  const [error, result] = buildRequest({
+  const globalCookies = [...workspaceCookies, ...documentCookies]
+
+  const { request: requestBuilder } = requestFactory({
+    defaultHeaders,
     environment,
-    exampleKey,
+    exampleName: exampleKey,
     globalCookies,
     method,
     operation,
     path,
-    selectedSecuritySchemes: selectedSecuritySchemes.value,
-    server,
     proxyUrl,
+    server,
+    selectedSecuritySchemes,
+    isElectron: isElectron(),
     requestBodyCompositionSelection,
   })
-
-  // Toast the error
-  if (error) {
-    toast(error.message, 'error')
-    return
-  }
-
-  // Store the abort controller for cancellation
-  abortController.value = result.controller
 
   // Stop any previous streaming response
   if (response.value && 'reader' in response.value) {
     response.value.reader.cancel()
   }
+
+  // Build the actual request we will send
+  const requestResult = (() => {
+    try {
+      return {
+        ok: true,
+        result: buildRequest(requestBuilder, {
+          envVariables: getEnvironmentVariables(environment),
+        }),
+      } as const
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error)
+      return {
+        ok: false,
+        error: message,
+      } as const
+    }
+  })()
+
+  if (requestResult.ok === false) {
+    toast(requestResult.error, 'error')
+    return
+  }
+
+  // Store the abort controller for cancellation
+  abortController.value = requestResult.result.controller
 
   // Execute the hooks
   eventBus.emit('hooks:on:request:sent', {
@@ -236,19 +244,37 @@ const handleExecute = async () => {
     },
   })
 
+  // Execute the beforeRequest hook
+  const { request: finalRequest } = await executeHook(
+    { request: requestResult.result.request },
+    'beforeRequest',
+    plugins,
+  )
+
   /** Execute the request */
   const [sendError, sendResult] = await sendRequest({
-    isUsingProxy: result.isUsingProxy,
-    operation,
-    plugins,
-    request: result.request,
+    isUsingProxy: requestResult.result.isUsingProxy,
+    request: finalRequest,
   })
+
+  if (sendResult) {
+    // Execute the responseReceived hook
+    await executeHook(
+      {
+        response: sendResult.originalResponse.clone(),
+        request: sendResult.request.clone(),
+        operation,
+      },
+      'responseReceived',
+      plugins,
+    )
+  }
 
   // Execute the hooks
   eventBus.emit('hooks:on:request:complete', {
     payload: sendResult
       ? {
-          response: sendResult.originalResponse,
+          response: sendResult.originalResponse.clone(),
           request: sendResult.request.clone(),
           duration: sendResult.response.duration,
           timestamp: sendResult.timestamp,
@@ -261,8 +287,12 @@ const handleExecute = async () => {
     },
   })
 
-  // Toast the execute error
   if (sendError) {
+    // clean up the response and request
+    response.value = null
+    request.value = null
+    abortController.value = null
+
     toast(sendError.message, 'error')
     return
   }
@@ -409,10 +439,11 @@ onBeforeUnmount(() => {
         <RequestBlock
           :authMeta
           :clientOptions
+          :defaultHeaders
+          :documentCookies
           :environment
           :eventBus
           :exampleKey
-          :globalCookies
           :layout
           :method
           :operation
@@ -425,7 +456,8 @@ onBeforeUnmount(() => {
           :selectedClient
           :selectedSecurity
           :selectedSecuritySchemes
-          :server />
+          :server
+          :workspaceCookies />
 
         <!-- Response Section -->
         <ResponseBlock

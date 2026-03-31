@@ -19,7 +19,6 @@ import { extensions } from '@scalar/workspace-store/schemas/extensions'
 import { computed, toValue } from 'vue'
 import { RouterView } from 'vue-router'
 
-import { mergeSecurity } from '@/v2/blocks/scalar-auth-selector-block'
 import { SidebarToggle } from '@/v2/components/sidebar'
 import CreateWorkspaceModal from '@/v2/features/app/components/CreateWorkspaceModal.vue'
 import SplashScreen from '@/v2/features/app/components/SplashScreen.vue'
@@ -134,16 +133,6 @@ const createWorkspaceModalState = useModal()
 
 /** Props to pass to the RouterView component. */
 const routerViewProps = computed<RouteProps>(() => {
-  /** Ensure we have the auth store */
-  const securitySchemes = app.store.value?.auth
-    ? mergeSecurity(
-        app.document.value?.components?.securitySchemes ?? {},
-        {},
-        app.store.value.auth,
-        app.activeEntities.documentSlug.value ?? '',
-      )
-    : {}
-
   return {
     documentSlug: app.activeEntities.documentSlug.value ?? '',
     document: app.store.value?.workspace.activeDocument ?? null,
@@ -157,7 +146,6 @@ const routerViewProps = computed<RouteProps>(() => {
     workspaceStore: app.store.value!,
     activeWorkspace: app.workspace.activeWorkspace.value!,
     plugins,
-    securitySchemes,
     isDarkMode: app.isDarkMode.value,
     currentTheme: app.theme.styles.value.themeStyles,
     customThemes: toValue(app.theme.customThemes),

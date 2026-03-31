@@ -16,6 +16,7 @@ import { generateUniqueValue } from '@scalar/workspace-store/helpers/generate-un
 import { getParentEntry } from '@scalar/workspace-store/navigation'
 import { createWorkspaceStorePersistence, getWorkspaceId } from '@scalar/workspace-store/persistence'
 import { persistencePlugin } from '@scalar/workspace-store/plugins/client'
+import { getActiveEnvironment } from '@scalar/workspace-store/request-example'
 import type { Workspace, WorkspaceDocument } from '@scalar/workspace-store/schemas'
 import { extensions } from '@scalar/workspace-store/schemas/extensions'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
@@ -37,7 +38,6 @@ import type { RouteLocationNormalizedGeneric, RouteLocationRaw, Router } from 'v
 import { getRouteParam } from '@/v2/features/app/helpers/get-route-param'
 import { groupWorkspacesByTeam } from '@/v2/features/app/helpers/group-workspaces'
 import { useTheme } from '@/v2/features/app/hooks/use-theme'
-import { getActiveEnvironment } from '@/v2/helpers/get-active-environment'
 import { getTabDetails } from '@/v2/helpers/get-tab-details'
 import { slugify } from '@/v2/helpers/slugify'
 import { workspaceStorage } from '@/v2/helpers/storage'
@@ -238,7 +238,9 @@ export const createAppState = async ({
    * Variables from both sources are combined, with document variables
    * taking precedence in case of naming conflicts.
    */
-  const environment = computed<XScalarEnvironment>(() => getActiveEnvironment(store.value, activeDocument.value))
+  const environment = computed<XScalarEnvironment>(
+    () => getActiveEnvironment(store.value, activeDocument.value).environment,
+  )
 
   /** Update the workspace list when the component is mounted */
   workspaces.value = await persistence.getAll().then((w) =>

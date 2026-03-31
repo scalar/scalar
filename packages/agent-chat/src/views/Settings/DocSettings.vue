@@ -1,6 +1,9 @@
 <script setup lang="ts">
-import { getSelectedServer } from '@scalar/api-client/v2/features/operation'
-import { getActiveEnvironment, getServers } from '@scalar/api-client/v2/helpers'
+import {
+  getActiveEnvironment,
+  getSelectedServer,
+  getServers,
+} from '@scalar/workspace-store/request-example'
 import { type WorkspaceDocument } from '@scalar/workspace-store/schemas/workspace'
 import { computed } from 'vue'
 
@@ -15,8 +18,8 @@ const { document, name } = defineProps<{
 
 const { workspaceStore, config, eventBus } = useState()
 
-const environment = computed(() =>
-  getActiveEnvironment(workspaceStore, document),
+const environment = computed(
+  () => getActiveEnvironment(workspaceStore, document).environment,
 )
 
 const selectedServer = computed(() => {
@@ -24,7 +27,7 @@ const selectedServer = computed(() => {
     documentUrl: document['x-scalar-original-source-url'],
   })
 
-  return getSelectedServer(servers, document['x-scalar-selected-server'])
+  return getSelectedServer(document, null, null, servers)
 })
 
 const securitySchemes = computed(

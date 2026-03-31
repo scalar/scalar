@@ -9,6 +9,10 @@ import type {
   WorkspaceEventBus,
 } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import type {
+  MergedSecuritySchemes,
+  SecuritySchemeObjectSecret,
+} from '@scalar/workspace-store/request-example'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type {
   ApiKeyObject,
@@ -17,8 +21,6 @@ import type {
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { capitalize, computed, ref } from 'vue'
 
-import type { MergedSecuritySchemes } from '@/v2/blocks/scalar-auth-selector-block'
-import type { SecuritySchemeObjectSecret } from '@/v2/blocks/scalar-auth-selector-block/helpers/secret-types'
 import { DataTableCell, DataTableRow } from '@/v2/components/data-table'
 
 import OAuth2 from './OAuth2.vue'
