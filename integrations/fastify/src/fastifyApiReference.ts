@@ -177,7 +177,6 @@ const fastifyApiReference = fp<
 
     // With ignoreTrailingSlash: true, fastify responds to both routes anyway.
     const ignoreTrailingSlash =
-      // @ts-expect-error We're still on Fastify 4, this is introduced in Fastify 5
       fastify.initialConfig?.routerOptions?.ignoreTrailingSlash === true ||
       fastify.initialConfig?.ignoreTrailingSlash === true
 

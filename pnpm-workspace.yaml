@@ -14,9 +14,9 @@ packages:
 catalogs:
   '*':
     '@ai-sdk/vue': 3.0.33
-    '@fastify/basic-auth': 5.1.1
-    '@fastify/http-proxy': 9.5.0
-    '@fastify/swagger': 8.10.1
+    '@fastify/basic-auth': 6.2.0
+    '@fastify/http-proxy': 11.4.3
+    '@fastify/swagger': 9.7.0
     '@floating-ui/utils': 0.2.10
     '@floating-ui/vue': 1.1.9
     '@google-cloud/storage': 7.16.0
