@@ -209,15 +209,6 @@ const handleExecute = async () => {
     response.value.reader.cancel()
   }
 
-  // Execute the hooks
-  eventBus.emit('hooks:on:request:sent', {
-    meta: {
-      method,
-      path,
-      exampleKey,
-    },
-  })
-
   // Build the actual request we will send
   const requestResult = (() => {
     try {
@@ -243,6 +234,15 @@ const handleExecute = async () => {
 
   // Store the abort controller for cancellation
   abortController.value = requestResult.result.controller
+
+  // Execute the hooks
+  eventBus.emit('hooks:on:request:sent', {
+    meta: {
+      method,
+      path,
+      exampleKey,
+    },
+  })
 
   // Execute the beforeRequest hook
   const { request: finalRequest } = await executeHook(
