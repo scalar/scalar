@@ -362,7 +362,7 @@
     "@types/har-format": "1.2.15",
     "@vueuse/core": "catalog:*",
     "@vueuse/integrations": "catalog:*",
-    "focus-trap": "7",
+    "focus-trap": "7.6.2",
     "fuse.js": "catalog:*",
     "js-base64": "catalog:*",
     "microdiff": "catalog:*",

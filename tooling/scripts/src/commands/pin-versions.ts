@@ -3,6 +3,8 @@ import path from 'node:path'
 
 import as from 'ansis'
 import { Command } from 'commander'
+import semver from 'semver'
+import yaml from 'yaml'
 
 import { getWorkspaceRoot } from '@/helpers'
 
@@ -45,19 +47,22 @@ type PinResult = {
   changesByFile: Map<string, Change[]>
 }
 
+type ResolvedVersionsByImporter = Map<string, Map<string, string>>
+
 /**
  * Pin all dependencies to exact versions across the monorepo
  */
 export async function pinAllVersions(root: string, checkOnly = false): Promise<PinResult> {
   const changesByFile = new Map<string, Change[]>()
   let totalChanges = 0
+  const resolvedVersionsByImporter = await loadResolvedVersionsByImporter(root)
 
   // Find all package.json files
   const packageJsonFiles = await findPackageJsonFiles(root)
 
   // Process all package.json files
   for (const filePath of packageJsonFiles) {
-    const changes = await processPackageJson(filePath, checkOnly)
+    const changes = await processPackageJson(filePath, checkOnly, root, resolvedVersionsByImporter)
     if (changes.length > 0) {
       changesByFile.set(filePath, changes)
       totalChanges += changes.length
@@ -105,9 +110,10 @@ async function findPackageJsonFiles(dir: string): Promise<string[]> {
 }
 
 /**
- * Pin version by removing ^ and ~ prefixes
+ * Pin version by removing ^ and ~ prefixes.
+ * For shorthand ranges like "^7", use the resolved lockfile version when available.
  */
-export function pinVersion(version: string): string {
+export function pinVersion(version: string, resolvedVersion?: string): string {
   if (typeof version !== 'string') return version
 
   // Skip workspace:*, catalog:*, npm:*, github:, git:, file:, link:, and exact versions
@@ -126,17 +132,31 @@ export function pinVersion(version: string): string {
     return version
   }
 
-  // Remove ^ and ~ prefixes
-  return version.replace(/^[\^~]/, '')
+  // Remove ^ and ~ prefixes only when that produces an exact version.
+  // For example, "^7" -> "7" is still a semver range, not a pin.
+  const candidate = version.replace(/^[\^~]/, '')
+  if (semver.valid(candidate)) {
+    return candidate
+  }
+
+  const normalizedResolvedVersion = normalizeResolvedVersion(resolvedVersion)
+  return normalizedResolvedVersion ?? version
 }
 
 /**
  * Process a package.json file
  */
-async function processPackageJson(filePath: string, checkOnly: boolean): Promise<Change[]> {
+async function processPackageJson(
+  filePath: string,
+  checkOnly: boolean,
+  root: string,
+  resolvedVersionsByImporter: ResolvedVersionsByImporter,
+): Promise<Change[]> {
   const content = await fs.readFile(filePath, 'utf8')
   const pkg = JSON.parse(content)
   const changes: Change[] = []
+  const importerKey = getImporterKey(filePath, root)
+  const resolvedVersions = resolvedVersionsByImporter.get(importerKey)
 
   const sections = ['dependencies', 'devDependencies', 'optionalDependencies'] as const
 
@@ -146,7 +166,7 @@ async function processPackageJson(filePath: string, checkOnly: boolean): Promise
     if (pkg[section]) {
       Object.keys(pkg[section]).forEach((dep) => {
         const oldValue = pkg[section][dep]
-        const newValue = pinVersion(oldValue)
+        const newValue = pinVersion(oldValue, resolvedVersions?.get(dep))
 
         if (oldValue !== newValue) {
           changes.push({ section, dep, oldValue, newValue })
@@ -249,4 +269,68 @@ async function processWorkspaceYaml(filePath: string, checkOnly: boolean): Promi
   }
 
   return changes
+}
+
+const normalizeResolvedVersion = (version?: string): string | undefined => {
+  if (typeof version !== 'string' || version.length === 0) {
+    return undefined
+  }
+
+  const cleanedVersion = version.split('(')[0]?.trim()
+  return semver.valid(cleanedVersion) ?? undefined
+}
+
+const getImporterKey = (packageJsonPath: string, root: string): string => {
+  const importerPath = path.relative(root, path.dirname(packageJsonPath))
+  return importerPath === '' ? '.' : importerPath.split(path.sep).join('/')
+}
+
+const loadResolvedVersionsByImporter = async (root: string): Promise<ResolvedVersionsByImporter> => {
+  const lockfilePath = path.join(root, 'pnpm-lock.yaml')
+
+  try {
+    const lockfileContent = await fs.readFile(lockfilePath, 'utf8')
+    const lockfile = yaml.parse(lockfileContent) as {
+      importers?: Record<string, Record<string, Record<string, { version?: string } | string>>>
+    }
+
+    const importers = lockfile?.importers
+    if (!importers || typeof importers !== 'object') {
+      return new Map()
+    }
+
+    const resolvedByImporter = new Map<string, Map<string, string>>()
+    const sections = ['dependencies', 'devDependencies', 'peerDependencies', 'optionalDependencies'] as const
+
+    Object.entries(importers).forEach(([importerKey, importer]) => {
+      const importerResolved = new Map<string, string>()
+
+      sections.forEach((section) => {
+        const sectionDeps = importer[section]
+        if (!sectionDeps || typeof sectionDeps !== 'object') return
+
+        Object.entries(sectionDeps).forEach(([dep, dependencyMeta]) => {
+          const rawVersion =
+            typeof dependencyMeta === 'string'
+              ? dependencyMeta
+              : typeof dependencyMeta?.version === 'string'
+                ? dependencyMeta.version
+                : undefined
+          const resolvedVersion = normalizeResolvedVersion(rawVersion)
+
+          if (resolvedVersion) {
+            importerResolved.set(dep, resolvedVersion)
+          }
+        })
+      })
+
+      if (importerResolved.size > 0) {
+        resolvedByImporter.set(importerKey, importerResolved)
+      }
+    })
+
+    return resolvedByImporter
+  } catch {
+    return new Map()
+  }
 }

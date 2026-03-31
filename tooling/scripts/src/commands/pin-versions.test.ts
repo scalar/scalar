@@ -54,6 +54,16 @@ describe('pin-versions', () => {
       expect(pinVersion('https://example.com/package.tgz')).toBe('https://example.com/package.tgz')
       expect(pinVersion('http://example.com/package.tgz')).toBe('http://example.com/package.tgz')
     })
+
+    it('does not claim shorthand major ranges are pinned without a resolved version', () => {
+      expect(pinVersion('^7')).toBe('^7')
+      expect(pinVersion('~7')).toBe('~7')
+    })
+
+    it('uses the resolved lockfile version for shorthand ranges', () => {
+      expect(pinVersion('^7', '7.6.2')).toBe('7.6.2')
+      expect(pinVersion('~7', '7.6.2(react@19.0.0)')).toBe('7.6.2')
+    })
   })
 
   describe('pinAllVersions', () => {
@@ -169,6 +179,51 @@ catalogs:
         expect(content).toContain('foo: 1.0.0')
         expect(content).toContain('bar: 2.0.0')
         expect(content).toContain('baz: 3.0.0')
+      } finally {
+        await fs.rm(tmpDir, { recursive: true, force: true })
+      }
+    })
+
+    it('pins shorthand ranges to the resolved lockfile version', async () => {
+      const tmpDir = await fs.mkdtemp(path.join('/tmp', 'pin-versions-test-'))
+
+      try {
+        const pkgPath = path.join(tmpDir, 'package.json')
+        await fs.writeFile(
+          pkgPath,
+          JSON.stringify(
+            {
+              name: 'test-package',
+              version: '1.0.0',
+              dependencies: {
+                foo: '^7',
+              },
+            },
+            null,
+            2,
+          ) + '\n',
+        )
+
+        const lockfilePath = path.join(tmpDir, 'pnpm-lock.yaml')
+        await fs.writeFile(
+          lockfilePath,
+          `lockfileVersion: '9.0'
+
+importers:
+  .:
+    dependencies:
+      foo:
+        specifier: ^7
+        version: 7.6.2
+`,
+        )
+
+        const result = await pinAllVersions(tmpDir, false)
+        expect(result.totalChanges).toBe(1)
+
+        const content = await fs.readFile(pkgPath, 'utf8')
+        const pkg = JSON.parse(content)
+        expect(pkg.dependencies.foo).toBe('7.6.2')
       } finally {
         await fs.rm(tmpDir, { recursive: true, force: true })
       }
