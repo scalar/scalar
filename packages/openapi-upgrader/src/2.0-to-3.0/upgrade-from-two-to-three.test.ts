@@ -2493,4 +2493,122 @@ describe('upgradeFromTwoToThree', () => {
     // Ensure the old responses property is removed from document root
     expect((result as Record<string, unknown>).responses).toBeUndefined()
   })
+
+  it('transforms response examples when example media type differs from produces', () => {
+    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+      swagger: '2.0',
+      info: { title: 'Forgot Passcode test', version: '1.0' },
+      produces: ['application/json'],
+      paths: {
+        '/api2/mobile/passcodes/forgot_passcode': {
+          post: {
+            responses: {
+              '200': {
+                description: '',
+                schema: {
+                  type: 'object',
+                  properties: {},
+                },
+                examples: {
+                  'text/plain':
+                    '[\n  "An email has been sent to your registered email address to reset your Passcode."\n]',
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+
+    const response200 = result.paths?.['/api2/mobile/passcodes/forgot_passcode']?.post?.responses?.[
+      '200'
+    ] as OpenAPIV3.ResponseObject
+
+    // The empty application/json schema-only entry should be removed
+    expect(response200.content?.['application/json']).toBeUndefined()
+
+    // The text/plain example should be placed under content['text/plain'].example
+    expect(response200.content?.['text/plain']?.example).toBe(
+      '[\n  "An email has been sent to your registered email address to reset your Passcode."\n]',
+    )
+
+    // Old examples property should be removed
+    expect((response200 as Record<string, unknown>).examples).toBeUndefined()
+  })
+
+  it('keeps schema-only content entries when schema sets additionalProperties to false', () => {
+    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+      swagger: '2.0',
+      info: { title: 'Schema with additionalProperties false', version: '1.0' },
+      produces: ['application/json'],
+      paths: {
+        '/strict-object': {
+          get: {
+            responses: {
+              '200': {
+                description: '',
+                schema: {
+                  type: 'object',
+                  additionalProperties: false,
+                },
+                examples: {
+                  'text/plain': 'ok',
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+
+    const response200 = result.paths?.['/strict-object']?.get?.responses?.['200'] as OpenAPIV3.ResponseObject
+
+    expect(response200.content?.['application/json']?.schema).toStrictEqual({
+      type: 'object',
+      additionalProperties: false,
+    })
+    expect(response200.content?.['text/plain']?.example).toBe('ok')
+    expect((response200 as Record<string, unknown>).examples).toBeUndefined()
+  })
+
+  it('keeps schema-only content entries when schema contains enum and validation keywords', () => {
+    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+      swagger: '2.0',
+      info: { title: 'Schema with enum and validation keywords', version: '1.0' },
+      produces: ['application/json'],
+      paths: {
+        '/status': {
+          get: {
+            responses: {
+              '200': {
+                description: '',
+                schema: {
+                  type: 'string',
+                  enum: ['active', 'inactive'],
+                  minLength: 6,
+                  maxLength: 8,
+                  pattern: '^[a-z]+$',
+                },
+                examples: {
+                  'text/plain': 'active',
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+
+    const response200 = result.paths?.['/status']?.get?.responses?.['200'] as OpenAPIV3.ResponseObject
+
+    expect(response200.content?.['application/json']?.schema).toStrictEqual({
+      type: 'string',
+      enum: ['active', 'inactive'],
+      minLength: 6,
+      maxLength: 8,
+      pattern: '^[a-z]+$',
+    })
+    expect(response200.content?.['text/plain']?.example).toBe('active')
+    expect((response200 as Record<string, unknown>).examples).toBeUndefined()
+  })
 })
