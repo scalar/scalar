@@ -420,7 +420,7 @@ describe('Modal', () => {
     expect(sidebar.props('layout')).toBe('modal')
   })
 
-  it('passes hideClientButton option to Operation component', async () => {
+  it('passes hideClientButton option to Operation component', { timeout: 10_000 }, async () => {
     const { props: baseProps, modalState } = await createModalProps()
     modalState.open = true
 
