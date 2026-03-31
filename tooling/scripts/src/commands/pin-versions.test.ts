@@ -266,6 +266,45 @@ importers:
       }
     })
 
+    it('does not pin peerDependencies', async () => {
+      const tmpDir = await fs.mkdtemp(path.join('/tmp', 'pin-versions-test-'))
+
+      try {
+        const pkgPath = path.join(tmpDir, 'package.json')
+        await fs.writeFile(
+          pkgPath,
+          JSON.stringify(
+            {
+              name: 'test-package',
+              version: '1.0.0',
+              dependencies: {
+                foo: '^1.0.0',
+              },
+              peerDependencies: {
+                react: '^19.0.0',
+                typescript: '^5.8.0',
+              },
+            },
+            null,
+            2,
+          ) + '\n',
+        )
+
+        const result = await pinAllVersions(tmpDir, false)
+
+        // Only dependencies should be pinned
+        expect(result.totalChanges).toBe(1)
+
+        const content = await fs.readFile(pkgPath, 'utf8')
+        const pkg = JSON.parse(content)
+        expect(pkg.dependencies.foo).toBe('1.0.0')
+        expect(pkg.peerDependencies.react).toBe('^19.0.0')
+        expect(pkg.peerDependencies.typescript).toBe('^5.8.0')
+      } finally {
+        await fs.rm(tmpDir, { recursive: true, force: true })
+      }
+    })
+
     it('returns zero changes when all versions are already pinned', async () => {
       const tmpDir = await fs.mkdtemp(path.join('/tmp', 'pin-versions-test-'))
 
