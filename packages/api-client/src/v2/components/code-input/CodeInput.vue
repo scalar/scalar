@@ -141,7 +141,7 @@ const {
 
 const emit = defineEmits<{
   'update:modelValue': [value: string]
-  'submit': [value: string]
+  'submit': [value: string, event: KeyboardEvent | FocusEvent]
   'navigate': [route: { page: 'document'; path: 'environment' }]
   'blur': [value: string, event: FocusEvent]
 }>()
@@ -206,22 +206,25 @@ const handleChange = (value: string): void => {
 /**
  * Handles form submission (enter key or blur with emitOnBlur).
  */
-const handleSubmit = (value: string): void => {
+const handleSubmit = (
+  value: string,
+  event: KeyboardEvent | FocusEvent,
+): void => {
   if (handleFieldSubmit) {
     handleFieldSubmit(value)
   } else {
-    emit('submit', value)
+    emit('submit', value, event)
   }
 }
 
 /**
  * Handles input blur event.
  */
-const handleBlur = (value: string, event: MouseEvent | FocusEvent): void => {
+const handleBlur = (value: string, event: FocusEvent): void => {
   isFocused.value = false
 
   if (emitOnBlur && modelValue) {
-    handleSubmit(value)
+    handleSubmit(value, event)
   }
 
   emit('blur', value, event)
@@ -360,15 +363,8 @@ const handleKeyDown = (key: string, event: KeyboardEvent): void => {
     event.stopPropagation()
   }
 
-  if (
-    key === 'enter' &&
-    event.target instanceof HTMLDivElement &&
-    !event.ctrlKey &&
-    !event.metaKey &&
-    !event.shiftKey &&
-    !event.altKey
-  ) {
-    handleSubmit(event.target.textContent ?? '')
+  if (key === 'enter' && event.target instanceof HTMLDivElement) {
+    handleSubmit(event.target.textContent ?? '', event)
   }
 }
 

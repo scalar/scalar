@@ -156,6 +156,18 @@ const handlePathBlur = (newPath: string, event: FocusEvent): void => {
   )
 }
 
+/** Handle path submit (Enter key) — saves the path and triggers execution via blurTarget */
+const handlePathSubmit = (
+  newPath: string,
+  event: KeyboardEvent | FocusEvent,
+): void => {
+  // Prevent the global hotkey listener
+  event.stopPropagation()
+
+  const normalizedPath = newPath.startsWith('/') ? newPath : `/${newPath}`
+  emitPathMethodUpdate(methodConflict.value ?? method, normalizedPath, 'send')
+}
+
 /** Handle focus events */
 const sendButtonRef = useTemplateRef('sendButtonRef')
 const addressBarRef = useTemplateRef('addressBarRef')
@@ -198,17 +210,14 @@ onBeforeUnmount(() => {
 
 const { copyToClipboard } = useClipboard()
 
+/** Copy the resolved URL with the environment variables to the clipboard */
 const copyUrl = async () => {
-  // Resolve the URL with the server and path
   const resolvedUrl = getResolvedUrl({ server, path })
-  // Get the environment variables
   const environmentVariables = getEnvironmentVariables(environment)
-  // Replace the environment variables in the resolved URL
   const resolvedUrlWithEnvVars = replaceEnvVariables(
     resolvedUrl,
     environmentVariables,
   )
-  // Copy the resolved URL with the environment variables to the clipboard
   await copyToClipboard(resolvedUrlWithEnvVars)
 }
 
@@ -295,6 +304,7 @@ defineExpose({
           alwaysEmitChange
           aria-label="Path"
           class="min-w-fit outline-none"
+          data-addressbar-action="path"
           disableCloseBrackets
           :disabled="layout === 'modal'"
           disableEnter
@@ -307,7 +317,7 @@ defineExpose({
           :placeholder="server ? '' : 'Enter a URL'"
           server
           @blur="handlePathBlur"
-          @submit="emit('execute')" />
+          @submit="handlePathSubmit" />
         <div class="fade-right" />
       </div>
 
