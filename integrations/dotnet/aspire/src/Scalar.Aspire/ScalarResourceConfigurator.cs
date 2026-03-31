@@ -65,8 +65,9 @@ internal static class ScalarResourceConfigurator
             var resourceUrl = GetResourceUrl(resourceName, shouldUseHttps, scalarAspireOptions.DefaultProxy, endpoints);
 
             ConfigureOpenApiServers(scalarAspireOptions, resourceName, resourceUrl);
-            await ConfigureOpenApiRoutePatternAsync(scalarAspireOptions, scalarAnnotation.BaseDocumentUrl, cancellationToken);
-            ConfigureDocuments(scalarAspireOptions, resourceName);
+            var baseDocumentUrl = await ResolveBaseDocumentUrlAsync(scalarAspireOptions, scalarAnnotation.BaseDocumentUrl, cancellationToken);
+            ConfigureOpenApiRoutePattern(scalarAspireOptions, baseDocumentUrl);
+            ConfigureDocuments(scalarAspireOptions, resourceName, baseDocumentUrl);
 
             yield return scalarAspireOptions;
         }
@@ -79,14 +80,8 @@ internal static class ScalarResourceConfigurator
         scalarOptions.Servers ??= [server];
     }
 
-    private static async Task ConfigureOpenApiRoutePatternAsync(ScalarOptions scalarOptions, ReferenceExpression? annotationBaseDocumentUrl, CancellationToken cancellationToken)
+    private static async Task<string?> ResolveBaseDocumentUrlAsync(ScalarOptions scalarOptions, ReferenceExpression? annotationBaseDocumentUrl, CancellationToken cancellationToken)
     {
-        // Only set the full URL if the OpenAPI route pattern is not already a full URL
-        if (RegexHelper.HttpUrlPattern().IsMatch(scalarOptions.OpenApiRoutePattern))
-        {
-            return;
-        }
-
         // Priority: user's explicit scalarOptions.BaseDocumentUrl > annotation's BaseDocumentUrl.
         // annotation.BaseDocumentUrl is always set by WithApiReference — the configurator never sets it.
         // A null/empty resolved value means "use the pattern as-is" (e.g. ReferenceExpression.Empty
@@ -94,14 +89,26 @@ internal static class ScalarResourceConfigurator
         var baseDocumentUrl = scalarOptions.BaseDocumentUrl ?? annotationBaseDocumentUrl;
         if (baseDocumentUrl is null)
         {
-            return;
+            return null;
         }
 
         var baseUrl = await baseDocumentUrl.GetValueAsync(cancellationToken);
-        if (!string.IsNullOrEmpty(baseUrl))
+        if (string.IsNullOrEmpty(baseUrl))
         {
-            scalarOptions.OpenApiRoutePattern = $"{baseUrl.TrimEnd('/')}/{scalarOptions.OpenApiRoutePattern.TrimStart('/')}";
+            return null;
         }
+
+        return baseUrl;
+    }
+
+    private static void ConfigureOpenApiRoutePattern(ScalarOptions scalarOptions, string? baseDocumentUrl)
+    {
+        if (baseDocumentUrl is null || RegexHelper.HttpUrlPattern().IsMatch(scalarOptions.OpenApiRoutePattern))
+        {
+            return;
+        }
+
+        scalarOptions.OpenApiRoutePattern = $"{baseDocumentUrl.TrimEnd('/')}/{scalarOptions.OpenApiRoutePattern.TrimStart('/')}";
     }
 
     private static void ConfigureProxyUrl(ScalarOptions scalarOptions)
@@ -110,7 +117,7 @@ internal static class ScalarResourceConfigurator
         scalarOptions.ProxyUrl ??= ProxyEndpoint;
     }
 
-    private static void ConfigureDocuments(ScalarOptions scalarOptions, string resourceName)
+    private static void ConfigureDocuments(ScalarOptions scalarOptions, string resourceName, string? baseDocumentUrl)
     {
         // If no document names are provided, fallback to the default document name
         if (scalarOptions.Documents.Count == 0)
@@ -133,9 +140,15 @@ internal static class ScalarResourceConfigurator
             // Only set the full URL if the OpenAPI route pattern is not a full URL
             if (document.RoutePattern is not null && !RegexHelper.HttpUrlPattern().IsMatch(document.RoutePattern))
             {
+                var routePattern = document.RoutePattern;
+                if (!string.IsNullOrEmpty(baseDocumentUrl))
+                {
+                    routePattern = $"{baseDocumentUrl.TrimEnd('/')}/{routePattern.TrimStart('/')}";
+                }
+
                 document = document with
                 {
-                    RoutePattern = $"{scalarOptions.OpenApiRoutePattern}/{document.RoutePattern.TrimStart('/')}"
+                    RoutePattern = routePattern
                 };
             }
 

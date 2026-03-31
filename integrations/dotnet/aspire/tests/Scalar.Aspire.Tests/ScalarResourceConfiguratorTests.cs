@@ -147,6 +147,21 @@ public class ScalarResourceConfiguratorTests
     }
 
     [Fact]
+    public async Task CustomDocumentRoutePattern_ReplacesDefaultPatternInsteadOfConcatenating()
+    {
+        var configs = await GetConfigAsync(
+            HttpApiResource(),
+            (options, _) =>
+            {
+                options.AddDocument("c2", "Custom API", routePattern: "/custom/{documentName}.json");
+                return Task.CompletedTask;
+            });
+
+        var url = configs[0].GetProperty("sources")[0].GetProperty("url").GetString();
+        url.Should().Be($"http://{ApiResourceName}/custom/c2.json");
+    }
+
+    [Fact]
     public async Task StaticFile_SourceUrlIsPatternWithoutResourcePrefix()
     {
         // When BaseDocumentUrl = ReferenceExpression.Empty (on the annotation, as WithApiReference(fileInfo) sets it)
