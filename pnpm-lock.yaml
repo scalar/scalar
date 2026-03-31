@@ -136,8 +136,8 @@ catalogs:
       specifier: 3.3.3
       version: 3.3.3
     fastify:
-      specifier: 5.3.3
-      version: 5.3.3
+      specifier: 5.7.2
+      version: 5.7.2
     fastify-plugin:
       specifier: 4.5.1
       version: 4.5.1
@@ -1370,7 +1370,7 @@ importers:
         version: 6.2.3
       fastify:
         specifier: catalog:*
-        version: 5.3.3
+        version: 5.7.2
       jsdom:
         specifier: catalog:*
         version: 27.4.0(@noble/hashes@1.8.0)
@@ -1850,7 +1850,7 @@ importers:
     devDependencies:
       fastify:
         specifier: catalog:*
-        version: 5.3.3
+        version: 5.7.2
       vite:
         specifier: catalog:*
         version: 8.0.0(@types/node@24.1.0)(esbuild@0.27.2)(jiti@2.6.1)(terser@5.31.2)(tsx@4.21.0)(yaml@2.8.0)
@@ -2554,7 +2554,7 @@ importers:
         version: 6.2.3
       fastify:
         specifier: catalog:*
-        version: 5.3.3
+        version: 5.7.2
       vite:
         specifier: catalog:*
         version: 8.0.0(@types/node@24.1.0)(esbuild@0.27.2)(jiti@2.6.1)(terser@5.31.2)(tsx@4.21.0)(yaml@2.8.0)
@@ -10668,9 +10668,6 @@ packages:
 
   fastify@4.28.1:
     resolution: {integrity: sha512-kFWUtpNr4i7t5vY2EJPCN2KgMVpuqfU4NjnJNCgiNB900oiDeYqaNDRcAfeBbOF5hGixixxcKnOU4KN9z6QncQ==}
-
-  fastify@5.3.3:
-    resolution: {integrity: sha512-nCBiBCw9q6jPx+JJNVgO8JVnTXeUyrGcyTKPQikRkA/PanrFcOIo4R+ZnLeOLPZPGgzjomqfVarzE0kYx7qWiQ==}
 
   fastify@5.7.2:
     resolution: {integrity: sha512-dBJolW+hm6N/yJVf6J5E1BxOBNkuXNl405nrfeR8SpvGWG3aCC2XDHyiFBdow8Win1kj7sjawQc257JlYY6M/A==}
@@ -27681,24 +27678,6 @@ snapshots:
       proxy-addr: 2.0.7
       rfdc: 1.4.1
       secure-json-parse: 2.7.0
-      semver: 7.7.4
-      toad-cache: 3.7.0
-
-  fastify@5.3.3:
-    dependencies:
-      '@fastify/ajv-compiler': 4.0.5
-      '@fastify/error': 4.2.0
-      '@fastify/fast-json-stringify-compiler': 5.0.3
-      '@fastify/proxy-addr': 5.0.0
-      abstract-logging: 2.0.1
-      avvio: 9.1.0
-      fast-json-stringify: 6.0.1
-      find-my-way: 9.4.0
-      light-my-request: 6.6.0
-      pino: 9.2.0
-      process-warning: 5.0.0
-      rfdc: 1.4.1
-      secure-json-parse: 4.0.0
       semver: 7.7.4
       toad-cache: 3.7.0
 

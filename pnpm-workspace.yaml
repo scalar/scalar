@@ -60,7 +60,7 @@ catalogs:
     express: 5.1.0
     fake-indexeddb: 6.2.3
     fast-glob: 3.3.3
-    fastify: 5.3.3
+    fastify: 5.7.2
     flatted: 3.3.3
     fuse.js: ^7.1.0
     hono: 4.12.4
