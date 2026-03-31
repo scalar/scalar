@@ -203,6 +203,10 @@
           "to": "/products/docs/components/tabs"
         },
         {
+          "from": "/scalar/scalar-docs/components/tables",
+          "to": "/products/docs/components/tables"
+        },
+        {
           "from": "/scalar/scalar-docs/components/steps",
           "to": "/products/docs/components/steps"
         },
@@ -1030,6 +1034,11 @@
                         "filepath": "documentation/guides/docs/components/tabs.md",
                         "type": "page",
                         "title": "Tabs"
+                      },
+                      "tables": {
+                        "filepath": "documentation/guides/docs/components/tables.md",
+                        "type": "page",
+                        "title": "Tables"
                       },
                       "steps": {
                         "filepath": "documentation/guides/docs/components/steps.md",
