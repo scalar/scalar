@@ -38,7 +38,7 @@ function findIndexFiles(dir, results = []) {
   return results;
 }
 
-async function analyzeBarrelFile(filePath) {
+function analyzeBarrelFile(filePath) {
   const content = fs.readFileSync(filePath, 'utf-8');
   const lines = content.split('\n');
   
@@ -114,7 +114,7 @@ async function analyzeBarrelFile(filePath) {
   };
 }
 
-async function main() {
+function main() {
   console.log('Analyzing barrel files for Vite 8 tree-shaking issue...\n');
   
   // Find all index.ts files
@@ -125,7 +125,7 @@ async function main() {
   const results = [];
   
   for (const file of files) {
-    const result = await analyzeBarrelFile(file);
+    const result = analyzeBarrelFile(file);
     results.push(result);
   }
   
@@ -187,4 +187,4 @@ async function main() {
   console.log('Detailed results written to: barrel-file-analysis.json');
 }
 
-main().catch(console.error);
+main();
