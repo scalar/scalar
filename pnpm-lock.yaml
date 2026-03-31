@@ -2191,6 +2191,15 @@ importers:
       '@scalar/oas-utils':
         specifier: workspace:*
         version: link:../oas-utils
+      '@scalar/workspace-store':
+        specifier: workspace:*
+        version: link:../workspace-store
+      '@types/postman-collection':
+        specifier: ^3.5.11
+        version: 3.5.11
+      postman-collection:
+        specifier: ^5.2.0
+        version: 5.2.0
       postman-sandbox:
         specifier: ^6.5.0
         version: 6.5.0
@@ -8080,6 +8089,9 @@ packages:
   '@types/picomatch@4.0.2':
     resolution: {integrity: sha512-qHHxQ+P9PysNEGbALT8f8YOSHW0KJu6l2xU8DYY0fu/EmGxXdVnuTLvFUvBgPJMSqXq29SYHveejeAha+4AYgA==}
 
+  '@types/postman-collection@3.5.11':
+    resolution: {integrity: sha512-BZgBJDdX6jyy9hzSTIMRhCsxhF0IlzPr1i98q2wdkDo8rZrbNoBvs+3/Vw+LOIIAFH1G+FyXo5Fjf8qbawGeHg==}
+
   '@types/prismjs@1.26.4':
     resolution: {integrity: sha512-rlAnzkW2sZOjbqZ743IHUhFcvzaGbqijwOu8QZnZCjfQzBqFE3s4lOTJEsxikImav9uzz/42I+O7YUs1mWgMlg==}
 
@@ -13175,11 +13187,6 @@ packages:
   mime@3.0.0:
     resolution: {integrity: sha512-jSCU7/VB1loIWBZe14aEYHU/+1UMEHoaO7qxCOVJOw9GgH72VAWppxNcjU+x9a2k3GSIBXNKxXQFqRvvZ7vr3A==}
     engines: {node: '>=10.0.0'}
-    hasBin: true
-
-  mime@4.0.7:
-    resolution: {integrity: sha512-2OfDPL+e03E0LrXaGYOtTFIYhiuzep94NSsuhrNULq+stylcJedcHdzHtz0atMUuGwJfFYs0YL5xeC/Ca2x0eQ==}
-    engines: {node: '>=16'}
     hasBin: true
 
   mime@4.1.0:
@@ -19500,7 +19507,7 @@ snapshots:
       outdent: 0.5.0
       prettier: 2.8.8
       resolve-from: 5.0.0
-      semver: 7.7.3
+      semver: 7.7.4
 
   '@changesets/assemble-release-plan@6.0.9':
     dependencies:
@@ -19509,7 +19516,7 @@ snapshots:
       '@changesets/should-skip-package': 0.1.2
       '@changesets/types': 6.1.0
       '@manypkg/get-packages': 1.1.3
-      semver: 7.7.3
+      semver: 7.7.4
 
   '@changesets/changelog-git@0.2.1':
     dependencies:
@@ -19567,7 +19574,7 @@ snapshots:
       '@changesets/types': 6.1.0
       '@manypkg/get-packages': 1.1.3
       picocolors: 1.1.1
-      semver: 7.7.3
+      semver: 7.7.4
 
   '@changesets/get-github-info@0.7.0(encoding@0.1.13)':
     dependencies:
@@ -21931,7 +21938,7 @@ snapshots:
       https-proxy-agent: 7.0.6
       node-fetch: 2.7.0(encoding@0.1.13)
       nopt: 8.1.0
-      semver: 7.7.3
+      semver: 7.7.4
       tar: 7.4.3
     transitivePeerDependencies:
       - encoding
@@ -22288,7 +22295,7 @@ snapshots:
       nopt: 7.2.1
       proc-log: 4.2.0
       read-package-json-fast: 3.0.2
-      semver: 7.7.3
+      semver: 7.7.4
       walk-up-path: 3.0.1
 
   '@npmcli/map-workspaces@3.0.6':
@@ -22323,7 +22330,7 @@ snapshots:
       perfect-debounce: 1.0.0
       pkg-types: 2.3.0
       scule: 1.3.0
-      semver: 7.7.3
+      semver: 7.7.4
       std-env: 3.10.0
       tinyexec: 1.0.2
       ufo: 1.6.1
@@ -22432,7 +22439,7 @@ snapshots:
       pathe: 2.0.3
       pkg-types: 2.3.0
       prompts: 2.4.2
-      semver: 7.7.3
+      semver: 7.7.4
 
   '@nuxt/devtools-wizard@3.2.3':
     dependencies:
@@ -22470,7 +22477,7 @@ snapshots:
       pathe: 2.0.3
       perfect-debounce: 1.0.0
       pkg-types: 2.3.0
-      semver: 7.7.3
+      semver: 7.7.4
       simple-git: 3.28.0
       sirv: 3.0.2
       structured-clone-es: 1.0.0
@@ -22545,7 +22552,7 @@ snapshots:
       pkg-types: 2.3.0
       rc9: 2.1.2
       scule: 1.3.0
-      semver: 7.7.3
+      semver: 7.7.4
       tinyglobby: 0.2.15
       ufo: 1.6.1
       unctx: 2.4.1
@@ -24811,6 +24818,10 @@ snapshots:
 
   '@types/picomatch@4.0.2': {}
 
+  '@types/postman-collection@3.5.11':
+    dependencies:
+      '@types/node': 24.10.13
+
   '@types/prismjs@1.26.4': {}
 
   '@types/qs@6.9.15': {}
@@ -26350,7 +26361,7 @@ snapshots:
   bin-version-check@5.1.0:
     dependencies:
       bin-version: 6.0.0
-      semver: 7.7.3
+      semver: 7.7.4
       semver-truncate: 3.0.0
 
   bin-version@6.0.0:
@@ -27680,7 +27691,7 @@ snapshots:
       '@one-ini/wasm': 0.1.1
       commander: 10.0.1
       minimatch: 9.0.1
-      semver: 7.7.3
+      semver: 7.7.4
 
   ee-first@1.1.1: {}
 
@@ -29843,7 +29854,7 @@ snapshots:
       '@babel/parser': 7.28.6
       '@istanbuljs/schema': 0.1.3
       istanbul-lib-coverage: 3.2.2
-      semver: 7.7.3
+      semver: 7.7.4
     transitivePeerDependencies:
       - supports-color
 
@@ -30137,7 +30148,7 @@ snapshots:
       jest-util: 29.7.0
       natural-compare: 1.4.0
       pretty-format: 29.7.0
-      semver: 7.7.3
+      semver: 7.7.4
     transitivePeerDependencies:
       - supports-color
 
@@ -30807,7 +30818,7 @@ snapshots:
 
   make-dir@4.0.0:
     dependencies:
-      semver: 7.7.3
+      semver: 7.7.4
 
   make-error@1.3.6: {}
 
@@ -31396,8 +31407,6 @@ snapshots:
 
   mime@3.0.0: {}
 
-  mime@4.0.7: {}
-
   mime@4.1.0: {}
 
   mimic-fn@2.1.0: {}
@@ -31475,7 +31484,7 @@ snapshots:
       pkg-types: 2.3.0
       postcss: 8.5.8
       postcss-nested: 7.0.2(postcss@8.5.8)
-      semver: 7.7.3
+      semver: 7.7.4
       tinyglobby: 0.2.15
     optionalDependencies:
       typescript: 5.9.3
@@ -31672,7 +31681,7 @@ snapshots:
       listhen: 1.9.0
       magic-string: 0.30.21
       magicast: 0.3.5
-      mime: 4.0.7
+      mime: 4.1.0
       mlly: 1.8.0
       node-fetch-native: 1.6.7
       node-mock-http: 1.0.4
@@ -31686,7 +31695,7 @@ snapshots:
       rollup: 4.50.2
       rollup-plugin-visualizer: 6.0.3(rolldown@1.0.0-rc.11)(rollup@4.50.2)
       scule: 1.3.0
-      semver: 7.7.3
+      semver: 7.7.4
       serve-placeholder: 2.0.2
       serve-static: 2.2.0
       source-map: 0.7.6
@@ -32570,7 +32579,7 @@ snapshots:
       got: 12.6.1
       registry-auth-token: 5.0.2
       registry-url: 6.0.1
-      semver: 7.7.3
+      semver: 7.7.4
 
   package-manager-detector@0.2.9: {}
 
@@ -33078,7 +33087,7 @@ snapshots:
       cosmiconfig: 8.3.6(typescript@5.9.3)
       jiti: 1.21.7
       postcss: 8.5.8
-      semver: 7.7.3
+      semver: 7.7.4
       webpack: 5.103.0(esbuild@0.27.2)
     transitivePeerDependencies:
       - typescript
@@ -34628,13 +34637,13 @@ snapshots:
 
   semver-diff@4.0.0:
     dependencies:
-      semver: 7.7.3
+      semver: 7.7.4
 
   semver-regex@4.0.5: {}
 
   semver-truncate@3.0.0:
     dependencies:
-      semver: 7.7.3
+      semver: 7.7.4
 
   semver@5.7.2: {}
 
@@ -34779,7 +34788,7 @@ snapshots:
     dependencies:
       '@img/colour': 1.0.0
       detect-libc: 2.1.2
-      semver: 7.7.3
+      semver: 7.7.4
     optionalDependencies:
       '@img/sharp-darwin-arm64': 0.34.5
       '@img/sharp-darwin-x64': 0.34.5
@@ -36330,7 +36339,7 @@ snapshots:
       is-yarn-global: 0.4.1
       latest-version: 7.0.0
       pupa: 3.1.0
-      semver: 7.7.3
+      semver: 7.7.4
       semver-diff: 4.0.0
       xdg-basedir: 5.1.0
 

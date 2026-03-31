@@ -1,21 +1,21 @@
 <script setup lang="ts">
-import type { Operation } from '@scalar/oas-utils/entities/spec'
+import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed } from 'vue'
 
+import ScriptEditor from '@/components/ScriptEditor.vue'
 import { ViewLayoutCollapse } from '@/components/ViewLayout'
 
 import ExampleScripts from './ExampleScripts.vue'
-import ScriptEditor from './ScriptEditor.vue'
 
 const { operation } = defineProps<{
-  operation: Pick<Operation, 'x-post-response'>
+  operation?: Pick<OperationObject, 'x-post-response'>
 }>()
 
 const emit = defineEmits<{
   (e: 'operation:update:extension', payload: any): void
 }>()
 
-const script = computed(() => (operation['x-post-response'] as string) || '')
+const script = computed(() => (operation?.['x-post-response'] as string) ?? '')
 
 const updatePostResponseScript = (value: string) => {
   emit('operation:update:extension', {

@@ -1,3 +1,5 @@
+import type { VariablesStore } from '@scalar/oas-utils/helpers'
+
 import { createConsoleContext } from './context/console'
 import { executeInPostmanSandbox } from './postman-sandbox-adapter'
 
@@ -12,8 +14,10 @@ export type TestResult = {
 export const executePostResponseScript = async (
   script: string | undefined,
   data: {
+    request?: Request
     response: Response
     onTestResultsUpdate?: ((results: TestResult[]) => void) | undefined
+    variablesStore?: VariablesStore
   },
 ): Promise<void> => {
   if (!script) {
@@ -21,8 +25,10 @@ export const executePostResponseScript = async (
   }
   await executeInPostmanSandbox({
     script,
+    request: data.request,
     response: data.response,
     onTestResultsUpdate: data.onTestResultsUpdate,
     scriptConsole: createConsoleContext(),
+    variablesStore: data.variablesStore,
   })
 }

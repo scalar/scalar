@@ -1,8 +1,15 @@
-import type { SandboxContext } from 'postman-sandbox'
+import type { VariablesStore } from '@scalar/oas-utils/helpers'
+import type { ExecutionResult, SandboxContext } from 'postman-sandbox'
 import Sandbox from 'postman-sandbox'
 
+import { buildSandboxContextFromStore } from './build-sandbox-context'
 import type { ConsoleContext } from './context/console'
 import type { TestResult } from './execute-post-response-script'
+import {
+  applyExecutionCollectionVariables,
+  applyExecutionGlobals,
+  applyExecutionLocalVariables,
+} from './variables-store'
 
 type AssertionEvent = {
   name: string
@@ -69,15 +76,19 @@ const upsertTestResult = (testResults: TestResult[], assertion: AssertionEvent, 
 
 export const executeInPostmanSandbox = async ({
   script,
+  request,
   response,
   onTestResultsUpdate,
   scriptConsole,
+  variablesStore,
 }: {
   script: string
-  response: Response
+  request?: Request
+  response?: Response
   onTestResultsUpdate?: ((results: TestResult[]) => void) | undefined
   scriptConsole: ConsoleContext
-}): Promise<void> => {
+  variablesStore?: VariablesStore
+}): Promise<VariablesStore | undefined> => {
   const testResults: TestResult[] = []
   let lastAssertionTime = 0
   let scriptExecutionStartedAt = 0
@@ -92,6 +103,8 @@ export const executeInPostmanSandbox = async ({
     onTestResultsUpdate?.([...testResults])
   }
 
+  const varibalesContext = variablesStore ? buildSandboxContextFromStore(variablesStore) : undefined
+
   const handleConsole = (_cursor: unknown, level: keyof ConsoleContext, ...args: unknown[]) => {
     const consoleMethod = scriptConsole[level] ?? scriptConsole.log
     ;(consoleMethod as (...params: unknown[]) => void)(...args)
@@ -101,10 +114,19 @@ export const executeInPostmanSandbox = async ({
     sandboxContext.on('execution.assertion', handleAssertion)
     sandboxContext.on('console', handleConsole)
 
-    const postmanResponse = await toPostmanResponse(response)
+    const postmanResponse = response ? await toPostmanResponse(response) : undefined
 
     scriptExecutionStartedAt = performance.now()
     lastAssertionTime = scriptExecutionStartedAt
+
+    const context: { response: typeof postmanResponse; [key: string]: unknown } = {
+      response: postmanResponse,
+      request,
+    }
+
+    if (varibalesContext) {
+      Object.assign(context, varibalesContext)
+    }
 
     await new Promise<void>((resolve) => {
       sandboxContext.execute(
@@ -116,11 +138,20 @@ export const executeInPostmanSandbox = async ({
         },
         {
           disableLegacyAPIs: true,
-          context: {
-            response: postmanResponse,
-          },
+          context,
         },
-        (error: unknown) => {
+        (error: unknown, execution?: ExecutionResult) => {
+          if (variablesStore && execution) {
+            if (execution._variables?.values) {
+              applyExecutionLocalVariables(variablesStore, execution._variables.values)
+            }
+            if (execution.collectionVariables?.values) {
+              applyExecutionCollectionVariables(variablesStore, execution.collectionVariables.values)
+            }
+            if (execution.globals?.values) {
+              applyExecutionGlobals(variablesStore, execution.globals.values)
+            }
+          }
           if (error) {
             const duration = Number((performance.now() - scriptExecutionStartedAt).toFixed(2))
             const errorMessage = toErrorMessage(error)
@@ -146,4 +177,6 @@ export const executeInPostmanSandbox = async ({
     sandboxContext.off('console', handleConsole)
     sandboxContext.dispose()
   }
+
+  return variablesStore
 }
