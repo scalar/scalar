@@ -15,8 +15,7 @@ type ObjectSchemaWithProperties = {
   required?: string[]
 }
 
-const isSchemaObject = (value: unknown): value is SchemaObject =>
-  typeof value === 'object' && value !== null
+const isSchemaObject = (value: unknown): value is SchemaObject => typeof value === 'object' && value !== null
 
 const schemaTypeToString = (schema: SchemaObject): string => {
   if (!('type' in schema)) {
