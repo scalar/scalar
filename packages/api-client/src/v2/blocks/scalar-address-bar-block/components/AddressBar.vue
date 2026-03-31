@@ -353,6 +353,7 @@ defineExpose({
           </div>
         </div>
       </div>
+
       <ScalarButton
         ref="sendButtonRef"
         class="relative h-auto shrink-0 overflow-hidden py-1 pr-2.5 pl-2 font-bold"

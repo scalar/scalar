@@ -35,6 +35,17 @@ import { customTheme } from '../themes'
 import type { CodeMirrorLanguage } from '../types'
 import { variables } from './variables'
 
+/**
+ * This was an insane bug that only exists in chrome
+ *
+ * Found these issues which may be related, it says che chrome one is fixed, maybe it causes the bug?
+ *
+ * @see https://issues.chromium.org/issues/375711382
+ * @see https://discuss.codemirror.net/t/experimental-support-for-editcontext/8144/9
+ */
+// @ts-expect-error it fixes the bug some how!?
+EditorView.EDIT_CONTEXT = false
+
 type BaseParameters = {
   /** Element Ref to mount codemirror to */
   codeMirrorRef: Ref<HTMLDivElement | null>
