@@ -3,7 +3,7 @@
 ## Executive Summary
 
 **Total barrel files analyzed:** 296  
-**Files with mixed exports (THE ISSUE):** 37  
+**Files with mixed exports (THE ISSUE):** 4  
 **Files with `export * from` (also problematic):** 11  
 
 ## The Issue
@@ -38,64 +38,27 @@ export const presets = {
 }
 ```
 
-## Files with Mixed Exports (37 files)
+## Files with Mixed Exports (4 files)
 
-These files combine own exports with re-exports and are affected by the tree-shaking issue:
+These files combine imports with re-exports and are affected by the tree-shaking issue:
 
-### Integrations (2 files)
-1. `integrations/express/src/index.ts` (3 lines)
-2. `integrations/nestjs/src/index.ts` (3 lines)
+1. **`packages/themes/src/index.ts`** (257 lines) ⚠️ **CRITICAL - Largest file, imports many CSS files**
+   - Imports: CSS files for themes and fonts
+   - Exports: Theme presets object, utility functions
+   - Re-exports: `hasObtrusiveScrollbars` utility
 
-### Packages (35 files)
+2. **`packages/components/src/index.ts`** (41 lines) ⚠️ **HIGH PRIORITY - Main component entry**
+   - Imports: CSS file (`./style.css`)
+   - Exports: `compose`, `cva`, `cx`, `tw`, `useBindCx` utilities
+   - Re-exports: All component modules via `export * from`
 
-#### Core API Packages
-3. `packages/api-reference/src/index.ts` (15 lines) ⚠️ **High Priority**
-4. `packages/api-reference-react/src/index.ts` (10 lines)
-5. `packages/api-client-react/src/index.ts` (3 lines)
+3. **`packages/api-client/src/index.ts`** (6 lines)
+   - Imports: CSS file (`./style.css`)
+   - Re-exports: Layout components and utilities
 
-#### Component Library
-6. `packages/components/src/components/ScalarButton/index.ts` (3 lines)
-7. `packages/components/src/components/ScalarCheckboxInput/index.ts` (6 lines)
-8. `packages/components/src/components/ScalarFloating/index.ts` (4 lines)
-9. `packages/components/src/components/ScalarHotkey/index.ts` (4 lines)
-10. `packages/components/src/components/ScalarIcon/index.ts` (4 lines)
-11. `packages/components/src/components/ScalarListbox/index.ts` (6 lines)
-12. `packages/components/src/components/ScalarLoading/index.ts` (4 lines)
-13. `packages/components/src/components/ScalarMenu/index.ts` (13 lines)
-14. `packages/components/src/components/ScalarPopover/index.ts` (3 lines)
-15. `packages/components/src/components/ScalarTooltip/index.ts` (8 lines)
-
-#### API Client
-16. `packages/api-client/src/layouts/Modal/index.ts` (4 lines)
-17. `packages/api-client/src/v2/blocks/operation-code-sample/index.ts` (9 lines)
-18. `packages/api-client/src/v2/blocks/scalar-address-bar-block/index.ts` (3 lines)
-19. `packages/api-client/src/v2/blocks/scalar-auth-selector-block/index.ts` (6 lines)
-20. `packages/api-client/src/v2/features/app/index.ts` (16 lines)
-
-#### Theme System
-21. `packages/themes/src/index.ts` (257 lines) ⚠️ **High Priority - Largest File**
-
-#### Type Definitions
-22. `packages/types/src/api-reference/index.ts` (32 lines)
-23. `packages/types/src/legacy/index.ts` (6 lines)
-24. `packages/types/src/snippetz/index.ts` (15 lines)
-25. `packages/types/src/utils/index.ts` (4 lines)
-
-#### OpenAPI Utilities
-26. `packages/oas-utils/src/entities/spec/index.ts` (63 lines) ⚠️ **High Priority**
-27. `packages/openapi-parser/src/index.ts` (30 lines)
-
-#### Other Utilities
-28. `packages/agent-chat/src/index.ts` (3 lines)
-29. `packages/draggable/src/index.ts` (4 lines)
-30. `packages/icons/src/library/index.ts` (7 lines)
-31. `packages/json-magic/src/bundle/index.ts` (3 lines)
-32. `packages/nextjs-openapi/src/index.ts` (3 lines)
-33. `packages/sidebar/src/index.ts` (21 lines)
-34. `packages/use-codemirror/src/index.ts` (23 lines)
-35. `packages/validation/src/index.ts` (38 lines)
-36. `packages/workspace-store/src/events/index.ts` (16 lines)
-37. `packages/workspace-store/src/navigation/index.ts` (7 lines)
+4. **`packages/sidebar/src/index.ts`** (21 lines)
+   - Imports: CSS file (`./style.css`)
+   - Re-exports: Components, helpers, hooks, and types
 
 ## Files with `export * from` (11 files)
 
@@ -113,42 +76,117 @@ These files use `export * from` which is also flagged by Biome's `noReExportAll`
 10. `packages/openapi-types/src/index.ts` (2 lines)
 11. `packages/types/src/index.ts` (8 lines)
 
-## High Priority Files
+## Detailed Analysis
 
-Based on size and impact on the CDN bundle:
+### Critical File: `packages/themes/src/index.ts`
 
-1. **`packages/themes/src/index.ts`** (257 lines) - Imports many CSS files and exports both the CSS strings and utility functions
-2. **`packages/oas-utils/src/entities/spec/index.ts`** (63 lines) - Core OpenAPI utilities
-3. **`packages/components/src/index.ts`** (41 lines) - Main component library entry point with `export *`
-4. **`packages/api-reference/src/index.ts`** (15 lines) - Main API reference entry point
+This is the most problematic file. It imports 15+ CSS files as inline strings, exports a large `presets` object using those imports, and also re-exports a utility function:
+
+```typescript
+// Imports (heavy CSS dependencies)
+import defaultFonts from './fonts/fonts.css?inline'
+import moonTheme from './presets/moon.css?inline'
+// ... 13+ more theme imports
+
+// Re-export (pure re-export)
+export { hasObtrusiveScrollbars } from './utilities/has-obtrusive-scrollbars'
+
+// Own exports using imports
+export const presets = {
+  moon: { theme: moonTheme, ... },
+  // ... more presets
+}
+```
+
+**Impact:** When Rolldown sees this pattern, it bundles ALL theme CSS files into a shared chunk, even if only one theme is used.
+
+### Other Affected Files
+
+The other three files follow a similar pattern but with CSS imports:
+
+- `packages/components/src/index.ts` - Imports `style.css`, re-exports all components
+- `packages/api-client/src/index.ts` - Imports `style.css`, re-exports layouts
+- `packages/sidebar/src/index.ts` - Imports `style.css`, re-exports components
 
 ## Solutions
 
 As mentioned in the Slack thread, there are three options:
 
 ### Option 1: Downgrade to Vite 7 (Current PR #8637)
-- **Pros:** Immediate fix, proven to work with Rollup
+- **Pros:** Immediate fix, proven to work with Rollup, 11% smaller bundle
 - **Cons:** 13% slower build time, misses Vite 8 improvements
 - **Status:** PR open, waiting for decision
 
-### Option 2: Fix the barrel files
-- **Pros:** Keeps Vite 8, addresses root cause
-- **Cons:** 37+ files to refactor, may break imports
-- **Approach:** Split barrel files into:
-  - Pure re-export barrels (no imports)
-  - Separate files for own exports
+### Option 2: Fix the 4 barrel files
+- **Pros:** Keeps Vite 8, addresses root cause, only 4 files to fix
+- **Cons:** May require refactoring imports in consuming packages
+- **Approach:** For each file, either:
+  1. Move CSS imports to a separate file (e.g., `styles.ts`)
+  2. Split own exports into dedicated files
+  3. Remove re-exports and make consumers import directly
 
 ### Option 3: Update export style (as suggested by Amrit)
 - **Pros:** Minimal changes per file
 - **Cons:** May not fully resolve the issue
 - **Approach:** Convert mixed barrels to pure re-exports by moving own exports to dedicated files
 
+### Recommended Fix for Each File
+
+#### 1. `packages/themes/src/index.ts` (CRITICAL)
+**Option A:** Move CSS imports and presets to `presets.ts`, keep re-exports in `index.ts`
+```typescript
+// index.ts (pure re-exports)
+export { hasObtrusiveScrollbars } from './utilities/has-obtrusive-scrollbars'
+export * from './presets'
+
+// presets.ts (own exports with imports)
+import defaultFonts from './fonts/fonts.css?inline'
+// ... all theme imports
+export const presets = { ... }
+```
+
+**Option B:** Remove the `hasObtrusiveScrollbars` re-export, make consumers import directly
+
+#### 2. `packages/components/src/index.ts`
+Move CSS import to a separate `styles.ts`:
+```typescript
+// styles.ts
+import './style.css'
+
+// index.ts (pure re-exports)
+export { compose, cva, cx, tw, useBindCx } from '@scalar/use-hooks/useBindCx'
+export * from './components/ScalarButton'
+// ... rest of re-exports
+```
+
+#### 3. `packages/api-client/src/index.ts` & `packages/sidebar/src/index.ts`
+Same approach as components: move CSS import to `styles.ts`
+
 ## Recommendations
 
-1. **Short term:** Merge PR #8637 to downgrade to Vite 7 and unblock development
-2. **Medium term:** Refactor the 37 problematic barrel files, starting with high-priority files
-3. **Long term:** Add linting rules to prevent new mixed barrel files
-4. **Monitor:** Track Vite issue #21966 for upstream fixes
+### Short Term (Immediate)
+Merge PR #8637 to downgrade to Vite 7. This provides:
+- 11% smaller bundle (445 KB reduction)
+- Immediate fix for tree-shaking
+- Proven stable solution
+
+Trade-off: 13% slower build time (acceptable for correctness)
+
+### Medium Term (Next Sprint)
+Fix the 4 problematic barrel files:
+1. **`packages/themes/src/index.ts`** - Highest impact, split CSS imports from re-exports
+2. **`packages/components/src/index.ts`** - Move CSS import to `styles.ts`
+3. **`packages/api-client/src/index.ts`** - Move CSS import to `styles.ts`
+4. **`packages/sidebar/src/index.ts`** - Move CSS import to `styles.ts`
+
+This allows upgrading back to Vite 8 when ready.
+
+### Long Term
+1. **Add linting rules** to prevent new mixed barrel files:
+   - Enhance Biome's `noBarrelFile` rule or add custom rule
+   - Detect imports + re-exports pattern
+2. **Monitor upstream:** Track Vite issue #21966 for Rolldown fixes
+3. **Consider:** Upgrade to Vite 8 once files are fixed
 
 ## Analysis Artifacts
 

@@ -1,117 +1,17 @@
 {
   "summary": {
     "totalFiles": 296,
-    "filesWithMixedExports": 37,
+    "filesWithMixedExports": 4,
     "filesWithReExportAll": 11
   },
   "filesWithMixedExports": [
     {
-      "path": "integrations/express/src/index.ts",
-      "lines": 3
-    },
-    {
-      "path": "integrations/nestjs/src/index.ts",
-      "lines": 3
-    },
-    {
-      "path": "packages/agent-chat/src/index.ts",
-      "lines": 3
-    },
-    {
-      "path": "packages/api-client/src/layouts/Modal/index.ts",
-      "lines": 4
-    },
-    {
-      "path": "packages/api-client/src/v2/blocks/operation-code-sample/index.ts",
-      "lines": 9
-    },
-    {
-      "path": "packages/api-client/src/v2/blocks/scalar-address-bar-block/index.ts",
-      "lines": 3
-    },
-    {
-      "path": "packages/api-client/src/v2/blocks/scalar-auth-selector-block/index.ts",
+      "path": "packages/api-client/src/index.ts",
       "lines": 6
     },
     {
-      "path": "packages/api-client/src/v2/features/app/index.ts",
-      "lines": 16
-    },
-    {
-      "path": "packages/api-client-react/src/index.ts",
-      "lines": 3
-    },
-    {
-      "path": "packages/api-reference/src/index.ts",
-      "lines": 15
-    },
-    {
-      "path": "packages/api-reference-react/src/index.ts",
-      "lines": 10
-    },
-    {
-      "path": "packages/components/src/components/ScalarButton/index.ts",
-      "lines": 3
-    },
-    {
-      "path": "packages/components/src/components/ScalarCheckboxInput/index.ts",
-      "lines": 6
-    },
-    {
-      "path": "packages/components/src/components/ScalarFloating/index.ts",
-      "lines": 4
-    },
-    {
-      "path": "packages/components/src/components/ScalarHotkey/index.ts",
-      "lines": 4
-    },
-    {
-      "path": "packages/components/src/components/ScalarIcon/index.ts",
-      "lines": 4
-    },
-    {
-      "path": "packages/components/src/components/ScalarListbox/index.ts",
-      "lines": 6
-    },
-    {
-      "path": "packages/components/src/components/ScalarLoading/index.ts",
-      "lines": 4
-    },
-    {
-      "path": "packages/components/src/components/ScalarMenu/index.ts",
-      "lines": 13
-    },
-    {
-      "path": "packages/components/src/components/ScalarPopover/index.ts",
-      "lines": 3
-    },
-    {
-      "path": "packages/components/src/components/ScalarTooltip/index.ts",
-      "lines": 8
-    },
-    {
-      "path": "packages/draggable/src/index.ts",
-      "lines": 4
-    },
-    {
-      "path": "packages/icons/src/library/index.ts",
-      "lines": 7
-    },
-    {
-      "path": "packages/json-magic/src/bundle/index.ts",
-      "lines": 3
-    },
-    {
-      "path": "packages/nextjs-openapi/src/index.ts",
-      "lines": 3
-    },
-    {
-      "path": "packages/oas-utils/src/entities/spec/index.ts",
-      "lines": 63
-    },
-    {
-      "path": "packages/openapi-parser/src/index.ts",
-      "lines": 30
+      "path": "packages/components/src/index.ts",
+      "lines": 41
     },
     {
       "path": "packages/sidebar/src/index.ts",
@@ -120,38 +20,6 @@
     {
       "path": "packages/themes/src/index.ts",
       "lines": 257
-    },
-    {
-      "path": "packages/types/src/api-reference/index.ts",
-      "lines": 32
-    },
-    {
-      "path": "packages/types/src/legacy/index.ts",
-      "lines": 6
-    },
-    {
-      "path": "packages/types/src/snippetz/index.ts",
-      "lines": 15
-    },
-    {
-      "path": "packages/types/src/utils/index.ts",
-      "lines": 4
-    },
-    {
-      "path": "packages/use-codemirror/src/index.ts",
-      "lines": 23
-    },
-    {
-      "path": "packages/validation/src/index.ts",
-      "lines": 38
-    },
-    {
-      "path": "packages/workspace-store/src/events/index.ts",
-      "lines": 16
-    },
-    {
-      "path": "packages/workspace-store/src/navigation/index.ts",
-      "lines": 7
     }
   ],
   "filesWithReExportAll": [

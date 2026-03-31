@@ -45,19 +45,25 @@ async function analyzeBarrelFile(filePath) {
   let hasOwnExports = false;
   let hasReExports = false;
   let hasReExportAll = false;
+  let hasImports = false;
   
+  // Own exports are defined in the file itself
   const ownExportPatterns = [
-    /^export\s+(const|let|var|function|class|type|interface|enum)\s+/,
-    /^export\s+default\s+/,
-    /^export\s*\{[^}]+\}\s*$/,  // export { x, y } without 'from'
+    /^export\s+(const|let|var|function|class|enum)\s+/,  // export const/let/var/function/class/enum
+    /^export\s+default\s+(?!from)/,  // export default (but not export default from)
+    /^export\s*\{[^}]+\}\s*$/,  // export { x, y } without 'from' (local exports)
   ];
   
+  // Re-exports are from other modules
   const reExportPatterns = [
     /^export\s*\{[^}]+\}\s+from\s+['"`]/,  // export { x } from './x'
     /^export\s+\*\s+as\s+\w+\s+from\s+['"`]/,  // export * as x from './x'
   ];
   
   const reExportAllPattern = /^export\s+\*\s+from\s+['"`]/;  // export * from './x'
+  
+  // Import patterns (non-type imports that might be used in own exports)
+  const importPattern = /^import\s+(?!type\s)/;
   
   for (const line of lines) {
     const trimmed = line.trim();
@@ -86,19 +92,24 @@ async function analyzeBarrelFile(filePath) {
       continue;
     }
     
-    // Check for imports that might be used in own exports
-    if (trimmed.startsWith('import ') && !trimmed.includes('import type')) {
-      // This might indicate own exports (imports used in the file)
-      // We'll mark this as a potential indicator
+    // Check for imports (non-type imports that might be used in own exports)
+    if (importPattern.test(trimmed)) {
+      hasImports = true;
     }
   }
+  
+  // The issue occurs when:
+  // 1. File has imports AND re-exports (imports might be used in own exports)
+  // 2. File has explicit own exports AND re-exports
+  const hasIssue = (hasImports && hasReExports) || (hasOwnExports && hasReExports);
   
   return {
     filePath,
     hasOwnExports,
     hasReExports,
     hasReExportAll,
-    hasIssue: hasOwnExports && hasReExports,
+    hasImports,
+    hasIssue,
     lines: content.split('\n').length,
   };
 }
