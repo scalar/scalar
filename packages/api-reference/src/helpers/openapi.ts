@@ -1,4 +1,4 @@
-import { type NodeInput, getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { MediaTypeObject } from '@scalar/workspace-store/schemas/v3.1/strict/media-type'
 import type {
   OpenApiDocument,
@@ -15,12 +15,31 @@ type ObjectSchemaWithProperties = {
   required?: string[]
 }
 
+const isSchemaObject = (value: unknown): value is SchemaObject =>
+  typeof value === 'object' && value !== null
+
+const schemaTypeToString = (schema: SchemaObject): string => {
+  if (!('type' in schema)) {
+    return ''
+  }
+
+  if (typeof schema.type === 'string') {
+    return schema.type
+  }
+
+  return Array.isArray(schema.type) ? schema.type.join('|') : ''
+}
+
 /**
  * Resolves a schema reference from workspace-store to a SchemaObject.
- * Bridges SchemaReferenceType (which uses '$ref-value': unknown) to NodeInput (which uses '$ref-value': SchemaObject).
+ * Returns undefined when a reference exists but has not been resolved yet.
  */
-function resolveSchemaRef(ref: SchemaReferenceType<SchemaObject>): SchemaObject {
-  return getResolvedRef(ref as NodeInput<SchemaObject>)
+function resolveSchemaRef(ref: SchemaReferenceType<SchemaObject>): SchemaObject | undefined {
+  if (typeof ref === 'object' && ref !== null && '$ref' in ref) {
+    return isSchemaObject(ref['$ref-value']) ? ref['$ref-value'] : undefined
+  }
+
+  return ref
 }
 
 /**
@@ -34,11 +53,11 @@ function formatProperty(key: string, obj: ObjectSchemaWithProperties): string {
   if (!propRef) return output
   const property = resolveSchemaRef(propRef)
 
-  // Check existence before accessing
-  if (property && typeof property === 'object' && 'type' in property) {
-    output += (property as { type?: string }).type ?? ''
-    if ('description' in property && typeof (property as { description?: string }).description === 'string') {
-      output += ' ' + (property as { description: string }).description
+  if (property) {
+    output += schemaTypeToString(property)
+
+    if ('description' in property && typeof property.description === 'string') {
+      output += ` ${property.description}`
     }
   }
 
@@ -77,8 +96,7 @@ function recursiveLogger(obj: MediaTypeObject): string[] {
         const ref = nestedProperties[subKey]
         if (!ref) return
         const nested = resolveSchemaRef(ref)
-        const typeStr =
-          nested && typeof nested === 'object' && 'type' in nested ? ((nested as { type?: string }).type ?? '') : ''
+        const typeStr = nested ? schemaTypeToString(nested) : ''
         results.push(`${subKey} ${typeStr}`)
       })
     }
@@ -121,17 +139,11 @@ export function deepMerge(source: Record<any, any>, target: Record<any, any>) {
 }
 
 /**
- * Type guard to check whether a node is a dereferenced OpenAPI reference.
- */
-const isDereferenced = <T>(obj: T | { $ref: string }): obj is T =>
-  typeof obj === 'object' && obj !== null && !('$ref' in obj && typeof obj.$ref === 'string')
-
-/**
  * Creates an empty specification object.
  * The returning object has the same structure as a valid OpenAPI specification, but everything is empty.
  */
 export function createEmptySpecification(partialSpecification?: Partial<OpenApiDocument>) {
-  return deepMerge(partialSpecification ?? {}, {
+  const emptySpecification = {
     openapi: '3.1.0',
     info: {
       title: '',
@@ -148,7 +160,16 @@ export function createEmptySpecification(partialSpecification?: Partial<OpenApiD
     },
     servers: [],
     tags: [],
-  }) as OpenApiDocument
+    'x-scalar-original-document-hash': '',
+  }
+
+  if (!partialSpecification) {
+    return emptySpecification as OpenApiDocument
+  }
+
+  deepMerge(partialSpecification, emptySpecification)
+
+  return emptySpecification as OpenApiDocument
 }
 
 export type ParameterMap = {
@@ -175,53 +196,24 @@ export function createParameterMap(operation: OperationObject) {
     formData: [],
   }
 
-  // TODO: They are not passed to the function, so we don't need to deal with them yet, but we should.
-  // @see https://github.com/scalar/scalar/issues/6428
-  // if (operation.pathParameters) {
-  //   operation.pathParameters.forEach((parameter: OpenAPIV3_1.ParameterObject) => {
-  //     if (parameter.in === 'path') {
-  //       map.path.push(parameter)
-  //     } else if (parameter.in === 'query') {
-  //       map.query.push(parameter)
-  //     } else if (parameter.in === 'header') {
-  //       map.header.push(parameter)
-  //     } else if (parameter.in === 'cookie') {
-  //       map.cookie.push(parameter)
-  //     } else if (parameter.in === 'body') {
-  //       map.body.push(parameter)
-  //     } else if (parameter.in === 'formData') {
-  //       map.formData.push(parameter)
-  //     }
-  //   })
-  // }
-
   const parameters = operation.parameters ?? []
 
-  if (parameters) {
-    parameters.forEach((parameter) => {
-      if (!isDereferenced<ParameterObject>(parameter)) {
-        return
-      }
+  parameters.forEach((parameterRef) => {
+    const parameter = getResolvedRef(parameterRef)
+    if (!parameter) {
+      return
+    }
 
-      if (typeof parameter === 'object' && parameter !== null && '$ref' in parameter) {
-        return
-      }
-
-      if (parameter.in === 'path') {
-        map.path.push(parameter)
-      } else if (parameter.in === 'query') {
-        map.query.push(parameter)
-      } else if (parameter.in === 'header') {
-        map.header.push(parameter)
-      } else if (parameter.in === 'cookie') {
-        map.cookie.push(parameter)
-      } else if ((parameter as { in?: string }).in === 'body') {
-        map.body.push(parameter)
-      } else if ((parameter as { in?: string }).in === 'formData') {
-        map.formData.push(parameter)
-      }
-    })
-  }
+    if (parameter.in === 'path') {
+      map.path.push(parameter)
+    } else if (parameter.in === 'query') {
+      map.query.push(parameter)
+    } else if (parameter.in === 'header') {
+      map.header.push(parameter)
+    } else if (parameter.in === 'cookie') {
+      map.cookie.push(parameter)
+    }
+  })
 
   return map
 }
