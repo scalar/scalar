@@ -994,7 +994,7 @@ describe('intersection', () => {
     expect(coerce(T, { type: 'b', b: 'x', c: 'y' })).toEqual({ type: 'b', b: 'x', c: 'y' })
     expect(coerce(T, { c: 'y' })).toEqual({ type: 'a', a: '', c: 'y' })
   })
-  it('correctly picks the branch on an intersection with nested unions #1', () => {
+  it('correctly picks the branch on an intersection with nested unions #2', () => {
     const T = intersection([
       union([
         object({ type: literal('a'), a: optional(string()) }),
