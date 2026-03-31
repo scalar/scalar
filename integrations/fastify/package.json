@@ -72,7 +72,7 @@
     "@fastify/http-proxy": "catalog:*",
     "@fastify/swagger": "catalog:*",
     "@scalar/api-reference": "workspace:*",
-    "fastify": "4.0.0",
+    "fastify": "4.28.1",
     "vite": "catalog:*",
     "vitest": "catalog:*",
     "yaml": "catalog:*"

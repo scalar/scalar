@@ -42,10 +42,10 @@
   },
   "devDependencies": {
     "fast-glob": "catalog:*",
-    "typescript": "5.6.2",
+    "typescript": "5.8.3",
     "vitest": "catalog:*"
   },
   "peerDependencies": {
-    "typescript": "5.6.0"
+    "typescript": "5.8.3"
   }
 }
