@@ -138,8 +138,10 @@ async function processPackageJson(filePath: string, checkOnly: boolean): Promise
   const pkg = JSON.parse(content)
   const changes: Change[] = []
 
-  const sections = ['dependencies', 'devDependencies', 'peerDependencies', 'optionalDependencies'] as const
+  const sections = ['dependencies', 'devDependencies', 'optionalDependencies'] as const
 
+  // Note: peerDependencies are intentionally excluded - they express compatibility ranges
+  // for consumers and should not be pinned to exact versions
   sections.forEach((section) => {
     if (pkg[section]) {
       Object.keys(pkg[section]).forEach((dep) => {
