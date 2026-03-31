@@ -286,10 +286,7 @@ describe('create-server-store', () => {
       })
 
       const document = store.getWorkspace().documents['doc-1']
-      expect(document?.['x-scalar-order']).toEqual([
-        'doc-1/description/introduction',
-        'doc-1/workspace-operation',
-      ])
+      expect(document?.['x-scalar-order']).toEqual(['doc-1/description/introduction', 'doc-1/workspace-operation'])
       expect(document?.['x-scalar-navigation']?.children?.[1]?.id).toBe('doc-1/workspace-operation')
     })
 
@@ -314,10 +311,7 @@ describe('create-server-store', () => {
       )
 
       const document = store.getWorkspace().documents['doc-2']
-      expect(document?.['x-scalar-order']).toEqual([
-        'doc-2/description/introduction',
-        'doc-2/add-document-operation',
-      ])
+      expect(document?.['x-scalar-order']).toEqual(['doc-2/description/introduction', 'doc-2/add-document-operation'])
       expect(document?.['x-scalar-navigation']?.children?.[1]?.id).toBe('doc-2/add-document-operation')
     })
   })
