@@ -1,6 +1,7 @@
-import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { describe, expect, it } from 'vitest'
 import { isTypeObject } from './is-type-object'
+
+type SchemaObject = unknown
 
 describe('is-type-object', () => {
   describe('isTypeObject', () => {
@@ -331,7 +332,7 @@ describe('is-type-object', () => {
     })
 
     it('returns false for schema with composition and other non-object properties', () => {
-      const schema: OpenAPIV3_1.SchemaObject = {
+      const schema: SchemaObject = {
         oneOf: [{ type: 'string' }],
         title: 'Composition Schema',
         description: 'A schema with composition',
