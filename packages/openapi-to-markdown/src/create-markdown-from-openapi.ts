@@ -27,18 +27,6 @@ type WorkspaceInput =
       path: string
     }
 
-const INTERNAL_KEYS = new Set([
-  '$ref',
-  '$ref-value',
-  'x-ext',
-  'x-ext-urls',
-  'x-scalar-navigation',
-  'x-scalar-is-dirty',
-  'x-original-oas-version',
-  'x-scalar-original-document-hash',
-  'x-scalar-original-source-url',
-])
-
 const isHttpUrl = (value: string): boolean => {
   try {
     const url = new URL(value)
@@ -66,56 +54,7 @@ const toWorkspaceInput = (input: AnyDocument): WorkspaceInput => {
   return { path: input }
 }
 
-const dereferenceNode = (input: unknown, cache = new WeakMap<object, unknown>()): unknown => {
-  if (Array.isArray(input)) {
-    if (cache.has(input)) {
-      return cache.get(input)
-    }
-
-    const output: unknown[] = []
-    cache.set(input, output)
-
-    input.forEach((item) => {
-      output.push(dereferenceNode(item, cache))
-    })
-
-    return output
-  }
-
-  if (!isObject(input)) {
-    return input
-  }
-
-  if (cache.has(input)) {
-    return cache.get(input)
-  }
-
-  const output: Record<string, unknown> = {}
-  cache.set(input, output)
-
-  const source = input as Record<string, unknown>
-  const resolvedReference = source['$ref-value']
-
-  const assign = (value: Record<string, unknown>) => {
-    Object.entries(value).forEach(([key, entry]) => {
-      if (INTERNAL_KEYS.has(key) || key.startsWith('__scalar_')) {
-        return
-      }
-
-      output[key] = dereferenceNode(entry, cache)
-    })
-  }
-
-  if (isObject(resolvedReference)) {
-    assign(resolvedReference as Record<string, unknown>)
-  }
-
-  assign(source)
-
-  return output
-}
-
-const loadDocument = async (input: AnyDocument): Promise<OpenAPI.Document> => {
+export async function createHtmlFromOpenApi(input: AnyDocument) {
   const workspaceStore = createWorkspaceStore({
     fileLoader: readFiles(),
   })
@@ -130,17 +69,11 @@ const loadDocument = async (input: AnyDocument): Promise<OpenAPI.Document> => {
     throw new Error('Failed to load OpenAPI document')
   }
 
-  const document = workspaceStore.workspace.documents[name]
+  const content = workspaceStore.workspace.documents[name]
 
-  if (!document) {
+  if (!content) {
     throw new Error('OpenAPI document could not be resolved')
   }
-
-  return dereferenceNode(document) as OpenAPI.Document
-}
-
-export async function createHtmlFromOpenApi(input: AnyDocument) {
-  const content = await loadDocument(input)
 
   // Create and configure a server-side rendered Vue app
   const app = createSSRApp(MarkdownReference, {

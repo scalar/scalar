@@ -1,9 +1,30 @@
 <script setup lang="ts">
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
+import { resolve } from '@scalar/workspace-store/resolve'
 
-defineProps<{
+const { schema } = defineProps<{
   schema: OpenAPIV3_1.SchemaObject
 }>()
+
+type ResolvedSchemaView = {
+  allOf?: OpenAPIV3_1.SchemaObject[]
+  anyOf?: OpenAPIV3_1.SchemaObject[]
+  default?: unknown
+  description?: string
+  enum?: unknown[]
+  format?: string
+  items?: OpenAPIV3_1.SchemaObject
+  maxItems?: number
+  minItems?: number
+  not?: OpenAPIV3_1.SchemaObject
+  oneOf?: OpenAPIV3_1.SchemaObject[]
+  properties?: Record<string, OpenAPIV3_1.SchemaObject>
+  required?: string[]
+  type?: OpenAPIV3_1.SchemaObject['type']
+  uniqueItems?: boolean
+}
+
+const resolvedSchema = resolve.schema(schema as never) as unknown as ResolvedSchemaView
 
 // Sort properties to show required fields first, then optional, then metadata
 const sortProperties = (
@@ -22,72 +43,75 @@ const sortProperties = (
 </script>
 
 <template>
-  <section v-if="schema">
+  <section v-if="resolvedSchema">
     <!-- Composition keywords -->
-    <template v-if="schema.allOf">
+    <template v-if="resolvedSchema.allOf">
       <section>
         <header>
           <strong>All of:</strong>
         </header>
         <section
-          v-for="(subSchema, index) in schema.allOf"
+          v-for="(subSchema, index) in resolvedSchema.allOf"
           :key="index">
           <Schema :schema="subSchema" />
         </section>
       </section>
     </template>
 
-    <template v-else-if="schema.anyOf">
+    <template v-else-if="resolvedSchema.anyOf">
       <section>
         <header>
           <strong>Any of:</strong>
         </header>
         <section
-          v-for="(subSchema, index) in schema.anyOf"
+          v-for="(subSchema, index) in resolvedSchema.anyOf"
           :key="index">
           <Schema :schema="subSchema" />
         </section>
       </section>
     </template>
 
-    <template v-else-if="schema.oneOf">
+    <template v-else-if="resolvedSchema.oneOf">
       <section>
         <header>
           <strong>One of:</strong>
         </header>
         <section
-          v-for="(subSchema, index) in schema.oneOf"
+          v-for="(subSchema, index) in resolvedSchema.oneOf"
           :key="index">
           <Schema :schema="subSchema" />
         </section>
       </section>
     </template>
 
-    <template v-else-if="schema.not">
+    <template v-else-if="resolvedSchema.not">
       <section>
         <header>
           <strong>Not:</strong>
         </header>
         <section>
-          <Schema :schema="schema.not" />
+          <Schema :schema="resolvedSchema.not" />
         </section>
       </section>
     </template>
 
     <!-- Object type -->
-    <template v-else-if="schema.type === 'object' || schema.properties">
+    <template
+      v-else-if="
+        resolvedSchema.type === 'object' || resolvedSchema.properties
+      ">
       <section>
         <ul>
           <template
             v-for="(propSchema, propName) in sortProperties(
-              schema.properties || {},
-              schema.required,
+              resolvedSchema.properties || {},
+              resolvedSchema.required,
             )"
             :key="propName">
             <li>
               <strong>
                 <code>{{ propName }}</code>
-                <span v-if="schema.required?.includes(propName)">
+                <span v-if="resolvedSchema.required?.includes(propName)">
                   (required)
                 </span>
               </strong>
@@ -142,27 +166,30 @@ const sortProperties = (
     </template>
 
     <!-- Array type -->
-    <template v-else-if="schema.type === 'array' && schema.items">
+    <template
+      v-else-if="resolvedSchema.type === 'array' && resolvedSchema.items">
       <section>
         <header>
           <strong>Array of:</strong>
         </header>
         <section>
-          <Schema :schema="schema.items" />
+          <Schema :schema="resolvedSchema.items" />
         </section>
         <ul
           v-if="
-            schema.minItems !== undefined ||
-            schema.maxItems !== undefined ||
-            schema.uniqueItems
+            resolvedSchema.minItems !== undefined ||
+            resolvedSchema.maxItems !== undefined ||
+            resolvedSchema.uniqueItems
           ">
-          <li v-if="schema.minItems !== undefined">
-            Min items: <code>{{ schema.minItems }}</code>
+          <li v-if="resolvedSchema.minItems !== undefined">
+            Min items: <code>{{ resolvedSchema.minItems }}</code>
           </li>
-          <li v-if="schema.maxItems !== undefined">
-            Max items: <code>{{ schema.maxItems }}</code>
+          <li v-if="resolvedSchema.maxItems !== undefined">
+            Max items: <code>{{ resolvedSchema.maxItems }}</code>
           </li>
-          <li v-if="schema.uniqueItems">Unique items: <code>true</code></li>
+          <li v-if="resolvedSchema.uniqueItems">
+            Unique items: <code>true</code>
+          </li>
         </ul>
       </section>
     </template>
@@ -171,30 +198,30 @@ const sortProperties = (
     <template v-else>
       <section>
         <p>
-          <code>{{ schema.type }}</code>
-          <template v-if="schema.format">
+          <code>{{ resolvedSchema.type }}</code>
+          <template v-if="resolvedSchema.format">
             <span
-              >, format: <code>{{ schema.format }}</code></span
+              >, format: <code>{{ resolvedSchema.format }}</code></span
             >
           </template>
-          <template v-if="schema.enum">
+          <template v-if="resolvedSchema.enum">
             <span
               >, possible values:
               <code>{{
-                (schema.enum as unknown[])
+                (resolvedSchema.enum as unknown[])
                   .map((e: unknown) => JSON.stringify(e))
                   .join(', ')
               }}</code>
             </span>
           </template>
-          <template v-if="schema.default !== undefined">
+          <template v-if="resolvedSchema.default !== undefined">
             <span
               >, default:
-              <code>{{ JSON.stringify(schema.default) }}</code></span
+              <code>{{ JSON.stringify(resolvedSchema.default) }}</code></span
             >
           </template>
-          <template v-if="schema.description">
-            <span> — {{ schema.description }}</span>
+          <template v-if="resolvedSchema.description">
+            <span> — {{ resolvedSchema.description }}</span>
           </template>
         </p>
       </section>
