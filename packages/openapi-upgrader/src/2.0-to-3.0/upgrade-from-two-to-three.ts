@@ -39,6 +39,84 @@ function isNamedExamplesCollection(value: unknown): value is Record<string, Reco
   )
 }
 
+/** Checks if a schema is empty (no meaningful properties defined) */
+function isEmptySchema(schema: unknown): boolean {
+  if (typeof schema !== 'object' || schema === null) {
+    return true
+  }
+
+  const s = schema as Record<string, unknown>
+  const substantiveValidationKeywords = [
+    'enum',
+    'const',
+    'not',
+    'format',
+    'multipleOf',
+    'maximum',
+    'exclusiveMaximum',
+    'minimum',
+    'exclusiveMinimum',
+    'maxLength',
+    'minLength',
+    'pattern',
+    'maxItems',
+    'minItems',
+    'uniqueItems',
+    'maxProperties',
+    'minProperties',
+    'required',
+  ]
+
+  // Has substantive schema keywords — not empty
+  if (
+    s.allOf ||
+    s.oneOf ||
+    s.anyOf ||
+    s.items ||
+    s.$ref ||
+    'additionalProperties' in s ||
+    substantiveValidationKeywords.some((key) => key in s)
+  ) {
+    return false
+  }
+
+  // Has properties with at least one defined property — not empty
+  if (typeof s.properties === 'object' && s.properties !== null && Object.keys(s.properties).length > 0) {
+    return false
+  }
+
+  return true
+}
+
+/**
+ * Removes content entries that only have an empty schema (no example/examples)
+ * when other entries with actual examples exist. This prevents the UI from
+ * selecting a meaningless produces-based entry over one with a real example.
+ */
+function removeEmptySchemaOnlyContentEntries(content: Record<string, unknown>): void {
+  const keys = Object.keys(content)
+  const hasEntryWithExample = keys.some((key) => {
+    const entry = content[key] as Record<string, unknown> | undefined
+    return entry?.example !== undefined || entry?.examples !== undefined
+  })
+
+  if (!hasEntryWithExample) {
+    return
+  }
+
+  for (const key of keys) {
+    const entry = content[key] as Record<string, unknown> | undefined
+    if (!entry) continue
+
+    const hasExample = entry.example !== undefined || entry.examples !== undefined
+    const hasOnlySchema = entry.schema !== undefined && !hasExample && Object.keys(entry).length === 1
+
+    if (hasOnlySchema && isEmptySchema(entry.schema)) {
+      delete content[key]
+    }
+  }
+}
+
 /** The allowed properties for an OpenAPI 3.x ExampleObject */
 const EXAMPLE_OBJECT_PROPERTIES = new Set(['summary', 'description', 'value', 'externalValue'])
 
@@ -322,6 +400,11 @@ export function upgradeFromTwoToThree(originalSpecification: UnknownObject) {
             delete responseObj.examples
           }
 
+          // Clean up content entries that only have an empty schema when other entries have examples
+          if (responseObj.content && typeof responseObj.content === 'object') {
+            removeEmptySchemaOnlyContentEntries(responseObj.content as Record<string, unknown>)
+          }
+
           // Transform headers if present
           if (responseObj.headers && typeof responseObj.headers === 'object') {
             responseObj.headers = Object.entries(responseObj.headers as Record<string, unknown>).reduce(
@@ -462,6 +545,11 @@ export function upgradeFromTwoToThree(originalSpecification: UnknownObject) {
                     }
 
                     delete responseItem.examples
+                  }
+
+                  // Clean up content entries that only have an empty schema when other entries have examples
+                  if (responseItem.content && typeof responseItem.content === 'object') {
+                    removeEmptySchemaOnlyContentEntries(responseItem.content)
                   }
                 }
               }

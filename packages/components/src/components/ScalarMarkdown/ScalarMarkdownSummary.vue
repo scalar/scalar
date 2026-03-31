@@ -1,3 +1,16 @@
+<script lang="ts">
+/**
+ * Scalar Markdown Summary component
+ *
+ * Displays a truncated preview of markdown content with
+ * a "More" / "Show Less" toggle to expand and collapse.
+ *
+ * @example
+ * <ScalarMarkdownSummary value="Long markdown text..." :clamp="2" />
+ */
+export default {}
+</script>
+
 <script setup lang="ts">
 import { useBindCx } from '@scalar/use-hooks/useBindCx'
 import { useResizeObserver } from '@vueuse/core'

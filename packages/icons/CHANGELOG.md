@@ -1,5 +1,11 @@
 # @scalar/icons
 
+## 0.7.1
+
+### Patch Changes
+
+- [#8624](https://github.com/scalar/scalar/pull/8624): fix: use shallowref to prevent vue warning
+
 ## 0.7.0
 
 ### Minor Changes

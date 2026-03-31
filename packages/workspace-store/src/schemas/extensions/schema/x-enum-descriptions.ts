@@ -1,4 +1,5 @@
 import { Type } from '@scalar/typebox'
+import { array, object, optional, record, string, union } from '@scalar/validation'
 
 /**
  * x-enumDescriptions
@@ -52,3 +53,16 @@ export type XEnumDescriptions = {
    */
   'x-enum-descriptions'?: Record<string, string> | string[]
 }
+
+const enumDescriptionValue = union([record(string(), string()), array(string())])
+
+export const XEnumDescriptions = object(
+  {
+    'x-enumDescriptions': optional(enumDescriptionValue),
+    'x-enum-descriptions': optional(enumDescriptionValue),
+  },
+  {
+    typeName: 'XEnumDescriptions',
+    typeComment: 'Descriptions for enum values',
+  },
+)

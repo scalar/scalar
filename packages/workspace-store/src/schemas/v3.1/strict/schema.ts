@@ -3,7 +3,7 @@ import { Type } from '@scalar/typebox'
 import { compose } from '@/schemas/compose'
 import { type XInternal, XInternalSchema } from '@/schemas/extensions/document/x-internal'
 import { type XScalarIgnore, XScalarIgnoreSchema } from '@/schemas/extensions/document/x-scalar-ignore'
-import { XTags } from '@/schemas/extensions/document/x-tags'
+import { type XTags, XTagsSchema } from '@/schemas/extensions/document/x-tags'
 import {
   type XAdditionalPropertiesName,
   XAdditionalPropertiesNameSchema,
@@ -75,7 +75,7 @@ const Extensions = compose(
   XEnumDescriptionsSchema,
   XEnumVarNamesSchema,
   XAdditionalPropertiesNameSchema,
-  XTags,
+  XTagsSchema,
 )
 
 type Extensions = XScalarIgnore &

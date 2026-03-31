@@ -1,3 +1,18 @@
+<script lang="ts">
+/**
+ * Scalar Search Result List component
+ *
+ * A container for search result items with a "no results" fallback.
+ *
+ * @example
+ * <ScalarSearchResultList :noResults="results.length === 0">
+ *   <ScalarSearchResultItem v-for="r in results" :key="r.id">
+ *     {{ r.label }}
+ *   </ScalarSearchResultItem>
+ * </ScalarSearchResultList>
+ */
+export default {}
+</script>
 <script setup lang="ts">
 import { useBindCx } from '@scalar/use-hooks/useBindCx'
 

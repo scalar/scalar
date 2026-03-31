@@ -1,5 +1,11 @@
 # @scalar/workspace-store
 
+## 0.42.0
+
+### Minor Changes
+
+- [#8600](https://github.com/scalar/scalar/pull/8600): feat: typegen scripts and new schemas for the validation library
+
 ## 0.41.2
 
 ### Patch Changes

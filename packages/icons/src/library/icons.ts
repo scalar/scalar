@@ -1,4 +1,4 @@
-import type { Component } from 'vue'
+import { markRaw, type Component } from 'vue'
 
 import type { LibraryIconDefinition } from './types'
 
@@ -29,7 +29,7 @@ export async function getLibraryIcon(src: string): Promise<Component | undefined
   }
 
   const mod = await loader()
-  const component = (mod as Record<string, Component>).default ?? mod
+  const component = markRaw((mod as Record<string, Component>).default ?? mod)
   iconCache.set(src, component)
   return component
 }

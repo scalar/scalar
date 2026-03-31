@@ -56,7 +56,7 @@ export const applyScalarTheme = async (theme: string, isDarkMode: boolean) => {
   const colors = Object.fromEntries(
     Object.entries(varsMap)
       .filter(([_, cssVar]) => !!vars[cssVar])
-      .map(([prop, cssVar]) => [prop, vars[cssVar]]),
+      .map(([prop, cssVar]) => [prop, vars[cssVar] as string]),
   )
 
   // Define the theme in Monaco using the chosen variables.

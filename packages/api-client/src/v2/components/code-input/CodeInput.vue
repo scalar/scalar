@@ -149,7 +149,7 @@ const emit = defineEmits<{
   'update:modelValue': [value: string]
   'submit': [value: string]
   'blur': [value: string]
-  'redirectToEnvironment': []
+  'navigate': [route: { page: 'document'; path: 'environment' }]
 }>()
 
 // ---------------------------------------------------------------------------
@@ -522,7 +522,7 @@ defineExpose({
     :dropdownPosition="dropdownPosition"
     :environment="environment"
     :query="dropdownQuery"
-    @redirect="emit('redirectToEnvironment')"
+    @redirect="emit('navigate', { page: 'document', path: 'environment' })"
     @select="handleDropdownSelect" />
 </template>
 <style scoped>

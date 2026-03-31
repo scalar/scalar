@@ -29,8 +29,8 @@
               </div>
               <div class="pricing-table-column">
                 <b class="text-sm">Pro</b>
-                <p class="text-xl font-bold ">$72 / month*</p>
-                <p class=" text-c-2 text-sm font-normal">* 3-seat minimum. Plus member, usage, and service fees.</p>
+                <p class="text-xl font-bold ">$24 / seat / month*</p>
+                <p class=" text-c-2 text-sm font-normal">* Minimum 3 seats ($72/month base). A seat is one team member with editor access. Additional fees apply only for extra seats, usage-based products, or optional services.</p>
                 <p></p>
                 <a href="https://dashboard.scalar.com/register" class="pricing-cta pricing-cta-main">Try For Free</a>
               </div>

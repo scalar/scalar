@@ -2088,6 +2088,14 @@
                 "mode": "flat",
                 "title": "Posts",
                 "children": {
+                  "/2026-03-25-scalar-mcp-oauth": {
+                    "type": "page",
+                    "title": "Too Long; Didn't Read; Used MCP",
+                    "filepath": "documentation/blog/2026-03-25-scalar-mcp-oauth.md",
+                    "head": {
+                      "scripts": [{ "url": "https://cdn.jsdelivr.net/npm/@mux/mux-player" }]
+                    }
+                  },
                   "/2026-03-17-agent-mcp": {
                     "type": "page",
                     "title": "Use your API in Cursor",

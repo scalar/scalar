@@ -106,16 +106,24 @@ async function updateConfig(root: string, configPath: string, posts: BlogPost[])
     return
   }
 
-  const existingChildren: Record<string, { title?: string }> = blog.children['/posts'].children ?? {}
+  const existingChildren: Record<string, Record<string, unknown>> = (blog.children['/posts'].children ?? {}) as Record<
+    string,
+    Record<string, unknown>
+  >
 
-  const children: Record<string, { type: string; title: string; filepath: string }> = {}
+  const children: Record<string, Record<string, unknown>> = {}
   for (const post of posts) {
     const key = `/${post.slug}`
-    children[key] = {
+    const prev = existingChildren[key]
+    const entry: Record<string, unknown> = {
       type: 'page',
-      title: existingChildren[key]?.title ?? post.title,
+      title: typeof prev?.title === 'string' ? prev.title : post.title,
       filepath: `${BLOG_DIR}/${post.filename}`,
     }
+    if (prev?.head !== undefined) {
+      entry.head = prev.head
+    }
+    children[key] = entry
   }
 
   blog.children['/posts'].children = children

@@ -16,13 +16,14 @@
     "openapi",
     "scalar"
   ],
-  "version": "0.41.2",
+  "version": "0.42.0",
   "engines": {
     "node": ">=22"
   },
   "scripts": {
     "build": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
     "generate-json-schemas": "tsx ./scripts/generate-json-schemas.ts",
+    "generate-openapi-types": "tsx ./scripts/generate-openapi-types.ts",
     "test": "vitest",
     "types:check": "tsc --noEmit"
   },
@@ -156,7 +157,8 @@
     "js-base64": "catalog:*",
     "type-fest": "catalog:*",
     "vue": "catalog:*",
-    "yaml": "catalog:*"
+    "yaml": "catalog:*",
+    "@scalar/validation": "workspace:*"
   },
   "devDependencies": {
     "@google-cloud/storage": "catalog:*",

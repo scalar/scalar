@@ -4,6 +4,24 @@ import type { Static } from './types'
 import { validate } from './validate'
 
 /**
+ * True when this property schema is only used to discriminate union branches
+ * (single literal, or a union of literals). No presence bonus when the value
+ * does not match — avoids ties like `type: literal('a')` vs `type: union([lit('b'), lit('c')])`.
+ */
+const isDiscriminatorProperty = (schema: Schema): boolean => {
+  if (schema.type === 'optional') {
+    return isDiscriminatorProperty(schema.schema)
+  }
+  if (schema.type === 'literal') {
+    return true
+  }
+  if (schema.type === 'union') {
+    return schema.schemas.length > 0 && schema.schemas.every(isDiscriminatorProperty)
+  }
+  return false
+}
+
+/**
  * Computes a "score" indicating how well a value matches a schema,
  * used for picking the best branch in union coercion.
  *
@@ -17,16 +35,23 @@ const scoreUnion = (schema: Schema, value: unknown): number => {
       return 0
     }
 
-    // For each key in the schema's properties:
-    // - +10 if the value matches an explicit literal for the key.
-    // - +1 if the property exists (not literal match).
+    // Missing keys contribute 0 (including optional keys — matches prior union heuristics).
+    // Discriminator properties (`literal` or `union` of literals): recurse with scoreUnion;
+    // matching values get a high weight (×10) so `type: literal('A')` beats unrelated fields
+    // on another branch; mismatches score 0 (no "key present" tie-break).
+    // Other properties: scoreUnion plus +1 when the value fails validation so `{ a: null }`
+    // can still prefer the branch that declares `a`.
     return Object.keys(schema.properties).reduce<number>((acc, key) => {
-      const exists = key in value
-      const isLiteralMatch = schema.properties[key].type === 'literal' && value[key] === schema.properties[key].value
-      if (isLiteralMatch) {
-        return acc + 10
+      if (!(key in value)) {
+        return acc
       }
-      return acc + (exists ? 1 : 0)
+      const propSchema = schema.properties[key]
+      const raw = value[key as keyof typeof value]
+      const base = scoreUnion(propSchema, raw)
+      if (isDiscriminatorProperty(propSchema)) {
+        return acc + (base > 0 ? base * 10 : 0)
+      }
+      return acc + (base > 0 ? base : 1)
     }, 0)
   }
   if (schema.type === 'array') {
@@ -37,9 +62,18 @@ const scoreUnion = (schema: Schema, value: unknown): number => {
     // TODO: implement smarter scoring for records (just a placeholder for now)
     return isObject(value) ? 1 : 0
   }
+  if (schema.type === 'optional') {
+    return value === undefined ? 1 : scoreUnion(schema.schema, value)
+  }
   if (schema.type === 'union') {
     // For a union, use the highest score among all sub-schemas
     return Math.max(...schema.schemas.map((schema) => scoreUnion(schema, value)))
+  }
+  if (schema.type === 'intersection') {
+    if (schema.schemas.length === 0) {
+      return 1
+    }
+    return schema.schemas.reduce((acc, sub) => acc + scoreUnion(sub, value), 0)
   }
 
   if (schema.type === 'lazy') {
@@ -122,6 +156,12 @@ export const coerce = <S extends Schema>(
   if (schema.type === 'notDefined') {
     return undefined as unknown as Static<S>
   }
+  if (schema.type === 'optional') {
+    if (value === undefined) {
+      return undefined as unknown as Static<S>
+    }
+    return coerce(schema.schema, value, cache)
+  }
   if (schema.type === 'array') {
     if (!Array.isArray(value)) {
       return [] as unknown as Static<S>
@@ -139,9 +179,16 @@ export const coerce = <S extends Schema>(
   if (schema.type === 'object') {
     const keys = Object.keys(schema.properties)
     const target = isObject(value) ? value : null
-    return Object.fromEntries(
-      keys.map((key) => [key, coerce(schema.properties[key], target?.[key], cache)]),
-    ) as unknown as Static<S>
+    const entries: [string, unknown][] = []
+    for (const key of keys) {
+      const propSchema = schema.properties[key]
+      const raw = target?.[key as keyof typeof target]
+      if (propSchema.type === 'optional' && raw === undefined) {
+        continue
+      }
+      entries.push([key, coerce(propSchema, raw, cache)])
+    }
+    return Object.fromEntries(entries) as unknown as Static<S>
   }
   if (schema.type === 'union') {
     const branch = schema.schemas.reduce(
@@ -153,6 +200,12 @@ export const coerce = <S extends Schema>(
     )
     // We need some way to pick one of the union values
     return coerce(branch.schema, value, cache)
+  }
+  if (schema.type === 'intersection') {
+    return schema.schemas.reduce<Record<string, unknown>>(
+      (acc, subSchema) => Object.assign(acc, coerce(subSchema, value, cache) as Record<string, unknown>),
+      {},
+    ) as unknown as Static<S>
   }
   if (schema.type === 'literal') {
     return schema.value

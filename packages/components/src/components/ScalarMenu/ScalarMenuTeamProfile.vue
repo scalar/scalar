@@ -1,3 +1,15 @@
+<script lang="ts">
+/**
+ * Scalar Menu Team Profile component
+ *
+ * Displays a team avatar and label. Shows the team image if available,
+ * otherwise falls back to the first letter of the label or a default icon.
+ *
+ * @example
+ * <ScalarMenuTeamProfile label="My Team" src="/avatar.png" />
+ */
+export default {}
+</script>
 <script setup lang="ts">
 import { ScalarIconUsers } from '@scalar/icons'
 import { useBindCx } from '@scalar/use-hooks/useBindCx'

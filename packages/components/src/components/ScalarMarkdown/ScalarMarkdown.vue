@@ -1,3 +1,16 @@
+<script lang="ts">
+/**
+ * Scalar Markdown component
+ *
+ * Renders a markdown string as styled HTML with support for
+ * headings, links, code blocks, tables, alerts, and more.
+ *
+ * @example
+ * <ScalarMarkdown value="# Hello World" />
+ */
+export default {}
+</script>
+
 <script setup lang="ts">
 import {
   type Node,
