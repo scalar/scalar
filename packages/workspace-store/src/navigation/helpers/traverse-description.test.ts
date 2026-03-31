@@ -333,4 +333,48 @@ Content
       type: 'text',
     })
   })
+
+  it('should include setext headings in description navigation', () => {
+    const description = `
+Main Section
+============
+Content
+Subsection
+----------
+More content
+    `
+    const result = traverseDescription({
+      info: { title: 'Openapi Document', version: '1.0.0', description },
+      generateId: (props) => {
+        if (props.type === 'text') {
+          return getHeadingId({ value: props.value })
+        }
+
+        return 'unknown-id'
+      },
+      parentId: 'parent-1',
+    })
+
+    expect(result).toEqual([
+      {
+        id: 'heading-introduction',
+        title: 'Introduction',
+        type: 'text',
+        children: [
+          {
+            id: 'heading-main-section',
+            title: 'Main Section',
+            type: 'text',
+            children: [
+              {
+                id: 'heading-subsection',
+                title: 'Subsection',
+                type: 'text',
+              },
+            ],
+          },
+        ],
+      },
+    ])
+  })
 })

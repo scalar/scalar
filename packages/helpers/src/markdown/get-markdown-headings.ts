@@ -45,7 +45,8 @@ export function getMarkdownHeadings(markdown: string): {
   let fenceChar = ''
   let fenceLength = 0
 
-  for (const line of lines) {
+  for (let index = 0; index < lines.length; index++) {
+    const line = lines[index] ?? ''
     const trimmed = line.trimStart()
 
     if (!inFencedBlock) {
@@ -81,7 +82,33 @@ export function getMarkdownHeadings(markdown: string): {
           value,
         })
       }
+
+      continue
     }
+
+    // Match setext headings:
+    // Heading level 1: Text followed by ===
+    // Heading level 2: Text followed by ---
+    const nextLine = lines[index + 1]
+    if (!nextLine || /^(?: {4}|\t)/.test(nextLine)) {
+      continue
+    }
+
+    const underline = /^(=+|-+)\s*$/.exec(nextLine.trim())?.[1]
+    if (!underline) {
+      continue
+    }
+
+    const value = stripInlineMarkdown(trimmed)
+    if (!value) {
+      continue
+    }
+
+    headings.push({
+      depth: underline[0] === '=' ? 1 : 2,
+      value,
+    })
+    index++
   }
 
   return headings

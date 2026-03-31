@@ -212,4 +212,36 @@ Another paragraph with **bold** text.
 
     expect(headings).toStrictEqual([{ depth: 1, value: 'Heading with HTML tags' }])
   })
+
+  it('gets setext headings', () => {
+    const markdown = `
+Main Heading
+============
+
+Sub Heading
+-----------
+`
+
+    const headings = getMarkdownHeadings(markdown)
+
+    expect(headings).toStrictEqual([
+      { depth: 1, value: 'Main Heading' },
+      { depth: 2, value: 'Sub Heading' },
+    ])
+  })
+
+  it('ignores setext headings inside fenced code blocks', () => {
+    const markdown = `
+# Real Heading
+
+\`\`\`
+Not a heading
+-------------
+\`\`\`
+`
+
+    const headings = getMarkdownHeadings(markdown)
+
+    expect(headings).toStrictEqual([{ depth: 1, value: 'Real Heading' }])
+  })
 })
