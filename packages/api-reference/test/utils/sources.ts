@@ -22,9 +22,8 @@ export const sources = [
     layout: 'classic',
   },
   {
-    title: 'Classic layout with tag groups',
-    slug: 'classic-tag-groups',
-    layout: 'classic',
+    title: 'Tag Groups',
+    slug: 'tag-groups',
     content: {
       openapi: '3.1.0',
       info: {
