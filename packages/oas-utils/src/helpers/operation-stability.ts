@@ -15,9 +15,7 @@ export const isOperationDeprecated = (operation: OperationStability): boolean =>
  * Get operation stability from deprecated or x-scalar-stability
  */
 export const getOperationStability = (operation: OperationStability): XScalarStability | undefined =>
-  operation.deprecated
-    ? XScalarStability.Deprecated
-    : (operation['x-scalar-stability'] as XScalarStability | undefined)
+  operation.deprecated ? XScalarStability.Deprecated : (operation['x-scalar-stability'] as XScalarStability | undefined)
 
 /**
  * Get Operation stability tailwind color class
