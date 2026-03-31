@@ -1,7 +1,10 @@
 import { oasSecurityRequirementSchema } from '@scalar/types/entities'
 import { XScalarStability } from '@scalar/types/legacy'
 import { type ENTITY_BRANDS, nanoidSchema } from '@scalar/types/utils'
-import { type ZodSchema, z } from 'zod'
+import type { XCodeSample, XCodeSamples } from '@scalar/workspace-store/schemas/extensions/operation/x-code-samples'
+import type { XPostResponse } from '@scalar/workspace-store/schemas/extensions/operation/x-post-response'
+import type { ZodSchema } from 'zod'
+import { z } from 'zod'
 
 import { selectedSecuritySchemeUidSchema } from '@/entities/shared/utility'
 
@@ -13,20 +16,20 @@ const xCodeSampleSchema = z.object({
   lang: z.string().optional().catch(undefined),
   label: z.string().optional().catch(undefined),
   source: z.string(),
-})
+}) satisfies ZodSchema<XCodeSample>
 
 const xCodeSamplesSchema = z.object({
   'x-codeSamples': xCodeSampleSchema.array().optional().catch(undefined),
   'x-code-samples': xCodeSampleSchema.array().optional().catch(undefined),
   'x-custom-examples': xCodeSampleSchema.array().optional().catch(undefined),
-})
+}) satisfies ZodSchema<XCodeSamples>
 
 /** The code to execute */
 const postResponseSchema = z.string()
 
 const xPostResponseSchema = z.object({
   'x-post-response': postResponseSchema.optional(),
-})
+}) satisfies ZodSchema<XPostResponse>
 
 const requestMethods = ['delete', 'get', 'head', 'options', 'patch', 'post', 'put', 'trace'] as const
 
@@ -167,7 +170,7 @@ const extendedRequestSchema = z.object({
 })
 
 export type PostResponseScript = z.infer<typeof postResponseSchema>
-export type PostResponseScripts = z.infer<typeof xPostResponseSchema>['x-post-response']
+export type PostResponseScripts = XPostResponse['x-post-response']
 
 /** Unified request schema for client usage */
 export const requestSchema = oasRequestSchema
