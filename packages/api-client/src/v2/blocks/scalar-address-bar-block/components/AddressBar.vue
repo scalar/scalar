@@ -106,12 +106,11 @@ const hasConflict = computed(() => methodConflict.value || pathConflict.value)
 const emitPathMethodUpdate = (
   targetMethod: HttpMethodType,
   targetPath: string,
-  /** In case we have clicked on a nav item */
-  targetSidebarItemId?: string | null,
+  blurTarget?: string | null,
 ): void => {
   eventBus.emit('operation:update:pathMethod', {
     meta: { method, path },
-    targetSidebarItemId,
+    blurTarget,
     payload: { method: targetMethod, path: targetPath },
     callback: (status) => {
       // Clear conflicts if the operation was successful or no change was made
@@ -137,20 +136,29 @@ const emitPathMethodUpdate = (
 const handleMethodChange = (newMethod: HttpMethodType): void =>
   emitPathMethodUpdate(newMethod, pathConflict.value ?? path)
 
-/** Update the operation's path, handling conflicts also we extract the sidebar item ID from the blur event*/
+/** Update the operation's path, handling conflicts also we extract the blur targets */
 const handlePathBlur = (
   newPath: string,
   event: MouseEvent | FocusEvent,
 ): void => {
   const relatedTarget = event.relatedTarget as Element | null
-  const targetSidebarItem = relatedTarget?.closest('[data-sidebar-id]')
-  const targetSidebarItemId = targetSidebarItem?.getAttribute('data-sidebar-id')
+
+  const sidebarItemId = relatedTarget
+    ?.closest('[data-sidebar-id]')
+    ?.getAttribute('data-sidebar-id')
+  const addressBarAction = relatedTarget
+    ?.closest('[data-addressbar-action]')
+    ?.getAttribute('data-addressbar-action')
+
+  const blurTarget = sidebarItemId ?? addressBarAction ?? null
+
+  console.log('blurTarget', blurTarget)
 
   const normalizedPath = newPath.startsWith('/') ? newPath : `/${newPath}`
   emitPathMethodUpdate(
     methodConflict.value ?? method,
     normalizedPath,
-    targetSidebarItemId,
+    blurTarget,
   )
 }
 
@@ -308,6 +316,7 @@ defineExpose({
       <!-- Copy url button -->
       <ScalarButton
         class="hover:bg-b-3 mx-1"
+        data-addressbar-action="copy"
         size="xs"
         variant="ghost"
         @click="copyUrl">
@@ -339,6 +348,7 @@ defineExpose({
       <ScalarButton
         ref="sendButtonRef"
         class="relative h-auto shrink-0 overflow-hidden py-1 pr-2.5 pl-2 font-bold"
+        data-addressbar-action="send"
         :disabled="isLoading"
         @click="emit('execute')">
         <span

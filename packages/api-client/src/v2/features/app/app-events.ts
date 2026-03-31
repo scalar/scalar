@@ -96,7 +96,7 @@ export function initializeAppEventHandlers({
             // Redirect to the new example if the mutation was successful
             if (status === 'success') {
               /** If the blur event clicked on a sidebar item we need to handle it */
-              const blurTarget = getEntryById(payload.targetSidebarItemId ?? '')
+              const blurTarget = getEntryById(payload.blurTarget ?? '')
 
               // Rebuild the sidebar with the updated order
               rebuildSidebar(store.value?.workspace.activeDocument?.['x-scalar-navigation']?.name)
