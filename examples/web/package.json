@@ -34,14 +34,14 @@
     "@vueuse/core": "catalog:*",
     "monaco-editor": "catalog:*",
     "vue": "catalog:*",
-    "vue-router": "^4.3.0"
+    "vue-router": "4.3.0"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "catalog:*",
-    "autoprefixer": "^10.4.19",
-    "eslint-plugin-vue": "^9.31.0",
+    "autoprefixer": "10.4.19",
+    "eslint-plugin-vue": "9.31.0",
     "postcss": "catalog:*",
-    "postcss-nested": "^6.0.1",
+    "postcss-nested": "6.0.1",
     "vite": "catalog:*"
   }
 }

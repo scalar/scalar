@@ -27,11 +27,11 @@
   "devDependencies": {
     "@types/react": "catalog:*",
     "@types/react-dom": "catalog:*",
-    "css-loader": "^6.7.3",
-    "style-loader": "^3.3.4",
-    "ts-loader": "^9.4.3",
-    "webpack": "^5.75.0",
-    "webpack-cli": "^5.0.0",
-    "webpack-dev-server": "^4.11.1"
+    "css-loader": "6.7.3",
+    "style-loader": "3.3.4",
+    "ts-loader": "9.4.3",
+    "webpack": "5.75.0",
+    "webpack-cli": "5.0.0",
+    "webpack-dev-server": "4.11.1"
   }
 }

@@ -46,16 +46,16 @@
   ],
   "sideEffects": false,
   "dependencies": {
-    "@phosphor-icons/core": "^2.1.1",
+    "@phosphor-icons/core": "2.1.1",
     "@types/node": "catalog:*",
-    "chalk": "^5.4.1",
+    "chalk": "5.4.1",
     "vue": "catalog:*"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "catalog:*",
     "@vue/test-utils": "catalog:*",
     "jsdom": "catalog:*",
-    "svglint": "^4.1.2",
+    "svglint": "4.1.2",
     "vite": "catalog:*",
     "vite-svg-loader": "catalog:*",
     "vitest": "catalog:*"

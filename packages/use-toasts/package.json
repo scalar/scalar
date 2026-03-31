@@ -43,13 +43,13 @@
   ],
   "dependencies": {
     "vue": "catalog:*",
-    "vue-sonner": "^1.0.3"
+    "vue-sonner": "1.0.3"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "catalog:*",
     "@vue/test-utils": "catalog:*",
     "vite": "catalog:*",
-    "vite-plugin-css-injected-by-js": "^3.4.0",
+    "vite-plugin-css-injected-by-js": "3.4.0",
     "vitest": "catalog:*"
   }
 }

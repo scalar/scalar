@@ -21,8 +21,8 @@
     "types:check": "tsc --noEmit"
   },
   "dependencies": {
-    "@changesets/get-github-info": "^0.7.0",
-    "@changesets/types": "^6.1.0"
+    "@changesets/get-github-info": "0.7.0",
+    "@changesets/types": "6.1.0"
   },
   "devDependencies": {
     "vite": "catalog:*"

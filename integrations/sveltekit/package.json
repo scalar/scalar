@@ -67,14 +67,14 @@
     "@scalar/core": "workspace:*"
   },
   "devDependencies": {
-    "@sveltejs/kit": "^2.55.0",
-    "@sveltejs/package": "^2.0.0",
-    "publint": "^0.3.2",
-    "svelte": "^5.46.4",
-    "svelte-check": "^4.0.0"
+    "@sveltejs/kit": "2.55.0",
+    "@sveltejs/package": "2.0.0",
+    "publint": "0.3.2",
+    "svelte": "5.46.4",
+    "svelte-check": "4.0.0"
   },
   "peerDependencies": {
-    "@sveltejs/kit": "^2.25.0",
-    "svelte": "^5.0.0"
+    "@sveltejs/kit": "2.25.0",
+    "svelte": "5.0.0"
   }
 }

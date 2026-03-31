@@ -58,7 +58,7 @@
     "pretty-bytes": "catalog:*",
     "radix-vue": "catalog:*",
     "vue": "catalog:*",
-    "vue-component-type-helpers": "^3.2.2"
+    "vue-component-type-helpers": "3.2.2"
   },
   "devDependencies": {
     "@headlessui/tailwindcss": "catalog:*",
@@ -71,10 +71,10 @@
     "@types/node": "catalog:*",
     "@vitejs/plugin-vue": "catalog:*",
     "@vue/test-utils": "catalog:*",
-    "@vueless/storybook-dark-mode": "^10.0.6",
+    "@vueless/storybook-dark-mode": "10.0.6",
     "jsdom": "catalog:*",
     "storybook": "10.2.19",
-    "svglint": "^4.1.2",
+    "svglint": "4.1.2",
     "tailwindcss": "catalog:*",
     "vite": "catalog:*",
     "vite-svg-loader": "catalog:*",

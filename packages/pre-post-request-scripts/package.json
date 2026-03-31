@@ -70,11 +70,11 @@
     "CHANGELOG.md"
   ],
   "dependencies": {
-    "@codemirror/lang-javascript": "^6.2.4",
+    "@codemirror/lang-javascript": "6.2.4",
     "@headlessui/vue": "catalog:*",
     "@scalar/components": "workspace:*",
     "@scalar/oas-utils": "workspace:*",
-    "postman-sandbox": "^6.5.0",
+    "postman-sandbox": "6.5.0",
     "vue": "catalog:*"
   },
   "devDependencies": {

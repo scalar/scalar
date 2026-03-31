@@ -239,10 +239,10 @@
   "dependencies": {
     "@scalar/types": "workspace:*",
     "js-base64": "catalog:*",
-    "stringify-object": "^6.0.0"
+    "stringify-object": "6.0.0"
   },
   "devDependencies": {
-    "@types/stringify-object": "^4.0.5",
+    "@types/stringify-object": "4.0.5",
     "vite": "catalog:*"
   }
 }

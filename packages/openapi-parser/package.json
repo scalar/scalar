@@ -57,18 +57,18 @@
     "@scalar/json-magic": "workspace:*",
     "@scalar/openapi-types": "workspace:*",
     "@scalar/openapi-upgrader": "workspace:*",
-    "ajv": "^8.17.1",
-    "ajv-draft-04": "^1.0.0",
-    "ajv-formats": "^3.0.1",
-    "jsonpointer": "^5.0.1",
-    "leven": "^4.0.0",
+    "ajv": "8.17.1",
+    "ajv-draft-04": "1.0.0",
+    "ajv-formats": "3.0.1",
+    "jsonpointer": "5.0.1",
+    "leven": "4.0.0",
     "yaml": "catalog:*"
   },
   "devDependencies": {
     "@apidevtools/swagger-parser": "10.1.0",
     "@scalar/types": "workspace:*",
     "@types/node": "catalog:*",
-    "just-diff": "^6.0.2",
+    "just-diff": "6.0.2",
     "vite": "catalog:*"
   }
 }

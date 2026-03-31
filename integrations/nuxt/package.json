@@ -61,7 +61,7 @@
     "documentation": "https://scalar.com/products/api-references/integrations/nuxt"
   },
   "dependencies": {
-    "@nuxt/kit": "^4.0.0",
+    "@nuxt/kit": "4.0.0",
     "@scalar/api-client": "workspace:*",
     "@scalar/api-reference": "workspace:*",
     "@scalar/types": "workspace:*",
@@ -69,10 +69,10 @@
     "vue": "catalog:*"
   },
   "devDependencies": {
-    "@nuxt/module-builder": "^1.0.1",
+    "@nuxt/module-builder": "1.0.1",
     "@types/node": "catalog:*",
-    "cross-env": "^7.0.3",
-    "nuxt": "^4.1.0",
+    "cross-env": "7.0.3",
+    "nuxt": "4.1.0",
     "vitest": "catalog:*"
   }
 }

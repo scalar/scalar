@@ -51,13 +51,13 @@
     "@types/react": "catalog:*",
     "@types/react-dom": "catalog:*",
     "@vitejs/plugin-react": "catalog:*",
-    "random-words": "^2.0.1",
+    "random-words": "2.0.1",
     "react": "catalog:*",
     "react-dom": "catalog:*",
-    "rollup-preserve-directives": "^1.1.1",
+    "rollup-preserve-directives": "1.1.1",
     "vite": "catalog:*"
   },
   "peerDependencies": {
-    "react": "^18.0.0 || ^19.0.0"
+    "react": "18.0.0 || ^19.0.0"
   }
 }

@@ -26,16 +26,16 @@
   "dependencies": {
     "@hono/node-server": "catalog:*",
     "@scalar/api-reference": "workspace:*",
-    "compression": "^1.8.0",
+    "compression": "1.8.0",
     "hono": "catalog:*",
-    "sirv": "^3.0.1",
+    "sirv": "3.0.1",
     "vue": "catalog:*"
   },
   "devDependencies": {
-    "@types/compression": "^1.7.5",
+    "@types/compression": "1.7.5",
     "@types/node": "catalog:*",
     "@vitejs/plugin-vue": "catalog:*",
-    "cross-env": "^7.0.3",
+    "cross-env": "7.0.3",
     "vite": "catalog:*"
   }
 }
