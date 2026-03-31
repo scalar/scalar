@@ -34,9 +34,7 @@ const { tag, isCollapsed } = defineProps<{
           @copyAnchorUrl="
             () => eventBus?.emit('copy-url:nav-item', { id: tag.id })
           ">
-          <SectionHeaderTag
-            class="tag-group-name-header"
-            :level="2">
+          <SectionHeaderTag :level="2">
             {{ tag.title }}
           </SectionHeaderTag>
         </Anchor>
@@ -54,7 +52,6 @@ const { tag, isCollapsed } = defineProps<{
 .tag-section {
   margin-bottom: 48px;
 }
-
 .tag-name {
   text-transform: capitalize;
 }
