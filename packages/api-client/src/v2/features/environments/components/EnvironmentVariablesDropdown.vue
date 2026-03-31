@@ -11,7 +11,12 @@ type DropdownRow =
   | { kind: 'env'; key: string; secondary: string }
   | { kind: 'context'; key: string; secondary: string }
 
-const { query, environment, dropdownPosition, contextFunctionItems = [] } = defineProps<{
+const {
+  query,
+  environment,
+  dropdownPosition,
+  contextFunctionItems = [],
+} = defineProps<{
   query: string
   environment: XScalarEnvironment
   dropdownPosition?: { left: number; top: number }
@@ -116,10 +121,12 @@ const filteredVariables = computed((): DropdownRow[] => {
   }
 
   const q = query.trim()
-  const envMatches = fuseEnv.value.search(q, { limit: DROPDOWN_LIMIT }).map((res) => {
-    const { kind, key, secondary } = res.item
-    return { kind, key, secondary }
-  })
+  const envMatches = fuseEnv.value
+    .search(q, { limit: DROPDOWN_LIMIT })
+    .map((res) => {
+      const { kind, key, secondary } = res.item
+      return { kind, key, secondary }
+    })
 
   const remaining = DROPDOWN_LIMIT - envMatches.length
   const contextMatches =

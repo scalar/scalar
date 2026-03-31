@@ -656,10 +656,18 @@ defineExpose({
   padding: 0px 8px;
 }
 .light-mode .cm-pill--context-fn {
-  background: color-mix(in srgb, var(--scalar-background-3), transparent 40%) !important;
+  background: color-mix(
+    in srgb,
+    var(--scalar-background-3),
+    transparent 40%
+  ) !important;
 }
 .dark-mode .cm-pill--context-fn {
-  background: color-mix(in srgb, var(--scalar-background-3), transparent 55%) !important;
+  background: color-mix(
+    in srgb,
+    var(--scalar-background-3),
+    transparent 55%
+  ) !important;
 }
 .cm-pill:first-of-type {
   margin-left: 0;
