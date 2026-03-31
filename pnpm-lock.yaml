@@ -2077,21 +2077,21 @@ importers:
       '@scalar/helpers':
         specifier: workspace:*
         version: link:../helpers
+      '@scalar/json-magic':
+        specifier: workspace:*
+        version: link:../json-magic
       '@scalar/oas-utils':
         specifier: workspace:*
         version: link:../oas-utils
-      '@scalar/openapi-parser':
-        specifier: workspace:*
-        version: link:../openapi-parser
       '@scalar/openapi-types':
         specifier: workspace:*
         version: link:../openapi-types
-      '@scalar/openapi-upgrader':
-        specifier: workspace:*
-        version: link:../openapi-upgrader
       '@scalar/types':
         specifier: workspace:*
         version: link:../types
+      '@scalar/workspace-store':
+        specifier: workspace:*
+        version: link:../workspace-store
       html-minifier-terser:
         specifier: ^7.2.0
         version: 7.2.0
