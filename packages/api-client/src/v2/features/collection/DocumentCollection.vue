@@ -13,7 +13,13 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { ScalarButton, ScalarModal, useModal } from '@scalar/components'
+import {
+  ScalarButton,
+  ScalarModal,
+  ScalarSavePrompt,
+  useLoadingState,
+  useModal,
+} from '@scalar/components'
 import {
   ScalarIconCloudArrowDown,
   ScalarIconDownload,
@@ -29,7 +35,6 @@ import { computed, ref } from 'vue'
 import { RouterView } from 'vue-router'
 
 import IconSelector from '@/components/IconSelector.vue'
-import Callout from '@/v2/components/callout/Callout.vue'
 import type { RouteProps } from '@/v2/features/app/helpers/routes'
 import { downloadAsFile } from '@/v2/helpers/download-document'
 
@@ -53,6 +58,8 @@ const dirtyBeforeSyncModal = useModal()
 const isDocumentDirty = computed(
   () => props.document?.['x-scalar-is-dirty'] === true,
 )
+
+const saveLoader = useLoadingState()
 
 const documentSourceUrl = computed(
   () => props.document?.['x-scalar-original-source-url'] as string | undefined,
@@ -78,8 +85,10 @@ const undoChanges = () => {
   props.workspaceStore.revertDocumentChanges(props.documentSlug)
 }
 
-const saveChanges = () => {
-  props.workspaceStore.saveDocument(props.documentSlug)
+const saveChanges = async () => {
+  saveLoader.start()
+  const res = await props.workspaceStore.saveDocument(props.documentSlug)
+  await (res ? saveLoader.validate() : saveLoader.invalidate({ persist: true }))
 }
 
 /** Downloads the document as a JSON file using the last saved state. */
@@ -273,41 +282,17 @@ const onSyncModalClose = () => {
   <div class="custom-scroll h-full">
     <div
       v-if="document"
-      class="w-full px-3 md:mx-auto md:max-w-180">
+      class="md:max-w-content w-full px-3 md:mx-auto">
       <!-- Header -->
       <div
         :aria-label="`title: ${title}`"
-        class="mx-auto flex h-fit w-full flex-col gap-2 pt-14 pb-3 md:max-w-180 md:pt-6">
-        <Callout
-          v-if="document?.['x-scalar-is-dirty']"
-          class="mb-5"
-          type="warning">
-          <p>
-            You have unsaved changes. Save your work to keep your changes, or
-            undo to revert them.
-          </p>
-          <template #actions>
-            <ScalarButton
-              class="text-c-2 hover:text-c-1 flex items-center gap-2"
-              size="xs"
-              type="button"
-              variant="outlined"
-              @click="undoChanges">
-              <span>Undo</span>
-            </ScalarButton>
-            <ScalarButton
-              class="text-c-btn flex items-center gap-2"
-              size="xs"
-              type="button"
-              variant="solid"
-              @click="saveChanges">
-              <ScalarIconFloppyDisk
-                size="sm"
-                thickness="1.5" />
-              <span>Save</span>
-            </ScalarButton>
-          </template>
-        </Callout>
+        class="md:max-w-content mx-auto flex h-fit w-full flex-col gap-2 pt-14 pb-3 md:pt-6">
+        <ScalarSavePrompt
+          v-model="isDocumentDirty"
+          class="w-content absolute max-w-[calc(100%-32px)]"
+          :loader="saveLoader"
+          @discard="undoChanges"
+          @save="saveChanges" />
         <div class="flex flex-row items-center justify-between gap-2">
           <div class="flex min-w-0 items-center gap-2">
             <IconSelector
@@ -410,7 +395,7 @@ const onSyncModalClose = () => {
         <div
           aria-hidden="true"
           class="bg-b-3 text-c-2 flex size-10 shrink-0 items-center justify-center rounded-lg">
-          <ScalarIconWarning class="size-5 text-[var(--scalar-color-yellow)]" />
+          <ScalarIconWarning class="text-yellow size-5" />
         </div>
         <div class="min-w-0 flex-1 space-y-1">
           <p class="text-c-1 text-sm leading-snug font-medium">
@@ -422,8 +407,7 @@ const onSyncModalClose = () => {
           </p>
         </div>
       </div>
-      <div
-        class="flex flex-wrap items-center justify-end gap-2 border-t border-[var(--scalar-border-color)] pt-4">
+      <div class="flex flex-wrap items-center justify-end gap-2 border-t pt-4">
         <ScalarButton
           size="sm"
           type="button"

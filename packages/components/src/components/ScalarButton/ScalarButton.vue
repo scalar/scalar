@@ -60,7 +60,7 @@ const iconVariants = cva({
   variants: {
     size: {
       xs: 'size-2.75 -ml-0.25 mr-1',
-      sm: 'size-3.25 -ml-0.5 mr-1.5',
+      sm: 'size-3.5 -ml-0.25 mr-1',
       md: 'size-3.5 -ml-0.5 mr-1.5',
     } satisfies Record<ButtonSize, ClassList>,
   },
