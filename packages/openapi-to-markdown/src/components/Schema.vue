@@ -1,36 +1,18 @@
 <script setup lang="ts">
-import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { resolve } from '@scalar/workspace-store/resolve'
+import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
 const { schema } = defineProps<{
-  schema: OpenAPIV3_1.SchemaObject
+  schema: SchemaObject
 }>()
 
-type ResolvedSchemaView = {
-  allOf?: OpenAPIV3_1.SchemaObject[]
-  anyOf?: OpenAPIV3_1.SchemaObject[]
-  default?: unknown
-  description?: string
-  enum?: unknown[]
-  format?: string
-  items?: OpenAPIV3_1.SchemaObject
-  maxItems?: number
-  minItems?: number
-  not?: OpenAPIV3_1.SchemaObject
-  oneOf?: OpenAPIV3_1.SchemaObject[]
-  properties?: Record<string, OpenAPIV3_1.SchemaObject>
-  required?: string[]
-  type?: OpenAPIV3_1.SchemaObject['type']
-  uniqueItems?: boolean
-}
-
-const resolvedSchema = resolve.schema(
-  schema as never,
-) as unknown as ResolvedSchemaView
+const resolvedSchema = resolve.schema(schema as never) as
+  | Record<string, any>
+  | undefined
 
 // Sort properties to show required fields first, then optional, then metadata
 const sortProperties = (
-  properties: Record<string, OpenAPIV3_1.SchemaObject>,
+  properties: Record<string, any>,
   required?: string[],
 ) => {
   const sorted = Object.entries(properties).sort(([a], [b]) => {

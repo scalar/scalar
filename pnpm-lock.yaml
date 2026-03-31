@@ -2083,9 +2083,6 @@ importers:
       '@scalar/oas-utils':
         specifier: workspace:*
         version: link:../oas-utils
-      '@scalar/openapi-types':
-        specifier: workspace:*
-        version: link:../openapi-types
       '@scalar/workspace-store':
         specifier: workspace:*
         version: link:../workspace-store

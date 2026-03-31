@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import type { OpenAPIV3_1 } from '@scalar/openapi-types'
+import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { mount } from '@vue/test-utils'
 
 import { describe, expect, it, vi } from 'vitest'
@@ -15,8 +15,13 @@ vi.mock('@scalar/components', () => ({
 }))
 
 describe('MarkdownReference', () => {
+  const withMeta = (document: Omit<OpenApiDocument, 'x-scalar-original-document-hash'>): OpenApiDocument => ({
+    ...document,
+    'x-scalar-original-document-hash': 'test-hash',
+  })
+
   it('renders basic API information', () => {
-    const content: OpenAPIV3_1.Document = {
+    const content: OpenApiDocument = withMeta({
       openapi: '3.1.1',
       info: {
         title: 'Test API',
@@ -24,7 +29,7 @@ describe('MarkdownReference', () => {
         description: 'Test description',
       },
       paths: {},
-    }
+    })
 
     const wrapper = mount(MarkdownReference, {
       props: { content },
@@ -39,7 +44,7 @@ describe('MarkdownReference', () => {
   })
 
   it('renders servers section with variables', () => {
-    const content: OpenAPIV3_1.Document = {
+    const content: OpenApiDocument = withMeta({
       openapi: '3.1.1',
       info: { title: 'Test API', version: '1.0.0' },
       servers: [
@@ -59,7 +64,7 @@ describe('MarkdownReference', () => {
         },
       ],
       paths: {},
-    }
+    })
 
     const wrapper = mount(MarkdownReference, { props: { content } })
     expect(wrapper.text()).toContain('Servers')
@@ -73,7 +78,7 @@ describe('MarkdownReference', () => {
   })
 
   it('renders operations section with summary, tags, stability, and request/response', () => {
-    const content: OpenAPIV3_1.Document = {
+    const content: OpenApiDocument = withMeta({
       openapi: '3.1.1',
       info: { title: 'Test API', version: '1.0.0' },
       paths: {
@@ -109,7 +114,7 @@ describe('MarkdownReference', () => {
           },
         },
       },
-    }
+    })
     const wrapper = mount(MarkdownReference, { props: { content } })
     expect(wrapper.text()).toContain('Operations')
     expect(wrapper.text()).toContain('Get users')
@@ -127,7 +132,7 @@ describe('MarkdownReference', () => {
   })
 
   it('renders deprecated operation', () => {
-    const content: OpenAPIV3_1.Document = {
+    const content: OpenApiDocument = withMeta({
       openapi: '3.1.1',
       info: { title: 'Test API', version: '1.0.0' },
       paths: {
@@ -138,14 +143,14 @@ describe('MarkdownReference', () => {
           },
         },
       },
-    }
+    })
     const wrapper = mount(MarkdownReference, { props: { content } })
     expect(wrapper.text()).toContain('Deprecated')
     expect(wrapper.text()).toContain('Deprecated operation')
   })
 
   it('renders webhooks section', () => {
-    const content: OpenAPIV3_1.Document = {
+    const content: OpenApiDocument = withMeta({
       openapi: '3.1.1',
       info: { title: 'Test API', version: '1.0.0' },
       webhooks: {
@@ -158,7 +163,7 @@ describe('MarkdownReference', () => {
         },
       },
       paths: {},
-    }
+    })
     const wrapper = mount(MarkdownReference, { props: { content } })
     expect(wrapper.text()).toContain('Webhooks')
     expect(wrapper.text()).toContain('New user webhook')
@@ -168,7 +173,7 @@ describe('MarkdownReference', () => {
   })
 
   it('renders schemas section', () => {
-    const content: OpenAPIV3_1.Document = {
+    const content: OpenApiDocument = withMeta({
       openapi: '3.1.1',
       info: { title: 'Test API', version: '1.0.0' },
       components: {
@@ -185,7 +190,7 @@ describe('MarkdownReference', () => {
         },
       },
       paths: {},
-    }
+    })
     const wrapper = mount(MarkdownReference, { props: { content } })
     expect(wrapper.text()).toContain('Schemas')
     expect(wrapper.text()).toContain('User')
