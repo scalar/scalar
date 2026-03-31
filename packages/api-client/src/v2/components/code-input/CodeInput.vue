@@ -360,7 +360,14 @@ const handleKeyDown = (key: string, event: KeyboardEvent): void => {
     event.stopPropagation()
   }
 
-  if (key === 'enter' && event.target instanceof HTMLDivElement) {
+  if (
+    key === 'enter' &&
+    event.target instanceof HTMLDivElement &&
+    !event.ctrlKey &&
+    !event.metaKey &&
+    !event.shiftKey &&
+    !event.altKey
+  ) {
     handleSubmit(event.target.textContent ?? '')
   }
 }
