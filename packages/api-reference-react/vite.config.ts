@@ -19,7 +19,7 @@ export default defineConfig({
       cssFileName: 'style',
       entry,
     },
-    rolldownOptions: {
+    rollupOptions: {
       treeshake: {
         // Keep CSS imports and explicit runtime flag initialization modules.
         moduleSideEffects: (id) => id.includes('.css') || id.includes('vue-bundler-flags'),

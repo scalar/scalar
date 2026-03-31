@@ -11,7 +11,7 @@ export default defineConfig({
     minify: true,
     target: 'esnext',
     outDir: 'dist',
-    rolldownOptions: {
+    rollupOptions: {
       input: 'src/docker-entrypoint.ts',
       output: {
         format: 'es',

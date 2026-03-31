@@ -18,7 +18,7 @@ export default defineConfig({
       cssFileName: 'style',
       entry,
     },
-    rolldownOptions: {
+    rollupOptions: {
       treeshake: {
         moduleSideEffects: (id) => id.includes('.css'),
       },

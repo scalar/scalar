@@ -15,7 +15,7 @@ export default defineConfig({
       fileName: 'index',
     },
     minify: false,
-    rolldownOptions: {
+    rollupOptions: {
       input: {
         main: resolve(import.meta.dirname, 'src/index.ts'),
       },

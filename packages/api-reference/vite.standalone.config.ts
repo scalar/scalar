@@ -64,7 +64,7 @@ export default defineConfig({
       name: '@scalar/api-reference',
       formats: ['umd'],
     },
-    rolldownOptions: {
+    rollupOptions: {
       // Externalize radix-vue — no radix-vue component (ScalarMenu)
       // is ever rendered in the standalone API reference. They leak in through the
       // @scalar/components barrel via @scalar/api-client but are never mounted.

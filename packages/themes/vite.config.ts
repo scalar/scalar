@@ -22,7 +22,7 @@ export default defineConfig({
         'fonts/fonts': resolve(import.meta.dirname, 'src/fonts/fonts.css'),
       },
     },
-    rolldownOptions: {
+    rollupOptions: {
       treeshake: {
         moduleSideEffects: (id) => id.includes('.css'),
       },

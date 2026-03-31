@@ -49,7 +49,7 @@ const sanitizeChunkName = (name: string): string => {
 }
 
 /**
- * Creates rolldownOptions.output config for preserveModules builds.
+ * Creates rollupOptions.output config for preserveModules builds.
  *
  * preserveModules emits individual .js files for each source module,
  * which is required for tsc-alias resolveFullPaths to add .js extensions
