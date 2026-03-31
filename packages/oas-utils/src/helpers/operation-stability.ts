@@ -1,4 +1,4 @@
-import { XScalarStabilityValues } from '@scalar/openapi-types/schemas/extensions'
+import { XScalarStability } from '@scalar/types/legacy'
 
 type OperationStability = {
   deprecated?: boolean
@@ -9,26 +9,26 @@ type OperationStability = {
  * Returns true if an operation is considered deprecated.
  */
 export const isOperationDeprecated = (operation: OperationStability): boolean =>
-  operation.deprecated || operation['x-scalar-stability'] === XScalarStabilityValues.Deprecated
+  operation.deprecated || operation['x-scalar-stability'] === XScalarStability.Deprecated
 
 /**
  * Get operation stability from deprecated or x-scalar-stability
  */
-export const getOperationStability = (operation: OperationStability): XScalarStabilityValues | undefined =>
+export const getOperationStability = (operation: OperationStability): XScalarStability | undefined =>
   operation.deprecated
-    ? XScalarStabilityValues.Deprecated
-    : (operation['x-scalar-stability'] as XScalarStabilityValues | undefined)
+    ? XScalarStability.Deprecated
+    : (operation['x-scalar-stability'] as XScalarStability | undefined)
 
 /**
  * Get Operation stability tailwind color class
  */
 export const getOperationStabilityColor = (operation: OperationStability): string => {
   switch (getOperationStability(operation)) {
-    case XScalarStabilityValues.Deprecated:
+    case XScalarStability.Deprecated:
       return 'text-red'
-    case XScalarStabilityValues.Experimental:
+    case XScalarStability.Experimental:
       return 'text-orange'
-    case XScalarStabilityValues.Stable:
+    case XScalarStability.Stable:
       return 'text-green'
     default:
       return ''
