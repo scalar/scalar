@@ -383,7 +383,7 @@ const infoSectionId = computed(
   () =>
     sidebarItems.value.find(
       (item) => item.type === 'text' && item.title === 'Introduction',
-    )?.id,
+    )?.id ?? `${activeSlug.value}/description/introduction`,
 )
 
 /** User for mobile navigation */
@@ -1029,7 +1029,7 @@ const showMCPButton = computed(() => {
             mergedConfig.generateHeadingSlug ??
             ((heading) => `${activeSlug}/description/${heading.slug}`)
           "
-          :infoSectionId="infoSectionId ?? 'description/introduction'"
+          :infoSectionId
           :items="sidebarItems"
           :options="mergedConfig"
           :xScalarDefaultClient="
