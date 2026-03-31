@@ -117,32 +117,28 @@ describe('AddressBar', () => {
     )
   })
 
-  it('emits execute on CodeInput submit and Send button click', async () => {
-    const { wrapper } = mountWithProps()
+  it('emits operation:update:pathMethod with blurTarget "send" on CodeInput submit', async () => {
+    const { wrapper, eventBus } = mountWithProps()
+    const emitSpy = vi.spyOn(eventBus, 'emit')
 
-    /**
-     * Test CodeInput submit event triggers execute.
-     */
     const codeInput = wrapper.findComponent({ name: 'CodeInput' })
-    await codeInput.vm.$emit('submit')
+    const submitEvent = new KeyboardEvent('keydown', { key: 'Enter' })
+    await codeInput.vm.$emit('submit', '/api/test', submitEvent)
     await nextTick()
 
-    const emitted = wrapper.emitted('execute')
-    expect(emitted).toBeTruthy()
-    expect(emitted?.length).toBe(1)
+    expect(emitSpy).toHaveBeenCalledWith(
+      'operation:update:pathMethod',
+      expect.objectContaining({
+        blurTarget: 'send',
+        payload: { method: 'get', path: '/api/test' },
+      }),
+    )
 
     /**
-     * Test Send button click also triggers execute.
-     * The ScalarButton is bound with @click="emit('execute')".
+     * CodeInput submit no longer emits execute directly — execution is
+     * triggered via the event bus after the path update resolves.
      */
-    const buttons = wrapper.findAll('button')
-    const sendButton = buttons.find((btn) => btn.text().includes('Send') || btn.html().includes('Play'))
-
-    expect(sendButton).toBeDefined()
-    await sendButton?.trigger('click')
-    await nextTick()
-
-    expect(wrapper.emitted('execute')?.length).toBe(2)
+    expect(wrapper.emitted('execute')).toBeFalsy()
   })
 
   it('renders ServerDropdown only when servers are provided', () => {
@@ -598,9 +594,9 @@ describe('AddressBar', () => {
     it('emits execute normally when Send is clicked', async () => {
       const { wrapper } = mountWithProps()
 
-      const buttons = wrapper.findAll('button')
-      const sendButton = buttons.find((btn) => btn.html().includes('Play') || btn.text().includes('Send'))
-      await sendButton?.trigger('click')
+      const sendButton = wrapper.find('button[data-addressbar-action="send"]')
+      expect(sendButton.exists()).toBe(true)
+      await sendButton.trigger('click')
       await nextTick()
 
       expect(wrapper.emitted('execute')).toHaveLength(1)
