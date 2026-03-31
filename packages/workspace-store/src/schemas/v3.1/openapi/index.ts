@@ -286,9 +286,9 @@ export const generateSchema = (maybeRef: (inner: Schema) => Schema) => {
     not: optional(maybeRef(lazy((): Schema => schema))),
   })
 
-  const schemaScalarMarker: Schema = intersection([
-    object({ __scalar_: string({ typeComment: 'Internal marker for schema object disambiguation.' }) }),
-  ])
+  const schemaScalarMarker = object({
+    __scalar_: string({ typeComment: 'Internal marker for schema object disambiguation.' }),
+  })
 
   const numericSchema: Schema = object(
     {
@@ -303,7 +303,7 @@ export const generateSchema = (maybeRef: (inner: Schema) => Schema) => {
     { typeName: 'NumberSchemaObject' },
   )
 
-  const stringSchema: Schema = object(
+  const stringSchema = object(
     {
       type: literal('string'),
       format: optional(string({ typeComment: 'Different subtypes.' })),
@@ -314,7 +314,7 @@ export const generateSchema = (maybeRef: (inner: Schema) => Schema) => {
     { typeName: 'StringSchemaObject' },
   )
 
-  const objectSchema: Schema = object(
+  const objectSchema = object(
     {
       type: literal('object'),
       maxProperties: optional(number({ typeComment: 'Maximum number of properties.' })),
@@ -336,7 +336,7 @@ export const generateSchema = (maybeRef: (inner: Schema) => Schema) => {
     { typeName: 'ObjectSchemaObject' },
   )
 
-  const arraySchema: Schema = object(
+  const arraySchema = object(
     {
       type: literal('array'),
       maxItems: optional(number({ typeComment: 'Maximum number of items in array.' })),
@@ -363,12 +363,11 @@ export const generateSchema = (maybeRef: (inner: Schema) => Schema) => {
     { typeName: 'SchemaObjectMultiTypeKeywords' },
   )
 
-  const otherTypeSchema: Schema = object(
+  const otherTypeSchema = object(
     {
-      type: union(
-        [literal('null'), literal('boolean'), array(schemaTypeMulti, { typeName: 'SchemaObjectTypeKeywordList' })],
-        { typeName: 'SchemaObjectOtherTypeKeyword' },
-      ),
+      type: union([literal('null'), literal('boolean'), array(schemaTypeMulti)], {
+        typeName: 'SchemaObjectOtherTypeKeyword',
+      }),
     },
     { typeName: 'MultiTypeSchemaObject' },
   )
@@ -378,7 +377,7 @@ export const generateSchema = (maybeRef: (inner: Schema) => Schema) => {
       coreSchemaProperties,
       ...schemaExtensionObjects,
       union([schemaScalarMarker, otherTypeSchema, numericSchema, stringSchema, objectSchema, arraySchema]),
-    ] as any,
+    ],
     { typeName: 'SchemaObject' },
   )
 
@@ -1070,7 +1069,7 @@ export const generateSchema = (maybeRef: (inner: Schema) => Schema) => {
     { typeName: 'OpenApiDocumentCore' },
   )
 
-  const openapi: Schema = intersection(
+  const openapi = intersection(
     [
       openApiDocumentCore,
       openApiExtensionsPartial,
