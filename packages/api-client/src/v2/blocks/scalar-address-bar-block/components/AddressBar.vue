@@ -118,9 +118,8 @@ const emitPathMethodUpdate = (
         methodConflict.value = null
         pathConflict.value = null
       }
-
       // Otherwise set the conflict if needed
-      if (status === 'conflict') {
+      else if (status === 'conflict') {
         if (targetMethod !== method) {
           methodConflict.value = targetMethod
         }
@@ -151,10 +150,8 @@ const handlePathBlur = (
     ?.getAttribute('data-addressbar-action')
 
   const blurTarget = sidebarItemId ?? addressBarAction ?? null
-
-  console.log('blurTarget', blurTarget)
-
   const normalizedPath = newPath.startsWith('/') ? newPath : `/${newPath}`
+
   emitPathMethodUpdate(
     methodConflict.value ?? method,
     normalizedPath,
@@ -183,6 +180,7 @@ const handleFocusAddressBar = (
 onMounted(() => {
   eventBus.on('ui:focus:address-bar', handleFocusAddressBar)
   eventBus.on('ui:focus:send-button', handleFocusSendButton)
+  eventBus.on('copy-url:address-bar', copyUrl)
   eventBus.on('hooks:on:request:sent', startLoading)
   eventBus.on('hooks:on:request:complete', stopLoading)
 })
@@ -190,6 +188,7 @@ onMounted(() => {
 onBeforeUnmount(() => {
   eventBus.off('ui:focus:address-bar', handleFocusAddressBar)
   eventBus.off('ui:focus:send-button', handleFocusSendButton)
+  eventBus.off('copy-url:address-bar', copyUrl)
   eventBus.off('hooks:on:request:sent', startLoading)
   eventBus.off('hooks:on:request:complete', stopLoading)
 

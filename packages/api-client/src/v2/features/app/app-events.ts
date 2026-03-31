@@ -118,6 +118,13 @@ export function initializeAppEventHandlers({
                     exampleName,
                   },
                 })
+
+                // Now we need to trigger events here since we are redirecting to a new example
+                if (payload.blurTarget === 'copy') {
+                  eventBus.emit('copy-url:address-bar')
+                } else if (payload.blurTarget === 'send') {
+                  eventBus.emit('operation:send:request:hotkey')
+                }
               }
             }
 

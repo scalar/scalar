@@ -229,6 +229,11 @@ export type UIEvents = {
   'copy-url:nav-item': NavigationItemPayload
 
   /**
+   * Copies the whole URL in the addressbar including server and path
+   */
+  'copy-url:address-bar': undefined
+
+  /**
    * Used by the api-client to copy the URL for the given tab index.
    */
   'tabs:copy:url': {
