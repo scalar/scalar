@@ -176,8 +176,6 @@ export type ParameterMap = {
   query: ParameterObject[]
   header: ParameterObject[]
   cookie: ParameterObject[]
-  body: ParameterObject[]
-  formData: ParameterObject[]
 }
 
 /**
@@ -191,8 +189,6 @@ export function createParameterMap(operation: OperationObject) {
     query: [],
     header: [],
     cookie: [],
-    body: [],
-    formData: [],
   }
 
   const parameters = operation.parameters ?? []

@@ -83,8 +83,6 @@ describe('openapi', () => {
         query: [],
         header: [],
         cookie: [],
-        body: [],
-        formData: [],
       })
     })
 
