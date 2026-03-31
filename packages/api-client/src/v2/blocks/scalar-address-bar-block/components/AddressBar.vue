@@ -106,11 +106,12 @@ const hasConflict = computed(() => methodConflict.value || pathConflict.value)
 const emitPathMethodUpdate = (
   targetMethod: HttpMethodType,
   targetPath: string,
-  sidebarItemId?: string | null,
+  /** In case we have clicked on a nav item */
+  targetSidebarItemId?: string | null,
 ): void => {
   eventBus.emit('operation:update:pathMethod', {
     meta: { method, path },
-    sidebarItemId,
+    targetSidebarItemId,
     payload: { method: targetMethod, path: targetPath },
     callback: (status) => {
       // Clear conflicts if the operation was successful or no change was made
@@ -142,14 +143,14 @@ const handlePathBlur = (
   event: MouseEvent | FocusEvent,
 ): void => {
   const relatedTarget = event.relatedTarget as Element | null
-  const sidebarItem = relatedTarget?.closest('[data-sidebar-id]')
-  const sidebarItemId = sidebarItem?.getAttribute('data-sidebar-id')
+  const targetSidebarItem = relatedTarget?.closest('[data-sidebar-id]')
+  const targetSidebarItemId = targetSidebarItem?.getAttribute('data-sidebar-id')
 
   const normalizedPath = newPath.startsWith('/') ? newPath : `/${newPath}`
   emitPathMethodUpdate(
     methodConflict.value ?? method,
     normalizedPath,
-    sidebarItemId,
+    targetSidebarItemId,
   )
 }
 

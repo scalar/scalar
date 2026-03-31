@@ -97,19 +97,28 @@ export function initializeAppEventHandlers({
             if (status === 'success') {
               /** If the blur event clicked on a sidebar item we need to handle it */
               const blurTarget = getEntryById(payload.targetSidebarItemId ?? '')
-              console.log('oldEntry', oldEntry)
 
               // Rebuild the sidebar with the updated order
               rebuildSidebar(store.value?.workspace.activeDocument?.['x-scalar-navigation']?.name)
 
-              await router.replace({
-                name: 'example',
-                params: {
-                  method: payload.payload.method,
-                  pathEncoded: encodeURIComponent(payload.payload.path),
-                  exampleName: currentRoute.value?.params.exampleName,
-                },
-              })
+              /**
+               * If the user clicked an example in the sidebar on the same operation,
+               * use that example name to redirect to the example page
+               */
+              const exampleName =
+                blurTarget?.type === 'example' ? blurTarget.name : currentRoute.value?.params.exampleName
+
+              // Now this redirect works for any example
+              if (exampleName) {
+                await router.replace({
+                  name: 'example',
+                  params: {
+                    method: payload.payload.method,
+                    pathEncoded: encodeURIComponent(payload.payload.path),
+                    exampleName,
+                  },
+                })
+              }
             }
 
             payload.callback(status)
