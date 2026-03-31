@@ -2086,9 +2086,6 @@ importers:
       '@scalar/openapi-types':
         specifier: workspace:*
         version: link:../openapi-types
-      '@scalar/types':
-        specifier: workspace:*
-        version: link:../types
       '@scalar/workspace-store':
         specifier: workspace:*
         version: link:../workspace-store
