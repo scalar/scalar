@@ -381,8 +381,6 @@ export const generateSchema = (maybeRef: (inner: Schema) => Schema) => {
     { typeName: 'SchemaObject' },
   )
 
-  // { typeName: 'SchemaObject' },
-
   const securitySchemeBase = object({
     description: optional(
       string({
