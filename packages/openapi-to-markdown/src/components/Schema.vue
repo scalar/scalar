@@ -24,7 +24,9 @@ type ResolvedSchemaView = {
   uniqueItems?: boolean
 }
 
-const resolvedSchema = resolve.schema(schema as never) as unknown as ResolvedSchemaView
+const resolvedSchema = resolve.schema(
+  schema as never,
+) as unknown as ResolvedSchemaView
 
 // Sort properties to show required fields first, then optional, then metadata
 const sortProperties = (
@@ -97,9 +99,7 @@ const sortProperties = (
 
     <!-- Object type -->
     <template
-      v-else-if="
-        resolvedSchema.type === 'object' || resolvedSchema.properties
-      ">
+      v-else-if="resolvedSchema.type === 'object' || resolvedSchema.properties">
       <section>
         <ul>
           <template
