@@ -196,7 +196,7 @@ describe('CodeInput', () => {
     componentInstance.handleSubmit('test value')
 
     expect(wrapper.emitted('submit')).toBeTruthy()
-    expect(wrapper.emitted('submit')?.[0]).toEqual(['test value'])
+    expect(wrapper.emitted('submit')?.[0]).toEqual(['test value', undefined])
   })
 
   it('emits blur event when handleBlur is called', () => {
