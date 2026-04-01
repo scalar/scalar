@@ -176,6 +176,10 @@ export type ParameterMap = {
   query: ParameterObject[]
   header: ParameterObject[]
   cookie: ParameterObject[]
+  // Kept for backward-compatible search index shape.
+  body: ParameterObject[]
+  // Kept for backward-compatible search index shape.
+  formData: ParameterObject[]
 }
 
 /**
@@ -189,6 +193,8 @@ export function createParameterMap(operation: OperationObject) {
     query: [],
     header: [],
     cookie: [],
+    body: [],
+    formData: [],
   }
 
   const parameters = operation.parameters ?? []
