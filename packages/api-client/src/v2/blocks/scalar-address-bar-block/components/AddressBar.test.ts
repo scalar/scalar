@@ -1,3 +1,4 @@
+import { getSelector } from '@scalar/helpers/dom/get-selector'
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { type ApiReferenceEvents, createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import { enableConsoleError, enableConsoleWarn } from '@test/vitest.setup'
@@ -53,24 +54,26 @@ describe('AddressBar', () => {
   /**
    * Helper to create a FocusEvent whose relatedTarget is a Send button element.
    * jsdom supports relatedTarget on FocusEvent via the constructor options.
+   * Returns the element so tests can compute the expected CSS selector via getSelector.
    */
   const makeSendBlurEvent = () => {
     const sendEl = document.createElement('button')
     sendEl.setAttribute('data-addressbar-action', 'send')
     document.body.appendChild(sendEl)
     const event = new FocusEvent('blur', { relatedTarget: sendEl })
-    return { event, cleanup: () => document.body.removeChild(sendEl) }
+    return { event, sendEl, cleanup: () => document.body.removeChild(sendEl) }
   }
 
   /**
    * Helper to create a FocusEvent whose relatedTarget is a sidebar item element.
+   * Returns the element so tests can compute the expected CSS selector via getSelector.
    */
   const makeSidebarBlurEvent = (sidebarId = 'sidebar-item-1') => {
     const sidebarEl = document.createElement('div')
     sidebarEl.setAttribute('data-sidebar-id', sidebarId)
     document.body.appendChild(sidebarEl)
     const event = new FocusEvent('blur', { relatedTarget: sidebarEl })
-    return { event, cleanup: () => document.body.removeChild(sidebarEl) }
+    return { event, sidebarEl, cleanup: () => document.body.removeChild(sidebarEl) }
   }
 
   beforeEach(() => {
@@ -117,7 +120,7 @@ describe('AddressBar', () => {
     )
   })
 
-  it('emits operation:update:pathMethod with blurTarget "send" on CodeInput submit', async () => {
+  it('emits operation:update:pathMethod with blurTargetSelector for Send button on CodeInput submit', async () => {
     const { wrapper, eventBus } = mountWithProps()
     const emitSpy = vi.spyOn(eventBus, 'emit')
 
@@ -129,7 +132,7 @@ describe('AddressBar', () => {
     expect(emitSpy).toHaveBeenCalledWith(
       'operation:update:pathMethod',
       expect.objectContaining({
-        blurTarget: 'send',
+        blurTargetSelector: '[data-addressbar-action="send"]',
         payload: { method: 'get', path: '/api/test' },
       }),
     )
@@ -189,7 +192,7 @@ describe('AddressBar', () => {
       vi.spyOn(eventBus, 'emit').mockImplementation((event, _payload) => {
         const payload = _payload as ApiReferenceEvents['operation:update:pathMethod']
         if (event === 'operation:update:pathMethod' && payload?.callback) {
-          payload.callback('conflict')
+          payload.callback('conflict', null)
         }
         return eventBus
       })
@@ -233,7 +236,7 @@ describe('AddressBar', () => {
       vi.spyOn(eventBus, 'emit').mockImplementation((event, _payload) => {
         const payload = _payload as ApiReferenceEvents['operation:update:pathMethod']
         if (event === 'operation:update:pathMethod' && payload?.callback) {
-          payload.callback('conflict')
+          payload.callback('conflict', null)
         }
         return eventBus
       })
@@ -278,7 +281,7 @@ describe('AddressBar', () => {
       vi.spyOn(eventBus, 'emit').mockImplementation((event, _payload) => {
         const payload = _payload as ApiReferenceEvents['operation:update:pathMethod']
         if (event === 'operation:update:pathMethod' && payload?.callback) {
-          payload.callback('success')
+          payload.callback('success', null)
         }
         return eventBus
       })
@@ -307,7 +310,7 @@ describe('AddressBar', () => {
       vi.spyOn(eventBus, 'emit').mockImplementation((event, _payload) => {
         const payload = _payload as ApiReferenceEvents['operation:update:pathMethod']
         if (event === 'operation:update:pathMethod' && payload?.callback) {
-          payload.callback('conflict')
+          payload.callback('conflict', null)
         }
         return eventBus
       })
@@ -347,7 +350,7 @@ describe('AddressBar', () => {
       vi.spyOn(eventBus, 'emit').mockImplementation((event, _payload) => {
         const payload = _payload as ApiReferenceEvents['operation:update:pathMethod']
         if (event === 'operation:update:pathMethod' && payload?.callback) {
-          payload.callback('success')
+          payload.callback('success', null)
         }
         return eventBus
       })
@@ -451,7 +454,7 @@ describe('AddressBar', () => {
         expect.objectContaining({
           meta: { method: 'get', path: '/api/test' },
           payload: { method: 'get', path: '/api/users' },
-          blurTarget: null,
+          blurTargetSelector: null,
         }),
       )
     })
@@ -519,12 +522,12 @@ describe('AddressBar', () => {
       )
     })
 
-    it('sets blurTarget to "send" when blurring toward the Send button', async () => {
+    it('sets blurTargetSelector to the Send button CSS selector when blurring toward the Send button', async () => {
       const { wrapper, eventBus } = mountWithProps({ path: '/api/test', method: 'get' })
 
       const emitSpy = vi.spyOn(eventBus, 'emit')
 
-      const { event, cleanup } = makeSendBlurEvent()
+      const { event, sendEl, cleanup } = makeSendBlurEvent()
       const codeInput = wrapper.findComponent({ name: 'CodeInput' })
       await codeInput.vm.$emit('blur', '/api/new-path', event)
       await nextTick()
@@ -532,7 +535,7 @@ describe('AddressBar', () => {
       expect(emitSpy).toHaveBeenCalledWith(
         'operation:update:pathMethod',
         expect.objectContaining({
-          blurTarget: 'send',
+          blurTargetSelector: getSelector(sendEl),
           payload: { method: 'get', path: '/api/new-path' },
         }),
       )
@@ -540,12 +543,12 @@ describe('AddressBar', () => {
       cleanup()
     })
 
-    it('sets blurTarget to sidebar item id when blurring toward a sidebar item', async () => {
+    it('sets blurTargetSelector to the sidebar item CSS selector when blurring toward a sidebar item', async () => {
       const { wrapper, eventBus } = mountWithProps({ path: '/api/test', method: 'get' })
 
       const emitSpy = vi.spyOn(eventBus, 'emit')
 
-      const { event, cleanup } = makeSidebarBlurEvent('my-sidebar-item')
+      const { event, sidebarEl, cleanup } = makeSidebarBlurEvent('my-sidebar-item')
       const codeInput = wrapper.findComponent({ name: 'CodeInput' })
       await codeInput.vm.$emit('blur', '/api/new-path', event)
       await nextTick()
@@ -553,7 +556,7 @@ describe('AddressBar', () => {
       expect(emitSpy).toHaveBeenCalledWith(
         'operation:update:pathMethod',
         expect.objectContaining({
-          blurTarget: 'my-sidebar-item',
+          blurTargetSelector: getSelector(sidebarEl),
         }),
       )
 
