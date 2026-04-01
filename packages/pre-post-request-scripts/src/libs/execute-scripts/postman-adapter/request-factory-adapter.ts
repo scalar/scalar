@@ -1,6 +1,4 @@
-import { replaceEnvVariables } from '@scalar/helpers/regex/replace-variables'
 import type { RequestFactory } from '@scalar/workspace-store/request-example'
-import { resolveRequestFactoryUrl } from '@scalar/workspace-store/request-example'
 import { Request as PostmanRequest } from 'postman-collection'
 
 const assertSupported = (condition: boolean, message: string): void => {
@@ -16,7 +14,6 @@ const assertSupported = (condition: boolean, message: string): void => {
  */
 const buildPostmanBodyDefinition = (
   body: RequestFactory['body'],
-  envVariables: Record<string, string>,
 ):
   | {
       mode: string
@@ -31,7 +28,7 @@ const buildPostmanBodyDefinition = (
 
   if (body.mode === 'raw') {
     if (typeof body.value === 'string') {
-      return { mode: 'raw', raw: replaceEnvVariables(body.value, envVariables) }
+      return { mode: 'raw', raw: body.value }
     }
     assertSupported(false, 'raw body must be a string for pm.request; File/Blob is not supported')
     return { mode: 'raw', raw: '' }
@@ -40,9 +37,9 @@ const buildPostmanBodyDefinition = (
   if (body.mode === 'urlencoded') {
     return {
       mode: 'urlencoded',
-      urlencoded: body.value.map((item) => ({
-        key: replaceEnvVariables(item.key, envVariables),
-        value: replaceEnvVariables(item.value, envVariables),
+      urlencoded: body.value.map(({ key, value }) => ({
+        key,
+        value,
       })),
     }
   }
@@ -56,10 +53,10 @@ const buildPostmanBodyDefinition = (
       mode: 'formdata',
       formdata: body.value
         .filter((item): item is { type: 'text'; key: string; value: string } => item.type === 'text')
-        .map((item) => ({
-          key: replaceEnvVariables(item.key, envVariables),
+        .map(({ key, value }) => ({
+          key,
           type: 'text',
-          value: replaceEnvVariables(item.value, envVariables),
+          value,
         })),
     }
   }
@@ -74,23 +71,19 @@ const buildPostmanBodyDefinition = (
  *
  * @see https://learning.postman.com/docs/tests-and-scripts/write-scripts/postman-sandbox-reference/pm-request/
  */
-export const createPostmanRequestFromFactory = (
-  factory: RequestFactory,
-  envVariables: Record<string, string>,
-): PostmanRequest => {
-  const urlString = resolveRequestFactoryUrl(factory, { envVariables })
+export const createPostmanRequestFromFactory = (factory: RequestFactory): PostmanRequest => {
   const headerList: { key: string; value: string }[] = []
   factory.headers.forEach((value, key) => {
     headerList.push({
-      key: replaceEnvVariables(key, envVariables),
-      value: replaceEnvVariables(value, envVariables),
+      key,
+      value: value,
     })
   })
 
-  const bodyDef = buildPostmanBodyDefinition(factory.body, envVariables)
+  const bodyDef = buildPostmanBodyDefinition(factory.body)
 
   return new PostmanRequest({
-    url: urlString,
+    url: factory.baseUrl + factory.path.raw,
     method: factory.method,
     header: headerList,
     body: bodyDef,

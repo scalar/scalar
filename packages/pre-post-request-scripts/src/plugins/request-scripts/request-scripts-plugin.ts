@@ -31,31 +31,21 @@ export const requestScriptsPlugin = (): ClientPlugin => {
     },
 
     hooks: {
-      beforeRequest: async ({ request, document, operation, variablesStore, envVariables }) => {
+      beforeRequest: async ({ requestBuilder, document, operation, variablesStore }) => {
         // Reset test results when a new request is sent
         results.value = []
         const preRequestScript = `${document['x-pre-request'] ?? ''}\n${operation['x-pre-request'] ?? ''}`.trim()
         await executePreRequestScript(preRequestScript, {
-          requestFactory: request,
-          envVariables,
+          requestBuilder,
           variablesStore,
           onTestResultsUpdate: (newResults) => (results.value = [...newResults]),
         })
-        return { request }
       },
 
-      responseReceived: async ({
-        request,
-        response,
-        operation,
-        document,
-        variablesStore,
-        envVariables,
-      }) => {
+      responseReceived: async ({ requestBuilder, response, operation, document, variablesStore }) => {
         const postResponseScript = `${document['x-post-response'] ?? ''};\n${operation['x-post-response'] ?? ''}`.trim()
         await executePostResponseScript(postResponseScript, {
-          requestFactory: request,
-          envVariables,
+          requestBuilder,
           response,
           onTestResultsUpdate: (newResults) => (results.value = [...results.value, ...newResults]),
           variablesStore,

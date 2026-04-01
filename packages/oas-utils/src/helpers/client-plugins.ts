@@ -58,22 +58,20 @@ export type VariablesStore = {
 type ClientPluginHooks = {
   beforeRequest: (payload: {
     /** Workspace-store request spec; mutable by pre-request scripts (headers, method). */
-    request: RequestFactory
+    requestBuilder: RequestFactory
     document: OpenApiDocument
     operation: OperationObject
     variablesStore?: VariablesStore
-    /** Active environment variables (same as {@link buildRequest} uses). */
-    envVariables: Record<string, string>
-  }) => { request: RequestFactory } | void | Promise<{ request: RequestFactory } | void>
+  }) => void | Promise<void>
   responseReceived: (payload: {
     response: Response
-    request: RequestFactory
-    /** Resolved API URL (no proxy rewrite), for callbacks that only need a string. */
-    requestUrl: string
+    /** Request builder object that was used to build the request. Mutating this object will not affect the request object. */
+    requestBuilder: RequestFactory
+    /** Request object that was sent to the server. */
+    request: Request
     document: OpenApiDocument
     operation: OperationObject
     variablesStore?: VariablesStore
-    envVariables: Record<string, string>
   }) => void | Promise<void>
 }
 

@@ -10,10 +10,6 @@ export {
   XCodeSamplesSchema,
 } from './x-code-samples'
 export {
-  type XPostResponse,
-  XPostResponseSchema,
-} from './x-post-response'
-export {
   type XScalarSelectedContentType,
   XScalarSelectedContentTypeSchema,
 } from './x-scalar-selected-content-type'

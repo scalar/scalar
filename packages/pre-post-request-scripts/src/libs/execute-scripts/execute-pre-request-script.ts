@@ -4,8 +4,7 @@ import type { RequestFactory } from '@scalar/workspace-store/request-example'
 import type { TestResult } from '@/libs/execute-scripts'
 
 import { createConsoleContext } from './context/console'
-import { executeInPostmanSandbox } from './postman-sandbox-adapter'
-import { createPostmanRequestFromFactory } from './request-factory-postman-adapter'
+import { executeInPostmanSandbox } from './postman-adapter/sandbox-adapter'
 
 /**
  * Runs the pre-request script in the Postman sandbox with a Postman-shaped
@@ -16,8 +15,7 @@ import { createPostmanRequestFromFactory } from './request-factory-postman-adapt
 export const executePreRequestScript = async (
   script: string | undefined,
   data: {
-    requestFactory: RequestFactory
-    envVariables: Record<string, string>
+    requestBuilder: RequestFactory
     variablesStore?: VariablesStore
     onTestResultsUpdate?: ((results: TestResult[]) => void) | undefined
   },
@@ -25,24 +23,14 @@ export const executePreRequestScript = async (
   if (!script) {
     return
   }
-  const postmanRequest = createPostmanRequestFromFactory(data.requestFactory, data.envVariables)
   await executeInPostmanSandbox({
     script,
     type: 'pre-request',
     context: {
-      request: postmanRequest,
       scriptConsole: createConsoleContext(),
+      requestBuilder: data.requestBuilder,
       variablesStore: data.variablesStore,
     },
-    onTestResultsUpdate: data.onTestResultsUpdate,
-    requestFactory: data.requestFactory,
-  })
-  console.log({
-    postmanRequest,
-    script,
-    requestFactory: data.requestFactory,
-    envVariables: data.envVariables,
-    variablesStore: data.variablesStore,
     onTestResultsUpdate: data.onTestResultsUpdate,
   })
 }

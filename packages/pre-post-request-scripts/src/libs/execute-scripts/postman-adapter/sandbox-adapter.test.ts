@@ -22,7 +22,7 @@ vi.mock('postman-sandbox', () => ({
   },
 }))
 
-import { executeInPostmanSandbox } from './postman-sandbox-adapter'
+import { executeInPostmanSandbox } from './sandbox-adapter'
 
 describe('postman-sandbox-adapter', () => {
   beforeEach(() => {

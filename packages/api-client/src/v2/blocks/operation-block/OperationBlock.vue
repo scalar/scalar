@@ -104,7 +104,6 @@ import {
   buildRequest,
   getEnvironmentVariables,
   requestFactory,
-  resolveRequestFactoryUrl,
   type MergedSecuritySchemes,
   type SecuritySchemeObjectSecret,
 } from '@scalar/workspace-store/request-example'
@@ -225,8 +224,8 @@ const handleExecute = async () => {
   })
 
   // Execute the beforeRequest hook (plugins receive RequestFactory, not fetch Request)
-  const { request: requestAfterHooks } = await executeHook(
-    { request: requestBuilder, document, operation, envVariables },
+  await executeHook(
+    { requestBuilder, document, operation },
     'beforeRequest',
     plugins,
   )
@@ -236,7 +235,7 @@ const handleExecute = async () => {
     try {
       return {
         ok: true,
-        result: buildRequest(requestAfterHooks, {
+        result: buildRequest(requestBuilder, {
           envVariables,
         }),
       } as const
@@ -257,8 +256,6 @@ const handleExecute = async () => {
   // Store the abort controller for cancellation
   abortController.value = requestResult.result.controller
 
-  const requestUrl = resolveRequestFactoryUrl(requestAfterHooks, { envVariables })
-
   /** Execute the request */
   const [sendError, sendResult] = await sendRequest({
     isUsingProxy: requestResult.result.isUsingProxy,
@@ -270,11 +267,10 @@ const handleExecute = async () => {
     await executeHook(
       {
         response: sendResult.originalResponse.clone(),
-        request: requestAfterHooks,
-        requestUrl,
+        requestBuilder,
+        request: sendResult.request.clone(),
         document,
         operation,
-        envVariables,
       },
       'responseReceived',
       plugins,

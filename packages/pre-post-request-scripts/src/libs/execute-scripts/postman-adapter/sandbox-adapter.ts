@@ -3,15 +3,15 @@ import type { RequestFactory } from '@scalar/workspace-store/request-example'
 import type { ExecutionResult, SandboxContext } from 'postman-sandbox'
 import Sandbox from 'postman-sandbox'
 
-import { buildSandboxContextFromStore } from './build-sandbox-context'
-import type { ConsoleContext } from './context/console'
-import type { TestResult } from './execute-post-response-script'
-import { syncPlainPostmanRequestToRequestFactory } from './request-factory-postman-adapter'
+import { buildSandboxContextFromStore } from '../build-sandbox-context'
+import type { ConsoleContext } from '../context/console'
+import type { TestResult } from '../execute-post-response-script'
 import {
   applyExecutionCollectionVariables,
   applyExecutionGlobals,
   applyExecutionLocalVariables,
-} from './variables-store'
+} from '../variables-store'
+import { createPostmanRequestFromFactory, syncPlainPostmanRequestToRequestFactory } from './request-factory-adapter'
 
 type AssertionEvent = {
   name: string
@@ -79,22 +79,19 @@ const upsertTestResult = (testResults: TestResult[], assertion: AssertionEvent, 
 export const executeInPostmanSandbox = async ({
   script,
   type,
-  context: { request, response, variablesStore, scriptConsole },
+  context: { requestBuilder, response, variablesStore, scriptConsole },
   onTestResultsUpdate,
-  /** Pre-request only: sync `pm.request` mutations from the execution result (host `Request` is not mutated). */
-  requestFactory,
 }: {
   script: string
   type: 'pre-request' | 'post-response'
   context: {
     /** Postman Collection request for `pm.request` (not the browser Fetch API Request). */
-    request?: unknown
+    requestBuilder?: RequestFactory
     response?: Response
     variablesStore?: VariablesStore
     scriptConsole: ConsoleContext
   }
   onTestResultsUpdate?: ((results: TestResult[]) => void) | undefined
-  requestFactory?: RequestFactory
 }): Promise<VariablesStore | undefined> => {
   const testResults: TestResult[] = []
   let lastAssertionTime = 0
@@ -121,6 +118,7 @@ export const executeInPostmanSandbox = async ({
     sandboxContext.on('execution.assertion', handleAssertion)
     sandboxContext.on('console', handleConsole)
 
+    const postmanRequest = requestBuilder ? createPostmanRequestFromFactory(requestBuilder) : undefined
     const postmanResponse = response ? await toPostmanResponse(response) : undefined
 
     scriptExecutionStartedAt = performance.now()
@@ -134,9 +132,12 @@ export const executeInPostmanSandbox = async ({
     const context: Record<string, unknown> = {
       ...(variablesContext ?? {}),
     }
-    if (request !== undefined) {
-      context.request = request
+
+    // We need to pass the postman request to the sandbox so it can be mutated by the script.
+    if (postmanRequest !== undefined) {
+      context.request = postmanRequest
     }
+    // We need to pass the postman response to the sandbox so it can be used by the script.
     if (postmanResponse !== undefined) {
       context.response = postmanResponse
     }
@@ -167,9 +168,9 @@ export const executeInPostmanSandbox = async ({
               applyExecutionGlobals(variablesStore, execution.globals.values)
             }
           }
-          console.log({ execution })
-          if (!error && type === 'pre-request' && requestFactory && execution?.request !== undefined) {
-            syncPlainPostmanRequestToRequestFactory(execution.request, requestFactory)
+
+          if (!error && type === 'pre-request' && requestBuilder && execution?.request !== undefined) {
+            syncPlainPostmanRequestToRequestFactory(execution.request, requestBuilder)
           }
           if (error) {
             const duration = Number((performance.now() - scriptExecutionStartedAt).toFixed(2))

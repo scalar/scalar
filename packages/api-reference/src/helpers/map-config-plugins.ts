@@ -29,17 +29,9 @@ export const mapConfigPlugins = (config: ComputedRef<ApiReferenceConfigurationRa
 
       plugin.hooks.beforeRequest = onBeforeRequest
         ? async (payload) => {
-            const result = await onBeforeRequest(payload)
-
-            /**
-             * When the callback returns void (for side-effect only callbacks like logging),
-             * we return the original payload to keep the request pipeline working.
-             */
-            if (result === undefined) {
-              return payload
-            }
-
-            return result
+            await onBeforeRequest({
+              request: payload.requestBuilder,
+            })
           }
         : undefined
 
@@ -49,7 +41,7 @@ export const mapConfigPlugins = (config: ComputedRef<ApiReferenceConfigurationRa
        */
       plugin.hooks.responseReceived = onRequestSent
         ? (payload) => {
-            onRequestSent(payload.requestUrl)
+            onRequestSent(payload.request.url)
           }
         : undefined
     },
