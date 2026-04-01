@@ -24,6 +24,26 @@ function convertToPythonSyntax(str: string): string {
   return result
 }
 
+const addFormValue = (
+  data: Record<string, string | string[]>,
+  name: string,
+  value: string,
+): void => {
+  const existing = data[name]
+
+  if (existing === undefined) {
+    data[name] = value
+    return
+  }
+
+  if (Array.isArray(existing)) {
+    existing.push(value)
+    return
+  }
+
+  data[name] = [existing, value]
+}
+
 export function requestsLikeGenerate(
   clientVar: string,
   request?: Partial<HarRequest>,
@@ -84,7 +104,7 @@ export function requestsLikeGenerate(
       options.data = text // Store raw text, we'll handle the b"..." formatting later
     } else if (mimeType === 'multipart/form-data' && params) {
       const files: string[] = []
-      const formData: Record<string, string> = {}
+      const formData: Record<string, string | string[]> = {}
 
       params.forEach((param) => {
         if (param.fileName !== undefined) {
@@ -106,7 +126,7 @@ export function requestsLikeGenerate(
 
             files.push(`(${name}, (None, ${value}, ${contentType}))`)
           } else {
-            formData[param.name] = param.value
+            addFormValue(formData, param.name, param.value)
           }
         }
       })
@@ -118,7 +138,11 @@ export function requestsLikeGenerate(
         options.data = formData
       }
     } else if (mimeType === 'application/x-www-form-urlencoded' && params) {
-      options.data = Object.fromEntries(params.map((p) => [p.name, p.value]))
+      const formData: Record<string, string | string[]> = {}
+      params.forEach((param) => {
+        addFormValue(formData, param.name, param.value ?? '')
+      })
+      options.data = formData
     }
   }
 
