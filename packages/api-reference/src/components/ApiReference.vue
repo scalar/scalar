@@ -61,6 +61,7 @@ import ClassicHeader from '@/components/ClassicHeader.vue'
 import Content from '@/components/Content/Content.vue'
 import MobileHeader from '@/components/MobileHeader.vue'
 import { DeveloperTools } from '@/features/developer-tools'
+import DocumentErrors from '@/features/developer-tools/components/DocumentErrors.vue'
 import DocumentSelector from '@/features/multiple-documents/DocumentSelector.vue'
 import SearchButton from '@/features/Search/components/SearchButton.vue'
 import { getSystemModePreference } from '@/helpers/color-mode'
@@ -1106,6 +1107,7 @@ const showMCPButton = computed(() => {
       <div ref="modal" />
     </div>
     <ScalarToasts />
+    <DocumentErrors :errors="workspaceStore.documentErrors" />
   </div>
 </template>
 

@@ -110,6 +110,17 @@ export type ObjectDoc = {
  */
 export type WorkspaceDocumentInput = UrlDoc | ObjectDoc | FileDoc
 
+/** The category of a document error */
+export type DocumentErrorType = 'fetch' | 'parse' | 'validation'
+
+/** An error or warning encountered while loading or validating a document */
+export type DocumentError = {
+  type: DocumentErrorType
+  message: string
+  /** JSON pointer path to the invalid value (for validation errors) */
+  path?: string
+}
+
 /**
  * Resolves a workspace document from various input sources (URL, local file, or direct document object).
  *
@@ -213,6 +224,10 @@ export type WorkspaceStore = {
    * The auth store for the workspace
    */
   readonly auth: AuthStore
+  /**
+   * Document errors keyed by document name, populated during loading and validation
+   */
+  readonly documentErrors: Record<string, DocumentError[]>
   /**
    * Returns the reactive workspace object with an additional activeDocument getter
    */
@@ -793,6 +808,9 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     },
   )
 
+  /** Reactive map of document errors keyed by document name */
+  const documentErrors: Record<string, DocumentError[]> = reactive({})
+
   /**
    * This store is used to track the history of requests and responses for documents and operations.
    */
@@ -966,6 +984,16 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
           value: error.value,
         })),
       )
+
+      // Store validation errors for devtools display (cap at 100)
+      documentErrors[name] = validationErrors.slice(0, 100).map((error) => ({
+        type: 'validation' as const,
+        message: error.message,
+        path: error.path,
+      }))
+    } else {
+      // Clear any previous errors on successful validation
+      delete documentErrors[name]
     }
 
     // Skip navigation generation if the document already has a server-side generated navigation structure
@@ -1003,6 +1031,13 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       if (!resolve.ok) {
         console.error(`Failed to fetch document '${name}': request was not successful`)
 
+        documentErrors[name] = [
+          {
+            type: 'fetch',
+            message: resolve.error ?? `Document '${name}' could not be loaded`,
+          },
+        ]
+
         workspace.documents[name] = {
           ...meta,
           openapi: '3.1.0',
@@ -1018,6 +1053,13 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
 
       if (!isObject(resolve.data)) {
         console.error(`Failed to load document '${name}': response data is not a valid object`)
+
+        documentErrors[name] = [
+          {
+            type: 'parse',
+            message: `Response data is not a valid object for document '${name}'`,
+          },
+        ]
 
         workspace.documents[name] = {
           ...meta,
@@ -1174,6 +1216,9 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     get auth() {
       return auth
     },
+    get documentErrors() {
+      return documentErrors
+    },
     update(key, value) {
       preventPollution(key)
       Object.assign(workspace, { [key]: value })
@@ -1262,6 +1307,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       delete intermediateDocuments[documentName]
       delete overrides[documentName]
       delete extraDocumentConfigurations[documentName]
+      delete documentErrors[documentName]
       history.clearDocumentHistory(documentName)
       auth.clearDocumentAuth(documentName)
 

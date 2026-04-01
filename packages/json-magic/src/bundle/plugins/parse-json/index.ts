@@ -22,9 +22,10 @@ export function parseJson(): LoaderPlugin {
           data: JSON.parse(value),
           raw: value,
         })
-      } catch {
+      } catch (e) {
         return Promise.resolve({
           ok: false,
+          error: `Invalid JSON: ${e instanceof Error ? e.message : 'unknown parse error'}`,
         })
       }
     },

@@ -24,9 +24,10 @@ export function parseYaml(): LoaderPlugin {
           data: YAML.parse(value, { merge: true, maxAliasCount: 10000 }),
           raw: value,
         })
-      } catch {
+      } catch (e) {
         return Promise.resolve({
           ok: false,
+          error: `Invalid YAML: ${e instanceof Error ? e.message : 'unknown parse error'}`,
         })
       }
     },
