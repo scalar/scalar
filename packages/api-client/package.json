@@ -365,7 +365,6 @@
     "monaco-yaml": "catalog:*",
     "nanoid": "catalog:*",
     "posthog-js": "catalog:*",
-    "pretty-bytes": "catalog:*",
     "pretty-ms": "^9.3.0",
     "radix-vue": "catalog:*",
     "shell-quote": "^1.8.1",

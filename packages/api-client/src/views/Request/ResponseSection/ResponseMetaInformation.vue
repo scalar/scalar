@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import type { ResponseInstance } from '@scalar/oas-utils/entities/spec'
 import { httpStatusCodes, type HttpStatusCode } from '@scalar/oas-utils/helpers'
-import prettyBytes from 'pretty-bytes'
+import { prettyBytes } from '@scalar/helpers/general/pretty-bytes'
 import prettyMilliseconds from 'pretty-ms'
 import { computed, ref } from 'vue'
 

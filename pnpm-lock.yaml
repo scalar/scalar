@@ -186,9 +186,6 @@ catalogs:
     posthog-js:
       specifier: 1.363.2
       version: 1.363.2
-    pretty-bytes:
-      specifier: ^7.1.0
-      version: 7.1.0
     radix-vue:
       specifier: ^1.9.17
       version: 1.9.17
@@ -417,7 +414,7 @@ importers:
         version: 7.2.2
       ts-jest:
         specifier: ^29.1.0
-        version: 29.1.4(@babel/core@7.28.6)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.28.6))(esbuild@0.27.2)(jest@29.7.0(@types/node@24.10.13)(ts-node@10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.15))(@types/node@24.10.13)(typescript@5.9.3)))(typescript@5.9.3)
+        version: 29.1.4(@babel/core@7.29.0)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.29.0))(esbuild@0.27.2)(jest@29.7.0(@types/node@24.10.13)(ts-node@10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.15))(@types/node@24.10.13)(typescript@5.9.3)))(typescript@5.9.3)
       ts-loader:
         specifier: ^9.4.3
         version: 9.5.1(typescript@5.9.3)(webpack@5.103.0(@swc/core@1.5.29(@swc/helpers@0.5.15))(esbuild@0.27.2))
@@ -490,7 +487,7 @@ importers:
         version: 7.2.2
       ts-jest:
         specifier: ^29.1.0
-        version: 29.1.4(@babel/core@7.29.0)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.29.0))(esbuild@0.27.2)(jest@29.7.0(@types/node@24.10.13)(ts-node@10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.15))(@types/node@24.10.13)(typescript@5.9.3)))(typescript@5.9.3)
+        version: 29.1.4(@babel/core@7.28.6)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.28.6))(esbuild@0.27.2)(jest@29.7.0(@types/node@24.10.13)(ts-node@10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.15))(@types/node@24.10.13)(typescript@5.9.3)))(typescript@5.9.3)
       ts-loader:
         specifier: ^9.4.3
         version: 9.5.1(typescript@5.9.3)(webpack@5.103.0(@swc/core@1.5.29(@swc/helpers@0.5.15))(esbuild@0.27.2))
@@ -1315,9 +1312,6 @@ importers:
       posthog-js:
         specifier: catalog:*
         version: 1.363.2
-      pretty-bytes:
-        specifier: catalog:*
-        version: 7.1.0
       pretty-ms:
         specifier: ^9.3.0
         version: 9.3.0
@@ -1680,9 +1674,6 @@ importers:
       nanoid:
         specifier: catalog:*
         version: 5.1.6
-      pretty-bytes:
-        specifier: catalog:*
-        version: 7.1.0
       radix-vue:
         specifier: catalog:*
         version: 1.9.17(vue@3.5.26(typescript@5.9.3))
