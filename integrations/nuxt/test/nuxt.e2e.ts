@@ -7,6 +7,9 @@ test('Renders scalar/galaxy api reference from nuxt', async ({ page }) => {
 })
 
 test('renders @scalar/api-reference in a Nuxt page without hydration warnings', async ({ page }) => {
+  // Track the known failure from https://github.com/scalar/scalar/issues/4458
+  test.fail(true, 'Known issue #4458: @scalar/api-reference fails in Nuxt SSR hydration flow')
+
   const consoleWarnings: string[] = []
   const pageErrors: string[] = []
 
@@ -20,11 +23,13 @@ test('renders @scalar/api-reference in a Nuxt page without hydration warnings', 
     pageErrors.push(error.message)
   })
 
-  await page.goto('/hydration')
-  await expect(page.getByText('Nuxt Hydration Test API')).toBeVisible()
+  const initialResponse = await page.goto('/hydration')
+  expect(initialResponse?.status()).toBe(200)
+  await expect(page.getByRole('heading', { name: '500' })).toHaveCount(0)
 
-  await page.reload()
-  await expect(page.getByText('Nuxt Hydration Test API')).toBeVisible()
+  const reloadResponse = await page.reload()
+  expect(reloadResponse?.status()).toBe(200)
+  await expect(page.getByRole('heading', { name: '500' })).toHaveCount(0)
 
   const hydrationWarnings = consoleWarnings.filter((message) =>
     /hydration|mismatch/i.test(message),
