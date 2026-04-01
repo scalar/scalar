@@ -41,11 +41,7 @@ const containerHeight = ref(0)
 
 /** Array of text broken into lines */
 const lines = computed(() => props.text.split('\n'))
-/**
- * Total height of all lines combined
- *
- * TODO: there is a problem with this calculation which screws up the scrollbar a bit
- */
+/** Total height of all lines combined */
 const totalHeight = computed(() => lines.value.length * props.lineHeight)
 
 /** Index of the first visible line */
@@ -72,10 +68,14 @@ const visibleLines = computed(() => {
   return lines.value.slice(start, end)
 })
 
-/** Style object for the content container, controls "scrolling" */
+/** Style object for the virtual content container. */
 const contentStyle = computed(() => ({
-  height: `${totalHeight.value}px`,
   transform: `translateY(${Math.max(0, visibleStartIndex.value - 10) * props.lineHeight}px)`,
+}))
+
+/** Style object for the spacer that defines the full scrollable height. */
+const spacerStyle = computed(() => ({
+  height: `${totalHeight.value}px`,
 }))
 
 /** Updates the scroll position when the container is scrolled */
@@ -111,22 +111,26 @@ watchEffect(() => {
     class="scalar-virtual-text overflow-auto"
     :class="containerClass"
     @scroll="handleScroll">
-    <code
-      ref="contentRef"
-      class="scalar-virtual-text-content"
-      :class="contentClass"
-      :style="contentStyle">
-      <div
-        v-for="(line, index) in visibleLines"
-        :key="visibleStartIndex + index"
-        class="scalar-virtual-text-line"
-        :class="lineClass"
-        :style="{
-          height: `${props.lineHeight}px`,
-          lineHeight: `${props.lineHeight}px`,
-        }">
-        {{ line }}
-      </div>
-    </code>
+    <div
+      class="scalar-virtual-text-spacer"
+      :style="spacerStyle">
+      <code
+        ref="contentRef"
+        class="scalar-virtual-text-content"
+        :class="contentClass"
+        :style="contentStyle">
+        <div
+          v-for="(line, index) in visibleLines"
+          :key="visibleStartIndex + index"
+          class="scalar-virtual-text-line"
+          :class="lineClass"
+          :style="{
+            height: `${props.lineHeight}px`,
+            lineHeight: `${props.lineHeight}px`,
+          }">
+          {{ line }}
+        </div>
+      </code>
+    </div>
   </div>
 </template>
