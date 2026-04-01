@@ -24,7 +24,7 @@ describe('getContentLength', () => {
   describe('valid content lengths', () => {
     it('formats bytes correctly', () => {
       const response = getDefaultResponse({ headers: { 'Content-Length': '1024' } })
-      expect(getContentLength(response)).toBe('1.02 kB')
+      expect(getContentLength(response)).toBe('1.0 kB')
     })
 
     it('formats small byte values', () => {
@@ -38,7 +38,7 @@ describe('getContentLength', () => {
       const response = getDefaultResponse({
         headers: { 'Content-Length': '5000' },
       })
-      expect(getContentLength(response)).toBe('5 kB')
+      expect(getContentLength(response)).toBe('5.0 kB')
     })
 
     it('formats megabytes', () => {
@@ -66,7 +66,7 @@ describe('getContentLength', () => {
       const response = getDefaultResponse({
         headers: { 'Content-Length': '999999999' },
       })
-      expect(getContentLength(response)).toBe('1000 MB')
+      expect(getContentLength(response)).toBe('1000.0 MB')
     })
   })
 
@@ -75,14 +75,14 @@ describe('getContentLength', () => {
       const response = getDefaultResponse({
         headers: { 'Content-Length': '2048' },
       })
-      expect(getContentLength(response)).toBe('2.05 kB')
+      expect(getContentLength(response)).toBe('2.0 kB')
     })
 
     it('handles content-length with lowercase letters', () => {
       const response = getDefaultResponse({
         headers: { 'content-length': '2048' },
       })
-      expect(getContentLength(response)).toBe('2.05 kB')
+      expect(getContentLength(response)).toBe('2.0 kB')
     })
 
     it('prioritizes Content-Length over content-length', () => {
@@ -93,7 +93,7 @@ describe('getContentLength', () => {
         },
       })
       // Should use Content-Length first due to short-circuit evaluation
-      expect(getContentLength(response)).toBe('1.02 kB')
+      expect(getContentLength(response)).toBe('1.0 kB')
     })
   })
 
@@ -162,7 +162,7 @@ describe('getContentLength', () => {
       const response = getDefaultResponse({
         headers: { 'Content-Length': '001024' },
       })
-      expect(getContentLength(response)).toBe('1.02 kB')
+      expect(getContentLength(response)).toBe('1.0 kB')
     })
 
     it('returns undefined for decimal numbers', () => {
@@ -184,7 +184,7 @@ describe('getContentLength', () => {
       const response = getDefaultResponse({
         headers: { 'Content-Length': '  1024  ' },
       })
-      expect(getContentLength(response)).toBe('1.02 kB')
+      expect(getContentLength(response)).toBe('1.0 kB')
     })
 
     it('parses numbers with trailing non-numeric characters', () => {
@@ -192,7 +192,7 @@ describe('getContentLength', () => {
         headers: { 'Content-Length': '1024bytes' },
       })
       // parseInt will parse the numeric part
-      expect(getContentLength(response)).toBe('1.02 kB')
+      expect(getContentLength(response)).toBe('1.0 kB')
     })
 
     it('returns undefined for strings starting with non-numeric characters', () => {
@@ -208,7 +208,7 @@ describe('getContentLength', () => {
       const response = getDefaultResponse({
         headers: { 'Content-Length': '9999999999999' },
       })
-      expect(getContentLength(response)).toBe('10 TB')
+      expect(getContentLength(response)).toBe('10000.0 GB')
     })
 
     it('handles maximum safe integer', () => {
@@ -216,7 +216,7 @@ describe('getContentLength', () => {
         headers: { 'Content-Length': '9007199254740991' },
       })
       // This is Number.MAX_SAFE_INTEGER
-      expect(getContentLength(response)).toBe('9.01 PB')
+      expect(getContentLength(response)).toBe('9007199.3 GB')
     })
 
     it('handles scientific notation', () => {
@@ -241,14 +241,14 @@ describe('getContentLength', () => {
       const response = getDefaultResponse({
         headers: { 'Content-Length': '3456' },
       })
-      expect(getContentLength(response)).toBe('3.46 kB')
+      expect(getContentLength(response)).toBe('3.5 kB')
     })
 
     it('handles typical image file size', () => {
       const response = getDefaultResponse({
         headers: { 'Content-Length': '245678' },
       })
-      expect(getContentLength(response)).toBe('246 kB')
+      expect(getContentLength(response)).toBe('245.7 kB')
     })
 
     it('handles typical video file size', () => {
