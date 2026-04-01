@@ -160,7 +160,7 @@ const handlePathBlur = (newPath: string, event: FocusEvent): void => {
 const handlePathBackspace = (event: KeyboardEvent): void => {
   if ((event.target as HTMLElement)?.innerText === '\n') {
     eventBus.emit('server:update:selected', {
-      url: server?.url ?? '',
+      url: '',
       meta: {
         type: 'document',
       },
