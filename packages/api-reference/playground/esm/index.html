@@ -31,17 +31,47 @@
                 '/users': {
                   get: {
                     summary: 'Get users with custom headers',
-                    description: 'This endpoint requires custom header parameters',
+                    description:
+                      'This endpoint requires custom header parameters',
                     parameters: [
-                      { name: 'X-Custom-Header', in: 'header', required: true, description: 'A custom required header', schema: { type: 'string', example: 'custom-value-123' } },
-                      { name: 'X-Optional-Header', in: 'header', required: false, description: 'An optional header parameter', schema: { type: 'string', example: 'optional-value' } },
-                      { name: 'X-API-Version', in: 'header', required: true, description: 'API version header', schema: { type: 'string', enum: ['v1', 'v2'], example: 'v1' } }
+                      {
+                        name: 'X-Custom-Header',
+                        in: 'header',
+                        required: true,
+                        description: 'A custom required header',
+                        schema: { type: 'string', example: 'custom-value-123' },
+                      },
+                      {
+                        name: 'X-Optional-Header',
+                        in: 'header',
+                        required: false,
+                        description: 'An optional header parameter',
+                        schema: { type: 'string', example: 'optional-value' },
+                      },
+                      {
+                        name: 'X-API-Version',
+                        in: 'header',
+                        required: true,
+                        description: 'API version header',
+                        schema: {
+                          type: 'string',
+                          enum: ['v1', 'v2'],
+                          example: 'v1',
+                        },
+                      },
                     ],
-                    responses: { '200': { description: 'Successful response', content: { 'application/json': { schema: { type: 'object' } } } } }
-                  }
-                }
-              }
-            }
+                    responses: {
+                      200: {
+                        description: 'Successful response',
+                        content: {
+                          'application/json': { schema: { type: 'object' } },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
           },
           {
             title: 'Scalar Galaxy',
