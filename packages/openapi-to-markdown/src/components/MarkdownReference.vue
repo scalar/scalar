@@ -61,37 +61,27 @@ const { content } = defineProps<{
 //   return snippet
 // }
 
-const resolveOperation = (operation: unknown): OperationObject | null => {
-  const resolved = getResolvedRef(operation as never)
+const resolveRefAs = <TResolved extends object>(
+  reference: unknown,
+): TResolved | null => {
+  const resolved = getResolvedRef(reference as never)
 
   return resolved && typeof resolved === 'object'
-    ? (resolved as OperationObject)
+    ? (resolved as TResolved)
     : null
 }
 
-const resolveSchema = (schema: unknown): SchemaObject | null => {
-  const resolved = getResolvedRef(schema as never)
+const resolveOperation = (operation: unknown): OperationObject | null =>
+  resolveRefAs<OperationObject>(operation)
 
-  return resolved && typeof resolved === 'object'
-    ? (resolved as SchemaObject)
-    : null
-}
+const resolveSchema = (schema: unknown): SchemaObject | null =>
+  resolveRefAs<SchemaObject>(schema)
 
-const resolveRequestBody = (body: unknown): RequestBodyObject | null => {
-  const resolved = getResolvedRef(body as never)
+const resolveRequestBody = (body: unknown): RequestBodyObject | null =>
+  resolveRefAs<RequestBodyObject>(body)
 
-  return resolved && typeof resolved === 'object'
-    ? (resolved as RequestBodyObject)
-    : null
-}
-
-const resolveResponse = (response: unknown): ResponseObject | null => {
-  const resolved = getResolvedRef(response as never)
-
-  return resolved && typeof resolved === 'object'
-    ? (resolved as ResponseObject)
-    : null
-}
+const resolveResponse = (response: unknown): ResponseObject | null =>
+  resolveRefAs<ResponseObject>(response)
 
 const toRequestBodyView = (body: unknown): RequestBodyView | null =>
   resolveRequestBody(body) as unknown as RequestBodyView | null
