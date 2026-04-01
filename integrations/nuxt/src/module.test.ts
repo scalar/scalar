@@ -20,6 +20,10 @@ import module from './module'
 
 type HookHandler = (config: Record<string, unknown>) => void
 
+type ModuleUnderTest = {
+  setup: (options: Record<string, unknown>, nuxt: NuxtMock) => void
+}
+
 type NuxtMock = {
   options: {
     build: {
@@ -82,7 +86,8 @@ describe('module', () => {
       },
     }
 
-    module.setup(options, nuxt)
+    const moduleUnderTest = module as unknown as ModuleUnderTest
+    moduleUnderTest.setup(options, nuxt)
 
     expect(addComponentMock.mock.calls.length).toBe(1)
     expect(addComponentMock.mock.calls[0]?.[0]).toStrictEqual({
@@ -136,7 +141,8 @@ describe('module', () => {
       },
     }
 
-    module.setup(options, nuxt)
+    const moduleUnderTest = module as unknown as ModuleUnderTest
+    moduleUnderTest.setup(options, nuxt)
 
     const extendPagesHandler = extendPagesMock.mock.calls[0]?.[0] as (pages: unknown[]) => void
     const pages: Array<Record<string, unknown>> = []
