@@ -3,7 +3,7 @@ const UNITS = ['B', 'kB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'] as const
 /**
  * Format a byte count as a human-readable decimal value.
  */
-export const prettyBytes = (value: number, precision = 3): string => {
+export const formatBytes = (value: number, precision = 3): string => {
   if (!Number.isFinite(value) || value <= 0) {
     return '0 B'
   }

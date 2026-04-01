@@ -10,7 +10,7 @@
 export default {}
 </script>
 <script setup lang="ts">
-import { prettyBytes } from '@scalar/helpers/string/pretty-bytes'
+import { formatBytes } from '@scalar/helpers/string/format-bytes'
 import { useBindCx } from '@scalar/use-hooks/useBindCx'
 
 import { ScalarButton } from '../ScalarButton'
@@ -38,7 +38,7 @@ const { cx } = useBindCx()
           <div class="flex-1 min-w-0 truncate">
             {{ file.name }}
           </div>
-          <div class="text-c-3">{{ prettyBytes(file.size) }}</div>
+          <div class="text-c-3">{{ formatBytes(file.size) }}</div>
         </div>
       </li>
     </ul>
