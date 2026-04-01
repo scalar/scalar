@@ -142,14 +142,17 @@ export const apiReferenceConfigurationSchema = baseConfigurationSchema.extend({
     .optional() as z.ZodType<(() => Promise<void> | void) | undefined>,
   /** Callback fired when the reference is fully loaded */
   onLoaded: z.function().optional() as z.ZodType<((slug: string) => Promise<void> | void) | undefined>,
-  /** onBeforeRequest is fired before the request is sent. You can modify the request here. */
+  /**
+   * onBeforeRequest is fired before the request is sent. `request` is the workspace
+   * RequestFactory from `@scalar/workspace-store/request-example` (not a fetch Request).
+   */
   onBeforeRequest: z
     .function({
-      input: [z.object({ request: z.instanceof(Request) })],
+      input: [z.object({ request: z.any() })],
       // Why no output? https://github.com/scalar/scalar/pull/7047
       // output: z.union([z.void(), z.promise(z.void())]),
     })
-    .optional() as z.ZodType<((a: { request: Request }) => Promise<void> | void) | undefined>,
+    .optional() as z.ZodType<((a: { request: unknown }) => Promise<void> | void) | undefined>,
   /**
    * onShowMore is fired when the user clicks the "Show more" button on the references
    * @param tagId - The ID of the tag that was clicked

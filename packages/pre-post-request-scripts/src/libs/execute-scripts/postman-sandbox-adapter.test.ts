@@ -42,15 +42,18 @@ describe('postman-sandbox-adapter', () => {
 
     await executeInPostmanSandbox({
       script: 'pm.test("noop", () => {})',
-      response,
-      scriptConsole: {
-        log: vi.fn(),
-        error: vi.fn(),
-        warn: vi.fn(),
-        info: vi.fn(),
-        debug: vi.fn(),
-        trace: vi.fn(),
-        table: vi.fn(),
+      type: 'post-response',
+      context: {
+        response,
+        scriptConsole: {
+          log: vi.fn(),
+          error: vi.fn(),
+          warn: vi.fn(),
+          info: vi.fn(),
+          debug: vi.fn(),
+          trace: vi.fn(),
+          table: vi.fn(),
+        },
       },
     })
 
@@ -77,15 +80,18 @@ describe('postman-sandbox-adapter', () => {
     await expect(
       executeInPostmanSandbox({
         script: 'pm.test("noop", () => {})',
-        response,
-        scriptConsole: {
-          log: vi.fn(),
-          error: vi.fn(),
-          warn: vi.fn(),
-          info: vi.fn(),
-          debug: vi.fn(),
-          trace: vi.fn(),
-          table: vi.fn(),
+        type: 'post-response',
+        context: {
+          response,
+          scriptConsole: {
+            log: vi.fn(),
+            error: vi.fn(),
+            warn: vi.fn(),
+            info: vi.fn(),
+            debug: vi.fn(),
+            trace: vi.fn(),
+            table: vi.fn(),
+          },
         },
       }),
     ).rejects.toThrow('Body already used')

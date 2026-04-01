@@ -56,6 +56,7 @@
   ],
   "dependencies": {
     "@codemirror/lang-javascript": "^6.2.4",
+    "@scalar/helpers": "workspace:*",
     "@headlessui/vue": "catalog:*",
     "@scalar/components": "workspace:*",
     "@scalar/oas-utils": "workspace:*",

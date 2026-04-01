@@ -1,10 +1,12 @@
 import type { VariablesStore } from '@scalar/oas-utils/helpers'
+import type { RequestFactory } from '@scalar/workspace-store/request-example'
 import type { ExecutionResult, SandboxContext } from 'postman-sandbox'
 import Sandbox from 'postman-sandbox'
 
 import { buildSandboxContextFromStore } from './build-sandbox-context'
 import type { ConsoleContext } from './context/console'
 import type { TestResult } from './execute-post-response-script'
+import { syncPlainPostmanRequestToRequestFactory } from './request-factory-postman-adapter'
 import {
   applyExecutionCollectionVariables,
   applyExecutionGlobals,
@@ -79,16 +81,20 @@ export const executeInPostmanSandbox = async ({
   type,
   context: { request, response, variablesStore, scriptConsole },
   onTestResultsUpdate,
+  /** Pre-request only: sync `pm.request` mutations from the execution result (host `Request` is not mutated). */
+  requestFactory,
 }: {
   script: string
   type: 'pre-request' | 'post-response'
   context: {
-    request?: Request
+    /** Postman Collection request for `pm.request` (not the browser Fetch API Request). */
+    request?: unknown
     response?: Response
     variablesStore?: VariablesStore
     scriptConsole: ConsoleContext
   }
   onTestResultsUpdate?: ((results: TestResult[]) => void) | undefined
+  requestFactory?: RequestFactory
 }): Promise<VariablesStore | undefined> => {
   const testResults: TestResult[] = []
   let lastAssertionTime = 0
@@ -120,19 +126,27 @@ export const executeInPostmanSandbox = async ({
     scriptExecutionStartedAt = performance.now()
     lastAssertionTime = scriptExecutionStartedAt
 
-    const context: { response: typeof postmanResponse; [key: string]: unknown } = {
-      response: postmanResponse,
-      request,
+    /**
+     * Lodash `_.has(context, 'response')` is true even when the value is `undefined`,
+     * which makes the sandbox run `new Response(undefined)` and breaks `pm.request`.
+     * Only set keys that are actually present.
+     */
+    const context: Record<string, unknown> = {
+      ...(variablesContext ?? {}),
+    }
+    if (request !== undefined) {
+      context.request = request
+    }
+    if (postmanResponse !== undefined) {
+      context.response = postmanResponse
     }
 
-    if (variablesContext) {
-      Object.assign(context, variablesContext)
-    }
+    const listen = type === 'pre-request' ? 'prerequest' : 'test'
 
     await new Promise<void>((resolve) => {
       sandboxContext.execute(
         {
-          listen: 'test',
+          listen,
           script: {
             exec: [script],
           },
@@ -152,6 +166,10 @@ export const executeInPostmanSandbox = async ({
             if (execution.globals?.values) {
               applyExecutionGlobals(variablesStore, execution.globals.values)
             }
+          }
+          console.log({ execution })
+          if (!error && type === 'pre-request' && requestFactory && execution?.request !== undefined) {
+            syncPlainPostmanRequestToRequestFactory(execution.request, requestFactory)
           }
           if (error) {
             const duration = Number((performance.now() - scriptExecutionStartedAt).toFixed(2))

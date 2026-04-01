@@ -1,4 +1,5 @@
 import type { ApiReferenceEvents } from '@scalar/workspace-store/events'
+import type { RequestFactory } from '@scalar/workspace-store/request-example'
 import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/operation'
 import type { DefineComponent } from 'vue'
@@ -56,17 +57,23 @@ export type VariablesStore = {
 /** A type representing the hooks that a client plugin can define */
 type ClientPluginHooks = {
   beforeRequest: (payload: {
-    request: Request
+    /** Workspace-store request spec; mutable by pre-request scripts (headers, method). */
+    request: RequestFactory
     document: OpenApiDocument
     operation: OperationObject
     variablesStore?: VariablesStore
-  }) => { request: Request } | void | Promise<{ request: Request } | void>
+    /** Active environment variables (same as {@link buildRequest} uses). */
+    envVariables: Record<string, string>
+  }) => { request: RequestFactory } | void | Promise<{ request: RequestFactory } | void>
   responseReceived: (payload: {
     response: Response
-    request: Request
+    request: RequestFactory
+    /** Resolved API URL (no proxy rewrite), for callbacks that only need a string. */
+    requestUrl: string
     document: OpenApiDocument
     operation: OperationObject
     variablesStore?: VariablesStore
+    envVariables: Record<string, string>
   }) => void | Promise<void>
 }
 
@@ -104,10 +111,9 @@ type ClientPluginComponents = {
  *
  * const myPlugin: ClientPlugin = {
  *   hooks: {
- *     beforeRequest: (request) => {
- *       // Modify the request before it is sent
+ *     beforeRequest: ({ request }) => {
  *       request.headers.set('X-Custom-Header', 'foo');
- *       return request;
+ *       return { request };
  *     },
  *     responseReceived: async (response, operation) => {
  *       // Handle post-response logic

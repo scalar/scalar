@@ -49,7 +49,7 @@ export const mapConfigPlugins = (config: ComputedRef<ApiReferenceConfigurationRa
        */
       plugin.hooks.responseReceived = onRequestSent
         ? (payload) => {
-            onRequestSent(payload.request.url)
+            onRequestSent(payload.requestUrl)
           }
         : undefined
     },

@@ -104,6 +104,7 @@ import {
   buildRequest,
   getEnvironmentVariables,
   requestFactory,
+  resolveRequestFactoryUrl,
   type MergedSecuritySchemes,
   type SecuritySchemeObjectSecret,
 } from '@scalar/workspace-store/request-example'
@@ -207,18 +208,36 @@ const handleExecute = async () => {
     requestBodyCompositionSelection,
   })
 
+  const envVariables = getEnvironmentVariables(environment)
+
   // Stop any previous streaming response
   if (response.value && 'reader' in response.value) {
     response.value.reader.cancel()
   }
 
-  // Build the actual request we will send
+  // Execute the hooks
+  eventBus.emit('hooks:on:request:sent', {
+    meta: {
+      method,
+      path,
+      exampleKey,
+    },
+  })
+
+  // Execute the beforeRequest hook (plugins receive RequestFactory, not fetch Request)
+  const { request: requestAfterHooks } = await executeHook(
+    { request: requestBuilder, document, operation, envVariables },
+    'beforeRequest',
+    plugins,
+  )
+
+  // Build the fetch Request after hooks may have mutated the factory
   const requestResult = (() => {
     try {
       return {
         ok: true,
-        result: buildRequest(requestBuilder, {
-          envVariables: getEnvironmentVariables(environment),
+        result: buildRequest(requestAfterHooks, {
+          envVariables,
         }),
       } as const
     } catch (error) {
@@ -238,26 +257,12 @@ const handleExecute = async () => {
   // Store the abort controller for cancellation
   abortController.value = requestResult.result.controller
 
-  // Execute the hooks
-  eventBus.emit('hooks:on:request:sent', {
-    meta: {
-      method,
-      path,
-      exampleKey,
-    },
-  })
-
-  // Execute the beforeRequest hook
-  const { request: finalRequest } = await executeHook(
-    { request: requestResult.result.request, document, operation },
-    'beforeRequest',
-    plugins,
-  )
+  const requestUrl = resolveRequestFactoryUrl(requestAfterHooks, { envVariables })
 
   /** Execute the request */
   const [sendError, sendResult] = await sendRequest({
     isUsingProxy: requestResult.result.isUsingProxy,
-    request: finalRequest,
+    request: requestResult.result.request,
   })
 
   if (sendResult) {
@@ -265,9 +270,11 @@ const handleExecute = async () => {
     await executeHook(
       {
         response: sendResult.originalResponse.clone(),
-        request: sendResult.request.clone(),
+        request: requestAfterHooks,
+        requestUrl,
         document,
         operation,
+        envVariables,
       },
       'responseReceived',
       plugins,

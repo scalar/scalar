@@ -2188,6 +2188,9 @@ importers:
       '@scalar/components':
         specifier: workspace:*
         version: link:../components
+      '@scalar/helpers':
+        specifier: workspace:*
+        version: link:../helpers
       '@scalar/oas-utils':
         specifier: workspace:*
         version: link:../oas-utils
