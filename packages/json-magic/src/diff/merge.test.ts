@@ -305,7 +305,12 @@ describe('mergeDiff', () => {
       },
     }
 
-    expect(merge(diff(base, doc1), diff(base, doc2))).toEqual({
+    expect(
+      merge(
+        diff<Record<string, unknown>>(base, doc1),
+        diff<Record<string, unknown>>(base, doc2),
+      ),
+    ).toEqual({
       diffs: [
         {
           path: ['paths', '/products'],
@@ -321,7 +326,12 @@ describe('mergeDiff', () => {
       conflicts: [],
     })
 
-    expect(merge(diff(base, doc2), diff(base, doc1))).toEqual({
+    expect(
+      merge(
+        diff<Record<string, unknown>>(base, doc2),
+        diff<Record<string, unknown>>(base, doc1),
+      ),
+    ).toEqual({
       diffs: [
         {
           path: ['paths', '/orders'],
