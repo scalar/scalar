@@ -1,6 +1,7 @@
 {
   "$schema": "./node_modules/turbo/schema.json",
   "globalPassThroughEnv": ["GOCACHE", "LOCALAPPDATA", "REMOTE_CONTAINERS"],
+  "globalDependencies": ["pnpm-lock.yaml", "pnpm-workspace.yaml"],
   "ui": "tui",
   "tasks": {
     "lint:fix": {},
