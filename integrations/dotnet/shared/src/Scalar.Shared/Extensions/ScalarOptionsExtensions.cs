@@ -56,11 +56,9 @@ public static partial class ScalarOptionsExtensions
     /// <returns>The configured <see cref="ScalarOptions" />.</returns>
     public static TOptions WithMcpServer<TOptions>(this TOptions options, string name, [StringSyntax(StringSyntaxAttribute.Uri)] string url) where TOptions : ScalarOptions
     {
-        options.Mcp = new ScalarMcpOptions
-        {
-            Name = name,
-            Url = url
-        };
+        options.Mcp ??= new ScalarMcpOptions();
+        options.Mcp.Name = name;
+        options.Mcp.Url = url;
         return options;
     }
 
