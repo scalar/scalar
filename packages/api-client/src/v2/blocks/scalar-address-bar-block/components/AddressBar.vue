@@ -156,6 +156,18 @@ const handlePathBlur = (newPath: string, event: FocusEvent): void => {
   )
 }
 
+/** Lets unset the server when backspace is pressed and the path is empty */
+const handlePathBackspace = (event: KeyboardEvent): void => {
+  if ((event.target as HTMLElement)?.innerText === '\n') {
+    eventBus.emit('server:update:selected', {
+      url: server?.url ?? '',
+      meta: {
+        type: 'document',
+      },
+    })
+  }
+}
+
 /** Handle path submit (Enter key) — saves the path and triggers execution via blurTarget */
 const handlePathSubmit = (
   newPath: string,
@@ -317,6 +329,7 @@ defineExpose({
           :placeholder="server ? '' : 'Enter a URL'"
           server
           @blur="handlePathBlur"
+          @keydown.backspace="handlePathBackspace"
           @submit="handlePathSubmit" />
         <div class="fade-right" />
       </div>
