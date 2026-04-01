@@ -1,11 +1,13 @@
 import { environmentSchema } from '@scalar/oas-utils/entities/environment'
 import { type Collection, collectionSchema, requestSchema, serverSchema } from '@scalar/oas-utils/entities/spec'
 import { workspaceSchema } from '@scalar/oas-utils/entities/workspace'
+import { apiClientConfigurationSchema } from '@scalar/types/api-reference'
 import type { VueWrapper } from '@vue/test-utils'
 import { mount } from '@vue/test-utils'
-import { describe, expect, it, vi } from 'vitest'
-import { nextTick } from 'vue'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { nextTick, ref } from 'vue'
 
+import { CLIENT_CONFIGURATION_SYMBOL } from '@/hooks/useClientConfig'
 import type { EnvVariable } from '@/store/active-entities'
 
 import RequestAuth from './RequestAuth.vue'
@@ -87,6 +89,26 @@ vi.mock('@/store/store', () => ({
           },
         },
       },
+      'oauth2-empty-redirect': {
+        uid: 'oauth2-empty-redirect',
+        type: 'oauth2',
+        nameKey: 'OAuth2 Empty Redirect',
+        flows: {
+          authorizationCode: {
+            type: 'authorizationCode',
+            authorizationUrl: 'https://auth.example.com/authorize',
+            tokenUrl: 'https://auth.example.com/token',
+            refreshUrl: 'https://auth.example.com/refresh',
+            scopes: {
+              read: 'Read access',
+            },
+            selectedScopes: ['read'],
+            'x-scalar-client-id': 'test-client-id',
+            'x-scalar-redirect-uri': '',
+            token: '',
+          },
+        },
+      },
     },
     collectionMutators,
     requestMutators,
@@ -95,6 +117,10 @@ vi.mock('@/store/store', () => ({
 }))
 
 describe('RequestAuth.vue', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
   const createBaseProps = () =>
     ({
       collection: collectionSchema.parse({
@@ -247,5 +273,64 @@ describe('RequestAuth.vue', () => {
     // Check that the parent component emitted the authorized event
     expect(wrapper.emitted('authorized')).toBeTruthy()
     expect(wrapper.emitted('authorized')).toHaveLength(1)
+  })
+
+  it('does not prefill OAuth redirect URI when running on file protocol', async () => {
+    const originalLocation = window.location
+    Object.defineProperty(window, 'location', {
+      value: {
+        protocol: 'file:',
+        origin: 'file://',
+        pathname: '/index.html',
+        href: 'file:///index.html',
+      },
+      writable: true,
+    })
+
+    const props = {
+      ...createBaseProps(),
+      selectedSecuritySchemeUids: ['oauth2-empty-redirect'] as Collection['selectedSecuritySchemeUids'],
+    }
+
+    mount(RequestAuth, { props })
+    await nextTick()
+
+    expect(securitySchemeMutators.edit).not.toHaveBeenCalledWith(
+      'oauth2-empty-redirect',
+      'flows.authorizationCode.x-scalar-redirect-uri',
+      expect.any(String),
+    )
+
+    Object.defineProperty(window, 'location', {
+      value: originalLocation,
+      writable: true,
+    })
+  })
+
+  it('prefills OAuth redirect URI from oauth2RedirectUri config', async () => {
+    const props = {
+      ...createBaseProps(),
+      selectedSecuritySchemeUids: ['oauth2-empty-redirect'] as Collection['selectedSecuritySchemeUids'],
+    }
+
+    mount(RequestAuth, {
+      props,
+      global: {
+        provide: {
+          [CLIENT_CONFIGURATION_SYMBOL as symbol]: ref(
+            apiClientConfigurationSchema.parse({
+              oauth2RedirectUri: 'myapp://oauth/callback',
+            }),
+          ),
+        },
+      },
+    })
+    await nextTick()
+
+    expect(securitySchemeMutators.edit).toHaveBeenCalledWith(
+      'oauth2-empty-redirect',
+      'flows.authorizationCode.x-scalar-redirect-uri',
+      'myapp://oauth/callback',
+    )
   })
 })

@@ -10,8 +10,10 @@ import {
 } from '@scalar/oas-utils/entities/spec'
 import type { Workspace } from '@scalar/oas-utils/entities/workspace'
 import { useToasts } from '@scalar/use-toasts'
+import { computed, ref, watch } from 'vue'
 
 import { DataTableRow } from '@/components/DataTable'
+import { useClientConfig } from '@/hooks/useClientConfig'
 import type { EnvVariable } from '@/store/active-entities'
 import { useWorkspace, type UpdateScheme } from '@/store/store'
 import { authorizeOauth2 } from '@/views/Request/libs'
@@ -51,10 +53,41 @@ defineSlots<{
 const loader = useLoadingState()
 const { toast } = useToasts()
 const storeContext = useWorkspace()
+const config = useClientConfig()
 
 /** Update the current scheme */
 const updateScheme: UpdateScheme = (path, value) =>
   _updateScheme(scheme.uid, path, value, storeContext, persistAuth)
+
+const hasPrefilledRedirectUri = ref(false)
+const defaultRedirectUri = computed<string>(() => {
+  if (config.value.oauth2RedirectUri) {
+    return config.value.oauth2RedirectUri
+  }
+
+  if (typeof window === 'undefined' || window.location.protocol === 'file:') {
+    return ''
+  }
+
+  return window.location.origin + window.location.pathname
+})
+
+watch(
+  () => ('x-scalar-redirect-uri' in flow ? flow['x-scalar-redirect-uri'] : undefined),
+  (currentRedirectUri) => {
+    if (!('x-scalar-redirect-uri' in flow) || hasPrefilledRedirectUri.value || currentRedirectUri) {
+      return
+    }
+
+    if (!defaultRedirectUri.value) {
+      return
+    }
+
+    hasPrefilledRedirectUri.value = true
+    updateScheme(`flows.${flow.type}.x-scalar-redirect-uri`, defaultRedirectUri.value)
+  },
+  { immediate: true },
+)
 
 /** Authorize the user using specified flow */
 const handleAuthorize = async () => {
