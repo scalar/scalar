@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { formatBytes } from '@scalar/helpers/string/format-bytes'
+import { formatBytes } from '@scalar/helpers/formatters/format-bytes'
 import type { ResponseInstance } from '@scalar/oas-utils/entities/spec'
 import { httpStatusCodes, type HttpStatusCode } from '@scalar/oas-utils/helpers'
 import prettyMilliseconds from 'pretty-ms'
