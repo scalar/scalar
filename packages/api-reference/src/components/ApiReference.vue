@@ -38,7 +38,7 @@ import type {
   TraversedTag,
 } from '@scalar/workspace-store/schemas/navigation'
 import { useScrollLock } from '@vueuse/core'
-import diff from 'microdiff'
+import { diff } from '@scalar/json-magic/diff'
 import {
   computed,
   onBeforeMount,

@@ -159,9 +159,6 @@ catalogs:
     jsdom:
       specifier: 27.4.0
       version: 27.4.0
-    microdiff:
-      specifier: ^1.5.0
-      version: 1.5.0
     monaco-editor:
       specifier: 0.54.0
       version: 0.54.0
@@ -1300,9 +1297,6 @@ importers:
       js-base64:
         specifier: catalog:*
         version: 3.7.8
-      microdiff:
-        specifier: catalog:*
-        version: 1.5.0
       monaco-editor:
         specifier: catalog:*
         version: 0.54.0
@@ -1482,9 +1476,6 @@ importers:
       github-slugger:
         specifier: catalog:*
         version: 2.0.0
-      microdiff:
-        specifier: catalog:*
-        version: 1.5.0
       nanoid:
         specifier: catalog:*
         version: 5.1.6
@@ -12997,9 +12988,6 @@ packages:
 
   micro-api-client@3.3.0:
     resolution: {integrity: sha512-y0y6CUB9RLVsy3kfgayU28746QrNMpSm9O/AYGNsBgOkJr/X/Jk0VLGoO8Ude7Bpa8adywzF+MzXNZRFRsNPhg==}
-
-  microdiff@1.5.0:
-    resolution: {integrity: sha512-Drq+/THMvDdzRYrK0oxJmOKiC24ayUV8ahrt8l3oRK51PWt6gdtrIGrlIH3pT/lFh1z93FbAcidtsHcWbnRz8Q==}
 
   micromark-core-commonmark@2.0.1:
     resolution: {integrity: sha512-CUQyKr1e///ZODyD1U3xit6zXwy1a8q2a1S1HKtIlmgvurrEpaw/Y9y6KSIbF8P59cn/NjzHyO+Q2fAyYLQrAA==}
@@ -31058,8 +31046,6 @@ snapshots:
 
   micro-api-client@3.3.0:
     optional: true
-
-  microdiff@1.5.0: {}
 
   micromark-core-commonmark@2.0.1:
     dependencies:

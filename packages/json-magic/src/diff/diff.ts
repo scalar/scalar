@@ -1,18 +1,59 @@
 /**
- * Represents the possible types of changes that can be made to a document.
- * - 'add': A new property is added
- * - 'update': An existing property's value is changed
- * - 'delete': A property is removed
+ * Represents a segment in a nested object path.
+ * Arrays use numeric indices while objects use string keys.
  */
-type ChangeType = 'add' | 'update' | 'delete'
+export type PathSegment = string | number
+
+type LegacyChangeType = 'add' | 'update' | 'delete'
+type MicroChangeType = 'CREATE' | 'CHANGE' | 'REMOVE'
+
+type LegacyDifference<T> = {
+  path: PathSegment[]
+  changes: T
+  type: LegacyChangeType
+}
+
+type MicroCreateDifference<T> = {
+  path: PathSegment[]
+  type: 'CREATE'
+  value: T
+}
+
+type MicroChangeDifference<T> = {
+  path: PathSegment[]
+  type: 'CHANGE'
+  oldValue: T
+  value: T
+}
+
+type MicroRemoveDifference<T> = {
+  path: PathSegment[]
+  type: 'REMOVE'
+  oldValue: T
+}
 
 /**
  * Represents a single difference between two documents.
- * @property path - Array of strings representing the path to the changed property
- * @property changes - The new value for the property (for add/update) or the old value (for delete)
- * @property type - The type of change that occurred
+ *
+ * For backwards compatibility this type supports both:
+ * - Legacy `json-magic` diff shape (`add`/`update`/`delete` + `changes`)
+ * - Microdiff-compatible shape (`CREATE`/`CHANGE`/`REMOVE` + `value`/`oldValue`)
  */
-export type Difference<_T> = { path: string[]; changes: any; type: ChangeType }
+export type Difference<T = unknown> =
+  | LegacyDifference<T>
+  | MicroCreateDifference<T>
+  | MicroChangeDifference<T>
+  | MicroRemoveDifference<T>
+
+const isIndexKey = (value: string): boolean => /^\d+$/.test(value)
+
+const toPathSegment = (container: unknown, key: string): PathSegment => {
+  if (Array.isArray(container) && isIndexKey(key)) {
+    return Number(key)
+  }
+
+  return key
+}
 
 /**
  * Get the difference between two objects.
@@ -52,39 +93,40 @@ export type Difference<_T> = { path: string[]; changes: any; type: ChangeType }
 export const diff = <T extends Record<string, unknown>>(doc1: Record<string, unknown>, doc2: T) => {
   const diff: Difference<T>[] = []
 
-  const bfs = (el1: unknown, el2: unknown, prefix = []) => {
-    // If the types are different, we know that the property has been added, deleted or updated
-    if (typeof el1 !== typeof el2) {
-      if (typeof el1 === 'undefined') {
-        diff.push({ path: prefix, changes: el2, type: 'add' })
-        return
-      }
-
-      if (typeof el2 === 'undefined') {
-        diff.push({ path: prefix, changes: el1, type: 'delete' })
-        return
-      }
-
-      diff.push({ path: prefix, changes: el2, type: 'update' })
+  const bfs = (el1: unknown, el2: unknown, prefix: PathSegment[] = []) => {
+    if (Object.is(el1, el2)) {
       return
     }
 
-    // We now can assume that el1 and el2 are of the same type
+    if (typeof el1 === 'undefined') {
+      diff.push({ path: prefix, type: 'CREATE', value: el2 as T })
+      return
+    }
 
-    // For nested objects, we need to recursively check the properties
-    if (typeof el1 === 'object' && typeof el2 === 'object' && el1 !== null && el2 !== null) {
-      const keys = new Set([...Object.keys(el1), ...Object.keys(el2)])
+    if (typeof el2 === 'undefined') {
+      diff.push({ path: prefix, type: 'REMOVE', oldValue: el1 as T })
+      return
+    }
+
+    const isObjectPair =
+      typeof el1 === 'object' &&
+      typeof el2 === 'object' &&
+      el1 !== null &&
+      el2 !== null
+
+    if (isObjectPair) {
+      const left = el1 as Record<string, unknown>
+      const right = el2 as Record<string, unknown>
+      const keys = new Set([...Object.keys(left), ...Object.keys(right)])
 
       for (const key of keys) {
-        bfs(el1[key], el2[key], [...prefix, key])
+        const pathSegment = toPathSegment(Array.isArray(left) ? left : right, key)
+        bfs(left[key], right[key], [...prefix, pathSegment])
       }
       return
     }
 
-    // For primitives, we can just compare the values
-    if (el1 !== el2) {
-      diff.push({ path: prefix, changes: el2, type: 'update' })
-    }
+    diff.push({ path: prefix, type: 'CHANGE', oldValue: el1 as T, value: el2 as T })
   }
 
   // Run breadth-first search

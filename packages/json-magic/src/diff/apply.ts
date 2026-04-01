@@ -7,6 +7,27 @@ export class InvalidChangesDetectedError extends Error {
   }
 }
 
+const isLegacyAddOrUpdate = <T>(diff: Difference<T>): diff is Extract<Difference<T>, { type: 'add' | 'update' }> =>
+  diff.type === 'add' || diff.type === 'update'
+
+const isMicroCreateOrChange = <T>(
+  diff: Difference<T>,
+): diff is Extract<Difference<T>, { type: 'CREATE' | 'CHANGE' }> => diff.type === 'CREATE' || diff.type === 'CHANGE'
+
+const getChangeValue = <T>(diff: Difference<T>): T | undefined => {
+  if (isLegacyAddOrUpdate(diff)) {
+    return diff.changes
+  }
+
+  if (isMicroCreateOrChange(diff)) {
+    return diff.value
+  }
+
+  return undefined
+}
+
+const isDelete = <T>(diff: Difference<T>): boolean => diff.type === 'delete' || diff.type === 'REMOVE'
+
 /**
  * Applies a set of differences to a document object.
  * The function traverses the document structure following the paths specified in the differences
@@ -41,21 +62,22 @@ export const apply = <T extends Record<string, unknown>>(
   diff: Difference<T>[],
 ): T => {
   // Traverse the object and apply the change
-  const applyChange = (current: any, path: string[], d: Difference<T>, depth = 0) => {
+  const applyChange = (current: any, path: (string | number)[], d: Difference<T>, depth = 0) => {
     if (path[depth] === undefined) {
       throw new InvalidChangesDetectedError(
-        `Process aborted. Path ${path.join('.')} at depth ${depth} is undefined, check diff object`,
+        `Process aborted. Path ${path.map(String).join('.')} at depth ${depth} is undefined, check diff object`,
       )
     }
 
     // We reach where we want to be, now we can apply changes
     if (depth >= path.length - 1) {
-      if (d.type === 'add' || d.type === 'update') {
-        current[path[depth]] = d.changes
+      const nextValue = getChangeValue(d)
+      if (!isDelete(d) && nextValue !== undefined) {
+        current[path[depth]] = nextValue
       } else {
         // For arrays we don't use delete operator since it will leave blank spots and not actually remove the element
         if (Array.isArray(current)) {
-          current.splice(Number.parseInt(path[depth]), 1)
+          current.splice(Number(path[depth]), 1)
         } else {
           delete current[path[depth]]
         }

@@ -12,7 +12,7 @@ import {
   tagSchema,
 } from '@scalar/oas-utils/entities/spec'
 import { parseSchema } from '@scalar/oas-utils/transforms'
-import microdiff, { type Difference } from 'microdiff'
+import { type Difference, diff } from '@scalar/json-magic/diff'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { z } from 'zod'
 
@@ -199,8 +199,8 @@ describe('combineRenameDiffs', () => {
     mutated.paths['/planoots'] = { ...mutated.paths['/planets'] }
     delete mutated.paths['/planets']
 
-    const diff = microdiff(original, mutated)
-    const combinedDiff = combineRenameDiffs(diff)
+    const differences = diff(original, mutated)
+    const combinedDiff = combineRenameDiffs(differences)
 
     expect(combinedDiff).toEqual([
       {
@@ -218,8 +218,8 @@ describe('combineRenameDiffs', () => {
     mutated.paths['/planoots'].get.summary = 'Get all planoots'
     delete mutated.paths['/planets']
 
-    const diff = microdiff(original, mutated)
-    const combinedDiff = combineRenameDiffs(diff)
+    const differences = diff(original, mutated)
+    const combinedDiff = combineRenameDiffs(differences)
 
     expect(combinedDiff).toEqual([
       {
@@ -245,8 +245,8 @@ describe('combineRenameDiffs', () => {
     mutated.paths['/planoots'].put = { ...mutated.paths['/planoots'].get }
     delete mutated.paths['/planoots'].get
 
-    const diff = microdiff(original, mutated)
-    const combinedDiff = combineRenameDiffs(diff)
+    const differences = diff(original, mutated)
+    const combinedDiff = combineRenameDiffs(differences)
 
     expect(combinedDiff).toEqual([
       {
@@ -287,8 +287,8 @@ describe('combineRenameDiffs', () => {
     // Rename a method
     mutated.paths['/planets'].put = newRequest
 
-    const diff = microdiff(original, mutated)
-    const combinedDiff = combineRenameDiffs(diff)
+    const differences = diff(original, mutated)
+    const combinedDiff = combineRenameDiffs(differences)
 
     expect(combinedDiff).toEqual([
       {
@@ -304,8 +304,8 @@ describe('combineRenameDiffs', () => {
     mutated.paths['/planets'].put = { ...mutated.paths['/planets'].get }
     delete mutated.paths['/planets'].get
 
-    const diff = microdiff(original, mutated)
-    const combinedDiff = combineRenameDiffs(diff)
+    const differences = diff(original, mutated)
+    const combinedDiff = combineRenameDiffs(differences)
 
     expect(combinedDiff).toEqual([
       {
@@ -323,8 +323,8 @@ describe('combineRenameDiffs', () => {
     mutated.paths['/planets'].put.summary = 'Update a planet'
     delete mutated.paths['/planets'].get
 
-    const diff = microdiff(original, mutated)
-    const combinedDiff = combineRenameDiffs(diff)
+    const differences = diff(original, mutated)
+    const combinedDiff = combineRenameDiffs(differences)
 
     expect(combinedDiff).toEqual([
       {
@@ -351,8 +351,8 @@ describe('combineRenameDiffs', () => {
       schema: { type: 'integer', format: 'int32' },
     })
 
-    const diff = microdiff(original, mutated)
-    const combinedDiff = combineRenameDiffs(diff)
+    const differences = diff(original, mutated)
+    const combinedDiff = combineRenameDiffs(differences)
 
     expect(combinedDiff).toEqual([
       {
@@ -372,8 +372,8 @@ describe('combineRenameDiffs', () => {
   it('creates a remove diff for removing a parameter', () => {
     mutated.paths['/planets'].get.parameters.pop()
 
-    const diff = microdiff(original, mutated)
-    const combinedDiff = combineRenameDiffs(diff)
+    const differences = diff(original, mutated)
+    const combinedDiff = combineRenameDiffs(differences)
 
     expect(combinedDiff).toEqual([
       {
@@ -393,8 +393,8 @@ describe('combineRenameDiffs', () => {
   it('creates a change diff for changing a parameter', () => {
     mutated.paths['/planets'].get.parameters[0].name = 'highroller'
 
-    const diff = microdiff(original, mutated)
-    const combinedDiff = combineRenameDiffs(diff)
+    const differences = diff(original, mutated)
+    const combinedDiff = combineRenameDiffs(differences)
 
     expect(combinedDiff).toEqual([
       {
@@ -413,8 +413,8 @@ describe('combineRenameDiffs', () => {
       'write:api': 'modify api',
     }
 
-    const diff = microdiff(mockSecuritySchemes, mutatedSecuritySchemes)
-    const combinedDiff = combineRenameDiffs(diff)
+    const differences = diff(mockSecuritySchemes, mutatedSecuritySchemes)
+    const combinedDiff = combineRenameDiffs(differences)
 
     expect(combinedDiff).toEqual([
       {
@@ -430,8 +430,8 @@ describe('combineRenameDiffs', () => {
     mutated.paths['/planets'].get.responses['200'].content['application/json'].schema.allOf[0].properties.data.type =
       'number'
 
-    const diff = microdiff(original, mutated)
-    const combinedDiff = combineRenameDiffs(diff)
+    const differences = diff(original, mutated)
+    const combinedDiff = combineRenameDiffs(differences)
     expect(combinedDiff).toEqual([
       {
         type: 'CHANGE',

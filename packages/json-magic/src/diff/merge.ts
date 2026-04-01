@@ -1,6 +1,83 @@
-import type { Difference } from '@/diff/diff'
+import type { Difference, PathSegment } from '@/diff/diff'
 import { Trie } from '@/diff/trie'
 import { isArrayEqual, isKeyCollisions, mergeObjects } from '@/diff/utils'
+
+type LegacyDiff = Extract<Difference<unknown>, { type: 'add' | 'update' | 'delete' }>
+type MicroDiff = Extract<Difference<unknown>, { type: 'CREATE' | 'CHANGE' | 'REMOVE' }>
+
+type NormalizedDiff = {
+  path: PathSegment[]
+  type: 'add' | 'update' | 'delete'
+  changes?: unknown
+  oldValue?: unknown
+}
+
+const isLegacyDiff = (difference: Difference<unknown>): difference is LegacyDiff =>
+  difference.type === 'add' || difference.type === 'update' || difference.type === 'delete'
+
+const normalizeDiff = (difference: Difference<unknown>): NormalizedDiff => {
+  if (isLegacyDiff(difference)) {
+    return difference
+  }
+
+  if (difference.type === 'CREATE') {
+    return {
+      path: difference.path,
+      type: 'add',
+      changes: difference.value,
+    }
+  }
+
+  if (difference.type === 'REMOVE') {
+    return {
+      path: difference.path,
+      type: 'delete',
+      oldValue: difference.oldValue,
+      changes: difference.oldValue,
+    }
+  }
+
+  return {
+    path: difference.path,
+    type: 'update',
+    oldValue: difference.oldValue,
+    changes: difference.value,
+  }
+}
+
+const denormalizeDiff = <T>(difference: Difference<T>, normalized: NormalizedDiff): Difference<T> => {
+  if (isLegacyDiff(difference as Difference<unknown>)) {
+    return {
+      path: normalized.path,
+      type: normalized.type,
+      changes: normalized.changes,
+    } as Difference<T>
+  }
+
+  const micro = difference as MicroDiff
+  if (micro.type === 'CREATE') {
+    return {
+      path: normalized.path,
+      type: 'CREATE',
+      value: normalized.changes as T,
+    }
+  }
+
+  if (micro.type === 'REMOVE') {
+    return {
+      path: normalized.path,
+      type: 'REMOVE',
+      oldValue: normalized.oldValue as T,
+    }
+  }
+
+  return {
+    path: normalized.path,
+    type: 'CHANGE',
+    oldValue: normalized.oldValue as T,
+    value: normalized.changes as T,
+  }
+}
 
 /**
  * Merges two sets of differences from the same document and resolves conflicts.
@@ -40,6 +117,9 @@ import { isArrayEqual, isKeyCollisions, mergeObjects } from '@/diff/utils'
  * // }
  */
 export const merge = <T>(diff1: Difference<T>[], diff2: Difference<T>[]) => {
+  const normalizedDiff1 = diff1.map((difference) => normalizeDiff(difference as Difference<unknown>))
+  const normalizedDiff2 = diff2.map((difference) => normalizeDiff(difference as Difference<unknown>))
+
   // Here we need to use a trie to optimize searching for a prefix
   // With the naive approach time complexity of the algorithm would be
   //                         O(n * m)
@@ -49,10 +129,10 @@ export const merge = <T>(diff1: Difference<T>[], diff2: Difference<T>[]) => {
   // Assuming that the maximum depth of the nested objects would be constant lets say 0 <= D <= 100
   // we try to optimize for that using the tire data structure.
   // So the new time complexity would be O(n * D) where D is the maximum depth of the nested object
-  const trie = new Trie<{ index: number; changes: Difference<T> }>()
+  const trie = new Trie<{ index: number; changes: NormalizedDiff }>()
 
   // Create the trie
-  for (const [index, diff] of diff1.entries()) {
+  for (const [index, diff] of normalizedDiff1.entries()) {
     trie.addPath(diff.path, { index, changes: diff })
   }
 
@@ -62,12 +142,12 @@ export const merge = <T>(diff1: Difference<T>[], diff2: Difference<T>[]) => {
   // Keep related conflicts together for easy A, B pick conflict resolution
   // map key is going to be conflicting index of first diff list where the diff will be
   // a delete operation or an add/update operation with a one to many conflicts
-  const conflictsMap1 = new Map<number, [Difference<T>[], Difference<T>[]]>()
+  const conflictsMap1 = new Map<number, [NormalizedDiff[], NormalizedDiff[]]>()
   // map key will be the index from the second diff list where the diff will be
   // a delete operation with one to many conflicts
-  const conflictsMap2 = new Map<number, [Difference<T>[], Difference<T>[]]>()
+  const conflictsMap2 = new Map<number, [NormalizedDiff[], NormalizedDiff[]]>()
 
-  for (const [index, diff] of diff2.entries()) {
+  for (const [index, diff] of normalizedDiff2.entries()) {
     trie.findMatch(diff.path, (value) => {
       if (diff.type === 'delete') {
         if (value.changes.type === 'delete') {
@@ -75,7 +155,7 @@ export const merge = <T>(diff1: Difference<T>[], diff2: Difference<T>[]) => {
           if (value.changes.path.length > diff.path.length) {
             skipDiff1.add(value.index)
           } else {
-            skipDiff2.add(value.index)
+            skipDiff2.add(index)
           }
         } else {
           // Take care of updates/add on the same path (we are sure they will be on the
@@ -123,13 +203,24 @@ export const merge = <T>(diff1: Difference<T>[], diff2: Difference<T>[]) => {
     })
   }
 
-  const conflicts: [Difference<T>[], Difference<T>[]][] = [...conflictsMap1.values(), ...conflictsMap2.values()]
+  const conflicts: [Difference<T>[], Difference<T>[]][] = [...conflictsMap1.values(), ...conflictsMap2.values()].map(
+    ([left, right]) => [
+      left.map((entry) => denormalizeDiff(diff1[0] ?? diff2[0], entry)),
+      right.map((entry) => denormalizeDiff(diff2[0] ?? diff1[0], entry)),
+    ],
+  )
 
   // Filter all changes that should be skipped because of conflicts
   // or auto conflict resolution
   const diffs: Difference<T>[] = [
-    ...diff1.filter((_, index) => !skipDiff1.has(index)),
-    ...diff2.filter((_, index) => !skipDiff2.has(index)),
+    ...normalizedDiff1
+      .map((entry, index) => ({ entry, index }))
+      .filter(({ index }) => !skipDiff1.has(index))
+      .map(({ entry, index }) => denormalizeDiff(diff1[index] ?? diff2[0], entry)),
+    ...normalizedDiff2
+      .map((entry, index) => ({ entry, index }))
+      .filter(({ index }) => !skipDiff2.has(index))
+      .map(({ entry, index }) => denormalizeDiff(diff2[index] ?? diff1[0], entry)),
   ]
 
   return { diffs, conflicts }

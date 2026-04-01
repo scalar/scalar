@@ -67,7 +67,6 @@ catalogs:
     github-slugger: 2.0.0
     js-base64: ^3.7.8
     jsdom: 27.4.0
-    microdiff: ^1.5.0
     monaco-editor: 0.54.0
     monaco-yaml: 5.2.3
     nanoid: ^5.1.6

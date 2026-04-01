@@ -360,7 +360,6 @@
     "focus-trap": "^7",
     "fuse.js": "catalog:*",
     "js-base64": "catalog:*",
-    "microdiff": "catalog:*",
     "monaco-editor": "catalog:*",
     "monaco-yaml": "catalog:*",
     "nanoid": "catalog:*",

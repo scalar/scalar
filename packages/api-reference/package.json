@@ -120,7 +120,6 @@
     "@vueuse/core": "catalog:*",
     "fuse.js": "catalog:*",
     "github-slugger": "catalog:*",
-    "microdiff": "catalog:*",
     "nanoid": "catalog:*",
     "vue": "catalog:*",
     "yaml": "catalog:*"

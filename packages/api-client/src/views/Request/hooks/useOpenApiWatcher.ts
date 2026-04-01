@@ -2,7 +2,7 @@ import { createHash, fetchDocument } from '@scalar/oas-utils/helpers'
 import { parseSchema } from '@scalar/oas-utils/transforms'
 import { useToasts } from '@scalar/use-toasts'
 import { useTimeoutPoll } from '@vueuse/core'
-import microdiff, { type Difference } from 'microdiff'
+import { diff, type Difference } from '@scalar/json-magic/diff'
 import { watch } from 'vue'
 
 import { useWorkspace } from '@/store'
@@ -109,10 +109,10 @@ export const useOpenApiWatcher = () => {
       // If the hashes do not match, start diffin
       else if (old.hash && old.hash !== hash) {
         const { schema } = await parseSchema(spec)
-        const diff = microdiff(old.schema, schema)
+        const differences = diff(old.schema, schema)
 
         // Combines add/remove diffs into single rename diffs
-        const combined = combineRenameDiffs(diff)
+        const combined = combineRenameDiffs(differences)
 
         try {
           // Transform and apply the diffs to our mutators

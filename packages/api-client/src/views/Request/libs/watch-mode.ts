@@ -14,7 +14,7 @@ import {
 import { isHttpMethod, schemaModel } from '@scalar/oas-utils/helpers'
 import { type Path, type PathValue, getNestedValue } from '@scalar/object-utils/nested'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
-import microdiff, { type Difference } from 'microdiff'
+import { diff, type Difference } from '@scalar/json-magic/diff'
 import { type ZodSchema, z } from 'zod'
 
 import type { WorkspaceStore } from '@/store'
@@ -87,7 +87,7 @@ export const combineRenameDiffs = (diff: Difference[], pathPrefix: string[] = []
       // Only go one level deep
       if (pathPrefix.length === 0) {
         // Handle other changes within the renamed path or method
-        const innerDiff = microdiff(current.oldValue, next.value)
+        const innerDiff = diff(current.oldValue, next.value)
         if (innerDiff.length) {
           const innerCombined = combineRenameDiffs(innerDiff, nestedPrefix)
           combined.push(...innerCombined)
