@@ -275,7 +275,7 @@ const handleUpdateRow = (
           <span>{{ displayValue }}</span>
         </div>
         <button
-          class="bg-b-2 centered-x centered-y absolute hidden w-[calc(100%_-_8px)] rounded p-0.5 text-center text-xs font-medium group-hover/upload:block"
+          class="bg-b-2 mt-1 block rounded p-0.5 text-center text-xs font-medium md:absolute md:inset-x-1 md:top-1/2 md:mt-0 md:-translate-y-1/2 md:pointer-events-none md:opacity-0 md:group-hover/upload:pointer-events-auto md:group-hover/upload:opacity-100"
           type="button"
           @click="emit('removeFile')">
           Delete
