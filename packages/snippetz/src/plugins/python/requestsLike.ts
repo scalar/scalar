@@ -1,6 +1,6 @@
 import type { HarRequest, PluginConfiguration } from '@scalar/types/snippetz'
 
-import { reduceQueryParams } from '@/libs/http'
+import { accumulateRepeatedValue, reduceQueryParams } from '@/libs/http'
 
 const LENGTH_CONSIDERED_AS_SHORT = 40
 
@@ -22,22 +22,6 @@ function convertToPythonSyntax(str: string): string {
   }
 
   return result
-}
-
-const addFormValue = (data: Record<string, string | string[]>, name: string, value: string): void => {
-  const existing = data[name]
-
-  if (existing === undefined) {
-    data[name] = value
-    return
-  }
-
-  if (Array.isArray(existing)) {
-    existing.push(value)
-    return
-  }
-
-  data[name] = [existing, value]
 }
 
 export function requestsLikeGenerate(
@@ -122,7 +106,7 @@ export function requestsLikeGenerate(
 
             files.push(`(${name}, (None, ${value}, ${contentType}))`)
           } else {
-            addFormValue(formData, param.name, param.value)
+            accumulateRepeatedValue(formData, param.name, param.value)
           }
         }
       })
@@ -136,7 +120,7 @@ export function requestsLikeGenerate(
     } else if (mimeType === 'application/x-www-form-urlencoded' && params) {
       const formData: Record<string, string | string[]> = {}
       params.forEach((param) => {
-        addFormValue(formData, param.name, param.value ?? '')
+        accumulateRepeatedValue(formData, param.name, param.value ?? '')
       })
       options.data = formData
     }

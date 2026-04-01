@@ -36,21 +36,31 @@ export const createSearchParams = (query: HarRequest['queryString'] = []) => {
 }
 
 /**
+ * Adds a named value while preserving repeated keys as arrays.
+ */
+export const accumulateRepeatedValue = (
+  data: Record<string, string | string[]>,
+  name: string,
+  value: string,
+): void => {
+  const existingValue = data[name]
+
+  if (existingValue === undefined) {
+    data[name] = value
+  } else if (Array.isArray(existingValue)) {
+    existingValue.push(value)
+  } else {
+    data[name] = [existingValue, value]
+  }
+}
+
+/**
  * Reduces query parameters into an object while preserving repeated keys as arrays.
  */
 export function reduceQueryParams(query: HarRequest['queryString'] = []): Record<string, string | string[]> {
   return query.reduce(
     (acc, { name, value }) => {
-      const existingValue = acc[name]
-
-      if (existingValue === undefined) {
-        acc[name] = value
-      } else if (Array.isArray(existingValue)) {
-        existingValue.push(value)
-      } else {
-        acc[name] = [existingValue, value]
-      }
-
+      accumulateRepeatedValue(acc, name, value)
       return acc
     },
     {} as Record<string, string | string[]>,
