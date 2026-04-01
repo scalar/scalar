@@ -76,6 +76,8 @@ security:
   - basicAuth: []
   - apiKeyQuery: []
   - apiKeyHeader: []
+  - apiKeyHeader: []
+    apiKeyQuery: []
   - apiKeyCookie: []
   - oAuth2: []
   - openIdConnect: []
@@ -620,6 +622,8 @@ paths:
         - bearerAuth: []
         - apiKeyHeader: []
         - apiKeyQuery: []
+        - apiKeyHeader: []
+          apiKeyQuery: []
       responses:
         '200':
           description: Authenticated user information retrieved successfully

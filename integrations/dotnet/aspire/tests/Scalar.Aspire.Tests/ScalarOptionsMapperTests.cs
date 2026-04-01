@@ -23,6 +23,31 @@ public class ScalarOptionsMapperTests
         // Assert
         configurations.Should().HaveCount(2);
     }
+
+    [Fact]
+    public void ToScalarConfigurations_ShouldMapMcpConfiguration()
+    {
+        // Arrange
+        var options = new ScalarTestOptions
+        {
+            Mcp = new ScalarMcpOptions
+            {
+                Name = "My MCP",
+                Url = "https://mcp.example.com",
+                Disabled = true
+            }
+        };
+
+        // Act
+        var configurations = GetConfigurations([options]).ToArray();
+
+        // Assert
+        configurations.Should().ContainSingle();
+        configurations[0].Mcp.Should().NotBeNull();
+        configurations[0].Mcp!.Name.Should().Be("My MCP");
+        configurations[0].Mcp!.Url.Should().Be("https://mcp.example.com");
+        configurations[0].Mcp!.Disabled.Should().BeTrue();
+    }
 }
 
 file static class ScalarTestOptionsExtensions

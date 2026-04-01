@@ -1,6 +1,6 @@
 import type { HarRequest, PluginConfiguration } from '@scalar/types/snippetz'
 
-import { reduceQueryParams } from '@/libs/http'
+import { accumulateRepeatedValue, reduceQueryParams } from '@/libs/http'
 
 const LENGTH_CONSIDERED_AS_SHORT = 40
 
@@ -84,7 +84,7 @@ export function requestsLikeGenerate(
       options.data = text // Store raw text, we'll handle the b"..." formatting later
     } else if (mimeType === 'multipart/form-data' && params) {
       const files: string[] = []
-      const formData: Record<string, string> = {}
+      const formData: Record<string, string | string[]> = {}
 
       params.forEach((param) => {
         if (param.fileName !== undefined) {
@@ -106,7 +106,7 @@ export function requestsLikeGenerate(
 
             files.push(`(${name}, (None, ${value}, ${contentType}))`)
           } else {
-            formData[param.name] = param.value
+            accumulateRepeatedValue(formData, param.name, param.value)
           }
         }
       })
@@ -118,7 +118,11 @@ export function requestsLikeGenerate(
         options.data = formData
       }
     } else if (mimeType === 'application/x-www-form-urlencoded' && params) {
-      options.data = Object.fromEntries(params.map((p) => [p.name, p.value]))
+      const formData: Record<string, string | string[]> = {}
+      params.forEach((param) => {
+        accumulateRepeatedValue(formData, param.name, param.value ?? '')
+      })
+      options.data = formData
     }
   }
 

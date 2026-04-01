@@ -1,18 +1,35 @@
-import {
-  type PostResponseSchema,
-  XCodeSamplesSchema,
-  XPostResponseSchema,
-} from '@scalar/openapi-types/schemas/extensions'
 import { oasSecurityRequirementSchema } from '@scalar/types/entities'
 import { XScalarStability } from '@scalar/types/legacy'
 import { type ENTITY_BRANDS, nanoidSchema } from '@scalar/types/utils'
-import { type ZodSchema, z } from 'zod'
+import type { XCodeSample, XCodeSamples } from '@scalar/workspace-store/schemas/extensions/operation/x-code-samples'
+import type { XPostResponse } from '@scalar/workspace-store/schemas/extensions/operation/x-post-response'
+import type { ZodSchema } from 'zod'
+import { z } from 'zod'
 
 import { selectedSecuritySchemeUidSchema } from '@/entities/shared/utility'
 
 import { oasParameterSchema } from './parameters'
 import { type RequestExample, xScalarExampleSchema } from './request-examples'
 import { oasExternalDocumentationSchema } from './spec-objects'
+
+const xCodeSampleSchema = z.object({
+  lang: z.string().optional().catch(undefined),
+  label: z.string().optional().catch(undefined),
+  source: z.string(),
+}) satisfies ZodSchema<XCodeSample>
+
+const xCodeSamplesSchema = z.object({
+  'x-codeSamples': xCodeSampleSchema.array().optional().catch(undefined),
+  'x-code-samples': xCodeSampleSchema.array().optional().catch(undefined),
+  'x-custom-examples': xCodeSampleSchema.array().optional().catch(undefined),
+}) satisfies ZodSchema<XCodeSamples>
+
+/** The code to execute */
+const postResponseSchema = z.string()
+
+const xPostResponseSchema = z.object({
+  'x-post-response': postResponseSchema.optional(),
+}) satisfies ZodSchema<XPostResponse>
 
 const requestMethods = ['delete', 'get', 'head', 'options', 'patch', 'post', 'put', 'trace'] as const
 
@@ -152,16 +169,16 @@ const extendedRequestSchema = z.object({
   selectedSecuritySchemeUids: selectedSecuritySchemeUidSchema,
 })
 
-export type PostResponseScript = z.infer<typeof PostResponseSchema>
-export type PostResponseScripts = z.infer<typeof XPostResponseSchema>['x-post-response']
+export type PostResponseScript = z.infer<typeof postResponseSchema>
+export type PostResponseScripts = XPostResponse['x-post-response']
 
 /** Unified request schema for client usage */
 export const requestSchema = oasRequestSchema
   .omit({ 'x-scalar-examples': true })
-  .merge(XCodeSamplesSchema)
+  .merge(xCodeSamplesSchema)
   .merge(ScalarStabilitySchema)
   .merge(extendedRequestSchema)
-  .merge(XPostResponseSchema)
+  .merge(xPostResponseSchema)
 
 export type Request = z.infer<typeof requestSchema>
 export type RequestPayload = z.input<typeof requestSchema>

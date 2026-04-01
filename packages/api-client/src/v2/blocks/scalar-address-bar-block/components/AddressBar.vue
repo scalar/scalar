@@ -34,6 +34,7 @@ import {
   ScalarIcon,
   ScalarWrappingText,
 } from '@scalar/components'
+import { getSelector } from '@scalar/helpers/dom/get-selector'
 import { REQUEST_METHODS } from '@scalar/helpers/http/http-info'
 import type { HttpMethod as HttpMethodType } from '@scalar/helpers/http/http-methods'
 import { replaceEnvVariables } from '@scalar/helpers/regex/replace-variables'
@@ -106,49 +107,98 @@ const hasConflict = computed(() => methodConflict.value || pathConflict.value)
 const emitPathMethodUpdate = (
   targetMethod: HttpMethodType,
   targetPath: string,
-  /** We only want to debounce when the path changes */
-  emitOptions?: { debounceKey?: string },
+  blurTargetSelector: string | null = null,
 ): void => {
-  const position = addressBarRef.value?.cursorPosition()
-  eventBus.emit(
-    'operation:update:pathMethod',
-    {
-      meta: { method, path },
-      payload: { method: targetMethod, path: targetPath },
-      callback: (status) => {
-        // Clear conflicts if the operation was successful or no change was made
-        if (status === 'success' || status === 'no-change') {
-          methodConflict.value = null
-          pathConflict.value = null
+  const normalizedPath = targetPath.startsWith('/')
+    ? targetPath
+    : `/${targetPath}`
+
+  eventBus.emit('operation:update:pathMethod', {
+    meta: { method, path },
+    blurTargetSelector,
+    payload: { method: targetMethod, path: normalizedPath },
+    callback: (status, blurTargetSelector) => {
+      // Clear conflicts if the operation was successful or no change was made
+      if (status === 'success' || status === 'no-change') {
+        methodConflict.value = null
+        pathConflict.value = null
+      }
+      // Otherwise set the conflict if needed
+      else if (status === 'conflict') {
+        if (targetMethod !== method) {
+          methodConflict.value = targetMethod
         }
-        if (status === 'success') {
-          eventBus.emit('ui:focus:address-bar', { position })
+        if (normalizedPath !== path) {
+          pathConflict.value = normalizedPath
         }
-        // Otherwise set the conflict if needed
-        else if (status === 'conflict') {
-          if (targetMethod !== method) {
-            methodConflict.value = targetMethod
-          }
-          if (targetPath !== path) {
-            pathConflict.value = targetPath
-          }
+      }
+
+      // Re-trigger the click or focus event if we have a blur target selector
+      if (blurTargetSelector) {
+        const element = document.querySelector(blurTargetSelector)
+
+        // Re-trigger clicks on buttons
+        if (element instanceof HTMLButtonElement) {
+          element.click()
         }
-      },
+
+        // Re-trigger focus on inputs and codeInputs
+        else if (
+          element instanceof HTMLInputElement ||
+          element instanceof HTMLTextAreaElement ||
+          (element instanceof HTMLElement &&
+            element.getAttribute('contenteditable') === 'true')
+        ) {
+          element.focus()
+        }
+      }
     },
-    emitOptions,
-  )
+  })
 }
 
 /** Update the operation's HTTP method, handling conflicts */
 const handleMethodChange = (newMethod: HttpMethodType): void =>
   emitPathMethodUpdate(newMethod, pathConflict.value ?? path)
 
-/** Update the operation's path, handling conflicts */
-const handlePathChange = (newPath: string): void => {
-  const normalizedPath = newPath.startsWith('/') ? newPath : `/${newPath}`
-  emitPathMethodUpdate(methodConflict.value ?? method, normalizedPath, {
-    debounceKey: `operation:update:pathMethod-${path}-${method}`,
-  })
+/**
+ * Update the operation's path, handling conflicts also we extract the blur target selector to re-trigger click events
+ */
+const handlePathBlur = (newPath: string, event: FocusEvent): void => {
+  const relatedTarget = event.relatedTarget as Element | null
+  const blurTargetSelector = getSelector(relatedTarget)
+
+  emitPathMethodUpdate(
+    methodConflict.value ?? method,
+    newPath,
+    blurTargetSelector,
+  )
+}
+
+/** Lets unset the server when backspace is pressed and the path is empty */
+const handlePathBackspace = (event: KeyboardEvent): void => {
+  if ((event.target as HTMLElement)?.innerText === '\n') {
+    eventBus.emit('server:update:selected', {
+      url: '',
+      meta: {
+        type: 'document',
+      },
+    })
+  }
+}
+
+/** Handle path submit (Enter key) — saves the path and triggers execution via blurTargetSelector */
+const handlePathSubmit = (
+  newPath: string,
+  event: KeyboardEvent | FocusEvent,
+): void => {
+  // Prevent the global hotkey listener
+  event.stopPropagation()
+
+  emitPathMethodUpdate(
+    methodConflict.value ?? method,
+    newPath,
+    '[data-addressbar-action="send"]',
+  )
 }
 
 /** Handle focus events */
@@ -164,8 +214,7 @@ const handleFocusAddressBar = (
     return
   }
 
-  const position = payload && 'position' in payload ? payload.position : 'end'
-  addressBarRef.value?.focus(position)
+  addressBarRef.value?.focus('end')
 
   if (payload && 'event' in payload) {
     payload.event.preventDefault()
@@ -175,6 +224,7 @@ const handleFocusAddressBar = (
 onMounted(() => {
   eventBus.on('ui:focus:address-bar', handleFocusAddressBar)
   eventBus.on('ui:focus:send-button', handleFocusSendButton)
+  eventBus.on('copy-url:address-bar', copyUrl)
   eventBus.on('hooks:on:request:sent', startLoading)
   eventBus.on('hooks:on:request:complete', stopLoading)
 })
@@ -182,6 +232,7 @@ onMounted(() => {
 onBeforeUnmount(() => {
   eventBus.off('ui:focus:address-bar', handleFocusAddressBar)
   eventBus.off('ui:focus:send-button', handleFocusSendButton)
+  eventBus.off('copy-url:address-bar', copyUrl)
   eventBus.off('hooks:on:request:sent', startLoading)
   eventBus.off('hooks:on:request:complete', stopLoading)
 
@@ -192,17 +243,14 @@ onBeforeUnmount(() => {
 
 const { copyToClipboard } = useClipboard()
 
+/** Copy the resolved URL with the environment variables to the clipboard */
 const copyUrl = async () => {
-  // Resolve the URL with the server and path
   const resolvedUrl = getResolvedUrl({ server, path })
-  // Get the environment variables
   const environmentVariables = getEnvironmentVariables(environment)
-  // Replace the environment variables in the resolved URL
   const resolvedUrlWithEnvVars = replaceEnvVariables(
     resolvedUrl,
     environmentVariables,
   )
-  // Copy the resolved URL with the environment variables to the clipboard
   await copyToClipboard(resolvedUrlWithEnvVars)
 }
 
@@ -300,8 +348,9 @@ defineExpose({
           :modelValue="path"
           :placeholder="server ? '' : 'Enter a URL'"
           server
-          @submit="emit('execute')"
-          @update:modelValue="handlePathChange" />
+          @blur="handlePathBlur"
+          @keydown.backspace="handlePathBackspace"
+          @submit="handlePathSubmit" />
         <div class="fade-right" />
       </div>
 
@@ -323,7 +372,7 @@ defineExpose({
       <!-- Error message -->
       <div
         v-if="hasConflict"
-        class="absolute inset-x-0 top-[calc(100%+4px)] flex flex-col items-center rounded px-6">
+        class="z-context absolute inset-x-0 top-[calc(100%+4px)] flex flex-col items-center rounded px-6">
         <div
           class="text-c-danger bg-b-danger border-c-danger flex items-center gap-1 rounded border p-1">
           <ScalarIconWarningCircle size="sm" />
@@ -336,9 +385,11 @@ defineExpose({
           </div>
         </div>
       </div>
+
       <ScalarButton
         ref="sendButtonRef"
         class="relative h-auto shrink-0 overflow-hidden py-1 pr-2.5 pl-2 font-bold"
+        data-addressbar-action="send"
         :disabled="isLoading"
         @click="emit('execute')">
         <span

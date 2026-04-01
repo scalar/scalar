@@ -17,6 +17,7 @@
   "scripts": {
     "build": "pnpm typegen:icons && vite build && vue-tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
     "build:storybook": "storybook build",
+    "build:watch": "concurrently \"vite build --watch\" \"vue-tsc --watch -p tsconfig.build.json\" \"tsc-alias -p tsconfig.build.json --watch\"",
     "clean:snapshots": "shx rm -rf \"**/snapshots\"",
     "dev": "storybook dev -p 5100 --ci",
     "lint:check": "pnpm lint:icons",
@@ -72,6 +73,7 @@
     "@vitejs/plugin-vue": "catalog:*",
     "@vue/test-utils": "catalog:*",
     "@vueless/storybook-dark-mode": "^10.0.6",
+    "concurrently": "catalog:*",
     "jsdom": "catalog:*",
     "storybook": "10.2.19",
     "svglint": "^4.1.2",

@@ -48,6 +48,33 @@ public static partial class ScalarOptionsExtensions
     }
 
     /// <summary>
+    /// Sets the MCP server name and URL for the API reference.
+    /// </summary>
+    /// <param name="options">The options to configure.</param>
+    /// <param name="name">Display name for the MCP server.</param>
+    /// <param name="url">URL of the MCP server.</param>
+    /// <returns>The configured <see cref="ScalarOptions" />.</returns>
+    public static TOptions WithMcpServer<TOptions>(this TOptions options, string name, [StringSyntax(StringSyntaxAttribute.Uri)] string url) where TOptions : ScalarOptions
+    {
+        options.Mcp ??= new ScalarMcpOptions();
+        options.Mcp.Name = name;
+        options.Mcp.Url = url;
+        return options;
+    }
+
+    /// <summary>
+    /// Disables MCP integration for the API reference.
+    /// </summary>
+    /// <param name="options">The options to configure.</param>
+    /// <returns>The configured <see cref="ScalarOptions" />.</returns>
+    public static TOptions DisableMcp<TOptions>(this TOptions options) where TOptions : ScalarOptions
+    {
+        options.Mcp ??= new ScalarMcpOptions();
+        options.Mcp.Disabled = true;
+        return options;
+    }
+
+    /// <summary>
     /// Adds an OpenAPI document to the Scalar API Reference.
     /// </summary>
     /// <param name="options">The options to configure.</param>

@@ -74,7 +74,11 @@ export type OptionalSchema<S extends Schema> = {
   schema: S
 } & Documentation
 
-export type IntersectionSchema<Schemas extends readonly ObjectSchema<any>[]> = {
+/**
+ * `UnionSchema<any>` avoids a variance pitfall: `UnionSchema<[A, B]>` is not assignable to
+ * `UnionSchema<ObjectSchema<any>[]>`, which breaks `infer` when resolving `Static`.
+ */
+export type IntersectionSchema<Schemas extends readonly (ObjectSchema<any> | UnionSchema<any>)[]> = {
   type: 'intersection'
   schemas: Schemas
 } & Documentation
@@ -117,7 +121,7 @@ export type Schema =
   | ObjectSchema<Record<string, any>>
   | UnionSchema<any[]>
   | OptionalSchema<any>
-  | IntersectionSchema<readonly ObjectSchema<any>[]>
+  | IntersectionSchema<readonly (ObjectSchema<any> | UnionSchema<ObjectSchema<any>[]>)[]>
   | LiteralSchema<any>
   | LazySchema<any>
   | EvaluateSchema<any>
@@ -194,7 +198,7 @@ const union = <Schemas extends Schema[]>(schemas: Schemas, options?: Documentati
   typeComment: options?.typeComment,
 })
 
-const intersection = <Schemas extends readonly ObjectSchema<any>[]>(
+const intersection = <const Schemas extends readonly (ObjectSchema<any> | UnionSchema<ObjectSchema<any>[]>)[]>(
   schemas: Schemas,
   options?: Documentation,
 ): IntersectionSchema<Schemas> => ({

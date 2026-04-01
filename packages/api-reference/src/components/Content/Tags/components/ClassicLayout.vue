@@ -21,12 +21,15 @@ const { tag, isCollapsed } = defineProps<{
   <SectionContainerAccordion
     :aria-label="tag.title"
     class="tag-section"
+    :class="{ 'tag-section-group': tag.isGroup }"
     :modelValue="!isCollapsed"
     @update:modelValue="
       (value) => eventBus?.emit('toggle:nav-item', { id: tag.id, open: value })
     ">
     <template #title>
-      <SectionHeader class="tag-name">
+      <SectionHeader
+        class="tag-name"
+        :class="{ 'tag-group-name': tag.isGroup }">
         <Anchor
           @copyAnchorUrl="
             () => eventBus?.emit('copy-url:nav-item', { id: tag.id })
@@ -55,5 +58,30 @@ const { tag, isCollapsed } = defineProps<{
 .tag-description {
   padding-bottom: 4px;
   text-align: left;
+}
+
+/* Tag Groups */
+.tag-section-group .tag-group-name {
+  gap: 12px;
+  align-self: stretch;
+  grid-template-columns: auto 1fr;
+}
+.tag-group-name:after {
+  content: '';
+  display: block;
+  height: 1px;
+  align-self: center;
+  background: var(--scalar-border-color);
+}
+.tag-group-name:has(* > *:hover),
+.tag-group-name:has(:focus-visible) {
+  gap: 32px;
+}
+.tag-section-group .tag-section {
+  padding-inline: 0;
+  margin-bottom: 24px;
+}
+.tag-section-group .tag-section:last-of-type {
+  margin-bottom: 0;
 }
 </style>

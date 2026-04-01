@@ -1,1 +1,1 @@
-export * from './object-from-array'
+export { objectFromArray } from './object-from-array'

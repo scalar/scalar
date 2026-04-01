@@ -1,7 +1,7 @@
 import type { HarRequest } from '@scalar/types/snippetz'
 import { describe, expect, it } from 'vitest'
 
-import { createSearchParams, reduceQueryParams } from './http'
+import { accumulateRepeatedValue, createSearchParams, reduceQueryParams } from './http'
 
 describe('createSearchParams', () => {
   it('creates search params from empty query array', () => {
@@ -77,6 +77,20 @@ describe('reduceQueryParams', () => {
 
     expect(reduceQueryParams(query)).toEqual({
       statuses: ['active', 'inactive'],
+    })
+  })
+})
+
+describe('accumulateRepeatedValue', () => {
+  it('accumulates values for duplicate names', () => {
+    const data: Record<string, string | string[]> = {}
+
+    accumulateRepeatedValue(data, 'statuses', 'active')
+    accumulateRepeatedValue(data, 'statuses', 'inactive')
+    accumulateRepeatedValue(data, 'statuses', 'pending')
+
+    expect(data).toEqual({
+      statuses: ['active', 'inactive', 'pending'],
     })
   })
 })

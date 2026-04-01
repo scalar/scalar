@@ -1,5 +1,5 @@
 import { getHeadingsFromMarkdown, getLowestHeadingLevel } from '@/navigation/helpers/utils'
-import type { Heading, TraverseSpecOptions } from '@/navigation/types'
+import type { TraverseSpecOptions } from '@/navigation/types'
 import type { TraversedDescription } from '@/schemas/navigation'
 import type { InfoObject } from '@/schemas/v3.1/strict/info'
 
@@ -7,6 +7,29 @@ const DEFAULT_DESCRIPTION_ENTRY = {
   TITLE: 'Introduction',
   SLUG: 'introduction',
 } as const
+
+const getDefaultDescriptionEntry = (
+  generateId: TraverseSpecOptions['generateId'],
+  parentId: string,
+  info: InfoObject,
+) => {
+  const id = generateId({
+    type: 'text',
+    depth: 1,
+    slug: DEFAULT_DESCRIPTION_ENTRY.SLUG,
+    parentId: parentId,
+    info,
+    value: DEFAULT_DESCRIPTION_ENTRY.TITLE,
+  })
+
+  const entry = {
+    id,
+    title: DEFAULT_DESCRIPTION_ENTRY.TITLE,
+    type: 'text',
+  } satisfies TraversedDescription
+
+  return entry
+}
 
 /**
  * Creates a hierarchical navigation structure from markdown headings in an OpenAPI description.
@@ -36,9 +59,9 @@ export const traverseDescription = ({
 }): TraversedDescription[] => {
   const description = info.description?.trim()
 
-  // No description, return empty array
   if (!description) {
-    return []
+    // Return a single entry for the introduction section
+    return [getDefaultDescriptionEntry(generateId, parentId, info)]
   }
 
   const headings = getHeadingsFromMarkdown(description)
@@ -51,30 +74,8 @@ export const traverseDescription = ({
 
   // Add "Introduction" as the first heading
   if (!description.startsWith('#')) {
-    const heading: Heading = {
-      depth: 1,
-      value: DEFAULT_DESCRIPTION_ENTRY.TITLE,
-      slug: DEFAULT_DESCRIPTION_ENTRY.SLUG,
-    }
-
-    const id = generateId({
-      type: 'text',
-      depth: heading.depth,
-      slug: heading.slug,
-      parentId: parentId,
-      info,
-      value: heading.value,
-    })
-
-    const entry = {
-      id,
-      title: heading.value,
-      type: 'text',
-    } satisfies TraversedDescription
-
-    // Push to entries
+    const entry = getDefaultDescriptionEntry(generateId, parentId, info)
     entries.push(entry)
-
     descriptionHeadingsEntry = entry
   }
 

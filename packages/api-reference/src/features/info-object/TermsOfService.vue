@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { ScalarIconScroll } from '@scalar/icons'
-import { type OpenAPIV3_1 } from '@scalar/openapi-types'
+import type { InfoObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
 defineProps<{
-  value?: OpenAPIV3_1.InfoObject['termsOfService']
+  value?: InfoObject['termsOfService']
 }>()
 </script>
 

@@ -146,6 +146,47 @@ describe('generateCodeSnippet', () => {
 )`)
   })
 
+  it('preserves duplicate multipart field names in python snippets', () => {
+    const code = generateCodeSnippet({
+      ...baseParams,
+      clientId: 'python/requests',
+      operation: {
+        ...mockOperation,
+        requestBody: {
+          content: {
+            'multipart/form-data': {
+              examples: {
+                default: {
+                  value: [
+                    { name: 'file', value: '@first.png', isDisabled: false },
+                    { name: 'file', value: '@second.png', isDisabled: false },
+                  ],
+                },
+              },
+            },
+          },
+        },
+      },
+      method: 'post',
+      path: '/uploads',
+      contentType: 'multipart/form-data',
+      example: 'default',
+      securitySchemes: [],
+    })
+
+    expect(code).toBe(`requests.post("https://api.example.com/uploads",
+    headers={
+      "Content-Type": "multipart/form-data"
+    },
+    data={
+      "file": [
+        "@first.png",
+        "@second.png"
+      ]
+    }
+)`)
+  })
+
   it('generates code snippet with different client formats', () => {
     const code = generateCodeSnippet({
       ...baseParams,

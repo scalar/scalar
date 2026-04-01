@@ -10,6 +10,7 @@ export type FuseData = {
   title: string
   description: string
   body?: string | string[] | ParameterMap
+  responseExamples?: string[]
   method?: string
   path?: string
   operationId?: string

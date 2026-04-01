@@ -12,6 +12,7 @@ import type {
   ObjectSchema,
   OptionalSchema,
   RecordSchema,
+  Schema,
   StringSchema,
   UnionSchema,
 } from './schema'
@@ -19,13 +20,16 @@ import type {
 // Export Static type with depth limit to prevent infinite recursion
 export type Static<T> = _Static<T, 10>
 
-/** Folds a tuple of object schemas into an intersection of their static object types. */
-type IntersectObjectStatics<
-  Schemas extends readonly ObjectSchema<any>[],
-  Depth extends number,
-> = Schemas extends readonly [infer First extends ObjectSchema<any>, ...infer Rest extends readonly ObjectSchema<any>[]]
-  ? _Static<First, Depth> & IntersectObjectStatics<Rest, Depth>
-  : {}
+/**
+ * Folds intersection member schemas into an intersection of their static types.
+ * Uses `Schema` for tuple positions (not a narrower alias) so `infer First extends …` does not
+ * reject valid tuple elements and collapse to `{}`.
+ */
+type IntersectObjectStatics<Schemas extends readonly Schema[], Depth extends number> = Schemas extends readonly []
+  ? {}
+  : Schemas extends readonly [infer First extends Schema, ...infer Rest extends readonly Schema[]]
+    ? _Static<First, Depth> & IntersectObjectStatics<Rest, Depth>
+    : {}
 
 type OptionalPropertyKeys<P> = {
   [K in keyof P]: P[K] extends OptionalSchema<any> ? K : never
@@ -72,7 +76,7 @@ type _Static<T, Depth extends number = 10> = Depth extends 0
                       ? ObjectStatics<Properties, Depth>
                       : T extends OptionalSchema<infer S>
                         ? _Static<S, Prev<Depth>> | undefined
-                        : T extends IntersectionSchema<infer Schemas extends readonly ObjectSchema<any>[]>
+                        : T extends IntersectionSchema<infer Schemas>
                           ? IntersectObjectStatics<Schemas, Prev<Depth>>
                           : T extends UnionSchema<infer Schemas>
                             ? _Static<Schemas[number], Prev<Depth>>

@@ -167,6 +167,7 @@ The following frameworks have chosen Scalar API Reference as their default OpenA
 - [Nitro](https://scalar.com/products/api-references/integrations/nitro)
 - [oRPC](https://orpc.unnoq.com/docs/openapi/plugins/openapi-reference)
 - [Platformatic](https://scalar.com/products/api-references/integrations/platformatic)
+- [Spry](https://scalar.com/products/api-references/integrations/spry)
 
 <br>
 

@@ -1,4 +1,4 @@
-import type { XCodeSample } from '@scalar/openapi-types/schemas/extensions'
+import type { XCodeSample } from '@scalar/workspace-store/schemas/extensions/operation'
 import { AVAILABLE_CLIENTS } from '@scalar/snippetz'
 import { describe, expect, it } from 'vitest'
 

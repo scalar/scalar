@@ -1449,9 +1449,6 @@ importers:
       '@scalar/oas-utils':
         specifier: workspace:*
         version: link:../oas-utils
-      '@scalar/openapi-types':
-        specifier: workspace:*
-        version: link:../openapi-types
       '@scalar/sidebar':
         specifier: workspace:*
         version: link:../sidebar
@@ -1729,6 +1726,9 @@ importers:
       '@vueless/storybook-dark-mode':
         specifier: ^10.0.6
         version: 10.0.6(storybook@10.2.19(@testing-library/dom@9.3.4)(prettier@3.8.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3))
+      concurrently:
+        specifier: catalog:*
+        version: 9.1.2
       jsdom:
         specifier: catalog:*
         version: 27.4.0(@noble/hashes@1.8.0)
@@ -2142,11 +2142,7 @@ importers:
         specifier: catalog:*
         version: 4.1.0(@opentelemetry/api@1.9.0)(@types/node@24.10.13)(jsdom@28.1.0(@noble/hashes@1.8.0))(vite@8.0.0(@types/node@24.10.13)(esbuild@0.27.2)(jiti@2.6.1)(terser@5.31.2)(tsx@4.21.0)(yaml@2.8.2))
 
-  packages/openapi-types:
-    dependencies:
-      zod:
-        specifier: catalog:*
-        version: 4.3.5
+  packages/openapi-types: {}
 
   packages/openapi-upgrader:
     dependencies:
@@ -2526,9 +2522,6 @@ importers:
 
   packages/workspace-store:
     dependencies:
-      '@scalar/code-highlight':
-        specifier: workspace:*
-        version: link:../code-highlight
       '@scalar/helpers':
         specifier: workspace:*
         version: link:../helpers

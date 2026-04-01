@@ -46,6 +46,8 @@
     "integrations/docusaurus/src/ScalarDocusaurus.tsx": ["duplicates"],
     // TrieNode is exported for potential external use
     "packages/json-magic/src/diff/trie.ts": ["exports"],
+    // Public OpenAPI type namespaces are consumed by downstream packages, but knip cannot infer external type usage
+    "packages/openapi-types/src/openapi-types.ts": ["types"],
     // Astro component Props interface is used by the framework
     "integrations/astro/src/ScalarComponent.astro": ["types"],
     // setupFiles string path cannot be resolved by knip

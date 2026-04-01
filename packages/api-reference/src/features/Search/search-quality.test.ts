@@ -539,4 +539,41 @@ describe('search quality', () => {
 
     expect(result.sort((a, b) => <number>b.score - <number>a.score)[0]?.item?.title).toEqual('Register user')
   })
+
+  it('finds operations by response example content', () => {
+    const query = 'already exists'
+
+    const document: Partial<OpenApiDocument> = {
+      paths: {
+        '/users': {
+          post: {
+            summary: 'Create user',
+            operationId: 'createUser',
+            responses: {
+              409: {
+                description: 'Conflict',
+                content: {
+                  'application/json': {
+                    examples: {
+                      duplicateEmail: {
+                        value: {
+                          code: 'duplicate_email',
+                          message: 'User with this email already exists',
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    }
+
+    const result = search(query, document)
+
+    expect(result[0]?.item?.type).toEqual('operation')
+    expect(result[0]?.item?.title).toEqual('Create user')
+  })
 })
