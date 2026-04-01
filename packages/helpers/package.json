@@ -67,6 +67,11 @@
       "types": "./dist/json/*.d.ts",
       "default": "./dist/json/*.js"
     },
+    "./markdown/*": {
+      "import": "./dist/markdown/*.js",
+      "types": "./dist/markdown/*.d.ts",
+      "default": "./dist/markdown/*.js"
+    },
     "./node/*": {
       "import": "./dist/node/*.js",
       "types": "./dist/node/*.d.ts",
@@ -102,6 +107,7 @@
     "dist",
     "CHANGELOG.md"
   ],
+  "sideEffects": false,
   "devDependencies": {
     "jsdom": "catalog:*",
     "vite": "catalog:*",
