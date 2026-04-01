@@ -1,7 +1,6 @@
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { OperationExampleMeta, WorkspaceEventBus } from '@scalar/workspace-store/events'
-import type { TraversedEntry } from '@scalar/workspace-store/schemas/navigation'
 import { type ShallowRef, computed } from 'vue'
 import { type NavigationFailure, NavigationFailureType, type Router } from 'vue-router'
 
@@ -14,7 +13,6 @@ export function initializeAppEventHandlers({
   router,
   rebuildSidebar,
   navigateToCurrentTab,
-  getEntryById,
   onSelectSidebarItem,
   onAfterExampleCreation,
   onCopyTabUrl,
@@ -27,7 +25,6 @@ export function initializeAppEventHandlers({
   router: Router
   rebuildSidebar: (documentName?: string) => void
   navigateToCurrentTab: () => Promise<void>
-  getEntryById: (id: string) => TraversedEntry | undefined
   onSelectSidebarItem: (id: string) => void
   onAfterExampleCreation: (o: OperationExampleMeta & { documentName?: string }) => void
   onCopyTabUrl: (tabIndex: number) => void

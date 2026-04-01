@@ -983,7 +983,6 @@ export const createAppState = async ({
     store,
     navigateToCurrentTab,
     rebuildSidebar,
-    getEntryById: sidebarState.getEntryById,
     onAfterExampleCreation: refreshSidebarAfterExampleCreation,
     onSelectSidebarItem: handleSelectItem,
     onCopyTabUrl: (index) => copyTabUrl(index),

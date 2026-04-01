@@ -8,14 +8,13 @@ describe('get-selector', () => {
   })
 
   describe('invalid input', () => {
-    it('returns undefined for a non-Element value', () => {
-      // @ts-expect-error intentionally passing a non-Element
-      expect(getSelector(null)).toBeUndefined()
+    it('returns null for a non-Element value', () => {
+      expect(getSelector(null)).toBeNull()
     })
 
-    it('returns undefined for a plain object', () => {
+    it('returns null for a plain object', () => {
       // @ts-expect-error intentionally passing a non-Element
-      expect(getSelector({})).toBeUndefined()
+      expect(getSelector({})).toBeNull()
     })
   })
 
@@ -87,10 +86,10 @@ describe('get-selector', () => {
       items.forEach((li) => parent.appendChild(li))
       document.body.appendChild(parent)
 
-      expect(getSelector(items[0])).toBe('html > body > ul > li')
-      expect(getSelector(items[1])).toBe('html > body > ul > li:nth-of-type(2)')
-      expect(getSelector(items[2])).toBe('html > body > ul > li:nth-of-type(3)')
-      expect(getSelector(items[3])).toBe('html > body > ul > li:nth-of-type(4)')
+      expect(getSelector(items[0] ?? null)).toBe('html > body > ul > li')
+      expect(getSelector(items[1] ?? null)).toBe('html > body > ul > li:nth-of-type(2)')
+      expect(getSelector(items[2] ?? null)).toBe('html > body > ul > li:nth-of-type(3)')
+      expect(getSelector(items[3] ?? null)).toBe('html > body > ul > li:nth-of-type(4)')
     })
   })
 
