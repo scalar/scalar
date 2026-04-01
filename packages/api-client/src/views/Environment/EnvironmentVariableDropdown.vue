@@ -4,7 +4,14 @@ import { ScalarIconGlobe, ScalarIconPlus } from '@scalar/icons'
 import type { Environment } from '@scalar/oas-utils/entities/environment'
 import { onClickOutside } from '@vueuse/core'
 import type Fuse from 'fuse.js'
-import { computed, onMounted, ref, shallowRef, watch, type CSSProperties } from 'vue'
+import {
+  computed,
+  onMounted,
+  ref,
+  shallowRef,
+  watch,
+  type CSSProperties,
+} from 'vue'
 import { useRouter } from 'vue-router'
 
 import { parseEnvVariables } from '@/libs'
@@ -69,9 +76,12 @@ watch(
   async () => {
     if (!fuse.value) {
       const { default: Fuse } = await import('fuse.js')
-      fuse.value = new (Fuse as FuseConstructor)(parseEnvVariables(props.envVariables), {
-        keys: ['key', 'value'],
-      })
+      fuse.value = new (Fuse as FuseConstructor)(
+        parseEnvVariables(props.envVariables),
+        {
+          keys: ['key', 'value'],
+        },
+      )
       return
     }
 

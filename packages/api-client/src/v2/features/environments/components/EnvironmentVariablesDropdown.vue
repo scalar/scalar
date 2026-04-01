@@ -4,7 +4,14 @@ import { ScalarIconPlus } from '@scalar/icons'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import { onClickOutside } from '@vueuse/core'
 import type Fuse from 'fuse.js'
-import { computed, onMounted, ref, shallowRef, watch, type CSSProperties } from 'vue'
+import {
+  computed,
+  onMounted,
+  ref,
+  shallowRef,
+  watch,
+  type CSSProperties,
+} from 'vue'
 
 const { query, environment, dropdownPosition } = defineProps<{
   query: string
