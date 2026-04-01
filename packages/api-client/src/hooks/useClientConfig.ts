@@ -14,9 +14,7 @@ export const useClientConfig = () => inject(CLIENT_CONFIGURATION_SYMBOL, ref(api
  * 2. Empty string in non-browser and file:// contexts.
  * 3. Browser origin + pathname fallback.
  */
-export const resolveDefaultOAuth2RedirectUri = (
-  config: Pick<ApiClientConfiguration, 'oauth2RedirectUri'>,
-): string => {
+export const resolveDefaultOAuth2RedirectUri = (config: Pick<ApiClientConfiguration, 'oauth2RedirectUri'>): string => {
   if (config.oauth2RedirectUri) {
     return config.oauth2RedirectUri
   }
