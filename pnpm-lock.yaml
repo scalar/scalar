@@ -1729,6 +1729,9 @@ importers:
       '@vueless/storybook-dark-mode':
         specifier: ^10.0.6
         version: 10.0.6(storybook@10.2.19(@testing-library/dom@9.3.4)(prettier@3.8.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3))
+      concurrently:
+        specifier: catalog:*
+        version: 9.1.2
       jsdom:
         specifier: catalog:*
         version: 27.4.0(@noble/hashes@1.8.0)

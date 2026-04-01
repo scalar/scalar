@@ -150,6 +150,7 @@
   --container-6xl: 1152px;
   --container-7xl: 1280px;
   --container-full: 100%;
+  --container-content: 720px;
   --container-min: min-content;
   --container-max: max-content;
   --container-fit: fit-content;

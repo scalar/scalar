@@ -354,8 +354,8 @@ const navigateToOperationsPage = (item: TraversedOperation) => {
                 ('icon' in item && item.icon) || 'interface-content-folder'
               " />
             <div
-              class="bg-orange absolute -top-1.25 -right-1.25 flex h-2.5 w-2.5 items-center justify-center rounded-full text-[9px] font-bold text-white">
-              !
+              class="bg-c-accent absolute -top-0.5 -right-0.5 size-1.5 rounded-full">
+              <span class="sr-only">Unsaved changes</span>
             </div>
           </div>
         </template>
