@@ -149,6 +149,31 @@ describe('MarkdownReference', () => {
     expect(wrapper.text()).toContain('Deprecated operation')
   })
 
+  it('does not treat connect as an operation method', () => {
+    const content: OpenApiDocument = withMeta({
+      openapi: '3.1.1',
+      info: { title: 'Test API', version: '1.0.0' },
+      paths: {
+        '/tunnel': {
+          connect: {
+            summary: 'Should not render',
+            description: 'Not a valid OpenAPI operation method',
+            responses: {
+              default: {
+                description: 'ok',
+              },
+            },
+          },
+        },
+      },
+    })
+
+    const wrapper = mount(MarkdownReference, { props: { content } })
+    expect(wrapper.text()).not.toContain('Should not render')
+    expect(wrapper.text()).not.toContain('CONNECT')
+    expect(wrapper.text()).not.toContain('/tunnel')
+  })
+
   it('renders webhooks section', () => {
     const content: OpenApiDocument = withMeta({
       openapi: '3.1.1',

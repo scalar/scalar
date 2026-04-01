@@ -108,7 +108,6 @@ const HTTP_METHODS = new Set([
   'head',
   'patch',
   'trace',
-  'connect',
 ])
 
 const operations = computed<OperationEntry[]>(() => {
