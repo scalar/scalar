@@ -12,9 +12,13 @@ import RequestAuth from './RequestAuth.vue'
 
 const mockUseClientConfig = vi.hoisted(() => vi.fn(() => ({ value: {} })))
 
-vi.mock('@/hooks/useClientConfig', () => ({
-  useClientConfig: mockUseClientConfig,
-}))
+vi.mock('@/hooks/useClientConfig', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@/hooks/useClientConfig')>()
+  return {
+    ...actual,
+    useClientConfig: mockUseClientConfig,
+  }
+})
 
 const securitySchemeMutators = {
   add: vi.fn(),
