@@ -13,7 +13,10 @@ import { useToasts } from '@scalar/use-toasts'
 import { computed, ref, watch } from 'vue'
 
 import { DataTableRow } from '@/components/DataTable'
-import { useClientConfig } from '@/hooks/useClientConfig'
+import {
+  resolveDefaultOAuth2RedirectUri,
+  useClientConfig,
+} from '@/hooks/useClientConfig'
 import type { EnvVariable } from '@/store/active-entities'
 import { useWorkspace, type UpdateScheme } from '@/store/store'
 import { authorizeOauth2 } from '@/views/Request/libs'
@@ -60,17 +63,9 @@ const updateScheme: UpdateScheme = (path, value) =>
   _updateScheme(scheme.uid, path, value, storeContext, persistAuth)
 
 const hasPrefilledRedirectUri = ref(false)
-const defaultRedirectUri = computed<string>(() => {
-  if (config.value.oauth2RedirectUri) {
-    return config.value.oauth2RedirectUri
-  }
-
-  if (typeof window === 'undefined' || window.location.protocol === 'file:') {
-    return ''
-  }
-
-  return window.location.origin + window.location.pathname
-})
+const defaultRedirectUri = computed<string>(() =>
+  resolveDefaultOAuth2RedirectUri(config.value),
+)
 
 watch(
   () =>
