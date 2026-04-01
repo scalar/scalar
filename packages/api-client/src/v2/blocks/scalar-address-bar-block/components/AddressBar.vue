@@ -145,6 +145,7 @@ const emitPathMethodUpdate = (
         // Re-trigger focus on inputs and codeInputs
         else if (
           element instanceof HTMLInputElement ||
+          element instanceof HTMLTextAreaElement ||
           (element instanceof HTMLElement &&
             element.getAttribute('contenteditable') === 'true')
         ) {
