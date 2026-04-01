@@ -129,6 +129,101 @@ describe('createSearchIndex', () => {
       expect(index.length).toEqual(4)
       expect(index.map((item) => item.title)).toEqual(['Introduction', 'Get Users', 'Create User', 'Get Posts'])
     })
+
+    it('includes path item parameters in operation index body', () => {
+      const document = createMockDocument({
+        paths: {
+          '/users/{userId}': {
+            parameters: [
+              {
+                in: 'path',
+                name: 'userId',
+                required: true,
+                description: 'Unique user identifier',
+              },
+            ],
+            get: {
+              summary: 'Get User',
+            },
+          },
+        },
+      })
+
+      const index = createSearchIndex(document)
+      const operationEntry = index.find((item) => item.type === 'operation')
+
+      expect(operationEntry).toMatchObject({
+        type: 'operation',
+        title: 'Get User',
+        body: {
+          path: [
+            {
+              in: 'path',
+              name: 'userId',
+              required: true,
+              description: 'Unique user identifier',
+            },
+          ],
+          query: [],
+          header: [],
+          cookie: [],
+          body: [],
+          formData: [],
+        },
+      })
+    })
+
+    it('includes operation response examples in the index', () => {
+      const document = createMockDocument({
+        paths: {
+          '/users/{userId}': {
+            get: {
+              summary: 'Get User',
+              responses: {
+                200: {
+                  description: 'Successful response',
+                  content: {
+                    'application/json': {
+                      example: {
+                        source: 'success-response-example',
+                        userId: 'user_123',
+                      },
+                    },
+                  },
+                },
+                400: {
+                  description: 'Bad request',
+                  content: {
+                    'application/json': {
+                      examples: {
+                        invalidRequest: {
+                          value: {
+                            source: 'bad-request-example',
+                            message: 'Request is invalid',
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      })
+
+      const index = createSearchIndex(document)
+      const operationEntry = index.find((item) => item.type === 'operation')
+
+      expect(operationEntry).toMatchObject({
+        type: 'operation',
+        title: 'Get User',
+        responseExamples: [
+          '{"source":"success-response-example","userId":"user_123"}',
+          '{"source":"bad-request-example","message":"Request is invalid"}',
+        ],
+      })
+    })
   })
 
   describe('schemas', () => {
