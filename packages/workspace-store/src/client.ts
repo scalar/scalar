@@ -111,7 +111,7 @@ export type ObjectDoc = {
 export type WorkspaceDocumentInput = UrlDoc | ObjectDoc | FileDoc
 
 /** The category of a document error */
-export type DocumentErrorType = 'fetch' | 'parse' | 'validation'
+export type DocumentErrorType = 'fetch' | 'validation'
 
 /** An error or warning encountered while loading or validating a document */
 export type DocumentError = {
@@ -1056,7 +1056,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
 
         documentErrors[name] = [
           {
-            type: 'parse',
+            type: 'fetch',
             message: `Response data is not a valid object for document '${name}'`,
           },
         ]
