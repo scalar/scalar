@@ -69,12 +69,13 @@ const getParameterValue = (
   param: ParameterObject,
   example: string | undefined,
   contentType: string | undefined,
+  defaultDisabled: boolean,
 ): unknown => {
   // Try to get value from example first
   const exampleValue = getExample(param, example, contentType)
 
   // If the parameter is disabled, return undefined so we can skip it.
-  if (isParamDisabled(param, exampleValue)) {
+  if (isParamDisabled(param, exampleValue, defaultDisabled)) {
     return undefined
   }
 
@@ -102,11 +103,14 @@ export const processParameters = ({
   harRequest,
   parameters,
   example,
+  defaultDisabled,
 }: {
   harRequest: HarRequest
   parameters: OperationObject['parameters']
   /** The name of the example to use */
   example?: string | undefined
+  /** Whether to disable parameters by default. */
+  defaultDisabled: boolean
 }): ProcessedParameters => {
   // Create copies of the arrays to avoid modifying the input
   const newHeaders = [...harRequest.headers]
@@ -121,7 +125,7 @@ export const processParameters = ({
       continue
     }
 
-    const paramValue = getParameterValue(param, example, undefined)
+    const paramValue = getParameterValue(param, example, undefined, defaultDisabled)
     if (paramValue === undefined) {
       continue
     }

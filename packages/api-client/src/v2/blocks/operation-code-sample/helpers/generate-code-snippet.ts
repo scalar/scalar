@@ -35,6 +35,8 @@ type GenerateCodeSnippetProps = {
   includeDefaultHeaders?: boolean
   /** Selected oneOf/anyOf variants for nested request body example generation. */
   requestBodyCompositionSelection?: Record<string, number>
+  /** Whether to disable parameters by default. */
+  defaultDisabledParameters?: boolean
 }
 
 /** Generate the code snippet for the selected example OR operation */
@@ -51,6 +53,7 @@ export const generateCodeSnippet = ({
   securitySchemes,
   globalCookies,
   requestBodyCompositionSelection,
+  defaultDisabledParameters,
 }: GenerateCodeSnippetProps): string => {
   try {
     if (!clientId) {
@@ -76,6 +79,7 @@ export const generateCodeSnippet = ({
       globalCookies,
       includeDefaultHeaders,
       requestBodyCompositionSelection,
+      defaultDisabledParameters,
     })
 
     const [targetKey, clientKey] = clientId.split('/') as [TargetId, ClientId<TargetId>]

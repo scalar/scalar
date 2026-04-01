@@ -1198,4 +1198,65 @@ describe('operationToHar', () => {
       })
     })
   })
+
+  describe('defaultDisabledParameters', () => {
+    it('includes optional query parameters by default', () => {
+      const operation: OperationObject = {
+        parameters: [
+          {
+            name: 'q',
+            in: 'query',
+            required: false,
+            schema: coerceValue(SchemaObjectSchema, {
+              type: 'string',
+              example: 'findme',
+            }),
+          },
+        ],
+        responses: {
+          '200': {
+            description: 'OK',
+          },
+        },
+      }
+
+      const result = operationToHar({
+        operation,
+        method: 'get',
+        path: '/search',
+      })
+
+      expect(result.queryString).toContainEqual({ name: 'q', value: 'findme' })
+    })
+
+    it('omits optional query parameters when defaultDisabledParameters is true', () => {
+      const operation: OperationObject = {
+        parameters: [
+          {
+            name: 'q',
+            in: 'query',
+            required: false,
+            schema: coerceValue(SchemaObjectSchema, {
+              type: 'string',
+              example: 'findme',
+            }),
+          },
+        ],
+        responses: {
+          '200': {
+            description: 'OK',
+          },
+        },
+      }
+
+      const result = operationToHar({
+        operation,
+        method: 'get',
+        path: '/search',
+        defaultDisabledParameters: true,
+      })
+
+      expect(result.queryString).toEqual([])
+    })
+  })
 })

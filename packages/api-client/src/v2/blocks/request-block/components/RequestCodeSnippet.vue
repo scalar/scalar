@@ -80,6 +80,7 @@ const handleClientChange = (option: ClientOption | undefined) => {
 /** Generate the code snippet for the selected example */
 const generatedCode = computed<string>(() =>
   generateCodeSnippet({
+    defaultDisabledParameters: true,
     clientId: localSelectedClient.value?.id,
     customCodeSamples: customCodeSamples.value,
     operation,
