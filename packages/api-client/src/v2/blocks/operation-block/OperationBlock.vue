@@ -21,6 +21,8 @@ export type OperationBlockProps = {
   eventBus: WorkspaceEventBus
   /** Application version */
   appVersion: string
+  /** Openapi document */
+  document: OpenApiDocument
   /** Workspace cookies */
   workspaceCookies: XScalarCookie[]
   /** Document cookies */
@@ -140,6 +142,7 @@ const {
   environment,
   eventBus,
   exampleKey,
+  document,
   workspaceCookies = [],
   documentCookies = [],
   hideClientButton,
@@ -246,7 +249,7 @@ const handleExecute = async () => {
 
   // Execute the beforeRequest hook
   const { request: finalRequest } = await executeHook(
-    { request: requestResult.result.request },
+    { request: requestResult.result.request, document, operation },
     'beforeRequest',
     plugins,
   )
@@ -263,6 +266,7 @@ const handleExecute = async () => {
       {
         response: sendResult.originalResponse.clone(),
         request: sendResult.request.clone(),
+        document,
         operation,
       },
       'responseReceived',

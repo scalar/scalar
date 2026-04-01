@@ -76,18 +76,19 @@ const upsertTestResult = (testResults: TestResult[], assertion: AssertionEvent, 
 
 export const executeInPostmanSandbox = async ({
   script,
-  request,
-  response,
+  type,
+  context: { request, response, variablesStore, scriptConsole },
   onTestResultsUpdate,
-  scriptConsole,
-  variablesStore,
 }: {
   script: string
-  request?: Request
-  response?: Response
+  type: 'pre-request' | 'post-response'
+  context: {
+    request?: Request
+    response?: Response
+    variablesStore?: VariablesStore
+    scriptConsole: ConsoleContext
+  }
   onTestResultsUpdate?: ((results: TestResult[]) => void) | undefined
-  scriptConsole: ConsoleContext
-  variablesStore?: VariablesStore
 }): Promise<VariablesStore | undefined> => {
   const testResults: TestResult[] = []
   let lastAssertionTime = 0
@@ -103,7 +104,7 @@ export const executeInPostmanSandbox = async ({
     onTestResultsUpdate?.([...testResults])
   }
 
-  const varibalesContext = variablesStore ? buildSandboxContextFromStore(variablesStore) : undefined
+  const variablesContext = variablesStore ? buildSandboxContextFromStore(variablesStore) : undefined
 
   const handleConsole = (_cursor: unknown, level: keyof ConsoleContext, ...args: unknown[]) => {
     const consoleMethod = scriptConsole[level] ?? scriptConsole.log
@@ -124,8 +125,8 @@ export const executeInPostmanSandbox = async ({
       request,
     }
 
-    if (varibalesContext) {
-      Object.assign(context, varibalesContext)
+    if (variablesContext) {
+      Object.assign(context, variablesContext)
     }
 
     await new Promise<void>((resolve) => {
@@ -156,7 +157,7 @@ export const executeInPostmanSandbox = async ({
             const duration = Number((performance.now() - scriptExecutionStartedAt).toFixed(2))
             const errorMessage = toErrorMessage(error)
 
-            scriptConsole.error(`[Post-Response Script] Error (${duration}ms):`, errorMessage)
+            scriptConsole.error(`[${type.toUpperCase()} Script] Error (${duration}ms):`, errorMessage)
 
             testResults.push({
               title: 'Script Execution',

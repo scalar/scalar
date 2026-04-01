@@ -131,7 +131,7 @@ const httpClients = computed(() =>
 
 <template>
   <!-- Operation exists -->
-  <template v-if="path && method && exampleName && operation">
+  <template v-if="path && method && exampleName && operation && document">
     <OperationBlock
       :activeEnvironment="
         workspaceStore.workspace['x-scalar-active-environment']
@@ -139,6 +139,7 @@ const httpClients = computed(() =>
       :appVersion="APP_VERSION"
       :authMeta
       :defaultHeaders
+      :document
       :documentCookies
       :documentSecurity="document?.security ?? []"
       :documentUrl="document?.['x-scalar-original-source-url']"

@@ -25,10 +25,13 @@ export const executePostResponseScript = async (
   }
   await executeInPostmanSandbox({
     script,
-    request: data.request,
-    response: data.response,
+    type: 'post-response',
+    context: {
+      request: data.request,
+      response: data.response,
+      scriptConsole: createConsoleContext(),
+      variablesStore: data.variablesStore,
+    },
     onTestResultsUpdate: data.onTestResultsUpdate,
-    scriptConsole: createConsoleContext(),
-    variablesStore: data.variablesStore,
   })
 }

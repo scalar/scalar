@@ -24,9 +24,8 @@ export const executePreRequestScript = async (
   }
   await executeInPostmanSandbox({
     script,
-    request: data.request,
-    scriptConsole: createConsoleContext(),
-    variablesStore: data.variablesStore,
+    type: 'pre-request',
+    context: { request: data.request, scriptConsole: createConsoleContext(), variablesStore: data.variablesStore },
     onTestResultsUpdate: data.onTestResultsUpdate,
   })
 }
