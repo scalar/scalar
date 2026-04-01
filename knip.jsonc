@@ -368,7 +368,8 @@
         "src/runtime/pages/ScalarPage.vue",
         "playground/nuxt.config.ts",
         "playground/layouts/default.vue",
-        "playground/pages/index.vue"
+        "playground/pages/index.vue",
+        "playground/pages/hydration.vue"
       ],
       "ignoreDependencies": [
         "@scalar/api-client" // referenced in /src/runtime/components/nuxt-theme.css
