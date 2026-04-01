@@ -1,16 +1,21 @@
 import { environmentSchema } from '@scalar/oas-utils/entities/environment'
 import { type Collection, collectionSchema, requestSchema, serverSchema } from '@scalar/oas-utils/entities/spec'
 import { workspaceSchema } from '@scalar/oas-utils/entities/workspace'
-import { apiClientConfigurationSchema } from '@scalar/types/api-reference'
 import type { VueWrapper } from '@vue/test-utils'
 import { mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { nextTick, ref } from 'vue'
+import { nextTick } from 'vue'
 
-import { CLIENT_CONFIGURATION_SYMBOL } from '@/hooks/useClientConfig'
+import { useClientConfig } from '@/hooks/useClientConfig'
 import type { EnvVariable } from '@/store/active-entities'
 
 import RequestAuth from './RequestAuth.vue'
+
+const mockUseClientConfig = vi.hoisted(() => vi.fn(() => ({ value: {} })))
+
+vi.mock('@/hooks/useClientConfig', () => ({
+  useClientConfig: mockUseClientConfig,
+}))
 
 const securitySchemeMutators = {
   add: vi.fn(),
@@ -119,6 +124,7 @@ vi.mock('@/store/store', () => ({
 describe('RequestAuth.vue', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    mockUseClientConfig.mockReturnValue({ value: {} })
   })
 
   const createBaseProps = () =>
@@ -313,18 +319,13 @@ describe('RequestAuth.vue', () => {
       selectedSecuritySchemeUids: ['oauth2-empty-redirect'] as Collection['selectedSecuritySchemeUids'],
     }
 
-    mount(RequestAuth, {
-      props,
-      global: {
-        provide: {
-          [CLIENT_CONFIGURATION_SYMBOL as symbol]: ref(
-            apiClientConfigurationSchema.parse({
-              oauth2RedirectUri: 'myapp://oauth/callback',
-            }),
-          ),
-        },
+    mockUseClientConfig.mockReturnValue({
+      value: {
+        oauth2RedirectUri: 'myapp://oauth/callback',
       },
     })
+
+    mount(RequestAuth, { props })
     await nextTick()
 
     expect(securitySchemeMutators.edit).toHaveBeenCalledWith(

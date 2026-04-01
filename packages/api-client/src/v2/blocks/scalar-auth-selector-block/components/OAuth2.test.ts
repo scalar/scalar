@@ -59,9 +59,10 @@ describe('OAuth2', () => {
       },
       global: {
         provide: {
-          [CLIENT_CONFIGURATION_SYMBOL as symbol]: ref(
-            apiClientConfigurationSchema.parse(custom.configuration ?? {}),
-          ),
+          [CLIENT_CONFIGURATION_SYMBOL as symbol]: ref({
+            ...apiClientConfigurationSchema.parse({}),
+            ...(custom.configuration ?? {}),
+          }),
         },
       },
     })
