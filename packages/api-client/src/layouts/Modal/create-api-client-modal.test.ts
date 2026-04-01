@@ -6,8 +6,6 @@ import { createApiClientModal } from './create-api-client-modal'
 // Old modal
 describe.skip('createApiClientModal', () => {
   it('renders something', async () => {
-    vi.unmock('@/hooks/useSidebar')
-    vi.unmock('@/hooks/useLayout')
     enableConsoleWarn()
 
     const element = document.createElement('div')

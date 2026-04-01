@@ -5,8 +5,6 @@ import { createApiClientApp } from './create-api-client-app'
 
 describe('createApiClientApp', () => {
   it('renders something', async () => {
-    vi.unmock('@/hooks/useSidebar')
-    vi.unmock('@/hooks/useLayout')
     enableConsoleWarn()
 
     const element = document.createElement('div')
