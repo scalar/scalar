@@ -57,6 +57,7 @@ describe('updateOperationPathMethod (method only)', () => {
     updateOperationPathMethod(document, store, {
       meta: { method: 'get', path: '/users' },
       payload: { method: 'put', path: '/users' },
+      blurTargetSelector: null,
       callback: (_status) => {
         return
       },
@@ -128,6 +129,7 @@ describe('updateOperationPathMethod (method only)', () => {
     updateOperationPathMethod(document, store, {
       meta: { method: 'get', path: '/products' },
       payload: { method: 'patch', path: '/products' },
+      blurTargetSelector: null,
       callback: (_status) => {
         return
       },
@@ -177,6 +179,7 @@ describe('updateOperationPathMethod (method only)', () => {
     updateOperationPathMethod(document, store, {
       meta: { method: 'get', path: '/items' },
       payload: { method: 'post', path: '/items' },
+      blurTargetSelector: null,
       callback: (status) => {
         callbackResult = status
       },
@@ -210,6 +213,7 @@ describe('updateOperationPathMethod (path only)', () => {
     updateOperationPathMethod(document, store, {
       meta: { method: 'get', path: '/users' },
       payload: { method: 'get', path: '/api/users' },
+      blurTargetSelector: null,
       callback: () => {
         return
       },
@@ -259,6 +263,7 @@ describe('updateOperationPathMethod (path only)', () => {
     updateOperationPathMethod(document, store, {
       meta: { method: 'post', path: '/posts' },
       payload: { method: 'post', path: '/api/v2/posts' },
+      blurTargetSelector: null,
       callback: () => {
         return
       },
@@ -310,6 +315,7 @@ describe('updateOperationPathMethod (path only)', () => {
     updateOperationPathMethod(document, store, {
       meta: { method: 'get', path: '/users' },
       payload: { method: 'get', path: '/api/users' },
+      blurTargetSelector: null,
       callback: () => {
         return
       },
@@ -353,6 +359,7 @@ describe('updateOperationPathMethod (path only)', () => {
     updateOperationPathMethod(document, store, {
       meta: { method: 'get', path: '/users/{id}' },
       payload: { method: 'get', path: '/events/{id}' },
+      blurTargetSelector: null,
       callback: () => {
         return
       },
@@ -395,6 +402,7 @@ describe('updateOperationPathMethod (path only)', () => {
     updateOperationPathMethod(document, store, {
       meta: { method: 'get', path: '/users/{id}' },
       payload: { method: 'get', path: '/events/{id}/started{avar' },
+      blurTargetSelector: null,
       callback: () => {
         return
       },
@@ -438,6 +446,7 @@ describe('updateOperationPathMethod (path only)', () => {
     updateOperationPathMethod(document, store, {
       meta: { method: 'get', path: '/users/{id}/{limit}' },
       payload: { method: 'get', path: '/events/{limit}/{id}' },
+      blurTargetSelector: null,
       callback: () => {
         return
       },
@@ -481,6 +490,7 @@ describe('updateOperationPathMethod (path only)', () => {
     updateOperationPathMethod(document, store, {
       meta: { method: 'get', path: '/users/{id}' },
       payload: { method: 'get', path: '/users/{limit}' },
+      blurTargetSelector: null,
       callback: () => {
         return
       },
@@ -523,6 +533,7 @@ describe('updateOperationPathMethod (path only)', () => {
     updateOperationPathMethod(document, store, {
       meta: { method: 'get', path: '/users/{id}' },
       payload: { method: 'get', path: '/users/events/{limit}' },
+      blurTargetSelector: null,
       callback: () => {
         return
       },
@@ -563,6 +574,7 @@ describe('updateOperationPathMethod (path only)', () => {
     updateOperationPathMethod(document, store, {
       meta: { method: 'get', path: '/items' },
       payload: { method: 'get', path: '/api/items' },
+      blurTargetSelector: null,
       callback: (status) => {
         callbackResult = status
       },
@@ -600,6 +612,7 @@ describe('updateOperationPathMethod (path only)', () => {
     updateOperationPathMethod(document, store, {
       meta: { method: 'get', path: '/items' },
       payload: { method: 'get', path: '/api/items' },
+      blurTargetSelector: null,
       callback: (status) => {
         callbackResult = status
       },

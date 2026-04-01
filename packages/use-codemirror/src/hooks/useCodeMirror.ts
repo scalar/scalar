@@ -35,6 +35,18 @@ import { customTheme } from '../themes'
 import type { CodeMirrorLanguage } from '../types'
 import { variables } from './variables'
 
+/**
+ * This was an insane bug that only exists in chrome
+ *
+ * Found these issues which may be related, it says che chrome one is fixed, they possibly had a regression?
+ *
+ * @see https://issues.chromium.org/issues/375711382
+ * @see https://discuss.codemirror.net/t/experimental-support-for-editcontext/8144
+ * @see https://github.com/codemirror/dev/issues/1458
+ */
+// @ts-expect-error this is the workaround suggested by codemirror
+EditorView.EDIT_CONTEXT = false
+
 type BaseParameters = {
   /** Element Ref to mount codemirror to */
   codeMirrorRef: Ref<HTMLDivElement | null>
@@ -58,8 +70,8 @@ type BaseParameters = {
   disableCloseBrackets?: MaybeRefOrGetter<boolean | undefined>
   /** Option to lint and show error in the editor */
   lint?: MaybeRefOrGetter<boolean | undefined>
-  onBlur?: (v: string) => void
-  onFocus?: (v: string) => void
+  onBlur?: (v: string, event: FocusEvent) => void
+  onFocus?: (v: string, event: FocusEvent) => void
   placeholder?: MaybeRefOrGetter<string | undefined>
 }
 
@@ -284,8 +296,8 @@ function getCodeMirrorExtensions({
   disableEnter?: boolean
   forceFoldGutter?: boolean
   onChange?: (val: string) => void
-  onFocus?: (val: string) => void
-  onBlur?: (val: string) => void
+  onFocus?: (val: string, event: FocusEvent) => void
+  onBlur?: (val: string, event: FocusEvent) => void
   withoutTheme?: boolean
   provider: Extension | null
   lint?: boolean
@@ -330,11 +342,11 @@ function getCodeMirrorExtensions({
       onChange?.(v.state.doc.toString())
     }),
     EditorView.domEventHandlers({
-      blur: (_event, view) => {
-        onBlur?.(view.state.doc.toString())
+      blur: (event, view) => {
+        onBlur?.(view.state.doc.toString(), event)
       },
-      focus: (_event, view) => {
-        onFocus?.(view.state.doc.toString())
+      focus: (event, view) => {
+        onFocus?.(view.state.doc.toString(), event)
       },
     }),
     // Add Classes

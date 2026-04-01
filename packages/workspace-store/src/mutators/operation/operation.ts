@@ -153,14 +153,14 @@ export const updateOperationMeta = (
 export const updateOperationPathMethod = (
   document: WorkspaceDocument | null,
   store: WorkspaceStore | null,
-  { meta, payload: { method, path }, callback }: OperationEvents['operation:update:pathMethod'],
+  { meta, payload: { method, path }, blurTargetSelector, callback }: OperationEvents['operation:update:pathMethod'],
 ): void => {
   const methodChanged = meta.method !== method
   const pathChanged = meta.path !== path
 
   // If nothing has changed, no need to do anything
   if (!methodChanged && !pathChanged) {
-    callback('no-change')
+    callback('no-change', blurTargetSelector)
     return
   }
 
@@ -170,7 +170,7 @@ export const updateOperationPathMethod = (
 
   // Check for conflicts at the target location
   if (document?.paths?.[finalPath]?.[finalMethod as HttpMethod]) {
-    callback('conflict')
+    callback('conflict', blurTargetSelector)
     return
   }
 
@@ -249,7 +249,7 @@ export const updateOperationPathMethod = (
   // We need to reset the history for the operation when the path or method changes
   store.history.clearOperationHistory(document['x-scalar-navigation']?.name ?? '', meta.path, meta.method)
 
-  callback('success')
+  callback('success', blurTargetSelector)
 }
 
 /**

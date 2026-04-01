@@ -196,7 +196,7 @@ describe('CodeInput', () => {
     componentInstance.handleSubmit('test value')
 
     expect(wrapper.emitted('submit')).toBeTruthy()
-    expect(wrapper.emitted('submit')?.[0]).toEqual(['test value'])
+    expect(wrapper.emitted('submit')?.[0]).toEqual(['test value', undefined])
   })
 
   it('emits blur event when handleBlur is called', () => {
@@ -212,7 +212,7 @@ describe('CodeInput', () => {
     componentInstance.handleBlur('test value')
 
     expect(wrapper.emitted('blur')).toBeTruthy()
-    expect(wrapper.emitted('blur')?.[0]).toEqual(['test value'])
+    expect(wrapper.emitted('blur')?.[0]).toEqual(['test value', undefined])
   })
 
   it('emits submit on blur when emitOnBlur is true and modelValue exists', () => {
