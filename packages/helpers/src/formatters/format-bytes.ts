@@ -1,15 +1,22 @@
 const UNITS = ['B', 'kB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'] as const
 
 /**
- * Format a byte count as a human-readable decimal value.
+ * Format a byte count as a human-readable decimal value
+ * ex: 1024 -> 1 kB
+ * ex: 1025 -> 1.03 kB
  */
 export const formatBytes = (value: number, precision = 3): string => {
   if (!Number.isFinite(value) || value <= 0) {
     return '0 B'
   }
 
-  const unitIndex = value < 1 ? 0 : Math.min(Math.floor(Math.log10(value) / 3), UNITS.length - 1)
-  const normalizedValue = value / 1000 ** unitIndex
+  // toPrecision rounding can push the value to 1000, overflowing the current unit
+  let unitIndex = Math.min(Math.floor(Math.log10(value) / 3), UNITS.length - 1)
+  const normalizedValue = Number((value / 1000 ** unitIndex).toPrecision(precision))
 
-  return `${Number(normalizedValue.toPrecision(precision)).toString()} ${UNITS[unitIndex]}`
+  if (normalizedValue >= 1000 && unitIndex < UNITS.length - 1) {
+    unitIndex += 1
+  }
+
+  return `${Number((value / 1000 ** unitIndex).toPrecision(precision))} ${UNITS[unitIndex]}`
 }

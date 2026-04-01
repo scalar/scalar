@@ -18,6 +18,12 @@ describe('format-bytes', () => {
     expect(formatBytes(1_000_000_000)).toBe('1 GB')
   })
 
+  it('advances to the next unit when rounding reaches 1000', () => {
+    expect(formatBytes(999_500)).toBe('1 MB')
+    expect(formatBytes(999_499_999)).toBe('999 MB')
+    expect(formatBytes(999_500_000)).toBe('1 GB')
+  })
+
   it('supports large units beyond gigabytes', () => {
     expect(formatBytes(9_999_999_999_999)).toBe('10 TB')
     expect(formatBytes(9_007_199_254_740_991)).toBe('9.01 PB')
