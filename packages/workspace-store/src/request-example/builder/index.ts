@@ -19,5 +19,15 @@ export { getResolvedUrl } from './helpers/get-resolved-url'
 export { getServerVariables } from './helpers/get-server-variables'
 export { requestFactory } from './request-factory'
 export { buildRequestSecurity } from './security/build-request-security'
-// biome-ignore lint/performance/noReExportAll: Export all secret types
-export * from './security/secret-types'
+export type {
+  ApiKeyObjectSecret,
+  HttpObjectSecret,
+  OAuth2ObjectSecret,
+  OAuthFlowAuthorizationCodeSecret,
+  OAuthFlowClientCredentialsSecret,
+  OAuthFlowImplicitSecret,
+  OAuthFlowPasswordSecret,
+  OAuthFlowsObjectSecret,
+  OpenIdConnectObjectSecret,
+  SecuritySchemeObjectSecret,
+} from './security/secret-types'

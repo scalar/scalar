@@ -1,1 +1,1 @@
-export * from './json'
+export { safeJSON } from './json'
