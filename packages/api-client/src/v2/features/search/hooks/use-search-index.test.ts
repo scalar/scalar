@@ -98,7 +98,7 @@ describe('useSearchIndex', () => {
   })
 
   describe('empty query behavior', () => {
-    it('returns null when query is empty', async () => {
+    it('returns null when query is empty', () => {
       const entries: TraversedEntry[] = Array.from({ length: 30 }, (_, i) =>
         createOperationEntry(`op-${i}`, `Operation ${i}`, 'get', `/endpoint-${i}`),
       )
@@ -110,14 +110,14 @@ describe('useSearchIndex', () => {
       expect(results.value).toBeNull()
     })
 
-    it('returns null when there are no documents and query is empty', async () => {
+    it('returns null when there are no documents and query is empty', () => {
       const { query, results } = useSearchIndex([])
 
       expect(query.value).toBe('')
       expect(results.value).toBeNull()
     })
 
-    it('returns null when documents have no navigation entries and query is empty', async () => {
+    it('returns null when documents have no navigation entries and query is empty', () => {
       const document: OpenApiDocument = {
         openapi: '3.0.0',
         info: { title: 'Test API', version: '1.0.0' },
