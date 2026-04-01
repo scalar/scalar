@@ -1,3 +1,4 @@
+---
 '@scalar/aspire': patch
 ---
 
