@@ -337,7 +337,6 @@ defineExpose({
           alwaysEmitChange
           aria-label="Path"
           class="min-w-fit outline-none"
-          data-addressbar-action="path"
           disableCloseBrackets
           :disabled="layout === 'modal'"
           disableEnter
@@ -358,7 +357,6 @@ defineExpose({
       <!-- Copy url button -->
       <ScalarButton
         class="hover:bg-b-3 mx-1"
-        data-addressbar-action="copy"
         size="xs"
         variant="ghost"
         @click="copyUrl">
