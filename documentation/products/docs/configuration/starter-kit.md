@@ -16,7 +16,7 @@ npx @scalar/cli project preview
 
 This starts a live preview at `http://localhost:7971` where every edit you make is instantly visible.
 
-Read more about [Preview deployments](deployment/preview-deployments.md) and the [CLI](deployment/cli.md).
+Read more about [Preview deployments](../deployment/preview-deployments.md) and the [CLI](../deployment/cli.md).
 
 ## 2. Include OpenAPI documents
 
@@ -24,13 +24,13 @@ Drop your OpenAPI files into `docs/api-reference/`, and add them to `scalar.conf
 
 The starter kit includes an example OpenAPI document to show you how it works.
 
-Read more about [scalar.config.json](configuration/scalar.config.json.md) and [Getting started](getting-started.md) with Docs.
+Read more about [scalar.config.json](scalar.config.json.md) and [Getting started](../getting-started.md) with Docs.
 
 ## 3. Customize everything
 
-Make it yours with themes, custom CSS, and MDX. Configure your documentation structure, navigation, and styling through [scalar.config.json](configuration/scalar.config.json.md).
+Make it yours with themes, custom CSS, and MDX. Configure your documentation structure, navigation, and styling through [scalar.config.json](scalar.config.json.md).
 
-For appearance options, see [Themes](configuration/themes.md).
+For appearance options, see [Themes](themes.md).
 
 ## 4. Publish your docs
 
@@ -56,7 +56,7 @@ Check whether your `scalar.config.json` is valid:
 npx @scalar/cli project check-config
 ```
 
-For full options, see the [Configuration reference](configuration/scalar.config.json.md).
+For full options, see the [Configuration reference](scalar.config.json.md).
 
 We are here to help:
 
