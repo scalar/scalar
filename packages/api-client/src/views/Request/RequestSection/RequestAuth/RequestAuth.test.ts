@@ -7,6 +7,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { nextTick } from 'vue'
 
 import type { EnvVariable } from '@/store/active-entities'
+import { WORKSPACE_SYMBOL } from '@/store/store'
 
 import RequestAuth from './RequestAuth.vue'
 
@@ -31,102 +32,97 @@ const collectionMutators = {
   edit: vi.fn(),
 }
 
-// Mock useWorkspace while preserving other store exports.
-vi.mock('@/store/store', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('@/store/store')>()
-  return {
-    ...actual,
-    useWorkspace: () => ({
-    securitySchemes: {
-      'bearer-auth': {
-        uid: 'bearer-auth',
-        type: 'http',
-        nameKey: 'bearerAuth',
-        scheme: 'bearer',
-        bearerFormat: 'JWT',
-        username: 'user',
-        password: 'pass',
-        token: '123456',
-      },
-      'api-key': {
-        uid: 'api-key',
-        type: 'apiKey',
-        nameKey: 'apiKeyAuth',
-        in: 'header',
-        value: '123456',
-      },
-      'basic-auth': {
-        uid: 'basic-auth',
-        type: 'http',
-        scheme: 'basic',
-        nameKey: 'basicAuth',
-        bearerFormat: 'JWT',
-        username: 'user',
-        password: 'pass',
-        token: '123456',
-      },
-      'client-id': {
-        uid: 'client-id',
-        type: 'apiKey',
-        nameKey: 'Client ID',
-        in: 'header',
-        value: 'client123',
-      },
-      'client-key': {
-        uid: 'client-key',
-        type: 'apiKey',
-        nameKey: 'Client Key',
-        in: 'header',
-        value: 'key456',
-      },
-      'oauth2-auth': {
-        uid: 'oauth2-auth',
-        type: 'oauth2',
-        nameKey: 'OAuth2',
-        flows: {
-          authorizationCode: {
-            type: 'authorizationCode',
-            authorizationUrl: 'https://auth.example.com/authorize',
-            tokenUrl: 'https://auth.example.com/token',
-            refreshUrl: 'https://auth.example.com/refresh',
-            scopes: {
-              read: 'Read access',
-              write: 'Write access',
-            },
-            selectedScopes: ['read'],
-            'x-scalar-client-id': 'test-client-id',
-            'x-scalar-redirect-uri': 'https://callback.example.com',
-            token: '',
-          },
+const securitySchemes = {
+  'bearer-auth': {
+    uid: 'bearer-auth',
+    type: 'http',
+    nameKey: 'bearerAuth',
+    scheme: 'bearer',
+    bearerFormat: 'JWT',
+    username: 'user',
+    password: 'pass',
+    token: '123456',
+  },
+  'api-key': {
+    uid: 'api-key',
+    type: 'apiKey',
+    nameKey: 'apiKeyAuth',
+    in: 'header',
+    value: '123456',
+  },
+  'basic-auth': {
+    uid: 'basic-auth',
+    type: 'http',
+    scheme: 'basic',
+    nameKey: 'basicAuth',
+    bearerFormat: 'JWT',
+    username: 'user',
+    password: 'pass',
+    token: '123456',
+  },
+  'client-id': {
+    uid: 'client-id',
+    type: 'apiKey',
+    nameKey: 'Client ID',
+    in: 'header',
+    value: 'client123',
+  },
+  'client-key': {
+    uid: 'client-key',
+    type: 'apiKey',
+    nameKey: 'Client Key',
+    in: 'header',
+    value: 'key456',
+  },
+  'oauth2-auth': {
+    uid: 'oauth2-auth',
+    type: 'oauth2',
+    nameKey: 'OAuth2',
+    flows: {
+      authorizationCode: {
+        type: 'authorizationCode',
+        authorizationUrl: 'https://auth.example.com/authorize',
+        tokenUrl: 'https://auth.example.com/token',
+        refreshUrl: 'https://auth.example.com/refresh',
+        scopes: {
+          read: 'Read access',
+          write: 'Write access',
         },
-      },
-      'oauth2-empty-redirect': {
-        uid: 'oauth2-empty-redirect',
-        type: 'oauth2',
-        nameKey: 'OAuth2 Empty Redirect',
-        flows: {
-          authorizationCode: {
-            type: 'authorizationCode',
-            authorizationUrl: 'https://auth.example.com/authorize',
-            tokenUrl: 'https://auth.example.com/token',
-            refreshUrl: 'https://auth.example.com/refresh',
-            scopes: {
-              read: 'Read access',
-            },
-            selectedScopes: ['read'],
-            'x-scalar-client-id': 'test-client-id',
-            'x-scalar-redirect-uri': '',
-            token: '',
-          },
-        },
+        selectedScopes: ['read'],
+        'x-scalar-client-id': 'test-client-id',
+        'x-scalar-redirect-uri': 'https://callback.example.com',
+        token: '',
       },
     },
-    collectionMutators,
-    requestMutators,
-    securitySchemeMutators,
-    }),
-  }
-})
+  },
+  'oauth2-empty-redirect': {
+    uid: 'oauth2-empty-redirect',
+    type: 'oauth2',
+    nameKey: 'OAuth2 Empty Redirect',
+    flows: {
+      authorizationCode: {
+        type: 'authorizationCode',
+        authorizationUrl: 'https://auth.example.com/authorize',
+        tokenUrl: 'https://auth.example.com/token',
+        refreshUrl: 'https://auth.example.com/refresh',
+        scopes: {
+          read: 'Read access',
+        },
+        selectedScopes: ['read'],
+        'x-scalar-client-id': 'test-client-id',
+        'x-scalar-redirect-uri': '',
+        token: '',
+      },
+    },
+  },
+}
+
+const mockWorkspaceStore = {
+  securitySchemes,
+  collectionMutators,
+  requestMutators,
+  securitySchemeMutators,
+}
 
 describe('RequestAuth.vue', () => {
   beforeEach(() => {
@@ -161,6 +157,17 @@ describe('RequestAuth.vue', () => {
       }),
     }) as const
 
+  const mountRequestAuth = (props: ReturnType<typeof createBaseProps>, options: { attachTo?: Element | string } = {}) =>
+    mount(RequestAuth, {
+      props,
+      ...options,
+      global: {
+        provide: {
+          [WORKSPACE_SYMBOL]: mockWorkspaceStore,
+        },
+      },
+    })
+
   const clickAuthSelect = async (wrapper: VueWrapper) => {
     const dropdownButton = wrapper
       .findAll('button')
@@ -172,9 +179,7 @@ describe('RequestAuth.vue', () => {
   }
 
   it('renders the basics', () => {
-    const wrapper = mount(RequestAuth, {
-      props: createBaseProps(),
-    })
+    const wrapper = mountRequestAuth(createBaseProps())
 
     expect(wrapper.text()).toContain('Authentication')
     expect(wrapper.text()).toContain('Required')
@@ -183,10 +188,7 @@ describe('RequestAuth.vue', () => {
   })
 
   it('calls correct mutator when selecting auth scheme', async () => {
-    const wrapper = mount(RequestAuth, {
-      props: createBaseProps(),
-      attachTo: document.body,
-    })
+    const wrapper = mountRequestAuth(createBaseProps(), { attachTo: document.body })
 
     await clickAuthSelect(wrapper)
 
@@ -209,9 +211,7 @@ describe('RequestAuth.vue', () => {
     const props = createBaseProps()
     props.operation.security = [{}]
 
-    const wrapper = mount(RequestAuth, {
-      props,
-    })
+    const wrapper = mountRequestAuth(props)
 
     expect(wrapper.text()).toContain('Optional')
   })
@@ -222,9 +222,7 @@ describe('RequestAuth.vue', () => {
       selectedSecuritySchemeUids: ['bearer-auth', 'api-key'] as Collection['selectedSecuritySchemeUids'],
     }
 
-    const wrapper = mount(RequestAuth, {
-      props,
-    })
+    const wrapper = mountRequestAuth(props)
 
     expect(wrapper.text()).toContain('Multiple')
     expect(wrapper.text()).toContain('Bearer Token')
@@ -234,10 +232,7 @@ describe('RequestAuth.vue', () => {
     const props = createBaseProps()
     props.operation.security = [{ 'Client ID': [], 'Client Key': [] }, {}]
 
-    const wrapper = mount(RequestAuth, {
-      attachTo: document.body,
-      props,
-    })
+    const wrapper = mountRequestAuth(props, { attachTo: document.body })
 
     expect(wrapper.text()).toContain('Required')
 
@@ -251,10 +246,7 @@ describe('RequestAuth.vue', () => {
   })
 
   it('opens auth select when auth indicator is clicked', async () => {
-    const wrapper = mount(RequestAuth, {
-      props: createBaseProps(),
-      attachTo: document.body,
-    })
+    const wrapper = mountRequestAuth(createBaseProps(), { attachTo: document.body })
 
     const requiredIndicator = wrapper.findAll('span').find((node) => node.text().includes('Required'))
     await requiredIndicator?.trigger('click')
@@ -272,9 +264,7 @@ describe('RequestAuth.vue', () => {
       selectedSecuritySchemeUids: ['oauth2-auth'] as Collection['selectedSecuritySchemeUids'],
     }
 
-    const wrapper = mount(RequestAuth, {
-      props,
-    })
+    const wrapper = mountRequestAuth(props)
 
     // Find the OAuth2 component
     const oauth2 = wrapper.findComponent({ name: 'OAuth2' })
@@ -305,7 +295,7 @@ describe('RequestAuth.vue', () => {
       selectedSecuritySchemeUids: ['oauth2-empty-redirect'] as Collection['selectedSecuritySchemeUids'],
     }
 
-    mount(RequestAuth, { props })
+    mountRequestAuth(props)
     await nextTick()
 
     expect(securitySchemeMutators.edit).not.toHaveBeenCalledWith(
@@ -332,7 +322,7 @@ describe('RequestAuth.vue', () => {
       },
     })
 
-    mount(RequestAuth, { props })
+    mountRequestAuth(props)
     await nextTick()
 
     expect(securitySchemeMutators.edit).toHaveBeenCalledWith(
