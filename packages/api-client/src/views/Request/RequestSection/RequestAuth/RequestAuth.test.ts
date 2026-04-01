@@ -6,7 +6,6 @@ import { mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { nextTick } from 'vue'
 
-import { useClientConfig } from '@/hooks/useClientConfig'
 import type { EnvVariable } from '@/store/active-entities'
 
 import RequestAuth from './RequestAuth.vue'
