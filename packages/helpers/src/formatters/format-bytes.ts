@@ -2,8 +2,8 @@ const UNITS = ['B', 'kB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'] as const
 
 /**
  * Format a byte count as a human-readable decimal value
- * ex: 1024 -> 1 kB
- * ex: 1025 -> 1.03 kB
+ * @example 1024 -> 1 kB
+ * @example 1025 -> 1.03 kB
  */
 export const formatBytes = (value: number, precision = 3): string => {
   if (!Number.isFinite(value) || value <= 0) {
