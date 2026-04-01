@@ -1,10 +1,70 @@
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { combineParams } from '@scalar/workspace-store/request-example'
 import type { TraversedEntry } from '@scalar/workspace-store/schemas/navigation'
-import type { OpenApiDocument, OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type {
+  MediaTypeObject,
+  OpenApiDocument,
+  OperationObject,
+  ResponsesObject,
+} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
 import type { FuseData } from '@/features/Search/types'
 import { createParameterMap, extractRequestBody } from '@/helpers/openapi'
+
+function responseExampleValueToString(value: unknown): string {
+  if (typeof value === 'string') {
+    return value
+  }
+
+  try {
+    return JSON.stringify(value)
+  } catch (_error) {
+    return ''
+  }
+}
+
+function mediaTypeExamplesToStrings(mediaType: MediaTypeObject): string[] {
+  const examplesFromNamedMap = Object.values(mediaType.examples ?? {})
+    .flatMap((example) => {
+      const resolvedExample = getResolvedRef(example)
+
+      if (!resolvedExample || !('value' in resolvedExample)) {
+        return []
+      }
+
+      return responseExampleValueToString(resolvedExample.value)
+    })
+    .filter((value) => value.length > 0)
+
+  const mediaTypeExample =
+    'example' in mediaType && mediaType.example !== undefined ? responseExampleValueToString(mediaType.example) : ''
+
+  return mediaTypeExample ? [mediaTypeExample, ...examplesFromNamedMap] : examplesFromNamedMap
+}
+
+function extractResponseExamples(responses: ResponsesObject | undefined): string[] {
+  if (!responses) {
+    return []
+  }
+
+  return Object.values(responses)
+    .flatMap((response) => {
+      const resolvedResponse = getResolvedRef(response)
+      if (!resolvedResponse?.content) {
+        return []
+      }
+
+      return Object.values(resolvedResponse.content).flatMap((mediaType) => {
+        const resolvedMediaType = getResolvedRef(mediaType)
+        if (!resolvedMediaType) {
+          return []
+        }
+
+        return mediaTypeExamplesToStrings(resolvedMediaType)
+      })
+    })
+    .filter((value) => value.length > 0)
+}
 
 /**
  * Create a search index from a list of entries.
@@ -47,6 +107,7 @@ function addEntryToIndex(entry: TraversedEntry, index: FuseData[], document?: Op
     const requestBodyOrParameterMap =
       extractRequestBody(operationWithPathParams) || createParameterMap(operationWithPathParams)
     const body = typeof requestBodyOrParameterMap !== 'boolean' ? requestBodyOrParameterMap : null
+    const responseExamples = extractResponseExamples(operationWithPathParams.responses)
 
     index.push({
       type: 'operation',
@@ -56,6 +117,7 @@ function addEntryToIndex(entry: TraversedEntry, index: FuseData[], document?: Op
       method: entry.method,
       path: entry.path,
       body: body || '',
+      responseExamples,
       operationId: operationWithPathParams.operationId,
       entry,
     })
