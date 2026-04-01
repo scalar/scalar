@@ -71,21 +71,21 @@ export const contextFunctions = {
     comment: 'A random hex value',
   },
   $randomAbbreviation: {
-    fn: faker.hacker.abbreviation,
+    fn: () => faker.hacker.abbreviation(),
     comment: 'A random abbreviation',
   },
 
   // ---------------------------------- Internet and IP addresses ----------------------------------
   $randomIP: {
-    fn: faker.internet.ipv4,
+    fn: () => faker.internet.ipv4(),
     comment: 'A random IPv4 address',
   },
   $randomIPV6: {
-    fn: faker.internet.ipv6,
+    fn: () => faker.internet.ipv6(),
     comment: 'A random IPv6 address',
   },
   $randomMACAddress: {
-    fn: faker.internet.mac,
+    fn: () => faker.internet.mac(),
     comment: 'A random MAC address',
   },
   $randomPassword: {
@@ -97,55 +97,55 @@ export const contextFunctions = {
     comment: 'A random two-letter language code (ISO 639-1)',
   },
   $randomUserAgent: {
-    fn: faker.internet.userAgent,
+    fn: () => faker.internet.userAgent(),
     comment: 'A random user agent',
   },
   $randomProtocol: {
-    fn: faker.internet.protocol,
+    fn: () => faker.internet.protocol(),
     comment: 'A random internet protocol',
   },
   $randomSemver: {
-    fn: faker.system.semver,
+    fn: () => faker.system.semver(),
     comment: 'A random semantic version number',
   },
 
   // ---------------------------------- Names ----------------------------------
   $randomFirstName: {
-    fn: faker.person.firstName,
+    fn: () => faker.person.firstName(),
     comment: 'A random first name',
   },
   $randomLastName: {
-    fn: faker.person.lastName,
+    fn: () => faker.person.lastName(),
     comment: 'A random last name',
   },
   $randomFullName: {
-    fn: faker.person.fullName,
+    fn: () => faker.person.fullName(),
     comment: 'A random first and last name',
   },
   $randomNamePrefix: {
-    fn: faker.person.prefix,
+    fn: () => faker.person.prefix(),
     comment: 'A random name prefix',
   },
   $randomNameSuffix: {
-    fn: faker.person.suffix,
+    fn: () => faker.person.suffix(),
     comment: 'A random name suffix',
   },
 
   // ---------------------------------- Profession ----------------------------------
   $randomJobArea: {
-    fn: faker.person.jobArea,
+    fn: () => faker.person.jobArea(),
     comment: 'A random job area',
   },
   $randomJobDescriptor: {
-    fn: faker.person.jobDescriptor,
+    fn: () => faker.person.jobDescriptor(),
     comment: 'A random job descriptor',
   },
   $randomJobTitle: {
-    fn: faker.person.jobTitle,
+    fn: () => faker.person.jobTitle(),
     comment: 'A random job title',
   },
   $randomJobType: {
-    fn: faker.person.jobType,
+    fn: () => faker.person.jobType(),
     comment: 'A random job type',
   },
 
@@ -159,19 +159,19 @@ export const contextFunctions = {
     comment: 'A random phone number prefixed with a two-digit extension (10–99)',
   },
   $randomCity: {
-    fn: faker.location.city,
+    fn: () => faker.location.city(),
     comment: 'A random city name',
   },
   $randomStreetName: {
-    fn: faker.location.street,
+    fn: () => faker.location.street(),
     comment: 'A random street name',
   },
   $randomStreetAddress: {
-    fn: faker.location.streetAddress,
+    fn: () => faker.location.streetAddress(),
     comment: 'A random street address',
   },
   $randomCountry: {
-    fn: faker.location.country,
+    fn: () => faker.location.country(),
     comment: 'A random country',
   },
   $randomCountryCode: {
@@ -251,11 +251,11 @@ export const contextFunctions = {
 
   // ---------------------------------- Finance ----------------------------------
   $randomBankAccount: {
-    fn: faker.finance.accountNumber,
+    fn: () => faker.finance.accountNumber(),
     comment: 'A random 8-digit bank account number',
   },
   $randomBankAccountName: {
-    fn: faker.finance.accountName,
+    fn: () => faker.finance.accountName(),
     comment: 'A random bank account name',
   },
   $randomCreditCardMask: {
@@ -263,7 +263,7 @@ export const contextFunctions = {
     comment: 'A random masked credit card number',
   },
   $randomBankAccountBic: {
-    fn: faker.finance.bic,
+    fn: () => faker.finance.bic(),
     comment: 'A random BIC (Bank Identifier Code)',
   },
   $randomBankAccountIban: {
@@ -271,29 +271,29 @@ export const contextFunctions = {
     comment: 'A random 15-31 character IBAN (International Bank Account Number)',
   },
   $randomTransactionType: {
-    fn: faker.finance.transactionType,
+    fn: () => faker.finance.transactionType(),
     comment: 'A random transaction type',
   },
   $randomCurrencyCode: {
-    fn: faker.finance.currencyCode,
+    fn: () => faker.finance.currencyCode(),
     comment: 'A random 3-letter currency code (ISO-4217)',
   },
   $randomCurrencyName: {
-    fn: faker.finance.currencyName,
+    fn: () => faker.finance.currencyName(),
     comment: 'A random currency name',
   },
   $randomCurrencySymbol: {
-    fn: faker.finance.currencySymbol,
+    fn: () => faker.finance.currencySymbol(),
     comment: 'A random currency symbol',
   },
   $randomBitcoin: {
-    fn: faker.finance.bitcoinAddress,
+    fn: () => faker.finance.bitcoinAddress(),
     comment: 'A random bitcoin address',
   },
 
   // ---------------------------------- Business ----------------------------------
   $randomCompanyName: {
-    fn: faker.company.name,
+    fn: () => faker.company.name(),
     comment: 'A random company name',
   },
   $randomCompanySuffix: {
@@ -301,55 +301,55 @@ export const contextFunctions = {
     comment: 'A random company suffix',
   },
   $randomBs: {
-    fn: faker.company.buzzPhrase,
+    fn: () => faker.company.buzzPhrase(),
     comment: 'A random phrase of business-speak',
   },
   $randomBsAdjective: {
-    fn: faker.company.buzzAdjective,
+    fn: () => faker.company.buzzAdjective(),
     comment: 'A random business-speak adjective',
   },
   $randomBsBuzz: {
-    fn: faker.company.buzzVerb,
+    fn: () => faker.company.buzzVerb(),
     comment: 'A random business-speak buzzword',
   },
   $randomBsNoun: {
-    fn: faker.company.buzzNoun,
+    fn: () => faker.company.buzzNoun(),
     comment: 'A random business-speak noun',
   },
 
   // ---------------------------------- Catchphrases ----------------------------------
   $randomCatchPhrase: {
-    fn: faker.company.catchPhrase,
+    fn: () => faker.company.catchPhrase(),
     comment: 'A random catchphrase',
   },
   $randomCatchPhraseAdjective: {
-    fn: faker.company.catchPhraseAdjective,
+    fn: () => faker.company.catchPhraseAdjective(),
     comment: 'A random catchphrase adjective',
   },
   $randomCatchPhraseDescriptor: {
-    fn: faker.company.catchPhraseDescriptor,
+    fn: () => faker.company.catchPhraseDescriptor(),
     comment: 'A random catchphrase descriptor',
   },
   $randomCatchPhraseNoun: {
-    fn: faker.company.catchPhraseNoun,
+    fn: () => faker.company.catchPhraseNoun(),
     comment: 'Randomly generates a catchphrase noun',
   },
 
   // ---------------------------------- Databases ----------------------------------
   $randomDatabaseColumn: {
-    fn: faker.database.column,
+    fn: () => faker.database.column(),
     comment: 'A random database column name',
   },
   $randomDatabaseType: {
-    fn: faker.database.type,
+    fn: () => faker.database.type(),
     comment: 'A random database type',
   },
   $randomDatabaseCollation: {
-    fn: faker.database.collation,
+    fn: () => faker.database.collation(),
     comment: 'A random database collation',
   },
   $randomDatabaseEngine: {
-    fn: faker.database.engine,
+    fn: () => faker.database.engine(),
     comment: 'A random database engine',
   },
 
@@ -367,79 +367,79 @@ export const contextFunctions = {
     comment: 'A random recent datetime',
   },
   $randomWeekday: {
-    fn: faker.date.weekday,
+    fn: () => faker.date.weekday(),
     comment: 'A random weekday',
   },
   $randomMonth: {
-    fn: faker.date.month,
+    fn: () => faker.date.month(),
     comment: 'A random month',
   },
 
   // ---------------------------------- Domains, emails, and usernames ----------------------------------
   $randomDomainName: {
-    fn: faker.internet.domainName,
+    fn: () => faker.internet.domainName(),
     comment: 'A random domain name',
   },
   $randomDomainSuffix: {
-    fn: faker.internet.domainSuffix,
+    fn: () => faker.internet.domainSuffix(),
     comment: 'A random domain suffix',
   },
   $randomDomainWord: {
-    fn: faker.internet.domainWord,
+    fn: () => faker.internet.domainWord(),
     comment: 'A random unqualified domain name',
   },
   $randomEmail: {
-    fn: faker.internet.email,
+    fn: () => faker.internet.email(),
     comment: 'A random email address',
   },
   $randomExampleEmail: {
-    fn: faker.internet.exampleEmail,
+    fn: () => faker.internet.exampleEmail(),
     comment: 'A random email address from an example domain',
   },
   $randomUserName: {
-    fn: faker.internet.username,
+    fn: () => faker.internet.username(),
     comment: 'A random username',
   },
   $randomUrl: {
-    fn: faker.internet.url,
+    fn: () => faker.internet.url(),
     comment: 'A random URL',
   },
 
   // ---------------------------------- Files and directories ----------------------------------
   $randomFileName: {
-    fn: faker.system.fileName,
+    fn: () => faker.system.fileName(),
     comment: 'A random file name (includes uncommon extensions)',
   },
   $randomFileType: {
-    fn: faker.system.fileType,
+    fn: () => faker.system.fileType(),
     comment: 'A random file type (includes uncommon file types)',
   },
   $randomFileExt: {
-    fn: faker.system.fileExt,
+    fn: () => faker.system.fileExt(),
     comment: 'A random file extension (includes uncommon extensions)',
   },
   $randomCommonFileName: {
-    fn: faker.system.commonFileName,
+    fn: () => faker.system.commonFileName(),
     comment: 'A random file name',
   },
   $randomCommonFileType: {
-    fn: faker.system.commonFileType,
+    fn: () => faker.system.commonFileType(),
     comment: 'A random, common file type',
   },
   $randomCommonFileExt: {
-    fn: faker.system.commonFileExt,
+    fn: () => faker.system.commonFileExt(),
     comment: 'A random, common file extension',
   },
   $randomFilePath: {
-    fn: faker.system.filePath,
+    fn: () => faker.system.filePath(),
     comment: 'A random file path',
   },
   $randomDirectoryPath: {
-    fn: faker.system.directoryPath,
+    fn: () => faker.system.directoryPath(),
     comment: 'A random directory path',
   },
   $randomMimeType: {
-    fn: faker.system.mimeType,
+    fn: () => faker.system.mimeType(),
     comment: 'A random MIME type',
   },
 
@@ -449,33 +449,33 @@ export const contextFunctions = {
     comment: 'A random price between 0.00 and 1000.00',
   },
   $randomProduct: {
-    fn: faker.commerce.product,
+    fn: () => faker.commerce.product(),
     comment: 'A random product',
   },
   $randomProductAdjective: {
-    fn: faker.commerce.productAdjective,
+    fn: () => faker.commerce.productAdjective(),
     comment: 'A random product adjective',
   },
   $randomProductMaterial: {
-    fn: faker.commerce.productMaterial,
+    fn: () => faker.commerce.productMaterial(),
     comment: 'A random product material',
   },
   $randomProductName: {
-    fn: faker.commerce.productName,
+    fn: () => faker.commerce.productName(),
     comment: 'A random product name',
   },
   $randomDepartment: {
-    fn: faker.commerce.department,
+    fn: () => faker.commerce.department(),
     comment: 'A random commerce department',
   },
 
   // ---------------------------------- Grammar ----------------------------------
   $randomNoun: {
-    fn: faker.word.noun,
+    fn: () => faker.word.noun(),
     comment: 'A random noun',
   },
   $randomVerb: {
-    fn: faker.word.verb,
+    fn: () => faker.word.verb(),
     comment: 'A random verb',
   },
   $randomIngverb: {
@@ -483,7 +483,7 @@ export const contextFunctions = {
     comment: 'A random verb ending in `-ing`',
   },
   $randomAdjective: {
-    fn: faker.word.adjective,
+    fn: () => faker.word.adjective(),
     comment: 'A random adjective',
   },
   $randomWord: {
@@ -495,13 +495,13 @@ export const contextFunctions = {
     comment: 'Some random words',
   },
   $randomPhrase: {
-    fn: faker.company.buzzPhrase,
+    fn: () => faker.company.buzzPhrase(),
     comment: 'A random phrase',
   },
 
   // ---------------------------------- Lorem ipsum ----------------------------------
   $randomLoremWord: {
-    fn: faker.lorem.word,
+    fn: () => faker.lorem.word(),
     comment: 'A random word of lorem ipsum text',
   },
   $randomLoremWords: {
@@ -509,7 +509,7 @@ export const contextFunctions = {
     comment: 'Some random words of lorem ipsum text',
   },
   $randomLoremSentence: {
-    fn: faker.lorem.sentence,
+    fn: () => faker.lorem.sentence(),
     comment: 'A random sentence of lorem ipsum text',
   },
   $randomLoremSentences: {
@@ -517,7 +517,7 @@ export const contextFunctions = {
     comment: 'A random 2 to 6 sentences of lorem ipsum text',
   },
   $randomLoremParagraph: {
-    fn: faker.lorem.paragraph,
+    fn: () => faker.lorem.paragraph(),
     comment: 'A random paragraph of lorem ipsum text',
   },
   $randomLoremParagraphs: {
@@ -525,11 +525,11 @@ export const contextFunctions = {
     comment: '3 random paragraphs of lorem ipsum text',
   },
   $randomLoremText: {
-    fn: faker.lorem.text,
+    fn: () => faker.lorem.text(),
     comment: 'A random amount of lorem ipsum text',
   },
   $randomLoremSlug: {
-    fn: faker.lorem.slug,
+    fn: () => faker.lorem.slug(),
     comment: 'A random lorem ipsum URL slug',
   },
   $randomLoremLines: {
