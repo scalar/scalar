@@ -109,6 +109,8 @@ type (feat, fix, docs, style, refactor, perf, test, build, ci, chore, revert)
 
 When a **Linear ticket** ID (e.g. `DOC-5102`, `ENG-123`) or a **GitHub issue** number/URL is provided in the prompt, instructions, or a related Slack thread, you **must** link it in the PR so that project-management integrations can track progress automatically.
 
+If a GitHub issue number is available, include it explicitly in the PR description using `See #123` (non-closing) or `Fixes #123` (auto-closing on merge).
+
 #### Linear tickets
 
 Include the Linear issue ID in the **PR branch name** or **PR description** using a magic word. Linear's GitHub integration detects these and links the PR to the issue. Do **not** put the issue ID in the PR title — titles must follow the conventional commit format (e.g. `feat(api-reference): add my new feature`).
@@ -159,6 +161,10 @@ If both a Linear ticket and a GitHub issue are provided, include both.
 > **Tip:** Magic words must appear in the PR description (not in PR comments) for Linear to detect them. For GitHub issues, keywords work in both the PR description and commit messages.
 
 ### Changesets
+
+For code changes in `packages/*` and `integrations/*`, a changeset is required. Use `patch` or `minor` version bumps based on impact; do not use `major`.
+
+Before opening or updating a PR, run `pnpm changeset status` to verify changesets and catch missing or invalid changeset entries.
 
 If your PR will cause a version bump for any package, add a changeset:
 
