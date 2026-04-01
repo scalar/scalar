@@ -1,5 +1,5 @@
 import { enableConsoleWarn } from '@test/vitest.setup'
-import { describe, expect, it, vi } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
 import { createApiClientModal } from './create-api-client-modal'
 
