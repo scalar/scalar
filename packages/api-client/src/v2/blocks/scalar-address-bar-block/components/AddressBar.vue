@@ -34,6 +34,7 @@ import {
   ScalarIcon,
   ScalarWrappingText,
 } from '@scalar/components'
+import { getSelector } from '@scalar/helpers/dom/get-selector'
 import { REQUEST_METHODS } from '@scalar/helpers/http/http-info'
 import type { HttpMethod as HttpMethodType } from '@scalar/helpers/http/http-methods'
 import { replaceEnvVariables } from '@scalar/helpers/regex/replace-variables'
@@ -106,13 +107,17 @@ const hasConflict = computed(() => methodConflict.value || pathConflict.value)
 const emitPathMethodUpdate = (
   targetMethod: HttpMethodType,
   targetPath: string,
-  blurTarget?: string | null,
+  blurTargetSelector: string | null = null,
 ): void => {
+  const normalizedPath = targetPath.startsWith('/')
+    ? targetPath
+    : `/${targetPath}`
+
   eventBus.emit('operation:update:pathMethod', {
     meta: { method, path },
-    blurTarget,
-    payload: { method: targetMethod, path: targetPath },
-    callback: (status) => {
+    blurTargetSelector,
+    payload: { method: targetMethod, path: normalizedPath },
+    callback: (status, blurTargetSelector) => {
       // Clear conflicts if the operation was successful or no change was made
       if (status === 'success' || status === 'no-change') {
         methodConflict.value = null
@@ -123,8 +128,27 @@ const emitPathMethodUpdate = (
         if (targetMethod !== method) {
           methodConflict.value = targetMethod
         }
-        if (targetPath !== path) {
-          pathConflict.value = targetPath
+        if (normalizedPath !== path) {
+          pathConflict.value = normalizedPath
+        }
+      }
+
+      // Re-trigger the click or focus event if we have a blur target selector
+      if (blurTargetSelector) {
+        const element = document.querySelector(blurTargetSelector)
+
+        // Re-trigger clicks on buttons
+        if (element instanceof HTMLButtonElement) {
+          element.click()
+        }
+
+        // Re-trigger focus on inputs and codeInputs
+        else if (
+          element instanceof HTMLInputElement ||
+          (element instanceof HTMLElement &&
+            element.getAttribute('contenteditable') === 'true')
+        ) {
+          element.focus()
         }
       }
     },
@@ -135,24 +159,17 @@ const emitPathMethodUpdate = (
 const handleMethodChange = (newMethod: HttpMethodType): void =>
   emitPathMethodUpdate(newMethod, pathConflict.value ?? path)
 
-/** Update the operation's path, handling conflicts also we extract the blur targets */
+/**
+ * Update the operation's path, handling conflicts also we extract the blur target selector to re-trigger click events
+ */
 const handlePathBlur = (newPath: string, event: FocusEvent): void => {
   const relatedTarget = event.relatedTarget as Element | null
-
-  const sidebarItemId = relatedTarget
-    ?.closest('[data-sidebar-id]')
-    ?.getAttribute('data-sidebar-id')
-  const addressBarAction = relatedTarget
-    ?.closest('[data-addressbar-action]')
-    ?.getAttribute('data-addressbar-action')
-
-  const blurTarget = sidebarItemId ?? addressBarAction ?? null
-  const normalizedPath = newPath.startsWith('/') ? newPath : `/${newPath}`
+  const blurTargetSelector = getSelector(relatedTarget)
 
   emitPathMethodUpdate(
     methodConflict.value ?? method,
-    normalizedPath,
-    blurTarget,
+    newPath,
+    blurTargetSelector,
   )
 }
 
@@ -168,7 +185,7 @@ const handlePathBackspace = (event: KeyboardEvent): void => {
   }
 }
 
-/** Handle path submit (Enter key) — saves the path and triggers execution via blurTarget */
+/** Handle path submit (Enter key) — saves the path and triggers execution via blurTargetSelector */
 const handlePathSubmit = (
   newPath: string,
   event: KeyboardEvent | FocusEvent,
@@ -176,8 +193,11 @@ const handlePathSubmit = (
   // Prevent the global hotkey listener
   event.stopPropagation()
 
-  const normalizedPath = newPath.startsWith('/') ? newPath : `/${newPath}`
-  emitPathMethodUpdate(methodConflict.value ?? method, normalizedPath, 'send')
+  emitPathMethodUpdate(
+    methodConflict.value ?? method,
+    newPath,
+    '[data-addressbar-action="send"]',
+  )
 }
 
 /** Handle focus events */

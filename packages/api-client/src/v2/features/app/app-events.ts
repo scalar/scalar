@@ -95,43 +95,21 @@ export function initializeAppEventHandlers({
           callback: async (status) => {
             // Redirect to the new example if the mutation was successful
             if (status === 'success') {
-              /** If the blur event clicked on a sidebar item we need to handle it */
-              const blurTarget = getEntryById(payload.blurTarget ?? '')
-
               // Rebuild the sidebar with the updated order
               rebuildSidebar(store.value?.workspace.activeDocument?.['x-scalar-navigation']?.name)
 
-              /**
-               * If the user clicked an example in the sidebar on the same operation,
-               * use that example name to redirect to the example page
-               */
-              const exampleName =
-                blurTarget?.type === 'example' ? blurTarget.name : currentRoute.value?.params.exampleName
-
               // Now this redirect works for any example
-              if (exampleName) {
-                await router.replace({
-                  name: 'example',
-                  params: {
-                    method: payload.payload.method,
-                    pathEncoded: encodeURIComponent(payload.payload.path),
-                    exampleName,
-                  },
-                })
-
-                // Now we need to trigger events here since we are redirecting to a new example
-                if (payload.blurTarget === 'copy') {
-                  eventBus.emit('copy-url:address-bar')
-                }
-              }
+              await router.replace({
+                name: 'example',
+                params: {
+                  method: payload.payload.method,
+                  pathEncoded: encodeURIComponent(payload.payload.path),
+                  exampleName: currentRoute.value?.params.exampleName,
+                },
+              })
             }
 
-            // Since we always pipe submitting through the updatePath listener, we should propogate the send request
-            if (payload.blurTarget === 'send' && (status === 'success' || status === 'no-change')) {
-              eventBus.emit('operation:send:request:hotkey')
-            }
-
-            payload.callback(status)
+            payload.callback(status, payload.blurTargetSelector)
           },
         }),
       },

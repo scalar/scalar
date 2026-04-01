@@ -98,13 +98,12 @@ export type OperationEvents = {
     /** Identifies the target operation by original method and path */
     meta: OperationMeta
     /**
-     * The ID of the sidebar item that triggered the blur event
-     * or "send" if the user clicked the send button
-     * or "copy" if the user clicked the copy button
+     * The CSS selector of the element that triggered the blur event
+     * Used to re-trigger click events
      */
-    blurTarget?: 'copy' | 'send' | string | null
+    blurTargetSelector: string | null
     /** Callback, on completion */
-    callback: (status: 'conflict' | 'no-change' | 'success') => void
+    callback: (status: 'conflict' | 'no-change' | 'success', blurTargetSelector: string | null) => void
   }
 
   /**
