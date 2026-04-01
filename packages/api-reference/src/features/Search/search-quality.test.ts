@@ -539,4 +539,5 @@ describe('search quality', () => {
 
     expect(result.sort((a, b) => <number>b.score - <number>a.score)[0]?.item?.title).toEqual('Register user')
   })
+
 })

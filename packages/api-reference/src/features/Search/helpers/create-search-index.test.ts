@@ -117,6 +117,49 @@ describe('createSearchIndex', () => {
       expect(index.length).toEqual(3)
       expect(index.map((item) => item.title)).toEqual(['Get Users', 'Create User', 'Get Posts'])
     })
+
+    it('includes path item parameters in operation index body', () => {
+      const document = createMockDocument({
+        paths: {
+          '/users/{userId}': {
+            parameters: [
+              {
+                in: 'path',
+                name: 'userId',
+                required: true,
+                description: 'Unique user identifier',
+              },
+            ],
+            get: {
+              summary: 'Get User',
+            },
+          },
+        },
+      })
+
+      const index = createSearchIndex(document)
+      const operationEntry = index.find((item) => item.type === 'operation')
+
+      expect(operationEntry).toMatchObject({
+        type: 'operation',
+        title: 'Get User',
+        body: {
+          path: [
+            {
+              in: 'path',
+              name: 'userId',
+              required: true,
+              description: 'Unique user identifier',
+            },
+          ],
+          query: [],
+          header: [],
+          cookie: [],
+          body: [],
+          formData: [],
+        },
+      })
+    })
   })
 
   describe('schemas', () => {

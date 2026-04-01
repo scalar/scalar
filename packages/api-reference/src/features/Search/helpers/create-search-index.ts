@@ -1,6 +1,7 @@
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import { combineParams } from '@scalar/workspace-store/request-example'
 import type { TraversedEntry } from '@scalar/workspace-store/schemas/navigation'
-import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { OpenApiDocument, OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
 import type { FuseData } from '@/features/Search/types'
 import { createParameterMap, extractRequestBody } from '@/helpers/openapi'
@@ -36,20 +37,26 @@ export function createSearchIndex(document: OpenApiDocument | undefined): FuseDa
 function addEntryToIndex(entry: TraversedEntry, index: FuseData[], document?: OpenApiDocument): void {
   // Operation
   if (entry.type === 'operation') {
-    const operation = getResolvedRef(document?.paths?.[entry.path]?.[entry.method]) ?? {}
+    const pathItem = getResolvedRef(document?.paths?.[entry.path])
+    const operation = (getResolvedRef(pathItem?.[entry.method]) ?? {}) as OperationObject
+    const operationWithPathParams = {
+      ...operation,
+      parameters: combineParams(pathItem?.parameters, operation.parameters),
+    }
 
-    const requestBodyOrParameterMap = extractRequestBody(operation) || createParameterMap(operation)
+    const requestBodyOrParameterMap =
+      extractRequestBody(operationWithPathParams) || createParameterMap(operationWithPathParams)
     const body = typeof requestBodyOrParameterMap !== 'boolean' ? requestBodyOrParameterMap : null
 
     index.push({
       type: 'operation',
       title: entry.title,
       id: entry.id,
-      description: operation.description || '',
+      description: operationWithPathParams.description || '',
       method: entry.method,
       path: entry.path,
       body: body || '',
-      operationId: operation.operationId,
+      operationId: operationWithPathParams.operationId,
       entry,
     })
 
