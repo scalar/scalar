@@ -38,11 +38,7 @@ export const createSearchParams = (query: HarRequest['queryString'] = []) => {
 /**
  * Adds a named value while preserving repeated keys as arrays.
  */
-export const accumulateRepeatedValue = (
-  data: Record<string, string | string[]>,
-  name: string,
-  value: string,
-): void => {
+export const accumulateRepeatedValue = (data: Record<string, string | string[]>, name: string, value: string): void => {
   const existingValue = data[name]
 
   if (existingValue === undefined) {
