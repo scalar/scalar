@@ -2,6 +2,8 @@ import { createNavigation } from '@scalar/workspace-store/navigation'
 import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { describe, expect, it } from 'vitest'
 
+import Fuse from 'fuse.js'
+
 import { createFuseInstance } from './helpers/create-fuse-instance'
 import { createSearchIndex } from './helpers/create-search-index'
 
@@ -15,7 +17,7 @@ function search(query: string, document: Partial<OpenApiDocument>) {
   } as OpenApiDocument
   doc['x-scalar-navigation'] = createNavigation('test', doc, { hideModels: false })
 
-  const fuse = createFuseInstance()
+  const fuse = createFuseInstance(Fuse)
 
   fuse.setCollection(createSearchIndex(doc))
 

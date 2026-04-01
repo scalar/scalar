@@ -1,13 +1,15 @@
-import Fuse from 'fuse.js'
+import type Fuse from 'fuse.js'
 
 import type { FuseData } from '@/features/Search/types'
+
+type FuseConstructor = typeof import('fuse.js').default
 
 /**
  * Create a Fuse instance for searching the API reference.
  *
  * Doesn't have any data yet, so it's empty.
  */
-export function createFuseInstance(): Fuse<FuseData> {
+export function createFuseInstance(Fuse: FuseConstructor): Fuse<FuseData> {
   return new Fuse([], {
     // Define searchable fields with weights to prioritize more important matches
     keys: [

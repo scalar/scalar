@@ -1,6 +1,6 @@
 import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import type { FuseResult } from 'fuse.js'
-import { type MaybeRefOrGetter, computed, ref, toValue } from 'vue'
+import { type MaybeRefOrGetter, computed, ref, shallowRef, toValue, watch } from 'vue'
 
 import { createFuseInstance } from '../helpers/create-fuse-instance'
 import { createSearchIndex } from '../helpers/create-search-index'
@@ -11,17 +11,36 @@ const MAX_SEARCH_RESULTS = 25
 /**
  * Creates the search index from an OpenAPI document.
  */
-export function useSearchIndex(document: MaybeRefOrGetter<OpenApiDocument | undefined>) {
-  /** When the document changes we replace the search index */
-  const fuse = computed(() => {
-    const instance = createFuseInstance()
-    instance.setCollection(createSearchIndex(toValue(document)))
-    return instance
-  })
+export function useSearchIndex(
+  document: MaybeRefOrGetter<OpenApiDocument | undefined>,
+  enabled: MaybeRefOrGetter<boolean> = true,
+) {
+  const fuse = shallowRef<ReturnType<typeof createFuseInstance> | null>(null)
+
+  watch(
+    [() => toValue(document), () => toValue(enabled)],
+    async ([nextDocument, isEnabled]) => {
+      if (!isEnabled) {
+        return
+      }
+
+      if (!fuse.value) {
+        const { default: Fuse } = await import('fuse.js')
+        fuse.value = createFuseInstance(Fuse)
+      }
+
+      fuse.value.setCollection(createSearchIndex(nextDocument))
+    },
+    { immediate: true },
+  )
 
   const query = ref<string>('')
 
   const results = computed(() => {
+    if (!fuse.value) {
+      return []
+    }
+
     if (query.value.length !== 0) {
       return fuse.value.search(query.value, {
         limit: MAX_SEARCH_RESULTS,

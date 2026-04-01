@@ -27,7 +27,10 @@ const listboxId = `${id}-search-result`
 /** An id for the results instructions */
 const instructionsId = `${id}-search-instructions`
 
-const { query, results } = useSearchIndex(() => props.document)
+const { query, results } = useSearchIndex(
+  () => props.document,
+  () => props.modalState.open,
+)
 
 const selectedIndex = ref<number | undefined>(undefined)
 
