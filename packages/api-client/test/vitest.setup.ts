@@ -2,12 +2,15 @@ import { afterEach, beforeEach, expect, vi } from 'vitest'
 import { reactive, ref } from 'vue'
 
 import { useLayout } from '@/hooks/useLayout'
-import { useSidebar } from '@/hooks/useSidebar'
+import { createSidebarState, useSidebar } from '@/hooks/useSidebar'
 
-// Mock the useLayout hook
-vi.mock('@/hooks/useLayout', () => ({
-  useLayout: vi.fn(),
-}))
+// Mock the useLayout hook.
+vi.mock('@/hooks/useLayout', () => {
+  return {
+    LAYOUT_SYMBOL: Symbol('layout'),
+    useLayout: vi.fn(),
+  }
+})
 
 vi.mock('monaco-editor', () => ({
   editor: {
@@ -31,11 +34,19 @@ vi.mock('@/v2/features/editor', () => ({
   useJsonPointerLinkSupport: vi.fn(),
 }))
 
-// Mock the useSidebar hook
-vi.mock('@/hooks/useSidebar', () => ({
-  useSidebar: vi.fn(),
-}))
+// Mock the useSidebar hook and expose helper exports used by app creation.
+vi.mock('@/hooks/useSidebar', () => {
+  return {
+    SIDEBAR_SYMBOL: Symbol('sidebar'),
+    createSidebarState: vi.fn(({ layout }: { layout: 'modal' | 'web' | 'desktop' }) => ({
+      collapsedSidebarFolders: reactive({}),
+      isSidebarOpen: ref(layout !== 'modal'),
+    })),
+    useSidebar: vi.fn(),
+  }
+})
 export const mockUseSidebar = useSidebar
+export const mockCreateSidebarState = createSidebarState
 
 /** Spy on console.warn */
 export const consoleWarnSpy = vi.spyOn(console, 'warn')

@@ -3,6 +3,9 @@ import { inject } from 'vue'
 
 import { createSidebarState, useSidebar } from './useSidebar'
 
+// This suite validates the real hook implementation; opt out of global setup mock.
+vi.unmock('@/hooks/useSidebar')
+
 // Mock the useBreakpoints hook
 vi.mock('@scalar/use-hooks/useBreakpoints', () => ({
   useBreakpoints: vi.fn(),
