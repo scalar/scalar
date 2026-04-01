@@ -1,5 +1,5 @@
 import type { ResponseInstance } from '@scalar/oas-utils/entities/spec'
-import { prettyBytes } from '@scalar/helpers/general/pretty-bytes'
+import { prettyBytes } from '@scalar/helpers/string/pretty-bytes'
 
 /** Extract content length from headers */
 export const getContentLength = (response: ResponseInstance) => {
