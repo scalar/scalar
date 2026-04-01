@@ -24,11 +24,7 @@ function convertToPythonSyntax(str: string): string {
   return result
 }
 
-const addFormValue = (
-  data: Record<string, string | string[]>,
-  name: string,
-  value: string,
-): void => {
+const addFormValue = (data: Record<string, string | string[]>, name: string, value: string): void => {
   const existing = data[name]
 
   if (existing === undefined) {
