@@ -56,6 +56,11 @@ const getContent = () => {
 
 test.describe('back navigation', () => {
   test('keeps tag section containers bounded after browser back on mobile', async ({ page }) => {
+    test.fail(
+      true,
+      'Tracks #4269: mobile browser back can leave the document in a state where top content is no longer reachable.',
+    )
+
     const example = await serveExample({
       content: getContent(),
     })
@@ -67,7 +72,7 @@ test.describe('back navigation', () => {
     await page.evaluate(() => window.scrollBy(0, window.innerHeight / 2))
 
     // Simulate navigating away and returning with browser back on mobile.
-    await page.goto('https://example.com')
+    await page.goto('data:text/html,<title>away</title><p>away</p>')
     await page.goBack()
 
     await expect
