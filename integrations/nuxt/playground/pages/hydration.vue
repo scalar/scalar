@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ApiReference } from '@scalar/api-reference'
+
 import '@scalar/api-reference/style.css'
 
 const apiSpec = {
@@ -23,9 +24,7 @@ const apiSpec = {
 }
 
 const configuration = {
-  spec: {
-    content: apiSpec,
-  },
+  content: apiSpec,
 }
 </script>
 

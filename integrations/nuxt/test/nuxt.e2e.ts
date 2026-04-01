@@ -31,9 +31,7 @@ test('renders @scalar/api-reference in a Nuxt page without hydration warnings', 
   expect(reloadResponse?.status()).toBe(200)
   await expect(page.getByRole('heading', { name: '500' })).toHaveCount(0)
 
-  const hydrationWarnings = consoleWarnings.filter((message) =>
-    /hydration|mismatch/i.test(message),
-  )
+  const hydrationWarnings = consoleWarnings.filter((message) => /hydration|mismatch/i.test(message))
 
   expect(hydrationWarnings).toStrictEqual([])
   expect(pageErrors).toStrictEqual([])
