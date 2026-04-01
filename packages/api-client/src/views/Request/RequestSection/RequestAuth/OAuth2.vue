@@ -73,9 +73,14 @@ const defaultRedirectUri = computed<string>(() => {
 })
 
 watch(
-  () => ('x-scalar-redirect-uri' in flow ? flow['x-scalar-redirect-uri'] : undefined),
+  () =>
+    'x-scalar-redirect-uri' in flow ? flow['x-scalar-redirect-uri'] : undefined,
   (currentRedirectUri) => {
-    if (!('x-scalar-redirect-uri' in flow) || hasPrefilledRedirectUri.value || currentRedirectUri) {
+    if (
+      !('x-scalar-redirect-uri' in flow) ||
+      hasPrefilledRedirectUri.value ||
+      currentRedirectUri
+    ) {
       return
     }
 
@@ -84,7 +89,10 @@ watch(
     }
 
     hasPrefilledRedirectUri.value = true
-    updateScheme(`flows.${flow.type}.x-scalar-redirect-uri`, defaultRedirectUri.value)
+    updateScheme(
+      `flows.${flow.type}.x-scalar-redirect-uri`,
+      defaultRedirectUri.value,
+    )
   },
   { immediate: true },
 )
