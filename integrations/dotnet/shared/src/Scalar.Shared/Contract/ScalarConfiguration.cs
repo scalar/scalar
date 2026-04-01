@@ -92,6 +92,8 @@ internal sealed class ScalarConfiguration
     public required DeveloperToolsVisibility? ShowDeveloperTools { get; init; }
 
     public required ScalarAgentOptions? Agent { get; init; }
+
+    public required ScalarMcpOptions? Mcp { get; init; }
 }
 
 [JsonSerializable(typeof(ScalarConfiguration))]

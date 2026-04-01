@@ -239,4 +239,12 @@ public partial class ScalarOptions
     /// Agent Scalar (AI chat) options. Use to set a default key or disable Agent Scalar globally.
     /// </summary>
     public ScalarAgentOptions? Agent { get; set; }
+
+    /// <summary>
+    /// Model Context Protocol (MCP) options.
+    /// </summary>
+    /// <remarks>
+    /// Configure MCP integration metadata and control whether MCP is disabled.
+    /// </remarks>
+    public ScalarMcpOptions? Mcp { get; set; }
 }
