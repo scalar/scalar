@@ -1,4 +1,8 @@
-const UNITS = ['B', 'kB', 'MB', 'GB'] as const
+const UNITS = ['B', 'kB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'] as const
+
+const formatSignificantDigits = (value: number): string => {
+  return Number(value.toPrecision(3)).toString()
+}
 
 /**
  * Format a byte count as a human-readable decimal value.
@@ -8,15 +12,8 @@ export const prettyBytes = (value: number): string => {
     return '0 B'
   }
 
-  let normalizedValue = value
-  let unitIndex = 0
+  const unitIndex = value < 1 ? 0 : Math.min(Math.floor(Math.log10(value) / 3), UNITS.length - 1)
+  const normalizedValue = value / 1000 ** unitIndex
 
-  while (normalizedValue >= 1000 && unitIndex < UNITS.length - 1) {
-    normalizedValue /= 1000
-    unitIndex++
-  }
-
-  const fractionDigits = unitIndex === 0 ? 0 : 1
-
-  return `${normalizedValue.toFixed(fractionDigits)} ${UNITS[unitIndex]}`
+  return `${formatSignificantDigits(normalizedValue)} ${UNITS[unitIndex]}`
 }
