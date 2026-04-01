@@ -105,6 +105,59 @@ fix(api-client): crashes when API returns null
 type (feat, fix, docs, style, refactor, perf, test, build, ci, chore, revert)
 ```
 
+### Ticket and issue linking
+
+When a **Linear ticket** ID (e.g. `DOC-5102`, `ENG-123`) or a **GitHub issue** number/URL is provided in the prompt, instructions, or a related Slack thread, you **must** link it in the PR so that project-management integrations can track progress automatically.
+
+#### Linear tickets
+
+Include the Linear issue ID in the **PR branch name** or **PR description** using a magic word. Linear's GitHub integration detects these and links the PR to the issue. Do **not** put the issue ID in the PR title — titles must follow the conventional commit format (e.g. `feat(api-reference): add my new feature`).
+
+**Closing magic words** (move the issue to Done when the PR merges):
+`close`, `closes`, `closed`, `fix`, `fixes`, `fixed`, `resolve`, `resolves`, `resolved`
+
+**Non-closing magic words** (link without auto-closing):
+`ref`, `refs`, `references`, `part of`, `related to`, `contributes to`, `toward`, `towards`
+
+Examples (in the PR description):
+
+```
+Fixes DOC-5102
+Part of ENG-123
+Resolves DOC-5102, ENG-456
+```
+
+You can also use the full Linear URL: `Fixes https://linear.app/scalar/issue/DOC-5102/title`.
+
+To link multiple issues, list them after the magic word separated by commas: `Fixes ENG-123, DES-5, ENG-256`.
+
+#### GitHub issues
+
+Use GitHub's closing keywords in the PR description to link and auto-close GitHub issues when the PR merges:
+
+`close`, `closes`, `closed`, `fix`, `fixes`, `fixed`, `resolve`, `resolves`, `resolved`
+
+| Scenario | Syntax | Example |
+|----------|--------|---------|
+| Same repository | `KEYWORD #ISSUE` | `Closes #42` |
+| Different repository | `KEYWORD OWNER/REPO#ISSUE` | `Fixes scalar/scalar#100` |
+| Multiple issues | Repeat full syntax | `Resolves #10, resolves #42` |
+
+#### Where to place the link
+
+Add a `## Ticket` section at the bottom of the PR description:
+
+```markdown
+## Ticket
+
+Fixes DOC-5102
+Closes #42
+```
+
+If both a Linear ticket and a GitHub issue are provided, include both.
+
+> **Tip:** Magic words must appear in the PR description (not in PR comments) for Linear to detect them. For GitHub issues, keywords work in both the PR description and commit messages.
+
 ### Changesets
 
 If your PR will cause a version bump for any package, add a changeset:
