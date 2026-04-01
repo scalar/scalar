@@ -162,7 +162,7 @@ If both a Linear ticket and a GitHub issue are provided, include both.
 
 ### Changesets
 
-For code changes in `packages/*`, a changeset is required. Use `patch` or `minor` version bumps based on impact; do not use `major`.
+For code changes in `packages/*` and `integrations/*`, a changeset is required. Use `patch` or `minor` version bumps based on impact; do not use `major`.
 
 Before opening or updating a PR, run `pnpm changeset status` to verify changesets and catch missing or invalid changeset entries.
 
