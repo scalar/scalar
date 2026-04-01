@@ -31,9 +31,12 @@ const collectionMutators = {
   edit: vi.fn(),
 }
 
-// Mock useWorkspace
-vi.mock('@/store/store', () => ({
-  useWorkspace: () => ({
+// Mock useWorkspace while preserving other store exports.
+vi.mock('@/store/store', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@/store/store')>()
+  return {
+    ...actual,
+    useWorkspace: () => ({
     securitySchemes: {
       'bearer-auth': {
         uid: 'bearer-auth',
@@ -121,8 +124,9 @@ vi.mock('@/store/store', () => ({
     collectionMutators,
     requestMutators,
     securitySchemeMutators,
-  }),
-}))
+    }),
+  }
+})
 
 describe('RequestAuth.vue', () => {
   beforeEach(() => {
