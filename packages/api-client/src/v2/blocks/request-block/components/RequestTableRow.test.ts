@@ -444,9 +444,7 @@ describe('RequestTableRow', () => {
     const fileDeleteButton = deleteButtons.find((btn) => btn.text() === 'Delete')
 
     expect(fileDeleteButton?.attributes('class')).toContain('block')
-    expect(fileDeleteButton?.attributes('class')).toContain(
-      'md:group-hover/upload:opacity-100',
-    )
+    expect(fileDeleteButton?.attributes('class')).toContain('md:group-hover/upload:opacity-100')
   })
 
   it('does not show upload button when showUploadButton is false', () => {

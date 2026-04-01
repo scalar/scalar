@@ -194,7 +194,7 @@ const showDeleteButton = (item: RequestExampleParameter) => {
             <span>{{ item.file?.name }}</span>
           </div>
           <button
-            class="bg-b-2 static rounded p-0.5 text-center text-xs font-medium md:centered-x md:centered-y md:absolute md:w-[calc(100%_-_8px)] md:opacity-0 md:group-hover/upload:opacity-100"
+            class="bg-b-2 md:centered-x md:centered-y static rounded p-0.5 text-center text-xs font-medium md:absolute md:w-[calc(100%_-_8px)] md:opacity-0 md:group-hover/upload:opacity-100"
             type="button"
             @click="emit('removeFile', idx)">
             Delete
