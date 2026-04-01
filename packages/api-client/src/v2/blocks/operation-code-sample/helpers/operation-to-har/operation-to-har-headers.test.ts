@@ -180,6 +180,8 @@ describe('operation-to-har-headers', () => {
         type: 'http',
         scheme: 'bearer',
         'x-scalar-secret-token': 'test-token',
+        'x-scalar-secret-username': '',
+        'x-scalar-secret-password': '',
       },
     ]
 
@@ -351,6 +353,9 @@ describe('operation-to-har-headers', () => {
 
     const snippet = generateCodeSnippet({
       clientId: 'shell/curl',
+      customCodeSamples: [],
+      contentType: undefined,
+      example: undefined,
       operation,
       method: 'get',
       path: '/blueprints/{id}',
@@ -415,6 +420,9 @@ describe('operation-to-har-headers', () => {
 
     const snippet = generateCodeSnippet({
       clientId: 'shell/curl',
+      customCodeSamples: [],
+      contentType: undefined,
+      example: undefined,
       operation,
       method: 'get',
       path: '/blueprints/{id}',
@@ -477,6 +485,8 @@ describe('operation-to-har-headers', () => {
 
     const snippet = generateCodeSnippet({
       clientId: 'shell/curl',
+      customCodeSamples: [],
+      contentType: undefined,
       operation,
       method: 'get',
       path: '/blueprints/{id}',
@@ -525,6 +535,9 @@ describe('operation-to-har-headers', () => {
 
     const snippet = generateCodeSnippet({
       clientId: 'shell/curl',
+      customCodeSamples: [],
+      contentType: undefined,
+      example: undefined,
       operation,
       method: 'get',
       path: '/blueprints/{id}',
@@ -570,6 +583,9 @@ describe('operation-to-har-headers', () => {
 
     const snippet = generateCodeSnippet({
       clientId: 'shell/curl',
+      customCodeSamples: [],
+      contentType: undefined,
+      example: undefined,
       operation,
       method: 'get',
       path: '/blueprints/{id}',
@@ -638,6 +654,9 @@ describe('operation-to-har-headers', () => {
 
     const snippet = generateCodeSnippet({
       clientId: 'shell/curl',
+      customCodeSamples: [],
+      contentType: undefined,
+      example: undefined,
       operation,
       method: 'get',
       path: '/blueprints/{id}',
@@ -689,6 +708,9 @@ describe('operation-to-har-headers', () => {
 
     const snippet = generateCodeSnippet({
       clientId: 'shell/curl',
+      customCodeSamples: [],
+      contentType: undefined,
+      example: undefined,
       operation,
       method: 'get',
       path: '/test',

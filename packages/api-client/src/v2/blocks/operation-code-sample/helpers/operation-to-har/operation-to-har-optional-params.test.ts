@@ -250,6 +250,9 @@ describe('operation-to-har-optional-params', () => {
 
     const snippet = generateCodeSnippet({
       clientId: 'shell/curl',
+      customCodeSamples: [],
+      contentType: undefined,
+      example: undefined,
       operation,
       method: 'get',
       path: '/users',
