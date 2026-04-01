@@ -231,7 +231,7 @@ Be aware rules with custom functions wont work, so just comment those out.
 
 Once you're happy with your new API documentation, it's time to bring the API client developers along too. Those of you with a custom domain pointing to Stoplight (something like `developers.acme.com`) can update the CNAME to point to Scalar.
 
-First off, [add the custom domain](../guides/docs/configuration/domains.md) to your Scalar config.
+First off, [add the custom domain](../../products/docs/configuration/domains.md) to your Scalar config.
 
 ```json
 // scalar.config.json
@@ -267,7 +267,7 @@ If you were using a custom domain with Stoplight hosted documentation then the p
 }
 ```
 
-Learn more about [redirects](../guides/docs/configuration/redirects.md).
+Learn more about [redirects](../../products/docs/configuration/redirects.md).
 
 ## Summary
 

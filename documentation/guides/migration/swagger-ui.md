@@ -142,7 +142,7 @@ Here's how common Swagger UI options map to Scalar:
 
 ### Integrations
 
-You can use one of our [many integrations](../guides/api-references/getting-started.md) for basically any programming language and framework.
+You can use one of our [many integrations](../../products/api-references/getting-started.md) for basically any programming language and framework.
 
 ## Theme and Styling
 

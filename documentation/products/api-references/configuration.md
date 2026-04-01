@@ -4,7 +4,7 @@ You can pass a - what we call universal - configuration object to fine-tune your
 
 > **Note:** This page covers the runtime configuration object for the API Reference used to control how Scalar displays your API docs.
 >
-> This is NOT the `scalar.config.json` (used for the [Docs](guides/docs/configuration/scalar.config.json.md)).
+> This is NOT the `scalar.config.json` (used for the [Docs](../docs/configuration/scalar.config.json.md)).
 
 
 ## Universal Configuration
@@ -218,10 +218,10 @@ Agent adds an AI chat interface to your API reference. Users can ask questions a
 
 - Enabled by default on `http://localhost` for testing (10 free messages)
 - Won’t appear in production unless a key is provided
-- Requires an [Agent key](guides/agent/key.md) for production deployments
+- Requires an [Agent key](../agent/key.md) for production deployments
 - Your OpenAPI document is uploaded on first message
 
-Related: [How to get an Agent key](guides/agent/key.md)
+Related: [How to get an Agent key](../agent/key.md)
 
 ```js
 Scalar.createApiReference('#app', {
@@ -808,7 +808,7 @@ You can pass information to the config object to configure meta information out 
 
 MCP (Model Context Protocol) configuration. When provided, enables MCP integration so users can connect their API reference to MCP-compatible tools. Omit this option to leave MCP disabled.
 
-Related: [MCP guide](guides/agent/mcp.md)
+Related: [MCP guide](../agent/mcp.md)
 
 - **name** — Display name for the MCP server.
 - **url** — URL of the MCP server.

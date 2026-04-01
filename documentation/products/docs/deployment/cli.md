@@ -11,7 +11,7 @@ Publish your Docs project using the Scalar CLI. The CLI uploads your project con
 
 ## Installation
 
-Install the [Scalar CLI](../../cli/getting-started.md) globally or use it via npx:
+Install the [Scalar CLI](../../../tools/cli/getting-started.md) globally or use it via npx:
 
 ```bash
 npm install -g @scalar/cli

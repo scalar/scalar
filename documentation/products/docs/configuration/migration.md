@@ -9,7 +9,7 @@ Migrate your scalar.config.json with: `npx @scalar/cli project upgrade`
 ## New Features in Docs 2.0
 
 * MDX support with custom components
-* `[relative Markdown paths](../your-other-file.md)`
+* `[relative Markdown paths](../getting-started.md)`
 * Per-operation page rendering for API references (huge performance boost for large OpenAPI documents)
 * Configurable navigation structures: nested, grouped, or flattened
 * Full `<head>` customization (meta tags, scripts, stylesheets)

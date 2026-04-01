@@ -28,7 +28,7 @@ Scalar offers a more accessible entry point with a free tier and simpler pricing
 - Scalar has a free tier for getting started that doesn't depend on API traffic
 - For teams focused on documentation, Scalar provides predictable and often lower costs
 
-For detailed pricing information, visit [Scalar Pricing](../guides/pricing.md) and [Zuplo Pricing](https://zuplo.com/pricing).
+For detailed pricing information, visit [Scalar Pricing](../../pricing.md) and [Zuplo Pricing](https://zuplo.com/pricing).
 
 ## Feature Comparison
 
@@ -83,7 +83,7 @@ Generate type-safe client libraries from your OpenAPI documents. Scalar supports
 | Swift      | Available |
 | C#         | Available |
 
-SDKs sync with your API documentation, so whenever you update your OpenAPI document, your SDKs stay up to date. Learn more in our [SDK documentation](../guides/sdks/getting-started.md).
+SDKs sync with your API documentation, so whenever you update your OpenAPI document, your SDKs stay up to date. Learn more in our [SDK documentation](../../products/sdks/getting-started.md).
 
 ### Framework Integrations
 
@@ -121,7 +121,7 @@ Spin up a fully-functional mock server from your OpenAPI document. The mock serv
 npx @scalar/cli document mock openapi.json --watch
 ```
 
-Alternatively, run it in a Docker container or integrate it directly into your Node.js application. Learn more in the [Mock Server documentation](../guides/mock-server/getting-started.md).
+Alternatively, run it in a Docker container or integrate it directly into your Node.js application. Learn more in the [Mock Server documentation](../../products/mock-server/getting-started.md).
 
 ## Migrate from Zuplo to Scalar
 
@@ -266,7 +266,7 @@ If you're using a custom domain with Zuplo (e.g., `developers.example.com`), you
 2. Update your DNS CNAME record to point to `dns.scalar.com`
 3. Wait a few minutes for DNS propagation
 
-Learn more about [custom domains](../guides/docs/configuration/domains.md).
+Learn more about [custom domains](../../products/docs/configuration/domains.md).
 
 ### Step 8: (Optional) Set Up Redirects
 
@@ -285,7 +285,7 @@ If you had traffic going to your Zuplo developer portal, you might want to set u
 }
 ```
 
-**Learn more about [redirects](../guides/docs/configuration/redirects.md).**
+**Learn more about [redirects](../../products/docs/configuration/redirects.md).**
 
 ## Using Zuplo Gateway with Scalar Documentation
 

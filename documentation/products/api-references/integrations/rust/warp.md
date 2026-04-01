@@ -40,7 +40,7 @@ async fn main() {
 
 ### Agent
 
-To enable [Agent](rust.md#agent) (AI chat) in production, add an API key to your configuration. To disable it, set `"agent": { "disabled": true }`. See the [Rust integration configuration](rust.md#agent) for details.
+To enable [Agent](index.md#agent) (AI chat) in production, add an API key to your configuration. To disable it, set `"agent": { "disabled": true }`. See the [Rust integration configuration](index.md#agent) for details.
 
 ```rust
 let configuration = json!({

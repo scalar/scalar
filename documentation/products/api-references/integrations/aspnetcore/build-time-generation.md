@@ -3,7 +3,7 @@
 This guide shows you how to generate OpenAPI documents during the build process for your ASP.NET Core application. Build-time generation is useful for:
 
 - Creating OpenAPI documents that are committed to source control
-- Publishing OpenAPI documents to the [Registry](../../guides/registry/getting-started.md)
+- Publishing OpenAPI documents to the [Registry](../../../registry/getting-started.md)
 
 ## Microsoft.AspNetCore.OpenApi
 
@@ -168,4 +168,4 @@ publish_to_scalar:
     - validate_openapi
 ```
 
-[Read more about publishing to the Registry.](../../guides/registry/getting-started.md).
+[Read more about publishing to the Registry.](../../../registry/getting-started.md).

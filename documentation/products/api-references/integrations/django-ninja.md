@@ -155,7 +155,7 @@ Agent adds an AI chat interface to your API reference. Users can ask questions a
 
 - Enabled by default on `http://localhost` for testing (10 free messages)
 - Does not appear in production unless a key is provided
-- Requires an [Agent key](../guides/agent/key.md) for production deployments
+- Requires an [Agent key](../../agent/key.md) for production deployments
 - Your OpenAPI document is uploaded on first message
 
 To enable Agent in production, pass your key. With a single document (no sources):

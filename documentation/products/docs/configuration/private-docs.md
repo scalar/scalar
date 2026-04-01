@@ -1,6 +1,6 @@
 # Private Docs
 
-This guide will help you start using our Access Groups to manage user access across your private guides and docs in our dashboard on scalar.com, which can be done alongside our [CLI](../../cli/getting-started.md).
+This guide will help you start using our Access Groups to manage user access across your private guides and docs in our dashboard on scalar.com, which can be done alongside our [CLI](../../../tools/cli/getting-started.md).
 
 Make sure you have created a Scalar Account & are logged in ([see create account guide](../../registry/getting-started.md#create-your-scalar-account))
 

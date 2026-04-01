@@ -244,7 +244,7 @@ Agent adds an AI chat interface to your API reference. Users can ask questions a
 
 - Enabled by default on `http://localhost` for testing (with limited free messages).
 - In production, the agent does not appear unless you provide a key.
-- To use Agent in production, configure an [Agent key](../guides/agent/key.md).
+- To use Agent in production, configure an [Agent key](../../agent/key.md).
 
 **Single-URL mode** (when using `scalar.url` without `sources`):
 
@@ -293,7 +293,7 @@ scalar.sources[0].agent.key=put-your-agent-scalar-key-here
 scalar.sources[1].agent.disabled=true
 ```
 
-Related: [How to get an Agent key](../guides/agent/key.md).
+Related: [How to get an Agent key](../../agent/key.md).
 
 ### Authentication
 

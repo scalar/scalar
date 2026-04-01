@@ -21,7 +21,7 @@ Your documentation will be available at `https://your-docs.apidocumentation.com`
 
 ## Custom Domain
 
-The `customDomain` property allows you to use your own domain name. This feature requires [Scalar Pro](../../pricing.md). HTTPS is enabled automatically.
+The `customDomain` property allows you to use your own domain name. This feature requires [Scalar Pro](../../../pricing.md). HTTPS is enabled automatically.
 
 ```json
 // scalar.config.json
@@ -63,4 +63,4 @@ The first project that publishes with a custom domain and has the CNAME pointing
 | Property       | Type     | Required | Description                                                  |
 | -------------- | -------- | -------- | ------------------------------------------------------------ |
 | `subdomain`    | `string` | No       | Subdomain for `*.apidocumentation.com`                       |
-| `customDomain` | `string` | No       | Custom domain name (requires [Scalar Pro](../../pricing.md)) |
+| `customDomain` | `string` | No       | Custom domain name (requires [Scalar Pro](../../../pricing.md)) |

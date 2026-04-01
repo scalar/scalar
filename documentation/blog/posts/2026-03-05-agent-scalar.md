@@ -7,7 +7,7 @@ Make your AI Agents talk to APIs is easy and fun. It's just that bigger APIs are
 
 That's something MCP helps with. You just wrap your API as MCP tools, and you're good to go. That's what we thought. Actually, the repeated schemas come with a cost (tokens), too.
 
-I'm glad to say, we found something better. It's called [Agent](../guides/agent/getting-started.md) and our newest product, tightly integrated with our set of tools for your API. And here is why it might be better than your average MCP server:
+I'm glad to say, we found something better. It's called [Agent](../../products/agent/getting-started.md) and our newest product, tightly integrated with our set of tools for your API. And here is why it might be better than your average MCP server:
 
 Agent keeps the tool surface fixed and super small. It fetches just-in-time details. The result is smaller context, fewer steps, and better routing. And happy agents. :-)
 

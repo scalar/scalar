@@ -86,7 +86,7 @@ Generate type-safe client libraries from your OpenAPI documents. Scalar supports
 | Swift      | Available |
 | C#         | Available |
 
-SDKs sync with your API documentation, so whenever you update your OpenAPI document, your SDKs stay up to date. Learn more in our [SDK documentation](../guides/sdks/getting-started.md).
+SDKs sync with your API documentation, so whenever you update your OpenAPI document, your SDKs stay up to date. Learn more in our [SDK documentation](../../products/sdks/getting-started.md).
 
 ### Spectral linting
 
@@ -100,7 +100,7 @@ Spin up a fully-functional mock server from your OpenAPI document. The mock serv
 npx @scalar/cli document mock openapi.json --watch
 ```
 
-Alternatively, run it in a Docker container or integrate it directly into your Node.js application. Learn more in the [Mock Server documentation](../guides/mock-server/getting-started.md).
+Alternatively, run it in a Docker container or integrate it directly into your Node.js application. Learn more in the [Mock Server documentation](../../products/mock-server/getting-started.md).
 
 ## Migrate from Bump.sh to Scalar
 

@@ -110,7 +110,7 @@
 Include interactive API references, for a single API or for hundreds of APIs. All based on the OpenAPI standard. And the best part: Your documentation stays in sync with your actual API.
 
 > [!TIP]
-> Just need an API Reference and that's all? Use the [API Reference](../../guides/api-references/getting-started.md). It is open-source, free, and has integrations for all REST API frameworks.
+> Just need an API Reference and that's all? Use the [API Reference](../api-references/getting-started.md). It is open-source, free, and has integrations for all REST API frameworks.
 
 ## Write anywhere
 
@@ -131,7 +131,7 @@ Put your content where you want: in your repository, any folder, or the Scalar E
 | SSO/SAML, RBAC, priority support, dedicated Slack/Teams                                          |      |     | ✓          |
 
 
-[See the full comparison](../pricing.md) for Docs and the other Scalar products.
+[See the full comparison](../../pricing.md) for Docs and the other Scalar products.
 
 <div class="feature">
   <div class="cta flex flex-col gap-3 small-test">

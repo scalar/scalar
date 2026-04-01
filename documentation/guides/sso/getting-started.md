@@ -24,7 +24,7 @@ The setup process does not require complex configuration. You will be able to en
 
 ## Requirements
 
-* SSO/SAML requires a Scalar Enterprise subscription. Read more about [our pricing](../pricing.md).
+* SSO/SAML requires a Scalar Enterprise subscription. Read more about [our pricing](../../pricing.md).
 * You are the owner or admin of your Scalar team.
 
 ## 1. Create a SAML Application in Your Identity Provider

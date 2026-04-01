@@ -319,7 +319,7 @@ Fetch an OpenAPI document from a remote URL. The document is fetched on each pag
 
 ### API Reference configuration
 
-When you add an OpenAPI route (`type: "openapi"`) in your navigation, you can pass API Reference options by adding a `config` object. The same options supported by the [API Reference configuration](../../../configuration.md) (e.g. `authentication`, `theme`) can be used here.
+When you add an OpenAPI route (`type: "openapi"`) in your navigation, you can pass API Reference options by adding a `config` object. The same options supported by the [API Reference configuration](../../api-references/configuration.md) (e.g. `authentication`, `theme`) can be used here.
 
 Example:
 
@@ -345,7 +345,7 @@ Example:
 }
 ```
 
-For all available options, see [Configuration](../../../configuration.md).
+For all available options, see [Configuration](../../api-references/configuration.md).
 
 ## Groups
 

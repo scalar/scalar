@@ -112,14 +112,14 @@ The configuration object supports all standard Scalar options. Common options in
 
 * `url`: Path to your OpenAPI document
 * `layout`: Layout style ("classic" or "modern")
-* `theme`: [Theme name (e.g., "purple", "blue", "green")](../themes.md)
+* `theme`: [Theme name (e.g., "purple", "blue", "green")](../../themes.md)
 * `darkMode`: Enable dark mode
 
-See the documentation for [the complete configuration reference](../configuration.md).
+See the documentation for [the complete configuration reference](../../configuration.md).
 
 ### Agent
 
-Agent adds an AI chat interface to your API reference. It is enabled by default on localhost with a limited free tier (10 messages). For production, you need an [Agent key](../guides/agent/key.md).
+Agent adds an AI chat interface to your API reference. It is enabled by default on localhost with a limited free tier (10 messages). For production, you need an [Agent key](../../../agent/key.md).
 
 To set an Agent API key (top-level):
 
@@ -187,5 +187,5 @@ let sources = vec![
 let config = json!({ "sources": serde_json::to_value(&sources).unwrap() });
 ```
 
-For more details, see [Agent](../configuration.md#agent) and [How to get an Agent key](../guides/agent/key.md).
+For more details, see [Agent](../../configuration.md#agent) and [How to get an Agent key](../../../agent/key.md).
 

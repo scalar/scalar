@@ -238,7 +238,7 @@ You can also specify a document name directly in the URL path (e.g., `/scalar/v1
 
 ### Agent
 
-Agent adds an AI chat interface to your API reference. It is enabled by default on localhost with a limited free tier (10 messages). For production, you need an [Agent key](../../guides/agent/key.md).
+Agent adds an AI chat interface to your API reference. It is enabled by default on localhost with a limited free tier (10 messages). For production, you need an [Agent key](../../../agent/key.md).
 
 To set an Agent key globally:
 
@@ -261,7 +261,7 @@ app.MapScalarApiReference(options => options
     .AddDocument("v2", "API v2"));
 ```
 
-For more details, see [Agent](../../configuration.md#agent) and [How to get an Agent key](../../guides/agent/key.md).
+For more details, see [Agent](../../configuration.md#agent) and [How to get an Agent key](../../../agent/key.md).
 
 ### Authentication
 

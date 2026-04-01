@@ -2,7 +2,7 @@
 This guide will help you interact with our registry with our CLI, programmatically. If you want to also work with the registry with our dashboard you can.
 
 ### Generate Token
-If you choose to interface with our registry with our [CLI](../cli/commands.md#registry) or our API you will need to generate an API key.
+If you choose to interface with our registry with our [CLI](../../tools/cli/commands.md#registry) or our API you will need to generate an API key.
 
 Go to https://dashboard.scalar.com and navigate to User > API Keys:
 

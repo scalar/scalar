@@ -14,7 +14,7 @@ This is perfect for testing and exploring the feature before committing to produ
 
 ## Production Pricing
 
-For production deployments, Agent requires a [Scalar Pro](../pricing.md) subscription. Pricing depends on how you use Agent:
+For production deployments, Agent requires a [Scalar Pro](../../pricing.md) subscription. Pricing depends on how you use Agent:
 
 ### Keys
 

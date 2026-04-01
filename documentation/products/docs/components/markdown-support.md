@@ -64,7 +64,7 @@ We support all standard Markdown features (actually, we're using GitHub-flavored
 
 ```markdown
 [Absolute URLs](https://example.com)
-[Relative link](../another-markdown-file.md)
+[Relative link](../getting-started.md)
 ![Image](https://example.com/image.png)
 ```
 

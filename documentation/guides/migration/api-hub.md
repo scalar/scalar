@@ -9,7 +9,7 @@ Scalar includes many of the same features as API Hub including:
 3. Custom domains, theming, and logos.
 4. A built-in, local-first API client to help developers and end users call endpoints and test  APIs.
 
-Beyond having a simpler name, Scalar is also [free to get started with](../guides/pricing.md), and our Pro plan starts at $72/mo (3-seat min). If you want custom domains, GitHub sync, and a few other features, check out the Pro plan.
+Beyond having a simpler name, Scalar is also [free to get started with](../../pricing.md), and our Pro plan starts at $72/mo (3-seat min). If you want custom domains, GitHub sync, and a few other features, check out the Pro plan.
 
 As a bonus, Scalar is also open source, meaning you can self-host it and view all of its code on [GitHub](https://github.com/scalar/scalar).
 
@@ -85,7 +85,7 @@ Configure automatic deployment (publish when a branch is merged into your main b
 
 ## How to migrate from API Hub Explore to Scalar
 
-Scalar's API client is a direct replacement for API Hub Explore. Both you and your end users can get a version of it by clicking **Test Request** in the API reference or by going to the [API client page](https://client.scalar.com/). You can also [download a desktop version](../guides/app/getting-started.md).
+Scalar's API client is a direct replacement for API Hub Explore. Both you and your end users can get a version of it by clicking **Test Request** in the API reference or by going to the [API client page](https://client.scalar.com/). You can also [download a desktop version](../../products/api-client/getting-started.md).
 
 Just like API Hub Explore, you can import existing API docs into the API client to get all the endpoints set up for testing. Once you have these, you can modify and send requests, add new routes, and much more to help explore and debug APIs.
 
@@ -93,4 +93,4 @@ Just like API Hub Explore, you can import existing API docs into the API client 
 
 ## Link APIs from Design
 
-The [Registry](../guides/registry/getting-started.md) matches the API Hub Explore's “Link APIs from Design” feature.
+The [Registry](../../products/registry/getting-started.md) matches the API Hub Explore's “Link APIs from Design” feature.

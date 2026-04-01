@@ -1,6 +1,6 @@
 # Rules
 
-Use Rules to lint and verify your OpenAPI documents with Spectral-compatible rulesets. Scalar rules can be used across hosted APIs and schemas, and can be managed alongside our [CLI](../cli/getting-started.md).
+Use Rules to lint and verify your OpenAPI documents with Spectral-compatible rulesets. Scalar rules can be used across hosted APIs and schemas, and can be managed alongside our [CLI](../../tools/cli/getting-started.md).
 
 Make sure you have created a Scalar Account and are logged in ([see create account guide](getting-started.md#create-your-scalar-account))
 

@@ -19,7 +19,7 @@ A powerful Node.js mock server that automatically generates realistic API respon
 
 ## Quickstart
 
-The easiest way to get started is through [our Scalar CLI](../cli/getting-started.md).
+The easiest way to get started is through [our Scalar CLI](../../tools/cli/getting-started.md).
 You can have a mock server up and running in seconds:
 
 ```bash

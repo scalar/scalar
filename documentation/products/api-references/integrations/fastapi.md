@@ -78,7 +78,7 @@ async def scalar_html():
 
 ### Agent
 
-Agent adds an AI chat interface to your API reference. It is enabled by default on localhost (with limited free messages). For production you need an [Agent key](../guides/agent/key.md). See the [Agent configuration section](../configuration.md#agent) for details.
+Agent adds an AI chat interface to your API reference. It is enabled by default on localhost (with limited free messages). For production you need an [Agent key](../../agent/key.md). See the [Agent configuration section](../configuration.md#agent) for details.
 
 **Per-source: enable Agent with a key**
 
