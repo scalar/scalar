@@ -167,8 +167,6 @@ describe('createSearchIndex', () => {
           query: [],
           header: [],
           cookie: [],
-          body: [],
-          formData: [],
         },
       })
     })
