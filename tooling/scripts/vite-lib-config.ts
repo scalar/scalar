@@ -20,33 +20,33 @@ import { resolve } from 'node:path'
  *
  * @see https://github.com/rolldown/rolldown/pull/8817
  */
-const sanitizeChunkName = (name: string): string => {
-  // Look for a query string in the chunk name (e.g., 'Foo.vue?vue&type=...')
-  const queryStart = name.indexOf('?')
+// const sanitizeChunkName = (name: string): string => {
+//   // Look for a query string in the chunk name (e.g., 'Foo.vue?vue&type=...')
+//   const queryStart = name.indexOf('?')
 
-  // If there is no query string, this is a facade module; return as-is
-  if (queryStart === -1) {
-    return name
-  }
+//   // If there is no query string, this is a facade module; return as-is
+//   if (queryStart === -1) {
+//     return name
+//   }
 
-  // Separate base filename and query string
-  const base = name.substring(0, queryStart)
-  const queryString = name.substring(queryStart + 1)
+//   // Separate base filename and query string
+//   const base = name.substring(0, queryStart)
+//   const queryString = name.substring(queryStart + 1)
 
-  // Parse out standard params from the query string for further handling
-  const params = new URLSearchParams(queryString)
+//   // Parse out standard params from the query string for further handling
+//   const params = new URLSearchParams(queryString)
 
-  const typeRaw = params.get('type')
-  const typeSuffix = typeRaw && typeRaw.length > 0 ? typeRaw : 'virtual'
+//   const typeRaw = params.get('type')
+//   const typeSuffix = typeRaw && typeRaw.length > 0 ? typeRaw : 'virtual'
 
-  const indexRaw = params.get('index')
-  const indexSuffix = indexRaw && indexRaw !== '0' ? `.${indexRaw}` : ''
+//   const indexRaw = params.get('index')
+//   const indexSuffix = indexRaw && indexRaw !== '0' ? `.${indexRaw}` : ''
 
-  const langMatch = queryString.match(/(?:^|&)lang\.([^&]+)/)
-  const langSuffix = langMatch ? `.${langMatch[1]}` : ''
+//   const langMatch = queryString.match(/(?:^|&)lang\.([^&]+)/)
+//   const langSuffix = langMatch ? `.${langMatch[1]}` : ''
 
-  return `${base}.${typeSuffix}${indexSuffix}${langSuffix}`
-}
+//   return `${base}.${typeSuffix}${indexSuffix}${langSuffix}`
+// }
 
 /**
  * Creates rollupOptions.output config for preserveModules builds.
@@ -59,10 +59,11 @@ export function createPreserveModulesOutput() {
   return {
     preserveModules: true,
     preserveModulesRoot: './src',
-    entryFileNames: (chunk: { name: string }): string => {
-      const sanitized = sanitizeChunkName(chunk.name)
-      return `${sanitized}.js`
-    },
+    // TODO: We might need to re-enable this for Vite 8
+    // entryFileNames: (chunk: { name: string }): string => {
+    //   const sanitized = sanitizeChunkName(chunk.name)
+    //   return `${sanitized}.js`
+    // },
   }
 }
 
