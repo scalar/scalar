@@ -1609,6 +1609,11 @@
                         "filepath": "documentation/integrations/spring-boot.md",
                         "type": "page"
                       },
+                      "spry": {
+                        "title": "Spry",
+                        "filepath": "documentation/integrations/spry.md",
+                        "type": "page"
+                      },
                       "sveltekit": {
                         "title": "SvelteKit",
                         "filepath": "documentation/integrations/sveltekit.md",
