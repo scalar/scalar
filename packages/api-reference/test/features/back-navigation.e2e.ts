@@ -13,8 +13,7 @@ const getContent = () => {
         {
           get: {
             summary: `Endpoint ${endpointNumber}`,
-            description:
-              'A long description to force scroll height in the operation area. '.repeat(25),
+            description: 'A long description to force scroll height in the operation area. '.repeat(25),
             tags: [tag],
             responses: {
               200: {
@@ -85,9 +84,9 @@ test.describe('back navigation', () => {
           }
 
           const referencesContainerHeight = referencesContainer.getBoundingClientRect().height
-          const oversizedTagSections = Array.from(
-            document.querySelectorAll('.tag-section-container'),
-          ).filter((element) => element.getBoundingClientRect().height > referencesContainerHeight)
+          const oversizedTagSections = Array.from(document.querySelectorAll('.tag-section-container')).filter(
+            (element) => element.getBoundingClientRect().height > referencesContainerHeight,
+          )
 
           return oversizedTagSections.length
         }),
