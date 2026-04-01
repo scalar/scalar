@@ -28,7 +28,7 @@ describe('ModalClient.vue', () => {
     expect(wrapper.find('.scalar-app').exists()).toBe(true)
   })
 
-  it('process slot with ScalarTeleportRoot', () => {
+  it('process slot with ScalarTeleportRoot after first open', async () => {
     const wrapper = mount(ModalClientContainer, {
       props: {
         modalState: createModalState(),
@@ -37,6 +37,13 @@ describe('ModalClient.vue', () => {
         default: '<button id="test-button">Test</button>"',
       },
     })
+
+    expect(wrapper.find('#test-button').exists()).toBe(false)
+
+    await wrapper.setProps({
+      modalState: createModalState(true),
+    })
+    await nextTick()
 
     expect(wrapper.find('#test-button').exists()).toBe(true)
 
@@ -148,5 +155,41 @@ describe('ModalClient.vue', () => {
     })
 
     wrapper.unmount()
+  })
+
+  it('does not render slot content before first modal open', () => {
+    const wrapper = mount(ModalClientContainer, {
+      props: {
+        modalState: createModalState(false),
+      },
+      slots: {
+        default: '<button id="lazy-slot-content">Test</button>"',
+      },
+    })
+
+    expect(wrapper.find('#lazy-slot-content').exists()).toBe(false)
+  })
+
+  it('renders slot content after modal has opened once', async () => {
+    let modalState = createModalState(false)
+
+    const wrapper = mount(ModalClientContainer, {
+      props: { modalState },
+      slots: { default: '<button id="lazy-slot-content">Test</button>' },
+    })
+
+    expect(wrapper.find('#lazy-slot-content').exists()).toBe(false)
+
+    modalState = { ...modalState, open: true }
+    await wrapper.setProps({ modalState })
+    await nextTick()
+
+    expect(wrapper.find('#lazy-slot-content').exists()).toBe(true)
+
+    modalState = { ...modalState, open: false }
+    await wrapper.setProps({ modalState })
+    await nextTick()
+
+    expect(wrapper.find('#lazy-slot-content').exists()).toBe(true)
   })
 })

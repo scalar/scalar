@@ -22,11 +22,12 @@ const emit = defineEmits<{
 
 const client = ref<HTMLElement | null>(null)
 const id = useId()
+const hasOpened = ref(props.modalState.open)
 
 const { activate: activateFocusTrap, deactivate: deactivateFocusTrap } =
   useFocusTrap(client, {
     allowOutsideClick: true,
-    fallbackFocus: `#${id}`,
+    fallbackFocus: () => client.value ?? `#${id}`,
   })
 
 // ensure scalar classes exist on headless-ui root
@@ -37,6 +38,7 @@ watch(
   () => props.modalState.open,
   async (open) => {
     if (open) {
+      hasOpened.value = true
       await nextTick()
       activateFocusTrap()
       emit('open')
@@ -69,7 +71,7 @@ onBeforeUnmount(() => {
           class="scalar-app-layout scalar-client"
           role="dialog"
           tabindex="-1">
-          <ScalarTeleportRoot>
+          <ScalarTeleportRoot v-if="hasOpened">
             <slot />
           </ScalarTeleportRoot>
         </div>

@@ -3,8 +3,8 @@ import { ScalarButton, ScalarTeleport } from '@scalar/components'
 import { ScalarIconGlobe, ScalarIconPlus } from '@scalar/icons'
 import type { Environment } from '@scalar/oas-utils/entities/environment'
 import { onClickOutside } from '@vueuse/core'
-import Fuse from 'fuse.js'
-import { computed, onMounted, ref, type CSSProperties } from 'vue'
+import type Fuse from 'fuse.js'
+import { computed, onMounted, ref, shallowRef, watch, type CSSProperties } from 'vue'
 import { useRouter } from 'vue-router'
 
 import { parseEnvVariables } from '@/libs'
@@ -60,9 +60,25 @@ const redirectToEnvironment = () => {
   isOpen.value = false
 }
 
-const fuse = new Fuse(parseEnvVariables(props.envVariables), {
-  keys: ['key', 'value'],
-})
+type VariableItem = EnvVariables[number]
+type FuseConstructor = typeof import('fuse.js').default
+const fuse = shallowRef<Fuse<VariableItem> | null>(null)
+
+watch(
+  () => props.envVariables,
+  async () => {
+    if (!fuse.value) {
+      const { default: Fuse } = await import('fuse.js')
+      fuse.value = new (Fuse as FuseConstructor)(parseEnvVariables(props.envVariables), {
+        keys: ['key', 'value'],
+      })
+      return
+    }
+
+    fuse.value.setCollection(parseEnvVariables(props.envVariables))
+  },
+  { immediate: true, deep: true },
+)
 
 const filteredVariables = computed(() => {
   const searchQuery = props.query
@@ -75,7 +91,11 @@ const filteredVariables = computed(() => {
   }
 
   /** filter environment variables by name */
-  const result = fuse.search(searchQuery, { limit: 10 })
+  if (!fuse.value) {
+    return []
+  }
+
+  const result = fuse.value.search(searchQuery, { limit: 10 })
   if (result.length > 0) {
     return result
       .map((res) => res.item)

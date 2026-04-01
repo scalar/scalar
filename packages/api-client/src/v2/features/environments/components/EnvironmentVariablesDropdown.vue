@@ -3,8 +3,8 @@ import { ScalarButton, ScalarTeleport } from '@scalar/components'
 import { ScalarIconPlus } from '@scalar/icons'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import { onClickOutside } from '@vueuse/core'
-import Fuse from 'fuse.js'
-import { computed, onMounted, ref, type CSSProperties } from 'vue'
+import type Fuse from 'fuse.js'
+import { computed, onMounted, ref, shallowRef, watch, type CSSProperties } from 'vue'
 
 const { query, environment, dropdownPosition } = defineProps<{
   query: string
@@ -20,6 +20,13 @@ const emit = defineEmits<{
 const isOpen = ref(true)
 const dropdownRef = ref<HTMLElement | null>(null)
 const selectedVariableIndex = ref(0)
+type VariableItem = {
+  key: string
+  value: string
+}
+type FuseConstructor = typeof import('fuse.js').default
+const fuse = shallowRef<Fuse<VariableItem> | null>(null)
+const fuzzyVariables = ref<VariableItem[]>([])
 
 const redirectToEnvironment = () => {
   emit('redirect')
@@ -34,9 +41,37 @@ const normalizedVariables = computed(() =>
   })),
 )
 
-const fuse = new Fuse(normalizedVariables.value, {
-  keys: ['key', 'value'],
+const ensureFuse = async (): Promise<Fuse<VariableItem>> => {
+  if (!fuse.value) {
+    const { default: Fuse } = await import('fuse.js')
+    fuse.value = new (Fuse as FuseConstructor)(normalizedVariables.value, {
+      keys: ['key', 'value'],
+    })
+  }
+
+  return fuse.value
+}
+
+watch(normalizedVariables, (variables) => {
+  fuse.value?.setCollection(variables)
 })
+
+watch(
+  () => query,
+  async (nextQuery) => {
+    if (!nextQuery) {
+      fuzzyVariables.value = []
+      return
+    }
+
+    const instance = await ensureFuse()
+    fuzzyVariables.value = instance
+      .search(nextQuery, { limit: 10 })
+      .map((res) => res.item)
+      .filter(({ key, value }) => key !== '' || value !== '')
+  },
+  { immediate: true },
+)
 
 const filteredVariables = computed(() => {
   if (!query) {
@@ -46,15 +81,7 @@ const filteredVariables = computed(() => {
       .filter(({ key, value }) => key !== '' || value !== '')
   }
 
-  /** filter environment variables by name */
-  const result = fuse.search(query, { limit: 10 })
-  if (result.length > 0) {
-    return result
-      .map((res) => res.item)
-      .filter(({ key, value }) => key !== '' || value !== '')
-  }
-
-  return []
+  return fuzzyVariables.value
 })
 
 const selectVariable = (variableKey: string) => {

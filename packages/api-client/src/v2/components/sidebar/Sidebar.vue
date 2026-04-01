@@ -84,7 +84,10 @@ const isDraft = (item: TraversedEntry) => {
 }
 
 /** We handle search results out here so we can show them in the sidebar */
-const { query, results } = useSearchIndex(() => documents)
+const { query, results } = useSearchIndex(
+  () => documents,
+  () => isSearchVisible.value,
+)
 
 /** We show either the search results or the sidebar items */
 const items = computed(() => results.value ?? sidebarState.items.value)
