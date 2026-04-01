@@ -8,7 +8,7 @@ namespace Scalar.AspNetCore;
 
 /// <summary>
 /// Internal representation of the configuration for the Scalar API reference.
-/// Based on <a href="https://github.com/scalar/scalar/blob/main/documentation/configuration.md">Configuration</a>.
+/// Based on <a href="https://github.com/scalar/scalar/blob/main/documentation/products/api-references/configuration.md">Configuration</a>.
 /// </summary>
 internal sealed class ScalarConfiguration
 {

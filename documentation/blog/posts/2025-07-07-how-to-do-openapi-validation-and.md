@@ -1,6 +1,6 @@
 # How to do OpenAPI validation (and why it matters)
 
-To validate your OpenAPI document, download the [Scalar CLI](https://github.com/scalar/scalar/blob/main/documentation/guides/cli/getting-started.md):
+To validate your OpenAPI document, download the [Scalar CLI](https://github.com/scalar/scalar/blob/main/documentation/tools/cli/getting-started.md):
 
 ```
 npm -g install @scalar/cli
@@ -45,6 +45,6 @@ Most important for validation is the `openapi-parser` [package](https://github.c
 * It then checks the version then uses AJV (Another JSON Validator) to check against the official [OpenAPI JSON schema](https://github.com/scalar/scalar/tree/main/packages/openapi-parser/src/schemas). There is specific validation that happens for different versions of OpenAPI.
 * Once done, the CLI either returns a nice success message or transforms the AJV errors into a user-readable one.
 
-All this is packaged into a simple to use CLI (with [much more functionality](https://github.com/scalar/scalar/blob/main/documentation/guides/cli/getting-started.md)). Also, because the `openapi-parser` is [open source](https://github.com/scalar/scalar/tree/main/packages/openapi-parser), if you wanted to implement (or modify) validation yourself, you could!
+All this is packaged into a simple to use CLI (with [much more functionality](https://github.com/scalar/scalar/blob/main/documentation/tools/cli/getting-started.md)). Also, because the `openapi-parser` is [open source](https://github.com/scalar/scalar/tree/main/packages/openapi-parser), if you wanted to implement (or modify) validation yourself, you could!
 
 **Jul 7, 2025**

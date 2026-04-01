@@ -91,7 +91,7 @@ async function fetchExampleSpecification() {
         </a>
         <a
           class="start-item"
-          href="https://github.com/scalar/scalar/blob/main/documentation/integrations/html-js.md#html"
+          href="https://github.com/scalar/scalar/blob/main/documentation/products/api-references/integrations/html-js.md#html"
           target="_blank">
           <svg
             fill="currentColor"

@@ -2,7 +2,7 @@
 
 We love OpenAPI, but as a team that develops a suite of tools built around it, sometimes we can find it limited. Luckily, because we control how the OpenAPI document is processed and displayed, we can do something about this.
 
-We recently [extended the OpenAPI specification](https://github.com/scalar/scalar/blob/main/documentation/openapi.md) with some features we wanted to see. This post is about what we added as well as how we made the changes under the hood to make them work.
+We recently [extended the OpenAPI specification](https://github.com/scalar/scalar/blob/main/documentation/products/api-references/openapi.md) with some features we wanted to see. This post is about what we added as well as how we made the changes under the hood to make them work.
 
 ## What we added to the OpenAPI specification
 

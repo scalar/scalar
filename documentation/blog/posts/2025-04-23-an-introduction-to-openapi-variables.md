@@ -147,6 +147,6 @@ Although OpenAPI provides a lot of flexibility for defining and using variables,
 
 Luckily, there’s no OpenAPI police going around preventing you from extending or changing how your document is written and processed. You can do whatever you want as long as you do the work to make the functionality work as you expect.
 
-We know because this is exactly what we did when we added environment variables, code samples, internal controls, and more to [our version of the OpenAPI specification](./2025-04-06-how-we-extended-the-openapi-specification.md), which [you can read here](https://github.com/scalar/scalar/blob/main/documentation/openapi.md).
+We know because this is exactly what we did when we added environment variables, code samples, internal controls, and more to [our version of the OpenAPI specification](./2025-04-06-how-we-extended-the-openapi-specification.md), which [you can read here](https://github.com/scalar/scalar/blob/main/documentation/products/api-references/openapi.md).
 
 **Apr 23, 2025**

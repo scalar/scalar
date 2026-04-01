@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
  * Agent Scalar configuration options.
  * Enables the AI chat interface in the API Reference or disables it entirely.
  *
- * @see <a href="https://github.com/scalar/scalar/blob/main/documentation/configuration.md">Configuration</a>
+ * @see <a href="https://github.com/scalar/scalar/blob/main/documentation/products/api-references/configuration.md">Configuration</a>
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ScalarAgentOptions {

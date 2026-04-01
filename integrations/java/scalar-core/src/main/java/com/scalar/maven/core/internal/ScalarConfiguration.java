@@ -21,7 +21,7 @@ import java.util.Map;
  * {@link com.scalar.maven.core.ScalarProperties} instead.
  * </p>
  * Based on <a href=
- * "https://github.com/scalar/scalar/blob/main/documentation/configuration.md">Configuration</a>.
+ * "https://github.com/scalar/scalar/blob/main/documentation/products/api-references/configuration.md">Configuration</a>.
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ScalarConfiguration {

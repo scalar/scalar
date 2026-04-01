@@ -13,7 +13,7 @@ const DEFAULT_CONFIGURATION: Partial<ApiReferenceConfiguration> = {
 /**
  * Next.js adapter for an Api Reference
  *
- * {@link https://github.com/scalar/scalar/tree/main/documentation/configuration.md Configuration}
+ * {@link https://github.com/scalar/scalar/tree/main/documentation/products/api-references/configuration.md Configuration}
  *
  * @params config - the Api Reference config object
  * @params options - reserved for future use to add customization to the response

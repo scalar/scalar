@@ -72,7 +72,7 @@ The second layer is `scalar-theme` which contains theme-specific styles and over
 
 The last piece of theme’s developer experience is providing tooling support like TypeScript support and a Tailwind preset that provides customer border radius values, border width configurations, color palette mapping, and more.
 
-Oh, and we know it wouldn’t be good developer experience without a load of [documentation](https://github.com/scalar/scalar/blob/main/documentation/themes.md) and code examples for all things themes. We hope all this makes themes not only easy to customize, but enjoyable too.
+Oh, and we know it wouldn’t be good developer experience without a load of [documentation](https://github.com/scalar/scalar/blob/main/documentation/products/api-references/themes.md) and code examples for all things themes. We hope all this makes themes not only easy to customize, but enjoyable too.
 
 ## **Making sure themes don’t break anything**
 

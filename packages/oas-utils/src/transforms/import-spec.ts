@@ -206,7 +206,7 @@ export async function importSpecToWorkspace(
   // @ts-expect-error - Toss out a deprecated warning for the old authentication state
   if (authentication?.oAuth2 || authentication?.apiKey || authentication?.http) {
     console.warn(
-      `DEPRECATION WARNING: It looks like you're using legacy authentication config. Please migrate to use the updated config. See https://github.com/scalar/scalar/blob/main/documentation/configuration.md#authentication-partial This will be removed in a future version.`,
+      `DEPRECATION WARNING: It looks like you're using legacy authentication config. Please migrate to use the updated config. See https://github.com/scalar/scalar/blob/main/documentation/products/api-references/configuration.md#authentication-partial This will be removed in a future version.`,
     )
   }
 
