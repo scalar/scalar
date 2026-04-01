@@ -14,7 +14,7 @@ import {
 import { isHttpMethod, schemaModel } from '@scalar/oas-utils/helpers'
 import { type Path, type PathValue, getNestedValue } from '@scalar/object-utils/nested'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
-import { diff, type Difference } from '@scalar/json-magic/diff'
+import microdiff, { type Difference } from '@scalar/json-magic/diff/micro'
 import { type ZodSchema, z } from 'zod'
 
 import type { WorkspaceStore } from '@/store'
@@ -28,18 +28,18 @@ import type { ActiveEntitiesStore } from '@/store/active-entities'
  * - first we check if the payloads are the same then it was just a simple rename
  * - next we will add the rename and also handle any changes in the diff
  */
-export const combineRenameDiffs = (diff: Difference[], pathPrefix: string[] = []): Difference[] => {
+export const combineRenameDiffs = (differences: Difference[], pathPrefix: string[] = []): Difference[] => {
   const combined: Difference[] = []
   let skipNext = false
 
-  for (let i = 0; i < diff.length; i++) {
+  for (let i = 0; i < differences.length; i++) {
     if (skipNext) {
       skipNext = false
       continue
     }
 
-    const current = diff[i]
-    const next = diff[i + 1]
+    const current = differences[i]
+    const next = differences[i + 1]
 
     if (!current) {
       continue
@@ -87,7 +87,7 @@ export const combineRenameDiffs = (diff: Difference[], pathPrefix: string[] = []
       // Only go one level deep
       if (pathPrefix.length === 0) {
         // Handle other changes within the renamed path or method
-        const innerDiff = diff(current.oldValue, next.value)
+        const innerDiff = microdiff(current.oldValue, next.value)
         if (innerDiff.length) {
           const innerCombined = combineRenameDiffs(innerDiff, nestedPrefix)
           combined.push(...innerCombined)

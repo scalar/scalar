@@ -12,7 +12,7 @@ import {
   tagSchema,
 } from '@scalar/oas-utils/entities/spec'
 import { parseSchema } from '@scalar/oas-utils/transforms'
-import { type Difference, diff } from '@scalar/json-magic/diff'
+import diff, { type Difference } from '@scalar/json-magic/diff/micro'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { z } from 'zod'
 

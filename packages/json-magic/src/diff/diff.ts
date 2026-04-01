@@ -1,58 +1,64 @@
-/**
- * Represents a segment in a nested object path.
- * Arrays use numeric indices while objects use string keys.
- */
-export type PathSegment = string | number
-
 type LegacyChangeType = 'add' | 'update' | 'delete'
-type MicroChangeType = 'CREATE' | 'CHANGE' | 'REMOVE'
-
 type LegacyDifference<T> = {
-  path: PathSegment[]
+  path: string[]
   changes: T
   type: LegacyChangeType
 }
 
-type MicroCreateDifference<T> = {
-  path: PathSegment[]
-  type: 'CREATE'
-  value: T
-}
-
-type MicroChangeDifference<T> = {
-  path: PathSegment[]
-  type: 'CHANGE'
-  oldValue: T
-  value: T
-}
-
-type MicroRemoveDifference<T> = {
-  path: PathSegment[]
-  type: 'REMOVE'
-  oldValue: T
-}
+/**
+ * Microdiff-compatible diff shape used by consumers that expect
+ * `CREATE` / `CHANGE` / `REMOVE` operations.
+ */
+export type MicroDifference<T = unknown> =
+  | {
+      path: (string | number)[]
+      type: 'CREATE'
+      value: T
+    }
+  | {
+      path: (string | number)[]
+      type: 'CHANGE'
+      oldValue: T
+      value: T
+    }
+  | {
+      path: (string | number)[]
+      type: 'REMOVE'
+      oldValue: T
+    }
 
 /**
- * Represents a single difference between two documents.
- *
- * For backwards compatibility this type supports both:
- * - Legacy `json-magic` diff shape (`add`/`update`/`delete` + `changes`)
- * - Microdiff-compatible shape (`CREATE`/`CHANGE`/`REMOVE` + `value`/`oldValue`)
+ * Legacy diff shape used by `apply` and `merge`.
  */
-export type Difference<T = unknown> =
-  | LegacyDifference<T>
-  | MicroCreateDifference<T>
-  | MicroChangeDifference<T>
-  | MicroRemoveDifference<T>
+export type Difference<T = unknown> = LegacyDifference<T>
 
-const isIndexKey = (value: string): boolean => /^\d+$/.test(value)
+type DiffOptions = {
+  format?: 'legacy' | 'micro'
+}
 
-const toPathSegment = (container: unknown, key: string): PathSegment => {
-  if (Array.isArray(container) && isIndexKey(key)) {
-    return Number(key)
+const isObjectPair = (left: unknown, right: unknown): boolean =>
+  typeof left === 'object' &&
+  left !== null &&
+  typeof right === 'object' &&
+  right !== null
+
+const createPairGuard = () => {
+  const seen = new WeakMap<object, WeakSet<object>>()
+
+  return (left: object, right: object): boolean => {
+    const rightMap = seen.get(left)
+    if (rightMap?.has(right)) {
+      return true
+    }
+
+    if (rightMap) {
+      rightMap.add(right)
+      return false
+    }
+
+    seen.set(left, new WeakSet([right]))
+    return false
   }
-
-  return key
 }
 
 /**
@@ -90,46 +96,94 @@ const toPathSegment = (container: unknown, key: string): PathSegment => {
  * //   { path: ['user', 'settings', 'theme'], changes: 'dark', type: 'update' }
  * // ]
  */
-export const diff = <T extends Record<string, unknown>>(doc1: Record<string, unknown>, doc2: T) => {
-  const diff: Difference<T>[] = []
+export function diff<T>(doc1: unknown, doc2: T, options: { format: 'micro' }): MicroDifference<T>[]
+export function diff<T>(doc1: unknown, doc2: T, options?: DiffOptions): Difference<T>[]
+export function diff<T>(doc1: unknown, doc2: T, options: DiffOptions = {}): Difference<T>[] | MicroDifference<T>[] {
+  if (options.format === 'micro') {
+    const changes: MicroDifference<T>[] = []
+    const isSeenPair = createPairGuard()
 
-  const bfs = (el1: unknown, el2: unknown, prefix: PathSegment[] = []) => {
-    if (Object.is(el1, el2)) {
+    const bfs = (el1: unknown, el2: unknown, prefix: (string | number)[] = []) => {
+      if (Object.is(el1, el2)) {
+        return
+      }
+
+      if (typeof el1 === 'undefined') {
+        changes.push({ path: prefix, type: 'CREATE', value: el2 as T })
+        return
+      }
+
+      if (typeof el2 === 'undefined') {
+        changes.push({ path: prefix, type: 'REMOVE', oldValue: el1 as T })
+        return
+      }
+
+      if (isObjectPair(el1, el2)) {
+        const left = el1 as Record<string, unknown>
+        const right = el2 as Record<string, unknown>
+        if (isSeenPair(left, right)) {
+          return
+        }
+
+        const keys = new Set([...Object.keys(left), ...Object.keys(right)])
+        for (const key of keys) {
+          const pathSegment = (Array.isArray(left) || Array.isArray(right)) && /^\d+$/.test(key) ? Number(key) : key
+          bfs(left[key], right[key], [...prefix, pathSegment])
+        }
+        return
+      }
+
+      changes.push({ path: prefix, type: 'CHANGE', oldValue: el1 as T, value: el2 as T })
+    }
+
+    bfs(doc1, doc2)
+    return changes
+  }
+
+  const changes: Difference<T>[] = []
+  const isSeenPair = createPairGuard()
+
+  const bfs = (el1: unknown, el2: unknown, prefix: string[] = []) => {
+    // If the types are different, we know that the property has been added, deleted or updated
+    if (typeof el1 !== typeof el2) {
+      if (typeof el1 === 'undefined') {
+        changes.push({ path: prefix, changes: el2 as T, type: 'add' })
+        return
+      }
+
+      if (typeof el2 === 'undefined') {
+        changes.push({ path: prefix, changes: el1 as T, type: 'delete' })
+        return
+      }
+
+      changes.push({ path: prefix, changes: el2 as T, type: 'update' })
       return
     }
 
-    if (typeof el1 === 'undefined') {
-      diff.push({ path: prefix, type: 'CREATE', value: el2 as T })
-      return
-    }
+    // We now can assume that el1 and el2 are of the same type
 
-    if (typeof el2 === 'undefined') {
-      diff.push({ path: prefix, type: 'REMOVE', oldValue: el1 as T })
-      return
-    }
-
-    const isObjectPair =
-      typeof el1 === 'object' &&
-      typeof el2 === 'object' &&
-      el1 !== null &&
-      el2 !== null
-
-    if (isObjectPair) {
+    // For nested objects, we need to recursively check the properties
+    if (isObjectPair(el1, el2)) {
       const left = el1 as Record<string, unknown>
       const right = el2 as Record<string, unknown>
+      if (isSeenPair(left, right)) {
+        return
+      }
+
       const keys = new Set([...Object.keys(left), ...Object.keys(right)])
 
       for (const key of keys) {
-        const pathSegment = toPathSegment(Array.isArray(left) ? left : right, key)
-        bfs(left[key], right[key], [...prefix, pathSegment])
+        bfs(left[key], right[key], [...prefix, key])
       }
       return
     }
 
-    diff.push({ path: prefix, type: 'CHANGE', oldValue: el1 as T, value: el2 as T })
+    // For primitives, we can just compare the values
+    if (el1 !== el2) {
+      changes.push({ path: prefix, changes: el2 as T, type: 'update' })
+    }
   }
 
-  // Run breadth-first search
   bfs(doc1, doc2)
-  return diff
+  return changes
 }

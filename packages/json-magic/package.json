@@ -46,6 +46,11 @@
       "types": "./dist/diff/index.d.ts",
       "default": "./dist/diff/index.js"
     },
+    "./diff/micro": {
+      "import": "./dist/diff/micro.js",
+      "types": "./dist/diff/micro.d.ts",
+      "default": "./dist/diff/micro.js"
+    },
     "./helpers/escape-json-pointer": {
       "import": "./dist/helpers/escape-json-pointer.js",
       "types": "./dist/helpers/escape-json-pointer.d.ts",
