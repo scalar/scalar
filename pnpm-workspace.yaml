@@ -108,30 +108,10 @@ ignoredBuiltDependencies:
   - workerd
 
 # Do not lower this value; add popular packages to minimumReleaseAgeExclude or wait before updating.
-minimumReleaseAge: 7200
-
-minimumReleaseAgeExclude:
-  - '@storybook/addon-docs'
-  - '@storybook/addon-links'
-  - '@storybook/builder-vite'
-  - '@storybook/csf-plugin'
-  - '@storybook/react-dom-shim'
-  - '@storybook/vue3'
-  - '@storybook/vue3-vite'
-  - '@sveltejs/kit'
-  - '@vitejs/plugin-react'
-  - knip
-  - next
-  - nuxt
-  - storybook
-  - turbo
-  - undici
-  - vite
-  - vitest
+minimumReleaseAge: 7200 # 5 days
 
 onlyBuiltDependencies:
   - '@nestjs/core'
-  - '@parcel/watcher'
   - '@swc/core'
   - '@tailwindcss/oxide'
   - lefthook
