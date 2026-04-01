@@ -1,4 +1,5 @@
 import type { Difference } from '@scalar/json-magic/diff'
+import type { UnknownObject } from '@scalar/workspace-store/helpers/general'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { type MaybeRefOrGetter, computed, onBeforeUnmount, toValue, watch } from 'vue'
 
@@ -89,7 +90,9 @@ const createTimeoutManager = (initialTimeout: number) => {
  * Each tuple contains two arrays: [remote changes, local changes].
  * @returns Array of remote changes to apply.
  */
-const resolveConflicts = (conflicts: Array<[Difference<unknown>[], Difference<unknown>[]]>): Difference<unknown>[] => {
+const resolveConflicts = (
+  conflicts: Array<[Difference<Record<string, unknown>>[], Difference<Record<string, unknown>>[]]>,
+): Difference<Record<string, unknown>>[] => {
   return conflicts.flatMap(([remote]) => remote)
 }
 
@@ -171,7 +174,11 @@ export const useDocumentWatcher = ({
 
     if (result?.ok) {
       // On conflicts, prefer remote changes by automatically choosing the first option for each conflict tuple
-      await result.applyChanges({ resolvedConflicts: resolveConflicts(result.conflicts) })
+      await result.applyChanges({
+        resolvedConflicts: resolveConflicts(
+          result.conflicts as Array<[Difference<UnknownObject>[], Difference<UnknownObject>[]]>,
+        ),
+      })
       handleSuccess()
     } else if (result?.ok === false && result.type === 'NO_CHANGES_DETECTED') {
       // Still a successful call, just nothing changed

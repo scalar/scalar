@@ -12,6 +12,7 @@ import {
   ScalarSidebarFooter,
 } from '@scalar/components'
 import { isLocalUrl } from '@scalar/helpers/url/is-local-url'
+import { diff } from '@scalar/json-magic/diff'
 import {
   createSidebarState,
   ScalarSidebar,
@@ -38,7 +39,6 @@ import type {
   TraversedTag,
 } from '@scalar/workspace-store/schemas/navigation'
 import { useScrollLock } from '@vueuse/core'
-import { diff } from '@scalar/json-magic/diff'
 import {
   computed,
   onBeforeMount,

@@ -5,7 +5,7 @@ import { generateHash } from '@scalar/helpers/string/generate-hash'
 import { measureAsync, measureSync } from '@scalar/helpers/testing/measure'
 import { type LoaderPlugin, bundle } from '@scalar/json-magic/bundle'
 import { fetchUrls } from '@scalar/json-magic/bundle/plugins/browser'
-import { type Difference, apply, diff, merge } from '@scalar/json-magic/diff'
+import { apply, diff, merge } from '@scalar/json-magic/diff'
 import { createMagicProxy, getRaw } from '@scalar/json-magic/magic-proxy'
 import { upgrade } from '@scalar/openapi-upgrader'
 import type { Record } from '@scalar/typebox'
@@ -547,7 +547,7 @@ export type WorkspaceStore = {
         applyChanges: (
           applyChangesInput:
             | {
-                resolvedConflicts: Difference<unknown>[]
+                resolvedConflicts: ReturnType<typeof merge>['diffs']
               }
             | {
                 resolvedDocument: Record<string, unknown>
@@ -1439,7 +1439,9 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
           // Helper function to compute the new intermediate document based on resolved conflicts or a resolved document
           const getNewIntermediateDocument = () => {
             if ('resolvedConflicts' in applyChangesInput) {
-              const changesetA = changesA.diffs.concat(applyChangesInput.resolvedConflicts)
+              const changesetA = changesA.diffs.concat(
+                applyChangesInput.resolvedConflicts as (typeof changesA.diffs)[number][],
+              )
 
               // Apply the merged changes (diffs + resolved conflicts) to the original document
               return apply(deepClone(originalDocument), changesetA)

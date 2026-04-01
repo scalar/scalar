@@ -30,17 +30,14 @@ export type MicroDifference<T = unknown> =
 /**
  * Legacy diff shape used by `apply` and `merge`.
  */
-export type Difference<T = unknown> = LegacyDifference<T>
+export type Difference<T = Record<string, unknown>> = LegacyDifference<T>
 
 type DiffOptions = {
   format?: 'legacy' | 'micro'
 }
 
 const isObjectPair = (left: unknown, right: unknown): boolean =>
-  typeof left === 'object' &&
-  left !== null &&
-  typeof right === 'object' &&
-  right !== null
+  typeof left === 'object' && left !== null && typeof right === 'object' && right !== null
 
 const createPairGuard = () => {
   const seen = new WeakMap<object, WeakSet<object>>()

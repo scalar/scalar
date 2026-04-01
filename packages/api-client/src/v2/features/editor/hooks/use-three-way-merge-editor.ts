@@ -1,4 +1,4 @@
-import { apply, type merge } from '@scalar/json-magic/diff'
+import { apply, type Difference, type merge } from '@scalar/json-magic/diff'
 import { deepClone } from '@scalar/workspace-store/helpers/deep-clone'
 import * as monaco from 'monaco-editor'
 import type { ComputedRef } from 'vue'
@@ -9,6 +9,8 @@ import { createJsonModel } from '@/v2/features/editor/helpers/json/create-json-m
 import { ensureJsonPointerLinkSupport } from '@/v2/features/editor/helpers/json/json-pointer-links'
 import { parseJsonPointerPath } from '@/v2/features/editor/helpers/json/json-pointer-path'
 import type { EditorModel, Path } from '@/v2/features/editor/helpers/model'
+
+type JsonRecord = Record<string, unknown>
 
 type ConflictResolutionState = 'manual' | 'local' | 'remote' | 'ignore' | 'idle'
 
@@ -139,15 +141,15 @@ export function useThreeWayMergeEditor(options: UseThreeWayMergeEditorOptions): 
 
   const documentWithLocalChanges = computed(() =>
     apply(
-      deepClone(toValue(resolvedDocument)),
-      toValue(conflicts).flatMap((it) => it[0]),
+      deepClone(toValue(resolvedDocument)) as JsonRecord,
+      toValue(conflicts).flatMap((it) => it[0]) as Difference<JsonRecord>[],
     ),
   )
 
   const documentWithRemoteChanges = computed(() =>
     apply(
-      deepClone(toValue(resolvedDocument)),
-      toValue(conflicts).flatMap((it) => it[1]),
+      deepClone(toValue(resolvedDocument)) as JsonRecord,
+      toValue(conflicts).flatMap((it) => it[1]) as Difference<JsonRecord>[],
     ),
   )
 
@@ -479,7 +481,7 @@ export function useThreeWayMergeEditor(options: UseThreeWayMergeEditorOptions): 
         return
       }
       const changes = source === 'local' ? conflict.local.changes : conflict.remote.changes
-      const nextDocument = apply(deepClone(currentDocument), changes)
+      const nextDocument = apply(deepClone(currentDocument) as JsonRecord, changes as Difference<JsonRecord>[])
       suppressedChangeEvents += 1
       modifiedResultModel.model.setValue(JSON.stringify(nextDocument, null, 2))
       setConflictResolution(index, source)

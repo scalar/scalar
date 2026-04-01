@@ -28,8 +28,13 @@ import type { ActiveEntitiesStore } from '@/store/active-entities'
  * - first we check if the payloads are the same then it was just a simple rename
  * - next we will add the rename and also handle any changes in the diff
  */
-export const combineRenameDiffs = (differences: Difference[], pathPrefix: string[] = []): Difference[] => {
-  const combined: Difference[] = []
+type WatchModeDifference = Difference<unknown>
+
+export const combineRenameDiffs = (
+  differences: WatchModeDifference[],
+  pathPrefix: string[] = [],
+): WatchModeDifference[] => {
+  const combined: WatchModeDifference[] = []
   let skipNext = false
 
   for (let i = 0; i < differences.length; i++) {
@@ -388,7 +393,7 @@ export const mutateRequestDiff = (
   // Path has changed
   if (path === 'path' && diff.type === 'CHANGE') {
     activeCollection.value.requests.forEach((uid) => {
-      if (requests[uid]?.path === diff.oldValue) {
+      if (requests[uid]?.path === diff.oldValue && typeof diff.value === 'string') {
         requestMutators.edit(uid, 'path', diff.value)
       }
     })
@@ -396,7 +401,12 @@ export const mutateRequestDiff = (
   // Method has changed
   else if (method === 'method' && diff.type === 'CHANGE') {
     activeCollection.value.requests.forEach((uid) => {
-      if (requests[uid]?.method === diff.oldValue && requests[uid]?.path === path) {
+      if (
+        requests[uid]?.method === diff.oldValue &&
+        requests[uid]?.path === path &&
+        typeof diff.value === 'string' &&
+        isHttpMethod(diff.value)
+      ) {
         requestMutators.edit(uid, 'method', diff.value)
       }
     })

@@ -124,7 +124,7 @@ const rebaseResult = ref<{
   applyChanges: (
     applyChangesInput:
       | {
-          resolvedConflicts: Difference<unknown>[]
+          resolvedConflicts: Difference<Record<string, unknown>>[]
         }
       | {
           resolvedDocument: Record<string, unknown>
@@ -228,7 +228,10 @@ const handleSyncFlow = async () => {
     rebaseResult.value = {
       conflicts: result.conflicts,
       applyChanges: result.applyChanges,
-      resolvedDocument: apply(deepClone(originalDocument), result.changes),
+      resolvedDocument: apply(
+        deepClone(originalDocument) as Record<string, unknown>,
+        result.changes as Difference<Record<string, unknown>>[],
+      ),
       originalDocument,
     }
 

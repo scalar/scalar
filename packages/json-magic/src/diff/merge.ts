@@ -108,10 +108,7 @@ export const merge = <T>(diff1: Difference<T>[], diff2: Difference<T>[]) => {
             typeof value.changes.changes === 'object' &&
             value.changes.changes !== null
           ) {
-            mergeObjects(
-              diff.changes as Record<string, unknown>,
-              value.changes.changes as Record<string, unknown>,
-            )
+            mergeObjects(diff.changes as Record<string, unknown>, value.changes.changes as Record<string, unknown>)
           }
           return
         }
