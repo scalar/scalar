@@ -229,6 +229,35 @@ describe('pythonRequests', () => {
 )`)
   })
 
+  it('preserves duplicate multipart field names when values are inline', () => {
+    const result = pythonRequests.generate({
+      url: 'https://example.com',
+      method: 'POST',
+      postData: {
+        mimeType: 'multipart/form-data',
+        params: [
+          {
+            name: 'file',
+            value: '@first.png',
+          },
+          {
+            name: 'file',
+            value: '@second.png',
+          },
+        ],
+      },
+    })
+
+    expect(result).toBe(`requests.post("https://example.com",
+    data={
+      "file": [
+        "@first.png",
+        "@second.png"
+      ]
+    }
+)`)
+  })
+
   it('handles multipart form data with per-part content types', () => {
     const result = pythonRequests.generate({
       url: 'https://example.com',

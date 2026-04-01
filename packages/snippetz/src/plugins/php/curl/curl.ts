@@ -21,6 +21,7 @@ export const phpCurl: Plugin = {
 
     // Build PHP cURL code parts
     const parts: string[] = []
+    let hasMultipartMimeBody = false
 
     // Initialize cURL
     // URL (with query parameters)
@@ -58,12 +59,6 @@ export const phpCurl: Plugin = {
     // Determine Content-Type from body before emitting headers
     if (normalizedRequest.postData) {
       if (
-        normalizedRequest.postData.mimeType === 'multipart/form-data' &&
-        normalizedRequest.postData.params &&
-        !hasContentType()
-      ) {
-        allHeaders.push({ name: 'Content-Type', value: 'multipart/form-data' })
-      } else if (
         normalizedRequest.postData.mimeType === 'application/x-www-form-urlencoded' &&
         normalizedRequest.postData.params &&
         !hasContentType()
@@ -112,17 +107,27 @@ export const phpCurl: Plugin = {
           }
         }
       } else if (normalizedRequest.postData.mimeType === 'multipart/form-data' && normalizedRequest.postData.params) {
-        // Handle multipart form data
-        const formData = normalizedRequest.postData.params.reduce((acc, param) => {
-          if (param.fileName !== undefined) {
-            acc.push(`'${param.name}' => '@${param.fileName}'`)
-          } else if (param.value !== undefined) {
-            acc.push(`'${param.name}' => '${param.value}'`)
-          }
-          return acc
-        }, [] as string[])
+        // Build multipart payload with curl_mime_* so duplicate keys remain distinct parts.
+        hasMultipartMimeBody = true
+        parts.push('$mime = curl_mime_init($ch);')
 
-        parts.push(`curl_setopt($ch, CURLOPT_POSTFIELDS, [${formData.join(', ')}]);`)
+        normalizedRequest.postData.params.forEach((param, index) => {
+          const partName = `$part${index}`
+          parts.push(`${partName} = curl_mime_addpart($mime);`)
+          parts.push(`curl_mime_name(${partName}, '${param.name}');`)
+
+          if (param.fileName !== undefined) {
+            parts.push(`curl_mime_filedata(${partName}, '${param.fileName}');`)
+          } else if (param.value !== undefined) {
+            parts.push(`curl_mime_data(${partName}, '${param.value}');`)
+          }
+
+          if (param.contentType) {
+            parts.push(`curl_mime_type(${partName}, '${param.contentType}');`)
+          }
+        })
+
+        parts.push('curl_setopt($ch, CURLOPT_MIMEPOST, $mime);')
       } else if (
         normalizedRequest.postData.mimeType === 'application/x-www-form-urlencoded' &&
         normalizedRequest.postData.params
@@ -153,6 +158,9 @@ export const phpCurl: Plugin = {
     // Execute and close
     parts.push('')
     parts.push('curl_exec($ch);')
+    if (hasMultipartMimeBody) {
+      parts.push('curl_mime_free($mime);')
+    }
     parts.push('')
     parts.push('curl_close($ch);')
 
