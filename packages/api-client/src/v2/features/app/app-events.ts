@@ -127,7 +127,7 @@ export function initializeAppEventHandlers({
             }
 
             // Since we always pipe submitting through the updatePath listener, we should propogate the send request
-            if (payload.blurTarget === 'send') {
+            if (payload.blurTarget === 'send' && (status === 'success' || status === 'no-change')) {
               eventBus.emit('operation:send:request:hotkey')
             }
 
