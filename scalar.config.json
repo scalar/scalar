@@ -603,7 +603,7 @@
         "children": {
           "": {
             "type": "page",
-            "filepath": "documentation/guides/introduction.md",
+            "filepath": "documentation/index.md",
             "title": "Introduction",
             "description": "Industry leading Developer Docs, SDKs, API Client & Registry that your APIs deserve.",
             "icon": "phosphor/regular/house",
@@ -633,7 +633,7 @@
             "title": "Pricing",
             "description": "Transparent pricing for developer documentation, SDKs, and API tools. Start free and scale as you grow.",
             "icon": "phosphor/regular/coin-vertical",
-            "filepath": "documentation/guides/pricing.md",
+            "filepath": "documentation/pricing.md",
             "type": "page",
             "layout": {
               "toc": false
@@ -678,7 +678,7 @@
                 "icon": "phosphor/regular/book",
                 "children": {
                   "getting-started": {
-                    "filepath": "documentation/guides/docs/getting-started.md",
+                    "filepath": "documentation/products/docs/getting-started.md",
                     "type": "page",
                     "title": "Getting Started",
                     "description": "Learn how to create and publish stunning developer documentation with Docs in minutes.",
@@ -712,7 +712,7 @@
                   "privacy": {
                     "title": "Privacy",
                     "type": "page",
-                    "filepath": "documentation/guides/docs/privacy.md"
+                    "filepath": "documentation/products/docs/privacy.md"
                   },
                   "configuration": {
                     "title": "Configuration",
@@ -721,14 +721,14 @@
                     "icon": "phosphor/regular/gear",
                     "children": {
                       "starter-kit": {
-                        "filepath": "documentation/guides/docs/starter-kit.md",
+                        "filepath": "documentation/products/docs/configuration/starter-kit.md",
                         "type": "page",
                         "title": "Starter Kit"
                       },
                       "scalar.config.json": {
                         "title": "scalar.config.json",
                         "type": "page",
-                        "filepath": "documentation/guides/docs/configuration/scalar.config.json.md",
+                        "filepath": "documentation/products/docs/configuration/scalar.config.json.md",
                         "description": "Complete configuration reference for scalar.config.json including routing, navigation, and site settings.",
                         "head": {
                           "links": [
@@ -752,27 +752,27 @@
                       "site-config": {
                         "title": "Site Config",
                         "type": "page",
-                        "filepath": "documentation/guides/docs/configuration/site-config.md"
+                        "filepath": "documentation/products/docs/configuration/site-config.md"
                       },
                       "domains": {
                         "title": "Domains",
                         "type": "page",
-                        "filepath": "documentation/guides/docs/configuration/domains.md"
+                        "filepath": "documentation/products/docs/configuration/domains.md"
                       },
                       "navigation": {
                         "title": "Navigation",
                         "type": "page",
-                        "filepath": "documentation/guides/docs/configuration/navigation.md"
+                        "filepath": "documentation/products/docs/configuration/navigation.md"
                       },
                       "redirects": {
-                        "filepath": "documentation/guides/docs/configuration/redirects.md",
+                        "filepath": "documentation/products/docs/configuration/redirects.md",
                         "type": "page",
                         "title": "Redirects"
                       },
                       "themes": {
                         "title": "Themes",
                         "type": "page",
-                        "filepath": "documentation/guides/docs/configuration/themes.md",
+                        "filepath": "documentation/products/docs/configuration/themes.md",
                         "description": "Customize your documentation appearance with themes, colors, fonts, and CSS variables for perfect brand alignment.",
                         "head": {
                           "links": [
@@ -795,7 +795,7 @@
                       },
                       "private-docs": {
                         "title": "Private Docs",
-                        "filepath": "documentation/guides/docs/configuration/private-docs.md",
+                        "filepath": "documentation/products/docs/configuration/private-docs.md",
                         "type": "page",
                         "description": "Control access to your documentation with password protection, SSO, and team-based permissions.",
                         "head": {
@@ -820,7 +820,7 @@
                       "migration": {
                         "title": "Migrate from 1.0",
                         "type": "page",
-                        "filepath": "documentation/guides/docs/configuration/migration.md"
+                        "filepath": "documentation/products/docs/configuration/migration.md"
                       }
                     }
                   },
@@ -833,15 +833,15 @@
                       "automatic-deployment": {
                         "title": "Automatic Deployment",
                         "type": "page",
-                        "filepath": "documentation/guides/docs/deployment/automatic-deployment.md"
+                        "filepath": "documentation/products/docs/deployment/automatic-deployment.md"
                       },
                       "cli": {
                         "title": "CLI",
                         "type": "page",
-                        "filepath": "documentation/guides/docs/deployment/cli.md"
+                        "filepath": "documentation/products/docs/deployment/cli.md"
                       },
                       "github-actions": {
-                        "filepath": "documentation/guides/docs/deployment/github-actions.md",
+                        "filepath": "documentation/products/docs/deployment/github-actions.md",
                         "type": "page",
                         "title": "GitHub Actions",
                         "description": "Automate documentation deployment with GitHub Actions workflows for continuous delivery and preview environments.",
@@ -867,12 +867,12 @@
                       "preview-deployments": {
                         "title": "Preview Deployments",
                         "type": "page",
-                        "filepath": "documentation/guides/docs/deployment/preview-deployments.md"
+                        "filepath": "documentation/products/docs/deployment/preview-deployments.md"
                       },
                       "build-failures": {
                         "title": "Build Failures",
                         "type": "page",
-                        "filepath": "documentation/guides/docs/deployment/build-failures.md"
+                        "filepath": "documentation/products/docs/deployment/build-failures.md"
                       }
                     }
                   },
@@ -885,17 +885,17 @@
                       "assets": {
                         "title": "Assets",
                         "type": "page",
-                        "filepath": "documentation/guides/docs/content/assets.md"
+                        "filepath": "documentation/products/docs/content/assets.md"
                       },
                       "html-css-js": {
                         "title": "HTML/CSS/JS",
                         "type": "page",
-                        "filepath": "documentation/guides/docs/content/html-css-js.md"
+                        "filepath": "documentation/products/docs/content/html-css-js.md"
                       },
                       "mdx": {
                         "title": "MDX",
                         "type": "page",
-                        "filepath": "documentation/guides/docs/content/mdx.mdx"
+                        "filepath": "documentation/products/docs/content/mdx.mdx"
                       }
                     }
                   },
@@ -906,7 +906,7 @@
                     "icon": "phosphor/regular/puzzle-piece",
                     "children": {
                       "markdown-support": {
-                        "filepath": "documentation/guides/docs/components/markdown-support.md",
+                        "filepath": "documentation/products/docs/components/markdown-support.md",
                         "type": "page",
                         "title": "Markdown Support",
                         "description": "Full markdown syntax reference including tables, lists, links, images, and GitHub-flavored markdown features.",
@@ -930,27 +930,27 @@
                         }
                       },
                       "buttons": {
-                        "filepath": "documentation/guides/docs/components/buttons.md",
+                        "filepath": "documentation/products/docs/components/buttons.md",
                         "type": "page",
                         "title": "Buttons"
                       },
                       "callouts": {
-                        "filepath": "documentation/guides/docs/components/callouts.md",
+                        "filepath": "documentation/products/docs/components/callouts.md",
                         "type": "page",
                         "title": "Callouts"
                       },
                       "math": {
-                        "filepath": "documentation/guides/docs/components/math.md",
+                        "filepath": "documentation/products/docs/components/math.md",
                         "type": "page",
                         "title": "Math"
                       },
                       "embeds": {
-                        "filepath": "documentation/guides/docs/components/embeds.md",
+                        "filepath": "documentation/products/docs/components/embeds.md",
                         "type": "page",
                         "title": "Embeds"
                       },
                       "code-blocks": {
-                        "filepath": "documentation/guides/docs/components/code-blocks.md",
+                        "filepath": "documentation/products/docs/components/code-blocks.md",
                         "type": "page",
                         "title": "Code Blocks",
                         "description": "Syntax highlighting for 100+ programming languages with line numbers, highlighting, and copy-to-clipboard functionality.",
@@ -974,42 +974,42 @@
                         }
                       },
                       "images": {
-                        "filepath": "documentation/guides/docs/components/images.md",
+                        "filepath": "documentation/products/docs/components/images.md",
                         "type": "page",
                         "title": "Images"
                       },
                       "icons": {
-                        "filepath": "documentation/guides/docs/components/icons.md",
+                        "filepath": "documentation/products/docs/components/icons.md",
                         "type": "page",
                         "title": "Icons"
                       },
                       "tabs": {
-                        "filepath": "documentation/guides/docs/components/tabs.md",
+                        "filepath": "documentation/products/docs/components/tabs.md",
                         "type": "page",
                         "title": "Tabs"
                       },
                       "steps": {
-                        "filepath": "documentation/guides/docs/components/steps.md",
+                        "filepath": "documentation/products/docs/components/steps.md",
                         "type": "page",
                         "title": "Steps"
                       },
                       "cards": {
-                        "filepath": "documentation/guides/docs/components/cards.md",
+                        "filepath": "documentation/products/docs/components/cards.md",
                         "type": "page",
                         "title": "Cards"
                       },
                       "details": {
-                        "filepath": "documentation/guides/docs/components/details.md",
+                        "filepath": "documentation/products/docs/components/details.md",
                         "type": "page",
                         "title": "Details"
                       },
                       "page-link": {
-                        "filepath": "documentation/guides/docs/components/page-link.md",
+                        "filepath": "documentation/products/docs/components/page-link.md",
                         "type": "page",
                         "title": "Page Link"
                       },
                       "row": {
-                        "filepath": "documentation/guides/docs/components/row.md",
+                        "filepath": "documentation/products/docs/components/row.md",
                         "type": "page",
                         "title": "Row"
                       }
@@ -1025,7 +1025,7 @@
                 "icon": "phosphor/regular/package",
                 "children": {
                   "getting-started": {
-                    "filepath": "documentation/guides/sdks/getting-started.md",
+                    "filepath": "documentation/products/sdks/getting-started.md",
                     "type": "page",
                     "title": "Getting Started",
                     "description": "Automatically generate type-safe SDKs from OpenAPI specifications in multiple programming languages.",
@@ -1057,7 +1057,7 @@
                     }
                   },
                   "publishing": {
-                    "filepath": "documentation/guides/sdks/publishing.md",
+                    "filepath": "documentation/products/sdks/publishing.md",
                     "type": "page",
                     "title": "Publishing"
                   },
@@ -1069,42 +1069,42 @@
                     "children": {
                       "typescript": {
                         "title": "TypeScript",
-                        "filepath": "documentation/guides/sdks/configuration/typescript.md",
+                        "filepath": "documentation/products/sdks/configuration/typescript.md",
                         "type": "page"
                       },
                       "python": {
                         "title": "Python",
-                        "filepath": "documentation/guides/sdks/configuration/python.md",
+                        "filepath": "documentation/products/sdks/configuration/python.md",
                         "type": "page"
                       },
                       "go": {
                         "title": "Go",
-                        "filepath": "documentation/guides/sdks/configuration/go.md",
+                        "filepath": "documentation/products/sdks/configuration/go.md",
                         "type": "page"
                       },
                       "java": {
                         "title": "Java",
-                        "filepath": "documentation/guides/sdks/configuration/java.md",
+                        "filepath": "documentation/products/sdks/configuration/java.md",
                         "type": "page"
                       },
                       "csharp": {
                         "title": "C#",
-                        "filepath": "documentation/guides/sdks/configuration/csharp.md",
+                        "filepath": "documentation/products/sdks/configuration/csharp.md",
                         "type": "page"
                       },
                       "php": {
                         "title": "PHP",
-                        "filepath": "documentation/guides/sdks/configuration/php.md",
+                        "filepath": "documentation/products/sdks/configuration/php.md",
                         "type": "page"
                       },
                       "ruby": {
                         "title": "Ruby",
-                        "filepath": "documentation/guides/sdks/configuration/ruby.md",
+                        "filepath": "documentation/products/sdks/configuration/ruby.md",
                         "type": "page"
                       },
                       "swift": {
                         "title": "Swift",
-                        "filepath": "documentation/guides/sdks/configuration/swift.md",
+                        "filepath": "documentation/products/sdks/configuration/swift.md",
                         "type": "page"
                       }
                     }
@@ -1119,7 +1119,7 @@
                 "icon": "phosphor/regular/brackets-curly",
                 "children": {
                   "getting-started": {
-                    "filepath": "documentation/guides/registry/getting-started.md",
+                    "filepath": "documentation/products/registry/getting-started.md",
                     "type": "page",
                     "title": "Getting Started",
                     "description": "Store, version, and manage your OpenAPI specifications in a centralized registry with automated CI/CD workflows.",
@@ -1152,32 +1152,32 @@
                   },
                   "upload": {
                     "title": "Upload",
-                    "filepath": "documentation/guides/registry/upload.md",
+                    "filepath": "documentation/products/registry/upload.md",
                     "type": "page"
                   },
                   "schemas": {
                     "title": "Schemas",
-                    "filepath": "documentation/guides/registry/schemas.md",
+                    "filepath": "documentation/products/registry/schemas.md",
                     "type": "page"
                   },
                   "rules": {
-                    "filepath": "documentation/guides/registry/rules.md",
+                    "filepath": "documentation/products/registry/rules.md",
                     "type": "page",
                     "title": "Rules"
                   },
                   "cli": {
-                    "filepath": "documentation/guides/registry/cli.md",
+                    "filepath": "documentation/products/registry/cli.md",
                     "type": "page",
                     "title": "CLI"
                   },
                   "github-actions": {
                     "title": "GitHub Actions",
-                    "filepath": "documentation/guides/registry/github-actions.md",
+                    "filepath": "documentation/products/registry/github-actions.md",
                     "type": "page"
                   },
                   "gitlab-ci": {
                     "title": "GitLab CI/CD",
-                    "filepath": "documentation/guides/registry/gitlab-ci.md",
+                    "filepath": "documentation/products/registry/gitlab-ci.md",
                     "type": "page"
                   }
                 }
@@ -1191,7 +1191,7 @@
                 "children": {
                   "getting-started": {
                     "title": "Getting Started",
-                    "filepath": "documentation/guides/api-references/getting-started.md",
+                    "filepath": "documentation/products/api-references/getting-started.md",
                     "type": "page",
                     "description": "Create stunning API documentation from OpenAPI specs with a modern, customizable interface and built-in request testing.",
                     "head": {
@@ -1223,7 +1223,7 @@
                   },
                   "configuration": {
                     "title": "Configuration",
-                    "filepath": "documentation/configuration.md",
+                    "filepath": "documentation/products/api-references/configuration.md",
                     "type": "page",
                     "description": "Configure API references with custom layouts, authentication, server URLs, and request customization options.",
                     "head": {
@@ -1247,7 +1247,7 @@
                   },
                   "themes": {
                     "title": "Themes",
-                    "filepath": "documentation/themes.md",
+                    "filepath": "documentation/products/api-references/themes.md",
                     "type": "page",
                     "description": "Customize API reference appearance with built-in themes, dark mode, and custom CSS for perfect brand matching.",
                     "head": {
@@ -1271,12 +1271,12 @@
                   },
                   "plugins": {
                     "title": "Plugins",
-                    "filepath": "documentation/plugins.md",
+                    "filepath": "documentation/products/api-references/plugins.md",
                     "type": "page"
                   },
                   "openapi": {
                     "title": "OpenAPI",
-                    "filepath": "documentation/openapi.md",
+                    "filepath": "documentation/products/api-references/openapi.md",
                     "type": "page",
                     "description": "Learn how Scalar handles OpenAPI 3.0 and 3.1 specifications including schemas, operations, and extensions.",
                     "head": {
@@ -1300,12 +1300,12 @@
                   },
                   "asyncapi": {
                     "title": "AsyncAPI",
-                    "filepath": "documentation/asyncapi.md",
+                    "filepath": "documentation/products/api-references/asyncapi.md",
                     "type": "page"
                   },
                   "markdown": {
                     "title": "Markdown",
-                    "filepath": "documentation/markdown.md",
+                    "filepath": "documentation/products/api-references/markdown.md",
                     "type": "page"
                   },
                   "changelog": {
@@ -1321,12 +1321,12 @@
                     "children": {
                       "html-js": {
                         "title": "HTML/JS",
-                        "filepath": "documentation/integrations/html-js.md",
+                        "filepath": "documentation/products/api-references/integrations/html-js.md",
                         "type": "page"
                       },
                       "aspire": {
                         "title": ".NET Aspire",
-                        "filepath": "documentation/integrations/aspire.md",
+                        "filepath": "documentation/products/api-references/integrations/aspire.md",
                         "type": "page"
                       },
                       "aspnetcore": {
@@ -1336,74 +1336,74 @@
                         "children": {
                           "integration": {
                             "title": "Integration",
-                            "filepath": "documentation/integrations/aspnetcore/integration.md",
+                            "filepath": "documentation/products/api-references/integrations/aspnetcore/integration.md",
                             "type": "page"
                           },
                           "build-time-generation": {
                             "title": "Build-Time Generation",
-                            "filepath": "documentation/integrations/aspnetcore/build-time-generation.md",
+                            "filepath": "documentation/products/api-references/integrations/aspnetcore/build-time-generation.md",
                             "type": "page"
                           },
                           "openapi-extensions": {
                             "title": "OpenAPI Extensions",
-                            "filepath": "documentation/integrations/aspnetcore/openapi-extensions.md",
+                            "filepath": "documentation/products/api-references/integrations/aspnetcore/openapi-extensions.md",
                             "type": "page"
                           },
                           "legacy-integration": {
                             "title": "Legacy Integration",
-                            "filepath": "documentation/integrations/aspnetcore/legacy-integration.md",
+                            "filepath": "documentation/products/api-references/integrations/aspnetcore/legacy-integration.md",
                             "type": "page"
                           }
                         }
                       },
                       "adonisjs": {
                         "title": "AdonisJS",
-                        "filepath": "documentation/integrations/adonisjs.md",
+                        "filepath": "documentation/products/api-references/integrations/adonisjs.md",
                         "type": "page"
                       },
                       "astro": {
                         "title": "Astro",
-                        "filepath": "documentation/integrations/astro.md",
+                        "filepath": "documentation/products/api-references/integrations/astro.md",
                         "type": "page"
                       },
                       "django": {
                         "title": "Django",
-                        "filepath": "documentation/integrations/django.md",
+                        "filepath": "documentation/products/api-references/integrations/django.md",
                         "type": "page"
                       },
                       "django-ninja": {
                         "title": "Django Ninja",
-                        "filepath": "documentation/integrations/django-ninja.md",
+                        "filepath": "documentation/products/api-references/integrations/django-ninja.md",
                         "type": "page"
                       },
                       "docker": {
                         "title": "Docker",
-                        "filepath": "documentation/integrations/docker.md",
+                        "filepath": "documentation/products/api-references/integrations/docker.md",
                         "type": "page"
                       },
                       "docusaurus": {
                         "title": "Docusaurus",
-                        "filepath": "documentation/integrations/docusaurus.md",
+                        "filepath": "documentation/products/api-references/integrations/docusaurus.md",
                         "type": "page"
                       },
                       "effect": {
                         "title": "Effect",
-                        "filepath": "documentation/integrations/effect.md",
+                        "filepath": "documentation/products/api-references/integrations/effect.md",
                         "type": "page"
                       },
                       "elixir": {
                         "title": "Elixir",
-                        "filepath": "documentation/integrations/elixir.md",
+                        "filepath": "documentation/products/api-references/integrations/elixir.md",
                         "type": "page"
                       },
                       "elysiajs": {
                         "title": "ElysiaJS",
-                        "filepath": "documentation/integrations/elysiajs.md",
+                        "filepath": "documentation/products/api-references/integrations/elysiajs.md",
                         "type": "page"
                       },
                       "express": {
                         "title": "Express",
-                        "filepath": "documentation/integrations/express.md",
+                        "filepath": "documentation/products/api-references/integrations/express.md",
                         "type": "page",
                         "description": "Add Scalar API references to Express.js applications with a simple middleware for instant documentation.",
                         "head": {
@@ -1427,7 +1427,7 @@
                       },
                       "fastapi": {
                         "title": "FastAPI",
-                        "filepath": "documentation/integrations/fastapi.md",
+                        "filepath": "documentation/products/api-references/integrations/fastapi.md",
                         "type": "page",
                         "description": "Replace Swagger UI with Scalar in your FastAPI application for modern, beautiful API documentation.",
                         "head": {
@@ -1451,52 +1451,52 @@
                       },
                       "fastify": {
                         "title": "Fastify",
-                        "filepath": "documentation/integrations/fastify.md",
+                        "filepath": "documentation/products/api-references/integrations/fastify.md",
                         "type": "page"
                       },
                       "flask": {
                         "title": "Flask",
-                        "filepath": "documentation/integrations/flask.md",
+                        "filepath": "documentation/products/api-references/integrations/flask.md",
                         "type": "page"
                       },
                       "go": {
                         "title": "Go",
-                        "filepath": "documentation/integrations/go.md",
+                        "filepath": "documentation/products/api-references/integrations/go.md",
                         "type": "page"
                       },
                       "hapi": {
                         "title": "Hapi",
-                        "filepath": "documentation/integrations/hapi.md",
+                        "filepath": "documentation/products/api-references/integrations/hapi.md",
                         "type": "page"
                       },
                       "hono": {
                         "title": "Hono",
-                        "filepath": "documentation/integrations/hono.md",
+                        "filepath": "documentation/products/api-references/integrations/hono.md",
                         "type": "page"
                       },
                       "java": {
                         "title": "Java",
-                        "filepath": "documentation/integrations/java.md",
+                        "filepath": "documentation/products/api-references/integrations/java.md",
                         "type": "page"
                       },
                       "laravel": {
                         "title": "Laravel",
-                        "filepath": "documentation/integrations/laravel.md",
+                        "filepath": "documentation/products/api-references/integrations/laravel.md",
                         "type": "page"
                       },
                       "laravel-scribe": {
                         "title": "Laravel Scribe",
-                        "filepath": "documentation/integrations/laravel-scribe.md",
+                        "filepath": "documentation/products/api-references/integrations/laravel-scribe.md",
                         "type": "page"
                       },
                       "micronaut": {
                         "title": "Micronaut",
-                        "filepath": "documentation/integrations/micronaut.md",
+                        "filepath": "documentation/products/api-references/integrations/micronaut.md",
                         "type": "page"
                       },
                       "nextjs": {
                         "title": "Next.js",
-                        "filepath": "documentation/integrations/nextjs.md",
+                        "filepath": "documentation/products/api-references/integrations/nextjs.md",
                         "type": "page",
                         "description": "Add beautiful API references to your Next.js application with automatic OpenAPI generation and React components.",
                         "head": {
@@ -1520,32 +1520,32 @@
                       },
                       "nestjs": {
                         "title": "NestJS",
-                        "filepath": "documentation/integrations/nestjs.md",
+                        "filepath": "documentation/products/api-references/integrations/nestjs.md",
                         "type": "page"
                       },
                       "nitro": {
                         "title": "Nitro",
-                        "filepath": "documentation/integrations/nitro.md",
+                        "filepath": "documentation/products/api-references/integrations/nitro.md",
                         "type": "page"
                       },
                       "nuxt": {
                         "title": "Nuxt",
-                        "filepath": "documentation/integrations/nuxt.md",
+                        "filepath": "documentation/products/api-references/integrations/nuxt.md",
                         "type": "page"
                       },
                       "platformatic": {
                         "title": "Platformatic",
-                        "filepath": "documentation/integrations/platformatic.md",
+                        "filepath": "documentation/products/api-references/integrations/platformatic.md",
                         "type": "page"
                       },
                       "python": {
                         "title": "Python",
-                        "filepath": "documentation/integrations/python.md",
+                        "filepath": "documentation/products/api-references/integrations/python.md",
                         "type": "page"
                       },
                       "react": {
                         "title": "React",
-                        "filepath": "documentation/integrations/react.md",
+                        "filepath": "documentation/products/api-references/integrations/react.md",
                         "type": "page",
                         "description": "Embed Scalar API references in React applications with a native component for interactive API documentation.",
                         "head": {
@@ -1569,7 +1569,7 @@
                       },
                       "ruby-on-rails": {
                         "title": "Ruby on Rails",
-                        "filepath": "documentation/integrations/ruby-on-rails.md",
+                        "filepath": "documentation/products/api-references/integrations/ruby-on-rails.md",
                         "type": "page"
                       },
                       "rust": {
@@ -1579,49 +1579,49 @@
                         "children": {
                           "": {
                             "title": "Rust",
-                            "filepath": "documentation/integrations/rust.md",
+                            "filepath": "documentation/products/api-references/integrations/rust/index.md",
                             "type": "page"
                           },
                           "axum": {
                             "title": "Axum",
-                            "filepath": "documentation/integrations/axum.md",
+                            "filepath": "documentation/products/api-references/integrations/rust/axum.md",
                             "type": "page"
                           },
                           "actix-web": {
                             "title": "Actix-web",
-                            "filepath": "documentation/integrations/actix-web.md",
+                            "filepath": "documentation/products/api-references/integrations/rust/actix-web.md",
                             "type": "page"
                           },
                           "warp": {
                             "title": "Warp",
-                            "filepath": "documentation/integrations/warp.md",
+                            "filepath": "documentation/products/api-references/integrations/rust/warp.md",
                             "type": "page"
                           },
                           "aide": {
                             "title": "Aide",
-                            "filepath": "documentation/integrations/aide.md",
+                            "filepath": "documentation/products/api-references/integrations/rust/aide.md",
                             "type": "page"
                           }
                         }
                       },
                       "spring-boot": {
                         "title": "Spring Boot",
-                        "filepath": "documentation/integrations/spring-boot.md",
+                        "filepath": "documentation/products/api-references/integrations/spring-boot.md",
                         "type": "page"
                       },
                       "sveltekit": {
                         "title": "SvelteKit",
-                        "filepath": "documentation/integrations/sveltekit.md",
+                        "filepath": "documentation/products/api-references/integrations/sveltekit.md",
                         "type": "page"
                       },
                       "tsed": {
                         "title": "Ts.ED",
-                        "filepath": "documentation/integrations/tsed.md",
+                        "filepath": "documentation/products/api-references/integrations/tsed.md",
                         "type": "page"
                       },
                       "vue": {
                         "title": "Vue.js",
-                        "filepath": "documentation/integrations/vue.md",
+                        "filepath": "documentation/products/api-references/integrations/vue.md",
                         "type": "page"
                       }
                     }
@@ -1638,7 +1638,7 @@
                   "getting-started": {
                     "title": "Getting Started",
                     "type": "page",
-                    "filepath": "documentation/guides/agent/getting-started.md",
+                    "filepath": "documentation/products/agent/getting-started.md",
                     "description": "Deploy an AI assistant that provides instant, accurate answers based on your API documentation and specs.",
                     "head": {
                       "links": [
@@ -1670,22 +1670,22 @@
                   "mcp": {
                     "title": "MCP",
                     "type": "page",
-                    "filepath": "documentation/guides/agent/mcp.md"
+                    "filepath": "documentation/products/agent/mcp.md"
                   },
                   "sdk": {
                     "title": "SDK",
                     "type": "page",
-                    "filepath": "documentation/guides/agent/sdk.md"
+                    "filepath": "documentation/products/agent/sdk.md"
                   },
                   "pricing": {
                     "title": "Pricing",
                     "type": "page",
-                    "filepath": "documentation/guides/agent/pricing.md"
+                    "filepath": "documentation/products/agent/pricing.md"
                   },
                   "key": {
                     "title": "Key",
                     "type": "page",
-                    "filepath": "documentation/guides/agent/key.md"
+                    "filepath": "documentation/products/agent/key.md"
                   }
                 }
               },
@@ -1697,7 +1697,7 @@
                 "icon": "phosphor/regular/paper-plane-tilt",
                 "children": {
                   "getting-started": {
-                    "filepath": "documentation/guides/app/getting-started.md",
+                    "filepath": "documentation/products/api-client/getting-started.md",
                     "type": "page",
                     "title": "Getting Started",
                     "description": "Download and start testing APIs with the most beautiful API client built for developers who love great tools.",
@@ -1739,7 +1739,7 @@
                 "children": {
                   "getting-started": {
                     "title": "Getting Started",
-                    "filepath": "documentation/guides/mock-server/getting-started.md",
+                    "filepath": "documentation/products/mock-server/getting-started.md",
                     "type": "page",
                     "description": "Spin up realistic mock API servers instantly from OpenAPI specs with custom handlers and data seeding.",
                     "head": {
@@ -1771,17 +1771,17 @@
                   },
                   "docker": {
                     "title": "Docker",
-                    "filepath": "documentation/guides/mock-server/docker.md",
+                    "filepath": "documentation/products/mock-server/docker.md",
                     "type": "page"
                   },
                   "custom-request-handler": {
                     "title": "Custom Request Handlers",
-                    "filepath": "documentation/guides/mock-server/custom-request-handler.md",
+                    "filepath": "documentation/products/mock-server/custom-request-handler.md",
                     "type": "page"
                   },
                   "data-seeding": {
                     "title": "Data Seeding",
-                    "filepath": "documentation/guides/mock-server/data-seeding.md",
+                    "filepath": "documentation/products/mock-server/data-seeding.md",
                     "type": "page"
                   },
                   "changelog": {
@@ -1806,7 +1806,7 @@
                 "icon": "phosphor/regular/terminal-window",
                 "children": {
                   "getting-started": {
-                    "filepath": "documentation/guides/cli/getting-started.md",
+                    "filepath": "documentation/tools/cli/getting-started.md",
                     "type": "page",
                     "title": "Getting Started",
                     "description": "Install and use the Scalar CLI to validate, bundle, and deploy OpenAPI specifications from your terminal.",
@@ -1838,7 +1838,7 @@
                     }
                   },
                   "commands": {
-                    "filepath": "documentation/guides/cli/commands.md",
+                    "filepath": "documentation/tools/cli/commands.md",
                     "type": "page",
                     "title": "Commands"
                   }
@@ -1853,7 +1853,7 @@
                 "children": {
                   "getting-started": {
                     "title": "Getting Started",
-                    "filepath": "documentation/guides/openapi-upgrader/getting-started.md",
+                    "filepath": "documentation/tools/openapi-upgrader/getting-started.md",
                     "type": "page",
                     "description": "Migrate legacy Swagger 2.0 specs to modern OpenAPI 3.x formats automatically with our free conversion tool.",
                     "head": {
@@ -1914,7 +1914,7 @@
                 "children": {
                   "swagger-ui": {
                     "title": "Swagger UI",
-                    "filepath": "documentation/migration/swagger-ui.md",
+                    "filepath": "documentation/guides/migration/swagger-ui.md",
                     "type": "page",
                     "description": "Complete guide to migrating from Swagger UI to API References with modern features and better UX.",
                     "head": {
@@ -1946,22 +1946,22 @@
                   },
                   "stoplight": {
                     "title": "Stoplight",
-                    "filepath": "documentation/migration/stoplight.md",
+                    "filepath": "documentation/guides/migration/stoplight.md",
                     "type": "page"
                   },
                   "api-hub": {
                     "title": "API Hub",
-                    "filepath": "documentation/migration/api-hub.md",
+                    "filepath": "documentation/guides/migration/api-hub.md",
                     "type": "page"
                   },
                   "bump": {
                     "title": "Bump.sh",
-                    "filepath": "documentation/migration/bump.md",
+                    "filepath": "documentation/guides/migration/bump.md",
                     "type": "page"
                   },
                   "zuplo": {
                     "title": "Zuplo",
-                    "filepath": "documentation/migration/zuplo.md",
+                    "filepath": "documentation/guides/migration/zuplo.md",
                     "type": "page"
                   }
                 }
@@ -2091,7 +2091,7 @@
                   "/2026-03-25-scalar-mcp-oauth": {
                     "type": "page",
                     "title": "Too Long; Didn't Read; Used MCP",
-                    "filepath": "documentation/blog/2026-03-25-scalar-mcp-oauth.md",
+                    "filepath": "documentation/blog/posts/2026-03-25-scalar-mcp-oauth.md",
                     "head": {
                       "scripts": [{ "url": "https://cdn.jsdelivr.net/npm/@mux/mux-player" }]
                     }
@@ -2099,7 +2099,7 @@
                   "/2026-03-17-agent-mcp": {
                     "type": "page",
                     "title": "Use your API in Cursor",
-                    "filepath": "documentation/blog/2026-03-17-agent-mcp.md",
+                    "filepath": "documentation/blog/posts/2026-03-17-agent-mcp.md",
                     "head": {
                       "scripts": [{ "url": "https://cdn.jsdelivr.net/npm/@mux/mux-player" }]
                     }
@@ -2107,67 +2107,67 @@
                   "/2026-03-05-agent-scalar": {
                     "type": "page",
                     "title": "Introducing Agent",
-                    "filepath": "documentation/blog/2026-03-05-agent-scalar.md"
+                    "filepath": "documentation/blog/posts/2026-03-05-agent-scalar.md"
                   },
                   "/2025-08-19-how-to-set-up-an-openapi-mock-server": {
                     "type": "page",
                     "title": "How to set up an OpenAPI mock server",
-                    "filepath": "documentation/blog/2025-08-19-how-to-set-up-an-openapi-mock-server.md"
+                    "filepath": "documentation/blog/posts/2025-08-19-how-to-set-up-an-openapi-mock-server.md"
                   },
                   "/2025-07-07-how-to-do-openapi-validation-and": {
                     "type": "page",
                     "title": "How to do OpenAPI validation (and why it matters)",
-                    "filepath": "documentation/blog/2025-07-07-how-to-do-openapi-validation-and.md"
+                    "filepath": "documentation/blog/posts/2025-07-07-how-to-do-openapi-validation-and.md"
                   },
                   "/2025-05-28-how-we-created-an-animated-responsive": {
                     "type": "page",
                     "title": "How we created an animated, responsive README",
-                    "filepath": "documentation/blog/2025-05-28-how-we-created-an-animated-responsive.md"
+                    "filepath": "documentation/blog/posts/2025-05-28-how-we-created-an-animated-responsive.md"
                   },
                   "/2025-05-07-how-scalar-themes-work": {
                     "type": "page",
                     "title": "How Scalar themes work",
-                    "filepath": "documentation/blog/2025-05-07-how-scalar-themes-work.md"
+                    "filepath": "documentation/blog/posts/2025-05-07-how-scalar-themes-work.md"
                   },
                   "/2025-04-28-how-cloudinarys-api-docs-create-a": {
                     "type": "page",
                     "title": "How Cloudinary’s API docs create a great developer experience",
-                    "filepath": "documentation/blog/2025-04-28-how-cloudinarys-api-docs-create-a.md"
+                    "filepath": "documentation/blog/posts/2025-04-28-how-cloudinarys-api-docs-create-a.md"
                   },
                   "/2025-04-23-an-introduction-to-openapi-variables": {
                     "type": "page",
                     "title": "An introduction to OpenAPI variables",
-                    "filepath": "documentation/blog/2025-04-23-an-introduction-to-openapi-variables.md"
+                    "filepath": "documentation/blog/posts/2025-04-23-an-introduction-to-openapi-variables.md"
                   },
                   "/2025-04-06-how-we-extended-the-openapi-specification": {
                     "type": "page",
                     "title": "How we extended the OpenAPI specification",
-                    "filepath": "documentation/blog/2025-04-06-how-we-extended-the-openapi-specification.md"
+                    "filepath": "documentation/blog/posts/2025-04-06-how-we-extended-the-openapi-specification.md"
                   },
                   "/2025-03-26-a-guide-to-openapi-security-and-how": {
                     "type": "page",
                     "title": "A guide to OpenAPI security (and how we handle it in Scalar)",
-                    "filepath": "documentation/blog/2025-03-26-a-guide-to-openapi-security-and-how.md"
+                    "filepath": "documentation/blog/posts/2025-03-26-a-guide-to-openapi-security-and-how.md"
                   },
                   "/2025-03-19-the-hidden-complexity-of-building": {
                     "type": "page",
                     "title": "The hidden complexity of building drag and drop",
-                    "filepath": "documentation/blog/2025-03-19-the-hidden-complexity-of-building.md"
+                    "filepath": "documentation/blog/posts/2025-03-19-the-hidden-complexity-of-building.md"
                   },
                   "/2025-03-12-how-we-sped-up-our-api-docs-25x": {
                     "type": "page",
                     "title": "How we sped up our API docs 25x",
-                    "filepath": "documentation/blog/2025-03-12-how-we-sped-up-our-api-docs-25x.md"
+                    "filepath": "documentation/blog/posts/2025-03-12-how-we-sped-up-our-api-docs-25x.md"
                   },
                   "/2025-03-05-how-net-9-and-scalar-solve-the-problem": {
                     "type": "page",
                     "title": "How .NET 9 and Scalar solve the problem of under-documented APIs",
-                    "filepath": "documentation/blog/2025-03-05-how-net-9-and-scalar-solve-the-problem.md"
+                    "filepath": "documentation/blog/posts/2025-03-05-how-net-9-and-scalar-solve-the-problem.md"
                   },
                   "/2024-09-01-oss-pledge": {
                     "type": "page",
                     "title": "Scalar Joins the Open-Source Pledge",
-                    "filepath": "documentation/blog/2024-09-01-oss-pledge.md"
+                    "filepath": "documentation/blog/posts/2024-09-01-oss-pledge.md"
                   }
                 }
               }
