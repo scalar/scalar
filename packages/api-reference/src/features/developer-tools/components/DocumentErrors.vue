@@ -165,10 +165,6 @@ const hasErrors = computed(() => errorCount.value > 0 && !dismissed.value)
   border-left-color: var(--scalar-color-red);
 }
 
-.document-error-item:has([data-type='parse']) {
-  border-left-color: var(--scalar-color-orange);
-}
-
 .document-error-item:has([data-type='validation']) {
   border-left-color: var(--scalar-color-yellow);
 }
@@ -185,11 +181,6 @@ const hasErrors = computed(() => errorCount.value > 0 && !dismissed.value)
 .document-error-badge[data-type='fetch'] {
   background: color-mix(in srgb, var(--scalar-color-red), transparent 90%);
   color: var(--scalar-color-red);
-}
-
-.document-error-badge[data-type='parse'] {
-  background: color-mix(in srgb, var(--scalar-color-orange), transparent 90%);
-  color: var(--scalar-color-orange);
 }
 
 .document-error-badge[data-type='validation'] {
