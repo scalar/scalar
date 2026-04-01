@@ -83,6 +83,38 @@ describe('ScalarVirtualText', () => {
     expect(content.attributes('style')).toContain('transform: translateY')
   })
 
+  it('keeps scroll height separate from translated content', async () => {
+    const longText = Array.from({ length: 100 }, (_, index) => `Line ${index + 1}`).join(
+      '\n',
+    )
+
+    const wrapper = mount(ScalarVirtualText, {
+      props: {
+        text: longText,
+      },
+    })
+
+    const container = wrapper.find('.scalar-virtual-text')
+
+    Object.defineProperty(container.element, 'scrollTop', {
+      value: 1800,
+      writable: true,
+    })
+    Object.defineProperty(container.element, 'clientHeight', {
+      value: 200,
+      writable: true,
+    })
+
+    await container.trigger('scroll')
+
+    const content = wrapper.find('.scalar-virtual-text-content')
+    const spacer = wrapper.find('.scalar-virtual-text-spacer')
+
+    expect(content.attributes('style')).not.toContain('height:')
+    expect(content.attributes('style')).toContain('transform: translateY(1600px)')
+    expect(spacer.attributes('style')).toContain('height: 2000px')
+  })
+
   it('updates container height on window resize', () => {
     vi.spyOn(window, 'addEventListener')
     vi.spyOn(window, 'removeEventListener')
