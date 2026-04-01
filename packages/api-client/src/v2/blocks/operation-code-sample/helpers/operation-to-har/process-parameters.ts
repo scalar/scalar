@@ -63,7 +63,10 @@ const getParameterStyleAndExplode = (param: ParameterObject): { style: string; e
 /**
  * Extract the value for a parameter from example data or schema.
  * Prioritizes example data over schema examples.
- * Returns null if the parameter is disabled so we can skip it.
+ * Returns undefined if the parameter should be skipped.
+ *
+ * For code snippet generation, we want to include optional parameters if they have example values,
+ * so users can see how to use them. The isParamDisabled check is only used if there's no example value.
  */
 const getParameterValue = (
   param: ParameterObject,
@@ -73,14 +76,14 @@ const getParameterValue = (
   // Try to get value from example first
   const exampleValue = getExample(param, example, contentType)
 
-  // If the parameter is disabled, return undefined so we can skip it.
-  if (isParamDisabled(param, exampleValue)) {
-    return undefined
-  }
-
-  // If the example value is set, return it.
+  // If the example value is set, return it (even for optional parameters)
   if (exampleValue?.value !== undefined) {
     return deSerializeParameter(exampleValue.value, param)
+  }
+
+  // If the parameter is disabled and has no explicit example, skip it
+  if (isParamDisabled(param, exampleValue)) {
+    return undefined
   }
 
   // Fall back to schema example if available

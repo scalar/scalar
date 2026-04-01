@@ -11,6 +11,11 @@ export type Slug = Source['slug']
 /** A selection of test sources and configurations */
 export const sources = [
   {
+    title: 'Test Header Params',
+    slug: 'test-header-params',
+    url: '/test-header-params.yaml',
+  },
+  {
     title: 'Scalar Galaxy', // optional, would fallback to 'API #1'
     slug: 'scalar-galaxy', // optional, would be auto-generated from the title or the index
     content: galaxy,

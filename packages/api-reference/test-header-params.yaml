@@ -1,0 +1,104 @@
+openapi: 3.1.0
+info:
+  title: Test API with Header Parameters
+  version: 1.0.0
+servers:
+  - url: https://api.onesourcetrax.com/general-ledger-manager/v1
+paths:
+  /blueprints/{id}:
+    get:
+      summary: Get Data Fields by ID
+      description: Returns Data Fields metadata for the specified Data Fields ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Unique identifier of the Data Fields
+          schema:
+            type: string
+          example: '46'
+        - name: X-ONESOURCE-Client-Id
+          in: header
+          required: false
+          description: Client Id
+          schema:
+            type: integer
+          example: 1
+        - name: X-ONESOURCE-Client-Number
+          in: header
+          required: false
+          description: Client Number
+          schema:
+            type: string
+          example: 'ABC123'
+        - name: Authorization
+          in: header
+          required: true
+          description: Bearer token
+          schema:
+            type: string
+          example: 'Bearer YOUR_SECRET_TOKEN'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  name:
+                    type: string
+  /blueprints/{id}/custom-views:
+    post:
+      summary: Create a new Consolidation
+      description: Add a Consolidation with required minimum criteria
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          example: 123
+        - name: X-ONESOURCE-Client-Id
+          in: header
+          required: false
+          description: Client Id
+          schema:
+            type: integer
+          example: 1
+        - name: X-ONESOURCE-Client-Number
+          in: header
+          required: false
+          description: Client Number
+          schema:
+            type: string
+          example: 'ABC123'
+        - name: Authorization
+          in: header
+          required: true
+          schema:
+            type: string
+          example: 'Bearer YOUR_SECRET_TOKEN'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: 'My Custom View Name'
+                aggregation:
+                  type: array
+                  items:
+                    type: object
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
