@@ -185,7 +185,7 @@ describe('handleDragEnd', () => {
     assert(sidebarStructure, 'Sidebar structure is required')
 
     const order = sidebarStructure.children?.map((child) => child.id)
-    expect(order).toEqual([tagUsers.id, tagPets.id])
+    expect(order).toEqual([tagUsers.id, tagPets.id, 'doc-1/description/introduction'])
 
     const { handleDragEnd } = dragHandleFactory({
       store: ref(store),
@@ -199,13 +199,13 @@ describe('handleDragEnd', () => {
 
     expect(result).toBe(true)
     const updatedDoc = store.workspace.documents['doc-1']
-    expect(updatedDoc?.['x-scalar-order']).toEqual([tagPets.id, tagUsers.id])
+    expect(updatedDoc?.['x-scalar-order']).toEqual([tagPets.id, tagUsers.id, 'doc-1/description/introduction'])
 
     // Check the order of the tags
     const updatedSidebarStructre = store.workspace.documents['doc-1']?.['x-scalar-navigation']
     assert(updatedSidebarStructre, 'Updated sidebar structure is required')
     const updatedOrder = updatedSidebarStructre.children?.map((child) => child.id)
-    expect(updatedOrder).toEqual([tagPets.id, tagUsers.id])
+    expect(updatedOrder).toEqual([tagPets.id, tagUsers.id, 'doc-1/description/introduction'])
   })
 
   it('returns false when trying to reorder tags from different parents', async () => {

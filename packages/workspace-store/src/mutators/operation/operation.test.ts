@@ -48,7 +48,11 @@ describe('updateOperationPathMethod (method only)', () => {
     })
     store.buildSidebar('test')
     const document = store.workspace.documents.test!
-    expect(document['x-scalar-order']).toStrictEqual(['test/GET/users', 'test/POST/users'])
+    expect(document['x-scalar-order']).toStrictEqual([
+      'test/description/introduction',
+      'test/GET/users',
+      'test/POST/users',
+    ])
 
     updateOperationPathMethod(document, store, {
       meta: { method: 'get', path: '/users' },
@@ -57,7 +61,11 @@ describe('updateOperationPathMethod (method only)', () => {
         return
       },
     })
-    expect(document['x-scalar-order']).toStrictEqual(['test/PUT/users', 'test/POST/users'])
+    expect(document['x-scalar-order']).toStrictEqual([
+      'test/description/introduction',
+      'test/PUT/users',
+      'test/POST/users',
+    ])
 
     // The operation should now be under 'put'
     expect(document.paths?.['/users']).toStrictEqual({
