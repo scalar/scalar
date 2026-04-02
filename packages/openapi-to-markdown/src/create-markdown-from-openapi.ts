@@ -1,10 +1,7 @@
 import { isObject } from '@scalar/helpers/object/is-object'
 import { readFiles } from '@scalar/json-magic/bundle/plugins/node'
 import { normalize } from '@scalar/json-magic/helpers/normalize'
-import type {
-  OpenApiDocument,
-  PathItemObject,
-} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { OpenApiDocument, PathItemObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
 import { minify } from 'html-minifier-terser'
 import rehypeParse from 'rehype-parse'
@@ -19,10 +16,7 @@ import { renderToString } from 'vue/server-renderer'
 import MarkdownReference from './components/MarkdownReference.vue'
 
 type AnyDocument = OpenApiDocument | Record<string, unknown> | string
-type HttpMethodKeys = Exclude<
-  keyof PathItemObject,
-  '$ref' | 'summary' | 'description' | 'servers' | 'parameters'
->
+type HttpMethodKeys = Exclude<keyof PathItemObject, '$ref' | 'summary' | 'description' | 'servers' | 'parameters'>
 export type HttpMethod = Extract<HttpMethodKeys, string>
 export type OperationSelector =
   | {
@@ -53,17 +47,7 @@ type OperationMatch = {
   method: HttpMethod
 }
 
-const HTTP_METHODS: HttpMethod[] = [
-  'get',
-  'put',
-  'post',
-  'delete',
-  'connect',
-  'options',
-  'head',
-  'patch',
-  'trace',
-]
+const HTTP_METHODS: HttpMethod[] = ['get', 'put', 'post', 'delete', 'connect', 'options', 'head', 'patch', 'trace']
 const HTTP_METHOD_SET = new Set<string>(HTTP_METHODS)
 
 const isHttpUrl = (value: string): boolean => {
@@ -111,29 +95,21 @@ const parseJsonPointer = (pointer: string): string[] => {
   return pointer
     .slice(1)
     .split('/')
-    .map((segment) =>
-      segment.replaceAll('~1', '/').replaceAll('~0', '~'),
-    )
+    .map((segment) => segment.replaceAll('~1', '/').replaceAll('~0', '~'))
 }
 
-const getOperationSelectorFromPointer = (
-  pointer: string,
-): Extract<OperationSelector, { path: string }> => {
+const getOperationSelectorFromPointer = (pointer: string): Extract<OperationSelector, { path: string }> => {
   const segments = parseJsonPointer(pointer)
 
   if (segments.length !== 3 || segments[0] !== 'paths') {
-    throw new Error(
-      `JSON pointer "${pointer}" must target an operation object under "/paths/{path}/{method}"`,
-    )
+    throw new Error(`JSON pointer "${pointer}" must target an operation object under "/paths/{path}/{method}"`)
   }
 
   const path = segments[1]
   const method = segments[2]
 
   if (!path || !method) {
-    throw new Error(
-      `JSON pointer "${pointer}" must target an operation object under "/paths/{path}/{method}"`,
-    )
+    throw new Error(`JSON pointer "${pointer}" must target an operation object under "/paths/{path}/{method}"`)
   }
 
   return {
@@ -154,10 +130,7 @@ const getPathEntries = (document: OpenApiDocument): Array<[string, PathItemObjec
   )
 }
 
-const filterPathItemToSingleOperation = (
-  pathItem: PathItemObject,
-  selectedMethod: HttpMethod,
-): PathItemObject =>
+const filterPathItemToSingleOperation = (pathItem: PathItemObject, selectedMethod: HttpMethod): PathItemObject =>
   Object.fromEntries(
     Object.entries(pathItem).filter(([key]) => {
       const method = normalizeHttpMethod(key)
@@ -172,18 +145,14 @@ const findOperationByPathAndMethod = (
   const method = normalizeHttpMethod(selector.method)
 
   if (!method) {
-    throw new Error(
-      `Invalid HTTP method "${selector.method}". Supported methods: ${HTTP_METHODS.join(', ')}`,
-    )
+    throw new Error(`Invalid HTTP method "${selector.method}". Supported methods: ${HTTP_METHODS.join(', ')}`)
   }
 
   const pathEntries = getPathEntries(document)
   const pathItem = pathEntries.find(([path]) => path === selector.path)?.[1]
 
   if (!pathItem || !(method in pathItem)) {
-    throw new Error(
-      `Operation not found for path "${selector.path}" and method "${method.toUpperCase()}"`,
-    )
+    throw new Error(`Operation not found for path "${selector.path}" and method "${method.toUpperCase()}"`)
   }
 
   return {
@@ -192,10 +161,7 @@ const findOperationByPathAndMethod = (
   }
 }
 
-const findOperationsByOperationId = (
-  document: OpenApiDocument,
-  operationId: string,
-): OperationMatch[] =>
+const findOperationsByOperationId = (document: OpenApiDocument, operationId: string): OperationMatch[] =>
   getPathEntries(document).flatMap(([path, pathItem]) =>
     Object.entries(pathItem).flatMap(([methodKey, operation]) => {
       const method = normalizeHttpMethod(methodKey)
@@ -205,9 +171,7 @@ const findOperationsByOperationId = (
       }
 
       const candidateOperationId =
-        'operationId' in operation && typeof operation.operationId === 'string'
-          ? operation.operationId
-          : undefined
+        'operationId' in operation && typeof operation.operationId === 'string' ? operation.operationId : undefined
 
       if (candidateOperationId !== operationId) {
         return []
@@ -217,15 +181,9 @@ const findOperationsByOperationId = (
     }),
   )
 
-const resolveOperationMatch = (
-  document: OpenApiDocument,
-  selector: OperationSelector,
-): OperationMatch => {
+const resolveOperationMatch = (document: OpenApiDocument, selector: OperationSelector): OperationMatch => {
   if ('pointer' in selector) {
-    return findOperationByPathAndMethod(
-      document,
-      getOperationSelectorFromPointer(selector.pointer),
-    )
+    return findOperationByPathAndMethod(document, getOperationSelectorFromPointer(selector.pointer))
   }
 
   if ('operationId' in selector) {
@@ -236,9 +194,7 @@ const resolveOperationMatch = (
     }
 
     if (matches.length > 1) {
-      const uniqueCandidates = matches.map(
-        ({ path, method }) => `"${method.toUpperCase()} ${path}"`,
-      )
+      const uniqueCandidates = matches.map(({ path, method }) => `"${method.toUpperCase()} ${path}"`)
 
       throw new Error(
         `Multiple operations found for operationId "${selector.operationId}". Use { path, method } instead. Matches: ${uniqueCandidates.join(', ')}`,
@@ -251,17 +207,12 @@ const resolveOperationMatch = (
   return findOperationByPathAndMethod(document, selector)
 }
 
-const filterDocumentByOperation = (
-  document: OpenApiDocument,
-  selector: OperationSelector,
-): OpenApiDocument => {
+const filterDocumentByOperation = (document: OpenApiDocument, selector: OperationSelector): OpenApiDocument => {
   const match = resolveOperationMatch(document, selector)
   const pathItem = getPathEntries(document).find(([path]) => path === match.path)?.[1]
 
   if (!pathItem) {
-    throw new Error(
-      `Operation not found for path "${match.path}" and method "${match.method.toUpperCase()}"`,
-    )
+    throw new Error(`Operation not found for path "${match.path}" and method "${match.method.toUpperCase()}"`)
   }
 
   return {
@@ -272,10 +223,7 @@ const filterDocumentByOperation = (
   }
 }
 
-export async function createHtmlFromOpenApi(
-  input: AnyDocument,
-  options?: OpenApiRenderOptions,
-) {
+export async function createHtmlFromOpenApi(input: AnyDocument, options?: OpenApiRenderOptions) {
   const workspaceStore = createWorkspaceStore({
     fileLoader: readFiles(),
   })
@@ -323,10 +271,7 @@ export async function createHtmlFromOpenApi(
   })
 }
 
-export async function createMarkdownFromOpenApi(
-  content: AnyDocument,
-  options?: OpenApiRenderOptions,
-) {
+export async function createMarkdownFromOpenApi(content: AnyDocument, options?: OpenApiRenderOptions) {
   return markdownFromHtml(await createHtmlFromOpenApi(content, options))
 }
 

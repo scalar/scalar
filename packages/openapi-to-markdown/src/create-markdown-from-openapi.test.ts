@@ -327,9 +327,7 @@ Test description`
           operationId: 'petsOperation',
         },
       }),
-    ).rejects.toThrow(
-      'Multiple operations found for operationId "petsOperation". Use { path, method } instead.',
-    )
+    ).rejects.toThrow('Multiple operations found for operationId "petsOperation". Use { path, method } instead.')
   })
 
   it('throws when path and method operation is missing', async () => {
@@ -431,9 +429,7 @@ Test description`
           pointer: '/paths/~1pets',
         },
       }),
-    ).rejects.toThrow(
-      'JSON pointer "/paths/~1pets" must target an operation object under "/paths/{path}/{method}"',
-    )
+    ).rejects.toThrow('JSON pointer "/paths/~1pets" must target an operation object under "/paths/{path}/{method}"')
   })
 
   it('renders response schemas with language identifiers (JSON and XML)', async () => {
