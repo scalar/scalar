@@ -2,9 +2,9 @@
 import { OperationCodeSample } from '@scalar/api-client/v2/blocks/operation-code-sample'
 import {
   ScalarErrorBoundary,
-  ScalarTooltip,
   ScalarIconButton,
   ScalarMarkdown,
+  ScalarTooltip,
 } from '@scalar/components'
 import {
   ScalarIconCopy,

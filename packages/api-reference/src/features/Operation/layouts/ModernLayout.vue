@@ -1,6 +1,10 @@
 <script setup lang="ts">
 import { OperationCodeSample } from '@scalar/api-client/v2/blocks/operation-code-sample'
-import { ScalarErrorBoundary, ScalarMarkdown, ScalarTooltip } from '@scalar/components'
+import {
+  ScalarErrorBoundary,
+  ScalarMarkdown,
+  ScalarTooltip,
+} from '@scalar/components'
 import { ScalarIconLockSimple, ScalarIconWebhooksLogo } from '@scalar/icons'
 import {
   getOperationStability,
@@ -52,6 +56,7 @@ const {
   operation,
   options,
   path,
+  requiredSecurityScopes = [],
   selectedServer,
   selectedSecuritySchemes,
   selectedClient,
@@ -77,12 +82,6 @@ const {
     requiredSecurityScopes: string[]
   }
 >()
-
-const requiredSecurityScopes = computed<string[]>(() =>
-  Array.isArray(operation.requiredSecurityScopes)
-    ? operation.requiredSecurityScopes
-    : [],
-)
 
 const operationTitle = computed(() => operation.summary || path || '')
 

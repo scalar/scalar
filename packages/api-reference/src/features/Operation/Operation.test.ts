@@ -570,10 +570,7 @@ describe('Operation', () => {
 
     const modernLayout = wrapper.findComponent({ name: 'ModernLayout' })
     expect(modernLayout.exists()).toBe(true)
-    expect(modernLayout.props('requiredSecurityScopes')).toEqual([
-      'read:users',
-      'write:users',
-    ])
+    expect(modernLayout.props('requiredSecurityScopes')).toEqual(['read:users', 'write:users'])
   })
 
   it('passes hasSecurityRequirements=false to ModernLayout for optional auth', () => {
@@ -763,9 +760,7 @@ describe('Operation', () => {
         })
         const classicLayout = wrapper.findComponent({ name: 'ClassicLayout' })
 
-        expect(classicLayout.props('requiredSecurityScopes')).toEqual([
-          'read:users',
-        ])
+        expect(classicLayout.props('requiredSecurityScopes')).toEqual(['read:users'])
       })
     })
   })
