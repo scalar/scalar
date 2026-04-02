@@ -115,6 +115,6 @@
   "sideEffects": false,
   "devDependencies": {
     "jsdom": "catalog:*",
-    "vite": "catalog:*"
+    "vitest": "catalog:*"
   }
 }
