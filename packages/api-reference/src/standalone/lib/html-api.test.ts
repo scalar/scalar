@@ -1,11 +1,20 @@
 import { sleep } from '@scalar/helpers/testing/sleep'
 import { apiReferenceConfigurationSchema, apiReferenceConfigurationWithSourceSchema } from '@scalar/types/api-reference'
-import * as unheadVueClient from '@unhead/vue/client'
+import { createHead } from '@unhead/vue/client'
 import { flushPromises } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { nextTick } from 'vue'
 
 import { createApiReference, createContainer, findDataAttributes, getConfigurationFromDataAttributes } from './html-api'
+
+vi.mock('@unhead/vue/client', async () => {
+  const actual = await vi.importActual<typeof import('@unhead/vue/client')>('@unhead/vue/client')
+
+  return {
+    ...actual,
+    createHead: vi.fn(actual.createHead),
+  }
+})
 
 beforeEach(() => {
   global.document = createHtmlDocument(`
@@ -57,7 +66,8 @@ describe('createApiReference', () => {
   })
 
   it('creates the head manager once for hydration mounts', () => {
-    const createHeadSpy = vi.spyOn(unheadVueClient, 'createHead')
+    const createHeadSpy = vi.mocked(createHead)
+    createHeadSpy.mockClear()
     const element = document.querySelector('#mount-point')
     element!.innerHTML = '<div>Server-rendered content</div>'
 
@@ -65,7 +75,6 @@ describe('createApiReference', () => {
     createApiReference(element!, apiReferenceConfigurationSchema.parse(config))
 
     expect(createHeadSpy).toHaveBeenCalledTimes(1)
-    createHeadSpy.mockRestore()
   })
 
   it('handles scalar:reload-references event', () => {
