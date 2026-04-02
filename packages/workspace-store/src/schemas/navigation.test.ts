@@ -76,7 +76,6 @@ describe('navigation', () => {
           method: 'get',
           path: '/users/{id}',
           isDeprecated: false,
-          hasSecurityRequirements: true,
         }
 
         const result = coerceValue(TraversedOperationSchemaDefinition, validInput)
@@ -151,7 +150,6 @@ describe('navigation', () => {
           method: 'post',
           name: 'userCreated',
           isDeprecated: true,
-          hasSecurityRequirements: true,
         }
 
         const result = coerceValue(TraversedWebhookSchemaDefinition, validInput)

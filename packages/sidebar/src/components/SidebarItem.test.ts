@@ -3,9 +3,7 @@ import {
   ScalarSidebarItem,
   ScalarSidebarItem as ScalarSidebarItemComponent,
   ScalarSidebarSection,
-  ScalarTooltip,
 } from '@scalar/components'
-import { ScalarIconLockSimple } from '@scalar/icons'
 import { LibraryIcon } from '@scalar/icons/library'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
@@ -303,48 +301,6 @@ describe('SidebarItem', () => {
       })
 
       expect(wrapper.findComponent(SidebarHttpBadge).exists()).toBe(false)
-    })
-
-    it('renders security lock icon when item has security requirements', () => {
-      const item: Item = {
-        id: '1',
-        title: 'Secure endpoint',
-        type: 'operation',
-        ref: 'ref-1',
-        method: 'get',
-        path: '/secure',
-        hasSecurityRequirements: true,
-      }
-
-      const wrapper = mount(SidebarItem, {
-        props: {
-          ...baseProps,
-          item,
-        },
-      })
-
-      expect(wrapper.findComponent(ScalarTooltip).exists()).toBe(true)
-      expect(wrapper.findComponent(ScalarIconLockSimple).exists()).toBe(true)
-    })
-
-    it('does not render security lock icon when item has no security requirements', () => {
-      const item: Item = {
-        id: '1',
-        title: 'Public endpoint',
-        type: 'operation',
-        ref: 'ref-1',
-        method: 'get',
-        path: '/public',
-      }
-
-      const wrapper = mount(SidebarItem, {
-        props: {
-          ...baseProps,
-          item,
-        },
-      })
-
-      expect(wrapper.findComponent(ScalarIconLockSimple).exists()).toBe(false)
     })
   })
 

@@ -1,6 +1,5 @@
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { TraversedOperation, TraversedWebhook } from '@scalar/workspace-store/schemas/navigation'
-import { ScalarIconLockSimple } from '@scalar/icons'
 import { enableAutoUnmount, mount } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { nextTick } from 'vue'
@@ -224,29 +223,6 @@ describe('OperationsListItem', () => {
 
         expect(wrapper.text()).toContain(operation.method)
       })
-    })
-  })
-
-  describe('security indicator', () => {
-    it('shows lock icon when operation has required auth', () => {
-      const operation = createMockOperation({ hasSecurityRequirements: true })
-
-      const wrapper = mount(OperationsListItem, {
-        props: { operation, eventBus: null },
-      })
-
-      expect(wrapper.findComponent(ScalarIconLockSimple).exists()).toBe(true)
-      expect(wrapper.text()).toContain('/test')
-    })
-
-    it('does not show lock icon when operation has no required auth', () => {
-      const operation = createMockOperation({ hasSecurityRequirements: false })
-
-      const wrapper = mount(OperationsListItem, {
-        props: { operation, eventBus: null },
-      })
-
-      expect(wrapper.findComponent(ScalarIconLockSimple).exists()).toBe(false)
     })
   })
 })
