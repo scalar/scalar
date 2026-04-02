@@ -548,7 +548,7 @@ const changeSelectedDocument = async (
         },
       )
       if (servers.length > 0) {
-        workspaceStore.updateDocument(
+        clientStore.updateDocument(
           slug,
           'x-scalar-selected-server',
           servers[0]!.url,
