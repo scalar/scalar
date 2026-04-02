@@ -46,6 +46,7 @@ import { XBadges } from '@/features/x-badges'
 const {
   clientOptions,
   eventBus,
+  requiredSecurityScopes,
   hasSecurityRequirements,
   isWebhook,
   method,
@@ -73,6 +74,8 @@ const {
     selectedSecuritySchemes: SecuritySchemeObjectSecret[]
     /** Whether this operation requires authentication */
     hasSecurityRequirements: boolean
+    /** Required scopes from OpenAPI security requirements */
+    requiredSecurityScopes: string[]
   }
 >()
 
@@ -129,7 +132,11 @@ provide(REQUEST_BODY_COMPOSITION_INDEX_SYMBOL, requestBodyCompositionSelection)
           <!-- Required auth badge -->
           <ScalarTooltip
             v-if="hasSecurityRequirements"
-            content="Authentication required">
+            :content="
+              requiredSecurityScopes.length
+                ? `Authentication required\\nScopes: ${requiredSecurityScopes.join(', ')}`
+                : 'Authentication required'
+            ">
             <Badge
               class="font-code flex w-fit items-center justify-center gap-1">
               <ScalarIconLockSimple

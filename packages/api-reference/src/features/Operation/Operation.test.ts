@@ -526,6 +526,56 @@ describe('Operation', () => {
     expect(modernLayout.props('hasSecurityRequirements')).toBe(true)
   })
 
+  it('passes required scopes to ModernLayout when operation defines oauth scopes', () => {
+    const documentWithScopes = coerceValue(OpenAPIDocumentSchema, {
+      openapi: '3.1.0',
+      info: {
+        title: 'Test API',
+        version: '1.0.0',
+      },
+      paths: {
+        '/users/{userId}': {
+          get: {
+            operationId: 'getUserById',
+            summary: 'Get user by ID',
+            security: [{ oauth2: ['read:users', 'write:users'] }],
+          },
+        },
+      },
+      components: {
+        securitySchemes: {
+          oauth2: {
+            type: 'oauth2',
+            flows: {
+              authorizationCode: {
+                authorizationUrl: 'https://example.com/oauth/authorize',
+                tokenUrl: 'https://example.com/oauth/token',
+                scopes: {
+                  'read:users': 'Read users',
+                  'write:users': 'Write users',
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+
+    const wrapper = mountOperationWithConfig({
+      path: '/users/{userId}',
+      method: 'get',
+      pathValue: documentWithScopes.paths?.['/users/{userId}'],
+      document: documentWithScopes,
+    })
+
+    const modernLayout = wrapper.findComponent({ name: 'ModernLayout' })
+    expect(modernLayout.exists()).toBe(true)
+    expect(modernLayout.props('requiredSecurityScopes')).toEqual([
+      'read:users',
+      'write:users',
+    ])
+  })
+
   it('passes hasSecurityRequirements=false to ModernLayout for optional auth', () => {
     const documentWithOptionalSecurity = coerceValue(OpenAPIDocumentSchema, {
       openapi: '3.1.0',
@@ -668,6 +718,54 @@ describe('Operation', () => {
         const classicLayout = wrapper.findComponent({ name: 'ClassicLayout' })
 
         expect(classicLayout.props('hasSecurityRequirements')).toBe(true)
+      })
+
+      it('passes required scopes to ClassicLayout for operation-level oauth scopes', () => {
+        const documentWithScopes = coerceValue(OpenAPIDocumentSchema, {
+          openapi: '3.1.0',
+          info: {
+            title: 'Test API',
+            version: '1.0.0',
+          },
+          paths: {
+            '/users/{userId}': {
+              get: {
+                operationId: 'getUserById',
+                summary: 'Get user by ID',
+                security: [{ oauth2: ['read:users'] }],
+              },
+            },
+          },
+          components: {
+            securitySchemes: {
+              oauth2: {
+                type: 'oauth2',
+                flows: {
+                  authorizationCode: {
+                    authorizationUrl: 'https://example.com/oauth/authorize',
+                    tokenUrl: 'https://example.com/oauth/token',
+                    scopes: {
+                      'read:users': 'Read users',
+                    },
+                  },
+                },
+              },
+            },
+          },
+        })
+
+        const wrapper = mountOperationWithConfig({
+          options: { layout: 'classic' },
+          path: '/users/{userId}',
+          method: 'get',
+          pathValue: documentWithScopes.paths?.['/users/{userId}'],
+          document: documentWithScopes,
+        })
+        const classicLayout = wrapper.findComponent({ name: 'ClassicLayout' })
+
+        expect(classicLayout.props('requiredSecurityScopes')).toEqual([
+          'read:users',
+        ])
       })
     })
   })

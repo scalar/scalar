@@ -50,6 +50,7 @@ import { XBadges } from '@/features/x-badges'
 const {
   clientOptions,
   eventBus,
+  requiredSecurityScopes,
   hasSecurityRequirements,
   isWebhook,
   method,
@@ -72,8 +73,18 @@ const {
     selectedSecuritySchemes: SecuritySchemeObjectSecret[]
     /** Whether this operation requires authentication */
     hasSecurityRequirements: boolean
+    /** Required OAuth scopes for this operation */
+    requiredSecurityScopes: string[]
   }
 >()
+
+const securityTooltipContent = computed(() => {
+  if (!requiredSecurityScopes.length) {
+    return 'Authentication required'
+  }
+
+  return `Authentication required\nScopes: ${requiredSecurityScopes.join(', ')}`
+})
 
 const operationTitle = computed(() => operation.summary || path || '')
 const operationExtensions = computed(() => getXKeysFromObject(operation))
@@ -143,7 +154,7 @@ const { copyToClipboard } = useClipboard()
               </Badge>
               <ScalarTooltip
                 v-if="hasSecurityRequirements"
-                content="Authentication required">
+                :content="securityTooltipContent">
                 <Badge
                   class="font-code flex w-fit items-center justify-center gap-1">
                   <ScalarIconLockSimple

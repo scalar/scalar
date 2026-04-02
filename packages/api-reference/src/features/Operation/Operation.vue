@@ -147,6 +147,23 @@ const hasSecurityRequirements = computed(() => {
 
   return !isAuthOptional(securityRequirements)
 })
+
+const requiredScopes = computed<string[]>(() => {
+  const securityRequirements = getSecurityRequirements(
+    document.security,
+    operation.value?.security,
+  )
+
+  const scopes = securityRequirements.flatMap((requirement) =>
+    Object.values(requirement).flatMap((schemeScopes) =>
+      Array.isArray(schemeScopes)
+        ? schemeScopes.filter((scope): scope is string => Boolean(scope))
+        : [],
+    ),
+  )
+
+  return [...new Set(scopes)]
+})
 </script>
 
 <template>
@@ -164,6 +181,7 @@ const hasSecurityRequirements = computed(() => {
       :path
       :selectedClient
       :hasSecurityRequirements
+      :requiredScopes
       :selectedSecuritySchemes
       :selectedServer />
     <ModernLayout
@@ -178,6 +196,7 @@ const hasSecurityRequirements = computed(() => {
       :path
       :selectedClient
       :hasSecurityRequirements
+      :requiredScopes
       :selectedSecuritySchemes
       :selectedServer />
   </template>
