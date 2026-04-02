@@ -1,3 +1,4 @@
+---
 '@scalar/api-reference': patch
 ---
 
