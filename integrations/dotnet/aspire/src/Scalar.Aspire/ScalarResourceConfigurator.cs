@@ -64,8 +64,8 @@ internal static class ScalarResourceConfigurator
             var shouldUseHttps = (!httpAvailable || scalarAspireOptions.PreferHttpsEndpoint) && httpsAvailable;
             var resourceUrl = GetResourceUrl(resourceName, shouldUseHttps, scalarAspireOptions.DefaultProxy, endpoints);
 
-            ConfigureOpenApiServers(scalarAspireOptions, resourceName, resourceUrl);
             var baseDocumentUrl = await ResolveBaseDocumentUrlAsync(scalarAspireOptions, scalarAnnotation.BaseDocumentUrl, cancellationToken);
+            ConfigureOpenApiServers(scalarAspireOptions, resourceName, resourceUrl, baseDocumentUrl);
             ConfigureOpenApiRoutePattern(scalarAspireOptions, baseDocumentUrl);
             ConfigureDocuments(scalarAspireOptions, resourceName, baseDocumentUrl);
 
@@ -73,11 +73,38 @@ internal static class ScalarResourceConfigurator
         }
     }
 
-    private static void ConfigureOpenApiServers(ScalarOptions scalarOptions, string resourceName, string resourceUrl)
+    private static void ConfigureOpenApiServers(ScalarOptions scalarOptions, string resourceName, string resourceUrl, string? baseDocumentUrl)
     {
-        // Only set OpenAPI servers if not already assigned
+        // Always provide a base server URL so relative servers in API descriptions resolve against the
+        // discovered service address.
+        ConfigureBaseServerUrl(scalarOptions, resourceUrl);
+
+        // For live OpenAPI endpoints we do not inject a servers override; otherwise absolute servers from
+        // the API description (for example http://localhost:65312/api) would be replaced and lose path data.
+        if (baseDocumentUrl is not null)
+        {
+            return;
+        }
+
+        // Static-file mode (BaseDocumentUrl == null) keeps the fallback so "Try It" still has a default target
+        // when the document has no servers section.
         var server = new ScalarServer(resourceUrl, resourceName);
         scalarOptions.Servers ??= [server];
+    }
+
+    private static void ConfigureBaseServerUrl(ScalarOptions scalarOptions, string resourceUrl)
+    {
+        if (!string.IsNullOrEmpty(scalarOptions.BaseServerUrl))
+        {
+            return;
+        }
+
+        if (!Uri.TryCreate(resourceUrl, UriKind.Absolute, out var resourceUri))
+        {
+            return;
+        }
+
+        scalarOptions.BaseServerUrl = $"{resourceUri.Scheme}://{resourceUri.Authority}";
     }
 
     private static async Task<string?> ResolveBaseDocumentUrlAsync(ScalarOptions scalarOptions, ReferenceExpression? annotationBaseDocumentUrl, CancellationToken cancellationToken)
