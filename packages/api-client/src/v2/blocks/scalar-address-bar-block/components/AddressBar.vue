@@ -113,6 +113,11 @@ const checkForServer = (targetPath: string) => {
     const [url, newPath] = newServer
     const matchingServer = servers.find((s) => s.url === url)
 
+    // Early exit if the server is already selecc
+    if (url === server?.url) {
+      return newPath
+    }
+
     // Select the server if it exists
     if (matchingServer) {
       eventBus.emit('server:update:selected', {
@@ -145,10 +150,8 @@ const emitPathMethodUpdate = (
   targetPath: string,
   blurTargetSelector: string | null = null,
 ): void => {
-  const path = checkForServer(targetPath)
-  const normalizedPath = path.startsWith('/') ? path : `/${path}`
-
-  console.log(path, normalizedPath)
+  const newPath = checkForServer(targetPath)
+  const normalizedPath = newPath.startsWith('/') ? newPath : `/${newPath}`
 
   eventBus.emit('operation:update:pathMethod', {
     meta: { method, path },
@@ -168,6 +171,16 @@ const emitPathMethodUpdate = (
         if (normalizedPath !== path) {
           pathConflict.value = normalizedPath
         }
+      }
+
+      // Edge case: pasting a full URL extracts the server but leaves the path unchanged.
+      // The CodeMirror DOM still shows the full URL, so we force it back to just the path.
+      if (
+        status === 'no-change' &&
+        addressBarRef.value?.codeMirrorRef?.textContent &&
+        addressBarRef.value.codeMirrorRef.textContent !== newPath
+      ) {
+        addressBarRef.value.setCodeMirrorContent(newPath)
       }
 
       // Re-trigger the click or focus event if we have a blur target selector
@@ -385,6 +398,7 @@ defineExpose({
           server
           @blur="handlePathBlur"
           @keydown.backspace="handlePathBackspace"
+          @keydown.delete="handlePathBackspace"
           @submit="handlePathSubmit" />
         <div class="fade-right" />
       </div>
