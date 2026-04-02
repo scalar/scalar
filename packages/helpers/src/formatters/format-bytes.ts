@@ -11,7 +11,7 @@ export const formatBytes = (value: number, precision = 3): string => {
   }
 
   // toPrecision rounding can push the value to 1000, overflowing the current unit
-  let unitIndex = Math.min(Math.floor(Math.log10(value) / 3), UNITS.length - 1)
+  let unitIndex = Math.max(0, Math.min(Math.floor(Math.log10(value) / 3), UNITS.length - 1))
   const normalizedValue = Number((value / 1000 ** unitIndex).toPrecision(precision))
 
   if (normalizedValue >= 1000 && unitIndex < UNITS.length - 1) {

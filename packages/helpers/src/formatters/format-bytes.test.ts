@@ -29,6 +29,12 @@ describe('format-bytes', () => {
     expect(formatBytes(9_007_199_254_740_991)).toBe('9.01 PB')
   })
 
+  it('formats fractional byte values below 1', () => {
+    expect(formatBytes(0.5)).toBe('0.5 B')
+    expect(formatBytes(0.1)).toBe('0.1 B')
+    expect(formatBytes(0.001)).toBe('0.001 B')
+  })
+
   it('returns 0 B for invalid and negative inputs', () => {
     expect(formatBytes(-1)).toBe('0 B')
     expect(formatBytes(Number.NaN)).toBe('0 B')
