@@ -88,6 +88,7 @@ export const TraversedOperationSchemaDefinition = compose(
     method: Type.Union(HTTP_METHODS.map((method) => Type.Literal(method))) as unknown as TLiteral<HttpMethod>,
     path: Type.String(),
     isDeprecated: Type.Optional(Type.Boolean()),
+    hasSecurityRequirements: Type.Optional(Type.Boolean()),
     children: Type.Optional(Type.Array(TraversedEntryObjectRef)),
   }),
 )
@@ -100,6 +101,7 @@ export type TraversedOperation = BaseSchema & {
   method: HttpMethod
   path: string
   isDeprecated?: boolean
+  hasSecurityRequirements?: boolean
   children?: TraversedEntry[]
 }
 
@@ -129,6 +131,7 @@ export const TraversedWebhookSchemaDefinition = compose(
     method: Type.Union(HTTP_METHODS.map((method) => Type.Literal(method))) as unknown as TLiteral<HttpMethod>,
     name: Type.String(),
     isDeprecated: Type.Optional(Type.Boolean()),
+    hasSecurityRequirements: Type.Optional(Type.Boolean()),
   }),
 )
 
@@ -141,6 +144,7 @@ export type TraversedWebhook = BaseSchema & {
   method: HttpMethod
   name: string
   isDeprecated?: boolean
+  hasSecurityRequirements?: boolean
 }
 
 export const TraversedTagSchemaDefinition = compose(

@@ -351,4 +351,65 @@ describe('traversePaths', () => {
     })
     expect(tagsMap.get('Test')?.entries[0]?.title).toBe('/test')
   })
+
+  it('sets hasSecurityRequirements when operation requires auth', () => {
+    const document = createDocument()
+    document.paths = {
+      '/secured': {
+        get: {
+          summary: 'Secured endpoint',
+          operationId: 'securedEndpoint',
+          security: [{ bearerAuth: [] }],
+        },
+      },
+    }
+
+    const tagsMap: TagsMap = new Map()
+
+    const result = traversePaths({
+      document,
+      tagsMap,
+      documentId: 'doc-1',
+      generateId: (props) => {
+        if (props.type === 'operation') {
+          return `${props.method?.toUpperCase()}-${props.path}`
+        }
+        return 'unknown-id'
+      },
+    })
+
+    expect(result.untaggedOperations).toHaveLength(1)
+    expect(result.untaggedOperations[0]?.hasSecurityRequirements).toBe(true)
+  })
+
+  it('does not set hasSecurityRequirements when auth is optional', () => {
+    const document = createDocument()
+    document.security = [{ bearerAuth: [] }]
+    document.paths = {
+      '/optional': {
+        get: {
+          summary: 'Optional auth endpoint',
+          operationId: 'optionalAuthEndpoint',
+          security: [{}],
+        },
+      },
+    }
+
+    const tagsMap: TagsMap = new Map()
+
+    const result = traversePaths({
+      document,
+      tagsMap,
+      documentId: 'doc-1',
+      generateId: (props) => {
+        if (props.type === 'operation') {
+          return `${props.method?.toUpperCase()}-${props.path}`
+        }
+        return 'unknown-id'
+      },
+    })
+
+    expect(result.untaggedOperations).toHaveLength(1)
+    expect(result.untaggedOperations[0]?.hasSecurityRequirements).toBeUndefined()
+  })
 })

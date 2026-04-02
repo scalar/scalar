@@ -6,6 +6,8 @@ import { escapeJsonPointer } from '@scalar/json-magic/helpers/escape-json-pointe
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
 import { traverseOperationExamples } from '@/navigation/helpers/traverse-examples'
 import type { TagsMap, TraverseSpecOptions } from '@/navigation/types'
+import { getSecurityRequirements } from '@/request-example/context/security/get-security-requirements'
+import { isAuthOptional } from '@/request-example/context/security/is-auth-optional'
 import { XScalarStabilityValues } from '@/schemas/extensions/operation'
 import type { ParentTag, TraversedExample, TraversedOperation } from '@/schemas/navigation'
 import type { OpenApiDocument, OperationObject } from '@/schemas/v3.1/strict/openapi-document'
@@ -14,6 +16,22 @@ import { getTag } from './get-tag'
 
 export const isDeprecatedOperation = (operation: OperationObject) => {
   return operation.deprecated || operation['x-scalar-stability'] === XScalarStabilityValues.Deprecated
+}
+
+export const hasRequiredSecurity = ({
+  documentSecurity,
+  operationSecurity,
+}: {
+  documentSecurity: OpenApiDocument['security']
+  operationSecurity: OperationObject['security']
+}): boolean => {
+  const securityRequirements = getSecurityRequirements(documentSecurity, operationSecurity)
+
+  if (!securityRequirements.length) {
+    return false
+  }
+
+  return !isAuthOptional(securityRequirements)
 }
 
 /**
@@ -36,12 +54,14 @@ const createOperationEntry = ({
   generateId,
   parentId,
   parentTag,
+  documentSecurity,
 }: {
   ref: string
   operation: OperationObject
   method: HttpMethod
   path: string
   parentTag?: ParentTag
+  documentSecurity: OpenApiDocument['security']
   generateId: TraverseSpecOptions['generateId']
   parentId: string
 }): TraversedOperation => {
@@ -56,6 +76,10 @@ const createOperationEntry = ({
   const title = operation.summary?.trim() ? operation.summary : path
 
   const isDeprecated = isDeprecatedOperation(operation)
+  const hasSecurityRequirements = hasRequiredSecurity({
+    documentSecurity,
+    operationSecurity: operation.security,
+  })
 
   const examples: TraversedExample[] = traverseOperationExamples(operation).map((example) => ({
     type: 'example',
@@ -76,6 +100,7 @@ const createOperationEntry = ({
     ref,
     type: 'operation',
     isDeprecated,
+    ...(hasSecurityRequirements ? { hasSecurityRequirements: true } : {}),
     children: examples.length ? examples : undefined,
   } satisfies TraversedOperation
 
@@ -149,6 +174,7 @@ export const traversePaths = ({
               method,
               path,
               parentTag: { tag, id: tagId },
+              documentSecurity: document.security,
               generateId,
               parentId: tagId,
             }),
@@ -162,6 +188,7 @@ export const traversePaths = ({
             operation,
             method,
             path,
+            documentSecurity: document.security,
             generateId,
             parentId: documentId,
           }),

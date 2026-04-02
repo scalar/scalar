@@ -3,7 +3,9 @@ import {
   ScalarSidebarGroup,
   ScalarSidebarItem,
   ScalarSidebarSection,
+  ScalarTooltip,
 } from '@scalar/components'
+import { ScalarIconLockSimple } from '@scalar/icons'
 import { LibraryIcon } from '@scalar/icons/library'
 import { computed } from 'vue'
 
@@ -125,6 +127,15 @@ const isDeprecated = (
   return ('isDeprecated' in currentItem && currentItem.isDeprecated) ?? false
 }
 
+const hasSecurityRequirements = (
+  currentItem: Item,
+): currentItem is Item & { hasSecurityRequirements: true } => {
+  return ('hasSecurityRequirements' in currentItem && currentItem.hasSecurityRequirements) ?? false
+}
+
+const asideHiddenClass =
+  'group-hover/button:opacity-0 group-focus-visible/button:opacity-0 group-has-[~*_[aria-expanded=true]]/button:opacity-0 group-has-[~*:focus-within]/button:opacity-0 group-has-[~*:hover]/button:opacity-0'
+
 /**
  * Handle drag end event and bubble it up to parent.
  */
@@ -237,13 +248,22 @@ const children = computed(() =>
     <template
       v-if="'method' in item"
       #aside>
+      <ScalarTooltip
+        v-if="hasSecurityRequirements(item)"
+        content="Authentication required">
+        <ScalarIconLockSimple
+          class="text-c-3 ml-2 h-4 w-4 self-start"
+          :class="{
+            [asideHiddenClass]: slots.decorator,
+          }"
+          weight="bold" />
+      </ScalarTooltip>
       <SidebarHttpBadge
         :active="isSelected(item.id)"
         class="mr-1 ml-2 h-4 self-start"
         :class="{
           // Hide the badge when we're showing the decorator
-          'group-hover/button:opacity-0 group-focus-visible/button:opacity-0 group-has-[~*_[aria-expanded=true]]/button:opacity-0 group-has-[~*:focus-within]/button:opacity-0 group-has-[~*:hover]/button:opacity-0':
-            slots.decorator,
+          [asideHiddenClass]: slots.decorator,
         }"
         :method="item.method"
         :webhook="item.type === 'webhook'" />
@@ -334,14 +354,23 @@ const children = computed(() =>
     <template
       v-if="'method' in item"
       #aside>
+      <ScalarTooltip
+        v-if="hasSecurityRequirements(item)"
+        content="Authentication required">
+        <ScalarIconLockSimple
+          class="text-c-3 ml-2 h-4 w-4 self-start"
+          :class="{
+            [asideHiddenClass]: slots.decorator,
+          }"
+          weight="bold" />
+      </ScalarTooltip>
       <SidebarHttpBadge
         v-if="'method' in item"
         :active="isSelected(item.id)"
         class="ml-2 h-4 self-start"
         :class="{
           // Hide the badge when we're showing the decorator
-          'group-hover/button:opacity-0 group-focus-visible/button:opacity-0 group-has-[~*_[aria-expanded=true]]/button:opacity-0 group-has-[~*:focus-within]/button:opacity-0 group-has-[~*:hover]/button:opacity-0':
-            slots.decorator,
+          [asideHiddenClass]: slots.decorator,
         }"
         :method="item.method"
         :webhook="item.type === 'webhook'" />

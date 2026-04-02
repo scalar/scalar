@@ -3,7 +3,7 @@ import { isHttpMethod } from '@scalar/helpers/http/is-http-method'
 import { objectKeys } from '@scalar/helpers/object/object-keys'
 
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
-import { isDeprecatedOperation } from '@/navigation/helpers/traverse-paths'
+import { hasRequiredSecurity, isDeprecatedOperation } from '@/navigation/helpers/traverse-paths'
 import type { TagsMap, TraverseSpecOptions } from '@/navigation/types'
 import type { ParentTag, TraversedWebhook } from '@/schemas/navigation'
 import type { OpenApiDocument, OperationObject, TagObject } from '@/schemas/v3.1/strict/openapi-document'
@@ -30,6 +30,7 @@ const createWebhookEntry = ({
   parentTag,
   webhook,
   isDeprecated,
+  documentSecurity,
   parentId,
 }: {
   ref: string
@@ -42,6 +43,7 @@ const createWebhookEntry = ({
   parentId: string
   parentTag?: ParentTag
   isDeprecated?: boolean
+  documentSecurity: OpenApiDocument['security']
 }): TraversedWebhook => {
   const id = generateId({
     type: 'webhook',
@@ -52,6 +54,11 @@ const createWebhookEntry = ({
     parentId: parentId,
   })
 
+  const hasSecurityRequirements = hasRequiredSecurity({
+    documentSecurity,
+    operationSecurity: webhook.security,
+  })
+
   const entry = {
     id,
     title,
@@ -60,6 +67,7 @@ const createWebhookEntry = ({
     method: method,
     type: 'webhook',
     isDeprecated,
+    ...(hasSecurityRequirements ? { hasSecurityRequirements: true } : {}),
   } satisfies TraversedWebhook
 
   return entry
@@ -125,6 +133,7 @@ export const traverseWebhooks = ({
               name,
               title: operation.summary ?? name,
               webhook: operation,
+              documentSecurity: document.security,
               generateId: generateId,
               parentTag: { tag, id: tagId },
               parentId: tagId,
@@ -144,6 +153,7 @@ export const traverseWebhooks = ({
             generateId,
             isDeprecated: isDeprecatedOperation(operation),
             webhook: operation,
+            documentSecurity: document.security,
             parentId: untaggedWebhooksParentId,
           }),
         )

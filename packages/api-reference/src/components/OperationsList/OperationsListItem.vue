@@ -1,6 +1,7 @@
 <script setup lang="ts">
+import { ScalarTooltip } from '@scalar/components'
 import { getHttpMethodInfo } from '@scalar/helpers/http/http-info'
-import { ScalarIconWebhooksLogo } from '@scalar/icons'
+import { ScalarIconLockSimple, ScalarIconWebhooksLogo } from '@scalar/icons'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type {
   TraversedEntry,
@@ -57,6 +58,15 @@ const isWebhook = (
             color: getHttpMethodInfo(operation.method).colorVar,
           }" />
       </HttpMethod>
+      <ScalarTooltip
+        v-if="operation.hasSecurityRequirements"
+        content="Authentication required">
+        <span class="endpoint-security-indicator">
+          <ScalarIconLockSimple
+            class="size-3"
+            weight="bold" />
+        </span>
+      </ScalarTooltip>
       <span
         class="endpoint-path"
         :class="{ deprecated: operation.isDeprecated }">
@@ -102,6 +112,13 @@ const isWebhook = (
 .endpoint-path {
   margin-left: 12px;
   text-transform: initial;
+}
+
+.endpoint-security-indicator {
+  color: var(--scalar-color-2);
+  display: inline-flex;
+  margin-left: 8px;
+  margin-top: 4px;
 }
 
 .deprecated {
