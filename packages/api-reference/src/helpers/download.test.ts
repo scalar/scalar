@@ -30,7 +30,6 @@ describe('downloadDocument', () => {
   let removeSpy: ReturnType<typeof vi.spyOn>
 
   beforeEach(() => {
-    vi.useFakeTimers()
     createObjectURLSpy = vi.spyOn(URL, 'createObjectURL')
     revokeObjectURLSpy = vi.spyOn(URL, 'revokeObjectURL')
     createElementSpy = vi.spyOn(document, 'createElement')
@@ -44,6 +43,7 @@ describe('downloadDocument', () => {
   })
 
   it('downloads JSON when format is explicitly set to json', async () => {
+    vi.useFakeTimers()
     const yamlContent = `
 openapi: 3.0.0
 info:
