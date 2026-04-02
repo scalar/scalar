@@ -114,3 +114,6 @@ onlyBuiltDependencies:
   - '@swc/core'
   - '@tailwindcss/oxide'
   - lefthook
+minimumReleaseAgeExclude:
+  # Renovate security update: hono@4.12.10
+  - hono@4.12.10
