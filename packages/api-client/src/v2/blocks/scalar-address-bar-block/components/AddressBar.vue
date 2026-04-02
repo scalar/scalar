@@ -38,6 +38,7 @@ import { getSelector } from '@scalar/helpers/dom/get-selector'
 import { REQUEST_METHODS } from '@scalar/helpers/http/http-info'
 import type { HttpMethod as HttpMethodType } from '@scalar/helpers/http/http-methods'
 import { replaceEnvVariables } from '@scalar/helpers/regex/replace-variables'
+import { extractServerFromPath } from '@scalar/helpers/url/extract-server-from-path'
 import { ScalarIconCopy, ScalarIconWarningCircle } from '@scalar/icons'
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
 import type {
@@ -109,6 +110,16 @@ const emitPathMethodUpdate = (
   targetPath: string,
   blurTargetSelector: string | null = null,
 ): void => {
+  /** Check if the path contains a server */
+  const newServer = extractServerFromPath(targetPath)
+  console.log(newServer)
+  // if (newServer) {
+  //   server.value = newServer[0]
+  // }
+
+  console.log(server)
+  console.log(servers)
+
   const normalizedPath = targetPath.startsWith('/')
     ? targetPath
     : `/${targetPath}`

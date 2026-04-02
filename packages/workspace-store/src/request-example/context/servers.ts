@@ -25,12 +25,6 @@ type ServerProcessingOptions = {
  * @returns Array of validated Server entities
  */
 export function getServers(servers: ServerObject[] | undefined, options: ServerProcessingOptions = {}): ServerObject[] {
-  // Handle case where no servers are provided
-  if (!servers?.length) {
-    const fallbackServer = createFallbackServer(options)
-    return fallbackServer ? [fallbackServer] : []
-  }
-
   // Handle invalid server array
   if (!Array.isArray(servers)) {
     return []
@@ -38,13 +32,6 @@ export function getServers(servers: ServerObject[] | undefined, options: ServerP
 
   // Process each server and filter out invalid ones
   const validServers = servers.map((server) => processServerObject(server, options))
-
-  // If all servers were invalid, provide a fallback
-  if (validServers.length === 0) {
-    const fallbackServer = createFallbackServer(options)
-    return fallbackServer ? [fallbackServer] : []
-  }
-
   return validServers
 }
 
