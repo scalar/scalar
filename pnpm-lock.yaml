@@ -249,6 +249,7 @@ catalogs:
 
 overrides:
   '@types/node': ^24.1.0
+  lodash: 4.18.1
   undici: 7.24.4
 
 importers:
@@ -2158,8 +2159,8 @@ importers:
   packages/pre-post-request-scripts:
     dependencies:
       '@codemirror/lang-javascript':
-        specifier: ^6.2.4
-        version: 6.2.4
+        specifier: ^6.2.5
+        version: 6.2.5
       '@headlessui/vue':
         specifier: catalog:*
         version: 1.7.23(vue@3.5.26(typescript@5.9.3))
@@ -2170,8 +2171,8 @@ importers:
         specifier: workspace:*
         version: link:../oas-utils
       postman-sandbox:
-        specifier: ^6.5.0
-        version: 6.5.0
+        specifier: ^6.6.1
+        version: 6.6.1
       vue:
         specifier: catalog:*
         version: 3.5.26(typescript@5.9.3)
@@ -3646,8 +3647,8 @@ packages:
   '@codemirror/lang-html@6.4.9':
     resolution: {integrity: sha512-aQv37pIMSlueybId/2PVSP6NPnmurFDVmZwzc7jszd2KAF8qd4VBbvNYPXWQq90WIARjsdVkPbw29pszmHws3Q==}
 
-  '@codemirror/lang-javascript@6.2.4':
-    resolution: {integrity: sha512-0WVmhp1QOqZ4Rt6GlVGwKJN3KW7Xh4H2q8ZZNGZaP6lRdxXJzmjm4FqvmOojVj6khWJHIb9sp7U/72W7xQgqAA==}
+  '@codemirror/lang-javascript@6.2.5':
+    resolution: {integrity: sha512-zD4e5mS+50htS7F+TYjBPsiIFGanfVqg4HyUz6WNFikgOPf2BgKlx+TQedI1w6n/IqRBVBbBWmGFdLB/7uxO4A==}
 
   '@codemirror/lang-json@6.0.1':
     resolution: {integrity: sha512-+T1flHdgpqDDlJZ2Lkil/rLiRy684WMLc74xUnjJH48GQdfJo/pudlTRreZmKwzP8/tGdKf83wlbAdOCzlJOGQ==}
@@ -12761,8 +12762,8 @@ packages:
   lodash.uniq@4.5.0:
     resolution: {integrity: sha512-xfBaXQd9ryd9dlSDvnvI0lvxfLJlYAZzXomUYzLKtUeOQvOP5piqAWuGtrhWeqaXK9hhoM/iyJc5AV+XfsX3HQ==}
 
-  lodash@4.17.21:
-    resolution: {integrity: sha512-v2kDEe57lecTulaDIuNTPy3Ry4gLGJ6Z1O3vE1krgXZNrsQ+LFTGHVxVjcXPs17LhbZVGedAJv8XZ1tvj5FvSg==}
+  lodash@4.18.1:
+    resolution: {integrity: sha512-dMInicTPVE8d1e5otfwmmjlxkZoUpiVLwyeTdUsi/Caj/gfzzblBcCE5sRHV/AsjuCmxWrte2TNGSYuCeCq+0Q==}
 
   log-symbols@4.1.0:
     resolution: {integrity: sha512-8XPvpAA8uyhfteu8pIvQxpJZ7SYYdpUivZpGy6sFsBuKRY/7rQGavedeB8aK+Zkyq6upMFVL/9AW6vOYzfRyLg==}
@@ -14792,12 +14793,12 @@ packages:
   posthog-js@1.363.2:
     resolution: {integrity: sha512-4ZEWMrymlFzjgDSmh25VeJQT//2XUFbfKqEPDNUW4dxcqWiVMo1+gJFy5YhJgVYS46OAXLbMcJgmuZBCnDIgVg==}
 
-  postman-collection@5.2.0:
-    resolution: {integrity: sha512-ktjlchtpoCw+FZRg+WwnGWH1w9oQDNUBLSRh+9ETPqFAz3SupqHqRuMh74xjQ+PvTWY/WH2JR4ZW+1sH58Ul1g==}
+  postman-collection@5.3.0:
+    resolution: {integrity: sha512-PMa5vRheqDFfS1bkRg8WBidWxunRA80sT5YNLP27YC5+ycyfiLMCwPnqQd1zfvxkGk04Pr9UronWmmgsbpsVyQ==}
     engines: {node: '>=18'}
 
-  postman-sandbox@6.5.0:
-    resolution: {integrity: sha512-WD+2nyISjQg8Kz2kt+MPqQoj4cn1czsTDehfab3bst2IYtPXvsQXelODSgsGb7dbQAL1/VYKk/f351uW+fVOWg==}
+  postman-sandbox@6.6.1:
+    resolution: {integrity: sha512-w5MNCiEi0ramE5PFDqi1JeYEUjED2ZDf9FE9XzX5AHga+uFOZAWnsQRVcogZU8ZP4Jy/0M3VtwVMr+FcVzDdqA==}
     engines: {node: '>=18'}
 
   postman-url-encoder@3.0.8:
@@ -19680,7 +19681,7 @@ snapshots:
     dependencies:
       '@codemirror/autocomplete': 6.18.3(@codemirror/language@6.10.7)(@codemirror/state@6.5.0)(@codemirror/view@6.35.3)(@lezer/common@1.2.3)
       '@codemirror/lang-css': 6.3.1(@codemirror/view@6.35.3)
-      '@codemirror/lang-javascript': 6.2.4
+      '@codemirror/lang-javascript': 6.2.5
       '@codemirror/language': 6.10.7
       '@codemirror/state': 6.5.0
       '@codemirror/view': 6.35.3
@@ -19688,7 +19689,7 @@ snapshots:
       '@lezer/css': 1.1.8
       '@lezer/html': 1.3.10
 
-  '@codemirror/lang-javascript@6.2.4':
+  '@codemirror/lang-javascript@6.2.5':
     dependencies:
       '@codemirror/autocomplete': 6.18.3(@codemirror/language@6.10.7)(@codemirror/state@6.5.0)(@codemirror/view@6.35.3)(@lezer/common@1.2.3)
       '@codemirror/language': 6.10.7
@@ -20159,7 +20160,7 @@ snapshots:
       html-tags: 3.3.1
       html-webpack-plugin: 5.6.0(webpack@5.103.0(esbuild@0.27.2))
       leven: 3.1.0
-      lodash: 4.17.21
+      lodash: 4.18.1
       open: 8.4.2
       p-map: 4.0.0
       prompts: 2.4.2
@@ -20276,7 +20277,7 @@ snapshots:
       cheerio: 1.0.0-rc.12
       feed: 4.2.2
       fs-extra: 11.2.0
-      lodash: 4.17.21
+      lodash: 4.18.1
       react: 19.2.3
       react-dom: 19.2.3(react@19.2.3)
       schema-dts: 1.1.5
@@ -20318,7 +20319,7 @@ snapshots:
       combine-promises: 1.2.0
       fs-extra: 11.2.0
       js-yaml: 4.1.1
-      lodash: 4.17.21
+      lodash: 4.18.1
       react: 19.2.3
       react-dom: 19.2.3(react@19.2.3)
       schema-dts: 1.1.5
@@ -20631,7 +20632,7 @@ snapshots:
       '@mdx-js/react': 3.1.1(@types/react@19.2.7)(react@19.2.3)
       clsx: 2.1.1
       infima: 0.2.0-alpha.45
-      lodash: 4.17.21
+      lodash: 4.18.1
       nprogress: 0.2.0
       postcss: 8.5.8
       prism-react-renderer: 2.3.1(react@19.2.3)
@@ -20699,7 +20700,7 @@ snapshots:
       clsx: 2.1.1
       eta: 2.2.0
       fs-extra: 11.2.0
-      lodash: 4.17.21
+      lodash: 4.18.1
       react: 19.2.3
       react-dom: 19.2.3(react@19.2.3)
       tslib: 2.8.1
@@ -20774,7 +20775,7 @@ snapshots:
       fs-extra: 11.2.0
       joi: 17.13.3
       js-yaml: 4.1.1
-      lodash: 4.17.21
+      lodash: 4.18.1
       tslib: 2.8.1
     transitivePeerDependencies:
       - '@swc/core'
@@ -20799,7 +20800,7 @@ snapshots:
       gray-matter: 4.0.3
       jiti: 1.21.7
       js-yaml: 4.1.1
-      lodash: 4.17.21
+      lodash: 4.18.1
       micromatch: 4.0.8
       p-queue: 6.6.2
       prompts: 2.4.2
@@ -21994,7 +21995,7 @@ snapshots:
       '@rushstack/rig-package': 0.5.3
       '@rushstack/terminal': 0.14.4(@types/node@24.10.13)
       '@rushstack/ts-command-line': 4.23.2(@types/node@24.10.13)
-      lodash: 4.17.21
+      lodash: 4.18.1
       minimatch: 3.0.8
       resolve: 1.22.8
       semver: 7.5.4
@@ -22190,7 +22191,7 @@ snapshots:
       '@nestjs/core': 11.1.11(@nestjs/common@11.1.11(reflect-metadata@0.1.14)(rxjs@7.8.1))(@nestjs/platform-express@11.1.11)(reflect-metadata@0.1.14)(rxjs@7.8.1)
       '@nestjs/mapped-types': 2.0.5(@nestjs/common@11.1.11(reflect-metadata@0.1.14)(rxjs@7.8.1))(reflect-metadata@0.1.14)
       js-yaml: 4.1.0
-      lodash: 4.17.21
+      lodash: 4.18.1
       path-to-regexp: 3.2.0
       reflect-metadata: 0.1.14
       swagger-ui-dist: 5.11.2
@@ -24578,7 +24579,7 @@ snapshots:
       '@babel/traverse': 7.28.6
       '@babel/types': 7.28.6
       javascript-natural-sort: 0.7.1
-      lodash: 4.17.21
+      lodash: 4.18.1
       prettier: 3.8.0
     optionalDependencies:
       '@vue/compiler-sfc': 3.5.30
@@ -25939,7 +25940,7 @@ snapshots:
       graceful-fs: 4.2.11
       is-stream: 2.0.1
       lazystream: 1.0.1
-      lodash: 4.17.21
+      lodash: 4.18.1
       normalize-path: 3.0.0
       readable-stream: 4.5.2
 
@@ -26922,7 +26923,7 @@ snapshots:
   concurrently@9.1.2:
     dependencies:
       chalk: 4.1.2
-      lodash: 4.17.21
+      lodash: 4.18.1
       rxjs: 7.8.1
       shell-quote: 1.8.3
       supports-color: 8.1.1
@@ -29338,7 +29339,7 @@ snapshots:
     dependencies:
       '@types/html-minifier-terser': 6.1.0
       html-minifier-terser: 6.1.0
-      lodash: 4.17.21
+      lodash: 4.18.1
       pretty-error: 4.0.0
       tapable: 2.3.0
     optionalDependencies:
@@ -30719,7 +30720,7 @@ snapshots:
 
   lodash.uniq@4.5.0: {}
 
-  lodash@4.17.21: {}
+  lodash@4.18.1: {}
 
   log-symbols@4.1.0:
     dependencies:
@@ -31883,7 +31884,7 @@ snapshots:
 
   node-emoji@1.11.0:
     dependencies:
-      lodash: 4.17.21
+      lodash: 4.18.1
 
   node-emoji@2.1.3:
     dependencies:
@@ -33607,24 +33608,24 @@ snapshots:
       query-selector-shadow-dom: 1.0.1
       web-vitals: 5.1.0
 
-  postman-collection@5.2.0:
+  postman-collection@5.3.0:
     dependencies:
       '@faker-js/faker': 5.5.3
       file-type: 3.9.0
       http-reasons: 0.1.0
       iconv-lite: 0.6.3
       liquid-json: 0.3.1
-      lodash: 4.17.21
+      lodash: 4.18.1
       mime: 3.0.0
       mime-format: 2.0.2
       postman-url-encoder: 3.0.8
       semver: 7.7.1
       uuid: 8.3.2
 
-  postman-sandbox@6.5.0:
+  postman-sandbox@6.6.1:
     dependencies:
-      lodash: 4.17.21
-      postman-collection: 5.2.0
+      lodash: 4.18.1
+      postman-collection: 5.3.0
       teleport-javascript: 1.0.0
       uvm: 4.0.1
 
@@ -33657,7 +33658,7 @@ snapshots:
 
   pretty-error@4.0.0:
     dependencies:
-      lodash: 4.17.21
+      lodash: 4.18.1
       renderkid: 3.0.0
 
   pretty-format@27.5.1:
@@ -34321,7 +34322,7 @@ snapshots:
       css-select: 4.3.0
       dom-converter: 0.2.0
       htmlparser2: 6.1.0
-      lodash: 4.17.21
+      lodash: 4.18.1
       strip-ansi: 6.0.1
 
   repeat-string@1.6.1: {}
@@ -36999,7 +37000,7 @@ snapshots:
       eslint-visitor-keys: 3.4.3
       espree: 9.6.1
       esquery: 1.7.0
-      lodash: 4.17.21
+      lodash: 4.18.1
       semver: 7.7.3
     transitivePeerDependencies:
       - supports-color
