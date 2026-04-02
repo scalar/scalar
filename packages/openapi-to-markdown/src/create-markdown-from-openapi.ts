@@ -1,7 +1,10 @@
 import { isObject } from '@scalar/helpers/object/is-object'
 import { readFiles } from '@scalar/json-magic/bundle/plugins/node'
 import { normalize } from '@scalar/json-magic/helpers/normalize'
-import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type {
+  OpenApiDocument,
+  PathItemObject,
+} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
 import { minify } from 'html-minifier-terser'
 import rehypeParse from 'rehype-parse'
@@ -16,15 +19,11 @@ import { renderToString } from 'vue/server-renderer'
 import MarkdownReference from './components/MarkdownReference.vue'
 
 type AnyDocument = OpenApiDocument | Record<string, unknown> | string
-export type HttpMethod =
-  | 'get'
-  | 'put'
-  | 'post'
-  | 'delete'
-  | 'options'
-  | 'head'
-  | 'patch'
-  | 'trace'
+type HttpMethodKeys = Exclude<
+  keyof PathItemObject,
+  '$ref' | 'summary' | 'description' | 'servers' | 'parameters'
+>
+export type HttpMethod = Extract<HttpMethodKeys, string>
 export type OperationSelector =
   | {
       path: string
@@ -46,7 +45,6 @@ type WorkspaceInput =
   | {
       path: string
     }
-type PathItem = Record<string, unknown>
 type OperationMatch = {
   path: string
   method: HttpMethod
@@ -57,6 +55,7 @@ const HTTP_METHODS: HttpMethod[] = [
   'put',
   'post',
   'delete',
+  'connect',
   'options',
   'head',
   'patch',
@@ -101,7 +100,7 @@ const normalizeHttpMethod = (method: string): HttpMethod | null => {
   return null
 }
 
-const getPathEntries = (document: Record<string, unknown>): Array<[string, PathItem]> => {
+const getPathEntries = (document: OpenApiDocument): Array<[string, PathItemObject]> => {
   const paths = document.paths
 
   if (!isObject(paths)) {
@@ -109,14 +108,14 @@ const getPathEntries = (document: Record<string, unknown>): Array<[string, PathI
   }
 
   return Object.entries(paths).flatMap(([path, pathItem]) =>
-    isObject(pathItem) ? [[path, pathItem as PathItem]] : [],
+    isObject(pathItem) ? [[path, pathItem as PathItemObject]] : [],
   )
 }
 
 const filterPathItemToSingleOperation = (
-  pathItem: PathItem,
+  pathItem: PathItemObject,
   selectedMethod: HttpMethod,
-): PathItem =>
+): PathItemObject =>
   Object.fromEntries(
     Object.entries(pathItem).filter(([key]) => {
       const method = normalizeHttpMethod(key)
@@ -125,7 +124,7 @@ const filterPathItemToSingleOperation = (
   )
 
 const findOperationByPathAndMethod = (
-  document: Record<string, unknown>,
+  document: OpenApiDocument,
   selector: Extract<OperationSelector, { path: string }>,
 ): OperationMatch => {
   const method = normalizeHttpMethod(selector.method)
@@ -152,7 +151,7 @@ const findOperationByPathAndMethod = (
 }
 
 const findOperationsByOperationId = (
-  document: Record<string, unknown>,
+  document: OpenApiDocument,
   operationId: string,
 ): OperationMatch[] =>
   getPathEntries(document).flatMap(([path, pathItem]) =>
@@ -174,7 +173,7 @@ const findOperationsByOperationId = (
   )
 
 const resolveOperationMatch = (
-  document: Record<string, unknown>,
+  document: OpenApiDocument,
   selector: OperationSelector,
 ): OperationMatch => {
   if ('operationId' in selector) {
@@ -201,9 +200,9 @@ const resolveOperationMatch = (
 }
 
 const filterDocumentByOperation = (
-  document: Record<string, unknown>,
+  document: OpenApiDocument,
   selector: OperationSelector,
-): Record<string, unknown> => {
+): OpenApiDocument => {
   const match = resolveOperationMatch(document, selector)
   const pathItem = getPathEntries(document).find(([path]) => path === match.path)?.[1]
 
@@ -247,7 +246,7 @@ export async function createHtmlFromOpenApi(
 
   const renderedContent =
     options?.operation && isObject(content)
-      ? filterDocumentByOperation(content as Record<string, unknown>, options.operation)
+      ? filterDocumentByOperation(content as OpenApiDocument, options.operation)
       : content
 
   // Create and configure a server-side rendered Vue app
