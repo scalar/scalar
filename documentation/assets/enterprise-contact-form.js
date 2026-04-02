@@ -131,6 +131,7 @@ const initEnterpriseContactForm = () => {
       setFeedback(feedback, '', '')
       setSuccessState(form, true)
       form.reset()
+      syncHelpSelectionValidation(form)
     } catch (_error) {
       setFeedback(feedback, 'Network error. Please try again in a moment.', 'is-error')
     } finally {
