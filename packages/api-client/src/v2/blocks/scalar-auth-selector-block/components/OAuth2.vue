@@ -25,6 +25,10 @@ import type {
 import { computed, ref, watch } from 'vue'
 
 import { DataTableRow } from '@/components/DataTable'
+import {
+  resolveDefaultOAuth2RedirectUri,
+  useClientConfig,
+} from '@/hooks/useClientConfig'
 import OAuthScopesInput from '@/v2/blocks/scalar-auth-selector-block/components/OAuthScopesInput.vue'
 import { authorizeOauth2 } from '@/v2/blocks/scalar-auth-selector-block/helpers/oauth'
 
@@ -81,6 +85,8 @@ type NonImplicitFlow =
   | OAuthFlowClientCredentialsSecret
   | OAuthFlowAuthorizationCodeSecret
 
+const clientConfig = useClientConfig()
+
 /** We filter selected scopes to only include scopes that are in this flow*/
 const selectedScopes = computed(() =>
   selectedScopesProp.filter((scope) => scope in (flow.value.scopes ?? {})),
@@ -127,6 +133,9 @@ const clearOauth2Secrets = (): void =>
 /** Track if we have set the redirect uri */
 const hasPrefilledRedirectUri = ref(false)
 
+const getDefaultOAuth2RedirectUri = (): string =>
+  resolveDefaultOAuth2RedirectUri(clientConfig.value)
+
 /** Default the redirect-uri to the current origin if we have access to window */
 watch(
   () =>
@@ -134,18 +143,19 @@ watch(
       'x-scalar-secret-redirect-uri'
     ],
   (newRedirectUri) => {
+    const defaultRedirectUri = getDefaultOAuth2RedirectUri()
+
     if (
       hasPrefilledRedirectUri.value ||
       newRedirectUri ||
-      typeof window === 'undefined' ||
+      !defaultRedirectUri ||
       !('x-scalar-secret-redirect-uri' in flow.value)
     ) {
       return
     }
     hasPrefilledRedirectUri.value = true
     handleOauth2SecretsUpdate({
-      'x-scalar-secret-redirect-uri':
-        window.location.origin + window.location.pathname,
+      'x-scalar-secret-redirect-uri': defaultRedirectUri,
     })
   },
   { immediate: true },
