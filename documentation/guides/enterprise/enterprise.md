@@ -664,11 +664,6 @@ Validate contracts early so exploration and testing stay tied to the same API de
     position: relative;
     margin-right: unset;
   }
-  .container {
-    width: 900px;
-    margin: auto;
-    position: relative;
-  }
   /* logos */
   .logowall.logowall {
     margin-top: 24px;
