@@ -51,7 +51,7 @@
 
 ## Built for modern API teams, ready for enterprise scale
 
-<h4 class="flex items-center icon-text gap-2 font-bold min-h-8 mt-6"><scalar-icon src="phosphor/bold/arrows-merge"></scalar-icon>From OpenAPI to shipped experience</h4>
+<h3 class="flex items-center icon-text gap-2 font-bold min-h-8 mt-6"><scalar-icon src="phosphor/bold/arrows-merge"></scalar-icon>From OpenAPI to shipped experience</h3>
 
 Use OpenAPI to power documentation, SDK generation, client workflows, and registry publishing. Scalar gives platform and product teams a shared source of truth, so discovery improves, duplicate effort drops, and new developers ramp faster.
 
