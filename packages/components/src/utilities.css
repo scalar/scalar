@@ -2,11 +2,6 @@
  * Components Specific Tailwind Utilities
  */
 
-@utility max-w-screen-padded-* {
-  max-width: calc(100vw - (--value(integer) * 2 * var(--spacing)));
-  max-width: calc(100vw - (--value([length]) * 2));
-}
-
 @utility max-w-radix-popper {
   max-width: calc(var(--radix-popper-available-width) - 8px);
 }
