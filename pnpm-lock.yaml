@@ -2158,8 +2158,8 @@ importers:
   packages/pre-post-request-scripts:
     dependencies:
       '@codemirror/lang-javascript':
-        specifier: ^6.2.4
-        version: 6.2.4
+        specifier: ^6.2.5
+        version: 6.2.5
       '@headlessui/vue':
         specifier: catalog:*
         version: 1.7.23(vue@3.5.26(typescript@5.9.3))
@@ -2170,8 +2170,8 @@ importers:
         specifier: workspace:*
         version: link:../oas-utils
       postman-sandbox:
-        specifier: ^6.5.0
-        version: 6.5.0
+        specifier: ^6.6.1
+        version: 6.6.1
       vue:
         specifier: catalog:*
         version: 3.5.26(typescript@5.9.3)
@@ -3646,8 +3646,8 @@ packages:
   '@codemirror/lang-html@6.4.9':
     resolution: {integrity: sha512-aQv37pIMSlueybId/2PVSP6NPnmurFDVmZwzc7jszd2KAF8qd4VBbvNYPXWQq90WIARjsdVkPbw29pszmHws3Q==}
 
-  '@codemirror/lang-javascript@6.2.4':
-    resolution: {integrity: sha512-0WVmhp1QOqZ4Rt6GlVGwKJN3KW7Xh4H2q8ZZNGZaP6lRdxXJzmjm4FqvmOojVj6khWJHIb9sp7U/72W7xQgqAA==}
+  '@codemirror/lang-javascript@6.2.5':
+    resolution: {integrity: sha512-zD4e5mS+50htS7F+TYjBPsiIFGanfVqg4HyUz6WNFikgOPf2BgKlx+TQedI1w6n/IqRBVBbBWmGFdLB/7uxO4A==}
 
   '@codemirror/lang-json@6.0.1':
     resolution: {integrity: sha512-+T1flHdgpqDDlJZ2Lkil/rLiRy684WMLc74xUnjJH48GQdfJo/pudlTRreZmKwzP8/tGdKf83wlbAdOCzlJOGQ==}
@@ -12761,6 +12761,9 @@ packages:
   lodash@4.17.21:
     resolution: {integrity: sha512-v2kDEe57lecTulaDIuNTPy3Ry4gLGJ6Z1O3vE1krgXZNrsQ+LFTGHVxVjcXPs17LhbZVGedAJv8XZ1tvj5FvSg==}
 
+  lodash@4.17.23:
+    resolution: {integrity: sha512-LgVTMpQtIopCi79SJeDiP0TfWi5CNEc/L/aRdTh3yIvmZXTnheWpKjSZhnvMl8iXbC1tFg9gdHHDMLoV7CnG+w==}
+
   log-symbols@4.1.0:
     resolution: {integrity: sha512-8XPvpAA8uyhfteu8pIvQxpJZ7SYYdpUivZpGy6sFsBuKRY/7rQGavedeB8aK+Zkyq6upMFVL/9AW6vOYzfRyLg==}
     engines: {node: '>=10'}
@@ -14789,12 +14792,12 @@ packages:
   posthog-js@1.363.2:
     resolution: {integrity: sha512-4ZEWMrymlFzjgDSmh25VeJQT//2XUFbfKqEPDNUW4dxcqWiVMo1+gJFy5YhJgVYS46OAXLbMcJgmuZBCnDIgVg==}
 
-  postman-collection@5.2.0:
-    resolution: {integrity: sha512-ktjlchtpoCw+FZRg+WwnGWH1w9oQDNUBLSRh+9ETPqFAz3SupqHqRuMh74xjQ+PvTWY/WH2JR4ZW+1sH58Ul1g==}
+  postman-collection@5.3.0:
+    resolution: {integrity: sha512-PMa5vRheqDFfS1bkRg8WBidWxunRA80sT5YNLP27YC5+ycyfiLMCwPnqQd1zfvxkGk04Pr9UronWmmgsbpsVyQ==}
     engines: {node: '>=18'}
 
-  postman-sandbox@6.5.0:
-    resolution: {integrity: sha512-WD+2nyISjQg8Kz2kt+MPqQoj4cn1czsTDehfab3bst2IYtPXvsQXelODSgsGb7dbQAL1/VYKk/f351uW+fVOWg==}
+  postman-sandbox@6.6.1:
+    resolution: {integrity: sha512-w5MNCiEi0ramE5PFDqi1JeYEUjED2ZDf9FE9XzX5AHga+uFOZAWnsQRVcogZU8ZP4Jy/0M3VtwVMr+FcVzDdqA==}
     engines: {node: '>=18'}
 
   postman-url-encoder@3.0.8:
@@ -19677,7 +19680,7 @@ snapshots:
     dependencies:
       '@codemirror/autocomplete': 6.18.3(@codemirror/language@6.10.7)(@codemirror/state@6.5.0)(@codemirror/view@6.35.3)(@lezer/common@1.2.3)
       '@codemirror/lang-css': 6.3.1(@codemirror/view@6.35.3)
-      '@codemirror/lang-javascript': 6.2.4
+      '@codemirror/lang-javascript': 6.2.5
       '@codemirror/language': 6.10.7
       '@codemirror/state': 6.5.0
       '@codemirror/view': 6.35.3
@@ -19685,7 +19688,7 @@ snapshots:
       '@lezer/css': 1.1.8
       '@lezer/html': 1.3.10
 
-  '@codemirror/lang-javascript@6.2.4':
+  '@codemirror/lang-javascript@6.2.5':
     dependencies:
       '@codemirror/autocomplete': 6.18.3(@codemirror/language@6.10.7)(@codemirror/state@6.5.0)(@codemirror/view@6.35.3)(@lezer/common@1.2.3)
       '@codemirror/language': 6.10.7
@@ -21932,7 +21935,7 @@ snapshots:
       https-proxy-agent: 7.0.6
       node-fetch: 2.7.0(encoding@0.1.13)
       nopt: 8.1.0
-      semver: 7.7.3
+      semver: 7.7.4
       tar: 7.4.3
     transitivePeerDependencies:
       - encoding
@@ -22289,7 +22292,7 @@ snapshots:
       nopt: 7.2.1
       proc-log: 4.2.0
       read-package-json-fast: 3.0.2
-      semver: 7.7.3
+      semver: 7.7.4
       walk-up-path: 3.0.1
 
   '@npmcli/map-workspaces@3.0.6':
@@ -29831,7 +29834,7 @@ snapshots:
       '@babel/parser': 7.28.6
       '@istanbuljs/schema': 0.1.3
       istanbul-lib-coverage: 3.2.2
-      semver: 7.7.3
+      semver: 7.7.4
     transitivePeerDependencies:
       - supports-color
 
@@ -30675,6 +30678,8 @@ snapshots:
 
   lodash@4.17.21: {}
 
+  lodash@4.17.23: {}
+
   log-symbols@4.1.0:
     dependencies:
       chalk: 4.1.2
@@ -30795,7 +30800,7 @@ snapshots:
 
   make-dir@4.0.0:
     dependencies:
-      semver: 7.7.3
+      semver: 7.7.4
 
   make-error@1.3.6: {}
 
@@ -32558,7 +32563,7 @@ snapshots:
       got: 12.6.1
       registry-auth-token: 5.0.2
       registry-url: 6.0.1
-      semver: 7.7.3
+      semver: 7.7.4
 
   package-manager-detector@0.2.9: {}
 
@@ -33561,24 +33566,24 @@ snapshots:
       query-selector-shadow-dom: 1.0.1
       web-vitals: 5.1.0
 
-  postman-collection@5.2.0:
+  postman-collection@5.3.0:
     dependencies:
       '@faker-js/faker': 5.5.3
       file-type: 3.9.0
       http-reasons: 0.1.0
       iconv-lite: 0.6.3
       liquid-json: 0.3.1
-      lodash: 4.17.21
+      lodash: 4.17.23
       mime: 3.0.0
       mime-format: 2.0.2
       postman-url-encoder: 3.0.8
       semver: 7.7.1
       uuid: 8.3.2
 
-  postman-sandbox@6.5.0:
+  postman-sandbox@6.6.1:
     dependencies:
-      lodash: 4.17.21
-      postman-collection: 5.2.0
+      lodash: 4.17.23
+      postman-collection: 5.3.0
       teleport-javascript: 1.0.0
       uvm: 4.0.1
 
@@ -34624,7 +34629,7 @@ snapshots:
 
   semver-truncate@3.0.0:
     dependencies:
-      semver: 7.7.3
+      semver: 7.7.4
 
   semver@5.7.2: {}
 
