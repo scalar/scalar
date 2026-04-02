@@ -1,4 +1,7 @@
-import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
+import {
+  createWorkspaceEventBus,
+  type ApiReferenceEvents,
+} from '@scalar/workspace-store/events'
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
@@ -389,18 +392,21 @@ describe('RequestBlock', () => {
   })
 
   it('renders plugin component when provided', () => {
+    type ExtensionUpdatePayload =
+      ApiReferenceEvents['operation:update:extension']['payload']
+
     const PluginRequestComponent = markRaw(
       defineComponent({
         template: '<div>Plugin Request Component</div>',
       }) as DefineComponent<
-        { operation: OperationObject },
+        { operation?: OperationObject },
         {},
         {},
         {},
         {},
         {},
         {},
-        { 'operation:update:extension': (payload: any) => void }
+        { 'operation:update:extension': (payload: ExtensionUpdatePayload) => void }
       >,
     )
 

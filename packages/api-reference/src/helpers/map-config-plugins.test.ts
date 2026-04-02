@@ -8,7 +8,6 @@ import { mapConfigPlugins } from './map-config-plugins'
 
 const document = {} as never
 const operation = {} as never
-const envVariables = {}
 
 const createMockFactory = (overrides: Partial<RequestFactory> = {}): RequestFactory => ({
   baseUrl: 'https://example.com',
@@ -24,27 +23,37 @@ const createMockFactory = (overrides: Partial<RequestFactory> = {}): RequestFact
   ...overrides,
 })
 
-const beforePayload = (request: RequestFactory) => ({ request, document, operation, envVariables })
+const beforePayload = (requestBuilder: RequestFactory) => ({
+  requestBuilder,
+  document,
+  operation,
+})
+
+const responsePayload = (requestBuilder: RequestFactory, fetchRequest: Request) => ({
+  response: new Response('{"data": "test"}', {
+    status: 200,
+    headers: { 'Content-Type': 'application/json' },
+  }),
+  requestBuilder,
+  request: fetchRequest,
+  document,
+  operation: {
+    operationId: 'test-operation',
+    method: 'post',
+    path: '/endpoint',
+  } as any,
+})
 
 describe('mapConfigPlugins', () => {
-  /**
-   * Test 1: Type-safe transformation of onBeforeRequest to beforeRequest hook
-   * Critical because this ensures the request modification pipeline works correctly
-   */
-  it('transforms onBeforeRequest callback into a ClientPlugin with beforeRequest hook that returns modified request', async () => {
-    const mockRequest = createMockFactory({
+  it('transforms onBeforeRequest callback into a ClientPlugin with beforeRequest hook that mutates request builder', async () => {
+    const mockRequestBuilder = createMockFactory({
       headers: new Headers({ 'X-Original': 'true' }),
     })
 
-    const onBeforeRequestMock = vi.fn(async ({ request }: { request: RequestFactory }) => {
-      const modifiedRequest: RequestFactory = {
-        ...request,
-        method: 'POST',
-        path: { ...request.path, raw: '/api/modified' },
-        headers: new Headers(request.headers),
-      }
-      modifiedRequest.headers.set('X-Modified', 'true')
-      return { request: modifiedRequest }
+    const onBeforeRequestMock = vi.fn(({ request }: { request: RequestFactory }) => {
+      request.method = 'POST'
+      request.path = { ...request.path, raw: '/api/modified' }
+      request.headers.set('X-Modified', 'true')
     })
 
     const config = computed(() => ({
@@ -61,20 +70,20 @@ describe('mapConfigPlugins', () => {
     expect(beforeRequestHook).toBeDefined()
 
     if (beforeRequestHook) {
-      const input = beforePayload(mockRequest)
-      const result = await beforeRequestHook(input)
+      const input = beforePayload(mockRequestBuilder)
+      await beforeRequestHook(input)
 
       expect(onBeforeRequestMock).toHaveBeenCalledTimes(1)
-      expect(onBeforeRequestMock).toHaveBeenCalledWith(input)
+      expect(onBeforeRequestMock).toHaveBeenCalledWith({ request: mockRequestBuilder })
 
-      expect(result?.request.method).toBe('POST')
-      expect(result?.request.path.raw).toBe('/api/modified')
-      expect(result?.request.headers.get('X-Modified')).toBe('true')
+      expect(mockRequestBuilder.method).toBe('POST')
+      expect(mockRequestBuilder.path.raw).toBe('/api/modified')
+      expect(mockRequestBuilder.headers.get('X-Modified')).toBe('true')
     }
   })
 
   it('handles void return from onBeforeRequest by returning original payload', async () => {
-    const mockRequest = createMockFactory({
+    const mockRequestBuilder = createMockFactory({
       headers: new Headers({ 'X-Test': 'true' }),
     })
 
@@ -93,25 +102,20 @@ describe('mapConfigPlugins', () => {
     expect(beforeRequestHook).toBeDefined()
 
     if (beforeRequestHook) {
-      const input = beforePayload(mockRequest)
-      const result = await beforeRequestHook(input)
+      const input = beforePayload(mockRequestBuilder)
+      await beforeRequestHook(input)
 
       expect(onBeforeRequestMock).toHaveBeenCalledTimes(1)
-      expect(result).toEqual(input)
-      expect(result?.request).toBe(mockRequest)
+      expect(input.requestBuilder).toBe(mockRequestBuilder)
     }
   })
 
   it('transforms onRequestSent callback into a ClientPlugin with responseReceived hook that extracts request URL', async () => {
-    const mockRequest = createMockFactory({
+    const requestBuilder = createMockFactory({
       path: { variables: {}, raw: '/api/endpoint' },
       method: 'POST',
     })
-
-    const mockResponse = new Response('{"data": "test"}', {
-      status: 200,
-      headers: { 'Content-Type': 'application/json' },
-    })
+    const fetchRequest = new Request('https://example.com/api/endpoint', { method: 'POST' })
 
     const onRequestSentMock = vi.fn()
 
@@ -128,18 +132,7 @@ describe('mapConfigPlugins', () => {
     expect(responseReceivedHook).toBeDefined()
 
     if (responseReceivedHook) {
-      await responseReceivedHook({
-        response: mockResponse,
-        request: mockRequest,
-        requestUrl: 'https://example.com/api/endpoint',
-        document,
-        operation: {
-          operationId: 'test-operation',
-          method: 'post',
-          path: '/endpoint',
-        } as any,
-        envVariables,
-      })
+      await responseReceivedHook(responsePayload(requestBuilder, fetchRequest))
 
       expect(onRequestSentMock).toHaveBeenCalledTimes(1)
       expect(onRequestSentMock).toHaveBeenCalledWith('https://example.com/api/endpoint')
@@ -149,19 +142,17 @@ describe('mapConfigPlugins', () => {
   it('updates beforeRequest hook when onBeforeRequest callback changes in config', async () => {
     const fn = vi.fn()
 
-    const firstCallback = (it: any) => {
+    const firstCallback = () => {
       fn('first')
-      return it
     }
 
-    const secondCallback = (it: any) => {
+    const secondCallback = () => {
       fn('second')
-      return it
     }
 
     const config = ref({
       onBeforeRequest: firstCallback,
-    }) as Ref<ApiReferenceConfigurationRaw>
+    }) as unknown as Ref<ApiReferenceConfigurationRaw>
 
     const plugins: ClientPlugin[] = mapConfigPlugins(computed(() => config.value))
 
@@ -182,8 +173,8 @@ describe('mapConfigPlugins', () => {
   })
 
   it('updates responseReceived hook when onRequestSent callback changes in config', async () => {
-    const mockRequest = createMockFactory()
-    const mockResponse = new Response('{"data": "test"}', { status: 200 })
+    const requestBuilder = createMockFactory()
+    const fetchRequest = new Request('https://example.com/api/test', { method: 'GET' })
     const mockOperation = { operationId: 'test-operation', method: 'get', path: '/test' } as any
     const fn = vi.fn()
 
@@ -199,7 +190,7 @@ describe('mapConfigPlugins', () => {
 
     const config = ref({
       onRequestSent: firstCallback,
-    }) as Ref<ApiReferenceConfigurationRaw>
+    }) as unknown as Ref<ApiReferenceConfigurationRaw>
 
     const plugins: ClientPlugin[] = mapConfigPlugins(computed(() => config.value))
 
@@ -207,22 +198,21 @@ describe('mapConfigPlugins', () => {
     assert(hooks)
     assert(hooks.responseReceived)
 
-    const responsePayload = {
-      response: mockResponse,
-      request: mockRequest,
-      requestUrl: 'https://example.com/api/test',
+    const payload = {
+      response: new Response('{"data": "test"}', { status: 200 }),
+      requestBuilder,
+      request: fetchRequest,
       document,
       operation: mockOperation,
-      envVariables,
     }
 
-    await hooks.responseReceived(responsePayload)
+    await hooks.responseReceived(payload)
     expect(fn).toHaveBeenCalledTimes(1)
 
     config.value.onRequestSent = secondCallback
     await nextTick()
 
-    await hooks.responseReceived(responsePayload)
+    await hooks.responseReceived(payload)
     expect(fn).toHaveBeenCalledTimes(2)
     expect(fn).toHaveBeenNthCalledWith(1, 'first')
     expect(fn).toHaveBeenNthCalledWith(2, 'second')
@@ -231,12 +221,11 @@ describe('mapConfigPlugins', () => {
   it('adds hooks when callbacks are added to an initially empty config', async () => {
     const fn = vi.fn()
 
-    const firstCallback = (it: any) => {
+    const firstCallback = () => {
       fn('first')
-      return it
     }
 
-    const config = ref({}) as Ref<ApiReferenceConfigurationRaw>
+    const config = ref({}) as unknown as Ref<ApiReferenceConfigurationRaw>
 
     const plugins: ClientPlugin[] = mapConfigPlugins(computed(() => config.value))
 
@@ -256,14 +245,13 @@ describe('mapConfigPlugins', () => {
   it('removes hooks when callbacks are removed from config', async () => {
     const fn = vi.fn()
 
-    const firstCallback = (it: any) => {
+    const firstCallback = () => {
       fn('first')
-      return it
     }
 
     const config = ref({
       onBeforeRequest: firstCallback,
-    }) as Ref<ApiReferenceConfigurationRaw>
+    }) as unknown as Ref<ApiReferenceConfigurationRaw>
 
     const plugins: ClientPlugin[] = mapConfigPlugins(computed(() => config.value))
 
