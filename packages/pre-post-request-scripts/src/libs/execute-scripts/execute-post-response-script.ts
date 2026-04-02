@@ -1,5 +1,4 @@
-import type { VariablesStore } from '@scalar/oas-utils/helpers'
-import type { RequestFactory } from '@scalar/workspace-store/request-example'
+import type { RequestFactory, VariablesStore } from '@scalar/workspace-store/request-example'
 
 import { createConsoleContext } from './context/console'
 import { executeInPostmanSandbox } from './postman-adapter/sandbox-adapter'

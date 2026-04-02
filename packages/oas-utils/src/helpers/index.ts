@@ -93,7 +93,7 @@ export {
   mergeUrls,
 } from '@scalar/helpers/url/merge-urls'
 
-export { type ClientPlugin, type VariableEntry, type VariablesStore, executeHook } from './client-plugins'
+export { type ClientPlugin, executeHook } from './client-plugins'
 export { fetchDocument } from './fetch-document'
 export { type FetchWithProxyFallbackOptions, fetchWithProxyFallback } from './fetch-with-proxy-fallback'
 export { normalizeMimeType } from './normalize-mime-type'

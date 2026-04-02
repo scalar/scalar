@@ -1,4 +1,4 @@
-import type { VariableEntry, VariablesStore } from '@scalar/oas-utils/helpers'
+import type { VariableEntry, VariablesStore } from '@scalar/workspace-store/request-example'
 import { VariableList, VariableScope } from 'postman-collection'
 
 import { getVariableScopesFromStore } from './variables-store'

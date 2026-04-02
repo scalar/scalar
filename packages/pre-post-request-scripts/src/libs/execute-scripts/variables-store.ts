@@ -1,4 +1,4 @@
-import type { VariableEntry, VariablesStore } from '@scalar/oas-utils/helpers'
+import type { VariableEntry, VariablesStore } from '@scalar/workspace-store/request-example'
 
 function toKeyValueArray(input: VariableEntry[] | Record<string, string>): VariableEntry[] {
   if (Array.isArray(input)) {

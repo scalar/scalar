@@ -1,5 +1,4 @@
-import type { VariablesStore } from '@scalar/oas-utils/helpers'
-import type { RequestFactory } from '@scalar/workspace-store/request-example'
+import type { RequestFactory, VariablesStore } from '@scalar/workspace-store/request-example'
 import type { ExecutionResult, SandboxContext } from 'postman-sandbox'
 import Sandbox from 'postman-sandbox'
 
@@ -142,6 +141,7 @@ export const executeInPostmanSandbox = async ({
       context.response = postmanResponse
     }
 
+    /** Pre-request scripts must use the prerequest listener so pm.globals / pm.environment / collection mutations appear on ExecutionResult. */
     const listen = type === 'pre-request' ? 'prerequest' : 'test'
 
     await new Promise<void>((resolve) => {

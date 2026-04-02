@@ -12,6 +12,7 @@ export default {}
 
 <script setup lang="ts">
 import {
+  createVariablesStoreForRequest,
   getActiveProxyUrl,
   getRequestExampleContext,
 } from '@scalar/workspace-store/request-example'
@@ -123,6 +124,15 @@ const environments = computed(() => {
   )
 })
 
+const getVariableStore = () => {
+  return createVariablesStoreForRequest({
+    environment,
+    activeEnvironmentName: requestExample.value?.environment.name ?? undefined,
+    document,
+    workspace: workspaceStore,
+  })
+}
+
 /** Temporarily use the old config.hiddenClients until we migrate to the new httpClients config */
 const httpClients = computed(() =>
   mapHiddenClientsConfig(toValue(options)?.hiddenClients),
@@ -147,6 +157,7 @@ const httpClients = computed(() =>
       :environments
       :eventBus
       :exampleKey="exampleName"
+      :getVariableStore="getVariableStore"
       :hideClientButton="toValue(options)?.hideClientButton ?? false"
       :history="workspaceStore.history.getHistory(documentSlug, path, method)"
       :httpClients

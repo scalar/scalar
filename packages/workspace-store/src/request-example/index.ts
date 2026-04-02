@@ -46,3 +46,5 @@ export {
   isAuthOptional,
   mergeSecurity,
 } from './context'
+export { createVariablesStoreForRequest } from './variable-store'
+export type { VariableEntry, VariablesStore } from './variable-store/types'

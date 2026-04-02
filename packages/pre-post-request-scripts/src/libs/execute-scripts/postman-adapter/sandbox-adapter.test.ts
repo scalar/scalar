@@ -58,7 +58,7 @@ describe('postman-sandbox-adapter', () => {
     })
 
     expect(sandboxContextMock.execute).toHaveBeenCalledWith(
-      expect.any(Object),
+      expect.objectContaining({ listen: 'test' }),
       expect.objectContaining({
         context: expect.objectContaining({
           response: expect.objectContaining({
@@ -69,6 +69,58 @@ describe('postman-sandbox-adapter', () => {
           }),
         }),
       }),
+      expect.any(Function),
+    )
+  })
+
+  it('uses prerequest listener for pre-request scripts and test listener for post-response', async () => {
+    sandboxContextMock.execute.mockImplementation((_target, _options, callback) => callback(undefined))
+
+    await executeInPostmanSandbox({
+      script: 'pm.globals.set("a", "1")',
+      type: 'pre-request',
+      context: {
+        scriptConsole: {
+          log: vi.fn(),
+          error: vi.fn(),
+          warn: vi.fn(),
+          info: vi.fn(),
+          debug: vi.fn(),
+          trace: vi.fn(),
+          table: vi.fn(),
+        },
+      },
+    })
+
+    expect(sandboxContextMock.execute).toHaveBeenCalledWith(
+      expect.objectContaining({ listen: 'prerequest' }),
+      expect.any(Object),
+      expect.any(Function),
+    )
+
+    vi.clearAllMocks()
+    sandboxContextMock.execute.mockImplementation((_target, _options, callback) => callback(undefined))
+
+    await executeInPostmanSandbox({
+      script: 'pm.test("noop", () => {})',
+      type: 'post-response',
+      context: {
+        response: new Response('{}', { status: 200 }),
+        scriptConsole: {
+          log: vi.fn(),
+          error: vi.fn(),
+          warn: vi.fn(),
+          info: vi.fn(),
+          debug: vi.fn(),
+          trace: vi.fn(),
+          table: vi.fn(),
+        },
+      },
+    })
+
+    expect(sandboxContextMock.execute).toHaveBeenCalledWith(
+      expect.objectContaining({ listen: 'test' }),
+      expect.any(Object),
       expect.any(Function),
     )
   })
