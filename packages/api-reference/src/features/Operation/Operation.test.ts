@@ -488,6 +488,82 @@ describe('Operation', () => {
     expect(server?.url).toBe('https://op.example.com')
   })
 
+  it('passes hasSecurityRequirements=true to ModernLayout for required operation auth', () => {
+    const documentWithRequiredSecurity = coerceValue(OpenAPIDocumentSchema, {
+      openapi: '3.1.0',
+      info: {
+        title: 'Test API',
+        version: '1.0.0',
+      },
+      paths: {
+        '/users/{userId}': {
+          get: {
+            operationId: 'getUserById',
+            summary: 'Get user by ID',
+            security: [{ bearerAuth: [] }],
+          },
+        },
+      },
+      components: {
+        securitySchemes: {
+          bearerAuth: {
+            type: 'http',
+            scheme: 'bearer',
+          },
+        },
+      },
+    })
+
+    const wrapper = mountOperationWithConfig({
+      path: '/users/{userId}',
+      method: 'get',
+      pathValue: documentWithRequiredSecurity.paths?.['/users/{userId}'],
+      document: documentWithRequiredSecurity,
+    })
+
+    const modernLayout = wrapper.findComponent({ name: 'ModernLayout' })
+    expect(modernLayout.exists()).toBe(true)
+    expect(modernLayout.props('hasSecurityRequirements')).toBe(true)
+  })
+
+  it('passes hasSecurityRequirements=false to ModernLayout for optional auth', () => {
+    const documentWithOptionalSecurity = coerceValue(OpenAPIDocumentSchema, {
+      openapi: '3.1.0',
+      info: {
+        title: 'Test API',
+        version: '1.0.0',
+      },
+      security: [{ bearerAuth: [] }, {}],
+      paths: {
+        '/users/{userId}': {
+          get: {
+            operationId: 'getUserById',
+            summary: 'Get user by ID',
+          },
+        },
+      },
+      components: {
+        securitySchemes: {
+          bearerAuth: {
+            type: 'http',
+            scheme: 'bearer',
+          },
+        },
+      },
+    })
+
+    const wrapper = mountOperationWithConfig({
+      path: '/users/{userId}',
+      method: 'get',
+      pathValue: documentWithOptionalSecurity.paths?.['/users/{userId}'],
+      document: documentWithOptionalSecurity,
+    })
+
+    const modernLayout = wrapper.findComponent({ name: 'ModernLayout' })
+    expect(modernLayout.exists()).toBe(true)
+    expect(modernLayout.props('hasSecurityRequirements')).toBe(false)
+  })
+
   it('falls back to path-level server when operation servers are missing', () => {
     const doc = coerceValue(OpenAPIDocumentSchema, {
       openapi: '3.1.0',
@@ -554,6 +630,44 @@ describe('Operation', () => {
         const classicLayout = wrapper.findComponent({ name: 'ClassicLayout' })
 
         expect(classicLayout.html()).not.toContain('getUserById')
+      })
+
+      it('renders auth icon badge when operation requires authentication', () => {
+        const documentWithRequiredSecurity = coerceValue(OpenAPIDocumentSchema, {
+          openapi: '3.1.0',
+          info: {
+            title: 'Test API',
+            version: '1.0.0',
+          },
+          paths: {
+            '/users/{userId}': {
+              get: {
+                operationId: 'getUserById',
+                summary: 'Get user by ID',
+                security: [{ bearerAuth: [] }],
+              },
+            },
+          },
+          components: {
+            securitySchemes: {
+              bearerAuth: {
+                type: 'http',
+                scheme: 'bearer',
+              },
+            },
+          },
+        })
+
+        const wrapper = mountOperationWithConfig({
+          options: { layout: 'classic' },
+          path: '/users/{userId}',
+          method: 'get',
+          pathValue: documentWithRequiredSecurity.paths?.['/users/{userId}'],
+          document: documentWithRequiredSecurity,
+        })
+        const classicLayout = wrapper.findComponent({ name: 'ClassicLayout' })
+
+        expect(classicLayout.props('hasSecurityRequirements')).toBe(true)
       })
     })
   })

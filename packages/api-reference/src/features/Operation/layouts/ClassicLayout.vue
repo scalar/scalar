@@ -2,11 +2,13 @@
 import { OperationCodeSample } from '@scalar/api-client/v2/blocks/operation-code-sample'
 import {
   ScalarErrorBoundary,
+  ScalarTooltip,
   ScalarIconButton,
   ScalarMarkdown,
 } from '@scalar/components'
 import {
   ScalarIconCopy,
+  ScalarIconLockSimple,
   ScalarIconPlay,
   ScalarIconWebhooksLogo,
 } from '@scalar/icons'
@@ -48,6 +50,7 @@ import { XBadges } from '@/features/x-badges'
 const {
   clientOptions,
   eventBus,
+  hasSecurityRequirements,
   isWebhook,
   method,
   operation,
@@ -67,6 +70,8 @@ const {
     selectedServer: ServerObject | null
     /** The selected security schemes for the operation */
     selectedSecuritySchemes: SecuritySchemeObjectSecret[]
+    /** Whether this operation requires authentication */
+    hasSecurityRequirements: boolean
   }
 >()
 
@@ -136,6 +141,16 @@ const { copyToClipboard } = useClipboard()
                 class="font-code text-green flex w-fit items-center justify-center gap-1">
                 <ScalarIconWebhooksLogo weight="bold" />Webhook
               </Badge>
+              <ScalarTooltip
+                v-if="hasSecurityRequirements"
+                content="Authentication required">
+                <Badge
+                  class="font-code flex w-fit items-center justify-center gap-1">
+                  <ScalarIconLockSimple
+                    class="size-3"
+                    weight="bold" />Auth
+                </Badge>
+              </ScalarTooltip>
 
               <!-- x-badges before -->
               <XBadges

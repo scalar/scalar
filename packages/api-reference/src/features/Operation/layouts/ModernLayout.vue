@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { OperationCodeSample } from '@scalar/api-client/v2/blocks/operation-code-sample'
-import { ScalarErrorBoundary, ScalarMarkdown } from '@scalar/components'
-import { ScalarIconWebhooksLogo } from '@scalar/icons'
+import { ScalarErrorBoundary, ScalarMarkdown, ScalarTooltip } from '@scalar/components'
+import { ScalarIconLockSimple, ScalarIconWebhooksLogo } from '@scalar/icons'
 import {
   getOperationStability,
   getOperationStabilityColor,
@@ -46,6 +46,7 @@ import { XBadges } from '@/features/x-badges'
 const {
   clientOptions,
   eventBus,
+  hasSecurityRequirements,
   isWebhook,
   method,
   operation,
@@ -70,6 +71,8 @@ const {
     selectedServer: ServerObject | null
     /** The selected security schemes for the operation */
     selectedSecuritySchemes: SecuritySchemeObjectSecret[]
+    /** Whether this operation requires authentication */
+    hasSecurityRequirements: boolean
   }
 >()
 
@@ -123,6 +126,17 @@ provide(REQUEST_BODY_COMPOSITION_INDEX_SYMBOL, requestBodyCompositionSelection)
             class="font-code text-green flex w-fit items-center justify-center gap-1">
             <ScalarIconWebhooksLogo weight="bold" />Webhook
           </Badge>
+          <!-- Required auth badge -->
+          <ScalarTooltip
+            v-if="hasSecurityRequirements"
+            content="Authentication required">
+            <Badge
+              class="font-code flex w-fit items-center justify-center gap-1">
+              <ScalarIconLockSimple
+                class="size-3"
+                weight="bold" />
+            </Badge>
+          </ScalarTooltip>
           <!-- x-badges before -->
           <XBadges
             :badges="operation['x-badges']"

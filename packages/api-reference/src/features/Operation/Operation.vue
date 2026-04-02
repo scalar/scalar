@@ -53,6 +53,8 @@ import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import {
   combineParams,
+  getSecurityRequirements,
+  isAuthOptional,
   type MergedSecuritySchemes,
 } from '@scalar/workspace-store/request-example'
 import type {
@@ -132,6 +134,19 @@ const selectedSecuritySchemes = computed(() =>
     securitySchemes,
   ),
 )
+
+const hasSecurityRequirements = computed(() => {
+  const securityRequirements = getSecurityRequirements(
+    document.security,
+    operation.value?.security,
+  )
+
+  if (!securityRequirements.length) {
+    return false
+  }
+
+  return !isAuthOptional(securityRequirements)
+})
 </script>
 
 <template>
@@ -148,6 +163,7 @@ const selectedSecuritySchemes = computed(() =>
       :options
       :path
       :selectedClient
+      :hasSecurityRequirements
       :selectedSecuritySchemes
       :selectedServer />
     <ModernLayout
@@ -161,6 +177,7 @@ const selectedSecuritySchemes = computed(() =>
       :options
       :path
       :selectedClient
+      :hasSecurityRequirements
       :selectedSecuritySchemes
       :selectedServer />
   </template>
