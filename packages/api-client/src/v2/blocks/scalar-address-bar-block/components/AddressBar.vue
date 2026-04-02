@@ -401,7 +401,6 @@ defineExpose({
           :placeholder="server ? '' : 'Enter a URL'"
           server
           @blur="handlePathBlur"
-          @keydown.backspace="handlePathBackspace"
           @keydown.delete="handlePathBackspace"
           @keydown.tab="tabbedOut = true"
           @submit="handlePathSubmit" />
