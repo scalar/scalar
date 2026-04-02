@@ -1,5 +1,6 @@
 import { sleep } from '@scalar/helpers/testing/sleep'
 import { apiReferenceConfigurationSchema, apiReferenceConfigurationWithSourceSchema } from '@scalar/types/api-reference'
+import * as unheadVueClient from '@unhead/vue/client'
 import { flushPromises } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { nextTick } from 'vue'
@@ -53,6 +54,18 @@ describe('createApiReference', () => {
     expect(apiReference.app.mount).toBeDefined()
     expect(apiReference.updateConfiguration).toBeDefined()
     expect(document.getElementById('mount-point')?.innerHTML).toContain('Powered by Scalar')
+  })
+
+  it('creates the head manager once for hydration mounts', () => {
+    const createHeadSpy = vi.spyOn(unheadVueClient, 'createHead')
+    const element = document.querySelector('#mount-point')
+    element!.innerHTML = '<div>Server-rendered content</div>'
+
+    const config = { _integration: 'html' }
+    createApiReference(element!, apiReferenceConfigurationSchema.parse(config))
+
+    expect(createHeadSpy).toHaveBeenCalledTimes(1)
+    createHeadSpy.mockRestore()
   })
 
   it('handles scalar:reload-references event', () => {
