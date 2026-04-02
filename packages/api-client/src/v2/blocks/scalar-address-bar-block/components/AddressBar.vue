@@ -104,44 +104,43 @@ const methodConflict = ref<HttpMethodType | null>(null)
 /** Whether there is a path or method conflict */
 const hasConflict = computed(() => methodConflict.value || pathConflict.value)
 
-/** Check if the path contains a server */
+/** Check if the path contains a server URL, extract it, and select or add the server */
 const checkForServer = (targetPath: string) => {
-  const newServer = extractServerFromPath(targetPath)
+  const extracted = extractServerFromPath(targetPath)
+  if (!extracted) {
+    return targetPath
+  }
 
-  // Lets add and set it before proceeding
-  if (newServer) {
-    const [url, newPath] = newServer
-    const matchingServer = servers.find((s) => s.url === url)
+  const [url, newPath] = extracted
 
-    // Early exit if the server is already selecc
-    if (url === server?.url) {
-      return newPath
-    }
-
-    // Select the server if it exists
-    if (matchingServer) {
-      eventBus.emit('server:update:selected', {
-        url,
-        meta: serverMeta,
-      })
-    }
-    // Or add it to the operation
-    else {
-      eventBus.emit('server:add:server', {
-        url,
-        select: true,
-        meta: {
-          type: 'operation',
-          path,
-          method,
-        },
-      })
-    }
-
+  // Server is already selected — nothing to change
+  if (url === server?.url) {
     return newPath
   }
 
-  return targetPath
+  const matchingServer = servers.find((s) => s.url === url)
+
+  // Select the server if it already exists in the list
+  if (matchingServer) {
+    eventBus.emit('server:update:selected', {
+      url,
+      meta: serverMeta,
+    })
+  }
+  // Otherwise add it as a new operation-level server
+  else {
+    eventBus.emit('server:add:server', {
+      url,
+      select: true,
+      meta: {
+        type: 'operation',
+        path,
+        method,
+      },
+    })
+  }
+
+  return newPath
 }
 
 /** Emit the path/method update event with conflict handling */

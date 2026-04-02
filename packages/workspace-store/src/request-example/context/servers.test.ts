@@ -17,49 +17,21 @@ describe('servers', () => {
   })
 
   describe('getServers', () => {
-    it('returns empty array when no servers provided and no fallback available', () => {
+    it('returns empty array when no servers provided', () => {
       vi.stubGlobal('window', undefined)
 
       const result = getServers(undefined)
       expect(result).toEqual([])
     })
 
-    it('creates fallback server from window.location.origin when no servers provided', () => {
+    it('returns empty array when undefined servers provided (no fallback)', () => {
       const result = getServers(undefined)
-
-      expect(result).toHaveLength(1)
-      expect(result[0]).toMatchObject({
-        url: 'https://example.com',
-      })
+      expect(result).toEqual([])
     })
 
-    it('creates fallback server from document URL when provided', () => {
-      const result = getServers(undefined, {
-        documentUrl: 'https://api.example.com/docs/openapi.json',
-      })
-
-      expect(result).toHaveLength(1)
-      expect(result[0]).toMatchObject({
-        url: 'https://api.example.com',
-      })
-    })
-
-    it('prioritizes document URL over window.location.origin for fallback', () => {
-      const result = getServers(undefined, {
-        documentUrl: 'https://api.example.com/docs/openapi.json',
-      })
-
-      expect(result).toHaveLength(1)
-      expect(result[0]?.url).toBe('https://api.example.com')
-    })
-
-    it('handles empty servers array', () => {
+    it('returns empty array when empty servers array provided (no fallback)', () => {
       const result = getServers([])
-
-      expect(result).toHaveLength(1)
-      expect(result[0]).toMatchObject({
-        url: 'https://example.com',
-      })
+      expect(result).toEqual([])
     })
 
     it('handles invalid servers array (non-array)', () => {
@@ -162,31 +134,28 @@ describe('servers', () => {
       })
     })
 
-    it('handles document URL with port', () => {
+    it('returns empty array when document URL provided but no servers', () => {
       const result = getServers(undefined, {
         documentUrl: 'https://api.example.com:8080/docs/openapi.json',
       })
 
-      expect(result).toHaveLength(1)
-      expect(result[0]?.url).toBe('https://api.example.com:8080')
+      expect(result).toEqual([])
     })
 
-    it('handles invalid document URL gracefully', () => {
+    it('returns empty array when invalid document URL provided and no servers', () => {
       const result = getServers(undefined, {
         documentUrl: 'invalid-url',
       })
 
-      expect(result).toHaveLength(1)
-      expect(result[0]?.url).toBe('https://example.com')
+      expect(result).toEqual([])
     })
 
-    it('handles document URL with path but no protocol', () => {
+    it('returns empty array when protocol-relative document URL provided and no servers', () => {
       const result = getServers(undefined, {
         documentUrl: '//api.example.com/docs/openapi.json',
       })
 
-      expect(result).toHaveLength(1)
-      expect(result[0]?.url).toBe('https://example.com')
+      expect(result).toEqual([])
     })
 
     it('combines multiple base URL resolution strategies', () => {
@@ -237,12 +206,36 @@ describe('servers', () => {
       })
     })
 
-    it('handles edge case with null servers', () => {
+    it('returns empty array for null servers (no fallback)', () => {
       // @ts-expect-error testing null value
       const result = getServers(null)
 
+      expect(result).toEqual([])
+    })
+
+    it('does not create a fallback server even when window.location.origin is available', () => {
+      const result = getServers(undefined)
+
+      expect(result).toEqual([])
+    })
+
+    it('does not create a fallback server from documentUrl when no servers provided', () => {
+      const result = getServers(undefined, {
+        documentUrl: 'https://api.example.com/openapi.json',
+      })
+
+      expect(result).toEqual([])
+    })
+
+    it('still resolves relative server URLs when servers are provided', () => {
+      const servers: ServerObject[] = [{ url: '/api/v2' }]
+
+      const result = getServers(servers, {
+        documentUrl: 'https://api.example.com/openapi.json',
+      })
+
       expect(result).toHaveLength(1)
-      expect(result[0]?.url).toBe('https://example.com')
+      expect(result[0]?.url).toBe('https://api.example.com/api/v2')
     })
   })
 
