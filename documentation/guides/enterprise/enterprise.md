@@ -1,9 +1,9 @@
 <div class="flex flex-col gap-3 hero small-test">
   <scalar-heading level="1" slug="enterprise" class="text-balance">
-    Build APIs that lead. Deliver business impact.
+    Enterprise-grade APIs start with OpenAPI
   </scalar-heading>
   <p>
-    Scalar is an OpenAPI-native platform for reference documentation, a centralized API registry, SDK generation, exploration, and governance in Git and CI — plus MCP servers so AI agents use your APIs through a standard, controlled surface. One hub for design, docs, quality, and visibility at enterprise scale.
+     Scalar gives teams a single OpenAPI system of record across docs, registry, SDKs, Spectral linting & MCP servers so AI agents use your APIs through a standard, controlled surface. One hub for design, governance, quality, and visibility at enterprise scale.
   </p>
 </div>
 
@@ -14,7 +14,7 @@
 
 <br>
 
-<h4 class="text-c-2 mt-10">Trusted by teams shiping serious APIs</h4>
+<h4 class="text-c-2 mt-10">Trusted by the world's best API teams</h4>
 
 <div class="logowall">
   <div class="logowall-item">
@@ -49,53 +49,52 @@
 <div class="enterprise-features border-t flex">
 <div class="enterprise-features-copy">
 
-## Built for developers. Scaled for enterprise.
+## Built for modern API teams, ready for enterprise scale
 
-<h4 class="flex items-center icon-text gap-2 font-bold min-h-8 mt-6"><scalar-icon src="phosphor/bold/arrows-merge"></scalar-icon>One platform from description to delivery</h4>
+<h4 class="flex items-center icon-text gap-2 font-bold min-h-8 mt-6"><scalar-icon src="phosphor/bold/arrows-merge"></scalar-icon>From OpenAPI to shipped experience</h4>
 
-Consolidate API descriptions, interactive documentation, SDKs, the API client, and registry workflows in one place. Scalar is the system of record for OpenAPI across teams — easier discovery, less duplication, faster onboarding for internal and partner developers.
+Use OpenAPI to power documentation, SDK generation, client workflows, and registry publishing. Scalar gives platform and product teams a shared source of truth, so discovery improves, duplicate effort drops, and new developers ramp faster.
 
-<h3 class="flex items-center icon-text gap-2 font-bold min-h-8 mt-6"><scalar-icon src="phosphor/bold/git-branch"></scalar-icon>Git-native, AI-ready, standards-first</h3>
+<h3 class="flex items-center icon-text gap-2 font-bold min-h-8 mt-6"><scalar-icon src="phosphor/bold/git-branch"></scalar-icon>Git-native delivery with controlled automation</h3>
 
-Meet developers in Git and CI with the tools they already use. Ship linting and breaking-change checks before production. Extend the same descriptions to MCP so agents and copilots call only the operations you expose, with authentication and tool modes you control.
+Keep teams in Git and CI where reviews already happen. Run linting and breaking-change checks before release, then expose approved operations through MCP so agents and copilots can act within the authentication and tool controls you define.
 
-<h3 class="flex items-center icon-text gap-2 font-bold min-h-8 mt-6"><scalar-icon src="phosphor/bold/scales"></scalar-icon>Governance without gridlock</h3>
+<h3 class="flex items-center icon-text gap-2 font-bold min-h-8 mt-6"><scalar-icon src="phosphor/bold/scales"></scalar-icon>Guardrails that keep teams moving</h3>
 
-Enforce style guides and access boundaries without turning platform teams into bottlenecks. Central visibility into what ships, who can publish, and how descriptions evolve — fewer surprises in production and less time lost to inconsistent contracts.
+Apply style guides, publishing rules, and access boundaries without creating a central bottleneck. Shared visibility into what is changing, who can release, and how API descriptions evolve reduces production surprises and keeps contracts consistent across teams.
 
 
 <h2 class="mt-10 t-editor__heading"> Govern and scale APIs across the organization</h2>
 
 <h3 class="flex items-center icon-text gap-2 font-bold min-h-8 mt-6"><scalar-icon src="phosphor/bold/database"></scalar-icon>API governance and registry</h3>
 
-Standardize how APIs are authored, reviewed, and published. Centralize OpenAPI in a searchable registry, connect Git for branches and reviews, and enforce rules with Spectral in CI. Multi-team governance, version clarity, and permissions — without forcing everyone through a single manual gate.
+Standardize how APIs are authored, reviewed, and published. Centralize OpenAPI in a searchable registry, connect Git for branches and reviews, and enforce rules with Spectral in CI. Get multi-team governance, clear versioning, and scoped permissions without forcing everyone through one manual gate.
 
 <h3 class="flex items-center icon-text gap-2 font-bold min-h-8 mt-6"><scalar-icon src="phosphor/bold/book-open-text"></scalar-icon>Reference documentation and developer experience</h3>
 
-Automatically keep consumer-facing documentation in sync as descriptions change. Interactive references, try-it-out, and branding that match your product reduce time-to-first-call and support load. The same experience ships through [official framework integrations](../../integrations/html-js.md) and embeds cleanly in your portals.
+Keep consumer-facing documentation in sync as API descriptions change. Interactive references, try-it-out flows, and product-aligned branding reduce time-to-first-call and support burden. The same experience ships through [official framework integrations](../../integrations/html-js.md) and embeds cleanly into your portals.
 
 <h3 class="flex items-center icon-text gap-2 font-bold min-h-8 mt-6"><scalar-icon src="phosphor/bold/compass"></scalar-icon>Design, exploration, and quality</h3>
 
-Validate contracts early: exploration and testing stay tied to the description your consumers see. Align design and implementation so documentation, generated SDKs, and runtime behavior stay honest — higher software quality and less integration debt over time.
+Validate contracts early so exploration and testing stay tied to the same API description consumers use. Align design and implementation so docs, generated SDKs, and runtime behavior stay consistent, improving software quality and reducing integration debt over time.
 
 <h3 class="flex items-center icon-text gap-2 font-bold min-h-8 mt-6"><scalar-icon src="phosphor/bold/shield-check"></scalar-icon>Enterprise security, access, and operations</h3>
 
-**SSO / SAML** for corporate identity. **Role-based access** across workspaces and APIs. **Auditability** alongside Git history. **Self-hosting** with an MIT-licensed core when data must stay in your perimeter. **Privacy-conscious docs hosting** — no third-party analytics on your custom domains, no visitor tracking cookies for docs traffic, no IP logging for request traffic ([Docs privacy](../docs/privacy.md)). **MCP guardrails** — choose which endpoints become agent tools; search vs execute modes; API auth per installation ([MCP →](../agent/mcp.md)).
+**SSO / SAML** for corporate identity. **Role-based access** across workspaces and APIs. **Audit trails** alongside Git history. **Self-hosting** with an MIT-licensed core when data must stay in your perimeter. **Privacy-conscious docs hosting** with no third-party analytics on your custom domains, no visitor tracking cookies for docs traffic, and no IP logging for request traffic ([Docs privacy](../docs/privacy.md)). **MCP guardrails** so you choose which endpoints become agent tools, set search vs execute modes, and apply API auth per installation ([MCP](../agent/mcp.md)).
 </div>
 <div class="enterprise-stats border-l sticky h-fit flex flex-col gap-3">
 
+<div class="bg-b-2 p-3 rounded-lg">
+  <b class="text-xl font-bold">1M+</b>
+  <p class="text-c-2 mt-2">Developers Use Scalar</p>
+</div>
 <div class="bg-b-2 p-3 rounded-lg"> 
-  <b class="text-xl font-bold">15,000+</b>
-  <p class="text-c-2 mt-2">Github Stars</p>
+  <b class="text-xl font-bold">50k+</b>
+  <p class="text-c-2 mt-2">APIs on Scalar</p>
 </div>
 <div class="bg-b-2 p-3 rounded-lg">
-
-  <b class="text-xl font-bold">10m+</b>
-  <p class="text-c-2 mt-2">Downloads per month</p>
-</div>
-<div class="bg-b-2 p-3 rounded-lg">
-  <b class="text-xl font-bold">10k+</b>
-  <p class="text-c-2 mt-2">Clossed PR's</p>
+  <b class="text-xl font-bold">10MM+</b>
+  <p class="text-c-2 mt-2">OSS Installs</p>
 </div>
 
 </div>
@@ -106,23 +105,22 @@ Validate contracts early: exploration and testing stay tied to the description y
 <div class="enterprise-contact-section">
 
   <h3 class="enterprise-demo-form-title text-xl text-center font-bold">Contact us</h3>
-  <p class="enterprise-demo-form-lead text-center">We will follow up with security materials, pricing, and next steps.</p>
+  <p class="enterprise-demo-form-lead text-center">Share your goals and we will follow up with security materials, pricing, and next steps.</p>
   <form
     class="enterprise-demo-form"
-    action="https://formsubmit.co/support@scalar.com"
+    action="https://app.loops.so/api/newsletter-form/clksm7aj203tclb0olg1z2xb3"
     method="POST"
   >
-    <input type="hidden" name="_subject" value="Enterprise demo request (docs)" />
-    <input type="hidden" name="_template" value="table" />
-    <input type="text" name="_honey" style="display:none" tabindex="-1" autocomplete="off" aria-hidden="true" />
+    <input type="hidden" name="source" value="Docs Enterprise Contact Form" />
+    <input type="hidden" name="userGroup" value="Enterprise demo request" />
     <div class="enterprise-demo-form-row">
       <div class="enterprise-demo-field">
         <label for="ec-first">First name<span class="enterprise-req" aria-hidden="true">*</span></label>
-        <input id="ec-first" name="first_name" type="text" required autocomplete="given-name" placeholder="Jane" />
+        <input id="ec-first" name="firstName" type="text" required autocomplete="given-name" placeholder="Jane" />
       </div>
       <div class="enterprise-demo-field">
         <label for="ec-last">Last name<span class="enterprise-req" aria-hidden="true">*</span></label>
-        <input id="ec-last" name="last_name" type="text" required autocomplete="family-name" placeholder="Doe" />
+        <input id="ec-last" name="lastName" type="text" required autocomplete="family-name" placeholder="Doe" />
       </div>
     </div>
     <div class="enterprise-demo-form-row">
@@ -132,16 +130,16 @@ Validate contracts early: exploration and testing stay tied to the description y
       </div>
       <div class="enterprise-demo-field">
         <label for="ec-title">Job title<span class="enterprise-req" aria-hidden="true">*</span></label>
-        <input id="ec-title" name="job_title" type="text" required autocomplete="organization-title" placeholder="Director of Platform" />
+        <input id="ec-title" name="jobTitle" type="text" required autocomplete="organization-title" placeholder="Director of Platform" />
       </div>
     </div>
     <div class="enterprise-demo-field enterprise-demo-field-full">
       <label for="ec-company">Company name<span class="enterprise-req" aria-hidden="true">*</span></label>
-      <input id="ec-company" name="company" type="text" required autocomplete="organization" placeholder="Acme Inc." />
+      <input id="ec-company" name="companyName" type="text" required autocomplete="organization" placeholder="Acme Inc." />
     </div>
     <div class="enterprise-demo-field enterprise-demo-field-full">
       <label for="ec-help">How can we help?<span class="enterprise-req" aria-hidden="true">*</span></label>
-      <select id="ec-help" name="how_can_we_help" required>
+      <select id="ec-help" name="howCanWeHelp" required>
         <option value="" disabled selected>Select…</option>
         <option value="Enterprise pricing &amp; procurement">Enterprise pricing &amp; procurement</option>
         <option value="SSO / security review">SSO / security review</option>
@@ -153,13 +151,13 @@ Validate contracts early: exploration and testing stay tied to the description y
     </div>
     <div class="enterprise-demo-field enterprise-demo-field-full">
       <label for="ec-context">Additional context<span class="enterprise-req" aria-hidden="true">*</span></label>
-      <textarea id="ec-context" name="additional_context" required rows="4" placeholder="Tell us how we can help you"></textarea>
+      <textarea id="ec-context" name="additionalContext" required rows="4" placeholder="Tell us how we can help you"></textarea>
     </div>
     <p class="enterprise-demo-support">
       Have a support question? <a href="mailto:support@scalar.com">Contact support</a>.
     </p>
     <p class="enterprise-demo-legal">
-      By submitting this form, you agree to our <a href="/legal/privacy-policy">Privacy Policy</a>. This form is delivered by a third-party form service; use <a href="https://scalar.cal.com/scalar/chat-with-scalar" target="_blank" rel="noopener noreferrer">book a call</a> if you prefer not to submit here.
+      By submitting this form, you agree to our <a href="/legal/privacy-policy">Privacy Policy</a>. Use <a href="https://scalar.cal.com/scalar/chat-with-scalar" target="_blank" rel="noopener noreferrer">book a call</a> if you prefer not to submit here.
     </p>
     <button type="submit" class="enterprise-demo-submit">Submit request</button>
   </form>
