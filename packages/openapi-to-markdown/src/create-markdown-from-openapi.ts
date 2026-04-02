@@ -1,7 +1,8 @@
-import { dereference, normalize } from '@scalar/openapi-parser'
-import type { OpenAPI } from '@scalar/openapi-types'
-import { upgrade } from '@scalar/openapi-upgrader'
-import type { UnknownObject } from '@scalar/types/utils'
+import { isObject } from '@scalar/helpers/object/is-object'
+import { readFiles } from '@scalar/json-magic/bundle/plugins/node'
+import { normalize } from '@scalar/json-magic/helpers/normalize'
+import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import { createWorkspaceStore } from '@scalar/workspace-store/client'
 import { minify } from 'html-minifier-terser'
 import rehypeParse from 'rehype-parse'
 import rehypeRemark from 'rehype-remark'
@@ -14,12 +15,65 @@ import { renderToString } from 'vue/server-renderer'
 
 import MarkdownReference from './components/MarkdownReference.vue'
 
-type AnyDocument = OpenAPI.Document | Record<string, unknown> | string
+type AnyDocument = OpenApiDocument | Record<string, unknown> | string
+type WorkspaceInput =
+  | {
+      document: Record<string, unknown>
+    }
+  | {
+      url: string
+    }
+  | {
+      path: string
+    }
+
+const isHttpUrl = (value: string): boolean => {
+  try {
+    const url = new URL(value)
+    return url.protocol === 'http:' || url.protocol === 'https:'
+  } catch {
+    return false
+  }
+}
+
+const toWorkspaceInput = (input: AnyDocument): WorkspaceInput => {
+  if (typeof input !== 'string') {
+    return { document: input as Record<string, unknown> }
+  }
+
+  const normalized = normalize(input)
+
+  if (isObject(normalized)) {
+    return { document: normalized as Record<string, unknown> }
+  }
+
+  if (isHttpUrl(input)) {
+    return { url: input }
+  }
+
+  return { path: input }
+}
 
 export async function createHtmlFromOpenApi(input: AnyDocument) {
-  // TODO: Use the new store here.
-  const upgraded = upgrade(normalize(input) as UnknownObject, '3.1')
-  const { schema: content } = dereference(upgraded)
+  const workspaceStore = createWorkspaceStore({
+    fileLoader: readFiles(),
+  })
+
+  const name = 'openapi-to-markdown'
+  const loaded = await workspaceStore.addDocument({
+    name,
+    ...toWorkspaceInput(input),
+  })
+
+  if (!loaded) {
+    throw new Error('Failed to load OpenAPI document')
+  }
+
+  const content = workspaceStore.workspace.documents[name]
+
+  if (!content) {
+    throw new Error('OpenAPI document could not be resolved')
+  }
 
   // Create and configure a server-side rendered Vue app
   const app = createSSRApp(MarkdownReference, {
