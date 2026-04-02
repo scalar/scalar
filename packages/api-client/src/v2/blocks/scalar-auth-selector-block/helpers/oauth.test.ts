@@ -1,11 +1,10 @@
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
-import type { OAuthFlowsObjectSecret } from '@scalar/workspace-store/request-example'
+import { type OAuthFlowsObjectSecret, mergeSecurity } from '@scalar/workspace-store/request-example'
 import type { ComponentsObject, ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { flushPromises } from '@vue/test-utils'
 import { encode } from 'js-base64'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { mergeSecurity } from './merge-security'
 import { authorizeOauth2 } from './oauth'
 
 const baseFlow = {
