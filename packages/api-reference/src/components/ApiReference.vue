@@ -508,10 +508,28 @@ const changeSelectedDocument = async (
       config,
     )
 
+    const state = workspaceStore.exportWorkspace()
+
     // We need to load the new workspace document into the client store
-    clientStore.loadWorkspace(
-      window.structuredClone(workspaceStore.exportWorkspace()),
-    )
+    clientStore.loadWorkspace({
+      auth: {},
+      documents: {
+        // Only load the document into the client store
+        [slug]: window.structuredClone(state.documents[slug]) ?? {
+          'openapi': '3.1.0',
+          'info': {
+            title: '',
+            version: '',
+          },
+          'x-scalar-original-document-hash': '',
+        },
+      },
+      intermediateDocuments: {},
+      originalDocuments: {},
+      overrides: {},
+      history: {},
+      meta: {},
+    })
 
     const document = clientStore.workspace.documents[slug]
 
