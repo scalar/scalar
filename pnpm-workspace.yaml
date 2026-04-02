@@ -22,7 +22,7 @@ catalogs:
     '@google-cloud/storage': 7.16.0
     '@headlessui/tailwindcss': ^0.2.2
     '@headlessui/vue': 1.7.23
-    '@hono/node-server': ^1.19.7
+    '@hono/node-server': ^1.19.10
     '@modelcontextprotocol/sdk': 1.26.0
     '@nestjs/cli': '^11.0.14'
     '@nestjs/common': '^11.1.11'
@@ -59,10 +59,10 @@ catalogs:
     express: 5.1.0
     fake-indexeddb: 6.2.3
     fast-glob: ^3.3.3
-    fastify: ^5.3.3
+    fastify: ^5.8.1
     flatted: ^3.3.3
     fuse.js: ^7.1.0
-    hono: 4.12.4
+    hono: ^4.12.7
     github-slugger: 2.0.0
     js-base64: ^3.7.8
     jsdom: 27.4.0
