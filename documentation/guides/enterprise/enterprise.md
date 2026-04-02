@@ -109,7 +109,7 @@ Validate contracts early so exploration and testing stay tied to the same API de
   <form
     id="enterprise-contact-form"
     class="enterprise-demo-form"
-    action="#contact"
+    action="https://app.loops.so/api/newsletter-form/clksm7aj203tclb0olg1z2xb3"
     data-submit-url="https://app.loops.so/api/newsletter-form/clksm7aj203tclb0olg1z2xb3"
     method="POST"
   >
@@ -422,7 +422,7 @@ Validate contracts early so exploration and testing stay tied to the same API de
   }
   .enterprise-checkbox-option {
     display: flex;
-    align-items: flex-start;
+    align-items: center;
     gap: 8px;
     margin-bottom: 6px;
     color: var(--scalar-color-1);
@@ -432,7 +432,7 @@ Validate contracts early so exploration and testing stay tied to the same API de
   .enterprise-checkbox-option input[type='checkbox'] {
     width: 16px;
     height: 16px;
-    margin-top: 2px;
+    margin-top: 0;
     flex-shrink: 0;
     accent-color: var(--scalar-button-1);
   }
