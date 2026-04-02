@@ -132,7 +132,7 @@
     "@scalar/galaxy": "workspace:*",
     "@tailwindcss/vite": "catalog:*",
     "@vitejs/plugin-vue": "catalog:*",
-    "@vue/server-renderer": "^3.5.26",
+    "@vue/server-renderer": "^3.5.30",
     "@vue/test-utils": "catalog:*",
     "hono": "catalog:*",
     "jsdom": "catalog:*",
