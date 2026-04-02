@@ -87,16 +87,23 @@ const normalizeHttpMethod = (method: string): HttpMethod | null => {
   return null
 }
 
-const parseJsonPointer = (pointer: string): string[] => {
-  if (!pointer.startsWith('/')) {
-    throw new Error(`Invalid JSON pointer "${pointer}". JSON pointers must start with "/"`)
+const normalizeJsonPointer = (pointer: string): string => {
+  if (pointer.startsWith('#/')) {
+    return pointer.slice(1)
   }
 
-  return pointer
+  if (pointer.startsWith('/')) {
+    return pointer
+  }
+
+  throw new Error(`Invalid JSON pointer "${pointer}". JSON pointers must start with "#/"`)
+}
+
+const parseJsonPointer = (pointer: string): string[] =>
+  normalizeJsonPointer(pointer)
     .slice(1)
     .split('/')
     .map((segment) => segment.replaceAll('~1', '/').replaceAll('~0', '~'))
-}
 
 const getOperationSelectorFromPointer = (pointer: string): Extract<OperationSelector, { path: string }> => {
   const segments = parseJsonPointer(pointer)

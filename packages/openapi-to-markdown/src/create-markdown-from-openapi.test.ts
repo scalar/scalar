@@ -262,7 +262,7 @@ Test description`
 
     const result = await createMarkdownFromOpenApi(content, {
       operation: {
-        pointer: '/paths/~1pets/post',
+        pointer: '#/paths/~1pets/post',
       },
     })
 
@@ -382,7 +382,34 @@ Test description`
     ).rejects.toThrow('Invalid HTTP method "fetch".')
   })
 
-  it('throws when JSON pointer does not start with "/"', async () => {
+  it('supports legacy JSON pointers without "#/" prefix', async () => {
+    const content = {
+      openapi: '3.1.1',
+      info: {
+        title: 'Test API',
+        version: '1.0.0',
+      },
+      paths: {
+        '/pets': {
+          get: {
+            summary: 'List pets',
+          },
+        },
+      },
+    }
+
+    const result = await createMarkdownFromOpenApi(content, {
+      operation: {
+        pointer: '/paths/~1pets/get',
+      },
+    })
+
+    expect(result).toContain('List pets')
+    expect(result).toContain('- **Method:** `GET`')
+    expect(result).toContain('- **Path:** `/pets`')
+  })
+
+  it('throws when JSON pointer does not start with "#/"', async () => {
     const content = {
       openapi: '3.1.1',
       info: {
@@ -404,7 +431,7 @@ Test description`
           pointer: 'paths/~1pets/get',
         },
       }),
-    ).rejects.toThrow('Invalid JSON pointer "paths/~1pets/get". JSON pointers must start with "/"')
+    ).rejects.toThrow('Invalid JSON pointer "paths/~1pets/get". JSON pointers must start with "#/"')
   })
 
   it('throws when JSON pointer does not target /paths/{path}/{method}', async () => {
