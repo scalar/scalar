@@ -111,14 +111,27 @@ const checkForServer = (targetPath: string) => {
   // Lets add and set it before proceeding
   if (newServer) {
     const [url, newPath] = newServer
-    eventBus.emit('server:add:server', {
-      url,
-      meta: {
-        type: 'operation',
-        path,
-        method,
-      },
-    })
+    const matchingServer = servers.find((s) => s.url === url)
+
+    // Select the server if it exists
+    if (matchingServer) {
+      eventBus.emit('server:update:selected', {
+        url,
+        meta: serverMeta,
+      })
+    }
+    // Or add it to the operation
+    else {
+      eventBus.emit('server:add:server', {
+        url,
+        select: true,
+        meta: {
+          type: 'operation',
+          path,
+          method,
+        },
+      })
+    }
 
     return newPath
   }
@@ -134,6 +147,8 @@ const emitPathMethodUpdate = (
 ): void => {
   const path = checkForServer(targetPath)
   const normalizedPath = path.startsWith('/') ? path : `/${path}`
+
+  console.log(path, normalizedPath)
 
   eventBus.emit('operation:update:pathMethod', {
     meta: { method, path },
@@ -201,9 +216,7 @@ const handlePathBackspace = (event: KeyboardEvent): void => {
   if ((event.target as HTMLElement)?.innerText === '\n') {
     eventBus.emit('server:update:selected', {
       url: '',
-      meta: {
-        type: 'document',
-      },
+      meta: serverMeta,
     })
   }
 }
