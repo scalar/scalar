@@ -33,6 +33,22 @@ const content = {
 const markdown = await createMarkdownFromOpenApi(content)
 ```
 
+### CLI usage with npx
+
+Generate Markdown directly from an OpenAPI file path or URL:
+
+```bash
+npx @scalar/openapi-to-markdown ./openapi.yaml > llms.txt
+```
+
+Write to a file directly:
+
+```bash
+npx @scalar/openapi-to-markdown ./openapi.yaml ./llms.txt
+# or
+npx @scalar/openapi-to-markdown ./openapi.yaml --output ./llms.txt
+```
+
 ### With Hono
 
 You use the package with any Node.js framework. Here is an example for [Hono](https://hono.dev/):

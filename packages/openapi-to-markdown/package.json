@@ -29,6 +29,9 @@
   "type": "module",
   "main": "dist/index.js",
   "module": "dist/index.js",
+  "bin": {
+    "openapi-to-markdown": "./dist/cli.js"
+  },
   "exports": {
     ".": {
       "import": "./dist/index.js",
