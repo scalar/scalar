@@ -47,7 +47,7 @@ type OperationMatch = {
   method: HttpMethod
 }
 
-const HTTP_METHODS: HttpMethod[] = ['get', 'put', 'post', 'delete', 'connect', 'options', 'head', 'patch', 'trace']
+const HTTP_METHODS: HttpMethod[] = ['get', 'put', 'post', 'delete', 'options', 'head', 'patch', 'trace']
 const HTTP_METHOD_SET = new Set<string>(HTTP_METHODS)
 
 const isHttpUrl = (value: string): boolean => {

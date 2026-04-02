@@ -382,6 +382,32 @@ Test description`
     ).rejects.toThrow('Invalid HTTP method "fetch".')
   })
 
+  it('throws when method is connect to avoid silent empty rendering', async () => {
+    const content = {
+      openapi: '3.1.1',
+      info: {
+        title: 'Test API',
+        version: '1.0.0',
+      },
+      paths: {
+        '/tunnel': {
+          connect: {
+            summary: 'Create tunnel',
+          },
+        },
+      },
+    }
+
+    await expect(
+      createMarkdownFromOpenApi(content, {
+        operation: {
+          path: '/tunnel',
+          method: 'connect' as 'get',
+        },
+      }),
+    ).rejects.toThrow('Invalid HTTP method "connect".')
+  })
+
   it('supports legacy JSON pointers without "#/" prefix', async () => {
     const content = {
       openapi: '3.1.1',
