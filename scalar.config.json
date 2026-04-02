@@ -16,6 +16,9 @@
           "path": "documentation/assets/landing.js"
         },
         {
+          "path": "documentation/assets/enterprise-contact-form.js"
+        },
+        {
           "path": "documentation/assets/fathom.js"
         },
         {
@@ -639,13 +642,6 @@
             "type": "page",
             "filepath": "documentation/guides/enterprise/enterprise.md",
             "showInSidebar": false,
-            "head": {
-              "scripts": [
-                {
-                  "path": "documentation/assets/enterprise-contact-form.js"
-                }
-              ]
-            },
             "layout": {
               "toc": false
             }
