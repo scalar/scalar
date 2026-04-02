@@ -25,7 +25,7 @@ runs:
         cache: 'pnpm'
     - if: startsWith(runner.name, 'blacksmith')
       name: Setup persistent turbo cache
-      uses: useblacksmith/stickydisk@a652394bf1bf95399f406e648482b41fbd25c51f # v1
+      uses: useblacksmith/stickydisk@41873b1513bb679f9c115504cbd13d3660432504 # v1
       with:
         key: ${{ github.repository }}-${{ github.ref_name }}-turbo-cache-${{ steps.node-version.outputs.version }}
         path: ./.turbo
