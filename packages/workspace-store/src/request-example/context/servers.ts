@@ -60,37 +60,6 @@ function getFallbackUrl(): string | undefined {
 }
 
 /**
- * Creates a server object from a URL string, with error handling.
- */
-function createServerFromUrl(url: string): ServerObject | undefined {
-  return { url }
-}
-
-/**
- * Creates a default server using the document URL as the base.
- */
-function createDefaultServerFromDocumentUrl(documentUrl: string): ServerObject | undefined {
-  const baseUrl = extractBaseUrlFromDocumentUrl(documentUrl)
-  if (!baseUrl) {
-    return undefined
-  }
-
-  return createServerFromUrl(baseUrl)
-}
-
-/**
- * Creates a default server using the fallback URL (window.location.origin).
- */
-function createDefaultServerFromFallback(): ServerObject | undefined {
-  const fallbackUrl = getFallbackUrl()
-  if (!fallbackUrl) {
-    return undefined
-  }
-
-  return createServerFromUrl(fallbackUrl)
-}
-
-/**
  * Resolves a relative server URL to an absolute URL using available base URLs.
  * Uses a priority system: baseServerURL > documentUrl > fallbackUrl.
  */
@@ -130,24 +99,6 @@ function processServerObject(server: ServerObject, options: ServerProcessingOpti
   }
 
   return server
-}
-
-/**
- * Creates a fallback server when no valid servers are available.
- * Uses document URL first, then fallback URL.
- */
-function createFallbackServer(options: ServerProcessingOptions): ServerObject | undefined {
-  // Priority 1: Try to create default server from document URL
-  if (options.documentUrl) {
-    const defaultServer = createDefaultServerFromDocumentUrl(options.documentUrl)
-
-    if (defaultServer) {
-      return defaultServer
-    }
-  }
-
-  // Priority 2: Try to create default server from fallback URL
-  return createDefaultServerFromFallback()
 }
 
 export const getSelectedServer = (

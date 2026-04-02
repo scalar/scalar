@@ -58,7 +58,7 @@ export const initializeServers = (
  */
 export const addServer = (
   document: WorkspaceDocument | null,
-  { meta }: ServerEvents['server:add:server'],
+  { url, select, meta }: ServerEvents['server:add:server'],
 ): ServerObject | undefined => {
   const target = getServerTarget(document, meta)
   if (!target) {
@@ -66,12 +66,17 @@ export const addServer = (
     return undefined
   }
 
-  const parsed = coerceValue(ServerObjectSchema, {})
+  const parsed = coerceValue(ServerObjectSchema, { url })
 
   if (!target.servers) {
     target.servers = []
   }
   target.servers.push(parsed)
+
+  if (select) {
+    target['x-scalar-selected-server'] = parsed.url
+  }
+
   return parsed
 }
 

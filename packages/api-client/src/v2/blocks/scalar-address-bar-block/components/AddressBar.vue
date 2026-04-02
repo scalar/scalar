@@ -104,25 +104,36 @@ const methodConflict = ref<HttpMethodType | null>(null)
 /** Whether there is a path or method conflict */
 const hasConflict = computed(() => methodConflict.value || pathConflict.value)
 
+/** Check if the path contains a server */
+const checkForServer = (targetPath: string) => {
+  const newServer = extractServerFromPath(targetPath)
+
+  // Lets add and set it before proceeding
+  if (newServer) {
+    const [url, newPath] = newServer
+    eventBus.emit('server:add:server', {
+      url,
+      meta: {
+        type: 'operation',
+        path,
+        method,
+      },
+    })
+
+    return newPath
+  }
+
+  return targetPath
+}
+
 /** Emit the path/method update event with conflict handling */
 const emitPathMethodUpdate = (
   targetMethod: HttpMethodType,
   targetPath: string,
   blurTargetSelector: string | null = null,
 ): void => {
-  /** Check if the path contains a server */
-  const newServer = extractServerFromPath(targetPath)
-  console.log(newServer)
-  // if (newServer) {
-  //   server.value = newServer[0]
-  // }
-
-  console.log(server)
-  console.log(servers)
-
-  const normalizedPath = targetPath.startsWith('/')
-    ? targetPath
-    : `/${targetPath}`
+  const path = checkForServer(targetPath)
+  const normalizedPath = path.startsWith('/') ? path : `/${path}`
 
   eventBus.emit('operation:update:pathMethod', {
     meta: { method, path },
