@@ -109,12 +109,38 @@ public class ScalarResourceConfiguratorTests
     }
 
     [Fact]
-    public async Task DefaultConfig_ServerUrlMatchesResourceUrl()
+    public async Task DefaultConfig_BaseServerUrlMatchesResourceUrl()
     {
         var configs = await GetConfigAsync(HttpApiResource());
 
+        var baseServerUrl = configs[0].GetProperty("baseServerURL").GetString();
+        baseServerUrl.Should().Be($"http://{ApiResourceName}");
+    }
+
+    [Fact]
+    public async Task DefaultConfig_DoesNotInjectServersOverride()
+    {
+        var configs = await GetConfigAsync(HttpApiResource());
+
+        configs[0].TryGetProperty("servers", out _).Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task ExistingLocalhostServer_IsRebasedThroughBaseServerUrl_PreservingPath()
+    {
+        var configs = await GetConfigAsync(
+            HttpApiResource(),
+            (options, _) =>
+            {
+                options.AddServer("http://localhost:65312/api");
+                return Task.CompletedTask;
+            });
+
         var serverUrl = configs[0].GetProperty("servers")[0].GetProperty("url").GetString();
-        serverUrl.Should().Be($"http://{ApiResourceName}");
+        var baseServerUrl = configs[0].GetProperty("baseServerURL").GetString();
+
+        serverUrl.Should().Be("http://localhost:65312/api");
+        baseServerUrl.Should().Be($"http://{ApiResourceName}");
     }
 
     [Fact]
