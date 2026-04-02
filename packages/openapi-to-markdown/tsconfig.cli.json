@@ -1,12 +1,12 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    "outDir": "./dist",
+    "outDir": "./dist-cli",
     "rootDir": "./src",
     "declaration": false,
     "declarationMap": false,
     "sourceMap": true,
     "noEmit": false
   },
-  "include": ["src/cli.ts"]
+  "include": ["src/cli.ts", "src/vue.d.ts"]
 }
