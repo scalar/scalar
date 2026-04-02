@@ -142,26 +142,29 @@ const initEnterpriseContactForm = () => {
     console.log('Initialized enterprise contact form submit listener')
   }
 
-  document.addEventListener(
-    'click',
-    (event) => {
-      const resetButton = event.target instanceof Element ? event.target.closest('#enterprise-demo-reset') : null
-      if (!(resetButton instanceof HTMLElement)) {
-        return
-      }
+  if (document.documentElement.dataset.enterpriseResetListener !== 'true') {
+    document.addEventListener(
+      'click',
+      (event) => {
+        const resetButton = event.target instanceof Element ? event.target.closest('#enterprise-demo-reset') : null
+        if (!(resetButton instanceof HTMLElement)) {
+          return
+        }
 
-      const form = document.querySelector('.enterprise-demo-form')
-      if (!(form instanceof HTMLFormElement)) {
-        return
-      }
+        const form = document.querySelector('.enterprise-demo-form')
+        if (!(form instanceof HTMLFormElement)) {
+          return
+        }
 
-      const feedback = form.querySelector('.enterprise-demo-feedback')
-      setFeedback(feedback, '', '')
-      setSuccessState(form, false)
-      form.scrollIntoView({ behavior: 'smooth', block: 'start' })
-    },
-    true,
-  )
+        const feedback = form.querySelector('.enterprise-demo-feedback')
+        setFeedback(feedback, '', '')
+        setSuccessState(form, false)
+        form.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      },
+      true,
+    )
+    document.documentElement.dataset.enterpriseResetListener = 'true'
+  }
 }
 
 initEnterpriseContactForm()
