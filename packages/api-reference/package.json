@@ -83,11 +83,6 @@
       "types": "./dist/helpers/index.d.ts",
       "default": "./dist/helpers/index.js"
     },
-    "./ssr": {
-      "import": "./dist/ssr.js",
-      "types": "./dist/ssr.d.ts",
-      "default": "./dist/ssr.js"
-    },
     "./style.css": "./dist/style.css",
     "./browser/standalone.js": "./dist/browser/standalone.js"
   },
