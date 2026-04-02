@@ -16,7 +16,7 @@
           "path": "documentation/assets/landing.js"
         },
         {
-          "path": "documentation/assets/enterprise-contact-form.js"
+          "url": "/enterprise-contact-form.js"
         },
         {
           "path": "documentation/assets/fathom.js"
