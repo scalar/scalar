@@ -51,7 +51,6 @@ catalogs:
     '@vueuse/core': 13.9.0
     '@vueuse/integrations': 13.9.0
     'fastify-plugin': ^4.5.1
-    'pretty-bytes': ^7.1.0
     ai: 6.0.33
     ansis: 4.1.0
     astro: 5.15.9

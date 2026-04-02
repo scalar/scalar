@@ -66,7 +66,7 @@ describe('getContentLength', () => {
       const response = getDefaultResponse({
         headers: { 'Content-Length': '999999999' },
       })
-      expect(getContentLength(response)).toBe('1000 MB')
+      expect(getContentLength(response)).toBe('1 GB')
     })
   })
 

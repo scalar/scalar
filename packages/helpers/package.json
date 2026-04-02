@@ -52,6 +52,11 @@
       "types": "./dist/file/*.d.ts",
       "default": "./dist/file/*.js"
     },
+    "./formatters/*": {
+      "import": "./dist/formatters/*.js",
+      "types": "./dist/formatters/*.d.ts",
+      "default": "./dist/formatters/*.js"
+    },
     "./general/*": {
       "import": "./dist/general/*.js",
       "types": "./dist/general/*.d.ts",
@@ -110,7 +115,6 @@
   "sideEffects": false,
   "devDependencies": {
     "jsdom": "catalog:*",
-    "vite": "catalog:*",
     "vitest": "catalog:*"
   }
 }
