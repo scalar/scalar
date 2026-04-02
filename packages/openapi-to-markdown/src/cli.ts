@@ -3,7 +3,7 @@ import { writeFile } from 'node:fs/promises'
 import process from 'node:process'
 import { pathToFileURL } from 'node:url'
 
-import { createMarkdownFromOpenApi } from './create-markdown-from-openapi'
+import { createMarkdownFromOpenApi } from './index.js'
 
 type ParsedCliArguments = {
   input: string
