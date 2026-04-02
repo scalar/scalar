@@ -1,0 +1,180 @@
+const initEnterpriseContactForm = () => {
+  const setFeedback = (feedback, message, type) => {
+    if (!(feedback instanceof HTMLElement)) {
+      return
+    }
+    feedback.textContent = message
+    feedback.classList.remove('is-success', 'is-error')
+    if (type) {
+      feedback.classList.add(type)
+    }
+  }
+
+  const setSuccessState = (form, visible) => {
+    const successPanel = document.getElementById('enterprise-demo-success')
+    if (!(successPanel instanceof HTMLElement)) {
+      return
+    }
+
+    form.classList.toggle('is-success-hidden', visible)
+    successPanel.classList.toggle('is-visible', visible)
+  }
+
+  const createNotes = (formData) => {
+    const getValue = (name) => {
+      const value = formData.get(name)
+      return typeof value === 'string' ? value.trim() : ''
+    }
+
+    return [
+      `Job title: ${getValue('jobTitle')}`,
+      `Company name: ${getValue('companyName')}`,
+      `How can we help: ${getValue('howCanWeHelp')}`,
+      `Additional context: ${getValue('additionalContext')}`,
+    ]
+      .filter((line) => !line.endsWith(': '))
+      .join('\n')
+  }
+
+  const handleSubmit = async (event, form) => {
+    if (form.dataset.submitting === 'true') {
+      event.preventDefault()
+      return
+    }
+
+    event.preventDefault()
+
+    const feedback = form.querySelector('.enterprise-demo-feedback')
+    const submitButton = form.querySelector('.enterprise-demo-submit')
+
+    setSuccessState(form, false)
+    setFeedback(feedback, '', '')
+    form.dataset.submitting = 'true'
+    if (submitButton instanceof HTMLButtonElement) {
+      submitButton.disabled = true
+      submitButton.textContent = 'Submitting...'
+    }
+
+    const formData = new FormData(form)
+    const body = new URLSearchParams()
+
+    for (const [key, value] of formData.entries()) {
+      if (typeof value === 'string') {
+        body.append(key, value)
+      }
+    }
+
+    const notes = createNotes(formData)
+    if (notes) {
+      body.set('notes', notes)
+    }
+
+    try {
+      const response = await fetch(form.action, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: body.toString(),
+      })
+
+      let data = null
+      try {
+        data = await response.json()
+      } catch (_error) {
+        data = null
+      }
+
+      if (response.status === 429) {
+        setFeedback(feedback, 'Too many submissions. Please try again in a little while.', 'is-error')
+        return
+      }
+
+      if (!response.ok || data?.success === false) {
+        setFeedback(feedback, data?.message || 'Something went wrong. Please try again.', 'is-error')
+        return
+      }
+
+      setFeedback(feedback, '', '')
+      setSuccessState(form, true)
+      form.reset()
+    } catch (_error) {
+      setFeedback(feedback, 'Network error. Please try again in a moment.', 'is-error')
+    } finally {
+      form.dataset.submitting = 'false'
+      if (submitButton instanceof HTMLButtonElement) {
+        submitButton.disabled = false
+        submitButton.textContent = 'Submit request'
+      }
+    }
+  }
+
+  document.querySelectorAll('.enterprise-demo-form').forEach((form) => {
+    if (!(form instanceof HTMLFormElement)) {
+      return
+    }
+    if (form.dataset.loopsBoundDirect === 'true') {
+      return
+    }
+    form.addEventListener('submit', async (event) => {
+      await handleSubmit(event, form)
+    })
+    form.dataset.loopsBoundDirect = 'true'
+  })
+
+  if (document.documentElement.dataset.enterpriseLoopsListener !== 'true') {
+    document.addEventListener(
+      'submit',
+      async (event) => {
+        const form = event.target
+        if (!(form instanceof HTMLFormElement)) {
+          return
+        }
+        if (!form.matches('.enterprise-demo-form')) {
+          return
+        }
+
+        await handleSubmit(event, form)
+      },
+      true,
+    )
+    document.documentElement.dataset.enterpriseLoopsListener = 'true'
+    console.log('Initialized enterprise contact form submit listener')
+  }
+
+  document.addEventListener(
+    'click',
+    (event) => {
+      const resetButton = event.target instanceof Element ? event.target.closest('#enterprise-demo-reset') : null
+      if (!(resetButton instanceof HTMLElement)) {
+        return
+      }
+
+      const form = document.querySelector('.enterprise-demo-form')
+      if (!(form instanceof HTMLFormElement)) {
+        return
+      }
+
+      const feedback = form.querySelector('.enterprise-demo-feedback')
+      setFeedback(feedback, '', '')
+      setSuccessState(form, false)
+      form.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    },
+    true,
+  )
+}
+
+initEnterpriseContactForm()
+
+const observer = new MutationObserver((records) => {
+  if (!records.some((record) => record.addedNodes.length)) {
+    return
+  }
+
+  initEnterpriseContactForm()
+})
+
+observer.observe(document.documentElement || document.body, {
+  childList: true,
+  subtree: true,
+})

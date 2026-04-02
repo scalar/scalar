@@ -107,6 +107,7 @@ Validate contracts early so exploration and testing stay tied to the same API de
   <h3 class="enterprise-demo-form-title text-xl text-center font-bold">Contact us</h3>
   <p class="enterprise-demo-form-lead text-center">Share your goals and we will follow up with security materials, pricing, and next steps.</p>
   <form
+    id="enterprise-contact-form"
     class="enterprise-demo-form"
     action="https://app.loops.so/api/newsletter-form/clksm7aj203tclb0olg1z2xb3"
     method="POST"
@@ -160,7 +161,15 @@ Validate contracts early so exploration and testing stay tied to the same API de
       By submitting this form, you agree to our <a href="/legal/privacy-policy">Privacy Policy</a>. Use <a href="https://scalar.cal.com/scalar/chat-with-scalar" target="_blank" rel="noopener noreferrer">book a call</a> if you prefer not to submit here.
     </p>
     <button type="submit" class="enterprise-demo-submit">Submit request</button>
+    <p id="enterprise-demo-feedback" class="enterprise-demo-feedback" role="status" aria-live="polite"></p>
   </form>
+  <div id="enterprise-demo-success" class="enterprise-demo-success" role="status" aria-live="polite">
+    <h4>Thanks, your request is in.</h4>
+    <p>We will follow up shortly with pricing, security materials, and next steps.</p>
+    <button type="button" class="enterprise-demo-submit enterprise-demo-submit-secondary" id="enterprise-demo-reset">
+      Submit another request
+    </button>
+  </div>
   <p class="enterprise-demo-alt">
     Prefer to pick a time? <a href="https://scalar.cal.com/scalar/chat-with-scalar" target="_blank" rel="noopener noreferrer">Book a demo</a> · <a href="https://dashboard.scalar.com/register">Get started</a>
   </p>
@@ -454,6 +463,51 @@ Validate contracts early so exploration and testing stay tied to the same API de
   }
   .enterprise-demo-submit:active {
     transform: scale(0.99);
+  }
+  .enterprise-demo-submit:disabled {
+    opacity: 0.75;
+    cursor: not-allowed;
+  }
+  .enterprise-demo-feedback {
+    margin: 12px 0 0;
+    min-height: 1.4em;
+    font-size: var(--scalar-font-size-3);
+    color: var(--scalar-color-2);
+  }
+  .enterprise-demo-feedback.is-success {
+    color: var(--scalar-color-green);
+  }
+  .enterprise-demo-feedback.is-error {
+    color: var(--scalar-color-red);
+  }
+  .enterprise-demo-form.is-success-hidden {
+    display: none;
+  }
+  .enterprise-demo-success {
+    display: none;
+    border: var(--scalar-border-width) solid var(--scalar-border-color);
+    border-radius: var(--scalar-radius-lg);
+    padding: 16px;
+    background: var(--scalar-background-2);
+  }
+  .enterprise-demo-success.is-visible {
+    display: block;
+  }
+  .enterprise-demo-success h4 {
+    margin: 0 0 8px;
+    font-weight: var(--scalar-bold);
+    font-size: var(--scalar-font-size-2);
+    color: var(--scalar-color-1);
+  }
+  .enterprise-demo-success p {
+    margin: 0 0 14px;
+    color: var(--scalar-color-2);
+    line-height: 1.45;
+  }
+  .enterprise-demo-submit-secondary {
+    background: transparent;
+    border-color: var(--scalar-border-color);
+    color: var(--scalar-color-1);
   }
   .enterprise-demo-alt {
     font-size: var(--scalar-font-size-3);
