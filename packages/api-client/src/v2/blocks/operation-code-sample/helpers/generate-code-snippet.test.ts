@@ -205,6 +205,60 @@ try {
 }`)
   })
 
+  it('includes optional query parameters in snippets when defaultDisabledParameters is false', () => {
+    const operationWithOptionalQuery: OperationObject = {
+      ...mockOperation,
+      parameters: [
+        {
+          name: 'q',
+          in: 'query',
+          required: false,
+          schema: {
+            type: 'string',
+            example: 'findme',
+          },
+        },
+      ],
+    }
+
+    const withOptional = generateCodeSnippet({
+      ...baseParams,
+      clientId: 'js/fetch',
+      path: '/search',
+      operation: operationWithOptionalQuery,
+      defaultDisabledParameters: false,
+    })
+
+    expect(withOptional).toBe("fetch('https://api.example.com/search?q=findme')")
+  })
+
+  it('omits optional query parameters from snippets when defaultDisabledParameters is true', () => {
+    const operationWithOptionalQuery: OperationObject = {
+      ...mockOperation,
+      parameters: [
+        {
+          name: 'q',
+          in: 'query',
+          required: false,
+          schema: {
+            type: 'string',
+            example: 'findme',
+          },
+        },
+      ],
+    }
+
+    const withoutOptional = generateCodeSnippet({
+      ...baseParams,
+      clientId: 'js/fetch',
+      path: '/search',
+      operation: operationWithOptionalQuery,
+      defaultDisabledParameters: true,
+    })
+
+    expect(withoutOptional).toBe("fetch('https://api.example.com/search')")
+  })
+
   it('processes different clientId formats without errors', () => {
     const testCases: Array<{ input: AvailableClient; expectedClient: string }> = [
       { input: 'js/fetch', expectedClient: 'fetch' },

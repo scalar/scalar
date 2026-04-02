@@ -1,5 +1,5 @@
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
-import { SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import { type OperationObject, SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import type { Request as HarRequest } from 'har-format'
 import { describe, expect, it } from 'vitest'
 
@@ -17,9 +17,15 @@ describe('parameter styles', () => {
     bodySize: 0,
   })
 
+  const runProcessParameters = (args: {
+    harRequest: HarRequest
+    parameters: OperationObject['parameters']
+    example?: string | undefined
+  }) => processParameters({ ...args, defaultDisabled: true })
+
   describe('matrix style', () => {
     it('should handle matrix style with explode=false and single value', () => {
-      const result = processParameters({
+      const result = runProcessParameters({
         harRequest: createHarRequest('/api/users{;color}'),
         parameters: [
           {
@@ -44,7 +50,7 @@ describe('parameter styles', () => {
     })
 
     it('should handle matrix style with explode=false and array values', () => {
-      const result = processParameters({
+      const result = runProcessParameters({
         harRequest: createHarRequest('/api/users{;color}'),
         parameters: [
           {
@@ -65,7 +71,7 @@ describe('parameter styles', () => {
     })
 
     it('should handle matrix style with explode=false and object values', () => {
-      const result = processParameters({
+      const result = runProcessParameters({
         harRequest: createHarRequest('/api/users{;color}'),
         parameters: [
           {
@@ -90,7 +96,7 @@ describe('parameter styles', () => {
     })
 
     it('should handle matrix style with explode=true and single value', () => {
-      const result = processParameters({
+      const result = runProcessParameters({
         harRequest: createHarRequest('/api/users{;color}'),
         parameters: [
           {
@@ -110,7 +116,7 @@ describe('parameter styles', () => {
     })
 
     it('should handle matrix style with explode=true and array values', () => {
-      const result = processParameters({
+      const result = runProcessParameters({
         harRequest: createHarRequest('/api/users{;color}'),
         parameters: [
           {
@@ -131,7 +137,7 @@ describe('parameter styles', () => {
     })
 
     it('should handle matrix style with explode=true and object values', () => {
-      const result = processParameters({
+      const result = runProcessParameters({
         harRequest: createHarRequest('/api/users{;color}'),
         parameters: [
           {
@@ -158,7 +164,7 @@ describe('parameter styles', () => {
 
   describe('label style', () => {
     it('should handle label style with explode=false and single value', () => {
-      const result = processParameters({
+      const result = runProcessParameters({
         harRequest: createHarRequest('/api/users{.color}'),
         parameters: [
           {
@@ -178,7 +184,7 @@ describe('parameter styles', () => {
     })
 
     it('should handle label style with explode=false and array values', () => {
-      const result = processParameters({
+      const result = runProcessParameters({
         harRequest: createHarRequest('/api/users{.color}'),
         parameters: [
           {
@@ -199,7 +205,7 @@ describe('parameter styles', () => {
     })
 
     it('should handle label style with explode=false and object values', () => {
-      const result = processParameters({
+      const result = runProcessParameters({
         harRequest: createHarRequest('/api/users{.color}'),
         parameters: [
           {
@@ -224,7 +230,7 @@ describe('parameter styles', () => {
     })
 
     it('should handle label style with explode=true and single value', () => {
-      const result = processParameters({
+      const result = runProcessParameters({
         harRequest: createHarRequest('/api/users{.color}'),
         parameters: [
           {
@@ -244,7 +250,7 @@ describe('parameter styles', () => {
     })
 
     it('should handle label style with explode=true and array values', () => {
-      const result = processParameters({
+      const result = runProcessParameters({
         harRequest: createHarRequest('/api/users{.color}'),
         parameters: [
           {
@@ -265,7 +271,7 @@ describe('parameter styles', () => {
     })
 
     it('should handle label style with explode=true and object values', () => {
-      const result = processParameters({
+      const result = runProcessParameters({
         harRequest: createHarRequest('/api/users{.color}'),
         parameters: [
           {
@@ -292,7 +298,7 @@ describe('parameter styles', () => {
 
   describe('simple style', () => {
     it('should handle simple style with explode=false and single value', () => {
-      const result = processParameters({
+      const result = runProcessParameters({
         harRequest: createHarRequest('/api/users/{color}'),
         parameters: [
           {
@@ -312,7 +318,7 @@ describe('parameter styles', () => {
     })
 
     it('should handle simple style with explode=false and array values', () => {
-      const result = processParameters({
+      const result = runProcessParameters({
         harRequest: createHarRequest('/api/users/{color}'),
         parameters: [
           {
@@ -333,7 +339,7 @@ describe('parameter styles', () => {
     })
 
     it('should handle simple style with explode=false and object values', () => {
-      const result = processParameters({
+      const result = runProcessParameters({
         harRequest: createHarRequest('/api/users/{color}'),
         parameters: [
           {
@@ -358,7 +364,7 @@ describe('parameter styles', () => {
     })
 
     it('should handle simple style with explode=true and single value', () => {
-      const result = processParameters({
+      const result = runProcessParameters({
         harRequest: createHarRequest('/api/users/{color}'),
         parameters: [
           {
@@ -378,7 +384,7 @@ describe('parameter styles', () => {
     })
 
     it('should handle simple style with explode=true and array values', () => {
-      const result = processParameters({
+      const result = runProcessParameters({
         harRequest: createHarRequest('/api/users/{color}'),
         parameters: [
           {
@@ -399,7 +405,7 @@ describe('parameter styles', () => {
     })
 
     it('should handle simple style with explode=true and object values', () => {
-      const result = processParameters({
+      const result = runProcessParameters({
         harRequest: createHarRequest('/api/users/{color}'),
         parameters: [
           {
@@ -426,7 +432,7 @@ describe('parameter styles', () => {
 
   describe('form style', () => {
     it('should handle form style with explode=false and single value', () => {
-      const result = processParameters({
+      const result = runProcessParameters({
         harRequest: createHarRequest('/api/users'),
         parameters: [
           {
@@ -448,7 +454,7 @@ describe('parameter styles', () => {
     })
 
     it('should handle form style with explode=false and array values', () => {
-      const result = processParameters({
+      const result = runProcessParameters({
         harRequest: createHarRequest('/api/users'),
         parameters: [
           {
@@ -471,7 +477,7 @@ describe('parameter styles', () => {
     })
 
     it('should handle form style with explode=false and object values', () => {
-      const result = processParameters({
+      const result = runProcessParameters({
         harRequest: createHarRequest('/api/users'),
         parameters: [
           {
@@ -498,7 +504,7 @@ describe('parameter styles', () => {
     })
 
     it('should handle form style with explode=true and single value', () => {
-      const result = processParameters({
+      const result = runProcessParameters({
         harRequest: createHarRequest('/api/users'),
         parameters: [
           {
@@ -520,7 +526,7 @@ describe('parameter styles', () => {
     })
 
     it('should handle form style with explode=true and array values', () => {
-      const result = processParameters({
+      const result = runProcessParameters({
         harRequest: createHarRequest('/api/users'),
         parameters: [
           {
@@ -547,7 +553,7 @@ describe('parameter styles', () => {
     })
 
     it('should handle form style with explode=true and object values', () => {
-      const result = processParameters({
+      const result = runProcessParameters({
         harRequest: createHarRequest('/api/users'),
         parameters: [
           {
@@ -580,7 +586,7 @@ describe('parameter styles', () => {
 
   describe('spaceDelimited style', () => {
     it('should handle spaceDelimited style with explode=false and array values', () => {
-      const result = processParameters({
+      const result = runProcessParameters({
         harRequest: createHarRequest('/api/users'),
         parameters: [
           {
@@ -603,7 +609,7 @@ describe('parameter styles', () => {
     })
 
     it('should handle spaceDelimited style with explode=false and object values', () => {
-      const result = processParameters({
+      const result = runProcessParameters({
         harRequest: createHarRequest('/api/users'),
         parameters: [
           {
@@ -632,7 +638,7 @@ describe('parameter styles', () => {
 
   describe('pipeDelimited style', () => {
     it('should handle pipeDelimited style with explode=false and array values', () => {
-      const result = processParameters({
+      const result = runProcessParameters({
         harRequest: createHarRequest('/api/users'),
         parameters: [
           {
@@ -655,7 +661,7 @@ describe('parameter styles', () => {
     })
 
     it('should handle pipeDelimited style with explode=false and object values', () => {
-      const result = processParameters({
+      const result = runProcessParameters({
         harRequest: createHarRequest('/api/users'),
         parameters: [
           {
@@ -684,7 +690,7 @@ describe('parameter styles', () => {
 
   describe('deepObject style', () => {
     it('should handle deepObject style with explode=true and object values', () => {
-      const result = processParameters({
+      const result = runProcessParameters({
         harRequest: createHarRequest('/api/users'),
         parameters: [
           {
@@ -717,7 +723,7 @@ describe('parameter styles', () => {
 
   describe('header parameters', () => {
     it('should handle header parameter with string value', () => {
-      const result = processParameters({
+      const result = runProcessParameters({
         harRequest: createHarRequest('/api/users'),
         parameters: [
           {
@@ -737,7 +743,7 @@ describe('parameter styles', () => {
     })
 
     it('should handle header parameter with simple style and explode=true', () => {
-      const result = processParameters({
+      const result = runProcessParameters({
         harRequest: createHarRequest('/api/users'),
         parameters: [
           {
@@ -761,7 +767,7 @@ describe('parameter styles', () => {
     })
 
     it('should handle header parameter with simple style and explode=false', () => {
-      const result = processParameters({
+      const result = runProcessParameters({
         harRequest: createHarRequest('/api/users'),
         parameters: [
           {
@@ -784,7 +790,7 @@ describe('parameter styles', () => {
     })
 
     it('should handle header parameter with object and explode=true', () => {
-      const result = processParameters({
+      const result = runProcessParameters({
         harRequest: createHarRequest('/api/users'),
         parameters: [
           {
@@ -810,7 +816,7 @@ describe('parameter styles', () => {
     })
 
     it('should handle header parameter with object and explode=false', () => {
-      const result = processParameters({
+      const result = runProcessParameters({
         harRequest: createHarRequest('/api/users'),
         parameters: [
           {
@@ -836,7 +842,7 @@ describe('parameter styles', () => {
     })
 
     it('should enforce simple style for headers even if other style is specified', () => {
-      const result = processParameters({
+      const result = runProcessParameters({
         harRequest: createHarRequest('/api/users'),
         parameters: [
           {
@@ -860,7 +866,7 @@ describe('parameter styles', () => {
       const harRequest = createHarRequest('/api/users')
       harRequest.headers = [{ name: 'X-Existing-Header', value: 'existingValue' }]
 
-      const result = processParameters({
+      const result = runProcessParameters({
         harRequest,
         parameters: [
           {
@@ -885,7 +891,7 @@ describe('parameter styles', () => {
 
   describe('cookie parameters', () => {
     it('should handle cookie parameter with string value', () => {
-      const result = processParameters({
+      const result = runProcessParameters({
         harRequest: createHarRequest('/api/users'),
         parameters: [
           {
@@ -906,7 +912,7 @@ describe('parameter styles', () => {
     })
 
     it('should handle cookie parameter with form style and explode=true (default)', () => {
-      const result = processParameters({
+      const result = runProcessParameters({
         harRequest: createHarRequest('/api/users'),
         parameters: [
           {
@@ -933,7 +939,7 @@ describe('parameter styles', () => {
     })
 
     it('should handle cookie parameter with form style and explode=false', () => {
-      const result = processParameters({
+      const result = runProcessParameters({
         harRequest: createHarRequest('/api/users'),
         parameters: [
           {
@@ -956,7 +962,7 @@ describe('parameter styles', () => {
     })
 
     it('should handle cookie parameter with object and explode=true', () => {
-      const result = processParameters({
+      const result = runProcessParameters({
         harRequest: createHarRequest('/api/users'),
         parameters: [
           {
@@ -987,7 +993,7 @@ describe('parameter styles', () => {
     })
 
     it('should handle cookie parameter with object and explode=false', () => {
-      const result = processParameters({
+      const result = runProcessParameters({
         harRequest: createHarRequest('/api/users'),
         parameters: [
           {
@@ -1014,7 +1020,7 @@ describe('parameter styles', () => {
     })
 
     it('should enforce form style for cookies even if other style is specified', () => {
-      const result = processParameters({
+      const result = runProcessParameters({
         harRequest: createHarRequest('/api/users'),
         parameters: [
           {
@@ -1035,7 +1041,7 @@ describe('parameter styles', () => {
     })
 
     it('should handle cookie parameter with number value', () => {
-      const result = processParameters({
+      const result = runProcessParameters({
         harRequest: createHarRequest('/api/users'),
         parameters: [
           {
@@ -1055,7 +1061,7 @@ describe('parameter styles', () => {
     })
 
     it('should handle cookie parameter with boolean value', () => {
-      const result = processParameters({
+      const result = runProcessParameters({
         harRequest: createHarRequest('/api/users'),
         parameters: [
           {
@@ -1075,7 +1081,7 @@ describe('parameter styles', () => {
     })
 
     it('should handle multiple cookie parameters', () => {
-      const result = processParameters({
+      const result = runProcessParameters({
         harRequest: createHarRequest('/api/users'),
         parameters: [
           {
@@ -1107,7 +1113,7 @@ describe('parameter styles', () => {
     })
 
     it('should handle cookie parameter with array value', () => {
-      const result = processParameters({
+      const result = runProcessParameters({
         harRequest: createHarRequest('/api/users'),
         parameters: [
           {
@@ -1130,7 +1136,7 @@ describe('parameter styles', () => {
     })
 
     it('should handle cookie parameter with object value', () => {
-      const result = processParameters({
+      const result = runProcessParameters({
         harRequest: createHarRequest('/api/users'),
         parameters: [
           {
@@ -1157,7 +1163,7 @@ describe('parameter styles', () => {
     })
 
     it('should handle cookie parameter with null value', () => {
-      const result = processParameters({
+      const result = runProcessParameters({
         harRequest: createHarRequest('/api/users'),
         parameters: [
           {
@@ -1178,7 +1184,7 @@ describe('parameter styles', () => {
     })
 
     it('should handle cookie parameter with undefined value', () => {
-      const result = processParameters({
+      const result = runProcessParameters({
         harRequest: createHarRequest('/api/users'),
         parameters: [
           {
@@ -1202,7 +1208,7 @@ describe('parameter styles', () => {
     })
 
     it('should handle cookie parameter with empty string value', () => {
-      const result = processParameters({
+      const result = runProcessParameters({
         harRequest: createHarRequest('/api/users'),
         parameters: [
           {
@@ -1222,7 +1228,7 @@ describe('parameter styles', () => {
     })
 
     it('should handle cookie parameter with special characters', () => {
-      const result = processParameters({
+      const result = runProcessParameters({
         harRequest: createHarRequest('/api/users'),
         parameters: [
           {
@@ -1249,7 +1255,7 @@ describe('parameter styles', () => {
     })
 
     it('should handle cookie parameter with URL-encoded characters', () => {
-      const result = processParameters({
+      const result = runProcessParameters({
         harRequest: createHarRequest('/api/users'),
         parameters: [
           {
@@ -1269,7 +1275,7 @@ describe('parameter styles', () => {
     })
 
     it('should handle cookie parameter with numeric array', () => {
-      const result = processParameters({
+      const result = runProcessParameters({
         harRequest: createHarRequest('/api/users'),
         parameters: [
           {
@@ -1292,7 +1298,7 @@ describe('parameter styles', () => {
     })
 
     it('should handle cookie parameter with boolean array', () => {
-      const result = processParameters({
+      const result = runProcessParameters({
         harRequest: createHarRequest('/api/users'),
         parameters: [
           {
@@ -1315,7 +1321,7 @@ describe('parameter styles', () => {
     })
 
     it('should handle cookie parameter with mixed array', () => {
-      const result = processParameters({
+      const result = runProcessParameters({
         harRequest: createHarRequest('/api/users'),
         parameters: [
           {
@@ -1338,7 +1344,7 @@ describe('parameter styles', () => {
     })
 
     it('should handle cookie parameter with nested object', () => {
-      const result = processParameters({
+      const result = runProcessParameters({
         harRequest: createHarRequest('/api/users'),
         parameters: [
           {
@@ -1384,7 +1390,7 @@ describe('parameter styles', () => {
     })
 
     it('should handle cookie parameter with empty array', () => {
-      const result = processParameters({
+      const result = runProcessParameters({
         harRequest: createHarRequest('/api/users'),
         parameters: [
           {
@@ -1407,7 +1413,7 @@ describe('parameter styles', () => {
     })
 
     it('should handle cookie parameter with empty object', () => {
-      const result = processParameters({
+      const result = runProcessParameters({
         harRequest: createHarRequest('/api/users'),
         parameters: [
           {
@@ -1432,7 +1438,7 @@ describe('parameter styles', () => {
       const harRequest = createHarRequest('/api/users')
       harRequest.cookies = [{ name: 'existingCookie', value: 'existingValue' }]
 
-      const result = processParameters({
+      const result = runProcessParameters({
         harRequest,
         parameters: [
           {
@@ -1457,7 +1463,7 @@ describe('parameter styles', () => {
 
   describe('query parameters', () => {
     it('should add empty query string if no parameters are present', () => {
-      const result = processParameters({
+      const result = runProcessParameters({
         harRequest: createHarRequest('/api/users'),
         parameters: [
           {
@@ -1475,7 +1481,7 @@ describe('parameter styles', () => {
     })
 
     it('handles query parameter with array value and explicit explode: false', () => {
-      const result = processParameters({
+      const result = runProcessParameters({
         harRequest: createHarRequest('/api/users'),
         parameters: [
           {
@@ -1505,7 +1511,7 @@ describe('parameter styles', () => {
     })
 
     it('handles query parameter with array value from named example', () => {
-      const result = processParameters({
+      const result = runProcessParameters({
         harRequest: createHarRequest('/api/users'),
         parameters: [
           {
@@ -1539,7 +1545,7 @@ describe('parameter styles', () => {
     })
 
     it('handles query parameter with stringified array value from named example', () => {
-      const result = processParameters({
+      const result = runProcessParameters({
         harRequest: createHarRequest('/api/users'),
         parameters: [
           {
@@ -1572,7 +1578,7 @@ describe('parameter styles', () => {
     })
 
     it('handles query parameter with stringified object value from named example and no schema', () => {
-      const result = processParameters({
+      const result = runProcessParameters({
         harRequest: createHarRequest('/api/users'),
         parameters: [
           {
@@ -1597,7 +1603,7 @@ describe('parameter styles', () => {
 
   describe('content-based parameters', () => {
     it('handles query parameter with object value in application/json content type', () => {
-      const result = processParameters({
+      const result = runProcessParameters({
         harRequest: createHarRequest('/api/users'),
         parameters: [
           {
@@ -1629,7 +1635,7 @@ describe('parameter styles', () => {
     })
 
     it('handles query parameter with text/plain content type', () => {
-      const result = processParameters({
+      const result = runProcessParameters({
         harRequest: createHarRequest('/api/users'),
         parameters: [
           {
@@ -1659,7 +1665,7 @@ describe('parameter styles', () => {
     })
 
     it('handles query parameter with text/xml content type', () => {
-      const result = processParameters({
+      const result = runProcessParameters({
         harRequest: createHarRequest('/api/users'),
         parameters: [
           {
@@ -1689,7 +1695,7 @@ describe('parameter styles', () => {
     })
 
     it('handles query parameter with application/xml content type', () => {
-      const result = processParameters({
+      const result = runProcessParameters({
         harRequest: createHarRequest('/api/users'),
         parameters: [
           {
@@ -1721,7 +1727,7 @@ describe('parameter styles', () => {
     })
 
     it('handles query parameter with application/x-www-form-urlencoded content type', () => {
-      const result = processParameters({
+      const result = runProcessParameters({
         harRequest: createHarRequest('/api/users'),
         parameters: [
           {
@@ -1751,7 +1757,7 @@ describe('parameter styles', () => {
     })
 
     it('handles query parameter with text/html content type', () => {
-      const result = processParameters({
+      const result = runProcessParameters({
         harRequest: createHarRequest('/api/users'),
         parameters: [
           {
@@ -1781,7 +1787,7 @@ describe('parameter styles', () => {
     })
 
     it('handles query parameter with application/octet-stream content type', () => {
-      const result = processParameters({
+      const result = runProcessParameters({
         harRequest: createHarRequest('/api/users'),
         parameters: [
           {
@@ -1812,7 +1818,7 @@ describe('parameter styles', () => {
     })
 
     it('handles content-based parameter with array value', () => {
-      const result = processParameters({
+      const result = runProcessParameters({
         harRequest: createHarRequest('/api/users'),
         parameters: [
           {
@@ -1845,7 +1851,7 @@ describe('parameter styles', () => {
     })
 
     it('handles content-based parameter with nested object value', () => {
-      const result = processParameters({
+      const result = runProcessParameters({
         harRequest: createHarRequest('/api/users'),
         parameters: [
           {
@@ -1881,7 +1887,7 @@ describe('parameter styles', () => {
     })
 
     it('uses parameter content type, not request content type', () => {
-      const result = processParameters({
+      const result = runProcessParameters({
         harRequest: createHarRequest('/api/users'),
         parameters: [
           {
@@ -1917,7 +1923,7 @@ describe('parameter styles', () => {
 
   describe('path parameters', () => {
     it('should add variable name if no value or example is provided', () => {
-      const result = processParameters({
+      const result = runProcessParameters({
         harRequest: createHarRequest('/api/users/{username}'),
         parameters: [
           {
@@ -1934,7 +1940,7 @@ describe('parameter styles', () => {
     })
 
     it('should replace the variable with the example value', () => {
-      const result = processParameters({
+      const result = runProcessParameters({
         harRequest: createHarRequest('/api/users/{username}'),
         parameters: [
           {
@@ -1952,7 +1958,7 @@ describe('parameter styles', () => {
     })
 
     it('should replace the variable with the upper example value', () => {
-      const result = processParameters({
+      const result = runProcessParameters({
         harRequest: createHarRequest('/api/users/{username}'),
         parameters: [
           {
@@ -1970,7 +1976,7 @@ describe('parameter styles', () => {
     })
 
     it('should replace the variable with the example value from examples', () => {
-      const result = processParameters({
+      const result = runProcessParameters({
         harRequest: createHarRequest('/api/users/{username}'),
         parameters: [
           {
@@ -2003,7 +2009,7 @@ describe('parameter styles', () => {
 
     describe('query parameters with content', () => {
       it('should serialize query parameter with application/json content as JSON', () => {
-        const result = processParameters({
+        const result = runProcessParameters({
           harRequest: createHarRequest('/api/users'),
           parameters: [
             {
@@ -2028,7 +2034,7 @@ describe('parameter styles', () => {
       })
 
       it('should serialize query parameter with application/json content for array', () => {
-        const result = processParameters({
+        const result = runProcessParameters({
           harRequest: createHarRequest('/api/users'),
           parameters: [
             {
@@ -2053,7 +2059,7 @@ describe('parameter styles', () => {
       })
 
       it('should serialize query parameter with text/plain content as string', () => {
-        const result = processParameters({
+        const result = runProcessParameters({
           harRequest: createHarRequest('/api/users'),
           parameters: [
             {
@@ -2077,5 +2083,77 @@ describe('parameter styles', () => {
         expect(result.queryString).toContainEqual({ name: 'data', value: '{"key":"value"}' })
       })
     })
+  })
+})
+
+describe('processParameters defaultDisabled', () => {
+  const createHarRequest = (url: string): HarRequest => ({
+    url,
+    method: 'get',
+    headers: [],
+    queryString: [],
+    httpVersion: 'HTTP/1.1',
+    cookies: [],
+    headersSize: 0,
+    bodySize: 0,
+  })
+
+  const optionalQueryParameters: OperationObject['parameters'] = [
+    {
+      name: 'filter',
+      in: 'query',
+      required: false,
+      schema: coerceValue(SchemaObjectSchema, {
+        type: 'string',
+        example: 'active',
+      }),
+    },
+  ]
+
+  it('omits optional query parameters when defaultDisabled is true', () => {
+    const result = processParameters({
+      harRequest: createHarRequest('/items'),
+      parameters: optionalQueryParameters,
+      defaultDisabled: true,
+    })
+
+    expect(result.queryString).toEqual([])
+  })
+
+  it('includes optional query parameters from schema when defaultDisabled is false', () => {
+    const result = processParameters({
+      harRequest: createHarRequest('/items'),
+      parameters: optionalQueryParameters,
+      defaultDisabled: false,
+    })
+
+    expect(result.queryString).toContainEqual({ name: 'filter', value: 'active' })
+  })
+
+  it('omits parameters when the selected example sets x-disabled true even if defaultDisabled is false', () => {
+    const result = processParameters({
+      harRequest: createHarRequest('/items'),
+      parameters: [
+        {
+          name: 'filter',
+          in: 'query',
+          required: false,
+          schema: coerceValue(SchemaObjectSchema, {
+            type: 'string',
+            example: 'active',
+          }),
+          examples: {
+            default: {
+              value: 'from-example',
+              'x-disabled': true,
+            },
+          },
+        },
+      ],
+      example: 'default',
+      defaultDisabled: false,
+    })
+
+    expect(result.queryString).toEqual([])
   })
 })

@@ -236,6 +236,7 @@ const webhookHar = computed(() => {
       path,
       example: selectedExampleKey.value,
       requestBodyCompositionSelection,
+      defaultDisabledParameters: false,
     })
   } catch (error) {
     console.error('[webhookHar]', error)
@@ -250,6 +251,7 @@ const generatedCode = computed<string>(() => {
   }
 
   return generateCodeSnippet({
+    defaultDisabledParameters: false,
     includeDefaultHeaders: integration === 'client',
     clientId: localSelectedClient.value?.id,
     customCodeSamples: customCodeSamples.value,
