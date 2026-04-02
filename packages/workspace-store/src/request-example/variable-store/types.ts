@@ -41,9 +41,17 @@ export type VariablesStore = {
    */
   setCollectionVariables?(variables: VariableEntry[]): void
   /**
+   * Optional. Called after script execution with environment variables set by the script
+   * (pm.environment.set). If implemented, the host can persist or merge these
+   * for the next request.
+   */
+  setEnvironment?(variables: VariableEntry[]): void
+  /**
    * Optional. Called after script execution with globals set by the script
    * (pm.globals.set). If implemented, the host can persist or merge these
    * for the next request.
    */
   setGlobals?(variables: VariableEntry[]): void
+  /** Merged variables from all scopes based on the different leyers. */
+  getVariables(): Record<string, string>
 }

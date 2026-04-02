@@ -81,8 +81,6 @@ export type OperationBlockProps = {
   defaultHeaders: Record<string, string>
   /** Selected anyOf/oneOf request-body variants keyed by schema path */
   requestBodyCompositionSelection?: Record<string, number>
-  /** Getter for variale store */
-  getVariableStore?: () => VariablesStore
 }
 </script>
 <script setup lang="ts">
@@ -104,11 +102,11 @@ import type {
 } from '@scalar/workspace-store/events'
 import {
   buildRequest,
+  createVariablesStoreForRequest,
   getEnvironmentVariables,
   requestFactory,
   type MergedSecuritySchemes,
   type SecuritySchemeObjectSecret,
-  type VariablesStore,
 } from '@scalar/workspace-store/request-example'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type { XScalarCookie } from '@scalar/workspace-store/schemas/extensions/general/x-scalar-cookies'
@@ -167,7 +165,6 @@ const {
   selectedSecuritySchemes,
   securityRequirements,
   defaultHeaders,
-  getVariableStore,
 } = defineProps<OperationBlockProps>()
 
 /** Hoist up client generation so it doesn't get re-generated on every operation */
@@ -225,7 +222,7 @@ const handleExecute = async () => {
     },
   })
 
-  const variablesStore = getVariableStore?.()
+  const variablesStore = createVariablesStoreForRequest()
 
   // Execute the beforeRequest hook (plugins receive RequestFactory, not fetch Request)
   await executeHook(
@@ -239,7 +236,10 @@ const handleExecute = async () => {
     plugins,
   )
 
-  const envVariables = getEnvironmentVariables(environment)
+  const envVariables = {
+    ...getEnvironmentVariables(environment),
+    ...variablesStore.getVariables(),
+  }
 
   // Build the fetch Request after hooks may have mutated the factory
   const requestResult = (() => {

@@ -31,53 +31,11 @@ export function getVariableScopesFromStore(store: VariablesStore): {
  * Parses the sandbox execution result’s _variables (array of { key, value, type })
  * into a key-value record and calls store.setLocalVariables.
  */
-const toVariableEntries = (
+export const toVariableEntries = (
   values: Array<{ key: string; value: string; type?: string }> | undefined,
 ): VariableEntry[] => {
   if (!values?.length) {
     return []
   }
   return values.map((v) => ({ key: v.key, value: v.value }))
-}
-
-export function applyExecutionLocalVariables(
-  store: VariablesStore,
-  values: Array<{ key: string; value: string; type?: string }> | undefined,
-): void {
-  const entries = toVariableEntries(values)
-  if (entries.length === 0) {
-    return
-  }
-  store.setLocalVariables(entries)
-}
-
-/**
- * Parses the sandbox execution result's collectionVariables and calls
- * store.setCollectionVariables when the store implements it.
- */
-export function applyExecutionCollectionVariables(
-  store: VariablesStore,
-  values: Array<{ key: string; value: string; type?: string }> | undefined,
-): void {
-  const entries = toVariableEntries(values)
-  if (entries.length === 0 || !store.setCollectionVariables) {
-    return
-  }
-  store.setCollectionVariables(entries)
-}
-
-/**
- * Parses the sandbox execution result's globals and calls store.setGlobals
- * when the store implements it.
- */
-export function applyExecutionGlobals(
-  store: VariablesStore,
-  values: Array<{ key: string; value: string; type?: string }> | undefined,
-): void {
-  const entries = toVariableEntries(values)
-  if (entries.length === 0 || !store.setGlobals) {
-    return
-  }
-  console.trace('setting globals', entries, values)
-  store.setGlobals(entries)
 }

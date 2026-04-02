@@ -5,11 +5,7 @@ import Sandbox from 'postman-sandbox'
 import { buildSandboxContextFromStore } from '../build-sandbox-context'
 import type { ConsoleContext } from '../context/console'
 import type { TestResult } from '../execute-post-response-script'
-import {
-  applyExecutionCollectionVariables,
-  applyExecutionGlobals,
-  applyExecutionLocalVariables,
-} from '../variables-store'
+import { toVariableEntries } from '../variables-store'
 import { createPostmanRequestFromFactory, syncPlainPostmanRequestToRequestFactory } from './request-factory-adapter'
 
 type AssertionEvent = {
@@ -159,13 +155,20 @@ export const executeInPostmanSandbox = async ({
         (error: unknown, execution?: ExecutionResult) => {
           if (variablesStore && execution) {
             if (execution._variables?.values) {
-              applyExecutionLocalVariables(variablesStore, execution._variables.values)
+              const localVariables = toVariableEntries(execution._variables.values)
+              variablesStore.setLocalVariables(localVariables)
             }
             if (execution.collectionVariables?.values) {
-              applyExecutionCollectionVariables(variablesStore, execution.collectionVariables.values)
+              const collectionVariables = toVariableEntries(execution.collectionVariables.values)
+              variablesStore.setCollectionVariables?.(collectionVariables)
             }
             if (execution.globals?.values) {
-              applyExecutionGlobals(variablesStore, execution.globals.values)
+              const globals = toVariableEntries(execution.globals.values)
+              variablesStore.setGlobals?.(globals)
+            }
+            if (execution.environment?.values) {
+              const environmentVariables = toVariableEntries(execution.environment.values)
+              variablesStore.setEnvironment?.(environmentVariables)
             }
           }
 
