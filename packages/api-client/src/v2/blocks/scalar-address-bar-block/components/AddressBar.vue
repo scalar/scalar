@@ -212,10 +212,14 @@ const handleMethodChange = (newMethod: HttpMethodType): void =>
 
 /**
  * Update the operation's path, handling conflicts also we extract the blur target selector to re-trigger click events
+ *
+ * We have special handling for the tab key to prevent it from triggering a click on the focused button
  */
 const handlePathBlur = (newPath: string, event: FocusEvent): void => {
   const relatedTarget = event.relatedTarget as Element | null
-  const blurTargetSelector = getSelector(relatedTarget)
+  const blurTargetSelector = tabbedOut.value ? null : getSelector(relatedTarget)
+
+  tabbedOut.value = false
 
   emitPathMethodUpdate(
     methodConflict.value ?? method,
@@ -252,6 +256,7 @@ const handlePathSubmit = (
 /** Handle focus events */
 const sendButtonRef = useTemplateRef('sendButtonRef')
 const addressBarRef = useTemplateRef('addressBarRef')
+const tabbedOut = ref(false)
 const handleFocusSendButton = () => sendButtonRef.value?.$el?.focus()
 
 const handleFocusAddressBar = (
@@ -399,6 +404,7 @@ defineExpose({
           @blur="handlePathBlur"
           @keydown.backspace="handlePathBackspace"
           @keydown.delete="handlePathBackspace"
+          @keydown.tab="tabbedOut = true"
           @submit="handlePathSubmit" />
         <div class="fade-right" />
       </div>
