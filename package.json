@@ -10,7 +10,7 @@
   "pnpm": {
     "overrides": {
       "@types/node": "catalog:*",
-      "lodash": "4.18.0",
+      "lodash": "4.18.1",
       "undici": "7.24.4"
     }
   },
