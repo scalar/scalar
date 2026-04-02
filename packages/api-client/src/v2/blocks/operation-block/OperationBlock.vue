@@ -228,11 +228,15 @@ const handleExecute = async () => {
   })
 
   const variablesStore = getVariableStore?.()
-  console.log({ variablesStore })
 
   // Execute the beforeRequest hook (plugins receive RequestFactory, not fetch Request)
   await executeHook(
-    { requestBuilder, document, operation, variablesStore },
+    {
+      requestBuilder,
+      document,
+      operation,
+      variablesStore,
+    },
     'beforeRequest',
     plugins,
   )

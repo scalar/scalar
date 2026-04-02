@@ -126,7 +126,9 @@ const environments = computed(() => {
 
 const getVariableStore = () => {
   return createVariablesStoreForRequest({
-    environment,
+    workspaceEnvironment:
+      workspaceStore.workspace['x-scalar-environments'] ?? {},
+    collectionEnvironment: document!['x-scalar-environments'] ?? {},
     activeEnvironmentName: requestExample.value?.environment.name ?? undefined,
     document,
     workspace: workspaceStore,

@@ -3,26 +3,21 @@ import type { Workspace } from '@scalar/workspace-store/schemas/workspace'
 
 import type { WorkspaceStore } from '@/client'
 import { generateClientMutators } from '@/mutators'
+import type { environmentMutatorsFactory } from '@/mutators/environment'
 import type { VariableEntry, VariablesStore } from '@/request-example/variable-store/types'
 import type { WorkspaceDocument } from '@/schemas'
 
-function envVarsToEntries(environment: XScalarEnvironment): VariableEntry[] {
-  return (environment.variables ?? []).map((v) => ({
+type EnvironmentMutators = ReturnType<typeof environmentMutatorsFactory>
+
+function envVarsToEntries(environment: XScalarEnvironment | undefined): VariableEntry[] {
+  if (!environment) {
+    return []
+  }
+  return Object.values(environment.variables).map((v) => ({
     key: v.name,
     value: typeof v.value === 'string' ? v.value : v.value.default,
   }))
 }
-
-/** Minimal environment mutators used to sync script-set variables synchronously */
-export type EnvironmentMutators = {
-  upsertEnvironment: (payload: { environmentName: string; payload: Partial<XScalarEnvironment> }) => void
-  upsertEnvironmentVariable: (payload: {
-    environmentName: string
-    variable: { name: string; value: string }
-    index?: number
-  }) => void
-}
-
 /**
  * Ensures the selected environment exists on the collection by calling the
  * mutator directly (synchronous).
@@ -55,26 +50,29 @@ function syncVariablesToCollection(
   environmentName: string,
   entries: VariableEntry[],
 ): void {
-  if (!collection || !environmentName || entries.length === 0) {
+  if (!collection || !environmentName) {
     return
   }
   ensureEnvironmentExists(mutators, collection, environmentName)
-  const variables = collection['x-scalar-environments']?.[environmentName]?.variables ?? []
 
-  for (const entry of entries) {
-    const index = variables.findIndex((v) => v.name === entry.key)
-    const variable = { name: entry.key, value: entry.value }
-    mutators.upsertEnvironmentVariable({
-      environmentName,
-      variable,
-      ...(index >= 0 ? { index } : {}),
-    })
-  }
+  console.log('syncing variables to collection', environmentName, entries)
+
+  mutators.upsertEnvironment({
+    environmentName,
+    payload: {
+      variables: entries.map((entry) => ({
+        name: entry.key,
+        value: entry.value,
+      })),
+    },
+  })
 }
 
 export type CreateVariablesStoreForRequestParams = {
-  /** Merged environment (workspace + document) used for script reads */
-  environment: XScalarEnvironment
+  /** Workspace environment (for getGlobals → workspace env vars) */
+  workspaceEnvironment: Record<string, XScalarEnvironment> | undefined
+  /** Collection environment (for getCollectionVariables → collection env vars + environment) */
+  collectionEnvironment: Record<string, XScalarEnvironment> | undefined
   /** Name of the currently selected environment */
   activeEnvironmentName: string | undefined
   /** Active document (for setCollectionVariables → document env vars) */
@@ -90,7 +88,8 @@ export type CreateVariablesStoreForRequestParams = {
  * (synchronous). setLocalVariables is for chaining requests (runner).
  */
 export function createVariablesStoreForRequest({
-  environment,
+  workspaceEnvironment,
+  collectionEnvironment,
   activeEnvironmentName,
   document,
   workspace,
@@ -100,16 +99,15 @@ export function createVariablesStoreForRequest({
   const documentEnvironmentMutators = mutators.active().environment
   const workspaceEnvironmentMutators = mutators.workspace().environment
 
-  console.log({ environment, activeEnvironmentName, document, workspace })
-
-  const envEntries = envVarsToEntries(environment)
+  const worksapceEntries = envVarsToEntries(workspaceEnvironment?.[activeEnvironmentName ?? ''])
+  const collectionEntries = envVarsToEntries(collectionEnvironment?.[activeEnvironmentName ?? ''])
 
   const localVariables: VariableEntry[] = []
 
   return {
-    getEnvironment: () => envEntries,
-    getGlobals: () => envEntries,
-    getCollectionVariables: () => envEntries,
+    getEnvironment: () => collectionEntries,
+    getGlobals: () => worksapceEntries,
+    getCollectionVariables: () => collectionEntries,
     getData: () => ({}),
     getLocalVariables: () => {
       return localVariables
@@ -121,22 +119,22 @@ export function createVariablesStoreForRequest({
     },
 
     setCollectionVariables: (variables) => {
-      console.log('setting collection variables')
       if (!activeEnvironmentName || !document) {
-        console.log('no document or active environment name')
         return
       }
-      console.log('syncing collection variables')
       syncVariablesToCollection(documentEnvironmentMutators, document, activeEnvironmentName, variables)
-      console.log('synced collection variables')
+      collectionEntries.length = 0
+      collectionEntries.push(...envVarsToEntries(collectionEnvironment?.[activeEnvironmentName ?? '']))
     },
 
     setGlobals: (variables) => {
-      console.log('setting global variables')
       if (!activeEnvironmentName || !workspace) {
         return
       }
       syncVariablesToCollection(workspaceEnvironmentMutators, workspace.workspace, activeEnvironmentName, variables)
+      worksapceEntries.length = 0
+      worksapceEntries.push(...envVarsToEntries(workspaceEnvironment?.[activeEnvironmentName ?? '']))
+      console.log('workspace entries', worksapceEntries)
     },
   }
 }

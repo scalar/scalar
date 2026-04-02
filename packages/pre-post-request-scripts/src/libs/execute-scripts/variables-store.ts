@@ -78,5 +78,6 @@ export function applyExecutionGlobals(
   if (entries.length === 0 || !store.setGlobals) {
     return
   }
+  console.trace('setting globals', entries, values)
   store.setGlobals(entries)
 }
