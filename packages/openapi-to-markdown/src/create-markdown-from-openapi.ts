@@ -162,7 +162,10 @@ const findOperationsByOperationId = (
         return []
       }
 
-      const candidateOperationId = operation.operationId
+      const candidateOperationId =
+        'operationId' in operation && typeof operation.operationId === 'string'
+          ? operation.operationId
+          : undefined
 
       if (candidateOperationId !== operationId) {
         return []
