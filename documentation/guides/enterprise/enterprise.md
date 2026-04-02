@@ -139,18 +139,34 @@ Validate contracts early so exploration and testing stay tied to the same API de
       <label for="ec-company">Company name<span class="enterprise-req" aria-hidden="true">*</span></label>
       <input id="ec-company" name="companyName" type="text" required autocomplete="organization" placeholder="Acme Inc." />
     </div>
-    <div class="enterprise-demo-field enterprise-demo-field-full">
-      <label for="ec-help">How can we help?<span class="enterprise-req" aria-hidden="true">*</span></label>
-      <select id="ec-help" name="howCanWeHelp" required>
-        <option value="" disabled selected>Select…</option>
-        <option value="Enterprise pricing &amp; procurement">Enterprise pricing &amp; procurement</option>
-        <option value="SSO / security review">SSO / security review</option>
-        <option value="Migration from another tool">Migration from another tool</option>
-        <option value="MCP &amp; AI agents">MCP &amp; AI agents</option>
-        <option value="Self-hosting">Self-hosting</option>
-        <option value="Other">Other</option>
-      </select>
-    </div>
+    <fieldset class="enterprise-demo-field enterprise-demo-field-full enterprise-checkbox-group">
+      <legend>How can we help?<span class="enterprise-req" aria-hidden="true">*</span></legend>
+      <p class="enterprise-checkbox-help">Select all that apply.</p>
+      <label class="enterprise-checkbox-option">
+        <input type="checkbox" name="howCanWeHelp" value="Enterprise pricing &amp; procurement" required />
+        <span>Enterprise pricing &amp; procurement</span>
+      </label>
+      <label class="enterprise-checkbox-option">
+        <input type="checkbox" name="howCanWeHelp" value="SSO / security review" />
+        <span>SSO / security review</span>
+      </label>
+      <label class="enterprise-checkbox-option">
+        <input type="checkbox" name="howCanWeHelp" value="Migration from another tool" />
+        <span>Migration from another tool</span>
+      </label>
+      <label class="enterprise-checkbox-option">
+        <input type="checkbox" name="howCanWeHelp" value="MCP &amp; AI agents" />
+        <span>MCP &amp; AI agents</span>
+      </label>
+      <label class="enterprise-checkbox-option">
+        <input type="checkbox" name="howCanWeHelp" value="Self-hosting" />
+        <span>Self-hosting</span>
+      </label>
+      <label class="enterprise-checkbox-option">
+        <input type="checkbox" name="howCanWeHelp" value="Other" />
+        <span>Other</span>
+      </label>
+    </fieldset>
     <div class="enterprise-demo-field enterprise-demo-field-full">
       <label for="ec-context">Additional context<span class="enterprise-req" aria-hidden="true">*</span></label>
       <textarea id="ec-context" name="additionalContext" required rows="4" placeholder="Tell us how we can help you"></textarea>
@@ -387,6 +403,41 @@ Validate contracts early so exploration and testing stay tied to the same API de
   }
   .enterprise-demo-field-full {
     margin-bottom: 14px;
+  }
+  .enterprise-checkbox-group {
+    border: 0;
+    margin: 0 0 14px;
+    padding: 0;
+  }
+  .enterprise-checkbox-group legend {
+    font-size: var(--scalar-font-size-3);
+    font-weight: var(--scalar-semibold);
+    color: var(--scalar-color-1);
+    margin-bottom: 6px;
+  }
+  .enterprise-checkbox-help {
+    margin: 0 0 10px;
+    color: var(--scalar-color-2);
+    font-size: var(--scalar-font-size-3);
+  }
+  .enterprise-checkbox-option {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    margin-bottom: 6px;
+    color: var(--scalar-color-1);
+    font-size: var(--scalar-font-size-3);
+    font-weight: var(--scalar-font-medium);
+  }
+  .enterprise-checkbox-option input[type='checkbox'] {
+    width: 16px;
+    height: 16px;
+    margin-top: 2px;
+    flex-shrink: 0;
+    accent-color: var(--scalar-button-1);
+  }
+  .enterprise-checkbox-option:last-of-type {
+    margin-bottom: 0;
   }
   .enterprise-demo-field label {
     font-size: var(--scalar-font-size-3);

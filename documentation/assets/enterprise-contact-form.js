@@ -20,16 +20,41 @@ const initEnterpriseContactForm = () => {
     successPanel.classList.toggle('is-visible', visible)
   }
 
+  const HELP_CHECKBOX_NAME = 'howCanWeHelp'
+
+  const syncHelpSelectionValidation = (form) => {
+    const helpCheckboxes = form.querySelectorAll(`input[name="${HELP_CHECKBOX_NAME}"]`)
+    if (!helpCheckboxes.length) {
+      return
+    }
+
+    const hasSelection = Array.from(helpCheckboxes).some(
+      (checkbox) => checkbox instanceof HTMLInputElement && checkbox.checked,
+    )
+
+    helpCheckboxes.forEach((checkbox) => {
+      if (checkbox instanceof HTMLInputElement) {
+        checkbox.required = !hasSelection
+      }
+    })
+  }
+
   const createNotes = (formData) => {
     const getValue = (name) => {
       const value = formData.get(name)
       return typeof value === 'string' ? value.trim() : ''
     }
 
+    const selectedHelpOptions = formData
+      .getAll(HELP_CHECKBOX_NAME)
+      .filter((value) => typeof value === 'string')
+      .map((value) => value.trim())
+      .filter(Boolean)
+
     return [
       `Job title: ${getValue('jobTitle')}`,
       `Company name: ${getValue('companyName')}`,
-      `How can we help: ${getValue('howCanWeHelp')}`,
+      `How can we help: ${selectedHelpOptions.join(', ')}`,
       `Additional context: ${getValue('additionalContext')}`,
     ]
       .filter((line) => !line.endsWith(': '))
@@ -127,6 +152,16 @@ const initEnterpriseContactForm = () => {
     form.addEventListener('submit', async (event) => {
       await handleSubmit(event, form)
     })
+
+    form.addEventListener('change', (event) => {
+      const input = event.target
+      if (!(input instanceof HTMLInputElement) || input.name !== HELP_CHECKBOX_NAME) {
+        return
+      }
+      syncHelpSelectionValidation(form)
+    })
+
+    syncHelpSelectionValidation(form)
     form.dataset.loopsBoundDirect = 'true'
   })
 
