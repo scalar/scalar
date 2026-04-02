@@ -90,7 +90,7 @@ catalogs:
     vitest: 4.1.0
     vue-router: 4.6.2
     vue-tsc: ^3.2.4
-    vue: ^3.5.26
+    vue: ^3.5.30
     whatwg-mimetype: 4.0.0
     yaml: ^2.8.0
     zod: ^4.3.5
