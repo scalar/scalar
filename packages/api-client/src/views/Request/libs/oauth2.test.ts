@@ -110,6 +110,7 @@ describe('oauth2', () => {
 
       // Mock the token exchange
       global.fetch = vi.fn().mockResolvedValueOnce({
+        ok: true,
         json: () => Promise.resolve({ access_token: accessToken }),
       })
 
@@ -190,6 +191,7 @@ describe('oauth2', () => {
       mockWindow.location.href = `https://callback.example.com?code=${code}&state=${state}`
 
       global.fetch = vi.fn().mockResolvedValueOnce({
+        ok: true,
         json: () => Promise.resolve({ access_token: accessToken }),
       })
 
@@ -237,6 +239,7 @@ describe('oauth2', () => {
 
       // Mock the token exchange
       global.fetch = vi.fn().mockResolvedValueOnce({
+        ok: true,
         json: () => Promise.resolve({ access_token: accessToken }),
       })
 
@@ -345,6 +348,7 @@ describe('oauth2', () => {
 
       // Mock the token exchange
       global.fetch = vi.fn().mockResolvedValueOnce({
+        ok: true,
         json: () => Promise.resolve({ access_token: accessToken }),
       })
 
@@ -397,6 +401,7 @@ describe('oauth2', () => {
 
     it('should handle successful client credentials flow', async () => {
       global.fetch = vi.fn().mockResolvedValueOnce({
+        ok: true,
         json: () => Promise.resolve({ access_token: 'access_token_123' }),
       })
 
@@ -427,6 +432,36 @@ describe('oauth2', () => {
       expect(error!.message).toBe('Failed to get an access token. Please check your credentials.')
     })
 
+    it('should return the server error when the token endpoint responds with an HTTP error', async () => {
+      global.fetch = vi.fn().mockResolvedValueOnce({
+        ok: false,
+        status: 401,
+        json: () =>
+          Promise.resolve({
+            error: 'invalid_client',
+            error_description: 'Client authentication failed',
+          }),
+      })
+
+      const [error, result] = await authorizeOauth2(flow, mockServer)
+      expect(result).toBe(null)
+      expect(error).toBeInstanceOf(Error)
+      expect(error!.message).toBe('Token request failed: Client authentication failed')
+    })
+
+    it('should fall back to the error code when error_description is absent', async () => {
+      global.fetch = vi.fn().mockResolvedValueOnce({
+        ok: false,
+        status: 400,
+        json: () => Promise.resolve({ error: 'invalid_grant' }),
+      })
+
+      const [error, result] = await authorizeOauth2(flow, mockServer)
+      expect(result).toBe(null)
+      expect(error).toBeInstanceOf(Error)
+      expect(error!.message).toBe('Token request failed: invalid_grant')
+    })
+
     it('should use custom token name when x-tokenName is specified', async () => {
       const customFlow = {
         ...flow,
@@ -434,6 +469,7 @@ describe('oauth2', () => {
       } as const
 
       global.fetch = vi.fn().mockResolvedValueOnce({
+        ok: true,
         json: () => Promise.resolve({ custom_access_token: 'custom_token_123' }),
       })
 
@@ -452,6 +488,7 @@ describe('oauth2', () => {
       } as const
 
       global.fetch = vi.fn().mockResolvedValueOnce({
+        ok: true,
         json: () => Promise.resolve({ access_token: 'access_token_123' }),
       })
 
@@ -486,6 +523,7 @@ describe('oauth2', () => {
       } as const
 
       global.fetch = vi.fn().mockResolvedValueOnce({
+        ok: true,
         json: () => Promise.resolve({ access_token: 'access_token_123' }),
       })
 
@@ -507,6 +545,7 @@ describe('oauth2', () => {
       } as const
 
       global.fetch = vi.fn().mockResolvedValueOnce({
+        ok: true,
         json: () => Promise.resolve({ access_token: 'access_token_123' }),
       })
 
@@ -535,6 +574,7 @@ describe('oauth2', () => {
       } as const
 
       global.fetch = vi.fn().mockResolvedValueOnce({
+        ok: true,
         json: () => Promise.resolve({ access_token: 'access_token_123' }),
       })
 
@@ -650,6 +690,7 @@ describe('oauth2', () => {
     it('should handle successful password flow', async () => {
       // Mock fetch
       global.fetch = vi.fn().mockResolvedValueOnce({
+        ok: true,
         json: () =>
           Promise.resolve({
             access_token: 'access_token_123',
@@ -692,6 +733,7 @@ describe('oauth2', () => {
       } as const
 
       global.fetch = vi.fn().mockResolvedValueOnce({
+        ok: true,
         json: () => Promise.resolve({ access_token: 'access_token_123' }),
       })
 
@@ -725,6 +767,7 @@ describe('oauth2', () => {
       } as const
 
       global.fetch = vi.fn().mockResolvedValueOnce({
+        ok: true,
         json: () =>
           Promise.resolve({
             access_token: 'access_token_123',
@@ -762,6 +805,7 @@ describe('oauth2', () => {
       } as const
 
       global.fetch = vi.fn().mockResolvedValueOnce({
+        ok: true,
         json: () =>
           Promise.resolve({
             access_token: 'access_token_123',
@@ -813,6 +857,7 @@ describe('oauth2', () => {
       })
 
       global.fetch = vi.fn().mockResolvedValueOnce({
+        ok: true,
         json: () =>
           Promise.resolve({
             access_token: 'access_token_123',
@@ -910,6 +955,7 @@ describe('oauth2', () => {
       })
 
       global.fetch = vi.fn().mockResolvedValueOnce({
+        ok: true,
         json: () => Promise.resolve({ access_token: 'token_123' }),
       })
 
@@ -949,6 +995,7 @@ describe('oauth2', () => {
       mockWindow.location.href = `${redirectUri}?code=auth_code_123&state=${state}`
 
       global.fetch = vi.fn().mockResolvedValueOnce({
+        ok: true,
         json: () => Promise.resolve({ access_token: 'token_prod' }),
       })
 

@@ -392,6 +392,12 @@ const authorizeServers = async (
     })
     const responseData = await resp.json()
 
+    if (!resp.ok) {
+      // OAuth2 error responses follow RFC 6749 §5.2
+      const detail = responseData?.error_description || responseData?.error || `HTTP ${resp.status}`
+      return [new Error(`Token request failed: ${detail}`), null]
+    }
+
     // Use custom token name if specified, otherwise default to access_token
     const tokenName = flow['x-tokenName'] || 'access_token'
     const accessToken = responseData[tokenName]
