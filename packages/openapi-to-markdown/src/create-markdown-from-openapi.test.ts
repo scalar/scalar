@@ -239,6 +239,39 @@ Test description`
     expect(result).toContain('- **Path:**\u00a0`/pets/{id}`')
   })
 
+  it('renders only one operation by JSON pointer', async () => {
+    const content = {
+      openapi: '3.1.1',
+      info: {
+        title: 'Test API',
+        version: '1.0.0',
+      },
+      paths: {
+        '/pets': {
+          get: {
+            summary: 'List pets',
+            operationId: 'listPets',
+          },
+          post: {
+            summary: 'Create pet',
+            operationId: 'createPet',
+          },
+        },
+      },
+    }
+
+    const result = await createMarkdownFromOpenApi(content, {
+      operation: {
+        pointer: '/paths/~1pets/post',
+      },
+    })
+
+    expect(result).toContain('Create pet')
+    expect(result).not.toContain('List pets')
+    expect(result).toContain('- **Method:**\u00a0`POST`')
+    expect(result).toContain('- **Path:**\u00a0`/pets`')
+  })
+
   it('throws when operationId does not exist', async () => {
     const content = {
       openapi: '3.1.1',
@@ -349,6 +382,58 @@ Test description`
         },
       }),
     ).rejects.toThrow('Invalid HTTP method "fetch".')
+  })
+
+  it('throws when JSON pointer does not start with "/"', async () => {
+    const content = {
+      openapi: '3.1.1',
+      info: {
+        title: 'Test API',
+        version: '1.0.0',
+      },
+      paths: {
+        '/pets': {
+          get: {
+            summary: 'List pets',
+          },
+        },
+      },
+    }
+
+    await expect(
+      createMarkdownFromOpenApi(content, {
+        operation: {
+          pointer: 'paths/~1pets/get',
+        },
+      }),
+    ).rejects.toThrow('Invalid JSON pointer "paths/~1pets/get". JSON pointers must start with "/"')
+  })
+
+  it('throws when JSON pointer does not target /paths/{path}/{method}', async () => {
+    const content = {
+      openapi: '3.1.1',
+      info: {
+        title: 'Test API',
+        version: '1.0.0',
+      },
+      paths: {
+        '/pets': {
+          get: {
+            summary: 'List pets',
+          },
+        },
+      },
+    }
+
+    await expect(
+      createMarkdownFromOpenApi(content, {
+        operation: {
+          pointer: '/paths/~1pets',
+        },
+      }),
+    ).rejects.toThrow(
+      'JSON pointer "/paths/~1pets" must target an operation object under "/paths/{path}/{method}"',
+    )
   })
 
   it('renders response schemas with language identifiers (JSON and XML)', async () => {

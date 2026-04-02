@@ -46,6 +46,13 @@ const operationMarkdownByPath = await createMarkdownFromOpenApi(content, {
     method: 'get',
   },
 })
+
+// Or use a JSON pointer to the operation object
+const operationMarkdownByPointer = await createMarkdownFromOpenApi(content, {
+  operation: {
+    pointer: '/paths/~1users~1{id}/get',
+  },
+})
 ```
 
 ### With Hono

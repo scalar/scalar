@@ -32,6 +32,9 @@ export type OperationSelector =
   | {
       operationId: string
     }
+  | {
+      pointer: string
+    }
 export type OpenApiRenderOptions = {
   operation?: OperationSelector
 }
@@ -98,6 +101,45 @@ const normalizeHttpMethod = (method: string): HttpMethod | null => {
   }
 
   return null
+}
+
+const parseJsonPointer = (pointer: string): string[] => {
+  if (!pointer.startsWith('/')) {
+    throw new Error(`Invalid JSON pointer "${pointer}". JSON pointers must start with "/"`)
+  }
+
+  return pointer
+    .slice(1)
+    .split('/')
+    .map((segment) =>
+      segment.replaceAll('~1', '/').replaceAll('~0', '~'),
+    )
+}
+
+const getOperationSelectorFromPointer = (
+  pointer: string,
+): Extract<OperationSelector, { path: string }> => {
+  const segments = parseJsonPointer(pointer)
+
+  if (segments.length !== 3 || segments[0] !== 'paths') {
+    throw new Error(
+      `JSON pointer "${pointer}" must target an operation object under "/paths/{path}/{method}"`,
+    )
+  }
+
+  const path = segments[1]
+  const method = segments[2]
+
+  if (!path || !method) {
+    throw new Error(
+      `JSON pointer "${pointer}" must target an operation object under "/paths/{path}/{method}"`,
+    )
+  }
+
+  return {
+    path,
+    method: method as HttpMethod,
+  }
 }
 
 const getPathEntries = (document: OpenApiDocument): Array<[string, PathItemObject]> => {
@@ -179,6 +221,13 @@ const resolveOperationMatch = (
   document: OpenApiDocument,
   selector: OperationSelector,
 ): OperationMatch => {
+  if ('pointer' in selector) {
+    return findOperationByPathAndMethod(
+      document,
+      getOperationSelectorFromPointer(selector.pointer),
+    )
+  }
+
   if ('operationId' in selector) {
     const matches = findOperationsByOperationId(document, selector.operationId)
 
