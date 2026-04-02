@@ -17,6 +17,11 @@ import type { RequestExampleMeta } from '@/request-example/types'
 import { type RequestBody, buildRequestBody } from './body/build-request-body'
 import { buildRequestParameters } from './header/build-request-parameters'
 
+/**
+ * Mutable description of an HTTP request before it is turned into a fetch `Request`.
+ *
+ * **Experimental:** This interface may change in minor releases; do not treat field names or nesting as stable semver.
+ */
 export type RequestFactory = {
   baseUrl: string
   path: {

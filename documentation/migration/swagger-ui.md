@@ -213,5 +213,5 @@ These features have no Swagger UI equivalent:
 | `searchHotKey`      | Customize the keyboard shortcut for search     |
 | `baseServerURL`     | Prefix all relative server URLs                |
 | `pathRouting`       | Use path-based routing instead of hash-based   |
-| `onBeforeRequest`   | Modify requests before they are sent           |
+| `onBeforeRequest`   | Run before send; prefer mutating the request builder (`requestBuilder`). See [Configuration: onBeforeRequest](../configuration.md#onbeforerequest). |
 | `authentication`    | Pre-fill authentication credentials            |

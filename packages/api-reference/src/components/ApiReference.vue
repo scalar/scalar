@@ -217,7 +217,7 @@ const configurationOverrides = ref<
 >({})
 
 /** Any dev toolbar modifications are merged with the active configuration */
-const mergedConfig = computed<ApiReferenceConfigurationRaw>(() => ({
+const mergedConfig = computed<ApiReferenceConfiguration>(() => ({
   // Provides a default set of values when the lookup fails
   ...apiReferenceConfigurationSchema.parse({}),
   // The active configuration based on the slug

@@ -1,5 +1,6 @@
 import type { ClientPlugin } from '@scalar/oas-utils/helpers'
-import type { ApiReferenceConfigurationRaw } from '@scalar/types/api-reference'
+import type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
+import { buildRequest } from '@scalar/workspace-store/request-example'
 import { type ComputedRef, watch } from 'vue'
 
 /**
@@ -17,7 +18,7 @@ import { type ComputedRef, watch } from 'vue'
  * @param config - Reactive configuration object containing optional hook callbacks
  * @returns Array containing a single plugin with the mapped hooks
  */
-export const mapConfigPlugins = (config: ComputedRef<ApiReferenceConfigurationRaw>): ClientPlugin[] => {
+export const mapConfigPlugins = (config: ComputedRef<ApiReferenceConfiguration>): ClientPlugin[] => {
   const plugin: ClientPlugin = { hooks: {} }
 
   watch(
@@ -30,7 +31,9 @@ export const mapConfigPlugins = (config: ComputedRef<ApiReferenceConfigurationRa
       plugin.hooks.beforeRequest = onBeforeRequest
         ? async (payload) => {
             await onBeforeRequest({
-              request: payload.requestBuilder,
+              // We need to build the request to get the fetch `Request`
+              request: buildRequest(payload.requestBuilder, { envVariables: {} }).request,
+              requestBuilder: payload.requestBuilder,
             })
           }
         : undefined
