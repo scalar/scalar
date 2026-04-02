@@ -114,3 +114,6 @@ onlyBuiltDependencies:
   - '@swc/core'
   - '@tailwindcss/oxide'
   - lefthook
+minimumReleaseAgeExclude:
+  # Renovate security update: @hono/node-server@1.19.10
+  - "@hono/node-server@1.19.10"

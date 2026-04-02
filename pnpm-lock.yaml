@@ -34,8 +34,8 @@ catalogs:
       specifier: 1.7.23
       version: 1.7.23
     '@hono/node-server':
-      specifier: ^1.19.7
-      version: 1.19.9
+      specifier: ^1.19.10
+      version: 1.19.11
     '@nestjs/cli':
       specifier: ^11.0.14
       version: 11.0.14
@@ -684,7 +684,7 @@ importers:
     dependencies:
       '@hono/node-server':
         specifier: catalog:*
-        version: 1.19.9(hono@4.12.4)
+        version: 1.19.11(hono@4.12.4)
       '@scalar/api-reference':
         specifier: workspace:*
         version: link:../../packages/api-reference
@@ -967,7 +967,7 @@ importers:
     devDependencies:
       '@hono/node-server':
         specifier: catalog:*
-        version: 1.19.9(hono@4.12.4)
+        version: 1.19.11(hono@4.12.4)
       '@hono/zod-openapi':
         specifier: ^1.2.4
         version: 1.2.4(hono@4.12.4)(zod@4.3.5)
@@ -1491,7 +1491,7 @@ importers:
     devDependencies:
       '@hono/node-server':
         specifier: catalog:*
-        version: 1.19.9(hono@4.12.4)
+        version: 1.19.11(hono@4.12.4)
       '@playwright/test':
         specifier: catalog:*
         version: 1.56.0
@@ -1886,7 +1886,7 @@ importers:
     dependencies:
       '@hono/node-server':
         specifier: catalog:*
-        version: 1.19.9(hono@4.12.4)
+        version: 1.19.11(hono@4.12.4)
       '@scalar/hono-api-reference':
         specifier: workspace:*
         version: link:../../../integrations/hono
@@ -2101,7 +2101,7 @@ importers:
     devDependencies:
       '@hono/node-server':
         specifier: catalog:*
-        version: 1.19.9(hono@4.12.4)
+        version: 1.19.11(hono@4.12.4)
       '@scalar/galaxy':
         specifier: workspace:*
         version: link:../galaxy
@@ -2475,7 +2475,7 @@ importers:
     dependencies:
       '@hono/node-server':
         specifier: catalog:*
-        version: 1.19.9(hono@4.12.4)
+        version: 1.19.11(hono@4.12.4)
       '@scalar/helpers':
         specifier: workspace:*
         version: link:../helpers
@@ -2549,7 +2549,7 @@ importers:
     devDependencies:
       '@hono/node-server':
         specifier: catalog:*
-        version: 1.19.9(hono@4.12.4)
+        version: 1.19.11(hono@4.12.4)
       '@scalar/hono-api-reference':
         specifier: workspace:*
         version: link:../../integrations/hono
@@ -4654,8 +4654,8 @@ packages:
     peerDependencies:
       vue: ^3.2.0
 
-  '@hono/node-server@1.19.9':
-    resolution: {integrity: sha512-vHL6w3ecZsky+8P5MD+eFfaGTyCeOHUIFYMGpQGbrBTSmNNoxv0if69rEZ5giu36weC5saFuznL411gRX7bJDw==}
+  '@hono/node-server@1.19.11':
+    resolution: {integrity: sha512-dr8/3zEaB+p0D2n/IUrlPF1HZm586qgJNXK1a9fhg/PzdtkK7Ksd5l312tJX2yBuALqDYBlG20QEbayqPyxn+g==}
     engines: {node: '>=18.14.1'}
     peerDependencies:
       hono: ^4
@@ -21205,7 +21205,7 @@ snapshots:
       '@tanstack/vue-virtual': 3.8.5(vue@3.5.26(typescript@5.9.3))
       vue: 3.5.26(typescript@5.9.3)
 
-  '@hono/node-server@1.19.9(hono@4.12.4)':
+  '@hono/node-server@1.19.11(hono@4.12.4)':
     dependencies:
       hono: 4.12.4
 
