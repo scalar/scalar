@@ -7,6 +7,8 @@ import type { WorkspaceDocumentInput } from '@scalar/workspace-store/client'
 import type { PropsWithChildren } from 'react'
 import { createContext, useContext, useEffect, useRef, useState } from 'react'
 
+import './style.css'
+
 type LowercaseHttpMethod = 'delete' | 'get' | 'head' | 'options' | 'patch' | 'post' | 'put' | 'trace'
 type HttpMethod = LowercaseHttpMethod | Uppercase<LowercaseHttpMethod>
 
