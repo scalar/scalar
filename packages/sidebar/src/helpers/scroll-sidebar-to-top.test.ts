@@ -88,7 +88,6 @@ describe('scroll-to-sidebar-top', () => {
 
     expect(scrollToSpy).toHaveBeenCalledWith({
       top: 15,
-      behavior: 'smooth',
     })
   })
 
@@ -124,7 +123,6 @@ describe('scroll-to-sidebar-top', () => {
 
     expect(scrollToSpy).toHaveBeenCalledWith({
       top: 100,
-      behavior: 'smooth',
     })
   })
 
@@ -161,7 +159,6 @@ describe('scroll-to-sidebar-top', () => {
 
     expect(scrollToSpy).toHaveBeenCalledWith({
       top: 140,
-      behavior: 'smooth',
     })
   })
 
@@ -191,7 +188,6 @@ describe('scroll-to-sidebar-top', () => {
 
     expect(scrollToSpy).toHaveBeenCalledWith({
       top: 0,
-      behavior: 'smooth',
     })
   })
 })
