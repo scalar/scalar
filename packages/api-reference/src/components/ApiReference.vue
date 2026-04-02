@@ -86,6 +86,7 @@ import {
   normalizeConfigurations,
   type NormalizedConfiguration,
 } from '@/helpers/normalize-configurations'
+import { safeDeepClone } from '@/helpers/safe-deep-clone'
 import { AGENT_CONTEXT_SYMBOL, useAgent } from '@/hooks/use-agent'
 import { useIntersection } from '@/hooks/use-intersection'
 import { createPluginManager, PLUGIN_MANAGER_SYMBOL } from '@/plugins'
@@ -451,6 +452,34 @@ defineExpose({
   sidebarItems,
 })
 
+const addDocument: typeof workspaceStore.addDocument = async (
+  input,
+  navigationOptions,
+) => {
+  const result = await workspaceStore.addDocument(input, navigationOptions)
+  // Now add it to the client store
+  const state = workspaceStore.exportWorkspace()
+  clientStore.loadWorkspace({
+    auth: {},
+    documents: {
+      [input.name]: safeDeepClone(state.documents[input.name]) ?? {
+        'openapi': '3.1.0',
+        'info': {
+          title: '',
+          version: '',
+        },
+        'x-scalar-original-document-hash': '',
+      },
+    },
+    intermediateDocuments: {},
+    originalDocuments: {},
+    overrides: {},
+    history: {},
+    meta: {},
+  })
+  return result
+}
+
 // ---------------------------------------------------------------------------
 // Document Management
 
@@ -494,7 +523,7 @@ const changeSelectedDocument = async (
 
   // If the document is not in the store, we asynchronously load it
   if (isFirstLoad) {
-    const result = await workspaceStore.addDocument(
+    const result = await addDocument(
       normalized.source.url
         ? {
             name: slug,
@@ -507,29 +536,6 @@ const changeSelectedDocument = async (
           },
       config,
     )
-
-    const state = workspaceStore.exportWorkspace()
-
-    // We need to load the new workspace document into the client store
-    clientStore.loadWorkspace({
-      auth: {},
-      documents: {
-        // Only load the document into the client store
-        [slug]: window.structuredClone(state.documents[slug]) ?? {
-          'openapi': '3.1.0',
-          'info': {
-            title: '',
-            version: '',
-          },
-          'x-scalar-original-document-hash': '',
-        },
-      },
-      intermediateDocuments: {},
-      originalDocuments: {},
-      overrides: {},
-      history: {},
-      meta: {},
-    })
 
     const document = clientStore.workspace.documents[slug]
 
@@ -606,7 +612,7 @@ watch(
       }
       /** If the URL has changed we fetch and rebase */
       if (updated.source.url && updated.source.url !== previous?.source.url) {
-        await workspaceStore.addDocument(
+        await addDocument(
           {
             name: updated.slug,
             url: updated.source.url,
@@ -635,7 +641,7 @@ watch(
             : {},
         ).length
       ) {
-        await workspaceStore.addDocument(
+        await addDocument(
           {
             name: updated.slug,
             document: updated.source.content,
@@ -670,7 +676,8 @@ onServerPrefetch(() => changeSelectedDocument(activeSlug.value))
 
 /** Load the first document on page load */
 onBeforeMount(async () => {
-  loadClientFromStorage(workspaceStore)
+  // We read the client from the client store so we need to set it to the client store
+  loadClientFromStorage(clientStore)
 
   await changeSelectedDocument(
     activeSlug.value,
