@@ -291,6 +291,14 @@ function syncSlugAndUrlWithDocument(
  */
 const workspaceStore = createWorkspaceStore({
   verbose: isDevelopment,
+})
+
+/**
+ * We need to keep the client store separate from the workspace store
+ * This is because we want the client store to be a playground where users can test out their requests without affecting the references store
+ */
+const clientStore = createWorkspaceStore({
+  verbose: isDevelopment,
   plugins: [
     persistencePlugin({
       prefix: () => activeSlug.value,
@@ -416,6 +424,12 @@ mapConfigToWorkspaceStore({
   isDarkMode,
 })
 
+mapConfigToWorkspaceStore({
+  config: () => mergedConfig.value,
+  store: clientStore,
+  isDarkMode,
+})
+
 /** Merged environment variables from workspace and document levels */
 const environment = computed(
   () =>
@@ -494,7 +508,12 @@ const changeSelectedDocument = async (
       config,
     )
 
-    const document = workspaceStore.workspace.documents[slug]
+    // We need to load the new workspace document into the client store
+    clientStore.loadWorkspace(
+      window.structuredClone(workspaceStore.exportWorkspace()),
+    )
+
+    const document = clientStore.workspace.documents[slug]
 
     // If the document does not have a selected server we set it to the first server
     if (
@@ -522,10 +541,11 @@ const changeSelectedDocument = async (
 
   // Always set it to active; if the document is null we show a loading state
   workspaceStore.update('x-scalar-active-document', slug)
+  clientStore.update('x-scalar-active-document', slug)
 
   // If the document has persistence enabled we load the auth schemes from storage
   if (config.persistAuth) {
-    loadAuthFromStorage(workspaceStore, slug)
+    loadAuthFromStorage(clientStore, slug)
   }
 
   // ensure that `onLoaded` hook doesn't block execution but is executed after `onDocumentSelect`
@@ -689,7 +709,7 @@ onMounted(() => {
   apiClient.value = createApiClientModal({
     el: modal.value,
     eventBus,
-    workspaceStore,
+    workspaceStore: clientStore,
     options: mergedConfig,
     plugins: mapConfigPlugins(mergedConfig),
   })
@@ -1020,7 +1040,8 @@ const showMCPButton = computed(() => {
         class="references-rendered"
         :inert="agent.showAgent.value">
         <Content
-          :authStore="workspaceStore.auth"
+          :authStore="clientStore.auth"
+          :clientDocument="clientStore.workspace.activeDocument"
           :document="workspaceStore.workspace.activeDocument"
           :environment
           :eventBus
@@ -1033,7 +1054,7 @@ const showMCPButton = computed(() => {
           :items="sidebarItems"
           :options="mergedConfig"
           :xScalarDefaultClient="
-            workspaceStore.workspace['x-scalar-default-client']
+            clientStore.workspace['x-scalar-default-client']
           ">
           <template #start>
             <DeveloperTools
