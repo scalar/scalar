@@ -181,7 +181,7 @@ const requiredScopes = computed<string[]>(() => {
       :path
       :selectedClient
       :hasSecurityRequirements
-      :requiredScopes
+      :requiredSecurityScopes="requiredScopes"
       :selectedSecuritySchemes
       :selectedServer />
     <ModernLayout
@@ -196,7 +196,7 @@ const requiredScopes = computed<string[]>(() => {
       :path
       :selectedClient
       :hasSecurityRequirements
-      :requiredScopes
+      :requiredSecurityScopes="requiredScopes"
       :selectedSecuritySchemes
       :selectedServer />
   </template>

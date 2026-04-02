@@ -50,7 +50,7 @@ import { XBadges } from '@/features/x-badges'
 const {
   clientOptions,
   eventBus,
-  requiredSecurityScopes,
+  requiredSecurityScopes = [],
   hasSecurityRequirements,
   isWebhook,
   method,

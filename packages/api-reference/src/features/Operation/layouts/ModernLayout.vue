@@ -46,7 +46,6 @@ import { XBadges } from '@/features/x-badges'
 const {
   clientOptions,
   eventBus,
-  requiredSecurityScopes,
   hasSecurityRequirements,
   isWebhook,
   method,
@@ -78,6 +77,12 @@ const {
     requiredSecurityScopes: string[]
   }
 >()
+
+const requiredSecurityScopes = computed<string[]>(() =>
+  Array.isArray(operation.requiredSecurityScopes)
+    ? operation.requiredSecurityScopes
+    : [],
+)
 
 const operationTitle = computed(() => operation.summary || path || '')
 
