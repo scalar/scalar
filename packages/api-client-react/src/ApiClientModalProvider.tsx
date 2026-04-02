@@ -1,91 +1,194 @@
 'use client'
 
-import type { ApiClient } from '@scalar/api-client/layouts/Modal'
-import type { OpenClientPayload } from '@scalar/api-client/libs'
+import type { ApiClientModal } from '@scalar/api-client/v2/features/modal'
+import { parseJsonOrYaml } from '@scalar/oas-utils/helpers'
 import type { ApiClientConfiguration } from '@scalar/types/api-reference'
+import type { WorkspaceDocumentInput } from '@scalar/workspace-store/client'
 import type { PropsWithChildren } from 'react'
-import { createContext, useContext, useEffect, useRef, useSyncExternalStore } from 'react'
+import { createContext, useContext, useEffect, useRef, useState } from 'react'
 
-export type { OpenClientPayload }
+type LowercaseHttpMethod = 'delete' | 'get' | 'head' | 'options' | 'patch' | 'post' | 'put' | 'trace'
+type HttpMethod = LowercaseHttpMethod | Uppercase<LowercaseHttpMethod>
 
-import { clientStore } from './client-store'
+export type OpenClientPayload = {
+  path: string
+  method: HttpMethod
+  example?: string
+  documentSlug?: string
+}
 
-import './style.css'
-
-const ApiClientModalContext = createContext<ApiClient | null>(null)
+export type ApiClientModalController = Omit<ApiClientModal, 'open' | 'route'> & {
+  open: (payload?: OpenClientPayload) => void
+  route: (payload: OpenClientPayload) => void
+}
 
 type Props = PropsWithChildren<{
   /** Choose a request to initially route to */
   initialRequest?: OpenClientPayload
-  /** Configuration for the Api Client */
+  /** Configuration for the API client */
   configuration?: Partial<ApiClientConfiguration>
+  /** Optional document name used in the internal workspace */
+  documentName?: string
 }>
 
-/** Ensures we only load createClient once */
-let isLoading = false
+const DEFAULT_DOCUMENT_NAME = 'default'
 
-/** Hack: this is strictly to prevent creation of extra clients as the store lags a bit */
-const clientDict: Record<string, ApiClient> = {}
+const FALLBACK_DOCUMENT = {
+  openapi: '3.1.0',
+  info: {
+    title: 'API description',
+    version: '1.0.0',
+  },
+  paths: {},
+} satisfies Record<string, unknown>
+
+const ApiClientModalContext = createContext<ApiClientModalController | null>(null)
+
+const normalizeMethod = (method: HttpMethod): LowercaseHttpMethod => method.toLowerCase() as LowercaseHttpMethod
+
+const normalizeRoutePayload = (payload: OpenClientPayload) => ({
+  ...payload,
+  method: normalizeMethod(payload.method),
+})
+
+const createController = (modal: ApiClientModal): ApiClientModalController => ({
+  ...modal,
+  open: (payload) => modal.open(payload ? normalizeRoutePayload(payload) : undefined),
+  route: (payload) => modal.route(normalizeRoutePayload(payload)),
+})
+
+const resolveSourceConfiguration = (configuration: Partial<ApiClientConfiguration>) => ({
+  url: configuration.url ?? configuration.spec?.url,
+  content: configuration.content ?? configuration.spec?.content,
+})
+
+const resolveDocumentInput = ({
+  configuration,
+  documentName,
+}: {
+  configuration: Partial<ApiClientConfiguration>
+  documentName: string
+}): WorkspaceDocumentInput => {
+  const { url, content } = resolveSourceConfiguration(configuration)
+
+  if (url) {
+    return {
+      name: documentName,
+      url,
+    }
+  }
+
+  const resolvedContent = typeof content === 'function' ? content() : content
+
+  if (typeof resolvedContent === 'string') {
+    try {
+      return {
+        name: documentName,
+        document: parseJsonOrYaml(resolvedContent),
+      }
+    } catch {
+      return {
+        name: documentName,
+        document: FALLBACK_DOCUMENT,
+      }
+    }
+  }
+
+  if (resolvedContent && typeof resolvedContent === 'object') {
+    return {
+      name: documentName,
+      document: resolvedContent,
+    }
+  }
+
+  return {
+    name: documentName,
+    document: FALLBACK_DOCUMENT,
+  }
+}
 
 /**
- * Api Client Modal React
- *
- * Provider which mounts the Scalar Api Client Modal vue app.
- * Rebuilt to support multiple instances when using a unique spec.url
+ * React provider for the Scalar API Client v2 modal.
  */
-export const ApiClientModalProvider = ({ children, initialRequest, configuration = {} }: Props) => {
-  const key = configuration.spec?.url || 'default'
+export const ApiClientModalProvider = ({
+  children,
+  initialRequest,
+  configuration = {},
+  documentName = DEFAULT_DOCUMENT_NAME,
+}: Props) => {
   const el = useRef<HTMLDivElement | null>(null)
+  const [client, setClient] = useState<ApiClientModalController | null>(null)
 
-  const state = useSyncExternalStore(clientStore.subscribe, clientStore.getSnapshot, clientStore.getSnapshot)
-
-  // Lazyload the js to create the client, but we only wanna call this once
-  useEffect(() => {
-    const loadApiClientJs = async () => {
-      isLoading = true
-      const { createApiClientModal } = await import('@scalar/api-client/layouts/Modal')
-      clientStore.setCreateClient(createApiClientModal)
-    }
-    if (!isLoading) {
-      void loadApiClientJs()
-    }
-  }, [])
+  // We intentionally initialize once to avoid recreating the modal on every render.
+  const initialRequestRef = useRef(initialRequest)
+  const configurationRef = useRef(configuration)
+  const documentNameRef = useRef(documentName)
 
   useEffect(() => {
-    if (!el.current || !state.createClient || clientDict[key]) {
-      return () => null
-    }
+    let cleanup: (() => void) | undefined
+    let isDisposed = false
 
-    // Check for cached client first
-    const { client: _client } = state.createClient({
-      el: el.current,
-      configuration,
-    })
+    const initialize = async () => {
+      if (!el.current) {
+        return
+      }
 
-    const updateConfig = async () => {
-      await _client.updateConfig(configuration!)
-      if (initialRequest) {
-        _client.route(initialRequest)
+      const [{ createApiClientModal }, { createWorkspaceStore }] = await Promise.all([
+        import('@scalar/api-client/v2/features/modal'),
+        import('@scalar/workspace-store/client'),
+      ])
+
+      const workspaceStore = createWorkspaceStore({
+        meta: configurationRef.current.proxyUrl
+          ? {
+              'x-scalar-active-proxy': configurationRef.current.proxyUrl,
+            }
+          : undefined,
+      })
+
+      const input = resolveDocumentInput({
+        configuration: configurationRef.current,
+        documentName: documentNameRef.current,
+      })
+
+      await workspaceStore.addDocument(input)
+      workspaceStore.update('x-scalar-active-document', documentNameRef.current)
+
+      const modal = createApiClientModal({
+        el: el.current,
+        workspaceStore,
+      })
+
+      const modalController = createController(modal)
+
+      if (isDisposed) {
+        modal.app.unmount()
+        return
+      }
+
+      setClient(modalController)
+
+      if (initialRequestRef.current) {
+        modalController.open(initialRequestRef.current)
+      }
+
+      cleanup = () => {
+        modal.modalState.open = false
+        modal.app.unmount()
       }
     }
 
-    // Add the client to the store and dict
-    clientStore.addClient(key, _client)
-    clientDict[key] = _client
+    void initialize()
 
-    // We update the config as we are using the sync version
-    void updateConfig()
-
-    // Ensure we unmount the vue app on unmount
     return () => {
-      _client.app.unmount()
-      clientStore.removeClient(key)
-      delete clientDict[key]
+      isDisposed = true
+      setClient(null)
+      cleanup?.()
     }
-  }, [el.current, state.createClient])
+  }, [])
 
   return (
-    <ApiClientModalContext.Provider value={state.clientDict[key] ?? null}>
+    <ApiClientModalContext.Provider value={client}>
       <div
         className="scalar-app"
         ref={el}
@@ -95,4 +198,4 @@ export const ApiClientModalProvider = ({ children, initialRequest, configuration
   )
 }
 
-export const useApiClientModal = (): ApiClient | null => useContext(ApiClientModalContext)
+export const useApiClientModal = (): ApiClientModalController | null => useContext(ApiClientModalContext)

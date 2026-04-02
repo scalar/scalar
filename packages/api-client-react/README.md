@@ -13,35 +13,61 @@ npm install @scalar/api-client-react
 
 ## Usage
 
-First we need to add the provider, you should add it in the highest place you have a unique spec.
+### React
+
+Mount the provider once around the part of your app that should be able to open the API client modal.
 
 ```tsx
 import { ApiClientModalProvider } from '@scalar/api-client-react'
-
 import '@scalar/api-client-react/style.css'
-;<ApiClientModalProvider
-  configuration={{
-    url: 'https://registry.scalar.com/@scalar/apis/galaxy?format=json',
-  }}>
-  {children}
-</ApiClientModalProvider>
+
+export const App = ({ children }) => (
+  <ApiClientModalProvider
+    configuration={{
+      url: 'https://registry.scalar.com/@scalar/apis/galaxy?format=json',
+    }}>
+    {children}
+  </ApiClientModalProvider>
+)
 ```
 
-Then you can trigger it from anywhere inside of that provider by calling the `useApiClientModal()`
+Then open the modal anywhere inside that provider with `useApiClientModal()`.
 
 ```tsx
 import { useApiClientModal } from '@scalar/api-client-react'
 
-const client = useApiClientModal()
+export const OpenClientButton = () => {
+  const client = useApiClientModal()
 
-return (
-  <button onClick={() => client?.open({ path: '/auth/token', method: 'get' })}>
-    Click me to open the Api Client
-  </button>
+  return (
+    <button onClick={() => client?.open({ path: '/auth/token', method: 'GET' })}>
+      Open API Client
+    </button>
+  )
+}
+```
+
+### Next.js (App Router)
+
+Use a client component wrapper for the provider:
+
+```tsx
+'use client'
+
+import { ApiClientModalProvider } from '@scalar/api-client-react'
+import '@scalar/api-client-react/style.css'
+
+export const ApiClientProvider = ({ children }) => (
+  <ApiClientModalProvider
+    configuration={{
+      url: 'https://registry.scalar.com/@scalar/apis/galaxy?format=json',
+    }}>
+    {children}
+  </ApiClientModalProvider>
 )
 ```
 
-Check out the playground for a working example.
+The hook works in client components and accepts uppercase or lowercase HTTP methods.
 
 ## Community
 

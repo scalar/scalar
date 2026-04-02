@@ -45,6 +45,8 @@
   ],
   "dependencies": {
     "@scalar/api-client": "workspace:*",
+    "@scalar/oas-utils": "workspace:*",
+    "@scalar/workspace-store": "workspace:*",
     "@scalar/types": "workspace:*"
   },
   "devDependencies": {

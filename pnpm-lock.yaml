@@ -1392,9 +1392,15 @@ importers:
       '@scalar/api-client':
         specifier: workspace:*
         version: link:../api-client
+      '@scalar/oas-utils':
+        specifier: workspace:*
+        version: link:../oas-utils
       '@scalar/types':
         specifier: workspace:*
         version: link:../types
+      '@scalar/workspace-store':
+        specifier: workspace:*
+        version: link:../workspace-store
     devDependencies:
       '@types/react':
         specifier: catalog:*
