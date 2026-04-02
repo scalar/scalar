@@ -31,6 +31,21 @@ const content = {
 
 // Generate Markdown from an OpenAPI document
 const markdown = await createMarkdownFromOpenApi(content)
+
+// Generate Markdown for a single operation
+const operationMarkdown = await createMarkdownFromOpenApi(content, {
+  operation: {
+    operationId: 'getUser',
+  },
+})
+
+// You can also select by path + method
+const operationMarkdownByPath = await createMarkdownFromOpenApi(content, {
+  operation: {
+    path: '/users/{id}',
+    method: 'get',
+  },
+})
 ```
 
 ### With Hono

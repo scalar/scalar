@@ -172,6 +172,185 @@ Test description`
     expect(result).toContain('id')
   })
 
+  it('renders only one operation by path and method', async () => {
+    const content = {
+      openapi: '3.1.1',
+      info: {
+        title: 'Test API',
+        version: '1.0.0',
+      },
+      paths: {
+        '/pets': {
+          get: {
+            summary: 'List pets',
+            operationId: 'listPets',
+          },
+          post: {
+            summary: 'Create pet',
+            operationId: 'createPet',
+          },
+        },
+      },
+    }
+
+    const result = await createMarkdownFromOpenApi(content, {
+      operation: {
+        path: '/pets',
+        method: 'POST',
+      },
+    })
+
+    expect(result).toContain('Create pet')
+    expect(result).not.toContain('List pets')
+    expect(result).toContain('- **Method:**\u00a0`POST`')
+  })
+
+  it('renders only one operation by operationId', async () => {
+    const content = {
+      openapi: '3.1.1',
+      info: {
+        title: 'Test API',
+        version: '1.0.0',
+      },
+      paths: {
+        '/pets': {
+          get: {
+            summary: 'List pets',
+            operationId: 'listPets',
+          },
+        },
+        '/pets/{id}': {
+          get: {
+            summary: 'Get pet',
+            operationId: 'getPet',
+          },
+        },
+      },
+    }
+
+    const result = await createMarkdownFromOpenApi(content, {
+      operation: {
+        operationId: 'getPet',
+      },
+    })
+
+    expect(result).toContain('Get pet')
+    expect(result).not.toContain('List pets')
+    expect(result).toContain('- **Path:**\u00a0`/pets/{id}`')
+  })
+
+  it('throws when operationId does not exist', async () => {
+    const content = {
+      openapi: '3.1.1',
+      info: {
+        title: 'Test API',
+        version: '1.0.0',
+      },
+      paths: {
+        '/pets': {
+          get: {
+            summary: 'List pets',
+            operationId: 'listPets',
+          },
+        },
+      },
+    }
+
+    await expect(
+      createMarkdownFromOpenApi(content, {
+        operation: {
+          operationId: 'unknownOperation',
+        },
+      }),
+    ).rejects.toThrow('Operation with operationId "unknownOperation" was not found')
+  })
+
+  it('throws when operationId is duplicated', async () => {
+    const content = {
+      openapi: '3.1.1',
+      info: {
+        title: 'Test API',
+        version: '1.0.0',
+      },
+      paths: {
+        '/pets': {
+          get: {
+            summary: 'List pets',
+            operationId: 'petsOperation',
+          },
+        },
+        '/pets/{id}': {
+          get: {
+            summary: 'Get pet',
+            operationId: 'petsOperation',
+          },
+        },
+      },
+    }
+
+    await expect(
+      createMarkdownFromOpenApi(content, {
+        operation: {
+          operationId: 'petsOperation',
+        },
+      }),
+    ).rejects.toThrow(
+      'Multiple operations found for operationId "petsOperation". Use { path, method } instead.',
+    )
+  })
+
+  it('throws when path and method operation is missing', async () => {
+    const content = {
+      openapi: '3.1.1',
+      info: {
+        title: 'Test API',
+        version: '1.0.0',
+      },
+      paths: {
+        '/pets': {
+          get: {
+            summary: 'List pets',
+          },
+        },
+      },
+    }
+
+    await expect(
+      createMarkdownFromOpenApi(content, {
+        operation: {
+          path: '/pets',
+          method: 'post',
+        },
+      }),
+    ).rejects.toThrow('Operation not found for path "/pets" and method "POST"')
+  })
+
+  it('throws when method is invalid', async () => {
+    const content = {
+      openapi: '3.1.1',
+      info: {
+        title: 'Test API',
+        version: '1.0.0',
+      },
+      paths: {
+        '/pets': {
+          get: {
+            summary: 'List pets',
+          },
+        },
+      },
+    }
+
+    await expect(
+      createMarkdownFromOpenApi(content, {
+        operation: {
+          path: '/pets',
+          method: 'fetch' as 'get',
+        },
+      }),
+    ).rejects.toThrow('Invalid HTTP method "fetch".')
+  })
+
   it('renders response schemas with language identifiers (JSON and XML)', async () => {
     const content = (contentType: 'application/json' | 'application/xml') => ({
       openapi: '3.1.1',
