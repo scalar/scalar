@@ -69,10 +69,18 @@ const initEnterpriseContactForm = () => {
       body.set('notes', notes)
     }
 
+    const submitUrl = form.dataset.submitUrl || form.getAttribute('action') || ''
+
+    if (!submitUrl || submitUrl.startsWith('#')) {
+      setFeedback(feedback, 'Form endpoint is unavailable. Please try again later.', 'is-error')
+      return
+    }
+
     try {
-      const response = await fetch(form.action, {
+      const response = await fetch(submitUrl, {
         method: 'POST',
         headers: {
+          Accept: 'application/json',
           'Content-Type': 'application/x-www-form-urlencoded',
         },
         body: body.toString(),

@@ -109,7 +109,8 @@ Validate contracts early so exploration and testing stay tied to the same API de
   <form
     id="enterprise-contact-form"
     class="enterprise-demo-form"
-    action="https://app.loops.so/api/newsletter-form/clksm7aj203tclb0olg1z2xb3"
+    action="#contact"
+    data-submit-url="https://app.loops.so/api/newsletter-form/clksm7aj203tclb0olg1z2xb3"
     method="POST"
   >
     <input type="hidden" name="source" value="Docs Enterprise Contact Form" />
