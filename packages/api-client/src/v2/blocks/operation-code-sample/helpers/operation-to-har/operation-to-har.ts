@@ -50,6 +50,11 @@ export type OperationToHarProps = {
    * (e.g. from the schema dropdowns in the API reference).
    */
   requestBodyCompositionSelection?: Record<string, number>
+  /**
+   * Whether to disable parameters by default.
+   * @default false
+   */
+  defaultDisabledParameters?: boolean
 }
 
 /**
@@ -85,6 +90,7 @@ export const operationToHar = ({
   securitySchemes,
   globalCookies,
   requestBodyCompositionSelection,
+  defaultDisabledParameters = false,
 }: OperationToHarProps): HarRequest => {
   const defaultHeaders = includeDefaultHeaders
     ? getDefaultHeaders({
@@ -119,6 +125,7 @@ export const operationToHar = ({
       harRequest,
       parameters: operation.parameters,
       example,
+      defaultDisabled: defaultDisabledParameters,
     })
 
     // Correctly filter the global cookies by the processed url

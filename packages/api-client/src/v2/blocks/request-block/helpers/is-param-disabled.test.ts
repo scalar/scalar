@@ -90,4 +90,29 @@ describe('isParamDisabled', () => {
     expect(isParamDisabled(optionalPathParam, example)).toBe(false)
     expect(isParamDisabled(requiredPathParam, example)).toBe(false)
   })
+
+  it('returns false for optional non-path parameters when defaultDisabled is false and x-disabled is not set', () => {
+    const param: ParameterObject = {
+      name: 'filter',
+      in: 'query',
+      required: false,
+      schema: { type: 'string' },
+    }
+
+    expect(isParamDisabled(param, {}, false)).toBe(false)
+  })
+
+  it('returns true when x-disabled is true even if defaultDisabled is false', () => {
+    const param: ParameterObject = {
+      name: 'limit',
+      in: 'query',
+      required: false,
+      schema: { type: 'number' },
+    }
+    const example: ExampleObject = {
+      'x-disabled': true,
+    }
+
+    expect(isParamDisabled(param, example, false)).toBe(true)
+  })
 })

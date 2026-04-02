@@ -302,6 +302,139 @@ describe('multiple configurations', () => {
     // now onLoaded should have been called
     expect(onLoaded).toHaveBeenCalledOnce()
   })
+
+  it('restores client libraries when switching from hiddenClients=true source', async () => {
+    const createDocument = (title: string) => ({
+      openapi: '3.1.0',
+      info: {
+        title,
+        version: '1.0.0',
+      },
+      paths: {
+        '/users': {
+          get: {
+            summary: 'Get users',
+          },
+        },
+      },
+    })
+
+    const wrapper = mount(ApiReference, {
+      props: {
+        configuration: {
+          sources: [
+            {
+              slug: 'all-clients',
+              default: true,
+              content: createDocument('All Clients'),
+            },
+            {
+              slug: 'no-clients',
+              // `sources` typing does not yet include per-source api-reference settings.
+              hiddenClients: true,
+              content: createDocument('No Clients'),
+            } as never,
+          ],
+        },
+      },
+    })
+
+    const getVisibleClientIds = (): string[] => {
+      const clientSelector = wrapper.findComponent({ name: 'ClientSelector' })
+      if (!clientSelector.exists()) {
+        return []
+      }
+
+      const clientOptions = clientSelector.props('clientOptions') as Array<{
+        options: Array<{ id: string }>
+      }>
+
+      return clientOptions.flatMap((group) => group.options.map((option) => option.id))
+    }
+
+    await flushPromises()
+    await wrapper.vm.$nextTick()
+
+    expect(getVisibleClientIds().includes('js/fetch')).toBe(true)
+
+    const documentSelector = wrapper.findComponent({ name: 'DocumentSelector' })
+    await documentSelector.vm.$emit('update:modelValue', 'no-clients')
+    await flushPromises()
+    await wrapper.vm.$nextTick()
+
+    expect(getVisibleClientIds()).toStrictEqual([])
+
+    await documentSelector.vm.$emit('update:modelValue', 'all-clients')
+    await flushPromises()
+    await wrapper.vm.$nextTick()
+
+    expect(getVisibleClientIds().includes('js/fetch')).toBe(true)
+  })
+
+  it('restores client libraries when switching array-based configurations', async () => {
+    const createDocument = (title: string) => ({
+      openapi: '3.1.0',
+      info: {
+        title,
+        version: '1.0.0',
+      },
+      paths: {
+        '/users': {
+          get: {
+            summary: 'Get users',
+          },
+        },
+      },
+    })
+
+    const wrapper = mount(ApiReference, {
+      props: {
+        configuration: [
+          {
+            slug: 'all-clients',
+            default: true,
+            content: createDocument('All Clients'),
+          },
+          {
+            slug: 'no-clients',
+            hiddenClients: true,
+            content: createDocument('No Clients'),
+          },
+        ],
+      },
+    })
+
+    const getVisibleClientIds = (): string[] => {
+      const clientSelector = wrapper.findComponent({ name: 'ClientSelector' })
+      if (!clientSelector.exists()) {
+        return []
+      }
+
+      const clientOptions = clientSelector.props('clientOptions') as Array<{
+        options: Array<{ id: string }>
+      }>
+
+      return clientOptions.flatMap((group) => group.options.map((option) => option.id))
+    }
+
+    await flushPromises()
+    await wrapper.vm.$nextTick()
+
+    expect(getVisibleClientIds().includes('js/fetch')).toBe(true)
+
+    const documentSelector = wrapper.findComponent({ name: 'DocumentSelector' })
+    await documentSelector.vm.$emit('update:modelValue', 'no-clients')
+    await flushPromises()
+    await wrapper.vm.$nextTick()
+
+    expect(getVisibleClientIds()).toStrictEqual([])
+
+    await documentSelector.vm.$emit('update:modelValue', 'all-clients')
+    await flushPromises()
+    await wrapper.vm.$nextTick()
+
+    expect(getVisibleClientIds().includes('js/fetch')).toBe(true)
+  })
 })
 
 describe('circular documents', () => {

@@ -1,3 +1,7 @@
+import { mkdtemp, mkdir, rm, writeFile } from 'node:fs/promises'
+import { type IncomingMessage, type ServerResponse, createServer } from 'node:http'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
 
 import { createMarkdownFromOpenApi } from './create-markdown-from-openapi'
@@ -287,5 +291,129 @@ Test description`
       \`\`\`
       "
     `)
+  })
+
+  it('bundles external file references when input is a file path', async () => {
+    const tempDirectory = await mkdtemp(join(tmpdir(), 'openapi-to-markdown-'))
+    const schemaDirectory = join(tempDirectory, 'schemas')
+    const openApiFile = join(tempDirectory, 'openapi.yaml')
+    const userSchemaFile = join(schemaDirectory, 'user.yaml')
+
+    await mkdir(schemaDirectory, { recursive: true })
+    await writeFile(
+      openApiFile,
+      `openapi: 3.1.1
+info:
+  title: File Ref API
+  version: 1.0.0
+paths:
+  /users/{id}:
+    get:
+      summary: Get user
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: './schemas/user.yaml#/User'
+`,
+    )
+    await writeFile(
+      userSchemaFile,
+      `User:
+  type: object
+  required:
+    - id
+    - email
+  properties:
+    id:
+      type: string
+    email:
+      type: string
+      format: email
+`,
+    )
+
+    try {
+      const result = await createMarkdownFromOpenApi(openApiFile)
+      expect(result).toContain('Get user')
+      expect(result).toContain('id')
+      expect(result).toContain('email')
+    } finally {
+      await rm(tempDirectory, { recursive: true, force: true })
+    }
+  })
+
+  it('bundles external URL references when input is a URL', async () => {
+    const openApiDocument = `openapi: 3.1.1
+info:
+  title: Url Ref API
+  version: 1.0.0
+paths:
+  /users:
+    get:
+      summary: List users
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: './schemas/user.yaml#/UserList'
+`
+    const userSchema = `UserList:
+  type: array
+  items:
+    type: object
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+`
+
+    const server = createServer((request: IncomingMessage, response: ServerResponse) => {
+      if (request.url === '/openapi.yaml') {
+        response.writeHead(200, { 'Content-Type': 'application/yaml' })
+        response.end(openApiDocument)
+        return
+      }
+
+      if (request.url === '/schemas/user.yaml') {
+        response.writeHead(200, { 'Content-Type': 'application/yaml' })
+        response.end(userSchema)
+        return
+      }
+
+      response.writeHead(404)
+      response.end()
+    })
+
+    await new Promise<void>((resolve) => {
+      server.listen(0, '127.0.0.1', () => resolve())
+    })
+
+    const address = server.address()
+    const port = typeof address === 'object' && address ? address.port : 0
+    const documentUrl = `http://127.0.0.1:${port}/openapi.yaml`
+
+    try {
+      const result = await createMarkdownFromOpenApi(documentUrl)
+      expect(result).toContain('List users')
+      expect(result).toContain('id')
+      expect(result).toContain('name')
+    } finally {
+      await new Promise<void>((resolve, reject) => {
+        server.close((error?: Error) => {
+          if (error) {
+            reject(error)
+            return
+          }
+
+          resolve()
+        })
+      })
+    }
   })
 })

@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { json2xml } from '@scalar/helpers/file/json2xml'
-import type { OpenAPIV3_1 } from '@scalar/openapi-types'
+import type { MaybeRefSchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/schema'
 
 withDefaults(
   defineProps<{
     xml?: boolean
-    modelValue: OpenAPIV3_1.SchemaObject
+    modelValue: MaybeRefSchemaObject
   }>(),
   {
     xml: false,

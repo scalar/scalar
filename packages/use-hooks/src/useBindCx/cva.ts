@@ -15,6 +15,8 @@ const tw = extendTailwindMerge({
     classGroups: {
       'font-size': ['text-3xs', 'text-xxs'],
       'font-weight': ['font-sidebar', 'font-sidebar-active'],
+      'max-w': [{ 'max-w': [(value: any) => Boolean(value)] }],
+      'w': [{ 'w': [(value: any) => Boolean(value)] }],
     },
   },
 })

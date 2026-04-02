@@ -55,12 +55,12 @@
     "CHANGELOG.md"
   ],
   "dependencies": {
-    "@codemirror/lang-javascript": "^6.2.4",
+    "@codemirror/lang-javascript": "^6.2.5",
     "@scalar/helpers": "workspace:*",
     "@headlessui/vue": "catalog:*",
     "@scalar/components": "workspace:*",
     "@scalar/oas-utils": "workspace:*",
-    "postman-sandbox": "^6.5.0",
+    "postman-sandbox": "^6.6.1",
     "vue": "catalog:*",
     "@types/postman-collection": "^3.5.11",
     "postman-collection": "^5.2.0",

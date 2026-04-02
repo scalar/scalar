@@ -970,6 +970,20 @@ If you like to run your own, check out our [example proxy written in Go](https:/
 
 Please note: You may not use just any reverse proxy, but need to use a proxy that adheres to the Scalar Proxy API. See the example to learn more.
 
+#### oauth2RedirectUri
+
+**Type:** `string`
+
+Default OAuth 2.0 redirect URI used to prefill authorization code and implicit flows in the API client.
+
+This is useful for desktop wrappers like Electron where the page URL is often `file://...`, which OAuth providers usually reject.
+
+```javascript
+{
+  oauth2RedirectUri: 'myapp://oauth/callback'
+}
+```
+
 #### searchHotKey
 
 **Type:** `string`

@@ -44,6 +44,13 @@ export const baseConfigurationSchema = z.object({
   hideClientButton: z.boolean().optional().default(false).catch(false),
   /** URL to a request proxy for the API client */
   proxyUrl: z.string().optional(),
+  /**
+   * Default OAuth 2.0 redirect URI used to prefill auth flows in the API client.
+   *
+   * This is especially useful in desktop wrappers (for example Electron),
+   * where `window.location` can be a `file://` URL that OAuth providers reject.
+   */
+  oauth2RedirectUri: z.string().optional(),
   /** Key used with CTRL/CMD to open the search modal (defaults to 'k' e.g. CMD+k) */
   searchHotKey: z
     .enum([

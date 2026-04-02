@@ -1,5 +1,5 @@
+import { formatBytes } from '@scalar/helpers/formatters/format-bytes'
 import type { ResponseInstance } from '@scalar/oas-utils/entities/spec'
-import prettyBytes from 'pretty-bytes'
 
 /** Extract content length from headers */
 export const getContentLength = (response: ResponseInstance) => {
@@ -12,5 +12,5 @@ export const getContentLength = (response: ResponseInstance) => {
     return undefined
   }
 
-  return prettyBytes(contentLength)
+  return formatBytes(contentLength)
 }

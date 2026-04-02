@@ -56,7 +56,7 @@
   },
   "devDependencies": {
     "@hono/node-server": "catalog:*",
-    "@hono/zod-openapi": "^1.2.0",
+    "@hono/zod-openapi": "^1.2.4",
     "@scalar/openapi-to-markdown": "workspace:*",
     "hono": "catalog:*",
     "vite": "catalog:*",
