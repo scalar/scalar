@@ -211,8 +211,6 @@ const handleExecute = async () => {
     requestBodyCompositionSelection,
   })
 
-  const envVariables = getEnvironmentVariables(environment)
-
   // Stop any previous streaming response
   if (response.value && 'reader' in response.value) {
     response.value.reader.cancel()
@@ -240,6 +238,8 @@ const handleExecute = async () => {
     'beforeRequest',
     plugins,
   )
+
+  const envVariables = getEnvironmentVariables(environment)
 
   // Build the fetch Request after hooks may have mutated the factory
   const requestResult = (() => {
