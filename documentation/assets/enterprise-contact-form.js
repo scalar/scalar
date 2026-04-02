@@ -80,28 +80,28 @@ const initEnterpriseContactForm = () => {
       submitButton.textContent = 'Submitting...'
     }
 
-    const formData = new FormData(form)
-    const body = new URLSearchParams()
-
-    for (const [key, value] of formData.entries()) {
-      if (typeof value === 'string') {
-        body.append(key, value)
-      }
-    }
-
-    const notes = createNotes(formData)
-    if (notes) {
-      body.set('notes', notes)
-    }
-
-    const submitUrl = form.dataset.submitUrl || form.getAttribute('action') || ''
-
-    if (!submitUrl || submitUrl.startsWith('#')) {
-      setFeedback(feedback, 'Form endpoint is unavailable. Please try again later.', 'is-error')
-      return
-    }
-
     try {
+      const formData = new FormData(form)
+      const body = new URLSearchParams()
+
+      for (const [key, value] of formData.entries()) {
+        if (typeof value === 'string') {
+          body.append(key, value)
+        }
+      }
+
+      const notes = createNotes(formData)
+      if (notes) {
+        body.set('notes', notes)
+      }
+
+      const submitUrl = form.dataset.submitUrl || form.getAttribute('action') || ''
+
+      if (!submitUrl || submitUrl.startsWith('#')) {
+        setFeedback(feedback, 'Form endpoint is unavailable. Please try again later.', 'is-error')
+        return
+      }
+
       const response = await fetch(submitUrl, {
         method: 'POST',
         headers: {
