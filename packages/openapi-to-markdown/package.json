@@ -21,7 +21,7 @@
     "node": ">=22"
   },
   "scripts": {
-    "build": "vite build && vue-tsc -p tsconfig.build.json",
+    "build": "vite build && tsup --config tsup.cli.config.ts && vue-tsc -p tsconfig.build.json",
     "dev": "tsx watch playground/index.ts",
     "test": "vitest",
     "types:check": "vue-tsc --noEmit"
@@ -75,6 +75,7 @@
     "@vitejs/plugin-vue": "catalog:*",
     "@vue/test-utils": "catalog:*",
     "hono": "catalog:*",
+    "tsup": "^8.5.1",
     "vite": "catalog:*",
     "vitest": "catalog:*",
     "vue": "catalog:*"

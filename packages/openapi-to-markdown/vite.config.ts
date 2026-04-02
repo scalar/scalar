@@ -6,7 +6,7 @@ import { defineConfig } from 'vite'
 import { createExternalsFromPackageJson, createLibEntry, findEntryPoints } from '../../tooling/scripts/vite-lib-config'
 
 const external = createExternalsFromPackageJson()
-const entryPaths = [...new Set([...(await findEntryPoints()), './src/cli.ts'])]
+const entryPaths = await findEntryPoints()
 const entry = createLibEntry(entryPaths, import.meta.dirname)
 
 export default defineConfig({
