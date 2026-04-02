@@ -394,7 +394,7 @@ Validate contracts early so exploration and testing stay tied to the same API de
     color: var(--scalar-color-1);
   }
   .enterprise-req {
-    color: var(--scalar-color-red, #c62828);
+    color: var(--scalar-color-2);
     margin-left: 2px;
   }
   .enterprise-demo-field input,
