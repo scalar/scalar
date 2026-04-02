@@ -1,3 +1,5 @@
+import { deepClone } from '@scalar/workspace-store/helpers/deep-clone'
+
 /**
  * Deep-clones plain data for use where mutation must not affect the source.
  *
@@ -15,7 +17,7 @@
  */
 export const safeDeepClone = <T>(value: T): T => {
   if (typeof window === 'undefined') {
-    return JSON.parse(JSON.stringify(value)) as T
+    return deepClone(value)
   }
   return window.structuredClone(value) as T
 }
