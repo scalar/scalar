@@ -16,10 +16,10 @@ npm add @scalar/openapi-types
 ## Usage
 
 ```ts
-import type { OpenAPI } from '@scalar/openapi-types'
+import type { Document } from '@scalar/openapi-types/3.2.0'
 
-const file: OpenAPI.Document = {
-  openapi: '3.1.0',
+const file: Document = {
+  openapi: '3.2.0',
   info: {
     title: 'Hello World',
     version: '1.0.0',
