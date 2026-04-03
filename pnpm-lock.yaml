@@ -1358,6 +1358,9 @@ importers:
       '@scalar/types':
         specifier: workspace:*
         version: link:../types
+      '@scalar/workspace-store':
+        specifier: workspace:*
+        version: link:../workspace-store
     devDependencies:
       '@types/react':
         specifier: catalog:*

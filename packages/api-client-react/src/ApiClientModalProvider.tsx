@@ -1,31 +1,27 @@
 'use client'
 
-import type { ApiClient } from '@scalar/api-client/layouts/Modal'
-import type { OpenClientPayload } from '@scalar/api-client/libs'
+import type { RoutePayload } from '@scalar/api-client/v2/features/modal'
 import type { ApiClientConfiguration } from '@scalar/types/api-reference'
 import type { PropsWithChildren } from 'react'
-import { createContext, useContext, useEffect, useRef, useSyncExternalStore } from 'react'
+import { createContext, useContext, useEffect, useRef } from 'react'
 
-export type { OpenClientPayload }
-
-import { clientStore } from './client-store'
-
+import { type ApiClientController, createApiClientController } from './create-api-client-controller'
+import { createLazyApiClientModal } from './lazy-load'
 import './style.css'
 
-const ApiClientModalContext = createContext<ApiClient | null>(null)
+globalThis.__VUE_OPTIONS_API__ = true
+globalThis.__VUE_PROD_HYDRATION_MISMATCH_DETAILS__ = true
+globalThis.__VUE_PROD_DEVTOOLS__ = false
+
+const ApiClientModalContext = createContext<ApiClientController | null>(null)
 
 type Props = PropsWithChildren<{
   /** Choose a request to initially route to */
-  initialRequest?: OpenClientPayload
+  initialRequest?: RoutePayload
+
   /** Configuration for the Api Client */
   configuration?: Partial<ApiClientConfiguration>
 }>
-
-/** Ensures we only load createClient once */
-let isLoading = false
-
-/** Hack: this is strictly to prevent creation of extra clients as the store lags a bit */
-const clientDict: Record<string, ApiClient> = {}
 
 /**
  * Api Client Modal React
@@ -34,58 +30,36 @@ const clientDict: Record<string, ApiClient> = {}
  * Rebuilt to support multiple instances when using a unique spec.url
  */
 export const ApiClientModalProvider = ({ children, initialRequest, configuration = {} }: Props) => {
-  const key = configuration.spec?.url || 'default'
   const el = useRef<HTMLDivElement | null>(null)
-
-  const state = useSyncExternalStore(clientStore.subscribe, clientStore.getSnapshot, clientStore.getSnapshot)
-
-  // Lazyload the js to create the client, but we only wanna call this once
-  useEffect(() => {
-    const loadApiClientJs = async () => {
-      isLoading = true
-      const { createApiClientModal } = await import('@scalar/api-client/layouts/Modal')
-      clientStore.setCreateClient(createApiClientModal)
-    }
-    if (!isLoading) {
-      void loadApiClientJs()
-    }
-  }, [])
+  const apiClientController = useRef<ApiClientController | null>(null)
 
   useEffect(() => {
-    if (!el.current || !state.createClient || clientDict[key]) {
-      return () => null
+    const host = el.current
+    if (!host) {
+      return
     }
 
-    // Check for cached client first
-    const { client: _client } = state.createClient({
-      el: el.current,
-      configuration,
-    })
+    const initializeModal = async () => {
+      const { apiClient, workspaceStore } = await createLazyApiClientModal({
+        el: host,
+        options: configuration,
+      })
 
-    const updateConfig = async () => {
-      await _client.updateConfig(configuration!)
+      apiClientController.current = createApiClientController(apiClient, workspaceStore)
+
+      // Perform initial routing
       if (initialRequest) {
-        _client.route(initialRequest)
+        apiClientController.current.route(initialRequest)
       }
     }
 
-    // Add the client to the store and dict
-    clientStore.addClient(key, _client)
-    clientDict[key] = _client
+    void initializeModal()
 
-    // We update the config as we are using the sync version
-    void updateConfig()
-
-    // Ensure we unmount the vue app on unmount
-    return () => {
-      _client.app.unmount()
-      clientStore.removeClient(key)
-      delete clientDict[key]
-    }
-  }, [el.current, state.createClient])
+    return () => apiClientController.current?.app.unmount()
+  }, [el])
 
   return (
-    <ApiClientModalContext.Provider value={state.clientDict[key] ?? null}>
+    <ApiClientModalContext.Provider value={apiClientController.current}>
       <div
         className="scalar-app"
         ref={el}
@@ -95,4 +69,4 @@ export const ApiClientModalProvider = ({ children, initialRequest, configuration
   )
 }
 
-export const useApiClientModal = (): ApiClient | null => useContext(ApiClientModalContext)
+export const useApiClientModal = (): ApiClientController | null => useContext(ApiClientModalContext)
