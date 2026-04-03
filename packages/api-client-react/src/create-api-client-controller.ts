@@ -16,6 +16,7 @@ export type ApiClientController = ApiClientModal & {
 export const createApiClientController = (apiClient: ApiClientModal, workspaceStore: WorkspaceStore) =>
   ({
     ...apiClient,
+    open: (payload) => console.log('open', payload),
     store: workspaceStore,
     addDocument: (input) => {
       const documentKey =

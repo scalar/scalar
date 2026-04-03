@@ -3,7 +3,7 @@
 import type { RoutePayload } from '@scalar/api-client/v2/features/modal'
 import type { ApiClientConfiguration } from '@scalar/types/api-reference'
 import type { PropsWithChildren } from 'react'
-import { createContext, useContext, useEffect, useRef } from 'react'
+import { createContext, useContext, useEffect, useRef, useState } from 'react'
 
 import { type ApiClientController, createApiClientController } from './create-api-client-controller'
 import { createLazyApiClientModal } from './lazy-load'
@@ -31,7 +31,7 @@ type Props = PropsWithChildren<{
  */
 export const ApiClientModalProvider = ({ children, initialRequest, configuration = {} }: Props) => {
   const el = useRef<HTMLDivElement | null>(null)
-  const apiClientController = useRef<ApiClientController | null>(null)
+  const [apiClientController, setApiClientController] = useState<ApiClientController | null>(null)
 
   useEffect(() => {
     const host = el.current
@@ -45,21 +45,20 @@ export const ApiClientModalProvider = ({ children, initialRequest, configuration
         options: configuration,
       })
 
-      apiClientController.current = createApiClientController(apiClient, workspaceStore)
+      setApiClientController(createApiClientController(apiClient, workspaceStore))
 
       // Perform initial routing
       if (initialRequest) {
-        apiClientController.current.route(initialRequest)
+        apiClientController?.route(initialRequest)
       }
     }
-
     void initializeModal()
 
-    return () => apiClientController.current?.app.unmount()
+    return () => apiClientController?.app.unmount()
   }, [el])
 
   return (
-    <ApiClientModalContext.Provider value={apiClientController.current}>
+    <ApiClientModalContext.Provider value={apiClientController}>
       <div
         className="scalar-app"
         ref={el}
