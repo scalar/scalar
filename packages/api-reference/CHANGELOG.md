@@ -1,5 +1,19 @@
 # @scalar/api-reference
 
+## 1.50.0
+
+### Minor Changes
+
+- [#8524](https://github.com/scalar/scalar/pull/8524): feat: move request logic on the store and generate a request builder
+- [#8609](https://github.com/scalar/scalar/pull/8609): feat: display tag groups for classic layout
+
+### Patch Changes
+
+- [#8657](https://github.com/scalar/scalar/pull/8657): test(api-reference): add regression coverage for hiddenClients source switching
+- [#8642](https://github.com/scalar/scalar/pull/8642): refactor(api-reference): remove openapi-types dependency and align with workspace-store types
+- [#8659](https://github.com/scalar/scalar/pull/8659): fix search indexing to include path-level parameters and response examples for operations
+- [#8650](https://github.com/scalar/scalar/pull/8650): fix: ensure we have a introduction entry on the sidear by default
+
 ## 1.49.8
 
 ### Patch Changes

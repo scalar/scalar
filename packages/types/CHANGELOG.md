@@ -1,5 +1,12 @@
 # @scalar/types
 
+## 0.7.6
+
+### Patch Changes
+
+- [#8661](https://github.com/scalar/scalar/pull/8661): fix(api-client): support OAuth redirect callback override for Electron-friendly flows
+- [#8664](https://github.com/scalar/scalar/pull/8664): refactor: replace wildcard export barrels with explicit named re-exports
+
 ## 0.7.5
 
 ### Patch Changes

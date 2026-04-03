@@ -1,5 +1,16 @@
 # @scalar/openapi-to-markdown
 
+## 0.5.0
+
+### Minor Changes
+
+- [#8710](https://github.com/scalar/scalar/pull/8710): feat(openapi-to-markdown): support rendering single operations by selector (operationId, path+method, and JSON pointer), including full `#/...` pointer support.
+- [#8638](https://github.com/scalar/scalar/pull/8638): refactor openapi-to-markdown to use workspace-store and json-magic bundling instead of openapi-parser, while preserving the existing public API and adding file/url reference bundling support.
+
+### Patch Changes
+
+- [#8710](https://github.com/scalar/scalar/pull/8710): Reject unsupported `connect` operation selectors so markdown generation fails with a clear error instead of silently producing an empty operations section.
+
 ## 0.4.16
 
 ## 0.4.15

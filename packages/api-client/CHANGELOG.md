@@ -1,5 +1,27 @@
 # @scalar/api-client
 
+## 2.40.0
+
+### Minor Changes
+
+- [#8524](https://github.com/scalar/scalar/pull/8524): feat: move request logic on the store and generate a request builder
+
+### Patch Changes
+
+- [#8692](https://github.com/scalar/scalar/pull/8692): feat: replace pretty-bytes dependency with internal helper
+- [#8518](https://github.com/scalar/scalar/pull/8518): test(api-client): add regression coverage for oauth2 clientCredentials security body
+
+  Adds a regression test that exercises the full oauth2 merge + authorize path for
+  `clientCredentials` and verifies `x-scalar-security-body` fields (for example
+  `audience`) are preserved and sent in the token request body.
+
+- [#8661](https://github.com/scalar/scalar/pull/8661): fix(api-client): support OAuth redirect callback override for Electron-friendly flows
+- [#8634](https://github.com/scalar/scalar/pull/8634): feat: implement improved saving UI
+- [#8647](https://github.com/scalar/scalar/pull/8647): feat: move addressBar path change from debounce to blur
+- [#8713](https://github.com/scalar/scalar/pull/8713): feat: handle pasting and typing urls in the path box
+- [#8698](https://github.com/scalar/scalar/pull/8698): fix: missing reference parameters by making skipping behavior opt-in
+- [#8652](https://github.com/scalar/scalar/pull/8652): feat: keep form-data file delete action accessible on touch
+
 ## 2.39.4
 
 ### Patch Changes
