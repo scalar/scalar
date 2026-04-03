@@ -492,19 +492,43 @@
         },
         {
           "from": "/scalar/scalar-mock-server/getting-started",
-          "to": "/products/mock-server/getting-started"
+          "to": "/tools/mock-server/getting-started"
         },
         {
           "from": "/scalar/scalar-mock-server/custom-request-handler",
-          "to": "/products/mock-server/custom-request-handler"
+          "to": "/tools/mock-server/custom-request-handler"
         },
         {
           "from": "/scalar/scalar-mock-server/data-seeding",
-          "to": "/products/mock-server/data-seeding"
+          "to": "/tools/mock-server/data-seeding"
         },
         {
           "from": "/scalar/scalar-mock-server/docker",
-          "to": "/products/mock-server/docker"
+          "to": "/tools/mock-server/docker"
+        },
+        {
+          "from": "/products/mock-server",
+          "to": "/tools/mock-server/getting-started"
+        },
+        {
+          "from": "/products/mock-server/getting-started",
+          "to": "/tools/mock-server/getting-started"
+        },
+        {
+          "from": "/products/mock-server/custom-request-handler",
+          "to": "/tools/mock-server/custom-request-handler"
+        },
+        {
+          "from": "/products/mock-server/data-seeding",
+          "to": "/tools/mock-server/data-seeding"
+        },
+        {
+          "from": "/products/mock-server/docker",
+          "to": "/tools/mock-server/docker"
+        },
+        {
+          "from": "/products/mock-server/changelog",
+          "to": "/tools/mock-server/changelog"
         },
         {
           "from": "/download",
@@ -575,11 +599,6 @@
         "type": "link",
         "title": "Home",
         "to": "/"
-      },
-      {
-        "type": "link",
-        "title": "Agent",
-        "to": "https://agent.scalar.com"
       },
       {
         "type": "link",
@@ -1035,6 +1054,67 @@
                         "title": "Row"
                       }
                     }
+                  }
+                }
+              },
+              "/agent": {
+                "title": "MCP & Agent",
+                "description": "AI-powered customer support agent that understands your API documentation and helps users with technical questions.",
+                "type": "group",
+                "mode": "nested",
+                "icon": "phosphor/regular/sparkle",
+                "children": {
+                  "getting-started": {
+                    "title": "Getting Started",
+                    "type": "page",
+                    "filepath": "documentation/guides/agent/getting-started.md",
+                    "description": "Deploy an AI assistant that provides instant, accurate answers based on your API documentation and specs.",
+                    "head": {
+                      "links": [
+                        {
+                          "rel": "canonical",
+                          "href": "https://scalar.com/products/agent/getting-started"
+                        }
+                      ],
+                      "meta": [
+                        {
+                          "name": "description",
+                          "content": "Deploy an AI assistant that provides instant, accurate answers based on your API documentation and specs."
+                        },
+                        {
+                          "property": "og:title",
+                          "content": "Getting Started with Agent - AI-Powered API Support"
+                        },
+                        {
+                          "property": "og:description",
+                          "content": "Deploy an AI assistant that provides instant, accurate answers based on your API documentation and specs."
+                        },
+                        {
+                          "name": "robots",
+                          "content": "index, follow"
+                        }
+                      ]
+                    }
+                  },
+                  "mcp": {
+                    "title": "MCP",
+                    "type": "page",
+                    "filepath": "documentation/guides/agent/mcp.md"
+                  },
+                  "sdk": {
+                    "title": "SDK",
+                    "type": "page",
+                    "filepath": "documentation/guides/agent/sdk.md"
+                  },
+                  "pricing": {
+                    "title": "Pricing",
+                    "type": "page",
+                    "filepath": "documentation/guides/agent/pricing.md"
+                  },
+                  "key": {
+                    "title": "Key",
+                    "type": "page",
+                    "filepath": "documentation/guides/agent/key.md"
                   }
                 }
               },
@@ -1654,67 +1734,6 @@
                   }
                 }
               },
-              "/agent": {
-                "title": "MCP & Agent",
-                "description": "AI-powered customer support agent that understands your API documentation and helps users with technical questions.",
-                "type": "group",
-                "mode": "nested",
-                "icon": "phosphor/regular/cpu",
-                "children": {
-                  "getting-started": {
-                    "title": "Getting Started",
-                    "type": "page",
-                    "filepath": "documentation/guides/agent/getting-started.md",
-                    "description": "Deploy an AI assistant that provides instant, accurate answers based on your API documentation and specs.",
-                    "head": {
-                      "links": [
-                        {
-                          "rel": "canonical",
-                          "href": "https://scalar.com/products/agent/getting-started"
-                        }
-                      ],
-                      "meta": [
-                        {
-                          "name": "description",
-                          "content": "Deploy an AI assistant that provides instant, accurate answers based on your API documentation and specs."
-                        },
-                        {
-                          "property": "og:title",
-                          "content": "Getting Started with Agent - AI-Powered API Support"
-                        },
-                        {
-                          "property": "og:description",
-                          "content": "Deploy an AI assistant that provides instant, accurate answers based on your API documentation and specs."
-                        },
-                        {
-                          "name": "robots",
-                          "content": "index, follow"
-                        }
-                      ]
-                    }
-                  },
-                  "mcp": {
-                    "title": "MCP",
-                    "type": "page",
-                    "filepath": "documentation/guides/agent/mcp.md"
-                  },
-                  "sdk": {
-                    "title": "SDK",
-                    "type": "page",
-                    "filepath": "documentation/guides/agent/sdk.md"
-                  },
-                  "pricing": {
-                    "title": "Pricing",
-                    "type": "page",
-                    "filepath": "documentation/guides/agent/pricing.md"
-                  },
-                  "key": {
-                    "title": "Key",
-                    "type": "page",
-                    "filepath": "documentation/guides/agent/key.md"
-                  }
-                }
-              },
               "/api-client": {
                 "title": "API Client",
                 "description": "Modern, open-source API testing client with OpenAPI integration, collections, and a beautiful interface.",
@@ -1753,67 +1772,6 @@
                         }
                       ]
                     }
-                  }
-                }
-              },
-              "/mock-server": {
-                "title": "Mock Server",
-                "description": "Generate realistic mock API servers from OpenAPI specifications for testing, development, and prototyping.",
-                "type": "group",
-                "mode": "nested",
-                "icon": "phosphor/regular/cloud",
-                "children": {
-                  "getting-started": {
-                    "title": "Getting Started",
-                    "filepath": "documentation/guides/mock-server/getting-started.md",
-                    "type": "page",
-                    "description": "Spin up realistic mock API servers instantly from OpenAPI specs with custom handlers and data seeding.",
-                    "head": {
-                      "links": [
-                        {
-                          "rel": "canonical",
-                          "href": "https://scalar.com/products/mock-server/getting-started"
-                        }
-                      ],
-                      "meta": [
-                        {
-                          "name": "description",
-                          "content": "Spin up realistic mock API servers instantly from OpenAPI specs with custom handlers and data seeding."
-                        },
-                        {
-                          "property": "og:title",
-                          "content": "Getting Started with Mock Server - API Mocking"
-                        },
-                        {
-                          "property": "og:description",
-                          "content": "Spin up realistic mock API servers instantly from OpenAPI specs with custom handlers and data seeding."
-                        },
-                        {
-                          "name": "robots",
-                          "content": "index, follow"
-                        }
-                      ]
-                    }
-                  },
-                  "docker": {
-                    "title": "Docker",
-                    "filepath": "documentation/guides/mock-server/docker.md",
-                    "type": "page"
-                  },
-                  "custom-request-handler": {
-                    "title": "Custom Request Handlers",
-                    "filepath": "documentation/guides/mock-server/custom-request-handler.md",
-                    "type": "page"
-                  },
-                  "data-seeding": {
-                    "title": "Data Seeding",
-                    "filepath": "documentation/guides/mock-server/data-seeding.md",
-                    "type": "page"
-                  },
-                  "changelog": {
-                    "title": "Changelog",
-                    "filepath": "packages/mock-server/CHANGELOG.md",
-                    "type": "page"
                   }
                 }
               }
@@ -1867,6 +1825,67 @@
                     "filepath": "documentation/guides/cli/commands.md",
                     "type": "page",
                     "title": "Commands"
+                  }
+                }
+              },
+              "/mock-server": {
+                "title": "Mock Server",
+                "description": "Generate realistic mock API servers from OpenAPI specifications for testing, development, and prototyping.",
+                "type": "group",
+                "mode": "nested",
+                "icon": "phosphor/regular/cloud",
+                "children": {
+                  "getting-started": {
+                    "title": "Getting Started",
+                    "filepath": "documentation/guides/mock-server/getting-started.md",
+                    "type": "page",
+                    "description": "Spin up realistic mock API servers instantly from OpenAPI specs with custom handlers and data seeding.",
+                    "head": {
+                      "links": [
+                        {
+                          "rel": "canonical",
+                          "href": "https://scalar.com/tools/mock-server/getting-started"
+                        }
+                      ],
+                      "meta": [
+                        {
+                          "name": "description",
+                          "content": "Spin up realistic mock API servers instantly from OpenAPI specs with custom handlers and data seeding."
+                        },
+                        {
+                          "property": "og:title",
+                          "content": "Getting Started with Mock Server - API Mocking"
+                        },
+                        {
+                          "property": "og:description",
+                          "content": "Spin up realistic mock API servers instantly from OpenAPI specs with custom handlers and data seeding."
+                        },
+                        {
+                          "name": "robots",
+                          "content": "index, follow"
+                        }
+                      ]
+                    }
+                  },
+                  "docker": {
+                    "title": "Docker",
+                    "filepath": "documentation/guides/mock-server/docker.md",
+                    "type": "page"
+                  },
+                  "custom-request-handler": {
+                    "title": "Custom Request Handlers",
+                    "filepath": "documentation/guides/mock-server/custom-request-handler.md",
+                    "type": "page"
+                  },
+                  "data-seeding": {
+                    "title": "Data Seeding",
+                    "filepath": "documentation/guides/mock-server/data-seeding.md",
+                    "type": "page"
+                  },
+                  "changelog": {
+                    "title": "Changelog",
+                    "filepath": "packages/mock-server/CHANGELOG.md",
+                    "type": "page"
                   }
                 }
               },

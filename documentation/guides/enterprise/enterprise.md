@@ -8,7 +8,7 @@
 </div>
 
 <div class="flex gap-2">
-  <a class="t-editor__button" href="#contact">Contact sales</a>
+  <a class="t-editor__button" href="https://scalar.cal.com/forms/142d1e65-97d2-4d03-94c3-96f98ddef95a" target="_blank">Contact sales</a>
   <a class="t-editor__button" href="https://dashboard.scalar.com/register">Get started</a>
 </div>
 
@@ -33,7 +33,7 @@
     <scalar-icon src="https://cdn.scalar.com/marketing/landing/logo-lufthansa.svg"></scalar-icon>
   </div>
   <div class="logowall-item">
-    <scalar-icon src="https://cdn.scalar.com/marketing/landing/logo-partech.svg"></scalar-icon>
+    <scalar-icon src="https://cdn.scalar.com/marketing/landing/logo-partech.svg?v=2"></scalar-icon>
   </div>
 </div>
 
@@ -100,100 +100,19 @@ Validate contracts early so exploration and testing stay tied to the same API de
 </div>
 </div>
 
-<div id="contact" class="cta enterprise-contact-wrap">
 
-<div class="enterprise-contact-section">
-
-  <h3 class="enterprise-demo-form-title text-xl text-center font-bold">Contact us</h3>
-  <p class="enterprise-demo-form-lead text-center">Share your goals and we will follow up with security materials, pricing, and next steps.</p>
-  <form
-    id="enterprise-contact-form"
-    class="enterprise-demo-form"
-    action="#contact"
-    data-submit-url="https://app.loops.so/api/newsletter-form/clksm7aj203tclb0olg1z2xb3"
-    method="POST"
-  >
-    <input type="hidden" name="source" value="Docs Enterprise Contact Form" />
-    <input type="hidden" name="userGroup" value="Enterprise demo request" />
-    <div class="enterprise-demo-form-row">
-      <div class="enterprise-demo-field">
-        <label for="ec-first">First name<span class="enterprise-req" aria-hidden="true">*</span></label>
-        <input id="ec-first" name="firstName" type="text" required autocomplete="given-name" placeholder="Jane" />
-      </div>
-      <div class="enterprise-demo-field">
-        <label for="ec-last">Last name<span class="enterprise-req" aria-hidden="true">*</span></label>
-        <input id="ec-last" name="lastName" type="text" required autocomplete="family-name" placeholder="Doe" />
-      </div>
-    </div>
-    <div class="enterprise-demo-form-row">
-      <div class="enterprise-demo-field">
-        <label for="ec-email">Email address<span class="enterprise-req" aria-hidden="true">*</span></label>
-        <input id="ec-email" name="email" type="email" required autocomplete="email" placeholder="you@company.com" />
-      </div>
-      <div class="enterprise-demo-field">
-        <label for="ec-title">Job title<span class="enterprise-req" aria-hidden="true">*</span></label>
-        <input id="ec-title" name="jobTitle" type="text" required autocomplete="organization-title" placeholder="Director of Platform" />
-      </div>
-    </div>
-    <div class="enterprise-demo-field enterprise-demo-field-full">
-      <label for="ec-company">Company name<span class="enterprise-req" aria-hidden="true">*</span></label>
-      <input id="ec-company" name="companyName" type="text" required autocomplete="organization" placeholder="Acme Inc." />
-    </div>
-    <fieldset class="enterprise-demo-field enterprise-demo-field-full enterprise-checkbox-group">
-      <legend>How can we help?<span class="enterprise-req" aria-hidden="true">*</span></legend>
-      <p class="enterprise-checkbox-help">Select all that apply.</p>
-      <label class="enterprise-checkbox-option">
-        <input type="checkbox" name="howCanWeHelp" value="Enterprise pricing &amp; procurement" required />
-        <span>Enterprise pricing &amp; procurement</span>
-      </label>
-      <label class="enterprise-checkbox-option">
-        <input type="checkbox" name="howCanWeHelp" value="SSO / security review" />
-        <span>SSO / security review</span>
-      </label>
-      <label class="enterprise-checkbox-option">
-        <input type="checkbox" name="howCanWeHelp" value="Migration from another tool" />
-        <span>Migration from another tool</span>
-      </label>
-      <label class="enterprise-checkbox-option">
-        <input type="checkbox" name="howCanWeHelp" value="MCP &amp; AI agents" />
-        <span>MCP &amp; AI agents</span>
-      </label>
-      <label class="enterprise-checkbox-option">
-        <input type="checkbox" name="howCanWeHelp" value="Self-hosting" />
-        <span>Self-hosting</span>
-      </label>
-      <label class="enterprise-checkbox-option">
-        <input type="checkbox" name="howCanWeHelp" value="Other" />
-        <span>Other</span>
-      </label>
-    </fieldset>
-    <div class="enterprise-demo-field enterprise-demo-field-full">
-      <label for="ec-context">Additional context<span class="enterprise-req" aria-hidden="true">*</span></label>
-      <textarea id="ec-context" name="additionalContext" required rows="4" placeholder="Tell us how we can help you"></textarea>
-    </div>
-    <p class="enterprise-demo-support">
-      Have a support question? <a href="mailto:support@scalar.com">Contact support</a>.
-    </p>
-    <p class="enterprise-demo-legal">
-      By submitting this form, you agree to our <a href="/legal/privacy-policy">Privacy Policy</a>. Use <a href="https://scalar.cal.com/scalar/chat-with-scalar" target="_blank" rel="noopener noreferrer">book a call</a> if you prefer not to submit here.
-    </p>
-    <button type="submit" class="enterprise-demo-submit">Submit request</button>
-    <p id="enterprise-demo-feedback" class="enterprise-demo-feedback" role="status" aria-live="polite"></p>
-  </form>
-  <div id="enterprise-demo-success" class="enterprise-demo-success" role="status" aria-live="polite">
-    <h4>Thanks, your request is in.</h4>
-    <p>We will follow up shortly with pricing, security materials, and next steps.</p>
-    <button type="button" class="enterprise-demo-submit enterprise-demo-submit-secondary" id="enterprise-demo-reset">
-      Submit another request
-    </button>
-  </div>
-  <p class="enterprise-demo-alt">
-    Prefer to pick a time? <a href="https://scalar.cal.com/scalar/chat-with-scalar" target="_blank" rel="noopener noreferrer">Book a demo</a> · <a href="https://dashboard.scalar.com/register">Get started</a>
+<div class="cta flex flex-col gap-3 small-test">
+  <scalar-heading level="2" class="text-balance" slug="what-are-you-waiting-for">Ready to Modernize your API Lifecycle?</scalar-heading>
+  <p>
+    We're committed to enabling developers and companies to practice the highest
+    of API industry standards.
   </p>
-
+  <div class="flex gap-2 mb-11">
+    <a class="t-editor__button" href="https://scalar.cal.com/forms/142d1e65-97d2-4d03-94c3-96f98ddef95a" target="_blank">Book a Demo</a>
+    <a class="t-editor__button" href="https://dashboard.scalar.com/register">Get Started</a>
+  </div>
 </div>
 
-</div>
 
 <div class="getting-started footer container-full">
   <div class="footer-content">
