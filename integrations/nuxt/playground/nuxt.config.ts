@@ -6,12 +6,6 @@ export default defineNuxtConfig({
 
   modules: ['../src/module'],
 
-  scalar: {
-    pathRouting: {
-      basePath: '/developer/api',
-    },
-  },
-
   nitro: {
     experimental: {
       openAPI: true,
