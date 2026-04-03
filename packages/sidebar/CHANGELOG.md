@@ -1,5 +1,12 @@
 # @scalar/sidebar
 
+## 0.8.17
+
+### Patch Changes
+
+- [#8716](https://github.com/scalar/scalar/pull/8716): fix: remove smooth scrolling from sidebar
+- [#8715](https://github.com/scalar/scalar/pull/8715): fix: correct main field in package.json to point to .js instead of non-existent .cjs files
+
 ## 0.8.16
 
 ## 0.8.15

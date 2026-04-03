@@ -1,5 +1,11 @@
 # @scalar/fastify-api-reference
 
+## 1.50.0
+
+### Patch Changes
+
+- [#8664](https://github.com/scalar/scalar/pull/8664): refactor: replace wildcard export barrels with explicit named re-exports
+
 ## 1.49.8
 
 ## 1.49.7

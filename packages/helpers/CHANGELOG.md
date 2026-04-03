@@ -1,5 +1,12 @@
 # @scalar/helpers
 
+## 0.4.3
+
+### Patch Changes
+
+- [#8692](https://github.com/scalar/scalar/pull/8692): feat: replace pretty-bytes dependency with internal helper
+- [#8555](https://github.com/scalar/scalar/pull/8555): feat: add getMarkdownHeadings utility
+
 ## 0.4.2
 
 ### Patch Changes

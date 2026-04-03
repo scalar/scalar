@@ -68,6 +68,5 @@ export const scrollSidebarToTop = (id: string, offsetTop: number = DEFAULT_SCROL
 
   scroller.scrollTo({
     top: targetTop > 0 ? targetTop : 0,
-    behavior: 'smooth',
   })
 }

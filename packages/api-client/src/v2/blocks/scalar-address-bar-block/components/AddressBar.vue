@@ -38,6 +38,7 @@ import { getSelector } from '@scalar/helpers/dom/get-selector'
 import { REQUEST_METHODS } from '@scalar/helpers/http/http-info'
 import type { HttpMethod as HttpMethodType } from '@scalar/helpers/http/http-methods'
 import { replaceEnvVariables } from '@scalar/helpers/regex/replace-variables'
+import { extractServerFromPath } from '@scalar/helpers/url/extract-server-from-path'
 import { ScalarIconCopy, ScalarIconWarningCircle } from '@scalar/icons'
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
 import type {
@@ -103,15 +104,53 @@ const methodConflict = ref<HttpMethodType | null>(null)
 /** Whether there is a path or method conflict */
 const hasConflict = computed(() => methodConflict.value || pathConflict.value)
 
+/** Check if the path contains a server URL, extract it, and select or add the server */
+const checkForServer = (targetPath: string) => {
+  const extracted = extractServerFromPath(targetPath)
+  if (!extracted) {
+    return targetPath
+  }
+
+  const [url, newPath] = extracted
+
+  // Server is already selected — nothing to change
+  if (url === server?.url) {
+    return newPath
+  }
+
+  const matchingServer = servers.find((s) => s.url === url)
+
+  // Select the server if it already exists in the list
+  if (matchingServer) {
+    eventBus.emit('server:update:selected', {
+      url,
+      meta: serverMeta,
+    })
+  }
+  // Otherwise add it as a new operation-level server
+  else {
+    eventBus.emit('server:add:server', {
+      url,
+      select: true,
+      meta: {
+        type: 'operation',
+        path,
+        method,
+      },
+    })
+  }
+
+  return newPath
+}
+
 /** Emit the path/method update event with conflict handling */
 const emitPathMethodUpdate = (
   targetMethod: HttpMethodType,
   targetPath: string,
   blurTargetSelector: string | null = null,
 ): void => {
-  const normalizedPath = targetPath.startsWith('/')
-    ? targetPath
-    : `/${targetPath}`
+  const newPath = checkForServer(targetPath)
+  const normalizedPath = newPath.startsWith('/') ? newPath : `/${newPath}`
 
   eventBus.emit('operation:update:pathMethod', {
     meta: { method, path },
@@ -131,6 +170,16 @@ const emitPathMethodUpdate = (
         if (normalizedPath !== path) {
           pathConflict.value = normalizedPath
         }
+      }
+
+      // Edge case: pasting a full URL extracts the server but leaves the path unchanged.
+      // The CodeMirror DOM still shows the full URL, so we force it back to just the path.
+      if (
+        status === 'no-change' &&
+        addressBarRef.value?.codeMirrorRef?.textContent &&
+        addressBarRef.value.codeMirrorRef.textContent !== newPath
+      ) {
+        addressBarRef.value.setCodeMirrorContent(newPath)
       }
 
       // Re-trigger the click or focus event if we have a blur target selector
@@ -162,10 +211,14 @@ const handleMethodChange = (newMethod: HttpMethodType): void =>
 
 /**
  * Update the operation's path, handling conflicts also we extract the blur target selector to re-trigger click events
+ *
+ * We have special handling for the tab key to prevent it from triggering a click on the focused button
  */
 const handlePathBlur = (newPath: string, event: FocusEvent): void => {
   const relatedTarget = event.relatedTarget as Element | null
-  const blurTargetSelector = getSelector(relatedTarget)
+  const blurTargetSelector = tabbedOut.value ? null : getSelector(relatedTarget)
+
+  tabbedOut.value = false
 
   emitPathMethodUpdate(
     methodConflict.value ?? method,
@@ -179,9 +232,7 @@ const handlePathBackspace = (event: KeyboardEvent): void => {
   if ((event.target as HTMLElement)?.innerText === '\n') {
     eventBus.emit('server:update:selected', {
       url: '',
-      meta: {
-        type: 'document',
-      },
+      meta: serverMeta,
     })
   }
 }
@@ -204,6 +255,7 @@ const handlePathSubmit = (
 /** Handle focus events */
 const sendButtonRef = useTemplateRef('sendButtonRef')
 const addressBarRef = useTemplateRef('addressBarRef')
+const tabbedOut = ref(false)
 const handleFocusSendButton = () => sendButtonRef.value?.$el?.focus()
 
 const handleFocusAddressBar = (
@@ -349,7 +401,8 @@ defineExpose({
           :placeholder="server ? '' : 'Enter a URL'"
           server
           @blur="handlePathBlur"
-          @keydown.backspace="handlePathBackspace"
+          @keydown.delete="handlePathBackspace"
+          @keydown.tab="tabbedOut = true"
           @submit="handlePathSubmit" />
         <div class="fade-right" />
       </div>

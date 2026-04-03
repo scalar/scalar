@@ -1,5 +1,11 @@
 # @scalar/openapi-parser
 
+## 0.25.8
+
+### Patch Changes
+
+- [#8579](https://github.com/scalar/scalar/pull/8579): feat(openapi-parser): improve format validation error messages for $ref with non-ASCII characters
+
 ## 0.25.7
 
 ## 0.25.6
