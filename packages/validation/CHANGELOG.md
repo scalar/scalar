@@ -1,5 +1,11 @@
 # @scalar/validation
 
+## 0.3.0
+
+### Minor Changes
+
+- [#8633](https://github.com/scalar/scalar/pull/8633): feat: support union of object as direct child of intersection brench
+
 ## 0.2.0
 
 ### Minor Changes

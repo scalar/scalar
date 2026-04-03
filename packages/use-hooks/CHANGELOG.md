@@ -1,5 +1,11 @@
 # @scalar/use-hooks
 
+## 0.4.2
+
+### Patch Changes
+
+- [#8694](https://github.com/scalar/scalar/pull/8694): feat: add padding utilities to scalar themes
+
 ## 0.4.1
 
 ### Patch Changes

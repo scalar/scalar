@@ -1,5 +1,11 @@
 # @scalar/code-highlight
 
+## 0.3.2
+
+### Patch Changes
+
+- [#8664](https://github.com/scalar/scalar/pull/8664): refactor: replace wildcard export barrels with explicit named re-exports
+
 ## 0.3.1
 
 ### Patch Changes

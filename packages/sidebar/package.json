@@ -10,7 +10,7 @@
     "url": "git+https://github.com/scalar/scalar.git",
     "directory": "packages/sidebar"
   },
-  "version": "0.8.16",
+  "version": "0.8.17",
   "engines": {
     "node": ">=22"
   },
@@ -21,7 +21,7 @@
     "types:check": "vue-tsc --noEmit"
   },
   "type": "module",
-  "main": "./dist/index.cjs",
+  "main": "./dist/index.js",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {

@@ -1,5 +1,15 @@
 # @scalar/openapi-types
 
+## 0.7.0
+
+### Minor Changes
+
+- [#8641](https://github.com/scalar/scalar/pull/8641): remove experimental zod schema entrypoints from openapi-types
+
+### Patch Changes
+
+- [#8664](https://github.com/scalar/scalar/pull/8664): refactor: replace wildcard export barrels with explicit named re-exports
+
 ## 0.6.1
 
 ### Patch Changes

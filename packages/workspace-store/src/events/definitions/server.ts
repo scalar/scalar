@@ -21,9 +21,13 @@ export type ServerEvents = {
     meta: ServerMeta
   }
   /**
-   * Add a new blank server to the target collection
+   * Adds a new server, optionally setting it as the selected server and prefill the URL
    */
   'server:add:server': {
+    /** The URL of the server to add (optional) */
+    url?: string
+    /** Whether to set the server as the selected server (optional) */
+    select?: boolean
     /** The meta information for the server */
     meta: ServerMeta
   }

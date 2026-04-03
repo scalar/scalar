@@ -150,7 +150,9 @@ initDraggableElements()
 initGallery()
 
 const observer = new MutationObserver((records) => {
-  if (!records.some((r) => r.addedNodes.length)) return
+  if (!records.some((r) => r.addedNodes.length)) {
+    return
+  }
 
   initDraggableElements()
   initGallery()

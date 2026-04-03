@@ -1,5 +1,7 @@
 # @scalar/void-server
 
+## 2.4.4
+
 ## 2.4.3
 
 ### Patch Changes

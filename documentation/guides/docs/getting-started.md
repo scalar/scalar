@@ -29,7 +29,7 @@
     <scalar-icon src="https://cdn.scalar.com/marketing/landing/logo-flyio.svg"></scalar-icon>
   </div>
   <div class="logowall-item">
-    <scalar-icon src="https://cdn.scalar.com/marketing/landing/logo-sfcompute.svg"></scalar-icon>
+    <scalar-icon src="https://cdn.scalar.com/marketing/landing/logo-clerk.svg?v=2"></scalar-icon>
   </div>
 </div>
 
@@ -662,7 +662,6 @@ Put your content where you want: in your repository, any folder, or the Scalar E
       justify-content: start;
     }
     .logowall-item svg {
-      width: auto;
       max-width: 100%;
       height: 100%;
       max-height: 20px;
