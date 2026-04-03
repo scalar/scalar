@@ -1,11 +1,15 @@
 import type { ApiClientModal } from '@scalar/api-client/v2/features/modal'
+import type { ApiClientConfiguration } from '@scalar/types/api-reference'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 
 /** Tracks which documents are/have been loaded so we dont duplicate */
 const documentDict: Record<string, true> = {}
 
 /** Exactly one of `document` (inline OpenAPI) or `url` is required. */
-export type AddDocumentInput = { document: Record<string, unknown> } | { url: string }
+export type AddDocumentInput = { content?: Record<string, unknown>; url?: string }
+
+/** We don't really need all of the content types so we just accept an object instead */
+export type ReactApiClientConfiguration = Partial<Omit<ApiClientConfiguration, 'content' | 'url'> & AddDocumentInput>
 
 export type ApiClientController = ApiClientModal & {
   store: WorkspaceStore
@@ -16,11 +20,9 @@ export type ApiClientController = ApiClientModal & {
 export const createApiClientController = (apiClient: ApiClientModal, workspaceStore: WorkspaceStore) =>
   ({
     ...apiClient,
-    open: (payload) => console.log('open', payload),
     store: workspaceStore,
     addDocument: (input) => {
-      const documentKey =
-        'url' in input ? input.url : (input.document as { info?: { title?: string } })?.info?.title || ''
+      const documentKey = input.url || (input.content as { info?: { title?: string } })?.info?.title || ''
 
       // Ensure we only load each document once
       if (documentDict[documentKey]) {
@@ -29,14 +31,14 @@ export const createApiClientController = (apiClient: ApiClientModal, workspaceSt
       documentDict[documentKey] = true
 
       void workspaceStore.addDocument(
-        'document' in input
+        input.content
           ? {
               name: documentKey,
-              document: input.document,
+              document: input.content,
             }
           : {
               name: documentKey,
-              url: input.url,
+              url: input.url ?? '',
             },
       )
     },

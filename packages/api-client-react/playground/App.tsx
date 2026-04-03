@@ -6,7 +6,5 @@ import '../src/style.css'
 export const App = ({ initialRequest }: { initialRequest?: RoutePayload }) => {
   const client = useApiClientModal()
 
-  console.log('client', client)
-
   return <button onClick={() => client?.open(initialRequest)}>Click me to open the Api Client</button>
 }

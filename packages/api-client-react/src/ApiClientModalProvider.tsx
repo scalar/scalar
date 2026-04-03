@@ -1,12 +1,11 @@
 'use client'
 
 import type { RoutePayload } from '@scalar/api-client/v2/features/modal'
-import type { ApiClientConfiguration } from '@scalar/types/api-reference'
 import type { PropsWithChildren } from 'react'
-import { createContext, useContext, useEffect, useRef, useState } from 'react'
+import { createContext, useContext, useEffect, useRef, useSyncExternalStore } from 'react'
 
-import { type ApiClientController, createApiClientController } from './create-api-client-controller'
-import { createLazyApiClientModal } from './lazy-load'
+import { apiClientModalStore } from './api-client-modal-store'
+import type { AddDocumentInput, ApiClientController, ReactApiClientConfiguration } from './create-api-client-controller'
 import './style.css'
 
 globalThis.__VUE_OPTIONS_API__ = true
@@ -15,23 +14,31 @@ globalThis.__VUE_PROD_DEVTOOLS__ = false
 
 const ApiClientModalContext = createContext<ApiClientController | null>(null)
 
-type Props = PropsWithChildren<{
-  /** Choose a request to initially route to */
-  initialRequest?: RoutePayload
-
-  /** Configuration for the Api Client */
-  configuration?: Partial<ApiClientConfiguration>
-}>
+type Props = PropsWithChildren<
+  {
+    /** Choose a request to initially route to */
+    initialRequest?: RoutePayload
+    /** Configuration for the Api Client */
+    configuration?: ReactApiClientConfiguration
+  } & AddDocumentInput
+>
 
 /**
  * Api Client Modal React
  *
  * Provider which mounts the Scalar Api Client Modal vue app.
- * Rebuilt to support multiple instances when using a unique spec.url
+ * One Vue app is shared across the tree; it is recreated if its mount node is no longer connected.
  */
 export const ApiClientModalProvider = ({ children, initialRequest, configuration = {} }: Props) => {
   const el = useRef<HTMLDivElement | null>(null)
-  const [apiClientController, setApiClientController] = useState<ApiClientController | null>(null)
+  const configurationRef = useRef(configuration)
+  configurationRef.current = configuration
+
+  const { controller: apiClientController } = useSyncExternalStore(
+    apiClientModalStore.subscribe,
+    apiClientModalStore.getSnapshot,
+    apiClientModalStore.getServerSnapshot,
+  )
 
   useEffect(() => {
     const host = el.current
@@ -39,23 +46,29 @@ export const ApiClientModalProvider = ({ children, initialRequest, configuration
       return
     }
 
-    const initializeModal = async () => {
-      const { apiClient, workspaceStore } = await createLazyApiClientModal({
-        el: host,
-        options: configuration,
-      })
+    let cancelled = false
 
-      setApiClientController(createApiClientController(apiClient, workspaceStore))
-
-      // Perform initial routing
-      if (initialRequest) {
-        apiClientController?.route(initialRequest)
+    void apiClientModalStore.acquireApiClientModal(host, configurationRef.current).then(() => {
+      if (cancelled) {
+        return
       }
-    }
-    void initializeModal()
+      const controller = apiClientModalStore.getSnapshot().controller
+      if (controller) {
+        if (configurationRef.current.content || configurationRef.current.url) {
+          controller.addDocument(configurationRef.current)
+        }
 
-    return () => apiClientController?.app.unmount()
-  }, [el])
+        if (initialRequest) {
+          controller.route(initialRequest)
+        }
+      }
+    })
+
+    return () => {
+      cancelled = true
+      apiClientModalStore.releaseApiClientModal()
+    }
+  }, [initialRequest])
 
   return (
     <ApiClientModalContext.Provider value={apiClientController}>
