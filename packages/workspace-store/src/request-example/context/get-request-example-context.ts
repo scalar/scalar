@@ -1,3 +1,5 @@
+import type { AuthenticationConfiguration } from '@scalar/types/api-reference'
+
 import type { WorkspaceStore } from '@/client'
 import type { SelectedSecurity } from '@/entities/auth'
 import type { AuthMeta, ServerMeta } from '@/events'
@@ -60,6 +62,12 @@ export const getRequestExampleContext = (
     layout: Layout
     appVersion: string
     isElectron: boolean
+    /**
+     * Authentication configuration to use for the request example.
+     *
+     * This will be merged with the document's security schemes and the auth store secrets.
+     */
+    authentication: AuthenticationConfiguration['securitySchemes']
     /**
      * When the document is not in `workspace.documents[documentName]` yet, use this copy (same shape as the
      * workspace entry). Callers that already hold the resolved document should pass it so behavior matches
@@ -132,7 +140,7 @@ export const getRequestExampleContext = (
 
   const securitySchemes = mergeSecurity(
     document.components?.securitySchemes ?? {},
-    {},
+    options.authentication ?? {},
     workspaceStore.auth,
     documentName,
   )

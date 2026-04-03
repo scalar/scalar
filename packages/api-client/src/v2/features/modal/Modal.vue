@@ -51,16 +51,12 @@ import type { ApiReferenceConfigurationRaw } from '@scalar/types/api-reference'
 import { ScalarToasts } from '@scalar/use-toasts'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { type WorkspaceEventBus } from '@scalar/workspace-store/events'
-import {
-  getActiveEnvironment,
-  mergeSecurity,
-} from '@scalar/workspace-store/request-example'
+import { getActiveEnvironment } from '@scalar/workspace-store/request-example'
 import type { WorkspaceDocument } from '@scalar/workspace-store/schemas'
 import {
   computed,
   onBeforeUnmount,
   ref,
-  toValue,
   watch,
   type ComputedRef,
   type MaybeRefOrGetter,
@@ -157,16 +153,6 @@ const environment = computed(
   () => getActiveEnvironment(workspaceStore, document.value).environment,
 )
 
-/** Merge authentication config with the document security schemes */
-const securitySchemes = computed(() =>
-  mergeSecurity(
-    document.value?.components?.securitySchemes,
-    toValue(options)?.authentication?.securitySchemes,
-    workspaceStore.auth,
-    document.value?.['x-scalar-navigation']?.name ?? '',
-  ),
-)
-
 defineExpose({
   sidebarWidth,
   environment,
@@ -212,7 +198,6 @@ defineExpose({
         :path="path?.value"
         :plugins
         :requestBodyCompositionSelection="requestBodyCompositionSelection.value"
-        :securitySchemes
         :workspaceStore />
     </main>
     <!-- Empty state -->
