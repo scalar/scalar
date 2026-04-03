@@ -492,19 +492,43 @@
         },
         {
           "from": "/scalar/scalar-mock-server/getting-started",
-          "to": "/products/mock-server/getting-started"
+          "to": "/tools/mock-server/getting-started"
         },
         {
           "from": "/scalar/scalar-mock-server/custom-request-handler",
-          "to": "/products/mock-server/custom-request-handler"
+          "to": "/tools/mock-server/custom-request-handler"
         },
         {
           "from": "/scalar/scalar-mock-server/data-seeding",
-          "to": "/products/mock-server/data-seeding"
+          "to": "/tools/mock-server/data-seeding"
         },
         {
           "from": "/scalar/scalar-mock-server/docker",
-          "to": "/products/mock-server/docker"
+          "to": "/tools/mock-server/docker"
+        },
+        {
+          "from": "/products/mock-server",
+          "to": "/tools/mock-server/getting-started"
+        },
+        {
+          "from": "/products/mock-server/getting-started",
+          "to": "/tools/mock-server/getting-started"
+        },
+        {
+          "from": "/products/mock-server/custom-request-handler",
+          "to": "/tools/mock-server/custom-request-handler"
+        },
+        {
+          "from": "/products/mock-server/data-seeding",
+          "to": "/tools/mock-server/data-seeding"
+        },
+        {
+          "from": "/products/mock-server/docker",
+          "to": "/tools/mock-server/docker"
+        },
+        {
+          "from": "/products/mock-server/changelog",
+          "to": "/tools/mock-server/changelog"
         },
         {
           "from": "/download",
@@ -1820,7 +1844,7 @@
                       "links": [
                         {
                           "rel": "canonical",
-                          "href": "https://scalar.com/products/mock-server/getting-started"
+                          "href": "https://scalar.com/tools/mock-server/getting-started"
                         }
                       ],
                       "meta": [
