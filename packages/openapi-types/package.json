@@ -20,22 +20,27 @@
   "engines": {
     "node": ">=22"
   },
-  "scripts": {
-    "build": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
-    "test": "vitest",
-    "types:check": "tsc --noEmit"
-  },
   "type": "module",
   "exports": {
-    ".": {
-      "import": "./dist/index.js",
-      "types": "./dist/index.d.ts",
-      "default": "./dist/index.js"
+    "./2.0": {
+      "import": "./dist/2.0/index.js",
+      "types": "./dist/2.0/index.d.ts",
+      "default": "./dist/2.0/index.js"
     },
-    "./helpers": {
-      "import": "./dist/helpers/index.js",
-      "types": "./dist/helpers/index.d.ts",
-      "default": "./dist/helpers/index.js"
+    "./3.0.4": {
+      "import": "./dist/3.0.4/index.js",
+      "types": "./dist/3.0.4/index.d.ts",
+      "default": "./dist/3.0.4/index.js"
+    },
+    "./3.1.2": {
+      "import": "./dist/3.1.2/index.js",
+      "types": "./dist/3.1.2/index.d.ts",
+      "default": "./dist/3.1.2/index.js"
+    },
+    "./3.2.0": {
+      "import": "./dist/3.2.0/index.js",
+      "types": "./dist/3.2.0/index.d.ts",
+      "default": "./dist/3.2.0/index.js"
     }
   },
   "files": [

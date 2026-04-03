@@ -1,0 +1,13 @@
+/**
+ * Security Scheme object
+ *
+ * Defines a security scheme that can be used by the operations.  Supported schemes are HTTP authentication, an API key (either as a header, a cookie parameter or as a query parameter), mutual TLS (use of a client certificate), OAuth2's common flows (implicit, password, client credentials and authorization code) as defined in [RFC6749](https://tools.ietf.org/html/rfc6749), and [[OpenID-Connect-Core]]. Please note that as of 2020, the implicit flow is about to be deprecated by [OAuth 2.0 Security Best Current Practice](https://tools.ietf.org/html/draft-ietf-oauth-security-topics). Recommended for most use cases is Authorization Code Grant flow with PKCE.
+ *
+ * @see {@link https://spec.openapis.org/oas/v3.1#security-scheme-object}
+ */
+export type TypeHttpObject = {
+  /** **REQUIRED**. The type of the security scheme. Valid values are `"apiKey"`, `"http"`, `"mutualTLS"`, `"oauth2"`, `"openIdConnect"`. */
+  type: 'http'
+  /** **REQUIRED**. The name of the HTTP Authentication scheme to be used in the [Authorization header as defined in RFC7235](https://tools.ietf.org/html/rfc7235#section-5.1). The values used SHOULD be registered in the [IANA Authentication Scheme registry](https://www.iana.org/assignments/http-authschemes/http-authschemes.xhtml). The value is case-insensitive, as defined in [RFC7235](https://datatracker.ietf.org/doc/html/rfc7235#section-2.1). */
+  scheme: string
+}
