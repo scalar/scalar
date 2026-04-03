@@ -578,11 +578,6 @@
       },
       {
         "type": "link",
-        "title": "Agent",
-        "to": "https://agent.scalar.com"
-      },
-      {
-        "type": "link",
         "title": "Enterprise",
         "to": "/enterprise"
       },
@@ -1035,6 +1030,67 @@
                         "title": "Row"
                       }
                     }
+                  }
+                }
+              },
+              "/agent": {
+                "title": "MCP & Agent",
+                "description": "AI-powered customer support agent that understands your API documentation and helps users with technical questions.",
+                "type": "group",
+                "mode": "nested",
+                "icon": "phosphor/regular/sparkle",
+                "children": {
+                  "getting-started": {
+                    "title": "Getting Started",
+                    "type": "page",
+                    "filepath": "documentation/guides/agent/getting-started.md",
+                    "description": "Deploy an AI assistant that provides instant, accurate answers based on your API documentation and specs.",
+                    "head": {
+                      "links": [
+                        {
+                          "rel": "canonical",
+                          "href": "https://scalar.com/products/agent/getting-started"
+                        }
+                      ],
+                      "meta": [
+                        {
+                          "name": "description",
+                          "content": "Deploy an AI assistant that provides instant, accurate answers based on your API documentation and specs."
+                        },
+                        {
+                          "property": "og:title",
+                          "content": "Getting Started with Agent - AI-Powered API Support"
+                        },
+                        {
+                          "property": "og:description",
+                          "content": "Deploy an AI assistant that provides instant, accurate answers based on your API documentation and specs."
+                        },
+                        {
+                          "name": "robots",
+                          "content": "index, follow"
+                        }
+                      ]
+                    }
+                  },
+                  "mcp": {
+                    "title": "MCP",
+                    "type": "page",
+                    "filepath": "documentation/guides/agent/mcp.md"
+                  },
+                  "sdk": {
+                    "title": "SDK",
+                    "type": "page",
+                    "filepath": "documentation/guides/agent/sdk.md"
+                  },
+                  "pricing": {
+                    "title": "Pricing",
+                    "type": "page",
+                    "filepath": "documentation/guides/agent/pricing.md"
+                  },
+                  "key": {
+                    "title": "Key",
+                    "type": "page",
+                    "filepath": "documentation/guides/agent/key.md"
                   }
                 }
               },
@@ -1654,67 +1710,6 @@
                   }
                 }
               },
-              "/agent": {
-                "title": "MCP & Agent",
-                "description": "AI-powered customer support agent that understands your API documentation and helps users with technical questions.",
-                "type": "group",
-                "mode": "nested",
-                "icon": "phosphor/regular/cpu",
-                "children": {
-                  "getting-started": {
-                    "title": "Getting Started",
-                    "type": "page",
-                    "filepath": "documentation/guides/agent/getting-started.md",
-                    "description": "Deploy an AI assistant that provides instant, accurate answers based on your API documentation and specs.",
-                    "head": {
-                      "links": [
-                        {
-                          "rel": "canonical",
-                          "href": "https://scalar.com/products/agent/getting-started"
-                        }
-                      ],
-                      "meta": [
-                        {
-                          "name": "description",
-                          "content": "Deploy an AI assistant that provides instant, accurate answers based on your API documentation and specs."
-                        },
-                        {
-                          "property": "og:title",
-                          "content": "Getting Started with Agent - AI-Powered API Support"
-                        },
-                        {
-                          "property": "og:description",
-                          "content": "Deploy an AI assistant that provides instant, accurate answers based on your API documentation and specs."
-                        },
-                        {
-                          "name": "robots",
-                          "content": "index, follow"
-                        }
-                      ]
-                    }
-                  },
-                  "mcp": {
-                    "title": "MCP",
-                    "type": "page",
-                    "filepath": "documentation/guides/agent/mcp.md"
-                  },
-                  "sdk": {
-                    "title": "SDK",
-                    "type": "page",
-                    "filepath": "documentation/guides/agent/sdk.md"
-                  },
-                  "pricing": {
-                    "title": "Pricing",
-                    "type": "page",
-                    "filepath": "documentation/guides/agent/pricing.md"
-                  },
-                  "key": {
-                    "title": "Key",
-                    "type": "page",
-                    "filepath": "documentation/guides/agent/key.md"
-                  }
-                }
-              },
               "/api-client": {
                 "title": "API Client",
                 "description": "Modern, open-source API testing client with OpenAPI integration, collections, and a beautiful interface.",
@@ -1753,6 +1748,59 @@
                         }
                       ]
                     }
+                  }
+                }
+              }
+            }
+          },
+          "/tools": {
+            "type": "group",
+            "title": "Tools",
+            "mode": "flat",
+            "children": {
+              "/cli": {
+                "title": "Scalar CLI",
+                "description": "Command-line interface for managing OpenAPI specs, validating schemas, and deploying documentation.",
+                "type": "group",
+                "mode": "nested",
+                "icon": "phosphor/regular/terminal-window",
+                "children": {
+                  "getting-started": {
+                    "filepath": "documentation/guides/cli/getting-started.md",
+                    "type": "page",
+                    "title": "Getting Started",
+                    "description": "Install and use the Scalar CLI to validate, bundle, and deploy OpenAPI specifications from your terminal.",
+                    "head": {
+                      "links": [
+                        {
+                          "rel": "canonical",
+                          "href": "https://scalar.com/tools/cli/getting-started"
+                        }
+                      ],
+                      "meta": [
+                        {
+                          "name": "description",
+                          "content": "Install and use the Scalar CLI to validate, bundle, and deploy OpenAPI specifications from your terminal."
+                        },
+                        {
+                          "property": "og:title",
+                          "content": "Getting Started with Scalar CLI - OpenAPI Command Line"
+                        },
+                        {
+                          "property": "og:description",
+                          "content": "Install and use the Scalar CLI to validate, bundle, and deploy OpenAPI specifications from your terminal."
+                        },
+                        {
+                          "name": "robots",
+                          "content": "index, follow"
+                        }
+                      ]
+                    }
+                  },
+                  "commands": {
+                    "filepath": "documentation/guides/cli/commands.md",
+                    "type": "page",
+                    "title": "Commands"
                   }
                 }
               },
@@ -1814,59 +1862,6 @@
                     "title": "Changelog",
                     "filepath": "packages/mock-server/CHANGELOG.md",
                     "type": "page"
-                  }
-                }
-              }
-            }
-          },
-          "/tools": {
-            "type": "group",
-            "title": "Tools",
-            "mode": "flat",
-            "children": {
-              "/cli": {
-                "title": "Scalar CLI",
-                "description": "Command-line interface for managing OpenAPI specs, validating schemas, and deploying documentation.",
-                "type": "group",
-                "mode": "nested",
-                "icon": "phosphor/regular/terminal-window",
-                "children": {
-                  "getting-started": {
-                    "filepath": "documentation/guides/cli/getting-started.md",
-                    "type": "page",
-                    "title": "Getting Started",
-                    "description": "Install and use the Scalar CLI to validate, bundle, and deploy OpenAPI specifications from your terminal.",
-                    "head": {
-                      "links": [
-                        {
-                          "rel": "canonical",
-                          "href": "https://scalar.com/tools/cli/getting-started"
-                        }
-                      ],
-                      "meta": [
-                        {
-                          "name": "description",
-                          "content": "Install and use the Scalar CLI to validate, bundle, and deploy OpenAPI specifications from your terminal."
-                        },
-                        {
-                          "property": "og:title",
-                          "content": "Getting Started with Scalar CLI - OpenAPI Command Line"
-                        },
-                        {
-                          "property": "og:description",
-                          "content": "Install and use the Scalar CLI to validate, bundle, and deploy OpenAPI specifications from your terminal."
-                        },
-                        {
-                          "name": "robots",
-                          "content": "index, follow"
-                        }
-                      ]
-                    }
-                  },
-                  "commands": {
-                    "filepath": "documentation/guides/cli/commands.md",
-                    "type": "page",
-                    "title": "Commands"
                   }
                 }
               },
