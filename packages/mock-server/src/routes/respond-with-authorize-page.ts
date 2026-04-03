@@ -167,7 +167,7 @@ function generateAuthorizationHtml(redirectUrl: string, deniedUrl: string, title
       </div>
 
       <p class="text-xs text-gray-400 mt-5 text-center">
-        This authorization page is provided by the <a href="https://scalar.com/products/mock-server/getting-started" target="_blank" class="underline text-gray-600 hover:text-gray-800">Scalar Mock Server</a>.
+        This authorization page is provided by the <a href="https://scalar.com/tools/mock-server/getting-started" target="_blank" class="underline text-gray-600 hover:text-gray-800">Scalar Mock Server</a>.
       </p>
 
     </div>

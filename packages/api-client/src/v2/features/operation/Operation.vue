@@ -65,6 +65,7 @@ const requestExample = computed(() => {
       layout: layout === 'web' ? 'web' : 'other',
       servers: toValue(options)?.servers,
       appVersion: APP_VERSION,
+      authentication: toValue(options)?.authentication?.securitySchemes,
     },
   )
 

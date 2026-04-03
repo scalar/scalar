@@ -210,7 +210,7 @@ Ready? [Create your Scalar Account](https://scalar.com)
 | [Scalar Docs Starter](https://github.com/scalar/starter)                           | Starter template for Scalar Docs |
 | [Scalar SDKs](https://scalar.com/products/sdks/getting-started)                    | SDK generation                   |
 | [Scalar CLI](https://scalar.com/tools/cli/getting-started)                         | Command-line interface           |
-| [Scalar Mock Server](https://scalar.com/products/mock-server/getting-started)      | Mock APIs from OpenAPI documents |
+| [Scalar Mock Server](https://scalar.com/tools/mock-server/getting-started)      | Mock APIs from OpenAPI documents |
 | [Scalar Galaxy](packages/galaxy/README.md)                                         | Our OpenAPI Example              |
 | [Scalar Editor](https://editor.scalar.com/)                                        | OpenAPI Online Editor            |
 | [Scalar OpenAPI Parser](packages/openapi-parser/README.md)                         | Parse OpenAPI documents          |
