@@ -13,32 +13,48 @@ npm install @scalar/api-client-react
 
 ## Usage
 
-First we need to add the provider, you should add it in the highest place you have a unique spec.
+Call `useApiClientModal()` from any component. No provider is needed.
 
-```tsx
-import { ApiClientModalProvider } from '@scalar/api-client-react'
-
-import '@scalar/api-client-react/style.css'
-;<ApiClientModalProvider
-  configuration={{
-    url: 'https://registry.scalar.com/@scalar/apis/galaxy?format=json',
-  }}>
-  {children}
-</ApiClientModalProvider>
-```
-
-Then you can trigger it from anywhere inside of that provider by calling the `useApiClientModal()`
+The Vue app is created once and appended to `document.body` where it lives for the lifetime of the
+page — it survives client-side navigation without losing state.
 
 ```tsx
 import { useApiClientModal } from '@scalar/api-client-react'
+import '@scalar/api-client-react/style.css'
 
-const client = useApiClientModal()
+export const OpenButton = () => {
+  const client = useApiClientModal({
+    configuration: {
+      url: 'https://registry.scalar.com/@scalar/apis/galaxy?format=json',
+    },
+  })
 
-return (
-  <button onClick={() => client?.open({ path: '/auth/token', method: 'get' })}>
-    Click me to open the Api Client
-  </button>
-)
+  return (
+    <button onClick={() => client?.open({ path: '/planets', method: 'get' })}>
+      Open API Client
+    </button>
+  )
+}
+```
+
+### Options
+
+| Option | Type | Description |
+|---|---|---|
+| `configuration.url` | `string` | URL of an OpenAPI description to load |
+| `configuration.content` | `Record<string, unknown>` | Inline OpenAPI description object |
+| `initialRequest` | `RoutePayload` | Request to navigate to when the modal opens |
+
+### Routing to a specific request
+
+```tsx
+const client = useApiClientModal({
+  configuration: { url: '...' },
+  initialRequest: { path: '/auth/token', method: 'post' },
+})
+
+// Open to the same request later
+client?.open({ path: '/auth/token', method: 'post' })
 ```
 
 Check out the playground for a working example.
