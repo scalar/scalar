@@ -1,5 +1,11 @@
 # @scalar/object-utils
 
+## 1.3.4
+
+### Patch Changes
+
+- [#8664](https://github.com/scalar/scalar/pull/8664): refactor: replace wildcard export barrels with explicit named re-exports
+
 ## 1.3.3
 
 ### Patch Changes

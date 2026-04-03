@@ -1,5 +1,11 @@
 # @scalar/use-codemirror
 
+## 0.14.11
+
+### Patch Changes
+
+- [#8647](https://github.com/scalar/scalar/pull/8647): feat: move addressBar path change from debounce to blur
+
 ## 0.14.10
 
 ### Patch Changes

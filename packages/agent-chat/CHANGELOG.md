@@ -1,5 +1,11 @@
 # @scalar/agent-chat
 
+## 0.10.0
+
+### Minor Changes
+
+- [#8524](https://github.com/scalar/scalar/pull/8524): feat: move request logic on the store and generate a request builder
+
 ## 0.9.17
 
 ## 0.9.16

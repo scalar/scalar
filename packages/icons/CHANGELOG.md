@@ -1,5 +1,11 @@
 # @scalar/icons
 
+## 0.7.2
+
+### Patch Changes
+
+- [#8715](https://github.com/scalar/scalar/pull/8715): fix: correct main field in package.json to point to .js instead of non-existent .cjs files
+
 ## 0.7.1
 
 ### Patch Changes
