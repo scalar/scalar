@@ -50,10 +50,10 @@ describe('mapConfigPlugins', () => {
       headers: new Headers({ 'X-Original': 'true' }),
     })
 
-    const onBeforeRequestMock = vi.fn(({ request }: { request: RequestFactory }) => {
-      request.method = 'POST'
-      request.path = { ...request.path, raw: '/api/modified' }
-      request.headers.set('X-Modified', 'true')
+    const onBeforeRequestMock = vi.fn(({ requestBuilder }: { requestBuilder: RequestFactory }) => {
+      requestBuilder.method = 'POST'
+      requestBuilder.path = { ...requestBuilder.path, raw: '/api/modified' }
+      requestBuilder.headers.set('X-Modified', 'true')
     })
 
     const config = computed(() => ({
@@ -74,7 +74,10 @@ describe('mapConfigPlugins', () => {
       await beforeRequestHook(input)
 
       expect(onBeforeRequestMock).toHaveBeenCalledTimes(1)
-      expect(onBeforeRequestMock).toHaveBeenCalledWith({ request: mockRequestBuilder })
+      expect(onBeforeRequestMock).toHaveBeenCalledWith({
+        request: expect.any(Request),
+        requestBuilder: mockRequestBuilder,
+      })
 
       expect(mockRequestBuilder.method).toBe('POST')
       expect(mockRequestBuilder.path.raw).toBe('/api/modified')

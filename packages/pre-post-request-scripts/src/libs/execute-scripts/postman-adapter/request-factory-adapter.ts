@@ -107,7 +107,7 @@ export const syncPlainPostmanRequestToRequestFactory = (definition: unknown, fac
 }
 
 /** Copies header and method from a live {@link PostmanRequest} onto {@link RequestFactory}. */
-export const syncPostmanRequestToRequestFactory = (postmanRequest: PostmanRequest, factory: RequestFactory): void => {
+const syncPostmanRequestToRequestFactory = (postmanRequest: PostmanRequest, factory: RequestFactory): void => {
   const method = postmanRequest.method
   if (typeof method === 'string' && method.length > 0) {
     factory.method = method.toUpperCase()

@@ -38,17 +38,11 @@ export const resolveRequestFactoryUrl = (
   const url = new URL(mergedUrl, urlBase)
 
   for (const [key, value] of securityQueryParams.entries()) {
-    url.searchParams.set(
-      replaceEnvVariables(key, variables),
-      replaceEnvVariables(value, variables),
-    )
+    url.searchParams.set(replaceEnvVariables(key, variables), replaceEnvVariables(value, variables))
   }
 
   for (const [key, value] of request.query.params.entries()) {
-    url.searchParams.set(
-      replaceEnvVariables(key, variables),
-      replaceEnvVariables(value, variables),
-    )
+    url.searchParams.set(replaceEnvVariables(key, variables), replaceEnvVariables(value, variables))
   }
 
   return url.toString()

@@ -56,7 +56,6 @@
   ],
   "dependencies": {
     "@codemirror/lang-javascript": "^6.2.5",
-    "@scalar/helpers": "workspace:*",
     "@headlessui/vue": "catalog:*",
     "@scalar/components": "workspace:*",
     "@scalar/oas-utils": "workspace:*",
@@ -64,11 +63,10 @@
     "vue": "catalog:*",
     "@types/postman-collection": "^3.5.11",
     "postman-collection": "^5.2.0",
-    "@scalar/workspace-store": "workspace:*"
+    "@scalar/workspace-store": "workspace:*",
+    "@scalar/use-codemirror": "workspace:*"
   },
   "devDependencies": {
-    "@scalar/types": "workspace:*",
-    "@scalar/use-codemirror": "workspace:*",
     "@vitejs/plugin-vue": "catalog:*",
     "@vue/test-utils": "catalog:*",
     "vite": "catalog:*"

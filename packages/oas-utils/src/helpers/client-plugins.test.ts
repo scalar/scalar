@@ -77,11 +77,7 @@ describe('executeHook', () => {
       },
     }
 
-    const result = await executeHook(beforePayload(requestBuilder), 'beforeRequest', [
-      plugin1,
-      plugin2,
-      plugin3,
-    ])
+    const result = await executeHook(beforePayload(requestBuilder), 'beforeRequest', [plugin1, plugin2, plugin3])
 
     expect(result.requestBuilder.headers.get('X-Plugin-1')).toBe('first')
     expect(result.requestBuilder.headers.get('X-Plugin-2')).toBe('second')
@@ -143,9 +139,7 @@ describe('executeHook', () => {
       },
     }
 
-    const requestResult = await executeHook(beforePayload(requestBuilder), 'beforeRequest', [
-      beforeRequestPlugin,
-    ])
+    const requestResult = await executeHook(beforePayload(requestBuilder), 'beforeRequest', [beforeRequestPlugin])
     expect(requestResult.requestBuilder.method).toBe('GET')
 
     const response = new Response('{}', { status: 200 })
