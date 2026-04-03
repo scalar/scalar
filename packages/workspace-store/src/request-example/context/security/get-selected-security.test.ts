@@ -173,7 +173,7 @@ describe('getSelectedSecurity', () => {
       })
     })
 
-    it('handles preferred scheme not in requirements (returns -1 index)', () => {
+    it('handles preferred scheme not in requirements', () => {
       const securityRequirements = [{ apiKey: [] }, { bearerAuth: [] }]
       const securitySchemes = {
         apiKey: { type: 'apiKey' },
