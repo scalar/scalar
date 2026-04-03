@@ -33,36 +33,44 @@ import {
   scheduleInitialLoadComplete,
 } from '@/helpers/lazy-bus'
 
-const { document, items, environment, eventBus, options, authStore } =
-  defineProps<{
-    infoSectionId: string
-    /** The subset of the configuration object required for the content component */
-    options: Pick<
-      ApiReferenceConfigurationRaw,
-      | 'authentication'
-      | 'baseServerURL'
-      | 'documentDownloadType'
-      | 'expandAllResponses'
-      | 'hiddenClients'
-      | 'hideTestRequestButton'
-      | 'layout'
-      | 'orderRequiredPropertiesFirst'
-      | 'orderSchemaPropertiesBy'
-      | 'persistAuth'
-      | 'proxyUrl'
-      | 'servers'
-      | 'showOperationId'
-    >
-    document: WorkspaceDocument | undefined
-    authStore: AuthStore
-    xScalarDefaultClient: Workspace['x-scalar-default-client']
-    items: TraversedEntryType[]
-    expandedItems: Record<string, boolean>
-    eventBus: WorkspaceEventBus
-    environment: XScalarEnvironment
-    /** Heading id generator for Markdown headings */
-    headingSlugGenerator: (heading: Heading) => string
-  }>()
+const {
+  document,
+  clientDocument,
+  items,
+  environment,
+  eventBus,
+  options,
+  authStore,
+} = defineProps<{
+  infoSectionId: string
+  /** The subset of the configuration object required for the content component */
+  options: Pick<
+    ApiReferenceConfigurationRaw,
+    | 'authentication'
+    | 'baseServerURL'
+    | 'documentDownloadType'
+    | 'expandAllResponses'
+    | 'hiddenClients'
+    | 'hideTestRequestButton'
+    | 'layout'
+    | 'orderRequiredPropertiesFirst'
+    | 'orderSchemaPropertiesBy'
+    | 'persistAuth'
+    | 'proxyUrl'
+    | 'servers'
+    | 'showOperationId'
+  >
+  document: WorkspaceDocument | undefined
+  clientDocument: WorkspaceDocument | undefined
+  authStore: AuthStore
+  xScalarDefaultClient: Workspace['x-scalar-default-client']
+  items: TraversedEntryType[]
+  expandedItems: Record<string, boolean>
+  eventBus: WorkspaceEventBus
+  environment: XScalarEnvironment
+  /** Heading id generator for Markdown headings */
+  headingSlugGenerator: (heading: Heading) => string
+}>()
 
 /** Generate all client options so that it can be shared between the top client picker and the operations */
 const clientOptions = computed(() =>
@@ -77,24 +85,24 @@ const infoExtensions = computed(() => getXKeysFromObject(document?.info))
 
 /** Compute the servers for the document */
 const servers = computed(() =>
-  getServers(options?.servers ?? document?.servers, {
+  getServers(options?.servers ?? clientDocument?.servers, {
     baseServerUrl: options?.baseServerURL,
-    documentUrl: document?.['x-scalar-original-source-url'],
+    documentUrl: clientDocument?.['x-scalar-original-source-url'],
   }),
 )
 
 /** Compute the selected server for the document only (for now) */
 const selectedServer = computed(() =>
-  getSelectedServer(document ?? null, null, null, servers.value),
+  getSelectedServer(clientDocument ?? null, null, null, servers.value),
 )
 
 /** Merge authentication config with the document security schemes */
 const securitySchemes = computed(() =>
   mergeSecurity(
-    document?.components?.securitySchemes,
+    clientDocument?.components?.securitySchemes,
     options.authentication?.securitySchemes,
     authStore,
-    document?.['x-scalar-navigation']?.name ?? '',
+    clientDocument?.['x-scalar-navigation']?.name ?? '',
   ),
 )
 
@@ -143,7 +151,7 @@ onMounted(() => {
             class="scalar-reference-intro-auth scalar-client introduction-card-item leading-normal">
             <Auth
               :authStore
-              :document
+              :document="clientDocument"
               :environment
               :eventBus
               :options
