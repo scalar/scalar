@@ -1059,7 +1059,7 @@
               },
               "/agent": {
                 "title": "MCP & Agent",
-                "description": "AI-powered customer support agent that understands your API documentation and helps users with technical questions.",
+                "description": "OpenAPI-backed MCP servers and SDKs that connect your APIs to LLMs with just-in-time tools and delegated authentication.",
                 "type": "group",
                 "mode": "nested",
                 "icon": "phosphor/regular/sparkle",
@@ -1068,7 +1068,7 @@
                     "title": "Getting Started",
                     "type": "page",
                     "filepath": "documentation/guides/agent/getting-started.md",
-                    "description": "Deploy an AI assistant that provides instant, accurate answers based on your API documentation and specs.",
+                    "description": "Turn OpenAPI into MCP servers and connect APIs to LLMs with minimal context usage, delegated auth, and the Agent SDK or chat UI.",
                     "head": {
                       "links": [
                         {
@@ -1079,15 +1079,15 @@
                       "meta": [
                         {
                           "name": "description",
-                          "content": "Deploy an AI assistant that provides instant, accurate answers based on your API documentation and specs."
+                          "content": "Turn OpenAPI into MCP servers and connect APIs to LLMs with minimal context usage, delegated auth, and the Agent SDK or chat UI."
                         },
                         {
                           "property": "og:title",
-                          "content": "Getting Started with Agent - AI-Powered API Support"
+                          "content": "Getting Started with Agent — OpenAPI to MCP for LLMs"
                         },
                         {
                           "property": "og:description",
-                          "content": "Deploy an AI assistant that provides instant, accurate answers based on your API documentation and specs."
+                          "content": "Turn OpenAPI into MCP servers and connect APIs to LLMs with minimal context usage, delegated auth, and the Agent SDK or chat UI."
                         },
                         {
                           "name": "robots",
@@ -1105,6 +1105,11 @@
                     "title": "SDK",
                     "type": "page",
                     "filepath": "documentation/guides/agent/sdk.md"
+                  },
+                  "api-reference": {
+                    "title": "API Reference",
+                    "type": "page",
+                    "filepath": "documentation/guides/agent/api-reference.md"
                   },
                   "pricing": {
                     "title": "Pricing",
