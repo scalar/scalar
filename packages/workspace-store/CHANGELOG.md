@@ -1,5 +1,11 @@
 # @scalar/workspace-store
 
+## 0.43.1
+
+### Patch Changes
+
+- [#8728](https://github.com/scalar/scalar/pull/8728): fix: correctly merge security schemes with the config security
+
 ## 0.43.0
 
 ### Minor Changes
