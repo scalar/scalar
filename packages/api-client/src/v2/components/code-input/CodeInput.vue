@@ -282,7 +282,7 @@ const serializeValue = (value: CodeInputModelValue): string => {
   return JSON.stringify(value)
 }
 
-const { codeMirror } = useCodeMirror({
+const { codeMirror, setCodeMirrorContent } = useCodeMirror({
   content: toRef(() => serializeValue(modelValue)),
   onChange: (value) => {
     handleChange(value)
@@ -409,7 +409,9 @@ defineExpose({
   handleBlur,
   booleanOptions,
   codeMirror,
+  codeMirrorRef,
   modelValue,
+  setCodeMirrorContent,
   cursorPosition: () => codeMirror.value?.state.selection.main.head,
   serializeValue,
 })
