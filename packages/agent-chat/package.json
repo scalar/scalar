@@ -65,12 +65,10 @@
     "neverpanic": "catalog:*",
     "truncate-json": "catalog:*",
     "vue": "catalog:*",
-    "whatwg-mimetype": "catalog:*",
     "zod": "catalog:*"
   },
   "devDependencies": {
     "@tailwindcss/vite": "catalog:*",
-    "@types/whatwg-mimetype": "catalog:*",
     "@vitejs/plugin-vue": "catalog:*",
     "hono": "catalog:*",
     "tailwindcss": "catalog:*",

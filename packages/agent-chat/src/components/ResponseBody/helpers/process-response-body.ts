@@ -1,4 +1,4 @@
-import MimeType from 'whatwg-mimetype'
+import { parseMimeType } from '@scalar/helpers/http/mime-type'
 
 const decodeURIComponentSafe = (str: string) => {
   try {
@@ -39,7 +39,7 @@ export function processResponseBody({ data, headers }: { data: unknown; headers?
   const responseHeaders = getResponseHeaders(headers)
 
   const contentType = responseHeaders.find((header) => header.name.toLowerCase() === 'content-type')
-  const mimeType = contentType?.value ? new MimeType(contentType.value) : undefined
+  const mimeType = contentType?.value ? parseMimeType(contentType.value) : undefined
   const attachmentFilename = extractFilename(
     responseHeaders.find((header) => header.name.toLowerCase() === 'content-disposition')?.value ?? '',
   )

@@ -372,7 +372,6 @@
     "vite-plugin-monaco-editor": "^1.1.0",
     "vue": "catalog:*",
     "vue-router": "catalog:*",
-    "whatwg-mimetype": "catalog:*",
     "yaml": "catalog:*",
     "zod": "catalog:*"
   },
@@ -381,7 +380,6 @@
     "@scalar/pre-post-request-scripts": "workspace:*",
     "@tailwindcss/vite": "catalog:*",
     "@types/shell-quote": "^1.7.5",
-    "@types/whatwg-mimetype": "catalog:*",
     "@vitejs/plugin-vue": "catalog:*",
     "@vue/test-utils": "catalog:*",
     "fake-indexeddb": "catalog:*",
