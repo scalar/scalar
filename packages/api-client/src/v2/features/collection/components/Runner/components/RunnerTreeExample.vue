@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { ScalarIconCheck } from '@scalar/icons'
+
 const {
   name,
   isSelected = false,
@@ -17,25 +19,43 @@ const emit = defineEmits<{
 </script>
 
 <template>
-  <label
-    class="inline-flex cursor-pointer items-center gap-1.5 rounded-md border border-transparent px-2.5 py-1.5 text-xs transition-all duration-150"
+  <button
+    :aria-pressed="isSelected"
+    class="group flex w-full cursor-pointer items-center gap-2 rounded px-2 py-1.5 text-left text-xs transition-colors duration-100"
     :class="[
       isSelected
-        ? 'bg-accent-color/10 border-accent-color text-c-1'
-        : 'bg-b-2 text-c-3 hover:bg-b-3 hover:text-c-1',
-      isDisabled && 'cursor-not-allowed',
-    ]">
-    <input
-      :checked="isSelected"
-      class="accent-accent-color m-0 size-3.5 cursor-pointer disabled:cursor-not-allowed"
-      :disabled="isDisabled"
-      type="checkbox"
-      @change="emit('toggle')" />
-    <span class="select-none">{{ name }}</span>
+        ? 'bg-accent-color/10 text-c-1'
+        : 'text-c-3 hover:bg-b-3 hover:text-c-2',
+      isDisabled && 'pointer-events-none opacity-50',
+    ]"
+    :disabled="isDisabled"
+    type="button"
+    @click="emit('toggle')">
+    <!-- Checkbox indicator -->
     <span
-      v-if="orderIndex && orderIndex > 0"
-      class="bg-accent-color/15 text-accent-color ml-0.5 rounded px-1.5 py-0.5 text-[0.625rem] font-semibold">
-      #{{ orderIndex }}
+      class="flex size-3.5 shrink-0 items-center justify-center rounded-sm border transition-colors duration-100"
+      :class="[
+        isSelected
+          ? 'border-accent-color bg-accent-color text-white'
+          : 'border-c-3 group-hover:border-c-2 bg-transparent',
+      ]">
+      <ScalarIconCheck
+        v-if="isSelected"
+        class="size-2.5" />
     </span>
-  </label>
+
+    <!-- Name -->
+    <span class="min-w-0 flex-1 truncate">{{ name }}</span>
+
+    <!-- Order badge - always rendered to prevent layout shift -->
+    <span
+      class="min-w-5 shrink-0 rounded-full px-1.5 py-0.5 text-center text-[0.6rem] font-semibold tabular-nums transition-opacity duration-100"
+      :class="
+        isSelected && orderIndex && orderIndex > 0
+          ? 'bg-accent-color text-white opacity-100'
+          : 'opacity-0'
+      ">
+      {{ orderIndex ?? 0 }}
+    </span>
+  </button>
 </template>

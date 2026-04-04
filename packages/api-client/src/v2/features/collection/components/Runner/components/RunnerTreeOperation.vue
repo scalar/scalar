@@ -25,32 +25,46 @@ const hasMultipleExamples = computed(() => props.examples.length > 1)
 const hasSelection = computed(() =>
   props.examples.some((ex) => props.isSelected(ex.name)),
 )
+const selectedCount = computed(
+  () => props.examples.filter((ex) => props.isSelected(ex.name)).length,
+)
 </script>
 
 <template>
   <li
-    class="bg-b-1 mb-3 rounded-lg border p-3 transition-colors duration-150 last:mb-0"
-    :class="[
-      hasSelection
-        ? 'border-accent-color bg-accent-color/[0.03]'
-        : 'border-border-color',
-    ]">
-    <div class="mb-2 flex items-start justify-between gap-2">
-      <div class="flex min-w-0 flex-1 items-center gap-2">
-        <HttpMethodBadge :method="props.method" />
-        <span class="text-c-2 text-[0.8125rem] font-medium break-all">
-          {{ props.path }}
-        </span>
-      </div>
+    class="bg-b-1 mb-2 rounded-lg border p-2.5 transition-colors duration-100 last:mb-0"
+    :class="hasSelection ? 'border-accent-color/40' : 'border-border-color'">
+    <!-- Header row: method + path + actions -->
+    <div class="flex items-center gap-2">
+      <HttpMethodBadge
+        class="text-[0.625rem] font-semibold"
+        :method="props.method"
+        short />
+      <span
+        class="text-c-2 min-w-0 flex-1 truncate text-xs"
+        :title="props.path">
+        {{ props.path }}
+      </span>
+
+      <!-- Selection count -->
+      <span
+        v-if="hasSelection && hasMultipleExamples"
+        class="text-c-3 text-[0.65rem] tabular-nums">
+        {{ selectedCount }}/{{ props.examples.length }}
+      </span>
+
+      <!-- Select all button -->
       <button
         v-if="hasMultipleExamples && !props.isDisabled"
-        class="hover:bg-b-3 text-accent-color shrink-0 cursor-pointer rounded border-none bg-transparent px-2 py-1 text-[0.6875rem] font-medium transition-colors duration-150"
+        class="text-accent-color hover:bg-accent-color/10 cursor-pointer rounded border-none bg-transparent px-1.5 py-0.5 text-[0.65rem] font-medium transition-colors duration-100"
         type="button"
         @click="emit('toggleAll')">
-        {{ props.isFullySelected ? 'Deselect all' : 'Select all' }}
+        {{ props.isFullySelected ? 'Clear' : 'All' }}
       </button>
     </div>
-    <div class="flex flex-wrap gap-1.5">
+
+    <!-- Examples list -->
+    <div class="border-border-color mt-2 flex flex-col gap-0.5 border-t pt-2">
       <RunnerTreeExample
         v-for="ex in props.examples"
         :key="ex.id"
