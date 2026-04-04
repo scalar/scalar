@@ -49,13 +49,13 @@ const emit = defineEmits<{
 
     <!-- Order badge - always rendered to prevent layout shift -->
     <span
-      class="min-w-5 shrink-0 rounded-full px-1.5 py-0.5 text-center text-[0.6rem] font-semibold tabular-nums transition-opacity duration-100"
+      class="shrink-0 text-[0.65rem] tabular-nums transition-opacity duration-100"
       :class="
         isSelected && orderIndex && orderIndex > 0
-          ? 'bg-accent-color text-white opacity-100'
+          ? 'text-c-3 opacity-100'
           : 'opacity-0'
       ">
-      {{ orderIndex ?? 0 }}
+      #{{ orderIndex ?? 0 }}
     </span>
   </button>
 </template>

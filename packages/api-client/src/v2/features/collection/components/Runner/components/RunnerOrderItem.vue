@@ -48,9 +48,9 @@ const emit = defineEmits<{
 
     <!-- Index -->
     <span
-      class="flex h-full w-6 shrink-0 items-center justify-center text-[0.65rem] font-medium tabular-nums text-c-3"
-      :class="isLocked && 'pl-2'">
-      {{ index + 1 }}
+      class="shrink-0 text-[0.65rem] tabular-nums text-c-3"
+      :class="isLocked ? 'pl-2 pr-1.5' : 'pr-1.5'">
+      #{{ index + 1 }}
     </span>
 
     <!-- Method + Path -->
