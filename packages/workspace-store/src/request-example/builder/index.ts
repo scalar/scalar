@@ -19,7 +19,6 @@ export { getResolvedUrl } from './helpers/get-resolved-url'
 export { getServerVariables } from './helpers/get-server-variables'
 export type { RequestFactory } from './request-factory'
 export { requestFactory } from './request-factory'
-export { resolveRequestFactoryUrl } from './resolve-request-factory-url'
 export { buildRequestSecurity } from './security/build-request-security'
 export type {
   ApiKeyObjectSecret,

@@ -2,7 +2,7 @@ import type { ClientPlugin } from '@scalar/oas-utils/helpers'
 import { ref } from 'vue'
 
 import { type TestResult, executePostResponseScript, executePreRequestScript } from '@/libs/execute-scripts'
-import TestResults from '@/plugins/request-scripts/components/TestResults/TestResults.vue'
+import { TestResults } from '@/plugins/request-scripts/components/TestResults'
 
 import ScriptsSection from './components/ScriptsSection.vue'
 

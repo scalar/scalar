@@ -12,13 +12,15 @@ import {
   updateWatchMode,
 } from './document'
 
-function createDocument(initial?: Partial<WorkspaceDocument>): WorkspaceDocument {
+type TestDocument = WorkspaceDocument & Record<string, unknown>
+
+function createDocument(initial?: Partial<WorkspaceDocument> & Record<string, unknown>): TestDocument {
   return {
     openapi: '3.1.0',
     info: { title: 'Test', version: '1.0.0' },
     ...initial,
     'x-scalar-original-document-hash': '123',
-  }
+  } as TestDocument
 }
 
 describe('updateDocumentExtension', () => {
