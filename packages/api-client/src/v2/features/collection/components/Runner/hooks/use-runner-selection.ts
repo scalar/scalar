@@ -10,12 +10,12 @@ export type SelectedItem = {
   label: string
 }
 
-export type UseRunnerSelectionOptions = {
+type UseRunnerSelectionOptions = {
   /** Whether selection modifications are locked (e.g., during a run) */
   isLocked: () => boolean
 }
 
-export type UseRunnerSelectionReturn = {
+type UseRunnerSelectionReturn = {
   /** Ordered list of selected items */
   selectedOrder: Ref<SelectedItem[]>
   /** Whether any items are selected */

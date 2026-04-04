@@ -107,7 +107,6 @@ const hasBody = computed(() => result?.error || failedTests.length > 0)
             {{ path }}
           </span>
           <span
-            v-if="exampleKey !== 'default'"
             class="bg-b-3 text-c-3 shrink-0 rounded px-1.5 py-0.5 text-[0.6rem]">
             {{ exampleKey }}
           </span>

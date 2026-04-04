@@ -31,6 +31,14 @@ const emit = defineEmits<{
 
 const depth = computed(() => props.depth ?? 0)
 
+const ALLOWED_TYPES = new Set(['document', 'operation', 'example', 'tag'])
+
+const filterEntries = (entries: TraversedEntry[]): TraversedEntry[] => {
+  return entries.filter((entry) => ALLOWED_TYPES.has(entry.type))
+}
+
+const filteredEntries = computed(() => filterEntries(props.entries))
+
 const getExamplesForOperation = (
   op: TraversedOperation,
 ): { id: string; name: string }[] => {
@@ -95,7 +103,8 @@ const getGroupStats = (
   let total = 0
   let selected = 0
 
-  for (const entry of entries) {
+  const filtered = filterEntries(entries)
+  for (const entry of filtered) {
     if (entry.type === 'operation') {
       const examples = getExamplesForOperation(entry)
       total += examples.length
@@ -118,7 +127,7 @@ const getGroupStats = (
     class="flex list-none flex-col gap-2 p-0"
     :class="[disabled && 'pointer-events-none opacity-60']">
     <template
-      v-for="entry in entries"
+      v-for="entry in filteredEntries"
       :key="entry.id">
       <!-- Operation -->
       <RunnerTreeOperation
@@ -140,16 +149,20 @@ const getGroupStats = (
         "
         @toggleAll="toggleAllExamples(entry)" />
 
-      <!-- Group -->
+      <!-- Group (tag/document with children) -->
       <RunnerTreeGroup
-        v-else-if="'children' in entry && entry.children?.length"
-        :selectedCount="getGroupStats(entry.children).selected"
+        v-else-if="
+          'children' in entry && filterEntries(entry.children ?? []).length > 0
+        "
+        :selectedCount="
+          getGroupStats(filterEntries(entry.children ?? [])).selected
+        "
         :title="entry.title"
-        :totalCount="getGroupStats(entry.children).total">
+        :totalCount="getGroupStats(filterEntries(entry.children ?? [])).total">
         <RunnerTree
           :depth="depth + 1"
           :disabled="disabled"
-          :entries="entry.children"
+          :entries="entry.children ?? []"
           :isSelected="isSelected"
           :selectedOrder="selectedOrder"
           @toggle="

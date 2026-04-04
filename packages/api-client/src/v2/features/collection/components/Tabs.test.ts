@@ -54,7 +54,7 @@ describe('Tabs', () => {
     const { wrapper } = await mountWithRouter('document', 'document.overview')
 
     const links = wrapper.findAll('a')
-    expect(links).toHaveLength(7)
+    expect(links).toHaveLength(8)
     expect(wrapper.text()).toContain('Overview')
     expect(wrapper.text()).toContain('Servers')
     expect(wrapper.text()).toContain('Authentication')

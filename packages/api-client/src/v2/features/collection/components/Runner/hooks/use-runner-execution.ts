@@ -41,7 +41,7 @@ export type RunSummary = {
   allPassed: boolean
 }
 
-export type UseRunnerExecutionOptions = {
+type UseRunnerExecutionOptions = {
   /** Workspace store */
   workspaceStore: WorkspaceStore
   /** Document */
@@ -54,7 +54,7 @@ export type UseRunnerExecutionOptions = {
   selectedOrder: ComputedRef<SelectedItem[]>
 }
 
-export type UseRunnerExecutionReturn = {
+type UseRunnerExecutionReturn = {
   /** Whether a run is currently in progress */
   isRunning: Ref<boolean>
   /** Whether a run has completed */
