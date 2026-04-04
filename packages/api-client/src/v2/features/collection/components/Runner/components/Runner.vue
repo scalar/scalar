@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { ScalarButton, useLoadingState } from '@scalar/components'
-import type { HttpMethod } from '@scalar/helpers/http/http-methods'
+import { ScalarButton } from '@scalar/components'
 import {
   ScalarIconArrowCounterClockwise,
   ScalarIconCheckCircle,
@@ -10,422 +9,66 @@ import {
   ScalarIconTrash,
   ScalarIconXCircle,
 } from '@scalar/icons'
-import {
-  executePostResponseScript,
-  executePreRequestScript,
-} from '@scalar/pre-post-request-scripts'
-import {
-  buildRequest,
-  createVariablesStoreForRequest,
-  getEnvironmentVariables,
-  getRequestExampleContext,
-  requestFactory,
-} from '@scalar/workspace-store/request-example'
-import { computed, ref } from 'vue'
+import { computed } from 'vue'
 
-import { isElectron } from '@/libs/electron'
-import {
-  sendRequest,
-  type ResponseInstance,
-} from '@/v2/blocks/operation-block/helpers/send-request'
 import HttpMethodBadge from '@/v2/blocks/operation-code-sample/components/HttpMethod.vue'
-import { APP_VERSION } from '@/v2/constants'
 import type { CollectionProps } from '@/v2/features/app/helpers/routes'
+import { formatDuration } from '@/v2/features/collection/components/Runner/helpers/format-duration'
 import Section from '@/v2/features/settings/components/Section.vue'
 
+import { useRunnerExecution, useRunnerSelection } from '../hooks'
 import RunnerTree from './RunnerTree.vue'
 
-const props = defineProps<CollectionProps>()
+const { document, collectionType, workspaceStore, documentSlug, layout } =
+  defineProps<CollectionProps>()
 
-/** One selectable row: operation example (path + method + exampleKey) with stable id */
-type SelectedItem = {
-  id: string
-  path: string
-  method: HttpMethod
-  exampleKey: string
-  label: string
-}
-
-type TestResult = {
-  title: string
-  passed: boolean
-  duration: number
-  error?: string
-  status: 'pending' | 'passed' | 'failed'
-}
-
-/** Result of running a single item */
-type RunResult = {
-  item: SelectedItem
-  result: ResponseInstance | null
-  error: Error | null
-  testResults: TestResult[]
-}
-
-const selectedOrder = ref<SelectedItem[]>([])
-const isRunning = ref(false)
-const currentRunIndex = ref<number | null>(null)
-const runLoader = useLoadingState()
-const runResults = ref<RunResult[]>([])
-const runStartTime = ref<number | null>(null)
-const runEndTime = ref<number | null>(null)
-
-const runSummary = computed(() => {
-  if (runResults.value.length === 0 && !hasRunCompleted.value) {
-    return null
-  }
-  const ran = runResults.value.length
-  const total = selectedOrder.value.length
-  const passed = runResults.value.filter(
-    (r) => !r.error && r.testResults.every((t) => t.passed),
-  ).length
-  const failed = ran - passed
-  const skipped = total - ran
-  const duration =
-    runStartTime.value && runEndTime.value
-      ? runEndTime.value - runStartTime.value
-      : null
-  const allPassed = failed === 0 && skipped === 0
-  return { total, passed, failed, skipped, duration, allPassed }
+const {
+  selectedOrder,
+  hasSelection,
+  isSelected,
+  toggle,
+  clearAll,
+  removeFromOrder,
+  dragState,
+  handleDragStart,
+  handleDragOver,
+  handleDragLeave,
+  handleDrop,
+  handleDragEnd,
+} = useRunnerSelection({
+  isLocked: () => isLocked.value,
 })
 
-const hasRunCompleted = ref(false)
+const {
+  isRunning,
+  hasRunCompleted,
+  currentRunIndex,
+  runLoader,
+  runSummary,
+  run,
+  rerun,
+  clearResults,
+  getResultAtIndex,
+  isResultPassed,
+  isResultSkipped,
+  getFailedTests,
+} = useRunnerExecution({
+  workspaceStore,
+  document,
+  documentName: documentSlug,
+  isWeb: layout === 'web',
+  selectedOrder: computed(() => selectedOrder.value),
+})
 
 const isLocked = computed(() => isRunning.value || hasRunCompleted.value)
 
-function formatDuration(ms: number): string {
-  if (ms < 1000) {
-    return `${Math.round(ms)}ms`
-  }
-  return `${(ms / 1000).toFixed(2)}s`
-}
-
-function clearResults(): void {
-  runResults.value = []
-  hasRunCompleted.value = false
-  runStartTime.value = null
-  runEndTime.value = null
-}
-
-function rerun(): void {
-  clearResults()
-  void run()
-}
-
-function getResultAtIndex(index: number): RunResult | null {
-  return runResults.value[index] ?? null
-}
-
-function isResultPassed(result: RunResult | null): boolean {
-  if (!result) {
-    return false
-  }
-  if (result.error) {
-    return false
-  }
-  if (result.testResults.some((t) => !t.passed)) {
-    return false
-  }
-  return true
-}
-
-function isResultSkipped(index: number): boolean {
-  return hasRunCompleted.value && getResultAtIndex(index) === null
-}
-
-function getFailedTests(result: RunResult | null): TestResult[] {
-  if (!result) {
-    return []
-  }
-  return result.testResults.filter((t) => !t.passed)
-}
+const { draggedIndex, dragOverIndex, dragOffset } = dragState
 
 const navigationChildren = computed(() => {
-  if (props.collectionType !== 'document' || !props.document) {
-    return []
-  }
-  const nav = props.document['x-scalar-navigation']
-  return nav?.children ?? []
+  return document?.['x-scalar-navigation']?.children ?? []
 })
 
 const hasOperations = computed(() => navigationChildren.value.length > 0)
-
-/** Check if this (path, method, exampleKey) is in the selected list */
-function isSelected(
-  path: string,
-  method: HttpMethod,
-  exampleKey: string,
-): boolean {
-  return selectedOrder.value.some(
-    (s) =>
-      s.path === path && s.method === method && s.exampleKey === exampleKey,
-  )
-}
-
-/** Toggle selection of an operation example */
-function toggle(
-  path: string,
-  method: HttpMethod,
-  exampleKey: string,
-  label: string,
-): void {
-  if (isLocked.value) {
-    return
-  }
-  const id = `${path}|${method}|${exampleKey}`
-  const idx = selectedOrder.value.findIndex((s) => s.id === id)
-  if (idx >= 0) {
-    selectedOrder.value = selectedOrder.value.filter((_, i) => i !== idx)
-  } else {
-    selectedOrder.value = [
-      ...selectedOrder.value,
-      { id, path, method, exampleKey, label },
-    ]
-  }
-}
-
-function clearAll(): void {
-  if (isLocked.value) {
-    return
-  }
-  selectedOrder.value = []
-}
-
-function removeFromOrder(item: SelectedItem): void {
-  if (isLocked.value) {
-    return
-  }
-  selectedOrder.value = selectedOrder.value.filter((s) => s.id !== item.id)
-}
-
-const hasSelection = computed(() => selectedOrder.value.length > 0)
-
-const draggedIndex = ref<number | null>(null)
-const dragOverIndex = ref<number | null>(null)
-const dragOffset = ref<'before' | 'after' | null>(null)
-
-function handleDragStart(index: number, event: DragEvent): void {
-  if (isLocked.value) {
-    event.preventDefault()
-    return
-  }
-  draggedIndex.value = index
-  if (event.dataTransfer) {
-    event.dataTransfer.effectAllowed = 'move'
-    event.dataTransfer.setData('text/plain', String(index))
-  }
-}
-
-function handleDragOver(index: number, event: DragEvent): void {
-  event.preventDefault()
-  if (draggedIndex.value === null || draggedIndex.value === index) {
-    dragOverIndex.value = null
-    dragOffset.value = null
-    return
-  }
-
-  const rect = (event.currentTarget as HTMLElement).getBoundingClientRect()
-  const midpoint = rect.top + rect.height / 2
-  const offset = event.clientY < midpoint ? 'before' : 'after'
-
-  dragOverIndex.value = index
-  dragOffset.value = offset
-}
-
-function handleDragLeave(): void {
-  dragOverIndex.value = null
-  dragOffset.value = null
-}
-
-function handleDrop(event: DragEvent): void {
-  event.preventDefault()
-  if (
-    draggedIndex.value === null ||
-    dragOverIndex.value === null ||
-    dragOffset.value === null
-  ) {
-    return
-  }
-
-  const fromIndex = draggedIndex.value
-  const toIndex = dragOverIndex.value
-
-  if (fromIndex === toIndex) {
-    resetDragState()
-    return
-  }
-
-  const list = [...selectedOrder.value]
-  const [removed] = list.splice(fromIndex, 1)
-  if (!removed) {
-    resetDragState()
-    return
-  }
-
-  let insertIndex = toIndex
-  if (fromIndex < toIndex) {
-    insertIndex = dragOffset.value === 'after' ? toIndex : toIndex - 1
-  } else {
-    insertIndex = dragOffset.value === 'before' ? toIndex : toIndex + 1
-  }
-
-  insertIndex = Math.max(0, Math.min(insertIndex, list.length))
-  list.splice(insertIndex, 0, removed)
-  selectedOrder.value = list
-
-  resetDragState()
-}
-
-function handleDragEnd(): void {
-  resetDragState()
-}
-
-function resetDragState(): void {
-  draggedIndex.value = null
-  dragOverIndex.value = null
-  dragOffset.value = null
-}
-
-/** Run all selected items in sequence */
-async function run(): Promise<void> {
-  if (props.collectionType !== 'document' || !props.document) {
-    return
-  }
-
-  isRunning.value = true
-  hasRunCompleted.value = false
-  runLoader.start()
-  runResults.value = []
-  currentRunIndex.value = 0
-  runStartTime.value = Date.now()
-  runEndTime.value = null
-
-  const variablesStore = createVariablesStoreForRequest()
-
-  for (let i = 0; i < selectedOrder.value.length; i++) {
-    currentRunIndex.value = i + 1
-    const item = selectedOrder.value[i]!
-
-    const runResult: RunResult = {
-      item,
-      result: null,
-      error: null,
-      testResults: [],
-    }
-
-    try {
-      const contextResult = getRequestExampleContext(
-        props.workspaceStore,
-        props.documentSlug,
-        { path: item.path, method: item.method, exampleName: item.exampleKey },
-        {
-          fallbackDocument: props.document,
-          isElectron: isElectron(),
-          layout: props.layout === 'web' ? 'web' : 'other',
-          appVersion: APP_VERSION,
-        },
-      )
-
-      if (!contextResult.ok) {
-        runResult.error = new Error(contextResult.error)
-        runResults.value = [...runResults.value, runResult]
-        continue
-      }
-
-      const ctx = contextResult.data
-      const globalCookies = [...ctx.cookies.workspace, ...ctx.cookies.document]
-
-      const { request: requestBuilder } = requestFactory({
-        defaultHeaders: ctx.headers.default,
-        environment: ctx.environment.environment,
-        exampleName: item.exampleKey,
-        globalCookies,
-        method: item.method,
-        operation: ctx.operation,
-        path: item.path,
-        proxyUrl: ctx.proxy.url ?? '',
-        server: ctx.servers.selected,
-        selectedSecuritySchemes: ctx.security.selectedSchemes,
-        isElectron: isElectron(),
-      })
-
-      const preRequestScript =
-        `${props.document['x-pre-request'] ?? ''}\n${ctx.operation['x-pre-request'] ?? ''}`.trim()
-      await executePreRequestScript(preRequestScript, {
-        requestBuilder,
-        variablesStore,
-        onTestResultsUpdate: (newResults) => {
-          runResult.testResults = [...newResults]
-        },
-      })
-
-      const envVariables = {
-        ...getEnvironmentVariables(ctx.environment.environment),
-        ...variablesStore.getVariables(),
-      }
-
-      const requestResult = (() => {
-        try {
-          return {
-            ok: true,
-            result: buildRequest(requestBuilder, { envVariables }),
-          } as const
-        } catch (error) {
-          const message = error instanceof Error ? error.message : String(error)
-          return { ok: false, error: message } as const
-        }
-      })()
-
-      if (!requestResult.ok) {
-        runResult.error = new Error(requestResult.error)
-        runResults.value = [...runResults.value, runResult]
-        continue
-      }
-
-      const [sendError, sendResult] = await sendRequest({
-        isUsingProxy: requestResult.result.isUsingProxy,
-        request: requestResult.result.request,
-      })
-
-      if (sendError) {
-        runResult.error = sendError
-        runResults.value = [...runResults.value, runResult]
-        continue
-      }
-
-      runResult.result = sendResult.response
-
-      const postResponseScript =
-        `${props.document['x-post-response'] ?? ''};\n${ctx.operation['x-post-response'] ?? ''}`.trim()
-      await executePostResponseScript(postResponseScript, {
-        requestBuilder,
-        response: sendResult.originalResponse.clone(),
-        variablesStore,
-        onTestResultsUpdate: (newResults) => {
-          runResult.testResults = [...runResult.testResults, ...newResults]
-        },
-      })
-
-      runResults.value = [...runResults.value, runResult]
-
-      const hasTestFailure = runResult.testResults.some((t) => !t.passed)
-      if (hasTestFailure) {
-        break
-      }
-    } catch (error) {
-      runResult.error =
-        error instanceof Error ? error : new Error(String(error))
-      runResults.value = [...runResults.value, runResult]
-      break
-    }
-  }
-
-  isRunning.value = false
-  hasRunCompleted.value = true
-  runEndTime.value = Date.now()
-  void runLoader.clear()
-  currentRunIndex.value = null
-}
 </script>
 
 <template>
@@ -1171,19 +814,35 @@ async function run(): Promise<void> {
 }
 
 .runner-result-row--passed {
-  background: color-mix(in srgb, var(--scalar-color-green) 4%, var(--scalar-background-1));
+  background: color-mix(
+    in srgb,
+    var(--scalar-color-green) 4%,
+    var(--scalar-background-1)
+  );
 }
 
 .runner-result-row--passed:hover {
-  background: color-mix(in srgb, var(--scalar-color-green) 8%, var(--scalar-background-1));
+  background: color-mix(
+    in srgb,
+    var(--scalar-color-green) 8%,
+    var(--scalar-background-1)
+  );
 }
 
 .runner-result-row--failed {
-  background: color-mix(in srgb, var(--scalar-color-red) 4%, var(--scalar-background-1));
+  background: color-mix(
+    in srgb,
+    var(--scalar-color-red) 4%,
+    var(--scalar-background-1)
+  );
 }
 
 .runner-result-row--failed:hover {
-  background: color-mix(in srgb, var(--scalar-color-red) 8%, var(--scalar-background-1));
+  background: color-mix(
+    in srgb,
+    var(--scalar-color-red) 8%,
+    var(--scalar-background-1)
+  );
 }
 
 .runner-result-row--skipped {
