@@ -4,7 +4,7 @@ import { ref } from 'vue'
 import { type TestResult, executePostResponseScript, executePreRequestScript } from '@/libs/execute-scripts'
 import TestResults from '@/plugins/request-scripts/components/TestResults/TestResults.vue'
 
-import { ScriptsSection } from './components/ScriptsSection'
+import ScriptsSection from './components/ScriptsSection.vue'
 
 /**
  * Unified request scripts plugin for client V2. Provides a single "Scripts"

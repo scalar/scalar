@@ -1,24 +1,24 @@
 <script setup lang="ts">
-import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed } from 'vue'
 
 import ScriptEditor from '@/components/ScriptEditor.vue'
 import { ViewLayoutCollapse } from '@/components/ViewLayout'
-import ExampleScripts from '@/plugins/request-scripts/components/PostResponseScripts/ExampleScripts.vue'
+import ExampleScripts from '@/plugins/request-scripts/components/ExampleScripts.vue'
 
-const { document } = defineProps<{
-  document?: OpenApiDocument | null
+const { operation } = defineProps<{
+  operation?: Pick<OperationObject, 'x-pre-request' | 'x-post-response'>
 }>()
 
 const emit = defineEmits<{
-  (e: 'update:extension', payload: Record<string, unknown>): void
+  (e: 'operation:update:extension', payload: any): void
 }>()
 
 const preRequestScript = computed(
-  () => (document?.['x-pre-request'] as string) ?? '',
+  () => (operation?.['x-pre-request'] as string) ?? '',
 )
 const postResponseScript = computed(
-  () => (document?.['x-post-response'] as string) ?? '',
+  () => (operation?.['x-post-response'] as string) ?? '',
 )
 
 const hasAnyScript = computed(
@@ -27,10 +27,10 @@ const hasAnyScript = computed(
 )
 
 const updatePreRequestScript = (value: string) => {
-  emit('update:extension', { 'x-pre-request': value })
+  emit('operation:update:extension', { 'x-pre-request': value })
 }
 const updatePostResponseScript = (value: string) => {
-  emit('update:extension', { 'x-post-response': value })
+  emit('operation:update:extension', { 'x-post-response': value })
 }
 </script>
 
@@ -51,8 +51,8 @@ const updatePostResponseScript = (value: string) => {
 
       <!-- Pre-request -->
       <div class="text-c-3 flex h-8 items-center border-y px-3 text-sm">
-        Pre-request — run before each request in this document (e.g. set
-        variables, headers).
+        Pre-request — run before the request is sent (e.g. set variables,
+        headers).
       </div>
       <ScriptEditor
         :modelValue="preRequestScript"
@@ -60,7 +60,7 @@ const updatePostResponseScript = (value: string) => {
 
       <!-- Post-response -->
       <div class="text-c-3 flex h-8 items-center border-y px-3 text-sm">
-        Post-response — run after each response in this document (e.g. tests,
+        Post-response — run after the response is received (e.g. tests,
         assertions).
       </div>
       <ScriptEditor
