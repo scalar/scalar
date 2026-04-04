@@ -73,7 +73,7 @@ export default defineNuxtModule<ModuleOptions>({
       '@scalar/nuxt > debug',
       '@scalar/nuxt > extend',
       '@scalar/nuxt > highlightjs-curl',
-      '@scalar/nuxt > highlight.js/lib/core',
+      '@scalar/nuxt > highlight.js/es/core',
     )
 
     // Ensure proper handling of CommonJS modules

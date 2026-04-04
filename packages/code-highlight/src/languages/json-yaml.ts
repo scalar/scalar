@@ -1,7 +1,7 @@
 import type { LanguageFn } from 'highlight.js'
-import json from 'highlight.js/lib/languages/json'
-import plaintext from 'highlight.js/lib/languages/plaintext'
-import yaml from 'highlight.js/lib/languages/yaml'
+import json from 'highlight.js/es/languages/json'
+import plaintext from 'highlight.js/es/languages/plaintext'
+import yaml from 'highlight.js/es/languages/yaml'
 
 const jsonYamlLanguages: Record<string, LanguageFn> = {
   json,
