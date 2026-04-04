@@ -25,15 +25,15 @@ const {
 }>()
 
 const emit = defineEmits<{
-  remove: []
+  (e: 'remove'): void
 }>()
 </script>
 
 <template>
   <div
-    class="group relative flex h-8 items-center rounded-md after:pointer-events-none after:absolute after:inset-x-0 after:block after:rounded after:bg-blue after:opacity-0"
+    class="group after:bg-blue relative flex h-8 items-center rounded-md after:pointer-events-none after:absolute after:inset-x-0 after:block after:rounded after:opacity-0"
     :class="[
-      isLocked ? 'cursor-default bg-b-2' : 'cursor-grab bg-b-1',
+      isLocked ? 'bg-b-2 cursor-default' : 'bg-b-1 cursor-grab',
       isDragging && 'opacity-40',
       isDragBefore && 'after:-top-0.5 after:h-1 after:opacity-100',
       isDragAfter && 'after:-bottom-0.5 after:h-1 after:opacity-100',
@@ -41,15 +41,15 @@ const emit = defineEmits<{
     <!-- Drag handle -->
     <div
       v-if="!isLocked"
-      class="flex h-full shrink-0 cursor-grab items-center px-1 text-c-3 opacity-40 transition-opacity duration-100 group-hover:opacity-100"
+      class="text-c-3 flex h-full shrink-0 cursor-grab items-center px-1 opacity-40 transition-opacity duration-100 group-hover:opacity-100"
       title="Drag to reorder">
       <ScalarIconDotsSixVertical class="size-3" />
     </div>
 
     <!-- Index -->
     <span
-      class="shrink-0 text-[0.65rem] tabular-nums text-c-3"
-      :class="isLocked ? 'pl-2 pr-1.5' : 'pr-1.5'">
+      class="text-c-3 shrink-0 text-[0.65rem] tabular-nums"
+      :class="isLocked ? 'pr-1.5 pl-2' : 'pr-1.5'">
       #{{ index + 1 }}
     </span>
 
@@ -60,7 +60,7 @@ const emit = defineEmits<{
         :method="method"
         short />
       <span
-        class="min-w-0 flex-1 truncate text-[0.7rem] text-c-2"
+        class="text-c-2 min-w-0 flex-1 truncate text-[0.7rem]"
         :title="path">
         {{ path }}
       </span>
@@ -69,7 +69,7 @@ const emit = defineEmits<{
     <!-- Example key pill -->
     <span
       v-if="exampleKey !== 'default'"
-      class="mr-1 shrink-0 rounded bg-b-3 px-1.5 py-0.5 text-[0.6rem] text-c-3">
+      class="bg-b-3 text-c-3 mr-1 shrink-0 rounded px-1.5 py-0.5 text-[0.6rem]">
       {{ exampleKey }}
     </span>
 
@@ -77,7 +77,7 @@ const emit = defineEmits<{
     <button
       v-if="!isLocked"
       aria-label="Remove from run order"
-      class="mr-1 flex size-5 shrink-0 cursor-pointer items-center justify-center rounded border-none bg-transparent p-0 text-c-3 opacity-0 transition-all duration-100 hover:bg-red/10 hover:text-red group-hover:opacity-100"
+      class="text-c-3 hover:bg-red/10 hover:text-red mr-1 flex size-5 shrink-0 cursor-pointer items-center justify-center rounded border-none bg-transparent p-0 opacity-0 transition-all duration-100 group-hover:opacity-100"
       type="button"
       @click.stop="emit('remove')">
       <ScalarIconX class="size-3" />

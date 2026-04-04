@@ -63,9 +63,7 @@ const statusConfig = {
   },
 }
 
-const hasBody = computed(
-  () => result?.error || failedTests.length > 0,
-)
+const hasBody = computed(() => result?.error || failedTests.length > 0)
 </script>
 
 <template>

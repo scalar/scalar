@@ -138,7 +138,9 @@ const hasOperations = computed(() => navigationChildren.value.length > 0)
                 :exampleKey="item.exampleKey"
                 :index="index"
                 :isDragAfter="dragOverIndex === index && dragOffset === 'after'"
-                :isDragBefore="dragOverIndex === index && dragOffset === 'before'"
+                :isDragBefore="
+                  dragOverIndex === index && dragOffset === 'before'
+                "
                 :isDragging="draggedIndex === index"
                 :isLocked="isLocked"
                 :method="item.method"
@@ -177,7 +179,7 @@ const hasOperations = computed(() => navigationChildren.value.length > 0)
           <ScalarButton
             v-else
             class="min-w-40"
-            :disabled="isRunning"
+            :disabled="!hasSelection || isRunning"
             :icon="ScalarIconArrowCounterClockwise"
             :loader="runLoader"
             size="md"

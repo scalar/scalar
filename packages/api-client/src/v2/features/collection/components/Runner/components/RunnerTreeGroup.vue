@@ -21,16 +21,17 @@ function toggle(): void {
 </script>
 
 <template>
-  <li class="flex flex-col rounded-lg border border-border-color bg-b-1 transition-colors duration-100">
+  <li
+    class="border-border-color bg-b-1 flex flex-col rounded-lg border transition-colors duration-100">
     <!-- Header button -->
     <button
       :aria-expanded="!isCollapsed"
-      class="group/toggle flex w-full cursor-pointer items-center gap-2 rounded-lg px-2.5 py-2 text-left transition-colors duration-100 hover:bg-b-2"
+      class="group/toggle hover:bg-b-2 flex w-full cursor-pointer items-center gap-2 rounded-lg px-2.5 py-2 text-left transition-colors duration-100"
       type="button"
       @click="toggle">
       <!-- Caret -->
       <span
-        class="flex size-4 items-center justify-center text-c-3 transition-transform duration-100"
+        class="text-c-3 flex size-4 items-center justify-center transition-transform duration-100"
         :class="!isCollapsed && 'rotate-90'">
         <ScalarIconCaretRight class="size-3" />
       </span>
@@ -38,7 +39,7 @@ function toggle(): void {
       <!-- Title -->
       <span
         class="min-w-0 flex-1 truncate text-xs"
-        :class="hasSelection ? 'font-medium text-c-1' : 'text-c-2'">
+        :class="hasSelection ? 'text-c-1 font-medium' : 'text-c-2'">
         {{ title }}
       </span>
 
@@ -59,7 +60,7 @@ function toggle(): void {
     <!-- Children -->
     <ul
       v-show="!isCollapsed"
-      class="m-0 flex list-none flex-col gap-1.5 border-t border-border-color p-0 px-2.5 pb-2 pt-2">
+      class="border-border-color m-0 flex list-none flex-col gap-1.5 border-t p-0 px-2.5 pt-2 pb-2">
       <slot />
     </ul>
   </li>
