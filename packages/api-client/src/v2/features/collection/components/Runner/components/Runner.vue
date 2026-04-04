@@ -2,6 +2,7 @@
 import { ScalarButton, useLoadingState } from '@scalar/components'
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import {
+  ScalarIconArrowCounterClockwise,
   ScalarIconCheckCircle,
   ScalarIconDotsSixVertical,
   ScalarIconMinusCircle,
@@ -104,6 +105,11 @@ function clearResults(): void {
   hasRunCompleted.value = false
   runStartTime.value = null
   runEndTime.value = null
+}
+
+function rerun(): void {
+  clearResults()
+  void run()
 }
 
 function getResultAtIndex(index: number): RunResult | null {
@@ -550,6 +556,7 @@ async function run(): Promise<void> {
         <!-- Run button -->
         <div class="runner-actions">
           <ScalarButton
+            v-if="!hasRunCompleted"
             class="runner-run-btn"
             :disabled="!hasSelection || isRunning"
             :icon="ScalarIconPlay"
@@ -558,6 +565,17 @@ async function run(): Promise<void> {
             variant="gradient"
             @click="run">
             Run sequence
+          </ScalarButton>
+          <ScalarButton
+            v-else
+            class="runner-run-btn"
+            :disabled="isRunning"
+            :icon="ScalarIconArrowCounterClockwise"
+            :loader="runLoader"
+            size="md"
+            variant="gradient"
+            @click="rerun">
+            Re-run sequence
           </ScalarButton>
         </div>
 
