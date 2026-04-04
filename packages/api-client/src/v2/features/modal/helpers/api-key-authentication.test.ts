@@ -33,6 +33,38 @@ $ pnpm script run test-servers
  * Regression tests for issue #8739
  */
 describe('api-key-authentication', () => {
+  it('sends API key value from configuration when OpenAPI spec only defines the scheme structure (exact GitHub issue #8739 scenario)', async () => {
+    const [error, requestOperation] = createRequestOperation({
+      ...createRequestPayload({
+        serverPayload: { url: VOID_URL },
+      }),
+      securitySchemes: {
+        'apiKeyAuth': securitySchemeSchema.parse({
+          type: 'apiKey',
+          name: 'X-API-Key',
+          in: 'header',
+          value: 'my-secret-key',
+          uid: 'apiKeyAuth',
+          nameKey: 'X-API-Key',
+        }),
+      },
+      selectedSecuritySchemeUids: ['apiKeyAuth'] as SelectedSecuritySchemeUids,
+    })
+    if (error) {
+      throw error
+    }
+
+    const [requestError, result] = await requestOperation.sendRequest()
+
+    expect(requestError).toBe(null)
+    if (!result || !('data' in result.response)) {
+      throw new Error('No data')
+    }
+    const responseData = JSON.parse(result?.response.data as string)
+    expect(responseData.headers['x-api-key']).not.toBe('')
+    expect(responseData.headers['x-api-key']).toBe('my-secret-key')
+  })
+
   it('sends API key in header when configured via authentication.securitySchemes', async () => {
     const [error, requestOperation] = createRequestOperation({
       ...createRequestPayload({
