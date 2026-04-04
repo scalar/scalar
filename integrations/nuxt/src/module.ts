@@ -50,12 +50,9 @@ export default defineNuxtModule<ModuleOptions>({
     _nuxt.options.imports.transform.exclude.push(/scalar/)
 
     /**
-     * Ensure we transform these cjs dependencies, remove as they get converted to ejs
-     * Last time this was fixed on the nuxt side so we removed this and it started working
-     * however its back so we add this back in
-     *
-     * error:
-     * doesn't provide an export named: 'default'
+     * Ensure problematic transitive dependencies are pre-bundled in dev mode.
+     * Some dependencies still expose CommonJS entry points, which can otherwise
+     * trigger "doesn't provide an export named 'default'" in browser ESM.
      */
     _nuxt.options.vite ||= {}
     _nuxt.options.vite.optimizeDeps ||= {}
@@ -73,7 +70,7 @@ export default defineNuxtModule<ModuleOptions>({
       '@scalar/nuxt > debug',
       '@scalar/nuxt > extend',
       '@scalar/nuxt > highlightjs-curl',
-      '@scalar/nuxt > highlight.js/es/core',
+      '@scalar/nuxt > highlight.js',
     )
 
     // Ensure proper handling of CommonJS modules
