@@ -1,10 +1,8 @@
 import type { VariableEntry, VariablesStore } from '@/request-example/variable-store/types'
 
 /**
- * Creates a VariablesStore for the request lifecycle. Scripts read from the merged
- * environment; when they call setCollectionVariables or setGlobals, we sync those
- * values back to the document or workspace selected environment via the mutators
- * (synchronous). setLocalVariables is for chaining requests (runner).
+ * Creates an in-memory VariablesStore for a single request execution,
+ * managing environment, collection, global, and local variables in priority order.
  */
 export function createVariablesStoreForRequest(): VariablesStore {
   const environmentEntries: VariableEntry[] = []
