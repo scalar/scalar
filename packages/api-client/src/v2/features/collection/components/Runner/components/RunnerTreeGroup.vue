@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { ScalarIconCaretDown, ScalarIconCaretRight } from '@scalar/icons'
-import { ref } from 'vue'
+import { ScalarIconCaretRight } from '@scalar/icons'
+import { computed, ref } from 'vue'
 
 const { title, selectedCount, totalCount } = defineProps<{
   title: string
@@ -10,32 +10,57 @@ const { title, selectedCount, totalCount } = defineProps<{
 
 const isCollapsed = ref(false)
 
+const hasSelection = computed(() => selectedCount > 0)
+const isFullySelected = computed(
+  () => selectedCount === totalCount && totalCount > 0,
+)
+
 function toggle(): void {
   isCollapsed.value = !isCollapsed.value
 }
 </script>
 
 <template>
-  <li class="mb-3 last:mb-0">
+  <li class="flex flex-col rounded-lg border border-border-color bg-b-1 transition-colors duration-100">
+    <!-- Header button -->
     <button
-      class="hover:bg-b-3 border-border-color bg-b-2 flex w-full cursor-pointer items-center gap-1.5 rounded-lg border px-3 py-2 transition-colors duration-150"
+      :aria-expanded="!isCollapsed"
+      class="group/toggle flex w-full cursor-pointer items-center gap-2 rounded-lg px-2.5 py-2 text-left transition-colors duration-100 hover:bg-b-2"
       type="button"
       @click="toggle">
-      <component
-        :is="isCollapsed ? ScalarIconCaretRight : ScalarIconCaretDown"
-        class="text-c-3 size-4 shrink-0" />
-      <span class="text-c-2 flex-1 text-left text-xs font-semibold">
+      <!-- Caret -->
+      <span
+        class="flex size-4 items-center justify-center text-c-3 transition-transform duration-100"
+        :class="!isCollapsed && 'rotate-90'">
+        <ScalarIconCaretRight class="size-3" />
+      </span>
+
+      <!-- Title -->
+      <span
+        class="min-w-0 flex-1 truncate text-xs"
+        :class="hasSelection ? 'font-medium text-c-1' : 'text-c-2'">
         {{ title }}
       </span>
+
+      <!-- Counter badge -->
       <span
-        class="bg-b-3 text-c-3 rounded px-2 py-0.5 text-[0.6875rem] font-medium">
-        {{ selectedCount }} / {{ totalCount }}
+        class="rounded-full px-1.5 py-0.5 text-[0.6rem] font-medium tabular-nums transition-colors duration-100"
+        :class="[
+          isFullySelected
+            ? 'bg-green/15 text-green'
+            : hasSelection
+              ? 'bg-accent-color/15 text-accent-color'
+              : 'bg-b-3 text-c-3',
+        ]">
+        {{ selectedCount }}/{{ totalCount }}
       </span>
     </button>
-    <div
+
+    <!-- Children -->
+    <ul
       v-show="!isCollapsed"
-      class="mt-2">
+      class="m-0 flex list-none flex-col gap-1.5 border-t border-border-color p-0 px-2.5 pb-2 pt-2">
       <slot />
-    </div>
+    </ul>
   </li>
 </template>

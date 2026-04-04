@@ -33,7 +33,7 @@ const selectedCount = computed(
 
 <template>
   <li
-    class="bg-b-1 mb-2 rounded-lg border p-2.5 transition-colors duration-100 last:mb-0"
+    class="bg-b-1 rounded-lg border p-2.5 transition-colors duration-100 last:mb-0"
     :class="hasSelection ? 'border-accent-color/40' : 'border-border-color'">
     <!-- Header row: method + path + actions -->
     <div class="flex items-center gap-2">

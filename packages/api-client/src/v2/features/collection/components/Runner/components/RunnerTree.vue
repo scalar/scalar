@@ -115,11 +115,8 @@ const getGroupStats = (
 
 <template>
   <ul
-    class="m-0 list-none p-0"
-    :class="[
-      depth > 0 && 'border-border-color ml-2 border-l-2 pl-3',
-      disabled && 'pointer-events-none opacity-60',
-    ]">
+    class="flex list-none flex-col gap-2 p-0"
+    :class="[disabled && 'pointer-events-none opacity-60']">
     <template
       v-for="entry in entries"
       :key="entry.id">
