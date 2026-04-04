@@ -1292,7 +1292,7 @@ describe('create-request-operation', () => {
       expect(requestOperation.request.headers.get('x-api-key')).toBe('test-key')
     })
 
-    it('sends apiKey auth value from configuration (regression test for #8739)', async () => {
+    it('sends apiKey auth value configured via authentication.securitySchemes (regression test for #8739)', async () => {
       const [error, requestOperation] = createRequestOperation({
         ...createRequestPayload({
           serverPayload: { url: VOID_URL },
@@ -1323,7 +1323,7 @@ describe('create-request-operation', () => {
       expect(responseData.headers['x-api-key']).toBe('my-secret-key')
     })
 
-    it('sends apiKey auth value in query parameter (regression test for #8739)', async () => {
+    it('sends apiKey auth value in query parameter configured via authentication.securitySchemes (regression test for #8739)', async () => {
       const [error, requestOperation] = createRequestOperation({
         ...createRequestPayload({
           serverPayload: { url: VOID_URL },
@@ -1354,7 +1354,7 @@ describe('create-request-operation', () => {
       expect(responseData.query.api_key).toBe('my-secret-key')
     })
 
-    it('sends apiKey auth value in cookie (regression test for #8739)', async () => {
+    it('sends apiKey auth value in cookie configured via authentication.securitySchemes (regression test for #8739)', async () => {
       const [error, requestOperation] = createRequestOperation({
         ...createRequestPayload({
           serverPayload: { url: VOID_URL },
