@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ScalarButton } from '@scalar/components'
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { computed } from 'vue'
 
@@ -54,13 +55,20 @@ const selectedCount = computed(
       </span>
 
       <!-- Select all button -->
-      <button
-        v-if="hasMultipleExamples && !props.isDisabled"
-        class="text-accent-color hover:bg-accent-color/10 cursor-pointer rounded border-none bg-transparent px-1.5 py-0.5 text-[0.65rem] font-medium transition-colors duration-100"
-        type="button"
+      <ScalarButton
+        class="transition-opacity duration-100"
+        :class="
+          hasMultipleExamples && !props.isDisabled
+            ? 'opacity-100'
+            : 'pointer-events-none opacity-0'
+        "
+        size="xs"
+        variant="ghost"
         @click="emit('toggleAll')">
-        {{ props.isFullySelected ? 'Clear' : 'All' }}
-      </button>
+        <span class="hover:underline">{{
+          props.isFullySelected ? 'Clear' : 'All'
+        }}</span>
+      </ScalarButton>
     </div>
 
     <!-- Examples list -->

@@ -1,9 +1,6 @@
 <script setup lang="ts">
 import { ScalarButton } from '@scalar/components'
-import {
-  ScalarIconArrowCounterClockwise,
-  ScalarIconPlay,
-} from '@scalar/icons'
+import { ScalarIconArrowCounterClockwise, ScalarIconPlay } from '@scalar/icons'
 import { computed } from 'vue'
 
 import type { CollectionProps } from '@/v2/features/app/helpers/routes'
@@ -108,13 +105,18 @@ const hasOperations = computed(() => navigationChildren.value.length > 0)
         <!-- Run order card -->
         <RunnerCard title="Run order">
           <template #header>
-            <button
-              v-if="hasSelection && !isLocked"
-              class="cursor-pointer border-none bg-transparent py-1 text-xs font-medium text-accent-color hover:underline"
-              type="button"
+            <ScalarButton
+              class="transition-opacity duration-100"
+              :class="
+                hasSelection && !isLocked
+                  ? 'opacity-100'
+                  : 'pointer-events-none opacity-0'
+              "
+              size="xs"
+              variant="ghost"
               @click="clearAll">
-              Clear all
-            </button>
+              <span class="hover:underline">Clear all</span>
+            </ScalarButton>
           </template>
           <template #subtitle>
             {{ selectedOrder.length }}
@@ -136,7 +138,9 @@ const hasOperations = computed(() => navigationChildren.value.length > 0)
                 :exampleKey="item.exampleKey"
                 :index="index"
                 :isDragAfter="dragOverIndex === index && dragOffset === 'after'"
-                :isDragBefore="dragOverIndex === index && dragOffset === 'before'"
+                :isDragBefore="
+                  dragOverIndex === index && dragOffset === 'before'
+                "
                 :isDragging="draggedIndex === index"
                 :isLocked="isLocked"
                 :method="item.method"
@@ -187,7 +191,9 @@ const hasOperations = computed(() => navigationChildren.value.length > 0)
 
         <!-- Running progress -->
         <RunnerCard
-          v-if="isRunning && currentRunIndex != null && selectedOrder.length > 0"
+          v-if="
+            isRunning && currentRunIndex != null && selectedOrder.length > 0
+          "
           compact>
           <p class="text-c-2 text-sm">
             Running step
@@ -202,7 +208,7 @@ const hasOperations = computed(() => navigationChildren.value.length > 0)
             class="bg-b-3 mt-2 h-1.5 overflow-hidden rounded-full"
             role="progressbar">
             <div
-              class="h-full rounded-full bg-accent-color transition-[width] duration-200 ease-out"
+              class="bg-accent-color h-full rounded-full transition-[width] duration-200 ease-out"
               :style="{
                 width: `${(currentRunIndex / selectedOrder.length) * 100}%`,
               }" />

@@ -24,27 +24,33 @@ const hasSubtitle = computed(() => subtitle || slots.subtitle)
   <div
     class="border-border-color bg-b-2 rounded-xl border"
     :class="compact ? 'px-5 py-3' : 'px-5 py-4'">
+    <!-- Header row: title + subtitle on left, header slot on right -->
     <div
-      v-if="title || slots.header"
-      class="flex items-center justify-between gap-2"
-      :class="hasSubtitle ? 'mb-1' : 'mb-4'">
-      <h3
-        v-if="title"
-        class="text-c-1 m-0 text-[0.8125rem] font-semibold tracking-wide">
-        {{ title }}
-      </h3>
-      <slot name="header" />
+      v-if="title || hasSubtitle || slots.header"
+      class="mb-4 flex items-start justify-between gap-4">
+      <div class="min-w-0 flex-1">
+        <h3
+          v-if="title"
+          class="text-c-1 m-0 text-sm font-semibold tracking-wide">
+          {{ title }}
+        </h3>
+        <p
+          v-if="subtitle"
+          class="text-c-2 m-0 mt-1 text-xs leading-relaxed">
+          {{ subtitle }}
+        </p>
+        <p
+          v-else-if="slots.subtitle"
+          class="text-c-2 m-0 mt-1 text-xs leading-relaxed">
+          <slot name="subtitle" />
+        </p>
+      </div>
+      <div
+        v-if="slots.header"
+        class="shrink-0">
+        <slot name="header" />
+      </div>
     </div>
-    <p
-      v-if="subtitle"
-      class="text-c-2 m-0 mb-4 text-xs leading-relaxed">
-      {{ subtitle }}
-    </p>
-    <p
-      v-else-if="slots.subtitle"
-      class="text-c-2 m-0 mb-4 text-xs leading-relaxed">
-      <slot name="subtitle" />
-    </p>
     <slot />
   </div>
 </template>
