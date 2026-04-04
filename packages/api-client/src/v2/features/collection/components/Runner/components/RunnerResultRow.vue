@@ -1,10 +1,7 @@
 <script setup lang="ts">
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
-import {
-  ScalarIconCheckCircle,
-  ScalarIconMinusCircle,
-  ScalarIconXCircle,
-} from '@scalar/icons'
+import { ScalarIconCheck, ScalarIconMinus, ScalarIconX } from '@scalar/icons'
+import { computed } from 'vue'
 
 import HttpMethodBadge from '@/v2/blocks/operation-code-sample/components/HttpMethod.vue'
 
@@ -30,102 +27,144 @@ const {
   failedTests: TestResult[]
 }>()
 
-const statusClasses = {
-  passed: 'bg-green/5 hover:bg-green/10',
-  failed: 'bg-red/5 hover:bg-red/10',
-  skipped: 'opacity-60',
-  default: '',
+const status = computed(() => {
+  if (isSkipped) {
+    return 'skipped'
+  }
+  if (isPassed) {
+    return 'passed'
+  }
+  if (result) {
+    return 'failed'
+  }
+  return 'pending'
+})
+
+const statusConfig = {
+  passed: {
+    bg: 'bg-green/8',
+    border: 'border-green/20',
+    icon: 'bg-green text-white',
+  },
+  failed: {
+    bg: 'bg-red/8',
+    border: 'border-red/20',
+    icon: 'bg-red text-white',
+  },
+  skipped: {
+    bg: 'bg-b-2',
+    border: 'border-border-color',
+    icon: 'bg-b-3 text-c-3',
+  },
+  pending: {
+    bg: 'bg-b-1',
+    border: 'border-border-color',
+    icon: 'bg-b-3 text-c-3',
+  },
 }
 
-const indicatorClasses = {
-  passed: 'text-green bg-green/15',
-  failed: 'text-red bg-red/15',
-  skipped: 'text-c-3 bg-b-3',
-}
+const hasBody = computed(
+  () => result?.error || failedTests.length > 0,
+)
 </script>
 
 <template>
   <li
-    class="border-border-color bg-b-1 hover:border-c-3 flex items-start gap-2.5 rounded-lg border p-2.5 text-[0.8125rem] transition-all duration-150"
+    class="group flex gap-3 rounded-lg border p-3 transition-colors duration-100"
     :class="[
-      isPassed && statusClasses.passed,
-      result && !isPassed && statusClasses.failed,
-      isSkipped && statusClasses.skipped,
+      statusConfig[status].bg,
+      statusConfig[status].border,
+      hasBody ? 'items-start' : 'items-center',
     ]">
+    <!-- Status icon -->
     <div
-      class="mt-px flex size-6 shrink-0 items-center justify-center rounded-full"
-      :class="[
-        isPassed && indicatorClasses.passed,
-        result && !isPassed && indicatorClasses.failed,
-        isSkipped && indicatorClasses.skipped,
-      ]">
-      <ScalarIconCheckCircle
-        v-if="isPassed"
-        class="size-4" />
-      <ScalarIconXCircle
-        v-else-if="result"
-        class="size-4" />
-      <ScalarIconMinusCircle
-        v-else-if="isSkipped"
-        class="size-4" />
+      class="flex size-5 shrink-0 items-center justify-center rounded-full"
+      :class="statusConfig[status].icon">
+      <ScalarIconCheck
+        v-if="status === 'passed'"
+        class="size-3" />
+      <ScalarIconX
+        v-else-if="status === 'failed'"
+        class="size-3" />
+      <ScalarIconMinus
+        v-else
+        class="size-3" />
     </div>
-    <div class="flex min-w-0 flex-1 flex-col gap-1.5">
-      <div class="flex flex-wrap items-center gap-1.5">
+
+    <div class="flex min-w-0 flex-1 flex-col gap-2">
+      <!-- Main row -->
+      <div class="flex items-center justify-between gap-3">
+        <!-- Left: method + path -->
+        <div class="flex min-w-0 flex-1 items-center gap-1.5">
+          <span class="text-c-3 shrink-0 text-[0.65rem] tabular-nums">
+            #{{ index + 1 }}
+          </span>
+          <HttpMethodBadge
+            class="shrink-0 text-[0.6rem] font-bold uppercase"
+            :method="method"
+            short />
+          <span
+            class="text-c-1 min-w-0 truncate text-[0.75rem] font-medium"
+            :title="path">
+            {{ path }}
+          </span>
+          <span
+            v-if="exampleKey !== 'default'"
+            class="bg-b-3 text-c-3 shrink-0 rounded px-1.5 py-0.5 text-[0.6rem]">
+            {{ exampleKey }}
+          </span>
+        </div>
+
+        <!-- Right: status code + duration -->
+        <div
+          v-if="result?.result"
+          class="flex shrink-0 items-center gap-1.5">
+          <span
+            class="rounded px-1.5 py-0.5 text-[0.65rem] font-semibold tabular-nums"
+            :class="[
+              result.result.status >= 200 && result.result.status < 300
+                ? 'bg-green/15 text-green'
+                : result.result.status >= 400
+                  ? 'bg-red/15 text-red'
+                  : 'bg-b-3 text-c-2',
+            ]">
+            {{ result.result.status }}
+          </span>
+          <span class="text-c-3 text-[0.65rem] tabular-nums">
+            {{ Math.round(result.result.duration) }}ms
+          </span>
+        </div>
         <span
-          class="bg-b-3 text-c-3 rounded px-1.5 py-0.5 text-[0.625rem] font-semibold">
-          {{ index + 1 }}
-        </span>
-        <HttpMethodBadge :method="method" />
-        <span class="text-c-2 font-medium break-all">{{ path }}</span>
-        <span class="bg-b-3 text-c-3 rounded px-1.5 py-0.5 text-[0.6875rem]">
-          {{ exampleKey }}
+          v-else-if="isSkipped"
+          class="text-c-3 text-[0.65rem] italic">
+          skipped
         </span>
       </div>
 
+      <!-- Error message -->
       <div
-        v-if="result?.result"
-        class="flex items-center gap-2 text-xs">
-        <span
-          class="rounded px-1.5 py-0.5 font-semibold"
-          :class="[
-            result.result.status >= 200 && result.result.status < 300
-              ? 'text-green bg-green/10'
-              : result.result.status >= 400
-                ? 'text-red bg-red/10'
-                : '',
-          ]">
-          {{ result.result.status }}
-        </span>
-        <span class="text-c-3">
-          {{ Math.round(result.result.duration) }}ms
-        </span>
-      </div>
-      <div
-        v-else-if="isSkipped"
-        class="flex items-center gap-2 text-xs">
-        <span class="text-c-3">Skipped</span>
-      </div>
-
-      <p
         v-if="result?.error"
-        class="text-red bg-red/10 m-0 rounded px-2 py-1.5 text-xs leading-relaxed">
+        class="bg-red/10 text-red rounded px-2.5 py-2 text-[0.7rem] leading-relaxed">
         {{ result.error.message }}
-      </p>
+      </div>
 
+      <!-- Failed tests -->
       <div
         v-if="failedTests.length > 0"
-        class="bg-red/10 border-red/15 flex flex-col gap-1.5 rounded-md border px-2.5 py-2">
-        <p
+        class="bg-red/10 flex flex-col gap-1 rounded px-2.5 py-2">
+        <div
           v-for="(test, testIdx) in failedTests"
           :key="testIdx"
-          class="m-0 text-xs leading-relaxed">
-          <span class="text-red font-medium">{{ test.title }}</span>
+          class="flex flex-col gap-0.5">
+          <span class="text-red text-[0.7rem] font-medium">
+            {{ test.title }}
+          </span>
           <span
             v-if="test.error"
-            class="text-c-2 mt-0.5 block text-[0.6875rem]">
+            class="text-c-2 text-[0.65rem]">
             {{ test.error }}
           </span>
-        </p>
+        </div>
       </div>
     </div>
   </li>
