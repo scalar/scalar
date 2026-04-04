@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
-import { ScalarIconDotsSixVertical, ScalarIconTrash } from '@scalar/icons'
+import { ScalarIconDotsSixVertical, ScalarIconX } from '@scalar/icons'
 
 import HttpMethodBadge from '@/v2/blocks/operation-code-sample/components/HttpMethod.vue'
 
@@ -25,51 +25,62 @@ const {
 }>()
 
 const emit = defineEmits<{
-  (e: 'remove'): void
+  remove: []
 }>()
 </script>
 
 <template>
   <div
-    class="border-border-color bg-b-1 relative flex items-center gap-1.5 rounded-lg border py-2 pr-2 transition-all duration-150"
+    class="group relative flex h-8 items-center rounded-md after:pointer-events-none after:absolute after:inset-x-0 after:block after:rounded after:bg-blue after:opacity-0"
     :class="[
-      isLocked ? 'cursor-default pl-2' : 'hover:bg-b-3 cursor-grab pl-1',
-      isDragging && 'border-dashed opacity-50',
-      isDragBefore &&
-        'before:bg-accent-color before:absolute before:-top-1 before:right-0 before:left-0 before:h-1 before:rounded-sm',
-      isDragAfter &&
-        'after:bg-accent-color after:absolute after:right-0 after:-bottom-1 after:left-0 after:h-1 after:rounded-sm',
+      isLocked ? 'cursor-default bg-b-2' : 'cursor-grab bg-b-1',
+      isDragging && 'opacity-40',
+      isDragBefore && 'after:-top-0.5 after:h-1 after:opacity-100',
+      isDragAfter && 'after:-bottom-0.5 after:h-1 after:opacity-100',
     ]">
+    <!-- Drag handle -->
     <div
       v-if="!isLocked"
-      class="text-c-3 hover:text-c-1 flex shrink-0 cursor-grab items-center justify-center rounded p-1 transition-colors duration-150"
+      class="flex h-full shrink-0 cursor-grab items-center px-1 text-c-3 opacity-40 transition-opacity duration-100 group-hover:opacity-100"
       title="Drag to reorder">
-      <ScalarIconDotsSixVertical class="size-4" />
+      <ScalarIconDotsSixVertical class="size-3" />
     </div>
+
+    <!-- Index -->
     <span
-      aria-hidden="true"
-      class="text-c-3 w-5 shrink-0 text-center text-xs font-medium">
+      class="flex h-full w-6 shrink-0 items-center justify-center text-[0.65rem] font-medium tabular-nums text-c-3"
+      :class="isLocked && 'pl-2'">
       {{ index + 1 }}
     </span>
-    <div class="flex min-w-0 flex-1 items-center gap-2">
-      <HttpMethodBadge :method="method" />
+
+    <!-- Method + Path -->
+    <div class="flex min-w-0 flex-1 items-center gap-1.5 pr-2">
+      <HttpMethodBadge
+        class="shrink-0 text-[0.6rem] font-bold uppercase"
+        :method="method"
+        short />
       <span
-        class="text-c-2 min-w-0 flex-1 truncate text-[0.8125rem]"
+        class="min-w-0 flex-1 truncate text-[0.7rem] text-c-2"
         :title="path">
         {{ path }}
       </span>
-      <span
-        class="bg-b-3 text-c-3 shrink-0 rounded px-1.5 py-0.5 text-[0.6875rem]">
-        {{ exampleKey }}
-      </span>
     </div>
+
+    <!-- Example key pill -->
+    <span
+      v-if="exampleKey !== 'default'"
+      class="mr-1 shrink-0 rounded bg-b-3 px-1.5 py-0.5 text-[0.6rem] text-c-3">
+      {{ exampleKey }}
+    </span>
+
+    <!-- Remove button -->
     <button
       v-if="!isLocked"
       aria-label="Remove from run order"
-      class="text-c-3 hover:text-red hover:bg-b-3 inline-flex size-7 cursor-pointer items-center justify-center rounded-md border-none bg-transparent p-0 transition-colors duration-150"
+      class="mr-1 flex size-5 shrink-0 cursor-pointer items-center justify-center rounded border-none bg-transparent p-0 text-c-3 opacity-0 transition-all duration-100 hover:bg-red/10 hover:text-red group-hover:opacity-100"
       type="button"
-      @click="emit('remove')">
-      <ScalarIconTrash class="size-4" />
+      @click.stop="emit('remove')">
+      <ScalarIconX class="size-3" />
     </button>
   </div>
 </template>

@@ -113,8 +113,8 @@ export function useRunnerSelection({ isLocked }: UseRunnerSelectionOptions): Use
   }
 
   const handleDragLeave = (): void => {
-    dragOverIndex.value = null
-    dragOffset.value = null
+    // Do not clear hover state on leave - it will be updated by dragover or cleared on dragend
+    // This prevents flickering when moving between items
   }
 
   const handleDrop = (event: DragEvent): void => {

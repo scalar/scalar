@@ -129,7 +129,7 @@ const hasOperations = computed(() => navigationChildren.value.length > 0)
           <template #default>
             <div
               v-if="selectedOrder.length > 0"
-              class="flex flex-col gap-1.5"
+              class="flex flex-col gap-0.5"
               :class="{ 'opacity-60': isLocked }">
               <RunnerOrderItem
                 v-for="(item, index) in selectedOrder"
@@ -138,9 +138,7 @@ const hasOperations = computed(() => navigationChildren.value.length > 0)
                 :exampleKey="item.exampleKey"
                 :index="index"
                 :isDragAfter="dragOverIndex === index && dragOffset === 'after'"
-                :isDragBefore="
-                  dragOverIndex === index && dragOffset === 'before'
-                "
+                :isDragBefore="dragOverIndex === index && dragOffset === 'before'"
                 :isDragging="draggedIndex === index"
                 :isLocked="isLocked"
                 :method="item.method"

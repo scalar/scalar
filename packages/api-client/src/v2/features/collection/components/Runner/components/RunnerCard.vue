@@ -31,17 +31,17 @@ const hasSubtitle = computed(() => subtitle || slots.subtitle)
       <div class="min-w-0 flex-1">
         <h3
           v-if="title"
-          class="text-c-1 m-0 text-sm font-semibold tracking-wide">
+          class="text-c-1 m-0 text-sm font-bold tracking-wide">
           {{ title }}
         </h3>
         <p
           v-if="subtitle"
-          class="text-c-2 m-0 mt-1 text-xs leading-relaxed">
+          class="text-c-2 m-0 mt-1 text-xs">
           {{ subtitle }}
         </p>
         <p
           v-else-if="slots.subtitle"
-          class="text-c-2 m-0 mt-1 text-xs leading-relaxed">
+          class="text-c-2 m-0 mt-1 text-xs">
           <slot name="subtitle" />
         </p>
       </div>
