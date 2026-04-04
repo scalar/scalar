@@ -90,6 +90,8 @@ const runSummary = computed(() => {
 
 const hasRunCompleted = ref(false)
 
+const isLocked = computed(() => isRunning.value || hasRunCompleted.value)
+
 function formatDuration(ms: number): string {
   if (ms < 1000) {
     return `${Math.round(ms)}ms`
@@ -161,6 +163,9 @@ function toggle(
   exampleKey: string,
   label: string,
 ): void {
+  if (isLocked.value) {
+    return
+  }
   const id = `${path}|${method}|${exampleKey}`
   const idx = selectedOrder.value.findIndex((s) => s.id === id)
   if (idx >= 0) {
@@ -174,10 +179,16 @@ function toggle(
 }
 
 function clearAll(): void {
+  if (isLocked.value) {
+    return
+  }
   selectedOrder.value = []
 }
 
 function removeFromOrder(item: SelectedItem): void {
+  if (isLocked.value) {
+    return
+  }
   selectedOrder.value = selectedOrder.value.filter((s) => s.id !== item.id)
 }
 
@@ -188,6 +199,10 @@ const dragOverIndex = ref<number | null>(null)
 const dragOffset = ref<'before' | 'after' | null>(null)
 
 function handleDragStart(index: number, event: DragEvent): void {
+  if (isLocked.value) {
+    event.preventDefault()
+    return
+  }
   draggedIndex.value = index
   if (event.dataTransfer) {
     event.dataTransfer.effectAllowed = 'move'
@@ -426,8 +441,10 @@ async function run(): Promise<void> {
         </p>
         <div
           v-if="hasOperations"
-          class="runner-tree-wrapper">
+          class="runner-tree-wrapper"
+          :class="{ 'runner-tree-wrapper--locked': isLocked }">
           <RunnerTree
+            :disabled="isLocked"
             :entries="navigationChildren"
             :isSelected="isSelected"
             :selectedOrder="selectedOrder"
@@ -450,7 +467,7 @@ async function run(): Promise<void> {
           <div class="runner-card__header-row">
             <h3 class="runner-card__title">Run order</h3>
             <button
-              v-if="hasSelection"
+              v-if="hasSelection && !isLocked"
               class="runner-link"
               type="button"
               @click="clearAll">
@@ -459,13 +476,17 @@ async function run(): Promise<void> {
           </div>
           <p class="text-c-2 runner-card__subtitle">
             {{ selectedOrder.length }}
-            {{ selectedOrder.length === 1 ? 'item' : 'items' }} selected. Drag
-            to reorder.
+            {{ selectedOrder.length === 1 ? 'item' : 'items' }} selected.
+            <template v-if="!isLocked">Drag to reorder.</template>
+            <template v-else-if="hasRunCompleted">
+              Clear results to modify.
+            </template>
           </p>
 
           <div
             v-if="selectedOrder.length > 0"
-            class="runner-order-list">
+            class="runner-order-list"
+            :class="{ 'runner-order-list--locked': isLocked }">
             <div
               v-for="(item, index) in selectedOrder"
               :key="item.id"
@@ -476,14 +497,16 @@ async function run(): Promise<void> {
                   dragOverIndex === index && dragOffset === 'before',
                 'runner-order-item--drag-after':
                   dragOverIndex === index && dragOffset === 'after',
+                'runner-order-item--locked': isLocked,
               }"
-              draggable="true"
+              :draggable="!isLocked"
               @dragend="handleDragEnd"
               @dragleave="handleDragLeave"
               @dragover="handleDragOver(index, $event)"
               @dragstart="handleDragStart(index, $event)"
               @drop="handleDrop">
               <div
+                v-if="!isLocked"
                 class="runner-order-item__drag-handle"
                 title="Drag to reorder">
                 <ScalarIconDotsSixVertical class="size-4" />
@@ -505,6 +528,7 @@ async function run(): Promise<void> {
                 }}</span>
               </div>
               <button
+                v-if="!isLocked"
                 :aria-label="`Remove from run order`"
                 class="runner-icon-btn runner-icon-btn--danger"
                 type="button"
@@ -752,6 +776,10 @@ async function run(): Promise<void> {
   overflow-y: auto;
 }
 
+.runner-tree-wrapper--locked {
+  opacity: 0.6;
+}
+
 .runner-empty {
   padding: 1.5rem 0;
   text-align: center;
@@ -781,6 +809,10 @@ async function run(): Promise<void> {
   gap: 0.375rem;
 }
 
+.runner-order-list--locked {
+  opacity: 0.6;
+}
+
 .runner-order-item {
   position: relative;
   display: flex;
@@ -797,12 +829,25 @@ async function run(): Promise<void> {
   cursor: grab;
 }
 
+.runner-order-item--locked {
+  cursor: default;
+  padding-left: 0.5rem;
+}
+
 .runner-order-item:hover {
   background: var(--scalar-background-3);
 }
 
+.runner-order-item--locked:hover {
+  background: var(--scalar-background-1);
+}
+
 .runner-order-item:active {
   cursor: grabbing;
+}
+
+.runner-order-item--locked:active {
+  cursor: default;
 }
 
 .runner-order-item--dragging {
@@ -1097,27 +1142,34 @@ async function run(): Promise<void> {
   border-radius: 0.5rem;
   font-size: 0.8125rem;
   background: var(--scalar-background-1);
-  border: 1px solid transparent;
+  border: 1px solid var(--scalar-border-color);
   transition:
     background 0.15s,
     border-color 0.15s;
 }
 
 .runner-result-row:hover {
-  background: var(--scalar-background-3);
+  border-color: var(--scalar-color-3);
 }
 
 .runner-result-row--passed {
-  border-left: 3px solid var(--scalar-color-green);
+  background: color-mix(in srgb, var(--scalar-color-green) 4%, var(--scalar-background-1));
+}
+
+.runner-result-row--passed:hover {
+  background: color-mix(in srgb, var(--scalar-color-green) 8%, var(--scalar-background-1));
 }
 
 .runner-result-row--failed {
-  border-left: 3px solid var(--scalar-color-red);
+  background: color-mix(in srgb, var(--scalar-color-red) 4%, var(--scalar-background-1));
+}
+
+.runner-result-row--failed:hover {
+  background: color-mix(in srgb, var(--scalar-color-red) 8%, var(--scalar-background-1));
 }
 
 .runner-result-row--skipped {
-  border-left: 3px solid var(--scalar-color-3);
-  opacity: 0.7;
+  opacity: 0.6;
 }
 
 .runner-result-row__indicator {
@@ -1125,19 +1177,25 @@ async function run(): Promise<void> {
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  margin-top: 0.125rem;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 50%;
+  margin-top: 0.0625rem;
 }
 
 .runner-result-row--passed .runner-result-row__indicator {
   color: var(--scalar-color-green);
+  background: color-mix(in srgb, var(--scalar-color-green) 15%, transparent);
 }
 
 .runner-result-row--failed .runner-result-row__indicator {
   color: var(--scalar-color-red);
+  background: color-mix(in srgb, var(--scalar-color-red) 15%, transparent);
 }
 
 .runner-result-row--skipped .runner-result-row__indicator {
   color: var(--scalar-color-3);
+  background: var(--scalar-background-3);
 }
 
 .runner-result-row__content {

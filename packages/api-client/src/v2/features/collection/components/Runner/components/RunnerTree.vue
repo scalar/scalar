@@ -23,6 +23,7 @@ const props = defineProps<{
   selectedOrder: SelectedItem[]
   isSelected: (path: string, method: HttpMethod, exampleKey: string) => boolean
   depth?: number
+  disabled?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -74,6 +75,9 @@ function handleToggle(
   method: HttpMethod,
   exampleKey: string,
 ): void {
+  if (props.disabled) {
+    return
+  }
   const label = `${method.toUpperCase()} ${path} — ${exampleKey}`
   emit('toggle', path, method, exampleKey, label)
 }
@@ -131,7 +135,10 @@ function getGroupStats(
 <template>
   <ul
     class="runner-tree list-none"
-    :class="{ 'runner-tree--nested': depth > 0 }">
+    :class="{
+      'runner-tree--nested': depth > 0,
+      'runner-tree--disabled': disabled,
+    }">
     <template
       v-for="entry in entries"
       :key="entry.id">
@@ -148,7 +155,7 @@ function getGroupStats(
             <span class="runner-tree__op-path">{{ entry.path }}</span>
           </div>
           <button
-            v-if="getExamplesForOperation(entry).length > 1"
+            v-if="getExamplesForOperation(entry).length > 1 && !disabled"
             class="runner-tree__select-all"
             type="button"
             @click="toggleAllExamples(entry)">
@@ -166,10 +173,12 @@ function getGroupStats(
                 entry.method,
                 ex.name,
               ),
+              'runner-tree__example--disabled': disabled,
             }">
             <input
               :checked="isSelected(entry.path, entry.method, ex.name)"
               class="runner-tree__checkbox"
+              :disabled="disabled"
               type="checkbox"
               @change="handleToggle(entry.path, entry.method, ex.name)" />
             <span class="runner-tree__example-name">{{ ex.name }}</span>
@@ -204,6 +213,7 @@ function getGroupStats(
           class="runner-tree__group-content">
           <RunnerTree
             :depth="depth + 1"
+            :disabled="disabled"
             :entries="entry.children"
             :isSelected="isSelected"
             :selectedOrder="selectedOrder"
@@ -227,6 +237,11 @@ function getGroupStats(
   padding-left: 0.75rem;
   margin-left: 0.5rem;
   border-left: 2px solid var(--scalar-border-color);
+}
+
+.runner-tree--disabled {
+  pointer-events: none;
+  opacity: 0.6;
 }
 
 .runner-tree__op {
@@ -321,12 +336,20 @@ function getGroupStats(
   color: var(--scalar-color-1);
 }
 
+.runner-tree__example--disabled {
+  cursor: not-allowed;
+}
+
 .runner-tree__checkbox {
   width: 0.875rem;
   height: 0.875rem;
   margin: 0;
   accent-color: var(--scalar-color-accent);
   cursor: pointer;
+}
+
+.runner-tree__checkbox:disabled {
+  cursor: not-allowed;
 }
 
 .runner-tree__example-name {
