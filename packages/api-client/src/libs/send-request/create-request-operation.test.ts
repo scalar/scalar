@@ -1291,6 +1291,99 @@ describe('create-request-operation', () => {
       }
       expect(requestOperation.request.headers.get('x-api-key')).toBe('test-key')
     })
+
+    it('sends apiKey auth value from configuration (regression test for #8739)', async () => {
+      const [error, requestOperation] = createRequestOperation({
+        ...createRequestPayload({
+          serverPayload: { url: VOID_URL },
+        }),
+        securitySchemes: {
+          'apiKeyAuth': securitySchemeSchema.parse({
+            type: 'apiKey',
+            name: 'X-API-Key',
+            in: 'header',
+            value: 'my-secret-key',
+            uid: 'apiKeyAuth',
+            nameKey: 'X-API-Key',
+          }),
+        },
+        selectedSecuritySchemeUids: ['apiKeyAuth'] as SelectedSecuritySchemeUids,
+      })
+      if (error) {
+        throw error
+      }
+
+      const [requestError, result] = await requestOperation.sendRequest()
+
+      expect(requestError).toBe(null)
+      if (!result || !('data' in result.response)) {
+        throw new Error('No data')
+      }
+      const responseData = JSON.parse(result?.response.data as string)
+      expect(responseData.headers['x-api-key']).toBe('my-secret-key')
+    })
+
+    it('sends apiKey auth value in query parameter (regression test for #8739)', async () => {
+      const [error, requestOperation] = createRequestOperation({
+        ...createRequestPayload({
+          serverPayload: { url: VOID_URL },
+        }),
+        securitySchemes: {
+          'apiKeyAuth': securitySchemeSchema.parse({
+            type: 'apiKey',
+            name: 'api_key',
+            in: 'query',
+            value: 'my-secret-key',
+            uid: 'apiKeyAuth',
+            nameKey: 'api_key',
+          }),
+        },
+        selectedSecuritySchemeUids: ['apiKeyAuth'] as SelectedSecuritySchemeUids,
+      })
+      if (error) {
+        throw error
+      }
+
+      const [requestError, result] = await requestOperation.sendRequest()
+
+      expect(requestError).toBe(null)
+      if (!result || !('data' in result.response)) {
+        throw new Error('No data')
+      }
+      const responseData = JSON.parse(result?.response.data as string)
+      expect(responseData.query.api_key).toBe('my-secret-key')
+    })
+
+    it('sends apiKey auth value in cookie (regression test for #8739)', async () => {
+      const [error, requestOperation] = createRequestOperation({
+        ...createRequestPayload({
+          serverPayload: { url: VOID_URL },
+        }),
+        securitySchemes: {
+          'apiKeyAuth': securitySchemeSchema.parse({
+            type: 'apiKey',
+            name: 'auth-cookie',
+            in: 'cookie',
+            value: 'my-secret-key',
+            uid: 'apiKeyAuth',
+            nameKey: 'auth-cookie',
+          }),
+        },
+        selectedSecuritySchemeUids: ['apiKeyAuth'] as SelectedSecuritySchemeUids,
+      })
+      if (error) {
+        throw error
+      }
+
+      const [requestError, result] = await requestOperation.sendRequest()
+
+      expect(requestError).toBe(null)
+      if (!result || !('data' in result.response)) {
+        throw new Error('No data')
+      }
+      const responseData = JSON.parse(result?.response.data as string)
+      expect(responseData.cookies['auth-cookie']).toBe('my-secret-key')
+    })
   })
 
   describe('response streaming', () => {
