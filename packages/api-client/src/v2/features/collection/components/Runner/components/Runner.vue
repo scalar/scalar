@@ -2,21 +2,17 @@
 import { ScalarButton } from '@scalar/components'
 import {
   ScalarIconArrowCounterClockwise,
-  ScalarIconCheckCircle,
-  ScalarIconDotsSixVertical,
-  ScalarIconMinusCircle,
   ScalarIconPlay,
-  ScalarIconTrash,
-  ScalarIconXCircle,
 } from '@scalar/icons'
 import { computed } from 'vue'
 
-import HttpMethodBadge from '@/v2/blocks/operation-code-sample/components/HttpMethod.vue'
 import type { CollectionProps } from '@/v2/features/app/helpers/routes'
-import { formatDuration } from '@/v2/features/collection/components/Runner/helpers/format-duration'
 import Section from '@/v2/features/settings/components/Section.vue'
 
 import { useRunnerExecution, useRunnerSelection } from '../hooks'
+import RunnerCard from './RunnerCard.vue'
+import RunnerOrderItem from './RunnerOrderItem.vue'
+import RunnerResults from './RunnerResults.vue'
 import RunnerTree from './RunnerTree.vue'
 
 const { document, collectionType, workspaceStore, documentSlug, layout } =
@@ -82,16 +78,14 @@ const hasOperations = computed(() => navigationChildren.value.length > 0)
 
     <div class="flex flex-col gap-8 lg:flex-row lg:items-start">
       <!-- Left: Document operations tree -->
-      <div class="runner-card min-w-0 flex-1">
-        <h3 class="runner-card__title">Select operations</h3>
-        <p class="text-c-2 runner-card__subtitle">
-          Check the examples you want to run. They will be added to the run
-          order.
-        </p>
+      <RunnerCard
+        class="min-w-0 flex-1"
+        subtitle="Check the examples you want to run. They will be added to the run order."
+        title="Select operations">
         <div
           v-if="hasOperations"
-          class="runner-tree-wrapper"
-          :class="{ 'runner-tree-wrapper--locked': isLocked }">
+          class="max-h-[28rem] overflow-y-auto"
+          :class="{ 'opacity-60': isLocked }">
           <RunnerTree
             :disabled="isLocked"
             :entries="navigationChildren"
@@ -101,106 +95,75 @@ const hasOperations = computed(() => navigationChildren.value.length > 0)
         </div>
         <div
           v-else
-          class="runner-empty">
+          class="py-6 text-center">
           <p class="text-c-3 text-sm">No operations in this document.</p>
           <p class="text-c-3 mt-1 text-xs">
             Add paths and methods to your API description to see them here.
           </p>
         </div>
-      </div>
+      </RunnerCard>
 
       <!-- Right: Run order + actions + results -->
       <div class="flex w-full shrink-0 flex-col gap-4 lg:w-96">
         <!-- Run order card -->
-        <div class="runner-card">
-          <div class="runner-card__header-row">
-            <h3 class="runner-card__title">Run order</h3>
+        <RunnerCard title="Run order">
+          <template #header>
             <button
               v-if="hasSelection && !isLocked"
-              class="runner-link"
+              class="cursor-pointer border-none bg-transparent py-1 text-xs font-medium text-accent-color hover:underline"
               type="button"
               @click="clearAll">
               Clear all
             </button>
-          </div>
-          <p class="text-c-2 runner-card__subtitle">
+          </template>
+          <template #subtitle>
             {{ selectedOrder.length }}
             {{ selectedOrder.length === 1 ? 'item' : 'items' }} selected.
             <template v-if="!isLocked">Drag to reorder.</template>
             <template v-else-if="hasRunCompleted">
               Clear results to modify.
             </template>
-          </p>
-
-          <div
-            v-if="selectedOrder.length > 0"
-            class="runner-order-list"
-            :class="{ 'runner-order-list--locked': isLocked }">
+          </template>
+          <template #default>
             <div
-              v-for="(item, index) in selectedOrder"
-              :key="item.id"
-              class="runner-order-item"
-              :class="{
-                'runner-order-item--dragging': draggedIndex === index,
-                'runner-order-item--drag-before':
-                  dragOverIndex === index && dragOffset === 'before',
-                'runner-order-item--drag-after':
-                  dragOverIndex === index && dragOffset === 'after',
-                'runner-order-item--locked': isLocked,
-              }"
-              :draggable="!isLocked"
-              @dragend="handleDragEnd"
-              @dragleave="handleDragLeave"
-              @dragover="handleDragOver(index, $event)"
-              @dragstart="handleDragStart(index, $event)"
-              @drop="handleDrop">
-              <div
-                v-if="!isLocked"
-                class="runner-order-item__drag-handle"
-                title="Drag to reorder">
-                <ScalarIconDotsSixVertical class="size-4" />
-              </div>
-              <span
-                aria-hidden="true"
-                class="runner-order-item__index">
-                {{ index + 1 }}
-              </span>
-              <div class="runner-order-item__main">
-                <HttpMethodBadge :method="item.method" />
-                <span
-                  class="runner-order-item__path"
-                  :title="item.path">
-                  {{ item.path }}
-                </span>
-                <span class="runner-order-item__example">{{
-                  item.exampleKey
-                }}</span>
-              </div>
-              <button
-                v-if="!isLocked"
-                :aria-label="`Remove from run order`"
-                class="runner-icon-btn runner-icon-btn--danger"
-                type="button"
-                @click="removeFromOrder(item)">
-                <ScalarIconTrash class="size-4" />
-              </button>
+              v-if="selectedOrder.length > 0"
+              class="flex flex-col gap-1.5"
+              :class="{ 'opacity-60': isLocked }">
+              <RunnerOrderItem
+                v-for="(item, index) in selectedOrder"
+                :key="item.id"
+                :draggable="!isLocked"
+                :exampleKey="item.exampleKey"
+                :index="index"
+                :isDragAfter="dragOverIndex === index && dragOffset === 'after'"
+                :isDragBefore="dragOverIndex === index && dragOffset === 'before'"
+                :isDragging="draggedIndex === index"
+                :isLocked="isLocked"
+                :method="item.method"
+                :path="item.path"
+                @dragend="handleDragEnd"
+                @dragleave="handleDragLeave"
+                @dragover="handleDragOver(index, $event)"
+                @dragstart="handleDragStart(index, $event)"
+                @drop="handleDrop"
+                @remove="removeFromOrder(item)" />
             </div>
-          </div>
-          <div
-            v-else
-            class="runner-empty runner-empty--compact">
-            <p class="text-c-3 text-sm">No items yet.</p>
-            <p class="text-c-3 mt-0.5 text-xs">
-              Select operations from the list on the left.
-            </p>
-          </div>
-        </div>
+            <div
+              v-else
+              class="py-4 text-center">
+              <p class="text-c-3 text-sm">No items yet.</p>
+              <p class="text-c-3 mt-0.5 text-xs">
+                Select operations from the list on the left.
+              </p>
+            </div>
+          </template>
+        </RunnerCard>
 
         <!-- Run button -->
-        <div class="runner-actions">
+        <div class="flex justify-end pt-1">
           <ScalarButton
             v-if="!hasRunCompleted"
-            class="runner-run-btn"
+            class="min-w-40"
             :disabled="!hasSelection || isRunning"
             :icon="ScalarIconPlay"
             :loader="runLoader"
@@ -211,7 +174,7 @@ const hasOperations = computed(() => navigationChildren.value.length > 0)
           </ScalarButton>
           <ScalarButton
             v-else
-            class="runner-run-btn"
+            class="min-w-40"
             :disabled="isRunning"
             :icon="ScalarIconArrowCounterClockwise"
             :loader="runLoader"
@@ -223,11 +186,9 @@ const hasOperations = computed(() => navigationChildren.value.length > 0)
         </div>
 
         <!-- Running progress -->
-        <div
-          v-if="
-            isRunning && currentRunIndex != null && selectedOrder.length > 0
-          "
-          class="runner-card runner-progress">
+        <RunnerCard
+          v-if="isRunning && currentRunIndex != null && selectedOrder.length > 0"
+          compact>
           <p class="text-c-2 text-sm">
             Running step
             <span class="text-c-1 font-medium">
@@ -238,743 +199,27 @@ const hasOperations = computed(() => navigationChildren.value.length > 0)
             :aria-valuemax="selectedOrder.length"
             :aria-valuemin="0"
             :aria-valuenow="currentRunIndex"
-            class="runner-progress__bar"
+            class="bg-b-3 mt-2 h-1.5 overflow-hidden rounded-full"
             role="progressbar">
             <div
-              class="runner-progress__fill"
+              class="h-full rounded-full bg-accent-color transition-[width] duration-200 ease-out"
               :style="{
                 width: `${(currentRunIndex / selectedOrder.length) * 100}%`,
               }" />
           </div>
-        </div>
+        </RunnerCard>
 
         <!-- Results -->
-        <div
+        <RunnerResults
           v-if="runSummary && hasRunCompleted"
-          class="runner-results"
-          :class="{
-            'runner-results--success': runSummary.allPassed,
-            'runner-results--failure': !runSummary.allPassed,
-          }">
-          <!-- Status banner -->
-          <div class="runner-results__banner">
-            <div class="runner-results__banner-icon">
-              <ScalarIconCheckCircle
-                v-if="runSummary.allPassed"
-                class="size-5" />
-              <ScalarIconXCircle
-                v-else
-                class="size-5" />
-            </div>
-            <div class="runner-results__banner-content">
-              <span class="runner-results__banner-title">
-                {{ runSummary.allPassed ? 'All tests passed' : 'Run failed' }}
-              </span>
-              <span class="runner-results__banner-meta">
-                {{ runSummary.passed }}/{{ runSummary.total }} passed
-                <template v-if="runSummary.duration">
-                  · {{ formatDuration(runSummary.duration) }}
-                </template>
-              </span>
-            </div>
-            <button
-              class="runner-results__clear"
-              title="Clear results"
-              type="button"
-              @click="clearResults">
-              <ScalarIconTrash class="size-4" />
-            </button>
-          </div>
-
-          <!-- Stats pills -->
-          <div class="runner-results__stats">
-            <span class="runner-results__stat runner-results__stat--pass">
-              <ScalarIconCheckCircle class="size-3.5" />
-              {{ runSummary.passed }} passed
-            </span>
-            <span
-              v-if="runSummary.failed > 0"
-              class="runner-results__stat runner-results__stat--fail">
-              <ScalarIconXCircle class="size-3.5" />
-              {{ runSummary.failed }} failed
-            </span>
-            <span
-              v-if="runSummary.skipped > 0"
-              class="runner-results__stat runner-results__stat--skip">
-              <ScalarIconMinusCircle class="size-3.5" />
-              {{ runSummary.skipped }} skipped
-            </span>
-          </div>
-
-          <!-- Results list -->
-          <ul
-            aria-label="Run results"
-            class="runner-results__list">
-            <li
-              v-for="(item, idx) in selectedOrder"
-              :key="item.id"
-              class="runner-result-row"
-              :class="{
-                'runner-result-row--passed': isResultPassed(
-                  getResultAtIndex(idx),
-                ),
-                'runner-result-row--failed':
-                  getResultAtIndex(idx) &&
-                  !isResultPassed(getResultAtIndex(idx)),
-                'runner-result-row--skipped': isResultSkipped(idx),
-              }">
-              <div class="runner-result-row__indicator">
-                <ScalarIconCheckCircle
-                  v-if="isResultPassed(getResultAtIndex(idx))"
-                  class="size-4" />
-                <ScalarIconXCircle
-                  v-else-if="getResultAtIndex(idx)"
-                  class="size-4" />
-                <ScalarIconMinusCircle
-                  v-else-if="isResultSkipped(idx)"
-                  class="size-4" />
-              </div>
-              <div class="runner-result-row__content">
-                <div class="runner-result-row__header">
-                  <span class="runner-result-row__index">{{ idx + 1 }}</span>
-                  <HttpMethodBadge :method="item.method" />
-                  <span class="runner-result-row__path">{{ item.path }}</span>
-                  <span class="runner-result-row__example">{{
-                    item.exampleKey
-                  }}</span>
-                </div>
-                <!-- Response info -->
-                <div
-                  v-if="getResultAtIndex(idx)?.result"
-                  class="runner-result-row__meta">
-                  <span
-                    class="runner-result-row__status"
-                    :class="{
-                      'runner-result-row__status--success':
-                        getResultAtIndex(idx)!.result!.status >= 200 &&
-                        getResultAtIndex(idx)!.result!.status < 300,
-                      'runner-result-row__status--error':
-                        getResultAtIndex(idx)!.result!.status >= 400,
-                    }">
-                    {{ getResultAtIndex(idx)!.result!.status }}
-                  </span>
-                  <span class="runner-result-row__duration">
-                    {{ Math.round(getResultAtIndex(idx)!.result!.duration) }}ms
-                  </span>
-                </div>
-                <div
-                  v-else-if="isResultSkipped(idx)"
-                  class="runner-result-row__meta">
-                  <span class="text-c-3">Skipped</span>
-                </div>
-                <!-- Network/build error -->
-                <p
-                  v-if="getResultAtIndex(idx)?.error"
-                  class="runner-result-row__error">
-                  {{ getResultAtIndex(idx)!.error!.message }}
-                </p>
-                <!-- Failed test assertions -->
-                <div
-                  v-if="getFailedTests(getResultAtIndex(idx)).length > 0"
-                  class="runner-result-row__tests">
-                  <p
-                    v-for="(test, testIdx) in getFailedTests(
-                      getResultAtIndex(idx),
-                    )"
-                    :key="testIdx"
-                    class="runner-result-row__test-error">
-                    <span class="runner-result-row__test-title">{{
-                      test.title
-                    }}</span>
-                    <span
-                      v-if="test.error"
-                      class="runner-result-row__test-message">
-                      {{ test.error }}
-                    </span>
-                  </p>
-                </div>
-              </div>
-            </li>
-          </ul>
-        </div>
+          :getFailedTests="getFailedTests"
+          :getResultAtIndex="getResultAtIndex"
+          :isResultPassed="isResultPassed"
+          :isResultSkipped="isResultSkipped"
+          :selectedOrder="selectedOrder"
+          :summary="runSummary"
+          @clear="clearResults" />
       </div>
     </div>
   </Section>
 </template>
-
-<style scoped>
-.runner-card {
-  border-radius: 0.75rem;
-  border: 1px solid var(--scalar-border-color);
-  background: var(--scalar-background-2);
-  padding: 1rem 1.25rem;
-}
-
-.runner-card__title {
-  font-size: 0.8125rem;
-  font-weight: 600;
-  color: var(--scalar-color-1, currentColor);
-  letter-spacing: 0.02em;
-  margin: 0 0 0.25rem 0;
-}
-
-.runner-card__header-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.5rem;
-  margin-bottom: 0.25rem;
-}
-
-.runner-card__subtitle {
-  font-size: 0.75rem;
-  margin: 0 0 1rem 0;
-  line-height: 1.4;
-}
-
-.runner-tree-wrapper {
-  max-height: 28rem;
-  overflow-y: auto;
-}
-
-.runner-tree-wrapper--locked {
-  opacity: 0.6;
-}
-
-.runner-empty {
-  padding: 1.5rem 0;
-  text-align: center;
-}
-
-.runner-empty--compact {
-  padding: 1rem 0;
-}
-
-.runner-link {
-  font-size: 0.75rem;
-  font-weight: 500;
-  color: var(--scalar-color-accent);
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 0.25rem 0;
-}
-
-.runner-link:hover {
-  text-decoration: underline;
-}
-
-.runner-order-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.375rem;
-}
-
-.runner-order-list--locked {
-  opacity: 0.6;
-}
-
-.runner-order-item {
-  position: relative;
-  display: flex;
-  align-items: center;
-  gap: 0.375rem;
-  padding: 0.5rem 0.5rem 0.5rem 0.25rem;
-  border-radius: 0.5rem;
-  border: 1px solid var(--scalar-border-color);
-  background: var(--scalar-background-1);
-  transition:
-    background-color 0.15s ease,
-    opacity 0.15s ease,
-    border-color 0.15s ease;
-  cursor: grab;
-}
-
-.runner-order-item--locked {
-  cursor: default;
-  padding-left: 0.5rem;
-}
-
-.runner-order-item:hover {
-  background: var(--scalar-background-3);
-}
-
-.runner-order-item--locked:hover {
-  background: var(--scalar-background-1);
-}
-
-.runner-order-item:active {
-  cursor: grabbing;
-}
-
-.runner-order-item--locked:active {
-  cursor: default;
-}
-
-.runner-order-item--dragging {
-  opacity: 0.5;
-  border-style: dashed;
-}
-
-.runner-order-item--drag-before::before {
-  content: '';
-  position: absolute;
-  top: -0.25rem;
-  left: 0;
-  right: 0;
-  height: 0.25rem;
-  background: var(--scalar-color-accent);
-  border-radius: 0.125rem;
-}
-
-.runner-order-item--drag-after::after {
-  content: '';
-  position: absolute;
-  bottom: -0.25rem;
-  left: 0;
-  right: 0;
-  height: 0.25rem;
-  background: var(--scalar-color-accent);
-  border-radius: 0.125rem;
-}
-
-.runner-order-item__drag-handle {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  color: var(--scalar-color-3);
-  cursor: grab;
-  padding: 0.25rem;
-  border-radius: 0.25rem;
-  transition: color 0.15s ease;
-}
-
-.runner-order-item__drag-handle:hover {
-  color: var(--scalar-color-1);
-}
-
-.runner-order-item:active .runner-order-item__drag-handle {
-  cursor: grabbing;
-}
-
-.runner-order-item__index {
-  flex-shrink: 0;
-  width: 1.25rem;
-  font-size: 0.75rem;
-  font-weight: 500;
-  color: var(--scalar-color-3);
-  text-align: center;
-}
-
-.runner-order-item__main {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.runner-order-item__path {
-  flex: 1;
-  min-width: 0;
-  font-size: 0.8125rem;
-  color: var(--scalar-color-2);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.runner-order-item__example {
-  flex-shrink: 0;
-  font-size: 0.6875rem;
-  color: var(--scalar-color-3);
-  padding: 0.125rem 0.375rem;
-  border-radius: 0.25rem;
-  background: var(--scalar-background-3);
-}
-
-.runner-icon-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 1.75rem;
-  height: 1.75rem;
-  padding: 0;
-  border: none;
-  border-radius: 0.375rem;
-  background: transparent;
-  color: var(--scalar-color-3);
-  cursor: pointer;
-  transition:
-    color 0.15s,
-    background 0.15s;
-}
-
-.runner-icon-btn:hover:not(:disabled) {
-  color: var(--scalar-color-1);
-  background: var(--scalar-background-3);
-}
-
-.runner-icon-btn:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-}
-
-.runner-icon-btn--danger:hover:not(:disabled) {
-  color: var(--scalar-color-red);
-}
-
-.runner-actions {
-  display: flex;
-  justify-content: flex-end;
-  padding-top: 0.25rem;
-}
-
-.runner-run-btn {
-  min-width: 10rem;
-}
-
-.runner-progress {
-  padding: 0.75rem 1.25rem;
-}
-
-.runner-progress__bar {
-  height: 0.375rem;
-  margin-top: 0.5rem;
-  border-radius: 9999px;
-  background: var(--scalar-background-3);
-  overflow: hidden;
-}
-
-.runner-progress__fill {
-  height: 100%;
-  border-radius: 9999px;
-  background: var(--scalar-color-accent);
-  transition: width 0.2s ease;
-}
-
-.runner-results {
-  border-radius: 0.75rem;
-  border: 1px solid var(--scalar-border-color);
-  background: var(--scalar-background-2);
-  overflow: hidden;
-}
-
-.runner-results--success {
-  border-color: color-mix(in srgb, var(--scalar-color-green) 30%, transparent);
-}
-
-.runner-results--failure {
-  border-color: color-mix(in srgb, var(--scalar-color-red) 30%, transparent);
-}
-
-.runner-results__banner {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.875rem 1rem;
-  border-bottom: 1px solid var(--scalar-border-color);
-}
-
-.runner-results--success .runner-results__banner {
-  background: color-mix(in srgb, var(--scalar-color-green) 8%, transparent);
-  border-bottom-color: color-mix(
-    in srgb,
-    var(--scalar-color-green) 15%,
-    transparent
-  );
-}
-
-.runner-results--failure .runner-results__banner {
-  background: color-mix(in srgb, var(--scalar-color-red) 8%, transparent);
-  border-bottom-color: color-mix(
-    in srgb,
-    var(--scalar-color-red) 15%,
-    transparent
-  );
-}
-
-.runner-results__banner-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.runner-results--success .runner-results__banner-icon {
-  color: var(--scalar-color-green);
-}
-
-.runner-results--failure .runner-results__banner-icon {
-  color: var(--scalar-color-red);
-}
-
-.runner-results__banner-content {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 0.125rem;
-}
-
-.runner-results__banner-title {
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: var(--scalar-color-1);
-}
-
-.runner-results__banner-meta {
-  font-size: 0.75rem;
-  color: var(--scalar-color-3);
-}
-
-.runner-results__clear {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0.375rem;
-  border: none;
-  border-radius: 0.375rem;
-  background: transparent;
-  color: var(--scalar-color-3);
-  cursor: pointer;
-  transition:
-    color 0.15s,
-    background 0.15s;
-}
-
-.runner-results__clear:hover {
-  color: var(--scalar-color-1);
-  background: var(--scalar-background-3);
-}
-
-.runner-results__stats {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  padding: 0.75rem 1rem;
-  border-bottom: 1px solid var(--scalar-border-color);
-  background: var(--scalar-background-1);
-}
-
-.runner-results__stat {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.25rem;
-  font-size: 0.6875rem;
-  font-weight: 500;
-  padding: 0.25rem 0.5rem;
-  border-radius: 1rem;
-}
-
-.runner-results__stat--pass {
-  color: var(--scalar-color-green);
-  background: color-mix(in srgb, var(--scalar-color-green) 12%, transparent);
-}
-
-.runner-results__stat--fail {
-  color: var(--scalar-color-red);
-  background: color-mix(in srgb, var(--scalar-color-red) 12%, transparent);
-}
-
-.runner-results__stat--skip {
-  color: var(--scalar-color-3);
-  background: var(--scalar-background-3);
-}
-
-.runner-results__list {
-  list-style: none;
-  margin: 0;
-  padding: 0.5rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-  max-height: 20rem;
-  overflow-y: auto;
-}
-
-.runner-result-row {
-  display: flex;
-  align-items: flex-start;
-  gap: 0.625rem;
-  padding: 0.625rem 0.75rem;
-  border-radius: 0.5rem;
-  font-size: 0.8125rem;
-  background: var(--scalar-background-1);
-  border: 1px solid var(--scalar-border-color);
-  transition:
-    background 0.15s,
-    border-color 0.15s;
-}
-
-.runner-result-row:hover {
-  border-color: var(--scalar-color-3);
-}
-
-.runner-result-row--passed {
-  background: color-mix(
-    in srgb,
-    var(--scalar-color-green) 4%,
-    var(--scalar-background-1)
-  );
-}
-
-.runner-result-row--passed:hover {
-  background: color-mix(
-    in srgb,
-    var(--scalar-color-green) 8%,
-    var(--scalar-background-1)
-  );
-}
-
-.runner-result-row--failed {
-  background: color-mix(
-    in srgb,
-    var(--scalar-color-red) 4%,
-    var(--scalar-background-1)
-  );
-}
-
-.runner-result-row--failed:hover {
-  background: color-mix(
-    in srgb,
-    var(--scalar-color-red) 8%,
-    var(--scalar-background-1)
-  );
-}
-
-.runner-result-row--skipped {
-  opacity: 0.6;
-}
-
-.runner-result-row__indicator {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  width: 1.5rem;
-  height: 1.5rem;
-  border-radius: 50%;
-  margin-top: 0.0625rem;
-}
-
-.runner-result-row--passed .runner-result-row__indicator {
-  color: var(--scalar-color-green);
-  background: color-mix(in srgb, var(--scalar-color-green) 15%, transparent);
-}
-
-.runner-result-row--failed .runner-result-row__indicator {
-  color: var(--scalar-color-red);
-  background: color-mix(in srgb, var(--scalar-color-red) 15%, transparent);
-}
-
-.runner-result-row--skipped .runner-result-row__indicator {
-  color: var(--scalar-color-3);
-  background: var(--scalar-background-3);
-}
-
-.runner-result-row__content {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 0.375rem;
-}
-
-.runner-result-row__header {
-  display: flex;
-  align-items: center;
-  gap: 0.375rem;
-  flex-wrap: wrap;
-}
-
-.runner-result-row__index {
-  font-size: 0.625rem;
-  font-weight: 600;
-  color: var(--scalar-color-3);
-  background: var(--scalar-background-3);
-  padding: 0.125rem 0.375rem;
-  border-radius: 0.25rem;
-}
-
-.runner-result-row__path {
-  font-weight: 500;
-  color: var(--scalar-color-2);
-  word-break: break-all;
-}
-
-.runner-result-row__example {
-  font-size: 0.6875rem;
-  color: var(--scalar-color-3);
-  background: var(--scalar-background-3);
-  padding: 0.125rem 0.375rem;
-  border-radius: 0.25rem;
-}
-
-.runner-result-row__meta {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 0.75rem;
-}
-
-.runner-result-row__status {
-  font-weight: 600;
-  padding: 0.125rem 0.375rem;
-  border-radius: 0.25rem;
-}
-
-.runner-result-row__status--success {
-  color: var(--scalar-color-green);
-  background: color-mix(in srgb, var(--scalar-color-green) 12%, transparent);
-}
-
-.runner-result-row__status--error {
-  color: var(--scalar-color-red);
-  background: color-mix(in srgb, var(--scalar-color-red) 12%, transparent);
-}
-
-.runner-result-row__duration {
-  color: var(--scalar-color-3);
-}
-
-.runner-result-row__error {
-  margin: 0;
-  font-size: 0.75rem;
-  color: var(--scalar-color-red);
-  line-height: 1.4;
-  padding: 0.375rem 0.5rem;
-  background: color-mix(in srgb, var(--scalar-color-red) 8%, transparent);
-  border-radius: 0.25rem;
-}
-
-.runner-result-row__tests {
-  display: flex;
-  flex-direction: column;
-  gap: 0.375rem;
-  padding: 0.5rem 0.625rem;
-  border-radius: 0.375rem;
-  background: color-mix(in srgb, var(--scalar-color-red) 8%, transparent);
-  border: 1px solid color-mix(in srgb, var(--scalar-color-red) 15%, transparent);
-}
-
-.runner-result-row__test-error {
-  margin: 0;
-  font-size: 0.75rem;
-  line-height: 1.4;
-}
-
-.runner-result-row__test-title {
-  font-weight: 500;
-  color: var(--scalar-color-red);
-}
-
-.runner-result-row__test-message {
-  display: block;
-  color: var(--scalar-color-2);
-  margin-top: 0.125rem;
-  font-size: 0.6875rem;
-}
-</style>

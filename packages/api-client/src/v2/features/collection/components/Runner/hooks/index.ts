@@ -1,2 +1,7 @@
-export { useRunnerExecution } from './use-runner-execution'
-export { useRunnerSelection } from './use-runner-selection'
+export {
+  useRunnerExecution,
+  type RunResult,
+  type RunSummary,
+  type TestResult,
+} from './use-runner-execution'
+export { useRunnerSelection, type SelectedItem } from './use-runner-selection'
