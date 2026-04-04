@@ -30,9 +30,7 @@ const parseParameter = (entry: string): [string, string] | null => {
   }
 
   if (rawValue.startsWith('"') && rawValue.endsWith('"') && rawValue.length >= 2) {
-    const unescaped = rawValue
-      .slice(1, -1)
-      .replaceAll(/\\(["\\])/g, '$1')
+    const unescaped = rawValue.slice(1, -1).replaceAll(/\\(["\\])/g, '$1')
     return [rawName, unescaped]
   }
 
@@ -85,7 +83,9 @@ export const parseMimeType = (value: string = 'text/plain'): ParsedMimeType => {
 
   const toString = (): string => {
     const serializedParameters = Array.from(parameters.entries()).map(([name, parameterValue]) => {
-      const safeValue = HTTP_TOKEN_CODE_POINT.test(parameterValue) ? parameterValue : quoteParameterValue(parameterValue)
+      const safeValue = HTTP_TOKEN_CODE_POINT.test(parameterValue)
+        ? parameterValue
+        : quoteParameterValue(parameterValue)
       return `${name}=${safeValue}`
     })
 
@@ -100,10 +100,3 @@ export const parseMimeType = (value: string = 'text/plain'): ParsedMimeType => {
     toString,
   }
 }
-
-/**
- * Aliases to make migration from whatwg-mimetype straightforward.
- */
-export const MimeType = parseMimeType
-export const MIMEType = parseMimeType
-export const MimeTypeParser = parseMimeType
