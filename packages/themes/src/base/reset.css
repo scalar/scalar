@@ -9,6 +9,16 @@
   body {
     margin: 0;
     line-height: inherit;
+    /* Override Tailwind v4 preflight background-color that breaks host apps using CSS layers */
+    /* https://github.com/scalar/scalar/issues/8717 */
+    background-color: transparent;
+  }
+}
+
+/* Scope background color to .scalar-app to avoid conflicts with host apps */
+@layer scalar-base {
+  .scalar-app {
+    background-color: var(--scalar-background-1);
   }
 }
 
