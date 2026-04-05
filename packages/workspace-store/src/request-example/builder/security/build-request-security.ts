@@ -98,6 +98,19 @@ export const buildRequestSecurity = (
       })
     }
 
+    // OpenID Connect
+    if (scheme.type === 'openIdConnect') {
+      const flows = Object.values(scheme?.flows ?? {})
+      const token = flows.filter(isDefined).find((f) => f['x-scalar-secret-token'])?.['x-scalar-secret-token'] ?? ''
+
+      return result.push({
+        in: 'header',
+        name: 'Authorization',
+        value: token || emptyTokenPlaceholder,
+        type: 'bearer',
+      })
+    }
+
     return null
   })
 
