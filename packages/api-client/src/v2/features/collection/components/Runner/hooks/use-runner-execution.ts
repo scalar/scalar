@@ -14,6 +14,7 @@ import { type ComputedRef, type Ref, computed, ref } from 'vue'
 import { isElectron } from '@/libs/electron'
 import { type ResponseInstance, sendRequest } from '@/v2/blocks/operation-block/helpers/send-request'
 import { APP_VERSION } from '@/v2/constants'
+import { getScript } from '@/v2/features/collection/components/Runner/helpers/get-script'
 
 import type { SelectedItem } from './use-runner-selection'
 
@@ -217,7 +218,8 @@ export function useRunnerExecution({
           isElectron: isElectron(),
         })
 
-        const preRequestScript = `${document['x-pre-request'] ?? ''}\n${ctx.operation['x-pre-request'] ?? ''}`.trim()
+        const preRequestScript = getScript(document['x-pre-request'], ctx.operation['x-pre-request'])
+
         await executePreRequestScript(preRequestScript, {
           requestBuilder,
           variablesStore,
@@ -262,8 +264,8 @@ export function useRunnerExecution({
 
         runResult.result = sendResult.response
 
-        const postResponseScript =
-          `${document['x-post-response'] ?? ''};\n${ctx.operation['x-post-response'] ?? ''}`.trim()
+        const postResponseScript = getScript(document['x-post-response'], ctx.operation['x-post-response'])
+
         await executePostResponseScript(postResponseScript, {
           requestBuilder,
           response: sendResult.originalResponse.clone(),
