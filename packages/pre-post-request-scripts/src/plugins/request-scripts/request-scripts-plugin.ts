@@ -6,6 +6,13 @@ import { TestResults } from '@/plugins/request-scripts/components/TestResults'
 
 import ScriptsSection from './components/ScriptsSection.vue'
 
+const getScript = (...args: (string | undefined | null)[]): string => {
+  return args
+    .map((script) => script?.trim())
+    .filter((script) => typeof script === 'string' && script.length > 0)
+    .join('\n')
+}
+
 /**
  * Unified request scripts plugin for client V2. Provides a single "Scripts"
  * section with:
@@ -34,8 +41,8 @@ export const requestScriptsPlugin = (): ClientPlugin => {
       beforeRequest: async ({ requestBuilder, document, operation, variablesStore }) => {
         // Reset test results when a new request is sent
         results.value = []
-        const scripts = [document['x-pre-request'], operation['x-pre-request']]
-        await executePreRequestScript(scripts.join('\n'), {
+        const script = getScript(document['x-pre-request'], operation['x-pre-request'])
+        await executePreRequestScript(script, {
           requestBuilder,
           variablesStore,
           onTestResultsUpdate: (newResults) => (results.value = [...newResults]),
@@ -43,8 +50,8 @@ export const requestScriptsPlugin = (): ClientPlugin => {
       },
 
       responseReceived: async ({ requestBuilder, response, operation, document, variablesStore }) => {
-        const scripts = [document['x-post-response'], operation['x-post-response']]
-        await executePostResponseScript(scripts.join('\n'), {
+        const script = getScript(document['x-post-response'], operation['x-post-response'])
+        await executePostResponseScript(script, {
           requestBuilder,
           response,
           onTestResultsUpdate: (newResults) => (results.value = [...results.value, ...newResults]),
