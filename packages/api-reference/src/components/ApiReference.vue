@@ -736,7 +736,7 @@ onMounted(() => {
     eventBus,
     workspaceStore: clientStore,
     options: mergedConfig,
-    plugins: mapConfigPlugins(mergedConfig, environment.value),
+    plugins: mapConfigPlugins(mergedConfig, environment),
   })
 })
 onBeforeUnmount(() => {

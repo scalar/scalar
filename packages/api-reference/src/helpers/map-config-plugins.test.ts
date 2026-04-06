@@ -11,11 +11,12 @@ const document = {} as never
 const operation = {} as never
 
 const createMockEnvironment = (
-  variables: Array<{ name: string; value: string }> = [],
-): XScalarEnvironment => ({
-  color: '#FFFFFF',
-  variables,
-})
+  variables: Array<{ name: string; value: string | { default: string; description: string } }> = [],
+): ComputedRef<XScalarEnvironment> =>
+  computed(() => ({
+    color: '#FFFFFF',
+    variables,
+  }))
 
 const createMockFactory = (overrides: Partial<RequestFactory> = {}): RequestFactory => ({
   baseUrl: 'https://example.com',
@@ -382,15 +383,12 @@ describe('mapConfigPlugins', () => {
       headers: new Headers({ 'X-Env': '{{ENV_WITH_DEFAULT}}' }),
     })
 
-    const environment: XScalarEnvironment = {
-      color: '#FFFFFF',
-      variables: [
-        {
-          name: 'ENV_WITH_DEFAULT',
-          value: { default: 'default-value', description: 'A variable with default' },
-        },
-      ],
-    }
+    const environment = createMockEnvironment([
+      {
+        name: 'ENV_WITH_DEFAULT',
+        value: { default: 'default-value', description: 'A variable with default' },
+      },
+    ])
 
     let capturedRequest: Request | undefined
 
