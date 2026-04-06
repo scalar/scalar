@@ -171,6 +171,150 @@ describe('createSearchIndex', () => {
       })
     })
 
+    it('includes request body from application/json in operation index', () => {
+      const document = createMockDocument({
+        paths: {
+          '/users': {
+            post: {
+              summary: 'Create User',
+              requestBody: {
+                content: {
+                  'application/json': {
+                    schema: {
+                      type: 'object',
+                      properties: {
+                        name: { type: 'string' },
+                        email: { type: 'string' },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      })
+
+      const index = createSearchIndex(document)
+      const operationEntry = index.find((item) => item.type === 'operation')
+
+      expect(operationEntry).toMatchObject({
+        type: 'operation',
+        title: 'Create User',
+        body: expect.arrayContaining(['Body', 'name optional string', 'email optional string']),
+      })
+    })
+
+    it('includes request body from non-json content types in operation index', () => {
+      const document = createMockDocument({
+        paths: {
+          '/users': {
+            post: {
+              summary: 'Create User',
+              requestBody: {
+                content: {
+                  'application/xml': {
+                    schema: {
+                      type: 'object',
+                      properties: {
+                        xmlField: { type: 'string' },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      })
+
+      const index = createSearchIndex(document)
+      const operationEntry = index.find((item) => item.type === 'operation')
+
+      expect(operationEntry).toMatchObject({
+        type: 'operation',
+        title: 'Create User',
+        body: expect.arrayContaining(['Body', 'xmlField optional string']),
+      })
+    })
+
+    it('includes request body from multiple content types in operation index', () => {
+      const document = createMockDocument({
+        paths: {
+          '/users': {
+            post: {
+              summary: 'Create User',
+              requestBody: {
+                content: {
+                  'application/json': {
+                    schema: {
+                      type: 'object',
+                      properties: {
+                        jsonField: { type: 'string' },
+                      },
+                    },
+                  },
+                  'application/xml': {
+                    schema: {
+                      type: 'object',
+                      properties: {
+                        xmlField: { type: 'number' },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      })
+
+      const index = createSearchIndex(document)
+      const operationEntry = index.find((item) => item.type === 'operation')
+
+      expect(operationEntry).toMatchObject({
+        type: 'operation',
+        title: 'Create User',
+        body: expect.arrayContaining(['jsonField optional string', 'xmlField optional number']),
+      })
+    })
+
+    it('falls back to parameter map when no request body is present', () => {
+      const document = createMockDocument({
+        paths: {
+          '/users': {
+            get: {
+              summary: 'Get Users',
+              parameters: [
+                {
+                  in: 'query',
+                  name: 'limit',
+                  description: 'Number of users to return',
+                },
+              ],
+            },
+          },
+        },
+      })
+
+      const index = createSearchIndex(document)
+      const operationEntry = index.find((item) => item.type === 'operation')
+
+      expect(operationEntry).toMatchObject({
+        type: 'operation',
+        title: 'Get Users',
+        body: {
+          query: [
+            {
+              in: 'query',
+              name: 'limit',
+              description: 'Number of users to return',
+            },
+          ],
+        },
+      })
+    })
+
     it('includes operation response examples in the index', () => {
       const document = createMockDocument({
         paths: {

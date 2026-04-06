@@ -104,9 +104,7 @@ function addEntryToIndex(entry: TraversedEntry, index: FuseData[], document?: Op
       parameters: combineParams(pathItem?.parameters, operation.parameters),
     }
 
-    const requestBodyOrParameterMap =
-      extractRequestBody(operationWithPathParams) || createParameterMap(operationWithPathParams)
-    const body = typeof requestBodyOrParameterMap !== 'boolean' ? requestBodyOrParameterMap : null
+    const body = extractRequestBody(operationWithPathParams) ?? createParameterMap(operationWithPathParams)
     const responseExamples = extractResponseExamples(operationWithPathParams.responses)
 
     index.push({

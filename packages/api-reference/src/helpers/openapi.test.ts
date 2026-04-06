@@ -1,7 +1,7 @@
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { describe, expect, it } from 'vitest'
 
-import { createParameterMap, deepMerge } from './openapi'
+import { createParameterMap, deepMerge, extractRequestBody } from './openapi'
 
 describe('openapi', () => {
   describe('deepMerge', () => {
@@ -63,6 +63,166 @@ describe('openapi', () => {
         foo: 'bar',
         bar: 'foo',
       })
+    })
+  })
+
+  describe('extractRequestBody', () => {
+    it('returns null for an operation without requestBody', () => {
+      const operation: OperationObject = {
+        summary: 'Test',
+        responses: {
+          200: {
+            description: 'Success',
+          },
+        },
+      }
+      const result = extractRequestBody(operation)
+      expect(result).toBeNull()
+    })
+
+    it('returns null for an operation with empty requestBody content', () => {
+      const operation: OperationObject = {
+        summary: 'Test',
+        requestBody: {
+          content: {},
+        },
+      }
+      const result = extractRequestBody(operation)
+      expect(result).toBeNull()
+    })
+
+    it('extracts application/json request body', () => {
+      const operation: OperationObject = {
+        summary: 'Test',
+        requestBody: {
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  name: { type: 'string' },
+                },
+              },
+            },
+          },
+        },
+      }
+      const result = extractRequestBody(operation)
+      expect(result).toContain('Body')
+      expect(result).toContain('name optional string')
+    })
+
+    it('extracts application/xml request body', () => {
+      const operation: OperationObject = {
+        summary: 'Test',
+        requestBody: {
+          content: {
+            'application/xml': {
+              schema: {
+                type: 'object',
+                properties: {
+                  xmlField: { type: 'string' },
+                },
+              },
+            },
+          },
+        },
+      }
+      const result = extractRequestBody(operation)
+      expect(result).toContain('Body')
+      expect(result).toContain('xmlField optional string')
+    })
+
+    it('extracts multiple content types', () => {
+      const operation: OperationObject = {
+        summary: 'Test',
+        requestBody: {
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  jsonField: { type: 'string' },
+                },
+              },
+            },
+            'application/xml': {
+              schema: {
+                type: 'object',
+                properties: {
+                  xmlField: { type: 'number' },
+                },
+              },
+            },
+          },
+        },
+      }
+      const result = extractRequestBody(operation)
+      expect(result).toContain('jsonField optional string')
+      expect(result).toContain('xmlField optional number')
+    })
+
+    it('extracts text/plain content type', () => {
+      const operation: OperationObject = {
+        summary: 'Test',
+        requestBody: {
+          content: {
+            'text/plain': {
+              schema: {
+                type: 'string',
+              },
+            },
+          },
+        },
+      }
+      const result = extractRequestBody(operation)
+      expect(result).toEqual(['Body'])
+    })
+
+    it('extracts multipart/form-data content type', () => {
+      const operation: OperationObject = {
+        summary: 'Test',
+        requestBody: {
+          content: {
+            'multipart/form-data': {
+              schema: {
+                type: 'object',
+                properties: {
+                  file: { type: 'string', format: 'binary' },
+                  description: { type: 'string' },
+                },
+              },
+            },
+          },
+        },
+      }
+      const result = extractRequestBody(operation)
+      expect(result).toContain('Body')
+      expect(result).toContain('file optional string')
+      expect(result).toContain('description optional string')
+    })
+
+    it('handles required properties', () => {
+      const operation: OperationObject = {
+        summary: 'Test',
+        requestBody: {
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                required: ['name'],
+                properties: {
+                  name: { type: 'string' },
+                  age: { type: 'number' },
+                },
+              },
+            },
+          },
+        },
+      }
+      const result = extractRequestBody(operation)
+      expect(result).toContain('name REQUIRED string')
+      expect(result).toContain('age optional number')
     })
   })
 

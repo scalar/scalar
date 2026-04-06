@@ -49,7 +49,9 @@ function formatProperty(key: string, obj: ObjectSchemaWithProperties): string {
   const isRequired = obj.required?.includes(key)
   output += isRequired ? ' REQUIRED ' : ' optional '
   const propRef = obj.properties[key]
-  if (!propRef) return output
+  if (!propRef) {
+    return output
+  }
   const property = resolveSchemaRef(propRef)
 
   if (property) {
@@ -87,13 +89,17 @@ function recursiveLogger(obj: MediaTypeObject): string[] {
     results.push(formatProperty(key, schemaWithProps))
 
     const propRef = properties[key]
-    if (!propRef) return
+    if (!propRef) {
+      return
+    }
     const property = resolveSchemaRef(propRef)
     if (property && isObjectSchema(property) && property.properties) {
       const nestedProperties = property.properties
       Object.keys(nestedProperties).forEach((subKey) => {
         const ref = nestedProperties[subKey]
-        if (!ref) return
+        if (!ref) {
+          return
+        }
         const nested = resolveSchemaRef(ref)
         const typeStr = nested ? schemaTypeToString(nested) : ''
         results.push(`${subKey} ${typeStr}`)
@@ -107,18 +113,15 @@ function recursiveLogger(obj: MediaTypeObject): string[] {
 /**
  * Extracts the request body from an operation.
  */
-export function extractRequestBody(operation: OperationObject): string[] | boolean {
-  try {
-    // TODO: Wait… there's more than just 'application/json' (https://github.com/scalar/scalar/issues/6427)
-    const media = getResolvedRef(operation?.requestBody)?.content?.['application/json']
-    if (!media) {
-      throw new Error('Body not found')
-    }
-
-    return recursiveLogger(media)
-  } catch (_error) {
-    return false
+export function extractRequestBody(operation: OperationObject): string[] | null {
+  const content = getResolvedRef(operation?.requestBody)?.content
+  const contentValue = Object.values(content ?? {})
+  if (contentValue.length === 0) {
+    // No content found
+    return null
   }
+
+  return contentValue.flatMap((media) => recursiveLogger(media))
 }
 
 /**
