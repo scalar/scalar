@@ -43,8 +43,10 @@ describe('getRequestExampleContext', () => {
       { path: '/pets', method: 'get', exampleName: 'default' },
       {
         authentication: {
-          apiKeyHeader: {
-            value: 'YOUR_SECRET_TOKEN',
+          securitySchemes: {
+            apiKeyHeader: {
+              value: 'YOUR_SECRET_TOKEN',
+            },
           },
         },
       },
@@ -75,8 +77,10 @@ describe('getRequestExampleContext', () => {
       {
         fallbackDocument,
         authentication: {
-          apiKeyHeader: {
-            value: 'CONFIG_ONLY_TOKEN',
+          securitySchemes: {
+            apiKeyHeader: {
+              value: 'CONFIG_ONLY_TOKEN',
+            },
           },
         },
       },
@@ -110,8 +114,10 @@ describe('getRequestExampleContext', () => {
       { path: '/pets', method: 'get', exampleName: 'default' },
       {
         authentication: {
-          apiKeyHeader: {
-            value: 'CONFIG_TOKEN',
+          securitySchemes: {
+            apiKeyHeader: {
+              value: 'CONFIG_TOKEN',
+            },
           },
         },
       },

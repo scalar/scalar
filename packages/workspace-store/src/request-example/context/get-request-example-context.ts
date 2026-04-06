@@ -62,12 +62,8 @@ export const getRequestExampleContext = (
     layout: Layout
     appVersion: string
     isElectron: boolean
-    /**
-     * Authentication configuration to use for the request example.
-     *
-     * This will be merged with the document's security schemes and the auth store secrets.
-     */
-    authentication: AuthenticationConfiguration['securitySchemes']
+    /** User facing authentication configuration */
+    authentication: AuthenticationConfiguration
     /**
      * When the document is not in `workspace.documents[documentName]` yet, use this copy (same shape as the
      * workspace entry). Callers that already hold the resolved document should pass it so behavior matches
@@ -140,7 +136,7 @@ export const getRequestExampleContext = (
 
   const securitySchemes = mergeSecurity(
     document.components?.securitySchemes ?? {},
-    options.authentication ?? {},
+    options.authentication?.securitySchemes ?? {},
     workspaceStore.auth,
     documentName,
   )
@@ -151,6 +147,7 @@ export const getRequestExampleContext = (
     operationSelectedSecurity,
     securityRequirements,
     securitySchemes,
+    options.authentication?.preferredSecurityScheme,
   )
 
   /** The above selected requirements in scheme form */
