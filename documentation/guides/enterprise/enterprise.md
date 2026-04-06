@@ -1,6 +1,6 @@
 <div class="flex flex-col gap-3 hero small-test">
   <scalar-heading level="1" slug="enterprise" class="text-balance">
-    Enterprise-grade APIs start with OpenAPI
+    Enterprise-grade API Platform
   </scalar-heading>
   <p>
      Scalar gives teams a single OpenAPI system of record across docs, registry, SDKs, Spectral linting & MCP servers so AI agents use your APIs through a standard, controlled surface. One hub for design, governance, quality, and visibility at enterprise scale.
@@ -8,7 +8,7 @@
 </div>
 
 <div class="flex gap-2">
-  <a class="t-editor__button" href="https://scalar.cal.com/forms/142d1e65-97d2-4d03-94c3-96f98ddef95a" target="_blank">Contact sales</a>
+  <a class="t-editor__button" href="https://scalar.cal.com/forms/142d1e65-97d2-4d03-94c3-96f98ddef95a" target="_blank">Book a demo</a>
   <a class="t-editor__button" href="https://dashboard.scalar.com/register">Get started</a>
 </div>
 
