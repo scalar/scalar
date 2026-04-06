@@ -6,6 +6,13 @@ import { TestResults } from '@/plugins/request-scripts/components/TestResults'
 
 import ScriptsSection from './components/ScriptsSection.vue'
 
+const getScript = (...args: (string | undefined | null)[]): string => {
+  return args
+    .map((script) => script?.trim())
+    .filter((script) => typeof script === 'string' && script.length > 0)
+    .join('\n')
+}
+
 /**
  * Concatenates any number of pre/post-request scripts into a single string,
  * trimming empty/undefined values and separating them with newlines.
