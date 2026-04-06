@@ -234,12 +234,12 @@ describe('openapi', () => {
 
     it('formats a required path parameter', () => {
       const result = extractParameters([{ in: 'path', name: 'userId', required: true }])
-      expect(result).toEqual(['userId REQUIRED path '])
+      expect(result).toEqual(['userId REQUIRED path'])
     })
 
     it('formats an optional query parameter', () => {
       const result = extractParameters([{ in: 'query', name: 'limit' }])
-      expect(result).toEqual(['limit optional query '])
+      expect(result).toEqual(['limit optional query'])
     })
 
     it('includes parameter type from schema', () => {
@@ -249,7 +249,7 @@ describe('openapi', () => {
 
     it('includes parameter description', () => {
       const result = extractParameters([{ in: 'query', name: 'limit', description: 'Maximum number of results' }])
-      expect(result).toEqual(['limit optional query  Maximum number of results'])
+      expect(result).toEqual(['limit optional query Maximum number of results'])
     })
 
     it('formats parameter with schema and description', () => {
@@ -273,10 +273,12 @@ describe('openapi', () => {
         { in: 'cookie', name: 'session' },
       ])
       expect(result).toHaveLength(4)
-      expect(result).toContain('id REQUIRED path ')
-      expect(result).toContain('filter optional query ')
-      expect(result).toContain('X-Api-Key REQUIRED header ')
-      expect(result).toContain('session optional cookie ')
+      expect(result).toEqual([
+        'id REQUIRED path',
+        'filter optional query',
+        'X-Api-Key REQUIRED header',
+        'session optional cookie',
+      ])
     })
 
     it('handles array type in schema', () => {
