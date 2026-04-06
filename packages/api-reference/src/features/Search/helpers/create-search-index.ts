@@ -88,7 +88,6 @@ export function createSearchIndex(document: OpenApiDocument | undefined): FuseDa
 
   processEntries(document?.['x-scalar-navigation']?.children ?? [])
 
-  console.log(index)
   return index
 }
 
