@@ -1120,6 +1120,38 @@
                     "title": "Key",
                     "type": "page",
                     "filepath": "documentation/guides/agent/key.md"
+                  },
+                  "examples": {
+                    "title": "Examples",
+                    "type": "group",
+                    "mode": "flat",
+                    "children": {
+                      "revenue-dashboard": {
+                        "filepath": "documentation/guides/agent/examples/revenue-dashboard.md",
+                        "type": "page",
+                        "title": "Revenue Dashboard"
+                      },
+                      "meeting-scheduler": {
+                        "filepath": "documentation/guides/agent/examples/meeting-scheduler.md",
+                        "type": "page",
+                        "title": "Meeting Scheduler"
+                      },
+                      "incident-monitor": {
+                        "filepath": "documentation/guides/agent/examples/incident-monitor.md",
+                        "type": "page",
+                        "title": "Incident Monitor"
+                      },
+                      "billing-sweep": {
+                        "filepath": "documentation/guides/agent/examples/billing-sweep.md",
+                        "type": "page",
+                        "title": "Billing Sweep"
+                      },
+                      "stakeholder-digest": {
+                        "filepath": "documentation/guides/agent/examples/stakeholder-digest.md",
+                        "type": "page",
+                        "title": "Stakeholder Digest"
+                      }
+                    }
                   }
                 }
               },
