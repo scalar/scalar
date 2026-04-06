@@ -37,21 +37,6 @@ const securityRequirements = computed(() =>
   getSecurityRequirements(document?.security),
 )
 
-/** The selected security keys for the document */
-const selectedSecurity = computed(() =>
-  getSelectedSecurity(
-    authStore.getAuthSelectedSchemas({
-      type: 'document',
-      documentName: name,
-    }),
-    undefined,
-    securityRequirements.value,
-  ),
-)
-
-const focusRef = shallowRef()
-const { focused } = useFocusWithin(focusRef)
-
 /** Merge the security schemes with the authentication config and the auth store */
 const securitySchemes = computed(() =>
   mergeSecurity(
@@ -61,6 +46,23 @@ const securitySchemes = computed(() =>
     name,
   ),
 )
+
+/** The selected security keys for the document */
+const selectedSecurity = computed(() =>
+  getSelectedSecurity(
+    authStore.getAuthSelectedSchemas({
+      type: 'document',
+      documentName: name,
+    }),
+    undefined,
+    securityRequirements.value,
+    securitySchemes.value,
+    options.authentication?.preferredSecurityScheme,
+  ),
+)
+
+const focusRef = shallowRef()
+const { focused } = useFocusWithin(focusRef)
 
 watch(focused, (isFocused) => {
   if (!isFocused) {

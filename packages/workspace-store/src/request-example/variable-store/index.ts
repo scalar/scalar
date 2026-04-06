@@ -36,7 +36,7 @@ export function createVariablesStoreForRequest(): VariablesStore {
     },
     getVariables: () => {
       return Object.fromEntries(
-        [...environmentEntries, ...collectionEntries, ...worksapceEntries, ...localVariables].map((v) => [
+        [...worksapceEntries, ...collectionEntries, ...environmentEntries, ...localVariables].map((v) => [
           v.key,
           v.value,
         ]),

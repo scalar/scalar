@@ -11,9 +11,7 @@ import {
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import type { WorkspaceDocument } from '@scalar/workspace-store/schemas/workspace'
-import { computed, watch } from 'vue'
-
-import { getDefaultSecurity } from '@/components/Content/Auth/helpers/get-default-security'
+import { computed } from 'vue'
 
 const { document, environment, eventBus, options, securitySchemes, authStore } =
   defineProps<{
@@ -48,33 +46,9 @@ const selectedSecurity = computed(() =>
     documentSelectedSecurity.value,
     undefined,
     securityRequirements.value,
+    securitySchemes,
+    options.authentication?.preferredSecurityScheme,
   ),
-)
-
-// We set the initial security on the document to the default if it doesn't exist
-watch(
-  documentSelectedSecurity,
-  (newDocumentSelectedSecurity) => {
-    if (typeof newDocumentSelectedSecurity !== 'undefined') {
-      return
-    }
-
-    const defaultSecurity = getDefaultSecurity(
-      securityRequirements.value,
-      options.authentication?.preferredSecurityScheme,
-      securitySchemes,
-    )
-    if (!defaultSecurity) {
-      return
-    }
-
-    eventBus.emit('auth:update:selected-security-schemes', {
-      selectedRequirements: [defaultSecurity],
-      newSchemes: [],
-      meta: { type: 'document' },
-    })
-  },
-  { immediate: true },
 )
 </script>
 <template>

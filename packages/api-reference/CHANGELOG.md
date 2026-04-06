@@ -1,5 +1,15 @@
 # @scalar/api-reference
 
+## 1.51.0
+
+### Minor Changes
+
+- [#8712](https://github.com/scalar/scalar/pull/8712): feat: use separate stores for client and shared state on the reference
+
+### Patch Changes
+
+- [#8728](https://github.com/scalar/scalar/pull/8728): fix: correctly merge security schemes with the config security
+
 ## 1.50.0
 
 ### Minor Changes

@@ -122,4 +122,150 @@ describe('getSelectedSecurity', () => {
       selectedSchemes: [],
     })
   })
+
+  describe('preferredSecurityScheme', () => {
+    it('uses preferred security scheme when provided as string', () => {
+      const securityRequirements = [{ apiKey: [] }, { bearerAuth: [] }, { oauth2: [] }]
+      const securitySchemes = {
+        apiKey: { type: 'apiKey' },
+        bearerAuth: { type: 'http' },
+        oauth2: { type: 'oauth2' },
+      }
+
+      const result = getSelectedSecurity(undefined, undefined, securityRequirements, securitySchemes, 'bearerAuth')
+
+      expect(result).toEqual({
+        selectedIndex: 0,
+        selectedSchemes: [{ bearerAuth: [] }],
+      })
+    })
+
+    it('uses preferred security scheme when provided as array', () => {
+      const securityRequirements = [{ apiKey: [] }, { oauth2: [] }]
+      const securitySchemes = {
+        apiKey: { type: 'apiKey' },
+        oauth2: { type: 'oauth2' },
+      }
+
+      const result = getSelectedSecurity(undefined, undefined, securityRequirements, securitySchemes, ['oauth2'])
+
+      expect(result).toEqual({
+        selectedIndex: 0,
+        selectedSchemes: [{ oauth2: [] }],
+      })
+    })
+
+    it('applies x-default-scopes to preferred oauth2 scheme', () => {
+      const securityRequirements = [{ apiKey: [] }, { oauth2: [] }]
+      const securitySchemes = {
+        apiKey: { type: 'apiKey' },
+        oauth2: {
+          type: 'oauth2',
+          'x-default-scopes': ['read:data', 'write:data'],
+        },
+      }
+
+      const result = getSelectedSecurity(undefined, undefined, securityRequirements, securitySchemes, 'oauth2')
+
+      expect(result).toEqual({
+        selectedIndex: 0,
+        selectedSchemes: [{ oauth2: ['read:data', 'write:data'] }],
+      })
+    })
+
+    it('handles preferred scheme not in requirements', () => {
+      const securityRequirements = [{ apiKey: [] }, { bearerAuth: [] }]
+      const securitySchemes = {
+        apiKey: { type: 'apiKey' },
+        bearerAuth: { type: 'http' },
+        oauth2: { type: 'oauth2' },
+      }
+
+      const result = getSelectedSecurity(undefined, undefined, securityRequirements, securitySchemes, 'oauth2')
+
+      expect(result).toEqual({
+        selectedIndex: 0,
+        selectedSchemes: [{ oauth2: [] }],
+      })
+    })
+
+    it('handles complex preferred scheme with multiple schemes', () => {
+      const securityRequirements = [{ apiKey: [] }, { oauth2: [], apiKey: [] }]
+      const securitySchemes = {
+        apiKey: { type: 'apiKey' },
+        oauth2: { type: 'oauth2' },
+      }
+
+      const result = getSelectedSecurity(undefined, undefined, securityRequirements, securitySchemes, [
+        'oauth2',
+        'apiKey',
+      ])
+
+      expect(result).toEqual({
+        selectedIndex: 0,
+        selectedSchemes: [{ oauth2: [], apiKey: [] }],
+      })
+    })
+
+    it('handles nested array in preferred scheme', () => {
+      const securityRequirements = [{ apiKey: [] }]
+      const securitySchemes = {
+        apiKey: { type: 'apiKey' },
+        oauth2: {
+          type: 'oauth2',
+          'x-default-scopes': ['scope1'],
+        },
+        basic: { type: 'http' },
+      }
+
+      const result = getSelectedSecurity(undefined, undefined, securityRequirements, securitySchemes, [
+        ['oauth2', 'basic'],
+        'apiKey',
+      ])
+
+      expect(result).toEqual({
+        selectedIndex: 0,
+        selectedSchemes: [{ oauth2: ['scope1'], basic: [], apiKey: [] }],
+      })
+    })
+
+    it('preferred scheme takes priority over first requirement but not over stored selection', () => {
+      const documentSelectedSecurity = {
+        selectedIndex: 0,
+        selectedSchemes: [{ apiKey: [] }],
+      }
+      const securityRequirements = [{ apiKey: [] }, { oauth2: [] }]
+      const securitySchemes = {
+        apiKey: { type: 'apiKey' },
+        oauth2: { type: 'oauth2' },
+      }
+
+      const result = getSelectedSecurity(
+        documentSelectedSecurity,
+        undefined,
+        securityRequirements,
+        securitySchemes,
+        'oauth2',
+      )
+
+      expect(result).toEqual({
+        selectedIndex: 0,
+        selectedSchemes: [{ apiKey: [] }],
+      })
+    })
+
+    it('uses preferred scheme even when auth is optional', () => {
+      const securityRequirements = [{ apiKey: [] }, {}]
+      const securitySchemes = {
+        apiKey: { type: 'apiKey' },
+      }
+
+      const result = getSelectedSecurity(undefined, undefined, securityRequirements, securitySchemes, 'apiKey')
+
+      expect(result).toEqual({
+        selectedIndex: 0,
+        selectedSchemes: [{ apiKey: [] }],
+      })
+    })
+  })
 })
