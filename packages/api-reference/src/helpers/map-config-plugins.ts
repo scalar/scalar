@@ -1,6 +1,7 @@
 import type { ClientPlugin } from '@scalar/oas-utils/helpers'
 import type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
-import { buildRequest } from '@scalar/workspace-store/request-example'
+import { buildRequest, getEnvironmentVariables } from '@scalar/workspace-store/request-example'
+import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import { type ComputedRef, watch } from 'vue'
 
 /**
@@ -18,7 +19,14 @@ import { type ComputedRef, watch } from 'vue'
  * @param config - Reactive configuration object containing optional hook callbacks
  * @returns Array containing a single plugin with the mapped hooks
  */
-export const mapConfigPlugins = (config: ComputedRef<ApiReferenceConfiguration>): ClientPlugin[] => {
+export const mapConfigPlugins = (
+  config: ComputedRef<ApiReferenceConfiguration>,
+  environment: XScalarEnvironment,
+): ClientPlugin[] => {
+  // Get the environment variables for the current environment
+  const envVariables = getEnvironmentVariables(environment)
+
+  // Create a new plugin with the hooks which is going to be updated by the watcher when config changes
   const plugin: ClientPlugin = { hooks: {} }
 
   watch(
@@ -32,7 +40,7 @@ export const mapConfigPlugins = (config: ComputedRef<ApiReferenceConfiguration>)
         ? async (payload) => {
             await onBeforeRequest({
               // We need to build the request to get the fetch `Request`
-              request: buildRequest(payload.requestBuilder, { envVariables: {} }).request,
+              request: buildRequest(payload.requestBuilder, { envVariables }).request,
               requestBuilder: payload.requestBuilder,
             })
           }

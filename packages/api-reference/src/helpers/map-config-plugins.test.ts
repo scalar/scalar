@@ -1,6 +1,7 @@
 import type { ClientPlugin } from '@scalar/oas-utils/helpers'
 import type { ApiReferenceConfigurationRaw } from '@scalar/types/api-reference'
 import type { RequestFactory } from '@scalar/workspace-store/request-example'
+import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import { assert, describe, expect, it, vi } from 'vitest'
 import { type ComputedRef, type Ref, computed, nextTick, ref } from 'vue'
 
@@ -8,6 +9,13 @@ import { mapConfigPlugins } from './map-config-plugins'
 
 const document = {} as never
 const operation = {} as never
+
+const createMockEnvironment = (
+  variables: Array<{ name: string; value: string }> = [],
+): XScalarEnvironment => ({
+  color: '#FFFFFF',
+  variables,
+})
 
 const createMockFactory = (overrides: Partial<RequestFactory> = {}): RequestFactory => ({
   baseUrl: 'https://example.com',
@@ -60,7 +68,7 @@ describe('mapConfigPlugins', () => {
       onBeforeRequest: onBeforeRequestMock as any,
     })) as ComputedRef<ApiReferenceConfigurationRaw>
 
-    const plugins: ClientPlugin[] = mapConfigPlugins(config)
+    const plugins: ClientPlugin[] = mapConfigPlugins(config, createMockEnvironment())
 
     expect(plugins).toHaveLength(1)
     expect(plugins[0]).toHaveProperty('hooks')
@@ -99,7 +107,7 @@ describe('mapConfigPlugins', () => {
       onBeforeRequest: onBeforeRequestMock as any,
     })) as ComputedRef<ApiReferenceConfigurationRaw>
 
-    const plugins: ClientPlugin[] = mapConfigPlugins(config)
+    const plugins: ClientPlugin[] = mapConfigPlugins(config, createMockEnvironment())
 
     const beforeRequestHook = plugins[0]?.hooks?.beforeRequest
     expect(beforeRequestHook).toBeDefined()
@@ -126,7 +134,7 @@ describe('mapConfigPlugins', () => {
       onRequestSent: onRequestSentMock as any,
     })) as ComputedRef<ApiReferenceConfigurationRaw>
 
-    const plugins: ClientPlugin[] = mapConfigPlugins(config)
+    const plugins: ClientPlugin[] = mapConfigPlugins(config, createMockEnvironment())
 
     expect(plugins).toHaveLength(1)
     expect(plugins[0]?.hooks).toHaveProperty('responseReceived')
@@ -157,7 +165,7 @@ describe('mapConfigPlugins', () => {
       onBeforeRequest: firstCallback,
     }) as unknown as Ref<ApiReferenceConfigurationRaw>
 
-    const plugins: ClientPlugin[] = mapConfigPlugins(computed(() => config.value))
+    const plugins: ClientPlugin[] = mapConfigPlugins(computed(() => config.value), createMockEnvironment())
 
     const hooks = plugins[0]?.hooks
     assert(hooks)
@@ -195,7 +203,7 @@ describe('mapConfigPlugins', () => {
       onRequestSent: firstCallback,
     }) as unknown as Ref<ApiReferenceConfigurationRaw>
 
-    const plugins: ClientPlugin[] = mapConfigPlugins(computed(() => config.value))
+    const plugins: ClientPlugin[] = mapConfigPlugins(computed(() => config.value), createMockEnvironment())
 
     const hooks = plugins[0]?.hooks
     assert(hooks)
@@ -230,7 +238,7 @@ describe('mapConfigPlugins', () => {
 
     const config = ref({}) as unknown as Ref<ApiReferenceConfigurationRaw>
 
-    const plugins: ClientPlugin[] = mapConfigPlugins(computed(() => config.value))
+    const plugins: ClientPlugin[] = mapConfigPlugins(computed(() => config.value), createMockEnvironment())
 
     const hooks = plugins[0]?.hooks
     assert(hooks)
@@ -256,7 +264,7 @@ describe('mapConfigPlugins', () => {
       onBeforeRequest: firstCallback,
     }) as unknown as Ref<ApiReferenceConfigurationRaw>
 
-    const plugins: ClientPlugin[] = mapConfigPlugins(computed(() => config.value))
+    const plugins: ClientPlugin[] = mapConfigPlugins(computed(() => config.value), createMockEnvironment())
 
     const hooks = plugins[0]?.hooks
     assert(hooks)
@@ -270,5 +278,166 @@ describe('mapConfigPlugins', () => {
     await nextTick()
 
     expect(hooks.beforeRequest).toBeUndefined()
+  })
+
+  it('substitutes environment variables in request headers when building request', async () => {
+    const mockRequestBuilder = createMockFactory({
+      headers: new Headers({ Authorization: 'Bearer {{API_TOKEN}}' }),
+    })
+
+    const environment = createMockEnvironment([{ name: 'API_TOKEN', value: 'secret-token-123' }])
+
+    let capturedRequest: Request | undefined
+
+    const onBeforeRequestMock = vi.fn(({ request }: { request: Request }) => {
+      capturedRequest = request
+    })
+
+    const config = computed(() => ({
+      onBeforeRequest: onBeforeRequestMock as any,
+    })) as ComputedRef<ApiReferenceConfigurationRaw>
+
+    const plugins: ClientPlugin[] = mapConfigPlugins(config, environment)
+
+    const beforeRequestHook = plugins[0]?.hooks?.beforeRequest
+    assert(beforeRequestHook)
+
+    await beforeRequestHook(beforePayload(mockRequestBuilder))
+
+    expect(onBeforeRequestMock).toHaveBeenCalledTimes(1)
+    assert(capturedRequest)
+    expect(capturedRequest.headers.get('Authorization')).toBe('Bearer secret-token-123')
+  })
+
+  it('substitutes multiple environment variables in request', async () => {
+    const mockRequestBuilder = createMockFactory({
+      baseUrl: '{{BASE_URL}}',
+      path: { variables: { version: '{{API_VERSION}}' }, raw: '/{version}/users' },
+      headers: new Headers({
+        'X-Api-Key': '{{API_KEY}}',
+        'X-Custom': '{{CUSTOM_HEADER}}',
+      }),
+    })
+
+    const environment = createMockEnvironment([
+      { name: 'BASE_URL', value: 'https://api.example.com' },
+      { name: 'API_VERSION', value: 'v2' },
+      { name: 'API_KEY', value: 'my-api-key' },
+      { name: 'CUSTOM_HEADER', value: 'custom-value' },
+    ])
+
+    let capturedRequest: Request | undefined
+
+    const onBeforeRequestMock = vi.fn(({ request }: { request: Request }) => {
+      capturedRequest = request
+    })
+
+    const config = computed(() => ({
+      onBeforeRequest: onBeforeRequestMock as any,
+    })) as ComputedRef<ApiReferenceConfigurationRaw>
+
+    const plugins: ClientPlugin[] = mapConfigPlugins(config, environment)
+
+    const beforeRequestHook = plugins[0]?.hooks?.beforeRequest
+    assert(beforeRequestHook)
+
+    await beforeRequestHook(beforePayload(mockRequestBuilder))
+
+    assert(capturedRequest)
+    expect(capturedRequest.url).toBe('https://api.example.com/v2/users')
+    expect(capturedRequest.headers.get('X-Api-Key')).toBe('my-api-key')
+    expect(capturedRequest.headers.get('X-Custom')).toBe('custom-value')
+  })
+
+  it('leaves unmatched environment variable placeholders unchanged', async () => {
+    const mockRequestBuilder = createMockFactory({
+      headers: new Headers({ 'X-Token': '{{UNDEFINED_VAR}}' }),
+    })
+
+    const environment = createMockEnvironment([{ name: 'OTHER_VAR', value: 'some-value' }])
+
+    let capturedRequest: Request | undefined
+
+    const onBeforeRequestMock = vi.fn(({ request }: { request: Request }) => {
+      capturedRequest = request
+    })
+
+    const config = computed(() => ({
+      onBeforeRequest: onBeforeRequestMock as any,
+    })) as ComputedRef<ApiReferenceConfigurationRaw>
+
+    const plugins: ClientPlugin[] = mapConfigPlugins(config, environment)
+
+    const beforeRequestHook = plugins[0]?.hooks?.beforeRequest
+    assert(beforeRequestHook)
+
+    await beforeRequestHook(beforePayload(mockRequestBuilder))
+
+    assert(capturedRequest)
+    expect(capturedRequest.headers.get('X-Token')).toBe('{{UNDEFINED_VAR}}')
+  })
+
+  it('handles environment variables with default values in object format', async () => {
+    const mockRequestBuilder = createMockFactory({
+      headers: new Headers({ 'X-Env': '{{ENV_WITH_DEFAULT}}' }),
+    })
+
+    const environment: XScalarEnvironment = {
+      color: '#FFFFFF',
+      variables: [
+        {
+          name: 'ENV_WITH_DEFAULT',
+          value: { default: 'default-value', description: 'A variable with default' },
+        },
+      ],
+    }
+
+    let capturedRequest: Request | undefined
+
+    const onBeforeRequestMock = vi.fn(({ request }: { request: Request }) => {
+      capturedRequest = request
+    })
+
+    const config = computed(() => ({
+      onBeforeRequest: onBeforeRequestMock as any,
+    })) as ComputedRef<ApiReferenceConfigurationRaw>
+
+    const plugins: ClientPlugin[] = mapConfigPlugins(config, environment)
+
+    const beforeRequestHook = plugins[0]?.hooks?.beforeRequest
+    assert(beforeRequestHook)
+
+    await beforeRequestHook(beforePayload(mockRequestBuilder))
+
+    assert(capturedRequest)
+    expect(capturedRequest.headers.get('X-Env')).toBe('default-value')
+  })
+
+  it('works with empty environment variables array', async () => {
+    const mockRequestBuilder = createMockFactory({
+      headers: new Headers({ 'X-Static': 'static-value' }),
+    })
+
+    const environment = createMockEnvironment([])
+
+    let capturedRequest: Request | undefined
+
+    const onBeforeRequestMock = vi.fn(({ request }: { request: Request }) => {
+      capturedRequest = request
+    })
+
+    const config = computed(() => ({
+      onBeforeRequest: onBeforeRequestMock as any,
+    })) as ComputedRef<ApiReferenceConfigurationRaw>
+
+    const plugins: ClientPlugin[] = mapConfigPlugins(config, environment)
+
+    const beforeRequestHook = plugins[0]?.hooks?.beforeRequest
+    assert(beforeRequestHook)
+
+    await beforeRequestHook(beforePayload(mockRequestBuilder))
+
+    assert(capturedRequest)
+    expect(capturedRequest.headers.get('X-Static')).toBe('static-value')
   })
 })

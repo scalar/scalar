@@ -34,8 +34,8 @@ export const requestScriptsPlugin = (): ClientPlugin => {
       beforeRequest: async ({ requestBuilder, document, operation, variablesStore }) => {
         // Reset test results when a new request is sent
         results.value = []
-        const preRequestScript = `${document['x-pre-request'] ?? ''}\n${operation['x-pre-request'] ?? ''}`.trim()
-        await executePreRequestScript(preRequestScript, {
+        const scripts = [document['x-pre-request'], operation['x-pre-request']]
+        await executePreRequestScript(scripts.join('\n'), {
           requestBuilder,
           variablesStore,
           onTestResultsUpdate: (newResults) => (results.value = [...newResults]),
@@ -43,8 +43,8 @@ export const requestScriptsPlugin = (): ClientPlugin => {
       },
 
       responseReceived: async ({ requestBuilder, response, operation, document, variablesStore }) => {
-        const postResponseScript = `${document['x-post-response'] ?? ''};\n${operation['x-post-response'] ?? ''}`.trim()
-        await executePostResponseScript(postResponseScript, {
+        const scripts = [document['x-post-response'], operation['x-post-response']]
+        await executePostResponseScript(scripts.join('\n'), {
           requestBuilder,
           response,
           onTestResultsUpdate: (newResults) => (results.value = [...results.value, ...newResults]),
