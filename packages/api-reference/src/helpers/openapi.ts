@@ -4,6 +4,7 @@ import type {
   OpenApiDocument,
   OperationObject,
   ParameterObject,
+  ReferenceType,
   SchemaObject,
   SchemaReferenceType,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
@@ -125,6 +126,35 @@ export function extractRequestBody(operation: OperationObject): string[] | null 
 }
 
 /**
+ * Formats a parameter into a searchable string.
+ */
+function formatParameter(param: ParameterObject): string {
+  const output = [param.name]
+  output.push(param.required ? 'REQUIRED' : 'optional')
+  output.push(param.in)
+
+  if ('schema' in param && param.schema) {
+    const schema = getResolvedRef(param.schema)
+    if (schema) {
+      output.push(schemaTypeToString(schema))
+    }
+  }
+
+  if (param.description) {
+    output.push(param.description)
+  }
+
+  return output.join(' ')
+}
+
+/**
+ * Extracts parameters from a ParameterMap into searchable strings.
+ */
+export function extractParameters(parameters: ReferenceType<ParameterObject>[]): string[] | null {
+  return parameters.map((parameter) => formatParameter(getResolvedRef(parameter)))
+}
+
+/**
  * Deep merge for objects
  */
 export function deepMerge(source: Record<any, any>, target: Record<any, any>) {
@@ -179,39 +209,4 @@ export type ParameterMap = {
   query: ParameterObject[]
   header: ParameterObject[]
   cookie: ParameterObject[]
-}
-
-/**
- * This function creates a parameter map from an Operation Object, that's easier to consume.
- *
- * TODO: Isn't it easier to just stick to the OpenAPI structure, without transforming it?
- */
-export function createParameterMap(operation: OperationObject) {
-  const map: ParameterMap = {
-    path: [],
-    query: [],
-    header: [],
-    cookie: [],
-  }
-
-  const parameters = operation.parameters ?? []
-
-  parameters.forEach((parameterRef) => {
-    const parameter = getResolvedRef(parameterRef)
-    if (!parameter) {
-      return
-    }
-
-    if (parameter.in === 'path') {
-      map.path.push(parameter)
-    } else if (parameter.in === 'query') {
-      map.query.push(parameter)
-    } else if (parameter.in === 'header') {
-      map.header.push(parameter)
-    } else if (parameter.in === 'cookie') {
-      map.cookie.push(parameter)
-    }
-  })
-
-  return map
 }

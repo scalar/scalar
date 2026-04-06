@@ -1,7 +1,7 @@
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { describe, expect, it } from 'vitest'
 
-import { createParameterMap, deepMerge, extractRequestBody } from './openapi'
+import { deepMerge, extractParameters, extractRequestBody } from './openapi'
 
 describe('openapi', () => {
   describe('deepMerge', () => {
@@ -226,77 +226,62 @@ describe('openapi', () => {
     })
   })
 
-  describe('createParameterMap', () => {
-    it('returns an empty map for an operation without parameters', () => {
-      const operation: OperationObject = {
-        summary: 'Test',
-        tags: ['test'],
-        responses: {
-          200: {
-            description: 'Success',
-          },
+  describe('extractParameters', () => {
+    it('returns empty array for empty parameters', () => {
+      const result = extractParameters([])
+      expect(result).toEqual([])
+    })
+
+    it('formats a required path parameter', () => {
+      const result = extractParameters([{ in: 'path', name: 'userId', required: true }])
+      expect(result).toEqual(['userId REQUIRED path '])
+    })
+
+    it('formats an optional query parameter', () => {
+      const result = extractParameters([{ in: 'query', name: 'limit' }])
+      expect(result).toEqual(['limit optional query '])
+    })
+
+    it('includes parameter type from schema', () => {
+      const result = extractParameters([{ in: 'query', name: 'limit', schema: { type: 'integer' } }])
+      expect(result).toEqual(['limit optional query integer'])
+    })
+
+    it('includes parameter description', () => {
+      const result = extractParameters([{ in: 'query', name: 'limit', description: 'Maximum number of results' }])
+      expect(result).toEqual(['limit optional query  Maximum number of results'])
+    })
+
+    it('formats parameter with schema and description', () => {
+      const result = extractParameters([
+        {
+          in: 'path',
+          name: 'userId',
+          required: true,
+          schema: { type: 'string' },
+          description: 'Unique user identifier',
         },
-      }
-      const result = createParameterMap(operation)
-      expect(result).toEqual({
-        path: [],
-        query: [],
-        header: [],
-        cookie: [],
-      })
+      ])
+      expect(result).toEqual(['userId REQUIRED path string Unique user identifier'])
     })
 
-    it('extracts parameters from the default parameters property', () => {
-      const operation: OperationObject = {
-        parameters: [
-          {
-            in: 'query',
-            name: 'limit',
-          },
-        ],
-      }
-      const result = createParameterMap(operation)
-      expect(result.query).toHaveLength(1)
-      expect(result.query[0]?.name).toBe('limit')
+    it('extracts parameters from all categories', () => {
+      const result = extractParameters([
+        { in: 'path', name: 'id', required: true },
+        { in: 'query', name: 'filter' },
+        { in: 'header', name: 'X-Api-Key', required: true },
+        { in: 'cookie', name: 'session' },
+      ])
+      expect(result).toHaveLength(4)
+      expect(result).toContain('id REQUIRED path ')
+      expect(result).toContain('filter optional query ')
+      expect(result).toContain('X-Api-Key REQUIRED header ')
+      expect(result).toContain('session optional cookie ')
     })
 
-    it('ignores non-dereferenced parameters', () => {
-      const operation: OperationObject = {
-        parameters: [
-          {
-            $ref: '#/components/parameters/Limit',
-            // @ts-expect-error - just a test
-            '$ref-value': undefined,
-          },
-          {
-            in: 'query',
-            name: 'limit',
-          },
-        ],
-      }
-      const result = createParameterMap(operation)
-      expect(result.query).toHaveLength(1)
-      expect(result.query[0]?.name).toBe('limit')
-    })
-
-    it('correctly categorizes all parameter types', () => {
-      const operation: OperationObject = {
-        parameters: [
-          { in: 'path', name: 'path-param' },
-          { in: 'query', name: 'query-param' },
-          { in: 'header', name: 'header-param' },
-          { in: 'cookie', name: 'cookie-param' },
-        ],
-      }
-      const result = createParameterMap(operation)
-      expect(result.path).toHaveLength(1)
-      expect(result.path[0]?.name).toBe('path-param')
-      expect(result.query).toHaveLength(1)
-      expect(result.query[0]?.name).toBe('query-param')
-      expect(result.header).toHaveLength(1)
-      expect(result.header[0]?.name).toBe('header-param')
-      expect(result.cookie).toHaveLength(1)
-      expect(result.cookie[0]?.name).toBe('cookie-param')
+    it('handles array type in schema', () => {
+      const result = extractParameters([{ in: 'query', name: 'tags', schema: { type: ['string', 'null'] } }])
+      expect(result).toEqual(['tags optional query string|null'])
     })
   })
 })

@@ -155,19 +155,8 @@ describe('createSearchIndex', () => {
       expect(operationEntry).toMatchObject({
         type: 'operation',
         title: 'Get User',
-        body: {
-          path: [
-            {
-              in: 'path',
-              name: 'userId',
-              required: true,
-              description: 'Unique user identifier',
-            },
-          ],
-          query: [],
-          header: [],
-          cookie: [],
-        },
+        body: '',
+        parameters: ['userId REQUIRED path Unique user identifier'],
       })
     })
 
@@ -300,18 +289,18 @@ describe('createSearchIndex', () => {
       const index = createSearchIndex(document)
       const operationEntry = index.find((item) => item.type === 'operation')
 
-      expect(operationEntry).toMatchObject({
+      expect(operationEntry).toEqual({
         type: 'operation',
         title: 'Get Users',
-        body: {
-          query: [
-            {
-              in: 'query',
-              name: 'limit',
-              description: 'Number of users to return',
-            },
-          ],
-        },
+        parameters: ['limit optional query Number of users to return'],
+        path: '/users',
+        method: 'get',
+        responseExamples: [],
+        body: '',
+        description: '',
+        entry: expect.any(Object),
+        id: expect.any(String),
+        operationId: undefined,
       })
     })
 
