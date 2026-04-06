@@ -2,4 +2,4 @@
 '@scalar/workspace-store': patch
 ---
 
-openIdConnect: Retrieve stored token for Authorization header
+fix(workspace-store): openIdConnect retrieve stored token for Authorization header
