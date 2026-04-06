@@ -148,7 +148,7 @@ function formatParameter(param: ParameterObject): string {
 }
 
 /**
- * Extracts parameters from a ParameterMap into searchable strings.
+ * Extracts parameters from an operation into searchable strings.
  */
 export function extractParameters(parameters: ReferenceType<ParameterObject>[]): string[] | null {
   return parameters.map((parameter) => formatParameter(getResolvedRef(parameter)))
@@ -202,11 +202,4 @@ export function createEmptySpecification(partialSpecification?: Partial<OpenApiD
   deepMerge(partialSpecification, emptySpecification)
 
   return emptySpecification as OpenApiDocument
-}
-
-export type ParameterMap = {
-  path: ParameterObject[]
-  query: ParameterObject[]
-  header: ParameterObject[]
-  cookie: ParameterObject[]
 }
