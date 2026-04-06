@@ -21,17 +21,18 @@ import { type ComputedRef, watch } from 'vue'
  */
 export const mapConfigPlugins = (
   config: ComputedRef<ApiReferenceConfiguration>,
-  environment: XScalarEnvironment,
+  environment: ComputedRef<XScalarEnvironment>,
 ): ClientPlugin[] => {
-  // Get the environment variables for the current environment
-  const envVariables = getEnvironmentVariables(environment)
-
   // Create a new plugin with the hooks which is going to be updated by the watcher when config changes
   const plugin: ClientPlugin = { hooks: {} }
 
   watch(
-    [() => config.value.onBeforeRequest, () => config.value.onRequestSent],
-    ([onBeforeRequest, onRequestSent]) => {
+    [() => config.value.onBeforeRequest, () => config.value.onRequestSent, () => environment.value],
+    ([onBeforeRequest, onRequestSent, environment]) => {
+      // Get the environment variables for the current environment
+      const envVariables = getEnvironmentVariables(environment)
+
+      // Initialize the hooks object if it doesn't exist
       if (!plugin.hooks) {
         plugin.hooks = {}
       }
