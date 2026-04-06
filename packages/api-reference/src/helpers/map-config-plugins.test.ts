@@ -166,7 +166,10 @@ describe('mapConfigPlugins', () => {
       onBeforeRequest: firstCallback,
     }) as unknown as Ref<ApiReferenceConfigurationRaw>
 
-    const plugins: ClientPlugin[] = mapConfigPlugins(computed(() => config.value), createMockEnvironment())
+    const plugins: ClientPlugin[] = mapConfigPlugins(
+      computed(() => config.value),
+      createMockEnvironment(),
+    )
 
     const hooks = plugins[0]?.hooks
     assert(hooks)
@@ -204,7 +207,10 @@ describe('mapConfigPlugins', () => {
       onRequestSent: firstCallback,
     }) as unknown as Ref<ApiReferenceConfigurationRaw>
 
-    const plugins: ClientPlugin[] = mapConfigPlugins(computed(() => config.value), createMockEnvironment())
+    const plugins: ClientPlugin[] = mapConfigPlugins(
+      computed(() => config.value),
+      createMockEnvironment(),
+    )
 
     const hooks = plugins[0]?.hooks
     assert(hooks)
@@ -239,7 +245,10 @@ describe('mapConfigPlugins', () => {
 
     const config = ref({}) as unknown as Ref<ApiReferenceConfigurationRaw>
 
-    const plugins: ClientPlugin[] = mapConfigPlugins(computed(() => config.value), createMockEnvironment())
+    const plugins: ClientPlugin[] = mapConfigPlugins(
+      computed(() => config.value),
+      createMockEnvironment(),
+    )
 
     const hooks = plugins[0]?.hooks
     assert(hooks)
@@ -265,7 +274,10 @@ describe('mapConfigPlugins', () => {
       onBeforeRequest: firstCallback,
     }) as unknown as Ref<ApiReferenceConfigurationRaw>
 
-    const plugins: ClientPlugin[] = mapConfigPlugins(computed(() => config.value), createMockEnvironment())
+    const plugins: ClientPlugin[] = mapConfigPlugins(
+      computed(() => config.value),
+      createMockEnvironment(),
+    )
 
     const hooks = plugins[0]?.hooks
     assert(hooks)
