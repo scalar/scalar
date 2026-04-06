@@ -370,11 +370,19 @@ export const authorizeServers = async (
       headers,
       body: formData,
     })
-    const responseData = await resp.json()
+    // Parse the body cautiously — some error responses (e.g. from proxies) are not JSON
+    let responseData: Record<string, unknown> = {}
+    try {
+      responseData = await resp.json()
+    } catch {
+      // Non-JSON body; fall through to the resp.ok check below
+    }
 
     if (!resp.ok) {
       // OAuth2 error responses follow RFC 6749 §5.2
-      const detail = responseData?.error_description || responseData?.error || `HTTP ${resp.status}`
+      const detail = (responseData?.error_description as string | undefined)
+        || (responseData?.error as string | undefined)
+        || `HTTP ${resp.status}`
       return [new Error(`Token request failed: ${detail}`), null]
     }
 

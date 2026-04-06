@@ -734,6 +734,19 @@ describe('oauth', () => {
       expect(error!.message).toBe('Token request failed: invalid_grant')
     })
 
+    it('should fall back to HTTP status when the error response body is not JSON', async () => {
+      global.fetch = vi.fn().mockResolvedValueOnce({
+        ok: false,
+        status: 503,
+        json: () => Promise.reject(new SyntaxError('Unexpected token')),
+      })
+
+      const [error, result] = await authorizeOauth2(scheme, 'clientCredentials', selectedScopes, mockServer, '')
+      expect(result).toBe(null)
+      expect(error).toBeInstanceOf(Error)
+      expect(error!.message).toBe('Token request failed: HTTP 503')
+    })
+
     it('should use custom token name when x-tokenName is specified', async () => {
       const flows = {
         clientCredentials: {
