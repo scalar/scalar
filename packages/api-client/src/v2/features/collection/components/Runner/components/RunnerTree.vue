@@ -94,12 +94,18 @@ const toggleAllExamples = (op: TraversedOperation): void => {
   }
 }
 
-const getGroupStats = (
-  entries: TraversedEntry[],
-): {
-  total: number
-  selected: number
-} => {
+type GroupStats = { total: number; selected: number }
+
+/**
+ * Recursively computes selection statistics for a subtree of entries.
+ *
+ * Walks through all filtered entries and their children to count:
+ * - total: the number of selectable examples across all operations
+ * - selected: how many of those examples are currently selected
+ *
+ * This is an internal helper used by groupStatsMap to build the cache.
+ */
+const computeGroupStats = (entries: TraversedEntry[]): GroupStats => {
   let total = 0
   let selected = 0
 
@@ -112,13 +118,54 @@ const getGroupStats = (
         props.isSelected(entry.path, entry.method, ex.name),
       ).length
     } else if ('children' in entry && entry.children?.length) {
-      const childStats = getGroupStats(entry.children)
+      const childStats = computeGroupStats(entry.children)
       total += childStats.total
       selected += childStats.selected
     }
   }
 
   return { total, selected }
+}
+
+/**
+ * Pre-computed map of group statistics keyed by entry ID.
+ *
+ * This computed property builds a cache of stats for all group entries
+ * (tags, documents with children) in a single pass. The template can then
+ * do O(1) lookups instead of repeatedly traversing the tree.
+ */
+const groupStatsMap = computed(() => {
+  const map = new Map<string, GroupStats>()
+  for (const entry of filteredEntries.value) {
+    if ('children' in entry && entry.children?.length) {
+      const filteredChildren = filterEntries(entry.children)
+      if (filteredChildren.length > 0) {
+        map.set(entry.id, computeGroupStats(entry.children))
+      }
+    }
+  }
+  return map
+})
+
+/**
+ * Checks whether an entry is a valid group (has children with selectable content).
+ *
+ * Returns true if the entry exists in the pre-computed groupStatsMap,
+ * meaning it has filtered children that should be rendered as a collapsible group.
+ */
+const isGroupEntry = (entry: TraversedEntry): boolean => {
+  return groupStatsMap.value.has(entry.id)
+}
+
+/**
+ * Retrieves the pre-computed selection statistics for a group entry.
+ *
+ * Returns the cached { total, selected } stats from groupStatsMap.
+ * Falls back to zeros if the entry is not found (should not happen
+ * if isGroupEntry was checked first).
+ */
+const getGroupStats = (entry: TraversedEntry): GroupStats => {
+  return groupStatsMap.value.get(entry.id) ?? { total: 0, selected: 0 }
 }
 </script>
 
@@ -151,23 +198,19 @@ const getGroupStats = (
 
       <!-- Group (tag/document with children) -->
       <RunnerTreeGroup
-        v-else-if="
-          'children' in entry && filterEntries(entry.children ?? []).length > 0
-        "
-        :selectedCount="
-          getGroupStats(filterEntries(entry.children ?? [])).selected
-        "
+        v-else-if="isGroupEntry(entry)"
+        :selectedCount="getGroupStats(entry).selected"
         :title="entry.title"
-        :totalCount="getGroupStats(filterEntries(entry.children ?? [])).total">
+        :totalCount="getGroupStats(entry).total">
         <RunnerTree
           :depth="depth + 1"
           :disabled="disabled"
-          :entries="entry.children ?? []"
+          :entries="'children' in entry ? (entry.children ?? []) : []"
           :isSelected="isSelected"
           :selectedOrder="selectedOrder"
           @toggle="
             (path, method, exampleKey, label) =>
-              $emit('toggle', path, method, exampleKey, label)
+              emit('toggle', path, method, exampleKey, label)
           " />
       </RunnerTreeGroup>
     </template>
