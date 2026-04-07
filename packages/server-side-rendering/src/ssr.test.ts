@@ -182,6 +182,13 @@ describe('ssr', () => {
       expect(html).toContain('src="/custom/path.js"')
     })
 
+    it('escapes HTML in custom cdn path', async () => {
+      const html = await renderApiReference({ config: {}, css: '', cdn: '/custom/"path.js' })
+
+      expect(html).toContain('src="/custom/&quot;path.js"')
+      expect(html).not.toContain('src="/custom/"path.js"')
+    })
+
     it('serializes configuration into the hydration script', async () => {
       const html = await renderApiReference({ config: { url: 'https://example.com/api.json' }, css: '' })
 

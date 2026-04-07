@@ -99,6 +99,11 @@ function escapeHtml(str: string): string {
   return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
 }
 
+/** Escape user-provided strings before inserting into HTML attributes. */
+function escapeHtmlAttribute(str: string): string {
+  return escapeHtml(str).replace(/"/g, '&quot;').replace(/'/g, '&#39;')
+}
+
 /** Serialize an array that may contain functions. */
 function serializeArrayWithFunctions(arr: unknown[]): string {
   return `[${arr.map((item) => (typeof item === 'function' ? item.toString() : JSON.stringify(item))).join(', ')}]`
@@ -159,7 +164,7 @@ export async function renderApiReference(options: {
 }): Promise<string> {
   const title = escapeHtml(options.pageTitle ?? 'Scalar API Reference')
   const css = options.css ?? getDefaultCss()
-  const cdn = options.cdn ?? '/scalar/scalar.js'
+  const cdn = escapeHtmlAttribute(options.cdn ?? '/scalar/scalar.js')
   const html = await renderApiReferenceToString(options.config)
   const bodyScript = generateBodyScript(options.config)
   const configJs = serializeConfigToJs(unwrapConfig(options.config))
