@@ -136,7 +136,7 @@ describe('jsFetch', () => {
       ],
     })
 
-    expect(result).toBe(`fetch('https://example.com?foo=bar,baz')`)
+    expect(result).toBe(`fetch('https://example.com?foo=bar&foo=baz')`)
   })
 
   it('has cookies', () => {

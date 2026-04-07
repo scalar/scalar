@@ -30,7 +30,7 @@ describe('buildQueryString', () => {
       { name: 'tags', value: 'one' },
       { name: 'tags', value: 'two' },
     ]
-    expect(buildQueryString(queryParams)).toBe('?tags=one,two')
+    expect(buildQueryString(queryParams)).toBe('?tags=one&tags=two')
   })
 
   it('handles mixed unique and repeated parameters', () => {
@@ -39,7 +39,7 @@ describe('buildQueryString', () => {
       { name: 'tags', value: 'one' },
       { name: 'tags', value: 'two' },
     ]
-    expect(buildQueryString(queryParams)).toBe('?limit=10&tags=one,two')
+    expect(buildQueryString(queryParams)).toBe('?limit=10&tags=one&tags=two')
   })
 
   it('handles parameters with empty values', () => {
