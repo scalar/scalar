@@ -52,6 +52,30 @@ export function generateBodyScript(configuration: AnyApiReferenceConfiguration):
 }
 
 /**
+ * Derive the initial SSR class for <body> from config.
+ *
+ * Priority:
+ * 1. forceDarkModeState
+ * 2. darkMode
+ * 3. fallback to dark-mode (then runtime script can refine from localStorage/matchMedia)
+ */
+function getInitialBodyClass(configuration: AnyApiReferenceConfiguration): 'dark-mode' | 'light-mode' {
+  const config = unwrapConfig(configuration)
+  const forced = (config.forceDarkModeState as string | undefined) ?? null
+  const darkMode = (config.darkMode as boolean | undefined) ?? null
+
+  if (forced) {
+    return forced === 'dark' ? 'dark-mode' : 'light-mode'
+  }
+
+  if (darkMode !== null) {
+    return darkMode ? 'dark-mode' : 'light-mode'
+  }
+
+  return 'dark-mode'
+}
+
+/**
  * Render the Scalar API Reference to an HTML string for server-side rendering.
  * Use createApiReference on the client to hydrate the server-rendered output.
  *
@@ -167,6 +191,7 @@ export async function renderApiReference(options: {
   const cdn = escapeHtmlAttribute(options.cdn ?? '/scalar/scalar.js')
   const html = await renderApiReferenceToString(options.config)
   const bodyScript = generateBodyScript(options.config)
+  const initialBodyClass = getInitialBodyClass(options.config)
   const configJs = serializeConfigToJs(unwrapConfig(options.config))
 
   return `<!doctype html>
@@ -177,7 +202,7 @@ export async function renderApiReference(options: {
     <title>${title}</title>
     <style>${css}</style>
   </head>
-  <body class="dark-mode">
+  <body class="${initialBodyClass}">
     ${bodyScript}
     <div id="app">${html}</div>
     <script src="${cdn}"></script>
