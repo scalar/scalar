@@ -131,6 +131,27 @@ describe('ssr', () => {
       expect(html).toContain('document.body.classList')
     })
 
+    it('uses light-mode on body when forceDarkModeState is light', async () => {
+      const html = await renderApiReference({ config: { forceDarkModeState: 'light' }, css: '' })
+
+      expect(html).toContain('<body class="light-mode">')
+      expect(html).not.toContain('<body class="dark-mode">')
+    })
+
+    it('uses light-mode on body when darkMode is false', async () => {
+      const html = await renderApiReference({ config: { darkMode: false }, css: '' })
+
+      expect(html).toContain('<body class="light-mode">')
+      expect(html).not.toContain('<body class="dark-mode">')
+    })
+
+    it('uses config from the first entry for array configuration body class', async () => {
+      const html = await renderApiReference({ config: [{ forceDarkModeState: 'light' }], css: '' })
+
+      expect(html).toContain('<body class="light-mode">')
+      expect(html).not.toContain('<body class="dark-mode">')
+    })
+
     it('defaults to Scalar API Reference title', async () => {
       const html = await renderApiReference({ config: {}, css: '' })
 
