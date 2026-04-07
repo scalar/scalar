@@ -228,11 +228,6 @@ const shouldRenderRequestBody = computed(
   font-weight: var(--scalar-semibold);
   color: var(--scalar-color-1);
 }
-.request-body-schema-name {
-  font-size: var(--scalar-micro);
-  font-weight: var(--scalar-regular);
-  color: var(--scalar-color-2);
-}
 .request-body-required {
   font-size: var(--scalar-micro);
   color: var(--scalar-color-orange);
