@@ -6,6 +6,7 @@ import type {
   OAuth2ObjectSecret,
   OAuthFlowAuthorizationCodeSecret,
   OAuthFlowImplicitSecret,
+  OpenIdConnectObjectSecret,
 } from '@/request-example/builder/security/secret-types'
 
 import { buildRequestSecurity } from './build-request-security'
@@ -168,6 +169,81 @@ describe('buildRequestSecurity', () => {
       assert(result[0])
       expect(result[0].name).toBe('Authorization')
       expect(result[0].value).toBe('test-token-implicit')
+      expect(result[0].type).toBe('bearer')
+      expect(result[0].in).toBe('header')
+    })
+  })
+
+  describe('openIdConnect security', () => {
+    it('handles openIdConnect with a token from an authorizationCode flow', () => {
+      const openId: OpenIdConnectObjectSecret = {
+        type: 'openIdConnect',
+        openIdConnectUrl: 'https://example.com/.well-known/openid-configuration',
+        flows: {
+          authorizationCode: {
+            'x-scalar-secret-token': 'oidc-token',
+          } as OAuthFlowAuthorizationCodeSecret,
+        },
+      }
+
+      const result = buildRequestSecurity([openId])
+      expect(result).toHaveLength(1)
+      assert(result[0])
+      expect(result[0].name).toBe('Authorization')
+      expect(result[0].value).toBe('oidc-token')
+      expect(result[0].type).toBe('bearer')
+      expect(result[0].in).toBe('header')
+    })
+
+    it('handles openIdConnect with no flows (no token obtained yet)', () => {
+      const openId: OpenIdConnectObjectSecret = {
+        type: 'openIdConnect',
+        openIdConnectUrl: 'https://example.com/.well-known/openid-configuration',
+      }
+
+      const result = buildRequestSecurity([openId])
+      expect(result).toHaveLength(1)
+      assert(result[0])
+      expect(result[0].name).toBe('Authorization')
+      expect(result[0].value).toBe('')
+      expect(result[0].type).toBe('bearer')
+      expect(result[0].in).toBe('header')
+    })
+
+    it('handles openIdConnect with multiple flows using the first token', () => {
+      const openId: OpenIdConnectObjectSecret = {
+        type: 'openIdConnect',
+        openIdConnectUrl: 'https://example.com/.well-known/openid-configuration',
+        flows: {
+          implicit: {
+            'x-scalar-secret-token': 'oidc-implicit-token',
+          } as OAuthFlowImplicitSecret,
+          authorizationCode: {
+            'x-scalar-secret-token': 'oidc-code-token',
+          } as OAuthFlowAuthorizationCodeSecret,
+        },
+      }
+
+      const result = buildRequestSecurity([openId])
+      expect(result).toHaveLength(1)
+      assert(result[0])
+      expect(result[0].name).toBe('Authorization')
+      expect(result[0].value).toBe('oidc-implicit-token')
+      expect(result[0].type).toBe('bearer')
+      expect(result[0].in).toBe('header')
+    })
+
+    it('uses the empty token placeholder when no token is present', () => {
+      const openId: OpenIdConnectObjectSecret = {
+        type: 'openIdConnect',
+        openIdConnectUrl: 'https://example.com/.well-known/openid-configuration',
+      }
+
+      const result = buildRequestSecurity([openId], 'NO_TOKEN')
+      expect(result).toHaveLength(1)
+      assert(result[0])
+      expect(result[0].name).toBe('Authorization')
+      expect(result[0].value).toBe('NO_TOKEN')
       expect(result[0].type).toBe('bearer')
       expect(result[0].in).toBe('header')
     })
