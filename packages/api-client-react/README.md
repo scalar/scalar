@@ -11,12 +11,19 @@
 npm install @scalar/api-client-react
 ```
 
+### ⚠️ Breaking Changes
+
+We have updated the API for the client! Please see the new hook based usage below.
+
 ## Usage
 
 Call `useApiClientModal()` from any component. No provider is needed.
 
 The Vue app is created once and appended to `document.body` where it lives for the lifetime of the
 page — it survives client-side navigation without losing state.
+
+The code is ESM lazy loaded with the dynamic import function to make the smallest possible initial bundle size. We also
+handle de-duplication of documents so as long as the URL is the same you will only get one.
 
 ```tsx
 import { useApiClientModal } from '@scalar/api-client-react'
@@ -42,7 +49,6 @@ export const OpenButton = () => {
 | Option | Type | Description |
 |---|---|---|
 | `configuration.url` | `string` | URL of an OpenAPI description to load |
-| `configuration.content` | `Record<string, unknown>` | Inline OpenAPI description object |
 | `initialRequest` | `RoutePayload` | Request to navigate to when the modal opens |
 
 ### Routing to a specific request
