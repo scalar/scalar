@@ -1691,7 +1691,9 @@ describe('parameter styles', () => {
       })
 
       // XML values should be URL encoded
-      expect(result.queryString).toEqual([{ name: 'xmlData', value: '%3Croot%3E%3Citem%3Evalue%3C%2Fitem%3E%3C%2Froot%3E' }])
+      expect(result.queryString).toEqual([
+        { name: 'xmlData', value: '%3Croot%3E%3Citem%3Evalue%3C%2Fitem%3E%3C%2Froot%3E' },
+      ])
     })
 
     it('handles query parameter with application/xml content type', () => {
@@ -1722,7 +1724,10 @@ describe('parameter styles', () => {
 
       // Application XML values should be URL encoded
       expect(result.queryString).toEqual([
-        { name: 'payload', value: '%3C%3Fxml%20version%3D%221.0%22%3F%3E%3Cdata%3E%3Cfield%3Etest%3C%2Ffield%3E%3C%2Fdata%3E' },
+        {
+          name: 'payload',
+          value: '%3C%3Fxml%20version%3D%221.0%22%3F%3E%3Cdata%3E%3Cfield%3Etest%3C%2Ffield%3E%3C%2Fdata%3E',
+        },
       ])
     })
 
@@ -1753,7 +1758,9 @@ describe('parameter styles', () => {
       })
 
       // Form data should be URL encoded
-      expect(result.queryString).toEqual([{ name: 'formData', value: 'username%3Djohn_doe%26email%3Djohn%40example.com' }])
+      expect(result.queryString).toEqual([
+        { name: 'formData', value: 'username%3Djohn_doe%26email%3Djohn%40example.com' },
+      ])
     })
 
     it('handles query parameter with text/html content type', () => {
@@ -1783,7 +1790,9 @@ describe('parameter styles', () => {
       })
 
       // HTML values should be URL encoded
-      expect(result.queryString).toEqual([{ name: 'htmlContent', value: '%3Cdiv%3E%3Cp%3EHello%20World%3C%2Fp%3E%3C%2Fdiv%3E' }])
+      expect(result.queryString).toEqual([
+        { name: 'htmlContent', value: '%3Cdiv%3E%3Cp%3EHello%20World%3C%2Fp%3E%3C%2Fdiv%3E' },
+      ])
     })
 
     it('handles query parameter with application/octet-stream content type', () => {
@@ -1847,7 +1856,9 @@ describe('parameter styles', () => {
       })
 
       // Array values in content should be serialized as JSON strings and URL encoded
-      expect(result.queryString).toEqual([{ name: 'tags', value: '%5B%22javascript%22%2C%22typescript%22%2C%22vue%22%5D' }])
+      expect(result.queryString).toEqual([
+        { name: 'tags', value: '%5B%22javascript%22%2C%22typescript%22%2C%22vue%22%5D' },
+      ])
     })
 
     it('handles content-based parameter with nested object value', () => {
@@ -1883,7 +1894,12 @@ describe('parameter styles', () => {
       })
 
       // Nested objects should be serialized as JSON strings and URL encoded
-      expect(result.queryString).toEqual([{ name: 'filter', value: '%7B%22user%22%3A%7B%22name%22%3A%22John%22%2C%22age%22%3A30%7D%2C%22active%22%3Atrue%7D' }])
+      expect(result.queryString).toEqual([
+        {
+          name: 'filter',
+          value: '%7B%22user%22%3A%7B%22name%22%3A%22John%22%2C%22age%22%3A30%7D%2C%22active%22%3Atrue%7D',
+        },
+      ])
     })
 
     it('uses parameter content type, not request content type', () => {
@@ -2030,7 +2046,10 @@ describe('parameter styles', () => {
         })
 
         // Should be JSON stringified and URL encoded
-        expect(result.queryString).toContainEqual({ name: 'filter', value: '%7B%22status%22%3A%22active%22%2C%22limit%22%3A10%7D' })
+        expect(result.queryString).toContainEqual({
+          name: 'filter',
+          value: '%7B%22status%22%3A%22active%22%2C%22limit%22%3A10%7D',
+        })
       })
 
       it('should serialize query parameter with application/json content for array', () => {
