@@ -841,7 +841,7 @@ jobs:
           platforms: linux/amd64
 
       - name: Build Docker image
-        uses: useblacksmith/build-push-action@30c71162f16ea2c27c3e21523255d209b8b538c1 # v2
+        uses: useblacksmith/build-push-action@cbd1f60d194a98cb3be5523b15134501eaf0fbf3 # v2
         with:
           context: integrations/docker
           file: integrations/docker/Dockerfile
@@ -892,7 +892,7 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Build and Push Docker image
-        uses: useblacksmith/build-push-action@30c71162f16ea2c27c3e21523255d209b8b538c1 # v2
+        uses: useblacksmith/build-push-action@cbd1f60d194a98cb3be5523b15134501eaf0fbf3 # v2
         with:
           context: integrations/docker
           file: integrations/docker/Dockerfile
@@ -950,7 +950,7 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Build and Push Docker image
-        uses: useblacksmith/build-push-action@30c71162f16ea2c27c3e21523255d209b8b538c1 # v2
+        uses: useblacksmith/build-push-action@cbd1f60d194a98cb3be5523b15134501eaf0fbf3 # v2
         with:
           context: packages/mock-server/docker
           file: packages/mock-server/docker/Dockerfile
@@ -1129,7 +1129,7 @@ jobs:
             linux/arm64
 
       - name: Build and push Aspire Docker image
-        uses: useblacksmith/build-push-action@30c71162f16ea2c27c3e21523255d209b8b538c1 # v2
+        uses: useblacksmith/build-push-action@cbd1f60d194a98cb3be5523b15134501eaf0fbf3 # v2
         with:
           context: integrations/dotnet
           file: integrations/dotnet/aspire/src/Scalar.Aspire.Service/Dockerfile
