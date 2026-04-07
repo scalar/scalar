@@ -177,7 +177,7 @@ export async function renderApiReference(options: {
     <title>${title}</title>
     <style>${css}</style>
   </head>
-  <body>
+  <body class="dark-mode">
     ${bodyScript}
     <div id="app">${html}</div>
     <script src="${cdn}"></script>
