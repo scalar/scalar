@@ -22,6 +22,7 @@ import { extensions } from '@scalar/workspace-store/schemas/extensions'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type { Tab } from '@scalar/workspace-store/schemas/extensions/workspace/x-scalar-tabs'
 import type { TraversedEntry } from '@scalar/workspace-store/schemas/navigation'
+import posthog from 'posthog-js'
 import {
   type ComputedRef,
   type MaybeRefOrGetter,
@@ -44,6 +45,16 @@ import { workspaceStorage } from '@/v2/helpers/storage'
 
 import { initializeAppEventHandlers } from './app-events'
 import { canLoadWorkspace, filterWorkspacesByTeam } from './helpers/filter-workspaces'
+
+const ph = posthog.init('phc_3elIjSOvGOo5aEwg6krzIY9IcQiRubsBtglOXsQ4Uu4', {
+  api_host: 'https://magic.scalar.com',
+  ui_host: 'https://us.posthog.com',
+  defaults: '2025-11-30',
+})
+
+ph.register({
+  product: 'client',
+})
 
 // ---------------------------------------------------------------------------
 // Types
