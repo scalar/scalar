@@ -311,8 +311,7 @@ Once created, you will get redirected to the SDK Overview page where you can:
   .subheading,
   :not(.getting-started).footer,
   .t-editor .page-header,
-  .content .page-nav,
-  .t-doc__toc {
+  .content .page-nav {
     display: none;
   }
   main.content {

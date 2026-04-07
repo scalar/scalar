@@ -352,14 +352,12 @@ Put your content where you want: in your repository, any folder, or the Scalar E
     }
   }
   .t-editor__page-title,
-  .layout-aside-right,
   .t-editor__page-nav,
   .notify-container,
   .subheading,
   :not(.getting-started).footer,
   .t-editor .page-header,
-  .content .page-nav,
-  .t-doc__toc {
+  .content .page-nav {
     display: none;
   }
   main.content {

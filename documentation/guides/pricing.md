@@ -861,7 +861,6 @@ h4.t-editor__heading {
   .t-editor__page-nav,
   .notify-container,
   .subheading,
-  .t-doc__toc,
   .page-nav,
   :not(.pricing).footer,
   .t-editor .page-header {
