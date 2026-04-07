@@ -1,4 +1,5 @@
-import { getObjectKeys, normalizeMimeTypeObject } from '@scalar/oas-utils/helpers'
+import { getObjectKeys } from '@scalar/oas-utils/helpers'
+import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { MediaTypeObject, ResponseObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
 /**
@@ -9,7 +10,7 @@ import type { MediaTypeObject, ResponseObject } from '@scalar/workspace-store/sc
  * like `0`, `false`, and `""` are valid JSON examples that should be displayed.
  * We still treat `null` as "no content" since it explicitly indicates absence.
  */
-function hasMediaTypeContent(mediaType: MediaTypeObject | undefined): boolean {
+export function hasMediaTypeContent(mediaType: MediaTypeObject | undefined): boolean {
   if (!mediaType) {
     return false
   }
@@ -21,33 +22,18 @@ function hasMediaTypeContent(mediaType: MediaTypeObject | undefined): boolean {
   return hasSchema || hasExample || hasExamples
 }
 
-function isResponseKey(responseKey: string): boolean {
-  return responseKey === 'default' || /^[1-5][0-9]{2}$/.test(responseKey) || /^[1-5]XX$/.test(responseKey)
-}
-
 /**
  * Checks if a response object has body content (schema, example, or examples).
  * Looks through common media types in priority order.
+ *
+ * Responses with only a description (no content) are considered empty and will return false.
  */
-export function hasResponseContent(response: ResponseObject | undefined, responseKey?: string): boolean {
-  if (responseKey !== undefined) {
-    if (!isResponseKey(responseKey)) {
-      return false
-    }
-
-    return Boolean(response)
+export function hasResponseContent(response: ResponseObject | undefined): boolean {
+  const content = response?.content
+  if (!content) {
+    return false
   }
 
-  const normalizedContent = normalizeMimeTypeObject(response?.content)
-  const keys = getObjectKeys(normalizedContent ?? {})
-
-  const mediaType =
-    normalizedContent?.['application/json'] ??
-    normalizedContent?.['application/xml'] ??
-    normalizedContent?.['text/plain'] ??
-    normalizedContent?.['text/html'] ??
-    normalizedContent?.['*/*'] ??
-    normalizedContent?.[keys[0] ?? '']
-
-  return hasMediaTypeContent(mediaType)
+  const keys = getObjectKeys(content)
+  return keys.some((key) => hasMediaTypeContent(getResolvedRef(content[key])))
 }

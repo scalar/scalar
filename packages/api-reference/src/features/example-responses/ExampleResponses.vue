@@ -47,7 +47,7 @@ const orderedStatusCodes = computed<string[]>(() =>
 // Filter to only valid response keys that should render in the example responses panel
 const statusCodesWithContent = computed<string[]>(() =>
   orderedStatusCodes.value.filter((statusCode) =>
-    hasResponseContent(getResolvedRef(responses?.[statusCode]), statusCode),
+    hasResponseContent(getResolvedRef(responses?.[statusCode])),
   ),
 )
 

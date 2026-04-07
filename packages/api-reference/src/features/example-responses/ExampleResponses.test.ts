@@ -710,7 +710,7 @@ describe('ExampleResponses', () => {
     expect(wrapper.text()).not.toContain('Example 2')
   })
 
-  it('renders explicit 204 response tab and shows No Body', () => {
+  it('does not render explicit 204 response', () => {
     const wrapper = mount(ExampleResponses, {
       props: {
         responses: {
@@ -722,12 +722,10 @@ describe('ExampleResponses', () => {
     })
 
     const tabs = wrapper.findAllComponents({ name: 'ExampleResponseTab' })
-    expect(tabs.length).toBe(1)
-    expect(tabs[0]?.text()).toContain('204')
-    expect(wrapper.text()).toContain('No Body')
+    expect(tabs.length).toBe(0)
   })
 
-  it('renders both contentful and explicit no-content responses', async () => {
+  it('renders only contentful responses', () => {
     const wrapper = mount(ExampleResponses, {
       props: {
         responses: {
@@ -749,14 +747,8 @@ describe('ExampleResponses', () => {
     })
 
     const tabs = wrapper.findAllComponents({ name: 'ExampleResponseTab' })
-    expect(tabs.length).toBe(2)
+    expect(tabs.length).toBe(1)
     expect(tabs[0]?.text()).toContain('200')
-    expect(tabs[1]?.text()).toContain('204')
-
-    await tabs[1]?.trigger('click')
-    await wrapper.vm.$nextTick()
-
-    expect(wrapper.text()).toContain('No Body')
   })
 
   it('does not render tabs for non-response keys', () => {

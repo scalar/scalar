@@ -1,8 +1,77 @@
 import { describe, expect, it } from 'vitest'
 
-import { hasResponseContent } from './has-response-content'
+import { hasMediaTypeContent, hasResponseContent } from './has-response-content'
 
 describe('has-response-content', () => {
+  describe('hasMediaTypeContent', () => {
+    it('returns false for undefined', () => {
+      expect(hasMediaTypeContent(undefined)).toBe(false)
+    })
+
+    it('returns false for empty media type object', () => {
+      expect(hasMediaTypeContent({})).toBe(false)
+    })
+
+    it('returns true for media type with schema', () => {
+      expect(hasMediaTypeContent({ schema: { type: 'object' } })).toBe(true)
+    })
+
+    it('returns true for media type with example object', () => {
+      expect(hasMediaTypeContent({ example: { message: 'Hello' } })).toBe(true)
+    })
+
+    it('returns true for media type with examples', () => {
+      expect(
+        hasMediaTypeContent({
+          examples: {
+            example1: { value: { message: 'Hello' } },
+          },
+        }),
+      ).toBe(true)
+    })
+
+    it('returns true for media type with schema and example', () => {
+      expect(
+        hasMediaTypeContent({
+          schema: { type: 'object' },
+          example: { message: 'Hello' },
+        }),
+      ).toBe(true)
+    })
+
+    it('returns false for media type with only encoding', () => {
+      expect(
+        hasMediaTypeContent({
+          encoding: { field: { contentType: 'text/plain' } },
+        }),
+      ).toBe(false)
+    })
+
+    it('returns false for null example', () => {
+      expect(hasMediaTypeContent({ example: null })).toBe(false)
+    })
+
+    it('returns true for falsy example value 0', () => {
+      expect(hasMediaTypeContent({ example: 0 })).toBe(true)
+    })
+
+    it('returns true for falsy example value false', () => {
+      expect(hasMediaTypeContent({ example: false })).toBe(true)
+    })
+
+    it('returns true for falsy example value empty string', () => {
+      expect(hasMediaTypeContent({ example: '' })).toBe(true)
+    })
+
+    it('returns true for example with empty array', () => {
+      expect(hasMediaTypeContent({ example: [] })).toBe(true)
+    })
+
+    it('returns true for example with empty object', () => {
+      expect(hasMediaTypeContent({ example: {} })).toBe(true)
+    })
+  })
+
   describe('hasResponseContent', () => {
     it('returns false for undefined', () => {
       expect(hasResponseContent(undefined)).toBe(false)
@@ -12,36 +81,8 @@ describe('has-response-content', () => {
       expect(hasResponseContent({ description: 'Empty response' })).toBe(false)
     })
 
-    it('returns true for explicit 204 with no body content', () => {
-      expect(hasResponseContent({ description: 'No content response' }, '204')).toBe(true)
-    })
-
-    it('returns true for explicit default with no body content', () => {
-      expect(hasResponseContent({ description: 'Default response' }, 'default')).toBe(true)
-    })
-
-    it('returns true for explicit range status code with no body content', () => {
-      expect(hasResponseContent({ description: '2XX response' }, '2XX')).toBe(true)
-    })
-
-    it('returns false for non-response keys', () => {
-      expect(
-        hasResponseContent(
-          {
-            description: 'Invalid response key',
-            content: {
-              'application/json': {
-                schema: { type: 'object' },
-              },
-            },
-          },
-          'x-internal',
-        ),
-      ).toBe(false)
-    })
-
-    it('returns false for valid response key with undefined response', () => {
-      expect(hasResponseContent(undefined, '204')).toBe(false)
+    it('returns false for response with only description (no body content)', () => {
+      expect(hasResponseContent({ description: 'No content response', content: {} })).toBe(false)
     })
 
     it('returns false for response with empty content', () => {
