@@ -11,13 +11,13 @@
 npm install @scalar/api-client-react
 ```
 
-### ⚠️ Breaking Changes
+## ⚠️ Breaking Changes
 
 We have updated the API for the client! Please see the new hook based usage below.
 
 ## Usage
 
-Call `useApiClientModal()` from any component. No provider is needed.
+Call `useApiClient()` from any component. No provider is needed.
 
 The Vue app is created once and appended to `document.body` where it lives for the lifetime of the
 page — it survives client-side navigation without losing state.
@@ -26,11 +26,11 @@ The code is ESM lazy loaded with the dynamic import function to make the smalles
 handle de-duplication of documents so as long as the URL is the same you will only get one.
 
 ```tsx
-import { useApiClientModal } from '@scalar/api-client-react'
+import { useApiClient } from '@scalar/api-client-react'
 import '@scalar/api-client-react/style.css'
 
 export const OpenButton = () => {
-  const client = useApiClientModal({
+  const client = useApiClient({
     configuration: {
       url: 'https://registry.scalar.com/@scalar/apis/galaxy?format=json',
     },
@@ -49,12 +49,13 @@ export const OpenButton = () => {
 | Option | Type | Description |
 |---|---|---|
 | `configuration.url` | `string` | URL of an OpenAPI description to load |
+| `configuration.content` | `Record<string, unknown>` | Inline OpenAPI description object |
 | `initialRequest` | `RoutePayload` | Request to navigate to when the modal opens |
 
 ### Routing to a specific request
 
 ```tsx
-const client = useApiClientModal({
+const client = useApiClient({
   configuration: { url: '...' },
   initialRequest: { path: '/auth/token', method: 'post' },
 })

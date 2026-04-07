@@ -1,6 +1,6 @@
 import type { RoutePayload } from '@scalar/api-client/v2/features/modal'
 
-import { useApiClientModal } from '../src/useApiClientModal'
+import { useApiClientModal } from '../src/use-api-client'
 import '../src/style.css'
 
 const GALAXY_URL = 'https://registry.scalar.com/@scalar/apis/galaxy?format=json'

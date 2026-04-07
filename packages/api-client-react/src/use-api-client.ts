@@ -1,10 +1,10 @@
 'use client'
 
 import type { RoutePayload } from '@scalar/api-client/v2/features/modal'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
-import { getOrCreateApiClientController } from './api-client-modal-store'
-import type { AddDocumentInput, ApiClientController, ReactApiClientConfiguration } from './create-api-client-controller'
+import type { AddDocumentInput, ApiClient, ReactApiClientConfiguration } from './create-api-client'
+import { getOrCreateApiClient } from './create-api-client'
 import './style.css'
 
 globalThis.__VUE_OPTIONS_API__ = true
@@ -27,11 +27,8 @@ export type UseApiClientModalOptions = {
  *
  * Subsequent calls from any component share the same instance.
  */
-export const useApiClientModal = ({
-  configuration,
-  initialRequest,
-}: UseApiClientModalOptions = {}): ApiClientController | null => {
-  const [controller, setController] = useState<ApiClientController | null>(null)
+export const useApiClient = ({ configuration, initialRequest }: UseApiClientModalOptions = {}): ApiClient | null => {
+  const [controller, setController] = useState<ApiClient | null>(null)
   const initialRequestRef = useRef(initialRequest)
   const configurationRef = useRef(configuration)
 
@@ -42,8 +39,10 @@ export const useApiClientModal = ({
   useEffect(() => {
     let cancelled = false
 
-    void getOrCreateApiClientController(configurationRef.current ?? {}).then((ctrl) => {
-      if (cancelled) return
+    void getOrCreateApiClient(configurationRef.current ?? {}).then((ctrl) => {
+      if (cancelled) {
+        return
+      }
 
       setController(ctrl)
 
@@ -60,8 +59,8 @@ export const useApiClientModal = ({
     return () => {
       cancelled = true
     }
+
     // Only run once per mount — configuration/initialRequest changes are handled via refs
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   return controller
