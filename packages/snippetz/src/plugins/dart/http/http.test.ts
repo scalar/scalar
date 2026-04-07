@@ -405,11 +405,11 @@ void main() async {
       queryString: [
         {
           name: 'q',
-          value: 'hello world & more',
+          value: 'hello%20world%20%26%20more',
         },
         {
           name: 'special',
-          value: '!@#$%^&*()',
+          value: '!%40%23%24%25%5E%26*()',
         },
       ],
     })
