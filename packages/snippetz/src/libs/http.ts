@@ -18,7 +18,9 @@ export function buildQueryString(queryParams?: Array<{ name: string; value: stri
     return ''
   }
 
-  const queryPairs = queryParams.map((param) => `${param.name}=${param.value}`)
+  const reducedValues = reduceQueryParams(queryParams)
+
+  const queryPairs = Object.entries(reducedValues).map(([name, value]) => `${name}=${value}`)
   return `?${queryPairs.join('&')}`
 }
 
