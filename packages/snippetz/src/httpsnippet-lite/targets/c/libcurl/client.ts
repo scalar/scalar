@@ -1,7 +1,6 @@
 import { CodeBuilder } from '@/httpsnippet-lite/helpers/code-builder'
 import { escapeForDoubleQuotes } from '@/httpsnippet-lite/helpers/escape'
 import type { Client } from '@/httpsnippet-lite/targets/target'
-import { buildQueryString } from '@/libs/http'
 
 export const libcurl: Client = {
   info: {
@@ -44,9 +43,10 @@ export const libcurl: Client = {
       if (postData.text) {
         push(`curl_easy_setopt(hnd, CURLOPT_POSTFIELDS, ${JSON.stringify(postData.text)});`)
       } else if (postData.mimeType === 'application/x-www-form-urlencoded' && postData.params) {
-        push(
-          `curl_easy_setopt(hnd, CURLOPT_POSTFIELDS, "${buildQueryString(postData.params.map((param) => ({ name: param.name, value: param.value ?? '' })))}");`,
-        )
+        const formBody = postData.params
+          .map((param) => new URLSearchParams([[param.name, param.value ?? '']]).toString())
+          .join('&')
+        push(`curl_easy_setopt(hnd, CURLOPT_POSTFIELDS, "${formBody}");`)
       } else if (postData.mimeType === 'multipart/form-data' && postData.params) {
         push('curl_mime *mime = curl_mime_init(hnd);')
         postData.params.forEach((param) => {
