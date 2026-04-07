@@ -5,7 +5,7 @@ import type {
 } from '@scalar/types/api-reference'
 import { apiReferenceConfigurationWithSourceSchema } from '@scalar/types/api-reference'
 import { createHead } from '@unhead/vue/client'
-import { createApp, h, reactive } from 'vue'
+import { createApp, createSSRApp, h, reactive } from 'vue'
 
 import { default as ApiReference } from '@/components/ApiReference.vue'
 
@@ -186,24 +186,30 @@ export const createApiReference: CreateApiReference = (
     configuration: optionalConfiguration ?? (elementOrSelectorOrConfig as AnyApiReferenceConfiguration) ?? {},
   })
 
-  // Create a new Vue app instance
-  let app = createApp(() => h(ApiReference, props))
+  const createReferenceApp = (isSsr = false) => {
+    const referenceApp = isSsr ? createSSRApp(() => h(ApiReference, props)) : createApp(() => h(ApiReference, props))
 
-  // Meta tags, etc.
-  app.use(createHead())
+    // Meta tags, etc.
+    referenceApp.use(createHead())
+    referenceApp.config.idPrefix = idPrefix
 
-  app.config.idPrefix = idPrefix
+    return referenceApp
+  }
 
   // If we have an optional config, then we must mount the element immediately (not sure why type is not narrowing)
-  if (optionalConfiguration) {
-    // If the element is a string, we need to find the actual DOM element
-    const element =
-      typeof elementOrSelectorOrConfig === 'string'
-        ? document.querySelector(elementOrSelectorOrConfig)
-        : (elementOrSelectorOrConfig as Element)
+  const mountElement = optionalConfiguration
+    ? typeof elementOrSelectorOrConfig === 'string'
+      ? document.querySelector(elementOrSelectorOrConfig)
+      : (elementOrSelectorOrConfig as Element)
+    : null
 
-    if (element) {
-      app.mount(element)
+  // Detect server-rendered content and use createSSRApp for hydration
+  const shouldHydrate = !!optionalConfiguration && !!mountElement && mountElement.children.length > 0
+  let app = createReferenceApp(shouldHydrate)
+
+  if (optionalConfiguration) {
+    if (mountElement) {
+      app.mount(mountElement)
     } else {
       console.error('Could not find a mount point for API References:', elementOrSelectorOrConfig)
     }
@@ -240,9 +246,7 @@ export const createApiReference: CreateApiReference = (
 
       // Create a new Vue app instance
       app.unmount()
-      app = createApp(() => h(ApiReference, props))
-      app.use(createHead())
-      app.config.idPrefix = idPrefix
+      app = createReferenceApp()
       app.mount(currentElement)
     },
     false,

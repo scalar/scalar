@@ -287,7 +287,7 @@ jobs:
       - name: Run tests for the proxy server (Go)
         run: cd projects/proxy-scalar-com && go test -v
 
-  build-vue-ssr-example:
+  test-server-side-rendering:
     needs: [build]
     runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 10
@@ -298,10 +298,10 @@ jobs:
       - name: Build packages
         uses: ./.github/actions/build
         with:
-          packages: '@scalar-examples/vue-ssr...'
-      - name: Start Vue SSR server and verify it responds
+          packages: '@scalar/server-side-rendering...'
+      - name: Start SSR playground and verify it responds
         run: |
-          pnpm --filter @scalar-examples/vue-ssr preview &
+          pnpm --filter @scalar/server-side-rendering dev &
           pnpm script wait -p 5173
           curl -sSf http://localhost:5173 -o /tmp/response.html
           grep -q "User account created successfully" /tmp/response.html
@@ -1500,7 +1500,7 @@ jobs:
     needs:
       [
         build,
-        build-vue-ssr-example,
+        test-server-side-rendering,
         format,
         knip,
         test-packages,
@@ -1521,7 +1521,7 @@ jobs:
     needs:
       [
         build,
-        build-vue-ssr-example,
+        test-server-side-rendering,
         test-packages,
         test-integrations,
         test-proxy-server,
