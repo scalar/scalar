@@ -50,17 +50,17 @@ export const OpenButton = () => {
 |---|---|---|
 | `configuration.url` | `string` | URL of an OpenAPI description to load |
 | `configuration.content` | `Record<string, unknown>` | Inline OpenAPI description object |
-| `initialRequest` | `RoutePayload` | Request to navigate to when the modal opens |
 
 ### Routing to a specific request
+
+Pass a `RoutePayload` to `client.open()` to navigate directly to a specific endpoint:
 
 ```tsx
 const client = useApiClient({
   configuration: { url: '...' },
-  initialRequest: { path: '/auth/token', method: 'post' },
 })
 
-// Open to the same request later
+// Open to a specific request
 client?.open({ path: '/auth/token', method: 'post' })
 ```
 
