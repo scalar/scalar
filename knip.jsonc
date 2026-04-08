@@ -288,6 +288,9 @@
         "./src/resolve.ts"
       ]
     },
+    "packages/pre-post-request-scripts": {
+      "entry": ["src/index.ts", "src/plugins/index.ts"]
+    },
     "integrations/django-ninja": {
       "ignoreBinaries": ["python"]
     },

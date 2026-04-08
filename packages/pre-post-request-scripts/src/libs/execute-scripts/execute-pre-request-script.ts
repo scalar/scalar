@@ -1,23 +1,22 @@
 import type { RequestFactory, VariablesStore } from '@scalar/workspace-store/request-example'
 
+import type { TestResult } from '@/libs/execute-scripts'
+
 import { createConsoleContext } from './context/console'
 import { executeInPostmanSandbox } from './postman-adapter/sandbox-adapter'
 
-export type TestResult = {
-  title: string
-  passed: boolean
-  duration: number
-  error?: string
-  status: 'pending' | 'passed' | 'failed'
-}
-
-export const executePostResponseScript = async (
+/**
+ * Runs the pre-request script in the Postman sandbox with a Postman-shaped
+ * `pm.request` built from {@link RequestFactory}. Header and method changes from
+ * the script are merged back from the sandbox execution result (the in-memory
+ * Postman `Request` on the host is not updated). Variable changes use the store.
+ */
+export const executePreRequestScript = async (
   script: string | undefined,
   data: {
     requestBuilder: RequestFactory
-    response: Response
-    onTestResultsUpdate?: ((results: TestResult[]) => void) | undefined
     variablesStore?: VariablesStore
+    onTestResultsUpdate?: ((results: TestResult[]) => void) | undefined
   },
 ): Promise<void> => {
   if (!script) {
@@ -25,11 +24,10 @@ export const executePostResponseScript = async (
   }
   await executeInPostmanSandbox({
     script,
-    type: 'post-response',
+    type: 'pre-request',
     context: {
-      requestBuilder: data.requestBuilder,
-      response: data.response,
       scriptConsole: createConsoleContext(),
+      requestBuilder: data.requestBuilder,
       variablesStore: data.variablesStore,
     },
     onTestResultsUpdate: data.onTestResultsUpdate,
