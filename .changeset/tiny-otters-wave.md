@@ -1,5 +1,5 @@
 ---
-'@scalar/ts-to-openapi': minor
+'@scalar/ts-to-openapi': patch
 ---
 
-feat(ts-to-openapi): add route operation helpers and broaden OpenAPI generation tests
+test(ts-to-openapi): add coverage for JSDoc extraction behavior
