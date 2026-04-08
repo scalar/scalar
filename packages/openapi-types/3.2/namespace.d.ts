@@ -1,58 +1,112 @@
 /** biome-ignore-all lint/style/noNamespace: to maintain backwards compatibility with the original namespace */
+import type { AuthorizationCodeObject } from './authorization-code'
+import type { CallbacksObject } from './callbacks'
+import type { ClientCredentialsObject } from './client-credentials'
+import type { ComponentsObject } from './components'
+import type { ContactObject } from './contact'
+import type { ContentObject } from './content'
+import type { DeviceAuthorizationObject } from './device-authorization'
+import type { Document } from './document'
+import type { EncodingObject } from './encoding'
+import type { ExampleObject } from './example'
+import type { ExamplesObject } from './examples'
+import type { ExplodeForFormObject } from './explode-for-form'
+import type { ExternalDocumentationObject } from './external-documentation'
+import type { HeaderObject } from './header'
+import type { ImplicitObject } from './implicit'
+import type { InfoObject } from './info'
+import type { LicenseObject } from './license'
+import type { LinkObject } from './link'
+import type { MapOfStringsObject } from './map-of-strings'
+import type { MediaTypeObject } from './media-type'
+import type { OauthFlowsObject } from './oauth-flows'
+import type { OperationObject } from './operation'
+import type { ParameterObject } from './parameter'
+import type { ParametersObject } from './parameters'
+import type { PasswordObject } from './password'
+import type { PathItemObject } from './path-item'
+import type { PathsObject } from './paths'
+import type { ReferenceObject } from './reference'
+import type { RequestBodyObject } from './request-body'
+import type { ResponseObject } from './response'
+import type { ResponsesObject } from './responses'
+import type {
+  Extensions,
+  MultiTypeObject,
+  NumericFormat,
+  PrimitiveSchemaType,
+  SchemaObject,
+  SchemaReferenceType,
+  StringFormat,
+} from './schema'
+import type { SecurityRequirementObject } from './security-requirement'
+import type { SecuritySchemeObject } from './security-scheme'
+import type { ServerVariableObject } from './server-variable'
+import type { ServerObject } from './server'
+import type { StylesForCookieObject } from './styles-for-cookie'
+import type { StylesForHeaderObject } from './styles-for-header'
+import type { StylesForPathObject } from './styles-for-path'
+import type { StylesForQueryObject } from './styles-for-query'
+import type { TagObject } from './tag'
+import type { TypeApikeyObject } from './type-apikey'
+import type { TypeHttpBearerObject } from './type-http-bearer'
+import type { TypeHttpObject } from './type-http'
+import type { TypeOauth2Object } from './type-oauth2'
+import type { TypeOidcObject } from './type-oidc'
 
 export namespace OpenAPIV3_2 {
-  export type { AuthorizationCodeObject } from './authorization-code'
-  export type { CallbacksObject } from './callbacks'
-  export type { ClientCredentialsObject } from './client-credentials'
-  export type { ComponentsObject } from './components'
-  export type { ContactObject } from './contact'
-  export type { ContentObject } from './content'
-  export type { DeviceAuthorizationObject } from './device-authorization'
-  export type { Document } from './document'
-  export type { EncodingObject } from './encoding'
-  export type { ExampleObject } from './example'
-  export type { ExamplesObject } from './examples'
-  export type { ExplodeForFormObject } from './explode-for-form'
-  export type { ExternalDocumentationObject } from './external-documentation'
-  export type { HeaderObject } from './header'
-  export type { ImplicitObject } from './implicit'
-  export type { InfoObject } from './info'
-  export type { LicenseObject } from './license'
-  export type { LinkObject } from './link'
-  export type { MapOfStringsObject } from './map-of-strings'
-  export type { MediaTypeObject } from './media-type'
-  export type { OauthFlowsObject } from './oauth-flows'
-  export type { OperationObject } from './operation'
-  export type { ParameterObject } from './parameter'
-  export type { ParametersObject } from './parameters'
-  export type { PasswordObject } from './password'
-  export type { PathItemObject } from './path-item'
-  export type { PathsObject } from './paths'
-  export type { ReferenceObject } from './reference'
-  export type { RequestBodyObject } from './request-body'
-  export type { ResponseObject } from './response'
-  export type { ResponsesObject } from './responses'
   export type {
-    PrimitiveSchemaType,
-    StringFormat,
-    NumericFormat,
-    SchemaReferenceType,
+    AuthorizationCodeObject,
+    CallbacksObject,
+    ClientCredentialsObject,
+    ComponentsObject,
+    ContactObject,
+    ContentObject,
+    DeviceAuthorizationObject,
+    Document,
+    EncodingObject,
+    ExampleObject,
+    ExamplesObject,
+    ExplodeForFormObject,
+    ExternalDocumentationObject,
+    HeaderObject,
+    ImplicitObject,
+    InfoObject,
+    LicenseObject,
+    LinkObject,
+    MapOfStringsObject,
+    MediaTypeObject,
+    OauthFlowsObject,
+    OperationObject,
+    ParameterObject,
+    ParametersObject,
+    PasswordObject,
+    PathItemObject,
+    PathsObject,
+    ReferenceObject,
+    RequestBodyObject,
+    ResponseObject,
+    ResponsesObject,
     Extensions,
     MultiTypeObject,
+    NumericFormat,
+    PrimitiveSchemaType,
     SchemaObject,
-  } from './schema'
-  export type { SecurityRequirementObject } from './security-requirement'
-  export type { SecuritySchemeObject } from './security-scheme'
-  export type { ServerVariableObject } from './server-variable'
-  export type { ServerObject } from './server'
-  export type { StylesForCookieObject } from './styles-for-cookie'
-  export type { StylesForHeaderObject } from './styles-for-header'
-  export type { StylesForPathObject } from './styles-for-path'
-  export type { StylesForQueryObject } from './styles-for-query'
-  export type { TagObject } from './tag'
-  export type { TypeApikeyObject } from './type-apikey'
-  export type { TypeHttpBearerObject } from './type-http-bearer'
-  export type { TypeHttpObject } from './type-http'
-  export type { TypeOauth2Object } from './type-oauth2'
-  export type { TypeOidcObject } from './type-oidc'
+    SchemaReferenceType,
+    StringFormat,
+    SecurityRequirementObject,
+    SecuritySchemeObject,
+    ServerVariableObject,
+    ServerObject,
+    StylesForCookieObject,
+    StylesForHeaderObject,
+    StylesForPathObject,
+    StylesForQueryObject,
+    TagObject,
+    TypeApikeyObject,
+    TypeHttpBearerObject,
+    TypeHttpObject,
+    TypeOauth2Object,
+    TypeOidcObject,
+  }
 }
