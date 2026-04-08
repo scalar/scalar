@@ -8,5 +8,6 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
     <App />
     <App initialRequest={{ path: '/auth/token', method: 'post' }} />
     <App initialRequest={{ path: '/planets', method: 'get' }} />
+    <App url="https://petstore.swagger.io/v2/swagger.json" />
   </React.StrictMode>,
 )
