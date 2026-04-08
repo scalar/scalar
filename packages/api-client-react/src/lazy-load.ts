@@ -1,44 +1,36 @@
-import type { ApiClientModal, createApiClientModal } from '@scalar/api-client/v2/features/modal'
+import type { ApiClientModal } from '@scalar/api-client/v2/features/modal'
 import type { ApiClientConfiguration } from '@scalar/types/api-reference'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
-import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 
-let clientModalCreator: Promise<typeof createApiClientModal> | undefined
-let workspaceStoreSingleton: Promise<WorkspaceStore> | undefined
-let workspaceEventBusSingleton: Promise<WorkspaceEventBus> | undefined
+/**
+ * Creates a lazy singleton getter: the factory runs at most once, caches the resulting promise,
+ * and clears the cache on failure so the next call can retry.
+ */
+const makeLazySingleton = <T>(factory: () => Promise<T>): (() => Promise<T>) => {
+  let cached: Promise<T> | undefined
+  return () => {
+    cached ??= factory().catch((error) => {
+      cached = undefined
+      throw error
+    })
+    return cached
+  }
+}
 
 /** Lazy load the client modal creator */
-const getClientModalCreator = (): NonNullable<typeof clientModalCreator> => {
-  clientModalCreator ||= import('@scalar/api-client/v2/features/modal')
-    .then(({ createApiClientModal }) => createApiClientModal)
-    .catch((error) => {
-      clientModalCreator = undefined
-      throw error
-    })
-  return clientModalCreator
-}
+export const getClientModalCreator = makeLazySingleton(() =>
+  import('@scalar/api-client/v2/features/modal').then(({ createApiClientModal }) => createApiClientModal),
+)
 
 /** Module-scoped singleton workspace store (lazy-loaded on first use). */
-const getWorkspaceStoreSingleton = (): NonNullable<typeof workspaceStoreSingleton> => {
-  workspaceStoreSingleton ??= import('@scalar/workspace-store/client')
-    .then(({ createWorkspaceStore }) => createWorkspaceStore())
-    .catch((error) => {
-      workspaceStoreSingleton = undefined
-      throw error
-    })
-  return workspaceStoreSingleton
-}
+export const getWorkspaceStoreSingleton = makeLazySingleton(() =>
+  import('@scalar/workspace-store/client').then(({ createWorkspaceStore }) => createWorkspaceStore()),
+)
 
 /** Module-scoped singleton workspace event bus (lazy-loaded on first use). */
-const getWorkspaceEventBusSingleton = (): NonNullable<typeof workspaceEventBusSingleton> => {
-  workspaceEventBusSingleton ??= import('@scalar/workspace-store/events')
-    .then(({ createWorkspaceEventBus }) => createWorkspaceEventBus())
-    .catch((error) => {
-      workspaceEventBusSingleton = undefined
-      throw error
-    })
-  return workspaceEventBusSingleton
-}
+export const getWorkspaceEventBusSingleton = makeLazySingleton(() =>
+  import('@scalar/workspace-store/events').then(({ createWorkspaceEventBus }) => createWorkspaceEventBus()),
+)
 
 /**
  * Lazy-loads modal + workspace singletons, mounts the API client modal, and returns both handles.

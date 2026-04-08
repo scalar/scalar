@@ -15,8 +15,10 @@ const makeWorkspaceStore = () => ({
 
 const makeApiClient = () => ({
   open: vi.fn(),
-  close: vi.fn(),
-  updateConfig: vi.fn(),
+  route: vi.fn(),
+  mount: vi.fn(),
+  modalState: { open: false },
+  app: {} as any,
 })
 
 describe('use-api-client', () => {
@@ -58,7 +60,7 @@ describe('use-api-client', () => {
     await waitFor(() => expect(result.current).not.toBeUndefined())
 
     expect(result.current?.open).toBeTypeOf('function')
-    expect(result.current?.close).toBe(mockApiClient.close)
+    expect(result.current?.route).toBe(mockApiClient.route)
   })
 
   it('spreads all apiClient properties onto the returned object', async () => {
@@ -67,9 +69,9 @@ describe('use-api-client', () => {
 
     await waitFor(() => expect(result.current).not.toBeUndefined())
 
-    // close and updateConfig come directly from the mock client
-    expect(result.current?.close).toBe(mockApiClient.close)
-    expect(result.current?.updateConfig).toBe(mockApiClient.updateConfig)
+    // route and mount come directly from the mock client
+    expect(result.current?.route).toBe(mockApiClient.route)
+    expect(result.current?.mount).toBe(mockApiClient.mount)
   })
 
   it('wraps open to prepend the current documentSlug', async () => {
@@ -81,12 +83,13 @@ describe('use-api-client', () => {
     await waitFor(() => expect(result.current).not.toBeUndefined())
 
     act(() => {
-      result.current?.open({ operationId: 'listPets' })
+      result.current?.open({ path: '/pets', method: 'get' })
     })
 
     expect(mockApiClient.open).toHaveBeenCalledWith({
       documentSlug: 'https://api.example.com/openapi.json',
-      operationId: 'listPets',
+      path: '/pets',
+      method: 'get',
     })
   })
 
@@ -103,12 +106,13 @@ describe('use-api-client', () => {
     await waitFor(() => expect(result.current).not.toBeUndefined())
 
     act(() => {
-      result.current?.open({ operationId: 'getUser' })
+      result.current?.open({ path: '/users', method: 'get' })
     })
 
     expect(mockApiClient.open).toHaveBeenCalledWith({
       documentSlug: 'My API',
-      operationId: 'getUser',
+      path: '/users',
+      method: 'get',
     })
   })
 
@@ -119,12 +123,13 @@ describe('use-api-client', () => {
     await waitFor(() => expect(result.current).not.toBeUndefined())
 
     act(() => {
-      result.current?.open({ operationId: 'getUser' })
+      result.current?.open({ path: '/users', method: 'get' })
     })
 
     expect(mockApiClient.open).toHaveBeenCalledWith({
       documentSlug: '',
-      operationId: 'getUser',
+      path: '/users',
+      method: 'get',
     })
   })
 
@@ -248,34 +253,38 @@ describe('use-api-client', () => {
     await waitFor(() => expect(result.current).not.toBeUndefined())
 
     act(() => {
-      result.current?.open({ operationId: 'op1' })
+      result.current?.open({ path: '/v1', method: 'get' })
     })
     expect(mockApiClient.open).toHaveBeenLastCalledWith({
       documentSlug: 'https://api.example.com/v1.json',
-      operationId: 'op1',
+      path: '/v1',
+      method: 'get',
     })
 
     rerender({ config: { url: 'https://api.example.com/v2.json' } })
 
     await waitFor(() => {
       act(() => {
-        result.current?.open({ operationId: 'op2' })
+        result.current?.open({ path: '/v2', method: 'get' })
       })
       expect(mockApiClient.open).toHaveBeenLastCalledWith({
         documentSlug: 'https://api.example.com/v2.json',
-        operationId: 'op2',
+        path: '/v2',
+        method: 'get',
       })
     })
   })
 
   it('cancels the pending initialization when the component unmounts before resolution', async () => {
     let resolveClient!: (value: any) => void
-    const pendingPromise = new Promise((resolve) => {
+    const pendingPromise = new Promise<
+      { apiClient: typeof mockApiClient; workspaceStore: typeof mockWorkspaceStore } | undefined
+    >((resolve) => {
       resolveClient = resolve
     })
 
     const { getOrCreateApiClient } = await import('./get-or-create-api-client')
-    vi.mocked(getOrCreateApiClient).mockReturnValue(pendingPromise)
+    vi.mocked(getOrCreateApiClient).mockReturnValue(pendingPromise as any)
 
     const { useApiClient } = await import('./use-api-client')
     const { result, unmount } = renderHook(() => useApiClient())

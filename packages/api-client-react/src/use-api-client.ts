@@ -51,7 +51,7 @@ export const useApiClient = ({
   useEffect(() => {
     let cancelled = false
 
-    void getOrCreateApiClient(configuration ?? {}).then((_client) => {
+    void getOrCreateApiClient(configuration ?? {})?.then((_client) => {
       if (cancelled) {
         return
       }
@@ -95,7 +95,7 @@ export const useApiClient = ({
             url: configuration.url ?? '',
           },
     )
-  }, [client, configuration?.url, configuration?.content])
+  }, [client, configuration?.url, configuration?.content, workspaceStore])
 
   return client
     ? {
