@@ -27,18 +27,18 @@ export type { RequestBodyObject } from './request-body'
 export type { ResponseObject } from './response'
 export type { ResponsesObject } from './responses'
 export type {
-  PrimitiveSchemaType,
-  StringFormat,
-  NumericFormat,
-  SchemaReferenceType,
   Extensions,
   MultiTypeObject,
+  NumericFormat,
+  PrimitiveSchemaType,
   SchemaObject,
+  SchemaReferenceType,
+  StringFormat,
 } from './schema'
 export type { SecurityRequirementObject } from './security-requirement'
 export type { SecuritySchemeObject } from './security-scheme'
-export type { ServerVariableObject } from './server-variable'
 export type { ServerObject } from './server'
+export type { ServerVariableObject } from './server-variable'
 export type { StylesForCookieObject } from './styles-for-cookie'
 export type { StylesForFormObject } from './styles-for-form'
 export type { StylesForHeaderObject } from './styles-for-header'
@@ -46,7 +46,7 @@ export type { StylesForPathObject } from './styles-for-path'
 export type { StylesForQueryObject } from './styles-for-query'
 export type { TagObject } from './tag'
 export type { TypeApikeyObject } from './type-apikey'
-export type { TypeHttpBearerObject } from './type-http-bearer'
 export type { TypeHttpObject } from './type-http'
+export type { TypeHttpBearerObject } from './type-http-bearer'
 export type { TypeOauth2Object } from './type-oauth2'
 export type { TypeOidcObject } from './type-oidc'
