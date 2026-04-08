@@ -92,6 +92,10 @@
       "links": [
         {
           "rel": "icon",
+          "href": "/favicon.svg"
+        },
+        {
+          "rel": "icon alternate",
           "href": "/favicon.png"
         }
       ]
