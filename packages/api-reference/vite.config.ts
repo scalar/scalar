@@ -15,7 +15,6 @@ const external = createExternalsFromPackageJson()
 
 const entries = [
   './src/index.ts',
-  './src/ssr.ts',
   './src/components/index.ts',
   './src/blocks/index.ts',
   './src/hooks/index.ts',

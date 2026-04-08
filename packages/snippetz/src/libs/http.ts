@@ -18,21 +18,8 @@ export function buildQueryString(queryParams?: Array<{ name: string; value: stri
     return ''
   }
 
-  const queryPairs = queryParams.map((param) => `${encodeURIComponent(param.name)}=${encodeURIComponent(param.value)}`)
+  const queryPairs = queryParams.map((param) => `${param.name}=${param.value}`)
   return `?${queryPairs.join('&')}`
-}
-
-/**
- * Creates a new URL search params object and sets query params so we can handle arrays
- */
-export const createSearchParams = (query: HarRequest['queryString'] = []) => {
-  const searchParams = new URLSearchParams()
-
-  query.forEach((q: { name: string; value: string }) => {
-    searchParams.append(q.name, q.value)
-  })
-
-  return searchParams
 }
 
 /**

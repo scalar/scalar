@@ -1,7 +1,5 @@
 import type { TraversedEntry } from '@scalar/workspace-store/schemas/navigation'
 
-import type { ParameterMap } from '@/helpers/openapi'
-
 export type EntryType = 'operation' | 'webhook' | 'model' | 'heading' | 'tag'
 
 export type FuseData = {
@@ -9,7 +7,8 @@ export type FuseData = {
   id: string
   title: string
   description: string
-  body?: string | string[] | ParameterMap
+  body?: string | string[]
+  parameters?: string | string[]
   responseExamples?: string[]
   method?: string
   path?: string

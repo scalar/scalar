@@ -722,6 +722,9 @@
                     "type": "page",
                     "title": "Getting Started",
                     "description": "Learn how to create and publish stunning developer documentation with Docs in minutes.",
+                    "layout": {
+                      "toc": false
+                    },
                     "head": {
                       "links": [
                         {
@@ -1167,6 +1170,9 @@
                     "type": "page",
                     "title": "Getting Started",
                     "description": "Automatically generate type-safe SDKs from OpenAPI specifications in multiple programming languages.",
+                    "layout": {
+                      "toc": false
+                    },
                     "head": {
                       "links": [
                         {
@@ -1261,6 +1267,9 @@
                     "type": "page",
                     "title": "Getting Started",
                     "description": "Store, version, and manage your OpenAPI specifications in a centralized registry with automated CI/CD workflows.",
+                    "layout": {
+                      "toc": false
+                    },
                     "head": {
                       "links": [
                         {

@@ -1,7 +1,7 @@
 import type { Plugin, PluginConfiguration } from '@scalar/types/snippetz'
 import { encode } from 'js-base64'
 
-import { createSearchParams } from '@/libs/http'
+import { buildQueryString } from '@/libs/http'
 
 /**
  * csharp/httpclient
@@ -22,8 +22,7 @@ export const csharpHttpclient: Plugin = {
     normalizedRequest.method = normalizedRequest.method.toUpperCase()
 
     // Build URL with query string
-    const searchParams = createSearchParams(normalizedRequest.queryString)
-    const queryString = searchParams.size ? `?${searchParams.toString()}` : ''
+    const queryString = buildQueryString(normalizedRequest.queryString)
 
     const url = `${normalizedRequest.url}${queryString}`
 

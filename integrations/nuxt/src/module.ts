@@ -114,10 +114,11 @@ export default defineNuxtModule<ModuleOptions>({
         const { configurations, ...baseConfig } = _options
         configurations.forEach((_config, index) => {
           const configuration = { ...baseConfig, ..._config }
+          const basePath = configuration.pathRouting?.basePath?.replace(/\/$/, '') ?? '/docs'
 
           pages.push({
             name: 'scalar-' + index,
-            path: configuration.pathRouting?.basePath + ':pathMatch(.*)*',
+            path: basePath + '/:pathMatch(.*)*',
             meta: {
               layout: _options.layout,
               configuration,
@@ -129,9 +130,10 @@ export default defineNuxtModule<ModuleOptions>({
       }
       // Single config
       else {
+        const basePath = _options.pathRouting?.basePath?.replace(/\/$/, '') ?? '/docs'
         pages.push({
           name: 'scalar',
-          path: _options.pathRouting?.basePath + ':pathMatch(.*)*',
+          path: basePath + '/:pathMatch(.*)*',
           meta: {
             layout: _options.layout,
             configuration: _options,

@@ -1,6 +1,6 @@
 import type { Plugin } from '@scalar/types/snippetz'
 
-import { createSearchParams } from '@/libs/http'
+import { buildQueryString } from '@/libs/http'
 import { Raw, objectToString } from '@/libs/javascript'
 
 /**
@@ -28,8 +28,7 @@ export const nodeFetch: Plugin = {
     }
 
     // Query
-    const searchParams = createSearchParams(normalizedRequest.queryString)
-    const queryString = searchParams.size ? `?${searchParams.toString()}` : ''
+    const queryString = buildQueryString(normalizedRequest.queryString)
 
     // Headers
     if (normalizedRequest.headers?.length) {

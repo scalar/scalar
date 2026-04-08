@@ -1,7 +1,8 @@
-import { mkdtemp, mkdir, rm, writeFile } from 'node:fs/promises'
+import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises'
 import { type IncomingMessage, type ServerResponse, createServer } from 'node:http'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
+
 import { describe, expect, it } from 'vitest'
 
 import { createMarkdownFromOpenApi } from './create-markdown-from-openapi'
@@ -656,6 +657,231 @@ paths:
     } finally {
       await rm(tempDirectory, { recursive: true, force: true })
     }
+  })
+
+  describe('circular references', () => {
+    it('handles self-referencing schema without hanging', async () => {
+      const content = {
+        openapi: '3.1.1',
+        info: { title: 'Test API', version: '1.0.0' },
+        paths: {
+          '/categories': {
+            get: {
+              summary: 'List categories',
+              responses: {
+                '200': {
+                  description: 'Success',
+                  content: {
+                    'application/json': {
+                      schema: { $ref: '#/components/schemas/Category' },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        components: {
+          schemas: {
+            Category: {
+              type: 'object',
+              properties: {
+                name: { type: 'string' },
+                children: {
+                  type: 'array',
+                  items: { $ref: '#/components/schemas/Category' },
+                },
+              },
+            },
+          },
+        },
+      }
+
+      const result = await createMarkdownFromOpenApi(content)
+
+      expect(result).toContain('List categories')
+      expect(result).toContain('name')
+      expect(result).toContain('children')
+    }, 10_000)
+
+    it('handles mutual circular references between schemas', async () => {
+      const content = {
+        openapi: '3.1.1',
+        info: { title: 'Test API', version: '1.0.0' },
+        paths: {
+          '/authors': {
+            get: {
+              summary: 'List authors',
+              responses: {
+                '200': {
+                  description: 'Success',
+                  content: {
+                    'application/json': {
+                      schema: { $ref: '#/components/schemas/Author' },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        components: {
+          schemas: {
+            Author: {
+              type: 'object',
+              properties: {
+                name: { type: 'string' },
+                books: {
+                  type: 'array',
+                  items: { $ref: '#/components/schemas/Book' },
+                },
+              },
+            },
+            Book: {
+              type: 'object',
+              properties: {
+                title: { type: 'string' },
+                author: { $ref: '#/components/schemas/Author' },
+              },
+            },
+          },
+        },
+      }
+
+      const result = await createMarkdownFromOpenApi(content)
+
+      expect(result).toContain('List authors')
+      expect(result).toContain('name')
+      expect(result).toContain('books')
+    }, 10_000)
+
+    it('handles circular reference in request body schema', async () => {
+      const content = {
+        openapi: '3.1.1',
+        info: { title: 'Test API', version: '1.0.0' },
+        paths: {
+          '/nodes': {
+            post: {
+              summary: 'Create node',
+              requestBody: {
+                content: {
+                  'application/json': {
+                    schema: { $ref: '#/components/schemas/TreeNode' },
+                  },
+                },
+              },
+              responses: {
+                '201': { description: 'Created' },
+              },
+            },
+          },
+        },
+        components: {
+          schemas: {
+            TreeNode: {
+              type: 'object',
+              properties: {
+                value: { type: 'string' },
+                parent: { $ref: '#/components/schemas/TreeNode' },
+                children: {
+                  type: 'array',
+                  items: { $ref: '#/components/schemas/TreeNode' },
+                },
+              },
+            },
+          },
+        },
+      }
+
+      const result = await createMarkdownFromOpenApi(content)
+
+      expect(result).toContain('Create node')
+      expect(result).toContain('Request Body')
+      expect(result).toContain('value')
+    }, 10_000)
+
+    it('handles deeply nested circular references (A -> B -> C -> A)', async () => {
+      const content = {
+        openapi: '3.1.1',
+        info: { title: 'Test API', version: '1.0.0' },
+        paths: {
+          '/companies': {
+            get: {
+              summary: 'List companies',
+              responses: {
+                '200': {
+                  description: 'Success',
+                  content: {
+                    'application/json': {
+                      schema: { $ref: '#/components/schemas/Company' },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        components: {
+          schemas: {
+            Company: {
+              type: 'object',
+              properties: {
+                name: { type: 'string' },
+                departments: {
+                  type: 'array',
+                  items: { $ref: '#/components/schemas/Department' },
+                },
+              },
+            },
+            Department: {
+              type: 'object',
+              properties: {
+                name: { type: 'string' },
+                lead: { $ref: '#/components/schemas/Employee' },
+              },
+            },
+            Employee: {
+              type: 'object',
+              properties: {
+                name: { type: 'string' },
+                company: { $ref: '#/components/schemas/Company' },
+              },
+            },
+          },
+        },
+      }
+
+      const result = await createMarkdownFromOpenApi(content)
+
+      expect(result).toContain('List companies')
+      expect(result).toContain('name')
+      expect(result).toContain('departments')
+    }, 10_000)
+
+    it('renders component schemas section with circular references', async () => {
+      const content = {
+        openapi: '3.1.1',
+        info: { title: 'Test API', version: '1.0.0' },
+        paths: {},
+        components: {
+          schemas: {
+            LinkedListNode: {
+              type: 'object',
+              properties: {
+                data: { type: 'string' },
+                next: { $ref: '#/components/schemas/LinkedListNode' },
+              },
+            },
+          },
+        },
+      }
+
+      const result = await createMarkdownFromOpenApi(content)
+
+      expect(result).toContain('Schemas')
+      expect(result).toContain('LinkedListNode')
+      expect(result).toContain('data')
+    }, 10_000)
   })
 
   it('bundles external URL references when input is a URL', async () => {

@@ -4,6 +4,7 @@ import type {
   OpenApiDocument,
   OperationObject,
   ParameterObject,
+  ReferenceType,
   SchemaObject,
   SchemaReferenceType,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
@@ -49,7 +50,9 @@ function formatProperty(key: string, obj: ObjectSchemaWithProperties): string {
   const isRequired = obj.required?.includes(key)
   output += isRequired ? ' REQUIRED ' : ' optional '
   const propRef = obj.properties[key]
-  if (!propRef) return output
+  if (!propRef) {
+    return output
+  }
   const property = resolveSchemaRef(propRef)
 
   if (property) {
@@ -87,13 +90,17 @@ function recursiveLogger(obj: MediaTypeObject): string[] {
     results.push(formatProperty(key, schemaWithProps))
 
     const propRef = properties[key]
-    if (!propRef) return
+    if (!propRef) {
+      return
+    }
     const property = resolveSchemaRef(propRef)
     if (property && isObjectSchema(property) && property.properties) {
       const nestedProperties = property.properties
       Object.keys(nestedProperties).forEach((subKey) => {
         const ref = nestedProperties[subKey]
-        if (!ref) return
+        if (!ref) {
+          return
+        }
         const nested = resolveSchemaRef(ref)
         const typeStr = nested ? schemaTypeToString(nested) : ''
         results.push(`${subKey} ${typeStr}`)
@@ -107,18 +114,44 @@ function recursiveLogger(obj: MediaTypeObject): string[] {
 /**
  * Extracts the request body from an operation.
  */
-export function extractRequestBody(operation: OperationObject): string[] | boolean {
-  try {
-    // TODO: Wait… there's more than just 'application/json' (https://github.com/scalar/scalar/issues/6427)
-    const media = getResolvedRef(operation?.requestBody)?.content?.['application/json']
-    if (!media) {
-      throw new Error('Body not found')
-    }
-
-    return recursiveLogger(media)
-  } catch (_error) {
-    return false
+export function extractRequestBody(operation: OperationObject): string[] | null {
+  const content = getResolvedRef(operation?.requestBody)?.content
+  const contentValue = Object.values(content ?? {})
+  if (contentValue.length === 0) {
+    // No content found
+    return null
   }
+
+  return contentValue.flatMap((media) => recursiveLogger(media))
+}
+
+/**
+ * Formats a parameter into a searchable string.
+ */
+function formatParameter(param: ParameterObject): string {
+  const output = [param.name]
+  output.push(param.required ? 'REQUIRED' : 'optional')
+  output.push(param.in)
+
+  if ('schema' in param && param.schema) {
+    const schema = getResolvedRef(param.schema)
+    if (schema) {
+      output.push(schemaTypeToString(schema))
+    }
+  }
+
+  if (param.description) {
+    output.push(param.description)
+  }
+
+  return output.join(' ')
+}
+
+/**
+ * Extracts parameters from an operation into searchable strings.
+ */
+export function extractParameters(parameters: ReferenceType<ParameterObject>[]): string[] | null {
+  return parameters.map((parameter) => formatParameter(getResolvedRef(parameter)))
 }
 
 /**
@@ -169,46 +202,4 @@ export function createEmptySpecification(partialSpecification?: Partial<OpenApiD
   deepMerge(partialSpecification, emptySpecification)
 
   return emptySpecification as OpenApiDocument
-}
-
-export type ParameterMap = {
-  path: ParameterObject[]
-  query: ParameterObject[]
-  header: ParameterObject[]
-  cookie: ParameterObject[]
-}
-
-/**
- * This function creates a parameter map from an Operation Object, that's easier to consume.
- *
- * TODO: Isn't it easier to just stick to the OpenAPI structure, without transforming it?
- */
-export function createParameterMap(operation: OperationObject) {
-  const map: ParameterMap = {
-    path: [],
-    query: [],
-    header: [],
-    cookie: [],
-  }
-
-  const parameters = operation.parameters ?? []
-
-  parameters.forEach((parameterRef) => {
-    const parameter = getResolvedRef(parameterRef)
-    if (!parameter) {
-      return
-    }
-
-    if (parameter.in === 'path') {
-      map.path.push(parameter)
-    } else if (parameter.in === 'query') {
-      map.query.push(parameter)
-    } else if (parameter.in === 'header') {
-      map.header.push(parameter)
-    } else if (parameter.in === 'cookie') {
-      map.cookie.push(parameter)
-    }
-  })
-
-  return map
 }
