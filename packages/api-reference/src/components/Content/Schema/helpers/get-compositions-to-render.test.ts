@@ -1,5 +1,5 @@
 import { resolve } from '@scalar/workspace-store/resolve'
-import type { OpenApiDocument, SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { describe, expect, it } from 'vitest'
 
 import { getCompositionsToRender } from './get-compositions-to-render'
@@ -58,7 +58,7 @@ describe('get-compositions-to-render', () => {
         },
       } as SchemaObject
 
-      const document = {
+      const document: NonNullable<Parameters<typeof getCompositionsToRender>[1]> = {
         components: {
           schemas: {
             Circle: {
@@ -77,7 +77,7 @@ describe('get-compositions-to-render', () => {
             },
           },
         },
-      } as OpenApiDocument
+      }
 
       const result = getCompositionsToRender(schema, document)
 

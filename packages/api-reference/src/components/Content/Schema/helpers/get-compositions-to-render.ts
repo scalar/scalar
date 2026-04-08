@@ -12,10 +12,15 @@ type CompositionToRender = {
   value: SchemaObject
 }
 
+type DocumentSchemaLookup = Pick<OpenApiDocument, 'components'>
+
 const normalizeDiscriminatorMappingRef = (value: string) =>
   value.startsWith('#/') || value.includes('/') ? value : `#/components/schemas/${value}`
 
-const inferDiscriminatorMappingComposition = (value: SchemaObject, document?: OpenApiDocument): SchemaObject | null => {
+const inferDiscriminatorMappingComposition = (
+  value: SchemaObject,
+  document?: DocumentSchemaLookup,
+): SchemaObject | null => {
   if (value.oneOf || value.anyOf || !document?.components?.schemas) {
     return null
   }
@@ -56,7 +61,7 @@ const inferDiscriminatorMappingComposition = (value: SchemaObject, document?: Op
  */
 export const getCompositionsToRender = (
   value: SchemaObject | undefined,
-  document?: OpenApiDocument,
+  document?: DocumentSchemaLookup,
 ): CompositionToRender[] => {
   if (!value) {
     return []
