@@ -14,7 +14,7 @@ export default {}
 <script setup lang="ts">
 import { useBindCx } from '@scalar/use-hooks/useBindCx'
 import { useResizeObserver } from '@vueuse/core'
-import { onMounted, ref, useId, useTemplateRef } from 'vue'
+import { onMounted, useId, useTemplateRef } from 'vue'
 
 import ScalarMarkdown from './ScalarMarkdown.vue'
 import type { ScalarMarkdownSummaryProps } from './types'
@@ -26,10 +26,10 @@ const id = useId()
 /** * Whether the summary is open. */
 const open = defineModel<boolean>({ default: false })
 
-const markdown = useTemplateRef('scalar-markdown')
-
 /** Whether the markdown is being truncated */
-const isTruncated = ref(false)
+const truncated = defineModel<boolean>('truncated', { default: false })
+
+const markdown = useTemplateRef('scalar-markdown')
 
 useResizeObserver(() => markdown.value?.el, checkTruncation)
 
@@ -39,7 +39,7 @@ function checkTruncation() {
   if (!el) {
     return
   }
-  isTruncated.value =
+  truncated.value =
     el.scrollHeight > el.clientHeight || el.scrollWidth > el.clientWidth
 }
 
@@ -63,7 +63,7 @@ defineOptions({ inheritAttrs: false })
       :clamp="open ? undefined : clamp"
       :class="{ 'markdown-summary truncate': !open }" />
     <button
-      v-if="!controlled && (isTruncated || open)"
+      v-if="!controlled && (truncated || open)"
       :aria-controls="id"
       :aria-expanded="open"
       class="whitespace-nowrap font-medium hover:underline"
