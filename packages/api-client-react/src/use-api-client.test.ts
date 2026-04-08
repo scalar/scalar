@@ -317,6 +317,28 @@ describe('use-api-client', () => {
     // Calling open on undefined would normally throw — the hook returns undefined so callers guard it
   })
 
+  it('strips url and content from the options passed to getOrCreateApiClient', async () => {
+    const { getOrCreateApiClient } = await import('./get-or-create-api-client')
+    const { useApiClient } = await import('./use-api-client')
+
+    renderHook(() =>
+      useApiClient({
+        configuration: {
+          url: 'https://api.example.com/openapi.json',
+          content: { info: { title: 'My API' } },
+          proxyUrl: 'https://proxy.example.com',
+        },
+      }),
+    )
+
+    await waitFor(() => expect(getOrCreateApiClient).toHaveBeenCalled())
+
+    const calledWith = vi.mocked(getOrCreateApiClient).mock.calls[0]![0]
+    expect(calledWith).not.toHaveProperty('url')
+    expect(calledWith).not.toHaveProperty('content')
+    expect(calledWith).toMatchObject({ proxyUrl: 'https://proxy.example.com' })
+  })
+
   it('sets Vue globals on module load', async () => {
     await import('./use-api-client')
 

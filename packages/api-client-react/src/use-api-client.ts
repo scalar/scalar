@@ -4,6 +4,7 @@ import type { ApiClientModal, RoutePayload } from '@scalar/api-client/v2/feature
 import type { ApiClientConfiguration } from '@scalar/types/api-reference'
 import { useEffect, useState } from 'react'
 
+import type { ApiClientModalOptions } from './get-or-create-api-client'
 import { getOrCreateApiClient } from './get-or-create-api-client'
 import './style.css'
 
@@ -51,7 +52,10 @@ export const useApiClient = ({
   useEffect(() => {
     let cancelled = false
 
-    void getOrCreateApiClient(configuration ?? {})?.then((_client) => {
+    // Strip document-specific fields before passing to the modal constructor.
+    // `url` and `content` are registered separately via workspaceStore.addDocument.
+    const { url: _url, content: _content, ...modalOptions } = configuration ?? {}
+    void getOrCreateApiClient(modalOptions as ApiClientModalOptions)?.then((_client) => {
       if (cancelled) {
         return
       }

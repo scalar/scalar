@@ -161,6 +161,31 @@ describe('get-or-create-api-client', () => {
     )
   })
 
+  it('does not accept url or content in its options type (modal-level only)', async () => {
+    const { createLazyApiClientModal } = await import('./lazy-load')
+    vi.mocked(createLazyApiClientModal).mockResolvedValue({
+      apiClient: { open: vi.fn(), close: vi.fn() } as any,
+      workspaceStore: { addDocument: vi.fn() } as any,
+    })
+
+    const { getOrCreateApiClient } = await import('./get-or-create-api-client')
+    // Only modal-level options (e.g. proxyUrl) are valid; url/content are excluded from the type.
+    // This test verifies the runtime shape passed to createLazyApiClientModal contains only
+    // modal-level fields.
+    await getOrCreateApiClient({ proxyUrl: 'https://proxy.example.com' })
+
+    expect(createLazyApiClientModal).toHaveBeenCalledWith(
+      expect.objectContaining({
+        options: { proxyUrl: 'https://proxy.example.com' },
+      }),
+    )
+    const calls = vi.mocked(createLazyApiClientModal).mock.calls
+    expect(calls).toHaveLength(1)
+    const call = calls[0]![0]
+    expect(call.options).not.toHaveProperty('url')
+    expect(call.options).not.toHaveProperty('content')
+  })
+
   it('clears the cached promise after a rejection so the next call retries', async () => {
     const { createLazyApiClientModal } = await import('./lazy-load')
     vi.mocked(createLazyApiClientModal)
