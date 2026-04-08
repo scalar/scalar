@@ -21,7 +21,10 @@ import { generateResponses } from './responses'
 import { getSchemaFromTypeNode } from './type-nodes'
 import type { FileNameResolver } from './types'
 
-const HTTP_METHODS = new Set<OpenAPIV3_1.HttpMethods>(['get', 'post', 'put', 'patch', 'delete', 'head', 'options'])
+const HTTP_METHODS = ['get', 'post', 'put', 'patch', 'delete', 'head', 'options', 'trace'] as const
+
+const isHttpMethod = (value: string): value is OpenAPIV3_1.HttpMethods =>
+  (HTTP_METHODS as readonly string[]).includes(value)
 
 const DEFAULT_INFO_DESCRIPTION = 'Generated from Next.js route handlers'
 
@@ -45,12 +48,12 @@ const resolveImportFileName: FileNameResolver = (sourceFileName: string, targetF
 
 const getHttpMethod = (identifier: Pick<Identifier, 'escapedText'> | undefined): OpenAPIV3_1.HttpMethods | null => {
   const method = identifier?.escapedText?.toString().toLowerCase()
-  return method && HTTP_METHODS.has(method as OpenAPIV3_1.HttpMethods) ? (method as OpenAPIV3_1.HttpMethods) : null
+  return method && isHttpMethod(method) ? method : null
 }
 
 const isSchemaObject = (
   schema: OpenAPIV3_1.ReferenceObject | OpenAPIV3_1.SchemaObject | undefined,
-): schema is OpenAPIV3_1.SchemaObject => Boolean(schema) && !('$ref' in schema)
+): schema is OpenAPIV3_1.SchemaObject => schema !== undefined && typeof schema === 'object' && !('$ref' in schema)
 
 const getFunctionBody = (node: Node | undefined): Node | undefined => {
   if (!node) {
@@ -180,7 +183,7 @@ export const getOpenApiPathFromNextJsRouteFile = (routeFileName: string, apiDire
  * Builds a path item object from a Next.js route source file.
  */
 export const getPathItemFromNextJsSourceFile = (sourceFile: SourceFile, program: Program): OpenAPIV3_1.PathItemObject => {
-  const pathItem: OpenAPIV3_1.PathItemObject = {}
+  const pathItem: Record<string, OpenAPIV3_1.OperationObject> = {}
 
   sourceFile.statements.forEach((statement) => {
     if (isFunctionDeclaration(statement) && statement.name) {
@@ -216,7 +219,7 @@ export const getPathItemFromNextJsSourceFile = (sourceFile: SourceFile, program:
     }
   })
 
-  return pathItem
+  return pathItem as OpenAPIV3_1.PathItemObject
 }
 
 export type GenerateNextJsOpenApiDocumentOptions = {
