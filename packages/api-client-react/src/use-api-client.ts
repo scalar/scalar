@@ -54,14 +54,27 @@ export const useApiClient = ({
 
     // Strip document-specific fields before passing to the modal constructor.
     // `url` and `content` are registered separately via workspaceStore.addDocument.
-    const { url: _url, content: _content, ...modalOptions } = configuration ?? {}
+    const { url, content, ...modalOptions } = configuration ?? {}
+
     void getOrCreateApiClient(modalOptions as ApiClientModalOptions)?.then((_client) => {
-      if (cancelled) {
+      if (cancelled || !_client) {
         return
       }
 
-      setClient(_client?.apiClient)
-      setWorkspaceStore(_client?.workspaceStore)
+      // Compute the slug here so we can batch all three state updates into one render,
+      // preventing a render where `client` is set but `documentSlug` is still ''.
+      const slug = url || (content as { info?: { title?: string } })?.info?.title || ''
+
+      setClient(_client.apiClient)
+      setWorkspaceStore(_client.workspaceStore)
+      setDocumentSlug(slug)
+
+      if (slug && !documentDict[slug]) {
+        documentDict[slug] = true
+        void _client.workspaceStore.addDocument(
+          content ? { name: slug, document: content } : { name: slug, url: url ?? '' },
+        )
+      }
     })
 
     return () => {
@@ -71,33 +84,24 @@ export const useApiClient = ({
     // Only run once per mount
   }, [])
 
-  // On config url or content changes lets add a document and set the slug
+  // When url or content changes after the client is already mounted, register the new document
   useEffect(() => {
     if (!client || !configuration || !workspaceStore) {
       return
     }
 
-    /** The document key of the most recently added document, used as the default documentSlug when opening. */
-    const documentSlug =
-      configuration.url || (configuration.content as { info?: { title?: string } })?.info?.title || ''
-    setDocumentSlug(documentSlug)
+    const slug = configuration.url || (configuration.content as { info?: { title?: string } })?.info?.title || ''
+    setDocumentSlug(slug)
 
-    // Ensure we only load each document once
-    if (documentDict[documentSlug]) {
+    if (documentDict[slug]) {
       return
     }
-    documentDict[documentSlug] = true
+    documentDict[slug] = true
 
     void workspaceStore.addDocument(
       configuration.content
-        ? {
-            name: documentSlug,
-            document: configuration.content,
-          }
-        : {
-            name: documentSlug,
-            url: configuration.url ?? '',
-          },
+        ? { name: slug, document: configuration.content }
+        : { name: slug, url: configuration.url ?? '' },
     )
   }, [client, configuration?.url, configuration?.content, workspaceStore])
 
