@@ -8,7 +8,7 @@ let workspaceStoreSingleton: Promise<WorkspaceStore> | undefined
 let workspaceEventBusSingleton: Promise<WorkspaceEventBus> | undefined
 
 /** Lazy load the client modal creator */
-export const getClientModalCreator = (): NonNullable<typeof clientModalCreator> => {
+const getClientModalCreator = (): NonNullable<typeof clientModalCreator> => {
   clientModalCreator ||= import('@scalar/api-client/v2/features/modal').then(
     ({ createApiClientModal }) => createApiClientModal,
   )
@@ -16,7 +16,7 @@ export const getClientModalCreator = (): NonNullable<typeof clientModalCreator> 
 }
 
 /** Module-scoped singleton workspace store (lazy-loaded on first use). */
-export const getWorkspaceStoreSingleton = (): NonNullable<typeof workspaceStoreSingleton> => {
+const getWorkspaceStoreSingleton = (): NonNullable<typeof workspaceStoreSingleton> => {
   workspaceStoreSingleton ??= import('@scalar/workspace-store/client').then(({ createWorkspaceStore }) =>
     createWorkspaceStore(),
   )
@@ -24,16 +24,11 @@ export const getWorkspaceStoreSingleton = (): NonNullable<typeof workspaceStoreS
 }
 
 /** Module-scoped singleton workspace event bus (lazy-loaded on first use). */
-export const getWorkspaceEventBusSingleton = (): NonNullable<typeof workspaceEventBusSingleton> => {
+const getWorkspaceEventBusSingleton = (): NonNullable<typeof workspaceEventBusSingleton> => {
   workspaceEventBusSingleton ??= import('@scalar/workspace-store/events').then(({ createWorkspaceEventBus }) =>
     createWorkspaceEventBus(),
   )
   return workspaceEventBusSingleton
-}
-
-export type CreateLazyApiClientModalArgs = {
-  el: HTMLElement
-  options?: Partial<ApiClientConfiguration>
 }
 
 /**
@@ -43,7 +38,10 @@ export type CreateLazyApiClientModalArgs = {
 export const createLazyApiClientModal = async ({
   el,
   options = {},
-}: CreateLazyApiClientModalArgs): Promise<{ apiClient: ApiClientModal; workspaceStore: WorkspaceStore }> => {
+}: {
+  el: HTMLElement
+  options?: Partial<ApiClientConfiguration>
+}): Promise<{ apiClient: ApiClientModal; workspaceStore: WorkspaceStore }> => {
   const [createModal, workspaceStore, eventBus] = await Promise.all([
     getClientModalCreator(),
     getWorkspaceStoreSingleton(),
