@@ -6,7 +6,7 @@ import type { ServerObject } from './server'
  *
  * Describes the operations available on a single path. A Path Item MAY be empty, due to [ACL constraints](#security-filtering). The path itself is still exposed to the documentation viewer but they will not know which operations and parameters are available.
  *
- * @see {@link https://spec.openapis.org/oas/v3.2#path-item-object}
+ * @see {@link https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.2.0.md#path-item-object}
  */
 export type PathItemObject = {
   $ref?: string
@@ -14,9 +14,9 @@ export type PathItemObject = {
   summary?: string
   /** An optional string description, intended to apply to all operations in this path. [CommonMark syntax](https://spec.commonmark.org/) MAY be used for rich text representation. */
   description?: string
-  /** An alternative `servers` array to service all operations in this path. If a `servers` array is specified at the [OpenAPI Object](https://spec.openapis.org/oas/v3.2#oas-servers) level, it will be overridden by this value. */
+  /** An alternative `servers` array to service all operations in this path. If a `servers` array is specified at the [OpenAPI Object](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.2.0.md#oas-servers) level, it will be overridden by this value. */
   servers?: ServerObject[]
-  /** A list of parameters that are applicable for all the operations described under this path. These parameters can be overridden at the operation level, but cannot be removed there. The list MUST NOT include duplicated parameters. A unique parameter is defined by a combination of a [name](https://spec.openapis.org/oas/v3.2#parameter-name) and [location](https://spec.openapis.org/oas/v3.2#parameter-in). The list can use the [Reference Object](https://spec.openapis.org/oas/v3.2#reference-object) to link to parameters that are defined in the [OpenAPI Object's `components.parameters`](https://spec.openapis.org/oas/v3.2#components-parameters). */
+  /** A list of parameters that are applicable for all the operations described under this path. These parameters can be overridden at the operation level, but cannot be removed there. The list MUST NOT include duplicated parameters. A unique parameter is defined by a combination of a [name](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.2.0.md#parameter-name) and [location](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.2.0.md#parameter-in). The list can use the [Reference Object](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.2.0.md#reference-object) to link to parameters that are defined in the [OpenAPI Object's `components.parameters`](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.2.0.md#components-parameters). */
   parameters?: ParametersObject
   /** A map of additional operations on this path. The map key is the HTTP method with the same capitalization that is to be sent in the request. This map MUST NOT contain any entry for the methods that can be defined by other fixed fields with Operation Object values (e.g. no `POST` entry, as the `post` field is used for this method). */
   additionalOperations?: Record<string, OperationObject>

@@ -3,7 +3,7 @@
  *
  * License information for the exposed API.
  *
- * @see {@link https://spec.openapis.org/oas/v3.2#license-object}
+ * @see {@link https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.2.0.md#license-object}
  */
 export type LicenseObject = {
   /** **REQUIRED**. The license name used for the API. */

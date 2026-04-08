@@ -4,7 +4,7 @@ import type { ServerVariableObject } from './server-variable'
  *
  * An object representing a Server.
  *
- * @see {@link https://spec.openapis.org/oas/v3.2#server-object}
+ * @see {@link https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.2.0.md#server-object}
  */
 export type ServerObject = {
   /** **REQUIRED**. A URL to the target host. This URL supports Server Variables and MAY be relative, to indicate that the host location is relative to the location where the document containing the Server Object is being served. Query and fragment MUST NOT be part of this URL. Variable substitutions will be made when a variable is named in `{`braces`}`. */

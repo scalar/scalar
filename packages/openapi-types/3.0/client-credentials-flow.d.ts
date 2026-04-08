@@ -3,7 +3,7 @@
  *
  * Configuration details for a supported OAuth Flow
  *
- * @see {@link https://spec.openapis.org/oas/v3.0.4#oauth-flow-object}
+ * @see {@link https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.0.4.md#oauth-flow-object}
  */
 export type ClientCredentialsFlowObject = {
   /** **REQUIRED**. The token URL to be used for this flow. This MUST be in the form of a URL. The OAuth2 standard requires the use of TLS. */

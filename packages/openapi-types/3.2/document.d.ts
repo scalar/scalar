@@ -11,17 +11,17 @@ import type { TagObject } from './tag'
  *
  * This is the root object of the [OpenAPI Description](#openapi-description-structure).
  *
- * @see {@link https://spec.openapis.org/oas/v3.2.0#openapi-object}
+ * @see {@link https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.2.0.md.0#openapi-object}
  */
 export type Document = {
-  /** **REQUIRED**. This string MUST be the [version number](https://spec.openapis.org/oas/v3.2.0#versions-and-deprecation) of the OpenAPI Specification that the OpenAPI document uses. The `openapi` field SHOULD be used by tooling to interpret the OpenAPI document. This is _not_ related to the [`info.version`](https://spec.openapis.org/oas/v3.2.0#info-version) string, which describes the OpenAPI document's version. */
+  /** **REQUIRED**. This string MUST be the [version number](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.2.0.md.0#versions-and-deprecation) of the OpenAPI Specification that the OpenAPI document uses. The `openapi` field SHOULD be used by tooling to interpret the OpenAPI document. This is _not_ related to the [`info.version`](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.2.0.md.0#info-version) string, which describes the OpenAPI document's version. */
   openapi: string
   $self?: string
   /** **REQUIRED**. Provides metadata about the API. The metadata MAY be used by tooling as required. */
   info: InfoObject
-  /** The default value for the `$schema` keyword within [Schema Objects](https://spec.openapis.org/oas/v3.2.0#schema-object) contained within this OAS document. This MUST be in the form of a URI. */
+  /** The default value for the `$schema` keyword within [Schema Objects](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.2.0.md.0#schema-object) contained within this OAS document. This MUST be in the form of a URI. */
   jsonSchemaDialect?: string
-  /** An array of Server Objects, which provide connectivity information to a target server. If the `servers` field is not provided, or is an empty array, the default value would be an array consisting of a single [Server Object](https://spec.openapis.org/oas/v3.2.0#server-object) with a [url](https://spec.openapis.org/oas/v3.2.0#server-url) value of `/`. */
+  /** An array of Server Objects, which provide connectivity information to a target server. If the `servers` field is not provided, or is an empty array, the default value would be an array consisting of a single [Server Object](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.2.0.md.0#server-object) with a [url](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.2.0.md.0#server-url) value of `/`. */
   servers?: ServerObject[]
   /** The available paths and operations for the API. */
   paths?: PathsObject
@@ -31,7 +31,7 @@ export type Document = {
   components?: ComponentsObject
   /** A declaration of which security mechanisms can be used across the API. The list of values includes alternative Security Requirement Objects that can be used. Only one of the Security Requirement Objects need to be satisfied to authorize a request. Individual operations can override this definition. The list can be incomplete, up to being empty or absent. To make security explicitly optional, an empty security requirement (`{}`) can be included in the array. */
   security?: SecurityRequirementObject[]
-  /** A list of tags used by the OpenAPI Description with additional metadata. The order of the tags can be used to reflect on their order by the parsing tools. Not all tags that are used by the [Operation Object](https://spec.openapis.org/oas/v3.2.0#operation-object) must be declared. The tags that are not declared MAY be organized randomly or based on the tools' logic. Each tag name in the list MUST be unique. */
+  /** A list of tags used by the OpenAPI Description with additional metadata. The order of the tags can be used to reflect on their order by the parsing tools. Not all tags that are used by the [Operation Object](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.2.0.md.0#operation-object) must be declared. The tags that are not declared MAY be organized randomly or based on the tools' logic. Each tag name in the list MUST be unique. */
   tags?: TagObject[]
   /** Additional external documentation. */
   externalDocs?: ExternalDocumentationObject

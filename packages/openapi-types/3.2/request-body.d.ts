@@ -4,7 +4,7 @@ import type { ContentObject } from './content'
  *
  * Describes a single request body.
  *
- * @see {@link https://spec.openapis.org/oas/v3.2#request-body-object}
+ * @see {@link https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.2.0.md#request-body-object}
  */
 export type RequestBodyObject = {
   /** A brief description of the request body. This could contain examples of use. [CommonMark syntax](https://spec.commonmark.org/) MAY be used for rich text representation. */

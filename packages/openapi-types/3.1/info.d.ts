@@ -5,7 +5,7 @@ import type { LicenseObject } from './license'
  *
  * The object provides metadata about the API. The metadata MAY be used by the clients if needed, and MAY be presented in editing or documentation generation tools for convenience.
  *
- * @see {@link https://spec.openapis.org/oas/v3.1#info-object}
+ * @see {@link https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.1.2.md#info-object}
  */
 export type InfoObject = {
   /** **REQUIRED**. The title of the API. */
@@ -20,6 +20,6 @@ export type InfoObject = {
   contact?: ContactObject
   /** The license information for the exposed API. */
   license?: LicenseObject
-  /** **REQUIRED**. The version of the OpenAPI Document (which is distinct from the [OpenAPI Specification version](https://spec.openapis.org/oas/v3.1#oas-version) or the version of the API being described or the version of the OpenAPI Description). */
+  /** **REQUIRED**. The version of the OpenAPI Document (which is distinct from the [OpenAPI Specification version](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.1.2.md#oas-version) or the version of the API being described or the version of the OpenAPI Description). */
   version: string
 } & Record<`x-${string}`, unknown>

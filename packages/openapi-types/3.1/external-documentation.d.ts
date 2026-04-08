@@ -3,7 +3,7 @@
  *
  * Allows referencing an external resource for extended documentation.
  *
- * @see {@link https://spec.openapis.org/oas/v3.1#external-documentation-object}
+ * @see {@link https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.1.2.md#external-documentation-object}
  */
 export type ExternalDocumentationObject = {
   /** A description of the target documentation. [CommonMark syntax](https://spec.commonmark.org/) MAY be used for rich text representation. */

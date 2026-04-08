@@ -4,7 +4,7 @@ import type { MapOfStringsObject } from './map-of-strings'
  *
  * Configuration details for a supported OAuth Flow
  *
- * @see {@link https://spec.openapis.org/oas/v3.1#oauth-flow-object}
+ * @see {@link https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.1.2.md#oauth-flow-object}
  */
 export type PasswordObject = {
   /** **REQUIRED**. The token URL to be used for this flow. This MUST be in the form of a URL. The OAuth2 standard requires the use of TLS. */

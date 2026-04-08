@@ -7,7 +7,7 @@ import type { PasswordOauthFlowObject } from './password-oauth-flow'
  *
  * Allows configuration of the supported OAuth Flows.
  *
- * @see {@link https://spec.openapis.org/oas/v3.0.4#oauth-flows-object}
+ * @see {@link https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.0.4.md#oauth-flows-object}
  */
 export type OauthFlowsObject = {
   /** Configuration for the OAuth Implicit flow */

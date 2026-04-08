@@ -3,7 +3,7 @@
  *
  * A simple object to allow referencing other components in the OpenAPI Description, internally and externally.  The `$ref` string value contains a URI [RFC3986](https://tools.ietf.org/html/rfc3986), which identifies the value being referenced.  See the rules for resolving [Relative References](#relative-references-in-api-description-uris).
  *
- * @see {@link https://spec.openapis.org/oas/v3.1#reference-object}
+ * @see {@link https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.1.2.md#reference-object}
  */
 export type ReferenceObject = {
   $ref?: string

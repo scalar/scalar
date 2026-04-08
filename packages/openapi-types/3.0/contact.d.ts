@@ -3,7 +3,7 @@
  *
  * Contact information for the exposed API.
  *
- * @see {@link https://spec.openapis.org/oas/v3.0.4#contact-object}
+ * @see {@link https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.0.4.md#contact-object}
  */
 export type ContactObject = {
   /** The identifying name of the contact person/organization. */
