@@ -48,8 +48,8 @@ export const OpenButton = () => {
 
 | Option | Type | Description |
 |---|---|---|
-| `configuration.url` | `string` | URL of an OpenAPI description to load |
-| `configuration.content` | `Record<string, unknown>` | Inline OpenAPI description object |
+| `configuration.url` | `string` | URL of an OpenAPI document to load |
+| `configuration.content` | `Record<string, unknown>` | Inline OpenAPI document object |
 
 ### Routing to a specific request
 
