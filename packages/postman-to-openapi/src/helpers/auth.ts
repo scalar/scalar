@@ -16,7 +16,7 @@ const OAUTH2_DEFAULTS = {
 } as const
 
 type SecurityConfig = {
-  scheme: OpenAPIV3_1.SecuritySchemeObject
+  scheme?: OpenAPIV3_1.SecuritySchemeObject
   requirement: OpenAPIV3_1.SecurityRequirementObject
 }
 
@@ -67,7 +67,6 @@ function createBearerConfig(): SecurityConfig {
 function createOAuth2Config(auth?: Auth): SecurityConfig {
   if (!auth) {
     return {
-      scheme: {},
       requirement: {},
     }
   }
@@ -114,7 +113,6 @@ function createOAuth2Config(auth?: Auth): SecurityConfig {
  */
 function createNoAuthConfig(): SecurityConfig {
   return {
-    scheme: {},
     requirement: {},
   }
 }
@@ -151,7 +149,7 @@ export function processAuth(auth: Auth): {
     const { scheme, requirement } = handler(auth)
 
     // Only add security schemes and requirements if they're not empty
-    if (Object.keys(scheme).length > 0) {
+    if (scheme && Object.keys(scheme).length > 0) {
       const schemeKey = `${auth.type}Auth`
       securitySchemes[schemeKey] = scheme
       security.push(requirement)
