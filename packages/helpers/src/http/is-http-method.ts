@@ -1,4 +1,4 @@
-import { httpMethods, type HttpMethod } from './http-methods'
+import { type HttpMethod, httpMethods } from './http-methods'
 
 /** Type guard which takes in a string and returns true if it is in fact an HTTPMethod */
 export const isHttpMethod = (method?: string | undefined): method is HttpMethod =>

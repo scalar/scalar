@@ -1,5 +1,5 @@
 import { bundle } from '@scalar/json-magic/bundle'
-import type { OpenAPIV3_1 } from '@scalar/openapi-types'
+import type * as OpenAPIV3_1 from '@scalar/openapi-types/3.1'
 
 import type { UnknownObject } from '@/types'
 import { mergeObjects } from '@/utils/join/merge-objects'
@@ -329,6 +329,7 @@ export const join = async (inputs: UnknownObject[], config?: { prefixComponents:
   return {
     ok: true,
     document: {
+      openapi: '3.1.0',
       ...result,
       info,
       paths,

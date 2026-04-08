@@ -1,4 +1,4 @@
-import type { OpenAPIV3_1 } from '@scalar/openapi-types'
+import type * as OpenAPIV3_1 from '@scalar/openapi-types/3.1'
 import { upgrade as originalUpgrade } from '@scalar/openapi-upgrader'
 import type { UnknownObject } from '@scalar/types/utils'
 

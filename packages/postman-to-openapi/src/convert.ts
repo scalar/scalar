@@ -1,11 +1,13 @@
-import type { OpenAPIV3_1 } from '@scalar/openapi-types'
+import { HTTP_METHODS } from '@scalar/helpers/http/http-methods'
+import { objectEntries } from '@scalar/helpers/object/object-entries'
+import type * as OpenAPIV3_1 from '@scalar/openapi-types/3.1'
 
 import { processAuth } from '@/helpers/auth'
 import { processContact } from '@/helpers/contact'
 import { processExternalDocs } from '@/helpers/external-docs'
 import { processLicense } from '@/helpers/license'
 import { processLogo } from '@/helpers/logo'
-import { DEFAULT_EXAMPLE_NAME, OPERATION_KEYS, mergePathItem } from '@/helpers/merge-path-item'
+import { DEFAULT_EXAMPLE_NAME, mergePathItem } from '@/helpers/merge-path-item'
 import { processItem } from '@/helpers/path-items'
 import { pruneDocument } from '@/helpers/prune-document'
 import { analyzeServerDistribution } from '@/helpers/servers'
@@ -290,7 +292,7 @@ const cleanupOperations = (paths: OpenAPIV3_1.PathsObject): void => {
       return
     }
 
-    OPERATION_KEYS.forEach((operationKey) => {
+    HTTP_METHODS.forEach((operationKey) => {
       const operation = pathItem[operationKey]
       if (!operation) {
         return
@@ -435,7 +437,7 @@ export function convert(
 
         allServerUsage.push(...serverUsage)
 
-        for (const [pathKey, pathItem] of Object.entries(itemPaths)) {
+        for (const [pathKey, pathItem] of objectEntries(itemPaths)) {
           const normalizedPathKey = normalizePath(pathKey)
 
           if (!pathItem) {
@@ -459,7 +461,7 @@ export function convert(
         allServerUsage.push(...serverUsage)
 
         openapi.paths = openapi.paths || {}
-        for (const [pathKey, pathItem] of Object.entries(itemPaths)) {
+        for (const [pathKey, pathItem] of objectEntries(itemPaths)) {
           const normalizedPathKey = normalizePath(pathKey)
 
           if (!pathItem) {
@@ -513,7 +515,7 @@ export function convert(
       }
       for (const [method, servers] of methods.entries()) {
         if (method in pathItem) {
-          const operation = pathItem[method as keyof typeof pathItem]
+          const operation: OpenAPIV3_1.OperationObject = pathItem[method as keyof typeof pathItem]
           if (operation && typeof operation === 'object' && 'responses' in operation) {
             operation.servers = isMergingIntoBase ? mergeServerLists(operation.servers, servers) : servers
           }

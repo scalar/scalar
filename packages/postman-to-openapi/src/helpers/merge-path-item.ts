@@ -1,4 +1,6 @@
-import type { OpenAPIV3_1 } from '@scalar/openapi-types'
+import { isHttpMethod } from '@scalar/helpers/http/is-http-method'
+import { objectEntries } from '@scalar/helpers/object/object-entries'
+import type * as OpenAPIV3_1 from '@scalar/openapi-types/3.1'
 
 import { generateUniqueValue } from '@/helpers/generate-unique-value'
 import { getOperationExamples } from '@/helpers/get-operation-examples'
@@ -7,16 +9,13 @@ import { renameOperationExamples } from '@/helpers/rename-operation-example'
 
 export const DEFAULT_EXAMPLE_NAME = 'Default example'
 
-export const OPERATION_KEYS: readonly (keyof OpenAPIV3_1.PathItemObject)[] = [
-  'get',
-  'put',
-  'post',
-  'delete',
-  'options',
-  'head',
-  'patch',
-  'trace',
-]
+const setPathItemProperty = <K extends keyof OpenAPIV3_1.PathItemObject>(
+  target: OpenAPIV3_1.PathItemObject,
+  key: K,
+  value: OpenAPIV3_1.PathItemObject[K],
+): void => {
+  target[key] = value
+}
 
 export const mergePathItem = (
   paths: OpenAPIV3_1.PathsObject,
@@ -25,16 +24,14 @@ export const mergePathItem = (
   mergeOperation: boolean = false,
 ): void => {
   const targetPath = (paths[normalizedPathKey] ?? {}) as OpenAPIV3_1.PathItemObject
+  const pathEntries = objectEntries(pathItem)
 
-  for (const [key, value] of Object.entries(pathItem) as [
-    keyof OpenAPIV3_1.PathItemObject,
-    OpenAPIV3_1.PathItemObject[keyof OpenAPIV3_1.PathItemObject],
-  ][]) {
-    if (value === undefined) {
+  for (const [key, value] of pathEntries) {
+    if (value === undefined || value === null) {
       continue
     }
 
-    const isOperationKey = OPERATION_KEYS.includes(key)
+    const isOperationKey = isHttpMethod(key)
 
     if (isOperationKey && targetPath[key] && mergeOperation) {
       // Get all example names from the target path
@@ -49,7 +46,7 @@ export const mergePathItem = (
       continue
     }
 
-    targetPath[key] = value
+    setPathItemProperty(targetPath, key, value)
   }
 
   paths[normalizedPathKey] = targetPath
