@@ -68,7 +68,11 @@ export const extractPathParameters = (
         return []
       }
 
-      const name = isIdentifier(member.name) ? String(member.name.escapedText) : isStringLiteral(member.name) ? member.name.text : null
+      const name = isIdentifier(member.name)
+        ? String(member.name.escapedText)
+        : isStringLiteral(member.name)
+          ? member.name.text
+          : null
 
       if (!name) {
         return []
@@ -119,7 +123,8 @@ export const getPathOperations = (
     // Variable handlers
     else if (isVariableStatement(statement)) {
       const declaration = statement.declarationList.declarations[0]
-      const method = declaration && isIdentifier(declaration.name) ? getHttpMethodFromIdentifier(declaration.name) : null
+      const method =
+        declaration && isIdentifier(declaration.name) ? getHttpMethodFromIdentifier(declaration.name) : null
 
       if (method) {
         const { title, description } = getJSDocFromNode(statement)

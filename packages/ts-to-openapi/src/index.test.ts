@@ -11,12 +11,7 @@ import {
 import { describe, expect, it } from 'vitest'
 
 import { fileNameResolver, program } from '../test/test-setup'
-import {
-  defaultFileNameResolver,
-  extractPathParameters,
-  getHttpMethodFromIdentifier,
-  getPathOperations,
-} from './index'
+import { defaultFileNameResolver, extractPathParameters, getHttpMethodFromIdentifier, getPathOperations } from './index'
 
 const routeFixturePath = path.join(import.meta.dirname, '../test/fixtures/route-fixture.ts')
 const routeFixtureSourceFile = program.getSourceFile(routeFixturePath)
@@ -56,7 +51,10 @@ describe('index', () => {
     }
 
     const patchDeclaration = patchStatement.declarationList.declarations[0]
-    const method = patchDeclaration && isIdentifier(patchDeclaration.name) ? getHttpMethodFromIdentifier(patchDeclaration.name) : null
+    const method =
+      patchDeclaration && isIdentifier(patchDeclaration.name)
+        ? getHttpMethodFromIdentifier(patchDeclaration.name)
+        : null
     expect(method).toBe('patch')
   })
 
