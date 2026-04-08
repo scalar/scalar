@@ -1,5 +1,7 @@
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 
+type NonArraySchemaObjectType = Exclude<OpenAPIV3_1.PrimitiveSchemaType, 'array' | 'null'>
+type NonArraySchemaObject = Exclude<OpenAPIV3_1.SchemaObject, { type: 'array' }>
 /**
  * Infers the schema of an OpenAPI object based on an example value.
  * This function recursively analyzes the structure of the example value
@@ -23,7 +25,7 @@ export function inferSchemaFromExample(example: any): OpenAPIV3_1.SchemaObject {
     }
   }
   return {
-    type: typeof example as OpenAPIV3_1.NonArraySchemaObjectType,
+    type: typeof example as NonArraySchemaObjectType,
   }
 }
 
@@ -33,7 +35,7 @@ export function inferSchemaFromExample(example: any): OpenAPIV3_1.SchemaObject {
  * by checking its JavaScript type and attempting to parse it
  * as a number or boolean if it's a string.
  */
-export function inferSchemaType(value: any): OpenAPIV3_1.NonArraySchemaObject {
+export function inferSchemaType(value: any): NonArraySchemaObject {
   if (typeof value === 'number') {
     return { type: Number.isInteger(value) ? 'integer' : 'number' }
   }
