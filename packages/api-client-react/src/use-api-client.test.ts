@@ -116,7 +116,7 @@ describe('use-api-client', () => {
     })
   })
 
-  it('uses empty string as documentSlug when neither url nor content title is provided', async () => {
+  it('uses "default" as documentSlug when neither url nor content title is provided', async () => {
     const { useApiClient } = await import('./use-api-client')
     const { result } = renderHook(() => useApiClient({ configuration: {} }))
 
@@ -127,7 +127,7 @@ describe('use-api-client', () => {
     })
 
     expect(mockApiClient.open).toHaveBeenCalledWith({
-      documentSlug: '',
+      documentSlug: 'default',
       path: '/users',
       method: 'get',
     })
@@ -166,15 +166,44 @@ describe('use-api-client', () => {
     await waitFor(() => expect(mockWorkspaceStore.addDocument).not.toHaveBeenCalled())
   })
 
-  it('does not call addDocument when configuration has no url or content', async () => {
+  it('calls addDocument with "default" slug when configuration has no url or content', async () => {
     const { useApiClient } = await import('./use-api-client')
     renderHook(() => useApiClient({ configuration: {} }))
 
-    await new Promise((r) => setTimeout(r, 50))
+    await waitFor(() => expect(mockWorkspaceStore.addDocument).toHaveBeenCalled())
 
-    // documentSlug is '' so addDocument is called with name: '' and url: ''
-    // but the deduplication dict prevents a second call
-    expect(mockWorkspaceStore.addDocument).toHaveBeenCalledTimes(1)
+    expect(mockWorkspaceStore.addDocument).toHaveBeenCalledWith({
+      name: 'default',
+      url: '',
+    })
+  })
+
+  it('uses "default" slug when url changes to empty configuration', async () => {
+    vi.resetModules()
+
+    const { getOrCreateApiClient } = await import('./get-or-create-api-client')
+    vi.mocked(getOrCreateApiClient).mockResolvedValue({
+      apiClient: mockApiClient as any,
+      workspaceStore: mockWorkspaceStore as any,
+    })
+
+    const { useApiClient } = await import('./use-api-client')
+
+    // Start with a valid url so client is initialized
+    const { rerender } = renderHook(({ config }) => useApiClient({ configuration: config }), {
+      initialProps: { config: { url: 'https://api.example.com/v1.json' } as Record<string, unknown> },
+    })
+
+    await waitFor(() => expect(mockWorkspaceStore.addDocument).toHaveBeenCalledTimes(1))
+
+    // Re-render with an empty configuration — the second useEffect falls back to 'default'
+    rerender({ config: {} })
+
+    await waitFor(() => expect(mockWorkspaceStore.addDocument).toHaveBeenCalledTimes(2))
+
+    const calls = mockWorkspaceStore.addDocument.mock.calls
+    expect(calls.every((call: any[]) => call[0].name !== '')).toBe(true)
+    expect(calls[1]![0]).toEqual({ name: 'default', url: '' })
   })
 
   it('does not add the same document twice when the hook re-renders with the same url', async () => {

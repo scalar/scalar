@@ -90,7 +90,7 @@ export const useApiClient = ({
       return
     }
 
-    const slug = configuration.url || (configuration.content as { info?: { title?: string } })?.info?.title || ''
+    const slug = configuration.url || (configuration.content as { info?: { title?: string } })?.info?.title || 'default'
     setDocumentSlug(slug)
 
     if (documentDict[slug]) {
