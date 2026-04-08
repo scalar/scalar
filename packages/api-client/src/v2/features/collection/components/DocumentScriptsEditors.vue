@@ -112,7 +112,7 @@ const switchTo = (tab: ScriptTab) => {
   }
   activeTab.value = tab
   const model = tab === 'pre' ? preModel : postModel
-  if (model) {
+  if (model.value) {
     editor.value.setModel(model.value)
   }
 }
@@ -164,12 +164,11 @@ watch(
       <button
         :aria-selected="activeTab === 'pre'"
         class="flex min-w-0 flex-1 items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-all duration-150"
-        :class="[
-          'flex min-w-0 flex-1 items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-all duration-150',
+        :class="
           activeTab === 'pre'
             ? 'text-c-1 bg-[var(--scalar-background-1)] shadow-[var(--scalar-shadow-1)]'
-            : 'text-c-2 hover:text-c-1 hover:bg-[var(--scalar-background-3)]',
-        ]"
+            : 'text-c-2 hover:text-c-1 hover:bg-[var(--scalar-background-3)]'
+        "
         role="tab"
         type="button"
         @click="switchTo('pre')">
@@ -186,12 +185,11 @@ watch(
       <button
         :aria-selected="activeTab === 'post'"
         class="flex min-w-0 flex-1 items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-all duration-150"
-        :class="[
-          'flex min-w-0 flex-1 items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-all duration-150',
+        :class="
           activeTab === 'post'
             ? 'text-c-1 bg-[var(--scalar-background-1)] shadow-[var(--scalar-shadow-1)]'
-            : 'text-c-2 hover:text-c-1 hover:bg-[var(--scalar-background-3)]',
-        ]"
+            : 'text-c-2 hover:text-c-1 hover:bg-[var(--scalar-background-3)]'
+        "
         role="tab"
         type="button"
         @click="switchTo('post')">
