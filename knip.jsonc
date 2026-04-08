@@ -241,7 +241,7 @@
     },
     "packages/ts-to-openapi": {
       "entry": ["src/index.ts"],
-      "ignoreFiles": ["test/fixtures/*"]
+      "ignoreFiles": ["test/fixtures/**"]
     },
     "packages/types": {
       "entry": [

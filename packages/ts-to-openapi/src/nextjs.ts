@@ -182,7 +182,10 @@ export const getOpenApiPathFromNextJsRouteFile = (routeFileName: string, apiDire
 /**
  * Builds a path item object from a Next.js route source file.
  */
-export const getPathItemFromNextJsSourceFile = (sourceFile: SourceFile, program: Program): OpenAPIV3_1.PathItemObject => {
+export const getPathItemFromNextJsSourceFile = (
+  sourceFile: SourceFile,
+  program: Program,
+): OpenAPIV3_1.PathItemObject => {
   const pathItem: Record<string, OpenAPIV3_1.OperationObject> = {}
 
   sourceFile.statements.forEach((statement) => {
@@ -214,7 +217,12 @@ export const getPathItemFromNextJsSourceFile = (sourceFile: SourceFile, program:
 
         const bodyNode = getFunctionBody(declaration.initializer)
         const contextParameter = getFunctionContextParameter(declaration.initializer)
-        pathItem[method] = createOperationObject(statement, bodyNode, getPathParameters(contextParameter, program), program)
+        pathItem[method] = createOperationObject(
+          statement,
+          bodyNode,
+          getPathParameters(contextParameter, program),
+          program,
+        )
       })
     }
   })
@@ -222,7 +230,7 @@ export const getPathItemFromNextJsSourceFile = (sourceFile: SourceFile, program:
   return pathItem as OpenAPIV3_1.PathItemObject
 }
 
-export type GenerateNextJsOpenApiDocumentOptions = {
+type GenerateNextJsOpenApiDocumentOptions = {
   /** Root directory used to resolve `apiDirectory`. Defaults to `process.cwd()`. */
   cwd?: string
   /** App Router API directory containing route handlers. Defaults to `app/api`. */

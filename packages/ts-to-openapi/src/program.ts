@@ -30,7 +30,7 @@ export const collectTypeScriptFiles = (directoryPath: string): string[] => {
   }
 }
 
-export type CreateProgramFromFileSystemOptions = {
+type CreateProgramFromFileSystemOptions = {
   rootDirectory: string
   target?: ScriptTarget
 }
