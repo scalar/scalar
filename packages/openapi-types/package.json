@@ -23,24 +23,28 @@
   "type": "module",
   "exports": {
     "./2.0": {
-      "import": "./dist/2.0/index.js",
-      "types": "./dist/2.0/index.d.ts",
-      "default": "./dist/2.0/index.js"
+      "types": "./dist/2.0/index.d.ts"
     },
-    "./3.0.4": {
-      "import": "./dist/3.0.4/index.js",
-      "types": "./dist/3.0.4/index.d.ts",
-      "default": "./dist/3.0.4/index.js"
+    "./2.0/*": {
+      "types": "./dist/2.0/*.d.ts"
     },
-    "./3.1.2": {
-      "import": "./dist/3.1.2/index.js",
-      "types": "./dist/3.1.2/index.d.ts",
-      "default": "./dist/3.1.2/index.js"
+    "./3.0": {
+      "types": "./dist/3.0/index.d.ts"
     },
-    "./3.2.0": {
-      "import": "./dist/3.2.0/index.js",
-      "types": "./dist/3.2.0/index.d.ts",
-      "default": "./dist/3.2.0/index.js"
+    "./3.0/*": {
+      "types": "./dist/3.0/*.d.ts"
+    },
+    "./3.1": {
+      "types": "./dist/3.1/index.d.ts"
+    },
+    "./3.1/*": {
+      "types": "./dist/3.1/*.d.ts"
+    },
+    "./3.2": {
+      "types": "./dist/3.2/index.d.ts"
+    },
+    "./3.2/*": {
+      "types": "./dist/3.2/*.d.ts"
     }
   },
   "files": [
