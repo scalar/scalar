@@ -1,6 +1,6 @@
 import { HTTP_METHODS } from '@scalar/helpers/http/http-methods'
 import { objectEntries } from '@scalar/helpers/object/object-entries'
-import type * as OpenAPIV3_1 from '@scalar/openapi-types/3.1'
+import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 
 import { processAuth } from '@/helpers/auth'
 import { processContact } from '@/helpers/contact'

@@ -1,5 +1,5 @@
 import { bundle } from '@scalar/json-magic/bundle'
-import type * as OpenAPIV3_1 from '@scalar/openapi-types/3.1'
+import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 
 import type { UnknownObject } from '@/types'
 import { mergeObjects } from '@/utils/join/merge-objects'

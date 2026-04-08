@@ -35,10 +35,10 @@ const file: Document = {
 
 ### Namespace import
 
-We have kept the namespace exports from the previous version, they can be imported like so:
+We have kept the namespace-like exports from the previous version, they can be imported like so:
 
 ```ts
-import type { OpenAPIV3_2 } from '@scalar/openapi-types/3.2.0/namespace'
+import type { OpenAPIV3_2 } from '@scalar/openapi-types'
 
 const file: OpenAPIV3_2.Document = {
   openapi: '3.2.0',

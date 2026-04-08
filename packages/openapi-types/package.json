@@ -22,6 +22,9 @@
   },
   "type": "module",
   "exports": {
+    ".": {
+      "types": "./index.d.ts"
+    },
     "./2.0": {
       "types": "./2.0/index.d.ts"
     },

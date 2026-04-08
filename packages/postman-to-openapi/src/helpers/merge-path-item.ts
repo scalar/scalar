@@ -1,6 +1,6 @@
 import { isHttpMethod } from '@scalar/helpers/http/is-http-method'
 import { objectEntries } from '@scalar/helpers/object/object-entries'
-import type * as OpenAPIV3_1 from '@scalar/openapi-types/3.1'
+import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 
 import { generateUniqueValue } from '@/helpers/generate-unique-value'
 import { getOperationExamples } from '@/helpers/get-operation-examples'
@@ -39,8 +39,14 @@ export const mergePathItem = (
 
       // Generate a unique example name
       const newExampleName = generateUniqueValue(DEFAULT_EXAMPLE_NAME, (value) => !exampleNames.has(value), '#')
+
+      if (!pathItem[key]) {
+        continue
+      }
+
       // Rename operation examples from the new path item (we know it's gonna have only the default example)
       renameOperationExamples(pathItem[key], DEFAULT_EXAMPLE_NAME, newExampleName)
+
       // Merge the operations
       targetPath[key] = mergeOperations(targetPath[key], pathItem[key])
       continue
