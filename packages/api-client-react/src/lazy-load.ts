@@ -9,25 +9,34 @@ let workspaceEventBusSingleton: Promise<WorkspaceEventBus> | undefined
 
 /** Lazy load the client modal creator */
 const getClientModalCreator = (): NonNullable<typeof clientModalCreator> => {
-  clientModalCreator ||= import('@scalar/api-client/v2/features/modal').then(
-    ({ createApiClientModal }) => createApiClientModal,
-  )
+  clientModalCreator ||= import('@scalar/api-client/v2/features/modal')
+    .then(({ createApiClientModal }) => createApiClientModal)
+    .catch((error) => {
+      clientModalCreator = undefined
+      throw error
+    })
   return clientModalCreator
 }
 
 /** Module-scoped singleton workspace store (lazy-loaded on first use). */
 const getWorkspaceStoreSingleton = (): NonNullable<typeof workspaceStoreSingleton> => {
-  workspaceStoreSingleton ??= import('@scalar/workspace-store/client').then(({ createWorkspaceStore }) =>
-    createWorkspaceStore(),
-  )
+  workspaceStoreSingleton ??= import('@scalar/workspace-store/client')
+    .then(({ createWorkspaceStore }) => createWorkspaceStore())
+    .catch((error) => {
+      workspaceStoreSingleton = undefined
+      throw error
+    })
   return workspaceStoreSingleton
 }
 
 /** Module-scoped singleton workspace event bus (lazy-loaded on first use). */
 const getWorkspaceEventBusSingleton = (): NonNullable<typeof workspaceEventBusSingleton> => {
-  workspaceEventBusSingleton ??= import('@scalar/workspace-store/events').then(({ createWorkspaceEventBus }) =>
-    createWorkspaceEventBus(),
-  )
+  workspaceEventBusSingleton ??= import('@scalar/workspace-store/events')
+    .then(({ createWorkspaceEventBus }) => createWorkspaceEventBus())
+    .catch((error) => {
+      workspaceEventBusSingleton = undefined
+      throw error
+    })
   return workspaceEventBusSingleton
 }
 

@@ -8,7 +8,7 @@ import type { ApiClientConfigurationReact } from './use-api-client'
  * Module-level promise for the singleton controller.
  * Resolved once on first use; never torn down.
  */
-let clientPromise: Promise<{ apiClient: ApiClientModal; workspaceStore: WorkspaceStore } | undefined>
+let clientPromise: Promise<{ apiClient: ApiClientModal; workspaceStore: WorkspaceStore } | undefined> | undefined
 
 /**
  * Lazily creates the singleton Vue app, mounts it as the last child of document.body,
@@ -16,18 +16,21 @@ let clientPromise: Promise<{ apiClient: ApiClientModal; workspaceStore: Workspac
  */
 export const getOrCreateApiClient = (
   options: ApiClientConfigurationReact = {},
-): Promise<{ apiClient: ApiClientModal; workspaceStore: WorkspaceStore } | undefined> => {
+): Promise<{ apiClient: ApiClientModal; workspaceStore: WorkspaceStore } | undefined> | undefined => {
   if (clientPromise) {
     return clientPromise
   }
 
-  clientPromise = (() => {
-    const host = document.createElement('div')
-    host.className = 'scalar-app'
-    document.body.appendChild(host)
+  const host = document.createElement('div')
+  host.className = 'scalar-app'
+  document.body.appendChild(host)
 
-    return createLazyApiClientModal({ el: host, options })
-  })()
+  clientPromise = createLazyApiClientModal({ el: host, options }).catch((error) => {
+    // Clear the cached promise so the next call can retry, and remove the orphaned host element.
+    clientPromise = undefined
+    host.remove()
+    throw error
+  })
 
   return clientPromise
 }

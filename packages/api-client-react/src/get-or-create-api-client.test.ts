@@ -160,4 +160,44 @@ describe('get-or-create-api-client', () => {
       }),
     )
   })
+
+  it('clears the cached promise after a rejection so the next call retries', async () => {
+    const { createLazyApiClientModal } = await import('./lazy-load')
+    vi.mocked(createLazyApiClientModal)
+      .mockRejectedValueOnce(new Error('network error'))
+      .mockResolvedValueOnce({
+        apiClient: { open: vi.fn(), close: vi.fn() } as any,
+        workspaceStore: { addDocument: vi.fn() } as any,
+      })
+
+    const { getOrCreateApiClient } = await import('./get-or-create-api-client')
+
+    await expect(getOrCreateApiClient()).rejects.toThrow('network error')
+
+    // Second call must succeed (not return the cached rejected promise)
+    const result = await getOrCreateApiClient()
+    expect(result?.apiClient).toBeDefined()
+    expect(createLazyApiClientModal).toHaveBeenCalledTimes(2)
+  })
+
+  it('removes the orphaned host element from document.body after a rejection', async () => {
+    const { createLazyApiClientModal } = await import('./lazy-load')
+    vi.mocked(createLazyApiClientModal)
+      .mockRejectedValueOnce(new Error('chunk load failed'))
+      .mockResolvedValueOnce({
+        apiClient: { open: vi.fn(), close: vi.fn() } as any,
+        workspaceStore: { addDocument: vi.fn() } as any,
+      })
+
+    const { getOrCreateApiClient } = await import('./get-or-create-api-client')
+
+    await expect(getOrCreateApiClient()).rejects.toThrow('chunk load failed')
+
+    // The orphaned host must have been removed
+    expect(document.body.querySelectorAll('.scalar-app').length).toBe(0)
+
+    // A successful retry appends exactly one new host
+    await getOrCreateApiClient()
+    expect(document.body.querySelectorAll('.scalar-app').length).toBe(1)
+  })
 })
